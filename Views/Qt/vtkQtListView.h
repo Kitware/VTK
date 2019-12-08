@@ -27,17 +27,17 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for implementing
  * this class
-*/
+ */
 
 #ifndef vtkQtListView_h
 #define vtkQtListView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
-#include <QPointer> // Needed for the internal list view
-#include <QImage> // Needed for the icon methods
 #include "vtkSmartPointer.h" // Needed for member variables
+#include <QImage>            // Needed for the icon methods
+#include <QPointer>          // Needed for the internal list view
 
 class vtkApplyColors;
 class vtkDataObjectToTable;
@@ -48,10 +48,10 @@ class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtListView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-  static vtkQtListView *New();
+  static vtkQtListView* New();
   vtkTypeMacro(vtkQtListView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -152,7 +152,7 @@ protected:
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
 private slots:
-  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+  void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:
   void SetVTKSelection();
@@ -182,7 +182,6 @@ private:
 
   vtkQtListView(const vtkQtListView&) = delete;
   void operator=(const vtkQtListView&) = delete;
-
 };
 
 #endif

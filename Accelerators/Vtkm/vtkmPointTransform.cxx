@@ -17,30 +17,28 @@
 #include "vtkCellData.h"
 #include "vtkHomogeneousTransform.h"
 #include "vtkImageData.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
-#include "vtkObjectFactory.h"
+#include "vtkInformationVector.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
-
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 
 #include "vtkm/cont/Error.h"
-#include "vtkm/cont/Error.h"
 #include "vtkm/filter/PointTransform.h"
+#include "vtkm/filter/PointTransform.hxx"
 
 #include "vtkmFilterPolicy.h"
 
 vtkStandardNewMacro(vtkmPointTransform);
-vtkCxxSetObjectMacro(vtkmPointTransform,Transform,vtkHomogeneousTransform);
+vtkCxxSetObjectMacro(vtkmPointTransform, Transform, vtkHomogeneousTransform);
 
 //------------------------------------------------------------------------------
 vtkmPointTransform::vtkmPointTransform()
@@ -55,8 +53,7 @@ vtkmPointTransform::~vtkmPointTransform()
 }
 
 //------------------------------------------------------------------------------
-int vtkmPointTransform::FillInputPortInformation(int vtkNotUsed(port),
-                                                 vtkInformation* info)
+int vtkmPointTransform::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
@@ -66,9 +63,8 @@ int vtkmPointTransform::FillInputPortInformation(int vtkNotUsed(port),
 }
 
 //------------------------------------------------------------------------------
-int vtkmPointTransform::RequestDataObject(vtkInformation* request,
-                                          vtkInformationVector** inputVector,
-                                          vtkInformationVector* outputVector)
+int vtkmPointTransform::RequestDataObject(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
   vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
@@ -79,21 +75,19 @@ int vtkmPointTransform::RequestDataObject(vtkInformation* request,
     if (!output)
     {
       vtkNew<vtkStructuredGrid> newOutput;
-      outputVector->GetInformationObject(0)->Set(
-            vtkDataObject::DATA_OBJECT(), newOutput);
+      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     }
     return 1;
   }
   else
   {
-    return this->Superclass::RequestDataObject(request, inputVector,  outputVector);
+    return this->Superclass::RequestDataObject(request, inputVector, outputVector);
   }
 }
 
 //------------------------------------------------------------------------------
 int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
-                                    vtkInformationVector **inputVector,
-                                    vtkInformationVector *outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
   vtkSmartPointer<vtkPointSet> output = vtkPointSet::GetData(outputVector);
@@ -133,29 +127,29 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::Matrix<vtkm::FloatDefault, 4, 4> vtkmMatrix;
     for (int i = 0; i < 4; i++)
     {
-      for(int j = 0;j < 4; j++)
+      for (int j = 0; j < 4; j++)
       {
         vtkmMatrix[i][j] = static_cast<vtkm::FloatDefault>(matrix->GetElement(i, j));
       }
     }
 
-    vtkm::filter::PointTransform<vtkm::FloatDefault> pointTransform;
+    vtkm::filter::PointTransform pointTransform;
     pointTransform.SetUseCoordinateSystemAsField(true);
     pointTransform.SetTransform(vtkmMatrix);
 
     vtkmInputFilterPolicy policy;
     auto result = pointTransform.Execute(in, policy);
-    vtkDataArray* pointTransformResult = fromvtkm::Convert(result.GetField("transform",
-                  vtkm::cont::Field::Association::POINTS));
+    vtkDataArray* pointTransformResult =
+      fromvtkm::Convert(result.GetField("transform", vtkm::cont::Field::Association::POINTS));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
     newPts->SetNumberOfPoints(pointTransformResult->GetNumberOfTuples());
     newPts->SetData(pointTransformResult);
     output->SetPoints(newPts);
-    newPts->Delete();
+    newPts->FastDelete();
     pointTransformResult->FastDelete();
   }
-  catch(const vtkm::cont::Error& e)
+  catch (const vtkm::cont::Error& e)
   {
     vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
   }

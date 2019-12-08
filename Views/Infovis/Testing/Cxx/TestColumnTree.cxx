@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkTreeHeatmapItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
@@ -21,16 +20,17 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
+#include "vtkTreeHeatmapItem.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkContextInteractorStyle.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -139,7 +139,7 @@ int TestColumnTree(int argc, char* argv[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetScene()->AddItem(trans);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 

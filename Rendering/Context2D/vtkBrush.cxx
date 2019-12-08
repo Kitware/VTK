@@ -15,8 +15,8 @@
 
 #include "vtkBrush.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
 
@@ -24,7 +24,8 @@
 vtkStandardNewMacro(vtkBrush);
 
 //-----------------------------------------------------------------------------
-vtkBrush::vtkBrush() : BrushColor(0, 0, 0, 255)
+vtkBrush::vtkBrush()
+  : BrushColor(0, 0, 0, 255)
 {
   this->Color = this->BrushColor.GetData();
   this->Texture = nullptr;
@@ -95,8 +96,7 @@ void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b)
 }
 
 //-----------------------------------------------------------------------------
-void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b,
-                unsigned char a)
+void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   this->Color[0] = r;
   this->Color[1] = g;
@@ -105,7 +105,7 @@ void vtkBrush::SetColor(unsigned char r, unsigned char g, unsigned char b,
 }
 
 //-----------------------------------------------------------------------------
-void vtkBrush::SetColor(const vtkColor4ub &color)
+void vtkBrush::SetColor(const vtkColor4ub& color)
 {
   this->BrushColor = color;
 }
@@ -153,7 +153,7 @@ void vtkBrush::SetTexture(vtkImageData* image)
 }
 
 //-----------------------------------------------------------------------------
-void vtkBrush::DeepCopy(vtkBrush *brush)
+void vtkBrush::DeepCopy(vtkBrush* brush)
 {
   if (!brush)
   {
@@ -165,12 +165,11 @@ void vtkBrush::DeepCopy(vtkBrush *brush)
 }
 
 //-----------------------------------------------------------------------------
-void vtkBrush::PrintSelf(ostream &os, vtkIndent indent)
+void vtkBrush::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1]
-     << ", " << this->Color[2] << ", " << this->Color[3] << endl;
-  os << indent << "Texture: " << reinterpret_cast<void *>(this->Texture) << endl;
+  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1] << ", " << this->Color[2]
+     << ", " << this->Color[3] << endl;
+  os << indent << "Texture: " << reinterpret_cast<void*>(this->Texture) << endl;
   os << indent << "Texture Properties: " << this->TextureProperties << endl;
-
 }

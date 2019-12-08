@@ -19,19 +19,20 @@ class vtkMultiCorrelativeAssessFunctor : public vtkStatisticsAlgorithm::AssessFu
 public:
   static vtkMultiCorrelativeAssessFunctor* New();
 
-  vtkMultiCorrelativeAssessFunctor() { }
-  ~vtkMultiCorrelativeAssessFunctor() override { }
-  virtual bool Initialize( vtkTable* inData, vtkTable* reqModel, bool cholesky = true );
+  vtkMultiCorrelativeAssessFunctor() {}
+  ~vtkMultiCorrelativeAssessFunctor() override {}
+  virtual bool Initialize(vtkTable* inData, vtkTable* reqModel, bool cholesky = true);
 
-  void operator () ( vtkDoubleArray* result, vtkIdType row ) override;
+  void operator()(vtkDoubleArray* result, vtkIdType row) override;
 
-  vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>( this->Columns.size() ); }
-  vtkDataArray* GetColumn( vtkIdType colIdx ) { return this->Columns[colIdx]; }
+  vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>(this->Columns.size()); }
+  vtkDataArray* GetColumn(vtkIdType colIdx) { return this->Columns[colIdx]; }
 
   std::vector<vtkDataArray*> Columns; // Source of data
-  double* Center; // Offset per column (usu. to re-center the data about the mean)
+  double* Center;             // Offset per column (usu. to re-center the data about the mean)
   std::vector<double> Factor; // Weights per column
-  //double Normalization; // Scale factor for the volume under a multivariate Gaussian used to normalize the CDF
+  // double Normalization; // Scale factor for the volume under a multivariate Gaussian used to
+  // normalize the CDF
   std::vector<double> Tuple; // Place to store product of detrended input tuple and Cholesky inverse
   std::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
 };

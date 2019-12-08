@@ -68,7 +68,7 @@ QWidget* vtkQtRecordView::GetWidget()
 void vtkQtRecordView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
-  if(this->FieldType != type)
+  if (this->FieldType != type)
   {
     this->FieldType = type;
     this->Modified();
@@ -77,7 +77,7 @@ void vtkQtRecordView::SetFieldType(int type)
 
 void vtkQtRecordView::AddRepresentationInternal(vtkDataRepresentation* rep)
 {
-  vtkAlgorithmOutput *conn;
+  vtkAlgorithmOutput* conn;
   conn = rep->GetInputConnection();
 
   this->DataObjectToTable->SetInputConnection(0, conn);
@@ -85,7 +85,7 @@ void vtkQtRecordView::AddRepresentationInternal(vtkDataRepresentation* rep)
 
 void vtkQtRecordView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
 {
-  vtkAlgorithmOutput *conn;
+  vtkAlgorithmOutput* conn;
   conn = rep->GetInputConnection();
   this->DataObjectToTable->RemoveInputConnection(0, conn);
 }
@@ -96,11 +96,10 @@ void vtkQtRecordView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
 
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
-  vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
+  vtkDataObject* d = conn->GetProducer()->GetOutputDataObject(0);
   vtkSelection* s = rep->GetAnnotationLink()->GetCurrentSelection();
-  if (d->GetMTime() == this->LastInputMTime &&
-      this->LastMTime == this->GetMTime() &&
-      s->GetMTime() == this->CurrentSelectionMTime)
+  if (d->GetMTime() == this->LastInputMTime && this->LastMTime == this->GetMTime() &&
+    s->GetMTime() == this->CurrentSelectionMTime)
   {
     return;
   }
@@ -117,7 +116,7 @@ void vtkQtRecordView::Update()
   }
 
   this->DataObjectToTable->Update();
-  vtkTable *table = this->DataObjectToTable->GetOutput();
+  vtkTable* table = this->DataObjectToTable->GetOutput();
   if (!table)
   {
     this->TextWidget->setHtml(html.c_str());
@@ -125,17 +124,17 @@ void vtkQtRecordView::Update()
   }
 
   vtkSmartPointer<vtkSelection> cs;
-  cs.TakeReference(vtkConvertSelection::ToSelectionType(
-    rep->GetAnnotationLink()->GetCurrentSelection(),
-    table, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
-  vtkSelectionNode *node = cs->GetNode(0);
+  cs.TakeReference(
+    vtkConvertSelection::ToSelectionType(rep->GetAnnotationLink()->GetCurrentSelection(), table,
+      vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
+  vtkSelectionNode* node = cs->GetNode(0);
   const vtkIdType column_count = table->GetNumberOfColumns();
 
-  if(node)
+  if (node)
   {
-    vtkAbstractArray *indexArr = node->GetSelectionList();
+    vtkAbstractArray* indexArr = node->GetSelectionList();
     int numRecords = indexArr->GetNumberOfTuples() > 2 ? 2 : indexArr->GetNumberOfTuples();
-    for(vtkIdType i=0; i<numRecords; ++i)
+    for (vtkIdType i = 0; i < numRecords; ++i)
     {
       vtkVariant v(0);
       switch (indexArr->GetDataType())
@@ -143,7 +142,7 @@ void vtkQtRecordView::Update()
         vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(indexArr->GetVoidPointer(i)));
       }
 
-      for(vtkIdType j = 0; j != column_count; ++j)
+      for (vtkIdType j = 0; j != column_count; ++j)
       {
         html += "<b>";
         html += table->GetColumnName(j);
@@ -161,6 +160,5 @@ void vtkQtRecordView::Update()
 //----------------------------------------------------------------------------
 void vtkQtRecordView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-

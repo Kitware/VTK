@@ -29,25 +29,25 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for implementing
  * this class
-*/
+ */
 
 #ifndef vtkQtRecordView_h
 #define vtkQtRecordView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
-#include "vtkSmartPointer.h" // Needed for data table member
-#include <QPointer> // Needed for the text widget member
+#include "vtkSmartPointer.h"  // Needed for data table member
+#include "vtkViewsQtModule.h" // For export macro
+#include <QPointer>           // Needed for the text widget member
 
 class QTextEdit;
 class vtkDataObjectToTable;
 
 class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-  static vtkQtRecordView *New();
+  static vtkQtRecordView* New();
   vtkTypeMacro(vtkQtRecordView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -87,7 +87,6 @@ public:
   void Update() override;
 
 protected:
-
   vtkQtRecordView();
   ~vtkQtRecordView() override;
 
@@ -101,7 +100,6 @@ protected:
   char* Text;
   int FieldType;
   int CurrentRow;
-
 
 private:
   vtkQtRecordView(const vtkQtRecordView&) = delete;

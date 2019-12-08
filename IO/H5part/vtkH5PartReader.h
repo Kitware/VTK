@@ -104,10 +104,10 @@ public:
 
   //@{
   /**
-  * When this option is set, scalar fields with names which form a pattern
-  * of the form scalar_0, scalar_1, scalar_2 will be combined into a single
-  * vector field with N components
-  */
+   * When this option is set, scalar fields with names which form a pattern
+   * of the form scalar_0, scalar_1, scalar_2 will be combined into a single
+   * vector field with N components
+   */
   vtkSetMacro(CombineVectorComponents, int);
   vtkGetMacro(CombineVectorComponents, int);
   vtkBooleanMacro(CombineVectorComponents, int);
@@ -115,14 +115,14 @@ public:
 
   //@{
   /**
-  * Normally, a request for data at time t=x, where x is either before the start of
-  * time for the data, or after the end, will result in the first or last
-  * timestep of data to be retrieved (time is clamped to max/min values).
-  * Forsome applications/animations, it may be desirable to not display data
-  * for invalid times. When MaskOutOfTimeRangeOutput is set to ON, the reader
-  * will return an empty dataset for out of range requests. This helps
-  * avoid corruption of animations.
-  */
+   * Normally, a request for data at time t=x, where x is either before the start of
+   * time for the data, or after the end, will result in the first or last
+   * timestep of data to be retrieved (time is clamped to max/min values).
+   * Forsome applications/animations, it may be desirable to not display data
+   * for invalid times. When MaskOutOfTimeRangeOutput is set to ON, the reader
+   * will return an empty dataset for out of range requests. This helps
+   * avoid corruption of animations.
+   */
   vtkSetMacro(MaskOutOfTimeRangeOutput, int);
   vtkGetMacro(MaskOutOfTimeRangeOutput, int);
   vtkBooleanMacro(MaskOutOfTimeRangeOutput, int);
@@ -130,15 +130,15 @@ public:
 
   //@{
   /**
-  * An H5Part file may contain multiple arrays
-  * a GUI (eg Paraview) can provide a mechanism for selecting which data arrays
-  * are to be read from the file. The PointArray variables and members can
-  * be used to query the names and number of arrays available
-  * and set the status (on/off) for each array, thereby controlling which
-  * should be read from the file. Paraview queries these point arrays after
-  * the (update) information part of the pipeline has been updated, and before the
-  * (update) data part is updated.
-  */
+   * An H5Part file may contain multiple arrays
+   * a GUI (eg Paraview) can provide a mechanism for selecting which data arrays
+   * are to be read from the file. The PointArray variables and members can
+   * be used to query the names and number of arrays available
+   * and set the status (on/off) for each array, thereby controlling which
+   * should be read from the file. Paraview queries these point arrays after
+   * the (update) information part of the pipeline has been updated, and before the
+   * (update) data part is updated.
+   */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
   int GetPointArrayStatus(const char* name);

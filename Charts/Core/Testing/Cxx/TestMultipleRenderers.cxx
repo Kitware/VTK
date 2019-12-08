@@ -15,25 +15,24 @@
 
 #include "vtkActor.h"
 #include "vtkChartXY.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkContextActor.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkCubeSource.h"
 #include "vtkFloatArray.h"
 #include "vtkPlot.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleRenderers(int , char * [])
+int TestMultipleRenderers(int, char*[])
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);
@@ -42,9 +41,9 @@ int TestMultipleRenderers(int , char * [])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  VTK_CREATE(vtkRenderer, ren3d );
-  ren3d->SetBackground(0.0,0.0,0.0);
-  renwin->AddRenderer( ren3d );
+  VTK_CREATE(vtkRenderer, ren3d);
+  ren3d->SetBackground(0.0, 0.0, 0.0);
+  renwin->AddRenderer(ren3d);
 
   // Cube Source 1
   VTK_CREATE(vtkCubeSource, cube);
@@ -53,25 +52,25 @@ int TestMultipleRenderers(int , char * [])
 
   cubeMapper->SetInputConnection(cube->GetOutputPort());
   cubeActor->SetMapper(cubeMapper);
-  cubeActor->GetProperty()->SetColor(1.0,0.0,0.0);
+  cubeActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
   ren3d->AddActor(cubeActor);
   cubeActor->GetProperty()->SetRepresentationToSurface();
 
-  //setup the 2d chart
-  VTK_CREATE(vtkRenderer, ren2d );
-  ren2d->SetBackground(1.0,1.0,1.0);
-  renwin->AddRenderer( ren2d );
+  // setup the 2d chart
+  VTK_CREATE(vtkRenderer, ren2d);
+  ren2d->SetBackground(1.0, 1.0, 1.0);
+  renwin->AddRenderer(ren2d);
 
   VTK_CREATE(vtkChartXY, chart);
-  VTK_CREATE(vtkContextScene, chartScene );
+  VTK_CREATE(vtkContextScene, chartScene);
   VTK_CREATE(vtkContextActor, chartActor);
 
-  chartScene->AddItem( chart );
-  chartActor->SetScene( chartScene );
+  chartScene->AddItem(chart);
+  chartActor->SetScene(chartScene);
 
-  //both needed
+  // both needed
   ren2d->AddActor(chartActor);
-  chartScene->SetRenderer( ren2d );
+  chartScene->SetRenderer(ren2d);
 
   // Create a table with some points in it...
   VTK_CREATE(vtkTable, table);
@@ -89,7 +88,7 @@ int TestMultipleRenderers(int , char * [])
   table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -100,7 +99,7 @@ int TestMultipleRenderers(int , char * [])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
@@ -113,8 +112,8 @@ int TestMultipleRenderers(int , char * [])
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 
-  ren3d->SetViewport(0,0,1,0.5);
-  ren2d->SetViewport(0,0.5,1,1);
+  ren3d->SetViewport(0, 0, 1, 0.5);
+  ren2d->SetViewport(0, 0.5, 1, 1);
 
   iren->Initialize();
   iren->Start();

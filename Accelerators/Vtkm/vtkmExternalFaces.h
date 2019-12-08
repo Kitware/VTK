@@ -23,27 +23,27 @@
  * @warning
  * This filter is currently only supports propagation of point properties
  *
-*/
+ */
 
 #ifndef vtkmExternalFaces_h
 #define vtkmExternalFaces_h
 
-#include "vtkAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkAlgorithm.h"
 
 class vtkUnstructuredGrid;
 
 class VTKACCELERATORSVTKM_EXPORT vtkmExternalFaces : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmExternalFaces, vtkAlgorithm)
+  vtkTypeMacro(vtkmExternalFaces, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmExternalFaces* New();
 
   /**
    * Set the input DataSet
    */
-  void SetInputData(vtkUnstructuredGrid *ds);
+  void SetInputData(vtkUnstructuredGrid* ds);
 
   /**
    * Get the resulr DataSet
@@ -65,13 +65,12 @@ protected:
   vtkmExternalFaces();
   ~vtkmExternalFaces();
 
-  int FillInputPortInformation(int, vtkInformation *) override;
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**,
-                     vtkInformationVector*) override;
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   bool CompactPoints;
 

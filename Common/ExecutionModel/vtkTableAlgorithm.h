@@ -34,13 +34,13 @@
  *
  * @par Thanks:
  * Thanks to Brian Wylie for creating this class.
-*/
+ */
 
 #ifndef vtkTableAlgorithm_h
 #define vtkTableAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkTable;
@@ -48,16 +48,15 @@ class vtkTable;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTableAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkTableAlgorithm *New();
-  vtkTypeMacro(vtkTableAlgorithm,vtkAlgorithm);
+  static vtkTableAlgorithm* New();
+  vtkTypeMacro(vtkTableAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -70,7 +69,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(vtkDataObject * obj) { this->SetInputData(0, obj); }
+  void SetInputData(vtkDataObject* obj) { this->SetInputData(0, obj); }
   void SetInputData(int index, vtkDataObject* obj);
 
 protected:
@@ -78,25 +77,21 @@ protected:
   ~vtkTableAlgorithm() override;
 
   // convenience method
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;

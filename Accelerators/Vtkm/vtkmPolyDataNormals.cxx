@@ -23,16 +23,12 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include "vtkm/filter/SurfaceNormals.h"
 
-
-vtkStandardNewMacro(vtkmPolyDataNormals)
+vtkStandardNewMacro(vtkmPolyDataNormals);
 
 //------------------------------------------------------------------------------
 void vtkmPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
@@ -57,19 +53,15 @@ vtkmPolyDataNormals::~vtkmPolyDataNormals() = default;
 
 //------------------------------------------------------------------------------
 int vtkmPolyDataNormals::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   try
   {
@@ -108,8 +100,7 @@ int vtkmPolyDataNormals::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
-                    << "Falling back to vtkPolyDataNormals");
+    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkPolyDataNormals");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 

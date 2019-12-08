@@ -18,45 +18,44 @@
  *
  * vtkOpenGLProperty is a concrete implementation of the abstract class
  * vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
-*/
+ */
 
 #ifndef vtkOpenGLProperty_h
 #define vtkOpenGLProperty_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkProperty.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
-  static vtkOpenGLProperty *New();
+  static vtkOpenGLProperty* New();
   vtkTypeMacro(vtkOpenGLProperty, vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  void Render(vtkActor *a, vtkRenderer *ren) override;
+  void Render(vtkActor* a, vtkRenderer* ren) override;
 
   /**
    * Implement base class method.
    */
-  void BackfaceRender(vtkActor *a, vtkRenderer *ren) override;
+  void BackfaceRender(vtkActor* a, vtkRenderer* ren) override;
 
   /**
    * This method is called after the actor has been rendered.
    * Don't call this directly. This method cleans up
    * any shaders allocated.
    */
-  void PostRender(vtkActor *a,
-                          vtkRenderer *r) override;
+  void PostRender(vtkActor* a, vtkRenderer* r) override;
 
   /**
    * Release any graphics resources that are being consumed by this
    * property. The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *win) override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
 protected:
   vtkOpenGLProperty();

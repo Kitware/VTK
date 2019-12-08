@@ -17,7 +17,7 @@
  * @brief   links vtkActor and vtkMapper to OSPRay
  *
  * Translates vtkActor/Mapper state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayPolyDataMapperNode_h
 #define vtkOSPRayPolyDataMapperNode_h
@@ -29,8 +29,7 @@
 class vtkOSPRayActorNode;
 class vtkPolyData;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPolyDataMapperNode :
-  public vtkPolyDataMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPolyDataMapperNode : public vtkPolyDataMapperNode
 {
 public:
   static vtkOSPRayPolyDataMapperNode* New();
@@ -51,21 +50,17 @@ protected:
   vtkOSPRayPolyDataMapperNode();
   ~vtkOSPRayPolyDataMapperNode();
 
-  void ORenderPoly(void *renderer,
-                   vtkOSPRayActorNode *aNode, vtkPolyData * poly,
-                   double *ambientColor,
-                   double *diffuseColor,
-                   double opacity,
-                   std::string material);
+  void ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
+    double* ambientColor, double* diffuseColor, double opacity, std::string material);
 
   class vtkOSPRayCacheItemGeometries
   {
   public:
-
     vtkOSPRayCacheItemGeometries() = default;
     vtkOSPRayCacheItemGeometries(const std::vector<OSPGeometry>& geometries_)
       : GeometriesAtTime(geometries_)
-    {}
+    {
+    }
 
     ~vtkOSPRayCacheItemGeometries() = default;
 
@@ -75,8 +70,8 @@ protected:
   std::vector<OSPGeometry> Geometries;
   void ClearGeometries();
 
-  vtkOSPRayCache<vtkOSPRayCacheItemGeometries >* GeometryCache{nullptr};
-  vtkOSPRayCache<vtkOSPRayCacheItemObject >* InstanceCache{nullptr};
+  vtkOSPRayCache<vtkOSPRayCacheItemGeometries>* GeometryCache{ nullptr };
+  vtkOSPRayCache<vtkOSPRayCacheItemObject>* InstanceCache{ nullptr };
 
   /**
    * @brief adds geometries to ospray cache
@@ -91,6 +86,7 @@ protected:
 
   bool UseInstanceCache;
   bool UseGeometryCache;
+
 private:
   vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) = delete;
   void operator=(const vtkOSPRayPolyDataMapperNode&) = delete;

@@ -24,16 +24,16 @@
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTrivialProducer.h"
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 #include "vtkCylinderSource.h"
 
@@ -56,7 +56,7 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
 
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
-  int blocksPerLevel[3] = {1,16,32};
+  int blocksPerLevel[3] = { 1, 16, 32 };
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
   blocks.push_back(data.GetPointer());
   unsigned levelStart = 0;
@@ -67,20 +67,19 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
   mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
-    int nblocks=blocksPerLevel[level];
+    int nblocks = blocksPerLevel[level];
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
     {
       blocks[parent]->SetNumberOfBlocks(nblocks);
-      for (int block=0; block < nblocks; ++block, ++numNodes)
+      for (int block = 0; block < nblocks; ++block, ++numNodes)
       {
         if (level == numLevels - 1)
         {
           vtkNew<vtkPolyData> child;
-          cyl->SetCenter(block*0.25, 0.0, parent*0.5);
+          cyl->SetCenter(block * 0.25, 0.0, parent * 0.5);
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
-          blocks[parent]->SetBlock(
-            block, (block % 2) ? nullptr : child.GetPointer());
+          blocks[parent]->SetBlock(block, (block % 2) ? nullptr : child.GetPointer());
         }
         else
         {
@@ -94,11 +93,10 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   ren->AddActor(actor);
-  win->SetSize(400,400);
+  win->SetSize(400, 400);
 
   ren->ResetCamera();
 
@@ -110,8 +108,8 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
   vtkNew<vtkHardwareSelector> selector;
   selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
   selector->SetRenderer(ren);
-  selector->SetArea(10,10,50,50);
-  vtkSelection *result = selector->Select();
+  selector->SetArea(10, 10, 50, 50);
+  vtkSelection* result = selector->Select();
 
   bool goodPick = false;
 
@@ -120,14 +118,12 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
   {
     for (unsigned int nodenum = 0; nodenum < result->GetNumberOfNodes(); ++nodenum)
     {
-      vtkSelectionNode *node = result->GetNode(nodenum);
+      vtkSelectionNode* node = result->GetNode(nodenum);
 
       cerr << "Node: " << nodenum
-        << " comp: " << node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX())
-        << "\n";
+           << " comp: " << node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) << "\n";
 
-      vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
-          node->GetSelectionList());
+      vtkIdTypeArray* selIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (selIds)
       {
         vtkIdType numIds = selIds->GetNumberOfTuples();
@@ -139,16 +135,13 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
       }
     }
 
-    vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
-        result->GetNode(0)->GetSelectionList());
-    if (result->GetNode(0)->GetProperties()->Has(vtkSelectionNode::PROP_ID())
-      && result->GetNode(0)->GetProperties()->Get(vtkSelectionNode::PROP()) == actor.Get()
-      && result->GetNode(0)->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 305
-      && result->GetNode(2)->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 340
-      && selIds
-      && selIds->GetNumberOfTuples() == 5
-      && selIds->GetValue(2) == 56
-      )
+    vtkIdTypeArray* selIds =
+      vtkArrayDownCast<vtkIdTypeArray>(result->GetNode(0)->GetSelectionList());
+    if (result->GetNode(0)->GetProperties()->Has(vtkSelectionNode::PROP_ID()) &&
+      result->GetNode(0)->GetProperties()->Get(vtkSelectionNode::PROP()) == actor.Get() &&
+      result->GetNode(0)->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 305 &&
+      result->GetNode(2)->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 340 &&
+      selIds && selIds->GetNumberOfTuples() == 5 && selIds->GetValue(2) == 56)
     {
       goodPick = true;
     }
@@ -161,8 +154,8 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 15);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

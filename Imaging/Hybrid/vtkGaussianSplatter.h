@@ -68,13 +68,13 @@
  *
  * @sa
  * vtkShepardMethod vtkCheckerboardSplatter
-*/
+ */
 
 #ifndef vtkGaussianSplatter_h
 #define vtkGaussianSplatter_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 #define VTK_ACCUMULATION_MODE_MIN 0
 #define VTK_ACCUMULATION_MODE_MAX 1
@@ -87,7 +87,7 @@ class vtkGaussianSplatterAlgorithm;
 class VTKIMAGINGHYBRID_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGaussianSplatter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkGaussianSplatter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -95,7 +95,7 @@ public:
    * bounds; a splat radius of 0.1; an exponent factor of -5; and normal and
    * scalar warping turned on.
    */
-  static vtkGaussianSplatter *New();
+  static vtkGaussianSplatter* New();
 
   //@{
   /**
@@ -104,7 +104,7 @@ public:
    */
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vtkGetVectorMacro(SampleDimensions,int,3);
+  vtkGetVectorMacro(SampleDimensions, int, 3);
   //@}
 
   //@{
@@ -114,8 +114,8 @@ public:
    * min >= max, then the bounds will be computed automatically from the input
    * data. Otherwise, the user-specified bounds will be used.
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
   //@}
 
   //@{
@@ -124,8 +124,8 @@ public:
    * as a percentage of the length of the longest side of the sampling
    * volume. Smaller numbers greatly reduce execution time.
    */
-  vtkSetClampMacro(Radius,double,0.0,1.0);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 0.0, 1.0);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
@@ -134,8 +134,8 @@ public:
    * is on, then the Scalar value will be multiplied by the ScaleFactor
    * times the Gaussian function.
    */
-  vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetClampMacro(ScaleFactor, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(ScaleFactor, double);
   //@}
 
   //@{
@@ -144,8 +144,8 @@ public:
    * exponent constant in the Gaussian equation. Normally this is
    * a negative value.
    */
-  vtkSetMacro(ExponentFactor,double);
-  vtkGetMacro(ExponentFactor,double);
+  vtkSetMacro(ExponentFactor, double);
+  vtkGetMacro(ExponentFactor, double);
   //@}
 
   //@{
@@ -154,9 +154,9 @@ public:
    * on, then the input normals affect the distribution of the splat. This
    * boolean is used in combination with the Eccentricity ivar.
    */
-  vtkSetMacro(NormalWarping,vtkTypeBool);
-  vtkGetMacro(NormalWarping,vtkTypeBool);
-  vtkBooleanMacro(NormalWarping,vtkTypeBool);
+  vtkSetMacro(NormalWarping, vtkTypeBool);
+  vtkGetMacro(NormalWarping, vtkTypeBool);
+  vtkBooleanMacro(NormalWarping, vtkTypeBool);
   //@}
 
   //@{
@@ -167,17 +167,17 @@ public:
    * long axis in the direction of the normal; Eccentricity<1 creates
    * pancakes perpendicular to the normal vector.
    */
-  vtkSetClampMacro(Eccentricity,double,0.001,VTK_DOUBLE_MAX);
-  vtkGetMacro(Eccentricity,double);
+  vtkSetClampMacro(Eccentricity, double, 0.001, VTK_DOUBLE_MAX);
+  vtkGetMacro(Eccentricity, double);
   //@}
 
   //@{
   /**
    * Turn on/off the scaling of splats by scalar value.
    */
-  vtkSetMacro(ScalarWarping,vtkTypeBool);
-  vtkGetMacro(ScalarWarping,vtkTypeBool);
-  vtkBooleanMacro(ScalarWarping,vtkTypeBool);
+  vtkSetMacro(ScalarWarping, vtkTypeBool);
+  vtkGetMacro(ScalarWarping, vtkTypeBool);
+  vtkBooleanMacro(ScalarWarping, vtkTypeBool);
   //@}
 
   //@{
@@ -186,9 +186,9 @@ public:
    * to a specified cap value. This can be used to close surfaces
    * (after iso-surfacing) and create other effects.
    */
-  vtkSetMacro(Capping,vtkTypeBool);
-  vtkGetMacro(Capping,vtkTypeBool);
-  vtkBooleanMacro(Capping,vtkTypeBool);
+  vtkSetMacro(Capping, vtkTypeBool);
+  vtkGetMacro(Capping, vtkTypeBool);
+  vtkBooleanMacro(Capping, vtkTypeBool);
   //@}
 
   //@{
@@ -196,8 +196,8 @@ public:
    * Specify the cap value to use. (This instance variable only has effect
    * if the ivar Capping is on.)
    */
-  vtkSetMacro(CapValue,double);
-  vtkGetMacro(CapValue,double);
+  vtkSetMacro(CapValue, double);
+  vtkGetMacro(CapValue, double);
   //@}
 
   //@{
@@ -207,16 +207,12 @@ public:
    * like a set union operation and is the most commonly used; the Min
    * mode acts like a set intersection, and the sum is just weird.
    */
-  vtkSetClampMacro(AccumulationMode,int,
-                   VTK_ACCUMULATION_MODE_MIN,VTK_ACCUMULATION_MODE_SUM);
-  vtkGetMacro(AccumulationMode,int);
-  void SetAccumulationModeToMin()
-    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MIN);}
-  void SetAccumulationModeToMax()
-    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MAX);}
-  void SetAccumulationModeToSum()
-    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_SUM);}
-  const char *GetAccumulationModeAsString();
+  vtkSetClampMacro(AccumulationMode, int, VTK_ACCUMULATION_MODE_MIN, VTK_ACCUMULATION_MODE_SUM);
+  vtkGetMacro(AccumulationMode, int);
+  void SetAccumulationModeToMin() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MIN); }
+  void SetAccumulationModeToMax() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MAX); }
+  void SetAccumulationModeToSum() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_SUM); }
+  const char* GetAccumulationModeAsString();
   //@}
 
   //@{
@@ -224,8 +220,8 @@ public:
    * Set the Null value for output points not receiving a contribution from the
    * input points. (This is the initial value of the voxel samples.)
    */
-  vtkSetMacro(NullValue,double);
-  vtkGetMacro(NullValue,double);
+  vtkSetMacro(NullValue, double);
+  vtkGetMacro(NullValue, double);
   //@}
 
   //@{
@@ -233,10 +229,9 @@ public:
    * Compute the size of the sample bounding box automatically from the
    * input data. This is an internal helper function.
    */
-  void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
-                          vtkInformation *outInfo);
-  void ComputeModelBounds(vtkCompositeDataSet *input, vtkImageData *output,
-                          vtkInformation *outInfo);
+  void ComputeModelBounds(vtkDataSet* input, vtkImageData* output, vtkInformation* outInfo);
+  void ComputeModelBounds(
+    vtkCompositeDataSet* input, vtkImageData* output, vtkInformation* outInfo);
   //@}
 
   //@{
@@ -246,15 +241,17 @@ public:
    * properly.
    */
   friend class vtkGaussianSplatterAlgorithm;
-  double SamplePoint(double x[3]) //for compilers who can't handle this
-    {return (this->*Sample)(x);}
-  void SetScalar(vtkIdType idx, double dist2, double *sPtr)
+  double SamplePoint(double x[3]) // for compilers who can't handle this
   {
-    double v = (this->*SampleFactor)(this->S) * exp(static_cast<double>
-      (this->ExponentFactor*(dist2)/(this->Radius2)));
-  //@}
+    return (this->*Sample)(x);
+  }
+  void SetScalar(vtkIdType idx, double dist2, double* sPtr)
+  {
+    double v = (this->*SampleFactor)(this->S) *
+      exp(static_cast<double>(this->ExponentFactor * (dist2) / (this->Radius2)));
+    //@}
 
-    if ( ! this->Visited[idx] )
+    if (!this->Visited[idx])
     {
       this->Visited[idx] = 1;
       *sPtr = v;
@@ -264,13 +261,13 @@ public:
       switch (this->AccumulationMode)
       {
         case VTK_ACCUMULATION_MODE_MIN:
-          if ( *sPtr > v )
+          if (*sPtr > v)
           {
             *sPtr = v;
           }
           break;
         case VTK_ACCUMULATION_MODE_MAX:
-          if ( *sPtr < v )
+          if (*sPtr < v)
           {
             *sPtr = v;
           }
@@ -279,7 +276,7 @@ public:
           *sPtr += v;
           break;
       }
-    }//not first visit
+    } // not first visit
   }
 
 protected:
@@ -287,41 +284,35 @@ protected:
   ~vtkGaussianSplatter() override {}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-  void Cap(vtkDoubleArray *s);
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void Cap(vtkDoubleArray* s);
 
-  int SampleDimensions[3]; // dimensions of volume to splat into
-  double Radius; // maximum distance splat propagates (as fraction 0->1)
-  double ExponentFactor; // scale exponent of gaussian function
-  double ModelBounds[6]; // bounding box of splatting dimensions
+  int SampleDimensions[3];   // dimensions of volume to splat into
+  double Radius;             // maximum distance splat propagates (as fraction 0->1)
+  double ExponentFactor;     // scale exponent of gaussian function
+  double ModelBounds[6];     // bounding box of splatting dimensions
   vtkTypeBool NormalWarping; // on/off warping of splat via normal
-  double Eccentricity;// elliptic distortion due to normals
+  double Eccentricity;       // elliptic distortion due to normals
   vtkTypeBool ScalarWarping; // on/off warping of splat via scalar
-  double ScaleFactor; // splat size influenced by scale factor
-  vtkTypeBool Capping; // Cap side of volume to close surfaces
-  double CapValue; // value to use for capping
-  int AccumulationMode; // how to combine scalar values
+  double ScaleFactor;        // splat size influenced by scale factor
+  vtkTypeBool Capping;       // Cap side of volume to close surfaces
+  double CapValue;           // value to use for capping
+  int AccumulationMode;      // how to combine scalar values
 
   double Gaussian(double x[3]);
   double EccentricGaussian(double x[3]);
-  double ScalarSampling(double s)
-    {return this->ScaleFactor * s;}
-  double PositionSampling(double)
-    {return this->ScaleFactor;}
+  double ScalarSampling(double s) { return this->ScaleFactor * s; }
+  double PositionSampling(double) { return this->ScaleFactor; }
 
 private:
   double Radius2;
   double (vtkGaussianSplatter::*Sample)(double x[3]);
   double (vtkGaussianSplatter::*SampleFactor)(double s);
-  char *Visited;
+  char* Visited;
   double Eccentricity2;
-  double *P;
-  double *N;
+  double* P;
+  double* N;
   double S;
   double Origin[3];
   double Spacing[3];

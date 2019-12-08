@@ -12,58 +12,57 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMolecule.h"
 #include "vtkLight.h"
+#include "vtkMolecule.h"
+#include "vtkNew.h"
 #include "vtkOpenGLMoleculeMapper.h"
 #include "vtkOpenGLSphereMapper.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkShaderProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkPDBReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProperty.h"
 
+#include "vtkCameraPass.h"
 #include "vtkDepthOfFieldPass.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderPassCollection.h"
 #include "vtkRenderStepsPass.h"
+#include "vtkSSAAPass.h"
 #include "vtkSequencePass.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkCameraPass.h"
-#include "vtkRenderPassCollection.h"
-#include "vtkSSAAPass.h"
 
 #include "vtkLookupTable.h"
 #include "vtkPeriodicTable.h"
 
-#include "vtkTimerLog.h"
 #include "vtkCamera.h"
+#include "vtkTimerLog.h"
 
-int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
+int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
 
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkOpenGLMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
   molmapper->SetRenderBonds(false);
-  molmapper->SetAtomicRadiusType( vtkMoleculeMapper::VDWRadius );
-  molmapper->SetAtomicRadiusScaleFactor( 0.9 );
+  molmapper->SetAtomicRadiusType(vtkMoleculeMapper::VDWRadius);
+  molmapper->SetAtomicRadiusScaleFactor(0.9);
 
   // get the default lookup table and desaturate it to be
   // more pleasing
@@ -75,11 +74,9 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
   {
     lut->GetTableValue(i, rgb);
-    lut->SetTableValue(i, 0.45 + rgb[0]*0.55,
-      0.45 + rgb[1]*0.55, 0.45 + rgb[2]*0.55);
+    lut->SetTableValue(i, 0.45 + rgb[0] * 0.55, 0.45 + rgb[1] * 0.55, 0.45 + rgb[2] * 0.55);
   }
   molmapper->SetLookupTable(lut);
-
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper);
@@ -88,17 +85,16 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   actor->GetProperty()->SetSpecular(0.4);
   actor->GetProperty()->SetSpecularPower(40);
 
-  vtkShaderProperty * sp = actor->GetShaderProperty();
+  vtkShaderProperty* sp = actor->GetShaderProperty();
 
   // we override the default shader very slightly so that
   // the ambient color component is scaled off the diffuse
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Color::Impl",
-    true, // before the standard replacements
-    "//VTK::Color::Impl\n" // we still want the default
-    "  ambientColor = diffuseColor*0.2;\n", //but we add this
-    false // only do it once
-    );
+  sp->AddFragmentShaderReplacement("//VTK::Color::Impl",
+    true,                                   // before the standard replacements
+    "//VTK::Color::Impl\n"                  // we still want the default
+    "  ambientColor = diffuseColor*0.2;\n", // but we add this
+    false                                   // only do it once
+  );
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
@@ -109,7 +105,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
-  ren->GetActiveCamera()->SetFocalDisk(ren->GetActiveCamera()->GetDistance()*0.05);
+  ren->GetActiveCamera()->SetFocalDisk(ren->GetActiveCamera()->GetDistance() * 0.05);
   ren->SetBackground2(0.2, 0.2, 0.3);
   ren->SetBackground(0.1, 0.1, 0.15);
   ren->GradientBackgroundOn();
@@ -117,7 +113,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
 
   // add a plane
   vtkNew<vtkPlaneSource> plane;
-  const double *bounds = molmapper->GetBounds();
+  const double* bounds = molmapper->GetBounds();
   plane->SetOrigin(bounds[0], bounds[2], bounds[4]);
   plane->SetPoint1(bounds[1], bounds[2], bounds[4]);
   plane->SetPoint2(bounds[0], bounds[2], bounds[5]);
@@ -128,15 +124,15 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   ren->AddActor(planeActor);
 
   vtkNew<vtkLight> light1;
-  light1->SetFocalPoint(0,0,0);
+  light1->SetFocalPoint(0, 0, 0);
   light1->SetPosition(-0.3, 0.9, 0.3);
   light1->SetIntensity(0.5);
   light1->SetShadowAttenuation(0.6);
   ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
-  light2->SetFocalPoint(0,0,0);
-  light2->SetPosition(0.3,0.9,0.3);
+  light2->SetFocalPoint(0, 0, 0);
+  light2->SetPosition(0.3, 0.9, 0.3);
   light2->SetIntensity(0.5);
   light2->SetShadowAttenuation(0.6);
   ren->AddLight(light2);
@@ -155,12 +151,11 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
 
-  vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(ren);
 
   // finally add the DOF passs
   vtkNew<vtkDepthOfFieldPass> dofp;
-  //dofp->AutomaticFocalDistanceOff();
+  // dofp->AutomaticFocalDistanceOff();
   dofp->SetDelegatePass(cameraP);
 
   // finally blur the resulting image
@@ -171,8 +166,8 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
 
   // tell the renderer to use our render pass pipeline
   glrenderer->SetPass(ssaa);
-//  glrenderer->SetPass(dofp);
-//  glrenderer->SetPass(cameraP);
+  //  glrenderer->SetPass(dofp);
+  //  glrenderer->SetPass(cameraP);
 
   // tell the renderer to use our render pass pipeline
   vtkNew<vtkTimerLog> timer;
@@ -181,7 +176,6 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
-
 
   // this example will suck the life out of your fragment shaders
   // until we provide some optimizations. The DOF pass is a brute force
@@ -195,17 +189,17 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
   {
-    ren->GetActiveCamera()->Azimuth(85.0/numRenders);
-    ren->GetActiveCamera()->Elevation(85.0/numRenders);
+    ren->GetActiveCamera()->Azimuth(85.0 / numRenders);
+    ren->GetActiveCamera()->Elevation(85.0 / numRenders);
     win->Render();
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
 
-  ren->GetActiveCamera()->SetPosition(0,0,1);
-  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
-  ren->GetActiveCamera()->SetViewUp(0,1,0);
+  ren->GetActiveCamera()->SetPosition(0, 0, 1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCamera();
   ren->GetActiveCamera()->Elevation(40.0);
   ren->GetActiveCamera()->Zoom(2.0);
@@ -216,9 +210,9 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
 
-  int retVal = vtkRegressionTestImage( win );
+  int retVal = vtkRegressionTestImage(win);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

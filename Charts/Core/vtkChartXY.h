@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkBarChartActor
-*/
+ */
 
 #ifndef vtkChartXY_h
 #define vtkChartXY_h
@@ -33,11 +33,13 @@
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
 
-class vtkPlot;
 class vtkAxis;
-class vtkPlotGrid;
 class vtkChartLegend;
+class vtkIdTypeArray;
+class vtkPlot;
+class vtkPlotGrid;
 class vtkTooltipItem;
+
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
@@ -195,8 +197,8 @@ public:
   void SetSelectionMethod(int method) override;
 
   /**
-  * Remove all the selection from Plots
-  */
+   * Remove all the selection from Plots
+   */
   void RemovePlotSelections();
 
   //@{
@@ -274,10 +276,10 @@ public:
 
   //@{
   /**
-  * Set if the point can be dragged along X
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along X
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongX, bool);
   vtkGetMacro(DragPointAlongX, bool);
   vtkBooleanMacro(DragPointAlongX, bool);
@@ -285,10 +287,10 @@ public:
 
   //@{
   /**
-  * Set if the point can be dragged along Y
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along Y
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongY, bool);
   vtkGetMacro(DragPointAlongY, bool);
   vtkBooleanMacro(DragPointAlongY, bool);
@@ -339,6 +341,41 @@ public:
    * Key press event.
    */
   bool KeyPressEvent(const vtkContextKeyEvent& key) override;
+
+  /**
+   * Populate the annotation link with the supplied selectionIds array, and set
+   * the appropriate node properties for a standard row based chart selection.
+   */
+  static void MakeSelection(vtkAnnotationLink* link, vtkIdTypeArray* selectionIds, vtkPlot* plot);
+
+  /**
+   * Subtract the supplied selection from the oldSelection.
+   */
+  static void MinusSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection);
+
+  /**
+   * Add the supplied selection from the oldSelection.
+   */
+  static void AddSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection);
+
+  /**
+   * Toggle the supplied selection from the oldSelection.
+   */
+  static void ToggleSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection);
+
+  /**
+   * Build a selection based on the supplied selectionMode using the new
+   * plotSelection and combining it with the oldSelection. If link is not nullptr
+   * then the resulting selection will be set on the link.
+   */
+  static void BuildSelection(vtkAnnotationLink* link, int selectionMode,
+    vtkIdTypeArray* plotSelection, vtkIdTypeArray* oldSelection, vtkPlot* plot);
+
+  /**
+   * Combine the SelectionMode with any mouse modifiers to get an effective
+   * selection mode for this click event.
+   */
+  static int GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode);
 
 protected:
   vtkChartXY();
@@ -459,8 +496,8 @@ protected:
   bool AdjustLowerBoundForLogPlot;
 
   /**
-  * Properties to enable the drag of a point for the ClickAndDrag Action
-  */
+   * Properties to enable the drag of a point for the ClickAndDrag Action
+   */
   bool DragPointAlongX;
   bool DragPointAlongY;
 
@@ -499,9 +536,9 @@ private:
   void ZoomInAxes(vtkAxis* x, vtkAxis* y, float* orign, float* max);
 
   /**
-  * Remove all the selection from Plots.
-  * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
-  */
+   * Remove all the selection from Plots.
+   * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
+   */
   void ReleasePlotSelections();
 
   /**

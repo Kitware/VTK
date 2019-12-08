@@ -21,8 +21,7 @@
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-vtkAOSDataArrayTemplate<ValueTypeT>*
-vtkAOSDataArrayTemplate<ValueTypeT>::New()
+vtkAOSDataArrayTemplate<ValueTypeT>* vtkAOSDataArrayTemplate<ValueTypeT>::New()
 {
   VTK_STANDARD_NEW_BODY(vtkAOSDataArrayTemplate<ValueType>);
 }
@@ -43,17 +42,17 @@ vtkAOSDataArrayTemplate<ValueTypeT>::~vtkAOSDataArrayTemplate()
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>
-::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetArray(
+  ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
 
   this->Buffer->SetBuffer(array, size);
 
-  if(deleteMethod == VTK_DATA_ARRAY_DELETE)
+  if (deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Buffer->SetFreeFunction(save != 0, ::operator delete[] );
+    this->Buffer->SetFreeFunction(save != 0, ::operator delete[]);
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
     this->Buffer->SetFreeFunction(save != 0, _aligned_free);
@@ -61,8 +60,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>
     this->Buffer->SetFreeFunction(save != 0, free);
 #endif
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_USER_DEFINED ||
-          deleteMethod == VTK_DATA_ARRAY_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_USER_DEFINED || deleteMethod == VTK_DATA_ARRAY_FREE)
   {
     this->Buffer->SetFreeFunction(save != 0, free);
   }
@@ -74,45 +72,41 @@ void vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>
-::SetArray(ValueType *array, vtkIdType size, int save)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetArray(ValueType* array, vtkIdType size, int save)
 {
   this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>
-::SetVoidArray(void *array, vtkIdType size, int save)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetVoidArray(void* array, vtkIdType size, int save)
 {
   this->SetArray(static_cast<ValueType*>(array), size, save);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>
-::SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetVoidArray(
+  void* array, vtkIdType size, int save, int deleteMethod)
 {
   this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkAOSDataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void *))
+template <class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void*))
 {
   this->Buffer->SetFreeFunction(false, callback);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
-                                                   const float *tuple)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx, const float* tuple)
 {
   // While std::copy is the obvious choice here, it kills performance on MSVC
   // debugging builds as their STL calls are poorly optimized. Just use a for
   // loop instead.
-  ValueTypeT *data =
-      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  ValueTypeT* data = this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
     data[i] = static_cast<ValueType>(tuple[i]);
@@ -121,12 +115,10 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
-                                                   const double *tuple)
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx, const double* tuple)
 {
   // See note in SetTuple about std::copy vs for loops on MSVC.
-  ValueTypeT *data =
-      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  ValueTypeT* data = this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
     data[i] = static_cast<ValueType>(tuple[i]);
@@ -135,46 +127,42 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
-                                                      const float *tuple)
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx, const float* tuple)
 {
   if (this->EnsureAccessToTuple(tupleIdx))
   {
     // See note in SetTuple about std::copy vs for loops on MSVC.
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    ValueTypeT *data = this->Buffer->GetBuffer() + valueIdx;
+    ValueTypeT* data = this->Buffer->GetBuffer() + valueIdx;
     for (int i = 0; i < this->NumberOfComponents; ++i)
     {
       data[i] = static_cast<ValueType>(tuple[i]);
     }
-    this->MaxId = std::max(this->MaxId,
-                           valueIdx + this->NumberOfComponents - 1);
+    this->MaxId = std::max(this->MaxId, valueIdx + this->NumberOfComponents - 1);
   }
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
-                                                      const double *tuple)
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx, const double* tuple)
 {
   if (this->EnsureAccessToTuple(tupleIdx))
   {
     // See note in SetTuple about std::copy vs for loops on MSVC.
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    ValueTypeT *data = this->Buffer->GetBuffer() + valueIdx;
+    ValueTypeT* data = this->Buffer->GetBuffer() + valueIdx;
     for (int i = 0; i < this->NumberOfComponents; ++i)
     {
       data[i] = static_cast<ValueType>(tuple[i]);
     }
-    this->MaxId = std::max(this->MaxId,
-                           valueIdx + this->NumberOfComponents - 1);
+    this->MaxId = std::max(this->MaxId, valueIdx + this->NumberOfComponents - 1);
   }
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>
-::InsertComponent(vtkIdType tupleIdx, int compIdx, double value)
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertComponent(
+  vtkIdType tupleIdx, int compIdx, double value)
 {
   const vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
   if (newMaxId >= this->Size)
@@ -191,8 +179,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
-::InsertNextTuple(const float *tuple)
+vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>::InsertNextTuple(const float* tuple)
 {
   vtkIdType newMaxId = this->MaxId + this->NumberOfComponents;
   const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
@@ -205,7 +192,7 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
   }
 
   // See note in SetTuple about std::copy vs for loops on MSVC.
-  ValueTypeT *data = this->Buffer->GetBuffer() + this->MaxId + 1;
+  ValueTypeT* data = this->Buffer->GetBuffer() + this->MaxId + 1;
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
     data[i] = static_cast<ValueType>(tuple[i]);
@@ -216,8 +203,7 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
-::InsertNextTuple(const double *tuple)
+vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>::InsertNextTuple(const double* tuple)
 {
   vtkIdType newMaxId = this->MaxId + this->NumberOfComponents;
   const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
@@ -230,7 +216,7 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
   }
 
   // See note in SetTuple about std::copy vs for loops on MSVC.
-  ValueTypeT *data = this->Buffer->GetBuffer() + this->MaxId + 1;
+  ValueTypeT* data = this->Buffer->GetBuffer() + this->MaxId + 1;
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
     data[i] = static_cast<ValueType>(tuple[i]);
@@ -241,11 +227,9 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx,
-                                                   double *tuple)
+void vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx, double* tuple)
 {
-  ValueTypeT *data =
-      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  ValueTypeT* data = this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
   // See note in SetTuple about std::copy vs for loops on MSVC.
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
@@ -255,11 +239,10 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx,
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-double *vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx)
+double* vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx)
 {
-  ValueTypeT *data =
-      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
-  double *tuple = &this->LegacyTuple[0];
+  ValueTypeT* data = this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  double* tuple = &this->LegacyTuple[0];
   // See note in SetTuple about std::copy vs for loops on MSVC.
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
@@ -272,16 +255,16 @@ double *vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx)
 template <class ValueTypeT>
 vtkArrayIterator* vtkAOSDataArrayTemplate<ValueTypeT>::NewIterator()
 {
-  vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
+  vtkArrayIterator* iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
+void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray* other)
 {
-  SelfType *o = SelfType::FastDownCast(other);
+  SelfType* o = SelfType::FastDownCast(other);
   if (o)
   {
     this->Size = o->Size;
@@ -306,13 +289,12 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
-    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-    vtkAbstractArray *source)
+  vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
   // way we don't waste time redoing the other checks in the superclass, and
   // can avoid doing a dispatch for the most common usage of this method.
-  SelfType *other = vtkArrayDownCast<SelfType>(source);
+  SelfType* other = vtkArrayDownCast<SelfType>(source);
   if (!other)
   {
     // Let the superclass handle dispatch/fallback.
@@ -329,8 +311,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
   if (other->GetNumberOfComponents() != numComps)
   {
     vtkErrorMacro("Number of components do not match: Source: "
-                  << other->GetNumberOfComponents() << " Dest: "
-                  << this->GetNumberOfComponents());
+      << other->GetNumberOfComponents() << " Dest: " << this->GetNumberOfComponents());
     return;
   }
 
@@ -340,8 +321,8 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
   if (maxSrcTupleId >= other->GetNumberOfTuples())
   {
     vtkErrorMacro("Source array too small, requested tuple at index "
-                  << maxSrcTupleId << ", but there are only "
-                  << other->GetNumberOfTuples() << " tuples in the array.");
+      << maxSrcTupleId << ", but there are only " << other->GetNumberOfTuples()
+      << " tuples in the array.");
     return;
   }
 
@@ -357,17 +338,16 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
 
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
-  ValueType *srcBegin = other->GetPointer(srcStart * numComps);
-  ValueType *srcEnd = srcBegin + (n * numComps);
-  ValueType *dstBegin = this->GetPointer(dstStart * numComps);
+  ValueType* srcBegin = other->GetPointer(srcStart * numComps);
+  ValueType* srcEnd = srcBegin + (n * numComps);
+  ValueType* dstBegin = this->GetPointer(dstStart * numComps);
 
   std::copy(srcBegin, srcEnd, dstBegin);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::FillTypedComponent(int compIdx,
-                                                             ValueType value)
+void vtkAOSDataArrayTemplate<ValueTypeT>::FillTypedComponent(int compIdx, ValueType value)
 {
   if (this->NumberOfComponents <= 1)
   {
@@ -383,10 +363,8 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::FillTypedComponent(int compIdx,
 template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::FillValue(ValueType value)
 {
-  ptrdiff_t offset = this->MaxId + 1;
-  std::fill(this->Buffer->GetBuffer(),
-            this->Buffer->GetBuffer() + offset,
-            value);
+  std::ptrdiff_t offset = this->MaxId + 1;
+  std::fill(this->Buffer->GetBuffer(), this->Buffer->GetBuffer() + offset, value);
 }
 
 //-----------------------------------------------------------------------------
@@ -399,8 +377,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::Fill(double value)
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
-vtkAOSDataArrayTemplate<ValueTypeT>
-::WritePointer(vtkIdType valueIdx, vtkIdType numValues)
+vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType valueIdx, vtkIdType numValues)
 {
   vtkIdType newSize = valueIdx + numValues;
   if (newSize > this->Size)
@@ -421,15 +398,14 @@ vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-void* vtkAOSDataArrayTemplate<ValueTypeT>
-::WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues)
+void* vtkAOSDataArrayTemplate<ValueTypeT>::WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues)
 {
   return this->WritePointer(valueIdx, numValues);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType *
+typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
 vtkAOSDataArrayTemplate<ValueTypeT>::GetPointer(vtkIdType valueIdx)
 {
   return this->Buffer->GetBuffer() + valueIdx;

@@ -22,8 +22,8 @@
 #define QTestApp_h
 
 #include <QApplication>
-#include <QVector>
 #include <QByteArray>
+#include <QVector>
 
 class QTestApp
 {
@@ -33,9 +33,8 @@ public:
 
   static int exec();
 
-  static void messageHandler(QtMsgType type,
-    const QMessageLogContext & context,
-    const QString & message);
+  static void messageHandler(
+    QtMsgType type, const QMessageLogContext& context, const QString& message);
 
   static void delay(int ms);
 
@@ -47,17 +46,17 @@ public:
 
   static void keyClick(QWidget* w, Qt::Key key, Qt::KeyboardModifiers mod, int ms);
 
-  static void mouseDown(QWidget* w, QPoint pos, Qt::MouseButton btn,
-                        Qt::KeyboardModifiers mod, int ms);
+  static void mouseDown(
+    QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms);
 
-  static void mouseUp(QWidget* w, QPoint pos, Qt::MouseButton btn,
-                      Qt::KeyboardModifiers mod, int ms);
+  static void mouseUp(
+    QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms);
 
-  static void mouseMove(QWidget* w, QPoint pos, Qt::MouseButton btn,
-                        Qt::KeyboardModifiers mod, int ms);
+  static void mouseMove(
+    QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms);
 
-  static void mouseClick(QWidget* w, QPoint pos, Qt::MouseButton btn,
-                         Qt::KeyboardModifiers mod, int ms);
+  static void mouseClick(
+    QWidget* w, QPoint pos, Qt::MouseButton btn, Qt::KeyboardModifiers mod, int ms);
 
 private:
   QApplication* App;
@@ -68,4 +67,3 @@ private:
 };
 
 #endif
-

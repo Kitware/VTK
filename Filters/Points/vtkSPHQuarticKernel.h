@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkSPHKernel vtkSPHInterpolator
-*/
+ */
 
 #ifndef vtkSPHQuarticKernel_h
 #define vtkSPHQuarticKernel_h
@@ -44,7 +44,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkSPHQuarticKernel : public vtkSPHKernel
 {
 public:
@@ -52,8 +51,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkSPHQuarticKernel *New();
-  vtkTypeMacro(vtkSPHQuarticKernel,vtkSPHKernel);
+  static vtkSPHQuarticKernel* New();
+  vtkTypeMacro(vtkSPHQuarticKernel, vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -61,8 +60,7 @@ public:
    * Produce the computational parameters for the kernel. Invoke this method
    * after setting initial values like SpatialStep.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
   //@{
   /**
@@ -70,11 +68,11 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    double tmp1 = 2.5 - std::min(d,2.5);
-    double tmp2 = 1.5 - std::min(d,1.5);
-    double tmp3 = 0.5 - std::min(d,0.5);
-    return (tmp1*tmp1*tmp1*tmp1 - 5.0*tmp2*tmp2*tmp2*tmp2 +
-            10.0*tmp3*tmp3*tmp3*tmp3);
+    double tmp1 = 2.5 - std::min(d, 2.5);
+    double tmp2 = 1.5 - std::min(d, 1.5);
+    double tmp3 = 0.5 - std::min(d, 0.5);
+    return (tmp1 * tmp1 * tmp1 * tmp1 - 5.0 * tmp2 * tmp2 * tmp2 * tmp2 +
+      10.0 * tmp3 * tmp3 * tmp3 * tmp3);
   }
   //@}
 
@@ -85,10 +83,10 @@ public:
    */
   double ComputeDerivWeight(const double d) override
   {
-    double tmp1 = 2.5 - std::min(d,2.5);
-    double tmp2 = 1.5 - std::min(d,1.5);
-    double tmp3 = 0.5 - std::min(d,0.5);
-    return (-4.0*tmp1*tmp1*tmp1 + 20.0*tmp2*tmp2*tmp2 - 40.0*tmp3*tmp3*tmp3);
+    double tmp1 = 2.5 - std::min(d, 2.5);
+    double tmp2 = 1.5 - std::min(d, 1.5);
+    double tmp3 = 0.5 - std::min(d, 0.5);
+    return (-4.0 * tmp1 * tmp1 * tmp1 + 20.0 * tmp2 * tmp2 * tmp2 - 40.0 * tmp3 * tmp3 * tmp3);
   }
   //@}
 

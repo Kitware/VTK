@@ -59,13 +59,13 @@
  * vtkPropPicker vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
  * vtkAssemblyPath vtkAssemblyNode vtkAssemblyPaths vtkAbstractPicker
  * vtkRenderer
-*/
+ */
 
 #ifndef vtkAbstractPropPicker_h
 #define vtkAbstractPropPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkPropAssembly;
@@ -79,7 +79,7 @@ class vtkActor2D;
 class VTKRENDERINGCORE_EXPORT vtkAbstractPropPicker : public vtkAbstractPicker
 {
 public:
-  vtkTypeMacro(vtkAbstractPropPicker,vtkAbstractPicker);
+  vtkTypeMacro(vtkAbstractPropPicker, vtkAbstractPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -92,7 +92,7 @@ public:
    * to a vtkProp and (possibly) a transformation matrix.)
    */
   virtual void SetPath(vtkAssemblyPath*);
-  vtkGetObjectMacro(Path,vtkAssemblyPath);
+  vtkGetObjectMacro(Path, vtkAssemblyPath);
   //@}
 
   // The following are convenience methods to maintain API with older
@@ -109,23 +109,23 @@ public:
   /**
    * Return the vtkProp that has been picked. If NULL, no vtkProp3D was picked.
    */
-  virtual vtkProp3D *GetProp3D();
+  virtual vtkProp3D* GetProp3D();
 
   /**
    * Return the vtkActor that has been picked. If NULL, no actor was picked.
    */
-  virtual vtkActor *GetActor();
+  virtual vtkActor* GetActor();
 
   /**
    * Return the vtkActor2D that has been picked. If NULL, no actor2D was
    * picked.
    */
-  virtual vtkActor2D *GetActor2D();
+  virtual vtkActor2D* GetActor2D();
 
   /**
    * Return the vtkVolume that has been picked. If NULL, no volume was picked.
    */
-  virtual vtkVolume *GetVolume();
+  virtual vtkVolume* GetVolume();
 
   /**
    * Return the vtkAssembly that has been picked. If NULL, no assembly
@@ -133,7 +133,7 @@ public:
    * assembly path. If the path is one node long, then the assembly and
    * the prop are the same, assuming that the first node is a vtkAssembly.)
    */
-  virtual vtkAssembly *GetAssembly();
+  virtual vtkAssembly* GetAssembly();
 
   /**
    * Return the vtkPropAssembly that has been picked. If NULL, no prop
@@ -142,7 +142,7 @@ public:
    * assembly and the prop are the same, assuming that the first node is a
    * vtkPropAssembly.)
    */
-  virtual vtkPropAssembly *GetPropAssembly();
+  virtual vtkPropAssembly* GetPropAssembly();
 
 protected:
   vtkAbstractPropPicker();
@@ -150,7 +150,7 @@ protected:
 
   void Initialize() override;
 
-  vtkAssemblyPath *Path; //this is what is picked, and includes the prop
+  vtkAssemblyPath* Path; // this is what is picked, and includes the prop
 private:
   vtkAbstractPropPicker(const vtkAbstractPropPicker&) = delete;
   void operator=(const vtkAbstractPropPicker&) = delete;

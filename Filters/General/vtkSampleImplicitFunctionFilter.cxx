@@ -14,81 +14,86 @@
 =========================================================================*/
 #include "vtkSampleImplicitFunctionFilter.h"
 
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImplicitFunction.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSet.h"
-#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkSampleImplicitFunctionFilter);
-vtkCxxSetObjectMacro(vtkSampleImplicitFunctionFilter,ImplicitFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkSampleImplicitFunctionFilter, ImplicitFunction, vtkImplicitFunction);
 
 // Interface between vtkSMPTools and the VTK pipeline
-namespace {
+namespace
+{
 
 struct SampleDataSet
 {
-  vtkDataSet *Input;
-  vtkImplicitFunction *Function;
-  float *Scalars;
+  vtkDataSet* Input;
+  vtkImplicitFunction* Function;
+  float* Scalars;
 
   // Constructor
-  SampleDataSet(vtkDataSet *input, vtkImplicitFunction *imp, float *s) :
-    Input(input), Function(imp), Scalars(s)
+  SampleDataSet(vtkDataSet* input, vtkImplicitFunction* imp, float* s)
+    : Input(input)
+    , Function(imp)
+    , Scalars(s)
   {
   }
 
-  void  operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      double x[3];
-      float *n = this->Scalars + ptId;
-      for ( ; ptId < endPtId; ++ptId )
-      {
-        this->Input->GetPoint(ptId, x);
-        *n++ = this->Function->FunctionValue(x);
-      }
+    double x[3];
+    float* n = this->Scalars + ptId;
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Input->GetPoint(ptId, x);
+      *n++ = this->Function->FunctionValue(x);
+    }
   }
 };
 
 struct SampleDataSetWithGradients
 {
-  vtkDataSet *Input;
-  vtkImplicitFunction *Function;
-  float *Scalars;
-  float *Gradients;
+  vtkDataSet* Input;
+  vtkImplicitFunction* Function;
+  float* Scalars;
+  float* Gradients;
 
   // Constructor
-  SampleDataSetWithGradients(vtkDataSet *input, vtkImplicitFunction *imp, float *s, float *g) :
-    Input(input), Function(imp), Scalars(s), Gradients(g)
+  SampleDataSetWithGradients(vtkDataSet* input, vtkImplicitFunction* imp, float* s, float* g)
+    : Input(input)
+    , Function(imp)
+    , Scalars(s)
+    , Gradients(g)
   {
   }
 
-  void  operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      double x[3], g[3];
-      float *n = this->Scalars + ptId;
-      float *v = this->Gradients + 3*ptId;
-      for ( ; ptId < endPtId; ++ptId )
-      {
-        this->Input->GetPoint(ptId, x);
-        *n++ = this->Function->FunctionValue(x);
-        this->Function->FunctionGradient(x,g);
-        *v++ = g[0];
-        *v++ = g[1];
-        *v++ = g[2];
-      }
+    double x[3], g[3];
+    float* n = this->Scalars + ptId;
+    float* v = this->Gradients + 3 * ptId;
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Input->GetPoint(ptId, x);
+      *n++ = this->Function->FunctionValue(x);
+      this->Function->FunctionGradient(x, g);
+      *v++ = g[0];
+      *v++ = g[1];
+      *v++ = g[2];
+    }
   }
 };
 
-} //anonymous namespace
-
+} // anonymous namespace
 
 //----------------------------------------------------------------------------
 // Okay define the VTK class proper
@@ -115,39 +120,35 @@ vtkSampleImplicitFunctionFilter::~vtkSampleImplicitFunctionFilter()
 
 //----------------------------------------------------------------------------
 // Produce the output data
-int vtkSampleImplicitFunctionFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkSampleImplicitFunctionFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDebugMacro(<< "Generating implicit data");
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check the input
-  if ( !input || !output )
+  if (!input || !output)
   {
     return 1;
   }
   vtkIdType numPts = input->GetNumberOfPoints();
-  if ( numPts < 1 )
+  if (numPts < 1)
   {
     return 1;
   }
 
   // Ensure implicit function is specified
   //
-  if ( !this->ImplicitFunction )
+  if (!this->ImplicitFunction)
   {
-    vtkErrorMacro(<<"No implicit function specified");
+    vtkErrorMacro(<< "No implicit function specified");
     return 1;
   }
 
@@ -159,31 +160,30 @@ int vtkSampleImplicitFunctionFilter::RequestData(
   output->GetCellData()->PassData(input->GetCellData());
 
   // Set up for execution
-  vtkFloatArray *newScalars = vtkFloatArray::New();
+  vtkFloatArray* newScalars = vtkFloatArray::New();
   newScalars->SetNumberOfTuples(numPts);
-  float *scalars = newScalars->WritePointer(0,numPts);
+  float* scalars = newScalars->WritePointer(0, numPts);
 
-  vtkFloatArray *newGradients=nullptr;
-  float *gradients=nullptr;
-  if ( this->ComputeGradients )
+  vtkFloatArray* newGradients = nullptr;
+  float* gradients = nullptr;
+  if (this->ComputeGradients)
   {
     newGradients = vtkFloatArray::New();
     newGradients->SetNumberOfComponents(3);
     newGradients->SetNumberOfTuples(numPts);
-    gradients = newGradients->WritePointer(0,numPts);
+    gradients = newGradients->WritePointer(0, numPts);
   }
 
   // Threaded execute
-  if ( this->ComputeGradients )
+  if (this->ComputeGradients)
   {
-    SampleDataSetWithGradients
-      sample(input,this->ImplicitFunction,scalars,gradients);
-    vtkSMPTools::For(0,numPts, sample);
+    SampleDataSetWithGradients sample(input, this->ImplicitFunction, scalars, gradients);
+    vtkSMPTools::For(0, numPts, sample);
   }
   else
   {
-    SampleDataSet sample(input,this->ImplicitFunction,scalars);
-    vtkSMPTools::For(0,numPts, sample);
+    SampleDataSet sample(input, this->ImplicitFunction, scalars);
+    vtkSMPTools::For(0, numPts, sample);
   }
 
   // Update self
@@ -192,7 +192,7 @@ int vtkSampleImplicitFunctionFilter::RequestData(
   output->GetPointData()->SetActiveScalars(this->ScalarArrayName);
   newScalars->Delete();
 
-  if ( this->ComputeGradients )
+  if (this->ComputeGradients)
   {
     newGradients->SetName(this->GradientArrayName);
     output->GetPointData()->AddArray(newGradients);
@@ -204,8 +204,7 @@ int vtkSampleImplicitFunctionFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkSampleImplicitFunctionFilter::
-FillInputPortInformation(int, vtkInformation *info)
+int vtkSampleImplicitFunctionFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -214,33 +213,31 @@ FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != nullptr )
+  if (this->ImplicitFunction != nullptr)
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
-    mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
+    mTime = (impFuncMTime > mTime ? impFuncMTime : mTime);
   }
 
   return mTime;
 }
 
 //----------------------------------------------------------------------------
-void vtkSampleImplicitFunctionFilter::
-ReportReferences(vtkGarbageCollector* collector)
+void vtkSampleImplicitFunctionFilter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->ImplicitFunction,
-                            "ImplicitFunction");
+  vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }
 
 //----------------------------------------------------------------------------
 void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->ImplicitFunction )
+  if (this->ImplicitFunction)
   {
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
   }
@@ -252,22 +249,22 @@ void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
 
   os << indent << "Scalar Array Name: ";
-  if(this->ScalarArrayName != nullptr)
+  if (this->ScalarArrayName != nullptr)
   {
-    os  << this->ScalarArrayName << endl;
+    os << this->ScalarArrayName << endl;
   }
   else
   {
-    os  << "(none)" << endl;
+    os << "(none)" << endl;
   }
 
   os << indent << "Gradient Array Name: ";
-  if(this->GradientArrayName != nullptr)
+  if (this->GradientArrayName != nullptr)
   {
-    os  << this->GradientArrayName << endl;
+    os << this->GradientArrayName << endl;
   }
   else
   {
-    os  << "(none)" << endl;
+    os << "(none)" << endl;
   }
 }

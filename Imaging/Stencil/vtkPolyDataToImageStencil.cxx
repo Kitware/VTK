@@ -49,27 +49,26 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <map>
-#include <vector>
-#include <utility>
 #include <algorithm>
+#include <map>
+#include <utility>
+#include <vector>
 
 #include <cmath>
-
 
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
@@ -84,28 +83,26 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil() = default;
 
 //----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::SetInputData(vtkPolyData *input)
+void vtkPolyDataToImageStencil::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkPolyDataToImageStencil::GetInput()
+vtkPolyData* vtkPolyDataToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
     return nullptr;
   }
 
-  return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, 0));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
-                                          vtkIndent indent)
+void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
@@ -116,21 +113,27 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 // It uses an stl map rather than a table partitioning scheme, since
 // we have no idea how many entries there will be when we start.  So
 // the performance is approximately log(n).
-namespace {
+namespace
+{
 
 // A Node in a linked list that contains information about one edge
 class EdgeLocatorNode
 {
 public:
-  EdgeLocatorNode() :
-    ptId(-1), edgeId(-1), next(nullptr) {}
+  EdgeLocatorNode()
+    : ptId(-1)
+    , edgeId(-1)
+    , next(nullptr)
+  {
+  }
 
   // Free the list that this node is the head of
-  void FreeList() {
-    EdgeLocatorNode *ptr = this->next;
+  void FreeList()
+  {
+    EdgeLocatorNode* ptr = this->next;
     while (ptr)
     {
-      EdgeLocatorNode *tmp = ptr;
+      EdgeLocatorNode* tmp = ptr;
       ptr = ptr->next;
       tmp->next = nullptr;
       delete tmp;
@@ -139,7 +142,7 @@ public:
 
   vtkIdType ptId;
   vtkIdType edgeId;
-  EdgeLocatorNode *next;
+  EdgeLocatorNode* next;
 };
 
 // The EdgeLocator class itself, for keeping track of edges
@@ -150,7 +153,10 @@ private:
   MapType EdgeMap;
 
 public:
-  EdgeLocator() : EdgeMap() {}
+  EdgeLocator()
+    : EdgeMap()
+  {
+  }
   ~EdgeLocator() { this->Initialize(); }
 
   // Description:
@@ -162,32 +168,27 @@ public:
   // given the supplied edgeId, and the return value will be false.  If
   // the edge (i0, i1) is in the list, then edgeId will be set to the
   // stored value and the return value will be true.
-  bool InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkIdType &edgeId);
+  bool InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkIdType& edgeId);
 
   // Description:
   // A helper function for interpolating a new point along an edge.  It
   // stores the index of the interpolated point in "i", and returns true
   // if a new point was added to the locator.  The values i0, i1, v0, v1
   // are the edge endpoints and scalar values, respectively.
-  bool InterpolateEdge(
-    vtkPoints *inPoints, vtkPoints *outPoints,
-    vtkIdType i0, vtkIdType i1, double v0, double v1,
-    vtkIdType &i);
+  bool InterpolateEdge(vtkPoints* inPoints, vtkPoints* outPoints, vtkIdType i0, vtkIdType i1,
+    double v0, double v1, vtkIdType& i);
 };
 
 void EdgeLocator::Initialize()
 {
-  for (MapType::iterator i = this->EdgeMap.begin();
-       i != this->EdgeMap.end();
-       ++i)
+  for (MapType::iterator i = this->EdgeMap.begin(); i != this->EdgeMap.end(); ++i)
   {
     i->second.FreeList();
   }
   this->EdgeMap.clear();
 }
 
-bool EdgeLocator::InsertUniqueEdge(
-  vtkIdType i0, vtkIdType i1, vtkIdType &edgeId)
+bool EdgeLocator::InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkIdType& edgeId)
 {
   // Ensure consistent ordering of edge
   if (i1 < i0)
@@ -197,7 +198,7 @@ bool EdgeLocator::InsertUniqueEdge(
     i1 = tmp;
   }
 
-  EdgeLocatorNode *node = &this->EdgeMap[i0];
+  EdgeLocatorNode* node = &this->EdgeMap[i0];
 
   if (node->ptId < 0)
   {
@@ -235,10 +236,8 @@ bool EdgeLocator::InsertUniqueEdge(
   return true;
 }
 
-bool EdgeLocator::InterpolateEdge(
-  vtkPoints *points, vtkPoints *outPoints,
-  vtkIdType i0, vtkIdType i1, double v0, double v1,
-  vtkIdType &i)
+bool EdgeLocator::InterpolateEdge(vtkPoints* points, vtkPoints* outPoints, vtkIdType i0,
+  vtkIdType i1, double v0, double v1, vtkIdType& i)
 {
   // This swap guarantees that exactly the same point is computed
   // for both line directions, as long as the endpoints are the same.
@@ -265,13 +264,13 @@ bool EdgeLocator::InterpolateEdge(
   points->GetPoint(i0, p0);
   points->GetPoint(i1, p1);
 
-  double f = v0/(v0 - v1);
+  double f = v0 / (v0 - v1);
   double s = 1.0 - f;
   double t = 1.0 - s;
 
-  p[0] = s*p0[0] + t*p1[0];
-  p[1] = s*p0[1] + t*p1[1];
-  p[2] = s*p0[2] + t*p1[2];
+  p[0] = s * p0[0] + t * p1[0];
+  p[1] = s * p0[1] + t * p1[1];
+  p[2] = s * p0[2] + t * p1[2];
 
   // Add the point, store the new index in the locator
   outPoints->InsertNextPoint(p);
@@ -284,30 +283,29 @@ bool EdgeLocator::InterpolateEdge(
 //----------------------------------------------------------------------------
 // Select contours within slice z
 void vtkPolyDataToImageStencil::PolyDataSelector(
-  vtkPolyData *input, vtkPolyData *output, double z, double thickness)
+  vtkPolyData* input, vtkPolyData* output, double z, double thickness)
 {
-  vtkPoints *points = input->GetPoints();
-  vtkCellArray *lines = input->GetLines();
-  vtkPoints *newPoints = vtkPoints::New();
+  vtkPoints* points = input->GetPoints();
+  vtkCellArray* lines = input->GetLines();
+  vtkPoints* newPoints = vtkPoints::New();
   newPoints->SetDataType(points->GetDataType());
   newPoints->Allocate(333);
-  vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(1000);
+  vtkCellArray* newLines = vtkCellArray::New();
+  newLines->AllocateEstimate(1000, 1);
 
-  double minz = z - 0.5*thickness;
-  double maxz = z + 0.5*thickness;
+  double minz = z - 0.5 * thickness;
+  double maxz = z + 0.5 * thickness;
 
   // use a map to avoid adding duplicate points
   std::map<vtkIdType, vtkIdType> pointLocator;
 
-  vtkIdType loc = 0;
   vtkIdType numCells = lines->GetNumberOfCells();
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     // check if all points in cell are within the slice
-    vtkIdType npts, *ptIds;
-    lines->GetCell(loc, npts, ptIds);
-    loc += npts + 1;
+    vtkIdType npts;
+    const vtkIdType* ptIds;
+    lines->GetCellAtId(cellId, npts, ptIds);
     vtkIdType i;
     for (i = 0; i < npts; i++)
     {
@@ -326,8 +324,7 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
     for (i = 0; i < npts; i++)
     {
       vtkIdType oldId = ptIds[i];
-      std::map<vtkIdType, vtkIdType>::iterator iter =
-        pointLocator.lower_bound(oldId);
+      std::map<vtkIdType, vtkIdType>::iterator iter = pointLocator.lower_bound(oldId);
       vtkIdType ptId = 0;
       if (iter == pointLocator.end() || iter->first != oldId)
       {
@@ -351,17 +348,16 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::PolyDataCutter(
-  vtkPolyData *input, vtkPolyData *output, double z)
+void vtkPolyDataToImageStencil::PolyDataCutter(vtkPolyData* input, vtkPolyData* output, double z)
 {
-  vtkPoints *points = input->GetPoints();
-  vtkCellArray *inputPolys = input->GetPolys();
-  vtkCellArray *inputStrips = input->GetStrips();
-  vtkPoints *newPoints = vtkPoints::New();
+  vtkPoints* points = input->GetPoints();
+  vtkCellArray* inputPolys = input->GetPolys();
+  vtkCellArray* inputStrips = input->GetStrips();
+  vtkPoints* newPoints = vtkPoints::New();
   newPoints->SetDataType(points->GetDataType());
   newPoints->Allocate(333);
-  vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(1000);
+  vtkCellArray* newLines = vtkCellArray::New();
+  newLines->AllocateEstimate(1000, 1);
 
   // An edge locator to avoid point duplication while clipping
   EdgeLocator edgeLocator;
@@ -371,20 +367,20 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
   vtkIdType numStrips = input->GetNumberOfStrips();
   vtkIdType numCells = numPolys + numStrips;
 
-  vtkIdType loc = 0;
-  vtkCellArray *cellArray = inputPolys;
+  vtkIdType realCellId = 0;
+  vtkCellArray* cellArray = inputPolys;
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     // switch to strips when polys are done
     if (cellId == numPolys)
     {
-      loc = 0;
       cellArray = inputStrips;
+      realCellId = 0;
     }
 
-    vtkIdType npts, *ptIds;
-    cellArray->GetCell(loc, npts, ptIds);
-    loc += npts + 1;
+    vtkIdType npts;
+    const vtkIdType* ptIds;
+    cellArray->GetCellAtId(realCellId++, npts, ptIds);
 
     vtkIdType numSubCells = 1;
     if (cellArray == inputStrips)
@@ -395,7 +391,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
 
     for (vtkIdType subId = 0; subId < numSubCells; subId++)
     {
-      vtkIdType i1 = ptIds[npts-1];
+      vtkIdType i1 = ptIds[npts - 1];
       double point[3];
       points->GetPoint(i1, point);
       double v1 = point[2] - z;
@@ -421,13 +417,12 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
         c1 = (v1 > 0);
 
         // If at least one edge end point wasn't clipped
-        if ( (c0 | c1) )
+        if ((c0 | c1))
         {
           // If only one end was clipped, interpolate new point
-          if ( (c0 ^ c1) )
+          if ((c0 ^ c1))
           {
-            edgeLocator.InterpolateEdge(
-              points, newPoints, i0, i1, v0, v1, linePts[c0 ^ odd]);
+            edgeLocator.InterpolateEdge(points, newPoints, i0, i1, v0, v1, linePts[c0 ^ odd]);
           }
         }
       }
@@ -451,9 +446,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
 
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(
-  vtkImageStencilData *data,
-  int extent[6],
-  int threadId)
+  vtkImageStencilData* data, int extent[6], int threadId)
 {
   // Description of algorithm:
   // 1) cut the polydata at each z slice to create polylines
@@ -465,8 +458,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   //    and use them to create one z slice of the vtkStencilData
 
   // the spacing and origin of the generated stencil
-  double *spacing = data->GetSpacing();
-  double *origin = data->GetOrigin();
+  double* spacing = data->GetSpacing();
+  double* origin = data->GetOrigin();
 
   // if we have no data then return
   if (!this->GetInput()->GetNumberOfPoints())
@@ -476,15 +469,15 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
   // Only divide once
   double invspacing[3];
-  invspacing[0] = 1.0/spacing[0];
-  invspacing[1] = 1.0/spacing[1];
-  invspacing[2] = 1.0/spacing[2];
+  invspacing[0] = 1.0 / spacing[0];
+  invspacing[1] = 1.0 / spacing[1];
+  invspacing[2] = 1.0 / spacing[2];
 
   // get the input data
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData* input = this->GetInput();
 
   // the output produced by cutting the polydata with the Z plane
-  vtkPolyData *slice = vtkPolyData::New();
+  vtkPolyData* slice = vtkPolyData::New();
 
   // This raster stores all line segments by recording all "x"
   // positions on the surface for each y integer position.
@@ -493,19 +486,22 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
   // The extent for one slice of the image
   int sliceExtent[6];
-  sliceExtent[0] = extent[0]; sliceExtent[1] = extent[1];
-  sliceExtent[2] = extent[2]; sliceExtent[3] = extent[3];
-  sliceExtent[4] = extent[4]; sliceExtent[5] = extent[4];
+  sliceExtent[0] = extent[0];
+  sliceExtent[1] = extent[1];
+  sliceExtent[2] = extent[2];
+  sliceExtent[3] = extent[3];
+  sliceExtent[4] = extent[4];
+  sliceExtent[5] = extent[4];
 
   // Loop through the slices
   for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
   {
     if (threadId == 0)
     {
-      this->UpdateProgress((idxZ - extent[4])*1.0/(extent[5] - extent[4] + 1));
+      this->UpdateProgress((idxZ - extent[4]) * 1.0 / (extent[5] - extent[4] + 1));
     }
 
-    double z = idxZ*spacing[2] + origin[2];
+    double z = idxZ * spacing[2] + origin[2];
 
     slice->PrepareForNewData();
     raster.PrepareForNewData();
@@ -527,16 +523,16 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     }
 
     // convert to structured coords via origin and spacing
-    vtkPoints *points = slice->GetPoints();
+    vtkPoints* points = slice->GetPoints();
     vtkIdType numberOfPoints = points->GetNumberOfPoints();
 
     for (vtkIdType j = 0; j < numberOfPoints; j++)
     {
       double tempPoint[3];
       points->GetPoint(j, tempPoint);
-      tempPoint[0] = (tempPoint[0] - origin[0])*invspacing[0];
-      tempPoint[1] = (tempPoint[1] - origin[1])*invspacing[1];
-      tempPoint[2] = (tempPoint[2] - origin[2])*invspacing[2];
+      tempPoint[0] = (tempPoint[0] - origin[0]) * invspacing[0];
+      tempPoint[1] = (tempPoint[1] - origin[1]) * invspacing[1];
+      tempPoint[2] = (tempPoint[2] - origin[2]) * invspacing[2];
       points->SetPoint(j, tempPoint);
     }
 
@@ -546,27 +542,27 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     std::fill(pointNeighborCounts.begin(), pointNeighborCounts.end(), 0);
 
     // get the connectivity count for each point
-    vtkCellArray *lines = slice->GetLines();
+    vtkCellArray* lines = slice->GetLines();
     vtkIdType npts = 0;
-    vtkIdType *pointIds = nullptr;
-    vtkIdType count = lines->GetNumberOfConnectivityEntries();
-    for (vtkIdType loc = 0; loc < count; loc += npts + 1)
+    const vtkIdType* pointIds = nullptr;
+    vtkIdType numCells = lines->GetNumberOfCells();
+    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
     {
-      lines->GetCell(loc, npts, pointIds);
+      lines->GetCellAtId(cellId, npts, pointIds);
       if (npts > 0)
       {
         pointNeighborCounts[pointIds[0]] += 1;
-        for (vtkIdType j = 1; j < npts-1; j++)
+        for (vtkIdType j = 1; j < npts - 1; j++)
         {
           pointNeighborCounts[pointIds[j]] += 2;
         }
-        pointNeighborCounts[pointIds[npts-1]] += 1;
-        if (pointIds[0] != pointIds[npts-1])
+        pointNeighborCounts[pointIds[npts - 1]] += 1;
+        if (pointIds[0] != pointIds[npts - 1])
         {
           // store the neighbors for end points, because these are
           // potentially loose ends that will have to be dealt with later
           pointNeighbors[pointIds[0]] = pointIds[1];
-          pointNeighbors[pointIds[npts-1]] = pointIds[npts-2];
+          pointNeighbors[pointIds[npts - 1]] = pointIds[npts - 2];
         }
       }
     }
@@ -629,7 +625,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         double neighbor[3];
         slice->GetPoint(neighborId, neighbor);
 
-        for (size_t j = i+1; j < n; j++)
+        for (size_t j = i + 1; j < n; j++)
         {
           vtkIdType secondLooseEndId = looseEndIds[j];
           if (secondLooseEndId != neighborId)
@@ -646,8 +642,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
             v1[1] = firstLooseEnd[1] - neighbor[1];
             v2[0] = currentLooseEnd[0] - firstLooseEnd[0];
             v2[1] = currentLooseEnd[1] - firstLooseEnd[1];
-            double dotprod = v1[0]*v2[0] + v1[1]*v2[1];
-            double distance2 = v2[0]*v2[0] + v2[1]*v2[1];
+            double dotprod = v1[0] * v2[0] + v1[1] * v2[1];
+            double distance2 = v2[0] * v2[0] + v2[1] * v2[1];
 
             // check if points are coincident
             if (distance2 == 0)
@@ -660,8 +656,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
             // prefer adding segments that lie on hull
             double midpoint[2], normal[2];
-            midpoint[0] = 0.5*(currentLooseEnd[0] + firstLooseEnd[0]);
-            midpoint[1] = 0.5*(currentLooseEnd[1] + firstLooseEnd[1]);
+            midpoint[0] = 0.5 * (currentLooseEnd[0] + firstLooseEnd[0]);
+            midpoint[1] = 0.5 * (currentLooseEnd[1] + firstLooseEnd[1]);
             normal[0] = currentLooseEnd[1] - firstLooseEnd[1];
             normal[1] = -(currentLooseEnd[0] - firstLooseEnd[0]);
             double sidecheck = 0.0;
@@ -672,9 +668,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
               {
                 double checkEnd[3];
                 slice->GetPoint(looseEndIds[k], checkEnd);
-                double dotprod2 = ((checkEnd[0] - midpoint[0])*normal[0] +
-                                   (checkEnd[1] - midpoint[1])*normal[1]);
-                if (dotprod2*sidecheck < 0)
+                double dotprod2 = ((checkEnd[0] - midpoint[0]) * normal[0] +
+                  (checkEnd[1] - midpoint[1]) * normal[1]);
+                if (dotprod2 * sidecheck < 0)
                 {
                   checkOnHull = false;
                 }
@@ -684,12 +680,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
             // check if new candidate is better than previous one
             if ((checkOnHull && !isOnHull) ||
-                (checkOnHull == isOnHull && dotprod > maxval*distance2))
+              (checkOnHull == isOnHull && dotprod > maxval * distance2))
             {
               firstIndex = static_cast<vtkIdType>(i);
               secondIndex = static_cast<vtkIdType>(j);
               isOnHull |= checkOnHull;
-              maxval = dotprod/distance2;
+              maxval = dotprod / distance2;
             }
           }
         }
@@ -726,10 +722,10 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     // Step 3: Go through all the line segments for this slice,
     // and for each integer y position on the line segment,
     // drop the corresponding x position into the y raster line.
-    count = lines->GetNumberOfConnectivityEntries();
-    for (vtkIdType loc = 0; loc < count; loc += npts + 1)
+    numCells = lines->GetNumberOfCells();
+    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
     {
-      lines->GetCell(loc, npts, pointIds);
+      lines->GetCellAtId(cellId, npts, pointIds);
       if (npts > 0)
       {
         vtkIdType pointId0 = pointIds[0];
@@ -742,8 +738,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           points->GetPoint(pointId1, point1);
 
           // make sure points aren't flagged for removal
-          if (pointNeighborCounts[pointId0] > 0 &&
-              pointNeighborCounts[pointId1] > 0)
+          if (pointNeighborCounts[pointId0] > 0 && pointNeighborCounts[pointId1] > 0)
           {
             raster.InsertLine(point0, point1);
           }
@@ -768,16 +763,14 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
 //----------------------------------------------------------------------------
 int vtkPolyDataToImageStencil::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestData(request, inputVector, outputVector);
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageStencilData* data =
+    vtkImageStencilData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int extent[6];
   data->GetExtent(extent);
@@ -789,9 +782,7 @@ int vtkPolyDataToImageStencil::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToImageStencil::FillInputPortInformation(
-  int,
-  vtkInformation* info)
+int vtkPolyDataToImageStencil::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

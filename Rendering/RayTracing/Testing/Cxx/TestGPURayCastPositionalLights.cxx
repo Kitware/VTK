@@ -15,29 +15,29 @@
 // This test volume renders a synthetic dataset with four different
 // positional lights in the scene.
 
+#include "vtkOSPRayPass.h"
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkLight.h>
 #include <vtkNew.h>
-#include "vtkOSPRayPass.h"
 #include <vtkPiecewiseFunction.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtkLightActor.h>
-#include <vtkContourFilter.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkContourFilter.h>
+#include <vtkLightActor.h>
+#include <vtkPolyDataMapper.h>
 
-int TestGPURayCastPositionalLights(int argc, char *argv[])
+int TestGPURayCastPositionalLights(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -53,8 +53,7 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
@@ -72,9 +71,9 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   vtkNew<vtkLight> light1;
   light1->SetLightTypeToSceneLight();
   light1->SetPositional(true);
-  light1->SetDiffuseColor(1,0,0);
-  light1->SetAmbientColor(0,0,0);
-  light1->SetSpecularColor(1,1,1);
+  light1->SetDiffuseColor(1, 0, 0);
+  light1->SetAmbientColor(0, 0, 0);
+  light1->SetSpecularColor(1, 1, 1);
   light1->SetConeAngle(60);
   light1->SetPosition(0.0, 0.0, 100.0);
   light1->SetFocalPoint(0.0, 0.0, 0.0);
@@ -123,14 +122,13 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   ren->AddActor(ac);
   vtkNew<vtkActor> ac1;
   ac1->SetMapper(pm);
-  ac1->SetPosition(0,0,0);
+  ac1->SetPosition(0, 0, 0);
   ren->SetTwoSidedLighting(0);
 
   ren->AddLight(light1);
 
   // Attach OSPRay render pass
-  vtkSmartPointer<vtkOSPRayPass> osprayPass =
-    vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> osprayPass = vtkSmartPointer<vtkOSPRayPass>::New();
   if (useOSP)
   {
     ren->SetPass(osprayPass);
@@ -141,8 +139,8 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   ren->ResetCamera();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

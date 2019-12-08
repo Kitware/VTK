@@ -17,8 +17,8 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
@@ -37,31 +37,31 @@
 #include "vtkRenderer.h"
 
 // A function to point an actor along a vector
-void PointCone(vtkActor *actor, double nx, double ny, double nz)
+void PointCone(vtkActor* actor, double nx, double ny, double nz)
 {
   if (nx < 0.0)
   {
     actor->RotateWXYZ(180, 0, 1, 0);
-    actor->RotateWXYZ(180, (nx - 1.0)*0.5, ny*0.5, nz*0.5);
+    actor->RotateWXYZ(180, (nx - 1.0) * 0.5, ny * 0.5, nz * 0.5);
   }
   else
   {
-    actor->RotateWXYZ(180, (nx + 1.0)*0.5, ny*0.5, nz*0.5);
+    actor->RotateWXYZ(180, (nx + 1.0) * 0.5, ny * 0.5, nz * 0.5);
   }
 }
 
 int TestCellPickerImage(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkInteractorStyle* style = vtkInteractorStyleImage::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
   renWin->Delete();
   style->Delete();
 
-  vtkImageReader2 *reader = vtkImageReader2::New();
+  vtkImageReader2* reader = vtkImageReader2::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   // use negative spacing to strengthen the testing
@@ -69,34 +69,32 @@ int TestCellPickerImage(int argc, char* argv[])
   // a nice random-ish origin for testing
   reader->SetDataOrigin(2.5, -13.6, 2.8);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   reader->SetFilePrefix(fname);
   reader->Update();
   delete[] fname;
 
-  vtkRenderer *renderers[4];
+  vtkRenderer* renderers[4];
   for (int i = 0; i < 4; i++)
   {
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkRenderer* renderer = vtkRenderer::New();
     renderers[i] = renderer;
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
     renderer->Delete();
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkImageSliceMapper* imageMapper = vtkImageSliceMapper::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->SliceAtFocalPointOn();
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     if (i < 3)
     {
@@ -121,7 +119,7 @@ int TestCellPickerImage(int argc, char* argv[])
       camera->Elevation(40);
     }
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkImageSlice* image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
     imageMapper->Delete();
     renderer->AddViewProp(image);
@@ -132,11 +130,11 @@ int TestCellPickerImage(int argc, char* argv[])
     image->Delete();
   }
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
   renWin->Render();
 
   // a cone source that points along the z axis
-  vtkConeSource *coneSource = vtkConeSource::New();
+  vtkConeSource* coneSource = vtkConeSource::New();
   coneSource->CappingOn();
   coneSource->SetHeight(24);
   coneSource->SetRadius(8);
@@ -144,20 +142,15 @@ int TestCellPickerImage(int argc, char* argv[])
   coneSource->SetCenter(12, 0, 0);
   coneSource->SetDirection(-1, 0, 0);
 
-  vtkCellPicker *picker = vtkCellPicker::New();
+  vtkCellPicker* picker = vtkCellPicker::New();
   picker->SetTolerance(1e-6);
 
-  const static int pickpos[4][2] = {
-    { 120, 90 },
-    { 278, 99 },
-    { 90, 310 },
-    { 250, 260 }
-  };
+  const static int pickpos[4][2] = { { 120, 90 }, { 278, 99 }, { 90, 310 }, { 250, 260 } };
 
   bool pickSuccess = true;
   for (int i = 0; i < 4; i++)
   {
-    vtkRenderer *renderer = renderers[i];
+    vtkRenderer* renderer = renderers[i];
 
     // Pick the image
     picker->Pick(pickpos[i][0], pickpos[i][1], 0.0, renderer);
@@ -176,9 +169,9 @@ int TestCellPickerImage(int argc, char* argv[])
     }
 
     // Draw a cone where the pick occurred
-    vtkActor *coneActor = vtkActor::New();
+    vtkActor* coneActor = vtkActor::New();
     coneActor->PickableOff();
-    vtkDataSetMapper *coneMapper = vtkDataSetMapper::New();
+    vtkDataSetMapper* coneMapper = vtkDataSetMapper::New();
     coneMapper->SetInputConnection(coneSource->GetOutputPort());
     coneActor->SetMapper(coneMapper);
     coneActor->GetProperty()->SetColor(1, 0, 0);
@@ -191,8 +184,8 @@ int TestCellPickerImage(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

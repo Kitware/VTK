@@ -27,7 +27,7 @@
  * This class was written by Philippe Pebay based on a idea of Guenole
  * Harel and Jacques-Bernard Lekien, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
-*/
+ */
 
 #ifndef vtkHyperTreeGridAxisReflection_h
 #define vtkHyperTreeGridAxisReflection_h
@@ -41,8 +41,8 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHype
 {
 public:
   static vtkHyperTreeGridAxisReflection* New();
-  vtkTypeMacro( vtkHyperTreeGridAxisReflection, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridAxisReflection, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
   /**
    * Specify unique identifiers of available reflection planes.
@@ -66,15 +66,15 @@ public:
    */
   vtkSetClampMacro(Plane, int, 0, 8);
   vtkGetMacro(Plane, int);
-  void SetPlaneToX() { this->SetPlane( USE_X ); };
-  void SetPlaneToY() { this->SetPlane( USE_Y ); };
-  void SetPlaneToZ() { this->SetPlane( USE_Z ); };
-  void SetPlaneToXMin() { this->SetPlane( USE_X_MIN ); };
-  void SetPlaneToYMin() { this->SetPlane( USE_Y_MIN ); };
-  void SetPlaneToZMin() { this->SetPlane( USE_Z_MIN ); };
-  void SetPlaneToXMax() { this->SetPlane( USE_X_MAX ); };
-  void SetPlaneToYMax() { this->SetPlane( USE_Y_MAX ); };
-  void SetPlaneToZMax() { this->SetPlane( USE_Z_MAX ); };
+  void SetPlaneToX() { this->SetPlane(USE_X); }
+  void SetPlaneToY() { this->SetPlane(USE_Y); }
+  void SetPlaneToZ() { this->SetPlane(USE_Z); }
+  void SetPlaneToXMin() { this->SetPlane(USE_X_MIN); }
+  void SetPlaneToYMin() { this->SetPlane(USE_Y_MIN); }
+  void SetPlaneToZMin() { this->SetPlane(USE_Z_MIN); }
+  void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); }
+  void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); }
+  void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); }
   //@}
 
   //@{
@@ -93,12 +93,12 @@ protected:
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to extract cells based on reflectioned value
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Required type of plane reflection

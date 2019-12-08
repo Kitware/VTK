@@ -17,29 +17,30 @@
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkPointData);
 
-void vtkPointData::NullPoint (vtkIdType ptId)
+void vtkPointData::NullPoint(vtkIdType ptId)
 {
   vtkFieldData::Iterator it(this);
   vtkDataArray* da;
-  for(da=it.Begin(); !it.End(); da=it.Next())
+  std::vector<float> tuple(32, 0.f);
+  for (da = it.Begin(); !it.End(); da = it.Next())
   {
     if (da)
     {
-      int length = da->GetNumberOfComponents();
-      float* tuple = new float[length];
-      for(int j=0; j<length; j++)
+      const size_t numComps = static_cast<size_t>(da->GetNumberOfComponents());
+      if (numComps > tuple.size())
       {
-        tuple[j] = 0;
+        tuple.resize(numComps, 0.f);
       }
-      da->InsertTuple(ptId, tuple);
-      delete[] tuple;
+      da->InsertTuple(ptId, tuple.data());
     }
   }
 }
 
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkXMLPUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLUnstructuredGridWriter_h
 #define vtkXMLUnstructuredGridWriter_h
@@ -33,13 +33,12 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"
 
-
 class vtkUnstructuredGridBase;
 
 class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLUnstructuredGridWriter,vtkXMLUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLUnstructuredGridWriter, vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLUnstructuredGridWriter* New();
 
@@ -77,7 +76,7 @@ protected:
 
   // Positions of attributes for each piece.
   vtkTypeInt64* NumberOfCellsPositions;
-  OffsetsManagerArray *CellsOM; //one per piece
+  OffsetsManagerArray* CellsOM; // one per piece
 
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) = delete;

@@ -23,13 +23,13 @@
  * functionality, consider using vtkSimpleImageToImageFilter instead.
  * @sa
  * vtkSimpleImageToImageFilter
-*/
+ */
 
 #ifndef vtkImageAlgorithm_h
 #define vtkImageAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkImageData;
@@ -37,7 +37,7 @@ class vtkImageData;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageAlgorithm : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkImageAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkImageAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -54,9 +54,8 @@ public:
    * request will be delegated to one of the following methods: RequestData,
    * RequestInformation, or RequestUpdateExtent.
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //@{
   /**
@@ -64,7 +63,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection to
    * setup a pipeline connection.
    */
-  void SetInputData(vtkDataObject *);
+  void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
   //@}
 
@@ -74,9 +73,9 @@ public:
    * of this method is strongly discouraged, but some filters that were
    * written a long time ago still use this method.
    */
-  vtkDataObject *GetInput(int port);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
-  vtkImageData  *GetImageDataInput(int port);
+  vtkDataObject* GetInput(int port);
+  vtkDataObject* GetInput() { return this->GetInput(0); }
+  vtkImageData* GetImageDataInput(int port);
   //@}
 
   //@{
@@ -85,7 +84,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection to
    * setup a pipeline connection.
    */
-  virtual void AddInputData(vtkDataObject *);
+  virtual void AddInputData(vtkDataObject*);
   virtual void AddInputData(int, vtkDataObject*);
   //@}
 
@@ -97,19 +96,15 @@ protected:
    * Subclasses can reimplement this method to collect information
    * from their inputs and set information for their outputs.
    */
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * Subclasses can reimplement this method to translate the update
    * extent requests from each output port into update extent requests
    * for the input connections.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   /**
    * Convenience method to copy the scalar type and number of components
@@ -119,9 +114,7 @@ protected:
    * components from the input.
    */
   virtual void CopyInputArrayAttributesToOutput(vtkInformation* request,
-                                                vtkInformationVector** inputVector,
-                                                vtkInformationVector* outputVector);
-
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
   /**
    * This is called in response to a REQUEST_DATA request from the
@@ -130,23 +123,21 @@ protected:
    * their outputs.  For images, the output arrays will already be
    * allocated, so all that is necessary is to fill in the voxel values.
    */
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is a convenience method that is implemented in many subclasses
    * instead of RequestData.  It is called by RequestData.
    */
-  virtual void ExecuteDataWithInformation(vtkDataObject *output,
-                                          vtkInformation* outInfo);
+  virtual void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo);
 
   //@{
   /**
    * This method is the old style execute method, provided for the sake
    * of backwards compatibility with older filters and readers.
    */
-  virtual void ExecuteData(vtkDataObject *output);
+  virtual void ExecuteData(vtkDataObject* output);
   virtual void Execute();
   //@}
 
@@ -155,19 +146,16 @@ protected:
    * Allocate the output data.  This will be called before RequestData,
    * it is not necessary for subclasses to call this method themselves.
    */
-  virtual void AllocateOutputData(vtkImageData *out,
-                                  vtkInformation* outInfo,
-                                  int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
-                                           vtkInformation *outInfo);
+  virtual void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent);
+  virtual vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo);
   //@}
 
   /**
    * Copy the other point and cell data.  Subclasses will almost never
    * need to reimplement this method.
    */
-  virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,
-                                 vtkInformationVector** inputVector);
+  virtual void CopyAttributeData(
+    vtkImageData* in, vtkImageData* out, vtkInformationVector** inputVector);
 
   //@{
   /**
@@ -185,10 +173,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-

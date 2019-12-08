@@ -21,7 +21,7 @@
  * multi-group, multi-block hierarchical and hierarchical box files. XML
  * multi-group data files are meta-files that point to a list of serial VTK
  * XML files.
-*/
+ */
 
 #ifndef vtkXMLPMultiBlockDataWriter_h
 #define vtkXMLPMultiBlockDataWriter_h
@@ -75,9 +75,8 @@ public:
   void SetWriteMetaFile(int flag) override;
 
   // See the vtkAlgorithm for a description of what these do
-  int ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkXMLPMultiBlockDataWriter();
@@ -104,8 +103,8 @@ protected:
    * no files were written from compositeData.  Process 0 creates
    * the metadata for all of the processes/files.
    */
-  int WriteComposite(vtkCompositeDataSet* compositeData,
-                             vtkXMLDataElement* parent, int &currentFileIndex) override;
+  int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& currentFileIndex) override;
 
   /**
    * Internal method to write a non vtkCompositeDataSet subclass as
@@ -119,16 +118,14 @@ protected:
    * 0 if no file was written.
    */
   int ParallelWriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* parentXML,
-    int currentFileIndex);
+    vtkDataObject* dObj, vtkXMLDataElement* parentXML, int currentFileIndex);
 
   /**
    * Return the name of the file given the currentFileIndex (also the current
    * globally numbered piece index), the procId the file exists on, and
    * the dataSetType.
    */
-  virtual vtkStdString CreatePieceFileName(
-    int currentFileIndex, int procId, int dataSetType);
+  virtual vtkStdString CreatePieceFileName(int currentFileIndex, int procId, int dataSetType);
 
   /**
    * Utility function to remove any already written files

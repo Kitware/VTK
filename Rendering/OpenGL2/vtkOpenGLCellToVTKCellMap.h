@@ -24,10 +24,10 @@
 #ifndef vtkOpenGLCellToVTKCellMap_h
 #define vtkOpenGLCellToVTKCellMap_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkObject.h"
-#include "vtkStateStorage.h" // used for ivars
 #include "vtkNew.h" // for ivars
+#include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkStateStorage.h"           // used for ivars
 
 class vtkCellArray;
 class vtkPoints;
@@ -35,7 +35,7 @@ class vtkPoints;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCellToVTKCellMap : public vtkObject
 {
 public:
-  static vtkOpenGLCellToVTKCellMap *New();
+  static vtkOpenGLCellToVTKCellMap* New();
   vtkTypeMacro(vtkOpenGLCellToVTKCellMap, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -46,41 +46,25 @@ public:
   //
   // The same concept applies to cell based picking
   //
-  void BuildCellSupportArrays(
-    vtkCellArray *[4],
-    int representation,
-    vtkPoints *points);
+  void BuildCellSupportArrays(vtkCellArray * [4], int representation, vtkPoints* points);
 
-  void BuildPrimitiveOffsetsIfNeeded(
-    vtkCellArray *[4],
-    int representation,
-    vtkPoints *points
-  );
+  void BuildPrimitiveOffsetsIfNeeded(vtkCellArray * [4], int representation, vtkPoints* points);
 
-  vtkIdType ConvertOpenGLCellIdToVTKCellId(
-    bool pointPicking,
-    vtkIdType openGLId
-    );
+  vtkIdType ConvertOpenGLCellIdToVTKCellId(bool pointPicking, vtkIdType openGLId);
 
   // rebuilds if needed
-  void Update(
-    vtkCellArray **prims, int representation,
-    vtkPoints *points);
+  void Update(vtkCellArray** prims, int representation, vtkPoints* points);
 
   size_t GetSize() { return this->CellCellMap.size(); }
 
-  vtkIdType *GetPrimitiveOffsets() {
-    return this->PrimitiveOffsets;
-  }
+  vtkIdType* GetPrimitiveOffsets() { return this->PrimitiveOffsets; }
 
   vtkIdType GetValue(size_t i) { return this->CellCellMap[i]; }
 
   // what offset should verts start at
   void SetStartOffset(vtkIdType start);
 
-  vtkIdType GetFinalOffset() {
-    return this->PrimitiveOffsets[3] + this->CellMapSizes[3];
-  }
+  vtkIdType GetFinalOffset() { return this->PrimitiveOffsets[3] + this->CellMapSizes[3]; }
 
 protected:
   vtkOpenGLCellToVTKCellMap();

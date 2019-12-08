@@ -17,8 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
-
-vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
+vtkCxxSetObjectMacro(vtkLocator, DataSet, vtkDataSet);
 
 vtkLocator::vtkLocator()
 {
@@ -49,8 +48,7 @@ void vtkLocator::Update()
     vtkErrorMacro(<< "Input not set!");
     return;
   }
-  if ((this->MTime > this->BuildTime) ||
-      (this->DataSet->GetMTime() > this->BuildTime))
+  if ((this->MTime > this->BuildTime) || (this->DataSet->GetMTime() > this->BuildTime))
   {
     this->BuildLocator();
   }
@@ -58,9 +56,9 @@ void vtkLocator::Update()
 
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->DataSet )
+  if (this->DataSet)
   {
     os << indent << "DataSet: " << this->DataSet << "\n";
   }
@@ -69,11 +67,11 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DataSet: (none)\n";
   }
 
-  os << indent << "Automatic: "  << (this->Automatic ? "On\n" : "Off\n");
-  os << indent << "Tolerance: "  << this->Tolerance << "\n" ;
+  os << indent << "Automatic: " << (this->Automatic ? "On\n" : "Off\n");
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
-  os << indent << "MaxLevel: "   << this->MaxLevel << "\n" ;
-  os << indent << "Level: "      << this->Level << "\n" ;
+  os << indent << "MaxLevel: " << this->MaxLevel << "\n";
+  os << indent << "Level: " << this->Level << "\n";
 }
 
 //----------------------------------------------------------------------------

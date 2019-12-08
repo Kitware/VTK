@@ -36,13 +36,13 @@
  * A view has the concept of linked selection.  If the same data is displayed
  * in multiple views, their selections may be linked by setting the same
  * vtkAnnotationLink on their representations (see vtkDataRepresentation).
-*/
+ */
 
 #ifndef vtkView_h
 #define vtkView_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkCommand;
@@ -54,7 +54,7 @@ class vtkViewTheme;
 class VTKVIEWSCORE_EXPORT vtkView : public vtkObject
 {
 public:
-  static vtkView *New();
+  static vtkView* New();
   vtkTypeMacro(vtkView, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -144,7 +144,7 @@ public:
   /**
    * Apply a theme to the view.
    */
-  virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
+  virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) {}
 
   /**
    * Returns the observer that the subclasses can use to listen to additional
@@ -162,7 +162,7 @@ public:
   {
     const char* Message;
     double Progress;
-  //@}
+    //@}
 
   public:
     ViewProgressEventCallData(const char* msg, double progress)
@@ -170,22 +170,17 @@ public:
       this->Message = msg;
       this->Progress = progress;
     }
-    ~ViewProgressEventCallData()
-    {
-      this->Message = nullptr;
-    }
+    ~ViewProgressEventCallData() { this->Message = nullptr; }
 
     /**
      * Get the message.
      */
-    const char* GetProgressMessage() const
-      { return this->Message; }
+    const char* GetProgressMessage() const { return this->Message; }
 
     /**
      * Get the progress value in range [0.0, 1.0].
      */
-    double GetProgress() const
-      { return this->Progress; }
+    double GetProgress() const { return this->Progress; }
   };
 
   /**
@@ -197,7 +192,7 @@ public:
    * the progress amount. If message is not provided, then the class name for
    * the algorithm is used.
    */
-  void RegisterProgress(vtkObject* algorithm, const char* message=nullptr);
+  void RegisterProgress(vtkObject* algorithm, const char* message = nullptr);
 
   /**
    * Unregister objects previously registered with RegisterProgress.
@@ -213,8 +208,7 @@ protected:
    * The superclass processes selection changed events from its representations.
    * This may be overridden by subclasses to process additional events.
    */
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-    void* callData);
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
 
   /**
    * Create a default vtkDataRepresentation for the given vtkAlgorithmOutput.
@@ -255,7 +249,6 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-
 };
 
 #endif

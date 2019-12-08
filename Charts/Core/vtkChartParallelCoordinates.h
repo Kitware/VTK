@@ -19,14 +19,14 @@
  *
  *
  * This defines the interface for a parallel coordinates chart.
-*/
+ */
 
 #ifndef vtkChartParallelCoordinates_h
 #define vtkChartParallelCoordinates_h
 
-#include "vtkChartsCoreModule.h" // For export macro
-#include "vtkNew.h" // For vtkNew
 #include "vtkChart.h"
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h"              // For vtkNew
 
 class vtkIdTypeArray;
 class vtkStdString;
@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a parallel coordinates chart
@@ -54,7 +54,7 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the visibility of the specified column.
@@ -112,42 +112,42 @@ public:
    * Set plot to use for the chart. Since this type of chart can
    * only contain one plot, this will replace the previous plot.
    */
-  virtual void SetPlot(vtkPlotParallelCoordinates *plot);
+  virtual void SetPlot(vtkPlotParallelCoordinates* plot);
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse enter event.
    */
-  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse leave event.
    */
-  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
 protected:
   vtkChartParallelCoordinates();
@@ -158,7 +158,7 @@ protected:
    * Private storage object - where we hide all of our STL objects...
    */
   class Private;
-  Private *Storage;
+  Private* Storage;
   //@}
 
   bool GeometryValid;
@@ -166,7 +166,7 @@ protected:
   /**
    * Selected indices for the table the plot is rendering
    */
-  vtkIdTypeArray *Selection;
+  vtkIdTypeArray* Selection;
 
   /**
    * Strongly owned internal data for the column visibility.
@@ -186,9 +186,8 @@ protected:
   void SwapAxes(int a1, int a2);
 
 private:
-  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &) = delete;
-  void operator=(const vtkChartParallelCoordinates &) = delete;
-
+  vtkChartParallelCoordinates(const vtkChartParallelCoordinates&) = delete;
+  void operator=(const vtkChartParallelCoordinates&) = delete;
 };
 
-#endif //vtkChartParallelCoordinates_h
+#endif // vtkChartParallelCoordinates_h

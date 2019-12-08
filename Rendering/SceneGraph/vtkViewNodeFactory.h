@@ -20,18 +20,17 @@
  * asked to make a vtkViewNode for a particular renderable. modules for
  * different rendering backends are expected to use this to customize the
  * set of instances for their own purposes
-*/
+ */
 
 #ifndef vtkViewNodeFactory_h
 #define vtkViewNodeFactory_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 class vtkViewNode;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeFactory :
-  public vtkObject
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeFactory : public vtkObject
 {
 public:
   static vtkViewNodeFactory* New();
@@ -42,17 +41,17 @@ public:
    * Give a function pointer to a class that will manufacture a
    * vtkViewNode when given a class name string.
    */
-  void RegisterOverride(const char *name, vtkViewNode *(*func)());
+  void RegisterOverride(const char* name, vtkViewNode* (*func)());
 
   /**
    * Creates and returns a vtkViewNode for the provided renderable.
    */
-  vtkViewNode *CreateNode(vtkObject *);
+  vtkViewNode* CreateNode(vtkObject*);
 
   /**
    * Creates and returns a vtkViewNode for the provided class name.
    */
-  vtkViewNode *CreateNode(const char *);
+  vtkViewNode* CreateNode(const char*);
 
 protected:
   vtkViewNodeFactory();
@@ -63,7 +62,7 @@ private:
   void operator=(const vtkViewNodeFactory&) = delete;
 
   class vtkInternals;
-  vtkInternals *Internals;
+  vtkInternals* Internals;
 };
 
 #endif

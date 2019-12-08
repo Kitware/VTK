@@ -15,11 +15,11 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
-#include "vtkPolyLineWidget.h"
 #include "vtkPolyLineRepresentation.h"
-#include "vtkRenderer.h"
+#include "vtkPolyLineWidget.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 const char events[] = R"(# StreamVersion 1.1
@@ -197,9 +197,9 @@ int TestPolylineWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // record events
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  //recorder->On();
-  //recorder->Record();
+  // recorder->SetFileName("/tmp/record.log");
+  // recorder->On();
+  // recorder->Record();
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(events);
 

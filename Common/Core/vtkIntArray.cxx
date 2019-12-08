@@ -33,5 +33,5 @@ vtkIntArray::~vtkIntArray() = default;
 //----------------------------------------------------------------------------
 void vtkIntArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

@@ -15,8 +15,8 @@
  *
  */
 
-#include <jni.h>
 #include <errno.h>
+#include <jni.h>
 
 #include "vtkNew.h"
 
@@ -26,9 +26,9 @@
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkPNGWriter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPNGWriter.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
@@ -42,7 +42,6 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <sys/stat.h>
-
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "NativeVTK", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "NativeVTK", __VA_ARGS__))
@@ -95,12 +94,12 @@ void android_main(struct android_app* state)
 
   renderer->AddActor(sphereActor.Get());
   renderer->AddActor(spikeActor.Get());
-  renderer->SetBackground(0.4,0.5,0.6);
+  renderer->SetBackground(0.4, 0.5, 0.6);
 
   vtkNew<vtkTextActor> ta;
   ta->SetInput("Droids Rock");
-  ta->GetTextProperty()->SetColor( 0.5, 1.0, 0.0 );
-  ta->SetDisplayPosition(50,50);
+  ta->GetTextProperty()->SetColor(0.5, 1.0, 0.0);
+  ta->SetDisplayPosition(50, 50);
   ta->GetTextProperty()->SetFontSize(32);
   renderer->AddActor(ta.Get());
 
@@ -111,90 +110,90 @@ void android_main(struct android_app* state)
   renWin->Render();
   renWin->Render();
 
-
   /**************************************************
-  *  THIS BLOCK IS JUST FOR VTK's REGRESSIONS TESTING
-  *  AND IS NOT NEEDED IN GENERAL
-  **************************************************/
+   *  THIS BLOCK IS JUST FOR VTK's REGRESSIONS TESTING
+   *  AND IS NOT NEEDED IN GENERAL
+   **************************************************/
   {
-  JNIEnv *env;
-  state->activity->vm->AttachCurrentThread(&env, 0);
+    JNIEnv* env;
+    state->activity->vm->AttachCurrentThread(&env, 0);
 
-  jobject me = state->activity->clazz;
+    jobject me = state->activity->clazz;
 
-  jclass acl = env->GetObjectClass(me); //class pointer of NativeActivity
-  jmethodID giid = env->GetMethodID(acl, "getIntent", "()Landroid/content/Intent;");
-  jobject intent = env->CallObjectMethod(me, giid); //Got our intent
+    jclass acl = env->GetObjectClass(me); // class pointer of NativeActivity
+    jmethodID giid = env->GetMethodID(acl, "getIntent", "()Landroid/content/Intent;");
+    jobject intent = env->CallObjectMethod(me, giid); // Got our intent
 
-  jclass icl = env->GetObjectClass(intent); //class pointer of Intent
-  jmethodID gseid = env->GetMethodID(icl, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+    jclass icl = env->GetObjectClass(intent); // class pointer of Intent
+    jmethodID gseid =
+      env->GetMethodID(icl, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
 
-  jstring jsParam1 = (jstring)env->CallObjectMethod(intent, gseid, env->NewStringUTF("VTKTesting"));
-  int testing = 0;
-  if (jsParam1)
-  {
-    const char *Param1 = env->GetStringUTFChars(jsParam1, 0);
-    testing = !strcmp(Param1,"Testing");
-    //When done with it, or when you've made a copy
-    env->ReleaseStringUTFChars(jsParam1, Param1);
-  }
-  state->activity->vm->DetachCurrentThread();
-
-  if (testing)
-  {
-    ANativeActivity* nativeActivity = state->activity;
-    const char* internalPath = nativeActivity->externalDataPath;
-    std::string dataPath(internalPath);
-
-    // sometimes if this is the first time we run the app
-    // then we need to create the internal storage "files" directory
-    struct stat sb;
-    int32_t res = stat(dataPath.c_str(), &sb);
-    if (0 == res && sb.st_mode & S_IFDIR)
+    jstring jsParam1 =
+      (jstring)env->CallObjectMethod(intent, gseid, env->NewStringUTF("VTKTesting"));
+    int testing = 0;
+    if (jsParam1)
     {
-      LOGW("'files/' dir already in app's internal data storage.");
+      const char* Param1 = env->GetStringUTFChars(jsParam1, 0);
+      testing = !strcmp(Param1, "Testing");
+      // When done with it, or when you've made a copy
+      env->ReleaseStringUTFChars(jsParam1, Param1);
     }
-    else if (ENOENT == errno)
+    state->activity->vm->DetachCurrentThread();
+
+    if (testing)
     {
-      res = mkdir(dataPath.c_str(), 0774);
+      ANativeActivity* nativeActivity = state->activity;
+      const char* internalPath = nativeActivity->externalDataPath;
+      std::string dataPath(internalPath);
+
+      // sometimes if this is the first time we run the app
+      // then we need to create the internal storage "files" directory
+      struct stat sb;
+      int32_t res = stat(dataPath.c_str(), &sb);
+      if (0 == res && sb.st_mode & S_IFDIR)
+      {
+        LOGW("'files/' dir already in app's internal data storage.");
+      }
+      else if (ENOENT == errno)
+      {
+        res = mkdir(dataPath.c_str(), 0774);
+      }
+
+      // internalDataPath points directly to the files/ directory
+      std::string outputFile = dataPath + "/NativeVTKResult.png";
+      LOGW(outputFile.c_str());
+      vtkNew<vtkWindowToImageFilter> rtW2if;
+      rtW2if->SetInput(renWin.Get());
+      rtW2if->ReadFrontBufferOff();
+      rtW2if->SetInputBufferTypeToRGBA();
+
+      vtkNew<vtkImageExtractComponents> iec;
+      iec->SetInputConnection(rtW2if->GetOutputPort());
+      iec->SetComponents(0, 1, 2);
+
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetFileName(outputFile.c_str());
+      rtPngw->SetInputConnection(iec->GetOutputPort());
+      rtPngw->Write();
+
+      // vtkNew<vtkImageDifference> rtId;
+
+      vtkNew<vtkTesting> tst;
+      std::string outputText = dataPath + "/NativeVTKResult.txt";
+      std::ofstream ofs;
+      ofs.open(outputText.c_str(), std::ofstream::out);
+      std::string validFile = dataPath + "/NativeVTKValid.png";
+      tst->AddArgument("-V");
+      tst->AddArgument(validFile.c_str());
+      int result = tst->RegressionTest(outputFile.c_str(), 10.0, ofs);
+      ofs.close();
+
+      ANativeActivity_finish(state->activity);
     }
-
-    // internalDataPath points directly to the files/ directory
-    std::string outputFile = dataPath + "/NativeVTKResult.png";
-    LOGW(outputFile.c_str());
-    vtkNew<vtkWindowToImageFilter> rtW2if;
-    rtW2if->SetInput(renWin.Get());
-    rtW2if->ReadFrontBufferOff();
-    rtW2if->SetInputBufferTypeToRGBA();
-
-    vtkNew<vtkImageExtractComponents> iec;
-    iec->SetInputConnection(rtW2if->GetOutputPort());
-    iec->SetComponents(0,1,2);
-
-    vtkNew<vtkPNGWriter> rtPngw;
-    rtPngw->SetFileName(outputFile.c_str());
-    rtPngw->SetInputConnection(iec->GetOutputPort());
-    rtPngw->Write();
-
-    //vtkNew<vtkImageDifference> rtId;
-
-    vtkNew<vtkTesting> tst;
-    std::string outputText = dataPath + "/NativeVTKResult.txt";
-    std::ofstream ofs;
-    ofs.open(outputText.c_str(),std::ofstream::out);
-    std::string validFile = dataPath + "/NativeVTKValid.png";
-    tst->AddArgument("-V");
-    tst->AddArgument(validFile.c_str());
-    int result = tst->RegressionTest(outputFile.c_str(),10.0,ofs);
-    ofs.close();
-
-
-    ANativeActivity_finish(state->activity);
-  }
   }
   /*********************************************
-  *  END OF THE REGRESSION TESTING BLOCK
-  *********************************************/
+   *  END OF THE REGRESSION TESTING BLOCK
+   *********************************************/
 
   iren->Start();
 }

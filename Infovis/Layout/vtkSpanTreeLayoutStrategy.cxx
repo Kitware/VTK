@@ -25,19 +25,19 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkSpanTreeLayoutStrategy.h"
 #include "vtkConeLayoutStrategy.h"
-#include "vtkObjectFactory.h"
-#include "vtkMutableDirectedGraph.h"
-#include "vtkTree.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkInEdgeIterator.h"
-#include "vtkOutEdgeIterator.h"
-#include "vtkGraphLayout.h"
-#include "vtkGraph.h"
-#include "vtkPoints.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkGraph.h"
+#include "vtkGraphLayout.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInEdgeIterator.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkTree.h"
 
 //--------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkSpanTreeLayoutStrategy);
 
 vtkSpanTreeLayoutStrategy::vtkSpanTreeLayoutStrategy()
 {
-  this->TreeLayout             = vtkConeLayoutStrategy::New();
+  this->TreeLayout = vtkConeLayoutStrategy::New();
   this->DepthFirstSpanningTree = false;
 }
 
@@ -76,31 +76,25 @@ struct _vtkBridge_s
 
 void vtkSpanTreeLayoutStrategy::Layout()
 {
-  vtkSmartPointer<vtkPoints> points
-    = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkMutableDirectedGraph> spanningDAG
-    = vtkSmartPointer<vtkMutableDirectedGraph>::New();
-  vtkSmartPointer<vtkEdgeListIterator> edges
-    = vtkSmartPointer<vtkEdgeListIterator>::New();
-  vtkSmartPointer<vtkGraphLayout> layoutWorker
-    = vtkSmartPointer<vtkGraphLayout>::New();
-  vtkSmartPointer<vtkOutEdgeIterator> outEdges
-    = vtkSmartPointer<vtkOutEdgeIterator>::New();
-  vtkSmartPointer<vtkInEdgeIterator> inEdges
-    = vtkSmartPointer<vtkInEdgeIterator>::New();
-
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkMutableDirectedGraph> spanningDAG =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkEdgeListIterator> edges = vtkSmartPointer<vtkEdgeListIterator>::New();
+  vtkSmartPointer<vtkGraphLayout> layoutWorker = vtkSmartPointer<vtkGraphLayout>::New();
+  vtkSmartPointer<vtkOutEdgeIterator> outEdges = vtkSmartPointer<vtkOutEdgeIterator>::New();
+  vtkSmartPointer<vtkInEdgeIterator> inEdges = vtkSmartPointer<vtkInEdgeIterator>::New();
 
   // Auxiliary structures used for building a spanning tree
-  int *level;
-  int *marks;
-  vtkIdType *queue;
+  int* level;
+  int* marks;
+  vtkIdType* queue;
   vtkIdType front, back;
 
   // Handle for the layout computed for the spanning tree
-  vtkPoints *layout;
+  vtkPoints* layout;
 
   // Auxiliary structures for placing bends into edges.
-  _vtkBridge_s *editlist;
+  _vtkBridge_s* editlist;
   _vtkBridge_s link;
   link.delta = 0;
   link.anchor[1] = 0;
@@ -112,7 +106,7 @@ void vtkSpanTreeLayoutStrategy::Layout()
 
   // ----------------------------------------------------------
 
-  vtkDebugMacro(<<"vtkSpanTreeLayoutStrategy executing.");
+  vtkDebugMacro(<< "vtkSpanTreeLayoutStrategy executing.");
 
   // Ensure that all required inputs are available.
   nrNodes = this->Graph->GetNumberOfVertices();
@@ -122,15 +116,15 @@ void vtkSpanTreeLayoutStrategy::Layout()
   {
     if (nrNodes == 0)
     {
-      vtkErrorMacro(<< "Cannot execute - no nodes in input." );
+      vtkErrorMacro(<< "Cannot execute - no nodes in input.");
     }
     if (nrEdges == 0)
     {
-      vtkErrorMacro(<< "Cannot execute - no edges in input." );
+      vtkErrorMacro(<< "Cannot execute - no edges in input.");
     }
     if (!this->TreeLayout)
     {
-      vtkErrorMacro(<< "Cannot execute - no tree layout strategy." );
+      vtkErrorMacro(<< "Cannot execute - no tree layout strategy.");
     }
     return;
   }
@@ -139,9 +133,9 @@ void vtkSpanTreeLayoutStrategy::Layout()
   // rather than via a Boost class so we can offer a choice of spanning
   // tree.  Graph traversal is supported by a queue, and during
   // traversal the (tree)level is calculated for each vertex.
-  level = new int [nrNodes];
-  marks = new int [nrNodes];
-  queue = new vtkIdType [nrNodes];
+  level = new int[nrNodes];
+  marks = new int[nrNodes];
+  queue = new vtkIdType[nrNodes];
 
   // Initialize spanning tree with all vertices of the graph.
   for (vtkIdType v = 0; v < nrNodes; v++)
@@ -155,22 +149,22 @@ void vtkSpanTreeLayoutStrategy::Layout()
   // from that vertex.  The result is technically a spanning forest.
   for (vtkIdType v = 0; v < nrNodes; v++)
   {
-    if (!marks[v])           // not visited
+    if (!marks[v]) // not visited
     {
       front = back = 0;
-      queue[back++] = v;     // push node v
+      queue[back++] = v; // push node v
       level[v] = 0;
-      marks[v] = 1;          // mark as visited
+      marks[v] = 1; // mark as visited
       while (back != front)
       {
         vtkIdType src;
         if (this->DepthFirstSpanningTree)
         {
-          src = queue[--back];    // stack discipline = depth-first traversal
+          src = queue[--back]; // stack discipline = depth-first traversal
         }
         else
         {
-          src = queue[front++];   // queue discipline = breadth-first traversal
+          src = queue[front++]; // queue discipline = breadth-first traversal
         }
         // Look at outgoing edges from this node,
         // adding any unseen targets to the queue,
@@ -181,10 +175,10 @@ void vtkSpanTreeLayoutStrategy::Layout()
           vtkIdType dst = outEdges->Next().Target;
           if (marks[dst] == 0) // not seen or done
           {
-            level[dst] = level[src]+1;
+            level[dst] = level[src] + 1;
             queue[back++] = dst;
-            spanningDAG->AddGraphEdge(src,dst);
-            marks[dst] = 1;  //seen
+            spanningDAG->AddGraphEdge(src, dst);
+            marks[dst] = 1; // seen
           }
         }
         // Look at incoming edges: as per outgoing edges.
@@ -194,16 +188,15 @@ void vtkSpanTreeLayoutStrategy::Layout()
           vtkIdType origin = inEdges->Next().Source;
           if (marks[origin] == 0) // not seen or done
           {
-            level[origin] = level[src]+1;
+            level[origin] = level[src] + 1;
             queue[back++] = origin;
-            spanningDAG->AddGraphEdge(src,origin);
-            marks[origin] = 1;  //seen
+            spanningDAG->AddGraphEdge(src, origin);
+            marks[origin] = 1; // seen
           }
         }
       } // while back != front
-    } // if !marks[v]
-  } // for each vertex
-
+    }   // if !marks[v]
+  }     // for each vertex
 
   // Check each edge to see if it spans more than one level of
   // the tree.  If it does, the edge will be drawn using edge-points,
@@ -220,7 +213,7 @@ void vtkSpanTreeLayoutStrategy::Layout()
     if (link.edge.Source == link.edge.Target)
     {
       link.anchor[0] = spanningDAG->AddVertex();
-      spanningDAG->AddEdge(link.edge.Source,link.anchor[0]);
+      spanningDAG->AddEdge(link.edge.Source, link.anchor[0]);
       editlist[editsize++] = link;
       continue;
     }
@@ -267,27 +260,27 @@ void vtkSpanTreeLayoutStrategy::Layout()
       // scaled to that the edge points are 1/3 of the distance between
       // levels, above and below the node.
       layout->GetPoint(link.edge.Source, pointS);
-      layout->GetPoint(link.anchor[0],   pointA);
+      layout->GetPoint(link.anchor[0], pointA);
       edgePoints[0] = edgePoints[3] = pointA[0];
       edgePoints[1] = edgePoints[4] = pointA[1];
-      edgePoints[2] = pointS[2] + (pointA[2]-pointS[2])/3.0;
-      edgePoints[5] = pointS[2] - (pointA[2]-pointS[2])/3.0;
+      edgePoints[2] = pointS[2] + (pointA[2] - pointS[2]) / 3.0;
+      edgePoints[5] = pointS[2] - (pointA[2] - pointS[2]) / 3.0;
       this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
     }
     else if (link.delta > 1)
     {
       layout->GetPoint(link.edge.Source, pointS);
       layout->GetPoint(link.edge.Target, pointT);
-      layout->GetPoint(link.anchor[0],   pointA);
+      layout->GetPoint(link.anchor[0], pointA);
       edgePoints[0] = pointA[0];
       edgePoints[1] = pointA[1];
-      edgePoints[2] = pointS[2] + (pointT[2] - pointS[2])/link.delta;
+      edgePoints[2] = pointS[2] + (pointT[2] - pointS[2]) / link.delta;
       if (link.delta > 2)
       {
         layout->GetPoint(link.anchor[1], pointA);
         edgePoints[3] = edgePoints[0];
         edgePoints[4] = edgePoints[1];
-        edgePoints[5] = pointS[2] + (link.delta-1)*(pointT[2] - pointS[2])/link.delta;
+        edgePoints[5] = pointS[2] + (link.delta - 1) * (pointT[2] - pointS[2]) / link.delta;
         this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
       }
       else
@@ -300,16 +293,16 @@ void vtkSpanTreeLayoutStrategy::Layout()
       int delta = -link.delta;
       layout->GetPoint(link.edge.Source, pointS);
       layout->GetPoint(link.edge.Target, pointT);
-      layout->GetPoint(link.anchor[0],   pointA);
+      layout->GetPoint(link.anchor[0], pointA);
       edgePoints[0] = pointA[0];
       edgePoints[1] = pointA[1];
-      edgePoints[2] = pointS[2] + (pointT[2] - pointS[2])/delta;
+      edgePoints[2] = pointS[2] + (pointT[2] - pointS[2]) / delta;
       if (link.delta < -2)
       {
         layout->GetPoint(link.anchor[1], pointA);
         edgePoints[3] = edgePoints[0];
         edgePoints[4] = edgePoints[1];
-        edgePoints[5] = pointS[2] + (delta-1)*(pointT[2] - pointS[2])/delta;
+        edgePoints[5] = pointS[2] + (delta - 1) * (pointT[2] - pointS[2]) / delta;
         this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
       }
       else
@@ -320,24 +313,23 @@ void vtkSpanTreeLayoutStrategy::Layout()
   }
 
   // Clean up temporary storage.
-  delete [] editlist;
-  delete [] level;
-  delete [] marks;
-  delete [] queue;
+  delete[] editlist;
+  delete[] level;
+  delete[] marks;
+  delete[] queue;
 
   this->Graph->SetPoints(points);
-  vtkDebugMacro(<<"SpanTreeLayoutStrategy complete.");
+  vtkDebugMacro(<< "SpanTreeLayoutStrategy complete.");
 }
 
 void vtkSpanTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGraphLayoutStrategy::PrintSelf(os,indent);
+  vtkGraphLayoutStrategy::PrintSelf(os, indent);
   os << indent << "TreeLayout: " << (this->TreeLayout ? "" : "(none)") << endl;
   if (this->TreeLayout)
   {
     this->TreeLayout->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "DepthFirstSpanningTree: " << (this->DepthFirstSpanningTree ? "On" : "Off") << endl;
+  os << indent << "DepthFirstSpanningTree: " << (this->DepthFirstSpanningTree ? "On" : "Off")
+     << endl;
 }
-
-

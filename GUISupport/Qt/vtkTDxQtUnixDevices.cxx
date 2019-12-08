@@ -14,24 +14,23 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
 #include "vtkTDxQtUnixDevices.h"
-#include <map>
+#include "vtkSmartPointer.h"
 #include <QApplication> // topLevelWidgets()
 #include <QWidget>
 #include <X11/Xlib.h> // Needed for X types used in the public interface
-#include "vtkSmartPointer.h"
+#include <map>
 
 class vtkLessThanWindowId
 {
 public:
-  bool operator()(const vtkTDxUnixDeviceWindow &w1,
-                  const vtkTDxUnixDeviceWindow &w2) const
+  bool operator()(const vtkTDxUnixDeviceWindow& w1, const vtkTDxUnixDeviceWindow& w2) const
   {
-      return w1<w2;
+    return w1 < w2;
   }
 };
 
-typedef std::map<vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>,
-                    vtkLessThanWindowId> vtkWindowIdToDevice;
+typedef std::map<vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>, vtkLessThanWindowId>
+  vtkWindowIdToDevice;
 
 class vtkTDxQtUnixDevicesPrivate
 {
@@ -39,11 +38,10 @@ public:
   vtkWindowIdToDevice Map;
 };
 
-
 // ----------------------------------------------------------------------------
 vtkTDxQtUnixDevices::vtkTDxQtUnixDevices()
 {
-  this->Private=new vtkTDxQtUnixDevicesPrivate;
+  this->Private = new vtkTDxQtUnixDevicesPrivate;
 }
 
 // ----------------------------------------------------------------------------
@@ -53,43 +51,41 @@ vtkTDxQtUnixDevices::~vtkTDxQtUnixDevices()
 }
 
 // ----------------------------------------------------------------------------
-void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent *e)
+void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
 {
-  const XEvent *event=static_cast<const XEvent *>(e);
+  const XEvent* event = static_cast<const XEvent*>(e);
 
   // Find the real X11 window id.
-  QWidgetList l=static_cast<QApplication *>(QApplication::instance())
-    ->topLevelWidgets();
-  int winIdLast=0;
-  foreach(QWidget *w,l)
+  QWidgetList l = static_cast<QApplication*>(QApplication::instance())->topLevelWidgets();
+  int winIdLast = 0;
+  foreach (QWidget* w, l)
   {
-    if(!w->isHidden())
+    if (!w->isHidden())
     {
-      winIdLast=w->winId();
+      winIdLast = w->winId();
     }
   }
 
-  vtkTDxUnixDeviceWindow winId=static_cast<vtkTDxUnixDeviceWindow>(winIdLast);
-    // ;event->xany.window;
+  vtkTDxUnixDeviceWindow winId = static_cast<vtkTDxUnixDeviceWindow>(winIdLast);
+  // ;event->xany.window;
 
-  if(winId!=0)
+  if (winId != 0)
   {
-    vtkWindowIdToDevice::iterator it=this->Private->Map.find(winId);
-    vtkSmartPointer<vtkTDxUnixDevice> device=0;
-    if(it==this->Private->Map.end())
+    vtkWindowIdToDevice::iterator it = this->Private->Map.find(winId);
+    vtkSmartPointer<vtkTDxUnixDevice> device = 0;
+    if (it == this->Private->Map.end())
     {
       // not yet created.
-      device=vtkSmartPointer<vtkTDxUnixDevice>::New();
+      device = vtkSmartPointer<vtkTDxUnixDevice>::New();
       this->Private->Map.insert(
-        std::pair<const vtkTDxUnixDeviceWindow ,vtkSmartPointer<vtkTDxUnixDevice> >(
-          winId,device));
+        std::pair<const vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice> >(winId, device));
 
       device->SetDisplayId(event->xany.display);
       device->SetWindowId(winId);
       device->SetInteractor(0);
       device->Initialize();
 
-      if(!device->GetInitialized())
+      if (!device->GetInitialized())
       {
         vtkGenericWarningMacro("failed to initialize device.");
       }
@@ -101,15 +97,15 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent *e)
     }
     else
     {
-      device=(*it).second;
+      device = (*it).second;
     }
 
-    if(event->type==ClientMessage) // 33
+    if (event->type == ClientMessage) // 33
     {
-      bool caught=false;
-      if(device->GetInitialized())
+      bool caught = false;
+      if (device->GetInitialized())
       {
-        caught=device->ProcessEvent(e);
+        caught = device->ProcessEvent(e);
       }
     }
   }

@@ -23,11 +23,11 @@
 #include <qglobal.h>
 #if (QT_EDITION & QT_MODULE_SQL)
 #include "vtkQtSQLDatabase.h"
-#include "vtkSQLQuery.h"
+#include "vtkQtTableModelAdapter.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLQuery.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
-#include "vtkQtTableModelAdapter.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
@@ -40,8 +40,8 @@
 int TestQtSQLDatabase(int argc, char* argv[])
 {
   QApplication app(argc, argv);
-  //QCoreApplication app(argc, argv);
-  //for (int i = 0; i < QCoreApplication::libraryPaths().count(); i++)
+  // QCoreApplication app(argc, argv);
+  // for (int i = 0; i < QCoreApplication::libraryPaths().count(); i++)
   //  {
   //  cerr << QCoreApplication::libraryPaths().at(i).toLatin1().data() << endl;
   //  }
@@ -49,12 +49,12 @@ int TestQtSQLDatabase(int argc, char* argv[])
   bool interactive = false;
 
   // QMYSQL parameters:
-  //QString dbtype = "QMYSQL";
-  //QString database = "test";
-  //QString user = "root";
-  //bool askpass = true;
-  //QString host = "localhost";
-  //int port = 3306;
+  // QString dbtype = "QMYSQL";
+  // QString database = "test";
+  // QString user = "root";
+  // bool askpass = true;
+  // QString host = "localhost";
+  // int port = 3306;
 
   // QSQLITE parameters:
   QString dbtype("QSQLITE");
@@ -115,14 +115,14 @@ int TestQtSQLDatabase(int argc, char* argv[])
     }
 
     cerr << argv[0] << " Options:\n"
-      << " -I (interactive, shows Qt table with query result)\n"
-      << " -t database type (QSQLITE, QMYSQL, etc.; default: QSQLITE)\n"
-      << " -h host (default: :memory:)\n"
-      << " -p port (default: empty)\n"
-      << " -d database (default: test)\n"
-      << " -u username (default: empty)\n"
-      << " -w (password required; default: no password required)\n"
-      << " -q (query; default: select * from people ...)\n";
+         << " -I (interactive, shows Qt table with query result)\n"
+         << " -t database type (QSQLITE, QMYSQL, etc.; default: QSQLITE)\n"
+         << " -h host (default: :memory:)\n"
+         << " -p port (default: empty)\n"
+         << " -d database (default: test)\n"
+         << " -u username (default: empty)\n"
+         << " -w (password required; default: no password required)\n"
+         << " -q (query; default: select * from people ...)\n";
     return 0;
   }
 
@@ -165,7 +165,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
 
     for (int i = 0; i < 40; i++)
     {
-      QString insertQuery = QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10*i);
+      QString insertQuery =
+        QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10 * i);
       cout << insertQuery.toLatin1().data() << endl;
       query->SetQuery(insertQuery.toLatin1().data());
       if (!query->Execute())
@@ -252,8 +253,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - "
-        << v.ToString() << " (" << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
+      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
+           << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
     }
   }
 
@@ -283,4 +284,4 @@ int TestQtSQLDatabase(int, char*[])
   cerr << "QT_MODULE_SQL not enabled in this edition, so nothing to test." << endl;
   return 0;
 }
-#endif // (QT_EDITION & QT_MODULE_SQL)
+#endif                 // (QT_EDITION & QT_MODULE_SQL)

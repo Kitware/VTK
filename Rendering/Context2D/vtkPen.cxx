@@ -15,8 +15,8 @@
 
 #include "vtkPen.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkColor.h"
+#include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
 
@@ -24,7 +24,8 @@
 vtkStandardNewMacro(vtkPen);
 
 //-----------------------------------------------------------------------------
-vtkPen::vtkPen() : PenColor(0, 0, 0, 255)
+vtkPen::vtkPen()
+  : PenColor(0, 0, 0, 255)
 {
   this->Color = this->PenColor.GetData();
   this->Width = 1.0;
@@ -94,8 +95,7 @@ void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b,
-                      unsigned char a)
+void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   this->Color[0] = r;
   this->Color[1] = g;
@@ -103,7 +103,7 @@ void vtkPen::SetColor(unsigned char r, unsigned char g, unsigned char b,
   this->Color[3] = a;
 }
 
-void vtkPen::SetColor(const vtkColor4ub &color)
+void vtkPen::SetColor(const vtkColor4ub& color)
 {
   this->PenColor = color;
 }
@@ -144,7 +144,7 @@ unsigned char vtkPen::GetOpacity()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPen::DeepCopy(vtkPen *pen)
+void vtkPen::DeepCopy(vtkPen* pen)
 {
   if (!pen)
   {
@@ -156,10 +156,10 @@ void vtkPen::DeepCopy(vtkPen *pen)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPen::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPen::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1]
-     << ", " << this->Color[2] << ", " << this->Color[3] << endl;
+  os << indent << "Color: " << this->Color[0] << ", " << this->Color[1] << ", " << this->Color[2]
+     << ", " << this->Color[3] << endl;
   os << indent << "Width: " << this->Width << endl;
 }

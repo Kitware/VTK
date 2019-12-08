@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricFigure8Klein.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricFigure8Klein);
 
@@ -25,7 +25,7 @@ vtkParametricFigure8Klein::vtkParametricFigure8Klein()
   this->MinimumU = -vtkMath::Pi();
   this->MinimumV = -vtkMath::Pi();
   this->MaximumU = vtkMath::Pi();
-  this->MaximumV =  vtkMath::Pi();
+  this->MaximumV = vtkMath::Pi();
 
   this->JoinU = 1;
   this->JoinV = 1;
@@ -40,13 +40,12 @@ vtkParametricFigure8Klein::vtkParametricFigure8Klein()
 vtkParametricFigure8Klein::~vtkParametricFigure8Klein() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3],
-    double Duvw[9])
+void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double cu2 = cos(u / 2);
@@ -63,9 +62,9 @@ void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = su * t;
   Pt[2] = su2 * sv + cu2 * s2v / 2;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -Pt[1] - cu * (2 * sv * su2 + s2v * cu2) / 4;
-  Du[1] =  Pt[0] - su * (2 * sv * su2 + s2v * cu2) / 4;
+  Du[1] = Pt[0] - su * (2 * sv * su2 + s2v * cu2) / 4;
   Du[2] = cu2 * sv / 2 - su2 * s2v / 4;
   Dv[0] = cu * (cv * cu2 - c2v * su2);
   Dv[1] = su * (cv * cu2 - c2v * su2);
@@ -73,8 +72,7 @@ void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricFigure8Klein::EvaluateScalar(double*, double*,
-    double*)
+double vtkParametricFigure8Klein::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
@@ -86,4 +84,3 @@ void vtkParametricFigure8Klein::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Radius: " << this->Radius << "\n";
 }
-

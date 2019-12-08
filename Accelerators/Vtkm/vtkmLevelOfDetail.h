@@ -42,18 +42,18 @@
  * doesn't increase the computation or memory of the algorithm and will produce
  * significantly better results.
  *
-*/
+ */
 
 #ifndef vtkmLevelOfDetail_h
 #define vtkmLevelOfDetail_h
 
-#include "vtkPolyDataAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkPolyDataAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmLevelOfDetail,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkmLevelOfDetail, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmLevelOfDetail* New();
 
@@ -73,10 +73,7 @@ public:
   // Set/Get the number of divisions for each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
   // NumberOfZDivisions.
-  void SetNumberOfDivisions(int div[3])
-  {
-    this->SetNumberOfDivisions(div[0], div[1], div[2]);
-  }
+  void SetNumberOfDivisions(int div[3]) { this->SetNumberOfDivisions(div[0], div[1], div[2]); }
   void SetNumberOfDivisions(int div0, int div1, int div2);
 
   const int* GetNumberOfDivisions();
@@ -86,8 +83,7 @@ protected:
   vtkmLevelOfDetail();
   ~vtkmLevelOfDetail();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   int NumberOfDivisions[3];

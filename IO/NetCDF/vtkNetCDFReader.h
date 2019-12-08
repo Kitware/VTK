@@ -29,16 +29,16 @@
  * reader.  This class just outputs data into a multi block data set with a
  * vtkImageData at each block.  A block is created for each variable except that
  * variables with matching dimensions will be placed in the same block.
-*/
+ */
 
 #ifndef vtkNetCDFReader_h
 #define vtkNetCDFReader_h
 
-#include "vtkIONetCDFModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIONetCDFModule.h" // For export macro
 
-#include "vtkSmartPointer.h"    // For ivars
-#include <string> //For std::string
+#include "vtkSmartPointer.h" // For ivars
+#include <string>            //For std::string
 
 class vtkDataArraySelection;
 class vtkDataSet;
@@ -52,10 +52,10 @@ class VTKIONETCDF_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkNetCDFReader, vtkDataObjectAlgorithm);
-  static vtkNetCDFReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkNetCDFReader* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void SetFileName(const char *filename);
+  virtual void SetFileName(const char* filename);
   vtkGetStringMacro(FileName);
 
   /**
@@ -64,19 +64,19 @@ public:
    */
   int UpdateMetaData();
 
-//   // Description:
-//   // Get the data array selection tables used to configure which variables to
-//   // load.
-//   vtkGetObjectMacro(VariableArraySelection, vtkDataArraySelection);
+  //   // Description:
+  //   // Get the data array selection tables used to configure which variables to
+  //   // load.
+  //   vtkGetObjectMacro(VariableArraySelection, vtkDataArraySelection);
 
   //@{
   /**
    * Variable array selection.
    */
   virtual int GetNumberOfVariableArrays();
-  virtual const char *GetVariableArrayName(int idx);
-  virtual int GetVariableArrayStatus(const char *name);
-  virtual void SetVariableArrayStatus(const char *name, int status);
+  virtual const char* GetVariableArrayName(int idx);
+  virtual int GetVariableArrayStatus(const char* name);
+  virtual void SetVariableArrayStatus(const char* name, int status);
   //@}
 
   /**
@@ -84,7 +84,7 @@ public:
    * returned list is the same as GetNumberOfVariableArrays, and the string
    * at each index i is the same as returned from GetVariableArrayname(i).
    */
-  virtual vtkStringArray *GetAllVariableArrayNames();
+  virtual vtkStringArray* GetAllVariableArrayNames();
 
   //@{
   /**
@@ -103,7 +103,7 @@ public:
    * convenience method for SetVariableArrayStatus.  It turns on all variables
    * that have the given dimensions and turns off all other variables.
    */
-  virtual void SetDimensions(const char *dimensions);
+  virtual void SetDimensions(const char* dimensions);
 
   //@{
   /**
@@ -144,13 +144,13 @@ public:
   /**
    * Get units attached to a particular array in the netcdf file.
    */
-  std::string QueryArrayUnits(const char *ArrayName);
+  std::string QueryArrayUnits(const char* ArrayName);
 
 protected:
   vtkNetCDFReader();
   ~vtkNetCDFReader() override;
 
-  char *FileName;
+  char* FileName;
   vtkTimeStamp FileNameMTime;
   vtkTimeStamp MetaDataMTime;
 
@@ -166,40 +166,37 @@ protected:
   /**
    * Placeholder for structure returned from GetVariableDimensions().
    */
-  vtkStringArray *VariableDimensions;
+  vtkStringArray* VariableDimensions;
 
   /**
    * Placeholder for structure returned from GetAllDimensions().
    */
-  vtkStringArray *AllDimensions;
+  vtkStringArray* AllDimensions;
 
   vtkTypeBool ReplaceFillValueWithNan;
 
   int WholeExtent[6];
 
-  int RequestDataObject(vtkInformation *request,
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Callback registered with the VariableArraySelection.
    */
-  static void SelectionModifiedCallback(vtkObject *caller, unsigned long eid,
-                                        void *clientdata, void *calldata);
+  static void SelectionModifiedCallback(
+    vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
   /**
    * Convenience function for getting a string that describes a set of
    * dimensions.
    */
-  vtkStdString DescribeDimensions(int ncFD, const int *dimIds, int numDims);
+  vtkStdString DescribeDimensions(int ncFD, const int* dimIds, int numDims);
 
   /**
    * Reads meta data and populates ivars.  Returns 1 on success, 0 on failure.
@@ -235,9 +232,7 @@ protected:
    * (return false).  The implementation in this class always returns true.
    * Subclasses should override to load cell data for some or all variables.
    */
-  virtual bool DimensionsAreForPointData(vtkIntArray *vtkNotUsed(dimensions)) {
-    return true;
-  }
+  virtual bool DimensionsAreForPointData(vtkIntArray* vtkNotUsed(dimensions)) { return true; }
 
   /**
    * Retrieves the update extent for the output object.  The default
@@ -245,23 +240,22 @@ protected:
    * expect.  However, if a subclass is loading an unstructured data set, this
    * gives it a chance to set the range of values to read.
    */
-  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
+  virtual void GetUpdateExtentForOutput(vtkDataSet* output, int extent[6]);
 
   /**
    * Load the variable at the given time into the given data set.  Return 1
    * on success and 0 on failure.
    */
-  virtual int LoadVariable(int ncFD, const char *varName, double time,
-                           vtkDataSet *output);
+  virtual int LoadVariable(int ncFD, const char* varName, double time, vtkDataSet* output);
 
 private:
-  vtkNetCDFReader(const vtkNetCDFReader &) = delete;
-  void operator=(const vtkNetCDFReader &) = delete;
+  vtkNetCDFReader(const vtkNetCDFReader&) = delete;
+  void operator=(const vtkNetCDFReader&) = delete;
 
   int UpdateExtent[6];
-  char *TimeUnits;
-  char *Calendar;
-  vtkNetCDFReaderPrivate *Private;
+  char* TimeUnits;
+  char* Calendar;
+  vtkNetCDFReaderPrivate* Private;
 };
 
-#endif //vtkNetCDFReader_h
+#endif // vtkNetCDFReader_h

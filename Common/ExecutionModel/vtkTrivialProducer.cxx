@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTrivialProducer.h"
 
-#include "vtkImageData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataObject.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkTrivialProducer);
 
@@ -41,7 +41,7 @@ vtkTrivialProducer::vtkTrivialProducer()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Output = nullptr;
-  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] =  0;
+  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
 }
 
@@ -58,18 +58,18 @@ void vtkTrivialProducer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
+void vtkTrivialProducer::SetOutput(vtkDataObject* newOutput)
 {
   vtkDataObject* oldOutput = this->Output;
-  if(newOutput != oldOutput)
+  if (newOutput != oldOutput)
   {
-    if(newOutput)
+    if (newOutput)
     {
       newOutput->Register(this);
     }
     this->Output = newOutput;
     this->GetExecutive()->SetOutputData(0, newOutput);
-    if(oldOutput)
+    if (oldOutput)
     {
       oldOutput->UnRegister(this);
     }
@@ -81,10 +81,10 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
 vtkMTimeType vtkTrivialProducer::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
-  if(this->Output)
+  if (this->Output)
   {
     vtkMTimeType omtime = this->Output->GetMTime();
-    if(omtime > mtime)
+    if (omtime > mtime)
     {
       mtime = omtime;
     }
@@ -112,16 +112,14 @@ int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output,
-                                                   vtkInformation* outInfo)
+void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
   vtkInformation* dataInfo = output->GetInformation();
-  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+  if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
   {
     int extent[6];
     dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                 extent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
   }
 
   // Let the data object copy information to the pipeline
@@ -129,13 +127,10 @@ void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output,
 }
 
 //----------------------------------------------------------------------------
-int
-vtkTrivialProducer::ProcessRequest(vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector)
+vtkTypeBool vtkTrivialProducer::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) &&
-     this->Output)
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) && this->Output)
   {
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
 
@@ -144,11 +139,9 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     // Overwrite the whole extent if WholeExtent is set. This is needed
     // for distributed structured data.
     if (this->WholeExtent[0] <= this->WholeExtent[1] &&
-        this->WholeExtent[2] <= this->WholeExtent[3] &&
-        this->WholeExtent[4] <= this->WholeExtent[5])
+      this->WholeExtent[2] <= this->WholeExtent[3] && this->WholeExtent[4] <= this->WholeExtent[5])
     {
-      outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                      this->WholeExtent, 6);
+      outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
     }
 
     // We assume that whoever sets up the trivial producer handles
@@ -159,51 +152,44 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
   }
 
 #if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     // If an exact extent smaller than the whole extent has been
     // requested then warn.
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-    if(outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
+    if (outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
     {
       vtkInformation* dataInfo = this->Output->GetInformation();
-      if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
       {
         // Compare the update extent to the whole extent.
-        int updateExtent[6] = {0,-1,0,-1,0,-1};
-        int wholeExtent[6] = {0,-1,0,-1,0,-1};
-        outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                        wholeExtent);
-        outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                        updateExtent);
-        if(updateExtent[0] != wholeExtent[0] ||
-           updateExtent[1] != wholeExtent[1] ||
-           updateExtent[2] != wholeExtent[2] ||
-           updateExtent[3] != wholeExtent[3] ||
-           updateExtent[4] != wholeExtent[4] ||
-           updateExtent[5] != wholeExtent[5])
+        int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
+        int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+        outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+        outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+        if (updateExtent[0] != wholeExtent[0] || updateExtent[1] != wholeExtent[1] ||
+          updateExtent[2] != wholeExtent[2] || updateExtent[3] != wholeExtent[3] ||
+          updateExtent[4] != wholeExtent[4] || updateExtent[5] != wholeExtent[5])
         {
           vtkErrorMacro("Request for exact extent "
-                        << updateExtent[0] << " " << updateExtent[1] << " "
-                        << updateExtent[2] << " " << updateExtent[3] << " "
-                        << updateExtent[4] << " " << updateExtent[5]
-                        << " will lose data because it is not the whole extent "
-                        << wholeExtent[0] << " " << wholeExtent[1] << " "
-                        << wholeExtent[2] << " " << wholeExtent[3] << " "
-                        << wholeExtent[4] << " " << wholeExtent[5] << ".");
+            << updateExtent[0] << " " << updateExtent[1] << " " << updateExtent[2] << " "
+            << updateExtent[3] << " " << updateExtent[4] << " " << updateExtent[5]
+            << " will lose data because it is not the whole extent " << wholeExtent[0] << " "
+            << wholeExtent[1] << " " << wholeExtent[2] << " " << wholeExtent[3] << " "
+            << wholeExtent[4] << " " << wholeExtent[5] << ".");
         }
       }
     }
   }
 #endif
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
   {
     // We do not really generate the output.  Do not let the executive
     // initialize it.
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
     outputInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
   }
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
   {
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
 
@@ -211,30 +197,24 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     // whole, we need make a copy of the original dataset and crop it
     // - if EXACT_EXTENT() is specified.
     vtkInformation* dataInfo = this->Output->GetInformation();
-    if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+    if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
     {
       int wholeExt[6];
-      outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                      wholeExt);
+      outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
       int updateExt[6];
-      outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                      updateExt);
+      outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExt);
 
-      if(outputInfo->Has(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()) &&
-         outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
+      if (outputInfo->Has(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()) &&
+        outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
       {
 
-        if(updateExt[0] != wholeExt[0] ||
-           updateExt[1] != wholeExt[1] ||
-           updateExt[2] != wholeExt[2] ||
-           updateExt[3] != wholeExt[3] ||
-           updateExt[4] != wholeExt[4] ||
-           updateExt[5] != wholeExt[5])
+        if (updateExt[0] != wholeExt[0] || updateExt[1] != wholeExt[1] ||
+          updateExt[2] != wholeExt[2] || updateExt[3] != wholeExt[3] ||
+          updateExt[4] != wholeExt[4] || updateExt[5] != wholeExt[5])
         {
           vtkDataObject* newOutput = this->Output->NewInstance();
           newOutput->ShallowCopy(this->Output);
-          newOutput->Crop(
-            outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+          newOutput->Crop(outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
           outputInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
           newOutput->Delete();
         }
@@ -254,12 +234,9 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
         // If EXACT_EXTENT() is not there,
         // make sure that we provide requested extent or more
         vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
-        if (updateExt[0] < wholeExt[0] ||
-            updateExt[1] > wholeExt[1] ||
-            updateExt[2] < wholeExt[2] ||
-            updateExt[3] > wholeExt[3] ||
-            updateExt[4] < wholeExt[4] ||
-            updateExt[5] > wholeExt[5])
+        if (updateExt[0] < wholeExt[0] || updateExt[1] > wholeExt[1] ||
+          updateExt[2] < wholeExt[2] || updateExt[3] > wholeExt[3] || updateExt[4] < wholeExt[4] ||
+          updateExt[5] > wholeExt[5])
         {
           vtkErrorMacro("This data object does not contain the requested extent.");
         }
@@ -276,7 +253,7 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     outputInfo->Remove(vtkDemandDrivenPipeline::DATA_NOT_GENERATED());
   }
 
-  return this->Superclass::ProcessRequest(request,inputVector,outputVector);
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------

@@ -36,67 +36,66 @@ int TestDepthPeelingPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
-  delete [] fileName;
+  delete[] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
 
   // create three dragons
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
-  actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
-  actor->GetProperty()->SetSpecular(0.0);
-  actor->GetProperty()->SetDiffuse(0.5);
-  actor->GetProperty()->SetAmbient(0.3);
-  actor->GetProperty()->SetOpacity(0.35);
-  actor->SetPosition(-0.1, 0.0, -0.1);
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
+    actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
+    actor->GetProperty()->SetSpecular(0.0);
+    actor->GetProperty()->SetDiffuse(0.5);
+    actor->GetProperty()->SetAmbient(0.3);
+    actor->GetProperty()->SetOpacity(0.35);
+    actor->SetPosition(-0.1, 0.0, -0.1);
+    renderer->AddActor(actor);
   }
 
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
-  actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
-  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-  actor->GetProperty()->SetSpecular(0.2);
-  actor->GetProperty()->SetDiffuse(0.9);
-  actor->GetProperty()->SetAmbient(0.1);
-  actor->GetProperty()->SetSpecularPower(10.0);
-  actor->GetProperty()->SetOpacity(0.20);
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
+    actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
+    actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+    actor->GetProperty()->SetSpecular(0.2);
+    actor->GetProperty()->SetDiffuse(0.9);
+    actor->GetProperty()->SetAmbient(0.1);
+    actor->GetProperty()->SetSpecularPower(10.0);
+    actor->GetProperty()->SetOpacity(0.20);
+    renderer->AddActor(actor);
   }
 
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
-  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-  actor->GetProperty()->SetSpecular(0.7);
-  actor->GetProperty()->SetDiffuse(0.4);
-  actor->GetProperty()->SetSpecularPower(60.0);
-  actor->GetProperty()->SetOpacity(0.35);
-  actor->SetPosition(0.1, 0.0, 0.1);
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
+    actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+    actor->GetProperty()->SetSpecular(0.7);
+    actor->GetProperty()->SetDiffuse(0.4);
+    actor->GetProperty()->SetSpecularPower(60.0);
+    actor->GetProperty()->SetOpacity(0.35);
+    actor->SetPosition(0.1, 0.0, 0.1);
+    renderer->AddActor(actor);
   }
 
   renderer->SetUseDepthPeeling(1);
   renderer->SetOcclusionRatio(0.0);
   renderer->SetMaximumNumberOfPeels(20);
 
-  renWin->SetSize(500,500);
+  renWin->SetSize(500, 500);
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderer->SetBackground2(.3, .1, .2);
   renderer->GradientBackgroundOn();
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Azimuth(15.0);
   renderer->GetActiveCamera()->Zoom(1.8);

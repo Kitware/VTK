@@ -33,13 +33,13 @@
  *
  * @sa
  * vtkContextBufferId, vtkOpenGLContextBufferId
-*/
+ */
 
 #ifndef vtkAbstractContextBufferId_h
 #define vtkAbstractContextBufferId_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkRenderWindow;
 
@@ -47,44 +47,44 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextBufferId : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextBufferId, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkAbstractContextBufferId * New();
+  static vtkAbstractContextBufferId* New();
 
   //@{
   /**
    * Number of columns. Initial value is 0.
    */
-  vtkGetMacro(Width,int);
+  vtkGetMacro(Width, int);
   //@}
 
   //@{
   /**
    * Set the number of columns. Initial value is 0.
    */
-  vtkSetMacro(Width,int);
+  vtkSetMacro(Width, int);
   //@}
 
   //@{
   /**
    * Number of rows. Initial value is 0.
    */
-  vtkGetMacro(Height,int);
+  vtkGetMacro(Height, int);
   //@}
 
   //@{
   /**
    * Set the number of rows. Initial value is 0.
    */
-  vtkSetMacro(Height,int);
+  vtkSetMacro(Height, int);
   //@}
 
   //@{
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
-  virtual void SetContext(vtkRenderWindow *context) = 0;
-  virtual vtkRenderWindow *GetContext() = 0;
+  virtual void SetContext(vtkRenderWindow* context) = 0;
+  virtual vtkRenderWindow* GetContext() = 0;
   //@}
 
   /**
@@ -98,20 +98,19 @@ public:
    * \pre positive_width: GetWidth()>0
    * \pre positive_height: GetHeight()>0
    */
-  virtual void Allocate()=0;
+  virtual void Allocate() = 0;
 
   /**
    * Tell if the buffer has been allocated.
    */
-  virtual bool IsAllocated() const=0;
+  virtual bool IsAllocated() const = 0;
 
   /**
    * Copy the contents of the current read buffer to the internal structure
    * starting at lower left corner of the framebuffer (srcXmin,srcYmin).
    * \pre is_allocated: this->IsAllocated()
    */
-  virtual void SetValues(int srcXmin,
-                         int srcYmin)=0;
+  virtual void SetValues(int srcXmin, int srcYmin) = 0;
 
   /**
    * Return item under abscissa x and ordinate y.
@@ -121,7 +120,7 @@ public:
    * \pre is_allocated: IsAllocated()
    * \post valid_result: result>=-1
    */
-  virtual vtkIdType GetPickedItem(int x, int y)=0;
+  virtual vtkIdType GetPickedItem(int x, int y) = 0;
 
   /**
    * Release any graphics resources that are being consumed by this object.
@@ -137,8 +136,8 @@ protected:
   int Height;
 
 private:
-  vtkAbstractContextBufferId(const vtkAbstractContextBufferId &) = delete;
-  void operator=(const vtkAbstractContextBufferId &) = delete;
+  vtkAbstractContextBufferId(const vtkAbstractContextBufferId&) = delete;
+  void operator=(const vtkAbstractContextBufferId&) = delete;
 };
 
 #endif // #ifndef vtkAbstractContextBufferId_h

@@ -31,18 +31,18 @@
  *
  * .SEE ALSO
  * vtkDendrogramItem vtkHeatmapItem vtkTree vtkTable vtkNewickTreeReader
-*/
+ */
 
 #ifndef vtkTreeHeatmapItem_h
 #define vtkTreeHeatmapItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkNew.h" // For vtkNew ivars
+#include "vtkNew.h"          // For vtkNew ivars
 #include "vtkSmartPointer.h" // For vtkSmartPointer ivars
-#include <vector>   // For lookup tables
-#include <map>      // For string lookup tables
+#include <map>               // For string lookup tables
+#include <vector>            // For lookup tables
 
 class vtkDendrogramItem;
 class vtkHeatmapItem;
@@ -52,9 +52,9 @@ class vtkTree;
 class VTKVIEWSINFOVIS_EXPORT vtkTreeHeatmapItem : public vtkContextItem
 {
 public:
-  static vtkTreeHeatmapItem *New();
+  static vtkTreeHeatmapItem* New();
   vtkTypeMacro(vtkTreeHeatmapItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the tree that this item draws.  Note that this tree's vertex data
@@ -63,52 +63,52 @@ public:
    * table.  See SetTable for more information.  The vtkNewickTreeReader
    * automatically creates this required array for you.
    */
-  virtual void SetTree(vtkTree *tree);
+  virtual void SetTree(vtkTree* tree);
 
   /**
    * Get the tree that this item draws.
    */
-  vtkTree * GetTree();
+  vtkTree* GetTree();
 
   /**
    * Set a tree to be drawn for the columns of the heatmap.  This tree's
    * vertex data must contain a vtkStringArray called "node name" that
    * corresponds to the names of the columns in the heatmap.
    */
-  virtual void SetColumnTree(vtkTree *tree);
+  virtual void SetColumnTree(vtkTree* tree);
 
   /**
    * Get the tree that represents the columns of the heatmap (if one has
    * been set).
    */
-  vtkTree * GetColumnTree();
+  vtkTree* GetColumnTree();
 
   /**
    * Set the table that this item draws.  The first column of the table
    * must contain the names of the rows.  These names, in turn, must correspond
    * with the nodes names in the input tree.  See SetTree for more information.
    */
-  virtual void SetTable(vtkTable *table);
+  virtual void SetTable(vtkTable* table);
 
   /**
    * Get the table that this item draws.
    */
-  vtkTable * GetTable();
+  vtkTable* GetTable();
 
   //@{
   /**
    * Get/Set the dendrogram contained by this item.
    */
-  vtkDendrogramItem * GetDendrogram();
-  void SetDendrogram(vtkDendrogramItem *dendrogram);
+  vtkDendrogramItem* GetDendrogram();
+  void SetDendrogram(vtkDendrogramItem* dendrogram);
   //@}
 
   //@{
   /**
    * Get/Set the heatmap contained by this item.
    */
-  vtkHeatmapItem * GetHeatmap();
-  void SetHeatmap(vtkHeatmapItem *heatmap);
+  vtkHeatmapItem* GetHeatmap();
+  void SetHeatmap(vtkHeatmapItem* heatmap);
   //@}
 
   /**
@@ -179,24 +179,24 @@ public:
   /**
    * Deprecated.  Use this->GetDendrogram()->GetPrunedTree() instead.
    */
-  vtkTree * GetPrunedTree();
+  vtkTree* GetPrunedTree();
 
   /**
    * Deprecated.  Use this->GetDendrogram()->SetColorArray(const char *arrayName)
    * instead.
    */
-  void SetTreeColorArray(const char *arrayName);
+  void SetTreeColorArray(const char* arrayName);
 
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Propagate any double click onto the dendrogram to check if any
    * subtrees should be collapsed or expanded.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& event) override;
 
 protected:
   vtkTreeHeatmapItem();
@@ -205,7 +205,7 @@ protected:
   /**
    * Paints the tree & associated table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Mark heatmap rows as hidden when a subtree is collapsed.

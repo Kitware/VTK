@@ -59,7 +59,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkCurvatures_h
 #define vtkCurvatures_h
@@ -68,20 +68,20 @@
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_CURVATURE_GAUSS 0
-#define VTK_CURVATURE_MEAN  1
+#define VTK_CURVATURE_MEAN 1
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
 class VTKFILTERSGENERAL_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCurvatures,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCurvatures, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with curvature type set to Gauss
    */
-  static vtkCurvatures *New();
+  static vtkCurvatures* New();
 
   //@{
   /**
@@ -91,16 +91,12 @@ public:
    * VTK_CURVATURE_MEAN : Mean curvature, stored as
    * DataArray "Mean_Curvature"
    */
-  vtkSetMacro(CurvatureType,int);
-  vtkGetMacro(CurvatureType,int);
-  void SetCurvatureTypeToGaussian()
-  { this->SetCurvatureType(VTK_CURVATURE_GAUSS); }
-  void SetCurvatureTypeToMean()
-  { this->SetCurvatureType(VTK_CURVATURE_MEAN); }
-  void SetCurvatureTypeToMaximum()
-  { this->SetCurvatureType(VTK_CURVATURE_MAXIMUM); }
-  void SetCurvatureTypeToMinimum()
-  { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
+  vtkSetMacro(CurvatureType, int);
+  vtkGetMacro(CurvatureType, int);
+  void SetCurvatureTypeToGaussian() { this->SetCurvatureType(VTK_CURVATURE_GAUSS); }
+  void SetCurvatureTypeToMean() { this->SetCurvatureType(VTK_CURVATURE_MEAN); }
+  void SetCurvatureTypeToMaximum() { this->SetCurvatureType(VTK_CURVATURE_MAXIMUM); }
+  void SetCurvatureTypeToMinimum() { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
   //@}
 
   //@{
@@ -108,37 +104,36 @@ public:
    * Set/Get the flag which inverts the mean curvature calculation for
    * meshes with inward pointing normals (default false)
    */
-  vtkSetMacro(InvertMeanCurvature,vtkTypeBool);
-  vtkGetMacro(InvertMeanCurvature,vtkTypeBool);
-  vtkBooleanMacro(InvertMeanCurvature,vtkTypeBool);
+  vtkSetMacro(InvertMeanCurvature, vtkTypeBool);
+  vtkGetMacro(InvertMeanCurvature, vtkTypeBool);
+  vtkBooleanMacro(InvertMeanCurvature, vtkTypeBool);
   //@}
 
 protected:
   vtkCurvatures();
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * discrete Gauss curvature (K) computation,
    * cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
    */
-  void GetGaussCurvature(vtkPolyData *output);
+  void GetGaussCurvature(vtkPolyData* output);
 
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetMeanCurvature(vtkPolyData *output);
+  void GetMeanCurvature(vtkPolyData* output);
 
   /**
    * Maximum principal curvature \f$k_max = H + sqrt(H^2 -K)\f$
    */
-  void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
+  void GetMaximumCurvature(vtkPolyData* input, vtkPolyData* output);
 
   /**
    * Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
    */
-  void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
-
+  void GetMinimumCurvature(vtkPolyData* input, vtkPolyData* output);
 
   // Vars
   int CurvatureType;
@@ -147,9 +142,6 @@ protected:
 private:
   vtkCurvatures(const vtkCurvatures&) = delete;
   void operator=(const vtkCurvatures&) = delete;
-
 };
 
 #endif
-
-

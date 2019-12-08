@@ -20,26 +20,26 @@
 // vtkBridgeCellIteratorOnCellBoundaries,
 // vtkBridgeCellIteratorOnCellNeighbors,
 // .SECTION See Also
-// vtkCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet, vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorOnCellNeighbors
+// vtkCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet,
+// vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries,
+// vtkBridgeCellIteratorOnCellNeighbors
 
 #include "vtkBridgeCellIteratorStrategy.h"
 
 #include <cassert>
 
-
 //-----------------------------------------------------------------------------
 void vtkBridgeCellIteratorStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
 // Description:
 // Create an empty cell. NOT USED
 // \post result_exists: result!=0
-vtkGenericAdaptorCell *vtkBridgeCellIteratorStrategy::NewCell()
+vtkGenericAdaptorCell* vtkBridgeCellIteratorStrategy::NewCell()
 {
-  assert("check: should not be called: see vtkBridgeCellIterator::NewCell()"
-         &&0);
+  assert("check: should not be called: see vtkBridgeCellIterator::NewCell()" && 0);
   return nullptr;
 }

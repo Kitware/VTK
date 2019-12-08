@@ -12,26 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOBJReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
 //------------------------------------------------------------------------------
-int TestOBJReaderSingleTexture(int argc, char *argv[])
+int TestOBJReaderSingleTexture(int argc, char* argv[])
 {
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/obj_singletexture.obj");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_singletexture.obj");
 
   vtkNew<vtkOBJReader> reader;
   reader->SetFileName(fname);
   reader->Update();
 
-  vtkPolyData *data = reader->GetOutput();
+  vtkPolyData* data = reader->GetOutput();
 
   delete[] fname;
 

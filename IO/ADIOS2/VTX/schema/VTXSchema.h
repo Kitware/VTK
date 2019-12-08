@@ -65,7 +65,7 @@ public:
    * @param engine manages stream input
    */
   VTXSchema(
-    const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
+    const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
   virtual ~VTXSchema();
@@ -102,26 +102,26 @@ protected:
 #undef declare_type
 
 private:
-  template<class T>
+  template <class T>
   void GetDataArrayCommon(
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 
-  template<class T>
+  template <class T>
   void GetDataArrayGlobal(
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 
-  template<class T>
+  template <class T>
   void GetDataArrayLocal(
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 
-  template<class T>
+  template <class T>
   void GetDataValueGlobal(
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 
-  template<class T>
+  template <class T>
   void GetTimesCommon(const std::string& variableName);
 
-  template<class T>
+  template <class T>
   void InitDataArray(const std::string& name, const size_t elements, const size_t components,
     types::DataArray& dataArray);
 };

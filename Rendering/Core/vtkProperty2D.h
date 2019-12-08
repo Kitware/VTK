@@ -21,13 +21,13 @@
  *
  * @sa
  * vtkActor2D
-*/
+ */
 
 #ifndef vtkProperty2D_h
 #define vtkProperty2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkViewport;
 
@@ -37,19 +37,19 @@ class vtkViewport;
 class VTKRENDERINGCORE_EXPORT vtkProperty2D : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkProperty2D,vtkObject);
+  vtkTypeMacro(vtkProperty2D, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkProperty2D with the following default values:
    * Opacity 1, Color (1,1,1)
    */
-  static vtkProperty2D *New();
+  static vtkProperty2D* New();
 
   /**
    * Assign one property to another.
    */
-  void DeepCopy(vtkProperty2D *p);
+  void DeepCopy(vtkProperty2D* p);
 
   //@{
   /**
@@ -72,8 +72,8 @@ public:
    * Set/Get the diameter of a Point. The size is expressed in screen units.
    * This is only implemented for OpenGL. The default is 1.0.
    */
-  vtkSetClampMacro(PointSize,float,0,VTK_FLOAT_MAX);
-  vtkGetMacro(PointSize,float);
+  vtkSetClampMacro(PointSize, float, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(PointSize, float);
   //@}
 
   //@{
@@ -81,8 +81,8 @@ public:
    * Set/Get the width of a Line. The width is expressed in screen units.
    * This is only implemented for OpenGL. The default is 1.0.
    */
-  vtkSetClampMacro(LineWidth,float,0,VTK_FLOAT_MAX);
-  vtkGetMacro(LineWidth,float);
+  vtkSetClampMacro(LineWidth, float, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(LineWidth, float);
   //@}
 
   //@{
@@ -91,8 +91,8 @@ public:
    * (1 = pixel on, 0 = pixel off).
    * This is only implemented for OpenGL, not OpenGL2. The default is 0xFFFF.
    */
-  vtkSetMacro(LineStipplePattern,int);
-  vtkGetMacro(LineStipplePattern,int);
+  vtkSetMacro(LineStipplePattern, int);
+  vtkGetMacro(LineStipplePattern, int);
   //@}
 
   //@{
@@ -101,8 +101,8 @@ public:
    * many times each bit in the pattern is to be repeated.
    * This is only implemented for OpenGL, not OpenGL2. The default is 1.
    */
-  vtkSetClampMacro(LineStippleRepeatFactor,int,1,VTK_INT_MAX);
-  vtkGetMacro(LineStippleRepeatFactor,int);
+  vtkSetClampMacro(LineStippleRepeatFactor, int, 1, VTK_INT_MAX);
+  vtkGetMacro(LineStippleRepeatFactor, int);
   //@}
 
   //@{
@@ -115,19 +115,16 @@ public:
    * of the same DisplayLocation type, order is determined by
    * the order in which the 2D actors were added to the viewport.
    */
-  vtkSetClampMacro( DisplayLocation, int,
-                    VTK_BACKGROUND_LOCATION, VTK_FOREGROUND_LOCATION );
-  vtkGetMacro( DisplayLocation, int );
-  void SetDisplayLocationToBackground()
-    {this->DisplayLocation = VTK_BACKGROUND_LOCATION;};
-  void SetDisplayLocationToForeground()
-    {this->DisplayLocation = VTK_FOREGROUND_LOCATION;};
+  vtkSetClampMacro(DisplayLocation, int, VTK_BACKGROUND_LOCATION, VTK_FOREGROUND_LOCATION);
+  vtkGetMacro(DisplayLocation, int);
+  void SetDisplayLocationToBackground() { this->DisplayLocation = VTK_BACKGROUND_LOCATION; }
+  void SetDisplayLocationToForeground() { this->DisplayLocation = VTK_FOREGROUND_LOCATION; }
   //@}
 
   /**
    * Have the device specific subclass render this property.
    */
-  virtual void Render (vtkViewport* vtkNotUsed(viewport))  {}
+  virtual void Render(vtkViewport* vtkNotUsed(viewport)) {}
 
 protected:
   vtkProperty2D();
@@ -137,9 +134,9 @@ protected:
   double Opacity;
   float PointSize;
   float LineWidth;
-  int   LineStipplePattern;
-  int   LineStippleRepeatFactor;
-  int   DisplayLocation;
+  int LineStipplePattern;
+  int LineStippleRepeatFactor;
+  int DisplayLocation;
 
 private:
   vtkProperty2D(const vtkProperty2D&) = delete;

@@ -55,7 +55,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkMetaImageReader_h
 #define vtkMetaImageReader_h
@@ -63,38 +63,33 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
-namespace vtkmetaio { class MetaImage; } // forward declaration
+namespace vtkmetaio
+{
+class MetaImage;
+} // forward declaration
 
 class VTKIOIMAGE_EXPORT vtkMetaImageReader : public vtkImageReader2
 {
 public:
-  vtkTypeMacro(vtkMetaImageReader,vtkImageReader2);
+  vtkTypeMacro(vtkMetaImageReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with FlipNormals turned off and Normals set to true.
    */
-  static vtkMetaImageReader *New();
+  static vtkMetaImageReader* New();
 
-  const char * GetFileExtensions() override
-    { return ".mhd .mha"; }
+  const char* GetFileExtensions() override { return ".mhd .mha"; }
 
-  const char * GetDescriptiveName() override
-    { return "MetaIO Library: MetaImage"; }
+  const char* GetDescriptiveName() override { return "MetaIO Library: MetaImage"; }
 
   // These duplicate functions in vtkImageReader2, vtkMedicalImageReader.
-  double * GetPixelSpacing()
-    { return this->GetDataSpacing(); }
-  int GetWidth()
-    { return (this->GetDataExtent()[1] - this->GetDataExtent()[0] + 1); }
-  int GetHeight()
-    { return (this->GetDataExtent()[3] - this->GetDataExtent()[2] + 1); }
-  double * GetImagePositionPatient()
-    { return this->GetDataOrigin(); }
-  int GetNumberOfComponents()
-    { return this->GetNumberOfScalarComponents(); }
-  int GetPixelRepresentation()
-    { return this->GetDataScalarType(); }
+  double* GetPixelSpacing() { return this->GetDataSpacing(); }
+  int GetWidth() { return (this->GetDataExtent()[1] - this->GetDataExtent()[0] + 1); }
+  int GetHeight() { return (this->GetDataExtent()[3] - this->GetDataExtent()[2] + 1); }
+  double* GetImagePositionPatient() { return this->GetDataOrigin(); }
+  int GetNumberOfComponents() { return this->GetNumberOfScalarComponents(); }
+  int GetPixelRepresentation() { return this->GetDataScalarType(); }
   int GetDataByteOrder(void) override;
 
   vtkGetMacro(RescaleSlope, double);
@@ -167,23 +162,22 @@ protected:
   vtkSetMacro(FileLowerLeft, int);
   virtual void ComputeInternalFileName(int slice)
     { vtkImageReader2::ComputeInternalFileName(slice); }
-  vtkGetStringMacro(InternalFileName)
+  vtkGetStringMacro(InternalFileName);
   const char * GetDataByteOrderAsString(void)
     { return vtkImageReader2::GetDataByteOrderAsString(); }
   unsigned long GetHeaderSize(void)
     { return vtkImageReader2::GetHeaderSize(); }*/
 
   void ExecuteInformation() override;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
-  int RequestInformation(vtkInformation * request,
-                         vtkInformationVector ** inputVector,
-                         vtkInformationVector * outputVector) override;
+  void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkMetaImageReader(const vtkMetaImageReader&) = delete;
   void operator=(const vtkMetaImageReader&) = delete;
 
-  vtkmetaio::MetaImage *MetaImagePtr;
+  vtkmetaio::MetaImage* MetaImagePtr;
 
   double GantryAngle;
   char PatientName[255];

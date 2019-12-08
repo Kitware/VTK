@@ -21,13 +21,13 @@
  *
  * @sa
  * vtkRenderPass, vtkTranslucentPass, vtkFramebufferPass
-*/
+ */
 
 #ifndef vtkOrderIndependentTranslucentPass_h
 #define vtkOrderIndependentTranslucentPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
@@ -35,26 +35,25 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLState;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOrderIndependentTranslucentPass
-    : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkOrderIndependentTranslucentPass : public vtkOpenGLRenderPass
 {
 public:
-  static vtkOrderIndependentTranslucentPass *New();
-  vtkTypeMacro(vtkOrderIndependentTranslucentPass,vtkOpenGLRenderPass);
+  static vtkOrderIndependentTranslucentPass* New();
+  vtkTypeMacro(vtkOrderIndependentTranslucentPass, vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
   //@{
   /**
@@ -63,18 +62,15 @@ public:
    * It is usually set to a vtkTranslucentPass.
    * Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(TranslucentPass,vtkRenderPass);
-  virtual void SetTranslucentPass(vtkRenderPass *translucentPass);
+  vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
+  virtual void SetTranslucentPass(vtkRenderPass* translucentPass);
   //@}
 
   // vtkOpenGLRenderPass virtuals:
-  bool PostReplaceShaderValues(std::string &vertexShader,
-                                   std::string &geometryShader,
-                                   std::string &fragmentShader,
-                                   vtkAbstractMapper *mapper,
-                                   vtkProp *prop) override;
+  bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop) override;
 
- protected:
+protected:
   /**
    * Default constructor. TranslucentPass is set to NULL.
    */
@@ -85,7 +81,7 @@ public:
    */
   ~vtkOrderIndependentTranslucentPass() override;
 
-  vtkRenderPass *TranslucentPass;
+  vtkRenderPass* TranslucentPass;
 
   //@{
   /**
@@ -97,19 +93,19 @@ public:
   int ViewportHeight;
   //@}
 
-  vtkOpenGLFramebufferObject *Framebuffer;
-  vtkOpenGLQuadHelper *FinalBlend;
+  vtkOpenGLFramebufferObject* Framebuffer;
+  vtkOpenGLQuadHelper* FinalBlend;
 
-  vtkTextureObject *TranslucentRGBATexture;
-  vtkTextureObject *TranslucentRTexture;
-  vtkTextureObject *TranslucentZTexture;
+  vtkTextureObject* TranslucentRGBATexture;
+  vtkTextureObject* TranslucentRTexture;
+  vtkTextureObject* TranslucentZTexture;
 
-  void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
+  void BlendFinalPeel(vtkOpenGLRenderWindow* renWin);
 
   // useful to store
-  vtkOpenGLState *State;
+  vtkOpenGLState* State;
 
- private:
+private:
   vtkOrderIndependentTranslucentPass(const vtkOrderIndependentTranslucentPass&) = delete;
   void operator=(const vtkOrderIndependentTranslucentPass&) = delete;
 };

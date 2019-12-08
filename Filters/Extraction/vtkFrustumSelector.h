@@ -36,7 +36,7 @@ class vtkSignedCharArray;
 class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelector
 {
 public:
-  static vtkFrustumSelector *New();
+  static vtkFrustumSelector* New();
   vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -56,7 +56,7 @@ public:
   //@}
 
 protected:
-  vtkFrustumSelector(vtkPlanes *f=nullptr);
+  vtkFrustumSelector(vtkPlanes* f = nullptr);
   ~vtkFrustumSelector() override;
 
   vtkSmartPointer<vtkPlanes> Frustum;

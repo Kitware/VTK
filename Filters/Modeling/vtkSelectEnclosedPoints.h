@@ -49,9 +49,9 @@
 #ifndef vtkSelectEnclosedPoints_h
 #define vtkSelectEnclosedPoints_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-#include "vtkIntersectionCounter.h" // to count intersections along ray
+#include "vtkFiltersModelingModule.h" // For export macro
+#include "vtkIntersectionCounter.h"   // to count intersections along ray
 
 class vtkUnsignedCharArray;
 class vtkAbstractCellLocator;
@@ -60,7 +60,6 @@ class vtkIdList;
 class vtkGenericCell;
 class vtkRandomPool;
 
-
 class VTKFILTERSMODELING_EXPORT vtkSelectEnclosedPoints : public vtkDataSetAlgorithm
 {
 public:
@@ -68,14 +67,14 @@ public:
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkSelectEnclosedPoints,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkSelectEnclosedPoints, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Instantiate this class.
    */
-  static vtkSelectEnclosedPoints *New();
+  static vtkSelectEnclosedPoints* New();
 
   //@{
   /**
@@ -83,7 +82,7 @@ public:
    * provided: one directly for vtkPolyData, and one for the output of a
    * filter.
    */
-  void SetSurfaceData(vtkPolyData *pd);
+  void SetSurfaceData(vtkPolyData* pd);
   void SetSurfaceConnection(vtkAlgorithmOutput* algOutput);
   //@}
 
@@ -91,8 +90,8 @@ public:
   /**
    * Return a pointer to the enclosing surface.
    */
-  vtkPolyData *GetSurface();
-  vtkPolyData *GetSurface(vtkInformationVector *sourceInfo);
+  vtkPolyData* GetSurface();
+  vtkPolyData* GetSurface(vtkInformationVector* sourceInfo);
   //@}
 
   //@{
@@ -101,9 +100,9 @@ public:
    * the output. If InsideOut is on, then the points outside the surface
    * are marked inside.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
   //@}
 
   //@{
@@ -111,9 +110,9 @@ public:
    * Specify whether to check the surface for closure. If on, then the
    * algorithm first checks to see if the surface is closed and manifold.
    */
-  vtkSetMacro(CheckSurface,vtkTypeBool);
-  vtkBooleanMacro(CheckSurface,vtkTypeBool);
-  vtkGetMacro(CheckSurface,vtkTypeBool);
+  vtkSetMacro(CheckSurface, vtkTypeBool);
+  vtkBooleanMacro(CheckSurface, vtkTypeBool);
+  vtkGetMacro(CheckSurface, vtkTypeBool);
   //@}
 
   /**
@@ -127,8 +126,8 @@ public:
    * Specify the tolerance on the intersection. The tolerance is expressed as
    * a fraction of the diagonal of the bounding box of the enclosing surface.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Tolerance,double);
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Tolerance, double);
   //@}
 
   //@{
@@ -138,7 +137,7 @@ public:
    * can be used without rebuilding the search structures. The Complete()
    * method releases memory.
    */
-  void Initialize(vtkPolyData *surface);
+  void Initialize(vtkPolyData* surface);
   int IsInsideSurface(double x[3]);
   int IsInsideSurface(double x, double y, double z);
   void Complete();
@@ -154,38 +153,36 @@ public:
    * execution, generating random numbers is hard, so a precomputed random
    * sequence can be provided with an index into the sequence.
    */
-  static int IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
-                             double length,  double tol, vtkAbstractCellLocator *locator,
-                             vtkIdList *cellIds, vtkGenericCell *genCell,
-                             vtkIntersectionCounter &counter,
-                             vtkRandomPool* poole=nullptr, vtkIdType seqIdx=0);
+  static int IsInsideSurface(double x[3], vtkPolyData* surface, double bds[6], double length,
+    double tol, vtkAbstractCellLocator* locator, vtkIdList* cellIds, vtkGenericCell* genCell,
+    vtkIntersectionCounter& counter, vtkRandomPool* poole = nullptr, vtkIdType seqIdx = 0);
 
   /**
    * A static method for determining whether a surface is closed. Provide as input
    * a vtkPolyData. The method returns >0 is the surface is closed and manifold.
    */
-  static int IsSurfaceClosed(vtkPolyData *surface);
+  static int IsSurfaceClosed(vtkPolyData* surface);
 
 protected:
   vtkSelectEnclosedPoints();
   ~vtkSelectEnclosedPoints() override;
 
-  vtkTypeBool    CheckSurface;
-  vtkTypeBool    InsideOut;
+  vtkTypeBool CheckSurface;
+  vtkTypeBool InsideOut;
   double Tolerance;
 
-  vtkUnsignedCharArray *InsideOutsideArray;
+  vtkUnsignedCharArray* InsideOutsideArray;
 
   // Internal structures for accelerating the intersection test
-  vtkStaticCellLocator *CellLocator;
-  vtkIdList      *CellIds;
-  vtkGenericCell *Cell;
-  vtkPolyData    *Surface;
-  double          Bounds[6];
-  double          Length;
+  vtkStaticCellLocator* CellLocator;
+  vtkIdList* CellIds;
+  vtkGenericCell* Cell;
+  vtkPolyData* Surface;
+  double Bounds[6];
+  double Length;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   void ReportReferences(vtkGarbageCollector*) override;
 

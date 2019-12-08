@@ -5,56 +5,59 @@
 
 #include "WidgetTestingMacros.h"
 
+#include "vtkFollower.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkFollower.h"
 
-int vtkLineRepresentationTest1(int , char * [] )
+int vtkLineRepresentationTest1(int, char*[])
 {
-  vtkSmartPointer< vtkLineRepresentation > node1 = vtkSmartPointer< vtkLineRepresentation >::New();
+  vtkSmartPointer<vtkLineRepresentation> node1 = vtkSmartPointer<vtkLineRepresentation>::New();
 
-  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep = vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
+  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep =
+    vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   node1->SetHandleRepresentation(handleRep);
   node1->InstantiateHandleRepresentation();
 
   EXERCISE_BASIC_REPRESENTATION_METHODS(vtkLineRepresentation, node1);
 
-
-  double pos[3] = {-100.0, 0.0, 99.9};
+  double pos[3] = { -100.0, 0.0, 99.9 };
   double pos2[3];
-  double *posptr = nullptr;
+  double* posptr = nullptr;
 
   // point 1 world
   node1->SetPoint1WorldPosition(pos);
   posptr = node1->GetPoint1WorldPosition();
   if (!posptr)
   {
-    std::cerr << "Error in get double * for Point1WorldPosition, null pointer returned." << std::endl;
+    std::cerr << "Error in get double * for Point1WorldPosition, null pointer returned."
+              << std::endl;
     return EXIT_FAILURE;
   }
-  else if (posptr[0] != pos[0] ||
-           posptr[1] != pos[1] ||
-           posptr[2] != pos[2])
+  else if (posptr[0] != pos[0] || posptr[1] != pos[1] || posptr[2] != pos[2])
   {
-    std::cerr << "Error in double * Set/Get Point1WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] <<  std::endl;
+    std::cerr << "Error in double * Set/Get Point1WorldPosition, expected " << pos[0] << ", "
+              << pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", "
+              << posptr[2] << std::endl;
     return EXIT_FAILURE;
   }
   else
   {
-    std::cout << "GetPoint1WorldPosition double * = " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] << std::endl;
+    std::cout << "GetPoint1WorldPosition double * = " << posptr[0] << ", " << posptr[1] << ", "
+              << posptr[2] << std::endl;
   }
   node1->GetPoint1WorldPosition(pos2);
-  if (pos2[0] != pos[0] ||
-      pos2[1] != pos[1] ||
-      pos2[2] != pos[2])
+  if (pos2[0] != pos[0] || pos2[1] != pos[1] || pos2[2] != pos[2])
   {
-    std::cerr << "Error in Set/Get Point1WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] <<  std::endl;
+    std::cerr << "Error in Set/Get Point1WorldPosition, expected " << pos[0] << ", " << pos[1]
+              << ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]
+              << std::endl;
     return EXIT_FAILURE;
   }
   else
   {
-    std::cout << "GetPoint1WorldPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl;
+    std::cout << "GetPoint1WorldPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]
+              << std::endl;
   }
 
   // point 1 display
@@ -65,31 +68,35 @@ int vtkLineRepresentationTest1(int , char * [] )
   posptr = node1->GetPoint1DisplayPosition();
   if (!posptr)
     {
-    std::cerr << "Error in get double * for Point1DisplayPosition, null pointer returned." << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << "Error in get double * for Point1DisplayPosition, null pointer returned." <<
+  std::endl; return EXIT_FAILURE;
     }
   else if (posptr[0] != pos[0] ||
            posptr[1] != pos[1] ||
            posptr[2] != pos[2])
     {
-    std::cerr << "Error in double * Set/Get Point1DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] <<  std::endl;
-    return EXIT_FAILURE;
+    std::cerr << "Error in double * Set/Get Point1DisplayPosition, expected " << pos[0] << ", " <<
+  pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] <<
+  std::endl; return EXIT_FAILURE;
     }
   else
     {
-    std::cout << "GetPoint1DisplayPosition double * = " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] << std::endl;
+    std::cout << "GetPoint1DisplayPosition double * = " << posptr[0] << ", " << posptr[1] << ", " <<
+  posptr[2] << std::endl;
     }
   node1->GetPoint1DisplayPosition(pos2);
   if (pos2[0] != pos[0] ||
       pos2[1] != pos[1] ||
       pos2[2] != pos[2])
     {
-    std::cerr << "Error in Set/Get Point1DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] <<  std::endl;
+    std::cerr << "Error in Set/Get Point1DisplayPosition, expected " << pos[0] << ", " << pos[1] <<
+  ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] <<  std::endl;
     return EXIT_FAILURE;
     }
   else
     {
-    std::cout << "GetPoint1DisplayPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl;
+    std::cout << "GetPoint1DisplayPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] <<
+  std::endl;
     }
   */
 
@@ -100,31 +107,34 @@ int vtkLineRepresentationTest1(int , char * [] )
   posptr = node1->GetPoint2WorldPosition();
   if (!posptr)
   {
-    std::cerr << "Error in get double * for Point2WorldPosition, null pointer returned." << std::endl;
+    std::cerr << "Error in get double * for Point2WorldPosition, null pointer returned."
+              << std::endl;
     return EXIT_FAILURE;
   }
-  else if (posptr[0] != pos[0] ||
-           posptr[1] != pos[1] ||
-           posptr[2] != pos[2])
+  else if (posptr[0] != pos[0] || posptr[1] != pos[1] || posptr[2] != pos[2])
   {
-    std::cerr << "Error in double * Set/Get Point2WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] <<  std::endl;
+    std::cerr << "Error in double * Set/Get Point2WorldPosition, expected " << pos[0] << ", "
+              << pos[1] << ", " << pos[2] << " but got " << posptr[0] << ", " << posptr[1] << ", "
+              << posptr[2] << std::endl;
     return EXIT_FAILURE;
   }
   else
   {
-    std::cout << "GetPoint2WorldPosition double * = " << posptr[0] << ", " << posptr[1] << ", " << posptr[2] << std::endl;
+    std::cout << "GetPoint2WorldPosition double * = " << posptr[0] << ", " << posptr[1] << ", "
+              << posptr[2] << std::endl;
   }
   node1->GetPoint2WorldPosition(pos2);
-  if (pos2[0] != pos[0] ||
-      pos2[1] != pos[1] ||
-      pos2[2] != pos[2])
+  if (pos2[0] != pos[0] || pos2[1] != pos[1] || pos2[2] != pos[2])
   {
-    std::cerr << "Error in Set/Get Point2WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] <<  std::endl;
+    std::cerr << "Error in Set/Get Point2WorldPosition, expected " << pos[0] << ", " << pos[1]
+              << ", " << pos[2] << " but got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]
+              << std::endl;
     return EXIT_FAILURE;
   }
   else
   {
-    std::cout << "GetPoint2WorldPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl;
+    std::cout << "GetPoint2WorldPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]
+              << std::endl;
   }
 
   vtkSmartPointer<vtkPointHandleRepresentation3D> subHandleRep;
@@ -169,7 +179,7 @@ int vtkLineRepresentationTest1(int , char * [] )
   // 0 is invalid
   TEST_SET_GET_INT_RANGE(node1, Resolution, 2, 100);
 
-  vtkSmartPointer<vtkPolyData> pd =  vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
   node1->GetPolyData(pd);
   if (pd == nullptr)
   {

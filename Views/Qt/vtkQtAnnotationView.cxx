@@ -28,15 +28,15 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotation.h"
-#include "vtkAnnotationLink.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkEventQtSlotConnect.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
-#include "vtkEventQtSlotConnect.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkIntArray.h"
@@ -72,9 +72,8 @@ vtkQtAnnotationView::vtkQtAnnotationView()
   this->LastInputMTime = 0;
 
   QObject::connect(this->View->selectionModel(),
-      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this,
-      SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+    SLOT(slotQtSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
 //----------------------------------------------------------------------------
@@ -91,38 +90,40 @@ QWidget* vtkQtAnnotationView::GetWidget()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
-  const QItemSelection& vtkNotUsed(s2))
+void vtkQtAnnotationView::slotQtSelectionChanged(
+  const QItemSelection& vtkNotUsed(s1), const QItemSelection& vtkNotUsed(s2))
 {
   vtkDataObject* data = this->Adapter->GetVTKDataObject();
-  if(!data)
+  if (!data)
     return;
 
   QModelIndexList qmi = this->View->selectionModel()->selectedRows();
-  vtkAnnotationLayers* curLayers = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
-  for(unsigned int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
+  vtkAnnotationLayers* curLayers =
+    this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
+  for (unsigned int i = 0; i < curLayers->GetNumberOfAnnotations(); ++i)
   {
     vtkAnnotation* a = curLayers->GetAnnotation(i);
-    vtkAnnotation::ENABLE()->Set(a->GetInformation(),0);
+    vtkAnnotation::ENABLE()->Set(a->GetInformation(), 0);
   }
 
-  for(int j=0; j<qmi.count(); ++j)
+  for (int j = 0; j < qmi.count(); ++j)
   {
     vtkAnnotation* a = curLayers->GetAnnotation(qmi[j].row());
-    vtkAnnotation::ENABLE()->Set(a->GetInformation(),1);
+    vtkAnnotation::ENABLE()->Set(a->GetInformation(), 1);
   }
 
-  //vtkSmartPointer<vtkAnnotationLayers> annotations;
-  //annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
-  //for(int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
+  // vtkSmartPointer<vtkAnnotationLayers> annotations;
+  // annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
+  // for(int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
   //  {
   //  vtkAnnotation* a = annotations->GetAnnotation(i);
   //  a->ENABLED().Set(1);
   //  }
-  //this->GetRepresentation()->GetAnnotationLink()->SetAnnotationLayers(annotations);
+  // this->GetRepresentation()->GetAnnotationLink()->SetAnnotationLayers(annotations);
   this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(curLayers));
 
-  this->LastInputMTime = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers()->GetMTime();
+  this->LastInputMTime =
+    this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers()->GetMTime();
 }
 
 //----------------------------------------------------------------------------
@@ -137,7 +138,7 @@ void vtkQtAnnotationView::Update()
   }
 
   // Make sure the input connection is up to date.
-  vtkDataObject *a = rep->GetAnnotationLink()->GetAnnotationLayers();
+  vtkDataObject* a = rep->GetAnnotationLink()->GetAnnotationLayers();
   if (a->GetMTime() != this->LastInputMTime)
   {
     this->LastInputMTime = a->GetMTime();
@@ -155,6 +156,5 @@ void vtkQtAnnotationView::Update()
 //----------------------------------------------------------------------------
 void vtkQtAnnotationView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-

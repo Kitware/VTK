@@ -20,18 +20,17 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
-#include "vtkmTriangleMeshPointNormals.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkmTriangleMeshPointNormals.h"
 
 int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkTesting> testHelper =
-    vtkSmartPointer<vtkTesting>::New();
+  vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
   {
@@ -87,9 +86,9 @@ int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
   renderer->ResetCamera();
 
   // renderwindow, interactor
-  vtkNew<vtkRenderWindow> renWin ;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
@@ -102,7 +101,7 @@ int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
   {
     vtkNew<vtkInteractorStyleTrackballCamera> iStyle;
     iren->SetInteractorStyle(iStyle);
-    renWin->SetSize(1000,1000);
+    renWin->SetSize(1000, 1000);
     iren->Start();
   }
 

@@ -18,11 +18,11 @@
 #include <vtkProcrustesAlignmentFilter.h>
 #include <vtkSmartPointer.h>
 
-int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkPoints> pointsArray[3];
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     pointsArray[i] = vtkSmartPointer<vtkPoints>::New();
   }
@@ -54,15 +54,17 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
   pointsArray[2]->InsertNextPoint(0.09052952, 1.53144991, -0.80403084);
   pointsArray[2]->InsertNextPoint(1.58614838, 0.66562307, 0.20268087);
 
-  vtkSmartPointer<vtkMultiBlockDataSet> inputMultiBlockDataSet = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+  vtkSmartPointer<vtkMultiBlockDataSet> inputMultiBlockDataSet =
+    vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
-  vtkSmartPointer<vtkProcrustesAlignmentFilter> procrustesAlignmentFilter = vtkSmartPointer<vtkProcrustesAlignmentFilter>::New();
+  vtkSmartPointer<vtkProcrustesAlignmentFilter> procrustesAlignmentFilter =
+    vtkSmartPointer<vtkProcrustesAlignmentFilter>::New();
   procrustesAlignmentFilter->SetInputData(inputMultiBlockDataSet);
   procrustesAlignmentFilter->StartFromCentroidOff();
 
   procrustesAlignmentFilter->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_FLOAT);
@@ -78,26 +80,27 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   vtkSmartPointer<vtkPoints> meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_FLOAT)
+  if (meanPoints->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
-  vtkSmartPointer<vtkMultiBlockDataSet> outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
+  vtkSmartPointer<vtkMultiBlockDataSet> outputMultiBlockDataSet =
+    procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_FLOAT)
+    if (outputPoints->GetDataType() != VTK_FLOAT)
     {
       return EXIT_FAILURE;
     }
   }
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_DOUBLE);
@@ -113,20 +116,20 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_DOUBLE)
+  if (meanPoints->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_DOUBLE)
+    if (outputPoints->GetDataType() != VTK_DOUBLE)
     {
       return EXIT_FAILURE;
     }
@@ -134,7 +137,7 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   procrustesAlignmentFilter->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_FLOAT);
@@ -150,26 +153,26 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_FLOAT)
+  if (meanPoints->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_FLOAT)
+    if (outputPoints->GetDataType() != VTK_FLOAT)
     {
       return EXIT_FAILURE;
     }
   }
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_DOUBLE);
@@ -185,20 +188,20 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_FLOAT)
+  if (meanPoints->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_FLOAT)
+    if (outputPoints->GetDataType() != VTK_FLOAT)
     {
       return EXIT_FAILURE;
     }
@@ -206,7 +209,7 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   procrustesAlignmentFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_FLOAT);
@@ -222,26 +225,26 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_DOUBLE)
+  if (meanPoints->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_DOUBLE)
+    if (outputPoints->GetDataType() != VTK_DOUBLE)
     {
       return EXIT_FAILURE;
     }
   }
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
     inputPoints->SetDataType(VTK_DOUBLE);
@@ -257,20 +260,20 @@ int TestProcrustesAlignmentFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
 
   meanPoints = procrustesAlignmentFilter->GetMeanPoints();
 
-  if(meanPoints->GetDataType() != VTK_DOUBLE)
+  if (meanPoints->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   outputMultiBlockDataSet = procrustesAlignmentFilter->GetOutput();
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     vtkSmartPointer<vtkDataObject> dataObject = outputMultiBlockDataSet->GetBlock(i);
     vtkSmartPointer<vtkPolyData> outputPolyData = vtkPolyData::SafeDownCast(dataObject);
     vtkSmartPointer<vtkPoints> outputPoints = outputPolyData->GetPoints();
 
-    if(outputPoints->GetDataType() != VTK_DOUBLE)
+    if (outputPoints->GetDataType() != VTK_DOUBLE)
     {
       return EXIT_FAILURE;
     }

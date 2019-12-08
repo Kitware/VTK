@@ -15,7 +15,7 @@
 /**
  * @class   vtkXMLReaderVersion
  * @brief   version number for legacy readers/writers
-*/
+ */
 
 #ifndef vtkXMLReaderVersion_h
 #define vtkXMLReaderVersion_h

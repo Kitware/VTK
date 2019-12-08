@@ -24,7 +24,7 @@
  * minimum is found.  The amoeba method is robust, reasonably efficient,
  * but is not guaranteed to find the global minimum if several local
  * minima exist.
-*/
+ */
 
 #ifndef vtkAmoebaMinimizer_h
 #define vtkAmoebaMinimizer_h
@@ -35,8 +35,8 @@
 class VTKCOMMONMATH_EXPORT vtkAmoebaMinimizer : public vtkObject
 {
 public:
-  static vtkAmoebaMinimizer *New();
-  vtkTypeMacro(vtkAmoebaMinimizer,vtkObject);
+  static vtkAmoebaMinimizer* New();
+  vtkTypeMacro(vtkAmoebaMinimizer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -48,12 +48,12 @@ public:
    * evaluations used for the minimization can be retrieved
    * using GetFunctionEvaluations().
    */
-  void SetFunction(void (*f)(void *), void *arg);
+  void SetFunction(void (*f)(void*), void* arg);
 
   /**
    * Set a function to call when a void* argument is being discarded.
    */
-  void SetFunctionArgDelete(void (*f)(void *));
+  void SetFunctionArgDelete(void (*f)(void*));
 
   //@{
   /**
@@ -65,7 +65,7 @@ public:
    * preferable to specify parameters by name, rather than by
    * number.
    */
-  void SetParameterValue(const char *name, double value);
+  void SetParameterValue(const char* name, double value);
   void SetParameterValue(int i, double value);
   //@}
 
@@ -76,10 +76,10 @@ public:
    * during the search for the minimum.  It is preferable to
    * identify scalars by name rather than by number.
    */
-  void SetParameterScale(const char *name, double scale);
-  double GetParameterScale(const char *name);
+  void SetParameterScale(const char* name, double scale);
+  double GetParameterScale(const char* name);
   void SetParameterScale(int i, double scale);
-  double GetParameterScale(int i) { return this->ParameterScales[i]; };
+  double GetParameterScale(int i) { return this->ParameterScales[i]; }
   //@}
 
   //@{
@@ -89,20 +89,20 @@ public:
    * to get the current parameter values.  It is preferable to specify
    * parameters by name rather than by index.
    */
-  double GetParameterValue(const char *name);
-  double GetParameterValue(int i) { return this->ParameterValues[i]; };
+  double GetParameterValue(const char* name);
+  double GetParameterValue(int i) { return this->ParameterValues[i]; }
   //@}
 
   /**
    * For completeness, an unchecked method to get the name for particular
    * parameter (the result will be nullptr if no name was set).
    */
-  const char *GetParameterName(int i) { return this->ParameterNames[i]; };
+  const char* GetParameterName(int i) { return this->ParameterNames[i]; }
 
   /**
    * Get the number of parameters that have been set.
    */
-  int GetNumberOfParameters() { return this->NumberOfParameters; };
+  int GetNumberOfParameters() { return this->NumberOfParameters; }
 
   /**
    * Initialize the minimizer.  This will reset the number of parameters to
@@ -126,8 +126,8 @@ public:
   /**
    * Get the function value resulting from the minimization.
    */
-  vtkSetMacro(FunctionValue,double);
-  double GetFunctionValue() { return this->FunctionValue; };
+  vtkSetMacro(FunctionValue, double);
+  double GetFunctionValue() { return this->FunctionValue; }
   //@}
 
   //@{
@@ -136,8 +136,8 @@ public:
    * fast convergence, but larger values such as 0.6 or 0.7 provide
    * greater stability.
    */
-  vtkSetClampMacro(ContractionRatio,double,0.5,1.0);
-  vtkGetMacro(ContractionRatio,double);
+  vtkSetClampMacro(ContractionRatio, double, 0.5, 1.0);
+  vtkGetMacro(ContractionRatio, double);
   //@}
 
   //@{
@@ -145,32 +145,32 @@ public:
    * Set the amoeba expansion ratio.  The default value is 2.0, which
    * provides rapid expansion.  Values between 1.1 and 2.0 are valid.
    */
-  vtkSetClampMacro(ExpansionRatio,double,1.0,2.0);
-  vtkGetMacro(ExpansionRatio,double);
+  vtkSetClampMacro(ExpansionRatio, double, 1.0, 2.0);
+  vtkGetMacro(ExpansionRatio, double);
   //@}
 
   //@{
   /**
    * Specify the value tolerance to aim for during the minimization.
    */
-  vtkSetMacro(Tolerance,double);
-  vtkGetMacro(Tolerance,double);
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
   //@}
 
   //@{
   /**
    * Specify the parameter tolerance to aim for during the minimization.
    */
-  vtkSetMacro(ParameterTolerance,double);
-  vtkGetMacro(ParameterTolerance,double);
+  vtkSetMacro(ParameterTolerance, double);
+  vtkGetMacro(ParameterTolerance, double);
   //@}
 
   //@{
   /**
    * Specify the maximum number of iterations to try before giving up.
    */
-  vtkSetMacro(MaxIterations,int);
-  vtkGetMacro(MaxIterations,int);
+  vtkSetMacro(MaxIterations, int);
+  vtkGetMacro(MaxIterations, int);
   //@}
 
   //@{
@@ -178,14 +178,14 @@ public:
    * Return the number of iterations that have been performed.  This
    * is not necessarily the same as the number of function evaluations.
    */
-  vtkGetMacro(Iterations,int);
+  vtkGetMacro(Iterations, int);
   //@}
 
   //@{
   /**
    * Return the number of times that the function has been evaluated.
    */
-  vtkGetMacro(FunctionEvaluations,int);
+  vtkGetMacro(FunctionEvaluations, int);
   //@}
 
   /**
@@ -198,14 +198,14 @@ protected:
   vtkAmoebaMinimizer();
   ~vtkAmoebaMinimizer() override;
 
-  void (*Function)(void *);
-  void (*FunctionArgDelete)(void *);
-  void *FunctionArg;
+  void (*Function)(void*);
+  void (*FunctionArgDelete)(void*);
+  void* FunctionArg;
 
   int NumberOfParameters;
-  char **ParameterNames;
-  double *ParameterValues;
-  double *ParameterScales;
+  char** ParameterNames;
+  double* ParameterValues;
+  double* ParameterScales;
   double FunctionValue;
 
   double ContractionRatio;
@@ -218,11 +218,11 @@ protected:
   int FunctionEvaluations;
 
 private:
-// specific to amoeba simplex minimization
+  // specific to amoeba simplex minimization
 
-  double **AmoebaVertices;
-  double *AmoebaValues;
-  double *AmoebaSum;
+  double** AmoebaVertices;
+  double* AmoebaValues;
+  double* AmoebaSum;
   double AmoebaSize;
   double AmoebaHighValue;
   int AmoebaNStepsNoImprovement;

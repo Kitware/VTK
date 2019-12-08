@@ -33,9 +33,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
@@ -113,7 +113,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->V2Actor = vtkActor::New();
   this->V2Actor->SetMapper(this->V2Mapper);
 
- // Create the + plane normal
+  // Create the + plane normal
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineMapper = vtkPolyDataMapper::New();
@@ -146,7 +146,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->ConeActor2->SetMapper(this->ConeMapper2);
 
   // The finite plane
-  this->PlanePolyData  = vtkPolyData::New();
+  this->PlanePolyData = vtkPolyData::New();
 
   // Construct initial points
   vtkNew<vtkPoints> points;
@@ -160,7 +160,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
 
   // Construct plane geometry
   vtkNew<vtkCellArray> cell;
-  cell->Allocate(5);
+  cell->AllocateEstimate(1, 4);
   vtkIdType pts[4] = { 0, 1, 2, 3 };
   cell->InsertNextCell(4, pts);
   this->PlanePolyData->SetPolys(cell);
@@ -181,15 +181,15 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
   this->EdgesActor = vtkActor::New();
   this->EdgesActor->SetMapper(this->EdgesMapper);
-  this->Tubing = true; //control whether tubing is on
-  this->DrawPlane = true; //control whether draw plane is on
+  this->Tubing = true;    // control whether tubing is on
+  this->DrawPlane = true; // control whether draw plane is on
   this->CurrentHandle = nullptr;
 
   // Initial creation of the widget, serves to initialize it
   double bounds[6] = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
   this->PlaceWidget(bounds);
 
-  //Manage the picking stuff
+  // Manage the picking stuff
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
 
@@ -289,7 +289,7 @@ vtkFinitePlaneRepresentation::~vtkFinitePlaneRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkFinitePlaneRepresentation::GetPolyData(vtkPolyData *pd)
+void vtkFinitePlaneRepresentation::GetPolyData(vtkPolyData* pd)
 {
   pd->ShallowCopy(this->PlanePolyData);
 }
@@ -316,7 +316,7 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkCamera *camera = this->Renderer->GetActiveCamera();
+  vtkCamera* camera = this->Renderer->GetActiveCamera();
   if (!camera)
   {
     return;
@@ -326,15 +326,12 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
   double pos[3];
   this->HandlePicker->GetPickPosition(pos);
 
-  vtkInteractorObserver::ComputeWorldToDisplay(
-    this->Renderer, pos[0], pos[1], pos[2], focalPoint);
+  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, pos[0], pos[1], pos[2], focalPoint);
 
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(
-    this->Renderer, this->LastEventPosition[0],
-    this->LastEventPosition[1], z, prevPickPoint);
-  vtkInteractorObserver::ComputeDisplayToWorld(
-    this->Renderer, e[0], e[1], z, pickPoint);
+    this->Renderer, this->LastEventPosition[0], this->LastEventPosition[1], z, prevPickPoint);
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, e[0], e[1], z, pickPoint);
 
   // Process the motion
   if (this->InteractionState == vtkFinitePlaneRepresentation::MoveOrigin)
@@ -366,11 +363,10 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
 }
 
 //----------------------------------------------------------------------------
-void vtkFinitePlaneRepresentation::Rotate(int X, int Y,
-                                          double *p1, double *p2, double *vpn)
+void vtkFinitePlaneRepresentation::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
 {
-  double v[3];    //vector of motion
-  double axis[3]; //axis of rotation
+  double v[3];    // vector of motion
+  double axis[3]; // axis of rotation
 
   // Mouse motion vector in world space
   v[0] = p2[0] - p1[0];
@@ -383,20 +379,18 @@ void vtkFinitePlaneRepresentation::Rotate(int X, int Y,
   {
     return;
   }
-  int *size = this->Renderer->GetSize();
-  double l2 = (X - this->LastEventPosition[0]) *
-    (X - this->LastEventPosition[0]) +
+  int* size = this->Renderer->GetSize();
+  double l2 = (X - this->LastEventPosition[0]) * (X - this->LastEventPosition[0]) +
     (Y - this->LastEventPosition[1]) * (Y - this->LastEventPosition[1]);
   double theta = 360.0 * sqrt(l2 / (size[0] * size[0] + size[1] * size[1]));
 
-  //Manipulate the transform to reflect the rotation
+  // Manipulate the transform to reflect the rotation
   this->TransformRotation->Identity();
   this->TransformRotation->Translate(this->Origin);
   this->TransformRotation->RotateWXYZ(theta, axis);
-  this->TransformRotation->Translate(
-    -this->Origin[0], -this->Origin[1], -this->Origin[2]);
+  this->TransformRotation->Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
 
-  //Set the new normal
+  // Set the new normal
   double nNew[3];
   this->TransformRotation->TransformNormal(this->Normal, nNew);
   this->SetNormal(nNew);
@@ -460,18 +454,15 @@ void vtkFinitePlaneRepresentation::PlaceWidget(double bnds[6])
   this->V2[1] = ((bnds[3] - bnds[2]) * 0.5);
   this->V2[2] = 0.0;
 
-  this->InitialLength =
-    sqrt((bnds[1] - bnds[0]) * (bnds[1] - bnds[0]) +
-         (bnds[3] - bnds[2]) * (bnds[3] - bnds[2]) +
-         (bnds[5] - bnds[4]) * (bnds[5] - bnds[4]));
+  this->InitialLength = sqrt((bnds[1] - bnds[0]) * (bnds[1] - bnds[0]) +
+    (bnds[3] - bnds[2]) * (bnds[3] - bnds[2]) + (bnds[5] - bnds[4]) * (bnds[5] - bnds[4]));
 
   this->ValidPick = 1; // since we have positioned the widget successfully
   this->BuildRepresentation();
 }
 
 //----------------------------------------------------------------------------
-int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
-                                                          int vtkNotUsed(modify))
+int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
@@ -498,7 +489,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 
   // Something picked, continue
   this->ValidPick = 1;
-  vtkProp *prop = path->GetFirstNode()->GetViewProp();
+  vtkProp* prop = path->GetFirstNode()->GetViewProp();
 
   if (prop == this->PlaneActor)
   {
@@ -508,8 +499,8 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
     this->SetHighlightPlane(1);
     this->SetHighlightHandle(nullptr);
   }
-  else if ((prop == this->ConeActor) || (prop == this->ConeActor2) ||
-    (prop == this->LineActor) || (prop == this->LineActor2))
+  else if ((prop == this->ConeActor) || (prop == this->ConeActor2) || (prop == this->LineActor) ||
+    (prop == this->LineActor2))
   {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Rotating);
     this->InteractionState = vtkFinitePlaneRepresentation::Rotating;
@@ -550,7 +541,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 }
 
 //----------------------------------------------------------------------
-double *vtkFinitePlaneRepresentation::GetBounds()
+double* vtkFinitePlaneRepresentation::GetBounds()
 {
   this->BuildRepresentation();
 
@@ -572,17 +563,16 @@ void vtkFinitePlaneRepresentation::BuildRepresentation()
 {
   this->SizeHandles();
 
-  if (this->GetMTime() < this->BuildTime &&
-      this->PlanePolyData->GetMTime() < this->BuildTime)
+  if (this->GetMTime() < this->BuildTime && this->PlanePolyData->GetMTime() < this->BuildTime)
   {
     return;
   }
 
-  double *origin = this->GetOrigin();
-  double *normal = this->GetNormal();
+  double* origin = this->GetOrigin();
+  double* normal = this->GetNormal();
 
   // Setup the plane normal
-  double d = this->PlanePolyData->GetLength() *1.2;
+  double d = this->PlanePolyData->GetLength() * 1.2;
 
   double p2Line[3];
   p2Line[0] = origin[0] + 0.30 * d * normal[0];
@@ -628,37 +618,29 @@ void vtkFinitePlaneRepresentation::BuildRepresentation()
   this->V2Geometry->SetCenter(point2);
 
   // Build Plane polydata
-  vtkPoints *points = this->PlanePolyData->GetPoints();
-  points->SetPoint(0,
-    origin[0] - vector1[0] - vector2[0],
-    origin[1] - vector1[1] - vector2[1],
+  vtkPoints* points = this->PlanePolyData->GetPoints();
+  points->SetPoint(0, origin[0] - vector1[0] - vector2[0], origin[1] - vector1[1] - vector2[1],
     origin[2] - vector1[2] - vector2[2]);
-  points->SetPoint(1,
-    origin[0] - vector1[0] + vector2[0],
-    origin[1] - vector1[1] + vector2[1],
+  points->SetPoint(1, origin[0] - vector1[0] + vector2[0], origin[1] - vector1[1] + vector2[1],
     origin[2] - vector1[2] + vector2[2]);
-  points->SetPoint(2,
-    origin[0] + vector1[0] + vector2[0],
-    origin[1] + vector1[1] + vector2[1],
+  points->SetPoint(2, origin[0] + vector1[0] + vector2[0], origin[1] + vector1[1] + vector2[1],
     origin[2] + vector1[2] + vector2[2]);
-  points->SetPoint(3,
-    origin[0] + vector1[0] - vector2[0],
-    origin[1] + vector1[1] - vector2[1],
+  points->SetPoint(3, origin[0] + vector1[0] - vector2[0], origin[1] + vector1[1] - vector2[1],
     origin[2] + vector1[2] - vector2[2]);
   points->Modified();
 
   this->PlanePolyData->Modified();
 
   // Control the look of the edges
-  this->EdgesMapper->SetInputConnection(this->Tubing ?
-    this->EdgesTuber->GetOutputPort(): this->Edges->GetOutputPort());
+  this->EdgesMapper->SetInputConnection(
+    this->Tubing ? this->EdgesTuber->GetOutputPort() : this->Edges->GetOutputPort());
 
   this->SizeHandles();
   this->BuildTime.Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkFinitePlaneRepresentation::ReleaseGraphicsResources(vtkWindow *w)
+void vtkFinitePlaneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->OriginActor->ReleaseGraphicsResources(w);
   this->V1Actor->ReleaseGraphicsResources(w);
@@ -672,7 +654,7 @@ void vtkFinitePlaneRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 }
 
 //----------------------------------------------------------------------------
-int vtkFinitePlaneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+int vtkFinitePlaneRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
@@ -704,7 +686,7 @@ int vtkFinitePlaneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkFinitePlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+int vtkFinitePlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
@@ -798,8 +780,7 @@ void vtkFinitePlaneRepresentation::HandlesOff()
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SizeHandles()
 {
-  double radius =
-    this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5, this->GetOrigin());
+  double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5, this->GetOrigin());
 
   this->OriginGeometry->SetRadius(radius);
   this->V1Geometry->SetRadius(radius);
@@ -814,7 +795,7 @@ void vtkFinitePlaneRepresentation::SizeHandles()
 }
 
 //----------------------------------------------------------------------------
-void vtkFinitePlaneRepresentation::SetHighlightHandle(vtkProp *prop)
+void vtkFinitePlaneRepresentation::SetHighlightHandle(vtkProp* prop)
 {
   if (this->CurrentHandle == this->OriginActor)
   {
@@ -858,9 +839,7 @@ void vtkFinitePlaneRepresentation::SetOrigin(double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetOrigin(double x[3])
 {
-  if (this->Origin[0] != x[0] ||
-      this->Origin[1] != x[1] ||
-      this->Origin[2] != x[2])
+  if (this->Origin[0] != x[0] || this->Origin[1] != x[1] || this->Origin[2] != x[2])
   {
     this->Origin[0] = x[0];
     this->Origin[1] = x[1];
@@ -881,8 +860,7 @@ void vtkFinitePlaneRepresentation::SetV1(double x, double y)
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetV1(double x[2])
 {
-  if (this->V1[0] != x[0] ||
-      this->V1[1] != x[1])
+  if (this->V1[0] != x[0] || this->V1[1] != x[1])
   {
     this->V1[0] = x[0];
     this->V1[1] = x[1];
@@ -902,8 +880,7 @@ void vtkFinitePlaneRepresentation::SetV2(double x, double y)
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetV2(double x[2])
 {
-  if (this->V2[0] != x[0] ||
-      this->V2[1] != x[1])
+  if (this->V2[0] != x[0] || this->V2[1] != x[1])
   {
     this->V2[0] = x[0];
     this->V2[1] = x[1];
@@ -932,12 +909,11 @@ void vtkFinitePlaneRepresentation::SetNormal(double x, double y, double z)
     double RotationAxis[3];
     vtkMath::Cross(this->PreviousNormal, this->Normal, RotationAxis);
     vtkMath::Normalize(RotationAxis);
-    double RotationAngle = vtkMath::DegreesFromRadians(
-      acos(vtkMath::Dot(this->PreviousNormal, this->Normal)));
+    double RotationAngle =
+      vtkMath::DegreesFromRadians(acos(vtkMath::Dot(this->PreviousNormal, this->Normal)));
 
     this->Transform->PostMultiply();
-    this->Transform->RotateWXYZ(RotationAngle,
-      RotationAxis[0], RotationAxis[1], RotationAxis[2]);
+    this->Transform->RotateWXYZ(RotationAngle, RotationAxis[0], RotationAxis[1], RotationAxis[2]);
 
     this->Modified();
     this->BuildRepresentation();
@@ -966,15 +942,13 @@ void vtkFinitePlaneRepresentation::SetDrawPlane(bool drawPlane)
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetHighlightPlane(int highlight)
 {
-  this->PlaneActor->SetProperty(
-    highlight ? this->SelectedPlaneProperty : this->PlaneProperty);
+  this->PlaneActor->SetProperty(highlight ? this->SelectedPlaneProperty : this->PlaneProperty);
 }
 
 //----------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetHighlightNormal(int highlight)
 {
-  vtkProperty* p =
-    highlight ? this->SelectedNormalProperty : this->NormalProperty;
+  vtkProperty* p = highlight ? this->SelectedNormalProperty : this->NormalProperty;
   this->LineActor->SetProperty(p);
   this->ConeActor->SetProperty(p);
   this->LineActor2->SetProperty(p);
@@ -991,10 +965,10 @@ void vtkFinitePlaneRepresentation::SetRepresentationState(int state)
   }
 
   // Clamp the state
-  state = (state < vtkFinitePlaneRepresentation::Outside ?
-    vtkFinitePlaneRepresentation::Outside :
-    (state > vtkFinitePlaneRepresentation::Pushing ?
-    vtkFinitePlaneRepresentation::Pushing : state));
+  state = (state < vtkFinitePlaneRepresentation::Outside
+      ? vtkFinitePlaneRepresentation::Outside
+      : (state > vtkFinitePlaneRepresentation::Pushing ? vtkFinitePlaneRepresentation::Pushing
+                                                       : state));
 
   this->RepresentationState = state;
   this->Modified();
@@ -1002,7 +976,7 @@ void vtkFinitePlaneRepresentation::SetRepresentationState(int state)
 
 //----------------------------------------------------------------------------
 // translate origin of plane
-void vtkFinitePlaneRepresentation::TranslateOrigin(double *p1, double *p2)
+void vtkFinitePlaneRepresentation::TranslateOrigin(double* p1, double* p2)
 {
   // Get the motion vector
   double v[3];
@@ -1011,17 +985,14 @@ void vtkFinitePlaneRepresentation::TranslateOrigin(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   // Add to the current point
-  this->SetOrigin(
-    this->Origin[0] + v[0],
-    this->Origin[1] + v[1],
-    this->Origin[2] + v[2]);
+  this->SetOrigin(this->Origin[0] + v[0], this->Origin[1] + v[1], this->Origin[2] + v[2]);
 }
 
 //----------------------------------------------------------------------------
 // Move Point 1
-void vtkFinitePlaneRepresentation::MovePoint1(double *p1, double *p2)
+void vtkFinitePlaneRepresentation::MovePoint1(double* p1, double* p2)
 {
-  //Get the motion vector
+  // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
@@ -1034,7 +1005,7 @@ void vtkFinitePlaneRepresentation::MovePoint1(double *p1, double *p2)
   t->SetMatrix(mat);
   t->TransformVector(v, v);
 
-  double *v1 = this->GetV1();
+  double* v1 = this->GetV1();
 
   double newV1[2];
   newV1[0] = v1[0] + v[0];
@@ -1045,9 +1016,9 @@ void vtkFinitePlaneRepresentation::MovePoint1(double *p1, double *p2)
 
 //----------------------------------------------------------------------------
 // Modified Vector v2
-void vtkFinitePlaneRepresentation::MovePoint2(double *p1, double *p2)
+void vtkFinitePlaneRepresentation::MovePoint2(double* p1, double* p2)
 {
-  //Get the motion vector
+  // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
@@ -1060,7 +1031,7 @@ void vtkFinitePlaneRepresentation::MovePoint2(double *p1, double *p2)
   t->SetMatrix(mat);
   t->TransformVector(v, v);
 
-  double *v2 = this->GetV2();
+  double* v2 = this->GetV2();
 
   double newV2[2];
   newV2[0] = v2[0] + v[0];
@@ -1071,9 +1042,9 @@ void vtkFinitePlaneRepresentation::MovePoint2(double *p1, double *p2)
 
 //----------------------------------------------------------------------------
 // Push Face
-void vtkFinitePlaneRepresentation::Push(double *p1, double *p2)
+void vtkFinitePlaneRepresentation::Push(double* p1, double* p2)
 {
-  //Get the motion vector
+  // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
@@ -1100,7 +1071,7 @@ void vtkFinitePlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  double *bounds = this->InitialBounds;
+  double* bounds = this->InitialBounds;
   os << indent << "Initial Bounds: "
      << "(" << bounds[0] << ", " << bounds[1] << ") "
      << "(" << bounds[2] << ", " << bounds[3] << ") "
@@ -1132,8 +1103,7 @@ void vtkFinitePlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
   if (this->SelectedHandleProperty)
   {
-    os << indent << "Selected Handle Property: "
-       << this->SelectedHandleProperty << "\n";
+    os << indent << "Selected Handle Property: " << this->SelectedHandleProperty << "\n";
   }
   else
   {
@@ -1150,8 +1120,7 @@ void vtkFinitePlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
   if (this->SelectedPlaneProperty)
   {
-    os << indent << "Selected Plane Property: "
-       << this->SelectedPlaneProperty << "\n";
+    os << indent << "Selected Plane Property: " << this->SelectedPlaneProperty << "\n";
   }
   else
   {

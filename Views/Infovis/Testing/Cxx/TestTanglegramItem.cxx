@@ -13,31 +13,31 @@
 
 =========================================================================*/
 
-#include "vtkTanglegramItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTanglegramItem.h"
 #include "vtkTree.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkContextInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkContextInteractorStyle.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
 int TestTanglegramItem(int argc, char* argv[])
 {
-  //tree #1
+  // tree #1
   vtkNew<vtkMutableDirectedGraph> graph1;
   vtkIdType root = graph1->AddVertex();
   vtkIdType internalOne = graph1->AddChild(root);
@@ -77,7 +77,7 @@ int TestTanglegramItem(int argc, char* argv[])
   nodeWeights->SetName("node weight");
   graph1->GetVertexData()->AddArray(nodeWeights);
 
-  //tree #2
+  // tree #2
   vtkNew<vtkMutableDirectedGraph> graph2;
   root = graph2->AddVertex();
   internalOne = graph2->AddChild(root);

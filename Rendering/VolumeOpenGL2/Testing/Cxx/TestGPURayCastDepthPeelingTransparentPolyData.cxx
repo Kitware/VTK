@@ -17,7 +17,6 @@
  * for artifacts where the volume intersects geometry with opacity = 0.
  */
 
-
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
@@ -28,11 +27,12 @@
 #include <vtkImageShiftScale.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOpenGLRenderer.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderTimerLog.h>
 #include <vtkRenderWindow.h>
@@ -40,24 +40,23 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTimerLog.h>
-#include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
 #include <cassert>
 
-
-namespace {
-
-void RenderComplete(vtkObject *obj, unsigned long, void*, void*)
+namespace
 {
-  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(obj);
+
+void RenderComplete(vtkObject* obj, unsigned long, void*, void*)
+{
+  vtkRenderWindow* renWin = vtkRenderWindow::SafeDownCast(obj);
   assert(renWin);
 
-  vtkRenderTimerLog *timer = renWin->GetRenderTimer();
+  vtkRenderTimerLog* timer = renWin->GetRenderTimer();
   while (timer->FrameReady())
   {
     std::cout << "-- Frame Timing:------------------------------------------\n";
@@ -71,36 +70,32 @@ void RenderComplete(vtkObject *obj, unsigned long, void*, void*)
 class SamplingDistanceCallback : public vtkCommand
 {
 public:
-  static SamplingDistanceCallback *New()
-    { return new SamplingDistanceCallback; }
+  static SamplingDistanceCallback* New() { return new SamplingDistanceCallback; }
 
-  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
-    void* vtkNotUsed(data)) override
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event, void* vtkNotUsed(data)) override
   {
     switch (event)
     {
       case vtkCommand::StartInteractionEvent:
-        {
-          // Higher ImageSampleDistance to make the volume-rendered image's
-          // resolution visibly lower during interaction.
-          this->Mapper->SetImageSampleDistance(6.5);
-        }
-        break;
+      {
+        // Higher ImageSampleDistance to make the volume-rendered image's
+        // resolution visibly lower during interaction.
+        this->Mapper->SetImageSampleDistance(6.5);
+      }
+      break;
 
       case vtkCommand::EndInteractionEvent:
-        {
-          // Default ImageSampleDistance
-          this->Mapper->SetImageSampleDistance(1.0);
-        }
+      {
+        // Default ImageSampleDistance
+        this->Mapper->SetImageSampleDistance(1.0);
+      }
     }
   }
 
   vtkGPUVolumeRayCastMapper* Mapper = nullptr;
 };
 
-
-
-int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char *argv[])
+int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
@@ -111,7 +106,7 @@ int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -129,7 +124,6 @@ int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char *argv[])
   renWin->GetRenderTimer()->LoggingEnabledOn();
   renWin->AddObserver(vtkCommand::EndEvent, renderCompleteCB);
 
-
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
@@ -137,10 +131,9 @@ int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  delete [] volumeFile;
+  delete[] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
@@ -242,11 +235,11 @@ int TestGPURayCastDepthPeelingTransparentPolyData(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

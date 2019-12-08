@@ -18,7 +18,7 @@
  *
  * vtkOutlineCornerSource creates wireframe outline corners around a user-specified
  * bounding box.
-*/
+ */
 
 #ifndef vtkOutlineCornerSource_h
 #define vtkOutlineCornerSource_h
@@ -29,13 +29,13 @@
 class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
-  vtkTypeMacro(vtkOutlineCornerSource,vtkOutlineSource);
+  vtkTypeMacro(vtkOutlineCornerSource, vtkOutlineSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct outline corner source with default corner factor = 0.2
    */
-  static vtkOutlineCornerSource *New();
+  static vtkOutlineCornerSource* New();
 
   //@{
   /**
@@ -50,9 +50,10 @@ protected:
   vtkOutlineCornerSource();
   ~vtkOutlineCornerSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double CornerFactor;
+
 private:
   vtkOutlineCornerSource(const vtkOutlineCornerSource&) = delete;
   void operator=(const vtkOutlineCornerSource&) = delete;

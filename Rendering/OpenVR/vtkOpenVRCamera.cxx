@@ -13,20 +13,19 @@
 =========================================================================*/
 #include "vtkOpenVRCamera.h"
 
-#include "vtkMatrix4x4.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLState.h"
+#include "vtkOpenVRRenderWindow.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
 #include <cmath>
 
 vtkStandardNewMacro(vtkOpenVRCamera);
-
 
 vtkOpenVRCamera::vtkOpenVRCamera()
 {
@@ -57,31 +56,29 @@ vtkOpenVRCamera::~vtkOpenVRCamera()
   this->RightEyeTCDCMatrix->Delete();
 }
 
-void vtkOpenVRCamera::GetHMDEyePoses(vtkRenderer *ren)
+void vtkOpenVRCamera::GetHMDEyePoses(vtkRenderer* ren)
 {
-  vtkOpenVRRenderWindow *win =
-    vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
-  vr::IVRSystem *hMD = win->GetHMD();
+  vr::IVRSystem* hMD = win->GetHMD();
 
   // left handed coordinate system so have to -1*Z
-  vr::HmdMatrix34_t matEye = hMD->GetEyeToHeadTransform( vr::Eye_Left );
+  vr::HmdMatrix34_t matEye = hMD->GetEyeToHeadTransform(vr::Eye_Left);
   this->LeftEyePose[0] = matEye.m[0][3];
   this->LeftEyePose[1] = matEye.m[1][3];
   this->LeftEyePose[2] = -matEye.m[2][3];
 
-  matEye = hMD->GetEyeToHeadTransform( vr::Eye_Right );
+  matEye = hMD->GetEyeToHeadTransform(vr::Eye_Right);
   this->RightEyePose[0] = matEye.m[0][3];
   this->RightEyePose[1] = matEye.m[1][3];
   this->RightEyePose[2] = -matEye.m[2][3];
 }
 
-void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
+void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer* ren)
 {
-  vtkOpenVRRenderWindow *win =
-    vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
-  vr::IVRSystem *hMD = win->GetHMD();
+  vr::IVRSystem* hMD = win->GetHMD();
 
   double znear = this->ClippingRange[0];
   double zfar = this->ClippingRange[1];
@@ -90,68 +87,70 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
   double xmin, xmax, ymin, ymax;
 
   // note docs are probably wrong in OpenVR arg list for this func
-  hMD->GetProjectionRaw( vr::Eye_Left, &fxmin, &fxmax, &fymin, &fymax);
-  xmin = fxmin*znear;
-  xmax = fxmax*znear;
-  ymin = fymin*znear;
-  ymax = fymax*znear;
+  hMD->GetProjectionRaw(vr::Eye_Left, &fxmin, &fxmax, &fymin, &fymax);
+  xmin = fxmin * znear;
+  xmax = fxmax * znear;
+  ymin = fymin * znear;
+  ymax = fymax * znear;
 
   this->LeftEyeProjection->Zero();
-  this->LeftEyeProjection->SetElement(0, 0, 2*znear/(xmax - xmin));
-  this->LeftEyeProjection->SetElement(1, 1, 2*znear/(ymax - ymin));
-  this->LeftEyeProjection->SetElement(2, 0, (xmin + xmax)/(xmax - xmin));
-  this->LeftEyeProjection->SetElement(2, 1, (ymin + ymax)/(ymax - ymin));
-  this->LeftEyeProjection->SetElement(2, 2, -(znear + zfar)/(zfar - znear));
+  this->LeftEyeProjection->SetElement(0, 0, 2 * znear / (xmax - xmin));
+  this->LeftEyeProjection->SetElement(1, 1, 2 * znear / (ymax - ymin));
+  this->LeftEyeProjection->SetElement(2, 0, (xmin + xmax) / (xmax - xmin));
+  this->LeftEyeProjection->SetElement(2, 1, (ymin + ymax) / (ymax - ymin));
+  this->LeftEyeProjection->SetElement(2, 2, -(znear + zfar) / (zfar - znear));
   this->LeftEyeProjection->SetElement(2, 3, -1);
-  this->LeftEyeProjection->SetElement(3, 2, -2*znear*zfar/(zfar - znear));
+  this->LeftEyeProjection->SetElement(3, 2, -2 * znear * zfar / (zfar - znear));
 
-  hMD->GetProjectionRaw( vr::Eye_Right, &fxmin, &fxmax, &fymin, &fymax);
-  xmin = fxmin*znear;
-  xmax = fxmax*znear;
-  ymin = fymin*znear;
-  ymax = fymax*znear;
+  hMD->GetProjectionRaw(vr::Eye_Right, &fxmin, &fxmax, &fymin, &fymax);
+  xmin = fxmin * znear;
+  xmax = fxmax * znear;
+  ymin = fymin * znear;
+  ymax = fymax * znear;
 
   this->RightEyeProjection->Zero();
-  this->RightEyeProjection->SetElement(0, 0, 2*znear/(xmax - xmin));
-  this->RightEyeProjection->SetElement(1, 1, 2*znear/(ymax - ymin));
-  this->RightEyeProjection->SetElement(2, 0, (xmin + xmax)/(xmax - xmin));
-  this->RightEyeProjection->SetElement(2, 1, (ymin + ymax)/(ymax - ymin));
-  this->RightEyeProjection->SetElement(2, 2, -(znear + zfar)/(zfar - znear));
+  this->RightEyeProjection->SetElement(0, 0, 2 * znear / (xmax - xmin));
+  this->RightEyeProjection->SetElement(1, 1, 2 * znear / (ymax - ymin));
+  this->RightEyeProjection->SetElement(2, 0, (xmin + xmax) / (xmax - xmin));
+  this->RightEyeProjection->SetElement(2, 1, (ymin + ymax) / (ymax - ymin));
+  this->RightEyeProjection->SetElement(2, 2, -(znear + zfar) / (zfar - znear));
   this->RightEyeProjection->SetElement(2, 3, -1);
-  this->RightEyeProjection->SetElement(3, 2, -2*znear*zfar/(zfar - znear));
+  this->RightEyeProjection->SetElement(3, 2, -2 * znear * zfar / (zfar - znear));
 }
 
-void vtkOpenVRCamera::ApplyEyePose(vtkOpenVRRenderWindow *win, bool left, double factor)
+void vtkOpenVRCamera::ApplyEyePose(vtkOpenVRRenderWindow* win, bool left, double factor)
 {
   double physicalScale = win->GetPhysicalScale();
 
-  double *dop = this->GetDirectionOfProjection();
-  double *vup = this->GetViewUp();
+  double* dop = this->GetDirectionOfProjection();
+  double* vup = this->GetViewUp();
   double vright[3];
-  vtkMath::Cross(dop,vup,vright);
+  vtkMath::Cross(dop, vup, vright);
 
-  double *offset = (left ? this->LeftEyePose : this->RightEyePose);
+  double* offset = (left ? this->LeftEyePose : this->RightEyePose);
   double newOffset[3];
-  newOffset[0] = factor*(offset[0]*vright[0] + offset[1]*vup[0] - offset[2]*dop[0])*physicalScale;
-  newOffset[1] = factor*(offset[0]*vright[1] + offset[1]*vup[1] - offset[2]*dop[1])*physicalScale;
-  newOffset[2] = factor*(offset[0]*vright[2] + offset[1]*vup[2] - offset[2]*dop[2])*physicalScale;
-  double *pos = this->GetPosition();
-  this->SetPosition(pos[0]+newOffset[0], pos[1] + newOffset[1], pos[2] + newOffset[2]);
-  double *fp = this->GetFocalPoint();
-  this->SetFocalPoint(fp[0]+newOffset[0], fp[1] + newOffset[1], fp[2] + newOffset[2]);
+  newOffset[0] =
+    factor * (offset[0] * vright[0] + offset[1] * vup[0] - offset[2] * dop[0]) * physicalScale;
+  newOffset[1] =
+    factor * (offset[0] * vright[1] + offset[1] * vup[1] - offset[2] * dop[1]) * physicalScale;
+  newOffset[2] =
+    factor * (offset[0] * vright[2] + offset[1] * vup[2] - offset[2] * dop[2]) * physicalScale;
+  double* pos = this->GetPosition();
+  this->SetPosition(pos[0] + newOffset[0], pos[1] + newOffset[1], pos[2] + newOffset[2]);
+  double* fp = this->GetFocalPoint();
+  this->SetFocalPoint(fp[0] + newOffset[0], fp[1] + newOffset[1], fp[2] + newOffset[2]);
 }
 
 // Implement base class method.
-void vtkOpenVRCamera::Render(vtkRenderer *ren)
+void vtkOpenVRCamera::Render(vtkRenderer* ren)
 {
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenVRRenderWindow *win =
-    vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  vtkOpenGLState *ostate = win->GetState();
+  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = win->GetState();
 
   int renSize[2];
-  win->GetRenderBufferSize(renSize[0],renSize[1]);
+  win->GetRenderBufferSize(renSize[0], renSize[1]);
 
   // get the eye pose and projection matricies once
   if (!this->LeftEyeProjection)
@@ -167,7 +166,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // Left Eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      ostate->vtkglEnable( GL_MULTISAMPLE );
+      ostate->vtkglEnable(GL_MULTISAMPLE);
     }
 
     // adjust for left eye position
@@ -181,7 +180,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // right eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      ostate->vtkglEnable( GL_MULTISAMPLE );
+      ostate->vtkglEnable(GL_MULTISAMPLE);
     }
 
     if (!ren->GetSelector())
@@ -193,9 +192,9 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     }
   }
 
-  ostate->vtkglViewport(0, 0, renSize[0], renSize[1] );
-  ostate->vtkglScissor(0, 0, renSize[0], renSize[1] );
-    ren->Clear();
+  ostate->vtkglViewport(0, 0, renSize[0], renSize[1]);
+  ostate->vtkglScissor(0, 0, renSize[0], renSize[1]);
+  ren->Clear();
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase())
   {
     ren->Clear();
@@ -204,8 +203,8 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
-        vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc, vtkMatrix4x4 *&wcdc)
+void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMatrix3x3*& normMat,
+  vtkMatrix4x4*& vcdc, vtkMatrix4x4*& wcdc)
 {
   if (ren->GetSelector())
   {
@@ -213,11 +212,10 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
   }
 
   // has the camera changed?
-  if (ren != this->LastRenderer ||
-      this->MTime > this->KeyMatrixTime ||
-      ren->GetMTime() > this->KeyMatrixTime)
+  if (ren != this->LastRenderer || this->MTime > this->KeyMatrixTime ||
+    ren->GetMTime() > this->KeyMatrixTime)
   {
-    vtkMatrix4x4 *w2v = this->GetModelViewTransformMatrix();
+    vtkMatrix4x4* w2v = this->GetModelViewTransformMatrix();
     this->WCVCMatrix->DeepCopy(w2v);
 
     if (this->LeftEye)
@@ -225,7 +223,7 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
       this->GetHMDEyeProjections(ren);
 
       // only compute normal matrix once
-      for(int i = 0; i < 3; ++i)
+      for (int i = 0; i < 3; ++i)
       {
         for (int j = 0; j < 3; ++j)
         {
@@ -239,8 +237,7 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 
     if (this->LeftEye)
     {
-      vtkOpenVRRenderWindow *win =
-        vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+      vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
       vtkMatrix4x4::Multiply4x4(this->WCVCMatrix, this->LeftEyeProjection, this->WCDCMatrix);
 
@@ -248,29 +245,24 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
       this->PoseTransform->Identity();
       double trans[3];
       win->GetPhysicalTranslation(trans);
-      this->PoseTransform->Translate(-trans[0],-trans[1],-trans[2]);
+      this->PoseTransform->Translate(-trans[0], -trans[1], -trans[2]);
       double scale = win->GetPhysicalScale();
-      this->PoseTransform->Scale(scale,scale,scale);
+      this->PoseTransform->Scale(scale, scale, scale);
 
       // deal with Vive to World rotations
-      double *vup = win->GetPhysicalViewUp();
-      double *dop = win->GetPhysicalViewDirection();
+      double* vup = win->GetPhysicalViewUp();
+      double* dop = win->GetPhysicalViewDirection();
       double vr[3];
-      vtkMath::Cross(dop,vup,vr);
-      double rot[16] = {
-        vr[0], vup[0], -dop[0], 0.0,
-        vr[1], vup[1], -dop[1], 0.0,
-        vr[2], vup[2], -dop[2], 0.0,
-        0.0, 0.0, 0.0, 1.0};
+      vtkMath::Cross(dop, vup, vr);
+      double rot[16] = { vr[0], vup[0], -dop[0], 0.0, vr[1], vup[1], -dop[1], 0.0, vr[2], vup[2],
+        -dop[2], 0.0, 0.0, 0.0, 0.0, 1.0 };
 
       this->PoseTransform->Concatenate(rot);
 
       this->LeftEyeTCDCMatrix->DeepCopy(this->PoseTransform->GetMatrix());
       this->LeftEyeTCDCMatrix->Transpose();
 
-      vtkMatrix4x4::Multiply4x4(this->LeftEyeTCDCMatrix,
-        this->WCDCMatrix,
-        this->LeftEyeTCDCMatrix);
+      vtkMatrix4x4::Multiply4x4(this->LeftEyeTCDCMatrix, this->WCDCMatrix, this->LeftEyeTCDCMatrix);
     }
     else
     {
@@ -279,9 +271,8 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
       this->RightEyeTCDCMatrix->DeepCopy(this->PoseTransform->GetMatrix());
       this->RightEyeTCDCMatrix->Transpose();
 
-      vtkMatrix4x4::Multiply4x4(this->RightEyeTCDCMatrix,
-        this->WCDCMatrix,
-        this->RightEyeTCDCMatrix);
+      vtkMatrix4x4::Multiply4x4(
+        this->RightEyeTCDCMatrix, this->WCDCMatrix, this->RightEyeTCDCMatrix);
     }
 
     this->KeyMatrixTime.Modified();
@@ -302,7 +293,7 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
   }
 }
 
-void vtkOpenVRCamera::GetTrackingToDCMatrix(vtkMatrix4x4 *&tcdc)
+void vtkOpenVRCamera::GetTrackingToDCMatrix(vtkMatrix4x4*& tcdc)
 {
   if (this->LeftEye)
   {
@@ -316,5 +307,5 @@ void vtkOpenVRCamera::GetTrackingToDCMatrix(vtkMatrix4x4 *&tcdc)
 
 void vtkOpenVRCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

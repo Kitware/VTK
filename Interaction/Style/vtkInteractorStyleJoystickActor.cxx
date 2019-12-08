@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkInteractorStyleJoystickActor.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkProp3D.h"
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
 #include "vtkCellPicker.h"
-#include "vtkTransform.h"
+#include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp3D.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor()
 {
-  this->MotionFactor    = 10.0;
+  this->MotionFactor = 10.0;
   this->InteractionProp = nullptr;
   this->InteractionPicker = vtkCellPicker::New();
   this->InteractionPicker->SetTolerance(0.001);
@@ -109,12 +109,11 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp()
       this->EndRotate();
       break;
   }
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->ReleaseFocus();
   }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonDown()
@@ -154,7 +153,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp()
       break;
   }
 
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->ReleaseFocus();
   }
@@ -184,7 +183,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp()
   {
     case VTKIS_USCALE:
       this->EndUniformScale();
-      if ( this->Interactor )
+      if (this->Interactor)
       {
         this->ReleaseFocus();
       }
@@ -195,16 +194,16 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Rotate()
 {
-  if ( this->CurrentRenderer == nullptr || this->InteractionProp == nullptr )
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  vtkRenderWindowInteractor* rwi = this->Interactor;
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
 
   // First get the origin of the assembly
-  double *obj_center = this->InteractionProp->GetCenter();
+  double* obj_center = this->InteractionProp->GetCenter();
 
   // GetLength gets the length of the diagonal of the bounding box
   double boundRadius = this->InteractionProp->GetLength() * 0.5;
@@ -230,20 +229,15 @@ void vtkInteractorStyleJoystickActor::Rotate()
   // Convert to display coord
   double disp_obj_center[3];
 
-  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2],
-                              disp_obj_center);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], disp_obj_center);
 
-  this->ComputeWorldToDisplay(outsidept[0], outsidept[1], outsidept[2],
-                              outsidept);
+  this->ComputeWorldToDisplay(outsidept[0], outsidept[1], outsidept[2], outsidept);
 
-  double radius = sqrt(vtkMath::Distance2BetweenPoints(disp_obj_center,
-                                                       outsidept));
+  double radius = sqrt(vtkMath::Distance2BetweenPoints(disp_obj_center, outsidept));
 
-  double nxf =
-    (rwi->GetEventPosition()[0] - disp_obj_center[0]) / radius;
+  double nxf = (rwi->GetEventPosition()[0] - disp_obj_center[0]) / radius;
 
-  double nyf =
-    (rwi->GetEventPosition()[1] - disp_obj_center[1]) / radius;
+  double nyf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / radius;
 
   if (nxf > 1.0)
   {
@@ -263,16 +257,14 @@ void vtkInteractorStyleJoystickActor::Rotate()
     nyf = -1.0;
   }
 
-  double newXAngle =
-    vtkMath::DegreesFromRadians( asin( nxf ) ) / this->MotionFactor;
+  double newXAngle = vtkMath::DegreesFromRadians(asin(nxf)) / this->MotionFactor;
 
-  double newYAngle =
-    vtkMath::DegreesFromRadians( asin( nyf ) ) / this->MotionFactor;
+  double newYAngle = vtkMath::DegreesFromRadians(asin(nyf)) / this->MotionFactor;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
 
-  double **rotate = new double*[2];
+  double** rotate = new double*[2];
 
   rotate[0] = new double[4];
   rotate[1] = new double[4];
@@ -287,15 +279,11 @@ void vtkInteractorStyleJoystickActor::Rotate()
   rotate[1][2] = view_right[1];
   rotate[1][3] = view_right[2];
 
-  this->Prop3DTransform(this->InteractionProp,
-                        obj_center,
-                        2,
-                        rotate,
-                        scale);
+  this->Prop3DTransform(this->InteractionProp, obj_center, 2, rotate, scale);
 
-  delete [] rotate[0];
-  delete [] rotate[1];
-  delete [] rotate;
+  delete[] rotate[0];
+  delete[] rotate[1];
+  delete[] rotate;
 
   if (this->AutoAdjustCameraClippingRange)
   {
@@ -308,16 +296,16 @@ void vtkInteractorStyleJoystickActor::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Spin()
 {
-  if ( this->CurrentRenderer == nullptr || this->InteractionProp == nullptr )
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  vtkRenderWindowInteractor* rwi = this->Interactor;
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
 
   // Get the axis to rotate around = vector from eye to origin
-  double *obj_center = this->InteractionProp->GetCenter();
+  double* obj_center = this->InteractionProp->GetCenter();
 
   double motion_vector[3];
   double view_point[3];
@@ -340,10 +328,9 @@ void vtkInteractorStyleJoystickActor::Spin()
 
   double disp_obj_center[3];
 
-  this->ComputeWorldToDisplay(obj_center[0], obj_center[1],obj_center[2],
-                              disp_obj_center);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], disp_obj_center);
 
-  double *center = this->CurrentRenderer->GetCenter();
+  double* center = this->CurrentRenderer->GetCenter();
 
   double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
 
@@ -356,13 +343,12 @@ void vtkInteractorStyleJoystickActor::Spin()
     yf = -1.0;
   }
 
-  double newAngle =
-    vtkMath::DegreesFromRadians( asin( yf ) ) / this->MotionFactor;
+  double newAngle = vtkMath::DegreesFromRadians(asin(yf)) / this->MotionFactor;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
 
-  double **rotate = new double*[1];
+  double** rotate = new double*[1];
   rotate[0] = new double[4];
 
   rotate[0][0] = newAngle;
@@ -370,14 +356,10 @@ void vtkInteractorStyleJoystickActor::Spin()
   rotate[0][2] = motion_vector[1];
   rotate[0][3] = motion_vector[2];
 
-  this->Prop3DTransform(this->InteractionProp,
-                        obj_center,
-                        1,
-                        rotate,
-                        scale);
+  this->Prop3DTransform(this->InteractionProp, obj_center, 1, rotate, scale);
 
-  delete [] rotate[0];
-  delete [] rotate;
+  delete[] rotate[0];
+  delete[] rotate;
 
   if (this->AutoAdjustCameraClippingRange)
   {
@@ -395,20 +377,17 @@ void vtkInteractorStyleJoystickActor::Pan()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkRenderWindowInteractor* rwi = this->Interactor;
 
   // Use initial center as the origin from which to pan
-  double *obj_center = this->InteractionProp->GetCenter();
+  double* obj_center = this->InteractionProp->GetCenter();
 
   double disp_obj_center[3], new_pick_point[4], motion_vector[3];
 
-  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2],
-                              disp_obj_center);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], disp_obj_center);
 
-  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0],
-                              rwi->GetEventPosition()[1],
-                              disp_obj_center[2],
-                              new_pick_point);
+  this->ComputeDisplayToWorld(
+    rwi->GetEventPosition()[0], rwi->GetEventPosition()[1], disp_obj_center[2], new_pick_point);
 
   // Compute a translation vector, moving everything 1/10
   // the distance to the cursor. (Arbitrary scale factor)
@@ -418,7 +397,7 @@ void vtkInteractorStyleJoystickActor::Pan()
 
   if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
-    vtkTransform *t = vtkTransform::New();
+    vtkTransform* t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
@@ -427,9 +406,7 @@ void vtkInteractorStyleJoystickActor::Pan()
   }
   else
   {
-    this->InteractionProp->AddPosition(motion_vector[0],
-                                       motion_vector[1],
-                                       motion_vector[2]);
+    this->InteractionProp->AddPosition(motion_vector[0], motion_vector[1], motion_vector[2]);
   }
 
   rwi->Render();
@@ -443,8 +420,8 @@ void vtkInteractorStyleJoystickActor::Dolly()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  vtkRenderWindowInteractor* rwi = this->Interactor;
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
 
   // Dolly is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
@@ -455,14 +432,13 @@ void vtkInteractorStyleJoystickActor::Dolly()
   cam->GetFocalPoint(view_focus);
 
   // Use initial center as the origin from which to pan
-  double *obj_center = this->InteractionProp->GetCenter();
+  double* obj_center = this->InteractionProp->GetCenter();
 
   double disp_obj_center[3];
 
-  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2],
-                              disp_obj_center);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], disp_obj_center);
 
-  double *center = this->CurrentRenderer->GetCenter();
+  double* center = this->CurrentRenderer->GetCenter();
 
   double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
   double dollyFactor = pow(1.1, yf);
@@ -474,7 +450,7 @@ void vtkInteractorStyleJoystickActor::Dolly()
 
   if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
-    vtkTransform *t = vtkTransform::New();
+    vtkTransform* t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
@@ -483,9 +459,7 @@ void vtkInteractorStyleJoystickActor::Dolly()
   }
   else
   {
-    this->InteractionProp->AddPosition(motion_vector[0],
-                                       motion_vector[1],
-                                       motion_vector[2]);
+    this->InteractionProp->AddPosition(motion_vector[0], motion_vector[1], motion_vector[2]);
   }
 
   if (this->AutoAdjustCameraClippingRange)
@@ -504,33 +478,28 @@ void vtkInteractorStyleJoystickActor::UniformScale()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkRenderWindowInteractor* rwi = this->Interactor;
 
   // Uniform scale is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
   // use bounding box center as the origin from which to pan
-  double *obj_center = this->InteractionProp->GetCenter();
+  double* obj_center = this->InteractionProp->GetCenter();
 
   double disp_obj_center[3];
 
-  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2],
-                              disp_obj_center);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], disp_obj_center);
 
-  double *center = this->CurrentRenderer->GetCenter();
+  double* center = this->CurrentRenderer->GetCenter();
 
   double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
   double scaleFactor = pow(1.1, yf);
 
-  double **rotate = nullptr;
+  double** rotate = nullptr;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = scaleFactor;
 
-  this->Prop3DTransform(this->InteractionProp,
-                        obj_center,
-                        0,
-                        rotate,
-                        scale);
+  this->Prop3DTransform(this->InteractionProp, obj_center, 0, rotate, scale);
 
   if (this->AutoAdjustCameraClippingRange)
   {
@@ -543,14 +512,14 @@ void vtkInteractorStyleJoystickActor::UniformScale()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
 {
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
-  vtkProp *prop = this->InteractionPicker->GetViewProp();
+  vtkProp* prop = this->InteractionPicker->GetViewProp();
   if (prop != nullptr)
   {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
@@ -562,19 +531,16 @@ void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
-                                                      double *boxCenter,
-                                                      int numRotation,
-                                                      double **rotate,
-                                                      double *scale)
+void vtkInteractorStyleJoystickActor::Prop3DTransform(
+  vtkProp3D* prop3D, double* boxCenter, int numRotation, double** rotate, double* scale)
 {
-  vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4* oldMatrix = vtkMatrix4x4::New();
   prop3D->GetMatrix(oldMatrix);
 
   double orig[3];
   prop3D->GetOrigin(orig);
 
-  vtkTransform *newTransform = vtkTransform::New();
+  vtkTransform* newTransform = vtkTransform::New();
   newTransform->PostMultiply();
   if (prop3D->GetUserMatrix() != nullptr)
   {
@@ -589,8 +555,7 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
 
   for (int i = 0; i < numRotation; i++)
   {
-    newTransform->RotateWXYZ(rotate[i][0], rotate[i][1],
-                             rotate[i][2], rotate[i][3]);
+    newTransform->RotateWXYZ(rotate[i][0], rotate[i][1], rotate[i][2], rotate[i][3]);
   }
 
   if ((scale[0] * scale[1] * scale[2]) != 0.0)

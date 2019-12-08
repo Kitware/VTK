@@ -12,6 +12,7 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # to be reworked eventually but the out of range values
   # are likely not being used.
   VTK::IOPLYCxx-TestPLYWriter
+  VTK::IOPLYCxx-TestPLYWriterString
   VTK::IOPLYCxx-TestPLYReaderTextureUVPoints
   VTK::IOPLYCxx-TestPLYReaderTextureUVFaces
 
@@ -115,6 +116,13 @@ if (NOT cdash_show_third_party_warnings)
     # boost uses internally. An example for you template fans is
     # /source/Infovis/BoostGraphAlgorithms/Testing/Cxx/TestBoostAdapter.cxx:221:47: warning: '*((void*)(& ei)+32).__gnu_cxx::__normal_iterator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >*, std::vector<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >, std::allocator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> > > > >::_M_current' may be used uninitialized in this function [-Wmaybe-uninitialized]
     "[Bb]oost[Gg]raph.*edge_property.*may be used uninitialized"
+
+    # Warnings due to DIY
+    "xmemory.*: warning C4996:.*Default Bounds constructor"
+
+    # eigen uses this internal header from CUDA that should not be used.
+    # [-Wcpp]
+    "host_defines.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead"
   )
 endif ()
 

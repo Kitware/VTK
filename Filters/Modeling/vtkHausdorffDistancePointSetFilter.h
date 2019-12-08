@@ -67,17 +67,16 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
-class VTKFILTERSMODELING_EXPORT vtkHausdorffDistancePointSetFilter
-: public vtkPointSetAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkHausdorffDistancePointSetFilter : public vtkPointSetAlgorithm
 {
 public:
   //@{
   /**
    * Standard methods for construction, type and printing.
    */
-  static vtkHausdorffDistancePointSetFilter *New();
+  static vtkHausdorffDistancePointSetFilter* New();
   vtkTypeMacro(vtkHausdorffDistancePointSetFilter, vtkPointSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -111,30 +110,27 @@ public:
    */
   vtkSetMacro(TargetDistanceMethod, int);
   vtkGetMacro(TargetDistanceMethod, int);
-  void SetTargetDistanceMethodToPointToPoint()
-    { this->SetTargetDistanceMethod(POINT_TO_POINT); }
-  void SetTargetDistanceMethodToPointToCell()
-    { this->SetTargetDistanceMethod(POINT_TO_CELL); }
-  const char *GetTargetDistanceMethodAsString();
+  void SetTargetDistanceMethodToPointToPoint() { this->SetTargetDistanceMethod(POINT_TO_POINT); }
+  void SetTargetDistanceMethodToPointToCell() { this->SetTargetDistanceMethod(POINT_TO_CELL); }
+  const char* GetTargetDistanceMethodAsString();
   //@}
 
 protected:
   vtkHausdorffDistancePointSetFilter();
   ~vtkHausdorffDistancePointSetFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int    TargetDistanceMethod; //!< point-to-point if 0, point-to-cell if 1
-  double RelativeDistance[2];  //!< relative distance between inputs
-  double HausdorffDistance;    //!< hausdorff distance (max(relative distance))
+  int TargetDistanceMethod;   //!< point-to-point if 0, point-to-cell if 1
+  double RelativeDistance[2]; //!< relative distance between inputs
+  double HausdorffDistance;   //!< hausdorff distance (max(relative distance))
 
 private:
   vtkHausdorffDistancePointSetFilter(const vtkHausdorffDistancePointSetFilter&) = delete;
   void operator=(const vtkHausdorffDistancePointSetFilter&) = delete;
-
 };
-inline const char *vtkHausdorffDistancePointSetFilter::GetTargetDistanceMethodAsString()
+inline const char* vtkHausdorffDistancePointSetFilter::GetTargetDistanceMethodAsString()
 {
   if (this->TargetDistanceMethod == POINT_TO_POINT)
   {

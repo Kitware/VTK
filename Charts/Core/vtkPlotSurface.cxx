@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
+#include "vtkPlotSurface.h"
 #include "vtkChartXYZ.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
 #include "vtkLookupTable.h"
-#include "vtkObjectFactory.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkPlotSurface.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotSurface)
+vtkStandardNewMacro(vtkPlotSurface);
 
 //-----------------------------------------------------------------------------
 vtkPlotSurface::vtkPlotSurface()
@@ -45,13 +45,13 @@ vtkPlotSurface::vtkPlotSurface()
 vtkPlotSurface::~vtkPlotSurface() = default;
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlotSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotSurface::Paint(vtkContext2D *painter)
+bool vtkPlotSurface::Paint(vtkContext2D* painter)
 {
   if (!this->Visible)
   {
@@ -64,7 +64,7 @@ bool vtkPlotSurface::Paint(vtkContext2D *painter)
   }
 
   // Get the 3D context.
-  vtkContext3D *context = painter->GetContext3D();
+  vtkContext3D* context = painter->GetContext3D();
 
   if (!context)
   {
@@ -76,23 +76,20 @@ bool vtkPlotSurface::Paint(vtkContext2D *painter)
   // draw the surface
   if (!this->Surface.empty())
   {
-    context->DrawTriangleMesh(this->Surface[0].GetData(),
-                              static_cast<int>(this->Surface.size()),
-                              this->Colors->GetPointer(0),
-                              this->ColorComponents);
+    context->DrawTriangleMesh(this->Surface[0].GetData(), static_cast<int>(this->Surface.size()),
+      this->Colors->GetPointer(0), this->ColorComponents);
   }
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::SetInputData(vtkTable *input)
+void vtkPlotSurface::SetInputData(vtkTable* input)
 {
   this->InputTable = input;
   this->NumberOfRows = input->GetNumberOfRows();
   this->NumberOfColumns = input->GetNumberOfColumns();
-  this->NumberOfVertices =
-    (this->NumberOfRows - 1) * (this->NumberOfColumns - 1) * 6;
+  this->NumberOfVertices = (this->NumberOfRows - 1) * (this->NumberOfColumns - 1) * 6;
 
   // initialize data ranges to row and column indices if they are not
   // already set.
@@ -107,7 +104,7 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
 
   this->Points.clear();
   this->Points.resize(this->NumberOfRows * this->NumberOfColumns);
-  float *data = this->Points[0].GetData();
+  float* data = this->Points[0].GetData();
   int pos = 0;
   float surfaceMin = VTK_FLOAT_MAX;
   float surfaceMax = VTK_FLOAT_MIN;
@@ -158,31 +155,25 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::SetInputData(vtkTable *input,
-                          const vtkStdString& vtkNotUsed(xName),
-                          const vtkStdString& vtkNotUsed(yName),
-                          const vtkStdString& vtkNotUsed(zName))
+void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUsed(xName),
+  const vtkStdString& vtkNotUsed(yName), const vtkStdString& vtkNotUsed(zName))
 {
   vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
   this->SetInputData(input);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::SetInputData(vtkTable *input,
-                          const vtkStdString& vtkNotUsed(xName),
-                          const vtkStdString& vtkNotUsed(yName),
-                          const vtkStdString& vtkNotUsed(zName),
-                          const vtkStdString& vtkNotUsed(colorName))
+void vtkPlotSurface::SetInputData(vtkTable* input, const vtkStdString& vtkNotUsed(xName),
+  const vtkStdString& vtkNotUsed(yName), const vtkStdString& vtkNotUsed(zName),
+  const vtkStdString& vtkNotUsed(colorName))
 {
   vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
   this->SetInputData(input);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::SetInputData(vtkTable *input,
-                                  vtkIdType vtkNotUsed(xColumn),
-                                  vtkIdType vtkNotUsed(yColumn),
-                                  vtkIdType vtkNotUsed(zColumn))
+void vtkPlotSurface::SetInputData(vtkTable* input, vtkIdType vtkNotUsed(xColumn),
+  vtkIdType vtkNotUsed(yColumn), vtkIdType vtkNotUsed(zColumn))
 {
   vtkWarningMacro("Warning: parameters beyond vtkTable are ignored");
   this->SetInputData(input);
@@ -198,7 +189,7 @@ void vtkPlotSurface::GenerateSurface()
   this->Colors->Allocate(this->NumberOfVertices * 3);
 
   // collect vertices of triangles
-  float *data = this->Surface[0].GetData();
+  float* data = this->Surface[0].GetData();
   int pos = 0;
   for (int i = 0; i < this->NumberOfRows - 1; ++i)
   {
@@ -223,20 +214,19 @@ void vtkPlotSurface::GenerateSurface()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotSurface::InsertSurfaceVertex(float *data, float value, int i,
-                                         int j, int &pos)
+void vtkPlotSurface::InsertSurfaceVertex(float* data, float value, int i, int j, int& pos)
 {
-    data[pos] = this->ColumnToX(j);
-    ++pos;
-    data[pos] = this->RowToY(i);
-    ++pos;
-    data[pos] = value;
-    ++pos;
+  data[pos] = this->ColumnToX(j);
+  ++pos;
+  data[pos] = this->RowToY(i);
+  ++pos;
+  data[pos] = value;
+  ++pos;
 
-    const unsigned char *rgb = this->LookupTable->MapValue(data[pos-1]);
-    this->Colors->InsertNextTypedTuple(&rgb[0]);
-    this->Colors->InsertNextTypedTuple(&rgb[1]);
-    this->Colors->InsertNextTypedTuple(&rgb[2]);
+  const unsigned char* rgb = this->LookupTable->MapValue(data[pos - 1]);
+  this->Colors->InsertNextTypedTuple(&rgb[0]);
+  this->Colors->InsertNextTypedTuple(&rgb[1]);
+  this->Colors->InsertNextTypedTuple(&rgb[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -258,7 +248,7 @@ void vtkPlotSurface::SetYRange(float min, float max)
 //-----------------------------------------------------------------------------
 void vtkPlotSurface::RescaleData()
 {
-  float *data = this->Points[0].GetData();
+  float* data = this->Points[0].GetData();
 
   // rescale Points (used by ChartXYZ to generate axes scales).
   int pos = 0;
@@ -287,14 +277,12 @@ void vtkPlotSurface::RescaleData()
 float vtkPlotSurface::ColumnToX(int columnIndex)
 {
   float newRange = this->XMaximum - this->XMinimum;
-  return static_cast<float>(columnIndex) * (newRange / this->NumberOfColumns) +
-    this->XMinimum;
+  return static_cast<float>(columnIndex) * (newRange / this->NumberOfColumns) + this->XMinimum;
 }
 
 //-----------------------------------------------------------------------------
 float vtkPlotSurface::RowToY(int rowIndex)
 {
   float newRange = this->YMaximum - this->YMinimum;
-  return static_cast<float>(rowIndex) * (newRange / this->NumberOfRows) +
-    this->YMinimum;
+  return static_cast<float>(rowIndex) * (newRange / this->NumberOfRows) + this->YMinimum;
 }

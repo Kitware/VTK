@@ -23,18 +23,17 @@
 // Its primary tasks are to determine which parts should be read on each process
 // and to send the relevant information from the master node to all slave nodes
 
-
 #include "vtkPLSDynaReader.h"
-#include "LSDynaMetaData.h"
 #include "LSDynaFamily.h"
+#include "LSDynaMetaData.h"
 #include "vtkLSDynaPartCollection.h"
 
-#include "vtkIntArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -50,25 +49,23 @@ struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
   vtkIdType NumProcesses;
   vtkIdType ProcessRank;
 
-  vtkPLSDynaReaderInternal():
-    MinDataset(0),
-    MaxDataset(0),
-    UpdatePiece(0),
-    UpdateNumPieces(0)
-    {}
+  vtkPLSDynaReaderInternal()
+    : MinDataset(0)
+    , MaxDataset(0)
+    , UpdatePiece(0)
+    , UpdateNumPieces(0)
+  {
+  }
 };
-
 
 //-----------------------------------------------------------------------------
 vtkPLSDynaReader::vtkPLSDynaReader()
 {
   this->Controller = nullptr;
 
-  //need to construct the internal datastructure before call SetController
+  // need to construct the internal datastructure before call SetController
   this->Internal = new vtkPLSDynaReader::vtkPLSDynaReaderInternal();
   this->SetController(vtkMultiProcessController::GetGlobalController());
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -79,14 +76,14 @@ vtkPLSDynaReader::~vtkPLSDynaReader()
   delete this->Internal;
 }
 
-void vtkPLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
+void vtkPLSDynaReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Controller: " << this->Controller <<  endl;
-  this->Superclass::PrintSelf( os, indent );
+  os << indent << "Controller: " << this->Controller << endl;
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkPLSDynaReader::SetController(vtkMultiProcessController *c)
+void vtkPLSDynaReader::SetController(vtkMultiProcessController* c)
 {
   if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
   {
@@ -120,134 +117,126 @@ void vtkPLSDynaReader::SetController(vtkMultiProcessController *c)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPLSDynaReader::CanReadFile( const char* fname )
+int vtkPLSDynaReader::CanReadFile(const char* fname)
 {
   return this->Superclass::CanReadFile(fname);
 }
 
 //-----------------------------------------------------------------------------
-int vtkPLSDynaReader::RequestInformation( vtkInformation* request,
-                                         vtkInformationVector** iinfo,
-                                         vtkInformationVector* outputVector )
+int vtkPLSDynaReader::RequestInformation(
+  vtkInformation* request, vtkInformationVector** iinfo, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  //call the parents request information on all the nodes.
-  //This is not optimal, but sooo much information is stored in the
-  //metadata that is read during request information that sending it over the wire
-  //might not be faster than each node contending for the info. Plus it would
-  //be a massive chunk of code
-  this->Superclass::RequestInformation(request,iinfo,outputVector);
+  // call the parents request information on all the nodes.
+  // This is not optimal, but sooo much information is stored in the
+  // metadata that is read during request information that sending it over the wire
+  // might not be faster than each node contending for the info. Plus it would
+  // be a massive chunk of code
+  this->Superclass::RequestInformation(request, iinfo, outputVector);
 
-  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
-               1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkPLSDynaReader::RequestData(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector )
+int vtkPLSDynaReader::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  //get the information needed to determine which subsection of the full
-  //data set we need to load
+  // get the information needed to determine which subsection of the full
+  // data set we need to load
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   this->Internal->UpdatePiece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   this->Internal->UpdateNumPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  return this->Superclass::RequestData(request,inputVector,outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 int vtkPLSDynaReader::ReadTopology()
 {
-  bool readTopology=false;
-  if(!this->Parts)
+  bool readTopology = false;
+  if (!this->Parts)
   {
-    readTopology=true;
+    readTopology = true;
     this->Parts = vtkLSDynaPartCollection::New();
     vtkIdType* minCellIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
     vtkIdType* maxCellIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
-    this->GetPartRanges(minCellIds,maxCellIds);
+    this->GetPartRanges(minCellIds, maxCellIds);
 
-    this->Parts->InitCollection(this->P,minCellIds,maxCellIds);
+    this->Parts->InitCollection(this->P, minCellIds, maxCellIds);
     delete[] minCellIds;
     delete[] maxCellIds;
   }
-  if(!readTopology)
+  if (!readTopology)
   {
     return 0;
   }
 
-  if( this->ReadPartSizes())
+  if (this->ReadPartSizes())
   {
-    vtkErrorMacro( "Could not read cell sizes." );
+    vtkErrorMacro("Could not read cell sizes.");
     return 1;
   }
 
-  if ( this->ReadConnectivityAndMaterial() )
+  if (this->ReadConnectivityAndMaterial())
   {
-    vtkErrorMacro( "Could not read connectivity." );
+    vtkErrorMacro("Could not read connectivity.");
     return 1;
   }
 
-  //finalize the topology on each process, each process will remove
-  //any part that it doesn't have a cell for.
+  // finalize the topology on each process, each process will remove
+  // any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
 
-  if(this->ReadNodes())
+  if (this->ReadNodes())
   {
     vtkErrorMacro("Could not read static node values.");
     return 1;
   }
 
-
   // we need to read the user ids after we have read the topology
   // so we know how many cells are in each part
-  if ( this->ReadUserIds() )
+  if (this->ReadUserIds())
   {
-    vtkErrorMacro( "Could not read user node/element IDs." );
+    vtkErrorMacro("Could not read user node/element IDs.");
     return 1;
   }
-
 
   return 0;
 }
 
 //----------------------------------------------------------------------------
-//determine which parts will be read by this processor
+// determine which parts will be read by this processor
 void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
 {
-  //1 == load the whole data
-  //determine which domains in this mesh this processor is responsible for
-  if ( this->Internal->UpdateNumPieces > 1 )
+  // 1 == load the whole data
+  // determine which domains in this mesh this processor is responsible for
+  if (this->Internal->UpdateNumPieces > 1)
   {
     double numCells;
-    for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
+    for (int i = 0; i < LSDynaMetaData::NUM_CELL_TYPES; ++i)
     {
       numCells = static_cast<double>(this->P->NumberOfCells[i]);
-      if(numCells > 1000)
+      if (numCells > 1000)
       {
         double percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
-        mins[i] = static_cast<vtkIdType>(
-                    percent * this->Internal->UpdatePiece);
-        maxs[i] = static_cast<vtkIdType>(
-                    percent * (this->Internal->UpdatePiece+1));
+        mins[i] = static_cast<vtkIdType>(percent * this->Internal->UpdatePiece);
+        maxs[i] = static_cast<vtkIdType>(percent * (this->Internal->UpdatePiece + 1));
       }
       else
       {
-        //else not enough cells to worth dividing the reading
-        mins[i]=0;
-        maxs[i]=static_cast<vtkIdType>(
-                  (this->Internal->ProcessRank==0)?numCells:0);
+        // else not enough cells to worth dividing the reading
+        mins[i] = 0;
+        maxs[i] = static_cast<vtkIdType>((this->Internal->ProcessRank == 0) ? numCells : 0);
       }
     }
   }
   else
   {
-    for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
+    for (int i = 0; i < LSDynaMetaData::NUM_CELL_TYPES; ++i)
     {
       mins[i] = 0;
       maxs[i] = this->P->NumberOfCells[i];

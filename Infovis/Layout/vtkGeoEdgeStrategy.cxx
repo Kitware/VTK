@@ -26,16 +26,16 @@
 #include "vtkFloatArray.h"
 #include "vtkGeoMath.h"
 #include "vtkGraph.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+#include <map>
 #include <utility>
 #include <vector>
-#include <map>
 
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
@@ -51,8 +51,7 @@ void vtkGeoEdgeStrategy::Layout()
   std::map<std::pair<vtkIdType, vtkIdType>, int> edgeCount;
   std::map<std::pair<vtkIdType, vtkIdType>, int> edgeNumber;
   std::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
-  vtkSmartPointer<vtkEdgeListIterator> it =
-    vtkSmartPointer<vtkEdgeListIterator>::New();
+  vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
   while (it->HasNext())
   {
@@ -72,7 +71,7 @@ void vtkGeoEdgeStrategy::Layout()
     edgeVector[e.Id] = e;
   }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-  double* pts = new double[this->NumberOfSubdivisions*3];
+  double* pts = new double[this->NumberOfSubdivisions * 3];
   for (vtkIdType eid = 0; eid < numEdges; ++eid)
   {
     vtkEdgeType e = edgeVector[eid];
@@ -90,7 +89,7 @@ void vtkGeoEdgeStrategy::Layout()
     // Lookup the total number of edges with this source
     // and target, as well as how many times this pair
     // has been found so far.
-    std::pair<vtkIdType,vtkIdType> p(src, tgt);
+    std::pair<vtkIdType, vtkIdType> p(src, tgt);
     edgeNumber[p]++;
     int cur = edgeNumber[p];
     int total = edgeCount[p];
@@ -105,7 +104,7 @@ void vtkGeoEdgeStrategy::Layout()
     double w[3];
     for (int c = 0; c < 3; ++c)
     {
-      w[c] = (sourcePt[c] + targetPt[c])/2.0;
+      w[c] = (sourcePt[c] + targetPt[c]) / 2.0;
     }
     vtkMath::Normalize(w);
 
@@ -115,8 +114,7 @@ void vtkGeoEdgeStrategy::Layout()
     double center[3];
     for (int c = 0; c < 3; ++c)
     {
-      center[c] = this->ExplodeFactor * this->GlobeRadius * w[c]
-                  * (cur + 1) / total;
+      center[c] = this->ExplodeFactor * this->GlobeRadius * w[c] * (cur + 1) / total;
     }
 
     // The vectors u and x are unit vectors pointing from the
@@ -141,7 +139,7 @@ void vtkGeoEdgeStrategy::Layout()
     // by checking whether the dot product of u and w is negative.
     if (vtkMath::Dot(w, u) < 0)
     {
-      theta = 2.0*vtkMath::Pi() - theta;
+      theta = 2.0 * vtkMath::Pi() - theta;
     }
 
     // We need two perpendicular vectors on the plane of the circle
@@ -160,13 +158,11 @@ void vtkGeoEdgeStrategy::Layout()
     // to draw an arc from the last point to the current point.
     for (int s = 0; s < this->NumberOfSubdivisions; ++s)
     {
-      double angle = (this->NumberOfSubdivisions - 1.0 - s)
-        * theta / (this->NumberOfSubdivisions - 1.0);
+      double angle =
+        (this->NumberOfSubdivisions - 1.0 - s) * theta / (this->NumberOfSubdivisions - 1.0);
       for (int c = 0; c < 3; ++c)
       {
-        pts[3*s + c] = center[c]
-          + radius*cos(angle)*u[c]
-          + radius*sin(angle)*v[c];
+        pts[3 * s + c] = center[c] + radius * cos(angle) * u[c] + radius * sin(angle) * v[c];
       }
     }
     this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
@@ -179,14 +175,13 @@ void vtkGeoEdgeStrategy::Layout()
   }
   double progress = 1.0;
   this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
-  delete [] pts;
+  delete[] pts;
 }
 
 void vtkGeoEdgeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "GlobeRadius: " << this->GlobeRadius << endl;
   os << indent << "ExplodeFactor: " << this->ExplodeFactor << endl;
   os << indent << "NumberOfSubdivisions: " << this->NumberOfSubdivisions << endl;
 }
-

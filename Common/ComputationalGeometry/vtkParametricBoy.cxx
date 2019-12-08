@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricBoy.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricBoy);
 
@@ -41,14 +41,13 @@ vtkParametricBoy::vtkParametricBoy()
 vtkParametricBoy::~vtkParametricBoy() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricBoy::Evaluate(double uvw[3], double Pt[3],
-                                double Duvw[9])
+void vtkParametricBoy::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
 
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double su = sin(u);
@@ -70,6 +69,7 @@ void vtkParametricBoy::Evaluate(double uvw[3], double Pt[3],
 
   double sr3 = sqrt(3.0);
 
+  // clang-format off
   // The point
   Pt[0] = 1.0 / 2.0 * (2 * X2 - Y2 - Z2 + 2.0 * Y * Z * (Y2 - Z2) +
                        Z * X * (X2 - Z2) + X * Y * (Y2 - X2));
@@ -101,10 +101,11 @@ void vtkParametricBoy::Evaluate(double uvw[3], double Pt[3],
            3 / 2 * Z3 * Y) * su + (-3 / 2 * X2 * Y - 3 / 2 * Z * X2 - 3 / 2 * X *
                                    Y2 -
                                    3 * Z * X * Y - 3 * Z2 * X - Y3 - 3 / 2 * Z * Y2 - 1 / 2 * Z3) * sv;
+  // clang-format on
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricBoy::EvaluateScalar(double *, double *, double *)
+double vtkParametricBoy::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
@@ -115,5 +116,4 @@ void vtkParametricBoy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ZScale: " << this->ZScale << "\n";
-
 }

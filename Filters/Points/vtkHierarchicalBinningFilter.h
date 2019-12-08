@@ -65,7 +65,7 @@
  *
  * @sa
  * vtkPointCloudFilter vtkQuadricClustering vtkStaticPointLocator
-*/
+ */
 
 #ifndef vtkHierarchicalBinningFilter_h
 #define vtkHierarchicalBinningFilter_h
@@ -85,8 +85,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkHierarchicalBinningFilter *New();
-  vtkTypeMacro(vtkHierarchicalBinningFilter,vtkPolyDataAlgorithm);
+  static vtkHierarchicalBinningFilter* New();
+  vtkTypeMacro(vtkHierarchicalBinningFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -95,8 +95,8 @@ public:
    * Specify the number of levels in the spatial hierarchy. By default, the
    * number of levels is three.
    */
-  vtkSetClampMacro(NumberOfLevels,int,1,VTK_MAX_LEVEL);
-  vtkGetMacro(NumberOfLevels,int);
+  vtkSetClampMacro(NumberOfLevels, int, 1, VTK_MAX_LEVEL);
+  vtkGetMacro(NumberOfLevels, int);
   //@}
 
   //@{
@@ -106,9 +106,9 @@ public:
    * the bounding box and bin divisions. (Computing the bounding box can be slow for
    * large point clouds, manual specification can save time.)
    */
-  vtkSetMacro(Automatic,bool);
-  vtkGetMacro(Automatic,bool);
-  vtkBooleanMacro(Automatic,bool);
+  vtkSetMacro(Automatic, bool);
+  vtkGetMacro(Automatic, bool);
+  vtkBooleanMacro(Automatic, bool);
   //@}
 
   //@{
@@ -118,8 +118,8 @@ public:
    * >= 1. Note: if Automatic subdivision is specified, the Divisions are
    * set by the filter.
    */
-  vtkSetVector3Macro(Divisions,int);
-  vtkGetVectorMacro(Divisions,int,3);
+  vtkSetVector3Macro(Divisions, int);
+  vtkGetVectorMacro(Divisions, int, 3);
   //@}
 
   //@{
@@ -130,8 +130,8 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax). If the bounds specified is does not
    * enclose the points, then points are clamped to lie in the bounding box.
    */
-  vtkSetVector6Macro(Bounds,double);
-  vtkGetVectorMacro(Bounds,double,6);
+  vtkSetVector6Macro(Bounds, double);
+  vtkGetVectorMacro(Bounds, double, 6);
   //@}
 
   /**
@@ -199,16 +199,14 @@ protected:
 
   // Handle to the underlying implementation. The representation is maintained so
   // that the convenience functions can be invoked on the bin tree.
-  vtkBinTree *Tree;
+  vtkBinTree* Tree;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) = delete;
   void operator=(const vtkHierarchicalBinningFilter&) = delete;
-
 };
 
 #endif

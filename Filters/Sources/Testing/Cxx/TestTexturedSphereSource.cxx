@@ -17,14 +17,14 @@
 #include <vtkSmartPointer.h>
 #include <vtkTexturedSphereSource.h>
 
-int TestTexturedSphereSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestTexturedSphereSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkTexturedSphereSource> texturedSphereSource
-    = vtkSmartPointer<vtkTexturedSphereSource>::New();
+  vtkSmartPointer<vtkTexturedSphereSource> texturedSphereSource =
+    vtkSmartPointer<vtkTexturedSphereSource>::New();
   texturedSphereSource->SetThetaResolution(8);
   texturedSphereSource->SetPhiResolution(8);
   texturedSphereSource->SetTheta(0.0);
@@ -41,7 +41,7 @@ int TestTexturedSphereSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = texturedSphereSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
@@ -57,7 +57,7 @@ int TestTexturedSphereSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = texturedSphereSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

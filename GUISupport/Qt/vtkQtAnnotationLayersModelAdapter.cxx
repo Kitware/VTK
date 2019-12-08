@@ -19,9 +19,10 @@
 -------------------------------------------------------------------------*/
 #include "vtkQtAnnotationLayersModelAdapter.h"
 
-#include "vtkDataSetAttributes.h"
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,13 +31,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
-#include "vtkDoubleArray.h"
 
-#include <QIcon>
-#include <QPixmap>
 #include <QHash>
+#include <QIcon>
 #include <QMap>
-
+#include <QPixmap>
 
 //----------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
@@ -46,8 +45,10 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
 }
 
 //----------------------------------------------------------------------------
-vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* t, QObject* p)
-  : vtkQtAbstractModelAdapter(p), Annotations(t)
+vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(
+  vtkAnnotationLayers* t, QObject* p)
+  : vtkQtAbstractModelAdapter(p)
+  , Annotations(t)
 {
   if (this->Annotations != nullptr)
   {
@@ -65,39 +66,35 @@ vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(
-  const char *vtkNotUsed(name))
+void vtkQtAnnotationLayersModelAdapter::SetKeyColumnName(const char* vtkNotUsed(name))
 {
-/*
-  if (name == 0)
-    {
-    this->KeyColumn = -1;
-    }
-  else
-    {
-    this->KeyColumn = -1;
-    for (int i = 0; i < static_cast<int>(this->Annotations->GetNumberOfColumns()); i++)
+  /*
+    if (name == 0)
       {
-      if (!strcmp(name, this->Annotations->GetColumn(i)->GetName()))
+      this->KeyColumn = -1;
+      }
+    else
+      {
+      this->KeyColumn = -1;
+      for (int i = 0; i < static_cast<int>(this->Annotations->GetNumberOfColumns()); i++)
         {
-        this->KeyColumn = i;
-        break;
+        if (!strcmp(name, this->Annotations->GetColumn(i)->GetName()))
+          {
+          this->KeyColumn = i;
+          break;
+          }
         }
       }
-    }
-    */
+      */
 }
 
 // ----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(
-  const char *vtkNotUsed(name))
-{
-}
+void vtkQtAnnotationLayersModelAdapter::SetColorColumnName(const char* vtkNotUsed(name)) {}
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject *obj)
+void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject* obj)
 {
-  vtkAnnotationLayers *t = vtkAnnotationLayers::SafeDownCast(obj);
+  vtkAnnotationLayers* t = vtkAnnotationLayers::SafeDownCast(obj);
   if (obj && !t)
   {
     qWarning("vtkQtAnnotationLayersModelAdapter needs a vtkAnnotationLayers for SetVTKDataObject");
@@ -129,7 +126,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
     // When setting a table, update the QHash tables for column mapping.
     // If SplitMultiComponentColumns is disabled, this call will just clear
     // the tables and return.
-    //this->updateModelColumnHashTables();
+    // this->updateModelColumnHashTables();
 
     // We will assume the table is totally
     // new and any views should update completely
@@ -166,7 +163,7 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
   for (int i = 0; i < qmil.size(); i++)
   {
     vtkIdType vtk_index = qmil.at(i).internalId();
-    //annotations->AddLayer();
+    // annotations->AddLayer();
     annotations->AddAnnotation(this->Annotations->GetAnnotation(vtk_index));
   }
   return annotations;
@@ -174,7 +171,7 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
 
 //----------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSelection(
-  vtkAnnotationLayers *vtkNotUsed(vtkann)) const
+  vtkAnnotationLayers* vtkNotUsed(vtkann)) const
 {
 
   QItemSelection qis_list;
@@ -204,32 +201,32 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSele
 vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelection(
   const QModelIndexList vtkNotUsed(qmil)) const
 {
-/*
-  // Create vtk index selection
-  vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  node->SetContentType(vtkSelectionNode::INDICES);
-  node->SetFieldType(vtkSelectionNode::ROW);
-  vtkSmartPointer<vtkIdTypeArray> index_arr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  node->SetSelectionList(index_arr);
-  IndexSelection->AddNode(node);
+  /*
+    // Create vtk index selection
+    vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
+    vtkSmartPointer<vtkSelectionNode> node =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetFieldType(vtkSelectionNode::ROW);
+    vtkSmartPointer<vtkIdTypeArray> index_arr =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    node->SetSelectionList(index_arr);
+    IndexSelection->AddNode(node);
 
-  // Run through the QModelIndexList pulling out vtk indexes
-  for (int i = 0; i < qmil.size(); i++)
-    {
-    vtkIdType vtk_index = qmil.at(i).internalId();
-    index_arr->InsertNextValue(vtk_index);
-    }
-  return IndexSelection;
-  */
+    // Run through the QModelIndexList pulling out vtk indexes
+    for (int i = 0; i < qmil.size(); i++)
+      {
+      vtkIdType vtk_index = qmil.at(i).internalId();
+      index_arr->InsertNextValue(vtk_index);
+      }
+    return IndexSelection;
+    */
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
 QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelection(
-  vtkSelection *vtkNotUsed(vtksel)) const
+  vtkSelection* vtkNotUsed(vtksel)) const
 {
 
   QItemSelection qis_list;
@@ -253,9 +250,8 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelect
   return qis_list;
 }
 
-
 //----------------------------------------------------------------------------
-QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int role) const
+QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex& idx, int role) const
 {
   if (this->noAnnotationsCheck())
   {
@@ -265,31 +261,31 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
   {
     return QVariant();
   }
-  if(idx.row() >= static_cast<int>(this->Annotations->GetNumberOfAnnotations()))
+  if (idx.row() >= static_cast<int>(this->Annotations->GetNumberOfAnnotations()))
   {
     return QVariant();
   }
 
-  vtkAnnotation *a = this->Annotations->GetAnnotation(idx.row());
+  vtkAnnotation* a = this->Annotations->GetAnnotation(idx.row());
   int numItems = 0;
-  vtkSelection *s = a->GetSelection();
-  if(s)
+  vtkSelection* s = a->GetSelection();
+  if (s)
   {
-    for(unsigned int i=0; i<s->GetNumberOfNodes(); ++i)
+    for (unsigned int i = 0; i < s->GetNumberOfNodes(); ++i)
     {
       numItems += s->GetNode(i)->GetSelectionList()->GetNumberOfTuples();
     }
   }
 
-  double *color = a->GetInformation()->Get(vtkAnnotation::COLOR());
+  double* color = a->GetInformation()->Get(vtkAnnotation::COLOR());
   int annColor[3];
-  annColor[0] = static_cast<int>(255*color[0]);
-  annColor[1] = static_cast<int>(255*color[1]);
-  annColor[2] = static_cast<int>(255*color[2]);
+  annColor[0] = static_cast<int>(255 * color[0]);
+  annColor[1] = static_cast<int>(255 * color[1]);
+  annColor[2] = static_cast<int>(255 * color[2]);
 
   if (role == Qt::DisplayRole)
   {
-    switch(idx.column())
+    switch (idx.column())
     {
       case 1:
         return QVariant(numItems);
@@ -301,7 +297,7 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
   }
   else if (role == Qt::DecorationRole)
   {
-    switch(idx.column())
+    switch (idx.column())
     {
       case 0:
         return QColor(annColor[0], annColor[1], annColor[2]);
@@ -314,23 +310,22 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &vtkNotUsed(idx),
-                                                const QVariant &vtkNotUsed(value),
-                                                int vtkNotUsed(role))
+bool vtkQtAnnotationLayersModelAdapter::setData(
+  const QModelIndex& vtkNotUsed(idx), const QVariant& vtkNotUsed(value), int vtkNotUsed(role))
 {
-/*
-  if (role == Qt::DecorationRole)
-    {
-    this->Internal->IndexToDecoration[idx] = value;
-    emit this->dataChanged(idx, idx);
-    return true;
-    }
- */
+  /*
+    if (role == Qt::DecorationRole)
+      {
+      this->Internal->IndexToDecoration[idx] = value;
+      emit this->dataChanged(idx, idx);
+      return true;
+      }
+   */
   return false;
 }
 
 //----------------------------------------------------------------------------
-Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex &idx) const
+Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex& idx) const
 {
   if (!idx.isValid())
   {
@@ -341,17 +336,17 @@ Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex &idx) c
 }
 
 //----------------------------------------------------------------------------
-QVariant vtkQtAnnotationLayersModelAdapter::headerData(int section, Qt::Orientation orientation,
-                    int role) const
+QVariant vtkQtAnnotationLayersModelAdapter::headerData(
+  int section, Qt::Orientation orientation, int role) const
 {
   if (this->noAnnotationsCheck())
   {
     return QVariant();
   }
 
-  if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+  if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
   {
-    switch(section)
+    switch (section)
     {
       case 0:
         return QVariant("C");
@@ -368,20 +363,20 @@ QVariant vtkQtAnnotationLayersModelAdapter::headerData(int section, Qt::Orientat
 }
 
 //----------------------------------------------------------------------------
-QModelIndex vtkQtAnnotationLayersModelAdapter::index(int row, int column,
-                  const QModelIndex & vtkNotUsed(parentIdx)) const
+QModelIndex vtkQtAnnotationLayersModelAdapter::index(
+  int row, int column, const QModelIndex& vtkNotUsed(parentIdx)) const
 {
   return createIndex(row, column, row);
 }
 
 //----------------------------------------------------------------------------
-QModelIndex vtkQtAnnotationLayersModelAdapter::parent(const QModelIndex & vtkNotUsed(idx)) const
+QModelIndex vtkQtAnnotationLayersModelAdapter::parent(const QModelIndex& vtkNotUsed(idx)) const
 {
   return QModelIndex();
 }
 
 //----------------------------------------------------------------------------
-int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex & mIndex) const
+int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex& mIndex) const
 {
   if (this->noAnnotationsCheck())
   {
@@ -395,7 +390,7 @@ int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex & mIndex) cons
 }
 
 //----------------------------------------------------------------------------
-int vtkQtAnnotationLayersModelAdapter::columnCount(const QModelIndex &) const
+int vtkQtAnnotationLayersModelAdapter::columnCount(const QModelIndex&) const
 {
   if (this->noAnnotationsCheck())
   {

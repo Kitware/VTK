@@ -20,13 +20,13 @@
  * This is an experimental format. Use XML-based formats for writing composite
  * datasets. Saving composite dataset in legacy VTK format is expected to change
  * in future including changes to the file layout.
-*/
+ */
 
 #ifndef vtkCompositeDataReader_h
 #define vtkCompositeDataReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkCompositeDataSet;
 class vtkHierarchicalBoxDataSet;
@@ -48,16 +48,15 @@ public:
   /**
    * Get the output of this reader.
    */
-  vtkCompositeDataSet *GetOutput();
-  vtkCompositeDataSet *GetOutput(int idx);
-  void SetOutput(vtkCompositeDataSet *output);
+  vtkCompositeDataSet* GetOutput();
+  vtkCompositeDataSet* GetOutput(int idx);
+  void SetOutput(vtkCompositeDataSet* output);
   //@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkCompositeDataReader();
@@ -84,7 +83,6 @@ protected:
 private:
   vtkCompositeDataReader(const vtkCompositeDataReader&) = delete;
   void operator=(const vtkCompositeDataReader&) = delete;
-
 };
 
 #endif

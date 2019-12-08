@@ -1,23 +1,22 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkCompositePolyDataMapper.h"
 #include "vtkExodusIIReader.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 int TestExodusTetra15(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/tetra15.g");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tetra15.g");
   if (!fname)
   {
     cout << "Could not obtain filename for test data.\n";
@@ -48,17 +47,17 @@ int TestExodusTetra15(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
   auto cam = ren->GetActiveCamera();
   cam->SetPosition(10., 10., 5.);
   cam->SetViewUp(0., 0.4, 1.);
   ren->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

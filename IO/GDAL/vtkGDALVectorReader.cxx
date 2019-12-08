@@ -15,18 +15,19 @@
 #include "vtkGDALVectorReader.h"
 
 // VTK includes
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDoubleArray.h"
-#include "vtkCellArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkPolyData.h"
+#include "vtkStringArray.h"
 
 // GDAL OGR includes
 #include <ogrsf_frmts.h>
@@ -42,17 +43,17 @@ int vtkGDALVectorReader::OGRRegistered = 0;
 class vtkGDALVectorReader::Internal
 {
 public:
-  Internal( const char* srcName, int appendFeatures, int addFeatIds )
+  Internal(const char* srcName, int appendFeatures, int addFeatIds)
   {
 #if GDAL_VERSION_MAJOR < 2
     OGRSFDriver* driver;
-    this->Source = OGRSFDriverRegistrar::Open( srcName, 0, &driver );
+    this->Source = OGRSFDriverRegistrar::Open(srcName, 0, &driver);
 #else
     GDALAllRegister();
-    this->Source = static_cast<GDALDataset*>(
-      GDALOpenEx(srcName, GDAL_OF_VECTOR, nullptr, nullptr, nullptr));
+    this->Source =
+      static_cast<GDALDataset*>(GDALOpenEx(srcName, GDAL_OF_VECTOR, nullptr, nullptr, nullptr));
 #endif
-    if ( ! this->Source )
+    if (!this->Source)
     {
       this->LastError = CPLGetLastErrorMsg();
     }
@@ -66,43 +67,42 @@ public:
   }
   ~Internal()
   {
-    if ( this->Source )
+    if (this->Source)
     {
 #if GDAL_VERSION_MAJOR < 2
-      OGRDataSource::DestroyDataSource( this->Source );
+      OGRDataSource::DestroyDataSource(this->Source);
 #else
       GDALClose(this->Source);
 #endif
     }
   }
 
-  void SetupPolyData( vtkPolyData **pd, vtkCellArray **lines,
-    vtkCellArray **verts, std::vector<vtkAbstractArray*> *fields,
-    int numFields, OGRFeatureDefn* fdef )
+  void SetupPolyData(vtkPolyData** pd, vtkCellArray** lines, vtkCellArray** verts,
+    std::vector<vtkAbstractArray*>* fields, int numFields, OGRFeatureDefn* fdef)
   {
     *pd = vtkPolyData::New();
 
     vtkAbstractArray* arr;
     int f;
-    for ( f = 0; f < numFields; ++f )
+    for (f = 0; f < numFields; ++f)
     {
-      OGRFieldDefn* ffdef = fdef->GetFieldDefn( f );
-      switch ( ffdef->GetType() )
+      OGRFieldDefn* ffdef = fdef->GetFieldDefn(f);
+      switch (ffdef->GetType())
       {
-      case OFTInteger:
-        arr = vtkIntArray::New();
-        break;
-      case OFTReal:
-        arr = vtkDoubleArray::New();
-        break;
-      case OFTString:
-      default: // When in doubt, it's a string!
-        arr = vtkStringArray::New();
-        break;
+        case OFTInteger:
+          arr = vtkIntArray::New();
+          break;
+        case OFTReal:
+          arr = vtkDoubleArray::New();
+          break;
+        case OFTString:
+        default: // When in doubt, it's a string!
+          arr = vtkStringArray::New();
+          break;
       }
-      arr->SetName( ffdef->GetNameRef() );
-      fields->push_back( arr );
-      (*pd)->GetCellData()->AddArray( arr );
+      arr->SetName(ffdef->GetNameRef());
+      fields->push_back(arr);
+      (*pd)->GetCellData()->AddArray(arr);
       arr->FastDelete();
     }
     if (this->AddFeatureIds)
@@ -114,7 +114,7 @@ public:
     }
 
     *lines = vtkCellArray::New();
-    *verts  = vtkCellArray::New();
+    *verts = vtkCellArray::New();
 
     (*pd)->SetLines(*lines);
     (*pd)->SetVerts(*verts);
@@ -123,10 +123,10 @@ public:
     (*verts)->FastDelete();
   }
 
-  bool ReadLayer( OGRLayer* layer, vtkMultiBlockDataSet* mbds )
+  bool ReadLayer(OGRLayer* layer, vtkMultiBlockDataSet* mbds)
   {
     OGRFeature* feat;
-    vtkPolyData *pd = 0;
+    vtkPolyData* pd = 0;
     vtkIdType nTotPoly = 0;
     vtkCellArray *lines = 0, *verts = 0;
 
@@ -134,36 +134,36 @@ public:
     int numFields = fdef->GetFieldCount();
     std::vector<vtkAbstractArray*> fields;
 
-    if ( this->AppendFeatures )
+    if (this->AppendFeatures)
     {
       this->SetupPolyData(&pd, &lines, &verts, &fields, numFields, fdef);
     }
 
-    while ( ( feat = layer->GetNextFeature() ) )
+    while ((feat = layer->GetNextFeature()))
     {
-      if ( !this->AppendFeatures )
+      if (!this->AppendFeatures)
       {
         fields.clear();
         this->SetupPolyData(&pd, &lines, &verts, &fields, numFields, fdef);
-        mbds->SetBlock( this->LayerIdx, pd );
+        mbds->SetBlock(this->LayerIdx, pd);
         ++this->LayerIdx;
         pd->FastDelete();
         nTotPoly = 0;
       }
 
       vtkPoints* pts = pd->GetPoints();
-      if ( ! pts )
+      if (!pts)
       {
         pts = vtkPoints::New();
         pts->SetDataTypeToDouble();
-        pd->SetPoints( pts );
+        pd->SetPoints(pts);
         pts->FastDelete();
       }
 
       // Insert points and lines to represent the geometry of each feature.
       OGRGeometry* geom = feat->GetGeometryRef();
-      vtkIdType nPoly = this->insertGeometryRecursive( geom, pd, pts, lines, verts );
-      if ( ! nPoly )
+      vtkIdType nPoly = this->insertGeometryRecursive(geom, pd, pts, lines, verts);
+      if (!nPoly)
       {
         continue;
       }
@@ -180,41 +180,41 @@ public:
       vtkIntArray* iarr;
       vtkDoubleArray* rarr;
       vtkStringArray* sarr;
-      for ( int f = 0; f < numFields; ++f )
+      for (int f = 0; f < numFields; ++f)
       {
-        OGRFieldDefn* ffdef = fdef->GetFieldDefn( f );
-        switch ( ffdef->GetType() )
+        OGRFieldDefn* ffdef = fdef->GetFieldDefn(f);
+        switch (ffdef->GetType())
         {
-        case OFTInteger:
-          iarr = vtkArrayDownCast<vtkIntArray>( fields[f] );
-          ival = feat->GetFieldAsInteger( f );
-          for ( i = 0; i < nPoly; ++i )
-          {
-            iarr->InsertNextValue( ival );
-          }
-          break;
-        case OFTReal:
-          rarr = vtkArrayDownCast<vtkDoubleArray>( fields[f] );
-          rval = feat->GetFieldAsDouble( f );
-          for ( i = 0; i < nPoly; ++i )
-          {
-            rarr->InsertNextValue( rval );
-          }
-          break;
-        case OFTString:
-        default:
-          sarr = vtkArrayDownCast<vtkStringArray>( fields[f] );
-          sval = feat->GetFieldAsString( f );
-          for ( i = 0; i < nPoly; ++i )
-          {
-            sarr->InsertNextValue( sval );
-          }
+          case OFTInteger:
+            iarr = vtkArrayDownCast<vtkIntArray>(fields[f]);
+            ival = feat->GetFieldAsInteger(f);
+            for (i = 0; i < nPoly; ++i)
+            {
+              iarr->InsertNextValue(ival);
+            }
+            break;
+          case OFTReal:
+            rarr = vtkArrayDownCast<vtkDoubleArray>(fields[f]);
+            rval = feat->GetFieldAsDouble(f);
+            for (i = 0; i < nPoly; ++i)
+            {
+              rarr->InsertNextValue(rval);
+            }
+            break;
+          case OFTString:
+          default:
+            sarr = vtkArrayDownCast<vtkStringArray>(fields[f]);
+            sval = feat->GetFieldAsString(f);
+            for (i = 0; i < nPoly; ++i)
+            {
+              sarr->InsertNextValue(sval);
+            }
         }
       }
       if (this->AddFeatureIds)
       {
         vtkIdTypeArray* idarr = vtkArrayDownCast<vtkIdTypeArray>(fields[numFields]);
-        for ( i = 0; i < nPoly; ++i )
+        for (i = 0; i < nPoly; ++i)
         {
           idarr->InsertNextValue(feat->GetFID());
         }
@@ -222,9 +222,9 @@ public:
       OGRFeature::DestroyFeature(feat);
     }
 
-    if ( this->AppendFeatures )
+    if (this->AppendFeatures)
     {
-      mbds->SetBlock( this->LayerIdx, pd );
+      mbds->SetBlock(this->LayerIdx, pd);
       ++this->LayerIdx;
       pd->FastDelete();
     }
@@ -232,10 +232,10 @@ public:
     return nTotPoly ? true : false;
   }
 
-  vtkIdType insertGeometryRecursive( OGRGeometry* geom, vtkPolyData* pd,
-    vtkPoints* pts, vtkCellArray* lines, vtkCellArray* verts )
+  vtkIdType insertGeometryRecursive(
+    OGRGeometry* geom, vtkPolyData* pd, vtkPoints* pts, vtkCellArray* lines, vtkCellArray* verts)
   {
-    if ( ! geom )
+    if (!geom)
     {
       return 0;
     }
@@ -246,133 +246,131 @@ public:
     OGRLinearRing* grng;
     OGRPolygon* gpl;
     OGRGeometryCollection* gcol;
-    //OGRMultiPolygon* gmpl;
-    //OGRMultiLineString* gmls;
-    //OGRMultiPoint* gmpt;
+    // OGRMultiPolygon* gmpl;
+    // OGRMultiLineString* gmls;
+    // OGRMultiPoint* gmpt;
     int num;
     vtkIdType i;
     vtkIdType nCells = 0;
 
-    switch ( geom->getGeometryType() )
+    switch (geom->getGeometryType())
     {
-    case wkbUnknown:
-      return 0;
+      case wkbUnknown:
+        return 0;
 
-    case wkbPoint:
-    case wkbPoint25D:
-      gpt = (OGRPoint*) geom;
-      ptIds.push_back( pts->InsertNextPoint( gpt->getX(), gpt->getY(), gpt->getZ() ) );
-      verts->InsertNextCell(1, &(ptIds[0]));
-      ++nCells;
-      break;
+      case wkbPoint:
+      case wkbPoint25D:
+        gpt = (OGRPoint*)geom;
+        ptIds.push_back(pts->InsertNextPoint(gpt->getX(), gpt->getY(), gpt->getZ()));
+        verts->InsertNextCell(1, &(ptIds[0]));
+        ++nCells;
+        break;
 
-    case wkbLinearRing: // OGR docs imply that wkbLinearRing may not inherit wkbLineString in the future.
-    case wkbLineString:
-    case wkbLineString25D:
-      gls = (OGRLineString*) geom;
-      for ( int p = 0; p < gls->getNumPoints(); ++p )
-      {
-        // insert ring points
-        ptIds.push_back( pts->InsertNextPoint(
-                           gls->getX( p ), gls->getY( p ), gls->getZ( p ) ) );
-      }
-      // insert ring line segments
-      lines->InsertNextCell( (int) ptIds.size(), &(ptIds[0]) );
-      ++nCells;
-      break;
+      case wkbLinearRing: // OGR docs imply that wkbLinearRing may not inherit wkbLineString in the
+                          // future.
+      case wkbLineString:
+      case wkbLineString25D:
+        gls = (OGRLineString*)geom;
+        for (int p = 0; p < gls->getNumPoints(); ++p)
+        {
+          // insert ring points
+          ptIds.push_back(pts->InsertNextPoint(gls->getX(p), gls->getY(p), gls->getZ(p)));
+        }
+        // insert ring line segments
+        lines->InsertNextCell((int)ptIds.size(), &(ptIds[0]));
+        ++nCells;
+        break;
 
-    case wkbPolygon:
-    case wkbPolygon25D:
-      gpl = (OGRPolygon*) geom;
-      grng = gpl->getExteriorRing();
-      nCells += this->insertGeometryRecursive( grng, pd, pts, lines, verts );
-      num = gpl->getNumInteriorRings();
-      for ( i = 0 ; i < num; ++i )
-      {
-        grng = gpl->getInteriorRing( i );
-        nCells += this->insertGeometryRecursive( grng, pd, pts, lines, verts );
-      }
-      break;
+      case wkbPolygon:
+      case wkbPolygon25D:
+        gpl = (OGRPolygon*)geom;
+        grng = gpl->getExteriorRing();
+        nCells += this->insertGeometryRecursive(grng, pd, pts, lines, verts);
+        num = gpl->getNumInteriorRings();
+        for (i = 0; i < num; ++i)
+        {
+          grng = gpl->getInteriorRing(i);
+          nCells += this->insertGeometryRecursive(grng, pd, pts, lines, verts);
+        }
+        break;
 
-    case wkbMultiPoint:
-    case wkbMultiPoint25D:
-    case wkbMultiLineString:
-    case wkbMultiLineString25D:
-    case wkbMultiPolygon:
-    case wkbMultiPolygon25D:
-    case wkbGeometryCollection:
-    case wkbGeometryCollection25D:
-      gcol = (OGRGeometryCollection*) geom;
-      num = gcol->getNumGeometries();
-      for ( i = 0 ; i < num; ++i )
-      {
-        nCells += this->insertGeometryRecursive(
-                    gcol->getGeometryRef( i ), pd, pts, lines, verts );
-      }
-      break;
+      case wkbMultiPoint:
+      case wkbMultiPoint25D:
+      case wkbMultiLineString:
+      case wkbMultiLineString25D:
+      case wkbMultiPolygon:
+      case wkbMultiPolygon25D:
+      case wkbGeometryCollection:
+      case wkbGeometryCollection25D:
+        gcol = (OGRGeometryCollection*)geom;
+        num = gcol->getNumGeometries();
+        for (i = 0; i < num; ++i)
+        {
+          nCells += this->insertGeometryRecursive(gcol->getGeometryRef(i), pd, pts, lines, verts);
+        }
+        break;
 
-    case wkbNone:
-      return 0;
+      case wkbNone:
+        return 0;
 #if GDAL_VERSION_MAJOR >= 2
-    case wkbCircularString:
-    case wkbCircularStringZ:
-    case wkbCompoundCurve:
-    case wkbCompoundCurveZ:
-    case wkbCurvePolygon:
-    case wkbCurvePolygonZ:
-    case wkbMultiCurve:
-    case wkbMultiCurveZ:
-    case wkbMultiSurface:
-    case wkbMultiSurfaceZ:
-      return 0;
+      case wkbCircularString:
+      case wkbCircularStringZ:
+      case wkbCompoundCurve:
+      case wkbCompoundCurveZ:
+      case wkbCurvePolygon:
+      case wkbCurvePolygonZ:
+      case wkbMultiCurve:
+      case wkbMultiCurveZ:
+      case wkbMultiSurface:
+      case wkbMultiSurfaceZ:
+        return 0;
 #endif
-#if GDAL_VERSION_MAJOR >= 3 || \
-   (GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR > 0)
-    case wkbCircularStringM:
-    case wkbCircularStringZM:
-    case wkbCompoundCurveM:
-    case wkbCompoundCurveZM:
-    case wkbCurve:
-    case wkbCurveM:
-    case wkbCurvePolygonM:
-    case wkbCurvePolygonZM:
-    case wkbCurveZ:
-    case wkbCurveZM:
-    case wkbGeometryCollectionM:
-    case wkbGeometryCollectionZM:
-    case wkbLineStringM:
-    case wkbLineStringZM:
-    case wkbMultiCurveM:
-    case wkbMultiCurveZM:
-    case wkbMultiLineStringM:
-    case wkbMultiLineStringZM:
-    case wkbMultiPointM:
-    case wkbMultiPointZM:
-    case wkbMultiPolygonM:
-    case wkbMultiPolygonZM:
-    case wkbMultiSurfaceM:
-    case wkbMultiSurfaceZM:
-    case wkbPointM:
-    case wkbPointZM:
-    case wkbPolygonM:
-    case wkbPolygonZM:
-    case wkbPolyhedralSurface:
-    case wkbPolyhedralSurfaceM:
-    case wkbPolyhedralSurfaceZ:
-    case wkbPolyhedralSurfaceZM:
-    case wkbSurface:
-    case wkbSurfaceM:
-    case wkbSurfaceZ:
-    case wkbSurfaceZM:
-    case wkbTIN:
-    case wkbTINM:
-    case wkbTINZ:
-    case wkbTINZM:
-    case wkbTriangle:
-    case wkbTriangleM:
-    case wkbTriangleZ:
-    case wkbTriangleZM:
-      return 0;
+#if GDAL_VERSION_MAJOR >= 3 || (GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR > 0)
+      case wkbCircularStringM:
+      case wkbCircularStringZM:
+      case wkbCompoundCurveM:
+      case wkbCompoundCurveZM:
+      case wkbCurve:
+      case wkbCurveM:
+      case wkbCurvePolygonM:
+      case wkbCurvePolygonZM:
+      case wkbCurveZ:
+      case wkbCurveZM:
+      case wkbGeometryCollectionM:
+      case wkbGeometryCollectionZM:
+      case wkbLineStringM:
+      case wkbLineStringZM:
+      case wkbMultiCurveM:
+      case wkbMultiCurveZM:
+      case wkbMultiLineStringM:
+      case wkbMultiLineStringZM:
+      case wkbMultiPointM:
+      case wkbMultiPointZM:
+      case wkbMultiPolygonM:
+      case wkbMultiPolygonZM:
+      case wkbMultiSurfaceM:
+      case wkbMultiSurfaceZM:
+      case wkbPointM:
+      case wkbPointZM:
+      case wkbPolygonM:
+      case wkbPolygonZM:
+      case wkbPolyhedralSurface:
+      case wkbPolyhedralSurfaceM:
+      case wkbPolyhedralSurfaceZ:
+      case wkbPolyhedralSurfaceZM:
+      case wkbSurface:
+      case wkbSurfaceM:
+      case wkbSurfaceZ:
+      case wkbSurfaceZM:
+      case wkbTIN:
+      case wkbTINM:
+      case wkbTINZ:
+      case wkbTINZM:
+      case wkbTriangle:
+      case wkbTriangleM:
+      case wkbTriangleZ:
+      case wkbTriangleZM:
+        return 0;
 #endif
     }
 
@@ -397,9 +395,9 @@ vtkGDALVectorReader::vtkGDALVectorReader()
   this->Implementation = 0;
   this->ActiveLayer = -1;
 
-  this->SetNumberOfInputPorts( 0 );
+  this->SetNumberOfInputPorts(0);
 
-  if ( ! vtkGDALVectorReader::OGRRegistered )
+  if (!vtkGDALVectorReader::OGRRegistered)
   {
     vtkGDALVectorReader::OGRRegistered = 1;
     OGRRegisterAll();
@@ -412,15 +410,15 @@ vtkGDALVectorReader::vtkGDALVectorReader()
 // -----------------------------------------------------------------------------
 vtkGDALVectorReader::~vtkGDALVectorReader()
 {
-  this->SetFileName( 0 );
+  this->SetFileName(0);
   delete this->Implementation;
 }
 
 // -----------------------------------------------------------------------------
-void vtkGDALVectorReader::PrintSelf( ostream& os, vtkIndent indent )
+void vtkGDALVectorReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
-  os << indent << "FileName: " << ( this->FileName ? this->FileName : "(null)" ) << "\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(null)") << "\n";
   os << indent << "Implementation: " << this->Implementation << "\n";
   os << indent << "AppendFeatures: " << (this->AppendFeatures ? "ON" : "OFF") << "\n";
   os << indent << "AddFeatureIds: " << (this->AddFeatureIds ? "ON" : "OFF") << "\n";
@@ -429,7 +427,7 @@ void vtkGDALVectorReader::PrintSelf( ostream& os, vtkIndent indent )
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetNumberOfLayers()
 {
-  if ( this->InitializeInternal() == VTK_ERROR )
+  if (this->InitializeInternal() == VTK_ERROR)
   {
     return -1;
   }
@@ -440,26 +438,27 @@ int vtkGDALVectorReader::GetNumberOfLayers()
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetLayerType(int layerIndex)
 {
-  if ( this->InitializeInternal() == VTK_ERROR )
+  if (this->InitializeInternal() == VTK_ERROR)
   {
     return -1;
   }
 
-  OGRLayer* layer = this->Implementation->Source->GetLayer( layerIndex );
+  OGRLayer* layer = this->Implementation->Source->GetLayer(layerIndex);
 
-  if ( !layer )
+  if (!layer)
   {
     return -1;
   }
 
-  switch ( layer->GetGeomType() )
+  switch (layer->GetGeomType())
   {
     case wkbUnknown:
       return VTK_EMPTY_CELL;
     case wkbPoint:
     case wkbPoint25D:
       return VTK_VERTEX;
-    case wkbLinearRing: // OGR docs imply that wkbLinearRing may not inherit wkbLineString in the future.
+    case wkbLinearRing: // OGR docs imply that wkbLinearRing may not inherit wkbLineString in the
+                        // future.
     case wkbLineString:
     case wkbLineString25D:
       return VTK_LINE;
@@ -488,14 +487,14 @@ int vtkGDALVectorReader::GetLayerType(int layerIndex)
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetFeatureCount(int layerIndex)
 {
-  if ( this->InitializeInternal() == VTK_ERROR )
+  if (this->InitializeInternal() == VTK_ERROR)
   {
     return -1;
   }
 
-  OGRLayer* layer = this->Implementation->Source->GetLayer( layerIndex );
+  OGRLayer* layer = this->Implementation->Source->GetLayer(layerIndex);
 
-  if ( !layer )
+  if (!layer)
   {
     return -1;
   }
@@ -506,30 +505,29 @@ int vtkGDALVectorReader::GetFeatureCount(int layerIndex)
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerType()
 {
-  return
-    this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers() ?
-    -1 : this->GetLayerType(this->ActiveLayer);
+  return this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers()
+    ? -1
+    : this->GetLayerType(this->ActiveLayer);
 }
 
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::GetActiveLayerFeatureCount()
 {
-  return
-    this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers() ?
-    0 : this->GetFeatureCount(this->ActiveLayer);
+  return this->ActiveLayer < 0 || this->ActiveLayer >= this->GetNumberOfLayers()
+    ? 0
+    : this->GetFeatureCount(this->ActiveLayer);
 }
 
 // -----------------------------------------------------------------------------
 const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
 {
-  if ( layerIndex < 0 )
+  if (layerIndex < 0)
   {
-    vtkErrorMacro( << "Layer index cannot be negative");
+    vtkErrorMacro(<< "Layer index cannot be negative");
   }
 
-  std::map<int, std::string>::const_iterator itr =
-    this->LayersProjection.find (layerIndex );
-  if ( itr != this->LayersProjection.end() )
+  std::map<int, std::string>::const_iterator itr = this->LayersProjection.find(layerIndex);
+  if (itr != this->LayersProjection.end())
   {
     return itr->second.c_str();
   }
@@ -542,7 +540,7 @@ const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
 // -----------------------------------------------------------------------------
 const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
 {
-  if ( layerIndex < 0 )
+  if (layerIndex < 0)
   {
     vtkErrorMacro(<< "Layer index cannot be negative");
     return nullptr;
@@ -554,17 +552,16 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
     return nullptr;
   }
   int layerCount = p->Source->GetLayerCount();
-  if ( layerIndex >= layerCount)
+  if (layerIndex >= layerCount)
   {
-    vtkErrorMacro(<< "Layer index " << layerIndex <<
-                  " exceeds number of layers in dataset: " << layerCount);
+    vtkErrorMacro(<< "Layer index " << layerIndex
+                  << " exceeds number of layers in dataset: " << layerCount);
     return nullptr;
   }
   OGRLayer* layer = p->Source->GetLayer(layerIndex);
   if (!layer)
   {
-    vtkErrorMacro(<< "Cannot access the GDAL dataset layer at index " <<
-                  layerIndex);
+    vtkErrorMacro(<< "Cannot access the GDAL dataset layer at index " << layerIndex);
     return nullptr;
   }
   if (!layer->GetSpatialRef())
@@ -572,7 +569,7 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
     vtkErrorMacro(<< "Cannot access the spatial ref object.");
     return nullptr;
   }
-  char *projStr;
+  char* projStr;
   layer->GetSpatialRef()->exportToProj4(&projStr);
   char* returnStr = new char[strlen(projStr) + 1];
   strcpy(returnStr, projStr);
@@ -587,8 +584,8 @@ std::map<int, std::string> vtkGDALVectorReader::GetLayersProjection()
 }
 
 // -----------------------------------------------------------------------------
-int vtkGDALVectorReader::RequestInformation( vtkInformation* request,
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector )
+int vtkGDALVectorReader::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   (void)request;
   (void)inputVector;
@@ -598,27 +595,27 @@ int vtkGDALVectorReader::RequestInformation( vtkInformation* request,
 }
 
 // -----------------------------------------------------------------------------
-int vtkGDALVectorReader::RequestData( vtkInformation* request,
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector )
+int vtkGDALVectorReader::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   (void)request;
   (void)inputVector;
 
-  if ( ! this->FileName )
+  if (!this->FileName)
   {
-    //vtkWarningMacro( "No filename specified" );
+    // vtkWarningMacro( "No filename specified" );
     return 0;
   }
 
   vtkMultiBlockDataSet* mbds = 0;
-  vtkInformation* oi = outputVector->GetInformationObject( 0 );
-  if ( ! oi )
+  vtkInformation* oi = outputVector->GetInformationObject(0);
+  if (!oi)
   {
     return 0;
   }
 
-  mbds = vtkMultiBlockDataSet::SafeDownCast( oi->Get( vtkDataObject::DATA_OBJECT() ) );
-  if ( ! mbds )
+  mbds = vtkMultiBlockDataSet::SafeDownCast(oi->Get(vtkDataObject::DATA_OBJECT()));
+  if (!mbds)
   {
     return 0;
   }
@@ -636,28 +633,26 @@ int vtkGDALVectorReader::RequestData( vtkInformation* request,
   vtkGDALVectorReader::Internal* p = this->Implementation;
 
   int lastLayer = p->Source->GetLayerCount() - 1;
-  int startLayer =
-    this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ?
-    0 : this->ActiveLayer;
-  int endLayer = this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ?
-    lastLayer : this->ActiveLayer;
-  for ( int layerIdx = startLayer; layerIdx <= endLayer; ++layerIdx )
+  int startLayer = this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ? 0 : this->ActiveLayer;
+  int endLayer =
+    this->ActiveLayer < 0 || this->ActiveLayer >= lastLayer ? lastLayer : this->ActiveLayer;
+  for (int layerIdx = startLayer; layerIdx <= endLayer; ++layerIdx)
   {
-    OGRLayer* layer = p->Source->GetLayer( layerIdx );
-    if ( ! layer )
+    OGRLayer* layer = p->Source->GetLayer(layerIdx);
+    if (!layer)
     {
       continue;
     }
 
-    if(layer->GetSpatialRef())
+    if (layer->GetSpatialRef())
     {
-      char *projStr;
+      char* projStr;
       layer->GetSpatialRef()->exportToWkt(&projStr);
       this->LayersProjection[layerIdx] = std::string(projStr);
       CPLFree(projStr);
     }
 
-    p->ReadLayer( layer, mbds );
+    p->ReadLayer(layer, mbds);
   }
 
   return 1;
@@ -666,22 +661,21 @@ int vtkGDALVectorReader::RequestData( vtkInformation* request,
 // -----------------------------------------------------------------------------
 int vtkGDALVectorReader::InitializeInternal()
 {
-  if ( !this->FileName )
+  if (!this->FileName)
   {
     vtkErrorMacro(<< "FileName not set or empty:");
     return VTK_ERROR;
   }
 
-  if ( !this->Implementation )
+  if (!this->Implementation)
   {
-    this->Implementation = new vtkGDALVectorReader::Internal(
-                             this->FileName,
-                             this->AppendFeatures, this->AddFeatureIds );
-    if ( ! this->Implementation || this->Implementation->LastError )
+    this->Implementation =
+      new vtkGDALVectorReader::Internal(this->FileName, this->AppendFeatures, this->AddFeatureIds);
+    if (!this->Implementation || this->Implementation->LastError)
     {
-      if ( this->Implementation )
+      if (this->Implementation)
       {
-        vtkErrorMacro( << this->Implementation->LastError );
+        vtkErrorMacro(<< this->Implementation->LastError);
         delete this->Implementation;
         this->Implementation = 0;
       }

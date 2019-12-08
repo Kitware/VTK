@@ -20,6 +20,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
@@ -55,14 +56,8 @@ void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 float vtkGenericOpenGLRenderWindow::GetMaximumHardwareLineWidth()
 {
-  return this->ForceMaximumHardwareLineWidth > 0
-    ? this->ForceMaximumHardwareLineWidth
-    : this->Superclass::GetMaximumHardwareLineWidth();
-}
-
-void vtkGenericOpenGLRenderWindow::SetFrontBuffer(unsigned int b)
-{
-  this->FrontBuffer = b;
+  return this->ForceMaximumHardwareLineWidth > 0 ? this->ForceMaximumHardwareLineWidth
+                                                 : this->Superclass::GetMaximumHardwareLineWidth();
 }
 
 void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
@@ -73,11 +68,6 @@ void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
 void vtkGenericOpenGLRenderWindow::SetFrontRightBuffer(unsigned int b)
 {
   this->FrontRightBuffer = b;
-}
-
-void vtkGenericOpenGLRenderWindow::SetBackBuffer(unsigned int b)
-{
-  this->BackBuffer = b;
 }
 
 void vtkGenericOpenGLRenderWindow::SetBackLeftBuffer(unsigned int b)
@@ -110,7 +100,9 @@ void vtkGenericOpenGLRenderWindow::Finalize()
 
 void vtkGenericOpenGLRenderWindow::Frame()
 {
+  this->Superclass::Frame();
   this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
+  this->GetState()->ResetFramebufferBindings();
 }
 
 void vtkGenericOpenGLRenderWindow::MakeCurrent()
@@ -126,8 +118,7 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
 
 int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
 {
-  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent,
-                    &this->SupportsOpenGLStatus);
+  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &this->SupportsOpenGLStatus);
   return this->SupportsOpenGLStatus;
 }
 
@@ -137,22 +128,16 @@ int vtkGenericOpenGLRenderWindow::IsDirect()
   return this->DirectStatus;
 }
 
-void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetWindowId(void*) {}
 
 void* vtkGenericOpenGLRenderWindow::GetGenericWindowId()
 {
   return nullptr;
 }
 
-void vtkGenericOpenGLRenderWindow::SetDisplayId(void*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetDisplayId(void*) {}
 
-void vtkGenericOpenGLRenderWindow::SetParentId(void*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetParentId(void*) {}
 
 void* vtkGenericOpenGLRenderWindow::GetGenericDisplayId()
 {
@@ -174,55 +159,35 @@ void* vtkGenericOpenGLRenderWindow::GetGenericDrawable()
   return nullptr;
 }
 
-void vtkGenericOpenGLRenderWindow::SetWindowInfo(const char*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetWindowInfo(const char*) {}
 
-void vtkGenericOpenGLRenderWindow::SetParentInfo(const char*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetParentInfo(const char*) {}
 
 int* vtkGenericOpenGLRenderWindow::GetScreenSize()
 {
   return this->ScreenSize;
 }
 
-void vtkGenericOpenGLRenderWindow::HideCursor()
-{
-}
+void vtkGenericOpenGLRenderWindow::HideCursor() {}
 
-void vtkGenericOpenGLRenderWindow::ShowCursor()
-{
-}
+void vtkGenericOpenGLRenderWindow::ShowCursor() {}
 
-void vtkGenericOpenGLRenderWindow::SetFullScreen(vtkTypeBool)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetFullScreen(vtkTypeBool) {}
 
-void vtkGenericOpenGLRenderWindow::WindowRemap()
-{
-}
+void vtkGenericOpenGLRenderWindow::WindowRemap() {}
 
 int vtkGenericOpenGLRenderWindow::GetEventPending()
 {
   return 0;
 }
 
-void vtkGenericOpenGLRenderWindow::SetNextWindowId(void*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetNextWindowId(void*) {}
 
-void vtkGenericOpenGLRenderWindow::SetNextWindowInfo(const char*)
-{
-}
+void vtkGenericOpenGLRenderWindow::SetNextWindowInfo(const char*) {}
 
-void vtkGenericOpenGLRenderWindow::CreateAWindow()
-{
-}
+void vtkGenericOpenGLRenderWindow::CreateAWindow() {}
 
-void vtkGenericOpenGLRenderWindow::DestroyWindow()
-{
-}
+void vtkGenericOpenGLRenderWindow::DestroyWindow() {}
 
 void vtkGenericOpenGLRenderWindow::SetIsDirect(int newValue)
 {
@@ -263,8 +228,8 @@ void vtkGenericOpenGLRenderWindow::Render()
 
 void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting current Cursor to " << cShape);
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting current Cursor to "
+                << cShape);
   if (this->GetCurrentCursor() != cShape)
   {
     this->CurrentCursor = cShape;
@@ -278,9 +243,39 @@ int vtkGenericOpenGLRenderWindow::ReadPixels(
 {
   if (this->ReadyForRendering)
   {
+    this->MakeCurrent();
+    this->GetState()->ResetFramebufferBindings();
     return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
   }
 
   vtkWarningMacro("`ReadPixels` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
+int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
+  int x1, int y1, int x2, int y2, unsigned char* data, int front, int blend, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->MakeCurrent();
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetRGBACharPixelData(x1, y1, x2, y2, data, front, blend, right);
+  }
+
+  vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
+int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(
+  int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data, int front, int blend, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->MakeCurrent();
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetRGBACharPixelData(x1, y1, x2, y2, data, front, blend, right);
+  }
+
+  vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
   return VTK_ERROR;
 }

@@ -18,7 +18,7 @@
  * @brief   Class for drawing a Pie diagram.
  *
  *
-*/
+ */
 
 #ifndef vtkPlotPie_h
 #define vtkPlotPie_h
@@ -37,14 +37,14 @@ class VTKCHARTSCORE_EXPORT vtkPlotPie : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPie, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPlotPie *New();
+  static vtkPlotPie* New();
 
   /**
    * Paint event for the item.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -52,7 +52,7 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int legendIndex) override;
+  bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
   /**
    * Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate
@@ -77,21 +77,29 @@ public:
   /**
    * Set the color series to use for the Pie.
    */
-  void SetColorSeries(vtkColorSeries *colorSeries);
+  void SetColorSeries(vtkColorSeries* colorSeries);
 
   /**
    * Get the color series used.
    */
-  vtkColorSeries *GetColorSeries();
+  vtkColorSeries* GetColorSeries();
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
    * Returns the index of the data series with which the point is associated or
    * -1.
    */
-  vtkIdType GetNearestPoint(const vtkVector2f& point,
-                                    const vtkVector2f& tolerance,
-                                    vtkVector2f* location) override;
+  vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+    vtkVector2f* location,
+#ifndef VTK_LEGACY_REMOVE
+    vtkIdType* segmentId) override;
+#else
+    vtkIdType* segmentId = nullptr) override;
+#endif // VTK_LEGACY_REMOVE
+
+#ifndef VTK_LEGACY_REMOVE
+  using vtkPlot::GetNearestPoint;
+#endif // VTK_LEGACY_REMOVE
 
 protected:
   vtkPlotPie();
@@ -100,7 +108,7 @@ protected:
   /**
    * Update the table cache.
    */
-  bool UpdateTableCache(vtkTable *table);
+  bool UpdateTableCache(vtkTable* table);
 
   int Dimensions[4];
 
@@ -112,7 +120,7 @@ protected:
   /**
    * Store a well packed set of angles for the wedges of the pie.
    */
-  vtkPoints2D *Points;
+  vtkPoints2D* Points;
 
   /**
    * The point cache is marked dirty until it has been initialized.
@@ -120,11 +128,10 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkPlotPie(const vtkPlotPie &) = delete;
-  void operator=(const vtkPlotPie &) = delete;
+  vtkPlotPie(const vtkPlotPie&) = delete;
+  void operator=(const vtkPlotPie&) = delete;
 
-  vtkPlotPiePrivate *Private;
-
+  vtkPlotPiePrivate* Private;
 };
 
-#endif //vtkPlotPie_h
+#endif // vtkPlotPie_h

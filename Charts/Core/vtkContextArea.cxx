@@ -26,18 +26,18 @@
 #include <cstdlib>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkContextArea)
+vtkStandardNewMacro(vtkContextArea);
 
 //------------------------------------------------------------------------------
 vtkContextArea::vtkContextArea()
-  : Geometry(0, 0, 300, 300),
-    DrawAreaBounds(0, 0, 300, 300),
-    DrawAreaGeometry(0, 0, 300, 300),
-    DrawAreaResizeBehavior(DARB_Expand),
-    FixedAspect(1.f),
-    FixedRect(0, 0, 300, 300),
-    FixedMargins(0),
-    FillViewport(true)
+  : Geometry(0, 0, 300, 300)
+  , DrawAreaBounds(0, 0, 300, 300)
+  , DrawAreaGeometry(0, 0, 300, 300)
+  , DrawAreaResizeBehavior(DARB_Expand)
+  , FixedAspect(1.f)
+  , FixedRect(0, 0, 300, 300)
+  , FixedMargins(0)
+  , FillViewport(true)
 {
   this->Axes[vtkAxis::TOP] = this->TopAxis;
   this->Axes[vtkAxis::BOTTOM] = this->BottomAxis;
@@ -72,11 +72,11 @@ void vtkContextArea::InitializeDrawArea()
 }
 
 //------------------------------------------------------------------------------
-void vtkContextArea::LayoutAxes(vtkContext2D *painter)
+void vtkContextArea::LayoutAxes(vtkContext2D* painter)
 {
   // Shorter names for compact readability:
-  vtkRectd &data = this->DrawAreaBounds;
-  vtkRecti &draw = this->DrawAreaGeometry;
+  vtkRectd& data = this->DrawAreaBounds;
+  vtkRecti& draw = this->DrawAreaGeometry;
 
   this->SetAxisRange(data);
   draw = this->ComputeDrawAreaGeometry(painter);
@@ -109,7 +109,7 @@ void vtkContextArea::SetAxisRange(vtkRectd const& data)
 }
 
 //------------------------------------------------------------------------------
-vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D *p)
+vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D* p)
 {
   switch (this->DrawAreaResizeBehavior)
   {
@@ -122,8 +122,7 @@ vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D *p)
     case vtkContextArea::DARB_FixedMargins:
       return this->ComputeFixedMarginsDrawAreaGeometry(p);
     default:
-      vtkErrorMacro("Invalid resize behavior enum value: "
-                    << this->DrawAreaResizeBehavior);
+      vtkErrorMacro("Invalid resize behavior enum value: " << this->DrawAreaResizeBehavior);
       break;
   }
 
@@ -131,10 +130,10 @@ vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D *p)
 }
 
 //------------------------------------------------------------------------------
-vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
+vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D* painter)
 {
   // Shorter names for compact readability:
-  vtkRecti &geo = this->Geometry;
+  vtkRecti& geo = this->Geometry;
 
   // Set the axes positions. We iterate up to 3 times to converge on the margins.
   vtkRecti draw(this->DrawAreaGeometry); // Start with last attempt
@@ -161,20 +160,16 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
       switch (static_cast<vtkAxis::Location>(i))
       {
         case vtkAxis::LEFT:
-          bottomLeft.SetX(geo.GetLeft() +
-                          static_cast<int>(bounds.GetWidth()));
+          bottomLeft.SetX(geo.GetLeft() + static_cast<int>(bounds.GetWidth()));
           break;
         case vtkAxis::BOTTOM:
-          bottomLeft.SetY(geo.GetBottom() +
-                          static_cast<int>(bounds.GetHeight()));
+          bottomLeft.SetY(geo.GetBottom() + static_cast<int>(bounds.GetHeight()));
           break;
         case vtkAxis::RIGHT:
-          topRight.SetX(geo.GetRight() -
-                        static_cast<int>(bounds.GetWidth()));
+          topRight.SetX(geo.GetRight() - static_cast<int>(bounds.GetWidth()));
           break;
         case vtkAxis::TOP:
-          topRight.SetY(geo.GetTop() -
-                        static_cast<int>(bounds.GetHeight()));
+          topRight.SetY(geo.GetTop() - static_cast<int>(bounds.GetHeight()));
           break;
         case vtkAxis::PARALLEL:
         default:
@@ -184,9 +179,8 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
 
     // Update draw geometry:
     lastDraw = draw;
-    draw.Set(bottomLeft.GetX(), bottomLeft.GetY(),
-             topRight.GetX() - bottomLeft.GetX(),
-             topRight.GetY() - bottomLeft.GetY());
+    draw.Set(bottomLeft.GetX(), bottomLeft.GetY(), topRight.GetX() - bottomLeft.GetX(),
+      topRight.GetY() - bottomLeft.GetY());
     if (draw == lastDraw)
     {
       break; // converged
@@ -197,25 +191,23 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
 }
 
 //------------------------------------------------------------------------------
-vtkRecti vtkContextArea::ComputeFixedAspectDrawAreaGeometry(vtkContext2D *p)
+vtkRecti vtkContextArea::ComputeFixedAspectDrawAreaGeometry(vtkContext2D* p)
 {
   vtkRecti draw = this->ComputeExpandedDrawAreaGeometry(p);
   float aspect = draw.GetWidth() / static_cast<float>(draw.GetHeight());
 
   if (aspect > this->FixedAspect) // Too wide:
   {
-    int targetWidth = vtkContext2D::FloatToInt(
-          this->FixedAspect * draw.GetHeight());
+    int targetWidth = vtkContext2D::FloatToInt(this->FixedAspect * draw.GetHeight());
     int delta = draw.GetWidth() - targetWidth;
-    draw.SetX(draw.GetX() + (delta/2));
+    draw.SetX(draw.GetX() + (delta / 2));
     draw.SetWidth(targetWidth);
   }
   else if (aspect < this->FixedAspect) // Too tall:
   {
-    int targetHeight = vtkContext2D::FloatToInt(
-          draw.GetWidth() / this->FixedAspect);
+    int targetHeight = vtkContext2D::FloatToInt(draw.GetWidth() / this->FixedAspect);
     int delta = draw.GetHeight() - targetHeight;
-    draw.SetY(draw.GetY() + (delta/2));
+    draw.SetY(draw.GetY() + (delta / 2));
     draw.SetHeight(targetHeight);
   }
 
@@ -223,32 +215,28 @@ vtkRecti vtkContextArea::ComputeFixedAspectDrawAreaGeometry(vtkContext2D *p)
 }
 
 //------------------------------------------------------------------------------
-vtkRecti vtkContextArea::ComputeFixedRectDrawAreaGeometry(vtkContext2D *)
+vtkRecti vtkContextArea::ComputeFixedRectDrawAreaGeometry(vtkContext2D*)
 {
   return this->FixedRect;
 }
 
 //------------------------------------------------------------------------------
-vtkRecti vtkContextArea::ComputeFixedMarginsDrawAreaGeometry(vtkContext2D *)
+vtkRecti vtkContextArea::ComputeFixedMarginsDrawAreaGeometry(vtkContext2D*)
 {
   return vtkRecti(this->FixedMargins[0], this->FixedMargins[2],
-                  this->Geometry.GetWidth() - (this->FixedMargins[0] +
-                                               this->FixedMargins[1]),
-                  this->Geometry.GetHeight() - (this->FixedMargins[2] +
-                                                this->FixedMargins[3]));
+    this->Geometry.GetWidth() - (this->FixedMargins[0] + this->FixedMargins[1]),
+    this->Geometry.GetHeight() - (this->FixedMargins[2] + this->FixedMargins[3]));
 }
 
 //------------------------------------------------------------------------------
 void vtkContextArea::UpdateDrawArea()
 {
   // Shorter names for compact readability:
-  vtkRecti &draw = this->DrawAreaGeometry;
+  vtkRecti& draw = this->DrawAreaGeometry;
 
   // Setup clipping:
-  this->Clip->SetClip(static_cast<float>(draw.GetX()),
-                      static_cast<float>(draw.GetY()),
-                      static_cast<float>(draw.GetWidth()),
-                      static_cast<float>(draw.GetHeight()));
+  this->Clip->SetClip(static_cast<float>(draw.GetX()), static_cast<float>(draw.GetY()),
+    static_cast<float>(draw.GetWidth()), static_cast<float>(draw.GetHeight()));
 
   this->ComputeViewTransform();
 }
@@ -261,21 +249,19 @@ void vtkContextArea::ComputeViewTransform()
 
   this->Transform->Identity();
   this->Transform->Translate(draw.GetX(), draw.GetY());
-  this->Transform->Scale(draw.GetWidth() / data.GetWidth(),
-                         draw.GetHeight() / data.GetHeight());
+  this->Transform->Scale(draw.GetWidth() / data.GetWidth(), draw.GetHeight() / data.GetHeight());
   this->Transform->Translate(-data.GetX(), -data.GetY());
 }
 
 //------------------------------------------------------------------------------
-void vtkContextArea::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkContextArea::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-#define vtkContextAreaPrintMemberObject(name) \
-  os << indent << #name ":\n"; \
+#define vtkContextAreaPrintMemberObject(name)                                                      \
+  os << indent << #name ":\n";                                                                     \
   this->name->PrintSelf(os, indent.GetNextIndent())
-#define vtkContextAreaPrintMemberPOD(name) \
-  os << indent << #name ": " << this->name << "\n"
+#define vtkContextAreaPrintMemberPOD(name) os << indent << #name ": " << this->name << "\n"
 
   vtkContextAreaPrintMemberObject(TopAxis);
   vtkContextAreaPrintMemberObject(BottomAxis);
@@ -315,19 +301,19 @@ void vtkContextArea::PrintSelf(std::ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkAxis *vtkContextArea::GetAxis(vtkAxis::Location location)
+vtkAxis* vtkContextArea::GetAxis(vtkAxis::Location location)
 {
   return location < 4 ? this->Axes[location] : nullptr;
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractContextItem *vtkContextArea::GetDrawAreaItem()
+vtkAbstractContextItem* vtkContextArea::GetDrawAreaItem()
 {
   return this->Transform;
 }
 
 //------------------------------------------------------------------------------
-bool vtkContextArea::Paint(vtkContext2D *painter)
+bool vtkContextArea::Paint(vtkContext2D* painter)
 {
   if (this->FillViewport)
   {
@@ -371,8 +357,7 @@ void vtkContextArea::SetFixedRect(int x, int y, int width, int height)
 //------------------------------------------------------------------------------
 void vtkContextArea::GetFixedMarginsArray(int margins[4])
 {
-  std::copy(this->FixedMargins.GetData(), this->FixedMargins.GetData() + 4,
-            margins);
+  std::copy(this->FixedMargins.GetData(), this->FixedMargins.GetData() + 4, margins);
 }
 
 //------------------------------------------------------------------------------

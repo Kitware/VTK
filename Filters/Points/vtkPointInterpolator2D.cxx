@@ -14,99 +14,103 @@
 =========================================================================*/
 #include "vtkPointInterpolator2D.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVoronoiKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkArrayListTemplate.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkDataSet.h"
-#include "vtkDataArray.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
+#include "vtkCharArray.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMath.h"
-#include "vtkSMPTools.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkVoronoiKernel.h"
 
 vtkStandardNewMacro(vtkPointInterpolator2D);
 
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
-namespace {
+namespace
+{
 // Project source points onto plane
 struct ProjectPoints
 {
-  vtkDataSet *Source;
-  double *OutPoints;
+  vtkDataSet* Source;
+  double* OutPoints;
 
-  ProjectPoints(vtkDataSet *source, double *outPts) :
-    Source(source), OutPoints(outPts)
+  ProjectPoints(vtkDataSet* source, double* outPts)
+    : Source(source)
+    , OutPoints(outPts)
   {
   }
 
   // Threaded projection
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      double *p = this->OutPoints + 3*ptId;
-      double x[3];
-      for ( ; ptId < endPtId; ++ptId)
-      {
-        this->Source->GetPoint(ptId,x);
-        *p++ = x[0];
-        *p++ = x[1];
-        *p++ = 0.0; //x-y projection
-      }
+    double* p = this->OutPoints + 3 * ptId;
+    double x[3];
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Source->GetPoint(ptId, x);
+      *p++ = x[0];
+      *p++ = x[1];
+      *p++ = 0.0; // x-y projection
+    }
   }
 };
 
 // Project source points onto plane
 struct ProjectPointsWithScalars
 {
-  vtkDataSet *Source;
-  double *OutPoints;
-  double *ZScalars;
+  vtkDataSet* Source;
+  double* OutPoints;
+  double* ZScalars;
 
-  ProjectPointsWithScalars(vtkDataSet *source, double *outPts, double *zScalars) :
-    Source(source), OutPoints(outPts), ZScalars(zScalars)
+  ProjectPointsWithScalars(vtkDataSet* source, double* outPts, double* zScalars)
+    : Source(source)
+    , OutPoints(outPts)
+    , ZScalars(zScalars)
   {
   }
 
   // Threaded projection
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      double *p = this->OutPoints + 3*ptId;
-      double *s = this->ZScalars + ptId;
-      double x[3];
-      for ( ; ptId < endPtId; ++ptId)
-      {
-        this->Source->GetPoint(ptId,x);
-        *p++ = x[0];
-        *p++ = x[1];
-        *p++ = 0.0; //x-y projection
-        *s++ = x[2];
-      }
+    double* p = this->OutPoints + 3 * ptId;
+    double* s = this->ZScalars + ptId;
+    double x[3];
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Source->GetPoint(ptId, x);
+      *p++ = x[0];
+      *p++ = x[1];
+      *p++ = 0.0; // x-y projection
+      *s++ = x[2];
+    }
   }
 };
 
 // The threaded core of the algorithm
 struct ProbePoints
 {
-  vtkDataSet *Input;
-  vtkInterpolationKernel *Kernel;
-  vtkAbstractPointLocator *Locator;
-  vtkPointData *InPD;
-  vtkPointData *OutPD;
+  vtkDataSet* Input;
+  vtkInterpolationKernel* Kernel;
+  vtkAbstractPointLocator* Locator;
+  vtkPointData* InPD;
+  vtkPointData* OutPD;
   ArrayList Arrays;
-  char *Valid;
+  char* Valid;
   int Strategy;
 
   // Don't want to allocate these working arrays on every thread invocation,
@@ -114,82 +118,81 @@ struct ProbePoints
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
-  ProbePoints(vtkDataSet *input, vtkInterpolationKernel *kernel,vtkAbstractPointLocator *loc,
-              vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid, double nullV) :
-    Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
-    Valid(valid), Strategy(strategy)
+  ProbePoints(vtkDataSet* input, vtkInterpolationKernel* kernel, vtkAbstractPointLocator* loc,
+    vtkPointData* inPD, vtkPointData* outPD, int strategy, char* valid, double nullV)
+    : Input(input)
+    , Kernel(kernel)
+    , Locator(loc)
+    , InPD(inPD)
+    , OutPD(outPD)
+    , Valid(valid)
+    , Strategy(strategy)
   {
-      this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
+    this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
   }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
   {
     vtkIdList*& pIds = this->PIds.Local();
-    pIds->Allocate(128); //allocate some memory
+    pIds->Allocate(128); // allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->Allocate(128);
   }
 
   // When null point is encountered
-  void AssignNullPoint(const double x[3], vtkIdList *pIds,
-                       vtkDoubleArray *weights, vtkIdType ptId)
+  void AssignNullPoint(const double x[3], vtkIdList* pIds, vtkDoubleArray* weights, vtkIdType ptId)
   {
-      if ( this->Strategy == vtkPointInterpolator2D::MASK_POINTS)
-      {
-        this->Valid[ptId] = 0;
-        this->Arrays.AssignNullValue(ptId);
-      }
-      else if ( this->Strategy == vtkPointInterpolator2D::NULL_VALUE)
-      {
-        this->Arrays.AssignNullValue(ptId);
-      }
-      else //vtkPointInterpolator2D::CLOSEST_POINT:
-      {
-        pIds->SetNumberOfIds(1);
-        vtkIdType pId = this->Locator->FindClosestPoint(x);
-        pIds->SetId(0,pId);
-        weights->SetNumberOfTuples(1);
-        weights->SetValue(0,1.0);
-        this->Arrays.Interpolate(1, pIds->GetPointer(0),
-                                 weights->GetPointer(0), ptId);
-      }
+    if (this->Strategy == vtkPointInterpolator2D::MASK_POINTS)
+    {
+      this->Valid[ptId] = 0;
+      this->Arrays.AssignNullValue(ptId);
+    }
+    else if (this->Strategy == vtkPointInterpolator2D::NULL_VALUE)
+    {
+      this->Arrays.AssignNullValue(ptId);
+    }
+    else // vtkPointInterpolator2D::CLOSEST_POINT:
+    {
+      pIds->SetNumberOfIds(1);
+      vtkIdType pId = this->Locator->FindClosestPoint(x);
+      pIds->SetId(0, pId);
+      weights->SetNumberOfTuples(1);
+      weights->SetValue(0, 1.0);
+      this->Arrays.Interpolate(1, pIds->GetPointer(0), weights->GetPointer(0), ptId);
+    }
   }
 
   // Threaded interpolation method
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-      double x[3];
-      vtkIdList*& pIds = this->PIds.Local();
-      vtkIdType numWeights;
-      vtkDoubleArray*& weights = this->Weights.Local();
+    double x[3];
+    vtkIdList*& pIds = this->PIds.Local();
+    vtkIdType numWeights;
+    vtkDoubleArray*& weights = this->Weights.Local();
 
-      for ( ; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Input->GetPoint(ptId, x);
+      x[2] = 0.0; // x-y projection
+
+      if (this->Kernel->ComputeBasis(x, pIds) > 0)
       {
-        this->Input->GetPoint(ptId,x);
-        x[2] = 0.0; //x-y projection
-
-        if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
-        {
-          numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
-          this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
-                                   weights->GetPointer(0), ptId);
-        }
-        else
-        {
-          this->AssignNullPoint(x, pIds, weights, ptId);
-        }// null point
-      }//for all dataset points
+        numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
+        this->Arrays.Interpolate(numWeights, pIds->GetPointer(0), weights->GetPointer(0), ptId);
+      }
+      else
+      {
+        this->AssignNullPoint(x, pIds, weights, ptId);
+      } // null point
+    }   // for all dataset points
   }
 
-  void Reduce()
-  {
-  }
+  void Reduce() {}
 
-}; //ProbePoints
+}; // ProbePoints
 
-
-} //anonymous namespace
+} // anonymous namespace
 
 //================= Begin class proper =======================================
 //----------------------------------------------------------------------------
@@ -204,50 +207,48 @@ vtkPointInterpolator2D::~vtkPointInterpolator2D() = default;
 
 //----------------------------------------------------------------------------
 // The driver of the algorithm
-void vtkPointInterpolator2D::
-Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
+void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output)
 {
   // Make sure there is a kernel
-  if ( !this->Kernel )
+  if (!this->Kernel)
   {
-    vtkErrorMacro(<<"Interpolation kernel required\n");
+    vtkErrorMacro(<< "Interpolation kernel required\n");
     return;
   }
 
   // Start by building the locator
-  if ( !this->Locator )
+  if (!this->Locator)
   {
-    vtkErrorMacro(<<"Point locator required\n");
+    vtkErrorMacro(<< "Point locator required\n");
     return;
   }
 
   // We need to project the source points to the z=0.0 plane
   vtkIdType numSourcePts = source->GetNumberOfPoints();
-  vtkPolyData *projSource = vtkPolyData::New();
+  vtkPolyData* projSource = vtkPolyData::New();
   projSource->ShallowCopy(source);
-  vtkPoints *projPoints = vtkPoints::New();
+  vtkPoints* projPoints = vtkPoints::New();
   projPoints->SetDataTypeToDouble();
   projPoints->SetNumberOfPoints(numSourcePts);
   projSource->SetPoints(projPoints);
   projPoints->UnRegister(this);
-  vtkDoubleArray *zScalars=nullptr;
+  vtkDoubleArray* zScalars = nullptr;
 
   // Create elevation scalars if necessary
-  if ( this->InterpolateZ )
+  if (this->InterpolateZ)
   {
     zScalars = vtkDoubleArray::New();
     zScalars->SetName(this->GetZArrayName());
     zScalars->SetNumberOfTuples(numSourcePts);
-    ProjectPointsWithScalars
-      project(source, static_cast<double*>(projPoints->GetVoidPointer(0)),
-              static_cast<double*>(zScalars->GetVoidPointer(0)));
+    ProjectPointsWithScalars project(source, static_cast<double*>(projPoints->GetVoidPointer(0)),
+      static_cast<double*>(zScalars->GetVoidPointer(0)));
     vtkSMPTools::For(0, numSourcePts, project);
     projSource->GetPointData()->AddArray(zScalars);
     zScalars->UnRegister(this);
   }
   else
   {
-    ProjectPoints project(source,static_cast<double*>(projPoints->GetVoidPointer(0)));
+    ProjectPoints project(source, static_cast<double*>(projPoints->GetVoidPointer(0)));
     vtkSMPTools::For(0, numSourcePts, project);
   }
 
@@ -256,13 +257,13 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 
   // Set up the interpolation process
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkPointData *inPD = projSource->GetPointData();
-  vtkPointData *outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,numPts);
+  vtkPointData* inPD = projSource->GetPointData();
+  vtkPointData* outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inPD, numPts);
 
   // Masking if requested
-  char *mask=nullptr;
-  if ( this->NullPointsStrategy == vtkPointInterpolator2D::MASK_POINTS )
+  char* mask = nullptr;
+  if (this->NullPointsStrategy == vtkPointInterpolator2D::MASK_POINTS)
   {
     this->ValidPointsMask = vtkCharArray::New();
     this->ValidPointsMask->SetNumberOfTuples(numPts);
@@ -271,19 +272,19 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   }
 
   // Now loop over input points, finding closest points and invoking kernel.
-  if ( this->Kernel->GetRequiresInitialization() )
+  if (this->Kernel->GetRequiresInitialization())
   {
     this->Kernel->Initialize(this->Locator, source, inPD);
   }
 
   // If the input is image data then there is a faster path
-  ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
-                    this->NullPointsStrategy,mask,this->NullValue);
+  ProbePoints probe(input, this->Kernel, this->Locator, inPD, outPD, this->NullPointsStrategy, mask,
+    this->NullValue);
   vtkSMPTools::For(0, numPts, probe);
 
   // Clean up
   projSource->Delete();
-  if ( mask )
+  if (mask)
   {
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
     outPD->AddArray(this->ValidPointsMask);
@@ -294,8 +295,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 //----------------------------------------------------------------------------
 void vtkPointInterpolator2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Interpolate Z: "
-     << (this->InterpolateZ ? "On" : " Off") << "\n";
+  os << indent << "Interpolate Z: " << (this->InterpolateZ ? "On" : " Off") << "\n";
 }

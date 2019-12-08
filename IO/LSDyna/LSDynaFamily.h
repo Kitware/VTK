@@ -30,41 +30,41 @@
 
 #include "vtkType.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <vector>
 
-//this is needs to be moved over to fseekpos and ftellpos
-//in the future
+// this is needs to be moved over to fseekpos and ftellpos
+// in the future
 #ifndef _WIN32
-#   include <unistd.h>
+#include <unistd.h>
 typedef off_t vtkLSDynaOff_t; // sanity
 typedef int vtkLSDynaFile_t;
-#  define VTK_LSDYNA_BADFILE -1
-#  define VTK_LSDYNA_TELL(fid) lseek( fid, 0, SEEK_CUR )
-#  define VTK_LSDYNA_SEEK(fid,off,whence) lseek( fid, off, whence )
-#  define VTK_LSDYNA_SEEKTELL(fid,off,whence) lseek( fid, off, whence )
-#  define VTK_LSDYNA_READ(fid,ptr,cnt) read(fid,ptr,cnt)
-#  define VTK_LSDYNA_ISBADFILE(fid) (fid < 0)
-#  define VTK_LSDYNA_CLOSEFILE(fid) close(fid)
+#define VTK_LSDYNA_BADFILE -1
+#define VTK_LSDYNA_TELL(fid) lseek(fid, 0, SEEK_CUR)
+#define VTK_LSDYNA_SEEK(fid, off, whence) lseek(fid, off, whence)
+#define VTK_LSDYNA_SEEKTELL(fid, off, whence) lseek(fid, off, whence)
+#define VTK_LSDYNA_READ(fid, ptr, cnt) read(fid, ptr, cnt)
+#define VTK_LSDYNA_ISBADFILE(fid) (fid < 0)
+#define VTK_LSDYNA_CLOSEFILE(fid) close(fid)
 #else // _WIN32
 typedef long vtkLSDynaOff_t; // insanity
 typedef FILE* vtkLSDynaFile_t;
-#  define VTK_LSDYNA_BADFILE 0
-#  define VTK_LSDYNA_TELL(fid) ftell( fid )
-#  define VTK_LSDYNA_SEEK(fid,off,whence) fseek( fid, off, whence )
-#  define VTK_LSDYNA_SEEKTELL(fid,off,whence) fseek( fid, off, whence ), ftell( fid )
-#  define VTK_LSDYNA_READ(fid,ptr,cnt) fread(ptr,1,cnt,fid)
-#  define VTK_LSDYNA_ISBADFILE(fid) (fid == 0)
-#  define VTK_LSDYNA_CLOSEFILE(fid) fclose(fid)
+#define VTK_LSDYNA_BADFILE 0
+#define VTK_LSDYNA_TELL(fid) ftell(fid)
+#define VTK_LSDYNA_SEEK(fid, off, whence) fseek(fid, off, whence)
+#define VTK_LSDYNA_SEEKTELL(fid, off, whence) fseek(fid, off, whence), ftell(fid)
+#define VTK_LSDYNA_READ(fid, ptr, cnt) fread(ptr, 1, cnt, fid)
+#define VTK_LSDYNA_ISBADFILE(fid) (fid == 0)
+#define VTK_LSDYNA_CLOSEFILE(fid) fclose(fid)
 #endif
 #ifdef VTKSNL_HAVE_ERRNO_H
-#  include <errno.h>
+#include <errno.h>
 #endif
 
 class LSDynaFamily
@@ -79,18 +79,19 @@ public:
     vtkIdType Offset;
   };
 
-  void SetDatabaseDirectory( const std::string& dd );
+  void SetDatabaseDirectory(const std::string& dd);
   std::string GetDatabaseDirectory();
 
-  void SetDatabaseBaseName( const std::string& bn );
+  void SetDatabaseBaseName(const std::string& bn);
   std::string GetDatabaseBaseName();
 
   int ScanDatabaseDirectory();
 
-  enum SectionType {
+  enum SectionType
+  {
     // These are the "section" marks:
     // They are absolute (independent of current timestep).
-    ControlSection=0,
+    ControlSection = 0,
     StaticSection,
     TimeStepSection,
     // These are the "subsection" marks:
@@ -125,7 +126,7 @@ public:
       LSDynaFamilySectionMark mark;
       mark.FileNumber = 0;
       mark.Offset = 0;
-      for ( int i=0; i<LSDynaFamily::NumberOfSectionTypes; ++i )
+      for (int i = 0; i < LSDynaFamily::NumberOfSectionTypes; ++i)
       {
         this->Marks[i] = mark;
       }
@@ -134,55 +135,56 @@ public:
 
   static const char* SectionTypeNames[];
 
-  enum WordType {
+  enum WordType
+  {
     Char,
     Float,
     Int
   };
 
   static const float EOFMarker;
-  static const char* SectionTypeToString( SectionType s );
+  static const char* SectionTypeToString(SectionType s);
 
-  int SkipToWord( SectionType sType, vtkIdType sId, vtkIdType wordNumber );
+  int SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNumber);
   int MarkTimeStep();
-  int SkipWords( vtkIdType numWords );
-  int BufferChunk( WordType wType, vtkIdType chunkSizeInWords );
+  int SkipWords(vtkIdType numWords);
+  int BufferChunk(WordType wType, vtkIdType chunkSizeInWords);
   int ClearBuffer();
 
-  //Description:
-  //Setup reading of a number of words to be split across multiple
-  //bufferChunk. This is used to read really large buffer sections
-  //in more reasonable sizes. The parameters are used to specify the total buffer
-  //size. The buffer size will always be evenly divisable by numComps and total
-  //word size of all buffers will be numTuples*numComps
-  vtkIdType InitPartialChunkBuffering(const vtkIdType& numTuples, const vtkIdType& numComps );
-  vtkIdType GetNextChunk( const WordType& wType);
+  // Description:
+  // Setup reading of a number of words to be split across multiple
+  // bufferChunk. This is used to read really large buffer sections
+  // in more reasonable sizes. The parameters are used to specify the total buffer
+  // size. The buffer size will always be evenly divisable by numComps and total
+  // word size of all buffers will be numTuples*numComps
+  vtkIdType InitPartialChunkBuffering(const vtkIdType& numTuples, const vtkIdType& numComps);
+  vtkIdType GetNextChunk(const WordType& wType);
 
   inline char* GetNextWordAsChars();
   inline double GetNextWordAsFloat();
   inline vtkIdType GetNextWordAsInt();
 
-  //Get the raw chunk buffer as a buffer of type T
-  template<typename T>
+  // Get the raw chunk buffer as a buffer of type T
+  template <typename T>
   T* GetBufferAs();
 
   // Not needed (yet):
   // void GetCurrentWord( SectionType& stype, vtkIdType& sId, vtkIdType& wN );
   int AdvanceFile();
-  void MarkSectionStart( int adapteLevel, SectionType m );
+  void MarkSectionStart(int adapteLevel, SectionType m);
 
-  int JumpToMark( SectionType m );
+  int JumpToMark(SectionType m);
   int DetermineStorageModel();
 
-  void SetStateSize( vtkIdType sz );
+  void SetStateSize(vtkIdType sz);
   vtkIdType GetStateSize() const;
 
   vtkIdType GetNumberOfFiles();
-  std::string GetFileName( int i );
-  vtkIdType GetFileSize( int i );
+  std::string GetFileName(int i);
+  vtkIdType GetFileSize(int i);
 
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
-  int TimeAdaptLevel( int i ) const { return this->TimeAdaptLevels[i]; }
+  int TimeAdaptLevel(int i) const { return this->TimeAdaptLevels[i]; }
 
   vtkIdType GetCurrentFWord() const { return this->FWord; }
 
@@ -192,10 +194,10 @@ public:
   void Reset();
 
   /// Print all adaptation and time step marker information.
-  void DumpMarks( std::ostream& os );
+  void DumpMarks(std::ostream& os);
 
-  //Closes the current file descripter. This is called after
-  //we are done reading in request data
+  // Closes the current file descripter. This is called after
+  // we are done reading in request data
   void CloseFileHandles();
 
   void OpenFileHandles();
@@ -227,7 +229,7 @@ protected:
   vtkIdType FWord;
   /// A comprehensive list of all time values across all files (and mesh
   /// adaptations)
-  //std::vector<double> TimeValues;
+  // std::vector<double> TimeValues;
   /// The current timestep
   vtkIdType TimeStep;
   /// Whether files are reverse endian-ness of architecture
@@ -263,63 +265,64 @@ protected:
 //-----------------------------------------------------------------------------
 inline char* LSDynaFamily::GetNextWordAsChars()
 {
-  if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read char past end of buffer\n" );
-  return (char*) (&this->Chunk[ (this->ChunkWord++)*this->WordSize ]);
+  if (this->ChunkWord >= this->ChunkValid)
+    fprintf(stderr, "Read char past end of buffer\n");
+  return (char*)(&this->Chunk[(this->ChunkWord++) * this->WordSize]);
 }
 
 //-----------------------------------------------------------------------------
 inline double LSDynaFamily::GetNextWordAsFloat()
 {
-  if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read float past end of buffer\n" );
+  if (this->ChunkWord >= this->ChunkValid)
+    fprintf(stderr, "Read float past end of buffer\n");
   switch (this->WordSize)
   {
-  case 4:
-  {
-    vtkTypeFloat32 value;
-    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
-    return value;
-  }
-  case 8:
-  default:
-  {
-    vtkTypeFloat64 value;
-    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
-    return value;
-  }
+    case 4:
+    {
+      vtkTypeFloat32 value;
+      memcpy(&value, &this->Chunk[this->ChunkWord++ << 2], sizeof(value));
+      return value;
+    }
+    case 8:
+    default:
+    {
+      vtkTypeFloat64 value;
+      memcpy(&value, &this->Chunk[this->ChunkWord++ << 3], sizeof(value));
+      return value;
+    }
   }
 }
 
 //-----------------------------------------------------------------------------
 inline vtkIdType LSDynaFamily::GetNextWordAsInt()
 {
-  if ( this->ChunkWord >= this->ChunkValid )
+  if (this->ChunkWord >= this->ChunkValid)
   {
-    fprintf( stderr, "Read int past end of buffer\n" );
+    fprintf(stderr, "Read int past end of buffer\n");
   }
   switch (this->WordSize)
   {
-  case 4:
-  {
-    vtkTypeInt32 value;
-    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
-    return value;
-  }
-  case 8:
-  default:
-  {
-    vtkIdType value;
-    memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
-    return value;
-  }
+    case 4:
+    {
+      vtkTypeInt32 value;
+      memcpy(&value, &this->Chunk[this->ChunkWord++ << 2], sizeof(value));
+      return value;
+    }
+    case 8:
+    default:
+    {
+      vtkIdType value;
+      memcpy(&value, &this->Chunk[this->ChunkWord++ << 3], sizeof(value));
+      return value;
+    }
   }
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
+template <typename T>
 inline T* LSDynaFamily::GetBufferAs()
 {
   return reinterpret_cast<T*>(this->Chunk);
 }
-
 
 #endif // __LSDynaFamily_h

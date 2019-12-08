@@ -19,7 +19,7 @@
  * vtkInformationExecutivePortVectorKey is used to represent keys in
  * vtkInformation for values that are vectors of vtkExecutive
  * instances paired with port numbers.
-*/
+ */
 
 #ifndef vtkInformationExecutivePortVectorKey_h
 #define vtkInformationExecutivePortVectorKey_h
@@ -34,7 +34,7 @@ class vtkExecutive;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationExecutivePortVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationExecutivePortVectorKey(const char* name, const char* location);
@@ -87,7 +87,6 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
 protected:
-
   //@{
   /**
    * Get the address at which the actual value is stored.  This is

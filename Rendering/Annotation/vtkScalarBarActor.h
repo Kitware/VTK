@@ -51,13 +51,13 @@
  *
  * @sa
  * vtkActor2D vtkTextProperty vtkTextMapper vtkPolyDataMapper2D
-*/
+ */
 
 #ifndef vtkScalarBarActor_h
 #define vtkScalarBarActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkColor3ub;
 class vtkPolyData;
@@ -92,7 +92,7 @@ public:
    * Draw the scalar bar and annotation text to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; };
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
@@ -163,9 +163,8 @@ public:
    */
   vtkSetClampMacro(Orientation, int, VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
   vtkGetMacro(Orientation, int);
-  void SetOrientationToHorizontal()
-       {this->SetOrientation(VTK_ORIENT_HORIZONTAL);}
-  void SetOrientationToVertical() {this->SetOrientation(VTK_ORIENT_VERTICAL);}
+  void SetOrientationToHorizontal() { this->SetOrientation(VTK_ORIENT_HORIZONTAL); }
+  void SetOrientationToVertical() { this->SetOrientation(VTK_ORIENT_VERTICAL); }
   //@}
 
   //@{
@@ -237,7 +236,11 @@ public:
   vtkGetObjectMacro(TextureActor, vtkTexturedActor2D);
   //@}
 
-  enum { PrecedeScalarBar = 0, SucceedScalarBar };
+  enum
+  {
+    PrecedeScalarBar = 0,
+    SucceedScalarBar
+  };
 
   //@{
   /**
@@ -251,9 +254,13 @@ public:
   vtkSetClampMacro(TextPosition, int, PrecedeScalarBar, SucceedScalarBar);
   vtkGetMacro(TextPosition, int);
   virtual void SetTextPositionToPrecedeScalarBar()
-    { this->SetTextPosition(vtkScalarBarActor::PrecedeScalarBar); }
+  {
+    this->SetTextPosition(vtkScalarBarActor::PrecedeScalarBar);
+  }
   virtual void SetTextPositionToSucceedScalarBar()
-    { this->SetTextPosition(vtkScalarBarActor::SucceedScalarBar); }
+  {
+    this->SetTextPosition(vtkScalarBarActor::SucceedScalarBar);
+  }
   //@}
 
   //@{
@@ -517,7 +524,6 @@ protected:
    */
   virtual int RebuildLayoutIfNeeded(vtkViewport* viewport);
 
-
   /**
    * Free internal storage used by the previous layout.
    */
@@ -682,7 +688,7 @@ protected:
    * the coordinate if you wish multiple labels to annotate the same position.
    * Each entry in this->P->Labels must have a matching entry in this->P->LabelColors.
    */
-  virtual void EditAnnotations() { }
+  virtual void EditAnnotations() {}
 
   /**
    * Compute the best size for the legend title.
@@ -701,14 +707,13 @@ protected:
    * This method is called by \a ConfigureAnnotationLabels when Orientation is VTK_ORIENT_VERTICAL.
    */
   int PlaceAnnotationsVertically(
-    double barX, double barY, double barWidth, double barHeight,
-    double delta, double pad);
+    double barX, double barY, double barWidth, double barHeight, double delta, double pad);
   /**
-   * This method is called by \a ConfigureAnnotationLabels when Orientation is VTK_ORIENT_HORIZONTAL.
+   * This method is called by \a ConfigureAnnotationLabels when Orientation is
+   * VTK_ORIENT_HORIZONTAL.
    */
   int PlaceAnnotationsHorizontally(
-    double barX, double barY, double barWidth, double barHeight,
-    double delta, double pad);
+    double barX, double barY, double barWidth, double barHeight, double delta, double pad);
 
   /// User-changeable settings
   //@{
@@ -717,8 +722,8 @@ protected:
   int NumberOfLabelsBuilt;
   int Orientation;
   vtkTypeBool DrawBackground; // off by default
-  vtkTypeBool DrawFrame; // off by default
-  vtkTypeBool DrawColorBar; // on by default
+  vtkTypeBool DrawFrame;      // off by default
+  vtkTypeBool DrawColorBar;   // on by default
   vtkTypeBool DrawTickLabels; // on by default
   vtkTypeBool DrawAnnotations;
   vtkTypeBool DrawNanAnnotation;
@@ -742,7 +747,7 @@ protected:
   int VerticalTitleSeparation;
   double BarRatio;
   double TitleRatio;
-  bool UnconstrainedFontSize;  // off by default
+  bool UnconstrainedFontSize; // off by default
 
   bool DrawBelowRangeSwatch;
   bool DrawAboveRangeSwatch;
@@ -751,32 +756,32 @@ protected:
   /// Internal state used for rendering
   //@{
   vtkTimeStamp BuildTime; //!< Last time internal state changed.
-  int LastSize[2]; //!< Projected size in viewport coordinates of last build.
-  int LastOrigin[2]; //!< Projected origin (viewport coordinates) of last build.
+  int LastSize[2];        //!< Projected size in viewport coordinates of last build.
+  int LastOrigin[2];      //!< Projected origin (viewport coordinates) of last build.
 
   vtkScalarBarActorInternal* P; //!< Containers shared with subclasses
 
   vtkScalarsToColors* LookupTable; //!< The object this actor illustrates
 
-  vtkTextProperty* TitleTextProperty; //!< Font for the legend title.
-  vtkTextProperty* LabelTextProperty; //!< Font for tick labels.
+  vtkTextProperty* TitleTextProperty;      //!< Font for the legend title.
+  vtkTextProperty* LabelTextProperty;      //!< Font for tick labels.
   vtkTextProperty* AnnotationTextProperty; //!< Font for annotation labels.
-  vtkTextActor* TitleActor; //!< The legend title text renderer.
+  vtkTextActor* TitleActor;                //!< The legend title text renderer.
 
-  vtkPolyData* ScalarBar; //!< Polygon(s) colored by \a LookupTable.
+  vtkPolyData* ScalarBar;               //!< Polygon(s) colored by \a LookupTable.
   vtkPolyDataMapper2D* ScalarBarMapper; //!< Mapper for \a ScalarBar.
-  vtkActor2D* ScalarBarActor; //!< Actor for \a ScalarBar.
-  vtkPolyData* TexturePolyData; //!< Polygon colored when UseOpacity is true.
-  vtkTexture* Texture; //!< Color data for \a TexturePolyData.
-  vtkTexturedActor2D* TextureActor; //!< Actor for \a TexturePolyData.
+  vtkActor2D* ScalarBarActor;           //!< Actor for \a ScalarBar.
+  vtkPolyData* TexturePolyData;         //!< Polygon colored when UseOpacity is true.
+  vtkTexture* Texture;                  //!< Color data for \a TexturePolyData.
+  vtkTexturedActor2D* TextureActor;     //!< Actor for \a TexturePolyData.
 
-  vtkPolyData* Background; //!< Polygon used to fill the background.
+  vtkPolyData* Background;               //!< Polygon used to fill the background.
   vtkPolyDataMapper2D* BackgroundMapper; //!< Mapper for \a Background.
-  vtkActor2D* BackgroundActor; //!< Actor for \a Background.
+  vtkActor2D* BackgroundActor;           //!< Actor for \a Background.
 
-  vtkPolyData* Frame; //!< Polyline used to highlight frame.
+  vtkPolyData* Frame;               //!< Polyline used to highlight frame.
   vtkPolyDataMapper2D* FrameMapper; //!< Mapper for \a Frame.
-  vtkActor2D* FrameActor; //!< Actor for \a Frame.
+  vtkActor2D* FrameActor;           //!< Actor for \a Frame.
   //@}
 
 private:
@@ -785,4 +790,3 @@ private:
 };
 
 #endif
-

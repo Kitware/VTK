@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
+#include "vtkPlane.h"
 #include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkPolyhedron.h"
-#include "vtkPlane.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkNew.h"
 #include "vtkClipDataSet.h"
+#include "vtkNew.h"
 #include "vtkPlane.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
@@ -40,8 +40,9 @@ const char inputDataStream[] =
   "CELL_TYPES 1\n"
   "42\n";
 
-// Test of contour/clip of vtkPolyhedron. uses input from https://gitlab.kitware.com/vtk/vtk/issues/15026
-int TestPolyhedron3(int argc, char *argv[])
+// Test of contour/clip of vtkPolyhedron. uses input from
+// https://gitlab.kitware.com/vtk/vtk/issues/15026
+int TestPolyhedron3(int argc, char* argv[])
 {
   (void)argc;
   (void)argv;
@@ -60,17 +61,21 @@ int TestPolyhedron3(int argc, char *argv[])
   clip->Update();
 
   vtkUnstructuredGrid* result = clip->GetOutput(0);
-  if (!result) return 1;
+  if (!result)
+    return 1;
   if (result->GetNumberOfCells() != 1)
   {
-    std::cout << "Expected 1 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
+    std::cout << "Expected 1 but found " << result->GetNumberOfCells()
+              << " cells in intersected polyhedron" << std::endl;
     return EXIT_FAILURE;
   }
   vtkCell* clipped = result->GetCell(0);
-  if (!clipped) return 1;
-  if (clipped->GetNumberOfFaces() != 7 )
+  if (!clipped)
+    return 1;
+  if (clipped->GetNumberOfFaces() != 7)
   {
-    std::cout << "Expected 7 but found " << clipped->GetNumberOfFaces() << " faces on in intersected polyhedron" << std::endl;
+    std::cout << "Expected 7 but found " << clipped->GetNumberOfFaces()
+              << " faces on in intersected polyhedron" << std::endl;
     return EXIT_FAILURE;
   }
 

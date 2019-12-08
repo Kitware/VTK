@@ -15,7 +15,7 @@
 /**
  * @class   vtkLargeInteger
  * @brief   class for arbitrarily large ints
-*/
+ */
 
 #ifndef vtkLargeInteger_h
 #define vtkLargeInteger_h
@@ -45,13 +45,13 @@ public:
 
   int IsEven(void) const;
   int IsOdd(void) const;
-  int GetLength(void) const; // in bits
+  int GetLength(void) const;        // in bits
   int GetBit(unsigned int p) const; // p'th bit (from zero)
-  int IsZero() const; // is zero
-  int GetSign(void) const; // is negative
+  int IsZero() const;               // is zero
+  int GetSign(void) const;          // is negative
 
   void Truncate(unsigned int n); // reduce to lower n bits
-  void Complement(void); // * -1
+  void Complement(void);         // * -1
 
   bool operator==(const vtkLargeInteger& n) const;
   bool operator!=(const vtkLargeInteger& n) const;
@@ -67,8 +67,8 @@ public:
   vtkLargeInteger& operator>>=(int n);
   vtkLargeInteger& operator++(void);
   vtkLargeInteger& operator--(void);
-  vtkLargeInteger  operator++(int);
-  vtkLargeInteger  operator--(int);
+  vtkLargeInteger operator++(int);
+  vtkLargeInteger operator--(int);
   vtkLargeInteger& operator*=(const vtkLargeInteger& n);
   vtkLargeInteger& operator/=(const vtkLargeInteger& n);
   vtkLargeInteger& operator%=(const vtkLargeInteger& n);
@@ -101,13 +101,12 @@ private:
   // unsigned operators
   bool IsSmaller(const vtkLargeInteger& n) const; // unsigned
   bool IsGreater(const vtkLargeInteger& n) const; // unsigned
-  void Expand(unsigned int n); // ensure n'th bit exits
-  void Contract(); // remove leading 0s
-  void Plus(const vtkLargeInteger& n); // unsigned
-  void Minus(const vtkLargeInteger& n); // unsigned
+  void Expand(unsigned int n);                    // ensure n'th bit exits
+  void Contract();                                // remove leading 0s
+  void Plus(const vtkLargeInteger& n);            // unsigned
+  void Minus(const vtkLargeInteger& n);           // unsigned
 };
 
 #endif
-
 
 // VTK-HeaderTest-Exclude: vtkLargeInteger.h

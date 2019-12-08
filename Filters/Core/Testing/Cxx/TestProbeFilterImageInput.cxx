@@ -25,10 +25,10 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPointSource.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -41,21 +41,19 @@ int TestProbeFilterImageInput(int argc, char* argv[])
 {
   static const int dim = 48;
   double center[3];
-  center[0] = center[1] = center[2] = static_cast<double>(dim)/2.0;
+  center[0] = center[1] = center[2] = static_cast<double>(dim) / 2.0;
   int extent[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
   vtkNew<vtkRTAnalyticSource> imageSource;
-  imageSource->SetWholeExtent(extent[0], extent[1], extent[2], extent[3],
-                              extent[4], extent[5]);
+  imageSource->SetWholeExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
   imageSource->SetCenter(center);
   imageSource->Update();
 
-  vtkImageData *img = imageSource->GetOutput();
+  vtkImageData* img = imageSource->GetOutput();
   double range[2], origin[3], spacing[3];
   img->GetScalarRange(range);
   img->GetOrigin(origin);
   img->GetSpacing(spacing);
-
 
   // create an unstructured grid by generating a point cloud and
   // applying Delaunay triangulation on it.
@@ -86,7 +84,6 @@ int TestProbeFilterImageInput(int argc, char* argv[])
   vtkNew<vtkProbeFilter> probe2;
   probe2->SetSourceConnection(probe1->GetOutputPort());
   probe2->SetInputData(outputData);
-
 
   // render using ray-cast volume rendering
   vtkNew<vtkRenderer> ren;

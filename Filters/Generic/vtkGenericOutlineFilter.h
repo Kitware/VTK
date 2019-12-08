@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkGenericDataSet
-*/
+ */
 
 #ifndef vtkGenericOutlineFilter_h
 #define vtkGenericOutlineFilter_h
@@ -37,16 +37,16 @@ class vtkOutlineSource;
 class VTKFILTERSGENERIC_EXPORT vtkGenericOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkGenericOutlineFilter *New();
-  vtkTypeMacro(vtkGenericOutlineFilter,vtkPolyDataAlgorithm);
+  static vtkGenericOutlineFilter* New();
+  vtkTypeMacro(vtkGenericOutlineFilter, vtkPolyDataAlgorithm);
 
 protected:
   vtkGenericOutlineFilter();
   ~vtkGenericOutlineFilter() override;
 
-  vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  vtkOutlineSource* OutlineSource;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 

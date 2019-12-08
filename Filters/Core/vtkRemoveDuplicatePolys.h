@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkRemoveDuplicatePolys_h
 #define vtkRemoveDuplicatePolys_h
@@ -34,17 +34,16 @@
 class VTKFILTERSCORE_EXPORT vtkRemoveDuplicatePolys : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkRemoveDuplicatePolys *New();
+  static vtkRemoveDuplicatePolys* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkRemoveDuplicatePolys,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRemoveDuplicatePolys, vtkPolyDataAlgorithm);
 
 protected:
   vtkRemoveDuplicatePolys();
   ~vtkRemoveDuplicatePolys() override;
 
   // Usual data generation method.
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkRemoveDuplicatePolys(const vtkRemoveDuplicatePolys&) = delete;

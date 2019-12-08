@@ -19,7 +19,7 @@
 // Include all of the classes we want to create overrides for.
 @_vtk_object_factory_includes@
 
-vtkStandardNewMacro(@_vtk_object_factory_library_name@ObjectFactory)
+vtkStandardNewMacro(@_vtk_object_factory_library_name@ObjectFactory);
 
 // Now create the functions to create overrides with.
 @_vtk_object_factory_functions@

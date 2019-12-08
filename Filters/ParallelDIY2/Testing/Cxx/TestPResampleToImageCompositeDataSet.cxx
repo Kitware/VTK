@@ -27,29 +27,28 @@
 #include "vtkNew.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include "vtk_diy2.h"   // must include this before any diy header
+// clang-format off
+#include "vtk_diy2.h" // must include this before any diy header
 #include VTK_DIY2(diy/mpi.hpp)
+// clang-format on
 
-
-int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
+int TestPResampleToImageCompositeDataSet(int argc, char* argv[])
 {
   diy::mpi::environment mpienv(argc, argv);
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, true);
   diy::mpi::communicator world;
 
-
   // Setup parallel rendering
   vtkNew<vtkCompositeRenderManager> prm;
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
   renWin->AddRenderer(renderer);
@@ -61,7 +60,6 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
 
   prm->SetRenderWindow(renWin);
   prm->SetController(controller);
-
 
   // Create input dataset
   const int piecesPerRank = 2;
@@ -94,7 +92,6 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
     input->SetBlock(piece, img);
   }
 
-
   // create pipeline
   vtkNew<vtkPResampleToImage> resample;
   resample->SetInputDataObject(input);
@@ -104,14 +101,12 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
 
   vtkNew<vtkAssignAttribute> assignAttrib;
   assignAttrib->SetInputConnection(resample->GetOutputPort());
-  assignAttrib->Assign("RTData", vtkDataSetAttributes::SCALARS,
-                       vtkAssignAttribute::POINT_DATA);
+  assignAttrib->Assign("RTData", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);
 
   vtkNew<vtkContourFilter> contour;
   contour->SetInputConnection(assignAttrib->GetOutputPort());
   contour->SetValue(0, 157);
   contour->ComputeNormalsOn();
-
 
   // Execute pipeline and render
   vtkNew<vtkPolyDataMapper> mapper;

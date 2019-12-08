@@ -18,13 +18,13 @@
  * vtkClientServerCompositePass is a render-pass that can handle client-server
  * image delivery. This is designed to be used in configurations in
  * two-processes configurations.
-*/
+ */
 
 #ifndef vtkClientServerCompositePass_h
 #define vtkClientServerCompositePass_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 
@@ -39,14 +39,14 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
   //@{
   /**
@@ -56,8 +56,8 @@ public:
    * This must be set to the socket controller used for communicating between
    * the client and the server.
    */
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
-  virtual void SetController(vtkMultiProcessController *controller);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController* controller);
   //@}
 
   //@{
@@ -89,7 +89,7 @@ public:
    * communicator there's no easy way of determining which process is the server
    * and which one is the client.
    */
-  vtkSetMacro(ProcessIsServer,bool);
+  vtkSetMacro(ProcessIsServer, bool);
   vtkBooleanMacro(ProcessIsServer, bool);
   vtkGetMacro(ProcessIsServer, bool);
   //@}
@@ -115,12 +115,10 @@ protected:
 
   bool ProcessIsServer;
   bool ServerSideRendering;
+
 private:
   vtkClientServerCompositePass(const vtkClientServerCompositePass&) = delete;
   void operator=(const vtkClientServerCompositePass&) = delete;
-
 };
 
 #endif
-
-

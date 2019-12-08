@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkLocator vtkPointLocator vtkOBBTree vtkCellLocator
-*/
+ */
 
 #ifndef vtkAbstractCellLocator_h
 #define vtkAbstractCellLocator_h
@@ -48,7 +48,7 @@ class vtkPoints;
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLocator : public vtkLocator
 {
 public:
-  vtkTypeMacro(vtkAbstractCellLocator,vtkLocator);
+  vtkTypeMacro(vtkAbstractCellLocator, vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -58,8 +58,8 @@ public:
    * smaller regions until the number of cells in each region (or node)
    * reaches the desired level.
    */
-  vtkSetClampMacro(NumberOfCellsPerNode,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfCellsPerNode,int);
+  vtkSetClampMacro(NumberOfCellsPerNode, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfCellsPerNode, int);
   //@}
 
   //@{
@@ -70,9 +70,9 @@ public:
    * won't cause disk caching (24 extra bytes per cell are required to
    * save the bounds).
    */
-  vtkSetMacro(CacheCellBounds,vtkTypeBool);
-  vtkGetMacro(CacheCellBounds,vtkTypeBool);
-  vtkBooleanMacro(CacheCellBounds,vtkTypeBool);
+  vtkSetMacro(CacheCellBounds, vtkTypeBool);
+  vtkGetMacro(CacheCellBounds, vtkTypeBool);
+  vtkBooleanMacro(CacheCellBounds, vtkTypeBool);
   //@}
 
   //@{
@@ -81,9 +81,9 @@ public:
    * not applicable to all implementations, but if the locator is being used
    * as a geometry simplification technique, there is no need to keep them.
    */
-  vtkSetMacro(RetainCellLists,vtkTypeBool);
-  vtkGetMacro(RetainCellLists,vtkTypeBool);
-  vtkBooleanMacro(RetainCellLists,vtkTypeBool);
+  vtkSetMacro(RetainCellLists, vtkTypeBool);
+  vtkGetMacro(RetainCellLists, vtkTypeBool);
+  vtkBooleanMacro(RetainCellLists, vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * If LazyEvaluation is supported, this turns on/off the feature.
    * if not supported, it is ignored.
    */
-  vtkSetMacro(LazyEvaluation,vtkTypeBool);
-  vtkGetMacro(LazyEvaluation,vtkTypeBool);
-  vtkBooleanMacro(LazyEvaluation,vtkTypeBool);
+  vtkSetMacro(LazyEvaluation, vtkTypeBool);
+  vtkGetMacro(LazyEvaluation, vtkTypeBool);
+  vtkBooleanMacro(LazyEvaluation, vtkTypeBool);
   //@}
 
   //@{
@@ -106,32 +106,32 @@ public:
    * Turning on this flag enables some locators to skip the rebuilding
    * phase
    */
-  vtkSetMacro(UseExistingSearchStructure,vtkTypeBool);
-  vtkGetMacro(UseExistingSearchStructure,vtkTypeBool);
-  vtkBooleanMacro(UseExistingSearchStructure,vtkTypeBool);
+  vtkSetMacro(UseExistingSearchStructure, vtkTypeBool);
+  vtkGetMacro(UseExistingSearchStructure, vtkTypeBool);
+  vtkBooleanMacro(UseExistingSearchStructure, vtkTypeBool);
   //@}
 
   /**
    * Return intersection point (if any) of finite line with cells contained
    * in cell locator. See vtkCell.h parameters documentation.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int &subId);
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+    double x[3], double pcoords[3], int& subId);
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId);
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+    double x[3], double pcoords[3], int& subId, vtkIdType& cellId);
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic
    * cell.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+    double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell);
 
   /**
    * Take the passed line segment and intersect it with the data set.
@@ -146,8 +146,7 @@ public:
    * in vtkOBBTree.
    */
   virtual int IntersectWithLine(
-    const double p1[3], const double p2[3],
-    vtkPoints *points, vtkIdList *cellIds);
+    const double p1[3], const double p2[3], vtkPoints* points, vtkIdList* cellIds);
 
   /**
    * Return the closest point and the cell which is closest to the point x.
@@ -155,8 +154,7 @@ public:
    * vertices of the cell.
    */
   virtual void FindClosestPoint(
-    const double x[3], double closestPoint[3],
-    vtkIdType &cellId, int &subId, double& dist2);
+    const double x[3], double closestPoint[3], vtkIdType& cellId, int& subId, double& dist2);
 
   /**
    * Return the closest point and the cell which is closest to the point x.
@@ -169,10 +167,8 @@ public:
    * found, "cell" contains the points and ptIds for the cell "cellId" upon
    * exit.
    */
-  virtual void FindClosestPoint(
-    const double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2);
+  virtual void FindClosestPoint(const double x[3], double closestPoint[3], vtkGenericCell* cell,
+    vtkIdType& cellId, int& subId, double& dist2);
 
   /**
    * Return the closest point within a specified radius and the cell which is
@@ -182,10 +178,8 @@ public:
    * the specified radius, the method returns 0 and the values of closestPoint,
    * cellId, subId, and dist2 are undefined.
    */
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3], vtkIdType &cellId,
-    int &subId, double& dist2);
+  virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
+    vtkIdType& cellId, int& subId, double& dist2);
 
   /**
    * Return the closest point within a specified radius and the cell which is
@@ -201,11 +195,8 @@ public:
    * for loop.  If a closest point is found, "cell" contains the points and
    * ptIds for the cell "cellId" upon exit.
    */
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2);
+  virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
+    vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2);
 
   /**
    * Return the closest point within a specified radius and the cell which is
@@ -223,18 +214,15 @@ public:
    * inside returns the return value of the EvaluatePosition call to the
    * closest cell; inside(=1) or outside(=0).
    */
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2, int &inside);
+  virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
+    vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside);
 
   /**
    * Return a list of unique cell ids inside of a given bounding box. The
    * user must provide the vtkIdList to populate. This method returns data
    * only after the locator has been built.
    */
-  virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+  virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells);
 
   /**
    * Given a finite line defined by the two points (p1,p2), return the list
@@ -243,7 +231,8 @@ public:
    * to populate. This method returns data only after the locator has been
    * built.
    */
-  virtual void FindCellsAlongLine(const double p1[3], const double p2[3], double tolerance, vtkIdList *cells);
+  virtual void FindCellsAlongLine(
+    const double p1[3], const double p2[3], double tolerance, vtkIdList* cells);
 
   /**
    * Returns the Id of the cell containing the point,
@@ -257,8 +246,7 @@ public:
    * be provided to store the information.
    */
   virtual vtkIdType FindCell(
-    double x[3], double tol2, vtkGenericCell *GenCell,
-    double pcoords[3], double *weights);
+    double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights);
 
   /**
    * Quickly test if a point is inside the bounds of a particular cell.
@@ -268,7 +256,7 @@ public:
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 
 protected:
-   vtkAbstractCellLocator();
+  vtkAbstractCellLocator();
   ~vtkAbstractCellLocator() override;
 
   //@{
@@ -288,7 +276,7 @@ protected:
   vtkTypeBool CacheCellBounds;
   vtkTypeBool LazyEvaluation;
   vtkTypeBool UseExistingSearchStructure;
-  vtkGenericCell *GenericCell;
+  vtkGenericCell* GenericCell;
   double (*CellBounds)[6];
 
 private:

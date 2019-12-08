@@ -10,22 +10,22 @@
 //          not exist in the volume, it will be skipped.
 //
 //
-#include <vtkMetaImageReader.h>
-#include <vtkImageAccumulate.h>
 #include <vtkDiscreteMarchingCubes.h>
-#include <vtkWindowedSincPolyDataFilter.h>
-#include <vtkMaskFields.h>
-#include <vtkThreshold.h>
 #include <vtkGeometryFilter.h>
-#include <vtkXMLPolyDataWriter.h>
+#include <vtkImageAccumulate.h>
+#include <vtkMaskFields.h>
+#include <vtkMetaImageReader.h>
 #include <vtkSmartPointer.h>
+#include <vtkThreshold.h>
+#include <vtkWindowedSincPolyDataFilter.h>
+#include <vtkXMLPolyDataWriter.h>
 
+#include <sstream>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
-#include <sstream>
 
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 4)
   {
@@ -34,22 +34,16 @@ int main (int argc, char *argv[])
   }
 
   // Create all of the classes we will need
-  vtkSmartPointer<vtkMetaImageReader> reader =
-    vtkSmartPointer<vtkMetaImageReader>::New();
-  vtkSmartPointer<vtkImageAccumulate> histogram =
-    vtkSmartPointer<vtkImageAccumulate>::New();
+  vtkSmartPointer<vtkMetaImageReader> reader = vtkSmartPointer<vtkMetaImageReader>::New();
+  vtkSmartPointer<vtkImageAccumulate> histogram = vtkSmartPointer<vtkImageAccumulate>::New();
   vtkSmartPointer<vtkDiscreteMarchingCubes> discreteCubes =
     vtkSmartPointer<vtkDiscreteMarchingCubes>::New();
   vtkSmartPointer<vtkWindowedSincPolyDataFilter> smoother =
     vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
-  vtkSmartPointer<vtkThreshold> selector =
-    vtkSmartPointer<vtkThreshold>::New();
-  vtkSmartPointer<vtkMaskFields> scalarsOff =
-    vtkSmartPointer<vtkMaskFields>::New();
-  vtkSmartPointer<vtkGeometryFilter> geometry =
-    vtkSmartPointer<vtkGeometryFilter>::New();
-  vtkSmartPointer<vtkXMLPolyDataWriter> writer =
-    vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+  vtkSmartPointer<vtkThreshold> selector = vtkSmartPointer<vtkThreshold>::New();
+  vtkSmartPointer<vtkMaskFields> scalarsOff = vtkSmartPointer<vtkMaskFields>::New();
+  vtkSmartPointer<vtkGeometryFilter> geometry = vtkSmartPointer<vtkGeometryFilter>::New();
+  vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
 
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
@@ -85,8 +79,7 @@ int main (int argc, char *argv[])
   histogram->Update();
 
   discreteCubes->SetInputConnection(reader->GetOutputPort());
-  discreteCubes->GenerateValues(
-    endLabel - startLabel + 1, startLabel, endLabel);
+  discreteCubes->GenerateValues(endLabel - startLabel + 1, startLabel, endLabel);
 
   smoother->SetInputConnection(discreteCubes->GetOutputPort());
   smoother->SetNumberOfIterations(smoothingIterations);
@@ -99,16 +92,13 @@ int main (int argc, char *argv[])
   smoother->Update();
 
   selector->SetInputConnection(smoother->GetOutputPort());
-  selector->SetInputArrayToProcess(0, 0, 0,
-                                   vtkDataObject::FIELD_ASSOCIATION_CELLS,
-                                   vtkDataSetAttributes::SCALARS);
+  selector->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 
   // Strip the scalars from the output
   scalarsOff->SetInputConnection(selector->GetOutputPort());
-  scalarsOff->CopyAttributeOff(vtkMaskFields::POINT_DATA,
-                               vtkDataSetAttributes::SCALARS);
-  scalarsOff->CopyAttributeOff(vtkMaskFields::CELL_DATA,
-                               vtkDataSetAttributes::SCALARS);
+  scalarsOff->CopyAttributeOff(vtkMaskFields::POINT_DATA, vtkDataSetAttributes::SCALARS);
+  scalarsOff->CopyAttributeOff(vtkMaskFields::CELL_DATA, vtkDataSetAttributes::SCALARS);
 
   geometry->SetInputConnection(scalarsOff->GetOutputPort());
 
@@ -117,8 +107,7 @@ int main (int argc, char *argv[])
   for (unsigned int i = startLabel; i <= endLabel; i++)
   {
     // see if the label exists, if not skip it
-    double frequency =
-      histogram->GetOutput()->GetPointData()->GetScalars()->GetTuple1(i);
+    double frequency = histogram->GetOutput()->GetPointData()->GetScalars()->GetTuple1(i);
     if (frequency == 0.0)
     {
       continue;
@@ -134,7 +123,6 @@ int main (int argc, char *argv[])
 
     writer->SetFileName(ss.str().c_str());
     writer->Write();
-
   }
   return EXIT_SUCCESS;
 }

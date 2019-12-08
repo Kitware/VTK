@@ -51,42 +51,42 @@ vtkDataSet* vtkDataSetAlgorithm::GetOutput(int port)
 
 //----------------------------------------------------------------------------
 // Get the output as vtkImageData
-vtkImageData *vtkDataSetAlgorithm::GetImageDataOutput()
+vtkImageData* vtkDataSetAlgorithm::GetImageDataOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkPolyData.
-vtkPolyData *vtkDataSetAlgorithm::GetPolyDataOutput()
+vtkPolyData* vtkDataSetAlgorithm::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkStructuredPoints.
-vtkStructuredPoints *vtkDataSetAlgorithm::GetStructuredPointsOutput()
+vtkStructuredPoints* vtkDataSetAlgorithm::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkStructuredGrid.
-vtkStructuredGrid *vtkDataSetAlgorithm::GetStructuredGridOutput()
+vtkStructuredGrid* vtkDataSetAlgorithm::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkUnstructuredGrid.
-vtkUnstructuredGrid *vtkDataSetAlgorithm::GetUnstructuredGridOutput()
+vtkUnstructuredGrid* vtkDataSetAlgorithm::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkRectilinearGrid.
-vtkRectilinearGrid *vtkDataSetAlgorithm::GetRectilinearGridOutput()
+vtkRectilinearGrid* vtkDataSetAlgorithm::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
@@ -152,59 +152,53 @@ vtkDataObject* vtkDataSetAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetAlgorithm::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkDataSetAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
 
   // set update extent
- if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
- {
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
- }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
   {
     // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
+      vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
       if (!output || !output->IsA(input->GetClassName()))
       {
@@ -219,8 +213,7 @@ int vtkDataSetAlgorithm::RequestDataObject(
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetAlgorithm::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkDataSetAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
@@ -228,8 +221,7 @@ int vtkDataSetAlgorithm::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetAlgorithm::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkDataSetAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -238,5 +230,5 @@ int vtkDataSetAlgorithm::FillInputPortInformation(
 //----------------------------------------------------------------------------
 void vtkDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

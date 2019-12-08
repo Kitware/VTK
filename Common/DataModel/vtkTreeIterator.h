@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkTreeBFSIterator vtkTreeDFSIterator
-*/
+ */
 
 #ifndef vtkTreeIterator_h
 #define vtkTreeIterator_h
@@ -87,8 +87,8 @@ protected:
   vtkIdType NextId;
 
 private:
-  vtkTreeIterator(const vtkTreeIterator &) = delete;
-  void operator=(const vtkTreeIterator &) = delete;
+  vtkTreeIterator(const vtkTreeIterator&) = delete;
+  void operator=(const vtkTreeIterator&) = delete;
 };
 
 #endif

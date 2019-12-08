@@ -30,7 +30,7 @@
  * "Uniform B-Splines for the VTK Imaging Pipeline,"
  * VTK Journal, 2011,
  * http://hdl.handle.net/10380/3252
-*/
+ */
 
 #ifndef vtkBSplineTransform_h
 #define vtkBSplineTransform_h
@@ -49,8 +49,8 @@ class vtkImageData;
 class VTKFILTERSHYBRID_EXPORT vtkBSplineTransform : public vtkWarpTransform
 {
 public:
-  static vtkBSplineTransform *New();
-  vtkTypeMacro(vtkBSplineTransform,vtkWarpTransform);
+  static vtkBSplineTransform* New();
+  vtkTypeMacro(vtkBSplineTransform, vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -84,22 +84,18 @@ public:
    * The ZeroAtBorder mode sacrifices smoothness to further localize
    * the transform to just one node-spacing past the boundary.
    */
-  vtkSetClampMacro(BorderMode, int,
-    VTK_BSPLINE_EDGE, VTK_BSPLINE_ZERO_AT_BORDER);
-  void SetBorderModeToEdge() {
-    this->SetBorderMode(VTK_BSPLINE_EDGE); }
-  void SetBorderModeToZero() {
-    this->SetBorderMode(VTK_BSPLINE_ZERO); }
-  void SetBorderModeToZeroAtBorder() {
-    this->SetBorderMode(VTK_BSPLINE_ZERO_AT_BORDER); }
+  vtkSetClampMacro(BorderMode, int, VTK_BSPLINE_EDGE, VTK_BSPLINE_ZERO_AT_BORDER);
+  void SetBorderModeToEdge() { this->SetBorderMode(VTK_BSPLINE_EDGE); }
+  void SetBorderModeToZero() { this->SetBorderMode(VTK_BSPLINE_ZERO); }
+  void SetBorderModeToZeroAtBorder() { this->SetBorderMode(VTK_BSPLINE_ZERO_AT_BORDER); }
   vtkGetMacro(BorderMode, int);
-  const char *GetBorderModeAsString();
+  const char* GetBorderModeAsString();
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
   /**
    * Get the MTime.
@@ -118,7 +114,7 @@ protected:
   /**
    * Copy this transform from another of the same type.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) override;
+  void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
   //@{
   /**
@@ -128,28 +124,24 @@ protected:
   void ForwardTransformPoint(const double in[3], double out[3]) override;
   //@}
 
-  void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void ForwardTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void ForwardTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
   void InverseTransformPoint(const float in[3], float out[3]) override;
   void InverseTransformPoint(const double in[3], double out[3]) override;
 
-  void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void InverseTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void InverseTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
-  void (*CalculateSpline)(const double point[3], double displacement[3],
-                          double derivatives[3][3],
-                          void *gridPtr, int inExt[6], vtkIdType inInc[3],
-                          int borderMode);
+  void (*CalculateSpline)(const double point[3], double displacement[3], double derivatives[3][3],
+    void* gridPtr, int inExt[6], vtkIdType inInc[3], int borderMode);
 
   double DisplacementScale;
   int BorderMode;
 
-  void *GridPointer;
+  void* GridPointer;
   double GridSpacing[3];
   double GridOrigin[3];
   int GridExtent[6];

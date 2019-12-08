@@ -27,57 +27,56 @@
 int CheckDeletedCells()
 {
   vtkPoints* points = vtkPoints::New();
-  for(vtkIdType i=0;i<10;i++)
+  for (vtkIdType i = 0; i < 10; i++)
   {
     points->InsertNextPoint(i, i, i);
   }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
   poly->SetPoints(points);
   points->Delete();
-  poly->Allocate(10);
-  for(vtkIdType i=0;i<10;i++)
+  poly->AllocateEstimate(10, 1);
+  for (vtkIdType i = 0; i < 10; i++)
   {
     poly->InsertNextCell(VTK_VERTEX, 1, &i);
   }
   poly->BuildCells();
-  if(poly->GetNumberOfPoints() != 10 || poly->GetNumberOfCells() != 10)
+  if (poly->GetNumberOfPoints() != 10 || poly->GetNumberOfCells() != 10)
   {
     std::cout << "Wrong number of input points or cells!" << std::endl;
     return VTK_FAILURE;
   }
 
-  for(vtkIdType i=0;i<5;i++)
+  for (vtkIdType i = 0; i < 5; i++)
   {
-    poly->DeleteCell(i*2+1);
+    poly->DeleteCell(i * 2 + 1);
   }
   poly->RemoveDeletedCells();
 
-  if(poly->GetNumberOfCells() != 5)
+  if (poly->GetNumberOfCells() != 5)
   {
     std::cout << "Wrong number of removed cells!" << std::endl;
     return VTK_FAILURE;
   }
 
-  for(vtkIdType i=0;i<5;i++)
+  for (vtkIdType i = 0; i < 5; i++)
   {
     vtkCell* cell = poly->GetCell(i);
-    if(cell->GetPointId(0) != i*2)
+    if (cell->GetPointId(0) != i * 2)
     {
-      std::cout << "Wrong point of cell " << i << ", should be point " << i*2
-                << " but is " << cell->GetPointId(0) << std::endl;
+      std::cout << "Wrong point of cell " << i << ", should be point " << i * 2 << " but is "
+                << cell->GetPointId(0) << std::endl;
       return VTK_FAILURE;
     }
   }
 
-
   return VTK_SUCCESS;
 }
 
-int TestPolyDataRemoveDeletedCells (int, char*[])
+int TestPolyDataRemoveDeletedCells(int, char*[])
 {
   int numCells = 8;
 
-  vtkPoints *pts = vtkPoints::New();
+  vtkPoints* pts = vtkPoints::New();
 
   pts->InsertNextPoint(1, 0, 0); // 0
   pts->InsertNextPoint(3, 0, 0); // 1
@@ -89,18 +88,18 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
   pts->InsertNextPoint(4, 2, 0); // 6
   pts->InsertNextPoint(6, 2, 0); // 7
 
-  pts->InsertNextPoint(9, 0, 0); // 8
+  pts->InsertNextPoint(9, 0, 0);  // 8
   pts->InsertNextPoint(11, 0, 0); // 9
-  pts->InsertNextPoint(8, 2, 0); // 10
+  pts->InsertNextPoint(8, 2, 0);  // 10
   pts->InsertNextPoint(10, 2, 0); // 11
 
-  vtkPolyData *pd = vtkPolyData::New();
-  pd->Allocate(numCells);
+  vtkPolyData* pd = vtkPolyData::New();
+  pd->AllocateEstimate(numCells, 1);
   pd->SetPoints(pts);
 
   pts->Delete();
 
-  vtkIdList *cell;
+  vtkIdList* cell;
   cell = vtkIdList::New();
 
   // adding different cells in arbitrary order
@@ -195,7 +194,7 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
 
   cell->Delete();
 
-  vtkIntArray *scalars = vtkIntArray::New();
+  vtkIntArray* scalars = vtkIntArray::New();
 
   scalars->InsertNextValue(VTK_TRIANGLE_STRIP);
   scalars->InsertNextValue(VTK_TRIANGLE_STRIP);
@@ -218,23 +217,22 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
   pd->DeleteCell(7);
 
   int types[] = {
-    //VTK_TRIANGLE_STRIP,
-    VTK_TRIANGLE_STRIP,
-    VTK_VERTEX,
-    //VTK_POLY_LINE,
+    // VTK_TRIANGLE_STRIP,
+    VTK_TRIANGLE_STRIP, VTK_VERTEX,
+    // VTK_POLY_LINE,
     VTK_POLYGON,
-    //VTK_VERTEX,
+    // VTK_VERTEX,
     VTK_LINE,
-    //VTK_TRIANGLE
+    // VTK_TRIANGLE
   };
 
   pd->RemoveDeletedCells();
 
-  vtkIntArray *newScalars = vtkArrayDownCast<vtkIntArray>(pd->GetCellData()->GetScalars());
+  vtkIntArray* newScalars = vtkArrayDownCast<vtkIntArray>(pd->GetCellData()->GetScalars());
 
   int retVal = VTK_SUCCESS;
 
-  if (pd->GetNumberOfCells() != numCells-4)
+  if (pd->GetNumberOfCells() != numCells - 4)
   {
     std::cout << "Number of cells does not match!" << std::endl;
     retVal = VTK_FAILURE;
@@ -258,7 +256,7 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
   }
 
   pd->Delete();
-  if(retVal != VTK_SUCCESS)
+  if (retVal != VTK_SUCCESS)
   {
     return retVal;
   }

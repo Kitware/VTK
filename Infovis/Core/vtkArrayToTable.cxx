@@ -19,42 +19,42 @@
 
 =========================================================================*/
 
-#include "vtkArrayData.h"
 #include "vtkArrayToTable.h"
+#include "vtkArrayData.h"
+#include "vtkCharArray.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkCharArray.h"
-#include "vtkShortArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkShortArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnicodeStringArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <sstream>
 #include <stdexcept>
 
 /// Convert a 1D array to a table with one column ...
-template<typename ValueT, typename ColumnT>
+template <typename ValueT, typename ColumnT>
 static bool ConvertVector(vtkArray* Array, vtkTable* Output)
 {
-  if(Array->GetDimensions() != 1)
+  if (Array->GetDimensions() != 1)
     return false;
 
   vtkTypedArray<ValueT>* const array = vtkTypedArray<ValueT>::SafeDownCast(Array);
-  if(!array)
+  if (!array)
     return false;
 
   const vtkArrayRange extents = array->GetExtent(0);
@@ -62,7 +62,7 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
   ColumnT* const column = ColumnT::New();
   column->SetNumberOfTuples(extents.GetSize());
   column->SetName(array->GetName());
-  for(vtkIdType i = extents.GetBegin(); i != extents.GetEnd(); ++i)
+  for (vtkIdType i = extents.GetBegin(); i != extents.GetEnd(); ++i)
   {
     column->SetValue(i - extents.GetBegin(), array->GetValue(i));
   }
@@ -74,14 +74,14 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
 }
 
 /// Convert a 2D array to a table with 1-or-more columns ...
-template<typename ValueT, typename ColumnT>
+template <typename ValueT, typename ColumnT>
 static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 {
-  if(Array->GetDimensions() != 2)
+  if (Array->GetDimensions() != 2)
     return false;
 
   vtkTypedArray<ValueT>* const array = vtkTypedArray<ValueT>::SafeDownCast(Array);
-  if(!array)
+  if (!array)
     return false;
 
   vtkSparseArray<ValueT>* const sparse_array = vtkSparseArray<ValueT>::SafeDownCast(array);
@@ -91,7 +91,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
   const vtkArrayRange rows = array->GetExtent(0);
 
   std::vector<ColumnT*> new_columns;
-  for(vtkIdType j = columns.GetBegin(); j != columns.GetEnd(); ++j)
+  for (vtkIdType j = columns.GetBegin(); j != columns.GetEnd(); ++j)
   {
     std::ostringstream column_name;
     column_name << j;
@@ -100,9 +100,9 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
     column->SetNumberOfTuples(rows.GetSize());
     column->SetName(column_name.str().c_str());
 
-    if(sparse_array)
+    if (sparse_array)
     {
-      for(vtkIdType i = 0; i != rows.GetSize(); ++i)
+      for (vtkIdType i = 0; i != rows.GetSize(); ++i)
         column->SetValue(i, sparse_array->GetNullValue());
     }
 
@@ -111,12 +111,13 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
     new_columns.push_back(column);
   }
 
-  for(vtkIdType n = 0; n != non_null_count; ++n)
+  for (vtkIdType n = 0; n != non_null_count; ++n)
   {
     vtkArrayCoordinates coordinates;
     array->GetCoordinatesN(n, coordinates);
 
-    new_columns[coordinates[1] - columns.GetBegin()]->SetValue(coordinates[0] - rows.GetBegin(), array->GetValueN(n));
+    new_columns[coordinates[1] - columns.GetBegin()]->SetValue(
+      coordinates[0] - rows.GetBegin(), array->GetValueN(n));
   }
 
   return true;
@@ -147,7 +148,7 @@ void vtkArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
@@ -160,68 +161,97 @@ int vtkArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 // ----------------------------------------------------------------------
 
 int vtkArrayToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   try
   {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
-    if(!input_array_data)
+    if (!input_array_data)
       throw std::runtime_error("Missing vtkArrayData on input port 0.");
-    if(input_array_data->GetNumberOfArrays() != 1)
-      throw std::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
+    if (input_array_data->GetNumberOfArrays() != 1)
+      throw std::runtime_error(
+        "vtkArrayToTable requires a vtkArrayData containing exactly one array.");
 
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
-    if(input_array->GetDimensions() > 2)
+    if (input_array->GetDimensions() > 2)
       throw std::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
 
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
-    if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
-    if(ConvertVector<unsigned char, vtkUnsignedCharArray>(input_array, output_table)) return 1;
-    if(ConvertVector<unsigned short, vtkUnsignedShortArray>(input_array, output_table)) return 1;
-    if(ConvertVector<unsigned int, vtkUnsignedIntArray>(input_array, output_table)) return 1;
-    if(ConvertVector<unsigned long, vtkUnsignedLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<long unsigned int, vtkUnsignedLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<char, vtkCharArray>(input_array, output_table)) return 1;
-    if(ConvertVector<short, vtkShortArray>(input_array, output_table)) return 1;
-    if(ConvertVector<long, vtkLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<long long, vtkLongLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<long int, vtkLongArray>(input_array, output_table)) return 1;
-    if(ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
-    if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
-    if(ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
+    if (ConvertVector<double, vtkDoubleArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<unsigned char, vtkUnsignedCharArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<unsigned short, vtkUnsignedShortArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<unsigned int, vtkUnsignedIntArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<unsigned long, vtkUnsignedLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<long unsigned int, vtkUnsignedLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<char, vtkCharArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<short, vtkShortArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<long, vtkLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<long long, vtkLongLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<long int, vtkLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table))
+      return 1;
+    if (ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table))
+      return 1;
 
-    if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<unsigned char, vtkUnsignedCharArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<unsigned short, vtkUnsignedShortArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<unsigned int, vtkUnsignedIntArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<unsigned long, vtkUnsignedLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<long unsigned int, vtkUnsignedLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<char, vtkCharArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<short, vtkShortArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<int, vtkIntArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<long, vtkLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<long long, vtkLongLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<long int, vtkLongArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
-    if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
+    if (ConvertMatrix<double, vtkDoubleArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<unsigned char, vtkUnsignedCharArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<unsigned short, vtkUnsignedShortArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<unsigned int, vtkUnsignedIntArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<unsigned long, vtkUnsignedLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<long unsigned int, vtkUnsignedLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<char, vtkCharArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<short, vtkShortArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<int, vtkIntArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<long, vtkLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<long long, vtkLongLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<long int, vtkLongArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<vtkIdType, vtkIdTypeArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table))
+      return 1;
+    if (ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table))
+      return 1;
 
     throw std::runtime_error("Unhandled input array type.");
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
   }
-  catch(...)
+  catch (...)
   {
     vtkErrorMacro(<< "caught unknown exception." << endl);
   }
 
   return 0;
 }
-

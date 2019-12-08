@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkTransform2D.h"
-#include "vtkPoints2D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints2D.h"
 
 #include <cstdlib>
 
@@ -67,7 +67,7 @@ void vtkTransform2D::Inverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InternalDeepCopy(vtkTransform2D *transform)
+void vtkTransform2D::InternalDeepCopy(vtkTransform2D* transform)
 {
   // copy the input
   this->Matrix->DeepCopy(transform->Matrix);
@@ -90,8 +90,7 @@ void vtkTransform2D::Translate(double x, double y)
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][2] = x;
   matrix[1][2] = y;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix,
-                            this->Matrix->GetData());
+  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -114,8 +113,7 @@ void vtkTransform2D::Rotate(double angle)
   matrix[0][1] = s;
   matrix[1][0] = -s;
   matrix[1][1] = c;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix,
-                            this->Matrix->GetData());
+  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -130,8 +128,7 @@ void vtkTransform2D::Scale(double x, double y)
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][0] = x;
   matrix[1][1] = y;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix,
-                            this->Matrix->GetData());
+  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -142,7 +139,7 @@ void vtkTransform2D::SetMatrix(const double elements[9])
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::GetMatrix(vtkMatrix3x3 *matrix)
+void vtkTransform2D::GetMatrix(vtkMatrix3x3* matrix)
 {
   matrix->DeepCopy(this->Matrix);
 }
@@ -163,32 +160,32 @@ void vtkTransform2D::GetScale(double scale[2])
 
 //----------------------------------------------------------------------------
 // Return the inverse of the current transformation matrix.
-void vtkTransform2D::GetInverse(vtkMatrix3x3 *inverse)
+void vtkTransform2D::GetInverse(vtkMatrix3x3* inverse)
 {
-  vtkMatrix3x3::Invert(this->GetMatrix(),inverse);
+  vtkMatrix3x3::Invert(this->GetMatrix(), inverse);
 }
 
 //----------------------------------------------------------------------------
 // Obtain the transpose of the current transformation matrix.
-void vtkTransform2D::GetTranspose(vtkMatrix3x3 *transpose)
+void vtkTransform2D::GetTranspose(vtkMatrix3x3* transpose)
 {
-  vtkMatrix3x3::Transpose(this->GetMatrix(),transpose);
+  vtkMatrix3x3::Transpose(this->GetMatrix(), transpose);
 }
 
 //----------------------------------------------------------------------------
-namespace { // Anonmymous namespace
+namespace
+{ // Anonmymous namespace
 
 template <class T1, class T2, class T3>
-inline double vtkHomogeneousTransformPoint2D(T1 M[9],
-                                             const T2 in[2], T3 out[2])
+inline double vtkHomogeneousTransformPoint2D(T1 M[9], const T2 in[2], T3 out[2])
 {
-  double x = M[0]*in[0] + M[1]*in[1] + M[2];
-  double y = M[3]*in[0] + M[4]*in[1] + M[5];
-  double w = M[6]*in[0] + M[7]*in[1] + M[8];
+  double x = M[0] * in[0] + M[1] * in[1] + M[2];
+  double y = M[3] * in[0] + M[4] * in[1] + M[5];
+  double w = M[6] * in[0] + M[7] * in[1] + M[8];
 
-  double f = 1.0/w;
-  out[0] = static_cast<T3>(x*f);
-  out[1] = static_cast<T3>(y*f);
+  double f = 1.0 / w;
+  out[0] = static_cast<T3>(x * f);
+  out[1] = static_cast<T3>(y * f);
 
   return f;
 }
@@ -196,77 +193,75 @@ inline double vtkHomogeneousTransformPoint2D(T1 M[9],
 } // End anonymous namespace
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::TransformPoints(const float *inPts, float *outPts, int n)
+void vtkTransform2D::TransformPoints(const float* inPts, float* outPts, int n)
 {
-  double *M = this->Matrix->GetData();
+  double* M = this->Matrix->GetData();
 
   for (int i = 0; i < n; ++i)
   {
-    vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
+    vtkHomogeneousTransformPoint2D(M, &inPts[2 * i], &outPts[2 * i]);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::TransformPoints(const double *inPts, double *outPts, int n)
+void vtkTransform2D::TransformPoints(const double* inPts, double* outPts, int n)
 {
-  double *M = this->Matrix->GetData();
+  double* M = this->Matrix->GetData();
 
   for (int i = 0; i < n; ++i)
   {
-    vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
+    vtkHomogeneousTransformPoint2D(M, &inPts[2 * i], &outPts[2 * i]);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::TransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts)
+void vtkTransform2D::TransformPoints(vtkPoints2D* inPts, vtkPoints2D* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
   outPts->SetNumberOfPoints(n);
-  double *M = this->Matrix->GetData();
+  double* M = this->Matrix->GetData();
   double point[2];
 
   for (int i = 0; i < n; ++i)
   {
-    inPts->GetPoint(i,point);
-    vtkHomogeneousTransformPoint2D(M,point,point);
+    inPts->GetPoint(i, point);
+    vtkHomogeneousTransformPoint2D(M, point, point);
     outPts->SetPoint(i, point);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InverseTransformPoints(const float *inPts, float *outPts,
-                                            int n)
+void vtkTransform2D::InverseTransformPoints(const float* inPts, float* outPts, int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
   {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
   }
-  double *M = this->InverseMatrix->GetData();
+  double* M = this->InverseMatrix->GetData();
 
   for (int i = 0; i < n; ++i)
   {
-    vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
+    vtkHomogeneousTransformPoint2D(M, &inPts[2 * i], &outPts[2 * i]);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InverseTransformPoints(const double *inPts, double *outPts,
-                                            int n)
+void vtkTransform2D::InverseTransformPoints(const double* inPts, double* outPts, int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
   {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
   }
-  double *M = this->InverseMatrix->GetData();
+  double* M = this->InverseMatrix->GetData();
 
   for (int i = 0; i < n; ++i)
   {
-    vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
+    vtkHomogeneousTransformPoint2D(M, &inPts[2 * i], &outPts[2 * i]);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InverseTransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts)
+void vtkTransform2D::InverseTransformPoints(vtkPoints2D* inPts, vtkPoints2D* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
   outPts->SetNumberOfPoints(n);
@@ -274,13 +269,13 @@ void vtkTransform2D::InverseTransformPoints(vtkPoints2D *inPts, vtkPoints2D *out
   {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
   }
-  double *M = this->InverseMatrix->GetData();
+  double* M = this->InverseMatrix->GetData();
   double point[2];
 
   for (int i = 0; i < n; ++i)
   {
-    inPts->GetPoint(i,point);
-    vtkHomogeneousTransformPoint2D(M,point,point);
+    inPts->GetPoint(i, point);
+    vtkHomogeneousTransformPoint2D(M, point, point);
     outPts->SetPoint(i, point);
   }
 }

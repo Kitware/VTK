@@ -27,17 +27,17 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for implementing
  * this class
-*/
+ */
 
 #ifndef vtkQtTreeView_h
 #define vtkQtTreeView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
-#include <QList> // Needed for member variables
-#include <QPointer> // Needed for member variables
 #include "vtkSmartPointer.h" // Needed for member variables
+#include <QList>             // Needed for member variables
+#include <QPointer>          // Needed for member variables
 
 class QAbstractItemDelegate;
 class QAbstractItemView;
@@ -53,7 +53,7 @@ class QItemSelectionModel;
 
 class VTKVIEWSQT_EXPORT vtkQtTreeView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 signals:
   void expanded(const QModelIndex&);
@@ -61,7 +61,7 @@ signals:
   void updatePreviewWidget(const QModelIndex&);
 
 public:
-  static vtkQtTreeView *New();
+  static vtkQtTreeView* New();
   vtkTypeMacro(vtkQtTreeView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -126,34 +126,34 @@ public:
   /**
    * Collapses the model item specified by the index.
    */
-  void Collapse( const QModelIndex & index );
+  void Collapse(const QModelIndex& index);
 
   /**
    * Collapses all expanded items.
    */
   void CollapseAll();
 
-   /**
-    * Expands the model item specified by the index.
-    */
-   void Expand ( const QModelIndex & index );
+  /**
+   * Expands the model item specified by the index.
+   */
+  void Expand(const QModelIndex& index);
 
-   /**
-    * Expands all expandable items.
-    * Warning: if the model contains a large number of items,
-    * this function will take some time to execute.
-    */
-   void ExpandAll ();
+  /**
+   * Expands all expandable items.
+   * Warning: if the model contains a large number of items,
+   * this function will take some time to execute.
+   */
+  void ExpandAll();
 
-   /**
-    * Expands all expandable items to the given depth.
-    */
-   void ExpandToDepth ( int depth );
+  /**
+   * Expands all expandable items to the given depth.
+   */
+  void ExpandToDepth(int depth);
 
-   /**
-    * Resizes the column given to the size of its contents.
-    */
-   void ResizeColumnToContents ( int column );
+  /**
+   * Resizes the column given to the size of its contents.
+   */
+  void ResizeColumnToContents(int column);
 
   /**
    * Set whether to use a QColumnView (QTreeView is the default)
@@ -197,7 +197,7 @@ protected:
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
 private slots:
-  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+  void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:
   void SetVTKSelection();
@@ -222,7 +222,6 @@ private:
 
   vtkQtTreeView(const vtkQtTreeView&) = delete;
   void operator=(const vtkQtTreeView&) = delete;
-
 };
 
 #endif

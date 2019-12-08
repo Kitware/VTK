@@ -17,9 +17,9 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -60,42 +60,38 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex
 {
-  char      type;
-  vtkIdList *edges; // connected edges (list of connected point ids)
+  char type;
+  vtkIdList* edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
 
 //-----------------------------------------------------------------------------
-int vtkWindowedSincPolyDataFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numPts, numCells, numPolys, numStrips, i;
   int j, k;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType* pts = nullptr;
   vtkIdType p1, p2;
   double x[3], y[3], deltaX[3], xNew[3];
   double x1[3], x2[3], x3[3], l1[3], l2[3];
-  double CosFeatureAngle; //Cosine of angle between adjacent polys
-  double CosEdgeAngle; // Cosine of angle between adjacent edges
+  double CosFeatureAngle; // Cosine of angle between adjacent polys
+  double CosEdgeAngle;    // Cosine of angle between adjacent edges
   int iterationNumber;
-  vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
+  vtkIdType numSimple = 0, numBEdges = 0, numFixed = 0, numFEdges = 0;
   vtkPolyData *inMesh = nullptr, *Mesh;
-  vtkPoints *inPts;
-  vtkTriangleFilter *toTris=nullptr;
+  vtkPoints* inPts;
+  vtkTriangleFilter* toTris = nullptr;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  vtkPoints *newPts[4];
+  vtkPoints* newPts[4];
   vtkMeshVertexPtr Verts;
 
   // variables specific to windowed sinc interpolation
@@ -105,39 +101,33 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
   // Check input
   //
-  numPts=input->GetNumberOfPoints();
-  numCells=input->GetNumberOfCells();
+  numPts = input->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<<"No data to smooth!");
+    vtkErrorMacro(<< "No data to smooth!");
     return 1;
   }
 
-  CosFeatureAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
-  CosEdgeAngle    = cos( vtkMath::RadiansFromDegrees( this->EdgeAngle) );
+  CosFeatureAngle = cos(vtkMath::RadiansFromDegrees(this->FeatureAngle));
+  CosEdgeAngle = cos(vtkMath::RadiansFromDegrees(this->EdgeAngle));
 
-  vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells
-               << " cells with:\n"
-               << "\tIterations= " << this->NumberOfIterations << "\n"
-               << "\tPassBand= " << this->PassBand << "\n"
-               << "\tEdge Angle= " << this->EdgeAngle << "\n"
-               << "\tBoundary Smoothing "
-               << (this->BoundarySmoothing ? "On\n" : "Off\n")
-               << "\tFeature Edge Smoothing "
-               << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
-               << "\tNonmanifold Smoothing "
-               << (this->NonManifoldSmoothing ? "On\n" : "Off\n")
-               << "\tError Scalars "
-               << (this->GenerateErrorScalars ? "On\n" : "Off\n")
-               << "\tError Vectors "
-               << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
+  vtkDebugMacro(<< "Smoothing " << numPts << " vertices, " << numCells << " cells with:\n"
+                << "\tIterations= " << this->NumberOfIterations << "\n"
+                << "\tPassBand= " << this->PassBand << "\n"
+                << "\tEdge Angle= " << this->EdgeAngle << "\n"
+                << "\tBoundary Smoothing " << (this->BoundarySmoothing ? "On\n" : "Off\n")
+                << "\tFeature Edge Smoothing " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
+                << "\tNonmanifold Smoothing " << (this->NonManifoldSmoothing ? "On\n" : "Off\n")
+                << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
+                << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
 
-  if ( this->NumberOfIterations <= 0 ) //don't do anything!
+  if (this->NumberOfIterations <= 0) // don't do anything!
   {
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
+    vtkWarningMacro(<< "Number of iterations == 0: passing data through unchanged");
     return 1;
   }
 
@@ -147,21 +137,20 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected
   // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
   // using a subset of the attached vertices.
-  vtkDebugMacro(<<"Analyzing topology...");
+  vtkDebugMacro(<< "Analyzing topology...");
   Verts = new vtkMeshVertex[numPts];
-  for (i=0; i<numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
+    Verts[i].type = VTK_SIMPLE_VERTEX; // can smooth
     Verts[i].edges = nullptr;
   }
 
   inPts = input->GetPoints();
 
   // check vertices first. Vertices are never smoothed_--------------
-  for (inVerts=input->GetVerts(), inVerts->InitTraversal();
-  inVerts->GetNextCell(npts,pts); )
+  for (inVerts = input->GetVerts(), inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts);)
   {
-    for (j=0; j<npts; j++)
+    for (j = 0; j < npts; j++)
     {
       Verts[pts[j]].type = VTK_FIXED_VERTEX;
     }
@@ -170,21 +159,20 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   this->UpdateProgress(0.10);
 
   // now check lines. Only manifold lines can be smoothed------------
-  for (inLines=input->GetLines(), inLines->InitTraversal();
-  inLines->GetNextCell(npts,pts); )
+  for (inLines = input->GetLines(), inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
   {
     // Check for closed loop which are treated specially. Basically the
     // last point is ignored (set to fixed).
-    bool closedLoop = ( pts[0] == pts[npts-1] && npts > 3 );
+    bool closedLoop = (pts[0] == pts[npts - 1] && npts > 3);
 
-    for (j=0; j<npts; j++)
+    for (j = 0; j < npts; j++)
     {
-      if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
+      if (Verts[pts[j]].type == VTK_SIMPLE_VERTEX)
       {
         // First point
-        if ( j == 0 )
+        if (j == 0)
         {
-          if ( !closedLoop )
+          if (!closedLoop)
           {
             Verts[pts[0]].type = VTK_FIXED_VERTEX;
           }
@@ -193,55 +181,54 @@ int vtkWindowedSincPolyDataFilter::RequestData(
             Verts[pts[0]].type = VTK_FEATURE_EDGE_VERTEX;
             Verts[pts[0]].edges = vtkIdList::New();
             Verts[pts[0]].edges->SetNumberOfIds(2);
-            Verts[pts[0]].edges->SetId(0,pts[npts-2]);
-            Verts[pts[0]].edges->SetId(1,pts[1]);
+            Verts[pts[0]].edges->SetId(0, pts[npts - 2]);
+            Verts[pts[0]].edges->SetId(1, pts[1]);
           }
         }
         // Last point
-        else if ( j == (npts-1) && !closedLoop )
+        else if (j == (npts - 1) && !closedLoop)
         {
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
         }
         // In between point
-        else //is edge vertex (unless already edge vertex!)
+        else // is edge vertex (unless already edge vertex!)
         {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
           Verts[pts[j]].edges = vtkIdList::New();
           Verts[pts[j]].edges->SetNumberOfIds(2);
-          Verts[pts[j]].edges->SetId(0,pts[j-1]);
-          Verts[pts[j]].edges->SetId(1,pts[(closedLoop && j==(npts-2) ? 0 : (j+1))]);
+          Verts[pts[j]].edges->SetId(0, pts[j - 1]);
+          Verts[pts[j]].edges->SetId(1, pts[(closedLoop && j == (npts - 2) ? 0 : (j + 1))]);
         }
-      } //if simple vertex
+      } // if simple vertex
 
       // Vertex has been visited before, need to fix it. Special case
       // when working on closed loop.
-      else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX &&
-                ! (closedLoop && j == (npts-1)) )
+      else if (Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX && !(closedLoop && j == (npts - 1)))
       {
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
         Verts[pts[j]].edges = nullptr;
       }
-    } //for all points in this line
-  } //for all lines
+    } // for all points in this line
+  }   // for all lines
 
   this->UpdateProgress(0.25);
 
   // now polygons and triangle strips-------------------------------
-  inPolys=input->GetPolys();
+  inPolys = input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
-  inStrips=input->GetStrips();
+  inStrips = input->GetStrips();
   numStrips = inStrips->GetNumberOfCells();
 
-  if ( numPolys > 0 || numStrips > 0 )
-  { //build cell structure
-    vtkCellArray *polys;
+  if (numPolys > 0 || numStrips > 0)
+  { // build cell structure
+    vtkCellArray* polys;
     vtkIdType cellId;
     int numNei, nei, edge;
     vtkIdType numNeiPts;
-    vtkIdType *neiPts;
+    const vtkIdType* neiPts;
     double normal[3], neiNormal[3];
-    vtkIdList *neighbors;
+    vtkIdList* neighbors;
 
     inMesh = vtkPolyData::New();
     inMesh->SetPoints(inPts);
@@ -250,7 +237,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     neighbors = vtkIdList::New();
     neighbors->Allocate(VTK_CELL_SIZE);
 
-    if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
+    if ((numStrips = inStrips->GetNumberOfCells()) > 0)
     { // convert data to triangles
       inMesh->SetStrips(inStrips);
       toTris = vtkTriangleFilter::New();
@@ -259,68 +246,69 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       Mesh = toTris->GetOutput();
     }
 
-    Mesh->BuildLinks(); //to do neighborhood searching
+    Mesh->BuildLinks(); // to do neighborhood searching
     polys = Mesh->GetPolys();
 
-    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts);
-         cellId++)
+    for (cellId = 0, polys->InitTraversal(); polys->GetNextCell(npts, pts); cellId++)
     {
-      for (i=0; i < npts; i++)
+      for (i = 0; i < npts; i++)
       {
         p1 = pts[i];
-        p2 = pts[(i+1)%npts];
+        p2 = pts[(i + 1) % npts];
 
-        if ( Verts[p1].edges == nullptr )
+        if (Verts[p1].edges == nullptr)
         {
           Verts[p1].edges = vtkIdList::New();
-          Verts[p1].edges->Allocate(16,6);
+          Verts[p1].edges->Allocate(16, 6);
           // Verts[p1].edges = new vtkIdList(6,6);
         }
-        if ( Verts[p2].edges == nullptr )
+        if (Verts[p2].edges == nullptr)
         {
           Verts[p2].edges = vtkIdList::New();
-          Verts[p2].edges->Allocate(16,6);
+          Verts[p2].edges->Allocate(16, 6);
           // Verts[p2].edges = new vtkIdList(6,6);
         }
 
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
+        Mesh->GetCellEdgeNeighbors(cellId, p1, p2, neighbors);
         numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;
-        if ( numNei == 0 )
+        if (numNei == 0)
         {
           edge = VTK_BOUNDARY_EDGE_VERTEX;
         }
 
-        else if ( numNei >= 2 )
+        else if (numNei >= 2)
         {
           // non-manifold case, check nonmanifold smoothing state
           if (!this->NonManifoldSmoothing)
           {
             // check to make sure that this edge hasn't been marked already
-            for (j=0; j < numNei; j++)
+            for (j = 0; j < numNei; j++)
             {
-              if ( neighbors->GetId(j) < cellId )
+              if (neighbors->GetId(j) < cellId)
               {
                 break;
               }
             }
-            if ( j >= numNei )
+            if (j >= numNei)
             {
               edge = VTK_FEATURE_EDGE_VERTEX;
             }
           }
         }
 
-        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId )
+        else if (numNei == 1 && (nei = neighbors->GetId(0)) > cellId)
         {
           if (this->FeatureEdgeSmoothing)
           {
-            vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
-            Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-            vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+            vtkPolygon::ComputeNormal(inPts, npts, pts, normal);
+            Mesh->GetCellPoints(nei, numNeiPts, neiPts);
+            vtkPolygon::ComputeNormal(inPts, numNeiPts,
+              // vtkCell API needs fixing...
+              const_cast<vtkIdType*>(neiPts), neiNormal);
 
-            if ( vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
+            if (vtkMath::Dot(normal, neiNormal) <= CosFeatureAngle)
             {
               edge = VTK_FEATURE_EDGE_VERTEX;
             }
@@ -331,35 +319,35 @@ int vtkWindowedSincPolyDataFilter::RequestData(
           continue;
         }
 
-        if ( edge && Verts[p1].type == VTK_SIMPLE_VERTEX )
+        if (edge && Verts[p1].type == VTK_SIMPLE_VERTEX)
         {
           Verts[p1].edges->Reset();
           Verts[p1].edges->InsertNextId(p2);
           Verts[p1].type = edge;
         }
-        else if ( (edge && Verts[p1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
-        (edge && Verts[p1].type == VTK_FEATURE_EDGE_VERTEX) ||
-        (!edge && Verts[p1].type == VTK_SIMPLE_VERTEX ) )
+        else if ((edge && Verts[p1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
+          (edge && Verts[p1].type == VTK_FEATURE_EDGE_VERTEX) ||
+          (!edge && Verts[p1].type == VTK_SIMPLE_VERTEX))
         {
           Verts[p1].edges->InsertNextId(p2);
-          if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          if (Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX)
           {
             Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
           }
         }
 
-        if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
+        if (edge && Verts[p2].type == VTK_SIMPLE_VERTEX)
         {
           Verts[p2].edges->Reset();
           Verts[p2].edges->InsertNextId(p1);
           Verts[p2].type = edge;
         }
-        else if ( (edge && Verts[p2].type == VTK_BOUNDARY_EDGE_VERTEX ) ||
-        (edge && Verts[p2].type == VTK_FEATURE_EDGE_VERTEX) ||
-        (!edge && Verts[p2].type == VTK_SIMPLE_VERTEX ) )
+        else if ((edge && Verts[p2].type == VTK_BOUNDARY_EDGE_VERTEX) ||
+          (edge && Verts[p2].type == VTK_FEATURE_EDGE_VERTEX) ||
+          (!edge && Verts[p2].type == VTK_SIMPLE_VERTEX))
         {
           Verts[p2].edges->InsertNextId(p1);
-          if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          if (Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX)
           {
             Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
           }
@@ -373,61 +361,59 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       toTris->Delete();
     }
     neighbors->Delete();
-  }//if strips or polys
+  } // if strips or polys
 
   this->UpdateProgress(0.50);
 
-  //post-process edge vertices to make sure we can smooth them
-  for (i=0; i<numPts; i++)
+  // post-process edge vertices to make sure we can smooth them
+  for (i = 0; i < numPts; i++)
   {
-    if ( Verts[i].type == VTK_SIMPLE_VERTEX )
+    if (Verts[i].type == VTK_SIMPLE_VERTEX)
     {
       numSimple++;
     }
 
-    else if ( Verts[i].type == VTK_FIXED_VERTEX )
+    else if (Verts[i].type == VTK_FIXED_VERTEX)
     {
       numFixed++;
     }
 
-    else if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ||
-              Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
-    { //see how many edges; if two, what the angle is
+    else if (Verts[i].type == VTK_FEATURE_EDGE_VERTEX || Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX)
+    { // see how many edges; if two, what the angle is
 
-      if ( !this->BoundarySmoothing &&
-      Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
+      if (!this->BoundarySmoothing && Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX)
       {
         Verts[i].type = VTK_FIXED_VERTEX;
         numBEdges++;
       }
 
-      else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
+      else if ((npts = Verts[i].edges->GetNumberOfIds()) != 2)
       {
         // can only smooth edges on 2-manifold surfaces
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
       }
 
-      else //check angle between edges
+      else // check angle between edges
       {
-        inPts->GetPoint(Verts[i].edges->GetId(0),x1);
-        inPts->GetPoint(i,x2);
-        inPts->GetPoint(Verts[i].edges->GetId(1),x3);
+        inPts->GetPoint(Verts[i].edges->GetId(0), x1);
+        inPts->GetPoint(i, x2);
+        inPts->GetPoint(Verts[i].edges->GetId(1), x3);
 
-        for (k=0; k<3; k++)
+        for (k = 0; k < 3; k++)
         {
           l1[k] = x2[k] - x1[k];
           l2[k] = x3[k] - x2[k];
         }
-        if ((vtkMath::Normalize(l1) >= 0.0) && (vtkMath::Normalize(l2) >= 0.0)
-            && (vtkMath::Dot(l1,l2) < CosEdgeAngle))
+        if ((vtkMath::Normalize(l1) >= 0.0) && (vtkMath::Normalize(l2) >= 0.0) &&
+          (vtkMath::Dot(l1, l2) < CosEdgeAngle))
         {
           numFixed++;
           Verts[i].type = VTK_FIXED_VERTEX;
         }
         else
         {
-          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
+          if (Verts[i].type == VTK_FEATURE_EDGE_VERTEX)
           {
             numFEdges++;
           }
@@ -436,21 +422,23 @@ int vtkWindowedSincPolyDataFilter::RequestData(
             numBEdges++;
           }
         }
-      }//if along edge
-    }//if edge vertex
-  }//for all points
+      } // if along edge
+    }   // if edge vertex
+  }     // for all points
 
-  vtkDebugMacro(<<"Found\n\t" << numSimple << " simple vertices\n\t"
-                << numFEdges << " feature edge vertices\n\t"
-                << numBEdges << " boundary edge vertices\n\t"
+  vtkDebugMacro(<< "Found\n\t" << numSimple << " simple vertices\n\t" << numFEdges
+                << " feature edge vertices\n\t" << numBEdges << " boundary edge vertices\n\t"
                 << numFixed << " fixed vertices\n\t");
 
   // Perform Windowed Sinc function interpolation
   //
-  vtkDebugMacro(<<"Beginning smoothing iterations...");
+  vtkDebugMacro(<< "Beginning smoothing iterations...");
 
   // need 4 vectors of points
-  zero=0; one=1; two=2; three=3;
+  zero = 0;
+  one = 1;
+  two = 2;
+  three = 3;
 
   newPts[0] = vtkPoints::New();
   newPts[0]->SetNumberOfPoints(numPts);
@@ -462,28 +450,28 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   newPts[3]->SetNumberOfPoints(numPts);
 
   // Get the center and length of the input dataset
-  double *inCenter = input->GetCenter();
+  double* inCenter = input->GetCenter();
   double inLength = input->GetLength();
 
   if (!this->NormalizeCoordinates)
   {
-    for (i=0; i<numPts; i++) //initialize to old coordinates
+    for (i = 0; i < numPts; i++) // initialize to old coordinates
     {
-      newPts[zero]->SetPoint(i,inPts->GetPoint(i));
+      newPts[zero]->SetPoint(i, inPts->GetPoint(i));
     }
   }
   else
   {
     // center the data and scale to be within unit cube [-1, 1]
     double normalizedPoint[3];
-    for (i=0; i<numPts; i++) //initialize to old coordinates
+    for (i = 0; i < numPts; i++) // initialize to old coordinates
     {
       inPts->GetPoint(i, normalizedPoint);
-      for (j=0; j<3; ++j)
+      for (j = 0; j < 3; ++j)
       {
         normalizedPoint[j] = (normalizedPoint[j] - inCenter[j]) / inLength;
       }
-      newPts[zero]->SetPoint(i,normalizedPoint);
+      newPts[zero]->SetPoint(i, normalizedPoint);
     }
   }
 
@@ -497,14 +485,14 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   // newPts[zero], newPts[one], etc.
 
   // calculate weights and filter coefficients
-  k_pb = this->PassBand;   // reasonable default for k_pb in [0, 2] is 0.1
-  theta_pb = acos( 1.0 - 0.5 * k_pb ); // theta_pb in [0, M_PI/2]
+  k_pb = this->PassBand;             // reasonable default for k_pb in [0, 2] is 0.1
+  theta_pb = acos(1.0 - 0.5 * k_pb); // theta_pb in [0, M_PI/2]
 
-  //vtkDebugMacro(<< "theta_pb = " << theta_pb);
+  // vtkDebugMacro(<< "theta_pb = " << theta_pb);
 
-  w = new double[this->NumberOfIterations+1];
-  c = new double[this->NumberOfIterations+1];
-  cprime = new double[this->NumberOfIterations+1];
+  w = new double[this->NumberOfIterations + 1];
+  c = new double[this->NumberOfIterations + 1];
+  cprime = new double[this->NumberOfIterations + 1];
 
   double zerovector[3];
   zerovector[0] = zerovector[1] = zerovector[2] = 0.0;
@@ -514,10 +502,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
   // Windowed sinc function weights. This is for a Hamming window. Other
   // windowing function could be implemented here.
-  for (i=0; i <= (this->NumberOfIterations); i++)
+  for (i = 0; i <= (this->NumberOfIterations); i++)
   {
-    w[i] = 0.54 + 0.46*cos(((double)i)*vtkMath::Pi()
-                           /(double)(this->NumberOfIterations+1));
+    w[i] = 0.54 + 0.46 * cos(((double)i) * vtkMath::Pi() / (double)(this->NumberOfIterations + 1));
   }
 
   // Calculate the optimal sigma (offset or fudge factor for the filter).
@@ -526,27 +513,26 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   int done = 0;
   sigma = 0.0;
 
-  for (j=0; !done && (j<500); j++)
+  for (j = 0; !done && (j < 500); j++)
   {
     // Chebyshev coefficients
-    c[0] = w[0]*(theta_pb + sigma)/vtkMath::Pi();
-    for (i=1; i <= this->NumberOfIterations; i++)
+    c[0] = w[0] * (theta_pb + sigma) / vtkMath::Pi();
+    for (i = 1; i <= this->NumberOfIterations; i++)
     {
-      c[i] = 2.0*w[i]*sin(((double)i)*(theta_pb+sigma))/
-        (((double)i)*vtkMath::Pi());
+      c[i] = 2.0 * w[i] * sin(((double)i) * (theta_pb + sigma)) / (((double)i) * vtkMath::Pi());
     }
 
     // calculate the Chebyshev coefficients for the derivative of the filter
     cprime[this->NumberOfIterations] = 0.0;
-    cprime[this->NumberOfIterations-1] = 0.0;
+    cprime[this->NumberOfIterations - 1] = 0.0;
     if (this->NumberOfIterations > 1)
     {
-      cprime[this->NumberOfIterations-2] = 2.0*(this->NumberOfIterations-1)
-        * c[this->NumberOfIterations-1];
+      cprime[this->NumberOfIterations - 2] =
+        2.0 * (this->NumberOfIterations - 1) * c[this->NumberOfIterations - 1];
     }
-    for (i=this->NumberOfIterations-3; i>=0; i--)
+    for (i = this->NumberOfIterations - 3; i >= 0; i--)
     {
-      cprime[i] = cprime[i+2] + 2.0*(i+1)*c[i+1];
+      cprime[i] = cprime[i + 2] + 2.0 * (i + 1) * c[i + 1];
     }
     // Evaluate the filter and its derivative at k_pb (note the discrepancy
     // of calculating the c's based on theta_pb + sigma and evaluating the
@@ -555,17 +541,17 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     fprime_kpb = 0.0;
     f_kpb += c[0];
     fprime_kpb += cprime[0];
-    for (i=1; i<= this->NumberOfIterations; i++)
+    for (i = 1; i <= this->NumberOfIterations; i++)
     {
-      if (i==1)
+      if (i == 1)
       {
-        f_kpb += c[i]*(1.0 - 0.5*k_pb);
-        fprime_kpb += cprime[i]*(1.0 - 0.5*k_pb);
+        f_kpb += c[i] * (1.0 - 0.5 * k_pb);
+        fprime_kpb += cprime[i] * (1.0 - 0.5 * k_pb);
       }
       else
       {
-        f_kpb += c[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
-        fprime_kpb += cprime[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
+        f_kpb += c[i] * cos(((double)i) * acos(1.0 - 0.5 * k_pb));
+        fprime_kpb += cprime[i] * cos(((double)i) * acos(1.0 - 0.5 * k_pb));
       }
     }
     // if f_kpb is not close enough to 1.0, then adjust sigma
@@ -573,7 +559,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     {
       if (fabs(f_kpb - 1.0) >= 1e-3)
       {
-        sigma -= (f_kpb - 1.0)/fprime_kpb;   // Newton-Rhapson (want f=1)
+        sigma -= (f_kpb - 1.0) / fprime_kpb; // Newton-Rhapson (want f=1)
       }
       else
       {
@@ -590,39 +576,39 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   }
   if (fabs(f_kpb - 1.0) >= 1e-3)
   {
-    vtkErrorMacro(<< "An optimal offset for the smoothing filter could not be found.  Unpredictable smoothing/shrinkage may result.");
+    vtkErrorMacro(<< "An optimal offset for the smoothing filter could not be found.  "
+                     "Unpredictable smoothing/shrinkage may result.");
   }
 
   // first iteration
-  for (i=0; i<numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    if ( Verts[i].edges != nullptr &&
-         (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
+    if (Verts[i].edges != nullptr && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
     {
       // point is allowed to move
-      newPts[zero]->GetPoint(i, x); //use current points
+      newPts[zero]->GetPoint(i, x); // use current points
       deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
 
       // calculate the negative of the laplacian
-      for (j=0; j<npts; j++) //for all connected points
+      for (j = 0; j < npts; j++) // for all connected points
       {
         newPts[zero]->GetPoint(Verts[i].edges->GetId(j), y);
-        for (k=0; k<3; k++)
+        for (k = 0; k < 3; k++)
         {
           deltaX[k] += (x[k] - y[k]) / npts;
         }
       }
       // newPts[one] = newPts[zero] - 0.5 newPts[one]
-      for (k=0; k<3; k++)
+      for (k = 0; k < 3; k++)
       {
-        deltaX[k] = x[k] - 0.5*deltaX[k];
+        deltaX[k] = x[k] - 0.5 * deltaX[k];
       }
       newPts[one]->SetPoint(i, deltaX);
 
       // calculate newPts[three] = c0 newPts[zero] + c1 newPts[one]
-      for (k=0; k < 3; k++)
+      for (k = 0; k < 3; k++)
       {
-        deltaX[k] = c[0]*x[k] + c[1]*deltaX[k];
+        deltaX[k] = c[0] * x[k] + c[1] * deltaX[k];
       }
       if (Verts[i].type == VTK_FIXED_VERTEX)
       {
@@ -632,7 +618,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       {
         newPts[three]->SetPoint(i, deltaX);
       }
-    }//if can move point
+    } // if can move point
     else
     {
       // point is not allowed to move, just use the old point...
@@ -640,45 +626,42 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       newPts[one]->SetPoint(i, zerovector);
       newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
     }
-  }//for all points
+  } // for all points
 
   // for the rest of the iterations
-  for ( iterationNumber=2;
-        iterationNumber <= this->NumberOfIterations;
-        iterationNumber++ )
+  for (iterationNumber = 2; iterationNumber <= this->NumberOfIterations; iterationNumber++)
   {
-    if ( iterationNumber && !(iterationNumber % 5) )
+    if (iterationNumber && !(iterationNumber % 5))
     {
-      this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
+      this->UpdateProgress(0.5 + 0.5 * iterationNumber / this->NumberOfIterations);
       if (this->GetAbortExecute())
       {
         break;
       }
     }
 
-    for (i=0; i<numPts; i++)
+    for (i = 0; i < numPts; i++)
     {
-      if ( Verts[i].edges != nullptr &&
-           (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
+      if (Verts[i].edges != nullptr && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
       {
         // point is allowed to move
-        newPts[zero]->GetPoint(i, p_x0); //use current points
+        newPts[zero]->GetPoint(i, p_x0); // use current points
         newPts[one]->GetPoint(i, p_x1);
 
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
 
         // calculate the negative laplacian of x1
-        for (j=0; j<npts; j++)
+        for (j = 0; j < npts; j++)
         {
           newPts[one]->GetPoint(Verts[i].edges->GetId(j), y);
-          for (k=0; k<3; k++)
+          for (k = 0; k < 3; k++)
           {
             deltaX[k] += (p_x1[k] - y[k]) / npts;
           }
-        }//for all connected points
+        } // for all connected points
 
         // Taubin:  x2 = (x1 - x0) + (x1 - x2)
-        for (k=0; k<3; k++)
+        for (k = 0; k < 3; k++)
         {
           deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
         }
@@ -686,15 +669,15 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
         // smooth the vertex (x3 = x3 + cj x2)
         newPts[three]->GetPoint(i, p_x3);
-        for (k=0;k<3;k++)
+        for (k = 0; k < 3; k++)
         {
           xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];
         }
         if (Verts[i].type != VTK_FIXED_VERTEX)
         {
-          newPts[three]->SetPoint(i,xNew);
+          newPts[three]->SetPoint(i, xNew);
         }
-      }//if can move point
+      } // if can move point
       else
       {
         // point is not allowed to move, just use the old point...
@@ -702,15 +685,15 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         newPts[one]->SetPoint(i, zerovector);
         newPts[two]->SetPoint(i, zerovector);
       }
-    }//for all points
+    } // for all points
 
     // update the pointers. three is always three. all other pointers
     // shift by one and wrap.
-    zero = (1+zero)%3;
-    one = (1+one)%3;
-    two = (1+two)%3;
+    zero = (1 + zero) % 3;
+    one = (1 + one) % 3;
+    two = (1 + two) % 3;
 
-  }//for all iterations or until converge
+  } // for all iterations or until converge
 
   // move the iteration count back down so that it matches the
   // actual number of iterations executed
@@ -719,11 +702,11 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   // set zero to three so the correct set of positions is outputted
   zero = three;
 
-  delete [] w;
-  delete [] c;
-  delete [] cprime;
+  delete[] w;
+  delete[] c;
+  delete[] cprime;
 
-  vtkDebugMacro(<<"Performed " << iterationNumber << " smoothing passes");
+  vtkDebugMacro(<< "Performed " << iterationNumber << " smoothing passes");
 
   // if we scaled the data down to the unit cube, then scale data back
   // up to the original space
@@ -731,14 +714,14 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   {
     // Re-position the coordinated
     double repositionedPoint[3];
-    for (i=0; i<numPts; i++)
+    for (i = 0; i < numPts; i++)
     {
       newPts[zero]->GetPoint(i, repositionedPoint);
-      for (j=0; j<3; ++j)
+      for (j = 0; j < 3; ++j)
       {
         repositionedPoint[j] = repositionedPoint[j] * inLength + inCenter[j];
       }
-      newPts[zero]->SetPoint(i,repositionedPoint);
+      newPts[zero]->SetPoint(i, repositionedPoint);
     }
   }
 
@@ -747,36 +730,35 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
-  if ( this->GenerateErrorScalars )
+  if (this->GenerateErrorScalars)
   {
-    vtkFloatArray *newScalars = vtkFloatArray::New();
+    vtkFloatArray* newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numPts);
-    for (i=0; i<numPts; i++)
+    for (i = 0; i < numPts; i++)
     {
-      inPts->GetPoint(i,x1);
-      newPts[zero]->GetPoint(i,x2);
-      newScalars->SetComponent(i,0,
-                               sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
+      inPts->GetPoint(i, x1);
+      newPts[zero]->GetPoint(i, x2);
+      newScalars->SetComponent(i, 0, sqrt(vtkMath::Distance2BetweenPoints(x1, x2)));
     }
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
   }
 
-  if ( this->GenerateErrorVectors )
+  if (this->GenerateErrorVectors)
   {
-    vtkFloatArray *newVectors = vtkFloatArray::New();
+    vtkFloatArray* newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(numPts);
-    for (i=0; i<numPts; i++)
+    for (i = 0; i < numPts; i++)
     {
-      inPts->GetPoint(i,x1);
-      newPts[zero]->GetPoint(i,x2);
-      for (j=0; j<3; j++)
+      inPts->GetPoint(i, x1);
+      newPts[zero]->GetPoint(i, x2);
+      for (j = 0; j < 3; j++)
       {
         x3[j] = x2[j] - x1[j];
       }
-      newVectors->SetTuple(i,x3);
+      newVectors->SetTuple(i, x3);
     }
     output->GetPointData()->SetVectors(newVectors);
     newVectors->Delete();
@@ -794,20 +776,20 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   output->SetStrips(input->GetStrips());
 
   // finally delete the constructed (local) mesh
-  if ( inMesh != nullptr )
+  if (inMesh != nullptr)
   {
     inMesh->Delete();
   }
 
-  //free up connectivity storage
-  for (i=0; i<numPts; i++)
+  // free up connectivity storage
+  for (i = 0; i < numPts; i++)
   {
-    if ( Verts[i].edges != nullptr )
+    if (Verts[i].edges != nullptr)
     {
       Verts[i].edges->Delete();
     }
   }
-  delete [] Verts;
+  delete[] Verts;
 
   return 1;
 }
@@ -815,7 +797,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 //-----------------------------------------------------------------------------
 void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Number of Iterations: " << this->NumberOfIterations << "\n";
   os << indent << "Passband: " << this->PassBand << "\n";

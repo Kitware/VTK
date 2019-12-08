@@ -30,10 +30,9 @@
 #ifndef __QVTKApplication_h
 #define __QVTKApplication_h
 
-
+#include "QVTKWin32Header.h"       // for VTKGUISUPPORTQT_EXPORT
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h" // for VTKGUISUPPORTQT_EXPORT
-#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#include "vtkTDxConfigure.h"       // defines VTK_USE_TDX
 
 #include <QApplication>
 
@@ -41,16 +40,16 @@
 class vtkTDxDevice;
 #if defined(Q_WS_X11) || defined(Q_OS_LINUX)
 class vtkTDxQtUnixDevices;
- #endif
+#endif
 #endif
 
 class VTKGUISUPPORTQT_EXPORT QVTKApplication : public QApplication
 {
-   Q_OBJECT
+  Q_OBJECT
 public:
-   // Description:
-   // Constructor.
-   QVTKApplication(int &Argc, char **Argv);
+  // Description:
+  // Constructor.
+  QVTKApplication(int& Argc, char** Argv);
 
   // Description:
   // Destructor.
@@ -60,26 +59,26 @@ public:
   // Description:
   // Intercept X11 events.
   // Redefined from QApplication.
-  virtual bool x11EventFilter(XEvent *event);
+  virtual bool x11EventFilter(XEvent* event);
 #endif
 
 #ifdef VTK_USE_TDX
 public Q_SLOTS:
-// Description:
-// Slot to receive signal CreateDevice coming from vtkTDxQtUnixDevices.
-// It re-emit signal CreateDevice (to QVTKWidget slots)
+  // Description:
+  // Slot to receive signal CreateDevice coming from vtkTDxQtUnixDevices.
+  // It re-emit signal CreateDevice (to QVTKWidget slots)
   // No-op if not X11 (ie Q_OS_LINUX and Q_WS_X11 is not defined).
-  void setDevice(vtkTDxDevice *device);
+  void setDevice(vtkTDxDevice* device);
 
 Q_SIGNALS:
-// Description:
-// Signal for VTKWidget slots.
-   void CreateDevice(vtkTDxDevice *device);
+  // Description:
+  // Signal for VTKWidget slots.
+  void CreateDevice(vtkTDxDevice* device);
 #endif
 
 protected:
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  vtkTDxQtUnixDevices *Devices;
+  vtkTDxQtUnixDevices* Devices;
 #endif
 };
 

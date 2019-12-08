@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkPythonItem);
 //------------------------------------------------------------------------------
 void vtkPythonItem::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject str;
@@ -42,7 +42,7 @@ void vtkPythonItem::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_PY3K
     os << PyString_AsString(str);
 #else
-    PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
+    PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
@@ -87,19 +87,19 @@ vtkPythonItem::~vtkPythonItem()
 //    failValue - the value to return if the lookup fails and the
 //          function using the macro should return.  Pass in a
 //          block comment /**/ for void functions using this macro
-#define VTK_GET_METHOD(var, obj, method, failValue)          \
-  if (!(obj))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
-  if (!(var))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  if (!PyCallable_Check(var))                                \
-  {                                                          \
-    return failValue;                                        \
+#define VTK_GET_METHOD(var, obj, method, failValue)                                                \
+  if (!(obj))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  vtkSmartPyObject var(PyObject_GetAttrString(obj, method));                                       \
+  if (!(var))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  if (!PyCallable_Check(var))                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
   }
 
 //------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ static PyObject* VTKToPython(vtkObjectBase* obj)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject &res)
+bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject& res)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (!res)
@@ -125,7 +125,7 @@ bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject &res)
   }
   if (!PyBool_Check(res))
   {
-    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not")
+    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not");
     return false;
   }
 
@@ -166,7 +166,7 @@ void vtkPythonItem::SetPythonObject(PyObject* obj)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPythonItem::Paint(vtkContext2D *painter)
+bool vtkPythonItem::Paint(vtkContext2D* painter)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   char mname[] = "Paint";

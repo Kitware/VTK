@@ -15,18 +15,18 @@
 // This tests multiple interactor timers simultaneously.
 
 #include "vtkCommand.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkTesting.h"
 
 class vtkTimerCallback : public vtkCommand
 {
 public:
-  static vtkTimerCallback *New()
+  static vtkTimerCallback* New()
   {
-    vtkTimerCallback *cb = new vtkTimerCallback;
+    vtkTimerCallback* cb = new vtkTimerCallback;
     cb->ReallyFastTimerId = 0;
     cb->ReallyFastTimerCount = 0;
     cb->FastTimerId = 0;
@@ -38,12 +38,11 @@ public:
     return cb;
   }
 
-  void Execute(vtkObject *caller, unsigned long eventId,
-    void *callData) override
+  void Execute(vtkObject* caller, unsigned long eventId, void* callData) override
   {
     if (vtkCommand::TimerEvent == eventId)
     {
-      int tid = * static_cast<int *>(callData);
+      int tid = *static_cast<int*>(callData);
 
       if (tid == this->ReallyFastTimerId)
       {
@@ -57,18 +56,18 @@ public:
       {
         ++this->RenderTimerCount;
 
-        vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
+        vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast(caller);
         if (iren && iren->GetRenderWindow() && iren->GetRenderWindow()->GetRenderers())
         {
           int n = this->RenderTimerCount % 20;
-          if (n>10)
+          if (n > 10)
           {
             n = 20 - n;
           }
 
           double f = static_cast<double>(n) / 10.0;
 
-          vtkRenderer *renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+          vtkRenderer* renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
           if (renderer)
           {
             renderer->SetBackground(f, f, f);
@@ -85,7 +84,7 @@ public:
         {
           cout << "QuitOnOneShotTimer is true." << endl;
 
-          vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
+          vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast(caller);
           if (iren)
           {
             iren->DestroyTimer(this->ReallyFastTimerId);
@@ -122,15 +121,9 @@ public:
     this->RenderTimerCount = 0;
   }
 
-  void SetOneShotTimerId(int tid)
-  {
-    this->OneShotTimerId = tid;
-  }
+  void SetOneShotTimerId(int tid) { this->OneShotTimerId = tid; }
 
-  void SetQuitOnOneShotTimer(int quit)
-  {
-    this->QuitOnOneShotTimer = quit;
-  }
+  void SetQuitOnOneShotTimer(int quit) { this->QuitOnOneShotTimer = quit; }
 
   void Report()
   {
@@ -160,16 +153,16 @@ int TestInteractorTimers(int argc, char* argv[])
 {
   int i;
 
-  vtkTesting * testing = vtkTesting::New();
+  vtkTesting* testing = vtkTesting::New();
   for (i = 0; i < argc; ++i)
   {
     testing->AddArgument(argv[i]);
   }
 
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* renderer = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   // Initialize must be called prior to creating timer events.
@@ -179,7 +172,7 @@ int TestInteractorTimers(int argc, char* argv[])
 
   // Sign up to receive TimerEvent:
   //
-  vtkTimerCallback *cb = vtkTimerCallback::New();
+  vtkTimerCallback* cb = vtkTimerCallback::New();
   iren->AddObserver(vtkCommand::TimerEvent, cb);
 
   // Create two relatively fast repeating timers:

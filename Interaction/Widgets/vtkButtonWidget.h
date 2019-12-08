@@ -50,16 +50,15 @@
  *   vtkCommand::StateChangedEvent (on vtkWidgetEvent::EndSelect)
  * </pre>
  *
-*/
+ */
 
 #ifndef vtkButtonWidget_h
 #define vtkButtonWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkButtonRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkButtonWidget : public vtkAbstractWidget
 {
@@ -67,13 +66,13 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkButtonWidget *New();
+  static vtkButtonWidget* New();
 
   //@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkButtonWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkButtonWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -82,14 +81,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkButtonRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkButtonRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkButtonRepresentation.
    */
-  vtkButtonRepresentation *GetSliderRepresentation()
-    {return reinterpret_cast<vtkButtonRepresentation*>(this->WidgetRep);}
+  vtkButtonRepresentation* GetSliderRepresentation()
+  {
+    return reinterpret_cast<vtkButtonRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -118,7 +121,7 @@ protected:
   int WidgetState;
   enum _WidgetState
   {
-    Start=0,
+    Start = 0,
     Hovering,
     Selecting
   };

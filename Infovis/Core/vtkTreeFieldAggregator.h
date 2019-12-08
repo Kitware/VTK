@@ -30,7 +30,7 @@
  * you may tell the filter to create a new array, assuming that the size
  * of each leaf vertex is 1.  You may optionally set a flag to first take the
  * log of all leaf values before aggregating.
-*/
+ */
 
 #ifndef vtkTreeFieldAggregator_h
 #define vtkTreeFieldAggregator_h
@@ -44,9 +44,9 @@ class vtkTree;
 class VTKINFOVISCORE_EXPORT vtkTreeFieldAggregator : public vtkTreeAlgorithm
 {
 public:
-  static vtkTreeFieldAggregator *New();
+  static vtkTreeFieldAggregator* New();
 
-  vtkTypeMacro(vtkTreeFieldAggregator,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkTreeFieldAggregator, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -88,7 +88,7 @@ protected:
   vtkTreeFieldAggregator();
   ~vtkTreeFieldAggregator() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   char* Field;

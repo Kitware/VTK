@@ -16,17 +16,16 @@
 #include "vtkTransformFeedback.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLBufferObject.h"
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkTransformFeedback)
+vtkStandardNewMacro(vtkTransformFeedback);
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::PrintSelf(std::ostream &os,
-                                     vtkIndent indent)
+void vtkTransformFeedback::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -37,8 +36,7 @@ size_t vtkTransformFeedback::GetBytesPerVertex() const
   size_t result = 0;
 
   typedef std::vector<VaryingMetaData>::const_iterator IterT;
-  for (IterT it = this->Varyings.begin(), itEnd = this->Varyings.end();
-       it != itEnd; ++it)
+  for (IterT it = this->Varyings.begin(), itEnd = this->Varyings.end(); it != itEnd; ++it)
   {
     result += this->GetBytesPerVertex(it->Role);
   }
@@ -54,16 +52,14 @@ void vtkTransformFeedback::ClearVaryings()
 }
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::AddVarying(VaryingRole role,
-                                      const std::string &var)
+void vtkTransformFeedback::AddVarying(VaryingRole role, const std::string& var)
 {
   this->Varyings.push_back(VaryingMetaData(role, var));
   this->VaryingsBound = false;
 }
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::SetNumberOfVertices(int drawMode,
-                                               size_t inputVerts)
+void vtkTransformFeedback::SetNumberOfVertices(int drawMode, size_t inputVerts)
 {
   switch (static_cast<GLenum>(drawMode))
   {
@@ -109,11 +105,11 @@ size_t vtkTransformFeedback::GetBufferSize() const
 }
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
+void vtkTransformFeedback::BindVaryings(vtkShaderProgram* prog)
 {
   if (this->Varyings.empty())
   {
-    vtkErrorMacro(<<"No capture varyings specified.");
+    vtkErrorMacro(<< "No capture varyings specified.");
     return;
   }
 
@@ -127,8 +123,7 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
   }
 
   glTransformFeedbackVaryings(static_cast<GLuint>(prog->GetHandle()),
-                              static_cast<GLsizei>(vars.size()),
-                              &vars[0], static_cast<GLenum>(this->BufferMode));
+    static_cast<GLsizei>(vars.size()), &vars[0], static_cast<GLenum>(this->BufferMode));
 
   this->VaryingsBound = true;
 
@@ -144,13 +139,13 @@ void vtkTransformFeedback::Allocate(int nbBuffers, size_t size, unsigned int hin
 
   this->Buffers.resize(nbBuffers);
 
-  for (int i=0; i<nbBuffers; i++)
+  for (int i = 0; i < nbBuffers; i++)
   {
     this->Buffers[i] = vtkOpenGLBufferObject::New();
     this->Buffers[i]->GenerateBuffer(vtkOpenGLBufferObject::ArrayBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, this->Buffers[i]->GetHandle());
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
-                nullptr, static_cast<GLenum>(hint));
+    glBufferData(
+      GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), nullptr, static_cast<GLenum>(hint));
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, this->Buffers[i]->GetHandle());
   }
 }
@@ -171,9 +166,10 @@ void vtkTransformFeedback::BindBuffer(bool allocateOneBuffer)
     this->Allocate(1, this->GetBufferSize(), GL_STATIC_READ);
   }
 
-  for (size_t i=0; i<this->Buffers.size(); i++)
+  for (size_t i = 0; i < this->Buffers.size(); i++)
   {
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, static_cast<GLuint>(i), this->Buffers[i]->GetHandle());
+    glBindBufferBase(
+      GL_TRANSFORM_FEEDBACK_BUFFER, static_cast<GLuint>(i), this->Buffers[i]->GetHandle());
   }
 
   glBeginTransformFeedback(static_cast<GLenum>(this->PrimitiveMode));
@@ -198,12 +194,11 @@ void vtkTransformFeedback::ReadBuffer(int index)
     this->ReleaseBufferData();
     this->BufferData = new unsigned char[bufferSize];
 
-    unsigned char *glBuffer(nullptr);
+    unsigned char* glBuffer(nullptr);
     glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, this->Buffers[index]->GetHandle());
-    glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
-                    GL_MAP_READ_BIT);
-    glGetBufferPointerv(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER,
-                        reinterpret_cast<GLvoid**>(&glBuffer));
+    glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize, GL_MAP_READ_BIT);
+    glGetBufferPointerv(
+      GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER, reinterpret_cast<GLvoid**>(&glBuffer));
     std::copy(glBuffer, glBuffer + bufferSize, this->BufferData);
     glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
   }
@@ -242,19 +237,19 @@ void vtkTransformFeedback::ReleaseBufferData(bool freeBuffer)
 {
   if (freeBuffer)
   {
-    delete [] this->BufferData;
+    delete[] this->BufferData;
   }
   this->BufferData = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkTransformFeedback::vtkTransformFeedback()
-  : VaryingsBound(false),
-    Varyings(),
-    NumberOfVertices(0),
-    BufferMode(GL_INTERLEAVED_ATTRIBS),
-    PrimitiveMode(GL_POINTS),
-    BufferData(nullptr)
+  : VaryingsBound(false)
+  , Varyings()
+  , NumberOfVertices(0)
+  , BufferMode(GL_INTERLEAVED_ATTRIBS)
+  , PrimitiveMode(GL_POINTS)
+  , BufferData(nullptr)
 {
 }
 

@@ -22,51 +22,49 @@
  *
  * @sa
  * vtkCollection vtkTransform
-*/
+ */
 
 #ifndef vtkTransformCollection_h
 #define vtkTransformCollection_h
 
-#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonTransformsModule.h" // For export macro
 
 #include "vtkTransform.h" // Needed for inline methods
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkTransformCollection,vtkCollection);
-  static vtkTransformCollection *New();
+  vtkTypeMacro(vtkTransformCollection, vtkCollection);
+  static vtkTransformCollection* New();
 
   /**
    * Add a Transform to the list.
    */
-  void AddItem(vtkTransform *);
+  void AddItem(vtkTransform*);
 
   /**
    * Get the next Transform in the list. Return nullptr when the end of the
    * list is reached.
    */
-  vtkTransform *GetNextItem();
+  vtkTransform* GetNextItem();
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
+  vtkTransform* GetNextTransform(vtkCollectionSimpleIterator& cookie)
+  {
+    return static_cast<vtkTransform*>(this->GetNextItemAsObject(cookie));
+  }
 
 protected:
   vtkTransformCollection() {}
   ~vtkTransformCollection() override {}
 
-
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-  {
-      this->vtkCollection::AddItem(o);
-  }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkTransformCollection(const vtkTransformCollection&) = delete;
@@ -74,15 +72,15 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline void vtkTransformCollection::AddItem(vtkTransform *t)
+inline void vtkTransformCollection::AddItem(vtkTransform* t)
 {
   this->vtkCollection::AddItem(t);
 }
 
 //----------------------------------------------------------------------------
-inline vtkTransform *vtkTransformCollection::GetNextItem()
+inline vtkTransform* vtkTransformCollection::GetNextItem()
 {
-  return static_cast<vtkTransform *>(this->GetNextItemAsObject());
+  return static_cast<vtkTransform*>(this->GetNextItemAsObject());
 }
 
 #endif

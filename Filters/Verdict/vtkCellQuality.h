@@ -27,13 +27,13 @@
  * Most quadrilateral quality functions are intended for planar quadrilaterals
  * only.  The minimal angle is not, strictly speaking, a quality function, but
  * it is provided because of its usage by many authors.
-*/
+ */
 
 #ifndef vtkCellQuality_h
 #define vtkCellQuality_h
 
-#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersVerdictModule.h" // For export macro
 
 class vtkCell;
 class vtkDataArray;
@@ -80,9 +80,9 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
   };
 
 public:
-  void PrintSelf (ostream&, vtkIndent) override;
+  void PrintSelf(ostream&, vtkIndent) override;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
-  static vtkCellQuality* New ();
+  static vtkCellQuality* New();
 
   //@{
   /**
@@ -98,122 +98,35 @@ public:
   vtkGetMacro(QualityMeasure, int);
   //@}
 
-  void SetQualityMeasureToArea ()
-  {
-    this->SetQualityMeasure(AREA);
-  }
-  void SetQualityMeasureToAspectBeta ()
-  {
-    this->SetQualityMeasure(ASPECT_BETA);
-  }
-  void SetQualityMeasureToAspectFrobenius ()
-  {
-    this->SetQualityMeasure(ASPECT_FROBENIUS);
-  }
-  void SetQualityMeasureToAspectGamma ()
-  {
-    this->SetQualityMeasure(ASPECT_GAMMA);
-  }
-  void SetQualityMeasureToAspectRatio ()
-  {
-    this->SetQualityMeasure(ASPECT_RATIO);
-  }
-  void SetQualityMeasureToCollapseRatio ()
-  {
-    this->SetQualityMeasure(COLLAPSE_RATIO);
-  }
-  void SetQualityMeasureToCondition ()
-  {
-    this->SetQualityMeasure(CONDITION);
-  }
-  void SetQualityMeasureToDiagonal ()
-  {
-    this->SetQualityMeasure(DIAGONAL);
-  }
-  void SetQualityMeasureToDimension ()
-  {
-    this->SetQualityMeasure(DIMENSION);
-  }
-  void SetQualityMeasureToDistortion ()
-  {
-    this->SetQualityMeasure(DISTORTION);
-  }
-  void SetQualityMeasureToJacobian ()
-  {
-    this->SetQualityMeasure(JACOBIAN);
-  }
-  void SetQualityMeasureToMaxAngle ()
-  {
-    this->SetQualityMeasure(MAX_ANGLE);
-  }
-  void SetQualityMeasureToMaxAspectFrobenius ()
-  {
-    this->SetQualityMeasure(MAX_ASPECT_FROBENIUS);
-  }
-  void SetQualityMeasureToMaxEdgeRatio ()
-  {
-    this->SetQualityMeasure(MAX_EDGE_RATIO);
-  }
-  void SetQualityMeasureToMedAspectFrobenius ()
-  {
-    this->SetQualityMeasure(MED_ASPECT_FROBENIUS);
-  }
-  void SetQualityMeasureToMinAngle ()
-  {
-    this->SetQualityMeasure(MIN_ANGLE);
-  }
-  void SetQualityMeasureToOddy ()
-  {
-    this->SetQualityMeasure(ODDY);
-  }
-  void SetQualityMeasureToRadiusRatio ()
-  {
-    this->SetQualityMeasure(RADIUS_RATIO);
-  }
-  void SetQualityMeasureToRelativeSizeSquared ()
-  {
-    this->SetQualityMeasure(RELATIVE_SIZE_SQUARED);
-  }
-  void SetQualityMeasureToScaledJacobian ()
-  {
-    this->SetQualityMeasure(SCALED_JACOBIAN);
-  }
-  void SetQualityMeasureToShapeAndSize ()
-  {
-    this->SetQualityMeasure(SHAPE_AND_SIZE);
-  }
-  void SetQualityMeasureToShape ()
-  {
-    this->SetQualityMeasure(SHAPE);
-  }
-  void SetQualityMeasureToShearAndSize ()
-  {
-    this->SetQualityMeasure(SHEAR_AND_SIZE);
-  }
-  void SetQualityMeasureToShear ()
-  {
-    this->SetQualityMeasure(SHEAR);
-  }
-  void SetQualityMeasureToSkew ()
-  {
-    this->SetQualityMeasure(SKEW);
-  }
-  void SetQualityMeasureToStretch ()
-  {
-    this->SetQualityMeasure(STRETCH);
-  }
-  void SetQualityMeasureToTaper ()
-  {
-    this->SetQualityMeasure(TAPER);
-  }
-  void SetQualityMeasureToVolume ()
-  {
-    this->SetQualityMeasure(VOLUME);
-  }
-  void SetQualityMeasureToWarpage ()
-  {
-    this->SetQualityMeasure(WARPAGE);
-  }
+  void SetQualityMeasureToArea() { this->SetQualityMeasure(AREA); }
+  void SetQualityMeasureToAspectBeta() { this->SetQualityMeasure(ASPECT_BETA); }
+  void SetQualityMeasureToAspectFrobenius() { this->SetQualityMeasure(ASPECT_FROBENIUS); }
+  void SetQualityMeasureToAspectGamma() { this->SetQualityMeasure(ASPECT_GAMMA); }
+  void SetQualityMeasureToAspectRatio() { this->SetQualityMeasure(ASPECT_RATIO); }
+  void SetQualityMeasureToCollapseRatio() { this->SetQualityMeasure(COLLAPSE_RATIO); }
+  void SetQualityMeasureToCondition() { this->SetQualityMeasure(CONDITION); }
+  void SetQualityMeasureToDiagonal() { this->SetQualityMeasure(DIAGONAL); }
+  void SetQualityMeasureToDimension() { this->SetQualityMeasure(DIMENSION); }
+  void SetQualityMeasureToDistortion() { this->SetQualityMeasure(DISTORTION); }
+  void SetQualityMeasureToJacobian() { this->SetQualityMeasure(JACOBIAN); }
+  void SetQualityMeasureToMaxAngle() { this->SetQualityMeasure(MAX_ANGLE); }
+  void SetQualityMeasureToMaxAspectFrobenius() { this->SetQualityMeasure(MAX_ASPECT_FROBENIUS); }
+  void SetQualityMeasureToMaxEdgeRatio() { this->SetQualityMeasure(MAX_EDGE_RATIO); }
+  void SetQualityMeasureToMedAspectFrobenius() { this->SetQualityMeasure(MED_ASPECT_FROBENIUS); }
+  void SetQualityMeasureToMinAngle() { this->SetQualityMeasure(MIN_ANGLE); }
+  void SetQualityMeasureToOddy() { this->SetQualityMeasure(ODDY); }
+  void SetQualityMeasureToRadiusRatio() { this->SetQualityMeasure(RADIUS_RATIO); }
+  void SetQualityMeasureToRelativeSizeSquared() { this->SetQualityMeasure(RELATIVE_SIZE_SQUARED); }
+  void SetQualityMeasureToScaledJacobian() { this->SetQualityMeasure(SCALED_JACOBIAN); }
+  void SetQualityMeasureToShapeAndSize() { this->SetQualityMeasure(SHAPE_AND_SIZE); }
+  void SetQualityMeasureToShape() { this->SetQualityMeasure(SHAPE); }
+  void SetQualityMeasureToShearAndSize() { this->SetQualityMeasure(SHEAR_AND_SIZE); }
+  void SetQualityMeasureToShear() { this->SetQualityMeasure(SHEAR); }
+  void SetQualityMeasureToSkew() { this->SetQualityMeasure(SKEW); }
+  void SetQualityMeasureToStretch() { this->SetQualityMeasure(STRETCH); }
+  void SetQualityMeasureToTaper() { this->SetQualityMeasure(TAPER); }
+  void SetQualityMeasureToVolume() { this->SetQualityMeasure(VOLUME); }
+  void SetQualityMeasureToWarpage() { this->SetQualityMeasure(WARPAGE); }
 
   //@{
   /**
@@ -238,13 +151,13 @@ public:
   vtkGetMacro(UndefinedQuality, double);
   //@}
 
-  double TriangleStripArea (vtkCell*);
-  double PixelArea (vtkCell*);
-  double PolygonArea (vtkCell*);
+  double TriangleStripArea(vtkCell*);
+  double PixelArea(vtkCell*);
+  double PolygonArea(vtkCell*);
 
 protected:
- ~vtkCellQuality () override;
-  vtkCellQuality ();
+  ~vtkCellQuality() override;
+  vtkCellQuality();
 
   /**
    * Set/Get the particular estimator used to function the quality of triangles.
@@ -262,7 +175,7 @@ protected:
    * SHAPE
    * SHAPE_AND_SIZE
    */
-  double ComputeTriangleQuality (vtkCell*);
+  double ComputeTriangleQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of quadrilaterals.
@@ -292,7 +205,7 @@ protected:
    * quadrilaterals only; use at your own risk if you really want to assess non-planar
    * quadrilateral quality with those.
    */
-  double ComputeQuadQuality (vtkCell*);
+  double ComputeQuadQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of tetrahedra.
@@ -313,7 +226,7 @@ protected:
    * SHAPE_AND_SIZE
    * VOLUME
    */
-  double ComputeTetQuality (vtkCell*);
+  double ComputeTetQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of hexahedra.
@@ -339,7 +252,7 @@ protected:
    * TAPER
    * VOLUME
    */
-  double ComputeHexQuality (vtkCell*);
+  double ComputeHexQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of triangle
@@ -347,17 +260,16 @@ protected:
    * The default is NONE and valid values also include
    * AREA
    */
-  double ComputeTriangleStripQuality (vtkCell*);
+  double ComputeTriangleStripQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of pixel.
    * The default is NONE and valid values also include
    * AREA
    */
-  double ComputePixelQuality (vtkCell*);
+  double ComputePixelQuality(vtkCell*);
 
-  int RequestData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //@{
   /**
@@ -367,8 +279,8 @@ protected:
    * function and member must be static. Unfortunately, this makes the use of
    * this part not thread safe.
    */
-  static int GetCurrentTriangleNormal (double point [3], double normal [3]);
-  static double CurrentTriNormal [3];
+  static int GetCurrentTriangleNormal(double point[3], double normal[3]);
+  static double CurrentTriNormal[3];
   //@}
 
   int QualityMeasure;

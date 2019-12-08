@@ -63,16 +63,14 @@ void vtkAMRSliceFilter::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRSliceFilter::FillInputPortInformation(int vtkNotUsed(port),
-                                                vtkInformation* info)
+int vtkAMRSliceFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR");
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRSliceFilter::FillOutputPortInformation(int vtkNotUsed(port),
-                                                 vtkInformation* info)
+int vtkAMRSliceFilter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR");
   return 1;
@@ -111,8 +109,7 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane(vtkOverlappingAMR* inp)
     porigin[i] = minBounds[i];
 
   auto offset = vtkMath::ClampValue(
-    this->OffsetFromOrigin, 0.0,
-    maxBounds[this->Normal / 2] - minBounds[this->Normal / 2]);
+    this->OffsetFromOrigin, 0.0, maxBounds[this->Normal / 2] - minBounds[this->Normal / 2]);
 
   switch (this->Normal)
   {
@@ -203,8 +200,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],
-                                              double bounds[6])
+bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4], double bounds[6])
 {
   bool lowPnt = false;
   bool highPnt = false;
@@ -241,8 +237,7 @@ bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(vtkPlane* p,
-                                               vtkOverlappingAMR* metadata)
+void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* metadata)
 {
   assert("pre: plane object is nullptr" && (p != nullptr));
   assert("pre: metadata object is nullptr" && (metadata != nullptr));
@@ -254,22 +249,17 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(vtkPlane* p,
   plane[0] = p->GetNormal()[0];
   plane[1] = p->GetNormal()[1];
   plane[2] = p->GetNormal()[2];
-  plane[3] = p->GetNormal()[0] * p->GetOrigin()[0] +
-             p->GetNormal()[1] * p->GetOrigin()[1] +
-             p->GetNormal()[2] * p->GetOrigin()[2];
+  plane[3] = p->GetNormal()[0] * p->GetOrigin()[0] + p->GetNormal()[1] * p->GetOrigin()[1] +
+    p->GetNormal()[2] * p->GetOrigin()[2];
 
   vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
-  iter.TakeReference(
-    vtkUniformGridAMRDataIterator::SafeDownCast(metadata->NewIterator()));
+  iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(metadata->NewIterator()));
   iter->SetSkipEmptyNodes(false);
-  for (iter->InitTraversal();
-       !iter->IsDoneWithTraversal();
-       iter->GoToNextItem())
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     if (iter->GetCurrentLevel() <= this->MaxResolution)
     {
-      double* bounds =
-        iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
+      double* bounds = iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
       if (this->PlaneIntersectsAMRBox(plane, bounds))
       {
         unsigned int amrGridIdx = iter->GetCurrentFlatIndex();
@@ -308,8 +298,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     this->ComputeAMRBlocksToLoad(p, inp);
   }
 
-  auto numLevels =
-    vtkMath::Min(this->MaxResolution + 1, inp->GetNumberOfLevels());
+  auto numLevels = vtkMath::Min(this->MaxResolution + 1, inp->GetNumberOfLevels());
   std::vector<int> blocksPerLevel(numLevels, 0);
   for (unsigned int i = 0; i < this->BlocksToLoad.size(); i++)
   {
@@ -353,12 +342,8 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
       // Get the 3-D Grid dimensions
       int dims[3];
       grid->GetDimensions(dims);
-      slice = this->GetSlice(p->GetOrigin(),
-                             dims,
-                             grid->GetOrigin(),
-                             grid->GetSpacing());
-      assert("Dimension of slice must be 2-D"
-        && (slice->GetDataDimension() == 2));
+      slice = this->GetSlice(p->GetOrigin(), dims, grid->GetOrigin(), grid->GetSpacing());
+      assert("Dimension of slice must be 2-D" && (slice->GetDataDimension() == 2));
       assert("2-D slice is nullptr" && (slice != nullptr));
       this->GetSliceCellData(slice, grid);
       this->GetSlicePointData(slice, grid);
@@ -374,11 +359,8 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
       slice = this->GetSlice(p->GetOrigin(), dims, origin, spacing);
     }
 
-    vtkAMRBox box(slice->GetOrigin(),
-                  slice->GetDimensions(),
-                  slice->GetSpacing(),
-                  out->GetOrigin(),
-                  out->GetGridDescription());
+    vtkAMRBox box(slice->GetOrigin(), slice->GetDimensions(), slice->GetSpacing(), out->GetOrigin(),
+      out->GetGridDescription());
     out->SetSpacing(level, slice->GetSpacing());
     out->SetAMRBox(level, dataIndices[level], box);
     if (grid)
@@ -397,13 +379,11 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRSliceFilter::ComputeCellCenter(vtkUniformGrid* ug,
-                                          const int cellIdx,
-                                          double centroid[3])
+void vtkAMRSliceFilter::ComputeCellCenter(vtkUniformGrid* ug, const int cellIdx, double centroid[3])
 {
   assert("pre: Input grid is nullptr" && (ug != nullptr));
-  assert("pre: cell index out-of-bounds!"
-    && ((cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells())));
+  assert(
+    "pre: cell index out-of-bounds!" && ((cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells())));
 
   vtkCell* myCell = ug->GetCell(cellIdx);
   assert("post: cell is nullptr" && (myCell != nullptr));
@@ -449,8 +429,7 @@ int vtkAMRSliceFilter::GetDonorPointIdx(double x[3], vtkUniformGrid* ug)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRSliceFilter::GetSliceCellData(vtkUniformGrid* slice,
-                                         vtkUniformGrid* grid3D)
+void vtkAMRSliceFilter::GetSliceCellData(vtkUniformGrid* slice, vtkUniformGrid* grid3D)
 {
   // STEP 1: Allocate data-structures
   vtkCellData* sourceCD = grid3D->GetCellData();
@@ -472,8 +451,7 @@ void vtkAMRSliceFilter::GetSliceCellData(vtkUniformGrid* slice,
     vtkDataArray* array = sourceCD->GetArray(arrayIdx)->NewInstance();
     array->Initialize();
     array->SetName(sourceCD->GetArray(arrayIdx)->GetName());
-    array->SetNumberOfComponents(
-      sourceCD->GetArray(arrayIdx)->GetNumberOfComponents());
+    array->SetNumberOfComponents(sourceCD->GetArray(arrayIdx)->GetNumberOfComponents());
     array->SetNumberOfTuples(numCells);
     targetCD->AddArray(array);
     vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(array);
@@ -506,8 +484,7 @@ void vtkAMRSliceFilter::GetSliceCellData(vtkUniformGrid* slice,
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRSliceFilter::GetSlicePointData(vtkUniformGrid* slice,
-                                          vtkUniformGrid* grid3D)
+void vtkAMRSliceFilter::GetSlicePointData(vtkUniformGrid* slice, vtkUniformGrid* grid3D)
 {
   // STEP 1: Allocate data-structures
   vtkPointData* sourcePD = grid3D->GetPointData();
@@ -529,8 +506,7 @@ void vtkAMRSliceFilter::GetSlicePointData(vtkUniformGrid* slice,
     vtkDataArray* array = sourcePD->GetArray(arrayIdx)->NewInstance();
     array->Initialize();
     array->SetName(sourcePD->GetArray(arrayIdx)->GetName());
-    array->SetNumberOfComponents(
-      sourcePD->GetArray(arrayIdx)->GetNumberOfComponents());
+    array->SetNumberOfComponents(sourcePD->GetArray(arrayIdx)->GetNumberOfComponents());
     array->SetNumberOfTuples(numPoints);
     targetPD->AddArray(array);
     vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(array);
@@ -564,8 +540,7 @@ void vtkAMRSliceFilter::GetSlicePointData(vtkUniformGrid* slice,
 
 //-----------------------------------------------------------------------------
 int vtkAMRSliceFilter::RequestInformation(vtkInformation* vtkNotUsed(rqst),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   this->BlocksToLoad.clear();
 
@@ -589,8 +564,7 @@ int vtkAMRSliceFilter::RequestInformation(vtkInformation* vtkNotUsed(rqst),
 }
 
 //-----------------------------------------------------------------------------
-int vtkAMRSliceFilter::RequestUpdateExtent(vtkInformation*,
-  vtkInformationVector** inputVector,
+int vtkAMRSliceFilter::RequestUpdateExtent(vtkInformation*, vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -599,9 +573,8 @@ int vtkAMRSliceFilter::RequestUpdateExtent(vtkInformation*,
   // Send upstream request for higher resolution
   if (this->BlocksToLoad.size() > 0)
   {
-    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-                &this->BlocksToLoad[0],
-    static_cast<int>(this->BlocksToLoad.size()));
+    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &this->BlocksToLoad[0],
+      static_cast<int>(this->BlocksToLoad.size()));
   }
   return 1;
 }

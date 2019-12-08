@@ -15,16 +15,14 @@
 =========================================================================*/
 
 #include "vtkXdmf3DataSet.h"
-#include "vtkXdmf3ArrayKeeper.h"
-#include "vtkXdmf3ArraySelection.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
 #include "vtkExtractSelection.h"
+#include "vtkImageData.h"
 #include "vtkMergePoints.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
@@ -39,7 +37,10 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertexListIterator.h"
+#include "vtkXdmf3ArrayKeeper.h"
+#include "vtkXdmf3ArraySelection.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArrayType.hpp)
 #include VTKXDMF3_HEADER(XdmfAttribute.hpp)
@@ -58,9 +59,10 @@
 #include VTKXDMF3_HEADER(XdmfTime.hpp)
 #include VTKXDMF3_HEADER(XdmfTopology.hpp)
 #include VTKXDMF3_HEADER(XdmfTopologyType.hpp)
+// clang-format on
 
 //==============================================================================
-bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray *array, bool dbg=false)
+bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray* array, bool dbg = false)
 {
   if (!array->isInitialized())
   {
@@ -74,8 +76,7 @@ bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray *array, bool dbg=false)
   return false;
 }
 
-void vtkXdmf3DataSet_ReleaseIfNeeded(XdmfArray *array, bool MyInit,
-                                     bool dbg=false)
+void vtkXdmf3DataSet_ReleaseIfNeeded(XdmfArray* array, bool MyInit, bool dbg = false)
 {
   if (MyInit)
   {
@@ -83,20 +84,17 @@ void vtkXdmf3DataSet_ReleaseIfNeeded(XdmfArray *array, bool MyInit,
     {
       cerr << "RELEASE " << array << endl;
     }
-    //array->release(); //reader level uses vtkXdmfArrayKeeper to aggregate now
+    // array->release(); //reader level uses vtkXdmfArrayKeeper to aggregate now
   }
 }
 
 //==============================================================================
-vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
-  XdmfArray* xArray,
-  std::string attrName, //TODO: passing in attrName here, because
-                        //XdmfArray::getName() is oddly not virtual
-  unsigned int preferredComponents,
-  vtkXdmf3ArrayKeeper *keeper
-)
+vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
+  std::string attrName, // TODO: passing in attrName here, because
+                        // XdmfArray::getName() is oddly not virtual
+  unsigned int preferredComponents, vtkXdmf3ArrayKeeper* keeper)
 {
-  //TODO: verify the 32/64 choices are correct in all configurations
+  // TODO: verify the 32/64 choices are correct in all configurations
   shared_ptr<const XdmfArrayType> arrayType = xArray->getArrayType();
   vtkDataArray* vArray = nullptr;
   int vtk_type = -1;
@@ -116,10 +114,10 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
   {
     vtk_type = VTK_LONG;
   }
-  //else if (arrayType == XdmfArrayType::UInt64()) UInt64 does not exist
-    //{
-    //vtk_type = VTK_LONG;
-    //}
+  // else if (arrayType == XdmfArrayType::UInt64()) UInt64 does not exist
+  //{
+  // vtk_type = VTK_LONG;
+  //}
   else if (arrayType == XdmfArrayType::Float32())
   {
     vtk_type = VTK_FLOAT;
@@ -146,8 +144,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
   }
   else
   {
-    cerr << "Skipping unrecognized array type ["
-         << arrayType->getName() << "]" << endl;
+    cerr << "Skipping unrecognized array type [" << arrayType->getName() << "]" << endl;
     return nullptr;
   }
   vArray = vtkDataArray::CreateDataArray(vtk_type);
@@ -158,13 +155,13 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
     std::vector<unsigned int> dims = xArray->getDimensions();
     unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int ncomp = preferredComponents;
-    if (preferredComponents == 0) //caller doesn't know what to expect,
+    if (preferredComponents == 0) // caller doesn't know what to expect,
     {
-      ncomp = 1; //1 is a safe bet
-      if (ndims>1)
+      ncomp = 1; // 1 is a safe bet
+      if (ndims > 1)
       {
-        //use last xdmf dim
-        ncomp = dims[ndims-1];
+        // use last xdmf dim
+        ncomp = dims[ndims - 1];
       }
     }
     unsigned int ntuples = xArray->getSize() / ncomp;
@@ -174,32 +171,29 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
     bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xArray);
 #define DO_DEEPREAD 0
 #if DO_DEEPREAD
-    //deepcopy
-    switch(vArray->GetDataType())
+    // deepcopy
+    switch (vArray->GetDataType())
     {
       vtkTemplateMacro(
-         xArray->getValues(0,
-                           static_cast<VTK_TT*>(vArray->GetVoidPointer(0)),
-                           ntuples*ncomp);
-        );
+        xArray->getValues(0, static_cast<VTK_TT*>(vArray->GetVoidPointer(0)), ntuples * ncomp););
       default:
         cerr << "UNKNOWN" << endl;
     }
 #else
-    //shallowcopy
-    vArray->SetVoidArray(xArray->getValuesInternal(), ntuples*ncomp, 1);
+    // shallowcopy
+    vArray->SetVoidArray(xArray->getValuesInternal(), ntuples * ncomp, 1);
     if (keeper && freeMe)
     {
       keeper->Insert(xArray);
     }
 #endif
 
-/*
-    cerr
-      << xArray << " " << xArray->getValuesInternal() << " "
-      << vArray->GetVoidPointer(0) << " " << ntuples << " "
-      << vArray << " " << vArray->GetName() << endl;
-*/
+    /*
+        cerr
+          << xArray << " " << xArray->getValuesInternal() << " "
+          << vArray->GetVoidPointer(0) << " " << ntuples << " "
+          << vArray << " " << vArray->GetName() << endl;
+    */
     vtkXdmf3DataSet_ReleaseIfNeeded(xArray, freeMe);
   }
   return vArray;
@@ -207,10 +201,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
 
 //--------------------------------------------------------------------------
 bool vtkXdmf3DataSet::VTKToXdmfArray(
-  vtkDataArray *vArray,
-  XdmfArray* xArray,
-  unsigned int rank, unsigned int *dims
-)
+  vtkDataArray* vArray, XdmfArray* xArray, unsigned int rank, unsigned int* dims)
 {
   std::vector<unsigned int> xdims;
   if (rank == 0)
@@ -224,10 +215,9 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
       xdims.push_back(dims[i]);
     }
   }
-  //add additional dimension to the xdmf array to match the vtk array's width,
-  //ex coordinate arrays have xyz, so add [3]
-  unsigned int ncomp =
-    static_cast<unsigned int>(vArray->GetNumberOfComponents());
+  // add additional dimension to the xdmf array to match the vtk array's width,
+  // ex coordinate arrays have xyz, so add [3]
+  unsigned int ncomp = static_cast<unsigned int>(vArray->GetNumberOfComponents());
   if (ncomp != 1)
   {
     xdims.push_back(ncomp);
@@ -239,8 +229,8 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
   }
 
 #define DO_DEEPWRITE 1
-  //TODO: verify the 32/64 choices are correct in all configurations
-  switch(vArray->GetDataType())
+  // TODO: verify the 32/64 choices are correct in all configurations
+  switch (vArray->GetDataType())
   {
     case VTK_VOID:
       return false;
@@ -250,94 +240,69 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_SIGNED_CHAR:
       xArray->initialize(XdmfArrayType::Int8(), xdims);
 #if DO_DEEPWRITE
-      //deepcopy
-      xArray->insert(0,
-        static_cast<char *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      // deepcopy
+      xArray->insert(0, static_cast<char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
-      //shallowcopy
+      // shallowcopy
       xArray->setValuesInternal(
-        static_cast<char *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_UNSIGNED_CHAR:
       xArray->initialize(XdmfArrayType::UInt8(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<unsigned char *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(
+        0, static_cast<unsigned char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<unsigned char *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<unsigned char*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_SHORT:
       xArray->initialize(XdmfArrayType::Int16(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<short *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(0, static_cast<short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<short *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_UNSIGNED_SHORT:
       xArray->initialize(XdmfArrayType::UInt16(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<unsigned short *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(
+        0, static_cast<unsigned short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<unsigned short *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<unsigned short*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_INT:
       xArray->initialize(XdmfArrayType::Int32(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<int *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(0, static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<int *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_UNSIGNED_INT:
       xArray->initialize(XdmfArrayType::UInt32(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<unsigned int *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(
+        0, static_cast<unsigned int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<unsigned int *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<unsigned int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_LONG:
       xArray->initialize(XdmfArrayType::Int64(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<long *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(0, static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<long *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_UNSIGNED_LONG:
@@ -346,27 +311,19 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_FLOAT:
       xArray->initialize(XdmfArrayType::Float32(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<float *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(0, static_cast<float*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<float *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<float*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_DOUBLE:
       xArray->initialize(XdmfArrayType::Float64(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-        static_cast<double *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+      xArray->insert(0, static_cast<double*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
       xArray->setValuesInternal(
-        static_cast<double *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize(),
-        false);
+        static_cast<double*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       break;
     case VTK_ID_TYPE:
@@ -374,40 +331,32 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
       {
         xArray->initialize(XdmfArrayType::Int64(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-          static_cast<long *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+        xArray->insert(0, static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
         xArray->setValuesInternal(
-          static_cast<long *>(vArray->GetVoidPointer(0)),
-          vArray->GetDataSize(),
-          false);
+          static_cast<long*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       }
       else
       {
         xArray->initialize(XdmfArrayType::Int32(), xdims);
 #if DO_DEEPWRITE
-      xArray->insert(0,
-          static_cast<int *>(vArray->GetVoidPointer(0)),
-        vArray->GetDataSize());
+        xArray->insert(0, static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize());
 #else
         xArray->setValuesInternal(
-          static_cast<int *>(vArray->GetVoidPointer(0)),
-          vArray->GetDataSize(),
-          false);
+          static_cast<int*>(vArray->GetVoidPointer(0)), vArray->GetDataSize(), false);
 #endif
       }
       break;
     case VTK_STRING:
       return false;
-      //TODO: what is correct syntax here?
-      //xArray->initialize(XdmfArrayType::String(), xdims);
-      //xArray->setValuesInternal(
+      // TODO: what is correct syntax here?
+      // xArray->initialize(XdmfArrayType::String(), xdims);
+      // xArray->setValuesInternal(
       //  static_cast<std::string>(vArray->GetVoidPointer(0)),
       //  vArray->GetDataSize(),
       //  false);
-      //break;
+      // break;
     case VTK_OPAQUE:
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_LONG_LONG:
@@ -428,14 +377,11 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
 }
 
 //--------------------------------------------------------------------------
-void vtkXdmf3DataSet::XdmfToVTKAttributes(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfGrid *grid, vtkDataObject *dObject,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection, XdmfGrid* grid,
+  vtkDataObject* dObject, vtkXdmf3ArrayKeeper* keeper)
 {
-  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dObject);
+  vtkDataSet* dataSet = vtkDataSet::SafeDownCast(dObject);
   if (!dataSet)
   {
     return;
@@ -443,7 +389,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
   unsigned int numCells = dataSet->GetNumberOfCells();
   unsigned int numPoints = dataSet->GetNumberOfPoints();
   unsigned int numAttributes = grid->getNumberAttributes();
-  for (unsigned int cc=0; cc < numAttributes; cc++)
+  for (unsigned int cc = 0; cc < numAttributes; cc++)
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
@@ -453,7 +399,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
       continue;
     }
 
-    //figure out how many components in this array
+    // figure out how many components in this array
     std::vector<unsigned int> dims = xmfAttribute->getDimensions();
     unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int nvals = 1;
@@ -464,7 +410,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     unsigned int ncomp = 1;
 
-    vtkFieldData * fieldData = 0;
+    vtkFieldData* fieldData = 0;
 
     shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())
@@ -474,7 +420,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         continue;
       }
       fieldData = dataSet->GetFieldData();
-      ncomp = dims[ndims-1];
+      ncomp = dims[ndims - 1];
     }
     else if (attrCenter == XdmfAttributeCenter::Cell())
     {
@@ -487,7 +433,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         continue;
       }
       fieldData = dataSet->GetCellData();
-      ncomp = nvals/numCells;
+      ncomp = nvals / numCells;
     }
     else if (attrCenter == XdmfAttributeCenter::Node())
     {
@@ -500,10 +446,10 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         continue;
       }
       fieldData = dataSet->GetPointData();
-      ncomp = nvals/numPoints;
+      ncomp = nvals / numPoints;
     }
-    else if (attrCenter == XdmfAttributeCenter::Other()
-      && xmfAttribute->getItemType() == "FiniteElementFunction")
+    else if (attrCenter == XdmfAttributeCenter::Other() &&
+      xmfAttribute->getItemType() == "FiniteElementFunction")
     {
       if (!pselection->ArrayIsEnabled(attrName.c_str()))
       {
@@ -519,21 +465,29 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
       cerr << "skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
-    vtkDataSetAttributes *fdAsDSA = vtkDataSetAttributes::SafeDownCast(
-      fieldData);
+    vtkDataSetAttributes* fdAsDSA = vtkDataSetAttributes::SafeDownCast(fieldData);
 
     shared_ptr<const XdmfAttributeType> attrType = xmfAttribute->getType();
-    enum vAttType {NONE, SCALAR, VECTOR, TENSOR, MATRIX, TENSOR6, GLOBALID};
+    enum vAttType
+    {
+      NONE,
+      SCALAR,
+      VECTOR,
+      TENSOR,
+      MATRIX,
+      TENSOR6,
+      GLOBALID
+    };
     int atype = NONE;
-    if (attrType == XdmfAttributeType::Scalar() && ncomp==1)
+    if (attrType == XdmfAttributeType::Scalar() && ncomp == 1)
     {
       atype = SCALAR;
     }
-    else if (attrType == XdmfAttributeType::Vector() && ncomp==3)
+    else if (attrType == XdmfAttributeType::Vector() && ncomp == 3)
     {
       atype = VECTOR;
     }
-    else if (attrType == XdmfAttributeType::Tensor() && ncomp==9)
+    else if (attrType == XdmfAttributeType::Tensor() && ncomp == 9)
     {
       atype = TENSOR;
     }
@@ -545,18 +499,18 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     {
       atype = TENSOR6;
     }
-    else if (attrType == XdmfAttributeType::GlobalId() && ncomp==1)
+    else if (attrType == XdmfAttributeType::GlobalId() && ncomp == 1)
     {
       atype = GLOBALID;
     }
 
-    vtkDataArray *array = XdmfToVTKArray(xmfAttribute.get(), attrName,
-                                         ncomp, keeper);
+    vtkDataArray* array = XdmfToVTKArray(xmfAttribute.get(), attrName, ncomp, keeper);
 
-    if(xmfAttribute->getItemType() == "FiniteElementFunction")
+    if (xmfAttribute->getItemType() == "FiniteElementFunction")
     {
       ParseFiniteElementFunction(dObject, xmfAttribute, array, grid);
-    } else if (array)
+    }
+    else if (array)
     {
 
       fieldData->AddArray(array);
@@ -597,10 +551,9 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 }
 
 //--------------------------------------------------------------------------
-void vtkXdmf3DataSet::VTKToXdmfAttributes(
-  vtkDataObject *dObject, XdmfGrid *grid)
+void vtkXdmf3DataSet::VTKToXdmfAttributes(vtkDataObject* dObject, XdmfGrid* grid)
 {
-  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dObject);
+  vtkDataSet* dataSet = vtkDataSet::SafeDownCast(dObject);
   if (!dataSet)
   {
     return;
@@ -616,21 +569,21 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
   int wExtent[6];
   wExtent[0] = 0;
   wExtent[1] = -1;
-  vtkImageData *dsAsID = vtkImageData::SafeDownCast(dataSet);
+  vtkImageData* dsAsID = vtkImageData::SafeDownCast(dataSet);
   if (dsAsID)
   {
     dsAsID->GetExtent(wExtent);
   }
   else
   {
-    vtkRectilinearGrid *dsAsRG = vtkRectilinearGrid::SafeDownCast(dataSet);
+    vtkRectilinearGrid* dsAsRG = vtkRectilinearGrid::SafeDownCast(dataSet);
     if (dsAsRG)
     {
       dsAsRG->GetExtent(wExtent);
     }
     else
     {
-      vtkStructuredGrid *dsAsSG = vtkStructuredGrid::SafeDownCast(dataSet);
+      vtkStructuredGrid* dsAsSG = vtkStructuredGrid::SafeDownCast(dataSet);
       if (dsAsSG)
       {
         dsAsSG->GetExtent(wExtent);
@@ -658,30 +611,29 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
   }
 
   shared_ptr<const XdmfAttributeCenter> center;
-  vtkFieldData *fieldData;
+  vtkFieldData* fieldData;
   for (int fa = 0; fa < 3; fa++)
   {
     switch (fa)
     {
-    case 0:
-      fieldData = dataSet->GetFieldData();
-      center = XdmfAttributeCenter::Grid();
-      break;
-    case 1:
-      fieldData = dataSet->GetPointData();
-      center = XdmfAttributeCenter::Node();
-      break;
-    default:
-      fieldData = dataSet->GetCellData();
-      center = XdmfAttributeCenter::Cell();
+      case 0:
+        fieldData = dataSet->GetFieldData();
+        center = XdmfAttributeCenter::Grid();
+        break;
+      case 1:
+        fieldData = dataSet->GetPointData();
+        center = XdmfAttributeCenter::Node();
+        break;
+      default:
+        fieldData = dataSet->GetCellData();
+        center = XdmfAttributeCenter::Cell();
     }
 
-    vtkDataSetAttributes *fdAsDSA = vtkDataSetAttributes::SafeDownCast(
-      fieldData);
+    vtkDataSetAttributes* fdAsDSA = vtkDataSetAttributes::SafeDownCast(fieldData);
     int numArrays = fieldData->GetNumberOfArrays();
-    for (int cc=0; cc < numArrays; cc++)
+    for (int cc = 0; cc < numArrays; cc++)
     {
-      vtkDataArray *vArray = fieldData->GetArray(cc);
+      vtkDataArray* vArray = fieldData->GetArray(cc);
       if (!vArray)
       {
         // We're skipping non-numerical arrays for now because
@@ -697,7 +649,7 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
       shared_ptr<XdmfAttribute> xmfAttribute = XdmfAttribute::New();
       xmfAttribute->setName(attrName);
       xmfAttribute->setCenter(center);
-      //TODO: Also use ncomponents to tell xdmf about the other vectors etc
+      // TODO: Also use ncomponents to tell xdmf about the other vectors etc
       if (fdAsDSA)
       {
         if (vArray == fdAsDSA->GetScalars())
@@ -719,7 +671,7 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
       }
 
       unsigned int rank = 1;
-      unsigned int *dims = FDims;
+      unsigned int* dims = FDims;
       if (fa == 1)
       {
         rank = PRank;
@@ -740,52 +692,51 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkXdmf3DataSet::GetNumberOfPointsPerCell(int vtk_cell_type,
-                                                       bool &fail)
+unsigned int vtkXdmf3DataSet::GetNumberOfPointsPerCell(int vtk_cell_type, bool& fail)
 {
   fail = false;
   switch (vtk_cell_type)
   {
-  case VTK_POLY_VERTEX:
-    return 0;
-  case VTK_POLY_LINE:
-    return 0;
-  case VTK_POLYGON:
-    return 0;
-  case VTK_TRIANGLE:
-    return 3;
-  case VTK_QUAD:
-    return 4;
-  case VTK_TETRA:
-    return 4;
-  case VTK_PYRAMID:
-    return 5;
-  case VTK_WEDGE:
-    return 6;
-  case VTK_HEXAHEDRON:
-    return 8;
-  case VTK_QUADRATIC_EDGE:
-    return 3;
-  case VTK_QUADRATIC_TRIANGLE:
-    return 6;
-  case VTK_QUADRATIC_QUAD:
-    return 8;
-  case VTK_BIQUADRATIC_QUAD:
-    return 9;
-  case VTK_QUADRATIC_TETRA:
-    return 10;
-  case VTK_QUADRATIC_PYRAMID:
-    return 13;
-  case VTK_QUADRATIC_WEDGE:
-    return 15;
-  case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
-    return 18;
-  case VTK_QUADRATIC_HEXAHEDRON:
-    return 20;
-  case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
-    return 24;
-  case VTK_TRIQUADRATIC_HEXAHEDRON:
-    return 24;
+    case VTK_POLY_VERTEX:
+      return 0;
+    case VTK_POLY_LINE:
+      return 0;
+    case VTK_POLYGON:
+      return 0;
+    case VTK_TRIANGLE:
+      return 3;
+    case VTK_QUAD:
+      return 4;
+    case VTK_TETRA:
+      return 4;
+    case VTK_PYRAMID:
+      return 5;
+    case VTK_WEDGE:
+      return 6;
+    case VTK_HEXAHEDRON:
+      return 8;
+    case VTK_QUADRATIC_EDGE:
+      return 3;
+    case VTK_QUADRATIC_TRIANGLE:
+      return 6;
+    case VTK_QUADRATIC_QUAD:
+      return 8;
+    case VTK_BIQUADRATIC_QUAD:
+      return 9;
+    case VTK_QUADRATIC_TETRA:
+      return 10;
+    case VTK_QUADRATIC_PYRAMID:
+      return 13;
+    case VTK_QUADRATIC_WEDGE:
+      return 15;
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+      return 18;
+    case VTK_QUADRATIC_HEXAHEDRON:
+      return 20;
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+      return 24;
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+      return 24;
   }
   fail = true;
   return 0;
@@ -794,71 +745,71 @@ unsigned int vtkXdmf3DataSet::GetNumberOfPointsPerCell(int vtk_cell_type,
 //----------------------------------------------------------------------------
 int vtkXdmf3DataSet::GetXdmfCellType(int vtkType)
 {
-  switch(vtkType)
+  switch (vtkType)
   {
-    case VTK_EMPTY_CELL :
-      return 0x0; //XdmfTopologyType::NoTopologyType()
-    case VTK_VERTEX :
-    case VTK_POLY_VERTEX :
+    case VTK_EMPTY_CELL:
+      return 0x0; // XdmfTopologyType::NoTopologyType()
+    case VTK_VERTEX:
+    case VTK_POLY_VERTEX:
       return 0x1; // XdmfTopologyType::Polyvertex()
-    case VTK_LINE :
-    case VTK_POLY_LINE :
-      return 0x2; //XdmfTopologyType::Polyline()
-    case VTK_TRIANGLE :
-    case VTK_TRIANGLE_STRIP :
-      return 0x4; //XdmfTopologyType::Triangle()
-    case VTK_POLYGON :
-      return 0x3;// XdmfTopologyType::Polygon()
-    case VTK_PIXEL :
-    case VTK_QUAD :
-      return 0x5; //XdmfTopologyType::Quadrilateral()
-    case VTK_TETRA :
-      return 0x6; //XdmfTopologyType::Tetrahedron()
-    case VTK_VOXEL :
-    case VTK_HEXAHEDRON :
-      return 0x9; //XdmfTopologyType::Hexahedron()
-    case VTK_WEDGE :
-      return 0x8; //XdmfTopologyType::Wedge()
-    case VTK_PYRAMID :
-      return 0x7; //XdmfTopologyType::Pyramid()
-    case VTK_POLYHEDRON :
-      return 0x10; //XdmfTopologyType::Polyhedron()
-    case VTK_PENTAGONAL_PRISM :
-    case VTK_HEXAGONAL_PRISM :
-    case VTK_QUADRATIC_EDGE :
-    case VTK_QUADRATIC_TRIANGLE :
-    case VTK_QUADRATIC_QUAD :
-    case VTK_QUADRATIC_TETRA :
-    case VTK_QUADRATIC_HEXAHEDRON :
-    case VTK_QUADRATIC_WEDGE :
-    case VTK_QUADRATIC_PYRAMID :
-    case VTK_BIQUADRATIC_QUAD :
-    case VTK_TRIQUADRATIC_HEXAHEDRON :
-    case VTK_QUADRATIC_LINEAR_QUAD :
-    case VTK_QUADRATIC_LINEAR_WEDGE :
-    case VTK_BIQUADRATIC_QUADRATIC_WEDGE :
-    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON :
-    case VTK_BIQUADRATIC_TRIANGLE :
-    case VTK_CUBIC_LINE :
-    case VTK_CONVEX_POINT_SET :
-    case VTK_PARAMETRIC_CURVE :
-    case VTK_PARAMETRIC_SURFACE :
-    case VTK_PARAMETRIC_TRI_SURFACE :
-    case VTK_PARAMETRIC_QUAD_SURFACE :
-    case VTK_PARAMETRIC_TETRA_REGION :
-    case VTK_PARAMETRIC_HEX_REGION :
-    case VTK_HIGHER_ORDER_EDGE :
-    case VTK_HIGHER_ORDER_TRIANGLE :
-    case VTK_HIGHER_ORDER_QUAD :
-    case VTK_HIGHER_ORDER_POLYGON :
-    case VTK_HIGHER_ORDER_TETRAHEDRON :
-    case VTK_HIGHER_ORDER_WEDGE :
-    case VTK_HIGHER_ORDER_PYRAMID :
-    case VTK_HIGHER_ORDER_HEXAHEDRON :
+    case VTK_LINE:
+    case VTK_POLY_LINE:
+      return 0x2; // XdmfTopologyType::Polyline()
+    case VTK_TRIANGLE:
+    case VTK_TRIANGLE_STRIP:
+      return 0x4; // XdmfTopologyType::Triangle()
+    case VTK_POLYGON:
+      return 0x3; // XdmfTopologyType::Polygon()
+    case VTK_PIXEL:
+    case VTK_QUAD:
+      return 0x5; // XdmfTopologyType::Quadrilateral()
+    case VTK_TETRA:
+      return 0x6; // XdmfTopologyType::Tetrahedron()
+    case VTK_VOXEL:
+    case VTK_HEXAHEDRON:
+      return 0x9; // XdmfTopologyType::Hexahedron()
+    case VTK_WEDGE:
+      return 0x8; // XdmfTopologyType::Wedge()
+    case VTK_PYRAMID:
+      return 0x7; // XdmfTopologyType::Pyramid()
+    case VTK_POLYHEDRON:
+      return 0x10; // XdmfTopologyType::Polyhedron()
+    case VTK_PENTAGONAL_PRISM:
+    case VTK_HEXAGONAL_PRISM:
+    case VTK_QUADRATIC_EDGE:
+    case VTK_QUADRATIC_TRIANGLE:
+    case VTK_QUADRATIC_QUAD:
+    case VTK_QUADRATIC_TETRA:
+    case VTK_QUADRATIC_HEXAHEDRON:
+    case VTK_QUADRATIC_WEDGE:
+    case VTK_QUADRATIC_PYRAMID:
+    case VTK_BIQUADRATIC_QUAD:
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    case VTK_QUADRATIC_LINEAR_QUAD:
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    case VTK_BIQUADRATIC_TRIANGLE:
+    case VTK_CUBIC_LINE:
+    case VTK_CONVEX_POINT_SET:
+    case VTK_PARAMETRIC_CURVE:
+    case VTK_PARAMETRIC_SURFACE:
+    case VTK_PARAMETRIC_TRI_SURFACE:
+    case VTK_PARAMETRIC_QUAD_SURFACE:
+    case VTK_PARAMETRIC_TETRA_REGION:
+    case VTK_PARAMETRIC_HEX_REGION:
+    case VTK_HIGHER_ORDER_EDGE:
+    case VTK_HIGHER_ORDER_TRIANGLE:
+    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_HIGHER_ORDER_POLYGON:
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+    case VTK_HIGHER_ORDER_WEDGE:
+    case VTK_HIGHER_ORDER_PYRAMID:
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
       cerr << "I do not know how to make that xdmf cell type" << endl;
-      //TODO: see list below
+      // TODO: see list below
       return -1;
-    default :
+    default:
       cerr << "Unknown vtk cell type" << endl;
       return -1;
   }
@@ -896,10 +847,9 @@ int vtkXdmf3DataSet::GetXdmfCellType(int vtkType)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmf3DataSet::GetVTKCellType(
-  shared_ptr<const XdmfTopologyType> topologyType)
+int vtkXdmf3DataSet::GetVTKCellType(shared_ptr<const XdmfTopologyType> topologyType)
 {
-  //TODO: examples to test/demonstrate each of these
+  // TODO: examples to test/demonstrate each of these
   if (topologyType == XdmfTopologyType::Polyvertex())
   {
     return VTK_POLY_VERTEX;
@@ -1010,101 +960,93 @@ int vtkXdmf3DataSet::GetVTKCellType(
   return VTK_EMPTY_CELL;
 }
 //==========================================================================
-int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
-  unsigned int element_degree,
-  const std::string &element_family,
-  shared_ptr<const XdmfTopologyType> topologyType
-)
+int vtkXdmf3DataSet::GetVTKFiniteElementCellType(unsigned int element_degree,
+  const std::string& element_family, shared_ptr<const XdmfTopologyType> topologyType)
 {
   // Linear geometry and linear or constant function
   // isoparametric element
-  if (topologyType == XdmfTopologyType::Triangle()
-      && (element_degree == 1 || element_degree == 0)
-      && (element_family == "CG" || element_family == "DG"))
+  if (topologyType == XdmfTopologyType::Triangle() &&
+    (element_degree == 1 || element_degree == 0) &&
+    (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TRIANGLE;
   }
 
   // Linear or quadratic geometry and quadratic function
   // isoparametric and superparametric element
-  if ((topologyType == XdmfTopologyType::Triangle()
-        || topologyType == XdmfTopologyType::Triangle_6())
-      && element_degree == 2
-      && (element_family == "CG" || element_family == "DG"))
+  if ((topologyType == XdmfTopologyType::Triangle() ||
+        topologyType == XdmfTopologyType::Triangle_6()) &&
+    element_degree == 2 && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TRIANGLE;
   }
 
   // Quadratic geometry and linear or const function
   // subparametric element
-  if (topologyType == XdmfTopologyType::Triangle_6()
-    && (element_degree == 1 || element_degree == 0)
-    && (element_family == "CG" || element_family == "DG"))
+  if (topologyType == XdmfTopologyType::Triangle_6() &&
+    (element_degree == 1 || element_degree == 0) &&
+    (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TRIANGLE;
   }
 
   // Linear geometry and linear or constant function
   // isoparametric element
-  if (topologyType == XdmfTopologyType::Tetrahedron()
-    && (element_degree == 1 || element_degree == 0)
-    && (element_family == "CG" || element_family == "DG"))
+  if (topologyType == XdmfTopologyType::Tetrahedron() &&
+    (element_degree == 1 || element_degree == 0) &&
+    (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TETRA;
   }
 
   // Linear or quadratic geometry and quadratic function
   // isoparametric and superparametric element
-  if ((topologyType == XdmfTopologyType::Tetrahedron()
-         || topologyType == XdmfTopologyType::Tetrahedron_10())
-    && element_degree == 2
-    && (element_family == "CG" || element_family == "DG"))
+  if ((topologyType == XdmfTopologyType::Tetrahedron() ||
+        topologyType == XdmfTopologyType::Tetrahedron_10()) &&
+    element_degree == 2 && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TETRA;
   }
 
   // Linear geometry and linear or const function
   // isoparametric element
-  if (topologyType == XdmfTopologyType::Quadrilateral()
-      && (element_degree == 1 || element_degree == 0)
-      && (element_family == "Q" || element_family == "DQ"))
+  if (topologyType == XdmfTopologyType::Quadrilateral() &&
+    (element_degree == 1 || element_degree == 0) &&
+    (element_family == "Q" || element_family == "DQ"))
   {
     return VTK_QUAD;
   }
 
   // Linear geometry and quadratic function
   // superparametric element
-  if (topologyType == XdmfTopologyType::Quadrilateral()
-    && (element_degree == 2)
-    && (element_family == "Q" || element_family == "DQ"))
+  if (topologyType == XdmfTopologyType::Quadrilateral() && (element_degree == 2) &&
+    (element_family == "Q" || element_family == "DQ"))
   {
     return VTK_BIQUADRATIC_QUAD;
   }
 
   // Linear geometry and Raviart-Thomas
-  if (topologyType == XdmfTopologyType::Triangle()
-      && element_degree == 1
-      && element_family == "RT")
+  if (topologyType == XdmfTopologyType::Triangle() && element_degree == 1 && element_family == "RT")
   {
     return VTK_TRIANGLE;
   }
 
   // Linear geometry and higher order function
-  if (topologyType == XdmfTopologyType::Triangle()
-    && element_degree >= 3
-    && (element_family == "CG" || element_family == "DG"))
+  if (topologyType == XdmfTopologyType::Triangle() && element_degree >= 3 &&
+    (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TRIANGLE;
   }
 
-  cerr << "Finite element function of family " << element_family << " and "
-    "degree " << std::to_string(element_degree) << " on " <<
-    topologyType->getName() << " is not supported." << endl;
+  cerr << "Finite element function of family " << element_family
+       << " and "
+          "degree "
+       << std::to_string(element_degree) << " on " << topologyType->getName()
+       << " is not supported." << endl;
   return 0;
-
 }
 //==========================================================================
-void vtkXdmf3DataSet::SetTime(XdmfGrid *grid, double hasTime, double time)
+void vtkXdmf3DataSet::SetTime(XdmfGrid* grid, double hasTime, double time)
 {
   if (hasTime)
   {
@@ -1112,7 +1054,7 @@ void vtkXdmf3DataSet::SetTime(XdmfGrid *grid, double hasTime, double time)
   }
 }
 //==========================================================================
-void vtkXdmf3DataSet::SetTime(XdmfGraph *graph, double hasTime, double time)
+void vtkXdmf3DataSet::SetTime(XdmfGraph* graph, double hasTime, double time)
 {
   if (hasTime)
   {
@@ -1122,24 +1064,17 @@ void vtkXdmf3DataSet::SetTime(XdmfGraph *graph, double hasTime, double time)
 
 //==========================================================================
 
-void vtkXdmf3DataSet::XdmfToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfRegularGrid *grid,
-  vtkImageData *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection, XdmfRegularGrid* grid,
+  vtkImageData* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   vtkXdmf3DataSet::CopyShape(grid, dataSet, keeper);
-  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection,
-                                       grid, dataSet, keeper);
+  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection, grid, dataSet, keeper);
 }
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::CopyShape(
-  XdmfRegularGrid *grid,
-  vtkImageData *dataSet,
-  vtkXdmf3ArrayKeeper *vtkNotUsed(keeper))
+  XdmfRegularGrid* grid, vtkImageData* dataSet, vtkXdmf3ArrayKeeper* vtkNotUsed(keeper))
 {
   if (!dataSet)
   {
@@ -1160,12 +1095,12 @@ void vtkXdmf3DataSet::CopyShape(
     bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xdims.get());
     for (unsigned int i = 0; (i < 3 && i < xdims->getSize()); i++)
     {
-      whole_extent[(2-i)*2+1] = xdims->getValue<int>(i)-1;
+      whole_extent[(2 - i) * 2 + 1] = xdims->getValue<int>(i) - 1;
     }
-  if (xdims->getSize() == 2)
-  {
-    whole_extent[1] = whole_extent[0];
-  }
+    if (xdims->getSize() == 2)
+    {
+      whole_extent[1] = whole_extent[0];
+    }
     vtkXdmf3DataSet_ReleaseIfNeeded(xdims.get(), freeMe);
   }
   dataSet->SetExtent(whole_extent);
@@ -1178,9 +1113,9 @@ void vtkXdmf3DataSet::CopyShape(
   if (xorigin)
   {
     bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xorigin.get());
-    for (unsigned int i = 0; (i< 3 && i < xorigin->getSize()); i++)
+    for (unsigned int i = 0; (i < 3 && i < xorigin->getSize()); i++)
     {
-      origin[2-i] = xorigin->getValue<double>(i);
+      origin[2 - i] = xorigin->getValue<double>(i);
     }
     vtkXdmf3DataSet_ReleaseIfNeeded(xorigin.get(), freeMe);
   }
@@ -1197,7 +1132,7 @@ void vtkXdmf3DataSet::CopyShape(
     bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xspacing.get());
     for (unsigned int i = 0; (i < 3 && i < xspacing->getSize()); i++)
     {
-      spacing[2-i] = xspacing->getValue<double>(i);
+      spacing[2 - i] = xspacing->getValue<double>(i);
     }
     vtkXdmf3DataSet_ReleaseIfNeeded(xspacing.get(), freeMe);
   }
@@ -1207,10 +1142,7 @@ void vtkXdmf3DataSet::CopyShape(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::VTKToXdmf(
-  vtkImageData *dataSet,
-  XdmfDomain *domain,
-  bool hasTime, double time,
-  const char* name)
+  vtkImageData* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name)
 {
   int whole_extent[6];
   dataSet->GetExtent(whole_extent);
@@ -1227,9 +1159,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
   dims[1] = static_cast<unsigned int>(whole_extent[3] - whole_extent[2] + 1);
   dims[2] = static_cast<unsigned int>(whole_extent[5] - whole_extent[4] + 1);
   shared_ptr<XdmfRegularGrid> grid = XdmfRegularGrid::New(
-    spacing[2], spacing[1], spacing[0],
-    dims[2], dims[1], dims[0],
-    origin[2], origin[1], origin[0]);
+    spacing[2], spacing[1], spacing[0], dims[2], dims[1], dims[0], origin[2], origin[1], origin[0]);
   if (name)
   {
     grid->setName(std::string(name));
@@ -1241,27 +1171,19 @@ void vtkXdmf3DataSet::VTKToXdmf(
   domain->insert(grid);
 }
 
-
 //==========================================================================
 
-void vtkXdmf3DataSet::XdmfToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfRectilinearGrid *grid,
-  vtkRectilinearGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection, XdmfRectilinearGrid* grid,
+  vtkRectilinearGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   vtkXdmf3DataSet::CopyShape(grid, dataSet, keeper);
-  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection,
-                                       grid, dataSet, keeper);
+  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection, grid, dataSet, keeper);
 }
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::CopyShape(
-  XdmfRectilinearGrid *grid,
-  vtkRectilinearGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+  XdmfRectilinearGrid* grid, vtkRectilinearGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   if (!dataSet)
   {
@@ -1278,19 +1200,19 @@ void vtkXdmf3DataSet::CopyShape(
 
   shared_ptr<XdmfArray> xdims;
   xdims = grid->getDimensions();
-  //Note: XDMF standard for RECTMESH is inconsistent with SMESH and CORECTMESH
-  //it is ijk in VTK terms and they are kji.
+  // Note: XDMF standard for RECTMESH is inconsistent with SMESH and CORECTMESH
+  // it is ijk in VTK terms and they are kji.
   if (xdims)
   {
     bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xdims.get());
     for (unsigned int i = 0; (i < 3 && i < xdims->getSize()); i++)
     {
-      whole_extent[i*2+1] = xdims->getValue<int>(i)-1;
+      whole_extent[i * 2 + 1] = xdims->getValue<int>(i) - 1;
     }
-  if (xdims->getSize() == 2)
-  {
-    whole_extent[5] = whole_extent[4];
-  }
+    if (xdims->getSize() == 2)
+    {
+      whole_extent[5] = whole_extent[4];
+    }
     vtkXdmf3DataSet_ReleaseIfNeeded(xdims.get(), freeMe);
   }
   dataSet->SetExtent(whole_extent);
@@ -1298,8 +1220,8 @@ void vtkXdmf3DataSet::CopyShape(
   shared_ptr<XdmfArray> xCoords;
 
   xCoords = grid->getCoordinates(0);
-  vtkDataArray *vCoords = vtkXdmf3DataSet::XdmfToVTKArray
-    (xCoords.get(), xCoords->getName(), 1, keeper);
+  vtkDataArray* vCoords =
+    vtkXdmf3DataSet::XdmfToVTKArray(xCoords.get(), xCoords->getName(), 1, keeper);
   dataSet->SetXCoordinates(vCoords);
   if (vCoords)
   {
@@ -1307,8 +1229,7 @@ void vtkXdmf3DataSet::CopyShape(
   }
 
   xCoords = grid->getCoordinates(1);
-  vCoords = vtkXdmf3DataSet::XdmfToVTKArray
-    (xCoords.get(), xCoords->getName(), 1, keeper);
+  vCoords = vtkXdmf3DataSet::XdmfToVTKArray(xCoords.get(), xCoords->getName(), 1, keeper);
   dataSet->SetYCoordinates(vCoords);
   if (vCoords)
   {
@@ -1318,8 +1239,7 @@ void vtkXdmf3DataSet::CopyShape(
   if (xdims->getSize() > 2)
   {
     xCoords = grid->getCoordinates(2);
-    vCoords = vtkXdmf3DataSet::XdmfToVTKArray
-      (xCoords.get(), xCoords->getName(), 1, keeper);
+    vCoords = vtkXdmf3DataSet::XdmfToVTKArray(xCoords.get(), xCoords->getName(), 1, keeper);
     dataSet->SetZCoordinates(vCoords);
     if (vCoords)
     {
@@ -1330,18 +1250,15 @@ void vtkXdmf3DataSet::CopyShape(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::VTKToXdmf(
-  vtkRectilinearGrid *dataSet,
-  XdmfDomain *domain,
-  bool hasTime, double time,
-  const char* name)
+  vtkRectilinearGrid* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name)
 {
   shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
   shared_ptr<XdmfArray> xYCoords = XdmfArray::New();
   shared_ptr<XdmfArray> xZCoords = XdmfArray::New();
 
   bool OK = true;
-  vtkDataArray *vCoords = dataSet->GetXCoordinates();
-  OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
+  vtkDataArray* vCoords = dataSet->GetXCoordinates();
+  OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
   if (OK)
   {
     vCoords = dataSet->GetYCoordinates();
@@ -1349,7 +1266,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
     if (OK)
     {
       vCoords = dataSet->GetZCoordinates();
-      OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
+      OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
     }
   }
 
@@ -1358,8 +1275,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
     return;
   }
 
-  shared_ptr<XdmfRectilinearGrid> grid = XdmfRectilinearGrid::New(
-    xXCoords, xYCoords, xZCoords);
+  shared_ptr<XdmfRectilinearGrid> grid = XdmfRectilinearGrid::New(xXCoords, xYCoords, xZCoords);
 
   if (name)
   {
@@ -1374,24 +1290,17 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
 //==========================================================================
 
-void vtkXdmf3DataSet::XdmfToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfCurvilinearGrid *grid,
-  vtkStructuredGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection, XdmfCurvilinearGrid* grid,
+  vtkStructuredGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   vtkXdmf3DataSet::CopyShape(grid, dataSet, keeper);
-  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection,
-                                       grid, dataSet, keeper);
+  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection, grid, dataSet, keeper);
 }
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::CopyShape(
-  XdmfCurvilinearGrid *grid,
-  vtkStructuredGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+  XdmfCurvilinearGrid* grid, vtkStructuredGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   if (!dataSet)
   {
@@ -1411,7 +1320,7 @@ void vtkXdmf3DataSet::CopyShape(
   {
     for (unsigned int i = 0; (i < 3 && i < xdims->getSize()); i++)
     {
-      whole_extent[(2-i)*2+1] = xdims->getValue<int>(i)-1;
+      whole_extent[(2 - i) * 2 + 1] = xdims->getValue<int>(i) - 1;
     }
   }
   if (xdims->getSize() == 2)
@@ -1420,12 +1329,12 @@ void vtkXdmf3DataSet::CopyShape(
   }
   dataSet->SetExtent(whole_extent);
 
-  vtkDataArray *vPoints = nullptr;
+  vtkDataArray* vPoints = nullptr;
   shared_ptr<XdmfGeometry> geom = grid->getGeometry();
   if (geom->getType() == XdmfGeometryType::XY())
   {
     vPoints = vtkXdmf3DataSet::XdmfToVTKArray(geom.get(), "", 2, keeper);
-    vtkDataArray *vPoints3 = vPoints->NewInstance();
+    vtkDataArray* vPoints3 = vPoints->NewInstance();
     vPoints3->SetNumberOfComponents(3);
     vPoints3->SetNumberOfTuples(vPoints->GetNumberOfTuples());
     vPoints3->SetName("");
@@ -1441,10 +1350,10 @@ void vtkXdmf3DataSet::CopyShape(
   }
   else
   {
-    //TODO: No X_Y or X_Y_Z in xdmf anymore
+    // TODO: No X_Y or X_Y_Z in xdmf anymore
     return;
   }
-  vtkPoints *p = vtkPoints::New();
+  vtkPoints* p = vtkPoints::New();
   p->SetData(vPoints);
   dataSet->SetPoints(p);
   p->Delete();
@@ -1456,10 +1365,7 @@ void vtkXdmf3DataSet::CopyShape(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::VTKToXdmf(
-  vtkStructuredGrid *dataSet,
-  XdmfDomain *domain,
-  bool hasTime, double time,
-  const char* name)
+  vtkStructuredGrid* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name)
 {
   int whole_extent[6];
   whole_extent[0] = 0;
@@ -1475,12 +1381,12 @@ void vtkXdmf3DataSet::VTKToXdmf(
   {
     for (unsigned int i = 0; i < 3; i++)
     {
-      int extent = whole_extent[(2-i)*2+1]-whole_extent[(2-i)*2]+1;
+      int extent = whole_extent[(2 - i) * 2 + 1] - whole_extent[(2 - i) * 2] + 1;
       xdims->pushBack<int>(extent);
     }
   }
 
-  vtkDataArray *vCoords = dataSet->GetPoints()->GetData();
+  vtkDataArray* vCoords = dataSet->GetPoints()->GetData();
   shared_ptr<XdmfGeometry> xCoords = XdmfGeometry::New();
   bool OK = vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xCoords.get());
   if (!OK)
@@ -1505,24 +1411,17 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
 //==========================================================================
 
-void vtkXdmf3DataSet::XdmfToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfUnstructuredGrid *grid,
-  vtkUnstructuredGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection,
+  XdmfUnstructuredGrid* grid, vtkUnstructuredGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   vtkXdmf3DataSet::CopyShape(grid, dataSet, keeper);
-  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection,
-                                       grid, dataSet, keeper);
+  vtkXdmf3DataSet::XdmfToVTKAttributes(fselection, cselection, pselection, grid, dataSet, keeper);
 }
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::CopyShape(
-  XdmfUnstructuredGrid *grid,
-  vtkUnstructuredGrid *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+  XdmfUnstructuredGrid* grid, vtkUnstructuredGrid* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   if (!dataSet)
   {
@@ -1542,34 +1441,32 @@ void vtkXdmf3DataSet::CopyShape(
   if (xCellType != XdmfTopologyType::Mixed())
   {
     // all cells are of the same type.
-    unsigned int numPointsPerCell= xCellType->getNodesPerElement();
+    unsigned int numPointsPerCell = xCellType->getNodesPerElement();
 
     // translate cell array
     unsigned int numCells = xTopology->getNumberElements();
 
-    int *cell_types = new int[numCells];
+    int* cell_types = new int[numCells];
 
     vtkCellArray* vCells = vtkCellArray::New();
-    // Get the pointer
-    vtkIdType* cells_ptr = vCells->WritePointer(
-      numCells, numCells * (1 + numPointsPerCell));
+    vCells->AllocateEstimate(numCells, numPointsPerCell);
 
     // xmfConnections: N p1 p2 ... pN
     // i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8
     vtkIdType index = 0;
-    for(vtkIdType cc = 0 ; cc < static_cast<vtkIdType>(numCells); cc++ )
+    for (vtkIdType cc = 0; cc < static_cast<vtkIdType>(numCells); cc++)
     {
       cell_types[cc] = vCellType;
-      *cells_ptr++ = numPointsPerCell;
-      for (vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
+      vCells->InsertNextCell(static_cast<int>(numPointsPerCell));
+      for (vtkIdType i = 0; i < static_cast<vtkIdType>(numPointsPerCell); i++)
       {
-        *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+        vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
       }
     }
     dataSet->SetCells(cell_types, vCells);
     vCells->Delete();
     vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
-    delete [] cell_types;
+    delete[] cell_types;
   }
   else
   {
@@ -1577,19 +1474,16 @@ void vtkXdmf3DataSet::CopyShape(
     unsigned int conn_length = xTopology->getSize();
     vtkIdType numCells = xTopology->getNumberElements();
 
-    int *cell_types = new int[numCells];
+    int* cell_types = new int[numCells];
 
     /* Create Cell Array */
     vtkCellArray* vCells = vtkCellArray::New();
-
-    /* Get the pointer. Make it Big enough ... too big for now */
-    vtkIdType* cells_ptr = vCells->WritePointer(numCells, conn_length);
+    vCells->AllocateExact(numCells, conn_length);
 
     /* xmfConnections : N p1 p2 ... pN */
     /* i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8 */
     vtkIdType index = 0;
-    int sub = 0;
-    for(vtkIdType cc = 0 ; cc < numCells; cc++ )
+    for (vtkIdType cc = 0; cc < numCells; cc++)
     {
       shared_ptr<const XdmfTopologyType> nextCellType =
         XdmfTopologyType::New(xTopology->getValue<vtkIdType>(index++));
@@ -1606,42 +1500,39 @@ void vtkXdmf3DataSet::CopyShape(
           // encountered an unknown cell.
           cerr << "Unknown cell type." << endl;
           vCells->Delete();
-          delete [] cell_types;
+          delete[] cell_types;
           vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
           return;
         }
 
-        if (numPointsPerCell==0)
+        if (numPointsPerCell == 0)
         {
           // cell type does not have a fixed number of points in which case the
           // next entry in xmfConnections tells us the number of points.
           numPointsPerCell = xTopology->getValue<unsigned int>(index++);
-          sub++; // used to shrink the cells array at the end.
         }
 
         cell_types[cc] = vtk_cell_typeI;
-        *cells_ptr++ = numPointsPerCell;
-        for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
+        vCells->InsertNextCell(static_cast<int>(numPointsPerCell));
+        for (vtkIdType i = 0; i < static_cast<vtkIdType>(numPointsPerCell); i++)
         {
-          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
         }
       }
       else
       {
         // polyhedrons do not have a fixed number of faces in which case the
         // next entry in xmfConnections tells us the number of faces.
-        const unsigned int numFacesPerCell =
-          xTopology->getValue<unsigned int>(index++);
+        const unsigned int numFacesPerCell = xTopology->getValue<unsigned int>(index++);
 
         // polyhedrons do not have a fixed number of points in which case the
         // the number of points needs to be obtained from the data.
         unsigned int numPointsPerCell = 0;
-        for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numFacesPerCell); i++ )
+        for (vtkIdType i = 0; i < static_cast<vtkIdType>(numFacesPerCell); i++)
         {
           // faces do not have a fixed number of points in which case the next
           // entry in xmfConnections tells us the number of points.
-          numPointsPerCell +=
-            xTopology->getValue<unsigned int>(index + numPointsPerCell + i);
+          numPointsPerCell += xTopology->getValue<unsigned int>(index + numPointsPerCell + i);
         }
 
         // add cell entry to the array, which for polyhedrons is in the format:
@@ -1649,30 +1540,28 @@ void vtkXdmf3DataSet::CopyShape(
         //                          nFace1Pts, id1_0, id1_1, ...,
         //                          ...]
         cell_types[cc] = vtk_cell_typeI;
-        *cells_ptr++ = numPointsPerCell + numFacesPerCell + 1;
-        *cells_ptr++ = numFacesPerCell;
-        for(vtkIdType i = 0 ;
-            i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++ )
+        vCells->InsertNextCell(static_cast<int>(numPointsPerCell + numFacesPerCell + 1));
+        vCells->InsertCellPoint(static_cast<vtkIdType>(numFacesPerCell));
+        for (vtkIdType i = 0; i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++)
         {
-          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
         }
       }
     }
-    // Resize the Array to the Proper Size
-    vCells->GetData()->Resize(index-sub);
+
     dataSet->SetCells(cell_types, vCells);
     vCells->Delete();
-    delete [] cell_types;
+    delete[] cell_types;
     vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
   }
 
-  //copy geometry
-  vtkDataArray *vPoints = nullptr;
+  // copy geometry
+  vtkDataArray* vPoints = nullptr;
   shared_ptr<XdmfGeometry> geom = grid->getGeometry();
   if (geom->getType() == XdmfGeometryType::XY())
   {
     vPoints = vtkXdmf3DataSet::XdmfToVTKArray(geom.get(), "", 2, keeper);
-    vtkDataArray *vPoints3 = vPoints->NewInstance();
+    vtkDataArray* vPoints3 = vPoints->NewInstance();
     vPoints3->SetNumberOfComponents(3);
     vPoints3->SetNumberOfTuples(vPoints->GetNumberOfTuples());
     vPoints3->SetName("");
@@ -1688,11 +1577,11 @@ void vtkXdmf3DataSet::CopyShape(
   }
   else
   {
-    //TODO: No X_Y or X_Y_Z in xdmf anymore
+    // TODO: No X_Y or X_Y_Z in xdmf anymore
     return;
   }
 
-  vtkPoints *p = vtkPoints::New();
+  vtkPoints* p = vtkPoints::New();
   p->SetData(vPoints);
   dataSet->SetPoints(p);
   p->Delete();
@@ -1704,17 +1593,14 @@ void vtkXdmf3DataSet::CopyShape(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::VTKToXdmf(
-  vtkPointSet *dataSet,
-  XdmfDomain *domain,
-  bool hasTime, double time,
-  const char* name)
+  vtkPointSet* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name)
 {
-  vtkPoints *pts = dataSet->GetPoints();
+  vtkPoints* pts = dataSet->GetPoints();
   if (!pts)
   {
     return;
   }
-  vtkDataArray *vCoords = pts->GetData();
+  vtkDataArray* vCoords = pts->GetData();
   shared_ptr<XdmfGeometry> xCoords = XdmfGeometry::New();
   bool OK = vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xCoords.get());
   if (!OK)
@@ -1733,16 +1619,15 @@ void vtkXdmf3DataSet::VTKToXdmf(
   shared_ptr<XdmfTopology> xTopology = XdmfTopology::New();
   grid->setTopology(xTopology);
 
-
-  //TODO: homogeneous case in old reader _might_ be faster
-  //for simplicity I am treating all dataSets as having mixed cell types
+  // TODO: homogeneous case in old reader _might_ be faster
+  // for simplicity I am treating all dataSets as having mixed cell types
   xTopology->setType(XdmfTopologyType::Mixed());
   vtkIdType numCells = dataSet->GetNumberOfCells();
 
-  //reserve some space
+  // reserve some space
   /*4 = celltype+numids+id0+id1 or celltype+id0+id1+id2*/
-  const int PER_CELL_ESTIMATE=4;
-  unsigned int total_estimate = numCells*PER_CELL_ESTIMATE;
+  const int PER_CELL_ESTIMATE = 4;
+  unsigned int total_estimate = numCells * PER_CELL_ESTIMATE;
   if (VTK_SIZEOF_ID_TYPE == XdmfArrayType::Int64()->getElementSize())
   {
     xTopology->initialize(XdmfArrayType::Int64(), total_estimate);
@@ -1754,9 +1639,9 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
   unsigned int tcount = 0;
   vtkIdType cntr = 0;
-  for (vtkIdType cid=0 ; cid < numCells; cid++)
+  for (vtkIdType cid = 0; cid < numCells; cid++)
   {
-    vtkCell *cell = dataSet->GetCell(cid);
+    vtkCell* cell = dataSet->GetCell(cid);
     vtkIdType cellType = dataSet->GetCellType(cid);
     vtkIdType numPts = cell->GetNumberOfPoints();
     int xType = vtkXdmf3DataSet::GetXdmfCellType(cellType);
@@ -1764,21 +1649,21 @@ void vtkXdmf3DataSet::VTKToXdmf(
     {
       xTopology->insert(cntr++, xType);
     }
-    tcount +=1;
-    switch(cellType)
+    tcount += 1;
+    switch (cellType)
     {
-      case VTK_VERTEX :
-      case VTK_POLY_VERTEX :
-      case VTK_LINE :
-      case VTK_POLY_LINE :
-      case VTK_POLYGON :
-        xTopology->insert(cntr++,static_cast<long>(numPts));
-        tcount +=1;
+      case VTK_VERTEX:
+      case VTK_POLY_VERTEX:
+      case VTK_LINE:
+      case VTK_POLY_LINE:
+      case VTK_POLYGON:
+        xTopology->insert(cntr++, static_cast<long>(numPts));
+        tcount += 1;
         break;
       default:
         break;
     }
-    if ( cellType == VTK_VOXEL )
+    if (cellType == VTK_VOXEL)
     {
       // Reinterpret to xdmf's order
       xTopology->insert(cntr++, (int)cell->GetPointId(0));
@@ -1789,50 +1674,50 @@ void vtkXdmf3DataSet::VTKToXdmf(
       xTopology->insert(cntr++, (int)cell->GetPointId(5));
       xTopology->insert(cntr++, (int)cell->GetPointId(7));
       xTopology->insert(cntr++, (int)cell->GetPointId(6));
-      tcount +=8;
+      tcount += 8;
     }
-    else if ( cellType == VTK_PIXEL )
+    else if (cellType == VTK_PIXEL)
     {
       // Reinterpret to xdmf's order
       xTopology->insert(cntr++, (int)cell->GetPointId(0));
       xTopology->insert(cntr++, (int)cell->GetPointId(1));
       xTopology->insert(cntr++, (int)cell->GetPointId(3));
       xTopology->insert(cntr++, (int)cell->GetPointId(2));
-      tcount +=4;
+      tcount += 4;
     }
-    else if ( cellType == VTK_POLYHEDRON )
+    else if (cellType == VTK_POLYHEDRON)
     {
       // Convert polyhedron to format:
       // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
       const vtkIdType numFaces = cell->GetNumberOfFaces();
-      xTopology->insert(cntr++,static_cast<long>(numFaces));
-      tcount +=1;
+      xTopology->insert(cntr++, static_cast<long>(numFaces));
+      tcount += 1;
 
       vtkIdType fid, pid;
-      vtkCell *face;
-      for (fid=0; fid < numFaces; fid++)
+      vtkCell* face;
+      for (fid = 0; fid < numFaces; fid++)
       {
         face = cell->GetFace(fid);
         numPts = face->GetNumberOfPoints();
-        xTopology->insert(cntr++,static_cast<long>(numPts));
-        tcount +=1;
-        for (pid=0; pid < numPts; pid++)
+        xTopology->insert(cntr++, static_cast<long>(numPts));
+        tcount += 1;
+        for (pid = 0; pid < numPts; pid++)
         {
           xTopology->insert(cntr++, (int)face->GetPointId(pid));
         }
-        tcount +=numPts;
+        tcount += numPts;
       }
     }
     else
     {
-      for (vtkIdType pid=0; pid < numPts; pid++)
+      for (vtkIdType pid = 0; pid < numPts; pid++)
       {
         xTopology->insert(cntr++, (int)cell->GetPointId(pid));
       }
-      tcount +=numPts;
+      tcount += numPts;
     }
   }
-  xTopology->resize(tcount,0); //release unused reserved space
+  xTopology->resize(tcount, 0); // release unused reserved space
 
   vtkXdmf3DataSet::VTKToXdmfAttributes(dataSet, grid.get());
   vtkXdmf3DataSet::SetTime(grid.get(), hasTime, time);
@@ -1842,13 +1727,9 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
 //==========================================================================
 
-void vtkXdmf3DataSet::XdmfToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-  XdmfGraph *grid,
-  vtkMutableDirectedGraph *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
+  vtkXdmf3ArraySelection* cselection, vtkXdmf3ArraySelection* pselection, XdmfGraph* grid,
+  vtkMutableDirectedGraph* dataSet, vtkXdmf3ArrayKeeper* keeper)
 {
   if (!dataSet)
   {
@@ -1862,29 +1743,27 @@ void vtkXdmf3DataSet::XdmfToVTK(
   bool freeRow = vtkXdmf3DataSet_ReadIfNeeded(mRowPointer.get());
   bool freeColumn = vtkXdmf3DataSet_ReadIfNeeded(mColumnIndex.get());
   bool freeValues = vtkXdmf3DataSet_ReadIfNeeded(mValues.get());
-  //unpack the compressed row storage format graph into nodes and edges
+  // unpack the compressed row storage format graph into nodes and edges
 
-  vtkSmartPointer<vtkDoubleArray> wA =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> wA = vtkSmartPointer<vtkDoubleArray>::New();
   wA->SetName("Edge Weights");
   wA->SetNumberOfComponents(1);
 
-  //Nodes
-  for(unsigned int i=0; i<numNodes; ++i)
+  // Nodes
+  for (unsigned int i = 0; i < numNodes; ++i)
   {
     dataSet->AddVertex();
   }
 
-  //Edges
+  // Edges
   unsigned int index = 0;
-  for(unsigned int i=0; i<numNodes; ++i)
+  for (unsigned int i = 0; i < numNodes; ++i)
   {
-    for(unsigned int j=mRowPointer->getValue<unsigned int>(i);
-        j<mRowPointer->getValue<unsigned int>(i+1);
-        ++j)
+    for (unsigned int j = mRowPointer->getValue<unsigned int>(i);
+         j < mRowPointer->getValue<unsigned int>(i + 1); ++j)
     {
       const unsigned int k = mColumnIndex->getValue<unsigned int>(j);
-      dataSet->AddEdge(i,k);
+      dataSet->AddEdge(i, k);
 
       double value = mValues->getValue<double>(index++);
       wA->InsertNextValue(value);
@@ -1895,13 +1774,13 @@ void vtkXdmf3DataSet::XdmfToVTK(
   vtkXdmf3DataSet_ReleaseIfNeeded(mColumnIndex.get(), freeColumn);
   vtkXdmf3DataSet_ReleaseIfNeeded(mValues.get(), freeValues);
 
-  //Copy over arrays
-  vtkDataSetAttributes *edgeData = dataSet->GetEdgeData();
+  // Copy over arrays
+  vtkDataSetAttributes* edgeData = dataSet->GetEdgeData();
   edgeData->AddArray(wA);
 
-  //Next the optional arrays
+  // Next the optional arrays
   unsigned int numAttributes = grid->getNumberAttributes();
-  for (unsigned int cc=0; cc < numAttributes; cc++)
+  for (unsigned int cc = 0; cc < numAttributes; cc++)
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
@@ -1911,9 +1790,8 @@ void vtkXdmf3DataSet::XdmfToVTK(
       continue;
     }
 
-    vtkFieldData * fieldData = 0;
-    shared_ptr<const XdmfAttributeCenter> attrCenter =
-      xmfAttribute->getCenter();
+    vtkFieldData* fieldData = 0;
+    shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())
     {
       if (!fselection->ArrayIsEnabled(attrName.c_str()))
@@ -1940,14 +1818,11 @@ void vtkXdmf3DataSet::XdmfToVTK(
     }
     else
     {
-      cerr << "Skipping " << attrName << " unrecognized association"
-           << endl;
+      cerr << "Skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
 
-    vtkDataArray *array =
-      vtkXdmf3DataSet::XdmfToVTKArray(xmfAttribute.get(), attrName,
-                                      0, keeper);
+    vtkDataArray* array = vtkXdmf3DataSet::XdmfToVTKArray(xmfAttribute.get(), attrName, 0, keeper);
     if (array)
     {
       fieldData->AddArray(array);
@@ -1958,14 +1833,10 @@ void vtkXdmf3DataSet::XdmfToVTK(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::VTKToXdmf(
-  vtkDirectedGraph *dataSet,
-  XdmfDomain *domain,
-  bool hasTime, double time,
-  const char* name)
+  vtkDirectedGraph* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name)
 {
-  //get list of vertices
-  vtkSmartPointer<vtkVertexListIterator> vit =
-    vtkSmartPointer<vtkVertexListIterator>::New();
+  // get list of vertices
+  vtkSmartPointer<vtkVertexListIterator> vit = vtkSmartPointer<vtkVertexListIterator>::New();
   dataSet->GetVertices(vit);
 
   vtkIdType numNodes = dataSet->GetNumberOfVertices();
@@ -1984,31 +1855,30 @@ void vtkXdmf3DataSet::VTKToXdmf(
     mColumnIndex->initialize(XdmfArrayType::Int32());
   }
 
-  vtkDoubleArray *wA = vtkArrayDownCast<vtkDoubleArray>(
-    dataSet->GetEdgeData()->GetArray("Edge Weights"));
+  vtkDoubleArray* wA =
+    vtkArrayDownCast<vtkDoubleArray>(dataSet->GetEdgeData()->GetArray("Edge Weights"));
 
   while (vit->HasNext())
   {
-      vtkIdType sVertex = vit->Next();
+    vtkIdType sVertex = vit->Next();
 
-      mRowPointer->pushBack(mColumnIndex->getSize());
+    mRowPointer->pushBack(mColumnIndex->getSize());
 
-      vtkSmartPointer<vtkOutEdgeIterator> eit =
-          vtkSmartPointer<vtkOutEdgeIterator>::New();
-      dataSet->GetOutEdges(sVertex, eit);
+    vtkSmartPointer<vtkOutEdgeIterator> eit = vtkSmartPointer<vtkOutEdgeIterator>::New();
+    dataSet->GetOutEdges(sVertex, eit);
 
-      while (eit->HasNext())
+    while (eit->HasNext())
+    {
+      vtkOutEdgeType e = eit->Next();
+      vtkIdType dVertex = e.Target;
+      mColumnIndex->pushBack((int)dVertex);
+      double eW = 1.0;
+      if (wA)
       {
-        vtkOutEdgeType e = eit->Next();
-        vtkIdType dVertex = e.Target;
-        mColumnIndex->pushBack((int)dVertex);
-        double eW = 1.0;
-        if (wA)
-        {
-          eW = wA->GetValue(e.Id);
-        }
-        mValues->pushBack(eW);
+        eW = wA->GetValue(e.Id);
       }
+      mValues->pushBack(eW);
+    }
   }
   mRowPointer->pushBack(mValues->getSize());
 
@@ -2021,28 +1891,28 @@ void vtkXdmf3DataSet::VTKToXdmf(
     grid->setName(std::string(name));
   }
 
-  vtkFieldData *fd;
+  vtkFieldData* fd;
   shared_ptr<const XdmfAttributeCenter> center;
   for (int i = 0; i < 3; i++)
   {
     switch (i)
     {
-    case 0:
-      fd = dataSet->GetFieldData();
-      center = XdmfAttributeCenter::Grid();
-      break;
-    case 1:
-      fd = dataSet->GetVertexData();
-      center = XdmfAttributeCenter::Node();
-      break;
-    default:
-      fd = dataSet->GetEdgeData();
-      center = XdmfAttributeCenter::Edge();
+      case 0:
+        fd = dataSet->GetFieldData();
+        center = XdmfAttributeCenter::Grid();
+        break;
+      case 1:
+        fd = dataSet->GetVertexData();
+        center = XdmfAttributeCenter::Node();
+        break;
+      default:
+        fd = dataSet->GetEdgeData();
+        center = XdmfAttributeCenter::Edge();
     }
 
     for (vtkIdType j = 0; j < fd->GetNumberOfArrays(); j++)
     {
-      vtkDataArray *vArray = fd->GetArray(j);
+      vtkDataArray* vArray = fd->GetArray(j);
       if (vArray == wA)
       {
         continue;
@@ -2067,20 +1937,18 @@ void vtkXdmf3DataSet::VTKToXdmf(
   domain->insert(grid);
 }
 
-
 //==========================================================================
-//TODO: meld this with Grid XdmfToVTKAttributes
-//TODO: enable set attribute selections
+// TODO: meld this with Grid XdmfToVTKAttributes
+// TODO: enable set attribute selections
 void vtkXdmf3DataSet::XdmfToVTKAttributes(
-/*
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
-*/
-  XdmfSet *grid, vtkDataObject *dObject,
-  vtkXdmf3ArrayKeeper *keeper)
+  /*
+    vtkXdmf3ArraySelection *fselection,
+    vtkXdmf3ArraySelection *cselection,
+    vtkXdmf3ArraySelection *pselection,
+  */
+  XdmfSet* grid, vtkDataObject* dObject, vtkXdmf3ArrayKeeper* keeper)
 {
-  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dObject);
+  vtkDataSet* dataSet = vtkDataSet::SafeDownCast(dObject);
   if (!dataSet)
   {
     return;
@@ -2088,7 +1956,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
   unsigned int numCells = dataSet->GetNumberOfCells();
   unsigned int numPoints = dataSet->GetNumberOfPoints();
   unsigned int numAttributes = grid->getNumberAttributes();
-  for (unsigned int cc=0; cc < numAttributes; cc++)
+  for (unsigned int cc = 0; cc < numAttributes; cc++)
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
@@ -2098,7 +1966,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
       continue;
     }
 
-    //figure out how many components in this array
+    // figure out how many components in this array
     std::vector<unsigned int> dims = xmfAttribute->getDimensions();
     unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int nvals = 1;
@@ -2109,10 +1977,9 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     unsigned int ncomp = 1;
 
-    vtkFieldData * fieldData = 0;
+    vtkFieldData* fieldData = 0;
 
-    shared_ptr<const XdmfAttributeCenter> attrCenter =
-      xmfAttribute->getCenter();
+    shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())
     {
       /*
@@ -2122,7 +1989,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         }
       */
       fieldData = dataSet->GetFieldData();
-      ncomp = dims[ndims-1];
+      ncomp = dims[ndims - 1];
     }
     else if (attrCenter == XdmfAttributeCenter::Cell())
     {
@@ -2137,7 +2004,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         continue;
       }
       fieldData = dataSet->GetCellData();
-      ncomp = nvals/numCells;
+      ncomp = nvals / numCells;
     }
     else if (attrCenter == XdmfAttributeCenter::Node())
     {
@@ -2152,28 +2019,36 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         continue;
       }
       fieldData = dataSet->GetPointData();
-      ncomp = nvals/numPoints;
+      ncomp = nvals / numPoints;
     }
     else
     {
       cerr << "skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
-    vtkDataSetAttributes *fdAsDSA = vtkDataSetAttributes::SafeDownCast(
-      fieldData);
+    vtkDataSetAttributes* fdAsDSA = vtkDataSetAttributes::SafeDownCast(fieldData);
 
     shared_ptr<const XdmfAttributeType> attrType = xmfAttribute->getType();
-    enum vAttType {NONE, SCALAR, VECTOR, TENSOR, MATRIX, TENSOR6, GLOBALID};
+    enum vAttType
+    {
+      NONE,
+      SCALAR,
+      VECTOR,
+      TENSOR,
+      MATRIX,
+      TENSOR6,
+      GLOBALID
+    };
     int atype = NONE;
-    if (attrType == XdmfAttributeType::Scalar() && ncomp==1)
+    if (attrType == XdmfAttributeType::Scalar() && ncomp == 1)
     {
       atype = SCALAR;
     }
-    else if (attrType == XdmfAttributeType::Vector() && ncomp==1)
+    else if (attrType == XdmfAttributeType::Vector() && ncomp == 1)
     {
       atype = VECTOR;
     }
-    else if (attrType == XdmfAttributeType::Tensor() && ncomp==9)
+    else if (attrType == XdmfAttributeType::Tensor() && ncomp == 9)
     {
       atype = TENSOR;
     }
@@ -2185,13 +2060,12 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     {
       atype = TENSOR6;
     }
-    else if (attrType == XdmfAttributeType::GlobalId() && ncomp==1)
+    else if (attrType == XdmfAttributeType::GlobalId() && ncomp == 1)
     {
       atype = GLOBALID;
     }
 
-    vtkDataArray *array = XdmfToVTKArray
-      (xmfAttribute.get(), attrName, ncomp, keeper);
+    vtkDataArray* array = XdmfToVTKArray(xmfAttribute.get(), attrName, ncomp, keeper);
     if (array)
     {
       fieldData->AddArray(array);
@@ -2231,12 +2105,8 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 }
 
 //--------------------------------------------------------------------------
-void vtkXdmf3DataSet::XdmfSubsetToVTK(
-  XdmfGrid *grid,
-  unsigned int setnum,
-  vtkDataSet *dataSet,
-  vtkUnstructuredGrid *subSet,
-  vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::XdmfSubsetToVTK(XdmfGrid* grid, unsigned int setnum, vtkDataSet* dataSet,
+  vtkUnstructuredGrid* subSet, vtkXdmf3ArrayKeeper* keeper)
 {
   shared_ptr<XdmfSet> set = grid->getSet(setnum);
   bool releaseMe = vtkXdmf3DataSet_ReadIfNeeded(set.get());
@@ -2247,17 +2117,14 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
   */
   if (set->getType() == XdmfSetType::Node())
   {
-    vtkDataArray *ids =
-      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1, keeper);
+    vtkDataArray* ids = vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1, keeper);
 
-    vtkSmartPointer<vtkSelectionNode> selectionNode =
-      vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkSelectionNode> selectionNode = vtkSmartPointer<vtkSelectionNode>::New();
     selectionNode->SetFieldType(vtkSelectionNode::POINT);
     selectionNode->SetContentType(vtkSelectionNode::INDICES);
     selectionNode->SetSelectionList(ids);
 
-    vtkSmartPointer<vtkSelection> selection =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection->AddNode(selectionNode);
 
     vtkSmartPointer<vtkExtractSelection> extractSelection =
@@ -2266,9 +2133,8 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
     extractSelection->SetInputData(1, selection);
     extractSelection->Update();
 
-    //remove arrays from grid, only care about subsets own arrays
-    vtkUnstructuredGrid *dso =
-      vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
+    // remove arrays from grid, only care about subsets own arrays
+    vtkUnstructuredGrid* dso = vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
     dso->GetPointData()->Initialize();
     dso->GetCellData()->Initialize();
     dso->GetFieldData()->Initialize();
@@ -2280,17 +2146,14 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
 
   if (set->getType() == XdmfSetType::Cell())
   {
-    vtkDataArray *ids =
-      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1, keeper);
+    vtkDataArray* ids = vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1, keeper);
 
-    vtkSmartPointer<vtkSelectionNode> selectionNode =
-      vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkSelectionNode> selectionNode = vtkSmartPointer<vtkSelectionNode>::New();
     selectionNode->SetFieldType(vtkSelectionNode::CELL);
     selectionNode->SetContentType(vtkSelectionNode::INDICES);
     selectionNode->SetSelectionList(ids);
 
-    vtkSmartPointer<vtkSelection> selection =
-      vtkSmartPointer<vtkSelection>::New();
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection->AddNode(selectionNode);
 
     vtkSmartPointer<vtkExtractSelection> extractSelection =
@@ -2299,9 +2162,8 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
     extractSelection->SetInputData(1, selection);
     extractSelection->Update();
 
-    //remove arrays from grid, only care about subsets own arrays
-    vtkUnstructuredGrid *dso =
-      vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
+    // remove arrays from grid, only care about subsets own arrays
+    vtkUnstructuredGrid* dso = vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
     dso->GetPointData()->Initialize();
     dso->GetCellData()->Initialize();
     dso->GetFieldData()->Initialize();
@@ -2313,21 +2175,19 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
 
   if (set->getType() == XdmfSetType::Face())
   {
-    vtkPoints *pts = vtkPoints::New();
+    vtkPoints* pts = vtkPoints::New();
     subSet->SetPoints(pts);
-    vtkSmartPointer<vtkMergePoints> mergePts =
-      vtkSmartPointer<vtkMergePoints>::New();
+    vtkSmartPointer<vtkMergePoints> mergePts = vtkSmartPointer<vtkMergePoints>::New();
     mergePts->InitPointInsertion(pts, dataSet->GetBounds());
 
-    vtkDataArray *ids =
-      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 2, keeper);
+    vtkDataArray* ids = vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 2, keeper);
     // ids is a 2 component array were each tuple is (cell-id, face-id).
 
     vtkIdType numFaces = ids->GetNumberOfTuples();
-    for (vtkIdType cc=0; cc < numFaces; cc++)
+    for (vtkIdType cc = 0; cc < numFaces; cc++)
     {
-      vtkIdType cellId = ids->GetComponent(cc,0);
-      vtkIdType faceId = ids->GetComponent(cc,1);
+      vtkIdType cellId = ids->GetComponent(cc, 0);
+      vtkIdType faceId = ids->GetComponent(cc, 1);
       vtkCell* cell = dataSet->GetCell(cellId);
       if (!cell)
       {
@@ -2342,7 +2202,7 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
       // Now insert this face a new cell in the output dataset.
       vtkIdType numPoints = face->GetNumberOfPoints();
       vtkPoints* facePoints = face->GetPoints();
-      vtkIdType* outputPts = new vtkIdType[numPoints+1];
+      vtkIdType* outputPts = new vtkIdType[numPoints + 1];
       vtkIdType* cPt = outputPts;
 
       double ptCoord[3];
@@ -2352,7 +2212,7 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
         mergePts->InsertUniquePoint(ptCoord, cPt[pt]);
       }
       subSet->InsertNextCell(face->GetCellType(), numPoints, outputPts);
-      delete [] outputPts;
+      delete[] outputPts;
     }
 
     vtkXdmf3DataSet::XdmfToVTKAttributes(set.get(), subSet, keeper);
@@ -2363,22 +2223,20 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
 
   if (set->getType() == XdmfSetType::Edge())
   {
-    vtkPoints *pts = vtkPoints::New();
+    vtkPoints* pts = vtkPoints::New();
     subSet->SetPoints(pts);
-    vtkSmartPointer<vtkMergePoints> mergePts =
-      vtkSmartPointer<vtkMergePoints>::New();
+    vtkSmartPointer<vtkMergePoints> mergePts = vtkSmartPointer<vtkMergePoints>::New();
     mergePts->InitPointInsertion(pts, dataSet->GetBounds());
 
-    vtkDataArray *ids =
-      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 3, keeper);
+    vtkDataArray* ids = vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 3, keeper);
     // ids is a 3 component array were each tuple is (cell-id, face-id, edge-id).
 
     vtkIdType numEdges = ids->GetNumberOfTuples();
-    for (vtkIdType cc=0; cc < numEdges; cc++)
+    for (vtkIdType cc = 0; cc < numEdges; cc++)
     {
-      vtkIdType cellId = ids->GetComponent(cc,0);
-      vtkIdType faceId = ids->GetComponent(cc,1);
-      vtkIdType edgeId = ids->GetComponent(cc,2);
+      vtkIdType cellId = ids->GetComponent(cc, 0);
+      vtkIdType faceId = ids->GetComponent(cc, 1);
+      vtkIdType edgeId = ids->GetComponent(cc, 2);
       vtkCell* cell = dataSet->GetCell(cellId);
       if (!cell)
       {
@@ -2398,7 +2256,7 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
       // Now insert this edge a new cell in the output dataset.
       vtkIdType numPoints = edge->GetNumberOfPoints();
       vtkPoints* edgePoints = edge->GetPoints();
-      vtkIdType* outputPts = new vtkIdType[numPoints+1];
+      vtkIdType* outputPts = new vtkIdType[numPoints + 1];
       vtkIdType* cPt = outputPts;
 
       double ptCoord[3];
@@ -2408,7 +2266,7 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
         mergePts->InsertUniquePoint(ptCoord, cPt[pt]);
       }
       subSet->InsertNextCell(edge->GetCellType(), numPoints, outputPts);
-      delete [] outputPts;
+      delete[] outputPts;
     }
 
     vtkXdmf3DataSet::XdmfToVTKAttributes(set.get(), subSet, keeper);
@@ -2421,38 +2279,36 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
   return;
 }
 //------------------------------------------------------------------------------
-void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
-  shared_ptr <XdmfAttribute> xmfAttribute, vtkDataArray *array,
-  XdmfGrid *grid, vtkXdmf3ArrayKeeper *keeper)
+void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
+  shared_ptr<XdmfAttribute> xmfAttribute, vtkDataArray* array, XdmfGrid* grid,
+  vtkXdmf3ArrayKeeper* keeper)
 {
 
-  vtkDataSet *dataSet_original = vtkDataSet::SafeDownCast(dObject);
-  vtkUnstructuredGrid *dataSet_finite_element = vtkUnstructuredGrid::New();
-  vtkUnstructuredGrid *dataSet = vtkUnstructuredGrid::SafeDownCast(dObject);
+  vtkDataSet* dataSet_original = vtkDataSet::SafeDownCast(dObject);
+  vtkUnstructuredGrid* dataSet_finite_element = vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid* dataSet = vtkUnstructuredGrid::SafeDownCast(dObject);
 
   // Mapping of dofs per component to the correct VTK order
-  std::vector<unsigned int> triangle_map = {0, 1, 2};
-  std::vector<unsigned int> quadratic_triangle_map =
-    {0, 1, 2, 5, 3, 4};
-  std::vector<unsigned int> tetrahedron_map = {0, 1, 2, 3, 4};
-  std::vector<unsigned int> quadratic_tetrahedron_map =
-    {0, 1, 2, 3, 9, 6, 8, 7, 5, 4};
-  std::vector<unsigned int> quadrilateral_map = {0, 1, 3, 2};
-  std::vector<unsigned int> quadratic_quadrilateral_map =
-    {0, 1, 4, 3, 2, 7, 5, 6, 8};
-  std::vector<unsigned int> single_value_map = {0};
+  std::vector<unsigned int> triangle_map = { 0, 1, 2 };
+  std::vector<unsigned int> quadratic_triangle_map = { 0, 1, 2, 5, 3, 4 };
+  std::vector<unsigned int> tetrahedron_map = { 0, 1, 2, 3, 4 };
+  std::vector<unsigned int> quadratic_tetrahedron_map = { 0, 1, 2, 3, 9, 6, 8, 7, 5, 4 };
+  std::vector<unsigned int> quadrilateral_map = { 0, 1, 3, 2 };
+  std::vector<unsigned int> quadratic_quadrilateral_map = { 0, 1, 4, 3, 2, 7, 5, 6, 8 };
+  std::vector<unsigned int> single_value_map = { 0 };
   std::vector<unsigned int> dof_to_vtk_map;
 
   // One array is xmfAttribute and other array is the first auxiliary array
   if (xmfAttribute->getNumberAuxiliaryArrays() < 1)
   {
     cerr << "There must be at least 2 children DataItems under "
-      "FiniteElementFunction item type." << endl;
+            "FiniteElementFunction item type."
+         << endl;
     return;
   }
 
   // First aux array are values of degrees of freedom
-  shared_ptr <XdmfArray> dof_values = xmfAttribute->getAuxiliaryArray(0);
+  shared_ptr<XdmfArray> dof_values = xmfAttribute->getAuxiliaryArray(0);
   bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(dof_values.get());
   if (keeper && freeMe)
   {
@@ -2460,11 +2316,11 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
   }
 
   // Where new geometry will be stored
-  vtkPoints *p_new = vtkPoints::New();
+  vtkPoints* p_new = vtkPoints::New();
   unsigned long points_added = 0;
 
   // Where new data values will be stored
-  vtkDataArray *new_array;
+  vtkDataArray* new_array;
   new_array = vtkDataArray::CreateDataArray(VTK_DOUBLE);
   new_array->SetName(array->GetName());
 
@@ -2479,48 +2335,42 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
   int data_rank = -1;
 
   // Get number of dofs per cell
-  unsigned int number_dofs_per_cell = xmfAttribute->getSize() /
-    xTopology->getNumberElements();
+  unsigned int number_dofs_per_cell = xmfAttribute->getSize() / xTopology->getNumberElements();
 
   // For each cell/element
   for (unsigned int i = 0; i < xTopology->getNumberElements(); ++i)
   {
     // Get original already built cell
     // This cell was prepared in "copyshape" method before
-    vtkCell *cell = dataSet->GetCell(i);
+    vtkCell* cell = dataSet->GetCell(i);
 
     // Retrieve new VTK cell type, i.e. VTK representation of xdmf finite
     // element function
     int new_cell_type = GetVTKFiniteElementCellType(
-      xmfAttribute->getElementDegree(),
-      xmfAttribute->getElementFamily(),
-      xCellType
-    );
+      xmfAttribute->getElementDegree(), xmfAttribute->getElementFamily(), xCellType);
 
     // Get number of points for the new cell
     bool failed;
-    unsigned int number_points_per_new_cell =
-      GetNumberOfPointsPerCell(new_cell_type, failed);
+    unsigned int number_points_per_new_cell = GetNumberOfPointsPerCell(new_cell_type, failed);
 
     if (failed)
     {
-      cerr << "Unable to get number of points for cell type "
-           << new_cell_type << endl;
+      cerr << "Unable to get number of points for cell type " << new_cell_type << endl;
       return;
     }
 
     // Global indices to points in cell
-    vtkIdType *ptIds = new vtkIdType[number_points_per_new_cell];
+    vtkIdType* ptIds = new vtkIdType[number_points_per_new_cell];
 
     // Get original cell points
-    vtkPoints *cell_points = cell->GetPoints();
+    vtkPoints* cell_points = cell->GetPoints();
 
     // Store element degree
     unsigned int d = xmfAttribute->getElementDegree();
 
     // Prepare space for normal vectors
-    double **normal = new double*[number_points_per_new_cell];
-    for (unsigned int q = 0; q<number_points_per_new_cell; ++q)
+    double** normal = new double*[number_points_per_new_cell];
+    for (unsigned int q = 0; q < number_points_per_new_cell; ++q)
     {
       normal[q] = new double[3];
     }
@@ -2560,14 +2410,13 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
       unsigned int dim;
 
       // Prepare zero filled values
-      double *tuple = new double[ncomp_padded];
-      for (unsigned int q = 0; q <ncomp_padded; ++q)
+      double* tuple = new double[ncomp_padded];
+      for (unsigned int q = 0; q < ncomp_padded; ++q)
       {
         tuple[q] = 0.0;
       }
-      if ((xmfAttribute->getElementFamily() == "CG" ||
-        xmfAttribute->getElementFamily() == "DG")
-        && xmfAttribute->getElementCell() == "triangle")
+      if ((xmfAttribute->getElementFamily() == "CG" || xmfAttribute->getElementFamily() == "DG") &&
+        xmfAttribute->getElementCell() == "triangle")
       {
         //
         // CG and DG on triangles
@@ -2581,36 +2430,35 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         if (ix < cell->GetNumberOfPoints())
         {
           cell_points->GetPoint(ix, coord);
-        } else if (d == 2 && ix >= cell->GetNumberOfPoints())
+        }
+        else if (d == 2 && ix >= cell->GetNumberOfPoints())
         {
           // They are just tuples (i, i+i) but when i+1 = last point then
           // i+1 is in fact 0
-          cell_points->GetPoint(
-            static_cast<vtkIdType>(ix - 3),
-            coord_begin);
-          cell_points->GetPoint(
-            static_cast<vtkIdType>(
-              (ix - 3 + 1) % 3
-            ), coord_end);
+          cell_points->GetPoint(static_cast<vtkIdType>(ix - 3), coord_begin);
+          cell_points->GetPoint(static_cast<vtkIdType>((ix - 3 + 1) % 3), coord_end);
 
           // Additional points for CG2, DG2 are on midways
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
           {
-            coord[space_dim] = (coord_begin[space_dim]
-              + coord_end[space_dim]) * 0.5;
+            coord[space_dim] = (coord_begin[space_dim] + coord_end[space_dim]) * 0.5;
           }
         }
 
         if (d == 0)
         {
           dof_to_vtk_map = single_value_map;
-        } else if (d == 1)
+        }
+        else if (d == 1)
         {
           dof_to_vtk_map = triangle_map;
-        } else if (d == 2)
+        }
+        else if (d == 2)
         {
           dof_to_vtk_map = quadratic_triangle_map;
-        } else {
+        }
+        else
+        {
           dof_to_vtk_map = triangle_map;
         }
 
@@ -2632,30 +2480,28 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
             if (ix + 1 > dim)
             {
               unsigned long dof_index_begin =
-                xmfAttribute->getValue<unsigned long>(index +
-                dof_to_vtk_map[ix % 3] + comp * dim);
-              unsigned long dof_index_end =
-              xmfAttribute->getValue<unsigned long>(index +
-                dof_to_vtk_map[(ix + 1) % 3] + comp * dim);
+                xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix % 3] + comp * dim);
+              unsigned long dof_index_end = xmfAttribute->getValue<unsigned long>(
+                index + dof_to_vtk_map[(ix + 1) % 3] + comp * dim);
 
               tuple[comp] = (dof_values->getValue<double>(dof_index_begin) +
-                dof_values->getValue<double>(dof_index_end)) / 2.0;
-            } else {
+                              dof_values->getValue<double>(dof_index_end)) /
+                2.0;
+            }
+            else
+            {
               // For points having corresponding values just insert them
               unsigned long dof_index =
-                xmfAttribute->getValue < unsigned
-              long > (index +
-                dof_to_vtk_map[ix] + comp * dim);
+                xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix] + comp * dim);
 
               tuple[comp] = dof_values->getValue<double>(dof_index);
             }
           }
         }
-
       }
       else if ((xmfAttribute->getElementFamily() == "CG" ||
-        xmfAttribute->getElementFamily() == "DG")
-        && xmfAttribute->getElementCell() == "tetrahedron")
+                 xmfAttribute->getElementFamily() == "DG") &&
+        xmfAttribute->getElementCell() == "tetrahedron")
       {
         //
         // CG and DG on tetrahedra
@@ -2673,9 +2519,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         }
         else if (d == 2 && ix >= cell->GetNumberOfPoints())
         {
-          cell_points->GetPoint(
-            static_cast<vtkIdType>((ix - 1) % 3),
-            coord_begin);
+          cell_points->GetPoint(static_cast<vtkIdType>((ix - 1) % 3), coord_begin);
 
           if (ix > 6)
           {
@@ -2683,28 +2527,30 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           }
           else
           {
-            cell_points->GetPoint(static_cast<vtkIdType>(ix % 3),
-              coord_end);
+            cell_points->GetPoint(static_cast<vtkIdType>(ix % 3), coord_end);
           }
 
           // Additional points for CG2, DG2 are on midways
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
           {
-            coord[space_dim] = (coord_begin[space_dim]
-              + coord_end[space_dim]) * 0.5;
+            coord[space_dim] = (coord_begin[space_dim] + coord_end[space_dim]) * 0.5;
           }
         }
 
         if (d == 0)
         {
           dof_to_vtk_map = single_value_map;
-        } else if (d == 1)
+        }
+        else if (d == 1)
         {
           dof_to_vtk_map = tetrahedron_map;
-        } else if (d == 2)
+        }
+        else if (d == 2)
         {
           dof_to_vtk_map = quadratic_tetrahedron_map;
-        } else {
+        }
+        else
+        {
           dof_to_vtk_map = tetrahedron_map;
         }
 
@@ -2720,18 +2566,15 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           for (unsigned int comp = 0; comp < ncomp; ++comp)
           {
             unsigned long dof_index =
-              xmfAttribute->getValue < unsigned
-            long > (index +
-              dof_to_vtk_map[ix] + comp * dim);
+              xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix] + comp * dim);
 
             tuple[comp] = dof_values->getValue<double>(dof_index);
           }
         }
-
       }
       else if ((xmfAttribute->getElementFamily() == "Q" ||
-        xmfAttribute->getElementFamily() == "DQ")
-        && xmfAttribute->getElementCell() == "quadrilateral")
+                 xmfAttribute->getElementFamily() == "DQ") &&
+        xmfAttribute->getElementCell() == "quadrilateral")
       {
         //
         // Q and DQ on quadrilaterals
@@ -2752,18 +2595,14 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         }
         else if (ix <= 7)
         {
-          cell_points->GetPoint(
-            static_cast<vtkIdType>(ix % 4),
-            coord_begin);
+          cell_points->GetPoint(static_cast<vtkIdType>(ix % 4), coord_begin);
 
-          cell_points->GetPoint(static_cast<vtkIdType>((ix + 1) % 4),
-            coord_end);
+          cell_points->GetPoint(static_cast<vtkIdType>((ix + 1) % 4), coord_end);
 
           // Additional points for Q2, DQ2 are on midways
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
           {
-            coord[space_dim] = (coord_begin[space_dim]
-              + coord_end[space_dim]) * 0.5;
+            coord[space_dim] = (coord_begin[space_dim] + coord_end[space_dim]) * 0.5;
           }
         }
         else if (ix == 8)
@@ -2771,24 +2610,26 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           // The last point is in centroid of the quad
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
           {
-            coord[space_dim] =
-              (coord_orig[0][space_dim] +
-                coord_orig[1][space_dim] +
-                coord_orig[2][space_dim] +
-                coord_orig[3][space_dim]) / 4;
+            coord[space_dim] = (coord_orig[0][space_dim] + coord_orig[1][space_dim] +
+                                 coord_orig[2][space_dim] + coord_orig[3][space_dim]) /
+              4;
           }
         }
 
         if (d == 0)
         {
           dof_to_vtk_map = single_value_map;
-        } else if (d == 1)
+        }
+        else if (d == 1)
         {
           dof_to_vtk_map = quadrilateral_map;
-        } else if (d == 2)
+        }
+        else if (d == 2)
         {
           dof_to_vtk_map = quadratic_quadrilateral_map;
-        } else {
+        }
+        else
+        {
           dof_to_vtk_map = quadrilateral_map;
         }
 
@@ -2804,14 +2645,11 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           for (unsigned int comp = 0; comp < ncomp; ++comp)
           {
             unsigned long dof_index =
-              xmfAttribute->getValue < unsigned
-            long > (index +
-              dof_to_vtk_map[ix] + comp * dim);
+              xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix] + comp * dim);
 
             tuple[comp] = dof_values->getValue<double>(dof_index);
           }
         }
-
       }
       else if (xmfAttribute->getElementFamily() == "RT" &&
         xmfAttribute->getElementCell() == "triangle")
@@ -2828,7 +2666,6 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         //
         // Higher order functions are not implemented.
 
-
         // For original points
         if (ix < cell->GetNumberOfPoints())
         {
@@ -2843,7 +2680,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         ncomp = 3;
 
         // This indices are used to choose normal vectors
-        std::vector<unsigned int> normal_ixs = {ix, (ix + 2) % 3};
+        std::vector<unsigned int> normal_ixs = { ix, (ix + 2) % 3 };
 
         for (auto normal_ix : normal_ixs)
         {
@@ -2859,8 +2696,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           normal[normal_ix][2] = 0.0;
 
           // Compute euclidean norm
-          double norm = sqrt(pow(normal[normal_ix][0], 2.) +
-            pow(normal[normal_ix][1], 2.));
+          double norm = sqrt(pow(normal[normal_ix][0], 2.) + pow(normal[normal_ix][1], 2.));
 
           // Normalize "normals"
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
@@ -2878,40 +2714,30 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         dof_to_vtk_map = triangle_map;
 
         // Get dof values
-        double adjacent_dof1 =
-          dof_values->getValue<double>(
-        xmfAttribute->getValue<unsigned long>(
-          index + dof_to_vtk_map[ix1]));
-        double adjacent_dof2 =
-          dof_values->getValue<double>(
-        xmfAttribute->getValue<unsigned long>(
-          index + dof_to_vtk_map[ix2]));
+        double adjacent_dof1 = dof_values->getValue<double>(
+          xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix1]));
+        double adjacent_dof2 = dof_values->getValue<double>(
+          xmfAttribute->getValue<unsigned long>(index + dof_to_vtk_map[ix2]));
 
         // Dofs are scaled with the volume of corresponding facet
-        adjacent_dof1 = adjacent_dof1 / sqrt(cell->GetEdge(ix)
-          ->GetLength2());
-        adjacent_dof2 =
-          adjacent_dof2 / sqrt(cell->GetEdge((ix + 2) % 3)
-            ->GetLength2());
+        adjacent_dof1 = adjacent_dof1 / sqrt(cell->GetEdge(ix)->GetLength2());
+        adjacent_dof2 = adjacent_dof2 / sqrt(cell->GetEdge((ix + 2) % 3)->GetLength2());
 
         // Scalar product of the normals
-        double normal_product = normal[normal_ixs[0]][0] *
-          normal[normal_ixs[1] % 3][0] + normal[normal_ixs[0]][1] *
-          normal[normal_ixs[1] % 3][1];
+        double normal_product = normal[normal_ixs[0]][0] * normal[normal_ixs[1] % 3][0] +
+          normal[normal_ixs[0]][1] * normal[normal_ixs[1] % 3][1];
 
         // These coefficients are used to compute values at nodes
         // from values in midways
-        double a = (adjacent_dof1 - adjacent_dof2 * normal_product) /
-          (1.0 - pow(normal_product, 2.));
+        double a =
+          (adjacent_dof1 - adjacent_dof2 * normal_product) / (1.0 - pow(normal_product, 2.));
 
-        double b = (adjacent_dof2 - adjacent_dof1 * normal_product) /
-          (1.0 - pow(normal_product, 2.));
+        double b =
+          (adjacent_dof2 - adjacent_dof1 * normal_product) / (1.0 - pow(normal_product, 2.));
 
-        tuple[0] = normal[normal_ixs[0]][0] * a +
-          normal[normal_ixs[1] % 3][0] * b;
+        tuple[0] = normal[normal_ixs[0]][0] * a + normal[normal_ixs[1] % 3][0] * b;
 
-        tuple[1] = normal[normal_ixs[0]][1] * a +
-          normal[normal_ixs[1] % 3][1] * b;
+        tuple[1] = normal[normal_ixs[0]][1] * a + normal[normal_ixs[1] % 3][1] * b;
 
         tuple[2] = 0.0;
       }
@@ -2947,12 +2773,11 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
     // Add cell
     //
 
-    dataSet_finite_element->InsertNextCell(new_cell_type,
-      number_points_per_new_cell, ptIds);
+    dataSet_finite_element->InsertNextCell(new_cell_type, number_points_per_new_cell, ptIds);
     index = index + number_dofs_per_cell;
 
     delete[] ptIds;
-    for (unsigned int q = 0; q<number_points_per_new_cell; ++q)
+    for (unsigned int q = 0; q < number_points_per_new_cell; ++q)
     {
       delete[] normal[q];
     }
@@ -2969,25 +2794,25 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
   // Copy prepared structure to the dataset
   dataSet->CopyStructure(dataSet_finite_element);
 
-  vtkFieldData *fieldData = nullptr;
+  vtkFieldData* fieldData = nullptr;
 
   // Insert values array to Cell/Point data
   if (xmfAttribute->getElementDegree() == 0)
   {
     fieldData = dataSet_original->GetCellData();
-  } else {
+  }
+  else
+  {
     fieldData = dataSet_original->GetPointData();
   }
 
   fieldData->AddArray(new_array);
 
-  vtkDataSetAttributes *dataSet_attributes =
-    vtkDataSetAttributes::SafeDownCast(fieldData);
+  vtkDataSetAttributes* dataSet_attributes = vtkDataSetAttributes::SafeDownCast(fieldData);
 
   if (data_rank >= 0)
     dataSet_attributes->SetAttribute(new_array, data_rank);
 
   new_array->Delete();
   array->Delete();
-
 }

@@ -40,15 +40,15 @@ vtkCell::~vtkCell()
 //----------------------------------------------------------------------------
 // Instantiate cell from outside
 //
-void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
+void vtkCell::Initialize(int npts, const vtkIdType* pts, vtkPoints* p)
 {
   this->PointIds->Reset();
   this->Points->Reset();
 
-  for (int i=0; i<npts; i++)
+  for (int i = 0; i < npts; i++)
   {
-    this->PointIds->InsertId(i,pts[i]);
-    this->Points->InsertPoint(i,p->GetPoint(pts[i]));
+    this->PointIds->InsertId(i, pts[i]);
+    this->Points->InsertPoint(i, p->GetPoint(pts[i]));
   }
 }
 
@@ -57,23 +57,23 @@ void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
 // vtkCell::Initialize() that assumes point ids are simply the index into the
 // points. This is a convenience function.
 //
-void vtkCell::Initialize(int npts, vtkPoints *p)
+void vtkCell::Initialize(int npts, vtkPoints* p)
 {
   this->PointIds->Reset();
   this->Points->Reset();
 
-  for (int i=0; i<npts; i++)
+  for (int i = 0; i < npts; i++)
   {
-    this->PointIds->InsertId(i,i);
-    this->Points->InsertPoint(i,p->GetPoint(i));
+    this->PointIds->InsertId(i, i);
+    this->Points->InsertPoint(i, p->GetPoint(i));
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkCell::ShallowCopy(vtkCell *c)
+void vtkCell::ShallowCopy(vtkCell* c)
 {
   this->Points->ShallowCopy(c->Points);
-  if ( this->PointIds )
+  if (this->PointIds)
   {
     this->PointIds->UnRegister(this);
     this->PointIds = c->PointIds;
@@ -82,7 +82,7 @@ void vtkCell::ShallowCopy(vtkCell *c)
 }
 
 //----------------------------------------------------------------------------
-void vtkCell::DeepCopy(vtkCell *c)
+void vtkCell::DeepCopy(vtkCell* c)
 {
   this->Points->DeepCopy(c->Points);
   this->PointIds->DeepCopy(c->PointIds);
@@ -91,10 +91,10 @@ void vtkCell::DeepCopy(vtkCell *c)
 //----------------------------------------------------------------------------
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
 // to array of six double values.
-double *vtkCell::GetBounds ()
+double* vtkCell::GetBounds()
 {
   double x[3];
-  int i, numPts=this->Points->GetNumberOfPoints();
+  int i, numPts = this->Points->GetNumberOfPoints();
 
   if (numPts)
   {
@@ -105,7 +105,7 @@ double *vtkCell::GetBounds ()
     this->Bounds[1] = x[0];
     this->Bounds[3] = x[1];
     this->Bounds[5] = x[2];
-    for (i=1; i<numPts; i++)
+    for (i = 1; i < numPts; i++)
     {
       this->Points->GetPoint(i, x);
       this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
@@ -129,7 +129,7 @@ double *vtkCell::GetBounds ()
 void vtkCell::GetBounds(double bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i < 6; i++)
+  for (int i = 0; i < 6; i++)
   {
     bounds[i] = this->Bounds[i];
   }
@@ -137,15 +137,15 @@ void vtkCell::GetBounds(double bounds[6])
 
 //----------------------------------------------------------------------------
 // Compute Length squared of cell (i.e., bounding box diagonal squared).
-double vtkCell::GetLength2 ()
+double vtkCell::GetLength2()
 {
-  double diff, l=0.0;
+  double diff, l = 0.0;
   int i;
 
   this->GetBounds();
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    diff = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
     l += diff * diff;
   }
   return l;
@@ -169,23 +169,23 @@ int vtkCell::GetParametricCenter(double pcoords[3])
 double vtkCell::GetParametricDistance(const double pcoords[3])
 {
   int i;
-  double pDist, pDistMax=0.0;
+  double pDist, pDistMax = 0.0;
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    if ( pcoords[i] < 0.0 )
+    if (pcoords[i] < 0.0)
     {
       pDist = -pcoords[i];
     }
-    else if ( pcoords[i] > 1.0 )
+    else if (pcoords[i] > 1.0)
     {
       pDist = pcoords[i] - 1.0;
     }
-    else //inside the cell in the parametric direction
+    else // inside the cell in the parametric direction
     {
       pDist = 0.0;
     }
-    if ( pDist > pDistMax )
+    if (pDist > pDistMax)
     {
       pDistMax = pDist;
     }
@@ -193,19 +193,18 @@ double vtkCell::GetParametricDistance(const double pcoords[3])
   return pDistMax;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  int numIds=this->PointIds->GetNumberOfIds();
+  int numIds = this->PointIds->GetNumberOfIds();
 
   os << indent << "Number Of Points: " << numIds << "\n";
 
-  if ( numIds > 0 )
+  if (numIds > 0)
   {
-    const double *bounds=this->GetBounds();
+    const double* bounds = this->GetBounds();
 
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
@@ -213,16 +212,16 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
 
     os << indent << "  Point ids are: ";
-    for (int i=0; i < numIds; i++)
+    for (int i = 0; i < numIds; i++)
     {
       os << this->PointIds->GetId(i);
-      if ( i && !(i % 12) )
+      if (i && !(i % 12))
       {
         os << "\n\t";
       }
       else
       {
-        if ( i != (numIds-1) )
+        if (i != (numIds - 1))
         {
           os << ", ";
         }
@@ -233,7 +232,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // Usually overridden. Only composite cells do not override this.
-double *vtkCell::GetParametricCoords()
+double* vtkCell::GetParametricCoords()
 {
   return nullptr;
 }

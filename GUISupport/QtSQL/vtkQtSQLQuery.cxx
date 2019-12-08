@@ -30,12 +30,12 @@
 #include "vtkQtTimePointUtility.h"
 #include "vtkVariantArray.h"
 
-#include <QtSql/QtSql>
-#include <QtSql/QSqlQuery>
-#include <QString>
-#include <QDateTime>
 #include <QDate>
+#include <QDateTime>
+#include <QString>
 #include <QTime>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QtSql>
 #include <string>
 #include <vector>
 
@@ -45,7 +45,6 @@ public:
   QSqlQuery QtQuery;
   std::vector<std::string> FieldNames;
 };
-
 
 vtkStandardNewMacro(vtkQtSQLQuery);
 
@@ -62,10 +61,11 @@ vtkQtSQLQuery::~vtkQtSQLQuery()
   this->SetLastErrorText(nullptr);
 }
 
-void vtkQtSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
+void vtkQtSQLQuery::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "LastErrorText: " << (this->LastErrorText ? this->LastErrorText : "nullptr") << endl;
+  os << indent << "LastErrorText: " << (this->LastErrorText ? this->LastErrorText : "nullptr")
+     << endl;
 }
 
 bool vtkQtSQLQuery::HasError()
@@ -86,14 +86,15 @@ bool vtkQtSQLQuery::Execute()
     vtkErrorMacro("Query string must be non-null.");
     return false;
   }
-  this->Internals->QtQuery = vtkQtSQLDatabase::SafeDownCast(this->Database)->QtDatabase.exec(this->Query);
+  this->Internals->QtQuery =
+    vtkQtSQLDatabase::SafeDownCast(this->Database)->QtDatabase.exec(this->Query);
 
   QSqlError error = this->Internals->QtQuery.lastError();
   if (error.isValid())
   {
     QString errorString;
-    errorString.sprintf("Query execute error: %s (type:%d)\n",
-      error.text().toLatin1().data(),error.type());
+    errorString.sprintf(
+      "Query execute error: %s (type:%d)\n", error.text().toLatin1().data(), error.type());
     vtkErrorMacro(<< errorString.toLatin1().data());
     return false;
   }
@@ -102,7 +103,8 @@ bool vtkQtSQLQuery::Execute()
   this->Internals->FieldNames.clear();
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
   {
-    this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
+    this->Internals->FieldNames.push_back(
+      this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
   }
   return true;
 }
@@ -120,7 +122,7 @@ const char* vtkQtSQLQuery::GetFieldName(int col)
 int QVariantTypeToVTKType(QVariant::Type t)
 {
   int type = -1;
-  switch(t)
+  switch (t)
   {
     case QVariant::Bool:
       type = VTK_INT;
@@ -221,8 +223,8 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::Invalid:
       return vtkVariant();
     default:
-      vtkErrorMacro(<< "Unhandled Qt variant type "
-        << v.type() << " found; returning string variant.");
+      vtkErrorMacro(<< "Unhandled Qt variant type " << v.type()
+                    << " found; returning string variant.");
       return vtkVariant(v.toString().toLatin1().data());
   }
 }

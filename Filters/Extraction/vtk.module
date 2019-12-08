@@ -5,7 +5,7 @@ LIBRARY_NAME
 DESCRIPTION
   Filters for selecting subsets data
 KIT
-  VTK::Filters
+  VTK::Parallel
 GROUPS
   StandAlone
 DEPENDS
@@ -16,10 +16,12 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersCore
   VTK::FiltersStatistics
+  VTK::ParallelDIY
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
-  VTK::IOExodus
   VTK::IOExodus
   VTK::IOLegacy
   VTK::IOXML

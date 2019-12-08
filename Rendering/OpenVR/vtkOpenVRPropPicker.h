@@ -13,22 +13,22 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
-* @class   vtkOpenVRPropPicker
-* @brief   Deprecated. Use vtkPropPicker directly
-*/
+ * @class   vtkOpenVRPropPicker
+ * @brief   Deprecated. Use vtkPropPicker directly
+ */
 
 #ifndef vtkOpenVRPropPicker_h
 #define vtkOpenVRPropPicker_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkPropPicker.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkProp;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRPropPicker : public vtkPropPicker
 {
 public:
-  static vtkOpenVRPropPicker *New();
+  static vtkOpenVRPropPicker* New();
 
   vtkTypeMacro(vtkOpenVRPropPicker, vtkPropPicker);
 
@@ -40,10 +40,9 @@ protected:
 
   void Initialize() override;
 
-
 private:
-  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) = delete;// Not implemented.
-  void operator=(const vtkOpenVRPropPicker&) = delete;// Not implemented.
+  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) = delete; // Not implemented.
+  void operator=(const vtkOpenVRPropPicker&) = delete;      // Not implemented.
 };
 
 #endif

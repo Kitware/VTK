@@ -29,13 +29,13 @@
  * @sa
  * vtkDataReader vtkPolyDataReader vtkRectilinearGridReader
  * vtkStructuredPointsReader vtkStructuredGridReader vtkUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkDataSetReader_h
 #define vtkDataSetReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkDataSet;
 class vtkPolyData;
@@ -47,16 +47,16 @@ class vtkUnstructuredGrid;
 class VTKIOLEGACY_EXPORT vtkDataSetReader : public vtkDataReader
 {
 public:
-  static vtkDataSetReader *New();
-  vtkTypeMacro(vtkDataSetReader,vtkDataReader);
+  static vtkDataSetReader* New();
+  vtkTypeMacro(vtkDataSetReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this filter
    */
-  vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx);
+  vtkDataSet* GetOutput();
+  vtkDataSet* GetOutput(int idx);
   //@}
 
   //@{
@@ -67,11 +67,11 @@ public:
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */
-  vtkPolyData *GetPolyDataOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
+  vtkPolyData* GetPolyDataOutput();
+  vtkStructuredPoints* GetStructuredPointsOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
+  vtkRectilinearGrid* GetRectilinearGridOutput();
   //@}
 
   /**
@@ -83,15 +83,12 @@ public:
   /**
    * Read metadata from file.
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation* metadata) override;
+  int ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkDataSetReader();
@@ -99,7 +96,7 @@ protected:
 
   vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkDataSetReader(const vtkDataSetReader&) = delete;

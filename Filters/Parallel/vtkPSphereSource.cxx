@@ -31,30 +31,25 @@
 vtkStandardNewMacro(vtkPSphereSource);
 
 //----------------------------------------------------------------------------
-int vtkPSphereSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkPSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   vtkIdType i, j, numOffset;
   int jStart, jEnd;
   vtkIdType numPts, numPolys;
-  vtkPoints *newPoints;
-  vtkFloatArray *newNormals;
-  vtkCellArray *newPolys;
+  vtkPoints* newPoints;
+  vtkFloatArray* newNormals;
+  vtkCellArray* newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
   vtkIdType base, thetaResolution, phiResolution;
   int numPoles = 0;
   vtkIdType pts[3];
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  int piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // I want to modify the ivars resoultion start theta and end theta,
   // so I will make local copies of them.  THese might be able to be merged
@@ -72,9 +67,9 @@ int vtkPSphereSource::RequestData(
   // Change the ivars based on pieces.
   vtkIdType start, end;
   start = piece * localThetaResolution / numPieces;
-  end = (piece+1) * localThetaResolution / numPieces;
-  localEndTheta = localStartTheta + (float)(end) * deltaTheta;
-  localStartTheta = localStartTheta + (float)(start) * deltaTheta;
+  end = (piece + 1) * localThetaResolution / numPieces;
+  localEndTheta = localStartTheta + (float)(end)*deltaTheta;
+  localStartTheta = localStartTheta + (float)(start)*deltaTheta;
   localThetaResolution = end - start;
 
   //
@@ -91,45 +86,45 @@ int vtkPSphereSource::RequestData(
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3*numPts);
+  newNormals->Allocate(3 * numPts);
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
+  newPolys->AllocateEstimate(numPolys, 3);
   //
   // Create sphere
   //
   // Create north pole if needed
-  if ( this->StartPhi <= 0.0 )
+  if (this->StartPhi <= 0.0)
   {
     x[0] = this->Center[0];
     x[1] = this->Center[1];
     x[2] = this->Center[2] + this->Radius;
-    newPoints->InsertPoint(numPoles,x);
+    newPoints->InsertPoint(numPoles, x);
 
-    x[0] = x[1] = 0.0; x[2] = 1.0;
-    newNormals->InsertTuple(numPoles,x);
+    x[0] = x[1] = 0.0;
+    x[2] = 1.0;
+    newNormals->InsertTuple(numPoles, x);
     numPoles++;
   }
 
   // Create south pole if needed
-  if ( this->EndPhi >= 180.0 )
+  if (this->EndPhi >= 180.0)
   {
     x[0] = this->Center[0];
     x[1] = this->Center[1];
     x[2] = this->Center[2] - this->Radius;
-    newPoints->InsertPoint(numPoles,x);
+    newPoints->InsertPoint(numPoles, x);
 
-    x[0] = x[1] = 0.0; x[2] = -1.0;
-    newNormals->InsertTuple(numPoles,x);
+    x[0] = x[1] = 0.0;
+    x[2] = -1.0;
+    newNormals->InsertTuple(numPoles, x);
     numPoles++;
   }
 
   // Check data, determine increments, and convert to radians
-  startTheta = (localStartTheta < localEndTheta ? localStartTheta
-                : localEndTheta);
+  startTheta = (localStartTheta < localEndTheta ? localStartTheta : localEndTheta);
   startTheta *= vtkMath::Pi() / 180.0;
-  endTheta = (localEndTheta > localStartTheta ? localEndTheta
-              : localStartTheta);
+  endTheta = (localEndTheta > localStartTheta ? localEndTheta : localStartTheta);
   endTheta *= vtkMath::Pi() / 180.0;
 
   startPhi = (this->StartPhi < this->EndPhi ? this->StartPhi : this->EndPhi);
@@ -147,17 +142,16 @@ int vtkPSphereSource::RequestData(
   deltaTheta = (endTheta - startTheta) / thetaResolution;
 
   jStart = (this->StartPhi <= 0.0 ? 1 : 0);
-  jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1
-        : this->PhiResolution);
+  jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1 : this->PhiResolution);
 
   // Create intermediate points
-  for (i=0; i < localThetaResolution; i++)
+  for (i = 0; i < localThetaResolution; i++)
   {
-    theta = localStartTheta * vtkMath::Pi() / 180.0 + i*deltaTheta;
+    theta = localStartTheta * vtkMath::Pi() / 180.0 + i * deltaTheta;
 
-    for (j=jStart; j<jEnd; j++)
+    for (j = jStart; j < jEnd; j++)
     {
-      phi = startPhi + j*deltaPhi;
+      phi = startPhi + j * deltaPhi;
       radius = this->Radius * sin((double)phi);
       n[0] = radius * cos((double)theta);
       n[1] = radius * sin((double)theta);
@@ -167,11 +161,13 @@ int vtkPSphereSource::RequestData(
       x[2] = n[2] + this->Center[2];
       newPoints->InsertNextPoint(x);
 
-      if ( (norm = vtkMath::Norm(n)) == 0.0 )
+      if ((norm = vtkMath::Norm(n)) == 0.0)
       {
         norm = 1.0;
       }
-      n[0] /= norm; n[1] /= norm; n[2] /= norm;
+      n[0] /= norm;
+      n[1] /= norm;
+      n[2] /= norm;
       newNormals->InsertNextTuple(n);
     }
   }
@@ -184,38 +180,38 @@ int vtkPSphereSource::RequestData(
     --localThetaResolution;
   }
 
-  if ( this->StartPhi <= 0.0 )  // around north pole
+  if (this->StartPhi <= 0.0) // around north pole
   {
-    for (i=0; i < localThetaResolution; i++)
+    for (i = 0; i < localThetaResolution; i++)
     {
-      pts[0] = phiResolution*i + numPoles;
-      pts[1] = (phiResolution*(i+1) % base) + numPoles;
+      pts[0] = phiResolution * i + numPoles;
+      pts[1] = (phiResolution * (i + 1) % base) + numPoles;
       pts[2] = 0;
       newPolys->InsertNextCell(3, pts);
     }
   }
 
-  if ( this->EndPhi >= 180.0 ) // around south pole
+  if (this->EndPhi >= 180.0) // around south pole
   {
     numOffset = phiResolution - 1 + numPoles;
 
-    for (i=0; i < localThetaResolution; i++)
+    for (i = 0; i < localThetaResolution; i++)
     {
-      pts[0] = phiResolution*i + numOffset;
-      pts[2] = ((phiResolution*(i+1)) % base) + numOffset;
+      pts[0] = phiResolution * i + numOffset;
+      pts[2] = ((phiResolution * (i + 1)) % base) + numOffset;
       pts[1] = numPoles - 1;
       newPolys->InsertNextCell(3, pts);
     }
   }
 
   // bands in-between poles
-  for (i=0; i < localThetaResolution; i++)
+  for (i = 0; i < localThetaResolution; i++)
   {
-    for (j=0; j < (phiResolution-1); j++)
+    for (j = 0; j < (phiResolution - 1); j++)
     {
-      pts[0] = phiResolution*i + j + numPoles;
+      pts[0] = phiResolution * i + j + numPoles;
       pts[1] = pts[0] + 1;
-      pts[2] = ((phiResolution*(i+1)+j) % base) + numPoles + 1;
+      pts[2] = ((phiResolution * (i + 1) + j) % base) + numPoles + 1;
       newPolys->InsertNextCell(3, pts);
 
       pts[1] = pts[2];
@@ -246,9 +242,8 @@ unsigned long vtkPSphereSource::GetEstimatedMemorySize()
   vtkLargeInteger sz;
   vtkLargeInteger sz2;
   unsigned long thetaResolution = this->ThetaResolution;
-  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
-  int numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  vtkInformation* outInfo = this->GetExecutive()->GetOutputInformation(0);
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if (numPieces)
   {

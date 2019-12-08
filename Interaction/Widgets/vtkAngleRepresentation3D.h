@@ -26,13 +26,13 @@
  *
  * @sa
  * vtkAngleWidget vtkHandleRepresentation
-*/
+ */
 
 #ifndef vtkAngleRepresentation3D_h
 #define vtkAngleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAngleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkProperty;
@@ -50,13 +50,13 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkAngleRepresentation3D *New();
+  static vtkAngleRepresentation3D* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAngleRepresentation3D,vtkAngleRepresentation);
+  vtkTypeMacro(vtkAngleRepresentation3D, vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -91,18 +91,18 @@ public:
    * By obtaining these leaders the user can set the appropriate
    * properties, etc.
    */
-  vtkGetObjectMacro(Ray1,vtkActor);
-  vtkGetObjectMacro(Ray2,vtkActor);
-  vtkGetObjectMacro(Arc,vtkActor);
-  vtkGetObjectMacro(TextActor,vtkFollower);
+  vtkGetObjectMacro(Ray1, vtkActor);
+  vtkGetObjectMacro(Ray2, vtkActor);
+  vtkGetObjectMacro(Arc, vtkActor);
+  vtkGetObjectMacro(TextActor, vtkFollower);
   //@}
 
   //@{
   /**
    * Scale text.
    */
-  virtual void SetTextActorScale( double scale[3] );
-  virtual double * GetTextActorScale();
+  virtual void SetTextActorScale(double scale[3]);
+  virtual double* GetTextActorScale();
   //@}
 
   /**
@@ -115,7 +115,7 @@ public:
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
@@ -126,21 +126,21 @@ protected:
   ~vtkAngleRepresentation3D() override;
 
   // The pieces that make up the angle representations
-  vtkLineSource     *Line1Source;
-  vtkLineSource     *Line2Source;
-  vtkArcSource      *ArcSource;
-  vtkPolyDataMapper *Line1Mapper;
-  vtkPolyDataMapper *Line2Mapper;
-  vtkPolyDataMapper *ArcMapper;
-  vtkActor          *Ray1;
-  vtkActor          *Ray2;
-  vtkActor          *Arc;
-  vtkFollower       *TextActor;
-  vtkPolyDataMapper *TextMapper;
-  vtkVectorText     *TextInput;
-  double             Angle;
-  bool               ScaleInitialized;
-  double             TextPosition[3];
+  vtkLineSource* Line1Source;
+  vtkLineSource* Line2Source;
+  vtkArcSource* ArcSource;
+  vtkPolyDataMapper* Line1Mapper;
+  vtkPolyDataMapper* Line2Mapper;
+  vtkPolyDataMapper* ArcMapper;
+  vtkActor* Ray1;
+  vtkActor* Ray2;
+  vtkActor* Arc;
+  vtkFollower* TextActor;
+  vtkPolyDataMapper* TextMapper;
+  vtkVectorText* TextInput;
+  double Angle;
+  bool ScaleInitialized;
+  double TextPosition[3];
 
 private:
   vtkAngleRepresentation3D(const vtkAngleRepresentation3D&) = delete;

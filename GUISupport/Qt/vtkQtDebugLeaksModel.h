@@ -20,7 +20,7 @@
  * This class is used internally by the vtkQtDebugLeaksView.  It installs an
  * observer on the vtkDebugLeaks singleton and uses the observer to maintain
  * a model of all vtkObjectBase derived objects that are alive in memory.
-*/
+ */
 
 #ifndef vtkQtDebugLeaksModel_h
 #define vtkQtDebugLeaksModel_h
@@ -35,8 +35,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-
-  vtkQtDebugLeaksModel(QObject* p=nullptr);
+  vtkQtDebugLeaksModel(QObject* p = nullptr);
   ~vtkQtDebugLeaksModel() override;
 
   /**
@@ -60,10 +59,9 @@ protected slots:
   void onAboutToQuit();
 
   // Inherited method from QAbstractItemModel
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
-
   class qInternal;
   qInternal* Internal;
 
@@ -73,7 +71,6 @@ private:
   Q_DISABLE_COPY(vtkQtDebugLeaksModel);
 };
 
-
 // TODO - move to private
 //-----------------------------------------------------------------------------
 class ReferenceCountModel : public QStandardItemModel
@@ -81,19 +78,18 @@ class ReferenceCountModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-  ReferenceCountModel(QObject* p=nullptr);
+  ReferenceCountModel(QObject* p = nullptr);
   ~ReferenceCountModel() override;
   void addObject(vtkObjectBase* obj);
   void removeObject(vtkObjectBase* obj);
   QString pointerAsString(void* ptr);
 
   // Inherited method from QAbstractItemModel
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 protected slots:
   void updateReferenceCounts();
 };
-
 
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksModel.h

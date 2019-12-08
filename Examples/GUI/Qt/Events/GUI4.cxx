@@ -61,21 +61,17 @@ GUI4::GUI4()
   qVTK1->SetRenderWindow(renwin);
   renwin->Delete();
 
-  const double angleSensitivity=0.02;
-  const double translationSensitivity=0.001;
+  const double angleSensitivity = 0.02;
+  const double translationSensitivity = 0.001;
 
-  QVTKInteractor *iren=qVTK1->GetInteractor();
-  vtkInteractorStyle *s=
-    static_cast<vtkInteractorStyle *>(iren->GetInteractorStyle());
-  vtkTDxInteractorStyleCamera *t=
-    static_cast<vtkTDxInteractorStyleCamera *>(s->GetTDxStyle());
+  QVTKInteractor* iren = qVTK1->GetInteractor();
+  vtkInteractorStyle* s = static_cast<vtkInteractorStyle*>(iren->GetInteractorStyle());
+  vtkTDxInteractorStyleCamera* t = static_cast<vtkTDxInteractorStyleCamera*>(s->GetTDxStyle());
 
   t->GetSettings()->SetAngleSensitivity(angleSensitivity);
   t->GetSettings()->SetTranslationXSensitivity(translationSensitivity);
   t->GetSettings()->SetTranslationYSensitivity(translationSensitivity);
   t->GetSettings()->SetTranslationZSensitivity(translationSensitivity);
-
-
 
   // add a renderer
   Ren1 = vtkRenderer::New();
@@ -107,10 +103,9 @@ GUI4::GUI4()
   qVTK2->SetRenderWindow(renwin);
   renwin->Delete();
 
-  QVTKInteractor *iren2=qVTK2->GetInteractor();
-  vtkInteractorStyle *s2=
-    static_cast<vtkInteractorStyle *>(iren2->GetInteractorStyle());
-  vtkTDxInteractorStyle *t2=s2->GetTDxStyle();
+  QVTKInteractor* iren2 = qVTK2->GetInteractor();
+  vtkInteractorStyle* s2 = static_cast<vtkInteractorStyle*>(iren2->GetInteractorStyle());
+  vtkTDxInteractorStyle* t2 = s2->GetTDxStyle();
   t2->SetSettings(t->GetSettings());
 
   // add a renderer
@@ -135,46 +130,31 @@ GUI4::GUI4()
   mapper->Delete();
   sphere->Delete();
 
-
   Connections = vtkEventQtSlotConnect::New();
 
   // get right mouse pressed with high priority
-  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::RightButtonPressEvent,
-                       this,
-                       SLOT(popup( vtkObject*, unsigned long, void*, void*, vtkCommand*)),
-                       popup1, 1.0);
+  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(), vtkCommand::RightButtonPressEvent,
+    this, SLOT(popup(vtkObject*, unsigned long, void*, void*, vtkCommand*)), popup1, 1.0);
 
   // get right mouse pressed with high priority
-  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::RightButtonPressEvent,
-                       this,
-                       SLOT(popup( vtkObject*, unsigned long, void*, void*, vtkCommand*)),
-                       popup2, 1.0);
+  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(), vtkCommand::RightButtonPressEvent,
+    this, SLOT(popup(vtkObject*, unsigned long, void*, void*, vtkCommand*)), popup2, 1.0);
 
   // connect window enter event to radio button slot
-  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::EnterEvent,
-                       radio1,
-                       SLOT(animateClick()));
+  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(), vtkCommand::EnterEvent, radio1,
+    SLOT(animateClick()));
 
   // connect window enter event to radio button slot
-  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::EnterEvent,
-                       radio2,
-                       SLOT(animateClick()));
+  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(), vtkCommand::EnterEvent, radio2,
+    SLOT(animateClick()));
 
   // update coords as we move through the window
-  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::MouseMoveEvent,
-                       this,
-                       SLOT(updateCoords(vtkObject*)));
+  Connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this,
+    SLOT(updateCoords(vtkObject*)));
 
   // update coords as we move through the window
-  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(),
-                       vtkCommand::MouseMoveEvent,
-                       this,
-                       SLOT(updateCoords(vtkObject*)));
+  Connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this,
+    SLOT(updateCoords(vtkObject*)));
 
   Connections->PrintSelf(cout, vtkIndent());
 }
@@ -186,7 +166,6 @@ GUI4::~GUI4()
 
   Connections->Delete();
 }
-
 
 void GUI4::updateCoords(vtkObject* obj)
 {
@@ -201,9 +180,7 @@ void GUI4::updateCoords(vtkObject* obj)
   coord->setText(str);
 }
 
-void GUI4::popup(vtkObject * obj, unsigned long,
-           void * client_data, void *,
-           vtkCommand * command)
+void GUI4::popup(vtkObject* obj, unsigned long, void* client_data, void*, vtkCommand* command)
 {
   // A note about context menus in Qt and the QVTKWidget
   // You may find it easy to just do context menus on right button up,
@@ -227,7 +204,7 @@ void GUI4::popup(vtkObject * obj, unsigned long,
   int* sz = iren->GetSize();
   int* position = iren->GetEventPosition();
   // remember to flip y
-  QPoint pt = QPoint(position[0], sz[1]-position[1]);
+  QPoint pt = QPoint(position[0], sz[1] - position[1]);
   // map to global
   QPoint global_pt = popupMenu->parentWidget()->mapToGlobal(pt);
   // show popup menu at global point
@@ -236,11 +213,11 @@ void GUI4::popup(vtkObject * obj, unsigned long,
 
 void GUI4::color1(QAction* color)
 {
-  if(color->text() == "Background White")
-    Ren1->SetBackground(1,1,1);
-  else if(color->text() == "Background Black")
-    Ren1->SetBackground(0,0,0);
-  else if(color->text() == "Stereo Rendering")
+  if (color->text() == "Background White")
+    Ren1->SetBackground(1, 1, 1);
+  else if (color->text() == "Background Black")
+    Ren1->SetBackground(0, 0, 0);
+  else if (color->text() == "Stereo Rendering")
   {
     Ren1->GetRenderWindow()->SetStereoRender(!Ren1->GetRenderWindow()->GetStereoRender());
   }
@@ -249,14 +226,14 @@ void GUI4::color1(QAction* color)
 
 void GUI4::color2(QAction* color)
 {
-  if(color->text() == "Background White")
-    this->Ren2->SetBackground(1,1,1);
-  else if(color->text() == "Background Black")
-    this->Ren2->SetBackground(0,0,0);
-  else if(color->text() == "Stereo Rendering")
+  if (color->text() == "Background White")
+    this->Ren2->SetBackground(1, 1, 1);
+  else if (color->text() == "Background Black")
+    this->Ren2->SetBackground(0, 0, 0);
+  else if (color->text() == "Stereo Rendering")
   {
-    this->Ren2->GetRenderWindow()->SetStereoRender(!this->Ren2->GetRenderWindow()->GetStereoRender());
+    this->Ren2->GetRenderWindow()->SetStereoRender(
+      !this->Ren2->GetRenderWindow()->GetStereoRender());
   }
   qVTK2->update();
 }
-

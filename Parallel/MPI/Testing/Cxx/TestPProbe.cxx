@@ -13,66 +13,64 @@
 
 =========================================================================*/
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
-#include "vtkMPIController.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkCamera.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkLineSource.h"
-#include "vtkPDataSetReader.h"
-#include "vtkPProbeFilter.h"
-#include "vtkPOutlineFilter.h"
-#include "vtkTestUtilities.h"
-#include "vtkProperty.h"
-#include "vtkTubeFilter.h"
+#include "vtkCamera.h"
 #include "vtkCompositeRenderManager.h"
+#include "vtkLineSource.h"
+#include "vtkMPIController.h"
+#include "vtkPDataSetReader.h"
+#include "vtkPOutlineFilter.h"
+#include "vtkPProbeFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTubeFilter.h"
 
-
-int TestPProbe(int argc,char *argv[])
+int TestPProbe(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
   // main processes waits in MPI_Init() and calls exit() when
   // the others are done, causing apparent memory leaks for any objects
   // created before MPI_Init().
-  MPI_Init(&argc,&argv);
+  MPI_Init(&argc, &argv);
 
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize();
 
-  int numProcs =contr->GetNumberOfProcesses();
-  int me=contr->GetLocalProcessId();
+  int numProcs = contr->GetNumberOfProcesses();
+  int me = contr->GetLocalProcessId();
 
-// create a rendering window and renderer
+  // create a rendering window and renderer
   vtkRenderer* Ren1 = vtkRenderer::New();
-  Ren1->SetBackground(.5,.8,1);
+  Ren1->SetBackground(.5, .8, 1);
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(Ren1);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
 
   if (me > 0)
   {
-    renWin->SetPosition(me*350, 0);
+    renWin->SetPosition(me * 350, 0);
     renWin->OffScreenRenderingOn();
   }
 
-// camera parameters
+  // camera parameters
   vtkCamera* camera = Ren1->GetActiveCamera();
-  camera->SetPosition(199.431,196.879,15.7781);
-  camera->SetFocalPoint(33.5,33.5,33.5);
-  camera->SetViewUp(0.703325,-0.702557,0.108384);
+  camera->SetPosition(199.431, 196.879, 15.7781);
+  camera->SetFocalPoint(33.5, 33.5, 33.5);
+  camera->SetViewUp(0.703325, -0.702557, 0.108384);
   camera->SetViewAngle(30);
-  camera->SetClippingRange(132.14,361.741);
+  camera->SetClippingRange(132.14, 361.741);
 
   vtkPDataSetReader* ironProt0 = vtkPDataSetReader::New();
-  char* fname1 = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                      "Data/ironProt.vtk");
+  char* fname1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   ironProt0->SetFileName(fname1);
   delete[] fname1;
 
@@ -82,7 +80,7 @@ int TestPProbe(int argc,char *argv[])
 
   vtkPolyDataMapper* Mapper4 = vtkPolyDataMapper::New();
   Mapper4->SetInputConnection(Geometry4->GetOutputPort());
-  Mapper4->SetScalarRange(0,1);
+  Mapper4->SetScalarRange(0, 1);
   Mapper4->SetScalarVisibility(0);
   Mapper4->SetScalarModeToDefault();
 
@@ -90,12 +88,12 @@ int TestPProbe(int argc,char *argv[])
   Actor4->SetMapper(Mapper4);
   Actor4->GetProperty()->SetRepresentationToSurface();
   Actor4->GetProperty()->SetInterpolationToGouraud();
-  Actor4->GetProperty()->SetColor(1,1,1);
+  Actor4->GetProperty()->SetColor(1, 1, 1);
   Ren1->AddActor(Actor4);
 
   vtkLineSource* probeLine = vtkLineSource::New();
-  probeLine->SetPoint1(0,67,10);
-  probeLine->SetPoint2(67,0,50);
+  probeLine->SetPoint1(0, 67, 10);
+  probeLine->SetPoint2(67, 0, 50);
   probeLine->SetResolution(500);
 
   vtkPProbeFilter* Probe0 = vtkPProbeFilter::New();
@@ -114,10 +112,10 @@ int TestPProbe(int argc,char *argv[])
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
   Mapper6->SetInputConnection(Tuber0->GetOutputPort());
-  Mapper6->SetScalarRange(0,228);
+  Mapper6->SetScalarRange(0, 228);
   Mapper6->SetScalarVisibility(1);
   Mapper6->SetScalarModeToUsePointFieldData();
-  Mapper6->ColorByArrayComponent("scalars",-1);
+  Mapper6->ColorByArrayComponent("scalars", -1);
   Mapper6->UseLookupTableScalarRangeOn();
 
   vtkActor* Actor6 = vtkActor::New();
@@ -131,7 +129,7 @@ int TestPProbe(int argc,char *argv[])
   compManager->SetController(contr);
   compManager->InitializePieces();
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   int retVal;
@@ -153,7 +151,7 @@ int TestPProbe(int argc,char *argv[])
     }
   }
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     compManager->StartInteractor();
   }

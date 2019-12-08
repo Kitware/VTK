@@ -21,8 +21,6 @@ endif ()
 
 _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
 
-set(vtk_prefix_paths)
-
 set(vtk_python_version "")
 if (VTK_WRAP_PYTHON)
   set(vtk_python_version "${VTK_PYTHON_VERSION}")
@@ -32,14 +30,6 @@ configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
-
-if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
-  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
-  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
-endif ()
-if (VTK_RELOCATABLE_INSTALL)
-  set(vtk_prefix_paths)
-endif ()
 
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
@@ -85,7 +75,6 @@ set(vtk_cmake_module_files
   FindOpenSlide.cmake
   FindOpenVR.cmake
   FindOSMesa.cmake
-  FindPostgreSQL.cmake
   FindTBB.cmake
   FindTHEORA.cmake
   Findutf8cpp.cmake
@@ -106,7 +95,10 @@ set(vtk_cmake_module_files
   vtkObjectFactory.h.in
   vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
-  vtkTopologicalSort.cmake)
+  vtkTopologicalSort.cmake
+  vtk-use-file-compat.cmake
+  vtk-use-file-deprecated.cmake
+  vtk-use-file-error.cmake)
 set(vtk_cmake_patch_files
   patches/3.13/FindZLIB.cmake
   patches/3.16/FindMPI/fortranparam_mpi.f90.in
@@ -116,6 +108,7 @@ set(vtk_cmake_patch_files
   patches/3.16/FindMPI/test_mpi.c
   patches/3.16/FindMPI/test_mpi.f90.in
   patches/3.16/FindMPI.cmake
+  patches/3.16/FindPostgreSQL.cmake
   patches/99/FindGDAL.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindJPEG.cmake
@@ -137,6 +130,11 @@ foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_f
 endforeach ()
 
 include(vtkInstallCMakePackageHelpers)
+
+if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
+  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+endif ()
 if (NOT VTK_RELOCATABLE_INSTALL)
   list(APPEND vtk_cmake_files_to_install
     "${vtk_cmake_build_dir}/vtk-find-package-helpers.cmake")

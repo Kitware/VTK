@@ -85,7 +85,7 @@
  * vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
  * vtkCellLocatorInterpolatedVelocityField
  *
-*/
+ */
 
 #ifndef vtkEvenlySpacedStreamlines2D_h
 #define vtkEvenlySpacedStreamlines2D_h
@@ -95,7 +95,6 @@
 
 #include <array>
 #include <vector>
-
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;
@@ -114,7 +113,7 @@ class vtkStreamTracer;
 class VTKFILTERSFLOWPATHS_EXPORT vtkEvenlySpacedStreamlines2D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkEvenlySpacedStreamlines2D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEvenlySpacedStreamlines2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -124,7 +123,7 @@ public:
    * of steps 2000, using Runge-Kutta2, and maximum propagation 1.0
    * (in arc length unit).
    */
-  static vtkEvenlySpacedStreamlines2D *New();
+  static vtkEvenlySpacedStreamlines2D* New();
 
   //@{
   /**
@@ -147,8 +146,8 @@ public:
    * RUNGE_KUTTA2  = 0
    * RUNGE_KUTTA4  = 1
    */
-  void SetIntegrator(vtkInitialValueProblemSolver *);
-  vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  void SetIntegrator(vtkInitialValueProblemSolver*);
+  vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
   void SetIntegratorType(int type);
   int GetIntegratorType();
   void SetIntegratorTypeToRungeKutta2();
@@ -173,8 +172,8 @@ public:
    * LENGTH_UNIT (1) (value is in global coordinates) and CELL_LENGTH_UNIT (2)
    * (the value is in number of cell lengths)
    */
-  void SetIntegrationStepUnit( int unit );
-  int  GetIntegrationStepUnit() { return this->IntegrationStepUnit; }
+  void SetIntegrationStepUnit(int unit);
+  int GetIntegrationStepUnit() { return this->IntegrationStepUnit; }
 
   //@{
   /**
@@ -192,7 +191,6 @@ public:
   vtkSetMacro(MinimumNumberOfLoopPoints, vtkIdType);
   vtkGetMacro(MinimumNumberOfLoopPoints, vtkIdType);
   //@}
-
 
   //@{
   /**
@@ -243,7 +241,6 @@ public:
   vtkGetMacro(LoopAngle, double);
   //@}
 
-
   //@{
   /**
    * Specify the terminal speed value, below which integration is terminated.
@@ -266,7 +263,7 @@ public:
    * The object used to interpolate the velocity field during
    * integration is of the same class as this prototype.
    */
-  void SetInterpolatorPrototype( vtkAbstractInterpolatedVelocityField * ivf );
+  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField* ivf);
 
   /**
    * Set the type of the velocity field interpolator to determine whether
@@ -277,7 +274,7 @@ public:
    * vtkModifiedBSPTree) is more robust then the former (through vtkDataSet /
    * vtkPointSet::FindCell() coupled with vtkPointLocator).
    */
-  void SetInterpolatorType( int interpType );
+  void SetInterpolatorType(int interpType);
 
 protected:
   vtkEvenlySpacedStreamlines2D();
@@ -292,44 +289,38 @@ protected:
     DISTANCE_RATIO
   };
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
+  void AddInput(vtkDataObject*)
   {
     vtkErrorMacro(<< "AddInput() must be called with a vtkDataSet not a vtkDataObject.");
   }
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo);
-  int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
-                  int* maxCellSize);
-  double ConvertToLength(double interval, int unit, double cellLength );
+  int CheckInputs(vtkAbstractInterpolatedVelocityField*& func, int* maxCellSize);
+  double ConvertToLength(double interval, int unit, double cellLength);
 
   static void GetBounds(vtkCompositeDataSet* cds, double bounds[6]);
   void InitializeSuperposedGrid(double* bounds);
   void AddToAllPoints(vtkPolyData* streamline);
   void AddToCurrentPoints(vtkIdType pointId);
-  template<typename T> void InitializePoints(T& points);
+  template <typename T>
+  void InitializePoints(T& points);
   void InitializeMinPointIds();
 
   static bool IsStreamlineLooping(
-    void* clientdata,
-    vtkPoints* points, vtkDataArray* velocity, int direction);
+    void* clientdata, vtkPoints* points, vtkDataArray* velocity, int direction);
   static bool IsStreamlineTooCloseToOthers(
-    void* clientdata,
-    vtkPoints* points, vtkDataArray* velocity, int direction);
-  template<typename CellCheckerType>
-    bool ForEachCell(double* point, CellCheckerType checker,
-                     vtkPoints* points = nullptr,
-                     vtkDataArray* velocity = nullptr,
-                     int direction = 1);
+    void* clientdata, vtkPoints* points, vtkDataArray* velocity, int direction);
+  template <typename CellCheckerType>
+  bool ForEachCell(double* point, CellCheckerType checker, vtkPoints* points = nullptr,
+    vtkDataArray* velocity = nullptr, int direction = 1);
   template <int distanceType>
-    bool IsTooClose(double* point, vtkIdType cellId,
-                    vtkPoints* points,
-                    vtkDataArray* velocity, int direction);
-  bool IsLooping(double* point, vtkIdType cellId,
-                 vtkPoints* points, vtkDataArray* velocity, int direction);
+  bool IsTooClose(
+    double* point, vtkIdType cellId, vtkPoints* points, vtkDataArray* velocity, int direction);
+  bool IsLooping(
+    double* point, vtkIdType cellId, vtkPoints* points, vtkDataArray* velocity, int direction);
   const char* GetInputArrayToProcessName();
   int ComputeCellLength(double* cellLength);
 
@@ -362,7 +353,7 @@ protected:
 
   bool ComputeVorticity;
 
-  vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
+  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
 
   vtkCompositeDataSet* InputData;
   // grid superposed over InputData. The grid cell height and width is
@@ -371,7 +362,7 @@ protected:
   // AllPoints[i][j] is the point for point j on the streamlines that
   // falls over cell id i in SuperposedGrid. AllPoint[i].size() tell
   // us how many points fall over cell id i.
-  std::vector<std::vector<std::array<double,3> > > AllPoints;
+  std::vector<std::vector<std::array<double, 3> > > AllPoints;
 
   // CurrentPoints[i][j] is the point id for point j on the current streamline that
   // falls over cell id i in SuperposedGrid. CurrentPoints[i].size() tell us
@@ -388,12 +379,11 @@ protected:
 
   // queue of streamlines to be processed
   vtkPolyDataCollection* Streamlines;
+
 private:
-  vtkEvenlySpacedStreamlines2D(
-    const vtkEvenlySpacedStreamlines2D&) = delete;
+  vtkEvenlySpacedStreamlines2D(const vtkEvenlySpacedStreamlines2D&) = delete;
   void operator=(const vtkEvenlySpacedStreamlines2D&) = delete;
 };
-
 
 #endif
 

@@ -17,8 +17,8 @@
 #include "vtkActor.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 
@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkProperty)
+vtkAbstractObjectFactoryNewMacro(vtkProperty);
 
 // Construct object with object color, ambient color, diffuse color,
 // specular color, and edge color white; ambient coefficient=0; diffuse
@@ -110,7 +110,7 @@ vtkProperty::~vtkProperty()
 
 //----------------------------------------------------------------------------
 // Assign one property to another.
-void vtkProperty::DeepCopy(vtkProperty *p)
+void vtkProperty::DeepCopy(vtkProperty* p)
 {
   if (p != nullptr)
   {
@@ -142,7 +142,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 
     this->RemoveAllTextures();
     auto iter = p->Textures.begin();
-    for (;iter != p->Textures.end(); ++iter)
+    for (; iter != p->Textures.end(); ++iter)
     {
       this->Textures[iter->first] = iter->second;
     }
@@ -156,12 +156,7 @@ void vtkProperty::SetColor(double r, double g, double b)
   double newColor[3] = { r, g, b };
 
   // SetColor is shorthand for "set all colors"
-  double *color[4] = {
-    this->Color,
-    this->AmbientColor,
-    this->DiffuseColor,
-    this->SpecularColor
-  };
+  double* color[4] = { this->Color, this->AmbientColor, this->DiffuseColor, this->SpecularColor };
 
   // Set colors, and check for changes
   bool modified = false;
@@ -191,34 +186,31 @@ void vtkProperty::SetColor(double a[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::ComputeCompositeColor(double result[3],
-  double ambient, const double ambient_color[3],
-  double diffuse, const double diffuse_color[3],
-  double specular, const double specular_color[3])
+void vtkProperty::ComputeCompositeColor(double result[3], double ambient,
+  const double ambient_color[3], double diffuse, const double diffuse_color[3], double specular,
+  const double specular_color[3])
 {
   double norm = 0.0;
-  if ((ambient + diffuse + specular)>0)
+  if ((ambient + diffuse + specular) > 0)
   {
     norm = 1.0 / (ambient + diffuse + specular);
   }
 
-  for (int i = 0; i < 3; i ++)
+  for (int i = 0; i < 3; i++)
   {
-    result[i] = ( ambient * ambient_color[i] +
-                  diffuse * diffuse_color[i] +
-                  specular * specular_color[i] ) * norm;
+    result[i] =
+      (ambient * ambient_color[i] + diffuse * diffuse_color[i] + specular * specular_color[i]) *
+      norm;
   }
 }
 
 //----------------------------------------------------------------------------
 // Return composite color of object (ambient + diffuse + specular). Return value
 // is a pointer to rgb values.
-double *vtkProperty::GetColor()
+double* vtkProperty::GetColor()
 {
-  vtkProperty::ComputeCompositeColor(this->Color,
-    this->Ambient, this->AmbientColor,
-    this->Diffuse, this->DiffuseColor,
-    this->Specular, this->SpecularColor);
+  vtkProperty::ComputeCompositeColor(this->Color, this->Ambient, this->AmbientColor, this->Diffuse,
+    this->DiffuseColor, this->Specular, this->SpecularColor);
   return this->Color;
 }
 
@@ -234,7 +226,7 @@ void vtkProperty::GetColor(double rgb[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::GetColor(double &r, double &g, double &b)
+void vtkProperty::GetColor(double& r, double& g, double& b)
 {
   this->GetColor();
   r = this->Color[0];
@@ -272,8 +264,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
     {
       return;
     }
-    vtkWarningMacro("Texture with name " << name
-      << " exists. It will be replaced.");
+    vtkWarningMacro("Texture with name " << name << " exists. It will be replaced.");
     iter->second->UnRegister(this);
   }
 
@@ -285,8 +276,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 //----------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
-  auto iter =
-    this->Textures.find(std::string(name));
+  auto iter = this->Textures.find(std::string(name));
   if (iter == this->Textures.end())
   {
     return nullptr;
@@ -304,8 +294,7 @@ int vtkProperty::GetNumberOfTextures()
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveTexture(const char* name)
 {
-  auto iter =
-    this->Textures.find(std::string(name));
+  auto iter = this->Textures.find(std::string(name));
   if (iter != this->Textures.end())
   {
     iter->second->UnRegister(this);
@@ -350,22 +339,16 @@ void vtkProperty::PostRender(vtkActor*, vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, int*)
-{
-}
+void vtkProperty::AddShaderVariable(const char*, int, int*) {}
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, float*)
-{
-}
+void vtkProperty::AddShaderVariable(const char*, int, float*) {}
 
 //----------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, double*)
-{
-}
+void vtkProperty::AddShaderVariable(const char*, int, double*) {}
 
 //-----------------------------------------------------------------------------
-void vtkProperty::ReleaseGraphicsResources(vtkWindow *)
+void vtkProperty::ReleaseGraphicsResources(vtkWindow*)
 {
   // vtkOpenGLRenderer releases texture resources, so we don't need to release
   // them here.
@@ -374,53 +357,66 @@ void vtkProperty::ReleaseGraphicsResources(vtkWindow *)
 //----------------------------------------------------------------------------
 void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Ambient: " << this->Ambient << "\n";
-  os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", "
-    << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
+  os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " << this->AmbientColor[1]
+     << ", " << this->AmbientColor[2] << ")\n";
   os << indent << "Diffuse: " << this->Diffuse << "\n";
-  os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", "
-    << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
-  os << indent << "Edge Color: (" << this->EdgeColor[0] << ", "
-    << this->EdgeColor[1] << ", " << this->EdgeColor[2] << ")\n";
-  os << indent << "Edge Visibility: "
-    << (this->EdgeVisibility ? "On\n" : "Off\n");
-  os << indent << "Vertex Color: (" << this->VertexColor[0] << ", "
-    << this->VertexColor[1] << ", " << this->VertexColor[2] << ")\n";
-  os << indent << "Vertex Visibility: "
-    << (this->VertexVisibility ? "On\n" : "Off\n");
+  os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", " << this->DiffuseColor[1]
+     << ", " << this->DiffuseColor[2] << ")\n";
+  os << indent << "Edge Color: (" << this->EdgeColor[0] << ", " << this->EdgeColor[1] << ", "
+     << this->EdgeColor[2] << ")\n";
+  os << indent << "Edge Visibility: " << (this->EdgeVisibility ? "On\n" : "Off\n");
+  os << indent << "Vertex Color: (" << this->VertexColor[0] << ", " << this->VertexColor[1] << ", "
+     << this->VertexColor[2] << ")\n";
+  os << indent << "Vertex Visibility: " << (this->VertexVisibility ? "On\n" : "Off\n");
   os << indent << "Interpolation: ";
   switch (this->Interpolation)
   {
-  case VTK_FLAT: os << "VTK_FLAT\n"; break;
-  case VTK_GOURAUD: os << "VTK_GOURAUD\n"; break;
-  case VTK_PHONG: os << "VTK_PHONG\n"; break;
-  default: os << "unknown\n";
+    case VTK_FLAT:
+      os << "VTK_FLAT\n";
+      break;
+    case VTK_GOURAUD:
+      os << "VTK_GOURAUD\n";
+      break;
+    case VTK_PHONG:
+      os << "VTK_PHONG\n";
+      break;
+    case VTK_PBR:
+      os << "VTK_PBR\n";
+      break;
+    default:
+      os << "unknown\n";
   }
   os << indent << "Opacity: " << this->Opacity << "\n";
   os << indent << "Representation: ";
   switch (this->Representation)
   {
-  case VTK_POINTS: os << "VTK_POINTS\n"; break;
-  case VTK_WIREFRAME: os << "VTK_WIREFRAME\n"; break;
-  case VTK_SURFACE: os << "VTK_SURFACE\n"; break;
-  default: os << "unknown\n";
+    case VTK_POINTS:
+      os << "VTK_POINTS\n";
+      break;
+    case VTK_WIREFRAME:
+      os << "VTK_WIREFRAME\n";
+      break;
+    case VTK_SURFACE:
+      os << "VTK_SURFACE\n";
+      break;
+    default:
+      os << "unknown\n";
   }
   os << indent << "Specular: " << this->Specular << "\n";
-  os << indent << "Specular Color: (" << this->SpecularColor[0] << ", "
-    << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
+  os << indent << "Specular Color: (" << this->SpecularColor[0] << ", " << this->SpecularColor[1]
+     << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Specular Power: " << this->SpecularPower << "\n";
-  os << indent << "Backface Culling: "
-    << (this->BackfaceCulling ? "On\n" : "Off\n");
-  os << indent << "Frontface Culling: "
-    << (this->FrontfaceCulling ? "On\n" : "Off\n");
+  os << indent << "Backface Culling: " << (this->BackfaceCulling ? "On\n" : "Off\n");
+  os << indent << "Frontface Culling: " << (this->FrontfaceCulling ? "On\n" : "Off\n");
   os << indent << "Point size: " << this->PointSize << "\n";
   os << indent << "Line width: " << this->LineWidth << "\n";
   os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";
   os << indent << "Line stipple repeat factor: " << this->LineStippleRepeatFactor << "\n";
   os << indent << "Lighting: ";
-  if(this->Lighting)
+  if (this->Lighting)
   {
     os << "On" << endl;
   }
@@ -428,14 +424,19 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "Off" << endl;
   }
-  os << indent << "RenderPointsAsSpheres: "
-     << (this->RenderPointsAsSpheres ? "On" : "Off") << endl;
-  os << indent << "RenderLinesAsTubes: "
-     << (this->RenderLinesAsTubes ? "On" : "Off") << endl;
+  os << indent << "RenderPointsAsSpheres: " << (this->RenderPointsAsSpheres ? "On" : "Off") << endl;
+  os << indent << "RenderLinesAsTubes: " << (this->RenderLinesAsTubes ? "On" : "Off") << endl;
 
-  os << indent << "Shading: "
-    << (this->Shading? "On" : "Off") << endl;
+  os << indent << "Shading: " << (this->Shading ? "On" : "Off") << endl;
 
- os << indent << "MaterialName: " <<
-   (this->MaterialName? this->MaterialName:"(none)") << endl;
+  os << indent << "MaterialName: " << (this->MaterialName ? this->MaterialName : "(none)") << endl;
+
+  os << indent << "Color: (" << this->Color[0] << ", " << this->Color[1] << ", " << this->Color[2]
+     << ")" << endl;
+  os << indent << "EmissiveFactor: (" << this->EmissiveFactor[0] << ", " << this->EmissiveFactor[1]
+     << ", " << this->EmissiveFactor[2] << ")" << endl;
+  os << indent << "NormalScale: " << this->NormalScale << endl;
+  os << indent << "OcclusionStrength: " << this->OcclusionStrength << endl;
+  os << indent << "Metallic: " << this->Metallic << endl;
+  os << indent << "Roughness: " << this->Roughness << endl;
 }

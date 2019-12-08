@@ -6,17 +6,16 @@
 
 int TestMultiNewickTreeReader(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                       "Data/Infovis/multi_tree.tre");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/multi_tree.tre");
 
   cerr << "file: " << file << endl;
 
   vtkSmartPointer<vtkMultiNewickTreeReader> reader =
-      vtkSmartPointer<vtkMultiNewickTreeReader>::New();
+    vtkSmartPointer<vtkMultiNewickTreeReader>::New();
   reader->SetFileName(file);
   delete[] file;
   reader->Update();
-  vtkMultiPieceDataSet * forest = reader->GetOutput();
+  vtkMultiPieceDataSet* forest = reader->GetOutput();
 
   unsigned int numOfTrees = forest->GetNumberOfPieces();
 
@@ -27,13 +26,13 @@ int TestMultiNewickTreeReader(int argc, char* argv[])
     ++error_count;
   }
 
-  for (unsigned int i = 0; i< numOfTrees; i++)
+  for (unsigned int i = 0; i < numOfTrees; i++)
   {
-     vtkTree * tr =  vtkTree::SafeDownCast(forest->GetPieceAsDataObject(i));
-     if (!tr)
-     {
-       ++error_count;
-     }
+    vtkTree* tr = vtkTree::SafeDownCast(forest->GetPieceAsDataObject(i));
+    if (!tr)
+    {
+      ++error_count;
+    }
   }
 
   cerr << error_count << " errors" << endl;

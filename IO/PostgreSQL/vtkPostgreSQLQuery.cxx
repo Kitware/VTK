@@ -21,10 +21,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPostgreSQLDatabase.h"
+#include "vtkPostgreSQLDatabasePrivate.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkPostgreSQLDatabasePrivate.h"
 
 #include <cassert>
 #include <limits> // man, I hope all platforms have this nowadays
@@ -35,7 +35,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-#define DECLARE_CONVERTER(TargetType) vtkVariant ConvertStringTo##TargetType(bool, const char *);
+#define DECLARE_CONVERTER(TargetType) vtkVariant ConvertStringTo##TargetType(bool, const char*);
 
 DECLARE_CONVERTER(Boolean);
 DECLARE_CONVERTER(SignedChar);
@@ -53,13 +53,13 @@ DECLARE_CONVERTER(String);
 DECLARE_CONVERTER(SignedLongLong);
 DECLARE_CONVERTER(UnsignedLongLong);
 
-template<typename T>
-void ConvertFromNetworkOrder(T &target, const char *rawBytes)
+template <typename T>
+void ConvertFromNetworkOrder(T& target, const char* rawBytes)
 {
   for (unsigned int i = 0; i < sizeof(T); ++i)
   {
-    int targetByte = sizeof(T) - (i+1);
-    target |= (rawBytes[i] << (8*targetByte));
+    int targetByte = sizeof(T) - (i + 1);
+    target |= (rawBytes[i] << (8 * targetByte));
   }
 }
 
@@ -74,124 +74,122 @@ class vtkPostgreSQLQueryPrivate
 public:
   vtkPostgreSQLQueryPrivate()
   {
-      this->QueryResults = nullptr;
-      this->CurrentRow = -1;
+    this->QueryResults = nullptr;
+    this->CurrentRow = -1;
   }
   ~vtkPostgreSQLQueryPrivate()
   {
-      if (this->QueryResults)
-      {
-        PQclear(this->QueryResults);
-      }
+    if (this->QueryResults)
+    {
+      PQclear(this->QueryResults);
+    }
   }
 
-  PGresult *QueryResults;
+  PGresult* QueryResults;
   int CurrentRow;
 };
 
 // ----------------------------------------------------------------------
 
-vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
+vtkVariant vtkPostgreSQLQuery::DataValue(vtkIdType column)
 {
-  if ( this->IsActive() == false )
+  if (this->IsActive() == false)
   {
-    vtkWarningMacro( "DataValue() called on inactive query" );
+    vtkWarningMacro("DataValue() called on inactive query");
     return vtkVariant();
   }
-  else if ( column < 0 || column >= this->GetNumberOfFields() )
+  else if (column < 0 || column >= this->GetNumberOfFields())
   {
-    vtkWarningMacro( "DataValue() called with out-of-range column index " << column );
+    vtkWarningMacro("DataValue() called with out-of-range column index " << column);
     return vtkVariant();
   }
   else if (this->QueryInternals->CurrentRow < 0)
   {
-    vtkWarningMacro( "DataValue() cannot be called before advancing to the first row with NextRow()." );
+    vtkWarningMacro(
+      "DataValue() cannot be called before advancing to the first row with NextRow().");
     return vtkVariant();
   }
 
   // Since null is independent of data type, check that next
-  if (PQgetisnull(this->QueryInternals->QueryResults,
-                  this->QueryInternals->CurrentRow,
-                  column))
+  if (PQgetisnull(this->QueryInternals->QueryResults, this->QueryInternals->CurrentRow, column))
   {
     return vtkVariant();
   }
 
-  int colType = this->GetFieldType( column );
+  int colType = this->GetFieldType(column);
   bool isBinary = this->IsColumnBinary(column);
-  const char *rawData = this->GetColumnRawData(column);
-  switch ( colType )
+  const char* rawData = this->GetColumnRawData(column);
+  switch (colType)
   {
     case VTK_VOID:
       return vtkVariant();
     case VTK_BIT:
     {
-    return ConvertStringToBoolean(isBinary, rawData);
+      return ConvertStringToBoolean(isBinary, rawData);
     }
     case VTK_CHAR:
     case VTK_SIGNED_CHAR:
     {
-    return ConvertStringToSignedChar(isBinary, rawData);
+      return ConvertStringToSignedChar(isBinary, rawData);
     }
     case VTK_UNSIGNED_CHAR:
     {
-    return ConvertStringToUnsignedChar(isBinary, rawData);
+      return ConvertStringToUnsignedChar(isBinary, rawData);
     }
     case VTK_SHORT:
     {
-    return ConvertStringToSignedShort(isBinary, rawData);
+      return ConvertStringToSignedShort(isBinary, rawData);
     }
     case VTK_UNSIGNED_SHORT:
     {
-    return ConvertStringToUnsignedShort(isBinary, rawData);
+      return ConvertStringToUnsignedShort(isBinary, rawData);
     }
     case VTK_INT:
     {
-    return ConvertStringToSignedInt(isBinary, rawData);
+      return ConvertStringToSignedInt(isBinary, rawData);
     }
     case VTK_UNSIGNED_INT:
     {
-    return ConvertStringToUnsignedInt(isBinary, rawData);
+      return ConvertStringToUnsignedInt(isBinary, rawData);
     }
     case VTK_LONG:
     {
-    return ConvertStringToSignedLong(isBinary, rawData);
+      return ConvertStringToSignedLong(isBinary, rawData);
     }
     case VTK_UNSIGNED_LONG:
     {
-    return ConvertStringToUnsignedLong(isBinary, rawData);
+      return ConvertStringToUnsignedLong(isBinary, rawData);
     }
     case VTK_LONG_LONG:
     {
-    return ConvertStringToSignedLongLong(isBinary, rawData);
+      return ConvertStringToSignedLongLong(isBinary, rawData);
     }
     case VTK_UNSIGNED_LONG_LONG:
     {
-    return ConvertStringToUnsignedLongLong(isBinary, rawData);
+      return ConvertStringToUnsignedLongLong(isBinary, rawData);
     }
     case VTK_FLOAT:
     {
-    return ConvertStringToFloat(isBinary, rawData);
+      return ConvertStringToFloat(isBinary, rawData);
     }
     case VTK_DOUBLE:
     {
-    return ConvertStringToDouble(isBinary, rawData);
+      return ConvertStringToDouble(isBinary, rawData);
     }
     case VTK_ID_TYPE:
     {
-    return ConvertStringToVtkIdType(isBinary, rawData);
+      return ConvertStringToVtkIdType(isBinary, rawData);
     }
     case VTK_STRING:
     {
-    return vtkVariant(rawData);
+      return vtkVariant(rawData);
     }
     default:
     {
-    return vtkVariant();
+      return vtkVariant();
     }
   } // end of switch on column type
 } // end of DataValue(int column)
-
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery()
@@ -210,13 +208,12 @@ vtkPostgreSQLQuery::~vtkPostgreSQLQuery()
 }
 
 // ----------------------------------------------------------------------
-void vtkPostgreSQLQuery::PrintSelf( ostream& os, vtkIndent indent )
+void vtkPostgreSQLQuery::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Transaction in progress: "
-     << (this->TransactionInProgress ? "YES" : "NO") << "\n";
-  os << indent << "Last error message: "
-     << (this->LastErrorText ? this->LastErrorText : "(null)")
+  os << indent << "Transaction in progress: " << (this->TransactionInProgress ? "YES" : "NO")
+     << "\n";
+  os << indent << "Last error message: " << (this->LastErrorText ? this->LastErrorText : "(null)")
      << "\n";
   os << indent << "Internals: ";
   if (this->QueryInternals)
@@ -233,14 +230,14 @@ void vtkPostgreSQLQuery::PrintSelf( ostream& os, vtkIndent indent )
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLQuery::Execute()
 {
-  if ( this->Query == 0 )
+  if (this->Query == 0)
   {
-    vtkErrorMacro( "Cannot execute before a query has been set." );
+    vtkErrorMacro("Cannot execute before a query has been set.");
     return false;
   }
 
-  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
-  assert( db );
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
+  assert(db);
 
   // If a query is already in progress clear out its results so we can
   // begin anew.
@@ -249,76 +246,78 @@ bool vtkPostgreSQLQuery::Execute()
     this->DeleteQueryResults();
   }
 
-
   if (!db->IsOpen())
   {
     this->SetLastErrorText("Cannot execute query.  Database connection is closed.");
-    vtkErrorMacro(<<"Cannot execute query.  Database connection is closed.");
+    vtkErrorMacro(<< "Cannot execute query.  Database connection is closed.");
     this->Active = false;
     return false;
   }
 
   this->QueryInternals = new vtkPostgreSQLQueryPrivate;
-  this->QueryInternals->QueryResults = PQexec(db->Connection->Connection,
-                                              this->Query);
+  this->QueryInternals->QueryResults = PQexec(db->Connection->Connection, this->Query);
 
   bool returnStatus;
   switch (PQresultStatus(this->QueryInternals->QueryResults))
   {
     case PGRES_EMPTY_QUERY:
     {
-    returnStatus = true;
-    this->Active = false;
-    this->DeleteQueryResults();
-    vtkWarningMacro(<<"Query string was set but empty.");
-    this->SetLastErrorText(0);
-    }; break;
+      returnStatus = true;
+      this->Active = false;
+      this->DeleteQueryResults();
+      vtkWarningMacro(<< "Query string was set but empty.");
+      this->SetLastErrorText(0);
+    };
+    break;
 
     case PGRES_COMMAND_OK: // success on a command returning no data
     {
-    returnStatus = true;
-    this->Active = true;
-    this->DeleteQueryResults();
-    this->SetLastErrorText(0);
-    }; break;
+      returnStatus = true;
+      this->Active = true;
+      this->DeleteQueryResults();
+      this->SetLastErrorText(0);
+    };
+    break;
 
     case PGRES_TUPLES_OK:
     {
-    returnStatus = true;
-    this->Active = true;
-    this->SetLastErrorText(0);
-    }; break;
+      returnStatus = true;
+      this->Active = true;
+      this->SetLastErrorText(0);
+    };
+    break;
 
     case PGRES_BAD_RESPONSE:
     {
-    returnStatus = false;
-    this->Active = false;
-    this->DeleteQueryResults();
-    this->SetLastErrorText("Incomprehensible server response");
-    }; break;
+      returnStatus = false;
+      this->Active = false;
+      this->DeleteQueryResults();
+      this->SetLastErrorText("Incomprehensible server response");
+    };
+    break;
 
     case PGRES_FATAL_ERROR:
     {
-    returnStatus = false;
-    this->Active = false;
-    this->SetLastErrorText(PQerrorMessage(db->Connection->Connection));
-    vtkErrorMacro(<<"Fatal error during query: "
-                  << this->GetLastErrorText());
-    this->DeleteQueryResults();
-    }; break;
+      returnStatus = false;
+      this->Active = false;
+      this->SetLastErrorText(PQerrorMessage(db->Connection->Connection));
+      vtkErrorMacro(<< "Fatal error during query: " << this->GetLastErrorText());
+      this->DeleteQueryResults();
+    };
+    break;
 
     default:
     {
-    returnStatus = false;
-    this->Active = false;
-    std::ostringstream sbuf;
-    sbuf << "Unhandled server response: ";
-    sbuf << PQresStatus(PQresultStatus(this->QueryInternals->QueryResults));
-    this->SetLastErrorText(sbuf.str().c_str());
-    vtkErrorMacro(<< "Unhandled server response: "
-                  << this->GetLastErrorText());
-    this->DeleteQueryResults();
-    }; break;
+      returnStatus = false;
+      this->Active = false;
+      std::ostringstream sbuf;
+      sbuf << "Unhandled server response: ";
+      sbuf << PQresStatus(PQresultStatus(this->QueryInternals->QueryResults));
+      this->SetLastErrorText(sbuf.str().c_str());
+      vtkErrorMacro(<< "Unhandled server response: " << this->GetLastErrorText());
+      this->DeleteQueryResults();
+    };
+    break;
   }
 
   return returnStatus;
@@ -327,9 +326,9 @@ bool vtkPostgreSQLQuery::Execute()
 // ----------------------------------------------------------------------
 int vtkPostgreSQLQuery::GetNumberOfFields()
 {
-  if ( ! this->Active || ! this->QueryInternals )
+  if (!this->Active || !this->QueryInternals)
   {
-    vtkErrorMacro( "Query is not active!" );
+    vtkErrorMacro("Query is not active!");
     return 0;
   }
 
@@ -337,58 +336,56 @@ int vtkPostgreSQLQuery::GetNumberOfFields()
 }
 
 // ----------------------------------------------------------------------
-const char* vtkPostgreSQLQuery::GetFieldName( int column )
+const char* vtkPostgreSQLQuery::GetFieldName(int column)
 {
-  if ( ! this->Active || ! this->QueryInternals->QueryResults )
+  if (!this->Active || !this->QueryInternals->QueryResults)
   {
-    vtkErrorMacro( "Query is not active!" );
+    vtkErrorMacro("Query is not active!");
     return 0;
   }
-  else if ( column < 0 || column >= this->GetNumberOfFields() )
+  else if (column < 0 || column >= this->GetNumberOfFields())
   {
-    vtkErrorMacro( "Illegal field index " << column );
+    vtkErrorMacro("Illegal field index " << column);
     return 0;
   }
   return PQfname(this->QueryInternals->QueryResults, column);
 }
 
 // ----------------------------------------------------------------------
-int vtkPostgreSQLQuery::GetFieldType( int column )
+int vtkPostgreSQLQuery::GetFieldType(int column)
 {
-  if ( ! this->Active || ! this->QueryInternals )
+  if (!this->Active || !this->QueryInternals)
   {
-    vtkErrorMacro( "Query is not active!" );
+    vtkErrorMacro("Query is not active!");
     return -1;
   }
-  else if ( column < 0 || column >= this->GetNumberOfFields() )
+  else if (column < 0 || column >= this->GetNumberOfFields())
   {
-    vtkErrorMacro( "Illegal field index " << column );
+    vtkErrorMacro("Illegal field index " << column);
     return -1;
   }
 
-  vtkPostgreSQLDatabase *db =
-    vtkPostgreSQLDatabase::SafeDownCast(this->Database);
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   if (!db)
   {
-    vtkErrorMacro(<<"No database!  How did this happen?");
+    vtkErrorMacro(<< "No database!  How did this happen?");
     return -1;
   }
-  return db->Connection->GetVTKTypeFromOID(PQftype(this->QueryInternals->QueryResults,
-                                                  column));
+  return db->Connection->GetVTKTypeFromOID(PQftype(this->QueryInternals->QueryResults, column));
 }
 
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLQuery::NextRow()
 {
-  if ( ! this->IsActive() || ! this->QueryInternals )
+  if (!this->IsActive() || !this->QueryInternals)
   {
-    vtkErrorMacro( "Query is not active!" );
+    vtkErrorMacro("Query is not active!");
     return false;
   }
 
   if (this->QueryInternals->CurrentRow < (this->GetNumberOfRows() - 1))
   {
-    ++ this->QueryInternals->CurrentRow;
+    ++this->QueryInternals->CurrentRow;
     return true;
   }
   else
@@ -398,9 +395,9 @@ bool vtkPostgreSQLQuery::NextRow()
 }
 
 // ----------------------------------------------------------------------
-const char * vtkPostgreSQLQuery::GetLastErrorText()
+const char* vtkPostgreSQLQuery::GetLastErrorText()
 {
-  if ( ! this->Database )
+  if (!this->Database)
   {
     return "No database";
   }
@@ -409,38 +406,34 @@ const char * vtkPostgreSQLQuery::GetLastErrorText()
 
 // ----------------------------------------------------------------------
 
-vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundingQuotes )
+vtkStdString vtkPostgreSQLQuery::EscapeString(vtkStdString s, bool addSurroundingQuotes)
 {
   vtkStdString retval;
-  if ( addSurroundingQuotes )
+  if (addSurroundingQuotes)
   {
     retval = "'";
   }
 
-  vtkPostgreSQLDatabase* db = static_cast<vtkPostgreSQLDatabase*>( this->Database );
+  vtkPostgreSQLDatabase* db = static_cast<vtkPostgreSQLDatabase*>(this->Database);
 
-  if ( db && db->Connection )
+  if (db && db->Connection)
   {
-    char *escaped = new char[2 * s.size() + 1];
+    char* escaped = new char[2 * s.size() + 1];
     int error;
-    PQescapeStringConn(db->Connection->Connection,
-                       escaped,
-                       s.c_str(),
-                       s.size(),
-                       &error);
+    PQescapeStringConn(db->Connection->Connection, escaped, s.c_str(), s.size(), &error);
     retval.append(escaped);
-    delete [] escaped;
+    delete[] escaped;
     if (error)
     {
-      vtkErrorMacro(<<"Error while escaping string.  Expect the result to be unusable.");
+      vtkErrorMacro(<< "Error while escaping string.  Expect the result to be unusable.");
     }
   }
   else
   {
-    retval.append( this->Superclass::EscapeString( s, false ) );
+    retval.append(this->Superclass::EscapeString(s, false));
   }
 
-  if ( addSurroundingQuotes )
+  if (addSurroundingQuotes)
   {
     retval += "'";
   }
@@ -451,7 +444,7 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLQuery::HasError()
 {
-  if ( ! this->Database )
+  if (!this->Database)
   {
     return false;
   }
@@ -463,40 +456,39 @@ bool vtkPostgreSQLQuery::BeginTransaction()
 {
   if (this->TransactionInProgress)
   {
-    vtkErrorMacro(<<"Cannot start a transaction.  One is already in progress.");
+    vtkErrorMacro(<< "Cannot start a transaction.  One is already in progress.");
     return false;
   }
 
-  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
-  assert( db );
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
+  assert(db);
   bool status;
-  PGresult *result = PQexec(db->Connection->Connection, BEGIN_TRANSACTION);
+  PGresult* result = PQexec(db->Connection->Connection, BEGIN_TRANSACTION);
   switch (PQresultStatus(result))
   {
     case PGRES_COMMAND_OK:
     {
-    this->SetLastErrorText(0);
-    this->TransactionInProgress = true;
-    status = true;
-    }; break;
+      this->SetLastErrorText(0);
+      this->TransactionInProgress = true;
+      status = true;
+    };
+    break;
     case PGRES_FATAL_ERROR:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkErrorMacro(<< "Error in BeginTransaction: "
-                  << this->GetLastErrorText());
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkErrorMacro(<< "Error in BeginTransaction: " << this->GetLastErrorText());
+      status = false;
+    };
+    break;
     default:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkWarningMacro(<<"Unexpected return code "
-                    << PQresultStatus(result) << " ("
-                    << PQresStatus(PQresultStatus(result))
-                    << ") with error message "
-                    << (this->LastErrorText ? this->LastErrorText
-                        : "(null)"));
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkWarningMacro(<< "Unexpected return code " << PQresultStatus(result) << " ("
+                      << PQresStatus(PQresultStatus(result)) << ") with error message "
+                      << (this->LastErrorText ? this->LastErrorText : "(null)"));
+      status = false;
+    };
+    break;
   }
   PQclear(result);
   return status;
@@ -507,43 +499,42 @@ bool vtkPostgreSQLQuery::CommitTransaction()
 {
   if (!this->TransactionInProgress)
   {
-    vtkErrorMacro(<<"Cannot commit: no transaction is in progress.");
+    vtkErrorMacro(<< "Cannot commit: no transaction is in progress.");
     return false;
   }
 
-  vtkPostgreSQLDatabase *db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   assert(db);
 
-  PGresult *result = PQexec(db->Connection->Connection, COMMIT_TRANSACTION);
+  PGresult* result = PQexec(db->Connection->Connection, COMMIT_TRANSACTION);
   bool status;
   switch (PQresultStatus(result))
   {
     case PGRES_COMMAND_OK:
     {
-    this->SetLastErrorText(0);
-    this->TransactionInProgress = false;
-    status = true;
-    }; break;
+      this->SetLastErrorText(0);
+      this->TransactionInProgress = false;
+      status = true;
+    };
+    break;
     case PGRES_FATAL_ERROR:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkErrorMacro(<< "Error in CommitTransaction: "
-                  << this->GetLastErrorText());
-    this->TransactionInProgress = false;
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkErrorMacro(<< "Error in CommitTransaction: " << this->GetLastErrorText());
+      this->TransactionInProgress = false;
+      status = false;
+    };
+    break;
     default:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkWarningMacro(<<"Unexpected return code "
-                    << PQresultStatus(result) << " ("
-                    << PQresStatus(PQresultStatus(result))
-                    << ") with error message "
-                    << (this->LastErrorText ? this->LastErrorText
-                        : "(null)"));
-    this->TransactionInProgress = false;
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkWarningMacro(<< "Unexpected return code " << PQresultStatus(result) << " ("
+                      << PQresStatus(PQresultStatus(result)) << ") with error message "
+                      << (this->LastErrorText ? this->LastErrorText : "(null)"));
+      this->TransactionInProgress = false;
+      status = false;
+    };
+    break;
   }
   PQclear(result);
   return status;
@@ -554,43 +545,42 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
 {
   if (!this->TransactionInProgress)
   {
-    vtkErrorMacro(<<"Cannot rollback: no transaction is in progress.");
+    vtkErrorMacro(<< "Cannot rollback: no transaction is in progress.");
     return false;
   }
 
-  vtkPostgreSQLDatabase *db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   assert(db);
 
-  PGresult *result = PQexec(db->Connection->Connection, ROLLBACK_TRANSACTION);
+  PGresult* result = PQexec(db->Connection->Connection, ROLLBACK_TRANSACTION);
   bool status;
   switch (PQresultStatus(result))
   {
     case PGRES_COMMAND_OK:
     {
-    this->SetLastErrorText(0);
-    this->TransactionInProgress = false;
-    status = true;
-    }; break;
+      this->SetLastErrorText(0);
+      this->TransactionInProgress = false;
+      status = true;
+    };
+    break;
     case PGRES_FATAL_ERROR:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkErrorMacro(<< "Error in RollbackTransaction: "
-                  << this->GetLastErrorText());
-    this->TransactionInProgress = false;
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkErrorMacro(<< "Error in RollbackTransaction: " << this->GetLastErrorText());
+      this->TransactionInProgress = false;
+      status = false;
+    };
+    break;
     default:
     {
-    this->SetLastErrorText(PQresultErrorMessage(result));
-    vtkWarningMacro(<<"Unexpected return code "
-                    << PQresultStatus(result) << " ("
-                    << PQresStatus(PQresultStatus(result))
-                    << ") with error message "
-                    << (this->LastErrorText ? this->LastErrorText
-                        : "(null)"));
-    this->TransactionInProgress = false;
-    status = false;
-    }; break;
+      this->SetLastErrorText(PQresultErrorMessage(result));
+      vtkWarningMacro(<< "Unexpected return code " << PQresultStatus(result) << " ("
+                      << PQresStatus(PQresultStatus(result)) << ") with error message "
+                      << (this->LastErrorText ? this->LastErrorText : "(null)"));
+      this->TransactionInProgress = false;
+      status = false;
+    };
+    break;
   }
   PQclear(result);
   return status;
@@ -598,8 +588,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
 
 // ----------------------------------------------------------------------
 
-void
-vtkPostgreSQLQuery::DeleteQueryResults()
+void vtkPostgreSQLQuery::DeleteQueryResults()
 {
   this->Active = false;
   delete this->QueryInternals;
@@ -608,7 +597,7 @@ vtkPostgreSQLQuery::DeleteQueryResults()
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToBoolean(bool, const char *rawData)
+vtkVariant ConvertStringToBoolean(bool, const char* rawData)
 {
   // Since there are only a few possibilities I'm going to check
   // them all by hand.
@@ -636,9 +625,8 @@ vtkVariant ConvertStringToBoolean(bool, const char *rawData)
 
     default:
     {
-      vtkGenericWarningMacro(<<"Unable to convert raw data to boolean.  Data length is "
-                             << strlen(rawData) << " and string is '"
-                             << rawData << "'");
+      vtkGenericWarningMacro(<< "Unable to convert raw data to boolean.  Data length is "
+                             << strlen(rawData) << " and string is '" << rawData << "'");
       return vtkVariant();
     }
   }
@@ -646,7 +634,7 @@ vtkVariant ConvertStringToBoolean(bool, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToSignedChar(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToSignedChar(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -661,7 +649,7 @@ vtkVariant ConvertStringToSignedChar(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -676,7 +664,7 @@ vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToSignedShort(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToSignedShort(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -693,7 +681,7 @@ vtkVariant ConvertStringToSignedShort(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -710,7 +698,7 @@ vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToSignedInt(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToSignedInt(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -727,7 +715,7 @@ vtkVariant ConvertStringToSignedInt(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -744,8 +732,7 @@ vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-
-vtkVariant ConvertStringToSignedLong(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToSignedLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -762,7 +749,7 @@ vtkVariant ConvertStringToSignedLong(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -779,7 +766,7 @@ vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -796,7 +783,7 @@ vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -813,7 +800,7 @@ vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -874,7 +861,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     {
       if (std::numeric_limits<float>::has_infinity)
       {
-        finalResult = - std::numeric_limits<float>::infinity();
+        finalResult = -std::numeric_limits<float>::infinity();
       }
       else
       {
@@ -889,12 +876,11 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     }
     return vtkVariant(finalResult);
   } // end of handling string representation
-
 }
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToVtkIdType(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToVtkIdType(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -914,7 +900,7 @@ vtkVariant ConvertStringToVtkIdType(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
+vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
@@ -972,7 +958,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     {
       if (std::numeric_limits<double>::has_infinity)
       {
-        finalResult = - std::numeric_limits<double>::infinity();
+        finalResult = -std::numeric_limits<double>::infinity();
       }
       else
       {
@@ -991,19 +977,16 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
 
 // ----------------------------------------------------------------------
 
-bool
-vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
+bool vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
 {
-  if ((!this->Active) ||
-      (!this->Database) ||
-      (!this->QueryInternals->QueryResults))
+  if ((!this->Active) || (!this->Database) || (!this->QueryInternals->QueryResults))
   {
-    vtkWarningMacro(<<"No active query!");
+    vtkWarningMacro(<< "No active query!");
     return false;
   }
   else if (whichColumn < 0 || whichColumn >= this->GetNumberOfFields())
   {
-    vtkWarningMacro(<<"Illegal column index " << whichColumn);
+    vtkWarningMacro(<< "Illegal column index " << whichColumn);
     return false;
   }
   else
@@ -1014,40 +997,32 @@ vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
 
 // ----------------------------------------------------------------------
 
-const char *
-vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
+const char* vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
 {
-  if ((!this->Active) ||
-      (!this->Database) ||
-      (!this->QueryInternals->QueryResults))
+  if ((!this->Active) || (!this->Database) || (!this->QueryInternals->QueryResults))
   {
-    vtkWarningMacro(<<"No active query!");
+    vtkWarningMacro(<< "No active query!");
     return nullptr;
   }
   else if (whichColumn < 0 || whichColumn >= this->GetNumberOfFields())
   {
-    vtkWarningMacro(<<"Illegal column index " << whichColumn);
+    vtkWarningMacro(<< "Illegal column index " << whichColumn);
     return nullptr;
   }
   else
   {
-    return PQgetvalue(this->QueryInternals->QueryResults,
-                      this->QueryInternals->CurrentRow,
-                      whichColumn);
+    return PQgetvalue(
+      this->QueryInternals->QueryResults, this->QueryInternals->CurrentRow, whichColumn);
   }
 }
 
 // ----------------------------------------------------------------------
 
-int
-vtkPostgreSQLQuery::GetNumberOfRows()
+int vtkPostgreSQLQuery::GetNumberOfRows()
 {
-  if (!this->Database ||
-      !this->Database->IsOpen() ||
-      !this->QueryInternals ||
-      !this->Active)
+  if (!this->Database || !this->Database->IsOpen() || !this->QueryInternals || !this->Active)
   {
-    vtkWarningMacro(<<"No active query.  Cannot retrieve number of rows.");
+    vtkWarningMacro(<< "No active query.  Cannot retrieve number of rows.");
     return 0;
   }
   else
@@ -1055,4 +1030,3 @@ vtkPostgreSQLQuery::GetNumberOfRows()
     return PQntuples(this->QueryInternals->QueryResults);
   }
 }
-

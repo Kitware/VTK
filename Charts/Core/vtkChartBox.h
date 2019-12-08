@@ -19,13 +19,13 @@
  *
  *
  * This defines the interface for a box plot chart.
-*/
+ */
 
 #ifndef vtkChartBox_h
 #define vtkChartBox_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
+#include "vtkChartsCoreModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkPlotBox;
@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartBox : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartBox, vtkChart);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a box chart
@@ -54,7 +54,7 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   //@{
   /**
@@ -123,32 +123,32 @@ public:
    * Set plot to use for the chart. Since this type of chart can
    * only contain one plot, this will replace the previous plot.
    */
-  virtual void SetPlot(vtkPlotBox *plot);
+  virtual void SetPlot(vtkPlotBox* plot);
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the chart.
    */
-  virtual void SetTooltip(vtkTooltipItem *tooltip);
+  virtual void SetTooltip(vtkTooltipItem* tooltip);
 
   /**
    * Get the vtkTooltipItem object that will be displayed by the chart.
@@ -158,10 +158,8 @@ public:
   /**
    * Set the information passed to the tooltip.
    */
-  virtual void SetTooltipInfo(const vtkContextMouseEvent &,
-                              const vtkVector2d &,
-                              vtkIdType, vtkPlot*,
-                              vtkIdType segmentIndex = -1);
+  virtual void SetTooltipInfo(const vtkContextMouseEvent&, const vtkVector2d&, vtkIdType, vtkPlot*,
+    vtkIdType segmentIndex = -1);
 
 protected:
   vtkChartBox();
@@ -172,7 +170,7 @@ protected:
    * Private storage object - where we hide all of our STL objects...
    */
   class Private;
-  Private *Storage;
+  Private* Storage;
   //@}
 
   bool GeometryValid;
@@ -180,12 +178,12 @@ protected:
   /**
    * Selected indices for the table the plot is rendering
    */
-  vtkIdTypeArray *Selection;
+  vtkIdTypeArray* Selection;
 
   /**
    * A list of the visible columns in the chart.
    */
-  vtkStringArray *VisibleColumns;
+  vtkStringArray* VisibleColumns;
 
   //@{
   /**
@@ -215,17 +213,14 @@ protected:
    * If invokeEvent is greater than 0, then an event will be invoked if a point
    * is at that mouse position.
    */
-  bool LocatePointInPlots(const vtkContextMouseEvent &mouse,
-                          int invokeEvent = -1);
+  bool LocatePointInPlots(const vtkContextMouseEvent& mouse, int invokeEvent = -1);
 
-  int LocatePointInPlot(const vtkVector2f &position,
-                        const vtkVector2f &tolerance, vtkVector2f &plotPos,
-                        vtkPlot *plot, vtkIdType &segmentIndex);
+  int LocatePointInPlot(const vtkVector2f& position, const vtkVector2f& tolerance,
+    vtkVector2f& plotPos, vtkPlot* plot, vtkIdType& segmentIndex);
 
 private:
-  vtkChartBox(const vtkChartBox &) = delete;
-  void operator=(const vtkChartBox &) = delete;
-
+  vtkChartBox(const vtkChartBox&) = delete;
+  void operator=(const vtkChartBox&) = delete;
 };
 
 //@{
@@ -243,4 +238,4 @@ struct vtkChartBoxData
 };
 //@}
 
-#endif //vtkChartBox_h
+#endif // vtkChartBox_h

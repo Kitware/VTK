@@ -21,7 +21,7 @@
  *
  * @par Thanks:
  * Dr. Jean M. Favre who developed and contributed this class
-*/
+ */
 
 #ifndef vtkXYZMolReader2_h
 #define vtkXYZMolReader2_h
@@ -29,24 +29,24 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
-#include <vector>   // for std::vector
-#include <istream>  // for std::istream
+#include <istream> // for std::istream
+#include <vector>  // for std::vector
 
 class vtkMolecule;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 {
 public:
-  static vtkXYZMolReader2 *New();
-  vtkTypeMacro(vtkXYZMolReader2,vtkMoleculeAlgorithm);
+  static vtkXYZMolReader2* New();
+  vtkTypeMacro(vtkXYZMolReader2, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
-  vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *) override;
+  vtkMolecule* GetOutput();
+  void SetOutput(vtkMolecule*) override;
   //@}
 
   //@{
@@ -61,12 +61,10 @@ protected:
   vtkXYZMolReader2();
   ~vtkXYZMolReader2() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
+  char* FileName;
   std::vector<istream::pos_type> file_positions; // to store beginning of each tstep
   std::vector<double> TimeSteps;
 

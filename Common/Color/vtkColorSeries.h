@@ -24,9 +24,11 @@
  * the number of colors and individual color values may be requested.
  *
  * For a web page of the default palettes, see:
- * <a href="http://htmlpreview.github.io/?https://github.com/lorensen/VTKExamples/blob/master/src/Python/Visualization/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
+ * <a
+ * href="http://htmlpreview.github.io/?https://github.com/lorensen/VTKExamples/blob/master/src/Python/Visualization/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
  * Use
- * <a href="https://lorensen.github.io/VTKExamples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
+ * <a
+ * href="https://lorensen.github.io/VTKExamples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
  * to generate this table.
  *
  * It is also possible to add schemes beyond the default palettes.
@@ -42,14 +44,14 @@
  * The "Brewer" palettes are courtesy of
  * Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
  * and present under the Apache License. See the source code for details.
-*/
+ */
 
 #ifndef vtkColorSeries_h
 #define vtkColorSeries_h
 
+#include "vtkColor.h"             // Needed for vtkColor[34]ub
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkColor.h" // Needed for vtkColor[34]ub
 #include "vtkStdString.h" // Needed for arguments
 
 class vtkLookupTable;
@@ -68,7 +70,8 @@ public:
   /**
    * Enum of the available color schemes
    */
-  enum ColorSchemes {
+  enum ColorSchemes
+  {
     /// 7 different hues.
     SPECTRUM = 0,
     /// 6 warm colors (red to yellow).
@@ -197,17 +200,18 @@ public:
     CUSTOM
   };
 
-/**
- * An enum defining how lookup tables should be used: either as a
- * list of discrete colors to choose from (categorical), or as an
- * ordered list of color set - points to interpolate among (ordinal).
- */
-enum LUTMode {
-  /// indexed lookup is off
-  ORDINAL = 0,
-  /// indexed lookup is on
-  CATEGORICAL
-};
+  /**
+   * An enum defining how lookup tables should be used: either as a
+   * list of discrete colors to choose from (categorical), or as an
+   * ordered list of color set - points to interpolate among (ordinal).
+   */
+  enum LUTMode
+  {
+    /// indexed lookup is off
+    ORDINAL = 0,
+    /// indexed lookup is on
+    CATEGORICAL
+  };
 
   //@{
   /**
@@ -269,17 +273,17 @@ enum LUTMode {
    * Set the color at the specified index. Does nothing if the index is out of
    * range.
    */
-  virtual void SetColor(int index, const vtkColor3ub &color);
+  virtual void SetColor(int index, const vtkColor3ub& color);
 
   /**
    * Adds the color to the end of the list.
    */
-  virtual void AddColor(const vtkColor3ub &color);
+  virtual void AddColor(const vtkColor3ub& color);
 
   /**
    * Inserts the color at the specified index in the list.
    */
-  virtual void InsertColor(int index, const vtkColor3ub &color);
+  virtual void InsertColor(int index, const vtkColor3ub& color);
 
   /**
    * Removes the color at the specified index in the list.
@@ -294,7 +298,7 @@ enum LUTMode {
   /**
    * Make a deep copy of the supplied object.
    */
-  virtual void DeepCopy(vtkColorSeries *chartColors);
+  virtual void DeepCopy(vtkColorSeries* chartColors);
 
   /**
    * Populate a lookup table with all the colors in the current scheme.
@@ -344,9 +348,8 @@ protected:
   vtkStdString ColorSchemeName;
 
 private:
-  vtkColorSeries(const vtkColorSeries &) = delete;
-  void operator=(const vtkColorSeries &) = delete;
-
+  vtkColorSeries(const vtkColorSeries&) = delete;
+  void operator=(const vtkColorSeries&) = delete;
 };
 
-#endif //vtkColorSeries_h
+#endif // vtkColorSeries_h

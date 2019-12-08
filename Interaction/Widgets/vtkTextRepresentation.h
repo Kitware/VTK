@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkTextRepresentation vtkBorderWidget vtkAbstractWidget vtkWidgetRepresentation
-*/
+ */
 
 #ifndef vtkTextRepresentation_h
 #define vtkTextRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkRenderer;
 class vtkTextActor;
@@ -41,13 +41,13 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkTextRepresentation *New();
+  static vtkTextRepresentation* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkTextRepresentation,vtkBorderRepresentation);
+  vtkTypeMacro(vtkTextRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -56,8 +56,8 @@ public:
    * Specify the vtkTextActor to manage. If not specified, then one
    * is automatically created.
    */
-  void SetTextActor(vtkTextActor *textActor);
-  vtkGetObjectMacro(TextActor,vtkTextActor);
+  void SetTextActor(vtkTextActor* textActor);
+  vtkGetObjectMacro(TextActor, vtkTextActor);
   //@}
 
   //@{
@@ -73,7 +73,10 @@ public:
    */
   void BuildRepresentation() override;
   void GetSize(double size[2]) override
-    {size[0]=2.0; size[1]=2.0;}
+  {
+    size[0] = 2.0;
+    size[1] = 2.0;
+  }
 
   //@{
   /**
@@ -121,8 +124,7 @@ public:
    * vtkBorderRepresentation so that the Modified() will be called.
    */
   void SetPosition(double x, double y) override;
-  void SetPosition(double pos[2]) override
-    { this->SetPosition(pos[0], pos[1]);};
+  void SetPosition(double pos[2]) override { this->SetPosition(pos[0], pos[1]); }
   //@}
 
   //@{
@@ -144,15 +146,15 @@ protected:
   virtual void CheckTextBoundary();
 
   // the text to manage
-  vtkTextActor  *TextActor;
-  vtkTextProperty *TextProperty;
+  vtkTextActor* TextActor;
+  vtkTextProperty* TextProperty;
 
   // Window location by enumeration
   int WindowLocation;
   virtual void UpdateWindowLocation();
 
   // observer to observe internal TextActor and TextProperty
-  vtkTextRepresentationObserver *Observer;
+  vtkTextRepresentationObserver* Observer;
 
 private:
   vtkTextRepresentation(const vtkTextRepresentation&) = delete;

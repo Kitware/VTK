@@ -28,7 +28,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
@@ -159,8 +158,9 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
   {
     cellType = input->GetCellType(cellId);
     // Make sure we are not integrating ghost/blanked cells.
-    if (ghostArray && (ghostArray->GetValue(cellId) &
-                        (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
+    if (ghostArray &&
+      (ghostArray->GetValue(cellId) &
+        (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
     {
       continue;
     }

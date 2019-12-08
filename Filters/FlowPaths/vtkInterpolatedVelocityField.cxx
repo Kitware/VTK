@@ -19,21 +19,21 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro( vtkInterpolatedVelocityField );
+vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 //----------------------------------------------------------------------------
-void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
+void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 {
-  if ( !dataset )
+  if (!dataset)
   {
     return;
   }
 
   // insert the dataset (do NOT register the dataset to 'this')
-  this->DataSets->push_back( dataset );
+  this->DataSets->push_back(dataset);
 
   int size = dataset->GetMaxCellSize();
-  if ( size > this->WeightsSize )
+  if (size > this->WeightsSize)
   {
     this->WeightsSize = size;
     delete[] this->Weights;
@@ -42,29 +42,29 @@ void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
 }
 
 //----------------------------------------------------------------------------
-void vtkInterpolatedVelocityField::SetLastCellId( vtkIdType c, int dataindex )
+void vtkInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex)
 {
-  this->LastCellId  = c;
-  this->LastDataSet = ( *this->DataSets )[dataindex];
+  this->LastCellId = c;
+  this->LastDataSet = (*this->DataSets)[dataindex];
 
   // if the dataset changes, then the cached cell is invalidated
   // we might as well prefetch the cached cell either way
-  if ( this->LastCellId != -1 )
+  if (this->LastCellId != -1)
   {
-    this->LastDataSet->GetCell( this->LastCellId, this->GenCell );
+    this->LastDataSet->GetCell(this->LastCellId, this->GenCell);
   }
 
   this->LastDataSetIndex = dataindex;
 }
 
 //----------------------------------------------------------------------------
-int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
+int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
-  vtkDataSet * ds;
-  if(!this->LastDataSet && !this->DataSets->empty())
+  vtkDataSet* ds;
+  if (!this->LastDataSet && !this->DataSets->empty())
   {
-    ds = ( *this->DataSets )[0];
-    this->LastDataSet      = ds;
+    ds = (*this->DataSets)[0];
+    this->LastDataSet = ds;
     this->LastDataSetIndex = 0;
   }
   else
@@ -72,27 +72,27 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
     ds = this->LastDataSet;
   }
 
-  int retVal = this->FunctionValues( ds, x, f );
+  int retVal = this->FunctionValues(ds, x, f);
 
-  if ( !retVal )
+  if (!retVal)
   {
-    for( this->LastDataSetIndex = 0;
-         this->LastDataSetIndex < static_cast<int>( this->DataSets->size() );
-         this->LastDataSetIndex ++ )
+    for (this->LastDataSetIndex = 0;
+         this->LastDataSetIndex < static_cast<int>(this->DataSets->size());
+         this->LastDataSetIndex++)
     {
-      ds = this->DataSets->operator[]( this->LastDataSetIndex );
-      if( ds && ds != this->LastDataSet )
+      ds = this->DataSets->operator[](this->LastDataSetIndex);
+      if (ds && ds != this->LastDataSet)
       {
         this->ClearLastCellId();
-        retVal = this->FunctionValues( ds, x, f );
-        if ( retVal )
+        retVal = this->FunctionValues(ds, x, f);
+        if (retVal)
         {
           this->LastDataSet = ds;
           return retVal;
         }
       }
     }
-    this->LastCellId  = -1;
+    this->LastCellId = -1;
     this->LastDataSetIndex = 0;
     this->LastDataSet = (*this->DataSets)[0];
     return 0;
@@ -108,18 +108,18 @@ int vtkInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, double* pSnap
   {
     return 0;
   }
-   if (!this->FindAndUpdateCell(this->LastDataSet, pOrigin))
-   {
+  if (!this->FindAndUpdateCell(this->LastDataSet, pOrigin))
+  {
     return 0;
-   }
+  }
   double dist2;
-  this->GenCell->EvaluatePosition
-    (pOrigin, pSnap, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+  this->GenCell->EvaluatePosition(
+    pOrigin, pSnap, this->LastSubId, this->LastPCoords, dist2, this->Weights);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
+void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 }

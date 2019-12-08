@@ -30,13 +30,12 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/CoordinateSystemTransform.h>
 
-vtkStandardNewMacro(vtkmCoordinateSystemTransform)
+vtkStandardNewMacro(vtkmCoordinateSystemTransform);
 
 //------------------------------------------------------------------------------
 vtkmCoordinateSystemTransform::vtkmCoordinateSystemTransform()
@@ -45,9 +44,7 @@ vtkmCoordinateSystemTransform::vtkmCoordinateSystemTransform()
 }
 
 //------------------------------------------------------------------------------
-vtkmCoordinateSystemTransform::~vtkmCoordinateSystemTransform()
-{
-}
+vtkmCoordinateSystemTransform::~vtkmCoordinateSystemTransform() {}
 
 //------------------------------------------------------------------------------
 void vtkmCoordinateSystemTransform::SetCartesianToCylindrical()
@@ -74,8 +71,8 @@ void vtkmCoordinateSystemTransform::SetSphericalToCartesian()
 }
 
 //------------------------------------------------------------------------------
-int  vtkmCoordinateSystemTransform::FillInputPortInformation(int vtkNotUsed(port),
-                                                             vtkInformation* info)
+int vtkmCoordinateSystemTransform::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
@@ -85,9 +82,8 @@ int  vtkmCoordinateSystemTransform::FillInputPortInformation(int vtkNotUsed(port
 }
 
 //------------------------------------------------------------------------------
-int vtkmCoordinateSystemTransform::RequestDataObject(vtkInformation *request,
-                                          vtkInformationVector** inputVector,
-                                          vtkInformationVector* outputVector)
+int vtkmCoordinateSystemTransform::RequestDataObject(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
   vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
@@ -98,31 +94,27 @@ int vtkmCoordinateSystemTransform::RequestDataObject(vtkInformation *request,
     if (!output)
     {
       vtkNew<vtkStructuredGrid> newOutput;
-      outputVector->GetInformationObject(0)->Set(
-        vtkDataObject::DATA_OBJECT(), newOutput);
+      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     }
     return 1;
   }
   else
   {
-    return this->Superclass::RequestDataObject(request,
-                                               inputVector,
-                                               outputVector);
+    return this->Superclass::RequestDataObject(request, inputVector, outputVector);
   }
 }
 
 //------------------------------------------------------------------------------
-int vtkmCoordinateSystemTransform::RequestData(vtkInformation*,
-                                               vtkInformationVector** inputVector,
-                                               vtkInformationVector* outputVector)
+int vtkmCoordinateSystemTransform::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
-  vtkPointSet *output = vtkPointSet::GetData(outputVector);
+  vtkPointSet* output = vtkPointSet::GetData(outputVector);
 
   if (!input)
   {
     // Try converting image data.
-    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
     {
       vtkNew<vtkImageDataToPointSet> image2points;
@@ -135,7 +127,7 @@ int vtkmCoordinateSystemTransform::RequestData(vtkInformation*,
   if (!input)
   {
     // Try converting rectilinear grid.
-    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
@@ -167,29 +159,25 @@ int vtkmCoordinateSystemTransform::RequestData(vtkInformation*,
     vtkmInputFilterPolicy policy;
     vtkDataArray* transformResult;
     if (this->TransformType == TransformTypes::CarToCyl ||
-        this->TransformType == TransformTypes::CylToCar)
+      this->TransformType == TransformTypes::CylToCar)
     { // Cylindrical coordinate transform
       vtkm::filter::CylindricalCoordinateTransform cylindricalCT;
       cylindricalCT.SetUseCoordinateSystemAsField(true);
-      (this->TransformType == TransformTypes::CarToCyl) ?
-                                cylindricalCT.SetCartesianToCylindrical() :
-                                cylindricalCT.SetCylindricalToCartesian();
+      (this->TransformType == TransformTypes::CarToCyl) ? cylindricalCT.SetCartesianToCylindrical()
+                                                        : cylindricalCT.SetCylindricalToCartesian();
       auto result = cylindricalCT.Execute(in, policy);
       transformResult = fromvtkm::Convert(result.GetField(
-                                 "cylindricalCoordinateSystemTransform",
-                                 vtkm::cont::Field::Association::POINTS));
+        "cylindricalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
     }
     else
     { // Spherical coordinate system
       vtkm::filter::SphericalCoordinateTransform sphericalCT;
       sphericalCT.SetUseCoordinateSystemAsField(true);
-      (this->TransformType == TransformTypes::CarToSph) ?
-                                sphericalCT.SetCartesianToSpherical() :
-                                sphericalCT.SetSphericalToCartesian();
+      (this->TransformType == TransformTypes::CarToSph) ? sphericalCT.SetCartesianToSpherical()
+                                                        : sphericalCT.SetSphericalToCartesian();
       auto result = sphericalCT.Execute(in, policy);
       transformResult = fromvtkm::Convert(result.GetField(
-                                 "sphericalCoordinateSystemTransform",
-                                 vtkm::cont::Field::Association::POINTS));
+        "sphericalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
     }
     vtkPoints* newPts = vtkPoints::New();
     // Update points
@@ -199,7 +187,7 @@ int vtkmCoordinateSystemTransform::RequestData(vtkInformation*,
     newPts->Delete();
     transformResult->FastDelete();
   }
-  catch(const vtkm::cont::Error& e)
+  catch (const vtkm::cont::Error& e)
   {
     vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
   }
@@ -214,7 +202,7 @@ int vtkmCoordinateSystemTransform::RequestData(vtkInformation*,
 }
 
 //------------------------------------------------------------------------------
-void vtkmCoordinateSystemTransform::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkmCoordinateSystemTransform::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

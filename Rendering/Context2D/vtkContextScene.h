@@ -21,15 +21,15 @@
  * Provides a 2D scene that vtkContextItem objects can be added to. Manages the
  * items, ensures that they are rendered at the right times and passes on mouse
  * events.
-*/
+ */
 
 #ifndef vtkContextScene_h
 #define vtkContextScene_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // Needed for weak pointer to the window.
-#include "vtkVector.h" // For vtkVector return type.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkVector.h"                   // For vtkVector return type.
+#include "vtkWeakPointer.h"              // Needed for weak pointer to the window.
 
 class vtkContext2D;
 class vtkAbstractContextItem;
@@ -48,17 +48,17 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextScene : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextScene, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
    */
-  static vtkContextScene * New();
+  static vtkContextScene* New();
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D* painter);
 
   /**
    * Add child items to this item. Increments reference count of item.
@@ -99,7 +99,7 @@ public:
   /**
    * Set the vtkAnnotationLink for the chart.
    */
-  virtual void SetAnnotationLink(vtkAnnotationLink *link);
+  virtual void SetAnnotationLink(vtkAnnotationLink* link);
 
   //@{
   /**
@@ -180,7 +180,7 @@ public:
    * This should not be necessary as the context view should take care of
    * rendering.
    */
-  virtual void SetRenderer(vtkRenderer *renderer);
+  virtual void SetRenderer(vtkRenderer* renderer);
   virtual vtkRenderer* GetRenderer();
   //@}
 
@@ -191,7 +191,7 @@ public:
    * a scene in their event handlers.
    */
   void SetDirty(bool isDirty);
-  bool GetDirty()const;
+  bool GetDirty() const;
   //@}
 
   /**
@@ -211,12 +211,12 @@ public:
    * Not part of the end-user API. Can be used by context items to
    * initialize their own colorbuffer id (when a context item is a container).
    */
-  vtkAbstractContextBufferId *GetBufferId();
+  vtkAbstractContextBufferId* GetBufferId();
 
   /**
    * Set the transform for the scene.
    */
-  virtual void SetTransform(vtkTransform2D *transform);
+  virtual void SetTransform(vtkTransform2D* transform);
 
   /**
    * Get the transform for the scene.
@@ -231,7 +231,8 @@ public:
   /**
    * Enum of valid selection modes for charts in the scene
    */
-  enum {
+  enum
+  {
     SELECTION_NONE = 0,
     SELECTION_DEFAULT,
     SELECTION_ADDITION,
@@ -251,27 +252,27 @@ protected:
   /**
    * Process a mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button press event.
    */
-  virtual bool ButtonPressEvent(const vtkContextMouseEvent &event);
+  virtual bool ButtonPressEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button release event.
    */
-  virtual bool ButtonReleaseEvent(const vtkContextMouseEvent &event);
+  virtual bool ButtonReleaseEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse button double click event.
    */
-  virtual bool DoubleClickEvent(const vtkContextMouseEvent &event);
+  virtual bool DoubleClickEvent(const vtkContextMouseEvent& event);
 
   /**
    * Process a mouse wheel event where delta is the movement forward or back.
    */
-  virtual bool MouseWheelEvent(int delta, const vtkContextMouseEvent &event);
+  virtual bool MouseWheelEvent(int delta, const vtkContextMouseEvent& event);
 
   /**
    * Process a key press event.
@@ -312,7 +313,7 @@ protected:
    */
   void UpdateBufferId();
 
-  vtkAnnotationLink *AnnotationLink;
+  vtkAnnotationLink* AnnotationLink;
 
   // Store the chart dimensions - width, height of scene in pixels
   int Geometry[2];
@@ -328,7 +329,7 @@ protected:
    * Private storage object - where we hide all of our STL objects...
    */
   class Private;
-  Private *Storage;
+  Private* Storage;
   //@}
 
   /**
@@ -342,7 +343,7 @@ protected:
 
   vtkWeakPointer<vtkRenderer> Renderer;
 
-  vtkAbstractContextBufferId *BufferId;
+  vtkAbstractContextBufferId* BufferId;
   bool BufferIdDirty;
 
   bool UseBufferId;
@@ -358,15 +359,13 @@ protected:
   vtkTransform2D* Transform;
 
 private:
-  vtkContextScene(const vtkContextScene &) = delete;
-  void operator=(const vtkContextScene &) = delete;
+  vtkContextScene(const vtkContextScene&) = delete;
+  void operator=(const vtkContextScene&) = delete;
 
-  typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
-  bool ProcessItem(vtkAbstractContextItem* cur,
-                   const vtkContextMouseEvent& event,
-                   MouseEvents eventPtr);
-  void EventCopy(const vtkContextMouseEvent &event);
-
+  typedef bool (vtkAbstractContextItem::*MouseEvents)(const vtkContextMouseEvent&);
+  bool ProcessItem(
+    vtkAbstractContextItem* cur, const vtkContextMouseEvent& event, MouseEvents eventPtr);
+  void EventCopy(const vtkContextMouseEvent& event);
 };
 
-#endif //vtkContextScene_h
+#endif // vtkContextScene_h

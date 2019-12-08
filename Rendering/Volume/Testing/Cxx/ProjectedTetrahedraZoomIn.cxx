@@ -27,40 +27,39 @@
 
 #include "vtkProjectedTetrahedraMapper.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkSLCReader.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkThreshold.h"
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
-#include "vtkContourFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSetTriangleFilter.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSLCReader.h"
 #include "vtkStdString.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int ProjectedTetrahedraZoomIn(int argc, char *argv[])
+int ProjectedTetrahedraZoomIn(int argc, char* argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = nullptr;
-  for (i = 0; i < argc-1; i++)
+  const char* data_root = nullptr;
+  for (i = 0; i < argc - 1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)
     {
-      data_root = argv[i+1];
+      data_root = argv[i + 1];
       break;
     }
   }
@@ -117,13 +116,13 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 
   // Create transfer mapping scalar value to opacity.
   VTK_CREATE(vtkPiecewiseFunction, opacityTransferFunction);
-  opacityTransferFunction->AddPoint(80.0,  0.0);
+  opacityTransferFunction->AddPoint(80.0, 0.0);
   opacityTransferFunction->AddPoint(120.0, 0.2);
   opacityTransferFunction->AddPoint(255.0, 0.2);
 
   // Create transfer mapping scalar value to color.
   VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
-  colorTransferFunction->AddRGBPoint(80.0,  0.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(80.0, 0.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(120.0, 0.0, 0.0, 1.0);
   colorTransferFunction->AddRGBPoint(160.0, 1.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(200.0, 0.0, 1.0, 0.0);
@@ -165,7 +164,7 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   renWin->SetSize(300, 300);
   ren1->ResetCamera();
 
-  vtkCamera *camera = ren1->GetActiveCamera();
+  vtkCamera* camera = ren1->GetActiveCamera();
   camera->ParallelProjectionOff();
   camera->SetFocalPoint(33, 33, 33);
   camera->SetPosition(43, 38, 61);

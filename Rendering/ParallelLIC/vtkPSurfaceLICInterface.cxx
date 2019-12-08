@@ -14,25 +14,24 @@
 =========================================================================*/
 #include "vtkPSurfaceLICInterface.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPainterCommunicator.h"
-#include "vtkPPainterCommunicator.h"
 #include "vtkMPI.h"
+#include "vtkObjectFactory.h"
+#include "vtkPPainterCommunicator.h"
+#include "vtkPainterCommunicator.h"
 #include "vtkParallelTimer.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPSurfaceLICInterface);
 
 //----------------------------------------------------------------------------
-vtkPSurfaceLICInterface::vtkPSurfaceLICInterface()
-{}
+vtkPSurfaceLICInterface::vtkPSurfaceLICInterface() {}
 
 //----------------------------------------------------------------------------
 vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 {
-  #ifdef vtkPSurfaceLICInterfaceDEBUG
+#ifdef vtkPSurfaceLICInterfaceDEBUG
   cerr << "=====vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface" << endl;
-  #endif
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -47,18 +46,11 @@ bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()
 
   int updateComm = this->Superclass::NeedToUpdateCommunicator() ? 1 : 0;
 
-  vtkMPICommunicatorOpaqueComm *globalComm
-    = vtkPPainterCommunicator::GetGlobalCommunicator();
+  vtkMPICommunicatorOpaqueComm* globalComm = vtkPPainterCommunicator::GetGlobalCommunicator();
 
   if (globalComm)
   {
-    MPI_Allreduce(
-         MPI_IN_PLACE,
-         &updateComm,
-         1,
-         MPI_INT,
-         MPI_MAX,
-         *globalComm->GetHandle());
+    MPI_Allreduce(MPI_IN_PLACE, &updateComm, 1, MPI_INT, MPI_MAX, *globalComm->GetHandle());
 
     if (updateComm != 0)
     {
@@ -71,63 +63,47 @@ bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()
 
 // ----------------------------------------------------------------------------
 void vtkPSurfaceLICInterface::GetGlobalMinMax(
-      vtkPainterCommunicator *painterComm,
-      float &min,
-      float &max)
+  vtkPainterCommunicator* painterComm, float& min, float& max)
 {
-  vtkPPainterCommunicator *pPainterComm
-    = dynamic_cast<vtkPPainterCommunicator*>(painterComm);
+  vtkPPainterCommunicator* pPainterComm = dynamic_cast<vtkPPainterCommunicator*>(painterComm);
 
   if (pPainterComm->GetMPIInitialized())
   {
-    MPI_Comm comm
-      = *static_cast<MPI_Comm*>(pPainterComm->GetCommunicator());
+    MPI_Comm comm = *static_cast<MPI_Comm*>(pPainterComm->GetCommunicator());
 
-    MPI_Allreduce(
-          MPI_IN_PLACE,
-          &min,
-          1,
-          MPI_FLOAT,
-          MPI_MIN,
-          comm);
+    MPI_Allreduce(MPI_IN_PLACE, &min, 1, MPI_FLOAT, MPI_MIN, comm);
 
-    MPI_Allreduce(
-          MPI_IN_PLACE,
-          &max,
-          1,
-          MPI_FLOAT,
-          MPI_MAX,
-          comm);
+    MPI_Allreduce(MPI_IN_PLACE, &max, 1, MPI_FLOAT, MPI_MAX, comm);
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkPSurfaceLICInterface::StartTimerEvent(const char *event)
+void vtkPSurfaceLICInterface::StartTimerEvent(const char* event)
 {
-  #if defined(vtkSurfaceLICInterfaceTIME)
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+#if defined(vtkSurfaceLICInterfaceTIME)
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
   log->StartEvent(event);
-  #else
+#else
   (void)event;
-  #endif
+#endif
 }
 
 //-----------------------------------------------------------------------------
-void vtkPSurfaceLICInterface::EndTimerEvent(const char *event)
+void vtkPSurfaceLICInterface::EndTimerEvent(const char* event)
 {
-  #if defined(vtkSurfaceLICInterfaceTIME)
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+#if defined(vtkSurfaceLICInterfaceTIME)
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
   log->EndEvent(event);
-  #else
+#else
   (void)event;
-  #endif
+#endif
 }
 
 //----------------------------------------------------------------------------
-void vtkPSurfaceLICInterface::WriteTimerLog(const char *fileName)
+void vtkPSurfaceLICInterface::WriteTimerLog(const char* fileName)
 {
-  #if defined(vtkSurfaceLICInterfaceTIME)
-  std::string fname = fileName?fileName:"";
+#if defined(vtkSurfaceLICInterfaceTIME)
+  std::string fname = fileName ? fileName : "";
   if (fname == this->LogFileName)
   {
     return;
@@ -135,26 +111,25 @@ void vtkPSurfaceLICInterface::WriteTimerLog(const char *fileName)
   this->LogFileName = fname;
   if (!fname.empty())
   {
-    vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+    vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
     log->SetFileName(fname.c_str());
     log->Update();
     log->Write();
   }
-  #else
+#else
   (void)fileName;
-  #endif
+#endif
 }
 
 //----------------------------------------------------------------------------
-vtkPainterCommunicator *vtkPSurfaceLICInterface::CreateCommunicator(int include)
+vtkPainterCommunicator* vtkPSurfaceLICInterface::CreateCommunicator(int include)
 {
   // if we're using MPI and it's been initialized then
   // subset VTK's world communicator otherwise run the
   // painter serially.
-  vtkPPainterCommunicator *comm = new vtkPPainterCommunicator;
+  vtkPPainterCommunicator* comm = new vtkPPainterCommunicator;
 
-  vtkMPICommunicatorOpaqueComm *globalComm
-    = vtkPPainterCommunicator::GetGlobalCommunicator();
+  vtkMPICommunicatorOpaqueComm* globalComm = vtkPPainterCommunicator::GetGlobalCommunicator();
 
   if (globalComm)
   {
@@ -165,7 +140,7 @@ vtkPainterCommunicator *vtkPSurfaceLICInterface::CreateCommunicator(int include)
 }
 
 //----------------------------------------------------------------------------
-void vtkPSurfaceLICInterface::PrintSelf(ostream & os, vtkIndent indent)
+void vtkPSurfaceLICInterface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogFileName=" << this->LogFileName << endl;

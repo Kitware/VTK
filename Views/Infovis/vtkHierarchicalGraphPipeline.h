@@ -26,13 +26,13 @@
  * viewed as an overlay on a tree. This class is not for general use, but
  * is used in the internals of vtkRenderedHierarchyRepresentation and
  * vtkRenderedTreeAreaRepresentation.
-*/
+ */
 
 #ifndef vtkHierarchicalGraphPipeline_h
 #define vtkHierarchicalGraphPipeline_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;
@@ -143,9 +143,7 @@ public:
    * annConn is the annotation link connection.
    */
   virtual void PrepareInputConnections(
-    vtkAlgorithmOutput* graphConn,
-    vtkAlgorithmOutput* treeConn,
-    vtkAlgorithmOutput* annConn);
+    vtkAlgorithmOutput* graphConn, vtkAlgorithmOutput* treeConn, vtkAlgorithmOutput* annConn);
 
   /**
    * Applies the view theme to this graph.
@@ -180,16 +178,16 @@ protected:
   vtkHierarchicalGraphPipeline();
   ~vtkHierarchicalGraphPipeline() override;
 
-  vtkApplyColors*                  ApplyColors;
+  vtkApplyColors* ApplyColors;
   vtkGraphHierarchicalBundleEdges* Bundle;
-  vtkGraphToPolyData*              GraphToPoly;
-  vtkSplineGraphEdges*             Spline;
-  vtkPolyDataMapper*               Mapper;
-  vtkActor*                        Actor;
-  vtkTextProperty*                 TextProperty;
-  vtkEdgeCenters*                  EdgeCenters;
-  vtkDynamic2DLabelMapper*         LabelMapper;
-  vtkActor2D*                      LabelActor;
+  vtkGraphToPolyData* GraphToPoly;
+  vtkSplineGraphEdges* Spline;
+  vtkPolyDataMapper* Mapper;
+  vtkActor* Actor;
+  vtkTextProperty* TextProperty;
+  vtkEdgeCenters* EdgeCenters;
+  vtkDynamic2DLabelMapper* LabelMapper;
+  vtkActor2D* LabelActor;
 
   char* HoverArrayName;
 

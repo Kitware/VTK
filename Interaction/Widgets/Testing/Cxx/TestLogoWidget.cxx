@@ -18,30 +18,28 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkLogoWidget.h"
-#include "vtkLogoRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkCylinderSource.h"
-#include "vtkConeSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkCylinderSource.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLogoRepresentation.h"
+#include "vtkLogoWidget.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkTestUtilities.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTIFFReader.h"
+#include "vtkTestUtilities.h"
 
-int TestLogoWidget( int argc, char *argv[] )
+int TestLogoWidget(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
@@ -53,50 +51,38 @@ int TestLogoWidget( int argc, char *argv[] )
 
   // Create an image for the balloon widget
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
-  vtkSmartPointer<vtkTIFFReader> image1 =
-    vtkSmartPointer<vtkTIFFReader>::New();
+  vtkSmartPointer<vtkTIFFReader> image1 = vtkSmartPointer<vtkTIFFReader>::New();
   image1->SetFileName(fname);
-  image1->SetOrientationType( 4 );
+  image1->SetOrientationType(4);
   image1->Update();
 
   // Create a test pipeline
   //
-  vtkSmartPointer<vtkSphereSource> ss =
-    vtkSmartPointer<vtkSphereSource>::New();
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(ss->GetOutputPort());
-  vtkSmartPointer<vtkActor> sph =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> sph = vtkSmartPointer<vtkActor>::New();
   sph->SetMapper(mapper);
 
-  vtkSmartPointer<vtkCylinderSource> cs =
-    vtkSmartPointer<vtkCylinderSource>::New();
-  vtkSmartPointer<vtkPolyDataMapper> csMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkCylinderSource> cs = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> csMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   csMapper->SetInputConnection(cs->GetOutputPort());
-  vtkSmartPointer<vtkActor> cyl =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> cyl = vtkSmartPointer<vtkActor>::New();
   cyl->SetMapper(csMapper);
-  cyl->AddPosition(5,0,0);
+  cyl->AddPosition(5, 0, 0);
 
-  vtkSmartPointer<vtkConeSource> coneSource =
-    vtkSmartPointer<vtkConeSource>::New();
-  vtkSmartPointer<vtkPolyDataMapper> coneMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
-  vtkSmartPointer<vtkActor> cone =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> cone = vtkSmartPointer<vtkActor>::New();
   cone->SetMapper(coneMapper);
-  cone->AddPosition(0,5,0);
+  cone->AddPosition(0, 5, 0);
 
   // Create the widget
-  vtkSmartPointer<vtkLogoRepresentation> rep =
-    vtkSmartPointer<vtkLogoRepresentation>::New();
+  vtkSmartPointer<vtkLogoRepresentation> rep = vtkSmartPointer<vtkLogoRepresentation>::New();
   rep->SetImage(image1->GetOutput());
 
-  vtkSmartPointer<vtkLogoWidget> widget =
-    vtkSmartPointer<vtkLogoWidget>::New();
+  vtkSmartPointer<vtkLogoWidget> widget = vtkSmartPointer<vtkLogoWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
@@ -113,16 +99,16 @@ int TestLogoWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
+  //  recorder->Record();
+  //  recorder->ReadFromInputStringOn();
+  //  recorder->SetInputString(eventLog);
 
   // render the image
   //
   iren->Initialize();
   renWin->Render();
   widget->On();
-//  recorder->Play();
+  //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
@@ -130,8 +116,7 @@ int TestLogoWidget( int argc, char *argv[] )
 
   iren->Start();
 
-  delete [] fname;
+  delete[] fname;
 
   return EXIT_SUCCESS;
-
 }

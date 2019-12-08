@@ -17,62 +17,60 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImagePermute.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
-#include "vtkImagePermute.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkPNGReader.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-#include "vtkImageMapper.h"
 #include "vtkActor2D.h"
+#include "vtkImageMapper.h"
 
 int TestImageSliceMapperOrient2D(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkInteractorStyle* style = vtkInteractorStyleImage::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
   renWin->Delete();
   style->Delete();
 
-  vtkPNGReader *reader = vtkPNGReader::New();
+  vtkPNGReader* reader = vtkPNGReader::New();
   // a nice random-ish origin for testing
   reader->SetDataOrigin(2.5, -13.6, 2.8);
   reader->SetDataSpacing(0.9, 0.9, 1.0);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/vtk.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
 
   reader->SetFileName(fname);
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
   {
-    vtkRenderer *renderer = vtkRenderer::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkRenderer* renderer = vtkRenderer::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
     renderer->Delete();
 
-    vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
+    vtkImageSliceMapper* imageMapper = vtkImageSliceMapper::New();
 
     if (i == 0 || i == 1)
     {
-      vtkImagePermute *permute = vtkImagePermute::New();
+      vtkImagePermute* permute = vtkImagePermute::New();
       permute->SetInputConnection(reader->GetOutputPort());
-      permute->SetFilteredAxes((2-i)%3, (3-i)%3, (4-i)%3);
+      permute->SetFilteredAxes((2 - i) % 3, (3 - i) % 3, (4 - i) % 3);
       imageMapper->SetInputConnection(permute->GetOutputPort());
       permute->Delete();
       imageMapper->SetOrientation(i);
@@ -82,11 +80,11 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
       imageMapper->SetInputConnection(reader->GetOutputPort());
     }
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     camera->SetFocalPoint(point);
     point[imageMapper->GetOrientation()] += 1.0;
@@ -102,7 +100,7 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
       camera->SetViewUp(0.0, 0.0, 1.0);
     }
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkImageSlice* image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
     imageMapper->Delete();
     renderer->AddViewProp(image);
@@ -115,11 +113,11 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
     image->Delete();
   }
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

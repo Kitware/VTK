@@ -21,13 +21,13 @@
  * @class   vtkRenderedTreeAreaRepresentation
  *
  *
-*/
+ */
 
 #ifndef vtkRenderedTreeAreaRepresentation_h
 #define vtkRenderedTreeAreaRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;
@@ -93,10 +93,11 @@ public:
    * The array to use for edge labeling.  Default is "label".
    */
   virtual void SetGraphEdgeLabelArrayName(const char* name)
-    { this->SetGraphEdgeLabelArrayName(name, 0); }
+  {
+    this->SetGraphEdgeLabelArrayName(name, 0);
+  }
   virtual void SetGraphEdgeLabelArrayName(const char* name, int idx);
-  virtual const char* GetGraphEdgeLabelArrayName()
-    { return this->GetGraphEdgeLabelArrayName(0); }
+  virtual const char* GetGraphEdgeLabelArrayName() { return this->GetGraphEdgeLabelArrayName(0); }
   virtual const char* GetGraphEdgeLabelArrayName(int idx);
   //@}
 
@@ -105,10 +106,14 @@ public:
    * The text property for the graph edge labels.
    */
   virtual void SetGraphEdgeLabelTextProperty(vtkTextProperty* tp)
-    { this->SetGraphEdgeLabelTextProperty(tp, 0); }
+  {
+    this->SetGraphEdgeLabelTextProperty(tp, 0);
+  }
   virtual void SetGraphEdgeLabelTextProperty(vtkTextProperty* tp, int idx);
   virtual vtkTextProperty* GetGraphEdgeLabelTextProperty()
-    { return this->GetGraphEdgeLabelTextProperty(0); }
+  {
+    return this->GetGraphEdgeLabelTextProperty(0);
+  }
   virtual vtkTextProperty* GetGraphEdgeLabelTextProperty(int idx);
   //@}
 
@@ -142,11 +147,9 @@ public:
   /**
    * Whether to show edge labels.  Default is off.
    */
-  virtual void SetGraphEdgeLabelVisibility(bool vis)
-    { this->SetGraphEdgeLabelVisibility(vis, 0); }
+  virtual void SetGraphEdgeLabelVisibility(bool vis) { this->SetGraphEdgeLabelVisibility(vis, 0); }
   virtual void SetGraphEdgeLabelVisibility(bool vis, int idx);
-  virtual bool GetGraphEdgeLabelVisibility()
-    { return this->GetGraphEdgeLabelVisibility(0); }
+  virtual bool GetGraphEdgeLabelVisibility() { return this->GetGraphEdgeLabelVisibility(0); }
   virtual bool GetGraphEdgeLabelVisibility(int idx);
   vtkBooleanMacro(GraphEdgeLabelVisibility, bool);
   //@}
@@ -173,29 +176,27 @@ public:
    * The array to use for coloring edges.  Default is "color".
    */
   virtual void SetGraphEdgeColorArrayName(const char* name)
-    { this->SetGraphEdgeColorArrayName(name, 0); }
+  {
+    this->SetGraphEdgeColorArrayName(name, 0);
+  }
   virtual void SetGraphEdgeColorArrayName(const char* name, int idx);
-  virtual const char* GetGraphEdgeColorArrayName()
-    { return this->GetGraphEdgeColorArrayName(0); }
+  virtual const char* GetGraphEdgeColorArrayName() { return this->GetGraphEdgeColorArrayName(0); }
   virtual const char* GetGraphEdgeColorArrayName(int idx);
   //@}
 
   /**
    * Set the color to be the spline fraction
    */
-  virtual void SetGraphEdgeColorToSplineFraction()
-    { this->SetGraphEdgeColorToSplineFraction(0); }
+  virtual void SetGraphEdgeColorToSplineFraction() { this->SetGraphEdgeColorToSplineFraction(0); }
   virtual void SetGraphEdgeColorToSplineFraction(int idx);
 
   //@{
   /**
    * Whether to color edges.  Default is off.
    */
-  virtual void SetColorGraphEdgesByArray(bool vis)
-    { this->SetColorGraphEdgesByArray(vis, 0); }
+  virtual void SetColorGraphEdgesByArray(bool vis) { this->SetColorGraphEdgesByArray(vis, 0); }
   virtual void SetColorGraphEdgesByArray(bool vis, int idx);
-  virtual bool GetColorGraphEdgesByArray()
-    { return this->GetColorGraphEdgesByArray(0); }
+  virtual bool GetColorGraphEdgesByArray() { return this->GetColorGraphEdgesByArray(0); }
   virtual bool GetColorGraphEdgesByArray(int idx);
   vtkBooleanMacro(ColorGraphEdgesByArray, bool);
   //@}
@@ -205,11 +206,9 @@ public:
    * The name of the array whose value appears when the mouse hovers
    * over a graph edge.
    */
-  virtual void SetGraphHoverArrayName(const char* name)
-    { this->SetGraphHoverArrayName(name, 0); }
+  virtual void SetGraphHoverArrayName(const char* name) { this->SetGraphHoverArrayName(name, 0); }
   virtual void SetGraphHoverArrayName(const char* name, int idx);
-  virtual const char* GetGraphHoverArrayName()
-    { return this->GetGraphHoverArrayName(0); }
+  virtual const char* GetGraphHoverArrayName() { return this->GetGraphHoverArrayName(0); }
   virtual const char* GetGraphHoverArrayName(int idx);
   //@}
 
@@ -226,10 +225,11 @@ public:
    * Set the bundling strength.
    */
   virtual void SetGraphBundlingStrength(double strength)
-    { this->SetGraphBundlingStrength(strength, 0); }
+  {
+    this->SetGraphBundlingStrength(strength, 0);
+  }
   virtual void SetGraphBundlingStrength(double strength, int idx);
-  virtual double GetGraphBundlingStrength()
-    { return this->GetGraphBundlingStrength(0); }
+  virtual double GetGraphBundlingStrength() { return this->GetGraphBundlingStrength(0); }
   virtual double GetGraphBundlingStrength(int idx);
   //@}
 
@@ -309,10 +309,7 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void PrepareForRendering(vtkRenderView* view) override;
 
@@ -322,23 +319,23 @@ protected:
 
   vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) override;
 
-  vtkSmartPointer<vtkWorldPointPicker>             Picker;
-  vtkSmartPointer<vtkApplyColors>                  ApplyColors;
-  vtkSmartPointer<vtkTreeLevelsFilter>             TreeLevels;
-  vtkSmartPointer<vtkVertexDegree>                 VertexDegree;
-  vtkSmartPointer<vtkTreeFieldAggregator>          TreeAggregation;
-  vtkSmartPointer<vtkAreaLayout>                   AreaLayout;
-  vtkSmartPointer<vtkPolyDataMapper>               AreaMapper;
-  vtkSmartPointer<vtkActor>                        AreaActor;
-  vtkSmartPointer<vtkActor2D>                      AreaLabelActor;
-  vtkSmartPointer<vtkPolyData>                     HighlightData;
-  vtkSmartPointer<vtkPolyDataMapper>               HighlightMapper;
-  vtkSmartPointer<vtkActor>                        HighlightActor;
-  vtkPolyDataAlgorithm*                            AreaToPolyData;
-  vtkLabeledDataMapper*                            AreaLabelMapper;
-  vtkSmartPointer<vtkScalarBarWidget>              EdgeScalarBar;
-  vtkSmartPointer<vtkPointSetToLabelHierarchy>     AreaLabelHierarchy;
-  vtkSmartPointer<vtkPolyData>                     EmptyPolyData;
+  vtkSmartPointer<vtkWorldPointPicker> Picker;
+  vtkSmartPointer<vtkApplyColors> ApplyColors;
+  vtkSmartPointer<vtkTreeLevelsFilter> TreeLevels;
+  vtkSmartPointer<vtkVertexDegree> VertexDegree;
+  vtkSmartPointer<vtkTreeFieldAggregator> TreeAggregation;
+  vtkSmartPointer<vtkAreaLayout> AreaLayout;
+  vtkSmartPointer<vtkPolyDataMapper> AreaMapper;
+  vtkSmartPointer<vtkActor> AreaActor;
+  vtkSmartPointer<vtkActor2D> AreaLabelActor;
+  vtkSmartPointer<vtkPolyData> HighlightData;
+  vtkSmartPointer<vtkPolyDataMapper> HighlightMapper;
+  vtkSmartPointer<vtkActor> HighlightActor;
+  vtkPolyDataAlgorithm* AreaToPolyData;
+  vtkLabeledDataMapper* AreaLabelMapper;
+  vtkSmartPointer<vtkScalarBarWidget> EdgeScalarBar;
+  vtkSmartPointer<vtkPointSetToLabelHierarchy> AreaLabelHierarchy;
+  vtkSmartPointer<vtkPolyData> EmptyPolyData;
 
   vtkSetStringMacro(AreaSizeArrayNameInternal);
   vtkGetStringMacro(AreaSizeArrayNameInternal);
@@ -371,4 +368,3 @@ private:
 };
 
 #endif
-

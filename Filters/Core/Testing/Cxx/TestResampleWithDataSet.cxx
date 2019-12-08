@@ -24,19 +24,19 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphere.h"
 #include "vtkTableBasedClipDataSet.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-
-namespace {
+namespace
+{
 
 void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 {
@@ -92,7 +92,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
     clipCyl->SetInputData(wavelet->GetOutputDataObject(0));
     randomAttrs->Update();
 
-    vtkDataObject *block = randomAttrs->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = randomAttrs->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(randomAttrs->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
@@ -121,7 +121,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
     wavelet->UpdateExtent(blockExtent);
 
-    vtkDataObject *block = wavelet->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = wavelet->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(wavelet->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
@@ -130,8 +130,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
 } // anonymous namespace
 
-
-int TestResampleWithDataSet(int argc, char *argv[])
+int TestResampleWithDataSet(int argc, char* argv[])
 {
   // create input dataset
   vtkNew<vtkMultiBlockDataSet> input;
@@ -146,11 +145,11 @@ int TestResampleWithDataSet(int argc, char *argv[])
 
   // test default output
   resample->Update();
-  vtkMultiBlockDataSet *result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
-  vtkDataSet *block = static_cast<vtkDataSet*>(result->GetBlock(0));
+  vtkMultiBlockDataSet* result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
+  vtkDataSet* block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
-      block->GetCellData()->GetNumberOfArrays() != 1 ||
-      block->GetPointData()->GetNumberOfArrays() != 3)
+    block->GetCellData()->GetNumberOfArrays() != 1 ||
+    block->GetPointData()->GetNumberOfArrays() != 3)
   {
     std::cout << "Unexpected number of arrays in default output" << std::endl;
     return !vtkTesting::FAILED;
@@ -163,10 +162,11 @@ int TestResampleWithDataSet(int argc, char *argv[])
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
   block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
-      block->GetCellData()->GetNumberOfArrays() != 6 ||
-      block->GetPointData()->GetNumberOfArrays() != 8)
+    block->GetCellData()->GetNumberOfArrays() != 6 ||
+    block->GetPointData()->GetNumberOfArrays() != 8)
   {
-    std::cout << "Unexpected number of arrays in output with pass cell and point arrays" << std::endl;
+    std::cout << "Unexpected number of arrays in output with pass cell and point arrays"
+              << std::endl;
     return !vtkTesting::FAILED;
   }
 
@@ -176,8 +176,8 @@ int TestResampleWithDataSet(int argc, char *argv[])
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
   block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
-      block->GetCellData()->GetNumberOfArrays() != 6 ||
-      block->GetPointData()->GetNumberOfArrays() != 8)
+    block->GetCellData()->GetNumberOfArrays() != 6 ||
+    block->GetPointData()->GetNumberOfArrays() != 8)
   {
     std::cout << "Unexpected number of arrays in output with pass field arrays off" << std::endl;
     return !vtkTesting::FAILED;

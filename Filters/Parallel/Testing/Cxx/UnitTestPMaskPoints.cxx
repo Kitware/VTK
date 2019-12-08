@@ -13,44 +13,43 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkPMaskPoints.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkPolyData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 #include "vtkMPIController.h"
 
 #include "vtkCommand.h"
-#include "vtkTestErrorObserver.h"
 #include "vtkMathUtilities.h"
+#include "vtkTestErrorObserver.h"
 
 // MPI include
-#include <mpi.h>
+#include <vtk_mpi.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <sstream>
-#include <algorithm>
 
-static vtkSmartPointer<vtkPolyData> MakePolyData(
-  unsigned int numPoints);
+static vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints);
 
-int UnitTestPMaskPoints (int argc, char* argv[])
+int UnitTestPMaskPoints(int argc, char* argv[])
 {
   int status = 0;
 
   // Test empty input
   // std::cout << "Testing empty input...";
   std::ostringstream print0;
-  vtkSmartPointer<vtkPMaskPoints> mask0 =
-    vtkSmartPointer<vtkPMaskPoints>::New();
+  vtkSmartPointer<vtkPMaskPoints> mask0 = vtkSmartPointer<vtkPMaskPoints>::New();
   // For coverage
-  mask0->SetController(nullptr); mask0->SetController(nullptr);
+  mask0->SetController(nullptr);
+  mask0->SetController(nullptr);
   mask0->Print(print0);
 
   vtkMPIController* cntrl = vtkMPIController::New();
-  cntrl->Initialize( &argc, &argv, 0 );
-  vtkMultiProcessController::SetGlobalController( cntrl );
+  cntrl->Initialize(&argc, &argv, 0);
+  vtkMultiProcessController::SetGlobalController(cntrl);
 
   mask0->SetController(vtkMultiProcessController::GetGlobalController());
 
@@ -96,16 +95,14 @@ int UnitTestPMaskPoints (int argc, char* argv[])
 
 vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
 {
-  vtkSmartPointer<vtkPolyData> polyData =
-    vtkSmartPointer<vtkPolyData>::New();
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   std::vector<double> line;
   for (unsigned int i = 0; i < numPoints; ++i)
   {
     line.push_back(static_cast<double>(i));
   }
-  std::random_shuffle ( line.begin(), line.end() );
+  std::random_shuffle(line.begin(), line.end());
   for (unsigned int i = 0; i < numPoints; ++i)
   {
     points->InsertNextPoint(line[i], 0.0, 0.0);

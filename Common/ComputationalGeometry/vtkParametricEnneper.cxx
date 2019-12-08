@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricEnneper.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricEnneper);
 
@@ -33,28 +33,26 @@ vtkParametricEnneper::vtkParametricEnneper()
   this->TwistV = 0;
   this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
-
 }
 
 //----------------------------------------------------------------------------
 vtkParametricEnneper::~vtkParametricEnneper() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3],
-                                    double Duvw[9])
+void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
 
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   // The point
   Pt[0] = u - u * u * u / 3 + u * v * v;
   Pt[1] = v - v * v * v / 3 + u * u * v;
   Pt[2] = u * u - v * v;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = 1 - u * u + v * v;
   Dv[0] = 2 * u * v;
   Du[1] = 2 * u * v;
@@ -64,8 +62,7 @@ void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricEnneper::EvaluateScalar(double *, double *,
-    double *)
+double vtkParametricEnneper::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }

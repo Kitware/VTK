@@ -16,7 +16,7 @@
  * @brief   encapsulate a glsl shader
  *
  * vtkShader represents a shader, vertex, fragment, geometry etc
-*/
+ */
 
 #ifndef vtkShader_h
 #define vtkShader_h

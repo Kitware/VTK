@@ -21,15 +21,15 @@
  *
  * @sa
  * vtkTDxUnixDevice QVTKOpenGLNativeWidget QVTKApplication
-*/
+ */
 
 #ifndef vtkTDxQtUnixDevices_h
 #define vtkTDxQtUnixDevices_h
 
+#include "QVTKWin32Header.h"       // for VTKGUISUPPORTQT_EXPORT
 #include "vtkGUISupportQtModule.h" // For export macro
+#include "vtkTDxUnixDevice.h"      // required for vtkTDxUnixDeviceXEvent
 #include <QObject>
-#include "QVTKWin32Header.h" // for VTKGUISUPPORTQT_EXPORT
-#include "vtkTDxUnixDevice.h" // required for vtkTDxUnixDeviceXEvent
 
 class vtkTDxQtUnixDevicesPrivate;
 
@@ -45,19 +45,18 @@ public:
    * does not exist yet.
    * \pre e_exists: e!=0
    */
-  void ProcessEvent(vtkTDxUnixDeviceXEvent *e);
+  void ProcessEvent(vtkTDxUnixDeviceXEvent* e);
 
 signals:
-/**
- * This signal should be connected to a slot in the QApplication.
- * The slot in the QApplication is supposed to remit this signal.
- * The QVTKOpenGLNativeWidget have slot to receive this signal from the QApplication.
- */
-   void CreateDevice(vtkTDxDevice *device);
+  /**
+   * This signal should be connected to a slot in the QApplication.
+   * The slot in the QApplication is supposed to remit this signal.
+   * The QVTKOpenGLNativeWidget have slot to receive this signal from the QApplication.
+   */
+  void CreateDevice(vtkTDxDevice* device);
 
 protected:
-
-  vtkTDxQtUnixDevicesPrivate *Private;
+  vtkTDxQtUnixDevicesPrivate* Private;
 
 private:
   vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&) = delete;

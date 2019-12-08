@@ -22,7 +22,7 @@
  * @class   vtkJavaScriptDataWriter
  * @brief   A Javascript data writer for vtkTable
  * Writes a vtkTable into a Javascript data format.
-*/
+ */
 
 #ifndef vtkJavaScriptDataWriter_h
 #define vtkJavaScriptDataWriter_h
@@ -80,7 +80,7 @@ public:
   //@}
 
   // Get/Set the OutputStream for writing output.
-  void SetOutputStream(ostream *my_stream);
+  void SetOutputStream(ostream* my_stream);
   ostream* GetOutputStream();
 
 protected:
@@ -90,7 +90,7 @@ protected:
   ofstream* OpenFile();
 
   void WriteData() override;
-  virtual void WriteTable(vtkTable* table, ostream *stream_ptr);
+  virtual void WriteTable(vtkTable* table, ostream* stream_ptr);
 
   // see algorithm for more info.
   // This writer takes in vtkTable.
@@ -100,13 +100,10 @@ protected:
   char* FileName;
   bool IncludeFieldNames;
   ostream* OutputStream;
+
 private:
   vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) = delete;
   void operator=(const vtkJavaScriptDataWriter&) = delete;
-
 };
 
-
-
 #endif
-

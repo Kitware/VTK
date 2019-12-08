@@ -1,3 +1,10 @@
+#[==[
+@ingroup module-impl
+@brief Output a node in the graph
+
+Queries the properties for modules and generates the node for it in the graph
+and its outgoing dependency edges.
+#]==]
 function (_vtk_module_graphviz_module_node var module)
   get_property(_vtk_graphviz_file GLOBAL
     PROPERTY "_vtk_module_${module}_file")
@@ -98,20 +105,21 @@ function (_vtk_module_graphviz_module_node var module)
   set("${var}" "${_vtk_graphviz_node_block}" PARENT_SCOPE)
 endfunction ()
 
-#[==[.md
-## Graphviz output
+#[==[
+@ingroup module-support
+@brief Generate graphviz output for a module dependency graph
 
 Information about the modules built and/or available may be dumped to a
 Graphviz `.dot` file.
 
-```
+~~~
 vtk_module_graphviz(
   MODULES   <module>...
   OUTPUT    <path>
 
   [PRIVATE_DEPENDENCIES <ON|OFF>]
   [KIT_CLUSTERS <ON|OFF>])
-```
+~~~
 
   * `MODULES`: (Required) The modules to output information for.
   * `OUTPUT`: (Required) A Graphviz file describing the modules built will

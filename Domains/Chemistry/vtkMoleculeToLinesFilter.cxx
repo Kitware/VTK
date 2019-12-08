@@ -23,16 +23,15 @@
 vtkStandardNewMacro(vtkMoleculeToLinesFilter);
 
 //----------------------------------------------------------------------------
-int vtkMoleculeToLinesFilter::RequestData(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkMoleculeToLinesFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
   vtkPolyData* output = vtkPolyData::SafeDownCast(vtkDataObject::GetData(outputVector));
 
   vtkNew<vtkCellArray> bonds;
   // 2 point ids + 1 VTKCellType = 3 values per bonds
-  bonds->Allocate(3 * input->GetNumberOfBonds());
+  bonds->AllocateEstimate(input->GetNumberOfBonds(), 2);
 
   for (vtkIdType bondInd = 0; bondInd < input->GetNumberOfBonds(); ++bondInd)
   {

@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#include "vtkDenseArray.h"
 #include "vtkDiagonalMatrixSource.h"
+#include "vtkDenseArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -33,14 +33,14 @@ vtkStandardNewMacro(vtkDiagonalMatrixSource);
 
 // ----------------------------------------------------------------------
 
-vtkDiagonalMatrixSource::vtkDiagonalMatrixSource() :
-  ArrayType(DENSE),
-  Extents(3),
-  Diagonal(1.0),
-  SuperDiagonal(0.0),
-  SubDiagonal(0.0),
-  RowLabel(nullptr),
-  ColumnLabel(nullptr)
+vtkDiagonalMatrixSource::vtkDiagonalMatrixSource()
+  : ArrayType(DENSE)
+  , Extents(3)
+  , Diagonal(1.0)
+  , SuperDiagonal(0.0)
+  , SubDiagonal(0.0)
+  , RowLabel(nullptr)
+  , ColumnLabel(nullptr)
 {
   this->SetRowLabel("rows");
   this->SetColumnLabel("columns");
@@ -74,18 +74,17 @@ void vtkDiagonalMatrixSource::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 
 int vtkDiagonalMatrixSource::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  if(this->Extents < 1)
+  if (this->Extents < 1)
   {
-    vtkErrorMacro(<< "Invalid matrix extents: " << this->Extents << "x" << this->Extents << " array is not supported.");
+    vtkErrorMacro(<< "Invalid matrix extents: " << this->Extents << "x" << this->Extents
+                  << " array is not supported.");
     return 0;
   }
 
   vtkArray* array = nullptr;
-  switch(this->ArrayType)
+  switch (this->ArrayType)
   {
     case DENSE:
       array = this->GenerateDenseArray();
@@ -115,22 +114,22 @@ vtkArray* vtkDiagonalMatrixSource::GenerateDenseArray()
 
   array->Fill(0.0);
 
-  if(this->Diagonal != 0.0)
+  if (this->Diagonal != 0.0)
   {
-    for(vtkIdType i = 0; i != this->Extents; ++i)
+    for (vtkIdType i = 0; i != this->Extents; ++i)
       array->SetValue(vtkArrayCoordinates(i, i), this->Diagonal);
   }
 
-  if(this->SuperDiagonal != 0.0)
+  if (this->SuperDiagonal != 0.0)
   {
-    for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
-      array->SetValue(vtkArrayCoordinates(i, i+1), this->SuperDiagonal);
+    for (vtkIdType i = 0; i + 1 != this->Extents; ++i)
+      array->SetValue(vtkArrayCoordinates(i, i + 1), this->SuperDiagonal);
   }
 
-  if(this->SubDiagonal != 0.0)
+  if (this->SubDiagonal != 0.0)
   {
-    for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
-      array->SetValue(vtkArrayCoordinates(i+1, i), this->SubDiagonal);
+    for (vtkIdType i = 0; i + 1 != this->Extents; ++i)
+      array->SetValue(vtkArrayCoordinates(i + 1, i), this->SubDiagonal);
   }
 
   return array;
@@ -143,24 +142,23 @@ vtkArray* vtkDiagonalMatrixSource::GenerateSparseArray()
   array->SetDimensionLabel(0, this->RowLabel);
   array->SetDimensionLabel(1, this->ColumnLabel);
 
-  if(this->Diagonal != 0.0)
+  if (this->Diagonal != 0.0)
   {
-    for(vtkIdType i = 0; i != this->Extents; ++i)
+    for (vtkIdType i = 0; i != this->Extents; ++i)
       array->AddValue(vtkArrayCoordinates(i, i), this->Diagonal);
   }
 
-  if(this->SuperDiagonal != 0.0)
+  if (this->SuperDiagonal != 0.0)
   {
-    for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
-      array->AddValue(vtkArrayCoordinates(i, i+1), this->SuperDiagonal);
+    for (vtkIdType i = 0; i + 1 != this->Extents; ++i)
+      array->AddValue(vtkArrayCoordinates(i, i + 1), this->SuperDiagonal);
   }
 
-  if(this->SubDiagonal != 0.0)
+  if (this->SubDiagonal != 0.0)
   {
-    for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
-      array->AddValue(vtkArrayCoordinates(i+1, i), this->SubDiagonal);
+    for (vtkIdType i = 0; i + 1 != this->Extents; ++i)
+      array->AddValue(vtkArrayCoordinates(i + 1, i), this->SubDiagonal);
   }
 
   return array;
 }
-

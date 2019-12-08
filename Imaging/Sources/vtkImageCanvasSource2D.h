@@ -19,13 +19,13 @@
  * vtkImageCanvasSource2D is a source that starts as a blank image.
  * you may add to the image with two-dimensional drawing routines.
  * It can paint multi-spectral images.
-*/
+ */
 
 #ifndef vtkImageCanvasSource2D_h
 #define vtkImageCanvasSource2D_h
 
-#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingSourcesModule.h" // For export macro
 
 class VTKIMAGINGSOURCES_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
 {
@@ -33,9 +33,9 @@ public:
   /**
    * Construct an instance of vtkImageCanvasSource2D with no data.
    */
-  static vtkImageCanvasSource2D *New();
+  static vtkImageCanvasSource2D* New();
 
-  vtkTypeMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageCanvasSource2D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -50,23 +50,22 @@ public:
   /**
    * Set DrawColor to (a, 0, 0, 0)
    */
-  void SetDrawColor(double a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
+  void SetDrawColor(double a) { this->SetDrawColor(a, 0.0, 0.0, 0.0); }
 
   /**
    * Set DrawColor to (a, b, 0, 0)
    */
-  void SetDrawColor(double a,double b) {this->SetDrawColor(a, b, 0.0, 0.0);}
+  void SetDrawColor(double a, double b) { this->SetDrawColor(a, b, 0.0, 0.0); }
 
   /**
    * Set DrawColor to (a, b, c, 0)
    */
-  void SetDrawColor(double a, double b, double c) {
-    this->SetDrawColor(a, b, c, 0.0);}
+  void SetDrawColor(double a, double b, double c) { this->SetDrawColor(a, b, c, 0.0); }
 
   /**
    * Initialize the canvas with a given volume
    */
-  void InitializeCanvasVolume(vtkImageData *volume);
+  void InitializeCanvasVolume(vtkImageData* volume);
 
   //@{
   /**
@@ -79,22 +78,26 @@ public:
   void DrawCircle(int c0, int c1, double radius);
   void DrawPoint(int p0, int p1);
   void DrawSegment(int x0, int y0, int x1, int y1);
-  void DrawSegment3D(double *p0, double *p1);
-  void DrawSegment3D(double x1, double y1, double z1,
-                     double x2, double y2, double z2)
-    { double p1[3], p2[3];
-    p1[0] = x1; p1[1] = y1; p1[2] = z1; p2[0] = x2; p2[1] = y2; p2[2] = z2;
-    this->DrawSegment3D(p1, p2);}
+  void DrawSegment3D(double* p0, double* p1);
+  void DrawSegment3D(double x1, double y1, double z1, double x2, double y2, double z2)
+  {
+    double p1[3], p2[3];
+    p1[0] = x1;
+    p1[1] = y1;
+    p1[2] = z1;
+    p2[0] = x2;
+    p2[1] = y2;
+    p2[2] = z2;
+    this->DrawSegment3D(p1, p2);
+  }
   //@}
 
   /**
    * Draw subimage of the input image in the canvas at position x0 and
    * y0. The subimage is defined with sx, sy, width, and height.
    */
-  void DrawImage(int x0, int y0, vtkImageData* i)
-    { this->DrawImage(x0, y0, i, -1, -1, -1, -1); }
-  void DrawImage(int x0, int y0, vtkImageData*, int sx, int sy,
-                 int width, int height);
+  void DrawImage(int x0, int y0, vtkImageData* i) { this->DrawImage(x0, y0, i, -1, -1, -1, -1); }
+  void DrawImage(int x0, int y0, vtkImageData*, int sx, int sy, int width, int height);
 
   /**
    * Fill a colored area with another color. (like connectivity)
@@ -109,7 +112,7 @@ public:
    * It sets the size of the canvas.
    * Extent is a min max 3D box.  Minimums and maximums are inclusive.
    */
-  void SetExtent(int *extent);
+  void SetExtent(int* extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   //@}
 
@@ -149,21 +152,16 @@ public:
    * REQUEST_DATA pass the actual scalars may be of some other type. This is
    * for backwards compatibility
    */
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
-  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
-  void SetScalarTypeToUnsignedInt()
-    {this->SetScalarType(VTK_UNSIGNED_INT);};
-  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);};
-  void SetScalarTypeToUnsignedLong()
-    {this->SetScalarType(VTK_UNSIGNED_LONG);};
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
-  void SetScalarTypeToUnsignedShort()
-    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
-  void SetScalarTypeToUnsignedChar()
-    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
-  void SetScalarTypeToChar()
-    {this->SetScalarType(VTK_CHAR);};
+  void SetScalarTypeToFloat() { this->SetScalarType(VTK_FLOAT); }
+  void SetScalarTypeToDouble() { this->SetScalarType(VTK_DOUBLE); }
+  void SetScalarTypeToInt() { this->SetScalarType(VTK_INT); }
+  void SetScalarTypeToUnsignedInt() { this->SetScalarType(VTK_UNSIGNED_INT); }
+  void SetScalarTypeToLong() { this->SetScalarType(VTK_LONG); }
+  void SetScalarTypeToUnsignedLong() { this->SetScalarType(VTK_UNSIGNED_LONG); }
+  void SetScalarTypeToShort() { this->SetScalarType(VTK_SHORT); }
+  void SetScalarTypeToUnsignedShort() { this->SetScalarType(VTK_UNSIGNED_SHORT); }
+  void SetScalarTypeToUnsignedChar() { this->SetScalarType(VTK_UNSIGNED_CHAR); }
+  void SetScalarTypeToChar() { this->SetScalarType(VTK_CHAR); }
   void SetScalarType(int);
   int GetScalarType() const;
   //@}
@@ -175,28 +173,20 @@ protected:
   // it may not actually be deleted.
   ~vtkImageCanvasSource2D() override;
 
-  vtkImageData *ImageData;
+  vtkImageData* ImageData;
   int WholeExtent[6];
   double DrawColor[4];
   int DefaultZ;
   double Ratio[3];
 
-  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
+  int ClipSegment(int& a0, int& a1, int& b0, int& b1);
 
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector**,
-                                  vtkInformationVector *) override;
-  int RequestData (vtkInformation *,
-                           vtkInformationVector**,
-                           vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkImageCanvasSource2D(const vtkImageCanvasSource2D&) = delete;
   void operator=(const vtkImageCanvasSource2D&) = delete;
 };
 
-
-
 #endif
-
-

@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkTextCodecFactory
  *
-*/
+ */
 
 #ifndef vtkTextCodec_h
 #define vtkTextCodec_h
@@ -75,9 +75,10 @@ public:
     virtual OutputIterator& operator++(int) = 0;
     virtual OutputIterator& operator*() = 0;
     virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
-  //@}
+    //@}
 
-    OutputIterator() {}    virtual ~OutputIterator() {}
+    OutputIterator() {}
+    virtual ~OutputIterator() {}
 
   private:
     OutputIterator(const OutputIterator&) = delete;
@@ -89,14 +90,13 @@ public:
    * to the output iterator.  The stream will be advanced to its end so
    * subsequent use would need to reset it.
    */
-  virtual void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) = 0;
+  virtual void ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output) = 0;
 
   /**
    * convenience method to take data from the stream and put it into a
    * vtkUnicodeString.
    */
-  vtkUnicodeString ToUnicode(istream & inputStream);
+  vtkUnicodeString ToUnicode(istream& inputStream);
 
   /**
    * Return the next code point from the sequence represented by the stream
@@ -110,9 +110,8 @@ protected:
   ~vtkTextCodec() override;
 
 private:
-  vtkTextCodec(const vtkTextCodec &) = delete;
-  void operator=(const vtkTextCodec &) = delete;
-
+  vtkTextCodec(const vtkTextCodec&) = delete;
+  void operator=(const vtkTextCodec&) = delete;
 };
 
 #endif

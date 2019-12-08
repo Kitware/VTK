@@ -32,7 +32,7 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
   return retVal;
 }
 
-void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, size_t fileSize)
+void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSize)
 {
   rewind(fp);
   this->Settings.BinaryFile = 0;
@@ -51,10 +51,9 @@ void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, size_t fileSi
   }
   // Check the first 12 bytes. If we find non-ascii characters, then we
   // assume that it is binary.
-  for (int i=0; i<12; i++)
+  for (int i = 0; i < 12; i++)
   {
-    if (!(isdigit(bytes[i]) || bytes[i] == '.' ||
-          bytes[i] == ' ' || bytes[i] == '\r' ||
+    if (!(isdigit(bytes[i]) || bytes[i] == '.' || bytes[i] == ' ' || bytes[i] == '\r' ||
           bytes[i] == '\n' || bytes[i] == '\t'))
     {
       this->Settings.BinaryFile = 1;
@@ -78,7 +77,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckByteOrder(FILE* fp)
   // this number will be smaller than 2^24. Then we check the first byte.
   // If it is 0 and the last byte is not 0, it is likely that this is big
   // endian.
-  if(cpy[0] == 0 && cpy[3] != 0)
+  if (cpy[0] == 0 && cpy[3] != 0)
   {
     this->Settings.ByteOrder = vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN;
   }
@@ -134,7 +133,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckMultiGrid(FILE* fp)
     {
       return 0;
     }
-    if(recMarkBeg == sizeof(int))
+    if (recMarkBeg == sizeof(int))
     {
       this->Settings.MultiGrid = 1;
     }
@@ -154,11 +153,10 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
     rewind(fp);
     int recMarkBeg, recMarkEnd;
     int numGrids = 1;
-    if(this->Settings.MultiGrid)
+    if (this->Settings.MultiGrid)
     {
-      if (!this->ReadInts(fp, 1, &recMarkBeg) ||
-          !this->ReadInts(fp, 1, &numGrids) ||
-          !this->ReadInts(fp, 1, &recMarkEnd))
+      if (!this->ReadInts(fp, 1, &recMarkBeg) || !this->ReadInts(fp, 1, &numGrids) ||
+        !this->ReadInts(fp, 1, &recMarkEnd))
       {
         return 0;
       }
@@ -167,15 +165,15 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
     {
       return 0;
     }
-    int nMax = 3*numGrids;
+    int nMax = 3 * numGrids;
     int ndims;
-    if(recMarkBeg == static_cast<int>(nMax*sizeof(int) + 2*sizeof(int)))
+    if (recMarkBeg == static_cast<int>(nMax * sizeof(int) + 2 * sizeof(int)))
     {
       ndims = 3;
     }
     else
     {
-      if(recMarkBeg == static_cast<int>(nMax*sizeof(int)))
+      if (recMarkBeg == static_cast<int>(nMax * sizeof(int)))
       {
         ndims = 3;
       }
@@ -193,14 +191,12 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
 int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 {
   int recMarkBeg, recMarkEnd, numGrids = 1, nMax, totPts;
-  int* jmax;
 
   rewind(fp);
-  if(this->Settings.MultiGrid)
+  if (this->Settings.MultiGrid)
   {
-    if (!this->ReadInts(fp, 1, &recMarkBeg) ||
-        !this->ReadInts(fp, 1, &numGrids) ||
-        !this->ReadInts(fp, 1, &recMarkEnd))
+    if (!this->ReadInts(fp, 1, &recMarkBeg) || !this->ReadInts(fp, 1, &numGrids) ||
+      !this->ReadInts(fp, 1, &recMarkEnd))
     {
       return 0;
     }
@@ -210,49 +206,43 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
     return 0;
   }
   nMax = this->Settings.NumberOfDimensions * numGrids;
-  jmax = new int[numGrids*3]; // allocate memory for jmax
-  if (!this->ReadInts(fp, nMax, jmax) ||
-      !this->ReadInts(fp, 1, &recMarkEnd))
+  std::vector<int> jmax(numGrids * 3); // allocate memory for jmax
+  if (!this->ReadInts(fp, nMax, jmax.data()) || !this->ReadInts(fp, 1, &recMarkEnd))
   {
-    delete[] jmax;
     return 0;
   }
   totPts = 1;
-  for (int i=0; i<this->Settings.NumberOfDimensions; i++)
+  for (int i = 0; i < this->Settings.NumberOfDimensions; i++)
   {
     totPts *= jmax[i];
   }
   this->ReadInts(fp, 1, &recMarkBeg);
   // single precision, with iblanking
-  if(recMarkBeg == totPts*(this->Settings.NumberOfDimensions*4 + 4))
+  if (recMarkBeg == totPts * (this->Settings.NumberOfDimensions * 4 + 4))
   {
     this->Settings.Precision = 4;
     this->Settings.IBlanking = 1;
-    delete[] jmax;
     return 1;
   }
   // double precision, with iblanking
-  else if(recMarkBeg == totPts*(this->Settings.NumberOfDimensions*8 + 4))
+  else if (recMarkBeg == totPts * (this->Settings.NumberOfDimensions * 8 + 4))
   {
     this->Settings.Precision = 8;
     this->Settings.IBlanking = 1;
-    delete[] jmax;
     return 1;
   }
   // single precision, no iblanking
-  else if(recMarkBeg == totPts*this->Settings.NumberOfDimensions*4)
+  else if (recMarkBeg == totPts * this->Settings.NumberOfDimensions * 4)
   {
     this->Settings.Precision = 4;
     this->Settings.IBlanking = 0;
-    delete[] jmax;
     return 1;
   }
   // double precision, no iblanking
-  else if(recMarkBeg == totPts*this->Settings.NumberOfDimensions*8)
+  else if (recMarkBeg == totPts * this->Settings.NumberOfDimensions * 8)
   {
     this->Settings.Precision = 8;
     this->Settings.IBlanking = 0;
-    delete[] jmax;
     return 1;
   }
   return 0;
@@ -264,9 +254,9 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 // data and estimating file size.
 int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
 {
-  int precisions[2] = {4, 8};
-  int blankings[2] = {0, 1};
-  int dimensions[2] = {2, 3};
+  int precisions[2] = { 4, 8 };
+  int blankings[2] = { 0, 1 };
+  int dimensions[2] = { 2, 3 };
 
   rewind(fp);
   int gridDims[3];
@@ -276,24 +266,20 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
   }
 
   // Single grid
-  for (int i=0; i<2; i++)
+  for (int i = 0; i < 2; i++)
   {
     int precision = precisions[i];
-    for (int j=0; j<2; j++)
+    for (int j = 0; j < 2; j++)
     {
       int blanking = blankings[j];
-      for (int k=0; k<2; k++)
+      for (int k = 0; k < 2; k++)
       {
         int dimension = dimensions[k];
 
         if (fileSize ==
-            this->CalculateFileSize(false,
-                                    precision,
-                                    blanking,
-                                    dimension,
-                                    false, // always
-                                    1,
-                                    gridDims))
+          this->CalculateFileSize(false, precision, blanking, dimension,
+            false, // always
+            1, gridDims))
         {
           this->Settings.MultiGrid = 0;
           this->Settings.Precision = precision;
@@ -312,53 +298,42 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
   {
     return 0;
   }
-  int* gridDims2 = new int[3*nGrids];
-  if (this->ReadInts(fp, nGrids*3, gridDims2) != nGrids*3)
+  std::vector<int> gridDims2(3 * nGrids);
+  if (this->ReadInts(fp, nGrids * 3, gridDims2.data()) != nGrids * 3)
   {
-    delete[] gridDims2;
     return 0;
   }
 
-  for (int i=0; i<2; i++)
+  for (int i = 0; i < 2; i++)
   {
     int precision = precisions[i];
-    for (int j=0; j<2; j++)
+    for (int j = 0; j < 2; j++)
     {
       int blanking = blankings[j];
-      for (int k=0; k<2; k++)
+      for (int k = 0; k < 2; k++)
       {
         int dimension = dimensions[k];
 
         if (fileSize ==
-            this->CalculateFileSize(true,
-                                    precision,
-                                    blanking,
-                                    dimension,
-                                    false, // always
-                                    nGrids,
-                                    gridDims2))
+          this->CalculateFileSize(true, precision, blanking, dimension,
+            false, // always
+            nGrids, gridDims2.data()))
         {
           this->Settings.MultiGrid = 1;
           this->Settings.Precision = precision;
           this->Settings.IBlanking = blanking;
           this->Settings.NumberOfDimensions = dimension;
-          delete[] gridDims2;
           return 1;
         }
       }
     }
   }
-  delete[] gridDims2;
   return 0;
 }
 
 size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
-                                                           int precision, // in bytes
-                                                           int blanking,
-                                                           int ndims,
-                                                           int hasByteCount,
-                                                           int nGrids,
-                                                           int* gridDims)
+  int precision, // in bytes
+  int blanking, int ndims, int hasByteCount, int nGrids, int* gridDims)
 {
   size_t size = 0; // the header portion, 3 ints
 
@@ -368,54 +343,50 @@ size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
     size += 4; // int for nblocks
     if (hasByteCount)
     {
-      size += 2*4; // byte counts for nblocks
+      size += 2 * 4; // byte counts for nblocks
     }
   }
   // Header
-  size += nGrids*ndims*4;
+  size += nGrids * ndims * 4;
 
   if (hasByteCount)
   {
-    size += 2*4; // byte counts for grid dims
+    size += 2 * 4; // byte counts for grid dims
   }
-  for (int i=0; i<nGrids; i++)
+  for (int i = 0; i < nGrids; i++)
   {
     size += this->CalculateFileSizeForBlock(
-      precision, blanking, ndims, hasByteCount, gridDims + ndims*i);
+      precision, blanking, ndims, hasByteCount, gridDims + ndims * i);
   }
   return size;
 }
 
 size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precision, // in bytes
-                                                                   int blanking,
-                                                                   int ndims,
-                                                                   int hasByteCount,
-                                                                   int* gridDims)
+  int blanking, int ndims, int hasByteCount, int* gridDims)
 {
   size_t size = 0;
   // x, y, (z)
   size_t npts = 1;
-  for (int i=0; i<ndims; i++)
+  for (int i = 0; i < ndims; i++)
   {
     npts *= gridDims[i];
   }
-  size += npts*ndims*precision;
+  size += npts * ndims * precision;
 
   if (blanking)
   {
-    size += npts*4;
+    size += npts * 4;
   }
 
   if (hasByteCount)
   {
-    size += 2*4;
+    size += 2 * 4;
   }
   return size;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
-  FILE* fp, vtkTypeUInt64 offset,
+bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
   const vtkMultiBlockPLOT3DReaderInternals::InternalSettings& settings,
   vtkMultiProcessController* controller)
 {
@@ -424,7 +395,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
   {
     return true;
   }
-  const int rank = controller? controller->GetLocalProcessId() : 0;
+  const int rank = controller ? controller->GetLocalProcessId() : 0;
   int error = 0;
   if (rank == 0)
   {
@@ -451,7 +422,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
         {
           vtkByteSwap::Swap4BE(&leadingLengthField);
         }
-        signBit = (0x80000000 & leadingLengthField)? 1 : 0;
+        signBit = (0x80000000 & leadingLengthField) ? 1 : 0;
         if (signBit)
         {
           unsigned int length = 0xffffffff ^ (leadingLengthField - 1);
@@ -463,8 +434,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
         }
         this->SubRecords.push_back(subrecord);
         offset = subrecord.FooterOffset + sizeof(int);
-      }
-      while (signBit == 1);
+      } while (signBit == 1);
     }
     catch (Plot3DException&)
     {
@@ -495,8 +465,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
     controller->Broadcast(&count, 1, 0);
     if (count > 0)
     {
-      controller->Broadcast(
-        reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      controller->Broadcast(reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
     }
   }
   else
@@ -506,8 +475,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
     this->SubRecords.resize(count);
     if (count > 0)
     {
-      controller->Broadcast(
-        reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      controller->Broadcast(reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
     }
   }
   return true;
@@ -526,8 +494,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
 
   // locate the sub-record in which startOffset begins.
   VectorOfSubRecords::const_iterator sr_start = this->SubRecords.begin();
-  while (sr_start != this->SubRecords.end()
-    && sr_start->FooterOffset < startOffset)
+  while (sr_start != this->SubRecords.end() && sr_start->FooterOffset < startOffset)
   {
     ++sr_start;
   }
@@ -536,8 +503,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
   vtkTypeUInt64 endOffset = startOffset + length;
 
   VectorOfSubRecords::const_iterator sr_end = sr_start;
-  while (sr_end != this->SubRecords.end()
-    && sr_end->FooterOffset < endOffset)
+  while (sr_end != this->SubRecords.end() && sr_end->FooterOffset < endOffset)
   {
     markers.push_back(sr_end->FooterOffset);
     ++sr_end;
@@ -551,10 +517,10 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
 //-----------------------------------------------------------------------------
 std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> >
 vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
-  vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64> &markers)
+  vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64>& markers)
 {
   std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks;
-  for (size_t cc=0; cc < markers.size(); ++cc)
+  for (size_t cc = 0; cc < markers.size(); ++cc)
   {
     if (start < markers[cc])
     {
@@ -575,7 +541,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
 vtkTypeUInt64 vtkMultiBlockPLOT3DReaderRecord::GetLengthWithSeparators(
   vtkTypeUInt64 start, vtkTypeUInt64 length) const
 {
-  return this->GetSubRecordSeparators(start, length).size()
-    * vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth
-    + length;
+  return this->GetSubRecordSeparators(start, length).size() *
+    vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth +
+    length;
 }

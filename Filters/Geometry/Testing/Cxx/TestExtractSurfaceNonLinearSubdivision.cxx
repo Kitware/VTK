@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
 {
   // Basic visualisation.
   vtkNew<vtkRenderer> ren;
-  ren->SetBackground(0,0,0);
+  ren->SetBackground(0, 0, 0);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
@@ -36,14 +36,12 @@ int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  renWin->SetSize(300,300);
-
+  renWin->SetSize(300, 300);
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
-  char* filename = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/quadraticTetra01.vtu");
+  char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
   reader->SetFileName(filename);
-  delete [] filename;
+  delete[] filename;
   filename = nullptr;
 
   vtkNew<vtkDataSetSurfaceFilter> extract_surface;

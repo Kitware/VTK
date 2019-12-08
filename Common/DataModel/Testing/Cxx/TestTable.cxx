@@ -28,19 +28,19 @@
 #include <vector>
 using namespace std;
 
-void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
+void CheckEqual(vtkTable* table, vector<vector<double> >& stdTable)
 {
   // Check sizes
   if (table->GetNumberOfRows() != static_cast<vtkIdType>(stdTable[0].size()))
   {
-    cout << "Number of rows is incorrect ("
-         << table->GetNumberOfRows() << " != " << stdTable.size() << ")" << endl;
+    cout << "Number of rows is incorrect (" << table->GetNumberOfRows() << " != " << stdTable.size()
+         << ")" << endl;
     exit(1);
   }
   if (table->GetNumberOfColumns() != static_cast<vtkIdType>(stdTable.size()))
   {
-    cout << "Number of columns is incorrect ("
-         << table->GetNumberOfColumns() << " != " << stdTable.size() << ")" << endl;
+    cout << "Number of columns is incorrect (" << table->GetNumberOfColumns()
+         << " != " << stdTable.size() << ")" << endl;
     exit(1);
   }
 
@@ -131,11 +131,11 @@ int TestTable(int, char*[])
 
   // Make a table and a parallel vector of vectors
   vtkTable* table = vtkTable::New();
-  vector<vector< double > > stdTable;
+  vector<vector<double> > stdTable;
 
   int size = 100;
   double prob = 1.0 - 1.0 / size;
-  double highProb = 1.0 - 1.0 / (size*size);
+  double highProb = 1.0 - 1.0 / (size * size);
 
   cout << "Creating columns." << endl;
   vtkIdType columnId = 0;
@@ -238,10 +238,12 @@ int TestTable(int, char*[])
   for (int i = 0; i < numRowsToRemove; i++)
   {
     vtkIdType row = static_cast<vtkIdType>(vtkMath::Random(0, table->GetNumberOfRows()));
-    cout << "Removing row " << row << " from vtkTable with " << table->GetNumberOfRows() << " rows" << endl;
+    cout << "Removing row " << row << " from vtkTable with " << table->GetNumberOfRows() << " rows"
+         << endl;
     table->RemoveRow(row);
 
-    cout << "Removing row " << row << " from vector< vector<double> > with " << stdTable[0].size() << " rows " << endl;
+    cout << "Removing row " << row << " from vector< vector<double> > with " << stdTable[0].size()
+         << " rows " << endl;
     for (unsigned int j = 0; j < stdTable.size(); j++)
     {
       vector<double>::iterator rowIt = stdTable[j].begin() + row;
@@ -267,7 +269,8 @@ int TestTable(int, char*[])
     stdTable.erase(colIt);
   }
 
-  cout << "vtkTable size: " << table->GetNumberOfRows() << "," << table->GetNumberOfColumns() << endl;
+  cout << "vtkTable size: " << table->GetNumberOfRows() << "," << table->GetNumberOfColumns()
+       << endl;
   cout << "vector<vector<double> > size: " << stdTable[0].size() << "," << stdTable.size() << endl;
 
   cout << "Checking that table matches expected table." << endl;
@@ -276,4 +279,3 @@ int TestTable(int, char*[])
   table->Delete();
   return 0;
 }
-

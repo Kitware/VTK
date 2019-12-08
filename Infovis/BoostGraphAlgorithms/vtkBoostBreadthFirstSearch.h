@@ -29,14 +29,14 @@
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostBreadthFirstSearch_h
 #define vtkBoostBreadthFirstSearch_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
+#include "vtkStdString.h"                         // For string type
+#include "vtkVariant.h"                           // For variant type
 
 #include "vtkGraphAlgorithm.h"
 
@@ -45,7 +45,7 @@ class vtkSelection;
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
-  static vtkBoostBreadthFirstSearch *New();
+  static vtkBoostBreadthFirstSearch* New();
   vtkTypeMacro(vtkBoostBreadthFirstSearch, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,7 +53,7 @@ public:
   /**
    * Convenience methods for setting the origin selection input.
    */
-  void SetOriginSelection(vtkSelection *s);
+  void SetOriginSelection(vtkSelection* s);
   void SetOriginSelectionConnection(vtkAlgorithmOutput* algOutput)
   {
     this->SetInputConnection(1, algOutput);
@@ -128,19 +128,13 @@ protected:
   vtkBoostBreadthFirstSearch();
   ~vtkBoostBreadthFirstSearch();
 
-  virtual int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  virtual int FillOutputPortInformation(
-    int port, vtkInformation* info) override;
+  virtual int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-
   vtkIdType OriginVertexIndex;
   char* InputArrayName;
   char* OutputArrayName;
@@ -160,8 +154,7 @@ private:
    * This method is basically a helper function to find
    * the index of a specific value within a specific array
    */
-  vtkIdType GetVertexIndex(
-    vtkAbstractArray *abstract,vtkVariant value);
+  vtkIdType GetVertexIndex(vtkAbstractArray* abstract, vtkVariant value);
 
   vtkBoostBreadthFirstSearch(const vtkBoostBreadthFirstSearch&) = delete;
   void operator=(const vtkBoostBreadthFirstSearch&) = delete;

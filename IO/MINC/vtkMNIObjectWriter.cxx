@@ -50,29 +50,29 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkProperty.h"
-#include "vtkMapper.h"
 #include "vtkLookupTable.h"
-#include "vtkPolygon.h"
+#include "vtkMapper.h"
 #include "vtkMath.h"
-#include "vtkErrorCode.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cctype>
 #include <cmath>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 //--------------------------------------------------------------------------
@@ -119,7 +119,7 @@ vtkMNIObjectWriter::~vtkMNIObjectWriter()
 //-------------------------------------------------------------------------
 void vtkMNIObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Property: " << this->Property << "\n";
   os << indent << "Mapper: " << this->Mapper << "\n";
@@ -143,10 +143,10 @@ int vtkMNIObjectWriter::WriteObjectType(int objType)
 
 //-------------------------------------------------------------------------
 // Write floating-point values into a vtkFloatArray.
-int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
+int vtkMNIObjectWriter::WriteValues(vtkDataArray* array)
 {
   int dataType = array->GetDataType();
-  void *data = array->GetVoidPointer(0);
+  void* data = array->GetVoidPointer(0);
 
   vtkIdType numTuples = array->GetNumberOfTuples();
   vtkIdType numComponents = array->GetNumberOfComponents();
@@ -157,22 +157,22 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
     vtkIdType m = numComponents;
     for (vtkIdType i = 0; i < n; i += m)
     {
-      unsigned char *cdata = static_cast<unsigned char *>(data) + i;
-      ostream &os = *this->OutputStream;
+      unsigned char* cdata = static_cast<unsigned char*>(data) + i;
+      ostream& os = *this->OutputStream;
 
-      double r = cdata[0]/255.0;
+      double r = cdata[0] / 255.0;
       double g = r;
       double b = r;
       double a = 1.0;
 
       if (m > 2)
       {
-        g = cdata[1]/255.0;
-        b = cdata[2]/255.0;
+        g = cdata[1] / 255.0;
+        b = cdata[2] / 255.0;
       }
       if (m == 2 || m == 4)
       {
-        a = cdata[m-1]/255.0;
+        a = cdata[m - 1] / 255.0;
       }
 
       os << " " << r << " " << g << " " << b << " " << a;
@@ -196,31 +196,31 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
     {
       for (vtkIdType j = 0; j < valuesPerLine && i < n; i++, j++)
       {
-        ostream &os = *this->OutputStream;
+        ostream& os = *this->OutputStream;
 
-        switch(dataType)
+        switch (dataType)
         {
           case VTK_FLOAT:
           {
-            float *fdata = static_cast<float *>(data);
+            float* fdata = static_cast<float*>(data);
             double val = fdata[i];
             os << " " << val;
           }
-            break;
+          break;
           case VTK_DOUBLE:
           {
-            double *ddata = static_cast<double *>(data);
+            double* ddata = static_cast<double*>(data);
             double val = ddata[i];
             os << " " << val;
           }
-            break;
+          break;
           case VTK_INT:
           {
-            int *idata = static_cast<int *>(data);
+            int* idata = static_cast<int*>(data);
             int val = idata[i];
             os << " " << val;
           }
-            break;
+          break;
         }
       }
       if (this->WriteNewline() == 0)
@@ -235,7 +235,7 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
     if (dataType == VTK_UNSIGNED_CHAR)
     {
       // colors need to be swapped to ABGR order for binary
-      char *odata = static_cast<char *>(data);
+      char* odata = static_cast<char*>(data);
       vtkIdType m = numComponents;
       for (vtkIdType i = 0; i < n && this->OutputStream->good(); i += m)
       {
@@ -254,7 +254,7 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
         }
         if (m == 2 || m == 4)
         {
-          cdata[0] = odata[m-1];
+          cdata[0] = odata[m - 1];
         }
         else
         {
@@ -269,17 +269,16 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
     else if (dataType == VTK_DOUBLE)
     {
       // doubles must be converted to float
-      double *ddata = (double *)(data);
+      double* ddata = (double*)(data);
       for (vtkIdType i = 0; i < n && this->OutputStream->good(); i++)
       {
         float fval = ddata[i];
-        this->OutputStream->write((char *)(&fval), sizeof(float));
+        this->OutputStream->write((char*)(&fval), sizeof(float));
       }
     }
     else
     {
-      this->OutputStream->write((char *)(data),
-                                n*array->GetDataTypeSize());
+      this->OutputStream->write((char*)(data), n * array->GetDataTypeSize());
     }
 
     if (this->OutputStream->fail())
@@ -305,7 +304,7 @@ int vtkMNIObjectWriter::WriteIdValue(vtkIdType value)
   else
   {
     // machine-order endianness and data size
-    this->OutputStream->write((char *)(&ival), sizeof(int));
+    this->OutputStream->write((char*)(&ival), sizeof(int));
   }
 
   return 1;
@@ -330,7 +329,7 @@ int vtkMNIObjectWriter::WriteNewline()
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteProperty(vtkProperty *property)
+int vtkMNIObjectWriter::WriteProperty(vtkProperty* property)
 {
   float properties[5];
 
@@ -359,14 +358,14 @@ int vtkMNIObjectWriter::WriteProperty(vtkProperty *property)
   else
   {
     // machine-order endianness and data size
-    this->OutputStream->write((char *)(properties), 5*sizeof(float));
+    this->OutputStream->write((char*)(properties), 5 * sizeof(float));
   }
 
   return 1;
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteLineThickness(vtkProperty *property)
+int vtkMNIObjectWriter::WriteLineThickness(vtkProperty* property)
 {
   float width = 1;
 
@@ -382,23 +381,23 @@ int vtkMNIObjectWriter::WriteLineThickness(vtkProperty *property)
   else
   {
     // machine-order endianness and data size
-    this->OutputStream->write((char *)(&width), sizeof(float));
+    this->OutputStream->write((char*)(&width), sizeof(float));
   }
 
   return 1;
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WritePoints(vtkPolyData *data)
+int vtkMNIObjectWriter::WritePoints(vtkPolyData* data)
 {
   return this->WriteValues(data->GetPoints()->GetData());
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
+int vtkMNIObjectWriter::WriteNormals(vtkPolyData* data)
 {
-  vtkDataArray *normals = data->GetPointData()->GetNormals();
-  vtkFloatArray *newNormals = nullptr;
+  vtkDataArray* normals = data->GetPointData()->GetNormals();
+  vtkFloatArray* newNormals = nullptr;
 
   // Calculate normals if necessary
   if (!normals)
@@ -406,10 +405,10 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
     // Normals will be calculated according to BIC conventions,
     // which weighs the polygon normals by the interior angle.
 
-    vtkPoints *points = data->GetPoints();
+    vtkPoints* points = data->GetPoints();
     vtkIdType numPoints = points->GetNumberOfPoints();
-    vtkCellArray *polyArray = data->GetPolys();
-    vtkCellArray *stripArray = data->GetStrips();
+    vtkCellArray* polyArray = data->GetPolys();
+    vtkCellArray* stripArray = data->GetStrips();
     vtkIdType numPolys = data->GetNumberOfPolys();
     vtkIdType numCells = numPolys + data->GetNumberOfStrips();
 
@@ -419,29 +418,29 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
 
     for (vtkIdType ii = 0; ii < numPoints; ii++)
     {
-      float *normal = newNormals->GetPointer(3*ii);
+      float* normal = newNormals->GetPointer(3 * ii);
       normal[0] = 0.0;
       normal[1] = 0.0;
       normal[2] = 0.0;
     }
 
-    vtkIdType polyIndex = 0;
-    vtkIdType stripIndex = 0;
+    vtkIdType polyCellId = 0;
+    vtkIdType stripCellId = 0;
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType* pointIds;
       vtkIdType numIds;
       vtkIdType numFaces = 1;
 
       if (i < numPolys)
       {
-        polyArray->GetCell(polyIndex, numIds, pointIds);
-        polyIndex += 1 + numIds;
+        polyArray->GetCellAtId(polyCellId, numIds, pointIds);
+        ++polyCellId;
       }
       else
       {
-        stripArray->GetCell(stripIndex, numIds, pointIds);
-        stripIndex += 1 + numIds;
+        stripArray->GetCellAtId(stripCellId, numIds, pointIds);
+        ++stripCellId;
         numFaces = numIds - 2;
         numIds = 3;
       }
@@ -465,7 +464,7 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
         double p1[3];
         double p2[3];
 
-        points->GetPoint(pointIds[numIds-1], p1);
+        points->GetPoint(pointIds[numIds - 1], p1);
         points->GetPoint(pointIds[0], p2);
         vec2[0] = p2[0] - p1[0];
         vec2[1] = p2[1] - p1[1];
@@ -483,7 +482,7 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
           p1[1] = p2[1];
           p1[2] = p2[2];
 
-          points->GetPoint(pointIds[(k+1)%numIds], p2);
+          points->GetPoint(pointIds[(k + 1) % numIds], p2);
 
           vec2[0] = p2[0] - p1[0];
           vec2[1] = p2[1] - p1[1];
@@ -507,10 +506,10 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
           }
 
           // Accumulate contributions of each polygon to the point normals
-          float *normal = newNormals->GetPointer(3*pointIds[k]);
-          normal[0] += angle*faceNormal[0];
-          normal[1] += angle*faceNormal[1];
-          normal[2] += angle*faceNormal[2];
+          float* normal = newNormals->GetPointer(3 * pointIds[k]);
+          normal[0] += angle * faceNormal[0];
+          normal[1] += angle * faceNormal[1];
+          normal[2] += angle * faceNormal[2];
         }
 
         // Go to next triangle in strip
@@ -521,7 +520,7 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
     // Normalize the normals
     for (vtkIdType jj = 0; jj < numPoints; jj++)
     {
-      float *normal = newNormals->GetPointer(3*jj);
+      float* normal = newNormals->GetPointer(3 * jj);
       vtkMath::Normalize(normal);
     }
 
@@ -539,11 +538,10 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteColors(
-  vtkProperty *property, vtkMapper *mapper, vtkPolyData *data)
+int vtkMNIObjectWriter::WriteColors(vtkProperty* property, vtkMapper* mapper, vtkPolyData* data)
 {
-  vtkUnsignedCharArray *newScalars = nullptr;
-  vtkDataArray *scalars = data->GetPointData()->GetScalars();
+  vtkUnsignedCharArray* newScalars = nullptr;
+  vtkDataArray* scalars = data->GetPointData()->GetScalars();
   vtkIdType colorType = 2;
 
   if (scalars == nullptr)
@@ -560,9 +558,8 @@ int vtkMNIObjectWriter::WriteColors(
     // Get color scalars according to Mapper rules
     if (mapper->GetScalarVisibility())
     {
-      scalars = vtkAbstractMapper::GetScalars(
-        data, mapper->GetScalarMode(), mapper->GetArrayAccessMode(),
-        mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
+      scalars = vtkAbstractMapper::GetScalars(data, mapper->GetScalarMode(),
+        mapper->GetArrayAccessMode(), mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
     }
 
     // Cell or point scalars?
@@ -573,8 +570,7 @@ int vtkMNIObjectWriter::WriteColors(
     }
 
     // Cannot use cell scalars for triangle strips
-    if (cellFlag == 1 && data->GetStrips() &&
-        data->GetStrips()->GetNumberOfCells() != 0)
+    if (cellFlag == 1 && data->GetStrips() && data->GetStrips()->GetNumberOfCells() != 0)
     {
       scalars = nullptr;
     }
@@ -587,7 +583,7 @@ int vtkMNIObjectWriter::WriteColors(
         arrayComponent = 0;
       }
 
-      vtkScalarsToColors *lookupTable = scalars->GetLookupTable();
+      vtkScalarsToColors* lookupTable = scalars->GetLookupTable();
       if (lookupTable == nullptr)
       {
         lookupTable = mapper->GetLookupTable();
@@ -599,8 +595,7 @@ int vtkMNIObjectWriter::WriteColors(
         lookupTable->SetRange(mapper->GetScalarRange());
       }
 
-      newScalars = lookupTable->MapScalars(
-        scalars, mapper->GetColorMode(), arrayComponent);
+      newScalars = lookupTable->MapScalars(scalars, mapper->GetColorMode(), arrayComponent);
       scalars = newScalars;
     }
   }
@@ -608,8 +603,7 @@ int vtkMNIObjectWriter::WriteColors(
   {
     if (this->LookupTable)
     {
-      newScalars = this->LookupTable->MapScalars(
-        scalars, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      newScalars = this->LookupTable->MapScalars(scalars, VTK_COLOR_MODE_MAP_SCALARS, -1);
       scalars = newScalars;
     }
     else if (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
@@ -634,10 +628,10 @@ int vtkMNIObjectWriter::WriteColors(
       property->GetColor(color);
       double opacity = property->GetOpacity();
 
-      rgba[0] = static_cast<unsigned char>(color[0]*255);
-      rgba[1] = static_cast<unsigned char>(color[1]*255);
-      rgba[2] = static_cast<unsigned char>(color[2]*255);
-      rgba[3] = static_cast<unsigned char>(opacity*255);
+      rgba[0] = static_cast<unsigned char>(color[0] * 255);
+      rgba[1] = static_cast<unsigned char>(color[1] * 255);
+      rgba[2] = static_cast<unsigned char>(color[2] * 255);
+      rgba[3] = static_cast<unsigned char>(opacity * 255);
     }
     else
     {
@@ -667,9 +661,9 @@ int vtkMNIObjectWriter::WriteColors(
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
+int vtkMNIObjectWriter::WriteCells(vtkPolyData* data, int cellType)
 {
-  vtkCellArray *cellArray = nullptr;
+  vtkCellArray* cellArray = nullptr;
   if (cellType == VTK_POLYGON)
   {
     cellArray = data->GetPolys();
@@ -683,26 +677,23 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
     return 0;
   }
 
-  vtkIntArray *endIndices = vtkIntArray::New();
-  vtkIntArray *cellIndices = vtkIntArray::New();
+  vtkIntArray* endIndices = vtkIntArray::New();
+  vtkIntArray* cellIndices = vtkIntArray::New();
 
   if (cellArray)
   {
     vtkIdType numCells = cellArray->GetNumberOfCells();
-    vtkIdType numCellIndices = (cellArray->GetNumberOfConnectivityEntries()
-                                - numCells);
+    vtkIdType numCellIndices = cellArray->GetNumberOfConnectivityIds();
 
     endIndices->Allocate(numCells);
     cellIndices->Allocate(numCellIndices);
 
-    vtkIdType cellIndex = 0;
     vtkIdType endIndex = 0;
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType* pointIds;
       vtkIdType numIds;
-      cellArray->GetCell(cellIndex, numIds, pointIds);
-      cellIndex += 1 + numIds;
+      cellArray->GetCellAtId(i, numIds, pointIds);
 
       endIndex += numIds;
       endIndices->InsertNextValue(endIndex);
@@ -719,7 +710,6 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
     cellArray = data->GetStrips();
     vtkIdType numCells = cellArray->GetNumberOfCells();
 
-    vtkIdType cellIndex = 0;
     vtkIdType endIndex = 0;
     if (endIndices->GetMaxId() >= 0)
     {
@@ -727,10 +717,9 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
     }
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType* pointIds;
       vtkIdType numIds;
-      cellArray->GetCell(cellIndex, numIds, pointIds);
-      cellIndex += 1 + numIds;
+      cellArray->GetCellAtId(i, numIds, pointIds);
 
       int inc1 = 2;
       int inc2 = 1;
@@ -739,8 +728,8 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
         endIndex += 3;
         endIndices->InsertNextValue(endIndex);
 
-        cellIndices->InsertNextValue(pointIds[j-inc1]);
-        cellIndices->InsertNextValue(pointIds[j-inc2]);
+        cellIndices->InsertNextValue(pointIds[j - inc1]);
+        cellIndices->InsertNextValue(pointIds[j - inc2]);
         cellIndices->InsertNextValue(pointIds[j]);
 
         // reverse the order each time around
@@ -773,7 +762,7 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData *output)
+int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData* output)
 {
   // Write the surface property
   if (this->WriteProperty(this->Property) == 0)
@@ -822,8 +811,7 @@ int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData *output)
   vtkIdType numStrips = output->GetNumberOfStrips();
   if (numStrips > 0)
   {
-    numPolys += (output->GetStrips()->GetNumberOfConnectivityEntries()
-                 - 3*numStrips);
+    numPolys += (output->GetStrips()->GetNumberOfConnectivityIds() - 2 * numStrips);
   }
   if (this->WriteIdValue(numPolys) == 0)
   {
@@ -864,7 +852,7 @@ int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData *output)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteLineObject(vtkPolyData *output)
+int vtkMNIObjectWriter::WriteLineObject(vtkPolyData* output)
 {
   // Write the surface property
   if (this->WriteLineThickness(this->Property) == 0)
@@ -938,7 +926,7 @@ int vtkMNIObjectWriter::WriteLineObject(vtkPolyData *output)
 //-------------------------------------------------------------------------
 void vtkMNIObjectWriter::WriteData()
 {
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData* input = this->GetInput();
   int objType = 0;
 
   vtkIdType npolys = input->GetNumberOfPolys();
@@ -979,7 +967,7 @@ void vtkMNIObjectWriter::WriteData()
   this->WriteObjectType(objType);
 
   // Write the object
-  switch(objType)
+  switch (objType)
   {
     case 'P':
       this->WritePolygonObject(input);
@@ -995,12 +983,10 @@ void vtkMNIObjectWriter::WriteData()
   // Delete the file if an error occurred
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
-    vtkErrorMacro("Ran out of disk space; deleting file: "
-                  << this->FileName);
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     unlink(this->FileName);
   }
 }
-
 
 //-------------------------------------------------------------------------
 vtkPolyData* vtkMNIObjectWriter::GetInput()
@@ -1015,27 +1001,27 @@ vtkPolyData* vtkMNIObjectWriter::GetInput(int port)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkMNIObjectWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
 
 //-------------------------------------------------------------------------
-ostream *vtkMNIObjectWriter::OpenFile()
+ostream* vtkMNIObjectWriter::OpenFile()
 {
-  ostream *fptr;
+  ostream* fptr;
 
-  if (!this->FileName )
+  if (!this->FileName)
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return nullptr;
   }
 
-  vtkDebugMacro(<<"Opening file for writing...");
+  vtkDebugMacro(<< "Opening file for writing...");
 
-  if ( this->FileType == VTK_ASCII )
+  if (this->FileType == VTK_ASCII)
   {
     fptr = new ofstream(this->FileName, ios::out);
   }
@@ -1050,7 +1036,7 @@ ostream *vtkMNIObjectWriter::OpenFile()
 
   if (fptr->fail())
   {
-    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    vtkErrorMacro(<< "Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
     return nullptr;
@@ -1060,9 +1046,9 @@ ostream *vtkMNIObjectWriter::OpenFile()
 }
 
 //-------------------------------------------------------------------------
-void vtkMNIObjectWriter::CloseFile(ostream *fp)
+void vtkMNIObjectWriter::CloseFile(ostream* fp)
 {
-  vtkDebugMacro(<<"Closing file\n");
+  vtkDebugMacro(<< "Closing file\n");
 
   delete fp;
 }

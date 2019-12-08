@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <vtkImageData.h>
+#include <vtkImageViewer2.h>
 #include <vtkNew.h>
 #include <vtkOpenSlideReader.h>
-#include <vtkRenderer.h>
+#include <vtkPNGWriter.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkImageViewer2.h>
-#include <vtkImageData.h>
-#include <vtkPNGWriter.h>
+#include <vtkRenderer.h>
 
 // VTK includes
 #include <vtkTestUtilities.h>
@@ -33,16 +33,16 @@ int TestOpenSlideReader(int argc, char** argv)
   // This test is known to fail with openslide library libopenslide-dev shipped
   // with ubuntu 14.04 as of March 31'2016. It does pass on fedora23, or if the
   // openslide library is built from source
-  const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/Microscopy/small2.ndpi");
+  const char* rasterFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Microscopy/small2.ndpi");
 
-  //std::cout << "Got Filename: " << rasterFileName << std::endl;
+  // std::cout << "Got Filename: " << rasterFileName << std::endl;
 
   // Create reader to read shape file.
   vtkNew<vtkOpenSlideReader> reader;
   reader->SetFileName(rasterFileName);
   reader->UpdateInformation();
-  delete [] rasterFileName;
+  delete[] rasterFileName;
 
   // For debug
   // reader->SetUpdateExtent(extent);
@@ -63,9 +63,9 @@ int TestOpenSlideReader(int argc, char** argv)
 
   vtkNew<vtkImageViewer2> imageViewer;
   imageViewer->SetInputConnection(reader->GetOutputPort());
-  //imageViewer->SetExtent(1000,1500,1000,1500,0,0);
+  // imageViewer->SetExtent(1000,1500,1000,1500,0,0);
   imageViewer->SetupInteractor(renderWindowInteractor);
-  //imageViewer->SetSlice(0);
+  // imageViewer->SetSlice(0);
   imageViewer->Render();
   imageViewer->GetRenderer()->ResetCamera();
   renderWindowInteractor->Initialize();

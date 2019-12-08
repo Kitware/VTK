@@ -19,33 +19,33 @@
 
 #include "vtkDebugLeaks.h"
 
-#include "vtkCellTypes.h"
 #include "vtkCellType.h"
+#include "vtkCellTypes.h"
 
 void TestOCT()
 {
   // actual test
-  vtkCellTypes *ct = vtkCellTypes::New();
+  vtkCellTypes* ct = vtkCellTypes::New();
   ct->Allocate();
 
   ct->InsertCell(0, VTK_QUAD, 0);
   ct->InsertNextCell(VTK_PIXEL, 1);
 
-  vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
-  vtkIntArray *cellLocations = vtkIntArray::New();
+  vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
+  vtkIntArray* cellLocations = vtkIntArray::New();
 
-  cellLocations->InsertNextValue (0);
+  cellLocations->InsertNextValue(0);
   cellTypes->InsertNextValue(VTK_QUAD);
 
-  cellLocations->InsertNextValue (1);
+  cellLocations->InsertNextValue(1);
   cellTypes->InsertNextValue(VTK_PIXEL);
 
-  cellLocations->InsertNextValue (2);
+  cellLocations->InsertNextValue(2);
   cellTypes->InsertNextValue(VTK_TETRA);
 
-  ct->SetCellTypes (3, cellTypes, cellLocations);
+  ct->SetCellTypes(3, cellTypes, cellLocations);
 
-  ct->GetCellLocation (1);
+  ct->GetCellLocation(1);
   ct->DeleteCell(1);
 
   ct->GetNumberOfTypes();
@@ -60,7 +60,7 @@ void TestOCT()
 
   ct->GetActualMemorySize();
 
-  vtkCellTypes *ct1 = vtkCellTypes::New();
+  vtkCellTypes* ct1 = vtkCellTypes::New();
   ct1->DeepCopy(ct);
 
   ct->Reset();
@@ -72,7 +72,7 @@ void TestOCT()
   cellTypes->Delete();
 }
 
-int otherCellTypes(int, char *[])
+int otherCellTypes(int, char*[])
 {
   TestOCT();
 

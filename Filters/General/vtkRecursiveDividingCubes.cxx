@@ -41,36 +41,32 @@ vtkRecursiveDividingCubes::~vtkRecursiveDividingCubes()
   this->Voxel->Delete();
 }
 
-static double X[3]; //origin of current voxel
-static double Spacing[3]; //spacing of current voxel
-static double Normals[8][3]; //voxel normals
-static vtkPoints *NewPts; //points being generated
-static vtkDoubleArray *NewNormals; //points being generated
-static vtkCellArray *NewVerts; //verts being generated
+static double X[3];                // origin of current voxel
+static double Spacing[3];          // spacing of current voxel
+static double Normals[8][3];       // voxel normals
+static vtkPoints* NewPts;          // points being generated
+static vtkDoubleArray* NewNormals; // points being generated
+static vtkCellArray* NewVerts;     // verts being generated
 
-int vtkRecursiveDividingCubes::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkRecursiveDividingCubes::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i, j, k;
   vtkIdType idx;
-  vtkDataArray *inScalars;
-  vtkIdList *voxelPts;
+  vtkDataArray* inScalars;
+  vtkIdList* voxelPts;
   double origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
-  vtkDoubleArray *voxelScalars;
+  vtkDoubleArray* voxelScalars;
 
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
   //
@@ -79,14 +75,14 @@ int vtkRecursiveDividingCubes::RequestData(
   this->Count = 0;
 
   // make sure we have scalar data
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if (!(inScalars = input->GetPointData()->GetScalars()))
   {
-    vtkErrorMacro(<<"No scalar data to contour");
+    vtkErrorMacro(<< "No scalar data to contour");
     return 1;
   }
 
   // just deal with volumes
-  if ( input->GetDataDimension() != 3 )
+  if (input->GetDataDimension() != 3)
   {
     vtkErrorMacro("Bad input: only treats 3D structured point datasets");
     return 1;
@@ -97,13 +93,13 @@ int vtkRecursiveDividingCubes::RequestData(
 
   // creating points
   NewPts = vtkPoints::New();
-  NewPts->Allocate(50000,100000);
+  NewPts->Allocate(50000, 100000);
   NewNormals = vtkDoubleArray::New();
   NewNormals->SetNumberOfComponents(3);
-  NewNormals->Allocate(50000,100000);
+  NewNormals->Allocate(50000, 100000);
   NewVerts = vtkCellArray::New();
-  NewVerts->Allocate(50000,100000);
-  NewVerts->InsertNextCell(0); //temporary cell count
+  NewVerts->AllocateEstimate(50000, 1);
+  NewVerts->InsertNextCell(0); // temporary cell count
 
   voxelPts = vtkIdList::New();
   voxelPts->Allocate(8);
@@ -111,7 +107,7 @@ int vtkRecursiveDividingCubes::RequestData(
 
   voxelScalars = vtkDoubleArray::New();
   voxelScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-  voxelScalars->Allocate(8*inScalars->GetNumberOfComponents());
+  voxelScalars->Allocate(8 * inScalars->GetNumberOfComponents());
 
   //
   // Loop over all cells checking to see which straddle the specified value.
@@ -119,20 +115,20 @@ int vtkRecursiveDividingCubes::RequestData(
   // appropriate data directly.
   //
   sliceSize = dim[0] * dim[1];
-  for ( k=0; k < (dim[2]-1); k++)
+  for (k = 0; k < (dim[2] - 1); k++)
   {
-    kOffset = k*sliceSize;
-    X[2] = origin[2] + k*Spacing[2];
+    kOffset = k * sliceSize;
+    X[2] = origin[2] + k * Spacing[2];
 
-    for ( j=0; j < (dim[1]-1); j++)
+    for (j = 0; j < (dim[1] - 1); j++)
     {
-      jOffset = j*dim[0];
-      X[1] = origin[1] + j*Spacing[1];
+      jOffset = j * dim[0];
+      X[1] = origin[1] + j * Spacing[1];
 
-      for ( i=0; i < (dim[0]-1); i++)
+      for (i = 0; i < (dim[0] - 1); i++)
       {
-        idx  = i + jOffset + kOffset;
-        X[0] = origin[0] + i*Spacing[0];
+        idx = i + jOffset + kOffset;
+        X[0] = origin[0] + i * Spacing[0];
 
         // get point ids of this voxel
         voxelPts->SetId(0, idx);
@@ -145,12 +141,12 @@ int vtkRecursiveDividingCubes::RequestData(
         voxelPts->SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        inScalars->GetTuples(voxelPts,voxelScalars);
+        inScalars->GetTuples(voxelPts, voxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
-        for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
+        for (above = below = 0, vertNum = 0; vertNum < 8; vertNum++)
         {
-          if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
+          if (voxelScalars->GetComponent(vertNum, 0) >= this->Value)
           {
             above = 1;
           }
@@ -159,16 +155,16 @@ int vtkRecursiveDividingCubes::RequestData(
             below = 1;
           }
 
-          if ( above && below ) // recursively generate points
-          { //compute voxel normals and subdivide
-            input->GetPointGradient(i,j,k, inScalars, Normals[0]);
-            input->GetPointGradient(i+1,j,k, inScalars, Normals[1]);
-            input->GetPointGradient(i,j+1,k, inScalars, Normals[2]);
-            input->GetPointGradient(i+1,j+1,k, inScalars, Normals[3]);
-            input->GetPointGradient(i,j,k+1, inScalars, Normals[4]);
-            input->GetPointGradient(i+1,j,k+1, inScalars, Normals[5]);
-            input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
-            input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
+          if (above && below) // recursively generate points
+          {                   // compute voxel normals and subdivide
+            input->GetPointGradient(i, j, k, inScalars, Normals[0]);
+            input->GetPointGradient(i + 1, j, k, inScalars, Normals[1]);
+            input->GetPointGradient(i, j + 1, k, inScalars, Normals[2]);
+            input->GetPointGradient(i + 1, j + 1, k, inScalars, Normals[3]);
+            input->GetPointGradient(i, j, k + 1, inScalars, Normals[4]);
+            input->GetPointGradient(i + 1, j, k + 1, inScalars, Normals[5]);
+            input->GetPointGradient(i, j + 1, k + 1, inScalars, Normals[6]);
+            input->GetPointGradient(i + 1, j + 1, k + 1, inScalars, Normals[7]);
 
             this->SubDivide(X, Spacing, voxelScalars->GetPointer(0));
           }
@@ -198,61 +194,62 @@ int vtkRecursiveDividingCubes::RequestData(
   return 1;
 }
 
-static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
-                                 {8,1,24,13,22,17,26,21},
-                                 {12,24,2,9,20,26,18,23},
-                                 {24,13,9,3,26,21,23,19},
-                                 {16,22,20,26,4,10,14,25},
-                                 {22,17,26,21,10,5,25,15},
-                                 {20,26,18,23,14,25,6,11},
-                                 {26,21,23,19,25,15,11,7}};
+static int ScalarInterp[8][8] = {
+  { 0, 8, 12, 24, 16, 22, 20, 26 },
+  { 8, 1, 24, 13, 22, 17, 26, 21 },
+  { 12, 24, 2, 9, 20, 26, 18, 23 },
+  { 24, 13, 9, 3, 26, 21, 23, 19 },
+  { 16, 22, 20, 26, 4, 10, 14, 25 },
+  { 22, 17, 26, 21, 10, 5, 25, 15 },
+  { 20, 26, 18, 23, 14, 25, 6, 11 },
+  { 26, 21, 23, 19, 25, 15, 11, 7 },
+};
 
 #define VTK_POINTS_PER_POLY_VERTEX 10000
 
-void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
-                                          double values[8])
+void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3], double values[8])
 {
   int i;
   double hNew[3];
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     hNew[i] = h[i] / 2.0;
   }
 
   // if subdivided far enough, create point and end termination
-  if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
+  if (h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance)
   {
     vtkIdType id;
     double x[3], n[3];
     double p[3], w[8];
 
-    for (i=0; i <3; i++)
+    for (i = 0; i < 3; i++)
     {
       x[i] = origin[i] + hNew[i];
     }
 
-    if ( ! (this->Count++ % this->Increment) ) //add a point
+    if (!(this->Count++ % this->Increment)) // add a point
     {
       id = NewPts->InsertNextPoint(x);
       NewVerts->InsertCellPoint(id);
-      for (i=0; i<3; i++)
+      for (i = 0; i < 3; i++)
       {
         p[i] = (x[i] - X[i]) / Spacing[i];
       }
-      this->Voxel->InterpolationFunctions(p,w);
-      for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
+      this->Voxel->InterpolationFunctions(p, w);
+      for (n[0] = n[1] = n[2] = 0.0, i = 0; i < 8; i++)
       {
-        n[0] += Normals[i][0]*w[i];
-        n[1] += Normals[i][1]*w[i];
-        n[2] += Normals[i][2]*w[i];
+        n[0] += Normals[i][0] * w[i];
+        n[1] += Normals[i][1] * w[i];
+        n[2] += Normals[i][2] * w[i];
       }
       vtkMath::Normalize(n);
-      NewNormals->InsertTuple(id,n);
+      NewNormals->InsertTuple(id, n);
 
-      if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
+      if (!(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX))
       {
-        vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
+        vtkDebugMacro(<< "point# " << NewPts->GetNumberOfPoints());
       }
     }
 
@@ -267,7 +264,7 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
     double newValues[8];
     double s[27], scalar;
 
-    for (i=0; i<8; i++)
+    for (i = 0; i < 8; i++)
     {
       s[i] = values[i];
     }
@@ -292,26 +289,26 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
     s[24] = (s[0] + s[1] + s[2] + s[3]) / 4.0;
     s[25] = (s[4] + s[5] + s[6] + s[7]) / 4.0;
 
-    s[26] = (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7]) / 8.0; //middle
+    s[26] = (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7]) / 8.0; // middle
 
-    for (k=0; k < 2; k++)
+    for (k = 0; k < 2; k++)
     {
-      x[2] = origin[2] +  k*hNew[2];
+      x[2] = origin[2] + k * hNew[2];
 
-      for (j=0; j < 2; j++)
+      for (j = 0; j < 2; j++)
       {
-        x[1] = origin[1] +  j*hNew[1];
+        x[1] = origin[1] + j * hNew[1];
 
-        for (i=0; i < 2; i++)
+        for (i = 0; i < 2; i++)
         {
-          idx = i + j*2 + k*4;
-          x[0] = origin[0] +  i*hNew[0];
+          idx = i + j * 2 + k * 4;
+          x[0] = origin[0] + i * hNew[0];
 
-          for (above=below=0,ii=0; ii<8; ii++)
+          for (above = below = 0, ii = 0; ii < 8; ii++)
           {
             scalar = s[ScalarInterp[idx][ii]];
 
-            if ( scalar >= this->Value )
+            if (scalar >= this->Value)
             {
               above = 1;
             }
@@ -323,7 +320,7 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
             newValues[ii] = scalar;
           }
 
-          if ( above && below )
+          if (above && below)
           {
             this->SubDivide(x, hNew, newValues);
           }
@@ -333,7 +330,7 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
   }
 }
 
-int vtkRecursiveDividingCubes::FillInputPortInformation(int, vtkInformation *info)
+int vtkRecursiveDividingCubes::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
@@ -341,11 +338,9 @@ int vtkRecursiveDividingCubes::FillInputPortInformation(int, vtkInformation *inf
 
 void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Value: " << this->Value << "\n";
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "Increment: " << this->Increment << "\n";
 }
-
-

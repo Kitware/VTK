@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <UIKit/UIKit.h>
 
 // Forward declarations
 class vtkIOSRenderWindow;
@@ -27,22 +27,22 @@ class vtkTPWCallback;
 @interface VTKViewController : GLKViewController
 {
 @private
-  vtkIOSRenderWindow *RenderWindow;
-  vtkPlaneWidget *PlaneWidget;
-  vtkRenderer *Renderer;
-  vtkProbeFilter *Probe;
-  vtkPolyDataMapper *OutlineMapper;
-  vtkPolyDataMapper *ProbeMapper;
-  vtkTPWCallback *PlaneCallback;
+  vtkIOSRenderWindow* RenderWindow;
+  vtkPlaneWidget* PlaneWidget;
+  vtkRenderer* Renderer;
+  vtkProbeFilter* Probe;
+  vtkPolyDataMapper* OutlineMapper;
+  vtkPolyDataMapper* ProbeMapper;
+  vtkTPWCallback* PlaneCallback;
 }
 
-@property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, strong) UIWindow* window;
 
 - (void)setProbeEnabled:(bool)val;
 - (bool)getProbeEnabled;
 
-- (void)setNewDataFile:(NSURL *)url;
+- (void)setNewDataFile:(NSURL*)url;
 
-- (vtkIOSRenderWindowInteractor *)getInteractor;
+- (vtkIOSRenderWindowInteractor*)getInteractor;
 
 @end

@@ -13,9 +13,9 @@
 
 =========================================================================*/
 //-------------------------------------------------------------------------
-//Copyright 2008 Sandia Corporation.
-//Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-//the U.S. Government retains certain rights in this software.
+// Copyright 2008 Sandia Corporation.
+// Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+// the U.S. Government retains certain rights in this software.
 //-------------------------------------------------------------------------
 
 /**
@@ -41,20 +41,20 @@
  * @par Thanks:
  * Thanks to David Duke from the University of Leeds for providing this
  * implementation.
-*/
+ */
 
 #ifndef vtkConeLayoutStrategy_h
 #define vtkConeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkPoints;
 
 class VTKINFOVISLAYOUT_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkConeLayoutStrategy *New();
+  static vtkConeLayoutStrategy* New();
 
   vtkTypeMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -96,7 +96,6 @@ public:
   vtkGetMacro(Spacing, float);
   //@}
 
-
   /**
    * Perform the layout.
    */
@@ -114,23 +113,21 @@ protected:
    * from the initial position of the root node.
    */
 
-  double LocalPlacement(vtkIdType root, vtkPoints *points);
+  double LocalPlacement(vtkIdType root, vtkPoints* points);
 
-  void GlobalPlacement(
-    vtkIdType root,
-    vtkPoints *points,
-    double refX,         // absolute x-y coordinate of
-    double refY,         // parent node; z coordinate
-    double level );      // derived from level.
+  void GlobalPlacement(vtkIdType root, vtkPoints* points,
+    double refX,   // absolute x-y coordinate of
+    double refY,   // parent node; z coordinate
+    double level); // derived from level.
 
-  float Compactness;     // factor used in mapping layer to Z
-  vtkTypeBool   Compression;     // force a compact layout?
-  float Spacing;         // Scale vertical spacing of cones.
+  float Compactness;       // factor used in mapping layer to Z
+  vtkTypeBool Compression; // force a compact layout?
+  float Spacing;           // Scale vertical spacing of cones.
 
   // Values accumulated for possible statistical use
   double MinRadius;
   double MaxRadius;
-  int   NrCones;
+  int NrCones;
   double SumOfRadii;
 
 private:
@@ -139,4 +136,3 @@ private:
 };
 
 #endif
-

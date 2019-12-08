@@ -66,6 +66,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWindow : public QOpenGLWindow
 {
   Q_OBJECT
   typedef QOpenGLWindow Superclass;
+
 public:
   QVTKOpenGLWindow(
     QOpenGLWindow::UpdateBehavior updateBehavior = NoPartialUpdate, QWindow* parent = nullptr);
@@ -189,6 +190,7 @@ protected slots:
    * widget goes away.
    */
   friend class QVTKOpenGLWidget;
+
 protected:
   bool event(QEvent* evt) override;
   void initializeGL() override;

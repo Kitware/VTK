@@ -33,7 +33,7 @@
  * Supported input leaf dataset type are: vtkPolyData, vtkStructuredGrid
  * and vtkUnstructuredGrid. Other data objects are rotated using the
  * transform filter (at a high cost!).
-*/
+ */
 
 #ifndef vtkAngularPeriodicFilter_h
 #define vtkAngularPeriodicFilter_h
@@ -45,8 +45,8 @@ class vtkDataSetAttributes;
 class vtkMultiPieceDataSet;
 class vtkPointSet;
 
-#define VTK_ROTATION_MODE_DIRECT_ANGLE 0  // Use user-provided angle
-#define VTK_ROTATION_MODE_ARRAY_VALUE  1  // Use array from input data as angle
+#define VTK_ROTATION_MODE_DIRECT_ANGLE 0 // Use user-provided angle
+#define VTK_ROTATION_MODE_ARRAY_VALUE 1  // Use array from input data as angle
 
 class VTKFILTERSPARALLEL_EXPORT vtkAngularPeriodicFilter : public vtkPeriodicFilter
 {
@@ -72,13 +72,11 @@ public:
    * VTK_ROTATION_MODE_DIRECT_ANGLE to specify an angle value (default),
    * VTK_ROTATION_MODE_ARRAY_VALUE to use value from an array in the input dataset.
    */
-  vtkSetClampMacro(RotationMode, int,
-    VTK_ROTATION_MODE_DIRECT_ANGLE, VTK_ROTATION_MODE_ARRAY_VALUE);
+  vtkSetClampMacro(
+    RotationMode, int, VTK_ROTATION_MODE_DIRECT_ANGLE, VTK_ROTATION_MODE_ARRAY_VALUE);
   vtkGetMacro(RotationMode, int);
-  void SetRotationModeToDirectAngle()
-    { this->SetRotationMode(VTK_ROTATION_MODE_DIRECT_ANGLE); }
-  void SetRotationModeToArrayValue()
-    { this->SetRotationMode(VTK_ROTATION_MODE_ARRAY_VALUE); }
+  void SetRotationModeToDirectAngle() { this->SetRotationMode(VTK_ROTATION_MODE_DIRECT_ANGLE); }
+  void SetRotationModeToArrayValue() { this->SetRotationMode(VTK_ROTATION_MODE_ARRAY_VALUE); }
   //@}
 
   //@{
@@ -123,59 +121,48 @@ protected:
   vtkAngularPeriodicFilter();
   ~vtkAngularPeriodicFilter() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Create a transform copy of the provided data array
    */
-  vtkDataArray* TransformDataArray(vtkDataArray* inputArray,
-                                   double angle,
-                                   bool useCenter = true,
-                                   bool normalize = false);
+  vtkDataArray* TransformDataArray(
+    vtkDataArray* inputArray, double angle, bool useCenter = true, bool normalize = false);
 
   /**
    * Append a periodic piece to dataset, by computing rotated mesh and data
    */
-  void AppendPeriodicPiece(double angle, vtkIdType iPiece,
-                           vtkDataObject* inputNode,
-                           vtkMultiPieceDataSet* multiPiece);
+  void AppendPeriodicPiece(
+    double angle, vtkIdType iPiece, vtkDataObject* inputNode, vtkMultiPieceDataSet* multiPiece);
 
   /**
    * Manually set the number of period on a specific leaf
    */
-  void SetPeriodNumber(vtkCompositeDataIterator* loc,
-                               vtkCompositeDataSet* output,
-                               int nbPeriod) override;
+  void SetPeriodNumber(
+    vtkCompositeDataIterator* loc, vtkCompositeDataSet* output, int nbPeriod) override;
 
   /**
    * Compute periodic pointset, rotating point, using provided angle
    */
-  void ComputePeriodicMesh(vtkPointSet* dataset, vtkPointSet* rotatedDataset,
-                           double angle);
+  void ComputePeriodicMesh(vtkPointSet* dataset, vtkPointSet* rotatedDataset, double angle);
 
   /**
    * Compute periodic point/cell data, using provided angle
    */
-  void ComputeAngularPeriodicData(vtkDataSetAttributes* data,
-                                  vtkDataSetAttributes* rotatedData,
-                                  double angle);
+  void ComputeAngularPeriodicData(
+    vtkDataSetAttributes* data, vtkDataSetAttributes* rotatedData, double angle);
 
   /**
    * Create a periodic data, leaf of the tree
    */
-  void CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
-                             vtkCompositeDataSet* output,
-                             vtkCompositeDataSet* input) override;
+  void CreatePeriodicDataSet(vtkCompositeDataIterator* loc, vtkCompositeDataSet* output,
+    vtkCompositeDataSet* input) override;
 
   /**
    * Generate a name for a piece in the periodic dataset from the input dataset
    */
-  virtual void GeneratePieceName(vtkCompositeDataSet* input,
-                                 vtkCompositeDataIterator* inputLoc,
-                                 vtkMultiPieceDataSet* output,
-                                 vtkIdType outputId);
+  virtual void GeneratePieceName(vtkCompositeDataSet* input, vtkCompositeDataIterator* inputLoc,
+    vtkMultiPieceDataSet* output, vtkIdType outputId);
 
 private:
   vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) = delete;
@@ -184,12 +171,13 @@ private:
   bool ComputeRotationsOnTheFly;
 
   int RotationMode;
-  char* RotationArrayName;  // user-provided array name to use as angle, for ROTATION_MODE_ARRAY_VALUE
+  char*
+    RotationArrayName; // user-provided array name to use as angle, for ROTATION_MODE_ARRAY_VALUE
 
   // Transform parameters
   double RotationAngle;
-  int RotationAxis;         // Axis to rotate around, 0 for X, 1 for Y, 2 for Z
-  double Center[3];         // Center of rotation
+  int RotationAxis; // Axis to rotate around, 0 for X, 1 for Y, 2 for Z
+  double Center[3]; // Center of rotation
 };
 
 #endif

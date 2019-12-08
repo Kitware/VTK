@@ -21,21 +21,21 @@
  * pipeline involving vtkAlgorithm must have a producer.  This trivial
  * producer allows data objects that are hand-constructed in a program
  * without another vtk producer to be connected.
-*/
+ */
 
 #ifndef vtkTrivialProducer_h
 #define vtkTrivialProducer_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataObject;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialProducer : public vtkAlgorithm
 {
 public:
-  static vtkTrivialProducer *New();
-  vtkTypeMacro(vtkTrivialProducer,vtkAlgorithm);
+  static vtkTrivialProducer* New();
+  vtkTypeMacro(vtkTrivialProducer, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -43,9 +43,8 @@ public:
    * output data object is never modified, but it is queried to
    * fulfill requests.
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the data object that is "produced" by this producer.  It is
@@ -74,8 +73,7 @@ public:
    * object to an information object. For example, whole extent,
    * image data spacing, origin etc.
    */
-  static void FillOutputDataInformation(vtkDataObject* output,
-                                        vtkInformation* outInfo);
+  static void FillOutputDataInformation(vtkDataObject* output, vtkInformation* outInfo);
 
 protected:
   vtkTrivialProducer();
@@ -91,6 +89,7 @@ protected:
   int WholeExtent[6];
 
   void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkTrivialProducer(const vtkTrivialProducer&) = delete;
   void operator=(const vtkTrivialProducer&) = delete;

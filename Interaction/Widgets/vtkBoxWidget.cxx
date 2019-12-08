@@ -47,7 +47,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->RotationEnabled = 1;
   this->ScalingEnabled = 1;
 
-  //Build the representation of the widget
+  // Build the representation of the widget
   int i;
 
   // Control orientation of normals
@@ -64,34 +64,52 @@ vtkBoxWidget::vtkBoxWidget()
 
   // Construct initial points
   this->Points = vtkPoints::New(VTK_DOUBLE);
-  this->Points->SetNumberOfPoints(15);//8 corners; 6 faces; 1 center
+  this->Points->SetNumberOfPoints(15); // 8 corners; 6 faces; 1 center
   this->HexPolyData->SetPoints(this->Points);
 
   // Construct connectivity for the faces. These are used to perform
   // the picking.
   vtkIdType pts[4];
-  vtkCellArray *cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(6,4));
-  pts[0] = 3; pts[1] = 0; pts[2] = 4; pts[3] = 7;
-  cells->InsertNextCell(4,pts);
-  pts[0] = 1; pts[1] = 2; pts[2] = 6; pts[3] = 5;
-  cells->InsertNextCell(4,pts);
-  pts[0] = 0; pts[1] = 1; pts[2] = 5; pts[3] = 4;
-  cells->InsertNextCell(4,pts);
-  pts[0] = 2; pts[1] = 3; pts[2] = 7; pts[3] = 6;
-  cells->InsertNextCell(4,pts);
-  pts[0] = 0; pts[1] = 3; pts[2] = 2; pts[3] = 1;
-  cells->InsertNextCell(4,pts);
-  pts[0] = 4; pts[1] = 5; pts[2] = 6; pts[3] = 7;
-  cells->InsertNextCell(4,pts);
+  vtkCellArray* cells = vtkCellArray::New();
+  cells->AllocateEstimate(6, 4);
+  pts[0] = 3;
+  pts[1] = 0;
+  pts[2] = 4;
+  pts[3] = 7;
+  cells->InsertNextCell(4, pts);
+  pts[0] = 1;
+  pts[1] = 2;
+  pts[2] = 6;
+  pts[3] = 5;
+  cells->InsertNextCell(4, pts);
+  pts[0] = 0;
+  pts[1] = 1;
+  pts[2] = 5;
+  pts[3] = 4;
+  cells->InsertNextCell(4, pts);
+  pts[0] = 2;
+  pts[1] = 3;
+  pts[2] = 7;
+  pts[3] = 6;
+  cells->InsertNextCell(4, pts);
+  pts[0] = 0;
+  pts[1] = 3;
+  pts[2] = 2;
+  pts[3] = 1;
+  cells->InsertNextCell(4, pts);
+  pts[0] = 4;
+  pts[1] = 5;
+  pts[2] = 6;
+  pts[3] = 7;
+  cells->InsertNextCell(4, pts);
   this->HexPolyData->SetPolys(cells);
   cells->Delete();
   this->HexPolyData->BuildCells();
 
   // The face of the hexahedra
   cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(1,4));
-  cells->InsertNextCell(4,pts); //temporary, replaced later
+  cells->AllocateEstimate(1, 4);
+  cells->InsertNextCell(4, pts); // temporary, replaced later
   this->HexFacePolyData = vtkPolyData::New();
   this->HexFacePolyData->SetPoints(this->Points);
   this->HexFacePolyData->SetPolys(cells);
@@ -109,7 +127,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->HexOutline = vtkActor::New();
   this->HexOutline->SetMapper(this->OutlineMapper);
   cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(15,2));
+  cells->AllocateEstimate(15, 2);
   this->OutlinePolyData->SetLines(cells);
   cells->Delete();
 
@@ -120,17 +138,16 @@ vtkBoxWidget::vtkBoxWidget()
   this->GenerateOutline();
 
   // Create the handles
-  this->Handle = new vtkActor* [7];
-  this->HandleMapper = new vtkPolyDataMapper* [7];
-  this->HandleGeometry = new vtkSphereSource* [7];
-  for (i=0; i<7; i++)
+  this->Handle = new vtkActor*[7];
+  this->HandleMapper = new vtkPolyDataMapper*[7];
+  this->HandleGeometry = new vtkSphereSource*[7];
+  for (i = 0; i < 7; i++)
   {
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInputConnection(
-      this->HandleGeometry[i]->GetOutputPort());
+    this->HandleMapper[i]->SetInputConnection(this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
   }
@@ -146,10 +163,10 @@ vtkBoxWidget::vtkBoxWidget()
   // Points 8-14 are down by PositionHandles();
   this->PlaceWidget(bounds);
 
-  //Manage the picking stuff
+  // Manage the picking stuff
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
-  for (i=0; i<7; i++)
+  for (i = 0; i < 7; i++)
   {
     this->HandlePicker->AddPickList(this->Handle[i]);
   }
@@ -180,15 +197,15 @@ vtkBoxWidget::~vtkBoxWidget()
   this->OutlineMapper->Delete();
   this->OutlinePolyData->Delete();
 
-  for (int i=0; i<7; i++)
+  for (int i = 0; i < 7; i++)
   {
     this->HandleGeometry[i]->Delete();
     this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
   }
-  delete [] this->Handle;
-  delete [] this->HandleMapper;
-  delete [] this->HandleGeometry;
+  delete[] this->Handle;
+  delete[] this->HandleMapper;
+  delete[] this->HandleGeometry;
 
   this->HandlePicker->Delete();
   this->HexPicker->Delete();
@@ -205,26 +222,25 @@ vtkBoxWidget::~vtkBoxWidget()
 
 void vtkBoxWidget::SetEnabled(int enabling)
 {
-  if ( ! this->Interactor )
+  if (!this->Interactor)
   {
-    vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
+    vtkErrorMacro(<< "The interactor must be set prior to enabling/disabling widget");
     return;
   }
 
-  if ( enabling ) //------------------------------------------------------------
+  if (enabling) //------------------------------------------------------------
   {
-    vtkDebugMacro(<<"Enabling widget");
+    vtkDebugMacro(<< "Enabling widget");
 
-    if ( this->Enabled ) //already enabled, just return
+    if (this->Enabled) // already enabled, just return
     {
       return;
     }
 
-    if ( ! this->CurrentRenderer )
+    if (!this->CurrentRenderer)
     {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
-        this->Interactor->GetLastEventPosition()[0],
-        this->Interactor->GetLastEventPosition()[1]));
+        this->Interactor->GetLastEventPosition()[0], this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == nullptr)
       {
         return;
@@ -234,21 +250,15 @@ void vtkBoxWidget::SetEnabled(int enabling)
     this->Enabled = 1;
 
     // listen to the following events
-    vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
+    vtkRenderWindowInteractor* i = this->Interactor;
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(
+      vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
 
     // Add the various actors
     // Add the outline
@@ -262,21 +272,21 @@ void vtkBoxWidget::SetEnabled(int enabling)
     this->HexFace->SetProperty(this->FaceProperty);
 
     // turn on the handles
-    for (int j=0; j<7; j++)
+    for (int j = 0; j < 7; j++)
     {
       this->CurrentRenderer->AddActor(this->Handle[j]);
       this->Handle[j]->SetProperty(this->HandleProperty);
     }
     this->RegisterPickers();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
   }
 
-  else //disabling-------------------------------------------------------------
+  else // disabling-------------------------------------------------------------
   {
-    vtkDebugMacro(<<"Disabling widget");
+    vtkDebugMacro(<< "Disabling widget");
 
-    if ( ! this->Enabled ) //already disabled, just return
+    if (!this->Enabled) // already disabled, just return
     {
       return;
     }
@@ -294,13 +304,13 @@ void vtkBoxWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->HexFace);
 
     // turn off the handles
-    for (int i=0; i<7; i++)
+    for (int i = 0; i < 7; i++)
     {
       this->CurrentRenderer->RemoveActor(this->Handle[i]);
     }
 
     this->CurrentHandle = nullptr;
-    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
     this->SetCurrentRenderer(nullptr);
     this->UnRegisterPickers();
   }
@@ -308,15 +318,13 @@ void vtkBoxWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkBoxWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
-                                 unsigned long event,
-                                 void* clientdata,
-                                 void* vtkNotUsed(calldata))
+void vtkBoxWidget::ProcessEvents(
+  vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {
-  vtkBoxWidget* self = reinterpret_cast<vtkBoxWidget *>( clientdata );
+  vtkBoxWidget* self = reinterpret_cast<vtkBoxWidget*>(clientdata);
 
-  //okay, let's do the right thing
-  switch(event)
+  // okay, let's do the right thing
+  switch (event)
   {
     case vtkCommand::LeftButtonPressEvent:
       self->OnLeftButtonDown();
@@ -344,15 +352,15 @@ void vtkBoxWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 
 void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  double *bounds=this->InitialBounds;
+  double* bounds = this->InitialBounds;
   os << indent << "Initial Bounds: "
      << "(" << bounds[0] << "," << bounds[1] << ") "
      << "(" << bounds[2] << "," << bounds[3] << ") "
      << "(" << bounds[4] << "," << bounds[5] << ")\n";
 
-  if ( this->HandleProperty )
+  if (this->HandleProperty)
   {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
   }
@@ -360,17 +368,16 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Handle Property: (none)\n";
   }
-  if ( this->SelectedHandleProperty )
+  if (this->SelectedHandleProperty)
   {
-    os << indent << "Selected Handle Property: "
-       << this->SelectedHandleProperty << "\n";
+    os << indent << "Selected Handle Property: " << this->SelectedHandleProperty << "\n";
   }
   else
   {
     os << indent << "SelectedHandle Property: (none)\n";
   }
 
-  if ( this->FaceProperty )
+  if (this->FaceProperty)
   {
     os << indent << "Face Property: " << this->FaceProperty << "\n";
   }
@@ -378,17 +385,16 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Face Property: (none)\n";
   }
-  if ( this->SelectedFaceProperty )
+  if (this->SelectedFaceProperty)
   {
-    os << indent << "Selected Face Property: "
-       << this->SelectedFaceProperty << "\n";
+    os << indent << "Selected Face Property: " << this->SelectedFaceProperty << "\n";
   }
   else
   {
     os << indent << "Selected Face Property: (none)\n";
   }
 
-  if ( this->OutlineProperty )
+  if (this->OutlineProperty)
   {
     os << indent << "Outline Property: " << this->OutlineProperty << "\n";
   }
@@ -396,10 +402,9 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Outline Property: (none)\n";
   }
-  if ( this->SelectedOutlineProperty )
+  if (this->SelectedOutlineProperty)
   {
-    os << indent << "Selected Outline Property: "
-       << this->SelectedOutlineProperty << "\n";
+    os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
   }
   else
   {
@@ -412,47 +417,45 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Translation Enabled: " << (this->TranslationEnabled ? "On\n" : "Off\n");
   os << indent << "Scaling Enabled: " << (this->ScalingEnabled ? "On\n" : "Off\n");
   os << indent << "Rotation Enabled: " << (this->RotationEnabled ? "On\n" : "Off\n");
-
 }
 
-#define VTK_AVERAGE(a,b,c) \
-  c[0] = (a[0] + b[0])/2.0; \
-  c[1] = (a[1] + b[1])/2.0; \
-  c[2] = (a[2] + b[2])/2.0;
+#define VTK_AVERAGE(a, b, c)                                                                       \
+  c[0] = (a[0] + b[0]) / 2.0;                                                                      \
+  c[1] = (a[1] + b[1]) / 2.0;                                                                      \
+  c[2] = (a[2] + b[2]) / 2.0;
 
 void vtkBoxWidget::PositionHandles()
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double *p0 = pts;
-  double *p1 = pts + 3*1;
-  double *p2 = pts + 3*2;
-  double *p3 = pts + 3*3;
-  //double *p4 = pts + 3*4;
-  double *p5 = pts + 3*5;
-  double *p6 = pts + 3*6;
-  double *p7 = pts + 3*7;
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+  double* p0 = pts;
+  double* p1 = pts + 3 * 1;
+  double* p2 = pts + 3 * 2;
+  double* p3 = pts + 3 * 3;
+  // double *p4 = pts + 3*4;
+  double* p5 = pts + 3 * 5;
+  double* p6 = pts + 3 * 6;
+  double* p7 = pts + 3 * 7;
   double x[3];
 
-  VTK_AVERAGE(p0,p7,x);
+  VTK_AVERAGE(p0, p7, x);
   this->Points->SetPoint(8, x);
-  VTK_AVERAGE(p1,p6,x);
+  VTK_AVERAGE(p1, p6, x);
   this->Points->SetPoint(9, x);
-  VTK_AVERAGE(p0,p5,x);
+  VTK_AVERAGE(p0, p5, x);
   this->Points->SetPoint(10, x);
-  VTK_AVERAGE(p2,p7,x);
+  VTK_AVERAGE(p2, p7, x);
   this->Points->SetPoint(11, x);
-  VTK_AVERAGE(p1,p3,x);
+  VTK_AVERAGE(p1, p3, x);
   this->Points->SetPoint(12, x);
-  VTK_AVERAGE(p5,p7,x);
+  VTK_AVERAGE(p5, p7, x);
   this->Points->SetPoint(13, x);
-  VTK_AVERAGE(p0,p6,x);
+  VTK_AVERAGE(p0, p6, x);
   this->Points->SetPoint(14, x);
 
   int i;
   for (i = 0; i < 7; ++i)
   {
-    this->HandleGeometry[i]->SetCenter(this->Points->GetPoint(8+i));
+    this->HandleGeometry[i]->SetCenter(this->Points->GetPoint(8 + i));
   }
 
   this->Points->GetData()->Modified();
@@ -464,7 +467,7 @@ void vtkBoxWidget::PositionHandles()
 
 void vtkBoxWidget::HandlesOn()
 {
-  for (int i=0; i<7; i++)
+  for (int i = 0; i < 7; i++)
   {
     this->Handle[i]->VisibilityOn();
   }
@@ -472,7 +475,7 @@ void vtkBoxWidget::HandlesOn()
 
 void vtkBoxWidget::HandlesOff()
 {
-  for (int i=0; i<7; i++)
+  for (int i = 0; i < 7; i++)
   {
     this->Handle[i]->VisibilityOff();
   }
@@ -481,36 +484,36 @@ void vtkBoxWidget::HandlesOff()
 void vtkBoxWidget::SizeHandles()
 {
   double radius = this->vtk3DWidget::SizeHandles(1.5);
-  for(int i=0; i<7; i++)
+  for (int i = 0; i < 7; i++)
   {
     this->HandleGeometry[i]->SetRadius(radius);
   }
 }
 
-int vtkBoxWidget::HighlightHandle(vtkProp *prop)
+int vtkBoxWidget::HighlightHandle(vtkProp* prop)
 {
   // first unhighlight anything picked
   this->HighlightOutline(0);
-  if ( this->CurrentHandle )
+  if (this->CurrentHandle)
   {
     this->CurrentHandle->SetProperty(this->HandleProperty);
   }
 
-  this->CurrentHandle = static_cast<vtkActor *>(prop);
+  this->CurrentHandle = static_cast<vtkActor*>(prop);
 
-  if ( this->CurrentHandle )
+  if (this->CurrentHandle)
   {
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
-    for (int i=0; i<6; i++) //find attached face
+    for (int i = 0; i < 6; i++) // find attached face
     {
-      if ( this->CurrentHandle == this->Handle[i] )
+      if (this->CurrentHandle == this->Handle[i])
       {
         return i;
       }
     }
   }
 
-  if ( this->CurrentHandle == this->Handle[6] )
+  if (this->CurrentHandle == this->Handle[6])
   {
     this->HighlightOutline(1);
   }
@@ -520,17 +523,17 @@ int vtkBoxWidget::HighlightHandle(vtkProp *prop)
 
 void vtkBoxWidget::HighlightFace(int cellId)
 {
-  if ( cellId >= 0 )
+  if (cellId >= 0)
   {
     vtkIdType npts;
-    vtkIdType *pts;
-    vtkCellArray *cells = this->HexFacePolyData->GetPolys();
+    const vtkIdType* pts;
+    vtkCellArray* cells = this->HexFacePolyData->GetPolys();
     this->HexPolyData->GetCellPoints(cellId, npts, pts);
-    cells->ReplaceCell(0,npts,pts);
+    cells->ReplaceCellAtId(0, npts, pts);
     cells->Modified();
     this->CurrentHexFace = cellId;
     this->HexFace->SetProperty(this->SelectedFaceProperty);
-    if ( !this->CurrentHandle )
+    if (!this->CurrentHandle)
     {
       this->CurrentHandle = this->HexFace;
     }
@@ -544,7 +547,7 @@ void vtkBoxWidget::HighlightFace(int cellId)
 
 void vtkBoxWidget::HighlightOutline(int highlight)
 {
-  if ( highlight )
+  if (highlight)
   {
     this->HexActor->SetProperty(this->SelectedOutlineProperty);
     this->HexOutline->SetProperty(this->SelectedOutlineProperty);
@@ -571,11 +574,10 @@ void vtkBoxWidget::OnLeftButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != nullptr )
+  if (path != nullptr)
   {
     this->State = vtkBoxWidget::Moving;
-    this->HighlightFace(
-      this->HighlightHandle(path->GetFirstNode()->GetViewProp()));
+    this->HighlightFace(this->HighlightHandle(path->GetFirstNode()->GetViewProp()));
     this->HandlePicker->GetPickPosition(this->LastPickPosition);
     this->ValidPick = 1;
   }
@@ -583,12 +585,12 @@ void vtkBoxWidget::OnLeftButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->HexPicker);
 
-    if ( path != nullptr )
+    if (path != nullptr)
     {
       this->State = vtkBoxWidget::Moving;
       this->HexPicker->GetPickPosition(this->LastPickPosition);
       this->ValidPick = 1;
-      if ( !this->Interactor->GetShiftKey() )
+      if (!this->Interactor->GetShiftKey())
       {
         this->HighlightHandle(nullptr);
         this->HighlightFace(this->HexPicker->GetCellId());
@@ -615,8 +617,7 @@ void vtkBoxWidget::OnLeftButtonDown()
 
 void vtkBoxWidget::OnLeftButtonUp()
 {
-  if ( this->State == vtkBoxWidget::Outside ||
-       this->State == vtkBoxWidget::Start )
+  if (this->State == vtkBoxWidget::Outside || this->State == vtkBoxWidget::Start)
   {
     return;
   }
@@ -629,7 +630,6 @@ void vtkBoxWidget::OnLeftButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   this->Interactor->Render();
-
 }
 
 void vtkBoxWidget::OnMiddleButtonDown()
@@ -647,7 +647,7 @@ void vtkBoxWidget::OnMiddleButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != nullptr )
+  if (path != nullptr)
   {
     this->State = vtkBoxWidget::Moving;
     this->CurrentHandle = this->Handle[6];
@@ -659,7 +659,7 @@ void vtkBoxWidget::OnMiddleButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->HexPicker);
 
-    if ( path != nullptr )
+    if (path != nullptr)
     {
       this->State = vtkBoxWidget::Moving;
       this->CurrentHandle = this->Handle[6];
@@ -683,8 +683,7 @@ void vtkBoxWidget::OnMiddleButtonDown()
 
 void vtkBoxWidget::OnMiddleButtonUp()
 {
-  if ( this->State == vtkBoxWidget::Outside ||
-       this->State == vtkBoxWidget::Start )
+  if (this->State == vtkBoxWidget::Outside || this->State == vtkBoxWidget::Start)
   {
     return;
   }
@@ -697,7 +696,6 @@ void vtkBoxWidget::OnMiddleButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   this->Interactor->Render();
-
 }
 
 void vtkBoxWidget::OnRightButtonDown()
@@ -715,7 +713,7 @@ void vtkBoxWidget::OnRightButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != nullptr )
+  if (path != nullptr)
   {
     this->State = vtkBoxWidget::Scaling;
     this->HighlightOutline(1);
@@ -726,7 +724,7 @@ void vtkBoxWidget::OnRightButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->HexPicker);
 
-    if ( path != nullptr )
+    if (path != nullptr)
     {
       this->State = vtkBoxWidget::Scaling;
       this->HighlightOutline(1);
@@ -748,7 +746,7 @@ void vtkBoxWidget::OnRightButtonDown()
 
 void vtkBoxWidget::OnRightButtonUp()
 {
-  if ( this->State == vtkBoxWidget::Outside )
+  if (this->State == vtkBoxWidget::Outside)
   {
     return;
   }
@@ -766,8 +764,7 @@ void vtkBoxWidget::OnRightButtonUp()
 void vtkBoxWidget::OnMouseMove()
 {
   // See whether we're active
-  if ( this->State == vtkBoxWidget::Outside ||
-       this->State == vtkBoxWidget::Start )
+  if (this->State == vtkBoxWidget::Outside || this->State == vtkBoxWidget::Start)
   {
     return;
   }
@@ -780,66 +777,65 @@ void vtkBoxWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  if ( !camera )
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  if (!camera)
   {
     return;
   }
 
   // Compute the two points defining the motion vector
-  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
-                              this->LastPickPosition[2], focalPoint);
+  this->ComputeWorldToDisplay(
+    this->LastPickPosition[0], this->LastPickPosition[1], this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
   this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
-                              double(this->Interactor->GetLastEventPosition()[1]),
-                              z, prevPickPoint);
+    double(this->Interactor->GetLastEventPosition()[1]), z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
-  if ( this->State == vtkBoxWidget::Moving )
+  if (this->State == vtkBoxWidget::Moving)
   {
     // Okay to process
-    if ( this->CurrentHandle )
+    if (this->CurrentHandle)
     {
-      if ( this->RotationEnabled && this->CurrentHandle == this->HexFace )
+      if (this->RotationEnabled && this->CurrentHandle == this->HexFace)
       {
         camera->GetViewPlaneNormal(vpn);
         this->Rotate(X, Y, prevPickPoint, pickPoint, vpn);
       }
-      else if ( this->TranslationEnabled && this->CurrentHandle == this->Handle[6] )
+      else if (this->TranslationEnabled && this->CurrentHandle == this->Handle[6])
       {
         this->Translate(prevPickPoint, pickPoint);
       }
-      else if ( this->TranslationEnabled && this->ScalingEnabled )
+      else if (this->TranslationEnabled && this->ScalingEnabled)
       {
-        if ( this->CurrentHandle == this->Handle[0] )
+        if (this->CurrentHandle == this->Handle[0])
         {
           this->MoveMinusXFace(prevPickPoint, pickPoint);
         }
-        else if ( this->CurrentHandle == this->Handle[1] )
+        else if (this->CurrentHandle == this->Handle[1])
         {
           this->MovePlusXFace(prevPickPoint, pickPoint);
         }
-        else if ( this->CurrentHandle == this->Handle[2] )
+        else if (this->CurrentHandle == this->Handle[2])
         {
           this->MoveMinusYFace(prevPickPoint, pickPoint);
         }
-        else if ( this->CurrentHandle == this->Handle[3] )
+        else if (this->CurrentHandle == this->Handle[3])
         {
           this->MovePlusYFace(prevPickPoint, pickPoint);
         }
-        else if ( this->CurrentHandle == this->Handle[4] )
+        else if (this->CurrentHandle == this->Handle[4])
         {
           this->MoveMinusZFace(prevPickPoint, pickPoint);
         }
-        else if ( this->CurrentHandle == this->Handle[5] )
+        else if (this->CurrentHandle == this->Handle[5])
         {
           this->MovePlusZFace(prevPickPoint, pickPoint);
         }
       }
     }
   }
-  else if ( this->ScalingEnabled && this->State == vtkBoxWidget::Scaling )
+  else if (this->ScalingEnabled && this->State == vtkBoxWidget::Scaling)
   {
     this->Scale(prevPickPoint, pickPoint, X, Y);
   }
@@ -850,25 +846,24 @@ void vtkBoxWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
-void vtkBoxWidget::MoveFace(double *p1, double *p2, double *dir,
-                double *x1, double *x2, double *x3, double *x4,
-                double *x5)
+void vtkBoxWidget::MoveFace(
+  double* p1, double* p2, double* dir, double* x1, double* x2, double* x3, double* x4, double* x5)
 {
   int i;
   double v[3], v2[3];
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     v[i] = p2[i] - p1[i];
     v2[i] = dir[i];
   }
 
   vtkMath::Normalize(v2);
-  double f = vtkMath::Dot(v,v2);
+  double f = vtkMath::Dot(v, v2);
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    v[i] = f*v2[i];
+    v[i] = f * v2[i];
 
     x1[i] += v[i];
     x2[i] += v[i];
@@ -879,12 +874,13 @@ void vtkBoxWidget::MoveFace(double *p1, double *p2, double *dir,
   this->PositionHandles();
 }
 
-void vtkBoxWidget::GetDirection(const double Nx[3],const double Ny[3], const double Nz[3], double dir[3])
+void vtkBoxWidget::GetDirection(
+  const double Nx[3], const double Ny[3], const double Nz[3], double dir[3])
 {
   double dotNy, dotNz;
   double y[3];
 
-  if(vtkMath::Dot(Nx,Nx)!=0)
+  if (vtkMath::Dot(Nx, Nx) != 0)
   {
     dir[0] = Nx[0];
     dir[1] = Nx[1];
@@ -892,148 +888,141 @@ void vtkBoxWidget::GetDirection(const double Nx[3],const double Ny[3], const dou
   }
   else
   {
-    dotNy = vtkMath::Dot(Ny,Ny);
-    dotNz = vtkMath::Dot(Nz,Nz);
-    if(dotNy != 0 && dotNz != 0)
+    dotNy = vtkMath::Dot(Ny, Ny);
+    dotNz = vtkMath::Dot(Nz, Nz);
+    if (dotNy != 0 && dotNz != 0)
     {
-      vtkMath::Cross(Ny,Nz,dir);
+      vtkMath::Cross(Ny, Nz, dir);
     }
-    else if(dotNy != 0)
+    else if (dotNy != 0)
     {
-      //dir must have been initialized to the
-      //corresponding coordinate direction before calling
-      //this method
-      vtkMath::Cross(Ny,dir,y);
-      vtkMath::Cross(y,Ny,dir);
+      // dir must have been initialized to the
+      // corresponding coordinate direction before calling
+      // this method
+      vtkMath::Cross(Ny, dir, y);
+      vtkMath::Cross(y, Ny, dir);
     }
-    else if(dotNz != 0)
+    else if (dotNz != 0)
     {
-      //dir must have been initialized to the
-      //corresponding coordinate direction before calling
-      //this method
-      vtkMath::Cross(Nz,dir,y);
-      vtkMath::Cross(y,Nz,dir);
+      // dir must have been initialized to the
+      // corresponding coordinate direction before calling
+      // this method
+      vtkMath::Cross(Nz, dir, y);
+      vtkMath::Cross(y, Nz, dir);
     }
   }
 }
-void vtkBoxWidget::MovePlusXFace(double *p1, double *p2)
+void vtkBoxWidget::MovePlusXFace(double* p1, double* p2)
 {
-  double *pts =
-        static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*9;
+  double* h1 = pts + 3 * 9;
 
-  double *x1 = pts + 3*1;
-  double *x2 = pts + 3*2;
-  double *x3 = pts + 3*5;
-  double *x4 = pts + 3*6;
+  double* x1 = pts + 3 * 1;
+  double* x2 = pts + 3 * 2;
+  double* x3 = pts + 3 * 5;
+  double* x4 = pts + 3 * 6;
 
-  double dir[3] = { 1 , 0 , 0};
+  double dir[3] = { 1, 0, 0 };
   this->ComputeNormals();
-  this->GetDirection(this->N[1],this->N[3],this->N[5],dir);
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->GetDirection(this->N[1], this->N[3], this->N[5], dir);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-void vtkBoxWidget::MoveMinusXFace(double *p1, double *p2)
+void vtkBoxWidget::MoveMinusXFace(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*8;
+  double* h1 = pts + 3 * 8;
 
-  double *x1 = pts + 3*0;
-  double *x2 = pts + 3*3;
-  double *x3 = pts + 3*4;
-  double *x4 = pts + 3*7;
+  double* x1 = pts + 3 * 0;
+  double* x2 = pts + 3 * 3;
+  double* x3 = pts + 3 * 4;
+  double* x4 = pts + 3 * 7;
 
-  double dir[3]={-1,0,0};
+  double dir[3] = { -1, 0, 0 };
   this->ComputeNormals();
-  this->GetDirection(this->N[0],this->N[4],this->N[2],dir);
+  this->GetDirection(this->N[0], this->N[4], this->N[2], dir);
 
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-void vtkBoxWidget::MovePlusYFace(double *p1, double *p2)
+void vtkBoxWidget::MovePlusYFace(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*11;
+  double* h1 = pts + 3 * 11;
 
-  double *x1 = pts + 3*2;
-  double *x2 = pts + 3*3;
-  double *x3 = pts + 3*6;
-  double *x4 = pts + 3*7;
+  double* x1 = pts + 3 * 2;
+  double* x2 = pts + 3 * 3;
+  double* x3 = pts + 3 * 6;
+  double* x4 = pts + 3 * 7;
 
-  double dir[3]={0,1,0};
+  double dir[3] = { 0, 1, 0 };
   this->ComputeNormals();
-  this->GetDirection(this->N[3],this->N[5],this->N[1],dir);
+  this->GetDirection(this->N[3], this->N[5], this->N[1], dir);
 
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-void vtkBoxWidget::MoveMinusYFace(double *p1, double *p2)
+void vtkBoxWidget::MoveMinusYFace(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*10;
+  double* h1 = pts + 3 * 10;
 
-  double *x1 = pts + 3*0;
-  double *x2 = pts + 3*1;
-  double *x3 = pts + 3*4;
-  double *x4 = pts + 3*5;
+  double* x1 = pts + 3 * 0;
+  double* x2 = pts + 3 * 1;
+  double* x3 = pts + 3 * 4;
+  double* x4 = pts + 3 * 5;
 
-  double dir[3] = {0, -1, 0};
+  double dir[3] = { 0, -1, 0 };
   this->ComputeNormals();
-  this->GetDirection(this->N[2],this->N[0],this->N[4],dir);
+  this->GetDirection(this->N[2], this->N[0], this->N[4], dir);
 
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-void vtkBoxWidget::MovePlusZFace(double *p1, double *p2)
+void vtkBoxWidget::MovePlusZFace(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*13;
+  double* h1 = pts + 3 * 13;
 
-  double *x1 = pts + 3*4;
-  double *x2 = pts + 3*5;
-  double *x3 = pts + 3*6;
-  double *x4 = pts + 3*7;
+  double* x1 = pts + 3 * 4;
+  double* x2 = pts + 3 * 5;
+  double* x3 = pts + 3 * 6;
+  double* x4 = pts + 3 * 7;
 
-  double dir[3]={0,0,1};
+  double dir[3] = { 0, 0, 1 };
   this->ComputeNormals();
-  this->GetDirection(this->N[5],this->N[1],this->N[3],dir);
+  this->GetDirection(this->N[5], this->N[1], this->N[3], dir);
 
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
-void vtkBoxWidget::MoveMinusZFace(double *p1, double *p2)
+void vtkBoxWidget::MoveMinusZFace(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
 
-  double *h1 = pts + 3*12;
+  double* h1 = pts + 3 * 12;
 
-  double *x1 = pts + 3*0;
-  double *x2 = pts + 3*1;
-  double *x3 = pts + 3*2;
-  double *x4 = pts + 3*3;
+  double* x1 = pts + 3 * 0;
+  double* x2 = pts + 3 * 1;
+  double* x3 = pts + 3 * 2;
+  double* x4 = pts + 3 * 3;
 
-  double dir[3]={0,0,-1};
+  double dir[3] = { 0, 0, -1 };
   this->ComputeNormals();
-  this->GetDirection(this->N[4],this->N[2],this->N[0],dir);
+  this->GetDirection(this->N[4], this->N[2], this->N[0], dir);
 
-  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
+  this->MoveFace(p1, p2, dir, x1, x2, x3, x4, h1);
 }
 
 // Loop through all points and translate them
-void vtkBoxWidget::Translate(double *p1, double *p2)
+void vtkBoxWidget::Translate(double* p1, double* p2)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   double v[3];
 
   v[0] = p2[0] - p1[0];
@@ -1041,7 +1030,7 @@ void vtkBoxWidget::Translate(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   // Move the corners
-  for (int i=0; i<8; i++)
+  for (int i = 0; i < 8; i++)
   {
     *pts++ += v[0];
     *pts++ += v[1];
@@ -1050,16 +1039,13 @@ void vtkBoxWidget::Translate(double *p1, double *p2)
   this->PositionHandles();
 }
 
-void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
-                         int vtkNotUsed(X), int Y)
+void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double *center
-    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+  double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
   double sf;
 
-  if ( Y > this->Interactor->GetLastEventPosition()[1] )
+  if (Y > this->Interactor->GetLastEventPosition()[1])
   {
     sf = 1.03;
   }
@@ -1069,7 +1055,7 @@ void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
   }
 
   // Move the corners
-  for (int i=0; i<8; i++, pts+=3)
+  for (int i = 0; i < 8; i++, pts += 3)
   {
     pts[0] = sf * (pts[0] - center[0]) + center[0];
     pts[1] = sf * (pts[1] - center[1]) + center[1];
@@ -1080,15 +1066,14 @@ void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
 
 void vtkBoxWidget::ComputeNormals()
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double *p0 = pts;
-  double *px = pts + 3*1;
-  double *py = pts + 3*3;
-  double *pz = pts + 3*4;
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+  double* p0 = pts;
+  double* px = pts + 3 * 1;
+  double* py = pts + 3 * 3;
+  double* pz = pts + 3 * 4;
   int i;
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     this->N[0][i] = p0[i] - px[i];
     this->N[2][i] = p0[i] - py[i];
@@ -1097,7 +1082,7 @@ void vtkBoxWidget::ComputeNormals()
   vtkMath::Normalize(this->N[0]);
   vtkMath::Normalize(this->N[2]);
   vtkMath::Normalize(this->N[4]);
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     this->N[1][i] = -this->N[0][i];
     this->N[3][i] = -this->N[2][i];
@@ -1105,29 +1090,28 @@ void vtkBoxWidget::ComputeNormals()
   }
 }
 
-void vtkBoxWidget::GetPlanes(vtkPlanes *planes)
+void vtkBoxWidget::GetPlanes(vtkPlanes* planes)
 {
-  if ( ! planes )
+  if (!planes)
   {
     return;
   }
 
   this->ComputeNormals();
 
-  vtkPoints *pts = vtkPoints::New(VTK_DOUBLE);
+  vtkPoints* pts = vtkPoints::New(VTK_DOUBLE);
   pts->SetNumberOfPoints(6);
 
-  vtkDoubleArray *normals = vtkDoubleArray::New();
+  vtkDoubleArray* normals = vtkDoubleArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(6);
 
   // Set the normals and coordinate values
   double factor = (this->InsideOut ? -1.0 : 1.0);
-  for (int i=0; i<6; i++)
+  for (int i = 0; i < 6; i++)
   {
-    pts->SetPoint(i,this->Points->GetPoint(8+i));
-    normals->SetTuple3(i, factor*this->N[i][0], factor*this->N[i][1],
-                       factor*this->N[i][2]);
+    pts->SetPoint(i, this->Points->GetPoint(8 + i));
+    normals->SetTuple3(i, factor * this->N[i][0], factor * this->N[i][1], factor * this->N[i][2]);
   }
 
   planes->SetPoints(pts);
@@ -1137,15 +1121,13 @@ void vtkBoxWidget::GetPlanes(vtkPlanes *planes)
   normals->Delete();
 }
 
-void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
+void vtkBoxWidget::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double *center =
-      static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
-  double v[3]; //vector of motion
-  double axis[3]; //axis of rotation
-  double theta; //rotation angle
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+  double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
+  double v[3];    // vector of motion
+  double axis[3]; // axis of rotation
+  double theta;   // rotation angle
   int i;
 
   v[0] = p2[0] - p1[0];
@@ -1153,26 +1135,29 @@ void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
   v[2] = p2[2] - p1[2];
 
   // Create axis of rotation and angle of rotation
-  vtkMath::Cross(vpn,v,axis);
-  if ( vtkMath::Normalize(axis) == 0.0 )
+  vtkMath::Cross(vpn, v, axis);
+  if (vtkMath::Normalize(axis) == 0.0)
   {
     return;
   }
-  int *size = this->CurrentRenderer->GetSize();
-  double l2 = (X-this->Interactor->GetLastEventPosition()[0])*(X-this->Interactor->GetLastEventPosition()[0]) + (Y-this->Interactor->GetLastEventPosition()[1])*(Y-this->Interactor->GetLastEventPosition()[1]);
-  theta = 360.0 * sqrt(l2/(size[0]*size[0]+size[1]*size[1]));
+  int* size = this->CurrentRenderer->GetSize();
+  double l2 = (X - this->Interactor->GetLastEventPosition()[0]) *
+      (X - this->Interactor->GetLastEventPosition()[0]) +
+    (Y - this->Interactor->GetLastEventPosition()[1]) *
+      (Y - this->Interactor->GetLastEventPosition()[1]);
+  theta = 360.0 * sqrt(l2 / (size[0] * size[0] + size[1] * size[1]));
 
-  //Manipulate the transform to reflect the rotation
+  // Manipulate the transform to reflect the rotation
   this->Transform->Identity();
-  this->Transform->Translate(center[0],center[1],center[2]);
-  this->Transform->RotateWXYZ(theta,axis);
-  this->Transform->Translate(-center[0],-center[1],-center[2]);
+  this->Transform->Translate(center[0], center[1], center[2]);
+  this->Transform->RotateWXYZ(theta, axis);
+  this->Transform->Translate(-center[0], -center[1], -center[2]);
 
-  //Set the corners
-  vtkPoints *newPts = vtkPoints::New(VTK_DOUBLE);
-  this->Transform->TransformPoints(this->Points,newPts);
+  // Set the corners
+  vtkPoints* newPts = vtkPoints::New(VTK_DOUBLE);
+  this->Transform->TransformPoints(this->Points, newPts);
 
-  for (i=0; i<8; i++, pts+=3)
+  for (i = 0; i < 8; i++, pts += 3)
   {
     this->Points->SetPoint(i, newPts->GetPoint(i));
   }
@@ -1185,31 +1170,31 @@ void vtkBoxWidget::CreateDefaultProperties()
 {
   // Handle properties
   this->HandleProperty = vtkProperty::New();
-  this->HandleProperty->SetColor(1,1,1);
+  this->HandleProperty->SetColor(1, 1, 1);
 
   this->SelectedHandleProperty = vtkProperty::New();
-  this->SelectedHandleProperty->SetColor(1,0,0);
+  this->SelectedHandleProperty->SetColor(1, 0, 0);
 
   // Face properties
   this->FaceProperty = vtkProperty::New();
-  this->FaceProperty->SetColor(1,1,1);
+  this->FaceProperty->SetColor(1, 1, 1);
   this->FaceProperty->SetOpacity(0.0);
 
   this->SelectedFaceProperty = vtkProperty::New();
-  this->SelectedFaceProperty->SetColor(1,1,0);
+  this->SelectedFaceProperty->SetColor(1, 1, 0);
   this->SelectedFaceProperty->SetOpacity(0.25);
 
   // Outline properties
   this->OutlineProperty = vtkProperty::New();
   this->OutlineProperty->SetRepresentationToWireframe();
   this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetAmbientColor(1.0,1.0,1.0);
+  this->OutlineProperty->SetAmbientColor(1.0, 1.0, 1.0);
   this->OutlineProperty->SetLineWidth(2.0);
 
   this->SelectedOutlineProperty = vtkProperty::New();
   this->SelectedOutlineProperty->SetRepresentationToWireframe();
   this->SelectedOutlineProperty->SetAmbient(1.0);
-  this->SelectedOutlineProperty->SetAmbientColor(0.0,1.0,0.0);
+  this->SelectedOutlineProperty->SetAmbientColor(0.0, 1.0, 0.0);
   this->SelectedOutlineProperty->SetLineWidth(2.0);
 }
 
@@ -1218,7 +1203,7 @@ void vtkBoxWidget::PlaceWidget(double bds[6])
   int i;
   double bounds[6], center[3];
 
-  this->AdjustBounds(bds,bounds,center);
+  this->AdjustBounds(bds, bounds, center);
 
   this->Points->SetPoint(0, bounds[0], bounds[2], bounds[4]);
   this->Points->SetPoint(1, bounds[1], bounds[2], bounds[4]);
@@ -1229,28 +1214,27 @@ void vtkBoxWidget::PlaceWidget(double bds[6])
   this->Points->SetPoint(6, bounds[1], bounds[3], bounds[5]);
   this->Points->SetPoint(7, bounds[0], bounds[3], bounds[5]);
 
-  for (i=0; i<6; i++)
+  for (i = 0; i < 6; i++)
   {
     this->InitialBounds[i] = bounds[i];
   }
-  this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
-                             (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
-                             (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+    (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+    (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
   this->PositionHandles();
   this->ComputeNormals();
   this->SizeHandles();
 }
 
-void vtkBoxWidget::GetTransform(vtkTransform *t)
+void vtkBoxWidget::GetTransform(vtkTransform* t)
 {
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double *p0 = pts;
-  double *p1 = pts + 3*1;
-  double *p3 = pts + 3*3;
-  double *p4 = pts + 3*4;
-  double *p14 = pts + 3*14;
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
+  double* p0 = pts;
+  double* p1 = pts + 3 * 1;
+  double* p3 = pts + 3 * 3;
+  double* p4 = pts + 3 * 4;
+  double* p14 = pts + 3 * 14;
   double center[3], translate[3], scale[3], scaleVec[3][3];
   double InitialCenter[3];
   int i;
@@ -1260,10 +1244,9 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   t->Identity();
 
   // Translation
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    InitialCenter[i] =
-      (this->InitialBounds[2*i+1]+this->InitialBounds[2*i]) / 2.0;
+    InitialCenter[i] = (this->InitialBounds[2 * i + 1] + this->InitialBounds[2 * i]) / 2.0;
     center[i] = p14[i] - InitialCenter[i];
   }
   translate[0] = center[0] + InitialCenter[0];
@@ -1272,20 +1255,20 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   t->Translate(translate[0], translate[1], translate[2]);
 
   // Orientation
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
   this->PositionHandles();
   this->ComputeNormals();
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    matrix->SetElement(i,0,this->N[1][i]);
-    matrix->SetElement(i,1,this->N[3][i]);
-    matrix->SetElement(i,2,this->N[5][i]);
+    matrix->SetElement(i, 0, this->N[1][i]);
+    matrix->SetElement(i, 1, this->N[3][i]);
+    matrix->SetElement(i, 2, this->N[5][i]);
   }
   t->Concatenate(matrix);
   matrix->Delete();
 
   // Scale
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     scaleVec[0][i] = (p1[i] - p0[i]);
     scaleVec[1][i] = (p3[i] - p0[i]);
@@ -1295,19 +1278,19 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   scale[0] = vtkMath::Norm(scaleVec[0]);
   if (this->InitialBounds[1] != this->InitialBounds[0])
   {
-    scale[0] = scale[0] / (this->InitialBounds[1]-this->InitialBounds[0]);
+    scale[0] = scale[0] / (this->InitialBounds[1] - this->InitialBounds[0]);
   }
   scale[1] = vtkMath::Norm(scaleVec[1]);
   if (this->InitialBounds[3] != this->InitialBounds[2])
   {
-    scale[1] = scale[1] / (this->InitialBounds[3]-this->InitialBounds[2]);
+    scale[1] = scale[1] / (this->InitialBounds[3] - this->InitialBounds[2]);
   }
   scale[2] = vtkMath::Norm(scaleVec[2]);
   if (this->InitialBounds[5] != this->InitialBounds[4])
   {
-    scale[2] = scale[2] / (this->InitialBounds[5]-this->InitialBounds[4]);
+    scale[2] = scale[2] / (this->InitialBounds[5] - this->InitialBounds[4]);
   }
-  t->Scale(scale[0],scale[1],scale[2]);
+  t->Scale(scale[0], scale[1], scale[2]);
 
   // Add back in the contribution due to non-origin center
   t->Translate(-InitialCenter[0], -InitialCenter[1], -InitialCenter[2]);
@@ -1317,48 +1300,63 @@ void vtkBoxWidget::SetTransform(vtkTransform* t)
 {
   if (!t)
   {
-    vtkErrorMacro(<<"vtkTransform t must be non-nullptr");
+    vtkErrorMacro(<< "vtkTransform t must be non-nullptr");
     return;
   }
 
-  double *pts =
-         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   double xIn[3];
   // make sure the transform is up-to-date before using it
   t->Update();
 
   // Position the eight points of the box and then update the
   // position of the other handles.
-  double *bounds=this->InitialBounds;
+  double* bounds = this->InitialBounds;
 
-  xIn[0] = bounds[0]; xIn[1] = bounds[2]; xIn[2] = bounds[4];
-  t->InternalTransformPoint(xIn,pts);
+  xIn[0] = bounds[0];
+  xIn[1] = bounds[2];
+  xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn, pts);
 
-  xIn[0] = bounds[1]; xIn[1]= bounds[2]; xIn[2] = bounds[4];
-  t->InternalTransformPoint(xIn,pts+3);
+  xIn[0] = bounds[1];
+  xIn[1] = bounds[2];
+  xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn, pts + 3);
 
-  xIn[0] = bounds[1]; xIn[1]= bounds[3]; xIn[2] = bounds[4];
-  t->InternalTransformPoint(xIn,pts+6);
+  xIn[0] = bounds[1];
+  xIn[1] = bounds[3];
+  xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn, pts + 6);
 
-  xIn[0] = bounds[0]; xIn[1]= bounds[3]; xIn[2] = bounds[4];
-  t->InternalTransformPoint(xIn,pts+9);
+  xIn[0] = bounds[0];
+  xIn[1] = bounds[3];
+  xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn, pts + 9);
 
-  xIn[0] = bounds[0]; xIn[1]= bounds[2]; xIn[2] = bounds[5];
-  t->InternalTransformPoint(xIn,pts+12);
+  xIn[0] = bounds[0];
+  xIn[1] = bounds[2];
+  xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn, pts + 12);
 
-  xIn[0] = bounds[1]; xIn[1]= bounds[2]; xIn[2] = bounds[5];
-  t->InternalTransformPoint(xIn,pts+15);
+  xIn[0] = bounds[1];
+  xIn[1] = bounds[2];
+  xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn, pts + 15);
 
-  xIn[0] = bounds[1]; xIn[1]= bounds[3]; xIn[2] = bounds[5];
-  t->InternalTransformPoint(xIn,pts+18);
+  xIn[0] = bounds[1];
+  xIn[1] = bounds[3];
+  xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn, pts + 18);
 
-  xIn[0] = bounds[0]; xIn[1]= bounds[3]; xIn[2] = bounds[5];
-  t->InternalTransformPoint(xIn,pts+21);
+  xIn[0] = bounds[0];
+  xIn[1] = bounds[3];
+  xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn, pts + 21);
 
   this->PositionHandles();
 }
 
-void vtkBoxWidget::GetPolyData(vtkPolyData *pd)
+void vtkBoxWidget::GetPolyData(vtkPolyData* pd)
 {
   pd->SetPoints(this->HexPolyData->GetPoints());
   pd->SetPolys(this->HexPolyData->GetPolys());
@@ -1390,55 +1388,70 @@ void vtkBoxWidget::GenerateOutline()
 {
   // Whatever the case may be, we have to reset the Lines of the
   // OutlinePolyData (i.e. nuke all current line data)
-  vtkCellArray *cells = this->OutlinePolyData->GetLines();
+  vtkCellArray* cells = this->OutlinePolyData->GetLines();
   cells->Reset();
 
   // Now the outline lines
-  if ( ! this->OutlineFaceWires && ! this->OutlineCursorWires )
+  if (!this->OutlineFaceWires && !this->OutlineCursorWires)
   {
     return;
   }
 
   vtkIdType pts[2];
 
-  if ( this->OutlineFaceWires )
+  if (this->OutlineFaceWires)
   {
-    pts[0] = 0; pts[1] = 7;       //the -x face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 3; pts[1] = 4;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 1; pts[1] = 6;       //the +x face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 2; pts[1] = 5;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 1; pts[1] = 4;       //the -y face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 0; pts[1] = 5;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 3; pts[1] = 6;       //the +y face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 2; pts[1] = 7;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 0; pts[1] = 2;       //the -z face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 1; pts[1] = 3;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 4; pts[1] = 6;       //the +Z face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 5; pts[1] = 7;
-    cells->InsertNextCell(2,pts);
+    pts[0] = 0;
+    pts[1] = 7; // the -x face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 3;
+    pts[1] = 4;
+    cells->InsertNextCell(2, pts);
+    pts[0] = 1;
+    pts[1] = 6; // the +x face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 2;
+    pts[1] = 5;
+    cells->InsertNextCell(2, pts);
+    pts[0] = 1;
+    pts[1] = 4; // the -y face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 0;
+    pts[1] = 5;
+    cells->InsertNextCell(2, pts);
+    pts[0] = 3;
+    pts[1] = 6; // the +y face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 2;
+    pts[1] = 7;
+    cells->InsertNextCell(2, pts);
+    pts[0] = 0;
+    pts[1] = 2; // the -z face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 1;
+    pts[1] = 3;
+    cells->InsertNextCell(2, pts);
+    pts[0] = 4;
+    pts[1] = 6; // the +Z face
+    cells->InsertNextCell(2, pts);
+    pts[0] = 5;
+    pts[1] = 7;
+    cells->InsertNextCell(2, pts);
   }
-  if ( this->OutlineCursorWires )
+  if (this->OutlineCursorWires)
   {
-    pts[0] = 8; pts[1] = 9;         //the x cursor line
-    cells->InsertNextCell(2,pts);
-    pts[0] = 10; pts[1] = 11;       //the y cursor line
-    cells->InsertNextCell(2,pts);
-    pts[0] = 12; pts[1] = 13;       //the z cursor line
-    cells->InsertNextCell(2,pts);
+    pts[0] = 8;
+    pts[1] = 9; // the x cursor line
+    cells->InsertNextCell(2, pts);
+    pts[0] = 10;
+    pts[1] = 11; // the y cursor line
+    cells->InsertNextCell(2, pts);
+    pts[0] = 12;
+    pts[1] = 13; // the z cursor line
+    cells->InsertNextCell(2, pts);
   }
   this->OutlinePolyData->Modified();
-  if ( this->OutlineProperty)
+  if (this->OutlineProperty)
   {
     this->OutlineProperty->SetRepresentationToWireframe();
     this->SelectedOutlineProperty->SetRepresentationToWireframe();

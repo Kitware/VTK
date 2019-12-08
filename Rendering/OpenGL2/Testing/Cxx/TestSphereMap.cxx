@@ -24,9 +24,9 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkShaderProperty.h"
 #include "vtkSkybox.h"
@@ -37,7 +37,7 @@
 #include "vtkLight.h"
 
 //----------------------------------------------------------------------------
-int TestSphereMap(int argc, char *argv[])
+int TestSphereMap(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
@@ -49,15 +49,14 @@ int TestSphereMap(int argc, char *argv[])
 
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
-  light->SetPosition(1.0,7.0,1.0);
+  light->SetPosition(1.0, 7.0, 1.0);
   renderer->AddLight(light);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkPolyDataNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
@@ -71,12 +70,11 @@ int TestSphereMap(int argc, char *argv[])
   // out here to make valid images easier
   // texture->MipmapOn();
 
-  const char * fName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wintersun.jpg");
+  const char* fName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wintersun.jpg");
   vtkNew<vtkJPEGReader> imgReader;
   imgReader->SetFileName(fName);
   texture->SetInputConnection(imgReader->GetOutputPort());
-  delete [] fName;
+  delete[] fName;
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;
   mapper->SetInputConnection(norms->GetOutputPort());
@@ -88,46 +86,43 @@ int TestSphereMap(int argc, char *argv[])
   actor->GetProperty()->SetSpecularPower(20);
   actor->GetProperty()->SetDiffuse(0.1);
   actor->GetProperty()->SetAmbient(0.1);
-  actor->GetProperty()->SetDiffuseColor(1.0,0.0,0.4);
-  actor->GetProperty()->SetAmbientColor(0.4,0.0,1.0);
+  actor->GetProperty()->SetDiffuseColor(1.0, 0.0, 0.4);
+  actor->GetProperty()->SetAmbientColor(0.4, 0.0, 1.0);
   renderer->AddActor(actor);
   actor->SetTexture(texture);
   actor->SetMapper(mapper);
 
-  vtkShaderProperty * sp = actor->GetShaderProperty();
+  vtkShaderProperty* sp = actor->GetShaderProperty();
 
-  sp->AddVertexShaderReplacement(
-    "//VTK::PositionVC::Dec", // replace
-    true, // before the standard replacements
-    "//VTK::PositionVC::Dec\n" // we still want the default
+  sp->AddVertexShaderReplacement("//VTK::PositionVC::Dec", // replace
+    true,                                                  // before the standard replacements
+    "//VTK::PositionVC::Dec\n"                             // we still want the default
     "out vec3 TexCoords;\n",
     false // only do it once
-    );
-  sp->AddVertexShaderReplacement(
-    "//VTK::PositionVC::Impl", // replace
-    true, // before the standard replacements
-    "//VTK::PositionVC::Impl\n" // we still want the default
+  );
+  sp->AddVertexShaderReplacement("//VTK::PositionVC::Impl", // replace
+    true,                                                   // before the standard replacements
+    "//VTK::PositionVC::Impl\n"                             // we still want the default
     "vec3 camPos = -MCVCMatrix[3].xyz * mat3(MCVCMatrix);\n"
     "TexCoords.xyz = reflect(vertexMC.xyz - camPos, normalize(normalMC));\n",
     false // only do it once
-    );
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Light::Dec", // replace
-    true, // before the standard replacements
-    "//VTK::Light::Dec\n" // we still want the default
+  );
+  sp->AddFragmentShaderReplacement("//VTK::Light::Dec", // replace
+    true,                                               // before the standard replacements
+    "//VTK::Light::Dec\n"                               // we still want the default
     "in vec3 TexCoords;\n",
     false // only do it once
-    );
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Light::Impl", // replace
-    true, // before the standard replacements
+  );
+  sp->AddFragmentShaderReplacement("//VTK::Light::Impl", // replace
+    true,                                                // before the standard replacements
     "//VTK::Light::Impl\n"
     "  float phix = length(vec2(TexCoords.x, TexCoords.z));\n"
-    "  vec3 skyColor = texture(actortexture, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + 0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5)).xyz;\n"
-    "  gl_FragData[0] = vec4(ambientColor + diffuse + specular + specularColor*skyColor, opacity);\n"
-    , // we still want the default
-    false // only do it once
-    );
+    "  vec3 skyColor = texture(actortexture, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + "
+    "0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5)).xyz;\n"
+    "  gl_FragData[0] = vec4(ambientColor + diffuse + specular + specularColor*skyColor, "
+    "opacity);\n", // we still want the default
+    false          // only do it once
+  );
 
   vtkNew<vtkSkybox> world;
   world->SetProjectionToSphere();
@@ -148,7 +143,7 @@ int TestSphereMap(int argc, char *argv[])
   renderWindow->GetInteractor()->SetInteractorStyle(style);
 
   int retVal = vtkRegressionTestImage(renderWindow);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

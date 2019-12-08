@@ -16,10 +16,11 @@
 
 #include "vtkXdmf3LightDataHandler.h"
 
-#include "vtkXdmf3SILBuilder.h"
 #include "vtkXdmf3ArraySelection.h"
+#include "vtkXdmf3SILBuilder.h"
 #include "vtksys/SystemTools.hxx"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(XdmfAttribute.hpp)
 #include VTKXDMF3_HEADER(XdmfAttributeCenter.hpp)
@@ -36,19 +37,15 @@
 #include VTKXDMF3_HEADER(XdmfTime.hpp)
 #include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 #include VTKXDMF3_HEADER(core/XdmfVisitor.hpp)
+// clang-format on
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 //------------------------------------------------------------------------------
-shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(
-  vtkXdmf3SILBuilder *sb,
-  vtkXdmf3ArraySelection* f,
-  vtkXdmf3ArraySelection* ce,
-  vtkXdmf3ArraySelection* pn,
-  vtkXdmf3ArraySelection* gc,
-  vtkXdmf3ArraySelection* sc,
-  unsigned int processor,
+shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(vtkXdmf3SILBuilder* sb,
+  vtkXdmf3ArraySelection* f, vtkXdmf3ArraySelection* ce, vtkXdmf3ArraySelection* pn,
+  vtkXdmf3ArraySelection* gc, vtkXdmf3ArraySelection* sc, unsigned int processor,
   unsigned int nprocessors)
 {
   shared_ptr<vtkXdmf3LightDataHandler> p(new vtkXdmf3LightDataHandler());
@@ -82,8 +79,8 @@ vtkXdmf3LightDataHandler::vtkXdmf3LightDataHandler()
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3LightDataHandler::InspectXDMF
-  (shared_ptr<XdmfItem> item, vtkIdType parentVertex, unsigned int depth)
+void vtkXdmf3LightDataHandler::InspectXDMF(
+  shared_ptr<XdmfItem> item, vtkIdType parentVertex, unsigned int depth)
 {
   assert(this->SILBuilder);
   assert(this->FieldArrays);
@@ -111,12 +108,12 @@ void vtkXdmf3LightDataHandler::InspectXDMF
     shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(item);
     if (grid)
     {
-      shared_ptr<XdmfGridController> gcont =  grid->getGridController();
+      shared_ptr<XdmfGridController> gcont = grid->getGridController();
       if (gcont)
       {
         grid->read();
       }
-      //atomic dataset
+      // atomic dataset
       vtkIdType parent = parentVertex;
       if (parentVertex == -1)
       {
@@ -159,10 +156,9 @@ void vtkXdmf3LightDataHandler::InspectXDMF
   }
   else
   {
-    //four cases: domain, temporal, spatial or hierarchical
-    shared_ptr<XdmfGridCollection> asGC =
-      shared_dynamic_cast<XdmfGridCollection>(item);
-    bool isDomain = asGC?false:true;
+    // four cases: domain, temporal, spatial or hierarchical
+    shared_ptr<XdmfGridCollection> asGC = shared_dynamic_cast<XdmfGridCollection>(item);
+    bool isDomain = asGC ? false : true;
 
     if (asGC)
     {
@@ -188,7 +184,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF
         vtkIdType parent = parentVertex;
         if (parentVertex == -1)
         {
-          //topmost entry, we are the root
+          // topmost entry, we are the root
           parent = this->SILBuilder->GetHierarchyRoot();
         }
         this->SILBuilder->AddChildEdge(parent, silVertex);
@@ -203,32 +199,32 @@ void vtkXdmf3LightDataHandler::InspectXDMF
         continue;
       }
       shared_ptr<XdmfGrid> child = coll->getGridCollection(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
     for (unsigned int i = 0; i < coll->getNumberUnstructuredGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getUnstructuredGrid(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
     for (unsigned int i = 0; i < coll->getNumberRectilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getRectilinearGrid(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
     for (unsigned int i = 0; i < coll->getNumberCurvilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getCurvilinearGrid(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
     for (unsigned int i = 0; i < coll->getNumberRegularGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getRegularGrid(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
     for (unsigned int i = 0; i < coll->getNumberGraphs(); i++)
     {
       shared_ptr<XdmfGraph> child = coll->getGraph(i);
-      this->InspectXDMF(child, silVertex, depth+1);
+      this->InspectXDMF(child, silVertex, depth + 1);
     }
   }
 }
@@ -238,7 +234,7 @@ void vtkXdmf3LightDataHandler::ClearGridsIfNeeded(shared_ptr<XdmfItem> domain)
 {
   if (this->SILBuilder->IsMaxedOut())
   {
-    //too numerous to be of use to user for manual selection, so clear out
+    // too numerous to be of use to user for manual selection, so clear out
     this->GridsCache->clear();
     this->SetsCache->clear();
     this->SILBuilder->Initialize();
@@ -259,12 +255,12 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
   shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(item);
   if (grid)
   {
-    shared_ptr<XdmfGridController> gcont =  grid->getGridController();
+    shared_ptr<XdmfGridController> gcont = grid->getGridController();
     if (gcont)
     {
       grid->read();
     }
-    for (unsigned int cc=0; cc < grid->getNumberAttributes(); cc++)
+    for (unsigned int cc = 0; cc < grid->getNumberAttributes(); cc++)
     {
       shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
       std::string attrName = xmfAttribute->getName();
@@ -273,11 +269,8 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
         std::cerr << "Skipping unnamed array." << std::endl;
         continue;
       }
-      shared_ptr<const XdmfAttributeCenter> attrCenter =
-        xmfAttribute->getCenter();
-      if (attrCenter == XdmfAttributeCenter::Grid()
-          ||
-          attrCenter == XdmfAttributeCenter::Other())
+      shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
+      if (attrCenter == XdmfAttributeCenter::Grid() || attrCenter == XdmfAttributeCenter::Other())
       {
         if (!this->FieldArrays->HasArray(attrName.c_str()))
         {
@@ -300,8 +293,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
       }
       else
       {
-        std::cerr << "Skipping " << attrName << " unrecognized association"
-                  << std::endl;
+        std::cerr << "Skipping " << attrName << " unrecognized association" << std::endl;
         continue;
       }
     }
@@ -311,7 +303,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
     shared_ptr<XdmfGraph> graph = shared_dynamic_cast<XdmfGraph>(item);
     if (graph)
     {
-      for (unsigned int cc=0; cc < graph->getNumberAttributes(); cc++)
+      for (unsigned int cc = 0; cc < graph->getNumberAttributes(); cc++)
       {
         shared_ptr<XdmfAttribute> xmfAttribute = graph->getAttribute(cc);
         std::string attrName = xmfAttribute->getName();
@@ -320,8 +312,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
           std::cerr << "Skipping unnamed array." << std::endl;
           continue;
         }
-        shared_ptr<const XdmfAttributeCenter> attrCenter =
-          xmfAttribute->getCenter();
+        shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
         if (attrCenter == XdmfAttributeCenter::Grid())
         {
           if (!this->FieldArrays->HasArray(attrName.c_str()))
@@ -345,8 +336,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
         }
         else
         {
-          std::cerr << "Skipping " << attrName << " unrecognized association"
-                    << std::endl;
+          std::cerr << "Skipping " << attrName << " unrecognized association" << std::endl;
           continue;
         }
       }
@@ -368,9 +358,9 @@ bool vtkXdmf3LightDataHandler::TooDeep(unsigned int depth)
 std::string vtkXdmf3LightDataHandler::UniqueName(const std::string& name, bool ForGrid)
 {
   std::string gridName = name;
-  unsigned int count=1;
+  unsigned int count = 1;
 
-  vtkXdmf3ArraySelection* cache = (ForGrid?this->GridsCache:this->SetsCache);
+  vtkXdmf3ArraySelection* cache = (ForGrid ? this->GridsCache : this->SetsCache);
   while (cache->HasArray(gridName.c_str()))
   {
     std::ostringstream str;
@@ -382,8 +372,8 @@ std::string vtkXdmf3LightDataHandler::UniqueName(const std::string& name, bool F
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3LightDataHandler::AddNamedBlock
-  (vtkIdType parentVertex, std::string originalName, std::string uniqueName)
+void vtkXdmf3LightDataHandler::AddNamedBlock(
+  vtkIdType parentVertex, std::string originalName, std::string uniqueName)
 {
   this->GridsCache->AddArray(uniqueName.c_str());
 
@@ -396,18 +386,16 @@ void vtkXdmf3LightDataHandler::AddNamedBlock
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3LightDataHandler::AddNamedSet
-  (std::string uniqueName)
+void vtkXdmf3LightDataHandler::AddNamedSet(std::string uniqueName)
 {
   this->SetsCache->AddArray(uniqueName.c_str());
 }
 
-//records times that xdmf grids supply data at
-//if timespecs are only implied we add them to make things simpler later on
+// records times that xdmf grids supply data at
+// if timespecs are only implied we add them to make things simpler later on
 void vtkXdmf3LightDataHandler::InspectTime(shared_ptr<XdmfItem> item)
 {
-  shared_ptr<XdmfGridCollection> gc =
-    shared_dynamic_cast<XdmfGridCollection>(item);
+  shared_ptr<XdmfGridCollection> gc = shared_dynamic_cast<XdmfGridCollection>(item);
   if (gc && gc->getType() == XdmfGridCollectionType::Temporal())
   {
     unsigned int cnt = 0;
@@ -445,13 +433,12 @@ void vtkXdmf3LightDataHandler::InspectTime(shared_ptr<XdmfItem> item)
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3LightDataHandler::GetSetTime
-  (shared_ptr<XdmfGrid> child, unsigned int &cnt)
+void vtkXdmf3LightDataHandler::GetSetTime(shared_ptr<XdmfGrid> child, unsigned int& cnt)
 {
   if (!child->getTime())
   {
-    //grid collections without explicit times are implied to go 0...N
-    //so we add them here if not present
+    // grid collections without explicit times are implied to go 0...N
+    // so we add them here if not present
     shared_ptr<XdmfTime> time = XdmfTime::New(cnt++);
     child->setTime(time);
   }
@@ -459,13 +446,12 @@ void vtkXdmf3LightDataHandler::GetSetTime
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3LightDataHandler::GetSetTime
-  (shared_ptr<XdmfGraph> child, unsigned int &cnt)
+void vtkXdmf3LightDataHandler::GetSetTime(shared_ptr<XdmfGraph> child, unsigned int& cnt)
 {
   if (!child->getTime())
   {
-    //grid collections without explicit times are implied to go 0...N
-    //so we add them here if not present
+    // grid collections without explicit times are implied to go 0...N
+    // so we add them here if not present
     shared_ptr<XdmfTime> time = XdmfTime::New(cnt++);
     child->setTime(time);
   }
@@ -473,12 +459,11 @@ void vtkXdmf3LightDataHandler::GetSetTime
 }
 
 //------------------------------------------------------------------------------
-bool vtkXdmf3LightDataHandler::ShouldRead
-  (unsigned int piece, unsigned int npieces)
+bool vtkXdmf3LightDataHandler::ShouldRead(unsigned int piece, unsigned int npieces)
 {
-  if (this->NumProcs<1)
+  if (this->NumProcs < 1)
   {
-    //no parallel information given to us, assume serial
+    // no parallel information given to us, assume serial
     return true;
   }
   if (npieces == 1)
@@ -495,11 +480,11 @@ bool vtkXdmf3LightDataHandler::ShouldRead
   }
 
 #if 1
-  unsigned int mystart = this->Rank*npieces/this->NumProcs;
-  unsigned int myend = (this->Rank+1)*npieces/this->NumProcs;
+  unsigned int mystart = this->Rank * npieces / this->NumProcs;
+  unsigned int myend = (this->Rank + 1) * npieces / this->NumProcs;
   if (piece >= mystart)
   {
-    if (piece < myend || (this->Rank==this->NumProcs-1))
+    if (piece < myend || (this->Rank == this->NumProcs - 1))
     {
       return true;
     }

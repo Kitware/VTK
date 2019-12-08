@@ -23,10 +23,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkm/cont/ArrayRangeCompute.h>
 #include <vtkm/cont/ArrayHandleCounting.h>
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 #include <vtkm/cont/ArrayHandleTransform.h>
+#include <vtkm/cont/ArrayRangeCompute.h>
 
 namespace internal
 {
@@ -53,7 +53,8 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-template <typename T, typename NumComponentsTags = typename vtkm::VecTraits<T>::HasMultipleComponents>
+template <typename T,
+  typename NumComponentsTags = typename vtkm::VecTraits<T>::HasMultipleComponents>
 struct FlattenVec;
 
 template <typename T>
@@ -65,19 +66,21 @@ struct FlattenVec<T, vtkm::VecTraitsTagMultipleComponents>
   static VTKM_EXEC_CONT vtkm::IdComponent GetNumberOfComponents(const T& vec)
   {
     return vtkm::VecTraits<T>::GetNumberOfComponents(vec) *
-           SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
+      SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
   }
 
   static VTKM_EXEC_CONT const ComponentType& GetComponent(const T& vec, vtkm::IdComponent comp)
   {
     auto ncomps = SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
-    return SubVec::GetComponent(vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
+    return SubVec::GetComponent(
+      vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
   }
 
   static VTKM_EXEC_CONT ComponentType& GetComponent(T& vec, vtkm::IdComponent comp)
   {
     auto ncomps = SubVec::GetNumberOfComponents(vtkm::VecTraits<T>::GetComponent(vec, 0));
-    return SubVec::GetComponent(vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
+    return SubVec::GetComponent(
+      vtkm::VecTraits<T>::GetComponent(vec, comp / ncomps), comp % ncomps);
   }
 };
 
@@ -86,10 +89,7 @@ struct FlattenVec<T, vtkm::VecTraitsTagSingleComponent>
 {
   using ComponentType = typename vtkm::VecTraits<T>::ComponentType;
 
-  static constexpr VTKM_EXEC_CONT vtkm::IdComponent GetNumberOfComponents(const T&)
-  {
-    return 1;
-  }
+  static constexpr VTKM_EXEC_CONT vtkm::IdComponent GetNumberOfComponents(const T&) { return 1; }
 
   static VTKM_EXEC_CONT const ComponentType& GetComponent(const T& vec, vtkm::IdComponent)
   {
@@ -104,8 +104,8 @@ struct FlattenVec<T, vtkm::VecTraitsTagSingleComponent>
 
 //-----------------------------------------------------------------------------
 template <typename ValueType, typename StorageTag>
-class ArrayHandleWrapper :
-  public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
+class ArrayHandleWrapper
+  : public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
 {
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
@@ -117,19 +117,14 @@ public:
     : Handle(handle)
   {
     this->Portal = this->Handle.GetPortalControl();
-    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0) ? 1 :
-                               FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
+    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
+      ? 1
+      : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
   }
 
-  vtkIdType GetNumberOfTuples() const override
-  {
-    return this->Portal.GetNumberOfValues();
-  }
+  vtkIdType GetNumberOfTuples() const override { return this->Portal.GetNumberOfValues(); }
 
-  int GetNumberOfComponents() const override
-  {
-    return this->NumberOfComponents;
-  }
+  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
 
   void SetTuple(vtkIdType idx, const ComponentType* value) override
   {
@@ -173,19 +168,15 @@ public:
   {
     ArrayHandleType newHandle;
     newHandle.Allocate(numTuples);
-    vtkm::cont::Algorithm::CopySubRange(
-      this->Handle,
-      0,
-      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()),
-      newHandle,
-      0);
+    vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
+      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
     this->Handle = std::move(newHandle);
     this->Portal = this->Handle.GetPortalControl();
   }
 
   vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{this->Handle};
+    return vtkm::cont::VariantArrayHandle{ this->Handle };
   }
 
 private:
@@ -196,8 +187,8 @@ private:
 
 //-----------------------------------------------------------------------------
 template <typename ValueType, typename StorageTag>
-class ArrayHandleWrapperReadOnly :
-  public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
+class ArrayHandleWrapperReadOnly
+  : public ArrayHandleWrapperBase<typename FlattenVec<ValueType>::ComponentType>
 {
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, StorageTag>;
@@ -209,19 +200,14 @@ public:
     : Handle(handle)
   {
     this->Portal = this->Handle.GetPortalConstControl();
-    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0) ? 1 :
-                               FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
+    this->NumberOfComponents = (this->Portal.GetNumberOfValues() == 0)
+      ? 1
+      : FlattenVec<ValueType>::GetNumberOfComponents(this->Portal.Get(0));
   }
 
-  vtkIdType GetNumberOfTuples() const override
-  {
-    return this->Portal.GetNumberOfValues();
-  }
+  vtkIdType GetNumberOfTuples() const override { return this->Portal.GetNumberOfValues(); }
 
-  int GetNumberOfComponents() const override
-  {
-    return this->NumberOfComponents;
-  }
+  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
 
   void SetTuple(vtkIdType, const ComponentType*) override
   {
@@ -259,7 +245,7 @@ public:
 
   vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{this->Handle};
+    return vtkm::cont::VariantArrayHandle{ this->Handle };
   }
 
 private:
@@ -275,11 +261,13 @@ class ArrayHandleWrapperFlatSOA : public ArrayHandleWrapperBase<T>
 private:
   using ArrayHandleType = vtkm::cont::ArrayHandle<T>;
   using PortalType = typename ArrayHandleType::PortalControl;
-  using VtkmArrayType = vtkm::cont::ArrayHandleGroupVecVariable<ArrayHandleType, vtkm::cont::ArrayHandleCounting<vtkm::Id>>;
+  using VtkmArrayType = vtkm::cont::ArrayHandleGroupVecVariable<ArrayHandleType,
+    vtkm::cont::ArrayHandleCounting<vtkm::Id> >;
 
 public:
   explicit ArrayHandleWrapperFlatSOA(const ArrayHandleType& handle, int numberOfComponents)
-    : Handle(handle), NumberOfComponents(numberOfComponents)
+    : Handle(handle)
+    , NumberOfComponents(numberOfComponents)
   {
     this->Portal = this->Handle.GetPortalControl();
   }
@@ -289,10 +277,7 @@ public:
     return this->Portal.GetNumberOfValues() / this->NumberOfComponents;
   }
 
-  int GetNumberOfComponents() const override
-  {
-    return this->NumberOfComponents;
-  }
+  int GetNumberOfComponents() const override { return this->NumberOfComponents; }
 
   void SetTuple(vtkIdType idx, const T* value) override
   {
@@ -334,19 +319,15 @@ public:
   {
     ArrayHandleType newHandle;
     newHandle.Allocate(numTuples * this->NumberOfComponents);
-    vtkm::cont::Algorithm::CopySubRange(
-      this->Handle,
-      0,
-      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()),
-      newHandle,
-      0);
+    vtkm::cont::Algorithm::CopySubRange(this->Handle, 0,
+      std::min(this->Handle.GetNumberOfValues(), newHandle.GetNumberOfValues()), newHandle, 0);
     this->Handle = std::move(newHandle);
     this->Portal = this->Handle.GetPortalControl();
   }
 
   vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{this->GetVtkmArray()};
+    return vtkm::cont::VariantArrayHandle{ this->GetVtkmArray() };
   }
 
 private:
@@ -354,7 +335,7 @@ private:
   {
     auto length = this->Handle.GetNumberOfValues() / this->NumberOfComponents;
     auto offsets = vtkm::cont::ArrayHandleCounting<vtkm::Id>(0, this->NumberOfComponents, length);
-    return VtkmArrayType{this->Handle, offsets};
+    return VtkmArrayType{ this->Handle, offsets };
   }
 
   ArrayHandleType Handle;
@@ -364,28 +345,28 @@ private:
 
 //-----------------------------------------------------------------------------
 template <typename ArrayHandleType>
-using IsReadOnly =
-  std::integral_constant<bool, !vtkm::cont::internal::IsWritableArrayHandle<ArrayHandleType>::value>;
+using IsReadOnly = std::integral_constant<bool,
+  !vtkm::cont::internal::IsWritableArrayHandle<ArrayHandleType>::value>;
 
 template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>*
-WrapArrayHandle(const vtkm::cont::ArrayHandle<T, S>& ah, std::false_type)
+ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* WrapArrayHandle(
+  const vtkm::cont::ArrayHandle<T, S>& ah, std::false_type)
 {
-  return new ArrayHandleWrapper<T, S>{ah};
+  return new ArrayHandleWrapper<T, S>{ ah };
 }
 
 template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>*
-WrapArrayHandle(const vtkm::cont::ArrayHandle<T, S>& ah, std::true_type)
+ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* WrapArrayHandle(
+  const vtkm::cont::ArrayHandle<T, S>& ah, std::true_type)
 {
-  return new ArrayHandleWrapperReadOnly<T, S>{ah};
+  return new ArrayHandleWrapperReadOnly<T, S>{ ah };
 }
 
 template <typename T, typename S>
-ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>*
-MakeArrayHandleWrapper(const vtkm::cont::ArrayHandle<T, S>& ah)
+ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>* MakeArrayHandleWrapper(
+  const vtkm::cont::ArrayHandle<T, S>& ah)
 {
-  return WrapArrayHandle(ah, typename IsReadOnly<vtkm::cont::ArrayHandle<T, S>>::type{});
+  return WrapArrayHandle(ah, typename IsReadOnly<vtkm::cont::ArrayHandle<T, S> >::type{});
 }
 
 template <typename T>
@@ -401,19 +382,19 @@ ArrayHandleWrapperBase<T>* MakeArrayHandleWrapper(vtkIdType numberOfTuples, int 
     }
     case 2:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2>> ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 2> > ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }
     case 3:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>> ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 3> > ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }
     case 4:
     {
-      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4>> ah;
+      vtkm::cont::ArrayHandle<vtkm::Vec<T, 4> > ah;
       ah.Allocate(numberOfTuples);
       return MakeArrayHandleWrapper(ah);
     }
@@ -421,7 +402,7 @@ ArrayHandleWrapperBase<T>* MakeArrayHandleWrapper(vtkIdType numberOfTuples, int 
     {
       vtkm::cont::ArrayHandle<T> ah;
       ah.Allocate(numberOfTuples * numberOfComponents);
-      return new ArrayHandleWrapperFlatSOA<T>{ah, numberOfComponents};
+      return new ArrayHandleWrapperFlatSOA<T>{ ah, numberOfComponents };
     }
   }
 }
@@ -446,7 +427,7 @@ template <typename V, typename S>
 void vtkmDataArray<T>::SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& ah)
 {
   static_assert(std::is_same<T, typename internal::FlattenVec<V>::ComponentType>::value,
-                "Component type of the arrays don't match");
+    "Component type of the arrays don't match");
 
   this->VtkmArray.reset(internal::MakeArrayHandleWrapper(ah));
 

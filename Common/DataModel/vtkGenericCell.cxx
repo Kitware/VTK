@@ -14,50 +14,50 @@
 =========================================================================*/
 #include "vtkGenericCell.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkConvexPointSet.h"
+#include "vtkCubicLine.h"
 #include "vtkEmptyCell.h"
-#include "vtkVertex.h"
-#include "vtkPolyVertex.h"
+#include "vtkHexagonalPrism.h"
+#include "vtkHexahedron.h"
+#include "vtkIncrementalPointLocator.h"
+#include "vtkLagrangeCurve.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeTetra.h"
+#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeWedge.h"
 #include "vtkLine.h"
+#include "vtkObjectFactory.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkPixel.h"
+#include "vtkPoints.h"
 #include "vtkPolyLine.h"
+#include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
+#include "vtkPolyhedron.h"
+#include "vtkPyramid.h"
+#include "vtkQuad.h"
+#include "vtkQuadraticEdge.h"
+#include "vtkQuadraticHexahedron.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkQuadraticPolygon.h"
+#include "vtkQuadraticPyramid.h"
+#include "vtkQuadraticQuad.h"
+#include "vtkQuadraticTetra.h"
+#include "vtkQuadraticTriangle.h"
+#include "vtkQuadraticWedge.h"
+#include "vtkTetra.h"
+#include "vtkTriQuadraticHexahedron.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
-#include "vtkQuad.h"
-#include "vtkPixel.h"
-#include "vtkPolygon.h"
-#include "vtkTetra.h"
-#include "vtkHexahedron.h"
-#include "vtkLagrangeCurve.h"
-#include "vtkLagrangeQuadrilateral.h"
-#include "vtkLagrangeHexahedron.h"
-#include "vtkLagrangeWedge.h"
+#include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkPentagonalPrism.h"
-#include "vtkHexagonalPrism.h"
-#include "vtkQuadraticEdge.h"
-#include "vtkQuadraticTriangle.h"
-#include "vtkQuadraticQuad.h"
-#include "vtkQuadraticPolygon.h"
-#include "vtkQuadraticTetra.h"
-#include "vtkQuadraticHexahedron.h"
-#include "vtkQuadraticWedge.h"
-#include "vtkQuadraticPyramid.h"
-#include "vtkConvexPointSet.h"
-#include "vtkPolyhedron.h"
-#include "vtkQuadraticLinearQuad.h"
-#include "vtkCubicLine.h"
-#include "vtkBiQuadraticQuad.h"
-#include "vtkTriQuadraticHexahedron.h"
-#include "vtkQuadraticLinearWedge.h"
-#include "vtkBiQuadraticTriangle.h"
-#include "vtkBiQuadraticQuadraticWedge.h"
-#include "vtkBiQuadraticQuadraticHexahedron.h"
-#include "vtkLagrangeTriangle.h"
-#include "vtkLagrangeTetra.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkGenericCell);
 
@@ -92,13 +92,13 @@ vtkGenericCell::~vtkGenericCell()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::ShallowCopy(vtkCell *c)
+void vtkGenericCell::ShallowCopy(vtkCell* c)
 {
   this->Cell->ShallowCopy(c);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::DeepCopy(vtkCell *c)
+void vtkGenericCell::DeepCopy(vtkCell* c)
 {
   this->Cell->DeepCopy(c);
 }
@@ -134,18 +134,16 @@ int vtkGenericCell::RequiresExplicitFaceRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::SetFaces(vtkIdType *faces)
+void vtkGenericCell::SetFaces(vtkIdType* faces)
 {
   this->Cell->SetFaces(faces);
 }
 
-
 //----------------------------------------------------------------------------
-vtkIdType *vtkGenericCell::GetFaces()
+vtkIdType* vtkGenericCell::GetFaces()
 {
   return this->Cell->GetFaces();
 }
-
 
 //----------------------------------------------------------------------------
 void vtkGenericCell::Initialize()
@@ -166,79 +164,72 @@ int vtkGenericCell::GetNumberOfFaces()
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkGenericCell::GetEdge(int edgeId)
+vtkCell* vtkGenericCell::GetEdge(int edgeId)
 {
   return this->Cell->GetEdge(edgeId);
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkGenericCell::GetFace(int faceId)
+vtkCell* vtkGenericCell::GetFace(int faceId)
 {
   return this->Cell->GetFace(faceId);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
+int vtkGenericCell::CellBoundary(int subId, const double pcoords[3], vtkIdList* pts)
 {
   return this->Cell->CellBoundary(subId, pcoords, pts);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::EvaluatePosition(const double x[3], double closestPoint[3],
-                                    int& subId, double pcoords[3],
-                                    double& dist2, double weights[])
+int vtkGenericCell::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
+  double pcoords[3], double& dist2, double weights[])
 {
-  return this->Cell->EvaluatePosition(x, closestPoint, subId,
-                                      pcoords, dist2, weights);
+  return this->Cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::EvaluateLocation(int& subId, const double pcoords[3],
-                                     double x[3], double *weights)
+void vtkGenericCell::EvaluateLocation(
+  int& subId, const double pcoords[3], double x[3], double* weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars,
-                             vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-                             vtkCellArray *lines, vtkCellArray *polys,
-                             vtkPointData *inPd, vtkPointData *outPd,
-                             vtkCellData *inCd, vtkIdType cellId,
-                             vtkCellData *outCd)
+void vtkGenericCell::Contour(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkCellArray* lines,
+  vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
+  vtkCellData* outCd)
 {
-  this->Cell->Contour(value, cellScalars, locator, verts, lines, polys,
-                      inPd, outPd, inCd, cellId, outCd);
+  this->Cell->Contour(
+    value, cellScalars, locator, verts, lines, polys, inPd, outPd, inCd, cellId, outCd);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars,
-                          vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
-                          vtkPointData *inPd, vtkPointData *outPd,
-                          vtkCellData *inCd, vtkIdType cellId,
-                          vtkCellData *outCd, int insideOut)
+void vtkGenericCell::Clip(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
 {
-  this->Cell->Clip(value, cellScalars, locator, connectivity, inPd,
-                   outPd, inCd, cellId, outCd, insideOut);
+  this->Cell->Clip(
+    value, cellScalars, locator, connectivity, inPd, outPd, inCd, cellId, outCd, insideOut);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::IntersectWithLine(const double p1[3], const double p2[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int& subId)
+int vtkGenericCell::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+  double x[3], double pcoords[3], int& subId)
 {
   return this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
+int vtkGenericCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
 {
   return this->Cell->Triangulate(index, ptIds, pts);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Derivatives(int subId, const double pcoords[3], const double *values,
-                                 int dim, double *derivs)
+void vtkGenericCell::Derivatives(
+  int subId, const double pcoords[3], const double* values, int dim, double* derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
 }
@@ -250,7 +241,7 @@ int vtkGenericCell::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-double *vtkGenericCell::GetParametricCoords()
+double* vtkGenericCell::GetParametricCoords()
 {
   return this->Cell->GetParametricCoords();
 }
@@ -262,134 +253,134 @@ int vtkGenericCell::IsPrimaryCell()
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkGenericCell::InstantiateCell(int cellType)
+vtkCell* vtkGenericCell::InstantiateCell(int cellType)
 {
-  vtkCell *cell = nullptr;
+  vtkCell* cell = nullptr;
   switch (cellType)
   {
-  case VTK_EMPTY_CELL:
-    cell = vtkEmptyCell::New();
-    break;
-  case VTK_VERTEX:
-    cell = vtkVertex::New();
-    break;
-  case VTK_POLY_VERTEX:
-    cell = vtkPolyVertex::New();
-    break;
-  case VTK_LINE:
-    cell = vtkLine::New();
-    break;
-  case VTK_POLY_LINE:
-    cell = vtkPolyLine::New();
-    break;
-  case VTK_TRIANGLE:
-    cell = vtkTriangle::New();
-    break;
-  case VTK_TRIANGLE_STRIP:
-    cell = vtkTriangleStrip::New();
-    break;
-  case VTK_POLYGON:
-    cell = vtkPolygon::New();
-    break;
-  case VTK_PIXEL:
-    cell = vtkPixel::New();
-    break;
-  case VTK_QUAD:
-    cell = vtkQuad::New();
-    break;
-  case VTK_TETRA:
-    cell = vtkTetra::New();
-    break;
-  case VTK_VOXEL:
-    cell = vtkVoxel::New();
-    break;
-  case VTK_HEXAHEDRON:
-    cell = vtkHexahedron::New();
-    break;
-  case VTK_WEDGE:
-    cell = vtkWedge::New();
-    break;
-  case VTK_PYRAMID:
-    cell = vtkPyramid::New();
-    break;
-  case VTK_PENTAGONAL_PRISM:
-    cell = vtkPentagonalPrism::New();
-    break;
-  case VTK_HEXAGONAL_PRISM:
-    cell = vtkHexagonalPrism::New();
-    break;
-  case VTK_QUADRATIC_EDGE:
-    cell = vtkQuadraticEdge::New();
-    break;
-  case VTK_QUADRATIC_TRIANGLE:
-    cell = vtkQuadraticTriangle::New();
-    break;
-  case VTK_QUADRATIC_QUAD:
-    cell = vtkQuadraticQuad::New();
-    break;
-  case VTK_QUADRATIC_POLYGON:
-    cell = vtkQuadraticPolygon::New();
-    break;
-  case VTK_QUADRATIC_TETRA:
-    cell = vtkQuadraticTetra::New();
-    break;
-  case VTK_QUADRATIC_HEXAHEDRON:
-    cell = vtkQuadraticHexahedron::New();
-    break;
-  case VTK_QUADRATIC_WEDGE:
-    cell = vtkQuadraticWedge::New();
-    break;
-  case VTK_QUADRATIC_PYRAMID:
-    cell = vtkQuadraticPyramid::New();
-    break;
-  case VTK_QUADRATIC_LINEAR_QUAD:
-    cell = vtkQuadraticLinearQuad::New ();
-    break;
-  case VTK_BIQUADRATIC_QUAD:
-    cell = vtkBiQuadraticQuad::New ();
-    break;
-  case VTK_TRIQUADRATIC_HEXAHEDRON:
-    cell = vtkTriQuadraticHexahedron::New ();
-    break;
-  case VTK_QUADRATIC_LINEAR_WEDGE:
-    cell = vtkQuadraticLinearWedge::New ();
-    break;
-  case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
-    cell = vtkBiQuadraticQuadraticWedge::New ();
-    break;
-  case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
-    cell = vtkBiQuadraticQuadraticHexahedron::New ();
-    break;
-  case VTK_BIQUADRATIC_TRIANGLE:
-    cell = vtkBiQuadraticTriangle::New();
-    break;
-  case VTK_CUBIC_LINE:
-    cell = vtkCubicLine::New();
-    break;
-  case VTK_CONVEX_POINT_SET:
-    cell = vtkConvexPointSet::New();
-    break;
-  case VTK_POLYHEDRON:
-    cell = vtkPolyhedron::New();
-    break;
-  case VTK_LAGRANGE_TRIANGLE:
-    cell = vtkLagrangeTriangle::New();
-    break;
-  case VTK_LAGRANGE_TETRAHEDRON:
-    cell = vtkLagrangeTetra::New();
-    break;
-  case VTK_LAGRANGE_CURVE:
-    cell = vtkLagrangeCurve::New();
-    break;
-  case VTK_LAGRANGE_QUADRILATERAL:
-    cell = vtkLagrangeQuadrilateral::New();
-    break;
-  case VTK_LAGRANGE_HEXAHEDRON:
-    cell = vtkLagrangeHexahedron::New();
-    break;
-  case VTK_LAGRANGE_WEDGE:
-    cell = vtkLagrangeWedge::New();
-    break;
+    case VTK_EMPTY_CELL:
+      cell = vtkEmptyCell::New();
+      break;
+    case VTK_VERTEX:
+      cell = vtkVertex::New();
+      break;
+    case VTK_POLY_VERTEX:
+      cell = vtkPolyVertex::New();
+      break;
+    case VTK_LINE:
+      cell = vtkLine::New();
+      break;
+    case VTK_POLY_LINE:
+      cell = vtkPolyLine::New();
+      break;
+    case VTK_TRIANGLE:
+      cell = vtkTriangle::New();
+      break;
+    case VTK_TRIANGLE_STRIP:
+      cell = vtkTriangleStrip::New();
+      break;
+    case VTK_POLYGON:
+      cell = vtkPolygon::New();
+      break;
+    case VTK_PIXEL:
+      cell = vtkPixel::New();
+      break;
+    case VTK_QUAD:
+      cell = vtkQuad::New();
+      break;
+    case VTK_TETRA:
+      cell = vtkTetra::New();
+      break;
+    case VTK_VOXEL:
+      cell = vtkVoxel::New();
+      break;
+    case VTK_HEXAHEDRON:
+      cell = vtkHexahedron::New();
+      break;
+    case VTK_WEDGE:
+      cell = vtkWedge::New();
+      break;
+    case VTK_PYRAMID:
+      cell = vtkPyramid::New();
+      break;
+    case VTK_PENTAGONAL_PRISM:
+      cell = vtkPentagonalPrism::New();
+      break;
+    case VTK_HEXAGONAL_PRISM:
+      cell = vtkHexagonalPrism::New();
+      break;
+    case VTK_QUADRATIC_EDGE:
+      cell = vtkQuadraticEdge::New();
+      break;
+    case VTK_QUADRATIC_TRIANGLE:
+      cell = vtkQuadraticTriangle::New();
+      break;
+    case VTK_QUADRATIC_QUAD:
+      cell = vtkQuadraticQuad::New();
+      break;
+    case VTK_QUADRATIC_POLYGON:
+      cell = vtkQuadraticPolygon::New();
+      break;
+    case VTK_QUADRATIC_TETRA:
+      cell = vtkQuadraticTetra::New();
+      break;
+    case VTK_QUADRATIC_HEXAHEDRON:
+      cell = vtkQuadraticHexahedron::New();
+      break;
+    case VTK_QUADRATIC_WEDGE:
+      cell = vtkQuadraticWedge::New();
+      break;
+    case VTK_QUADRATIC_PYRAMID:
+      cell = vtkQuadraticPyramid::New();
+      break;
+    case VTK_QUADRATIC_LINEAR_QUAD:
+      cell = vtkQuadraticLinearQuad::New();
+      break;
+    case VTK_BIQUADRATIC_QUAD:
+      cell = vtkBiQuadraticQuad::New();
+      break;
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+      cell = vtkTriQuadraticHexahedron::New();
+      break;
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+      cell = vtkQuadraticLinearWedge::New();
+      break;
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+      cell = vtkBiQuadraticQuadraticWedge::New();
+      break;
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+      cell = vtkBiQuadraticQuadraticHexahedron::New();
+      break;
+    case VTK_BIQUADRATIC_TRIANGLE:
+      cell = vtkBiQuadraticTriangle::New();
+      break;
+    case VTK_CUBIC_LINE:
+      cell = vtkCubicLine::New();
+      break;
+    case VTK_CONVEX_POINT_SET:
+      cell = vtkConvexPointSet::New();
+      break;
+    case VTK_POLYHEDRON:
+      cell = vtkPolyhedron::New();
+      break;
+    case VTK_LAGRANGE_TRIANGLE:
+      cell = vtkLagrangeTriangle::New();
+      break;
+    case VTK_LAGRANGE_TETRAHEDRON:
+      cell = vtkLagrangeTetra::New();
+      break;
+    case VTK_LAGRANGE_CURVE:
+      cell = vtkLagrangeCurve::New();
+      break;
+    case VTK_LAGRANGE_QUADRILATERAL:
+      cell = vtkLagrangeQuadrilateral::New();
+      break;
+    case VTK_LAGRANGE_HEXAHEDRON:
+      cell = vtkLagrangeHexahedron::New();
+      break;
+    case VTK_LAGRANGE_WEDGE:
+      cell = vtkLagrangeWedge::New();
+      break;
   }
   return cell;
 }
@@ -416,8 +407,7 @@ void vtkGenericCell::SetCellType(int cellType)
     }
     if (this->Cell == nullptr)
     {
-      vtkErrorMacro( << "Unsupported cell type: " << cellType
-                     << " Setting to vtkEmptyCell" );
+      vtkErrorMacro(<< "Unsupported cell type: " << cellType << " Setting to vtkEmptyCell");
       this->Cell = this->CellStore[VTK_EMPTY_CELL];
     }
 
@@ -431,28 +421,28 @@ void vtkGenericCell::SetCellType(int cellType)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateFunctions(const double pcoords[3], double *weights)
+void vtkGenericCell::InterpolateFunctions(const double pcoords[3], double* weights)
 {
-  this->Cell->InterpolateFunctions(pcoords,weights);
+  this->Cell->InterpolateFunctions(pcoords, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateDerivs(const double pcoords[3], double *derivs)
+void vtkGenericCell::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
-  this->Cell->InterpolateDerivs(pcoords,derivs);
+  this->Cell->InterpolateDerivs(pcoords, derivs);
 }
 
 //----------------------------------------------------------------------------
 void vtkGenericCell::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Cell:\n";
-  this->Cell->PrintSelf(os,indent.GetNextIndent());
+  this->Cell->PrintSelf(os, indent.GetNextIndent());
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::SetPoints(vtkPoints *points)
+void vtkGenericCell::SetPoints(vtkPoints* points)
 {
   if (points != this->Points)
   {
@@ -466,7 +456,7 @@ void vtkGenericCell::SetPoints(vtkPoints *points)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::SetPointIds(vtkIdList *pointIds)
+void vtkGenericCell::SetPointIds(vtkIdList* pointIds)
 {
   if (pointIds != this->PointIds)
   {

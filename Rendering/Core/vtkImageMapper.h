@@ -25,13 +25,13 @@
  *
  * @sa
  * vtkMapper2D vtkActor2D
-*/
+ */
 
 #ifndef vtkImageMapper_h
 #define vtkImageMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkWindow;
 class vtkViewport;
@@ -42,7 +42,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkImageMapper, vtkMapper2D);
-  static vtkImageMapper *New();
+  static vtkImageMapper* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -90,7 +90,7 @@ public:
   /**
    * Function called by Render to actually draw the image to to the screen
    */
-  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D* )=0;
+  virtual void RenderData(vtkViewport*, vtkImageData*, vtkActor2D*) = 0;
 
   //@{
   /**
@@ -107,8 +107,8 @@ public:
   /**
    * Set the Input of a filter.
    */
-  virtual void SetInputData(vtkImageData *input);
-  vtkImageData *GetInput();
+  virtual void SetInputData(vtkImageData* input);
+  vtkImageData* GetInput();
   //@}
 
   //@{
@@ -159,6 +159,7 @@ protected:
   vtkTypeBool RenderToRectangle;
 
   int FillInputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkImageMapper(const vtkImageMapper&) = delete;
   void operator=(const vtkImageMapper&) = delete;

@@ -50,7 +50,7 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
     this->DataMode = vtkXMLWriter::Binary;
   }
 
-  vtkFieldData *fieldData = input->GetFieldData();
+  vtkFieldData* fieldData = input->GetFieldData();
 
   vtkInformation* meta = input->GetInformation();
   bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
@@ -137,7 +137,8 @@ int vtkXMLPDataWriter::WritePiece(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataWriter::WritePrimaryElementAttributes(std::ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
+void vtkXMLPDataWriter::WritePrimaryElementAttributes(
+  std::ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
 {
   this->WriteScalarAttribute("GhostLevel", this->GhostLevel);
 }

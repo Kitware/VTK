@@ -26,14 +26,14 @@
  * constructor for the default. This class also provides a FillInputPortInfo
  * method that by default says that all inputs will be PolyData. If that
  * isn't the case then please override this method in your subclass.
-*/
+ */
 
 #ifndef vtkPolyDataAlgorithm_h
 #define vtkPolyDataAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkPolyData.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkPolyData.h"                   // makes things a bit easier
 
 class vtkDataSet;
 class vtkPolyData;
@@ -41,8 +41,8 @@ class vtkPolyData;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkPolyDataAlgorithm *New();
-  vtkTypeMacro(vtkPolyDataAlgorithm,vtkAlgorithm);
+  static vtkPolyDataAlgorithm* New();
+  vtkTypeMacro(vtkPolyDataAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,15 +57,14 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
   vtkDataObject* GetInput();
-  vtkDataObject *GetInput(int port);
-  vtkPolyData *GetPolyDataInput(int port);
+  vtkDataObject* GetInput(int port);
+  vtkPolyData* GetPolyDataInput(int port);
 
   //@{
   /**
@@ -73,7 +72,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(vtkDataObject *);
+  void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
   //@}
 
@@ -83,7 +82,7 @@ public:
    * establish a pipeline connection. Use AddInputConnection() to
    * setup a pipeline connection.
    */
-  void AddInputData(vtkDataObject *);
+  void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
   //@}
 
@@ -92,25 +91,21 @@ protected:
   ~vtkPolyDataAlgorithm() override;
 
   // convenience method
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;

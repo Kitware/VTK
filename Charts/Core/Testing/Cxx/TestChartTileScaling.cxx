@@ -18,8 +18,8 @@
 #include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
-#include "vtkPlot.h"
 #include "vtkPNGWriter.h"
+#include "vtkPlot.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
@@ -35,7 +35,7 @@
 // not rendering properly at the tile 'seams', as can be seen in the 'valid'
 // baseline. Just noting that this is expected for now.
 //
-int TestChartTileScaling( int, char *[])
+int TestChartTileScaling(int, char*[])
 {
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetMultiSamples(0);
@@ -62,7 +62,7 @@ int TestChartTileScaling( int, char *[])
 
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -72,7 +72,7 @@ int TestChartTileScaling( int, char *[])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);

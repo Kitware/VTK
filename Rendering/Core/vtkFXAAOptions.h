@@ -19,15 +19,15 @@
  *
  *
  * This class encapsulates the settings for vtkOpenGLFXAAFilter.
-*/
+ */
 
 #ifndef vtkFXAAOptions_h
 #define vtkFXAAOptions_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkFXAAOptions: public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkFXAAOptions : public vtkObject
 {
 public:
   /**
@@ -47,8 +47,8 @@ public:
   };
 
   static vtkFXAAOptions* New();
-  vtkTypeMacro(vtkFXAAOptions, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkFXAAOptions, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -66,8 +66,8 @@ public:
    * - 1/8: High quality (default)
    * - 1/16: Overkill
    */
-  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(RelativeContrastThreshold, float)
+  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(RelativeContrastThreshold, float);
   //@}
 
   //@{
@@ -84,8 +84,8 @@ public:
    * - 1/16: High quality (default)
    * - 1/12: Upper limit (start of visible unfiltered edges)
    */
-  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(HardContrastThreshold, float)
+  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(HardContrastThreshold, float);
   //@}
 
   //@{
@@ -107,8 +107,8 @@ public:
    * - 7/8: High amount of blending.
    * - 1: Maximum amount of blending.
    */
-  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelBlendLimit, float)
+  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelBlendLimit, float);
   //@}
 
   //@{
@@ -134,8 +134,8 @@ public:
    * - 1/8: High subpixel aliasing removal
    * - 0: Complete subpixel aliasing removal
    */
-  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelContrastThreshold, float)
+  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelContrastThreshold, float);
   //@}
 
   //@{
@@ -151,9 +151,9 @@ public:
 
    * Default setting is true.
    */
-  vtkSetMacro(UseHighQualityEndpoints, bool)
-  vtkGetMacro(UseHighQualityEndpoints, bool)
-  vtkBooleanMacro(UseHighQualityEndpoints, bool)
+  vtkSetMacro(UseHighQualityEndpoints, bool);
+  vtkGetMacro(UseHighQualityEndpoints, bool);
+  vtkBooleanMacro(UseHighQualityEndpoints, bool);
   //@}
 
   //@{
@@ -164,8 +164,8 @@ public:
    * negative directions per iteration. The default value is 12, which will
    * resolve endpoints of edges < 25 pixels long (2 * 12 + 1).
    */
-  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX)
-  vtkGetMacro(EndpointSearchIterations, int)
+  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX);
+  vtkGetMacro(EndpointSearchIterations, int);
   //@}
 
   //@{
@@ -173,8 +173,8 @@ public:
    * Debugging options that affect the output color buffer. See
    * vtkFXAAFilterFS.glsl for details. Only one may be active at a time.
    */
-  vtkSetMacro(DebugOptionValue, DebugOption)
-  vtkGetMacro(DebugOptionValue, DebugOption)
+  vtkSetMacro(DebugOptionValue, DebugOption);
+  vtkGetMacro(DebugOptionValue, DebugOption);
   //@}
 
 protected:

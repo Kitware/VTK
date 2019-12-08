@@ -15,27 +15,27 @@
 
 #include "vtkImageResize.h"
 
-#include "vtkImageInterpolator.h"
-#include "vtkImageSincInterpolator.h"
-#include "vtkImageInterpolatorInternals.h"
 #include "vtkImageData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
+#include "vtkImageInterpolator.h"
+#include "vtkImageInterpolatorInternals.h"
+#include "vtkImageSincInterpolator.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types
-# undef VTK_USE_INT64
-# define VTK_USE_INT64 0
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
+#undef VTK_USE_INT64
+#define VTK_USE_INT64 0
+#undef VTK_USE_UINT64
+#define VTK_USE_UINT64 0
 
 #include <cmath>
 
 vtkStandardNewMacro(vtkImageResize);
-vtkCxxSetObjectMacro(vtkImageResize,Interpolator,vtkAbstractImageInterpolator);
+vtkCxxSetObjectMacro(vtkImageResize, Interpolator, vtkAbstractImageInterpolator);
 
 //----------------------------------------------------------------------------
 vtkImageResize::vtkImageResize()
@@ -92,7 +92,7 @@ vtkImageResize::~vtkImageResize()
 }
 
 //----------------------------------------------------------------------------
-const char *vtkImageResize::GetResizeMethodAsString()
+const char* vtkImageResize::GetResizeMethodAsString()
 {
   switch (this->ResizeMethod)
   {
@@ -108,11 +108,10 @@ const char *vtkImageResize::GetResizeMethodAsString()
 
 //----------------------------------------------------------------------------
 int vtkImageResize::RequestInformation(
-  vtkInformation *, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int inExt[6], outExt[6];
   double inSpacing[3], outSpacing[3];
@@ -132,9 +131,9 @@ int vtkImageResize::RequestInformation(
   double bounds[6];
   for (int j = 0; j < 3; j++)
   {
-    bounds[2*j] = inExt[2*j] - b;
-    bounds[2*j+1] = inExt[2*j+1] + b;
-    outExt[2*j] = inExt[2*j];
+    bounds[2 * j] = inExt[2 * j] - b;
+    bounds[2 * j + 1] = inExt[2 * j + 1] + b;
+    outExt[2 * j] = inExt[2 * j];
     outSpacing[j] = inSpacing[j];
     outOrigin[j] = inOrigin[j];
     outDims[j] = inDims[j];
@@ -146,17 +145,17 @@ int vtkImageResize::RequestInformation(
     for (int k = 0; k < 3; k++)
     {
       // if bounds are reversed
-      if (bounds[2*k] > bounds[2*k+1])
+      if (bounds[2 * k] > bounds[2 * k + 1])
       {
-        double tmp = bounds[2*k];
-        bounds[2*k] = bounds[2*k+1];
-        bounds[2*k+1] = tmp;
+        double tmp = bounds[2 * k];
+        bounds[2 * k] = bounds[2 * k + 1];
+        bounds[2 * k + 1] = tmp;
       }
-      double l = (bounds[2*k] - inOrigin[k])/inSpacing[k];
-      double h = (bounds[2*k+1] - inOrigin[k])/inSpacing[k];
+      double l = (bounds[2 * k] - inOrigin[k]) / inSpacing[k];
+      double h = (bounds[2 * k + 1] - inOrigin[k]) / inSpacing[k];
       int flip = (inSpacing[k] < 0);
-      bounds[2*k+flip] = l;
-      bounds[2*k+1-flip] = h;
+      bounds[2 * k + flip] = l;
+      bounds[2 * k + 1 - flip] = h;
     }
   }
 
@@ -170,22 +169,22 @@ int vtkImageResize::RequestInformation(
         {
           outDims[i] = this->OutputDimensions[i];
         }
-        double d = (outDims[i] - 1) + 2*b;
-        double e = bounds[2*i+1] - bounds[2*i];
+        double d = (outDims[i] - 1) + 2 * b;
+        double e = bounds[2 * i + 1] - bounds[2 * i];
         this->IndexStretch[i] = 1.0;
         if (d != 0 && e != 0)
         {
-          this->IndexStretch[i] *= e/d;
+          this->IndexStretch[i] *= e / d;
         }
         int flip = (this->IndexStretch[i] < 0);
         this->IndexTranslate[i] =
-          (bounds[2*i + flip] - (outExt[2*i] - b)*this->IndexStretch[i]);
+          (bounds[2 * i + flip] - (outExt[2 * i] - b) * this->IndexStretch[i]);
 
-        outSpacing[i] = inSpacing[i]*this->IndexStretch[i];
-        outOrigin[i] = inOrigin[i] + inSpacing[i]*this->IndexTranslate[i];
+        outSpacing[i] = inSpacing[i] * this->IndexStretch[i];
+        outOrigin[i] = inOrigin[i] + inSpacing[i] * this->IndexTranslate[i];
       }
     }
-      break;
+    break;
     case vtkImageResize::OUTPUT_SPACING:
     {
       for (int i = 0; i < 3; i++)
@@ -194,19 +193,19 @@ int vtkImageResize::RequestInformation(
         {
           outSpacing[i] = this->OutputSpacing[i];
         }
-        this->IndexStretch[i] = outSpacing[i]/inSpacing[i];
+        this->IndexStretch[i] = outSpacing[i] / inSpacing[i];
         int flip = (this->IndexStretch[i] < 0);
         this->IndexTranslate[i] =
-          (bounds[2*i + flip] - (outExt[2*i] - b)*this->IndexStretch[i]);
+          (bounds[2 * i + flip] - (outExt[2 * i] - b) * this->IndexStretch[i]);
 
-        outOrigin[i] = inOrigin[i] + inSpacing[i]*this->IndexTranslate[i];
+        outOrigin[i] = inOrigin[i] + inSpacing[i] * this->IndexTranslate[i];
 
-        double e = bounds[2*i+1] - bounds[2*i];
-        double d = fabs(e/this->IndexStretch[i]) - 2*b;
+        double e = bounds[2 * i + 1] - bounds[2 * i];
+        double d = fabs(e / this->IndexStretch[i]) - 2 * b;
         outDims[i] = static_cast<int>(d + VTK_INTERPOLATE_FLOOR_TOL) + 1;
       }
     }
-      break;
+    break;
     case vtkImageResize::MAGNIFICATION_FACTORS:
     {
       for (int i = 0; i < 3; i++)
@@ -215,25 +214,25 @@ int vtkImageResize::RequestInformation(
         if (this->MagnificationFactors[i] != 0)
         {
           this->IndexStretch[i] /= this->MagnificationFactors[i];
-          outSpacing[i] = inSpacing[i]/this->MagnificationFactors[i];
+          outSpacing[i] = inSpacing[i] / this->MagnificationFactors[i];
         }
         int flip = (this->IndexStretch[i] < 0);
         this->IndexTranslate[i] =
-          (bounds[2*i + flip] - (outExt[2*i] - b)*this->IndexStretch[i]);
+          (bounds[2 * i + flip] - (outExt[2 * i] - b) * this->IndexStretch[i]);
 
-        outOrigin[i] = inOrigin[i] + inSpacing[i]*this->IndexTranslate[i];
+        outOrigin[i] = inOrigin[i] + inSpacing[i] * this->IndexTranslate[i];
 
-        double e = bounds[2*i+1] - bounds[2*i];
-        double d = fabs(e/this->IndexStretch[i]) - 2*b;
+        double e = bounds[2 * i + 1] - bounds[2 * i];
+        double d = fabs(e / this->IndexStretch[i]) - 2 * b;
         outDims[i] = static_cast<int>(d + VTK_INTERPOLATE_FLOOR_TOL) + 1;
       }
     }
-      break;
+    break;
   }
 
   for (int k = 0; k < 3; k++)
   {
-    outExt[2*k+1] = outExt[2*k] + outDims[k] - 1;
+    outExt[2 * k + 1] = outExt[2 * k] + outDims[k] - 1;
   }
 
   // set the output information
@@ -246,11 +245,10 @@ int vtkImageResize::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkImageResize::RequestUpdateExtent(
-  vtkInformation *, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int wholeExt[6];
   int extent[6];
@@ -259,17 +257,17 @@ int vtkImageResize::RequestUpdateExtent(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 
   // get the interpolator
-  vtkAbstractImageInterpolator *interpolator = this->GetInternalInterpolator();
+  vtkAbstractImageInterpolator* interpolator = this->GetInternalInterpolator();
 
   // set the extent according to the interpolation kernel size:
   // first create a matrix to map output to input indices
   double elements[16];
   for (int i = 0; i < 3; i++)
   {
-    elements[4*i+0] = elements[4*i+1] = elements[4*i+2] = 0;
-    elements[4*i+i] = this->IndexStretch[i];
-    elements[4*i+3] = this->IndexTranslate[i];
-    elements[12+i] = 0;
+    elements[4 * i + 0] = elements[4 * i + 1] = elements[4 * i + 2] = 0;
+    elements[4 * i + i] = this->IndexStretch[i];
+    elements[4 * i + 3] = this->IndexTranslate[i];
+    elements[12 + i] = 0;
   }
   elements[15] = 1;
   // get the kernel size
@@ -279,54 +277,54 @@ int vtkImageResize::RequestUpdateExtent(
   for (int j = 0; j < 3; j++)
   {
     double range[2];
-    range[0] = extent[2*j]*this->IndexStretch[j] + this->IndexTranslate[j];
-    range[1] = extent[2*j+1]*this->IndexStretch[j]+this->IndexTranslate[j];
+    range[0] = extent[2 * j] * this->IndexStretch[j] + this->IndexTranslate[j];
+    range[1] = extent[2 * j + 1] * this->IndexStretch[j] + this->IndexTranslate[j];
 
-    extent[2*j] = VTK_INT_MAX;
-    extent[2*j+1] = VTK_INT_MIN;
+    extent[2 * j] = VTK_INT_MAX;
+    extent[2 * j + 1] = VTK_INT_MIN;
 
     for (int ii = 0; ii < 2; ii++)
     {
       int kernelSize = supportSize[j];
-      int extra = (kernelSize + 1)/2 - 1;
+      int extra = (kernelSize + 1) / 2 - 1;
 
       // most kernels have even size
       if ((kernelSize & 1) == 0)
       {
         double f;
         int k = vtkInterpolationMath::Floor(range[ii], f);
-        if (k - extra < extent[2*j])
+        if (k - extra < extent[2 * j])
         {
-          extent[2*j] = k - extra;
+          extent[2 * j] = k - extra;
         }
         k += (f != 0);
-        if (k + extra > extent[2*j+1])
+        if (k + extra > extent[2 * j + 1])
         {
-          extent[2*j+1] = k + extra;
+          extent[2 * j + 1] = k + extra;
         }
       }
       // else is for kernels with odd size
       else
       {
         int k = vtkInterpolationMath::Round(range[ii]);
-        if (k < extent[2*j])
+        if (k < extent[2 * j])
         {
-          extent[2*j] = k - extra;
+          extent[2 * j] = k - extra;
         }
-        if (k > extent[2*j+1])
+        if (k > extent[2 * j + 1])
         {
-          extent[2*j+1] = k + extra;
+          extent[2 * j + 1] = k + extra;
         }
       }
     }
 
-    if (extent[2*j] < wholeExt[2*j])
+    if (extent[2 * j] < wholeExt[2 * j])
     {
-      extent[2*j] = wholeExt[2*j];
+      extent[2 * j] = wholeExt[2 * j];
     }
-    if (extent[2*j+1] > wholeExt[2*j+1])
+    if (extent[2 * j + 1] > wholeExt[2 * j + 1])
     {
-      extent[2*j+1] = wholeExt[2*j+1];
+      extent[2 * j + 1] = wholeExt[2 * j + 1];
     }
   }
 
@@ -338,20 +336,18 @@ int vtkImageResize::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 // Methods used by execute
 
-namespace {
+namespace
+{
 
-#define VTK_RESIZE_CONVERT_INT_CLAMP(T, minval, maxval) \
-void vtkImageResizeConvert(double v, T &u) \
-{ \
-  v = vtkMath::ClampValue(v, minval, maxval); \
-  u = vtkInterpolationMath::Round(v); \
-}
+#define VTK_RESIZE_CONVERT_INT_CLAMP(T, minval, maxval)                                            \
+  void vtkImageResizeConvert(double v, T& u)                                                       \
+  {                                                                                                \
+    v = vtkMath::ClampValue(v, minval, maxval);                                                    \
+    u = vtkInterpolationMath::Round(v);                                                            \
+  }
 
-#define VTK_RESIZE_CONVERT_FLOAT(T) \
-void vtkImageResizeConvert(double v, T &u) \
-{ \
-  u = static_cast<T>(v); \
-}
+#define VTK_RESIZE_CONVERT_FLOAT(T)                                                                \
+  void vtkImageResizeConvert(double v, T& u) { u = static_cast<T>(v); }
 
 VTK_RESIZE_CONVERT_INT_CLAMP(vtkTypeUInt8, 0.0, 255.0);
 VTK_RESIZE_CONVERT_INT_CLAMP(vtkTypeUInt16, 0.0, 65535.0);
@@ -365,10 +361,9 @@ VTK_RESIZE_CONVERT_FLOAT(vtkTypeFloat64);
 //----------------------------------------------------------------------------
 // Apply a 1D filter in the X direction.
 // The inPtr parameter must be positioned at the correct slice.
-template<class T>
-void vtkImageResizeFilterX(
-  const T *inPtr, double *outPtr, int ncomp, const int extent[6],
-  const vtkIdType *a, const double *f, int kernelSize)
+template <class T>
+void vtkImageResizeFilterX(const T* inPtr, double* outPtr, int ncomp, const int extent[6],
+  const vtkIdType* a, const double* f, int kernelSize)
 {
   int pixelCounter = extent[1] - extent[0] + 1;
 
@@ -376,42 +371,37 @@ void vtkImageResizeFilterX(
   {
     do
     {
-      const T *tmpPtr = inPtr + (*a++);
+      const T* tmpPtr = inPtr + (*a++);
       int i = ncomp;
       do
       {
         *outPtr++ = *tmpPtr++;
-      }
-      while (--i);
-    }
-    while (--pixelCounter);
+      } while (--i);
+    } while (--pixelCounter);
   }
   else
   {
     do
     {
-      const T *tmpPtr = inPtr;
+      const T* tmpPtr = inPtr;
       int i = ncomp;
       do
       {
-        const vtkIdType *b = a;
-        const double *g = f;
-        double val = (*g++)*tmpPtr[*b++];
+        const vtkIdType* b = a;
+        const double* g = f;
+        double val = (*g++) * tmpPtr[*b++];
         int k = kernelSize - 1;
         do
         {
-          val += (*g++)*tmpPtr[*b++];
-        }
-        while (--k);
+          val += (*g++) * tmpPtr[*b++];
+        } while (--k);
         tmpPtr++;
         vtkImageResizeConvert(val, *outPtr);
         outPtr++;
-      }
-      while (--i);
+      } while (--i);
       a += kernelSize;
       f += kernelSize;
-    }
-    while (--pixelCounter);
+    } while (--pixelCounter);
   }
 }
 
@@ -419,25 +409,23 @@ void vtkImageResizeFilterX(
 // Apply a 1D filter along the Y or Z direction, given kernelSize rows
 // of data as input and producing one row of data as output.  This function
 // must be called for each row of the output to filter a whole slice.
-template<class T>
+template <class T>
 void vtkImageResizeFilterYOrZ(
-  double **rowPtr, T *outPtr, int ncomp, const int extent[6],
-  const double *f, int kernelSize)
+  double** rowPtr, T* outPtr, int ncomp, const int extent[6], const double* f, int kernelSize)
 {
   // number of data values in one row
-  vtkIdType rowCounter = (extent[1] - extent[0] + 1)*ncomp;
+  vtkIdType rowCounter = (extent[1] - extent[0] + 1) * ncomp;
 
   if (kernelSize == 1)
   {
     // don't apply the filter, just convert the data
-    double *tmpPtr = *rowPtr;
+    double* tmpPtr = *rowPtr;
     do
     {
       vtkImageResizeConvert(*tmpPtr, *outPtr);
       outPtr++;
       tmpPtr++;
-    }
-    while (--rowCounter);
+    } while (--rowCounter);
   }
   else
   {
@@ -445,39 +433,35 @@ void vtkImageResizeFilterYOrZ(
     int i = 0;
     do
     {
-      double **tmpPtr = rowPtr;
-      const double *g = f;
-      double val = (*g++)*((*tmpPtr++)[i]);
+      double** tmpPtr = rowPtr;
+      const double* g = f;
+      double val = (*g++) * ((*tmpPtr++)[i]);
       int k = kernelSize - 1;
       do
       {
-        val += (*g++)*((*tmpPtr++)[i]);
-      }
-      while (--k);
+        val += (*g++) * ((*tmpPtr++)[i]);
+      } while (--k);
       i++;
       vtkImageResizeConvert(val, *outPtr);
       outPtr++;
-    }
-    while (--rowCounter);
+    } while (--rowCounter);
   }
 }
 
 //----------------------------------------------------------------------------
 // Apply a 2D filter to image slices (either XY or XZ slices).
 // The inPtr parameter must be positioned at the correct slice.
-template<class T, class U>
-void vtkImageResizeFilter2D(
-  const T *inPtr, U *outPtr, const vtkIdType outInc[3], const int extent[6],
-  const vtkIdType *aX, const double *fX, int kernelSizeX,
-  const vtkIdType *a, const double *f, int kernelSize,
-  double **workPtr, int direction, vtkAlgorithm *progress)
+template <class T, class U>
+void vtkImageResizeFilter2D(const T* inPtr, U* outPtr, const vtkIdType outInc[3],
+  const int extent[6], const vtkIdType* aX, const double* fX, int kernelSizeX, const vtkIdType* a,
+  const double* f, int kernelSize, double** workPtr, int direction, vtkAlgorithm* progress)
 {
   int ncomp = static_cast<int>(outInc[0]);
-  int idYMin = extent[2*direction];
-  int idYMax = extent[2*direction+1];
+  int idYMin = extent[2 * direction];
+  int idYMax = extent[2 * direction + 1];
 
   int progressGoal = idYMax - idYMin + 1;
-  int progressStep = (progressGoal + 49)/50;
+  int progressStep = (progressGoal + 49) / 50;
   int progressCount = 0;
 
   if (kernelSize == 1)
@@ -487,15 +471,13 @@ void vtkImageResizeFilter2D(
     {
       if (progress != nullptr && (progressCount % progressStep) == 0)
       {
-        progress->UpdateProgress(progressCount*1.0/progressGoal);
+        progress->UpdateProgress(progressCount * 1.0 / progressGoal);
       }
       progressCount++;
 
-      vtkImageResizeFilterX(
-        &inPtr[*a], *workPtr, ncomp, extent, aX, fX, kernelSizeX);
+      vtkImageResizeFilterX(&inPtr[*a], *workPtr, ncomp, extent, aX, fX, kernelSizeX);
 
-      vtkImageResizeFilterYOrZ(
-        workPtr, outPtr, ncomp, extent, f, kernelSize);
+      vtkImageResizeFilterYOrZ(workPtr, outPtr, ncomp, extent, f, kernelSize);
 
       outPtr += outInc[direction];
       a += kernelSize;
@@ -510,28 +492,27 @@ void vtkImageResizeFilter2D(
     {
       if (progress != nullptr && (progressCount % progressStep) == 0)
       {
-        progress->UpdateProgress(progressCount*1.0/progressGoal);
+        progress->UpdateProgress(progressCount * 1.0 / progressGoal);
       }
       progressCount++;
 
       // rotate workspace rows to reuse the ones that can be reused
-      for (int k = 0; k < kernelSize-j; k++)
+      for (int k = 0; k < kernelSize - j; k++)
       {
-        double *tmpPtr = workPtr[k];
-        workPtr[k] = workPtr[k+j];
-        workPtr[k+j] = tmpPtr;
+        double* tmpPtr = workPtr[k];
+        workPtr[k] = workPtr[k + j];
+        workPtr[k + j] = tmpPtr;
       }
 
       // compute the j new rows that must be computed
-      if (j) do
-      {
-        vtkImageResizeFilterX(
-          &inPtr[*a], workPtr[kernelSize-j], ncomp, extent, aX, fX,
-          kernelSizeX);
+      if (j)
+        do
+        {
+          vtkImageResizeFilterX(
+            &inPtr[*a], workPtr[kernelSize - j], ncomp, extent, aX, fX, kernelSizeX);
 
-        a++;
-      }
-      while (--j);
+          a++;
+        } while (--j);
 
       // if this is not the final iteration, then look for overlap between
       // the rows that are currently stored and the rows that will be
@@ -542,20 +523,24 @@ void vtkImageResizeFilter2D(
         for (j = 0; j < kernelSize; j++)
         {
           int i = kernelSize - j;
-          const vtkIdType *b = a - i;
-          const vtkIdType *c = a;
+          const vtkIdType* b = a - i;
+          const vtkIdType* c = a;
           do
           {
-            if (*c++ != *b++) { break; }
+            if (*c++ != *b++)
+            {
+              break;
+            }
+          } while (--i);
+          if (i == 0)
+          {
+            break;
           }
-          while (--i);
-          if (i == 0) { break; }
         }
-        a += kernelSize-j;
+        a += kernelSize - j;
       }
 
-      vtkImageResizeFilterYOrZ(
-        workPtr, outPtr, ncomp, extent, f, kernelSize);
+      vtkImageResizeFilterYOrZ(workPtr, outPtr, ncomp, extent, f, kernelSize);
 
       outPtr += outInc[direction];
       f += kernelSize;
@@ -568,24 +553,22 @@ void vtkImageResizeFilter2D(
 // memory overhead (3 rows of temp storage for 2D, 3 slices for 3D).
 // The aX, aY, and aZ contain increments for the X, Y, and Z
 // directions.
-template<class T>
-void vtkImageResizeFilter3D(
-  const T *inPtr, T *outPtr, const vtkIdType outInc[3], const int extent[6],
-  const vtkIdType *aX, const double *fX, int kernelSizeX,
-  const vtkIdType *aY, const double *fY, int kernelSizeY,
-  const vtkIdType *aZ, const double *fZ, int kernelSizeZ,
-  vtkAlgorithm *progress)
+template <class T>
+void vtkImageResizeFilter3D(const T* inPtr, T* outPtr, const vtkIdType outInc[3],
+  const int extent[6], const vtkIdType* aX, const double* fX, int kernelSizeX, const vtkIdType* aY,
+  const double* fY, int kernelSizeY, const vtkIdType* aZ, const double* fZ, int kernelSizeZ,
+  vtkAlgorithm* progress)
 {
-  vtkIdType rowSize = outInc[0]*(extent[1] - extent[0] + 1);
+  vtkIdType rowSize = outInc[0] * (extent[1] - extent[0] + 1);
   int ncomp = static_cast<int>(outInc[0]);
 
-  aX += extent[0]*kernelSizeX;
-  aY += extent[2]*kernelSizeY;
-  aZ += extent[4]*kernelSizeZ;
+  aX += extent[0] * kernelSizeX;
+  aY += extent[2] * kernelSizeY;
+  aZ += extent[4] * kernelSizeZ;
 
-  fX += extent[0]*kernelSizeX;
-  fY += extent[2]*kernelSizeY;
-  fZ += extent[4]*kernelSizeZ;
+  fX += extent[0] * kernelSizeX;
+  fY += extent[2] * kernelSizeY;
+  fZ += extent[4] * kernelSizeZ;
 
   if (kernelSizeX == 1 && kernelSizeY == 1 && kernelSizeZ == 1)
   {
@@ -599,40 +582,38 @@ void vtkImageResizeFilter3D(
     vtkIdType progressGoal = (idYMax - idYMin + 1);
     progressGoal *= (idZMax - idZMin + 1);
     vtkIdType progressCount = 0;
-    vtkIdType progressStep = (progressGoal + 49)/50;
+    vtkIdType progressStep = (progressGoal + 49) / 50;
 
     if (pixelCounter > 0)
     {
-      T *tmpOutPtrHead = outPtr;
+      T* tmpOutPtrHead = outPtr;
       for (int idZ = idZMin; idZ <= idZMax; idZ++)
       {
-        const T *tmpPtrZ = inPtr + (*aZ++);
-        const vtkIdType *aYtmp = aY;
-        T *tmpOutPtrHeadZ = tmpOutPtrHead + (idZ - idZMin)*outInc[2];
+        const T* tmpPtrZ = inPtr + (*aZ++);
+        const vtkIdType* aYtmp = aY;
+        T* tmpOutPtrHeadZ = tmpOutPtrHead + (idZ - idZMin) * outInc[2];
         for (int idY = idYMin; idY <= idYMax; idY++)
         {
-          outPtr = tmpOutPtrHeadZ + (idY - idYMin)*outInc[1];
-          const T *tmpPtrY = tmpPtrZ + (*aYtmp++);
-          const vtkIdType *aXtmp = aX;
+          outPtr = tmpOutPtrHeadZ + (idY - idYMin) * outInc[1];
+          const T* tmpPtrY = tmpPtrZ + (*aYtmp++);
+          const vtkIdType* aXtmp = aX;
 
           if (progress != nullptr && (progressCount % progressStep) == 0)
           {
-            progress->UpdateProgress(progressCount*1.0/progressGoal);
+            progress->UpdateProgress(progressCount * 1.0 / progressGoal);
           }
           progressCount++;
 
           int j = pixelCounter;
           do
           {
-            const T *tmpPtr = tmpPtrY + (*aXtmp++);
+            const T* tmpPtr = tmpPtrY + (*aXtmp++);
             int i = ncomp;
             do
             {
               *outPtr++ = *tmpPtr++;
-            }
-            while (--i);
-          }
-          while (--j);
+            } while (--i);
+          } while (--j);
         }
       }
     }
@@ -644,9 +625,9 @@ void vtkImageResizeFilter3D(
     int direction = 1;
     int kernelSizeSlice = kernelSizeZ;
     int kernelSize = kernelSizeY;
-    const vtkIdType *aSlice = aZ;
-    const vtkIdType *a = aY;
-    const double *f = fY;
+    const vtkIdType* aSlice = aZ;
+    const vtkIdType* a = aY;
+    const double* f = fY;
     if (kernelSizeY == 1)
     {
       sliceDirection = 1;
@@ -659,23 +640,23 @@ void vtkImageResizeFilter3D(
     }
 
     // apply filter to all XY or XZ slices
-    vtkIdType workSize = rowSize*kernelSize;
-    double *workPtr2 = new double[workSize];
-    double **workPtr = new double *[kernelSize];
+    vtkIdType workSize = rowSize * kernelSize;
+    double* workPtr2 = new double[workSize];
+    double** workPtr = new double*[kernelSize];
     for (int ii = 0; ii < kernelSize; ii++)
     {
-      workPtr[ii] = workPtr2 + ii*rowSize;
+      workPtr[ii] = workPtr2 + ii * rowSize;
     }
 
     // the slice range
-    int sliceMin = extent[2*sliceDirection];
-    int sliceMax = extent[2*sliceDirection+1];
+    int sliceMin = extent[2 * sliceDirection];
+    int sliceMax = extent[2 * sliceDirection + 1];
 
     // progress reporting variables
     int progressGoal = sliceMax - sliceMin + 1;
-    int progressStep = (progressGoal + 49)/50;
+    int progressStep = (progressGoal + 49) / 50;
     int progressCount = 0;
-    vtkAlgorithm *rowProgress = nullptr;
+    vtkAlgorithm* rowProgress = nullptr;
     if (progressGoal == 1)
     {
       // if one slice, report progress by rows instead
@@ -687,21 +668,19 @@ void vtkImageResizeFilter3D(
     {
       if (progress != nullptr && (progressCount % progressStep) == 0)
       {
-        progress->UpdateProgress(progressCount*1.0/progressGoal);
+        progress->UpdateProgress(progressCount * 1.0 / progressGoal);
       }
       progressCount++;
 
-      vtkImageResizeFilter2D(
-        &inPtr[*aSlice], outPtr, outInc, extent,
-        aX, fX, kernelSizeX, a, f, kernelSize,
-        workPtr, direction, rowProgress);
+      vtkImageResizeFilter2D(&inPtr[*aSlice], outPtr, outInc, extent, aX, fX, kernelSizeX, a, f,
+        kernelSize, workPtr, direction, rowProgress);
 
       aSlice += kernelSizeSlice;
       outPtr += outInc[sliceDirection];
     }
 
-    delete [] workPtr2;
-    delete [] workPtr;
+    delete[] workPtr2;
+    delete[] workPtr;
   }
   else
   {
@@ -710,35 +689,35 @@ void vtkImageResizeFilter3D(
     // the dimension broken up between threads)
 
     // compute temporary workspace requirements
-    vtkIdType sliceSize = rowSize*(extent[5] - extent[4] + 1);
-    vtkIdType workSize = rowSize*kernelSizeZ;
-    workSize += sliceSize*kernelSizeY;
+    vtkIdType sliceSize = rowSize * (extent[5] - extent[4] + 1);
+    vtkIdType workSize = rowSize * kernelSizeZ;
+    workSize += sliceSize * kernelSizeY;
 
     // part of workspace goes to temporary rows
-    double *workPtr2 = new double[workSize];
-    double **workPtr = new double *[kernelSizeZ + kernelSizeY];
+    double* workPtr2 = new double[workSize];
+    double** workPtr = new double*[kernelSizeZ + kernelSizeY];
     for (int jj = 0; jj < kernelSizeZ; jj++)
     {
-      workPtr[jj] = workPtr2 + jj*rowSize;
+      workPtr[jj] = workPtr2 + jj * rowSize;
     }
 
     // part of the workspace goes to temporary slices
-    double *workPtr3 = workPtr2 + kernelSizeZ*rowSize;
-    double **slicePtr = workPtr + kernelSizeZ;
+    double* workPtr3 = workPtr2 + kernelSizeZ * rowSize;
+    double** slicePtr = workPtr + kernelSizeZ;
     for (int ii = 0; ii < kernelSizeY; ii++)
     {
-      slicePtr[ii] = workPtr3 + ii*sliceSize;
+      slicePtr[ii] = workPtr3 + ii * sliceSize;
     }
 
     // increments for temporary slices
     vtkIdType sliceInc[3];
     sliceInc[0] = outInc[0];
-    sliceInc[1] = sliceInc[0]*(extent[1] - extent[0] + 1);
+    sliceInc[1] = sliceInc[0] * (extent[1] - extent[0] + 1);
     sliceInc[2] = sliceInc[1];
 
     // progress reporting variables
     int progressGoal = extent[3] - extent[2] + 1;
-    int progressStep = (progressGoal + 49)/50;
+    int progressStep = (progressGoal + 49) / 50;
     int progressCount = 0;
 
     // loop through the XZ slices
@@ -747,29 +726,27 @@ void vtkImageResizeFilter3D(
     {
       if (progress != nullptr && (progressCount % progressStep) == 0)
       {
-        progress->UpdateProgress(progressCount*1.0/progressGoal);
+        progress->UpdateProgress(progressCount * 1.0 / progressGoal);
       }
       progressCount++;
 
       // reuse all but j of the temporary slices
-      for (int k = 0; k < kernelSizeY-j; k++)
+      for (int k = 0; k < kernelSizeY - j; k++)
       {
-        double *tmpPtr = slicePtr[k];
-        slicePtr[k] = slicePtr[k+j];
-        slicePtr[k+j] = tmpPtr;
+        double* tmpPtr = slicePtr[k];
+        slicePtr[k] = slicePtr[k + j];
+        slicePtr[k + j] = tmpPtr;
       }
 
       // compute the j new slices that are needed
-      if (j) do
-      {
-        vtkImageResizeFilter2D(
-          &inPtr[*aY], slicePtr[kernelSizeY-j], sliceInc, extent,
-          aX, fX, kernelSizeX, aZ, fZ, kernelSizeZ,
-          workPtr, 2, nullptr);
+      if (j)
+        do
+        {
+          vtkImageResizeFilter2D(&inPtr[*aY], slicePtr[kernelSizeY - j], sliceInc, extent, aX, fX,
+            kernelSizeX, aZ, fZ, kernelSizeZ, workPtr, 2, nullptr);
 
-        aY++;
-      }
-      while (--j);
+          aY++;
+        } while (--j);
 
       // if this is not the final iteration, then look for overlap between
       // the slices that are currently stored and the slices that will be
@@ -780,24 +757,28 @@ void vtkImageResizeFilter3D(
         for (j = 0; j < kernelSizeY; j++)
         {
           int i = kernelSizeY - j;
-          const vtkIdType *bY = aY - i;
-          const vtkIdType *cY = aY;
+          const vtkIdType* bY = aY - i;
+          const vtkIdType* cY = aY;
           do
           {
-            if (*cY++ != *bY++) { break; }
+            if (*cY++ != *bY++)
+            {
+              break;
+            }
+          } while (--i);
+          if (i == 0)
+          {
+            break;
           }
-          while (--i);
-          if (i == 0) { break; }
         }
-        aY += kernelSizeY-j;
+        aY += kernelSizeY - j;
       }
 
       // loop through the rows of this slice
-      T *outPtr0 = outPtr;
+      T* outPtr0 = outPtr;
       for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
       {
-        vtkImageResizeFilterYOrZ(
-          slicePtr, outPtr0, ncomp, extent, fY, kernelSizeY);
+        vtkImageResizeFilterYOrZ(slicePtr, outPtr0, ncomp, extent, fY, kernelSizeY);
 
         outPtr0 += outInc[2];
         for (int i = 0; i < kernelSizeY; i++)
@@ -816,8 +797,8 @@ void vtkImageResizeFilter3D(
       outPtr += outInc[1];
     }
 
-    delete [] workPtr2;
-    delete [] workPtr;
+    delete[] workPtr2;
+    delete[] workPtr;
   }
 }
 
@@ -827,11 +808,9 @@ void vtkImageResizeFilter3D(
 // RequestData is where the interpolator is updated, since it must be updated
 // before the threads are split
 int vtkImageResize::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkAbstractImageInterpolator *interpolator = this->GetInternalInterpolator();
+  vtkAbstractImageInterpolator* interpolator = this->GetInternalInterpolator();
   vtkInformation* info = inputVector[0]->GetInformationObject(0);
   interpolator->Initialize(info->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -843,17 +822,15 @@ int vtkImageResize::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResize::ThreadedRequestData(vtkInformation *,
-  vtkInformationVector **, vtkInformationVector *,
-  vtkImageData ***, vtkImageData **outData, int extent[6],
-  int threadId)
+void vtkImageResize::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
+  vtkInformationVector*, vtkImageData***, vtkImageData** outData, int extent[6], int threadId)
 {
   vtkDebugMacro("Execute: outData = " << outData);
 
   // get the pointer and increments
   vtkIdType outInc[3];
   outData[0]->GetIncrements(outInc);
-  void *outPtr = outData[0]->GetScalarPointerForExtent(extent);
+  void* outPtr = outData[0]->GetScalarPointerForExtent(extent);
   int outScalarType = outData[0]->GetScalarType();
 
   // create a matrix to map output to input indices
@@ -868,28 +845,28 @@ void vtkImageResize::ThreadedRequestData(vtkInformation *,
   newmat[3][3] = 1;
 
   // fill in the interpolation tables
-  vtkAbstractImageInterpolator *interpolator = this->GetInternalInterpolator();
+  vtkAbstractImageInterpolator* interpolator = this->GetInternalInterpolator();
   int clipExt[6];
-  vtkInterpolationWeights *weights;
+  vtkInterpolationWeights* weights;
   interpolator->PrecomputeWeightsForExtent(*newmat, extent, clipExt, weights);
 
   // prepare table for use by this filter
   int kernelSizeX = weights->KernelSize[0];
-  vtkIdType *aX = weights->Positions[0];
-  const double *fX = static_cast<double *>(weights->Weights[0]);
+  vtkIdType* aX = weights->Positions[0];
+  const double* fX = static_cast<double*>(weights->Weights[0]);
   int kernelSizeY = weights->KernelSize[1];
-  vtkIdType *aY = weights->Positions[1];
-  const double *fY = static_cast<double *>(weights->Weights[1]);
+  vtkIdType* aY = weights->Positions[1];
+  const double* fY = static_cast<double*>(weights->Weights[1]);
   int kernelSizeZ = weights->KernelSize[2];
-  vtkIdType *aZ = weights->Positions[2];
-  const double *fZ = static_cast<double *>(weights->Weights[2]);
+  vtkIdType* aZ = weights->Positions[2];
+  const double* fZ = static_cast<double*>(weights->Weights[2]);
 
   // get the pointer and scalar type
-  const void *inPtr = weights->Pointer;
+  const void* inPtr = weights->Pointer;
   int inScalarType = weights->ScalarType;
 
   // progress object if main thread
-  vtkAlgorithm *progress = ((threadId == 0) ? this : nullptr);
+  vtkAlgorithm* progress = ((threadId == 0) ? this : nullptr);
 
   // call the execute method
   if (outScalarType == inScalarType)
@@ -897,13 +874,8 @@ void vtkImageResize::ThreadedRequestData(vtkInformation *,
     switch (inScalarType)
     {
       vtkTemplateAliasMacro(
-        vtkImageResizeFilter3D(
-          static_cast<const VTK_TT *>(inPtr),
-          static_cast<VTK_TT *>(outPtr), outInc, extent,
-          aX, fX, kernelSizeX,
-          aY, fY, kernelSizeY,
-          aZ, fZ, kernelSizeZ,
-          progress));
+        vtkImageResizeFilter3D(static_cast<const VTK_TT*>(inPtr), static_cast<VTK_TT*>(outPtr),
+          outInc, extent, aX, fX, kernelSizeX, aY, fY, kernelSizeY, aZ, fZ, kernelSizeZ, progress));
       default:
         vtkErrorMacro("Execute: Unknown ScalarType");
     }
@@ -924,27 +896,20 @@ void vtkImageResize::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ResizeMethod: " << this->GetResizeMethodAsString() << "\n";
 
-  os << indent << "OutputDimensions: "
-     << this->OutputDimensions[0] << " "
-     << this->OutputDimensions[1] << " "
-     << this->OutputDimensions[2] << "\n";
+  os << indent << "OutputDimensions: " << this->OutputDimensions[0] << " "
+     << this->OutputDimensions[1] << " " << this->OutputDimensions[2] << "\n";
 
-  os << indent << "OutputSpacing: "
-     << this->OutputSpacing[0] << " "
-     << this->OutputSpacing[1] << " "
-     << this->OutputSpacing[2] << "\n";
+  os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " << this->OutputSpacing[1]
+     << " " << this->OutputSpacing[2] << "\n";
 
-  os << indent << "MagnificationFactors: "
-     << this->MagnificationFactors[0] << " "
-     << this->MagnificationFactors[1] << " "
-     << this->MagnificationFactors[2] << "\n";
+  os << indent << "MagnificationFactors: " << this->MagnificationFactors[0] << " "
+     << this->MagnificationFactors[1] << " " << this->MagnificationFactors[2] << "\n";
 
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 
-  os << indent << "CroppingRegion: "
-     << this->CroppingRegion[0] << " " << this->CroppingRegion[1] << " "
-     << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
+  os << indent << "CroppingRegion: " << this->CroppingRegion[0] << " " << this->CroppingRegion[1]
+     << " " << this->CroppingRegion[2] << " " << this->CroppingRegion[3] << " "
      << this->CroppingRegion[4] << " " << this->CroppingRegion[5] << "\n";
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
@@ -953,11 +918,11 @@ void vtkImageResize::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractImageInterpolator *vtkImageResize::GetInterpolator()
+vtkAbstractImageInterpolator* vtkImageResize::GetInterpolator()
 {
   if (this->Interpolator == nullptr)
   {
-    vtkImageSincInterpolator *i = vtkImageSincInterpolator::New();
+    vtkImageSincInterpolator* i = vtkImageSincInterpolator::New();
     i->SetWindowFunctionToLanczos();
     i->SetWindowHalfWidth(3);
     i->AntialiasingOn();
@@ -968,7 +933,7 @@ vtkAbstractImageInterpolator *vtkImageResize::GetInterpolator()
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractImageInterpolator *vtkImageResize::GetInternalInterpolator()
+vtkAbstractImageInterpolator* vtkImageResize::GetInternalInterpolator()
 {
   if (this->Interpolate)
   {
@@ -977,7 +942,7 @@ vtkAbstractImageInterpolator *vtkImageResize::GetInternalInterpolator()
 
   if (!this->NNInterpolator)
   {
-    vtkImageInterpolator *nn = vtkImageInterpolator::New();
+    vtkImageInterpolator* nn = vtkImageInterpolator::New();
     nn->SetInterpolationModeToNearest();
     this->NNInterpolator = nn;
   }
@@ -988,13 +953,13 @@ vtkAbstractImageInterpolator *vtkImageResize::GetInternalInterpolator()
 //----------------------------------------------------------------------------
 vtkMTimeType vtkImageResize::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
   if (this->Interpolate != 0 && this->Interpolator != nullptr)
   {
     time = this->Interpolator->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;

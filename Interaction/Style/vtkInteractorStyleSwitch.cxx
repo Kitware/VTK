@@ -18,9 +18,9 @@
 #include "vtkCommand.h"
 #include "vtkInteractorStyleJoystickActor.h"
 #include "vtkInteractorStyleJoystickCamera.h"
+#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
@@ -60,26 +60,26 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( vtkTypeBool value )
+void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange(vtkTypeBool value)
 {
-  if ( value == this->AutoAdjustCameraClippingRange )
+  if (value == this->AutoAdjustCameraClippingRange)
   {
     return;
   }
 
-  if ( value < 0 || value > 1 )
+  if (value < 0 || value > 1)
   {
-    vtkErrorMacro("Value must be between 0 and 1 for" <<
-                  " SetAutoAdjustCameraClippingRange");
+    vtkErrorMacro("Value must be between 0 and 1 for"
+      << " SetAutoAdjustCameraClippingRange");
     return;
   }
 
   this->AutoAdjustCameraClippingRange = value;
-  this->JoystickActor->SetAutoAdjustCameraClippingRange( value );
-  this->JoystickCamera->SetAutoAdjustCameraClippingRange( value );
-  this->TrackballActor->SetAutoAdjustCameraClippingRange( value );
-  this->TrackballCamera->SetAutoAdjustCameraClippingRange( value );
-  this->MultiTouchCamera->SetAutoAdjustCameraClippingRange( value );
+  this->JoystickActor->SetAutoAdjustCameraClippingRange(value);
+  this->JoystickCamera->SetAutoAdjustCameraClippingRange(value);
+  this->TrackballActor->SetAutoAdjustCameraClippingRange(value);
+  this->TrackballCamera->SetAutoAdjustCameraClippingRange(value);
+  this->MultiTouchCamera->SetAutoAdjustCameraClippingRange(value);
 
   this->Modified();
 }
@@ -181,62 +181,58 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
   // currentstyle.
   if (this->MultiTouch)
   {
-    if(this->CurrentStyle != this->MultiTouchCamera)
+    if (this->CurrentStyle != this->MultiTouchCamera)
     {
-      if(this->CurrentStyle)
+      if (this->CurrentStyle)
       {
         this->CurrentStyle->SetInteractor(nullptr);
       }
       this->CurrentStyle = this->MultiTouchCamera;
     }
   }
-  else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-      this->CameraOrActor == VTKIS_CAMERA)
+  else if (this->JoystickOrTrackball == VTKIS_JOYSTICK && this->CameraOrActor == VTKIS_CAMERA)
   {
-    if(this->CurrentStyle != this->JoystickCamera)
+    if (this->CurrentStyle != this->JoystickCamera)
     {
-      if(this->CurrentStyle)
+      if (this->CurrentStyle)
       {
         this->CurrentStyle->SetInteractor(nullptr);
       }
       this->CurrentStyle = this->JoystickCamera;
     }
   }
-  else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
-           this->CameraOrActor == VTKIS_ACTOR)
+  else if (this->JoystickOrTrackball == VTKIS_JOYSTICK && this->CameraOrActor == VTKIS_ACTOR)
   {
-    if(this->CurrentStyle != this->JoystickActor)
+    if (this->CurrentStyle != this->JoystickActor)
     {
-      if(this->CurrentStyle)
+      if (this->CurrentStyle)
       {
         this->CurrentStyle->SetInteractor(nullptr);
       }
       this->CurrentStyle = this->JoystickActor;
     }
   }
-  else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-           this->CameraOrActor == VTKIS_CAMERA)
+  else if (this->JoystickOrTrackball == VTKIS_TRACKBALL && this->CameraOrActor == VTKIS_CAMERA)
   {
-    if(this->CurrentStyle != this->TrackballCamera)
+    if (this->CurrentStyle != this->TrackballCamera)
     {
-      if(this->CurrentStyle)
+      if (this->CurrentStyle)
       {
         this->CurrentStyle->SetInteractor(nullptr);
       }
       this->CurrentStyle = this->TrackballCamera;
     }
   }
-  else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
-           this->CameraOrActor == VTKIS_ACTOR)
+  else if (this->JoystickOrTrackball == VTKIS_TRACKBALL && this->CameraOrActor == VTKIS_ACTOR)
   {
-      if(this->CurrentStyle != this->TrackballActor)
+    if (this->CurrentStyle != this->TrackballActor)
+    {
+      if (this->CurrentStyle)
       {
-        if(this->CurrentStyle)
-        {
-          this->CurrentStyle->SetInteractor(nullptr);
-        }
-        this->CurrentStyle = this->TrackballActor;
+        this->CurrentStyle->SetInteractor(nullptr);
       }
+      this->CurrentStyle = this->TrackballActor;
+    }
   }
   if (this->CurrentStyle)
   {
@@ -246,28 +242,24 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
+void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor* iren)
 {
-  if(iren == this->Interactor)
+  if (iren == this->Interactor)
   {
     return;
   }
   // if we already have an Interactor then stop observing it
-  if(this->Interactor)
+  if (this->Interactor)
   {
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
   }
   this->Interactor = iren;
   // add observers for each of the events handled in ProcessEvents
-  if(iren)
+  if (iren)
   {
-    iren->AddObserver(vtkCommand::CharEvent,
-                      this->EventCallbackCommand,
-                      this->Priority);
+    iren->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand, this->Priority);
 
-    iren->AddObserver(vtkCommand::DeleteEvent,
-                      this->EventCallbackCommand,
-                      this->Priority);
+    iren->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand, this->Priority);
   }
   this->SetCurrentStyle();
 }
@@ -275,7 +267,7 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "CurrentStyle " << this->CurrentStyle << "\n";
   if (this->CurrentStyle)
   {

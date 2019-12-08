@@ -37,19 +37,19 @@ PURPOSE.  See the above copyright notice for more information.
  * This header must be in C++ only because it is included by .cxx files.
  * That means no Objective-C may be used. That's why some instance variables
  * are void* instead of what they really should be.
-*/
+ */
 
 #ifndef vtkIOSRenderWindow_h
 #define vtkIOSRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
-  static vtkIOSRenderWindow *New();
-  vtkTypeMacro(vtkIOSRenderWindow,vtkOpenGLRenderWindow);
+  static vtkIOSRenderWindow* New();
+  vtkTypeMacro(vtkIOSRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -101,55 +101,52 @@ public:
    * Set the size of the window in pixels.
    */
   void SetSize(int a[2]) override;
-  void SetSize(int,int) override;
+  void SetSize(int, int) override;
   //@}
 
   /**
    * Get the current size of the window in pixels.
    */
-  int *GetSize() VTK_SIZEHINT(2) override;
+  int* GetSize() VTK_SIZEHINT(2) override;
 
   //@{
   /**
    * Set the position of the window.
    */
   void SetPosition(int a[2]) override;
-  void SetPosition(int,int) override;
+  void SetPosition(int, int) override;
   //@}
 
   /**
    * Get the current size of the screen in pixels.
    */
-  int *GetScreenSize() VTK_SIZEHINT(2) override;
+  int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates of the window.
    */
-  int *GetPosition() VTK_SIZEHINT(2) override;
+  int* GetPosition() VTK_SIZEHINT(2) override;
 
   /**
    * Set the name of the window. This appears at the top of the window
    * normally.
    */
-  void SetWindowName(const char *) override;
+  void SetWindowName(const char*) override;
 
-  void SetNextWindowInfo(const char *) override
+  void SetNextWindowInfo(const char*) override
   {
-      vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
   }
   void* GetGenericDrawable() override
   {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
   }
-  void SetDisplayId(void*) override
+  void SetDisplayId(void*) override { vtkWarningMacro("Method not implemented."); }
+  void* GetGenericDisplayId() override
   {
-      vtkWarningMacro("Method not implemented.");
-  }
-  void *GetGenericDisplayId() override
-  {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
   }
 
   /**
@@ -168,7 +165,7 @@ public:
 
   void SetNextWindowId(void*) override
   {
-      vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
   }
 
   /**
@@ -211,7 +208,7 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities() override;
+  const char* ReportCapabilities() override;
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
@@ -234,15 +231,14 @@ public:
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-   int GetEventPending() override;
+  int GetEventPending() override;
 
   //@{
   /**
    * Initialize OpenGL for this window.
    */
-  virtual void SetupPalette(void *hDC);
-  virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug,
-                                int bpp=16, int zbpp=16);
+  virtual void SetupPalette(void* hDC);
+  virtual void SetupPixelFormat(void* hDC, void* dwFlags, int debug, int bpp = 16, int zbpp = 16);
   //@}
 
   /**
@@ -282,9 +278,9 @@ public:
   /**
    * Accessors for the OpenGL context (Really an NSOpenGLContext*).
    */
-  void SetContextId(void *);
-  void *GetContextId();
-  void *GetGenericContext() override  {return this->GetContextId();}
+  void SetContextId(void*);
+  void* GetContextId();
+  void* GetGenericContext() override { return this->GetContextId(); }
   //@}
 
   /**
@@ -297,12 +293,12 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
-  virtual void SetRootWindow(void *);
+  virtual void SetRootWindow(void*);
 
   /**
    * Returns the NSWindow* associated with this vtkRenderWindow.
    */
-  virtual void *GetRootWindow();
+  virtual void* GetRootWindow();
 
   /**
    * Sets the UIView* associated with this vtkRenderWindow.
@@ -314,13 +310,13 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
-  void SetWindowId(void *) override;
+  void SetWindowId(void*) override;
 
   /**
    * Returns the UIView* associated with this vtkRenderWindow.
    */
-  virtual void *GetWindowId();
-  void *GetGenericWindowId() override {return this->GetWindowId();}
+  virtual void* GetWindowId();
+  void* GetGenericWindowId() override { return this->GetWindowId(); }
 
   /**
    * Set the UIView* for the vtkRenderWindow to be parented within.  The
@@ -328,22 +324,22 @@ public:
    * UIView that the vtkRenderWindow will create within this parent.
    * If you set the WindowId, then this ParentId will be ignored.
    */
-  void SetParentId(void *UIView) override;
+  void SetParentId(void* UIView) override;
 
   /**
    * Get the parent UIView* for this vtkRenderWindow.  This method will
    * return "NULL" if the parent was not set with SetParentId() or
    * SetParentInfo().
    */
-  virtual void *GetParentId();
-  void *GetGenericParentId() override { return this->GetParentId(); }
+  virtual void* GetParentId();
+  void* GetGenericParentId() override { return this->GetParentId(); }
 
   //@{
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
    */
-  void SetPixelFormat(void *pixelFormat);
-  void *GetPixelFormat();
+  void SetPixelFormat(void* pixelFormat);
+  void* GetPixelFormat();
   //@}
 
 protected:
@@ -361,18 +357,18 @@ protected:
 
   // IOS seems to have issues with getting RGB data
   int ReadPixels(
-    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) override;
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right = 0) override;
 
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) = delete;
   void operator=(const vtkIOSRenderWindow&) = delete;
 
 private:
-  int      WindowCreated;
-  int      ViewCreated;
-  int      CursorHidden;
+  int WindowCreated;
+  int ViewCreated;
+  int CursorHidden;
 
-  int      ForceMakeCurrent;
+  int ForceMakeCurrent;
 };
 
 #endif

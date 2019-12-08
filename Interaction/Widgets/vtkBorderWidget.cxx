@@ -14,20 +14,18 @@
 =========================================================================*/
 #include "vtkBorderWidget.h"
 #include "vtkBorderRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCommand.h"
+#include "vtkEvent.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkWidgetEventTranslator.h"
+#include "vtkRenderer.h"
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
-
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkBorderWidget);
-
 
 //-------------------------------------------------------------------------
 vtkBorderWidget::vtkBorderWidget()
@@ -36,21 +34,16 @@ vtkBorderWidget::vtkBorderWidget()
   this->Selectable = 1;
   this->Resizable = 1;
 
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-                                          vtkWidgetEvent::Select,
-                                          this, vtkBorderWidget::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select, this, vtkBorderWidget::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-                                          vtkWidgetEvent::EndSelect,
-                                          this, vtkBorderWidget::EndSelectAction);
+    vtkWidgetEvent::EndSelect, this, vtkBorderWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
-                                          vtkWidgetEvent::Translate,
-                                          this, vtkBorderWidget::TranslateAction);
+    vtkWidgetEvent::Translate, this, vtkBorderWidget::TranslateAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,
-                                          vtkWidgetEvent::EndSelect,
-                                          this, vtkBorderWidget::EndSelectAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
-                                          vtkWidgetEvent::Move,
-                                          this, vtkBorderWidget::MoveAction);
+    vtkWidgetEvent::EndSelect, this, vtkBorderWidget::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkBorderWidget::MoveAction);
 }
 
 //-------------------------------------------------------------------------
@@ -59,7 +52,7 @@ vtkBorderWidget::~vtkBorderWidget() = default;
 //-------------------------------------------------------------------------
 void vtkBorderWidget::SetCursor(int cState)
 {
-  if(!this->Resizable && cState != vtkBorderRepresentation::Inside)
+  if (!this->Resizable && cState != vtkBorderRepresentation::Inside)
   {
     this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     return;
@@ -88,7 +81,7 @@ void vtkBorderWidget::SetCursor(int cState)
       this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkBorderRepresentation::Inside:
-      if ( reinterpret_cast<vtkBorderRepresentation*>(this->WidgetRep)->GetMoving() )
+      if (reinterpret_cast<vtkBorderRepresentation*>(this->WidgetRep)->GetMoving())
       {
         this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       }
@@ -103,12 +96,12 @@ void vtkBorderWidget::SetCursor(int cState)
 }
 
 //-------------------------------------------------------------------------
-void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
+void vtkBorderWidget::SelectAction(vtkAbstractWidget* w)
 {
-  vtkBorderWidget *self = reinterpret_cast<vtkBorderWidget*>(w);
+  vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
 
-  if ( self->SubclassSelectAction() ||
-       self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside )
+  if (self->SubclassSelectAction() ||
+    self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside)
   {
     return;
   }
@@ -130,39 +123,38 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
   // convert to normalized viewport coordinates
   double XF = static_cast<double>(X);
   double YF = static_cast<double>(Y);
-  self->CurrentRenderer->DisplayToNormalizedDisplay(XF,YF);
-  self->CurrentRenderer->NormalizedDisplayToViewport(XF,YF);
-  self->CurrentRenderer->ViewportToNormalizedViewport(XF,YF);
+  self->CurrentRenderer->DisplayToNormalizedDisplay(XF, YF);
+  self->CurrentRenderer->NormalizedDisplayToViewport(XF, YF);
+  self->CurrentRenderer->ViewportToNormalizedViewport(XF, YF);
   double eventPos[2];
   eventPos[0] = XF;
   eventPos[1] = YF;
   self->WidgetRep->StartWidgetInteraction(eventPos);
 
-  if ( self->Selectable &&
-       self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Inside )
+  if (self->Selectable && self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Inside)
   {
-    vtkBorderRepresentation *rep = reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep);
-    double *fpos1 = rep->GetPositionCoordinate()->GetValue();
-    double *fpos2 = rep->GetPosition2Coordinate()->GetValue();
+    vtkBorderRepresentation* rep = reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep);
+    double* fpos1 = rep->GetPositionCoordinate()->GetValue();
+    double* fpos2 = rep->GetPosition2Coordinate()->GetValue();
 
-    eventPos[0] = (XF-fpos1[0])/fpos2[0];
-    eventPos[1] = (YF-fpos1[1])/fpos2[1];
+    eventPos[0] = (XF - fpos1[0]) / fpos2[0];
+    eventPos[1] = (YF - fpos1[1]) / fpos2[1];
 
     self->SelectRegion(eventPos);
   }
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
 //-------------------------------------------------------------------------
-void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
+void vtkBorderWidget::TranslateAction(vtkAbstractWidget* w)
 {
-  vtkBorderWidget *self = reinterpret_cast<vtkBorderWidget*>(w);
+  vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
 
-  if ( self->SubclassTranslateAction() ||
-       self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside )
+  if (self->SubclassTranslateAction() ||
+    self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside)
   {
     return;
   }
@@ -184,9 +176,9 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
   // convert to normalized viewport coordinates
   double XF = static_cast<double>(X);
   double YF = static_cast<double>(Y);
-  self->CurrentRenderer->DisplayToNormalizedDisplay(XF,YF);
-  self->CurrentRenderer->NormalizedDisplayToViewport(XF,YF);
-  self->CurrentRenderer->ViewportToNormalizedViewport(XF,YF);
+  self->CurrentRenderer->DisplayToNormalizedDisplay(XF, YF);
+  self->CurrentRenderer->NormalizedDisplayToViewport(XF, YF);
+  self->CurrentRenderer->ViewportToNormalizedViewport(XF, YF);
   double eventPos[2];
   eventPos[0] = XF;
   eventPos[1] = YF;
@@ -194,15 +186,15 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
 //-------------------------------------------------------------------------
-void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
+void vtkBorderWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkBorderWidget *self = reinterpret_cast<vtkBorderWidget*>(w);
+  vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
 
-  if ( self->SubclassMoveAction() )
+  if (self->SubclassMoveAction())
   {
     return;
   }
@@ -212,7 +204,7 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   // Set the cursor appropriately
-  if ( self->WidgetState == vtkBorderWidget::Start )
+  if (self->WidgetState == vtkBorderWidget::Start)
   {
     int stateBefore = self->WidgetRep->GetInteractionState();
     self->WidgetRep->ComputeInteractionState(X, Y);
@@ -221,7 +213,7 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
 
     vtkBorderRepresentation* borderRepresentation =
       reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep);
-    if ( self->Selectable || stateAfter != vtkBorderRepresentation::Inside )
+    if (self->Selectable || stateAfter != vtkBorderRepresentation::Inside)
     {
       borderRepresentation->MovingOff();
     }
@@ -230,18 +222,19 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
       borderRepresentation->MovingOn();
     }
 
-    if ( (borderRepresentation->GetShowVerticalBorder() == vtkBorderRepresentation::BORDER_ACTIVE ||
-          borderRepresentation->GetShowHorizontalBorder() == vtkBorderRepresentation::BORDER_ACTIVE) &&
-         stateBefore != stateAfter &&
-         (stateBefore == vtkBorderRepresentation::Outside || stateAfter == vtkBorderRepresentation::Outside) )
+    if ((borderRepresentation->GetShowVerticalBorder() == vtkBorderRepresentation::BORDER_ACTIVE ||
+          borderRepresentation->GetShowHorizontalBorder() ==
+            vtkBorderRepresentation::BORDER_ACTIVE) &&
+      stateBefore != stateAfter &&
+      (stateBefore == vtkBorderRepresentation::Outside ||
+        stateAfter == vtkBorderRepresentation::Outside))
     {
       self->Render();
     }
     return;
   }
 
-  if(!self->Resizable &&
-    self->WidgetRep->GetInteractionState() != vtkBorderRepresentation::Inside)
+  if (!self->Resizable && self->WidgetRep->GetInteractionState() != vtkBorderRepresentation::Inside)
   {
     return;
   }
@@ -254,18 +247,18 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
 
   // start a drag
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 }
 
 //-------------------------------------------------------------------------
-void vtkBorderWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkBorderWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkBorderWidget *self = reinterpret_cast<vtkBorderWidget*>(w);
+  vtkBorderWidget* self = reinterpret_cast<vtkBorderWidget*>(w);
 
-  if ( self->SubclassEndSelectAction() ||
-       self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside ||
-        self->WidgetState != vtkBorderWidget::Selected)
+  if (self->SubclassEndSelectAction() ||
+    self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Outside ||
+    self->WidgetState != vtkBorderWidget::Selected)
   {
     return;
   }
@@ -278,13 +271,13 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget *w)
   // stop adjusting
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkBorderWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkBorderRepresentation::New();
   }
@@ -293,13 +286,13 @@ void vtkBorderWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkBorderWidget::SelectRegion(double* vtkNotUsed(eventPos[2]))
 {
-  this->InvokeEvent(vtkCommand::WidgetActivateEvent,nullptr);
+  this->InvokeEvent(vtkCommand::WidgetActivateEvent, nullptr);
 }
 
 //-------------------------------------------------------------------------
 void vtkBorderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Selectable: " << (this->Selectable ? "On\n" : "Off\n");
   os << indent << "Resizable: " << (this->Resizable ? "On\n" : "Off\n");

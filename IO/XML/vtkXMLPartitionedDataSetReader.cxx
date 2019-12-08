@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkXMLPartitionedDataSetReader.h"
 
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -27,14 +27,10 @@
 vtkStandardNewMacro(vtkXMLPartitionedDataSetReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetReader::vtkXMLPartitionedDataSetReader()
-{
-}
+vtkXMLPartitionedDataSetReader::vtkXMLPartitionedDataSetReader() {}
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetReader::~vtkXMLPartitionedDataSetReader()
-{
-}
+vtkXMLPartitionedDataSetReader::~vtkXMLPartitionedDataSetReader() {}
 
 //----------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -58,8 +54,7 @@ const char* vtkXMLPartitionedDataSetReader::GetDataSetName()
 
 //----------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetReader::ReadComposite(vtkXMLDataElement* element,
-  vtkCompositeDataSet* composite, const char* filePath,
-  unsigned int &dataSetIndex)
+  vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
   vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(composite);
   if (!pds)
@@ -69,7 +64,7 @@ void vtkXMLPartitionedDataSetReader::ReadComposite(vtkXMLDataElement* element,
   }
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
-  for (unsigned int cc=0; cc < maxElems; ++cc)
+  for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())

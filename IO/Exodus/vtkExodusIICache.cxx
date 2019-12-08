@@ -6,12 +6,14 @@
 // Define VTK_EXO_DBG_CACHE to print cache adds, drops, and replacements.
 //#undef VTK_EXO_DBG_CACHE
 
-#define VTK_EXO_PRT_KEY( ckey ) \
-  "(" << (ckey).Time << ", " << (ckey).ObjectType << ", " << (ckey).ObjectId << ", " << (ckey).ArrayId << ")"
-#define VTK_EXO_PRT_ARR( cval ) \
-  " [" << (cval) << "," <<  ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "/" << this->Size << "/" << this->Capacity << "]"
-#define VTK_EXO_PRT_ARR2( cval ) \
-  " [" << (cval) << ", " <<  ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "]"
+#define VTK_EXO_PRT_KEY(ckey)                                                                      \
+  "(" << (ckey).Time << ", " << (ckey).ObjectType << ", " << (ckey).ObjectId << ", "               \
+      << (ckey).ArrayId << ")"
+#define VTK_EXO_PRT_ARR(cval)                                                                      \
+  " [" << (cval) << "," << ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "/"            \
+       << this->Size << "/" << this->Capacity << "]"
+#define VTK_EXO_PRT_ARR2(cval)                                                                     \
+  " [" << (cval) << ", " << ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "]"
 
 #if 0
 static void printCache( vtkExodusIICacheSet& cache, vtkExodusIICacheLRU& lru )
@@ -37,23 +39,23 @@ vtkExodusIICacheEntry::vtkExodusIICacheEntry()
   this->Value = nullptr;
 }
 
-vtkExodusIICacheEntry::vtkExodusIICacheEntry( vtkDataArray* arr )
+vtkExodusIICacheEntry::vtkExodusIICacheEntry(vtkDataArray* arr)
 {
   this->Value = arr;
-  if ( arr )
-    this->Value->Register( nullptr );
+  if (arr)
+    this->Value->Register(nullptr);
 }
 vtkExodusIICacheEntry::~vtkExodusIICacheEntry()
 {
-  if ( this->Value )
+  if (this->Value)
     this->Value->Delete();
 }
 
-vtkExodusIICacheEntry::vtkExodusIICacheEntry( const vtkExodusIICacheEntry& other )
+vtkExodusIICacheEntry::vtkExodusIICacheEntry(const vtkExodusIICacheEntry& other)
 {
   this->Value = other.Value;
-  if ( this->Value )
-    this->Value->Register( nullptr );
+  if (this->Value)
+    this->Value->Register(nullptr);
 }
 
 #if 0
@@ -75,12 +77,12 @@ vtkExodusIICache::vtkExodusIICache()
 
 vtkExodusIICache::~vtkExodusIICache()
 {
-  this->ReduceToSize( 0. );
+  this->ReduceToSize(0.);
 }
 
-void vtkExodusIICache::PrintSelf( ostream& os, vtkIndent indent )
+void vtkExodusIICache::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Capacity: " << this->Capacity << " MiB\n";
   os << indent << "Size: " << this->Size << " MiB\n";
   os << indent << "Cache: " << &this->Cache << " (" << this->Cache.size() << ")\n";
@@ -89,41 +91,41 @@ void vtkExodusIICache::PrintSelf( ostream& os, vtkIndent indent )
 
 void vtkExodusIICache::Clear()
 {
-  //printCache( this->Cache, this->LRU );
-  this->ReduceToSize( 0. );
+  // printCache( this->Cache, this->LRU );
+  this->ReduceToSize(0.);
 }
 
-void vtkExodusIICache::SetCacheCapacity( double sizeInMiB )
+void vtkExodusIICache::SetCacheCapacity(double sizeInMiB)
 {
-  if ( sizeInMiB == this->Capacity )
+  if (sizeInMiB == this->Capacity)
     return;
 
-  if ( this->Size > sizeInMiB )
+  if (this->Size > sizeInMiB)
   {
-    this->ReduceToSize( sizeInMiB );
+    this->ReduceToSize(sizeInMiB);
   }
 
-  this->Capacity =  sizeInMiB < 0 ? 0 : sizeInMiB;
+  this->Capacity = sizeInMiB < 0 ? 0 : sizeInMiB;
 }
 
-int vtkExodusIICache::ReduceToSize( double newSize )
+int vtkExodusIICache::ReduceToSize(double newSize)
 {
   int deletedSomething = 0;
-  while ( this->Size > newSize && ! this->LRU.empty() )
+  while (this->Size > newSize && !this->LRU.empty())
   {
-    vtkExodusIICacheRef cit( this->LRU.back() );
+    vtkExodusIICacheRef cit(this->LRU.back());
     vtkDataArray* arr = cit->second->Value;
-    if ( arr )
+    if (arr)
     {
       deletedSomething = 1;
-      double arrSz = (double) arr->GetActualMemorySize() / 1024.;
+      double arrSz = (double)arr->GetActualMemorySize() / 1024.;
       this->Size -= arrSz;
 #ifdef VTK_EXO_DBG_CACHE
-      cout << "Dropping " << VTK_EXO_PRT_KEY( cit->first ) << VTK_EXO_PRT_ARR( arr ) << "\n";
+      cout << "Dropping " << VTK_EXO_PRT_KEY(cit->first) << VTK_EXO_PRT_ARR(arr) << "\n";
 #endif // VTK_EXO_DBG_CACHE
-      if ( this->Size <= 0 )
+      if (this->Size <= 0)
       {
-        if ( this->Cache.empty() )
+        if (this->Cache.empty())
           this->Size = 0.;
         else
           this->RecomputeSize(); // oops, FP roundoff
@@ -132,16 +134,16 @@ int vtkExodusIICache::ReduceToSize( double newSize )
     else
     {
 #ifdef VTK_EXO_DBG_CACHE
-      cout << "Dropping " << VTK_EXO_PRT_KEY( cit->first ) << VTK_EXO_PRT_ARR( arr ) << "\n";
+      cout << "Dropping " << VTK_EXO_PRT_KEY(cit->first) << VTK_EXO_PRT_ARR(arr) << "\n";
 #endif // VTK_EXO_DBG_CACHE
     }
 
     delete cit->second;
-    this->Cache.erase( cit );
+    this->Cache.erase(cit);
     this->LRU.pop_back();
   }
 
-  if ( this->Cache.empty() )
+  if (this->Cache.empty())
   {
     this->Size = 0;
   }
@@ -149,56 +151,58 @@ int vtkExodusIICache::ReduceToSize( double newSize )
   return deletedSomething;
 }
 
-void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
+void vtkExodusIICache::Insert(vtkExodusIICacheKey& key, vtkDataArray* value)
 {
   double vsize = value ? value->GetActualMemorySize() / 1024. : 0.;
 
-  vtkExodusIICacheRef it = this->Cache.find( key );
-  if ( it != this->Cache.end() )
+  vtkExodusIICacheRef it = this->Cache.find(key);
+  if (it != this->Cache.end())
   {
-    if ( it->second->Value == value )
+    if (it->second->Value == value)
       return;
 
     // Remove existing array and put in our new one.
     this->Size -= vsize;
-    if ( this->Size <= 0 )
+    if (this->Size <= 0)
     {
       this->RecomputeSize();
     }
-    this->ReduceToSize( this->Capacity - vsize );
+    this->ReduceToSize(this->Capacity - vsize);
     it->second->Value->Delete();
     it->second->Value = value;
-    it->second->Value->Register( nullptr ); // Since we re-use the cache entry, the constructor's Register won't get called.
+    it->second->Value->Register(
+      nullptr); // Since we re-use the cache entry, the constructor's Register won't get called.
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
-    cout << "Replacing " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( value ) << "\n";
+    cout << "Replacing " << VTK_EXO_PRT_KEY(it->first) << VTK_EXO_PRT_ARR(value) << "\n";
 #endif // VTK_EXO_DBG_CACHE
-    this->LRU.erase( it->second->LRUEntry );
-    it->second->LRUEntry = this->LRU.insert( this->LRU.begin(), it );
+    this->LRU.erase(it->second->LRUEntry);
+    it->second->LRUEntry = this->LRU.insert(this->LRU.begin(), it);
   }
   else
   {
-    this->ReduceToSize( this->Capacity - vsize );
-    std::pair<const vtkExodusIICacheKey,vtkExodusIICacheEntry*> entry( key, new vtkExodusIICacheEntry(value) );
-    std::pair<vtkExodusIICacheSet::iterator, bool> iret = this->Cache.insert( entry );
+    this->ReduceToSize(this->Capacity - vsize);
+    std::pair<const vtkExodusIICacheKey, vtkExodusIICacheEntry*> entry(
+      key, new vtkExodusIICacheEntry(value));
+    std::pair<vtkExodusIICacheSet::iterator, bool> iret = this->Cache.insert(entry);
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
-    cout << "Adding " << VTK_EXO_PRT_KEY( key ) << VTK_EXO_PRT_ARR( value ) << "\n";
+    cout << "Adding " << VTK_EXO_PRT_KEY(key) << VTK_EXO_PRT_ARR(value) << "\n";
 #endif // VTK_EXO_DBG_CACHE
-    iret.first->second->LRUEntry = this->LRU.insert( this->LRU.begin(), iret.first );
+    iret.first->second->LRUEntry = this->LRU.insert(this->LRU.begin(), iret.first);
   }
-  //printCache( this->Cache, this->LRU );
+  // printCache( this->Cache, this->LRU );
 }
 
-vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
+vtkDataArray*& vtkExodusIICache::Find(const vtkExodusIICacheKey& key)
 {
   static vtkDataArray* dummy = nullptr;
 
-  vtkExodusIICacheRef it = this->Cache.find( key );
-  if ( it != this->Cache.end() )
+  vtkExodusIICacheRef it = this->Cache.find(key);
+  if (it != this->Cache.end())
   {
-    this->LRU.erase( it->second->LRUEntry );
-    it->second->LRUEntry = this->LRU.insert( this->LRU.begin(), it );
+    this->LRU.erase(it->second->LRUEntry);
+    it->second->LRUEntry = this->LRU.insert(this->LRU.begin(), it);
     return it->second->Value;
   }
 
@@ -206,25 +210,25 @@ vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
   return dummy;
 }
 
-int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key )
+int vtkExodusIICache::Invalidate(const vtkExodusIICacheKey& key)
 {
-  vtkExodusIICacheRef it = this->Cache.find( key );
-  if ( it != this->Cache.end() )
+  vtkExodusIICacheRef it = this->Cache.find(key);
+  if (it != this->Cache.end())
   {
 #ifdef VTK_EXO_DBG_CACHE
-    cout << "Dropping " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( it->second->Value ) << "\n";
+    cout << "Dropping " << VTK_EXO_PRT_KEY(it->first) << VTK_EXO_PRT_ARR(it->second->Value) << "\n";
 #endif // VTK_EXO_DBG_CACHE
-    this->LRU.erase( it->second->LRUEntry );
-    if ( it->second->Value )
+    this->LRU.erase(it->second->LRUEntry);
+    if (it->second->Value)
     {
       this->Size -= it->second->Value->GetActualMemorySize() / 1024.;
     }
     delete it->second;
-    this->Cache.erase( it );
+    this->Cache.erase(it);
 
-    if ( this->Size <= 0 )
+    if (this->Size <= 0)
     {
-      if ( this->Cache.empty() )
+      if (this->Cache.empty())
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff
@@ -235,34 +239,34 @@ int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key )
   return 0;
 }
 
-int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern )
+int vtkExodusIICache::Invalidate(const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern)
 {
   vtkExodusIICacheRef it;
   int nDropped = 0;
   it = this->Cache.begin();
-  while ( it != this->Cache.end() )
+  while (it != this->Cache.end())
   {
-    if ( ! it->first.match( key, pattern ) )
+    if (!it->first.match(key, pattern))
     {
       ++it;
       continue;
     }
 
 #ifdef VTK_EXO_DBG_CACHE
-    cout << "Dropping " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( it->second->Value ) << "\n";
+    cout << "Dropping " << VTK_EXO_PRT_KEY(it->first) << VTK_EXO_PRT_ARR(it->second->Value) << "\n";
 #endif // VTK_EXO_DBG_CACHE
-    this->LRU.erase( it->second->LRUEntry );
-    if ( it->second->Value )
+    this->LRU.erase(it->second->LRUEntry);
+    if (it->second->Value)
     {
       this->Size -= it->second->Value->GetActualMemorySize() / 1024.;
     }
     vtkExodusIICacheRef tmpIt = it++;
     delete tmpIt->second;
-    this->Cache.erase( tmpIt );
+    this->Cache.erase(tmpIt);
 
-    if ( this->Size <= 0 )
+    if (this->Size <= 0)
     {
-      if ( this->Cache.empty() )
+      if (this->Cache.empty())
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff
@@ -277,9 +281,9 @@ void vtkExodusIICache::RecomputeSize()
 {
   this->Size = 0.;
   vtkExodusIICacheRef it;
-  for ( it = this->Cache.begin(); it != this->Cache.end(); ++it )
+  for (it = this->Cache.begin(); it != this->Cache.end(); ++it)
   {
-    if ( it->second->Value )
+    if (it->second->Value)
     {
       this->Size += (double)it->second->Value->GetActualMemorySize() / 1024.;
     }

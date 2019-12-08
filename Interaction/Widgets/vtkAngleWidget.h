@@ -66,18 +66,17 @@
  *
  * @sa
  * vtkHandleWidget vtkDistanceWidget
-*/
+ */
 
 #ifndef vtkAngleWidget_h
 #define vtkAngleWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAngleRepresentation;
 class vtkHandleWidget;
 class vtkAngleWidgetCallback;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkAngleWidget : public vtkAbstractWidget
 {
@@ -85,13 +84,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkAngleWidget *New();
+  static vtkAngleWidget* New();
 
   //@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkAngleWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkAngleWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -107,8 +106,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkAngleRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkAngleRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -118,8 +119,10 @@ public:
   /**
    * Return the representation as a vtkAngleRepresentation.
    */
-  vtkAngleRepresentation *GetAngleRepresentation()
-    {return reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep);}
+  vtkAngleRepresentation* GetAngleRepresentation()
+  {
+    return reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * A flag indicates whether the angle is valid. The angle value only becomes
@@ -139,7 +142,12 @@ public:
    * transitions to Define state. Once placed, the widget enters the Manipulate state.
    */
 
-  enum {Start=0,Define,Manipulate};
+  enum
+  {
+    Start = 0,
+    Define,
+    Manipulate
+  };
 
   //@{
   /**
@@ -159,8 +167,7 @@ public:
   /**
    * Return the current widget state.
    */
-  virtual int GetWidgetState()
-    {return this->WidgetState;}
+  virtual int GetWidgetState() { return this->WidgetState; }
 
 protected:
   vtkAngleWidget();
@@ -177,12 +184,12 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
 
   // The positioning handle widgets
-  vtkHandleWidget *Point1Widget;
-  vtkHandleWidget *CenterWidget;
-  vtkHandleWidget *Point2Widget;
-  vtkAngleWidgetCallback *AngleWidgetCallback1;
-  vtkAngleWidgetCallback *AngleWidgetCenterCallback;
-  vtkAngleWidgetCallback *AngleWidgetCallback2;
+  vtkHandleWidget* Point1Widget;
+  vtkHandleWidget* CenterWidget;
+  vtkHandleWidget* Point2Widget;
+  vtkAngleWidgetCallback* AngleWidgetCallback1;
+  vtkAngleWidgetCallback* AngleWidgetCenterCallback;
+  vtkAngleWidgetCallback* AngleWidgetCallback2;
 
   // Methods invoked when the handles at the
   // end points of the widget are manipulated

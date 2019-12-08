@@ -20,18 +20,20 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include "vtksys/MD5.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkTypeUInt64Array.h"
+#include "vtksys/MD5.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <sstream>
@@ -73,6 +75,7 @@ vtkDataSet* vtkJSONDataSetWriter::GetInput(int port)
 std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
   vtkDataSetAttributes* fields, const char* className)
 {
+  int nbArrayWritten = 0;
   vtkIdType activeTCoords = -1;
   vtkIdType activeScalars = -1;
   vtkIdType activeNormals = -1;
@@ -94,21 +97,30 @@ std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
               << "\n    \"arrays\": [\n";
   for (vtkIdType idx = 0; idx < nbFields; idx++)
   {
-    if (idx)
+    vtkDataArray* field = fields->GetArray(idx);
+    if (field == nullptr)
+    {
+      continue;
+    }
+
+    if (nbArrayWritten)
     {
       jsonSnippet << ",\n";
     }
-    vtkDataArray* field = fields->GetArray(idx);
+
     jsonSnippet << "      { \"data\": " << this->WriteArray(field, "vtkDataArray") << "}";
 
     // Update active field if any
-    activeTCoords = field == fields->GetTCoords() ? idx : activeTCoords;
-    activeScalars = field == fields->GetScalars() ? idx : activeScalars;
-    activeNormals = field == fields->GetNormals() ? idx : activeNormals;
-    activeGlobalIds = field == fields->GetGlobalIds() ? idx : activeGlobalIds;
-    activeTensors = field == fields->GetTensors() ? idx : activeTensors;
-    activePedigreeIds = field == fields->GetPedigreeIds() ? idx : activePedigreeIds;
-    activeVectors = field == fields->GetVectors() ? idx : activeVectors;
+    activeTCoords = field == fields->GetTCoords() ? nbArrayWritten : activeTCoords;
+    activeScalars = field == fields->GetScalars() ? nbArrayWritten : activeScalars;
+    activeNormals = field == fields->GetNormals() ? nbArrayWritten : activeNormals;
+    activeGlobalIds = field == fields->GetGlobalIds() ? nbArrayWritten : activeGlobalIds;
+    activeTensors = field == fields->GetTensors() ? nbArrayWritten : activeTensors;
+    activePedigreeIds = field == fields->GetPedigreeIds() ? nbArrayWritten : activePedigreeIds;
+    activeVectors = field == fields->GetVectors() ? nbArrayWritten : activeVectors;
+
+    // Increment the number of array currently in the list
+    nbArrayWritten++;
   }
   jsonSnippet << "\n    ],\n"
               << "    \"activeTCoords\": " << activeTCoords << ",\n"
@@ -143,9 +155,11 @@ std::string vtkJSONDataSetWriter::WriteArray(
   std::stringstream ss;
   ss << "{\n"
      << INDENT << "  \"vtkClass\": \"" << className << "\",\n"
-     << INDENT << "  \"name\": \"" << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
+     << INDENT << "  \"name\": \""
+     << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
      << INDENT << "  \"numberOfComponents\": " << array->GetNumberOfComponents() << ",\n"
-     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert) << "Array\",\n"
+     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert)
+     << "Array\",\n"
      << INDENT << "  \"ref\": {\n"
      << INDENT << "     \"encode\": \"LittleEndian\",\n"
      << INDENT << "     \"basepath\": \"data\",\n"
@@ -214,7 +228,8 @@ void vtkJSONDataSetWriter::WriteData()
                  << this->WriteArray(points->GetData(), "vtkPoints", "points").c_str();
 
     // Verts
-    vtkDataArray* cells = polyData->GetVerts()->GetData();
+    vtkNew<vtkIdTypeArray> cells;
+    polyData->GetVerts()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"verts\": "
@@ -222,7 +237,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Lines
-    cells = polyData->GetLines()->GetData();
+    polyData->GetLines()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"lines\": "
@@ -230,7 +245,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Strips
-    cells = polyData->GetStrips()->GetData();
+    polyData->GetStrips()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"strips\": "
@@ -238,7 +253,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Polys
-    cells = polyData->GetPolys()->GetData();
+    polyData->GetPolys()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"polys\": "
@@ -380,8 +395,8 @@ std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversi
   vtkJSONDataSetWriter::ComputeMD5(content, size, hash);
 
   std::stringstream ss;
-  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_" << input->GetNumberOfValues()
-     << "-" << hash.c_str();
+  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_"
+     << input->GetNumberOfValues() << "-" << hash.c_str();
 
   return ss.str();
 }

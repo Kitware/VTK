@@ -23,16 +23,11 @@
 class vtkViewNodeFactory::vtkInternals
 {
 public:
-  std::map<std::string, vtkViewNode *(*)()> Overrides;
+  std::map<std::string, vtkViewNode* (*)()> Overrides;
 
-  vtkInternals()
-  {
-  }
+  vtkInternals() {}
 
-  ~vtkInternals()
-  {
-      this->Overrides.clear();
-  }
+  ~vtkInternals() { this->Overrides.clear(); }
 };
 
 //============================================================================
@@ -57,14 +52,14 @@ void vtkViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNodeFactory::CreateNode(vtkObject *who)
+vtkViewNode* vtkViewNodeFactory::CreateNode(vtkObject* who)
 {
   if (!who)
   {
     return nullptr;
   }
-  const char *forwhom = who->GetClassName();
-  vtkViewNode *vn = this->CreateNode(forwhom);
+  const char* forwhom = who->GetClassName();
+  vtkViewNode* vn = this->CreateNode(forwhom);
   if (vn)
   {
     vn->SetRenderable(who);
@@ -73,22 +68,20 @@ vtkViewNode *vtkViewNodeFactory::CreateNode(vtkObject *who)
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNodeFactory::CreateNode(const char *forwhom)
+vtkViewNode* vtkViewNodeFactory::CreateNode(const char* forwhom)
 {
-  if (this->Internals->Overrides.find(forwhom) ==
-      this->Internals->Overrides.end())
+  if (this->Internals->Overrides.find(forwhom) == this->Internals->Overrides.end())
   {
     return nullptr;
   }
-  vtkViewNode *(*func)() = this->Internals->Overrides.find(forwhom)->second;
-  vtkViewNode *vn = func();
+  vtkViewNode* (*func)() = this->Internals->Overrides.find(forwhom)->second;
+  vtkViewNode* vn = func();
   vn->SetMyFactory(this);
   return vn;
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNodeFactory::RegisterOverride
-  (const char *name, vtkViewNode *(*func)())
+void vtkViewNodeFactory::RegisterOverride(const char* name, vtkViewNode* (*func)())
 {
   this->Internals->Overrides[name] = func;
 }

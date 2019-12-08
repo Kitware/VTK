@@ -16,9 +16,9 @@
 #include "vtkTextRenderer.h"
 
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
@@ -27,7 +27,7 @@
 #include <string>
 
 //----------------------------------------------------------------------------
-int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
+int TestMathTextFreeTypeTextRenderer(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -47,7 +47,8 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   if (strcmp(tren->GetClassName(), "vtkMathTextFreeTypeTextRenderer") != 0)
   {
     std::cerr << "Object factory returning unrecognized vtkTextRenderer "
-                 "override: " << tren->GetClassName() << std::endl;
+                 "override: "
+              << tren->GetClassName() << std::endl;
     return EXIT_FAILURE;
   }
 

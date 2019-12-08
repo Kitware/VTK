@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkCompositeDataWriter.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkHierarchicalBoxDataSet.h"
@@ -28,13 +30,11 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 vtkStandardNewMacro(vtkCompositeDataWriter);
@@ -57,7 +57,7 @@ vtkCompositeDataSet* vtkCompositeDataWriter::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkCompositeDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
@@ -66,18 +66,17 @@ int vtkCompositeDataWriter::FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 void vtkCompositeDataWriter::WriteData()
 {
-  ostream *fp;
-  vtkCompositeDataSet *input = this->GetInput();
+  ostream* fp;
+  vtkCompositeDataSet* input = this->GetInput();
 
-  vtkDebugMacro(<<"Writing vtk composite data...");
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  vtkDebugMacro(<< "Writing vtk composite data...");
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
     if (fp)
     {
-      if(this->FileName)
+      if (this->FileName)
       {
-        vtkErrorMacro(
-          "Ran out of disk space; deleting file: " << this->FileName);
+        vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
       }
@@ -91,14 +90,12 @@ void vtkCompositeDataWriter::WriteData()
   }
 
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(input);
-  vtkHierarchicalBoxDataSet* hb =
-    vtkHierarchicalBoxDataSet::SafeDownCast(input);
+  vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::SafeDownCast(input);
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(input);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(input);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(input);
   vtkPartitionedDataSet* pd = vtkPartitionedDataSet::SafeDownCast(input);
-  vtkPartitionedDataSetCollection* pdc =
-    vtkPartitionedDataSetCollection::SafeDownCast(input);
+  vtkPartitionedDataSetCollection* pdc = vtkPartitionedDataSetCollection::SafeDownCast(input);
   if (mb)
   {
     *fp << "DATASET MULTIBLOCK\n";
@@ -164,20 +161,17 @@ void vtkCompositeDataWriter::WriteData()
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkMultiBlockDataSet* mb)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiBlockDataSet* mb)
 {
   *fp << "CHILDREN " << mb->GetNumberOfBlocks() << "\n";
-  for (unsigned int cc=0; cc < mb->GetNumberOfBlocks(); cc++)
+  for (unsigned int cc = 0; cc < mb->GetNumberOfBlocks(); cc++)
   {
     vtkDataObject* child = mb->GetBlock(cc);
-    *fp << "CHILD " << (child? child->GetDataObjectType() : -1);
+    *fp << "CHILD " << (child ? child->GetDataObjectType() : -1);
     // add name if present.
-    if (mb->HasMetaData(cc) &&
-      mb->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    if (mb->HasMetaData(cc) && mb->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
     {
-      *fp << " [" << mb->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())
-          << "]";
+      *fp << " [" << mb->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME()) << "]";
     }
     *fp << "\n";
     if (child)
@@ -195,20 +189,17 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkMultiPieceDataSet* mp)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkMultiPieceDataSet* mp)
 {
   *fp << "CHILDREN " << mp->GetNumberOfPieces() << "\n";
-  for (unsigned int cc=0; cc < mp->GetNumberOfPieces(); cc++)
+  for (unsigned int cc = 0; cc < mp->GetNumberOfPieces(); cc++)
   {
     vtkDataObject* child = mp->GetPieceAsDataObject(cc);
-    *fp << "CHILD " << (child? child->GetDataObjectType() : -1);
+    *fp << "CHILD " << (child ? child->GetDataObjectType() : -1);
     // add name if present.
-    if (mp->HasMetaData(cc) &&
-      mp->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    if (mp->HasMetaData(cc) && mp->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
     {
-      *fp << " [" << mp->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())
-          << "]";
+      *fp << " [" << mp->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME()) << "]";
     }
     *fp << "\n";
 
@@ -226,14 +217,13 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkPartitionedDataSet* pd)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataSet* pd)
 {
   *fp << "CHILDREN " << pd->GetNumberOfPartitions() << "\n";
-  for (unsigned int cc=0; cc < pd->GetNumberOfPartitions(); cc++)
+  for (unsigned int cc = 0; cc < pd->GetNumberOfPartitions(); cc++)
   {
     vtkDataSet* partition = pd->GetPartition(cc);
-    *fp << "CHILD " << (partition? partition->GetDataObjectType() : -1);
+    *fp << "CHILD " << (partition ? partition->GetDataObjectType() : -1);
     *fp << "\n";
 
     if (partition)
@@ -250,14 +240,13 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkPartitionedDataSetCollection* pd)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataSetCollection* pd)
 {
   *fp << "CHILDREN " << pd->GetNumberOfPartitionedDataSets() << "\n";
-  for (unsigned int cc=0; cc < pd->GetNumberOfPartitionedDataSets(); cc++)
+  for (unsigned int cc = 0; cc < pd->GetNumberOfPartitionedDataSets(); cc++)
   {
     vtkPartitionedDataSet* dataset = pd->GetPartitionedDataSet(cc);
-    *fp << "CHILD " << (dataset? dataset->GetDataObjectType() : -1);
+    *fp << "CHILD " << (dataset ? dataset->GetDataObjectType() : -1);
     *fp << "\n";
 
     if (dataset)
@@ -274,8 +263,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkHierarchicalBoxDataSet* hb)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxDataSet* hb)
 {
   (void)fp;
   (void)hb;
@@ -284,8 +272,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(
-  ostream* fp, vtkOverlappingAMR* oamr)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* oamr)
 {
   vtkAMRInformation* amrInfo = oamr->GetAMRInfo();
 
@@ -297,17 +284,14 @@ bool vtkCompositeDataWriter::WriteCompositeData(
   unsigned int num_levels = oamr->GetNumberOfLevels();
   // we'll dump out all level information and then the individual blocks.
   *fp << "LEVELS " << num_levels << "\n";
-  for (unsigned int level=0; level < num_levels; level++)
+  for (unsigned int level = 0; level < num_levels; level++)
   {
     // <num datasets> <spacing x> <spacing y> <spacing z>
     double spacing[3];
     amrInfo->GetSpacing(level, spacing);
 
-    *fp << oamr->GetNumberOfDataSets(level)
-        << " " << spacing[0]
-        << " " << spacing[1]
-        << " " << spacing[2]
-        << "\n";
+    *fp << oamr->GetNumberOfDataSets(level) << " " << spacing[0] << " " << spacing[1] << " "
+        << spacing[2] << "\n";
   }
 
   // now dump the amr boxes, if any.
@@ -319,29 +303,28 @@ bool vtkCompositeDataWriter::WriteCompositeData(
   idata->SetName("IntMetaData");
   idata->SetNumberOfComponents(6);
   idata->SetNumberOfTuples(amrInfo->GetTotalNumberOfBlocks());
-  unsigned int metadata_index=0;
-  for (unsigned int level=0; level < num_levels; level++)
+  unsigned int metadata_index = 0;
+  for (unsigned int level = 0; level < num_levels; level++)
   {
     unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
-    for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+    for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
     {
-      const vtkAMRBox& box = oamr->GetAMRBox(level,index);
+      const vtkAMRBox& box = oamr->GetAMRBox(level, index);
       int tuple[6];
       box.Serialize(tuple);
       idata->SetTypedTuple(metadata_index, tuple);
     }
   }
-  *fp << "AMRBOXES "
-      << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
-  this->WriteArray(fp, idata->GetDataType(), idata,
-    "", idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
+  *fp << "AMRBOXES " << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
+  this->WriteArray(fp, idata->GetDataType(), idata, "", idata->GetNumberOfTuples(),
+    idata->GetNumberOfComponents());
 
   // now dump the real data, if any.
-  metadata_index=0;
-  for (unsigned int level=0; level < num_levels; level++)
+  metadata_index = 0;
+  for (unsigned int level = 0; level < num_levels; level++)
   {
     unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
-    for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+    for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
     {
       vtkUniformGrid* dataset = oamr->GetDataSet(level, index);
       if (dataset)
@@ -363,8 +346,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
-  vtkNonOverlappingAMR* hb)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkNonOverlappingAMR* hb)
 {
   (void)fp;
   (void)hb;
@@ -382,8 +364,7 @@ bool vtkCompositeDataWriter::WriteBlock(ostream* fp, vtkDataObject* block)
   writer->SetInputData(block);
   if (writer->Write())
   {
-    fp->write(
-      reinterpret_cast<const char*>(writer->GetBinaryOutputString()),
+    fp->write(reinterpret_cast<const char*>(writer->GetBinaryOutputString()),
       writer->GetOutputStringLength());
     success = true;
   }

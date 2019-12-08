@@ -20,6 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
@@ -32,14 +34,14 @@ vtkCellLinks::~vtkCellLinks()
 //----------------------------------------------------------------------------
 void vtkCellLinks::Initialize()
 {
-  if ( this->Array != nullptr )
+  if (this->Array != nullptr)
   {
-    for (vtkIdType i=0; i<=this->MaxId; i++)
+    for (vtkIdType i = 0; i <= this->MaxId; i++)
     {
-      delete [] this->Array[i].cells;
+      delete[] this->Array[i].cells;
     }
 
-    delete [] this->Array;
+    delete[] this->Array;
     this->Array = nullptr;
   }
 }
@@ -47,15 +49,15 @@ void vtkCellLinks::Initialize()
 //----------------------------------------------------------------------------
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
-  static vtkCellLinks::Link linkInit = {0,nullptr};
+  static vtkCellLinks::Link linkInit = { 0, nullptr };
 
   this->Size = sz;
-  delete [] this->Array;
+  delete[] this->Array;
   this->Array = new vtkCellLinks::Link[sz];
   this->Extend = ext;
   this->MaxId = -1;
 
-  for (vtkIdType i=0; i < sz; i++)
+  for (vtkIdType i = 0; i < sz; i++)
   {
     this->Array[i] = linkInit;
   }
@@ -65,7 +67,7 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 // Allocate memory for the list of lists of cell ids.
 void vtkCellLinks::AllocateLinks(vtkIdType n)
 {
-  for (vtkIdType i=0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
   {
     this->Array[i].cells = new vtkIdType[this->Array[i].ncells];
   }
@@ -75,9 +77,8 @@ void vtkCellLinks::AllocateLinks(vtkIdType n)
 // Reclaim any unused memory.
 void vtkCellLinks::Squeeze()
 {
-  this->Resize (this->MaxId+1);
+  this->Resize(this->MaxId + 1);
 }
-
 
 //----------------------------------------------------------------------------
 void vtkCellLinks::Reset()
@@ -89,14 +90,14 @@ void vtkCellLinks::Reset()
 //
 // Private function does "reallocate"
 //
-vtkCellLinks::Link *vtkCellLinks::Resize(vtkIdType sz)
+vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
 {
   vtkIdType i;
-  vtkCellLinks::Link *newArray;
+  vtkCellLinks::Link* newArray;
   vtkIdType newSize;
-  vtkCellLinks::Link linkInit = {0,nullptr};
+  vtkCellLinks::Link linkInit = { 0, nullptr };
 
-  if ( sz >= this->Size )
+  if (sz >= this->Size)
   {
     newSize = this->Size + sz;
   }
@@ -107,18 +108,18 @@ vtkCellLinks::Link *vtkCellLinks::Resize(vtkIdType sz)
 
   newArray = new vtkCellLinks::Link[newSize];
 
-  for (i=0; i<sz && i<this->Size; i++)
+  for (i = 0; i < sz && i < this->Size; i++)
   {
     newArray[i] = this->Array[i];
   }
 
-  for (i=this->Size; i < newSize ; i++)
+  for (i = this->Size; i < newSize; i++)
   {
     newArray[i] = linkInit;
   }
 
   this->Size = newSize;
-  delete [] this->Array;
+  delete[] this->Array;
   this->Array = newArray;
 
   return this->Array;
@@ -126,29 +127,28 @@ vtkCellLinks::Link *vtkCellLinks::Resize(vtkIdType sz)
 
 //----------------------------------------------------------------------------
 // Build the link list array.
-void vtkCellLinks::BuildLinks(vtkDataSet *data)
+void vtkCellLinks::BuildLinks(vtkDataSet* data)
 {
   vtkIdType numPts = data->GetNumberOfPoints();
   vtkIdType numCells = data->GetNumberOfCells();
   int j;
   vtkIdType cellId;
-  vtkIdType *linkLoc;
 
   // fill out lists with number of references to cells
-  linkLoc = new vtkIdType[numPts];
-  memset(linkLoc, 0, numPts*sizeof(vtkIdType));
+  std::vector<vtkIdType> linkLoc(numPts, 0);
 
   // Use fast path if polydata
-  if ( data->GetDataObjectType() == VTK_POLY_DATA )
+  if (data->GetDataObjectType() == VTK_POLY_DATA)
   {
-    vtkIdType *pts, npts;
+    vtkIdType npts;
+    const vtkIdType* pts;
 
-    vtkPolyData *pdata = static_cast<vtkPolyData *>(data);
+    vtkPolyData* pdata = static_cast<vtkPolyData*>(data);
     // traverse data to determine number of uses of each point
-    for (cellId=0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
       pdata->GetCellPoints(cellId, npts, pts);
-      for (j=0; j < npts; j++)
+      for (j = 0; j < npts; j++)
       {
         this->IncrementLinkCount(pts[j]);
       }
@@ -158,27 +158,27 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     this->AllocateLinks(numPts);
     this->MaxId = numPts - 1;
 
-    for (cellId=0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
       pdata->GetCellPoints(cellId, npts, pts);
-      for (j=0; j < npts; j++)
+      for (j = 0; j < npts; j++)
       {
         this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);
       }
     }
   }
 
-  else //any other type of dataset
+  else // any other type of dataset
   {
     vtkIdType numberOfPoints, ptId;
-    vtkGenericCell *cell=vtkGenericCell::New();
+    vtkGenericCell* cell = vtkGenericCell::New();
 
     // traverse data to determine number of uses of each point
-    for (cellId=0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
-      data->GetCell(cellId,cell);
+      data->GetCell(cellId, cell);
       numberOfPoints = cell->GetNumberOfPoints();
-      for (j=0; j < numberOfPoints; j++)
+      for (j = 0; j < numberOfPoints; j++)
       {
         this->IncrementLinkCount(cell->PointIds->GetId(j));
       }
@@ -188,20 +188,18 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     this->AllocateLinks(numPts);
     this->MaxId = numPts - 1;
 
-    for (cellId=0; cellId < numCells; cellId++)
+    for (cellId = 0; cellId < numCells; cellId++)
     {
-      data->GetCell(cellId,cell);
+      data->GetCell(cellId, cell);
       numberOfPoints = cell->GetNumberOfPoints();
-      for (j=0; j < numberOfPoints; j++)
+      for (j = 0; j < numberOfPoints; j++)
       {
         ptId = cell->PointIds->GetId(j);
         this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);
       }
     }
     cell->Delete();
-  }//end else
-
-  delete [] linkLoc;
+  } // end else
 }
 
 //----------------------------------------------------------------------------
@@ -209,7 +207,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 // is the initial size of the list.
 vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
 {
-  if ( ++this->MaxId >= this->Size )
+  if (++this->MaxId >= this->Size)
   {
     this->Resize(this->MaxId + 1);
   }
@@ -220,24 +218,24 @@ vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
 //----------------------------------------------------------------------------
 unsigned long vtkCellLinks::GetActualMemorySize()
 {
-  vtkIdType size=0;
+  vtkIdType size = 0;
   vtkIdType ptId;
 
-  for (ptId=0; ptId < (this->MaxId+1); ptId++)
+  for (ptId = 0; ptId < (this->MaxId + 1); ptId++)
   {
     size += this->GetNcells(ptId);
   }
 
-  size *= sizeof(int *); //references to cells
-  size += (this->MaxId+1) * sizeof(vtkCellLinks::Link); //list of cell lists
+  size *= sizeof(int*);                                   // references to cells
+  size += (this->MaxId + 1) * sizeof(vtkCellLinks::Link); // list of cell lists
 
-  return static_cast<unsigned long>( ceil(size/1024.0)); // kibibytes
+  return static_cast<unsigned long>(ceil(size / 1024.0)); // kibibytes
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLinks::DeepCopy(vtkAbstractCellLinks *src)
+void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
 {
-  vtkCellLinks *clinks = static_cast<vtkCellLinks*>(src);
+  vtkCellLinks* clinks = static_cast<vtkCellLinks*>(src);
   this->Allocate(clinks->Size, clinks->Extend);
   memcpy(this->Array, clinks->Array, this->Size * sizeof(vtkCellLinks::Link));
   this->MaxId = clinks->MaxId;
@@ -246,7 +244,7 @@ void vtkCellLinks::DeepCopy(vtkAbstractCellLinks *src)
 //----------------------------------------------------------------------------
 void vtkCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";

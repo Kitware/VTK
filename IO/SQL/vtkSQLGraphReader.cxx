@@ -25,9 +25,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
-#include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLQuery.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 #include "vtkTableToGraph.h"
@@ -77,7 +77,8 @@ void vtkSQLGraphReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XField: " << (this->XField ? this->XField : "(null)") << endl;
   os << indent << "YField: " << (this->YField ? this->YField : "(null)") << endl;
   os << indent << "ZField: " << (this->ZField ? this->ZField : "(null)") << endl;
-  os << indent << "VertexIdField: " << (this->VertexIdField ? this->VertexIdField : "(null)") << endl;
+  os << indent << "VertexIdField: " << (this->VertexIdField ? this->VertexIdField : "(null)")
+     << endl;
   os << indent << "SourceField: " << (this->SourceField ? this->SourceField : "(null)") << endl;
   os << indent << "TargetField: " << (this->TargetField ? this->TargetField : "(null)") << endl;
   os << indent << "EdgeQuery: " << (this->EdgeQuery ? "" : "(null)") << endl;
@@ -96,9 +97,7 @@ vtkCxxSetObjectMacro(vtkSQLGraphReader, VertexQuery, vtkSQLQuery);
 vtkCxxSetObjectMacro(vtkSQLGraphReader, EdgeQuery, vtkSQLQuery);
 
 int vtkSQLGraphReader::RequestData(
-  vtkInformation*,
-  vtkInformationVector** ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Check for valid inputs
   if (this->EdgeQuery == nullptr)
@@ -189,13 +188,10 @@ int vtkSQLGraphReader::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int piece = -1;
   int npieces = -1;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    npieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    npieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   }
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
   output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
@@ -207,16 +203,13 @@ int vtkSQLGraphReader::RequestData(
 }
 
 int vtkSQLGraphReader::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** ,
-  vtkInformationVector*)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current
-    || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
-    || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
+  vtkDataObject* current = this->GetExecutive()->GetOutputData(0);
+  if (!current || (this->Directed && !vtkDirectedGraph::SafeDownCast(current)) ||
+    (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
   {
-    vtkGraph *output = 0;
+    vtkGraph* output = 0;
     if (this->Directed)
     {
       output = vtkDirectedGraph::New();

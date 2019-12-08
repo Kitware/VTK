@@ -13,34 +13,32 @@
 
 =========================================================================*/
 #include "vtkAffineRepresentation2D.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkActor2D.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkProperty2D.h"
-#include "vtkTextProperty.h"
 #include "vtkAssemblyPath.h"
-#include "vtkMath.h"
-#include "vtkInteractorObserver.h"
-#include "vtkLine.h"
-#include "vtkCoordinate.h"
-#include "vtkGlyph2D.h"
-#include "vtkCursor2D.h"
-#include "vtkPolyDataAlgorithm.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCoordinate.h"
+#include "vtkCursor2D.h"
+#include "vtkGlyph2D.h"
+#include "vtkInteractorObserver.h"
 #include "vtkLeaderActor2D.h"
-#include "vtkTransform.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataAlgorithm.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextMapper.h"
-#include "vtkActor2D.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform.h"
 #include "vtkWindow.h"
-
 
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
-vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);
-vtkCxxSetObjectMacro(vtkAffineRepresentation2D,SelectedProperty,vtkProperty2D);
-vtkCxxSetObjectMacro(vtkAffineRepresentation2D,TextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkAffineRepresentation2D, Property, vtkProperty2D);
+vtkCxxSetObjectMacro(vtkAffineRepresentation2D, SelectedProperty, vtkProperty2D);
+vtkCxxSetObjectMacro(vtkAffineRepresentation2D, TextProperty, vtkTextProperty);
 
 #define VTK_CIRCLE_RESOLUTION 64
 
@@ -81,7 +79,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->BoxPoints = vtkPoints::New();
   this->BoxPoints->SetNumberOfPoints(4);
   this->BoxCellArray = vtkCellArray::New();
-  this->BoxCellArray->EstimateSize(1,4);
+  this->BoxCellArray->AllocateEstimate(1, 4);
   this->BoxCellArray->InsertNextCell(5);
   this->BoxCellArray->InsertCellPoint(0);
   this->BoxCellArray->InsertCellPoint(1);
@@ -100,7 +98,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->HBoxPoints = vtkPoints::New();
   this->HBoxPoints->SetNumberOfPoints(4);
   this->HBoxCellArray = vtkCellArray::New();
-  this->HBoxCellArray->EstimateSize(1,4);
+  this->HBoxCellArray->AllocateEstimate(1, 4);
   this->HBoxCellArray->InsertNextCell(5);
   this->HBoxCellArray->InsertCellPoint(0);
   this->HBoxCellArray->InsertCellPoint(1);
@@ -121,7 +119,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->CirclePoints = vtkPoints::New();
   this->CirclePoints->SetNumberOfPoints(VTK_CIRCLE_RESOLUTION);
   this->CircleCellArray = vtkCellArray::New();
-  this->CircleCellArray->EstimateSize(1,VTK_CIRCLE_RESOLUTION+1);
+  this->CircleCellArray->AllocateEstimate(1, VTK_CIRCLE_RESOLUTION + 1);
   this->Circle = vtkPolyData::New();
   this->Circle->SetPoints(this->CirclePoints);
   this->Circle->SetLines(this->CircleCellArray);
@@ -133,7 +131,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
 
   this->HCirclePoints = vtkPoints::New();
   this->HCircleCellArray = vtkCellArray::New();
-  this->HCircleCellArray->EstimateSize(1,VTK_CIRCLE_RESOLUTION+1);
+  this->HCircleCellArray->AllocateEstimate(1, VTK_CIRCLE_RESOLUTION + 1);
   this->HCircle = vtkPolyData::New();
   this->HCircle->SetPoints(this->HCirclePoints);
   this->HCircle->SetLines(this->HCircleCellArray);
@@ -233,23 +231,22 @@ vtkAffineRepresentation2D::~vtkAffineRepresentation2D()
 }
 
 //-------------------------------------------------------------------------
-void vtkAffineRepresentation2D::GetTransform(vtkTransform *t)
+void vtkAffineRepresentation2D::GetTransform(vtkTransform* t)
 {
   this->CurrentTransform->Identity();
-  this->CurrentTransform->Translate(this->Origin[0],this->Origin[1],this->Origin[2]);
-  if ( this->InteractionState != vtkAffineRepresentation::MoveOrigin &&
-       this->InteractionState != vtkAffineRepresentation::MoveOriginX &&
-       this->InteractionState != vtkAffineRepresentation::MoveOriginY )
+  this->CurrentTransform->Translate(this->Origin[0], this->Origin[1], this->Origin[2]);
+  if (this->InteractionState != vtkAffineRepresentation::MoveOrigin &&
+    this->InteractionState != vtkAffineRepresentation::MoveOriginX &&
+    this->InteractionState != vtkAffineRepresentation::MoveOriginY)
   {
-    this->CurrentTransform->Translate(this->CurrentTranslation[0],
-                                      this->CurrentTranslation[1],
-                                      this->CurrentTranslation[2]);
+    this->CurrentTransform->Translate(
+      this->CurrentTranslation[0], this->CurrentTranslation[1], this->CurrentTranslation[2]);
   }
 
   this->ApplyShear();
-  this->CurrentTransform->RotateZ( vtkMath::DegreesFromRadians( this->CurrentAngle ) );
+  this->CurrentTransform->RotateZ(vtkMath::DegreesFromRadians(this->CurrentAngle));
   this->CurrentTransform->Scale(this->CurrentScale[0], this->CurrentScale[1], 1.0);
-  this->CurrentTransform->Translate(-this->Origin[0],-this->Origin[1],-this->Origin[2]);
+  this->CurrentTransform->Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
 
   t->DeepCopy(this->CurrentTransform);
   t->Concatenate(this->TotalTransform);
@@ -268,8 +265,7 @@ void vtkAffineRepresentation2D::PlaceWidget(double bounds[6])
 //-------------------------------------------------------------------------
 void vtkAffineRepresentation2D::SetOrigin(double ox, double oy, double oz)
 {
-  if ( this->Origin[0] != ox || this->Origin[1] != oy ||
-       this->Origin[2] != oz )
+  if (this->Origin[0] != ox || this->Origin[1] != oy || this->Origin[2] != oz)
   {
     this->Origin[0] = ox;
     this->Origin[1] = oy;
@@ -283,7 +279,7 @@ void vtkAffineRepresentation2D::SetOrigin(double ox, double oy, double oz)
 //-------------------------------------------------------------------------
 int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
 {
-  double p[3], tol=static_cast<double>(this->Tolerance);
+  double p[3], tol = static_cast<double>(this->Tolerance);
   p[0] = static_cast<double>(X);
   p[1] = static_cast<double>(Y);
   p[2] = 0.0;
@@ -291,8 +287,8 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
 
   // Box---------------------------------------------------------------
   double p1[3], p2[3], p3[3], p4[3];
-  this->BoxPoints->GetPoint(0,p1); //min corner
-  this->BoxPoints->GetPoint(2,p3); //max corner
+  this->BoxPoints->GetPoint(0, p1); // min corner
+  this->BoxPoints->GetPoint(2, p3); // max corner
 
   int e0 = (p[1] >= (p1[1] - tol) && p[1] <= (p1[1] + tol));
   int e1 = (p[0] >= (p3[0] - tol) && p[0] <= (p3[0] + tol));
@@ -300,27 +296,27 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
   int e3 = (p[0] >= (p1[0] - tol) && p[0] <= (p1[0] + tol));
 
   // Points
-  if ( e0 && e1 )
+  if (e0 && e1)
   {
     this->InteractionState = vtkAffineRepresentation::ScaleSE;
   }
-  else if ( e1 && e2 )
+  else if (e1 && e2)
   {
     this->InteractionState = vtkAffineRepresentation::ScaleNE;
   }
-  else if ( e2 && e3 )
+  else if (e2 && e3)
   {
     this->InteractionState = vtkAffineRepresentation::ScaleNW;
   }
-  else if ( e3 && e0 )
+  else if (e3 && e0)
   {
     this->InteractionState = vtkAffineRepresentation::ScaleSW;
   }
 
   // Edges
-  else if ( e0 )
+  else if (e0)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::ScaleSEdge;
     }
@@ -329,9 +325,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
       this->InteractionState = vtkAffineRepresentation::ShearSEdge;
     }
   }
-  else if ( e1 )
+  else if (e1)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::ScaleEEdge;
     }
@@ -340,9 +336,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
       this->InteractionState = vtkAffineRepresentation::ShearEEdge;
     }
   }
-  else if ( e2 )
+  else if (e2)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::ScaleNEdge;
     }
@@ -351,9 +347,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
       this->InteractionState = vtkAffineRepresentation::ShearNEdge;
     }
   }
-  else if ( e3 )
+  else if (e3)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::ScaleWEdge;
     }
@@ -364,16 +360,15 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
   }
 
   // Return if necessary
-  if ( this->InteractionState != vtkAffineRepresentation::Outside )
+  if (this->InteractionState != vtkAffineRepresentation::Outside)
   {
     return this->InteractionState;
   }
 
   // Circle---------------------------------------------------------------
-  double radius = sqrt((p[0]-this->DisplayOrigin[0])*(p[0]-this->DisplayOrigin[0]) +
-                       (p[1]-this->DisplayOrigin[1])*(p[1]-this->DisplayOrigin[1]));
-  if ( radius >= (this->CurrentRadius - tol) &&
-       radius <= (this->CurrentRadius + tol) )
+  double radius = sqrt((p[0] - this->DisplayOrigin[0]) * (p[0] - this->DisplayOrigin[0]) +
+    (p[1] - this->DisplayOrigin[1]) * (p[1] - this->DisplayOrigin[1]));
+  if (radius >= (this->CurrentRadius - tol) && radius <= (this->CurrentRadius + tol))
   {
     this->InteractionState = vtkAffineRepresentation::Rotate;
     return this->InteractionState;
@@ -390,9 +385,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
   e2 = (p[1] >= (p3[1] - tol) && p[1] <= (p4[1] + tol));
   e3 = (p[0] >= (p3[0] - tol) && p[0] <= (p3[0] + tol));
 
-  if ( e0 && e1 && e2 && e3 )
+  if (e0 && e1 && e2 && e3)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::Translate;
     }
@@ -401,9 +396,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
       this->InteractionState = vtkAffineRepresentation::MoveOrigin;
     }
   }
-  else if ( e0 && e1 )
+  else if (e0 && e1)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::TranslateX;
     }
@@ -412,9 +407,9 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
       this->InteractionState = vtkAffineRepresentation::MoveOriginX;
     }
   }
-  else if ( e2 && e3 )
+  else if (e2 && e3)
   {
-    if ( ! modify )
+    if (!modify)
     {
       this->InteractionState = vtkAffineRepresentation::TranslateY;
     }
@@ -435,15 +430,13 @@ void vtkAffineRepresentation2D::StartWidgetInteraction(double startEventPos[2])
   this->StartEventPosition[0] = startEventPos[0];
   this->StartEventPosition[1] = startEventPos[1];
   this->StartEventPosition[2] = 0.0;
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,
-                                               startEventPos[0], startEventPos[1], 0.0,
-                                               this->StartWorldPosition);
+  vtkInteractorObserver::ComputeDisplayToWorld(
+    this->Renderer, startEventPos[0], startEventPos[1], 0.0, this->StartWorldPosition);
 
   this->StartAngle = VTK_FLOAT_MAX;
 
   this->WidgetInteraction(startEventPos);
 }
-
 
 //----------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
@@ -456,15 +449,21 @@ void vtkAffineRepresentation2D::WidgetInteraction(double eventPos[2])
   // Dispatch to the correct method
   switch (this->InteractionState)
   {
-    case vtkAffineRepresentation::ShearWEdge: case vtkAffineRepresentation::ShearEEdge:
-    case vtkAffineRepresentation::ShearNEdge: case vtkAffineRepresentation::ShearSEdge:
+    case vtkAffineRepresentation::ShearWEdge:
+    case vtkAffineRepresentation::ShearEEdge:
+    case vtkAffineRepresentation::ShearNEdge:
+    case vtkAffineRepresentation::ShearSEdge:
       this->Shear(eventPos);
       break;
 
-    case vtkAffineRepresentation::ScaleNE: case vtkAffineRepresentation::ScaleSW:
-    case vtkAffineRepresentation::ScaleNW: case vtkAffineRepresentation::ScaleSE:
-    case vtkAffineRepresentation::ScaleNEdge: case vtkAffineRepresentation::ScaleSEdge:
-    case vtkAffineRepresentation::ScaleWEdge: case vtkAffineRepresentation::ScaleEEdge:
+    case vtkAffineRepresentation::ScaleNE:
+    case vtkAffineRepresentation::ScaleSW:
+    case vtkAffineRepresentation::ScaleNW:
+    case vtkAffineRepresentation::ScaleSE:
+    case vtkAffineRepresentation::ScaleNEdge:
+    case vtkAffineRepresentation::ScaleSEdge:
+    case vtkAffineRepresentation::ScaleWEdge:
+    case vtkAffineRepresentation::ScaleEEdge:
       this->Scale(eventPos);
       break;
 
@@ -472,9 +471,11 @@ void vtkAffineRepresentation2D::WidgetInteraction(double eventPos[2])
       this->Rotate(eventPos);
       break;
 
-    case vtkAffineRepresentation::TranslateX: case vtkAffineRepresentation::TranslateY:
+    case vtkAffineRepresentation::TranslateX:
+    case vtkAffineRepresentation::TranslateY:
     case vtkAffineRepresentation::Translate:
-    case vtkAffineRepresentation::MoveOriginX: case vtkAffineRepresentation::MoveOriginY:
+    case vtkAffineRepresentation::MoveOriginX:
+    case vtkAffineRepresentation::MoveOriginY:
     case vtkAffineRepresentation::MoveOrigin:
       this->Translate(eventPos);
       break;
@@ -488,7 +489,7 @@ void vtkAffineRepresentation2D::WidgetInteraction(double eventPos[2])
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation2D::EndWidgetInteraction(double vtkNotUsed(eventPos) [2])
+void vtkAffineRepresentation2D::EndWidgetInteraction(double vtkNotUsed(eventPos)[2])
 {
   // Have to play games here because of the "pipelined" nature of the
   // transformations.
@@ -545,10 +546,14 @@ void vtkAffineRepresentation2D::Translate(double eventPos[2])
       break;
   }
 
-  x1[0] += dpos[0]; x2[0] += dpos[0];
-  y1[0] += dpos[0]; y2[0] += dpos[0];
-  x1[1] += dpos[1]; x2[1] += dpos[1];
-  y1[1] += dpos[1]; y2[1] += dpos[1];
+  x1[0] += dpos[0];
+  x2[0] += dpos[0];
+  y1[0] += dpos[0];
+  y2[0] += dpos[0];
+  x1[1] += dpos[1];
+  x2[1] += dpos[1];
+  y1[1] += dpos[1];
+  y2[1] += dpos[1];
 
   this->HXAxis->GetPositionCoordinate()->SetValue(x1);
   this->HXAxis->GetPosition2Coordinate()->SetValue(x2);
@@ -558,20 +563,19 @@ void vtkAffineRepresentation2D::Translate(double eventPos[2])
   // Update the transform
   double wxyz[4];
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,
-                                               this->StartEventPosition[0]+dpos[0],
-                                               this->StartEventPosition[1]+dpos[1], 0.0,
-                                               wxyz);
+    this->StartEventPosition[0] + dpos[0], this->StartEventPosition[1] + dpos[1], 0.0, wxyz);
 
-  this->CurrentTranslation[0] = wxyz[0]-this->StartWorldPosition[0];
-  this->CurrentTranslation[1] = wxyz[1]-this->StartWorldPosition[1];
-  this->CurrentTranslation[2] = wxyz[2]-this->StartWorldPosition[2];
+  this->CurrentTranslation[0] = wxyz[0] - this->StartWorldPosition[0];
+  this->CurrentTranslation[1] = wxyz[1] - this->StartWorldPosition[1];
+  this->CurrentTranslation[2] = wxyz[2] - this->StartWorldPosition[2];
 
   // Draw the text if necessary
-  if ( this->DisplayText )
+  if (this->DisplayText)
   {
     char str[256];
-    snprintf(str,sizeof(str),"(%0.2g, %0.2g)", this->CurrentTranslation[0], this->CurrentTranslation[1]);
-    this->UpdateText(str,eventPos);
+    snprintf(
+      str, sizeof(str), "(%0.2g, %0.2g)", this->CurrentTranslation[0], this->CurrentTranslation[1]);
+    this->UpdateText(str, eventPos);
   }
 }
 
@@ -585,12 +589,12 @@ void vtkAffineRepresentation2D::Scale(double eventPos[2])
 
   double x0[3], x1[3], x2[3], x3[3];
   double p0[3], p1[3], p2[3], p3[3];
-  this->BoxPoints->GetPoint(0,x0);
-  this->BoxPoints->GetPoint(1,x1);
-  this->BoxPoints->GetPoint(2,x2);
-  this->BoxPoints->GetPoint(3,x3);
+  this->BoxPoints->GetPoint(0, x0);
+  this->BoxPoints->GetPoint(1, x1);
+  this->BoxPoints->GetPoint(2, x2);
+  this->BoxPoints->GetPoint(3, x3);
 
-  double xChange=0.0, yChange=0.0;
+  double xChange = 0.0, yChange = 0.0;
   switch (this->InteractionState)
   {
     case vtkAffineRepresentation::ScaleEEdge:
@@ -621,44 +625,44 @@ void vtkAffineRepresentation2D::Scale(double eventPos[2])
 
     case vtkAffineRepresentation::ScaleNW:
       xChange = -1.0;
-      yChange =  1.0;
+      yChange = 1.0;
       break;
 
     case vtkAffineRepresentation::ScaleSE:
-      xChange =  1.0;
+      xChange = 1.0;
       yChange = -1.0;
       break;
   }
 
-  p0[0] = x0[0] - xChange*d[0];
-  p1[0] = x1[0] + xChange*d[0];
-  p2[0] = x2[0] + xChange*d[0];
-  p3[0] = x3[0] - xChange*d[0];
+  p0[0] = x0[0] - xChange * d[0];
+  p1[0] = x1[0] + xChange * d[0];
+  p2[0] = x2[0] + xChange * d[0];
+  p3[0] = x3[0] - xChange * d[0];
 
-  p0[1] = x0[1] - yChange*d[1];
-  p1[1] = x1[1] - yChange*d[1];
-  p2[1] = x2[1] + yChange*d[1];
-  p3[1] = x3[1] + yChange*d[1];
+  p0[1] = x0[1] - yChange * d[1];
+  p1[1] = x1[1] - yChange * d[1];
+  p2[1] = x2[1] + yChange * d[1];
+  p3[1] = x3[1] + yChange * d[1];
 
   p0[2] = x0[2];
   p1[2] = x1[2];
   p2[2] = x2[2];
   p3[2] = x3[2];
 
-  this->HBoxPoints->SetPoint(0,p0);
-  this->HBoxPoints->SetPoint(1,p1);
-  this->HBoxPoints->SetPoint(2,p2);
-  this->HBoxPoints->SetPoint(3,p3);
+  this->HBoxPoints->SetPoint(0, p0);
+  this->HBoxPoints->SetPoint(1, p1);
+  this->HBoxPoints->SetPoint(2, p2);
+  this->HBoxPoints->SetPoint(3, p3);
   this->HBoxPoints->Modified();
 
-  this->CurrentScale[0] = (p1[0]-p0[0]) / (x1[0]-x0[0]);
-  this->CurrentScale[1] = (p2[1]-p1[1]) / (x2[1]-x1[1]);
+  this->CurrentScale[0] = (p1[0] - p0[0]) / (x1[0] - x0[0]);
+  this->CurrentScale[1] = (p2[1] - p1[1]) / (x2[1] - x1[1]);
 
-  if ( this->DisplayText )
+  if (this->DisplayText)
   {
     char str[256];
-    snprintf(str,sizeof(str),"(%0.2g, %0.2g)", this->CurrentScale[0], this->CurrentScale[1]);
-    this->UpdateText(str,eventPos);
+    snprintf(str, sizeof(str), "(%0.2g, %0.2g)", this->CurrentScale[0], this->CurrentScale[1]);
+    this->UpdateText(str, eventPos);
   }
 }
 
@@ -669,29 +673,29 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   // Compute the initial selection angle, and then the change in angle between
   // the starting point and subsequent points. The angle is constrained so that
   // it is in the range (-Pi < deltaAngle <= Pi).
-  if ( this->StartAngle >= VTK_FLOAT_MAX )
+  if (this->StartAngle >= VTK_FLOAT_MAX)
   {
     double delX = this->StartEventPosition[0] - this->DisplayOrigin[0];
     double delY = this->StartEventPosition[1] - this->DisplayOrigin[1];
-    this->StartAngle = atan2( delY, delX );
+    this->StartAngle = atan2(delY, delX);
     deltaAngle = 0.0;
   }
   else
   {
     double delEX = eventPos[0] - this->DisplayOrigin[0];
     double delEY = eventPos[1] - this->DisplayOrigin[1];
-    double angle2 = atan2(delEY,delEX);
+    double angle2 = atan2(delEY, delEX);
     // Compute difference in angle
     deltaAngle = angle2 - this->StartAngle;
-    if ( fabs(deltaAngle) > vtkMath::Pi() ) //angle always less than Pi
+    if (fabs(deltaAngle) > vtkMath::Pi()) // angle always less than Pi
     {
-      if ( deltaAngle > 0 )
+      if (deltaAngle > 0)
       {
-        deltaAngle = -2.0*vtkMath::Pi() + deltaAngle;
+        deltaAngle = -2.0 * vtkMath::Pi() + deltaAngle;
       }
       else
       {
-        deltaAngle =  2.0*vtkMath::Pi() + deltaAngle;
+        deltaAngle = 2.0 * vtkMath::Pi() + deltaAngle;
       }
     }
   }
@@ -704,13 +708,14 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   this->HCirclePoints->Reset();
   this->HCircleCellArray->Reset();
   this->HCircleCellArray->InsertNextCell(0);
-  double p[3]; p[2] = 0.0;
+  double p[3];
+  p[2] = 0.0;
   double theta, delTheta = 2.0 * vtkMath::Pi() / VTK_CIRCLE_RESOLUTION;
-  int numDivs = static_cast<int>(fabs(deltaAngle)/delTheta) + 1;
+  int numDivs = static_cast<int>(fabs(deltaAngle) / delTheta) + 1;
   delTheta = deltaAngle / numDivs;
-  for ( int i=0;  i <= numDivs; i++ )
+  for (int i = 0; i <= numDivs; i++)
   {
-    theta = this->StartAngle + i*delTheta;
+    theta = this->StartAngle + i * delTheta;
     p[0] = this->DisplayOrigin[0] + this->CurrentRadius * cos(theta);
     p[1] = this->DisplayOrigin[1] + this->CurrentRadius * sin(theta);
     pid = this->HCirclePoints->InsertNextPoint(p);
@@ -719,24 +724,21 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   pid = this->HCirclePoints->InsertNextPoint(this->DisplayOrigin);
   this->HCircleCellArray->InsertCellPoint(pid);
   this->HCircleCellArray->InsertCellPoint(0);
-  this->HCircleCellArray->UpdateCellCount(this->HCirclePoints->GetNumberOfPoints()+1);
+  this->HCircleCellArray->UpdateCellCount(this->HCirclePoints->GetNumberOfPoints() + 1);
   this->HCirclePoints->Modified();
 
-  if ( this->DisplayText )
+  if (this->DisplayText)
   {
     char str[256];
-    double angle = vtkMath::DegreesFromRadians( deltaAngle );
-    snprintf(str,sizeof(str),"(%1.1f)", angle);
-    this->UpdateText(str,eventPos);
+    double angle = vtkMath::DegreesFromRadians(deltaAngle);
+    snprintf(str, sizeof(str), "(%1.1f)", angle);
+    this->UpdateText(str, eventPos);
   }
 }
 
 //----------------------------------------------------------------------
 // Fiddle with matrix to apply shear
-void vtkAffineRepresentation2D::ApplyShear()
-{
-}
-
+void vtkAffineRepresentation2D::ApplyShear() {}
 
 //----------------------------------------------------------------------
 void vtkAffineRepresentation2D::Shear(double eventPos[2])
@@ -748,12 +750,12 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
 
   double x0[3], x1[3], x2[3], x3[3];
   double p0[3], p1[3], p2[3], p3[3];
-  this->BoxPoints->GetPoint(0,x0);
-  this->BoxPoints->GetPoint(1,x1);
-  this->BoxPoints->GetPoint(2,x2);
-  this->BoxPoints->GetPoint(3,x3);
+  this->BoxPoints->GetPoint(0, x0);
+  this->BoxPoints->GetPoint(1, x1);
+  this->BoxPoints->GetPoint(2, x2);
+  this->BoxPoints->GetPoint(3, x3);
 
-  double xChange=0.0, yChange=0.0;
+  double xChange = 0.0, yChange = 0.0;
   switch (this->InteractionState)
   {
     case vtkAffineRepresentation::ShearSEdge:
@@ -773,33 +775,33 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
       break;
   }
 
-  p0[0] = x0[0] + xChange*d[0];
-  p1[0] = x1[0] + xChange*d[0];
-  p2[0] = x2[0] - xChange*d[0];
-  p3[0] = x3[0] - xChange*d[0];
+  p0[0] = x0[0] + xChange * d[0];
+  p1[0] = x1[0] + xChange * d[0];
+  p2[0] = x2[0] - xChange * d[0];
+  p3[0] = x3[0] - xChange * d[0];
 
-  p0[1] = x0[1] - yChange*d[1];
-  p1[1] = x1[1] + yChange*d[1];
-  p2[1] = x2[1] + yChange*d[1];
-  p3[1] = x3[1] - yChange*d[1];
+  p0[1] = x0[1] - yChange * d[1];
+  p1[1] = x1[1] + yChange * d[1];
+  p2[1] = x2[1] + yChange * d[1];
+  p3[1] = x3[1] - yChange * d[1];
 
   p0[2] = x0[2];
   p1[2] = x1[2];
   p2[2] = x2[2];
   p3[2] = x3[2];
 
-  this->HBoxPoints->SetPoint(0,p0);
-  this->HBoxPoints->SetPoint(1,p1);
-  this->HBoxPoints->SetPoint(2,p2);
-  this->HBoxPoints->SetPoint(3,p3);
+  this->HBoxPoints->SetPoint(0, p0);
+  this->HBoxPoints->SetPoint(1, p1);
+  this->HBoxPoints->SetPoint(2, p2);
+  this->HBoxPoints->SetPoint(3, p3);
   this->HBoxPoints->Modified();
 
   // Update the current shear
   double sx = (x2[1] - x1[1]) / 2.0;
-  double sy = ((p0[0]-x0[0]) + (p0[1]-x0[1]));
-  double angle = vtkMath::DegreesFromRadians( atan2(sy,sx) );
-  if ( this->InteractionState == vtkAffineRepresentation::ShearNEdge ||
-       this->InteractionState == vtkAffineRepresentation::ShearSEdge )
+  double sy = ((p0[0] - x0[0]) + (p0[1] - x0[1]));
+  double angle = vtkMath::DegreesFromRadians(atan2(sy, sx));
+  if (this->InteractionState == vtkAffineRepresentation::ShearNEdge ||
+    this->InteractionState == vtkAffineRepresentation::ShearSEdge)
   {
     this->CurrentShear[0] = angle;
   }
@@ -809,21 +811,21 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
   }
 
   // Display text if requested
-  if ( this->DisplayText )
+  if (this->DisplayText)
   {
     char str[256];
-    snprintf(str,sizeof(str),"(%0.2g)", angle);
-    this->UpdateText(str,eventPos);
+    snprintf(str, sizeof(str), "(%0.2g)", angle);
+    this->UpdateText(str, eventPos);
   }
 }
 
 //----------------------------------------------------------------------
 void vtkAffineRepresentation2D::Highlight(int highlight)
 {
-  if ( highlight ) //enable appropriate highlight actor
+  if (highlight) // enable appropriate highlight actor
   {
     // Make the text visible
-    if ( this->DisplayText )
+    if (this->DisplayText)
     {
       this->TextActor->VisibilityOn();
     }
@@ -836,12 +838,18 @@ void vtkAffineRepresentation2D::Highlight(int highlight)
 
     switch (this->InteractionState)
     {
-      case vtkAffineRepresentation::ShearWEdge: case vtkAffineRepresentation::ShearEEdge:
-      case vtkAffineRepresentation::ShearNEdge: case vtkAffineRepresentation::ShearSEdge:
-      case vtkAffineRepresentation::ScaleNE: case vtkAffineRepresentation::ScaleSW:
-      case vtkAffineRepresentation::ScaleNW: case vtkAffineRepresentation::ScaleSE:
-      case vtkAffineRepresentation::ScaleNEdge: case vtkAffineRepresentation::ScaleSEdge:
-      case vtkAffineRepresentation::ScaleWEdge: case vtkAffineRepresentation::ScaleEEdge:
+      case vtkAffineRepresentation::ShearWEdge:
+      case vtkAffineRepresentation::ShearEEdge:
+      case vtkAffineRepresentation::ShearNEdge:
+      case vtkAffineRepresentation::ShearSEdge:
+      case vtkAffineRepresentation::ScaleNE:
+      case vtkAffineRepresentation::ScaleSW:
+      case vtkAffineRepresentation::ScaleNW:
+      case vtkAffineRepresentation::ScaleSE:
+      case vtkAffineRepresentation::ScaleNEdge:
+      case vtkAffineRepresentation::ScaleSEdge:
+      case vtkAffineRepresentation::ScaleWEdge:
+      case vtkAffineRepresentation::ScaleEEdge:
         this->HBoxActor->VisibilityOn();
         break;
 
@@ -849,9 +857,11 @@ void vtkAffineRepresentation2D::Highlight(int highlight)
         this->HCircleActor->VisibilityOn();
         break;
 
-      case vtkAffineRepresentation::TranslateX: case vtkAffineRepresentation::TranslateY:
+      case vtkAffineRepresentation::TranslateX:
+      case vtkAffineRepresentation::TranslateY:
       case vtkAffineRepresentation::Translate:
-      case vtkAffineRepresentation::MoveOriginX: case vtkAffineRepresentation::MoveOriginY:
+      case vtkAffineRepresentation::MoveOriginX:
+      case vtkAffineRepresentation::MoveOriginY:
       case vtkAffineRepresentation::MoveOrigin:
         this->HXAxis->VisibilityOn();
         this->HYAxis->VisibilityOn();
@@ -875,16 +885,16 @@ void vtkAffineRepresentation2D::Highlight(int highlight)
 void vtkAffineRepresentation2D::CreateDefaultProperties()
 {
   this->Property = vtkProperty2D::New();
-  this->Property->SetColor(0.0,1.0,0.0);
+  this->Property->SetColor(0.0, 1.0, 0.0);
   this->Property->SetLineWidth(0.5);
 
   this->SelectedProperty = vtkProperty2D::New();
-  this->SelectedProperty->SetColor(1.0,0.0,0.0);
+  this->SelectedProperty->SetColor(1.0, 0.0, 0.0);
   this->SelectedProperty->SetLineWidth(1.0);
 
   this->TextProperty = vtkTextProperty::New();
   this->TextProperty->SetFontSize(12);
-  this->TextProperty->SetColor(1.0,0.0,0.0);
+  this->TextProperty->SetColor(1.0, 0.0, 0.0);
   this->TextProperty->SetBold(1);
   this->TextProperty->SetFontFamilyToArial();
   this->TextProperty->SetJustificationToLeft();
@@ -892,28 +902,27 @@ void vtkAffineRepresentation2D::CreateDefaultProperties()
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation2D::UpdateText(const char *text, double eventPos[2])
+void vtkAffineRepresentation2D::UpdateText(const char* text, double eventPos[2])
 {
   this->TextMapper->SetInput(text);
-  this->TextActor->SetPosition(eventPos[0]+7, eventPos[1]+7);
+  this->TextActor->SetPosition(eventPos[0] + 7, eventPos[1] + 7);
 }
-
 
 //----------------------------------------------------------------------
 void vtkAffineRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime ||
-       (this->Renderer && this->Renderer->GetVTKWindow() &&
-        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
+  if (this->GetMTime() > this->BuildTime ||
+    (this->Renderer && this->Renderer->GetVTKWindow() &&
+      this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
     // Determine where the origin is on the display
-    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, this->Origin[0], this->Origin[1],
-                                                 this->Origin[2], this->DisplayOrigin);
+    vtkInteractorObserver::ComputeWorldToDisplay(
+      this->Renderer, this->Origin[0], this->Origin[1], this->Origin[2], this->DisplayOrigin);
 
     // draw the box
     this->CurrentWidth = this->BoxWidth;
     this->CurrentWidth /= 2.0;
-    double p1[3], p2[3],p3[3], p4[3];
+    double p1[3], p2[3], p3[3], p4[3];
     p1[0] = this->DisplayOrigin[0] - this->CurrentWidth;
     p1[1] = this->DisplayOrigin[1] - this->CurrentWidth;
     p1[2] = 0.0;
@@ -926,29 +935,29 @@ void vtkAffineRepresentation2D::BuildRepresentation()
     p4[0] = this->DisplayOrigin[0] - this->CurrentWidth;
     p4[1] = this->DisplayOrigin[1] + this->CurrentWidth;
     p4[2] = 0.0;
-    this->BoxPoints->SetPoint(0,p1);
-    this->BoxPoints->SetPoint(1,p2);
-    this->BoxPoints->SetPoint(2,p3);
-    this->BoxPoints->SetPoint(3,p4);
+    this->BoxPoints->SetPoint(0, p1);
+    this->BoxPoints->SetPoint(1, p2);
+    this->BoxPoints->SetPoint(2, p3);
+    this->BoxPoints->SetPoint(3, p4);
     this->BoxPoints->Modified();
 
     // draw the circle
     int i;
     double theta, delTheta = 2.0 * vtkMath::Pi() / VTK_CIRCLE_RESOLUTION;
     this->CurrentRadius = this->CurrentWidth * 0.75;
-    this->CircleCellArray->InsertNextCell(VTK_CIRCLE_RESOLUTION+1);
-    for (i=0; i<VTK_CIRCLE_RESOLUTION; i++)
+    this->CircleCellArray->InsertNextCell(VTK_CIRCLE_RESOLUTION + 1);
+    for (i = 0; i < VTK_CIRCLE_RESOLUTION; i++)
     {
       theta = i * delTheta;
       p1[0] = this->DisplayOrigin[0] + this->CurrentRadius * cos(theta);
       p1[1] = this->DisplayOrigin[1] + this->CurrentRadius * sin(theta);
-      this->CirclePoints->SetPoint(i,p1);
+      this->CirclePoints->SetPoint(i, p1);
       this->CircleCellArray->InsertCellPoint(i);
     }
     this->CircleCellArray->InsertCellPoint(0);
 
     // draw the translation axes
-    this->CurrentAxesWidth = this->CurrentWidth * this->AxesWidth/this->BoxWidth;
+    this->CurrentAxesWidth = this->CurrentWidth * this->AxesWidth / this->BoxWidth;
     p1[0] = this->DisplayOrigin[0] - this->CurrentAxesWidth;
     p1[1] = this->DisplayOrigin[1];
     this->XAxis->GetPositionCoordinate()->SetValue(p1);
@@ -968,11 +977,10 @@ void vtkAffineRepresentation2D::BuildRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation2D::ShallowCopy(vtkProp *prop)
+void vtkAffineRepresentation2D::ShallowCopy(vtkProp* prop)
 {
-  vtkAffineRepresentation2D *rep =
-    vtkAffineRepresentation2D::SafeDownCast(prop);
-  if ( rep )
+  vtkAffineRepresentation2D* rep = vtkAffineRepresentation2D::SafeDownCast(prop);
+  if (rep)
   {
     this->SetProperty(rep->GetProperty());
     this->SetSelectedProperty(rep->GetSelectedProperty());
@@ -990,7 +998,7 @@ void vtkAffineRepresentation2D::ShallowCopy(vtkProp *prop)
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation2D::GetActors2D(vtkPropCollection *pc)
+void vtkAffineRepresentation2D::GetActors2D(vtkPropCollection* pc)
 {
   this->BoxActor->GetActors2D(pc);
   this->HBoxActor->GetActors2D(pc);
@@ -1003,7 +1011,7 @@ void vtkAffineRepresentation2D::GetActors2D(vtkPropCollection *pc)
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation2D::ReleaseGraphicsResources(vtkWindow *win)
+void vtkAffineRepresentation2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->TextActor->ReleaseGraphicsResources(win);
   this->BoxActor->ReleaseGraphicsResources(win);
@@ -1017,35 +1025,35 @@ void vtkAffineRepresentation2D::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------
-int vtkAffineRepresentation2D::RenderOverlay(vtkViewport *viewport)
+int vtkAffineRepresentation2D::RenderOverlay(vtkViewport* viewport)
 {
   this->BuildRepresentation();
 
   int count = 0;
-  if ( this->TextActor->GetVisibility() )
+  if (this->TextActor->GetVisibility())
   {
     count += this->TextActor->RenderOverlay(viewport);
   }
 
   count += this->BoxActor->RenderOverlay(viewport);
-  if ( this->HBoxActor->GetVisibility() )
+  if (this->HBoxActor->GetVisibility())
   {
     count += this->HBoxActor->RenderOverlay(viewport);
   }
 
   count += this->CircleActor->RenderOverlay(viewport);
-  if ( this->HCircleActor->GetVisibility() )
+  if (this->HCircleActor->GetVisibility())
   {
     count += this->HCircleActor->RenderOverlay(viewport);
   }
 
   count += this->XAxis->RenderOverlay(viewport);
   count += this->YAxis->RenderOverlay(viewport);
-  if ( this->HXAxis->GetVisibility() )
+  if (this->HXAxis->GetVisibility())
   {
     count += this->HXAxis->RenderOverlay(viewport);
   }
-  if ( this->HYAxis->GetVisibility() )
+  if (this->HYAxis->GetVisibility())
   {
     count += this->HYAxis->RenderOverlay(viewport);
   }
@@ -1053,59 +1061,57 @@ int vtkAffineRepresentation2D::RenderOverlay(vtkViewport *viewport)
   return count;
 }
 
-
 //----------------------------------------------------------------------
 void vtkAffineRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Display Text: " << (this->DisplayText ? "On\n" : "Off\n");
 
-  os << indent << "Origin: (" << this->Origin[0] << ","
-     << this->Origin[1] << "," << this->Origin[2] << ")\n";
+  os << indent << "Origin: (" << this->Origin[0] << "," << this->Origin[1] << "," << this->Origin[2]
+     << ")\n";
   os << indent << "Box Width: " << this->BoxWidth << "\n";
   os << indent << "Circle Width: " << this->CircleWidth << "\n";
   os << indent << "Axes Width: " << this->AxesWidth << "\n";
 
-  if ( this->TextProperty )
+  if (this->TextProperty)
   {
     os << indent << "Text Property:\n";
-    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
+    this->TextProperty->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Property: (none)\n";
   }
 
-  if ( this->Property )
+  if (this->Property)
   {
     os << indent << "Property:\n";
-    this->Property->PrintSelf(os,indent.GetNextIndent());
+    this->Property->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Property: (none)\n";
   }
 
-  if ( this->SelectedProperty )
+  if (this->SelectedProperty)
   {
     os << indent << "Selected Property:\n";
-    this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
+    this->SelectedProperty->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Selected Property: (none)\n";
   }
 
-  if ( this->TextProperty )
+  if (this->TextProperty)
   {
     os << indent << "Text Property:\n";
-    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
+    this->TextProperty->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Text Property: (none)\n";
   }
-
 }

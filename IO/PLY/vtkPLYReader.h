@@ -36,31 +36,31 @@
  *
  * @sa
  * vtkPLYWriter, vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkPLYReader_h
 #define vtkPLYReader_h
 
-#include "vtkIOPLYModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
+#include "vtkIOPLYModule.h" // For export macro
 
 class vtkStringArray;
 
 class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
 {
 public:
-  vtkTypeMacro(vtkPLYReader,vtkAbstractPolyDataReader);
+  vtkTypeMacro(vtkPLYReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with merging set to true.
    */
-  static vtkPLYReader *New();
+  static vtkPLYReader* New();
 
   /**
    * A simple, non-exhaustive check to see if a file is a valid ply file.
    */
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(const char* filename);
 
   vtkGetObjectMacro(Comments, vtkStringArray);
 
@@ -86,8 +86,6 @@ public:
   void SetInputString(const std::string& s) { this->InputString = s; }
   //@}
 
-
-
   /**
    * If true (default) and the "face" element has the property "texcoord" duplicate
    * face points if they have 2 or more different texture coordinates.
@@ -96,7 +94,6 @@ public:
    */
   vtkGetMacro(DuplicatePointsForFaceTexture, bool);
   vtkSetMacro(DuplicatePointsForFaceTexture, bool);
-
 
 protected:
   vtkPLYReader();
@@ -109,8 +106,8 @@ protected:
   // The input string.
   std::string InputString;
 
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
   vtkPLYReader(const vtkPLYReader&) = delete;
   void operator=(const vtkPLYReader&) = delete;

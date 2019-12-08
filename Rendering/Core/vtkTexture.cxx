@@ -16,20 +16,20 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkTransform.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTransform.h"
 
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkTexture)
+vtkAbstractObjectFactoryNewMacro(vtkTexture);
 //----------------------------------------------------------------------------
 
 // Construct object and initialize.
@@ -39,6 +39,7 @@ vtkTexture::vtkTexture()
   this->Repeat = 1;
   this->Interpolate = 0;
   this->EdgeClamp = 0;
+  this->MaximumAnisotropicFiltering = 4.0;
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
   this->PremultipliedAlpha = false;
   this->CubeMap = false;
@@ -58,9 +59,8 @@ vtkTexture::vtkTexture()
   this->RestrictPowerOf2ImageSmaller = 0;
 
   // By default select active point scalars.
-  this->SetInputArrayToProcess(0,0,0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
-    vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -76,14 +76,14 @@ vtkTexture::~vtkTexture()
     this->LookupTable->UnRegister(this);
   }
 
-  if(this->Transform != nullptr)
+  if (this->Transform != nullptr)
   {
     this->Transform->UnRegister(this);
   }
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkTexture::GetInput()
+vtkImageData* vtkTexture::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
@@ -105,9 +105,8 @@ void vtkTexture::SetCubeMap(bool val)
     this->SetNumberOfInputPorts(6);
     for (int i = 0; i < 6; ++i)
     {
-      this->SetInputArrayToProcess(i, i, 0,
-        vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
-        vtkDataSetAttributes::SCALARS);
+      this->SetInputArrayToProcess(
+        i, i, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
     }
   }
   else
@@ -119,7 +118,7 @@ void vtkTexture::SetCubeMap(bool val)
 }
 
 //----------------------------------------------------------------------------
-void vtkTexture::SetTransform(vtkTransform *transform)
+void vtkTexture::SetTransform(vtkTransform* transform)
 {
   if (transform == this->Transform)
   {
@@ -143,8 +142,9 @@ void vtkTexture::SetTransform(vtkTransform *transform)
 //----------------------------------------------------------------------------
 void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "MaximumAnisotropicFiltering: " << this->MaximumAnisotropicFiltering << "\n";
   os << indent << "Mipmap: " << (this->Mipmap ? "On\n" : "Off\n");
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
@@ -182,25 +182,25 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PremultipliedAlpha: " << (this->PremultipliedAlpha ? "On\n" : "Off\n");
 
-  if ( this->GetInput() )
+  if (this->GetInput())
   {
-    os << indent << "Input: (" << static_cast<void *>(this->GetInput()) << ")\n";
+    os << indent << "Input: (" << static_cast<void*>(this->GetInput()) << ")\n";
   }
   else
   {
     os << indent << "Input: (none)\n";
   }
-  if ( this->LookupTable )
+  if (this->LookupTable)
   {
     os << indent << "LookupTable:\n";
-    this->LookupTable->PrintSelf (os, indent.GetNextIndent ());
+    this->LookupTable->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "LookupTable: (none)\n";
   }
 
-  if ( this->MappedScalars )
+  if (this->MappedScalars)
   {
     os << indent << "Mapped Scalars: " << this->MappedScalars << "\n";
   }
@@ -209,7 +209,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Mapped Scalars: (none)\n";
   }
 
-  if ( this->Transform )
+  if (this->Transform)
   {
     os << indent << "Transform: " << this->Transform << "\n";
   }
@@ -242,11 +242,12 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "Subtract\n";
       break;
   }
-  os << indent << "RestrictPowerOf2ImageSmaller:   " << (this->RestrictPowerOf2ImageSmaller ? "On\n" : "Off\n");
+  os << indent << "RestrictPowerOf2ImageSmaller:   "
+     << (this->RestrictPowerOf2ImageSmaller ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
-unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
+unsigned char* vtkTexture::MapScalarsToColors(vtkDataArray* scalars)
 {
   // if there is no lookup table, create one
   if (this->LookupTable == nullptr)
@@ -254,7 +255,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
     this->LookupTable = vtkLookupTable::New();
     this->LookupTable->Register(this);
     this->LookupTable->Delete();
-    this->LookupTable->Build ();
+    this->LookupTable->Build();
     this->SelfAdjustingTableRange = 1;
   }
   else
@@ -278,23 +279,23 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
   // map the scalars to colors
   this->MappedScalars = this->LookupTable->MapScalars(scalars, this->ColorMode, -1);
 
-  return this->MappedScalars? reinterpret_cast<unsigned char*>(
-    this->MappedScalars->GetVoidPointer(0)): nullptr;
+  return this->MappedScalars
+    ? reinterpret_cast<unsigned char*>(this->MappedScalars->GetVoidPointer(0))
+    : nullptr;
 }
 
 //----------------------------------------------------------------------------
-void vtkTexture::Render(vtkRenderer *ren)
+void vtkTexture::Render(vtkRenderer* ren)
 {
   for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
   {
-    vtkAlgorithm* inputAlg = this->GetInputAlgorithm(i,0);
+    vtkAlgorithm* inputAlg = this->GetInputAlgorithm(i, 0);
 
-    if (inputAlg) //load texture map
+    if (inputAlg) // load texture map
     {
       vtkInformation* inInfo = this->GetInputInformation();
       // We do not want more than requested.
-      inInfo->Set(
-        vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
       // Updating the whole extent may not be necessary.
       inputAlg->UpdateWholeExtent();
@@ -306,21 +307,19 @@ void vtkTexture::Render(vtkRenderer *ren)
 //----------------------------------------------------------------------------
 int vtkTexture::IsTranslucent()
 {
-  if(this->GetMTime() <= this->TranslucentComputationTime
-      && (this->GetInput() == nullptr ||
-          (this->GetInput()->GetMTime() <= this->TranslucentComputationTime)))
+  if (this->GetMTime() <= this->TranslucentComputationTime &&
+    (this->GetInput() == nullptr ||
+      (this->GetInput()->GetMTime() <= this->TranslucentComputationTime)))
     return this->TranslucentCachedResult;
 
-  if(this->GetInputAlgorithm())
+  if (this->GetInputAlgorithm())
   {
     vtkAlgorithm* inpAlg = this->GetInputAlgorithm();
     inpAlg->UpdateWholeExtent();
   }
 
-  if(this->GetInput() == nullptr ||
-      this->GetInput()->GetPointData()->GetScalars() == nullptr ||
-      this->GetInput()->GetPointData()->GetScalars()
-              ->GetNumberOfComponents()%2)
+  if (this->GetInput() == nullptr || this->GetInput()->GetPointData()->GetScalars() == nullptr ||
+    this->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents() % 2)
   {
     this->TranslucentCachedResult = 0;
   }
@@ -332,14 +331,16 @@ int vtkTexture::IsTranslucent()
     bool hasTransparentPixel = false;
     bool hasOpaquePixel = false;
     bool hasTranslucentPixel = false;
-    for(vtkIdType i = 0; i < scal->GetNumberOfTuples(); i++)
+    for (vtkIdType i = 0; i < scal->GetNumberOfTuples(); i++)
     {
       double alpha = scal->GetTuple(i)[alphaid];
-      if(alpha <= 0)
+      if (alpha <= 0)
       {
         hasTransparentPixel = true;
       }
-      else if(((scal->GetDataType() == VTK_FLOAT || scal->GetDataType() == VTK_DOUBLE) && alpha >= 1.0) || alpha == scal->GetDataTypeMax())
+      else if (((scal->GetDataType() == VTK_FLOAT || scal->GetDataType() == VTK_DOUBLE) &&
+                 alpha >= 1.0) ||
+        alpha == scal->GetDataTypeMax())
       {
         hasOpaquePixel = true;
       }
@@ -348,10 +349,10 @@ int vtkTexture::IsTranslucent()
         hasTranslucentPixel = true;
       }
       // stop the computation if there are translucent pixels
-      if(hasTranslucentPixel || (this->Interpolate && hasTransparentPixel && hasOpaquePixel))
+      if (hasTranslucentPixel || (this->Interpolate && hasTransparentPixel && hasOpaquePixel))
         break;
     }
-    if(hasTranslucentPixel || (this->Interpolate && hasTransparentPixel && hasOpaquePixel))
+    if (hasTranslucentPixel || (this->Interpolate && hasTransparentPixel && hasOpaquePixel))
     {
       this->TranslucentCachedResult = 1;
     }

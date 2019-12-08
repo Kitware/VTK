@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkXMLImageDataWriter.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMatrix3x3.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
@@ -57,7 +57,7 @@ const char* vtkXMLImageDataWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
+void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
   vtkImageData* input = this->GetInput();
@@ -67,8 +67,7 @@ void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLImageDataWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkXMLImageDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;

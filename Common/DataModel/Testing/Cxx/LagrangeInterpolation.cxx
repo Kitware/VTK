@@ -2,34 +2,34 @@
 
 #include "vtkMultiBaselineRegressionTest.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
-#include "vtkDoubleArray.h"
 
+#include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkXMLPolyDataWriter.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+#include "vtkXMLPolyDataWriter.h"
 
 #include "vtkAxis.h"
+#include "vtkChartXY.h"
 #include "vtkColor.h"
 #include "vtkColorSeries.h"
-#include "vtkRenderWindow.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkPlot.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include <math.h>
 
@@ -37,36 +37,36 @@
 
 using namespace vtk;
 
-template<int N, typename T, typename U>
+template <int N, typename T, typename U>
 void printShape(const int order[N], const T& rst, U& shape)
 {
   if (N != 3 || order[0] != 2 || order[1] != 2 || order[2] != 2)
-    {
+  {
     return;
-    }
+  }
 
   std::cout << "  ";
-  for (int i = 0; i < 3; ++ i)
-    {
+  for (int i = 0; i < 3; ++i)
+  {
     std::cout.width(4);
     std::cout << " " << order[i];
-    }
+  }
   std::cout << "  / (";
-  for (int i = 0; i < 3; ++ i)
-    {
+  for (int i = 0; i < 3; ++i)
+  {
     std::cout.width(3);
     std::cout << " " << (rst[i] >= 0 ? "+" : "") << rst[i];
-    }
+  }
   std::cout << " ) :";
   typename U::const_iterator it;
   for (it = shape.begin(); it != shape.end(); ++it)
-    {
+  {
     std::cout << " " << (*it > 0 ? "+" : "") << *it;
-    }
+  }
   std::cout << "\n";
 }
 
-template<typename T>
+template <typename T>
 bool testShape(const int order[3], T& shape, int nonzeroidx)
 {
   typename T::const_iterator it;
@@ -74,23 +74,24 @@ bool testShape(const int order[3], T& shape, int nonzeroidx)
   bool ok = true;
 
   if (order[0] != 2 || order[1] != 2 || order[2] != 2)
-    {
+  {
     return ok;
-    }
+  }
 
   for (it = shape.begin(); it != shape.end(); ++it, ++i)
-    {
+  {
     bool tval = fabs(*it - (i == nonzeroidx ? 1.0 : 0.0)) < 1e-7;
     if (!tval)
-      {
-      std::cerr << "  ERROR: Expected shape[" << i << "] == " << (i == nonzeroidx ? 1 : 0) << " got " << *it << "\n";
-      }
-    ok &= tval;
+    {
+      std::cerr << "  ERROR: Expected shape[" << i << "] == " << (i == nonzeroidx ? 1 : 0)
+                << " got " << *it << "\n";
     }
+    ok &= tval;
+  }
   return ok;
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 void InsertTableRow(int& row, T& all, const U& shape)
 {
   typename T::iterator ait = all.begin();
@@ -100,13 +101,13 @@ void InsertTableRow(int& row, T& all, const U& shape)
   int delta = 0;
   typename U::const_iterator sit;
   for (sit = shape.begin(); ait != all.end() && sit != shape.end(); ++ait, ++sit, ++delta)
-    {
+  {
     (*ait)->SetValue(row, *sit + 2.0 * delta);
-    }
+  }
   ++row;
 }
 
-template<int N, typename T, typename U>
+template <int N, typename T, typename U>
 vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpts, U method)
 {
   vtkIdType numtests = testpts->GetNumberOfPoints();
@@ -115,9 +116,9 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
   vtkSmartPointer<vtkTable> out = vtkSmartPointer<vtkTable>::New();
   int ss = 1;
   for (int oo = 0; oo < N; ++oo)
-    {
+  {
     ss *= (order[oo] + 1);
-    }
+  }
   int nd = 16;
   int nn = nd * (numtests - 1) + 1;
   double dd = 1. / nd;
@@ -135,7 +136,7 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
   std::vector<vtkDoubleArray*> all(ss + 1);
   all[0] = xcol.GetPointer();
   for (int i = 0; i < ss; ++i)
-    {
+  {
     vtkNew<vtkDoubleArray> col;
     std::ostringstream cname;
     cname << "Shape " << i;
@@ -143,12 +144,12 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
     col->SetNumberOfTuples(nn);
     all[i + 1] = col.GetPointer();
     out->AddColumn(col.GetPointer());
-    }
+  }
 
   bool ok = true;
   int row = 0;
   for (unsigned i = 0; i < static_cast<unsigned>(numtests); ++i)
-    {
+  {
     vtkVector3d pcoord(testpts->GetPoint(i));
     method(order, pcoord.GetData(), &shape[0]);
     printShape<N>(order, pcoord, shape);
@@ -157,26 +158,26 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
     InsertTableRow(row, all, shape);
 
     if (i + 1 < static_cast<unsigned>(numtests))
-      { // Interpolate between this test point and next, saving to output table.
+    { // Interpolate between this test point and next, saving to output table.
       vtkVector3d p0(testpts->GetPoint(i + 1));
       vtkVector3d p1(testpts->GetPoint(i));
       for (double xx = dd; xx < 1.0; xx += dd)
-        {
+      {
         vtkVector3d xp = p0 * xx + p1 * (1. - xx);
         method(order, xp.GetData(), &shape[0]);
         rst->SetTuple(row, xp.GetData());
         InsertTableRow(row, all, shape);
-        }
       }
     }
+  }
   if (!ok)
-    {
+  {
     std::cerr << "ERROR: Failed test\n";
-    }
+  }
   return out;
 }
 
-template<int N, typename T>
+template <int N, typename T>
 vtkSmartPointer<vtkPoints> CreatePrismaticPoints(const int order[N], T method)
 {
   vtkSmartPointer<vtkPoints> pts;
@@ -184,10 +185,10 @@ vtkSmartPointer<vtkPoints> CreatePrismaticPoints(const int order[N], T method)
 
   vtkVector3d pt;
   for (int ii = 0; ii < pts->GetNumberOfPoints(); ++ii)
-    {
+  {
     pts->GetPoint(ii, pt.GetData());
-    //std::cout << "  " << ii << " " << pt[0] << " " << pt[1] << " " << pt[2] << "\n";
-    }
+    // std::cout << "  " << ii << " " << pt[0] << " " << pt[1] << " " << pt[2] << "\n";
+  }
   return pts;
 }
 
@@ -198,25 +199,25 @@ vtkSmartPointer<vtkPoints> CreateHexPoints(int order[3])
 
   vtkVector3d pt;
   for (int ii = 0; ii < pts->GetNumberOfPoints(); ++ii)
-    {
+  {
     pts->GetPoint(ii, pt.GetData());
-    //std::cout << "  " << ii << " " << pt[0] << " " << pt[1] << " " << pt[2] << "\n";
-    }
+    // std::cout << "  " << ii << " " << pt[0] << " " << pt[1] << " " << pt[2] << "\n";
+  }
   return pts;
 }
 
-template<typename T>
+template <typename T>
 bool TestShapeFunctionImage(T& tab, int argc, char* argv[], const std::string& testImg)
 {
   bool imageTest = !testImg.empty();
   bool interact = false;
   for (int a = 0; a < argc; ++a)
-    {
+  {
     if (!strcmp(argv[a], "-I"))
-      {
+    {
       interact = true;
-      }
     }
+  }
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(800, 600);
@@ -229,14 +230,14 @@ bool TestShapeFunctionImage(T& tab, int argc, char* argv[], const std::string& t
 
   std::vector<vtkPlot*> plots;
   for (int c = 1; c < tab->GetNumberOfColumns(); ++c)
-    {
+  {
     vtkPlot* plot = chart->AddPlot(vtkChart::LINE);
     vtkColor3ub cu = colors->GetColor((c - 1) % nc);
     plot->SetInputData(tab.GetPointer(), 0, c);
     plot->SetColor(cu.GetRed(), cu.GetGreen(), cu.GetBlue(), 255);
     plot->SetWidth(2.0);
     plots.push_back(plot);
-    }
+  }
 
   chart->GetAxis(vtkAxis::LEFT)->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON_EXTENDED);
   chart->GetAxis(vtkAxis::BOTTOM)->SetTickLabelAlgorithm(vtkAxis::TICK_WILKINSON_EXTENDED);
@@ -244,24 +245,24 @@ bool TestShapeFunctionImage(T& tab, int argc, char* argv[], const std::string& t
   view->GetInteractor()->Initialize();
   view->GetRenderWindow()->Render();
   if (imageTest)
-    {
+  {
     int retVal = RegressionTestWithImageName(argc, argv, view->GetRenderWindow(), testImg);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       view->GetRenderWindow()->SetMultiSamples(8);
       view->GetInteractor()->Start();
-      }
-    return retVal ? true : false;
     }
+    return retVal ? true : false;
+  }
   if (interact)
-    {
+  {
     view->GetRenderWindow()->SetMultiSamples(8);
     view->GetInteractor()->Start();
-    }
+  }
   return true; // If asked not to do a regression test, we always succeed.
 }
 
-template<int N, typename T, typename U, typename V>
+template <int N, typename T, typename U, typename V>
 bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
 {
   vtkDataArray* rst = tab->GetFieldData()->GetArray("rst");
@@ -289,16 +290,16 @@ bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
   std::vector<vtkIdType> conn;
   std::vector<double> derivs(N * (nc - 1)); // nc - 1 => skip the column holding the row number
   for (vtkIdType rr = 0; rr < nr; ++rr)
-    {
-    vtkVector3d pt(0,0,0); // Interpolated result point
-    vtkVector3d dr[N]; // Interpolated derivatives
+  {
+    vtkVector3d pt(0, 0, 0); // Interpolated result point
+    vtkVector3d dr[N];       // Interpolated derivatives
     for (int i = 0; i < N; ++i)
-      {
+    {
       for (int j = 0; j < 3; ++j)
-        {
+      {
         dr[i][j] = 0.0;
-        }
       }
+    }
     vtkVector3d cp; // Lagrange control point
     cp[2] = 0.0;
     vtkVector3d uu; // Parametric coordinates of control point
@@ -306,16 +307,22 @@ bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
     rst->GetTuple(rr, uu.GetData());
     switch (N)
     {
-    case 1: interp->Tensor1ShapeDerivatives(order, uu.GetData(), &derivs[0]); break;
-    case 2: interp->Tensor2ShapeDerivatives(order, uu.GetData(), &derivs[0]); break;
-    case 3: interp->Tensor3ShapeDerivatives(order, uu.GetData(), &derivs[0]); break;
-    default:
-      std::cerr << "Unsupported dimension " << N << ". No way to obtain derivatives.\n";
-      break;
+      case 1:
+        interp->Tensor1ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        break;
+      case 2:
+        interp->Tensor2ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        break;
+      case 3:
+        interp->Tensor3ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        break;
+      default:
+        std::cerr << "Unsupported dimension " << N << ". No way to obtain derivatives.\n";
+        break;
     }
-    //std::cout << "r = " << uu[0] << " " << uu[1] << " " << uu[2] << "\n";
+    // std::cout << "r = " << uu[0] << " " << uu[1] << " " << uu[2] << "\n";
     for (int cc = 1; cc < nc; ++cc)
-      {
+    {
       world->GetPoint(cc - 1, cp.GetData());
       /*
       if (rr < 2) {
@@ -329,50 +336,49 @@ bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
       pt = pt + (tab->GetValue(rr, cc).ToDouble() - 2.0 * cc + 2.0) * cp;
 
       dr[0] = dr[0] + derivs[N * (cc - 1)] * cp;
-      //std::cout << "  dr += " << derivs[N * (cc - 1)] << " * (" << cp[0] << " " << cp[1] << " " << cp[2] << ")\n";
+      // std::cout << "  dr += " << derivs[N * (cc - 1)] << " * (" << cp[0] << " " << cp[1] << " "
+      // << cp[2] << ")\n";
       if (N > 1)
-        {
+      {
         dr[1] = dr[1] + derivs[N * (cc - 1) + 1] * cp;
         if (N > 2)
-          {
+        {
           dr[2] = dr[2] + derivs[N * (cc - 1) + 2] * cp;
-          }
         }
       }
+    }
     conn.push_back(rr);
     ppt->SetPoint(rr, pt.GetData());
     du->SetTuple(rr, dr[0].GetData());
-    //std::cout << "  dr = (" << cp[0] << " " << cp[1] << " " << cp[2] << ")\n";
+    // std::cout << "  dr = (" << cp[0] << " " << cp[1] << " " << cp[2] << ")\n";
     if (N > 1)
-      {
+    {
       dv->SetTuple(rr, dr[1].GetData());
       if (N > 2)
-        {
+      {
         dw->SetTuple(rr, dr[2].GetData());
-        }
       }
-    time->SetValue(rr, rr);
     }
-  polyline->InsertNextCell(
-    static_cast<vtkIdType>(conn.size()),
-    &conn[0]);
+    time->SetValue(rr, rr);
+  }
+  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), &conn[0]);
   lpd->Initialize();
   lpd->SetPoints(ppt.GetPointer());
   lpd->SetLines(polyline.GetPointer());
   lpd->GetPointData()->SetScalars(time.GetPointer());
   lpd->GetPointData()->AddArray(du.GetPointer());
   if (N > 1)
-    {
+  {
     lpd->GetPointData()->AddArray(dv.GetPointer());
     if (N > 2)
-      {
+    {
       lpd->GetPointData()->AddArray(dw.GetPointer());
-      }
     }
+  }
   return true;
 }
 
-template<int N, typename T, typename U, typename V>
+template <int N, typename T, typename U, typename V>
 bool SumWedgeShapeFunctions(const int order[N], T tab, U world, V lpd)
 {
   (void)order;
@@ -388,16 +394,16 @@ bool SumWedgeShapeFunctions(const int order[N], T tab, U world, V lpd)
   time->SetNumberOfTuples(nr);
   std::vector<vtkIdType> conn;
   for (vtkIdType rr = 0; rr < nr; ++rr)
-    {
-    vtkVector3d pt(0,0,0); // Interpolated result point
-    vtkVector3d cp; // Lagrange control point
+  {
+    vtkVector3d pt(0, 0, 0); // Interpolated result point
+    vtkVector3d cp;          // Lagrange control point
     cp[2] = 0.0;
     vtkVector3d uu; // Parametric coordinates of control point
 
     rst->GetTuple(rr, uu.GetData());
-    //std::cout << "r = " << uu[0] << " " << uu[1] << " " << uu[2] << "\n";
+    // std::cout << "r = " << uu[0] << " " << uu[1] << " " << uu[2] << "\n";
     for (int cc = 1; cc < nc; ++cc)
-      {
+    {
       world->GetPoint(cc - 1, cp.GetData());
       /*
       if (rr < 2) {
@@ -409,14 +415,12 @@ bool SumWedgeShapeFunctions(const int order[N], T tab, U world, V lpd)
       // The "- 2.0 * cc + 2.0" accounts for the amount added to each
       // column to make the 2-D plot of shape functions simpler:
       pt = pt + (tab->GetValue(rr, cc).ToDouble() - 2.0 * cc + 2.0) * cp;
-      }
+    }
     conn.push_back(rr);
     ppt->SetPoint(rr, pt.GetData());
     time->SetValue(rr, rr);
-    }
-  polyline->InsertNextCell(
-    static_cast<vtkIdType>(conn.size()),
-    &conn[0]);
+  }
+  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), &conn[0]);
   lpd->Initialize();
   lpd->SetPoints(ppt.GetPointer());
   lpd->SetLines(polyline.GetPointer());
@@ -426,11 +430,7 @@ bool SumWedgeShapeFunctions(const int order[N], T tab, U world, V lpd)
 
 static bool SnapFace(vtkPoints* pts)
 {
-  int face1PtIds[] = {
-    1, 2, 5, 6,
-    9, 13, 17, 18,
-    21
-  };
+  int face1PtIds[] = { 1, 2, 5, 6, 9, 13, 17, 18, 21 };
   /*
   double face1PtDeltaX[] = {
     -0.20, -0.20, -0.20, -0.20,
@@ -448,52 +448,40 @@ static bool SnapFace(vtkPoints* pts)
     0.0
   };
   */
-  double face1PtDeltaX[] = {
-    -0.10, -0.10, -0.10, -0.10,
-    -0.05, -0.05, -0.05, -0.05,
-    0.0
-  };
-  double face1PtDeltaY[] = {
-    -0.10, +0.10, -0.10, +0.10,
-     0.00,  0.00, -0.05, +0.05,
-    0.0
-  };
-  double face1PtDeltaZ[] = {
-    -0.10, -0.10, +0.10, +0.10,
-    -0.05, +0.05,  0.00,  0.00,
-    0.0
-  };
+  double face1PtDeltaX[] = { -0.10, -0.10, -0.10, -0.10, -0.05, -0.05, -0.05, -0.05, 0.0 };
+  double face1PtDeltaY[] = { -0.10, +0.10, -0.10, +0.10, 0.00, 0.00, -0.05, +0.05, 0.0 };
+  double face1PtDeltaZ[] = { -0.10, -0.10, +0.10, +0.10, -0.05, +0.05, 0.00, 0.00, 0.0 };
   vtkVector3d xx;
   for (unsigned ii = 0; ii < sizeof(face1PtIds) / sizeof(face1PtIds[0]); ++ii)
-    {
+  {
     pts->GetPoint(face1PtIds[ii], xx.GetData());
     xx[0] += face1PtDeltaX[ii];
     xx[1] += face1PtDeltaY[ii];
     xx[2] += face1PtDeltaZ[ii];
     pts->SetPoint(face1PtIds[ii], xx.GetData());
-    }
+  }
   return true;
 }
 
-template<typename T>
+template <typename T>
 void Dump(T& pts)
 {
   vtkIdType np = pts->GetNumberOfPoints();
   for (vtkIdType i = 0; i < np; ++i)
-    {
+  {
     vtkVector3d p;
     pts->GetPoint(i, p.GetData());
     std::cout << "  " << i << "  " << p[0] << " " << p[1] << " " << p[2] << "\n";
-    }
+  }
 }
 
-template<typename T>
+template <typename T>
 bool SetupPoints(T& pts)
 {
   pts->SetNumberOfPoints(2);
-  pts->SetPoint(0,  0, 0, 0);
-  pts->SetPoint(1,  1, 1, 0);
-  pts->SetPoint(2,  2, 0, 0);
+  pts->SetPoint(0, 0, 0, 0);
+  pts->SetPoint(1, 1, 1, 0);
+  pts->SetPoint(2, 2, 0, 0);
   return true;
 }
 
@@ -506,18 +494,18 @@ int LagrangeInterpolation(int argc, char* argv[])
   vtkSmartPointer<vtkPoints> world = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkPolyData> lpd = vtkSmartPointer<vtkPolyData>::New();
 
-  int order5[1] = {2};
-  ok &= testEqual(
-    vtkLagrangeInterpolation::NumberOfIntervals<1>(order5), 2,
+  int order5[1] = { 2 };
+  ok &= testEqual(vtkLagrangeInterpolation::NumberOfIntervals<1>(order5), 2,
     "NumberOfIntervals: 1-D order 2 has 2 intervals");
   pts = CreatePrismaticPoints<1>(order5, vtkLagrangeInterpolation::AppendCurveCollocationPoints);
   tab = CreateShapeFunctionTable<1>(order5, pts, vtkLagrangeInterpolation::Tensor1ShapeFunctions);
-  //tab->Dump(10,-1);
+  // tab->Dump(10,-1);
   // Dump(pts);
   world->DeepCopy(pts);
   ok &= SetupPoints(world);
   // Dump(world);
-  ok &= SumShapeFunctions<1>(order5, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
+  ok &= SumShapeFunctions<1>(
+    order5, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
 
   /*
   vtkNew<vtkXMLPolyDataWriter> wri;
@@ -526,13 +514,16 @@ int LagrangeInterpolation(int argc, char* argv[])
   wri->Write();
   */
 
-  int order222[3] = {2, 2, 2};
-  pts = CreatePrismaticPoints<3>(order222, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
+  int order222[3] = { 2, 2, 2 };
+  pts =
+    CreatePrismaticPoints<3>(order222, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
   tab = CreateShapeFunctionTable<3>(order222, pts, vtkLagrangeInterpolation::Tensor3ShapeFunctions);
   world->DeepCopy(pts);
   ok &= TestShapeFunctionImage(tab, argc, argv, "LagrangeInterpolation.png");
-  ok &= SnapFace(world); // Deform the parameter-space coordinates of the hex DOFs into a world-coordinate hex.
-  ok &= SumShapeFunctions<3>(order222, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
+  ok &= SnapFace(
+    world); // Deform the parameter-space coordinates of the hex DOFs into a world-coordinate hex.
+  ok &= SumShapeFunctions<3>(
+    order222, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
 
   /*
   //vtkNew<vtkXMLPolyDataWriter> wri;
@@ -541,31 +532,34 @@ int LagrangeInterpolation(int argc, char* argv[])
   wri->Write();
   */
 
-  int order333[3] = {3, 3, 3};
-  ok &= testEqual(
-    vtkLagrangeInterpolation::NumberOfIntervals<3>(order333), 27,
+  int order333[3] = { 3, 3, 3 };
+  ok &= testEqual(vtkLagrangeInterpolation::NumberOfIntervals<3>(order333), 27,
     "NumberOfIntervals: 3-D order 3 has 27 intervals");
-  pts = CreatePrismaticPoints<3>(order333, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
+  pts =
+    CreatePrismaticPoints<3>(order333, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
   tab = CreateShapeFunctionTable<3>(order333, pts, vtkLagrangeInterpolation::Tensor3ShapeFunctions);
   ok &= TestShapeFunctionImage(tab, argc, argv, "LagrangeInterpolation_333hex.png");
 
-  int order531[3] = {5, 3, 1};
-  pts = CreatePrismaticPoints<3>(order531, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
+  int order531[3] = { 5, 3, 1 };
+  pts =
+    CreatePrismaticPoints<3>(order531, vtkLagrangeInterpolation::AppendHexahedronCollocationPoints);
   tab = CreateShapeFunctionTable<3>(order531, pts, vtkLagrangeInterpolation::Tensor3ShapeFunctions);
   ok &= TestShapeFunctionImage(tab, argc, argv, "LagrangeInterpolation_531hex.png");
 
-  int order44[2] = {4, 4};
-  ok &= testEqual(
-    vtkLagrangeInterpolation::NumberOfIntervals<2>(order44), 16,
+  int order44[2] = { 4, 4 };
+  ok &= testEqual(vtkLagrangeInterpolation::NumberOfIntervals<2>(order44), 16,
     "NumberOfIntervals: 2-D order 4 has 16 intervals");
-  pts = CreatePrismaticPoints<2>(order44, vtkLagrangeInterpolation::AppendQuadrilateralCollocationPoints);
+  pts = CreatePrismaticPoints<2>(
+    order44, vtkLagrangeInterpolation::AppendQuadrilateralCollocationPoints);
 
   pts = CreatePrismaticPoints<3>(order333, vtkLagrangeInterpolation::AppendWedgeCollocationPoints);
   tab = CreateShapeFunctionTable<3>(order333, pts, vtkLagrangeInterpolation::WedgeShapeFunctions);
   world->DeepCopy(pts);
   ok &= TestShapeFunctionImage(tab, argc, argv, "LagrangeInterpolation_333wedge.png");
-  //ok &= SnapFace(world); // Deform the parameter-space coordinates of the hex DOFs into a world-coordinate hex.
-  ok &= SumWedgeShapeFunctions<3>(order333, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
+  // ok &= SnapFace(world); // Deform the parameter-space coordinates of the hex DOFs into a
+  // world-coordinate hex.
+  ok &= SumWedgeShapeFunctions<3>(
+    order333, tab, world, lpd); // Populate lpd with points interpolated from tab using world.
 
   /*
   //vtkNew<vtkXMLPolyDataWriter> wri;

@@ -26,18 +26,18 @@
  * Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
  * @sa
  * vtkImageReslice
-*/
+ */
 
 #ifndef vtkImageSincInterpolator_h
 #define vtkImageSincInterpolator_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 #define VTK_LANCZOS_WINDOW 0
-#define VTK_KAISER_WINDOW  1
-#define VTK_COSINE_WINDOW  2
-#define VTK_HANN_WINDOW    3
+#define VTK_KAISER_WINDOW 1
+#define VTK_COSINE_WINDOW 2
+#define VTK_HANN_WINDOW 3
 #define VTK_HAMMING_WINDOW 4
 #define VTK_BLACKMAN_WINDOW 5
 #define VTK_BLACKMAN_HARRIS3 6
@@ -50,11 +50,10 @@
 class vtkImageData;
 struct vtkInterpolationInfo;
 
-class VTKIMAGINGCORE_EXPORT vtkImageSincInterpolator :
-  public vtkAbstractImageInterpolator
+class VTKIMAGINGCORE_EXPORT vtkImageSincInterpolator : public vtkAbstractImageInterpolator
 {
 public:
-  static vtkImageSincInterpolator *New();
+  static vtkImageSincInterpolator* New();
   vtkTypeMacro(vtkImageSincInterpolator, vtkAbstractImageInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -68,30 +67,19 @@ public:
    * Processing 29:84-91, 1981.
    */
   virtual void SetWindowFunction(int mode);
-  void SetWindowFunctionToLanczos() {
-    this->SetWindowFunction(VTK_LANCZOS_WINDOW); }
-  void SetWindowFunctionToKaiser() {
-    this->SetWindowFunction(VTK_KAISER_WINDOW); }
-  void SetWindowFunctionToCosine() {
-    this->SetWindowFunction(VTK_COSINE_WINDOW); }
-  void SetWindowFunctionToHann() {
-    this->SetWindowFunction(VTK_HANN_WINDOW); }
-  void SetWindowFunctionToHamming() {
-    this->SetWindowFunction(VTK_HAMMING_WINDOW); }
-  void SetWindowFunctionToBlackman() {
-    this->SetWindowFunction(VTK_BLACKMAN_WINDOW); }
-  void SetWindowFunctionToBlackmanHarris3() {
-    this->SetWindowFunction(VTK_BLACKMAN_HARRIS3); }
-  void SetWindowFunctionToBlackmanHarris4() {
-    this->SetWindowFunction(VTK_BLACKMAN_HARRIS4); }
-  void SetWindowFunctionToNuttall() {
-    this->SetWindowFunction(VTK_NUTTALL_WINDOW); }
-  void SetWindowFunctionToBlackmanNuttall3() {
-    this->SetWindowFunction(VTK_BLACKMAN_NUTTALL3); }
-  void SetWindowFunctionToBlackmanNuttall4() {
-    this->SetWindowFunction(VTK_BLACKMAN_NUTTALL4); }
+  void SetWindowFunctionToLanczos() { this->SetWindowFunction(VTK_LANCZOS_WINDOW); }
+  void SetWindowFunctionToKaiser() { this->SetWindowFunction(VTK_KAISER_WINDOW); }
+  void SetWindowFunctionToCosine() { this->SetWindowFunction(VTK_COSINE_WINDOW); }
+  void SetWindowFunctionToHann() { this->SetWindowFunction(VTK_HANN_WINDOW); }
+  void SetWindowFunctionToHamming() { this->SetWindowFunction(VTK_HAMMING_WINDOW); }
+  void SetWindowFunctionToBlackman() { this->SetWindowFunction(VTK_BLACKMAN_WINDOW); }
+  void SetWindowFunctionToBlackmanHarris3() { this->SetWindowFunction(VTK_BLACKMAN_HARRIS3); }
+  void SetWindowFunctionToBlackmanHarris4() { this->SetWindowFunction(VTK_BLACKMAN_HARRIS4); }
+  void SetWindowFunctionToNuttall() { this->SetWindowFunction(VTK_NUTTALL_WINDOW); }
+  void SetWindowFunctionToBlackmanNuttall3() { this->SetWindowFunction(VTK_BLACKMAN_NUTTALL3); }
+  void SetWindowFunctionToBlackmanNuttall4() { this->SetWindowFunction(VTK_BLACKMAN_NUTTALL4); }
   int GetWindowFunction() { return this->WindowFunction; }
-  virtual const char *GetWindowFunctionAsString();
+  virtual const char* GetWindowFunctionAsString();
   //@}
 
   /**
@@ -142,13 +130,14 @@ public:
    * increases by the blur factor.
    */
   void SetBlurFactors(double x, double y, double z);
-  void SetBlurFactors(const double f[3]) {
-    this->SetBlurFactors(f[0], f[1], f[2]); }
-  void GetBlurFactors(double f[3]) {
+  void SetBlurFactors(const double f[3]) { this->SetBlurFactors(f[0], f[1], f[2]); }
+  void GetBlurFactors(double f[3])
+  {
     f[0] = this->BlurFactors[0];
     f[1] = this->BlurFactors[1];
-    f[2] = this->BlurFactors[2]; }
-  double *GetBlurFactors() VTK_SIZEHINT(3) { return this->BlurFactors; }
+    f[2] = this->BlurFactors[2];
+  }
+  double* GetBlurFactors() VTK_SIZEHINT(3) { return this->BlurFactors; }
   //@}
 
   /**
@@ -195,18 +184,16 @@ public:
    * A new extent is provided for out-of-bounds checks.
    * THIS METHOD IS THREAD SAFE.
    */
-  void PrecomputeWeightsForExtent(
-    const double matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) override;
-  void PrecomputeWeightsForExtent(
-    const float matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) override;
+  void PrecomputeWeightsForExtent(const double matrix[16], const int extent[6], int newExtent[6],
+    vtkInterpolationWeights*& weights) override;
+  void PrecomputeWeightsForExtent(const float matrix[16], const int extent[6], int newExtent[6],
+    vtkInterpolationWeights*& weights) override;
   //@}
 
   /**
    * Free the precomputed weights.  THIS METHOD IS THREAD SAFE.
    */
-  void FreePrecomputedWeights(vtkInterpolationWeights *&weights) override;
+  void FreePrecomputedWeights(vtkInterpolationWeights*& weights) override;
 
 protected:
   vtkImageSincInterpolator();
@@ -220,18 +207,16 @@ protected:
   /**
    * Copy the interpolator.
    */
-  void InternalDeepCopy(vtkAbstractImageInterpolator *obj) override;
+  void InternalDeepCopy(vtkAbstractImageInterpolator* obj) override;
 
   //@{
   /**
    * Get the interpolation functions.
    */
   void GetInterpolationFunc(
-    void (**doublefunc)(
-      vtkInterpolationInfo *, const double [3], double *)) override;
+    void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
-    void (**floatfunc)(
-      vtkInterpolationInfo *, const float [3], float *)) override;
+    void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
   //@}
 
   //@{
@@ -239,11 +224,9 @@ protected:
    * Get the row interpolation functions.
    */
   void GetRowInterpolationFunc(
-    void (**doublefunc)(
-      vtkInterpolationWeights *, int, int, int, double *, int)) override;
+    void (**doublefunc)(vtkInterpolationWeights*, int, int, int, double*, int)) override;
   void GetRowInterpolationFunc(
-    void (**floatfunc)(
-      vtkInterpolationWeights *, int, int, int, float *, int)) override;
+    void (**floatfunc)(vtkInterpolationWeights*, int, int, int, float*, int)) override;
   //@}
 
   /**
@@ -258,7 +241,7 @@ protected:
 
   int WindowFunction;
   int WindowHalfWidth;
-  float *KernelLookupTable[3];
+  float* KernelLookupTable[3];
   int KernelSize[3];
   int Antialiasing;
   int Renormalization;

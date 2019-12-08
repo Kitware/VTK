@@ -78,11 +78,9 @@ protected:
   ~vtkScalarsToTextureFilter() override = default;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
 private:

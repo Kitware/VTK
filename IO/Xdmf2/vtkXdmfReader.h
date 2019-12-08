@@ -29,15 +29,15 @@
  * Uses the XDMF API (http://www.xdmf.org)
  * @sa
  * vtkDataReader
-*/
+ */
 
 #ifndef vtkXdmfReader_h
 #define vtkXdmfReader_h
 
-#include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
-#include <map> // for caching
-#include <string> // needed for string API
+#include "vtkIOXdmf2Module.h" // For export macro
+#include <map>                // for caching
+#include <string>             // needed for string API
 
 class vtkXdmfArraySelection;
 class vtkXdmfDocument;
@@ -56,7 +56,7 @@ public:
   //// Returns the number of domains present in the data file. This in valid after
   //// the filename has been set and UpdateInformation() has been called .i.e. the
   //// RequestInformation pipeline pass has happened.
-  //unsigned int GetNumberOfDomains();
+  // unsigned int GetNumberOfDomains();
 
   //@{
   /**
@@ -79,8 +79,8 @@ public:
   /**
    * Name of the file to read.
    */
-   vtkSetStringMacro(FileName);
-   vtkGetStringMacro(FileName);
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
   //@}
 
   /**
@@ -145,10 +145,8 @@ public:
    * These methods are provided to make it easier to use the Sets in ParaView.
    */
   int GetNumberOfSetArrays() { return this->GetNumberOfSets(); }
-  const char* GetSetArrayName(int index)
-    { return this->GetSetName(index); }
-  int GetSetArrayStatus(const char* name)
-    { return this->GetSetStatus(name); }
+  const char* GetSetArrayName(int index) { return this->GetSetName(index); }
+  int GetSetArrayStatus(const char* name) { return this->GetSetStatus(name); }
 
   //@{
   /**
@@ -180,7 +178,12 @@ public:
   class XdmfDataSetTopoGeoPath
   {
   public:
-    XdmfDataSetTopoGeoPath() : dataset(0), topologyPath(), geometryPath() {}
+    XdmfDataSetTopoGeoPath()
+      : dataset(0)
+      , topologyPath()
+      , geometryPath()
+    {
+    }
     vtkDataSet* dataset;
     std::string topologyPath;
     std::string geometryPath;
@@ -198,9 +201,9 @@ public:
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
    */
-  vtkSetMacro(ReadFromInputString,bool);
-  vtkGetMacro(ReadFromInputString,bool);
-  vtkBooleanMacro(ReadFromInputString,bool);
+  vtkSetMacro(ReadFromInputString, bool);
+  vtkGetMacro(ReadFromInputString, bool);
+  vtkBooleanMacro(ReadFromInputString, bool);
   //@}
 
   //@{
@@ -223,13 +226,15 @@ public:
    * of the string is made and stored. If this causes exceedingly large
    * memory consumption, consider using InputArray instead.
    */
-  void SetInputString(const char *in);
+  void SetInputString(const char* in);
   vtkGetStringMacro(InputString);
-  void SetInputString(const char *in, int len);
+  void SetInputString(const char* in, int len);
   vtkGetMacro(InputStringLength, int);
-  void SetBinaryInputString(const char *, int len);
+  void SetBinaryInputString(const char*, int len);
   void SetInputString(const std::string& input)
-    { this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length())); }
+  {
+    this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length()));
+  }
   //@}
 
 protected:
@@ -242,19 +247,16 @@ protected:
 
   vtkCharArray* InputArray;
 
-  char *InputString;
+  char* InputString;
   int InputStringLength;
   int InputStringPos;
 
-  int ProcessRequest(vtkInformation *request,
-    vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector) override;
-  virtual int RequestDataObjectInternal(vtkInformationVector *outputVector);
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  virtual int RequestDataObjectInternal(vtkInformationVector* outputVector);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   vtkXdmfArraySelection* GetPointArraySelection();
   vtkXdmfArraySelection* GetCellArraySelection();
@@ -304,7 +306,6 @@ private:
 private:
   vtkXdmfReader(const vtkXdmfReader&) = delete;
   void operator=(const vtkXdmfReader&) = delete;
-
 };
 
 #endif

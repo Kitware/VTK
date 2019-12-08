@@ -18,7 +18,7 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
 
-int TestPolygonBuilder3(int, char* [])
+int TestPolygonBuilder3(int, char*[])
 {
 
   vtkPolygonBuilder builder;
@@ -29,7 +29,6 @@ int TestPolygonBuilder3(int, char* [])
   {
     return EXIT_FAILURE;
   }
-
 
   return EXIT_SUCCESS;
 }

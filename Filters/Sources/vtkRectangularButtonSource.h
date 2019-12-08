@@ -39,13 +39,13 @@
  * @warning
  * The button is defined in the x-y plane. Use vtkTransformPolyDataFilter
  * or vtkGlyph3D to orient the button in a different direction.
-*/
+ */
 
 #ifndef vtkRectangularButtonSource_h
 #define vtkRectangularButtonSource_h
 
-#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"
+#include "vtkFiltersSourcesModule.h" // For export macro
 
 class vtkCellArray;
 class vtkFloatArray;
@@ -55,35 +55,35 @@ class VTKFILTERSSOURCES_EXPORT vtkRectangularButtonSource : public vtkButtonSour
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkRectangularButtonSource,vtkButtonSource);
+  vtkTypeMacro(vtkRectangularButtonSource, vtkButtonSource);
 
   /**
    * Construct a circular button with depth 10% of its height.
    */
-  static vtkRectangularButtonSource *New();
+  static vtkRectangularButtonSource* New();
 
   //@{
   /**
    * Set/Get the width of the button.
    */
-  vtkSetClampMacro(Width,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Width,double);
+  vtkSetClampMacro(Width, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Width, double);
   //@}
 
   //@{
   /**
    * Set/Get the height of the button.
    */
-  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Height,double);
+  vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Height, double);
   //@}
 
   //@{
   /**
    * Set/Get the depth of the button (the z-eliipsoid axis length).
    */
-  vtkSetClampMacro(Depth,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Depth,double);
+  vtkSetClampMacro(Depth, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Depth, double);
   //@}
 
   //@{
@@ -93,8 +93,8 @@ public:
    * with a wider bottom than shoulder; ratios less than one
    * produce buttons that have a wider shoulder than bottom.
    */
-  vtkSetClampMacro(BoxRatio,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(BoxRatio,double);
+  vtkSetClampMacro(BoxRatio, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(BoxRatio, double);
   //@}
 
   //@{
@@ -106,8 +106,8 @@ public:
    * two directions (length or width) depending on the
    * dimensions of the texture.
    */
-  vtkSetClampMacro(TextureRatio,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(TextureRatio,double);
+  vtkSetClampMacro(TextureRatio, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(TextureRatio, double);
   //@}
 
   //@{
@@ -118,8 +118,8 @@ public:
    * shoulder. Values less than 1.0 yield concave buttons with
    * the texture region below the shoulder.
    */
-  vtkSetClampMacro(TextureHeightRatio,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(TextureHeightRatio,double);
+  vtkSetClampMacro(TextureHeightRatio, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(TextureHeightRatio, double);
   //@}
 
   //@{
@@ -128,15 +128,15 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkRectangularButtonSource();
   ~vtkRectangularButtonSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Width;
   double Height;
@@ -154,5 +154,3 @@ private:
 };
 
 #endif
-
-

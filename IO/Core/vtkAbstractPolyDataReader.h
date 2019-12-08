@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkOBJReader vtkPLYReader vtkSTLReader
-*/
+ */
 
 #ifndef vtkAbstractPolyDataReader_h
 #define vtkAbstractPolyDataReader_h
@@ -51,7 +51,8 @@ protected:
   vtkAbstractPolyDataReader();
   ~vtkAbstractPolyDataReader() override;
 
-  char *FileName;
+  char* FileName;
+
 private:
   vtkAbstractPolyDataReader(const vtkAbstractPolyDataReader&) = delete;
   void operator=(const vtkAbstractPolyDataReader&) = delete;

@@ -24,7 +24,7 @@ void vtkXMLFileOutputWindow::Initialize()
     if (!this->FileName)
     {
       const char fileName[] = "vtkMessageLog.xml";
-      this->FileName = new char[strlen(fileName)+1];
+      this->FileName = new char[strlen(fileName) + 1];
       strcpy(this->FileName, fileName);
     }
     if (this->Append)
@@ -41,7 +41,7 @@ void vtkXMLFileOutputWindow::Initialize()
 
 void vtkXMLFileOutputWindow::DisplayTag(const char* text)
 {
-  if(!text)
+  if (!text)
   {
     return;
   }
@@ -60,11 +60,11 @@ void vtkXMLFileOutputWindow::DisplayTag(const char* text)
 
 // Description:
 // Process text to replace XML special characters with escape sequences
-void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
+void vtkXMLFileOutputWindow::DisplayXML(const char* tag, const char* text)
 {
-  char *xmlText;
+  char* xmlText;
 
-  if(!text)
+  if (!text)
   {
     return;
   }
@@ -72,8 +72,8 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
   // allocate enough room for the worst case
   xmlText = new char[strlen(text) * 6 + 1];
 
-  const char *s = text;
-  char *x = xmlText;
+  const char* s = text;
+  char* x = xmlText;
   *x = '\0';
 
   // replace all special characters
@@ -82,22 +82,28 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
     switch (*s)
     {
       case '&':
-        strcat(x, "&amp;"); x += 5;
+        strcat(x, "&amp;");
+        x += 5;
         break;
       case '"':
-        strcat(x, "&quot;"); x += 6;
+        strcat(x, "&quot;");
+        x += 6;
         break;
       case '\'':
-        strcat(x, "&apos;"); x += 6;
+        strcat(x, "&apos;");
+        x += 6;
         break;
       case '<':
-        strcat(x, "&lt;"); x += 4;
+        strcat(x, "&lt;");
+        x += 4;
         break;
       case '>':
-        strcat(x, "&gt;"); x += 4;
+        strcat(x, "&gt;");
+        x += 4;
         break;
       default:
-        *x = *s; x++;
+        *x = *s;
+        x++;
         *x = '\0'; // explicitly terminate the new string
     }
     s++;
@@ -113,7 +119,7 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
   {
     this->OStream->flush();
   }
-  delete []xmlText;
+  delete[] xmlText;
 }
 
 void vtkXMLFileOutputWindow::DisplayText(const char* text)

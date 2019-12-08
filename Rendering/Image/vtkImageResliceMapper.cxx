@@ -14,25 +14,25 @@
 =========================================================================*/
 #include "vtkImageResliceMapper.h"
 
-#include "vtkImageSliceMapper.h"
-#include "vtkRenderer.h"
+#include "vtkAbstractImageInterpolator.h"
 #include "vtkCamera.h"
-#include "vtkImageSlice.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkImageProperty.h"
-#include "vtkLookupTable.h"
-#include "vtkMath.h"
-#include "vtkPoints.h"
-#include "vtkMatrix4x4.h"
-#include "vtkLinearTransform.h"
-#include "vtkPlane.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkGarbageCollector.h"
+#include "vtkImageResliceToColors.h"
+#include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageResliceToColors.h"
-#include "vtkAbstractImageInterpolator.h"
+#include "vtkLinearTransform.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPoints.h"
+#include "vtkRenderer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 // A tolerance to compensate for roundoff errors
 #define VTK_RESLICE_MAPPER_VOXEL_TOL 7.62939453125e-06
@@ -89,7 +89,7 @@ vtkImageResliceMapper::~vtkImageResliceMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
+void vtkImageResliceMapper::SetSlicePlane(vtkPlane* plane)
 {
   if (this->SlicePlane == plane)
   {
@@ -113,8 +113,7 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::SetInterpolator(
-  vtkAbstractImageInterpolator *interpolator)
+void vtkImageResliceMapper::SetInterpolator(vtkAbstractImageInterpolator* interpolator)
 {
   vtkMTimeType mtime = this->ImageReslice->GetMTime();
 
@@ -127,54 +126,47 @@ void vtkImageResliceMapper::SetInterpolator(
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractImageInterpolator *vtkImageResliceMapper::GetInterpolator()
+vtkAbstractImageInterpolator* vtkImageResliceMapper::GetInterpolator()
 {
   return this->ImageReslice->GetInterpolator();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow *win)
+void vtkImageResliceMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->SliceMapper->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
+void vtkImageResliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
 {
   if (this->ResliceNeedUpdate)
   {
-    this->ImageReslice->SetInputConnection(
-      this->GetInputConnection(0, 0));
+    this->ImageReslice->SetInputConnection(this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
     this->ResliceNeedUpdate = 0;
   }
 
   // apply checkerboard pattern (should have timestamps)
-  vtkImageProperty *property = prop->GetProperty();
-  if (property && property->GetCheckerboard() &&
-      this->InternalResampleToScreenPixels &&
-      !this->SeparateWindowLevelOperation &&
-      this->SliceFacesCamera)
+  vtkImageProperty* property = prop->GetProperty();
+  if (property && property->GetCheckerboard() && this->InternalResampleToScreenPixels &&
+    !this->SeparateWindowLevelOperation && this->SliceFacesCamera)
   {
-    this->CheckerboardImage(this->ImageReslice->GetOutput(),
-      ren->GetActiveCamera(), property);
+    this->CheckerboardImage(this->ImageReslice->GetOutput(), ren->GetActiveCamera(), property);
   }
 
   // delegate to vtkImageSliceMapper
-  this->SliceMapper->SetInputConnection(
-    this->ImageReslice->GetOutputPort());
-  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(
-    this->SliceToWorldMatrix);
+  this->SliceMapper->SetInputConnection(this->ImageReslice->GetOutputPort());
+  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(this->SliceToWorldMatrix);
   // the mapper uses SliceFacesCamera to decide whether to use a polygon
   // for the texture versus using a quad the size of the window
   this->SliceMapper->SetSliceFacesCamera(
     (this->SliceFacesCamera && !this->SeparateWindowLevelOperation));
   this->SliceMapper->SetExactPixelMatch(this->InternalResampleToScreenPixels);
-  this->SliceMapper->SetBorder( (this->Border ||
-                                 this->InternalResampleToScreenPixels) );
-  this->SliceMapper->SetBackground( (this->Background &&
+  this->SliceMapper->SetBorder((this->Border || this->InternalResampleToScreenPixels));
+  this->SliceMapper->SetBackground((this->Background &&
     !(this->SliceFacesCamera && this->InternalResampleToScreenPixels &&
-      !this->SeparateWindowLevelOperation) ) );
+      !this->SeparateWindowLevelOperation)));
   this->SliceMapper->SetPassColorData(!this->SeparateWindowLevelOperation);
   this->SliceMapper->SetDisplayExtent(this->ImageReslice->GetOutputExtent());
 
@@ -195,19 +187,19 @@ void vtkImageResliceMapper::Update(int port)
   // I don't like to override Update, or call Modified() in Update,
   // but this allows updates to be forced where MTimes can't be used
   bool resampleToScreenPixels = (this->ResampleToScreenPixels != 0);
-  vtkRenderer *ren = nullptr;
+  vtkRenderer* ren = nullptr;
 
   if (this->AutoAdjustImageQuality && resampleToScreenPixels)
   {
     // only use image-size texture if image is smaller than render window,
     // since otherwise there is far less advantage in doing so
-    vtkImageSlice *prop = this->GetCurrentProp();
+    vtkImageSlice* prop = this->GetCurrentProp();
     ren = this->GetCurrentRenderer();
     if (ren && prop)
     {
-      int *rsize = ren->GetSize();
+      int* rsize = ren->GetSize();
       int maxrsize = (rsize[0] > rsize[1] ? rsize[0] : rsize[1]);
-      int *isize = this->GetInput()->GetDimensions();
+      int* isize = this->GetInput()->GetDimensions();
       int maxisize = (isize[0] > isize[1] ? isize[0] : isize[1]);
       maxisize = (isize[2] > maxisize ? isize[2] : maxisize);
       if (maxisize <= maxrsize && maxisize <= 1024)
@@ -234,10 +226,9 @@ void vtkImageResliceMapper::Update(int port)
       }
       if (ren)
       {
-        int *extent = this->ImageReslice->GetOutputExtent();
-        int *size = ren->GetSize();
-        if (size[0] != (extent[1] - extent[0] + 1) ||
-            size[1] != (extent[3] - extent[2] + 1))
+        int* extent = this->ImageReslice->GetOutputExtent();
+        int* size = ren->GetSize();
+        if (size[0] != (extent[1] - extent[0] + 1) || size[1] != (extent[3] - extent[2] + 1))
         {
           this->Modified();
         }
@@ -264,7 +255,7 @@ void vtkImageResliceMapper::Update(int port)
   this->InternalResampleToScreenPixels = resampleToScreenPixels;
 
   // Always update if something else caused the input to update
-  vtkImageData *input = this->GetInput();
+  vtkImageData* input = this->GetInput();
   if (input && input->GetUpdateTime() > this->UpdateTime.GetMTime())
   {
     this->Modified();
@@ -281,8 +272,7 @@ void vtkImageResliceMapper::Update()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::Update(
-  int port, vtkInformationVector*)
+vtkTypeBool vtkImageResliceMapper::Update(int port, vtkInformationVector*)
 {
   // One can't really make requests of a mapper so default to regular
   // update.
@@ -291,7 +281,7 @@ int vtkImageResliceMapper::Update(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::Update(vtkInformation*)
+vtkTypeBool vtkImageResliceMapper::Update(vtkInformation*)
 {
   // One can't really make requests of a mapper so default to regular
   // update.
@@ -300,9 +290,8 @@ int vtkImageResliceMapper::Update(vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::ProcessRequest(
-  vtkInformation* request, vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkImageResliceMapper::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
@@ -310,17 +299,17 @@ int vtkImageResliceMapper::ProcessRequest(
     this->Superclass::ProcessRequest(request, inputVector, outputVector);
 
     // need the prop and renderer
-    vtkImageSlice *prop = this->GetCurrentProp();
-    vtkRenderer *ren = this->GetCurrentRenderer();
+    vtkImageSlice* prop = this->GetCurrentProp();
+    vtkRenderer* ren = this->GetCurrentRenderer();
 
     if (ren && prop)
     {
-      vtkImageProperty *property = prop->GetProperty();
+      vtkImageProperty* property = prop->GetProperty();
 
       // Get point/normal from camera
       if (this->SliceFacesCamera || this->SliceAtFocalPoint)
       {
-        vtkCamera *camera = ren->GetActiveCamera();
+        vtkCamera* camera = ren->GetActiveCamera();
 
         if (this->SliceFacesCamera)
         {
@@ -346,7 +335,7 @@ int vtkImageResliceMapper::ProcessRequest(
 
             // convert normal to data coordinates
             double worldToData[16];
-            vtkMatrix4x4 *dataToWorld = this->GetDataToWorldMatrix();
+            vtkMatrix4x4* dataToWorld = this->GetDataToWorldMatrix();
             vtkMatrix4x4::Transpose(*dataToWorld->Element, worldToData);
             vtkMatrix4x4::MultiplyPoint(worldToData, normal, normal);
 
@@ -356,7 +345,7 @@ int vtkImageResliceMapper::ProcessRequest(
             double sumsq = 0;
             for (int i = 0; i < 3; i++)
             {
-              double tmpsq = normal[i]*normal[i];
+              double tmpsq = normal[i] * normal[i];
               sumsq += tmpsq;
               if (tmpsq > maxsq)
               {
@@ -366,18 +355,18 @@ int vtkImageResliceMapper::ProcessRequest(
             }
 
             // if the slice is not oblique
-            if ((1.0 - maxsq/sumsq) < 1e-12)
+            if ((1.0 - maxsq / sumsq) < 1e-12)
             {
               // get the point in data coordinates
               vtkMatrix4x4::Invert(*dataToWorld->Element, worldToData);
               vtkMatrix4x4::MultiplyPoint(worldToData, point, point);
 
               // set the point to lie exactly on a slice
-              double z = (point[k] - this->DataOrigin[k])/this->DataSpacing[k];
+              double z = (point[k] - this->DataOrigin[k]) / this->DataSpacing[k];
               if (z > VTK_INT_MIN && z < VTK_INT_MAX)
               {
                 int j = vtkMath::Floor(z + 0.5);
-                point[k] = j*this->DataSpacing[k] + this->DataOrigin[k];
+                point[k] = j * this->DataSpacing[k] + this->DataOrigin[k];
               }
 
               // convert back to world coordinates
@@ -411,22 +400,20 @@ int vtkImageResliceMapper::ProcessRequest(
 
     // delegate request to vtkImageReslice (generally not a good thing to
     // do, but I'm familiar with the vtkImageReslice code that gets called).
-    return this->ImageReslice->ProcessRequest(
-      request, inputVector, outputVector);
+    return this->ImageReslice->ProcessRequest(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     if (this->Streaming)
     {
       // delegate request to vtkImageReslice (generally not a good thing to
       // do, but I'm familiar with the vtkImageReslice code that gets called).
-      return this->ImageReslice->ProcessRequest(
-        request, inputVector, outputVector);
+      return this->ImageReslice->ProcessRequest(request, inputVector, outputVector);
     }
     else
     {
-      vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+      vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
       int ext[6];
       inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
@@ -434,11 +421,10 @@ int vtkImageResliceMapper::ProcessRequest(
     return 1;
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
   {
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkImageData *output = vtkImageData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // set output extent to avoid re-execution
     output->GetInformation()->Set(vtkDataObject::DATA_EXTENT(),
@@ -456,7 +442,7 @@ int vtkImageResliceMapper::ProcessRequest(
 //----------------------------------------------------------------------------
 // Update the WorldToData transformation matrix, which is just the
 // inverse of the vtkProp3D matrix.
-void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
+void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice* prop)
 {
   // copy the matrix, but only if it has changed (we do this to
   // preserve the modified time of the matrix)
@@ -465,7 +451,7 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
   {
     vtkMatrix4x4::Invert(*prop->GetMatrix()->Element, tmpmat);
   }
-  double *mat = *this->WorldToDataMatrix->Element;
+  double* mat = *this->WorldToDataMatrix->Element;
   for (int i = 0; i < 16; i++)
   {
     if (mat[i] != tmpmat[i])
@@ -478,15 +464,15 @@ void vtkImageResliceMapper::UpdateWorldToDataMatrix(vtkImageSlice *prop)
 
 //----------------------------------------------------------------------------
 // Update the SliceToWorld transformation matrix
-void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
+void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera* camera)
 {
   // Get slice plane in world coords by passing null as the prop matrix
   double plane[4];
   this->GetSlicePlaneInDataCoords(nullptr, plane);
 
   // Make sure normal is facing towards camera
-  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
-  double *ndop = viewMatrix->Element[2];
+  vtkMatrix4x4* viewMatrix = camera->GetViewTransformMatrix();
+  double* ndop = viewMatrix->Element[2];
   if (vtkMath::Dot(ndop, plane) < 0)
   {
     plane[0] = -plane[0];
@@ -496,7 +482,7 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
   }
 
   // The normal is the first three elements
-  double *normal = plane;
+  double* normal = plane;
 
   // The last element is -dot(normal, origin)
   double dp = -plane[3];
@@ -514,20 +500,20 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
     vec[2] /= sintheta;
   }
   // convert to quaternion
-  costheta = cos(0.5*theta);
-  sintheta = sin(0.5*theta);
+  costheta = cos(0.5 * theta);
+  sintheta = sin(0.5 * theta);
   double quat[4];
   quat[0] = costheta;
-  quat[1] = vec[0]*sintheta;
-  quat[2] = vec[1]*sintheta;
-  quat[3] = vec[2]*sintheta;
+  quat[1] = vec[0] * sintheta;
+  quat[2] = vec[1] * sintheta;
+  quat[3] = vec[2] * sintheta;
   // convert to matrix
   double mat[3][3];
   vtkMath::QuaternionToMatrix3x3(quat, mat);
 
   // Create a slice-to-world transform matrix
   // The columns are v1, v2, normal
-  vtkMatrix4x4 *sliceToWorld = this->SliceToWorldMatrix;
+  vtkMatrix4x4* sliceToWorld = this->SliceToWorldMatrix;
 
   double v1[3], v2[3];
   vtkMath::Multiply3x3(mat, viewMatrix->Element[0], v1);
@@ -548,19 +534,18 @@ void vtkImageResliceMapper::UpdateSliceToWorldMatrix(vtkCamera *camera)
   sliceToWorld->Element[2][2] = normal[2];
   sliceToWorld->Element[3][2] = 0.0;
 
-  sliceToWorld->Element[0][3] = -dp*normal[0];
-  sliceToWorld->Element[1][3] = -dp*normal[1];
-  sliceToWorld->Element[2][3] = dp-dp*normal[2];
+  sliceToWorld->Element[0][3] = -dp * normal[0];
+  sliceToWorld->Element[1][3] = -dp * normal[1];
+  sliceToWorld->Element[2][3] = dp - dp * normal[2];
   sliceToWorld->Element[3][3] = 1.0;
 }
 
 //----------------------------------------------------------------------------
 // Update the reslice matrix, which is the slice-to-data matrix.
-void vtkImageResliceMapper::UpdateResliceMatrix(
-  vtkRenderer *ren, vtkImageSlice *prop)
+void vtkImageResliceMapper::UpdateResliceMatrix(vtkRenderer* ren, vtkImageSlice* prop)
 {
   // Save the old matrix
-  double *matrixElements = *this->ResliceMatrix->Element;
+  double* matrixElements = *this->ResliceMatrix->Element;
   double oldMatrixElements[16];
   vtkMatrix4x4::DeepCopy(oldMatrixElements, matrixElements);
 
@@ -569,27 +554,23 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
 
   // Check if prop matrix is orthonormal
   bool propMatrixIsOrthonormal = false;
-  vtkMatrix4x4 *propMatrix = nullptr;
+  vtkMatrix4x4* propMatrix = nullptr;
   if (!this->InternalResampleToScreenPixels)
   {
     static double tol = 1e-12;
     propMatrix = prop->GetMatrix();
-    double *row0 = propMatrix->Element[0];
-    double *row1 = propMatrix->Element[1];
-    double *row2 = propMatrix->Element[2];
-    propMatrixIsOrthonormal = (
-      fabs(vtkMath::Dot(row0, row0) - 1.0) < tol &&
-      fabs(vtkMath::Dot(row1, row1) - 1.0) < tol &&
-      fabs(vtkMath::Dot(row2, row2) - 1.0) < tol &&
-      fabs(vtkMath::Dot(row0, row1)) < tol &&
-      fabs(vtkMath::Dot(row0, row2)) < tol &&
-      fabs(vtkMath::Dot(row1, row2)) < tol);
+    double* row0 = propMatrix->Element[0];
+    double* row1 = propMatrix->Element[1];
+    double* row2 = propMatrix->Element[2];
+    propMatrixIsOrthonormal =
+      (fabs(vtkMath::Dot(row0, row0) - 1.0) < tol && fabs(vtkMath::Dot(row1, row1) - 1.0) < tol &&
+        fabs(vtkMath::Dot(row2, row2) - 1.0) < tol && fabs(vtkMath::Dot(row0, row1)) < tol &&
+        fabs(vtkMath::Dot(row0, row2)) < tol && fabs(vtkMath::Dot(row1, row2)) < tol);
   }
 
   // Compute SliceToWorld matrix from camera if prop matrix is not
   // orthonormal or if InternalResampleToScreenPixels is set
-  if (this->InternalResampleToScreenPixels ||
-      !propMatrixIsOrthonormal)
+  if (this->InternalResampleToScreenPixels || !propMatrixIsOrthonormal)
   {
     this->UpdateSliceToWorldMatrix(ren->GetActiveCamera());
     vtkMatrix4x4::Multiply4x4(
@@ -598,9 +579,8 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
   else
   {
     // Get the matrices used to compute the reslice matrix
-    vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
-    vtkMatrix4x4 *viewMatrix =
-      ren->GetActiveCamera()->GetViewTransformMatrix();
+    vtkMatrix4x4* resliceMatrix = this->ResliceMatrix;
+    vtkMatrix4x4* viewMatrix = ren->GetActiveCamera()->GetViewTransformMatrix();
 
     // Get slice plane in world coords by passing null as the matrix
     double wplane[4];
@@ -608,7 +588,7 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
 
     // Check whether normal is facing towards camera, the "ndop" is
     // the negative of the direction of projection for the camera
-    double *ndop = viewMatrix->Element[2];
+    double* ndop = viewMatrix->Element[2];
     double dotprod = vtkMath::Dot(ndop, wplane);
 
     // Get slice plane in data coords by passing the prop matrix, flip
@@ -633,7 +613,7 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
     double maxv = 0.0;
     for (int i = 0; i < 3; i++)
     {
-      double tmp = plane[i]*plane[i];
+      double tmp = plane[i] * plane[i];
       if (tmp > maxv)
       {
         maxi = i;
@@ -661,13 +641,11 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
     vtkMath::Cross(taxis, axis, saxis);
 
     // The normal is the first three elements
-    double *normal = plane;
+    double* normal = plane;
 
     // The last element is -dot(normal, origin)
-    double dp = (-plane[3] +
-                 wplane[0]*propMatrix->Element[0][3] +
-                 wplane[1]*propMatrix->Element[1][3] +
-                 wplane[2]*propMatrix->Element[2][3]);
+    double dp = (-plane[3] + wplane[0] * propMatrix->Element[0][3] +
+      wplane[1] * propMatrix->Element[1][3] + wplane[2] * propMatrix->Element[2][3]);
 
     // Compute the rotation angle between the axis and the normal
     double vec[3];
@@ -682,13 +660,13 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
       vec[2] /= sintheta;
     }
     // convert to quaternion
-    costheta = cos(0.5*theta);
-    sintheta = sin(0.5*theta);
+    costheta = cos(0.5 * theta);
+    sintheta = sin(0.5 * theta);
     double quat[4];
     quat[0] = costheta;
-    quat[1] = vec[0]*sintheta;
-    quat[2] = vec[1]*sintheta;
-    quat[3] = vec[2]*sintheta;
+    quat[1] = vec[0] * sintheta;
+    quat[2] = vec[1] * sintheta;
+    quat[3] = vec[2] * sintheta;
     // convert to matrix
     double mat[3][3];
     vtkMath::QuaternionToMatrix3x3(quat, mat);
@@ -714,23 +692,22 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
     resliceMatrix->Element[2][2] = normal[2];
     resliceMatrix->Element[3][2] = 0.0;
 
-    resliceMatrix->Element[0][3] = dp*(propMatrix->Element[2][0] - normal[0]) -
-      (propMatrix->Element[0][3]*propMatrix->Element[0][0] +
-       propMatrix->Element[1][3]*propMatrix->Element[1][0] +
-       propMatrix->Element[2][3]*propMatrix->Element[2][0]);
-    resliceMatrix->Element[1][3] = dp*(propMatrix->Element[2][1] - normal[1]) -
-      (propMatrix->Element[0][3]*propMatrix->Element[0][1] +
-       propMatrix->Element[1][3]*propMatrix->Element[1][1] +
-       propMatrix->Element[2][3]*propMatrix->Element[2][1]);
-    resliceMatrix->Element[2][3] = dp*(propMatrix->Element[2][2] - normal[2]) -
-      (propMatrix->Element[0][3]*propMatrix->Element[0][2] +
-       propMatrix->Element[1][3]*propMatrix->Element[1][2] +
-       propMatrix->Element[2][3]*propMatrix->Element[2][2]);
+    resliceMatrix->Element[0][3] = dp * (propMatrix->Element[2][0] - normal[0]) -
+      (propMatrix->Element[0][3] * propMatrix->Element[0][0] +
+        propMatrix->Element[1][3] * propMatrix->Element[1][0] +
+        propMatrix->Element[2][3] * propMatrix->Element[2][0]);
+    resliceMatrix->Element[1][3] = dp * (propMatrix->Element[2][1] - normal[1]) -
+      (propMatrix->Element[0][3] * propMatrix->Element[0][1] +
+        propMatrix->Element[1][3] * propMatrix->Element[1][1] +
+        propMatrix->Element[2][3] * propMatrix->Element[2][1]);
+    resliceMatrix->Element[2][3] = dp * (propMatrix->Element[2][2] - normal[2]) -
+      (propMatrix->Element[0][3] * propMatrix->Element[0][2] +
+        propMatrix->Element[1][3] * propMatrix->Element[1][2] +
+        propMatrix->Element[2][3] * propMatrix->Element[2][2]);
     resliceMatrix->Element[3][3] = 1.0;
 
     // Compute the SliceToWorldMatrix
-    vtkMatrix4x4::Multiply4x4(propMatrix, resliceMatrix,
-      this->SliceToWorldMatrix);
+    vtkMatrix4x4::Multiply4x4(propMatrix, resliceMatrix, this->SliceToWorldMatrix);
   }
 
   // If matrix changed, mark as modified so that Reslice will update
@@ -747,10 +724,10 @@ void vtkImageResliceMapper::UpdateResliceMatrix(
 
 //----------------------------------------------------------------------------
 // Do all the fancy math to set up the reslicing
-void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
+void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
 {
-  vtkMatrix4x4 *resliceMatrix = this->ResliceMatrix;
-  vtkImageResliceToColors *reslice = this->ImageReslice;
+  vtkMatrix4x4* resliceMatrix = this->ResliceMatrix;
+  vtkImageResliceToColors* reslice = this->ImageReslice;
 
   int extent[6];
   double spacing[3];
@@ -762,8 +739,8 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   reslice->GetOutputExtent(extent);
 
   // Get the view matrix
-  vtkCamera *camera = ren->GetActiveCamera();
-  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
+  vtkCamera* camera = ren->GetActiveCamera();
+  vtkMatrix4x4* viewMatrix = camera->GetViewTransformMatrix();
 
   // Get slice plane in world coords by passing null as the matrix
   double plane[4];
@@ -771,7 +748,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
 
   // Check whether normal is facing towards camera, the "ndop" is
   // the negative of the direction of projection for the camera
-  double *ndop = viewMatrix->Element[2];
+  double* ndop = viewMatrix->Element[2];
   if (vtkMath::Dot(ndop, plane) < 0)
   {
     plane[0] = -plane[0];
@@ -782,21 +759,19 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
 
   // Get the z position of the slice in slice coords
   // (requires plane to be normalized by GetSlicePlaneInDataCoords)
-  double z = (plane[2] - 2.0)*plane[3];
+  double z = (plane[2] - 2.0) * plane[3];
 
   if (this->InternalResampleToScreenPixels)
   {
     // Get the projection matrix
     double aspect = ren->GetTiledAspectRatio();
-    vtkMatrix4x4 *projMatrix = camera->GetProjectionTransformMatrix(
-                                 aspect, 0, 1);
+    vtkMatrix4x4* projMatrix = camera->GetProjectionTransformMatrix(aspect, 0, 1);
 
     // Compute other useful matrices
     double worldToView[16];
     double viewToWorld[16];
     double planeWorldToView[16];
-    vtkMatrix4x4::Multiply4x4(
-      *projMatrix->Element, *viewMatrix->Element, worldToView);
+    vtkMatrix4x4::Multiply4x4(*projMatrix->Element, *viewMatrix->Element, worldToView);
     vtkMatrix4x4::Invert(worldToView, viewToWorld);
     vtkMatrix4x4::Transpose(viewToWorld, planeWorldToView);
 
@@ -836,7 +811,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       else
       {
         // Intersect with the slice plane
-        hpoint[2] = - (x*plane[0] + y*plane[1] + plane[3])/plane[2];
+        hpoint[2] = -(x * plane[0] + y * plane[1] + plane[3]) / plane[2];
 
         // Clip to the front and back clipping planes
         if (hpoint[2] < 0)
@@ -852,20 +827,32 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       // Transform into slice coords
       vtkMatrix4x4::MultiplyPoint(viewToSlice, hpoint, hpoint);
 
-      x = hpoint[0]/hpoint[3];
-      y = hpoint[1]/hpoint[3];
+      x = hpoint[0] / hpoint[3];
+      y = hpoint[1] / hpoint[3];
 
       // Find min/max in slice coords
-      if (x < xmin) { xmin = x; }
-      if (x > xmax) { xmax = x; }
-      if (y < ymin) { ymin = y; }
-      if (y > ymax) { ymax = y; }
+      if (x < xmin)
+      {
+        xmin = x;
+      }
+      if (x > xmax)
+      {
+        xmax = x;
+      }
+      if (y < ymin)
+      {
+        ymin = y;
+      }
+      if (y > ymax)
+      {
+        ymax = y;
+      }
     }
 
     // The ResliceExtent is always set to the renderer size,
     // this is the maximum size ever required and sticking to
     // this size avoids any memory reallocation on GPU or CPU
-    int *size = ren->GetSize();
+    int* size = ren->GetSize();
     int xsize = ((size[0] <= 0) ? 1 : size[0]);
     int ysize = ((size[1] <= 0) ? 1 : size[1]);
 
@@ -877,13 +864,13 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     extent[5] = 0;
 
     // Find the spacing
-    spacing[0] = (xmax - xmin)/xsize;
-    spacing[1] = (ymax - ymin)/ysize;
+    spacing[0] = (xmax - xmin) / xsize;
+    spacing[1] = (ymax - ymin) / ysize;
 
     // Corner of resliced plane, including half-pixel offset to
     // exactly match texels to pixels in the final rendering
-    origin[0] = xmin + 0.5*spacing[0];
-    origin[1] = ymin + 0.5*spacing[1];
+    origin[0] = xmin + 0.5 * spacing[0];
+    origin[1] = ymin + 0.5 * spacing[1];
     origin[2] = z;
   }
   else
@@ -899,12 +886,12 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
       double xc = this->ResliceMatrix->Element[j][0];
       double yc = this->ResliceMatrix->Element[j][1];
       double zc = this->ResliceMatrix->Element[j][2];
-      double s = (xc*xc*inputSpacing[0] +
-                  yc*yc*inputSpacing[1] +
-                  zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+      double s =
+        (xc * xc * inputSpacing[0] + yc * yc * inputSpacing[1] + zc * zc * inputSpacing[2]) /
+        sqrt(xc * xc + yc * yc + zc * zc);
       s /= this->ImageSampleFactor;
       // only modify if difference is greater than roundoff tolerance
-      if (fabs((s - spacing[j])/s) > 1e-12)
+      if (fabs((s - spacing[j]) / s) > 1e-12)
       {
         spacing[j] = s;
       }
@@ -916,7 +903,7 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     double ymin = VTK_DOUBLE_MAX;
     double ymax = -VTK_DOUBLE_MAX;
 
-    vtkPoints *points = this->SliceMapper->GetPoints();
+    vtkPoints* points = this->SliceMapper->GetPoints();
     vtkIdType n = points->GetNumberOfPoints();
     if (n == 0)
     {
@@ -940,19 +927,25 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     }
 
     double tol = VTK_RESLICE_MAPPER_VOXEL_TOL;
-    int xsize = vtkMath::Floor((xmax - xmin)/spacing[0] + tol);
-    int ysize = vtkMath::Floor((ymax - ymin)/spacing[1] + tol);
+    int xsize = vtkMath::Floor((xmax - xmin) / spacing[0] + tol);
+    int ysize = vtkMath::Floor((ymax - ymin) / spacing[1] + tol);
     if (this->Border == 0)
     {
       xsize += 1;
       ysize += 1;
     }
-    if (xsize < 1) { xsize = 1; }
-    if (ysize < 1) { ysize = 1; }
+    if (xsize < 1)
+    {
+      xsize = 1;
+    }
+    if (ysize < 1)
+    {
+      ysize = 1;
+    }
 
     // Keep old size if possible, to avoid memory reallocation
-    if ((xsize - 1) > extent[1] || (ysize - 1) > extent[3] ||
-        (0.9*extent[1]/xsize) > 1.0 || (0.9*extent[3]/ysize) > 1.0)
+    if ((xsize - 1) > extent[1] || (ysize - 1) > extent[3] || (0.9 * extent[1] / xsize) > 1.0 ||
+      (0.9 * extent[3] / ysize) > 1.0)
     {
       extent[1] = xsize - 1;
       extent[3] = ysize - 1;
@@ -962,15 +955,15 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
     extent[4] = 0;
     extent[5] = 0;
 
-    double x0 = xmin + 0.5*spacing[0]*(this->Border != 0);
-    double y0 = ymin + 0.5*spacing[1]*(this->Border != 0);
+    double x0 = xmin + 0.5 * spacing[0] * (this->Border != 0);
+    double y0 = ymin + 0.5 * spacing[1] * (this->Border != 0);
 
     double dx = x0 - origin[0];
     double dy = y0 - origin[1];
     double dz = z - origin[2];
 
     // only modify origin if it has changed by tolerance
-    if (dx*dx + dy*dy + dz*dz > tol*tol*spacing[0]*spacing[1])
+    if (dx * dx + dy * dy + dz * dz > tol * tol * spacing[0] * spacing[1])
     {
       origin[0] = x0;
       origin[1] = y0;
@@ -984,10 +977,9 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   reslice->SetOutputSpacing(spacing);
   reslice->SetOutputOrigin(origin);
 
-  if ((this->SliceFacesCamera &&
-       this->InternalResampleToScreenPixels &&
-       !this->SeparateWindowLevelOperation) ||
-      this->SlabThickness > 0)
+  if ((this->SliceFacesCamera && this->InternalResampleToScreenPixels &&
+        !this->SeparateWindowLevelOperation) ||
+    this->SlabThickness > 0)
   {
     // if slice follows camera, use reslice to set the border
     reslice->SetBorder(this->Border);
@@ -1003,9 +995,9 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
 
 //----------------------------------------------------------------------------
 // Do all the fancy math to set up the reslicing
-void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
+void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty* property)
 {
-  vtkScalarsToColors *lookupTable = this->DefaultLookupTable;
+  vtkScalarsToColors* lookupTable = this->DefaultLookupTable;
 
   if (property)
   {
@@ -1016,14 +1008,12 @@ void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
       lookupTable = property->GetLookupTable();
       if (!property->GetUseLookupTableScalarRange())
       {
-        lookupTable->SetRange(colorLevel - 0.5*colorWindow,
-                              colorLevel + 0.5*colorWindow);
+        lookupTable->SetRange(colorLevel - 0.5 * colorWindow, colorLevel + 0.5 * colorWindow);
       }
     }
     else
     {
-      lookupTable->SetRange(colorLevel - 0.5*colorWindow,
-                            colorLevel + 0.5*colorWindow);
+      lookupTable->SetRange(colorLevel - 0.5 * colorWindow, colorLevel + 0.5 * colorWindow);
     }
   }
   else
@@ -1046,8 +1036,7 @@ void vtkImageResliceMapper::UpdateColorInformation(vtkImageProperty *property)
 
 //----------------------------------------------------------------------------
 // Set the reslice interpolation and slab thickness
-void vtkImageResliceMapper::UpdateResliceInterpolation(
-  vtkImageProperty *property)
+void vtkImageResliceMapper::UpdateResliceInterpolation(vtkImageProperty* property)
 {
   // set the interpolation mode and border
   int interpMode = VTK_RESLICE_NEAREST;
@@ -1055,7 +1044,7 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
 
   if (property)
   {
-    switch(property->GetInterpolationType())
+    switch (property->GetInterpolationType())
     {
       case VTK_NEAREST_INTERPOLATION:
         interpMode = VTK_RESLICE_NEAREST;
@@ -1079,16 +1068,15 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
   double xc = this->ResliceMatrix->Element[2][0];
   double yc = this->ResliceMatrix->Element[2][1];
   double zc = this->ResliceMatrix->Element[2][2];
-  spacing[2] = (xc*xc*inputSpacing[0] +
-                yc*yc*inputSpacing[1] +
-                zc*zc*inputSpacing[2])/sqrt(xc*xc + yc*yc + zc*zc);
+  spacing[2] = (xc * xc * inputSpacing[0] + yc * yc * inputSpacing[1] + zc * zc * inputSpacing[2]) /
+    sqrt(xc * xc + yc * yc + zc * zc);
 
   // slab slice spacing is half the input slice spacing
-  int n = vtkMath::Ceil(this->SlabThickness/spacing[2]);
-  slabSlices = 1 + this->SlabSampleFactor*n;
+  int n = vtkMath::Ceil(this->SlabThickness / spacing[2]);
+  slabSlices = 1 + this->SlabSampleFactor * n;
   if (slabSlices > 1)
   {
-    spacing[2] = this->SlabThickness/(slabSlices - 1);
+    spacing[2] = this->SlabThickness / (slabSlices - 1);
   }
   this->ImageReslice->SetOutputSpacing(spacing);
   int slabMode = this->SlabType;
@@ -1109,7 +1097,7 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
 
 //----------------------------------------------------------------------------
 void vtkImageResliceMapper::CheckerboardImage(
-  vtkImageData *input, vtkCamera *camera, vtkImageProperty *property)
+  vtkImageData* input, vtkCamera* camera, vtkImageProperty* property)
 {
   // Use focal point as center of checkerboard pattern.  This guarantees
   // exactly the same checkerboard for all images in the scene, which is
@@ -1133,26 +1121,24 @@ void vtkImageResliceMapper::CheckerboardImage(
   double checkSpacing[2], checkOffset[2];
   property->GetCheckerboardSpacing(checkSpacing);
   property->GetCheckerboardOffset(checkOffset);
-  checkOffset[0] = checkOffset[0]*checkSpacing[0] + focalPoint[0];
-  checkOffset[1] = checkOffset[1]*checkSpacing[1] + focalPoint[1];
+  checkOffset[0] = checkOffset[0] * checkSpacing[0] + focalPoint[0];
+  checkOffset[1] = checkOffset[1] * checkSpacing[1] + focalPoint[1];
 
   // Adjust according to the origin and spacing of the slice data
   double origin[3], spacing[3];
   input->GetSpacing(spacing);
   input->GetOrigin(origin);
-  checkOffset[0] = (checkOffset[0] - origin[0])/spacing[0];
-  checkOffset[1] = (checkOffset[1] - origin[1])/spacing[1];
+  checkOffset[0] = (checkOffset[0] - origin[0]) / spacing[0];
+  checkOffset[1] = (checkOffset[1] - origin[1]) / spacing[1];
   checkSpacing[0] /= spacing[0];
   checkSpacing[1] /= spacing[1];
 
   // Apply the checkerboard to the data
   int extent[6];
   input->GetExtent(extent);
-  unsigned char *data = static_cast<unsigned char *>(
-    input->GetScalarPointerForExtent(extent));
+  unsigned char* data = static_cast<unsigned char*>(input->GetScalarPointerForExtent(extent));
 
-  vtkImageMapper3D::CheckerboardRGBA(
-    data, extent[1] - extent[0] + 1, extent[3] - extent[2] + 1,
+  vtkImageMapper3D::CheckerboardRGBA(data, extent[1] - extent[0] + 1, extent[3] - extent[2] + 1,
     checkOffset[0], checkOffset[1], checkSpacing[0], checkSpacing[1]);
 }
 
@@ -1160,20 +1146,18 @@ void vtkImageResliceMapper::CheckerboardImage(
 // Compute the vertices of the polygon in the slice coordinate system
 #define VTK_IRM_MAX_VERTS 32
 #define VTK_IRM_MAX_COORDS 96
-void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
+void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer* ren)
 {
   // Get the projection matrix
   double aspect = ren->GetTiledAspectRatio();
-  vtkCamera *camera = ren->GetActiveCamera();
-  vtkMatrix4x4 *viewMatrix = camera->GetViewTransformMatrix();
-  vtkMatrix4x4 *projMatrix = camera->GetProjectionTransformMatrix(
-                               aspect, 0, 1);
+  vtkCamera* camera = ren->GetActiveCamera();
+  vtkMatrix4x4* viewMatrix = camera->GetViewTransformMatrix();
+  vtkMatrix4x4* projMatrix = camera->GetProjectionTransformMatrix(aspect, 0, 1);
 
   // Compute other useful matrices
   double worldToView[16];
   double viewToWorld[16];
-  vtkMatrix4x4::Multiply4x4(
-    *projMatrix->Element, *viewMatrix->Element, worldToView);
+  vtkMatrix4x4::Multiply4x4(*projMatrix->Element, *viewMatrix->Element, worldToView);
   vtkMatrix4x4::Invert(worldToView, viewToWorld);
 
   double worldToSlice[16];
@@ -1187,7 +1171,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 
   // Check whether normal is facing towards camera, the "ndop" is
   // the negative of the direction of projection for the camera
-  double *ndop = viewMatrix->Element[2];
+  double* ndop = viewMatrix->Element[2];
   if (vtkMath::Dot(ndop, plane) < 0)
   {
     plane[0] = -plane[0];
@@ -1198,7 +1182,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 
   // Get the z position of the slice in slice coords
   // (requires plane to be normalized by GetSlicePlaneInDataCoords)
-  double z = (plane[2] - 2.0)*plane[3];
+  double z = (plane[2] - 2.0) * plane[3];
 
   // Generate a tolerance based on the screen pixel size
   double fpoint[4];
@@ -1227,28 +1211,27 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   botOfScreen[3] = 1.0;
 
   // height of view in world coords at focal point
-  double viewHeight =
-    sqrt(vtkMath::Distance2BetweenPoints(topOfScreen, botOfScreen));
+  double viewHeight = sqrt(vtkMath::Distance2BetweenPoints(topOfScreen, botOfScreen));
 
   // height of view in pixels
   int height = ren->GetSize()[1];
 
-  double tol = (height == 0 ? 0.5 : viewHeight*0.5/height);
+  double tol = (height == 0 ? 0.5 : viewHeight * 0.5 / height);
 
   // make the data bounding box (with or without border)
   double b = (this->Border ? 0.5 : VTK_RESLICE_MAPPER_VOXEL_TOL);
   double bounds[6];
   for (int ii = 0; ii < 3; ii++)
   {
-    double c = b*this->DataSpacing[ii];
-    int lo = this->DataWholeExtent[2*ii];
-    int hi = this->DataWholeExtent[2*ii+1];
+    double c = b * this->DataSpacing[ii];
+    int lo = this->DataWholeExtent[2 * ii];
+    int hi = this->DataWholeExtent[2 * ii + 1];
     if (lo == hi && tol > c)
     { // apply tolerance to avoid degeneracy
       c = tol;
     }
-    bounds[2*ii]   = lo*this->DataSpacing[ii] + this->DataOrigin[ii] - c;
-    bounds[2*ii+1] = hi*this->DataSpacing[ii] + this->DataOrigin[ii] + c;
+    bounds[2 * ii] = lo * this->DataSpacing[ii] + this->DataOrigin[ii] - c;
+    bounds[2 * ii + 1] = hi * this->DataSpacing[ii] + this->DataOrigin[ii] + c;
   }
 
   // transform the vertices to the slice coord system
@@ -1256,8 +1239,8 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   double weights1[8], weights2[8];
   bool above[8], below[8];
   double mat[16];
-  vtkMatrix4x4::Multiply4x4(*this->WorldToDataMatrix->Element,
-                            *this->SliceToWorldMatrix->Element, mat);
+  vtkMatrix4x4::Multiply4x4(
+    *this->WorldToDataMatrix->Element, *this->SliceToWorldMatrix->Element, mat);
   vtkMatrix4x4::Invert(mat, mat);
 
   // arrays for the list of polygon points
@@ -1270,14 +1253,14 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   for (int i = 0; i < 8; i++)
   {
     double point[4];
-    point[0] = bounds[0 + ((i>>0)&1)];
-    point[1] = bounds[2 + ((i>>1)&1)];
-    point[2] = bounds[4 + ((i>>2)&1)];
+    point[0] = bounds[0 + ((i >> 0) & 1)];
+    point[1] = bounds[2 + ((i >> 1) & 1)];
+    point[2] = bounds[4 + ((i >> 2) & 1)];
     point[3] = 1.0;
     vtkMatrix4x4::MultiplyPoint(mat, point, point);
-    xpoints[i] = point[0]/point[3];
-    ypoints[i] = point[1]/point[3];
-    weights1[i] = point[2]/point[3] - z - 0.5*this->SlabThickness;
+    xpoints[i] = point[0] / point[3];
+    ypoints[i] = point[1] / point[3];
+    weights1[i] = point[2] / point[3] - z - 0.5 * this->SlabThickness;
     weights2[i] = weights1[i] + this->SlabThickness;
     below[i] = (weights1[i] < 0);
     above[i] = (weights2[i] >= 0);
@@ -1296,11 +1279,11 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   for (int j = 0; j < 12; j++)
   {
     // verts from edges (sorry about this..)
-    int i1 = (j & 3) | (((j<<1) ^ (j<<2)) & 4);
-    int i2 = (i1 ^ (1 << (j>>2)));
+    int i1 = (j & 3) | (((j << 1) ^ (j << 2)) & 4);
+    int i2 = (i1 ^ (1 << (j >> 2)));
 
-    double *weights = weights2;
-    bool *side = above;
+    double* weights = weights2;
+    bool* side = above;
     int m = 1 + (this->SlabThickness > 0);
     for (int k = 0; k < m; k++)
     {
@@ -1308,8 +1291,8 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       {
         double w1 = weights[i2];
         double w2 = -weights[i1];
-        double x = (w1*xpoints[i1] + w2*xpoints[i2])/(w1 + w2);
-        double y = (w1*ypoints[i1] + w2*ypoints[i2])/(w1 + w2);
+        double x = (w1 * xpoints[i1] + w2 * xpoints[i2]) / (w1 + w2);
+        double y = (w1 * ypoints[i1] + w2 * ypoints[i2]) / (w1 + w2);
         newxpoints[n] = x;
         newypoints[n] = y;
         cx += x;
@@ -1339,21 +1322,24 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       int kk;
       for (kk = 0; kk < k; kk++)
       {
-        if (t < angles[kk]) { break; }
+        if (t < angles[kk])
+        {
+          break;
+        }
       }
       for (int jj = k; jj > kk; --jj)
       {
-        int jj3 = jj*3;
-        angles[jj] = angles[jj-1];
-        coords[jj3] = coords[jj3-3];
-        coords[jj3+1] = coords[jj3-2];
-        coords[jj3+2] = coords[jj3-1];
+        int jj3 = jj * 3;
+        angles[jj] = angles[jj - 1];
+        coords[jj3] = coords[jj3 - 3];
+        coords[jj3 + 1] = coords[jj3 - 2];
+        coords[jj3 + 2] = coords[jj3 - 1];
       }
-      int kk3 = kk*3;
+      int kk3 = kk * 3;
       angles[kk] = t;
       coords[kk3] = x;
-      coords[kk3+1] = y;
-      coords[kk3+2] = z;
+      coords[kk3 + 1] = y;
+      coords[kk3 + 2] = z;
     }
   }
 
@@ -1365,17 +1351,17 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     do
     {
       m = 0;
-      double xl = coords[3*(n-1)+0];
-      double yl = coords[3*(n-1)+1];
+      double xl = coords[3 * (n - 1) + 0];
+      double yl = coords[3 * (n - 1) + 1];
       for (int k = 0; k < n; k++)
       {
-        double x = coords[3*k+0];
-        double y = coords[3*k+1];
+        double x = coords[3 * k + 0];
+        double y = coords[3 * k + 1];
 
-        if (((x - xl)*(x - xl) + (y - yl)*(y - yl)) > tol*tol)
+        if (((x - xl) * (x - xl) + (y - yl) * (y - yl)) > tol * tol)
         {
-          coords[3*m+0] = x;
-          coords[3*m+1] = y;
+          coords[3 * m + 0] = x;
+          coords[3 * m + 1] = y;
           xl = x;
           yl = y;
           m++;
@@ -1383,8 +1369,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       }
       found = (m < n);
       n = m;
-    }
-    while (found && n > 0);
+    } while (found && n > 0);
   }
 
   // find convex hull
@@ -1395,20 +1380,20 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     do
     {
       m = 0;
-      double xl = coords[3*(n-1)+0];
-      double yl = coords[3*(n-1)+1];
+      double xl = coords[3 * (n - 1) + 0];
+      double yl = coords[3 * (n - 1) + 1];
       for (int k = 0; k < n; k++)
       {
-        double x = coords[3*k+0];
-        double y = coords[3*k+1];
+        double x = coords[3 * k + 0];
+        double y = coords[3 * k + 1];
         int k1 = (k + 1) % n;
-        double xn = coords[3*k1+0];
-        double yn = coords[3*k1+1];
+        double xn = coords[3 * k1 + 0];
+        double yn = coords[3 * k1 + 1];
 
-        if ((xn-xl)*(y-yl) - (yn-yl)*(x-xl) < tol*tol)
+        if ((xn - xl) * (y - yl) - (yn - yl) * (x - xl) < tol * tol)
         {
-          coords[3*m+0] = x;
-          coords[3*m+1] = y;
+          coords[3 * m + 0] = x;
+          coords[3 * m + 1] = y;
           xl = x;
           yl = y;
           m++;
@@ -1416,11 +1401,10 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       }
       found = (m < n);
       n = m;
-    }
-    while (found && n > 0);
+    } while (found && n > 0);
   }
 
-  vtkPoints *points = this->SliceMapper->GetPoints();
+  vtkPoints* points = this->SliceMapper->GetPoints();
   if (!points)
   {
     points = vtkPoints::New();
@@ -1432,7 +1416,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   points->SetNumberOfPoints(n);
   for (int k = 0; k < n; k++)
   {
-    points->SetPoint(k, &coords[3*k]);
+    points->SetPoint(k, &coords[3 * k]);
   }
   points->Modified();
 }
@@ -1440,16 +1424,13 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 //----------------------------------------------------------------------------
 void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "JumpToNearestSlice: "
-     << (this->JumpToNearestSlice ? "On\n" : "Off\n");
-  os << indent << "AutoAdjustImageQuality: "
-     << (this->AutoAdjustImageQuality ? "On\n" : "Off\n");
-  os << indent << "SeparateWindowLevelOperation: "
-     << (this->SeparateWindowLevelOperation ? "On\n" : "Off\n");
-  os << indent << "ResampleToScreenPixels: "
-     << (this->ResampleToScreenPixels ? "On\n" : "Off\n");
+  os << indent << "JumpToNearestSlice: " << (this->JumpToNearestSlice ? "On\n" : "Off\n");
+  os << indent << "AutoAdjustImageQuality: " << (this->AutoAdjustImageQuality ? "On\n" : "Off\n");
+  os << indent
+     << "SeparateWindowLevelOperation: " << (this->SeparateWindowLevelOperation ? "On\n" : "Off\n");
+  os << indent << "ResampleToScreenPixels: " << (this->ResampleToScreenPixels ? "On\n" : "Off\n");
   os << indent << "SlabThickness: " << this->SlabThickness << "\n";
   os << indent << "SlabType: " << this->GetSlabTypeAsString() << "\n";
   os << indent << "SlabSampleFactor: " << this->SlabSampleFactor << "\n";
@@ -1458,7 +1439,7 @@ void vtkImageResliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkImageResliceMapper::GetSlabTypeAsString()
+const char* vtkImageResliceMapper::GetSlabTypeAsString()
 {
   switch (this->SlabType)
   {
@@ -1480,8 +1461,7 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
   // Check whether interpolator has changed
-  vtkAbstractImageInterpolator *interpolator =
-    this->ImageReslice->GetInterpolator();
+  vtkAbstractImageInterpolator* interpolator = this->ImageReslice->GetInterpolator();
   if (interpolator)
   {
     vtkMTimeType mTime2 = interpolator->GetMTime();
@@ -1493,13 +1473,12 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
 
   // Include camera in MTime so that REQUEST_INFORMATION
   // will be called if the camera changes
-  if (this->SliceFacesCamera || this->SliceAtFocalPoint ||
-      this->InternalResampleToScreenPixels)
+  if (this->SliceFacesCamera || this->SliceAtFocalPoint || this->InternalResampleToScreenPixels)
   {
-    vtkRenderer *ren = this->GetCurrentRenderer();
+    vtkRenderer* ren = this->GetCurrentRenderer();
     if (ren)
     {
-      vtkCamera *camera = ren->GetActiveCamera();
+      vtkCamera* camera = ren->GetActiveCamera();
       vtkMTimeType mTime2 = camera->GetMTime();
       mTime = (mTime2 > mTime ? mTime2 : mTime);
     }
@@ -1511,13 +1490,13 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
     mTime = (sTime > mTime ? sTime : mTime);
   }
 
-  vtkImageSlice *prop = this->GetCurrentProp();
+  vtkImageSlice* prop = this->GetCurrentProp();
   if (prop != nullptr)
   {
     vtkMTimeType mTime2 = prop->GetUserTransformMatrixMTime();
     mTime = (mTime2 > mTime ? mTime2 : mTime);
 
-    vtkImageProperty *property = prop->GetProperty();
+    vtkImageProperty* property = prop->GetProperty();
     if (property != nullptr)
     {
       bool useMTime = true;
@@ -1535,7 +1514,7 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
         mTime2 = property->GetMTime();
         mTime = (mTime2 > mTime ? mTime2 : mTime);
 
-        vtkScalarsToColors *lookupTable = property->GetLookupTable();
+        vtkScalarsToColors* lookupTable = property->GetLookupTable();
         if (lookupTable != nullptr)
         {
           // check the lookup table mtime
@@ -1567,7 +1546,7 @@ void vtkImageResliceMapper::GetIndexBounds(double extent[6])
   extent[5] = this->DataWholeExtent[5];
 
   // expand by half a pixel if border is on
-  double border = 0.5*(this->Border != 0);
+  double border = 0.5 * (this->Border != 0);
 
   extent[0] -= border;
   extent[1] += border;
@@ -1578,7 +1557,7 @@ void vtkImageResliceMapper::GetIndexBounds(double extent[6])
 }
 
 //----------------------------------------------------------------------------
-double *vtkImageResliceMapper::GetBounds()
+double* vtkImageResliceMapper::GetBounds()
 {
   if (!this->GetInput())
   {
@@ -1589,9 +1568,9 @@ double *vtkImageResliceMapper::GetBounds()
   double extent[6];
   this->GetIndexBounds(extent);
 
-  double *spacing = this->DataSpacing;
-  double *origin = this->DataOrigin;
-  double *direction = this->DataDirection;
+  double* spacing = this->DataSpacing;
+  double* origin = this->DataOrigin;
+  double* direction = this->DataDirection;
 
   // compute bounds
   for (int k = 0; k < 2; ++k)
@@ -1606,12 +1585,11 @@ double *vtkImageResliceMapper::GetBounds()
         double point[3];
         for (int c = 0; c < 3; ++c)
         {
-          point[c] = ival*spacing[0]*direction[c*3]
-            + jval*spacing[1]*direction[c*3 + 1]
-            + kval*spacing[2] *direction[c*3 + 2]
-            + origin[c];
+          point[c] = ival * spacing[0] * direction[c * 3] +
+            jval * spacing[1] * direction[c * 3 + 1] + kval * spacing[2] * direction[c * 3 + 2] +
+            origin[c];
         }
-        if (i+j+k == 0)
+        if (i + j + k == 0)
         {
           this->Bounds[0] = point[0];
           this->Bounds[1] = point[0];
@@ -1624,8 +1602,9 @@ double *vtkImageResliceMapper::GetBounds()
         {
           for (int c = 0; c < 3; ++c)
           {
-            this->Bounds[c*2] = point[c] < this->Bounds[c*2] ? point[c] : this->Bounds[c*2];
-            this->Bounds[c*2 + 1] = point[c] > this->Bounds[c*2 + 1] ? point[c] : this->Bounds[c*2 + 1];
+            this->Bounds[c * 2] = point[c] < this->Bounds[c * 2] ? point[c] : this->Bounds[c * 2];
+            this->Bounds[c * 2 + 1] =
+              point[c] > this->Bounds[c * 2 + 1] ? point[c] : this->Bounds[c * 2 + 1];
           }
         }
       }

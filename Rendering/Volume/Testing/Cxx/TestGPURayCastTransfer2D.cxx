@@ -21,6 +21,7 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkFloatArray.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -29,24 +30,21 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkFloatArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-
 
 typedef vtkSmartPointer<vtkImageData> Transfer2DPtr;
 Transfer2DPtr Create2DTransfer()
 {
-  int bins[2] = {256, 256};
+  int bins[2] = { 256, 256 };
   Transfer2DPtr image = Transfer2DPtr::New();
   image->SetDimensions(bins[0], bins[1], 1);
   image->AllocateScalars(VTK_FLOAT, 4);
-  vtkFloatArray* arr = vtkFloatArray::SafeDownCast(
-    image->GetPointData()->GetScalars());
+  vtkFloatArray* arr = vtkFloatArray::SafeDownCast(image->GetPointData()->GetScalars());
 
   // Initialize to zero
   void* dataPtr = arr->GetVoidPointer(0);
@@ -67,7 +65,7 @@ Transfer2DPtr Create2DTransfer()
         double const blue = jFactor * static_cast<double>(j) / bins[1];
         double const alpha = 0.25 * jFactor * static_cast<double>(j) / bins[0];
 
-        double color[4] = {red, green, blue, alpha};
+        double color[4] = { red, green, blue, alpha };
         arr->SetTuple(index, color);
       }
     }
@@ -81,8 +79,7 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Load data
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/tooth.nhdr");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
   vtkNew<vtkNrrdReader> reader;
   reader->SetFileName(fname);
   reader->Update();
@@ -110,7 +107,7 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   pf->AddPoint(range[1], 0.4);
 
   vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(0,   0.0);
+  gf->AddPoint(0, 0.0);
   gf->AddPoint(range[1] / 4.0, 1.0);
 
   volumeProperty->SetScalarOpacity(pf);
@@ -159,10 +156,9 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

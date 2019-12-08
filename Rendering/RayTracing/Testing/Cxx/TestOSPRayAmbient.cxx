@@ -27,16 +27,16 @@
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
 #include "vtkLight.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkPLYReader.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 
@@ -44,7 +44,8 @@
 
 int TestOSPRayAmbient(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -64,28 +65,27 @@ int TestOSPRayAmbient(int argc, char* argv[])
   vtkOSPRayLightNode::SetIsAmbient(1, l);
   renderer->AddLight(l);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkSmartPointer<vtkPLYReader> polysource = vtkSmartPointer<vtkPLYReader>::New();
   polysource->SetFileName(fileName);
 
   vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
   normals->SetInputConnection(polysource->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(normals->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
 
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
-  //vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
-  //renderer->SetBackground(0.0,0.0,0.0);
+  // vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
+  // renderer->SetBackground(0.0,0.0,0.0);
 
   double intensity;
-  for (double i = 0.; i < 3.14; i+=0.1)
+  for (double i = 0.; i < 3.14; i += 0.1)
   {
     intensity = sin(i);
     l->SetIntensity(intensity);
@@ -94,8 +94,7 @@ int TestOSPRayAmbient(int argc, char* argv[])
   l->SetIntensity(0.2);
   renWin->Render();
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

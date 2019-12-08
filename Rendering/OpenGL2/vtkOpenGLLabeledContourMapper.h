@@ -17,29 +17,28 @@
  *
  * vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
  * that implements stenciling using the OpenGL2 API.
-*/
+ */
 
 #ifndef vtkOpenGLLabeledContourMapper_h
 #define vtkOpenGLLabeledContourMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLabeledContourMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkMatrix4x4;
 class vtkOpenGLHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
-    : public vtkLabeledContourMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper : public vtkLabeledContourMapper
 {
 public:
-  static vtkOpenGLLabeledContourMapper *New();
-  vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkOpenGLLabeledContourMapper* New();
+  vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release graphics resources
    */
-  void ReleaseGraphicsResources(vtkWindow *win) override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
 protected:
   vtkOpenGLLabeledContourMapper();
@@ -50,14 +49,13 @@ protected:
   // actors already accounted for any transformations on this mapper's actor.
   // The new backend passes each actor's matrix to the shader individually, and
   // this mapper's actor matrix doesn't affect the label rendering.
-  bool CreateLabels(vtkActor *actor) override;
+  bool CreateLabels(vtkActor* actor) override;
 
-  bool ApplyStencil(vtkRenderer *ren, vtkActor *act) override;
-  bool RemoveStencil(vtkRenderer *ren) override;
+  bool ApplyStencil(vtkRenderer* ren, vtkActor* act) override;
+  bool RemoveStencil(vtkRenderer* ren) override;
 
-  vtkOpenGLHelper *StencilBO;
-  vtkMatrix4x4 *TempMatrix4;
-
+  vtkOpenGLHelper* StencilBO;
+  vtkMatrix4x4* TempMatrix4;
 
 private:
   vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&) = delete;

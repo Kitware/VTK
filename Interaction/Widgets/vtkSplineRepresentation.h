@@ -23,13 +23,13 @@
  * This is based on vtkSplineWidget.
  * @sa
  * vtkSplineWidget, vtkSplineWidget2
-*/
+ */
 
 #ifndef vtkSplineRepresentation_h
 #define vtkSplineRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkCurveRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkCellPicker;
@@ -58,7 +58,7 @@ public:
    * either the InteractionEvent or EndInteraction events are invoked. The
    * user provides the vtkPolyData and the points and polyline are added to it.
    */
-  void GetPolyData(vtkPolyData *pd) override;
+  void GetPolyData(vtkPolyData* pd) override;
 
   /**
    * Set the number of handles for this widget.
@@ -71,7 +71,7 @@ public:
    * this widget.
    */
   void SetResolution(int resolution);
-  vtkGetMacro(Resolution,int);
+  vtkGetMacro(Resolution, int);
   //@}
 
   //@{
@@ -84,7 +84,7 @@ public:
    * three are of the same type.
    */
   virtual void SetParametricSpline(vtkParametricSpline*);
-  vtkGetObjectMacro(ParametricSpline,vtkParametricSpline);
+  vtkGetObjectMacro(ParametricSpline, vtkParametricSpline);
   //@}
 
   /**
@@ -107,11 +107,11 @@ public:
    */
   void InitializeHandles(vtkPoints* points) override;
 
- /**
-  * These are methods that satisfy vtkWidgetRepresentation's API. Note that a
-  * version of place widget is available where the center and handle position
-  * are specified.
-  */
+  /**
+   * These are methods that satisfy vtkWidgetRepresentation's API. Note that a
+   * version of place widget is available where the center and handle position
+   * are specified.
+   */
   void BuildRepresentation() override;
 
 protected:
@@ -119,8 +119,8 @@ protected:
   ~vtkSplineRepresentation() override;
 
   // The spline
-  vtkParametricSpline *ParametricSpline;
-  vtkParametricFunctionSource *ParametricFunctionSource;
+  vtkParametricSpline* ParametricSpline;
+  vtkParametricFunctionSource* ParametricFunctionSource;
 
   // The number of line segments used to represent the spline.
   int Resolution;
@@ -131,9 +131,6 @@ protected:
 private:
   vtkSplineRepresentation(const vtkSplineRepresentation&) = delete;
   void operator=(const vtkSplineRepresentation&) = delete;
-
 };
 
 #endif
-
-

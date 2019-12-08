@@ -24,42 +24,41 @@
  *
  * @sa
  * vtkDirectionEncoder
-*/
+ */
 
 #ifndef vtkRecursiveSphereDirectionEncoder_h
 #define vtkRecursiveSphereDirectionEncoder_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkDirectionEncoder.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-  vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkRecursiveSphereDirectionEncoder, vtkDirectionEncoder);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-/**
- * Construct the object. Initialize the index table which will be
- * used to map the normal into a patch on the recursively subdivided
- * sphere.
- */
-  static vtkRecursiveSphereDirectionEncoder *New();
-
+  /**
+   * Construct the object. Initialize the index table which will be
+   * used to map the normal into a patch on the recursively subdivided
+   * sphere.
+   */
+  static vtkRecursiveSphereDirectionEncoder* New();
 
   /**
    * Given a normal vector n, return the encoded direction
    */
-  int GetEncodedDirection( float n[3] ) override;
+  int GetEncodedDirection(float n[3]) override;
 
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  float *GetDecodedGradient( int value ) VTK_SIZEHINT(3) override;
+  float* GetDecodedGradient(int value) VTK_SIZEHINT(3) override;
 
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections( void ) override;
+  int GetNumberOfEncodedDirections(void) override;
 
   /**
    * Get the decoded gradient table. There are
@@ -67,7 +66,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float *GetDecodedGradientTable( void ) override;
+  float* GetDecodedGradientTable(void) override;
 
   //@{
   /**
@@ -85,8 +84,8 @@ public:
    * of directions is 16643, with 16386 unique directions and a
    * zero normal.
    */
-  vtkSetClampMacro( RecursionDepth, int, 0, 6 );
-  vtkGetMacro( RecursionDepth, int );
+  vtkSetClampMacro(RecursionDepth, int, 0, 6);
+  vtkGetMacro(RecursionDepth, int);
   //@}
 
 protected:
@@ -94,33 +93,32 @@ protected:
   ~vtkRecursiveSphereDirectionEncoder() override;
 
   // How far to recursively divide the sphere
-  int                     RecursionDepth;
+  int RecursionDepth;
 
   // The index table which maps (x,y) position in the rotated grid
   // to an encoded normal
-  //int                   IndexTable[2*NORM_SQR_SIZE - 1][2*NORM_SQR_SIZE -1];
-  int                     *IndexTable;
+  // int                   IndexTable[2*NORM_SQR_SIZE - 1][2*NORM_SQR_SIZE -1];
+  int* IndexTable;
 
   // This is a table that maps encoded normal (2 byte value) to a
   // normal (dx, dy, dz)
-  //float                 DecodedNormal[3*(1 + 2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
+  // float                 DecodedNormal[3*(1 + 2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
   //                             (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))];
-  float                   *DecodedNormal;
+  float* DecodedNormal;
 
   // Method to initialize the index table and variable that
   // stored the recursion depth the last time the table was
   // built
-  void                  InitializeIndexTable( void );
-  int                   IndexTableRecursionDepth;
+  void InitializeIndexTable(void);
+  int IndexTableRecursionDepth;
 
-  int                   OuterSize;
-  int                   InnerSize;
-  int                   GridSize;
+  int OuterSize;
+  int InnerSize;
+  int GridSize;
+
 private:
   vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&) = delete;
   void operator=(const vtkRecursiveSphereDirectionEncoder&) = delete;
 };
 
-
 #endif
-

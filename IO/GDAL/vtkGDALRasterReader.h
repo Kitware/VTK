@@ -29,13 +29,13 @@
  *
  * @sa
  * vtkUniformGrid, vtkImageData
-*/
+ */
 
 #ifndef vtkGDALRasterReader_h
 #define vtkGDALRasterReader_h
 
-#include <vtkImageReader2.h>
 #include <vtkIOGDALModule.h> // For export macro
+#include <vtkImageReader2.h>
 
 // C++ includes
 #include <string> // string is required
@@ -59,15 +59,12 @@ public:
   /**
    * Return proj4 spatial reference
    */
-  const char*  GetProjectionString() const;
+  const char* GetProjectionString() const;
 
   /**
    * Returns WKT spatial reference.
    */
-  const char* GetProjectionWKT () const
-  {
-    return this->ProjectionWKT.c_str();
-  }
+  const char* GetProjectionWKT() const { return this->ProjectionWKT.c_str(); }
 
   /**
    * Return geo-referenced corner points (Upper left,
@@ -143,19 +140,14 @@ public:
   void EnableAllCellArrays();
   //@}
 
-
 protected:
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
-
-  int FillOutputPortInformation(int port,
-                                vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   int TargetDimensions[2];

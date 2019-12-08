@@ -29,13 +29,12 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter :
-  public vtkMultiTimeStepAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter : public vtkMultiTimeStepAlgorithm
 {
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream &OS, vtkIndent indent) override;
+  void PrintSelf(ostream& OS, vtkIndent indent) override;
 
   enum OperatorType
   {
@@ -86,14 +85,10 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int RequestDataObject(vtkInformation*, vtkInformationVector**,
-                        vtkInformationVector*) override;
-  int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);
@@ -107,8 +102,8 @@ protected:
   char* OutputArrayNameSuffix;
 
 private:
-  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) = delete;
-  void operator=(const vtkTemporalArrayOperatorFilter &) = delete;
+  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter&) = delete;
+  void operator=(const vtkTemporalArrayOperatorFilter&) = delete;
 };
 
 #endif

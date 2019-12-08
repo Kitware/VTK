@@ -24,36 +24,36 @@
 
 #include "vtkProjectedTetrahedraMapper.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkSLCReader.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkThreshold.h"
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
-#include "vtkContourFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSetTriangleFilter.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSLCReader.h"
 #include "vtkStdString.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
-int TestProjectedTetrahedra(int argc, char *argv[])
+int TestProjectedTetrahedra(int argc, char* argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = nullptr;
-  for (i = 0; i < argc-1; i++)
+  const char* data_root = nullptr;
+  for (i = 0; i < argc - 1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)
     {
-      data_root = argv[i+1];
+      data_root = argv[i + 1];
       break;
     }
   }
@@ -64,20 +64,19 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   }
 
   // Create the standard renderer, render window, and interactor.
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  vtkRenderer *ren1 = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkRenderer* ren1 = vtkRenderer::New();
   renWin->AddRenderer(ren1);
   ren1->Delete();
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   iren->SetDesiredUpdateRate(3);
   renWin->Delete();
 
   // check for driver support
   renWin->Render();
-  vtkProjectedTetrahedraMapper *volumeMapper
-    = vtkProjectedTetrahedraMapper::New();
+  vtkProjectedTetrahedraMapper* volumeMapper = vtkProjectedTetrahedraMapper::New();
   if (!volumeMapper->IsSupported(renWin))
   {
     volumeMapper->Delete();
@@ -92,7 +91,7 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   filename = data_root;
   filename += "/Data/ironProt.vtk";
   cout << "Loading " << filename.c_str() << endl;
-  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+  vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
   reader->SetFileName(filename.c_str());
 
   // Create a reader for the other data that will be contoured and
@@ -100,37 +99,36 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   filename = data_root;
   filename += "/Data/neghip.slc";
   cout << "Loading " << filename.c_str() << endl;
-  vtkSLCReader *reader2 = vtkSLCReader::New();
+  vtkSLCReader* reader2 = vtkSLCReader::New();
   reader2->SetFileName(filename.c_str());
 
   // Convert from vtkImageData to vtkUnstructuredGrid.
   // Remove any cells where all values are below 80.
-  vtkThreshold *thresh = vtkThreshold::New();
+  vtkThreshold* thresh = vtkThreshold::New();
   thresh->ThresholdByUpper(80);
   thresh->AllScalarsOff();
   thresh->SetInputConnection(reader->GetOutputPort());
 
   // Make sure we have only tetrahedra.
-  vtkDataSetTriangleFilter *trifilter = vtkDataSetTriangleFilter::New();
+  vtkDataSetTriangleFilter* trifilter = vtkDataSetTriangleFilter::New();
   trifilter->SetInputConnection(thresh->GetOutputPort());
 
   // Create transfer mapping scalar value to opacity.
-  vtkPiecewiseFunction *opacityTransferFunction = vtkPiecewiseFunction::New();
-  opacityTransferFunction->AddPoint(80.0,  0.0);
+  vtkPiecewiseFunction* opacityTransferFunction = vtkPiecewiseFunction::New();
+  opacityTransferFunction->AddPoint(80.0, 0.0);
   opacityTransferFunction->AddPoint(120.0, 0.2);
   opacityTransferFunction->AddPoint(255.0, 0.2);
 
   // Create transfer mapping scalar value to color.
-  vtkColorTransferFunction *colorTransferFunction
-    = vtkColorTransferFunction::New();
-  colorTransferFunction->AddRGBPoint(80.0,  0.0, 0.0, 0.0);
+  vtkColorTransferFunction* colorTransferFunction = vtkColorTransferFunction::New();
+  colorTransferFunction->AddRGBPoint(80.0, 0.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(120.0, 0.0, 0.0, 1.0);
   colorTransferFunction->AddRGBPoint(160.0, 1.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(200.0, 0.0, 1.0, 0.0);
   colorTransferFunction->AddRGBPoint(255.0, 0.0, 1.0, 1.0);
 
   // The property describes how the data will look.
-  vtkVolumeProperty *volumeProperty = vtkVolumeProperty::New();
+  vtkVolumeProperty* volumeProperty = vtkVolumeProperty::New();
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(opacityTransferFunction);
   volumeProperty->ShadeOff();
@@ -141,22 +139,22 @@ int TestProjectedTetrahedra(int argc, char *argv[])
 
   // The volume holds the mapper and the property and can be used to
   // position/orient the volume.
-  vtkVolume *volume = vtkVolume::New();
+  vtkVolume* volume = vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
 
   // Contour the second dataset.
-  vtkContourFilter *contour = vtkContourFilter::New();
+  vtkContourFilter* contour = vtkContourFilter::New();
   contour->SetValue(0, 80);
   contour->SetInputConnection(reader2->GetOutputPort());
 
   // Create a mapper for the polygonal data.
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(contour->GetOutputPort());
   mapper->ScalarVisibilityOff();
 
   // Create an actor for the polygonal data.
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
 
   ren1->AddViewProp(actor);

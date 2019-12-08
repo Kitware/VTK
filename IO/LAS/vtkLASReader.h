@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkPolyData
-*/
+ */
 
 #ifndef vtkLASReader_h
 #define vtkLASReader_h
@@ -37,18 +37,18 @@
 
 namespace liblas
 {
-  class Header;
-  class Reader;
+class Header;
+class Reader;
 };
 
-class VTKIOLAS_EXPORT vtkLASReader: public vtkPolyDataAlgorithm
+class VTKIOLAS_EXPORT vtkLASReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkLASReader(const vtkLASReader&) = delete;
   void operator=(const vtkLASReader&) = delete;
   static vtkLASReader* New();
-  vtkTypeMacro(vtkLASReader,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkLASReader, vtkPolyDataAlgorithm);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Accessor for name of the file that will be opened
@@ -64,12 +64,12 @@ protected:
    * Core implementation of the data set reader
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Read point record data i.e. position and visualisation data
    */
-  void ReadPointRecordData(liblas::Reader &reader, vtkPolyData* pointsPolyData);
+  void ReadPointRecordData(liblas::Reader& reader, vtkPolyData* pointsPolyData);
 
   char* FileName;
 };

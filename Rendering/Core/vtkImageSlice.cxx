@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageSlice.h"
 
-#include "vtkImageMapper3D.h"
-#include "vtkImageProperty.h"
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageProperty.h"
 #include "vtkLinearTransform.h"
+#include "vtkLookupTable.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
@@ -34,15 +34,15 @@ vtkStandardNewMacro(vtkImageSlice);
 class vtkImageToImageMapper3DFriendship
 {
 public:
-  static void SetCurrentProp(vtkImageMapper3D *mapper, vtkImageSlice *prop)
+  static void SetCurrentProp(vtkImageMapper3D* mapper, vtkImageSlice* prop)
   {
     mapper->CurrentProp = prop;
   }
-  static void SetCurrentRenderer(vtkImageMapper3D *mapper, vtkRenderer *ren)
+  static void SetCurrentRenderer(vtkImageMapper3D* mapper, vtkRenderer* ren)
   {
     mapper->CurrentRenderer = ren;
   }
-  static void SetStackedImagePass(vtkImageMapper3D *mapper, int pass)
+  static void SetStackedImagePass(vtkImageMapper3D* mapper, int pass)
   {
     switch (pass)
     {
@@ -68,7 +68,6 @@ public:
         break;
     }
   }
-
 };
 
 //----------------------------------------------------------------------------
@@ -92,15 +91,15 @@ vtkImageSlice::~vtkImageSlice()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::GetImages(vtkPropCollection *vc)
+void vtkImageSlice::GetImages(vtkPropCollection* vc)
 {
   vc->AddItem(this);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::ShallowCopy(vtkProp *prop)
+void vtkImageSlice::ShallowCopy(vtkProp* prop)
 {
-  vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
+  vtkImageSlice* v = vtkImageSlice::SafeDownCast(prop);
 
   if (v != nullptr)
   {
@@ -113,7 +112,7 @@ void vtkImageSlice::ShallowCopy(vtkProp *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::SetMapper(vtkImageMapper3D *mapper)
+void vtkImageSlice::SetMapper(vtkImageMapper3D* mapper)
 {
   if (this->Mapper != mapper)
   {
@@ -134,9 +133,9 @@ void vtkImageSlice::SetMapper(vtkImageMapper3D *mapper)
 
 //----------------------------------------------------------------------------
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-double *vtkImageSlice::GetBounds()
+double* vtkImageSlice::GetBounds()
 {
-  int i,n;
+  int i, n;
   double bbox[24], *fptr;
 
   // get the bounds of the Mapper if we have one
@@ -145,7 +144,7 @@ double *vtkImageSlice::GetBounds()
     return this->Bounds;
   }
 
-  const double *bounds = this->Mapper->GetBounds();
+  const double* bounds = this->Mapper->GetBounds();
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
@@ -153,14 +152,30 @@ double *vtkImageSlice::GetBounds()
   }
 
   // fill out vertices of a bounding box
-  bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
-  bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
-  bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
-  bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
-  bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
-  bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
-  bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
-  bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
+  bbox[0] = bounds[1];
+  bbox[1] = bounds[3];
+  bbox[2] = bounds[5];
+  bbox[3] = bounds[1];
+  bbox[4] = bounds[2];
+  bbox[5] = bounds[5];
+  bbox[6] = bounds[0];
+  bbox[7] = bounds[2];
+  bbox[8] = bounds[5];
+  bbox[9] = bounds[0];
+  bbox[10] = bounds[3];
+  bbox[11] = bounds[5];
+  bbox[12] = bounds[1];
+  bbox[13] = bounds[3];
+  bbox[14] = bounds[4];
+  bbox[15] = bounds[1];
+  bbox[16] = bounds[2];
+  bbox[17] = bounds[4];
+  bbox[18] = bounds[0];
+  bbox[19] = bounds[2];
+  bbox[20] = bounds[4];
+  bbox[21] = bounds[0];
+  bbox[22] = bounds[3];
+  bbox[23] = bounds[4];
 
   // make sure matrix (transform) is up-to-date
   this->ComputeMatrix();
@@ -169,7 +184,7 @@ double *vtkImageSlice::GetBounds()
   fptr = bbox;
   for (n = 0; n < 8; n++)
   {
-    double homogeneousPt[4] = {fptr[0], fptr[1], fptr[2], 1.0};
+    double homogeneousPt[4] = { fptr[0], fptr[1], fptr[2], 1.0 };
     this->Matrix->MultiplyPoint(homogeneousPt, homogeneousPt);
     fptr[0] = homogeneousPt[0] / homogeneousPt[3];
     fptr[1] = homogeneousPt[1] / homogeneousPt[3];
@@ -184,13 +199,13 @@ double *vtkImageSlice::GetBounds()
   {
     for (n = 0; n < 3; n++)
     {
-      if (bbox[i*3+n] < this->Bounds[n*2])
+      if (bbox[i * 3 + n] < this->Bounds[n * 2])
       {
-        this->Bounds[n*2] = bbox[i*3+n];
+        this->Bounds[n * 2] = bbox[i * 3 + n];
       }
-      if (bbox[i*3+n] > this->Bounds[n*2+1])
+      if (bbox[i * 3 + n] > this->Bounds[n * 2 + 1])
       {
-        this->Bounds[n*2+1] = bbox[i*3+n];
+        this->Bounds[n * 2 + 1] = bbox[i * 3 + n];
       }
     }
   }
@@ -295,7 +310,7 @@ int vtkImageSlice::RenderOverlay(vtkViewport* vtkNotUsed(viewport))
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::Render(vtkRenderer *ren)
+void vtkImageSlice::Render(vtkRenderer* ren)
 {
   // Force the creation of a property
   if (!this->Property)
@@ -305,13 +320,13 @@ void vtkImageSlice::Render(vtkRenderer *ren)
 
   if (!this->Property)
   {
-    vtkErrorMacro( << "Error generating a property!\n" );
+    vtkErrorMacro(<< "Error generating a property!\n");
     return;
   }
 
   if (!this->Mapper)
   {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
+    vtkErrorMacro(<< "You must specify a mapper!\n");
     return;
   }
 
@@ -322,10 +337,7 @@ void vtkImageSlice::Render(vtkRenderer *ren)
   // only call the mapper if it has an input
   vtkImageData* input = this->Mapper->GetInput();
   int* extent = input->GetExtent();
-  if (input &&
-      extent[0] <= extent[1] &&
-      extent[2] <= extent[3] &&
-      extent[4] <= extent[5])
+  if (input && extent[0] <= extent[1] && extent[2] <= extent[3] && extent[4] <= extent[5])
   {
     this->Mapper->Render(ren, this);
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
@@ -335,7 +347,7 @@ void vtkImageSlice::Render(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::ReleaseGraphicsResources(vtkWindow *win)
+void vtkImageSlice::ReleaseGraphicsResources(vtkWindow* win)
 {
   // pass this information onto the mapper
   if (this->Mapper)
@@ -355,7 +367,7 @@ void vtkImageSlice::Update()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSlice::SetProperty(vtkImageProperty *property)
+void vtkImageSlice::SetProperty(vtkImageProperty* property)
 {
   if (this->Property != property)
   {
@@ -373,7 +385,7 @@ void vtkImageSlice::SetProperty(vtkImageProperty *property)
 }
 
 //----------------------------------------------------------------------------
-vtkImageProperty *vtkImageSlice::GetProperty()
+vtkImageProperty* vtkImageSlice::GetProperty()
 {
   if (this->Property == nullptr)
   {
@@ -390,22 +402,22 @@ vtkMTimeType vtkImageSlice::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Property != nullptr )
+  if (this->Property != nullptr)
   {
     time = this->Property->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
-  if ( this->UserMatrix != nullptr )
+  if (this->UserMatrix != nullptr)
   {
     time = this->UserMatrix->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
-  if ( this->UserTransform != nullptr )
+  if (this->UserTransform != nullptr)
   {
     time = this->UserTransform->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
@@ -417,28 +429,28 @@ vtkMTimeType vtkImageSlice::GetRedrawMTime()
   vtkMTimeType mTime = this->GetMTime();
   vtkMTimeType time;
 
-  if ( this->Mapper != nullptr )
+  if (this->Mapper != nullptr)
   {
     time = this->Mapper->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
     if (this->GetMapper()->GetInputAlgorithm() != nullptr)
     {
       this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetInput()->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
+      mTime = (time > mTime ? time : mTime);
     }
   }
 
-  if ( this->Property != nullptr )
+  if (this->Property != nullptr)
   {
     time = this->Property->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
 
-    if ( this->Property->GetLookupTable() != nullptr )
+    if (this->Property->GetLookupTable() != nullptr)
     {
       // check the lookup table mtime
       time = this->Property->GetLookupTable()->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
+      mTime = (time > mTime ? time : mTime);
     }
   }
 
@@ -450,30 +462,29 @@ void vtkImageSlice::SetStackedImagePass(int pass)
 {
   if (this->Mapper)
   {
-    vtkImageToImageMapper3DFriendship::SetStackedImagePass(
-      this->Mapper, pass);
+    vtkImageToImageMapper3DFriendship::SetStackedImagePass(this->Mapper, pass);
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if( this->Property )
+  if (this->Property)
   {
     os << indent << "Property:\n";
-    this->Property->PrintSelf(os,indent.GetNextIndent());
+    this->Property->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Property: (not defined)\n";
   }
 
-  if( this->Mapper )
+  if (this->Mapper)
   {
     os << indent << "Mapper:\n";
-    this->Mapper->PrintSelf(os,indent.GetNextIndent());
+    this->Mapper->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -481,12 +492,11 @@ void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   // make sure our bounds are up to date
-  if ( this->Mapper )
+  if (this->Mapper)
   {
     this->GetBounds();
-    os << indent << "Bounds: (" << this->Bounds[0] << ", "
-       << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
-       << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
+    os << indent << "Bounds: (" << this->Bounds[0] << ", " << this->Bounds[1] << ") ("
+       << this->Bounds[2] << ") (" << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
        << this->Bounds[5] << ")\n";
   }
   else
@@ -494,6 +504,5 @@ void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Bounds: (not defined)\n";
   }
 
-  os << indent << "ForceTranslucent: "
-     << (this->ForceTranslucent ? "On\n" : "Off\n");
+  os << indent << "ForceTranslucent: " << (this->ForceTranslucent ? "On\n" : "Off\n");
 }

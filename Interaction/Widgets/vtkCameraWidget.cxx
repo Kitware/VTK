@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkCameraWidget.h"
-#include "vtkCameraRepresentation.h"
-#include "vtkCameraInterpolator.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCameraInterpolator.h"
+#include "vtkCameraRepresentation.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkCameraWidget);
@@ -29,7 +29,7 @@ vtkCameraWidget::~vtkCameraWidget() = default;
 //----------------------------------------------------------------------
 void vtkCameraWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkCameraRepresentation::New();
   }
@@ -38,22 +38,21 @@ void vtkCameraWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkCameraWidget::SelectRegion(double eventPos[2])
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     return;
   }
 
   double x = eventPos[0];
-  if ( x < 0.3333 )
+  if (x < 0.3333)
   {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->AddCameraToPath();
   }
-  else if ( x < 0.666667 )
+  else if (x < 0.666667)
   {
-    reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->
-      AnimatePath(this->Interactor);
+    reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->AnimatePath(this->Interactor);
   }
-  else if ( x < 1.0 )
+  else if (x < 1.0)
   {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->InitializePath();
   }
@@ -64,6 +63,5 @@ void vtkCameraWidget::SelectRegion(double eventPos[2])
 //-------------------------------------------------------------------------
 void vtkCameraWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }

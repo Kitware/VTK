@@ -50,13 +50,13 @@
  * @sa
  * vtkLegendBoxActor vtkTextMapper vtkTextActor vtkTextProperty
  * vtkCoordinate
-*/
+ */
 
 #ifndef vtkCaptionActor2D_h
 #define vtkCaptionActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkActor;
 class vtkAlgorithmOutput;
@@ -74,10 +74,10 @@ class vtkTextProperty;
 class VTKRENDERINGANNOTATION_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);
+  vtkTypeMacro(vtkCaptionActor2D, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkCaptionActor2D *New();
+  static vtkCaptionActor2D* New();
 
   //@{
   /**
@@ -101,9 +101,9 @@ public:
   /**
    * Enable/disable the placement of a border around the text.
    */
-  vtkSetMacro(Border,vtkTypeBool);
-  vtkGetMacro(Border,vtkTypeBool);
-  vtkBooleanMacro(Border,vtkTypeBool);
+  vtkSetMacro(Border, vtkTypeBool);
+  vtkGetMacro(Border, vtkTypeBool);
+  vtkBooleanMacro(Border, vtkTypeBool);
   //@}
 
   //@{
@@ -111,18 +111,18 @@ public:
    * Enable/disable drawing a "line" from the caption to the
    * attachment point.
    */
-  vtkSetMacro(Leader,vtkTypeBool);
-  vtkGetMacro(Leader,vtkTypeBool);
-  vtkBooleanMacro(Leader,vtkTypeBool);
+  vtkSetMacro(Leader, vtkTypeBool);
+  vtkGetMacro(Leader, vtkTypeBool);
+  vtkBooleanMacro(Leader, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Indicate whether the leader is 2D (no hidden line) or 3D (z-buffered).
    */
-  vtkSetMacro(ThreeDimensionalLeader,vtkTypeBool);
-  vtkGetMacro(ThreeDimensionalLeader,vtkTypeBool);
-  vtkBooleanMacro(ThreeDimensionalLeader,vtkTypeBool);
+  vtkSetMacro(ThreeDimensionalLeader, vtkTypeBool);
+  vtkGetMacro(ThreeDimensionalLeader, vtkTypeBool);
+  vtkBooleanMacro(ThreeDimensionalLeader, vtkTypeBool);
   //@}
 
   //@{
@@ -147,8 +147,8 @@ public:
    * camera motion results in proportional changes in size to the leader
    * glyph.
    */
-  vtkSetClampMacro(LeaderGlyphSize,double,0.0,0.1);
-  vtkGetMacro(LeaderGlyphSize,double);
+  vtkSetClampMacro(LeaderGlyphSize, double, 0.0, 0.1);
+  vtkGetMacro(LeaderGlyphSize, double);
   //@}
 
   //@{
@@ -157,8 +157,8 @@ public:
    * is used in conjunction with LeaderGlyphSize to cap the maximum size of
    * the LeaderGlyph.
    */
-  vtkSetClampMacro(MaximumLeaderGlyphSize,int,1,1000);
-  vtkGetMacro(MaximumLeaderGlyphSize,int);
+  vtkSetClampMacro(MaximumLeaderGlyphSize, int, 1, 1000);
+  vtkGetMacro(MaximumLeaderGlyphSize, int);
   //@}
 
   //@{
@@ -175,31 +175,31 @@ public:
    * Get the text actor used by the caption. This is useful if you want to control
    * justification and other characteristics of the text actor.
    */
-  vtkGetObjectMacro(TextActor,vtkTextActor);
+  vtkGetObjectMacro(TextActor, vtkTextActor);
   //@}
 
   //@{
   /**
    * Set/Get the text property.
    */
-  virtual void SetCaptionTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(CaptionTextProperty,vtkTextProperty);
+  virtual void SetCaptionTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(CaptionTextProperty, vtkTextProperty);
   //@}
 
   /**
    * Shallow copy of this scaled text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   //@{
   /**
    * Enable/disable whether to attach the arrow only to the edge,
    * NOT the vertices of the caption border.
    */
-  vtkSetMacro(AttachEdgeOnly,vtkTypeBool);
-  vtkGetMacro(AttachEdgeOnly,vtkTypeBool);
-  vtkBooleanMacro(AttachEdgeOnly,vtkTypeBool);
+  vtkSetMacro(AttachEdgeOnly, vtkTypeBool);
+  vtkGetMacro(AttachEdgeOnly, vtkTypeBool);
+  vtkBooleanMacro(AttachEdgeOnly, vtkTypeBool);
   //@}
 
   /**
@@ -209,7 +209,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -218,7 +218,7 @@ public:
    * Draw the legend box to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;}
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
@@ -231,39 +231,38 @@ protected:
   vtkCaptionActor2D();
   ~vtkCaptionActor2D() override;
 
-  vtkCoordinate *AttachmentPointCoordinate;
+  vtkCoordinate* AttachmentPointCoordinate;
 
-  vtkTypeBool   Border;
-  vtkTypeBool   Leader;
-  vtkTypeBool   ThreeDimensionalLeader;
+  vtkTypeBool Border;
+  vtkTypeBool Leader;
+  vtkTypeBool ThreeDimensionalLeader;
   double LeaderGlyphSize;
-  int   MaximumLeaderGlyphSize;
+  int MaximumLeaderGlyphSize;
 
-  int   Padding;
-  vtkTypeBool   AttachEdgeOnly;
-
+  int Padding;
+  vtkTypeBool AttachEdgeOnly;
 
 private:
-  vtkTextActor        *TextActor;
-  vtkTextProperty     *CaptionTextProperty;
+  vtkTextActor* TextActor;
+  vtkTextProperty* CaptionTextProperty;
 
-  vtkPolyData         *BorderPolyData;
-  vtkPolyDataMapper2D *BorderMapper;
-  vtkActor2D          *BorderActor;
+  vtkPolyData* BorderPolyData;
+  vtkPolyDataMapper2D* BorderMapper;
+  vtkActor2D* BorderActor;
 
-  vtkPolyData         *HeadPolyData;    // single attachment point for glyphing
-  vtkGlyph3D          *HeadGlyph;       // for 3D leader
-  vtkPolyData         *LeaderPolyData;  // line represents the leader
-  vtkAppendPolyData   *AppendLeader;    // append head and leader
+  vtkPolyData* HeadPolyData;       // single attachment point for glyphing
+  vtkGlyph3D* HeadGlyph;           // for 3D leader
+  vtkPolyData* LeaderPolyData;     // line represents the leader
+  vtkAppendPolyData* AppendLeader; // append head and leader
 
   // for 2D leader
-  vtkCoordinate       *MapperCoordinate2D;
-  vtkPolyDataMapper2D *LeaderMapper2D;
-  vtkActor2D          *LeaderActor2D;
+  vtkCoordinate* MapperCoordinate2D;
+  vtkPolyDataMapper2D* LeaderMapper2D;
+  vtkActor2D* LeaderActor2D;
 
   // for 3D leader
-  vtkPolyDataMapper   *LeaderMapper3D;
-  vtkActor            *LeaderActor3D;
+  vtkPolyDataMapper* LeaderMapper3D;
+  vtkActor* LeaderActor3D;
 
   vtkCaptionActor2DConnection* LeaderGlyphConnectionHolder;
 
@@ -272,8 +271,4 @@ private:
   void operator=(const vtkCaptionActor2D&) = delete;
 };
 
-
 #endif
-
-
-

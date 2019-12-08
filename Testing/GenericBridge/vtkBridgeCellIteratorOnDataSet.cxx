@@ -20,40 +20,40 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeCell.h"
 #include "vtkBridgeDataSet.h"
-#include "vtkDataSet.h"
 #include "vtkCell.h"
+#include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkBridgeCellIteratorOnDataSet);
 
 //-----------------------------------------------------------------------------
 void vtkBridgeCellIteratorOnDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOnDataSet::vtkBridgeCellIteratorOnDataSet()
 {
-  this->DataSet=nullptr;
-  this->Cell=vtkBridgeCell::New();
-  this->Id=0;
-  this->Size=0;
-//  this->DebugOn();
+  this->DataSet = nullptr;
+  this->Cell = vtkBridgeCell::New();
+  this->Id = 0;
+  this->Size = 0;
+  //  this->DebugOn();
 }
 
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOnDataSet::~vtkBridgeCellIteratorOnDataSet()
 {
-  if(this->DataSet!=nullptr)
+  if (this->DataSet != nullptr)
   {
     this->DataSet->Delete();
-    this->DataSet=nullptr;
+    this->DataSet = nullptr;
   }
   this->Cell->Delete();
-  this->Cell=nullptr;
+  this->Cell = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ vtkBridgeCellIteratorOnDataSet::~vtkBridgeCellIteratorOnDataSet()
 // Move iterator to first position if any (loop initialization).
 void vtkBridgeCellIteratorOnDataSet::Begin()
 {
-  this->Id=-1;
+  this->Id = -1;
   this->Next(); // skip cells of other dimensions
 }
 
@@ -70,7 +70,7 @@ void vtkBridgeCellIteratorOnDataSet::Begin()
 // Is there no cell at iterator position? (exit condition).
 vtkTypeBool vtkBridgeCellIteratorOnDataSet::IsAtEnd()
 {
-  return (this->Id>=this->Size);
+  return (this->Id >= this->Size);
 }
 
 //-----------------------------------------------------------------------------
@@ -79,13 +79,13 @@ vtkTypeBool vtkBridgeCellIteratorOnDataSet::IsAtEnd()
 // \pre not_at_end: !IsAtEnd()
 // \pre c_exists: c!=0
 // THREAD SAFE
-void vtkBridgeCellIteratorOnDataSet::GetCell(vtkGenericAdaptorCell *c)
+void vtkBridgeCellIteratorOnDataSet::GetCell(vtkGenericAdaptorCell* c)
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  assert("pre: c_exists" && c!=nullptr);
+  assert("pre: c_exists" && c != nullptr);
 
-  vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
-  c2->Init(this->DataSet,this->Id);
+  vtkBridgeCell* c2 = static_cast<vtkBridgeCell*>(c);
+  c2->Init(this->DataSet, this->Id);
 }
 
 //-----------------------------------------------------------------------------
@@ -94,14 +94,14 @@ void vtkBridgeCellIteratorOnDataSet::GetCell(vtkGenericAdaptorCell *c)
 // NOT THREAD SAFE
 // \pre not_at_end: !IsAtEnd()
 // \post result_exits: result!=0
-vtkGenericAdaptorCell *vtkBridgeCellIteratorOnDataSet::GetCell()
+vtkGenericAdaptorCell* vtkBridgeCellIteratorOnDataSet::GetCell()
 {
   assert("pre: not_at_end" && !IsAtEnd());
 
-  this->Cell->Init(this->DataSet,this->Id);
-  vtkGenericAdaptorCell *result=this->Cell;
+  this->Cell->Init(this->DataSet, this->Id);
+  vtkGenericAdaptorCell* result = this->Cell;
 
-  assert("post: result_exits" && result!=nullptr);
+  assert("post: result_exits" && result != nullptr);
   return result;
 }
 
@@ -113,22 +113,22 @@ void vtkBridgeCellIteratorOnDataSet::Next()
 {
   assert("pre: not_off" && !IsAtEnd());
 
-  vtkIdType size=this->Size;
-  vtkCell *c;
+  vtkIdType size = this->Size;
+  vtkCell* c;
   int found;
 
   this->Id++;
 
-  if(this->Dim>=0) // skip cells of other dimensions than this->Dim
+  if (this->Dim >= 0) // skip cells of other dimensions than this->Dim
   {
-    found=0;
-    while( (this->Id<size) && (!found) )
+    found = 0;
+    while ((this->Id < size) && (!found))
     {
-      c=this->DataSet->Implementation->GetCell(this->Id);
-      found=c->GetCellDimension()==this->Dim;
+      c = this->DataSet->Implementation->GetCell(this->Id);
+      found = c->GetCellDimension() == this->Dim;
       this->Id++;
     }
-    if(found)
+    if (found)
     {
       this->Id--;
     }
@@ -141,14 +141,13 @@ void vtkBridgeCellIteratorOnDataSet::Next()
 // Iterate over cells of `ds' of some dimension `dim'.
 // \pre ds_exists: ds!=0
 // \pre valid_dim_range: (dim>=-1) && (dim<=3)
-void vtkBridgeCellIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet *ds,
-                                                     int dim)
+void vtkBridgeCellIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet* ds, int dim)
 {
-  assert("pre: ds_exists" && ds!=nullptr);
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
+  assert("pre: ds_exists" && ds != nullptr);
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 3));
 
-  this->Dim=dim;
-  vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
-  this->Size=ds->GetNumberOfCells();
-  this->Id=this->Size; // at end
+  this->Dim = dim;
+  vtkSetObjectBodyMacro(DataSet, vtkBridgeDataSet, ds);
+  this->Size = ds->GetNumberOfCells();
+  this->Id = this->Size; // at end
 }

@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include <array>
-#include <map>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
 
-#include "vtkADIOS2CoreImageReader.h"
 #include "Core/vtkADIOS2CoreArraySelection.h"
 #include "Core/vtkADIOS2CoreTypeTraits.h"
+#include "vtkADIOS2CoreImageReader.h"
 
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -39,17 +39,13 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #ifdef IOADIOS2_HAVE_MPI
-#include "vtkMultiProcessController.h" // For the MPI controller member
 #include "vtkMPI.h"
 #include "vtkMPIController.h"
+#include "vtkMultiProcessController.h" // For the MPI controller member
 #endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -57,24 +53,27 @@
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStdString.h"
-#include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkStringArray.h"
 #include "vtkType.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <adios2.h> // adios2
+#include <istream>  // istringStream
 #include <string>
-#include <istream> // istringStream
 
 //----------------------------------------------------------------------------
 // Helper functions
 //----------------------------------------------------------------------------
 
-bool StringEndsWith(const std::string &a, const std::string &b)
+bool StringEndsWith(const std::string& a, const std::string& b)
 {
-  return a.size() >= b.size() &&
-         a.compare(a.size() - b.size(), b.size(), b) == 0;
+  return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0;
 }
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
@@ -108,17 +107,17 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
   std::map<std::string, adios2::Params> AvailVars;
   std::map<std::string, adios2::Params> AvailAtts;
 
-  size_t BlockStart{0};
-  size_t BlockCount{0};
-  std::vector<std::array<int, 6>> BlockExtents;
+  size_t BlockStart{ 0 };
+  size_t BlockCount{ 0 };
+  std::vector<std::array<int, 6> > BlockExtents;
 
   // VTK variables
-  bool HasReadMetaData{false};
+  bool HasReadMetaData{ false };
   std::vector<double> TimeSteps;
   // From time to time step(aka reference)
   std::unordered_map<double, size_t> TimeStepsReverseMap;
   // Index of the request time step. If it's a single time step data then it's default to be 0
-  size_t RequestStep{0};
+  size_t RequestStep{ 0 };
 
   // Select the arrays that should be read in.
   vtkADIOS2ArraySelection ArraySelection;
@@ -127,15 +126,15 @@ struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
 };
 
 vtkNew<vtkMultiPieceDataSet> vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl::Flatten(
-    vtkMultiBlockDataSet* ibds)
+  vtkMultiBlockDataSet* ibds)
 {
-  //found out how many pieces we have in current process
+  // found out how many pieces we have in current process
   using Opts = vtk::DataObjectTreeOptions;
 
   // Communicate to find out where the images of current process should go
   int myLen = static_cast<int>(ibds->GetNumberOfBlocks());
-  int *allLens{nullptr};
-  int procId{0}, numProcess{0};
+  int* allLens{ nullptr };
+  int procId{ 0 }, numProcess{ 0 };
 #ifdef IOADIOS2_HAVE_MPI
   auto ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl)
@@ -159,8 +158,8 @@ vtkNew<vtkMultiPieceDataSet> vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderI
   allLens[0] = myLen;
 #endif
 
-  unsigned int start{0}, total{0};
-  for (int i = 0; i < numProcess;i++)
+  unsigned int start{ 0 }, total{ 0 };
+  for (int i = 0; i < numProcess; i++)
   {
     if (i < procId)
     {
@@ -168,7 +167,7 @@ vtkNew<vtkMultiPieceDataSet> vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderI
     }
     total += static_cast<unsigned int>(allLens[i]);
   }
-  delete [] allLens;
+  delete[] allLens;
 
   vtkNew<vtkMultiPieceDataSet> mpds;
   mpds->SetNumberOfPieces(total);
@@ -192,7 +191,7 @@ int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if(StringEndsWith(name, ".bp") || StringEndsWith(name, "md.idx"))
+  if (StringEndsWith(name, ".bp") || StringEndsWith(name, "md.idx"))
   {
     return 1;
   }
@@ -254,13 +253,15 @@ void vtkADIOS2CoreImageReader::SetActiveScalar(const std::pair<std::string, VarT
 }
 
 //----------------------------------------------------------------------------
-std::pair<std::string, vtkADIOS2CoreImageReader::VarType>& vtkADIOS2CoreImageReader::GetActiveScalar()
+std::pair<std::string, vtkADIOS2CoreImageReader::VarType>&
+vtkADIOS2CoreImageReader::GetActiveScalar()
 {
   return this->Impl->ActiveScalar;
 }
 
 //----------------------------------------------------------------------------
-const std::pair<std::string, vtkADIOS2CoreImageReader::VarType>& vtkADIOS2CoreImageReader::GetActiveScalar() const
+const std::pair<std::string, vtkADIOS2CoreImageReader::VarType>&
+vtkADIOS2CoreImageReader::GetActiveScalar() const
 {
   return this->Impl->ActiveScalar;
 }
@@ -272,7 +273,8 @@ vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvilableV
 }
 
 //----------------------------------------------------------------------------
-const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvilableVariables() const
+const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvilableVariables()
+  const
 {
   return this->Impl->AvailVars;
 }
@@ -284,7 +286,8 @@ vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvailable
 }
 
 //----------------------------------------------------------------------------
-const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvailableAttributes() const
+const vtkADIOS2CoreImageReader::StringToParams& vtkADIOS2CoreImageReader::GetAvailableAttributes()
+  const
 {
   return this->Impl->AvailAtts;
 }
@@ -296,7 +299,8 @@ void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controll
   vtkMPIController* mpiController = vtkMPIController::SafeDownCast(controller);
   if (controller && !mpiController)
   {
-    vtkErrorMacro("vtkADIOS2CoreImageReader is built with MPI but an invalid MPI controller is provided");
+    vtkErrorMacro(
+      "vtkADIOS2CoreImageReader is built with MPI but an invalid MPI controller is provided");
     return;
   }
 #endif
@@ -306,8 +310,8 @@ void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controll
 }
 
 //----------------------------------------------------------------------------
-int vtkADIOS2CoreImageReader::ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector)
+int vtkADIOS2CoreImageReader::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
@@ -324,10 +328,8 @@ int vtkADIOS2CoreImageReader::RequestDataObjectInternal(vtkInformationVector* ou
   if (!output)
   {
     output = vtk::TakeSmartPointer(vtkDataObjectTypes::NewDataObject(VTK_MULTIBLOCK_DATA_SET));
-    outputVector->GetInformationObject(0)->Set(
-          vtkDataObject::DATA_OBJECT(), output);
-    this->GetOutputInformation(0)->Set(vtkDataObject::DATA_EXTENT_TYPE(),
-                                       output->GetExtentType());
+    outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), output);
+    this->GetOutputInformation(0)->Set(vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
   }
   return 1;
 }
@@ -343,27 +345,26 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   }
 
   // Initialize the ADIOS2 data structures
-  if(!this->Impl->Adios)
+  if (!this->Impl->Adios)
   {
 #ifdef IOADIOS2_HAVE_MPI
     // Make sure the ADIOS subsystem is initialized before processing any
     // sort of request.
     if (!this->Controller)
     {
-      vtkErrorMacro("The reader is built with MPI support but the application is not launched in parallel mode. Abort reading.")
+      vtkErrorMacro("The reader is built with MPI support but the application is not launched in "
+                    "parallel mode. Abort reading.");
       return false;
     }
-    vtkMPICommunicator *comm = static_cast<vtkMPICommunicator*>(
-      this->Controller->GetCommunicator());
+    vtkMPICommunicator* comm =
+      static_cast<vtkMPICommunicator*>(this->Controller->GetCommunicator());
 
-    this->Impl->Adios.reset(
-      new adios2::ADIOS(*comm->GetMPIComm()->GetHandle(), adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS(*comm->GetMPIComm()->GetHandle(), adios2::DebugON));
 #else
     // Make sure the ADIOS subsystem is initialized before processing any
     // sort of request.
 
-    this->Impl->Adios.reset(
-      new adios2::ADIOS(adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS(adios2::DebugON));
     // Before processing any request, read the meta data first
 #endif
   }
@@ -371,33 +372,32 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   try
   {
     this->Impl->AdiosIO = this->Impl->Adios->DeclareIO("vtkADIOS2ImageRead");
-    if(StringEndsWith(this->FileName, ".bp"))
+    if (StringEndsWith(this->FileName, ".bp"))
     {
       this->Impl->AdiosIO.SetEngine("BPFile");
-      this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName,
-        adios2::Mode::Read);
+      this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, adios2::Mode::Read);
     }
-    else if(StringEndsWith(this->FileName, "md.idx"))
+    else if (StringEndsWith(this->FileName, "md.idx"))
     {
       this->Impl->AdiosIO.SetEngine("BP4");
       this->Impl->BpReader = this->Impl->AdiosIO.Open(
-        this->FileName.substr(0, this->FileName.size()-6), adios2::Mode::Read);
+        this->FileName.substr(0, this->FileName.size() - 6), adios2::Mode::Read);
     }
     else
     {
       throw std::runtime_error("Unsupported file extension");
     }
-    this->Impl->AvailVars =  this->Impl->AdiosIO.AvailableVariables();
-    this->Impl->AvailAtts =  this->Impl->AdiosIO.AvailableAttributes();
+    this->Impl->AvailVars = this->Impl->AdiosIO.AvailableVariables();
+    this->Impl->AvailAtts = this->Impl->AdiosIO.AvailableAttributes();
     // Populate the array selection
     this->Impl->AvailableArray->Allocate(static_cast<vtkIdType>(this->Impl->AvailVars.size()));
-    for (auto& iter: this->Impl->AvailVars)
+    for (auto& iter : this->Impl->AvailVars)
     {
       this->Impl->ArraySelection[iter.first] = true;
       this->Impl->AvailableArray->InsertNextValue(iter.first);
     }
   }
-  catch (const std::exception &ex)
+  catch (const std::exception& ex)
   {
     vtkErrorMacro("failed to open and read meta data: " << ex.what());
     return false;
@@ -409,7 +409,9 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
 
 //----------------------------------------------------------------------------
 vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReader()
-  : DimensionArrayAsCell(true), IsColumnMajor(false), Impl(new vtkADIOS2CoreImageReaderImpl)
+  : DimensionArrayAsCell(true)
+  , IsColumnMajor(false)
+  , Impl(new vtkADIOS2CoreImageReaderImpl)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetNumberOfInputPorts(0);
@@ -425,9 +427,8 @@ vtkADIOS2CoreImageReader::~vtkADIOS2CoreImageReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkADIOS2CoreImageReader::RequestInformation(vtkInformation* request,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+int vtkADIOS2CoreImageReader::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -466,17 +467,16 @@ int vtkADIOS2CoreImageReader::RequestInformation(vtkInformation* request,
     extent[3] = this->Dimension[1];
     extent[5] = this->Dimension[0];
   }
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent, 6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
   if (!this->TimeStepArray.empty() && this->GatherTimeSteps())
   {
     // Publish time information
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 this->Impl->TimeSteps.data(),
-                 static_cast<int>(this->Impl->TimeSteps.size()));
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->Impl->TimeSteps.data(),
+      static_cast<int>(this->Impl->TimeSteps.size()));
     double tRange[2];
     tRange[0] = this->Impl->TimeSteps[0];
-    tRange[1] = this->Impl->TimeSteps[this->Impl->TimeSteps.size()-1];
+    tRange[1] = this->Impl->TimeSteps[this->Impl->TimeSteps.size() - 1];
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
   }
 
@@ -485,8 +485,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
-                          vtkInformationVector** vtkNotUsed(inputVector),
-                          vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Convert user selected array names into inquire variables
   this->ConvertArraySelectionToInqVar();
@@ -497,8 +496,8 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("No inquire variable is specified. Abort reading now");
     return 0;
   }
-  if (!this->TimeStepArray.empty() && this->Impl->ArraySelection.find(this->TimeStepArray)
-      == this->Impl->ArraySelection.end())
+  if (!this->TimeStepArray.empty() &&
+    this->Impl->ArraySelection.find(this->TimeStepArray) == this->Impl->ArraySelection.end())
   {
     this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("An invalid time step array name is specified. Abort reading now");
@@ -511,13 +510,11 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->RequestTimeStep = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     if (!this->Impl->TimeStepsReverseMap.count(this->RequestTimeStep))
     {
-      vtkErrorMacro("The requested time step " << this->RequestTimeStep <<
-                    " is not avaible!")
+      vtkErrorMacro("The requested time step " << this->RequestTimeStep << " is not avaible!");
       return 0;
     }
     this->Impl->RequestStep = this->Impl->TimeStepsReverseMap[this->RequestTimeStep];
   }
-
 
   // Initailize work distribution for each rank
   if (!this->InitWorkDistribution())
@@ -552,7 +549,7 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     std::string typeStr = this->FetchTypeStringFromVarName(varName);
     if (typeStr.empty())
     {
-      vtkErrorMacro("Cannot find a type for "<<varName << " invalid name is provided");
+      vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
       return 1;
     }
     // FIXME: adios2 IO object returns an template dependent class instance instead of
@@ -605,16 +602,16 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     }
     else if (typeStr == "float complex")
     {
-      this->CalculateWorkDistribution<std::complex<float>>(varName);
+      this->CalculateWorkDistribution<std::complex<float> >(varName);
     }
     else if (typeStr == "double complex")
     {
-      this->CalculateWorkDistribution<std::complex<double>>(varName);
+      this->CalculateWorkDistribution<std::complex<double> >(varName);
     }
   }
   catch (std::exception& e)
   {
-    vtkErrorMacro("failed to initialize work distribution: "<< e.what());
+    vtkErrorMacro("failed to initialize work distribution: " << e.what());
     return false;
   }
   return true;
@@ -623,8 +620,9 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
 //----------------------------------------------------------------------------
 std::string vtkADIOS2CoreImageReader::FetchTypeStringFromVarName(const std::string& name)
 {
-    return (this->Impl->AvailVars.find(name) == this->Impl->AvailVars.end()) ?
-          std::string{} : this->Impl->AvailVars[name]["Type"];
+  return (this->Impl->AvailVars.find(name) == this->Impl->AvailVars.end())
+    ? std::string{}
+    : this->Impl->AvailVars[name]["Type"];
 }
 //----------------------------------------------------------------------------
 void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
@@ -633,8 +631,7 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
   {
     return;
   }
-  std::vector<int> dims =
-        parseDimensions(this->Impl->AvailVars[this->DimensionArray]["Shape"]);
+  std::vector<int> dims = parseDimensions(this->Impl->AvailVars[this->DimensionArray]["Shape"]);
   int offset = this->DimensionArrayAsCell ? 1 : 0;
   if (dims.size() == 3)
   {
@@ -650,8 +647,9 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
   }
   else
   {
-    vtkErrorMacro("Can not use the dimension of array " << this->DimensionArray <<
-                  " to set the dimension of image data. Its size is neither 2 nor 3");
+    vtkErrorMacro("Can not use the dimension of array "
+      << this->DimensionArray
+      << " to set the dimension of image data. Its size is neither 2 nor 3");
   }
 }
 
@@ -659,12 +657,11 @@ void vtkADIOS2CoreImageReader::UpdateDimensionFromDimensionArray()
 void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
 {
   InquireVariablesType inqVars;
-  for (auto& iter: this->Impl->ArraySelection)
+  for (auto& iter : this->Impl->ArraySelection)
   {
-    if(iter.second) // Enabled by the user
+    if (iter.second) // Enabled by the user
     {
-      std::vector<int> dims =
-          parseDimensions(this->Impl->AvailVars[iter.first]["Shape"]);
+      std::vector<int> dims = parseDimensions(this->Impl->AvailVars[iter.first]["Shape"]);
       std::string arrayName = iter.first;
       if (dims.size() == 2)
       {
@@ -672,30 +669,28 @@ void vtkADIOS2CoreImageReader::ConvertArraySelectionToInqVar()
         {
           inqVars.emplace_back(arrayName, VarType::PointData);
         }
-        else if (dims[0] == this->Dimension[0]-1 && dims[1] == this->Dimension[1]-1)
+        else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1)
         {
           inqVars.emplace_back(arrayName, VarType::CellData);
         }
       }
       else if (dims.size() == 3)
       {
-        if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1]
-            && dims[2] == this->Dimension[2])
+        if (dims[0] == this->Dimension[0] && dims[1] == this->Dimension[1] &&
+          dims[2] == this->Dimension[2])
         {
           inqVars.emplace_back(arrayName, VarType::PointData);
         }
-        else if (dims[0] == this->Dimension[0]-1 && dims[1] == this->Dimension[1]-1
-                 && dims[2] == this->Dimension[2] - 1)
+        else if (dims[0] == this->Dimension[0] - 1 && dims[1] == this->Dimension[1] - 1 &&
+          dims[2] == this->Dimension[2] - 1)
         {
           inqVars.emplace_back(arrayName, VarType::CellData);
         }
       }
       else
       {
-        vtkWarningMacro("The dimension of array " << arrayName <<
-                      " is not supported. Skipping");
+        vtkWarningMacro("The dimension of array " << arrayName << " is not supported. Skipping");
       }
-
     }
   }
   this->Impl->InquiredVars = inqVars;
@@ -707,20 +702,23 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
   try
   {
     // One adios block is mapped to one vtk image data.
-    size_t blockExtentI{0};
-    for (size_t blockI= this->Impl->BlockStart; blockI < this->Impl->BlockStart + this->Impl->BlockCount; blockI++)
+    size_t blockExtentI{ 0 };
+    for (size_t blockI = this->Impl->BlockStart;
+         blockI < this->Impl->BlockStart + this->Impl->BlockCount; blockI++)
     {
       vtkNew<vtkImageData> outputImage;
       outputImage->SetOrigin(this->Origin);
       outputImage->SetSpacing(this->Spacing);
-      const auto& extents =  this->Impl->BlockExtents[blockExtentI++];
+      const auto& extents = this->Impl->BlockExtents[blockExtentI++];
       if (this->IsColumnMajor)
       {
-        outputImage->SetExtent(extents[0], extents[1], extents[2], extents[3], extents[4], extents[5]);
+        outputImage->SetExtent(
+          extents[0], extents[1], extents[2], extents[3], extents[4], extents[5]);
       }
       else
       {
-        outputImage->SetExtent(extents[4], extents[5], extents[2], extents[3], extents[0], extents[1]);
+        outputImage->SetExtent(
+          extents[4], extents[5], extents[2], extents[3], extents[0], extents[1]);
       }
       // The index of mbds starts from 0
       mbds->SetBlock(static_cast<unsigned int>(blockI - this->Impl->BlockStart), outputImage);
@@ -730,15 +728,14 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
         std::string varName = iter.first;
         if (this->Impl->AvailVars.find(varName) == this->Impl->AvailVars.end())
         {
-          vtkErrorMacro("Inquire variable " << varName <<
-                        " cannot be found in the provided file");
+          vtkErrorMacro("Inquire variable " << varName << " cannot be found in the provided file");
           continue;
         }
         // TODO: Add validation for inquire variable's dimensions
         std::string typeStr = this->FetchTypeStringFromVarName(varName);
         if (typeStr.empty())
         {
-          vtkErrorMacro("Cannot find a type for "<<varName << " invalid name is provided");
+          vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
           continue;
         }
 
@@ -749,15 +746,14 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
           // do the work here
           auto varADIOS2 = this->Impl->AdiosIO.InquireVariable<std::string>(varName);
           varADIOS2.SetBlockSelection(blockI);
-          varADIOS2.SetStepSelection({this->Impl->RequestStep, 1});
+          varADIOS2.SetStepSelection({ this->Impl->RequestStep, 1 });
 
           vtkNew<vtkStringArray> array;
           dataArray = array;
           array->SetNumberOfComponents(1);
           array->SetName(varName.c_str());
           array->SetNumberOfTuples(static_cast<vtkIdType>(varADIOS2.SelectionSize()));
-          this->Impl->BpReader.Get(varADIOS2, dynamic_cast<std::string*>
-                                   (array->GetPointer(0)));
+          this->Impl->BpReader.Get(varADIOS2, dynamic_cast<std::string*>(array->GetPointer(0)));
         }
         else if (typeStr == "char")
         {
@@ -805,18 +801,21 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
         }
         else if (typeStr == "long double")
         {
-            vtkWarningMacro(<<"ADIOS2 type long double is not supported yet. Skipping array " << varName);
-            continue;
+          vtkWarningMacro(<< "ADIOS2 type long double is not supported yet. Skipping array "
+                          << varName);
+          continue;
         }
         else if (typeStr == "float complex")
         {
-            vtkWarningMacro(<<"ADIOS2 type float complex is not supported yet. Skipping array " << varName);
-            continue;
+          vtkWarningMacro(<< "ADIOS2 type float complex is not supported yet. Skipping array "
+                          << varName);
+          continue;
         }
         else if (typeStr == "double complex")
         {
-            vtkWarningMacro(<<"ADIOS2 type double complex is not supported yet. Skipping array " << varName);
-            continue;
+          vtkWarningMacro(<< "ADIOS2 type double complex is not supported yet. Skipping array "
+                          << varName);
+          continue;
         }
 
         if (dataArray && iter.second == VarType::CellData)
@@ -846,7 +845,7 @@ void vtkADIOS2CoreImageReader::ReadImageBlocks(vtkMultiBlockDataSet* mbds)
   }
   catch (std::exception& e)
   {
-    vtkErrorMacro(<<e.what());
+    vtkErrorMacro(<< e.what());
   }
 }
 
@@ -857,14 +856,14 @@ bool vtkADIOS2CoreImageReader::GatherTimeSteps()
   std::string typeStr = this->FetchTypeStringFromVarName(this->TimeStepArray);
   if (typeStr.empty())
   {
-    vtkErrorMacro("Cannot find a type for time step "<<this->TimeStepArray
-                  << " invalid name is provided");
+    vtkErrorMacro(
+      "Cannot find a type for time step " << this->TimeStepArray << " invalid name is provided");
     return false;
   }
   // FIXME: adios2 IO object returns an template dependent class instance instead of
   // a pointer or template independent object. Without using std::variant,
   // if statements are used to overcome the limitation
-   // Use the adios_types_map in adios2 code base to generate types
+  // Use the adios_types_map in adios2 code base to generate types
 
   // It's a safe assumption that the type of time array should be one of the following types.
   if (typeStr == "int8_t")
@@ -921,9 +920,9 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
 
 #ifdef IOADIOS2_HAVE_MPI
   size_t rank = static_cast<size_t>(this->Controller->GetLocalProcessId());
-  size_t procs =static_cast<size_t>(this->Controller->GetNumberOfProcesses());
+  size_t procs = static_cast<size_t>(this->Controller->GetNumberOfProcesses());
 #else
-  size_t rank{0}, procs{1};
+  size_t rank{ 0 }, procs{ 1 };
 #endif
   // Decide how many blocks that current process shall read
   this->Impl->BlockCount = blockNum / procs;
@@ -936,8 +935,8 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
   }
   else
   {
-    this->Impl->BlockStart = leftOver * (this->Impl->BlockCount + 1) +
-        (rank-leftOver) * this->Impl->BlockCount;
+    this->Impl->BlockStart =
+      leftOver * (this->Impl->BlockCount + 1) + (rank - leftOver) * this->Impl->BlockCount;
   }
   // Calculate the extent for each block
   for (size_t i = this->Impl->BlockStart; i < this->Impl->BlockStart + this->Impl->BlockCount; i++)
@@ -948,23 +947,18 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
     {
       // We use the first available var in inquiredVars to init workdistribution
       int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
-      this->Impl->BlockExtents.push_back({static_cast<int>(start[0]),
-                                          static_cast<int>(start[0] + count[0])+offSet,
-                                          static_cast<int>(start[1]),
-                                          static_cast<int>(start[1] + count[1])+offSet,
-                                          static_cast<int>(start[2]),
-                                          static_cast<int>(start[2] + count[2])+offSet});
+      this->Impl->BlockExtents.push_back(
+        { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
+          static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet,
+          static_cast<int>(start[2]), static_cast<int>(start[2] + count[2]) + offSet });
     }
     else if (start.size() == 2 && count.size() == 2)
     {
       // We use the first available var in inquiredVars to init workdistribution
       int offSet = this->Impl->InquiredVars.begin()->second == VarType::PointData ? -1 : 0;
-      this->Impl->BlockExtents.push_back({static_cast<int>(start[0]),
-                                          static_cast<int>(start[0] + count[0])+offSet,
-                                          static_cast<int>(start[1]),
-                                          static_cast<int>(start[1] + count[1])+offSet,
-                                          0, 1});
-
+      this->Impl->BlockExtents.push_back(
+        { static_cast<int>(start[0]), static_cast<int>(start[0] + count[0]) + offSet,
+          static_cast<int>(start[1]), static_cast<int>(start[1] + count[1]) + offSet, 0, 1 });
     }
     else
     {
@@ -974,15 +968,15 @@ void vtkADIOS2CoreImageReader::CalculateWorkDistribution(const std::string& varN
 }
 
 //----------------------------------------------------------------------------
-template<typename T, template<typename...> class U>
-vtkSmartPointer<vtkAbstractArray> vtkADIOS2CoreImageReader::PopulateDataArrayFromVar(const std::string& varName,
-                                                    size_t blockIndex)
+template <typename T, template <typename...> class U>
+vtkSmartPointer<vtkAbstractArray> vtkADIOS2CoreImageReader::PopulateDataArrayFromVar(
+  const std::string& varName, size_t blockIndex)
 {
   vtkSmartPointer<vtkAbstractArray> array = vtkDataArray::CreateDataArray(U<T>::VTKType);
   try
   {
     auto varADIOS2 = this->Impl->AdiosIO.InquireVariable<T>(varName);
-    varADIOS2.SetStepSelection({this->Impl->RequestStep, 1});
+    varADIOS2.SetStepSelection({ this->Impl->RequestStep, 1 });
     varADIOS2.SetBlockSelection(blockIndex);
 
     array->SetNumberOfComponents(1);
@@ -1007,26 +1001,26 @@ void vtkADIOS2CoreImageReader::GatherTimeStepsFromADIOSTimeArray()
 
     size_t nSteps = varADIOS2.Steps();
     size_t stepsStart = varADIOS2.StepsStart();
-    std::vector<int> dims =
-        parseDimensions(this->Impl->AvailVars[this->TimeStepArray]["Shape"]);
-    int multiplication{1};
-    std::for_each(dims.begin(),dims.end(),[&multiplication](int v){multiplication *= v;});
+    std::vector<int> dims = parseDimensions(this->Impl->AvailVars[this->TimeStepArray]["Shape"]);
+    int multiplication{ 1 };
+    std::for_each(dims.begin(), dims.end(), [&multiplication](int v) { multiplication *= v; });
 
     this->Impl->TimeSteps.clear();
-    // A temporary vector to hold time steps since ADIOS requires the variable and array should have same type
+    // A temporary vector to hold time steps since ADIOS requires the variable and array should have
+    // same type
     std::vector<T> tempTimeSteps(nSteps, 0);
     if (multiplication == 1 || multiplication == static_cast<int>(nSteps))
     {
       // From Chuck: We should be able to read all steps at once but because of an ADIOS2 bug
       // we can only read one at a time
-      for(size_t s = 0; s < nSteps; ++s)
+      for (size_t s = 0; s < nSteps; ++s)
       {
-        varADIOS2.SetStepSelection({stepsStart+s, 1});
-        this->Impl->BpReader.Get(varADIOS2, tempTimeSteps.data()+s);
+        varADIOS2.SetStepSelection({ stepsStart + s, 1 });
+        this->Impl->BpReader.Get(varADIOS2, tempTimeSteps.data() + s);
       }
       this->Impl->BpReader.PerformGets();
 
-      for (const auto v: tempTimeSteps)
+      for (const auto v : tempTimeSteps)
       {
         this->Impl->TimeSteps.push_back(static_cast<double>(v));
       }
@@ -1035,12 +1029,12 @@ void vtkADIOS2CoreImageReader::GatherTimeStepsFromADIOSTimeArray()
     {
       for (int i = 0; i < static_cast<int>(nSteps); i++)
       {
-        this->Impl->TimeSteps.push_back(static_cast<double>(stepsStart+i));
+        this->Impl->TimeSteps.push_back(static_cast<double>(stepsStart + i));
       }
     }
 
     this->Impl->TimeStepsReverseMap.clear();
-    for(size_t i = 0; i < this->Impl->TimeSteps.size(); ++i)
+    for (size_t i = 0; i < this->Impl->TimeSteps.size(); ++i)
     {
       this->Impl->TimeStepsReverseMap[this->Impl->TimeSteps[i]] = i;
     }

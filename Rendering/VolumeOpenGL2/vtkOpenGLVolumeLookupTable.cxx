@@ -58,8 +58,7 @@ void vtkOpenGLVolumeLookupTable::Deactivate()
 
 //-----------------------------------------------------------------------------
 inline int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
-  vtkOpenGLRenderWindow* renWin,
-  int idealWidth)
+  vtkOpenGLRenderWindow* renWin, int idealWidth)
 {
   if (!this->TextureObject)
   {
@@ -84,9 +83,8 @@ inline int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
 
   vtkWarningMacro("This OpenGL implementation does not support the required "
                   "texture size of "
-                  << idealWidth << ", falling back to maximum allowed, "
-                  << maxWidth << "."
-                  << "This may cause an incorrect lookup table mapping.");
+    << idealWidth << ", falling back to maximum allowed, " << maxWidth << "."
+    << "This may cause an incorrect lookup table mapping.");
 
   return maxWidth;
 }
@@ -114,24 +112,18 @@ void vtkOpenGLVolumeLookupTable::ReleaseGraphicsResources(vtkWindow* window)
 
 //--------------------------------------------------------------------------
 void vtkOpenGLVolumeLookupTable::ComputeIdealTextureSize(
-  vtkObject* func,
-  int& width,
-  int& height,
-  vtkOpenGLRenderWindow* renWin)
+  vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin)
 {
-  vtkColorTransferFunction* scalarRGB =
-    vtkColorTransferFunction::SafeDownCast(func);
+  vtkColorTransferFunction* scalarRGB = vtkColorTransferFunction::SafeDownCast(func);
   if (scalarRGB)
   {
-    width = scalarRGB->EstimateMinNumberOfSamples(this->LastRange[0],
-                                                  this->LastRange[1]);
+    width = scalarRGB->EstimateMinNumberOfSamples(this->LastRange[0], this->LastRange[1]);
     height = 1;
   }
   vtkPiecewiseFunction* scalarOp = vtkPiecewiseFunction::SafeDownCast(func);
   if (scalarOp)
   {
-    width = scalarOp->EstimateMinNumberOfSamples(this->LastRange[0],
-                                                 this->LastRange[1]);
+    width = scalarOp->EstimateMinNumberOfSamples(this->LastRange[0], this->LastRange[1]);
     height = 1;
   }
   vtkImageData* transfer2D = vtkImageData::SafeDownCast(func);
@@ -141,18 +133,12 @@ void vtkOpenGLVolumeLookupTable::ComputeIdealTextureSize(
     width = dims[0];
     height = dims[1];
   }
-  height =
-    height > 1 ? this->GetMaximumSupportedTextureWidth(renWin, height) : 1;
+  height = height > 1 ? this->GetMaximumSupportedTextureWidth(renWin, height) : 1;
 }
 
 //--------------------------------------------------------------------------
-void vtkOpenGLVolumeLookupTable::Update(vtkObject* func,
-                                        double scalarRange[2],
-                                        int blendMode,
-                                        double sampleDistance,
-                                        double unitDistance,
-                                        int filterValue,
-                                        vtkOpenGLRenderWindow* renWin)
+void vtkOpenGLVolumeLookupTable::Update(vtkObject* func, double scalarRange[2], int blendMode,
+  double sampleDistance, double unitDistance, int filterValue, vtkOpenGLRenderWindow* renWin)
 {
   if (!func || !renWin)
   {
@@ -172,16 +158,14 @@ void vtkOpenGLVolumeLookupTable::Update(vtkObject* func,
     int newHeight = 1;
     this->ComputeIdealTextureSize(func, idealW, newHeight, renWin);
     int const newWidth = this->GetMaximumSupportedTextureWidth(renWin, idealW);
-    if (!this->Table || this->TextureWidth != newWidth ||
-        this->TextureHeight != newHeight)
+    if (!this->Table || this->TextureWidth != newWidth || this->TextureHeight != newHeight)
     {
       this->TextureWidth = newWidth;
       this->TextureHeight = newHeight;
       this->AllocateTable();
     }
 
-    this->InternalUpdate(
-      func, blendMode, sampleDistance, unitDistance, filterValue);
+    this->InternalUpdate(func, blendMode, sampleDistance, unitDistance, filterValue);
     this->LastInterpolation = filterValue;
     this->BuildTime.Modified();
   }
@@ -198,25 +182,20 @@ void vtkOpenGLVolumeLookupTable::Update(vtkObject* func,
 void vtkOpenGLVolumeLookupTable::AllocateTable()
 {
   delete[] this->Table;
-  this->Table = new float[this->TextureWidth * this->TextureHeight *
-                          this->NumberOfColorComponents];
+  this->Table = new float[this->TextureWidth * this->TextureHeight * this->NumberOfColorComponents];
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLVolumeLookupTable::NeedsUpdate(vtkObject* func,
-                                             double scalarRange[2],
-                                             int vtkNotUsed(blendMode),
-                                             double vtkNotUsed(sampleDistance))
+bool vtkOpenGLVolumeLookupTable::NeedsUpdate(vtkObject* func, double scalarRange[2],
+  int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance))
 {
   if (!func)
   {
     return false;
   }
-  if (scalarRange[0] != this->LastRange[0] ||
-      scalarRange[1] != this->LastRange[1] ||
-      func->GetMTime() > this->BuildTime ||
-      this->TextureObject->GetMTime() > this->BuildTime ||
-      !this->TextureObject->GetHandle())
+  if (scalarRange[0] != this->LastRange[0] || scalarRange[1] != this->LastRange[1] ||
+    func->GetMTime() > this->BuildTime || this->TextureObject->GetMTime() > this->BuildTime ||
+    !this->TextureObject->GetHandle())
   {
     this->LastRange[0] = scalarRange[0];
     this->LastRange[1] = scalarRange[1];
@@ -226,11 +205,8 @@ bool vtkOpenGLVolumeLookupTable::NeedsUpdate(vtkObject* func,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLVolumeLookupTable::InternalUpdate(
-  vtkObject* vtkNotUsed(func),
-  int vtkNotUsed(blendMode),
-  double vtkNotUsed(sampleDistance),
-  double vtkNotUsed(unitDistance),
+void vtkOpenGLVolumeLookupTable::InternalUpdate(vtkObject* vtkNotUsed(func),
+  int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance),
   int vtkNotUsed(filterValue))
 {
 }
@@ -251,6 +227,6 @@ void vtkOpenGLVolumeLookupTable::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Last Interpolation: " << this->LastInterpolation << endl;
-  os << indent << "Last Range: (" << this->LastRange[0] << ", "
-     << this->LastRange[1] << ")" << endl;
+  os << indent << "Last Range: (" << this->LastRange[0] << ", " << this->LastRange[1] << ")"
+     << endl;
 }

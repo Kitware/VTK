@@ -18,14 +18,14 @@
  *
  * vtkOpenGLAvatar is a concrete implementation of the abstract class vtkAvatar.
  * vtkOpenGLAvatar interfaces to the OpenGL rendering library.
-*/
+ */
 
 #ifndef vtkOpenGLAvatar_h
 #define vtkOpenGLAvatar_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAvatar.h"
-#include "vtkNew.h" // for ivars
+#include "vtkNew.h"                   // for ivars
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
@@ -37,7 +37,7 @@ class vtkTextProperty;
 class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
 public:
-  static vtkOpenGLAvatar *New();
+  static vtkOpenGLAvatar* New();
   vtkTypeMacro(vtkOpenGLAvatar, vtkAvatar);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -45,21 +45,21 @@ public:
    * Actual Avatar render method.
    */
   // void Render(vtkRenderer *ren, vtkMapper *mapper) override;
-  int RenderOpaqueGeometry(vtkViewport *vp) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
+  int RenderOpaqueGeometry(vtkViewport* vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
-  double *GetBounds() VTK_SIZEHINT(6) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
 
   void SetUseLeftHand(bool val) override;
   void SetUseRightHand(bool val) override;
   void SetShowHandsOnly(bool val) override;
 
-  //Set Ray parameters
+  // Set Ray parameters
   void SetLeftShowRay(bool v);
   void SetRightShowRay(bool v);
   void SetRayLength(double length);
 
-  void SetLabel(const char *label);
+  void SetLabel(const char* label);
   vtkTextProperty* GetLabelTextProperty();
 
 protected:

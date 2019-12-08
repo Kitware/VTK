@@ -55,14 +55,14 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayExtents_h
 #define vtkArrayExtents_h
 
+#include "vtkArrayRange.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayRange.h"
 #include <vector> // STL Header
 
 class VTKCOMMONCORE_EXPORT vtkArrayExtents
@@ -225,13 +225,10 @@ public:
    */
   bool Contains(const vtkArrayCoordinates& coordinates) const;
 
-  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
-    ostream& stream, const vtkArrayExtents& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs);
 
 private:
-
   std::vector<vtkArrayRange> Storage;
-
 };
 
 #endif

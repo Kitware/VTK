@@ -13,23 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXYZ.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPen.h"
 #include "vtkPlotLine3D.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 // Plot the solution to the Lorenz attractor.
 // http://en.wikipedia.org/wiki/Lorenz_system
 namespace
 {
-void lorenz(const float * varX, float * varXDerivative)
+void lorenz(const float* varX, float* varXDerivative)
 {
   const float sigma = 10.f;
   const float rho = 28.f;
@@ -42,7 +42,7 @@ void lorenz(const float * varX, float * varXDerivative)
 } // end anonymous namespace
 
 //----------------------------------------------------------------------------
-int TestLinePlot3D(int, char * [])
+int TestLinePlot3D(int, char*[])
 {
   // Create the data.
   vtkNew<vtkTable> varXSolution;

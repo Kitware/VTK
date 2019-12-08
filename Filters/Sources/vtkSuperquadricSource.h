@@ -46,7 +46,7 @@
  * The Size and Thickness parameters control coefficients of superquadric
  * generation, and may do not exactly describe the size of the superquadric.
  *
-*/
+ */
 
 #ifndef vtkSuperquadricSource_h
 #define vtkSuperquadricSource_h
@@ -55,8 +55,8 @@
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SUPERQUADRIC_RESOLUTION 1024
-#define VTK_MIN_SUPERQUADRIC_THICKNESS  1e-4
-#define VTK_MIN_SUPERQUADRIC_ROUNDNESS  1e-24
+#define VTK_MIN_SUPERQUADRIC_THICKNESS 1e-4
+#define VTK_MIN_SUPERQUADRIC_ROUNDNESS 1e-24
 
 class VTKFILTERSSOURCES_EXPORT vtkSuperquadricSource : public vtkPolyDataAlgorithm
 {
@@ -66,32 +66,32 @@ public:
    * spherical, and centered at the origin, with a scaling factor of 1 in each
    * direction, a theta resolution and a phi resolutions of 16.
    */
-  static vtkSuperquadricSource *New();
+  static vtkSuperquadricSource* New();
 
-  vtkTypeMacro(vtkSuperquadricSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSuperquadricSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set the center of the superquadric. Default is 0,0,0.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
   //@}
 
   //@{
   /**
    * Set the scale factors of the superquadric. Default is 1,1,1.
    */
-  vtkSetVector3Macro(Scale,double);
-  vtkGetVectorMacro(Scale,double,3);
+  vtkSetVector3Macro(Scale, double);
+  vtkGetVectorMacro(Scale, double, 3);
   //@}
 
   //@{
   /**
    * Set the number of points in the longitude direction. Initial value is 16.
    */
-  vtkGetMacro(ThetaResolution,int);
+  vtkGetMacro(ThetaResolution, int);
   void SetThetaResolution(int i);
   //@}
 
@@ -99,7 +99,7 @@ public:
   /**
    * Set the number of points in the latitude direction. Initial value is 16.
    */
-  vtkGetMacro(PhiResolution,int);
+  vtkGetMacro(PhiResolution, int);
   void SetPhiResolution(int i);
   //@}
 
@@ -109,8 +109,8 @@ public:
    * Changing thickness maintains the outside diameter of the toroid.
    * Initial value is 0.3333.
    */
-  vtkGetMacro(Thickness,double);
-  vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
+  vtkGetMacro(Thickness, double);
+  vtkSetClampMacro(Thickness, double, VTK_MIN_SUPERQUADRIC_THICKNESS, 1.0);
   //@}
 
   //@{
@@ -119,7 +119,7 @@ public:
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
    * Initial value is 1.0.
    */
-  vtkGetMacro(PhiRoundness,double);
+  vtkGetMacro(PhiRoundness, double);
   void SetPhiRoundness(double e);
   //@}
 
@@ -129,7 +129,7 @@ public:
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
    * Initial value is 1.0.
    */
-  vtkGetMacro(ThetaRoundness,double);
+  vtkGetMacro(ThetaRoundness, double);
   void SetThetaRoundness(double e);
   //@}
 
@@ -137,16 +137,17 @@ public:
   /**
    * Set/Get Superquadric isotropic size. Initial value is 0.5;
    */
-  vtkSetMacro(Size,double);
-  vtkGetMacro(Size,double);
+  vtkSetMacro(Size, double);
+  vtkGetMacro(Size, double);
   //@}
 
   //@{
   /**
-   * Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value is 1.
+   * Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value
+   * is 1.
    */
-  vtkSetMacro(AxisOfSymmetry,int);
-  vtkGetMacro(AxisOfSymmetry,int);
+  vtkSetMacro(AxisOfSymmetry, int);
+  vtkGetMacro(AxisOfSymmetry, int);
   void SetXAxisOfSymmetry() { this->SetAxisOfSymmetry(0); }
   void SetYAxisOfSymmetry() { this->SetAxisOfSymmetry(1); }
   void SetZAxisOfSymmetry() { this->SetAxisOfSymmetry(2); }
@@ -157,9 +158,9 @@ public:
    * Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
    * Initial value is 0.
    */
-  vtkBooleanMacro(Toroidal,vtkTypeBool);
-  vtkGetMacro(Toroidal,vtkTypeBool);
-  vtkSetMacro(Toroidal,vtkTypeBool);
+  vtkBooleanMacro(Toroidal, vtkTypeBool);
+  vtkGetMacro(Toroidal, vtkTypeBool);
+  vtkSetMacro(Toroidal, vtkTypeBool);
   //@}
 
   //@{
@@ -168,12 +169,12 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
-  vtkSuperquadricSource(int res=16);
+  vtkSuperquadricSource(int res = 16);
   ~vtkSuperquadricSource() override {}
 
   vtkTypeBool Toroidal;
@@ -182,7 +183,7 @@ protected:
   double Size;
   double PhiRoundness;
   double ThetaRoundness;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Center[3];
   double Scale[3];
   int ThetaResolution;
@@ -195,4 +196,3 @@ private:
 };
 
 #endif
-

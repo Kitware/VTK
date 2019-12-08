@@ -26,16 +26,15 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSEPReader.h"
 #include "vtkTestUtilities.h"
 
-int TestSEPReader(int argc, char *argv[])
+int TestSEPReader(int argc, char* argv[])
 {
-  char* filename =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
+  char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
 
   vtkNew<vtkSEPReader> SEPReader;
 
@@ -54,14 +53,14 @@ int TestSEPReader(int argc, char *argv[])
 
   // Check the image properties
   int* extents = SEPReader->GetDataExtent();
-  if (extents[0] != 0 || extents[1] != 4 || extents[2] != 0 ||
-      extents[3] != 4 || extents[4] != 0 || extents[5] != 3)
+  if (extents[0] != 0 || extents[1] != 4 || extents[2] != 0 || extents[3] != 4 || extents[4] != 0 ||
+    extents[5] != 3)
   {
     std::cerr << "Unexpected data extents!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  double *origin = SEPReader->GetDataOrigin();
+  double* origin = SEPReader->GetDataOrigin();
   if (origin[0] != 0. || origin[1] != 0. || origin[2] != 0.)
   {
     std::cerr << "Unexpected data origin!" << std::endl;
@@ -109,8 +108,8 @@ int TestSEPReader(int argc, char *argv[])
   ren->AddActor(actor);
   ren->ResetCamera();
   double z1 = ren->GetActiveCamera()->GetPosition()[2];
-  ren->GetActiveCamera()->SetPosition(0.25 * z1, 0.25 * z1, 0.5*z1);
-  ren->GetActiveCamera()->SetFocalPoint(0., 0. ,0. );
+  ren->GetActiveCamera()->SetPosition(0.25 * z1, 0.25 * z1, 0.5 * z1);
+  ren->GetActiveCamera()->SetFocalPoint(0., 0., 0.);
   ren->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;

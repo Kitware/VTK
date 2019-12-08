@@ -30,20 +30,20 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHelper
 {
 public:
-  vtkShaderProgram *Program;
+  vtkShaderProgram* Program;
   vtkTimeStamp ShaderSourceTime;
-  vtkOpenGLVertexArrayObject *VAO;
+  vtkOpenGLVertexArrayObject* VAO;
   vtkTimeStamp AttributeUpdateTime;
   int PrimitiveType;
   unsigned int ShaderChangeValue;
 
-  vtkOpenGLIndexBufferObject *IBO;
+  vtkOpenGLIndexBufferObject* IBO;
 
   vtkOpenGLHelper();
   ~vtkOpenGLHelper();
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
- private:
+private:
   vtkOpenGLHelper(const vtkOpenGLHelper&) = delete;
   vtkOpenGLHelper& operator=(const vtkOpenGLHelper&) = delete;
 };

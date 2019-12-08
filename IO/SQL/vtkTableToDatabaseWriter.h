@@ -18,14 +18,14 @@
  *
  * vtkTableToDatabaseWriter abstract parent class that reads a vtkTable and
  * inserts it into an SQL database.
-*/
+ */
 
 #ifndef vtkTableToDatabaseWriter_h
 #define vtkTableToDatabaseWriter_h
 
 #include "vtkIOSQLModule.h" // For export macro
-#include <string> // STL Header
 #include "vtkWriter.h"
+#include <string> // STL Header
 
 class vtkSQLDatabase;
 class vtkStringArray;
@@ -40,20 +40,20 @@ public:
   /**
    * Set the database.  Must already be open.
    */
-  bool SetDatabase(vtkSQLDatabase *db);
+  bool SetDatabase(vtkSQLDatabase* db);
 
   /**
    * Set the name of the new SQL table that you'd this writer to create.
    * Returns false if the specified table already exists in the database.
    */
-  bool SetTableName(const char *name);
+  bool SetTableName(const char* name);
 
   /**
    * Check if the currently specified table name exists in the database.
    */
   bool TableNameIsNew();
 
-  vtkSQLDatabase *GetDatabase() { return this->Database; }
+  vtkSQLDatabase* GetDatabase() { return this->Database; }
 
   //@{
   /**
@@ -64,15 +64,14 @@ public:
   //@}
 
 protected:
-   vtkTableToDatabaseWriter();
+  vtkTableToDatabaseWriter();
   ~vtkTableToDatabaseWriter() override;
   void WriteData() override = 0;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-
-  vtkSQLDatabase *Database;
-  vtkTable *Input;
+  vtkSQLDatabase* Database;
+  vtkTable* Input;
 
   std::string TableName;
 

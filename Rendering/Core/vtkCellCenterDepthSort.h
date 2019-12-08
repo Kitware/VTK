@@ -34,7 +34,7 @@
  * camera transformed into object space.  It then performs an ordinary sort
  * on the result.
  *
-*/
+ */
 
 #ifndef vtkCellCenterDepthSort_h
 #define vtkCellCenterDepthSort_h
@@ -50,32 +50,32 @@ class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkCellCenterDepthSort *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkCellCenterDepthSort* New();
 
   void InitTraversal() override;
-  vtkIdTypeArray *GetNextCells() override;
+  vtkIdTypeArray* GetNextCells() override;
 
 protected:
   vtkCellCenterDepthSort();
   ~vtkCellCenterDepthSort() override;
 
-  vtkIdTypeArray *SortedCells;
-  vtkIdTypeArray *SortedCellPartition;
+  vtkIdTypeArray* SortedCells;
+  vtkIdTypeArray* SortedCellPartition;
 
-  vtkFloatArray *CellCenters;
-  vtkFloatArray *CellDepths;
-  vtkFloatArray *CellPartitionDepths;
+  vtkFloatArray* CellCenters;
+  vtkFloatArray* CellDepths;
+  vtkFloatArray* CellPartitionDepths;
 
-  virtual float *ComputeProjectionVector();
+  virtual float* ComputeProjectionVector();
   virtual void ComputeCellCenters();
   virtual void ComputeDepths();
 
 private:
-  vtkCellCenterDepthSortStack *ToSort;
+  vtkCellCenterDepthSortStack* ToSort;
 
-  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) = delete;
-  void operator=(const vtkCellCenterDepthSort &) = delete;
+  vtkCellCenterDepthSort(const vtkCellCenterDepthSort&) = delete;
+  void operator=(const vtkCellCenterDepthSort&) = delete;
 };
 
 #endif

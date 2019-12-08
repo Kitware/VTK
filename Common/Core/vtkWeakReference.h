@@ -32,14 +32,14 @@ class VTKCOMMONCORE_EXPORT vtkWeakReference : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWeakReference, vtkObject);
-  static vtkWeakReference *New();
+  static vtkWeakReference* New();
   vtkWeakReference();
   ~vtkWeakReference() override;
 
   /**
    * Set the vtkObject to maintain a weak reference to.
    */
-  void Set(vtkObject *object);
+  void Set(vtkObject* object);
 
   /**
    * Get the vtkObject pointer or nullptr if the object has been collected.

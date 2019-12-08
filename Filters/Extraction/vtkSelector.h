@@ -37,7 +37,7 @@ class vtkUniformGridAMR;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
 {
-  public:
+public:
   vtkTypeMacro(vtkSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

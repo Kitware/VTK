@@ -15,46 +15,39 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkNamedColors.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
-#include "vtkPNMReader.h"
-#include "vtkSphereSource.h"
-#include "vtkTexturedSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkNamedColors.h"
+#include "vtkPNMReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRIBExporter.h"
 #include "vtkRIBProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
+#include "vtkTexture.h"
+#include "vtkTexturedSphereSource.h"
 
-static vtkSmartPointer<vtkRIBProperty> cloth(const char *freq,
-                                             const char *depth);
-static vtkSmartPointer<vtkRIBProperty> dented(const char *Km);
-static vtkSmartPointer<vtkRIBProperty> stippled(const char *grainsize,
-                                                const char *stippling);
-static vtkSmartPointer<vtkRIBProperty> spatter(const char *sizes,
-                                               const char *specksize,
-                                               const char *spattercolor,
-                                               const char *basecolor);
-static vtkSmartPointer<vtkRIBProperty> cmarble(const char *veining);
-static vtkSmartPointer<vtkRIBProperty> stone(const char *scale,
-                                             const char *nshades,
-                                             const char *exponent,
-                                             const char *graincolor);
-static vtkSmartPointer<vtkRIBProperty> wood(const char *grain,
-                                            const char *swirl,
-                                            const char *swirlfreq);
-static vtkSmartPointer<vtkRIBProperty> bozo(const char *k);
+static vtkSmartPointer<vtkRIBProperty> cloth(const char* freq, const char* depth);
+static vtkSmartPointer<vtkRIBProperty> dented(const char* Km);
+static vtkSmartPointer<vtkRIBProperty> stippled(const char* grainsize, const char* stippling);
+static vtkSmartPointer<vtkRIBProperty> spatter(
+  const char* sizes, const char* specksize, const char* spattercolor, const char* basecolor);
+static vtkSmartPointer<vtkRIBProperty> cmarble(const char* veining);
+static vtkSmartPointer<vtkRIBProperty> stone(
+  const char* scale, const char* nshades, const char* exponent, const char* graincolor);
+static vtkSmartPointer<vtkRIBProperty> wood(
+  const char* grain, const char* swirl, const char* swirlfreq);
+static vtkSmartPointer<vtkRIBProperty> bozo(const char* k);
 
-int TestRIBExporter (int argc, char *argv[])
+int TestRIBExporter(int argc, char* argv[])
 {
-  const char *_prefix = vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  const char* _prefix =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string prefix = _prefix;
-  delete []_prefix;
+  delete[] _prefix;
 
   if (prefix.empty())
   {
@@ -63,86 +56,71 @@ int TestRIBExporter (int argc, char *argv[])
   }
   prefix += "/TestRIBExporter";
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New ();
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New ();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New ();
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
-  char *textureFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");
-  vtkSmartPointer<vtkPNMReader> textureReader =
-    vtkSmartPointer<vtkPNMReader>::New ();
+  char* textureFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");
+  vtkSmartPointer<vtkPNMReader> textureReader = vtkSmartPointer<vtkPNMReader>::New();
   textureReader->SetFileName(textureFile);
-  delete []textureFile;
+  delete[] textureFile;
 
   vtkSmartPointer<vtkTexturedSphereSource> texturedSphere =
-    vtkSmartPointer<vtkTexturedSphereSource>::New ();
+    vtkSmartPointer<vtkTexturedSphereSource>::New();
   texturedSphere->SetPhiResolution(20);
   texturedSphere->SetThetaResolution(20);
 
-  vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New ();
+  vtkSmartPointer<vtkTexture> texture = vtkSmartPointer<vtkTexture>::New();
   texture->SetInputConnection(textureReader->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataMapper>  texturedSphereMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New ();
+  vtkSmartPointer<vtkPolyDataMapper> texturedSphereMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   texturedSphereMapper->SetInputConnection(texturedSphere->GetOutputPort());
 
-  vtkSmartPointer<vtkSphereSource> sphere =
-    vtkSmartPointer<vtkSphereSource>::New ();
+  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
   sphere->SetPhiResolution(20);
   sphere->SetThetaResolution(20);
 
-  vtkSmartPointer<vtkPolyDataMapper>  sphereMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New ();
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> sphere1 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere1 = vtkSmartPointer<vtkActor>::New();
   sphere1->SetMapper(sphereMapper);
-  sphere1->SetPosition( -1.5, 1.5, 0);
+  sphere1->SetPosition(-1.5, 1.5, 0);
 
-  vtkSmartPointer<vtkActor> sphere2 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere2 = vtkSmartPointer<vtkActor>::New();
   sphere2->SetMapper(sphereMapper);
-  sphere2->SetPosition( 0, 1.5, 0);
+  sphere2->SetPosition(0, 1.5, 0);
 
-  vtkSmartPointer<vtkActor> sphere3 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere3 = vtkSmartPointer<vtkActor>::New();
   sphere3->SetMapper(sphereMapper);
   sphere3->SetPosition(1.5, 1.5, 0);
 
-  vtkSmartPointer<vtkActor> sphere4 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere4 = vtkSmartPointer<vtkActor>::New();
   sphere4->SetMapper(sphereMapper);
   sphere4->SetPosition(-1.5, 0, 0);
 
-  vtkSmartPointer<vtkActor> sphere5 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere5 = vtkSmartPointer<vtkActor>::New();
   sphere5->SetMapper(sphereMapper);
   sphere5->SetPosition(0, 0, 0);
 
-  vtkSmartPointer<vtkActor> sphere6 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere6 = vtkSmartPointer<vtkActor>::New();
   sphere6->SetMapper(sphereMapper);
   sphere6->SetPosition(1.5, 0, 0);
 
-  vtkSmartPointer<vtkActor> sphere7 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere7 = vtkSmartPointer<vtkActor>::New();
   sphere7->SetMapper(sphereMapper);
   sphere7->SetPosition(-1.5, -1.5, 0);
 
-  vtkSmartPointer<vtkActor> sphere8 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere8 = vtkSmartPointer<vtkActor>::New();
   sphere8->SetMapper(sphereMapper);
   sphere8->SetPosition(0, -1.5, 0);
 
-  vtkSmartPointer<vtkActor> sphere9 =
-    vtkSmartPointer<vtkActor>::New ();
+  vtkSmartPointer<vtkActor> sphere9 = vtkSmartPointer<vtkActor>::New();
   sphere9->SetMapper(texturedSphereMapper);
   sphere9->SetTexture(texture);
-  sphere9->SetPosition(1.5,-1.5, 0);
+  sphere9->SetPosition(1.5, -1.5, 0);
   sphere9->SetOrientation(90, 0, 0);
 
   renWin->AddRenderer(ren1);
@@ -161,8 +139,7 @@ int TestRIBExporter (int argc, char *argv[])
   ren1->SetBackground(0.10, 0.2, 0.4);
   renWin->SetSize(640, 480);
 
-  vtkSmartPointer<vtkNamedColors> colors =
-    vtkSmartPointer<vtkNamedColors>::New();
+  vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
   double color[4];
 
   sphere1->SetProperty(cloth("500", ".02"));
@@ -189,15 +166,14 @@ int TestRIBExporter (int argc, char *argv[])
   sphere8->GetProperty()->SetSpecular(.5);
   sphere8->GetProperty()->SetSpecularPower(5);
 
-  vtkCamera *cam1 = ren1->GetActiveCamera();
+  vtkCamera* cam1 = ren1->GetActiveCamera();
   ren1->ResetCamera();
 
   cam1->Zoom(1.5);
 
   renWin->Render();
 
-  vtkSmartPointer<vtkRIBExporter> aRib =
-    vtkSmartPointer<vtkRIBExporter>::New ();
+  vtkSmartPointer<vtkRIBExporter> aRib = vtkSmartPointer<vtkRIBExporter>::New();
   aRib->SetInput(renWin);
   aRib->SetFilePrefix(prefix.c_str());
   aRib->SetTexturePrefix(prefix.c_str());
@@ -207,10 +183,9 @@ int TestRIBExporter (int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-vtkSmartPointer<vtkRIBProperty> cloth(const char *freq, const char *depth)
+vtkSmartPointer<vtkRIBProperty> cloth(const char* freq, const char* depth)
 {
-  vtkSmartPointer<vtkRIBProperty> clothProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> clothProp = vtkSmartPointer<vtkRIBProperty>::New();
   clothProp->SetVariable("freq", "float");
   clothProp->AddVariable("depth", "float");
 
@@ -221,20 +196,18 @@ vtkSmartPointer<vtkRIBProperty> cloth(const char *freq, const char *depth)
   return clothProp;
 }
 
-vtkSmartPointer<vtkRIBProperty> dented(const char *Km)
+vtkSmartPointer<vtkRIBProperty> dented(const char* Km)
 {
-  vtkSmartPointer<vtkRIBProperty> dentedProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> dentedProp = vtkSmartPointer<vtkRIBProperty>::New();
   dentedProp->SetVariable("Km", "float");
   dentedProp->SetDisplacementShaderParameter("Km", Km);
   dentedProp->SetDisplacementShader("dented");
   return dentedProp;
 }
 
-vtkSmartPointer<vtkRIBProperty> stippled(const char *grainsize, const char *stippling)
+vtkSmartPointer<vtkRIBProperty> stippled(const char* grainsize, const char* stippling)
 {
-  vtkSmartPointer<vtkRIBProperty> stippledProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> stippledProp = vtkSmartPointer<vtkRIBProperty>::New();
   stippledProp->SetVariable("grainsize", "float");
   stippledProp->AddVariable("stippling", "float");
 
@@ -245,10 +218,9 @@ vtkSmartPointer<vtkRIBProperty> stippled(const char *grainsize, const char *stip
   return stippledProp;
 }
 
-vtkSmartPointer<vtkRIBProperty> bozo(const char *k)
+vtkSmartPointer<vtkRIBProperty> bozo(const char* k)
 {
-  vtkSmartPointer<vtkRIBProperty> bozoProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> bozoProp = vtkSmartPointer<vtkRIBProperty>::New();
   bozoProp->SetSurfaceShader("bozo");
   bozoProp->SetVariable("k", "float");
   bozoProp->SetSurfaceShaderParameter("k", k);
@@ -256,13 +228,10 @@ vtkSmartPointer<vtkRIBProperty> bozo(const char *k)
   return bozoProp;
 }
 
-vtkSmartPointer<vtkRIBProperty> spatter(const char *sizes,
-                                        const char *specksize,
-                                        const char *spattercolor,
-                                        const char *basecolor)
+vtkSmartPointer<vtkRIBProperty> spatter(
+  const char* sizes, const char* specksize, const char* spattercolor, const char* basecolor)
 {
-  vtkSmartPointer<vtkRIBProperty> spatterProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> spatterProp = vtkSmartPointer<vtkRIBProperty>::New();
   spatterProp->SetVariable("sizes", "float");
   spatterProp->AddVariable("specksize", "float");
   spatterProp->AddVariable("spattercolor", "color");
@@ -276,23 +245,19 @@ vtkSmartPointer<vtkRIBProperty> spatter(const char *sizes,
 
   return spatterProp;
 }
-vtkSmartPointer<vtkRIBProperty> cmarble(const char *veining)
+vtkSmartPointer<vtkRIBProperty> cmarble(const char* veining)
 {
-  vtkSmartPointer<vtkRIBProperty> cmarbleProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> cmarbleProp = vtkSmartPointer<vtkRIBProperty>::New();
   cmarbleProp->SetVariable("veining", "float");
   cmarbleProp->SetSurfaceShaderParameter("veining", veining);
   cmarbleProp->SetSurfaceShader("cmarble");
 
   return cmarbleProp;
 }
-vtkSmartPointer<vtkRIBProperty> stone(const char *scale,
-                                      const char *nshades,
-                                      const char *exponent,
-                                      const char *graincolor)
+vtkSmartPointer<vtkRIBProperty> stone(
+  const char* scale, const char* nshades, const char* exponent, const char* graincolor)
 {
-  vtkSmartPointer<vtkRIBProperty> stoneProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> stoneProp = vtkSmartPointer<vtkRIBProperty>::New();
   stoneProp->SetVariable("scale", "float");
   stoneProp->AddVariable("nshades", "float");
   stoneProp->AddVariable("exponent", "float");
@@ -308,12 +273,9 @@ vtkSmartPointer<vtkRIBProperty> stone(const char *scale,
   return stoneProp;
 }
 
-vtkSmartPointer<vtkRIBProperty> wood(const char *grain,
-                                      const char *swirl,
-                                     const char *swirlfreq)
+vtkSmartPointer<vtkRIBProperty> wood(const char* grain, const char* swirl, const char* swirlfreq)
 {
-  vtkSmartPointer<vtkRIBProperty> woodProp =
-    vtkSmartPointer<vtkRIBProperty>::New ();
+  vtkSmartPointer<vtkRIBProperty> woodProp = vtkSmartPointer<vtkRIBProperty>::New();
   woodProp->SetVariable("grain", "float");
   woodProp->AddVariable("swirl", "float");
   woodProp->AddVariable("swirlfreq", "float");

@@ -45,13 +45,7 @@ if (TARGET vtkm::cuda)
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKm
   #so we need to redo this logic
-  get_property(arch_flags
-    TARGET    vtkm::cuda
-    PROPERTY  INTERFACE_CUDA_Architecture_Flags)
-  if(NOT arch_flags)
-    message(FATAL_ERROR "VTK-m CUDA Architecture flags can't be found. This means we can't safely compile CUDA code")
-  endif()
-  string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
+  vtkm_get_cuda_flags(CMAKE_CUDA_FLAGS)
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.

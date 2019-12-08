@@ -29,7 +29,7 @@
 
 #include <vector>
 
-vtkObjectFactoryNewMacro(vtkParticlePathFilter)
+vtkObjectFactoryNewMacro(vtkParticlePathFilter);
 
 void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
@@ -47,19 +47,19 @@ void ParticlePathFilterInternal::Reset()
 
 int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 {
-  if(!this->Filter->Output || this->ClearCache)
+  if (!this->Filter->Output || this->ClearCache)
   {
     this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
     this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
     this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
   }
-  if(this->ClearCache)
+  if (this->ClearCache)
   { // clear cache no matter what
     this->Paths.clear();
   }
 
   vtkPoints* pts = particles->GetPoints();
-  if(!pts || pts->GetNumberOfPoints()==0)
+  if (!pts || pts->GetNumberOfPoints() == 0)
   {
     return 0;
   }
@@ -67,45 +67,49 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
   vtkPointData* outPd = this->Filter->Output->GetPointData();
   vtkPoints* outPoints = this->Filter->Output->GetPoints();
 
-  //Get the input arrays
+  // Get the input arrays
   vtkPointData* pd = particles->GetPointData();
   vtkIntArray* particleIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("ParticleId"));
 
-  //Append the input arrays to the output arrays
+  // Append the input arrays to the output arrays
   int begin = outPoints->GetNumberOfPoints();
-  for(int i=0; i<pts->GetNumberOfPoints(); i++)
+  for (int i = 0; i < pts->GetNumberOfPoints(); i++)
   {
     outPoints->InsertNextPoint(pts->GetPoint(i));
   }
   vtkDataSetAttributes::FieldList ptList(1);
   ptList.InitializeFieldList(pd);
-  for(int i=0, j = begin; i<pts->GetNumberOfPoints(); i++,j++)
+  for (int i = 0, j = begin; i < pts->GetNumberOfPoints(); i++, j++)
   {
-    outPd->CopyData(ptList,pd,0,i,j);
+    outPd->CopyData(ptList, pd, 0, i, j);
   }
 
-  //Augment the paths
-  for(vtkIdType i=0; i<pts->GetNumberOfPoints(); i++)
+  // Augment the paths
+  for (vtkIdType i = 0; i < pts->GetNumberOfPoints(); i++)
   {
-    int outId =  i+begin;
+    int outId = i + begin;
 
     int pid = particleIds->GetValue(i);
-    for(int j= static_cast<int>(this->Paths.size()); j<=pid; j++)
+    for (int j = static_cast<int>(this->Paths.size()); j <= pid; j++)
     {
-      this->Paths.push_back( vtkSmartPointer<vtkIdList>::New());
+      this->Paths.push_back(vtkSmartPointer<vtkIdList>::New());
     }
 
     vtkIdList* path = this->Paths[pid];
 
 #ifdef DEBUG
-    if(path->GetNumberOfIds()>0)
+    if (path->GetNumberOfIds() > 0)
     {
-      vtkFloatArray* outParticleAge = vtkArrayDownCast<vtkFloatArray>(outPd->GetArray("ParticleAge"));
-      if(outParticleAge->GetValue(outId) < outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1)))
+      vtkFloatArray* outParticleAge =
+        vtkArrayDownCast<vtkFloatArray>(outPd->GetArray("ParticleAge"));
+      if (outParticleAge->GetValue(outId) <
+        outParticleAge->GetValue(path->GetId(path->GetNumberOfIds() - 1)))
       {
         vtkOStrStreamWrapper vtkmsg;
-        vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
-               << "\n" << "): " <<" new particles have wrong ages"<< "\n\n";
+        vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+               << "): "
+               << " new particles have wrong ages"
+               << "\n\n";
       }
     }
 #endif
@@ -118,11 +122,13 @@ void ParticlePathFilterInternal::Finalize()
 {
   this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
   vtkCellArray* outLines = this->Filter->Output->GetLines();
-  if(!outLines)
+  if (!outLines)
   {
     vtkOStrStreamWrapper vtkmsg;
-    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
-           << "\n" << "): " <<" no lines in the output"<< "\n\n";
+    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+           << "): "
+           << " no lines in the output"
+           << "\n\n";
     return;
   }
   // if we have a path that leaves a process and than comes back we need
@@ -131,15 +137,15 @@ void ParticlePathFilterInternal::Finalize()
   vtkIntArray* sourceSimulationTimeStepArray = vtkArrayDownCast<vtkIntArray>(
     this->Filter->Output->GetPointData()->GetArray("SimulationTimeStep"));
   vtkNew<vtkIdList> tmpIds;
-  for(size_t i=0; i<this->Paths.size(); i++)
+  for (size_t i = 0; i < this->Paths.size(); i++)
   {
-    if(this->Paths[i]->GetNumberOfIds()>1)
+    if (this->Paths[i]->GetNumberOfIds() > 1)
     {
       vtkIdList* ids = this->Paths[i];
       int previousTimeStep = sourceSimulationTimeStepArray->GetTypedComponent(ids->GetId(0), 0);
       tmpIds->Reset();
       tmpIds->InsertNextId(ids->GetId(0));
-      for (vtkIdType j=1; j<ids->GetNumberOfIds(); j++)
+      for (vtkIdType j = 1; j < ids->GetNumberOfIds(); j++)
       {
         int currentTimeStep = sourceSimulationTimeStepArray->GetTypedComponent(ids->GetId(j), 0);
         if (currentTimeStep != (previousTimeStep + 1))
@@ -170,12 +176,12 @@ vtkParticlePathFilter::vtkParticlePathFilter()
 
 vtkParticlePathFilter::~vtkParticlePathFilter()
 {
-  if(this->SimulationTime)
+  if (this->SimulationTime)
   {
     this->SimulationTime->Delete();
     this->SimulationTime = nullptr;
   }
-  if(this->SimulationTimeStep)
+  if (this->SimulationTimeStep)
   {
     this->SimulationTimeStep->Delete();
     this->SimulationTimeStep = nullptr;
@@ -190,7 +196,7 @@ void vtkParticlePathFilter::ResetCache()
 
 void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }
 
 int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
@@ -200,24 +206,24 @@ int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 
 void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
 {
-  if(this->SimulationTime == nullptr)
+  if (this->SimulationTime == nullptr)
   {
     this->SimulationTime = vtkDoubleArray::New();
     this->SimulationTime->SetName("SimulationTime");
   }
-  if(outputPD->GetArray("SimulationTime"))
+  if (outputPD->GetArray("SimulationTime"))
   {
     outputPD->RemoveArray("SimulationTime");
   }
   this->SimulationTime->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTime);
 
-  if(this->SimulationTimeStep == nullptr)
+  if (this->SimulationTimeStep == nullptr)
   {
     this->SimulationTimeStep = vtkIntArray::New();
     this->SimulationTimeStep->SetName("SimulationTimeStep");
   }
-  if(outputPD->GetArray("SimulationTimeStep"))
+  if (outputPD->GetArray("SimulationTimeStep"))
   {
     outputPD->RemoveArray("SimulationTimeStep");
   }
@@ -226,10 +232,10 @@ void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputP
 }
 
 void vtkParticlePathFilter::AppendToExtraPointDataArrays(
-  vtkParticleTracerBaseNamespace::ParticleInformation &info)
+  vtkParticleTracerBaseNamespace::ParticleInformation& info)
 {
   this->SimulationTime->InsertNextValue(info.SimulationTime);
-  this->SimulationTimeStep->InsertNextValue(info.InjectedStepId+info.TimeStepAge);
+  this->SimulationTimeStep->InsertNextValue(info.InjectedStepId + info.TimeStepAge);
 }
 
 void vtkParticlePathFilter::Finalize()
@@ -238,9 +244,9 @@ void vtkParticlePathFilter::Finalize()
 }
 
 int vtkParticlePathFilter::RequestInformation(
-  vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // The output data of this filter has no time associated with it.  It is the
   // result of computations that happen over all time.

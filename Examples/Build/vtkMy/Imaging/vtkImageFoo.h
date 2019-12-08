@@ -17,29 +17,29 @@
  * @brief   foo and scale an input image
  *
  * With vtkImageFoo Pixels are foo'ed.
-*/
+ */
 
 #ifndef vtkImageFoo_h
 #define vtkImageFoo_h
 
 #include "vtkThreadedImageAlgorithm.h"
-#include "vtkmyImagingWin32Header.h"
+#include "vtkmyImagingModule.h" // For export macro
 
 class vtkBar;
 
-class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
+class VTKMYIMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageFoo *New();
-  vtkTypeMacro(vtkImageFoo,vtkThreadedImageAlgorithm);
+  static vtkImageFoo* New();
+  vtkTypeMacro(vtkImageFoo, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the foo value.
    */
-  vtkSetMacro(Foo,float);
-  vtkGetMacro(Foo,float);
+  vtkSetMacro(Foo, float);
+  vtkGetMacro(Foo, float);
   //@}
 
   //@{
@@ -48,28 +48,17 @@ public:
    */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
-  void SetOutputScalarTypeToDouble()
-    {this->SetOutputScalarType(VTK_DOUBLE);}
-  void SetOutputScalarTypeToFloat()
-    {this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToLong()
-    {this->SetOutputScalarType(VTK_LONG);}
-  void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
-  void SetOutputScalarTypeToInt()
-    {this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToUnsignedInt()
-    {this->SetOutputScalarType(VTK_UNSIGNED_INT);}
-  void SetOutputScalarTypeToShort()
-    {this->SetOutputScalarType(VTK_SHORT);}
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
-  void SetOutputScalarTypeToChar()
-    {this->SetOutputScalarType(VTK_CHAR);}
-  void SetOutputScalarTypeToSignedChar()
-    {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
-  void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToLong() { this->SetOutputScalarType(VTK_LONG); }
+  void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
+  void SetOutputScalarTypeToInt() { this->SetOutputScalarType(VTK_INT); }
+  void SetOutputScalarTypeToUnsignedInt() { this->SetOutputScalarType(VTK_UNSIGNED_INT); }
+  void SetOutputScalarTypeToShort() { this->SetOutputScalarType(VTK_SHORT); }
+  void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
+  void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
+  void SetOutputScalarTypeToSignedChar() { this->SetOutputScalarType(VTK_SIGNED_CHAR); }
+  void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
   //@}
 
 protected:
@@ -80,14 +69,12 @@ protected:
   int OutputScalarType;
   vtkBar* Bar;
 
-  int RequestInformation(vtkInformation*,
-                         vtkInformationVector**,
-                         vtkInformationVector* outputVector) override;
-  void ThreadedRequestData(vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector,
-                           vtkImageData*** inData, vtkImageData** outData,
-                           int outExt[6], int id) override;
+  int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int outExt[6], int id) override;
+
 private:
   vtkImageFoo(const vtkImageFoo&) = delete;
   void operator=(const vtkImageFoo&) = delete;

@@ -18,17 +18,17 @@
 
 #include <set>
 
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
-int CheckIfIDExists(vtkTextProperty* property, std::set<size_t> & ids)
+int CheckIfIDExists(vtkTextProperty* property, std::set<size_t>& ids)
 {
   size_t id;
   vtkFreeTypeTools::GetInstance()->MapTextPropertyToId(property, &id);
   if (!ids.empty() && ids.find(id) != ids.end())
   {
-    std::cout << "ID " << id
-              << " already exists for other vtkTextProperty settings\n";
+    std::cout << "ID " << id << " already exists for other vtkTextProperty settings\n";
     return EXIT_FAILURE;
   }
   ids.insert(id);
@@ -39,13 +39,12 @@ int CheckIfIDExists(vtkTextProperty* property, std::set<size_t> & ids)
 }
 
 //----------------------------------------------------------------------------
-int TestFreeTypeTools(int, char *[])
+int TestFreeTypeTools(int, char*[])
 {
   int result = EXIT_SUCCESS;
   std::set<size_t> ids;
 
-  vtkSmartPointer<vtkTextProperty> property =
-    vtkSmartPointer<vtkTextProperty>::New();
+  vtkSmartPointer<vtkTextProperty> property = vtkSmartPointer<vtkTextProperty>::New();
 
   // Initial settings
   property->BoldOff();

@@ -17,9 +17,9 @@
 #include "vtkCommand.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 
@@ -31,41 +31,26 @@ class vtkInteractorStyleDrawPolygon::vtkInternal
 public:
   std::vector<vtkVector2i> points;
 
-  void AddPoint(const vtkVector2i &point)
-  {
-    this->points.push_back(point);
-  }
+  void AddPoint(const vtkVector2i& point) { this->points.push_back(point); }
 
-  void AddPoint(int x, int y)
-  {
-    this->AddPoint(vtkVector2i(x, y));
-  }
+  void AddPoint(int x, int y) { this->AddPoint(vtkVector2i(x, y)); }
 
-  vtkVector2i GetPoint(vtkIdType index) const
-  {
-    return this->points[index];
-  }
+  vtkVector2i GetPoint(vtkIdType index) const { return this->points[index]; }
 
-  vtkIdType GetNumberOfPoints() const
-  {
-    return static_cast<vtkIdType>(this->points.size());
-  }
+  vtkIdType GetNumberOfPoints() const { return static_cast<vtkIdType>(this->points.size()); }
 
-  void Clear()
-  {
-    this->points.clear();
-  }
+  void Clear() { this->points.clear(); }
 
-  void DrawPixels(const vtkVector2i& StartPos,
-    const vtkVector2i& EndPos, unsigned char *pixels, int *size)
+  void DrawPixels(
+    const vtkVector2i& StartPos, const vtkVector2i& EndPos, unsigned char* pixels, int* size)
   {
-    int x1=StartPos.GetX(), x2=EndPos.GetX();
-    int y1=StartPos.GetY(), y2=EndPos.GetY();
+    int x1 = StartPos.GetX(), x2 = EndPos.GetX();
+    int y1 = StartPos.GetY(), y2 = EndPos.GetY();
 
     double x = x2 - x1;
     double y = y2 - y1;
-    double length = sqrt( x*x + y*y );
-    if(length == 0)
+    double length = sqrt(x * x + y * y);
+    if (length == 0)
     {
       return;
     }
@@ -75,13 +60,13 @@ public:
     x = x1;
     y = y1;
     int row, col;
-    for(double i = 0; i < length; i += 1)
+    for (double i = 0; i < length; i += 1)
     {
       col = (int)x;
       row = (int)y;
-      pixels[3*(row*size[0]+col)] = 255 ^ pixels[3*(row*size[0]+col)];
-      pixels[3*(row*size[0]+col)+1] = 255 ^ pixels[3*(row*size[0]+col)+1];
-      pixels[3*(row*size[0]+col)+2] = 255 ^ pixels[3*(row*size[0]+col)+2];
+      pixels[3 * (row * size[0] + col)] = 255 ^ pixels[3 * (row * size[0] + col)];
+      pixels[3 * (row * size[0] + col) + 1] = 255 ^ pixels[3 * (row * size[0] + col) + 1];
+      pixels[3 * (row * size[0] + col) + 2] = 255 ^ pixels[3 * (row * size[0] + col) + 2];
       x += addx;
       y += addy;
     }
@@ -122,32 +107,30 @@ void vtkInteractorStyleDrawPolygon::OnMouseMove()
 
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
-  if (this->EndPosition[0] > (size[0]-1))
+  int* size = this->Interactor->GetRenderWindow()->GetSize();
+  if (this->EndPosition[0] > (size[0] - 1))
   {
-    this->EndPosition[0] = size[0]-1;
+    this->EndPosition[0] = size[0] - 1;
   }
   if (this->EndPosition[0] < 0)
   {
     this->EndPosition[0] = 0;
   }
-  if (this->EndPosition[1] > (size[1]-1))
+  if (this->EndPosition[1] > (size[1] - 1))
   {
-    this->EndPosition[1] = size[1]-1;
+    this->EndPosition[1] = size[1] - 1;
   }
   if (this->EndPosition[1] < 0)
   {
     this->EndPosition[1] = 0;
   }
 
-  vtkVector2i lastPoint =
-    this->Internal->GetPoint(
-    this->Internal->GetNumberOfPoints() - 1);
+  vtkVector2i lastPoint = this->Internal->GetPoint(this->Internal->GetNumberOfPoints() - 1);
   vtkVector2i newPoint(this->EndPosition[0], this->EndPosition[1]);
-  if((lastPoint - newPoint).SquaredNorm() > 100)
+  if ((lastPoint - newPoint).SquaredNorm() > 100)
   {
     this->Internal->AddPoint(newPoint);
-    if(this->DrawPolygonPixels)
+    if (this->DrawPolygonPixels)
     {
       this->DrawPolygon();
     }
@@ -163,7 +146,7 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonDown()
   }
   this->Moving = 1;
 
-  vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
+  vtkRenderWindow* renWin = this->Interactor->GetRenderWindow();
 
   this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
   this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
@@ -172,10 +155,10 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonDown()
 
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(3);
-  int *size = renWin->GetSize();
-  this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
+  int* size = renWin->GetSize();
+  this->PixelArray->SetNumberOfTuples(size[0] * size[1]);
 
-  renWin->GetPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
+  renWin->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 1, this->PixelArray);
   this->Internal->Clear();
   this->Internal->AddPoint(this->StartPosition[0], this->StartPosition[1]);
   this->InvokeEvent(vtkCommand::StartInteractionEvent);
@@ -189,12 +172,11 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonUp()
     return;
   }
 
-  if(this->DrawPolygonPixels)
+  if (this->DrawPolygonPixels)
   {
-    int *size = this->Interactor->GetRenderWindow()->GetSize();
-    unsigned char *pixels = this->PixelArray->GetPointer(0);
-    this->Interactor->GetRenderWindow()->SetPixelData(
-      0, 0, size[0]-1, size[1]-1, pixels, 0);
+    int* size = this->Interactor->GetRenderWindow()->GetSize();
+    unsigned char* pixels = this->PixelArray->GetPointer(0);
+    this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0] - 1, size[1] - 1, pixels, 0);
     this->Interactor->GetRenderWindow()->Frame();
   }
 
@@ -208,28 +190,28 @@ void vtkInteractorStyleDrawPolygon::DrawPolygon()
 {
   vtkNew<vtkUnsignedCharArray> tmpPixelArray;
   tmpPixelArray->DeepCopy(this->PixelArray);
-  unsigned char *pixels = tmpPixelArray->GetPointer(0);
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
+  unsigned char* pixels = tmpPixelArray->GetPointer(0);
+  int* size = this->Interactor->GetRenderWindow()->GetSize();
 
   // draw each line segment
-  for(vtkIdType i = 0; i < this->Internal->GetNumberOfPoints() - 1; i++)
+  for (vtkIdType i = 0; i < this->Internal->GetNumberOfPoints() - 1; i++)
   {
-    const vtkVector2i &a = this->Internal->GetPoint(i);
-    const vtkVector2i &b = this->Internal->GetPoint(i+1);
+    const vtkVector2i& a = this->Internal->GetPoint(i);
+    const vtkVector2i& b = this->Internal->GetPoint(i + 1);
 
     this->Internal->DrawPixels(a, b, pixels, size);
   }
 
   // draw a line from the end to the start
-  if(this->Internal->GetNumberOfPoints() >= 3)
+  if (this->Internal->GetNumberOfPoints() >= 3)
   {
-    const vtkVector2i &start = this->Internal->GetPoint(0);
-    const vtkVector2i &end = this->Internal->GetPoint(this->Internal->GetNumberOfPoints() - 1);
+    const vtkVector2i& start = this->Internal->GetPoint(0);
+    const vtkVector2i& end = this->Internal->GetPoint(this->Internal->GetNumberOfPoints() - 1);
 
     this->Internal->DrawPixels(start, end, pixels, size);
   }
 
-  this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 0);
+  this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0] - 1, size[1] - 1, pixels, 0);
   this->Interactor->GetRenderWindow()->Frame();
 }
 
@@ -239,6 +221,7 @@ void vtkInteractorStyleDrawPolygon::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Moving: " << this->Moving << endl;
   os << indent << "DrawPolygonPixels: " << this->DrawPolygonPixels << endl;
-  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1] << endl;
+  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1]
+     << endl;
   os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }

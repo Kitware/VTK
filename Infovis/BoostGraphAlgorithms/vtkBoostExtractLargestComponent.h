@@ -21,17 +21,18 @@
  * vtkBoostExtractLargestComponent finds the largest connected region of a
  * vtkGraph. For directed graphs, this returns the largest biconnected component.
  * See vtkBoostConnectedComponents for details.
-*/
+ */
 
 #ifndef vtkBoostExtractLargestComponent_h
 #define vtkBoostExtractLargestComponent_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class vtkGraph;
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostExtractLargestComponent : public vtkGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostExtractLargestComponent
+  : public vtkGraphAlgorithm
 {
 public:
   vtkTypeMacro(vtkBoostExtractLargestComponent, vtkGraphAlgorithm);
@@ -53,9 +54,9 @@ public:
 
 protected:
   vtkBoostExtractLargestComponent();
-  ~vtkBoostExtractLargestComponent(){}
+  ~vtkBoostExtractLargestComponent() {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Store the choice of whether or not to invert the selection.

@@ -27,14 +27,14 @@
  *
  * @sa
  * vtkExtractFunctionalBagPlot
-*/
+ */
 
 #ifndef vtkPlotFunctionalBag_h
 #define vtkPlotFunctionalBag_h
 
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkPlot.h"
 #include "vtkNew.h"              // Needed to hold SP ivars
+#include "vtkPlot.h"
 
 class vtkDataArray;
 class vtkPlotFuntionalBagInternal;
@@ -46,12 +46,12 @@ class VTKCHARTSCORE_EXPORT vtkPlotFunctionalBag : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotFunctionalBag, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a functional bag plot object.
    */
-  static vtkPlotFunctionalBag *New();
+  static vtkPlotFunctionalBag* New();
 
   /**
    * Returns true if the plot is a functional bag, false if it is a simple
@@ -74,7 +74,7 @@ public:
   /**
    * Paint event for the plot, called whenever the chart needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -82,8 +82,7 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) override;
+  bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
@@ -100,8 +99,8 @@ public:
   /**
    * Specify a lookup table for the mapper to use.
    */
-  void SetLookupTable(vtkScalarsToColors *lut);
-  vtkScalarsToColors *GetLookupTable();
+  void SetLookupTable(vtkScalarsToColors* lut);
+  vtkScalarsToColors* GetLookupTable();
   //@}
 
   /**
@@ -115,9 +114,17 @@ public:
    * Returns the index of the data series with which the point is associated or
    * -1.
    */
-  vtkIdType GetNearestPoint(const vtkVector2f& point,
-                                    const vtkVector2f& tolerance,
-                                    vtkVector2f* location) override;
+  vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+    vtkVector2f* location,
+#ifndef VTK_LEGACY_REMOVE
+    vtkIdType* segmentId) override;
+#else
+    vtkIdType* segmentId = nullptr) override;
+#endif // VTK_LEGACY_REMOVE
+
+#ifndef VTK_LEGACY_REMOVE
+  using vtkPlot::GetNearestPoint;
+#endif // VTK_LEGACY_REMOVE
 
   /**
    * Select all points in the specified rectangle.
@@ -127,7 +134,7 @@ public:
   /**
    * Select all points in the specified polygon.
    */
-  bool SelectPointsInPolygon(const vtkContextPolygon &polygon) override;
+  bool SelectPointsInPolygon(const vtkContextPolygon& polygon) override;
 
 protected:
   vtkPlotFunctionalBag();
@@ -136,7 +143,7 @@ protected:
   /**
    * Populate the data arrays ready to operate on input data.
    */
-  bool GetDataArrays(vtkTable *table, vtkDataArray *array[2]);
+  bool GetDataArrays(vtkTable* table, vtkDataArray* array[2]);
 
   /**
    * Update the table cache.
@@ -151,7 +158,7 @@ protected:
   /**
    * Lookup Table for coloring points by scalar value
    */
-  vtkScalarsToColors *LookupTable;
+  vtkScalarsToColors* LookupTable;
 
   /**
    * The plot line delegate for line series
@@ -166,8 +173,8 @@ protected:
   bool LogX, LogY;
 
 private:
-  vtkPlotFunctionalBag(const vtkPlotFunctionalBag &) = delete;
-  void operator=(const vtkPlotFunctionalBag &) = delete;
+  vtkPlotFunctionalBag(const vtkPlotFunctionalBag&) = delete;
+  void operator=(const vtkPlotFunctionalBag&) = delete;
 };
 
-#endif //vtkPlotFunctionalBag_h
+#endif // vtkPlotFunctionalBag_h

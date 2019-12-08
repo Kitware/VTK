@@ -16,9 +16,10 @@
 #include "vtkGDALRasterConverter.h"
 
 // VTK includes
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayIteratorMacro.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
@@ -30,8 +31,10 @@
 
 #include <cpl_string.h>
 #include <gdal_priv.h>
+#include <memory>
 #include <ogr_spatialref.h>
 #include <sstream>
+#include <vector>
 
 // Preprocessor directive enable/disable row inversion (y-flip)
 // Although vtkImageData and GDALDataset have different origin position,
@@ -47,20 +50,16 @@ class vtkGDALRasterConverter::vtkGDALRasterConverterInternal
 public:
   GDALDataType ToGDALDataType(int vtkDataType);
 
-  template<typename VTK_TYPE>
-  void CopyToVTK(GDALDataset* gdalData,
-                 vtkDataArray* vtkData,
-                 vtkUniformGrid* uniformGridData);
+  template <typename VTK_TYPE>
+  void CopyToVTK(GDALDataset* gdalData, vtkDataArray* vtkData, vtkUniformGrid* uniformGridData);
 
-  template<typename GDAL_TYPE>
+  template <typename GDAL_TYPE>
   void FindDataRange(GDALRasterBand* band, double* minValue, double* maxValue);
 };
 
 //----------------------------------------------------------------------------
 // Translates vtk data type to GDAL data type
-GDALDataType
-vtkGDALRasterConverter::vtkGDALRasterConverterInternal::ToGDALDataType(
-  int vtkDataType)
+GDALDataType vtkGDALRasterConverter::vtkGDALRasterConverterInternal::ToGDALDataType(int vtkDataType)
 {
   GDALDataType gdalType = GDT_Unknown;
   switch (vtkDataType)
@@ -92,11 +91,9 @@ vtkGDALRasterConverter::vtkGDALRasterConverterInternal::ToGDALDataType(
 
 //----------------------------------------------------------------------------
 // Copies contents of GDALDataset to vtkDataArray
-template<typename VTK_TYPE>
+template <typename VTK_TYPE>
 void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
-  GDALDataset* dataset,
-  vtkDataArray* array,
-  vtkUniformGrid* uniformGridData)
+  GDALDataset* dataset, vtkDataArray* array, vtkUniformGrid* uniformGridData)
 {
   // Initialize array storage
   int stride = dataset->GetRasterCount();
@@ -113,8 +110,8 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
     // Copy one band from dataset to buffer
     GDALRasterBand* band = dataset->GetRasterBand(i + 1);
     GDALDataType gdalDataType = band->GetRasterDataType();
-    CPLErr err = band->RasterIO(
-      GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
+    CPLErr err =
+      band->RasterIO(GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
     if (err == CE_Failure)
     {
       std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
@@ -140,11 +137,9 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
       for (int col = 0; col < xSize; col++)
       {
         array->SetComponent(offset + col, i, buffer[index]);
-        if (hasNoDataValue &&
-            (static_cast<double>(buffer[index]) == noDataValue))
+        if (hasNoDataValue && (static_cast<double>(buffer[index]) == noDataValue))
         {
-          std::cout << "Blank Point at col, row: " << col << ", " << row
-                    << std::endl;
+          std::cout << "Blank Point at col, row: " << col << ", " << row << std::endl;
           uniformGridData->BlankPoint(col, row, 0);
         }
         index++;
@@ -206,18 +201,16 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
 
 //----------------------------------------------------------------------------
 // Iterate overall values in raster band to find min & max
-template<typename VTK_TYPE>
+template <typename VTK_TYPE>
 void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
-  GDALRasterBand* band,
-  double* minValue,
-  double* maxValue)
+  GDALRasterBand* band, double* minValue, double* maxValue)
 {
   int xSize = band->GetDataset()->GetRasterXSize();
   int ySize = band->GetDataset()->GetRasterYSize();
   VTK_TYPE* buffer = new VTK_TYPE[xSize * ySize];
   GDALDataType gdalDataType = band->GetRasterDataType();
-  CPLErr err = band->RasterIO(
-    GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
+  CPLErr err =
+    band->RasterIO(GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
   if (err == CE_Failure)
   {
     std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
@@ -238,99 +231,85 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
 
 //----------------------------------------------------------------------------
 // Copy vtkDataArray contents to GDAL raster bands
-template<class Iterator, typename VTK_TYPE>
-void StaticCopyToGDAL(Iterator begin,
-                      Iterator,
-                      VTK_TYPE,
-                      vtkDataArray* vtkData,
-                      GDALDataset* gdalData)
+struct StaticCopyToGDAL
 {
-  // If data includes a lookup table, copy that
-  GDALColorTable* gdalColorTable = NULL;
-  vtkLookupTable* inputColorTable = vtkData->GetLookupTable();
-  if (inputColorTable)
+  template <typename ArrayT>
+  void operator()(ArrayT* array, GDALDataset* gdalData)
   {
-    gdalColorTable = new GDALColorTable;
-    vtkIdType tableSize = inputColorTable->GetNumberOfTableValues();
-    double inputColor[4] = { 0.0, 0.0, 0.0, 1.0 };
-    GDALColorEntry gdalColor;
-    for (vtkIdType i = 0; i < tableSize; ++i)
+    using T = vtk::GetAPIType<ArrayT>;
+
+    // If data includes a lookup table, copy that
+    std::unique_ptr<GDALColorTable> gdalColorTable;
+    vtkLookupTable* inputColorTable = array->GetLookupTable();
+    if (inputColorTable)
     {
-      inputColorTable->GetTableValue(i, inputColor);
-      gdalColor.c1 = static_cast<short>(inputColor[0] * 255.0);
-      gdalColor.c2 = static_cast<short>(inputColor[1] * 255.0);
-      gdalColor.c3 = static_cast<short>(inputColor[2] * 255.0);
-      gdalColor.c4 = static_cast<short>(inputColor[3] * 255.0);
-      gdalColorTable->SetColorEntry(i, &gdalColor);
-    }
-  }
-
-  // Create local buffer
-  int stride = vtkData->GetNumberOfComponents();
-  int numElements = vtkData->GetNumberOfTuples();
-  VTK_TYPE* buffer = new VTK_TYPE[numElements];
-  int xSize = gdalData->GetRasterXSize();
-  int ySize = gdalData->GetRasterYSize();
-
-  // Copy each vtk component to separate gdal band
-  for (int i = 0; i < stride; i++)
-  {
-    GDALRasterBand* band = gdalData->GetRasterBand(i + 1);
-    if (gdalColorTable)
-    {
-      band->SetColorTable(gdalColorTable);
-      band->SetColorInterpretation(GCI_PaletteIndex);
-    }
-
-    // Copy from iterator to buffer
-    Iterator iter = begin;
-
-    // Offset iterator to next element in the tuple
-    for (int j = 0; j < i; j++)
-    {
-      iter++;
-    }
-
-    // Copy data from vtk iterator to buffer
-    // Traverse by gdal row & column to make inversion easier
-    for (int row = 0; row < ySize; row++)
-    {
-#if INVERT_ROWS
-      // GDAL data starts at top-left, vtk at bottom-left
-      // So need to invert in the y direction
-      int targetRow = ySize - row - 1;
-#else
-      int targetRow = row;
-#endif
-      int offset = targetRow * xSize;
-      for (int col = 0; col < xSize; col++)
+      gdalColorTable.reset(new GDALColorTable);
+      vtkIdType tableSize = inputColorTable->GetNumberOfTableValues();
+      double inputColor[4] = { 0.0, 0.0, 0.0, 1.0 };
+      GDALColorEntry gdalColor;
+      for (vtkIdType i = 0; i < tableSize; ++i)
       {
-        buffer[offset + col] = *iter;
-
-        // Advance to next tuple
-        // Todo is this loop the same as "iter += stride"?
-        for (int k = 0; k < stride; k++)
-        {
-          iter++;
-        }
+        inputColorTable->GetTableValue(i, inputColor);
+        gdalColor.c1 = static_cast<short>(inputColor[0] * 255.0);
+        gdalColor.c2 = static_cast<short>(inputColor[1] * 255.0);
+        gdalColor.c3 = static_cast<short>(inputColor[2] * 255.0);
+        gdalColor.c4 = static_cast<short>(inputColor[3] * 255.0);
+        gdalColorTable.get()->SetColorEntry(i, &gdalColor);
       }
     }
 
-    // Copy from buffer to GDAL band
-    GDALDataType gdalDataType = band->GetRasterDataType();
-    CPLErr err = band->RasterIO(
-      GF_Write, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
-    if (err == CE_Failure)
+    // Create local buffer
+    int stride = array->GetNumberOfComponents();
+    vtkIdType numElements = array->GetNumberOfTuples();
+    std::vector<T> buffer(static_cast<size_t>(numElements));
+    int xSize = gdalData->GetRasterXSize();
+    int ySize = gdalData->GetRasterYSize();
+
+    // Copy each vtk component to separate gdal band
+    for (int i = 0; i < stride; i++)
     {
-      std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
-                << CPLGetLastErrorMsg() << std::endl;
-      return;
+      GDALRasterBand* band = gdalData->GetRasterBand(i + 1);
+      if (gdalColorTable)
+      {
+        band->SetColorTable(gdalColorTable.get());
+        band->SetColorInterpretation(GCI_PaletteIndex);
+      }
+
+      // Create a tuple range for the array:
+      const auto tuples = vtk::DataArrayTupleRange(array);
+      auto tupleIter = tuples.cbegin();
+
+      // Copy data from vtk iterator to buffer
+      // Traverse by gdal row & column to make inversion easier
+      for (int row = 0; row < ySize; row++)
+      {
+#if INVERT_ROWS
+        // GDAL data starts at top-left, vtk at bottom-left
+        // So need to invert in the y direction
+        int targetRow = ySize - row - 1;
+#else
+        int targetRow = row;
+#endif
+        int offset = targetRow * xSize;
+        for (int col = 0; col < xSize; col++)
+        {
+          buffer[offset + col] = (*tupleIter++)[i];
+        }
+      }
+
+      // Copy from buffer to GDAL band
+      GDALDataType gdalDataType = band->GetRasterDataType();
+      CPLErr err = band->RasterIO(
+        GF_Write, 0, 0, xSize, ySize, buffer.data(), xSize, ySize, gdalDataType, 0, 0);
+      if (err == CE_Failure)
+      {
+        std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+                  << CPLGetLastErrorMsg() << std::endl;
+        return;
+      }
     }
   }
-
-  delete gdalColorTable;
-  delete[] buffer;
-}
+};
 
 //----------------------------------------------------------------------------
 vtkGDALRasterConverter::vtkGDALRasterConverter()
@@ -354,13 +333,12 @@ void vtkGDALRasterConverter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Copy image data contents, origin, & spacing to GDALDataset
-bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input,
-                                        GDALDataset* output, int flipAxis[3])
+bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input, GDALDataset* output, int flipAxis[3])
 {
   // Check that both images have the same dimensions
   int* inputDimensions = input->GetDimensions();
   if (output->GetRasterXSize() != inputDimensions[0] - 1 ||
-      output->GetRasterYSize() != inputDimensions[1] - 1)
+    output->GetRasterYSize() != inputDimensions[1] - 1)
   {
     vtkErrorMacro(<< "Image dimensions do not match.");
     return false;
@@ -390,11 +368,11 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input,
 
   // Copy scalars to gdal bands
   array = input->GetCellData()->GetScalars();
-  switch (array->GetDataType())
-  {
-    vtkDataArrayIteratorMacro(
-      array,
-      StaticCopyToGDAL(vtkDABegin, vtkDAEnd, vtkDAValueType(), array, output));
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  StaticCopyToGDAL worker;
+  if (!Dispatcher::Execute(array, worker, output))
+  { // Fallback for unknown array types:
+    worker(array, output);
   }
 
   // Finis
@@ -403,25 +381,22 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input,
 
 //----------------------------------------------------------------------------
 GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(
-  vtkImageData* imageData,
-  const char* mapProjection, int flipAxis[3])
+  vtkImageData* imageData, const char* mapProjection, int flipAxis[3])
 {
   int* dimensions = imageData->GetDimensions();
   vtkDataArray* array = imageData->GetCellData()->GetScalars();
   int vtkDataType = array->GetDataType();
   int rasterCount = array->GetNumberOfComponents();
-  GDALDataset* dataset = this->CreateGDALDataset(
-    dimensions[0] - 1, dimensions[1] - 1, vtkDataType, rasterCount);
+  GDALDataset* dataset =
+    this->CreateGDALDataset(dimensions[0] - 1, dimensions[1] - 1, vtkDataType, rasterCount);
   this->CopyToGDAL(imageData, dataset, flipAxis);
   this->SetGDALProjection(dataset, mapProjection);
-  this->SetGDALGeoTransform(
-    dataset, imageData->GetOrigin(), imageData->GetSpacing(), flipAxis);
+  this->SetGDALGeoTransform(dataset, imageData->GetOrigin(), imageData->GetSpacing(), flipAxis);
   return dataset;
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(
-  GDALDataset* dataset)
+vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(GDALDataset* dataset)
 {
   // Set vtk origin & spacing from GDALGeoTransform
   double geoTransform[6] = {};
@@ -511,15 +486,12 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(
 }
 
 //----------------------------------------------------------------------------
-GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(int xDim,
-                                                       int yDim,
-                                                       int vtkDataType,
-                                                       int numberOfBands)
+GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(
+  int xDim, int yDim, int vtkDataType, int numberOfBands)
 {
   GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("MEM");
   GDALDataType gdalType = this->Internal->ToGDALDataType(vtkDataType);
-  GDALDataset* dataset =
-    driver->Create("", xDim, yDim, numberOfBands, gdalType, NULL);
+  GDALDataset* dataset = driver->Create("", xDim, yDim, numberOfBands, gdalType, NULL);
   return dataset;
 }
 
@@ -544,8 +516,7 @@ void vtkGDALRasterConverter::CopyBandInfo(GDALDataset* src, GDALDataset* dest)
 }
 
 //----------------------------------------------------------------------------
-void vtkGDALRasterConverter::SetGDALProjection(GDALDataset* dataset,
-                                               const char* projectionString)
+void vtkGDALRasterConverter::SetGDALProjection(GDALDataset* dataset, const char* projectionString)
 {
   // Use OGRSpatialReference to convert to WKT
   OGRSpatialReference ref;
@@ -558,24 +529,21 @@ void vtkGDALRasterConverter::SetGDALProjection(GDALDataset* dataset,
 }
 
 //----------------------------------------------------------------------------
-void vtkGDALRasterConverter::SetGDALGeoTransform(GDALDataset* dataset,
-                                                 double origin[2],
-                                                 double spacing[2],
-                                                 int flipAxis[2])
+void vtkGDALRasterConverter::SetGDALGeoTransform(
+  GDALDataset* dataset, double origin[2], double spacing[2], int flipAxis[2])
 {
   double geoTransform[6];
   geoTransform[0] = origin[0];
-  geoTransform[1] = flipAxis[0] ? - spacing[0] : spacing[0];
+  geoTransform[1] = flipAxis[0] ? -spacing[0] : spacing[0];
   geoTransform[2] = 0.0;
   geoTransform[3] = origin[1];
   geoTransform[4] = 0.0;
-  geoTransform[5] = flipAxis[1] ? - spacing[1] : spacing[1];
+  geoTransform[5] = flipAxis[1] ? -spacing[1] : spacing[1];
   dataset->SetGeoTransform(geoTransform);
 }
 
 //----------------------------------------------------------------------------
-void vtkGDALRasterConverter::CopyNoDataValues(GDALDataset* src,
-                                              GDALDataset* dst)
+void vtkGDALRasterConverter::CopyNoDataValues(GDALDataset* src, GDALDataset* dst)
 {
   // Check that raster count is consistent and > 0
   int numSrcBands = src->GetRasterCount();
@@ -607,8 +575,7 @@ void vtkGDALRasterConverter::CopyNoDataValues(GDALDataset* src,
 }
 
 //----------------------------------------------------------------------------
-void vtkGDALRasterConverter::WriteTifFile(GDALDataset* dataset,
-                                          const char* filename)
+void vtkGDALRasterConverter::WriteTifFile(GDALDataset* dataset, const char* filename)
 {
   const char* fmt = "GTiff";
   GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(fmt);
@@ -620,16 +587,13 @@ void vtkGDALRasterConverter::WriteTifFile(GDALDataset* dataset,
   }
 
   // Copy dataset to GTiFF driver, which creates file
-  GDALDataset* copy =
-    driver->CreateCopy(filename, dataset, false, NULL, NULL, NULL);
+  GDALDataset* copy = driver->CreateCopy(filename, dataset, false, NULL, NULL, NULL);
   GDALClose(copy);
 }
 
 //----------------------------------------------------------------------------
-bool vtkGDALRasterConverter::FindDataRange(GDALDataset* dataset,
-                                           int bandId,
-                                           double* minValue,
-                                           double* maxValue)
+bool vtkGDALRasterConverter::FindDataRange(
+  GDALDataset* dataset, int bandId, double* minValue, double* maxValue)
 {
   if ((bandId < 1) || (bandId > dataset->GetRasterCount()))
   {

@@ -15,16 +15,16 @@
 /**
  * @class   vtkImageDataToExplicitStructuredGrid
  * @brief   Filter which converts a 3D image data into an explicit structured grid.
-*/
+ */
 
 #ifndef vtkImageDataToExplicitStructuredGrid_h
 #define vtkImageDataToExplicitStructuredGrid_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkExplicitStructuredGridAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
-class VTKFILTERSCORE_EXPORT vtkImageDataToExplicitStructuredGrid :
-  public vtkExplicitStructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT vtkImageDataToExplicitStructuredGrid
+  : public vtkExplicitStructuredGridAlgorithm
 {
 public:
   static vtkImageDataToExplicitStructuredGrid* New();
@@ -35,14 +35,11 @@ protected:
   ~vtkImageDataToExplicitStructuredGrid() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(vtkInformation*,
-    vtkInformationVector**, vtkInformationVector*) override;
-  int RequestInformation(vtkInformation*,
-    vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-  vtkImageDataToExplicitStructuredGrid(
-    const vtkImageDataToExplicitStructuredGrid&) = delete;
+  vtkImageDataToExplicitStructuredGrid(const vtkImageDataToExplicitStructuredGrid&) = delete;
   void operator=(const vtkImageDataToExplicitStructuredGrid&) = delete;
 };
 

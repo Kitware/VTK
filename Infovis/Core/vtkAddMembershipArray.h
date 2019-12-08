@@ -26,7 +26,7 @@
  * This filter takes an input selection, vtkDataSetAttribute
  * information, and data object and adds a bit array to the output
  * vtkDataSetAttributes indicating whether each index was selected or not.
-*/
+ */
 
 #ifndef vtkAddMembershipArray_h
 #define vtkAddMembershipArray_h
@@ -40,7 +40,7 @@ class VTKINFOVISCORE_EXPORT vtkAddMembershipArray : public vtkPassInputTypeAlgor
 {
 public:
   static vtkAddMembershipArray* New();
-  vtkTypeMacro(vtkAddMembershipArray,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkAddMembershipArray, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum
@@ -74,7 +74,7 @@ public:
   vtkGetStringMacro(InputArrayName);
 
   void SetInputValues(vtkAbstractArray*);
-  vtkGetObjectMacro(InputValues,vtkAbstractArray);
+  vtkGetObjectMacro(InputValues, vtkAbstractArray);
 
 protected:
   vtkAddMembershipArray();
@@ -82,10 +82,7 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FieldType;
   char* OutputArrayName;
@@ -99,4 +96,3 @@ private:
 };
 
 #endif
-

@@ -21,41 +21,48 @@
 
 #include "vtkParseMangle.h"
 #include "vtkParseExtras.h"
+#include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
 
 /* Generate a mangled name for a type, use gcc ia64 ABI.
  * The result is placed in new_name, which must be large enough
  * to accept the result.  This function is incomplete, it cannot
  * handle function types, or any literals except for integer literals. */
-size_t vtkParse_MangledTypeName(const char *name, char *new_name)
+size_t vtkParse_MangledTypeName(const char* name, char* new_name)
 {
   int scoped = 0;
   unsigned int ptype = 0;
   size_t j, k, m;
   size_t i = 0;
-  const char *cp;
+  const char* cp;
   char basictype;
 
   m = vtkParse_BasicTypeFromString(name, &ptype, NULL, NULL);
 
   /* look for pointers */
   cp = &name[m];
-  while (*cp == ' ' || *cp == '\t') { cp++; }
+  while (*cp == ' ' || *cp == '\t')
+  {
+    cp++;
+  }
   while (*cp == '*')
   {
-    do { cp++; } while (*cp == ' ' || *cp == '\t');
+    do
+    {
+      cp++;
+    } while (*cp == ' ' || *cp == '\t');
     if (*cp == 'c' && strncmp(cp, "const", 5) == 0 &&
-        ((cp[5] < 'A' || cp[5] > 'Z') &&
-         (cp[5] < 'a' || cp[5] > 'z') &&
-         (cp[5] < '0' || cp[5] > '9') &&
-         cp[5] != '_'))
+      ((cp[5] < 'A' || cp[5] > 'Z') && (cp[5] < 'a' || cp[5] > 'z') &&
+        (cp[5] < '0' || cp[5] > '9') && cp[5] != '_'))
     {
       cp += 4;
-      do { cp++; } while (*cp == ' ' || *cp == '\t');
+      do
+      {
+        cp++;
+      } while (*cp == ' ' || *cp == '\t');
       new_name[i++] = 'K';
     }
     new_name[i++] = 'P';
@@ -64,10 +71,13 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
   /* prepend reference if present */
   if (*cp == '&')
   {
-    do { cp++; } while (*cp == ' ' || *cp == '\t');
+    do
+    {
+      cp++;
+    } while (*cp == ' ' || *cp == '\t');
     for (k = i; k > 0; --k)
     {
-      new_name[k] = new_name[k-1];
+      new_name[k] = new_name[k - 1];
     }
     new_name[0] = 'R';
     i++;
@@ -154,19 +164,20 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
   do
   {
     cp += m;
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+    while (*cp == ' ' || *cp == '\t')
+    {
+      cp++;
+    }
     m = vtkParse_UnscopedNameLength(cp);
-  }
-  while ((m == 5 && strncmp("const", cp, 5) == 0) ||
-         (m == 8 && strncmp("volatile", cp, 8) == 0));
+  } while ((m == 5 && strncmp("const", cp, 5) == 0) || (m == 8 && strncmp("volatile", cp, 8) == 0));
 
-  if (cp[m] == ':' && cp[m+1] == ':')
+  if (cp[m] == ':' && cp[m + 1] == ':')
   {
     if (m == 3 && strncmp(cp, "std::", 5) == 0)
     {
       cp += 5;
       m = vtkParse_UnscopedNameLength(cp);
-      if (cp[m] == ':' && cp[m+1] == ':')
+      if (cp[m] == ':' && cp[m + 1] == ':')
       {
         new_name[i++] = 'N';
         scoped = 1;
@@ -199,9 +210,15 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
     }
 
     /* write out identifier length */
-    if (j >= 100) { new_name[i++] = '0' + (char)(j/100); }
-    if (j >= 10) { new_name[i++] = '0' + (char)((j%100)/10); }
-    new_name[i++] = '0' + (char)(j%10);
+    if (j >= 100)
+    {
+      new_name[i++] = '0' + (char)(j / 100);
+    }
+    if (j >= 10)
+    {
+      new_name[i++] = '0' + (char)((j % 100) / 10);
+    }
+    new_name[i++] = '0' + (char)(j % 10);
 
     /* write out the identifier */
     strncpy(&new_name[i], cp, j);
@@ -214,11 +231,13 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
       new_name[i++] = 'I';
       do
       {
-        do { cp++; } while (*cp == ' ' || *cp == '\t');
+        do
+        {
+          cp++;
+        } while (*cp == ' ' || *cp == '\t');
         m = 0;
-        if ((*cp >= '0' && *cp <= '9') ||
-            (*cp == '.' && cp[1] >= '0' && cp[1] <= '9') ||
-            *cp == '\'' || *cp == '\"')
+        if ((*cp >= '0' && *cp <= '9') || (*cp == '.' && cp[1] >= '0' && cp[1] <= '9') ||
+          *cp == '\'' || *cp == '\"')
         {
           m = vtkParse_MangledLiteral(cp, &new_name[i]);
         }
@@ -232,9 +251,11 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
         }
         cp += m;
         i = strlen(new_name);
-        while (*cp == ' ' || *cp == '\t') { cp++; }
-      }
-      while (*cp == ',');
+        while (*cp == ' ' || *cp == '\t')
+        {
+          cp++;
+        }
+      } while (*cp == ',');
       new_name[i++] = 'E';
       if (*cp != '>')
       {
@@ -243,8 +264,7 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
       }
       cp++;
     }
-  }
-  while (cp[0] == ':' && cp[1] == ':');
+  } while (cp[0] == ':' && cp[1] == ':');
 
   if (scoped)
   {
@@ -257,18 +277,17 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name)
 }
 
 /* Generate a mangled name for a literal, use gcc ia64 ABI. */
-size_t vtkParse_MangledLiteral(const char *name, char *new_name)
+size_t vtkParse_MangledLiteral(const char* name, char* new_name)
 {
-  const char *cp = name;
+  const char* cp = name;
   size_t i = 0;
-  char *tmp;
+  char* tmp;
 
   /* only decimal integers are supported for now */
   if (*cp >= '0' && *cp <= '9')
   {
     /* reject octal and hexadecimal */
-    if (cp[0] == '0' && (cp[1] == 'x' || cp[1] == 'X' ||
-                         (cp[1] >= '0' && cp[1] <= '9')))
+    if (cp[0] == '0' && (cp[1] == 'x' || cp[1] == 'X' || (cp[1] >= '0' && cp[1] <= '9')))
     {
       new_name[0] = '\0';
       return 0;
@@ -277,8 +296,10 @@ size_t vtkParse_MangledLiteral(const char *name, char *new_name)
     new_name[i++] = 'L';
     tmp = &new_name[i];
     new_name[i++] = 'i';
-    do { new_name[i++] = *cp++; }
-    while (*cp >= '0' && *cp <= '9');
+    do
+    {
+      new_name[i++] = *cp++;
+    } while (*cp >= '0' && *cp <= '9');
 
     /* reject floats */
     if (*cp == '.' || *cp == 'f' || *cp == 'e' || *cp == 'E')
@@ -291,17 +312,38 @@ size_t vtkParse_MangledLiteral(const char *name, char *new_name)
     {
       if (*cp == 'u' || *cp == 'U')
       {
-        if (*tmp == 'i') { *tmp = 'j'; }
-        else if (*tmp == 'l') { *tmp = 'm'; }
-        else if (*tmp == 'x') { *tmp = 'y'; }
+        if (*tmp == 'i')
+        {
+          *tmp = 'j';
+        }
+        else if (*tmp == 'l')
+        {
+          *tmp = 'm';
+        }
+        else if (*tmp == 'x')
+        {
+          *tmp = 'y';
+        }
         cp++;
       }
       else if (*cp == 'l' || *cp == 'L')
       {
-        if (*tmp == 'i') { *tmp = 'l'; }
-        else if (*tmp == 'j') { *tmp = 'm'; }
-        else if (*tmp == 'l') { *tmp = 'x'; }
-        else if (*tmp == 'm') { *tmp = 'y'; }
+        if (*tmp == 'i')
+        {
+          *tmp = 'l';
+        }
+        else if (*tmp == 'j')
+        {
+          *tmp = 'm';
+        }
+        else if (*tmp == 'l')
+        {
+          *tmp = 'x';
+        }
+        else if (*tmp == 'm')
+        {
+          *tmp = 'y';
+        }
         cp++;
       }
       else

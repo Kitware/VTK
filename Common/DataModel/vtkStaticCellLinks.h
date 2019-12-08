@@ -38,18 +38,17 @@
  *
  * @sa
  * vtkCellLinks vtkStaticCellLinksTemplate
-*/
+ */
 
 #ifndef vtkStaticCellLinks_h
 #define vtkStaticCellLinks_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLinks.h"
+#include "vtkCommonDataModelModule.h"   // For export macro
 #include "vtkStaticCellLinksTemplate.h" // For implementations
 
 class vtkDataSet;
 class vtkCellArray;
-
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLinks : public vtkAbstractCellLinks
 {
@@ -58,15 +57,15 @@ public:
   /**
    * Standard methods for instantiation, type manipulation and printing.
    */
-  static vtkStaticCellLinks *New();
-  vtkTypeMacro(vtkStaticCellLinks,vtkAbstractCellLinks);
+  static vtkStaticCellLinks* New();
+  vtkTypeMacro(vtkStaticCellLinks, vtkAbstractCellLinks);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Build the link list array. Satisfy the superclass API.
    */
-  void BuildLinks(vtkDataSet *ds) override
+  void BuildLinks(vtkDataSet* ds) override
   {
     this->Impl->SetSequentialProcessing(this->SequentialProcessing);
     this->Impl->BuildLinks(ds);
@@ -75,26 +74,23 @@ public:
   /**
    * Get the number of cells using the point specified by ptId.
    */
-  vtkIdType GetNumberOfCells(vtkIdType ptId)
-  {return this->Impl->GetNumberOfCells(ptId);}
+  vtkIdType GetNumberOfCells(vtkIdType ptId) { return this->Impl->GetNumberOfCells(ptId); }
 
   /**
    * Get the number of cells using the point specified by ptId. This is an
    * alias for GetNumberOfCells(); consistent with the vtkCellLinks API.
    */
-  vtkIdType GetNcells(vtkIdType ptId)
-  {return this->Impl->GetNumberOfCells(ptId); }
+  vtkIdType GetNcells(vtkIdType ptId) { return this->Impl->GetNumberOfCells(ptId); }
 
   /**
    * Return a list of cell ids using the specified point.
    */
-  vtkIdType *GetCells(vtkIdType ptId)
-  {return this->Impl->GetCells(ptId);}
+  vtkIdType* GetCells(vtkIdType ptId) { return this->Impl->GetCells(ptId); }
 
   /**
    * Make sure any previously created links are cleaned up.
    */
-  void Initialize() override {this->Impl->Initialize();}
+  void Initialize() override { this->Impl->Initialize(); }
 
   /**
    * Reclaim any unused memory.
@@ -114,27 +110,23 @@ public:
    * The information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() override
-  {return this->Impl->GetActualMemorySize();}
+  unsigned long GetActualMemorySize() override { return this->Impl->GetActualMemorySize(); }
 
   /**
    * Standard DeepCopy method.  Since this object contains no reference
    * to other objects, there is no ShallowCopy.
    */
-  void DeepCopy(vtkAbstractCellLinks *src) override
-  {this->Impl->DeepCopy(src);}
+  void DeepCopy(vtkAbstractCellLinks* src) override { this->Impl->DeepCopy(src); }
 
 protected:
   vtkStaticCellLinks();
   ~vtkStaticCellLinks() override;
 
-  vtkStaticCellLinksTemplate<vtkIdType> *Impl;
+  vtkStaticCellLinksTemplate<vtkIdType>* Impl;
 
 private:
   vtkStaticCellLinks(const vtkStaticCellLinks&) = delete;
   void operator=(const vtkStaticCellLinks&) = delete;
-
 };
-
 
 #endif

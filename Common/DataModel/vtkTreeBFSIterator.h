@@ -26,7 +26,7 @@
  *
  * @par Thanks:
  * Thanks to David Doria for submitting this class.
-*/
+ */
 
 #ifndef vtkTreeBFSIterator_h
 #define vtkTreeBFSIterator_h
@@ -62,8 +62,8 @@ protected:
   };
 
 private:
-  vtkTreeBFSIterator(const vtkTreeBFSIterator &) = delete;
-  void operator=(const vtkTreeBFSIterator &) = delete;
+  vtkTreeBFSIterator(const vtkTreeBFSIterator&) = delete;
+  void operator=(const vtkTreeBFSIterator&) = delete;
 };
 
 #endif

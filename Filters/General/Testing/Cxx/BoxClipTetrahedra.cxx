@@ -46,20 +46,19 @@
 #include "vtkMath.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-static double tetrahedraPoints[4*3] = {
-  1.0, 0.0, 0.0,
-  -1.0, 0.0, 0.0,
-  0.0, 0.0, 1.0,
-  0.0, 1.0, 0.5
+static double tetrahedraPoints[4 * 3] = {
+  1.0, 0.0, 0.0,  //
+  -1.0, 0.0, 0.0, //
+  0.0, 0.0, 1.0,  //
+  0.0, 1.0, 0.5   //
 };
 
 // All possible cell connectivites with the correct winding.
@@ -78,7 +77,7 @@ static vtkIdType tetrahedra[12][4] = {
 
   { 1, 3, 2, 0 },
   { 2, 1, 3, 0 },
-  { 3, 2, 1, 0 }
+  { 3, 2, 1, 0 },
 };
 
 static double minusx[] = { -1.0, 0.0, 0.0 };
@@ -93,36 +92,37 @@ static int NUM_CLIP_BOXES = 8;
 class BadWinding
 {
 public:
-  BadWinding(vtkUnstructuredGrid *data) {
+  BadWinding(vtkUnstructuredGrid* data)
+  {
     this->Data = data;
     this->Data->Register(nullptr);
   }
-  ~BadWinding() {
-    this->Data->UnRegister(nullptr);
-  }
-  BadWinding(const BadWinding &bw) {
+  ~BadWinding() { this->Data->UnRegister(nullptr); }
+  BadWinding(const BadWinding& bw)
+  {
     this->Data = bw.Data;
     this->Data->Register(nullptr);
   }
-  BadWinding& operator=(const BadWinding &bw) {
+  BadWinding& operator=(const BadWinding& bw)
+  {
     this->Data->UnRegister(nullptr);
     this->Data = bw.Data;
     this->Data->Register(nullptr);
     return *this;
   }
 
-  vtkUnstructuredGrid *Data;
+  vtkUnstructuredGrid* Data;
 };
 
-
-static void CheckWinding(vtkUnstructuredGrid *data)
+static void CheckWinding(vtkUnstructuredGrid* data)
 {
-  vtkPoints *points = data->GetPoints();
+  vtkPoints* points = data->GetPoints();
 
-  vtkCellArray *cells = data->GetCells();
+  vtkCellArray* cells = data->GetCells();
   cells->InitTraversal();
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType* pts;
   while (cells->GetNextCell(npts, pts))
   {
     if (npts != 4)
@@ -140,14 +140,20 @@ static void CheckWinding(vtkUnstructuredGrid *data)
     // If the winding is correct, the normal to triangle p0,p1,p2 should point
     // towards p3.
     double v0[3], v1[3];
-    v0[0] = p1[0] - p0[0];    v0[1] = p1[1] - p0[1];    v0[2] = p1[2] - p0[2];
-    v1[0] = p2[0] - p0[0];    v1[1] = p2[1] - p0[1];    v1[2] = p2[2] - p0[2];
+    v0[0] = p1[0] - p0[0];
+    v0[1] = p1[1] - p0[1];
+    v0[2] = p1[2] - p0[2];
+    v1[0] = p2[0] - p0[0];
+    v1[1] = p2[1] - p0[1];
+    v1[2] = p2[2] - p0[2];
 
     double n[3];
     vtkMath::Cross(v0, v1, n);
 
     double d[3];
-    d[0] = p3[0] - p0[0];    d[1] = p3[1] - p0[1];    d[2] = p3[2] - p0[2];
+    d[0] = p3[0] - p0[0];
+    d[1] = p3[1] - p0[1];
+    d[2] = p3[2] - p0[2];
 
     if (vtkMath::Dot(n, d) < 0)
     {
@@ -159,7 +165,7 @@ static void CheckWinding(vtkUnstructuredGrid *data)
 static vtkSmartPointer<vtkUnstructuredGrid> MakeTetrahedron(int num)
 {
   VTK_CREATE(vtkDoubleArray, pointArray);
-  pointArray->SetArray(tetrahedraPoints, 4*3, 1);
+  pointArray->SetArray(tetrahedraPoints, 4 * 3, 1);
   pointArray->SetNumberOfComponents(3);
   pointArray->SetNumberOfTuples(4);
 
@@ -173,21 +179,20 @@ static vtkSmartPointer<vtkUnstructuredGrid> MakeTetrahedron(int num)
   return ugrid;
 }
 
-static void PlaceRenderer(vtkRenderer *renderer, int boxnum, int tetnum,
-                          int boxtype)
+static void PlaceRenderer(vtkRenderer* renderer, int boxnum, int tetnum, int boxtype)
 {
-  renderer->SetViewport(tetnum/24.0 + 0.5*(boxtype%2),
-                        1.0 - (  static_cast<double>(boxnum)/NUM_CLIP_BOXES
-                               + static_cast<double>(boxtype/2 + 1)/(2*NUM_CLIP_BOXES) ),
-                        (tetnum + 1)/24.0 + 0.5*(boxtype%2),
-                        1.0 - (  static_cast<double>(boxnum)/NUM_CLIP_BOXES
-                               + static_cast<double>(boxtype/2)/(2*NUM_CLIP_BOXES) ));
+  renderer->SetViewport(tetnum / 24.0 + 0.5 * (boxtype % 2),
+    1.0 -
+      (static_cast<double>(boxnum) / NUM_CLIP_BOXES +
+        static_cast<double>(boxtype / 2 + 1) / (2 * NUM_CLIP_BOXES)),
+    (tetnum + 1) / 24.0 + 0.5 * (boxtype % 2),
+    1.0 -
+      (static_cast<double>(boxnum) / NUM_CLIP_BOXES +
+        static_cast<double>(boxtype / 2) / (2 * NUM_CLIP_BOXES)));
 }
 
-static void TestBox(vtkRenderWindow *renwin, int boxnum,
-                    double minx, double maxx,
-                    double miny, double maxy,
-                    double minz, double maxz)
+static void TestBox(vtkRenderWindow* renwin, int boxnum, double minx, double maxx, double miny,
+  double maxy, double minz, double maxz)
 {
   int i;
 
@@ -220,7 +225,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
   }
@@ -266,14 +271,18 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
   }
 
   double minpoint[3], maxpoint[3];
-  minpoint[0] = minx;  minpoint[1] = miny;  minpoint[2] = minz;
-  maxpoint[0] = maxx;  maxpoint[1] = maxy;  maxpoint[2] = maxz;
+  minpoint[0] = minx;
+  minpoint[1] = miny;
+  minpoint[2] = minz;
+  maxpoint[0] = maxx;
+  maxpoint[1] = maxy;
+  maxpoint[2] = maxz;
 
   // Add tests for arbitrarily oriented box and no clipped output.
   for (i = 0; i < 12; i++)
@@ -284,8 +293,8 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     VTK_CREATE(vtkBoxClipDataSet, clipper);
     clipper->SetInputData(input);
     clipper->GenerateClippedOutputOff();
-    clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint,
-                        plusx, maxpoint, plusy, maxpoint, plusz, maxpoint);
+    clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint, plusx, maxpoint,
+      plusy, maxpoint, plusz, maxpoint);
     clipper->Update();
     CheckWinding(clipper->GetOutput());
 
@@ -305,7 +314,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
   }
@@ -319,8 +328,8 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     VTK_CREATE(vtkBoxClipDataSet, clipper);
     clipper->SetInputData(input);
     clipper->GenerateClippedOutputOn();
-    clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint,
-                        plusx, maxpoint, plusy, maxpoint, plusz, maxpoint);
+    clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint, plusx, maxpoint,
+      plusy, maxpoint, plusz, maxpoint);
     clipper->Update();
     CheckWinding(clipper->GetOutput());
     CheckWinding(clipper->GetClippedOutput());
@@ -352,14 +361,13 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
   }
 }
 
-
-int BoxClipTetrahedra(int, char *[])
+int BoxClipTetrahedra(int, char*[])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetSize(960, 640);

@@ -29,8 +29,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-#include <QModelIndex>
 #include <QColor>
+#include <QModelIndex>
 
 #include <cassert>
 
@@ -76,10 +76,8 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
 
 // ----------------------------------------------------------------------
 
-int
-vtkQtTableRepresentation::RequestData(vtkInformation*,
-                                      vtkInformationVector**,
-                                      vtkInformationVector*)
+int vtkQtTableRepresentation::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   this->UpdateTable();
   return 1;
@@ -87,11 +85,10 @@ vtkQtTableRepresentation::RequestData(vtkInformation*,
 
 // ----------------------------------------------------------------------
 
-void
-vtkQtTableRepresentation::SetKeyColumn(const char *col)
+void vtkQtTableRepresentation::SetKeyColumn(const char* col)
 {
-  if((!col && !this->KeyColumnInternal) ||
-      (this->KeyColumnInternal && col && strcmp(this->KeyColumnInternal, col) == 0))
+  if ((!col && !this->KeyColumnInternal) ||
+    (this->KeyColumnInternal && col && strcmp(this->KeyColumnInternal, col) == 0))
   {
     return;
   }
@@ -102,7 +99,7 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
   // We don't call Update(), representations should not call Update() on
   // themselves when their ivars are changed. It's almost like a vtkAlgorithm
   // calling Update() on itself when an ivar change which is not recommended.
-  //this->Update();
+  // this->Update();
 }
 
 // ----------------------------------------------------------------------
@@ -122,10 +119,11 @@ void vtkQtTableRepresentation::UpdateTable()
     return;
   }
 
-  vtkTable *table = vtkTable::SafeDownCast(this->GetInput());
+  vtkTable* table = vtkTable::SafeDownCast(this->GetInput());
   if (!table)
   {
-    vtkErrorMacro(<<"vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a " << this->GetInput()->GetClassName() << ".");
+    vtkErrorMacro(<< "vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a "
+                  << this->GetInput()->GetClassName() << ".");
     return;
   }
 
@@ -139,17 +137,17 @@ void vtkQtTableRepresentation::UpdateTable()
   }
   if (!lastDataColumn)
   {
-    lastDataColumn = table->GetColumnName(table->GetNumberOfColumns()-1);
+    lastDataColumn = table->GetColumnName(table->GetNumberOfColumns() - 1);
   }
 
   // Now that we're sure of having data, put it into a Qt model
   // adapter that we can push into the QListView.  Before we hand that
   // off, though, we'll need to come up with colors for
   // each series.
-  //int keyColumnIndex = -1;
+  // int keyColumnIndex = -1;
   int firstDataColumnIndex = -1;
   int lastDataColumnIndex = -1;
-  //if (this->KeyColumnInternal != nullptr)
+  // if (this->KeyColumnInternal != nullptr)
   //  {
   //  table->GetRowData()->GetAbstractArray(this->KeyColumnInternal, keyColumnIndex);
   //  if (keyColumnIndex >= 0)
@@ -168,13 +166,11 @@ void vtkQtTableRepresentation::UpdateTable()
   //  }
   if (firstDataColumn != nullptr)
   {
-    table->GetRowData()->GetAbstractArray(firstDataColumn,
-                                          firstDataColumnIndex);
+    table->GetRowData()->GetAbstractArray(firstDataColumn, firstDataColumnIndex);
   }
   if (lastDataColumn != nullptr)
   {
-    table->GetRowData()->GetAbstractArray(lastDataColumn,
-                                          lastDataColumnIndex);
+    table->GetRowData()->GetAbstractArray(lastDataColumn, lastDataColumnIndex);
   }
   this->ModelAdapter->SetDataColumnRange(firstDataColumnIndex, lastDataColumnIndex);
 
@@ -192,8 +188,7 @@ void vtkQtTableRepresentation::UpdateTable()
 
 // ----------------------------------------------------------------------
 
-void
-vtkQtTableRepresentation::ResetModel()
+void vtkQtTableRepresentation::ResetModel()
 {
   this->SetModelType();
   if (this->ModelAdapter)
@@ -202,7 +197,7 @@ vtkQtTableRepresentation::ResetModel()
     // Need to alert the model of potential changes to the vtkTable
     // in different way than disconnecting/reconnecting the vtkTable from
     // the model adapter
-    //this->ModelAdapter->SetVTKDataObject(nullptr);
+    // this->ModelAdapter->SetVTKDataObject(nullptr);
   }
   this->SeriesColors->Reset();
   this->SeriesColors->SetNumberOfComponents(4);
@@ -210,8 +205,7 @@ vtkQtTableRepresentation::ResetModel()
 
 // ----------------------------------------------------------------------
 
-void
-vtkQtTableRepresentation::CreateSeriesColors()
+void vtkQtTableRepresentation::CreateSeriesColors()
 {
   this->SeriesColors->Reset();
   this->SeriesColors->SetNumberOfComponents(4);
@@ -225,7 +219,7 @@ vtkQtTableRepresentation::CreateSeriesColors()
     double seriesValue = 1;
     if (size > 1)
     {
-      seriesValue = static_cast<double>(i) / (size-1);
+      seriesValue = static_cast<double>(i) / (size - 1);
     }
     QColor c;
     if (this->ColorTable)
@@ -248,28 +242,23 @@ vtkQtTableRepresentation::CreateSeriesColors()
   }
 }
 
-
 // ----------------------------------------------------------------------
 
-void
-vtkQtTableRepresentation::PrintSelf(ostream &os, vtkIndent indent)
+void vtkQtTableRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "First data column: "
-     << (this->FirstDataColumn ? this->FirstDataColumn : "(nullptr)")
+  os << indent
+     << "First data column: " << (this->FirstDataColumn ? this->FirstDataColumn : "(nullptr)")
      << "\n";
 
-  os << indent << "Last data column: "
-     << (this->LastDataColumn ? this->LastDataColumn : "(nullptr)")
-     << "\n";
+  os << indent
+     << "Last data column: " << (this->LastDataColumn ? this->LastDataColumn : "(nullptr)") << "\n";
 
-  os << indent << "Key column: "
-     << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)")
-     << "\n";
+  os << indent
+     << "Key column: " << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)") << "\n";
 
-  os << indent << "Model adapter: Qt object " << this->ModelAdapter
-     << "\n";
+  os << indent << "Model adapter: Qt object " << this->ModelAdapter << "\n";
 
   os << indent << "Color creation table: ";
   this->ColorTable->PrintSelf(os, indent.GetNextIndent());

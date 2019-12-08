@@ -24,18 +24,16 @@
 
 #include <openqube/basissetloader.h>
 
-int TestOpenQubeElectronicData(int argc, char *argv[])
+int TestOpenQubeElectronicData(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/2h2o.aux");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2h2o.aux");
 
   vtkNew<vtkOpenQubeMoleculeSource> oq;
   oq->SetFileName(fname);
   oq->Update();
 
   vtkWeakPointer<vtkOpenQubeElectronicData> oqed;
-  oqed = vtkOpenQubeElectronicData::SafeDownCast(
-        oq->GetOutput()->GetElectronicData());
+  oqed = vtkOpenQubeElectronicData::SafeDownCast(oq->GetOutput()->GetElectronicData());
 
   if (!oqed)
   {
@@ -55,13 +53,14 @@ int TestOpenQubeElectronicData(int argc, char *argv[])
   // when a cached image is returned, it is the correct one.
   oqed->SetSpacing(lowResSpacing1);
   oqed->SetPadding(lowResPadding1);
-  vtkImageData *testImage11 = oqed->GetHOMO();
+  vtkImageData* testImage11 = oqed->GetHOMO();
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images ("
-         << oqed->GetImages()->GetNumberOfItems() << ") not equal to the "
-            "number of expected images (" << expectedNumberOfImages << ")\n";
+    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+         << ") not equal to the "
+            "number of expected images ("
+         << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage11)
@@ -73,13 +72,14 @@ int TestOpenQubeElectronicData(int argc, char *argv[])
 
   oqed->SetSpacing(lowResSpacing1);
   oqed->SetPadding(lowResPadding2);
-  vtkImageData *testImage12 = oqed->GetHOMO();
+  vtkImageData* testImage12 = oqed->GetHOMO();
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images ("
-         << oqed->GetImages()->GetNumberOfItems() << ") not equal to the "
-            "number of expected images (" << expectedNumberOfImages << ")\n";
+    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+         << ") not equal to the "
+            "number of expected images ("
+         << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage12)
@@ -91,13 +91,14 @@ int TestOpenQubeElectronicData(int argc, char *argv[])
 
   oqed->SetSpacing(lowResSpacing2);
   oqed->SetPadding(lowResPadding1);
-  vtkImageData *testImage21 = oqed->GetHOMO();
+  vtkImageData* testImage21 = oqed->GetHOMO();
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images ("
-         << oqed->GetImages()->GetNumberOfItems() << ") not equal to the "
-            "number of expected images (" << expectedNumberOfImages << ")\n";
+    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+         << ") not equal to the "
+            "number of expected images ("
+         << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage21)
@@ -109,13 +110,14 @@ int TestOpenQubeElectronicData(int argc, char *argv[])
 
   oqed->SetSpacing(lowResSpacing2);
   oqed->SetPadding(lowResPadding2);
-  vtkImageData *testImage22 = oqed->GetHOMO();
+  vtkImageData* testImage22 = oqed->GetHOMO();
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images ("
-         << oqed->GetImages()->GetNumberOfItems() << ") not equal to the "
-            "number of expected images (" << expectedNumberOfImages << ")\n";
+    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+         << ") not equal to the "
+            "number of expected images ("
+         << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage22)
@@ -124,7 +126,6 @@ int TestOpenQubeElectronicData(int argc, char *argv[])
             "available\n";
     return EXIT_FAILURE;
   }
-
 
   return EXIT_SUCCESS;
 }

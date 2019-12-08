@@ -18,26 +18,25 @@
  *
  * vtkImageGaussianSource just produces images with pixel values determined
  * by a Gaussian.
-*/
+ */
 
 #ifndef vtkImageGaussianSource_h
 #define vtkImageGaussianSource_h
 
-#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingSourcesModule.h" // For export macro
 
 class VTKIMAGINGSOURCES_EXPORT vtkImageGaussianSource : public vtkImageAlgorithm
 {
 public:
-  static vtkImageGaussianSource *New();
-  vtkTypeMacro(vtkImageGaussianSource,vtkImageAlgorithm);
+  static vtkImageGaussianSource* New();
+  vtkTypeMacro(vtkImageGaussianSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set/Get the extent of the whole output image.
    */
-  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
-                      int zMin, int zMax);
+  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax, int zMin, int zMax);
 
   //@{
   /**
@@ -72,12 +71,12 @@ protected:
   double Center[3];
   double Maximum;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&) = delete;
   void operator=(const vtkImageGaussianSource&) = delete;
 };
-
 
 #endif

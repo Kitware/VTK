@@ -14,17 +14,16 @@
 =========================================================================*/
 #include "vtkPHardwareSelector.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New() { return new vtkObserver(); }
-  void Execute(vtkObject *, unsigned long eventId,
-               void *) override
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     if (eventId == vtkCommand::StartEvent)
     {
@@ -70,8 +69,7 @@ bool vtkPHardwareSelector::CaptureBuffers()
   rwin->AddObserver(vtkCommand::StartEvent, this->Observer);
   rwin->AddObserver(vtkCommand::EndEvent, this->Observer);
 
-  for (this->CurrentPass = MIN_KNOWN_PASS;
-    this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
+  for (this->CurrentPass = MIN_KNOWN_PASS; this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
   {
     if (this->PassRequired(this->CurrentPass))
     {
@@ -87,9 +85,7 @@ bool vtkPHardwareSelector::CaptureBuffers()
 }
 
 //----------------------------------------------------------------------------
-void vtkPHardwareSelector::StartRender()
-{
-}
+void vtkPHardwareSelector::StartRender() {}
 
 //----------------------------------------------------------------------------
 void vtkPHardwareSelector::EndRender()
@@ -103,7 +99,7 @@ void vtkPHardwareSelector::EndRender()
     }
   }
 
-  if (this->CurrentPass>=MAX_KNOWN_PASS)
+  if (this->CurrentPass >= MAX_KNOWN_PASS)
   {
     vtkRenderWindow* rwin = this->Renderer->GetRenderWindow();
     rwin->RemoveObserver(this->Observer);

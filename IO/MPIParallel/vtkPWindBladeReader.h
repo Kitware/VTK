@@ -26,7 +26,7 @@
  * with irregular spacing on the Z dimension.  Only the first and
  * second output ports have time dependent data.
  * Parallel version of vtkWindBladeReader.h
-*/
+ */
 
 #ifndef vtkPWindBladeReader_h
 #define vtkPWindBladeReader_h
@@ -39,20 +39,18 @@ class PWindBladeReaderInternal;
 class VTKIOMPIPARALLEL_EXPORT vtkPWindBladeReader : public vtkWindBladeReader
 {
 public:
-  static vtkPWindBladeReader *New();
+  static vtkPWindBladeReader* New();
   vtkTypeMacro(vtkPWindBladeReader, vtkWindBladeReader);
 
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPWindBladeReader();
   ~vtkPWindBladeReader();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual void CalculatePressure(int pressure, int prespre,
-                                 int tempg, int density) override;
+  virtual void CalculatePressure(int pressure, int prespre, int tempg, int density) override;
   virtual void CalculateVorticity(int vort, int uvw, int density) override;
   virtual void LoadVariableData(int var) override;
   virtual bool ReadGlobalData() override;
@@ -62,10 +60,10 @@ protected:
   virtual void LoadBladeData(int timeStep) override;
 
 private:
-  PWindBladeReaderInternal * PInternal;
+  PWindBladeReaderInternal* PInternal;
 
-  vtkPWindBladeReader(const vtkPWindBladeReader &) = delete;
-  void operator=(const vtkPWindBladeReader &) = delete;
+  vtkPWindBladeReader(const vtkPWindBladeReader&) = delete;
+  void operator=(const vtkPWindBladeReader&) = delete;
 };
 
 #endif

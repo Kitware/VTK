@@ -18,32 +18,31 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkContourFilter.h"
-#include "vtkDoubleArray.h"
 #include "vtkDEMReader.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
+#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 #include "vtkTextPropertyCollection.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 #include <algorithm>
 
 //----------------------------------------------------------------------------
-int TestLabeledContourMapper(int argc, char *argv[])
+int TestLabeledContourMapper(int argc, char* argv[])
 {
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
   vtkNew<vtkDEMReader> demReader;
   demReader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   double range[2];
   demReader->Update();
@@ -93,8 +92,8 @@ int TestLabeledContourMapper(int argc, char *argv[])
   tprops->AddItem(tprop6);
 
   // Create a text property mapping that will reverse the coloring:
-  double *values = contours->GetValues();
-  double *valuesEnd = values + contours->GetNumberOfContours();
+  double* values = contours->GetValues();
+  double* valuesEnd = values + contours->GetNumberOfContours();
   vtkNew<vtkDoubleArray> tpropMapping;
   tpropMapping->SetNumberOfComponents(1);
   tpropMapping->SetNumberOfTuples(valuesEnd - values);
@@ -123,12 +122,11 @@ int TestLabeledContourMapper(int argc, char *argv[])
   win->SetSize(600, 600);
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
-  ren->GetActiveCamera()->SetPosition((bounds[0] + bounds[1]) / 2.,
-                                      (bounds[2] + bounds[3]) / 2., 0);
+  ren->GetActiveCamera()->SetPosition(
+    (bounds[0] + bounds[1]) / 2., (bounds[2] + bounds[3]) / 2., 0);
 
-  ren->GetActiveCamera()->SetFocalPoint((bounds[0] + bounds[1]) / 2.,
-                                        (bounds[2] + bounds[3]) / 2.,
-                                        (bounds[4] + bounds[5]) / 2.);
+  ren->GetActiveCamera()->SetFocalPoint(
+    (bounds[0] + bounds[1]) / 2., (bounds[2] + bounds[3]) / 2., (bounds[4] + bounds[5]) / 2.);
   ren->ResetCamera();
   ren->GetActiveCamera()->Dolly(6.5);
   ren->ResetCameraClippingRange();

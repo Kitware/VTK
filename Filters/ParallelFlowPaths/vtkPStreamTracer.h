@@ -16,19 +16,18 @@
  * @class   vtkPStreamTracer
  * @brief    parallel streamline generators
  *
- * This class implements parallel streamline generators.
- * Note that all processes must have
- * access to the WHOLE seed source, i.e. the source must be identical
- * on all processes.
+ * This class implements parallel streamline generators.  Note that all
+ * processes must have access to the WHOLE seed source, i.e. the source must
+ * be identical on all processes.
  * @sa
  * vtkStreamTracer
-*/
+ */
 
 #ifndef vtkPStreamTracer_h
 #define vtkPStreamTracer_h
 
-#include "vtkStreamTracer.h"
 #include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.
+#include "vtkStreamTracer.h"
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkMultiProcessController;
@@ -39,32 +38,31 @@ class AbstractPStreamTracerUtils;
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
-class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
-  vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
+  vtkTypeMacro(vtkPStreamTracer, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
-   * Set/Get the controller use in compositing (set to
-   * the global controller by default)
-   * If not using the default, this must be called before any
+   * Set/Get the controller use in compositing (set to the global controller
+   * by default) If not using the default, this must be called before any
    * other methods.
    */
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
-  static vtkPStreamTracer * New();
+  static vtkPStreamTracer* New();
 
 protected:
-
   vtkPStreamTracer();
   ~vtkPStreamTracer();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
 
@@ -72,19 +70,17 @@ protected:
   void SetInterpolator(vtkAbstractInterpolatedVelocityField*);
 
   int EmptyData;
+
 private:
   vtkPStreamTracer(const vtkPStreamTracer&) = delete;
   void operator=(const vtkPStreamTracer&) = delete;
 
-  void Trace( vtkDataSet *input,
-              int vecType,
-              const char* vecName,
-              PStreamTracerPoint* pt,
-              vtkSmartPointer<vtkPolyData>& output,
-              vtkAbstractInterpolatedVelocityField* func,
-              int maxCellSize);
+  void Trace(vtkDataSet* input, int vecType, const char* vecName, PStreamTracerPoint* pt,
+    vtkSmartPointer<vtkPolyData>& output, vtkAbstractInterpolatedVelocityField* func,
+    int maxCellSize);
 
-  bool TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpolatedVelocityField*, PStreamTracerPoint* pt);
+  bool TraceOneStep(
+    vtkPolyData* traceOut, vtkAbstractInterpolatedVelocityField*, PStreamTracerPoint* pt);
 
   void Prepend(vtkPolyData* path, vtkPolyData* headh);
   int Rank;

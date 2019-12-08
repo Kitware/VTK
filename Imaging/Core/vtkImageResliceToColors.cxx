@@ -17,25 +17,25 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTypeTraits.h"
-#include "vtkLookupTable.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types
-# undef VTK_USE_INT64
-# define VTK_USE_INT64 0
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
+#undef VTK_USE_INT64
+#define VTK_USE_INT64 0
+#undef VTK_USE_UINT64
+#define VTK_USE_UINT64 0
 
-#include <climits>
 #include <cfloat>
+#include <climits>
 #include <cmath>
 
 vtkStandardNewMacro(vtkImageResliceToColors);
-vtkCxxSetObjectMacro(vtkImageResliceToColors,LookupTable,vtkScalarsToColors);
+vtkCxxSetObjectMacro(vtkImageResliceToColors, LookupTable, vtkScalarsToColors);
 
 //----------------------------------------------------------------------------
 vtkImageResliceToColors::vtkImageResliceToColors()
@@ -63,27 +63,30 @@ vtkImageResliceToColors::~vtkImageResliceToColors()
 //----------------------------------------------------------------------------
 void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "LookupTable: " << this->GetLookupTable() << "\n";
-  os << indent << "OutputFormat: " <<
-    (this->OutputFormat == VTK_RGBA ? "RGBA" :
-     (this->OutputFormat == VTK_RGB ? "RGB" :
-      (this->OutputFormat == VTK_LUMINANCE_ALPHA ? "LuminanceAlpha" :
-       (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
-    << "\n";
+  os << indent << "OutputFormat: "
+     << (this->OutputFormat == VTK_RGBA
+            ? "RGBA"
+            : (this->OutputFormat == VTK_RGB
+                  ? "RGB"
+                  : (this->OutputFormat == VTK_LUMINANCE_ALPHA
+                        ? "LuminanceAlpha"
+                        : (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
+     << "\n";
   os << indent << "Bypass: " << (this->Bypass ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
 vtkMTimeType vtkImageResliceToColors::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if (this->LookupTable && !this->Bypass)
   {
     vtkMTimeType time = this->LookupTable->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
@@ -110,8 +113,7 @@ void vtkImageResliceToColors::SetBypass(int bypass)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceToColors::ConvertScalarInfo(
-  int &scalarType, int &numComponents)
+int vtkImageResliceToColors::ConvertScalarInfo(int& scalarType, int& numComponents)
 {
   switch (this->OutputFormat)
   {
@@ -149,12 +151,11 @@ int vtkImageResliceToColors::ConvertScalarInfo(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceToColors::ConvertScalars(
-  void *inPtr, void *outPtr, int inputType, int inputComponents, int count,
-  int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
+void vtkImageResliceToColors::ConvertScalars(void* inPtr, void* outPtr, int inputType,
+  int inputComponents, int count, int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
   int vtkNotUsed(threadId))
 {
-  vtkScalarsToColors *table = this->LookupTable;
+  vtkScalarsToColors* table = this->LookupTable;
   if (!table)
   {
     table = this->DefaultLookupTable;
@@ -162,14 +163,12 @@ void vtkImageResliceToColors::ConvertScalars(
 
   if (inputComponents == 1 && this->LookupTable)
   {
-    table->MapScalarsThroughTable(
-      inPtr, static_cast<unsigned char *>(outPtr),
-      inputType, count, inputComponents, this->OutputFormat);
+    table->MapScalarsThroughTable(inPtr, static_cast<unsigned char*>(outPtr), inputType, count,
+      inputComponents, this->OutputFormat);
   }
   else
   {
-    table->MapVectorsThroughTable(
-      inPtr, static_cast<unsigned char *>(outPtr),
-      inputType, count, inputComponents, this->OutputFormat);
+    table->MapVectorsThroughTable(inPtr, static_cast<unsigned char*>(outPtr), inputType, count,
+      inputComponents, this->OutputFormat);
   }
 }

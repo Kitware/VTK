@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkTableToSparseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,7 +31,6 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkTableToSparseArray.h"
 
 #include <algorithm>
 
@@ -49,8 +49,8 @@ vtkStandardNewMacro(vtkTableToSparseArray);
 
 // ----------------------------------------------------------------------
 
-vtkTableToSparseArray::vtkTableToSparseArray() :
-  Implementation(new implementation())
+vtkTableToSparseArray::vtkTableToSparseArray()
+  : Implementation(new implementation())
 {
   this->Implementation->ExplicitOutputExtents = false;
 
@@ -70,11 +70,11 @@ vtkTableToSparseArray::~vtkTableToSparseArray()
 void vtkTableToSparseArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
+  for (size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
     os << indent << "CoordinateColumn: " << this->Implementation->Coordinates[i] << endl;
   os << indent << "ValueColumn: " << this->Implementation->Values << endl;
   os << indent << "OutputExtents: ";
-  if(this->Implementation->ExplicitOutputExtents)
+  if (this->Implementation->ExplicitOutputExtents)
     os << this->Implementation->OutputExtents << endl;
   else
     os << "<none>" << endl;
@@ -88,7 +88,7 @@ void vtkTableToSparseArray::ClearCoordinateColumns()
 
 void vtkTableToSparseArray::AddCoordinateColumn(const char* name)
 {
-  if(!name)
+  if (!name)
   {
     vtkErrorMacro(<< "cannot add coordinate column with nullptr name");
     return;
@@ -100,7 +100,7 @@ void vtkTableToSparseArray::AddCoordinateColumn(const char* name)
 
 void vtkTableToSparseArray::SetValueColumn(const char* name)
 {
-  if(!name)
+  if (!name)
   {
     vtkErrorMacro(<< "cannot set value column with nullptr name");
     return;
@@ -130,7 +130,7 @@ void vtkTableToSparseArray::SetOutputExtents(const vtkArrayExtents& extents)
 
 int vtkTableToSparseArray::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
@@ -143,46 +143,46 @@ int vtkTableToSparseArray::FillInputPortInformation(int port, vtkInformation* in
 // ----------------------------------------------------------------------
 
 int vtkTableToSparseArray::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkTable* const table = vtkTable::GetData(inputVector[0]);
 
   std::vector<vtkAbstractArray*> coordinates(this->Implementation->Coordinates.size());
-  for(size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
+  for (size_t i = 0; i != this->Implementation->Coordinates.size(); ++i)
   {
     coordinates[i] = table->GetColumnByName(this->Implementation->Coordinates[i].c_str());
-    if(!coordinates[i])
+    if (!coordinates[i])
     {
-      vtkErrorMacro(<< "missing coordinate array: " << this->Implementation->Coordinates[i].c_str());
+      vtkErrorMacro(<< "missing coordinate array: "
+                    << this->Implementation->Coordinates[i].c_str());
     }
   }
-// See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
-// Language Feature: Partial Specializations
-// Workaround
-  int n=0;
+  // See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
+  // Language Feature: Partial Specializations
+  // Workaround
+  int n = 0;
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
-  std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
+  std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0), n);
 #else
-  n=std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(nullptr));
+  n = std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(nullptr));
 #endif
-  if(n!=0)
+  if (n != 0)
   {
     return 0;
   }
 
   vtkAbstractArray* const values = table->GetColumnByName(this->Implementation->Values.c_str());
-  if(!values)
+  if (!values)
   {
     vtkErrorMacro(<< "missing value array: " << this->Implementation->Values.c_str());
     return 0;
   }
 
   vtkSparseArray<double>* const array = vtkSparseArray<double>::New();
-  array->Resize(vtkArrayExtents::Uniform(static_cast<vtkArrayExtents::DimensionT>(coordinates.size()), 0));
+  array->Resize(
+    vtkArrayExtents::Uniform(static_cast<vtkArrayExtents::DimensionT>(coordinates.size()), 0));
 
-  for(size_t i = 0; i != coordinates.size(); ++i)
+  for (size_t i = 0; i != coordinates.size(); ++i)
   {
     array->SetDimensionLabel(static_cast<vtkArray::DimensionT>(i), coordinates[i]->GetName());
   }
@@ -190,9 +190,9 @@ int vtkTableToSparseArray::RequestData(
   vtkArrayCoordinates output_coordinates;
   output_coordinates.SetDimensions(
     static_cast<vtkArrayCoordinates::DimensionT>(coordinates.size()));
-  for(vtkIdType i = 0; i != table->GetNumberOfRows(); ++i)
+  for (vtkIdType i = 0; i != table->GetNumberOfRows(); ++i)
   {
-    for(size_t j = 0; j != coordinates.size(); ++j)
+    for (size_t j = 0; j != coordinates.size(); ++j)
     {
       output_coordinates[static_cast<vtkArrayCoordinates::DimensionT>(j)] =
         coordinates[j]->GetVariantValue(i).ToInt();
@@ -200,7 +200,7 @@ int vtkTableToSparseArray::RequestData(
     array->AddValue(output_coordinates, values->GetVariantValue(i).ToDouble());
   }
 
-  if(this->Implementation->ExplicitOutputExtents)
+  if (this->Implementation->ExplicitOutputExtents)
   {
     array->SetExtents(this->Implementation->OutputExtents);
   }
@@ -216,4 +216,3 @@ int vtkTableToSparseArray::RequestData(
 
   return 1;
 }
-

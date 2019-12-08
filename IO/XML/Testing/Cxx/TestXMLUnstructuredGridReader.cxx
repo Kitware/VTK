@@ -22,24 +22,24 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include "vtkNew.h"
 #include <string>
 
-int TestXMLUnstructuredGridReader(int argc, char *argv[])
+int TestXMLUnstructuredGridReader(int argc, char* argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = nullptr;
-  for (i = 0; i < argc-1; i++)
+  const char* data_root = nullptr;
+  for (i = 0; i < argc - 1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)
     {
-      data_root = argv[i+1];
+      data_root = argv[i + 1];
       break;
     }
   }
@@ -61,8 +61,8 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   int tsResult = 0;
   if (reader1->GetNumberOfTimeSteps() != 4100)
   {
-    std::cerr << "Expected to read 4100 timesteps, got "
-      << reader1->GetNumberOfTimeSteps() << " instead." << std::endl;
+    std::cerr << "Expected to read 4100 timesteps, got " << reader1->GetNumberOfTimeSteps()
+              << " instead." << std::endl;
     tsResult = 1;
   }
 
@@ -85,7 +85,7 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
-  renderer->SetBackground(0,0,0);
+  renderer->SetBackground(0, 0, 0);
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->SetMultiSamples(0);
@@ -97,7 +97,7 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   iren->Initialize();
 
   renderer->ResetCamera();
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->Elevation(-90.0);
   camera->SetViewUp(0.0, 0.0, 1.0);
   camera->Azimuth(125.0);
@@ -105,8 +105,8 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   // interact with data
   renwin->Render();
 
-  int rtResult = vtkRegressionTestImage( renwin );
-  if ( rtResult == vtkRegressionTester::DO_INTERACTOR)
+  int rtResult = vtkRegressionTestImage(renwin);
+  if (rtResult == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

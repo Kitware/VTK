@@ -30,7 +30,7 @@
  * Supported input leaf dataset type are: vtkPolyData, vtkStructuredGrid
  * and vtkUnstructuredGrid. Other data objects are transformed using the
  * transform filter (at a high cost!).
-*/
+ */
 
 #ifndef vtkPeriodicFilter_h
 #define vtkPeriodicFilter_h
@@ -38,7 +38,7 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <set> // For block selection
+#include <set>    // For block selection
 #include <vector> // For pieces number
 
 class vtkCompositeDataIterator;
@@ -46,8 +46,8 @@ class vtkCompositeDataSet;
 class vtkDataObjectTreeIterator;
 class vtkMultiPieceDataSet;
 
-#define VTK_ITERATION_MODE_DIRECT_NB 0    // Generate a user-provided number of periods
-#define VTK_ITERATION_MODE_MAX       1    // Generate a maximum of periods, i.e. a full period.
+#define VTK_ITERATION_MODE_DIRECT_NB 0 // Generate a user-provided number of periods
+#define VTK_ITERATION_MODE_MAX 1       // Generate a maximum of periods, i.e. a full period.
 
 class VTKFILTERSPARALLEL_EXPORT vtkPeriodicFilter : public vtkMultiBlockDataSetAlgorithm
 {
@@ -61,14 +61,10 @@ public:
    * VTK_ITERATION_MODE_DIRECT_NB to specify the number of periods,
    * VTK_ITERATION_MODE_MAX to generate a full period (default).
    */
-  vtkSetClampMacro(IterationMode, int,
-                   VTK_ITERATION_MODE_DIRECT_NB,
-                   VTK_ITERATION_MODE_MAX);
+  vtkSetClampMacro(IterationMode, int, VTK_ITERATION_MODE_DIRECT_NB, VTK_ITERATION_MODE_MAX);
   vtkGetMacro(IterationMode, int);
-  void SetIterationModeToDirectNb()
-    { this->SetIterationMode(VTK_ITERATION_MODE_DIRECT_NB); }
-  void SetIterationModeToMax()
-    { this->SetIterationMode(VTK_ITERATION_MODE_MAX); }
+  void SetIterationModeToDirectNb() { this->SetIterationMode(VTK_ITERATION_MODE_DIRECT_NB); }
+  void SetIterationModeToMax() { this->SetIterationMode(VTK_ITERATION_MODE_MAX); }
   //@}
 
   //@{
@@ -107,25 +103,21 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Create a periodic data, leaf of the tree
    */
-  virtual void CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
-                                     vtkCompositeDataSet* output,
-                                     vtkCompositeDataSet* input) = 0;
+  virtual void CreatePeriodicDataSet(
+    vtkCompositeDataIterator* loc, vtkCompositeDataSet* output, vtkCompositeDataSet* input) = 0;
 
   /**
    * Manually set the number of period on a specific leaf
    */
-  virtual void SetPeriodNumber(vtkCompositeDataIterator* loc,
-                               vtkCompositeDataSet* output,
-                               int nbPeriod) = 0;
+  virtual void SetPeriodNumber(
+    vtkCompositeDataIterator* loc, vtkCompositeDataSet* output, int nbPeriod) = 0;
 
-  std::vector<int> PeriodNumbers;     // Periods numbers by leaf
+  std::vector<int> PeriodNumbers; // Periods numbers by leaf
   bool ReducePeriodNumbers;
 
 private:
@@ -133,9 +125,9 @@ private:
   void operator=(const vtkPeriodicFilter&) = delete;
 
   int IterationMode;
-  int NumberOfPeriods;      // User provided number of periods
+  int NumberOfPeriods; // User provided number of periods
 
-  std::set<vtkIdType> Indices;          // Selected indices
+  std::set<vtkIdType> Indices; // Selected indices
 };
 
 #endif

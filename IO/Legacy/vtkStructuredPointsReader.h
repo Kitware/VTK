@@ -26,49 +26,47 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkStructuredPoints vtkDataReader
-*/
+ */
 
 #ifndef vtkStructuredPointsReader_h
 #define vtkStructuredPointsReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkStructuredPoints;
 
 class VTKIOLEGACY_EXPORT vtkStructuredPointsReader : public vtkDataReader
 {
 public:
-  static vtkStructuredPointsReader *New();
-  vtkTypeMacro(vtkStructuredPointsReader,vtkDataReader);
+  static vtkStructuredPointsReader* New();
+  vtkTypeMacro(vtkStructuredPointsReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the output of this reader.
    */
-  void SetOutput(vtkStructuredPoints *output);
-  vtkStructuredPoints *GetOutput(int idx);
-  vtkStructuredPoints *GetOutput();
+  void SetOutput(vtkStructuredPoints* output);
+  vtkStructuredPoints* GetOutput(int idx);
+  vtkStructuredPoints* GetOutput();
   //@}
 
   /**
    * Read the meta information from the file (WHOLE_EXTENT).
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation *metadata) override;
+  int ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader() override;
 
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkStructuredPointsReader(const vtkStructuredPointsReader&) = delete;

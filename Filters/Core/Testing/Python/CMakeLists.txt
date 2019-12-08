@@ -82,6 +82,7 @@ vtk_add_test_python(
   polyConn.py
   probe.py
   probeComb.py
+  probeComb2.py
   reverseNormals.py
   smoothMeshOnMesh.py
   streamComb.py

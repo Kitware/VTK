@@ -118,13 +118,13 @@
  *
  * @sa
  * vtkHandleWidget
-*/
+ */
 
 #ifndef vtkContourWidget_h
 #define vtkContourWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkContourRepresentation;
 class vtkPolyData;
@@ -136,13 +136,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkContourWidget *New();
+  static vtkContourWidget* New();
 
   //@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkContourWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkContourWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -158,14 +158,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkContourRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkContourRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkContourRepresentation.
    */
-  vtkContourRepresentation *GetContourRepresentation()
-    {return reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);}
+  vtkContourRepresentation* GetContourRepresentation()
+  {
+    return reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -181,14 +185,14 @@ public:
   /**
    * Convenient method to change what state the widget is in.
    */
-  vtkSetMacro(WidgetState,int);
+  vtkSetMacro(WidgetState, int);
   //@}
 
   //@{
   /**
    * Convenient method to determine the state of the method
    */
-  vtkGetMacro(WidgetState,int);
+  vtkGetMacro(WidgetState, int);
   //@}
 
   //@{
@@ -196,9 +200,9 @@ public:
    * Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
    * and points between nodes can be picked/un-picked by Ctrl+Click on the node.
    */
-  void SetAllowNodePicking(vtkTypeBool );
-  vtkGetMacro( AllowNodePicking, vtkTypeBool );
-  vtkBooleanMacro( AllowNodePicking, vtkTypeBool );
+  void SetAllowNodePicking(vtkTypeBool);
+  vtkGetMacro(AllowNodePicking, vtkTypeBool);
+  vtkBooleanMacro(AllowNodePicking, vtkTypeBool);
   //@}
 
   //@{
@@ -209,9 +213,9 @@ public:
    * live-wire interpolator to see the shape of the contour that will be placed
    * as you move the mouse cursor.
    */
-  vtkSetMacro( FollowCursor, vtkTypeBool );
-  vtkGetMacro( FollowCursor, vtkTypeBool );
-  vtkBooleanMacro( FollowCursor, vtkTypeBool );
+  vtkSetMacro(FollowCursor, vtkTypeBool);
+  vtkGetMacro(FollowCursor, vtkTypeBool);
+  vtkBooleanMacro(FollowCursor, vtkTypeBool);
   //@}
 
   //@{
@@ -225,9 +229,9 @@ public:
    * see the last active node as it is being added, set the opacity to 0
    * of the representation's active property.
    */
-  vtkSetMacro( ContinuousDraw, vtkTypeBool );
-  vtkGetMacro( ContinuousDraw, vtkTypeBool );
-  vtkBooleanMacro( ContinuousDraw, vtkTypeBool );
+  vtkSetMacro(ContinuousDraw, vtkTypeBool);
+  vtkGetMacro(ContinuousDraw, vtkTypeBool);
+  vtkBooleanMacro(ContinuousDraw, vtkTypeBool);
   //@}
 
   /**
@@ -238,13 +242,17 @@ public:
    * set to manipulate.
    * State: Define = 0, Manipulate = 1.
    */
-  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = nullptr );
-  virtual void Initialize()
-    {this->Initialize(nullptr);}
+  virtual void Initialize(vtkPolyData* poly, int state = 1, vtkIdList* idList = nullptr);
+  virtual void Initialize() { this->Initialize(nullptr); }
 
   // The state of the widget
 
-  enum {Start,Define,Manipulate};
+  enum
+  {
+    Start,
+    Define,
+    Manipulate
+  };
 
 protected:
   vtkContourWidget();

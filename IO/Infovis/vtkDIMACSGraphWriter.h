@@ -42,21 +42,21 @@
  * @sa
  * vtkDIMACSGraphReader
  *
-*/
+ */
 
 #ifndef vtkDIMACSGraphWriter_h
 #define vtkDIMACSGraphWriter_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOInfovisModule.h" // For export macro
 
 class vtkGraph;
 
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphWriter : public vtkDataWriter
 {
 public:
-  static vtkDIMACSGraphWriter *New();
-  vtkTypeMacro(vtkDIMACSGraphWriter,vtkDataWriter);
+  static vtkDIMACSGraphWriter* New();
+  vtkTypeMacro(vtkDIMACSGraphWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -73,7 +73,7 @@ protected:
 
   void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) = delete;

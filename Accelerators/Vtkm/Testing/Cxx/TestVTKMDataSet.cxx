@@ -3,7 +3,6 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkmDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -17,6 +16,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkmDataArray.h"
 
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/testing/MakeTestDataSet.h>
@@ -32,7 +32,8 @@ class TestError
 {
 public:
   TestError(const std::string& message, int line)
-    : Message(message), Line(line)
+    : Message(message)
+    , Line(line)
   {
   }
 
@@ -48,7 +49,9 @@ private:
 
 #define RAISE_TEST_ERROR(msg) throw TestError((msg), __LINE__)
 
-#define TEST_VERIFY(cond, msg) if (!(cond)) RAISE_TEST_ERROR((msg))
+#define TEST_VERIFY(cond, msg)                                                                     \
+  if (!(cond))                                                                                     \
+  RAISE_TEST_ERROR((msg))
 
 inline bool IsEqualFloat(double a, double b, double e = 1e-6f)
 {
@@ -68,14 +71,12 @@ inline void TestEqualCells(vtkCell* c1, vtkCell* c2)
 
 inline void TestEqualVtkArrays(vtkAbstractArray* a1, vtkAbstractArray* a2)
 {
-  TEST_VERIFY(std::string(a1->GetName()) == std::string(a2->GetName()),
-              "Array names don't match");
-  TEST_VERIFY(a1->GetDataType() == a2->GetDataType(),
-              "Array data-types don't match");
-  TEST_VERIFY(a1->GetNumberOfTuples() == a2->GetNumberOfTuples(),
-              "Array number of tuples don't match");
+  TEST_VERIFY(std::string(a1->GetName()) == std::string(a2->GetName()), "Array names don't match");
+  TEST_VERIFY(a1->GetDataType() == a2->GetDataType(), "Array data-types don't match");
+  TEST_VERIFY(
+    a1->GetNumberOfTuples() == a2->GetNumberOfTuples(), "Array number of tuples don't match");
   TEST_VERIFY(a1->GetNumberOfComponents() == a2->GetNumberOfComponents(),
-              "Array number of components don't match");
+    "Array number of components don't match");
 
   auto da1 = vtkDataArray::SafeDownCast(a1);
   auto da2 = vtkDataArray::SafeDownCast(a2);
@@ -86,23 +87,23 @@ inline void TestEqualVtkArrays(vtkAbstractArray* a1, vtkAbstractArray* a2)
     da1->GetRange(range1, i);
     da2->GetRange(range2, i);
     TEST_VERIFY(IsEqualFloat(range1[0], range2[0]) && IsEqualFloat(range1[1], range2[1]),
-                "Array ranges don't match");
+      "Array ranges don't match");
   }
 }
 
 void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
 {
-  TEST_VERIFY(dsVtk->GetNumberOfPoints() == dsVtkm->GetNumberOfPoints(),
-              "Number of points don't match");
-  TEST_VERIFY(dsVtk->GetNumberOfCells() == dsVtkm->GetNumberOfCells(),
-              "Number of cells don't match");
+  TEST_VERIFY(
+    dsVtk->GetNumberOfPoints() == dsVtkm->GetNumberOfPoints(), "Number of points don't match");
+  TEST_VERIFY(
+    dsVtk->GetNumberOfCells() == dsVtkm->GetNumberOfCells(), "Number of cells don't match");
   double bounds1[6], bounds2[6];
   dsVtk->GetBounds(bounds1);
   dsVtkm->GetBounds(bounds2);
   TEST_VERIFY(IsEqualFloat(bounds1[0], bounds2[0]) && IsEqualFloat(bounds1[1], bounds2[1]) &&
-              IsEqualFloat(bounds1[2], bounds2[2]) && IsEqualFloat(bounds1[3], bounds2[3]) &&
-              IsEqualFloat(bounds1[4], bounds2[4]) && IsEqualFloat(bounds1[5], bounds2[5]),
-              "Bounds don't match");
+      IsEqualFloat(bounds1[2], bounds2[2]) && IsEqualFloat(bounds1[3], bounds2[3]) &&
+      IsEqualFloat(bounds1[4], bounds2[4]) && IsEqualFloat(bounds1[5], bounds2[5]),
+    "Bounds don't match");
 
   vtkIdType numPoints = dsVtk->GetNumberOfPoints();
   for (vtkIdType i = 0; i < numPoints; ++i)
@@ -110,10 +111,9 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     double x1[3], x2[3];
     dsVtk->GetPoint(i, x1);
     dsVtkm->GetPoint(i, x2);
-    TEST_VERIFY(IsEqualFloat(x1[0], x2[0]) &&
-                IsEqualFloat(x1[1], x2[1]) &&
-                IsEqualFloat(x1[2], x2[2]),
-                "'GetPoint` results don't match");
+    TEST_VERIFY(
+      IsEqualFloat(x1[0], x2[0]) && IsEqualFloat(x1[1], x2[1]) && IsEqualFloat(x1[2], x2[2]),
+      "'GetPoint` results don't match");
 
     vtkNew<vtkIdList> cellIds1, cellIds2;
     dsVtk->GetPointCells(i, cellIds1);
@@ -121,11 +121,10 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     cellIds1->Sort();
     cellIds2->Sort();
     TEST_VERIFY(cellIds1->GetNumberOfIds() == cellIds2->GetNumberOfIds(),
-                "`GetPointCells` results don't match");
+      "`GetPointCells` results don't match");
     for (vtkIdType j = 0; j < cellIds1->GetNumberOfIds(); ++j)
     {
-      TEST_VERIFY(cellIds1->GetId(j) == cellIds2->GetId(j),
-                  "`GetPointCells` results don't match");
+      TEST_VERIFY(cellIds1->GetId(j) == cellIds2->GetId(j), "`GetPointCells` results don't match");
     }
   }
 
@@ -143,27 +142,24 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     dsVtk->GetCellBounds(i, bds1);
     dsVtkm->GetCellBounds(i, bds2);
     TEST_VERIFY(IsEqualFloat(bds1[0], bds2[0]) && IsEqualFloat(bds1[1], bds2[1]) &&
-                IsEqualFloat(bds1[2], bds2[2]) && IsEqualFloat(bds1[3], bds2[3]) &&
-                IsEqualFloat(bds1[4], bds2[4]) && IsEqualFloat(bds1[5], bds2[5]),
-                "Cell bounds don't match");
+        IsEqualFloat(bds1[2], bds2[2]) && IsEqualFloat(bds1[3], bds2[3]) &&
+        IsEqualFloat(bds1[4], bds2[4]) && IsEqualFloat(bds1[5], bds2[5]),
+      "Cell bounds don't match");
 
-    TEST_VERIFY(dsVtk->GetCellType(i) == dsVtkm->GetCellType(i),
-                "Cell types don't match");
+    TEST_VERIFY(dsVtk->GetCellType(i) == dsVtkm->GetCellType(i), "Cell types don't match");
 
     vtkNew<vtkIdList> ptIds1, ptIds2;
     dsVtk->GetCellPoints(i, ptIds1);
     dsVtkm->GetCellPoints(i, ptIds2);
     for (vtkIdType j = 0; j < ptIds1->GetNumberOfIds(); ++j)
     {
-      TEST_VERIFY(ptIds1->GetId(j) == ptIds2->GetId(j),
-                  "`GetCellPoints` results don't match");
+      TEST_VERIFY(ptIds1->GetId(j) == ptIds2->GetId(j), "`GetCellPoints` results don't match");
     }
   }
 
   std::default_random_engine engine;
-  std::uniform_real_distribution<double> d1(bounds1[0], bounds1[1]),
-                                         d2(bounds1[2], bounds1[3]),
-                                         d3(bounds1[4], bounds1[5]);
+  std::uniform_real_distribution<double> d1(bounds1[0], bounds1[1]), d2(bounds1[2], bounds1[3]),
+    d3(bounds1[4], bounds1[5]);
   static constexpr int numSamples = 100;
   for (int i = 0; i < numSamples; ++i)
   {
@@ -177,9 +173,9 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
       double x1[3], x2[3];
       dsVtk->GetPoint(pid1, x1);
       dsVtkm->GetPoint(pid1, x2);
-      TEST_VERIFY(IsEqualFloat(vtkMath::Distance2BetweenPoints(x, x1),
-                               vtkMath::Distance2BetweenPoints(x, x2)),
-                  "`FindPoint` results don't match");
+      TEST_VERIFY(IsEqualFloat(
+                    vtkMath::Distance2BetweenPoints(x, x1), vtkMath::Distance2BetweenPoints(x, x2)),
+        "`FindPoint` results don't match");
     }
 
     int subId = 0;
@@ -192,13 +188,16 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     // the boundary of those cells
     if (cid1 != cid2)
     {
-      // check if the point is inside or close to the vtkmDataSet found cell
-      vtkCell* cell = dsVtk->GetCell(cid2);
-      double dist2 = 0, pcoords[3], weights[8];
-      if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 0) // outside?
+      if (cid2 >= 0)
       {
-        TEST_VERIFY(IsEqualFloat(cell->GetParametricDistance(pcoords), 0.0, 1e-3),
-                    "`FindCell` incorrect result by vtkmDataSet");
+        // check if the point is inside or close to the vtkmDataSet found cell
+        vtkCell* cell = dsVtk->GetCell(cid2);
+        double dist2 = 0, pcoords[3], weights[8];
+        if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 0) // outside?
+        {
+          TEST_VERIFY(IsEqualFloat(cell->GetParametricDistance(pcoords), 0.0, 1e-3),
+            "`FindCell` incorrect result by vtkmDataSet");
+        }
       }
     }
     else if (cid1 == -1)
@@ -208,14 +207,12 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     else
     {
       TEST_VERIFY(IsEqualFloat(pcoords1[0], pcoords2[0]) &&
-                  IsEqualFloat(pcoords1[1], pcoords2[1]) &&
-                  IsEqualFloat(pcoords1[2], pcoords2[2]),
-                              "`FindCell` pcoords don't match");
+          IsEqualFloat(pcoords1[1], pcoords2[1]) && IsEqualFloat(pcoords1[2], pcoords2[2]),
+        "`FindCell` pcoords don't match");
       int count = dsVtk->GetCell(cid1)->GetNumberOfPoints();
       for (int j = 0; j < count; ++j)
       {
-        TEST_VERIFY(IsEqualFloat(weights1[j], weights2[j]),
-                    "`FindCell` weights don't match");
+        TEST_VERIFY(IsEqualFloat(weights1[j], weights2[j]), "`FindCell` weights don't match");
       }
     }
   }
@@ -223,26 +220,23 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
   // test fields
   int numPointFields = dsVtk->GetPointData()->GetNumberOfArrays();
   TEST_VERIFY(numPointFields == dsVtkm->GetPointData()->GetNumberOfArrays(),
-              "Number of point-fields don't match");
+    "Number of point-fields don't match");
   for (int i = 0; i < numPointFields; ++i)
   {
-    TestEqualVtkArrays(dsVtk->GetPointData()->GetArray(i),
-                       dsVtkm->GetPointData()->GetArray(i));
+    TestEqualVtkArrays(dsVtk->GetPointData()->GetArray(i), dsVtkm->GetPointData()->GetArray(i));
   }
 
   int numCellFields = dsVtk->GetCellData()->GetNumberOfArrays();
   TEST_VERIFY(numCellFields == dsVtkm->GetCellData()->GetNumberOfArrays(),
-              "Number of cell-fields don't match");
+    "Number of cell-fields don't match");
   for (int i = 0; i < numCellFields; ++i)
   {
-    TestEqualVtkArrays(dsVtk->GetCellData()->GetArray(i),
-                       dsVtkm->GetCellData()->GetArray(i));
+    TestEqualVtkArrays(dsVtk->GetCellData()->GetArray(i), dsVtkm->GetCellData()->GetArray(i));
   }
 }
 
 //-----------------------------------------------------------------------------
-inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords,
-                       vtkPoints* points)
+inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* points)
 {
   auto ptsPortal = coords.GetData().GetPortalConstControl();
   auto numPoints = coords.GetNumberOfPoints();
@@ -258,9 +252,8 @@ inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords,
   }
 }
 
-inline void FieldCopy(const vtkm::cont::ArrayHandle<float>& src,
-                      const char* name,
-                      vtkFloatArray* dst)
+inline void FieldCopy(
+  const vtkm::cont::ArrayHandle<float>& src, const char* name, vtkFloatArray* dst)
 {
   auto portal = src.GetPortalConstControl();
   vtkm::Id length = portal.GetNumberOfValues();
@@ -288,12 +281,10 @@ void TestUniformDataSet()
   auto spacing = portal.GetSpacing();
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "pointvar",
-            pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "cellvar",
-            cellField);
+  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "pointvar", pointField);
+  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "cellvar", cellField);
 
   vtkNew<vtkImageData> imageData;
   imageData->SetDimensions(dims[0], dims[1], dims[2]);
@@ -317,18 +308,16 @@ void TestUniformDataSet()
 void TestCurvilinearDataSet()
 {
   auto dataset = Maker.Make3DRegularDataSet0();
-  auto dims = dataset.GetCellSet().Cast<vtkm::cont::CellSetStructured<3>>().GetPointDimensions();
+  auto dims = dataset.GetCellSet().Cast<vtkm::cont::CellSetStructured<3> >().GetPointDimensions();
 
   vtkNew<vtkPoints> points;
   CoordsCopy(dataset.GetCoordinateSystem(), points);
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "pointvar",
-            pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "cellvar",
-            cellField);
+  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "pointvar", pointField);
+  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "cellvar", cellField);
 
   vtkNew<vtkStructuredGrid> dsVtk;
   dsVtk->SetDimensions(dims[0], dims[1], dims[2]);
@@ -353,37 +342,28 @@ void TestExplicitDataSet()
   vtkm::Id numCells = cellset.GetNumberOfCells();
 
   vtkNew<vtkUnsignedCharArray> shapes;
-  vtkNew<vtkIdTypeArray> offsets;
   vtkNew<vtkCellArray> connectivity;
   shapes->SetNumberOfComponents(1);
   shapes->SetNumberOfTuples(numCells);
-  offsets->SetNumberOfComponents(1);
-  offsets->SetNumberOfTuples(numCells);
-  vtkIdType currOffset = 0;
   for (vtkm::Id i = 0; i < numCells; ++i)
   {
     shapes->SetValue(i, cellset.GetCellShape(i));
-    offsets->SetValue(i, currOffset);
 
     vtkIdType ptIds[8];
     int count = cellset.GetNumberOfPointsInCell(i);
     cellset.GetCellPointIds(i, ptIds);
     connectivity->InsertNextCell(count, ptIds);
-
-    currOffset += count + 1;
   }
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "pointvar",
-            pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
-            "cellvar",
-            cellField);
+  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "pointvar", pointField);
+  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float> >(),
+    "cellvar", cellField);
 
   vtkNew<vtkUnstructuredGrid> dsVtk;
   dsVtk->SetPoints(points);
-  dsVtk->SetCells(shapes, offsets, connectivity);
+  dsVtk->SetCells(shapes, connectivity);
   dsVtk->GetPointData()->AddArray(pointField);
   dsVtk->GetCellData()->AddArray(cellField);
 

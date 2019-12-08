@@ -37,13 +37,13 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * There are several self-explanatory operators for combining selections: ADD, SUBTRACT
  * REPLACE, and INTERSECT.
-*/
+ */
 
 #ifndef vtkParallelCoordinatesView_h
 #define vtkParallelCoordinatesView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor2D;
 class vtkOutlineSource;
@@ -55,37 +55,56 @@ class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesView : public vtkRenderView
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesView, vtkRenderView);
-  static vtkParallelCoordinatesView *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkParallelCoordinatesView* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {VTK_BRUSH_LASSO=0,VTK_BRUSH_ANGLE,VTK_BRUSH_FUNCTION,VTK_BRUSH_AXISTHRESHOLD,VTK_BRUSH_MODECOUNT};
-  enum {VTK_BRUSHOPERATOR_ADD=0,VTK_BRUSHOPERATOR_SUBTRACT,VTK_BRUSHOPERATOR_INTERSECT,VTK_BRUSHOPERATOR_REPLACE,VTK_BRUSHOPERATOR_MODECOUNT};
-  enum {VTK_INSPECT_MANIPULATE_AXES=0, VTK_INSPECT_SELECT_DATA, VTK_INSPECT_MODECOUNT};
+  enum
+  {
+    VTK_BRUSH_LASSO = 0,
+    VTK_BRUSH_ANGLE,
+    VTK_BRUSH_FUNCTION,
+    VTK_BRUSH_AXISTHRESHOLD,
+    VTK_BRUSH_MODECOUNT
+  };
+  enum
+  {
+    VTK_BRUSHOPERATOR_ADD = 0,
+    VTK_BRUSHOPERATOR_SUBTRACT,
+    VTK_BRUSHOPERATOR_INTERSECT,
+    VTK_BRUSHOPERATOR_REPLACE,
+    VTK_BRUSHOPERATOR_MODECOUNT
+  };
+  enum
+  {
+    VTK_INSPECT_MANIPULATE_AXES = 0,
+    VTK_INSPECT_SELECT_DATA,
+    VTK_INSPECT_MODECOUNT
+  };
 
   void SetBrushMode(int);
   void SetBrushModeToLasso() { this->SetBrushMode(VTK_BRUSH_LASSO); }
   void SetBrushModeToAngle() { this->SetBrushMode(VTK_BRUSH_ANGLE); }
   void SetBrushModeToFunction() { this->SetBrushMode(VTK_BRUSH_FUNCTION); }
   void SetBrushModeToAxisThreshold() { this->SetBrushMode(VTK_BRUSH_AXISTHRESHOLD); }
-  vtkGetMacro(BrushMode,int);
+  vtkGetMacro(BrushMode, int);
 
   void SetBrushOperator(int);
   void SetBrushOperatorToAdd() { this->SetBrushOperator(VTK_BRUSHOPERATOR_ADD); }
   void SetBrushOperatorToSubtract() { this->SetBrushOperator(VTK_BRUSHOPERATOR_SUBTRACT); }
   void SetBrushOperatorToIntersect() { this->SetBrushOperator(VTK_BRUSHOPERATOR_INTERSECT); }
   void SetBrushOperatorToReplace() { this->SetBrushOperator(VTK_BRUSHOPERATOR_REPLACE); }
-  vtkGetMacro(BrushOperator,int);
+  vtkGetMacro(BrushOperator, int);
 
   void SetInspectMode(int);
   void SetInspectModeToManipulateAxes() { this->SetInspectMode(VTK_INSPECT_MANIPULATE_AXES); }
   void SetInpsectModeToSelectData() { this->SetInspectMode(VTK_INSPECT_SELECT_DATA); }
-  vtkGetMacro(InspectMode,int);
+  vtkGetMacro(InspectMode, int);
 
   void SetMaximumNumberOfBrushPoints(int);
-  vtkGetMacro(MaximumNumberOfBrushPoints,int);
+  vtkGetMacro(MaximumNumberOfBrushPoints, int);
 
-  vtkSetMacro(CurrentBrushClass,int);
-  vtkGetMacro(CurrentBrushClass,int);
+  vtkSetMacro(CurrentBrushClass, int);
+  vtkGetMacro(CurrentBrushClass, int);
 
   void ApplyViewTheme(vtkViewTheme* theme) override;
 
@@ -95,7 +114,12 @@ protected:
 
   int SelectedAxisPosition;
 
-  enum {VTK_HIGHLIGHT_CENTER=0,VTK_HIGHLIGHT_MIN,VTK_HIGHLIGHT_MAX};
+  enum
+  {
+    VTK_HIGHLIGHT_CENTER = 0,
+    VTK_HIGHLIGHT_MIN,
+    VTK_HIGHLIGHT_MAX
+  };
   vtkSmartPointer<vtkOutlineSource> HighlightSource;
   vtkSmartPointer<vtkPolyDataMapper2D> HighlightMapper;
   vtkSmartPointer<vtkActor2D> HighlightActor;
@@ -117,7 +141,7 @@ protected:
   vtkTimeStamp WorldBuildTime;
   bool RebuildNeeded;
 
-  void ProcessEvents(vtkObject *caller, unsigned long event, void *callData) override;
+  void ProcessEvents(vtkObject* caller, unsigned long event, void* callData) override;
   vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn) override;
 
   void PrepareForRendering() override;
@@ -143,19 +167,17 @@ protected:
    */
   int SetAxisHighlightPosition(vtkParallelCoordinatesRepresentation* rep, double position);
 
-  int AddLassoBrushPoint(double *p);
-  int SetBrushLine(int line, double *p1, double *p2);
-  void GetBrushLine(int line, vtkIdType &npts, vtkIdType* &ptids);
-  int SetAngleBrushLine(double *p1, double *p2);
-  int SetFunctionBrushLine1(double *p1, double *p2);
-  int SetFunctionBrushLine2(double *p1, double *p2);
+  int AddLassoBrushPoint(double* p);
+  int SetBrushLine(int line, double* p1, double* p2);
+  void GetBrushLine(int line, vtkIdType& npts, vtkIdType const*& ptids);
+  int SetAngleBrushLine(double* p1, double* p2);
+  int SetFunctionBrushLine1(double* p1, double* p2);
+  int SetFunctionBrushLine2(double* p1, double* p2);
   void ClearBrushPoints();
-
 
 private:
   vtkParallelCoordinatesView(const vtkParallelCoordinatesView&) = delete;
   void operator=(const vtkParallelCoordinatesView&) = delete;
-
 };
 
 #endif

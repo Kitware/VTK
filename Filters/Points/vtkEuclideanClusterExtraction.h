@@ -46,7 +46,7 @@
  *
  * @sa
  * vtkConnectivityFilter vtkPolyDataConnectivityFilter
-*/
+ */
 
 #ifndef vtkEuclideanClusterExtraction_h
 #define vtkEuclideanClusterExtraction_h
@@ -66,24 +66,23 @@ class vtkIdList;
 class vtkIdTypeArray;
 class vtkAbstractPointLocator;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkEuclideanClusterExtraction : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkEuclideanClusterExtraction,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEuclideanClusterExtraction, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with default extraction mode to extract largest clusters.
    */
-  static vtkEuclideanClusterExtraction *New();
+  static vtkEuclideanClusterExtraction* New();
 
   //@{
   /**
    * Specify the local search radius.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
@@ -93,37 +92,41 @@ public:
    * point falls in the scalar range specified. Of course input point scalar
    * data must be provided.
    */
-  vtkSetMacro(ScalarConnectivity,bool);
-  vtkGetMacro(ScalarConnectivity,bool);
-  vtkBooleanMacro(ScalarConnectivity,bool);
+  vtkSetMacro(ScalarConnectivity, bool);
+  vtkGetMacro(ScalarConnectivity, bool);
+  vtkBooleanMacro(ScalarConnectivity, bool);
   //@}
 
   //@{
   /**
    * Set the scalar range used to extract points based on scalar connectivity.
    */
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVector2Macro(ScalarRange,double);
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVector2Macro(ScalarRange, double);
   //@}
 
   //@{
   /**
    * Control the extraction of connected surfaces.
    */
-  vtkSetClampMacro(ExtractionMode,int,
-            VTK_EXTRACT_POINT_SEEDED_CLUSTERS,VTK_EXTRACT_CLOSEST_POINT_CLUSTER);
-  vtkGetMacro(ExtractionMode,int);
+  vtkSetClampMacro(
+    ExtractionMode, int, VTK_EXTRACT_POINT_SEEDED_CLUSTERS, VTK_EXTRACT_CLOSEST_POINT_CLUSTER);
+  vtkGetMacro(ExtractionMode, int);
   void SetExtractionModeToPointSeededClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_CLUSTERS);};
-  void SetExtractionModeToLargestCluster()
-    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_CLUSTER);};
+  {
+    this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_CLUSTERS);
+  }
+  void SetExtractionModeToLargestCluster() { this->SetExtractionMode(VTK_EXTRACT_LARGEST_CLUSTER); }
   void SetExtractionModeToSpecifiedClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_CLUSTERS);};
+  {
+    this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_CLUSTERS);
+  }
   void SetExtractionModeToClosestPointCluster()
-    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_CLUSTER);};
-  void SetExtractionModeToAllClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_ALL_CLUSTERS);};
-  const char *GetExtractionModeAsString();
+  {
+    this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_CLUSTER);
+  }
+  void SetExtractionModeToAllClusters() { this->SetExtractionMode(VTK_EXTRACT_ALL_CLUSTERS); }
+  const char* GetExtractionModeAsString();
   //@}
 
   /**
@@ -161,8 +164,8 @@ public:
    * Used to specify the x-y-z point coordinates when extracting the cluster
    * closest to a specified point.
    */
-  vtkSetVector3Macro(ClosestPoint,double);
-  vtkGetVectorMacro(ClosestPoint,double,3);
+  vtkSetVector3Macro(ClosestPoint, double);
+  vtkGetVectorMacro(ClosestPoint, double, 3);
   //@}
 
   /**
@@ -174,9 +177,9 @@ public:
   /**
    * Turn on/off the coloring of connected clusters.
    */
-  vtkSetMacro(ColorClusters,bool);
-  vtkGetMacro(ColorClusters,bool);
-  vtkBooleanMacro(ColorClusters,bool);
+  vtkSetMacro(ColorClusters, bool);
+  vtkGetMacro(ColorClusters, bool);
+  vtkBooleanMacro(ColorClusters, bool);
   //@}
 
   //@{
@@ -185,76 +188,74 @@ public:
    * used. The locator performs efficient proximity searches near a
    * specified interpolation position.
    */
-  void SetLocator(vtkAbstractPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
+  void SetLocator(vtkAbstractPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
   //@}
 
 protected:
   vtkEuclideanClusterExtraction();
   ~vtkEuclideanClusterExtraction() override;
 
-  double Radius; //connection radius
-  bool ColorClusters; //boolean turns on/off scalar gen for separate clusters
-  int ExtractionMode; //how to extract clusters
-  vtkIdList *Seeds; //id's of points or cells used to seed clusters
-  vtkIdList *SpecifiedClusterIds; //clusters specified for extraction
-  vtkIdTypeArray *ClusterSizes; //size (in cells) of each cluster extracted
+  double Radius;                  // connection radius
+  bool ColorClusters;             // boolean turns on/off scalar gen for separate clusters
+  int ExtractionMode;             // how to extract clusters
+  vtkIdList* Seeds;               // id's of points or cells used to seed clusters
+  vtkIdList* SpecifiedClusterIds; // clusters specified for extraction
+  vtkIdTypeArray* ClusterSizes;   // size (in cells) of each cluster extracted
 
   double ClosestPoint[3];
 
   bool ScalarConnectivity;
   double ScalarRange[2];
 
-  vtkAbstractPointLocator *Locator;
+  vtkAbstractPointLocator* Locator;
 
   // Configure the pipeline
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Internal method for propagating connected waves.
-  void InsertIntoWave(vtkIdList *wave, vtkIdType ptId);
-  void TraverseAndMark(vtkPoints *pts);
+  void InsertIntoWave(vtkIdList* wave, vtkIdType ptId);
+  void TraverseAndMark(vtkPoints* pts);
 
 private:
   vtkEuclideanClusterExtraction(const vtkEuclideanClusterExtraction&) = delete;
   void operator=(const vtkEuclideanClusterExtraction&) = delete;
 
   // used to support algorithm execution
-  vtkFloatArray *NeighborScalars;
-  vtkIdList *NeighborPointIds;
-  char *Visited;
-  vtkIdType *PointMap;
-  vtkIdTypeArray *NewScalars;
+  vtkFloatArray* NeighborScalars;
+  vtkIdList* NeighborPointIds;
+  char* Visited;
+  vtkIdType* PointMap;
+  vtkIdTypeArray* NewScalars;
   vtkIdType ClusterNumber;
   vtkIdType PointNumber;
   vtkIdType NumPointsInCluster;
-  vtkDataArray *InScalars;
-  vtkIdList *Wave;
-  vtkIdList *Wave2;
-  vtkIdList *PointIds;
-
+  vtkDataArray* InScalars;
+  vtkIdList* Wave;
+  vtkIdList* Wave2;
+  vtkIdList* PointIds;
 };
 
 //@{
 /**
  * Return the method of extraction as a string.
  */
-inline const char *vtkEuclideanClusterExtraction::GetExtractionModeAsString(void)
+inline const char* vtkEuclideanClusterExtraction::GetExtractionModeAsString(void)
 {
-  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS )
+  if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS)
   {
     return "ExtractPointSeededClusters";
   }
-  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_CLUSTERS )
+  else if (this->ExtractionMode == VTK_EXTRACT_SPECIFIED_CLUSTERS)
   {
     return "ExtractSpecifiedClusters";
   }
-  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_CLUSTERS )
+  else if (this->ExtractionMode == VTK_EXTRACT_ALL_CLUSTERS)
   {
     return "ExtractAllClusters";
   }
-  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER )
+  else if (this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER)
   {
     return "ExtractClosestPointCluster";
   }

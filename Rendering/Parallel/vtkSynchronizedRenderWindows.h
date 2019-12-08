@@ -19,13 +19,13 @@
  *
  * vtkSynchronizedRenderWindows is used to synchronize render windows across
  * processes for parallel rendering.
-*/
+ */
 
 #ifndef vtkSynchronizedRenderWindows_h
 #define vtkSynchronizedRenderWindows_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkRenderWindow;
 class vtkMultiProcessController;
@@ -112,6 +112,7 @@ public:
   {
     SYNC_RENDER_TAG = 15001,
   };
+
 protected:
   vtkSynchronizedRenderWindows();
   ~vtkSynchronizedRenderWindows() override;
@@ -154,9 +155,6 @@ private:
   class vtkObserver;
   vtkObserver* Observer;
   friend class vtkObserver;
-
 };
 
 #endif
-
-

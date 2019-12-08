@@ -18,15 +18,15 @@
  *
  *
  * These methods should only be called within a mapper.
-*/
+ */
 
 #ifndef vtkLabelRenderStrategy_h
 #define vtkLabelRenderStrategy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
-#include "vtkStdString.h" // For string support
+#include "vtkStdString.h"     // For string support
 #include "vtkUnicodeString.h" // For unicode string support
 
 class vtkRenderer;
@@ -35,7 +35,7 @@ class vtkTextProperty;
 
 class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 {
- public:
+public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkLabelRenderStrategy, vtkObject);
 
@@ -44,8 +44,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
    * The superclass returns true. Subclasses should override this to
    * return the appropriate value.
    */
-  virtual bool SupportsRotation()
-    { return true; }
+  virtual bool SupportsRotation() { return true; }
 
   /**
    * Whether the text rendering strategy supports bounded size.
@@ -54,8 +53,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
    * from this method should implement the version of RenderLabel()
    * that takes a maximum size (see RenderLabel()).
    */
-  virtual bool SupportsBoundedSize()
-    { return true; }
+  virtual bool SupportsBoundedSize() { return true; }
 
   //@{
   /**
@@ -77,12 +75,12 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
    * Compute the bounds of a label. Must be performed after the renderer is set.
    * Only the unicode string version must be implemented in subclasses.
    */
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
-                                  double bds[4])
-    { this->ComputeLabelBounds(tprop, vtkUnicodeString::from_utf8(label.c_str()),
-                               bds); }
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
-                                  double bds[4]) = 0;
+  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])
+  {
+    this->ComputeLabelBounds(tprop, vtkUnicodeString::from_utf8(label.c_str()), bds);
+  }
+  virtual void ComputeLabelBounds(
+    vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) = 0;
 
   /**
    * Render a label at a location in display coordinates.
@@ -94,32 +92,36 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
    * method.
    */
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
-    { this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label)); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
-                           int maxWidth)
-    { this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label), maxWidth); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label) = 0;
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label, int vtkNotUsed(maxWidth))
-    { this->RenderLabel(x, tprop, label); }
+  {
+    this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label));
+  }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
+  {
+    this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label), maxWidth);
+  }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) = 0;
+  virtual void RenderLabel(
+    int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int vtkNotUsed(maxWidth))
+  {
+    this->RenderLabel(x, tprop, label);
+  }
 
   /**
    * Start a rendering frame. Renderer must be set.
    */
-  virtual void StartFrame() { }
+  virtual void StartFrame() {}
 
   /**
    * End a rendering frame.
    */
-  virtual void EndFrame() { }
+  virtual void EndFrame() {}
 
   /**
    * Release any graphics resources that are being consumed by this strategy.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) { }
+  virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
 protected:
   vtkLabelRenderStrategy();
@@ -134,4 +136,3 @@ private:
 };
 
 #endif
-

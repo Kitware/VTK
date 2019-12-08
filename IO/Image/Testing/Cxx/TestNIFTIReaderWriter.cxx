@@ -18,8 +18,8 @@ then re-reading it to ensure that the contents are identical.
 */
 
 #include "vtkNew.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"
@@ -39,19 +39,15 @@ then re-reading it to ensure that the contents are identical.
 
 #include <string>
 
-static const char *testfiles[7][2] = {
-    { "Data/minimal.nii.gz", "out_minimal.nii.gz" },
-    { "Data/minimal.img.gz", "out_minimal.hdr" },
-    { "Data/planar_rgb.nii.gz", "out_planar_rgb.nii" },
-    { "Data/nifti_rgb.nii.gz", "out_nifti_rgb.nii" },
-    { "Data/filtered_func_data.nii.gz", "out_filtered_func_data.nii.gz" },
-    { "Data/minimal.hdr.gz", "out_minimal_2.nii" },
-    { "Data/minimal.img.gz", "" }
-};
+static const char* testfiles[7][2] = { { "Data/minimal.nii.gz", "out_minimal.nii.gz" },
+  { "Data/minimal.img.gz", "out_minimal.hdr" }, { "Data/planar_rgb.nii.gz", "out_planar_rgb.nii" },
+  { "Data/nifti_rgb.nii.gz", "out_nifti_rgb.nii" },
+  { "Data/filtered_func_data.nii.gz", "out_filtered_func_data.nii.gz" },
+  { "Data/minimal.hdr.gz", "out_minimal_2.nii" }, { "Data/minimal.img.gz", "" } };
 
-static const char *dispfile = "Data/avg152T1_RL_nifti.nii.gz";
+static const char* dispfile = "Data/avg152T1_RL_nifti.nii.gz";
 
-static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
+static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
 {
   vtkNew<vtkNIFTIImageReader> reader;
   reader->SetFileName(infile);
@@ -66,11 +62,11 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
   {
-    center1[2] += 0.5*spacing[2];
+    center1[2] += 0.5 * spacing[2];
   }
   if (size[0] % 2 == 1)
   {
-    center2[0] += 0.5*spacing[0];
+    center2[0] += 0.5 * spacing[0];
   }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
@@ -88,33 +84,33 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 
   vtkNew<vtkImageSlice> slice1;
   slice1->SetMapper(map1);
-  slice1->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
-  slice1->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
+  slice1->GetProperty()->SetColorWindow(vrange[1] - vrange[0]);
+  slice1->GetProperty()->SetColorLevel(0.5 * (vrange[0] + vrange[1]));
 
   vtkNew<vtkImageSlice> slice2;
   slice2->SetMapper(map2);
-  slice2->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
-  slice2->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
+  slice2->GetProperty()->SetColorWindow(vrange[1] - vrange[0]);
+  slice2->GetProperty()->SetColorLevel(0.5 * (vrange[0] + vrange[1]));
 
-  double ratio = size[0]*1.0/(size[0]+size[2]);
+  double ratio = size[0] * 1.0 / (size[0] + size[2]);
 
   vtkNew<vtkRenderer> ren1;
-  ren1->SetViewport(0,0,ratio,1.0);
+  ren1->SetViewport(0, 0, ratio, 1.0);
 
   vtkNew<vtkRenderer> ren2;
-  ren2->SetViewport(ratio,0.0,1.0,1.0);
+  ren2->SetViewport(ratio, 0.0, 1.0, 1.0);
   ren1->AddViewProp(slice1);
   ren2->AddViewProp(slice2);
 
-  vtkCamera *cam1 = ren1->GetActiveCamera();
+  vtkCamera* cam1 = ren1->GetActiveCamera();
   cam1->ParallelProjectionOn();
-  cam1->SetParallelScale(0.5*spacing[1]*size[1]);
+  cam1->SetParallelScale(0.5 * spacing[1] * size[1]);
   cam1->SetFocalPoint(center1[0], center1[1], center1[2]);
   cam1->SetPosition(center1[0], center1[1], center1[2] - 100.0);
 
-  vtkCamera *cam2 = ren2->GetActiveCamera();
+  vtkCamera* cam2 = ren2->GetActiveCamera();
   cam2->ParallelProjectionOn();
-  cam2->SetParallelScale(0.5*spacing[1]*size[1]);
+  cam2->SetParallelScale(0.5 * spacing[1] * size[1]);
   cam2->SetFocalPoint(center2[0], center2[1], center2[2]);
   cam2->SetPosition(center2[0] + 100.0, center2[1], center2[2]);
 
@@ -124,8 +120,7 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 };
 
 static double TestReadWriteRead(
-  const char *infile, const char *infile2, const char *outfile,
-  bool planarRGB)
+  const char* infile, const char* infile2, const char* outfile, bool planarRGB)
 {
   // read a NIFTI file
   vtkNew<vtkNIFTIImageReader> reader;
@@ -151,7 +146,7 @@ static double TestReadWriteRead(
   writer->SetInputConnection(reader->GetOutputPort());
   writer->SetFileName(outfile);
   // copy most information directly from the header
-  vtkNIFTIImageHeader *header = writer->GetNIFTIHeader();
+  vtkNIFTIImageHeader* header = writer->GetNIFTIHeader();
   header->DeepCopy(reader->GetNIFTIHeader());
   header->SetDescrip("VTK Test Data");
   // this information will override the reader's header
@@ -193,12 +188,12 @@ static double TestReadWriteRead(
   // the images should be identical
   vtkNew<vtkImageMathematics> diff;
   diff->SetOperationToSubtract();
-  diff->SetInputConnection(0,reader->GetOutputPort());
-  diff->SetInputConnection(1,reader2->GetOutputPort());
+  diff->SetInputConnection(0, reader->GetOutputPort());
+  diff->SetInputConnection(1, reader2->GetOutputPort());
   diff->Update();
   double diffrange[2];
   diff->GetOutput()->GetScalarRange(diffrange);
-  double differr = diffrange[0]*diffrange[0] + diffrange[1]*diffrange[1];
+  double differr = diffrange[0] * diffrange[0] + diffrange[1] * diffrange[1];
 
   // the matrices should be within tolerance
   if (writer->GetQFormMatrix())
@@ -206,15 +201,14 @@ static double TestReadWriteRead(
     vtkNew<vtkMatrix4x4> m;
     m->DeepCopy(writer->GetQFormMatrix());
     m->Invert();
-    vtkMatrix4x4::Multiply4x4(m, reader2->GetQFormMatrix(),
-                              m);
+    vtkMatrix4x4::Multiply4x4(m, reader2->GetQFormMatrix(), m);
     double sqdiff = 0.0;
     for (int i = 0; i < 4; i++)
     {
       for (int j = 0; j < 4; j++)
       {
         double d = (m->GetElement(i, j) - (i == j));
-        sqdiff += d*d;
+        sqdiff += d * d;
       }
     }
     if (sqdiff > 1e-10)
@@ -230,15 +224,14 @@ static double TestReadWriteRead(
     vtkNew<vtkMatrix4x4> m;
     m->DeepCopy(writer->GetSFormMatrix());
     m->Invert();
-    vtkMatrix4x4::Multiply4x4(m, reader2->GetSFormMatrix(),
-                              m);
+    vtkMatrix4x4::Multiply4x4(m, reader2->GetSFormMatrix(), m);
     double sqdiff = 0.0;
     for (int i = 0; i < 4; i++)
     {
       for (int j = 0; j < 4; j++)
       {
         double d = (m->GetElement(i, j) - (i == j));
-        sqdiff += d*d;
+        sqdiff += d * d;
       }
     }
     if (sqdiff > 1e-10)
@@ -269,8 +262,7 @@ static int TestNIFTIHeader()
   header1->SetSliceDuration(1.0);
   header1->SetSliceStart(2);
   header1->SetSliceEnd(14);
-  header1->SetXYZTUnits(
-    vtkNIFTIImageHeader::UnitsMM | vtkNIFTIImageHeader::UnitsSec);
+  header1->SetXYZTUnits(vtkNIFTIImageHeader::UnitsMM | vtkNIFTIImageHeader::UnitsSec);
   header1->SetDimInfo(0);
   header1->SetDescrip("Test header");
   header1->SetAuxFile("none");
@@ -285,8 +277,8 @@ static int TestNIFTIHeader()
   double matrix[16];
   vtkMatrix4x4::Identity(matrix);
   header1->SetSRowX(matrix);
-  header1->SetSRowY(matrix+4);
-  header1->SetSRowZ(matrix+8);
+  header1->SetSRowY(matrix + 4);
+  header1->SetSRowZ(matrix + 8);
 
   header2->DeepCopy(header1);
   bool success = true;
@@ -302,8 +294,8 @@ static int TestNIFTIHeader()
   success &= (header2->GetSliceDuration() == 1.0);
   success &= (header2->GetSliceStart() == 2);
   success &= (header2->GetSliceEnd() == 14);
-  success &= (header2->GetXYZTUnits() ==
-    (vtkNIFTIImageHeader::UnitsMM | vtkNIFTIImageHeader::UnitsSec));
+  success &=
+    (header2->GetXYZTUnits() == (vtkNIFTIImageHeader::UnitsMM | vtkNIFTIImageHeader::UnitsSec));
   success &= (header2->GetDimInfo() == 0);
   success &= (strcmp(header2->GetDescrip(), "Test header") == 0);
   success &= (strcmp(header2->GetAuxFile(), "none") == 0);
@@ -322,7 +314,7 @@ static int TestNIFTIHeader()
   return success;
 }
 
-int TestNIFTIReaderWriter(int argc, char *argv[])
+int TestNIFTIReaderWriter(int argc, char* argv[])
 {
   // perform the header test
   if (!TestNIFTIHeader())
@@ -334,14 +326,12 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
   // perform the read/write test
   for (int i = 0; i < 5; i++)
   {
-    char *infile2 = nullptr;
-    char *infile =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[i][0]);
+    char* infile2 = nullptr;
+    char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[i][0]);
     bool planarRGB = (i == 2);
     if (i == 5)
     {
-      infile2 =
-        vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[6][0]);
+      infile2 = vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[6][0]);
     }
     if (!infile)
     {
@@ -349,8 +339,8 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
       return 1;
     }
 
-    char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-      "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+    char* tempDir =
+      vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
     if (!tempDir)
     {
       cerr << "Could not determine temporary directory.\n";
@@ -360,7 +350,7 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
     std::string outpath = tempDir;
     outpath += "/";
     outpath += testfiles[i][1];
-    delete [] tempDir;
+    delete[] tempDir;
 
     vtkNew<vtkNIFTIImageReader> testReader;
     testReader->GetFileExtensions();
@@ -371,21 +361,18 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
       return 1;
     }
 
-    double err = TestReadWriteRead(infile, infile2, outpath.c_str(),
-                                   planarRGB);
+    double err = TestReadWriteRead(infile, infile2, outpath.c_str(), planarRGB);
     if (err != 0.0)
     {
-      cerr << "Input " << infile << " differs from output " << outpath.c_str()
-           << "\n";
+      cerr << "Input " << infile << " differs from output " << outpath.c_str() << "\n";
       return 1;
     }
-    delete [] infile;
-    delete [] infile2;
+    delete[] infile;
+    delete[] infile2;
   }
 
   // perform the display test
-  char *infile =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
+  char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
     cerr << "Could not locate input file " << dispfile << "\n";
@@ -397,7 +384,7 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
   iren->SetRenderWindow(renwin);
 
   TestDisplay(renwin, infile);
-  delete [] infile;
+  delete[] infile;
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

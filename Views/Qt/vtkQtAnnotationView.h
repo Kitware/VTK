@@ -25,14 +25,14 @@
  *
  * vtkQtAnnotationView is a VTK view using an underlying QTableView.
  *
-*/
+ */
 
 #ifndef vtkQtAnnotationView_h
 #define vtkQtAnnotationView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
-#include <QObject> // Needed for the Q_OBJECT macro
+#include "vtkViewsQtModule.h" // For export macro
+#include <QObject>            // Needed for the Q_OBJECT macro
 
 #include <QPointer> // Needed to hold the view
 
@@ -43,10 +43,10 @@ class QTableView;
 
 class VTKVIEWSQT_EXPORT vtkQtAnnotationView : public vtkQtView
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-  static vtkQtAnnotationView *New();
+  static vtkQtAnnotationView* New();
   vtkTypeMacro(vtkQtAnnotationView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -68,7 +68,7 @@ protected:
   ~vtkQtAnnotationView() override;
 
 private slots:
-  void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+  void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
 private:
   vtkMTimeType LastInputMTime;
@@ -78,7 +78,6 @@ private:
 
   vtkQtAnnotationView(const vtkQtAnnotationView&) = delete;
   void operator=(const vtkQtAnnotationView&) = delete;
-
 };
 
 #endif

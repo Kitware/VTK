@@ -33,13 +33,13 @@
  * what types they will be.
  * This reader can only handle static EnSight datasets (both static geometry
  * and variables).
-*/
+ */
 
 #ifndef vtkEnSight6Reader_h
 #define vtkEnSight6Reader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
+#include "vtkIOEnSightModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
@@ -48,7 +48,7 @@ class vtkPoints;
 class VTKIOENSIGHT_EXPORT vtkEnSight6Reader : public vtkEnSightReader
 {
 public:
-  static vtkEnSight6Reader *New();
+  static vtkEnSight6Reader* New();
   vtkTypeMacro(vtkEnSight6Reader, vtkEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -59,83 +59,73 @@ protected:
   /**
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
-  int ReadGeometryFile(const char* fileName, int timeStep,
-                               vtkMultiBlockDataSet *output) override;
+  int ReadGeometryFile(const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
-  int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-                                       vtkMultiBlockDataSet *output) override;
+  int ReadMeasuredGeometryFile(
+    const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one component in
    * the scalars array, we assume that 0 is the first component added to the array.
    */
-  int ReadScalarsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output,
-                                 int measured = 0,
-                                 int numberOfComponents = 1,
-                                 int component = 0) override;
+  int ReadScalarsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0, int numberOfComponents = 1,
+    int component = 0) override;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output,
-                                 int measured = 0) override;
+  int ReadVectorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0) override;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one component in the
    * scalars array, we assume that 0 is the first component added to the array.
    */
-  int ReadScalarsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output,
-                                    int numberOfComponents = 1,
-                                    int component = 0) override;
+  int ReadScalarsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int numberOfComponents = 1, int component = 0) override;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadVectorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
    * vtkUnstructuredGrid output.  Return 0 if EOF reached.
    */
-  int CreateUnstructuredGridOutput(int partId,
-                                           char line[256],
-                                           const char* name,
-                                           vtkMultiBlockDataSet *output) override;
+  int CreateUnstructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGridOutput.  Return 0 if EOF reached.
    */
-  int CreateStructuredGridOutput(int partId,
-                                         char line[256],
-                                         const char* name,
-                                         vtkMultiBlockDataSet *output) override;
+  int CreateStructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;

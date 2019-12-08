@@ -59,8 +59,8 @@
 #include "vtkSmartPointer.h"          // for vtkSmartPointer
 #include "vtkSystemIncludes.h"
 
-#include <functional>                 // for std::function
-#include <memory>                     // for unique_ptr
+#include <functional> // for std::function
+#include <memory>     // for unique_ptr
 
 class vtkAbstractArray;
 class vtkDataSetAttributes;

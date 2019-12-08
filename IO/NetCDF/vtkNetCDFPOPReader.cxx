@@ -32,15 +32,15 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
-#define CALL_NETCDF(call) \
-{ \
-  int errorcode = call; \
-  if (errorcode != NC_NOERR) \
-  { \
-    vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode)); \
-    return 0; \
-  } \
-}
+#define CALL_NETCDF(call)                                                                          \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+    {                                                                                              \
+      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
+      return 0;                                                                                    \
+    }                                                                                              \
+  }
 //============================================================================
 
 class vtkNetCDFPOPReaderInternal
@@ -52,13 +52,12 @@ public:
   std::vector<int> VariableMap;
   vtkNetCDFPOPReaderInternal()
   {
-      this->VariableArraySelection =
-        vtkSmartPointer<vtkDataArraySelection>::New();
+    this->VariableArraySelection = vtkSmartPointer<vtkDataArraySelection>::New();
   }
 };
 
 //----------------------------------------------------------------------------
-//set default values
+// set default values
 vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -68,8 +67,7 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
   this->OpenedFileName = nullptr;
   this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
   this->SelectionObserver = vtkCallbackCommand::New();
-  this->SelectionObserver->SetCallback
-    (&vtkNetCDFPOPReader::SelectionModifiedCallback);
+  this->SelectionObserver->SetCallback(&vtkNetCDFPOPReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
   this->Internals = new vtkNetCDFPOPReaderInternal;
   this->Internals->VariableArraySelection->AddObserver(
@@ -77,16 +75,16 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 }
 
 //----------------------------------------------------------------------------
-//delete filename and netcdf file descriptor
+// delete filename and netcdf file descriptor
 vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 {
   this->SetFileName(nullptr);
-  if(this->OpenedFileName)
+  if (this->OpenedFileName)
   {
     nc_close(this->NCDFFD);
     this->SetOpenedFileName(nullptr);
   }
-  if(this->SelectionObserver)
+  if (this->SelectionObserver)
   {
     this->SelectionObserver->Delete();
     this->SelectionObserver = nullptr;
@@ -96,16 +94,15 @@ vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkNetCDFPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(nullptr)") << endl;
-  os << indent << "OpenedFileName: "
-     << (this->OpenedFileName ? this->OpenedFileName : "(nullptr)") << endl;
-  os << indent << "Stride: {" << this->Stride[0] << ", "
-     << this->Stride[1] << ", " << this->Stride[2] << ", "
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(nullptr)") << endl;
+  os << indent << "OpenedFileName: " << (this->OpenedFileName ? this->OpenedFileName : "(nullptr)")
+     << endl;
+  os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1] << ", "
+     << this->Stride[2] << ", "
      << "}" << endl;
   os << indent << "NCDFFD: " << this->NCDFFD << endl;
 
@@ -117,27 +114,25 @@ void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
 // This should return the reality of what the reader is going to supply.
 // This retrieve the extents for the rectilinear grid
 // NC_MAX_VAR_DIMS comes from the nc library
-int vtkNetCDFPOPReader::RequestInformation(
-    vtkInformation* vtkNotUsed(request),
-    vtkInformationVector** vtkNotUsed(inputVector),
-    vtkInformationVector* outputVector)
+int vtkNetCDFPOPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if(this->FileName == nullptr)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro("FileName not set.");
     return 0;
   }
 
-  if(this->OpenedFileName == nullptr || strcmp(this->OpenedFileName, this->FileName) != 0)
+  if (this->OpenedFileName == nullptr || strcmp(this->OpenedFileName, this->FileName) != 0)
   {
-    if(this->OpenedFileName)
+    if (this->OpenedFileName)
     {
       nc_close(this->NCDFFD);
       this->SetOpenedFileName(nullptr);
     }
-    int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
-    if (retval != NC_NOERR)//checks if read file error
+    int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD); // read file
+    if (retval != NC_NOERR)                                          // checks if read file error
     {
       // we don't need to close the file if there was an error opening the file
       vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
@@ -151,46 +146,45 @@ int vtkNetCDFPOPReader::RequestInformation(
   int dimidsp[NC_MAX_VAR_DIMS];
   int extent[6];
   int dataDimension;
-  size_t dimensions[4]; //dimension value
+  size_t dimensions[4]; // dimension value
   this->Internals->VariableMap.resize(numberOfVariables);
-  char variableName[NC_MAX_NAME+1];
+  char variableName[NC_MAX_NAME + 1];
   int actualVariableCounter = 0;
   // For every variable in the file
-  for(int i=0;i<numberOfVariables;i++)
+  for (int i = 0; i < numberOfVariables; i++)
   {
     this->Internals->VariableMap[i] = -1;
-    //get number of dimensions
+    // get number of dimensions
     CALL_NETCDF(nc_inq_varndims(this->NCDFFD, i, &dataDimension));
-    //Variable Dimension ID's containing x,y,z coords for the rectilinear
-    //grid spacing
+    // Variable Dimension ID's containing x,y,z coords for the rectilinear
+    // grid spacing
     CALL_NETCDF(nc_inq_vardimid(this->NCDFFD, i, dimidsp));
-    if(dataDimension == 3)
+    if (dataDimension == 3)
     {
       this->Internals->VariableMap[i] = actualVariableCounter++;
-      //get variable name
+      // get variable name
       CALL_NETCDF(nc_inq_varname(this->NCDFFD, i, variableName));
       this->Internals->VariableArraySelection->AddArray(variableName);
-      for(int m=0;m<dataDimension;m++)
+      for (int m = 0; m < dataDimension; m++)
       {
-        CALL_NETCDF(nc_inq_dimlen(this->NCDFFD, dimidsp[m], dimensions+m));
-        //acquire variable dimensions
+        CALL_NETCDF(nc_inq_dimlen(this->NCDFFD, dimidsp[m], dimensions + m));
+        // acquire variable dimensions
       }
-      extent[0] = extent[2] = extent[4] =0; //set extent
-      extent[1] = static_cast<int>((dimensions[2] -1) / this->Stride[0]);
-      extent[3] = static_cast<int>((dimensions[1] -1) / this->Stride[1]);
-      extent[5] = static_cast<int>((dimensions[0] -1) / this->Stride[2]);
+      extent[0] = extent[2] = extent[4] = 0; // set extent
+      extent[1] = static_cast<int>((dimensions[2] - 1) / this->Stride[0]);
+      extent[3] = static_cast<int>((dimensions[1] - 1) / this->Stride[1]);
+      extent[5] = static_cast<int>((dimensions[0] - 1) / this->Stride[2]);
     }
   }
-  //fill in the extent information
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  // fill in the extent information
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
   return 1;
 }
 
 //----------------------------------------------------------------------------
 // Setting extents of the rectilinear grid
 int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
-    vtkInformationVector** vtkNotUsed(inputVector),
-    vtkInformationVector* outputVector  )
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   this->UpdateProgress(0);
   // the default implementation is to do what the old pipeline did find what
@@ -204,25 +198,25 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
     outputPort = 0;
   }
   // get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(outputPort);
+  vtkInformation* outInfo = outputVector->GetInformationObject(outputPort);
 
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   int subext[6];
-  //vtkInformation * outInfo = output->GetInformationObject(0);
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),subext);
-  vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(output);
+  // vtkInformation * outInfo = output->GetInformationObject(0);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), subext);
+  vtkRectilinearGrid* rgrid = vtkRectilinearGrid::SafeDownCast(output);
   rgrid->SetExtent(subext);
-  //setup extents for netcdf library to read the netcdf data file
-  size_t start[]= { static_cast<size_t>(subext[4]*this->Stride[2]),
-                    static_cast<size_t>(subext[2]*this->Stride[1]),
-                    static_cast<size_t>(subext[0]*this->Stride[0]) };
+  // setup extents for netcdf library to read the netcdf data file
+  size_t start[] = { static_cast<size_t>(subext[4] * this->Stride[2]),
+    static_cast<size_t>(subext[2] * this->Stride[1]),
+    static_cast<size_t>(subext[0] * this->Stride[0]) };
 
-  size_t count[]= { static_cast<size_t>(subext[5]-subext[4]+1),
-                    static_cast<size_t>(subext[3]-subext[2]+1),
-                    static_cast<size_t>(subext[1]-subext[0]+1) };
+  size_t count[] = { static_cast<size_t>(subext[5] - subext[4] + 1),
+    static_cast<size_t>(subext[3] - subext[2] + 1),
+    static_cast<size_t>(subext[1] - subext[0] + 1) };
 
   ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2], (ptrdiff_t)this->Stride[1],
-                           (ptrdiff_t)this->Stride[0] };
+    (ptrdiff_t)this->Stride[0] };
 
   /*
     vtkMultiThreaderIDType pid = vtkMultiThreader::GetCurrentThreadID();
@@ -242,21 +236,21 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
           << " " << subext[2] << " " << subext[3] << " "
            << subext[4] << " " << subext[5] << endl;
   */
-  //initialize memory (raw data space, x y z axis space) and rectilinear grid
+  // initialize memory (raw data space, x y z axis space) and rectilinear grid
   bool firstPass = true;
-  for(size_t i=0;i<this->Internals->VariableMap.size();i++)
+  for (size_t i = 0; i < this->Internals->VariableMap.size(); i++)
   {
-    if(this->Internals->VariableMap[i] != -1 &&
-       this->Internals->VariableArraySelection->GetArraySetting(
-         this->Internals->VariableMap[i]) != 0)
+    if (this->Internals->VariableMap[i] != -1 &&
+      this->Internals->VariableArraySelection->GetArraySetting(this->Internals->VariableMap[i]) !=
+        0)
     {
       // varidp is probably i in which case nc_inq_varid isn't needed
       int varidp;
       nc_inq_varid(this->NCDFFD,
-                   this->Internals->VariableArraySelection->GetArrayName(
-                     this->Internals->VariableMap[i]), &varidp);
+        this->Internals->VariableArraySelection->GetArrayName(this->Internals->VariableMap[i]),
+        &varidp);
 
-      if(firstPass == true)
+      if (firstPass == true)
       {
         int dimidsp[3];
         nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
@@ -264,28 +258,25 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
         float* x = new float[count[0]];
         float* y = new float[count[1]];
         float* z = new float[count[2]];
-        //gets data from x,y,z axis (spacing)
+        // gets data from x,y,z axis (spacing)
 #if 0
         nc_get_vara_float(this->NCDFFD, dimidsp[0], start, count, x);
         nc_get_vara_float(this->NCDFFD, dimidsp[1], start+1, count+1, y);
         nc_get_vara_float(this->NCDFFD, dimidsp[2], start+2, count+2, z);
 #else
-        nc_get_vars_float(this->NCDFFD, dimidsp[0],
-                          start, count, rStride, x);
-        nc_get_vars_float(this->NCDFFD, dimidsp[1],
-                          start+1, count+1, rStride+1, y);
-        nc_get_vars_float(this->NCDFFD, dimidsp[2],
-                          start+2, count+2, rStride+2, z);
+        nc_get_vars_float(this->NCDFFD, dimidsp[0], start, count, rStride, x);
+        nc_get_vars_float(this->NCDFFD, dimidsp[1], start + 1, count + 1, rStride + 1, y);
+        nc_get_vars_float(this->NCDFFD, dimidsp[2], start + 2, count + 2, rStride + 2, z);
 #endif
-        vtkFloatArray *xCoords = vtkFloatArray::New();
+        vtkFloatArray* xCoords = vtkFloatArray::New();
         xCoords->SetArray(z, static_cast<vtkIdType>(count[2]), 0, 1);
-        vtkFloatArray *yCoords = vtkFloatArray::New();
+        vtkFloatArray* yCoords = vtkFloatArray::New();
         yCoords->SetArray(y, static_cast<vtkIdType>(count[1]), 0, 1);
-        for (unsigned int q=0; q<count[0]; q++)
+        for (unsigned int q = 0; q < count[0]; q++)
         {
           x[q] = -x[q];
         }
-        vtkFloatArray *zCoords = vtkFloatArray::New();
+        vtkFloatArray* zCoords = vtkFloatArray::New();
         zCoords->SetArray(x, static_cast<vtkIdType>(count[0]), 0, 1);
         rgrid->SetXCoordinates(xCoords);
         rgrid->SetYCoordinates(yCoords);
@@ -294,32 +285,31 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
         yCoords->Delete();
         zCoords->Delete();
       }
-      //create vtkFloatArray and get the scalars into it
-      vtkFloatArray *scalars = vtkFloatArray::New();
-      vtkIdType numberOfTuples = static_cast<vtkIdType>((count[0])*(count[1])*(count[2]));
+      // create vtkFloatArray and get the scalars into it
+      vtkFloatArray* scalars = vtkFloatArray::New();
+      vtkIdType numberOfTuples = static_cast<vtkIdType>((count[0]) * (count[1]) * (count[2]));
       float* data = new float[numberOfTuples];
 #if 0
       nc_get_vara_float(this->NCDFFD, varidp, start, count, data);
 #else
-      nc_get_vars_float(this->NCDFFD, varidp, start, count, rStride,
-                        data);
+      nc_get_vars_float(this->NCDFFD, varidp, start, count, rStride, data);
 #endif
       scalars->SetArray(data, numberOfTuples, 0, 1);
-      //set list of variables to display data on rectilinear grid
-      scalars->SetName(this->Internals->VariableArraySelection->GetArrayName(
-                         this->Internals->VariableMap[i]));
+      // set list of variables to display data on rectilinear grid
+      scalars->SetName(
+        this->Internals->VariableArraySelection->GetArrayName(this->Internals->VariableMap[i]));
       rgrid->GetPointData()->AddArray(scalars);
       scalars->Delete();
     }
-    this->UpdateProgress((i+1.0)/this->Internals->VariableMap.size());
+    this->UpdateProgress((i + 1.0) / this->Internals->VariableMap.size());
   }
   return 1;
 }
 
 //----------------------------------------------------------------------------
-//following 5 functions are used for paraview user interface
-void vtkNetCDFPOPReader::SelectionModifiedCallback(vtkObject*, unsigned long,
-                                                   void* clientdata, void*)
+// following 5 functions are used for paraview user interface
+void vtkNetCDFPOPReader::SelectionModifiedCallback(
+  vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkNetCDFPOPReader*>(clientdata)->Modified();
 }
@@ -333,7 +323,7 @@ int vtkNetCDFPOPReader::GetNumberOfVariableArrays()
 //-----------------------------------------------------------------------------
 const char* vtkNetCDFPOPReader::GetVariableArrayName(int index)
 {
-  if(index < 0 || index >= this->GetNumberOfVariableArrays())
+  if (index < 0 || index >= this->GetNumberOfVariableArrays())
   {
     return nullptr;
   }
@@ -350,18 +340,18 @@ int vtkNetCDFPOPReader::GetVariableArrayStatus(const char* name)
 void vtkNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
-  if(this->Internals->VariableArraySelection->ArrayExists(name) == 0)
+  if (this->Internals->VariableArraySelection->ArrayExists(name) == 0)
   {
     vtkErrorMacro(<< name << " is not available in the file.");
     return;
   }
   int enabled = this->Internals->VariableArraySelection->ArrayIsEnabled(name);
-  if(status != 0 && enabled == 0)
+  if (status != 0 && enabled == 0)
   {
     this->Internals->VariableArraySelection->EnableArray(name);
     this->Modified();
   }
-  else if(status == 0 && enabled != 0)
+  else if (status == 0 && enabled != 0)
   {
     this->Internals->VariableArraySelection->DisableArray(name);
     this->Modified();

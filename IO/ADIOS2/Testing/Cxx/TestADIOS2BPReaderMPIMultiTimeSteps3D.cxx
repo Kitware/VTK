@@ -30,47 +30,47 @@
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockVolumeMapper.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkMPIController.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkNew.h"
+#include "vtkTestUtilities.h"
 
 #include <sstream> // istringstream
 
 struct TestArgs
 {
-  int *retval;
+  int* retval;
   int argc;
-  char **argv;
+  char** argv;
 };
 
 void TestADIOS2BPReaderMPIMultiTimeSteps3D(vtkMultiProcessController* controller, void* _args)
 {
-  TestArgs *args = reinterpret_cast<TestArgs *>(_args);
+  TestArgs* args = reinterpret_cast<TestArgs*>(_args);
   int argc = args->argc;
-  char **argv = args->argv;
+  char** argv = args->argv;
   *(args->retval) = 1;
 
   vtkNew<vtkADIOS2CoreImageReader> reader;
 
   // Read the input data file
-  char* filePath = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                               "Data/ADIOS2/3D_7-point_24-step/gs.bp");
+  char* filePath =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/3D_7-point_24-step/gs.bp");
 
   if (!reader->CanReadFile(filePath))
   {
@@ -78,10 +78,9 @@ void TestADIOS2BPReaderMPIMultiTimeSteps3D(vtkMultiProcessController* controller
     return;
   }
   reader->SetFileName(filePath);
-  delete [] filePath;
+  delete[] filePath;
 
   reader->SetController(controller);
-
 
   reader->UpdateInformation();
   auto& availVars = reader->GetAvilableVariables();
@@ -97,12 +96,14 @@ void TestADIOS2BPReaderMPIMultiTimeSteps3D(vtkMultiProcessController* controller
   reader->SetActiveScalar(std::make_pair("U", vtkADIOS2CoreImageReader::VarType::CellData));
   reader->Update();
 
-  vtkSmartPointer<vtkMultiBlockDataSet> output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
+  vtkSmartPointer<vtkMultiBlockDataSet> output =
+    vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
   assert(output->GetNumberOfBlocks() == 1);
-  vtkSmartPointer<vtkMultiPieceDataSet> mpds = vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
+  vtkSmartPointer<vtkMultiPieceDataSet> mpds =
+    vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
   assert(mpds->GetNumberOfPieces() == 6);
-  vtkSmartPointer<vtkImageData> image0 =  vtkImageData::SafeDownCast(mpds->GetPiece(0));
-  vtkSmartPointer<vtkImageData> image1 =  vtkImageData::SafeDownCast(mpds->GetPiece(1));
+  vtkSmartPointer<vtkImageData> image0 = vtkImageData::SafeDownCast(mpds->GetPiece(0));
+  vtkSmartPointer<vtkImageData> image1 = vtkImageData::SafeDownCast(mpds->GetPiece(1));
 
   // Use vtkXMLPMultiBlockDataWriter + vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()
   // to write out the data if needed
@@ -111,10 +112,9 @@ void TestADIOS2BPReaderMPIMultiTimeSteps3D(vtkMultiProcessController* controller
   controller->Broadcast(args->retval, 1, 0);
 }
 
-
 int TestADIOS2BPReaderMPIMultiTimeSteps3D(int argc, char* argv[])
 {
-  int retval{0};
+  int retval{ 0 };
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.

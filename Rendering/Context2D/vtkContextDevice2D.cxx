@@ -13,22 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
-#include "vtkCellIterator.h"
 #include "vtkContextDevice2D.h"
-#include "vtkPen.h"
+#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
 #include "vtkBrush.h"
+#include "vtkCellIterator.h"
 #include "vtkMathTextUtilities.h"
+#include "vtkPen.h"
 #include "vtkPolyData.h"
-#include "vtkTextProperty.h"
 #include "vtkRect.h"
 #include "vtkStdString.h"
+#include "vtkTextProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"
 #include <cassert>
 #include <vector>
 
-vtkAbstractObjectFactoryNewMacro(vtkContextDevice2D)
+vtkAbstractObjectFactoryNewMacro(vtkContextDevice2D);
 
 vtkContextDevice2D::vtkContextDevice2D()
 {
@@ -55,15 +56,13 @@ bool vtkContextDevice2D::MathTextIsSupported()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::DrawPolyData(float p[2], float scale,
-                                      vtkPolyData *polyData,
-                                      vtkUnsignedCharArray *colors,
-                                      int scalarMode)
+void vtkContextDevice2D::DrawPolyData(
+  float p[2], float scale, vtkPolyData* polyData, vtkUnsignedCharArray* colors, int scalarMode)
 {
   std::vector<float> verts;
   std::vector<unsigned char> vertColors;
 
-  vtkCellIterator *cell = polyData->NewCellIterator();
+  vtkCellIterator* cell = polyData->NewCellIterator();
   cell->InitTraversal();
   for (; !cell->IsDoneWithTraversal(); cell->GoToNextCell())
   {
@@ -73,6 +72,7 @@ void vtkContextDevice2D::DrawPolyData(float p[2], float scale,
     switch (cellType)
     {
       case VTK_LINE:
+      case VTK_POLY_LINE:
       case VTK_TRIANGLE:
       case VTK_QUAD:
       case VTK_POLYGON:
@@ -92,17 +92,17 @@ void vtkContextDevice2D::DrawPolyData(float p[2], float scale,
     vertColors.resize(static_cast<size_t>(numPoints) * 4);
 
     vtkIdType cellId = cell->GetCellId();
-    vtkIdList *pointIds = cell->GetPointIds();
-    vtkPoints *points = cell->GetPoints();
+    vtkIdList* pointIds = cell->GetPointIds();
+    vtkPoints* points = cell->GetPoints();
 
     for (vtkIdType i = 0; i < numPoints; ++i)
     {
       const size_t vertsIdx = 2 * static_cast<size_t>(i);
       const size_t colorIdx = 4 * static_cast<size_t>(i);
 
-      const double *point = points->GetPoint(i);
-      verts[vertsIdx  ] = (static_cast<float>(point[0]) + p[0]) * scale;
-      verts[vertsIdx+1] = (static_cast<float>(point[1]) + p[1]) * scale;
+      const double* point = points->GetPoint(i);
+      verts[vertsIdx] = (static_cast<float>(point[0]) + p[0]) * scale;
+      verts[vertsIdx + 1] = (static_cast<float>(point[1]) + p[1]) * scale;
 
       if (scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA)
       {
@@ -114,7 +114,7 @@ void vtkContextDevice2D::DrawPolyData(float p[2], float scale,
       }
     }
 
-    if (cellType == VTK_LINE)
+    if (cellType == VTK_LINE || cellType == VTK_POLY_LINE )
     {
       this->DrawPoly(verts.data(), numPoints, vertColors.data(), 4);
     }
@@ -127,19 +127,19 @@ void vtkContextDevice2D::DrawPolyData(float p[2], float scale,
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::ApplyPen(vtkPen *pen)
+void vtkContextDevice2D::ApplyPen(vtkPen* pen)
 {
   this->Pen->DeepCopy(pen);
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::ApplyBrush(vtkBrush *brush)
+void vtkContextDevice2D::ApplyBrush(vtkBrush* brush)
 {
   this->Brush->DeepCopy(brush);
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::ApplyTextProp(vtkTextProperty *prop)
+void vtkContextDevice2D::ApplyTextProp(vtkTextProperty* prop)
 {
   // This is a deep copy, but is called shallow for some reason...
   this->TextProp->ShallowCopy(prop);
@@ -152,11 +152,10 @@ bool vtkContextDevice2D::GetBufferIdMode() const
 }
 
 // ----------------------------------------------------------------------------
-void vtkContextDevice2D::BufferIdModeBegin(
-  vtkAbstractContextBufferId *bufferId)
+void vtkContextDevice2D::BufferIdModeBegin(vtkAbstractContextBufferId* bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
-  assert("pre: bufferId_exists" && bufferId!=nullptr);
+  assert("pre: bufferId_exists" && bufferId != nullptr);
 
   this->BufferId = bufferId;
 
@@ -174,7 +173,7 @@ void vtkContextDevice2D::BufferIdModeEnd()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkContextDevice2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Pen: ";
@@ -186,14 +185,10 @@ void vtkContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::DrawMarkers(int, bool, float*, int, unsigned char*,
-                                     int)
-{
-}
+void vtkContextDevice2D::DrawMarkers(int, bool, float*, int, unsigned char*, int) {}
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice2D::DrawColoredPolygon(float *, int , unsigned char *,
-                                            int)
+void vtkContextDevice2D::DrawColoredPolygon(float*, int, unsigned char*, int)
 {
   vtkErrorMacro("DrawColoredPolygon not implemented on this device.");
 }

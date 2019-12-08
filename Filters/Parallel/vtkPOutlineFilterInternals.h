@@ -19,14 +19,14 @@
  * vtkPOutlineFilterInternals has common code for vtkOutlineFilter and
  * vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
  * pipeline.
-*/
+ */
 
 #ifndef vtkPOutlineFilterInternals_h
 #define vtkPOutlineFilterInternals_h
 
+#include "vtkBoundingBox.h"           //  needed for vtkBoundingBox.
 #include "vtkFiltersParallelModule.h" // For export macro
-#include "vtkBoundingBox.h" //  needed for vtkBoundingBox.
-#include <vector> // needed for std::vector
+#include <vector>                     // needed for std::vector
 
 class vtkBoundingBox;
 class vtkDataObject;
@@ -43,13 +43,10 @@ class vtkUniformGridAMR;
 class VTKFILTERSPARALLEL_EXPORT vtkPOutlineFilterInternals
 {
 public:
-
   vtkPOutlineFilterInternals();
   virtual ~vtkPOutlineFilterInternals();
   void SetController(vtkMultiProcessController*);
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   void SetCornerFactor(double cornerFactor);
   void SetIsCornerSource(bool value);
 
@@ -62,7 +59,6 @@ private:
   int RequestData(vtkDataObjectTree* cd, vtkPolyData* output);
   int RequestData(vtkDataSet* ds, vtkPolyData* output);
   int RequestData(vtkGraph* graph, vtkPolyData* output);
-
 
   void CollectCompositeBounds(vtkDataObject* input);
 

@@ -14,19 +14,19 @@
 =========================================================================*/
 
 #include "vtkImageInterpolator.h"
-#include "vtkImageInterpolatorInternals.h"
-#include "vtkImageData.h"
 #include "vtkDataArray.h"
-#include "vtkTypeTraits.h"
+#include "vtkImageData.h"
+#include "vtkImageInterpolatorInternals.h"
 #include "vtkObjectFactory.h"
+#include "vtkTypeTraits.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types, because
 // they cannot be faithfully represented by doubles
-# undef VTK_USE_INT64
-# define VTK_USE_INT64 0
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
+#undef VTK_USE_INT64
+#define VTK_USE_INT64 0
+#undef VTK_USE_UINT64
+#define VTK_USE_UINT64 0
 
 vtkStandardNewMacro(vtkImageInterpolator);
 
@@ -42,10 +42,9 @@ vtkImageInterpolator::~vtkImageInterpolator() = default;
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "InterpolationMode: "
-     << this->GetInterpolationModeAsString() << "\n";
+  os << indent << "InterpolationMode: " << this->GetInterpolationModeAsString() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -66,7 +65,7 @@ void vtkImageInterpolator::SetInterpolationMode(int mode)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkImageInterpolator::GetInterpolationModeAsString()
+const char* vtkImageInterpolator::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
   {
@@ -81,8 +80,7 @@ const char *vtkImageInterpolator::GetInterpolationModeAsString()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageInterpolator::ComputeSupportSize(
-  const double matrix[16], int size[3])
+void vtkImageInterpolator::ComputeSupportSize(const double matrix[16], int size[3])
 {
   int s = 1;
   if (this->InterpolationMode == VTK_LINEAR_INTERPOLATION)
@@ -104,8 +102,7 @@ void vtkImageInterpolator::ComputeSupportSize(
   }
 
   // check whether matrix does perspective
-  if (matrix[12] != 0 || matrix[13] != 0 || matrix[14] != 0 ||
-      matrix[15] != 1.0)
+  if (matrix[12] != 0 || matrix[13] != 0 || matrix[14] != 0 || matrix[15] != 1.0)
   {
     return;
   }
@@ -117,7 +114,7 @@ void vtkImageInterpolator::ComputeSupportSize(
     for (int j = 0; j < 3; j++)
     {
       // verify that the element is an integer
-      double x = matrix[4*i + j];
+      double x = matrix[4 * i + j];
       // check fraction that remains after floor operation
       double f;
       vtkInterpolationMath::Floor(x, f);
@@ -132,9 +129,9 @@ void vtkImageInterpolator::ComputeSupportSize(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator *a)
+void vtkImageInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator* a)
 {
-  vtkImageInterpolator *obj = vtkImageInterpolator::SafeDownCast(a);
+  vtkImageInterpolator* obj = vtkImageInterpolator::SafeDownCast(a);
   if (obj)
   {
     this->SetInterpolationMode(obj->InterpolationMode);
@@ -144,7 +141,7 @@ void vtkImageInterpolator::InternalDeepCopy(vtkAbstractImageInterpolator *a)
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::InternalUpdate()
 {
-  vtkInterpolationInfo *info = this->InterpolationInfo;
+  vtkInterpolationInfo* info = this->InterpolationInfo;
   info->InterpolationMode = this->InterpolationMode;
 }
 
@@ -153,30 +150,27 @@ void vtkImageInterpolator::InternalUpdate()
 //  Interpolation subroutines and associated code
 //----------------------------------------------------------------------------
 
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
-template<class F, class T>
+template <class F, class T>
 struct vtkImageNLCInterpolate
 {
-  static void Nearest(
-    vtkInterpolationInfo *info, const F point[3], F *outPtr);
+  static void Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
-  static void Trilinear(
-    vtkInterpolationInfo *info, const F point[3], F *outPtr);
+  static void Trilinear(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
-  static void Tricubic(
-    vtkInterpolationInfo *info, const F point[3], F *outPtr);
+  static void Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
 //----------------------------------------------------------------------------
 template <class F, class T>
-void vtkImageNLCInterpolate<F, T>::Nearest(
-  vtkInterpolationInfo *info, const F point[3], F *outPtr)
+void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
-  const T *inPtr = static_cast<const T *>(info->Pointer);
-  int *inExt = info->Extent;
-  vtkIdType *inInc = info->Increments;
+  const T* inPtr = static_cast<const T*>(info->Pointer);
+  int* inExt = info->Extent;
+  vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   int inIdX0 = vtkInterpolationMath::Round(point[0]);
@@ -204,22 +198,21 @@ void vtkImageNLCInterpolate<F, T>::Nearest(
       break;
   }
 
-  inPtr += inIdX0*inInc[0] + inIdY0*inInc[1] + inIdZ0*inInc[2];
+  inPtr += inIdX0 * inInc[0] + inIdY0 * inInc[1] + inIdZ0 * inInc[2];
   do
   {
     *outPtr++ = *inPtr++;
-  }
-  while (--numscalars);
+  } while (--numscalars);
 }
 
 //----------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Trilinear(
-  vtkInterpolationInfo *info, const F point[3], F *outPtr)
+  vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
-  const T *inPtr = static_cast<const T *>(info->Pointer);
-  int *inExt = info->Extent;
-  vtkIdType *inInc = info->Increments;
+  const T* inPtr = static_cast<const T*>(info->Pointer);
+  int* inExt = info->Extent;
+  vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;
@@ -264,12 +257,12 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
       break;
   }
 
-  vtkIdType factX0 = inIdX0*inInc[0];
-  vtkIdType factX1 = inIdX1*inInc[0];
-  vtkIdType factY0 = inIdY0*inInc[1];
-  vtkIdType factY1 = inIdY1*inInc[1];
-  vtkIdType factZ0 = inIdZ0*inInc[2];
-  vtkIdType factZ1 = inIdZ1*inInc[2];
+  vtkIdType factX0 = inIdX0 * inInc[0];
+  vtkIdType factX1 = inIdX1 * inInc[0];
+  vtkIdType factY0 = inIdY0 * inInc[1];
+  vtkIdType factY1 = inIdY1 * inInc[1];
+  vtkIdType factZ0 = inIdZ0 * inInc[2];
+  vtkIdType factZ1 = inIdZ1 * inInc[2];
 
   vtkIdType i00 = factY0 + factZ0;
   vtkIdType i01 = factY0 + factZ1;
@@ -280,54 +273,51 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   F ry = 1 - fy;
   F rz = 1 - fz;
 
-  F ryrz = ry*rz;
-  F fyrz = fy*rz;
-  F ryfz = ry*fz;
-  F fyfz = fy*fz;
+  F ryrz = ry * rz;
+  F fyrz = fy * rz;
+  F ryfz = ry * fz;
+  F fyfz = fy * fz;
 
-  const T *inPtr0 = inPtr + factX0;
-  const T *inPtr1 = inPtr + factX1;
+  const T* inPtr0 = inPtr + factX0;
+  const T* inPtr1 = inPtr + factX1;
 
   do
   {
-    *outPtr++ = (rx*(ryrz*inPtr0[i00] + ryfz*inPtr0[i01] +
-                     fyrz*inPtr0[i10] + fyfz*inPtr0[i11]) +
-                 fx*(ryrz*inPtr1[i00] + ryfz*inPtr1[i01] +
-                     fyrz*inPtr1[i10] + fyfz*inPtr1[i11]));
+    *outPtr++ =
+      (rx * (ryrz * inPtr0[i00] + ryfz * inPtr0[i01] + fyrz * inPtr0[i10] + fyfz * inPtr0[i11]) +
+        fx * (ryrz * inPtr1[i00] + ryfz * inPtr1[i01] + fyrz * inPtr1[i10] + fyfz * inPtr1[i11]));
     inPtr0++;
     inPtr1++;
-  }
-  while (--numscalars);
+  } while (--numscalars);
 }
 
 //----------------------------------------------------------------------------
 // cubic helper function: set up the lookup indices and the interpolation
 // coefficients
 
-template<class T>
+template <class T>
 inline void vtkTricubicInterpWeights(T F[4], T f)
 {
   static const T half = T(0.5);
 
   // cubic interpolation
   T fm1 = f - 1;
-  T fd2 = f*half;
-  T ft3 = f*3;
-  F[0] = -fd2*fm1*fm1;
-  F[1] = ((ft3 - 2)*fd2 - 1)*fm1;
-  F[2] = -((ft3 - 4)*f - 1)*fd2;
-  F[3] = f*fd2*fm1;
+  T fd2 = f * half;
+  T ft3 = f * 3;
+  F[0] = -fd2 * fm1 * fm1;
+  F[1] = ((ft3 - 2) * fd2 - 1) * fm1;
+  F[2] = -((ft3 - 4) * f - 1) * fd2;
+  F[3] = f * fd2 * fm1;
 }
 
 //----------------------------------------------------------------------------
 // tricubic interpolation
 template <class F, class T>
-void vtkImageNLCInterpolate<F, T>::Tricubic(
-  vtkInterpolationInfo *info, const F point[3], F *outPtr)
+void vtkImageNLCInterpolate<F, T>::Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
-  const T *inPtr = static_cast<const T *>(info->Pointer);
-  int *inExt = info->Extent;
-  vtkIdType *inInc = info->Increments;
+  const T* inPtr = static_cast<const T*>(info->Pointer);
+  int* inExt = info->Extent;
+  vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;
@@ -353,54 +343,54 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
   switch (info->BorderMode)
   {
     case VTK_IMAGE_BORDER_REPEAT:
-      factX[0] = vtkInterpolationMath::Wrap(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolationMath::Wrap(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolationMath::Wrap(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolationMath::Wrap(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Wrap(inIdX0 - 1, minX, maxX) * inIncX;
+      factX[1] = vtkInterpolationMath::Wrap(inIdX0, minX, maxX) * inIncX;
+      factX[2] = vtkInterpolationMath::Wrap(inIdX0 + 1, minX, maxX) * inIncX;
+      factX[3] = vtkInterpolationMath::Wrap(inIdX0 + 2, minX, maxX) * inIncX;
 
-      factY[0] = vtkInterpolationMath::Wrap(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolationMath::Wrap(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolationMath::Wrap(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolationMath::Wrap(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Wrap(inIdY0 - 1, minY, maxY) * inIncY;
+      factY[1] = vtkInterpolationMath::Wrap(inIdY0, minY, maxY) * inIncY;
+      factY[2] = vtkInterpolationMath::Wrap(inIdY0 + 1, minY, maxY) * inIncY;
+      factY[3] = vtkInterpolationMath::Wrap(inIdY0 + 2, minY, maxY) * inIncY;
 
-      factZ[0] = vtkInterpolationMath::Wrap(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolationMath::Wrap(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolationMath::Wrap(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolationMath::Wrap(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Wrap(inIdZ0 - 1, minZ, maxZ) * inIncZ;
+      factZ[1] = vtkInterpolationMath::Wrap(inIdZ0, minZ, maxZ) * inIncZ;
+      factZ[2] = vtkInterpolationMath::Wrap(inIdZ0 + 1, minZ, maxZ) * inIncZ;
+      factZ[3] = vtkInterpolationMath::Wrap(inIdZ0 + 2, minZ, maxZ) * inIncZ;
       break;
 
     case VTK_IMAGE_BORDER_MIRROR:
-      factX[0] = vtkInterpolationMath::Mirror(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolationMath::Mirror(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolationMath::Mirror(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolationMath::Mirror(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Mirror(inIdX0 - 1, minX, maxX) * inIncX;
+      factX[1] = vtkInterpolationMath::Mirror(inIdX0, minX, maxX) * inIncX;
+      factX[2] = vtkInterpolationMath::Mirror(inIdX0 + 1, minX, maxX) * inIncX;
+      factX[3] = vtkInterpolationMath::Mirror(inIdX0 + 2, minX, maxX) * inIncX;
 
-      factY[0] = vtkInterpolationMath::Mirror(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolationMath::Mirror(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolationMath::Mirror(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolationMath::Mirror(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Mirror(inIdY0 - 1, minY, maxY) * inIncY;
+      factY[1] = vtkInterpolationMath::Mirror(inIdY0, minY, maxY) * inIncY;
+      factY[2] = vtkInterpolationMath::Mirror(inIdY0 + 1, minY, maxY) * inIncY;
+      factY[3] = vtkInterpolationMath::Mirror(inIdY0 + 2, minY, maxY) * inIncY;
 
-      factZ[0] = vtkInterpolationMath::Mirror(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolationMath::Mirror(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolationMath::Mirror(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolationMath::Mirror(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Mirror(inIdZ0 - 1, minZ, maxZ) * inIncZ;
+      factZ[1] = vtkInterpolationMath::Mirror(inIdZ0, minZ, maxZ) * inIncZ;
+      factZ[2] = vtkInterpolationMath::Mirror(inIdZ0 + 1, minZ, maxZ) * inIncZ;
+      factZ[3] = vtkInterpolationMath::Mirror(inIdZ0 + 2, minZ, maxZ) * inIncZ;
       break;
 
     default:
-      factX[0] = vtkInterpolationMath::Clamp(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolationMath::Clamp(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolationMath::Clamp(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolationMath::Clamp(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Clamp(inIdX0 - 1, minX, maxX) * inIncX;
+      factX[1] = vtkInterpolationMath::Clamp(inIdX0, minX, maxX) * inIncX;
+      factX[2] = vtkInterpolationMath::Clamp(inIdX0 + 1, minX, maxX) * inIncX;
+      factX[3] = vtkInterpolationMath::Clamp(inIdX0 + 2, minX, maxX) * inIncX;
 
-      factY[0] = vtkInterpolationMath::Clamp(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolationMath::Clamp(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolationMath::Clamp(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolationMath::Clamp(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Clamp(inIdY0 - 1, minY, maxY) * inIncY;
+      factY[1] = vtkInterpolationMath::Clamp(inIdY0, minY, maxY) * inIncY;
+      factY[2] = vtkInterpolationMath::Clamp(inIdY0 + 1, minY, maxY) * inIncY;
+      factY[3] = vtkInterpolationMath::Clamp(inIdY0 + 2, minY, maxY) * inIncY;
 
-      factZ[0] = vtkInterpolationMath::Clamp(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolationMath::Clamp(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolationMath::Clamp(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolationMath::Clamp(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Clamp(inIdZ0 - 1, minZ, maxZ) * inIncZ;
+      factZ[1] = vtkInterpolationMath::Clamp(inIdZ0, minZ, maxZ) * inIncZ;
+      factZ[2] = vtkInterpolationMath::Clamp(inIdZ0 + 1, minZ, maxZ) * inIncZ;
+      factZ[3] = vtkInterpolationMath::Clamp(inIdZ0 + 2, minZ, maxZ) * inIncZ;
       break;
   }
 
@@ -420,14 +410,20 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
 
   // the limits to use when doing the interpolation
   int j1 = 1 - multipleY;
-  int j2 = 1 + 2*multipleY;
+  int j2 = 1 + 2 * multipleY;
 
   int k1 = 1 - multipleZ;
-  int k2 = 1 + 2*multipleZ;
+  int k2 = 1 + 2 * multipleZ;
 
   // if only one coefficient will be used
-  if (multipleY == 0) { fY[1] = 1; }
-  if (multipleZ == 0) { fZ[1] = 1; }
+  if (multipleY == 0)
+  {
+    fY[1] = 1;
+  }
+  if (multipleZ == 0)
+  {
+    fZ[1] = 1;
+  }
 
   do // loop over components
   {
@@ -441,41 +437,33 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
       do // loop over y
       {
         F ify = fY[j];
-        F fzy = ifz*ify;
+        F fzy = ifz * ify;
         vtkIdType factzy = factz + factY[j];
-        const T *tmpPtr = inPtr + factzy;
+        const T* tmpPtr = inPtr + factzy;
         // loop over x is unrolled (significant performance boost)
-        val += fzy*(fX[0]*tmpPtr[factX[0]] +
-                    fX[1]*tmpPtr[factX[1]] +
-                    fX[2]*tmpPtr[factX[2]] +
-                    fX[3]*tmpPtr[factX[3]]);
-      }
-      while (++j <= j2);
-    }
-    while (++k <= k2);
+        val += fzy *
+          (fX[0] * tmpPtr[factX[0]] + fX[1] * tmpPtr[factX[1]] + fX[2] * tmpPtr[factX[2]] +
+            fX[3] * tmpPtr[factX[3]]);
+      } while (++j <= j2);
+    } while (++k <= k2);
 
     *outPtr++ = val;
     inPtr++;
-  }
-  while (--numscalars);
+  } while (--numscalars);
 }
 
 //----------------------------------------------------------------------------
 // Get the interpolation function for the specified data types
-template<class F>
+template <class F>
 void vtkImageInterpolatorGetInterpolationFunc(
-  void (**interpolate)(vtkInterpolationInfo *, const F [3], F *),
-  int dataType, int interpolationMode)
+  void (**interpolate)(vtkInterpolationInfo*, const F[3], F*), int dataType, int interpolationMode)
 {
   switch (interpolationMode)
   {
     case VTK_NEAREST_INTERPOLATION:
       switch (dataType)
       {
-        vtkTemplateAliasMacro(
-          *interpolate =
-            &(vtkImageNLCInterpolate<F, VTK_TT>::Nearest)
-          );
+        vtkTemplateAliasMacro(*interpolate = &(vtkImageNLCInterpolate<F, VTK_TT>::Nearest));
         default:
           *interpolate = nullptr;
       }
@@ -483,10 +471,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
     case VTK_LINEAR_INTERPOLATION:
       switch (dataType)
       {
-        vtkTemplateAliasMacro(
-          *interpolate =
-            &(vtkImageNLCInterpolate<F, VTK_TT>::Trilinear)
-          );
+        vtkTemplateAliasMacro(*interpolate = &(vtkImageNLCInterpolate<F, VTK_TT>::Trilinear));
         default:
           *interpolate = nullptr;
       }
@@ -494,10 +479,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
     case VTK_CUBIC_INTERPOLATION:
       switch (dataType)
       {
-        vtkTemplateAliasMacro(
-          *interpolate =
-            &(vtkImageNLCInterpolate<F, VTK_TT>::Tricubic)
-          );
+        vtkTemplateAliasMacro(*interpolate = &(vtkImageNLCInterpolate<F, VTK_TT>::Tricubic));
         default:
           *interpolate = nullptr;
       }
@@ -512,29 +494,25 @@ template <class F, class T>
 struct vtkImageNLCRowInterpolate
 {
   static void Nearest(
-    vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-    F *outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 
   static void Trilinear(
-    vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-    F *outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 
   static void Tricubic(
-    vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-    F *outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
 //----------------------------------------------------------------------------
 // helper function for nearest neighbor interpolation
-template<class F, class T>
+template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Nearest(
-  vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-  F *outPtr, int n)
+  vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n)
 {
-  const vtkIdType *iX = weights->Positions[0] + idX;
-  const vtkIdType *iY = weights->Positions[1] + idY;
-  const vtkIdType *iZ = weights->Positions[2] + idZ;
-  const T *inPtr0 = static_cast<const T *>(weights->Pointer) + iY[0] + iZ[0];
+  const vtkIdType* iX = weights->Positions[0] + idX;
+  const vtkIdType* iY = weights->Positions[1] + idY;
+  const vtkIdType* iZ = weights->Positions[2] + idZ;
+  const T* inPtr0 = static_cast<const T*>(weights->Pointer) + iY[0] + iZ[0];
 
   // get the number of components per pixel
   int numscalars = weights->NumberOfComponents;
@@ -542,23 +520,21 @@ void vtkImageNLCRowInterpolate<F, T>::Nearest(
   // This is a hot loop.
   for (int i = n; i > 0; --i)
   {
-    const T *tmpPtr = &inPtr0[iX[0]];
+    const T* tmpPtr = &inPtr0[iX[0]];
     iX++;
     int m = numscalars;
     do
     {
       *outPtr++ = *tmpPtr++;
-    }
-    while (--m);
+    } while (--m);
   }
 }
 
 //----------------------------------------------------------------------------
 // helper function for linear interpolation
-template<class F, class T>
+template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Trilinear(
-  vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-  F *outPtr, int n)
+  vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n)
 {
   int stepX = weights->KernelSize[0];
   int stepY = weights->KernelSize[1];
@@ -566,13 +542,13 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
   idX *= stepX;
   idY *= stepY;
   idZ *= stepZ;
-  const F *fX = static_cast<F *>(weights->Weights[0]) + idX;
-  const F *fY = static_cast<F *>(weights->Weights[1]) + idY;
-  const F *fZ = static_cast<F *>(weights->Weights[2]) + idZ;
-  const vtkIdType *iX = weights->Positions[0] + idX;
-  const vtkIdType *iY = weights->Positions[1] + idY;
-  const vtkIdType *iZ = weights->Positions[2] + idZ;
-  const T *inPtr = static_cast<const T *>(weights->Pointer);
+  const F* fX = static_cast<F*>(weights->Weights[0]) + idX;
+  const F* fY = static_cast<F*>(weights->Weights[1]) + idY;
+  const F* fZ = static_cast<F*>(weights->Weights[2]) + idZ;
+  const vtkIdType* iX = weights->Positions[0] + idX;
+  const vtkIdType* iY = weights->Positions[1] + idY;
+  const vtkIdType* iZ = weights->Positions[2] + idZ;
+  const T* inPtr = static_cast<const T*>(weights->Pointer);
 
   // get the number of components per pixel
   int numscalars = weights->NumberOfComponents;
@@ -609,54 +585,51 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
     i11 = iY[1] + iZ[1];
   }
 
-  F ryrz = ry*rz;
-  F ryfz = ry*fz;
-  F fyrz = fy*rz;
-  F fyfz = fy*fz;
+  F ryrz = ry * rz;
+  F ryfz = ry * fz;
+  F fyrz = fy * rz;
+  F fyfz = fy * fz;
 
   if (stepX == 1)
   {
     if (fy == 0 && fz == 0)
     { // no interpolation needed at all
-      const T *inPtr1 = inPtr + i00;
+      const T* inPtr1 = inPtr + i00;
       for (int i = n; i > 0; --i)
       {
-        const T *inPtr0 = inPtr1 + *iX++;
+        const T* inPtr0 = inPtr1 + *iX++;
         int m = numscalars;
         do
         {
           *outPtr++ = *inPtr0++;
-        }
-        while (--m);
+        } while (--m);
       }
     }
     else if (fy == 0)
     { // only need linear z interpolation
       for (int i = n; i > 0; --i)
       {
-        const T *inPtr0 = inPtr + *iX++;
+        const T* inPtr0 = inPtr + *iX++;
         int m = numscalars;
         do
         {
-          *outPtr++ = (rz*inPtr0[i00] + fz*inPtr0[i01]);
+          *outPtr++ = (rz * inPtr0[i00] + fz * inPtr0[i01]);
           inPtr0++;
-        }
-        while (--m);
+        } while (--m);
       }
     }
     else
     { // interpolate in y and z but not in x
       for (int i = n; i > 0; --i)
       {
-        const T *inPtr0 = inPtr + *iX++;
+        const T* inPtr0 = inPtr + *iX++;
         int m = numscalars;
         do
         {
-          *outPtr++ = (ryrz*inPtr0[i00] + ryfz*inPtr0[i01] +
-                       fyrz*inPtr0[i10] + fyfz*inPtr0[i11]);
+          *outPtr++ =
+            (ryrz * inPtr0[i00] + ryfz * inPtr0[i01] + fyrz * inPtr0[i10] + fyfz * inPtr0[i11]);
           inPtr0++;
-        }
-        while (--m);
+        } while (--m);
       }
     }
   }
@@ -672,17 +645,16 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
       vtkIdType t1 = iX[1];
       iX += 2;
 
-      const T *inPtr0 = inPtr + t0;
-      const T *inPtr1 = inPtr + t1;
+      const T* inPtr0 = inPtr + t0;
+      const T* inPtr1 = inPtr + t1;
       int m = numscalars;
       do
       {
-        *outPtr++ = (rx*(ry*inPtr0[i00] + fy*inPtr0[i10]) +
-                     fx*(ry*inPtr1[i00] + fy*inPtr1[i10]));
+        *outPtr++ =
+          (rx * (ry * inPtr0[i00] + fy * inPtr0[i10]) + fx * (ry * inPtr1[i00] + fy * inPtr1[i10]));
         inPtr0++;
         inPtr1++;
-      }
-      while (--m);
+      } while (--m);
     }
   }
   else
@@ -697,29 +669,26 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
       vtkIdType t1 = iX[1];
       iX += 2;
 
-      const T *inPtr0 = inPtr + t0;
-      const T *inPtr1 = inPtr + t1;
+      const T* inPtr0 = inPtr + t0;
+      const T* inPtr1 = inPtr + t1;
       int m = numscalars;
       do
       {
-        *outPtr++ = (rx*(ryrz*inPtr0[i00] + ryfz*inPtr0[i01] +
-                         fyrz*inPtr0[i10] + fyfz*inPtr0[i11]) +
-                     fx*(ryrz*inPtr1[i00] + ryfz*inPtr1[i01] +
-                         fyrz*inPtr1[i10] + fyfz*inPtr1[i11]));
+        *outPtr++ = (rx *
+            (ryrz * inPtr0[i00] + ryfz * inPtr0[i01] + fyrz * inPtr0[i10] + fyfz * inPtr0[i11]) +
+          fx * (ryrz * inPtr1[i00] + ryfz * inPtr1[i01] + fyrz * inPtr1[i10] + fyfz * inPtr1[i11]));
         inPtr0++;
         inPtr1++;
-      }
-      while (--m);
+      } while (--m);
     }
   }
 }
 
 //--------------------------------------------------------------------------
 // helper function for tricubic interpolation
-template<class F, class T>
+template <class F, class T>
 void vtkImageNLCRowInterpolate<F, T>::Tricubic(
-  vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-  F *outPtr, int n)
+  vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n)
 {
   int stepX = weights->KernelSize[0];
   int stepY = weights->KernelSize[1];
@@ -727,13 +696,13 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
   idX *= stepX;
   idY *= stepY;
   idZ *= stepZ;
-  const F *fX = static_cast<F *>(weights->Weights[0]) + idX;
-  const F *fY = static_cast<F *>(weights->Weights[1]) + idY;
-  const F *fZ = static_cast<F *>(weights->Weights[2]) + idZ;
-  const vtkIdType *iX = weights->Positions[0] + idX;
-  const vtkIdType *iY = weights->Positions[1] + idY;
-  const vtkIdType *iZ = weights->Positions[2] + idZ;
-  const T *inPtr = static_cast<const T *>(weights->Pointer);
+  const F* fX = static_cast<F*>(weights->Weights[0]) + idX;
+  const F* fY = static_cast<F*>(weights->Weights[1]) + idY;
+  const F* fZ = static_cast<F*>(weights->Weights[2]) + idZ;
+  const vtkIdType* iX = weights->Positions[0] + idX;
+  const vtkIdType* iY = weights->Positions[1] + idY;
+  const vtkIdType* iZ = weights->Positions[2] + idZ;
+  const T* inPtr = static_cast<const T*>(weights->Pointer);
 
   // get the number of components per pixel
   int numscalars = weights->NumberOfComponents;
@@ -749,7 +718,7 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
     F fX2 = fX1;
     F fX3 = fX1;
 
-    switch(stepX)
+    switch (stepX)
     {
       case 4:
         iX3 = iX[3];
@@ -768,7 +737,7 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
     iX += stepX;
     fX += stepX;
 
-    const T *inPtr0 = inPtr;
+    const T* inPtr0 = inPtr;
     int c = numscalars;
     do
     { // loop over components
@@ -785,34 +754,28 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
           do
           { // loop over y
             F fy = fY[j];
-            F fzy = fz*fy;
+            F fzy = fz * fy;
             vtkIdType izy = iz + iY[j];
-            const T *tmpPtr = inPtr0 + izy;
+            const T* tmpPtr = inPtr0 + izy;
             // loop over x is unrolled (significant performance boost)
-            result += fzy*(fX0*tmpPtr[iX0] +
-                           fX1*tmpPtr[iX1] +
-                           fX2*tmpPtr[iX2] +
-                           fX3*tmpPtr[iX3]);
-          }
-          while (++j < stepY);
+            result +=
+              fzy * (fX0 * tmpPtr[iX0] + fX1 * tmpPtr[iX1] + fX2 * tmpPtr[iX2] + fX3 * tmpPtr[iX3]);
+          } while (++j < stepY);
         }
-      }
-      while (++k < stepZ);
+      } while (++k < stepZ);
 
       *outPtr++ = result;
       inPtr0++;
-    }
-    while (--c);
+    } while (--c);
   }
 }
 
 //----------------------------------------------------------------------------
 // get row interpolation function for different interpolation modes
 // and different scalar types
-template<class F>
+template <class F>
 void vtkImageInterpolatorGetRowInterpolationFunc(
-  void (**summation)(vtkInterpolationWeights *weights, int idX, int idY,
-                     int idZ, F *outPtr, int n),
+  void (**summation)(vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n),
   int scalarType, int interpolationMode)
 {
   switch (interpolationMode)
@@ -820,9 +783,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
     case VTK_NEAREST_INTERPOLATION:
       switch (scalarType)
       {
-        vtkTemplateAliasMacro(
-          *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Nearest)
-          );
+        vtkTemplateAliasMacro(*summation = &(vtkImageNLCRowInterpolate<F, VTK_TT>::Nearest));
         default:
           *summation = nullptr;
       }
@@ -830,9 +791,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
     case VTK_LINEAR_INTERPOLATION:
       switch (scalarType)
       {
-        vtkTemplateAliasMacro(
-          *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Trilinear)
-          );
+        vtkTemplateAliasMacro(*summation = &(vtkImageNLCRowInterpolate<F, VTK_TT>::Trilinear));
         default:
           *summation = nullptr;
       }
@@ -840,9 +799,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
     case VTK_CUBIC_INTERPOLATION:
       switch (scalarType)
       {
-        vtkTemplateAliasMacro(
-          *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Tricubic)
-          );
+        vtkTemplateAliasMacro(*summation = &(vtkImageNLCRowInterpolate<F, VTK_TT>::Tricubic));
         default:
           *summation = nullptr;
       }
@@ -852,9 +809,8 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
 
 //----------------------------------------------------------------------------
 template <class F>
-void vtkImageInterpolatorPrecomputeWeights(
-  const F newmat[16], const int outExt[6], int clipExt[6],
-  const F bounds[6], vtkInterpolationWeights *weights)
+void vtkImageInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[6], int clipExt[6],
+  const F bounds[6], vtkInterpolationWeights* weights)
 {
   weights->WeightType = vtkTypeTraits<F>::VTKTypeID();
   int interpMode = weights->InterpolationMode;
@@ -866,7 +822,7 @@ void vtkImageInterpolatorPrecomputeWeights(
     // set k to the row for which the element in column j is nonzero,
     // and set matrow to the elements of that row
     int k = 0;
-    const F *matrow = newmat;
+    const F* matrow = newmat;
     while (k < 3 && matrow[j] == 0)
     {
       k++;
@@ -874,12 +830,12 @@ void vtkImageInterpolatorPrecomputeWeights(
     }
 
     // get the extents
-    clipExt[2*j] = outExt[2*j];
-    clipExt[2*j + 1] = outExt[2*j + 1];
-    int minExt = weights->Extent[2*k];
-    int maxExt = weights->Extent[2*k + 1];
-    F minBounds = bounds[2*k];
-    F maxBounds = bounds[2*k + 1];
+    clipExt[2 * j] = outExt[2 * j];
+    clipExt[2 * j + 1] = outExt[2 * j + 1];
+    int minExt = weights->Extent[2 * k];
+    int maxExt = weights->Extent[2 * k + 1];
+    F minBounds = bounds[2 * k];
+    F maxBounds = bounds[2 * k + 1];
 
     // the kernel size should not exceed the input dimension
     int step = 1;
@@ -898,28 +854,28 @@ void vtkImageInterpolatorPrecomputeWeights(
     }
 
     // allocate space for the weights
-    vtkIdType size = step*(outExt[2*j+1] - outExt[2*j] + 1);
-    vtkIdType *positions = new vtkIdType[size];
-    positions -= step*outExt[2*j];
-    F *constants = nullptr;
+    vtkIdType size = step * (outExt[2 * j + 1] - outExt[2 * j] + 1);
+    vtkIdType* positions = new vtkIdType[size];
+    positions -= step * outExt[2 * j];
+    F* constants = nullptr;
     if (interpMode != VTK_NEAREST_INTERPOLATION)
     {
       constants = new F[size];
-      constants -= step*outExt[2*j];
+      constants -= step * outExt[2 * j];
     }
 
     // store the info in the "weights" object
     weights->KernelSize[j] = step;
-    weights->WeightExtent[2*j] = outExt[2*j];
-    weights->WeightExtent[2*j+1] = outExt[2*j+1];
+    weights->WeightExtent[2 * j] = outExt[2 * j];
+    weights->WeightExtent[2 * j + 1] = outExt[2 * j + 1];
     weights->Positions[j] = positions;
     weights->Weights[j] = constants;
 
     // march through the indices
     int region = 0;
-    for (int i = outExt[2*j]; i <= outExt[2*j+1]; i++)
+    for (int i = outExt[2 * j]; i <= outExt[2 * j + 1]; i++)
     {
-      F point = matrow[3] + i*matrow[j];
+      F point = matrow[3] + i * matrow[j];
 
       int lcount = step;
       int inId0 = 0;
@@ -931,8 +887,7 @@ void vtkImageInterpolatorPrecomputeWeights(
       else
       {
         inId0 = vtkInterpolationMath::Floor(point, f);
-        if (interpMode == VTK_CUBIC_INTERPOLATION &&
-            step != 1)
+        if (interpMode == VTK_CUBIC_INTERPOLATION && step != 1)
         {
           inId0--;
           lcount = 4;
@@ -948,8 +903,7 @@ void vtkImageInterpolatorPrecomputeWeights(
           {
             inId[l] = vtkInterpolationMath::Wrap(inId0, minExt, maxExt);
             inId0++;
-          }
-          while (++l < lcount);
+          } while (++l < lcount);
           break;
 
         case VTK_IMAGE_BORDER_MIRROR:
@@ -957,8 +911,7 @@ void vtkImageInterpolatorPrecomputeWeights(
           {
             inId[l] = vtkInterpolationMath::Mirror(inId0, minExt, maxExt);
             inId0++;
-          }
-          while (++l < lcount);
+          } while (++l < lcount);
           break;
 
         default:
@@ -966,25 +919,24 @@ void vtkImageInterpolatorPrecomputeWeights(
           {
             inId[l] = vtkInterpolationMath::Clamp(inId0, minExt, maxExt);
             inId0++;
-          }
-          while (++l < lcount);
+          } while (++l < lcount);
           break;
       }
 
       // compute the weights and offsets
       vtkIdType inInc = weights->Increments[k];
-      positions[step*i] = inId[0]*inInc;
+      positions[step * i] = inId[0] * inInc;
       if (interpMode != VTK_NEAREST_INTERPOLATION)
       {
-        constants[step*i] = static_cast<F>(1);
+        constants[step * i] = static_cast<F>(1);
       }
       if (step > 1)
       {
         if (interpMode == VTK_LINEAR_INTERPOLATION)
         {
-          positions[step*i+1] = inId[1]*inInc;
-          constants[step*i] = static_cast<F>(1.0 - f);
-          constants[step*i+1] = static_cast<F>(f);
+          positions[step * i + 1] = inId[1] * inInc;
+          constants[step * i] = static_cast<F>(1.0 - f);
+          constants[step * i + 1] = static_cast<F>(f);
         }
         else if (interpMode == VTK_CUBIC_INTERPOLATION)
         {
@@ -994,8 +946,8 @@ void vtkImageInterpolatorPrecomputeWeights(
           {
             for (int ll = 0; ll < 4; ll++)
             {
-              positions[step*i + ll] = inId[ll]*inInc;
-              constants[step*i + ll] = g[ll];
+              positions[step * i + ll] = inId[ll] * inInc;
+              constants[step * i + ll] = g[ll];
             }
           }
           else
@@ -1009,8 +961,8 @@ void vtkImageInterpolatorPrecomputeWeights(
             }
             for (int jj = 0; jj < step; jj++)
             {
-              positions[step*i + jj] = minExt + jj;
-              constants[step*i + jj] = gg[jj];
+              positions[step * i + jj] = minExt + jj;
+              constants[step * i + jj] = gg[jj];
             }
           }
         }
@@ -1021,7 +973,7 @@ void vtkImageInterpolatorPrecomputeWeights(
         if (region == 0)
         { // entering the input extent
           region = 1;
-          clipExt[2*j] = i;
+          clipExt[2 * j] = i;
         }
       }
       else
@@ -1029,12 +981,12 @@ void vtkImageInterpolatorPrecomputeWeights(
         if (region == 1)
         { // leaving the input extent
           region = 2;
-          clipExt[2*j+1] = i - 1;
+          clipExt[2 * j + 1] = i - 1;
         }
       }
     }
 
-    if (region == 0 || clipExt[2*j] > clipExt[2*j+1])
+    if (region == 0 || clipExt[2 * j] > clipExt[2 * j + 1])
     { // never entered input extent!
       validClip = false;
     }
@@ -1045,8 +997,8 @@ void vtkImageInterpolatorPrecomputeWeights(
     // output extent doesn't itersect input extent
     for (int j = 0; j < 3; j++)
     {
-      clipExt[2*j] = outExt[2*j];
-      clipExt[2*j + 1] = outExt[2*j] - 1;
+      clipExt[2 * j] = outExt[2 * j];
+      clipExt[2 * j + 1] = outExt[2 * j] - 1;
     }
   }
 }
@@ -1056,7 +1008,7 @@ void vtkImageInterpolatorPrecomputeWeights(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo *, const double [3], double *))
+  void (**func)(vtkInterpolationInfo*, const double[3], double*))
 {
   vtkImageInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
@@ -1064,7 +1016,7 @@ void vtkImageInterpolator::GetInterpolationFunc(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo *, const float [3], float *))
+  void (**func)(vtkInterpolationInfo*, const float[3], float*))
 {
   vtkImageInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
@@ -1072,7 +1024,7 @@ void vtkImageInterpolator::GetInterpolationFunc(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::GetRowInterpolationFunc(
-  void (**func)(vtkInterpolationWeights *, int, int, int, double *, int))
+  void (**func)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
   vtkImageInterpolatorGetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
@@ -1080,7 +1032,7 @@ void vtkImageInterpolator::GetRowInterpolationFunc(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::GetRowInterpolationFunc(
-  void (**func)(vtkInterpolationWeights *, int, int, int, float *, int))
+  void (**func)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
   vtkImageInterpolatorGetRowInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->InterpolationMode);
@@ -1088,8 +1040,7 @@ void vtkImageInterpolator::GetRowInterpolationFunc(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::PrecomputeWeightsForExtent(
-  const double matrix[16], const int extent[6], int newExtent[6],
-  vtkInterpolationWeights *&weights)
+  const double matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
   weights = new vtkInterpolationWeights(*this->InterpolationInfo);
 
@@ -1099,8 +1050,7 @@ void vtkImageInterpolator::PrecomputeWeightsForExtent(
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::PrecomputeWeightsForExtent(
-  const float matrix[16], const int extent[6], int newExtent[6],
-  vtkInterpolationWeights *&weights)
+  const float matrix[16], const int extent[6], int newExtent[6], vtkInterpolationWeights*& weights)
 {
   weights = new vtkInterpolationWeights(*this->InterpolationInfo);
 
@@ -1109,8 +1059,7 @@ void vtkImageInterpolator::PrecomputeWeightsForExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageInterpolator::FreePrecomputedWeights(
-  vtkInterpolationWeights *&weights)
+void vtkImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
   this->Superclass::FreePrecomputedWeights(weights);
 }

@@ -31,13 +31,13 @@
  *
  * If you can use an edge window array to filter out old edges based on a
  * moving threshold.
-*/
+ */
 
 #ifndef vtkStreamGraph_h
 #define vtkStreamGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkMergeGraphs;
@@ -50,7 +50,7 @@ class VTKINFOVISCORE_EXPORT vtkStreamGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkStreamGraph* New();
-  vtkTypeMacro(vtkStreamGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkStreamGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -86,10 +86,7 @@ protected:
   vtkStreamGraph();
   ~vtkStreamGraph() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMutableGraphHelper* CurrentGraph;
   vtkMergeGraphs* MergeGraphs;
@@ -103,4 +100,3 @@ private:
 };
 
 #endif
-

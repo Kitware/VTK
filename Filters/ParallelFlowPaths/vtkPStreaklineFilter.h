@@ -21,27 +21,27 @@
  *
  * @sa
  * vtkPStreaklineFilterBase has the details of the algorithms
-*/
+ */
 
 #ifndef vtkPStreaklineFilter_h
 #define vtkPStreaklineFilter_h
 
-#include "vtkSmartPointer.h" // For protected ivars.
-#include "vtkStreaklineFilter.h" //for utility
-#include "vtkPParticleTracerBase.h"
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
+#include "vtkPParticleTracerBase.h"
+#include "vtkSmartPointer.h"     // For protected ivars.
+#include "vtkStreaklineFilter.h" //for utility
 
-class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParticleTracerBase
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter : public vtkPParticleTracerBase
 {
- public:
-  vtkTypeMacro(vtkPStreaklineFilter,vtkPParticleTracerBase)
+public:
+  vtkTypeMacro(vtkPStreaklineFilter, vtkPParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPStreaklineFilter *New();
+  static vtkPStreaklineFilter* New();
 
- protected:
+protected:
   vtkPStreaklineFilter();
-  ~vtkPStreaklineFilter(){}
+  ~vtkPStreaklineFilter() {}
   vtkPStreaklineFilter(const vtkPStreaklineFilter&) = delete;
   void operator=(const vtkPStreaklineFilter&) = delete;
   virtual int OutputParticles(vtkPolyData* poly) override;
@@ -49,6 +49,5 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParti
 
   StreaklineFilterInternal It;
 };
-
 
 #endif

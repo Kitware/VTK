@@ -19,9 +19,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkContinuousValueWidget.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
-#include "vtkContinuousValueWidget.h"
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkEvent.h"
 #include "vtkObjectFactory.h"
@@ -31,7 +31,6 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
-
 //------------------------------------------------------------
 vtkContinuousValueWidget::vtkContinuousValueWidget()
 {
@@ -40,25 +39,18 @@ vtkContinuousValueWidget::vtkContinuousValueWidget()
   this->Value = 0;
 
   // Okay, define the events
-  this->CallbackMapper->SetCallbackMethod
-    (vtkCommand::LeftButtonPressEvent,
-     vtkWidgetEvent::Select,
-     this, vtkContinuousValueWidget::SelectAction);
-  this->CallbackMapper->SetCallbackMethod
-    (vtkCommand::MouseMoveEvent,
-     vtkWidgetEvent::Move,
-     this, vtkContinuousValueWidget::MoveAction);
-  this->CallbackMapper->SetCallbackMethod
-    (vtkCommand::LeftButtonReleaseEvent,
-     vtkWidgetEvent::EndSelect,
-     this, vtkContinuousValueWidget::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select,
+    this, vtkContinuousValueWidget::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkContinuousValueWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
+    vtkWidgetEvent::EndSelect, this, vtkContinuousValueWidget::EndSelectAction);
 }
-
 
 //-----------------------------------------------------------------
 double vtkContinuousValueWidget::GetValue()
 {
-  vtkContinuousValueWidgetRepresentation *slider =
+  vtkContinuousValueWidgetRepresentation* slider =
     vtkContinuousValueWidgetRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetValue();
 }
@@ -66,17 +58,15 @@ double vtkContinuousValueWidget::GetValue()
 //-----------------------------------------------------------------
 void vtkContinuousValueWidget::SetValue(double value)
 {
-  vtkContinuousValueWidgetRepresentation *slider =
+  vtkContinuousValueWidgetRepresentation* slider =
     vtkContinuousValueWidgetRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetValue(value);
 }
 
-
 //-------------------------------------------------------------
-void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
+void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget* w)
 {
-  vtkContinuousValueWidget *self =
-    reinterpret_cast<vtkContinuousValueWidget*>(w);
+  vtkContinuousValueWidget* self = reinterpret_cast<vtkContinuousValueWidget*>(w);
 
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
@@ -84,8 +74,8 @@ void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
 
   // Okay, make sure that the pick is in the current renderer
   if (!self->CurrentRenderer ||
-      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]),
-                                           static_cast<int>(eventPos[1])))
+    !self->CurrentRenderer->IsInViewport(
+      static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
   {
     return;
   }
@@ -102,48 +92,45 @@ void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   self->EventCallbackCommand->SetAbortFlag(1);
-  if ( interactionState == vtkContinuousValueWidgetRepresentation::Adjusting )
+  if (interactionState == vtkContinuousValueWidgetRepresentation::Adjusting)
   {
     self->WidgetState = vtkContinuousValueWidget::Adjusting;
     // Highlight as necessary
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     self->Render();
     return;
   }
 }
 
-
 //---------------------------------------------------------------
-void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
+void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkContinuousValueWidget *self =
-    reinterpret_cast<vtkContinuousValueWidget*>(w);
+  vtkContinuousValueWidget* self = reinterpret_cast<vtkContinuousValueWidget*>(w);
 
   // do we need to change highlight state?
-  int interactionState = self->WidgetRep->ComputeInteractionState
-    (self->Interactor->GetEventPosition()[0],
-     self->Interactor->GetEventPosition()[1]);
+  int interactionState = self->WidgetRep->ComputeInteractionState(
+    self->Interactor->GetEventPosition()[0], self->Interactor->GetEventPosition()[1]);
 
   // if we are outside and in the start state then return
   if (interactionState == vtkContinuousValueWidgetRepresentation::Outside &&
-      self->WidgetState == vtkContinuousValueWidget::Start)
+    self->WidgetState == vtkContinuousValueWidget::Start)
   {
     return;
   }
 
   // if we are not outside and in the highlighting state then return
   if (interactionState != vtkContinuousValueWidgetRepresentation::Outside &&
-      self->WidgetState == vtkContinuousValueWidget::Highlighting)
+    self->WidgetState == vtkContinuousValueWidget::Highlighting)
   {
     return;
   }
 
   // if we are not outside and in the Start state highlight
-  if ( interactionState != vtkContinuousValueWidgetRepresentation::Outside &&
-       self->WidgetState == vtkContinuousValueWidget::Start)
+  if (interactionState != vtkContinuousValueWidgetRepresentation::Outside &&
+    self->WidgetState == vtkContinuousValueWidget::Start)
   {
     self->WidgetRep->Highlight(1);
     self->WidgetState = vtkContinuousValueWidget::Highlighting;
@@ -152,8 +139,8 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
   }
 
   // if we are outside but in the highlight state then stop highlighting
-  if ( self->WidgetState == vtkContinuousValueWidget::Highlighting &&
-       interactionState == vtkContinuousValueWidgetRepresentation::Outside)
+  if (self->WidgetState == vtkContinuousValueWidget::Highlighting &&
+    interactionState == vtkContinuousValueWidgetRepresentation::Outside)
   {
     self->WidgetRep->Highlight(0);
     self->WidgetState = vtkContinuousValueWidget::Start;
@@ -166,29 +153,26 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
   self->WidgetRep->WidgetInteraction(eventPos);
-  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
-
 //-----------------------------------------------------------------
-void vtkContinuousValueWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkContinuousValueWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkContinuousValueWidget *self =
-    reinterpret_cast<vtkContinuousValueWidget*>(w);
+  vtkContinuousValueWidget* self = reinterpret_cast<vtkContinuousValueWidget*>(w);
 
-  if ( self->WidgetState != vtkContinuousValueWidget::Adjusting )
+  if (self->WidgetState != vtkContinuousValueWidget::Adjusting)
   {
     return;
   }
 
-  int interactionState = self->WidgetRep->ComputeInteractionState
-    (self->Interactor->GetEventPosition()[0],
-     self->Interactor->GetEventPosition()[1]);
-  if ( interactionState == vtkContinuousValueWidgetRepresentation::Outside)
+  int interactionState = self->WidgetRep->ComputeInteractionState(
+    self->Interactor->GetEventPosition()[0], self->Interactor->GetEventPosition()[1]);
+  if (interactionState == vtkContinuousValueWidgetRepresentation::Outside)
   {
     self->WidgetRep->Highlight(0);
     self->WidgetState = vtkContinuousValueWidget::Start;
@@ -204,13 +188,13 @@ void vtkContinuousValueWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   self->Render();
 }
 
 //-----------------------------------------------------------------
 void vtkContinuousValueWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 }

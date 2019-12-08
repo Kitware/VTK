@@ -24,20 +24,18 @@
 #include "vtkGraphLayout.h"
 #include "vtkGraphMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTulipReader.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestTulipReader(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/Infovis/small.tlp");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/small.tlp");
   VTK_CREATE(vtkTulipReader, reader);
   reader->SetFileName(file);
   delete[] file;

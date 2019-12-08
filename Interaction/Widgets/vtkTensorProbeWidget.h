@@ -26,13 +26,13 @@
  * For instance dragging the ellipsoid around with
  * vtkEllipsoidTensorProbeRepresentation will manifest itself with the
  * ellipsoid shape changing as needed along the trajectory.
-*/
+ */
 
 #ifndef vtkTensorProbeWidget_h
 #define vtkTensorProbeWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkTensorProbeRepresentation;
 class vtkPolyData;
@@ -43,7 +43,7 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkTensorProbeWidget *New();
+  static vtkTensorProbeWidget* New();
 
   //@{
   /**
@@ -58,17 +58,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkTensorProbeRepresentation *r)
+  void SetRepresentation(vtkTensorProbeRepresentation* r)
   {
-    this->Superclass::SetWidgetRepresentation(
-        reinterpret_cast<vtkWidgetRepresentation*>(r));
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
   /**
    * Return the representation as a vtkTensorProbeRepresentation.
    */
-  vtkTensorProbeRepresentation *GetTensorProbeRepresentation()
-    {return reinterpret_cast<vtkTensorProbeRepresentation*>(this->WidgetRep);}
+  vtkTensorProbeRepresentation* GetTensorProbeRepresentation()
+  {
+    return reinterpret_cast<vtkTensorProbeRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * See vtkWidgetRepresentation for details.
@@ -80,21 +81,18 @@ protected:
   ~vtkTensorProbeWidget() override;
 
   // 1 when the probe has been selected, for instance when dragging it around
-  int           Selected;
+  int Selected;
 
-  int           LastEventPosition[2];
+  int LastEventPosition[2];
 
   // Callback interface to capture events and respond
-  static void SelectAction    (vtkAbstractWidget*);
-  static void MoveAction      (vtkAbstractWidget*);
-  static void EndSelectAction (vtkAbstractWidget*);
+  static void SelectAction(vtkAbstractWidget*);
+  static void MoveAction(vtkAbstractWidget*);
+  static void EndSelectAction(vtkAbstractWidget*);
 
 private:
-  vtkTensorProbeWidget(
-      const vtkTensorProbeWidget&) = delete;
+  vtkTensorProbeWidget(const vtkTensorProbeWidget&) = delete;
   void operator=(const vtkTensorProbeWidget&) = delete;
-
 };
 
 #endif
-

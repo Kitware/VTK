@@ -19,24 +19,24 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageData.h"
 #include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
-#include "vtkPNGReader.h"
 #include "vtkImageReslice.h"
 #include "vtkImageSincInterpolator.h"
+#include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkPNGReader.h"
+#include "vtkPointData.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 
-int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
+int ImageInterpolateSlidingWindow2D(int argc, char* argv[])
 {
   auto iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   auto style = vtkSmartPointer<vtkInteractorStyle>::New();
@@ -46,8 +46,7 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
 
   auto reader = vtkSmartPointer<vtkPNGReader>::New();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/fullhead15.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
 
   reader->SetFileName(fname);
   delete[] fname;
@@ -102,10 +101,10 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
     resliceOff->Update();
 
     // does "On" give the same results as "Off"?
-    vtkDoubleArray *scalars = static_cast<vtkDoubleArray *>(
-      reslice->GetOutput()->GetPointData()->GetScalars());
-    vtkDoubleArray *scalarsOff = static_cast<vtkDoubleArray *>(
-      resliceOff->GetOutput()->GetPointData()->GetScalars());
+    vtkDoubleArray* scalars =
+      static_cast<vtkDoubleArray*>(reslice->GetOutput()->GetPointData()->GetScalars());
+    vtkDoubleArray* scalarsOff =
+      static_cast<vtkDoubleArray*>(resliceOff->GetOutput()->GetPointData()->GetScalars());
     double maxdiff = 0.0;
     for (vtkIdType j = 0; j < scalars->GetNumberOfValues(); j++)
     {
@@ -124,24 +123,23 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
     image->SetMapper(imageMapper);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
-    image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
+    image->GetProperty()->SetColorLevel(0.5 * (range[0] + range[1]));
     image->GetProperty()->SetInterpolationTypeToNearest();
 
     auto renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->AddViewProp(image);
-    renderer->SetBackground(0.0,0.0,0.0);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    renderer->SetBackground(0.0, 0.0, 0.0);
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
 
     // use center point to set camera
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->SetFocalPoint(point);
     point[imageMapper->GetOrientation()] += 500.0;
     camera->SetPosition(point);
@@ -150,7 +148,7 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
     camera->SetParallelScale(128);
   }
 
-  renWin->SetSize(512,512);
+  renWin->SetSize(512, 512);
 
   iren->Initialize();
   renWin->Render();

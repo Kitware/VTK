@@ -27,10 +27,10 @@
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderedGraphRepresentation.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderedGraphRepresentation.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
@@ -66,15 +66,13 @@ vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
   if (!graphRep)
   {
     vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
-    graphRep = vtkRenderedGraphRepresentation::SafeDownCast(
-      this->AddRepresentationFromInput(g));
+    graphRep = vtkRenderedGraphRepresentation::SafeDownCast(this->AddRepresentationFromInput(g));
   }
   return graphRep;
 }
 
 //----------------------------------------------------------------------------
-vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(
-  vtkAlgorithmOutput* port)
+vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(vtkAlgorithmOutput* port)
 {
   vtkRenderedGraphRepresentation* rep = vtkRenderedGraphRepresentation::New();
   rep->SetInputConnection(port);
@@ -82,47 +80,46 @@ vtkDataRepresentation* vtkGraphLayoutView::CreateDefaultRepresentation(
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::ProcessEvents(
-  vtkObject* caller, unsigned long eventId, void* callData)
+void vtkGraphLayoutView::ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData)
 {
-    if (eventId == vtkCommand::StartInteractionEvent)
+  if (eventId == vtkCommand::StartInteractionEvent)
+  {
+    if (GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested)
     {
-        if( GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested )
-        {
-            this->Interacting = true;
-            this->GetGraphRepresentation()->SetVertexLabelVisibility(false);
-        }
-        if( GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested )
-        {
-            this->Interacting = true;
-            this->GetGraphRepresentation()->SetEdgeLabelVisibility(false);
-        }
+      this->Interacting = true;
+      this->GetGraphRepresentation()->SetVertexLabelVisibility(false);
     }
-    if (eventId == vtkCommand::EndInteractionEvent)
+    if (GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested)
     {
-        bool forceRender = false ;
-        if( GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested )
-        {
-            this->Interacting = false;
-            this->GetGraphRepresentation()->SetVertexLabelVisibility(true);
-            // Force the labels to reappear
-            forceRender = true;
-        }
-        if( GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested )
-        {
-            this->Interacting = false;
-            this->GetGraphRepresentation()->SetEdgeLabelVisibility(true);
-            // Force the labels to reappear
-            forceRender = true;
-        }
-        if(forceRender)
-            // Force the labels to reappear
-            this->Render();
+      this->Interacting = true;
+      this->GetGraphRepresentation()->SetEdgeLabelVisibility(false);
     }
-    if (eventId != vtkCommand::ComputeVisiblePropBoundsEvent)
+  }
+  if (eventId == vtkCommand::EndInteractionEvent)
+  {
+    bool forceRender = false;
+    if (GetHideVertexLabelsOnInteraction() && this->VertexLabelsRequested)
     {
-        this->Superclass::ProcessEvents(caller, eventId, callData);
+      this->Interacting = false;
+      this->GetGraphRepresentation()->SetVertexLabelVisibility(true);
+      // Force the labels to reappear
+      forceRender = true;
     }
+    if (GetHideEdgeLabelsOnInteraction() && this->EdgeLabelsRequested)
+    {
+      this->Interacting = false;
+      this->GetGraphRepresentation()->SetEdgeLabelVisibility(true);
+      // Force the labels to reappear
+      forceRender = true;
+    }
+    if (forceRender)
+      // Force the labels to reappear
+      this->Render();
+  }
+  if (eventId != vtkCommand::ComputeVisiblePropBoundsEvent)
+  {
+    this->Superclass::ProcessEvents(caller, eventId, callData);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -152,11 +149,11 @@ const char* vtkGraphLayoutView::GetEdgeLabelArrayName()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexLabelVisibility(bool vis)
 {
-    this->VertexLabelsRequested = vis ;
-    // Don't update the visibility of the vertex label actor while an interaction
-    // is in progress
-    if(!this->Interacting)
-        this->GetGraphRepresentation()->SetVertexLabelVisibility(vis);
+  this->VertexLabelsRequested = vis;
+  // Don't update the visibility of the vertex label actor while an interaction
+  // is in progress
+  if (!this->Interacting)
+    this->GetGraphRepresentation()->SetVertexLabelVisibility(vis);
 }
 
 //----------------------------------------------------------------------------
@@ -168,13 +165,13 @@ bool vtkGraphLayoutView::GetVertexLabelVisibility()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetHideVertexLabelsOnInteraction(bool vis)
 {
-    this->GetGraphRepresentation()->SetHideVertexLabelsOnInteraction(vis);
+  this->GetGraphRepresentation()->SetHideVertexLabelsOnInteraction(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetHideVertexLabelsOnInteraction()
 {
-    return this->GetGraphRepresentation()->GetHideVertexLabelsOnInteraction();
+  return this->GetGraphRepresentation()->GetHideVertexLabelsOnInteraction();
 }
 
 //----------------------------------------------------------------------------
@@ -192,11 +189,11 @@ bool vtkGraphLayoutView::GetEdgeVisibility()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLabelVisibility(bool vis)
 {
-    this->EdgeLabelsRequested = vis ;
-    // Don't update the visibility of the edge label actor while an interaction
-    // is in progress
-    if(!this->Interacting)
-        this->GetGraphRepresentation()->SetEdgeLabelVisibility(vis);
+  this->EdgeLabelsRequested = vis;
+  // Don't update the visibility of the edge label actor while an interaction
+  // is in progress
+  if (!this->Interacting)
+    this->GetGraphRepresentation()->SetEdgeLabelVisibility(vis);
 }
 
 //----------------------------------------------------------------------------
@@ -208,13 +205,13 @@ bool vtkGraphLayoutView::GetEdgeLabelVisibility()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetHideEdgeLabelsOnInteraction(bool vis)
 {
-    this->GetGraphRepresentation()->SetHideEdgeLabelsOnInteraction(vis);
+  this->GetGraphRepresentation()->SetHideEdgeLabelsOnInteraction(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetHideEdgeLabelsOnInteraction()
 {
-    return this->GetGraphRepresentation()->GetHideEdgeLabelsOnInteraction();
+  return this->GetGraphRepresentation()->GetHideEdgeLabelsOnInteraction();
 }
 
 //----------------------------------------------------------------------------
@@ -396,7 +393,7 @@ const char* vtkGraphLayoutView::GetIconArrayName()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::AddIconType(const char *type, int index)
+void vtkGraphLayoutView::AddIconType(const char* type, int index)
 {
   this->GetGraphRepresentation()->AddVertexIconType(type, index);
 }
@@ -444,7 +441,7 @@ const char* vtkGraphLayoutView::GetLayoutStrategyName()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s)
+void vtkGraphLayoutView::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* s)
 {
   this->GetGraphRepresentation()->SetEdgeLayoutStrategy(s);
 }
@@ -520,5 +517,5 @@ void vtkGraphLayoutView::ZoomToSelection()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

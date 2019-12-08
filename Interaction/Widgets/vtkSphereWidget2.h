@@ -82,17 +82,16 @@
  *
  * @sa
  * vtkSphereRepresentation vtkSphereWidget
-*/
+ */
 
 #ifndef vtkSphereWidget2_h
 #define vtkSphereWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkSphereRepresentation;
 class vtkHandleWidget;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkSphereWidget2 : public vtkAbstractWidget
 {
@@ -100,13 +99,13 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkSphereWidget2 *New();
+  static vtkSphereWidget2* New();
 
   //@{
   /**
    * Standard class methods for type information and printing.
    */
-  vtkTypeMacro(vtkSphereWidget2,vtkAbstractWidget);
+  vtkTypeMacro(vtkSphereWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -115,20 +114,22 @@ public:
    * widget in the scene. Note that the representation is a subclass of
    * vtkProp so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkSphereRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkSphereRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   //@{
   /**
    * Control the behavior of the widget (i.e., how it processes
    * events). Translation, and scaling can all be enabled and disabled.
    */
-  vtkSetMacro(TranslationEnabled,vtkTypeBool);
-  vtkGetMacro(TranslationEnabled,vtkTypeBool);
-  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
-  vtkSetMacro(ScalingEnabled,vtkTypeBool);
-  vtkGetMacro(ScalingEnabled,vtkTypeBool);
-  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
+  vtkSetMacro(TranslationEnabled, vtkTypeBool);
+  vtkGetMacro(TranslationEnabled, vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled, vtkTypeBool);
+  vtkSetMacro(ScalingEnabled, vtkTypeBool);
+  vtkGetMacro(ScalingEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled, vtkTypeBool);
   //@}
 
   /**
@@ -149,7 +150,11 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);

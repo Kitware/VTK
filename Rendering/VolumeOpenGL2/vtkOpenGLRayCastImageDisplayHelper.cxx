@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolume.h"
-#include "vtkRenderer.h"
-#include "vtkTransform.h"
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkTextureObject.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
+#include "vtkTransform.h"
+#include "vtkVolume.h"
 
 #include "vtkOpenGLHelper.h"
 
@@ -35,7 +35,7 @@
 
 #include <cmath>
 
-#include "vtkTextureObjectVS.h"  // a pass through shader
+#include "vtkTextureObjectVS.h" // a pass through shader
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
@@ -74,70 +74,49 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 // imageOrigin       is the starting pixel of the imageInUseSize image on the
 //                   the imageViewportSize viewport
 //
-void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
-                                                        vtkRenderer *ren,
-                                                        vtkFixedPointRayCastImage *image,
-                                                        float requestedDepth )
+void vtkOpenGLRayCastImageDisplayHelper::RenderTexture(
+  vtkVolume* vol, vtkRenderer* ren, vtkFixedPointRayCastImage* image, float requestedDepth)
 {
-  this->RenderTextureInternal( vol, ren, image->GetImageMemorySize(), image->GetImageViewportSize(),
-                       image->GetImageInUseSize(), image->GetImageOrigin(),
-                       requestedDepth, VTK_UNSIGNED_SHORT, image->GetImage() );
+  this->RenderTextureInternal(vol, ren, image->GetImageMemorySize(), image->GetImageViewportSize(),
+    image->GetImageInUseSize(), image->GetImageOrigin(), requestedDepth, VTK_UNSIGNED_SHORT,
+    image->GetImage());
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
-                                                        vtkRenderer *ren,
-                                                        int imageMemorySize[2],
-                                                        int imageViewportSize[2],
-                                                        int imageInUseSize[2],
-                                                        int imageOrigin[2],
-                                                        float requestedDepth,
-                                                        unsigned char *image )
+void vtkOpenGLRayCastImageDisplayHelper::RenderTexture(vtkVolume* vol, vtkRenderer* ren,
+  int imageMemorySize[2], int imageViewportSize[2], int imageInUseSize[2], int imageOrigin[2],
+  float requestedDepth, unsigned char* image)
 {
-  this->RenderTextureInternal( vol, ren, imageMemorySize, imageViewportSize,
-                               imageInUseSize, imageOrigin, requestedDepth,
-                               VTK_UNSIGNED_CHAR, static_cast<void *>(image) );
+  this->RenderTextureInternal(vol, ren, imageMemorySize, imageViewportSize, imageInUseSize,
+    imageOrigin, requestedDepth, VTK_UNSIGNED_CHAR, static_cast<void*>(image));
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
-                                                        vtkRenderer *ren,
-                                                        int imageMemorySize[2],
-                                                        int imageViewportSize[2],
-                                                        int imageInUseSize[2],
-                                                        int imageOrigin[2],
-                                                        float requestedDepth,
-                                                        unsigned short *image )
+void vtkOpenGLRayCastImageDisplayHelper::RenderTexture(vtkVolume* vol, vtkRenderer* ren,
+  int imageMemorySize[2], int imageViewportSize[2], int imageInUseSize[2], int imageOrigin[2],
+  float requestedDepth, unsigned short* image)
 {
-  this->RenderTextureInternal( vol, ren, imageMemorySize, imageViewportSize,
-                               imageInUseSize, imageOrigin, requestedDepth,
-                               VTK_UNSIGNED_SHORT, static_cast<void *>(image) );
+  this->RenderTextureInternal(vol, ren, imageMemorySize, imageViewportSize, imageInUseSize,
+    imageOrigin, requestedDepth, VTK_UNSIGNED_SHORT, static_cast<void*>(image));
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
-                                                                vtkRenderer *ren,
-                                                                int imageMemorySize[2],
-                                                                int imageViewportSize[2],
-                                                                int imageInUseSize[2],
-                                                                int imageOrigin[2],
-                                                                float requestedDepth,
-                                                                int imageScalarType,
-                                                                void *image )
+void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal(vtkVolume* vol, vtkRenderer* ren,
+  int imageMemorySize[2], int imageViewportSize[2], int imageInUseSize[2], int imageOrigin[2],
+  float requestedDepth, int imageScalarType, void* image)
 {
   vtkOpenGLClearErrorMacro();
 
   // Set the context
-  vtkOpenGLRenderWindow *ctx =
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow* ctx = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->TextureObject->SetContext(ctx);
 
   float offsetX, offsetY;
 
   float depth;
-  if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
+  if (requestedDepth > 0.0 && requestedDepth <= 1.0)
   {
-    depth = requestedDepth*2.0 - 1.0;
+    depth = requestedDepth * 2.0 - 1.0;
   }
   else
   {
@@ -145,64 +124,50 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     // of the renderer to get the z view coordinate to use for the
     // view to world transformation of the image bounds. This way we
     // will draw the image at the depth of the center of the volume
-    ren->SetWorldPoint( vol->GetCenter()[0],
-                        vol->GetCenter()[1],
-                        vol->GetCenter()[2],
-                        1.0 );
+    ren->SetWorldPoint(vol->GetCenter()[0], vol->GetCenter()[1], vol->GetCenter()[2], 1.0);
     ren->WorldToDisplay();
     depth = ren->GetDisplayPoint()[2];
   }
 
   // Don't write into the Zbuffer - just use it for comparisons
-  vtkOpenGLState *ostate = ctx->GetState();
-  ostate->vtkglDepthMask( 0 );
+  vtkOpenGLState* ostate = ctx->GetState();
+  ostate->vtkglDepthMask(0);
 
   this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
   this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
 
-  if ( imageScalarType == VTK_UNSIGNED_CHAR )
+  if (imageScalarType == VTK_UNSIGNED_CHAR)
   {
-    this->TextureObject->Create2DFromRaw(
-      imageMemorySize[0], imageMemorySize[1], 4,
-      VTK_UNSIGNED_CHAR, static_cast<unsigned char *>(image));
+    this->TextureObject->Create2DFromRaw(imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_CHAR, static_cast<unsigned char*>(image));
   }
   else
   {
-    this->TextureObject->Create2DFromRaw(
-      imageMemorySize[0], imageMemorySize[1], 4,
-      VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
+    this->TextureObject->Create2DFromRaw(imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_SHORT, static_cast<unsigned short*>(image));
   }
 
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
   offsetY = .5 / static_cast<float>(imageMemorySize[1]);
 
   float tcoords[8];
-  tcoords[0]  = 0.0 + offsetX;
-  tcoords[1]  = 0.0 + offsetY;
-  tcoords[2]  =
-    (float)imageInUseSize[0]/(float)imageMemorySize[0] - offsetX;
-  tcoords[3]  = offsetY;
-  tcoords[4]  =
-    (float)imageInUseSize[0]/(float)imageMemorySize[0] - offsetX;
-  tcoords[5]  =
-    (float)imageInUseSize[1]/(float)imageMemorySize[1] - offsetY;
-  tcoords[6]  = offsetX;
-  tcoords[7]  =
-    (float)imageInUseSize[1]/(float)imageMemorySize[1] - offsetY;
+  tcoords[0] = 0.0 + offsetX;
+  tcoords[1] = 0.0 + offsetY;
+  tcoords[2] = (float)imageInUseSize[0] / (float)imageMemorySize[0] - offsetX;
+  tcoords[3] = offsetY;
+  tcoords[4] = (float)imageInUseSize[0] / (float)imageMemorySize[0] - offsetX;
+  tcoords[5] = (float)imageInUseSize[1] / (float)imageMemorySize[1] - offsetY;
+  tcoords[6] = offsetX;
+  tcoords[7] = (float)imageInUseSize[1] / (float)imageMemorySize[1] - offsetY;
 
-  float verts[12] = {
-    2.0f*imageOrigin[0]/imageViewportSize[0] - 1.0f,
-    2.0f*imageOrigin[1]/imageViewportSize[1] - 1.0f, depth,
-    2.0f*(imageOrigin[0]+imageInUseSize[0]) /
-    imageViewportSize[0] - 1.0f,
-    2.0f*imageOrigin[1]/imageViewportSize[1] - 1.0f, depth,
-    2.0f*(imageOrigin[0]+imageInUseSize[0]) /
-    imageViewportSize[0] - 1.0f,
-    2.0f*(imageOrigin[1]+imageInUseSize[1]) /
-    imageViewportSize[1] - 1.0f, depth,
-    2.0f*imageOrigin[0]/imageViewportSize[0] - 1.0f,
-    2.0f*(imageOrigin[1]+imageInUseSize[1]) /
-    imageViewportSize[1] - 1.0f, depth};
+  float verts[12] = { 2.0f * imageOrigin[0] / imageViewportSize[0] - 1.0f,
+    2.0f * imageOrigin[1] / imageViewportSize[1] - 1.0f, depth,
+    2.0f * (imageOrigin[0] + imageInUseSize[0]) / imageViewportSize[0] - 1.0f,
+    2.0f * imageOrigin[1] / imageViewportSize[1] - 1.0f, depth,
+    2.0f * (imageOrigin[0] + imageInUseSize[0]) / imageViewportSize[0] - 1.0f,
+    2.0f * (imageOrigin[1] + imageInUseSize[1]) / imageViewportSize[1] - 1.0f, depth,
+    2.0f * imageOrigin[0] / imageViewportSize[0] - 1.0f,
+    2.0f * (imageOrigin[1] + imageInUseSize[1]) / imageViewportSize[1] - 1.0f, depth };
 
   if (!this->ShaderProgram)
   {
@@ -210,23 +175,20 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     // build the shader source code
     std::string VSSource = vtkTextureObjectVS;
-    std::string FSSource =
-      "//VTK::System::Dec\n"
-      "//VTK::Output::Dec\n"
-      "in vec2 tcoordVC;\n"
-      "uniform sampler2D source;\n"
-      "uniform float scale;\n"
-      "void main(void)\n"
-      "{\n"
-      "  gl_FragData[0] = texture2D(source,tcoordVC)*scale;\n"
-      "}\n";
+    std::string FSSource = "//VTK::System::Dec\n"
+                           "//VTK::Output::Dec\n"
+                           "in vec2 tcoordVC;\n"
+                           "uniform sampler2D source;\n"
+                           "uniform float scale;\n"
+                           "void main(void)\n"
+                           "{\n"
+                           "  gl_FragData[0] = texture2D(source,tcoordVC)*scale;\n"
+                           "}\n";
     std::string GSSource;
 
     // compile and bind it if needed
-    vtkShaderProgram *newShader =
-      ctx->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(),
-                                         FSSource.c_str(),
-                                         GSSource.c_str());
+    vtkShaderProgram* newShader = ctx->GetShaderCache()->ReadyShaderProgram(
+      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
 
     // if the shader changed reinitialize the VAO
     if (newShader != this->ShaderProgram->Program)
@@ -256,10 +218,10 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   // bind and activate this texture
   this->TextureObject->Activate();
   int sourceId = this->TextureObject->GetTextureUnit();
-  this->ShaderProgram->Program->SetUniformi("source",sourceId);
-  this->ShaderProgram->Program->SetUniformf("scale",this->PixelScale);
-  vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
-    this->ShaderProgram->VAO);
+  this->ShaderProgram->Program->SetUniformi("source", sourceId);
+  this->ShaderProgram->Program->SetUniformf("scale", this->PixelScale);
+  vtkOpenGLRenderUtilities::RenderQuad(
+    verts, tcoords, this->ShaderProgram->Program, this->ShaderProgram->VAO);
   this->TextureObject->Deactivate();
 
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
@@ -268,11 +230,11 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 //----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->TextureObject->ReleaseGraphicsResources(win);
   if (this->ShaderProgram)

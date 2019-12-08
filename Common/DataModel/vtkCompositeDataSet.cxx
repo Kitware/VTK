@@ -18,8 +18,8 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
-#include "vtkInformationStringKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -36,12 +36,11 @@ vtkCompositeDataSet::~vtkCompositeDataSet() = default;
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformation* info)
 {
-  return info? vtkCompositeDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkCompositeDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformationVector* v,
-                                                  int i)
+vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkCompositeDataSet::GetData(v->GetInformationObject(i));
 }

@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPStructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLStructuredGridWriter_h
 #define vtkXMLStructuredGridWriter_h
@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWr
 {
 public:
   static vtkXMLStructuredGridWriter* New();
-  vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLStructuredGridWriter, vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,7 +67,7 @@ protected:
 
   // The position of the appended data offset attribute for the points
   // array.
-  OffsetsManagerGroup *PointsOM;  //one per piece
+  OffsetsManagerGroup* PointsOM; // one per piece
 
   void AllocatePositionArrays() override;
   void DeletePositionArrays() override;

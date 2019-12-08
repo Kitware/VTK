@@ -34,18 +34,18 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridOrientedGeometryCursor_h
 #define vtkHyperTreeGridOrientedGeometryCursor_h
 
-#include "vtkObject.h"
-#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkCommonDataModelModule.h"      // For export macro
 #include "vtkHyperTreeGridGeometryEntry.h" // Used internally
-#include "vtkHyperTreeGridTools.h" // for HasTree
+#include "vtkHyperTreeGridTools.h"         // for HasTree
+#include "vtkObject.h"
 
-#include <vector> // For std::vector
 #include <memory> // For std::shared_ptr
+#include <vector> // For std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;
@@ -55,10 +55,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridOrientedGeometryCursor : public 
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridOrientedGeometryCursor, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridOrientedGeometryCursor* New();
 
-  void Dump( ostream& os );
+  void Dump(ostream& os);
 
   /**
    * Create a copy of `this'.
@@ -69,38 +69,30 @@ public:
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false );
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize(
-    vtkHyperTreeGrid* grid,
-    vtkHyperTree* tree,
-    unsigned int level,
-    vtkHyperTreeGridGeometryEntry& entry );
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level,
+    vtkHyperTreeGridGeometryEntry& entry);
 
   /**
    * JB
    */
-  void Initialize(
-    vtkHyperTreeGrid* grid,
-    vtkHyperTree* tree,
-    unsigned int level,
-    vtkIdType index,
-    double* origin
-  );
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index,
+    double* origin);
 
   /**
    * JB
    */
-  void Initialize( vtkHyperTreeGridOrientedGeometryCursor* cursor );
+  void Initialize(vtkHyperTreeGridOrientedGeometryCursor* cursor);
 
   //@{
   /**
    * Return if a Tree pointing exist
    */
-  bool HasTree() const { return vtk::hypertreegrid::HasTree( *this ); }
+  bool HasTree() const { return vtk::hypertreegrid::HasTree(*this); }
   //@}
 
   //@{
@@ -136,12 +128,12 @@ public:
   /**
    * JB
    */
-  void SetGlobalIndexStart( vtkIdType index );
+  void SetGlobalIndexStart(vtkIdType index);
 
   /**
    * JB
    */
-  void SetGlobalIndexFromLocal( vtkIdType index );
+  void SetGlobalIndexFromLocal(vtkIdType index);
 
   /**
    * JB
@@ -152,14 +144,14 @@ public:
   /**
    * JB
    */
-  void GetBounds( double bounds[6] );
-  void GetPoint( double point[3] );
+  void GetBounds(double bounds[6]);
+  void GetPoint(double point[3]);
 
   /**
    * Set the blanking mask is empty or not
    * \pre not_tree: tree
    */
-  void SetMask( bool state ) ;
+  void SetMask(bool state);
 
   /**
    * Determine whether blanking mask is empty or not
@@ -193,10 +185,9 @@ public:
    * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
    * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char ichild );
+  void ToChild(unsigned char ichild);
 
 protected:
-
   /**
    * Constructor
    * JB Just pour vtkHyperTreeGridNonOrientedVonNeumannSuperCursor et Moore

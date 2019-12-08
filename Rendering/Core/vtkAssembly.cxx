@@ -33,9 +33,8 @@ vtkAssembly::vtkAssembly()
 vtkAssembly::~vtkAssembly()
 {
   vtkCollectionSimpleIterator pit;
-  vtkProp *part;
-  for (this->Parts->InitTraversal(pit);
-    (part=this->Parts->GetNextProp(pit));)
+  vtkProp* part;
+  for (this->Parts->InitTraversal(pit); (part = this->Parts->GetNextProp(pit));)
   {
     part->RemoveConsumer(this);
   }
@@ -45,7 +44,7 @@ vtkAssembly::~vtkAssembly()
 }
 
 // Add a part to the list of Parts.
-void vtkAssembly::AddPart(vtkProp3D *prop)
+void vtkAssembly::AddPart(vtkProp3D* prop)
 {
   if (!this->Parts->IsItemPresent(prop))
   {
@@ -56,7 +55,7 @@ void vtkAssembly::AddPart(vtkProp3D *prop)
 }
 
 // Remove a part from the list of parts,
-void vtkAssembly::RemovePart(vtkProp3D *prop)
+void vtkAssembly::RemovePart(vtkProp3D* prop)
 {
   if (this->Parts->IsItemPresent(prop))
   {
@@ -67,21 +66,19 @@ void vtkAssembly::RemovePart(vtkProp3D *prop)
 }
 
 // Shallow copy another assembly.
-void vtkAssembly::ShallowCopy(vtkProp *prop)
+void vtkAssembly::ShallowCopy(vtkProp* prop)
 {
-  vtkAssembly *p = vtkAssembly::SafeDownCast(prop);
+  vtkAssembly* p = vtkAssembly::SafeDownCast(prop);
   if (p && p != this)
   {
     vtkCollectionSimpleIterator pit;
-    vtkProp3D *part;
-    for (this->Parts->InitTraversal(pit);
-      (part=this->Parts->GetNextProp3D(pit));)
+    vtkProp3D* part;
+    for (this->Parts->InitTraversal(pit); (part = this->Parts->GetNextProp3D(pit));)
     {
       part->RemoveConsumer(this);
     }
     this->Parts->RemoveAllItems();
-    for (p->Parts->InitTraversal(pit);
-      (part=p->Parts->GetNextProp3D(pit));)
+    for (p->Parts->InitTraversal(pit); (part = p->Parts->GetNextProp3D(pit));)
     {
       this->AddPart(part);
     }
@@ -96,7 +93,7 @@ void vtkAssembly::ShallowCopy(vtkProp *prop)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
+int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport* ren)
 {
   this->UpdatePaths();
 
@@ -104,17 +101,16 @@ int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
 
   // for allocating render time between components
   // simple equal allocation
-  double fraction = this->AllocatedRenderTime
-    / static_cast<double>(this->Paths->GetNumberOfItems());
+  double fraction =
+    this->AllocatedRenderTime / static_cast<double>(this->Paths->GetNumberOfItems());
 
   // render the Paths
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
-    if ( prop3D->GetVisibility() )
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
+    if (prop3D->GetVisibility())
     {
       prop3D->SetPropertyKeys(this->GetPropertyKeys());
       prop3D->SetAllocatedRenderTime(fraction, ren);
@@ -136,13 +132,12 @@ vtkTypeBool vtkAssembly::HasTranslucentPolygonalGeometry()
   int result = 0;
 
   // render the Paths
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    !result && (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
-    if ( prop3D->GetVisibility() )
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
+    if (prop3D->GetVisibility())
     {
       prop3D->SetPropertyKeys(this->GetPropertyKeys());
       result = prop3D->HasTranslucentPolygonalGeometry();
@@ -152,29 +147,28 @@ vtkTypeBool vtkAssembly::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-
 // Render this assembly and all its Parts. The rendering process is recursive.
 // Note that a mapper need not be defined. If not defined, then no geometry
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
+int vtkAssembly::RenderVolumetricGeometry(vtkViewport* ren)
 {
   this->UpdatePaths();
 
   // for allocating render time between components
   // simple equal allocation
-  double fraction = this->AllocatedRenderTime
-    / static_cast<double>(this->Paths->GetNumberOfItems());
+  double fraction =
+    this->AllocatedRenderTime / static_cast<double>(this->Paths->GetNumberOfItems());
 
   int renderedSomething = 0;
 
   // render the Paths
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
     if (prop3D->GetVisibility())
     {
       prop3D->SetPropertyKeys(this->GetPropertyKeys());
@@ -193,24 +187,23 @@ int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
+int vtkAssembly::RenderOpaqueGeometry(vtkViewport* ren)
 {
   this->UpdatePaths();
 
   // for allocating render time between components
   // simple equal allocation
-  double fraction = this->AllocatedRenderTime
-    / static_cast<double>(this->Paths->GetNumberOfItems());
+  double fraction =
+    this->AllocatedRenderTime / static_cast<double>(this->Paths->GetNumberOfItems());
 
   int renderedSomething = 0;
 
   // render the Paths
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
     if (prop3D->GetVisibility())
     {
       prop3D->SetPropertyKeys(this->GetPropertyKeys());
@@ -221,32 +214,30 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
     }
   }
 
-  return (renderedSomething > 0)? 1 : 0;
+  return (renderedSomething > 0) ? 1 : 0;
 }
 
-void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkAssembly::ReleaseGraphicsResources(vtkWindow* renWin)
 {
-  vtkProp3D *prop3D;
+  vtkProp3D* prop3D;
 
   vtkCollectionSimpleIterator pit;
-  for (this->Parts->InitTraversal(pit);
-    (prop3D = this->Parts->GetNextProp3D(pit));)
+  for (this->Parts->InitTraversal(pit); (prop3D = this->Parts->GetNextProp3D(pit));)
   {
     prop3D->ReleaseGraphicsResources(renWin);
   }
 }
 
-void vtkAssembly::GetActors(vtkPropCollection *ac)
+void vtkAssembly::GetActors(vtkPropCollection* ac)
 {
   this->UpdatePaths();
 
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
-    vtkActor *actor = vtkActor::SafeDownCast(prop3D);
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
+    vtkActor* actor = vtkActor::SafeDownCast(prop3D);
     if (actor)
     {
       ac->AddItem(actor);
@@ -254,17 +245,16 @@ void vtkAssembly::GetActors(vtkPropCollection *ac)
   }
 }
 
-void vtkAssembly::GetVolumes(vtkPropCollection *ac)
+void vtkAssembly::GetVolumes(vtkPropCollection* ac)
 {
   this->UpdatePaths();
 
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
-    vtkVolume *volume = vtkVolume::SafeDownCast(prop3D);
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
+    vtkVolume* volume = vtkVolume::SafeDownCast(prop3D);
     if (volume)
     {
       ac->AddItem(volume);
@@ -280,7 +270,7 @@ void vtkAssembly::InitPathTraversal()
 
 // Return the next part in the hierarchy of assembly Parts.  This method
 // returns a properly transformed and updated actor.
-vtkAssemblyPath *vtkAssembly::GetNextPath()
+vtkAssemblyPath* vtkAssembly::GetNextPath()
 {
   return this->Paths ? this->Paths->GetNextItem() : nullptr;
 }
@@ -307,16 +297,15 @@ void vtkAssembly::UpdatePaths()
 
     // Create the list to hold all the paths
     this->Paths = vtkAssemblyPaths::New();
-    vtkAssemblyPath *path = vtkAssemblyPath::New();
+    vtkAssemblyPath* path = vtkAssemblyPath::New();
 
-    //add ourselves to the path to start things off
-    path->AddNode(this,this->GetMatrix());
+    // add ourselves to the path to start things off
+    path->AddNode(this, this->GetMatrix());
 
     // Add nodes as we proceed down the hierarchy
-    vtkProp3D *prop3D;
+    vtkProp3D* prop3D;
     vtkCollectionSimpleIterator pit;
-    for (this->Parts->InitTraversal(pit);
-      (prop3D = this->Parts->GetNextProp3D(pit));)
+    for (this->Parts->InitTraversal(pit); (prop3D = this->Parts->GetNextProp3D(pit));)
     {
       path->AddNode(prop3D, prop3D->GetMatrix());
 
@@ -335,13 +324,12 @@ void vtkAssembly::UpdatePaths()
 
 // Build assembly paths from this current assembly. A path consists of
 // an ordered sequence of props, with transformations properly concatenated.
-void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
+void vtkAssembly::BuildPaths(vtkAssemblyPaths* paths, vtkAssemblyPath* path)
 {
-  vtkProp3D *prop3D;
+  vtkProp3D* prop3D;
 
   vtkCollectionSimpleIterator pit;
-  for (this->Parts->InitTraversal(pit);
-    (prop3D = this->Parts->GetNextProp3D(pit));)
+  for (this->Parts->InitTraversal(pit); (prop3D = this->Parts->GetNextProp3D(pit));)
   {
     path->AddNode(prop3D, prop3D->GetMatrix());
 
@@ -355,7 +343,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 }
 
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-double *vtkAssembly::GetBounds()
+double* vtkAssembly::GetBounds()
 {
   this->UpdatePaths();
 
@@ -365,12 +353,11 @@ double *vtkAssembly::GetBounds()
 
   int propVisible = 0;
 
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   vtkCollectionSimpleIterator sit;
-  for (this->Paths->InitTraversal(sit);
-    (path = this->Paths->GetNextPath(sit));)
+  for (this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit));)
   {
-    vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
+    vtkProp3D* prop3D = static_cast<vtkProp3D*>(path->GetLastNode()->GetViewProp());
     if (prop3D->GetVisibility() && prop3D->GetUseBounds())
     {
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
@@ -387,31 +374,47 @@ double *vtkAssembly::GetBounds()
 
       double bbox[24];
       // fill out vertices of a bounding box
-      bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
-      bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
-      bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
-      bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
-      bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
-      bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
-      bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
-      bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
+      bbox[0] = bounds[1];
+      bbox[1] = bounds[3];
+      bbox[2] = bounds[5];
+      bbox[3] = bounds[1];
+      bbox[4] = bounds[2];
+      bbox[5] = bounds[5];
+      bbox[6] = bounds[0];
+      bbox[7] = bounds[2];
+      bbox[8] = bounds[5];
+      bbox[9] = bounds[0];
+      bbox[10] = bounds[3];
+      bbox[11] = bounds[5];
+      bbox[12] = bounds[1];
+      bbox[13] = bounds[3];
+      bbox[14] = bounds[4];
+      bbox[15] = bounds[1];
+      bbox[16] = bounds[2];
+      bbox[17] = bounds[4];
+      bbox[18] = bounds[0];
+      bbox[19] = bounds[2];
+      bbox[20] = bounds[4];
+      bbox[21] = bounds[0];
+      bbox[22] = bounds[3];
+      bbox[23] = bounds[4];
 
       for (int i = 0; i < 8; i++)
       {
         for (int n = 0; n < 3; n++)
         {
-          if (bbox[i*3+n] < this->Bounds[n*2])
+          if (bbox[i * 3 + n] < this->Bounds[n * 2])
           {
-            this->Bounds[n*2] = bbox[i*3+n];
+            this->Bounds[n * 2] = bbox[i * 3 + n];
           }
-          if (bbox[i*3+n] > this->Bounds[n*2+1])
+          if (bbox[i * 3 + n] > this->Bounds[n * 2 + 1])
           {
-            this->Bounds[n*2+1] = bbox[i*3+n];
+            this->Bounds[n * 2 + 1] = bbox[i * 3 + n];
           }
-        }//for each coordinate axis
-      }//for each point of box
-    }//if visible && prop3d
-  }//for each path
+        } // for each coordinate axis
+      }   // for each point of box
+    }     // if visible && prop3d
+  }       // for each path
 
   if (!propVisible)
   {
@@ -424,14 +427,13 @@ double *vtkAssembly::GetBounds()
 vtkMTimeType vtkAssembly::GetMTime()
 {
   vtkMTimeType mTime = this->vtkProp3D::GetMTime();
-  vtkProp3D *prop;
+  vtkProp3D* prop;
 
   vtkCollectionSimpleIterator pit;
-  for (this->Parts->InitTraversal(pit);
-    (prop = this->Parts->GetNextProp3D(pit));)
+  for (this->Parts->InitTraversal(pit); (prop = this->Parts->GetNextProp3D(pit));)
   {
     vtkMTimeType time = prop->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
@@ -441,7 +443,5 @@ void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "There are: " << this->Parts->GetNumberOfItems()
-     << " parts in this assembly\n";
+  os << indent << "There are: " << this->Parts->GetNumberOfItems() << " parts in this assembly\n";
 }
-

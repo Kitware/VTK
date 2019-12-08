@@ -14,24 +14,21 @@
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
 
-#import "vtkIOSRenderWindowInteractor.h"
-#import "vtkIOSRenderWindow.h"
 #import "vtkCommand.h"
+#import "vtkIOSRenderWindow.h"
+#import "vtkIOSRenderWindowInteractor.h"
 #import "vtkObjectFactory.h"
-
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkIOSRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
-void (*vtkIOSRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
-void *vtkIOSRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
+void (*vtkIOSRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))NULL;
+void* vtkIOSRenderWindowInteractor::ClassExitMethodArg = (void*)NULL;
+void (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*))NULL;
 
 //----------------------------------------------------------------------------
-vtkIOSRenderWindowInteractor::vtkIOSRenderWindowInteractor()
-{
-}
+vtkIOSRenderWindowInteractor::vtkIOSRenderWindowInteractor() {}
 
 //----------------------------------------------------------------------------
 vtkIOSRenderWindowInteractor::~vtkIOSRenderWindowInteractor()
@@ -40,18 +37,16 @@ vtkIOSRenderWindowInteractor::~vtkIOSRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindowInteractor::StartEventLoop()
-{
-}
+void vtkIOSRenderWindowInteractor::StartEventLoop() {}
 
 //----------------------------------------------------------------------------
 // Begin processing keyboard strokes.
 void vtkIOSRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
-  if ( !this->RenderWindow )
+  if (!this->RenderWindow)
   {
-    vtkErrorMacro(<<"No renderer defined!");
+    vtkErrorMacro(<< "No renderer defined!");
     return;
   }
   if (this->Initialized)
@@ -60,9 +55,9 @@ void vtkIOSRenderWindowInteractor::Initialize()
   }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  vtkIOSRenderWindow *renWin = (vtkIOSRenderWindow *)(this->RenderWindow);
+  vtkIOSRenderWindow* renWin = (vtkIOSRenderWindow*)(this->RenderWindow);
   renWin->Start();
-  int *size = renWin->GetSize();
+  int* size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
 
@@ -96,7 +91,7 @@ void vtkIOSRenderWindowInteractor::Disable()
   }
 
 #ifdef VTK_USE_TDX
-  if(this->Device->GetInitialized())
+  if (this->Device->GetInitialized())
   {
     this->Device->Close();
   }
@@ -111,13 +106,11 @@ void vtkIOSRenderWindowInteractor::Disable()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindowInteractor::TerminateApp()
-{
-}
+void vtkIOSRenderWindowInteractor::TerminateApp() {}
 
 //----------------------------------------------------------------------------
-int vtkIOSRenderWindowInteractor::InternalCreateTimer(int timerId,
-  int timerType, unsigned long duration)
+int vtkIOSRenderWindowInteractor::InternalCreateTimer(
+  int timerId, int timerType, unsigned long duration)
 {
   // In this implementation, timerId and platformTimerId are the same
   int platformTimerId = timerId;
@@ -138,17 +131,17 @@ int vtkIOSRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 //----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
-void vtkIOSRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+void vtkIOSRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void* arg)
 {
-  if ( f != vtkIOSRenderWindowInteractor::ClassExitMethod
-  || arg != vtkIOSRenderWindowInteractor::ClassExitMethodArg)
+  if (f != vtkIOSRenderWindowInteractor::ClassExitMethod ||
+    arg != vtkIOSRenderWindowInteractor::ClassExitMethodArg)
   {
     // delete the current arg if there is a delete method
-    if ((vtkIOSRenderWindowInteractor::ClassExitMethodArg)
-     && (vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete))
+    if ((vtkIOSRenderWindowInteractor::ClassExitMethodArg) &&
+      (vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete))
     {
-      (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)
-        (vtkIOSRenderWindowInteractor::ClassExitMethodArg);
+      (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(
+        vtkIOSRenderWindowInteractor::ClassExitMethodArg);
     }
     vtkIOSRenderWindowInteractor::ClassExitMethod = f;
     vtkIOSRenderWindowInteractor::ClassExitMethodArg = arg;
@@ -159,7 +152,7 @@ void vtkIOSRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *ar
 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
-void vtkIOSRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+void vtkIOSRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void*))
 {
   if (f != vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)
   {
@@ -172,7 +165,7 @@ void vtkIOSRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *)
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -180,7 +173,7 @@ void vtkIOSRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
+    this->InvokeEvent(vtkCommand::ExitEvent, NULL);
   }
   else if (this->ClassExitMethod)
   {

@@ -30,14 +30,14 @@
  *
  * @sa
  *  vtkSurfaceLICPainter vtkLineIntegralConvolution2D
-*/
+ */
 
 #ifndef vtkImageDataLIC2D_h
 #define vtkImageDataLIC2D_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
+#include "vtkWeakPointer.h"               // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
@@ -59,8 +59,8 @@ public:
    * SetContext() may raise an error is the OpenGL context does not support the
    * required OpenGL extensions. Return 0 upon failure and 1 upon success.
    */
-  int SetContext( vtkRenderWindow * context );
-  vtkRenderWindow * GetContext();
+  int SetContext(vtkRenderWindow* context);
+  vtkRenderWindow* GetContext();
   //@}
 
   //@{
@@ -69,8 +69,8 @@ public:
    * class invariant: Steps>0.
    * In term of visual quality, the greater the better.
    */
-  vtkSetMacro(Steps,int);
-  vtkGetMacro(Steps,int);
+  vtkSetMacro(Steps, int);
+  vtkGetMacro(Steps, int);
   //@}
 
   //@{
@@ -104,17 +104,13 @@ public:
   vtkGetMacro(OpenGLExtensionsSupported, int);
   //@}
 
-  void TranslateInputExtent(
-        const int* inExt,
-        const int* inWholeExtent,
-        int *outExt);
+  void TranslateInputExtent(const int* inExt, const int* inWholeExtent, int* outExt);
 
 protected:
   vtkImageDataLIC2D();
   ~vtkImageDataLIC2D() override;
 
-  int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -122,20 +118,17 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  int FillInputPortInformation(int port,
-                               vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *vtkNotUsed( outputVector )) override;
+  int RequestUpdateExtent(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+    vtkInformationVector* vtkNotUsed(outputVector)) override;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  int RequestData(vtkInformation *request,
-                  vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
   bool OwnWindow;
@@ -148,11 +141,9 @@ protected:
   double StepSize;
   int Magnification;
 
-
 private:
   vtkImageDataLIC2D(const vtkImageDataLIC2D&) = delete;
   void operator=(const vtkImageDataLIC2D&) = delete;
-
 };
 
 #endif

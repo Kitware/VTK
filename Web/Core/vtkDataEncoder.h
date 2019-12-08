@@ -28,14 +28,14 @@
  * takes longer to compress and encode than that pushed in at N+1-th location or
  * if it was pushed in before the N-th location was even taken up for encoding
  * by the a thread in the thread pool.
-*/
+ */
 
 #ifndef vtkDataEncoder_h
 #define vtkDataEncoder_h
 
 #include "vtkObject.h"
+#include "vtkSmartPointer.h"  // needed for vtkSmartPointer
 #include "vtkWebCoreModule.h" // needed for exports
-#include "vtkSmartPointer.h" // needed for vtkSmartPointer
 
 class vtkUnsignedCharArray;
 class vtkImageData;
@@ -69,7 +69,7 @@ public:
    * vtkObject::UnRegister() on it when it's done.
    * encoding can be set to 0 to skip encoding.
    */
-  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding = 1);
+  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData*& data, int quality, int encoding = 1);
 
   /**
    * Get access to the most-recent fully encoded result corresponding to the
@@ -78,7 +78,7 @@ public:
    * returns false, it means that there's some image either being processed on
    * pending processing.
    */
-  bool GetLatestOutput(vtkTypeUInt32 key,vtkSmartPointer<vtkUnsignedCharArray>& data);
+  bool GetLatestOutput(vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data);
 
   /**
    * Flushes the encoding pipe and blocks till the most recently pushed image
@@ -91,12 +91,12 @@ public:
   /**
    * Take an image data and synchronously convert it to a base-64 encoded png.
    */
-  const char* EncodeAsBase64Png(vtkImageData* img, int compressionLevel=5);
+  const char* EncodeAsBase64Png(vtkImageData* img, int compressionLevel = 5);
 
   /**
    * Take an image data and synchronously convert it to a base-64 encoded jpg.
    */
-  const char* EncodeAsBase64Jpg(vtkImageData* img, int quality=50);
+  const char* EncodeAsBase64Jpg(vtkImageData* img, int quality = 50);
 
   /**
    * This method will wait for any running thread to terminate.
@@ -115,7 +115,6 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-
 };
 
 #endif

@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkResampleWithDataSet.h"
@@ -23,11 +23,11 @@
 
 #include <cmath>
 
-int TestCategoricalResampleWithDataSet(int, char *[])
+int TestCategoricalResampleWithDataSet(int, char*[])
 {
   vtkNew<vtkImageData> imageData;
-  imageData->SetExtent(-5,5,-5,5,-5,5);
-  imageData->AllocateScalars(VTK_DOUBLE,1);
+  imageData->SetExtent(-5, 5, -5, 5, -5, 5);
+  imageData->AllocateScalars(VTK_DOUBLE, 1);
 
   int* ext = imageData->GetExtent();
 
@@ -41,8 +41,8 @@ int TestCategoricalResampleWithDataSet(int, char *[])
     {
       for (int x = ext[4]; x < ext[5]; x++)
       {
-        double* p = static_cast<double*>(imageData->GetScalarPointer(x,y,z));
-        if (x*x + y*y + z*z < radius*radius)
+        double* p = static_cast<double*>(imageData->GetScalarPointer(x, y, z));
+        if (x * x + y * y + z * z < radius * radius)
         {
           p[0] = inValue;
         }
@@ -65,19 +65,17 @@ int TestCategoricalResampleWithDataSet(int, char *[])
 
   vtkDataSet* outputData = vtkDataSet::SafeDownCast(probeFilter->GetOutput());
 
-  vtkDoubleArray* values = vtkDoubleArray::SafeDownCast(outputData->
-                                                        GetPointData()->
-                                                        GetScalars());
+  vtkDoubleArray* values = vtkDoubleArray::SafeDownCast(outputData->GetPointData()->GetScalars());
 
   static const double epsilon = 1.e-8;
 
-  for (vtkIdType i=0;i<values->GetNumberOfValues();i++)
+  for (vtkIdType i = 0; i < values->GetNumberOfValues(); i++)
   {
     if (std::fabs(values->GetValue(i) - inValue) > epsilon &&
-        std::fabs(values->GetValue(i) - outValue) > epsilon)
-      {
-        return EXIT_FAILURE;
-      }
+      std::fabs(values->GetValue(i) - outValue) > epsilon)
+    {
+      return EXIT_FAILURE;
+    }
   }
   return EXIT_SUCCESS;
 }

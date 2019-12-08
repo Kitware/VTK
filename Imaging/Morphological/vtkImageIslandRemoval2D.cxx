@@ -39,7 +39,7 @@ vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 //----------------------------------------------------------------------------
 void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "AreaThreshold: " << this->AreaThreshold;
   if (this->SquareNeighborhood)
   {
@@ -51,11 +51,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "IslandValue: " << this->IslandValue;
   os << indent << "ReplaceValue: " << this->ReplaceValue;
-
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
@@ -65,21 +61,19 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 // neighborhoods is to check neighbors one by one directly.  Also, I did
 // not want to break the templated function into pieces.
 template <class T>
-void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
-                                    vtkImageData *inData, T *inPtr,
-                                    vtkImageData *outData, T *outPtr,
-                                    int outExt[6])
+void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, T* outPtr, int outExt[6])
 {
   int outIdx0, outIdx1, outIdx2;
   vtkIdType outInc0, outInc1, outInc2;
   T *outPtr0, *outPtr1, *outPtr2;
   vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
-  vtkImage2DIslandPixel *pixels;  // All the pixels visited so far.
-  int numPixels;      // The number of pixels visited so far.
-  vtkImage2DIslandPixel *newPixel;   // The last pixel in the list.
-  int nextPixelIdx;   // The index of the next pixel to grow.
-  vtkImage2DIslandPixel *nextPixel;  // The next pixel to grow.
+  vtkImage2DIslandPixel* pixels;    // All the pixels visited so far.
+  int numPixels;                    // The number of pixels visited so far.
+  vtkImage2DIslandPixel* newPixel;  // The last pixel in the list.
+  int nextPixelIdx;                 // The index of the next pixel to grow.
+  vtkImage2DIslandPixel* nextPixel; // The next pixel to grow.
   int keepValue;
   int area;
   int squareNeighborhood;
@@ -111,7 +105,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
         outPtr0 = outPtr1;
         for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
         {
-          *outPtr0 = static_cast<T>(0);  // Unvisited
+          *outPtr0 = static_cast<T>(0); // Unvisited
           outPtr0 += outInc0;
         }
         outPtr1 += outInc1;
@@ -128,10 +122,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   }
 
   // In case all 8 neighbors get added before we test the number.
-  pixels = new vtkImage2DIslandPixel [area + 8];
+  pixels = new vtkImage2DIslandPixel[area + 8];
 
-  target = static_cast<unsigned long>(maxC*(outExt[5]-outExt[4]+1)*
-                                      (outExt[3]-outExt[2]+1)/50.0);
+  target = static_cast<unsigned long>(
+    maxC * (outExt[5] - outExt[4] + 1) * (outExt[3] - outExt[2] + 1) / 50.0);
   target++;
 
   // Loop though all pixels looking for islands
@@ -139,12 +133,11 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   {
     outPtr2 = outPtr + idxC;
     inPtr2 = inPtr + idxC;
-    for (outIdx2 = outExt[4];
-         !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
+    for (outIdx2 = outExt[4]; !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
     {
-      if (!(count%target))
+      if (!(count % target))
       {
-        self->UpdateProgress(0.1 + 0.8*count/(50.0*target));
+        self->UpdateProgress(0.1 + 0.8 * count / (50.0 * target));
       }
       count++;
       outPtr1 = outPtr2;
@@ -168,117 +161,116 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
               // Start an island search
               // Save first pixel.
               newPixel = pixels;
-              newPixel->inPtr = static_cast<void *>(inPtr0);
-              newPixel->outPtr = static_cast<void *>(outPtr0);
+              newPixel->inPtr = static_cast<void*>(inPtr0);
+              newPixel->outPtr = static_cast<void*>(outPtr0);
               newPixel->idx0 = outIdx0;
               newPixel->idx1 = outIdx1;
               numPixels = 1;
               nextPixelIdx = 0;
               nextPixel = pixels;
-              *outPtr0 = 1;  // visited don't know
+              *outPtr0 = 1; // visited don't know
               keepValue = 1;
               // breadth first search
-              while (keepValue == 1)  // don't know
+              while (keepValue == 1) // don't know
               {
                 // Check all the neighbors
                 // left
                 if (nextPixel->idx0 > outExt[0])
                 {
-                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0;
-                  if ( *inNeighborPtr == islandValue)
+                  inNeighborPtr = static_cast<T*>(nextPixel->inPtr) - inInc0;
+                  if (*inNeighborPtr == islandValue)
                   {
-                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0;
-                    if ( *outNeighborPtr == 2)
+                    outNeighborPtr = static_cast<T*>(nextPixel->outPtr) - outInc0;
+                    if (*outNeighborPtr == 2)
                     {
                       // This is part of a bigger island.
                       keepValue = 2;
                     }
-                    if ( *outNeighborPtr == 0)
+                    if (*outNeighborPtr == 0)
                     {
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0 - 1;
                       newPixel->idx1 = nextPixel->idx1;
-                      *outNeighborPtr = 1;  // visited don't know
+                      *outNeighborPtr = 1; // visited don't know
                     }
                   }
                 }
                 // right
                 if (nextPixel->idx0 < outExt[1])
                 {
-                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0;
-                  if ( *inNeighborPtr == islandValue)
+                  inNeighborPtr = static_cast<T*>(nextPixel->inPtr) + inInc0;
+                  if (*inNeighborPtr == islandValue)
                   {
-                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr)
-                      + outInc0;
-                    if ( *outNeighborPtr == 2)
+                    outNeighborPtr = static_cast<T*>(nextPixel->outPtr) + outInc0;
+                    if (*outNeighborPtr == 2)
                     {
                       // This is part of a bigger island.
                       keepValue = 2;
                     }
-                    if ( *outNeighborPtr == 0)
+                    if (*outNeighborPtr == 0)
                     {
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0 + 1;
                       newPixel->idx1 = nextPixel->idx1;
-                      *outNeighborPtr = 1;  // visited don't know
+                      *outNeighborPtr = 1; // visited don't know
                     }
                   }
                 }
                 // up
                 if (nextPixel->idx1 > outExt[2])
                 {
-                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc1;
-                  if ( *inNeighborPtr == islandValue)
+                  inNeighborPtr = static_cast<T*>(nextPixel->inPtr) - inInc1;
+                  if (*inNeighborPtr == islandValue)
                   {
-                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc1;
-                    if ( *outNeighborPtr == 2)
+                    outNeighborPtr = static_cast<T*>(nextPixel->outPtr) - outInc1;
+                    if (*outNeighborPtr == 2)
                     {
                       // This is part of a bigger island.
                       keepValue = 2;
                     }
-                    if ( *outNeighborPtr == 0)
+                    if (*outNeighborPtr == 0)
                     {
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0;
                       newPixel->idx1 = nextPixel->idx1 - 1;
-                      *outNeighborPtr = 1;  // visited don't know
+                      *outNeighborPtr = 1; // visited don't know
                     }
                   }
                 }
                 // down
                 if (nextPixel->idx1 < outExt[3])
                 {
-                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc1;
-                  if ( *inNeighborPtr == islandValue)
+                  inNeighborPtr = static_cast<T*>(nextPixel->inPtr) + inInc1;
+                  if (*inNeighborPtr == islandValue)
                   {
-                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc1;
-                    if ( *outNeighborPtr == 2)
+                    outNeighborPtr = static_cast<T*>(nextPixel->outPtr) + outInc1;
+                    if (*outNeighborPtr == 2)
                     {
                       // This is part of a bigger island.
                       keepValue = 2;
                     }
-                    if ( *outNeighborPtr == 0)
+                    if (*outNeighborPtr == 0)
                     {
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0;
                       newPixel->idx1 = nextPixel->idx1 + 1;
-                      *outNeighborPtr = 1;  // visited don't know
+                      *outNeighborPtr = 1; // visited don't know
                     }
                   }
                 }
@@ -288,100 +280,100 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   // upper left
                   if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 > outExt[2])
                   {
-                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0 - inInc1;
-                    if ( *inNeighborPtr == islandValue)
+                    inNeighborPtr = static_cast<T*>(nextPixel->inPtr) - inInc0 - inInc1;
+                    if (*inNeighborPtr == islandValue)
                     {
-                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0 -outInc1;
-                      if ( *outNeighborPtr == 2)
+                      outNeighborPtr = static_cast<T*>(nextPixel->outPtr) - outInc0 - outInc1;
+                      if (*outNeighborPtr == 2)
                       {
                         // This is part of a bigger island.
                         keepValue = 2;
                       }
-                      if ( *outNeighborPtr == 0)
+                      if (*outNeighborPtr == 0)
                       {
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 - 1;
                         newPixel->idx1 = nextPixel->idx1 - 1;
-                        *outNeighborPtr = 1;  // visited don't know
+                        *outNeighborPtr = 1; // visited don't know
                       }
                     }
                   }
                   // upper right
                   if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 > outExt[2])
                   {
-                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0 - inInc1;
-                    if ( *inNeighborPtr == islandValue)
+                    inNeighborPtr = static_cast<T*>(nextPixel->inPtr) + inInc0 - inInc1;
+                    if (*inNeighborPtr == islandValue)
                     {
-                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc0 -outInc1;
-                      if ( *outNeighborPtr == 2)
+                      outNeighborPtr = static_cast<T*>(nextPixel->outPtr) + outInc0 - outInc1;
+                      if (*outNeighborPtr == 2)
                       {
                         // This is part of a bigger island.
                         keepValue = 2;
                       }
-                      if ( *outNeighborPtr == 0)
+                      if (*outNeighborPtr == 0)
                       {
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 + 1;
                         newPixel->idx1 = nextPixel->idx1 - 1;
-                        *outNeighborPtr = 1;  // visited don't know
+                        *outNeighborPtr = 1; // visited don't know
                       }
                     }
                   }
                   // lower left
                   if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 < outExt[3])
                   {
-                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0 + inInc1;
-                    if ( *inNeighborPtr == islandValue)
+                    inNeighborPtr = static_cast<T*>(nextPixel->inPtr) - inInc0 + inInc1;
+                    if (*inNeighborPtr == islandValue)
                     {
-                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0 +outInc1;
-                      if ( *outNeighborPtr == 2)
+                      outNeighborPtr = static_cast<T*>(nextPixel->outPtr) - outInc0 + outInc1;
+                      if (*outNeighborPtr == 2)
                       {
                         // This is part of a bigger island.
                         keepValue = 2;
                       }
-                      if ( *outNeighborPtr == 0)
+                      if (*outNeighborPtr == 0)
                       {
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 - 1;
                         newPixel->idx1 = nextPixel->idx1 + 1;
-                        *outNeighborPtr = 1;  // visited don't know
+                        *outNeighborPtr = 1; // visited don't know
                       }
                     }
                   }
                   // lower right
                   if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 < outExt[3])
                   {
-                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0 + inInc1;
-                    if ( *inNeighborPtr == islandValue)
+                    inNeighborPtr = static_cast<T*>(nextPixel->inPtr) + inInc0 + inInc1;
+                    if (*inNeighborPtr == islandValue)
                     {
-                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc0 +outInc1;
-                      if ( *outNeighborPtr == 2)
+                      outNeighborPtr = static_cast<T*>(nextPixel->outPtr) + outInc0 + outInc1;
+                      if (*outNeighborPtr == 2)
                       {
                         // This is part of a bigger island.
                         keepValue = 2;
                       }
-                      if ( *outNeighborPtr == 0)
+                      if (*outNeighborPtr == 0)
                       {
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
-                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void*>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void*>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 + 1;
                         newPixel->idx1 = nextPixel->idx1 + 1;
-                        *outNeighborPtr = 1;  // visited don't know
+                        *outNeighborPtr = 1; // visited don't know
                       }
                     }
                   }
@@ -409,7 +401,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
               nextPixel = pixels;
               for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
               {
-                *(static_cast<T *>(nextPixel->outPtr)) = keepValue;
+                *(static_cast<T*>(nextPixel->outPtr)) = keepValue;
                 ++nextPixel;
               }
             }
@@ -426,7 +418,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     }
   }
 
-  delete [] pixels;
+  delete[] pixels;
 
   // update the progress and possibly abort
   self->UpdateProgress(0.9);
@@ -470,25 +462,20 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same
 // data type.  Assumes that in and out have the same lower extent.
-int vtkImageIslandRemoval2D::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageIslandRemoval2D::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   int outExt[6];
 
   // get the data object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int wholeExtent[6];
   int extent[6];
@@ -514,15 +501,13 @@ int vtkImageIslandRemoval2D::RequestData(
   }
 
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void* inPtr = inData->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
 
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageIslandRemoval2DExecute(this, inData,
-                                     static_cast<VTK_TT *>(inPtr), outData,
-                                     static_cast<VTK_TT *>(outPtr), outExt));
+    vtkTemplateMacro(vtkImageIslandRemoval2DExecute(
+      this, inData, static_cast<VTK_TT*>(inPtr), outData, static_cast<VTK_TT*>(outPtr), outExt));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
@@ -530,10 +515,3 @@ int vtkImageIslandRemoval2D::RequestData(
 
   return 1;
 }
-
-
-
-
-
-
-

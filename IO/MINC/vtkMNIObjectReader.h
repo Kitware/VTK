@@ -60,7 +60,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * @par Thanks:
  * Thanks to David Gobbi for writing this class and Atamai Inc. for
  * contributing it to VTK.
-*/
+ */
 
 #ifndef vtkMNIObjectReader_h
 #define vtkMNIObjectReader_h
@@ -78,9 +78,9 @@ class vtkCellArray;
 class VTKIOMINC_EXPORT vtkMNIObjectReader : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMNIObjectReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMNIObjectReader, vtkPolyDataAlgorithm);
 
-  static vtkMNIObjectReader *New();
+  static vtkMNIObjectReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -94,14 +94,12 @@ public:
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".obj"; }
+  virtual const char* GetFileExtensions() { return ".obj"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI object"; }
+  virtual const char* GetDescriptiveName() { return "MNI object"; }
 
   /**
    * Test whether the specified file can be read.
@@ -111,49 +109,46 @@ public:
   /**
    * Get the property associated with the object.
    */
-  virtual vtkProperty *GetProperty() { return this->Property; };
+  virtual vtkProperty* GetProperty() { return this->Property; }
 
 protected:
   vtkMNIObjectReader();
   ~vtkMNIObjectReader() override;
 
-  char *FileName;
-  vtkProperty *Property;
+  char* FileName;
+  vtkProperty* Property;
   int FileType;
 
-  istream *InputStream;
+  istream* InputStream;
   int LineNumber;
-  char *LineText;
-  char *CharPointer;
+  char* LineText;
+  char* CharPointer;
 
-  int ReadLine(char *text, unsigned int length);
+  int ReadLine(char* text, unsigned int length);
   int SkipWhitespace();
-  int ParseValues(vtkDataArray *array, vtkIdType n);
-  int ParseIdValue(vtkIdType *value);
+  int ParseValues(vtkDataArray* array, vtkIdType n);
+  int ParseIdValue(vtkIdType* value);
 
-  int ReadNumberOfPoints(vtkIdType *numCells);
-  int ReadNumberOfCells(vtkIdType *numCells);
-  int ReadProperty(vtkProperty *property);
-  int ReadLineThickness(vtkProperty *property);
-  int ReadPoints(vtkPolyData *polyData, vtkIdType numPoints);
-  int ReadNormals(vtkPolyData *polyData, vtkIdType numPoints);
-  int ReadColors(vtkProperty *property, vtkPolyData *data,
-                 vtkIdType numPoints, vtkIdType numCells);
-  int ReadCells(vtkPolyData *data, vtkIdType numCells, int cellType);
+  int ReadNumberOfPoints(vtkIdType* numCells);
+  int ReadNumberOfCells(vtkIdType* numCells);
+  int ReadProperty(vtkProperty* property);
+  int ReadLineThickness(vtkProperty* property);
+  int ReadPoints(vtkPolyData* polyData, vtkIdType numPoints);
+  int ReadNormals(vtkPolyData* polyData, vtkIdType numPoints);
+  int ReadColors(vtkProperty* property, vtkPolyData* data, vtkIdType numPoints, vtkIdType numCells);
+  int ReadCells(vtkPolyData* data, vtkIdType numCells, int cellType);
 
-  int ReadPolygonObject(vtkPolyData *output);
-  int ReadLineObject(vtkPolyData *output);
+  int ReadPolygonObject(vtkPolyData* output);
+  int ReadLineObject(vtkPolyData* output);
 
-  virtual int ReadFile(vtkPolyData *output);
+  virtual int ReadFile(vtkPolyData* output);
 
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo) override;
+  int RequestData(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
 private:
   vtkMNIObjectReader(const vtkMNIObjectReader&) = delete;
   void operator=(const vtkMNIObjectReader&) = delete;
-
 };
 
 #endif

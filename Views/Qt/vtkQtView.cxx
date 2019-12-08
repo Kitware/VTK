@@ -12,28 +12,21 @@
 
 #include "vtkQtView.h"
 
+#include "vtkObjectFactory.h"
 #include <QApplication>
 #include <QPixmap>
 #include <QWidget>
-#include "vtkObjectFactory.h"
-
 
 //----------------------------------------------------------------------------
-vtkQtView::vtkQtView()
-{
-
-}
+vtkQtView::vtkQtView() {}
 
 //----------------------------------------------------------------------------
-vtkQtView::~vtkQtView()
-{
-
-}
+vtkQtView::~vtkQtView() {}
 
 //----------------------------------------------------------------------------
 void vtkQtView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------

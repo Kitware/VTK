@@ -42,8 +42,7 @@ vtkDataObjectToTable::vtkDataObjectToTable()
 vtkDataObjectToTable::~vtkDataObjectToTable() = default;
 
 //---------------------------------------------------------------------------
-int vtkDataObjectToTable::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkDataObjectToTable::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -54,9 +53,7 @@ int vtkDataObjectToTable::FillInputPortInformation(
 
 //---------------------------------------------------------------------------
 int vtkDataObjectToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get input data
   vtkInformation* inputInfo = inputVector[0]->GetInformationObject(0);
@@ -64,8 +61,7 @@ int vtkDataObjectToTable::RequestData(
 
   // Get output table
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-  vtkTable* output = vtkTable::SafeDownCast(
-    outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* output = vtkTable::SafeDownCast(outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If the input is a table, just copy it into the output.
   if (vtkTable::SafeDownCast(input))
@@ -76,45 +72,45 @@ int vtkDataObjectToTable::RequestData(
 
   vtkDataSetAttributes* data = vtkDataSetAttributes::New();
 
-  switch(this->FieldType)
+  switch (this->FieldType)
   {
     case FIELD_DATA:
-      if(input->GetFieldData())
+      if (input->GetFieldData())
       {
         data->ShallowCopy(input->GetFieldData());
       }
       break;
     case POINT_DATA:
-      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+      if (vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
       {
-        if(dataset->GetPointData())
+        if (dataset->GetPointData())
         {
           data->ShallowCopy(dataset->GetPointData());
         }
       }
       break;
     case CELL_DATA:
-      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+      if (vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
       {
-        if(dataset->GetCellData())
+        if (dataset->GetCellData())
         {
           data->ShallowCopy(dataset->GetCellData());
         }
       }
       break;
     case VERTEX_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+      if (vtkGraph* const graph = vtkGraph::SafeDownCast(input))
       {
-        if(graph->GetVertexData())
+        if (graph->GetVertexData())
         {
           data->ShallowCopy(graph->GetVertexData());
         }
       }
       break;
     case EDGE_DATA:
-      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+      if (vtkGraph* const graph = vtkGraph::SafeDownCast(input))
       {
-        if(graph->GetEdgeData())
+        if (graph->GetEdgeData())
         {
           data->ShallowCopy(graph->GetEdgeData());
         }

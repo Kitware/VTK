@@ -14,11 +14,12 @@
 =========================================================================*/
 #include <cstdlib>
 
-#include "vtkSmartPointer.h"
 #include "vtkSTLReader.h"
 #include "vtkSTLWriter.h"
-#include "vtkTestUtilities.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkPlaneSource.h"
 #include "vtkSphereSource.h"
@@ -26,20 +27,19 @@
 
 #include <vtksys/SystemTools.hxx>
 
-int UnitTestSTLWriter(int argc,char *argv[])
+int UnitTestSTLWriter(int argc, char* argv[])
 {
   int status = 0;
 
-  char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
     std::cout << "Could not determine temporary directory.\n";
     return EXIT_FAILURE;
   }
   std::string testDirectory = tempDir;
-  delete [] tempDir;
-
+  delete[] tempDir;
 
   // Reader for verifying that header is written correctly
   vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
@@ -47,8 +47,8 @@ int UnitTestSTLWriter(int argc,char *argv[])
   // Test header data
   std::string shortTextHeader = "This is a short text header.";
   std::string longTextHeader = "This is a long text header. It is longer "
-    "than the maximum 80 characters allowed for binary headers, "
-    "but should be no problem in text files.";
+                               "than the maximum 80 characters allowed for binary headers, "
+                               "but should be no problem in text files.";
   vtkNew<vtkUnsignedCharArray> shortBinaryHeader;
   for (unsigned char c = 100; c < 135; c++)
   {
@@ -60,8 +60,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     longBinaryHeader->InsertNextValue(c);
   }
 
-  vtkSmartPointer<vtkSTLWriter> writer1 =
-    vtkSmartPointer<vtkSTLWriter>::New();
+  vtkSmartPointer<vtkSTLWriter> writer1 = vtkSmartPointer<vtkSTLWriter>::New();
   writer1->Print(std::cout);
 
   writer1->SetFileTypeToASCII();
@@ -70,8 +69,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   fileName = testDirectory + std::string("/") + std::string("ASCII.stl");
   writer1->SetFileName(fileName.c_str());
 
-  vtkSmartPointer<vtkSphereSource> sphere =
-    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
 
   writer1->SetInputConnection(sphere->GetOutputPort());
   writer1->SetHeader(shortTextHeader.c_str());
@@ -101,14 +99,13 @@ int UnitTestSTLWriter(int argc,char *argv[])
     cerr << "Unexpected size of long text header: " << readHeader.size() << std::endl;
     ++status;
   }
-  if (longTextHeader.compare(0,80,readHeader)!=0)
+  if (longTextHeader.compare(0, 80, readHeader) != 0)
   {
     cerr << "Unexpected content of long text header: " << readHeader << std::endl;
     ++status;
   }
 
-  vtkSmartPointer<vtkStripper> stripper =
-    vtkSmartPointer<vtkStripper>::New();
+  vtkSmartPointer<vtkStripper> stripper = vtkSmartPointer<vtkStripper>::New();
   stripper->SetInputConnection(sphere->GetOutputPort());
 
   writer1->SetInputConnection(stripper->GetOutputPort());
@@ -123,13 +120,15 @@ int UnitTestSTLWriter(int argc,char *argv[])
   vtkUnsignedCharArray* readBinaryHeader = reader->GetBinaryHeader();
   if (readBinaryHeader->GetNumberOfValues() != 80)
   {
-    cerr << "Unexpected size of short binary header: " << readBinaryHeader->GetNumberOfValues() << std::endl;
+    cerr << "Unexpected size of short binary header: " << readBinaryHeader->GetNumberOfValues()
+         << std::endl;
     ++status;
   }
   for (vtkIdType i = 0; i < 80; i++)
   {
-    if ((i < shortBinaryHeader->GetNumberOfValues() && readBinaryHeader->GetValue(i) != shortBinaryHeader->GetValue(i))
-      || (i >= shortBinaryHeader->GetNumberOfValues() && readBinaryHeader->GetValue(i) != 0))
+    if ((i < shortBinaryHeader->GetNumberOfValues() &&
+          readBinaryHeader->GetValue(i) != shortBinaryHeader->GetValue(i)) ||
+      (i >= shortBinaryHeader->GetNumberOfValues() && readBinaryHeader->GetValue(i) != 0))
     {
       cerr << "Unexpected content of binary header at position " << i << std::endl;
       ++status;
@@ -142,8 +141,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer1->SetFileName(fileName.c_str());
   writer1->Update();
 
-  vtkSmartPointer<vtkPlaneSource> plane =
-    vtkSmartPointer<vtkPlaneSource>::New();
+  vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
   writer1->SetFileTypeToASCII();
   fileName = testDirectory + std::string("/") + std::string("ASCIIQuad.stl");
   writer1->SetFileName(fileName.c_str());
@@ -155,7 +153,6 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer1->SetFileName(fileName.c_str());
   writer1->SetInputConnection(plane->GetOutputPort());
   writer1->Update();
-
 
   // Header: long binary / binary => truncated
   reader->SetFileName(fileName.c_str());
@@ -178,15 +175,13 @@ int UnitTestSTLWriter(int argc,char *argv[])
 
   // Check error conditions
   //
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  vtkSmartPointer<vtkSTLWriter> writer2 =
-    vtkSmartPointer<vtkSTLWriter>::New();
+  vtkSmartPointer<vtkSTLWriter> writer2 = vtkSmartPointer<vtkSTLWriter>::New();
   writer2->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   writer2->SetFileName("foo");
-  vtkSmartPointer<vtkPolyData> emptyPolyData =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> emptyPolyData = vtkSmartPointer<vtkPolyData>::New();
   writer2->SetInputData(emptyPolyData);
   writer2->SetFileTypeToASCII();
   writer2->Update();
@@ -288,12 +283,12 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetFileTypeToBinary();
   writer2->SetHeader("solid");
   writer2->Update();
-  status1 = errorObserver->CheckErrorMessage("Invalid header for Binary STL file. Cannot start with \"solid\"");
+  status1 = errorObserver->CheckErrorMessage(
+    "Invalid header for Binary STL file. Cannot start with \"solid\"");
   if (status1)
   {
     ++status;
   }
-
 
   return status;
 }

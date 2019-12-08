@@ -43,7 +43,7 @@
  * 2, 6 and 10, vertex 2 is adjacent to 1 and 3, etc.  Since Chaco ids
  * start at 1 and VTK ids start at 0, the vertex ids in the vtkGraph
  * will be 1 less than the Chaco ids.
-*/
+ */
 
 #ifndef vtkChacoGraphReader_h
 #define vtkChacoGraphReader_h
@@ -54,7 +54,7 @@
 class VTKIOINFOVIS_EXPORT vtkChacoGraphReader : public vtkUndirectedGraphAlgorithm
 {
 public:
-  static vtkChacoGraphReader *New();
+  static vtkChacoGraphReader* New();
   vtkTypeMacro(vtkChacoGraphReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -70,10 +70,7 @@ protected:
   vtkChacoGraphReader();
   ~vtkChacoGraphReader() override;
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   char* FileName;

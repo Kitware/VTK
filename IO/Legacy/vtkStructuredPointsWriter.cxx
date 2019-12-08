@@ -19,34 +19,32 @@
 #include "vtkStructuredPoints.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
-
 
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
 void vtkStructuredPointsWriter::WriteData()
 {
-  ostream *fp;
-  vtkImageData *input= vtkImageData::SafeDownCast(this->GetInput());
+  ostream* fp;
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
   int dim[3];
-  int *ext;
+  int* ext;
   double spacing[3], origin[3];
 
-  vtkDebugMacro(<<"Writing vtk structured points...");
+  vtkDebugMacro(<< "Writing vtk structured points...");
 
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
-      if (fp)
-      {
-        vtkErrorMacro("Ran out of disk space; deleting file: "
-                      << this->FileName);
-        this->CloseVTKFile(fp);
-        unlink(this->FileName);
-      }
-      return;
+    if (fp)
+    {
+      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+      this->CloseVTKFile(fp);
+      unlink(this->FileName);
+    }
+    return;
   }
   //
   // Write structured points specific stuff
@@ -66,9 +64,8 @@ void vtkStructuredPointsWriter::WriteData()
   {
     int extent[6];
     input->GetExtent(extent);
-    *fp << "EXTENT "
-        << extent[0] << " " << extent[1] << " " << extent[2] << " "
-        << extent[3] << " " << extent[4] << " " << extent[5] << "\n";
+    *fp << "EXTENT " << extent[0] << " " << extent[1] << " " << extent[2] << " " << extent[3] << " "
+        << extent[4] << " " << extent[5] << "\n";
   }
   else
   {
@@ -113,8 +110,7 @@ void vtkStructuredPointsWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-int vtkStructuredPointsWriter::FillInputPortInformation(int,
-                                                        vtkInformation *info)
+int vtkStructuredPointsWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
@@ -132,5 +128,5 @@ vtkImageData* vtkStructuredPointsWriter::GetInput(int port)
 
 void vtkStructuredPointsWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

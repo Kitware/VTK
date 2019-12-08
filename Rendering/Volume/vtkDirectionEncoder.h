@@ -28,13 +28,13 @@
  *
  * @sa
  * vtkRecursiveSphereDirectionEncoder
-*/
+ */
 
 #ifndef vtkDirectionEncoder_h
 #define vtkDirectionEncoder_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkDirectionEncoder : public vtkObject
 {
@@ -43,24 +43,24 @@ public:
   /**
    * Get the name of this class
    */
-  vtkTypeMacro(vtkDirectionEncoder,vtkObject);
+  vtkTypeMacro(vtkDirectionEncoder, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Given a normal vector n, return the encoded direction
    */
-  virtual int GetEncodedDirection( float n[3] )=0;
+  virtual int GetEncodedDirection(float n[3]) = 0;
 
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  virtual float *GetDecodedGradient( int value ) VTK_SIZEHINT(3) = 0;
+  virtual float* GetDecodedGradient(int value) VTK_SIZEHINT(3) = 0;
 
   /**
    * Return the number of encoded directions
    */
-  virtual  int GetNumberOfEncodedDirections( void )=0;
+  virtual int GetNumberOfEncodedDirections(void) = 0;
 
   /**
    * Get the decoded gradient table. There are
@@ -68,22 +68,15 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  virtual float *GetDecodedGradientTable( void )=0;
+  virtual float* GetDecodedGradientTable(void) = 0;
 
 protected:
   vtkDirectionEncoder() {}
   ~vtkDirectionEncoder() override {}
+
 private:
   vtkDirectionEncoder(const vtkDirectionEncoder&) = delete;
   void operator=(const vtkDirectionEncoder&) = delete;
 };
 
-
 #endif
-
-
-
-
-
-
-

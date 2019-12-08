@@ -16,62 +16,62 @@
 // to vtkQuadricClustering ; so instead of seeing a point cloud during
 // interaction, (when run with -I) you will see a low res kline.
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include "vtkPolyData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkLODActor.h"
 #include "vtkLoopSubdivisionFilter.h"
-#include "vtkDataSetMapper.h"
+#include "vtkMaskPoints.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkQuadricClustering.h"
-#include "vtkMaskPoints.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 
-int TestLODActor( int argc, char* argv[])
+int TestLODActor(int argc, char* argv[])
 {
   // Create a Kline.
 
-  vtkPoints *points = vtkPoints::New();
-  points->InsertNextPoint(0,-16,0);
-  points->InsertNextPoint(0,0,-14);
-  points->InsertNextPoint(0,0,14);
-  points->InsertNextPoint(14,0,0);
-  points->InsertNextPoint(10,20,-10);
-  points->InsertNextPoint(10,20,10);
-  points->InsertNextPoint(10,-20,-10);
-  points->InsertNextPoint(10,-20,10);
-  points->InsertNextPoint(-10,-20,-10);
-  points->InsertNextPoint(-10,-20,10);
-  points->InsertNextPoint(-10,20,-10);
-  points->InsertNextPoint(-10,20,10);
-  points->InsertNextPoint(-2,27,0);
-  points->InsertNextPoint(0,27,2);
-  points->InsertNextPoint(0,27,-2);
-  points->InsertNextPoint(2,27,0);
-  points->InsertNextPoint(-14,4,-1);
-  points->InsertNextPoint(-14,3,0);
-  points->InsertNextPoint(-14,5,0);
-  points->InsertNextPoint(-14,4,1);
-  points->InsertNextPoint(-1,38,-2);
-  points->InsertNextPoint(-1,38,2);
-  points->InsertNextPoint(2,35,-2);
-  points->InsertNextPoint(2,35,2);
-  points->InsertNextPoint(17,42,0);
-  points->InsertNextPoint(15,40,2);
-  points->InsertNextPoint(15,39,-2);
-  points->InsertNextPoint(13,37,0);
-  points->InsertNextPoint(19,-2,-2);
-  points->InsertNextPoint(19,-2,2);
-  points->InsertNextPoint(15,2,-2);
-  points->InsertNextPoint(15,2,2);
+  vtkPoints* points = vtkPoints::New();
+  points->InsertNextPoint(0, -16, 0);
+  points->InsertNextPoint(0, 0, -14);
+  points->InsertNextPoint(0, 0, 14);
+  points->InsertNextPoint(14, 0, 0);
+  points->InsertNextPoint(10, 20, -10);
+  points->InsertNextPoint(10, 20, 10);
+  points->InsertNextPoint(10, -20, -10);
+  points->InsertNextPoint(10, -20, 10);
+  points->InsertNextPoint(-10, -20, -10);
+  points->InsertNextPoint(-10, -20, 10);
+  points->InsertNextPoint(-10, 20, -10);
+  points->InsertNextPoint(-10, 20, 10);
+  points->InsertNextPoint(-2, 27, 0);
+  points->InsertNextPoint(0, 27, 2);
+  points->InsertNextPoint(0, 27, -2);
+  points->InsertNextPoint(2, 27, 0);
+  points->InsertNextPoint(-14, 4, -1);
+  points->InsertNextPoint(-14, 3, 0);
+  points->InsertNextPoint(-14, 5, 0);
+  points->InsertNextPoint(-14, 4, 1);
+  points->InsertNextPoint(-1, 38, -2);
+  points->InsertNextPoint(-1, 38, 2);
+  points->InsertNextPoint(2, 35, -2);
+  points->InsertNextPoint(2, 35, 2);
+  points->InsertNextPoint(17, 42, 0);
+  points->InsertNextPoint(15, 40, 2);
+  points->InsertNextPoint(15, 39, -2);
+  points->InsertNextPoint(13, 37, 0);
+  points->InsertNextPoint(19, -2, -2);
+  points->InsertNextPoint(19, -2, 2);
+  points->InsertNextPoint(15, 2, -2);
+  points->InsertNextPoint(15, 2, 2);
 
-  vtkCellArray *faces = vtkCellArray::New();
+  vtkCellArray* faces = vtkCellArray::New();
   faces->InsertNextCell(3);
   faces->InsertCellPoint(3);
   faces->InsertCellPoint(4);
@@ -329,33 +329,32 @@ int TestLODActor( int argc, char* argv[])
   faces->InsertCellPoint(19);
   faces->InsertCellPoint(29);
 
-
-  vtkPolyData * model = vtkPolyData::New();
+  vtkPolyData* model = vtkPolyData::New();
   model->SetPolys(faces);
   model->SetPoints(points);
 
   // Create the RenderWindow, Renderer and both Actors
 
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* ren1 = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  vtkLoopSubdivisionFilter *subdivide = vtkLoopSubdivisionFilter::New();
-    subdivide->SetInputData (model);
-    subdivide->SetNumberOfSubdivisions(6);
+  vtkLoopSubdivisionFilter* subdivide = vtkLoopSubdivisionFilter::New();
+  subdivide->SetInputData(model);
+  subdivide->SetNumberOfSubdivisions(6);
 
-  vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-     mapper->SetInputConnection (subdivide->GetOutputPort());
+  vtkDataSetMapper* mapper = vtkDataSetMapper::New();
+  mapper->SetInputConnection(subdivide->GetOutputPort());
 
-  vtkLODActor *rose = vtkLODActor::New();
-      rose->SetMapper (mapper);
+  vtkLODActor* rose = vtkLODActor::New();
+  rose->SetMapper(mapper);
 
   // Now replace the default strategy of the LOD Actor from to show a low
   // resolution kline. We will use vtkQuadricClustering for this purpose.
 
-  vtkQuadricClustering * q = vtkQuadricClustering::New();
+  vtkQuadricClustering* q = vtkQuadricClustering::New();
   q->SetNumberOfXDivisions(8);
   q->SetNumberOfYDivisions(8);
   q->SetNumberOfZDivisions(8);
@@ -375,11 +374,11 @@ int TestLODActor( int argc, char* argv[])
 
   ren1->AddActor(rose);
 
-  vtkProperty *backP = vtkProperty::New();
-  backP->SetDiffuseColor (1, 1, .3);
-  rose->SetBackfaceProperty (backP);
+  vtkProperty* backP = vtkProperty::New();
+  backP->SetDiffuseColor(1, 1, .3);
+  rose->SetBackfaceProperty(backP);
 
-  rose->GetProperty()->SetDiffuseColor( 1, .4, .3);
+  rose->GetProperty()->SetDiffuseColor(1, .4, .3);
   rose->GetProperty()->SetSpecular(.4);
   rose->GetProperty()->SetDiffuse(.8);
   rose->GetProperty()->SetSpecularPower(40);
@@ -390,14 +389,14 @@ int TestLODActor( int argc, char* argv[])
   // render the image
 
   ren1->ResetCamera();
-  vtkCamera * cam1 = ren1->GetActiveCamera();
+  vtkCamera* cam1 = ren1->GetActiveCamera();
   cam1->Azimuth(-90);
   ren1->ResetCameraClippingRange();
   iren->Initialize();
   iren->SetDesiredUpdateRate(500);
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -25,9 +25,9 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSliceAndDiceLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkSquarifyLayoutStrategy.h"
@@ -37,11 +37,10 @@
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-
-void TestStrategy(vtkTreeMapLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX, double posY, vtkRenderer* ren)
+void TestStrategy(vtkTreeMapLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX,
+  double posY, vtkRenderer* ren)
 {
   strategy->SetShrinkPercentage(0.1);
   VTK_CREATE(vtkTreeMapLayout, layout);

@@ -1,11 +1,12 @@
 
-#include "ui_QtVTKTouchscreenRenderWindows.h"
 #include "QtVTKTouchscreenRenderWindows.h"
+#include "ui_QtVTKTouchscreenRenderWindows.h"
 
 // Available interactions:
 // - Tap: Randomizes background color and moves the sphere actor to the location of the tap point
 //      = Touchscreen: 1 finger
-// - Tap and hold: Switches camera between perspective and orthographic view and moves the cylinder to the location of the tap point
+// - Tap and hold: Switches camera between perspective and orthographic view and moves the cylinder
+// to the location of the tap point
 //      = Touchscreen and MacOS trackpad: 1 finger
 // - Swipe: Changes the color of the Square/Sphere/Cylinder based on the swipe angle. Angle -> Hue
 //      = Touchscreen: 3 fingers
@@ -21,15 +22,15 @@
 #include <vtkCamera.h>
 #include <vtkCollectionIterator.h>
 #include <vtkCubeSource.h>
+#include <vtkCylinderSource.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkInteractorStyleMultiTouchCamera.h>
+#include <vtkPlane.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 #include <vtkTransform.h>
-#include <vtkPlane.h>
-#include <vtkCylinderSource.h>
 
 vtkNew<vtkActor> cubeActor;
 vtkNew<vtkActor> sphereActor;
@@ -63,13 +64,15 @@ public:
       this->Interactor->GetEventPositions(pointer)[1]);
 
     double* focalPointWorld = camera->GetFocalPoint();
-    double focalPointDisplay[3] = { 0,0,0 };
-    vtkInteractorObserver::ComputeWorldToDisplay(this->CurrentRenderer, focalPointWorld[0], focalPointWorld[1], focalPointWorld[2], focalPointDisplay);
+    double focalPointDisplay[3] = { 0, 0, 0 };
+    vtkInteractorObserver::ComputeWorldToDisplay(this->CurrentRenderer, focalPointWorld[0],
+      focalPointWorld[1], focalPointWorld[2], focalPointDisplay);
 
     // New position at the center of the pinch gesture
     int* touchPositionDisplay = this->Interactor->GetEventPositions(pointer);
-    double pickPoint[4] = { 0,0,0,0 };
-    vtkInteractorObserver::ComputeDisplayToWorld(this->CurrentRenderer, touchPositionDisplay[0], touchPositionDisplay[1], focalPointDisplay[2], pickPosition);
+    double pickPoint[4] = { 0, 0, 0, 0 };
+    vtkInteractorObserver::ComputeDisplayToWorld(this->CurrentRenderer, touchPositionDisplay[0],
+      touchPositionDisplay[1], focalPointDisplay[2], pickPosition);
   }
 
   void OnLongTap() override
@@ -87,7 +90,7 @@ public:
 
     camera->SetParallelProjection(!camera->GetParallelProjection());
 
-    double pickPoint[4] = { 0,0,0,0 };
+    double pickPoint[4] = { 0, 0, 0, 0 };
     this->GetPickPosition(pickPoint);
     cylinderTransform->Identity();
     cylinderTransform->Translate(pickPoint);
@@ -102,11 +105,10 @@ public:
       return;
     }
 
-    this->CurrentRenderer->SetBackground((double)rand() / RAND_MAX,
-      (double)rand() / RAND_MAX,
-      (double)rand() / RAND_MAX);
+    this->CurrentRenderer->SetBackground(
+      (double)rand() / RAND_MAX, (double)rand() / RAND_MAX, (double)rand() / RAND_MAX);
 
-    double pickPoint[4] = { 0,0,0,0 };
+    double pickPoint[4] = { 0, 0, 0, 0 };
     this->GetPickPosition(pickPoint);
     sphereTransform->Identity();
     sphereTransform->Translate(pickPoint);
@@ -180,14 +182,16 @@ QtVTKTouchscreenRenderWindows::QtVTKTouchscreenRenderWindows(int vtkNotUsed(argc
   this->ui = new Ui_QtVTKTouchscreenRenderWindows;
   this->ui->setupUi(this);
 
-  vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow =
+    vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
   this->ui->view->setRenderWindow(renderWindow);
 
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   this->ui->view->renderWindow()->AddRenderer(renderer);
 
   vtkRenderWindowInteractor* interactor = this->ui->view->interactor();
-  vtkSmartPointer<vtkInteractorStyleMultiTouchCameraExample> interactorStyle = vtkSmartPointer<vtkInteractorStyleMultiTouchCameraExample>::New();
+  vtkSmartPointer<vtkInteractorStyleMultiTouchCameraExample> interactorStyle =
+    vtkSmartPointer<vtkInteractorStyleMultiTouchCameraExample>::New();
   interactor->SetInteractorStyle(interactorStyle);
   renderWindow->SetInteractor(interactor);
 
@@ -197,8 +201,7 @@ QtVTKTouchscreenRenderWindows::QtVTKTouchscreenRenderWindows(int vtkNotUsed(argc
   cubeSource->SetZLength(0.5);
 
   // Create a mapper and actor.
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(cubeSource->GetOutputPort());
   cubeActor->SetMapper(mapper);
   renderer->AddActor(cubeActor);
@@ -207,8 +210,7 @@ QtVTKTouchscreenRenderWindows::QtVTKTouchscreenRenderWindows(int vtkNotUsed(argc
   sphereSource->SetRadius(0.125);
 
   // Create a mapper and actor.
-  vtkSmartPointer<vtkPolyDataMapper> sphereMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
   sphereActor->SetMapper(sphereMapper);
   sphereActor->SetUserTransform(sphereTransform);
@@ -219,8 +221,7 @@ QtVTKTouchscreenRenderWindows::QtVTKTouchscreenRenderWindows(int vtkNotUsed(argc
   cylinderSource->SetHeight(0.25);
 
   // Create a mapper and actor.
-  vtkSmartPointer<vtkPolyDataMapper> cylinderMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> cylinderMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   cylinderMapper->SetInputConnection(cylinderSource->GetOutputPort());
   cylinderActor->SetMapper(cylinderMapper);
   cylinderActor->SetUserTransform(cylinderTransform);

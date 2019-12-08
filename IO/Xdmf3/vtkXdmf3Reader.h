@@ -25,13 +25,13 @@
  *
  * @warning
  * Uses the XDMF API (http://www.xdmf.org)
-*/
+ */
 
 #ifndef vtkXdmf3Reader_h
 #define vtkXdmf3Reader_h
 
-#include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIOXdmf3Module.h" // For export macro
 
 class vtkXdmf3ArraySelection;
 class vtkGraph;
@@ -147,10 +147,8 @@ public:
    * These methods are provided to make it easier to use the Sets in ParaView.
    */
   int GetNumberOfSetArrays() { return this->GetNumberOfSets(); }
-  const char* GetSetArrayName(int index)
-    { return this->GetSetName(index); }
-  int GetSetArrayStatus(const char* name)
-    { return this->GetSetStatus(name); }
+  const char* GetSetArrayName(int index) { return this->GetSetName(index); }
+  int GetSetArrayStatus(const char* name) { return this->GetSetStatus(name); }
 
   /**
    * SIL describes organization of/relationships between classifications
@@ -170,25 +168,23 @@ protected:
   const char* FileNameInternal;
   vtkSetStringMacro(FileNameInternal);
 
-  //Overridden to announce that we make general DataObjects.
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  // Overridden to announce that we make general DataObjects.
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  //Overridden to handle RDO requests the way we need to
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Overridden to handle RDO requests the way we need to
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //Overridden to create the correct vtkDataObject subclass for the file.
-  virtual int RequestDataObjectInternal(
-    vtkInformationVector *);
+  // Overridden to create the correct vtkDataObject subclass for the file.
+  virtual int RequestDataObjectInternal(vtkInformationVector*);
 
-  //Overridden to announce temporal information and to participate in
-  //structured extent splitting.
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Overridden to announce temporal information and to participate in
+  // structured extent splitting.
+  virtual int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //Read the XDMF and HDF input files and fill in vtk data objects.
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  // Read the XDMF and HDF input files and fill in vtk data objects.
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkXdmf3ArraySelection* GetFieldArraySelection();
   vtkXdmf3ArraySelection* GetCellArraySelection();
@@ -208,7 +204,7 @@ private:
   bool FileSeriesAsTime;
 
   class Internals;
-  Internals *Internal;
+  Internals* Internal;
 };
 
 #endif

@@ -29,8 +29,7 @@
 #include "vtkTable.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -71,15 +70,15 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "Converting ";
     switch (type)
     {
-    case 0:
-      cerr << "field data";
-      break;
-    case 1:
-      cerr << "point data";
-      break;
-    case 2:
-      cerr << "cell data";
-      break;
+      case 0:
+        cerr << "field data";
+        break;
+      case 1:
+        cerr << "point data";
+        break;
+      case 2:
+        cerr << "cell data";
+        break;
     };
     cerr << " to a table ..." << endl;
     toTable->SetFieldType(type);
@@ -106,17 +105,15 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       if (out1->GetValue(j) != col1->GetValue(j))
       {
         errors++;
-        cerr << "ERROR: column1 output does not match input "
-             << out1->GetValue(j) << "!=" << col1->GetValue(j)
-             << " for field type " << type << endl;
+        cerr << "ERROR: column1 output does not match input " << out1->GetValue(j)
+             << "!=" << col1->GetValue(j) << " for field type " << type << endl;
         break;
       }
       if (out2->GetValue(j) != col2->GetValue(j))
       {
         errors++;
-        cerr << "ERROR: column2 output does not match input "
-             << out2->GetValue(j) << "!=" << col2->GetValue(j)
-             << " for field type " << type << endl;
+        cerr << "ERROR: column2 output does not match input " << out2->GetValue(j)
+             << "!=" << col2->GetValue(j) << " for field type " << type << endl;
         break;
       }
     }
@@ -125,4 +122,3 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   return errors;
 }
-

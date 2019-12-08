@@ -43,8 +43,7 @@ void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)
 {
   if (tp != this->NumberOfTargetProcesses)
   {
-    int numProcs =
-      vtkMultiProcessController::GetGlobalController()->GetNumberOfProcesses();
+    int numProcs = vtkMultiProcessController::GetGlobalController()->GetNumberOfProcesses();
     if (tp > 0 && tp <= numProcs)
     {
       this->NumberOfTargetProcesses = tp;
@@ -84,8 +83,7 @@ int vtkAggregateDataSetFilter::RequestData(
     input = vtkDataSet::GetData(inputVector[0], 0);
   }
 
-  vtkMultiProcessController* controller =
-    vtkMultiProcessController::GetGlobalController();
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
 
   int numberOfProcesses = controller->GetNumberOfProcesses();
   if (numberOfProcesses == this->NumberOfTargetProcesses)
@@ -98,10 +96,10 @@ int vtkAggregateDataSetFilter::RequestData(
   }
 
   if (input->IsA("vtkImageData") || input->IsA("vtkRectilinearGrid") ||
-      input->IsA("vtkStructuredGrid"))
+    input->IsA("vtkStructuredGrid"))
   {
     vtkErrorMacro("Must build with the vtkFiltersParallelDIY2 module enabled to "
-                  << "aggregate topologically regular grids with MPI");
+      << "aggregate topologically regular grids with MPI");
 
     return 0;
   }
@@ -116,12 +114,12 @@ int vtkAggregateDataSetFilter::RequestData(
   else
   {
     int localProcessId = controller->GetLocalProcessId();
-    int numberOfProcessesPerGroup = numberOfProcesses/this->NumberOfTargetProcesses;
-    int localColor = localProcessId/numberOfProcessesPerGroup;
+    int numberOfProcessesPerGroup = numberOfProcesses / this->NumberOfTargetProcesses;
+    int localColor = localProcessId / numberOfProcessesPerGroup;
     if (numberOfProcesses % this->NumberOfTargetProcesses)
     {
-      double d = 1.*numberOfProcesses/this->NumberOfTargetProcesses;
-      localColor = int(localProcessId/d);
+      double d = 1. * numberOfProcesses / this->NumberOfTargetProcesses;
+      localColor = int(localProcessId / d);
     }
     subController.TakeReference(controller->PartitionController(localColor, 0));
   }
@@ -137,7 +135,7 @@ int vtkAggregateDataSetFilter::RequestData(
   // be aggregated to. All of the other processes send their data set to that process.
   int receiveProc = 0;
   vtkIdType maxVal = 0;
-  for (int i=0;i<subNumProcs;i++)
+  for (int i = 0; i < subNumProcs; i++)
   {
     if (pointCount[i] > maxVal)
     {
@@ -157,8 +155,8 @@ int vtkAggregateDataSetFilter::RequestData(
     else if (input->IsA("vtkPolyData"))
     {
       vtkNew<vtkAppendPolyData> appendFilter;
-      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();++it)
+      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it = recvBuffer.begin();
+           it != recvBuffer.end(); ++it)
       {
         appendFilter->AddInputData(vtkPolyData::SafeDownCast(*it));
       }
@@ -169,8 +167,8 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->MergePointsOn();
-      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();++it)
+      for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it = recvBuffer.begin();
+           it != recvBuffer.end(); ++it)
       {
         appendFilter->AddInputData(*it);
       }

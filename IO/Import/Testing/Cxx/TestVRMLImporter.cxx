@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkVRMLImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkVRMLImporter.h"
 
 #include "vtkTestUtilities.h"
 
 // This is testing a bug in vtkVRMLImporter where the importer
 // would delete static data and any future importer would fail
 // The test is defined to pass if it doesn't segfault.
-int TestVRMLImporter( int argc, char * argv [] )
+int TestVRMLImporter(int argc, char* argv[])
 {
   // Now create the RenderWindow, Renderer and Interactor
   vtkRenderer* ren1 = vtkRenderer::New();
@@ -48,7 +48,7 @@ int TestVRMLImporter( int argc, char * argv [] )
   importer->Read();
   importer->Delete();
 
-  delete [] fname;
+  delete[] fname;
 
   iren->Delete();
   renWin->Delete();

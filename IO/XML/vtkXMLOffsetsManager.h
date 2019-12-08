@@ -37,7 +37,7 @@
  * vtkXMLWriter
  * @warning
  * Do not include this file in a header file, it will break PIMPL convention
-*/
+ */
 
 #ifndef vtkXMLOffsetsManager_DoNotInclude
 #error "do not include unless you know what you are doing"
@@ -47,8 +47,8 @@
 #define vtkXMLOffsetsManager_h
 
 #include "vtkSystemIncludes.h"
-#include <vector>
 #include <cassert>
+#include <vector>
 
 //----------------------------------------------------------------------------
 class OffsetsManager
@@ -57,40 +57,38 @@ public:
   // Construct with default (vtkMTimeType)-1  MTime
   OffsetsManager()
   {
-      this->LastMTime = static_cast<vtkMTimeType>(-1); //almost invalid state
+    this->LastMTime = static_cast<vtkMTimeType>(-1); // almost invalid state
   }
   void Allocate(int numTimeStep)
   {
-    assert( numTimeStep > 0);
+    assert(numTimeStep > 0);
     this->Positions.resize(numTimeStep);
     this->RangeMinPositions.resize(numTimeStep);
     this->RangeMaxPositions.resize(numTimeStep);
     this->OffsetValues.resize(numTimeStep);
   }
-  vtkTypeInt64 &GetPosition(unsigned int t)
+  vtkTypeInt64& GetPosition(unsigned int t)
   {
-    assert( t < this->Positions.size());
+    assert(t < this->Positions.size());
     return this->Positions[t];
   }
-  vtkTypeInt64 &GetRangeMinPosition(unsigned int t)
+  vtkTypeInt64& GetRangeMinPosition(unsigned int t)
   {
-    assert( t < this->RangeMinPositions.size());
+    assert(t < this->RangeMinPositions.size());
     return this->RangeMinPositions[t];
   }
-  vtkTypeInt64 &GetRangeMaxPosition(unsigned int t)
+  vtkTypeInt64& GetRangeMaxPosition(unsigned int t)
   {
-    assert( t < this->RangeMaxPositions.size());
+    assert(t < this->RangeMaxPositions.size());
     return this->RangeMaxPositions[t];
   }
-  vtkTypeInt64 &GetOffsetValue(unsigned int t)
+  vtkTypeInt64& GetOffsetValue(unsigned int t)
   {
-    assert( t < this->OffsetValues.size());
+    assert(t < this->OffsetValues.size());
     return this->OffsetValues[t];
   }
-  vtkMTimeType &GetLastMTime()
-  {
-    return this->LastMTime;
-  }
+  vtkMTimeType& GetLastMTime() { return this->LastMTime; }
+
 private:
   vtkMTimeType LastMTime; // Previously written dataarray mtime
   // at some point these vectors could become a vector of map <string,ul>
@@ -102,7 +100,7 @@ private:
   std::vector<vtkTypeInt64> RangeMinPositions; // Where is this
   std::vector<vtkTypeInt64> RangeMaxPositions; // Whee is this
 
-  std::vector<vtkTypeInt64> OffsetValues;    // Value of offset
+  std::vector<vtkTypeInt64> OffsetValues; // Value of offset
 };
 
 //----------------------------------------------------------------------------
@@ -115,41 +113,39 @@ public:
   // representing offset from Points but OffsetsManagerArray for
   // PointData. In both case the toplevel structure is a container of
   // Pieces...
-  OffsetsManager &GetPiece(unsigned int index)
+  OffsetsManager& GetPiece(unsigned int index)
   {
-    assert( index < this->Internals.size());
-    OffsetsManager &e = this->Internals[index];
+    assert(index < this->Internals.size());
+    OffsetsManager& e = this->Internals[index];
     return e;
   }
   // GetElement should be used when manipulating a OffsetsManagerArray
-  OffsetsManager &GetElement(unsigned int index)
+  OffsetsManager& GetElement(unsigned int index)
   {
     // commenting the following out, this is an heisenbug which only appears
     // on gcc when exporting GLIBCPP_NEW=1. If you try to print the value or
     // run through gdb it desepears //assert( index <
     // this->Internals.size());
-    OffsetsManager &e = this->Internals[index];
+    OffsetsManager& e = this->Internals[index];
     return e;
   }
-  unsigned int GetNumberOfElements()
-  {
-    return static_cast<unsigned int>(this->Internals.size());
-  }
+  unsigned int GetNumberOfElements() { return static_cast<unsigned int>(this->Internals.size()); }
   void Allocate(int numElements)
   {
-    assert(numElements >= 0); //allow 0 for empty FieldData
+    assert(numElements >= 0); // allow 0 for empty FieldData
     this->Internals.resize(numElements);
   }
   void Allocate(int numElements, int numTimeSteps)
   {
-    assert(numElements >= 0); //allow 0 for empty FieldData
+    assert(numElements >= 0); // allow 0 for empty FieldData
     assert(numTimeSteps > 0);
     this->Internals.resize(numElements);
-    for(int i=0; i<numElements; i++)
+    for (int i = 0; i < numElements; i++)
     {
       this->Internals[i].Allocate(numTimeSteps);
     }
   }
+
 private:
   std::vector<OffsetsManager> Internals;
 };
@@ -158,9 +154,9 @@ private:
 class OffsetsManagerArray
 {
 public:
-  OffsetsManagerGroup &GetPiece(unsigned int index)
+  OffsetsManagerGroup& GetPiece(unsigned int index)
   {
-    assert( index < this->Internals.size());
+    assert(index < this->Internals.size());
     return this->Internals[index];
   }
   void Allocate(int numPieces)
@@ -179,11 +175,12 @@ public:
     // Force re-initialization of values.
     this->Internals.resize(0);
     this->Internals.resize(numPieces);
-    for(int i=0; i<numPieces; i++)
+    for (int i = 0; i < numPieces; i++)
     {
       this->Internals[i].Allocate(numElements, numTimeSteps);
     }
   }
+
 private:
   std::vector<OffsetsManagerGroup> Internals;
 };

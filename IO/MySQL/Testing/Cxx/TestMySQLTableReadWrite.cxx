@@ -16,40 +16,39 @@
 // .SECTION Description
 //
 
-#include "vtksys/SystemTools.hxx"
-#include "vtkSmartPointer.h"
 #include "vtkMySQLDatabase.h"
 #include "vtkSQLQuery.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTableReader.h"
 #include "vtkTableWriter.h"
 #include "vtkToolkits.h"
+#include "vtksys/SystemTools.hxx"
 
-#include "vtkTableToMySQLWriter.h"
-#include "vtkMySQLToTableReader.h"
 #include "vtkIOMySQLTestingCxxConfigure.h"
+#include "vtkMySQLToTableReader.h"
+#include "vtkTableToMySQLWriter.h"
 
-int TestMySQLTableReadWrite(int argc, char *argv[])
+int TestMySQLTableReadWrite(int argc, char* argv[])
 {
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cerr << "Usage: " << argv[0] << " <.vtk table file>" << endl;
     return 1;
   }
   cerr << "reading a vtkTable from file" << endl;
-  vtkSmartPointer<vtkTableReader> tableFileReader =
-    vtkSmartPointer<vtkTableReader>::New();
+  vtkSmartPointer<vtkTableReader> tableFileReader = vtkSmartPointer<vtkTableReader>::New();
   tableFileReader->SetFileName(argv[1]);
-  vtkTable *table = tableFileReader->GetOutput();
+  vtkTable* table = tableFileReader->GetOutput();
   tableFileReader->Update();
 
   cerr << "opening a MySQL database connection" << endl;
 
-  vtkMySQLDatabase* db = vtkMySQLDatabase::SafeDownCast(
-    vtkSQLDatabase::CreateFromURL( VTK_MYSQL_TEST_URL ) );
+  vtkMySQLDatabase* db =
+    vtkMySQLDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(VTK_MYSQL_TEST_URL));
   bool status = db->Open();
 
-  if ( ! status )
+  if (!status)
   {
     cerr << "Couldn't open database.\n";
     return 1;
@@ -73,15 +72,14 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
   readerToTest->Update();
 
   cerr << "writing the table out to disk" << endl;
-  vtkSmartPointer<vtkTableWriter> tableFileWriter =
-    vtkSmartPointer<vtkTableWriter>::New();
+  vtkSmartPointer<vtkTableWriter> tableFileWriter = vtkSmartPointer<vtkTableWriter>::New();
   tableFileWriter->SetFileName("TestMySQLTableReadWrite.vtk");
   tableFileWriter->SetInputConnection(readerToTest->GetOutputPort());
   tableFileWriter->Update();
 
   cerr << "verifying that it's the same as what we started with...";
   int result = 0;
-  if(vtksys::SystemTools::FilesDiffer(argv[1], "TestMySQLTableReadWrite.vtk"))
+  if (vtksys::SystemTools::FilesDiffer(argv[1], "TestMySQLTableReadWrite.vtk"))
   {
     cerr << "it's not." << endl;
     result = 1;
@@ -91,12 +89,12 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
     cerr << "it is!" << endl;
   }
 
-  //drop the table we created
+  // drop the table we created
   vtkSQLQuery* query = db->GetQueryInstance();
   query->SetQuery("DROP TABLE tableTest");
   query->Execute();
 
-  //clean up memory
+  // clean up memory
   db->Delete();
   query->Delete();
 

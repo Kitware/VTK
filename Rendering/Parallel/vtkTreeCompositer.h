@@ -39,7 +39,6 @@
 // SOFTWARE should be clearly marked, so as not to confuse it with the
 // version available from Los Alamos National Laboratory.
 
-
 /**
  * @class   vtkTreeCompositer
  * @brief   Implements tree based compositing.
@@ -52,24 +51,23 @@
  *
  * @sa
  * vtkCompositeManager
-*/
+ */
 
 #ifndef vtkTreeCompositer_h
 #define vtkTreeCompositer_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkCompositer.h"
-
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class VTKRENDERINGPARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
 {
 public:
-  static vtkTreeCompositer *New();
-  vtkTypeMacro(vtkTreeCompositer,vtkCompositer);
+  static vtkTreeCompositer* New();
+  vtkTypeMacro(vtkTreeCompositer, vtkCompositer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                       vtkDataArray *pTmp, vtkFloatArray *zTmp) override;
+  void CompositeBuffer(
+    vtkDataArray* pBuf, vtkFloatArray* zBuf, vtkDataArray* pTmp, vtkFloatArray* zTmp) override;
 
 protected:
   vtkTreeCompositer();

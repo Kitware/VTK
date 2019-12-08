@@ -30,13 +30,13 @@
  * Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
  * @sa
  * vtkImageMapper3D vtkImageProperty vtkProp3D
-*/
+ */
 
 #ifndef vtkImageSlice_h
 #define vtkImageSlice_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkPropCollection;
@@ -46,7 +46,7 @@ class vtkImageMapper3D;
 class VTKRENDERINGCORE_EXPORT vtkImageSlice : public vtkProp3D
 {
 public:
-  vtkTypeMacro(vtkImageSlice,vtkProp3D);
+  vtkTypeMacro(vtkImageSlice, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -54,13 +54,13 @@ public:
    * position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
    * orientation=(0,0,0).
    */
-  static vtkImageSlice *New();
+  static vtkImageSlice* New();
 
   //@{
   /**
    * Set/Get the mapper.
    */
-  void SetMapper(vtkImageMapper3D *mapper);
+  void SetMapper(vtkImageMapper3D* mapper);
   vtkGetObjectMacro(Mapper, vtkImageMapper3D);
   //@}
 
@@ -68,8 +68,8 @@ public:
   /**
    * Set/Get the image display properties.
    */
-  void SetProperty(vtkImageProperty *property);
-  virtual vtkImageProperty *GetProperty();
+  void SetProperty(vtkImageProperty* property);
+  virtual vtkImageProperty* GetProperty();
   //@}
 
   /**
@@ -82,8 +82,8 @@ public:
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
    */
-  double *GetBounds() override;
-  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  double* GetBounds() override;
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();
   double GetMaxXBound();
   double GetMinYBound();
@@ -117,22 +117,22 @@ public:
   /**
    * Shallow copy of this vtkImageSlice. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors, volumes, and images. These
    * methods are used in that process.
    */
-  void GetImages(vtkPropCollection *);
+  void GetImages(vtkPropCollection*);
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOverlay(vtkViewport *viewport) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   //@}
 
   /**
@@ -145,12 +145,12 @@ public:
    * This causes the image and its mapper to be rendered. Note that a side
    * effect of this method is that the pipeline will be updated.
    */
-  virtual void Render(vtkRenderer *);
+  virtual void Render(vtkRenderer*);
 
   /**
    * Release any resources held by this prop.
    */
-  void ReleaseGraphicsResources(vtkWindow *win) override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
   /**
    * For stacked image rendering, set the pass.  The first pass
@@ -164,8 +164,8 @@ protected:
   vtkImageSlice();
   ~vtkImageSlice() override;
 
-  vtkImageMapper3D *Mapper;
-  vtkImageProperty *Property;
+  vtkImageMapper3D* Mapper;
+  vtkImageProperty* Property;
 
   bool ForceTranslucent;
 

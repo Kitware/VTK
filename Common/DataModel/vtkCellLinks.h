@@ -36,8 +36,8 @@
 #ifndef vtkCellLinks_h
 #define vtkCellLinks_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLinks.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkCellArray;
@@ -45,19 +45,19 @@ class vtkCellArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkAbstractCellLinks
 {
 public:
-
-  class Link {
+  class Link
+  {
   public:
     vtkIdType ncells;
-    vtkIdType *cells;
+    vtkIdType* cells;
   };
 
   //@{
   /**
    * Standard methods to instantiate, print, and obtain type information.
    */
-  static vtkCellLinks *New();
-  vtkTypeMacro(vtkCellLinks,vtkAbstractCellLinks);
+  static vtkCellLinks* New();
+  vtkTypeMacro(vtkCellLinks, vtkAbstractCellLinks);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -65,13 +65,13 @@ public:
    * Build the link list array. All subclasses of vtkAbstractCellLinks
    * must support this method.
    */
-  void BuildLinks(vtkDataSet *data) override;
+  void BuildLinks(vtkDataSet* data) override;
 
   /**
    * Allocate the specified number of links (i.e., number of points) that
    * will be built.
    */
-  void Allocate(vtkIdType numLinks, vtkIdType ext=1000);
+  void Allocate(vtkIdType numLinks, vtkIdType ext = 1000);
 
   /**
    * Clear out any previously allocated data structures
@@ -81,20 +81,17 @@ public:
   /**
    * Get a link structure given a point id.
    */
-  Link &GetLink(vtkIdType ptId)
-  {return this->Array[ptId];}
+  Link& GetLink(vtkIdType ptId) { return this->Array[ptId]; }
 
   /**
    * Get the number of cells using the point specified by ptId.
    */
-  vtkIdType GetNcells(vtkIdType ptId)
-  { return this->Array[ptId].ncells;}
+  vtkIdType GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells; }
 
   /**
    * Return a list of cell ids using the point.
    */
-  vtkIdType *GetCells(vtkIdType ptId)
-  {return this->Array[ptId].cells;}
+  vtkIdType* GetCells(vtkIdType ptId) { return this->Array[ptId].cells; }
 
   /**
    * Insert a new point into the cell-links data structure. The size parameter
@@ -158,30 +155,35 @@ public:
    * Standard DeepCopy method.  Since this object contains no reference
    * to other objects, there is no ShallowCopy.
    */
-  void DeepCopy(vtkAbstractCellLinks *src) override;
+  void DeepCopy(vtkAbstractCellLinks* src) override;
 
 protected:
-  vtkCellLinks():Array(nullptr),Size(0),MaxId(-1),Extend(1000) {}
+  vtkCellLinks()
+    : Array(nullptr)
+    , Size(0)
+    , MaxId(-1)
+    , Extend(1000)
+  {
+  }
   ~vtkCellLinks() override;
 
   /**
    * Increment the count of the number of cells using the point.
    */
-  void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++;};
+  void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++; }
 
   void AllocateLinks(vtkIdType n);
 
   /**
    * Insert a cell id into the list of cells using the point.
    */
-  void InsertCellReference(vtkIdType ptId, vtkIdType pos,
-                           vtkIdType cellId);
+  void InsertCellReference(vtkIdType ptId, vtkIdType pos, vtkIdType cellId);
 
-  Link *Array;   // pointer to data
-  vtkIdType Size;       // allocated size of data
-  vtkIdType MaxId;     // maximum index inserted thus far
-  vtkIdType Extend;     // grow array by this point
-  Link *Resize(vtkIdType sz);  // function to resize data
+  Link* Array;                // pointer to data
+  vtkIdType Size;             // allocated size of data
+  vtkIdType MaxId;            // maximum index inserted thus far
+  vtkIdType Extend;           // grow array by this point
+  Link* Resize(vtkIdType sz); // function to resize data
 
 private:
   vtkCellLinks(const vtkCellLinks&) = delete;
@@ -189,9 +191,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
-                                              vtkIdType pos,
-                                              vtkIdType cellId)
+inline void vtkCellLinks::InsertCellReference(vtkIdType ptId, vtkIdType pos, vtkIdType cellId)
 {
   this->Array[ptId].cells[pos] = cellId;
 }
@@ -200,13 +200,12 @@ inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
 inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
 {
   this->Array[ptId].ncells = 0;
-  delete [] this->Array[ptId].cells;
+  delete[] this->Array[ptId].cells;
   this->Array[ptId].cells = nullptr;
 }
 
 //----------------------------------------------------------------------------
-inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId,
-                                                  vtkIdType cellId)
+inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId, vtkIdType cellId)
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
@@ -214,16 +213,16 @@ inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId,
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::RemoveCellReference(vtkIdType cellId, vtkIdType ptId)
 {
-  vtkIdType *cells=this->Array[ptId].cells;
-  int ncells=this->Array[ptId].ncells;
+  vtkIdType* cells = this->Array[ptId].cells;
+  vtkIdType ncells = this->Array[ptId].ncells;
 
-  for (int i=0; i < ncells; i++)
+  for (vtkIdType i = 0; i < ncells; i++)
   {
     if (cells[i] == cellId)
     {
-      for (int j=i; j < (ncells-1); j++)
+      for (vtkIdType j = i; j < (ncells - 1); j++)
       {
-        cells[j] = cells[j+1];
+        cells[j] = cells[j + 1];
       }
       this->Array[ptId].ncells--;
       break;
@@ -240,14 +239,11 @@ inline void vtkCellLinks::AddCellReference(vtkIdType cellId, vtkIdType ptId)
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
 {
-  int newSize;
-  vtkIdType *cells;
-
-  newSize = this->Array[ptId].ncells + size;
-  cells = new vtkIdType[newSize];
+  vtkIdType newSize = this->Array[ptId].ncells + size;
+  vtkIdType* cells = new vtkIdType[newSize];
   memcpy(cells, this->Array[ptId].cells,
-         this->Array[ptId].ncells*sizeof(vtkIdType));
-  delete [] this->Array[ptId].cells;
+    static_cast<size_t>(this->Array[ptId].ncells) * sizeof(vtkIdType));
+  delete[] this->Array[ptId].cells;
   this->Array[ptId].cells = cells;
 }
 

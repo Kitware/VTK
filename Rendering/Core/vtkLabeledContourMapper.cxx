@@ -22,14 +22,14 @@
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkMatrix4x4.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
 #include "vtkTextPropertyCollection.h"
@@ -53,7 +53,7 @@ struct LabelMetric
 {
   bool Valid;
   double Value;
-  vtkTextProperty *TProp;
+  vtkTextProperty* TProp;
   std::string Text;
   // These measure the pixel size of the text texture:
   vtkTuple<int, 4> BoundingBox;
@@ -68,11 +68,11 @@ struct LabelInfo
 
   // Orientation (normalized, world space)
   vtkVector3d RightW; // Left --> Right
-  vtkVector3d UpW; // Bottom --> Top
+  vtkVector3d UpW;    // Bottom --> Top
 
   // Orientation (normalized in world space, represented in actor space)
   vtkVector3d RightA; // Left --> Right
-  vtkVector3d UpA; // Bottom --> Top
+  vtkVector3d UpA;    // Bottom --> Top
 
   // Corner locations (actor space):
   vtkVector3d TLa;
@@ -90,14 +90,16 @@ struct LabelInfo
   double ScaleDisplayToActor;
 };
 
-namespace {
+namespace
+{
 
 // Circular iterator through a vtkTextPropertyCollection -----------------------
 class TextPropLoop
 {
-  vtkTextPropertyCollection *TProps;
+  vtkTextPropertyCollection* TProps;
+
 public:
-  TextPropLoop(vtkTextPropertyCollection *col)
+  TextPropLoop(vtkTextPropertyCollection* col)
     : TProps(col)
   {
     TProps->InitTraversal();
@@ -106,10 +108,9 @@ public:
   vtkTextProperty* Next()
   {
     // The input checks should fail if this is the case:
-    assert("No text properties set! Prerender check failed!" &&
-           TProps->GetNumberOfItems() != 0);
+    assert("No text properties set! Prerender check failed!" && TProps->GetNumberOfItems() != 0);
 
-    vtkTextProperty *result = TProps->GetNextItem();
+    vtkTextProperty* result = TProps->GetNextItem();
     if (!result)
     {
       TProps->InitTraversal();
@@ -138,11 +139,11 @@ struct vtkLabeledContourMapper::Private
   std::vector<std::vector<LabelInfo> > LabelInfos;
 
   // Info for calculating display coordinates:
-  vtkTuple<double, 16> AMVP; // actor-model-view-projection matrix
-  vtkTuple<double, 16> ActorMatrix; // Actor model matrix
+  vtkTuple<double, 16> AMVP;               // actor-model-view-projection matrix
+  vtkTuple<double, 16> ActorMatrix;        // Actor model matrix
   vtkTuple<double, 16> InverseActorMatrix; // Inverse Actor model matrix
-  vtkTuple<double, 4> ViewPort; // viewport
-  vtkTuple<double, 4> NormalizedViewPort; // see vtkViewport::ViewToNormalizedVP
+  vtkTuple<double, 4> ViewPort;            // viewport
+  vtkTuple<double, 4> NormalizedViewPort;  // see vtkViewport::ViewToNormalizedVP
   vtkTuple<int, 2> WindowSize;
   vtkTuple<int, 2> ViewPortSize;
   vtkTuple<double, 2> DisplayOffset;
@@ -161,43 +162,41 @@ struct vtkLabeledContourMapper::Private
   bool AlreadyWarnedAboutStencils;
 
   // Project coordinates. Note that the vector objects must be unique.
-  void ActorToWorld(const vtkVector3d &actor, vtkVector3d &world) const;
-  void WorldToActor(const vtkVector3d &world, vtkVector3d &actor) const;
-  void ActorToDisplay(const vtkVector3d &actor, vtkVector2i &display) const;
-  void ActorToDisplay(const vtkVector3d &actor, vtkVector2d &display) const;
+  void ActorToWorld(const vtkVector3d& actor, vtkVector3d& world) const;
+  void WorldToActor(const vtkVector3d& world, vtkVector3d& actor) const;
+  void ActorToDisplay(const vtkVector3d& actor, vtkVector2i& display) const;
+  void ActorToDisplay(const vtkVector3d& actor, vtkVector2d& display) const;
 
   // Camera axes:
-  bool SetViewInfo(vtkRenderer *ren, vtkActor *act);
+  bool SetViewInfo(vtkRenderer* ren, vtkActor* act);
 
   // Visibility test (display space):
   template <typename ScalarType>
-  bool PixelIsVisible(const vtkVector2<ScalarType> &dispCoord) const;
+  bool PixelIsVisible(const vtkVector2<ScalarType>& dispCoord) const;
 
-  bool LineCanBeLabeled(vtkPoints *points, vtkIdType numIds,
-                        const vtkIdType *ids, const LabelMetric &metrics);
+  bool LineCanBeLabeled(
+    vtkPoints* points, vtkIdType numIds, const vtkIdType* ids, const LabelMetric& metrics);
 
   // Determine the first smooth position on the line defined by ids that is
   // 1.2x the length of the label (in display coordinates).
   // The position will be no less than skipDistance along the line from the
   // starting location. This can be used to ensure that labels are placed a
   // minimum distance apart.
-  bool NextLabel(vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
-                 const LabelMetric &metrics, LabelInfo &info,
-                 double targetSmoothness, double skipDistance);
+  bool NextLabel(vtkPoints* points, vtkIdType& numIds, const vtkIdType*& ids,
+    const LabelMetric& metrics, LabelInfo& info, double targetSmoothness, double skipDistance);
 
   // Configure the text actor:
-  bool BuildLabel(vtkTextActor3D *actor, const LabelMetric &metric,
-                  const LabelInfo &info);
+  bool BuildLabel(vtkTextActor3D* actor, const LabelMetric& metric, const LabelInfo& info);
 
   // Compute the scaling factor and corner info for the label
-  void ComputeLabelInfo(LabelInfo &info, const LabelMetric &metrics);
+  void ComputeLabelInfo(LabelInfo& info, const LabelMetric& metrics);
 
   // Test if the display quads overlap:
-  bool TestOverlap(const LabelInfo &a, const LabelInfo &b);
+  bool TestOverlap(const LabelInfo& a, const LabelInfo& b);
 };
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkLabeledContourMapper)
+vtkObjectFactoryNewMacro(vtkLabeledContourMapper);
 
 //------------------------------------------------------------------------------
 vtkLabeledContourMapper::vtkLabeledContourMapper()
@@ -235,19 +234,19 @@ vtkLabeledContourMapper::~vtkLabeledContourMapper()
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
+void vtkLabeledContourMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
-  if (vtkRenderWindow *renderWindow = ren->GetRenderWindow())
+  if (vtkRenderWindow* renderWindow = ren->GetRenderWindow())
   {
     // Is the viewport's RenderWindow capturing GL2PS-special props?
     if (renderWindow->GetCapturingGL2PSSpecialProps())
     {
-        ren->CaptureGL2PSSpecialProp(act);
+      ren->CaptureGL2PSSpecialProp(act);
     }
   }
 
   // Make sure input data is synced
-  if (vtkAlgorithm *inputAlgorithm = this->GetInputAlgorithm())
+  if (vtkAlgorithm* inputAlgorithm = this->GetInputAlgorithm())
   {
     inputAlgorithm->Update();
   }
@@ -325,19 +324,19 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::SetInputData(vtkPolyData *input)
+void vtkLabeledContourMapper::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData *vtkLabeledContourMapper::GetInput()
+vtkPolyData* vtkLabeledContourMapper::GetInput()
 {
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 //------------------------------------------------------------------------------
-double *vtkLabeledContourMapper::GetBounds()
+double* vtkLabeledContourMapper::GetBounds()
 {
   if (this->GetNumberOfInputConnections(0) == 0)
   {
@@ -358,10 +357,10 @@ void vtkLabeledContourMapper::GetBounds(double bounds[])
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::SetTextProperty(vtkTextProperty *tprop)
+void vtkLabeledContourMapper::SetTextProperty(vtkTextProperty* tprop)
 {
   if (this->TextProperties->GetNumberOfItems() != 1 ||
-      this->TextProperties->GetItemAsObject(0) != tprop)
+    this->TextProperties->GetItemAsObject(0) != tprop)
   {
     this->TextProperties->RemoveAllItems();
     this->TextProperties->AddItem(tprop);
@@ -370,7 +369,7 @@ void vtkLabeledContourMapper::SetTextProperty(vtkTextProperty *tprop)
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection *coll)
+void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection* coll)
 {
   if (coll != this->TextProperties)
   {
@@ -380,19 +379,19 @@ void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection *coll)
 }
 
 //------------------------------------------------------------------------------
-vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
+vtkTextPropertyCollection* vtkLabeledContourMapper::GetTextProperties()
 {
   return this->TextProperties;
 }
 
 //------------------------------------------------------------------------------
-vtkDoubleArray *vtkLabeledContourMapper::GetTextPropertyMapping()
+vtkDoubleArray* vtkLabeledContourMapper::GetTextPropertyMapping()
 {
   return this->TextPropertyMapping;
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::SetTextPropertyMapping(vtkDoubleArray *mapping)
+void vtkLabeledContourMapper::SetTextPropertyMapping(vtkDoubleArray* mapping)
 {
   if (this->TextPropertyMapping != mapping)
   {
@@ -402,7 +401,7 @@ void vtkLabeledContourMapper::SetTextPropertyMapping(vtkDoubleArray *mapping)
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow *win)
+void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->PolyDataMapper->ReleaseGraphicsResources(win);
   for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
@@ -420,17 +419,14 @@ void vtkLabeledContourMapper::ComputeBounds()
 //------------------------------------------------------------------------------
 void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "SkipDistance: " << this->SkipDistance << "\n"
-     << indent << "LabelVisibility: " << (this->LabelVisibility ? "On\n"
-                                                               : "Off\n")
-     << indent << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
-     << indent << "NumberOfUsedTextActors: "
-     << this->NumberOfUsedTextActors << "\n"
+     << indent << "LabelVisibility: " << (this->LabelVisibility ? "On\n" : "Off\n") << indent
+     << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
+     << indent << "NumberOfUsedTextActors: " << this->NumberOfUsedTextActors << "\n"
      << indent << "StencilQuadsSize: " << this->StencilQuadsSize << "\n"
-     << indent << "StencilQuadIndicesSize: "
-     << this->StencilQuadIndicesSize << "\n"
+     << indent << "StencilQuadIndicesSize: " << this->StencilQuadIndicesSize << "\n"
      << indent << "BuildTime: " << this->LabelBuildTime.GetMTime() << "\n"
      << indent << "PolyDataMapper:\n";
   this->PolyDataMapper->PrintSelf(os, indent.GetNextIndent());
@@ -446,12 +442,10 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << " (nullptr)\n";
   }
-
 }
 
 //------------------------------------------------------------------------------
-int vtkLabeledContourMapper::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info)
+int vtkLabeledContourMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
@@ -464,7 +458,7 @@ void vtkLabeledContourMapper::Reset()
   this->Internal->LabelInfos.clear();
 
   this->TextProperties->InitTraversal();
-  while (vtkTextProperty *tprop = this->TextProperties->GetNextItem())
+  while (vtkTextProperty* tprop = this->TextProperties->GetNextItem())
   {
     tprop->SetJustificationToCentered();
     tprop->SetVerticalJustificationToCentered();
@@ -472,63 +466,63 @@ void vtkLabeledContourMapper::Reset()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
+bool vtkLabeledContourMapper::CheckInputs(vtkRenderer* ren)
 {
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData* input = this->GetInput();
   if (!input)
   {
-    vtkErrorMacro(<<"No input data!")
+    vtkErrorMacro(<< "No input data!");
     return false;
   }
 
   if (!input->GetPoints())
   {
-    vtkErrorMacro(<<"No points in dataset!");
+    vtkErrorMacro(<< "No points in dataset!");
     return false;
   }
 
   if (!input->GetPointData())
   {
-    vtkErrorMacro(<<"No point data in dataset!");
+    vtkErrorMacro(<< "No point data in dataset!");
     return false;
   }
 
-  vtkCellArray *lines = input->GetLines();
+  vtkCellArray* lines = input->GetLines();
   if (!lines)
   {
-    vtkErrorMacro(<<"No lines in dataset!");
+    vtkErrorMacro(<< "No lines in dataset!");
     return false;
   }
 
-  vtkDataArray *scalars = input->GetPointData()->GetScalars();
+  vtkDataArray* scalars = input->GetPointData()->GetScalars();
   if (!scalars)
   {
-    vtkErrorMacro(<<"No scalars in dataset!");
+    vtkErrorMacro(<< "No scalars in dataset!");
     return false;
   }
 
-  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
   if (!tren)
   {
-    vtkErrorMacro(<<"Text renderer unavailable.");
+    vtkErrorMacro(<< "Text renderer unavailable.");
     return false;
   }
 
   if (this->TextProperties->GetNumberOfItems() == 0)
   {
-    vtkErrorMacro(<<"No text properties set!");
+    vtkErrorMacro(<< "No text properties set!");
     return false;
   }
 
   // Print a warning if stenciling is not enabled:
-  vtkRenderWindow *win = ren->GetRenderWindow();
+  vtkRenderWindow* win = ren->GetRenderWindow();
   if (!this->Internal->AlreadyWarnedAboutStencils && win)
   {
     if (win->GetStencilCapable() == 0)
     {
       vtkWarningMacro(<< "Stenciling is not enabled in the render window. "
                          "Isoline labels will have artifacts. To fix this, "
-                         "call vtkRenderWindow::StencilCapableOn().")
+                         "call vtkRenderWindow::StencilCapableOn().");
       this->Internal->AlreadyWarnedAboutStencils = true;
     }
   }
@@ -537,26 +531,25 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
+bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer*, vtkActor* act)
 {
   // Get the highest mtime for the text properties:
   vtkMTimeType tPropMTime = this->TextProperties->GetMTime();
   this->TextProperties->InitTraversal();
-  while (vtkTextProperty *tprop = this->TextProperties->GetNextItem())
+  while (vtkTextProperty* tprop = this->TextProperties->GetNextItem())
   {
     tPropMTime = std::max(tPropMTime, tprop->GetMTime());
   }
 
   // Are we out of date?
   if (this->LabelBuildTime.GetMTime() < this->GetInput()->GetMTime() ||
-      this->LabelBuildTime.GetMTime() < tPropMTime)
+    this->LabelBuildTime.GetMTime() < tPropMTime)
   {
     return true;
   }
 
   // Is there enough time allocated? (i.e. is this not an interactive render?)
-  if (act->GetAllocatedRenderTime() >=
-      (this->Internal->RenderTime + this->Internal->PrepareTime))
+  if (act->GetAllocatedRenderTime() >= (this->Internal->RenderTime + this->Internal->PrepareTime))
   {
     return true;
   }
@@ -565,7 +558,7 @@ bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
+bool vtkLabeledContourMapper::PrepareRender(vtkRenderer* ren, vtkActor* act)
 {
   if (!this->Internal->SetViewInfo(ren, act))
   {
@@ -573,10 +566,10 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   }
 
   // Already checked that these exist in CheckInputs()
-  vtkPolyData *input = this->GetInput();
-  vtkCellArray *lines = input->GetLines();
-  vtkDataArray *scalars = input->GetPointData()->GetScalars();
-  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  vtkPolyData* input = this->GetInput();
+  vtkCellArray* lines = input->GetLines();
+  vtkDataArray* scalars = input->GetPointData()->GetScalars();
+  vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
   if (!tren)
   {
     vtkErrorMacro(<< "Text renderer unavailable.");
@@ -601,11 +594,11 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 
   // Create the list of metrics, but no text property information yet.
   vtkIdType numPts;
-  vtkIdType *ids;
+  const vtkIdType* ids;
   for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
   {
     this->Internal->LabelMetrics.push_back(LabelMetric());
-    LabelMetric &metric = this->Internal->LabelMetrics.back();
+    LabelMetric& metric = this->Internal->LabelMetrics.back();
     if (!(metric.Valid = (numPts > 0)))
     {
       // Mark as invalid and skip if there are no points.
@@ -627,15 +620,14 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
     //   as the signature expects an rvalue.
 
     // The value will be replaced in the next loop:
-    labelMap.insert(std::pair<double, vtkTextProperty*>(
-                      metric.Value, static_cast<vtkTextProperty*>(nullptr)));
+    labelMap.insert(
+      std::pair<double, vtkTextProperty*>(metric.Value, static_cast<vtkTextProperty*>(nullptr)));
   }
 
   // Now that all present scalar values are known, assign text properties:
   TextPropLoop tprops(this->TextProperties);
   typedef LabelPropertyMapType::iterator LabelPropertyMapIter;
-  for (LabelPropertyMapIter it = labelMap.begin(), itEnd = labelMap.end();
-       it != itEnd; ++it)
+  for (LabelPropertyMapIter it = labelMap.begin(), itEnd = labelMap.end(); it != itEnd; ++it)
   {
     if (!it->second) // Skip if initialized from TextPropertyMapping
     {
@@ -646,7 +638,8 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   // Update metrics with appropriate text info:
   typedef std::vector<LabelMetric>::iterator MetricsIter;
   for (MetricsIter it = this->Internal->LabelMetrics.begin(),
-       itEnd = this->Internal->LabelMetrics.end(); it != itEnd; ++it)
+                   itEnd = this->Internal->LabelMetrics.end();
+       it != itEnd; ++it)
   {
     if (!it->Valid)
     {
@@ -655,16 +648,14 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 
     // Look up text property for the scalar value:
     LabelPropertyMapIter tpropIt = labelMap.find(it->Value);
-    assert("No text property assigned for scalar value." &&
-           tpropIt != labelMap.end());
+    assert("No text property assigned for scalar value." && tpropIt != labelMap.end());
     it->TProp = tpropIt->second;
 
     // Assign bounding box/dims.
-    if (!tren->GetBoundingBox(it->TProp, it->Text, it->BoundingBox.GetData(),
-                              vtkTextActor3D::GetRenderedDPI()))
+    if (!tren->GetBoundingBox(
+          it->TProp, it->Text, it->BoundingBox.GetData(), vtkTextActor3D::GetRenderedDPI()))
     {
-      vtkErrorMacro(<<"Error calculating bounding box for string '"
-                    << it->Text << "'.");
+      vtkErrorMacro(<< "Error calculating bounding box for string '" << it->Text << "'.");
       return false;
     }
     it->Dimensions[0] = it->BoundingBox[1] - it->BoundingBox[0] + 1;
@@ -677,9 +668,9 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::PlaceLabels()
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPoints *points = input->GetPoints();
-  vtkCellArray *lines = input->GetLines();
+  vtkPolyData* input = this->GetInput();
+  vtkPoints* points = input->GetPoints();
+  vtkCellArray* lines = input->GetLines();
 
   // Progression of smoothness tolerances to use.
   std::vector<double> tols;
@@ -695,7 +686,7 @@ bool vtkLabeledContourMapper::PlaceLabels()
 
   // Identify smooth parts of the isoline for labeling
   vtkIdType numIds;
-  vtkIdType *origIds;
+  const vtkIdType* origIds;
   this->Internal->LabelInfos.reserve(this->Internal->LabelMetrics.size());
   for (lines->InitTraversal(); lines->GetNextCell(numIds, origIds); ++metric)
   {
@@ -707,16 +698,15 @@ bool vtkLabeledContourMapper::PlaceLabels()
     // to not be completely obscured)
     if (this->Internal->LineCanBeLabeled(points, numIds, origIds, *metric))
     {
-      std::vector<LabelInfo> &infos = this->Internal->LabelInfos.back();
+      std::vector<LabelInfo>& infos = this->Internal->LabelInfos.back();
       LabelInfo info;
       // If no labels are found, increase the tolerance:
-      for (std::vector<double>::const_iterator it = tols.begin(),
-           itEnd = tols.end(); it != itEnd && infos.empty(); ++it)
+      for (std::vector<double>::const_iterator it = tols.begin(), itEnd = tols.end();
+           it != itEnd && infos.empty(); ++it)
       {
         vtkIdType nIds = numIds;
-        vtkIdType *ids = origIds;
-        while (this->Internal->NextLabel(points, nIds, ids, *metric, info, *it,
-                                         this->SkipDistance))
+        const vtkIdType* ids = origIds;
+        while (this->Internal->NextLabel(points, nIds, ids, *metric, info, *it, this->SkipDistance))
         {
           infos.push_back(info);
         }
@@ -807,15 +797,13 @@ bool vtkLabeledContourMapper::ResolveLabels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
+bool vtkLabeledContourMapper::CreateLabels(vtkActor*)
 {
   typedef std::vector<LabelMetric> MetricVector;
   typedef std::vector<LabelInfo> InfoVector;
 
-  std::vector<InfoVector>::const_iterator outerLabels =
-      this->Internal->LabelInfos.begin();
-  std::vector<InfoVector>::const_iterator outerLabelsEnd =
-      this->Internal->LabelInfos.end();
+  std::vector<InfoVector>::const_iterator outerLabels = this->Internal->LabelInfos.begin();
+  std::vector<InfoVector>::const_iterator outerLabelsEnd = this->Internal->LabelInfos.end();
 
   // count the number of labels:
   vtkIdType numLabels = 0;
@@ -833,15 +821,13 @@ bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
   outerLabels = this->Internal->LabelInfos.begin();
   MetricVector::const_iterator metrics = this->Internal->LabelMetrics.begin();
   MetricVector::const_iterator metricsEnd = this->Internal->LabelMetrics.end();
-  vtkTextActor3D **actor = this->TextActors;
-  vtkTextActor3D **actorEnd = this->TextActors + this->NumberOfUsedTextActors;
+  vtkTextActor3D** actor = this->TextActors;
+  vtkTextActor3D** actorEnd = this->TextActors + this->NumberOfUsedTextActors;
 
-  while (metrics != metricsEnd &&
-         outerLabels != outerLabelsEnd &&
-         actor != actorEnd)
+  while (metrics != metricsEnd && outerLabels != outerLabelsEnd && actor != actorEnd)
   {
-    for (InfoVector::const_iterator label = outerLabels->begin(),
-         labelEnd = outerLabels->end(); label != labelEnd; ++label)
+    for (InfoVector::const_iterator label = outerLabels->begin(), labelEnd = outerLabels->end();
+         label != labelEnd; ++label)
     {
       this->Internal->BuildLabel(*actor, *metrics, *label);
       ++actor;
@@ -854,14 +840,14 @@ bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::ApplyStencil(vtkRenderer *, vtkActor *)
+bool vtkLabeledContourMapper::ApplyStencil(vtkRenderer*, vtkActor*)
 {
   // Handled in backend override.
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::RenderPolyData(vtkRenderer *ren, vtkActor *act)
+bool vtkLabeledContourMapper::RenderPolyData(vtkRenderer* ren, vtkActor* act)
 {
   this->PolyDataMapper->SetInputConnection(this->GetInputConnection(0, 0));
   this->PolyDataMapper->Render(ren, act);
@@ -869,14 +855,14 @@ bool vtkLabeledContourMapper::RenderPolyData(vtkRenderer *ren, vtkActor *act)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::RemoveStencil(vtkRenderer *)
+bool vtkLabeledContourMapper::RemoveStencil(vtkRenderer*)
 {
   // Handled in backend override.
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::RenderLabels(vtkRenderer *ren, vtkActor *)
+bool vtkLabeledContourMapper::RenderLabels(vtkRenderer* ren, vtkActor*)
 {
   for (vtkIdType i = 0; i < this->NumberOfUsedTextActors; ++i)
   {
@@ -893,8 +879,7 @@ bool vtkLabeledContourMapper::AllocateTextActors(vtkIdType num)
 {
   if (num != this->NumberOfUsedTextActors)
   {
-    if (this->NumberOfTextActors < num ||
-        this->NumberOfTextActors > 2 * num)
+    if (this->NumberOfTextActors < num || this->NumberOfTextActors > 2 * num)
     {
       this->FreeTextActors();
 
@@ -922,7 +907,7 @@ bool vtkLabeledContourMapper::FreeTextActors()
     this->TextActors[i]->Delete();
   }
 
-  delete [] this->TextActors;
+  delete[] this->TextActors;
   this->TextActors = nullptr;
   this->NumberOfTextActors = 0;
   this->NumberOfUsedTextActors = 0;
@@ -934,11 +919,11 @@ void vtkLabeledContourMapper::FreeStencilQuads()
 {
   if (this->StencilQuads)
   {
-    delete [] this->StencilQuads;
+    delete[] this->StencilQuads;
     this->StencilQuads = nullptr;
     this->StencilQuadsSize = 0;
 
-    delete [] this->StencilQuadIndices;
+    delete[] this->StencilQuadIndices;
     this->StencilQuadIndices = nullptr;
     this->StencilQuadIndicesSize = 0;
   }
@@ -966,20 +951,21 @@ bool vtkLabeledContourMapper::BuildStencilQuads()
   typedef std::vector<std::vector<LabelInfo> >::const_iterator OuterIterator;
 
   for (OuterIterator out = this->Internal->LabelInfos.begin(),
-       outEnd = this->Internal->LabelInfos.end(); out != outEnd; ++out)
+                     outEnd = this->Internal->LabelInfos.end();
+       out != outEnd; ++out)
   {
     for (InnerIterator in = out->begin(), inEnd = out->end(); in != inEnd; ++in)
     {
-      this->StencilQuads[qIndex +  0] = static_cast<float>(in->TLa[0]);
-      this->StencilQuads[qIndex +  1] = static_cast<float>(in->TLa[1]);
-      this->StencilQuads[qIndex +  2] = static_cast<float>(in->TLa[2]);
-      this->StencilQuads[qIndex +  3] = static_cast<float>(in->TRa[0]);
-      this->StencilQuads[qIndex +  4] = static_cast<float>(in->TRa[1]);
-      this->StencilQuads[qIndex +  5] = static_cast<float>(in->TRa[2]);
-      this->StencilQuads[qIndex +  6] = static_cast<float>(in->BRa[0]);
-      this->StencilQuads[qIndex +  7] = static_cast<float>(in->BRa[1]);
-      this->StencilQuads[qIndex +  8] = static_cast<float>(in->BRa[2]);
-      this->StencilQuads[qIndex +  9] = static_cast<float>(in->BLa[0]);
+      this->StencilQuads[qIndex + 0] = static_cast<float>(in->TLa[0]);
+      this->StencilQuads[qIndex + 1] = static_cast<float>(in->TLa[1]);
+      this->StencilQuads[qIndex + 2] = static_cast<float>(in->TLa[2]);
+      this->StencilQuads[qIndex + 3] = static_cast<float>(in->TRa[0]);
+      this->StencilQuads[qIndex + 4] = static_cast<float>(in->TRa[1]);
+      this->StencilQuads[qIndex + 5] = static_cast<float>(in->TRa[2]);
+      this->StencilQuads[qIndex + 6] = static_cast<float>(in->BRa[0]);
+      this->StencilQuads[qIndex + 7] = static_cast<float>(in->BRa[1]);
+      this->StencilQuads[qIndex + 8] = static_cast<float>(in->BRa[2]);
+      this->StencilQuads[qIndex + 9] = static_cast<float>(in->BLa[0]);
       this->StencilQuads[qIndex + 10] = static_cast<float>(in->BLa[1]);
       this->StencilQuads[qIndex + 11] = static_cast<float>(in->BLa[2]);
 
@@ -1000,34 +986,32 @@ bool vtkLabeledContourMapper::BuildStencilQuads()
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Private::ActorToWorld(const vtkVector3d &in,
-                                                    vtkVector3d &out) const
+void vtkLabeledContourMapper::Private::ActorToWorld(const vtkVector3d& in, vtkVector3d& out) const
 {
-  const vtkTuple<double, 16> &x = this->ActorMatrix;
+  const vtkTuple<double, 16>& x = this->ActorMatrix;
   double w;
-  out[0] = in[0] * x[0]  + in[1] * x[1]  + in[2] * x[2]  + x[3];
-  out[1] = in[0] * x[4]  + in[1] * x[5]  + in[2] * x[6]  + x[7];
-  out[2] = in[0] * x[8]  + in[1] * x[9]  + in[2] * x[10] + x[11];
-  w      = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
+  out[0] = in[0] * x[0] + in[1] * x[1] + in[2] * x[2] + x[3];
+  out[1] = in[0] * x[4] + in[1] * x[5] + in[2] * x[6] + x[7];
+  out[2] = in[0] * x[8] + in[1] * x[9] + in[2] * x[10] + x[11];
+  w = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
   out = out * (1. / w);
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Private::WorldToActor(const vtkVector3d &in,
-                                                    vtkVector3d &out) const
+void vtkLabeledContourMapper::Private::WorldToActor(const vtkVector3d& in, vtkVector3d& out) const
 {
-  const vtkTuple<double, 16> &x = this->InverseActorMatrix;
+  const vtkTuple<double, 16>& x = this->InverseActorMatrix;
   double w;
-  out[0] = in[0] * x[0]  + in[1] * x[1]  + in[2] * x[2]  + x[3];
-  out[1] = in[0] * x[4]  + in[1] * x[5]  + in[2] * x[6]  + x[7];
-  out[2] = in[0] * x[8]  + in[1] * x[9]  + in[2] * x[10] + x[11];
-  w      = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
+  out[0] = in[0] * x[0] + in[1] * x[1] + in[2] * x[2] + x[3];
+  out[1] = in[0] * x[4] + in[1] * x[5] + in[2] * x[6] + x[7];
+  out[2] = in[0] * x[8] + in[1] * x[9] + in[2] * x[10] + x[11];
+  w = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
   out = out * (1. / w);
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
-                                                      vtkVector2i &out) const
+void vtkLabeledContourMapper::Private::ActorToDisplay(
+  const vtkVector3d& actor, vtkVector2i& out) const
 {
   vtkVector2d v;
   this->ActorToDisplay(actor, v);
@@ -1035,29 +1019,27 @@ void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
-                                                      vtkVector2d &v) const
+void vtkLabeledContourMapper::Private::ActorToDisplay(
+  const vtkVector3d& actor, vtkVector2d& v) const
 {
   // This is adapted from vtkCoordinate's world to display conversion. We
   // reimplement it here for efficiency.
 
   // vtkRenderer::WorldToView (AMVP includes the actor matrix, too)
-  const vtkTuple<double, 16> &x = this->AMVP;
+  const vtkTuple<double, 16>& x = this->AMVP;
   double w;
-  v[0] = actor[0] * x[0]  + actor[1] * x[1]  + actor[2] * x[2]  + x[3];
-  v[1] = actor[0] * x[4]  + actor[1] * x[5]  + actor[2] * x[6]  + x[7];
-  w    = actor[0] * x[12] + actor[1] * x[13] + actor[2] * x[14] + x[15];
+  v[0] = actor[0] * x[0] + actor[1] * x[1] + actor[2] * x[2] + x[3];
+  v[1] = actor[0] * x[4] + actor[1] * x[5] + actor[2] * x[6] + x[7];
+  w = actor[0] * x[12] + actor[1] * x[13] + actor[2] * x[14] + x[15];
   v = v * (1. / w);
 
   // vtkViewport::ViewToNormalizedViewport
-  v[0] = this->NormalizedViewPort[0] + ((v[0] + 1.) / 2.) *
-      (this->NormalizedViewPort[2] - this->NormalizedViewPort[0]);
-  v[1] = this->NormalizedViewPort[1] + ((v[1] + 1.) / 2.) *
-      (this->NormalizedViewPort[3] - this->NormalizedViewPort[1]);
-  v[0] = (v[0] - this->ViewPort[0]) /
-      (this->ViewPort[2] - this->ViewPort[0]);
-  v[1] = (v[1] - this->ViewPort[1]) /
-      (this->ViewPort[3] - this->ViewPort[1]);
+  v[0] = this->NormalizedViewPort[0] +
+    ((v[0] + 1.) / 2.) * (this->NormalizedViewPort[2] - this->NormalizedViewPort[0]);
+  v[1] = this->NormalizedViewPort[1] +
+    ((v[1] + 1.) / 2.) * (this->NormalizedViewPort[3] - this->NormalizedViewPort[1]);
+  v[0] = (v[0] - this->ViewPort[0]) / (this->ViewPort[2] - this->ViewPort[0]);
+  v[1] = (v[1] - this->ViewPort[1]) / (this->ViewPort[3] - this->ViewPort[1]);
 
   // vtkViewport::NormalizedViewportToViewport
   v[0] *= this->ViewPortSize[0] - 1.;
@@ -1070,40 +1052,32 @@ void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
-                                                   vtkActor *act)
+bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer* ren, vtkActor* act)
 {
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkCamera* cam = ren->GetActiveCamera();
   if (!cam)
   {
-    vtkGenericWarningMacro(<<"No active camera on renderer.");
+    vtkGenericWarningMacro(<< "No active camera on renderer.");
     return false;
   }
 
-  vtkMatrix4x4 *mat = cam->GetModelViewTransformMatrix();
-  this->CameraRight.Set(mat->GetElement(0, 0),
-                        mat->GetElement(0, 1),
-                        mat->GetElement(0, 2));
-  this->CameraUp.Set(mat->GetElement(1, 0),
-                     mat->GetElement(1, 1),
-                     mat->GetElement(1, 2));
-  this->CameraForward.Set(mat->GetElement(2, 0),
-                          mat->GetElement(2, 1),
-                          mat->GetElement(2, 2));
+  vtkMatrix4x4* mat = cam->GetModelViewTransformMatrix();
+  this->CameraRight.Set(mat->GetElement(0, 0), mat->GetElement(0, 1), mat->GetElement(0, 2));
+  this->CameraUp.Set(mat->GetElement(1, 0), mat->GetElement(1, 1), mat->GetElement(1, 2));
+  this->CameraForward.Set(mat->GetElement(2, 0), mat->GetElement(2, 1), mat->GetElement(2, 2));
 
   // figure out the same aspect ratio used by the render engine
   // (see vtkOpenGLCamera::Render())
-  int  lowerLeft[2];
+  int lowerLeft[2];
   int usize, vsize;
   double aspect1[2];
   double aspect2[2];
-  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
   ren->ComputeAspect();
   ren->GetAspect(aspect1);
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = (aspect1[0] * aspect2[1]) /
-                              (aspect1[1] * aspect2[0]);
+  double aspectModification = (aspect1[0] * aspect2[1]) / (aspect1[1] * aspect2[0]);
   double aspect = aspectModification * usize / vsize;
 
   // Get the mvp (mcdc) matrix
@@ -1113,15 +1087,13 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
 
   // Apply the actor's matrix:
   vtkMatrix4x4::DeepCopy(this->ActorMatrix.GetData(), act->GetMatrix());
-  vtkMatrix4x4::Multiply4x4(mvp, this->ActorMatrix.GetData(),
-                            this->AMVP.GetData());
+  vtkMatrix4x4::Multiply4x4(mvp, this->ActorMatrix.GetData(), this->AMVP.GetData());
 
-  vtkMatrix4x4::Invert(this->ActorMatrix.GetData(),
-                       this->InverseActorMatrix.GetData());
+  vtkMatrix4x4::Invert(this->ActorMatrix.GetData(), this->InverseActorMatrix.GetData());
 
-  if (vtkWindow *win = ren->GetVTKWindow())
+  if (vtkWindow* win = ren->GetVTKWindow())
   {
-    int *size = win->GetSize();
+    int* size = win->GetSize();
     this->WindowSize[0] = size[0];
     this->WindowSize[1] = size[1];
 
@@ -1131,7 +1103,7 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
 
     ren->GetViewport(this->ViewPort.GetData());
 
-    double *tvport = win->GetTileViewport();
+    double* tvport = win->GetTileViewport();
     this->NormalizedViewPort[0] = std::max(this->ViewPort[0], tvport[0]);
     this->NormalizedViewPort[1] = std::max(this->ViewPort[1], tvport[1]);
     this->NormalizedViewPort[2] = std::min(this->ViewPort[2], tvport[2]);
@@ -1147,7 +1119,7 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
   }
   else
   {
-    vtkGenericWarningMacro(<<"No render window present.");
+    vtkGenericWarningMacro(<< "No render window present.");
     return false;
   }
 
@@ -1156,8 +1128,7 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
 
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::Private::LineCanBeLabeled(
-    vtkPoints *points, vtkIdType numIds, const vtkIdType *ids,
-    const LabelMetric &metrics)
+  vtkPoints* points, vtkIdType numIds, const vtkIdType* ids, const LabelMetric& metrics)
 {
   vtkTuple<int, 4> bbox(0);
   vtkVector3d actorCoord;
@@ -1169,8 +1140,7 @@ bool vtkLabeledContourMapper::Private::LineCanBeLabeled(
       points->GetPoint(*(ids++), actorCoord.GetData());
       this->ActorToDisplay(actorCoord, displayCoord);
       --numIds;
-    }
-    while (numIds > 0 && !this->PixelIsVisible(displayCoord));
+    } while (numIds > 0 && !this->PixelIsVisible(displayCoord));
 
     if (!this->PixelIsVisible(displayCoord))
     {
@@ -1197,26 +1167,23 @@ bool vtkLabeledContourMapper::Private::LineCanBeLabeled(
   }
 
   // Must be at least twice the label length in at least one direction:
-  return (metrics.Dimensions[0] * 2 < bbox[1] - bbox[0] ||
-          metrics.Dimensions[0] * 2 < bbox[3] - bbox[2]);
+  return (
+    metrics.Dimensions[0] * 2 < bbox[1] - bbox[0] || metrics.Dimensions[0] * 2 < bbox[3] - bbox[2]);
 }
 
 //------------------------------------------------------------------------------
 template <typename ScalarType>
-bool vtkLabeledContourMapper::Private::PixelIsVisible(
-    const vtkVector2<ScalarType> &dispCoord) const
+bool vtkLabeledContourMapper::Private::PixelIsVisible(const vtkVector2<ScalarType>& dispCoord) const
 {
   return (dispCoord.GetX() >= this->ViewportBounds[0] &&
-          dispCoord.GetX() <= this->ViewportBounds[1] &&
-          dispCoord.GetY() >= this->ViewportBounds[2] &&
-          dispCoord.GetY() <= this->ViewportBounds[3]);
+    dispCoord.GetX() <= this->ViewportBounds[1] && dispCoord.GetY() >= this->ViewportBounds[2] &&
+    dispCoord.GetY() <= this->ViewportBounds[3]);
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::Private::NextLabel(
-    vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
-    const LabelMetric &metrics, LabelInfo &info, double targetSmoothness,
-    double skipDistance)
+bool vtkLabeledContourMapper::Private::NextLabel(vtkPoints* points, vtkIdType& numIds,
+  const vtkIdType*& ids, const LabelMetric& metrics, LabelInfo& info, double targetSmoothness,
+  double skipDistance)
 {
   if (numIds < 3)
   {
@@ -1342,8 +1309,7 @@ bool vtkLabeledContourMapper::Private::NextLabel(
           ++startIdx;
           points->GetPoint(ids[startIdx], startPoint.GetData());
           this->ActorToDisplay(startPoint, startPointDisplay);
-        }
-        while (startIdx < numIds && !this->PixelIsVisible(startPointDisplay));
+        } while (startIdx < numIds && !this->PixelIsVisible(startPointDisplay));
 
         prevPoint = startPoint;
         prevPointDisplay = startPointDisplay;
@@ -1379,8 +1345,8 @@ bool vtkLabeledContourMapper::Private::NextLabel(
     // The up vector. Cross the forward direction with the orientation and
     // ensure that the result vector is in the same hemisphere as CameraUp
     info.UpW = info.RightW.Compare(this->CameraForward, 10e-10)
-        ? this->CameraUp
-        : info.RightW.Cross(this->CameraForward).Normalized();
+      ? this->CameraUp
+      : info.RightW.Cross(this->CameraForward).Normalized();
     if (info.UpW.Dot(this->CameraUp) < 0.)
     {
       info.UpW = -info.UpW;
@@ -1422,9 +1388,8 @@ bool vtkLabeledContourMapper::Private::NextLabel(
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
-                                                  const LabelMetric &metric,
-                                                  const LabelInfo &info)
+bool vtkLabeledContourMapper::Private::BuildLabel(
+  vtkTextActor3D* actor, const LabelMetric& metric, const LabelInfo& info)
 
 {
   assert(metric.Valid);
@@ -1437,9 +1402,7 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
 
   xform->Translate((-info.Position).GetData());
 
-  xform->Scale(info.ScaleDisplayToActor,
-               info.ScaleDisplayToActor,
-               info.ScaleDisplayToActor);
+  xform->Scale(info.ScaleDisplayToActor, info.ScaleDisplayToActor, info.ScaleDisplayToActor);
 
   vtkVector3d forward = info.UpA.Cross(info.RightA);
   double rot[16];
@@ -1468,8 +1431,7 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledContourMapper::Private::ComputeLabelInfo(
-    LabelInfo &info, const LabelMetric &metrics)
+void vtkLabeledContourMapper::Private::ComputeLabelInfo(LabelInfo& info, const LabelMetric& metrics)
 {
   // Convert the right and up vectors into actor space:
   vtkVector3d worldPosition;
@@ -1493,19 +1455,17 @@ void vtkLabeledContourMapper::Private::ComputeLabelInfo(
   vtkVector2d rightDisplay;
   this->ActorToDisplay(leftActor, leftDisplay);
   this->ActorToDisplay(rightActor, rightDisplay);
-  info.ScaleDisplayToActor = static_cast<double>(metrics.Dimensions[0]) /
-      (rightDisplay - leftDisplay).Norm();
+  info.ScaleDisplayToActor =
+    static_cast<double>(metrics.Dimensions[0]) / (rightDisplay - leftDisplay).Norm();
 
   // Compute the corners of the quad. Actor coordinates are used to create the
   // stencil, display coordinates are used to detect collisions.
   // Note that we make this a little bigger (4px) than a tight bbox to give a
   // little breathing room around the text.
   vtkVector3d halfWidth =
-      ((0.5 * metrics.Dimensions[0] + 2) * info.ScaleDisplayToActor)
-      * info.RightA;
+    ((0.5 * metrics.Dimensions[0] + 2) * info.ScaleDisplayToActor) * info.RightA;
   vtkVector3d halfHeight =
-      ((0.5 * metrics.Dimensions[1] + 2) * info.ScaleDisplayToActor)
-      * info.UpA;
+    ((0.5 * metrics.Dimensions[1] + 2) * info.ScaleDisplayToActor) * info.UpA;
   info.TLa = info.Position + halfHeight - halfWidth;
   info.TRa = info.Position + halfHeight + halfWidth;
   info.BRa = info.Position - halfHeight + halfWidth;
@@ -1517,10 +1477,11 @@ void vtkLabeledContourMapper::Private::ComputeLabelInfo(
 }
 
 // Anonymous namespace for some TestOverlap helpers:
-namespace {
+namespace
+{
 
 // Rotates the vector by -90 degrees.
-void perp(vtkVector2i &vec)
+void perp(vtkVector2i& vec)
 {
   std::swap(vec[0], vec[1]);
   vec[1] = -vec[1];
@@ -1529,8 +1490,7 @@ void perp(vtkVector2i &vec)
 // Project all points in other onto the line (point + t * direction).
 // Return true if t is positive for all points in other (e.g. all points in
 // 'other' are outside the polygon containing 'point').
-bool allOutside(const vtkVector2i &point, const vtkVector2i &direction,
-                const LabelInfo &other)
+bool allOutside(const vtkVector2i& point, const vtkVector2i& direction, const LabelInfo& other)
 {
   vtkVector2i testVector;
 
@@ -1565,8 +1525,7 @@ bool allOutside(const vtkVector2i &point, const vtkVector2i &direction,
 // by traversing the corners counter-clockwise and using the perp() function.
 // Use allOutside() to determine whether the other polygon is outside the edge.
 // Return true if the axis separates the polygons.
-bool testAxis(const LabelInfo &poly, const vtkVector2i &edgeStart,
-              const vtkVector2i &edgeEnd)
+bool testAxis(const LabelInfo& poly, const vtkVector2i& edgeStart, const vtkVector2i& edgeEnd)
 {
   // Vector pointing out of polygon:
   vtkVector2i direction = edgeEnd - edgeStart;
@@ -1582,17 +1541,11 @@ bool testAxis(const LabelInfo &poly, const vtkVector2i &edgeStart,
 // Ref: http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
 // In essence, look for an axis that separates the two rectangles.
 // Return true if overlap occurs.
-bool vtkLabeledContourMapper::Private::TestOverlap(const LabelInfo &a,
-                                                   const LabelInfo &b)
+bool vtkLabeledContourMapper::Private::TestOverlap(const LabelInfo& a, const LabelInfo& b)
 {
   // Note that the order of the points matters, must be CCW to get the correct
   // perpendicular vector:
-  return !(testAxis(a, b.TLd, b.BLd) ||
-           testAxis(a, b.BLd, b.BRd) ||
-           testAxis(a, b.BRd, b.TRd) ||
-           testAxis(a, b.TRd, b.TLd) ||
-           testAxis(b, a.TLd, a.BLd) ||
-           testAxis(b, a.BLd, a.BRd) ||
-           testAxis(b, a.BRd, a.TRd) ||
-           testAxis(b, a.TRd, a.TLd));
+  return !(testAxis(a, b.TLd, b.BLd) || testAxis(a, b.BLd, b.BRd) || testAxis(a, b.BRd, b.TRd) ||
+    testAxis(a, b.TRd, b.TLd) || testAxis(b, a.TLd, a.BLd) || testAxis(b, a.BLd, a.BRd) ||
+    testAxis(b, a.BRd, a.TRd) || testAxis(b, a.TRd, a.TLd));
 }

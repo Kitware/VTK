@@ -26,18 +26,18 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkFlagpoleLabel)
-vtkCxxSetObjectMacro(vtkFlagpoleLabel, TextProperty, vtkTextProperty)
+vtkObjectFactoryNewMacro(vtkFlagpoleLabel);
+vtkCxxSetObjectMacro(vtkFlagpoleLabel, TextProperty, vtkTextProperty);
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkFlagpoleLabel::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -46,10 +46,10 @@ void vtkFlagpoleLabel::PrintSelf(std::ostream &os, vtkIndent indent)
      << indent << "RenderedDPI: " << this->RenderedDPI << "\n"
      << indent << "InputMTime: " << this->InputMTime << "\n"
      << indent << "TextRenderer: " << this->TextRenderer << "\n"
-     << indent << "BasePosition: " << this->BasePosition[0] << " " << this->BasePosition[1]
-     << " " << this->BasePosition[2] << "\n"
-     << indent << "TopPosition: " << this->TopPosition[0] << " " << this->TopPosition[1]
-     << " " << this->TopPosition[2] << "\n";
+     << indent << "BasePosition: " << this->BasePosition[0] << " " << this->BasePosition[1] << " "
+     << this->BasePosition[2] << "\n"
+     << indent << "TopPosition: " << this->TopPosition[0] << " " << this->TopPosition[1] << " "
+     << this->TopPosition[2] << "\n";
 
   os << indent << "Image:\n";
   this->Image->PrintSelf(os, indent.GetNextIndent());
@@ -68,11 +68,11 @@ void vtkFlagpoleLabel::PrintSelf(std::ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::SetInput(const char *in)
+void vtkFlagpoleLabel::SetInput(const char* in)
 {
   // Adapted vtkSetStringMacro to also mark InputMTime as modified:
   if ((this->Input == nullptr && in == nullptr) ||
-      (this->Input && in && strcmp(this->Input, in) == 0))
+    (this->Input && in && strcmp(this->Input, in) == 0))
   {
     return;
   }
@@ -153,14 +153,14 @@ vtkTypeBool vtkFlagpoleLabel::HasTranslucentPolygonalGeometry()
 }
 
 //------------------------------------------------------------------------------
-int vtkFlagpoleLabel::RenderOpaqueGeometry(vtkViewport *vp)
+int vtkFlagpoleLabel::RenderOpaqueGeometry(vtkViewport* vp)
 {
   if (!this->InputIsValid())
   {
     return 0;
   }
 
-  vtkRenderer *ren = vtkRenderer::SafeDownCast(vp);
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(vp);
   if (!ren || ren->GetActiveCamera() == nullptr)
   {
     vtkErrorMacro("Viewport is not a renderer, or missing a camera.");
@@ -172,8 +172,7 @@ int vtkFlagpoleLabel::RenderOpaqueGeometry(vtkViewport *vp)
   this->RenderedRenderer = ren;
 
   // Alert OpenGL1 GL2PS export that this prop needs special handling:
-  if (ren->GetRenderWindow() &&
-      ren->GetRenderWindow()->GetCapturingGL2PSSpecialProps())
+  if (ren->GetRenderWindow() && ren->GetRenderWindow()->GetCapturingGL2PSSpecialProps())
   {
     ren->CaptureGL2PSSpecialProp(this);
   }
@@ -186,7 +185,7 @@ int vtkFlagpoleLabel::RenderOpaqueGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-int vtkFlagpoleLabel::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+int vtkFlagpoleLabel::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   if (!this->InputIsValid() || !this->IsValid())
   {
@@ -199,7 +198,7 @@ int vtkFlagpoleLabel::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::ReleaseGraphicsResources(vtkWindow *win)
+void vtkFlagpoleLabel::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->RenderedRenderer = nullptr;
   this->Texture->ReleaseGraphicsResources(win);
@@ -210,7 +209,7 @@ void vtkFlagpoleLabel::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //------------------------------------------------------------------------------
-double *vtkFlagpoleLabel::GetBounds()
+double* vtkFlagpoleLabel::GetBounds()
 {
   if (this->RenderedRenderer)
   {
@@ -232,9 +231,9 @@ double *vtkFlagpoleLabel::GetBounds()
 
 //------------------------------------------------------------------------------
 vtkFlagpoleLabel::vtkFlagpoleLabel()
-  : Input(nullptr),
-    TextProperty(vtkTextProperty::New()),
-    RenderedDPI(-1)
+  : Input(nullptr)
+  , TextProperty(vtkTextProperty::New())
+  , RenderedDPI(-1)
 {
   this->LineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->BasePosition[0] = 0.0;
@@ -306,8 +305,7 @@ vtkFlagpoleLabel::~vtkFlagpoleLabel()
 
 void vtkFlagpoleLabel::SetTopPosition(double x, double y, double z)
 {
-  if (this->TopPosition[0] == x && this->TopPosition[1] == y
-      && this->TopPosition[2] == z)
+  if (this->TopPosition[0] == x && this->TopPosition[1] == y && this->TopPosition[2] == z)
   {
     return;
   }
@@ -316,15 +314,14 @@ void vtkFlagpoleLabel::SetTopPosition(double x, double y, double z)
   this->TopPosition[1] = y;
   this->TopPosition[2] = z;
 
-  this->LineSource->SetPoint2(x,y,z);
+  this->LineSource->SetPoint2(x, y, z);
 
   this->Modified();
 }
 
 void vtkFlagpoleLabel::SetBasePosition(double x, double y, double z)
 {
-  if (this->BasePosition[0] == x && this->BasePosition[1] == y
-      && this->BasePosition[2] == z)
+  if (this->BasePosition[0] == x && this->BasePosition[1] == y && this->BasePosition[2] == z)
   {
     return;
   }
@@ -333,7 +330,7 @@ void vtkFlagpoleLabel::SetBasePosition(double x, double y, double z)
   this->BasePosition[1] = y;
   this->BasePosition[2] = z;
 
-  this->LineSource->SetPoint1(x,y,z);
+  this->LineSource->SetPoint1(x, y, z);
 
   this->Modified();
 }
@@ -341,14 +338,12 @@ void vtkFlagpoleLabel::SetBasePosition(double x, double y, double z)
 //------------------------------------------------------------------------------
 bool vtkFlagpoleLabel::InputIsValid()
 {
-  return (this->Input != nullptr &&
-          this->Input[0] != '\0' &&
-          this->TextProperty != nullptr &&
-          this->TextRenderer != nullptr);
+  return (this->Input != nullptr && this->Input[0] != '\0' && this->TextProperty != nullptr &&
+    this->TextRenderer != nullptr);
 }
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::UpdateInternals(vtkRenderer *ren)
+void vtkFlagpoleLabel::UpdateInternals(vtkRenderer* ren)
 {
   this->PoleActor->SetProperty(this->GetProperty());
   this->QuadActor->SetProperty(this->GetProperty());
@@ -365,20 +360,19 @@ void vtkFlagpoleLabel::UpdateInternals(vtkRenderer *ren)
 }
 
 //------------------------------------------------------------------------------
-bool vtkFlagpoleLabel::TextureIsStale(vtkRenderer *ren)
+bool vtkFlagpoleLabel::TextureIsStale(vtkRenderer* ren)
 {
   return (this->RenderedDPI != ren->GetRenderWindow()->GetDPI() ||
-          this->Image->GetMTime() < this->InputMTime ||
-          this->Image->GetMTime() < this->TextProperty->GetMTime());
+    this->Image->GetMTime() < this->InputMTime ||
+    this->Image->GetMTime() < this->TextProperty->GetMTime());
 }
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::GenerateTexture(vtkRenderer *ren)
+void vtkFlagpoleLabel::GenerateTexture(vtkRenderer* ren)
 {
   int dpi = ren->GetRenderWindow()->GetDPI();
 
-  if (!this->TextRenderer->RenderString(this->TextProperty, this->Input,
-                                        this->Image, nullptr, dpi))
+  if (!this->TextRenderer->RenderString(this->TextProperty, this->Input, this->Image, nullptr, dpi))
   {
     vtkErrorMacro("Error rendering text string: " << this->Input);
     this->Invalidate();
@@ -389,21 +383,19 @@ void vtkFlagpoleLabel::GenerateTexture(vtkRenderer *ren)
 }
 
 //------------------------------------------------------------------------------
-bool vtkFlagpoleLabel::QuadIsStale(vtkRenderer *ren)
+bool vtkFlagpoleLabel::QuadIsStale(vtkRenderer* ren)
 {
   return (this->Quad->GetMTime() < this->GetMTime() ||
-          this->Quad->GetMTime() < this->Image->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetRenderWindow()->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetActiveCamera()->GetMTime());
+    this->Quad->GetMTime() < this->Image->GetMTime() || this->Quad->GetMTime() < ren->GetMTime() ||
+    this->Quad->GetMTime() < ren->GetRenderWindow()->GetMTime() ||
+    this->Quad->GetMTime() < ren->GetActiveCamera()->GetMTime());
 }
 
 //------------------------------------------------------------------------------
-void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
+void vtkFlagpoleLabel::GenerateQuad(vtkRenderer* ren)
 {
   vtkTextRenderer::Metrics metrics;
-  if (!this->TextRenderer->GetMetrics(this->TextProperty, this->Input, metrics,
-                                      this->RenderedDPI))
+  if (!this->TextRenderer->GetMetrics(this->TextProperty, this->Input, metrics, this->RenderedDPI))
   {
     vtkErrorMacro("Error retrieving text metrics for string: " << this->Input);
     this->Invalidate();
@@ -414,34 +406,33 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
 
   // Actual size of the text in the texture
   int textSize[2] = { metrics.BoundingBox[1] - metrics.BoundingBox[0] + 1,
-                      metrics.BoundingBox[3] - metrics.BoundingBox[2] + 1 };
+    metrics.BoundingBox[3] - metrics.BoundingBox[2] + 1 };
 
   // Now figure out the world coordinates for our quad (the hard part...):
-  vtkDoubleArray *quadPoints =
-      vtkDoubleArray::FastDownCast(this->Quad->GetPoints()->GetData());
+  vtkDoubleArray* quadPoints = vtkDoubleArray::FastDownCast(this->Quad->GetPoints()->GetData());
   assert(quadPoints);
 
   // determine scaling, the default is 1.0 = 1000 texels across the screen
-  double scale = this->FlagSize*0.001;
-  vtkCamera *cam = ren->GetActiveCamera();
+  double scale = this->FlagSize * 0.001;
+  vtkCamera* cam = ren->GetActiveCamera();
   double pos[3];
   cam->GetPosition(pos);
   if (cam->GetParallelProjection())
   {
     double cscale = cam->GetParallelScale();
-    scale = scale*cscale;
+    scale = scale * cscale;
   }
   else
   {
     double vangle = cam->GetViewAngle();
-    double dist = sqrt(vtkMath::Distance2BetweenPoints(pos,this->TopPosition));
-    dist *= 2.0*tan(vtkMath::RadiansFromDegrees(vangle/2.0));
-    scale = scale*dist;
+    double dist = sqrt(vtkMath::Distance2BetweenPoints(pos, this->TopPosition));
+    dist *= 2.0 * tan(vtkMath::RadiansFromDegrees(vangle / 2.0));
+    scale = scale * dist;
   }
 
   // the middle bottom of the quad should be at TopPosition
-  double height = textSize[1]*scale;
-  double width = textSize[0]*scale;
+  double height = textSize[1] * scale;
+  double width = textSize[0] * scale;
 
   // compute the right and up basis vectors
   double right[3];
@@ -452,44 +443,40 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   vtkMath::Normalize(up);
 
   // right is the cross of up and vpn
-  double vpn[3] =
-  {
-    pos[0] - this->TopPosition[0],
-    pos[1] - this->TopPosition[1],
-    pos[2] - this->TopPosition[2]
-  };
+  double vpn[3] = { pos[0] - this->TopPosition[0], pos[1] - this->TopPosition[1],
+    pos[2] - this->TopPosition[2] };
   vtkMath::Normalize(vpn);
   vtkMath::Cross(up, vpn, right);
   vtkMath::Normalize(right);
 
   double loc[3];
-  loc[0] = this->TopPosition[0] - 0.5*width*right[0];
-  loc[1] = this->TopPosition[1] - 0.5*width*right[1];
-  loc[2] = this->TopPosition[2] - 0.5*width*right[2];
+  loc[0] = this->TopPosition[0] - 0.5 * width * right[0];
+  loc[1] = this->TopPosition[1] - 0.5 * width * right[1];
+  loc[2] = this->TopPosition[2] - 0.5 * width * right[2];
 
   quadPoints->SetTypedComponent(0, 0, loc[0]);
   quadPoints->SetTypedComponent(0, 1, loc[1]);
   quadPoints->SetTypedComponent(0, 2, loc[2]);
 
-  loc[0] += width*right[0];
-  loc[1] += width*right[1];
-  loc[2] += width*right[2];
+  loc[0] += width * right[0];
+  loc[1] += width * right[1];
+  loc[2] += width * right[2];
 
   quadPoints->SetTypedComponent(1, 0, loc[0]);
   quadPoints->SetTypedComponent(1, 1, loc[1]);
   quadPoints->SetTypedComponent(1, 2, loc[2]);
 
-  loc[0] += height*up[0];
-  loc[1] += height*up[1];
-  loc[2] += height*up[2];
+  loc[0] += height * up[0];
+  loc[1] += height * up[1];
+  loc[2] += height * up[2];
 
   quadPoints->SetTypedComponent(2, 0, loc[0]);
   quadPoints->SetTypedComponent(2, 1, loc[1]);
   quadPoints->SetTypedComponent(2, 2, loc[2]);
 
-  loc[0] -= width*right[0];
-  loc[1] -= width*right[1];
-  loc[2] -= width*right[2];
+  loc[0] -= width * right[0];
+  loc[1] -= width * right[1];
+  loc[2] -= width * right[2];
 
   quadPoints->SetTypedComponent(3, 0, loc[0]);
   quadPoints->SetTypedComponent(3, 1, loc[1]);

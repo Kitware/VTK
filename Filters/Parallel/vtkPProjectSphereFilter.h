@@ -18,7 +18,7 @@
  * unroll longitude is -180.
  *
  *
-*/
+ */
 
 #ifndef vtkPProjectSphereFilter_h
 #define vtkPProjectSphereFilter_h
@@ -26,14 +26,13 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkProjectSphereFilter.h"
 
-class VTKFILTERSPARALLEL_EXPORT vtkPProjectSphereFilter :
-  public vtkProjectSphereFilter
+class VTKFILTERSPARALLEL_EXPORT vtkPProjectSphereFilter : public vtkProjectSphereFilter
 {
 public:
   vtkTypeMacro(vtkPProjectSphereFilter, vtkProjectSphereFilter);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPProjectSphereFilter *New();
+  static vtkPProjectSphereFilter* New();
 
 protected:
   vtkPProjectSphereFilter();
@@ -53,8 +52,8 @@ protected:
   double GetZTranslation(vtkPointSet* input) override;
 
 private:
-  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) = delete;
-  void operator=(const vtkPProjectSphereFilter &) = delete;
+  vtkPProjectSphereFilter(const vtkPProjectSphereFilter&) = delete;
+  void operator=(const vtkPProjectSphereFilter&) = delete;
 };
 
 #endif // vtkPProjectSphereFilter_h

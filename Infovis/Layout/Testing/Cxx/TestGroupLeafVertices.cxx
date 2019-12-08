@@ -26,9 +26,9 @@
 #include "vtkGroupLeafVertices.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStringArray.h"
@@ -37,13 +37,12 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestGroupLeafVertices(int argc, char* argv[])
 {
   int imode = 0; // Interactive mode
-  for(int i = 1; i < argc; i++)
+  for (int i = 1; i < argc; i++)
   {
     if (!strcmp(argv[i], "-I"))
     {
@@ -52,8 +51,8 @@ int TestGroupLeafVertices(int argc, char* argv[])
     }
 
     cerr << argv[0] << " Options:\n  "
-      << " -h (prints this message)\n  "
-      << " -I (run interactively)\n  ";
+         << " -h (prints this message)\n  "
+         << " -I (run interactively)\n  ";
     return 0;
   }
 
@@ -188,7 +187,7 @@ int TestGroupLeafVertices(int argc, char* argv[])
 
   VTK_CREATE(vtkRenderer, ren);
   ren->AddActor(polyActor);
-  //ren->AddActor(labelActor);
+  // ren->AddActor(labelActor);
   ren->AddActor(glyphActor);
 
   VTK_CREATE(vtkRenderWindow, win);

@@ -40,22 +40,20 @@
  * "Uniform B-Splines for the VTK Imaging Pipeline,"
  * VTK Journal, 2011,
  * http://hdl.handle.net/10380/3252
-*/
+ */
 
 #ifndef vtkImageBSplineCoefficients_h
 #define vtkImageBSplineCoefficients_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
-#include "vtkThreadedImageAlgorithm.h"
 #include "vtkImageBSplineInterpolator.h" // for constants
+#include "vtkImagingCoreModule.h"        // For export macro
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTKIMAGINGCORE_EXPORT vtkImageBSplineCoefficients :
-  public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageBSplineCoefficients : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageBSplineCoefficients *New();
-  vtkTypeMacro(vtkImageBSplineCoefficients,vtkThreadedImageAlgorithm);
+  static vtkImageBSplineCoefficients* New();
+  vtkTypeMacro(vtkImageBSplineCoefficients, vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -78,16 +76,12 @@ public:
    * mirrored copies, which results in optimal smoothness at the boundary,
    * or to repeat the image, which results in a cyclic or periodic spline.
    */
-  vtkSetClampMacro(BorderMode, int,
-                   VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_MIRROR);
-  void SetBorderModeToClamp() {
-    this->SetBorderMode(VTK_IMAGE_BORDER_CLAMP); }
-  void SetBorderModeToRepeat() {
-    this->SetBorderMode(VTK_IMAGE_BORDER_REPEAT); }
-  void SetBorderModeToMirror() {
-    this->SetBorderMode(VTK_IMAGE_BORDER_MIRROR); }
+  vtkSetClampMacro(BorderMode, int, VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_MIRROR);
+  void SetBorderModeToClamp() { this->SetBorderMode(VTK_IMAGE_BORDER_CLAMP); }
+  void SetBorderModeToRepeat() { this->SetBorderMode(VTK_IMAGE_BORDER_REPEAT); }
+  void SetBorderModeToMirror() { this->SetBorderMode(VTK_IMAGE_BORDER_MIRROR); }
   vtkGetMacro(BorderMode, int);
-  const char *GetBorderModeAsString();
+  const char* GetBorderModeAsString();
   //@}
 
   //@{
@@ -98,11 +92,9 @@ public:
    */
   vtkSetClampMacro(OutputScalarType, int, VTK_FLOAT, VTK_DOUBLE);
   vtkGetMacro(OutputScalarType, int);
-  void SetOutputScalarTypeToFloat() {
-    this->SetOutputScalarType(VTK_FLOAT); }
-  void SetOutputScalarTypeToDouble() {
-    this->SetOutputScalarType(VTK_DOUBLE); }
-  const char *GetOutputScalarTypeAsString();
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  const char* GetOutputScalarTypeAsString();
   //@}
 
   //@{
@@ -133,30 +125,24 @@ public:
    * return multiple components, while the second signature is for use
    * on single-component images.
    */
-  void Evaluate(const double point[3], double *value);
+  void Evaluate(const double point[3], double* value);
   double Evaluate(double x, double y, double z);
-  double Evaluate(const double point[3]) {
-    return this->Evaluate(point[0], point[1], point[2]); }
+  double Evaluate(const double point[3]) { return this->Evaluate(point[0], point[1], point[2]); }
   //@}
 
 protected:
   vtkImageBSplineCoefficients();
   ~vtkImageBSplineCoefficients() override;
 
-  void AllocateOutputData(
-    vtkImageData *out, vtkInformation *outInfo, int *uExtent) override;
-  vtkImageData *AllocateOutputData(
-    vtkDataObject *out, vtkInformation* outInfo) override;
+  void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
+  vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
 
-  int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestInformation(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                               int outExt[6], int threadId) override;
+  void ThreadedExecute(
+    vtkImageData* inData, vtkImageData* outData, int outExt[6], int threadId) override;
 
   int SplineDegree;
   int BorderMode;

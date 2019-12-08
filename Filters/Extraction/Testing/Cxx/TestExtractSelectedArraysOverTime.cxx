@@ -41,8 +41,8 @@ bool Validate0(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
   expect(b0 != nullptr, "expecting a vtkTable for block 0");
-  expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b0->GetNumberOfRows());
+  expect(b0->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
   expect(b0->GetColumnByName("avg(EQPS)") != nullptr, "missing 'avg(EQPS)'.");
   expect(b0->GetColumnByName("max(EQPS)") != nullptr, "missing 'max(EQPS)'.");
   expect(b0->GetColumnByName("min(EQPS)") != nullptr, "missing 'min(EQPS)'.");
@@ -60,42 +60,42 @@ bool Validate1(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
   expect(b0 != nullptr, "expecting a vtkTable for block 0");
-  expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b0->GetNumberOfRows());
+  expect(b0->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
   expect(b0->GetNumberOfColumns() >= 5, "mismatched columns");
   expect(b0->GetColumnByName("EQPS") != nullptr, "missing 'EQPS'");
   expect(b0->GetColumnByName("Time") != nullptr, "missing 'Time'");
 
   const char* name = mb->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=786") == 0, "block name not matching, expected 'gid=786', got '" << name
-                                                                                            << "'");
+  expect(strcmp(name, "gid=786") == 0,
+    "block name not matching, expected 'gid=786', got '" << name << "'");
 
   vtkTable* b1 = vtkTable::SafeDownCast(mb->GetBlock(1));
   expect(b1 != nullptr, "expecting a vtkTable for block 0");
-  expect(b1->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b1->GetNumberOfRows());
+  expect(b1->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b1->GetNumberOfRows());
   expect(b1->GetNumberOfColumns() >= 5, "mismatched columns");
   expect(b1->GetColumnByName("EQPS") != nullptr, "missing 'EQPS'");
   expect(b1->GetColumnByName("Time") != nullptr, "missing 'Time'");
 
   name = mb->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=787") == 0, "block name not matching, expected 'gid=787', got '" << name
-                                                                                            << "'");
+  expect(strcmp(name, "gid=787") == 0,
+    "block name not matching, expected 'gid=787', got '" << name << "'");
 
   vtkTable* b2 = vtkTable::SafeDownCast(mb->GetBlock(2));
   expect(b2 != nullptr, "expecting a vtkTable for block 0");
-  expect(b2->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b2->GetNumberOfRows());
+  expect(b2->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b2->GetNumberOfRows());
   expect(b2->GetNumberOfColumns() >= 5, "mismatched columns");
   expect(b2->GetColumnByName("EQPS") != nullptr, "missing 'EQPS'");
   expect(b2->GetColumnByName("Time") != nullptr, "missing 'Time'");
 
   name = mb->GetMetaData(2u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=788") == 0, "block name not matching, expected 'gid=788', got '" << name
-                                                                                            << "'");
+  expect(strcmp(name, "gid=788") == 0,
+    "block name not matching, expected 'gid=788', got '" << name << "'");
   return true;
 }
 }

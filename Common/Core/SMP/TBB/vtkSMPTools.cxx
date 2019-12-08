@@ -18,21 +18,22 @@
 #include "vtkCriticalSection.h"
 
 #ifdef _MSC_VER
-#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
-#  define __TBB_NO_IMPLICIT_LINKAGE 1
+#pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#define __TBB_NO_IMPLICIT_LINKAGE 1
 #endif
 
 #include <tbb/task_scheduler_init.h>
 
 #ifdef _MSC_VER
-#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
 struct vtkSMPToolsInit
 {
   tbb::task_scheduler_init Init;
 
-  vtkSMPToolsInit(int numThreads) : Init(numThreads)
+  vtkSMPToolsInit(int numThreads)
+    : Init(numThreads)
   {
   }
 };
@@ -63,5 +64,5 @@ void vtkSMPTools::Initialize(int numThreads)
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {
   return vtkTBBNumSpecifiedThreads ? vtkTBBNumSpecifiedThreads
-    : tbb::task_scheduler_init::default_num_threads();
+                                   : tbb::task_scheduler_init::default_num_threads();
 }

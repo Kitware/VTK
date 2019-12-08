@@ -45,14 +45,13 @@
  * interpolators the next time InterpolateTransform() is invoked. Thus the
  * best performance is obtained by 1) configuring the interpolators, 2) adding
  * all the transforms, and 3) finally performing interpolation.
-*/
+ */
 
 #ifndef vtkTransformInterpolator_h
 #define vtkTransformInterpolator_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkTransform;
 class vtkMatrix4x4;
@@ -60,7 +59,6 @@ class vtkProp3D;
 class vtkTupleInterpolator;
 class vtkQuaternionInterpolator;
 class vtkTransformList;
-
 
 class VTKRENDERINGCORE_EXPORT vtkTransformInterpolator : public vtkObject
 {
@@ -102,9 +100,9 @@ public:
    * There are variants to this method depending on whether you are
    * adding a vtkTransform, vtkMaxtirx4x4, and/or vtkProp3D.
    */
-  void AddTransform(double t, vtkTransform *xform);
-  void AddTransform(double t, vtkMatrix4x4 *matrix);
-  void AddTransform(double t, vtkProp3D *prop3D);
+  void AddTransform(double t, vtkTransform* xform);
+  void AddTransform(double t, vtkMatrix4x4* matrix);
+  void AddTransform(double t, vtkProp3D* prop3D);
   //@}
 
   /**
@@ -118,14 +116,16 @@ public:
    * fill in the transformation provided). If t is outside the range of
    * (min,max) values, then t is clamped.
    */
-  void InterpolateTransform(double t, vtkTransform *xform);
+  void InterpolateTransform(double t, vtkTransform* xform);
 
   /**
    * Enums to control the type of interpolation to use.
    */
-  enum {INTERPOLATION_TYPE_LINEAR=0,
-        INTERPOLATION_TYPE_SPLINE,
-        INTERPOLATION_TYPE_MANUAL
+  enum
+  {
+    INTERPOLATION_TYPE_LINEAR = 0,
+    INTERPOLATION_TYPE_SPLINE,
+    INTERPOLATION_TYPE_MANUAL
   };
 
   //@{
@@ -138,15 +138,11 @@ public:
    * this class does not forward the request for interpolation type to its
    * interpolators.
    */
-  vtkSetClampMacro(InterpolationType,int, INTERPOLATION_TYPE_LINEAR,
-                   INTERPOLATION_TYPE_MANUAL);
-  vtkGetMacro(InterpolationType,int);
-  void SetInterpolationTypeToLinear()
-    {this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR);}
-  void SetInterpolationTypeToSpline()
-    {this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE);}
-  void SetInterpolationTypeToManual()
-    {this->SetInterpolationType(INTERPOLATION_TYPE_MANUAL);}
+  vtkSetClampMacro(InterpolationType, int, INTERPOLATION_TYPE_LINEAR, INTERPOLATION_TYPE_MANUAL);
+  vtkGetMacro(InterpolationType, int);
+  void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
+  void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
+  void SetInterpolationTypeToManual() { this->SetInterpolationType(INTERPOLATION_TYPE_MANUAL); }
   //@}
 
   //@{
@@ -157,7 +153,7 @@ public:
    * by manipulating the interpolator instances.
    */
   virtual void SetPositionInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(PositionInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(PositionInterpolator, vtkTupleInterpolator);
   //@}
 
   //@{
@@ -168,7 +164,7 @@ public:
    * by manipulating the interpolator instances.
    */
   virtual void SetScaleInterpolator(vtkTupleInterpolator*);
-  vtkGetObjectMacro(ScaleInterpolator,vtkTupleInterpolator);
+  vtkGetObjectMacro(ScaleInterpolator, vtkTupleInterpolator);
   //@}
 
   //@{
@@ -179,7 +175,7 @@ public:
    * by manipulating the interpolator instances.
    */
   virtual void SetRotationInterpolator(vtkQuaternionInterpolator*);
-  vtkGetObjectMacro(RotationInterpolator,vtkQuaternionInterpolator);
+  vtkGetObjectMacro(RotationInterpolator, vtkQuaternionInterpolator);
   //@}
 
   /**
@@ -196,9 +192,9 @@ protected:
   int InterpolationType;
 
   // Interpolators
-  vtkTupleInterpolator      *PositionInterpolator;
-  vtkTupleInterpolator      *ScaleInterpolator;
-  vtkQuaternionInterpolator *RotationInterpolator;
+  vtkTupleInterpolator* PositionInterpolator;
+  vtkTupleInterpolator* ScaleInterpolator;
+  vtkQuaternionInterpolator* RotationInterpolator;
 
   // Initialize the interpolating splines
   int Initialized;
@@ -206,12 +202,11 @@ protected:
   void InitializeInterpolation();
 
   // Keep track of inserted data
-  vtkTransformList *TransformList;
+  vtkTransformList* TransformList;
 
 private:
   vtkTransformInterpolator(const vtkTransformInterpolator&) = delete;
   void operator=(const vtkTransformInterpolator&) = delete;
-
 };
 
 #endif

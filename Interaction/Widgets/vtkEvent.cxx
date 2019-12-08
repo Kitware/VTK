@@ -13,12 +13,11 @@
 
 =========================================================================*/
 #include "vtkEvent.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkEvent);
-
 
 vtkEvent::vtkEvent()
 {
@@ -31,13 +30,13 @@ vtkEvent::vtkEvent()
 
 vtkEvent::~vtkEvent()
 {
-  delete [] this->KeySym;
+  delete[] this->KeySym;
 }
 
 // Comparison against event with no modifiers
 bool vtkEvent::operator==(unsigned long VTKEvent)
 {
-  if ( this->EventId == VTKEvent )
+  if (this->EventId == VTKEvent)
   {
     return true;
   }
@@ -48,30 +47,26 @@ bool vtkEvent::operator==(unsigned long VTKEvent)
 }
 
 // Comparison against event with modifiers
-bool vtkEvent::operator==(vtkEvent *e)
+bool vtkEvent::operator==(vtkEvent* e)
 {
-  if ( this->EventId != e->EventId )
+  if (this->EventId != e->EventId)
   {
     return false;
   }
-  if ( this->Modifier != vtkEvent::AnyModifier &&
-       e->Modifier != vtkEvent::AnyModifier &&
-       this->Modifier != e->Modifier )
+  if (this->Modifier != vtkEvent::AnyModifier && e->Modifier != vtkEvent::AnyModifier &&
+    this->Modifier != e->Modifier)
   {
     return false;
   }
-  if ( this->KeyCode != '\0' && e->KeyCode != '\0' &&
-       this->KeyCode != e->KeyCode )
+  if (this->KeyCode != '\0' && e->KeyCode != '\0' && this->KeyCode != e->KeyCode)
   {
     return false;
   }
-  if ( this->RepeatCount != 0 && e->RepeatCount != 0 &&
-       this->RepeatCount != e->RepeatCount )
+  if (this->RepeatCount != 0 && e->RepeatCount != 0 && this->RepeatCount != e->RepeatCount)
   {
     return false;
   }
-  if ( this->KeySym != nullptr && e->KeySym != nullptr &&
-       strcmp(this->KeySym,e->KeySym) != 0 )
+  if (this->KeySym != nullptr && e->KeySym != nullptr && strcmp(this->KeySym, e->KeySym) != 0)
   {
     return false;
   }
@@ -83,29 +78,28 @@ bool vtkEvent::operator==(vtkEvent *e)
 int vtkEvent::GetModifier(vtkRenderWindowInteractor* i)
 {
   int modifier = 0;
-  modifier |= (i->GetShiftKey()   ? vtkEvent::ShiftModifier   : 0);
+  modifier |= (i->GetShiftKey() ? vtkEvent::ShiftModifier : 0);
   modifier |= (i->GetControlKey() ? vtkEvent::ControlModifier : 0);
-  modifier |= (i->GetAltKey()     ? vtkEvent::AltModifier     : 0);
+  modifier |= (i->GetAltKey() ? vtkEvent::AltModifier : 0);
 
   return modifier;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
-  //List all the events and their translations
+  // List all the events and their translations
   os << indent << "Event Id: " << this->EventId << "\n";
 
   os << indent << "Modifier: ";
-  if ( this->Modifier == -1 )
+  if (this->Modifier == -1)
   {
     os << "Any\n";
   }
-  else if ( this->Modifier == 0 )
+  else if (this->Modifier == 0)
   {
     os << "None\n";
   }
@@ -115,7 +109,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Key Code: ";
-  if ( this->KeyCode == 0 )
+  if (this->KeyCode == 0)
   {
     os << "Any\n";
   }
@@ -125,7 +119,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Repeat Count: ";
-  if ( this->RepeatCount == 0 )
+  if (this->RepeatCount == 0)
   {
     os << "Any\n";
   }
@@ -135,7 +129,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Key Sym: ";
-  if ( this->KeySym == nullptr )
+  if (this->KeySym == nullptr)
   {
     os << "Any\n";
   }
@@ -143,5 +137,4 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << this->KeySym << "\n";
   }
-
 }

@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkAnimationCue.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkAnimationCue);
 
@@ -58,15 +58,14 @@ void vtkAnimationCue::EndCueInternal()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnimationCue::TickInternal(
-  double currenttime, double deltatime, double clocktime)
+void vtkAnimationCue::TickInternal(double currenttime, double deltatime, double clocktime)
 {
   vtkAnimationCue::AnimationCueInfo info;
   info.StartTime = this->StartTime;
   info.EndTime = this->EndTime;
   info.DeltaTime = deltatime;
   info.AnimationTime = currenttime;
-  info.ClockTime =clocktime;
+  info.ClockTime = clocktime;
 
   this->AnimationTime = currenttime;
   this->DeltaTime = deltatime;
@@ -79,13 +78,11 @@ void vtkAnimationCue::TickInternal(
   this->ClockTime = 0;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktime)
 {
   // Check to see if we have crossed the Cue start.
-  if (currenttime >= this->StartTime &&
-    this->CueState == vtkAnimationCue::UNINITIALIZED)
+  if (currenttime >= this->StartTime && this->CueState == vtkAnimationCue::UNINITIALIZED)
   {
     this->CueState = vtkAnimationCue::ACTIVE;
     this->StartCueInternal();

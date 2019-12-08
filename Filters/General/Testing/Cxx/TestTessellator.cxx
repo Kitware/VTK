@@ -6,10 +6,10 @@
  * or without modification, are permitted provided that this Notice and any
  * statement of authorship are reproduced on all copies.
  */
-#include "vtkActor2D.h"
 #include "vtkActor.h"
-#include "vtkCellData.h"
+#include "vtkActor2D.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCellTypes.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
@@ -28,9 +28,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRandomAttributeGenerator.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 #include "vtkSphereSource.h"
 #include "vtkStreamingTessellator.h"
@@ -48,7 +48,8 @@ using std::copy;
 
 #undef ONLY_WIRE
 #undef FOR_PAPER
-/// Define this and the test will generate arrays of values which you can paste into the code and use to check
+/// Define this and the test will generate arrays of values which you can paste into the code and
+/// use to check
 #undef VTK_GENERATE_BASELINE
 /// Undefine this and the number and coordinates of output tetrahedra will not be checked.
 #define VTK_CHECK_RESULTS
@@ -69,11 +70,11 @@ static ofstream ttri;
 static int otriCtr = 0;
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-//static int vtkOTriCtr = 0;
-//static int vtkITriCtr = 0;
-//static int vtkTriCode = 0;
-//static double* vtkITriPtr = 0;
-//static double* vtkOTriPtr = 0;
+// static int vtkOTriCtr = 0;
+// static int vtkITriCtr = 0;
+// static int vtkTriCode = 0;
+// static double* vtkITriPtr = 0;
+// static double* vtkOTriPtr = 0;
 
 static int vtkOTetCtr = 0;
 static int vtkITetCtr = 0;
@@ -81,11 +82,12 @@ static int vtkTstCode = 0;
 static double* vtkITetPtr = nullptr;
 static double* vtkOTetPtr = nullptr;
 
-static struct {
+static struct
+{
   const char* Name;
   int BeginOffset;
   int EndOffset;
-}  vtkTestSummaries[] = {
+} vtkTestSummaries[] = {
   { "Edge code 0 = 000000, Test ID 0", 0, 1 },
   { "Edge code 1 = 100000, Test ID 1", 1, 3 },
   { "Edge code 2 = 010000, Test ID 2", 3, 5 },
@@ -491,7 +493,7 @@ static struct {
   { "Edge code 30 = 011110, Test ID 18*", 1911, 1923 },
   { "Edge code 30 = 011110, Test ID 19*", 1923, 1939 },
   { "Edge code 62 = 011111, Test ID 20*", 1939, 1949 },
-  { "Edge code 62 = 011111, Test ID 21*", 1949, 1961 }
+  { "Edge code 62 = 011111, Test ID 21*", 1949, 1961 },
 };
 
 static double vtkITetList[][4][3] = {
@@ -522,7 +524,7 @@ static double vtkITetList[][4][3] = {
   { { 3, 4, 0 }, { -3, 4, 0 }, { 0, 0, 0 }, { -1, 4, 3 } },
   { { 3, 4, 0 }, { -3, 4, 0 }, { 0, 0, 0 }, { 0, 4, 4 } },
   { { 3, 4, 0 }, { -3, 4, 0 }, { 0, 0, 0 }, { -1, 1, 12 } },
-  { { 3, 4, 0 }, { -3, 4, 0 }, { 0, 0, 0 }, { 0, 0, 12 } }
+  { { 3, 4, 0 }, { -3, 4, 0 }, { 0, 0, 0 }, { 0, 0, 12 } },
 };
 
 static double vtkOTetList[][4][3] = {
@@ -2486,7 +2488,7 @@ static double vtkOTetList[][4][3] = {
   { { 0, 3, 0 }, { 1.5, 2, 6 }, { -1.5, 2, 6 }, { 0, 0, 6 } },
   { { 0, 3, 0 }, { -1.5, 2, 0 }, { 1.5, 2, 0 }, { 0, 0, 6 } },
   { { 1.5, 2, 6 }, { -1.5, 2, 6 }, { 0, 0, 6 }, { 0, 0, 12 } },
-  { { 1.5, 2, 0 }, { -1.5, 2, 0 }, { 0, 0, 0 }, { 0, 0, 6 } }
+  { { 1.5, 2, 0 }, { -1.5, 2, 0 }, { 0, 0, 0 }, { 0, 0, 6 } },
 };
 
 #endif // VTK_CHECK_RESULTS
@@ -2499,352 +2501,271 @@ static double vtkOTetList[][4][3] = {
 // It divides the edges in a predictable pattern that has nothing
 // to do with geometric error or field values.
 // In fact, it doesn't change the midpoint geometry or field values.
-class vtkTestTessellatorSubdivision
-  : public vtkEdgeSubdivisionCriterion
+class vtkTestTessellatorSubdivision : public vtkEdgeSubdivisionCriterion
 {
-  public:
-    vtkTypeMacro(vtkTestTessellatorSubdivision,vtkEdgeSubdivisionCriterion);
-    static vtkTestTessellatorSubdivision* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) override;
+public:
+  vtkTypeMacro(vtkTestTessellatorSubdivision, vtkEdgeSubdivisionCriterion);
+  static vtkTestTessellatorSubdivision* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
+  bool EvaluateEdge(const double* p0, double* midpt, const double* p1, int field_start) override;
 
-    static double*  TestPoints;
-    static double*  TestPointsCanAmbig;
-    static double** TestFacePointsCanAmbig;
-    static int*     TestPointConn;
+  static double* TestPoints;
+  static double* TestPointsCanAmbig;
+  static double** TestFacePointsCanAmbig;
+  static int* TestPointConn;
 
-    // Description:
-    // Return the current id (sequence number) or edge code of the test.
-    // These will only be valid <i>before</i> you call \p vtkStreamingTessellator::AdaptivelySample3Facet().
-    int GetCurrentTestId() const { return this->CurrentTestId; }
-    int GetCurrentTest() const { return this->CurrentTest; }
+  // Description:
+  // Return the current id (sequence number) or edge code of the test.
+  // These will only be valid <i>before</i> you call \p
+  // vtkStreamingTessellator::AdaptivelySample3Facet().
+  int GetCurrentTestId() const { return this->CurrentTestId; }
+  int GetCurrentTest() const { return this->CurrentTest; }
 
-    // Description:
-    // Choose whether to run unambiguous or ambiguous test cases.
-    // If off (the default), then vtkTestTessellatorSubdivision::TestList is used.
-    // If on, then vtkTestTessellatorSubdivision::TestListCanAmbig is used.
-    virtual void AmbiguousTestsOn();
-    virtual void AmbiguousTestsOff();
-    vtkGetMacro(AmbiguousTests,int);
+  // Description:
+  // Choose whether to run unambiguous or ambiguous test cases.
+  // If off (the default), then vtkTestTessellatorSubdivision::TestList is used.
+  // If on, then vtkTestTessellatorSubdivision::TestListCanAmbig is used.
+  virtual void AmbiguousTestsOn();
+  virtual void AmbiguousTestsOff();
+  vtkGetMacro(AmbiguousTests, int);
 
-    // Description:
-    // Returns the index of the tetrahedron that should be used for the current test.
-    // This is only valid when AmbiguousTests is turned On.
-    // Otherwise, it will report -1.
-    int GetCurrentTet() const;
+  // Description:
+  // Returns the index of the tetrahedron that should be used for the current test.
+  // This is only valid when AmbiguousTests is turned On.
+  // Otherwise, it will report -1.
+  int GetCurrentTet() const;
 
-    // Description:
-    // Returns a bit vector of mid-face points present in the current test.
-    // This is only valid when AmbiguousTests is turned On.
-    // Otherwise, it will report -1.
-    int GetCurrentAmbiguousFaces() const;
+  // Description:
+  // Returns a bit vector of mid-face points present in the current test.
+  // This is only valid when AmbiguousTests is turned On.
+  // Otherwise, it will report -1.
+  int GetCurrentAmbiguousFaces() const;
 
- protected:
-    vtkTestTessellatorSubdivision();
-    ~vtkTestTessellatorSubdivision() override;
+protected:
+  vtkTestTessellatorSubdivision();
+  ~vtkTestTessellatorSubdivision() override;
 
-    int AmbiguousTests;
-    int CurrentTest;
-    int CurrentTestId;
-    int CurrentEdge;
-    static int* TestList;
-    static int* TestListCanAmbig;
+  int AmbiguousTests;
+  int CurrentTest;
+  int CurrentTestId;
+  int CurrentEdge;
+  static int* TestList;
+  static int* TestListCanAmbig;
 
-  private:
-    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) = delete;
-    void operator = ( const vtkTestTessellatorSubdivision& ) = delete;
-
+private:
+  vtkTestTessellatorSubdivision(const vtkTestTessellatorSubdivision&) = delete;
+  void operator=(const vtkTestTessellatorSubdivision&) = delete;
 };
 
 vtkStandardNewMacro(vtkTestTessellatorSubdivision);
 
-static int test_list[] =
-{
-   0,
-   1,
-   2,
-   4,
-   8,
-  16,
-  32,
-   3,
-   5,
-   6,
-   9,
-  17,
-  24,
-  18,
-  34,
-  48,
-  12,
-  36,
-  40,
-  33,
-  10,
-  20,
-  13,
-  19,
-  38,
-  56,
-  25,
-  50,
-  44,
-   7,
-  21,
-  11,
-  35,
-  22,
-  37,
-  14,
-  49,
-  26,
-  52,
-  42,
-  28,
-  41,
-  58,
-  54,
-  51,
-  60,
-  46,
-  45,
-  57,
-  27,
-  29,
-  39,
-  23,
-  15,
-  30,
-  53,
-  43,
-  62,
-  61,
-  59,
-  55,
-  47,
-  31,
-  63,
-  -1
-};
+static int test_list[] = { 0, 1, 2, 4, 8, 16, 32, 3, 5, 6, 9, 17, 24, 18, 34, 48, 12, 36, 40, 33,
+  10, 20, 13, 19, 38, 56, 25, 50, 44, 7, 21, 11, 35, 22, 37, 14, 49, 26, 52, 42, 28, 41, 58, 54, 51,
+  60, 46, 45, 57, 27, 29, 39, 23, 15, 30, 53, 43, 62, 61, 59, 55, 47, 31, 63, -1 };
 
 int* vtkTestTessellatorSubdivision::TestList = test_list;
 
-static double points[] =
-{
-  0., 0., 0.,  0., 0., 0.,
-  1., 0., .1,  1., 0., 0.,
-  0., 2., 0.,  0., 1., 0.,
-  .2, .1, 3.,  0., 0., 1.,
+static double points[] = {
+  0., 0., 0., 0., 0., 0., //
+  1., 0., .1, 1., 0., 0., //
+  0., 2., 0., 0., 1., 0., //
+  .2, .1, 3., 0., 0., 1., //
 
-  0., 0., 0.,  0., 0., 0.,
-  2., 0., 0.,  1., 0., 0.,
-  .1, 3., .2,  0., 1., 0.,
-  0., .1, 1.,  0., 0., 1.,
+  0., 0., 0., 0., 0., 0., //
+  2., 0., 0., 1., 0., 0., //
+  .1, 3., .2, 0., 1., 0., //
+  0., .1, 1., 0., 0., 1., //
 
-  0., 0., 0.,  0., 0., 0.,
-  3., .2, .1,  1., 0., 0.,
-  .1, 1., 0.,  0., 1., 0.,
-  0., 0., 2.,  0., 0., 1.,
+  0., 0., 0., 0., 0., 0., //
+  3., .2, .1, 1., 0., 0., //
+  .1, 1., 0., 0., 1., 0., //
+  0., 0., 2., 0., 0., 1., //
 
-  0., 0., 0.,  0., 0., 0.,
-  1., .1, 0.,  1., 0., 0.,
-  .2, 3., .1,  0., 1., 0.,
-  0., 0., 2.,  0., 0., 1.,
+  0., 0., 0., 0., 0., 0., //
+  1., .1, 0., 1., 0., 0., //
+  .2, 3., .1, 0., 1., 0., //
+  0., 0., 2., 0., 0., 1., //
 
-  0., 0., 0.,  0., 0., 0.,
-  3., .1, .2,  1., 0., 0.,
-  0., 2., 0.,  0., 1., 0.,
-  .1, 0., 1.,  0., 0., 1.,
+  0., 0., 0., 0., 0., 0., //
+  3., .1, .2, 1., 0., 0., //
+  0., 2., 0., 0., 1., 0., //
+  .1, 0., 1., 0., 0., 1., //
 
-  0., 0., 0.,  0., 0., 0.,
-  2., 0., 0.,  1., 0., 0.,
-  0., 1., .1,  0., 1., 0.,
-  .1, .2, 3.,  0., 0., 1.
+  0., 0., 0., 0., 0., 0., //
+  2., 0., 0., 1., 0., 0., //
+  0., 1., .1, 0., 1., 0., //
+  .1, .2, 3., 0., 0., 1.  //
 };
 
-static int test_list_can_ambig[] =
-{
-   // canonical ambiguous configurations
-     3,  0,  1, // 2a         |01| = |12|
-    13,  3,  1, // 3a-alpha   |01| = |02| > |03|
-    13,  4,  1, // 3a-beta    |01| = |02| < |03|
-    13,  5, 11, // 3a-gamma   |01| = |02| = |03|
-    11,  0,  1, // 3c-alpha   |01| = |12| > |03|
-    11,  1,  1, // 3c-beta    |01| = |12| < |03|
-    11,  2,  3, // 3c-gamma   |01| = |12| = |03|
-    21, 16,  2, // 3d-alpha   |01| = |13| > |02|
-    21, 17,  2, // 3d-beta    |01| = |13| < |02|
-    21, 18,  3, // 3d-gamma   |01| = |13| = |02|
-    60,  6,  2, // 4a-alpha   |03| = |13| > |23|
-    60,  7,  2, // 4a-beta    |03| = |13| < |23|
-    60,  8,  6, // 4a-gamma   |03| = |13| = |23|
-    30,  9,  1, // 4b-alpha   |02| = |12| < |13| < |03|
-    30, 10,  1, // 4b-beta    |02| = |12| > |13| > |03|
-    30, 11,  1, // 4b-gamma   |03| < |02| = |12| < |13|
-    30, 12,  3, // 4b-delta   |02| = |12| < |03| = |13|
-    30, 13,  9, // 4b-epsilon |02| = |12| = |03| < |13|
-    30, 14,  9, // 4b-zeta    |02| = |12| = |03| > |13|
-    30, 15, 15, // 4b-eta     |02| = |12| = |03| = |13|
-    62,  9,  1, // 5-alpha    |02| = |12| , |03| > |13|
-    62, 12,  3, // 5-beta     |02| = |12| , |03| = |13|
-     -1,  0,  0
+static int test_list_can_ambig[] = {
+  // canonical ambiguous configurations
+  3, 0, 1,    // 2a         |01| = |12|
+  13, 3, 1,   // 3a-alpha   |01| = |02| > |03|
+  13, 4, 1,   // 3a-beta    |01| = |02| < |03|
+  13, 5, 11,  // 3a-gamma   |01| = |02| = |03|
+  11, 0, 1,   // 3c-alpha   |01| = |12| > |03|
+  11, 1, 1,   // 3c-beta    |01| = |12| < |03|
+  11, 2, 3,   // 3c-gamma   |01| = |12| = |03|
+  21, 16, 2,  // 3d-alpha   |01| = |13| > |02|
+  21, 17, 2,  // 3d-beta    |01| = |13| < |02|
+  21, 18, 3,  // 3d-gamma   |01| = |13| = |02|
+  60, 6, 2,   // 4a-alpha   |03| = |13| > |23|
+  60, 7, 2,   // 4a-beta    |03| = |13| < |23|
+  60, 8, 6,   // 4a-gamma   |03| = |13| = |23|
+  30, 9, 1,   // 4b-alpha   |02| = |12| < |13| < |03|
+  30, 10, 1,  // 4b-beta    |02| = |12| > |13| > |03|
+  30, 11, 1,  // 4b-gamma   |03| < |02| = |12| < |13|
+  30, 12, 3,  // 4b-delta   |02| = |12| < |03| = |13|
+  30, 13, 9,  // 4b-epsilon |02| = |12| = |03| < |13|
+  30, 14, 9,  // 4b-zeta    |02| = |12| = |03| > |13|
+  30, 15, 15, // 4b-eta     |02| = |12| = |03| = |13|
+  62, 9, 1,   // 5-alpha    |02| = |12| , |03| > |13|
+  62, 12, 3,  // 5-beta     |02| = |12| , |03| = |13|
+  -1, 0, 0
 };
 
 int* vtkTestTessellatorSubdivision::TestListCanAmbig = test_list_can_ambig;
 
-static double ambig_pts[] =
-{
+static double ambig_pts[] = {
   // Nota bene: Vx stands for sqrt(x)
 
-  //00: |01|= 5  |12|= 5  |02|= 6  |03|= 3V2  |13|= 5  |23|= 3V2
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   0., 4., 3.,  0., 1., 0.,
-  -3., 4., 0.,  0., 0., 1.,
+  // 00: |01|= 5  |12|= 5  |02|= 6  |03|= 3V2  |13|= 5  |23|= 3V2
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  0., 4., 3., 0., 1., 0.,  //
+  -3., 4., 0., 0., 0., 1., //
 
-  //01: |01|= 5  |12|= 5  |02|= 6  |03|= V26  |13|= 5  |23|= V26
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   0., 4., 3.,  0., 1., 0.,
-  -4., 3., 0.,  0., 0., 1.,
+  // 01: |01|= 5  |12|= 5  |02|= 6  |03|= V26  |13|= 5  |23|= V26
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  0., 4., 3., 0., 1., 0.,  //
+  -4., 3., 0., 0., 0., 1., //
 
-  //02: |01|= 5  |12|= 5  |02|= 6  |03|= 5  |13|= 4V2  |23|= 5
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   0., 4., 3.,  0., 1., 0.,
-  -4., 4., 0.,  0., 0., 1.,
+  // 02: |01|= 5  |12|= 5  |02|= 6  |03|= 5  |13|= 4V2  |23|= 5
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  0., 4., 3., 0., 1., 0.,  //
+  -4., 4., 0., 0., 0., 1., //
 
-  //03: |01|= 5  |12|= 6  |02|= 5  |03|= 3V2  |13|= V19  |23|= V19
-   0., 0., 0.,  0., 0., 0.,
-   4.,-3., 0.,  1., 0., 0.,
-   4., 3., 0.,  0., 1., 0.,
-   3., 0., 3.,  0., 0., 1.,
+  // 03: |01|= 5  |12|= 6  |02|= 5  |03|= 3V2  |13|= V19  |23|= V19
+  0., 0., 0., 0., 0., 0.,  //
+  4., -3., 0., 1., 0., 0., //
+  4., 3., 0., 0., 1., 0.,  //
+  3., 0., 3., 0., 0., 1.,  //
 
-  //04: |01|= 5  |12|= 6  |02|= 5  |03|= V34  |13|= V35  |23|= V35
-   0., 0., 0.,  0., 0., 0.,
-   4.,-3., 0.,  1., 0., 0.,
-   4., 3., 0.,  0., 1., 0.,
-   3., 0., 5.,  0., 0., 1.,
+  // 04: |01|= 5  |12|= 6  |02|= 5  |03|= V34  |13|= V35  |23|= V35
+  0., 0., 0., 0., 0., 0.,  //
+  4., -3., 0., 1., 0., 0., //
+  4., 3., 0., 0., 1., 0.,  //
+  3., 0., 5., 0., 0., 1.,  //
 
-  //05: |01|= 5  |12|= 6  |02|= 5  |03|= 5  |13|= V26  |23|= V26
-   0., 0., 0.,  0., 0., 0.,
-   4.,-3., 0.,  1., 0., 0.,
-   4., 3., 0.,  0., 1., 0.,
-   3., 0., 4.,  0., 0., 1.,
+  // 05: |01|= 5  |12|= 6  |02|= 5  |03|= 5  |13|= V26  |23|= V26
+  0., 0., 0., 0., 0., 0.,  //
+  4., -3., 0., 1., 0., 0., //
+  4., 3., 0., 0., 1., 0.,  //
+  3., 0., 4., 0., 0., 1.,  //
 
-  //06: |01|= 6  |12|= V19  |02|= V19  |03|= 5  |13|= 5  |23|= 3V2
-   0., 4.,-3.,  0., 0., 0.,
-   0., 4., 3.,  1., 0., 0.,
-  -3., 3., 0.,  0., 1., 0.,
-   0., 0., 0.,  0., 0., 1.,
+  // 06: |01|= 6  |12|= V19  |02|= V19  |03|= 5  |13|= 5  |23|= 3V2
+  0., 4., -3., 0., 0., 0., //
+  0., 4., 3., 1., 0., 0.,  //
+  -3., 3., 0., 0., 1., 0., //
+  0., 0., 0., 0., 0., 1.,  //
 
-  //07: |01|= 6  |12|= V19  |02|= V19  |03|= 5  |13|= 5  |23|= V34
-   0., 4.,-3.,  0., 0., 0.,
-   0., 4., 3.,  1., 0., 0.,
-  -3., 5., 0.,  0., 1., 0.,
-   0., 0., 0.,  0., 0., 1.,
+  // 07: |01|= 6  |12|= V19  |02|= V19  |03|= 5  |13|= 5  |23|= V34
+  0., 4., -3., 0., 0., 0., //
+  0., 4., 3., 1., 0., 0.,  //
+  -3., 5., 0., 0., 1., 0., //
+  0., 0., 0., 0., 0., 1.,  //
 
-  //08: |01|= 6  |12|= 3V2  |02|= 3V2  |03|= 5  |13|= 5  |23|= 5
-   0., 4.,-3.,  0., 0., 0.,
-   0., 4., 3.,  1., 0., 0.,
-  -3., 4., 0.,  0., 1., 0.,
-   0., 0., 0.,  0., 0., 1.,
+  // 08: |01|= 6  |12|= 3V2  |02|= 3V2  |03|= 5  |13|= 5  |23|= 5
+  0., 4., -3., 0., 0., 0., //
+  0., 4., 3., 1., 0., 0.,  //
+  -3., 4., 0., 0., 1., 0., //
+  0., 0., 0., 0., 0., 1.,  //
 
-  //09: |01|= 6  |12|= 5  |02|= 5  |03|= 13  |13|= V157  |23|= V146
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-  -1., 1.,12.,  0., 0., 1.,
+  // 09: |01|= 6  |12|= 5  |02|= 5  |03|= 13  |13|= V157  |23|= V146
+  3., 4., 0., 0., 0., 0.,   //
+  -3., 4., 0., 1., 0., 0.,  //
+  0., 0., 0., 0., 1., 0.,   //
+  -1., 1., 12., 0., 0., 1., //
 
-  //10: |01|= 6  |12|= 5  |02|= 5  |03|= 2V3  |13|= 2V6  |23|= 3
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-   1., 2., 2.,  0., 0., 1.,
+  // 10: |01|= 6  |12|= 5  |02|= 5  |03|= 2V3  |13|= 2V6  |23|= 3
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  1., 2., 2., 0., 0., 1.,  //
 
-  //11: |01|= 6  |12|= 5  |02|= 5  |03|= V21  |13|= V33  |23|= V26
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-   1., 3., 4.,  0., 0., 1.,
+  // 11: |01|= 6  |12|= 5  |02|= 5  |03|= V21  |13|= V33  |23|= V26
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  1., 3., 4., 0., 0., 1.,  //
 
-  //12: |01|= 6  |12|= 5  |02|= 5  |03|= 13  |13|= 13  |23|= 12
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-   0., 0.,12.,  0., 0., 1.,
+  // 12: |01|= 6  |12|= 5  |02|= 5  |03|= 13  |13|= 13  |23|= 12
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  0., 0., 12., 0., 0., 1., //
 
-  //13: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= V61  |23|= V26
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-   3., 1., 4.,  0., 0., 1.,
+  // 13: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= V61  |23|= V26
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  3., 1., 4., 0., 0., 1.,  //
 
-  //14: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= V13  |23|= V26
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-  -1., 4., 3.,  0., 0., 1.,
+  // 14: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= V13  |23|= V26
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  -1., 4., 3., 0., 0., 1., //
 
-  //15: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= 5  |23|= 4V2
-   3., 4., 0.,  0., 0., 0.,
-  -3., 4., 0.,  1., 0., 0.,
-   0., 0., 0.,  0., 1., 0.,
-   0., 4., 4.,  0., 0., 1.,
+  // 15: |01|= 6  |12|= 5  |02|= 5  |03|= 5  |13|= 5  |23|= 4V2
+  3., 4., 0., 0., 0., 0.,  //
+  -3., 4., 0., 1., 0., 0., //
+  0., 0., 0., 0., 1., 0.,  //
+  0., 4., 4., 0., 0., 1.,  //
 
-  //16: |01|= 5  |12|= 5  |02|= 3V2  |03|= 6  |13|= 5  |23|= 3V2
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   3., 4., 0.,  0., 1., 0.,
-   0., 4., 3.,  0., 0., 1.,
+  // 16: |01|= 5  |12|= 5  |02|= 3V2  |03|= 6  |13|= 5  |23|= 3V2
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  3., 4., 0., 0., 1., 0.,  //
+  0., 4., 3., 0., 0., 1.,  //
 
-  //17: |01|= 5  |12|= 5  |02|= V26  |03|= 6  |13|= 5  |23|= V26
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   4., 3., 0.,  0., 1., 0.,
-   0., 4., 3.,  0., 0., 1.,
+  // 17: |01|= 5  |12|= 5  |02|= V26  |03|= 6  |13|= 5  |23|= V26
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  4., 3., 0., 0., 1., 0.,  //
+  0., 4., 3., 0., 0., 1.,  //
 
-  //18: |01|= 5  |12|= 4V2  |02|= 5  |03|= 6  |13|= 5  |23|= 5
-   0., 4.,-3.,  0., 0., 0.,
-   0., 0., 0.,  1., 0., 0.,
-   4., 4., 0.,  0., 1., 0.,
-   0., 4., 3.,  0., 0., 1.
+  // 18: |01|= 5  |12|= 4V2  |02|= 5  |03|= 6  |13|= 5  |23|= 5
+  0., 4., -3., 0., 0., 0., //
+  0., 0., 0., 1., 0., 0.,  //
+  4., 4., 0., 0., 1., 0.,  //
+  0., 4., 3., 0., 0., 1.   //
 };
 
 static double ambig_A_face[] = { 0., 3., 0. };
 static double ambig_B_face[] = { 0., 3., 0. };
-static double ambig_C_face[] = { 0., 3., 0.,
-        -1.5, 2.5, -.75 };
+static double ambig_C_face[] = { 0., 3., 0., -1.5, 2.5, -.75 };
 static double ambig_D_face[] = { 3., 0., 0. };
 static double ambig_E_face[] = { 3., 0., 0. };
-static double ambig_F_face[] = { 3., 0., 0.,
-        2.625, -1.125, 1.5,
-        2.625, 1.125, 1.5 };
+static double ambig_F_face[] = { 3., 0., 0., 2.625, -1.125, 1.5, 2.625, 1.125, 1.5 };
 static double ambig_G_face[] = { 0., 3., 0. };
 static double ambig_H_face[] = { 0., 3., 0. };
-static double ambig_I_face[] = { 1.5, 2.5, -.75,
-        0., 3., 0. };
+static double ambig_I_face[] = { 1.5, 2.5, -.75, 0., 3., 0. };
 static double ambig_J_face[] = { 0., 3., 0. };
 static double ambig_K_face[] = { 0., 3., 0. };
-static double ambig_L_face[] = { 0., 3., 0.,
-        -1.125, 3., 1.125 };
+static double ambig_L_face[] = { 0., 3., 0., -1.125, 3., 1.125 };
 static double ambig_M_face[] = { 0., 3., 0. };
 static double ambig_N_face[] = { 0., 3., 0. };
 static double ambig_O_face[] = { 0., 3., 0. };
-static double ambig_P_face[] = { 0., 3., 0.,
-        0., 3., 3. };
-static double ambig_Q_face[] = { 0., 3., 0.,
-        1.875, 1.375, 1.5 };
-static double ambig_R_face[] = { 0., 3., 0.,
-        0.375, 2.5, 1.125 };
-static double ambig_S_face[] = { 0., 3., 0.,
-        0., 4., 1.,
-        -.75, 2.5, 1.5,
-        .75, 2.5, 1.5 };
+static double ambig_P_face[] = { 0., 3., 0., 0., 3., 3. };
+static double ambig_Q_face[] = { 0., 3., 0., 1.875, 1.375, 1.5 };
+static double ambig_R_face[] = { 0., 3., 0., 0.375, 2.5, 1.125 };
+static double ambig_S_face[] = { 0., 3., 0., 0., 4., 1., -.75, 2.5, 1.5, .75, 2.5, 1.5 };
 
-static double* ambig_face_pts[] =
-{
+static double* ambig_face_pts[] = {
   ambig_A_face, // 2a         |01| = |12|
   ambig_D_face, // 3a-alpha   |01| = |02| > |03|
   ambig_E_face, // 3a-beta    |01| = |02| < |03|
@@ -2869,20 +2790,19 @@ static double* ambig_face_pts[] =
   ambig_P_face  // 5-beta     |02| = |12| , |03| = |13|
 };
 
-static int pointConn[] =
-{
-  0, 1, 2, 3,
-  0, 2, 3, 1,
-  0, 3, 1, 2,
-  1, 2, 0, 3,
-  1, 3, 2, 0,
-  1, 0, 3, 2,
-  2, 3, 0, 1,
-  2, 0, 1, 3,
-  2, 1, 3, 0,
-  3, 0, 2, 1,
-  3, 1, 0, 2,
-  3, 2, 1, 0
+static int pointConn[] = {
+  0, 1, 2, 3, //
+  0, 2, 3, 1, //
+  0, 3, 1, 2, //
+  1, 2, 0, 3, //
+  1, 3, 2, 0, //
+  1, 0, 3, 2, //
+  2, 3, 0, 1, //
+  2, 0, 1, 3, //
+  2, 1, 3, 0, //
+  3, 0, 2, 1, //
+  3, 1, 0, 2, //
+  3, 2, 1, 0  //
 };
 
 double* vtkTestTessellatorSubdivision::TestPoints = points;
@@ -2893,16 +2813,16 @@ int* vtkTestTessellatorSubdivision::TestPointConn = pointConn;
 vtkTestTessellatorSubdivision::vtkTestTessellatorSubdivision()
 {
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestList[ this->CurrentTestId ];
+  this->CurrentTest = this->TestList[this->CurrentTestId];
   this->CurrentEdge = 0;
   this->AmbiguousTests = 0;
 }
 
 vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision() = default;
 
-void vtkTestTessellatorSubdivision::PrintSelf( ostream& os, vtkIndent indent )
+void vtkTestTessellatorSubdivision::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "AmbiguousTests: " << (this->AmbiguousTests ? "On" : "Off") << std::endl;
   os << indent << "CurrentTestId: " << this->CurrentTestId << std::endl;
   os << indent << "CurrentTest: " << this->CurrentTest << std::endl;
@@ -2911,74 +2831,75 @@ void vtkTestTessellatorSubdivision::PrintSelf( ostream& os, vtkIndent indent )
 
 void vtkTestTessellatorSubdivision::AmbiguousTestsOn()
 {
-  if ( this->AmbiguousTests == 1 )
+  if (this->AmbiguousTests == 1)
     return;
 
   this->AmbiguousTests = 1;
   this->CurrentEdge = 0;
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestListCanAmbig[ 0 ];
+  this->CurrentTest = this->TestListCanAmbig[0];
   this->Modified();
 }
 
 void vtkTestTessellatorSubdivision::AmbiguousTestsOff()
 {
-  if ( this->AmbiguousTests == 0 )
+  if (this->AmbiguousTests == 0)
     return;
 
   this->AmbiguousTests = 0;
   this->CurrentEdge = 0;
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestList[ 0 ];
+  this->CurrentTest = this->TestList[0];
   this->Modified();
 }
 
 int vtkTestTessellatorSubdivision::GetCurrentTet() const
 {
-  if ( ! this->AmbiguousTests )
+  if (!this->AmbiguousTests)
     return -1;
 
-  return this->TestListCanAmbig[ this->CurrentTestId*3 + 1 ];
+  return this->TestListCanAmbig[this->CurrentTestId * 3 + 1];
 }
 
 int vtkTestTessellatorSubdivision::GetCurrentAmbiguousFaces() const
 {
-  if ( ! this->AmbiguousTests )
+  if (!this->AmbiguousTests)
     return -1;
 
-  return this->TestListCanAmbig[ this->CurrentTestId*3 + 2 ];
+  return this->TestListCanAmbig[this->CurrentTestId * 3 + 2];
 }
 
-bool vtkTestTessellatorSubdivision::EvaluateEdge( const double* vtkNotUsed(p0), double* vtkNotUsed(midpt), const double* vtkNotUsed(p1), int vtkNotUsed(field_start) )
+bool vtkTestTessellatorSubdivision::EvaluateEdge(const double* vtkNotUsed(p0),
+  double* vtkNotUsed(midpt), const double* vtkNotUsed(p1), int vtkNotUsed(field_start))
 {
-  bool returnValue = ( this->CurrentTest & (1<<this->CurrentEdge) ) != 0;
+  bool returnValue = (this->CurrentTest & (1 << this->CurrentEdge)) != 0;
   this->CurrentEdge++;
-  if ( this->CurrentEdge > 5 )
+  if (this->CurrentEdge > 5)
   {
     this->CurrentEdge = 0;
-    if ( this->AmbiguousTests )
+    if (this->AmbiguousTests)
     {
       do
       {
         this->CurrentTestId++;
-        this->CurrentTest = this->TestListCanAmbig[ this->CurrentTestId*3 ];
-      } while  ( this->TestListCanAmbig[ this->CurrentTestId*3 + 1 ] < 0 );
+        this->CurrentTest = this->TestListCanAmbig[this->CurrentTestId * 3];
+      } while (this->TestListCanAmbig[this->CurrentTestId * 3 + 1] < 0);
     }
     else
     {
       this->CurrentTestId++;
-      this->CurrentTest = this->TestList[ this->CurrentTestId ];
+      this->CurrentTest = this->TestList[this->CurrentTestId];
     }
-    if ( this->CurrentTest < 0 )
+    if (this->CurrentTest < 0)
     {
       this->CurrentTestId = 0;
-      if ( this->AmbiguousTests )
+      if (this->AmbiguousTests)
       {
-        this->CurrentTest = this->TestListCanAmbig[ 0 ];
+        this->CurrentTest = this->TestListCanAmbig[0];
       }
       else
       {
-        this->CurrentTest = this->TestList[ 0 ];
+        this->CurrentTest = this->TestList[0];
       }
     }
   }
@@ -2986,17 +2907,19 @@ bool vtkTestTessellatorSubdivision::EvaluateEdge( const double* vtkNotUsed(p0), 
 }
 // ===============================================================================
 
-void TessellatorEdgeProcessorFunction( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* )
+void TessellatorEdgeProcessorFunction(
+  const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void*)
 {
   std::cerr << "Don't handle line segments yet." << std::endl;
 }
 
-void TessellatorTriangleProcessorFunction( const double* a, const double* b, const double* c, vtkEdgeSubdivisionCriterion*, void* out, const void* )
+void TessellatorTriangleProcessorFunction(const double* a, const double* b, const double* c,
+  vtkEdgeSubdivisionCriterion*, void* out, const void*)
 {
-  (void) a;
-  (void) b;
-  (void) c;
-  (void) out;
+  (void)a;
+  (void)b;
+  (void)c;
+  (void)out;
 #if 0
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
@@ -3050,10 +2973,11 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
 #endif // 0
 }
 
-void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, const double* c, const double* d, vtkEdgeSubdivisionCriterion*, void* out, const void* )
+void TessellatorTetrahedronProcessorFunction(const double* a, const double* b, const double* c,
+  const double* d, vtkEdgeSubdivisionCriterion*, void* out, const void*)
 {
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
-  if ( ! mesh )
+  if (!mesh)
   {
     std::cerr << "ERROR: You didn't pass me a mesh in which to place the tetrahedron." << std::endl;
     return;
@@ -3061,46 +2985,51 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
 
   vtkPoints* p = mesh->GetPoints();
   vtkIdType ids[4];
-  ids[0] = p->InsertNextPoint( a );
-  ids[1] = p->InsertNextPoint( b );
-  ids[2] = p->InsertNextPoint( c );
-  ids[3] = p->InsertNextPoint( d );
-  mesh->InsertNextCell( VTK_TETRA, 4, ids );
+  ids[0] = p->InsertNextPoint(a);
+  ids[1] = p->InsertNextPoint(b);
+  ids[2] = p->InsertNextPoint(c);
+  ids[3] = p->InsertNextPoint(d);
+  mesh->InsertNextCell(VTK_TETRA, 4, ids);
 
 #ifdef VTK_GENERATE_BASELINE
-  if ( ! vtkTessellatorIsInteractive )
+  if (!vtkTessellatorIsInteractive)
   {
-    //tessellatorRegressionTest.StdOut()
-    otet
-      << "  { { " << a[0] << ", " << a[1] << ", " << a[2]
-      << " }, { " << b[0] << ", " << b[1] << ", " << b[2]
-      << " }, { " << c[0] << ", " << c[1] << ", " << c[2]
-      << " }, { " << d[0] << ", " << d[1] << ", " << d[2]
-      << " } },\n";
+    // tessellatorRegressionTest.StdOut()
+    otet << "  { { " << a[0] << ", " << a[1] << ", " << a[2] << " }, { " << b[0] << ", " << b[1]
+         << ", " << b[2] << " }, { " << c[0] << ", " << c[1] << ", " << c[2] << " }, { " << d[0]
+         << ", " << d[1] << ", " << d[2] << " } },\n";
     ++otetCtr;
   }
 #endif // 0
 #ifdef VTK_CHECK_RESULTS
-  for ( int pt = 0; pt < 3; ++pt )
+  for (int pt = 0; pt < 3; ++pt)
   {
-    if ( vtkOTetPtr[    pt] != a[pt] )
+    if (vtkOTetPtr[pt] != a[pt])
     {
-      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point a, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                << "\" bad output tet coord, tet " << vtkOTetCtr << " point a, coord " << pt
+                << "\n";
       vtkTessellatorError = 1;
     }
-    if ( vtkOTetPtr[3 + pt] != b[pt] )
+    if (vtkOTetPtr[3 + pt] != b[pt])
     {
-      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point b, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                << "\" bad output tet coord, tet " << vtkOTetCtr << " point b, coord " << pt
+                << "\n";
       vtkTessellatorError = 1;
     }
-    if ( vtkOTetPtr[6 + pt] != c[pt] )
+    if (vtkOTetPtr[6 + pt] != c[pt])
     {
-      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point c, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                << "\" bad output tet coord, tet " << vtkOTetCtr << " point c, coord " << pt
+                << "\n";
       vtkTessellatorError = 1;
     }
-    if ( vtkOTetPtr[9 + pt] != d[pt] )
+    if (vtkOTetPtr[9 + pt] != d[pt])
     {
-      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point d, coord " << pt << "\n";
+      std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                << "\" bad output tet coord, tet " << vtkOTetCtr << " point d, coord " << pt
+                << "\n";
       vtkTessellatorError = 1;
     }
   }
@@ -3112,24 +3041,28 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
 class vtkTessellatorScreenShot : public vtkCommand
 {
 public:
-  static vtkTessellatorScreenShot* New()
-    { return new vtkTessellatorScreenShot; }
-  vtkTessellatorScreenShot() { this->RenderWindow = nullptr; this->FileName = nullptr; }
+  static vtkTessellatorScreenShot* New() { return new vtkTessellatorScreenShot; }
+  vtkTessellatorScreenShot()
+  {
+    this->RenderWindow = nullptr;
+    this->FileName = nullptr;
+  }
   vtkRenderWindow* RenderWindow;
   char* FileName;
-  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) override
+  void Execute(
+    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk)) override
   {
-    if ( (! this->RenderWindow) || (! this->FileName) )
+    if ((!this->RenderWindow) || (!this->FileName))
       return;
 
     vtkWindowToImageFilter* wif = vtkWindowToImageFilter::New();
     vtkPNGWriter* pw = vtkPNGWriter::New();
-    wif->SetInput( this->RenderWindow );
+    wif->SetInput(this->RenderWindow);
     wif->ReadFrontBufferOff();
     this->RenderWindow->Render();
 
-    pw->SetFileName( this->FileName );
-    pw->SetInputConnection( wif->GetOutputPort() );
+    pw->SetFileName(this->FileName);
+    pw->SetInputConnection(wif->GetOutputPort());
     pw->Write();
 
     pw->Delete();
@@ -3137,17 +3070,18 @@ public:
   }
 };
 
-int TestTessellator( int argc, char* argv[] )
+int TestTessellator(int argc, char* argv[])
 {
   vtkTessellatorError = 0;
 #ifdef VTK_GENERATE_BASELINE
-  itet.open( "itet.c" );
-  otet.open( "otet.c" );
-  tstc.open( "tstc.c" );
+  itet.open("itet.c");
+  otet.open("otet.c");
+  tstc.open("tstc.c");
 
   itet << "static double vtkITetList[][4][3] =\n{\n";
   otet << "static double vtkOTetList[][4][3] =\n{\n";
-  tstc << "static struct {\n  const char* Name;\n  int BeginOffset;\n  int EndOffset;\n}  vtkTestSummaries[] =\n{\n";
+  tstc << "static struct {\n  const char* Name;\n  int BeginOffset;\n  int EndOffset;\n}  "
+          "vtkTestSummaries[] =\n{\n";
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
   vtkOTetCtr = 0;
@@ -3157,8 +3091,7 @@ int TestTessellator( int argc, char* argv[] )
   vtkOTetPtr = &vtkOTetList[0][0][0];
 #endif // VTK_CHECK_RESULTS
 
-  int endpts[6][2] =
-  {
+  int endpts[6][2] = {
     { 0, 1 },
     { 1, 2 },
     { 2, 0 },
@@ -3169,13 +3102,13 @@ int TestTessellator( int argc, char* argv[] )
 
   int skip = 0;
   vtkTessellatorIsInteractive = 0;
-  for ( int i = 0; i < argc; ++i )
+  for (int i = 0; i < argc; ++i)
   {
-    if ( ! strcmp( argv[i], "-skip" ) )
+    if (!strcmp(argv[i], "-skip"))
     {
       skip = 1;
     }
-    else if ( ! strcmp( argv[i], "-I" ) )
+    else if (!strcmp(argv[i], "-I"))
     {
       vtkTessellatorIsInteractive = 1;
     }
@@ -3184,7 +3117,7 @@ int TestTessellator( int argc, char* argv[] )
   // Set up the objects for the test
   vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
   vtkPoints* ugpts = vtkPoints::New();
-  ug->SetPoints( ugpts );
+  ug->SetPoints(ugpts);
   ugpts->FastDelete();
   vtkStreamingTessellator* at = vtkStreamingTessellator::New();
   vtkTestTessellatorSubdivision* tt = vtkTestTessellatorSubdivision::New();
@@ -3214,7 +3147,7 @@ int TestTessellator( int argc, char* argv[] )
   vtkPolyDataMapper* vertMarkerMapper = nullptr;
   vtkActor* vertMarkerActor = nullptr;
 
-  if ( vtkTessellatorIsInteractive )
+  if (vtkTessellatorIsInteractive)
   {
     sf = vtkShrinkFilter::New();
     a = vtkActor::New();
@@ -3223,123 +3156,121 @@ int TestTessellator( int argc, char* argv[] )
     rw = vtkRenderWindow::New();
     ri = vtkRenderWindowInteractor::New();
 
-    rw->AddRenderer( r );
-    rw->SetInteractor( ri );
+    rw->AddRenderer(r);
+    rw->SetInteractor(ri);
 #ifdef FOR_PAPER
-    r->SetBackground( 1., 1., 1. );
+    r->SetBackground(1., 1., 1.);
 #else
-    r->SetBackground( 0.3, 0.3, 0.7 );
+    r->SetBackground(0.3, 0.3, 0.7);
 #endif // FOR_PAPER
-    r->AddActor( a );
-    a->SetMapper( m );
-    sf->SetInputData( ug );
+    r->AddActor(a);
+    a->SetMapper(m);
+    sf->SetInputData(ug);
 #ifdef ONLY_WIRE
-    sf->SetShrinkFactor( 1. );
+    sf->SetShrinkFactor(1.);
 #endif // ONLY_WIRE
-    m->SetInputConnection( sf->GetOutputPort() );
+    m->SetInputConnection(sf->GetOutputPort());
     // Add some visual pizazz
     startTet = vtkUnstructuredGrid::New();
     startTetWireMapper = vtkDataSetMapper::New();
     startTetWireActor = vtkActor::New();
-    startTetWireMapper->SetInputData( startTet );
+    startTetWireMapper->SetInputData(startTet);
     startTetWireMapper->ScalarVisibilityOff();
-    startTetWireActor->SetMapper( startTetWireMapper );
+    startTetWireActor->SetMapper(startTetWireMapper);
     startTetWireActor->GetProperty()->SetRepresentationToWireframe();
-    startTetWireActor->GetProperty()->SetDiffuse( 0. );
-    startTetWireActor->GetProperty()->SetSpecular( 0. );
-    startTetWireActor->GetProperty()->SetLineWidth( 2.0 );
+    startTetWireActor->GetProperty()->SetDiffuse(0.);
+    startTetWireActor->GetProperty()->SetSpecular(0.);
+    startTetWireActor->GetProperty()->SetLineWidth(2.0);
 #ifdef ONLY_WIRE
-    a->GetProperty()->SetDiffuse( 0. );
-    a->GetProperty()->SetSpecular( 0. );
+    a->GetProperty()->SetDiffuse(0.);
+    a->GetProperty()->SetSpecular(0.);
     a->GetProperty()->SetRepresentationToWireframe();
 #endif // ONLY_WIRE
-    r->AddActor( startTetWireActor );
+    r->AddActor(startTetWireActor);
 
     pids = vtkIdTypeArray::New();
-    pids->SetNumberOfComponents( 1 );
-    startTet->GetPointData()->SetScalars( pids );
+    pids->SetNumberOfComponents(1);
+    startTet->GetPointData()->SetScalars(pids);
 
     startTetLabelMapper = vtkLabeledDataMapper::New();
     startTetLabelActor = vtkActor2D::New();
-    startTetLabelMapper->SetInputData( startTet );
+    startTetLabelMapper->SetInputData(startTet);
     startTetLabelMapper->SetLabelModeToLabelScalars();
-    startTetLabelMapper->SetLabelFormat( "  %2d" );
-    //startTetLabelMapper->SetLabelModeToLabelIds();
-    startTetLabelActor->SetMapper( startTetLabelMapper );
-    r->AddActor2D( startTetLabelActor );
-    startTetLabelMapper->GetLabelTextProperty()->SetFontSize( 32 );
+    startTetLabelMapper->SetLabelFormat("  %2d");
+    // startTetLabelMapper->SetLabelModeToLabelIds();
+    startTetLabelActor->SetMapper(startTetLabelMapper);
+    r->AddActor2D(startTetLabelActor);
+    startTetLabelMapper->GetLabelTextProperty()->SetFontSize(32);
 #ifdef FOR_PAPER
-    startTetLabelMapper->GetLabelTextProperty()->SetColor( .1, .1, 0.7 );
+    startTetLabelMapper->GetLabelTextProperty()->SetColor(.1, .1, 0.7);
 #endif // FOR_PAPER
 
     annotationActor = vtkTextActor::New();
-    annotationActor->GetTextProperty()->SetFontSize( 24 );
+    annotationActor->GetTextProperty()->SetFontSize(24);
     annotationActor->GetTextProperty()->ShadowOn();
-    annotationActor->SetPosition2( 10, 40 );
+    annotationActor->SetPosition2(10, 40);
 #ifndef FOR_PAPER
-    r->AddActor2D( annotationActor );
+    r->AddActor2D(annotationActor);
 #endif //  FOR_PAPER
 
     sphere = vtkSphereSource::New();
     vertMarkers = vtkGlyph3D::New();
     vertMarkerMapper = vtkPolyDataMapper::New();
     vertMarkerActor = vtkActor::New();
-    vertMarkerMapper->SetInputConnection( vertMarkers->GetOutputPort() );
+    vertMarkerMapper->SetInputConnection(vertMarkers->GetOutputPort());
     vertMarkerMapper->ScalarVisibilityOff();
-    vertMarkerActor->SetMapper( vertMarkerMapper );
-    vertMarkerActor->GetProperty()->SetColor( 0.6, 0.2, 0.2 );
-    vertMarkers->SetInputData( startTet );
-    vertMarkers->SetSourceConnection( sphere->GetOutputPort() );
+    vertMarkerActor->SetMapper(vertMarkerMapper);
+    vertMarkerActor->GetProperty()->SetColor(0.6, 0.2, 0.2);
+    vertMarkers->SetInputData(startTet);
+    vertMarkers->SetSourceConnection(sphere->GetOutputPort());
     vertMarkers->SetScaleModeToDataScalingOff();
     vertMarkers->SetScaleFactor(0.125);
-    r->AddActor( vertMarkerActor );
+    r->AddActor(vertMarkerActor);
 
-    snprintf( screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png" );
+    snprintf(screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png");
     ss = vtkTessellatorScreenShot::New();
     ss->RenderWindow = rw;
     ss->FileName = screenshotfile;
-    ri->AddObserver( vtkCommand::UserEvent, ss );
+    ri->AddObserver(vtkCommand::UserEvent, ss);
   }
 
   at->SetPrivateData(ug);
-  at->SetSubdivisionAlgorithm( tt );
-  at->SetEmbeddingDimension( -1, 3 );
-  at->SetEdgeCallback( TessellatorEdgeProcessorFunction );
-  at->SetTriangleCallback( TessellatorTriangleProcessorFunction );
-  at->SetTetrahedronCallback( TessellatorTetrahedronProcessorFunction );
-  at->SetMaximumNumberOfSubdivisions( 1 );
-  at->SetFieldSize( -1, 0 );
+  at->SetSubdivisionAlgorithm(tt);
+  at->SetEmbeddingDimension(-1, 3);
+  at->SetEdgeCallback(TessellatorEdgeProcessorFunction);
+  at->SetTriangleCallback(TessellatorTriangleProcessorFunction);
+  at->SetTetrahedronCallback(TessellatorTetrahedronProcessorFunction);
+  at->SetMaximumNumberOfSubdivisions(1);
+  at->SetFieldSize(-1, 0);
 
   double* tetPoints = nullptr;
 
-  if ( ! skip )
+  if (!skip)
   {
     tetPoints = vtkTestTessellatorSubdivision::TestPoints;
-    for ( int g = 0; g < 6; ++g )
+    for (int g = 0; g < 6; ++g)
     {
 #ifdef VTK_GENERATE_BASELINE
-      if ( ! vtkTessellatorIsInteractive )
+      if (!vtkTessellatorIsInteractive)
       {
-        //tessellatorRegressionTest.StdOut()
-        itet
-          << "  { { " << tetPoints[ 0] << ", " << tetPoints[ 1] << ", " << tetPoints[ 2]
-          << " }, { " << tetPoints[ 6] << ", " << tetPoints[ 7] << ", " << tetPoints[ 8]
-          << " }, { " << tetPoints[12] << ", " << tetPoints[13] << ", " << tetPoints[14]
-          << " }, { " << tetPoints[18] << ", " << tetPoints[19] << ", " << tetPoints[20]
-          << " } },\n";
+        // tessellatorRegressionTest.StdOut()
+        itet << "  { { " << tetPoints[0] << ", " << tetPoints[1] << ", " << tetPoints[2] << " }, { "
+             << tetPoints[6] << ", " << tetPoints[7] << ", " << tetPoints[8] << " }, { "
+             << tetPoints[12] << ", " << tetPoints[13] << ", " << tetPoints[14] << " }, { "
+             << tetPoints[18] << ", " << tetPoints[19] << ", " << tetPoints[20] << " } },\n";
       }
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-      for ( int pt = 0; pt < 4; ++pt )
+      for (int pt = 0; pt < 4; ++pt)
       {
-        for ( int cr = 0; cr < 3; ++cr, ++vtkITetPtr )
+        for (int cr = 0; cr < 3; ++cr, ++vtkITetPtr)
         {
-          if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
+          if (*vtkITetPtr != tetPoints[pt * 6 + cr])
           {
-            std::cerr
-              << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
-              << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
-              << "\n";
+            std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                      << "\" bad input tet coord, tet " << vtkITetCtr << " point " << pt
+                      << " coord " << cr << " was " << tetPoints[pt * 6 + cr] << ", expecting "
+                      << *vtkITetPtr << "\n";
             vtkTessellatorError = 1;
           }
         }
@@ -3349,86 +3280,86 @@ int TestTessellator( int argc, char* argv[] )
       // Test every edge code for a tet with the current edge lengths
       int lastTestId = -1;
       int edgeCode;
-      while ( tt->GetCurrentTestId() > lastTestId )
+      while (tt->GetCurrentTestId() > lastTestId)
       {
         lastTestId = tt->GetCurrentTestId();
         edgeCode = tt->GetCurrentTest();
-        snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
+        snprintf(screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId,
+          edgeCode);
 
-        if ( vtkTessellatorIsInteractive )
+        if (vtkTessellatorIsInteractive)
         {
           // Draw a nice picture of the starting tet
           startTet->Reset();
           pids->Reset();
           startTetPts = vtkPoints::New();
-          startTetConn[0] = startTetPts->InsertNextPoint( tetPoints );
-          startTetConn[1] = startTetPts->InsertNextPoint( tetPoints +  6 );
-          startTetConn[2] = startTetPts->InsertNextPoint( tetPoints + 12 );
-          startTetConn[3] = startTetPts->InsertNextPoint( tetPoints + 18 );
-          pids->InsertTuple1( 0, 0 );
-          pids->InsertTuple1( 1, 1 );
-          pids->InsertTuple1( 2, 2 );
-          pids->InsertTuple1( 3, 3 );
+          startTetConn[0] = startTetPts->InsertNextPoint(tetPoints);
+          startTetConn[1] = startTetPts->InsertNextPoint(tetPoints + 6);
+          startTetConn[2] = startTetPts->InsertNextPoint(tetPoints + 12);
+          startTetConn[3] = startTetPts->InsertNextPoint(tetPoints + 18);
+          pids->InsertTuple1(0, 0);
+          pids->InsertTuple1(1, 1);
+          pids->InsertTuple1(2, 2);
+          pids->InsertTuple1(3, 3);
         }
         int k = 4;
-        for ( int i=0; i<6; ++i )
+        for (int i = 0; i < 6; ++i)
         {
-          if ( ! ((edgeCode >>i) & 1) )
+          if (!((edgeCode >> i) & 1))
             continue;
           double midpt[3];
-          for ( int j=0; j<3; ++j )
-            midpt[j] = (tetPoints[6*endpts[i][0]+j] + tetPoints[6*endpts[i][1]+j])/2.;
-          if ( vtkTessellatorIsInteractive )
+          for (int j = 0; j < 3; ++j)
+            midpt[j] = (tetPoints[6 * endpts[i][0] + j] + tetPoints[6 * endpts[i][1] + j]) / 2.;
+          if (vtkTessellatorIsInteractive)
           {
-            startTetPts->InsertNextPoint( midpt );
-            pids->InsertTuple1( k, i+4 );
+            startTetPts->InsertNextPoint(midpt);
+            pids->InsertTuple1(k, i + 4);
           }
           k++;
         }
-        snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
-          edgeCode,
-          (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
-          ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
-          lastTestId );
-        if ( vtkTessellatorIsInteractive )
+        snprintf(annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
+          edgeCode, (edgeCode & 1), ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1),
+          ((edgeCode >> 3) & 1), ((edgeCode >> 4) & 1), ((edgeCode >> 5) & 1), lastTestId);
+        if (vtkTessellatorIsInteractive)
         {
-          startTet->SetPoints( startTetPts );
+          startTet->SetPoints(startTetPts);
           startTetPts->FastDelete();
-          startTet->InsertNextCell( VTK_TETRA, 4, startTetConn );
+          startTet->InsertNextCell(VTK_TETRA, 4, startTetConn);
 
-          annotationActor->SetInput( annotation );
+          annotationActor->SetInput(annotation);
         }
 #ifdef VTK_GENERATE_BASELINE
-        //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
-        //std::cout << annotation << "\nOutput Tetrahedra:\n";
-        if ( otetCtr )
+        // tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
+        // std::cout << annotation << "\nOutput Tetrahedra:\n";
+        if (otetCtr)
         {
           tstc << ", " << otetCtr << " },\n";
         }
         tstc << "  { \"" << annotation << "\", " << otetCtr; // << " },\n";
-        //otet << "},\n{\n";
-#endif // VTK_GENERATE_BASELINE
+                                                             // otet << "},\n{\n";
+#endif                                                       // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-        if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
+        if (strcmp(vtkTestSummaries[vtkTstCode].Name, annotation))
         {
-          std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
+          std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation
+                    << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
           vtkTessellatorError = 1;
         }
-        if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
+        if (vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset)
         {
-          std::cerr
-            << "ERROR: Test " << vtkTstCode << " started at offset "
-            << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
+          std::cerr << "ERROR: Test " << vtkTstCode << " started at offset " << vtkOTetCtr
+                    << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--"
+                    << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
           vtkTessellatorError = 1;
         }
         ++vtkTstCode;
 #endif // VTK_CHECK_RESULTS
         ug->Reset();
         ugpts = vtkPoints::New();
-        ug->SetPoints( ugpts );
+        ug->SetPoints(ugpts);
         ugpts->FastDelete();
-        at->AdaptivelySample3Facet( tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18 );
-        if ( vtkTessellatorIsInteractive )
+        at->AdaptivelySample3Facet(tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18);
+        if (vtkTessellatorIsInteractive)
         {
           r->ResetCamera();
           rw->Render();
@@ -3443,46 +3374,44 @@ int TestTessellator( int argc, char* argv[] )
   {
 #ifdef VTK_CHECK_RESULTS
     vtkTstCode = 384; // First ambiguous case
-    vtkITetCtr = 6; // Input tet corresponding to first ambiguous case
+    vtkITetCtr = 6;   // Input tet corresponding to first ambiguous case
     vtkOTetCtr = vtkTestSummaries[vtkTstCode].BeginOffset;
     vtkITetPtr = &vtkITetList[vtkITetCtr][0][0];
     vtkOTetPtr = &vtkOTetList[vtkOTetCtr][0][0];
 #endif // VTK_CHECK_RESULTS
   }
 
-
   // Now loop over ambiguous cases
   int lastTestId = -1;
   int edgeCode;
   tt->AmbiguousTestsOn();
-  while ( tt->GetCurrentTestId() > lastTestId )
+  while (tt->GetCurrentTestId() > lastTestId)
   {
     int tet = tt->GetCurrentTet();
-    if ( tet < 0 )
+    if (tet < 0)
       continue;
 
-    snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
+    snprintf(screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png",
+      tt->GetCurrentTestId(), tt->GetCurrentTest());
 
-    tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24*tet;
+    tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24 * tet;
 #ifdef VTK_GENERATE_BASELINE
-    itet
-      << "  { { " << tetPoints[ 0] << ", " << tetPoints[ 1] << ", " << tetPoints[ 2]
-      << " }, { " << tetPoints[ 6] << ", " << tetPoints[ 7] << ", " << tetPoints[ 8]
-      << " }, { " << tetPoints[12] << ", " << tetPoints[13] << ", " << tetPoints[14]
-      << " }, { " << tetPoints[18] << ", " << tetPoints[19] << ", " << tetPoints[20]
-      << " } },\n";
+    itet << "  { { " << tetPoints[0] << ", " << tetPoints[1] << ", " << tetPoints[2] << " }, { "
+         << tetPoints[6] << ", " << tetPoints[7] << ", " << tetPoints[8] << " }, { "
+         << tetPoints[12] << ", " << tetPoints[13] << ", " << tetPoints[14] << " }, { "
+         << tetPoints[18] << ", " << tetPoints[19] << ", " << tetPoints[20] << " } },\n";
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-    for ( int pt = 0; pt < 4; ++pt )
+    for (int pt = 0; pt < 4; ++pt)
     {
-      for ( int cr = 0; cr < 3; ++cr, ++vtkITetPtr )
+      for (int cr = 0; cr < 3; ++cr, ++vtkITetPtr)
       {
-        if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
+        if (*vtkITetPtr != tetPoints[pt * 6 + cr])
         {
-          std::cerr
-            << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
-            << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
-            << "\n";
+          std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name
+                    << "\" bad input tet coord, tet " << vtkITetCtr << " point " << pt << " coord "
+                    << cr << " was " << tetPoints[pt * 6 + cr] << ", expecting " << *vtkITetPtr
+                    << "\n";
           vtkTessellatorError = 1;
         }
       }
@@ -3492,95 +3421,94 @@ int TestTessellator( int argc, char* argv[] )
     lastTestId = tt->GetCurrentTestId();
     edgeCode = tt->GetCurrentTest();
 
-    if ( vtkTessellatorIsInteractive )
+    if (vtkTessellatorIsInteractive)
     {
       // Draw a nice picture of the starting tet
       startTet->Reset();
       pids->Reset();
       startTetPts = vtkPoints::New();
-      startTetConn[0] = startTetPts->InsertNextPoint( tetPoints );
-      startTetConn[1] = startTetPts->InsertNextPoint( tetPoints +  6 );
-      startTetConn[2] = startTetPts->InsertNextPoint( tetPoints + 12 );
-      startTetConn[3] = startTetPts->InsertNextPoint( tetPoints + 18 );
-      pids->InsertTuple1( 0, 0 );
-      pids->InsertTuple1( 1, 1 );
-      pids->InsertTuple1( 2, 2 );
-      pids->InsertTuple1( 3, 3 );
+      startTetConn[0] = startTetPts->InsertNextPoint(tetPoints);
+      startTetConn[1] = startTetPts->InsertNextPoint(tetPoints + 6);
+      startTetConn[2] = startTetPts->InsertNextPoint(tetPoints + 12);
+      startTetConn[3] = startTetPts->InsertNextPoint(tetPoints + 18);
+      pids->InsertTuple1(0, 0);
+      pids->InsertTuple1(1, 1);
+      pids->InsertTuple1(2, 2);
+      pids->InsertTuple1(3, 3);
     }
-    int k=4;
-    for ( int i=0; i<6; ++i )
+    int k = 4;
+    for (int i = 0; i < 6; ++i)
     {
-      if ( ! ((edgeCode >>i) & 1) )
+      if (!((edgeCode >> i) & 1))
         continue;
       double midpt[3];
-      for ( int j=0; j<3; ++j )
-        midpt[j] = (tetPoints[6*endpts[i][0]+j] + tetPoints[6*endpts[i][1]+j])/2.;
-      if ( vtkTessellatorIsInteractive )
+      for (int j = 0; j < 3; ++j)
+        midpt[j] = (tetPoints[6 * endpts[i][0] + j] + tetPoints[6 * endpts[i][1] + j]) / 2.;
+      if (vtkTessellatorIsInteractive)
       {
-        startTetPts->InsertNextPoint( midpt );
-        pids->InsertTuple1( k, i+4 );
+        startTetPts->InsertNextPoint(midpt);
+        pids->InsertTuple1(k, i + 4);
       }
       k++;
     }
-    if ( vtkTessellatorIsInteractive )
+    if (vtkTessellatorIsInteractive)
     {
       int x = tt->GetCurrentAmbiguousFaces();
       double* fp = vtkTestTessellatorSubdivision::TestFacePointsCanAmbig[tt->GetCurrentTestId()];
-      for ( int z=0; z<4; ++z )
+      for (int z = 0; z < 4; ++z)
       {
-        if ( x & (1<<z) )
+        if (x & (1 << z))
         {
-          startTetPts->InsertNextPoint( fp );
-          pids->InsertTuple1( k++, z+10 );
+          startTetPts->InsertNextPoint(fp);
+          pids->InsertTuple1(k++, z + 10);
           fp += 3;
         }
       }
     }
-    snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
-      edgeCode,
-      (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
-      ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
-      lastTestId );
-    if ( vtkTessellatorIsInteractive )
+    snprintf(annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*", edgeCode,
+      (edgeCode & 1), ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1), ((edgeCode >> 3) & 1),
+      ((edgeCode >> 4) & 1), ((edgeCode >> 5) & 1), lastTestId);
+    if (vtkTessellatorIsInteractive)
     {
-      startTet->SetPoints( startTetPts );
+      startTet->SetPoints(startTetPts);
       startTetPts->FastDelete();
-      startTet->InsertNextCell( VTK_TETRA, 4, startTetConn );
+      startTet->InsertNextCell(VTK_TETRA, 4, startTetConn);
 
-      annotationActor->SetInput( annotation );
+      annotationActor->SetInput(annotation);
     }
 #ifdef VTK_GENERATE_BASELINE
-    //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
-    //std::cout << annotation << "\nOutput Tetrahedra:\n";
-    //tstc << "\"" << annotation << "\",\n";
-    //tstc << "  { \"" << annotation << "\", " << otetCtr << " },\n";
-    if ( otetCtr )
+    // tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
+    // std::cout << annotation << "\nOutput Tetrahedra:\n";
+    // tstc << "\"" << annotation << "\",\n";
+    // tstc << "  { \"" << annotation << "\", " << otetCtr << " },\n";
+    if (otetCtr)
     {
       tstc << ", " << otetCtr << " },\n";
     }
     tstc << "  { \"" << annotation << "\", " << otetCtr; // << " },\n";
-#endif // VTK_GENERATE_BASELINE
+#endif                                                   // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-    if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
+    if (strcmp(vtkTestSummaries[vtkTstCode].Name, annotation))
     {
-      std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
+      std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \""
+                << vtkTestSummaries[vtkTstCode].Name << "\"\n";
       vtkTessellatorError = 1;
     }
-    if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
+    if (vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset)
     {
-      std::cerr
-        << "ERROR: Test " << vtkTstCode << " started at offset "
-        << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
+      std::cerr << "ERROR: Test " << vtkTstCode << " started at offset " << vtkOTetCtr
+                << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--"
+                << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
       vtkTessellatorError = 1;
     }
     ++vtkTstCode;
 #endif // VTK_CHECK_RESULTS
     ug->Reset();
     ugpts = vtkPoints::New();
-    ug->SetPoints( ugpts );
+    ug->SetPoints(ugpts);
     ugpts->FastDelete();
-    at->AdaptivelySample3Facet( tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18 );
-    if ( vtkTessellatorIsInteractive )
+    at->AdaptivelySample3Facet(tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18);
+    if (vtkTessellatorIsInteractive)
     {
       r->ResetCamera();
       rw->Render();
@@ -3588,18 +3516,18 @@ int TestTessellator( int argc, char* argv[] )
     }
   }
 
-  for ( int c=0; c<11; ++c )
+  for (int c = 0; c < 11; ++c)
   {
     std::cout << at->GetCaseCount(c);
-    for ( int s=0; s<51; ++s )
-      std::cout << " " << at->GetSubcaseCount(c,s);
+    for (int s = 0; s < 51; ++s)
+      std::cout << " " << at->GetSubcaseCount(c, s);
     std::cout << std::endl;
   }
 
   ug->Delete();
   at->Delete();
   tt->Delete();
-  if ( vtkTessellatorIsInteractive )
+  if (vtkTessellatorIsInteractive)
   {
     startTet->Delete();
     sf->Delete();
@@ -3622,22 +3550,22 @@ int TestTessellator( int argc, char* argv[] )
 
 #ifdef VTK_CHECK_RESULTS
   --vtkTstCode;
-  if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].EndOffset )
+  if (vtkOTetCtr != vtkTestSummaries[vtkTstCode].EndOffset)
   {
-    std::cerr
-      << "ERROR: Test " << vtkTstCode << " ended at offset "
-      << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
+    std::cerr << "ERROR: Test " << vtkTstCode << " ended at offset " << vtkOTetCtr << ", expecting "
+              << vtkTestSummaries[vtkTstCode].BeginOffset << "--"
+              << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
     vtkTessellatorError = 1;
   }
 #endif // VTK_CHECK_RESULTS
 
   // Test vtkTessellatorFilter and vtkDataSetEdgeSubdivisionCriterion if we have a dataset to use
-  char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/quadraticTetra01.vtu" );
-  if ( fname )
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+  if (fname)
   {
     vtkXMLUnstructuredGridReader* rdr = vtkXMLUnstructuredGridReader::New();
-    rdr->SetFileName( fname );
-    delete [] fname ;
+    rdr->SetFileName(fname);
+    delete[] fname;
 
     // Add filter to generate some scalar data.
     vtkRandomAttributeGenerator* rag = vtkRandomAttributeGenerator::New();
@@ -3646,13 +3574,13 @@ int TestTessellator( int argc, char* argv[] )
     rag->SetGenerateCellVectors(1);
 
     vtkTessellatorFilter* tf = vtkTessellatorFilter::New();
-    tf->SetInputConnection( rag->GetOutputPort() );
+    tf->SetInputConnection(rag->GetOutputPort());
     tf->MergePointsOn();
     tf->Update();
 
-    for ( int odim = 1; odim < 4; ++odim )
+    for (int odim = 1; odim < 4; ++odim)
     {
-      tf->SetOutputDimension( odim );
+      tf->SetOutputDimension(odim);
       tf->Update();
     }
 

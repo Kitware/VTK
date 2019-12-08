@@ -29,13 +29,14 @@
 #include <vtkInteractorEventRecorder.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOpenGLRenderer.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlaneCollection.h>
 #include <vtkPlanes.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderTimerLog.h>
 #include <vtkRenderWindow.h>
@@ -43,17 +44,16 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTimerLog.h>
-#include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
 #include <cassert>
 
-
-namespace {
+namespace
+{
 
 // Callback for the interaction
 class vtkBWCallback : public vtkCommand
@@ -61,11 +61,11 @@ class vtkBWCallback : public vtkCommand
 public:
   vtkSmartPointer<vtkVolume> Volume;
 
-  static vtkBWCallback *New() { return new vtkBWCallback; }
+  static vtkBWCallback* New() { return new vtkBWCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkBoxWidget *boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
+    vtkBoxWidget* boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
 
     vtkNew<vtkPlanes> widgetPlanes;
     boxWidget->GetPlanes(widgetPlanes);
@@ -76,27 +76,25 @@ public:
 class SamplingDistanceCallback : public vtkCommand
 {
 public:
-  static SamplingDistanceCallback *New()
-    { return new SamplingDistanceCallback; }
+  static SamplingDistanceCallback* New() { return new SamplingDistanceCallback; }
 
-  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
-    void* vtkNotUsed(data)) override
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event, void* vtkNotUsed(data)) override
   {
     switch (event)
     {
       case vtkCommand::StartInteractionEvent:
-        {
-          // Higher ImageSampleDistance to make the volume-rendered image's
-          // resolution visibly lower during interaction.
-          this->Mapper->SetImageSampleDistance(6.5);
-        }
-        break;
+      {
+        // Higher ImageSampleDistance to make the volume-rendered image's
+        // resolution visibly lower during interaction.
+        this->Mapper->SetImageSampleDistance(6.5);
+      }
+      break;
 
       case vtkCommand::EndInteractionEvent:
-        {
-          // Default ImageSampleDistance
-          this->Mapper->SetImageSampleDistance(1.0);
-        }
+      {
+        // Default ImageSampleDistance
+        this->Mapper->SetImageSampleDistance(1.0);
+      }
     }
   }
 
@@ -105,7 +103,7 @@ public:
 
 const std::string EventStream =
 R"eventStream(
-# StreamVersion 1.1
+#StreamVersion 1.1
 LeftButtonPressEvent 198 296 0 0 0 0
 RenderEvent 198 296 0 0 0 0
 MouseMoveEvent 198 295 0 0 0 0
@@ -1277,7 +1275,7 @@ RenderEvent 364 64 0 0 0 0
 
 } // end anon namespace
 
-int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
+int TestGPURayCastDepthPeelingBoxWidget(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
@@ -1288,7 +1286,7 @@ int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -1307,10 +1305,9 @@ int TestGPURayCastDepthPeelingBoxWidget(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  delete [] volumeFile;
+  delete[] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter

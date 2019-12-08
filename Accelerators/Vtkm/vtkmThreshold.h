@@ -27,17 +27,17 @@
  * data. By default, point data is used to obtain scalars, but you can
  * control this behavior. See the AttributeMode ivar below.
  *
-*/
+ */
 #ifndef vtkmThreshold_h
 #define vtkmThreshold_h
 
-#include "vtkThreshold.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkThreshold.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
-  vtkTypeMacro(vtkmThreshold,vtkThreshold)
+  vtkTypeMacro(vtkmThreshold, vtkThreshold);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmThreshold* New();
@@ -46,8 +46,7 @@ protected:
   vtkmThreshold();
   ~vtkmThreshold();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmThreshold(const vtkmThreshold&) = delete;

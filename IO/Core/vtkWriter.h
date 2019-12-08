@@ -26,13 +26,13 @@
  *
  * @sa
  * vtkXMLDataSetWriter vtkDataSetWriter vtkImageWriter vtkMCubesWriter
-*/
+ */
 
 #ifndef vtkWriter_h
 #define vtkWriter_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOCoreModule.h" // For export macro
 
 class vtkDataObject;
 
@@ -42,7 +42,7 @@ class vtkDataObject;
 class VTKIOCORE_EXPORT vtkWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkWriter,vtkAlgorithm);
+  vtkTypeMacro(vtkWriter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -73,26 +73,25 @@ public:
   /**
    * Set/get the input to this writer.
    */
-  void SetInputData(vtkDataObject *input);
-  void SetInputData(int index, vtkDataObject *input);
+  void SetInputData(vtkDataObject* input);
+  void SetInputData(int index, vtkDataObject* input);
   //@}
 
-  vtkDataObject *GetInput();
-  vtkDataObject *GetInput(int port);
+  vtkDataObject* GetInput();
+  vtkDataObject* GetInput(int port);
 
 protected:
   vtkWriter();
   ~vtkWriter() override;
 
-  int ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) override;
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  virtual void WriteData() = 0; //internal method subclasses must respond to
+  virtual void WriteData() = 0; // internal method subclasses must respond to
   vtkTimeStamp WriteTime;
+
 private:
   vtkWriter(const vtkWriter&) = delete;
   void operator=(const vtkWriter&) = delete;

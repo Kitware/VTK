@@ -20,25 +20,25 @@
 
 #include "vtkActor.h"
 #include "vtkCirclePackFrontChainLayoutStrategy.h"
+#include "vtkCirclePackLayout.h"
+#include "vtkCirclePackToPolyData.h"
 #include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
-#include "vtkCirclePackLayout.h"
-#include "vtkCirclePackToPolyData.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX, double posY, vtkRenderer* ren)
+void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX,
+  double posY, vtkRenderer* ren)
 {
   VTK_CREATE(vtkCirclePackLayout, layout);
   layout->SetLayoutStrategy(strategy);
@@ -51,7 +51,7 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   double pnt[2];
   pnt[0] = cinfo[0];
   pnt[1] = cinfo[1];
-  if(((int) layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
+  if (((int)layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
   {
     cout << "GetBoundingCircle() and FindVertex() returned incorrect id" << endl;
     exit(1);
@@ -61,7 +61,7 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   poly->SetInputConnection(layout->GetOutputPort());
   VTK_CREATE(vtkPolyDataMapper, mapper);
   mapper->SetInputConnection(poly->GetOutputPort());
-  mapper->SetScalarRange(0,600);
+  mapper->SetScalarRange(0, 600);
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("size");
   VTK_CREATE(vtkActor, actor);

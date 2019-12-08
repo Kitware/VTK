@@ -26,9 +26,9 @@
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLMultiBlockDataReader.h"
@@ -37,31 +37,34 @@
 
 int TestOSPRayMultiBlock(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
 
-  vtkSmartPointer<vtkXMLMultiBlockDataReader> reader = vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                               "Data/many_blocks/many_blocks.vtm");
+  vtkSmartPointer<vtkXMLMultiBlockDataReader> reader =
+    vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
+  const char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/many_blocks/many_blocks.vtm");
   reader->SetFileName(fileName);
   reader->Update();
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper=vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   mapper->SetInputConnection(reader->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renderer->SetBackground(0.1,0.1,1.0);
-  renWin->SetSize(400,400);
+  renderer->SetBackground(0.1, 0.1, 1.0);
+  renWin->SetSize(400, 400);
   renWin->Render();
 
-  vtkCamera *cam = renderer->GetActiveCamera();
-  cam->SetPosition(1.5,1.5,0.75);
+  vtkCamera* cam = renderer->GetActiveCamera();
+  cam->SetPosition(1.5, 1.5, 0.75);
 
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
 
   renderer->SetPass(ospray);
 
@@ -76,10 +79,8 @@ int TestOSPRayMultiBlock(int argc, char* argv[])
 
   renWin->Render();
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->
-    SetPipelineControlPoints(renderer, ospray, nullptr);
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

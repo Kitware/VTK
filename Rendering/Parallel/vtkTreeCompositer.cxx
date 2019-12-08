@@ -40,37 +40,30 @@
 // version available from Los Alamos National Laboratory.
 
 #include "vtkTreeCompositer.h"
+#include "vtkFloatArray.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
-#include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMultiProcessController.h"
 
 vtkStandardNewMacro(vtkTreeCompositer);
 
 //-------------------------------------------------------------------------
-vtkTreeCompositer::vtkTreeCompositer()
-{
-}
-
+vtkTreeCompositer::vtkTreeCompositer() {}
 
 //-------------------------------------------------------------------------
-vtkTreeCompositer::~vtkTreeCompositer()
-{
-}
+vtkTreeCompositer::~vtkTreeCompositer() {}
 
 //-------------------------------------------------------------------------
 // Jim's composite stuff
 //-------------------------------------------------------------------------
 // Results are put in the local data.
-void vtkCompositeImagePair(vtkFloatArray *localZ,
-                           vtkDataArray *localP,
-                           vtkFloatArray *remoteZ,
-                           vtkDataArray *remoteP)
+void vtkCompositeImagePair(
+  vtkFloatArray* localZ, vtkDataArray* localP, vtkFloatArray* remoteZ, vtkDataArray* remoteP)
 {
-  int i,j;
+  int i, j;
   int pixel_data_size;
-  float *pEnd;
+  float* pEnd;
   int numComp = localP->GetNumberOfComponents();
   float* remoteZdata = remoteZ->GetPointer(0);
   float* remotePdata = reinterpret_cast<float*>(remoteP->GetVoidPointer(0));
@@ -90,7 +83,7 @@ void vtkCompositeImagePair(vtkFloatArray *localZ,
     pEnd = remoteZdata + total_pixels;
     if (numComp == 4)
     {
-      while(remoteZdata != pEnd)
+      while (remoteZdata != pEnd)
       {
         if (*remoteZdata < *localZdata)
         {
@@ -110,7 +103,7 @@ void vtkCompositeImagePair(vtkFloatArray *localZ,
     {
       unsigned char* clocalPdata = reinterpret_cast<unsigned char*>(localPdata);
       unsigned char* cremotePdata = reinterpret_cast<unsigned char*>(remotePdata);
-      while(remoteZdata != pEnd)
+      while (remoteZdata != pEnd)
       {
         if (*remoteZdata < *localZdata)
         {
@@ -139,36 +132,33 @@ void vtkCompositeImagePair(vtkFloatArray *localZ,
         localZdata[i] = remoteZdata[i];
         for (j = 0; j < pixel_data_size; j++)
         {
-          localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
+          localPdata[i * pixel_data_size + j] = remotePdata[i * pixel_data_size + j];
         }
       }
     }
   }
 }
 
-
 #define vtkTCPow2(j) (1 << (j))
 
 static inline int vtkTCLog2(int j, int& exact)
 {
-  int counter=0;
+  int counter = 0;
   exact = 1;
-  while(j)
+  while (j)
   {
-    if ( ( j & 1 ) && (j >> 1) )
+    if ((j & 1) && (j >> 1))
     {
       exact = 0;
     }
     j = j >> 1;
     counter++;
   }
-  return counter-1;
+  return counter - 1;
 }
 
-void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
-                                        vtkFloatArray *zBuf,
-                                        vtkDataArray *pTmp,
-                                        vtkFloatArray *zTmp)
+void vtkTreeCompositer::CompositeBuffer(
+  vtkDataArray* pBuf, vtkFloatArray* zBuf, vtkDataArray* pTmp, vtkFloatArray* zTmp)
 {
   int myId = this->Controller->GetLocalProcessId();
   int numProcs = this->NumberOfProcesses;
@@ -177,17 +167,17 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
   int i, id;
   int numComp = pBuf->GetNumberOfComponents();
   int exactLog;
-  int logProcs = vtkTCLog2(numProcs,exactLog);
+  int logProcs = vtkTCLog2(numProcs, exactLog);
 
   // not a power of 2 -- need an additional level
-  if ( !exactLog )
+  if (!exactLog)
   {
     logProcs++;
   }
 
   totalPixels = zBuf->GetNumberOfTuples();
   zSize = totalPixels;
-  pSize = numComp*totalPixels;
+  pSize = numComp * totalPixels;
 
 #ifdef MPIPROALLOC
   vtkCommunicator::SetUseCopy(0);
@@ -196,10 +186,10 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
   {
     if ((myId % (int)vtkTCPow2(i)) == 0)
     { // Find participants
-      if ((myId % (int)vtkTCPow2(i+1)) < vtkTCPow2(i))
+      if ((myId % (int)vtkTCPow2(i + 1)) < vtkTCPow2(i))
       {
         // receivers
-        id = myId+vtkTCPow2(i);
+        id = myId + vtkTCPow2(i);
 
         // only send or receive if sender or receiver id is valid
         // (handles non-power of 2 cases)
@@ -208,15 +198,13 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
           this->Controller->Receive(zTmp->GetPointer(0), zSize, id, 99);
           if (pTmp->GetDataType() == VTK_UNSIGNED_CHAR)
           {
-            this->Controller->Receive(reinterpret_cast<unsigned char*>
-                                      (pTmp->GetVoidPointer(0)),
-                                      pSize, id, 99);
+            this->Controller->Receive(
+              reinterpret_cast<unsigned char*>(pTmp->GetVoidPointer(0)), pSize, id, 99);
           }
           else
           {
-            this->Controller->Receive(reinterpret_cast<float*>
-                                      (pTmp->GetVoidPointer(0)),
-                                      pSize, id, 99);
+            this->Controller->Receive(
+              reinterpret_cast<float*>(pTmp->GetVoidPointer(0)), pSize, id, 99);
           }
 
           // notice the result is stored as the local data
@@ -225,21 +213,19 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
       }
       else
       {
-        id = myId-vtkTCPow2(i);
+        id = myId - vtkTCPow2(i);
         if (id < numProcs)
         {
           this->Controller->Send(zBuf->GetPointer(0), zSize, id, 99);
           if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
           {
-            this->Controller->Send(reinterpret_cast<unsigned char*>
-                                   (pBuf->GetVoidPointer(0)),
-                                   pSize, id, 99);
+            this->Controller->Send(
+              reinterpret_cast<unsigned char*>(pBuf->GetVoidPointer(0)), pSize, id, 99);
           }
           else
           {
-            this->Controller->Send(reinterpret_cast<float*>
-                                   (pBuf->GetVoidPointer(0)),
-                                   pSize, id, 99);
+            this->Controller->Send(
+              reinterpret_cast<float*>(pBuf->GetVoidPointer(0)), pSize, id, 99);
           }
         }
       }
@@ -249,13 +235,9 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
 #ifdef MPIPROALLOC
   vtkCommunicator::SetUseCopy(1);
 #endif
-
 }
 
 void vtkTreeCompositer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-
-
-

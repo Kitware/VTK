@@ -36,8 +36,8 @@
 #include "vtkVector.h"
 
 #include "vtkParametricBoy.h"
-#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricTorus.h"
 
 #include <vtksys/CommandLineArguments.hxx>
 
@@ -49,26 +49,19 @@ public:
   BenchmarkTest() { ; }
   virtual ~BenchmarkTest() { ; }
 
-  virtual vtkIdType Build(vtkRenderer *, const vtkVector2i &)
-  {
-    return 0;
-  }
+  virtual vtkIdType Build(vtkRenderer*, const vtkVector2i&) { return 0; }
 };
 
 class SurfaceTest : public BenchmarkTest
 {
 public:
-  SurfaceTest()
-  {
-  }
+  SurfaceTest() {}
 
-  virtual ~SurfaceTest()
-  {
-  }
+  virtual ~SurfaceTest() {}
 
-  vtkIdType Build(vtkRenderer *renderer, const vtkVector2i &res) override
+  vtkIdType Build(vtkRenderer* renderer, const vtkVector2i& res) override
   {
-    //vtkVector2i res(20, 50);
+    // vtkVector2i res(20, 50);
     vtkNew<vtkParametricBoy> parametricShape;
     vtkNew<vtkParametricFunctionSource> parametricSource;
     parametricSource->SetParametricFunction(parametricShape);
@@ -90,14 +83,14 @@ public:
 vtkVector2i GenerateSequenceNumbers(int sequenceCount)
 {
   const int seqX[] = { 1, 2, 3, 5, 5, 5, 6, 10 };
-  const int seqY[] = { 1, 1, 1, 1, 2, 4, 5,  5 };
+  const int seqY[] = { 1, 1, 1, 1, 2, 4, 5, 5 };
   vtkVector2i val(1, 1);
   while (sequenceCount >= 8)
-    {
+  {
     val[0] *= 10;
     val[1] *= 10;
     sequenceCount -= 8;
-    }
+  }
   val[0] *= seqX[sequenceCount];
   val[1] *= seqY[sequenceCount];
   return val;
@@ -105,15 +98,13 @@ vtkVector2i GenerateSequenceNumbers(int sequenceCount)
 
 } // End namespace
 
-bool runTest(vtkRenderer *renderer, vtkTable *results, int seq, int row,
-             double timeout = 0.5)
+bool runTest(vtkRenderer* renderer, vtkTable* results, int seq, int row, double timeout = 0.5)
 {
   vtk::SurfaceTest surfaceTest;
-  vtkIdType triangles = surfaceTest.Build(renderer,
-                                          vtk::GenerateSequenceNumbers(seq));
+  vtkIdType triangles = surfaceTest.Build(renderer, vtk::GenerateSequenceNumbers(seq));
 
   double startTime = vtkTimerLog::GetUniversalTime();
-  vtkRenderWindow *window = renderer->GetRenderWindow();
+  vtkRenderWindow* window = renderer->GetRenderWindow();
   renderer->ResetCamera();
   window->Render();
 
@@ -124,13 +115,13 @@ bool runTest(vtkRenderer *renderer, vtkTable *results, int seq, int row,
 
   int frameCount = 50;
   for (int i = 0; i < frameCount; ++i)
-    {
+  {
     window->Render();
     renderer->GetActiveCamera()->Azimuth(3);
     renderer->GetActiveCamera()->Elevation(1);
-    }
-  double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime -
-                                firstFrameTime) / frameCount;
+  }
+  double subsequentFrameTime =
+    (vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) / frameCount;
 
   results->SetValue(row, 0, triangles);
   results->SetValue(row, 1, firstFrameTime);
@@ -138,12 +129,9 @@ bool runTest(vtkRenderer *renderer, vtkTable *results, int seq, int row,
   results->SetValue(row, 3, triangles / subsequentFrameTime * 1e-6);
   results->Modified();
 
-  cout << "First frame:\t" << firstFrameTime
-       << "\nAverage frame:\t" << subsequentFrameTime
-       << "\nTriangles (M):\t" << triangles * 1e-6
-       << "\nMtris/sec:\t" << triangles / subsequentFrameTime * 1e-6
-       << "\nRow:\t" << row
-       << endl;
+  cout << "First frame:\t" << firstFrameTime << "\nAverage frame:\t" << subsequentFrameTime
+       << "\nTriangles (M):\t" << triangles * 1e-6 << "\nMtris/sec:\t"
+       << triangles / subsequentFrameTime * 1e-6 << "\nRow:\t" << row << endl;
 
   return subsequentFrameTime <= timeout;
 }
@@ -151,36 +139,35 @@ bool runTest(vtkRenderer *renderer, vtkTable *results, int seq, int row,
 class Arguments
 {
 public:
-  Arguments(int argc, char *argv[]) : Start(0), End(16), Timeout(1.0),
-    FileName("results.csv"), DisplayHelp(false)
+  Arguments(int argc, char* argv[])
+    : Start(0)
+    , End(16)
+    , Timeout(1.0)
+    , FileName("results.csv")
+    , DisplayHelp(false)
   {
     typedef vtksys::CommandLineArguments arg;
     this->Args.Initialize(argc, argv);
-    this->Args.AddArgument("--start", arg::SPACE_ARGUMENT,
-                           &this->Start,
-                           "Start of the test sequence sizes");
-    this->Args.AddArgument("--end", arg::SPACE_ARGUMENT,
-                           &this->End,
-                           "End of the test sequence sizes");
-    this->Args.AddArgument("--timeout", arg::SPACE_ARGUMENT,
-                           &this->Timeout,
-                           "Maximum average frame time before test termination");
-    this->Args.AddArgument("--file", arg::SPACE_ARGUMENT,
-                           &this->FileName,
-                           "File to save results to");
-    this->Args.AddBooleanArgument("--help",
-                                  &this->DisplayHelp,
-                                  "Provide a listing of command line options");
+    this->Args.AddArgument(
+      "--start", arg::SPACE_ARGUMENT, &this->Start, "Start of the test sequence sizes");
+    this->Args.AddArgument(
+      "--end", arg::SPACE_ARGUMENT, &this->End, "End of the test sequence sizes");
+    this->Args.AddArgument("--timeout", arg::SPACE_ARGUMENT, &this->Timeout,
+      "Maximum average frame time before test termination");
+    this->Args.AddArgument(
+      "--file", arg::SPACE_ARGUMENT, &this->FileName, "File to save results to");
+    this->Args.AddBooleanArgument(
+      "--help", &this->DisplayHelp, "Provide a listing of command line options");
 
     if (!this->Args.Parse())
-      {
+    {
       cerr << "Problem parsing arguments" << endl;
-      }
+    }
 
     if (this->DisplayHelp)
-      {
+    {
       cout << "Usage" << endl << endl << this->Args.GetHelp() << endl;
-      }
+    }
   }
 
   vtksys::CommandLineArguments Args;
@@ -191,13 +178,13 @@ public:
   bool DisplayHelp;
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   Arguments args(argc, argv);
   if (args.DisplayHelp)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> window;
@@ -227,7 +214,7 @@ int main(int argc, char *argv[])
   chartView->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkChartXY> chart;
   chartView->GetScene()->AddItem(chart);
-  vtkPlot *plot = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* plot = chart->AddPlot(vtkChart::LINE);
   plot->SetInputData(results, 0, 3);
   plot = chart->AddPlot(vtkChart::LINE);
   plot->SetInputData(results, 0, 1);
@@ -246,22 +233,22 @@ int main(int argc, char *argv[])
   results->SetNumberOfRows(endSeq - startSeq + 1);
   int row = 0;
   for (int i = startSeq; i <= endSeq; ++i)
-    {
+  {
     cout << "Running sequence point " << i << endl;
     results->SetNumberOfRows(i - startSeq + 1);
     window->Render();
     renderer->RemoveAllViewProps();
     renderer->GetActiveCamera()->DeepCopy(refCamera);
     if (!runTest(renderer, results, i, row++, args.Timeout))
-      {
+    {
       break;
-      }
+    }
     if (results->GetNumberOfRows() > 1)
-      {
+    {
       chart->RecalculateBounds();
       chartView->Render();
-      }
     }
+  }
 
   vtkNew<vtkDelimitedTextWriter> writer;
   writer->SetInputData(results);

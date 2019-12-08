@@ -13,16 +13,16 @@
 
 =========================================================================*/
 #include "vtkSliderWidget.h"
-#include "vtkSliderRepresentation3D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSliderRepresentation3D.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkSliderWidget);
 
@@ -37,31 +37,27 @@ vtkSliderWidget::vtkSliderWidget()
   this->NumberOfAnimationSteps = 24;
 
   // Okay, define the events
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-                                          vtkWidgetEvent::Select,
-                                          this, vtkSliderWidget::SelectAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
-                                          vtkWidgetEvent::Move,
-                                          this, vtkSliderWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select, this, vtkSliderWidget::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkSliderWidget::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-                                          vtkWidgetEvent::EndSelect,
-                                          this, vtkSliderWidget::EndSelectAction);
+    vtkWidgetEvent::EndSelect, this, vtkSliderWidget::EndSelectAction);
 }
 
 //----------------------------------------------------------------------
 void vtkSliderWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkSliderRepresentation3D::New();
   }
 }
 
-
 //----------------------------------------------------------------------------------
-void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
+void vtkSliderWidget::SelectAction(vtkAbstractWidget* w)
 {
-  vtkSliderWidget *self = reinterpret_cast<vtkSliderWidget*>(w);
+  vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
 
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
@@ -69,7 +65,8 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
 
   // Okay, make sure that the pick is in the current renderer
   if (!self->CurrentRenderer ||
-      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
+    !self->CurrentRenderer->IsInViewport(
+      static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
   {
     self->WidgetState = vtkSliderWidget::Start;
     return;
@@ -79,14 +76,14 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   // starting point of the motion.
   self->WidgetRep->StartWidgetInteraction(eventPos);
   int interactionState = self->WidgetRep->GetInteractionState();
-  if ( interactionState == vtkSliderRepresentation::Outside )
+  if (interactionState == vtkSliderRepresentation::Outside)
   {
     return;
   }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
-  if ( interactionState == vtkSliderRepresentation::Slider )
+  if (interactionState == vtkSliderRepresentation::Slider)
   {
     self->WidgetState = vtkSliderWidget::Sliding;
   }
@@ -101,19 +98,18 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   self->Render();
 }
 
-
 //----------------------------------------------------------------------------------
-void vtkSliderWidget::MoveAction(vtkAbstractWidget *w)
+void vtkSliderWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkSliderWidget *self = reinterpret_cast<vtkSliderWidget*>(w);
+  vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
 
   // See whether we're active
-  if ( self->WidgetState == vtkSliderWidget::Start ||
-       self->WidgetState == vtkSliderWidget::Animating )
+  if (self->WidgetState == vtkSliderWidget::Start ||
+    self->WidgetState == vtkSliderWidget::Animating)
   {
     return;
   }
@@ -126,23 +122,22 @@ void vtkSliderWidget::MoveAction(vtkAbstractWidget *w)
 
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 }
 
-
 //----------------------------------------------------------------------------------
-void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkSliderWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkSliderWidget *self = reinterpret_cast<vtkSliderWidget*>(w);
+  vtkSliderWidget* self = reinterpret_cast<vtkSliderWidget*>(w);
 
-  if ( self->WidgetState == vtkSliderWidget::Start )
+  if (self->WidgetState == vtkSliderWidget::Start)
   {
     return;
   }
 
   // If animating we do it and return
-  if ( self->WidgetState == vtkSliderWidget::Animating )
+  if (self->WidgetState == vtkSliderWidget::Animating)
   {
     self->AnimateSlider(self->WidgetRep->GetInteractionState());
   }
@@ -157,78 +152,76 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   self->Render();
 }
-
 
 //----------------------------------------------------------------------------------
 void vtkSliderWidget::AnimateSlider(int selectionState)
 {
   // Get the representation and grab some information
-  vtkSliderRepresentation *sliderRep =
-    reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);
+  vtkSliderRepresentation* sliderRep = reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);
 
   // If the slider bead has been selected, then nothing happens
-  if ( selectionState == vtkSliderRepresentation::Outside ||
-       selectionState == vtkSliderRepresentation::Slider )
+  if (selectionState == vtkSliderRepresentation::Outside ||
+    selectionState == vtkSliderRepresentation::Slider)
   {
     return;
   }
 
   // Depending on animation mode, we'll jump to the pick point or
   // animate towards it.
-  double minValue=sliderRep->GetMinimumValue();
-  double maxValue=sliderRep->GetMaximumValue();
-  double pickedT=sliderRep->GetPickedT();
+  double minValue = sliderRep->GetMinimumValue();
+  double maxValue = sliderRep->GetMaximumValue();
+  double pickedT = sliderRep->GetPickedT();
 
-  if ( this->AnimationMode == vtkSliderWidget::Jump )
+  if (this->AnimationMode == vtkSliderWidget::Jump)
   {
-    if ( selectionState == vtkSliderRepresentation::Tube )
+    if (selectionState == vtkSliderRepresentation::Tube)
     {
-      sliderRep->SetValue(minValue + pickedT*(maxValue-minValue));
+      sliderRep->SetValue(minValue + pickedT * (maxValue - minValue));
     }
 
-    else if ( selectionState == vtkSliderRepresentation::LeftCap )
+    else if (selectionState == vtkSliderRepresentation::LeftCap)
     {
       sliderRep->SetValue(minValue);
     }
 
-    else if ( selectionState == vtkSliderRepresentation::RightCap )
+    else if (selectionState == vtkSliderRepresentation::RightCap)
     {
       sliderRep->SetValue(maxValue);
     }
     sliderRep->BuildRepresentation();
-    this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+    this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   }
 
-  else if ( this->AnimationMode == vtkSliderWidget::Animate )
+  else if (this->AnimationMode == vtkSliderWidget::Animate)
   {
-    double targetValue=minValue, originalValue=sliderRep->GetValue();
-    if ( selectionState == vtkSliderRepresentation::Tube )
+    double targetValue = minValue, originalValue = sliderRep->GetValue();
+    if (selectionState == vtkSliderRepresentation::Tube)
     {
-      targetValue = minValue + pickedT*(maxValue-minValue);
+      targetValue = minValue + pickedT * (maxValue - minValue);
     }
 
-    else if ( selectionState == vtkSliderRepresentation::LeftCap )
+    else if (selectionState == vtkSliderRepresentation::LeftCap)
     {
       targetValue = minValue;
     }
 
-    else if ( selectionState == vtkSliderRepresentation::RightCap )
+    else if (selectionState == vtkSliderRepresentation::RightCap)
     {
       targetValue = maxValue;
     }
 
     // Okay, animate the slider
     double value;
-    for (int i=0; i < this->NumberOfAnimationSteps; i++)
+    for (int i = 0; i < this->NumberOfAnimationSteps; i++)
     {
       value = originalValue +
-        (static_cast<double>(i+1)/this->NumberOfAnimationSteps)*(targetValue-originalValue);
+        (static_cast<double>(i + 1) / this->NumberOfAnimationSteps) * (targetValue - originalValue);
       sliderRep->SetValue(value);
       sliderRep->BuildRepresentation();
-      this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       this->Render();
     }
   }
@@ -236,15 +229,14 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
   this->WidgetState = vtkSliderWidget::Start;
 }
 
-
 //----------------------------------------------------------------------------------
 void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Animation Mode: ";
-  switch ( this->AnimationMode )
+  switch (this->AnimationMode)
   {
     case vtkSliderWidget::Jump:
       os << "Jump\n";
@@ -256,6 +248,5 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
       os << "AnimateOff\n";
   }
 
-  os << indent << "Number of Animation Steps: "
-     << this->NumberOfAnimationSteps << "\n";
+  os << indent << "Number of Animation Steps: " << this->NumberOfAnimationSteps << "\n";
 }

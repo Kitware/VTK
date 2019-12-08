@@ -23,7 +23,6 @@
 
 #include <sstream>
 
-
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
 {
@@ -33,22 +32,22 @@ vtkWriter::vtkWriter()
 
 vtkWriter::~vtkWriter() = default;
 
-void vtkWriter::SetInputData(vtkDataObject *input)
+void vtkWriter::SetInputData(vtkDataObject* input)
 {
   this->SetInputData(0, input);
 }
 
-void vtkWriter::SetInputData(int index, vtkDataObject *input)
+void vtkWriter::SetInputData(int index, vtkDataObject* input)
 {
   this->SetInputDataInternal(index, input);
 }
 
-vtkDataObject *vtkWriter::GetInput()
+vtkDataObject* vtkWriter::GetInput()
 {
   return this->GetInput(0);
 }
 
-vtkDataObject *vtkWriter::GetInput(int port)
+vtkDataObject* vtkWriter::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
   {
@@ -56,7 +55,6 @@ vtkDataObject *vtkWriter::GetInput(int port)
   }
   return this->GetExecutive()->GetInputData(port, 0);
 }
-
 
 // Write data to output. Method executes subclasses WriteData() method, as
 // well as StartMethod() and EndMethod() methods.
@@ -76,12 +74,11 @@ int vtkWriter::Write()
   return (this->GetErrorCode() == vtkErrorCode::NoError);
 }
 
-int vtkWriter::ProcessRequest(vtkInformation *request,
-                              vtkInformationVector **inputVector,
-                              vtkInformationVector *outputVector)
+vtkTypeBool vtkWriter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
@@ -89,25 +86,22 @@ int vtkWriter::ProcessRequest(vtkInformation *request,
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-int vtkWriter::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *)
+int vtkWriter::RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  vtkDataObject *input = this->GetInput();
+  vtkDataObject* input = this->GetInput();
 
   // make sure input is available
-  if ( !input )
+  if (!input)
   {
     vtkErrorMacro(<< "No input!");
     return 0;
   }
 
-  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
   this->WriteData();
-  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   this->WriteTime.Modified();
 
@@ -116,13 +110,12 @@ int vtkWriter::RequestData(
 
 void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }
 
 void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
 {
-  if ( !name || !resname )
+  if (!name || !resname)
   {
     return;
   }
@@ -131,12 +124,11 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
 
   char buffer[10];
 
-  while( name[cc] )
+  while (name[cc])
   {
     // Encode spaces and %'s (and most non-printable ascii characters)
     // The reader does not support spaces in strings.
-    if ( name[cc] < 33  || name[cc] > 126 ||
-         name[cc] == '\"' || name[cc] == '%' )
+    if (name[cc] < 33 || name[cc] > 126 || name[cc] == '\"' || name[cc] == '%')
     {
       snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
@@ -168,12 +160,11 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
 
   char buffer[10];
 
-  while( name[cc] )
+  while (name[cc])
   {
     // Encode spaces and %'s (and most non-printable ascii characters)
     // The reader does not support spaces in strings.
-    if ( name[cc] < 33  || name[cc] > 126 ||
-         name[cc] == '\"' || name[cc] == '%' )
+    if (name[cc] < 33 || name[cc] > 126 || name[cc] == '\"' || name[cc] == '%')
     {
       snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
@@ -193,5 +184,3 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     cc++;
   }
 }
-
-

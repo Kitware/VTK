@@ -25,14 +25,14 @@
  * This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToGraph to
  * provide a convenience class for generating graphs from databases.
  * Also this class can be easily wrapped and used within ParaView / OverView.
-*/
+ */
 
 #ifndef vtkSQLDatabaseGraphSource_h
 #define vtkSQLDatabaseGraphSource_h
 
+#include "vtkGraphAlgorithm.h"
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"
-#include "vtkGraphAlgorithm.h"
 
 class vtkEventForwarderCommand;
 
@@ -91,15 +91,9 @@ protected:
   vtkSQLDatabaseGraphSource();
   ~vtkSQLDatabaseGraphSource();
 
-  int RequestDataObject(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*);
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   bool GenerateEdgePedigreeIds;
   char* EdgePedigreeIdArrayName;
@@ -112,14 +106,12 @@ private:
    * This intercepts events from the graph layout class
    * and re-emits them as if they came from this class.
    */
-  vtkEventForwarderCommand *EventForwarder;
+  vtkEventForwarderCommand* EventForwarder;
 
   class implementation;
   implementation* const Implementation;
 
   bool Directed;
-
-
 };
 
 #endif

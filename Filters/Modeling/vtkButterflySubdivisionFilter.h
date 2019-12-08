@@ -40,7 +40,7 @@
  *
  * @sa
  * vtkInterpolatingSubdivisionFilter vtkLinearSubdivisionFilter
-*/
+ */
 
 #ifndef vtkButterflySubdivisionFilter_h
 #define vtkButterflySubdivisionFilter_h
@@ -52,30 +52,31 @@ class vtkCellArray;
 class vtkIdList;
 class vtkIntArray;
 
-class VTKFILTERSMODELING_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
+class VTKFILTERSMODELING_EXPORT vtkButterflySubdivisionFilter
+  : public vtkInterpolatingSubdivisionFilter
 {
 public:
   //@{
   /**
    * Construct object with NumberOfSubdivisions set to 1.
    */
-  static vtkButterflySubdivisionFilter *New();
-  vtkTypeMacro(vtkButterflySubdivisionFilter,vtkInterpolatingSubdivisionFilter);
+  static vtkButterflySubdivisionFilter* New();
+  vtkTypeMacro(vtkButterflySubdivisionFilter, vtkInterpolatingSubdivisionFilter);
   //@}
 
 protected:
-  vtkButterflySubdivisionFilter () {}
-  ~vtkButterflySubdivisionFilter () override {}
+  vtkButterflySubdivisionFilter() {}
+  ~vtkButterflySubdivisionFilter() override {}
 
 private:
-  int GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
-                                vtkPoints *outputPts, vtkPointData *outputPD) override;
-  void GenerateButterflyStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                                vtkIdList *stencilIds, double *weights);
-  void GenerateLoopStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                           vtkIdList *stencilIds, double *weights);
-  void GenerateBoundaryStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                               vtkIdList *stencilIds, double *weights);
+  int GenerateSubdivisionPoints(vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts,
+    vtkPointData* outputPD) override;
+  void GenerateButterflyStencil(
+    vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights);
+  void GenerateLoopStencil(
+    vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights);
+  void GenerateBoundaryStencil(
+    vtkIdType p1, vtkIdType p2, vtkPolyData* polys, vtkIdList* stencilIds, double* weights);
 
 private:
   vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) = delete;
@@ -83,6 +84,5 @@ private:
 };
 
 #endif
-
 
 // VTK-HeaderTest-Exclude: vtkButterflySubdivisionFilter.h

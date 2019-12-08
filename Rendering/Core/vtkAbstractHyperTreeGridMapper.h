@@ -28,13 +28,13 @@
  * This worked was based on an idea of Guenole Harel and Jacques-Bernard Lekien
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkAbstractHyperTreeGridMapper_h
 #define vtkAbstractHyperTreeGridMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkDataArray;
@@ -46,17 +46,19 @@ class vtkUniformHyperTreeGrid;
 class VTKRENDERINGCORE_EXPORT vtkAbstractHyperTreeGridMapper : public vtkAbstractVolumeMapper
 {
 public:
-  vtkTypeMacro(vtkAbstractHyperTreeGridMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkAbstractHyperTreeGridMapper, vtkAbstractVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the input data or connection
    */
-  virtual void SetInputData( vtkUniformHyperTreeGrid* );
-  void SetInputConnection ( int, vtkAlgorithmOutput* ) override;
-  void SetInputConnection ( vtkAlgorithmOutput* input ) override
-    { this->SetInputConnection( 0, input ); };
+  virtual void SetInputData(vtkUniformHyperTreeGrid*);
+  void SetInputConnection(int, vtkAlgorithmOutput*) override;
+  void SetInputConnection(vtkAlgorithmOutput* input) override
+  {
+    this->SetInputConnection(0, input);
+  }
   vtkUniformHyperTreeGrid* GetInput();
   //@}
 
@@ -64,21 +66,21 @@ public:
   /**
    * Set/Get the renderer attached to this HyperTreeGrid mapper
    */
-  void SetRenderer( vtkRenderer* );
+  void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
   //@}
 
   /**
    * Set the scale factor
    */
-  vtkSetMacro(Scale,double);
+  vtkSetMacro(Scale, double);
 
   //@{
   /**
    * Set/Get the color map attached to this HyperTreeGrid mapper
    * A linear lookup table is provided by default
    */
-  void SetColorMap( vtkScalarsToColors* );
+  void SetColorMap(vtkScalarsToColors*);
   vtkGetObjectMacro(ColorMap, vtkScalarsToColors);
   //@}
 
@@ -89,15 +91,15 @@ public:
    * Has no effect when dimension > 2
    * Used only when ColorMap is a lookup table instance
    */
-  void SetScalarRange( double, double );
-  void SetScalarRange( double* );
+  void SetScalarRange(double, double);
+  void SetScalarRange(double*);
   vtkGetVectorMacro(ScalarRange, double, 2);
   //@}
 
   /**
    * Get image size
    */
-  vtkGetVectorMacro( ViewportSize, int , 2 );
+  vtkGetVectorMacro(ViewportSize, int, 2);
 
   /**
    * Get the mtime of this object.
@@ -110,14 +112,14 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources( vtkWindow * ) override {};
+  void ReleaseGraphicsResources(vtkWindow*) override {}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render( vtkRenderer*, vtkVolume* ) override =0;
+  void Render(vtkRenderer*, vtkVolume*) override = 0;
 
 protected:
   vtkAbstractHyperTreeGridMapper();
@@ -126,7 +128,7 @@ protected:
   /**
    * Restrict input type to vtkUniformHyperTreeGrid instances
    */
-  int FillInputPortInformation( int, vtkInformation* ) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   /**
    * Reference to input scalars
@@ -235,6 +237,5 @@ private:
   vtkAbstractHyperTreeGridMapper(const vtkAbstractHyperTreeGridMapper&) = delete;
   void operator=(const vtkAbstractHyperTreeGridMapper&) = delete;
 };
-
 
 #endif

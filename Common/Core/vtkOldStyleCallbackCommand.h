@@ -29,51 +29,44 @@
  *
  * @sa
  * vtkCommand vtkCallbackCommand
-*/
+ */
 
 #ifndef vtkOldStyleCallbackCommand_h
 #define vtkOldStyleCallbackCommand_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 // the old style void fund(void *) callbacks
 class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
 public:
-  vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);
+  vtkTypeMacro(vtkOldStyleCallbackCommand, vtkCommand);
 
-  static vtkOldStyleCallbackCommand *New()
-    {return new vtkOldStyleCallbackCommand;};
+  static vtkOldStyleCallbackCommand* New() { return new vtkOldStyleCallbackCommand; }
 
   /**
    * Satisfy the superclass API for callbacks.
    */
-  void Execute(vtkObject *invoker,
-               unsigned long eid,
-               void *calldata) override;
+  void Execute(vtkObject* invoker, unsigned long eid, void* calldata) override;
 
   //@{
   /**
    * Methods to set and get client and callback information.
    */
-  void SetClientData(void *cd)
-    {this->ClientData = cd;};
-  void SetCallback(void (*f)(void *clientdata))
-    {this->Callback = f;};
-  void SetClientDataDeleteCallback(void (*f)(void *))
-    {this->ClientDataDeleteCallback = f;};
+  void SetClientData(void* cd) { this->ClientData = cd; }
+  void SetCallback(void (*f)(void* clientdata)) { this->Callback = f; }
+  void SetClientDataDeleteCallback(void (*f)(void*)) { this->ClientDataDeleteCallback = f; }
   //@}
 
-  void *ClientData;
-  void (*Callback)(void *);
-  void (*ClientDataDeleteCallback)(void *);
+  void* ClientData;
+  void (*Callback)(void*);
+  void (*ClientDataDeleteCallback)(void*);
 
 protected:
   vtkOldStyleCallbackCommand();
   ~vtkOldStyleCallbackCommand() override;
 };
-
 
 #endif /* vtkOldStyleCallbackCommand_h */
 

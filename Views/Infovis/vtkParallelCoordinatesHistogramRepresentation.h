@@ -50,13 +50,13 @@
  *
  * @par Thanks:
  *  Developed by David Feng at Sandia National Laboratories
-*/
+ */
 
 #ifndef vtkParallelCoordinatesHistogramRepresentation_h
 #define vtkParallelCoordinatesHistogramRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkParallelCoordinatesRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkComputeHistogram2DOutliers;
 class vtkPairwiseExtractHistogram2D;
@@ -64,7 +64,8 @@ class vtkExtractHistogram2D;
 class vtkInformationVector;
 class vtkLookupTable;
 
-class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesHistogramRepresentation : public vtkParallelCoordinatesRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesHistogramRepresentation
+  : public vtkParallelCoordinatesRepresentation
 {
 public:
   static vtkParallelCoordinatesHistogramRepresentation* New();
@@ -81,8 +82,8 @@ public:
    * Whether to use the histogram rendering mode or the superclass's line rendering mode
    */
   virtual void SetUseHistograms(vtkTypeBool);
-  vtkGetMacro(UseHistograms,vtkTypeBool);
-  vtkBooleanMacro(UseHistograms,vtkTypeBool);
+  vtkGetMacro(UseHistograms, vtkTypeBool);
+  vtkBooleanMacro(UseHistograms, vtkTypeBool);
   //@}
 
   //@{
@@ -90,25 +91,25 @@ public:
    * Whether to compute and show outlier lines
    */
   virtual void SetShowOutliers(vtkTypeBool);
-  vtkGetMacro(ShowOutliers,vtkTypeBool);
-  vtkBooleanMacro(ShowOutliers,vtkTypeBool);
+  vtkGetMacro(ShowOutliers, vtkTypeBool);
+  vtkBooleanMacro(ShowOutliers, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Control over the range of the lookup table used to draw the histogram quads.
    */
-  vtkSetVector2Macro(HistogramLookupTableRange,double);
-  vtkGetVector2Macro(HistogramLookupTableRange,double);
+  vtkSetVector2Macro(HistogramLookupTableRange, double);
+  vtkGetVector2Macro(HistogramLookupTableRange, double);
   //@}
 
   //@{
   /**
    * The number of histogram bins on either side of each pair of axes.
    */
-  void SetNumberOfHistogramBins(int,int);
+  void SetNumberOfHistogramBins(int, int);
   void SetNumberOfHistogramBins(int*);
-  vtkGetVector2Macro(NumberOfHistogramBins,int);
+  vtkGetVector2Macro(NumberOfHistogramBins, int);
   //@}
 
   //@{
@@ -116,7 +117,7 @@ public:
    * Target maximum number of outliers to be drawn, although not guaranteed.
    */
   void SetPreferredNumberOfOutliers(int);
-  vtkGetMacro(PreferredNumberOfOutliers,int);
+  vtkGetMacro(PreferredNumberOfOutliers, int);
   //@}
 
   /**
@@ -135,10 +136,7 @@ protected:
   vtkParallelCoordinatesHistogramRepresentation();
   ~vtkParallelCoordinatesHistogramRepresentation() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool AddToView(vtkView* view) override;
 
@@ -192,7 +190,8 @@ protected:
   /**
    * Draw a selection node referencing the row ids of a table into a poly data object.
    */
-  int PlaceSelection(vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode) override;
+  int PlaceSelection(
+    vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode) override;
 
   /**
    * Take the input 2D histogram images and draw one quad for each bin
@@ -226,7 +225,8 @@ protected:
   virtual vtkTable* GetOutlierData();
 
 private:
-  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) = delete;
+  vtkParallelCoordinatesHistogramRepresentation(
+    const vtkParallelCoordinatesHistogramRepresentation&) = delete;
   void operator=(const vtkParallelCoordinatesHistogramRepresentation&) = delete;
 };
 

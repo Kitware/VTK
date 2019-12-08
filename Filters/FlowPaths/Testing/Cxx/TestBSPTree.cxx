@@ -19,43 +19,41 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkCamera.h"
 #include "vtkActor.h"
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkDataSetMapper.h"
 #include "vtkGlyph3D.h"
 #include "vtkLineSource.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkDataSetMapper.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkLookupTable.h"
-#include "vtkProperty.h"
-#include "vtkPointSource.h"
-#include "vtkModifiedBSPTree.h"
-#include "vtkBoundingBox.h"
 #include "vtkMath.h"
+#include "vtkModifiedBSPTree.h"
+#include "vtkPointData.h"
+#include "vtkPointSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 //
+#include "vtkExtractSelection.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSelectionSource.h"
-#include "vtkExtractSelection.h"
 
 //#define TESTING_LOOP
 
 int TestBSPTree(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renWin->AddRenderer(renderer);
@@ -63,7 +61,8 @@ int TestBSPTree(int argc, char* argv[])
 
   vtkIdType maxI = 0;
   int bestSeed = 0;
-  for (int s=931; s<=931; s++) {
+  for (int s = 931; s <= 931; s++)
+  {
     renderer->RemoveAllViewProps();
 
     //
@@ -79,7 +78,7 @@ int TestBSPTree(int argc, char* argv[])
     //
     vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
     sphere->SetRadius(0.0125);
-    sphere->SetCenter(0.0,0.0,0.0);
+    sphere->SetCenter(0.0, 0.0, 0.0);
     sphere->SetThetaResolution(16);
     sphere->SetPhiResolution(16);
 
@@ -87,7 +86,7 @@ int TestBSPTree(int argc, char* argv[])
     // Glyph many small spheres over point cloud
     //
     vtkSmartPointer<vtkGlyph3D> glyph = vtkSmartPointer<vtkGlyph3D>::New();
-    glyph->SetInputConnection(0,points->GetOutputPort(0));
+    glyph->SetInputConnection(0, points->GetOutputPort(0));
     glyph->SetSourceConnection(sphere->GetOutputPort(0));
     glyph->SetScaling(0);
     glyph->Update();
@@ -95,13 +94,12 @@ int TestBSPTree(int argc, char* argv[])
     double bounds[6];
     glyph->GetOutput()->GetBounds(bounds);
     vtkBoundingBox box(bounds);
-    double tol = box.GetDiagonalLength()/1E6;
+    double tol = box.GetDiagonalLength() / 1E6;
 
     //
     // Intersect Ray with BSP tree full of spheres
     //
-    vtkSmartPointer<vtkModifiedBSPTree> bspTree =
-      vtkSmartPointer<vtkModifiedBSPTree>::New();
+    vtkSmartPointer<vtkModifiedBSPTree> bspTree = vtkSmartPointer<vtkModifiedBSPTree>::New();
     bspTree->SetDataSet(glyph->GetOutput(0));
     bspTree->SetMaxLevel(12);
     bspTree->SetNumberOfCellsPerNode(16);
@@ -109,16 +107,15 @@ int TestBSPTree(int argc, char* argv[])
 
     vtkSmartPointer<vtkPoints> verts = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
-    double p1[3] = {-0.1, -0.1, -0.1} , p2[3] = {0.1, 0.1, 0.1};
+    double p1[3] = { -0.1, -0.1, -0.1 }, p2[3] = { 0.1, 0.1, 0.1 };
     bspTree->IntersectWithLine(p1, p2, tol, verts, cellIds);
 
     vtkSmartPointer<vtkPolyData> intersections = vtkSmartPointer<vtkPolyData>::New();
-    vtkSmartPointer<vtkCellArray>     vertices = vtkSmartPointer<vtkCellArray>::New();
+    vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
     vtkIdType n = verts->GetNumberOfPoints();
-    vtkIdType *cells = vertices->WritePointer(0, n*2);
-    for (int i=0; i<n; i++) {
-      cells[i*2]   = 1;
-      cells[i*2+1] = i;
+    for (vtkIdType i = 0; i < n; i++)
+    {
+      vertices->InsertNextCell(1, &i);
     }
     intersections->SetPoints(verts);
     intersections->SetVerts(vertices);
@@ -126,10 +123,11 @@ int TestBSPTree(int argc, char* argv[])
     std::cout << "Seed = " << s << " Number of intersections is " << n << std::endl;
 
     vtkSmartPointer<vtkSelectionSource> selection = vtkSmartPointer<vtkSelectionSource>::New();
-    vtkSmartPointer<vtkExtractSelection>  extract = vtkSmartPointer<vtkExtractSelection>::New();
+    vtkSmartPointer<vtkExtractSelection> extract = vtkSmartPointer<vtkExtractSelection>::New();
     selection->SetContentType(vtkSelectionNode::INDICES);
     selection->SetFieldType(vtkSelectionNode::CELL);
-    for (int i=0; i<cellIds->GetNumberOfIds(); i++) {
+    for (int i = 0; i < cellIds->GetNumberOfIds(); i++)
+    {
       std::cout << cellIds->GetId(i) << ",";
       selection->AddID(-1, cellIds->GetId(i));
     }
@@ -139,7 +137,8 @@ int TestBSPTree(int argc, char* argv[])
     extract->SetSelectionConnection(selection->GetOutputPort());
     extract->Update();
 
-    if (n>maxI) {
+    if (n > maxI)
+    {
       maxI = n;
       bestSeed = s;
     }
@@ -149,21 +148,19 @@ int TestBSPTree(int argc, char* argv[])
     //
     // Render cloud of target spheres
     //
-    vtkSmartPointer<vtkPolyDataMapper> smapper =
-      vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkPolyDataMapper> smapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     smapper->SetInputConnection(glyph->GetOutputPort(0));
 
     vtkSmartPointer<vtkProperty> sproperty = vtkSmartPointer<vtkProperty>::New();
     sproperty->SetColor(1.0, 1.0, 1.0);
-//  sproperty->SetOpacity(0.25);
+    //  sproperty->SetOpacity(0.25);
     sproperty->SetAmbient(0.0);
     sproperty->SetBackfaceCulling(1);
     sproperty->SetFrontfaceCulling(0);
     sproperty->SetRepresentationToPoints();
     sproperty->SetInterpolationToFlat();
 
-    vtkSmartPointer<vtkActor> sactor =
-      vtkSmartPointer<vtkActor>::New();
+    vtkSmartPointer<vtkActor> sactor = vtkSmartPointer<vtkActor>::New();
     sactor->SetMapper(smapper);
     sactor->SetProperty(sproperty);
     renderer->AddActor(sactor);
@@ -172,14 +169,13 @@ int TestBSPTree(int argc, char* argv[])
     // Render Intersection points
     //
     vtkSmartPointer<vtkGlyph3D> iglyph = vtkSmartPointer<vtkGlyph3D>::New();
-    iglyph->SetInputData(0,intersections);
+    iglyph->SetInputData(0, intersections);
     iglyph->SetSourceConnection(sphere->GetOutputPort(0));
     iglyph->SetScaling(1);
     iglyph->SetScaleFactor(0.05);
     iglyph->Update();
 
-    vtkSmartPointer<vtkPolyDataMapper> imapper =
-      vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkPolyDataMapper> imapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     imapper->SetInputConnection(iglyph->GetOutputPort(0));
 
     vtkSmartPointer<vtkProperty> iproperty = vtkSmartPointer<vtkProperty>::New();
@@ -230,22 +226,21 @@ int TestBSPTree(int argc, char* argv[])
     //
     // Standard testing code.
     //
-    renWin->SetSize(300,300);
+    renWin->SetSize(300, 300);
     renWin->SetMultiSamples(0);
     renWin->Render();
     renderer->GetActiveCamera()->SetPosition(0.0, 0.15, 0.0);
     renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
     renderer->GetActiveCamera()->SetViewUp(0.0, 0.0, 1.0);
-    renderer->SetBackground(0.0,0.0,0.0);
+    renderer->SetBackground(0.0, 0.0, 0.0);
     renWin->Render();
     renderer->ResetCameraClippingRange();
     renWin->Render();
 #endif
-
   }
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

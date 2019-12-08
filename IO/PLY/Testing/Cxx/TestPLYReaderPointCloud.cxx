@@ -19,39 +19,36 @@
 #include "vtkPLYReader.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkSphereSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkSphereSource.h>
 
 #include "vtkActor.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-int TestPLYReaderPointCloud( int argc, char *argv[] )
+int TestPLYReaderPointCloud(int argc, char* argv[])
 {
   // Read file name.
   const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/PointCloud.ply");
 
   // Create the reader.
-  vtkSmartPointer<vtkPLYReader> reader =
-    vtkSmartPointer<vtkPLYReader>::New();
+  vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   // Create a mapper.
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->ScalarVisibilityOn();
 
   // Create the actor.
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Guess at a decent radius
@@ -61,35 +58,29 @@ int TestPLYReaderPointCloud( int argc, char *argv[] )
   double range[3];
   for (int i = 0; i < 3; ++i)
   {
-    range[i] = bounds[2*i + 1] - bounds[2*i];
+    range[i] = bounds[2 * i + 1] - bounds[2 * i];
   }
   double radius = range[0] * .05;
 
-  vtkSmartPointer<vtkSphereSource> sphereSource =
-    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
   sphereSource->SetRadius(radius);
 
-  vtkSmartPointer<vtkGlyph3D> glyph3D =
-    vtkSmartPointer<vtkGlyph3D>::New();
+  vtkSmartPointer<vtkGlyph3D> glyph3D = vtkSmartPointer<vtkGlyph3D>::New();
   glyph3D->SetInputConnection(reader->GetOutputPort());
   glyph3D->SetSourceConnection(sphereSource->GetOutputPort());
   glyph3D->ScalingOff();
   glyph3D->SetColorModeToColorByScalar();
   glyph3D->Update();
 
-  vtkSmartPointer<vtkPolyDataMapper> glyph3DMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> glyph3DMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   glyph3DMapper->SetInputConnection(glyph3D->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> glyph3DActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> glyph3DActor = vtkSmartPointer<vtkActor>::New();
   glyph3DActor->SetMapper(glyph3DMapper);
 
   // Basic visualization.
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(ren);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -98,14 +89,14 @@ int TestPLYReaderPointCloud( int argc, char *argv[] )
   ren->AddActor(actor);
   ren->AddActor(glyph3DActor);
   ren->SetBackground(.4, .5, .7);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

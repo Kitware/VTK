@@ -27,23 +27,21 @@
  * with objects other than vtkImplicitFunction.
  * @sa
  * vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
-*/
+ */
 
 #ifndef vtkImageStencilSource_h
 #define vtkImageStencilSource_h
 
-
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageStencilAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkImageStencilData;
 class vtkImageData;
 
-class VTKIMAGINGCORE_EXPORT vtkImageStencilSource :
-  public vtkImageStencilAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageStencilSource : public vtkImageStencilAlgorithm
 {
 public:
-  static vtkImageStencilSource *New();
+  static vtkImageStencilSource* New();
   vtkTypeMacro(vtkImageStencilSource, vtkImageStencilAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -99,10 +97,9 @@ protected:
   vtkImageStencilSource();
   ~vtkImageStencilSource() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkImageData *InformationInput;
+  vtkImageData* InformationInput;
 
   int OutputWholeExtent[6];
   double OutputOrigin[3];
@@ -114,4 +111,3 @@ private:
 };
 
 #endif
-

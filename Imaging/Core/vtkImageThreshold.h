@@ -19,11 +19,10 @@
  * vtkImageThreshold can do binary or continuous thresholding for lower, upper
  * or a range of data.  The output data type may be different than the
  * output, but defaults to the same type.
-*/
+ */
 
 #ifndef vtkImageThreshold_h
 #define vtkImageThreshold_h
-
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -31,8 +30,8 @@
 class VTKIMAGINGCORE_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageThreshold *New();
-  vtkTypeMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
+  static vtkImageThreshold* New();
+  vtkTypeMacro(vtkImageThreshold, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -98,28 +97,17 @@ public:
    */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
-  void SetOutputScalarTypeToDouble()
-    {this->SetOutputScalarType(VTK_DOUBLE);}
-  void SetOutputScalarTypeToFloat()
-    {this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToLong()
-    {this->SetOutputScalarType(VTK_LONG);}
-  void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
-  void SetOutputScalarTypeToInt()
-    {this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToUnsignedInt()
-    {this->SetOutputScalarType(VTK_UNSIGNED_INT);}
-  void SetOutputScalarTypeToShort()
-    {this->SetOutputScalarType(VTK_SHORT);}
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
-  void SetOutputScalarTypeToChar()
-    {this->SetOutputScalarType(VTK_CHAR);}
-  void SetOutputScalarTypeToSignedChar()
-    {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
-  void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToLong() { this->SetOutputScalarType(VTK_LONG); }
+  void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
+  void SetOutputScalarTypeToInt() { this->SetOutputScalarType(VTK_INT); }
+  void SetOutputScalarTypeToUnsignedInt() { this->SetOutputScalarType(VTK_UNSIGNED_INT); }
+  void SetOutputScalarTypeToShort() { this->SetOutputScalarType(VTK_SHORT); }
+  void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
+  void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
+  void SetOutputScalarTypeToSignedChar() { this->SetOutputScalarType(VTK_SIGNED_CHAR); }
+  void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
   //@}
 
 protected:
@@ -135,13 +123,11 @@ protected:
 
   int OutputScalarType;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
 
 private:
   vtkImageThreshold(const vtkImageThreshold&) = delete;
@@ -149,6 +135,3 @@ private:
 };
 
 #endif
-
-
-

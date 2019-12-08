@@ -33,6 +33,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestHedgeHog.cxx,NO_VALID
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
+  TestImplicitProjectOnPlaneDistance.cxx
   TestMaskPoints.cxx,NO_VALID
   TestNamedComponents.cxx,NO_VALID
   TestPointDataToCellData.cxx,NO_VALID

@@ -55,13 +55,13 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkSobelGradientMagnitudePass_h
 #define vtkSobelGradientMagnitudePass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
@@ -69,28 +69,27 @@ class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 
-
 class VTKRENDERINGOPENGL2_EXPORT vtkSobelGradientMagnitudePass : public vtkImageProcessingPass
 {
 public:
-  static vtkSobelGradientMagnitudePass *New();
-  vtkTypeMacro(vtkSobelGradientMagnitudePass,vtkImageProcessingPass);
+  static vtkSobelGradientMagnitudePass* New();
+  vtkTypeMacro(vtkSobelGradientMagnitudePass, vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -104,16 +103,16 @@ public:
   /**
    * Graphics resources.
    */
-  vtkOpenGLFramebufferObject *FrameBufferObject;
-  vtkTextureObject *Pass1; // render target for the scene
-  vtkTextureObject *Gx1; // render target 0 for the first shader
-  vtkTextureObject *Gy1; // render target 1 for the first shader
+  vtkOpenGLFramebufferObject* FrameBufferObject;
+  vtkTextureObject* Pass1; // render target for the scene
+  vtkTextureObject* Gx1;   // render target 0 for the first shader
+  vtkTextureObject* Gy1;   // render target 1 for the first shader
 
   // Structures for the various cell types we render.
-  vtkOpenGLHelper *Program1; // shader to compute Gx1 and Gy1
-  vtkOpenGLHelper *Program2; // shader to compute |G| from Gx1 and Gy1
+  vtkOpenGLHelper* Program1; // shader to compute Gx1 and Gy1
+  vtkOpenGLHelper* Program2; // shader to compute |G| from Gx1 and Gy1
 
- private:
+private:
   vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&) = delete;
   void operator=(const vtkSobelGradientMagnitudePass&) = delete;
 };

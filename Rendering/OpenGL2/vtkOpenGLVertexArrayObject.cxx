@@ -15,8 +15,8 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkShaderProgram.h"
 
@@ -25,7 +25,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkOpenGLVertexArrayObject)
+vtkStandardNewMacro(vtkOpenGLVertexArrayObject);
 
 namespace
 {
@@ -63,7 +63,7 @@ inline GLenum convertTypeToGL(int type)
 struct VertexAttributes
 {
   GLint Index;
-  GLint  Size;
+  GLint Size;
   GLenum Type;
   GLboolean Normalize;
   GLsizei Stride;
@@ -73,7 +73,6 @@ struct VertexAttributes
 };
 
 } // end anonymous
-
 
 class vtkOpenGLVertexArrayObject::Private
 {
@@ -129,11 +128,11 @@ public:
   bool Supported;
   bool ForceEmulation;
 
-  typedef std::map< GLuint, std::vector<VertexAttributes> > AttributeMap;
+  typedef std::map<GLuint, std::vector<VertexAttributes> > AttributeMap;
   AttributeMap Attributes;
 };
 
-#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
 
 vtkOpenGLVertexArrayObject::vtkOpenGLVertexArrayObject()
 {
@@ -164,8 +163,7 @@ void vtkOpenGLVertexArrayObject::Bind()
   else if (this->Internal->IsReady())
   {
     Private::AttributeMap::const_iterator it;
-    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end();
-         ++it)
+    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end(); ++it)
     {
       std::vector<VertexAttributes>::const_iterator attrIt;
       glBindBuffer(GL_ARRAY_BUFFER, it->first);
@@ -174,18 +172,17 @@ void vtkOpenGLVertexArrayObject::Bind()
         int matrixCount = attrIt->IsMatrix ? attrIt->Size : 1;
         for (int i = 0; i < matrixCount; ++i)
         {
-          glEnableVertexAttribArray(attrIt->Index+i);
-          glVertexAttribPointer(attrIt->Index+i, attrIt->Size, attrIt->Type,
-                                attrIt->Normalize, attrIt->Stride,
-                                BUFFER_OFFSET(attrIt->Offset + attrIt->Stride*i/attrIt->Size));
+          glEnableVertexAttribArray(attrIt->Index + i);
+          glVertexAttribPointer(attrIt->Index + i, attrIt->Size, attrIt->Type, attrIt->Normalize,
+            attrIt->Stride, BUFFER_OFFSET(attrIt->Offset + attrIt->Stride * i / attrIt->Size));
           if (attrIt->Divisor > 0)
           {
 #ifdef GL_ES_VERSION_3_0
-            glVertexAttribDivisor(attrIt->Index+i, 1);
+            glVertexAttribDivisor(attrIt->Index + i, 1);
 #else
             if (GLEW_ARB_instanced_arrays)
             {
-              glVertexAttribDivisorARB(attrIt->Index+i, 1);
+              glVertexAttribDivisorARB(attrIt->Index + i, 1);
             }
 #endif
           }
@@ -205,8 +202,7 @@ void vtkOpenGLVertexArrayObject::Release()
   else if (this->Internal->IsReady())
   {
     Private::AttributeMap::const_iterator it;
-    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end();
-         ++it)
+    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end(); ++it)
     {
       std::vector<VertexAttributes>::const_iterator attrIt;
       for (attrIt = it->second.begin(); attrIt != it->second.end(); ++attrIt)
@@ -217,15 +213,15 @@ void vtkOpenGLVertexArrayObject::Release()
           if (attrIt->Divisor > 0)
           {
 #ifdef GL_ES_VERSION_3_0
-            glVertexAttribDivisor(attrIt->Index+i, 0);
+            glVertexAttribDivisor(attrIt->Index + i, 0);
 #else
             if (GLEW_ARB_instanced_arrays)
             {
-              glVertexAttribDivisorARB(attrIt->Index+i, 0);
+              glVertexAttribDivisorARB(attrIt->Index + i, 0);
             }
 #endif
           }
-          glDisableVertexAttribArray(attrIt->Index+i);
+          glDisableVertexAttribArray(attrIt->Index + i);
         }
       }
     }
@@ -237,8 +233,7 @@ void vtkOpenGLVertexArrayObject::ShaderProgramChanged()
   this->Release();
 
   Private::AttributeMap::iterator it;
-  for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end();
-       ++it)
+  for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end(); ++it)
   {
     it->second.clear();
   }
@@ -253,29 +248,18 @@ void vtkOpenGLVertexArrayObject::ReleaseGraphicsResources()
   this->Internal->ReleaseGraphicsResources();
 }
 
-bool vtkOpenGLVertexArrayObject::AddAttributeArray(
-  vtkShaderProgram *program,
-  vtkOpenGLVertexBufferObject *buffer,
-  const std::string &name,
-  int offset, bool normalize)
+bool vtkOpenGLVertexArrayObject::AddAttributeArray(vtkShaderProgram* program,
+  vtkOpenGLVertexBufferObject* buffer, const std::string& name, int offset, bool normalize)
 {
-  return this->AddAttributeArrayWithDivisor(
-    program, buffer, name, offset,
-    buffer->GetStride(),
-    buffer->GetDataType(),
-    buffer->GetNumberOfComponents(),
-    normalize, 0, false);
+  return this->AddAttributeArrayWithDivisor(program, buffer, name, offset, buffer->GetStride(),
+    buffer->GetDataType(), buffer->GetNumberOfComponents(), normalize, 0, false);
 }
 
-bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
-                                          vtkOpenGLBufferObject *buffer,
-                                          const std::string &name,
-                                          int offset, size_t stride,
-                                          int elementType, int elementTupleSize,
-                                          bool normalize,
-                                          int divisor, bool isMatrix)
+bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram* program,
+  vtkOpenGLBufferObject* buffer, const std::string& name, int offset, size_t stride,
+  int elementType, int elementTupleSize, bool normalize, int divisor, bool isMatrix)
 {
-  if(!program)
+  if (!program)
   {
     vtkErrorMacro("attempt to add attribute without a program for attribute " << name);
     return false;
@@ -294,7 +278,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
     return false;
   }
 
-  if (buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer )
+  if (buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer)
   {
     vtkErrorMacro("attempt to add attribute without an array buffer for attribute " << name);
     return false;
@@ -306,13 +290,13 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
     this->Internal->HandleProgram = static_cast<GLuint>(program->GetHandle());
   }
   if (!this->Internal->IsReady() ||
-      this->Internal->HandleProgram != static_cast<GLuint>(program->GetHandle()))
+    this->Internal->HandleProgram != static_cast<GLuint>(program->GetHandle()))
   {
     vtkErrorMacro("attempt to add attribute when not ready for attribute " << name);
     return false;
   }
 
-  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
+  const GLchar* namePtr = static_cast<const GLchar*>(name.c_str());
   VertexAttributes attribs;
   attribs.Index = program->FindAttributeArray(namePtr);
   attribs.Offset = offset;
@@ -333,10 +317,8 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
   // up when we are emulating.
   buffer->Bind();
   glEnableVertexAttribArray(attribs.Index);
-  glVertexAttribPointer(attribs.Index, attribs.Size, attribs.Type,
-                        attribs.Normalize, attribs.Stride,
-                        BUFFER_OFFSET(attribs.Offset));
-
+  glVertexAttribPointer(attribs.Index, attribs.Size, attribs.Type, attribs.Normalize,
+    attribs.Stride, BUFFER_OFFSET(attribs.Offset));
 
   if (divisor > 0)
   {
@@ -357,7 +339,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
     Private::AttributeMap::iterator it = this->Internal->Attributes.find(handleBuffer);
     if (it != this->Internal->Attributes.end())
     {
-      std::vector<VertexAttributes> &attribsVector = it->second;
+      std::vector<VertexAttributes>& attribsVector = it->second;
       std::vector<VertexAttributes>::iterator it2;
       for (it2 = attribsVector.begin(); it2 != attribsVector.end(); ++it2)
       {
@@ -382,44 +364,36 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
   return true;
 }
 
-bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(
-  vtkShaderProgram *program,
-  vtkOpenGLBufferObject *buffer,
-  const std::string &name,
-  int offset, size_t stride,
-  int elementType, int elementTupleSize,
-  bool normalize,
-  int divisor,
-  int tupleOffset)
+bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram* program,
+  vtkOpenGLBufferObject* buffer, const std::string& name, int offset, size_t stride,
+  int elementType, int elementTupleSize, bool normalize, int divisor, int tupleOffset)
 {
   // bind the first row of values
-  bool result =
-    this->AddAttributeArrayWithDivisor(program, buffer, name,
-      offset, stride, elementType, elementTupleSize, normalize, divisor, true);
+  bool result = this->AddAttributeArrayWithDivisor(
+    program, buffer, name, offset, stride, elementType, elementTupleSize, normalize, divisor, true);
 
   if (!result)
   {
     return result;
   }
 
-  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
+  const GLchar* namePtr = static_cast<const GLchar*>(name.c_str());
   VertexAttributes attribs;
   attribs.Index = glGetAttribLocation(this->Internal->HandleProgram, namePtr);
 
   for (int i = 1; i < elementTupleSize; i++)
   {
-    glEnableVertexAttribArray(attribs.Index+i);
+    glEnableVertexAttribArray(attribs.Index + i);
     glVertexAttribPointer(attribs.Index + i, elementTupleSize, convertTypeToGL(elementType),
-                          normalize, static_cast<GLsizei>(stride),
-                          BUFFER_OFFSET(offset + tupleOffset * i));
+      normalize, static_cast<GLsizei>(stride), BUFFER_OFFSET(offset + tupleOffset * i));
     if (divisor > 0)
     {
 #ifdef GL_ES_VERSION_3_0
-      glVertexAttribDivisor(attribs.Index+i, 1);
+      glVertexAttribDivisor(attribs.Index + i, 1);
 #else
       if (GLEW_ARB_instanced_arrays)
       {
-        glVertexAttribDivisorARB(attribs.Index+i, 1);
+        glVertexAttribDivisorARB(attribs.Index + i, 1);
       }
 #endif
     }
@@ -428,14 +402,14 @@ bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(
   return true;
 }
 
-bool vtkOpenGLVertexArrayObject::RemoveAttributeArray(const std::string &name)
+bool vtkOpenGLVertexArrayObject::RemoveAttributeArray(const std::string& name)
 {
   if (!this->Internal->IsReady() || this->Internal->HandleProgram == 0)
   {
     return false;
   }
 
-  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
+  const GLchar* namePtr = static_cast<const GLchar*>(name.c_str());
   GLint location = glGetAttribLocation(this->Internal->HandleProgram, namePtr);
   if (location == -1)
   {
@@ -447,8 +421,7 @@ bool vtkOpenGLVertexArrayObject::RemoveAttributeArray(const std::string &name)
   if (!this->Internal->Supported)
   {
     Private::AttributeMap::iterator it;
-    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end();
-         ++it)
+    for (it = this->Internal->Attributes.begin(); it != this->Internal->Attributes.end(); ++it)
     {
       std::vector<VertexAttributes>::iterator attrIt;
       for (attrIt = it->second.begin(); attrIt != it->second.end(); ++attrIt)

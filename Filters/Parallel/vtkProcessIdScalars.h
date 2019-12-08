@@ -23,13 +23,13 @@
  *
  * @sa
  * vtkPolyDataStreamer
-*/
+ */
 
 #ifndef vtkProcessIdScalars_h
 #define vtkProcessIdScalars_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFloatArray;
 class vtkIntArray;
@@ -38,18 +38,18 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
 {
 public:
-  static vtkProcessIdScalars *New();
+  static vtkProcessIdScalars* New();
 
-  vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProcessIdScalars, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Option to centerate cell scalars of points scalars.  Default is point
    * scalars.
    */
-  void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
-  void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
-  int GetScalarMode() {return this->CellScalarsFlag;}
+  void SetScalarModeToCellData() { this->SetCellScalarsFlag(1); }
+  void SetScalarModeToPointData() { this->SetCellScalarsFlag(0); }
+  int GetScalarMode() { return this->CellScalarsFlag; }
 
   // Dscription:
   // This option uses a random mapping between pieces and scalar values.
@@ -68,19 +68,17 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
-
 protected:
   vtkProcessIdScalars();
   ~vtkProcessIdScalars() override;
 
   // Append the pieces.
-  int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkIntArray *MakeProcessIdScalars(int piece, vtkIdType numScalars);
-  vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);
+  vtkIntArray* MakeProcessIdScalars(int piece, vtkIdType numScalars);
+  vtkFloatArray* MakeRandomScalars(int piece, vtkIdType numScalars);
 
-  vtkSetMacro(CellScalarsFlag,int);
+  vtkSetMacro(CellScalarsFlag, int);
   int CellScalarsFlag;
   vtkTypeBool RandomMode;
 

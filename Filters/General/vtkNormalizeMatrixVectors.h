@@ -27,13 +27,13 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkNormalizeMatrixVectors_h
 #define vtkNormalizeMatrixVectors_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorithm
 {
@@ -62,10 +62,7 @@ protected:
   vtkNormalizeMatrixVectors();
   ~vtkNormalizeMatrixVectors() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int VectorDimension;
   double PValue;
@@ -76,4 +73,3 @@ private:
 };
 
 #endif
-

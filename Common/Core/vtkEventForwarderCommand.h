@@ -23,21 +23,20 @@
  *
  * @sa
  * vtkCommand
-*/
+ */
 
 #ifndef vtkEventForwarderCommand_h
 #define vtkEventForwarderCommand_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 class VTKCOMMONCORE_EXPORT vtkEventForwarderCommand : public vtkCommand
 {
 public:
-  vtkTypeMacro(vtkEventForwarderCommand,vtkCommand);
+  vtkTypeMacro(vtkEventForwarderCommand, vtkCommand);
 
-  static vtkEventForwarderCommand *New()
-    {return new vtkEventForwarderCommand;};
+  static vtkEventForwarderCommand* New() { return new vtkEventForwarderCommand; }
 
   /**
    * Satisfy the superclass API for callbacks. Recall that the caller is
@@ -45,22 +44,17 @@ public:
    * vtkCommand.h); and calldata is information sent when the callback
    * was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
    */
-  void Execute(vtkObject *caller,
-               unsigned long eid,
-               void *callData) override;
+  void Execute(vtkObject* caller, unsigned long eid, void* callData) override;
 
   /**
    * Methods to set and get client and callback information, and the callback
    * function.
    */
-  virtual void SetTarget(vtkObject *obj)
-    { this->Target = obj; }
-  virtual void* GetTarget()
-    { return this->Target; }
+  virtual void SetTarget(vtkObject* obj) { this->Target = obj; }
+  virtual void* GetTarget() { return this->Target; }
 
 protected:
-
-  vtkObject *Target;
+  vtkObject* Target;
 
   vtkEventForwarderCommand();
   ~vtkEventForwarderCommand() override {}

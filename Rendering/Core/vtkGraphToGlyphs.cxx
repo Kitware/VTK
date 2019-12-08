@@ -40,11 +40,11 @@ vtkStandardNewMacro(vtkGraphToGlyphs);
 
 vtkGraphToGlyphs::vtkGraphToGlyphs()
 {
-  this->GraphToPoints        = vtkSmartPointer<vtkGraphToPoints>::New();
-  this->Sphere               = vtkSmartPointer<vtkSphereSource>::New();
-  this->GlyphSource          = vtkSmartPointer<vtkGlyphSource2D>::New();
-  this->DistanceToCamera     = vtkSmartPointer<vtkDistanceToCamera>::New();
-  this->Glyph                = vtkSmartPointer<vtkGlyph3D>::New();
+  this->GraphToPoints = vtkSmartPointer<vtkGraphToPoints>::New();
+  this->Sphere = vtkSmartPointer<vtkSphereSource>::New();
+  this->GlyphSource = vtkSmartPointer<vtkGlyphSource2D>::New();
+  this->DistanceToCamera = vtkSmartPointer<vtkDistanceToCamera>::New();
+  this->Glyph = vtkSmartPointer<vtkGlyph3D>::New();
   this->GlyphType = CIRCLE;
   this->Filled = true;
   this->ScreenSize = 10;
@@ -56,8 +56,7 @@ vtkGraphToGlyphs::vtkGraphToGlyphs()
   this->Glyph->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "DistanceToCamera");
   this->Glyph->FillCellDataOn();
-  this->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scale");
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scale");
 }
 
 vtkGraphToGlyphs::~vtkGraphToGlyphs() = default;
@@ -93,28 +92,23 @@ bool vtkGraphToGlyphs::GetScaling()
 vtkMTimeType vtkGraphToGlyphs::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
-  if (this->GlyphType != VERTEX &&
-      this->DistanceToCamera->GetMTime() > mtime)
+  if (this->GlyphType != VERTEX && this->DistanceToCamera->GetMTime() > mtime)
   {
     mtime = this->DistanceToCamera->GetMTime();
   }
   return mtime;
 }
 
-int vtkGraphToGlyphs::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkGraphToGlyphs::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!this->DistanceToCamera->GetRenderer())
   {
@@ -143,19 +137,15 @@ int vtkGraphToGlyphs::RequestData(
     this->DistanceToCamera->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, arr->GetName());
   }
-  this->DistanceToCamera->SetInputConnection(
-    this->GraphToPoints->GetOutputPort());
-  this->Glyph->SetInputConnection(
-    0, this->DistanceToCamera->GetOutputPort());
+  this->DistanceToCamera->SetInputConnection(this->GraphToPoints->GetOutputPort());
+  this->Glyph->SetInputConnection(0, this->DistanceToCamera->GetOutputPort());
   if (this->GlyphType == SPHERE)
   {
-    this->Glyph->SetInputConnection(
-      1, this->Sphere->GetOutputPort());
+    this->Glyph->SetInputConnection(1, this->Sphere->GetOutputPort());
   }
   else
   {
-    this->Glyph->SetInputConnection(
-      1, this->GlyphSource->GetOutputPort());
+    this->Glyph->SetInputConnection(1, this->GlyphSource->GetOutputPort());
     this->GlyphSource->SetGlyphType(this->GlyphType);
   }
   this->Glyph->Update();
@@ -167,7 +157,7 @@ int vtkGraphToGlyphs::RequestData(
 
 void vtkGraphToGlyphs::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Filled: " << this->Filled << endl;
   os << indent << "ScreenSize: " << this->ScreenSize << endl;
   os << indent << "GlyphType: " << this->GlyphType << endl;

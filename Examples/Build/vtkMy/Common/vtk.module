@@ -1,0 +1,8 @@
+NAME
+  VTKMY::Common
+LIBRARY_NAME
+  vtkmyCommon
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::TestingCore

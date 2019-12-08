@@ -1,20 +1,19 @@
 #include <vtkVersion.h>
 
-#include <vtkSmartPointer.h>
-#include <vtkPolyData.h>
-#include <vtkPointData.h>
 #include <vtkFloatArray.h>
-#include <vtkParallelCoordinatesView.h>
 #include <vtkParallelCoordinatesRepresentation.h>
+#include <vtkParallelCoordinatesView.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
 
 int TestParallelCoordinatesView(int, char*[])
 {
   int curves = 1;
 
-  vtkSmartPointer<vtkFloatArray> array1 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array1 = vtkSmartPointer<vtkFloatArray>::New();
   array1->SetName("Array1");
   array1->SetNumberOfComponents(1);
   array1->InsertNextValue(0);
@@ -23,8 +22,7 @@ int TestParallelCoordinatesView(int, char*[])
   array1->InsertNextValue(3);
   array1->InsertNextValue(4);
 
-  vtkSmartPointer<vtkFloatArray> array2 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array2 = vtkSmartPointer<vtkFloatArray>::New();
   array2->SetName("Array2");
   array2->SetNumberOfComponents(1);
   array2->InsertNextValue(-0);
@@ -33,8 +31,7 @@ int TestParallelCoordinatesView(int, char*[])
   array2->InsertNextValue(-3);
   array2->InsertNextValue(-4);
 
-  vtkSmartPointer<vtkFloatArray> array3 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array3 = vtkSmartPointer<vtkFloatArray>::New();
   array3->SetName("Array3");
   array3->SetNumberOfComponents(1);
   array3->InsertNextValue(0);
@@ -43,8 +40,7 @@ int TestParallelCoordinatesView(int, char*[])
   array3->InsertNextValue(9);
   array3->InsertNextValue(16);
 
-  vtkSmartPointer<vtkFloatArray> array4 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array4 = vtkSmartPointer<vtkFloatArray>::New();
   array4->SetName("Array4");
   array4->SetNumberOfComponents(1);
   array4->InsertNextValue(0);
@@ -53,8 +49,7 @@ int TestParallelCoordinatesView(int, char*[])
   array4->InsertNextValue(6);
   array4->InsertNextValue(8);
 
-  vtkSmartPointer<vtkFloatArray> array5 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array5 = vtkSmartPointer<vtkFloatArray>::New();
   array5->SetName("Array5");
   array5->SetNumberOfComponents(1);
   array5->InsertNextValue(0);
@@ -63,8 +58,7 @@ int TestParallelCoordinatesView(int, char*[])
   array5->InsertNextValue(0.33);
   array5->InsertNextValue(0.25);
 
-  vtkSmartPointer<vtkFloatArray> array6 =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> array6 = vtkSmartPointer<vtkFloatArray>::New();
   array6->SetName("Array6");
   array6->SetNumberOfComponents(1);
   array6->InsertNextValue(3);
@@ -73,8 +67,7 @@ int TestParallelCoordinatesView(int, char*[])
   array6->InsertNextValue(4);
   array6->InsertNextValue(9);
 
-  vtkSmartPointer<vtkPolyData> polydata =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
   polydata->GetPointData()->AddArray(array1);
   polydata->GetPointData()->AddArray(array2);
   polydata->GetPointData()->AddArray(array3);
@@ -88,12 +81,12 @@ int TestParallelCoordinatesView(int, char*[])
   rep->SetInputData(polydata);
 
   // List all of the attribute arrays you want plotted in parallel coordinates
-  rep->SetInputArrayToProcess(0,0,0,0,"Array1");
-  rep->SetInputArrayToProcess(1,0,0,0,"Array2");
-  rep->SetInputArrayToProcess(2,0,0,0,"Array3");
-  rep->SetInputArrayToProcess(3,0,0,0,"Array4");
-  rep->SetInputArrayToProcess(4,0,0,0,"Array5");
-  rep->SetInputArrayToProcess(5,0,0,0,"Array6");
+  rep->SetInputArrayToProcess(0, 0, 0, 0, "Array1");
+  rep->SetInputArrayToProcess(1, 0, 0, 0, "Array2");
+  rep->SetInputArrayToProcess(2, 0, 0, 0, "Array3");
+  rep->SetInputArrayToProcess(3, 0, 0, 0, "Array4");
+  rep->SetInputArrayToProcess(4, 0, 0, 0, "Array5");
+  rep->SetInputArrayToProcess(5, 0, 0, 0, "Array6");
 
   rep->SetUseCurves(curves);
   rep->SetLineOpacity(0.5);
@@ -109,7 +102,7 @@ int TestParallelCoordinatesView(int, char*[])
   view->SetBrushOperatorToReplace();
 
   // Set up render window
-  view->GetRenderWindow()->SetSize(600,300);
+  view->GetRenderWindow()->SetSize(600, 300);
   view->ResetCamera();
   view->Render();
 

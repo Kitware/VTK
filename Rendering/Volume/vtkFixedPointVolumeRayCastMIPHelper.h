@@ -23,28 +23,27 @@
  *
  * @sa
  * vtkFixedPointVolumeRayCastMapper
-*/
+ */
 
 #ifndef vtkFixedPointVolumeRayCastMIPHelper_h
 #define vtkFixedPointVolumeRayCastMIPHelper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkFixedPointVolumeRayCastHelper.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkFixedPointVolumeRayCastMapper;
 class vtkVolume;
 
-class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMIPHelper : public vtkFixedPointVolumeRayCastHelper
+class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMIPHelper
+  : public vtkFixedPointVolumeRayCastHelper
 {
 public:
-  static vtkFixedPointVolumeRayCastMIPHelper *New();
-  vtkTypeMacro(vtkFixedPointVolumeRayCastMIPHelper,vtkFixedPointVolumeRayCastHelper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  static vtkFixedPointVolumeRayCastMIPHelper* New();
+  vtkTypeMacro(vtkFixedPointVolumeRayCastMIPHelper, vtkFixedPointVolumeRayCastHelper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void  GenerateImage( int threadID,
-                               int threadCount,
-                               vtkVolume *vol,
-                               vtkFixedPointVolumeRayCastMapper *mapper) override;
+  void GenerateImage(int threadID, int threadCount, vtkVolume* vol,
+    vtkFixedPointVolumeRayCastMapper* mapper) override;
 
 protected:
   vtkFixedPointVolumeRayCastMIPHelper();
@@ -56,6 +55,3 @@ private:
 };
 
 #endif
-
-
-

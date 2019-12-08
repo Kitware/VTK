@@ -32,19 +32,19 @@
  *
  * @sa
  * vtkPointData vtkCellData vtkCellDataToPointData
-*/
+ */
 
 #ifndef vtkPointDataToCellData_h
 #define vtkPointDataToCellData_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkPointDataToCellData : public vtkDataSetAlgorithm
 {
 public:
-  static vtkPointDataToCellData *New();
-  vtkTypeMacro(vtkPointDataToCellData,vtkDataSetAlgorithm);
+  static vtkPointDataToCellData* New();
+  vtkTypeMacro(vtkPointDataToCellData, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,9 +53,9 @@ public:
    * on, then the input point data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassPointData,bool);
-  vtkGetMacro(PassPointData,bool);
-  vtkBooleanMacro(PassPointData,bool);
+  vtkSetMacro(PassPointData, bool);
+  vtkGetMacro(PassPointData, bool);
+  vtkBooleanMacro(PassPointData, bool);
   //@}
 
   //@{
@@ -64,9 +64,9 @@ public:
    * the data is categorical, then the resultant cell data will be determined by
    * a "majority rules" vote, with ties going to the smaller value.
    */
-  vtkSetMacro(CategoricalData,bool);
-  vtkGetMacro(CategoricalData,bool);
-  vtkBooleanMacro(CategoricalData,bool);
+  vtkSetMacro(CategoricalData, bool);
+  vtkGetMacro(CategoricalData, bool);
+  vtkBooleanMacro(CategoricalData, bool);
   //@}
 
   //@{
@@ -84,14 +84,14 @@ public:
    * ProcessAllArrays option is turned off. If a name is already present,
    * nothing happens.
    */
-  virtual void AddPointDataArray(const char *name);
+  virtual void AddPointDataArray(const char* name);
 
   /**
    * Removes an array to be processed. This only has an effect if the
    * ProcessAllArrays option is turned off. If the specified name is not
    * present, nothing happens.
    */
-  virtual void RemovePointDataArray(const char *name);
+  virtual void RemovePointDataArray(const char* name);
 
   /**
    * Removes all arrays to be processed from the list. This only has an effect
@@ -103,16 +103,15 @@ protected:
   vtkPointDataToCellData();
   ~vtkPointDataToCellData() override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   bool PassPointData;
   bool CategoricalData;
   bool ProcessAllArrays;
 
   class Internals;
-  Internals *Implementation;
+  Internals* Implementation;
 
 private:
   vtkPointDataToCellData(const vtkPointDataToCellData&) = delete;

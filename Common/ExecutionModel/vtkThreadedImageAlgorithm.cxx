@@ -23,8 +23,8 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
 
@@ -85,35 +85,32 @@ bool vtkThreadedImageAlgorithm::GetGlobalDefaultEnableSMP()
 //----------------------------------------------------------------------------
 void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
   os << indent << "EnableSMP: " << (this->EnableSMP ? "On\n" : "Off\n");
   os << indent << "GlobalDefaultEnableSMP: "
-     << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ?
-         "On\n" : "Off\n");
-  os << indent << "MinimumPieceSize: "
-     << this->MinimumPieceSize[0] << " "
-     << this->MinimumPieceSize[1] << " "
-     << this->MinimumPieceSize[2] << "\n";
-  os << indent << "DesiredBytesPerPiece: "
-     << this->DesiredBytesPerPiece << "\n";
+     << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ? "On\n" : "Off\n");
+  os << indent << "MinimumPieceSize: " << this->MinimumPieceSize[0] << " "
+     << this->MinimumPieceSize[1] << " " << this->MinimumPieceSize[2] << "\n";
+  os << indent << "DesiredBytesPerPiece: " << this->DesiredBytesPerPiece << "\n";
   os << indent << "SplitMode: "
-     << (this->SplitMode == SLAB ? "Slab\n" :
-         (this->SplitMode == BEAM ? "Beam\n" :
-          (this->SplitMode == BLOCK ? "Block\n" : "Unknown\n")));
+     << (this->SplitMode == SLAB
+            ? "Slab\n"
+            : (this->SplitMode == BEAM ? "Beam\n"
+                                       : (this->SplitMode == BLOCK ? "Block\n" : "Unknown\n")));
 }
 
 //----------------------------------------------------------------------------
 struct vtkImageThreadStruct
 {
-  vtkThreadedImageAlgorithm *Filter;
-  vtkInformation *Request;
-  vtkInformationVector **InputsInfo;
-  vtkInformationVector *OutputsInfo;
-  vtkImageData   ***Inputs;
-  vtkImageData   **Outputs;
-  int *UpdateExtent;
+  vtkThreadedImageAlgorithm* Filter;
+  vtkInformation* Request;
+  vtkInformationVector** InputsInfo;
+  vtkInformationVector* OutputsInfo;
+  vtkImageData*** Inputs;
+  vtkImageData** Outputs;
+  int* UpdateExtent;
 };
 
 //----------------------------------------------------------------------------
@@ -123,9 +120,7 @@ struct vtkImageThreadStruct
 // This method returns the number of pieces resulting from a successful split.
 // This can be from 1 to "total".
 // If 1 is returned, the extent cannot be split.
-int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
-                                           int startExt[6],
-                                           int num, int total)
+int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6], int startExt[6], int num, int total)
 {
   // split path (the order in which to split the axes)
   int pathlen = this->SplitPathLength;
@@ -139,9 +134,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   int divs[3] = { 1, 1, 1 };
 
   // this needs 64 bits to avoid overflow in the math below
-  const vtkTypeInt64 size[3] = {
-    startExt[1] - startExt[0] + 1,
-    startExt[3] - startExt[2] + 1,
+  const vtkTypeInt64 size[3] = { startExt[1] - startExt[0] + 1, startExt[3] - startExt[2] + 1,
     startExt[5] - startExt[4] + 1 };
 
   // check for valid extent
@@ -156,7 +149,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   {
     if (size[i] > this->MinimumPieceSize[i] && this->MinimumPieceSize[i] > 0)
     {
-      maxdivs[i] = size[i]/this->MinimumPieceSize[i];
+      maxdivs[i] = size[i] / this->MinimumPieceSize[i];
     }
   }
 
@@ -188,14 +181,14 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
     else if (pathlen > 1)
     {
       divs[axis1] = maxdivs[axis1];
-      int q = total/divs[axis0];
+      int q = total / divs[axis0];
       if (q < maxdivs[axis1])
       {
         divs[axis1] = q;
       }
       else if (pathlen > 2)
       {
-        divs[axis2] = q/divs[axis1];
+        divs[axis2] = q / divs[axis1];
       }
     }
   }
@@ -205,33 +198,33 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
     if (total < maxPieces2D)
     {
       // split until we get the desired number of pieces
-      while (divs[axis0]*divs[axis1] < total)
+      while (divs[axis0] * divs[axis1] < total)
       {
         axis0 = path[0];
         axis1 = path[1];
 
         // if necessary, swap axes to keep a good aspect ratio
-        if (size[axis0]*divs[axis1] < size[axis1]*divs[axis0])
+        if (size[axis0] * divs[axis1] < size[axis1] * divs[axis0])
         {
           axis0 = path[1];
           axis1 = path[0];
         }
 
         // compute the new split for this axis
-        divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
+        divs[axis0] = divs[axis1] * size[axis0] / size[axis1] + 1;
       }
 
       // compute final division
-      divs[axis0] = total/divs[axis1];
+      divs[axis0] = total / divs[axis1];
       if (divs[axis0] > maxdivs[axis0])
       {
         divs[axis0] = maxdivs[axis0];
       }
-      divs[axis1] = total/divs[axis0];
+      divs[axis1] = total / divs[axis0];
       if (divs[axis1] > maxdivs[axis1])
       {
         divs[axis1] = maxdivs[axis1];
-        divs[axis0] = total/divs[axis1];
+        divs[axis0] = total / divs[axis1];
       }
     }
     else
@@ -242,21 +235,21 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
       if (pathlen > 2)
       {
         // split the third axis
-        divs[axis2] = total/(divs[axis0]*divs[axis1]);
+        divs[axis2] = total / (divs[axis0] * divs[axis1]);
       }
     }
   }
   else // block mode: keep blocks roughly cube shaped
   {
     // split until we get the desired number of pieces
-    while (divs[0]*divs[1]*divs[2] < total)
+    while (divs[0] * divs[1] * divs[2] < total)
     {
       axis0 = path[0];
       axis1 = path[1];
       axis2 = path[2];
 
       // check whether z or y is best candidate for splitting
-      if (size[axis0]*divs[axis1] < size[axis1]*divs[axis0])
+      if (size[axis0] * divs[axis1] < size[axis1] * divs[axis0])
       {
         axis1 = axis0;
         axis0 = path[1];
@@ -265,14 +258,14 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
       if (pathlen > 2)
       {
         // check if x is the best candidate for splitting
-        if (size[axis0]*divs[path[2]] < size[path[2]]*divs[axis0])
+        if (size[axis0] * divs[path[2]] < size[path[2]] * divs[axis0])
         {
           axis2 = axis1;
           axis1 = axis0;
           axis0 = path[2];
         }
         // now find the second best candidate
-        if (size[axis1]*divs[axis2] < size[axis2]*divs[axis1])
+        if (size[axis1] * divs[axis2] < size[axis2] * divs[axis1])
         {
           int tmp = axis2;
           axis2 = axis1;
@@ -281,7 +274,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
       }
 
       // compute the new split for this axis
-      divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
+      divs[axis0] = divs[axis1] * size[axis0] / size[axis1] + 1;
 
       // if axis0 reached maxdivs, remove it from the split path
       if (divs[axis0] >= maxdivs[axis0])
@@ -304,17 +297,17 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
     }
 
     // compute the final division
-    divs[axis0] = total/(divs[axis1]*divs[axis2]);
+    divs[axis0] = total / (divs[axis1] * divs[axis2]);
     if (divs[axis0] > maxdivs[axis0])
     {
       divs[axis0] = maxdivs[axis0];
     }
-    divs[axis1] = total/(divs[axis0]*divs[axis2]);
+    divs[axis1] = total / (divs[axis0] * divs[axis2]);
     if (divs[axis1] > maxdivs[axis1])
     {
       divs[axis1] = maxdivs[axis1];
     }
-    divs[axis2] = total/(divs[axis0]*divs[axis1]);
+    divs[axis2] = total / (divs[axis0] * divs[axis1]);
     if (divs[axis2] > maxdivs[axis2])
     {
       divs[axis2] = maxdivs[axis2];
@@ -322,30 +315,30 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   }
 
   // compute new total from the chosen divisions
-  total = divs[0]*divs[1]*divs[2];
+  total = divs[0] * divs[1] * divs[2];
 
   if (splitExt)
   {
     // compute increments
     int a = divs[0];
-    int b = a*divs[1];
+    int b = a * divs[1];
 
     // compute 3D block index
     int i = num;
     int index[3];
-    index[2] = i/b;
-    i -= index[2]*b;
-    index[1] = i/a;
-    i -= index[1]*a;
+    index[2] = i / b;
+    i -= index[2] * b;
+    index[1] = i / a;
+    i -= index[1] * a;
     index[0] = i;
 
     // compute the extent for the resulting block
     for (int j = 0; j < 3; j++)
     {
-      splitExt[2*j] = index[j]*size[j]/divs[j];
-      splitExt[2*j + 1] = (index[j] + 1)*size[j]/divs[j] - 1;
-      splitExt[2*j] += startExt[2*j];
-      splitExt[2*j + 1] += startExt[2*j];
+      splitExt[2 * j] = index[j] * size[j] / divs[j];
+      splitExt[2 * j + 1] = (index[j] + 1) * size[j] / divs[j] - 1;
+      splitExt[2 * j] += startExt[2 * j];
+      splitExt[2 * j + 1] += startExt[2 * j];
     }
   }
 
@@ -359,36 +352,31 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 // the ThreadedExecute method after setting the correct
 // extent for this thread. It's just a pain to calculate
 // the correct extent.
-static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
+static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute(void* arg)
 {
-  vtkImageThreadStruct *str;
+  vtkImageThreadStruct* str;
   int splitExt[6], total;
   int threadId, threadCount;
 
-  threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
-  threadCount = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->NumberOfThreads;
+  threadId = static_cast<vtkMultiThreader::ThreadInfo*>(arg)->ThreadID;
+  threadCount = static_cast<vtkMultiThreader::ThreadInfo*>(arg)->NumberOfThreads;
 
-  str = static_cast<vtkImageThreadStruct *>
-    (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
+  str =
+    static_cast<vtkImageThreadStruct*>(static_cast<vtkMultiThreader::ThreadInfo*>(arg)->UserData);
 
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
-  total = str->Filter->SplitExtent(splitExt, str->UpdateExtent,
-                                   threadId, threadCount);
+  total = str->Filter->SplitExtent(splitExt, str->UpdateExtent, threadId, threadCount);
 
   if (threadId < total)
   {
     // return if nothing to do
-    if (splitExt[1] < splitExt[0] ||
-        splitExt[3] < splitExt[2] ||
-        splitExt[5] < splitExt[4])
+    if (splitExt[1] < splitExt[0] || splitExt[3] < splitExt[2] || splitExt[5] < splitExt[4])
     {
       return VTK_THREAD_RETURN_VALUE;
     }
-    str->Filter->ThreadedRequestData(str->Request,
-                                     str->InputsInfo, str->OutputsInfo,
-                                     str->Inputs, str->Outputs,
-                                     splitExt, threadId);
+    str->Filter->ThreadedRequestData(str->Request, str->InputsInfo, str->OutputsInfo, str->Inputs,
+      str->Outputs, splitExt, threadId);
   }
 
   return VTK_THREAD_RETURN_VALUE;
@@ -402,19 +390,16 @@ class vtkThreadedImageAlgorithmFunctor
 public:
   // Create the functor by providing all of the information that will be
   // needed by the ThreadedRequestData method that the functor will call.
-  vtkThreadedImageAlgorithmFunctor(
-    vtkThreadedImageAlgorithm *algo,
-    vtkInformation *request,
-    vtkInformationVector **inputsInfo,
-    vtkInformationVector *outputsInfo,
-    vtkImageData ***inputs,
-    vtkImageData **outputs,
-    const int extent[6],
-    vtkIdType pieces)
-    : Algorithm(algo), Request(request),
-      InputsInfo(inputsInfo), OutputsInfo(outputsInfo),
-      Inputs(inputs), Outputs(outputs),
-      NumberOfPieces(pieces)
+  vtkThreadedImageAlgorithmFunctor(vtkThreadedImageAlgorithm* algo, vtkInformation* request,
+    vtkInformationVector** inputsInfo, vtkInformationVector* outputsInfo, vtkImageData*** inputs,
+    vtkImageData** outputs, const int extent[6], vtkIdType pieces)
+    : Algorithm(algo)
+    , Request(request)
+    , InputsInfo(inputsInfo)
+    , OutputsInfo(outputsInfo)
+    , Inputs(inputs)
+    , Outputs(outputs)
+    , NumberOfPieces(pieces)
   {
     for (int i = 0; i < 6; i++)
     {
@@ -425,37 +410,28 @@ public:
   // Called by vtkSMPTools to execute the algorithm over specific pieces.
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    this->Algorithm->SMPRequestData(
-      this->Request, this->InputsInfo, this->OutputsInfo,
-      this->Inputs, this->Outputs,
-      begin, end, this->NumberOfPieces, this->Extent);
+    this->Algorithm->SMPRequestData(this->Request, this->InputsInfo, this->OutputsInfo,
+      this->Inputs, this->Outputs, begin, end, this->NumberOfPieces, this->Extent);
   }
 
 private:
   vtkThreadedImageAlgorithmFunctor() = delete;
 
-  vtkThreadedImageAlgorithm *Algorithm;
-  vtkInformation *Request;
-  vtkInformationVector **InputsInfo;
-  vtkInformationVector *OutputsInfo;
-  vtkImageData ***Inputs;
-  vtkImageData **Outputs;
+  vtkThreadedImageAlgorithm* Algorithm;
+  vtkInformation* Request;
+  vtkInformationVector** InputsInfo;
+  vtkInformationVector* OutputsInfo;
+  vtkImageData*** Inputs;
+  vtkImageData** Outputs;
   int Extent[6];
   vtkIdType NumberOfPieces;
 };
 
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
-void vtkThreadedImageAlgorithm::SMPRequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector,
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  vtkIdType begin,
-  vtkIdType end,
-  vtkIdType numPieces,
-  int extent[6])
+void vtkThreadedImageAlgorithm::SMPRequestData(vtkInformation* request,
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector, vtkImageData*** inData,
+  vtkImageData** outData, vtkIdType begin, vtkIdType end, vtkIdType numPieces, int extent[6])
 {
   for (vtkIdType piece = begin; piece < end; piece++)
   {
@@ -464,10 +440,8 @@ void vtkThreadedImageAlgorithm::SMPRequestData(
     vtkIdType total = this->SplitExtent(splitExt, extent, piece, numPieces);
 
     // check for valid piece and extent
-    if (piece < total &&
-        splitExt[0] <= splitExt[1] &&
-        splitExt[2] <= splitExt[3] &&
-        splitExt[4] <= splitExt[5])
+    if (piece < total && splitExt[0] <= splitExt[1] && splitExt[2] <= splitExt[3] &&
+      splitExt[4] <= splitExt[5])
     {
       this->ThreadedRequestData(
         request, inputVector, outputVector, inData, outData, splitExt, piece);
@@ -476,11 +450,8 @@ void vtkThreadedImageAlgorithm::SMPRequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedImageAlgorithm::PrepareImageData(
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector,
-  vtkImageData*** inDataObjects,
-  vtkImageData** outDataObjects)
+void vtkThreadedImageAlgorithm::PrepareImageData(vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector, vtkImageData*** inDataObjects, vtkImageData** outDataObjects)
 {
   vtkImageData* firstInput = nullptr;
   vtkImageData* firstOutput = nullptr;
@@ -490,8 +461,7 @@ void vtkThreadedImageAlgorithm::PrepareImageData(
   for (int i = 0; i < numOutputPorts; i++)
   {
     vtkInformation* info = outputVector->GetInformationObject(i);
-    vtkImageData *outData = vtkImageData::SafeDownCast(
-      info->Get(vtkDataObject::DATA_OBJECT()));
+    vtkImageData* outData = vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
     if (i == 0)
     {
       firstOutput = outData;
@@ -503,8 +473,7 @@ void vtkThreadedImageAlgorithm::PrepareImageData(
     if (outData)
     {
       int updateExtent[6];
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                updateExtent);
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
 
       // unlike geometry filters, for image filters data is pre-allocated
       // in the superclass (which means, in this class)
@@ -521,8 +490,7 @@ void vtkThreadedImageAlgorithm::PrepareImageData(
     for (int j = 0; j < numConnections; j++)
     {
       vtkInformation* info = portInfo->GetInformationObject(j);
-      vtkImageData *inData = vtkImageData::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
+      vtkImageData* inData = vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
       if (i == 0 && j == 0)
       {
         firstInput = inData;
@@ -545,9 +513,7 @@ void vtkThreadedImageAlgorithm::PrepareImageData(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkThreadedImageAlgorithm::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // count the total number of inputs, outputs
   int numInputPorts = this->GetNumberOfInputPorts();
@@ -560,10 +526,10 @@ int vtkThreadedImageAlgorithm::RequestData(
 
   // ThreadedRequestData() needs to be given the inputs and outputs
   // as raw pointers, but we use std::vector for memory allocation
-  vtkImageData ***inputs = nullptr;
-  vtkImageData **outputs = nullptr;
-  std::vector<vtkImageData *> connections(numDataObjects);
-  std::vector<vtkImageData **> ports(numInputPorts);
+  vtkImageData*** inputs = nullptr;
+  vtkImageData** outputs = nullptr;
+  std::vector<vtkImageData*> connections(numDataObjects);
+  std::vector<vtkImageData**> ports(numInputPorts);
   size_t offset = 0;
 
   // set pointers to the lists of data objects and input ports
@@ -593,11 +559,10 @@ int vtkThreadedImageAlgorithm::RequestData(
   int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
   if (numOutputPorts)
   {
-    vtkImageData *outData = outputs[0];
+    vtkImageData* outData = outputs[0];
     if (outData)
     {
-      bytesPerVoxel = (outData->GetScalarSize() *
-                       outData->GetNumberOfScalarComponents());
+      bytesPerVoxel = (outData->GetScalarSize() * outData->GetNumberOfScalarComponents());
       outData->GetExtent(updateExtent);
     }
   }
@@ -608,11 +573,10 @@ int vtkThreadedImageAlgorithm::RequestData(
     {
       if (this->GetNumberOfInputConnections(inPort))
       {
-        vtkImageData *inData = inputs[inPort][0];
+        vtkImageData* inData = inputs[inPort][0];
         if (inData)
         {
-          bytesPerVoxel = (inData->GetScalarSize() *
-                           inData->GetNumberOfScalarComponents());
+          bytesPerVoxel = (inData->GetScalarSize() * inData->GetNumberOfScalarComponents());
           inData->GetExtent(updateExtent);
           break;
         }
@@ -621,9 +585,8 @@ int vtkThreadedImageAlgorithm::RequestData(
   }
 
   // verify that there is an extent for execution
-  if (updateExtent[0] <= updateExtent[1] &&
-      updateExtent[2] <= updateExtent[3] &&
-      updateExtent[4] <= updateExtent[5])
+  if (updateExtent[0] <= updateExtent[1] && updateExtent[2] <= updateExtent[3] &&
+    updateExtent[4] <= updateExtent[5])
   {
     if (this->EnableSMP)
     {
@@ -632,17 +595,15 @@ int vtkThreadedImageAlgorithm::RequestData(
 
       // compute a reasonable number of pieces, this will be a multiple of
       // the number of available threads and relative to the data size
-      vtkTypeInt64 bytesize = (
-        static_cast<vtkTypeInt64>(updateExtent[1] - updateExtent[0] + 1)*
-        static_cast<vtkTypeInt64>(updateExtent[3] - updateExtent[2] + 1)*
-        static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1)*
-        bytesPerVoxel);
+      vtkTypeInt64 bytesize = (static_cast<vtkTypeInt64>(updateExtent[1] - updateExtent[0] + 1) *
+        static_cast<vtkTypeInt64>(updateExtent[3] - updateExtent[2] + 1) *
+        static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1) * bytesPerVoxel);
       vtkTypeInt64 bytesPerPiece = this->DesiredBytesPerPiece;
 
       if (bytesPerPiece > 0 && bytesPerPiece < bytesize)
       {
-        vtkTypeInt64 b = pieces*bytesPerPiece;
-        pieces *= (bytesize + b - 1)/b;
+        vtkTypeInt64 b = pieces * bytesPerPiece;
+        pieces *= (bytesize + b - 1) / b;
       }
       // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
@@ -653,8 +614,7 @@ int vtkThreadedImageAlgorithm::RequestData(
       this->Debug = false;
 
       vtkThreadedImageAlgorithmFunctor functor(
-        this, request, inputVector, outputVector,
-        inputs, outputs, updateExtent, pieces);
+        this, request, inputVector, outputVector, inputs, outputs, updateExtent, pieces);
 
       vtkSMPTools::For(0, pieces, functor);
 
@@ -674,11 +634,9 @@ int vtkThreadedImageAlgorithm::RequestData(
 
       // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
-      vtkIdType pieces = this->SplitExtent(subExtent, updateExtent, 0,
-                                           this->NumberOfThreads);
+      vtkIdType pieces = this->SplitExtent(subExtent, updateExtent, 0, this->NumberOfThreads);
       this->Threader->SetNumberOfThreads(pieces);
-      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute,
-                                      &str);
+      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
       // always shut off debugging to avoid threading problems with GetMacros
       bool debug = this->Debug;
       this->Debug = false;
@@ -692,14 +650,9 @@ int vtkThreadedImageAlgorithm::RequestData(
 
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
-void vtkThreadedImageAlgorithm::ThreadedRequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* vtkNotUsed( outputVector ),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int extent[6],
-  int threadId)
+void vtkThreadedImageAlgorithm::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int extent[6], int threadId)
 {
   this->ThreadedExecute(inData[0][0], outData[0], extent, threadId);
 }
@@ -707,10 +660,7 @@ void vtkThreadedImageAlgorithm::ThreadedRequestData(
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::ThreadedExecute(
-  vtkImageData * inData,
-  vtkImageData * outData,
-  int extent[6],
-  int threadId)
+  vtkImageData* inData, vtkImageData* outData, int extent[6], int threadId)
 {
   (void)inData;
   (void)outData;

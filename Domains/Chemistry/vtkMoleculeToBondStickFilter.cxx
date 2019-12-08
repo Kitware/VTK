@@ -16,14 +16,16 @@
 
 #include "vtkCellArray.h"
 #include "vtkCylinderSource.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMolecule.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
+
+#include <vector>
 
 vtkStandardNewMacro(vtkMoleculeToBondStickFilter);
 
@@ -35,45 +37,39 @@ vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkMoleculeToBondStickFilter::RequestData(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkMolecule *input = vtkMolecule::SafeDownCast
-    (vtkDataObject::GetData(inputVector[0]));
-  vtkPolyData *output = vtkPolyData::SafeDownCast
-    (vtkDataObject::GetData(outputVector));
+  vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(vtkDataObject::GetData(outputVector));
 
   // Extract data from input molecule
   vtkIdType numBonds = input->GetNumberOfBonds();
 
   // Prep the output
   output->Initialize();
-  vtkCellArray *polys = vtkCellArray::New();
-  vtkPoints *points = vtkPoints::New();
-  vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::New();
+  vtkCellArray* polys = vtkCellArray::New();
+  vtkPoints* points = vtkPoints::New();
+  vtkUnsignedShortArray* bondOrders = vtkUnsignedShortArray::New();
   bondOrders->SetName(input->GetBondOrdersArrayName());
 
   // Initialize a CylinderSource
-  vtkCylinderSource *cylSource = vtkCylinderSource::New();
+  vtkCylinderSource* cylSource = vtkCylinderSource::New();
   cylSource->SetResolution(20);
   cylSource->SetHeight(1.0);
   cylSource->Update();
 
   // Preallocate memory
-  points->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->
-                   GetNumberOfPoints());
-  polys->Allocate(3 * numBonds * cylSource->GetOutput()->GetPolys()->
-                  GetNumberOfCells());
-  bondOrders->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->
-                   GetNumberOfPoints());
+  points->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
+  polys->AllocateEstimate(numBonds * cylSource->GetOutput()->GetPolys()->GetNumberOfCells(), 3);
+  bondOrders->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
 
   // Create a transform object to map the cylinder source to the bond
-  vtkTransform *xform = vtkTransform::New();
+  vtkTransform* xform = vtkTransform::New();
   xform->PostMultiply();
 
   // Declare some variables for later
-  vtkIdType numCellPoints, *cellPoints;
+  vtkIdType numCellPoints;
+  const vtkIdType* cellPoints;
   unsigned short bondOrder;
   double bondLength;
   double radius;
@@ -84,11 +80,11 @@ int vtkMoleculeToBondStickFilter::RequestData(
   double bondCenter[3];
   double pos1[3], pos2[3];
   // Normalized vector pointing along the cylinder (y axis);
-  static const double cylVec[3] = {0.0, 1.0, 0.0};
+  static const double cylVec[3] = { 0.0, 1.0, 0.0 };
   // Normalized vector pointing along bond
   double bondVec[3];
   // Unit z vector
-  static const double unitZ[3] = {0.0, 0.0, 1.0};
+  static const double unitZ[3] = { 0.0, 0.0, 1.0 };
 
   // Build a sphere for each atom and append it's data to the output
   // arrays.
@@ -107,8 +103,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
     // - Axis for cylinder rotation, bondVec [cross] cylVec
     vtkMath::Cross(bondVec, cylVec, rotAxis);
     // Rotation angle
-    rotAngle = -vtkMath::DegreesFromRadians
-      (acos(vtkMath::Dot(bondVec, cylVec)));
+    rotAngle = -vtkMath::DegreesFromRadians(acos(vtkMath::Dot(bondVec, cylVec)));
     // - Center of bond for translation
     vtkMath::Add(pos2, pos1, bondCenter);
     vtkMath::MultiplyScalar(bondCenter, 0.5);
@@ -119,15 +114,18 @@ int vtkMoleculeToBondStickFilter::RequestData(
       case 1:
       default:
         radius = 0.1;
-        delta[0] = 0.0; delta[1] = 0.0; delta[2] = 0.0;
-        initialDisp[0] = 0.0; initialDisp[1] = 0.0; initialDisp[2] = 0.0;
+        delta[0] = 0.0;
+        delta[1] = 0.0;
+        delta[2] = 0.0;
+        initialDisp[0] = 0.0;
+        initialDisp[1] = 0.0;
+        initialDisp[2] = 0.0;
         break;
       case 2:
         radius = 0.1;
         vtkMath::Cross(bondVec, unitZ, delta);
-        //vtkMath::Normalize(delta);
-        vtkMath::MultiplyScalar
-          (delta, radius + radius);
+        // vtkMath::Normalize(delta);
+        vtkMath::MultiplyScalar(delta, radius + radius);
         initialDisp[0] = delta[0] * -0.5;
         initialDisp[1] = delta[1] * -0.5;
         initialDisp[2] = delta[2] * -0.5;
@@ -135,9 +133,8 @@ int vtkMoleculeToBondStickFilter::RequestData(
       case 3:
         radius = 0.1;
         vtkMath::Cross(bondVec, unitZ, delta);
-        //vtkMath::Normalize(delta);
-        vtkMath::MultiplyScalar
-          (delta, radius + radius);
+        // vtkMath::Normalize(delta);
+        vtkMath::MultiplyScalar(delta, radius + radius);
         initialDisp[0] = -delta[0];
         initialDisp[1] = -delta[1];
         initialDisp[2] = -delta[2];
@@ -155,9 +152,9 @@ int vtkMoleculeToBondStickFilter::RequestData(
     // delta, and repeat.
     for (unsigned short iter = 0; iter < bondOrder; ++iter)
     {
-      vtkPolyData *cylinder = cylSource->GetOutput();
-      vtkPoints *cylPoints = cylinder->GetPoints();
-      vtkCellArray *cylPolys = cylinder->GetPolys();
+      vtkPolyData* cylinder = cylSource->GetOutput();
+      vtkPoints* cylPoints = cylinder->GetPoints();
+      vtkCellArray* cylPolys = cylinder->GetPolys();
       xform->TransformPoints(cylPoints, points);
 
       // Get offset for the new point IDs that will be added to points
@@ -175,14 +172,13 @@ int vtkMoleculeToBondStickFilter::RequestData(
       cylPolys->InitTraversal();
       while (cylPolys->GetNextCell(numCellPoints, cellPoints) != 0)
       {
-        vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
+        std::vector<vtkIdType> newCellPoints(numCellPoints);
         for (vtkIdType i = 0; i < numCellPoints; ++i)
         {
           // The new point ids should be offset by the pointOffset above
           newCellPoints[i] = cellPoints[i] + pointOffset;
         }
-        polys->InsertNextCell(numCellPoints, newCellPoints);
-        delete [] newCellPoints;
+        polys->InsertNextCell(numCellPoints, newCellPoints.data());
       }
 
       // Setup for the next cylinder in a multi-bond
@@ -213,5 +209,5 @@ int vtkMoleculeToBondStickFilter::RequestData(
 //----------------------------------------------------------------------------
 void vtkMoleculeToBondStickFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -45,131 +45,128 @@ vtkTextureMapToCylinder::vtkTextureMapToCylinder()
   this->PreventSeam = 1;
 }
 
-int vtkTextureMapToCylinder::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTextureMapToCylinder::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkFloatArray *newTCoords;
-  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkFloatArray* newTCoords;
+  vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType ptId;
   int i;
   double x[3], tc[2], thetaX, thetaY, closest[3], v[3];
   double axis[3], vP[3], vec[3];
 
-  vtkDebugMacro(<<"Generating Cylindrical Texture Coordinates");
+  vtkDebugMacro(<< "Generating Cylindrical Texture Coordinates");
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
-  if ( numPts < 1 )
+  if (numPts < 1)
   {
-    vtkErrorMacro(<<"Can't generate texture coordinates without points");
+    vtkErrorMacro(<< "Can't generate texture coordinates without points");
     return 1;
   }
 
   double point1[3] = { this->Point1[0], this->Point1[1], this->Point1[2] };
   double point2[3] = { this->Point2[0], this->Point2[1], this->Point2[2] };
 
-  if ( this->AutomaticCylinderGeneration )
+  if (this->AutomaticCylinderGeneration)
   {
-    vtkPoints *pts=vtkPoints::New(); pts->SetNumberOfPoints(numPts);
+    vtkPoints* pts = vtkPoints::New();
+    pts->SetNumberOfPoints(numPts);
     double corner[3], max[3], mid[3], min[3], size[3], l;
-    vtkOBBTree *OBB = vtkOBBTree::New();
+    vtkOBBTree* OBB = vtkOBBTree::New();
 
-    for ( ptId=0; ptId < numPts; ptId++ )
+    for (ptId = 0; ptId < numPts; ptId++)
     {
       input->GetPoint(ptId, x);
-      pts->SetPoint(ptId,x);
+      pts->SetPoint(ptId, x);
     }
 
-    OBB->ComputeOBB(pts,corner,max,mid,min,size);
+    OBB->ComputeOBB(pts, corner, max, mid, min, size);
     pts->Delete();
     OBB->Delete();
 
-    for ( i=0; i < 3; i++)
+    for (i = 0; i < 3; i++)
     {
-      l = (mid[i] + min[i])/2.0;
+      l = (mid[i] + min[i]) / 2.0;
       point1[i] = corner[i] + l;
       point2[i] = corner[i] + max[i] + l;
     }
 
-    vtkDebugMacro(<<"Cylinder axis computed as \tPoint1: ("
-                  << point1[0] <<", " << point1[1] <<", "
-                  << point1[2] <<")\n\t\t\t\tPoint2: ("
-                  << point2[0] <<", " << point2[1] <<", "
-                  << point2[2] <<")");
+    vtkDebugMacro(<< "Cylinder axis computed as \tPoint1: (" << point1[0] << ", " << point1[1]
+                  << ", " << point1[2] << ")\n\t\t\t\tPoint2: (" << point2[0] << ", " << point2[1]
+                  << ", " << point2[2] << ")");
   }
 
-  //compute axis which is theta (angle measure) origin
-  for ( i=0; i < 3; i++ )
+  // compute axis which is theta (angle measure) origin
+  for (i = 0; i < 3; i++)
   {
     axis[i] = point2[i] - point1[i];
   }
-  if ( vtkMath::Norm(axis) == 0.0 )
+  if (vtkMath::Norm(axis) == 0.0)
   {
-    vtkErrorMacro(<<"Bad cylinder axis");
+    vtkErrorMacro(<< "Bad cylinder axis");
     return 1;
   }
 
-  v[0] = 1.0; v[1] = v[2] = 0.0;
-  vtkMath::Cross(axis,v,vP);
-  if ( vtkMath::Norm(vP) == 0.0 )
-  {//must be prependicular
-    v[1] = 1.0; v[0] = v[2] = 0.0;
-    vtkMath::Cross(axis,v,vP);
+  v[0] = 1.0;
+  v[1] = v[2] = 0.0;
+  vtkMath::Cross(axis, v, vP);
+  if (vtkMath::Norm(vP) == 0.0)
+  { // must be prependicular
+    v[1] = 1.0;
+    v[0] = v[2] = 0.0;
+    vtkMath::Cross(axis, v, vP);
   }
-  vtkMath::Cross(vP,axis,vec);
-  if ( vtkMath::Normalize(vec) == 0.0 )
+  vtkMath::Cross(vP, axis, vec);
+  if (vtkMath::Normalize(vec) == 0.0)
   {
-    vtkErrorMacro(<<"Bad cylinder axis");
+    vtkErrorMacro(<< "Bad cylinder axis");
     return 1;
   }
   newTCoords = vtkFloatArray::New();
   newTCoords->SetName("Texture Coordinates");
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2*numPts);
+  newTCoords->Allocate(2 * numPts);
 
-  //loop over all points computing spherical coordinates
-  for ( ptId=0; ptId < numPts; ptId++ )
+  // loop over all points computing spherical coordinates
+  for (ptId = 0; ptId < numPts; ptId++)
   {
     input->GetPoint(ptId, x);
-    vtkLine::DistanceToLine(x,point1,point2,tc[1],closest);
+    vtkLine::DistanceToLine(x, point1, point2, tc[1], closest);
 
-    for (i=0; i < 3; i++)
+    for (i = 0; i < 3; i++)
     {
       v[i] = x[i] - closest[i];
     }
     vtkMath::Normalize(v);
 
-    thetaX = acos ((double)vtkMath::Dot(v,vec));
-    vtkMath::Cross(vec,v,vP);
-    thetaY = vtkMath::Dot(axis,vP); //not really interested in angle, just +/- sign
+    thetaX = acos((double)vtkMath::Dot(v, vec));
+    vtkMath::Cross(vec, v, vP);
+    thetaY = vtkMath::Dot(axis, vP); // not really interested in angle, just +/- sign
 
-    if ( this->PreventSeam )
+    if (this->PreventSeam)
     {
       tc[0] = thetaX / vtkMath::Pi();
     }
     else
     {
-      tc[0] = thetaX / (2.0*vtkMath::Pi());
-      if ( thetaY < 0.0 )
+      tc[0] = thetaX / (2.0 * vtkMath::Pi());
+      if (thetaY < 0.0)
       {
         tc[0] = 1.0 - tc[0];
       }
     }
 
-    newTCoords->InsertTuple(ptId,tc);
+    newTCoords->InsertTuple(ptId, tc);
   }
 
   output->GetPointData()->CopyTCoordsOff();
@@ -184,16 +181,13 @@ int vtkTextureMapToCylinder::RequestData(
 
 void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Automatic Cylinder Generation: " <<
-                  (this->AutomaticCylinderGeneration ? "On\n" : "Off\n");
-  os << indent << "Prevent Seam: " <<
-                  (this->PreventSeam ? "On\n" : "Off\n");
-  os << indent << "Point1: (" << this->Point1[0] << ", "
-                              << this->Point1[1] << ", "
-                              << this->Point1[2] << ")\n";
-  os << indent << "Point2: (" << this->Point2[0] << ", "
-                              << this->Point2[1] << ", "
-                              << this->Point2[2] << ")\n";
+  os << indent
+     << "Automatic Cylinder Generation: " << (this->AutomaticCylinderGeneration ? "On\n" : "Off\n");
+  os << indent << "Prevent Seam: " << (this->PreventSeam ? "On\n" : "Off\n");
+  os << indent << "Point1: (" << this->Point1[0] << ", " << this->Point1[1] << ", "
+     << this->Point1[2] << ")\n";
+  os << indent << "Point2: (" << this->Point2[0] << ", " << this->Point2[1] << ", "
+     << this->Point2[2] << ")\n";
 }

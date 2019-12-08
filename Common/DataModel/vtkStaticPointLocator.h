@@ -45,17 +45,16 @@
  *
  * @sa
  * vtkPointLocator vtkCellLocator vtkLocator vtkAbstractPointLocator
-*/
+ */
 
 #ifndef vtkStaticPointLocator_h
 #define vtkStaticPointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkIdList;
 struct vtkBucketList;
-
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator : public vtkAbstractPointLocator
 {
@@ -64,13 +63,13 @@ public:
    * Construct with automatic computation of divisions, averaging
    * 5 points per bucket.
    */
-  static vtkStaticPointLocator *New();
+  static vtkStaticPointLocator* New();
 
   //@{
   /**
    * Standard type and print methods.
    */
-  vtkTypeMacro(vtkStaticPointLocator,vtkAbstractPointLocator);
+  vtkTypeMacro(vtkStaticPointLocator, vtkAbstractPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -80,8 +79,8 @@ public:
    * used in conjunction with the Automatic data member (if enabled) to
    * determine the number of locator x-y-z divisions.
    */
-  vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfPointsPerBucket,int);
+  vtkSetClampMacro(NumberOfPointsPerBucket, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfPointsPerBucket, int);
   //@}
 
   //@{
@@ -91,13 +90,13 @@ public:
    * NumberOfPointsPerBucket and MaxNumberOfBuckets data members. The number
    * of divisions must be >= 1 in each direction.
    */
-  vtkSetVector3Macro(Divisions,int);
-  vtkGetVectorMacro(Divisions,int,3);
+  vtkSetVector3Macro(Divisions, int);
+  vtkGetVectorMacro(Divisions, int, 3);
   //@}
 
   // Re-use any superclass signatures that we don't override.
-  using vtkAbstractPointLocator::FindClosestPoint;
   using vtkAbstractPointLocator::FindClosestNPoints;
+  using vtkAbstractPointLocator::FindClosestPoint;
   using vtkAbstractPointLocator::FindPointsWithinRadius;
   using vtkAbstractPointLocator::GetBounds;
 
@@ -118,11 +117,9 @@ public:
    * points are located the same distance away, the actual point returned is a
    * function in which order the points are processed (i.e., indeterminate).
    */
-  vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) override;
-  virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
-                                                 double inputDataLength,
-                                                 double& dist2);
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double inputDataLength, double& dist2);
   //@}
 
   /**
@@ -133,7 +130,7 @@ public:
    * thread safe if BuildLocator() is directly or indirectly called from a
    * single thread first.
    */
-  void FindClosestNPoints(int N, const double x[3], vtkIdList *result) override;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
    * Find all points within a specified radius R of position x.
@@ -141,8 +138,7 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindPointsWithinRadius(double R, const double x[3],
-                              vtkIdList *result) override;
+  void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
   /**
    * Intersect the points contained in the locator with the line defined by
@@ -153,8 +149,8 @@ public:
    * of the picked ptId is returned in ptX. (This method is thread safe after
    * the locator is built.)
    */
-  int IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
-                        double lineX[3], double ptX[3], vtkIdType &ptId);
+  int IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double lineX[3],
+    double ptX[3], vtkIdType& ptId);
 
   /**
    * Merge points in the locator given a tolerance. Return a merge map which
@@ -163,7 +159,7 @@ public:
    * locator was built with. The user is expected to pass in an allocated
    * mergeMap.
    */
-  void MergePoints(double tol, vtkIdType *mergeMap);
+  void MergePoints(double tol, vtkIdType* mergeMap);
 
   //@{
   /**
@@ -173,7 +169,7 @@ public:
   void Initialize() override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  void BuildLocator(const double *bounds);
+  void BuildLocator(const double* bounds);
   //@}
 
   /**
@@ -181,7 +177,7 @@ public:
    * Note that the level parameter has no effect on this method as there is no
    * hierarchy built (i.e., uniform binning). Typically this is used for debugging.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
 
   /**
    * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
@@ -194,7 +190,7 @@ public:
    * return a list of point ids contained within the bucket. The user must
    * provide an instance of vtkIdList to contain the result.
    */
-  void GetBucketIds(vtkIdType bNum, vtkIdList *bList);
+  void GetBucketIds(vtkIdType bNum, vtkIdList* bList);
 
   //@{
   /**
@@ -211,8 +207,8 @@ public:
    * in such a way as not to exceed the MaxNumberOfBuckets proportionally to
    * the size of the bounding box in the x-y-z directions.
    */
-  vtkSetClampMacro(MaxNumberOfBuckets,vtkIdType,1000,VTK_ID_MAX);
-  vtkGetMacro(MaxNumberOfBuckets,vtkIdType);
+  vtkSetClampMacro(MaxNumberOfBuckets, vtkIdType, 1000, VTK_ID_MAX);
+  vtkGetMacro(MaxNumberOfBuckets, vtkIdType);
   //@}
 
   /**
@@ -222,33 +218,36 @@ public:
    * of buckets (specified by the user). Note that LargeIds are only available
    * on 64-bit architectures.
    */
-  bool GetLargeIds() {return this->LargeIds;}
+  bool GetLargeIds() { return this->LargeIds; }
 
   //@{
   /**
    * Provide an accessor to the bucket spacing. Valid after the locator is
    * built.
    */
-  virtual double *GetSpacing() { return this->H; }
+  virtual double* GetSpacing() { return this->H; }
   virtual void GetSpacing(double spacing[3])
-  { spacing[0] = this->H[0]; spacing[1] = this->H[1]; spacing[2] = this->H[2]; }
+  {
+    spacing[0] = this->H[0];
+    spacing[1] = this->H[1];
+    spacing[2] = this->H[2];
+  }
   //@}
 
 protected:
   vtkStaticPointLocator();
   ~vtkStaticPointLocator() override;
 
-  int NumberOfPointsPerBucket; // Used with AutomaticOn to control subdivide
-  int Divisions[3]; // Number of sub-divisions in x-y-z directions
-  double H[3]; // Width of each bucket in x-y-z directions
-  vtkBucketList *Buckets; // Lists of point ids in each bucket
+  int NumberOfPointsPerBucket;  // Used with AutomaticOn to control subdivide
+  int Divisions[3];             // Number of sub-divisions in x-y-z directions
+  double H[3];                  // Width of each bucket in x-y-z directions
+  vtkBucketList* Buckets;       // Lists of point ids in each bucket
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
-  bool LargeIds; //indicate whether integer ids are small or large
+  bool LargeIds;                // indicate whether integer ids are small or large
 
 private:
   vtkStaticPointLocator(const vtkStaticPointLocator&) = delete;
   void operator=(const vtkStaticPointLocator&) = delete;
-
 };
 
 #endif

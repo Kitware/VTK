@@ -74,21 +74,19 @@
  *
  * If subclassing from a class that already supports garbage
  * collection, one need only provide the ReportReferences method.
-*/
+ */
 
 #ifndef vtkGarbageCollector_h
 #define vtkGarbageCollector_h
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkObject.h"
+#include "vtkCommonCoreModule.h"        // For export macro
 #include "vtkGarbageCollectorManager.h" // Needed for singleton initialization.
+#include "vtkObject.h"
 
 // This function is a friend of the collector so that it can call the
 // internal report method.
-void VTKCOMMONCORE_EXPORT
-vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
-                                  vtkObjectBase*, void*,
-                                  const char*);
+void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReportInternal(
+  vtkGarbageCollector*, vtkObjectBase*, void*, const char*);
 
 // This allows vtkObjectBase to get at the methods it needs.
 class vtkObjectBaseToGarbageCollectorFriendship;
@@ -96,7 +94,7 @@ class vtkObjectBaseToGarbageCollectorFriendship;
 class VTKCOMMONCORE_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkGarbageCollector,vtkObject);
+  vtkTypeMacro(vtkGarbageCollector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkGarbageCollector* New();
 
@@ -152,7 +150,6 @@ protected:
   ~vtkGarbageCollector() override;
 
 private:
-
   /**
    * Called by UnRegister method of an object that supports garbage
    * collection.  The UnRegister may not actually decrement the
@@ -184,10 +181,8 @@ private:
 
   // Internal report callback and friend function that calls it.
   virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
-  friend void VTKCOMMONCORE_EXPORT
-  vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
-                                    vtkObjectBase*, void*,
-                                    const char*);
+  friend void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReportInternal(
+    vtkGarbageCollector*, vtkObjectBase*, void*, const char*);
 
 private:
   vtkGarbageCollector(const vtkGarbageCollector&) = delete;
@@ -199,17 +194,14 @@ class vtkSmartPointerBase;
 /**
  * Function to report a reference held by a smart pointer to a collector.
  */
-void VTKCOMMONCORE_EXPORT
-vtkGarbageCollectorReport(vtkGarbageCollector* collector,
-                          vtkSmartPointerBase& ptr,
-                          const char* desc);
+void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReport(
+  vtkGarbageCollector* collector, vtkSmartPointerBase& ptr, const char* desc);
 
 /**
  * Function to report a reference held by a raw pointer to a collector.
  */
 template <class T>
-void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr,
-                               const char* desc)
+void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr, const char* desc)
 {
   vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
 }

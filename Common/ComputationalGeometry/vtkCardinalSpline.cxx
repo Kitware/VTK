@@ -16,30 +16,32 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //----------------------------------------------------------------------------
 // Construct a Cardinal Spline.
-vtkCardinalSpline::vtkCardinalSpline () = default;
+vtkCardinalSpline::vtkCardinalSpline() = default;
 
 //----------------------------------------------------------------------------
 // Evaluate a 1D Spline
-double vtkCardinalSpline::Evaluate (double t)
+double vtkCardinalSpline::Evaluate(double t)
 {
   int index;
-  double *intervals;
-  double *coefficients;
+  double* intervals;
+  double* coefficients;
 
   // check to see if we need to recompute the spline
-  if (this->ComputeTime < this->GetMTime ())
+  if (this->ComputeTime < this->GetMTime())
   {
-    this->Compute ();
+    this->Compute();
   }
 
   // make sure we have at least 2 points
-  int size = this->PiecewiseFunction->GetSize ();
+  int size = this->PiecewiseFunction->GetSize();
   if (size < 2)
   {
     return 0.0;
@@ -48,7 +50,7 @@ double vtkCardinalSpline::Evaluate (double t)
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
-  if ( this->Closed )
+  if (this->Closed)
   {
     size = size + 1;
   }
@@ -64,33 +66,33 @@ double vtkCardinalSpline::Evaluate (double t)
   }
 
   // find pointer to cubic spline coefficient using bisection method
-  index = this->FindIndex(size,t);
+  index = this->FindIndex(size, t);
 
   // calculate offset within interval
   t = (t - intervals[index]);
 
   // evaluate intervals value y
-  return (t * (t * (t * *(coefficients + index * 4 + 3)
-                      + *(coefficients + index * 4 + 2))
-                      + *(coefficients + index * 4 + 1))
-                      + *(coefficients + index * 4));
+  return (t *
+      (t * (t * *(coefficients + index * 4 + 3) + *(coefficients + index * 4 + 2)) +
+        *(coefficients + index * 4 + 1)) +
+    *(coefficients + index * 4));
 }
 
 //----------------------------------------------------------------------------
 // Compute Cardinal Splines for each dependent variable
-void vtkCardinalSpline::Compute ()
+void vtkCardinalSpline::Compute()
 {
   double *ts, *xs;
-  double *work;
-  double *coefficients;
-  double *dependent;
+  std::vector<double> work;
+  std::vector<double> dependent;
+  double* coefficients;
   int size;
   int i;
 
   // get the size of the independent variables
-  size = this->PiecewiseFunction->GetSize ();
+  size = this->PiecewiseFunction->GetSize();
 
-  if(size < 2)
+  if (size < 2)
   {
     vtkErrorMacro("Cannot compute a spline with less than 2 points. # of points is: " << size);
     return;
@@ -99,106 +101,98 @@ void vtkCardinalSpline::Compute ()
   // copy the independent variables. Note that if the spline
   // is closed the first and last point are assumed repeated -
   // so we add and extra point
-  delete [] this->Intervals;
+  delete[] this->Intervals;
 
-  if ( !this->Closed )
+  if (!this->Closed)
   {
     this->Intervals = new double[size];
-    ts = this->PiecewiseFunction->GetDataPointer ();
+    ts = this->PiecewiseFunction->GetDataPointer();
     for (i = 0; i < size; i++)
     {
-      this->Intervals[i] = *(ts + 2*i);
+      this->Intervals[i] = *(ts + 2 * i);
     }
 
     // allocate memory for work arrays
-    work = new double[size];
+    work.resize(size);
 
     // allocate memory for coefficients
-    delete [] this->Coefficients;
-    this->Coefficients = new double [4*size];
+    delete[] this->Coefficients;
+    this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double [size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
 
     // get the dependent variable values
-    xs = this->PiecewiseFunction->GetDataPointer () + 1;
+    xs = this->PiecewiseFunction->GetDataPointer() + 1;
     for (int j = 0; j < size; j++)
     {
-      *(dependent + j) = *(xs + 2*j);
+      dependent[j] = xs[2 * j];
     }
 
-    this->Fit1D (size, this->Intervals, dependent,
-                 work, (double (*)[4])coefficients,
-                 this->LeftConstraint, this->LeftValue,
-                 this->RightConstraint, this->RightValue);
+    this->Fit1D(size, this->Intervals, dependent.data(), work.data(), (double(*)[4])coefficients,
+      this->LeftConstraint, this->LeftValue, this->RightConstraint, this->RightValue);
   }
 
-  else //add extra "fictitious" point to close loop
+  else // add extra "fictitious" point to close loop
   {
     size = size + 1;
     this->Intervals = new double[size];
-    ts = this->PiecewiseFunction->GetDataPointer ();
-    for (i = 0; i < size-1; i++)
+    ts = this->PiecewiseFunction->GetDataPointer();
+    for (i = 0; i < size - 1; i++)
     {
-      this->Intervals[i] = *(ts + 2*i);
+      this->Intervals[i] = *(ts + 2 * i);
     }
-    if ( this->ParametricRange[0] != this->ParametricRange[1] )
+    if (this->ParametricRange[0] != this->ParametricRange[1])
     {
-      this->Intervals[size-1] = this->ParametricRange[1];
+      this->Intervals[size - 1] = this->ParametricRange[1];
     }
     else
     {
-      this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+      this->Intervals[size - 1] = this->Intervals[size - 2] + 1.0;
     }
 
     // allocate memory for work arrays
-    work = new double[size];
+    work.resize(size);
 
     // allocate memory for coefficients
-    delete [] this->Coefficients;
-    this->Coefficients = new double [4*size];
+    delete[] this->Coefficients;
+    this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double [size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
 
     // get the dependent variable values
-    xs = this->PiecewiseFunction->GetDataPointer () + 1;
-    for (int j = 0; j < size-1; j++)
+    xs = this->PiecewiseFunction->GetDataPointer() + 1;
+    for (int j = 0; j < size - 1; j++)
     {
-      *(dependent + j) = *(xs + 2*j);
+      dependent[j] = xs[2 * j];
     }
-    dependent[size-1] = *xs;
+    dependent[size - 1] = xs[0];
 
-    this->FitClosed1D (size, this->Intervals, dependent,
-                       work, (double (*)[4])coefficients);
+    this->FitClosed1D(
+      size, this->Intervals, dependent.data(), work.data(), (double(*)[4])coefficients);
   }
-
-  // free the work array and dependent variable storage
-  delete [] work;
-  delete [] dependent;
 
   // update compute time
   this->ComputeTime = this->GetMTime();
 }
 
-
 //----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is open.
-void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
-                        double *work, double coefficients[][4],
-                        int leftConstraint, double leftValue,
-                        int rightConstraint, double rightValue)
+void vtkCardinalSpline::Fit1D(int size, double* x, double* y, double* work,
+  double coefficients[][4], int leftConstraint, double leftValue, int rightConstraint,
+  double rightValue)
 {
-  double   b = 0.0;
-  double   xlk;
-  double   xlkp;
-  int     k;
+  double b = 0.0;
+  double xlk;
+  double xlkp;
+  int k;
 
   // develop constraint at leftmost point.
   switch (leftConstraint)
@@ -219,35 +213,30 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
       // desired second derivative at leftmost point is leftValue.
       coefficients[0][1] = 2.0;
       coefficients[0][2] = 1.0;
-      work[0]= 3.0 * ((y[1] - y[0]) / (x[1] - x[0])) -
-        0.5 * (x[1] - x[0]) * leftValue;
+      work[0] = 3.0 * ((y[1] - y[0]) / (x[1] - x[0])) - 0.5 * (x[1] - x[0]) * leftValue;
       break;
     case 3:
       // desired second derivative at leftmost point is
       // leftValue times second derivative at first interior point.
       coefficients[0][1] = 2.0;
-      coefficients[0][2] = 4.0 * ((0.5 + leftValue) /
-                                  (2.0 + leftValue));
-      work[0]= 6.0 * ((1.0 + leftValue) / (2.0 + leftValue)) *
-        ((y[1] - y[0]) / (x[1]-x[0]));
+      coefficients[0][2] = 4.0 * ((0.5 + leftValue) / (2.0 + leftValue));
+      work[0] = 6.0 * ((1.0 + leftValue) / (2.0 + leftValue)) * ((y[1] - y[0]) / (x[1] - x[0]));
       break;
     default:
       assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
   }
 
-    // develop body of band matrix.
+  // develop body of band matrix.
   for (k = 1; k < size - 1; k++)
   {
-    xlk = x[k] - x[k-1];
-    xlkp = x[k+1] - x[k];
+    xlk = x[k] - x[k - 1];
+    xlkp = x[k + 1] - x[k];
     coefficients[k][0] = xlkp;
     coefficients[k][1] = 2.0 * (xlkp + xlk);
     coefficients[k][2] = xlk;
-    work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
-                     ((xlk * (y[k+1] - y[k])) / xlkp));
+    work[k] = 3.0 * (((xlkp * (y[k] - y[k - 1])) / xlk) + ((xlk * (y[k + 1] - y[k])) / xlkp));
   }
-
 
   // develop constraint at rightmost point.
   switch (rightConstraint)
@@ -266,21 +255,18 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
       break;
     case 2:
       // desired second derivative at rightmost point is rightValue.
-      coefficients[size-1][0] = 1.0;
-      coefficients[size-1][1] = 2.0;
-      work[size-1] = 3.0 * ((y[size-1] - y[size-2]) /
-                            (x[size-1] - x[size-2])) +
-        0.5 * (x[size-1]-x[size-2]) * rightValue;
+      coefficients[size - 1][0] = 1.0;
+      coefficients[size - 1][1] = 2.0;
+      work[size - 1] = 3.0 * ((y[size - 1] - y[size - 2]) / (x[size - 1] - x[size - 2])) +
+        0.5 * (x[size - 1] - x[size - 2]) * rightValue;
       break;
     case 3:
       // desired second derivative at rightmost point is
       // rightValue times second derivative at last interior point.
-      coefficients[size-1][0] = 4.0 * ((0.5 + rightValue) /
-                                       (2.0 + rightValue));
-      coefficients[size-1][1] = 2.0;
-      work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
-        ((y[size-1] - y[size-2]) /
-         (x[size-1] - x[size-2]));
+      coefficients[size - 1][0] = 4.0 * ((0.5 + rightValue) / (2.0 + rightValue));
+      coefficients[size - 1][1] = 2.0;
+      work[size - 1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
+        ((y[size - 1] - y[size - 2]) / (x[size - 1] - x[size - 2]));
       break;
     default:
       assert("check: impossible case." && 0); // reaching this line is a bug.
@@ -290,20 +276,18 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
   // solve resulting set of equations.
   coefficients[0][2] = coefficients[0][2] / coefficients[0][1];
   work[0] = work[0] / coefficients[0][1];
-  coefficients[size-1][2] = 0.0;
+  coefficients[size - 1][2] = 0.0;
 
   for (k = 1; k < size; k++)
   {
-    coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] *
-                                               coefficients[k-1][2]);
+    coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] * coefficients[k - 1][2]);
     coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
-    work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
-      / coefficients[k][1];
+    work[k] = (work[k] - (coefficients[k][0] * work[k - 1])) / coefficients[k][1];
   }
 
   for (k = size - 2; k >= 0; k--)
   {
-    work[k] = work[k] - (coefficients[k][2] * work[k+1]);
+    work[k] = work[k] - (coefficients[k][2] * work[k + 1]);
   }
 
   // the column vector work now contains the first
@@ -312,40 +296,37 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
   // each pair of joints.
   for (k = 0; k < size - 1; k++)
   {
-    b = x[k+1] - x[k];
+    b = x[k + 1] - x[k];
     coefficients[k][0] = y[k];
     coefficients[k][1] = work[k];
-    coefficients[k][2] = (3.0 * (y[k+1] - y[k])) / (b * b) -
-      (work[k+1] + 2.0 * work[k]) / b;
-    coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) +
-      (work[k+1] + work[k]) / (b * b);
+    coefficients[k][2] = (3.0 * (y[k + 1] - y[k])) / (b * b) - (work[k + 1] + 2.0 * work[k]) / b;
+    coefficients[k][3] =
+      (2.0 * (y[k] - y[k + 1])) / (b * b * b) + (work[k + 1] + work[k]) / (b * b);
   }
 
   // the coefficients of a fictitious nth cubic
   // are evaluated.  This may simplify
   // algorithms which include both end points.
 
-  coefficients[size-1][0] = y[size-1];
-  coefficients[size-1][1] = work[size-1];
-  coefficients[size-1][2] = coefficients[size-2][2] +
-    3.0 * coefficients[size-2][3] * b;
-  coefficients[size-1][3] = coefficients[size-2][3];
-
+  coefficients[size - 1][0] = y[size - 1];
+  coefficients[size - 1][1] = work[size - 1];
+  coefficients[size - 1][2] = coefficients[size - 2][2] + 3.0 * coefficients[size - 2][3] * b;
+  coefficients[size - 1][3] = coefficients[size - 2][3];
 }
 
 //----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
 // spline is continuous in value and derivatives.
-void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
-                        double *work, double coefficients[][4])
+void vtkCardinalSpline::FitClosed1D(
+  int size, double* x, double* y, double* work, double coefficients[][4])
 {
-  double   b;
-  double   xlk;
-  double   xlkp;
-  int      k;
-  double   aN, bN, cN, dN;
-  int      N;
+  double b;
+  double xlk;
+  double xlkp;
+  int k;
+  double aN, bN, cN, dN;
+  int N;
 
   N = size - 1;
 
@@ -353,38 +334,33 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
   //
   for (k = 1; k < N; k++)
   {
-    xlk = x[k] - x[k-1];
-    xlkp = x[k+1] - x[k];
+    xlk = x[k] - x[k - 1];
+    xlkp = x[k + 1] - x[k];
     coefficients[k][0] = xlkp;
     coefficients[k][1] = 2.0 * (xlkp + xlk);
     coefficients[k][2] = xlk;
-    work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
-                     ((xlk * (y[k+1] - y[k])) / xlkp));
+    work[k] = 3.0 * (((xlkp * (y[k] - y[k - 1])) / xlk) + ((xlk * (y[k + 1] - y[k])) / xlkp));
   }
 
-  xlk = x[N] - x[N-1];
+  xlk = x[N] - x[N - 1];
   xlkp = x[1] - x[0];
   aN = coefficients[N][0] = xlkp;
   bN = coefficients[N][1] = 2.0 * (xlkp + xlk);
   cN = coefficients[N][2] = xlk;
-  dN = work[N] = 3.0 * (((xlkp * (y[N] - y[N-1])) / xlk) +
-                        ((xlk * (y[1] - y[0])) / xlkp));
+  dN = work[N] = 3.0 * (((xlkp * (y[N] - y[N - 1])) / xlk) + ((xlk * (y[1] - y[0])) / xlkp));
 
   // solve resulting set of equations.
   //
   coefficients[0][2] = 0.0;
-  work[0]            = 0.0;
+  work[0] = 0.0;
   coefficients[0][3] = 1.0;
 
   for (k = 1; k <= N; k++)
   {
-    coefficients[k][1] = coefficients[k][1] -
-      (coefficients[k][0] * coefficients[k-1][2]);
+    coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] * coefficients[k - 1][2]);
     coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
-    work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
-      / coefficients[k][1];
-    coefficients[k][3] = (-1.0 * coefficients[k][0] *
-                          coefficients[k-1][3]) / coefficients[k][1];
+    work[k] = (work[k] - (coefficients[k][0] * work[k - 1])) / coefficients[k][1];
+    coefficients[k][3] = (-1.0 * coefficients[k][0] * coefficients[k - 1][3]) / coefficients[k][1];
   }
 
   coefficients[N][0] = 1.0;
@@ -392,16 +368,14 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
 
   for (k = N - 1; k > 0; k--)
   {
-    coefficients[k][0] = coefficients[k][3] -
-      coefficients[k][2] * coefficients[k+1][0];
-    coefficients[k][1] = work[k] - coefficients[k][2] * coefficients[k+1][1];
+    coefficients[k][0] = coefficients[k][3] - coefficients[k][2] * coefficients[k + 1][0];
+    coefficients[k][1] = work[k] - coefficients[k][2] * coefficients[k + 1][1];
   }
 
-  work[0] = work[N] = (dN - cN * coefficients[1][1] -
-                       aN * coefficients[N-1][1]) / ( bN +
-                       cN * coefficients[1][0] + aN * coefficients[N-1][0]);
+  work[0] = work[N] = (dN - cN * coefficients[1][1] - aN * coefficients[N - 1][1]) /
+    (bN + cN * coefficients[1][0] + aN * coefficients[N - 1][0]);
 
-  for (k=1; k < N; k++)
+  for (k = 1; k < N; k++)
   {
     work[k] = coefficients[k][0] * work[N] + coefficients[k][1];
   }
@@ -412,15 +386,13 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
   // each pair of joints.
   for (k = 0; k < N; k++)
   {
-    b = x[k+1] - x[k];
+    b = x[k + 1] - x[k];
     coefficients[k][0] = y[k];
     coefficients[k][1] = work[k];
-    coefficients[k][2] = (3.0 * (y[k+1] - y[k])) / (b * b) -
-      (work[k+1] + 2.0 * work[k]) / b;
-    coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) +
-      (work[k+1] + work[k]) / (b * b);
+    coefficients[k][2] = (3.0 * (y[k + 1] - y[k])) / (b * b) - (work[k + 1] + 2.0 * work[k]) / b;
+    coefficients[k][3] =
+      (2.0 * (y[k] - y[k + 1])) / (b * b * b) + (work[k + 1] + work[k]) / (b * b);
   }
-
 
   // the coefficients of a fictitious nth cubic
   // are the same as the coefficients in the first interval
@@ -432,13 +404,13 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
 }
 
 //----------------------------------------------------------------------------
-void vtkCardinalSpline::DeepCopy(vtkSpline *s)
+void vtkCardinalSpline::DeepCopy(vtkSpline* s)
 {
-  vtkCardinalSpline *spline = vtkCardinalSpline::SafeDownCast(s);
+  vtkCardinalSpline* spline = vtkCardinalSpline::SafeDownCast(s);
 
-  if ( spline != nullptr )
+  if (spline != nullptr)
   {
-    //nothing to do
+    // nothing to do
   }
 
   // Now do superclass
@@ -448,6 +420,5 @@ void vtkCardinalSpline::DeepCopy(vtkSpline *s)
 //----------------------------------------------------------------------------
 void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-

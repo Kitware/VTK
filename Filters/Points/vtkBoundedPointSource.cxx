@@ -15,14 +15,14 @@
 #include "vtkBoundedPointSource.h"
 
 #include "vtkCellArray.h"
-#include "vtkMath.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkBoundedPointSource);
 
@@ -46,24 +46,21 @@ vtkBoundedPointSource::vtkBoundedPointSource()
 }
 
 //----------------------------------------------------------------------------
-int vtkBoundedPointSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkBoundedPointSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType ptId;
   double x[3];
 
-  vtkPoints *newPoints = vtkPoints::New();
+  vtkPoints* newPoints = vtkPoints::New();
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
@@ -81,43 +78,43 @@ int vtkBoundedPointSource::RequestData(
   double zmin = (this->Bounds[4] < this->Bounds[5] ? this->Bounds[4] : this->Bounds[5]);
   double zmax = (this->Bounds[4] < this->Bounds[5] ? this->Bounds[5] : this->Bounds[4]);
 
-  vtkMath *math = vtkMath::New();
-  for (ptId=0; ptId<this->NumberOfPoints; ptId++)
+  vtkMath* math = vtkMath::New();
+  for (ptId = 0; ptId < this->NumberOfPoints; ptId++)
   {
-    x[0] = math->Random(xmin,xmax);
-    x[1] = math->Random(ymin,ymax);
-    x[2] = math->Random(zmin,zmax);
-    newPoints->SetPoint(ptId,x);
+    x[0] = math->Random(xmin, xmax);
+    x[1] = math->Random(ymin, ymax);
+    x[2] = math->Random(zmin, zmax);
+    newPoints->SetPoint(ptId, x);
   }
   output->SetPoints(newPoints);
   newPoints->Delete();
 
   // Generate the scalars if requested
-  if ( this->ProduceRandomScalars )
+  if (this->ProduceRandomScalars)
   {
-    vtkFloatArray *scalars = vtkFloatArray::New();
+    vtkFloatArray* scalars = vtkFloatArray::New();
     scalars->SetName("RandomScalars");
     scalars->SetNumberOfTuples(this->NumberOfPoints);
-    float *s = static_cast<float*>(scalars->GetVoidPointer(0));
-    double sMin = (this->ScalarRange[0] < this->ScalarRange[1] ?
-                   this->ScalarRange[0] : this->ScalarRange[1]);
-    double sMax = (this->ScalarRange[0] < this->ScalarRange[1] ?
-                   this->ScalarRange[1] : this->ScalarRange[0]);
-    for (ptId=0; ptId<this->NumberOfPoints; ptId++)
+    float* s = static_cast<float*>(scalars->GetVoidPointer(0));
+    double sMin =
+      (this->ScalarRange[0] < this->ScalarRange[1] ? this->ScalarRange[0] : this->ScalarRange[1]);
+    double sMax =
+      (this->ScalarRange[0] < this->ScalarRange[1] ? this->ScalarRange[1] : this->ScalarRange[0]);
+    for (ptId = 0; ptId < this->NumberOfPoints; ptId++)
     {
-      *s++ = math->Random(sMin,sMax);
+      *s++ = math->Random(sMin, sMax);
     }
     output->GetPointData()->SetScalars(scalars);
     scalars->Delete();
   }
 
   // Generate the vertices if requested
-  if ( this->ProduceCellOutput )
+  if (this->ProduceCellOutput)
   {
-    vtkCellArray *newVerts = vtkCellArray::New();
-    newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
+    vtkCellArray* newVerts = vtkCellArray::New();
+    newVerts->AllocateEstimate(1, this->NumberOfPoints);
     newVerts->InsertNextCell(this->NumberOfPoints);
-    for (ptId=0; ptId<this->NumberOfPoints; ptId++)
+    for (ptId = 0; ptId < this->NumberOfPoints; ptId++)
     {
       newVerts->InsertCellPoint(ptId);
     }
@@ -132,23 +129,19 @@ int vtkBoundedPointSource::RequestData(
 //----------------------------------------------------------------------------
 void vtkBoundedPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
 
-  for(int i=0;i<6;i++)
+  for (int i = 0; i < 6; i++)
   {
     os << indent << "Bounds[" << i << "]: " << this->Bounds[i] << "\n";
   }
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 
-  os << indent << "Produce Cell Output: "
-     << (this->ProduceCellOutput ? "On\n" : "Off\n");
+  os << indent << "Produce Cell Output: " << (this->ProduceCellOutput ? "On\n" : "Off\n");
 
-  os << indent << "Produce Random Scalars: "
-     << (this->ProduceRandomScalars ? "On\n" : "Off\n");
-  os << indent << "Scalar Range (" << this->ScalarRange[0] << ","
-     << this->ScalarRange[1] << ")\n";
-
+  os << indent << "Produce Random Scalars: " << (this->ProduceRandomScalars ? "On\n" : "Off\n");
+  os << indent << "Scalar Range (" << this->ScalarRange[0] << "," << this->ScalarRange[1] << ")\n";
 }

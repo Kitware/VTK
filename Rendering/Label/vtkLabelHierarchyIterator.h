@@ -23,15 +23,15 @@
  *
  *
  * Abstract superclass for iterators over vtkLabelHierarchy.
-*/
+ */
 
 #ifndef vtkLabelHierarchyIterator_h
 #define vtkLabelHierarchyIterator_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkStdString.h" // for std string
-#include "vtkUnicodeString.h" // for unicode string
+#include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkStdString.h"            // for std string
+#include "vtkUnicodeString.h"        // for unicode string
 
 class vtkIdTypeArray;
 class vtkLabelHierarchy;
@@ -40,8 +40,8 @@ class vtkPolyData;
 class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyIterator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchyIterator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkLabelHierarchyIterator, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initializes the iterator. lastLabels is an array holding labels
@@ -49,12 +49,12 @@ public:
    * This could include labels placed during a previous rendering or
    * a label located under the mouse pointer. You may pass a null pointer.
    */
-  virtual void Begin( vtkIdTypeArray* ) { }
+  virtual void Begin(vtkIdTypeArray*) {}
 
   /**
    * Advance the iterator.
    */
-  virtual void Next() { }
+  virtual void Next() {}
 
   /**
    * Returns true if the iterator is at the end.
@@ -64,17 +64,17 @@ public:
   /**
    * Retrieves the current label location.
    */
-  virtual void GetPoint( double x[3] );
+  virtual void GetPoint(double x[3]);
 
   /**
    * Retrieves the current label size.
    */
-  virtual void GetSize( double sz[2] );
+  virtual void GetSize(double sz[2]);
 
   /**
    * Retrieves the current label maximum width in world coordinates.
    */
-  virtual void GetBoundedSize( double sz[2] );
+  virtual void GetBoundedSize(double sz[2]);
 
   /**
    * Retrieves the current label type.
@@ -112,7 +112,7 @@ public:
    * Sets a polydata to fill with geometry representing
    * the bounding boxes of the traversed octree nodes.
    */
-  virtual void SetTraversedBounds( vtkPolyData* );
+  virtual void SetTraversedBounds(vtkPolyData*);
 
   /**
    * Retrieve the coordinates of the center of the current hierarchy node
@@ -120,7 +120,7 @@ public:
    * Nodes are n-cubes, so the size is the length of any edge of the cube.
    * This is used by BoxNode().
    */
-  virtual void GetNodeGeometry( double ctr[3], double& size ) = 0;
+  virtual void GetNodeGeometry(double ctr[3], double& size) = 0;
 
   /**
    * Add a representation to TraversedBounds for the current octree node.
@@ -134,7 +134,7 @@ public:
    * This is equivalent to setting TraversedBounds, iterating over the entire hierarchy,
    * and then resetting TraversedBounds to its original value.
    */
-  virtual void BoxAllNodes( vtkPolyData* );
+  virtual void BoxAllNodes(vtkPolyData*);
 
   //@{
   /**
@@ -143,21 +143,21 @@ public:
    * When non-zero, all nodes will be added.
    * By default, AllBounds is 0.
    */
-  vtkSetMacro(AllBounds,int);
-  vtkGetMacro(AllBounds,int);
+  vtkSetMacro(AllBounds, int);
+  vtkGetMacro(AllBounds, int);
   //@}
 
 protected:
   vtkLabelHierarchyIterator();
   ~vtkLabelHierarchyIterator() override;
 
-  void BoxNodeInternal3( const double* ctr, double sz );
-  void BoxNodeInternal2( const double* ctr, double sz );
+  void BoxNodeInternal3(const double* ctr, double sz);
+  void BoxNodeInternal2(const double* ctr, double sz);
 
   /**
    * The hierarchy being traversed by this iterator.
    */
-  virtual void SetHierarchy( vtkLabelHierarchy* h );
+  virtual void SetHierarchy(vtkLabelHierarchy* h);
 
   vtkLabelHierarchy* Hierarchy;
   vtkPolyData* TraversedBounds;
@@ -166,8 +166,8 @@ protected:
   int AllBoundsRecorded;
 
 private:
-  vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ) = delete;
-  void operator = ( const vtkLabelHierarchyIterator& ) = delete;
+  vtkLabelHierarchyIterator(const vtkLabelHierarchyIterator&) = delete;
+  void operator=(const vtkLabelHierarchyIterator&) = delete;
 };
 
 #endif // vtkLabelHierarchyIterator_h

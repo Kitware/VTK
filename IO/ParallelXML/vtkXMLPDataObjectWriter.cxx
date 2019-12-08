@@ -80,7 +80,7 @@ void vtkXMLPDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataObjectWriter::ProcessRequest(
+vtkTypeBool vtkXMLPDataObjectWriter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
@@ -88,7 +88,7 @@ int vtkXMLPDataObjectWriter::ProcessRequest(
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
-  int retVal = this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  vtkTypeBool retVal = this->Superclass::ProcessRequest(request, inputVector, outputVector);
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     if (retVal && this->ContinuingExecution)

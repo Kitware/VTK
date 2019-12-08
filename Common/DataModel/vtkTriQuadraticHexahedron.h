@@ -66,7 +66,7 @@
  * @par Thanks:
  * Thanks to Soeren Gebbert who developed this class and
  * integrated it into VTK 5.0.
-*/
+ */
 
 #ifndef vtkTriQuadraticHexahedron_h
 #define vtkTriQuadraticHexahedron_h
@@ -82,9 +82,9 @@ class vtkDoubleArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkTriQuadraticHexahedron : public vtkNonLinearCell
 {
 public:
-  static vtkTriQuadraticHexahedron *New ();
-  vtkTypeMacro(vtkTriQuadraticHexahedron,vtkNonLinearCell);
-  void PrintSelf (ostream & os, vtkIndent indent) override;
+  static vtkTriQuadraticHexahedron* New();
+  vtkTypeMacro(vtkTriQuadraticHexahedron, vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,42 +95,37 @@ public:
   int GetCellDimension() override { return 3; }
   int GetNumberOfEdges() override { return 12; }
   int GetNumberOfFaces() override { return 6; }
-  vtkCell *GetEdge (int) override;
-  vtkCell *GetFace (int) override;
+  vtkCell* GetEdge(int) override;
+  vtkCell* GetFace(int) override;
   //@}
 
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList * pts) override;
-  void Contour (double value, vtkDataArray * cellScalars,
-    vtkIncrementalPointLocator * locator, vtkCellArray * verts,
-    vtkCellArray * lines, vtkCellArray * polys,
-    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
-    vtkIdType cellId, vtkCellData * outCd) override;
-  int EvaluatePosition(const double x[3], double *closestPoint,
-    int &subId, double pcoords[3], double &dist2, double *weights) override;
-  void EvaluateLocation(int &subId, const double pcoords[3],
-                         double x[3], double *weights) override;
-  int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                    int dim, double *derivs) override;
-  double *GetParametricCoords () override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  int EvaluatePosition(const double x[3], double* closestPoint, int& subId, double pcoords[3],
+    double& dist2, double* weights) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  double* GetParametricCoords() override;
 
   /**
    * Clip this triquadratic hexahedron using scalar value provided. Like
    * contouring, except that it cuts the hex to produce linear
    * tetrahedron.
    */
-  void Clip (double value, vtkDataArray * cellScalars,
-       vtkIncrementalPointLocator * locator, vtkCellArray * tetras,
-       vtkPointData * inPd, vtkPointData * outPd,
-       vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd,
-       int insideOut) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* tetras, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
 
   /**
    * Line-edge intersection. Intersection has to occur within [0,1] parametric
    * coordinates and with specified tolerance.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t,
-    double x[3], double pcoords[3], int &subId) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
 
   /**
    * @deprecated Replaced by vtkTriQuadraticHexahedron::InterpolateFunctions as of VTK 5.2
@@ -147,11 +142,11 @@ public:
    */
   void InterpolateFunctions(const double pcoords[3], double weights[27]) override
   {
-    vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords,weights);
+    vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
   }
   void InterpolateDerivs(const double pcoords[3], double derivs[81]) override
   {
-    vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords,derivs);
+    vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
   }
   //@}
   //@{
@@ -159,8 +154,8 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId);
-  static int *GetFaceArray(int faceId);
+  static int* GetEdgeArray(int edgeId);
+  static int* GetFaceArray(int faceId);
   //@}
 
   /**
@@ -168,20 +163,20 @@ public:
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
    * function derivatives.
    */
-  void JacobianInverse(const double pcoords[3], double **inverse, double derivs[81]);
+  void JacobianInverse(const double pcoords[3], double** inverse, double derivs[81]);
 
 protected:
-  vtkTriQuadraticHexahedron ();
-  ~vtkTriQuadraticHexahedron () override;
+  vtkTriQuadraticHexahedron();
+  ~vtkTriQuadraticHexahedron() override;
 
-  vtkQuadraticEdge *Edge;
-  vtkBiQuadraticQuad *Face;
-  vtkHexahedron *Hex;
-  vtkDoubleArray *Scalars;
+  vtkQuadraticEdge* Edge;
+  vtkBiQuadraticQuad* Face;
+  vtkHexahedron* Hex;
+  vtkDoubleArray* Scalars;
 
 private:
-  vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &) = delete;
-  void operator = (const vtkTriQuadraticHexahedron &) = delete;
+  vtkTriQuadraticHexahedron(const vtkTriQuadraticHexahedron&) = delete;
+  void operator=(const vtkTriQuadraticHexahedron&) = delete;
 };
 
 #endif

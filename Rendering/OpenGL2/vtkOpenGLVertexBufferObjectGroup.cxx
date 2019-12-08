@@ -16,14 +16,14 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
-#include "vtkViewport.h"
 #include "vtkShaderProgram.h"
+#include "vtkViewport.h"
 
 // STL headers
 #include <algorithm>
@@ -31,10 +31,10 @@
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLVertexBufferObjectGroup);
 
-typedef std::map<std::string, vtkOpenGLVertexBufferObject *>::iterator vboIter;
+typedef std::map<std::string, vtkOpenGLVertexBufferObject*>::iterator vboIter;
 
 // typedef std::map<const std::string, vtkDataArray *>::iterator arrayIter;
-typedef std::map<std::string, std::vector<vtkDataArray *> >::iterator arrayIter;
+typedef std::map<std::string, std::vector<vtkDataArray*> >::iterator arrayIter;
 
 // ----------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectGroup::vtkOpenGLVertexBufferObjectGroup() = default;
@@ -49,8 +49,7 @@ vtkOpenGLVertexBufferObjectGroup::~vtkOpenGLVertexBufferObjectGroup()
   this->UsedVBOs.clear();
 }
 
-int vtkOpenGLVertexBufferObjectGroup::GetNumberOfComponents(
-  const char *attribute)
+int vtkOpenGLVertexBufferObjectGroup::GetNumberOfComponents(const char* attribute)
 {
   vboIter i = this->UsedVBOs.find(attribute);
   if (i != this->UsedVBOs.end())
@@ -60,8 +59,7 @@ int vtkOpenGLVertexBufferObjectGroup::GetNumberOfComponents(
   return 0;
 }
 
-int vtkOpenGLVertexBufferObjectGroup::GetNumberOfTuples(
-  const char *attribute)
+int vtkOpenGLVertexBufferObjectGroup::GetNumberOfTuples(const char* attribute)
 {
   vboIter i = this->UsedVBOs.find(attribute);
   if (i != this->UsedVBOs.end())
@@ -71,8 +69,7 @@ int vtkOpenGLVertexBufferObjectGroup::GetNumberOfTuples(
   return 0;
 }
 
-vtkOpenGLVertexBufferObject *vtkOpenGLVertexBufferObjectGroup::GetVBO(
-  const char *attribute)
+vtkOpenGLVertexBufferObject* vtkOpenGLVertexBufferObjectGroup::GetVBO(const char* attribute)
 {
   vboIter i = this->UsedVBOs.find(attribute);
   if (i != this->UsedVBOs.end())
@@ -82,8 +79,7 @@ vtkOpenGLVertexBufferObject *vtkOpenGLVertexBufferObjectGroup::GetVBO(
   return nullptr;
 }
 
-void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
-  const char *attribute)
+void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(const char* attribute)
 {
   // empty array, means delete any existing entries
   arrayIter diter = this->UsedDataArrays.find(attribute);
@@ -96,7 +92,7 @@ void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
       this->UsedVBOs.erase(viter);
       this->Modified();
     }
-    std::vector<vtkDataArray *> &vec = diter->second;
+    std::vector<vtkDataArray*>& vec = diter->second;
     for (size_t j = 0; j < vec.size(); j++)
     {
       if (vec[j])
@@ -109,7 +105,7 @@ void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
 
     // rebuild the map for this attribute
     this->UsedDataArrayMaps[attribute].clear();
-    std::vector<vtkDataArray *> &arrays = this->UsedDataArrays[attribute];
+    std::vector<vtkDataArray*>& arrays = this->UsedDataArrays[attribute];
     vtkIdType totalOffset = 0;
     for (vtkDataArray* arr : arrays)
     {
@@ -121,22 +117,15 @@ void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
 }
 
 void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
-  const char *attribute,
-  vtkDataArray *da,
-  vtkViewport *vp,
-  int destType)
+  const char* attribute, vtkDataArray* da, vtkViewport* vp, int destType)
 {
-  vtkOpenGLRenderWindow *renWin =
-    vtkOpenGLRenderWindow::SafeDownCast(vp->GetVTKWindow());
-  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(vp->GetVTKWindow());
+  vtkOpenGLVertexBufferObjectCache* cache = renWin->GetVBOCache();
   this->CacheDataArray(attribute, da, cache, destType);
 }
 
 void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
-  const char *attribute,
-  vtkDataArray *da,
-  vtkOpenGLVertexBufferObjectCache *cache,
-  int destType)
+  const char* attribute, vtkDataArray* da, vtkOpenGLVertexBufferObjectCache* cache, int destType)
 {
   // empty array, means delete any existing entries
   if (!da || da->GetNumberOfTuples() == 0)
@@ -153,8 +142,7 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
   // after upload. So if there is another array here
   // it means the same attribute has been set twice.
   // so we delete the prior setting, last one wins.
-  if (diter != this->UsedDataArrays.end() &&
-      (diter->second.size() != 1 || diter->second[0] != da))
+  if (diter != this->UsedDataArrays.end() && (diter->second.size() != 1 || diter->second[0] != da))
   {
     for (size_t j = 0; j < diter->second.size(); j++)
     {
@@ -169,7 +157,7 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
 
   // make sure we add this DA to our list of arrays
   da->Register(this);
-  std::vector<vtkDataArray *> &vec = this->UsedDataArrays[attribute];
+  std::vector<vtkDataArray*>& vec = this->UsedDataArrays[attribute];
   vec.push_back(da);
   this->UsedDataArrayMaps[attribute][da] = 0;
   this->UsedDataArraySizes[attribute] = da->GetNumberOfTuples();
@@ -212,10 +200,7 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
 // consumes only 1.3% of the CPU time.
 //
 bool vtkOpenGLVertexBufferObjectGroup::ArrayExists(
-  const char *attribute,
-  vtkDataArray *da,
-  vtkIdType& offset,
-  vtkIdType& totalOffset)
+  const char* attribute, vtkDataArray* da, vtkIdType& offset, vtkIdType& totalOffset)
 {
   totalOffset = offset = 0;
   if (!da)
@@ -247,16 +232,14 @@ bool vtkOpenGLVertexBufferObjectGroup::ArrayExists(
 }
 
 void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
-  const char *attribute,
-  vtkDataArray *da,
-  int destType)
+  const char* attribute, vtkDataArray* da, int destType)
 {
   if (!da)
   {
     return;
   }
 
-  std::vector<vtkDataArray *> &arrays = this->UsedDataArrays[attribute];
+  std::vector<vtkDataArray*>& arrays = this->UsedDataArrays[attribute];
   da->Register(this);
   arrays.push_back(da);
   this->UsedDataArrayMaps[attribute][da] = this->UsedDataArraySizes[attribute];
@@ -272,7 +255,7 @@ void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
   }
 }
 
-void vtkOpenGLVertexBufferObjectGroup::ReleaseGraphicsResources(vtkWindow *)
+void vtkOpenGLVertexBufferObjectGroup::ReleaseGraphicsResources(vtkWindow*)
 {
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
@@ -282,8 +265,7 @@ void vtkOpenGLVertexBufferObjectGroup::ReleaseGraphicsResources(vtkWindow *)
 }
 
 void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
-  vtkShaderProgram *program,
-  vtkOpenGLVertexArrayObject *vao)
+  vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao)
 {
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
@@ -291,10 +273,9 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
     if (program->IsAttributeUsed(dataShaderName.c_str()))
     {
       vtkOpenGLVertexBufferObject* vbo = i->second;
-      if (!vao->AddAttributeArray(
-        program, vbo, dataShaderName,
-        0, // offset see assert later in this file
-        (vbo->GetDataType() == VTK_UNSIGNED_CHAR))) //TODO: fix tweak. true for colors.
+      if (!vao->AddAttributeArray(program, vbo, dataShaderName,
+            0,                                          // offset see assert later in this file
+            (vbo->GetDataType() == VTK_UNSIGNED_CHAR))) // TODO: fix tweak. true for colors.
       {
         vtkErrorMacro(<< "Error setting '" << dataShaderName << "' in shader VAO.");
       }
@@ -304,10 +285,9 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
 
 void vtkOpenGLVertexBufferObjectGroup::ClearAllDataArrays()
 {
-  for (arrayIter i = this->UsedDataArrays.begin();
-       i != this->UsedDataArrays.end(); ++i)
+  for (arrayIter i = this->UsedDataArrays.begin(); i != this->UsedDataArrays.end(); ++i)
   {
-    std::vector<vtkDataArray *> &vec = i->second;
+    std::vector<vtkDataArray*>& vec = i->second;
     for (size_t j = 0; j < vec.size(); j++)
     {
       if (vec[j])
@@ -331,17 +311,15 @@ void vtkOpenGLVertexBufferObjectGroup::ClearAllVBOs()
   this->UsedVBOs.clear();
 }
 
-void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkViewport *vp)
+void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkViewport* vp)
 {
-  vtkOpenGLRenderWindow *renWin =
-    vtkOpenGLRenderWindow::SafeDownCast(vp->GetVTKWindow());
-  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(vp->GetVTKWindow());
+  vtkOpenGLVertexBufferObjectCache* cache = renWin->GetVBOCache();
   this->BuildAllVBOs(cache);
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
-  vtkOpenGLVertexBufferObjectCache *)
+void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(vtkOpenGLVertexBufferObjectCache*)
 {
   // free any VBOs for unused attributes
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end();)
@@ -360,12 +338,11 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
   }
 
   // we always upload appended data :-(
-  for (arrayIter i = this->UsedDataArrays.begin();
-       i != this->UsedDataArrays.end(); ++i)
+  for (arrayIter i = this->UsedDataArrays.begin(); i != this->UsedDataArrays.end(); ++i)
   {
     std::string attribute = i->first;
-    std::vector<vtkDataArray *> &vec = i->second;
-    vtkOpenGLVertexBufferObject *vbo = this->UsedVBOs[attribute];
+    std::vector<vtkDataArray*>& vec = i->second;
+    vtkOpenGLVertexBufferObject* vbo = this->UsedVBOs[attribute];
 
     if (vec.size() > 1)
     {
@@ -379,15 +356,13 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
   }
 
   // for everything else we upload based on mtimes
-  for (arrayIter i = this->UsedDataArrays.begin();
-       i != this->UsedDataArrays.end(); ++i)
+  for (arrayIter i = this->UsedDataArrays.begin(); i != this->UsedDataArrays.end(); ++i)
   {
     std::string attribute = i->first;
-    std::vector<vtkDataArray *> &vec = i->second;
-    vtkOpenGLVertexBufferObject *vbo = this->UsedVBOs[attribute];
+    std::vector<vtkDataArray*>& vec = i->second;
+    vtkOpenGLVertexBufferObject* vbo = this->UsedVBOs[attribute];
 
-    if (vec.size() == 1 &&
-        vec[0]->GetMTime() > vbo->GetUploadTime())
+    if (vec.size() == 1 && vec[0]->GetMTime() > vbo->GetUploadTime())
     {
       vbo->UploadDataArray(vec[0]);
     }
@@ -397,7 +372,7 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     vtkOpenGLVertexBufferObject* vbo = i->second;
-    if(vbo->GetMTime() > vbo->GetUploadTime())
+    if (vbo->GetMTime() > vbo->GetUploadTime())
     {
       vbo->UploadVBO();
     }
@@ -426,5 +401,5 @@ vtkMTimeType vtkOpenGLVertexBufferObjectGroup::GetMTime()
 // ----------------------------------------------------------------------------
 void vtkOpenGLVertexBufferObjectGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

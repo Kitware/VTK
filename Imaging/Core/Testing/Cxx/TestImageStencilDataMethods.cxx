@@ -20,18 +20,16 @@
 #include "vtkTesting.h"
 
 //----------------------------------------------------------------------------
-int TestImageStencilDataMethods(int argc, char *argv[])
+int TestImageStencilDataMethods(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkTesting> testing =
-    vtkSmartPointer<vtkTesting>::New();
-  for (int cc = 1; cc < argc; cc ++ )
+  vtkSmartPointer<vtkTesting> testing = vtkSmartPointer<vtkTesting>::New();
+  for (int cc = 1; cc < argc; cc++)
   {
     testing->AddArgument(argv[cc]);
   }
 
   // Test the IsInside method
-  vtkSmartPointer<vtkImageStencilData> stencil3 =
-    vtkSmartPointer<vtkImageStencilData>::New();
+  vtkSmartPointer<vtkImageStencilData> stencil3 = vtkSmartPointer<vtkImageStencilData>::New();
   stencil3->SetExtent(0, 11, 0, 0, 0, 0);
   stencil3->AllocateExtents();
   stencil3->InsertNextExtent(4, 7, 0, 0);
@@ -44,7 +42,7 @@ int TestImageStencilDataMethods(int argc, char *argv[])
     {
       for (int idZ = -1; idZ <= 1; idZ++)
       {
-        int *expected = ((idY == 0 && idZ == 0) ? expectedIn : expectedOut);
+        int* expected = ((idY == 0 && idZ == 0) ? expectedIn : expectedOut);
         if (stencil3->IsInside(idX, idY, idZ) != expected[idX])
         {
           cerr << "IsInside(" << idX << ", " << idY << ", " << idZ << ") failed\n";

@@ -30,6 +30,7 @@
 #include "vtkADIOS2VTXReader.h"
 
 #include <algorithm> //std::equal
+#include <array>
 #include <iostream>
 #include <numeric> //std::iota
 #include <string>
@@ -51,6 +52,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTestUtilities.h"
 
 #include <adios2.h>
 #include <vtksys/SystemTools.hxx>
@@ -88,12 +90,7 @@ int MPIGetSize()
   return size;
 }
 
-std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
-{
-  return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
-}
-
-template<class T>
+template <class T>
 void ExpectEqual(const T& one, const T& two, const std::string& message)
 {
   if (one != two)
@@ -106,14 +103,14 @@ void ExpectEqual(const T& one, const T& two, const std::string& message)
   }
 }
 
-template<class T>
+template <class T>
 void TStep(std::vector<T>& data, const size_t step, const int rank)
 {
   const T initialValue = static_cast<T>(step + rank);
   std::iota(data.begin(), data.end(), initialValue);
 }
 
-template<class T>
+template <class T>
 bool CompareData(
   const std::string& name, vtkImageData* imageData, const size_t step, const int rank)
 {
@@ -227,188 +224,6 @@ private:
 
 vtkStandardNewMacro(TesterVTI3D);
 
-namespace
-{
-
-void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
-  const adios2::Dims& start, const adios2::Dims& count, const size_t steps, const int rank,
-  const bool isAttribute, const bool hasTime, const bool isCellData = true)
-{
-  const size_t totalElements = TotalElements(count);
-  const size_t Nx = isCellData ? shape[0] : shape[0] - 1;
-  const size_t Ny = isCellData ? shape[1] : shape[1] - 1;
-  const size_t Nz = isCellData ? shape[2] : shape[2] - 1;
-
-  const std::string extent =
-    "0 " + std::to_string(Nx) + " " + "0 " + std::to_string(Ny) + " " + "0 " + std::to_string(Nz);
-
-  const std::string dataSetType = isCellData ? "CellData" : "PointData";
-
-  // clang-format off
-  const std::string timeStr = hasTime ? R"(
-    <DataArray Name="TIME"> time </DataArray> )"
-    : "";
-  // clang-format on
-
-  const std::string imageSchema = R"(<?xml version="1.0"?>
-      <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-        <ImageData WholeExtent=")" + extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-          <Piece Extent=")" + extent +
-                                    R"(">
-            <)" + dataSetType + R"(>
-                <DataArray Name="Tdouble" />
-                <DataArray Name="Tfloat" />
-                <DataArray Name="Tint64" />
-                <DataArray Name="Tuint64" />
-                <DataArray Name="Tint32" />
-                <DataArray Name="Tuint32" />
-                )" + timeStr + R"(
-            </)" + dataSetType + R"(>
-          </Piece>
-        </ImageData>
-      </VTKFile>)";
-
-    // using adios2 C++ high-level API
-  std::vector<double> Tdouble(totalElements);
-  std::vector<float> Tfloat(totalElements);
-  std::vector<int64_t> Tint64(totalElements);
-  std::vector<uint64_t> Tuint64(totalElements);
-  std::vector<int32_t> Tint32(totalElements);
-  std::vector<uint32_t> Tuint32(totalElements);
-
-  adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-  if (isAttribute)
-  {
-    fw.write_attribute("vtk.xml", imageSchema);
-  }
-
-  for (size_t t = 0; t < steps; ++t)
-  {
-    TStep(Tdouble, t, rank);
-    TStep(Tfloat, t, rank);
-    TStep(Tint64, t, rank);
-    TStep(Tuint64, t, rank);
-    TStep(Tint32, t, rank);
-    TStep(Tuint32, t, rank);
-
-    if (hasTime)
-    {
-      fw.write("time", t);
-    }
-
-    fw.write("Tdouble", Tdouble.data(), shape, start, count);
-    fw.write("Tfloat", Tfloat.data(), shape, start, count);
-    fw.write("Tint64", Tint64.data(), shape, start, count);
-    fw.write("Tuint64", Tuint64.data(), shape, start, count);
-    fw.write("Tint32", Tint32.data(), shape, start, count);
-    fw.write("Tuint32", Tuint32.data(), shape, start, count);
-    fw.end_step();
-  }
-  fw.close();
-
-  if (!isAttribute)
-  {
-    std::ofstream fxml(fileName + ".dir/vtk.xml", ofstream::out);
-    fxml << imageSchema << "\n";
-    fxml.close();
-  }
-}
-
-void WriteBPFile1DVars(const std::string& fileName, const adios2::Dims& shape,
-  const adios2::Dims& start, const adios2::Dims& count, const size_t steps, const int rank,
-  const bool isAttribute, const bool hasTime, const bool isCellData = true)
-{
-  const size_t totalElements = TotalElements(count);
-  const size_t Nx = isCellData ? shape[0] : shape[0] - 1;
-  const size_t Ny = isCellData ? shape[1] : shape[1] - 1;
-  const size_t Nz = isCellData ? shape[2] : shape[2] - 1;
-
-  const std::string extent =
-    "0 " + std::to_string(Nx) + " " + "0 " + std::to_string(Ny) + " " + "0 " + std::to_string(Nz);
-
-  const std::string dataSetType = isCellData ? "CellData" : "PointData";
-
-  // clang-format off
-  const std::string timeStr = hasTime ? R"(
-    <DataArray Name = "TIME" > time </DataArray> )"
-    : "";
-  // clang-format on
-
-    const std::string imageSchema = R"(<?xml version="1.0"?>
-      <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-        <ImageData WholeExtent=")" + extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-          <Piece Extent=")" + extent +
-                                    R"(">
-            <)" + dataSetType + R"(>
-                <DataArray Name="Tdouble" />
-                <DataArray Name="Tfloat" />
-                <DataArray Name="Tint64" />
-                <DataArray Name="Tuint64" />
-                <DataArray Name="Tint32" />
-                <DataArray Name="Tuint32" />
-                )" + timeStr + R"(
-            </)" + dataSetType + R"(>
-          </Piece>
-        </ImageData>
-      </VTKFile>)";
-
-    // using adios2 C++ high-level API
-    std::vector<double> Tdouble(totalElements);
-    std::vector<float> Tfloat(totalElements);
-    std::vector<int64_t> Tint64(totalElements);
-    std::vector<uint64_t> Tuint64(totalElements);
-    std::vector<int32_t> Tint32(totalElements);
-    std::vector<uint32_t> Tuint32(totalElements);
-
-    const adios2::Dims shape1D = { TotalElements(shape) };
-
-    const size_t linearStart = start[0] * shape[1] * shape[2] + start[1] * shape[2] + start[2];
-    const adios2::Dims start1D = { linearStart };
-
-    const adios2::Dims count1D = { TotalElements(count) };
-
-    adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-    if (isAttribute)
-    {
-      fw.write_attribute("vtk.xml", imageSchema);
-    }
-
-    for (size_t t = 0; t < steps; ++t)
-    {
-      TStep(Tdouble, t, rank);
-      TStep(Tfloat, t, rank);
-      TStep(Tint64, t, rank);
-      TStep(Tuint64, t, rank);
-      TStep(Tint32, t, rank);
-      TStep(Tuint32, t, rank);
-
-      if (hasTime)
-      {
-        fw.write("time", t);
-      }
-
-      fw.write("Tdouble", Tdouble.data(), shape1D, start1D, count1D);
-      fw.write("Tfloat", Tfloat.data(), shape1D, start1D, count1D);
-      fw.write("Tint64", Tint64.data(), shape1D, start1D, count1D);
-      fw.write("Tuint64", Tuint64.data(), shape1D, start1D, count1D);
-      fw.write("Tint32", Tint32.data(), shape1D, start1D, count1D);
-      fw.write("Tuint32", Tuint32.data(), shape1D, start1D, count1D);
-      fw.end_step();
-    }
-    fw.close();
-
-    if (!isAttribute)
-    {
-      std::ofstream fxml(fileName + ".dir/vtk.xml", ofstream::out);
-      fxml << imageSchema << "\n";
-      fxml.close();
-    }
-}
-
-} // end empty namespace
-
 int TestIOADIOS2VTX_VTI3D(int argc, char* argv[])
 {
   auto lf_DoTest = [&](const std::string& fileName, const size_t steps) {
@@ -439,41 +254,31 @@ int TestIOADIOS2VTX_VTI3D(int argc, char* argv[])
 
   const size_t steps = 3;
   // this are cell data dimensions
-  const adios2::Dims count{ 10, 10, 8 };
+  const adios2::Dims count{ 10, 10, 4 };
   const adios2::Dims start{ static_cast<size_t>(rank) * count[0], 0, 0 };
   const adios2::Dims shape{ static_cast<size_t>(size) * count[0], count[1], count[2] };
 
-  const std::string fileName = "heat3D.bp";
+  char* filePath;
+  std::string fileName;
 
-  // schema as file in bp dir without time
-  WriteBPFile3DVars(fileName, shape, start, count, steps, rank, false, false);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory("heat3D.bp.dir");
-  vtksys::SystemTools::RemoveFile("heat3D.bp");
+  const std::vector<std::string> directories = { "bp3", "bp4" };
+  constexpr std::array<unsigned int, 4> ids = { 1, 2, 3, 4 };
 
-  // schema as attribute in bp file
-  WriteBPFile3DVars(fileName, shape, start, count, steps, rank, true, true);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory("heat3D.bp.dir");
-  vtksys::SystemTools::RemoveFile("heat3D.bp");
+  for (const std::string& dir : directories)
+  {
+    // 3D tests
+    for (const auto id : ids)
+    {
+      fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_" + std::to_string(id) + ".bp";
+      filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName.c_str());
+      lf_DoTest(filePath, steps);
+    }
 
-  // schema as file in bp dir
-  WriteBPFile3DVars(fileName, shape, start, count, steps, rank, false, true);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory("heat3D.bp.dir");
-  vtksys::SystemTools::RemoveFile("heat3D.bp");
-
-  // schema for point data
-  WriteBPFile3DVars(fileName, shape, start, count, steps, rank, false, true, false);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory("heat3D.bp.dir");
-  vtksys::SystemTools::RemoveFile("heat3D.bp");
-
-  // cell data from 1D arrays
-  WriteBPFile1DVars(fileName, shape, start, count, steps, rank, false, true);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory("heat3D.bp.dir");
-  vtksys::SystemTools::RemoveFile("heat3D.bp");
+    // 1D tests
+    fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_1.bp";
+    filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName.c_str());
+    lf_DoTest(filePath, steps);
+  }
 
   mpiController->Finalize();
   return 0;

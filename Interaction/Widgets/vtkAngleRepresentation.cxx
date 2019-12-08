@@ -13,25 +13,24 @@
 
 =========================================================================*/
 #include "vtkAngleRepresentation.h"
-#include "vtkHandleRepresentation.h"
 #include "vtkActor2D.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
+#include "vtkHandleRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-
-vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
+vtkCxxSetObjectMacro(vtkAngleRepresentation, HandleRepresentation, vtkHandleRepresentation);
 
 //----------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
-  this->HandleRepresentation  = nullptr;
+  this->HandleRepresentation = nullptr;
   this->Point1Representation = nullptr;
   this->CenterRepresentation = nullptr;
   this->Point2Representation = nullptr;
@@ -44,50 +43,49 @@ vtkAngleRepresentation::vtkAngleRepresentation()
   this->ArcVisibility = 1;
 
   this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
+  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
 }
 
 //----------------------------------------------------------------------
 vtkAngleRepresentation::~vtkAngleRepresentation()
 {
-  if ( this->HandleRepresentation )
+  if (this->HandleRepresentation)
   {
     this->HandleRepresentation->Delete();
   }
-  if ( this->Point1Representation )
+  if (this->Point1Representation)
   {
     this->Point1Representation->Delete();
   }
-  if ( this->CenterRepresentation )
+  if (this->CenterRepresentation)
   {
     this->CenterRepresentation->Delete();
   }
-  if ( this->Point2Representation )
+  if (this->Point2Representation)
   {
     this->Point2Representation->Delete();
   }
 
-  delete [] this->LabelFormat;
+  delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
 }
-
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::InstantiateHandleRepresentation()
 {
-  if ( ! this->Point1Representation )
+  if (!this->Point1Representation)
   {
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
   }
 
-  if ( ! this->CenterRepresentation )
+  if (!this->CenterRepresentation)
   {
     this->CenterRepresentation = this->HandleRepresentation->NewInstance();
     this->CenterRepresentation->ShallowCopy(this->HandleRepresentation);
   }
 
-  if ( ! this->Point2Representation )
+  if (!this->Point2Representation)
   {
     this->Point2Representation = this->HandleRepresentation->NewInstance();
     this->Point2Representation->ShallowCopy(this->HandleRepresentation);
@@ -95,12 +93,11 @@ void vtkAngleRepresentation::InstantiateHandleRepresentation()
 }
 
 //----------------------------------------------------------------------
-int vtkAngleRepresentation::
-ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
+int vtkAngleRepresentation::ComputeInteractionState(
+  int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
-  if (this->Point1Representation == nullptr ||
-      this->CenterRepresentation == nullptr ||
-      this->Point2Representation == nullptr )
+  if (this->Point1Representation == nullptr || this->CenterRepresentation == nullptr ||
+    this->Point2Representation == nullptr)
   {
     this->InteractionState = vtkAngleRepresentation::Outside;
     return this->InteractionState;
@@ -109,15 +106,15 @@ ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(mod
   int p1State = this->Point1Representation->GetInteractionState();
   int cState = this->CenterRepresentation->GetInteractionState();
   int p2State = this->Point2Representation->GetInteractionState();
-  if ( p1State == vtkHandleRepresentation::Nearby )
+  if (p1State == vtkHandleRepresentation::Nearby)
   {
     this->InteractionState = vtkAngleRepresentation::NearP1;
   }
-  else if ( cState == vtkHandleRepresentation::Nearby )
+  else if (cState == vtkHandleRepresentation::Nearby)
   {
     this->InteractionState = vtkAngleRepresentation::NearCenter;
   }
-  else if ( p2State == vtkHandleRepresentation::Nearby )
+  else if (p2State == vtkHandleRepresentation::Nearby)
   {
     this->InteractionState = vtkAngleRepresentation::NearP2;
   }
@@ -174,18 +171,18 @@ void vtkAngleRepresentation::BuildRepresentation()
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Angle: " << this->GetAngle() << "\n";
-  os << indent << "Tolerance: " << this->Tolerance <<"\n";
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Ray1 Visibility: " << (this->Ray1Visibility ? "On\n" : "Off\n");
   os << indent << "Ray2 Visibility: " << (this->Ray2Visibility ? "On\n" : "Off\n");
   os << indent << "Arc Visibility: " << (this->ArcVisibility ? "On\n" : "Off\n");
   os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
 
   os << indent << "Label Format: ";
-  if ( this->LabelFormat )
+  if (this->LabelFormat)
   {
     os << this->LabelFormat << "\n";
   }
@@ -195,9 +192,9 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Point1 Representation: ";
-  if ( this->Point1Representation )
+  if (this->Point1Representation)
   {
-    this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
+    this->Point1Representation->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -205,9 +202,9 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Center Representation: ";
-  if ( this->CenterRepresentation )
+  if (this->CenterRepresentation)
   {
-    this->CenterRepresentation->PrintSelf(os,indent.GetNextIndent());
+    this->CenterRepresentation->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -215,9 +212,9 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Point2 Representation: ";
-  if ( this->Point2Representation )
+  if (this->Point2Representation)
   {
-    this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
+    this->Point2Representation->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

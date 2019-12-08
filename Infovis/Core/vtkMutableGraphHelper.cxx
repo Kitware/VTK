@@ -188,7 +188,7 @@ void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
 //----------------------------------------------------------------------------
 void vtkMutableGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "InternalGraph: " << (this->InternalGraph ? "" : "(null)") << endl;
   if (this->InternalGraph)
   {

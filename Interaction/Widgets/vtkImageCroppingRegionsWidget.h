@@ -25,13 +25,13 @@
  * CroppingPlanesPositionChangedEvent when the position of any of the
  * cropping planes is changed. The widget also invokes an InteractionEvent
  * in response to user interaction.
-*/
+ */
 
 #ifndef vtkImageCroppingRegionsWidget_h
 #define vtkImageCroppingRegionsWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor2D;
 class vtkImageData;
@@ -42,12 +42,11 @@ class vtkPolyData;
 class VTKINTERACTIONWIDGETS_EXPORT vtkImageCroppingRegionsWidget : public vtk3DWidget
 {
 public:
-
   //@{
   /**
    * Standard VTK methods.
    */
-  static vtkImageCroppingRegionsWidget *New();
+  static vtkImageCroppingRegionsWidget* New();
   vtkTypeMacro(vtkImageCroppingRegionsWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -71,12 +70,15 @@ public:
    */
   vtkGetVector6Macro(PlanePositions, double);
   virtual void SetPlanePositions(double pos[6])
-    {this->SetPlanePositions(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);}
+  {
+    this->SetPlanePositions(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);
+  }
   virtual void SetPlanePositions(float pos[6])
-    {this->SetPlanePositions(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);}
-  virtual void SetPlanePositions(double xMin, double xMax,
-                                 double yMin, double yMax,
-                                 double zMin, double zMax);
+  {
+    this->SetPlanePositions(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);
+  }
+  virtual void SetPlanePositions(
+    double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   //@}
 
   //@{
@@ -101,11 +103,17 @@ public:
   vtkGetMacro(SliceOrientation, int);
   virtual void SetSliceOrientation(int orientation);
   virtual void SetSliceOrientationToXY()
-    { this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY); };
+  {
+    this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY);
+  }
   virtual void SetSliceOrientationToYZ()
-    { this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ); };
+  {
+    this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ);
+  }
   virtual void SetSliceOrientationToXZ()
-    { this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ); };
+  {
+    this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ);
+  }
 
   //@{
   /**
@@ -120,9 +128,8 @@ public:
    * Set/Get line 1 color
    */
   virtual void SetLine1Color(double r, double g, double b);
-  virtual void SetLine1Color(double rgb[3])
-    { this->SetLine1Color(rgb[0], rgb[1], rgb[2]); }
-  virtual double *GetLine1Color();
+  virtual void SetLine1Color(double rgb[3]) { this->SetLine1Color(rgb[0], rgb[1], rgb[2]); }
+  virtual double* GetLine1Color();
   virtual void GetLine1Color(double rgb[3]);
   //@}
 
@@ -131,9 +138,8 @@ public:
    * Set/Get line 2 color
    */
   virtual void SetLine2Color(double r, double g, double b);
-  virtual void SetLine2Color(double rgb[3])
-    { this->SetLine2Color(rgb[0], rgb[1], rgb[2]); }
-  virtual double *GetLine2Color();
+  virtual void SetLine2Color(double rgb[3]) { this->SetLine2Color(rgb[0], rgb[1], rgb[2]); }
+  virtual double* GetLine2Color();
   virtual void GetLine2Color(double rgb[3]);
   //@}
 
@@ -142,9 +148,8 @@ public:
    * Set/Get line 3 color
    */
   virtual void SetLine3Color(double r, double g, double b);
-  virtual void SetLine3Color(double rgb[3])
-    { this->SetLine3Color(rgb[0], rgb[1], rgb[2]); }
-  virtual double *GetLine3Color();
+  virtual void SetLine3Color(double rgb[3]) { this->SetLine3Color(rgb[0], rgb[1], rgb[2]); }
+  virtual double* GetLine3Color();
   virtual void GetLine3Color(double rgb[3]);
   //@}
 
@@ -153,9 +158,8 @@ public:
    * Set/Get line 4 color
    */
   virtual void SetLine4Color(double r, double g, double b);
-  virtual void SetLine4Color(double rgb[3])
-    { this->SetLine4Color(rgb[0], rgb[1], rgb[2]); }
-  virtual double *GetLine4Color();
+  virtual void SetLine4Color(double rgb[3]) { this->SetLine4Color(rgb[0], rgb[1], rgb[2]); }
+  virtual double* GetLine4Color();
   virtual void GetLine4Color(double rgb[3]);
   //@}
 
@@ -164,7 +168,7 @@ public:
    * Set/Get the input volume mapper
    * Update the widget according to its mapper
    */
-  virtual void SetVolumeMapper(vtkVolumeMapper *mapper);
+  virtual void SetVolumeMapper(vtkVolumeMapper* mapper);
   vtkGetObjectMacro(VolumeMapper, vtkVolumeMapper);
   virtual void UpdateAccordingToInput();
   //@}
@@ -191,14 +195,13 @@ public:
   };
 
 protected:
-
   vtkImageCroppingRegionsWidget();
   ~vtkImageCroppingRegionsWidget() override;
 
-  vtkVolumeMapper *VolumeMapper;
+  vtkVolumeMapper* VolumeMapper;
 
-  vtkLineSource *LineSources[4];
-  vtkActor2D *LineActors[4];
+  vtkLineSource* LineSources[4];
+  vtkActor2D* LineActors[4];
   vtkPolyData* RegionPolyData[9];
   vtkActor2D* RegionActors[9];
 
@@ -216,10 +219,8 @@ protected:
 
   // Handles the events
 
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   void SetMouseCursor(int state);
 

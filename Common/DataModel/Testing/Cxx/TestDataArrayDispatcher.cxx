@@ -16,67 +16,67 @@
 // .SECTION Description
 // Tests vtkDataArrayDispatcher
 
-#include "vtkObjectFactory.h"
 #include "vtkDataArrayDispatcher.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 
-//classes we will be using in the test
+// classes we will be using in the test
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
 namespace
 {
 
 void test_expression(bool valid, const std::string& msg)
 {
-  if(!valid)
+  if (!valid)
   {
     throw std::runtime_error(msg);
   }
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 inline T* as(U* u)
 {
   return dynamic_cast<T*>(u);
 }
 
-
-
-//returns the length of an array
+// returns the length of an array
 struct lengthCheckFunctor
 {
-  template<typename T>
+  template <typename T>
   vtkIdType operator()(const vtkDataArrayDispatcherPointer<T>& array) const
   {
     return array.NumberOfComponents * array.NumberOfTuples;
   }
 };
 
-
-//accumulates the length of all arrays used with this functor
+// accumulates the length of all arrays used with this functor
 struct storeLengthFunctor
 {
   vtkIdType length;
-  storeLengthFunctor():length(0){}
+  storeLengthFunctor()
+    : length(0)
+  {
+  }
 
-  template<typename T>
+  template <typename T>
   void operator()(vtkDataArrayDispatcherPointer<T> array)
   {
     length += array.NumberOfComponents * array.NumberOfTuples;
   }
 };
 
-//modifies an array to be sorted, only works with arrays
-//that have one component
+// modifies an array to be sorted, only works with arrays
+// that have one component
 struct sortArray
 {
-  template<typename T>
+  template <typename T>
   void operator()(vtkDataArrayDispatcherPointer<T> array) const
   {
-    std::sort(array.RawPointer,array.RawPointer + array.NumberOfTuples);
+    std::sort(array.RawPointer, array.RawPointer + array.NumberOfTuples);
   }
 };
 
@@ -85,7 +85,7 @@ bool TestDataArrayDispatchStatefull()
   storeLengthFunctor functor;
   vtkDataArrayDispatcher<storeLengthFunctor> dispatcher(functor);
 
-  //verify the dispatching
+  // verify the dispatching
   vtkNew<vtkDoubleArray> doubleArray;
   vtkNew<vtkIntArray> intArray;
 
@@ -94,26 +94,25 @@ bool TestDataArrayDispatchStatefull()
   intArray->SetNumberOfTuples(13);
 
   const vtkIdType doubleSize =
-      doubleArray->GetNumberOfComponents() * doubleArray->GetNumberOfTuples();
-  const vtkIdType intSize =
-      intArray->GetNumberOfComponents() * intArray->GetNumberOfTuples();
+    doubleArray->GetNumberOfComponents() * doubleArray->GetNumberOfTuples();
+  const vtkIdType intSize = intArray->GetNumberOfComponents() * intArray->GetNumberOfTuples();
 
   dispatcher.Go(as<vtkDataArray>(doubleArray.GetPointer()));
-  test_expression(functor.length==doubleSize,
-                  "double array dispatch failed with statefull functor");
+  test_expression(
+    functor.length == doubleSize, "double array dispatch failed with statefull functor");
 
   dispatcher.Go(intArray.GetPointer());
-  test_expression(functor.length==intSize+doubleSize,
-                  "int array dispatch failed with statefull functor");
+  test_expression(
+    functor.length == intSize + doubleSize, "int array dispatch failed with statefull functor");
 
   return true;
 }
 
 bool TestDataArrayDispatchStateless()
 {
-  vtkDataArrayDispatcher<lengthCheckFunctor,int> dispatcher;
+  vtkDataArrayDispatcher<lengthCheckFunctor, int> dispatcher;
 
-  //verify the dispatching
+  // verify the dispatching
   vtkNew<vtkDoubleArray> doubleArray;
   vtkNew<vtkIntArray> intArray;
 
@@ -122,16 +121,13 @@ bool TestDataArrayDispatchStateless()
   intArray->SetNumberOfTuples(13);
 
   const vtkIdType doubleSize =
-      doubleArray->GetNumberOfComponents() * doubleArray->GetNumberOfTuples();
-  const vtkIdType intSize =
-      intArray->GetNumberOfComponents() * intArray->GetNumberOfTuples();
+    doubleArray->GetNumberOfComponents() * doubleArray->GetNumberOfTuples();
+  const vtkIdType intSize = intArray->GetNumberOfComponents() * intArray->GetNumberOfTuples();
 
   vtkIdType result = dispatcher.Go(doubleArray.GetPointer());
-  test_expression(result == doubleSize,
-                  "double array dispatch failed with stateless functor");
+  test_expression(result == doubleSize, "double array dispatch failed with stateless functor");
   result = dispatcher.Go(intArray.GetPointer());
-  test_expression(result==intSize,
-                  "int array dispatch failed with stateless functor");
+  test_expression(result == intSize, "int array dispatch failed with stateless functor");
   return true;
 }
 
@@ -139,24 +135,22 @@ bool TestDataArrayDispatchSort()
 {
   vtkDataArrayDispatcher<sortArray> dispatcher;
 
-  //verify the dispatching
+  // verify the dispatching
   vtkNew<vtkDoubleArray> doubleArray;
 
-  const int doubleSize=10;
+  const int doubleSize = 10;
   doubleArray->SetNumberOfTuples(doubleSize);
 
-  for(int i=0; i < doubleSize; i++)
+  for (int i = 0; i < doubleSize; i++)
   {
-    doubleArray->SetValue(i,doubleSize-i);
+    doubleArray->SetValue(i, doubleSize - i);
   }
 
   dispatcher.Go(doubleArray.GetPointer());
 
-  for(int i=0; i < doubleSize; i++)
+  for (int i = 0; i < doubleSize; i++)
   {
-    test_expression(doubleArray->GetValue(i)==i+1,
-                    "sort functor failed");
-
+    test_expression(doubleArray->GetValue(i) == i + 1, "sort functor failed");
   }
 
   return true;

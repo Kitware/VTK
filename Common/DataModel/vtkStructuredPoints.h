@@ -24,7 +24,7 @@
  * Whereas images define the origin as the location of point 0, 0, 0.
  * Image Origin is stored in ivar, and structured points
  * have special methods for setting/getting the origin/extents.
-*/
+ */
 
 #ifndef vtkStructuredPoints_h
 #define vtkStructuredPoints_h
@@ -32,28 +32,26 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"
 
-
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
-  static vtkStructuredPoints *New();
-  vtkTypeMacro(vtkStructuredPoints,vtkImageData);
+  static vtkStructuredPoints* New();
+  vtkTypeMacro(vtkStructuredPoints, vtkImageData);
 
   /**
    * To simplify filter superclasses,
    */
-  int GetDataObjectType() override {return VTK_STRUCTURED_POINTS;}
+  int GetDataObjectType() override { return VTK_STRUCTURED_POINTS; }
 
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() override {}
+
 private:
   vtkStructuredPoints(const vtkStructuredPoints&) = delete;
   void operator=(const vtkStructuredPoints&) = delete;
 };
 
 #endif
-
-
 
 // VTK-HeaderTest-Exclude: vtkStructuredPoints.h

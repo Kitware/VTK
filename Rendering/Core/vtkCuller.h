@@ -23,13 +23,13 @@
  *
  * @sa
  * vtkFrustumCoverageCuller
-*/
+ */
 
 #ifndef vtkCuller_h
 #define vtkCuller_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkRenderer;
@@ -43,8 +43,7 @@ public:
   /**
    * This is called outside the render loop by vtkRenderer
    */
-  virtual double Cull( vtkRenderer *ren, vtkProp **propList,
-                       int& listLength, int& initialized ) = 0;
+  virtual double Cull(vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) = 0;
 
 protected:
   vtkCuller();

@@ -26,8 +26,8 @@
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <map> // used for cache storage
 #include <list> // use for LRU ordering
+#include <map>  // used for cache storage
 
 class VTKIOEXODUS_EXPORT vtkExodusIICacheKey
 {
@@ -43,21 +43,21 @@ public:
     ObjectId = -1;
     ArrayId = -1;
   }
-  vtkExodusIICacheKey( int time, int objType, int objId, int arrId )
+  vtkExodusIICacheKey(int time, int objType, int objId, int arrId)
   {
     Time = time;
     ObjectType = objType;
     ObjectId = objId;
     ArrayId = arrId;
   }
-  vtkExodusIICacheKey( const vtkExodusIICacheKey& src )
+  vtkExodusIICacheKey(const vtkExodusIICacheKey& src)
   {
     Time = src.Time;
     ObjectType = src.ObjectType;
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
   }
-  vtkExodusIICacheKey& operator = ( const vtkExodusIICacheKey& src )
+  vtkExodusIICacheKey& operator=(const vtkExodusIICacheKey& src)
   {
     Time = src.Time;
     ObjectType = src.ObjectType;
@@ -65,33 +65,33 @@ public:
     ArrayId = src.ArrayId;
     return *this;
   }
-  bool match( const vtkExodusIICacheKey&other, const vtkExodusIICacheKey& pattern ) const
+  bool match(const vtkExodusIICacheKey& other, const vtkExodusIICacheKey& pattern) const
   {
-    if ( pattern.Time && this->Time != other.Time )
+    if (pattern.Time && this->Time != other.Time)
       return false;
-    if ( pattern.ObjectType && this->ObjectType != other.ObjectType )
+    if (pattern.ObjectType && this->ObjectType != other.ObjectType)
       return false;
-    if ( pattern.ObjectId && this->ObjectId != other.ObjectId )
+    if (pattern.ObjectId && this->ObjectId != other.ObjectId)
       return false;
-    if ( pattern.ArrayId && this->ArrayId != other.ArrayId )
+    if (pattern.ArrayId && this->ArrayId != other.ArrayId)
       return false;
     return true;
   }
-  bool operator < ( const vtkExodusIICacheKey& other ) const
+  bool operator<(const vtkExodusIICacheKey& other) const
   {
-    if ( this->Time < other.Time )
+    if (this->Time < other.Time)
       return true;
-    else if ( this->Time > other.Time )
+    else if (this->Time > other.Time)
       return false;
-    if ( this->ObjectType < other.ObjectType )
+    if (this->ObjectType < other.ObjectType)
       return true;
-    else if ( this->ObjectType > other.ObjectType )
+    else if (this->ObjectType > other.ObjectType)
       return false;
-    if ( this->ObjectId < other.ObjectId )
+    if (this->ObjectId < other.ObjectId)
       return true;
-    else if ( this->ObjectId > other.ObjectId )
+    else if (this->ObjectId > other.ObjectId)
       return false;
-    if ( this->ArrayId < other.ArrayId )
+    if (this->ArrayId < other.ArrayId)
       return true;
     return false;
   }
@@ -101,8 +101,8 @@ class vtkExodusIICacheEntry;
 class vtkExodusIICache;
 class vtkDataArray;
 
-typedef std::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*> vtkExodusIICacheSet;
-typedef std::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*>::iterator vtkExodusIICacheRef;
+typedef std::map<vtkExodusIICacheKey, vtkExodusIICacheEntry*> vtkExodusIICacheSet;
+typedef std::map<vtkExodusIICacheKey, vtkExodusIICacheEntry*>::iterator vtkExodusIICacheRef;
 typedef std::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
 typedef std::list<vtkExodusIICacheRef>::iterator vtkExodusIICacheLRURef;
 
@@ -110,8 +110,8 @@ class VTKIOEXODUS_EXPORT vtkExodusIICacheEntry
 {
 public:
   vtkExodusIICacheEntry();
-  vtkExodusIICacheEntry( vtkDataArray* arr );
-  vtkExodusIICacheEntry( const vtkExodusIICacheEntry& other );
+  vtkExodusIICacheEntry(vtkDataArray* arr);
+  vtkExodusIICacheEntry(const vtkExodusIICacheEntry& other);
 
   ~vtkExodusIICacheEntry();
 
@@ -128,51 +128,51 @@ class VTKIOEXODUS_EXPORT vtkExodusIICache : public vtkObject
 {
 public:
   static vtkExodusIICache* New();
-  vtkTypeMacro(vtkExodusIICache,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkExodusIICache, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Empty the cache
   void Clear();
 
-  /// Set the maximum allowable cache size. This will remove cache entries if the capacity is reduced below the current size.
-  void SetCacheCapacity( double sizeInMiB );
+  /// Set the maximum allowable cache size. This will remove cache entries if the capacity is
+  /// reduced below the current size.
+  void SetCacheCapacity(double sizeInMiB);
 
   /** See how much cache space is left.
-    * This is the difference between the capacity and the size of the cache.
-    * The result is in MiB.
-    */
-  double GetSpaceLeft()
-    { return this->Capacity - this->Size; }
+   * This is the difference between the capacity and the size of the cache.
+   * The result is in MiB.
+   */
+  double GetSpaceLeft() { return this->Capacity - this->Size; }
 
   /** Remove cache entries until the size of the cache is at or below the given size.
-    * Returns a nonzero value if deletions were required.
-    */
-  int ReduceToSize( double newSize );
+   * Returns a nonzero value if deletions were required.
+   */
+  int ReduceToSize(double newSize);
 
   /// Insert an entry into the cache (this can remove other cache entries to make space).
-  void Insert( vtkExodusIICacheKey& key, vtkDataArray* value );
+  void Insert(vtkExodusIICacheKey& key, vtkDataArray* value);
 
   /** Determine whether a cache entry exists. If it does, return it -- otherwise return nullptr.
-    * If a cache entry exists, it is marked as most recently used.
-    */
-  vtkDataArray*& Find( const vtkExodusIICacheKey& );
+   * If a cache entry exists, it is marked as most recently used.
+   */
+  vtkDataArray*& Find(const vtkExodusIICacheKey&);
 
   /** Invalidate a cache entry (drop it from the cache) if the key exists.
-    * This does nothing if the cache entry does not exist.
-    * Returns 1 if the cache entry existed prior to this call and 0 otherwise.
-    */
-  int Invalidate( const vtkExodusIICacheKey& key );
+   * This does nothing if the cache entry does not exist.
+   * Returns 1 if the cache entry existed prior to this call and 0 otherwise.
+   */
+  int Invalidate(const vtkExodusIICacheKey& key);
 
-  /** Invalidate all cache entries matching a specified pattern, dropping all matches from the cache.
-    * Any nonzero entry in the \a pattern forces a comparison between the corresponding value of \a key.
-    * Any cache entries satisfying all the comparisons will be dropped.
-    * If pattern is entirely zero, this will empty the entire cache.
-    * This is useful for invalidating all entries of a given object type.
-    *
-    * Returns the number of cache entries dropped.
-    * It is not an error to specify an empty range -- 0 will be returned if one is given.
-    */
-  int Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern );
+  /** Invalidate all cache entries matching a specified pattern, dropping all matches from the
+   * cache. Any nonzero entry in the \a pattern forces a comparison between the corresponding value
+   * of \a key. Any cache entries satisfying all the comparisons will be dropped. If pattern is
+   * entirely zero, this will empty the entire cache. This is useful for invalidating all entries of
+   * a given object type.
+   *
+   * Returns the number of cache entries dropped.
+   * It is not an error to specify an empty range -- 0 will be returned if one is given.
+   */
+  int Invalidate(const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern);
 
 protected:
   /// Default constructor
@@ -181,29 +181,29 @@ protected:
   /// Destructor.
   ~vtkExodusIICache() override;
 
-
   /// Avoid (some) FP problems
   void RecomputeSize();
 
   /// The capacity of the cache (i.e., the maximum size of all arrays it contains) in MiB.
   double Capacity;
 
-  /// The current size of the cache (i.e., the size of the all the arrays it currently contains) in MiB.
+  /// The current size of the cache (i.e., the size of the all the arrays it currently contains) in
+  /// MiB.
   double Size;
 
   /** A least-recently-used (LRU) cache to hold arrays.
-    * During RequestData the cache may contain more than its maximum size since
-    * the user may request more data than the cache can hold. However, the cache
-    * is expunged whenever a new array is loaded. Never count on the cache holding
-    * what you request for very long.
-    */
+   * During RequestData the cache may contain more than its maximum size since
+   * the user may request more data than the cache can hold. However, the cache
+   * is expunged whenever a new array is loaded. Never count on the cache holding
+   * what you request for very long.
+   */
   vtkExodusIICacheSet Cache;
 
   /// The actual LRU list (indices into the cache ordered least to most recently used).
   vtkExodusIICacheLRU LRU;
 
 private:
-  vtkExodusIICache( const vtkExodusIICache& ) = delete;
-  void operator = ( const vtkExodusIICache& ) = delete;
+  vtkExodusIICache(const vtkExodusIICache&) = delete;
+  void operator=(const vtkExodusIICache&) = delete;
 };
 #endif // vtkExodusIICache_h

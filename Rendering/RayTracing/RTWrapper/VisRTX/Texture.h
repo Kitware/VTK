@@ -3,8 +3,8 @@
 #include "../Types.h"
 
 #include <VisRTX.h>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 namespace RTW
 {

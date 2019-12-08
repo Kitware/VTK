@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkAnnotationLink.h"
+#include "vtkChartXY.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlotSelection(int, char * [])
+int TestLinePlotSelection(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -36,8 +36,7 @@ int TestLinePlotSelection(int, char * [])
   view->GetScene()->AddItem(chart);
   vtkNew<vtkAnnotationLink> link;
   chart->SetAnnotationLink(link);
-  chart->SetActionToButton(vtkChart::SELECT_POLYGON,
-                           vtkContextMouseEvent::LEFT_BUTTON);
+  chart->SetActionToButton(vtkChart::SELECT_POLYGON, vtkContextMouseEvent::LEFT_BUTTON);
   chart->SetSelectionMethod(vtkChart::SELECTION_ROWS);
 
   // Create a table with some points in it...
@@ -56,7 +55,7 @@ int TestLinePlotSelection(int, char * [])
   table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -67,7 +66,7 @@ int TestLinePlotSelection(int, char * [])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
@@ -102,7 +101,7 @@ int TestLinePlotSelection(int, char * [])
   event.SetPos(vtkVector2f(350, 90));
   chart->MouseButtonReleaseEvent(event);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

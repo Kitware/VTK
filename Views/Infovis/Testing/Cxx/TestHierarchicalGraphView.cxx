@@ -22,11 +22,11 @@
 #include "vtkCosmicTreeLayoutStrategy.h"
 #include "vtkDataRepresentation.h"
 #include "vtkHierarchicalGraphView.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedHierarchyRepresentation.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
@@ -34,15 +34,14 @@
 #include "vtkXMLTreeReader.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using std::string;
 
 int TestHierarchicalGraphView(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   string dataRoot = testHelper->GetDataRoot();
   string treeFileName = dataRoot + "/Data/Infovis/XML/vtklibrary.xml";
   string graphFileName = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
@@ -77,13 +76,13 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   view->Update(); // Needed for now
   view->SetGraphEdgeColorArrayName("graph edge");
   view->SetColorGraphEdgesByArray(true);
-  vtkRenderedHierarchyRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
+  vtkRenderedHierarchyRepresentation::SafeDownCast(view->GetRepresentation())
+    ->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
 
   VTK_CREATE(vtkCosmicTreeLayoutStrategy, ct);
   ct->SetNodeSizeArrayName("VertexDegree");
   ct->SetSizeLeafNodesOnly(true);
   view->SetLayoutStrategy(ct);
-
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
@@ -94,7 +93,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   view->ResetCamera();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
@@ -102,7 +101,5 @@ int TestHierarchicalGraphView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
   }
 
- return !retVal;
+  return !retVal;
 }
-
-

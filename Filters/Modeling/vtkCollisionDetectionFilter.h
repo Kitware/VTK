@@ -43,30 +43,30 @@
 =========================================================================*/
 
 /**
-  * @class vtkCollisionDetectionFilter
-  * @brief performs collision determination between two polyhedral surfaces
-  *
-  * vtkCollisionDetectionFilter performs collision determination between
-  *  two polyhedral surfaces using two instances of vtkOBBTree. Set the
-  *  polydata inputs, the tolerance and transforms or matrices. If
-  *  CollisionMode is set to AllContacts, the Contacts output will be lines
-  *  of contact.  If CollisionMode is FirstContact or HalfContacts then the
-  *  Contacts output will be vertices.  See below for an explanation of
-  *  these options.
-  *
-  *  This class can be used to clip one polydata surface with another,
-  *  using the Contacts output as a loop set in vtkSelectPolyData
-  *
-  * @authors Goodwin Lawlor, Bill Lorensen
-  */
+ * @class vtkCollisionDetectionFilter
+ * @brief performs collision determination between two polyhedral surfaces
+ *
+ * vtkCollisionDetectionFilter performs collision determination between
+ *  two polyhedral surfaces using two instances of vtkOBBTree. Set the
+ *  polydata inputs, the tolerance and transforms or matrices. If
+ *  CollisionMode is set to AllContacts, the Contacts output will be lines
+ *  of contact.  If CollisionMode is FirstContact or HalfContacts then the
+ *  Contacts output will be vertices.  See below for an explanation of
+ *  these options.
+ *
+ *  This class can be used to clip one polydata surface with another,
+ *  using the Contacts output as a loop set in vtkSelectPolyData
+ *
+ * @authors Goodwin Lawlor, Bill Lorensen
+ */
 
-  //@{
-  /*
-   * @warning
-   * Currently only triangles are processed. Use vtkTriangleFilter to
-   * convert any strips or polygons to triangles.
-   */
-  //@}
+//@{
+/*
+ * @warning
+ * Currently only triangles are processed. Use vtkTriangleFilter to
+ * convert any strips or polygons to triangles.
+ */
+//@}
 
 //@{
 /*
@@ -91,9 +91,9 @@
 #ifndef vtkCollisionDetectionFilter_h
 #define vtkCollisionDetectionFilter_h
 
+#include "vtkFieldData.h"             // For GetContactCells
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkFieldData.h" // For GetContactCells
 
 class vtkOBBTree;
 class vtkPolyData;
@@ -102,15 +102,14 @@ class vtkMatrix4x4;
 class vtkLinearTransform;
 class vtkIdTypeArray;
 
-class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
-: public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter : public vtkPolyDataAlgorithm
 {
- public:
+public:
   //@{
   /**
    * Standard methods for construction, type and printing.
    */
-  static vtkCollisionDetectionFilter *New();
+  static vtkCollisionDetectionFilter* New();
   vtkTypeMacro(vtkCollisionDetectionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -124,19 +123,19 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
 
   //@{
   /** Set the collision mode to VTK_ALL_CONTACTS to find all the contacting cell pairs with
-    * two points per collision, or VTK_HALF_CONTACTS to find all the contacting cell pairs
-    * with one point per collision, or VTK_FIRST_CONTACT to quickly find the first contact
-    * point.
-    */
-  vtkSetClampMacro(CollisionMode,int,VTK_ALL_CONTACTS,VTK_HALF_CONTACTS);
-  vtkGetMacro(CollisionMode,int);
+   * two points per collision, or VTK_HALF_CONTACTS to find all the contacting cell pairs
+   * with one point per collision, or VTK_FIRST_CONTACT to quickly find the first contact
+   * point.
+   */
+  vtkSetClampMacro(CollisionMode, int, VTK_ALL_CONTACTS, VTK_HALF_CONTACTS);
+  vtkGetMacro(CollisionMode, int);
 
-  void SetCollisionModeToAllContacts() {this->SetCollisionMode(VTK_ALL_CONTACTS);};
-  void SetCollisionModeToFirstContact() {this->SetCollisionMode(VTK_FIRST_CONTACT);};
-  void SetCollisionModeToHalfContacts() {this->SetCollisionMode(VTK_HALF_CONTACTS);};
-  const char *GetCollisionModeAsString(void)
+  void SetCollisionModeToAllContacts() { this->SetCollisionMode(VTK_ALL_CONTACTS); }
+  void SetCollisionModeToFirstContact() { this->SetCollisionMode(VTK_FIRST_CONTACT); }
+  void SetCollisionModeToHalfContacts() { this->SetCollisionMode(VTK_HALF_CONTACTS); }
+  const char* GetCollisionModeAsString(void)
   {
-    if ( this->CollisionMode == VTK_ALL_CONTACTS )
+    if (this->CollisionMode == VTK_ALL_CONTACTS)
     {
       return "AllContacts";
     }
@@ -159,19 +158,16 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
    * CollisionMode = VTK_FIRST_CONTACT or VTK_HALF_CONTACTS, only
    * one contact point is found.
    */
-  int IntersectPolygonWithPolygon(int npts, double *pts, double bounds[6],
-                                            int npts2, double *pts2,
-                                            double bounds2[6], double tol2,
-                                            double x1[2], double x2[3],
-                                            int CollisionMode);
+  int IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6], int npts2, double* pts2,
+    double bounds2[6], double tol2, double x1[2], double x2[3], int CollisionMode);
   //@}
 
   //@{
   /**
    * Set and Get the input vtk polydata models
    */
-    void SetInputData(int i, vtkPolyData *model);
-    vtkPolyData *GetInputData(int i);
+  void SetInputData(int i, vtkPolyData* model);
+  vtkPolyData* GetInputData(int i);
   //@}
 
   //@{
@@ -181,30 +177,30 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
    * a cell at index 50 of array 1. This method is equivalent to
    * GetOutput(i)->GetFieldData()->GetArray("ContactCells")
    */
-    vtkIdTypeArray *GetContactCells(int i);
+  vtkIdTypeArray* GetContactCells(int i);
   //@}
 
   //@{
   /** Get the output with the points where the contacting cells intersect. This method is
    *  is equivalent to GetOutputPort(2)/GetOutput(2)
    */
-  vtkAlgorithmOutput *GetContactsOutputPort() {return this->GetOutputPort(2);}
-  vtkPolyData *GetContactsOutput() {return this->GetOutput(2);}
+  vtkAlgorithmOutput* GetContactsOutputPort() { return this->GetOutputPort(2); }
+  vtkPolyData* GetContactsOutput() { return this->GetOutput(2); }
   //@}
 
   //@{
   /* Specify the transform object used to transform models. Alternatively, matrices
    * can be set instead.
 `  */
-  void SetTransform(int i, vtkLinearTransform *transform);
-  vtkLinearTransform *GetTransform(int i) {return this->Transform[i];}
+  void SetTransform(int i, vtkLinearTransform* transform);
+  vtkLinearTransform* GetTransform(int i) { return this->Transform[i]; }
   //@}
 
   //@{
   /* Specify the matrix object used to transform models.
    */
-  void SetMatrix(int i, vtkMatrix4x4 *matrix);
-  vtkMatrix4x4 *GetMatrix(int i);
+  void SetMatrix(int i, vtkMatrix4x4* matrix);
+  vtkMatrix4x4* GetMatrix(int i);
   //@}
 
   //@{
@@ -223,12 +219,12 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
 
   //@{
   /*
-  * Set and Get the the flag to visualize the contact cells. If set the contacting cells
-  * will be coloured from red through to blue, with collisions first determined coloured red.
-  */
+   * Set and Get the the flag to visualize the contact cells. If set the contacting cells
+   * will be coloured from red through to blue, with collisions first determined coloured red.
+   */
   vtkSetMacro(GenerateScalars, int);
   vtkGetMacro(GenerateScalars, int);
-  vtkBooleanMacro(GenerateScalars,int);
+  vtkBooleanMacro(GenerateScalars, int);
   //@}
 
   //@{
@@ -236,7 +232,9 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
    * Get the number of contacting cell pairs
    */
   int GetNumberOfContacts()
-    { return this->GetOutput(0)->GetFieldData()->GetArray("ContactCells")->GetNumberOfTuples(); }
+  {
+    return this->GetOutput(0)->GetFieldData()->GetArray("ContactCells")->GetNumberOfTuples();
+  }
   //@}
 
   //@{Description:
@@ -246,10 +244,10 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
   vtkGetMacro(NumberOfBoxTests, int);
   //@}
 
- //@{
- /*
-  * Set and Get the number of cells in each OBB. Default is 2
-  */
+  //@{
+  /*
+   * Set and Get the number of cells in each OBB. Default is 2
+   */
   vtkSetMacro(NumberOfCellsPerNode, int);
   vtkGetMacro(NumberOfCellsPerNode, int);
   //@}
@@ -275,12 +273,12 @@ protected:
   ~vtkCollisionDetectionFilter() override;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  vtkOBBTree *Tree0;
-  vtkOBBTree *Tree1;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkOBBTree* Tree0;
+  vtkOBBTree* Tree1;
 
-  vtkLinearTransform *Transform[2];
-  vtkMatrix4x4 *Matrix[2];
+  vtkLinearTransform* Transform[2];
+  vtkMatrix4x4* Matrix[2];
 
   int NumberOfBoxTests;
 
@@ -295,10 +293,8 @@ protected:
   int CollisionMode;
 
 private:
-
   vtkCollisionDetectionFilter(const vtkCollisionDetectionFilter&) = delete;
   void operator=(const vtkCollisionDetectionFilter&) = delete;
 };
-
 
 #endif

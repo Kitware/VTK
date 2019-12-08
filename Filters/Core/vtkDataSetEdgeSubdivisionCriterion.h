@@ -34,150 +34,167 @@
  *
  * @sa
  * vtkEdgeSubdivisionCriterion
-*/
+ */
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkCell;
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSubdivisionCriterion
 {
-  public:
-    vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion,vtkEdgeSubdivisionCriterion);
-    static vtkDataSetEdgeSubdivisionCriterion* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) override;
+public:
+  vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion, vtkEdgeSubdivisionCriterion);
+  static vtkDataSetEdgeSubdivisionCriterion* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    virtual void SetMesh( vtkDataSet* );
-    vtkDataSet* GetMesh();
+  virtual void SetMesh(vtkDataSet*);
+  vtkDataSet* GetMesh();
 
-    const vtkDataSet* GetMesh() const;
+  const vtkDataSet* GetMesh() const;
 
-    virtual void SetCellId( vtkIdType cell );
-    vtkIdType  GetCellId() const;
+  virtual void SetCellId(vtkIdType cell);
+  vtkIdType GetCellId() const;
 
-    vtkIdType& GetCellId();
+  vtkIdType& GetCellId();
 
-    vtkCell* GetCell();
+  vtkCell* GetCell();
 
-    const vtkCell* GetCell() const;
+  const vtkCell* GetCell() const;
 
-    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
+  bool EvaluateEdge(const double* p0, double* midpt, const double* p1, int field_start) override;
 
-    /**
-     * Evaluate all of the fields that should be output with the
-     * given \a vertex and store them just past the parametric coordinates
-     * of \a vertex, at the offsets given by
-     * \p vtkEdgeSubdivisionCriterion::GetFieldOffsets() plus \a field_start.
-     * \a field_start contains the number of world-space coordinates (always 3)
-     * plus the embedding dimension (the size of the parameter-space in which
-     * the cell is embedded). It will range between 3 and 6, inclusive.
+  /**
+   * Evaluate all of the fields that should be output with the
+   * given \a vertex and store them just past the parametric coordinates
+   * of \a vertex, at the offsets given by
+   * \p vtkEdgeSubdivisionCriterion::GetFieldOffsets() plus \a field_start.
+   * \a field_start contains the number of world-space coordinates (always 3)
+   * plus the embedding dimension (the size of the parameter-space in which
+   * the cell is embedded). It will range between 3 and 6, inclusive.
 
-     * You must have called SetCellId() before calling this routine or there
-     * will not be a mesh over which to evaluate the fields.
+   * You must have called SetCellId() before calling this routine or there
+   * will not be a mesh over which to evaluate the fields.
 
-     * You must have called \p vtkEdgeSubdivisionCriterion::PassDefaultFields()
-     * or \p vtkEdgeSubdivisionCriterion::PassField() or there will be no fields
-     * defined for the output vertex.
+   * You must have called \p vtkEdgeSubdivisionCriterion::PassDefaultFields()
+   * or \p vtkEdgeSubdivisionCriterion::PassField() or there will be no fields
+   * defined for the output vertex.
 
-     * This routine is public and returns its input argument so that it
-     * may be used as an argument to
-     * \p vtkStreamingTessellator::AdaptivelySamplekFacet():
-     * @verbatim
-     * vtkStreamingTessellator* t = vtkStreamingTessellator::New();
-     * vtkEdgeSubdivisionCriterion* s;
-     * ...
-     * t->AdaptivelySample1Facet( s->EvaluateFields( p0 ), s->EvaluateFields( p1 ) );
-     * ...
-     * @endverbatim
-     * Although this will work, using \p EvaluateFields() in this manner
-     * should be avoided. It's much more efficient to fetch the corner values
-     * for each attribute and copy them into \a p0, \a p1, ... as opposed to
-     * performing shape function evaluations. The only case where you wouldn't
-     * want to do this is when the field you are interpolating is discontinuous
-     * at cell borders, such as with a discontinuous galerkin method or when
-     * all the Gauss points for quadrature are interior to the cell.
+   * This routine is public and returns its input argument so that it
+   * may be used as an argument to
+   * \p vtkStreamingTessellator::AdaptivelySamplekFacet():
+   * @verbatim
+   * vtkStreamingTessellator* t = vtkStreamingTessellator::New();
+   * vtkEdgeSubdivisionCriterion* s;
+   * ...
+   * t->AdaptivelySample1Facet( s->EvaluateFields( p0 ), s->EvaluateFields( p1 ) );
+   * ...
+   * @endverbatim
+   * Although this will work, using \p EvaluateFields() in this manner
+   * should be avoided. It's much more efficient to fetch the corner values
+   * for each attribute and copy them into \a p0, \a p1, ... as opposed to
+   * performing shape function evaluations. The only case where you wouldn't
+   * want to do this is when the field you are interpolating is discontinuous
+   * at cell borders, such as with a discontinuous galerkin method or when
+   * all the Gauss points for quadrature are interior to the cell.
 
-     * The final argument, \a weights, is the array of weights to apply to each
-     * point's data when interpolating the field. This is returned by
-     * \a vtkCell::EvaluateLocation() when evaluating the geometry.
-     */
-    double* EvaluateFields( double* vertex, double* weights, int field_start );
+   * The final argument, \a weights, is the array of weights to apply to each
+   * point's data when interpolating the field. This is returned by
+   * \a vtkCell::EvaluateLocation() when evaluating the geometry.
+   */
+  double* EvaluateFields(double* vertex, double* weights, int field_start);
 
-    //@{
-    /**
-     * Evaluate either a cell or nodal field.
-     * This exists because of the funky way that Exodus data will be handled.
-     * Sure, it's a hack, but what are ya gonna do?
-     */
-    void EvaluatePointDataField( double* result, double* weights, int field );
-    void EvaluateCellDataField( double* result, double* weights, int field );
-    //@}
+  //@{
+  /**
+   * Evaluate either a cell or nodal field.
+   * This exists because of the funky way that Exodus data will be handled.
+   * Sure, it's a hack, but what are ya gonna do?
+   */
+  void EvaluatePointDataField(double* result, double* weights, int field);
+  void EvaluateCellDataField(double* result, double* weights, int field);
+  //@}
 
-    //@{
-    /**
-     * Get/Set the square of the allowable chord error at any edge's midpoint.
-     * This value is used by EvaluateEdge.
-     */
-    vtkSetMacro(ChordError2,double);
-    vtkGetMacro(ChordError2,double);
-    //@}
+  //@{
+  /**
+   * Get/Set the square of the allowable chord error at any edge's midpoint.
+   * This value is used by EvaluateEdge.
+   */
+  vtkSetMacro(ChordError2, double);
+  vtkGetMacro(ChordError2, double);
+  //@}
 
-    //@{
-    /**
-     * Get/Set the square of the allowable error magnitude for the
-     * scalar field \a s at any edge's midpoint.
-     * A value less than or equal to 0 indicates that the field
-     * should not be used as a criterion for subdivision.
-     */
-    virtual void SetFieldError2( int s, double err );
-    double GetFieldError2( int s ) const;
-    //@}
+  //@{
+  /**
+   * Get/Set the square of the allowable error magnitude for the
+   * scalar field \a s at any edge's midpoint.
+   * A value less than or equal to 0 indicates that the field
+   * should not be used as a criterion for subdivision.
+   */
+  virtual void SetFieldError2(int s, double err);
+  double GetFieldError2(int s) const;
+  //@}
 
-    /**
-     * Tell the subdivider not to use any field values as subdivision criteria.
-     * Effectively calls SetFieldError2( a, -1. ) for all fields.
-     */
-    virtual void ResetFieldError2();
+  /**
+   * Tell the subdivider not to use any field values as subdivision criteria.
+   * Effectively calls SetFieldError2( a, -1. ) for all fields.
+   */
+  virtual void ResetFieldError2();
 
-    //@{
-    /**
-     * Return a bitfield specifying which FieldError2 criteria are positive (i.e., actively
-     * used to decide edge subdivisions).
-     * This is stored as separate state to make subdivisions go faster.
-     */
-    vtkGetMacro(ActiveFieldCriteria,int);
-    int GetActiveFieldCriteria() const { return this->ActiveFieldCriteria; }
-    //@}
+  //@{
+  /**
+   * Return a bitfield specifying which FieldError2 criteria are positive (i.e., actively
+   * used to decide edge subdivisions).
+   * This is stored as separate state to make subdivisions go faster.
+   */
+  vtkGetMacro(ActiveFieldCriteria, int);
+  int GetActiveFieldCriteria() const { return this->ActiveFieldCriteria; }
+  //@}
 
-  protected:
-    vtkDataSetEdgeSubdivisionCriterion();
-    ~vtkDataSetEdgeSubdivisionCriterion() override;
+protected:
+  vtkDataSetEdgeSubdivisionCriterion();
+  ~vtkDataSetEdgeSubdivisionCriterion() override;
 
-    vtkDataSet* CurrentMesh;
-    vtkIdType CurrentCellId;
-    vtkCell* CurrentCellData;
+  vtkDataSet* CurrentMesh;
+  vtkIdType CurrentCellId;
+  vtkCell* CurrentCellData;
 
-    double ChordError2;
-    double* FieldError2;
-    int FieldError2Length;
-    int FieldError2Capacity;
-    int ActiveFieldCriteria;
+  double ChordError2;
+  double* FieldError2;
+  int FieldError2Length;
+  int FieldError2Capacity;
+  int ActiveFieldCriteria;
 
-  private:
-    vtkDataSetEdgeSubdivisionCriterion( const vtkDataSetEdgeSubdivisionCriterion& ) = delete;
-    void operator = ( const vtkDataSetEdgeSubdivisionCriterion& ) = delete;
-
+private:
+  vtkDataSetEdgeSubdivisionCriterion(const vtkDataSetEdgeSubdivisionCriterion&) = delete;
+  void operator=(const vtkDataSetEdgeSubdivisionCriterion&) = delete;
 };
 
-inline vtkIdType& vtkDataSetEdgeSubdivisionCriterion::GetCellId()       { return this->CurrentCellId; }
-inline vtkIdType  vtkDataSetEdgeSubdivisionCriterion::GetCellId() const { return this->CurrentCellId; }
+inline vtkIdType& vtkDataSetEdgeSubdivisionCriterion::GetCellId()
+{
+  return this->CurrentCellId;
+}
+inline vtkIdType vtkDataSetEdgeSubdivisionCriterion::GetCellId() const
+{
+  return this->CurrentCellId;
+}
 
-inline       vtkDataSet* vtkDataSetEdgeSubdivisionCriterion::GetMesh()       { return this->CurrentMesh; }
-inline const vtkDataSet* vtkDataSetEdgeSubdivisionCriterion::GetMesh() const { return this->CurrentMesh; }
+inline vtkDataSet* vtkDataSetEdgeSubdivisionCriterion::GetMesh()
+{
+  return this->CurrentMesh;
+}
+inline const vtkDataSet* vtkDataSetEdgeSubdivisionCriterion::GetMesh() const
+{
+  return this->CurrentMesh;
+}
 
-inline       vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell()       { return this->CurrentCellData; }
-inline const vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell() const { return this->CurrentCellData; }
+inline vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell()
+{
+  return this->CurrentCellData;
+}
+inline const vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell() const
+{
+  return this->CurrentCellData;
+}
 
 #endif // vtkDataSetEdgeSubdivisionCriterion_h

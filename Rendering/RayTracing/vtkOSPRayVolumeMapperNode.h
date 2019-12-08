@@ -17,12 +17,12 @@
  * @brief   links vtkVolumeMapper  to OSPRay
  *
  * Translates vtkVolumeMapper state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayVolumeMapperNode_h
 #define vtkOSPRayVolumeMapperNode_h
 
-#include "vtkOSPRayCache.h" // For common cache infrastructure
+#include "vtkOSPRayCache.h"               // For common cache infrastructure
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
@@ -32,8 +32,7 @@ class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeMapperNode :
-  public vtkVolumeMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeMapperNode : public vtkVolumeMapperNode
 {
 public:
   static vtkOSPRayVolumeMapperNode* New();
@@ -60,14 +59,14 @@ protected:
   /**
    * updates internal OSPRay transfer function for volume
    */
-  void UpdateTransferFunction(RTW::Backend *be, vtkVolume* vol, double *dataRange=nullptr);
+  void UpdateTransferFunction(RTW::Backend* be, vtkVolume* vol, double* dataRange = nullptr);
 
-  //TODO: SetAndGetters?
+  // TODO: SetAndGetters?
   int NumColors;
   double SamplingRate;
-  double SamplingStep;  //base sampling step of each voxel
+  double SamplingStep; // base sampling step of each voxel
   bool UseSharedBuffers;
-  bool Shade;  //volume shading set through volProperty
+  bool Shade; // volume shading set through volProperty
   OSPData SharedData;
 
   vtkTimeStamp BuildTime;
@@ -79,7 +78,7 @@ protected:
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  vtkOSPRayCache<vtkOSPRayCacheItemObject> *Cache;
+  vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;

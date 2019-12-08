@@ -24,14 +24,14 @@
  *
  * @sa
  * vtkXMLDataElement
-*/
+ */
 
 #ifndef vtkXMLDataParser_h
 #define vtkXMLDataParser_h
 
 #include "vtkIOXMLParserModule.h" // For export macro
+#include "vtkXMLDataElement.h"    //For inline definition.
 #include "vtkXMLParser.h"
-#include "vtkXMLDataElement.h"//For inline definition.
 
 class vtkInputStream;
 class vtkDataCompressor;
@@ -39,7 +39,7 @@ class vtkDataCompressor;
 class VTKIOXMLPARSER_EXPORT vtkXMLDataParser : public vtkXMLParser
 {
 public:
-  vtkTypeMacro(vtkXMLDataParser,vtkXMLParser);
+  vtkTypeMacro(vtkXMLDataParser, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataParser* New();
 
@@ -51,47 +51,47 @@ public:
   /**
    * Enumerate big and little endian byte order settings.
    */
-  enum { BigEndian, LittleEndian };
+  enum
+  {
+    BigEndian,
+    LittleEndian
+  };
 
   /**
    * Read inline data from inside the given element.  Returns the
    * number of words read.
    */
-  size_t ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                        void* buffer, vtkTypeUInt64 startWord,
-                        size_t numWords, int wordType);
-  size_t ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                        char* buffer, vtkTypeUInt64 startWord,
-                        size_t numWords)
-    { return this->ReadInlineData(element, isAscii, buffer, startWord,
-                                  numWords, VTK_CHAR); }
+  size_t ReadInlineData(vtkXMLDataElement* element, int isAscii, void* buffer,
+    vtkTypeUInt64 startWord, size_t numWords, int wordType);
+  size_t ReadInlineData(
+    vtkXMLDataElement* element, int isAscii, char* buffer, vtkTypeUInt64 startWord, size_t numWords)
+  {
+    return this->ReadInlineData(element, isAscii, buffer, startWord, numWords, VTK_CHAR);
+  }
 
   /**
    * Read from an appended data section starting at the given appended
    * data offset.  Returns the number of words read.
    */
-  size_t ReadAppendedData(vtkTypeInt64 offset, void* buffer,
-                          vtkTypeUInt64 startWord,
-                          size_t numWords, int wordType);
-  size_t ReadAppendedData(vtkTypeInt64 offset, char* buffer,
-                          vtkTypeUInt64 startWord,
-                          size_t numWords)
-  { return this->ReadAppendedData(offset, buffer, startWord, numWords,
-                                    VTK_CHAR); }
+  size_t ReadAppendedData(
+    vtkTypeInt64 offset, void* buffer, vtkTypeUInt64 startWord, size_t numWords, int wordType);
+  size_t ReadAppendedData(
+    vtkTypeInt64 offset, char* buffer, vtkTypeUInt64 startWord, size_t numWords)
+  {
+    return this->ReadAppendedData(offset, buffer, startWord, numWords, VTK_CHAR);
+  }
 
   /**
    * Read from an ascii data section starting at the current position in
    * the stream.  Returns the number of words read.
    */
-  size_t ReadAsciiData(void* buffer, vtkTypeUInt64 startWord,
-                       size_t numWords, int wordType);
+  size_t ReadAsciiData(void* buffer, vtkTypeUInt64 startWord, size_t numWords, int wordType);
 
   /**
    * Read from a data section starting at the current position in the
    * stream.  Returns the number of words read.
    */
-  size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord,
-                        size_t maxWords, int wordType);
+  size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord, size_t maxWords, int wordType);
 
   //@{
   /**
@@ -140,7 +140,7 @@ public:
    * not be changed and will default to the vtkXMLDataElement default encoding
    * type (see vtkXMLDataElement::AttributeEncoding).
    */
-  vtkSetClampMacro(AttributesEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
+  vtkSetClampMacro(AttributesEncoding, int, VTK_ENCODING_NONE, VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributesEncoding, int);
   //@}
 
@@ -156,10 +156,7 @@ public:
    * Returns the byte index of where appended data starts (if the
    * file is using appended data). Valid after the XML is parsed.
    */
-  vtkTypeInt64 GetAppendedDataPosition()
-  {
-    return this->AppendedDataPosition;
-  }
+  vtkTypeInt64 GetAppendedDataPosition() { return this->AppendedDataPosition; }
 
 protected:
   vtkXMLDataParser();
@@ -189,17 +186,13 @@ protected:
   size_t FindBlockSize(vtkTypeUInt64 block);
   int ReadBlock(vtkTypeUInt64 block, unsigned char* buffer);
   unsigned char* ReadBlock(vtkTypeUInt64 block);
-  size_t ReadUncompressedData(unsigned char* data,
-                              vtkTypeUInt64 startWord,
-                              size_t numWords,
-                              size_t wordSize);
-  size_t ReadCompressedData(unsigned char* data,
-                            vtkTypeUInt64 startWord,
-                            size_t numWords,
-                            size_t wordSize);
+  size_t ReadUncompressedData(
+    unsigned char* data, vtkTypeUInt64 startWord, size_t numWords, size_t wordSize);
+  size_t ReadCompressedData(
+    unsigned char* data, vtkTypeUInt64 startWord, size_t numWords, size_t wordSize);
 
   // Go to the start of the inline data
-  void SeekInlineDataPosition(vtkXMLDataElement *element);
+  void SeekInlineDataPosition(vtkXMLDataElement* element);
 
   // Ascii data reading methods.
   int ParseAsciiData(int wordType);
@@ -267,12 +260,10 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline
-void vtkXMLDataParser::CharacterDataHandler(const char* data, int length )
+inline void vtkXMLDataParser::CharacterDataHandler(const char* data, int length)
 {
-  const unsigned int eid=this->NumberOfOpenElements-1;
+  const unsigned int eid = this->NumberOfOpenElements - 1;
   this->OpenElements[eid]->AddCharacterData(data, length);
 }
-
 
 #endif

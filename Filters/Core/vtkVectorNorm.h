@@ -30,7 +30,7 @@
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
-*/
+ */
 
 #ifndef vtkVectorNorm_h
 #define vtkVectorNorm_h
@@ -39,29 +39,25 @@
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-
-class vtkDataArray;
-class vtkFloatArray;
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkVectorNorm,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkVectorNorm, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with normalize flag off.
    */
-  static vtkVectorNorm *New();
-
+  static vtkVectorNorm* New();
 
   // Specify whether to normalize scalar values. If the data is normalized,
   // then it will fall in the range [0,1].
-  vtkSetMacro(Normalize,vtkTypeBool);
-  vtkGetMacro(Normalize,vtkTypeBool);
-  vtkBooleanMacro(Normalize,vtkTypeBool);
+  vtkSetMacro(Normalize, vtkTypeBool);
+  vtkGetMacro(Normalize, vtkTypeBool);
+  vtkBooleanMacro(Normalize, vtkTypeBool);
 
   //@{
   /**
@@ -73,32 +69,29 @@ public:
    * (AttributeModeToUsePointData) or cell data
    * (AttributeModeToUseCellData).
    */
-  vtkSetMacro(AttributeMode,int);
-  vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+  vtkSetMacro(AttributeMode, int);
+  vtkGetMacro(AttributeMode, int);
+  void SetAttributeModeToDefault() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT); }
   void SetAttributeModeToUsePointData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  const char *GetAttributeModeAsString();
+  {
+    this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
+  }
+  void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
+  const char* GetAttributeModeAsString();
   //@}
 
 protected:
   vtkVectorNorm();
   ~vtkVectorNorm() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkTypeBool Normalize;  // normalize 0<=n<=1 if true.
-  int AttributeMode; //control whether to use point or cell data, or both
+  vtkTypeBool Normalize; // normalize 0<=n<=1 if true.
+  int AttributeMode;     // control whether to use point or cell data, or both
 
 private:
   vtkVectorNorm(const vtkVectorNorm&) = delete;
   void operator=(const vtkVectorNorm&) = delete;
-
-  // Helper function
-  void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);
 };
 
 #endif

@@ -23,7 +23,7 @@
  *
  *
  * vtkGeoMath provides some useful geographic calculations.
-*/
+ */
 
 #ifndef vtkGeoMath_h
 #define vtkGeoMath_h
@@ -34,14 +34,14 @@
 class VTKINFOVISLAYOUT_EXPORT vtkGeoMath : public vtkObject
 {
 public:
-  static vtkGeoMath *New();
+  static vtkGeoMath* New();
   vtkTypeMacro(vtkGeoMath, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the average radius of the earth in meters.
    */
-  static double EarthRadiusMeters() {return 6356750.0;}
+  static double EarthRadiusMeters() { return 6356750.0; }
 
   /**
    * Returns the squared distance between two points.
@@ -54,7 +54,7 @@ public:
    * Units are in meters.
    * Note that having altitude realtive to sea level causes issues.
    */
-  static void   LongLatAltToRect(double lla[3], double rect[3]);
+  static void LongLatAltToRect(double lla[3], double rect[3]);
 
 protected:
   vtkGeoMath();

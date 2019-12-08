@@ -13,58 +13,56 @@
 
 =========================================================================*/
 #include "vtkImporter.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 
+vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
 
-vtkCxxSetObjectMacro(vtkImporter,RenderWindow,vtkRenderWindow);
-
-vtkImporter::vtkImporter ()
+vtkImporter::vtkImporter()
 {
   this->Renderer = nullptr;
   this->RenderWindow = nullptr;
 }
 
-vtkImporter::~vtkImporter ()
+vtkImporter::~vtkImporter()
 {
   this->SetRenderWindow(nullptr);
 
   if (this->Renderer)
   {
-    this->Renderer->UnRegister( nullptr );
+    this->Renderer->UnRegister(nullptr);
     this->Renderer = nullptr;
   }
-
 }
 
 void vtkImporter::ReadData()
 {
   // this->Import actors, cameras, lights and properties
-  this->ImportActors (this->Renderer);
-  this->ImportCameras (this->Renderer);
-  this->ImportLights (this->Renderer);
-  this->ImportProperties (this->Renderer);
+  this->ImportActors(this->Renderer);
+  this->ImportCameras(this->Renderer);
+  this->ImportLights(this->Renderer);
+  this->ImportProperties(this->Renderer);
 }
 
-void vtkImporter::Read ()
+void vtkImporter::Read()
 {
-  vtkRenderer *renderer;
+  vtkRenderer* renderer;
 
   // if there is no render window, create one
   if (this->RenderWindow == nullptr)
   {
-    vtkDebugMacro( <<"Creating a RenderWindow\n");
-    this->RenderWindow = vtkRenderWindow::New ();
+    vtkDebugMacro(<< "Creating a RenderWindow\n");
+    this->RenderWindow = vtkRenderWindow::New();
   }
 
   // Get the first renderer in the render window
   renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   if (renderer == nullptr)
   {
-    vtkDebugMacro( <<"Creating a Renderer\n");
-    this->Renderer = vtkRenderer::New ();
+    vtkDebugMacro(<< "Creating a Renderer\n");
+    this->Renderer = vtkRenderer::New();
     renderer = this->Renderer;
-    this->RenderWindow->AddRenderer (renderer);
+    this->RenderWindow->AddRenderer(renderer);
   }
   else
   {
@@ -73,10 +71,10 @@ void vtkImporter::Read ()
       this->Renderer->UnRegister(nullptr);
     }
     this->Renderer = renderer;
-    this->Renderer->Register( this );
+    this->Renderer->Register(this);
   }
 
-  if (this->ImportBegin ())
+  if (this->ImportBegin())
   {
     this->ReadData();
     this->ImportEnd();
@@ -85,10 +83,10 @@ void vtkImporter::Read ()
 
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Render Window: ";
-  if ( this->RenderWindow )
+  if (this->RenderWindow)
   {
     os << this->RenderWindow << "\n";
   }
@@ -98,7 +96,7 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Renderer: ";
-  if ( this->Renderer )
+  if (this->Renderer)
   {
     os << this->Renderer << "\n";
   }
@@ -106,11 +104,4 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)\n";
   }
-
 }
-
-
-
-
-
-

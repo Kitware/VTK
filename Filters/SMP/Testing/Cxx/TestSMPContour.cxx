@@ -12,33 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkNew.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkPolyData.h"
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSMPContourGrid.h"
 #if !defined(VTK_LEGACY_REMOVE)
-# include "vtkSMPContourGridManyPieces.h"
+#include "vtkSMPContourGridManyPieces.h"
 #endif
-#include "vtkContourGrid.h"
-#include "vtkContourFilter.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkTimerLog.h"
-#include "vtkNonMergingPointLocator.h"
-#include "vtkSMPTools.h"
-#include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkElevationFilter.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkContourFilter.h"
+#include "vtkContourGrid.h"
+#include "vtkElevationFilter.h"
+#include "vtkNonMergingPointLocator.h"
+#include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
+#include "vtkSMPTools.h"
+#include "vtkTimerLog.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #define WRITE_DEBUG 0
 
 const int EXTENT = 30;
-int TestSMPContour(int, char *[])
+int TestSMPContour(int, char*[])
 {
   vtkSMPTools::Initialize(2);
 
@@ -115,15 +115,15 @@ int TestSMPContour(int, char *[])
   vtkNew<vtkXMLPolyDataWriter> pdwriter;
   pdwriter->SetInputData(cg2->GetOutput());
   pdwriter->SetFileName("contour.vtp");
-  //pwriter->SetDataModeToAscii();
+  // pwriter->SetDataModeToAscii();
   pdwriter->Write();
 #endif
 
   if (cg2->GetOutput()->GetNumberOfCells() != baseNumCells)
   {
     cout << "Error in vtkSMPContourGrid (MergePieces = true) output." << endl;
-    cout << "Number of cells does not match expected, "
-         << cg2->GetOutput()->GetNumberOfCells() << " vs. " << baseNumCells << endl;
+    cout << "Number of cells does not match expected, " << cg2->GetOutput()->GetNumberOfCells()
+         << " vs. " << baseNumCells << endl;
     return EXIT_FAILURE;
   }
 
@@ -137,16 +137,14 @@ int TestSMPContour(int, char *[])
 
   vtkIdType numCells = 0;
 
-  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
-    cg2->GetOutputDataObject(0));
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(cg2->GetOutputDataObject(0));
   if (cds)
   {
     vtkCompositeDataIterator* iter = cds->NewIterator();
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
     {
-      vtkPolyData* pd = vtkPolyData::SafeDownCast(
-        iter->GetCurrentDataObject());
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
       if (pd)
       {
         numCells += pd->GetNumberOfCells();
@@ -159,8 +157,8 @@ int TestSMPContour(int, char *[])
   if (numCells != baseNumCells)
   {
     cout << "Error in vtkSMPContourGrid (MergePieces = false) output." << endl;
-    cout << "Number of cells does not match expected, "
-         << numCells << " vs. " << baseNumCells << endl;
+    cout << "Number of cells does not match expected, " << numCells << " vs. " << baseNumCells
+         << endl;
     return EXIT_FAILURE;
   }
 
@@ -178,16 +176,14 @@ int TestSMPContour(int, char *[])
 
   numCells = 0;
 
-  cds = vtkCompositeDataSet::SafeDownCast(
-    cg2->GetOutputDataObject(0));
+  cds = vtkCompositeDataSet::SafeDownCast(cg2->GetOutputDataObject(0));
   if (cds)
   {
     vtkCompositeDataIterator* iter = cds->NewIterator();
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
     {
-      vtkPolyData* pd = vtkPolyData::SafeDownCast(
-        iter->GetCurrentDataObject());
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
       if (pd)
       {
         numCells += pd->GetNumberOfCells();
@@ -200,12 +196,12 @@ int TestSMPContour(int, char *[])
   if (numCells != baseNumCells)
   {
     cout << "Error in vtkSMPContourGridManyPieces output." << endl;
-    cout << "Number of cells does not match expected, "
-         << numCells << " vs. " << baseNumCells << endl;
+    cout << "Number of cells does not match expected, " << numCells << " vs. " << baseNumCells
+         << endl;
     return EXIT_FAILURE;
   }
 
-# if WRITE_DEBUG
+#if WRITE_DEBUG
   vtkNew<vtkXMLMultiBlockDataWriter> writer;
   writer->SetInputData(cg2->GetOutputDataObject(0));
   writer->SetFileName("contour1.vtm");
@@ -217,7 +213,7 @@ int TestSMPContour(int, char *[])
   writer2->SetFileName("contour2.vtm");
   writer2->SetDataModeToAscii();
   writer2->Write();
-# endif
+#endif
 
 #endif
 

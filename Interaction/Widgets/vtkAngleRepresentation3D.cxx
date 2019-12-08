@@ -13,25 +13,23 @@
 
 =========================================================================*/
 #include "vtkAngleRepresentation3D.h"
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkActor.h"
-#include "vtkCoordinate.h"
-#include "vtkLineSource.h"
-#include "vtkFollower.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkVectorText.h"
-#include "vtkProperty.h"
 #include "vtkArcSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMath.h"
-#include "vtkWindow.h"
 #include "vtkCamera.h"
+#include "vtkCoordinate.h"
+#include "vtkFollower.h"
+#include "vtkInteractorObserver.h"
+#include "vtkLineSource.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
+#include "vtkVectorText.h"
+#include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkAngleRepresentation3D);
-
 
 //----------------------------------------------------------------------
 vtkAngleRepresentation3D::vtkAngleRepresentation3D()
@@ -39,46 +37,42 @@ vtkAngleRepresentation3D::vtkAngleRepresentation3D()
   this->Angle = 0.0;
 
   // By default, use one of these handles
-  this->HandleRepresentation  = vtkPointHandleRepresentation3D::New();
+  this->HandleRepresentation = vtkPointHandleRepresentation3D::New();
 
   // Represent the line1
   this->Line1Source = vtkLineSource::New();
   this->Line1Source->SetResolution(5);
   this->Line1Mapper = vtkPolyDataMapper::New();
-  this->Line1Mapper->SetInputConnection(
-    this->Line1Source->GetOutputPort());
+  this->Line1Mapper->SetInputConnection(this->Line1Source->GetOutputPort());
   this->Ray1 = vtkActor::New();
   this->Ray1->SetMapper(this->Line1Mapper);
-  this->Ray1->GetProperty()->SetColor( 1.0, 0.0, 0.0 );
+  this->Ray1->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
   // Represent the line2
   this->Line2Source = vtkLineSource::New();
   this->Line2Source->SetResolution(5);
   this->Line2Mapper = vtkPolyDataMapper::New();
-  this->Line2Mapper->SetInputConnection(
-    this->Line2Source->GetOutputPort());
+  this->Line2Mapper->SetInputConnection(this->Line2Source->GetOutputPort());
   this->Ray2 = vtkActor::New();
   this->Ray2->SetMapper(this->Line2Mapper);
-  this->Ray2->GetProperty()->SetColor( 1.0, 0.0, 0.0 );
+  this->Ray2->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
   // Represent the arc
   this->ArcSource = vtkArcSource::New();
   this->ArcSource->SetResolution(30);
   this->ArcMapper = vtkPolyDataMapper::New();
-  this->ArcMapper->SetInputConnection(
-    this->ArcSource->GetOutputPort());
+  this->ArcMapper->SetInputConnection(this->ArcSource->GetOutputPort());
   this->Arc = vtkActor::New();
   this->Arc->SetMapper(this->ArcMapper);
-  this->Arc->GetProperty()->SetColor( 1.0, 0.1, 0.0 );
+  this->Arc->GetProperty()->SetColor(1.0, 0.1, 0.0);
 
   this->TextInput = vtkVectorText::New();
-  this->TextInput->SetText( "0" );
+  this->TextInput->SetText("0");
   this->TextMapper = vtkPolyDataMapper::New();
-  this->TextMapper->SetInputConnection(
-    this->TextInput->GetOutputPort());
+  this->TextMapper->SetInputConnection(this->TextInput->GetOutputPort());
   this->TextActor = vtkFollower::New();
   this->TextActor->SetMapper(this->TextMapper);
-  this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );
+  this->TextActor->GetProperty()->SetColor(1.0, 0.1, 0.0);
   this->ScaleInitialized = false;
 }
 
@@ -158,22 +152,22 @@ void vtkAngleRepresentation3D::SetPoint1WorldPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetCenterWorldPosition(double x[3])
 {
-   if (!this->CenterRepresentation)
-   {
+  if (!this->CenterRepresentation)
+  {
     vtkErrorMacro("SetCenterWorldPosition: null center representation");
     return;
-   }
+  }
   this->CenterRepresentation->SetWorldPosition(x);
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint2WorldPosition(double x[3])
 {
-   if (!this->Point2Representation)
-   {
+  if (!this->Point2Representation)
+  {
     vtkErrorMacro("SetPoint2WorldPosition: null point 2 representation");
     return;
-   }
+  }
   this->Point2Representation->SetWorldPosition(x);
 }
 
@@ -264,20 +258,18 @@ void vtkAngleRepresentation3D::GetPoint2DisplayPosition(double pos[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::BuildRepresentation()
 {
-  if (this->Point1Representation == nullptr ||
-      this->CenterRepresentation == nullptr ||
-      this->Point2Representation == nullptr ||
-      this->ArcSource == nullptr)
+  if (this->Point1Representation == nullptr || this->CenterRepresentation == nullptr ||
+    this->Point2Representation == nullptr || this->ArcSource == nullptr)
   {
     // for now, return. Could create defaults here.
     return;
   }
-  if ( this->GetMTime() <= this->BuildTime ||
-       this->Point1Representation->GetMTime() > this->BuildTime ||
-       this->CenterRepresentation->GetMTime() > this->BuildTime ||
-       this->Point2Representation->GetMTime() > this->BuildTime ||
-       (this->Renderer && this->Renderer->GetVTKWindow() &&
-        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
+  if (this->GetMTime() <= this->BuildTime ||
+    this->Point1Representation->GetMTime() > this->BuildTime ||
+    this->CenterRepresentation->GetMTime() > this->BuildTime ||
+    this->Point2Representation->GetMTime() > this->BuildTime ||
+    (this->Renderer && this->Renderer->GetVTKWindow() &&
+      this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
     this->Superclass::BuildRepresentation();
 
@@ -298,9 +290,9 @@ void vtkAngleRepresentation3D::BuildRepresentation()
     double l1 = 0.0, l2 = 0.0;
     // Compute the angle (only if necessary since we don't want
     // fluctuations in angle value as the camera moves, etc.)
-    if ( p1[0]-c[0] == 0.0 || p2[0]-c[0] == 0.0 )
+    if (p1[0] - c[0] == 0.0 || p2[0] - c[0] == 0.0)
     {
-       return;
+      return;
     }
 
     vector1[0] = p1[0] - c[0];
@@ -309,14 +301,14 @@ void vtkAngleRepresentation3D::BuildRepresentation()
     vector2[0] = p2[0] - c[0];
     vector2[1] = p2[1] - c[1];
     vector2[2] = p2[2] - c[2];
-    l1 = vtkMath::Normalize( vector1 );
-    l2 = vtkMath::Normalize( vector2 );
-    this->Angle = acos( vtkMath::Dot( vector1, vector2 ) );
+    l1 = vtkMath::Normalize(vector1);
+    l2 = vtkMath::Normalize(vector2);
+    this->Angle = acos(vtkMath::Dot(vector1, vector2));
 
     // Place the label and place the arc
 
     // If too small or no render get out
-    if ( !this->Renderer )
+    if (!this->Renderer)
     {
       this->ArcVisibility = 0;
       return;
@@ -325,36 +317,32 @@ void vtkAngleRepresentation3D::BuildRepresentation()
     const double length = l1 < l2 ? l1 : l2;
     const double anglePlacementRatio = 0.5;
     const double l = length * anglePlacementRatio;
-    double arcp1[3] = { l * vector1[0] + c[0],
-                        l * vector1[1] + c[1],
-                        l * vector1[2] + c[2] };
-    double arcp2[3] = { l * vector2[0] + c[0],
-                        l * vector2[1] + c[1],
-                        l * vector2[2] + c[2] };
-    this->ArcSource->SetPoint1( arcp1 );
-    this->ArcSource->SetPoint2( arcp2 );
-    this->ArcSource->SetCenter( c );
+    double arcp1[3] = { l * vector1[0] + c[0], l * vector1[1] + c[1], l * vector1[2] + c[2] };
+    double arcp2[3] = { l * vector2[0] + c[0], l * vector2[1] + c[1], l * vector2[2] + c[2] };
+    this->ArcSource->SetPoint1(arcp1);
+    this->ArcSource->SetPoint2(arcp2);
+    this->ArcSource->SetCenter(c);
     if (this->Ray1Visibility && this->Ray2Visibility)
     {
       this->ArcSource->Update();
 
-      vtkPoints *points = this->ArcSource->GetOutput()->GetPoints();
+      vtkPoints* points = this->ArcSource->GetOutput()->GetPoints();
       const int npoints = points->GetNumberOfPoints();
-      points->GetPoint(npoints/2, this->TextPosition );
+      points->GetPoint(npoints / 2, this->TextPosition);
 
       char string[512];
-      snprintf( string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians( this->Angle ) );
+      snprintf(string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians(this->Angle));
 
-      this->TextInput->SetText( string );
-      this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );
-      this->TextActor->SetPosition( this->TextPosition );
+      this->TextInput->SetText(string);
+      this->TextActor->SetCamera(this->Renderer->GetActiveCamera());
+      this->TextActor->SetPosition(this->TextPosition);
 
       if (!this->ScaleInitialized)
       {
         // If a font size hasn't been specified by the user, scale the text
         // (font size) according to the length of the shortest arm of the
         // angle measurement.
-        this->TextActor->SetScale( length/10.0, length/10.0, length/10.0 );
+        this->TextActor->SetScale(length / 10.0, length / 10.0, length / 10.0);
       }
     }
 
@@ -363,20 +351,20 @@ void vtkAngleRepresentation3D::BuildRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkAngleRepresentation3D::SetTextActorScale( double scale[3] )
+void vtkAngleRepresentation3D::SetTextActorScale(double scale[3])
 {
-  this->TextActor->SetScale( scale );
+  this->TextActor->SetScale(scale);
   this->ScaleInitialized = true;
 }
 
 //----------------------------------------------------------------------
-double * vtkAngleRepresentation3D::GetTextActorScale()
+double* vtkAngleRepresentation3D::GetTextActorScale()
 {
   return this->TextActor->GetScale();
 }
 
 //----------------------------------------------------------------------
-void vtkAngleRepresentation3D::ReleaseGraphicsResources(vtkWindow *w)
+void vtkAngleRepresentation3D::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Ray1->ReleaseGraphicsResources(w);
   this->Ray2->ReleaseGraphicsResources(w);
@@ -385,20 +373,20 @@ void vtkAngleRepresentation3D::ReleaseGraphicsResources(vtkWindow *w)
 }
 
 //----------------------------------------------------------------------
-int vtkAngleRepresentation3D::RenderOpaqueGeometry(vtkViewport *v)
+int vtkAngleRepresentation3D::RenderOpaqueGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
 
-  int count=0;
-  if ( this->Ray1Visibility )
+  int count = 0;
+  if (this->Ray1Visibility)
   {
     count += this->Ray1->RenderOpaqueGeometry(v);
   }
-  if ( this->Ray2Visibility )
+  if (this->Ray2Visibility)
   {
     count += this->Ray2->RenderOpaqueGeometry(v);
   }
-  if ( this->ArcVisibility )
+  if (this->ArcVisibility)
   {
     count += this->Arc->RenderOpaqueGeometry(v);
   }
@@ -411,20 +399,20 @@ int vtkAngleRepresentation3D::RenderOpaqueGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------
-int vtkAngleRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+int vtkAngleRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   this->BuildRepresentation();
 
-  int count=0;
-  if ( this->Ray1Visibility )
+  int count = 0;
+  if (this->Ray1Visibility)
   {
     count += this->Ray1->RenderTranslucentPolygonalGeometry(v);
   }
-  if ( this->Ray2Visibility )
+  if (this->Ray2Visibility)
   {
     count += this->Ray2->RenderTranslucentPolygonalGeometry(v);
   }
-  if ( this->ArcVisibility )
+  if (this->ArcVisibility)
   {
     count += this->Arc->RenderTranslucentPolygonalGeometry(v);
   }
@@ -439,7 +427,7 @@ int vtkAngleRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 //----------------------------------------------------------------------------
 vtkTypeBool vtkAngleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
-  int result=0;
+  int result = 0;
   this->BuildRepresentation();
   result |= this->Ray1->HasTranslucentPolygonalGeometry();
   result |= this->Ray2->HasTranslucentPolygonalGeometry();
@@ -448,17 +436,16 @@ vtkTypeBool vtkAngleRepresentation3D::HasTranslucentPolygonalGeometry()
   return result;
 }
 
-
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Ray1: ";
-  if ( this->Ray1 )
+  if (this->Ray1)
   {
-    this->Ray1->PrintSelf(os,indent.GetNextIndent());
+    this->Ray1->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -466,9 +453,9 @@ void vtkAngleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Ray2: ";
-  if ( this->Ray2 )
+  if (this->Ray2)
   {
-    this->Ray2->PrintSelf(os,indent.GetNextIndent());
+    this->Ray2->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -476,9 +463,9 @@ void vtkAngleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Arc: ";
-  if ( this->Arc )
+  if (this->Arc)
   {
-    this->Arc->PrintSelf(os,indent.GetNextIndent());
+    this->Arc->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -486,9 +473,9 @@ void vtkAngleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "TextActor: ";
-  if ( this->TextActor )
+  if (this->TextActor)
   {
-    this->TextActor->PrintSelf(os,indent.GetNextIndent());
+    this->TextActor->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

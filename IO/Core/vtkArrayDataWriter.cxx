@@ -21,15 +21,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
 vtkStandardNewMacro(vtkArrayDataWriter);
 
-vtkArrayDataWriter::vtkArrayDataWriter() :
-  FileName(nullptr),
-  Binary(false),
-  WriteToOutputString(false)
+vtkArrayDataWriter::vtkArrayDataWriter()
+  : FileName(nullptr)
+  , Binary(false)
+  , WriteToOutputString(false)
 {
 }
 
@@ -40,14 +40,14 @@ vtkArrayDataWriter::~vtkArrayDataWriter()
 
 void vtkArrayDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Binary: " << this->Binary << endl;
   os << indent << "WriteToOutputString: " << (this->WriteToOutputString ? "on" : "off") << endl;
   os << indent << "OutputString: " << this->OutputString << endl;
 }
 
-int vtkArrayDataWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info)
+int vtkArrayDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
   return 1;
@@ -55,7 +55,7 @@ int vtkArrayDataWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInfor
 
 void vtkArrayDataWriter::WriteData()
 {
-  if(this->WriteToOutputString)
+  if (this->WriteToOutputString)
   {
     this->OutputString = this->Write(this->Binary > 0 ? true : false);
   }
@@ -86,17 +86,18 @@ bool vtkArrayDataWriter::Write(ostream& stream, bool WriteBinary)
 {
   try
   {
-    if(this->GetNumberOfInputConnections(0) != 1)
+    if (this->GetNumberOfInputConnections(0) != 1)
       throw std::runtime_error("Exactly one input required.");
 
-    vtkArrayData* const array_data = vtkArrayData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
-    if(!array_data)
+    vtkArrayData* const array_data =
+      vtkArrayData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+    if (!array_data)
       throw std::runtime_error("vtkArrayData input required.");
 
     this->Write(array_data, stream, WriteBinary);
     return true;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro("caught exception: " << e.what());
   }
@@ -108,17 +109,17 @@ bool vtkArrayDataWriter::Write(vtkArrayData* array_data, ostream& stream, bool W
   try
   {
     stream << "vtkArrayData " << array_data->GetNumberOfArrays() << std::endl;
-    for(vtkIdType i = 0; i < array_data->GetNumberOfArrays(); ++i)
+    for (vtkIdType i = 0; i < array_data->GetNumberOfArrays(); ++i)
     {
       vtkArray* const array = array_data->GetArray(i);
-      if(!array)
+      if (!array)
         throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
       vtkArrayWriter::Write(array, stream, WriteBinary);
     }
     return true;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkGenericWarningMacro("caught exception: " << e.what());
   }

@@ -28,21 +28,21 @@
  *
  * @sa
  * vtkPicker vtkCellPicker.
-*/
+ */
 
 #ifndef vtkPointPicker_h
 #define vtkPointPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkDataSet;
 
 class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
-  static vtkPointPicker *New();
-  vtkTypeMacro(vtkPointPicker,vtkPicker);
+  static vtkPointPicker* New();
+  vtkTypeMacro(vtkPointPicker, vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -66,26 +66,21 @@ protected:
   vtkPointPicker();
   ~vtkPointPicker() override {}
 
-  vtkIdType PointId; //picked point
-  vtkTypeBool UseCells;  // Use cell points vs. points directly
+  vtkIdType PointId;    // picked point
+  vtkTypeBool UseCells; // Use cell points vs. points directly
 
   double IntersectWithLine(const double p1[3], const double p2[3], double tol,
-                          vtkAssemblyPath *path, vtkProp3D *p,
-                          vtkAbstractMapper3D *m) override;
+    vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m) override;
   void Initialize() override;
 
-  vtkIdType IntersectDataSetWithLine(const double p1[3], double ray[3],
-                                     double rayFactor, double tol,
-                                     vtkDataSet* dataSet,
-                                     double& tMin, double minXYZ[3]);
-  bool UpdateClosestPoint(double x[3], const double p1[3],
-                          double ray[3], double rayFactor, double tol,
-                          double& tMin, double& distMin);
+  vtkIdType IntersectDataSetWithLine(const double p1[3], double ray[3], double rayFactor,
+    double tol, vtkDataSet* dataSet, double& tMin, double minXYZ[3]);
+  bool UpdateClosestPoint(double x[3], const double p1[3], double ray[3], double rayFactor,
+    double tol, double& tMin, double& distMin);
+
 private:
   vtkPointPicker(const vtkPointPicker&) = delete;
   void operator=(const vtkPointPicker&) = delete;
 };
 
 #endif
-
-

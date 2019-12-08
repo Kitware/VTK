@@ -18,19 +18,18 @@
  *
  * The filter takes an input vtkReebGraph object and outputs a
  * vtkReebGraph object.
-*/
+ */
 
 #ifndef vtkReebGraphSimplificationFilter_h
 #define vtkReebGraphSimplificationFilter_h
 
-#include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkFiltersReebGraphModule.h" // For export macro
 
 class vtkReebGraph;
 class vtkReebGraphSimplificationMetric;
 
-class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSimplificationFilter :
-  public vtkDirectedGraphAlgorithm
+class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSimplificationFilter : public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkReebGraphSimplificationFilter* New();
@@ -50,7 +49,7 @@ public:
    * Set the persistence metric evaluation code
    * Default value: nullptr (standard topological persistence).
    */
-  void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
+  void SetSimplificationMetric(vtkReebGraphSimplificationMetric* metric);
 
   vtkReebGraph* GetOutput();
 
@@ -60,13 +59,13 @@ protected:
 
   double SimplificationThreshold;
 
-  vtkReebGraphSimplificationMetric *SimplificationMetric;
+  vtkReebGraphSimplificationMetric* SimplificationMetric;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *) override;
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillInputPortInformation(int portNumber, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&) = delete;

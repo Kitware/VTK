@@ -26,29 +26,29 @@
 #define WITH_GEOMETRY_FILTER
 
 #include "vtkActor.h"
+#include "vtkActor2D.h"
+#include "vtkAttributesErrorMetric.h"
+#include "vtkBridgeDataSet.h"
+#include "vtkCommand.h"
+#include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGenericCellTessellator.h"
+#include "vtkGenericDataSetTessellator.h"
+#include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkGeometricErrorMetric.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkLookupTable.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSimpleCellTessellator.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkBridgeDataSet.h"
-#include "vtkGenericDataSetTessellator.h"
-#include "vtkGenericCellTessellator.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include <cassert>
-#include "vtkLookupTable.h"
-#include "vtkDataSetMapper.h"
-#include "vtkLabeledDataMapper.h"
-#include "vtkActor2D.h"
-#include "vtkCommand.h"
-#include "vtkGeometricErrorMetric.h"
-#include "vtkAttributesErrorMetric.h"
-#include "vtkSimpleCellTessellator.h"
 
 #ifdef WITH_GEOMETRY_FILTER
 #include "vtkGeometryFilter.h"
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef WRITE_GENERIC_RESULT
-# include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkXMLUnstructuredGridWriter.h"
 #endif // #ifdef WRITE_GENERIC_RESULT
 
 // debugging when clipping on n=(1,1,1) c=(0.5,0,0)
@@ -71,90 +71,86 @@
 // minimal attributes, the GenericGeometryFilter just need to tessellate the
 // face of the tetra, for which the values at points are not minimal.
 
-class SwitchLabelsCallback
-  : public vtkCommand
+class SwitchLabelsCallback : public vtkCommand
 {
 public:
-  static SwitchLabelsCallback *New()
-    { return new SwitchLabelsCallback; }
+  static SwitchLabelsCallback* New() { return new SwitchLabelsCallback; }
 
-  void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
+  void SetLabeledDataMapper(vtkLabeledDataMapper* aLabeledDataMapper)
   {
-      this->LabeledDataMapper=aLabeledDataMapper;
+    this->LabeledDataMapper = aLabeledDataMapper;
   }
-  void SetRenderWindow(vtkRenderWindow *aRenWin)
+  void SetRenderWindow(vtkRenderWindow* aRenWin) { this->RenWin = aRenWin; }
+
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long, void*) override
   {
-      this->RenWin=aRenWin;
+    if (this->LabeledDataMapper->GetLabelMode() == VTK_LABEL_SCALARS)
+    {
+      this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
+    }
+    else
+    {
+      this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
+    }
+    this->RenWin->Render();
   }
 
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
-  {
-      if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
-      {
-        this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-      }
-      else
-      {
-        this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
-      }
-      this->RenWin->Render();
-  }
 protected:
-  vtkLabeledDataMapper *LabeledDataMapper;
-  vtkRenderWindow *RenWin;
+  vtkLabeledDataMapper* LabeledDataMapper;
+  vtkRenderWindow* RenWin;
 };
 
 int TestGenericDataSetTessellator(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* renderer = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   // Load the mesh geometry and data from a file
-  vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
-  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+  vtkXMLUnstructuredGridReader* reader = vtkXMLUnstructuredGridReader::New();
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
 
-  reader->SetFileName( cfname );
+  reader->SetFileName(cfname);
   delete[] cfname;
 
   // Force reading
   reader->Update();
 
   // Initialize the bridge
-  vtkBridgeDataSet *ds=vtkBridgeDataSet::New();
-  ds->SetDataSet( reader->GetOutput() );
+  vtkBridgeDataSet* ds = vtkBridgeDataSet::New();
+  ds->SetDataSet(reader->GetOutput());
   reader->Delete();
 
   // Set the error metric thresholds:
   // 1. for the geometric error metric
-  vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
-  geometricError->SetRelativeGeometricTolerance(0.1,ds);
+  vtkGeometricErrorMetric* geometricError = vtkGeometricErrorMetric::New();
+  geometricError->SetRelativeGeometricTolerance(0.1, ds);
 
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
 
   // 2. for the attribute error metric
-  vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
+  vtkAttributesErrorMetric* attributesError = vtkAttributesErrorMetric::New();
   attributesError->SetAttributeTolerance(0.01); // 0.11, 0.005
 
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
-  cout<<"input unstructured grid: "<<ds<<endl;
+  cout << "input unstructured grid: " << ds << endl;
 
-  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetSubdivisionLevels(0,100);
+  static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetSubdivisionLevels(0, 100);
   vtkIndent indent;
-  ds->PrintSelf(cout,indent);
+  ds->PrintSelf(cout, indent);
 
   // Create the filter
-  vtkGenericDataSetTessellator *tessellator = vtkGenericDataSetTessellator::New();
+  vtkGenericDataSetTessellator* tessellator = vtkGenericDataSetTessellator::New();
   tessellator->SetInputData(ds);
 
-  tessellator->Update(); //So that we can call GetRange() on the scalars
+  tessellator->Update(); // So that we can call GetRange() on the scalars
 
-  assert(tessellator->GetOutput()!=nullptr);
+  assert(tessellator->GetOutput() != nullptr);
 
   // for debugging clipping on the hexa
 #if 0
@@ -181,36 +177,35 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 #endif
 
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New();
-  lut->SetHueRange (0.667, 0.0);
+  vtkLookupTable* lut = vtkLookupTable::New();
+  lut->SetHueRange(0.667, 0.0);
 
 #ifdef WITH_GEOMETRY_FILTER
-  vtkGeometryFilter *geom = vtkGeometryFilter::New();
+  vtkGeometryFilter* geom = vtkGeometryFilter::New();
   geom->SetInputConnection(tessellator->GetOutputPort());
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInputConnection( geom->GetOutputPort() );
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+  mapper->SetInputConnection(geom->GetOutputPort());
   geom->Delete();
 #else
-  vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetInputConnection( tessellator->GetOutputPort() );
+  vtkDataSetMapper* mapper = vtkDataSetMapper::New();
+  mapper->SetInputConnection(tessellator->GetOutputPort());
 #endif
   mapper->SetLookupTable(lut);
-  if(tessellator->GetOutput()->GetPointData()!=nullptr)
+  if (tessellator->GetOutput()->GetPointData() != nullptr)
   {
-    if(tessellator->GetOutput()->GetPointData()->GetScalars()!=nullptr)
+    if (tessellator->GetOutput()->GetPointData()->GetScalars() != nullptr)
     {
-      mapper->SetScalarRange( tessellator->GetOutput()->GetPointData()->
-                              GetScalars()->GetRange());
+      mapper->SetScalarRange(tessellator->GetOutput()->GetPointData()->GetScalars()->GetRange());
     }
   }
 
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
-  vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
+  vtkXMLUnstructuredGridWriter* writer = vtkXMLUnstructuredGridWriter::New();
   writer->SetInputConnection(tessellator->GetOutputPort());
   writer->SetFileName("tessellated.vtu");
   writer->SetDataModeToAscii();
@@ -218,8 +213,8 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   writer->Delete();
 #endif // #ifdef WRITE_GENERIC_RESULT
 
-  vtkActor2D *actorLabel=vtkActor2D::New();
-  vtkLabeledDataMapper *labeledDataMapper=vtkLabeledDataMapper::New();
+  vtkActor2D* actorLabel = vtkActor2D::New();
+  vtkLabeledDataMapper* labeledDataMapper = vtkLabeledDataMapper::New();
   labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
   labeledDataMapper->SetInputConnection(tessellator->GetOutputPort());
   actorLabel->SetMapper(labeledDataMapper);
@@ -229,19 +224,19 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   actorLabel->Delete();
 
   // Standard testing code.
-  renderer->SetBackground(0.5,0.5,0.5);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.5, 0.5, 0.5);
+  renWin->SetSize(300, 300);
   renWin->Render();
 
-  tessellator->GetOutput()->PrintSelf(cout,indent);
+  tessellator->GetOutput()->PrintSelf(cout, indent);
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
+    SwitchLabelsCallback* switchLabels = SwitchLabelsCallback::New();
     switchLabels->SetRenderWindow(renWin);
     switchLabels->SetLabeledDataMapper(labeledDataMapper);
-    iren->AddObserver(vtkCommand::UserEvent,switchLabels);
+    iren->AddObserver(vtkCommand::UserEvent, switchLabels);
     switchLabels->Delete();
     iren->Start();
   }

@@ -17,7 +17,8 @@ vtk_module_test_data(
   Data/delimitedUTF16.txt
   Data/delimitedUTF16BE.txt
   Data/delimitedUTF16LE.txt
-  Data/fixedwidth.txt)
+  Data/fixedwidth.txt
+  Data/vehicle_data.csv)
 
 add_subdirectory(Cxx)
 

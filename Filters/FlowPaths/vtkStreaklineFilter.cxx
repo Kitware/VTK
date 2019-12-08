@@ -13,21 +13,21 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkStreaklineFilter.h"
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkIntArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkNew.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 
-#include <vector>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <vector>
 
 #define DEBUGSTREAKLINEFILTER 1
 #ifdef DEBUGSTREAKLINEFILTER
@@ -43,20 +43,17 @@ public:
   float Age;
 
   StreakParticle(vtkIdType id, float age)
-    :Id(id),Age(age)
+    : Id(id)
+    , Age(age)
   {
   }
 
-  bool operator<(const StreakParticle& other) const
-  {
-    return this->Age > other.Age;
-  }
+  bool operator<(const StreakParticle& other) const { return this->Age > other.Age; }
 };
 
 typedef std::vector<StreakParticle> Streak;
 
-vtkObjectFactoryNewMacro(vtkStreaklineFilter)
-
+vtkObjectFactoryNewMacro(vtkStreaklineFilter);
 
 void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
@@ -75,7 +72,7 @@ int StreaklineFilterInternal::OutputParticles(vtkPolyData* particles)
 void StreaklineFilterInternal::Finalize()
 {
   vtkPoints* points = this->Filter->Output->GetPoints();
-  if(!points)
+  if (!points)
   {
     return;
   }
@@ -87,54 +84,53 @@ void StreaklineFilterInternal::Finalize()
   vtkIntArray* seedIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("InjectedPointId"));
   Assert(seedIds);
 
-  if(seedIds)
+  if (seedIds)
   {
-    std::vector<Streak> streaks; //the streak lines in the current time step
-    for(vtkIdType i=0; i<points->GetNumberOfPoints(); i++)
+    std::vector<Streak> streaks; // the streak lines in the current time step
+    for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
     {
       int streakId = seedIds->GetValue(i);
-      for(int j=static_cast<int>(streaks.size()); j<=streakId; j++)
+      for (int j = static_cast<int>(streaks.size()); j <= streakId; j++)
       {
         streaks.push_back(Streak());
       }
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);
-      streak.push_back(StreakParticle(i,age));
+      streak.push_back(StreakParticle(i, age));
     }
 
-    //sort streaks based on age
-    for(unsigned int i=0; i<streaks.size();i++)
+    // sort streaks based on age
+    for (unsigned int i = 0; i < streaks.size(); i++)
     {
       Streak& streak(streaks[i]);
-      std::sort(streak.begin(),streak.end());
+      std::sort(streak.begin(), streak.end());
     }
 
     this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
     this->Filter->Output->SetVerts(nullptr);
     vtkCellArray* outLines = this->Filter->Output->GetLines();
-    Assert(outLines->GetNumberOfCells()==0);
+    Assert(outLines->GetNumberOfCells() == 0);
     Assert(outLines);
-    for(unsigned int i=0; i<streaks.size();i++)
+    for (unsigned int i = 0; i < streaks.size(); i++)
     {
       const Streak& streak(streaks[i]);
       vtkNew<vtkIdList> ids;
 
-      for(unsigned int j=0; j<streak.size();j++)
+      for (unsigned int j = 0; j < streak.size(); j++)
       {
-        Assert(j==0 || streak[j].Age <= streak[j-1].Age);
-        if(j==0 || streak[j].Age < streak[j-1].Age)
+        Assert(j == 0 || streak[j].Age <= streak[j - 1].Age);
+        if (j == 0 || streak[j].Age < streak[j - 1].Age)
         {
           ids->InsertNextId(streak[j].Id);
         }
       }
-      if(ids->GetNumberOfIds()>1)
+      if (ids->GetNumberOfIds() > 1)
       {
         outLines->InsertNextCell(ids);
       }
     }
   }
 }
-
 
 vtkStreaklineFilter::vtkStreaklineFilter()
 {
@@ -153,5 +149,5 @@ void vtkStreaklineFilter::Finalize()
 
 void vtkStreaklineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }

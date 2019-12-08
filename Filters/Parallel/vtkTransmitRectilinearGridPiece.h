@@ -24,7 +24,7 @@
  *
  * Note that this class is legacy. The superclass does all the work and
  * can be used directly instead.
-*/
+ */
 
 #ifndef vtkTransmitRectilinearGridPiece_h
 #define vtkTransmitRectilinearGridPiece_h
@@ -34,10 +34,11 @@
 
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkTransmitStructuredDataPiece
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece
+  : public vtkTransmitStructuredDataPiece
 {
 public:
-  static vtkTransmitRectilinearGridPiece *New();
+  static vtkTransmitRectilinearGridPiece* New();
   vtkTypeMacro(vtkTransmitRectilinearGridPiece, vtkTransmitStructuredDataPiece);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

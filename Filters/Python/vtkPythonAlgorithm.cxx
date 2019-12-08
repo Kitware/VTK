@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkPythonAlgorithm);
 
 void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject str;
@@ -40,7 +40,7 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_PY3K
     os << PyString_AsString(str);
 #else
-    PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
+    PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
@@ -83,19 +83,19 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
 //    failValue - the value to return if the lookup fails and the
 //          function using the macro should return.  Pass in a
 //          block comment /**/ for void functions using this macro
-#define VTK_GET_METHOD(var, obj, method, failValue)          \
-  if (!(obj))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
-  if (!(var))                                                \
-  {                                                          \
-    return failValue;                                        \
-  }                                                          \
-  if (!PyCallable_Check(var))                                \
-  {                                                          \
-    return failValue;                                        \
+#define VTK_GET_METHOD(var, obj, method, failValue)                                                \
+  if (!(obj))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  vtkSmartPyObject var(PyObject_GetAttrString(obj, method));                                       \
+  if (!(var))                                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
+  }                                                                                                \
+  if (!PyCallable_Check(var))                                                                      \
+  {                                                                                                \
+    return failValue;                                                                              \
   }
 
 /// Return value: New reference.
@@ -104,7 +104,7 @@ static PyObject* VTKToPython(vtkObjectBase* obj)
   return vtkPythonUtil::GetObjectFromPointer(obj);
 }
 
-int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &res)
+int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject& res)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (!res)
@@ -164,9 +164,8 @@ void vtkPythonAlgorithm::SetNumberOfOutputPorts(int n)
   this->Superclass::SetNumberOfOutputPorts(n);
 }
 
-int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
-                                       vtkInformationVector** inInfo,
-                                       vtkInformationVector* outInfo)
+vtkTypeBool vtkPythonAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   char mname[] = "ProcessRequest";

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkInformationInformationVectorKey.h"
 
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
-
+#include "vtkInformationVector.h"
 
 //----------------------------------------------------------------------------
-vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(
+  const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
@@ -35,33 +35,29 @@ void vtkInformationInformationVectorKey::PrintSelf(ostream& os, vtkIndent indent
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Set(vtkInformation* info,
-                                             vtkInformationVector* value)
+void vtkInformationInformationVectorKey::Set(vtkInformation* info, vtkInformationVector* value)
 {
   this->SetAsObjectBase(info, value);
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVector*
-vtkInformationInformationVectorKey::Get(vtkInformation* info)
+vtkInformationVector* vtkInformationInformationVectorKey::Get(vtkInformation* info)
 {
-  return static_cast<vtkInformationVector *>(this->GetAsObjectBase(info));
+  return static_cast<vtkInformationVector*>(this->GetAsObjectBase(info));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::ShallowCopy(vtkInformation* from,
-                                              vtkInformation* to)
+void vtkInformationInformationVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from,
-                                              vtkInformation* to)
+void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from, vtkInformation* to)
 {
-  vtkInformationVector *fromVector = this->Get(from);
-  vtkInformationVector *toVector = vtkInformationVector::New();
-  vtkInformation *toInfo;
+  vtkInformationVector* fromVector = this->Get(from);
+  vtkInformationVector* toVector = vtkInformationVector::New();
+  vtkInformation* toInfo;
   int i;
 
   for (i = 0; i < fromVector->GetNumberOfInformationObjects(); i++)
@@ -76,8 +72,8 @@ void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Report(vtkInformation* info,
-                                                vtkGarbageCollector* collector)
+void vtkInformationInformationVectorKey::Report(
+  vtkInformation* info, vtkGarbageCollector* collector)
 {
   this->ReportAsObjectBase(info, collector);
 }

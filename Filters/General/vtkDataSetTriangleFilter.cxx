@@ -24,11 +24,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
@@ -46,25 +46,20 @@ vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
   this->Triangulator = nullptr;
 }
 
-int vtkDataSetTriangleFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDataSetTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (input->IsA("vtkStructuredPoints") ||
-      input->IsA("vtkStructuredGrid") ||
-      input->IsA("vtkImageData") ||
-      input->IsA("vtkRectilinearGrid"))
+  if (input->IsA("vtkStructuredPoints") || input->IsA("vtkStructuredGrid") ||
+    input->IsA("vtkImageData") || input->IsA("vtkRectilinearGrid"))
   {
     this->StructuredExecute(input, output);
   }
@@ -73,21 +68,20 @@ int vtkDataSetTriangleFilter::RequestData(
     this->UnstructuredExecute(input, output);
   }
 
-  vtkDebugMacro(<<"Produced " << this->GetOutput()->GetNumberOfCells() << " cells");
+  vtkDebugMacro(<< "Produced " << this->GetOutput()->GetNumberOfCells() << " cells");
 
   return 1;
 }
 
-void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
-                                                 vtkUnstructuredGrid *output)
+void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet* input, vtkUnstructuredGrid* output)
 {
   int dimensions[3], i, j, k, l, m;
   vtkIdType newCellId, inId;
-  vtkCellData *inCD = input->GetCellData();
-  vtkCellData *outCD = output->GetCellData();
-  vtkPoints *cellPts = vtkPoints::New();
-  vtkPoints *newPoints = vtkPoints::New();
-  vtkIdList *cellPtIds = vtkIdList::New();
+  vtkCellData* inCD = input->GetCellData();
+  vtkCellData* outCD = output->GetCellData();
+  vtkPoints* cellPts = vtkPoints::New();
+  vtkPoints* newPoints = vtkPoints::New();
+  vtkIdList* cellPtIds = vtkIdList::New();
   int numSimplices, numPts, dim, type;
   vtkIdType pts[4], num;
 
@@ -97,11 +91,11 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
   newPoints->SetNumberOfPoints(num);
   for (i = 0; i < num; ++i)
   {
-    newPoints->SetPoint(i,input->GetPoint(i));
+    newPoints->SetPoint(i, input->GetPoint(i));
   }
 
-  outCD->CopyAllocate(inCD,input->GetNumberOfCells()*5);
-  output->Allocate(input->GetNumberOfCells()*5);
+  outCD->CopyAllocate(inCD, input->GetNumberOfCells() * 5);
+  output->Allocate(input->GetNumberOfCells() * 5);
 
   if (input->IsA("vtkStructuredPoints"))
   {
@@ -134,8 +128,8 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
   dimensions[1] = dimensions[1] - 1;
   dimensions[2] = dimensions[2] - 1;
 
-  vtkIdType numSlices = ( dimensions[2] > 0 ? dimensions[2] : 1 );
-  int abort=0;
+  vtkIdType numSlices = (dimensions[2] > 0 ? dimensions[2] : 1);
+  int abort = 0;
   for (k = 0; k < numSlices && !abort; k++)
   {
     this->UpdateProgress(static_cast<double>(k) / numSlices);
@@ -145,9 +139,9 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
     {
       for (i = 0; i < dimensions[0]; i++)
       {
-        inId = i+(j+(k*dimensions[1]))*dimensions[0];
-        vtkCell *cell = input->GetCell(i, j, k);
-        if ((i+j+k)%2 == 0)
+        inId = i + (j + (k * dimensions[1])) * dimensions[0];
+        vtkCell* cell = input->GetCell(i, j, k);
+        if ((i + j + k) % 2 == 0)
         {
           cell->Triangulate(0, cellPtIds, cellPts);
         }
@@ -164,30 +158,34 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
         switch (dim)
         {
           case 1:
-            type = VTK_VERTEX;    break;
+            type = VTK_VERTEX;
+            break;
           case 2:
-            type = VTK_LINE;      break;
+            type = VTK_LINE;
+            break;
           case 3:
-            type = VTK_TRIANGLE;  break;
+            type = VTK_TRIANGLE;
+            break;
           case 4:
-            type = VTK_TETRA;     break;
+            type = VTK_TETRA;
+            break;
         }
         if (!this->TetrahedraOnly || type == VTK_TETRA)
         {
-          for (l = 0; l < numSimplices; l++ )
+          for (l = 0; l < numSimplices; l++)
           {
             for (m = 0; m < dim; m++)
             {
-              pts[m] = cellPtIds->GetId(dim*l+m);
+              pts[m] = cellPtIds->GetId(dim * l + m);
             }
             // copy cell data
             newCellId = output->InsertNextCell(type, dim, pts);
             outCD->CopyData(inCD, inId, newCellId);
-          }//for all simplices
+          } // for all simplices
         }
-      }//i dimension
-    }//j dimension
-  }//k dimension
+      } // i dimension
+    }   // j dimension
+  }     // k dimension
 
   // Update output
   output->SetPoints(newPoints);
@@ -203,18 +201,18 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
 // to create templates on the fly. Once the templates are created then they
 // are used to produce the final triangulation.
 //
-void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
-                                                   vtkUnstructuredGrid *output)
+void vtkDataSetTriangleFilter::UnstructuredExecute(
+  vtkDataSet* dataSetInput, vtkUnstructuredGrid* output)
 {
-  vtkPointSet *input = static_cast<vtkPointSet*>(dataSetInput); //has to be
+  vtkPointSet* input = static_cast<vtkPointSet*>(dataSetInput); // has to be
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkGenericCell *cell;
+  vtkGenericCell* cell;
   vtkIdType newCellId, j;
   int k;
-  vtkCellData *inCD=input->GetCellData();
-  vtkCellData *outCD=output->GetCellData();
-  vtkPoints *cellPts;
-  vtkIdList *cellPtIds;
+  vtkCellData* inCD = input->GetCellData();
+  vtkCellData* outCD = output->GetCellData();
+  vtkPoints* cellPts;
+  vtkIdList* cellPtIds;
   vtkIdType ptId, numTets, ncells;
   int numPts, type;
   int numSimplices, dim;
@@ -226,11 +224,10 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
     return;
   }
 
-  vtkUnstructuredGrid * inUgrid =
-    vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+  vtkUnstructuredGrid* inUgrid = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
   if (inUgrid)
   {
-    //avoid doing cell simplification if all cells are already simplices
+    // avoid doing cell simplification if all cells are already simplices
     vtkUnsignedCharArray* cellTypes = inUgrid->GetCellTypesArray();
     if (cellTypes)
     {
@@ -246,7 +243,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
           case VTK_TRIANGLE:
             if (this->TetrahedraOnly)
             {
-              allsimplices = 0; //don't shallowcopy need to stip non tets
+              allsimplices = 0; // don't shallowcopy need to stip non tets
             }
             break;
           default:
@@ -267,22 +264,22 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
   cellPtIds = vtkIdList::New();
 
   // Create an array of points
-  vtkCellData *tempCD = vtkCellData::New();
+  vtkCellData* tempCD = vtkCellData::New();
   tempCD->ShallowCopy(inCD);
   tempCD->SetActiveGlobalIds(nullptr);
 
-  outCD->CopyAllocate(tempCD, input->GetNumberOfCells()*5);
-  output->Allocate(input->GetNumberOfCells()*5);
+  outCD->CopyAllocate(tempCD, input->GetNumberOfCells() * 5);
+  output->Allocate(input->GetNumberOfCells() * 5);
 
   // Points are passed through
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
 
-  int abort=0;
-  vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
-  for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++)
+  int abort = 0;
+  vtkIdType updateTime = numCells / 20 + 1; // update roughly every 5%
+  for (vtkIdType cellId = 0; cellId < numCells && !abort; cellId++)
   {
-    if ( !(cellId % updateTime) )
+    if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
@@ -291,7 +288,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
     input->GetCell(cellId, cell);
     dim = cell->GetCellDimension();
 
-    if (cell->GetCellType() == VTK_POLYHEDRON) //polyhedron
+    if (cell->GetCellType() == VTK_POLYHEDRON) // polyhedron
     {
       dim = 4;
       cell->Triangulate(0, cellPtIds, cellPts);
@@ -300,11 +297,11 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       numSimplices = numPts / dim;
       type = VTK_TETRA;
 
-      for ( j=0; j < numSimplices; j++ )
+      for (j = 0; j < numSimplices; j++)
       {
-        for (k=0; k<dim; k++)
+        for (k = 0; k < dim; k++)
         {
-          pts[k] = cellPtIds->GetId(dim*j+k);
+          pts[k] = cellPtIds->GetId(dim * j + k);
         }
         // copy cell data
         newCellId = output->InsertNextCell(type, dim, pts);
@@ -312,20 +309,21 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       }
     }
 
-    else if ( dim == 3 ) //use ordered triangulation
+    else if (dim == 3) // use ordered triangulation
     {
       numPts = cell->GetNumberOfPoints();
-      double *p, *pPtr=cell->GetParametricCoords();
-      this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0, numPts);
-      for (p=pPtr, j=0; j<numPts; j++, p+=3)
+      double *p, *pPtr = cell->GetParametricCoords();
+      this->Triangulator->InitTriangulation(0.0, 1.0, 0.0, 1.0, 0.0, 1.0, numPts);
+      for (p = pPtr, j = 0; j < numPts; j++, p += 3)
       {
         // the wedge is "flipped" compared to other cells in that
         // the normal of the first face points out instead of in
         // so we flip the way we pass the points to the triangulator
-        const vtkIdType wedgemap[18] = {3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8, 12, 13, 14, 15, 16, 17};
+        const vtkIdType wedgemap[18] = { 3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8, 12, 13, 14, 15, 16,
+          17 };
         type = cell->GetCellType();
-        if (type == VTK_WEDGE || type == VTK_QUADRATIC_WEDGE || type == VTK_QUADRATIC_LINEAR_WEDGE ||
-            type == VTK_BIQUADRATIC_QUADRATIC_WEDGE)
+        if (type == VTK_WEDGE || type == VTK_QUADRATIC_WEDGE ||
+          type == VTK_QUADRATIC_LINEAR_WEDGE || type == VTK_BIQUADRATIC_QUADRATIC_WEDGE)
         {
           ptId = cell->PointIds->GetId(wedgemap[j]);
           cell->Points->GetPoint(wedgemap[j], x);
@@ -336,28 +334,27 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
           cell->Points->GetPoint(j, x);
         }
         this->Triangulator->InsertPoint(ptId, x, p, 0);
-      }//for all cell points
-      if ( cell->IsPrimaryCell() ) //use templates if topology is fixed
+      }                          // for all cell points
+      if (cell->IsPrimaryCell()) // use templates if topology is fixed
       {
-        int numEdges=cell->GetNumberOfEdges();
-        this->Triangulator->TemplateTriangulate(cell->GetCellType(),
-                                                numPts,numEdges);
+        int numEdges = cell->GetNumberOfEdges();
+        this->Triangulator->TemplateTriangulate(cell->GetCellType(), numPts, numEdges);
       }
-      else //use ordered triangulator
+      else // use ordered triangulator
       {
         this->Triangulator->Triangulate();
       }
 
       ncells = output->GetNumberOfCells();
-      numTets = this->Triangulator->AddTetras(0,output);
+      numTets = this->Triangulator->AddTetras(0, output);
 
-      for (j=0; j < numTets; j++)
+      for (j = 0; j < numTets; j++)
       {
-        outCD->CopyData(tempCD, cellId, ncells+j);
+        outCD->CopyData(tempCD, cellId, ncells + j);
       }
     }
 
-    else if (!this->TetrahedraOnly) //2D or lower dimension
+    else if (!this->TetrahedraOnly) // 2D or lower dimension
     {
       dim++;
       cell->Triangulate(0, cellPtIds, cellPts);
@@ -368,25 +365,28 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       switch (dim)
       {
         case 1:
-          type = VTK_VERTEX;    break;
+          type = VTK_VERTEX;
+          break;
         case 2:
-          type = VTK_LINE;      break;
+          type = VTK_LINE;
+          break;
         case 3:
-          type = VTK_TRIANGLE;  break;
+          type = VTK_TRIANGLE;
+          break;
       }
 
-      for ( j=0; j < numSimplices; j++ )
+      for (j = 0; j < numSimplices; j++)
       {
-        for (k=0; k<dim; k++)
+        for (k = 0; k < dim; k++)
         {
-          pts[k] = cellPtIds->GetId(dim*j+k);
+          pts[k] = cellPtIds->GetId(dim * j + k);
         }
         // copy cell data
         newCellId = output->InsertNextCell(type, dim, pts);
         outCD->CopyData(tempCD, cellId, newCellId);
       }
-    } //if 2D or less cell
-  } //for all cells
+    } // if 2D or less cell
+  }   // for all cells
 
   // Update output
   output->Squeeze();
@@ -398,7 +398,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
   cell->Delete();
 }
 
-int vtkDataSetTriangleFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkDataSetTriangleFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -406,7 +406,6 @@ int vtkDataSetTriangleFilter::FillInputPortInformation(int, vtkInformation *info
 
 void vtkDataSetTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "TetrahedraOnly: " << (this->TetrahedraOnly ? "On":"Off") << "\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "TetrahedraOnly: " << (this->TetrahedraOnly ? "On" : "Off") << "\n";
 }
-

@@ -34,13 +34,13 @@
  * @par Thanks:
  *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
  *------------------------------------------------------------------------------
-*/
+ */
 
 #ifndef vtkPExtractHistogram2D_h
 #define vtkPExtractHistogram2D_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkExtractHistogram2D.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
@@ -53,7 +53,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkPExtractHistogram2D();
@@ -64,9 +64,7 @@ protected:
   int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2) override;
 
   // Execute the calculations required by the Learn option.
-  void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
 private:
   vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) = delete;

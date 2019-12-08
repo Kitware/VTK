@@ -37,18 +37,18 @@
  * if you know that you have a triangle mesh which does not require splitting
  * nor consistency check on the cell orientations.
  *
-*/
+ */
 
 #ifndef vtkmPolyDataNormals_h
 #define vtkmPolyDataNormals_h
 
-#include "vtkPolyDataNormals.h"
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
+#include "vtkPolyDataNormals.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmPolyDataNormals : public vtkPolyDataNormals
 {
 public:
-  vtkTypeMacro(vtkmPolyDataNormals, vtkPolyDataNormals)
+  vtkTypeMacro(vtkmPolyDataNormals, vtkPolyDataNormals);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmPolyDataNormals* New();
 
@@ -56,8 +56,7 @@ protected:
   vtkmPolyDataNormals();
   ~vtkmPolyDataNormals();
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmPolyDataNormals(const vtkmPolyDataNormals&) = delete;

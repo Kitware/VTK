@@ -21,10 +21,10 @@
 
 #include "vtkDataRepresentation.h"
 #include "vtkIcicleView.h"
-#include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
@@ -32,14 +32,13 @@
 #include "vtkXMLTreeReader.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 using std::string;
 
 int TestIcicleView(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   string dataRoot = testHelper->GetDataRoot();
   string treeFileName = dataRoot + "/Data/Infovis/XML/smalltest.xml";
 
@@ -71,7 +70,7 @@ int TestIcicleView(int argc, char* argv[])
   view->ResetCamera();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
@@ -79,5 +78,5 @@ int TestIcicleView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
   }
 
- return !retVal;
+  return !retVal;
 }

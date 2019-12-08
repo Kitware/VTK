@@ -15,7 +15,7 @@
 /**
  * @class   vtkClientSocket
  * @brief   Encapsulates a client socket.
-*/
+ */
 
 #ifndef vtkClientSocket_h
 #define vtkClientSocket_h
@@ -53,12 +53,10 @@ protected:
   vtkSetMacro(ConnectingSide, bool);
   bool ConnectingSide;
   friend class vtkServerSocket;
+
 private:
   vtkClientSocket(const vtkClientSocket&) = delete;
   void operator=(const vtkClientSocket&) = delete;
-
 };
 
-
 #endif
-

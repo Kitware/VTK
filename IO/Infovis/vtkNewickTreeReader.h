@@ -26,13 +26,13 @@
  * This class is adapted from code originally written by Yu-Wei Wu.
  * @sa
  * vtkTree vtkDataReader
-*/
+ */
 
 #ifndef vtkNewickTreeReader_h
 #define vtkNewickTreeReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOInfovisModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkMutableDirectedGraph;
@@ -42,34 +42,34 @@ class vtkTree;
 class VTKIOINFOVIS_EXPORT vtkNewickTreeReader : public vtkDataReader
 {
 public:
-  static vtkNewickTreeReader *New();
-  vtkTypeMacro(vtkNewickTreeReader,vtkDataReader);
+  static vtkNewickTreeReader* New();
+  vtkTypeMacro(vtkNewickTreeReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this reader.
    */
-  vtkTree *GetOutput();
-  vtkTree *GetOutput(int idx);
-  void SetOutput(vtkTree *output);
-  int ReadNewickTree(const char * buffer, vtkTree & tree);
+  vtkTree* GetOutput();
+  vtkTree* GetOutput(int idx);
+  void SetOutput(vtkTree* output);
+  int ReadNewickTree(const char* buffer, vtkTree& tree);
   //@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkNewickTreeReader();
   ~vtkNewickTreeReader() override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
-  void CountNodes(const char * buffer, vtkIdType *numNodes);
-  vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
-    vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
+  void CountNodes(const char* buffer, vtkIdType* numNodes);
+  vtkIdType BuildTree(char* buffer, vtkMutableDirectedGraph* g, vtkDoubleArray* weights,
+    vtkStringArray* names, vtkIdType parent);
+
 private:
   vtkNewickTreeReader(const vtkNewickTreeReader&) = delete;
   void operator=(const vtkNewickTreeReader&) = delete;

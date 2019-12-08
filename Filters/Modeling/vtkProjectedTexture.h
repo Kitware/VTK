@@ -27,13 +27,13 @@
  * flipped, much as a lens' focus flips the rays of light that pass through
  * it.  A warning is issued if a point in the dataset falls at the focus
  * of the projector.
-*/
+ */
 
 #ifndef vtkProjectedTexture_h
 #define vtkProjectedTexture_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersModelingModule.h" // For export macro
 
 #define VTK_PROJECTED_TEXTURE_USE_PINHOLE 0
 #define VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS 1
@@ -41,16 +41,16 @@
 class VTKFILTERSMODELING_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm
 {
 public:
-  static vtkProjectedTexture *New();
-  vtkTypeMacro(vtkProjectedTexture,vtkDataSetAlgorithm);
+  static vtkProjectedTexture* New();
+  vtkTypeMacro(vtkProjectedTexture, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the position of the focus of the projector.
    */
-  vtkSetVector3Macro(Position,double);
-  vtkGetVectorMacro(Position,double,3);
+  vtkSetVector3Macro(Position, double);
+  vtkGetVectorMacro(Position, double, 3);
   //@}
 
   //@{
@@ -60,7 +60,7 @@ public:
    */
   void SetFocalPoint(double focalPoint[3]);
   void SetFocalPoint(double x, double y, double z);
-  vtkGetVectorMacro(FocalPoint,double,3);
+  vtkGetVectorMacro(FocalPoint, double, 3);
   //@}
 
   //@{
@@ -70,8 +70,8 @@ public:
    */
   vtkSetMacro(CameraMode, int);
   vtkGetMacro(CameraMode, int);
-  void SetCameraModeToPinhole() {this->SetCameraMode(VTK_PROJECTED_TEXTURE_USE_PINHOLE);}
-  void SetCameraModeToTwoMirror() {this->SetCameraMode(VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS);}
+  void SetCameraModeToPinhole() { this->SetCameraMode(VTK_PROJECTED_TEXTURE_USE_PINHOLE); }
+  void SetCameraModeToTwoMirror() { this->SetCameraMode(VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS); }
   //@}
 
   //@{
@@ -86,15 +86,15 @@ public:
   /**
    * Get the normalized orientation vector of the projector.
    */
-  vtkGetVectorMacro(Orientation,double,3);
+  vtkGetVectorMacro(Orientation, double, 3);
   //@}
 
   //@{
   /**
    * Set/Get the up vector of the projector.
    */
-  vtkSetVector3Macro(Up,double);
-  vtkGetVectorMacro(Up,double,3);
+  vtkSetVector3Macro(Up, double);
+  vtkGetVectorMacro(Up, double, 3);
   //@}
 
   //@{
@@ -108,31 +108,31 @@ public:
    * For example, if the source of the image is a pinhole camera with
    * view angle A, then you could set x=1, y=1, z=1/tan(A).
    */
-  vtkSetVector3Macro(AspectRatio,double);
-  vtkGetVectorMacro(AspectRatio,double,3);
+  vtkSetVector3Macro(AspectRatio, double);
+  vtkGetVectorMacro(AspectRatio, double, 3);
   //@}
 
   //@{
   /**
    * Specify s-coordinate range for texture s-t coordinate pair.
    */
-  vtkSetVector2Macro(SRange,double);
-  vtkGetVectorMacro(SRange,double,2);
+  vtkSetVector2Macro(SRange, double);
+  vtkGetVectorMacro(SRange, double, 2);
   //@}
 
   //@{
   /**
    * Specify t-coordinate range for texture s-t coordinate pair.
    */
-  vtkSetVector2Macro(TRange,double);
-  vtkGetVectorMacro(TRange,double,2);
+  vtkSetVector2Macro(TRange, double);
+  vtkGetVectorMacro(TRange, double, 2);
   //@}
 
 protected:
   vtkProjectedTexture();
   ~vtkProjectedTexture() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ComputeNormal();
 
   int CameraMode;
@@ -145,10 +145,10 @@ protected:
   double AspectRatio[3];
   double SRange[2];
   double TRange[2];
+
 private:
   vtkProjectedTexture(const vtkProjectedTexture&) = delete;
   void operator=(const vtkProjectedTexture&) = delete;
 };
 
 #endif
-

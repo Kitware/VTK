@@ -1568,7 +1568,7 @@ int TestLightWidget(int, char*[])
   lightWidget->On();
 
   vtkNew<vtkLightRepresentation> lightRep2;
-  double color[3] = {1.0, 1.0, 0.0};
+  double color[3] = { 1.0, 1.0, 0.0 };
   lightRep2->SetLightColor(color);
 
   vtkNew<vtkLightWidget> lightWidget2;

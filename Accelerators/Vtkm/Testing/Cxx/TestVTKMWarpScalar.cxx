@@ -19,19 +19,19 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
-#include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 int TestVTKMWarpScalar(int argc, char* argv[])
@@ -44,13 +44,12 @@ int TestVTKMWarpScalar(int argc, char* argv[])
 
   // Define viewport ranges
   // (xmin, ymin, xmax, ymax)
-  double leftViewport[4] = {0.0, 0.0, 0.33, 1.0};
-  double centerViewport[4] = {0.33, 0.0, .66, 1.0};
-  double rightViewport[4] = {0.66, 0.0, 1.0, 1.0};
+  double leftViewport[4] = { 0.0, 0.0, 0.33, 1.0 };
+  double centerViewport[4] = { 0.33, 0.0, .66, 1.0 };
+  double rightViewport[4] = { 0.66, 0.0, 1.0, 1.0 };
 
   /// First window - xy plane
-  vtkSmartPointer<vtkRTAnalyticSource> xySource =
-      vtkSmartPointer<vtkRTAnalyticSource>::New();
+  vtkSmartPointer<vtkRTAnalyticSource> xySource = vtkSmartPointer<vtkRTAnalyticSource>::New();
   xySource->SetWholeExtent(-100, 100, -100, 100, 1, 1);
   xySource->SetCenter(0, 0, 0);
   xySource->SetMaximum(255);
@@ -72,10 +71,10 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   vtkPointSet* points = xyWarpScalar->GetOutput();
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
   {
-    assert (points->GetPoint(i)[2] == 3.0);
+    assert(points->GetPoint(i)[2] == 3.0);
     if (points->GetPoint(i)[2] != 3.0)
     {
-      std::cout << "XYPlane result is wrong at i=" << i <<std::endl;
+      std::cout << "XYPlane result is wrong at i=" << i << std::endl;
     }
   }
 
@@ -91,14 +90,13 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   xyplaneRen->AddActor(xyplaneActor);
 
   /// Second window - data normal
-  vtkSmartPointer<vtkSphereSource> dataNormalSource =
-      vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> dataNormalSource = vtkSmartPointer<vtkSphereSource>::New();
   dataNormalSource->SetRadius(100);
   dataNormalSource->SetThetaResolution(20);
   dataNormalSource->SetPhiResolution(20);
   dataNormalSource->Update();
   // Create a scalar array
-  auto  dataNormalSourceOutput = dataNormalSource->GetOutput();
+  auto dataNormalSourceOutput = dataNormalSource->GetOutput();
   vtkNew<vtkFloatArray> scalarArray;
   scalarArray->SetName("scalarfactor");
   scalarArray->SetNumberOfValues(dataNormalSourceOutput->GetNumberOfPoints());
@@ -111,8 +109,8 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   vtkNew<vtkmWarpScalar> dataNormalWarpScalar;
   dataNormalWarpScalar->SetScaleFactor(2);
   dataNormalWarpScalar->SetInputData(dataNormalSource->GetOutput());
-  dataNormalWarpScalar->SetInputArrayToProcess(0,0,0,
-                     vtkDataObject::FIELD_ASSOCIATION_POINTS, "scalarfactor");
+  dataNormalWarpScalar->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scalarfactor");
   vtkNew<vtkDataSetMapper> dataNormalMapper;
   dataNormalMapper->SetInputConnection(dataNormalWarpScalar->GetOutputPort());
 
@@ -126,7 +124,7 @@ int TestVTKMWarpScalar(int argc, char* argv[])
 
   /// Third window - custom normal
   vtkSmartPointer<vtkRTAnalyticSource> customNormalSource =
-      vtkSmartPointer<vtkRTAnalyticSource>::New();
+    vtkSmartPointer<vtkRTAnalyticSource>::New();
   customNormalSource->SetWholeExtent(-100, 100, -100, 100, 1, 1);
   customNormalSource->SetCenter(0, 0, 0);
   customNormalSource->SetMaximum(255);
@@ -153,7 +151,6 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   customNormalRen->SetBackground(0.3, 0.2, 0.5);
   customNormalRen->AddActor(customNormalActor);
 
-
   xyplaneRen->ResetCamera();
   dataNormalRen->ResetCamera();
   customNormalRen->ResetCamera();
@@ -161,7 +158,7 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;

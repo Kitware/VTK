@@ -27,19 +27,17 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkVertexDegree.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg,
-  double xoffset, double yoffset,
-  const char* vertColorArray, double vertMin, double vertMax,
-  const char* edgeColorArray = nullptr, double edgeMin = 0, double edgeMax = 0)
+void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg, double xoffset, double yoffset,
+  const char* vertColorArray, double vertMin, double vertMax, const char* edgeColorArray = nullptr,
+  double edgeMin = 0, double edgeMax = 0)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(alg->GetOutputPort());
@@ -129,4 +127,3 @@ int TestGraphAlgorithms(int argc, char* argv[])
 
   return !retVal;
 }
-

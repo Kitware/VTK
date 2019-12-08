@@ -39,7 +39,7 @@
  * rendering techniques can be used to visualize the results. Another example:
  * a line or curve can be used to probe data to produce x-y plots along
  * that line or curve.
-*/
+ */
 
 #ifndef vtkmProbe_h
 #define vtkmProbe_h
@@ -52,7 +52,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmProbe : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmProbe, vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmProbe, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmProbe* New();
 
@@ -63,8 +63,8 @@ public:
    * while the Source is probed (interpolated) to generate the scalars,
    * vectors, etc. for the output points based on the point locations.
    */
-  void SetSourceData(vtkDataObject *source);
-  vtkDataObject *GetSource();
+  void SetSourceData(vtkDataObject* source);
+  vtkDataObject* GetSource();
   //@}
 
   //@}
@@ -112,8 +112,8 @@ public:
    * hidden points and 0 for valid points.
    * Set to "vtkValidPointMask" by default.
    */
-  vtkSetMacro(ValidPointMaskArrayName, std::string)
-  vtkGetMacro(ValidPointMaskArrayName, std::string)
+  vtkSetMacro(ValidPointMaskArrayName, std::string);
+  vtkGetMacro(ValidPointMaskArrayName, std::string);
   //@}
 
   //@{
@@ -122,13 +122,13 @@ public:
    * hidden points and 0 for valid points.
    * Set to "vtkValidCellMask" by default.
    */
-  vtkSetMacro(ValidCellMaskArrayName, std::string)
-  vtkGetMacro(ValidCellMaskArrayName, std::string)
+  vtkSetMacro(ValidCellMaskArrayName, std::string);
+  vtkGetMacro(ValidCellMaskArrayName, std::string);
   //@}
 
 protected:
   vtkmProbe();
-  ~vtkmProbe()=default;
+  ~vtkmProbe() = default;
 
   vtkTypeBool PassCellArrays;
   vtkTypeBool PassPointArrays;
@@ -136,28 +136,24 @@ protected:
   std::string ValidPointMaskArrayName;
   std::string ValidCellMaskArrayName;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
+  virtual int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
+  virtual int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
-    * Call at the end of RequestData() to pass attribute dat a respecting the
-    * PassCellArrays, PassPointArrays and PassFieldArrays flag
-    */
-  void PassAttributeData(vtkDataSet* input, vtkDataObject* source,
-                         vtkDataSet* output);
+   * Call at the end of RequestData() to pass attribute dat a respecting the
+   * PassCellArrays, PassPointArrays and PassFieldArrays flag
+   */
+  void PassAttributeData(vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
 private:
   vtkmProbe(const vtkmProbe&) = delete;
   void operator=(const vtkmProbe&) = delete;
 };
 
-#endif //vtkmProbe_h
+#endif // vtkmProbe_h
 // VTK-HeaderTest-Exclude: vtkmProbe.h

@@ -21,19 +21,19 @@
  * or mpi.
  * @sa
  * vtkMultiProcessController
-*/
+ */
 
 #ifndef vtkDummyController_h
 #define vtkDummyController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class VTKPARALLELCORE_EXPORT vtkDummyController : public vtkMultiProcessController
 {
 public:
-  static vtkDummyController *New();
-  vtkTypeMacro(vtkDummyController,vtkMultiProcessController);
+  static vtkDummyController* New();
+  vtkTypeMacro(vtkDummyController, vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -70,8 +70,8 @@ public:
    * can swap out the dummy communicator for another one.
    */
   vtkGetObjectMacro(RMICommunicator, vtkCommunicator);
-  virtual void SetCommunicator(vtkCommunicator *);
-  virtual void SetRMICommunicator(vtkCommunicator *);
+  virtual void SetCommunicator(vtkCommunicator*);
+  virtual void SetRMICommunicator(vtkCommunicator*);
   //@}
 
 protected:
@@ -84,5 +84,3 @@ private:
 };
 
 #endif
-
-

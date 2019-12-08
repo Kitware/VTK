@@ -26,43 +26,34 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/Threshold.h>
+#include <vtkm/filter/Threshold.hxx>
 
-vtkStandardNewMacro(vtkmThreshold)
-
-//------------------------------------------------------------------------------
-vtkmThreshold::vtkmThreshold()
-{
-}
+vtkStandardNewMacro(vtkmThreshold);
 
 //------------------------------------------------------------------------------
-vtkmThreshold::~vtkmThreshold()
-{
-}
+vtkmThreshold::vtkmThreshold() {}
 
 //------------------------------------------------------------------------------
-int vtkmThreshold::RequestData(vtkInformation* request,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+vtkmThreshold::~vtkmThreshold() {}
+
+//------------------------------------------------------------------------------
+int vtkmThreshold::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (inputArray == nullptr || inputArray->GetName() == nullptr ||
-      inputArray->GetName()[0] == '\0')
+  if (inputArray == nullptr || inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
   {
     vtkErrorMacro("Invalid input array.");
     return 0;

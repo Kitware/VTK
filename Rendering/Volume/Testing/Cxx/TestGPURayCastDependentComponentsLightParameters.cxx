@@ -16,54 +16,51 @@
 // This test volume renders the vase dataset with 4 dependent components the
 // composite method with shading and light parameters.
 
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageShiftScale.h"
+#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkTransform.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkXMLImageDataReader.h"
 
-int TestGPURayCastDependentComponentsLightParameters(int argc,
-                                                     char *argv[])
+int TestGPURayCastDependentComponentsLightParameters(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
-  char *cfname=
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
 
-  vtkXMLImageDataReader *reader=vtkXMLImageDataReader::New();
+  vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
   reader->SetFileName(cfname);
-  delete [] cfname;
+  delete[] cfname;
 
-  vtkRenderer *ren1=vtkRenderer::New();
-  vtkRenderWindow *renWin=vtkRenderWindow::New();
+  vtkRenderer* ren1 = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
-  renWin->SetSize(301,300);
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
+  renWin->SetSize(301, 300);
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
-  vtkGPUVolumeRayCastMapper *volumeMapper;
-  vtkVolumeProperty *volumeProperty;
-  vtkVolume *volume;
+  vtkGPUVolumeRayCastMapper* volumeMapper;
+  vtkVolumeProperty* volumeProperty;
+  vtkVolume* volume;
 
-  volumeMapper=vtkGPUVolumeRayCastMapper::New();
+  volumeMapper = vtkGPUVolumeRayCastMapper::New();
   volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetInputConnection(
-    reader->GetOutputPort());
+  volumeMapper->SetInputConnection(reader->GetOutputPort());
 
-  vtkPiecewiseFunction *opacity=vtkPiecewiseFunction::New();
-  opacity->AddPoint(0,0);
-  opacity->AddPoint(255,1);
+  vtkPiecewiseFunction* opacity = vtkPiecewiseFunction::New();
+  opacity->AddPoint(0, 0);
+  opacity->AddPoint(255, 1);
 
-  volumeProperty=vtkVolumeProperty::New();
+  volumeProperty = vtkVolumeProperty::New();
   volumeProperty->IndependentComponentsOff();
   volumeProperty->ShadeOn();
   volumeProperty->SetScalarOpacity(opacity);
@@ -72,18 +69,18 @@ int TestGPURayCastDependentComponentsLightParameters(int argc,
   volumeProperty->SetSpecular(0.4);
   volumeProperty->SetSpecularPower(10.0);
 
-  volume=vtkVolume::New();
+  volume = vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
 
-  int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
+  int valid = volumeMapper->IsRenderSupported(renWin, volumeProperty);
 
   int retVal;
-  if(valid)
+  if (valid)
   {
     iren->Initialize();
-    ren1->SetBackground(0.1,0.4,0.2);
+    ren1->SetBackground(0.1, 0.4, 0.2);
     ren1->ResetCamera();
     renWin->Render();
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
@@ -94,7 +91,7 @@ int TestGPURayCastDependentComponentsLightParameters(int argc,
   }
   else
   {
-    retVal=vtkTesting::PASSED;
+    retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
   }
 

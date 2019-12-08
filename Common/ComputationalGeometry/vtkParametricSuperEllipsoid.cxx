@@ -13,41 +13,41 @@
 
 =========================================================================*/
 #include "vtkParametricSuperEllipsoid.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include <cmath>
 
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 
 namespace
 {
-  /**
-  * Calculate sign(x)*(abs(x)^n).
-  */
-  double SgnPower(double x, double n)
+/**
+ * Calculate sign(x)*(abs(x)^n).
+ */
+double SgnPower(double x, double n)
+{
+  const double eps = 1.0e-06;
+  if (x == 0)
   {
-    const double eps = 1.0e-06;
-    if (x == 0)
-    {
-      return 0;
-    }
-    if (n == 0)
-    {
-      return 1;
-    }
-    double sgn = (x < 0) ? -1 : 1;
-    if (std::abs(x) > eps)
-    {
-      return sgn * std::pow(std::abs(x), n);
-    }
     return 0;
   }
+  if (n == 0)
+  {
+    return 1;
+  }
+  double sgn = (x < 0) ? -1 : 1;
+  if (std::abs(x) > eps)
+  {
+    return sgn * std::pow(std::abs(x), n);
+  }
+  return 0;
+}
 
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
-vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
-  XRadius(1)
+vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid()
+  : XRadius(1)
   , YRadius(1)
   , ZRadius(1)
   , N1(1)
@@ -70,13 +70,12 @@ vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
 vtkParametricSuperEllipsoid::~vtkParametricSuperEllipsoid() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3],
-    double Duvw[9])
+void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   for (int i = 0; i < 3; ++i)
   {
@@ -94,19 +93,16 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3],
   Pt[0] = this->XRadius * tmp * SgnPower(su, this->N2);
   Pt[1] = this->YRadius * tmp * SgnPower(cu, this->N2);
   Pt[2] = this->ZRadius * SgnPower(sv, this->N1);
-
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricSuperEllipsoid::EvaluateScalar(double*, double*,
-    double*)
+double vtkParametricSuperEllipsoid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkParametricSuperEllipsoid::PrintSelf(ostream& os,
-    vtkIndent indent)
+void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

@@ -28,19 +28,19 @@
  *
  * @sa
  * vtkFixedPointVolumeRayCastMapper
-*/
+ */
 
 #ifndef vtkFixedPointRayCastImage_h
 #define vtkFixedPointRayCastImage_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkFixedPointRayCastImage : public vtkObject
 {
 public:
-  static vtkFixedPointRayCastImage *New();
-  vtkTypeMacro(vtkFixedPointRayCastImage,vtkObject);
+  static vtkFixedPointRayCastImage* New();
+  vtkTypeMacro(vtkFixedPointRayCastImage, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -48,15 +48,15 @@ public:
    * unsigned short with four components (RGBA) per pixel. This
    * memory is allocated when the AllocateImage method is called.
    */
-  unsigned short *GetImage() {return this->Image;}
+  unsigned short* GetImage() { return this->Image; }
 
   //@{
   /**
    * Set / Get the ImageViewportSize. This is the size of the
    * whole viewport in pixels.
    */
-  vtkSetVector2Macro( ImageViewportSize, int );
-  vtkGetVectorMacro(  ImageViewportSize, int, 2 );
+  vtkSetVector2Macro(ImageViewportSize, int);
+  vtkGetVectorMacro(ImageViewportSize, int, 2);
   //@}
 
   //@{
@@ -66,8 +66,8 @@ public:
    * to ensure that the texture can be rendered by graphics
    * hardware that requires power of two textures.
    */
-  vtkSetVector2Macro( ImageMemorySize, int );
-  vtkGetVectorMacro(  ImageMemorySize, int, 2 );
+  vtkSetVector2Macro(ImageMemorySize, int);
+  vtkGetVectorMacro(ImageMemorySize, int, 2);
   //@}
 
   //@{
@@ -78,8 +78,8 @@ public:
    * continue to use the memory size we have. This size will
    * always be equal to or less than the ImageMemorySize.
    */
-  vtkSetVector2Macro( ImageInUseSize, int );
-  vtkGetVectorMacro(  ImageInUseSize, int, 2 );
+  vtkSetVector2Macro(ImageInUseSize, int);
+  vtkGetVectorMacro(ImageInUseSize, int, 2);
   //@}
 
   //@{
@@ -91,8 +91,8 @@ public:
    * only a portion of the viewport. The Image pixels will
    * start from this location.
    */
-  vtkSetVector2Macro( ImageOrigin, int );
-  vtkGetVectorMacro(  ImageOrigin, int, 2 );
+  vtkSetVector2Macro(ImageOrigin, int);
+  vtkGetVectorMacro(ImageOrigin, int, 2);
   //@}
 
   //@{
@@ -102,8 +102,8 @@ public:
    * mapper. It is stored here for sharing between all mappers
    * that are participating in the creation of this image.
    */
-  vtkSetMacro( ImageSampleDistance, float );
-  vtkGetMacro( ImageSampleDistance, float );
+  vtkSetMacro(ImageSampleDistance, float);
+  vtkGetMacro(ImageSampleDistance, float);
   //@}
 
   /**
@@ -126,8 +126,8 @@ public:
    * of the ImageInUseSize image may be smaller than this ZBuffer
    * image which will be captured at screen resolution.
    */
-  vtkSetVector2Macro( ZBufferSize, int );
-  vtkGetVectorMacro(  ZBufferSize, int, 2 );
+  vtkSetVector2Macro(ZBufferSize, int);
+  vtkGetVectorMacro(ZBufferSize, int, 2);
   //@}
 
   //@{
@@ -140,8 +140,8 @@ public:
    * to convert the (x,y) pixel location within the ImageInUseSize
    * image into a ZBuffer location.
    */
-  vtkSetVector2Macro( ZBufferOrigin, int );
-  vtkGetVectorMacro(  ZBufferOrigin, int, 2 );
+  vtkSetVector2Macro(ZBufferOrigin, int);
+  vtkGetVectorMacro(ZBufferOrigin, int, 2);
   //@}
 
   //@{
@@ -151,9 +151,9 @@ public:
    * is on in the mapper, and when there are props that have been
    * rendered before the current volume.
    */
-  vtkSetClampMacro( UseZBuffer, vtkTypeBool, 0, 1 );
-  vtkGetMacro( UseZBuffer, vtkTypeBool );
-  vtkBooleanMacro( UseZBuffer, vtkTypeBool );
+  vtkSetClampMacro(UseZBuffer, vtkTypeBool, 0, 1);
+  vtkGetMacro(UseZBuffer, vtkTypeBool);
+  vtkBooleanMacro(UseZBuffer, vtkTypeBool);
   //@}
 
   /**
@@ -162,14 +162,14 @@ public:
    * the zbuffer image coordinates. Nearest neighbor value is returned.
    * If UseZBuffer is off, then 1.0 is always returned.
    */
-  float         GetZBufferValue( int x, int y );
+  float GetZBufferValue(int x, int y);
 
   /**
    * Get the ZBuffer. The size of the ZBuffer should be specific
    * with SetZBufferSize, and AllocateZBuffer method should be called
    * before getting the ZBuffer.
    */
-  float *GetZBuffer() {return this->ZBuffer;}
+  float* GetZBuffer() { return this->ZBuffer; }
 
   // Descipriotn:
   // Allocate the space for the ZBuffer according to the size.
@@ -180,49 +180,48 @@ protected:
   ~vtkFixedPointRayCastImage() override;
 
   // This is how big the image would be if it covered the entire viewport
-  int             ImageViewportSize[2];
+  int ImageViewportSize[2];
 
   // This is how big the allocated memory for image is. This may be bigger
   // or smaller than ImageFullSize - it will be bigger if necessary to
   // ensure a power of 2, it will be smaller if the volume only covers a
   // small region of the viewport
-  int             ImageMemorySize[2];
+  int ImageMemorySize[2];
 
   // This is the size of subregion in ImageSize image that we are using for
   // the current image. Since ImageSize is a power of 2, there is likely
   // wasted space in it. This number will be used for things such as clearing
   // the image if necessary.
-  int             ImageInUseSize[2];
+  int ImageInUseSize[2];
 
   // This is the location in ImageFullSize image where our ImageSize image
   // is located.
-  int             ImageOrigin[2];
+  int ImageOrigin[2];
 
   // This is a copy of the ImageSampleDistance from the mapper - copied here
   // in order to share among all mappers contributing to this image
-  float           ImageSampleDistance;
+  float ImageSampleDistance;
 
   // This is the allocated image
-  unsigned short *Image;
+  unsigned short* Image;
 
   // This is the size of the zbuffer in pixels
-  int             ZBufferSize[2];
+  int ZBufferSize[2];
 
   // This is the size of the memory for the zbuffer - this can be
   // bigger than the size of the zbuffer since we will allocate enough
   // space for the whole viewport to avoid re-allocating over and over
-  int             ZBufferMemorySize;
+  int ZBufferMemorySize;
 
   // This is the distance from the lower left corner of the viewport
   // where the ZBuffer starts
-  int             ZBufferOrigin[2];
+  int ZBufferOrigin[2];
 
   // This is the flag that indicate whether the ZBuffer is in use
-  vtkTypeBool             UseZBuffer;
+  vtkTypeBool UseZBuffer;
 
   // This is the actual ZBuffer data in floats
-  float          *ZBuffer;
-
+  float* ZBuffer;
 
 private:
   vtkFixedPointRayCastImage(const vtkFixedPointRayCastImage&) = delete;
@@ -230,8 +229,3 @@ private:
 };
 
 #endif
-
-
-
-
-

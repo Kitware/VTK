@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
-#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
-#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
+#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
 #import "vtkObjectFactory.h"
 
@@ -25,14 +25,13 @@
 #import "vtkTDxMacDevice.h"
 #endif
 
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
-void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))nullptr;
-void *vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void *)nullptr;
-void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))nullptr;
+void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))nullptr;
+void* vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
+void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*))nullptr;
 
 //----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
@@ -67,56 +66,45 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 // VTK should work with all 4; currently all are supported except ARC.
 class vtkEarlyCocoaSetup
 {
-    public:
-    vtkEarlyCocoaSetup()
-    {
-      this->CreatePoolOfLastResort();
-    }
+public:
+  vtkEarlyCocoaSetup() { this->CreatePoolOfLastResort(); }
 
-    virtual ~vtkEarlyCocoaSetup()
-    {
-      this->DestroyPoolOfLastResort();
-    }
+  virtual ~vtkEarlyCocoaSetup() { this->DestroyPoolOfLastResort(); }
 
-    protected:
-    void DestroyPoolOfLastResort()
-    {
-      [Pool drain];
-      Pool = nil;
-    }
+protected:
+  void DestroyPoolOfLastResort()
+  {
+    [Pool drain];
+    Pool = nil;
+  }
 
-    void CreatePoolOfLastResort()
-    {
-      Pool = [[NSAutoreleasePool alloc] init];
-    }
+  void CreatePoolOfLastResort() { Pool = [[NSAutoreleasePool alloc] init]; }
 
-    private:
-    NSAutoreleasePool     *Pool;
+private:
+  NSAutoreleasePool* Pool;
 };
 
 // We create a global/static instance of this class to ensure that we have an
 // autorelease pool before main() starts (the C++ constructor for a global
 // object runs before main).  Note: I am unable to find a place to delete this
 // object safely, but having it around for the lifetime of the process is ok.
-static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
+static vtkEarlyCocoaSetup* gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
 //----------------------------------------------------------------------------
 @interface vtkCocoaTimer : NSObject
 {
-  @private
-  NSTimer *_timer;
-  vtkCocoaRenderWindowInteractor *_interactor;
+@private
+  NSTimer* _timer;
+  vtkCocoaRenderWindowInteractor* _interactor;
   int _timerId;
 }
 
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
-                 timerId:(int)myTimerId;
-- (void)startTimerWithInterval:(NSTimeInterval)interval
-                     repeating:(BOOL)repeating;
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor*)myInteractor timerId:(int)myTimerId;
+- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating;
 - (void)stopTimer;
-- (void)timerFired:(NSTimer *)myTimer;
+- (void)timerFired:(NSTimer*)myTimer;
 
 @end
 
@@ -124,8 +112,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 @implementation vtkCocoaTimer
 
 //----------------------------------------------------------------------------
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
-                 timerId:(int)myTimerId
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor*)myInteractor timerId:(int)myTimerId
 {
   self = [super init];
   if (self)
@@ -137,15 +124,14 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 }
 
 //----------------------------------------------------------------------------
-- (void)timerFired:(NSTimer *)myTimer
+- (void)timerFired:(NSTimer*)myTimer
 {
   (void)myTimer;
   _interactor->InvokeEvent(vtkCommand::TimerEvent, &_timerId);
 }
 
 //----------------------------------------------------------------------------
-- (void)startTimerWithInterval:(NSTimeInterval)interval
-                     repeating:(BOOL)repeating
+- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating
 {
   _timer = [NSTimer timerWithTimeInterval:interval
                                    target:self
@@ -156,7 +142,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   [_timer retain];
 #endif
 
-  NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+  NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
   [runLoop addTimer:_timer forMode:NSDefaultRunLoopMode];
   [runLoop addTimer:_timer forMode:NSEventTrackingRunLoopMode];
 }
@@ -178,7 +164,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 static void VTKStartNSApplicationEventLoop()
 {
   // Start the NSApplication's run loop
-  NSApplication *application = [NSApplication sharedApplication];
+  NSApplication* application = [NSApplication sharedApplication];
   [application run];
 }
 
@@ -189,10 +175,10 @@ static void VTKStopNSApplicationEventLoop()
   // Stop the current run loop. Do not terminate as it will not return to
   // main. However, the stop message puts the run loop asleep. Let's send
   // some event to wake it up so it can get out of the loop.
-  NSApplication *application = [NSApplication sharedApplication];
+  NSApplication* application = [NSApplication sharedApplication];
   [application stop:application];
 
-  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+  NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
                                       location:NSZeroPoint
                                  modifierFlags:0
                                      timestamp:0
@@ -209,20 +195,20 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 {
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
-  NSMutableDictionary *cocoaManager = [NSMutableDictionary dictionary];
+  NSMutableDictionary* cocoaManager = [NSMutableDictionary dictionary];
 
   // SetCocoaManager works like an Obj-C setter, so do like Obj-C and
   // init the ivar to null first.
   this->CocoaManager = nullptr;
-  this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
+  this->SetCocoaManager(reinterpret_cast<void*>(cocoaManager));
   [cocoaManager self]; // prevent premature collection under GC.
 
-  NSMutableDictionary *timerDictionary = [NSMutableDictionary dictionary];
-  this->SetTimerDictionary(reinterpret_cast<void *>(timerDictionary));
+  NSMutableDictionary* timerDictionary = [NSMutableDictionary dictionary];
+  this->SetTimerDictionary(reinterpret_cast<void*>(timerDictionary));
   [timerDictionary self]; // prevent premature collection under GC.
 
 #ifdef VTK_USE_TDX
-  this->Device=vtkTDxMacDevice::New();
+  this->Device = vtkTDxMacDevice::New();
 #endif
 }
 
@@ -238,6 +224,24 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::ProcessEvents()
+{
+  NSApplication* application = [NSApplication sharedApplication];
+  NSEvent* event = [application nextEventMatchingMask:NSEventMaskAny
+                                            untilDate:nil
+                                               inMode:NSDefaultRunLoopMode
+                                              dequeue:YES];
+  while (event)
+  {
+    [application sendEvent:event];
+    event = [application nextEventMatchingMask:NSEventMaskAny
+                                     untilDate:nil
+                                        inMode:NSDefaultRunLoopMode
+                                       dequeue:YES];
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::StartEventLoop()
 {
   VTKStartNSApplicationEventLoop();
@@ -248,9 +252,9 @@ void vtkCocoaRenderWindowInteractor::StartEventLoop()
 void vtkCocoaRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
-  if ( !this->RenderWindow )
+  if (!this->RenderWindow)
   {
-    vtkErrorMacro(<<"No renderer defined!");
+    vtkErrorMacro(<< "No renderer defined!");
     return;
   }
   if (this->Initialized)
@@ -259,9 +263,9 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  vtkCocoaRenderWindow *renWin = (vtkCocoaRenderWindow *)(this->RenderWindow);
+  vtkCocoaRenderWindow* renWin = (vtkCocoaRenderWindow*)(this->RenderWindow);
   renWin->Start();
-  int *size = renWin->GetSize();
+  int* size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
 
@@ -283,7 +287,7 @@ void vtkCocoaRenderWindowInteractor::Enable()
   this->GetRenderWindow()->SetInteractor(this);
 
 #ifdef VTK_USE_TDX
-  if(this->UseTDx)
+  if (this->UseTDx)
   {
     this->Device->SetInteractor(this);
     this->Device->Initialize();
@@ -303,7 +307,7 @@ void vtkCocoaRenderWindowInteractor::Disable()
   }
 
 #ifdef VTK_USE_TDX
-  if(this->Device->GetInitialized())
+  if (this->Device->GetInitialized())
   {
     this->Device->Close();
   }
@@ -320,12 +324,13 @@ void vtkCocoaRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::TerminateApp()
 {
+  this->Done = true;
   VTKStopNSApplicationEventLoop();
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
-  int timerType, unsigned long duration)
+int vtkCocoaRenderWindowInteractor::InternalCreateTimer(
+  int timerId, int timerType, unsigned long duration)
 {
   BOOL repeating = NO;
 
@@ -336,13 +341,11 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
 
   // Create a vtkCocoaTimer and add it to a dictionary using the timerId
   // as key, this will let us find the vtkCocoaTimer later by timerId
-  vtkCocoaTimer *cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
-                                                                timerId:timerId];
-  NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
-  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
+  vtkCocoaTimer* cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this timerId:timerId];
+  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
-  [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
-                           repeating:repeating];
+  [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration / 1000.0) repeating:repeating];
 #if !VTK_OBJC_IS_ARC
   [cocoaTimer release];
 #endif
@@ -360,8 +363,8 @@ int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   // but calling this anyway is more correct
   int timerId = this->GetVTKTimerId(platformTimerId);
 
-  NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
-  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
+  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   vtkCocoaTimer* cocoaTimer = [timerDict objectForKey:timerIdAsStr];
 
   if (nil != cocoaTimer)
@@ -379,17 +382,17 @@ int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 //----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
-void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void* arg)
 {
-  if ( f != vtkCocoaRenderWindowInteractor::ClassExitMethod
-  || arg != vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
+  if (f != vtkCocoaRenderWindowInteractor::ClassExitMethod ||
+    arg != vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
   {
     // delete the current arg if there is a delete method
-    if ((vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
-     && (vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete))
+    if ((vtkCocoaRenderWindowInteractor::ClassExitMethodArg) &&
+      (vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete))
     {
-      (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)
-        (vtkCocoaRenderWindowInteractor::ClassExitMethodArg);
+      (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(
+        vtkCocoaRenderWindowInteractor::ClassExitMethodArg);
     }
     vtkCocoaRenderWindowInteractor::ClassExitMethod = f;
     vtkCocoaRenderWindowInteractor::ClassExitMethodArg = arg;
@@ -400,7 +403,7 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *
 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
-void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void*))
 {
   if (f != vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)
   {
@@ -413,7 +416,7 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -421,7 +424,7 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,nullptr);
+    this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
   }
   else if (this->ClassExitMethod)
   {
@@ -431,38 +434,33 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void *dictionary)
+void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void* dictionary)
 {
   if (dictionary != nullptr)
   {
-    NSMutableDictionary *manager =
-      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
-    [manager setObject:reinterpret_cast<id>(dictionary)
-                forKey:@"TimerDictionary"];
+    NSMutableDictionary* manager = reinterpret_cast<NSMutableDictionary*>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(dictionary) forKey:@"TimerDictionary"];
   }
   else
   {
-    NSMutableDictionary *manager =
-      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    NSMutableDictionary* manager = reinterpret_cast<NSMutableDictionary*>(this->GetCocoaManager());
     [manager removeObjectForKey:@"TimerDictionary"];
   }
 }
 
 //----------------------------------------------------------------------------
-void *vtkCocoaRenderWindowInteractor::GetTimerDictionary()
+void* vtkCocoaRenderWindowInteractor::GetTimerDictionary()
 {
-  NSMutableDictionary *manager =
-    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
-  return reinterpret_cast<void *>([manager objectForKey:@"TimerDictionary"]);
+  NSMutableDictionary* manager = reinterpret_cast<NSMutableDictionary*>(this->GetCocoaManager());
+  return reinterpret_cast<void*>([manager objectForKey:@"TimerDictionary"]);
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
+void vtkCocoaRenderWindowInteractor::SetCocoaManager(void* manager)
 {
-  NSMutableDictionary *currentCocoaManager =
-    reinterpret_cast<NSMutableDictionary *>(this->CocoaManager);
-  NSMutableDictionary *newCocoaManager =
-    reinterpret_cast<NSMutableDictionary *>(manager);
+  NSMutableDictionary* currentCocoaManager =
+    reinterpret_cast<NSMutableDictionary*>(this->CocoaManager);
+  NSMutableDictionary* newCocoaManager = reinterpret_cast<NSMutableDictionary*>(manager);
 
   if (currentCocoaManager != newCocoaManager)
   {
@@ -478,7 +476,7 @@ void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
     }
     if (newCocoaManager)
     {
-      this->CocoaManager = const_cast<void *>(CFRetain (newCocoaManager));
+      this->CocoaManager = const_cast<void*>(CFRetain(newCocoaManager));
     }
     else
     {
@@ -488,7 +486,7 @@ void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
 }
 
 //----------------------------------------------------------------------------
-void *vtkCocoaRenderWindowInteractor::GetCocoaManager()
+void* vtkCocoaRenderWindowInteractor::GetCocoaManager()
 {
   return this->CocoaManager;
 }

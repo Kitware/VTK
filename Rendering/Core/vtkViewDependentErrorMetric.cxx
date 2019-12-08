@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkViewDependentErrorMetric.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkCoordinate.h"
+#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 #include "vtkMath.h"
-#include <cassert>
-#include "vtkCoordinate.h"
+#include "vtkObjectFactory.h"
 #include "vtkViewport.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
@@ -51,19 +51,19 @@ vtkViewDependentErrorMetric::~vtkViewDependentErrorMetric()
 // \pre positive_value: value>0
 void vtkViewDependentErrorMetric::SetPixelTolerance(double value)
 {
-  assert("pre: positive_value" && value>0);
-  if(this->PixelTolerance!=value)
+  assert("pre: positive_value" && value > 0);
+  if (this->PixelTolerance != value)
   {
-    this->PixelTolerance=value;
+    this->PixelTolerance = value;
     this->Modified();
   }
 }
 
 //-----------------------------------------------------------------------------
 // Avoid reference loop
-void vtkViewDependentErrorMetric::SetViewport(vtkViewport *viewport)
+void vtkViewDependentErrorMetric::SetViewport(vtkViewport* viewport)
 {
-  if(this->Viewport!=viewport)
+  if (this->Viewport != viewport)
   {
     this->Viewport = viewport;
     this->Modified();
@@ -71,18 +71,16 @@ void vtkViewDependentErrorMetric::SetViewport(vtkViewport *viewport)
 }
 
 //-----------------------------------------------------------------------------
-int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
-                                                         double *midPoint,
-                                                         double *rightPoint,
-                                                         double vtkNotUsed(alpha))
+int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(
+  double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
-  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
-  assert("pre: midPoint_exists" && midPoint!=nullptr);
-  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
-//  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
-  if( this->GenericCell->IsGeometryLinear() )
+  assert("pre: leftPoint_exists" && leftPoint != nullptr);
+  assert("pre: midPoint_exists" && midPoint != nullptr);
+  assert("pre: rightPoint_exists" && rightPoint != nullptr);
+  //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
+  if (this->GenericCell->IsGeometryLinear())
   {
-    //don't need to do anything:
+    // don't need to do anything:
     return 0;
   }
 #if 0
@@ -96,10 +94,10 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   // Get the projection of the left, mid and right points
   double leftProjPoint[2];
   double midProjPoint[2];
-//  double rightProjPoint[2];
+  //  double rightProjPoint[2];
 
   this->Coordinate->SetValue(leftPoint);
-  double *pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
+  double* pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
 
   // pix is a volatile pointer
   leftProjPoint[0] = pix[0];
@@ -116,7 +114,7 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
 
   // distance between the line (leftProjPoint,rightProjPoint) and the point midProjPoint.
-  return this->Distance2LinePoint(leftProjPoint,pix,midProjPoint)>this->PixelTolerance;
+  return this->Distance2LinePoint(leftProjPoint, pix, midProjPoint) > this->PixelTolerance;
 }
 
 //-----------------------------------------------------------------------------
@@ -132,28 +130,26 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
 // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
 //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
 // \post positive_result: result>=0
-double vtkViewDependentErrorMetric::GetError(double *leftPoint,
-                                             double *midPoint,
-                                             double *rightPoint,
-                                             double vtkNotUsed(alpha))
+double vtkViewDependentErrorMetric::GetError(
+  double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
-  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
-  assert("pre: midPoint_exists" && midPoint!=nullptr);
-  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
-//  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
-  if( this->GenericCell->IsGeometryLinear() )
+  assert("pre: leftPoint_exists" && leftPoint != nullptr);
+  assert("pre: midPoint_exists" && midPoint != nullptr);
+  assert("pre: rightPoint_exists" && rightPoint != nullptr);
+  //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
+  if (this->GenericCell->IsGeometryLinear())
   {
-    //don't need to do anything:
+    // don't need to do anything:
     return 0;
   }
 
   // Get the projection of the left, mid and right points
   double leftProjPoint[2];
   double midProjPoint[2];
-//  double rightProjPoint[2];
+  //  double rightProjPoint[2];
 
   this->Coordinate->SetValue(leftPoint);
-  double *pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
+  double* pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
 
   // pix is a volatile pointer
   leftProjPoint[0] = pix[0];
@@ -170,7 +166,7 @@ double vtkViewDependentErrorMetric::GetError(double *leftPoint,
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
 
   // distance between the line (leftProjPoint,rightProjPoint) and the point midProjPoint.
-  return this->Distance2LinePoint(leftProjPoint,pix,midProjPoint);
+  return this->Distance2LinePoint(leftProjPoint, pix, midProjPoint);
 }
 
 //-----------------------------------------------------------------------------
@@ -178,9 +174,7 @@ double vtkViewDependentErrorMetric::GetError(double *leftPoint,
 // Square distance between a straight line (defined by points x and y)
 // and a point z. Property: if x and y are equal, the line is a point and
 // the result is the square distance between points x and z.
-double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2],
-                                                       double y[2],
-                                                       double z[2])
+double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2], double y[2], double z[2])
 {
   double u[2];
   double v[2];
@@ -194,24 +188,24 @@ double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2],
   v[0] = z[0] - x[0];
   v[1] = z[1] - x[1];
 
-  double dot = vtkMath::Dot2D(u,v);
+  double dot = vtkMath::Dot2D(u, v);
 
-  w[0] = v[0] - dot*u[0];
-  w[1] = v[1] - dot*u[1];
+  w[0] = v[0] - dot * u[0];
+  w[1] = v[1] - dot * u[1];
 
-  return vtkMath::Dot2D(w,w);
+  return vtkMath::Dot2D(w, w);
 }
 
 //-----------------------------------------------------------------------------
 void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "PixelTolerance: "  << this->PixelTolerance << endl;
+  os << indent << "PixelTolerance: " << this->PixelTolerance << endl;
   os << indent << "ViewPort: ";
-  if( this->Viewport )
+  if (this->Viewport)
   {
-    this->Viewport->PrintSelf( os << endl, indent.GetNextIndent());
+    this->Viewport->PrintSelf(os << endl, indent.GetNextIndent());
   }
   else
   {

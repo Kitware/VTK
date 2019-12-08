@@ -26,26 +26,26 @@
  *
  * @sa
  * vtkActor vtkPropertyDevice
-*/
+ */
 
 #ifndef vtkProperty_h
 #define vtkProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <map> // used for ivar
-#include <string> // used for ivar
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <map>                      // used for ivar
+#include <string>                   // used for ivar
 
 // shading models
-#define VTK_FLAT    0
+#define VTK_FLAT 0
 #define VTK_GOURAUD 1
-#define VTK_PHONG   2
-#define VTK_PBR     3
+#define VTK_PHONG 2
+#define VTK_PBR 3
 
 // representation models
-#define VTK_POINTS    0
+#define VTK_POINTS 0
 #define VTK_WIREFRAME 1
-#define VTK_SURFACE   2
+#define VTK_SURFACE 2
 
 class vtkActor;
 class vtkInformation;
@@ -61,7 +61,7 @@ class vtkPropertyInternals;
 class VTKRENDERINGCORE_EXPORT vtkProperty : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkProperty,vtkObject);
+  vtkTypeMacro(vtkProperty, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -70,12 +70,12 @@ public:
    * coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
    * and surface representation. Backface and frontface culling are off.
    */
-  static vtkProperty *New();
+  static vtkProperty* New();
 
   /**
    * Assign one property to another.
    */
-  void DeepCopy(vtkProperty *p);
+  void DeepCopy(vtkProperty* p);
 
   /**
    * This method causes the property to set up whatever is required for
@@ -84,7 +84,7 @@ public:
    * method includes the invoking actor as an argument which can
    * be used by property devices that require the actor.
    */
-  virtual void Render(vtkActor *, vtkRenderer *);
+  virtual void Render(vtkActor*, vtkRenderer*);
 
   /**
    * This method renders the property as a backface property. TwoSidedLighting
@@ -92,7 +92,7 @@ public:
    * colors and opacity are used for backface properties. Other properties
    * such as Representation, Culling are specified by the Property.
    */
-  virtual void BackfaceRender(vtkActor *, vtkRenderer *) {}
+  virtual void BackfaceRender(vtkActor*, vtkRenderer*) {}
 
   /**
    * This method is called after the actor has been rendered.
@@ -140,31 +140,24 @@ public:
    * Set the shading interpolation method for an object.
    */
   vtkSetClampMacro(Interpolation, int, VTK_FLAT, VTK_PBR);
-  vtkGetMacro(Interpolation,int);
-  void SetInterpolationToFlat()
-    { this->SetInterpolation(VTK_FLAT); }
-  void SetInterpolationToGouraud()
-    { this->SetInterpolation(VTK_GOURAUD); }
-  void SetInterpolationToPhong()
-    { this->SetInterpolation(VTK_PHONG); }
-  void SetInterpolationToPBR()
-    { this->SetInterpolation(VTK_PBR); }
-  const char *GetInterpolationAsString();
+  vtkGetMacro(Interpolation, int);
+  void SetInterpolationToFlat() { this->SetInterpolation(VTK_FLAT); }
+  void SetInterpolationToGouraud() { this->SetInterpolation(VTK_GOURAUD); }
+  void SetInterpolationToPhong() { this->SetInterpolation(VTK_PHONG); }
+  void SetInterpolationToPBR() { this->SetInterpolation(VTK_PBR); }
+  const char* GetInterpolationAsString();
   //@}
 
   //@{
   /**
    * Control the surface geometry representation for the object.
    */
-  vtkSetClampMacro(Representation,int, VTK_POINTS, VTK_SURFACE);
-  vtkGetMacro(Representation,int);
-  void SetRepresentationToPoints()
-    { this->SetRepresentation(VTK_POINTS); }
-  void SetRepresentationToWireframe()
-    { this->SetRepresentation(VTK_WIREFRAME); }
-  void SetRepresentationToSurface()
-    { this->SetRepresentation(VTK_SURFACE); }
-  const char *GetRepresentationAsString();
+  vtkSetClampMacro(Representation, int, VTK_POINTS, VTK_SURFACE);
+  vtkGetMacro(Representation, int);
+  void SetRepresentationToPoints() { this->SetRepresentation(VTK_POINTS); }
+  void SetRepresentationToWireframe() { this->SetRepresentation(VTK_WIREFRAME); }
+  void SetRepresentationToSurface() { this->SetRepresentation(VTK_SURFACE); }
+  const char* GetRepresentationAsString();
   //@}
 
   //@{
@@ -175,9 +168,9 @@ public:
    */
   virtual void SetColor(double r, double g, double b);
   virtual void SetColor(double a[3]);
-  double *GetColor() VTK_SIZEHINT(3);
+  double* GetColor() VTK_SIZEHINT(3);
   void GetColor(double rgb[3]);
-  void GetColor(double &r, double &g, double &b);
+  void GetColor(double& r, double& g, double& b);
   //@}
 
   //@{
@@ -429,49 +422,46 @@ public:
    * - \p numVars - number of variables being set
    * - \p x - values
    */
-  virtual void AddShaderVariable(const char *name, int numVars, int *x);
-  virtual void AddShaderVariable(const char *name, int numVars, float *x);
-  virtual void AddShaderVariable(const char *name, int numVars, double *x);
+  virtual void AddShaderVariable(const char* name, int numVars, int* x);
+  virtual void AddShaderVariable(const char* name, int numVars, float* x);
+  virtual void AddShaderVariable(const char* name, int numVars, double* x);
   //@}
 
   //@{
   /**
    * Methods to provide to add shader variables from wrappers.
    */
-  void AddShaderVariable(const char* name, int v)
-    { this->AddShaderVariable(name, 1, &v); }
-  void AddShaderVariable(const char* name, float v)
-    { this->AddShaderVariable(name, 1, &v); }
-  void AddShaderVariable(const char* name, double v)
-    { this->AddShaderVariable(name, 1, &v); }
+  void AddShaderVariable(const char* name, int v) { this->AddShaderVariable(name, 1, &v); }
+  void AddShaderVariable(const char* name, float v) { this->AddShaderVariable(name, 1, &v); }
+  void AddShaderVariable(const char* name, double v) { this->AddShaderVariable(name, 1, &v); }
   void AddShaderVariable(const char* name, int v1, int v2)
   {
-    int v[2] = {v1, v2};
+    int v[2] = { v1, v2 };
     this->AddShaderVariable(name, 2, v);
   }
   void AddShaderVariable(const char* name, float v1, float v2)
   {
-    float v[2] = {v1, v2};
+    float v[2] = { v1, v2 };
     this->AddShaderVariable(name, 2, v);
   }
   void AddShaderVariable(const char* name, double v1, double v2)
   {
-    double v[2] = {v1, v2};
+    double v[2] = { v1, v2 };
     this->AddShaderVariable(name, 2, v);
   }
   void AddShaderVariable(const char* name, int v1, int v2, int v3)
   {
-    int v[3] = {v1, v2, v3};
+    int v[3] = { v1, v2, v3 };
     this->AddShaderVariable(name, 3, v);
   }
   void AddShaderVariable(const char* name, float v1, float v2, float v3)
   {
-    float v[3] = {v1, v2, v3};
+    float v[3] = { v1, v2, v3 };
     this->AddShaderVariable(name, 3, v);
   }
   void AddShaderVariable(const char* name, double v1, double v2, double v3)
   {
-    double v[3] = {v1, v2, v3};
+    double v[3] = { v1, v2, v3 };
     this->AddShaderVariable(name, 3, v);
   }
   //@}
@@ -549,15 +539,14 @@ public:
   /**
    * Returns all the textures in this property and their names
    */
-  std::map<std::string, vtkTexture *> &GetAllTextures() {
-    return this->Textures; }
+  std::map<std::string, vtkTexture*>& GetAllTextures() { return this->Textures; }
 
   /**
    * Release any graphics resources that are being consumed by this
    * property. The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *win);
+  virtual void ReleaseGraphicsResources(vtkWindow* win);
 
   //@{
   /**
@@ -574,10 +563,8 @@ protected:
   /**
    * Computes composite color. Used by GetColor().
    */
-  static void ComputeCompositeColor(double result[3],
-    double ambient, const double ambient_color[3],
-    double diffuse, const double diffuse_color[3],
-    double specular, const double specular_color[3]);
+  static void ComputeCompositeColor(double result[3], double ambient, const double ambient_color[3],
+    double diffuse, const double diffuse_color[3], double specular, const double specular_color[3]);
 
   double Color[3];
   double AmbientColor[3];
@@ -628,7 +615,7 @@ private:
 /**
  * Return the method of shading as a descriptive character string.
  */
-inline const char *vtkProperty::GetInterpolationAsString(void)
+inline const char* vtkProperty::GetInterpolationAsString(void)
 {
   if (this->Interpolation == VTK_FLAT)
   {
@@ -653,7 +640,7 @@ inline const char *vtkProperty::GetInterpolationAsString(void)
 /**
  * Return the method of shading as a descriptive character string.
  */
-inline const char *vtkProperty::GetRepresentationAsString(void)
+inline const char* vtkProperty::GetRepresentationAsString(void)
 {
   if (this->Representation == VTK_POINTS)
   {

@@ -21,7 +21,7 @@
  * points in the output structured grid. The specified dimensions of the output
  * (specified using SetWholeExtent()) must match the number of rows in the input
  * table.
-*/
+ */
 
 #ifndef vtkTableToStructuredGrid_h
 #define vtkTableToStructuredGrid_h
@@ -115,15 +115,14 @@ protected:
   /**
    * Convert input vtkTable to vtkStructuredGrid.
    */
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Request information -- pass whole extent to the pipeline.
    */
-  int RequestInformation(vtkInformation *vtkNotUsed(request),
-    vtkInformationVector **vtkNotUsed(inputVector),
-    vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector) override;
 
   char* XColumn;
   char* YColumn;
@@ -136,9 +135,6 @@ protected:
 private:
   vtkTableToStructuredGrid(const vtkTableToStructuredGrid&) = delete;
   void operator=(const vtkTableToStructuredGrid&) = delete;
-
 };
 
 #endif
-
-

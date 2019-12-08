@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-#include "vtkDataArray.h"
-#include "vtkFieldData.h"
 #include "vtkFieldDataSerializer.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
@@ -37,14 +40,14 @@ vtkFieldDataSerializer::~vtkFieldDataSerializer() = default;
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::SerializeMetaData(
-    vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
+  vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
     vtkGenericWarningMacro("Field data is nullptr!");
     return;
@@ -54,45 +57,41 @@ void vtkFieldDataSerializer::SerializeMetaData(
   bytestream << fieldData->GetNumberOfArrays();
 
   // STEP 1: Loop through each array and write the metadata
-  for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
+  for (int array = 0; array < fieldData->GetNumberOfArrays(); ++array)
   {
-    vtkDataArray *dataArray = fieldData->GetArray( array );
+    vtkDataArray* dataArray = fieldData->GetArray(array);
     assert("pre: data array should not be nullptr!" && (dataArray != nullptr));
 
-    int dataType  = dataArray->GetDataType();
-    int numComp   = dataArray->GetNumberOfComponents();
+    int dataType = dataArray->GetDataType();
+    int numComp = dataArray->GetNumberOfComponents();
     int numTuples = dataArray->GetNumberOfTuples();
 
     // serialize array information
     bytestream << dataType << numTuples << numComp;
-    bytestream << std::string( dataArray->GetName() );
+    bytestream << std::string(dataArray->GetName());
   } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldDataSerializer::DeserializeMetaData(
-    vtkMultiProcessStream& bytestream,
-    vtkStringArray *names,
-    vtkIntArray *datatypes,
-    vtkIntArray *dimensions)
+void vtkFieldDataSerializer::DeserializeMetaData(vtkMultiProcessStream& bytestream,
+  vtkStringArray* names, vtkIntArray* datatypes, vtkIntArray* dimensions)
 {
-  if( bytestream.Empty() )
+  if (bytestream.Empty())
   {
     vtkGenericWarningMacro("ByteStream is empty");
     return;
   }
 
-  if( (names == nullptr) || (datatypes == nullptr) || (dimensions == nullptr) )
+  if ((names == nullptr) || (datatypes == nullptr) || (dimensions == nullptr))
   {
-    vtkGenericWarningMacro(
-        "ERROR: caller must pre-allocation names/datatypes/dimensions!");
+    vtkGenericWarningMacro("ERROR: caller must pre-allocation names/datatypes/dimensions!");
     return;
   }
 
   // STEP 0: Extract the number of arrays
   int NumberOfArrays;
   bytestream >> NumberOfArrays;
-  if( NumberOfArrays == 0 )
+  if (NumberOfArrays == 0)
   {
     return;
   }
@@ -103,23 +102,22 @@ void vtkFieldDataSerializer::DeserializeMetaData(
   dimensions->SetNumberOfComponents(2);
   dimensions->SetNumberOfTuples(NumberOfArrays);
 
-  std::string *namesPtr = static_cast<std::string*>(names->GetVoidPointer(0));
-  int *datatypesPtr     = static_cast<int*>(datatypes->GetVoidPointer(0));
-  int *dimensionsPtr    = static_cast<int*>(dimensions->GetVoidPointer(0));
+  std::string* namesPtr = names->GetPointer(0);
+  int* datatypesPtr = datatypes->GetPointer(0);
+  int* dimensionsPtr = dimensions->GetPointer(0);
 
   // STEP 2: Extract metadata for each array in corresponding output arrays
-  for( int arrayIdx=0; arrayIdx < NumberOfArrays; ++arrayIdx )
+  for (int arrayIdx = 0; arrayIdx < NumberOfArrays; ++arrayIdx)
   {
-    bytestream >> datatypesPtr[ arrayIdx ] >> dimensionsPtr[arrayIdx*2] >>
-                  dimensionsPtr[arrayIdx*2+1] >> namesPtr[ arrayIdx ];
+    bytestream >> datatypesPtr[arrayIdx] >> dimensionsPtr[arrayIdx * 2] >>
+      dimensionsPtr[arrayIdx * 2 + 1] >> namesPtr[arrayIdx];
   } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldDataSerializer::Serialize(
-    vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
+void vtkFieldDataSerializer::Serialize(vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
     vtkGenericWarningMacro("Field data is nullptr!");
     return;
@@ -128,101 +126,95 @@ void vtkFieldDataSerializer::Serialize(
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
 
-  if( fieldData->GetNumberOfArrays() == 0 )
+  if (fieldData->GetNumberOfArrays() == 0)
   {
     return;
   }
 
   // STEP 1: Loop through each array and serialize its metadata
-  for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
+  for (int array = 0; array < fieldData->GetNumberOfArrays(); ++array)
   {
-    vtkDataArray *dataArray = fieldData->GetArray( array );
-    vtkFieldDataSerializer::SerializeDataArray( dataArray, bytestream );
+    vtkDataArray* dataArray = fieldData->GetArray(array);
+    vtkFieldDataSerializer::SerializeDataArray(dataArray, bytestream);
   } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::SerializeTuples(
-    vtkIdList *tupleIds, vtkFieldData *fieldData,
-    vtkMultiProcessStream& bytestream )
+  vtkIdList* tupleIds, vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
-   vtkGenericWarningMacro("Field data is nullptr!");
-   return;
+    vtkGenericWarningMacro("Field data is nullptr!");
+    return;
   }
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
 
-  if( fieldData->GetNumberOfArrays() == 0 )
+  if (fieldData->GetNumberOfArrays() == 0)
   {
     return;
   }
 
   // STEP 1: Loop through each array, extract the data on the selected tuples
   // and serialize it
-  for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
+  for (int array = 0; array < fieldData->GetNumberOfArrays(); ++array)
   {
-   vtkDataArray *dataArray = fieldData->GetArray( array );
+    vtkDataArray* dataArray = fieldData->GetArray(array);
 
-   // STEP 2: For each array extract only the selected tuples, i.e., a subset
-   vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSelectedTuples(tupleIds,dataArray);
-   assert("pre: subset array is nullptr!" && (subSet != nullptr) );
+    // STEP 2: For each array extract only the selected tuples, i.e., a subset
+    vtkDataArray* subSet = vtkFieldDataSerializer::ExtractSelectedTuples(tupleIds, dataArray);
+    assert("pre: subset array is nullptr!" && (subSet != nullptr));
 
-   // STEP 3: Serialize only a subset of the data
-   vtkFieldDataSerializer::SerializeDataArray( subSet, bytestream );
-   subSet->Delete();
+    // STEP 3: Serialize only a subset of the data
+    vtkFieldDataSerializer::SerializeDataArray(subSet, bytestream);
+    subSet->Delete();
   } // END for all arrays
-
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::SerializeSubExtent(
-    int subext[6], int gridExtent[6], vtkFieldData *fieldData,
-    vtkMultiProcessStream& bytestream)
+  int subext[6], int gridExtent[6], vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
-   vtkGenericWarningMacro("Field data is nullptr!");
-   return;
+    vtkGenericWarningMacro("Field data is nullptr!");
+    return;
   }
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
 
-  if( fieldData->GetNumberOfArrays() == 0 )
+  if (fieldData->GetNumberOfArrays() == 0)
   {
     return;
   }
 
   // STEP 1: Loop through each array, extract the data within the subext
   // and serialize it
-  for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
+  for (int array = 0; array < fieldData->GetNumberOfArrays(); ++array)
   {
-    vtkDataArray *dataArray = fieldData->GetArray( array );
+    vtkDataArray* dataArray = fieldData->GetArray(array);
 
     // STEP 2: Extract the data within the requested sub-extent
-    vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSubExtentData(
-        subext,gridExtent,dataArray);
-    assert("pre: subset array is nullptr!" && (subSet != nullptr) );
+    vtkDataArray* subSet =
+      vtkFieldDataSerializer::ExtractSubExtentData(subext, gridExtent, dataArray);
+    assert("pre: subset array is nullptr!" && (subSet != nullptr));
 
     // STEP 3: Serialize only a subset of the data
-    vtkFieldDataSerializer::SerializeDataArray( subSet, bytestream );
+    vtkFieldDataSerializer::SerializeDataArray(subSet, bytestream);
     subSet->Delete();
   } // END for all arrays
-
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::DeSerializeToSubExtent(
-      int subext[6], int gridExtent[6], vtkFieldData* fieldData,
-      vtkMultiProcessStream& bytestream)
+  int subext[6], int gridExtent[6], vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: sub-extent outside grid-extent" &&
-          vtkStructuredExtent::Smaller(subext,gridExtent));
+  assert("pre: sub-extent outside grid-extent" && vtkStructuredExtent::Smaller(subext, gridExtent));
 
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
     vtkGenericWarningMacro("Field data is nullptr!");
     return;
@@ -230,42 +222,38 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
 
   int numArrays = 0;
   bytestream >> numArrays;
-  assert("post: numArrays mismatch!" &&
-         (numArrays==fieldData->GetNumberOfArrays()) );
+  assert("post: numArrays mismatch!" && (numArrays == fieldData->GetNumberOfArrays()));
 
   int ijk[3];
-  for( int array=0; array < numArrays; ++array )
+  for (int array = 0; array < numArrays; ++array)
   {
     vtkDataArray* dataArray = nullptr;
-    vtkFieldDataSerializer::DeserializeDataArray(bytestream,dataArray);
-    assert("post: dataArray is nullptr!" && (dataArray != nullptr) );
-    assert("post: fieldData does not have array!" &&
-            fieldData->HasArray(dataArray->GetName()));
+    vtkFieldDataSerializer::DeserializeDataArray(bytestream, dataArray);
+    assert("post: dataArray is nullptr!" && (dataArray != nullptr));
+    assert("post: fieldData does not have array!" && fieldData->HasArray(dataArray->GetName()));
 
-    vtkDataArray* targetArray = fieldData->GetArray( dataArray->GetName() );
+    vtkDataArray* targetArray = fieldData->GetArray(dataArray->GetName());
     assert("post: ncomp mismatch!" &&
-    (dataArray->GetNumberOfComponents()==targetArray->GetNumberOfComponents()));
+      (dataArray->GetNumberOfComponents() == targetArray->GetNumberOfComponents()));
 
-    for(ijk[0]=subext[0]; ijk[0] <= subext[1]; ++ijk[0])
+    for (ijk[0] = subext[0]; ijk[0] <= subext[1]; ++ijk[0])
     {
-      for(ijk[1]=subext[2]; ijk[1] <= subext[3]; ++ijk[1])
+      for (ijk[1] = subext[2]; ijk[1] <= subext[3]; ++ijk[1])
       {
-        for(ijk[2]=subext[4]; ijk[2] <= subext[5]; ++ijk[2])
+        for (ijk[2] = subext[4]; ijk[2] <= subext[5]; ++ijk[2])
         {
-          vtkIdType sourceIdx =
-              vtkStructuredData::ComputePointIdForExtent(subext,ijk);
+          vtkIdType sourceIdx = vtkStructuredData::ComputePointIdForExtent(subext, ijk);
           assert("post: sourceIdx out-of-bounds!" && (sourceIdx >= 0) &&
-                  (sourceIdx < dataArray->GetNumberOfTuples()) );
+            (sourceIdx < dataArray->GetNumberOfTuples()));
 
-          vtkIdType targetIdx =
-              vtkStructuredData::ComputePointIdForExtent(gridExtent,ijk);
+          vtkIdType targetIdx = vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk);
           assert("post: targetIdx out-of-bounds!" && (targetIdx >= 0) &&
-                  (targetIdx < targetArray->GetNumberOfTuples()) );
+            (targetIdx < targetArray->GetNumberOfTuples()));
 
-          targetArray->SetTuple(targetIdx,sourceIdx,dataArray);
+          targetArray->SetTuple(targetIdx, sourceIdx, dataArray);
         } // END for all k
-      } // END for all j
-    } // END for all i
+      }   // END for all j
+    }     // END for all i
 
     dataArray->Delete();
   } // END for all arrays
@@ -273,9 +261,9 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
-    int subext[6], int gridExtent[6], vtkDataArray *inputDataArray )
+  int subext[6], int gridExtent[6], vtkDataArray* inputDataArray)
 {
-  if( inputDataArray == nullptr )
+  if (inputDataArray == nullptr)
   {
     vtkGenericWarningMacro("input data array is nullptr!");
     return nullptr;
@@ -285,125 +273,116 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
   int description = vtkStructuredData::GetDataDescriptionFromExtent(gridExtent);
 
   // STEP 1: Allocate subset array
-  vtkDataArray *subSetArray =
-      vtkDataArray::CreateDataArray( inputDataArray->GetDataType() );
-  subSetArray->SetName( inputDataArray->GetName() );
-  subSetArray->SetNumberOfComponents( inputDataArray->GetNumberOfComponents());
-  subSetArray->SetNumberOfTuples(
-      vtkStructuredData::GetNumberOfPoints(subext,description));
+  vtkDataArray* subSetArray = vtkDataArray::CreateDataArray(inputDataArray->GetDataType());
+  subSetArray->SetName(inputDataArray->GetName());
+  subSetArray->SetNumberOfComponents(inputDataArray->GetNumberOfComponents());
+  subSetArray->SetNumberOfTuples(vtkStructuredData::GetNumberOfPoints(subext, description));
 
   int ijk[3];
-  for( ijk[0]=subext[0]; ijk[0] <= subext[1]; ++ijk[0] )
+  for (ijk[0] = subext[0]; ijk[0] <= subext[1]; ++ijk[0])
   {
-    for( ijk[1]=subext[2]; ijk[1] <= subext[3]; ++ijk[1] )
+    for (ijk[1] = subext[2]; ijk[1] <= subext[3]; ++ijk[1])
     {
-      for( ijk[2]=subext[4]; ijk[2] <= subext[5]; ++ijk[2] )
+      for (ijk[2] = subext[4]; ijk[2] <= subext[5]; ++ijk[2])
       {
         // Compute the source index from the grid extent. Note, this could be
         // a cell index if the incoming gridExtent and subext are cell extents.
         vtkIdType sourceIdx =
-            vtkStructuredData::ComputePointIdForExtent(
-                gridExtent,ijk,description);
-        assert("pre: source index is out-of-bounds" &&
-               (sourceIdx >= 0) &&
-               (sourceIdx < inputDataArray->GetNumberOfTuples()));
+          vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk, description);
+        assert("pre: source index is out-of-bounds" && (sourceIdx >= 0) &&
+          (sourceIdx < inputDataArray->GetNumberOfTuples()));
 
         // Compute the target index in the subset array. Likewise, this could be
         // either a cell index or a node index depending on what gridExtent or
         // subext represent.
-        vtkIdType targetIdx =
-            vtkStructuredData::ComputePointIdForExtent(
-                subext,ijk,description);
-        assert("pre: target index is out-of-bounds" &&
-               (targetIdx >= 0) &&
-               (targetIdx < subSetArray->GetNumberOfTuples()));
+        vtkIdType targetIdx = vtkStructuredData::ComputePointIdForExtent(subext, ijk, description);
+        assert("pre: target index is out-of-bounds" && (targetIdx >= 0) &&
+          (targetIdx < subSetArray->GetNumberOfTuples()));
 
-        subSetArray->SetTuple( targetIdx, sourceIdx, inputDataArray );
+        subSetArray->SetTuple(targetIdx, sourceIdx, inputDataArray);
       } // END for all k
-    } // END for all j
-  } // END for all i
+    }   // END for all j
+  }     // END for all i
 
-  return(subSetArray);
+  return (subSetArray);
 }
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
-    vtkIdList *tupleIds, vtkDataArray *inputDataArray )
+  vtkIdList* tupleIds, vtkDataArray* inputDataArray)
 {
-  vtkDataArray *subSetArray =
-      vtkDataArray::CreateDataArray( inputDataArray->GetDataType() );
-  subSetArray->SetName( inputDataArray->GetName() );
-  subSetArray->SetNumberOfComponents( inputDataArray->GetNumberOfComponents());
+  vtkDataArray* subSetArray = vtkDataArray::CreateDataArray(inputDataArray->GetDataType());
+  subSetArray->SetName(inputDataArray->GetName());
+  subSetArray->SetNumberOfComponents(inputDataArray->GetNumberOfComponents());
   subSetArray->SetNumberOfTuples(tupleIds->GetNumberOfIds());
 
   vtkIdType idx = 0;
-  for( ; idx < tupleIds->GetNumberOfIds(); ++idx )
+  for (; idx < tupleIds->GetNumberOfIds(); ++idx)
   {
     vtkIdType tupleIdx = tupleIds->GetId(idx);
-    assert("pre: tuple ID is out-of bounds" &&
-           (tupleIdx >= 0) && (tupleIdx < inputDataArray->GetNumberOfTuples()));
+    assert("pre: tuple ID is out-of bounds" && (tupleIdx >= 0) &&
+      (tupleIdx < inputDataArray->GetNumberOfTuples()));
 
-    subSetArray->SetTuple( idx, tupleIdx, inputDataArray );
+    subSetArray->SetTuple(idx, tupleIdx, inputDataArray);
   } // END for all tuples to extract
-  return( subSetArray );
+  return (subSetArray);
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::SerializeDataArray(
-    vtkDataArray *dataArray, vtkMultiProcessStream& bytestream)
+  vtkDataArray* dataArray, vtkMultiProcessStream& bytestream)
 {
-  if( dataArray == nullptr )
+  if (dataArray == nullptr)
   {
     vtkGenericWarningMacro("data array is nullptr!");
     return;
   }
 
   // STEP 0: Serialize array information
-  int dataType  = dataArray->GetDataType();
-  int numComp   = dataArray->GetNumberOfComponents();
+  int dataType = dataArray->GetDataType();
+  int numComp = dataArray->GetNumberOfComponents();
   int numTuples = dataArray->GetNumberOfTuples();
 
   // serialize array information
   bytestream << dataType << numTuples << numComp;
-  bytestream << std::string( dataArray->GetName() );
+  bytestream << std::string(dataArray->GetName());
 
   // STEP 1: Push the raw data into the bytestream
   // TODO: Add more cases for more datatypes here (?)
-  unsigned int size = numComp*numTuples;
-  switch( dataArray->GetDataType() )
+  unsigned int size = numComp * numTuples;
+  if (dataArray->IsA("vtkFloatArray"))
   {
-    case VTK_FLOAT:
-       bytestream.Push(static_cast<float*>(dataArray->GetVoidPointer(0)),size);
-       break;
-     case VTK_DOUBLE:
-       bytestream.Push(static_cast<double*>(dataArray->GetVoidPointer(0)),size);
-       break;
-     case VTK_INT:
-       bytestream.Push(static_cast<int*>(dataArray->GetVoidPointer(0)),size);
-       break;
-     case VTK_ID_TYPE:
-       bytestream.Push(
-           static_cast<vtkIdType*>(dataArray->GetVoidPointer(0)),size);
-       break;
-     default:
-       assert("ERROR: cannot serialize data of given type" && false);
-       cerr << "Cannot serialize data of type="
-            << dataArray->GetDataType() << endl;
-
+    bytestream.Push(static_cast<vtkFloatArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkDoubleArray"))
+  {
+    bytestream.Push(static_cast<vtkDoubleArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkIntArray"))
+  {
+    bytestream.Push(static_cast<vtkIntArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkIdTypeArray"))
+  {
+    bytestream.Push(static_cast<vtkIdTypeArray*>(dataArray)->GetPointer(0), size);
+  }
+  else
+  {
+    assert("ERROR: cannot serialize data of given type" && false);
+    cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldDataSerializer::Deserialize(
-    vtkMultiProcessStream& bytestream, vtkFieldData *fieldData)
+void vtkFieldDataSerializer::Deserialize(vtkMultiProcessStream& bytestream, vtkFieldData* fieldData)
 {
-  if( fieldData == nullptr )
+  if (fieldData == nullptr)
   {
     vtkGenericWarningMacro("FieldData is nullptr!");
     return;
   }
 
-  if( bytestream.Empty() )
+  if (bytestream.Empty())
   {
     vtkGenericWarningMacro("Bytestream is empty!");
     return;
@@ -413,29 +392,27 @@ void vtkFieldDataSerializer::Deserialize(
   int numberOfArrays = 0;
   bytestream >> numberOfArrays;
 
-  if( numberOfArrays == 0 )
+  if (numberOfArrays == 0)
   {
     return;
   }
 
   // STEP 1: Loop and deserialize each array
-  for( int array=0; array < numberOfArrays; ++array )
+  for (int array = 0; array < numberOfArrays; ++array)
   {
-    vtkDataArray *dataArray = nullptr;
-    vtkFieldDataSerializer::DeserializeDataArray( bytestream,dataArray );
-    assert("post: deserialized data array should not be nullptr!" &&
-            (dataArray != nullptr));
-    fieldData->AddArray( dataArray );
+    vtkDataArray* dataArray = nullptr;
+    vtkFieldDataSerializer::DeserializeDataArray(bytestream, dataArray);
+    assert("post: deserialized data array should not be nullptr!" && (dataArray != nullptr));
+    fieldData->AddArray(dataArray);
     dataArray->Delete();
   } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::DeserializeDataArray(
-    vtkMultiProcessStream& bytestream,
-    vtkDataArray *&dataArray)
+  vtkMultiProcessStream& bytestream, vtkDataArray*& dataArray)
 {
-  if( bytestream.Empty() )
+  if (bytestream.Empty())
   {
     vtkGenericWarningMacro("Bytestream is empty!");
     return;
@@ -446,48 +423,47 @@ void vtkFieldDataSerializer::DeserializeDataArray(
   std::string name;
 
   bytestream >> dataType >> numTuples >> numComp >> name;
-  assert("pre: numComp >= 1" && (numComp >= 1) );
+  assert("pre: numComp >= 1" && (numComp >= 1));
 
   // STEP 1: Construct vtkDataArray object
-  dataArray = vtkDataArray::CreateDataArray( dataType );
-  dataArray->SetNumberOfComponents( numComp );
-  dataArray->SetNumberOfTuples( numTuples );
-  dataArray->SetName( name.c_str() );
+  dataArray = vtkDataArray::CreateDataArray(dataType);
+  dataArray->SetNumberOfComponents(numComp);
+  dataArray->SetNumberOfTuples(numTuples);
+  dataArray->SetName(name.c_str());
 
   // STEP 2: Extract raw data to vtkDataArray
   // TODO: Add more cases for more datatypes here (?)
-  unsigned int size = numTuples*numComp;
+  unsigned int size = numTuples * numComp;
   void* rawPtr = dataArray->GetVoidPointer(0);
-  assert("pre: raw pointer is nullptr!" && (rawPtr != nullptr) );
-  switch( dataType )
+  assert("pre: raw pointer is nullptr!" && (rawPtr != nullptr));
+  switch (dataType)
   {
     case VTK_FLOAT:
     {
       float* data = static_cast<float*>(rawPtr);
-      bytestream.Pop(data,size);
+      bytestream.Pop(data, size);
     }
-      break;
+    break;
     case VTK_DOUBLE:
     {
-      double *data = static_cast<double*>(rawPtr);
-      bytestream.Pop(data,size);
+      double* data = static_cast<double*>(rawPtr);
+      bytestream.Pop(data, size);
     }
-      break;
+    break;
     case VTK_INT:
     {
-      int *data = static_cast<int*>(rawPtr);
-      bytestream.Pop(data,size);
+      int* data = static_cast<int*>(rawPtr);
+      bytestream.Pop(data, size);
     }
-      break;
+    break;
     case VTK_ID_TYPE:
     {
       vtkIdType* data = static_cast<vtkIdType*>(rawPtr);
-      bytestream.Pop(data,size);
+      bytestream.Pop(data, size);
     }
-      break;
+    break;
     default:
       assert("ERROR: cannot serialize data of given type" && false);
-      cerr << "Cannot serialize data of type="
-           << dataArray->GetDataType() << endl;
+      cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
   }
 }

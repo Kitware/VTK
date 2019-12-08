@@ -21,7 +21,7 @@
  * the StartElement method.  Each element end tag is sent to the
  * EndElement method.  Subclasses should replace these methods to actually
  * use the tags.
-*/
+ */
 
 #ifndef vtkXMLParser_h
 #define vtkXMLParser_h
@@ -39,7 +39,7 @@ extern "C"
 class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkXMLParser,vtkObject);
+  vtkTypeMacro(vtkXMLParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkXMLParser* New();
@@ -173,15 +173,13 @@ protected:
   virtual void CharacterDataHandler(const char* data, int length);
 
   // Called by begin handlers to report any stray attribute values.
-  virtual void ReportStrayAttribute(const char* element, const char* attr,
-                                    const char* value);
+  virtual void ReportStrayAttribute(const char* element, const char* attr, const char* value);
 
   // Called by begin handlers to report any missing attribute values.
   virtual void ReportMissingAttribute(const char* element, const char* attr);
 
   // Called by begin handlers to report bad attribute values.
-  virtual void ReportBadAttribute(const char* element, const char* attr,
-                                  const char* value);
+  virtual void ReportBadAttribute(const char* element, const char* attr, const char* value);
 
   // Called by StartElement to report unknown element type.
   virtual void ReportUnknownElement(const char* element);
@@ -214,11 +212,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline
-void vtkXMLParserCharacterDataHandler(
-        void* parser,
-        const char* data,
-        int length)
+inline void vtkXMLParserCharacterDataHandler(void* parser, const char* data, int length)
 {
   // Character data handler that is registered with the XML_Parser.
   // This just casts the user data to a vtkXMLParser and calls

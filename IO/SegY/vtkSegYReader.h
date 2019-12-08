@@ -120,20 +120,17 @@ public:
   //@}
 
 protected:
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkSegYReaderInternal* Reader;
-  char *FileName;
+  char* FileName;
   bool Is3D;
   double DataOrigin[3];
   double DataSpacing[3][3];
@@ -148,7 +145,6 @@ protected:
   int YCoordByte;
 
   int VerticalCRS;
-
 
 private:
   vtkSegYReader(const vtkSegYReader&) = delete;

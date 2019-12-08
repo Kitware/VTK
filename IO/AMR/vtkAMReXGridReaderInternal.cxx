@@ -36,12 +36,10 @@ std::string ReadFile(const std::string& filename)
     stream.seekg(0, std::ios::end);
     int flength = static_cast<int>(stream.tellg());
     stream.seekg(0, std::ios::beg);
-    char* data = new char[flength + 1 + (flength + 1) % 8]; // padded for better alignment.
-    stream.read(data, flength);
+    std::vector<char> data(flength + 1 + (flength + 1) % 8); // padded for better alignment.
+    stream.read(data.data(), flength);
     data[flength] = '\0';
-    contents = data;
-    delete[] data;
-    data = nullptr;
+    contents = data.data();
   }
   return contents;
 }
@@ -863,9 +861,9 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       this->ReadVersion(is);
       int dimension = this->Header->dim;
       RealDescriptor* ird = this->ReadRealDescriptor(is);
-      int* boxArray = new int[3 * dimension];
-      int* boxArrayDim = new int[dimension];
-      int numberOfPoints = ReadBoxArray(is, boxArray, boxArrayDim);
+      std::vector<int> boxArray(3 * dimension);
+      std::vector<int> boxArrayDim(dimension);
+      int numberOfPoints = ReadBoxArray(is, boxArray.data(), boxArrayDim.data());
       // int numberOfAttributes =
       this->ReadNumberOfAttributes(is);
 
@@ -890,14 +888,12 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
         dataArray->SetName(attribute);
         dataArray->SetNumberOfTuples(numberOfPoints);
         float* arrayPtr = static_cast<float*>(dataArray->GetPointer(0));
-        char* buffer = new char[numberOfPoints * ird->numBytes()];
-        this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffer);
+        std::vector<char> buffer(numberOfPoints * ird->numBytes());
+        this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffer.data());
         RealDescriptor* ord =
           new RealDescriptor(ieee_float, little_float_order, 4); // we desire ieee little endian
-        this->Convert(arrayPtr, buffer, numberOfPoints, *ord, *ird);
+        this->Convert(arrayPtr, buffer.data(), numberOfPoints, *ord, *ird);
         pDataSet->GetCellData()->AddArray(dataArray);
-        delete[] buffer;
-        arrayPtr = nullptr;
         delete ird;
         delete ord;
       }
@@ -907,24 +903,23 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
         dataArray->SetName(attribute);
         dataArray->SetNumberOfTuples(numberOfPoints);
         double* arrayPtr = static_cast<double*>(dataArray->GetPointer(0));
-        char* buffer = new char[numberOfPoints * ird->numBytes()];
-        this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffer);
+        std::vector<char> buffer(numberOfPoints * ird->numBytes());
+        this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffer.data());
         RealDescriptor* ord =
           new RealDescriptor(ieee_double, little_double_order, 8); // we desire ieee little endian
-        this->Convert(arrayPtr, buffer, numberOfPoints, *ord, *ird);
+        this->Convert(arrayPtr, buffer.data(), numberOfPoints, *ord, *ird);
         pDataSet->GetCellData()->AddArray(dataArray);
-        delete[] buffer;
         arrayPtr = nullptr;
         delete ird;
         delete ord;
       }
       if (debugReader)
+      {
         std::cout << is.tellg() << " "
                   << this->LevelHeader[theLevel]->levelFileOffset[blockIdxWithinLevel] << " "
                   << numberOfPoints << std::endl;
+      }
       fb.close();
-      delete[] boxArray;
-      delete[] boxArrayDim;
     }
   }
 }
@@ -1072,7 +1067,7 @@ int vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, in
     is >> c; // read '('
     for (int ee = 0; ee < this->Header->dim; ++ee)
     {
-      is >> boxArray[3 * dd + ee];
+      is >> boxArray[this->Header->dim * dd + ee];
       if (ee < (this->Header->dim - 1))
       {
         is >> c; // read ','
@@ -1091,7 +1086,8 @@ int vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, in
   int numberOfPoints = 1;
   for (int i = 0; i < this->Header->dim; ++i)
   {
-    boxArrayDim[i] = ((boxArray[3 * 1 + i] - boxArray[3 * 0 + i]) + 1);
+    boxArrayDim[i] =
+      ((boxArray[this->Header->dim * 1 + i] - boxArray[this->Header->dim * 0 + i]) + 1);
     numberOfPoints *= boxArrayDim[i];
   }
   if (debugReader)
@@ -1105,7 +1101,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[0 * 3 + space];
+    std::cout << boxArray[0 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
@@ -1113,7 +1109,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[1 * 3 + space];
+    std::cout << boxArray[1 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
@@ -1121,7 +1117,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[2 * 3 + space];
+    std::cout << boxArray[2 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
@@ -1167,8 +1163,8 @@ void vtkAMReXGridReaderInternal::Convert(
 void vtkAMReXGridReaderInternal::PermuteOrder(
   void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE)
 {
-  char const * pin = static_cast<char const *>(in);
-  char* pout = static_cast<char *>(out);
+  char const* pin = static_cast<char const*>(in);
+  char* pout = static_cast<char*>(out);
 
   pin--;
   pout--;

@@ -19,6 +19,12 @@
 #cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkhdf5
 
 #if VTK_MODULE_USE_EXTERNAL_vtkhdf5
+#cmakedefine01 vtkhdf5_is_parallel
+#if vtkhdf5_is_parallel
+#include <vtk_mpi.h>
+#endif
+#undef vtkhdf5_is_parallel
+
 # include <hdf5.h>
 # include <hdf5_hl.h>
 #else

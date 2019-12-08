@@ -36,32 +36,31 @@
  *
  * @sa
  * vtkTerrainDataPointPlacer vtkProjectedTerrainPath
-*/
+ */
 
 #ifndef vtkTerrainContourLineInterpolator_h
 #define vtkTerrainContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkImageData;
 class vtkProjectedTerrainPath;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkTerrainContourLineInterpolator
-                       : public vtkContourLineInterpolator
+  : public vtkContourLineInterpolator
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkTerrainContourLineInterpolator *New();
+  static vtkTerrainContourLineInterpolator* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkTerrainContourLineInterpolator,
-                              vtkContourLineInterpolator);
+  vtkTypeMacro(vtkTerrainContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -72,25 +71,22 @@ public:
    * a non-occluded interpolation.
    * Used internally by vtkContourRepresentation.
    */
-  int InterpolateLine( vtkRenderer *ren,
-                               vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) override;
+  int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
   /**
    * The interpolator is given a chance to update the node.
    * Used internally by vtkContourRepresentation
    * Returns 0 if the node (world position) is unchanged.
    */
-  int UpdateNode( vtkRenderer *,
-                          vtkContourRepresentation *,
-                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) override;
+  int UpdateNode(vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node),
+    int vtkNotUsed(idx)) override;
 
   //@{
   /**
    * Set the height field data. The height field data is a 2D image. The
    * scalars in the image represent the height field. This must be set.
    */
-  virtual void SetImageData(vtkImageData *);
+  virtual void SetImageData(vtkImageData*);
   vtkGetObjectMacro(ImageData, vtkImageData);
   //@}
 
@@ -108,8 +104,8 @@ protected:
   vtkTerrainContourLineInterpolator();
   ~vtkTerrainContourLineInterpolator() override;
 
-  vtkImageData              *ImageData; // height field data
-  vtkProjectedTerrainPath   *Projector;
+  vtkImageData* ImageData; // height field data
+  vtkProjectedTerrainPath* Projector;
 
 private:
   vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&) = delete;

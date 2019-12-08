@@ -99,8 +99,8 @@ public:
    * particle data is a pointer to the pointData associated to all particles.
    */
   vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
-    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData,
-    int weightsSize, int numberOfTrackedUserData);
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize,
+    int numberOfTrackedUserData);
 
   /**
    * Constructor wrapper to create a partially integrated particle in the domain.
@@ -281,7 +281,7 @@ public:
    * Be cautious if the pointer is shared as particle integration can be multithreaded.
    */
   inline void* GetTemporaryUserData() { return this->TemporaryUserData; }
-  inline void SetTemporaryUserData(void * tempUserData) { this->TemporaryUserData = tempUserData; }
+  inline void SetTemporaryUserData(void* tempUserData) { this->TemporaryUserData = tempUserData; }
   //@}
 
   /**

@@ -20,8 +20,7 @@
 
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
-struct vtkFilteringInformationKeyManagerKeysType:
-  public std::vector<vtkInformationKey*>
+struct vtkFilteringInformationKeyManagerKeysType : public std::vector<vtkInformationKey*>
 {
   typedef std::vector<vtkInformationKey*> Superclass;
   typedef Superclass::iterator iterator;
@@ -36,7 +35,7 @@ static vtkFilteringInformationKeyManagerKeysType* vtkFilteringInformationKeyMana
 //----------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
 {
-  if(++vtkFilteringInformationKeyManagerCount == 1)
+  if (++vtkFilteringInformationKeyManagerCount == 1)
   {
     vtkFilteringInformationKeyManager::ClassInitialize();
   }
@@ -45,7 +44,7 @@ vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
 //----------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::~vtkFilteringInformationKeyManager()
 {
-  if(--vtkFilteringInformationKeyManagerCount == 0)
+  if (--vtkFilteringInformationKeyManagerCount == 0)
   {
     vtkFilteringInformationKeyManager::ClassFinalize();
   }
@@ -68,19 +67,18 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
   // initialization to occur in other translation units immediately,
   // which then may try to access the vector before it is set here.
   void* keys = malloc(sizeof(vtkFilteringInformationKeyManagerKeysType));
-  vtkFilteringInformationKeyManagerKeys =
-    new (keys) vtkFilteringInformationKeyManagerKeysType;
+  vtkFilteringInformationKeyManagerKeys = new (keys) vtkFilteringInformationKeyManagerKeysType;
 }
 
 //----------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassFinalize()
 {
-  if(vtkFilteringInformationKeyManagerKeys)
+  if (vtkFilteringInformationKeyManagerKeys)
   {
     // Delete information keys.
-    for(vtkFilteringInformationKeyManagerKeysType::iterator i =
-          vtkFilteringInformationKeyManagerKeys->begin();
-        i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
+    for (vtkFilteringInformationKeyManagerKeysType::iterator i =
+           vtkFilteringInformationKeyManagerKeys->begin();
+         i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
     {
       vtkInformationKey* key = *i;
       delete key;

@@ -2,9 +2,9 @@
 
 #import "CustomLayer.h"
 
-#import "vtkRenderer.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
+#import "vtkRenderer.h"
 
 @implementation CustomView
 
@@ -23,7 +23,7 @@
 
 // ----------------------------------------------------------------------------
 // Designated initializer
-- (nullable instancetype)initWithCoder:(NSCoder *)coder
+- (nullable instancetype)initWithCoder:(NSCoder*)coder
 {
   self = [super initWithCoder:coder];
   if (self)
@@ -123,7 +123,8 @@
   [layer setOpaque:YES];
   [layer setCustomView:self];
 
-  // If the view has been connected to a window use the window's backing scale factor as its content scale.
+  // If the view has been connected to a window use the window's backing scale factor as its content
+  // scale.
   NSWindow* window = [self window];
   if (window)
   {
@@ -148,7 +149,8 @@
   vtkCocoaRenderWindow* renderWindow = [self renderWindow];
   if (renderWindow)
   {
-    // DPI has been hardcoded to 72 but in order to cater for text rendering discrepancies with vtkTextActors for instance we must adjust the scaling factor per NSWindow.
+    // DPI has been hardcoded to 72 but in order to cater for text rendering discrepancies with
+    // vtkTextActors for instance we must adjust the scaling factor per NSWindow.
     renderWindow->SetDPI((int)lround(72.0 * backingScaleFactor));
   }
 }
@@ -163,7 +165,8 @@
     CGFloat backingScaleFactor = [inNewWindow backingScaleFactor];
     assert(backingScaleFactor >= 1.0);
 
-    // If the layer exists set its content scale to the window's backing scale factor otherwise it will eventually get set when the layer is created (see 'initializeLayerSupport').
+    // If the layer exists set its content scale to the window's backing scale factor otherwise it
+    // will eventually get set when the layer is created (see 'initializeLayerSupport').
     [[self layer] setContentsScale:backingScaleFactor];
 
     // Update the rendering DPI per window.
@@ -182,7 +185,9 @@
     CGFloat backingScaleFactor = [[self window] backingScaleFactor];
     assert(backingScaleFactor >= 1.0);
 
-    // If the layer exists set its content scale to the window's backing scale factor otherwise when it's ready and the backing property changes (i.e moving between screens that differ in resolution) it will be set.
+    // If the layer exists set its content scale to the window's backing scale factor otherwise when
+    // it's ready and the backing property changes (i.e moving between screens that differ in
+    // resolution) it will be set.
     [[self layer] setContentsScale:backingScaleFactor];
 
     // Update the rendering DPI per window.

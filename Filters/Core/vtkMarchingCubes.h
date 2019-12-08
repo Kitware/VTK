@@ -42,7 +42,7 @@
  * vtkFlyingEdges3D vtkFlyingEdges2D vtkSynchronizedTemplates3D
  * vtkSynchronizedTemplates2D vtkContourFilter vtkSliceCubes
  * vtkMarchingSquares vtkDividingCubes vtkDiscreteMarchingCubes
-*/
+ */
 
 #ifndef vtkMarchingCubes_h
 #define vtkMarchingCubes_h
@@ -57,15 +57,15 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSCORE_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkMarchingCubes *New();
-  vtkTypeMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
+  static vtkMarchingCubes* New();
+  vtkTypeMacro(vtkMarchingCubes, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Methods to set contour values
   void SetValue(int i, double value);
   double GetValue(int i);
-  double *GetValues();
-  void GetValues(double *contourValues);
+  double* GetValues();
+  void GetValues(double* contourValues);
   void SetNumberOfContours(int number);
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
@@ -81,9 +81,9 @@ public:
    * processed by filters that modify topology or geometry, it may be
    * wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,vtkTypeBool);
-  vtkGetMacro(ComputeNormals,vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
   //@{
@@ -95,18 +95,18 @@ public:
    * will be processed by filters that modify topology or geometry, it
    * may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeGradients,vtkTypeBool);
-  vtkGetMacro(ComputeGradients,vtkTypeBool);
-  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
+  vtkSetMacro(ComputeGradients, vtkTypeBool);
+  vtkGetMacro(ComputeGradients, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,vtkTypeBool);
-  vtkGetMacro(ComputeScalars,vtkTypeBool);
-  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -114,8 +114,8 @@ public:
    * override the default locator.  Useful for changing the number of
    * bins for performance or specifying a more aggressive locator.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -128,14 +128,15 @@ protected:
   vtkMarchingCubes();
   ~vtkMarchingCubes() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkContourValues *ContourValues;
+  vtkContourValues* ContourValues;
   vtkTypeBool ComputeNormals;
   vtkTypeBool ComputeGradients;
   vtkTypeBool ComputeScalars;
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
+
 private:
   vtkMarchingCubes(const vtkMarchingCubes&) = delete;
   void operator=(const vtkMarchingCubes&) = delete;
@@ -146,28 +147,36 @@ private:
  * between 0<=i<NumberOfContours.
  */
 inline void vtkMarchingCubes::SetValue(int i, double value)
-{this->ContourValues->SetValue(i,value);}
+{
+  this->ContourValues->SetValue(i, value);
+}
 
 /**
  * Get the ith contour value.
  */
 inline double vtkMarchingCubes::GetValue(int i)
-{return this->ContourValues->GetValue(i);}
+{
+  return this->ContourValues->GetValue(i);
+}
 
 /**
  * Get a pointer to an array of contour values. There will be
  * GetNumberOfContours() values in the list.
  */
-inline double *vtkMarchingCubes::GetValues()
-{return this->ContourValues->GetValues();}
+inline double* vtkMarchingCubes::GetValues()
+{
+  return this->ContourValues->GetValues();
+}
 
 /**
  * Fill a supplied list with contour values. There will be
  * GetNumberOfContours() values in the list. Make sure you allocate
  * enough memory to hold the list.
  */
-inline void vtkMarchingCubes::GetValues(double *contourValues)
-{this->ContourValues->GetValues(contourValues);}
+inline void vtkMarchingCubes::GetValues(double* contourValues)
+{
+  this->ContourValues->GetValues(contourValues);
+}
 
 /**
  * Set the number of contours to place into the list. You only really
@@ -175,27 +184,34 @@ inline void vtkMarchingCubes::GetValues(double *contourValues)
  * will automatically increase list size as needed.
  */
 inline void vtkMarchingCubes::SetNumberOfContours(int number)
-{this->ContourValues->SetNumberOfContours(number);}
+{
+  this->ContourValues->SetNumberOfContours(number);
+}
 
 /**
  * Get the number of contours in the list of contour values.
  */
 inline vtkIdType vtkMarchingCubes::GetNumberOfContours()
-{return this->ContourValues->GetNumberOfContours();}
+{
+  return this->ContourValues->GetNumberOfContours();
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
 inline void vtkMarchingCubes::GenerateValues(int numContours, double range[2])
-{this->ContourValues->GenerateValues(numContours, range);}
+{
+  this->ContourValues->GenerateValues(numContours, range);
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
-inline void vtkMarchingCubes::GenerateValues(int numContours, double
-                                             rangeStart, double rangeEnd)
-{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
+inline void vtkMarchingCubes::GenerateValues(int numContours, double rangeStart, double rangeEnd)
+{
+  this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+}
 
 #endif

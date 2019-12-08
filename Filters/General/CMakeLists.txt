@@ -1,5 +1,6 @@
 set(classes
   vtkAnnotationLink
+  vtkAppendLocationAttributes
   vtkAppendPoints
   vtkApproximatingSubdivisionFilter
   vtkAreaContourSpectrumFilter
@@ -28,6 +29,7 @@ set(classes
   vtkDataSetGradient
   vtkDataSetGradientPrecompute
   vtkDataSetTriangleFilter
+  vtkDateToNumeric
   vtkDeformPointSet
   vtkDensifyPolyData
   vtkDicer

@@ -22,7 +22,7 @@
  * polygonal representation.
  * @sa
  * vtkLinearExtrusionFilter
-*/
+ */
 
 #ifndef vtkDiskSource_h
 #define vtkDiskSource_h
@@ -33,40 +33,40 @@
 class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkDiskSource *New();
-  vtkTypeMacro(vtkDiskSource,vtkPolyDataAlgorithm);
+  static vtkDiskSource* New();
+  vtkTypeMacro(vtkDiskSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Specify inner radius of hole in disc.
    */
-  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
-  vtkGetMacro(InnerRadius,double);
+  vtkSetClampMacro(InnerRadius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(InnerRadius, double);
   //@}
 
   //@{
   /**
    * Specify outer radius of disc.
    */
-  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
-  vtkGetMacro(OuterRadius,double);
+  vtkSetClampMacro(OuterRadius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(OuterRadius, double);
   //@}
 
   //@{
   /**
    * Set the number of points in radius direction.
    */
-  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX)
-  vtkGetMacro(RadialResolution,int);
+  vtkSetClampMacro(RadialResolution, int, 1, VTK_INT_MAX);
+  vtkGetMacro(RadialResolution, int);
   //@}
 
   //@{
   /**
    * Set the number of points in circumferential direction.
    */
-  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX)
-  vtkGetMacro(CircumferentialResolution,int);
+  vtkSetClampMacro(CircumferentialResolution, int, 3, VTK_INT_MAX);
+  vtkGetMacro(CircumferentialResolution, int);
   //@}
 
   //@{
@@ -75,15 +75,15 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkDiskSource();
   ~vtkDiskSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double InnerRadius;
   double OuterRadius;
   int RadialResolution;

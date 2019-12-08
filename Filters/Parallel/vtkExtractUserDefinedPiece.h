@@ -31,52 +31,55 @@
  *
  * @sa
  * vtkExtractUnstructuredGridPiece
-*/
+ */
 
 #ifndef vtkExtractUserDefinedPiece_h
 #define vtkExtractUserDefinedPiece_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkExtractUnstructuredGridPiece.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class VTKFILTERSPARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
 {
 public:
   vtkTypeMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
-  static vtkExtractUserDefinedPiece *New();
+  static vtkExtractUserDefinedPiece* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid *grid, void *constantData);
+  typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid* grid, void* constantData);
 
   // Set the function used to identify the piece.  The function should
   // return 1 if the cell is in the piece, and 0 otherwise.
-  void SetPieceFunction(UserDefFunc func) {this->InPiece = func; this->Modified();}
+  void SetPieceFunction(UserDefFunc func)
+  {
+    this->InPiece = func;
+    this->Modified();
+  }
 
   // Set constant data to be used by the piece identifying function.
-  void SetConstantData(void *data, int len);
+  void SetConstantData(void* data, int len);
 
   // Get constant data to be used by the piece identifying function.
   // Return the length of the data buffer.
-  int GetConstantData(void **data);
+  int GetConstantData(void** data);
 
   // The function should return 1 if the cell
   // is in the piece, and 0 otherwise.
 
 protected:
-
   vtkExtractUserDefinedPiece();
   ~vtkExtractUserDefinedPiece() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ComputeCellTagsWithFunction(vtkIntArray *tags, vtkIdList *pointOwnership,
-                                   vtkUnstructuredGrid *input);
+  void ComputeCellTagsWithFunction(
+    vtkIntArray* tags, vtkIdList* pointOwnership, vtkUnstructuredGrid* input);
 
 private:
   vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) = delete;
   void operator=(const vtkExtractUserDefinedPiece&) = delete;
 
-  void *ConstantData;
+  void* ConstantData;
   int ConstantDataLen;
 
   UserDefFunc InPiece;

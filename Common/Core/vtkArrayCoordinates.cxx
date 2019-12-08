@@ -23,21 +23,21 @@
 
 vtkArrayCoordinates::vtkArrayCoordinates() = default;
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i) :
-  Storage(1)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i)
+  : Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j) :
-  Storage(2)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j)
+  : Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k) :
-  Storage(3)
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k)
+  : Storage(3)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
@@ -86,13 +86,12 @@ bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
-  for(vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
+  for (vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
   {
-    if(i)
+    if (i)
       stream << ",";
     stream << rhs[i];
   }
 
   return stream;
 }
-

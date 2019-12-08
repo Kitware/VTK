@@ -24,7 +24,7 @@
  * for that group. If the number of sub-blocks is larger than the
  * number of processors, each processor will possibly have more than
  * 1 sub-block.
-*/
+ */
 
 #ifndef vtkXMLCompositeDataReader_h
 #define vtkXMLCompositeDataReader_h
@@ -41,7 +41,7 @@ struct vtkXMLCompositeDataReaderInternals;
 class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {
 public:
-  vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
+  vtkTypeMacro(vtkXMLCompositeDataReader, vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum
@@ -62,8 +62,8 @@ public:
    * @a i * @a N + @a X.
    * @{
    */
-  vtkSetClampMacro(PieceDistribution, int, Block, Interleave)
-  vtkGetMacro(PieceDistribution, int)
+  vtkSetClampMacro(PieceDistribution, int, Block, Interleave);
+  vtkGetMacro(PieceDistribution, int);
   /**@}*/
 
   //@{
@@ -99,30 +99,24 @@ protected:
   // specified as relative paths.
   std::string GetFilePath();
 
-  std::string GetFileNameFromXML(vtkXMLDataElement *xmlElem,
-                                 const std::string &filePath);
+  std::string GetFileNameFromXML(vtkXMLDataElement* xmlElem, const std::string& filePath);
 
   vtkXMLReader* GetReaderOfType(const char* type);
-  vtkXMLReader* GetReaderForFile(const std::string &filename);
+  vtkXMLReader* GetReaderForFile(const std::string& filename);
 
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void SyncDataArraySelections(vtkXMLReader *accum,
-                               vtkXMLDataElement *xmlElem,
-                               const std::string &filePath);
+  void SyncDataArraySelections(
+    vtkXMLReader* accum, vtkXMLDataElement* xmlElem, const std::string& filePath);
 
   // Adds a child data object to the composite parent. childXML is the XML for
   // the child data object need to obtain certain meta-data about the child.
-  void AddChild(vtkCompositeDataSet* parent,
-    vtkDataObject* child, vtkXMLDataElement* childXML);
+  void AddChild(vtkCompositeDataSet* parent, vtkDataObject* child, vtkXMLDataElement* childXML);
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  virtual void ReadComposite(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex)=0;
+  virtual void ReadComposite(vtkXMLDataElement* element, vtkCompositeDataSet* composite,
+    const char* filePath, unsigned int& dataSetIndex) = 0;
 
   // Read the vtkDataSet (a leaf) in the composite dataset.
   virtual vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath);

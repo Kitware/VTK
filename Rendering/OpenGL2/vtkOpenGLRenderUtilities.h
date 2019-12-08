@@ -20,16 +20,16 @@
  *
  * See also the vtkOpenGLQuadHelper class which may be easier to use.
  *
-*/
+ */
 
 #ifndef vtkOpenGLRenderUtilities_h
 #define vtkOpenGLRenderUtilities_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include "vtk_glew.h" // Needed for GLuint.
-#include <string> // for std::string
+#include <string>     // for std::string
 
 class vtkOpenGLBufferObject;
 class vtkOpenGLRenderWindow;
@@ -50,13 +50,10 @@ public:
    * texture coordinates.
    */
   static void RenderQuad(
-    float *verts, float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
-  static void RenderTriangles(
-    float *verts, unsigned int numVerts,
-    GLuint *indices, unsigned int numIndices,
-    float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
+    float* verts, float* tcoords, vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao);
+  static void RenderTriangles(float* verts, unsigned int numVerts, GLuint* indices,
+    unsigned int numIndices, float* tcoords, vtkShaderProgram* program,
+    vtkOpenGLVertexArrayObject* vao);
   //@}
 
   //@{
@@ -108,26 +105,24 @@ public:
   static std::string GetFullScreenQuadVertexShader();
   static std::string GetFullScreenQuadFragmentShaderTemplate();
   static std::string GetFullScreenQuadGeometryShader();
-  static bool PrepFullScreenVAO(vtkOpenGLRenderWindow *renWin,
-                                vtkOpenGLVertexArrayObject *vao,
-                                vtkShaderProgram *prog);
+  static bool PrepFullScreenVAO(
+    vtkOpenGLRenderWindow* renWin, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog);
   static void DrawFullScreenQuad();
   //@}
 
   // older signsature, we suggest you use the newer signature above
-  static bool PrepFullScreenVAO(vtkOpenGLBufferObject *verts,
-                                vtkOpenGLVertexArrayObject *vao,
-                                vtkShaderProgram *prog);
+  static bool PrepFullScreenVAO(
+    vtkOpenGLBufferObject* verts, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog);
 
   /**
-  * Pass a debugging mark to the render engine to assist development via tools
-  * like apitrace. This calls glDebugMessageInsert to insert the event string
-  * into the OpenGL command stream.
-  *
-  * Note that this method only works when glDebugMessageInsert is bound, which
-  * it may not be on certain platforms.
-  */
-  static void MarkDebugEvent(const std::string &event);
+   * Pass a debugging mark to the render engine to assist development via tools
+   * like apitrace. This calls glDebugMessageInsert to insert the event string
+   * into the OpenGL command stream.
+   *
+   * Note that this method only works when glDebugMessageInsert is bound, which
+   * it may not be on certain platforms.
+   */
+  static void MarkDebugEvent(const std::string& event);
 
 protected:
   vtkOpenGLRenderUtilities();

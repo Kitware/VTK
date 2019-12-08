@@ -3,15 +3,10 @@
 
 int main()
 {
-  /* Test whether gcc/clang __sync_ builtins are defined */
-  /* These are for gcc >= 4.1.2 and for clang >= 2.0.1 */
-  /* Only certain platforms support them intrinsically */
-  /* (guaranteed support on x86_64, ia64, mips, alpha) */
+  /* Test whether gcc/clang __atomic_ builtins are defined */
 
   static volatile unsigned long v = 0;
-  unsigned long u = __sync_add_and_fetch(&v, 1);
+  unsigned long u = __atomic_add_fetch(&v, 1, __ATOMIC_SEQ_CST);
 
-  if (u - 1 == 0) { return 0; }
-
-  return 1;
+  return 0;
 }

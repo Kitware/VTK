@@ -25,20 +25,18 @@ vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------
 vtkOutlineCornerSource::vtkOutlineCornerSource()
-    : vtkOutlineSource()
+  : vtkOutlineSource()
 {
   this->CornerFactor = 0.2;
 }
 
 //----------------------------------------------------------------------------
-int vtkOutlineCornerSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkOutlineCornerSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  double *bounds;
+  double* bounds;
   double inner_bounds[6];
 
   int i, j, k;
@@ -49,21 +47,20 @@ int vtkOutlineCornerSource::RequestData(
   bounds = this->Bounds;
   for (i = 0; i < 3; i++)
   {
-    delta = (bounds[2*i + 1] - bounds[2*i]) * this->CornerFactor;
-    inner_bounds[2*i] = bounds[2*i] + delta;
-    inner_bounds[2*i + 1] = bounds[2*i + 1] - delta;
+    delta = (bounds[2 * i + 1] - bounds[2 * i]) * this->CornerFactor;
+    inner_bounds[2 * i] = bounds[2 * i] + delta;
+    inner_bounds[2 * i + 1] = bounds[2 * i + 1] - delta;
   }
 
   // Allocate storage and create outline
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPoints* newPts;
+  vtkCellArray* newLines;
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   newPts = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
@@ -74,7 +71,7 @@ int vtkOutlineCornerSource::RequestData(
 
   newPts->Allocate(32);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(24,2));
+  newLines->AllocateEstimate(24, 2);
 
   double x[3];
   vtkIdType pts[2];
@@ -89,23 +86,31 @@ int vtkOutlineCornerSource::RequestData(
       for (k = 4; k <= 5; k++)
       {
         pts[0] = pid;
-        x[0] = bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
+        x[0] = bounds[i];
+        x[1] = bounds[j];
+        x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
 
         pts[1] = pid;
-        x[0] = inner_bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
+        x[0] = inner_bounds[i];
+        x[1] = bounds[j];
+        x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
-        newLines->InsertNextCell(2,pts);
+        newLines->InsertNextCell(2, pts);
 
         pts[1] = pid;
-        x[0] = bounds[i]; x[1] = inner_bounds[j]; x[2] = bounds[k];
+        x[0] = bounds[i];
+        x[1] = inner_bounds[j];
+        x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
-        newLines->InsertNextCell(2,pts);
+        newLines->InsertNextCell(2, pts);
 
         pts[1] = pid;
-        x[0] = bounds[i]; x[1] = bounds[j]; x[2] = inner_bounds[k];
+        x[0] = bounds[i];
+        x[1] = bounds[j];
+        x[2] = inner_bounds[k];
         newPts->InsertPoint(pid++, x);
-        newLines->InsertNextCell(2,pts);
+        newLines->InsertNextCell(2, pts);
       }
     }
   }
@@ -123,8 +128,7 @@ int vtkOutlineCornerSource::RequestData(
 //----------------------------------------------------------------------------
 void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
-     << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

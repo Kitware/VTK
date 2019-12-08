@@ -30,7 +30,7 @@
  *
  * @sa
  * vtkActor2D vtkPolyDataMapper vtkTextProperty vtkTextRenderer
-*/
+ */
 
 #ifndef vtkTextActor_h
 #define vtkTextActor_h
@@ -50,20 +50,20 @@ class vtkTransform;
 class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
 public:
-  vtkTypeMacro(vtkTextActor,vtkTexturedActor2D);
+  vtkTypeMacro(vtkTextActor, vtkTexturedActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
    * of (0.2,0.85, 0.8, 0.95).
    */
-  static vtkTextActor *New();
+  static vtkTextActor* New();
 
   /**
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   //@{
   /**
@@ -72,8 +72,8 @@ public:
    * The characters must be in the UTF-8 encoding.
    * Convenience method to the underlying mapper
    */
-  void SetInput(const char *inputString);
-  char *GetInput();
+  void SetInput(const char* inputString);
+  char* GetInput();
   //@}
 
   //@{
@@ -82,8 +82,8 @@ public:
    * Defaults to 10,10.
    * Only valid when TextScaleMode is PROP.
    */
-  vtkSetVector2Macro(MinimumSize,int);
-  vtkGetVector2Macro(MinimumSize,int);
+  vtkSetVector2Macro(MinimumSize, int);
+  vtkGetVector2Macro(MinimumSize, int);
   //@}
 
   //@{
@@ -93,8 +93,8 @@ public:
    * scaled text actor. Defaults to 1.0.
    * Only valid when TextScaleMode is PROP.
    */
-  vtkSetMacro(MaximumLineHeight,float);
-  vtkGetMacro(MaximumLineHeight,float);
+  vtkSetMacro(MaximumLineHeight, float);
+  vtkGetMacro(MaximumLineHeight, float);
   //@}
 
   //@{
@@ -107,18 +107,15 @@ public:
    * vtkTextActor::TEXT_SCALE_MODE_VIEWPORT, the text will be scaled based on
    * the size of the viewport it is displayed in.
    */
-  vtkSetClampMacro(TextScaleMode, int,
-                     TEXT_SCALE_MODE_NONE, TEXT_SCALE_MODE_VIEWPORT);
+  vtkSetClampMacro(TextScaleMode, int, TEXT_SCALE_MODE_NONE, TEXT_SCALE_MODE_VIEWPORT);
   vtkGetMacro(TextScaleMode, int);
-  void SetTextScaleModeToNone()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_NONE); }
-  void SetTextScaleModeToProp()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_PROP); }
-  void SetTextScaleModeToViewport()
-    { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
+  void SetTextScaleModeToNone() { this->SetTextScaleMode(TEXT_SCALE_MODE_NONE); }
+  void SetTextScaleModeToProp() { this->SetTextScaleMode(TEXT_SCALE_MODE_PROP); }
+  void SetTextScaleModeToViewport() { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
   //@}
 
-  enum {
+  enum
+  {
     TEXT_SCALE_MODE_NONE = 0,
     TEXT_SCALE_MODE_PROP,
     TEXT_SCALE_MODE_VIEWPORT
@@ -130,9 +127,9 @@ public:
    * When UseBorderAlign is on, the bounding rectangle is used to align the text,
    * which is the proper behavior when using vtkTextRepresentation
    */
-  vtkSetMacro(UseBorderAlign,vtkTypeBool);
-  vtkGetMacro(UseBorderAlign,vtkTypeBool);
-  vtkBooleanMacro(UseBorderAlign,vtkTypeBool);
+  vtkSetMacro(UseBorderAlign, vtkTypeBool);
+  vtkGetMacro(UseBorderAlign, vtkTypeBool);
+  vtkBooleanMacro(UseBorderAlign, vtkTypeBool);
   //@}
 
   //@{
@@ -164,15 +161,15 @@ public:
    * desire.
    */
   void SetOrientation(float orientation);
-  vtkGetMacro(Orientation,float);
+  vtkGetMacro(Orientation, float);
   //@}
 
   //@{
   /**
    * Set/Get the text property.
    */
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  virtual void SetTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   //@}
 
   /**
@@ -193,10 +190,8 @@ public:
    * target rectangle (width x height, in pixels). A static version of the
    * method is also available for convenience to other classes (e.g., widgets).
    */
-  virtual int SetConstrainedFontSize(
-    vtkViewport*, int targetWidth, int targetHeight);
-  static int SetConstrainedFontSize(
-    vtkTextActor*, vtkViewport*, int targetWidth, int targetHeight);
+  virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
+  static int SetConstrainedFontSize(vtkTextActor*, vtkViewport*, int targetWidth, int targetHeight);
   //@}
 
   /**
@@ -205,8 +200,7 @@ public:
    * font size is the smallest size that was required to fit the largest
    * mapper in this constraint.
    */
-  static int SetMultipleConstrainedFontSize(
-    vtkViewport*, int targetWidth, int targetHeight,
+  static int SetMultipleConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight,
     vtkTextActor** actors, int nbOfActors, int* maxResultingSize);
 
   /**
@@ -224,19 +218,19 @@ public:
    * This is just a simple coordinate conversion method used in the render
    * process.
    */
-  void SpecifiedToDisplay(double *pos, vtkViewport *vport, int specified);
+  void SpecifiedToDisplay(double* pos, vtkViewport* vport, int specified);
 
   /**
    * This is just a simple coordinate conversion method used in the render
    * process.
    */
-  void DisplayToSpecified(double *pos, vtkViewport *vport, int specified);
+  void DisplayToSpecified(double* pos, vtkViewport* vport, int specified);
 
   /**
    * Compute the scale the font should be given the viewport.  The result
    * is placed in the ScaledTextProperty ivar.
    */
-  virtual void ComputeScaledFont(vtkViewport *viewport);
+  virtual void ComputeScaledFont(vtkViewport* viewport);
 
   //@{
   /**
@@ -253,7 +247,7 @@ public:
    * the viewport is meant to be 6 inches (a typical width of text in a paper)
    * and then resizes based on if that long dimension was 72 DPI.
    */
-  static float GetFontScale(vtkViewport *viewport);
+  static float GetFontScale(vtkViewport* viewport);
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -262,7 +256,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -271,7 +265,7 @@ public:
    * Draw the text actor to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;};
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
@@ -284,43 +278,42 @@ protected:
   /**
    * Render Input to Image using the supplied font property.
    */
-  virtual bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
+  virtual bool RenderImage(vtkTextProperty* tprop, vtkViewport* viewport);
 
   /**
    * Get the bounding box for Input using the supplied font property.
    */
-  virtual bool GetImageBoundingBox(
-    vtkTextProperty *tprop, vtkViewport *viewport, int bbox[4]);
+  virtual bool GetImageBoundingBox(vtkTextProperty* tprop, vtkViewport* viewport, int bbox[4]);
 
-   vtkTextActor();
+  vtkTextActor();
   ~vtkTextActor() override;
 
-  int     MinimumSize[2];
-  float   MaximumLineHeight;
-  double  FontScaleExponent;
-  int     TextScaleMode;
-  float   Orientation;
-  vtkTypeBool     UseBorderAlign;
+  int MinimumSize[2];
+  float MaximumLineHeight;
+  double FontScaleExponent;
+  int TextScaleMode;
+  float Orientation;
+  vtkTypeBool UseBorderAlign;
 
-  vtkTextProperty *TextProperty;
-  vtkImageData *ImageData;
-  vtkTextRenderer *TextRenderer;
-  vtkTimeStamp  BuildTime;
-  vtkTransform *Transform;
+  vtkTextProperty* TextProperty;
+  vtkImageData* ImageData;
+  vtkTextRenderer* TextRenderer;
+  vtkTimeStamp BuildTime;
+  vtkTransform* Transform;
   int LastSize[2];
   int LastOrigin[2];
-  char *Input;
+  char* Input;
   bool InputRendered;
   double FormerOrientation;
   int RenderedDPI;
 
-  vtkTextProperty *ScaledTextProperty;
+  vtkTextProperty* ScaledTextProperty;
 
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;
-  vtkPoints*   RectanglePoints;
+  vtkPoints* RectanglePoints;
 
-  virtual void ComputeRectangle(vtkViewport *viewport);
+  virtual void ComputeRectangle(vtkViewport* viewport);
 
   /**
    * Ensure that \a Rectangle and \a RectanglePoints are valid and up-to-date.
@@ -341,6 +334,5 @@ private:
   vtkTextActor(const vtkTextActor&) = delete;
   void operator=(const vtkTextActor&) = delete;
 };
-
 
 #endif

@@ -16,7 +16,6 @@
   Copyright 2016 Menno Deij - van Rijswijk (MARIN)
 -------------------------------------------------------------------------*/
 
-
 /**
  * @class   vtkTecplotTableReader
  * @brief   reads in Tecplot tabular data
@@ -29,15 +28,15 @@
  * @par Thanks:
  * Thanks to vtkDelimitedTextReader authors.
  *
-*/
+ */
 
 #ifndef vtkTecplotTableReader_h
 #define vtkTecplotTableReader_h
 
 #include "vtkIOTecplotTableModule.h" // For export macro
+#include "vtkStdString.h"            // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 #include "vtkUnicodeString.h" // Needed for vtkUnicodeString
-#include "vtkStdString.h" // Needed for vtkStdString
 
 class VTKIOTECPLOTTABLE_EXPORT vtkTecplotTableReader : public vtkTableAlgorithm
 {
@@ -87,8 +86,6 @@ public:
   vtkSetMacro(SkipColumnNames, vtkIdType);
   //@}
 
-
-
   //@{
   /**
    * The name of the array for generating or assigning pedigree ids
@@ -128,10 +125,7 @@ protected:
   vtkTecplotTableReader();
   ~vtkTecplotTableReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
   vtkIdType MaxRecords;
@@ -146,7 +140,6 @@ protected:
 private:
   vtkTecplotTableReader(const vtkTecplotTableReader&) = delete;
   void operator=(const vtkTecplotTableReader&) = delete;
-
 };
 
 #endif

@@ -1,6 +1,7 @@
 set(classes
   vtkBlockSelector
   vtkConvertSelection
+  vtkExpandMarkedElements
   vtkExtractBlock
   vtkExtractCells
   vtkExtractCellsByType

@@ -32,19 +32,19 @@
  *
  * @sa
  * vtk3DWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
-*/
+ */
 
 #ifndef vtkPolyDataSourceWidget_h
 #define vtkPolyDataSourceWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPolyDataAlgorithm;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
- public:
+public:
   vtkTypeMacro(vtkPolyDataSourceWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -65,9 +65,11 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
   /**
    * Convenience method brought over from vtkPlaneWidget.
    */
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
+  void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override
+  {
+    this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
+  }
 
   /**
    * Returns underlying vtkPolyDataAlgorithm that determines geometry.  This

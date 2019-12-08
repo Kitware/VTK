@@ -53,13 +53,13 @@
  * @sa
  * vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
  * vtkCoordinate vtkTextProperty
-*/
+ */
 
 #ifndef vtkAxisActor2D_h
 #define vtkAxisActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkPolyDataMapper2D;
 class vtkPolyData;
@@ -69,24 +69,23 @@ class vtkTextProperty;
 class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkAxisActor2D,vtkActor2D);
+  vtkTypeMacro(vtkAxisActor2D, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object.
    */
-  static vtkAxisActor2D *New();
+  static vtkAxisActor2D* New();
 
   //@{
   /**
    * Specify the position of the first point defining the axis.
    * Note: backward compatibility only, use vtkActor2D's Position instead.
    */
-  virtual vtkCoordinate *GetPoint1Coordinate()
-    { return this->GetPositionCoordinate(); };
-  virtual void SetPoint1(double x[2]) { this->SetPosition(x); };
-  virtual void SetPoint1(double x, double y) { this->SetPosition(x,y); };
-  virtual double *GetPoint1() { return this->GetPosition(); };
+  virtual vtkCoordinate* GetPoint1Coordinate() { return this->GetPositionCoordinate(); }
+  virtual void SetPoint1(double x[2]) { this->SetPosition(x); }
+  virtual void SetPoint1(double x, double y) { this->SetPosition(x, y); }
+  virtual double* GetPoint1() { return this->GetPosition(); }
   //@}
 
   //@{
@@ -96,11 +95,10 @@ public:
    * are drawn on (ticks are drawn on the right, if visible).
    * Note: backward compatibility only, use vtkActor2D's Position2 instead.
    */
-  virtual vtkCoordinate *GetPoint2Coordinate()
-    { return this->GetPosition2Coordinate(); };
-  virtual void SetPoint2(double x[2]) { this->SetPosition2(x); };
-  virtual void SetPoint2(double x, double y) { this->SetPosition2(x,y); };
-  virtual double *GetPoint2() { return this->GetPosition2(); };
+  virtual vtkCoordinate* GetPoint2Coordinate() { return this->GetPosition2Coordinate(); }
+  virtual void SetPoint2(double x[2]) { this->SetPosition2(x); }
+  virtual void SetPoint2(double x, double y) { this->SetPosition2(x, y); }
+  virtual double* GetPoint2() { return this->GetPosition2(); }
   //@}
 
   //@{
@@ -108,8 +106,8 @@ public:
    * Specify the (min,max) axis range. This will be used in the generation
    * of labels, if labels are visible.
    */
-  vtkSetVector2Macro(Range,double);
-  vtkGetVectorMacro(Range,double,2);
+  vtkSetVector2Macro(Range, double);
+  vtkGetVectorMacro(Range, double, 2);
   //@}
 
   //@{
@@ -118,9 +116,9 @@ public:
    * specified major tick spacing. If enabled, the distance between major ticks
    * is controlled by the RulerDistance ivar.
    */
-  vtkSetMacro(RulerMode,vtkTypeBool);
-  vtkGetMacro(RulerMode,vtkTypeBool);
-  vtkBooleanMacro(RulerMode,vtkTypeBool);
+  vtkSetMacro(RulerMode, vtkTypeBool);
+  vtkGetMacro(RulerMode, vtkTypeBool);
+  vtkBooleanMacro(RulerMode, vtkTypeBool);
   //@}
 
   //@{
@@ -128,8 +126,8 @@ public:
    * Specify the RulerDistance which indicates the spacing of the major ticks.
    * This ivar only has effect when the RulerMode is on.
    */
-  vtkSetClampMacro(RulerDistance,double,0,VTK_FLOAT_MAX);
-  vtkGetMacro(RulerDistance,double);
+  vtkSetClampMacro(RulerDistance, double, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(RulerDistance, double);
   //@}
 
   enum LabelMax
@@ -168,25 +166,22 @@ public:
   vtkSetMacro(AdjustLabels, vtkTypeBool);
   vtkGetMacro(AdjustLabels, vtkTypeBool);
   vtkBooleanMacro(AdjustLabels, vtkTypeBool);
-  virtual double *GetAdjustedRange()
+  virtual double* GetAdjustedRange()
   {
-      this->UpdateAdjustedRange();
-      return this->AdjustedRange;
+    this->UpdateAdjustedRange();
+    return this->AdjustedRange;
   }
-  virtual void GetAdjustedRange(double &_arg1, double &_arg2)
+  virtual void GetAdjustedRange(double& _arg1, double& _arg2)
   {
-      this->UpdateAdjustedRange();
-      _arg1 = this->AdjustedRange[0];
-      _arg2 = this->AdjustedRange[1];
+    this->UpdateAdjustedRange();
+    _arg1 = this->AdjustedRange[0];
+    _arg2 = this->AdjustedRange[1];
   };
-  virtual void GetAdjustedRange(double _arg[2])
-  {
-      this->GetAdjustedRange(_arg[0], _arg[1]);
-  }
+  virtual void GetAdjustedRange(double _arg[2]) { this->GetAdjustedRange(_arg[0], _arg[1]); }
   virtual int GetAdjustedNumberOfLabels()
   {
-      this->UpdateAdjustedRange();
-      return this->AdjustedNumberOfLabels;
+    this->UpdateAdjustedRange();
+    return this->AdjustedNumberOfLabels;
   }
   //@}
 
@@ -202,16 +197,16 @@ public:
   /**
    * Set/Get the title text property.
    */
-  virtual void SetTitleTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  virtual void SetTitleTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
   //@}
 
   //@{
   /**
    * Set/Get the labels text property.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  virtual void SetLabelTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
   //@}
 
   //@{
@@ -321,7 +316,7 @@ public:
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *) override {return 0;}
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   //@}
 
   /**
@@ -334,7 +329,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * This method computes the range of the axis given an input range.
@@ -346,11 +341,8 @@ public:
    * will be (0,100) with the number of computed ticks to 11 to yield tick
    * values of (0,10,20,...,100).
    */
-  static void ComputeRange(double inRange[2],
-                           double outRange[2],
-                           int inNumTicks,
-                           int &outNumTicks,
-                           double &interval);
+  static void ComputeRange(
+    double inRange[2], double outRange[2], int inNumTicks, int& outNumTicks, double& interval);
 
   /**
    * General method to computes font size from a representative size on the
@@ -360,21 +352,17 @@ public:
    * to create text of different size-factor (it is usually = 1 but you can
    * adjust the font size by making factor larger or smaller).
    */
-  static int SetMultipleFontSize(vtkViewport *viewport,
-                                 vtkTextMapper **textMappers,
-                                 int nbOfMappers,
-                                 int *targetSize,
-                                 double factor,
-                                 int *stringSize);
+  static int SetMultipleFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
+    int nbOfMappers, int* targetSize, double factor, int* stringSize);
 
   //@{
   /**
    * Specify whether to size the fonts relative to the viewport or relative to
    * length of the axis. By default, fonts are resized relative to the viewport.
    */
-  vtkSetMacro(SizeFontRelativeToAxis,vtkTypeBool);
-  vtkGetMacro(SizeFontRelativeToAxis,vtkTypeBool);
-  vtkBooleanMacro(SizeFontRelativeToAxis,vtkTypeBool);
+  vtkSetMacro(SizeFontRelativeToAxis, vtkTypeBool);
+  vtkGetMacro(SizeFontRelativeToAxis, vtkTypeBool);
+  vtkBooleanMacro(SizeFontRelativeToAxis, vtkTypeBool);
   //@}
 
   //@{
@@ -383,80 +371,78 @@ public:
    * option is set to true, it will instead use whatever font size is set in the
    * vtkTextProperty, allowing external control of the axis size.
    */
-  vtkSetMacro(UseFontSizeFromProperty,vtkTypeBool);
-  vtkGetMacro(UseFontSizeFromProperty,vtkTypeBool);
-  vtkBooleanMacro(UseFontSizeFromProperty,vtkTypeBool);
+  vtkSetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkGetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkBooleanMacro(UseFontSizeFromProperty, vtkTypeBool);
   //@}
 
   /**
    * Shallow copy of an axis actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkAxisActor2D();
   ~vtkAxisActor2D() override;
 
-  vtkTextProperty *TitleTextProperty;
-  vtkTextProperty *LabelTextProperty;
+  vtkTextProperty* TitleTextProperty;
+  vtkTextProperty* LabelTextProperty;
 
-  char  *Title;
+  char* Title;
   double Range[2];
   double TitlePosition;
-  vtkTypeBool    RulerMode;
+  vtkTypeBool RulerMode;
   double RulerDistance;
-  int   NumberOfLabels;
-  char  *LabelFormat;
-  vtkTypeBool   AdjustLabels;
+  int NumberOfLabels;
+  char* LabelFormat;
+  vtkTypeBool AdjustLabels;
   double FontFactor;
   double LabelFactor;
-  int   TickLength;
-  int   MinorTickLength;
-  int   TickOffset;
+  int TickLength;
+  int MinorTickLength;
+  int TickOffset;
   int NumberOfMinorTicks;
 
   double AdjustedRange[2];
-  int   AdjustedNumberOfLabels;
-  int   NumberOfLabelsBuilt;
+  int AdjustedNumberOfLabels;
+  int NumberOfLabelsBuilt;
 
-  vtkTypeBool   AxisVisibility;
-  vtkTypeBool   TickVisibility;
-  vtkTypeBool   LabelVisibility;
-  vtkTypeBool   TitleVisibility;
+  vtkTypeBool AxisVisibility;
+  vtkTypeBool TickVisibility;
+  vtkTypeBool LabelVisibility;
+  vtkTypeBool TitleVisibility;
 
-  int   LastPosition[2];
-  int   LastPosition2[2];
+  int LastPosition[2];
+  int LastPosition2[2];
 
-  int   LastSize[2];
-  int   LastMaxLabelSize[2];
+  int LastSize[2];
+  int LastMaxLabelSize[2];
 
-  int  SizeFontRelativeToAxis;
+  int SizeFontRelativeToAxis;
   vtkTypeBool UseFontSizeFromProperty;
 
-  virtual void BuildAxis(vtkViewport *viewport);
+  virtual void BuildAxis(vtkViewport* viewport);
   static double ComputeStringOffset(double width, double height, double theta);
-  static void SetOffsetPosition(double xTick[3], double theta,
-                                int stringWidth, int stringHeight,
-                                int offset, vtkActor2D *actor);
+  static void SetOffsetPosition(double xTick[3], double theta, int stringWidth, int stringHeight,
+    int offset, vtkActor2D* actor);
   virtual void UpdateAdjustedRange();
 
-  vtkTextMapper *TitleMapper;
-  vtkActor2D    *TitleActor;
+  vtkTextMapper* TitleMapper;
+  vtkActor2D* TitleActor;
 
-  vtkTextMapper **LabelMappers;
-  vtkActor2D    **LabelActors;
+  vtkTextMapper** LabelMappers;
+  vtkActor2D** LabelActors;
 
-  vtkPolyData         *Axis;
-  vtkPolyDataMapper2D *AxisMapper;
-  vtkActor2D          *AxisActor;
+  vtkPolyData* Axis;
+  vtkPolyDataMapper2D* AxisMapper;
+  vtkActor2D* AxisActor;
 
-  vtkTimeStamp  AdjustedRangeBuildTime;
-  vtkTimeStamp  BuildTime;
+  vtkTimeStamp AdjustedRangeBuildTime;
+  vtkTimeStamp BuildTime;
 
 private:
   vtkAxisActor2D(const vtkAxisActor2D&) = delete;
   void operator=(const vtkAxisActor2D&) = delete;
 };
-
 
 #endif

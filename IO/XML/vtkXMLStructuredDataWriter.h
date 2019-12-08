@@ -18,7 +18,7 @@
  *
  * vtkXMLStructuredDataWriter provides VTK XML writing functionality that
  * is common among all the structured data formats.
-*/
+ */
 
 #ifndef vtkXMLStructuredDataWriter_h
 #define vtkXMLStructuredDataWriter_h
@@ -33,7 +33,7 @@ class vtkInformationVector;
 class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLStructuredDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -77,11 +77,11 @@ protected:
   ~vtkXMLStructuredDataWriter() override;
 
   // Writing drivers defined by subclasses.
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
-  virtual void GetInputExtent(int* extent)=0;
+  virtual void GetInputExtent(int* extent) = 0;
 
   virtual int WriteHeader();
   virtual int WriteAPiece();
@@ -91,14 +91,12 @@ protected:
   virtual void DeletePositionArrays();
 
   virtual int WriteInlineMode(vtkIndent indent);
-  vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
-                          int i, int j, int k);
+  vtkIdType GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
 
   void SetInputUpdateExtent(int piece);
-  int ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   vtkSetVector6Macro(InternalWriteExtent, int);
 
@@ -125,8 +123,8 @@ protected:
 
   // Appended data offsets of point and cell data arrays.
   // Store offset position (add TimeStep support)
-  OffsetsManagerArray *PointDataOM;
-  OffsetsManagerArray *CellDataOM;
+  OffsetsManagerArray* PointDataOM;
+  OffsetsManagerArray* CellDataOM;
 
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&) = delete;

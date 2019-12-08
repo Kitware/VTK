@@ -1,11 +1,11 @@
 #ifndef QtVTKRenderWindows_H
 #define QtVTKRenderWindows_H
 
-#include "vtkSmartPointer.h"
-#include "vtkResliceImageViewer.h"
-#include "vtkImagePlaneWidget.h"
 #include "vtkDistanceWidget.h"
+#include "vtkImagePlaneWidget.h"
+#include "vtkResliceImageViewer.h"
 #include "vtkResliceImageViewerMeasurements.h"
+#include "vtkSmartPointer.h"
 #include <QMainWindow>
 
 // Forward Qt class declarations
@@ -15,9 +15,8 @@ class QtVTKRenderWindows : public QMainWindow
 {
   Q_OBJECT
 public:
-
   // Constructor/Destructor
-  QtVTKRenderWindows(int argc, char *argv[]);
+  QtVTKRenderWindows(int argc, char* argv[]);
   ~QtVTKRenderWindows() override {}
 
 public slots:
@@ -32,20 +31,19 @@ public slots:
   virtual void ResetViews();
   virtual void Render();
   virtual void AddDistanceMeasurementToView1();
-  virtual void AddDistanceMeasurementToView( int );
+  virtual void AddDistanceMeasurementToView(int);
 
 protected:
-  vtkSmartPointer< vtkResliceImageViewer > riw[3];
-  vtkSmartPointer< vtkImagePlaneWidget > planeWidget[3];
-  vtkSmartPointer< vtkDistanceWidget > DistanceWidget[3];
-  vtkSmartPointer< vtkResliceImageViewerMeasurements > ResliceMeasurements;
+  vtkSmartPointer<vtkResliceImageViewer> riw[3];
+  vtkSmartPointer<vtkImagePlaneWidget> planeWidget[3];
+  vtkSmartPointer<vtkDistanceWidget> DistanceWidget[3];
+  vtkSmartPointer<vtkResliceImageViewerMeasurements> ResliceMeasurements;
 
 protected slots:
 
 private:
-
   // Designer form
-  Ui_QtVTKRenderWindows *ui;
+  Ui_QtVTKRenderWindows* ui;
 };
 
 #endif // QtVTKRenderWindows_H

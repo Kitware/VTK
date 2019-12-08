@@ -20,7 +20,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
@@ -31,12 +30,12 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->AverageIPScalarRange[1] = VTK_FLOAT_MAX;
 
   this->Cropping = 0;
-  for ( i = 0; i < 3; i++ )
+  for (i = 0; i < 3; i++)
   {
-    this->CroppingRegionPlanes[2*i    ]      = 0;
-    this->CroppingRegionPlanes[2*i + 1]      = 1;
-    this->VoxelCroppingRegionPlanes[2*i]     = 0;
-    this->VoxelCroppingRegionPlanes[2*i + 1] = 1;
+    this->CroppingRegionPlanes[2 * i] = 0;
+    this->CroppingRegionPlanes[2 * i + 1] = 1;
+    this->VoxelCroppingRegionPlanes[2 * i] = 0;
+    this->VoxelCroppingRegionPlanes[2 * i + 1] = 1;
   }
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
 }
@@ -45,38 +44,37 @@ vtkVolumeMapper::~vtkVolumeMapper() = default;
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {
-  double *spacing    = this->GetInput()->GetSpacing();
+  double* spacing = this->GetInput()->GetSpacing();
   int dimensions[3];
   this->GetInput()->GetDimensions(dimensions);
   double origin[3];
-  const double *bds = this->GetInput()->GetBounds();
+  const double* bds = this->GetInput()->GetBounds();
   origin[0] = bds[0];
   origin[1] = bds[2];
   origin[2] = bds[4];
 
-  for ( int i = 0; i < 6; i++ )
+  for (int i = 0; i < 6; i++)
   {
     this->VoxelCroppingRegionPlanes[i] =
-      (this->CroppingRegionPlanes[i] - origin[i/2]) / spacing[i/2];
+      (this->CroppingRegionPlanes[i] - origin[i / 2]) / spacing[i / 2];
 
     this->VoxelCroppingRegionPlanes[i] =
-      ( this->VoxelCroppingRegionPlanes[i] < 0 ) ?
-      ( 0 ) : ( this->VoxelCroppingRegionPlanes[i] );
+      (this->VoxelCroppingRegionPlanes[i] < 0) ? (0) : (this->VoxelCroppingRegionPlanes[i]);
 
     this->VoxelCroppingRegionPlanes[i] =
-      ( this->VoxelCroppingRegionPlanes[i] > dimensions[i/2]-1 ) ?
-      ( dimensions[i/2]-1 ) : ( this->VoxelCroppingRegionPlanes[i] );
+      (this->VoxelCroppingRegionPlanes[i] > dimensions[i / 2] - 1)
+      ? (dimensions[i / 2] - 1)
+      : (this->VoxelCroppingRegionPlanes[i]);
   }
 }
 
-void vtkVolumeMapper::SetInputData( vtkDataSet *genericInput )
+void vtkVolumeMapper::SetInputData(vtkDataSet* genericInput)
 {
-  vtkImageData *input =
-    vtkImageData::SafeDownCast( genericInput );
+  vtkImageData* input = vtkImageData::SafeDownCast(genericInput);
 
-  if ( input )
+  if (input)
   {
-    this->SetInputData( input );
+    this->SetInputData(input);
   }
   else
   {
@@ -84,19 +82,18 @@ void vtkVolumeMapper::SetInputData( vtkDataSet *genericInput )
   }
 }
 
-void vtkVolumeMapper::SetInputData( vtkImageData *input )
+void vtkVolumeMapper::SetInputData(vtkImageData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
-vtkImageData *vtkVolumeMapper::GetInput()
+vtkImageData* vtkVolumeMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
     return nullptr;
   }
-  return vtkImageData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, 0));
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 vtkImageData* vtkVolumeMapper::GetInput(const int port)
@@ -106,28 +103,25 @@ vtkImageData* vtkVolumeMapper::GetInput(const int port)
     return nullptr;
   }
 
-  return vtkImageData::SafeDownCast(
-    this->GetExecutive()->GetInputData(port, 0));
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(port, 0));
 }
-
 
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 
   os << indent << "Cropping Region Planes: " << endl
-     << indent << "  In X: " << this->CroppingRegionPlanes[0]
-     << " to " << this->CroppingRegionPlanes[1] << endl
-     << indent << "  In Y: " << this->CroppingRegionPlanes[2]
-     << " to " << this->CroppingRegionPlanes[3] << endl
-     << indent << "  In Z: " << this->CroppingRegionPlanes[4]
-     << " to " << this->CroppingRegionPlanes[5] << endl;
+     << indent << "  In X: " << this->CroppingRegionPlanes[0] << " to "
+     << this->CroppingRegionPlanes[1] << endl
+     << indent << "  In Y: " << this->CroppingRegionPlanes[2] << " to "
+     << this->CroppingRegionPlanes[3] << endl
+     << indent << "  In Z: " << this->CroppingRegionPlanes[4] << " to "
+     << this->CroppingRegionPlanes[5] << endl;
 
-  os << indent << "Cropping Region Flags: "
-     << this->CroppingRegionFlags << endl;
+  os << indent << "Cropping Region Flags: " << this->CroppingRegionFlags << endl;
 
   os << indent << "BlendMode: " << this->BlendMode << endl;
 
@@ -137,7 +131,7 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
+  if (!this->Superclass::FillInputPortInformation(port, info))
   {
     return 0;
   }
@@ -146,17 +140,14 @@ int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3],
-  int inputExtent[6])
+double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3], int inputExtent[6])
 {
   // compute 1/2 the average spacing
-  double dist =
-    (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
+  double dist = (inputSpacing[0] + inputSpacing[1] + inputSpacing[2]) / 6.0;
   double avgNumVoxels =
-    pow(static_cast<double>((inputExtent[1] - inputExtent[0]) *
-                            (inputExtent[3] - inputExtent[2]) *
-                            (inputExtent[5] - inputExtent[4])),
-        static_cast<double>(0.333));
+    pow(static_cast<double>((inputExtent[1] - inputExtent[0]) * (inputExtent[3] - inputExtent[2]) *
+          (inputExtent[5] - inputExtent[4])),
+      static_cast<double>(0.333));
 
   if (avgNumVoxels < 100)
   {

@@ -32,15 +32,15 @@
 #ifndef vtkEGLRenderWindow_h
 #define vtkEGLRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkIdList;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkEGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
-  static vtkEGLRenderWindow *New();
+  static vtkEGLRenderWindow* New();
   vtkTypeMacro(vtkEGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -90,8 +90,8 @@ public:
   /**
    * Specify the size of the rendering window in pixels.
    */
-  virtual void SetSize(int,int) override;
-  virtual void SetSize(int a[2]) override {this->SetSize(a[0], a[1]);}
+  virtual void SetSize(int, int) override;
+  virtual void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
@@ -114,44 +114,44 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override { return 1;};
+  int IsDirect() override { return 1; }
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize() VTK_SIZEHINT(2) override;
+  virtual int* GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
    */
-  virtual int     *GetPosition() VTK_SIZEHINT(2) override;
+  virtual int* GetPosition() VTK_SIZEHINT(2) override;
 
   //@{
   /**
    * Dummy stubs for vtkWindow API.
    */
-  virtual void SetDisplayId(void *) override {};
-  virtual void SetWindowId(void *window) override;
-  virtual void SetNextWindowId(void *) override {}
-  virtual void SetParentId(void *) override  {}
-  virtual void *GetGenericDisplayId() override;
-  virtual void *GetGenericWindowId() override {return NULL;}
-  virtual void *GetGenericParentId() override {return NULL;}
-  virtual void *GetGenericContext() override;
-  virtual void *GetGenericDrawable() override {return NULL;}
-  virtual void SetWindowInfo(const char *) override;
-  virtual void SetNextWindowInfo(const char *) override {}
-  virtual void SetParentInfo(const char *) override {}
+  virtual void SetDisplayId(void*) override {}
+  virtual void SetWindowId(void* window) override;
+  virtual void SetNextWindowId(void*) override {}
+  virtual void SetParentId(void*) override {}
+  virtual void* GetGenericDisplayId() override;
+  virtual void* GetGenericWindowId() override { return NULL; }
+  virtual void* GetGenericParentId() override { return NULL; }
+  virtual void* GetGenericContext() override;
+  virtual void* GetGenericDrawable() override { return NULL; }
+  virtual void SetWindowInfo(const char*) override;
+  virtual void SetNextWindowInfo(const char*) override {}
+  virtual void SetParentInfo(const char*) override {}
   //@}
 
-  void     SetWindowName(const char *) override;
+  void SetWindowName(const char*) override;
 
   //@{
   /**
    * Move the window to a new position on the display.
    */
-  void     SetPosition(int,int) override;
-  void     SetPosition(int a[2]) override {this->SetPosition(a[0], a[1]);};
+  void SetPosition(int, int) override;
+  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
   //@}
 
   //@{
@@ -175,9 +175,9 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() override { return 0;};
+  virtual int GetEventPending() override { return 0; }
 
-  int GetOwnWindow() { return this->OwnWindow; };
+  int GetOwnWindow() { return this->OwnWindow; }
 
   /**
    * Returns the width and height of the allocated EGL surface.
@@ -224,7 +224,5 @@ private:
 
   bool DeviceExtensionsPresent;
 };
-
-
 
 #endif

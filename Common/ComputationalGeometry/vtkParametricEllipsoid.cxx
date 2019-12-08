@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkParametricEllipsoid.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include <cmath>
 
 vtkStandardNewMacro(vtkParametricEllipsoid);
 
 //----------------------------------------------------------------------------
-vtkParametricEllipsoid::vtkParametricEllipsoid() :
-  XRadius(1)
+vtkParametricEllipsoid::vtkParametricEllipsoid()
+  : XRadius(1)
   , YRadius(1)
   , ZRadius(1)
 {
@@ -43,13 +43,12 @@ vtkParametricEllipsoid::vtkParametricEllipsoid() :
 vtkParametricEllipsoid::~vtkParametricEllipsoid() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3],
-                                      double Duvw[9])
+void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   for (int i = 0; i < 3; ++i)
   {
@@ -66,14 +65,13 @@ void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = this->YRadius * sv * su;
   Pt[2] = this->ZRadius * cv;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -this->XRadius * sv * su;
   Du[1] = this->YRadius * sv * cu;
   Du[2] = 0;
   Dv[0] = this->XRadius * cv * cu;
   Dv[1] = this->YRadius * cv * su;
   Dv[2] = -this->ZRadius * sv;
-
 }
 
 //----------------------------------------------------------------------------
@@ -91,4 +89,3 @@ void vtkParametricEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y scale factor: " << this->YRadius << "\n";
   os << indent << "Z scale factor: " << this->ZRadius << "\n";
 }
-

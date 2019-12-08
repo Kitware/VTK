@@ -24,7 +24,7 @@
 namespace vtkThreadedTaskQueueInternals
 {
 
-template<typename R>
+template <typename R>
 class TaskQueue
 {
 public:
@@ -45,7 +45,7 @@ public:
 
   std::uint64_t GetNextTaskId() const { return this->NextTaskId; }
 
-  void Push(std::function<R()> && task)
+  void Push(std::function<R()>&& task)
   {
     if (this->Done)
     {
@@ -64,7 +64,7 @@ public:
     this->TasksCV.notify_one();
   }
 
-  bool Pop(std::uint64_t& task_id, std::function<R()> & task)
+  bool Pop(std::uint64_t& task_id, std::function<R()>& task)
   {
     std::unique_lock<std::mutex> lk(this->TasksMutex);
     this->TasksCV.wait(lk, [this] { return this->Done || this->Tasks.size() > 0; });
@@ -82,7 +82,6 @@ public:
     assert(this->Done);
     return false;
   }
-
 
 private:
   std::atomic_bool Done;
@@ -124,7 +123,7 @@ public:
   {
     std::unique_lock<std::mutex> lk(this->ResultsMutex);
     if (this->Results.empty() ||
-        (this->StrictOrdering && this->Results.top().first != this->NextResultId))
+      (this->StrictOrdering && this->Results.top().first != this->NextResultId))
     {
       // results are not available or of strict-ordering is requested, the
       // result available is not the next one in sequence, hence don't pop
@@ -144,21 +143,21 @@ public:
   bool Pop(R& result)
   {
     std::unique_lock<std::mutex> lk(this->ResultsMutex);
-    this->ResultsCV.wait(lk,
-        [this]{ return !this->Results.empty() &&
-        (!this->StrictOrdering || this->Results.top().first == this->NextResultId); });
+    this->ResultsCV.wait(lk, [this] {
+      return !this->Results.empty() &&
+        (!this->StrictOrdering || this->Results.top().first == this->NextResultId);
+    });
     lk.unlock();
     return this->TryPop(result);
   }
 
 private:
-  template<typename T>
+  template <typename T>
   struct Comparator
   {
     bool operator()(const T& left, const T& right) const { return left.first > right.first; }
   };
-  std::priority_queue<std::pair<std::uint64_t, R>,
-    std::vector<std::pair<std::uint64_t, R> >,
+  std::priority_queue<std::pair<std::uint64_t, R>, std::vector<std::pair<std::uint64_t, R> >,
     Comparator<std::pair<std::uint64_t, R> > >
     Results;
   std::mutex ResultsMutex;
@@ -170,18 +169,18 @@ private:
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
-vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(std::function<R(Args...)> worker,
-    bool strict_ordering,
-    int buffer_size,
-    int max_concurrent_tasks)
+template <typename R, typename... Args>
+vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(
+  std::function<R(Args...)> worker, bool strict_ordering, int buffer_size, int max_concurrent_tasks)
   : Worker(worker)
-  , Tasks(new vtkThreadedTaskQueueInternals::TaskQueue<R>(std::max(0, strict_ordering? 0 : buffer_size)))
+  , Tasks(new vtkThreadedTaskQueueInternals::TaskQueue<R>(
+      std::max(0, strict_ordering ? 0 : buffer_size)))
   , Results(new vtkThreadedTaskQueueInternals::ResultQueue<R>(strict_ordering))
-  , NumberOfThreads(max_concurrent_tasks <= 0 ? vtkMultiThreader::GetGlobalDefaultNumberOfThreads() : max_concurrent_tasks)
-  , Threads{new std::thread[this->NumberOfThreads]}
+  , NumberOfThreads(max_concurrent_tasks <= 0 ? vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
+                                              : max_concurrent_tasks)
+  , Threads{ new std::thread[this->NumberOfThreads] }
 {
-  auto f = [this](int thread_id){
+  auto f = [this](int thread_id) {
     vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
     while (true)
     {
@@ -200,39 +199,39 @@ vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(std::function<R(Args...)>
     // vtkLogF(INFO, "done");
   };
 
-  for (int cc=0; cc < this->NumberOfThreads; ++cc)
+  for (int cc = 0; cc < this->NumberOfThreads; ++cc)
   {
     this->Threads[cc] = std::thread(f, cc);
   }
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 vtkThreadedTaskQueue<R, Args...>::~vtkThreadedTaskQueue()
 {
   this->Tasks->MarkDone();
-  for (int cc=0; cc < this->NumberOfThreads; ++cc)
+  for (int cc = 0; cc < this->NumberOfThreads; ++cc)
   {
     this->Threads[cc].join();
   }
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 void vtkThreadedTaskQueue<R, Args...>::Push(Args&&... args)
 {
   this->Tasks->Push(std::bind(this->Worker, args...));
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 bool vtkThreadedTaskQueue<R, Args...>::TryPop(R& result)
 {
   return this->Results->TryPop(result);
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 bool vtkThreadedTaskQueue<R, Args...>::Pop(R& result)
 {
   if (this->IsEmpty())
@@ -244,14 +243,14 @@ bool vtkThreadedTaskQueue<R, Args...>::Pop(R& result)
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 bool vtkThreadedTaskQueue<R, Args...>::IsEmpty() const
 {
   return this->Results->GetNextResultId() == this->Tasks->GetNextTaskId();
 }
 
 //-----------------------------------------------------------------------------
-template<typename R, typename ...Args>
+template <typename R, typename... Args>
 void vtkThreadedTaskQueue<R, Args...>::Flush()
 {
   R tmp;
@@ -266,18 +265,18 @@ void vtkThreadedTaskQueue<R, Args...>::Flush()
 //=============================================================================
 
 //-----------------------------------------------------------------------------
-template<typename ...Args>
+template <typename... Args>
 vtkThreadedTaskQueue<void, Args...>::vtkThreadedTaskQueue(std::function<void(Args...)> worker,
-    bool strict_ordering,
-    int buffer_size,
-    int max_concurrent_tasks)
+  bool strict_ordering, int buffer_size, int max_concurrent_tasks)
   : Worker(worker)
-  , Tasks(new vtkThreadedTaskQueueInternals::TaskQueue<void>(std::max(0, strict_ordering? 0 : buffer_size)))
+  , Tasks(new vtkThreadedTaskQueueInternals::TaskQueue<void>(
+      std::max(0, strict_ordering ? 0 : buffer_size)))
   , NextResultId(0)
-  , NumberOfThreads(max_concurrent_tasks <= 0 ? vtkMultiThreader::GetGlobalDefaultNumberOfThreads() : max_concurrent_tasks)
-  , Threads{new std::thread[this->NumberOfThreads]}
+  , NumberOfThreads(max_concurrent_tasks <= 0 ? vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
+                                              : max_concurrent_tasks)
+  , Threads{ new std::thread[this->NumberOfThreads] }
 {
-  auto f = [this](int thread_id){
+  auto f = [this](int thread_id) {
     vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
     while (true)
     {
@@ -288,7 +287,7 @@ vtkThreadedTaskQueue<void, Args...>::vtkThreadedTaskQueue(std::function<void(Arg
         task();
 
         std::unique_lock<std::mutex> lk(this->NextResultIdMutex);
-        this->NextResultId = std::max(static_cast<std::uint64_t>(this->NextResultId), task_id+1);
+        this->NextResultId = std::max(static_cast<std::uint64_t>(this->NextResultId), task_id + 1);
         lk.unlock();
         this->ResultsCV.notify_all();
         continue;
@@ -302,42 +301,45 @@ vtkThreadedTaskQueue<void, Args...>::vtkThreadedTaskQueue(std::function<void(Arg
     // vtkLogF(INFO, "done");
   };
 
-  for (int cc=0; cc < this->NumberOfThreads; ++cc)
+  for (int cc = 0; cc < this->NumberOfThreads; ++cc)
   {
     this->Threads[cc] = std::thread(f, cc);
   }
 }
 
 //-----------------------------------------------------------------------------
-template<typename ...Args>
+template <typename... Args>
 vtkThreadedTaskQueue<void, Args...>::~vtkThreadedTaskQueue()
 {
   this->Tasks->MarkDone();
-  for (int cc=0; cc < this->NumberOfThreads; ++cc)
+  for (int cc = 0; cc < this->NumberOfThreads; ++cc)
   {
     this->Threads[cc].join();
   }
 }
 
 //-----------------------------------------------------------------------------
-template<typename ...Args>
+template <typename... Args>
 void vtkThreadedTaskQueue<void, Args...>::Push(Args&&... args)
 {
   this->Tasks->Push(std::bind(this->Worker, args...));
 }
 
 //-----------------------------------------------------------------------------
-template<typename ...Args>
+template <typename... Args>
 bool vtkThreadedTaskQueue<void, Args...>::IsEmpty() const
 {
   return this->NextResultId == this->Tasks->GetNextTaskId();
 }
 
 //-----------------------------------------------------------------------------
-template<typename ...Args>
+template <typename... Args>
 void vtkThreadedTaskQueue<void, Args...>::Flush()
 {
-  if (this->IsEmpty()) { return; }
+  if (this->IsEmpty())
+  {
+    return;
+  }
   std::unique_lock<std::mutex> lk(this->NextResultIdMutex);
-  this->ResultsCV.wait(lk, [this]{ return this->IsEmpty(); });
+  this->ResultsCV.wait(lk, [this] { return this->IsEmpty(); });
 }

@@ -23,31 +23,31 @@
  * Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
  * @sa
  * vtkImage vtkImageMapper3D vtkImageSliceMapper vtkImageResliceMapper
-*/
+ */
 
 #ifndef vtkImageProperty_h
 #define vtkImageProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkScalarsToColors;
 
 class VTKRENDERINGCORE_EXPORT vtkImageProperty : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkImageProperty,vtkObject);
+  vtkTypeMacro(vtkImageProperty, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a property with no lookup table.
    */
-  static vtkImageProperty *New();
+  static vtkImageProperty* New();
 
   /**
    * Assign one property to another.
    */
-  void DeepCopy(vtkImageProperty *p);
+  void DeepCopy(vtkImageProperty* p);
 
   //@{
   /**
@@ -71,7 +71,7 @@ public:
    * to be displayed as greyscale, or if the input data is
    * already RGB, there is no need to set a lookup table.
    */
-  virtual void SetLookupTable(vtkScalarsToColors *lut);
+  virtual void SetLookupTable(vtkScalarsToColors* lut);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
   //@}
 
@@ -117,16 +117,12 @@ public:
   /**
    * The interpolation type (default: VTK_LINEAR_INTERPOLATION).
    */
-  vtkSetClampMacro(InterpolationType, int,
-                   VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
+  vtkSetClampMacro(InterpolationType, int, VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
   vtkGetMacro(InterpolationType, int);
-  void SetInterpolationTypeToNearest() {
-    this->SetInterpolationType(VTK_NEAREST_INTERPOLATION); };
-  void SetInterpolationTypeToLinear() {
-    this->SetInterpolationType(VTK_LINEAR_INTERPOLATION); };
-  void SetInterpolationTypeToCubic() {
-    this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); };
-  virtual const char *GetInterpolationTypeAsString();
+  void SetInterpolationTypeToNearest() { this->SetInterpolationType(VTK_NEAREST_INTERPOLATION); }
+  void SetInterpolationTypeToLinear() { this->SetInterpolationType(VTK_LINEAR_INTERPOLATION); }
+  void SetInterpolationTypeToCubic() { this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); }
+  virtual const char* GetInterpolationTypeAsString();
   //@}
 
   //@{
@@ -135,8 +131,7 @@ public:
    * of a vtkImageStack.  The default layer number is zero.
    */
   vtkSetMacro(LayerNumber, int);
-  int GetLayerNumber()
-    { return this->LayerNumber; }
+  int GetLayerNumber() { return this->LayerNumber; }
   //@}
 
   //@{
@@ -196,7 +191,7 @@ protected:
   vtkImageProperty();
   ~vtkImageProperty() override;
 
-  vtkScalarsToColors *LookupTable;
+  vtkScalarsToColors* LookupTable;
   double ColorWindow;
   double ColorLevel;
   vtkTypeBool UseLookupTableScalarRange;

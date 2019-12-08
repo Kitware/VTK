@@ -26,13 +26,13 @@
  * @sa
  * vtkUnstructuredGridVolumeRayCastMapper
  * vtkUnstructuredGridVolumeRayCastFunction
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeRayIntegrator_h
 #define vtkUnstructuredGridVolumeRayIntegrator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkVolume;
 class vtkDoubleArray;
@@ -41,14 +41,13 @@ class vtkDataArray;
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
+  vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set up the integrator with the given properties and scalars.
    */
-  virtual void Initialize(vtkVolume *volume,
-                          vtkDataArray* scalars) = 0;
+  virtual void Initialize(vtkVolume* volume, vtkDataArray* scalars) = 0;
 
   /**
    * Given a set of intersections (defined by the three arrays), compute
@@ -59,10 +58,8 @@ public:
    * value of the volume in front of the segments passed in, and the result
    * will be placed back into /c color.
    */
-  virtual void Integrate(vtkDoubleArray *intersectionLengths,
-                         vtkDataArray *nearIntersections,
-                         vtkDataArray *farIntersections,
-                         float color[4]) = 0;
+  virtual void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections, float color[4]) = 0;
 
 protected:
   vtkUnstructuredGridVolumeRayIntegrator();
@@ -74,4 +71,3 @@ private:
 };
 
 #endif
-

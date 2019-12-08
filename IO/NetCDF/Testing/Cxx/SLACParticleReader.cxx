@@ -27,28 +27,27 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSLACParticleReader.h"
 #include "vtkSLACReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <sstream>
 
-int SLACParticleReader(int argc, char *argv[])
+int SLACParticleReader(int argc, char* argv[])
 {
-  char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                             "Data/SLAC/pic-example/mesh.ncdf");
-  char *modeFileNamePattern = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                         "Data/SLAC/pic-example/fields_%d.mod");
-  char *particleFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                      "Data/SLAC/pic-example/particles_5.ncdf");
+  char* meshFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/mesh.ncdf");
+  char* modeFileNamePattern =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/fields_%d.mod");
+  char* particleFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/particles_5.ncdf");
 
   // Set up mesh reader.
   VTK_CREATE(vtkSLACReader, meshReader);
@@ -56,7 +55,7 @@ int SLACParticleReader(int argc, char *argv[])
   delete[] meshFileName;
 
   size_t modeFileNameLength = strlen(modeFileNamePattern) + 10;
-  char *modeFileName = new char[modeFileNameLength];
+  char* modeFileName = new char[modeFileNameLength];
   for (int i = 0; i < 9; i++)
   {
     snprintf(modeFileName, modeFileNameLength, modeFileNamePattern, i);
@@ -71,8 +70,7 @@ int SLACParticleReader(int argc, char *argv[])
 
   // Extract geometry that we can render.
   VTK_CREATE(vtkCompositeDataGeometryFilter, geometry);
-  geometry->SetInputConnection(
-                       meshReader->GetOutputPort(vtkSLACReader::VOLUME_OUTPUT));
+  geometry->SetInputConnection(meshReader->GetOutputPort(vtkSLACReader::VOLUME_OUTPUT));
 
   // Set up particle reader.
   VTK_CREATE(vtkSLACParticleReader, particleReader);
@@ -106,7 +104,7 @@ int SLACParticleReader(int argc, char *argv[])
   VTK_CREATE(vtkRenderer, renderer);
   renderer->AddActor(meshActor);
   renderer->AddActor(particleActor);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.2, 0.05, 0.0);
   camera->SetFocalPoint(0.0, 0.05, 0.0);
   camera->SetViewUp(0.0, 1.0, 0.0);
@@ -118,16 +116,14 @@ int SLACParticleReader(int argc, char *argv[])
   iren->SetRenderWindow(renwin);
   renwin->Render();
 
-  double time
-    = particleReader->GetOutput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+  double time = particleReader->GetOutput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
   cout << "Time in particle reader: " << time << endl;
 
   // Change the time to test the time step field load and to have the field
   // match the particles in time.
   geometry->UpdateInformation();
   geometry->GetOutputInformation(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-    time);
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
   renwin->Render();
 
   // Do the test comparison.

@@ -19,42 +19,32 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkDelimitedTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTestUtilities.h>
-#include <vtkIOStream.h>
 
 #define NUM_TEST_FILES 5
 
-int TestDelimitedTextReader(int argc, char *argv[])
+int TestDelimitedTextReader(int argc, char* argv[])
 {
 
-  const char* testOneFNames[NUM_TEST_FILES] = {"Data/delimited.txt",
-                                               "Data/delimited.txt",
-                                               "Data/delimitedUTF16.txt",
-                                               "Data/delimitedUTF16LE.txt",
-                                               "Data/delimitedUTF16BE.txt"};
+  const char* testOneFNames[NUM_TEST_FILES] = { "Data/delimited.txt", "Data/delimited.txt",
+    "Data/delimitedUTF16.txt", "Data/delimitedUTF16LE.txt", "Data/delimitedUTF16BE.txt" };
 
-  const char* testTwoFNames[NUM_TEST_FILES] = {"Data/delimited2.txt",
-                                               "Data/delimited2.txt",
-                                               "Data/delimited2UTF16.txt",
-                                               "Data/delimited2UTF16LE.txt",
-                                               "Data/delimited2UTF16BE.txt"};
+  const char* testTwoFNames[NUM_TEST_FILES] = { "Data/delimited2.txt", "Data/delimited2.txt",
+    "Data/delimited2UTF16.txt", "Data/delimited2UTF16LE.txt", "Data/delimited2UTF16BE.txt" };
 
-  const char* UnicodeCharacterSet[NUM_TEST_FILES] = {"ASCII",
-                                                     "UTF-8",
-                                                     "UTF-16",
-                                                     "UTF-16LE",
-                                                     "UTF-16BE"};
+  const char* UnicodeCharacterSet[NUM_TEST_FILES] = { "ASCII", "UTF-8", "UTF-16", "UTF-16LE",
+    "UTF-16BE" };
 
-  for(int index = 0;index<NUM_TEST_FILES;index++)
+  for (int index = 0; index < NUM_TEST_FILES; index++)
   {
-    char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                          testOneFNames[index]);
+    char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, testOneFNames[index]);
 
-    vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
+    vtkDelimitedTextReader* reader = vtkDelimitedTextReader::New();
 
-    if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
+    if (!strcmp(UnicodeCharacterSet[index], "ASCII"))
     {
       reader->SetFieldDelimiterCharacters(":");
       reader->SetStringDelimiter('"');
@@ -71,7 +61,7 @@ int TestDelimitedTextReader(int argc, char *argv[])
     reader->SetHaveHeaders(false);
     reader->Update();
 
-    vtkTable *table = reader->GetOutput();
+    vtkTable* table = reader->GetOutput();
     cout << "### Test 1: colon delimiter, no headers, do not merge consecutive delimiters" << endl;
     cout << "Printing reader info..." << endl;
     reader->Print(cout);
@@ -89,12 +79,12 @@ int TestDelimitedTextReader(int argc, char *argv[])
     }
 
     reader->Delete();
-    delete [] filename;
+    delete[] filename;
 
     // Test 2: make sure the MergeConsecutiveDelimiters thing works
     reader = vtkDelimitedTextReader::New();
 
-    if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
+    if (!strcmp(UnicodeCharacterSet[index], "ASCII"))
     {
       reader->SetFieldDelimiterCharacters(",");
     }
@@ -104,8 +94,7 @@ int TestDelimitedTextReader(int argc, char *argv[])
       reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
     }
 
-    filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    testTwoFNames[index]);
+    filename = vtkTestUtilities::ExpandDataFileName(argc, argv, testTwoFNames[index]);
 
     reader->MergeConsecutiveDelimitersOn();
     reader->SetHaveHeaders(true);
@@ -128,10 +117,9 @@ int TestDelimitedTextReader(int argc, char *argv[])
       return 1;
     }
 
-    delete [] filename;
+    delete[] filename;
     reader->Delete();
   }
 
   return 0;
 }
-

@@ -25,13 +25,13 @@
  * Note: this filter uses `vtkCompositeDataSet::ShallowCopy`, as a result, datasets at
  * leaf nodes are simply passed through, rather than being shallow-copied
  * themselves.
-*/
+ */
 
 #ifndef vtkExtractSelectedBlock_h
 #define vtkExtractSelectedBlock_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
 {
@@ -45,23 +45,19 @@ protected:
   ~vtkExtractSelectedBlock() override;
 
   // Generate the output.
-  int RequestData(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Sets up empty output dataset
    */
-  int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
 private:
   vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) = delete;
   void operator=(const vtkExtractSelectedBlock&) = delete;
-
 };
 
 #endif
-
-

@@ -17,15 +17,15 @@
  * @brief   manage Shader Programs within a context
  *
  * vtkOpenGLShaderCache manages shader program compilation and binding
-*/
+ */
 
 #ifndef vtkOpenGLShaderCache_h
 #define vtkOpenGLShaderCache_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include "vtkShader.h" // for vtkShader::Type
-#include <map> // for methods
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkShader.h"                 // for vtkShader::Type
+#include <map>                         // for methods
 
 class vtkTransformFeedback;
 class vtkShaderProgram;
@@ -35,27 +35,23 @@ class vtkOpenGLRenderWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 {
 public:
-  static vtkOpenGLShaderCache *New();
+  static vtkOpenGLShaderCache* New();
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // make sure the specified shaders are compiled, linked, and bound
-  virtual vtkShaderProgram *ReadyShaderProgram(
-    const char *vertexCode,
-    const char *fragmentCode,
-    const char *geometryCode,
-    vtkTransformFeedback *cap = nullptr);
+  virtual vtkShaderProgram* ReadyShaderProgram(const char* vertexCode, const char* fragmentCode,
+    const char* geometryCode, vtkTransformFeedback* cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   // will increment the reference count on the shaders if it
   // needs to keep them around
-  virtual vtkShaderProgram *ReadyShaderProgram(
-    std::map<vtkShader::Type,vtkShader *> shaders,
-      vtkTransformFeedback *cap = nullptr);
+  virtual vtkShaderProgram* ReadyShaderProgram(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkTransformFeedback* cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
-  virtual vtkShaderProgram *ReadyShaderProgram(
-      vtkShaderProgram *shader, vtkTransformFeedback *cap = nullptr);
+  virtual vtkShaderProgram* ReadyShaderProgram(
+    vtkShaderProgram* shader, vtkTransformFeedback* cap = nullptr);
 
   /**
    * Release the current shader.  Basically go back to
@@ -67,7 +63,7 @@ public:
   /**
    * Free up any resources being used by the provided shader
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *win);
+  virtual void ReleaseGraphicsResources(vtkWindow* win);
 
   /**
    * Get/Clear the last Shader bound, called by shaders as they release
@@ -76,6 +72,9 @@ public:
   virtual void ClearLastShaderBound() { this->LastShaderBound = nullptr; }
   vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
+  // Set the time in seconds elapsed since the first render
+  void SetElapsedTime(float val) { this->ElapsedTime = val; }
+
 protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache() override;
@@ -83,28 +82,25 @@ protected:
   // perform System and Output replacements in place. Returns
   // the number of outputs
   virtual unsigned int ReplaceShaderValues(
-    std::string &VSSource,
-    std::string &FSSource,
-    std::string &GSSource);
+    std::string& VSSource, std::string& FSSource, std::string& GSSource);
 
-  virtual vtkShaderProgram* GetShaderProgram(const char *vertexCode,
-                                      const char *fragmentCode,
-                                      const char *geometryCode);
   virtual vtkShaderProgram* GetShaderProgram(
-    std::map<vtkShader::Type,vtkShader *> shaders);
+    const char* vertexCode, const char* fragmentCode, const char* geometryCode);
+  virtual vtkShaderProgram* GetShaderProgram(std::map<vtkShader::Type, vtkShader*> shaders);
   virtual int BindShader(vtkShaderProgram* shader);
 
   class Private;
-  Private *Internal;
-  vtkShaderProgram *LastShaderBound;
+  Private* Internal;
+  vtkShaderProgram* LastShaderBound;
 
   int OpenGLMajorVersion;
   int OpenGLMinorVersion;
 
+  float ElapsedTime;
+
 private:
   vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) = delete;
   void operator=(const vtkOpenGLShaderCache&) = delete;
-
 };
 
 #endif

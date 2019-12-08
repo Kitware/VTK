@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkSPHCubicKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkSPHCubicKernel);
 
@@ -24,17 +24,17 @@ vtkSPHCubicKernel::vtkSPHCubicKernel()
 {
   this->CutoffFactor = 2.0;
 
-  if ( this->Dimension == 1 )
+  if (this->Dimension == 1)
   {
-    this->Sigma = 2.0/3.0;
+    this->Sigma = 2.0 / 3.0;
   }
-  else if ( this->Dimension == 2 )
+  else if (this->Dimension == 2)
   {
-    this->Sigma = 10.0/(7.0*vtkMath::Pi());
+    this->Sigma = 10.0 / (7.0 * vtkMath::Pi());
   }
-  else //if ( this->Dimension == 3 )
+  else // if ( this->Dimension == 3 )
   {
-      this->Sigma = 1.0/vtkMath::Pi();
+    this->Sigma = 1.0 / vtkMath::Pi();
   }
 }
 
@@ -44,18 +44,17 @@ vtkSPHCubicKernel::~vtkSPHCubicKernel() = default;
 //----------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff
 // factor should be known.
-void vtkSPHCubicKernel::
-Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
+void vtkSPHCubicKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* attr)
 {
-  if ( this->Dimension == 1 )
+  if (this->Dimension == 1)
   {
     this->Sigma = 2.0 / 3.0;
   }
-  else if ( this->Dimension == 2 )
+  else if (this->Dimension == 2)
   {
-    this->Sigma = 10.0 / (7.0*vtkMath::Pi());
+    this->Sigma = 10.0 / (7.0 * vtkMath::Pi());
   }
-  else //if ( this->Dimension == 3 )
+  else // if ( this->Dimension == 3 )
   {
     this->Sigma = 1.0 / vtkMath::Pi();
   }
@@ -67,5 +66,5 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
 //----------------------------------------------------------------------------
 void vtkSPHCubicKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

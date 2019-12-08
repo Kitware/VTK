@@ -26,13 +26,13 @@
  * connected to seeds, and "OutputUnconnectedValue" for any on pixels not
  * connected to seeds.  The same seeds are used for all images in the image
  * set.
-*/
+ */
 
 #ifndef vtkImageSeedConnectivity_h
 #define vtkImageSeedConnectivity_h
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkImageConnector;
 class vtkImageConnectorSeed;
@@ -40,8 +40,8 @@ class vtkImageConnectorSeed;
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageSeedConnectivity : public vtkImageAlgorithm
 {
 public:
-  static vtkImageSeedConnectivity *New();
-  vtkTypeMacro(vtkImageSeedConnectivity,vtkImageAlgorithm);
+  static vtkImageSeedConnectivity* New();
+  vtkTypeMacro(vtkImageSeedConnectivity, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -49,7 +49,7 @@ public:
    * Methods for manipulating the seed pixels.
    */
   void RemoveAllSeeds();
-  void AddSeed(int num, int *index);
+  void AddSeed(int num, int* index);
   void AddSeed(int i0, int i1, int i2);
   void AddSeed(int i0, int i1);
   //@}
@@ -82,15 +82,15 @@ public:
   /**
    * Get the vtkImageCOnnector used by this filter.
    */
-  vtkGetObjectMacro(Connector,vtkImageConnector);
+  vtkGetObjectMacro(Connector, vtkImageConnector);
   //@}
 
   //@{
   /**
    * Set the number of axes to use in connectivity.
    */
-  vtkSetMacro(Dimensionality,int);
-  vtkGetMacro(Dimensionality,int);
+  vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
   //@}
 
 protected:
@@ -100,21 +100,16 @@ protected:
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;
   unsigned char OutputUnconnectedValue;
-  vtkImageConnectorSeed *Seeds;
-  vtkImageConnector *Connector;
+  vtkImageConnectorSeed* Seeds;
+  vtkImageConnector* Connector;
   int Dimensionality;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) = delete;
   void operator=(const vtkImageSeedConnectivity&) = delete;
 };
 
-
-
 #endif
-
-
-

@@ -31,56 +31,51 @@
  *
  * You should never have to deal with this class outside of
  * vtkPostgreSQLDatabase and vtkPostgreSQLQuery.
-*/
+ */
 
 #ifndef vtkPostgreSQLDatabasePrivate_h
 #define vtkPostgreSQLDatabasePrivate_h
 
 #include "vtkStdString.h"
-#include "vtkType.h"
 #include "vtkTimeStamp.h"
+#include "vtkType.h"
 
 #include <libpq-fe.h>
 #include <map>
 
 class vtkPostgreSQLDatabasePrivate
 {
- public:
-  vtkPostgreSQLDatabasePrivate()
-  {
-      this->Connection = nullptr;
-  }
+public:
+  vtkPostgreSQLDatabasePrivate() { this->Connection = nullptr; }
 
   /**
    * Destroy the database connection. Any uncommitted transaction will be aborted.
    */
-    virtual ~vtkPostgreSQLDatabasePrivate()
+  virtual ~vtkPostgreSQLDatabasePrivate()
+  {
+    if (this->Connection)
     {
-      if (this->Connection)
-      {
-        PQfinish(this->Connection);
-      }
+      PQfinish(this->Connection);
     }
+  }
 
-    // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
-    int GetVTKTypeFromOID( Oid pgtype )
+  // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
+  int GetVTKTypeFromOID(Oid pgtype)
+  {
+    std::map<Oid, int>::const_iterator it = this->DataTypeMap.find(pgtype);
+    if (it == this->DataTypeMap.end())
     {
-      std::map<Oid,int>::const_iterator it = this->DataTypeMap.find( pgtype );
-      if ( it == this->DataTypeMap.end() )
-      {
-        return VTK_STRING;
-      }
-      return it->second;
+      return VTK_STRING;
     }
-
-
+    return it->second;
+  }
 
   // This is the actual database connection.  It will be nullptr if no
   // connection is open.
-  PGconn  *Connection;
+  PGconn* Connection;
 
   // Map Postgres column types to VTK types.
-  std::map<Oid,int> DataTypeMap;
+  std::map<Oid, int> DataTypeMap;
 };
 
 #endif // vtkPostgreSQLDatabasePrivate_h

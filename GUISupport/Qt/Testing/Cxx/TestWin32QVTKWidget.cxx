@@ -19,48 +19,55 @@ PURPOSE.  See the above copyright notice for more information.
 // been known to fail but only in a local build. I.e. one cannot
 // trust the dashboard entry for this test unfortunately.
 
-
-#include "vtkSmartPointer.h"
 #include "QVTKWidget.h"
-#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 
-#include <QPointer>
-#include <QDockWidget>
-#include <QTabWidget>
-#include <QEvent>
 #include <QApplication>
+#include <QDockWidget>
+#include <QEvent>
 #include <QMainWindow>
+#include <QPointer>
+#include <QTabWidget>
 
-#define TOKEN_TO_STRING(TOK) # TOK
+#define TOKEN_TO_STRING(TOK) #TOK
 #define STRINGIZE_TOKEN(TOK) TOKEN_TO_STRING(TOK)
-#define PRINT_AND_EVAL(X) {std::string fnc=__FUNCTION__;std::cout<<fnc<<": "<<STRINGIZE_TOKEN(X)<<"="<<X<<std::endl;std::cout.flush();}
+#define PRINT_AND_EVAL(X)                                                                          \
+  {                                                                                                \
+    std::string fnc = __FUNCTION__;                                                                \
+    std::cout << fnc << ": " << STRINGIZE_TOKEN(X) << "=" << X << std::endl;                       \
+    std::cout.flush();                                                                             \
+  }
 
-#define fail(msg) \
-  std::cout << msg << std::endl; \
+#define fail(msg)                                                                                  \
+  std::cout << msg << std::endl;                                                                   \
   return EXIT_FAILURE
 
 void flushQtEvents()
 {
-  QApplication::sendPostedEvents( );
-  QApplication::processEvents(QEventLoop::AllEvents,10);
+  QApplication::sendPostedEvents();
+  QApplication::processEvents(QEventLoop::AllEvents, 10);
 }
 
 void initializeWidget(QWidget* arg)
 {
-  arg->setGeometry(20,20,640,480);
+  arg->setGeometry(20, 20, 640, 480);
   arg->show();
   flushQtEvents();
 }
 
-template <typename WidgetType1,typename WidgetType2=WidgetType1>
+template <typename WidgetType1, typename WidgetType2 = WidgetType1>
 struct QVTKWidgetInsideQWidgets
 {
-  QVTKWidgetInsideQWidgets() : widget1(0), widget2(0), mainWindow(0)
+  QVTKWidgetInsideQWidgets()
+    : widget1(0)
+    , widget2(0)
+    , mainWindow(0)
   {
-    renderer->SetBackground(1.0,0.0,0.8);
-    renderer->SetBackground2(0.5,0.5,0.5);
+    renderer->SetBackground(1.0, 0.0, 0.8);
+    renderer->SetBackground2(0.5, 0.5, 0.5);
     renderer->SetGradientBackground(true);
     glwin->AddRenderer(renderer);
   }
@@ -69,28 +76,28 @@ struct QVTKWidgetInsideQWidgets
   {
     widget1.data()->deleteLater();
     widget2.data()->deleteLater();
-    if(mainWindow && !mainWindow->parent())
+    if (mainWindow && !mainWindow->parent())
       delete mainWindow;
-    //delete widget2;
+    // delete widget2;
   }
 
-  QVTKWidget* spawnSubwidget( QTabWidget* tabWidget,QVTKWidget* qvtk=nullptr)
+  QVTKWidget* spawnSubwidget(QTabWidget* tabWidget, QVTKWidget* qvtk = nullptr)
   {
-    if(!mainWindow)
+    if (!mainWindow)
       mainWindow = new QMainWindow();
     tabWidget->setParent(mainWindow);
     mainWindow->setCentralWidget(tabWidget);
-    if(!qvtk)
+    if (!qvtk)
       qvtk = new QVTKWidget();
-    qvtk->setMinimumSize(600,400);
+    qvtk->setMinimumSize(600, 400);
     tabWidget->addTab(qvtk, "qvtk_widget");
     qvtk->setParent(tabWidget);
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QMainWindow* mainWin,QVTKWidget* qvtk = nullptr)
+  QVTKWidget* spawnSubwidget(QMainWindow* mainWin, QVTKWidget* qvtk = nullptr)
   {
-    mainWindow       = mainWin;
+    mainWindow = mainWin;
     if (!qvtk)
       qvtk = new QVTKWidget(mainWindow);
 
@@ -99,7 +106,7 @@ struct QVTKWidgetInsideQWidgets
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QDockWidget* dock,QVTKWidget* qvtk = nullptr)
+  QVTKWidget* spawnSubwidget(QDockWidget* dock, QVTKWidget* qvtk = nullptr)
   {
     if (!mainWindow)
       mainWindow = new QMainWindow();
@@ -112,10 +119,10 @@ struct QVTKWidgetInsideQWidgets
 
   int run()
   {
-    //auto window = std::make_unique<QMainWindow>();
-    widget1            = new WidgetType1();
+    // auto window = std::make_unique<QMainWindow>();
+    widget1 = new WidgetType1();
     initializeWidget(widget1);
-    QVTKWidget* qvtk   = spawnSubwidget( widget1 );
+    QVTKWidget* qvtk = spawnSubwidget(widget1);
 
     qvtk->SetRenderWindow(glwin);
 
@@ -126,7 +133,7 @@ struct QVTKWidgetInsideQWidgets
     flushQtEvents();
     widget2 = new WidgetType2();
     initializeWidget(widget2);
-    QVTKWidget* qvtk1_ref = spawnSubwidget( widget2, qvtk );
+    QVTKWidget* qvtk1_ref = spawnSubwidget(widget2, qvtk);
 
     qvtk1_ref->GetRenderWindow()->Render();
 
@@ -135,11 +142,11 @@ struct QVTKWidgetInsideQWidgets
     return EXIT_SUCCESS;
   }
 
-  QPointer<WidgetType1>               widget1;
-  QPointer<WidgetType2>               widget2;
-  QPointer<QMainWindow>               mainWindow;
-  vtkNew<vtkWin32OpenGLRenderWindow>  glwin;
-  vtkNew<vtkRenderer>                 renderer;
+  QPointer<WidgetType1> widget1;
+  QPointer<WidgetType2> widget2;
+  QPointer<QMainWindow> mainWindow;
+  vtkNew<vtkWin32OpenGLRenderWindow> glwin;
+  vtkNew<vtkRenderer> renderer;
 };
 
 int TestWin32QVTKWidget(int argc, char* argv[])
@@ -147,13 +154,13 @@ int TestWin32QVTKWidget(int argc, char* argv[])
 
   QApplication app(argc, argv);
 
-  if( EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow>().run() )
+  if (EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow>().run())
     return EXIT_FAILURE;
 
-  if (EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow,QTabWidget>().run())
+  if (EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow, QTabWidget>().run())
     return EXIT_FAILURE;
 
-  if (EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow,QDockWidget>().run())
+  if (EXIT_SUCCESS != QVTKWidgetInsideQWidgets<QMainWindow, QDockWidget>().run())
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

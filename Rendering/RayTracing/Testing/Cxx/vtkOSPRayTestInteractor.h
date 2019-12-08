@@ -31,8 +31,8 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class vtkCommand;
 class vtkRenderer;
@@ -43,27 +43,25 @@ class vtkRenderWindow;
 class vtkOSPRayTestInteractor : public vtkInteractorStyleTrackballCamera
 {
 private:
-  vtkRenderer *GLRenderer;
-  vtkRenderPass *O;
-  vtkRenderPass *G;
+  vtkRenderer* GLRenderer;
+  vtkRenderPass* O;
+  vtkRenderPass* G;
   int VisibleActor;
   int VisibleLight;
-  vtkCommand *Looper;
+  vtkCommand* Looper;
 
 public:
   static vtkOSPRayTestInteractor* New();
   vtkTypeMacro(vtkOSPRayTestInteractor, vtkInteractorStyleTrackballCamera);
   vtkOSPRayTestInteractor();
   ~vtkOSPRayTestInteractor();
-  void SetPipelineControlPoints(vtkRenderer *g,
-                                vtkRenderPass *_O,
-                                vtkRenderPass *_G);
+  void SetPipelineControlPoints(vtkRenderer* g, vtkRenderPass* _O, vtkRenderPass* _G);
   virtual void OnKeyPress() override;
 
-  static void AddName(const char *name);
+  static void AddName(const char* name);
 
-  //access to a progressive rendering automator
-  vtkCommand *GetLooper(vtkRenderWindow*);
+  // access to a progressive rendering automator
+  vtkCommand* GetLooper(vtkRenderWindow*);
 };
 
 #endif

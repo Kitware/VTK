@@ -31,23 +31,23 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkMultiPieceDataSet.h"
 #include "vtkMultiBlockVolumeMapper.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkNew.h"
+#include "vtkTestUtilities.h"
 
 #include <sstream> // istringstream
 
@@ -56,8 +56,8 @@ int TestADIOS2BPReaderMultiTimeSteps3D(int argc, char* argv[])
   vtkNew<vtkADIOS2CoreImageReader> reader;
 
   // Read the input data file
-  char* filePath = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                               "Data/ADIOS2/3D_7-point_24-step/gs.bp");
+  char* filePath =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/3D_7-point_24-step/gs.bp");
 
   if (!reader->CanReadFile(filePath))
   {
@@ -65,7 +65,7 @@ int TestADIOS2BPReaderMultiTimeSteps3D(int argc, char* argv[])
     return 0;
   }
   reader->SetFileName(filePath);
-  delete [] filePath;
+  delete[] filePath;
 
   reader->UpdateInformation();
   auto& availVars = reader->GetAvilableVariables();
@@ -81,12 +81,14 @@ int TestADIOS2BPReaderMultiTimeSteps3D(int argc, char* argv[])
   reader->SetActiveScalar(std::make_pair("U", vtkADIOS2CoreImageReader::VarType::CellData));
   reader->Update();
 
-  vtkSmartPointer<vtkMultiBlockDataSet> output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
+  vtkSmartPointer<vtkMultiBlockDataSet> output =
+    vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
   assert(output->GetNumberOfBlocks() == 1);
-  vtkSmartPointer<vtkMultiPieceDataSet> mpds = vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
+  vtkSmartPointer<vtkMultiPieceDataSet> mpds =
+    vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(0));
   assert(mpds->GetNumberOfPieces() == 6);
-  vtkSmartPointer<vtkImageData> image0 =  vtkImageData::SafeDownCast(mpds->GetPiece(0));
-  vtkSmartPointer<vtkImageData> image1 =  vtkImageData::SafeDownCast(mpds->GetPiece(1));
+  vtkSmartPointer<vtkImageData> image0 = vtkImageData::SafeDownCast(mpds->GetPiece(0));
+  vtkSmartPointer<vtkImageData> image1 = vtkImageData::SafeDownCast(mpds->GetPiece(1));
 
   // Use vtkXMLPMultiBlockDataWriter + vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()
   // to write out the data if needed

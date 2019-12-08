@@ -22,18 +22,19 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, Kitware SAS 2012.
-*/
+ */
 
 #ifndef vtkPAutoCorrelativeStatistics_h
 #define vtkPAutoCorrelativeStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkAutoCorrelativeStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPAutoCorrelativeStatistics : public vtkAutoCorrelativeStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPAutoCorrelativeStatistics
+  : public vtkAutoCorrelativeStatistics
 {
 public:
   static vtkPAutoCorrelativeStatistics* New();
@@ -52,23 +53,20 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn( vtkTable* inData,
-              vtkTable* inParameters,
-              vtkMultiBlockDataSet* outMeta ) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
   /**
    * Execute the calculations required by the Test option.
    * NB: Not implemented for more than 1 processor
    */
-  void Test( vtkTable*,
-             vtkMultiBlockDataSet*,
-             vtkTable* ) override;
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
 
 protected:
   vtkPAutoCorrelativeStatistics();
   ~vtkPAutoCorrelativeStatistics() override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&) = delete;
   void operator=(const vtkPAutoCorrelativeStatistics&) = delete;

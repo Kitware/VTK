@@ -32,13 +32,13 @@
  * This array must be a vtkIntArray.
  * Any type that does not map to a font property that was set will
  * be set to the type 0's type property.
-*/
+ */
 
 #ifndef vtkLabelSizeCalculator_h
 #define vtkLabelSizeCalculator_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkIntArray;
 class vtkTextRenderer;
@@ -49,8 +49,8 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeA
 {
 public:
   static vtkLabelSizeCalculator* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
-  vtkTypeMacro(vtkLabelSizeCalculator,vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkLabelSizeCalculator, vtkPassInputTypeAlgorithm);
 
   //@{
   /**
@@ -77,24 +77,22 @@ public:
    * Get/Set the DPI at which the labels are to be rendered. Defaults to 72.
    * @sa vtkWindow::GetDPI()
    */
-  vtkSetMacro(DPI, int)
-  vtkGetMacro(DPI, int)
+  vtkSetMacro(DPI, int);
+  vtkGetMacro(DPI, int);
   //@}
 
 protected:
   vtkLabelSizeCalculator();
   ~vtkLabelSizeCalculator() override;
 
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inInfo,
-    vtkInformationVector* outInfo ) override;
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels, vtkIntArray* types );
+  virtual vtkIntArray* LabelSizesForArray(vtkAbstractArray* labels, vtkIntArray* types);
 
-  virtual void SetFontUtil( vtkTextRenderer* fontProp );
-  vtkGetObjectMacro(FontUtil,vtkTextRenderer);
+  virtual void SetFontUtil(vtkTextRenderer* fontProp);
+  vtkGetObjectMacro(FontUtil, vtkTextRenderer);
 
   vtkTextRenderer* FontUtil;
   char* LabelSizeArrayName;
@@ -105,8 +103,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ) = delete;
-  void operator = ( const vtkLabelSizeCalculator& ) = delete;
+  vtkLabelSizeCalculator(const vtkLabelSizeCalculator&) = delete;
+  void operator=(const vtkLabelSizeCalculator&) = delete;
 };
 
 #endif // vtkLabelSizeCalculator_h

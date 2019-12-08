@@ -63,12 +63,13 @@ vtkSmartPointer<vtkMultiBlockDataSet> CreateDataSet(
     source->SetWholeExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
     source->Update();
 
-    mb->SetBlock(rank*nblocks + cc, source->GetOutputDataObject(0));
+    mb->SetBlock(rank * nblocks + cc, source->GetOutputDataObject(0));
   }
   return mb;
 }
 
-bool ValidateDataset(vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr, int vtkNotUsed(ghost_level))
+bool ValidateDataset(
+  vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr, int vtkNotUsed(ghost_level))
 {
   const int num_ranks = contr->GetNumberOfProcesses();
   const int total_nblocks = nblocks * num_ranks;
@@ -80,11 +81,12 @@ bool ValidateDataset(vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr,
   {
     if (auto ds = vtkDataSet::SafeDownCast(mb->GetBlock(cc)))
     {
-      if (auto gpoints = vtkUnsignedCharArray::SafeDownCast(ds->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName())))
+      if (auto gpoints = vtkUnsignedCharArray::SafeDownCast(
+            ds->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName())))
       {
-        for (vtkIdType kk=0, max = gpoints->GetNumberOfTuples(); kk < max; ++kk)
+        for (vtkIdType kk = 0, max = gpoints->GetNumberOfTuples(); kk < max; ++kk)
         {
-          local_non_duplicated_points += (gpoints->GetTypedComponent(kk, 0) == 0)? 1 : 0;
+          local_non_duplicated_points += (gpoints->GetTypedComponent(kk, 0) == 0) ? 1 : 0;
         }
       }
       if (auto gpids = vtkIdTypeArray::SafeDownCast(ds->GetPointData()->GetGlobalIds()))
@@ -100,7 +102,8 @@ bool ValidateDataset(vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr,
   }
 
   vtkIdType global_non_duplicated_points;
-  contr->AllReduce(&local_non_duplicated_points, &global_non_duplicated_points, 1, vtkCommunicator::SUM_OP);
+  contr->AllReduce(
+    &local_non_duplicated_points, &global_non_duplicated_points, 1, vtkCommunicator::SUM_OP);
   if (global_non_duplicated_points != vtkStructuredData::GetNumberOfPoints(whole_extent))
   {
     vtkLogF(ERROR, "incorrect non-duplicated points; ghost points marked incorrectly!");
@@ -148,8 +151,7 @@ int TestGenerateGlobalIds(int argc, char* argv[])
     generator->Update();
 
     if (!ValidateDataset(
-        vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)),
-        contr, 0))
+          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 0))
     {
       status = EXIT_FAILURE;
     }
@@ -162,8 +164,7 @@ int TestGenerateGlobalIds(int argc, char* argv[])
     generator->Update();
 
     if (!ValidateDataset(
-        vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)),
-        contr, 1))
+          vtkMultiBlockDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr, 1))
     {
       status = EXIT_FAILURE;
     }

@@ -18,7 +18,7 @@
  *
  * vtkInformationDoubleKey is used to represent keys for double values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationDoubleKey_h
 #define vtkInformationDoubleKey_h
@@ -31,7 +31,7 @@
 class VTKCOMMONCORE_EXPORT vtkInformationDoubleKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationDoubleKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationDoubleKey(const char* name, const char* location);

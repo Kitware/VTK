@@ -17,14 +17,13 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 
-int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArcSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkArcSource> arcSource
-    = vtkSmartPointer<vtkArcSource>::New();
+  vtkSmartPointer<vtkArcSource> arcSource = vtkSmartPointer<vtkArcSource>::New();
   arcSource->SetAngle(90.0);
   arcSource->SetResolution(8);
   arcSource->NegativeOff();
@@ -33,7 +32,7 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   arcSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
   double normal[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
@@ -41,7 +40,7 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   arcSource->SetNormal(normal);
 
   double polarVector[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     polarVector[i] = randomSequence->GetValue();
@@ -53,21 +52,21 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = arcSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   arcSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
   }
   arcSource->SetNormal(normal);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     polarVector[i] = randomSequence->GetValue();
@@ -79,7 +78,7 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = arcSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

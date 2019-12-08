@@ -24,16 +24,15 @@
  *
  * @sa
  * vtkBorderWidget
-*/
+ */
 
 #ifndef vtkLogoWidget_h
 #define vtkLogoWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkLogoRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkLogoWidget : public vtkBorderWidget
 {
@@ -41,13 +40,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkLogoWidget *New();
+  static vtkLogoWidget* New();
 
   //@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkLogoWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -56,8 +55,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkLogoRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkLogoRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Create the default widget representation if one is not set.

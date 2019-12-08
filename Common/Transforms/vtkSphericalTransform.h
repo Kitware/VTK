@@ -27,7 +27,7 @@
  * the z-axis)
  * @sa
  * vtkCylindricalTransform vtkGeneralTransform
-*/
+ */
 
 #ifndef vtkSphericalTransform_h
 #define vtkSphericalTransform_h
@@ -38,14 +38,14 @@
 class VTKCOMMONTRANSFORMS_EXPORT vtkSphericalTransform : public vtkWarpTransform
 {
 public:
-  static vtkSphericalTransform *New();
-  vtkTypeMacro(vtkSphericalTransform,vtkWarpTransform);
+  static vtkSphericalTransform* New();
+  vtkTypeMacro(vtkSphericalTransform, vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
   vtkSphericalTransform();
@@ -54,7 +54,7 @@ protected:
   /**
    * Copy this transform from another of the same type.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) override;
+  void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
   //@{
   /**
@@ -64,18 +64,16 @@ protected:
   void ForwardTransformPoint(const double in[3], double out[3]) override;
   //@}
 
-  void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void ForwardTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void ForwardTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
   void InverseTransformPoint(const float in[3], float out[3]) override;
   void InverseTransformPoint(const double in[3], double out[3]) override;
 
-  void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void InverseTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void InverseTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
 private:
   vtkSphericalTransform(const vtkSphericalTransform&) = delete;
@@ -83,4 +81,3 @@ private:
 };
 
 #endif
-

@@ -23,29 +23,28 @@
  * this position if desired.
  * @sa
  * vtkPointHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
-*/
+ */
 
 #ifndef vtkPolygonalHandleRepresentation3D_h
 #define vtkPolygonalHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractPolygonalHandleRepresentation3D.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPolygonalHandleRepresentation3D
-                : public vtkAbstractPolygonalHandleRepresentation3D
+  : public vtkAbstractPolygonalHandleRepresentation3D
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkPolygonalHandleRepresentation3D *New();
+  static vtkPolygonalHandleRepresentation3D* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkPolygonalHandleRepresentation3D,
-                       vtkAbstractPolygonalHandleRepresentation3D);
+  vtkTypeMacro(vtkPolygonalHandleRepresentation3D, vtkAbstractPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -59,8 +58,8 @@ public:
    * Set/get the offset of the handle position with respect to the handle
    * center, assumed to be the origin.
    */
-  vtkSetVector3Macro( Offset, double );
-  vtkGetVector3Macro( Offset, double );
+  vtkSetVector3Macro(Offset, double);
+  vtkGetVector3Macro(Offset, double);
   //@}
 
 protected:

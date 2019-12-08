@@ -86,7 +86,7 @@ vtkLightRepresentation::vtkLightRepresentation()
 //----------------------------------------------------------------------
 vtkLightRepresentation::~vtkLightRepresentation()
 {
-  //Needed in order to be able to forward declare the classes in vtkNew
+  // Needed in order to be able to forward declare the classes in vtkNew
 }
 
 //----------------------------------------------------------------------
@@ -215,7 +215,8 @@ void vtkLightRepresentation::WidgetInteraction(double eventPosition[2])
   this->LastPicker->GetPickPosition(pos);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, pos[0], pos[1], pos[2], lookPoint);
   double z = lookPoint[2];
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, eventPosition[0], eventPosition[1], z, pickPoint);
+  vtkInteractorObserver::ComputeDisplayToWorld(
+    this->Renderer, eventPosition[0], eventPosition[1], z, pickPoint);
 
   // Process the motion
   if (this->InteractionState == vtkLightRepresentation::MovingLight)
@@ -294,11 +295,11 @@ int vtkLightRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed
 void vtkLightRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime ||
-      (this->Renderer &&
-       ((this->Renderer->GetVTKWindow() &&
+    (this->Renderer &&
+      ((this->Renderer->GetVTKWindow() &&
          this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) ||
         (this->Renderer->GetActiveCamera() &&
-         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime))))
+          this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime))))
   {
     // resize the handles
     this->SizeHandles();

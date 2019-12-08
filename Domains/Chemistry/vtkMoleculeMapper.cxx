@@ -131,9 +131,8 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   // Force the glyph data to be generated on the next render:
   this->GlyphDataInitialized = false;
 
-  this->SetInputArrayToProcess(0, 0, 0,
-                               vtkDataObject::FIELD_ASSOCIATION_VERTICES,
-                               "Atomic Numbers");
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Atomic Numbers");
 }
 
 //----------------------------------------------------------------------------
@@ -584,8 +583,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   vtkUnsignedCharArray* singleColorArray = nullptr;
   vtkAbstractArray* cylColors = nullptr;
 
-  bool useColorArray =
-    this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
+  bool useColorArray = this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
 
   // In DiscreteByAtom mode, coloring is done with the data used for atom
   // coloring. So we need an array of the same type, with data corresponding to begin and end atom

@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vector>
@@ -35,18 +36,17 @@ vtkRemoveGhosts::vtkRemoveGhosts() = default;
 vtkRemoveGhosts::~vtkRemoveGhosts() = default;
 
 //-----------------------------------------------------------------------------
-void vtkRemoveGhosts::PrintSelf(ostream &os, vtkIndent indent)
+void vtkRemoveGhosts::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-int vtkRemoveGhosts::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
-                                         vtkInformationVector **vtkNotUsed(inputVector),
-                                         vtkInformationVector *outputVector)
+int vtkRemoveGhosts::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
 
@@ -54,17 +54,16 @@ int vtkRemoveGhosts::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-int vtkRemoveGhosts::RequestData(vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector)
+int vtkRemoveGhosts::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDebugMacro("RequestData");
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkDataSet *input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkUnsignedCharArray* ghostArray = vtkUnsignedCharArray::SafeDownCast(
     input->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
@@ -101,8 +100,7 @@ int vtkRemoveGhosts::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-int vtkRemoveGhosts::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkRemoveGhosts::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");

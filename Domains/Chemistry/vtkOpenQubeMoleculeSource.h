@@ -18,35 +18,35 @@
  * a vtkMolecule object
  *
  *
-*/
+ */
 
 #ifndef vtkOpenQubeMoleculeSource_h
 #define vtkOpenQubeMoleculeSource_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkDomainsChemistryModule.h" // For export macro
 
 class vtkMolecule;
 
 namespace OpenQube
 {
-  class Molecule;
-  class BasisSet;
+class Molecule;
+class BasisSet;
 }
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkOpenQubeMoleculeSource : public vtkDataReader
 {
 public:
-  static vtkOpenQubeMoleculeSource *New();
-  vtkTypeMacro(vtkOpenQubeMoleculeSource,vtkDataReader);
+  static vtkOpenQubeMoleculeSource* New();
+  vtkTypeMacro(vtkOpenQubeMoleculeSource, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
-  vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *);
+  vtkMolecule* GetOutput();
+  void SetOutput(vtkMolecule*);
   //@}
 
   //@{
@@ -67,7 +67,7 @@ public:
    * have been set with SetBasisSet and SetFileName, the object takes
    * precedence over the file and the file will not be read.
    */
-  virtual void SetBasisSet(OpenQube::BasisSet *b);
+  virtual void SetBasisSet(OpenQube::BasisSet* b);
   vtkGetMacro(BasisSet, OpenQube::BasisSet*);
   //@}
 
@@ -87,20 +87,18 @@ protected:
   vtkOpenQubeMoleculeSource();
   ~vtkOpenQubeMoleculeSource();
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   int FillOutputPortInformation(int, vtkInformation*);
 
-  char *FileName;
-  OpenQube::BasisSet *BasisSet;
+  char* FileName;
+  OpenQube::BasisSet* BasisSet;
   bool CleanUpBasisSet;
 
   /**
    * Copy the OpenQube::Molecule object @a oqmol into the provided
    * vtkMolecule object @a mol.
    */
-  void CopyOQMoleculeToVtkMolecule(const OpenQube::Molecule *oqmol,
-                                   vtkMolecule *mol);
+  void CopyOQMoleculeToVtkMolecule(const OpenQube::Molecule* oqmol, vtkMolecule* mol);
 
 private:
   vtkOpenQubeMoleculeSource(const vtkOpenQubeMoleculeSource&) = delete;

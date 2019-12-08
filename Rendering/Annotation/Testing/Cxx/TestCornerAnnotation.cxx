@@ -13,29 +13,28 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderer.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
+#include "vtkImageMandelbrotSource.h"
+#include "vtkImageMapToWindowLevelColors.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageShiftScale.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
-#include "vtkImageData.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
-#include "vtkImageMapToWindowLevelColors.h"
-#include "vtkImageMandelbrotSource.h"
 
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCornerAnnotation.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 
-int TestCornerAnnotation( int argc, char * argv [] )
+int TestCornerAnnotation(int argc, char* argv[])
 {
   vtkSmartPointer<vtkImageMandelbrotSource> imageSource =
     vtkSmartPointer<vtkImageMandelbrotSource>::New();
-  vtkSmartPointer<vtkImageShiftScale> imageCast =
-    vtkSmartPointer<vtkImageShiftScale>::New();
+  vtkSmartPointer<vtkImageShiftScale> imageCast = vtkSmartPointer<vtkImageShiftScale>::New();
   imageCast->SetInputConnection(imageSource->GetOutputPort());
   imageCast->SetScale(100);
   imageCast->SetShift(0);
@@ -47,8 +46,7 @@ int TestCornerAnnotation( int argc, char * argv [] )
   imageWL->SetInputConnection(imageCast->GetOutputPort());
   imageWL->SetWindow(10000);
   imageWL->SetLevel(5000);
-  vtkSmartPointer<vtkImageActor> imageActor =
-    vtkSmartPointer<vtkImageActor>::New();
+  vtkSmartPointer<vtkImageActor> imageActor = vtkSmartPointer<vtkImageActor>::New();
   imageActor->GetMapper()->SetInputConnection(imageWL->GetOutputPort());
 
   // Visualize
@@ -58,32 +56,32 @@ int TestCornerAnnotation( int argc, char * argv [] )
 
   renderWindow->SetSize(800, 600);
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderer->AddActor(imageActor);
 
-   // Annotate the image with window/level and mouse over pixel information
+  // Annotate the image with window/level and mouse over pixel information
   vtkSmartPointer<vtkCornerAnnotation> cornerAnnotation =
-      vtkSmartPointer<vtkCornerAnnotation>::New();
+    vtkSmartPointer<vtkCornerAnnotation>::New();
 
   cornerAnnotation->SetImageActor(imageActor);
   cornerAnnotation->SetWindowLevel(imageWL);
 
-  cornerAnnotation->SetLinearFontScaleFactor( 2 );
-  cornerAnnotation->SetNonlinearFontScaleFactor( 1 );
-  cornerAnnotation->SetMaximumFontSize( 20 );
+  cornerAnnotation->SetLinearFontScaleFactor(2);
+  cornerAnnotation->SetNonlinearFontScaleFactor(1);
+  cornerAnnotation->SetMaximumFontSize(20);
 
-  cornerAnnotation->SetText(vtkCornerAnnotation::LowerLeft,  "LL (<image>)" );
-  cornerAnnotation->SetText(vtkCornerAnnotation::LowerRight, "LR (<image_and_max>)" );
-  cornerAnnotation->SetText(vtkCornerAnnotation::UpperLeft,  "UL (<slice>)" );
-  cornerAnnotation->SetText(vtkCornerAnnotation::UpperRight, "UR (<slice_and_max>)" );
+  cornerAnnotation->SetText(vtkCornerAnnotation::LowerLeft, "LL (<image>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::LowerRight, "LR (<image_and_max>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::UpperLeft, "UL (<slice>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::UpperRight, "UR (<slice_and_max>)");
 
-  cornerAnnotation->SetText(vtkCornerAnnotation::UpperEdge,  "T (<window_level>)");
-  cornerAnnotation->SetText(vtkCornerAnnotation::LowerEdge,  "B (<slice_pos>)");
-  cornerAnnotation->SetText(vtkCornerAnnotation::LeftEdge,   "L (<window>)");
-  cornerAnnotation->SetText(vtkCornerAnnotation::RightEdge,  "R (<level>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::UpperEdge, "T (<window_level>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::LowerEdge, "B (<slice_pos>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::LeftEdge, "L (<window>)");
+  cornerAnnotation->SetText(vtkCornerAnnotation::RightEdge, "R (<level>)");
 
-  cornerAnnotation->GetTextProperty()->SetColor( 1,0,0);
+  cornerAnnotation->GetTextProperty()->SetColor(1, 0, 0);
 
   renderer->AddViewProp(cornerAnnotation);
 

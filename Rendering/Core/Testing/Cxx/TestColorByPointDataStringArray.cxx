@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include <vtkActor.h>
 #include <vtkDiscretizableColorTransferFunction.h>
@@ -22,13 +22,12 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
-
 
 int TestColorByPointDataStringArray(int argc, char* argv[])
 {

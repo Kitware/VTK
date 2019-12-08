@@ -19,28 +19,26 @@
  * vtkImageContinuousDilate3D replaces a pixel with the maximum over
  * an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
  * is done on that axis.
-*/
+ */
 
 #ifndef vtkImageContinuousDilate3D_h
 #define vtkImageContinuousDilate3D_h
 
-
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkImageEllipsoidSource;
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialAlgorithm
 {
 public:
-
   //@{
   /**
    * Construct an instance of vtkImageContinuousDilate3D filter.
    * By default zero values are dilated.
    */
-  static vtkImageContinuousDilate3D *New();
-  vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
+  static vtkImageContinuousDilate3D* New();
+  vtkTypeMacro(vtkImageContinuousDilate3D, vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -54,16 +52,13 @@ protected:
   vtkImageContinuousDilate3D();
   ~vtkImageContinuousDilate3D() override;
 
-  vtkImageEllipsoidSource *Ellipse;
+  vtkImageEllipsoidSource* Ellipse;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) = delete;

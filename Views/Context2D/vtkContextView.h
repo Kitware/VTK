@@ -23,14 +23,14 @@
  * of it.
  *
  * By default the scene has a white background.
-*/
+ */
 
 #ifndef vtkContextView_h
 #define vtkContextView_h
 
-#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars
+#include "vtkSmartPointer.h"         // Needed for SP ivars
+#include "vtkViewsContext2DModule.h" // For export macro
 
 class vtkContext2D;
 class vtkContextScene;
@@ -46,7 +46,7 @@ public:
   /**
    * Set the vtkContext2D for the view.
    */
-  virtual void SetContext(vtkContext2D *context);
+  virtual void SetContext(vtkContext2D* context);
 
   /**
    * Get the vtkContext2D for the view.
@@ -56,7 +56,7 @@ public:
   /**
    * Set the scene object for the view.
    */
-  virtual void SetScene(vtkContextScene *scene);
+  virtual void SetScene(vtkContextScene* scene);
 
   /**
    * Get the scene of the view.

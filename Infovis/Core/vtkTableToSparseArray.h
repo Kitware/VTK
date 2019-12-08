@@ -44,13 +44,13 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkTableToSparseArray_h
 #define vtkTableToSparseArray_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 {
@@ -90,10 +90,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTableToSparseArray(const vtkTableToSparseArray&) = delete;
@@ -101,8 +98,6 @@ private:
 
   class implementation;
   implementation* const Implementation;
-
 };
 
 #endif
-

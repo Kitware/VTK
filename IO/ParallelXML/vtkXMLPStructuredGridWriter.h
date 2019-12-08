@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkXMLStructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLPStructuredGridWriter_h
 #define vtkXMLPStructuredGridWriter_h
@@ -39,7 +39,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredGridWriter : public vtkXMLPStruct
 {
 public:
   static vtkXMLPStructuredGridWriter* New();
-  vtkTypeMacro(vtkXMLPStructuredGridWriter,vtkXMLPStructuredDataWriter);
+  vtkTypeMacro(vtkXMLPStructuredGridWriter, vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

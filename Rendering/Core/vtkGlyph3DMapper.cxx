@@ -44,13 +44,14 @@
 #include <cassert>
 #include <vector>
 
-namespace {
-int getNumberOfChildren(vtkDataObjectTree *tree)
+namespace
+{
+int getNumberOfChildren(vtkDataObjectTree* tree)
 {
   int result = 0;
   if (tree)
   {
-    vtkDataObjectTreeIterator *it = tree->NewTreeIterator();
+    vtkDataObjectTreeIterator* it = tree->NewTreeIterator();
     it->SetTraverseSubTree(false);
     it->SetVisitOnlyLeaves(false);
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
@@ -96,7 +97,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
   this->Masking = false;
-  this->SelectionColorId=1;
+  this->SelectionColorId = 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -108,15 +109,15 @@ vtkGlyph3DMapper::~vtkGlyph3DMapper()
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetMaskArray(int fieldAttributeType)
 {
-  this->SetInputArrayToProcess(vtkGlyph3DMapper::MASK, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
+  this->SetInputArrayToProcess(
+    vtkGlyph3DMapper::MASK, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetMaskArray(const char* maskarrayname)
 {
-  this->SetInputArrayToProcess(vtkGlyph3DMapper::MASK, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, maskarrayname);
+  this->SetInputArrayToProcess(
+    vtkGlyph3DMapper::MASK, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, maskarrayname);
 }
 
 // ---------------------------------------------------------------------------
@@ -125,8 +126,7 @@ vtkDataArray* vtkGlyph3DMapper::GetMaskArray(vtkDataSet* input)
   if (this->Masking)
   {
     int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    return this->GetInputArrayToProcess(vtkGlyph3DMapper::MASK,
-      input, association);
+    return this->GetInputArrayToProcess(vtkGlyph3DMapper::MASK, input, association);
   }
   return nullptr;
 }
@@ -151,8 +151,7 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
   if (this->Orient)
   {
     int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    return this->GetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION,
-      input, association);
+    return this->GetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION, input, association);
   }
   return nullptr;
 }
@@ -160,15 +159,15 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetScaleArray(const char* scalarsarrayname)
 {
-  this->SetInputArrayToProcess(vtkGlyph3DMapper::SCALE, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, scalarsarrayname);
+  this->SetInputArrayToProcess(
+    vtkGlyph3DMapper::SCALE, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, scalarsarrayname);
 }
 
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetScaleArray(int fieldAttributeType)
 {
-  this->SetInputArrayToProcess(vtkGlyph3DMapper::SCALE, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
+  this->SetInputArrayToProcess(
+    vtkGlyph3DMapper::SCALE, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
 }
 
 // ---------------------------------------------------------------------------
@@ -177,8 +176,7 @@ vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
   if (this->Scaling && this->ScaleMode != vtkGlyph3DMapper::NO_DATA_SCALING)
   {
     int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    vtkDataArray* arr = this->GetInputArrayToProcess(vtkGlyph3DMapper::SCALE,
-      input, association);
+    vtkDataArray* arr = this->GetInputArrayToProcess(vtkGlyph3DMapper::SCALE, input, association);
     return arr;
   }
   return nullptr;
@@ -187,8 +185,8 @@ vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceIndexArray(const char* arrayname)
 {
-  this->SetInputArrayToProcess(vtkGlyph3DMapper::SOURCE_INDEX, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayname);
+  this->SetInputArrayToProcess(
+    vtkGlyph3DMapper::SOURCE_INDEX, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayname);
 }
 
 // ---------------------------------------------------------------------------
@@ -204,8 +202,7 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
   if (this->SourceIndexing)
   {
     int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    return this->GetInputArrayToProcess(
-      vtkGlyph3DMapper::SOURCE_INDEX, input, association);
+    return this->GetInputArrayToProcess(vtkGlyph3DMapper::SOURCE_INDEX, input, association);
   }
   return nullptr;
 }
@@ -230,8 +227,8 @@ vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
   if (this->UseSelectionIds)
   {
     int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    vtkDataArray* arr = this->GetInputArrayToProcess(
-          vtkGlyph3DMapper::SELECTIONID, input, association);
+    vtkDataArray* arr =
+      this->GetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, input, association);
     return arr;
   }
   return nullptr;
@@ -240,14 +237,12 @@ vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
 // ---------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkGlyph3DMapper::GetColors(vtkDataSet* input)
 {
-  return vtkArrayDownCast<vtkUnsignedCharArray>(
-    input->GetPointData()->GetScalars());
+  return vtkArrayDownCast<vtkUnsignedCharArray>(input->GetPointData()->GetScalars());
 }
 
 // ---------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3DMapper::SetSourceConnection(int idx,
-  vtkAlgorithmOutput *algOutput)
+void vtkGlyph3DMapper::SetSourceConnection(int idx, vtkAlgorithmOutput* algOutput)
 {
   if (idx < 0)
   {
@@ -267,14 +262,15 @@ void vtkGlyph3DMapper::SetSourceConnection(int idx,
   else if (algOutput)
   {
     vtkWarningMacro("The source id provided is larger than the maximum "
-      "source id, using " << numConnections << " instead.");
+                    "source id, using "
+      << numConnections << " instead.");
     this->AddInputConnection(1, algOutput);
   }
 }
 
 // ---------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
+void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData* pd)
 {
   int numConnections = this->GetNumberOfInputConnections(1);
 
@@ -314,7 +310,7 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
 }
 
 // ---------------------------------------------------------------------------
-void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree *tree)
+void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree* tree)
 {
   vtkNew<vtkTrivialProducer> tp;
   tp->SetOutput(tree);
@@ -323,38 +319,35 @@ void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree *tree)
 }
 
 // ---------------------------------------------------------------------------
-void vtkGlyph3DMapper::SetSourceData(vtkPolyData *pd)
+void vtkGlyph3DMapper::SetSourceData(vtkPolyData* pd)
 {
-  this->SetSourceData(0,pd);
+  this->SetSourceData(0, pd);
 }
 
 // ---------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
-vtkPolyData *vtkGlyph3DMapper::GetSource(int idx)
+vtkPolyData* vtkGlyph3DMapper::GetSource(int idx)
 {
-  if ( idx < 0 || idx >= this->GetNumberOfInputConnections(1) )
+  if (idx < 0 || idx >= this->GetNumberOfInputConnections(1))
   {
     return nullptr;
   }
 
-  return vtkPolyData::SafeDownCast(
-        this->GetExecutive()->GetInputData(1, idx));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, idx));
 }
 
 // ---------------------------------------------------------------------------
-vtkDataObjectTree *vtkGlyph3DMapper::GetSourceTableTree()
+vtkDataObjectTree* vtkGlyph3DMapper::GetSourceTableTree()
 {
   return this->UseSourceTableTree
-      ? vtkDataObjectTree::SafeDownCast(
-          this->GetExecutive()->GetInputData(1, 0))
-      : nullptr;
+    ? vtkDataObjectTree::SafeDownCast(this->GetExecutive()->GetInputData(1, 0))
+    : nullptr;
 }
 
 // ---------------------------------------------------------------------------
-vtkPolyData *vtkGlyph3DMapper::GetSource(int idx,
-  vtkInformationVector *sourceInfo)
+vtkPolyData* vtkGlyph3DMapper::GetSource(int idx, vtkInformationVector* sourceInfo)
 {
-  vtkInformation *info = sourceInfo->GetInformationObject(idx);
+  vtkInformation* info = sourceInfo->GetInformationObject(idx);
   if (!info)
   {
     return nullptr;
@@ -367,12 +360,12 @@ const char* vtkGlyph3DMapper::GetOrientationModeAsString()
 {
   switch (this->OrientationMode)
   {
-  case vtkGlyph3DMapper::DIRECTION:
-    return "Direction";
-  case vtkGlyph3DMapper::ROTATION:
-    return "Rotation";
-  case vtkGlyph3DMapper::QUATERNION:
-    return "Quaternion";
+    case vtkGlyph3DMapper::DIRECTION:
+      return "Direction";
+    case vtkGlyph3DMapper::ROTATION:
+      return "Rotation";
+    case vtkGlyph3DMapper::QUATERNION:
+      return "Quaternion";
   }
   return "Invalid";
 }
@@ -380,13 +373,13 @@ const char* vtkGlyph3DMapper::GetOrientationModeAsString()
 // ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->UseSourceTableTree)
   {
-    if ( this->GetNumberOfInputConnections(1) < 2 )
+    if (this->GetNumberOfInputConnections(1) < 2)
     {
-      if ( this->GetSource(0) != nullptr )
+      if (this->GetSource(0) != nullptr)
       {
         os << indent << "Source: (" << this->GetSource(0) << ")\n";
       }
@@ -413,16 +406,12 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Clamping: " << (this->Clamping ? "On\n" : "Off\n");
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
   os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
-  os << indent << "OrientationMode: "
-    << this->GetOrientationModeAsString() << "\n";
-  os << indent << "SourceIndexing: "
-    << (this->SourceIndexing? "On" : "Off") << endl;
-  os << indent << "UseSourceTableTree: "
-     << (this->UseSourceTableTree ? "On" : "Off") << endl;
-  os << indent << "UseSelectionIds: "
-     << (this->UseSelectionIds? "On" : "Off") << endl;
+  os << indent << "OrientationMode: " << this->GetOrientationModeAsString() << "\n";
+  os << indent << "SourceIndexing: " << (this->SourceIndexing ? "On" : "Off") << endl;
+  os << indent << "UseSourceTableTree: " << (this->UseSourceTableTree ? "On" : "Off") << endl;
+  os << indent << "UseSelectionIds: " << (this->UseSelectionIds ? "On" : "Off") << endl;
   os << indent << "SelectionColorId: " << this->SelectionColorId << endl;
-  os << indent << "Masking: " << (this->Masking? "On" : "Off") << endl;
+  os << indent << "Masking: " << (this->Masking ? "On" : "Off") << endl;
   os << indent << "BlockAttributes: (" << this->BlockAttributes << ")" << endl;
   if (this->BlockAttributes)
   {
@@ -431,32 +420,26 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ---------------------------------------------------------------------------
-  int vtkGlyph3DMapper::RequestUpdateExtent(
-    vtkInformation *vtkNotUsed(request),
-    vtkInformationVector **inputVector,
-    vtkInformationVector *)
-  {
+int vtkGlyph3DMapper::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector, vtkInformationVector*)
+{
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
 
   if (sourceInfo)
   {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-      0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-      1);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-      0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
   return 1;
-  }
+}
 
 // ---------------------------------------------------------------------------
-int vtkGlyph3DMapper::FillInputPortInformation(int port,
-  vtkInformation *info)
+int vtkGlyph3DMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -478,13 +461,13 @@ int vtkGlyph3DMapper::FillInputPortInformation(int port,
 // ---------------------------------------------------------------------------
 // Description:
 // Return the method of scaling as a descriptive character string.
-const char *vtkGlyph3DMapper::GetScaleModeAsString()
+const char* vtkGlyph3DMapper::GetScaleModeAsString()
 {
-  if ( this->ScaleMode == SCALE_BY_MAGNITUDE)
+  if (this->ScaleMode == SCALE_BY_MAGNITUDE)
   {
     return "ScaleByMagnitude";
   }
-  else if ( this->ScaleMode == SCALE_BY_COMPONENTS)
+  else if (this->ScaleMode == SCALE_BY_COMPONENTS)
   {
     return "ScaleByVectorComponents";
   }
@@ -502,35 +485,34 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
 
   ds->GetBounds(ds_bounds);
   // if there is nothing inside the scene, just return uninitializedBounds
-  if ((ds_bounds[0] > ds_bounds[1]) && (ds_bounds[2] > ds_bounds[3]) && \
-      (ds_bounds[4] > ds_bounds[5]))
+  if ((ds_bounds[0] > ds_bounds[1]) && (ds_bounds[2] > ds_bounds[3]) &&
+    (ds_bounds[4] > ds_bounds[5]))
   {
-     return false;
+    return false;
   }
   // if the input is not conform to what the mapper expects (use vector
   // but no vector data), nothing will be mapped.
   // It make sense to return uninitialized bounds.
 
-  vtkDataArray *scaleArray = this->GetScaleArray(ds);
-  vtkDataArray *orientArray = this->GetOrientationArray(ds);
+  vtkDataArray* scaleArray = this->GetScaleArray(ds);
+  vtkDataArray* orientArray = this->GetOrientationArray(ds);
   // TODO:
   // 1. cumulative bbox of all the glyph
   // 2. scale it by scale factor and maximum scalar value (or vector mag)
   // 3. enlarge the input bbox half-way in each direction with the
   // glyphs bbox.
 
-
-  double den=this->Range[1]-this->Range[0];
-  if(den==0.0)
+  double den = this->Range[1] - this->Range[0];
+  if (den == 0.0)
   {
-    den=1.0;
+    den = 1.0;
   }
 
-  if(!this->UseSourceTableTree && this->GetSource(0)==nullptr)
+  if (!this->UseSourceTableTree && this->GetSource(0) == nullptr)
   {
-    vtkPolyData *defaultSource = vtkPolyData::New();
-    defaultSource->Allocate();
-    vtkPoints *defaultPoints = vtkPoints::New();
+    vtkPolyData* defaultSource = vtkPolyData::New();
+    defaultSource->AllocateEstimate(0, 0, 1, 2, 0, 0, 0, 0);
+    vtkPoints* defaultPoints = vtkPoints::New();
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
     defaultPoints->InsertNextPoint(1, 0, 0);
@@ -548,72 +530,65 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   // FB
 
   // Compute indexRange.
-  vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
-  int numberOfSources = this->UseSourceTableTree
-      ? getNumberOfChildren(sourceTableTree)
-      : this->GetNumberOfInputConnections(1);
+  vtkDataObjectTree* sourceTableTree = this->GetSourceTableTree();
+  int numberOfSources = this->UseSourceTableTree ? getNumberOfChildren(sourceTableTree)
+                                                 : this->GetNumberOfInputConnections(1);
 
   if (numberOfSources < 1)
   {
     return true; // just return the dataset bounds.
   }
 
-  int indexRange[2] = {0, 0};
-  vtkDataArray *indexArray = this->GetSourceIndexArray(ds);
+  int indexRange[2] = { 0, 0 };
+  vtkDataArray* indexArray = this->GetSourceIndexArray(ds);
   if (indexArray)
   {
     double range[2];
     indexArray->GetRange(range, -1);
-    for (int i=0; i<2; i++)
+    for (int i = 0; i < 2; i++)
     {
-      indexRange[i]=static_cast<int>((range[i]-this->Range[0])*numberOfSources/den);
-      indexRange[i] = vtkMath::ClampValue(indexRange[i], 0, numberOfSources-1);
+      indexRange[i] = static_cast<int>((range[i] - this->Range[0]) * numberOfSources / den);
+      indexRange[i] = vtkMath::ClampValue(indexRange[i], 0, numberOfSources - 1);
     }
   }
 
   vtkBoundingBox bbox; // empty
 
-  double xScaleRange[2] = {1.0, 1.0};
-  double yScaleRange[2] = {1.0, 1.0};
-  double zScaleRange[2] = {1.0, 1.0};
+  double xScaleRange[2] = { 1.0, 1.0 };
+  double yScaleRange[2] = { 1.0, 1.0 };
+  double zScaleRange[2] = { 1.0, 1.0 };
 
   if (scaleArray)
   {
-    switch(this->ScaleMode)
+    switch (this->ScaleMode)
     {
-    case SCALE_BY_MAGNITUDE:
-      scaleArray->GetRange(xScaleRange,-1);
-      yScaleRange[0]=xScaleRange[0];
-      yScaleRange[1]=xScaleRange[1];
-      zScaleRange[0]=xScaleRange[0];
-      zScaleRange[1]=xScaleRange[1];
-      break;
+      case SCALE_BY_MAGNITUDE:
+        scaleArray->GetRange(xScaleRange, -1);
+        yScaleRange[0] = xScaleRange[0];
+        yScaleRange[1] = xScaleRange[1];
+        zScaleRange[0] = xScaleRange[0];
+        zScaleRange[1] = xScaleRange[1];
+        break;
 
-    case SCALE_BY_COMPONENTS:
-      scaleArray->GetRange(xScaleRange,0);
-      scaleArray->GetRange(yScaleRange,1);
-      scaleArray->GetRange(zScaleRange,2);
-      break;
+      case SCALE_BY_COMPONENTS:
+        scaleArray->GetRange(xScaleRange, 0);
+        scaleArray->GetRange(yScaleRange, 1);
+        scaleArray->GetRange(zScaleRange, 2);
+        break;
 
-    default:
-      // NO_DATA_SCALING: do nothing, set variables to avoid warnings.
-      break;
+      default:
+        // NO_DATA_SCALING: do nothing, set variables to avoid warnings.
+        break;
     }
 
     if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
     {
-      xScaleRange[0]=vtkMath::ClampAndNormalizeValue(xScaleRange[0],
-        this->Range);
-      xScaleRange[1]=vtkMath::ClampAndNormalizeValue(xScaleRange[1],
-        this->Range);
-      yScaleRange[0]=vtkMath::ClampAndNormalizeValue(yScaleRange[0],
-        this->Range);
-      yScaleRange[1]=vtkMath::ClampAndNormalizeValue(yScaleRange[1],
-        this->Range);
-      zScaleRange[0]=vtkMath::ClampAndNormalizeValue(zScaleRange[0],
-        this->Range);
-      zScaleRange[1]=vtkMath::ClampAndNormalizeValue(zScaleRange[1],
-        this->Range);
+      xScaleRange[0] = vtkMath::ClampAndNormalizeValue(xScaleRange[0], this->Range);
+      xScaleRange[1] = vtkMath::ClampAndNormalizeValue(xScaleRange[1], this->Range);
+      yScaleRange[0] = vtkMath::ClampAndNormalizeValue(yScaleRange[0], this->Range);
+      yScaleRange[1] = vtkMath::ClampAndNormalizeValue(yScaleRange[1], this->Range);
+      zScaleRange[0] = vtkMath::ClampAndNormalizeValue(zScaleRange[0], this->Range);
+      zScaleRange[1] = vtkMath::ClampAndNormalizeValue(zScaleRange[1], this->Range);
     }
   }
 
@@ -631,12 +606,11 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
       // Add the bounds from the appropriate datasets:
       while (idx <= indexRange[1])
       {
-        vtkDataObject *sourceDObj = *sTTIter;
+        vtkDataObject* sourceDObj = *sTTIter;
 
         // The source table tree may have composite nodes:
-        vtkCompositeDataSet *sourceCDS =
-            vtkCompositeDataSet::SafeDownCast(sourceDObj);
-        vtkCompositeDataIterator *sourceIter = nullptr;
+        vtkCompositeDataSet* sourceCDS = vtkCompositeDataSet::SafeDownCast(sourceDObj);
+        vtkCompositeDataIterator* sourceIter = nullptr;
         if (sourceCDS)
         {
           sourceIter = sourceCDS->NewIterator();
@@ -645,15 +619,14 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         }
 
         // Or, it may just have polydata:
-        vtkPolyData *sourcePD = vtkPolyData::SafeDownCast(sourceDObj);
+        vtkPolyData* sourcePD = vtkPolyData::SafeDownCast(sourceDObj);
 
         for (;;)
         {
           // Extract the polydata from the composite dataset if it exists:
           if (sourceIter)
           {
-            sourcePD =
-                vtkPolyData::SafeDownCast(sourceIter->GetCurrentDataObject());
+            sourcePD = vtkPolyData::SafeDownCast(sourceIter->GetCurrentDataObject());
           }
 
           // Get the bounds of the current dataset:
@@ -695,16 +668,16 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   }
   else // non-source-table-tree table
   {
-    int index=indexRange[0];
-    while(index<=indexRange[1])
+    int index = indexRange[0];
+    while (index <= indexRange[1])
     {
-      vtkPolyData *source = this->GetSource(index);
+      vtkPolyData* source = this->GetSource(index);
       // Make sure we're not indexing into empty glyph
-      if(source!=nullptr)
+      if (source != nullptr)
       {
         double bounds[6];
-        source->GetBounds(bounds);// can be invalid/uninitialized
-        if(vtkMath::AreBoundsInitialized(bounds))
+        source->GetBounds(bounds); // can be invalid/uninitialized
+        if (vtkMath::AreBoundsInitialized(bounds))
         {
           bbox.AddBounds(bounds);
         }
@@ -713,25 +686,25 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     }
   }
 
-  if(this->Scaling)
+  if (this->Scaling)
   {
     vtkBoundingBox bbox2(bbox);
-    bbox.Scale(xScaleRange[0],yScaleRange[0],zScaleRange[0]);
-    bbox2.Scale(xScaleRange[1],yScaleRange[1],zScaleRange[1]);
+    bbox.Scale(xScaleRange[0], yScaleRange[0], zScaleRange[0]);
+    bbox2.Scale(xScaleRange[1], yScaleRange[1], zScaleRange[1]);
     bbox.AddBox(bbox2);
-    bbox.Scale(this->ScaleFactor,this->ScaleFactor,this->ScaleFactor);
+    bbox.Scale(this->ScaleFactor, this->ScaleFactor, this->ScaleFactor);
   }
 
-  if(bbox.IsValid())
+  if (bbox.IsValid())
   {
     double bounds[6];
     if (orientArray)
     {
       vtkBoundingBox bbox2(bbox);
-      bbox2.Scale(-1.0,-1.0,-1.0);
+      bbox2.Scale(-1.0, -1.0, -1.0);
       bbox.AddBox(bbox2);
       // bounding sphere.
-      double l=bbox.GetDiagonalLength()/2.0;
+      double l = bbox.GetDiagonalLength() / 2.0;
       bounds[0] = -l;
       bounds[1] = l;
       bounds[2] = -l;
@@ -743,10 +716,10 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     {
       bbox.GetBounds(bounds);
     }
-    int j=0;
-    while(j<6)
+    int j = 0;
+    while (j < 6)
     {
-      ds_bounds[j]+=bounds[j];
+      ds_bounds[j] += bounds[j];
       ++j;
     }
   }
@@ -765,7 +738,7 @@ double* vtkGlyph3DMapper::GetBounds()
   vtkMath::UninitializeBounds(this->Bounds);
 
   // do we have an input
-  if ( ! this->GetNumberOfInputConnections(0) )
+  if (!this->GetNumberOfInputConnections(0))
   {
     return this->Bounds;
   }
@@ -800,7 +773,7 @@ double* vtkGlyph3DMapper::GetBounds()
   vtkBoundingBox bbox;
 
   using Opts = vtk::CompositeDataSetOptions;
-  for (vtkDataObject *dObj : vtk::Range(cd, Opts::SkipEmptyNodes))
+  for (vtkDataObject* dObj : vtk::Range(cd, Opts::SkipEmptyNodes))
   {
     ds = vtkDataSet::SafeDownCast(dObj);
     if (ds)
@@ -822,7 +795,7 @@ void vtkGlyph3DMapper::GetBounds(double bounds[6])
 }
 
 // ---------------------------------------------------------------------------
-void vtkGlyph3DMapper::Render(vtkRenderer *, vtkActor *)
+void vtkGlyph3DMapper::Render(vtkRenderer*, vtkActor*)
 {
   cerr << "Calling wrong render method!!\n";
 }

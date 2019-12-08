@@ -21,15 +21,15 @@
  *
  * This class can be used to transform all child items of this class. The
  * default transform is the identity.
-*/
+ */
 
 #ifndef vtkContextTransform_h
 #define vtkContextTransform_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars.
-#include "vtkVector.h" // Needed for ivars.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // Needed for SP ivars.
+#include "vtkVector.h"                   // Needed for ivars.
 
 class vtkTransform2D;
 
@@ -37,12 +37,12 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextTransform : public vtkAbstractConte
 {
 public:
   vtkTypeMacro(vtkContextTransform, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkContextTransform object.
    */
-  static vtkContextTransform *New();
+  static vtkContextTransform* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -54,7 +54,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Reset the transform to the identity transformation.
@@ -186,22 +186,22 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse press event. Keep track of zoom anchor position.
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event. Perform pan or zoom as specified by the mouse bindings.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
 protected:
   vtkContextTransform();
@@ -224,9 +224,8 @@ protected:
   vtkVector2f ZoomAnchor;
 
 private:
-  vtkContextTransform(const vtkContextTransform &) = delete;
-  void operator=(const vtkContextTransform &) = delete;
-
+  vtkContextTransform(const vtkContextTransform&) = delete;
+  void operator=(const vtkContextTransform&) = delete;
 };
 
-#endif //vtkContextTransform_h
+#endif // vtkContextTransform_h

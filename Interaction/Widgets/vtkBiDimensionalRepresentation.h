@@ -38,7 +38,7 @@
  *
  * @sa
  * vtkAngleWidget vtkHandleRepresentation vtkBiDimensionalRepresentation2D
-*/
+ */
 
 #ifndef vtkBiDimensionalRepresentation_h
 #define vtkBiDimensionalRepresentation_h
@@ -48,7 +48,6 @@
 
 class vtkHandleRepresentation;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -56,7 +55,7 @@ public:
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkBiDimensionalRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBiDimensionalRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -91,10 +90,10 @@ public:
    * grabbing these representations and setting the properties
    * appropriately.)
    */
-  vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
-  vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
-  vtkGetObjectMacro(Point3Representation,vtkHandleRepresentation);
-  vtkGetObjectMacro(Point4Representation,vtkHandleRepresentation);
+  vtkGetObjectMacro(Point1Representation, vtkHandleRepresentation);
+  vtkGetObjectMacro(Point2Representation, vtkHandleRepresentation);
+  vtkGetObjectMacro(Point3Representation, vtkHandleRepresentation);
+  vtkGetObjectMacro(Point4Representation, vtkHandleRepresentation);
   //@}
 
   //@{
@@ -104,12 +103,12 @@ public:
    * control the appearance of the widget. Note: turning off Line1 actually turns
    * off Line1 and Line2.
    */
-  vtkSetMacro(Line1Visibility,vtkTypeBool);
-  vtkGetMacro(Line1Visibility,vtkTypeBool);
-  vtkBooleanMacro(Line1Visibility,vtkTypeBool);
-  vtkSetMacro(Line2Visibility,vtkTypeBool);
-  vtkGetMacro(Line2Visibility,vtkTypeBool);
-  vtkBooleanMacro(Line2Visibility,vtkTypeBool);
+  vtkSetMacro(Line1Visibility, vtkTypeBool);
+  vtkGetMacro(Line1Visibility, vtkTypeBool);
+  vtkBooleanMacro(Line1Visibility, vtkTypeBool);
+  vtkSetMacro(Line2Visibility, vtkTypeBool);
+  vtkGetMacro(Line2Visibility, vtkTypeBool);
+  vtkBooleanMacro(Line2Visibility, vtkTypeBool);
   //@}
 
   //@{
@@ -124,7 +123,7 @@ public:
    * InstantiateHandleRepresentation() is invoked by the vtkBiDimensionalWidget
    * for the purposes of cloning.)
    */
-  void SetHandleRepresentation(vtkHandleRepresentation *handle);
+  void SetHandleRepresentation(vtkHandleRepresentation* handle);
   virtual void InstantiateHandleRepresentation();
   //@}
 
@@ -134,8 +133,8 @@ public:
    * pixels) in which the cursor is considered near enough to the
    * representation to be active.
    */
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
+  vtkSetClampMacro(Tolerance, int, 1, 100);
+  vtkGetMacro(Tolerance, int);
   //@}
 
   /**
@@ -161,7 +160,19 @@ public:
   //@}
 
   // Used to communicate about the state of the representation
-  enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1Inner,OnL1Outer,OnL2Inner,OnL2Outer,OnCenter};
+  enum
+  {
+    Outside = 0,
+    NearP1,
+    NearP2,
+    NearP3,
+    NearP4,
+    OnL1Inner,
+    OnL1Outer,
+    OnL2Inner,
+    OnL2Outer,
+    OnCenter
+  };
 
   //@{
   /**
@@ -213,11 +224,11 @@ protected:
   int Modifier;
 
   // The handle and the rep used to close the handles
-  vtkHandleRepresentation *HandleRepresentation;
-  vtkHandleRepresentation *Point1Representation;
-  vtkHandleRepresentation *Point2Representation;
-  vtkHandleRepresentation *Point3Representation;
-  vtkHandleRepresentation *Point4Representation;
+  vtkHandleRepresentation* HandleRepresentation;
+  vtkHandleRepresentation* Point1Representation;
+  vtkHandleRepresentation* Point2Representation;
+  vtkHandleRepresentation* Point3Representation;
+  vtkHandleRepresentation* Point4Representation;
 
   // Selection tolerance for the handles
   int Tolerance;
@@ -242,7 +253,7 @@ protected:
   double StartEventPositionWorld[4];
 
   // Format for printing the distance
-  char *LabelFormat;
+  char* LabelFormat;
 
   // toggle to determine whether to place text above or below widget
   vtkTypeBool ShowLabelAboveWidget;

@@ -15,16 +15,16 @@
 #ifndef vtkWordCloud_h
 #define vtkWordCloud_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
-#include "vtkImageData.h" // For ImageData
+#include "vtkImageData.h"         // For ImageData
+#include "vtkInfovisCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"      // For SmartPointer
 
-#include <vector> // For stl vector
-#include <array> // For stl array
-#include <string> // For stl string
-#include <set> // for stl multiset
+#include <array>      // For stl array
 #include <functional> // for function
+#include <set>        // for stl multiset
+#include <string>     // For stl string
+#include <vector>     // For stl vector
 
 /**
  * @class   vtkWordCloud
@@ -181,20 +181,20 @@
 class VTKINFOVISCORE_EXPORT vtkWordCloud : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkWordCloud,vtkImageAlgorithm);
+  vtkTypeMacro(vtkWordCloud, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with vertex cell generation turned off.
    */
-  static vtkWordCloud *New();
+  static vtkWordCloud* New();
 
   // Typedefs
   using ColorDistributionContainer = std::array<double, 2>;
   using OffsetDistributionContainer = std::array<int, 2>;
   using OrientationDistributionContainer = std::array<double, 2>;
   using OrientationsContainer = std::vector<double>;
-  using PairType = std::tuple<std::string,std::string>;
+  using PairType = std::tuple<std::string, std::string>;
   using ReplacementPairsContainer = std::vector<PairType>;
   using SizesContainer = std::array<int, 2>;
   using StopWordsContainer = std::set<std::string>;
@@ -205,33 +205,33 @@ public:
    * Return the AdjustedSizes of the resized mask file.
    */
   //@}
-  virtual SizesContainer GetAdjustedSizes() {return AdjustedSizes;}
+  virtual SizesContainer GetAdjustedSizes() { return AdjustedSizes; }
 
-#define SetStdContainerMacro(name,container) \
-  virtual void Set##name(container arg)        \
-  { \
-    bool changed = false; \
-    if (arg.size() !=  name.size()) \
-      { \
-        changed = true; \
-      } \
-    else \
-    { \
-      auto a = arg.begin(); \
-      for (auto r : name) \
-      { \
-        if (*a != r) \
-        { \
-          changed = true; \
-        } \
-        a++; \
-      } \
-    } \
-    if (changed) \
-    { \
-      name = arg; \
-      this->Modified(); \
-    } \
+#define SetStdContainerMacro(name, container)                                                      \
+  virtual void Set##name(container arg)                                                            \
+  {                                                                                                \
+    bool changed = false;                                                                          \
+    if (arg.size() != name.size())                                                                 \
+    {                                                                                              \
+      changed = true;                                                                              \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      auto a = arg.begin();                                                                        \
+      for (auto r : name)                                                                          \
+      {                                                                                            \
+        if (*a != r)                                                                               \
+        {                                                                                          \
+          changed = true;                                                                          \
+        }                                                                                          \
+        a++;                                                                                       \
+      }                                                                                            \
+    }                                                                                              \
+    if (changed)                                                                                   \
+    {                                                                                              \
+      name = arg;                                                                                  \
+      this->Modified();                                                                            \
+    }                                                                                              \
   }
 
   //@{
@@ -247,13 +247,13 @@ public:
       BackgroundColorName = arg;
     }
   }
-  virtual std::string GetBackgroundColorName() {return BackgroundColorName;}
+  virtual std::string GetBackgroundColorName() { return BackgroundColorName; }
 
   //@{
   /**
-    * Set/Get boolean that indicates the mask image is a single
-    * channel(false).
-    */
+   * Set/Get boolean that indicates the mask image is a single
+   * channel(false).
+   */
   //@}
   virtual void SetBWMask(bool arg)
   {
@@ -263,15 +263,15 @@ public:
       BWMask = arg;
     }
   }
-  virtual bool GetBWMask() {return BWMask;}
+  virtual bool GetBWMask() { return BWMask; }
 
   //@{
   /**
-    * Set/Get ColorSchemeName, the name of a color scheme from
-    * vtkColorScheme to be used to select colors for the words (), if
-    * WordColorName is empty. See https://tinyurl.com/y3j6c27o for a
-    * visual representation of the color schemes.
-    */
+   * Set/Get ColorSchemeName, the name of a color scheme from
+   * vtkColorScheme to be used to select colors for the words (), if
+   * WordColorName is empty. See https://tinyurl.com/y3j6c27o for a
+   * visual representation of the color schemes.
+   */
   //@}
   virtual void SetColorSchemeName(std::string arg)
   {
@@ -281,26 +281,26 @@ public:
       ColorSchemeName = arg;
     }
   }
-  virtual std::string GetColorSchemeName() {return ColorSchemeName;}
+  virtual std::string GetColorSchemeName() { return ColorSchemeName; }
 
   //@{
   /**
-    * Set/GetDPI - Dots per inch(200) of the rendered text. DPI is
-    * used as a scaling mechanism for the words. As DPI increases,
-    * the word size increases. If there are too, few skipped words,
-    * increase this value, too many, decrease it.
-    */
+   * Set/GetDPI - Dots per inch(200) of the rendered text. DPI is
+   * used as a scaling mechanism for the words. As DPI increases,
+   * the word size increases. If there are too, few skipped words,
+   * increase this value, too many, decrease it.
+   */
   //@}
   vtkSetMacro(DPI, int);
   vtkGetMacro(DPI, int);
 
-//@{
+  //@{
   /**
-    * Set/Get FileName, the name of the file that contains the text to
-    * be processed.
-    */
+   * Set/Get FileName, the name of the file that contains the text to
+   * be processed.
+   */
   //@}
-  virtual   void SetFileName(std::string arg)
+  virtual void SetFileName(std::string arg)
   {
     if (FileName != arg)
     {
@@ -308,14 +308,14 @@ public:
       FileName = arg;
     }
   }
-  virtual   std::string GetFileName () {return FileName;}
+  virtual std::string GetFileName() { return FileName; }
 
   //@{
   /**
-    * Set/Get FontFileName, If empty, the built-in Arial font is
-    * used(). The FontFileName is the name of a file that contains a
-    * TrueType font.
-    */
+   * Set/Get FontFileName, If empty, the built-in Arial font is
+   * used(). The FontFileName is the name of a file that contains a
+   * TrueType font.
+   */
   //@}
   virtual void SetFontFileName(std::string arg)
   {
@@ -325,23 +325,23 @@ public:
       FontFileName = arg;
     }
   }
-  virtual std::string GetFontFileName() {return FontFileName;}
+  virtual std::string GetFontFileName() { return FontFileName; }
 
   //@{
   /**
-    * Set/Get Gap, the space gap of words (2). The gap is the number
-    * of spaces added to the beginning and end of each word.
-    */
+   * Set/Get Gap, the space gap of words (2). The gap is the number
+   * of spaces added to the beginning and end of each word.
+   */
   //@}
   vtkSetMacro(Gap, int);
   vtkGetMacro(Gap, int);
 
   //@{
   /**
-    * Set/Get MaskColorName, the name of the color for the mask
-    * (black). This is the name of the vtkNamedColors that defines
-    * the foreground of the mask. Usually black or white.
-    */
+   * Set/Get MaskColorName, the name of the color for the mask
+   * (black). This is the name of the vtkNamedColors that defines
+   * the foreground of the mask. Usually black or white.
+   */
   //@}
   virtual void SetMaskColorName(std::string arg)
   {
@@ -351,18 +351,18 @@ public:
       MaskColorName = arg;
     }
   }
-  virtual std::string GetMaskColorName() {return MaskColorName;}
+  virtual std::string GetMaskColorName() { return MaskColorName; }
 
   //@{
   /**
-    * Set/Get MaskFileName, the mask file name(). If a mask file is
-    * specified, it will be used as the mask. Otherwise, a black
-    * square is used as the mask. The mask file should contain three
-    * channels of unsigned char values. If the mask file is just a
-    * single unsigned char, specify turn the boolean BWMask on.  If
-    * BWmask is on, the class will create a three channel image using
-    * vtkImageAppendComponents.
-    */
+   * Set/Get MaskFileName, the mask file name(). If a mask file is
+   * specified, it will be used as the mask. Otherwise, a black
+   * square is used as the mask. The mask file should contain three
+   * channels of unsigned char values. If the mask file is just a
+   * single unsigned char, specify turn the boolean BWMask on.  If
+   * BWmask is on, the class will create a three channel image using
+   * vtkImageAppendComponents.
+   */
   //@}
   virtual void SetMaskFileName(std::string arg)
   {
@@ -372,119 +372,122 @@ public:
       MaskFileName = arg;
     }
   }
-  virtual std::string GetMaskFileName() {return MaskFileName;}
+  virtual std::string GetMaskFileName() { return MaskFileName; }
 
   //@{
   /**
-    * Set/Get MaxFontSize, the maximum font size(48).
-    */
+   * Set/Get MaxFontSize, the maximum font size(48).
+   */
   //@}
   vtkSetMacro(MaxFontSize, int);
   vtkGetMacro(MaxFontSize, int);
 
   //@{
   /**
-    * Set/Get MinFontSize, the minimum font size(8).
-    */
+   * Set/Get MinFontSize, the minimum font size(8).
+   */
   //@}
   vtkSetMacro(MinFontSize, int);
   vtkGetMacro(MinFontSize, int);
 
   //@{
   /**
-    * Set/Get MinFrequency, the minimum word frequency
-    * accepted(2). Words with frequencies less than this will be
-    * ignored.
-    */
+   * Set/Get MinFrequency, the minimum word frequency
+   * accepted(2). Words with frequencies less than this will be
+   * ignored.
+   */
   //@}
   vtkSetMacro(MinFrequency, int);
   vtkGetMacro(MinFrequency, int);
 
   //@{
   /**
-    * Set/Get FontMultiplier, the font multiplier(6). The final
-    * FontSize is this value the word frequency.
-    */
+   * Set/Get FontMultiplier, the font multiplier(6). The final
+   * FontSize is this value the word frequency.
+   */
   //@}
   vtkSetMacro(FontMultiplier, int);
   vtkGetMacro(FontMultiplier, int);
 
   //@{
   /**
-    * Set/Get ColorDistribution, the distribution of random colors(.6
-    * 1.0), if WordColorName is empty.
-    */
+   * Set/Get ColorDistribution, the distribution of random colors(.6
+   * 1.0), if WordColorName is empty.
+   */
   //@}
-  SetStdContainerMacro(ColorDistribution,ColorDistributionContainer);
-  virtual ColorDistributionContainer GetColorDistribution() {return ColorDistribution;}
+  SetStdContainerMacro(ColorDistribution, ColorDistributionContainer);
+  virtual ColorDistributionContainer GetColorDistribution() { return ColorDistribution; }
 
   //@{
   /**
-    * Set/Get OffsetDistribution, the range of uniform random
-    * offsets(-size[0]/100.0 -size{1]/100.0)(-20 20). These offsets
-    * are offsets from the generated path for word layout.
-    */
+   * Set/Get OffsetDistribution, the range of uniform random
+   * offsets(-size[0]/100.0 -size{1]/100.0)(-20 20). These offsets
+   * are offsets from the generated path for word layout.
+   */
   //@}
-  SetStdContainerMacro(OffsetDistribution,OffsetDistributionContainer);
-  virtual OffsetDistributionContainer GetOffsetDistribution() {return OffsetDistribution;}
+  SetStdContainerMacro(OffsetDistribution, OffsetDistributionContainer);
+  virtual OffsetDistributionContainer GetOffsetDistribution() { return OffsetDistribution; }
 
   //@{
   /**
-    * Set/Get OrientationDistribution, ranges of random
-    * orientations(-20 20). If discrete orientations are not defined,
-    * these orientations will be generated.
-    */
+   * Set/Get OrientationDistribution, ranges of random
+   * orientations(-20 20). If discrete orientations are not defined,
+   * these orientations will be generated.
+   */
   //@}
-  SetStdContainerMacro(OrientationDistribution,OrientationDistributionContainer);
-  virtual OrientationDistributionContainer GetOrientationDistribution() {return OrientationDistribution;}
+  SetStdContainerMacro(OrientationDistribution, OrientationDistributionContainer);
+  virtual OrientationDistributionContainer GetOrientationDistribution()
+  {
+    return OrientationDistribution;
+  }
 
   //@{
   /**
-    * Set/Add/Get Orientations, a vector of discrete orientations (). If
-    * non-empty, these will be used instead of the orientations
-    * distribution").
-    */
+   * Set/Add/Get Orientations, a vector of discrete orientations (). If
+   * non-empty, these will be used instead of the orientations
+   * distribution").
+   */
   //@}
-  SetStdContainerMacro(Orientations,OrientationsContainer);
+  SetStdContainerMacro(Orientations, OrientationsContainer);
   void AddOrientation(double arg)
   {
     Orientations.push_back(arg);
     this->Modified();
   }
-  virtual OrientationsContainer GetOrientations() {return Orientations;}
+  virtual OrientationsContainer GetOrientations() { return Orientations; }
 
   //@{
   /**
-    * Set/Add/Get ReplacementPairs, a vector of words that replace the
-    * first word with another second word (). The first word is also
-    * added to the StopList.
-    */
+   * Set/Add/Get ReplacementPairs, a vector of words that replace the
+   * first word with another second word (). The first word is also
+   * added to the StopList.
+   */
   //@}
-  SetStdContainerMacro(ReplacementPairs,ReplacementPairsContainer);
+  SetStdContainerMacro(ReplacementPairs, ReplacementPairsContainer);
   void AddReplacementPair(PairType arg)
   {
     ReplacementPairs.push_back(arg);
     this->Modified();
   }
 
-  virtual   ReplacementPairsContainer GetReplacementPairs() {return ReplacementPairs;}
+  virtual ReplacementPairsContainer GetReplacementPairs() { return ReplacementPairs; }
 
   //@{
   /**
-    * Set/Get Sizes, the size of the output image(640 480).
-    */
+   * Set/Get Sizes, the size of the output image(640 480).
+   */
   //@}
-  SetStdContainerMacro(Sizes,SizesContainer);
-  virtual   SizesContainer GetSizes () {return Sizes;}
+  SetStdContainerMacro(Sizes, SizesContainer);
+  virtual SizesContainer GetSizes() { return Sizes; }
 
   //@{
   /**
-    * Set/Add/Get StopWords, a set of user provided stop
-    * words(). vtkWordClass has built-in stop words. The user-provided
-    * stop words are added to the built-in list.
-    */
+   * Set/Add/Get StopWords, a set of user provided stop
+   * words(). vtkWordClass has built-in stop words. The user-provided
+   * stop words are added to the built-in list.
+   */
   //@}
-  SetStdContainerMacro(StopWords,StopWordsContainer);
+  SetStdContainerMacro(StopWords, StopWordsContainer);
   void AddStopWord(std::string word)
   {
     StopWords.insert(word);
@@ -495,15 +498,15 @@ public:
     StopWords.clear();
     this->Modified();
   }
-  virtual   StopWordsContainer GetStopWords () {return StopWords;}
+  virtual StopWordsContainer GetStopWords() { return StopWords; }
 
   //@{
   /**
-    * Set/Get StopListFileName, the name of the file that contains the
-    * stop words, one per line.
-    */
+   * Set/Get StopListFileName, the name of the file that contains the
+   * stop words, one per line.
+   */
   //@}
-  virtual   void SetStopListFileName(std::string arg)
+  virtual void SetStopListFileName(std::string arg)
   {
     if (StopListFileName != arg)
     {
@@ -511,122 +514,120 @@ public:
       StopListFileName = arg;
     }
   }
-  virtual   std::string GetStopListFileName () {return StopListFileName;}
+  virtual std::string GetStopListFileName() { return StopListFileName; }
 
   //@{
   /**
-    * Set/Get Title, add this word to the document's words and set a
-    * high frequency, so that is will be rendered first.
-    */
+   * Set/Get Title, add this word to the document's words and set a
+   * high frequency, so that is will be rendered first.
+   */
   //@}
   virtual void SetTitle(std::string arg)
   {
     if (Title != arg)
     {
-      this->Modified();\
+      this->Modified();
       Title = arg;
     }
   }
-  virtual   std::string GetTitle () {return Title;}
+  virtual std::string GetTitle() { return Title; }
 
   //@{
   /**
-    * Set/Get WordColorName, the name of the color for the
-    * words(). The name is selected from vtkNamedColors. If the name
-    * is empty, the ColorDistribution will generate random colors.
-    */
+   * Set/Get WordColorName, the name of the color for the
+   * words(). The name is selected from vtkNamedColors. If the name
+   * is empty, the ColorDistribution will generate random colors.
+   */
   //@}
   virtual void SetWordColorName(std::string arg)
   {
     if (WordColorName != arg)
     {
-      this->Modified();\
+      this->Modified();
       WordColorName = arg;
     }
   }
-  virtual   std::string GetWordColorName () {return WordColorName;}
+  virtual std::string GetWordColorName() { return WordColorName; }
   //@{
   /**
-    * Get a vector of words that are kept in the final image.
-    */
+   * Get a vector of words that are kept in the final image.
+   */
   //@}
-  virtual   std::vector<std::string>& GetKeptWords () {return KeptWords;}
+  virtual std::vector<std::string>& GetKeptWords() { return KeptWords; }
 
   //@{
   /**
-    * Get a vector of words that are skipped. Skipped wors do not fit
-    * in the final image.
-    */
+   * Get a vector of words that are skipped. Skipped wors do not fit
+   * in the final image.
+   */
   //@}
-  virtual   std::vector<std::string>& GetSkippedWords () {return SkippedWords;}
+  virtual std::vector<std::string>& GetSkippedWords() { return SkippedWords; }
 
   //@{
   /**
-    * Get a vector of words that were stopped in the final image.
-    */
+   * Get a vector of words that were stopped in the final image.
+   */
   //@}
-  virtual   std::vector<std::string>& GetStoppedWords () {return StoppedWords;}
+  virtual std::vector<std::string>& GetStoppedWords() { return StoppedWords; }
 
 protected:
   vtkWordCloud();
   ~vtkWordCloud() override {}
 
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector**,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData (vtkInformation *,
-                   vtkInformationVector**,
-                   vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkSmartPointer<vtkImageData>    ImageData;
-  int                              WholeExtent[6];
+  vtkSmartPointer<vtkImageData> ImageData;
+  int WholeExtent[6];
 
-  SizesContainer                   AdjustedSizes;
-  std::string                      BackgroundColorName;
-  bool                             BWMask;
-  ColorDistributionContainer       ColorDistribution;
-  std::string                      ColorSchemeName;
-  int                              DPI;
-  std::string                      FileName;
-  std::string                      FontFileName;
-  int                              FontMultiplier;
-  int                              Gap;
-  std::string                      MaskColorName;
-  std::string                      MaskFileName;
-  int                              MaxFontSize;
-  int                              MinFontSize;
-  int                              MinFrequency;
-  OffsetDistributionContainer      OffsetDistribution;
+  SizesContainer AdjustedSizes;
+  std::string BackgroundColorName;
+  bool BWMask;
+  ColorDistributionContainer ColorDistribution;
+  std::string ColorSchemeName;
+  int DPI;
+  std::string FileName;
+  std::string FontFileName;
+  int FontMultiplier;
+  int Gap;
+  std::string MaskColorName;
+  std::string MaskFileName;
+  int MaxFontSize;
+  int MinFontSize;
+  int MinFrequency;
+  OffsetDistributionContainer OffsetDistribution;
   OrientationDistributionContainer OrientationDistribution;
-  OrientationsContainer            Orientations;
-  ReplacementPairsContainer        ReplacementPairs;
-  SizesContainer                   Sizes;
-  StopWordsContainer               StopWords;
-  std::string                      StopListFileName;
-  std::string                      Title;
-  std::string                      WordColorName;
+  OrientationsContainer Orientations;
+  ReplacementPairsContainer ReplacementPairs;
+  SizesContainer Sizes;
+  StopWordsContainer StopWords;
+  std::string StopListFileName;
+  std::string Title;
+  std::string WordColorName;
 
-  std::vector<std::string>         KeptWords;
-  std::vector<std::string>         SkippedWords;
-  std::vector<std::string>         StoppedWords;
+  std::vector<std::string> KeptWords;
+  std::vector<std::string> SkippedWords;
+  std::vector<std::string> StoppedWords;
 
 private:
   vtkWordCloud(const vtkWordCloud&) = delete;
   void operator=(const vtkWordCloud&) = delete;
 
-// Declaring the type of Predicate that accepts 2 pairs and returns a bool
-typedef std::function<bool(
-    std::pair<std::string, int>,
-    std::pair<std::string, int>)> Comparator;
+  // Declaring the type of Predicate that accepts 2 pairs and returns a bool
+  typedef std::function<bool(std::pair<std::string, int>, std::pair<std::string, int>)> Comparator;
 
-std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequency(std::string &, vtkWordCloud *);
-struct ExtentOffset
-{
-   ExtentOffset(int _x = 0.0, int _y = 0.0) : x(_x), y(_y) {}
-   int x,y;
-};
-
+  std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequency(
+    std::string&, vtkWordCloud*);
+  struct ExtentOffset
+  {
+    ExtentOffset(int _x = 0.0, int _y = 0.0)
+      : x(_x)
+      , y(_y)
+    {
+    }
+    int x, y;
+  };
 };
 #endif
 

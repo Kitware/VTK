@@ -26,13 +26,13 @@
  *
  * @sa
  * vtkDicer vtkConnectedDicer
-*/
+ */
 
 #ifndef vtkOBBDicer_h
 #define vtkOBBDicer_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDicer.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkOBBNode;
 class vtkShortArray;
@@ -42,26 +42,26 @@ class vtkPoints;
 class VTKFILTERSGENERAL_EXPORT vtkOBBDicer : public vtkDicer
 {
 public:
-  vtkTypeMacro(vtkOBBDicer,vtkDicer);
+  vtkTypeMacro(vtkOBBDicer, vtkDicer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate an object.
    */
-  static vtkOBBDicer *New();
+  static vtkOBBDicer* New();
 
 protected:
   vtkOBBDicer() {}
   ~vtkOBBDicer() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //implementation ivars and methods
-  void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr, vtkDataSet *input);
-  void MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds);
-  void DeleteTree(vtkOBBNode *OBBptr);
-  vtkPoints *PointsList;
+  // implementation ivars and methods
+  void BuildTree(vtkIdList* ptIds, vtkOBBNode* OBBptr, vtkDataSet* input);
+  void MarkPoints(vtkOBBNode* OBBptr, vtkShortArray* groupIds);
+  void DeleteTree(vtkOBBNode* OBBptr);
+  vtkPoints* PointsList;
 
 private:
   vtkOBBDicer(const vtkOBBDicer&) = delete;
@@ -69,5 +69,3 @@ private:
 };
 
 #endif
-
-

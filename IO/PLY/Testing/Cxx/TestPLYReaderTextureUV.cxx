@@ -21,14 +21,14 @@
 #include "vtkActor.h"
 #include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-int TestPLYReaderTextureUV( int argc, char *argv[] )
+int TestPLYReaderTextureUV(int argc, char* argv[])
 {
   // Read file name.
   if (argc < 2)
@@ -38,10 +38,8 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   std::string fn = "Data/";
   std::string plyName = fn + argv[1];
   std::string imageName = fn + argv[2];
-  const char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, plyName.c_str());
-  const char* fnameImg = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, imageName.c_str());
+  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, plyName.c_str());
+  const char* fnameImg = vtkTestUtilities::ExpandDataFileName(argc, argv, imageName.c_str());
 
   // Test if the reader thinks it can open the file.
   if (0 == vtkPLYReader::CanReadFile(fname))
@@ -54,13 +52,13 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   vtkPLYReader* reader = vtkPLYReader::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkPNGReader* readerImg = vtkPNGReader::New();
   if (0 == readerImg->CanReadFile(fnameImg))
   {
-     std::cout << "The PNG reader can not read the input file." << std::endl;
-     return EXIT_FAILURE;
+    std::cout << "The PNG reader can not read the input file." << std::endl;
+    return EXIT_FAILURE;
   }
   readerImg->SetFileName(fnameImg);
   readerImg->Update();
@@ -84,19 +82,19 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(400,400);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(400, 400);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

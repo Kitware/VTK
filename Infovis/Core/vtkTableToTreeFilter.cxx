@@ -27,17 +27,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
 
 #include <algorithm>
-#include <vector>
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkTableToTreeFilter);
-
 
 vtkTableToTreeFilter::vtkTableToTreeFilter() = default;
 
@@ -48,39 +47,32 @@ void vtkTableToTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-
-int vtkTableToTreeFilter::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkTableToTreeFilter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTree");
   return 1;
 }
 
-int vtkTableToTreeFilter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkTableToTreeFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
 int vtkTableToTreeFilter::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Storing the inputTable and outputTree handles
-  vtkTable* table = vtkTable::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree* tree = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* table = vtkTable::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* tree = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkSmartPointer<vtkTable> new_table = vtkSmartPointer<vtkTable>::New();
-  new_table->DeepCopy( table );
+  new_table->DeepCopy(table);
 
   // Create a mutable graph for building the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
@@ -111,7 +103,7 @@ int vtkTableToTreeFilter::RequestData(
   // Move the structure of the mutable graph into the tree.
   if (!tree->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Built graph is not a valid tree!");
+    vtkErrorMacro(<< "Built graph is not a valid tree!");
     return 0;
   }
 
@@ -119,8 +111,7 @@ int vtkTableToTreeFilter::RequestData(
   tree->GetVertexData()->PassData(new_table->GetRowData());
 
   // The edge data should at least have a pedigree id array.
-  vtkSmartPointer<vtkIdTypeArray> edgeIds =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
   edgeIds->SetName("TableToTree edge");
   vtkIdType numEdges = tree->GetNumberOfEdges();
   edgeIds->SetNumberOfTuples(numEdges);

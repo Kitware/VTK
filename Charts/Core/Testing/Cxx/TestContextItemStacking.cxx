@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
 #include "vtkBlockItem.h"
+#include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------
-int TestContextItemStacking(int ,char * [] )
+int TestContextItemStacking(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -36,7 +36,7 @@ int TestContextItemStacking(int ,char * [] )
 
   int i = 0;
   int s = 120;
-  int step = s/3;
+  int step = s / 3;
   vtkNew<vtkBlockItem> test1;
   test1->SetDimensions(i, i, s, s);
   test1->SetLabel("1");
@@ -81,13 +81,12 @@ int TestContextItemStacking(int ,char * [] )
   view->GetScene()->AddItem(rootItem);
 
   // Check indexes
-  if (index1 != 0 || index2 != 1 || index3 != 2 || index4 != 3 ||
-      index41 != 0 || index411 != 0 || index42 != 1 || index5 != 4)
+  if (index1 != 0 || index2 != 1 || index3 != 2 || index4 != 3 || index41 != 0 || index411 != 0 ||
+    index42 != 1 || index5 != 4)
   {
-    std::cerr << "AddItem, bad indexes: "
-              << index1 << ", " << index2 << ", " << index3 << ", "
-              << index4 << ", " << index41 << ", " << index411 << ", "
-              << index42 << ", " << index5 << std::endl;
+    std::cerr << "AddItem, bad indexes: " << index1 << ", " << index2 << ", " << index3 << ", "
+              << index4 << ", " << index41 << ", " << index411 << ", " << index42 << ", " << index5
+              << std::endl;
     return EXIT_FAILURE;
   }
   // Restack item 3 under all items
@@ -98,10 +97,9 @@ int TestContextItemStacking(int ,char * [] )
   index4 = rootItem->GetItemIndex(test4);
   if (res != 0 || index1 != 1 || index2 != 2 || index3 != 0 || index4 != 3)
   {
-    std::cerr << "Lower, bad indexes: " << res << "->"
-              << index1 << ", " << index2 << ", " << index3 << ", "
-              << index4 << ", " << index41 << ", " << index411 << ", "
-              << index42 << ", " << index5 << std::endl;
+    std::cerr << "Lower, bad indexes: " << res << "->" << index1 << ", " << index2 << ", " << index3
+              << ", " << index4 << ", " << index41 << ", " << index411 << ", " << index42 << ", "
+              << index5 << std::endl;
     return EXIT_FAILURE;
   }
   // Restack item 1 above 4
@@ -113,13 +111,12 @@ int TestContextItemStacking(int ,char * [] )
   index41 = test4->GetItemIndex(test41);
   index42 = test4->GetItemIndex(test42);
   index5 = rootItem->GetItemIndex(test5);
-  if (res != 3 || index1 != 3 || index2 != 1 || index3 != 0 || index4 != 2 ||
-      index41 != 0 || index411 != 0 || index42 != 1 || index5 != 4)
+  if (res != 3 || index1 != 3 || index2 != 1 || index3 != 0 || index4 != 2 || index41 != 0 ||
+    index411 != 0 || index42 != 1 || index5 != 4)
   {
-    std::cerr << "StackAbove, bad indexes: " << res << "->"
-              << index1 << ", " << index2 << ", " << index3 << ", "
-              << index4 << ", " << index41 << ", " << index411 << ", "
-              << index42 << ", " << index5 << std::endl;
+    std::cerr << "StackAbove, bad indexes: " << res << "->" << index1 << ", " << index2 << ", "
+              << index3 << ", " << index4 << ", " << index41 << ", " << index411 << ", " << index42
+              << ", " << index5 << std::endl;
     return EXIT_FAILURE;
   }
   // Restack item 41 above 42
@@ -131,13 +128,12 @@ int TestContextItemStacking(int ,char * [] )
   index41 = test4->GetItemIndex(test41);
   index42 = test4->GetItemIndex(test42);
   index5 = rootItem->GetItemIndex(test5);
-  if (res != 1 || index1 != 3 || index2 != 1 || index3 != 0 || index4 != 2 ||
-      index41 != 1 || index411 != 0 || index42 != 0 || index5 != 4)
+  if (res != 1 || index1 != 3 || index2 != 1 || index3 != 0 || index4 != 2 || index41 != 1 ||
+    index411 != 0 || index42 != 0 || index5 != 4)
   {
-    std::cerr << "Raise, bad indexes: "  << res << "->"
-              << index1 << ", " << index2 << ", " << index3 << ", "
-              << index4 << ", " << index41 << ", " << index411 << ", "
-              << index42 << ", " << index5 << std::endl;
+    std::cerr << "Raise, bad indexes: " << res << "->" << index1 << ", " << index2 << ", " << index3
+              << ", " << index4 << ", " << index41 << ", " << index411 << ", " << index42 << ", "
+              << index5 << std::endl;
     return EXIT_FAILURE;
   }
   // Restack item 1 above 4
@@ -149,20 +145,19 @@ int TestContextItemStacking(int ,char * [] )
   index41 = test4->GetItemIndex(test41);
   index42 = test4->GetItemIndex(test42);
   index5 = rootItem->GetItemIndex(test5);
-  if (res != 0 || index1 != 3 || index2 != 0 || index3 != 1 || index4 != 2 ||
-      index41 != 1 || index411 != 0 || index42 != 0 || index5 != 4)
+  if (res != 0 || index1 != 3 || index2 != 0 || index3 != 1 || index4 != 2 || index41 != 1 ||
+    index411 != 0 || index42 != 0 || index5 != 4)
   {
-    std::cerr << "StackUnder, bad indexes: "  << res << "->"
-              << index1 << ", " << index2 << ", " << index3 << ", "
-              << index4 << ", " << index41 << ", " << index411 << ", "
-              << index42 << ", " << index5 << std::endl;
+    std::cerr << "StackUnder, bad indexes: " << res << "->" << index1 << ", " << index2 << ", "
+              << index3 << ", " << index4 << ", " << index41 << ", " << index411 << ", " << index42
+              << ", " << index5 << std::endl;
     return EXIT_FAILURE;
   }
 
   // Turn off the color buffer
   view->GetScene()->SetUseBufferId(false);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

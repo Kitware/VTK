@@ -28,7 +28,7 @@ vtkImageStencilAlgorithm::vtkImageStencilAlgorithm()
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 
-  vtkImageStencilData *output = vtkImageStencilData::New();
+  vtkImageStencilData* output = vtkImageStencilData::New();
   this->GetExecutive()->SetOutputData(0, output);
 
   // Releasing data for pipeline parallism.
@@ -43,32 +43,30 @@ vtkImageStencilAlgorithm::~vtkImageStencilAlgorithm() = default;
 //----------------------------------------------------------------------------
 void vtkImageStencilAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilAlgorithm::SetOutput(vtkImageStencilData *output)
+void vtkImageStencilAlgorithm::SetOutput(vtkImageStencilData* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilData *vtkImageStencilAlgorithm::GetOutput()
+vtkImageStencilData* vtkImageStencilAlgorithm::GetOutput()
 {
   if (this->GetNumberOfOutputPorts() < 1)
   {
     return nullptr;
   }
 
-  return vtkImageStencilData::SafeDownCast(
-    this->GetExecutive()->GetOutputData(0));
+  return vtkImageStencilData::SafeDownCast(this->GetExecutive()->GetOutputData(0));
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilData *vtkImageStencilAlgorithm::AllocateOutputData(
-  vtkDataObject *out, int* uExt)
+vtkImageStencilData* vtkImageStencilAlgorithm::AllocateOutputData(vtkDataObject* out, int* uExt)
 {
-  vtkImageStencilData *res = vtkImageStencilData::SafeDownCast(out);
+  vtkImageStencilData* res = vtkImageStencilData::SafeDownCast(out);
   if (!res)
   {
     vtkWarningMacro("Call to AllocateOutputData with non vtkImageStencilData"
@@ -83,60 +81,49 @@ vtkImageStencilData *vtkImageStencilAlgorithm::AllocateOutputData(
 
 //----------------------------------------------------------------------------
 int vtkImageStencilAlgorithm::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject *out = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  this->AllocateOutputData(
-    out,
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject* out = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  this->AllocateOutputData(out, outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkImageStencilAlgorithm::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkImageStencilAlgorithm::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageStencilAlgorithm::FillOutputPortInformation(
-  int, vtkInformation* info)
+int vtkImageStencilAlgorithm::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageStencilData");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageStencilAlgorithm::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkImageStencilAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     this->RequestData(request, inputVector, outputVector);
     return 1;
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     this->RequestInformation(request, inputVector, outputVector);
     return 1;

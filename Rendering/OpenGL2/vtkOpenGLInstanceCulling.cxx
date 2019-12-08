@@ -29,11 +29,11 @@
 #include "vtkTransformFeedback.h"
 #include "vtkTriangleFilter.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <sstream>
 
-vtkStandardNewMacro(vtkOpenGLInstanceCulling)
+vtkStandardNewMacro(vtkOpenGLInstanceCulling);
 
 //------------------------------------------------------------------------------
 vtkOpenGLInstanceCulling::~vtkOpenGLInstanceCulling()
@@ -60,10 +60,10 @@ void vtkOpenGLInstanceCulling::UploadCurrentState(InstanceLOD& lod, vtkPolyData*
 {
   float* ptr = static_cast<float*>(pd->GetPoints()->GetVoidPointer(0));
 
-  std::vector<float> points(4*pd->GetNumberOfPoints());
-  for (vtkIdType i = 0; i<pd->GetNumberOfPoints(); i++)
+  std::vector<float> points(4 * pd->GetNumberOfPoints());
+  for (vtkIdType i = 0; i < pd->GetNumberOfPoints(); i++)
   {
-    points[4 * i]  = ptr[3 * i];
+    points[4 * i] = ptr[3 * i];
     points[4 * i + 1] = ptr[3 * i + 1];
     points[4 * i + 2] = ptr[3 * i + 2];
     points[4 * i + 3] = 1.f;
@@ -72,16 +72,16 @@ void vtkOpenGLInstanceCulling::UploadCurrentState(InstanceLOD& lod, vtkPolyData*
   lod.PositionVBO->Upload(points, vtkOpenGLBufferObject::ArrayBuffer);
 
   vtkDataArray* normalsData = pd->GetPointData()->GetNormals();
-  if(normalsData)
+  if (normalsData)
   {
-    std::vector<float> normals(3*pd->GetNumberOfPoints());
-    for (vtkIdType i = 0; i<pd->GetNumberOfPoints(); i++)
+    std::vector<float> normals(3 * pd->GetNumberOfPoints());
+    for (vtkIdType i = 0; i < pd->GetNumberOfPoints(); i++)
     {
       double n[3];
       normalsData->GetTuple(i, n);
-      normals[3*i] = static_cast<float>(n[0]);
-      normals[3*i+1] = static_cast<float>(n[1]);
-      normals[3*i+2] = static_cast<float>(n[2]);
+      normals[3 * i] = static_cast<float>(n[0]);
+      normals[3 * i + 1] = static_cast<float>(n[1]);
+      normals[3 * i + 2] = static_cast<float>(n[2]);
     }
     lod.NormalVBO->Upload(normals, vtkOpenGLBufferObject::ArrayBuffer);
   }
@@ -135,8 +135,13 @@ void vtkOpenGLInstanceCulling::AddLOD(float distance, float reduction)
   {
     std::array<float, 4> point;
     std::array<float, 3> normal;
-    point[0] = 0.f; point[1] = 0.f; point[2] = 0.f; point[3] = 1.f;
-    normal[0] = 0.f; normal[1] = 0.f; normal[2] = 1.f;
+    point[0] = 0.f;
+    point[1] = 0.f;
+    point[2] = 0.f;
+    point[3] = 1.f;
+    normal[0] = 0.f;
+    normal[1] = 0.f;
+    normal[2] = 1.f;
     lod.PositionVBO->Upload(point, vtkOpenGLBufferObject::ArrayBuffer);
     lod.NormalVBO->Upload(normal, vtkOpenGLBufferObject::ArrayBuffer);
   }
@@ -166,8 +171,8 @@ void vtkOpenGLInstanceCulling::InitLOD(vtkPolyData* pd)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
-  vtkIdType numInstances, bool withNormals)
+void vtkOpenGLInstanceCulling::BuildCullingShaders(
+  vtkOpenGLShaderCache* cache, vtkIdType numInstances, bool withNormals)
 {
   if (!this->CullingHelper.Program)
   {
@@ -199,13 +204,13 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
             "\nflat out int LODLevel;"
             "\nout mat4 InstanceMatrixVSOutput;"
             "\nout vec4 InstanceColorVSOutput;"
-         << (withNormals ? "\nout mat3 InstanceNormalVSOutput;" : "") <<
-            "\n"
+         << (withNormals ? "\nout mat3 InstanceNormalVSOutput;" : "")
+         << "\n"
             "\nvoid main() {"
             "\n  InstanceMatrixVSOutput = InstanceMatrix;"
             "\n  InstanceColorVSOutput = InstanceColor;"
-         << (withNormals ? "\n  InstanceNormalVSOutput = InstanceNormal;" : "") <<
-            "\n  vec4 PosMC = InstanceMatrix[3].xyzw;"
+         << (withNormals ? "\n  InstanceNormalVSOutput = InstanceNormal;" : "")
+         << "\n  vec4 PosMC = InstanceMatrix[3].xyzw;"
             "\n  vec4 p = MCDCMatrix * PosMC;"
             "\n  if (p.x < p.w && p.x > -p.w && p.y < p.w && p.y > -p.w)"
             "\n  {"
@@ -215,14 +220,19 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
 
     for (size_t i = 1; i < this->LODList.size(); i++)
     {
-      vstr << "\n    if (lenPosVC < " << this->LODList[i].Distance << ")"
+      vstr << "\n    if (lenPosVC < " << this->LODList[i].Distance
+           << ")"
               "\n    {"
-              "\n      LODLevel = " << (i-1) << ";"
+              "\n      LODLevel = "
+           << (i - 1)
+           << ";"
               "\n    }"
               "\n    else";
     }
     vstr << "\n    {"
-            "\n      LODLevel = " << (this->LODList.size()-1) << ";"
+            "\n      LODLevel = "
+         << (this->LODList.size() - 1)
+         << ";"
             "\n    }"
             "\n  }"
             "\n  else"
@@ -244,23 +254,34 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
             "\nflat in int LODLevel[];"
             "\nin mat4 InstanceMatrixVSOutput[];"
             "\nin vec4 InstanceColorVSOutput[];"
-         << (withNormals ? "\nin mat3 InstanceNormalVSOutput[];" : "") <<
-            "\n";
+         << (withNormals ? "\nin mat3 InstanceNormalVSOutput[];" : "") << "\n";
 
     for (size_t i = 0; i < this->LODList.size(); i++)
     {
       // We cannot group the stream declaration, OSX does not like that
-      gstr << "\nlayout(stream = " << i << ") out vec4 matrixR0Culled" << i << ";"
-              "\nlayout(stream = " << i << ") out vec4 matrixR1Culled" << i << ";"
-              "\nlayout(stream = " << i << ") out vec4 matrixR2Culled" << i << ";"
-              "\nlayout(stream = " << i << ") out vec4 matrixR3Culled" << i << ";"
-              "\nlayout(stream = " << i << ") out vec4 colorCulled" << i << ";";
+      gstr << "\nlayout(stream = " << i << ") out vec4 matrixR0Culled" << i
+           << ";"
+              "\nlayout(stream = "
+           << i << ") out vec4 matrixR1Culled" << i
+           << ";"
+              "\nlayout(stream = "
+           << i << ") out vec4 matrixR2Culled" << i
+           << ";"
+              "\nlayout(stream = "
+           << i << ") out vec4 matrixR3Culled" << i
+           << ";"
+              "\nlayout(stream = "
+           << i << ") out vec4 colorCulled" << i << ";";
 
       if (withNormals)
       {
-        gstr << "\nlayout(stream = " << i << ") out vec3 normalR0Culled" << i << ";"
-                "\nlayout(stream = " << i << ") out vec3 normalR1Culled" << i << ";"
-                "\nlayout(stream = " << i << ") out vec3 normalR2Culled" << i << ";";
+        gstr << "\nlayout(stream = " << i << ") out vec3 normalR0Culled" << i
+             << ";"
+                "\nlayout(stream = "
+             << i << ") out vec3 normalR1Culled" << i
+             << ";"
+                "\nlayout(stream = "
+             << i << ") out vec3 normalR2Culled" << i << ";";
       }
     }
     gstr << "\n"
@@ -268,32 +289,47 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
 
     for (size_t i = 0; i < this->LODList.size(); i++)
     {
-      gstr << "\n  if (LODLevel[0] == " << i << ")"
+      gstr << "\n  if (LODLevel[0] == " << i
+           << ")"
               "\n  {"
               "\n    gl_Position = gl_in[0].gl_Position;"
-              "\n    matrixR0Culled" << i << " = InstanceMatrixVSOutput[0][0];"
-              "\n    matrixR1Culled" << i << " = InstanceMatrixVSOutput[0][1];"
-              "\n    matrixR2Culled" << i << " = InstanceMatrixVSOutput[0][2];"
-              "\n    matrixR3Culled" << i << " = InstanceMatrixVSOutput[0][3];"
-              "\n    colorCulled" << i << " = InstanceColorVSOutput[0];";
+              "\n    matrixR0Culled"
+           << i
+           << " = InstanceMatrixVSOutput[0][0];"
+              "\n    matrixR1Culled"
+           << i
+           << " = InstanceMatrixVSOutput[0][1];"
+              "\n    matrixR2Culled"
+           << i
+           << " = InstanceMatrixVSOutput[0][2];"
+              "\n    matrixR3Culled"
+           << i
+           << " = InstanceMatrixVSOutput[0][3];"
+              "\n    colorCulled"
+           << i << " = InstanceColorVSOutput[0];";
 
       if (withNormals)
       {
-        gstr << "\n    normalR0Culled" << i << " = InstanceNormalVSOutput[0][0];"
-                "\n    normalR1Culled" << i << " = InstanceNormalVSOutput[0][1];"
-                "\n    normalR2Culled" << i << " = InstanceNormalVSOutput[0][2];";
+        gstr << "\n    normalR0Culled" << i
+             << " = InstanceNormalVSOutput[0][0];"
+                "\n    normalR1Culled"
+             << i
+             << " = InstanceNormalVSOutput[0][1];"
+                "\n    normalR2Culled"
+             << i << " = InstanceNormalVSOutput[0][2];";
       }
 
       if (this->ColorLOD)
       {
-        int R = (i+1)&1;
-        int G = ((i+1)&2) >> 1;
-        int B = ((i+1)&4) >> 2;
-        gstr << "\n    colorCulled" << i << " = vec4("
-             << R << "," << G << "," << B << ",InstanceColorVSOutput[0].a);";
+        int R = (i + 1) & 1;
+        int G = ((i + 1) & 2) >> 1;
+        int B = ((i + 1) & 4) >> 2;
+        gstr << "\n    colorCulled" << i << " = vec4(" << R << "," << G << "," << B
+             << ",InstanceColorVSOutput[0].a);";
       }
 
-      gstr << "\n    EmitStreamVertex(" << i << ");"
+      gstr << "\n    EmitStreamVertex(" << i
+           << ");"
               "\n  }";
     }
 
@@ -346,32 +382,30 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
 
 //------------------------------------------------------------------------------
 void vtkOpenGLInstanceCulling::RunCullingShaders(vtkIdType numInstances,
-  vtkOpenGLBufferObject* matrixBuffer,
-  vtkOpenGLBufferObject* colorBuffer,
+  vtkOpenGLBufferObject* matrixBuffer, vtkOpenGLBufferObject* colorBuffer,
   vtkOpenGLBufferObject* normalBuffer)
 {
   // update VAO with buffers
   this->CullingHelper.VAO->Bind();
 
-  if (!this->CullingHelper.VAO->AddAttributeMatrixWithDivisor(
-      this->CullingHelper.Program, matrixBuffer,
-        "InstanceMatrix", 0, 16 * sizeof(float), VTK_FLOAT, 4, false, 0, 4 * sizeof(float)))
+  if (!this->CullingHelper.VAO->AddAttributeMatrixWithDivisor(this->CullingHelper.Program,
+        matrixBuffer, "InstanceMatrix", 0, 16 * sizeof(float), VTK_FLOAT, 4, false, 0,
+        4 * sizeof(float)))
   {
     vtkErrorMacro("Error setting 'InstanceMatrix' in culling shader VAO.");
   }
 
-  if (!this->CullingHelper.VAO->AddAttributeArray(
-      this->CullingHelper.Program, colorBuffer,
-      "InstanceColor", 0, 4 * sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true))
+  if (!this->CullingHelper.VAO->AddAttributeArray(this->CullingHelper.Program, colorBuffer,
+        "InstanceColor", 0, 4 * sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true))
   {
     vtkErrorMacro("Error setting 'InstanceColor' in culling shader VAO.");
   }
 
   if (normalBuffer->GetHandle() != 0)
   {
-    if (!this->CullingHelper.VAO->AddAttributeMatrixWithDivisor(
-        this->CullingHelper.Program, normalBuffer,
-          "InstanceNormal", 0, 9 * sizeof(float), VTK_FLOAT, 3, false, 0, 3 * sizeof(float)))
+    if (!this->CullingHelper.VAO->AddAttributeMatrixWithDivisor(this->CullingHelper.Program,
+          normalBuffer, "InstanceNormal", 0, 9 * sizeof(float), VTK_FLOAT, 3, false, 0,
+          3 * sizeof(float)))
     {
       vtkErrorMacro("Error setting 'InstanceNormal' in culling shader VAO.");
     }
@@ -381,8 +415,8 @@ void vtkOpenGLInstanceCulling::RunCullingShaders(vtkIdType numInstances,
 #ifndef GL_ES_VERSION_3_0
   for (size_t j = 0; j < this->LODList.size(); j++)
   {
-    glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, static_cast<GLuint>(j),
-      static_cast<GLuint>(this->LODList[j].Query));
+    glBeginQueryIndexed(
+      GL_PRIMITIVES_GENERATED, static_cast<GLuint>(j), static_cast<GLuint>(this->LODList[j].Query));
   }
 #endif
 
@@ -396,8 +430,8 @@ void vtkOpenGLInstanceCulling::RunCullingShaders(vtkIdType numInstances,
   for (size_t j = 0; j < this->LODList.size(); j++)
   {
     glEndQueryIndexed(GL_PRIMITIVES_GENERATED, static_cast<GLuint>(j));
-    glGetQueryObjectiv(this->LODList[j].Query, GL_QUERY_RESULT,
-      &this->LODList[j].NumberOfInstances);
+    glGetQueryObjectiv(
+      this->LODList[j].Query, GL_QUERY_RESULT, &this->LODList[j].NumberOfInstances);
   }
 #endif
 }

@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkSPHKernel vtkSPHInterpolator
-*/
+ */
 
 #ifndef vtkWendlandQuinticKernel_h
 #define vtkWendlandQuinticKernel_h
@@ -44,7 +44,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkWendlandQuinticKernel : public vtkSPHKernel
 {
 public:
@@ -52,8 +51,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkWendlandQuinticKernel *New();
-  vtkTypeMacro(vtkWendlandQuinticKernel,vtkSPHKernel);
+  static vtkWendlandQuinticKernel* New();
+  vtkTypeMacro(vtkWendlandQuinticKernel, vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -61,8 +60,7 @@ public:
    * Produce the computational parameters for the kernel. Invoke this method
    * after setting initial values like SpatialStep.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
   //@{
   /**
@@ -72,14 +70,14 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    if ( d >= 2.0 )
+    if (d >= 2.0)
     {
       return 0.0;
     }
     else
     {
-      double tmp = 1.0 - 0.5*d;
-      return (tmp*tmp*tmp*tmp) * (1.0 + 2.0*d);
+      double tmp = 1.0 - 0.5 * d;
+      return (tmp * tmp * tmp * tmp) * (1.0 + 2.0 * d);
     }
   }
   //@}
@@ -91,15 +89,14 @@ public:
    */
   double ComputeDerivWeight(const double d) override
   {
-    if ( d >= 2.0 )
+    if (d >= 2.0)
     {
       return 0.0;
     }
     else
     {
-      double tmp = 1.0 - 0.5*d;
-      return -2.0*(tmp*tmp*tmp) * (1.0 + 2.0*d) +
-        2.0*(tmp*tmp*tmp*tmp);
+      double tmp = 1.0 - 0.5 * d;
+      return -2.0 * (tmp * tmp * tmp) * (1.0 + 2.0 * d) + 2.0 * (tmp * tmp * tmp * tmp);
     }
   }
   //@}

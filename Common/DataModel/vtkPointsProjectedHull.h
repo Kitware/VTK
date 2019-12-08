@@ -27,7 +27,7 @@
  *    three coordinate directions) and has a method to
  *    test for intersection of that hull with an axis aligned
  *    rectangle.  This is used for intersection tests of 3D volumes.
-*/
+ */
 
 #ifndef vtkPointsProjectedHull_h
 #define vtkPointsProjectedHull_h
@@ -37,152 +37,146 @@
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPointsProjectedHull : public vtkPoints
 {
-    vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
+  vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
 
 public:
-    void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    static vtkPointsProjectedHull *New();
+  static vtkPointsProjectedHull* New();
 
-    /**
-     * determine whether the resulting rectangle intersects the
-     * convex hull of the projection of the points along that axis.
-     */
+  /**
+   * determine whether the resulting rectangle intersects the
+   * convex hull of the projection of the points along that axis.
+   */
 
-    int RectangleIntersectionX(vtkPoints *R);
+  int RectangleIntersectionX(vtkPoints* R);
 
-    /**
-     * the convex hull of the projection of the points along the
-     * positive X-axis.
-     */
+  /**
+   * the convex hull of the projection of the points along the
+   * positive X-axis.
+   */
 
-    int RectangleIntersectionX(float ymin, float ymax, float zmin, float zmax);
-    int RectangleIntersectionX(double ymin, double ymax, double zmin, double zmax);
+  int RectangleIntersectionX(float ymin, float ymax, float zmin, float zmax);
+  int RectangleIntersectionX(double ymin, double ymax, double zmin, double zmax);
 
-    /**
-     * of the parallel projection along the Y axis of the points
-     */
+  /**
+   * of the parallel projection along the Y axis of the points
+   */
 
-    int RectangleIntersectionY(vtkPoints *R);
+  int RectangleIntersectionY(vtkPoints* R);
 
-    /**
-     * the convex hull of the projection of the points along the
-     * positive Y-axis.
-     */
+  /**
+   * the convex hull of the projection of the points along the
+   * positive Y-axis.
+   */
 
-    int RectangleIntersectionY(float zmin, float zmax, float xmin, float xmax);
-    int RectangleIntersectionY(double zmin, double zmax, double xmin, double xmax);
+  int RectangleIntersectionY(float zmin, float zmax, float xmin, float xmax);
+  int RectangleIntersectionY(double zmin, double zmax, double xmin, double xmax);
 
-    /**
-     * of the parallel projection along the Z axis of the points
-     */
+  /**
+   * of the parallel projection along the Z axis of the points
+   */
 
-    int RectangleIntersectionZ(vtkPoints *R);
+  int RectangleIntersectionZ(vtkPoints* R);
 
-    /**
-     * the convex hull of the projection of the points along the
-     * positive Z-axis.
-     */
+  /**
+   * the convex hull of the projection of the points along the
+   * positive Z-axis.
+   */
 
-    int RectangleIntersectionZ(float xmin, float xmax, float ymin, float ymax);
-    int RectangleIntersectionZ(double xmin, double xmax, double ymin, double ymax);
+  int RectangleIntersectionZ(float xmin, float xmax, float ymin, float ymax);
+  int RectangleIntersectionZ(double xmin, double xmax, double ymin, double ymax);
 
-    /**
-     * Returns the coordinates (y,z) of the points in the convex hull
-     * of the projection of the points down the positive x-axis.  pts has
-     * storage for len*2 values.
-     */
+  /**
+   * Returns the coordinates (y,z) of the points in the convex hull
+   * of the projection of the points down the positive x-axis.  pts has
+   * storage for len*2 values.
+   */
 
-    int GetCCWHullX(float *pts, int len);
-    int GetCCWHullX(double *pts, int len);
+  int GetCCWHullX(float* pts, int len);
+  int GetCCWHullX(double* pts, int len);
 
-    /**
-     * Returns the coordinates (z, x) of the points in the convex hull
-     * of the projection of the points down the positive y-axis.  pts has
-     * storage for len*2 values.
-     */
+  /**
+   * Returns the coordinates (z, x) of the points in the convex hull
+   * of the projection of the points down the positive y-axis.  pts has
+   * storage for len*2 values.
+   */
 
-    int GetCCWHullY(float *pts, int len);
-    int GetCCWHullY(double *pts, int len);
+  int GetCCWHullY(float* pts, int len);
+  int GetCCWHullY(double* pts, int len);
 
-    /**
-     * Returns the coordinates (x, y) of the points in the convex hull
-     * of the projection of the points down the positive z-axis.  pts has
-     * storage for len*2 values.
-     */
+  /**
+   * Returns the coordinates (x, y) of the points in the convex hull
+   * of the projection of the points down the positive z-axis.  pts has
+   * storage for len*2 values.
+   */
 
-    int GetCCWHullZ(float *pts, int len);
-    int GetCCWHullZ(double *pts, int len);
+  int GetCCWHullZ(float* pts, int len);
+  int GetCCWHullZ(double* pts, int len);
 
-    /**
-     * Returns the number of points in the convex hull of the projection
-     * of the points down the positive x-axis
-     */
+  /**
+   * Returns the number of points in the convex hull of the projection
+   * of the points down the positive x-axis
+   */
 
-    int GetSizeCCWHullX();
+  int GetSizeCCWHullX();
 
-    /**
-     * Returns the number of points in the convex hull of the projection
-     * of the points down the positive y-axis
-     */
+  /**
+   * Returns the number of points in the convex hull of the projection
+   * of the points down the positive y-axis
+   */
 
-    int GetSizeCCWHullY();
+  int GetSizeCCWHullY();
 
-    /**
-     * Returns the number of points in the convex hull of the projection
-     * of the points down the positive z-axis
-     */
+  /**
+   * Returns the number of points in the convex hull of the projection
+   * of the points down the positive z-axis
+   */
 
-    int GetSizeCCWHullZ();
+  int GetSizeCCWHullZ();
 
-    void Initialize() override;
-    void Reset() override {this->Initialize();}
+  void Initialize() override;
+  void Reset() override { this->Initialize(); }
 
-    /**
-     * Forces recalculation of convex hulls, use this if
-     * you delete/add points
-     */
+  /**
+   * Forces recalculation of convex hulls, use this if
+   * you delete/add points
+   */
 
-    void Update();
+  void Update();
 
 protected:
-
-    vtkPointsProjectedHull();
-    ~vtkPointsProjectedHull() override;
+  vtkPointsProjectedHull();
+  ~vtkPointsProjectedHull() override;
 
 private:
-
-  int RectangleIntersection(double hmin, double hmax,
-                            double vmin, double vmax, int direction);
+  int RectangleIntersection(double hmin, double hmax, double vmin, double vmax, int direction);
   int GrahamScanAlgorithm(int direction);
   void GetPoints();
-  int RectangleBoundingBoxIntersection(double hmin, double hmax,
-                            double vmin, double vmax, int direction);
-  int RectangleOutside(double hmin, double hmax,
-                            double vmin, double vmax, int direction);
+  int RectangleBoundingBoxIntersection(
+    double hmin, double hmax, double vmin, double vmax, int direction);
+  int RectangleOutside(double hmin, double hmax, double vmin, double vmax, int direction);
 
-  int RectangleOutside1DPolygon(double hmin, double hmax,
-                            double vmin, double vmax, int dir);
+  int RectangleOutside1DPolygon(double hmin, double hmax, double vmin, double vmax, int dir);
 
   void InitFlags();
   void ClearAllocations();
 
+  static int RemoveExtras(double* pts, int n);
+  static double Distance(double* p1, double* p2);
+  static vtkIdType PositionInHull(double* base, double* top, double* pt);
+  static int OutsideLine(
+    double hmin, double hmax, double vmin, double vmax, double* p0, double* p1, double* insidePt);
+  static int OutsideHorizontalLine(
+    double vmin, double vmax, double* p0, double* p1, double* insidePt);
+  static int OutsideVerticalLine(
+    double hmin, double hmax, double* p0, double* p1, double* insidePt);
 
-  static int RemoveExtras(double *pts, int n);
-  static double Distance(double *p1, double *p2);
-  static vtkIdType PositionInHull(double *base, double *top, double *pt);
-  static int OutsideLine(double hmin, double hmax,
-           double vmin, double vmax, double *p0, double *p1, double *insidePt);
-  static int OutsideHorizontalLine(double vmin, double vmax,
-           double *p0, double *p1, double *insidePt);
-  static int OutsideVerticalLine(double hmin, double hmax, double *p0,
-           double *p1, double *insidePt);
-
-  double *Pts;
+  double* Pts;
   vtkIdType Npts;
   vtkTimeStamp PtsTime;
 
-  double *CCWHull[3];
+  double* CCWHull[3];
   float HullBBox[3][4];
   int HullSize[3];
   vtkTimeStamp HullTime[3];
@@ -191,5 +185,3 @@ private:
   void operator=(const vtkPointsProjectedHull&) = delete;
 };
 #endif
-
-

@@ -23,25 +23,24 @@
 #include "vtkPDFContextDevice2D.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
 
 #include <vtk_libharu.h>
 
 #include <iomanip>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
-namespace {
+namespace
+{
 
-void HPDF_STDCALL handle_libharu_error(HPDF_STATUS error,
-                                       HPDF_STATUS detail,
-                                       void *)
+void HPDF_STDCALL handle_libharu_error(HPDF_STATUS error, HPDF_STATUS detail, void*)
 {
   std::ostringstream out;
-  out << "LibHaru failed during PDF export. Error=0x" << std::hex << error
-      << " detail=" << std::dec << detail;
+  out << "LibHaru failed during PDF export. Error=0x" << std::hex << error << " detail=" << std::dec
+      << detail;
   throw std::runtime_error(out.str());
 }
 
@@ -62,19 +61,19 @@ struct vtkPDFExporter::Details
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPDFExporter)
+vtkStandardNewMacro(vtkPDFExporter);
 
 //------------------------------------------------------------------------------
-void vtkPDFExporter::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkPDFExporter::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 vtkPDFExporter::vtkPDFExporter()
-  : Title(nullptr),
-    FileName(nullptr),
-    Impl(new Details)
+  : Title(nullptr)
+  , FileName(nullptr)
+  , Impl(new Details)
 {
   this->SetTitle("VTK Exported Scene");
 }
@@ -104,11 +103,12 @@ void vtkPDFExporter::WriteData()
     return;
   }
 
-  try {
+  try
+  {
     this->WritePDF();
     HPDF_SaveToFile(this->Impl->Document, this->FileName);
   }
-  catch (std::runtime_error &e)
+  catch (std::runtime_error& e)
   {
     vtkErrorMacro(<< e.what());
   }
@@ -130,10 +130,8 @@ void vtkPDFExporter::PrepareDocument()
   HPDF_SetCompressionMode(this->Impl->Document, HPDF_COMP_ALL);
 
   // Various metadata:
-  HPDF_SetInfoAttr(this->Impl->Document, HPDF_INFO_CREATOR,
-                   "The Visualization ToolKit");
-  HPDF_SetInfoAttr(this->Impl->Document, HPDF_INFO_TITLE,
-                   this->Title);
+  HPDF_SetInfoAttr(this->Impl->Document, HPDF_INFO_CREATOR, "The Visualization ToolKit");
+  HPDF_SetInfoAttr(this->Impl->Document, HPDF_INFO_TITLE, this->Title);
 
   this->Impl->Page = HPDF_AddPage(this->Impl->Document);
   HPDF_Page_SetWidth(this->Impl->Page, this->RenderWindow->GetSize()[0]);
@@ -143,13 +141,13 @@ void vtkPDFExporter::PrepareDocument()
 //------------------------------------------------------------------------------
 void vtkPDFExporter::RenderContextActors()
 {
-  vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
+  vtkRendererCollection* renCol = this->RenderWindow->GetRenderers();
   int numLayers = this->RenderWindow->GetNumberOfLayers();
 
   for (int i = 0; i < numLayers; ++i)
   {
     vtkCollectionSimpleIterator renIt;
-    vtkRenderer *ren;
+    vtkRenderer* ren;
     for (renCol->InitTraversal(renIt); (ren = renCol->GetNextRenderer(renIt));)
     {
       if (this->ActiveRenderer && ren != this->ActiveRenderer)
@@ -159,12 +157,12 @@ void vtkPDFExporter::RenderContextActors()
       }
       if (ren->GetLayer() == i)
       {
-        vtkPropCollection *props = ren->GetViewProps();
+        vtkPropCollection* props = ren->GetViewProps();
         vtkCollectionSimpleIterator propIt;
-        vtkProp *prop;
+        vtkProp* prop;
         for (props->InitTraversal(propIt); (prop = props->GetNextProp(propIt));)
         {
-          vtkContextActor *actor = vtkContextActor::SafeDownCast(prop);
+          vtkContextActor* actor = vtkContextActor::SafeDownCast(prop);
           if (actor)
           {
             this->RenderContextActor(actor, ren);
@@ -176,10 +174,9 @@ void vtkPDFExporter::RenderContextActors()
 }
 
 //------------------------------------------------------------------------------
-void vtkPDFExporter::RenderContextActor(vtkContextActor *actor,
-                                        vtkRenderer *ren)
+void vtkPDFExporter::RenderContextActor(vtkContextActor* actor, vtkRenderer* ren)
 {
-  vtkContextDevice2D *oldForceDevice = actor->GetForceDevice();
+  vtkContextDevice2D* oldForceDevice = actor->GetForceDevice();
 
   vtkNew<vtkPDFContextDevice2D> device;
   device->SetHaruObjects(&this->Impl->Document, &this->Impl->Page);

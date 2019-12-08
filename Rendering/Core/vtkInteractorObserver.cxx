@@ -17,14 +17,13 @@
 #include "vtkAbstractPropPicker.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkObserverMediator.h"
 #include "vtkPickingManager.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-
-vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
+vtkCxxSetObjectMacro(vtkInteractorObserver, DefaultRenderer, vtkRenderer);
 
 //----------------------------------------------------------------------------
 vtkInteractorObserver::vtkInteractorObserver()
@@ -36,7 +35,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->EventCallbackCommand = vtkCallbackCommand::New();
   this->EventCallbackCommand->SetClientData(this);
 
-  //subclass has to invoke SetCallback()
+  // subclass has to invoke SetCallback()
 
   this->KeyPressCallbackCommand = vtkCallbackCommand::New();
   this->KeyPressCallbackCommand->SetClientData(this);
@@ -71,7 +70,7 @@ vtkInteractorObserver::~vtkInteractorObserver()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
+void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer* _arg)
 {
   if (this->CurrentRenderer == _arg)
   {
@@ -138,7 +137,7 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   // if we already have an Interactor then stop observing it
   if (this->Interactor)
   {
-    this->SetEnabled(0); //disable the old interactor
+    this->SetEnabled(0); // disable the old interactor
     this->Interactor->RemoveObserver(this->CharObserverTag);
     this->CharObserverTag = 0;
     this->Interactor->RemoveObserver(this->DeleteObserverTag);
@@ -150,12 +149,10 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   // add observers for each of the events handled in ProcessEvents
   if (i)
   {
-    this->CharObserverTag = i->AddObserver(vtkCommand::CharEvent,
-                                           this->KeyPressCallbackCommand,
-                                           this->Priority);
-    this->DeleteObserverTag = i->AddObserver(vtkCommand::DeleteEvent,
-                                             this->KeyPressCallbackCommand,
-                                             this->Priority);
+    this->CharObserverTag =
+      i->AddObserver(vtkCommand::CharEvent, this->KeyPressCallbackCommand, this->Priority);
+    this->DeleteObserverTag =
+      i->AddObserver(vtkCommand::DeleteEvent, this->KeyPressCallbackCommand, this->Priority);
 
     this->RegisterPickers();
   }
@@ -179,9 +176,7 @@ void vtkInteractorObserver::SetPickingManaged(bool managed)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorObserver::RegisterPickers()
-{
-}
+void vtkInteractorObserver::RegisterPickers() {}
 
 //----------------------------------------------------------------------------
 void vtkInteractorObserver::UnRegisterPickers()
@@ -202,8 +197,8 @@ vtkPickingManager* vtkInteractorObserver::GetPickingManager()
 }
 
 //------------------------------------------------------------------------------
-vtkAssemblyPath* vtkInteractorObserver::
-GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
+vtkAssemblyPath* vtkInteractorObserver::GetAssemblyPath(
+  double X, double Y, double Z, vtkAbstractPropPicker* picker)
 {
   if (!this->GetPickingManager())
   {
@@ -211,22 +206,17 @@ GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
     return picker->GetPath();
   }
 
-  return this->GetPickingManager()->GetAssemblyPath(
-    X, Y, Z, picker, this->CurrentRenderer, this);
+  return this->GetPickingManager()->GetAssemblyPath(X, Y, Z, picker, this->CurrentRenderer, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
-                                          unsigned long event,
-                                          void* clientdata,
-                                          void* vtkNotUsed(calldata))
+void vtkInteractorObserver::ProcessEvents(
+  vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* vtkNotUsed(calldata))
 {
-  if (event == vtkCommand::CharEvent ||
-      event == vtkCommand::DeleteEvent)
+  if (event == vtkCommand::CharEvent || event == vtkCommand::DeleteEvent)
   {
-    vtkObject *vobj = reinterpret_cast<vtkObject *>( clientdata );
-    vtkInteractorObserver* self
-      = vtkInteractorObserver::SafeDownCast(vobj);
+    vtkObject* vobj = reinterpret_cast<vtkObject*>(clientdata);
+    vtkInteractorObserver* self = vtkInteractorObserver::SafeDownCast(vobj);
     if (self)
     {
       if (event == vtkCommand::CharEvent)
@@ -240,7 +230,9 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
     else
     {
-      vtkGenericWarningMacro("Process Events received a bad client data. The client data class name was " << vobj->GetClassName());
+      vtkGenericWarningMacro(
+        "Process Events received a bad client data. The client data class name was "
+        << vobj->GetClassName());
     }
   }
 }
@@ -248,7 +240,8 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
 //----------------------------------------------------------------------------
 void vtkInteractorObserver::StartInteraction()
 {
-  this->Interactor->GetRenderWindow()->SetDesiredUpdateRate(this->Interactor->GetDesiredUpdateRate());
+  this->Interactor->GetRenderWindow()->SetDesiredUpdateRate(
+    this->Interactor->GetDesiredUpdateRate());
 }
 
 //----------------------------------------------------------------------------
@@ -261,11 +254,8 @@ void vtkInteractorObserver::EndInteraction()
 // Description:
 // Transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
-void vtkInteractorObserver::ComputeDisplayToWorld(vtkRenderer *ren,
-                                                  double x,
-                                                  double y,
-                                                  double z,
-                                                  double worldPt[4])
+void vtkInteractorObserver::ComputeDisplayToWorld(
+  vtkRenderer* ren, double x, double y, double z, double worldPt[4])
 {
   ren->SetDisplayPoint(x, y, z);
   ren->DisplayToWorld();
@@ -279,16 +269,12 @@ void vtkInteractorObserver::ComputeDisplayToWorld(vtkRenderer *ren,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // Description:
 // Transform from world to display coordinates.
 // displayPt has to be allocated as 3 vector
-void vtkInteractorObserver::ComputeWorldToDisplay(vtkRenderer *ren,
-                                                  double x,
-                                                  double y,
-                                                  double z,
-                                                  double displayPt[3])
+void vtkInteractorObserver::ComputeWorldToDisplay(
+  vtkRenderer* ren, double x, double y, double z, double displayPt[3])
 {
   ren->SetWorldPoint(x, y, z, 1.0);
   ren->WorldToDisplay();
@@ -299,12 +285,9 @@ void vtkInteractorObserver::ComputeWorldToDisplay(vtkRenderer *ren,
 // Description:
 // Transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
-void vtkInteractorObserver::ComputeDisplayToWorld(double x,
-                                                  double y,
-                                                  double z,
-                                                  double worldPt[4])
+void vtkInteractorObserver::ComputeDisplayToWorld(double x, double y, double z, double worldPt[4])
 {
-  if ( !this->CurrentRenderer )
+  if (!this->CurrentRenderer)
   {
     return;
   }
@@ -312,17 +295,13 @@ void vtkInteractorObserver::ComputeDisplayToWorld(double x,
   this->ComputeDisplayToWorld(this->CurrentRenderer, x, y, z, worldPt);
 }
 
-
 //----------------------------------------------------------------------------
 // Description:
 // Transform from world to display coordinates.
 // displayPt has to be allocated as 3 vector
-void vtkInteractorObserver::ComputeWorldToDisplay(double x,
-                                                  double y,
-                                                  double z,
-                                                  double displayPt[3])
+void vtkInteractorObserver::ComputeWorldToDisplay(double x, double y, double z, double displayPt[3])
 {
-  if ( !this->CurrentRenderer )
+  if (!this->CurrentRenderer)
   {
     return;
   }
@@ -334,11 +313,11 @@ void vtkInteractorObserver::ComputeWorldToDisplay(double x,
 void vtkInteractorObserver::OnChar()
 {
   // catch additional keycodes otherwise
-  if ( this->KeyPressActivation )
+  if (this->KeyPressActivation)
   {
-    if (this->Interactor->GetKeyCode() == this->KeyPressActivationValue )
+    if (this->Interactor->GetKeyCode() == this->KeyPressActivationValue)
     {
-      if ( !this->Enabled )
+      if (!this->Enabled)
       {
         this->On();
       }
@@ -348,23 +327,22 @@ void vtkInteractorObserver::OnChar()
       }
       this->KeyPressCallbackCommand->SetAbortFlag(1);
     }
-  }//if activation enabled
+  } // if activation enabled
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorObserver::GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents)
+void vtkInteractorObserver::GrabFocus(vtkCommand* mouseEvents, vtkCommand* keypressEvents)
 {
-  if ( this->Interactor )
+  if (this->Interactor)
   {
-    this->Interactor->GrabFocus(mouseEvents,keypressEvents);
+    this->Interactor->GrabFocus(mouseEvents, keypressEvents);
   }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkInteractorObserver::ReleaseFocus()
 {
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->Interactor->ReleaseFocus();
   }
@@ -373,19 +351,19 @@ void vtkInteractorObserver::ReleaseFocus()
 //----------------------------------------------------------------------------
 int vtkInteractorObserver::RequestCursorShape(int requestedShape)
 {
-  if ( !this->Interactor )
+  if (!this->Interactor)
   {
     return 0;
   }
 
-  if ( ! this->ObserverMediator )
+  if (!this->ObserverMediator)
   {
     this->ObserverMediator = this->Interactor->GetObserverMediator();
   }
-  int status = this->ObserverMediator->RequestCursorShape(this,requestedShape);
-  if ( status )
+  int status = this->ObserverMediator->RequestCursorShape(this, requestedShape);
+  if (status)
   {
-    this->InvokeEvent(vtkCommand::CursorChangedEvent,nullptr);
+    this->InvokeEvent(vtkCommand::CursorChangedEvent, nullptr);
   }
   return status;
 }
@@ -393,17 +371,13 @@ int vtkInteractorObserver::RequestCursorShape(int requestedShape)
 //----------------------------------------------------------------------------
 void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Current Renderer: " << this->CurrentRenderer << "\n";
   os << indent << "Default Renderer: " << this->DefaultRenderer << "\n";
   os << indent << "Enabled: " << this->Enabled << "\n";
   os << indent << "Priority: " << this->Priority << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
-  os << indent << "Key Press Activation: "
-     << (this->KeyPressActivation ? "On" : "Off") << "\n";
-  os << indent << "Key Press Activation Value: "
-     << this->KeyPressActivationValue << "\n";
+  os << indent << "Key Press Activation: " << (this->KeyPressActivation ? "On" : "Off") << "\n";
+  os << indent << "Key Press Activation Value: " << this->KeyPressActivationValue << "\n";
 }
-
-

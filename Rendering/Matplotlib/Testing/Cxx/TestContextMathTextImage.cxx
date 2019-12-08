@@ -21,23 +21,23 @@
 #include "vtkContextView.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 class ContextMathTextImageTest : public vtkContextItem
 {
 public:
-  static ContextMathTextImageTest *New();
+  static ContextMathTextImageTest* New();
   vtkTypeMacro(ContextMathTextImageTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter) override;
+  virtual bool Paint(vtkContext2D* painter) override;
 };
 
 //----------------------------------------------------------------------------
-int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestContextMathTextImage(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -54,15 +54,16 @@ int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextMathTextImageTest)
+vtkStandardNewMacro(ContextMathTextImageTest);
 
 // This function aims to test the primitives provided by the 2D API.
-bool ContextMathTextImageTest::Paint(vtkContext2D *painter)
+bool ContextMathTextImageTest::Paint(vtkContext2D* painter)
 {
   painter->GetTextProp()->SetColor(0.4, 0.6, 0.7);
   painter->GetTextProp()->SetFontSize(60);
-  painter->DrawMathTextString(20, 20, "$\\frac{-b\\pm\\sqrt{b^2-4ac}}"
-                              "{2a}$");
+  painter->DrawMathTextString(20, 20,
+    "$\\frac{-b\\pm\\sqrt{b^2-4ac}}"
+    "{2a}$");
 
   return true;
 }

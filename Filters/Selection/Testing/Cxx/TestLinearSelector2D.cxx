@@ -114,23 +114,24 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 #endif
 
 //----------------------------------------------------------------------------
-int TestLinearSelector2D( int argc, char * argv [] )
+int TestLinearSelector2D(int argc, char* argv[])
 {
   // Initialize test value
   int testIntValue = 0;
 
   // Read 2D unstructured input mesh
-  char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/SemiDisk/SemiDisk.vtk");
-  vtkSmartPointer<vtkUnstructuredGridReader> reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
-  reader->SetFileName( fileName );
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SemiDisk/SemiDisk.vtk");
+  vtkSmartPointer<vtkUnstructuredGridReader> reader =
+    vtkSmartPointer<vtkUnstructuredGridReader>::New();
+  reader->SetFileName(fileName);
   reader->Update();
-  delete [] fileName;
+  delete[] fileName;
 
   // Create multi-block mesh for linear selector
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-  mesh->SetNumberOfBlocks( 1 );
-  mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" );
-  mesh->SetBlock( 0, reader->GetOutput() );
+  mesh->SetNumberOfBlocks(1);
+  mesh->GetMetaData(static_cast<unsigned>(0))->Set(vtkCompositeDataSet::NAME(), "Mesh");
+  mesh->SetBlock(0, reader->GetOutput());
 
   // *****************************************************************************
   // Selection along inner segment with endpoints (35.84,0,0) and (36.9,0.03,0)
@@ -138,16 +139,16 @@ int TestLinearSelector2D( int argc, char * argv [] )
 
   // Create selection along one line segment
   vtkSmartPointer<vtkLinearSelector> ls = vtkSmartPointer<vtkLinearSelector>::New();
-  ls->SetInputData( mesh );
-  ls->SetStartPoint( 35.84, .0, .0 );
-  ls->SetEndPoint( 36.9, .03, .0 );
+  ls->SetInputData(mesh);
+  ls->SetStartPoint(35.84, .0, .0);
+  ls->SetEndPoint(36.9, .03, .0);
   ls->IncludeVerticesOff();
-  ls->SetVertexEliminationTolerance( 1.e-12 );
+  ls->SetVertexEliminationTolerance(1.e-12);
 
   // Extract selection from mesh
-  vtkSmartPointer<vtkExtractSelection> es =  vtkSmartPointer<vtkExtractSelection>::New();
-  es->SetInputData( 0, mesh );
-  es->SetInputConnection( 1, ls->GetOutputPort() );
+  vtkSmartPointer<vtkExtractSelection> es = vtkSmartPointer<vtkExtractSelection>::New();
+  es->SetInputData(0, mesh);
+  es->SetInputConnection(1, ls->GetOutputPort());
   es->Update();
 
 #if 0

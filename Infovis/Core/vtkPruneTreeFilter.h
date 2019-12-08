@@ -24,7 +24,7 @@
  *
  * Removes a subtree rooted at a particular vertex in a vtkTree.
  *
-*/
+ */
 
 #ifndef vtkPruneTreeFilter_h
 #define vtkPruneTreeFilter_h
@@ -39,7 +39,7 @@ class VTKINFOVISCORE_EXPORT vtkPruneTreeFilter : public vtkTreeAlgorithm
 {
 public:
   static vtkPruneTreeFilter* New();
-  vtkTypeMacro(vtkPruneTreeFilter,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkPruneTreeFilter, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -66,10 +66,7 @@ protected:
   vtkIdType ParentVertex;
   bool ShouldPruneParentVertex;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkPruneTreeFilter(const vtkPruneTreeFilter&) = delete;
@@ -77,4 +74,3 @@ private:
 };
 
 #endif
-

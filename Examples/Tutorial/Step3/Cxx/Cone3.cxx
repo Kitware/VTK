@@ -19,11 +19,11 @@
 //
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
 
 int main()
@@ -34,10 +34,10 @@ int main()
   // visualization pipeline (it is a source process object); it produces data
   // (output type is vtkPolyData) which other filters may process.
   //
-  vtkConeSource *cone = vtkConeSource::New();
-  cone->SetHeight( 3.0 );
-  cone->SetRadius( 1.0 );
-  cone->SetResolution( 10 );
+  vtkConeSource* cone = vtkConeSource::New();
+  cone->SetHeight(3.0);
+  cone->SetRadius(1.0);
+  cone->SetResolution(10);
 
   //
   // In this example we terminate the pipeline with a mapper process object.
@@ -46,8 +46,8 @@ int main()
   // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
   // connect the output of the cone source to the input of this mapper.
   //
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
-  coneMapper->SetInputConnection( cone->GetOutputPort() );
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
+  coneMapper->SetInputConnection(cone->GetOutputPort());
 
   //
   // Create an actor to represent the cone. The actor orchestrates rendering
@@ -56,8 +56,8 @@ int main()
   // matrix. We set this actor's mapper to be coneMapper which we created
   // above.
   //
-  vtkActor *coneActor = vtkActor::New();
-  coneActor->SetMapper( coneMapper );
+  vtkActor* coneActor = vtkActor::New();
+  coneActor->SetMapper(coneMapper);
 
   //
   // Create two renderers and assign actors to them. A renderer renders into
@@ -67,14 +67,14 @@ int main()
   // actor to two different renderers; it is okay to add different actors to
   // different renderers as well.
   //
-  vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( coneActor );
-  ren1->SetBackground( 0.1, 0.2, 0.4 );
+  vtkRenderer* ren1 = vtkRenderer::New();
+  ren1->AddActor(coneActor);
+  ren1->SetBackground(0.1, 0.2, 0.4);
   ren1->SetViewport(0.0, 0.0, 0.5, 1.0);
 
-  vtkRenderer *ren2= vtkRenderer::New();
-  ren2->AddActor( coneActor );
-  ren2->SetBackground( 0.2, 0.3, 0.5 );
+  vtkRenderer* ren2 = vtkRenderer::New();
+  ren2->AddActor(coneActor);
+  ren2->SetBackground(0.2, 0.3, 0.5);
   ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
 
   //
@@ -82,10 +82,10 @@ int main()
   // We put our renderer into the render window using AddRenderer. We also
   // set the size to be 300 pixels by 300.
   //
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AddRenderer( ren1 );
-  renWin->AddRenderer( ren2 );
-  renWin->SetSize( 600, 300 );
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(ren1);
+  renWin->AddRenderer(ren2);
+  renWin->SetSize(600, 300);
 
   //
   // Make one view 90 degrees from other.
@@ -102,8 +102,8 @@ int main()
     // render the image
     renWin->Render();
     // rotate the active camera by one degree
-    ren1->GetActiveCamera()->Azimuth( 1 );
-    ren2->GetActiveCamera()->Azimuth( 1 );
+    ren1->GetActiveCamera()->Azimuth(1);
+    ren2->GetActiveCamera()->Azimuth(1);
   }
 
   //

@@ -24,7 +24,7 @@
  * for that block. If the number of sub-blocks is larger than the
  * number of processors, each processor will possibly have more than
  * 1 sub-block.
-*/
+ */
 
 #ifndef vtkXMLMultiBlockDataReader_h
 #define vtkXMLMultiBlockDataReader_h
@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataRea
 {
 public:
   static vtkXMLMultiBlockDataReader* New();
-  vtkTypeMacro(vtkXMLMultiBlockDataReader,vtkXMLCompositeDataReader);
+  vtkTypeMacro(vtkXMLMultiBlockDataReader, vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -47,28 +47,22 @@ protected:
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  void ReadComposite(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex) override;
+  void ReadComposite(vtkXMLDataElement* element, vtkCompositeDataSet* composite,
+    const char* filePath, unsigned int& dataSetIndex) override;
 
   // Reads file version < 1.0.
-  virtual void ReadVersion0(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex);
+  virtual void ReadVersion0(vtkXMLDataElement* element, vtkCompositeDataSet* composite,
+    const char* filePath, unsigned int& dataSetIndex);
 
   // Get the name of the data set being read.
   const char* GetDataSetName() override;
 
   int FillOutputPortInformation(int, vtkInformation* info) override;
 
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int FillMetaData(vtkCompositeDataSet* metadata,
-                           vtkXMLDataElement* element,
-                           const std::string &filePath,
-                           unsigned int& dataSetIndex);
+  virtual int FillMetaData(vtkCompositeDataSet* metadata, vtkXMLDataElement* element,
+    const std::string& filePath, unsigned int& dataSetIndex);
 
 private:
   vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&) = delete;

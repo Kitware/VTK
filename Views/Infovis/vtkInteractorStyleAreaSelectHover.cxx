@@ -34,9 +34,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkSectorSource.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
@@ -44,8 +44,7 @@
 #include "vtkWorldPointPicker.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name)                                  \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkStandardNewMacro(vtkInteractorStyleAreaSelectHover);
 
@@ -63,7 +62,7 @@ vtkInteractorStyleAreaSelectHover::vtkInteractorStyleAreaSelectHover()
   this->UseRectangularCoordinates = false;
 
   this->HighlightData = vtkPolyData::New();
-  vtkPolyDataMapper *highMap = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* highMap = vtkPolyDataMapper::New();
   highMap->SetInputData(this->HighlightData);
   this->HighlightActor = vtkActor::New();
   this->HighlightActor->SetMapper(highMap);
@@ -89,11 +88,11 @@ vtkInteractorStyleAreaSelectHover::~vtkInteractorStyleAreaSelectHover()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleAreaSelectHover::SetInteractor(vtkRenderWindowInteractor *rwi)
+void vtkInteractorStyleAreaSelectHover::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
   // See if we already had one
-  vtkRenderWindowInteractor *mrwi = this->GetInteractor();
-  vtkRenderer *ren;
+  vtkRenderWindowInteractor* mrwi = this->GetInteractor();
+  vtkRenderer* ren;
   if (mrwi && mrwi->GetRenderWindow())
   {
     this->FindPokedRenderer(0, 0);
@@ -131,7 +130,7 @@ void vtkInteractorStyleAreaSelectHover::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkIdType vtkInteractorStyleAreaSelectHover::GetIdAtPos(int x, int y)
 {
-  vtkIdType id=-1;
+  vtkIdType id = -1;
 
   vtkRenderer* r = this->CurrentRenderer;
   if (r == nullptr)
@@ -158,7 +157,7 @@ vtkIdType vtkInteractorStyleAreaSelectHover::GetIdAtPos(int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleAreaSelectHover::GetBoundingAreaForItem(vtkIdType id, float *sinfo)
+void vtkInteractorStyleAreaSelectHover::GetBoundingAreaForItem(vtkIdType id, float* sinfo)
 {
   if (this->Layout)
   {
@@ -194,22 +193,23 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
 
   // Use the hardware picker to find a point in world coordinates.
   float sinfo[4];
-  vtkIdType id = this->GetIdAtPos(x,y);
+  vtkIdType id = this->GetIdAtPos(x, y);
 
-  if( id != -1 )
+  if (id != -1)
   {
-    this->GetBoundingAreaForItem(id,sinfo);
+    this->GetBoundingAreaForItem(id, sinfo);
   }
 
-  double loc[2] = {static_cast<double>(x), static_cast<double>(y)};
+  double loc[2] = { static_cast<double>(x), static_cast<double>(y) };
   this->Balloon->EndWidgetInteraction(loc);
 
   if (this->Layout && this->Layout->GetOutput())
   {
-    vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
-    //find the information for the correct sector,
+    vtkAbstractArray* absArray =
+      this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
+    // find the information for the correct sector,
     //  unless there isn't a sector or it is the root node
-    if (absArray != nullptr && id > -1 )
+    if (absArray != nullptr && id > -1)
     {
       vtkStdString str;
       if (vtkArrayDownCast<vtkStringArray>(absArray))
@@ -222,14 +222,14 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
       }
       this->Balloon->SetBalloonText(str);
       double z = 0.02;
-      if( this->UseRectangularCoordinates )
+      if (this->UseRectangularCoordinates)
       {
         VTK_CREATE(vtkPoints, highlightPoints);
         highlightPoints->SetNumberOfPoints(5);
 
         VTK_CREATE(vtkCellArray, highA);
         highA->InsertNextCell(5);
-        for( int i = 0; i < 5; ++i)
+        for (int i = 0; i < 5; ++i)
         {
           highA->InsertCellPoint(i);
         }
@@ -243,7 +243,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
       }
       else
       {
-        if( sinfo[1] - sinfo[0] != 360. )
+        if (sinfo[1] - sinfo[0] != 360.)
         {
           VTK_CREATE(vtkSectorSource, sector);
           sector->SetInnerRadius(sinfo[2]);
@@ -252,8 +252,8 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
           sector->SetStartAngle(sinfo[0]);
           sector->SetEndAngle(sinfo[1]);
 
-          int resolution = (int)((sinfo[1]-sinfo[0])/1);
-          if( resolution < 1 )
+          int resolution = (int)((sinfo[1] - sinfo[0]) / 1);
+          if (resolution < 1)
             resolution = 1;
           sector->SetCircumferentialResolution(resolution);
           sector->Update();
@@ -272,35 +272,35 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
           VTK_CREATE(vtkPoints, highlightPoints);
           highlightPoints->SetNumberOfPoints(240);
 
-          double conversion = vtkMath::Pi()/180.;
+          double conversion = vtkMath::Pi() / 180.;
           double current_angle = 0.;
 
           VTK_CREATE(vtkCellArray, highA);
-          for( int i = 0; i < 120; ++i)
+          for (int i = 0; i < 120; ++i)
           {
             highA->InsertNextCell(2);
-            double current_x = sinfo[2]*cos(conversion*current_angle);
-            double current_y = sinfo[2]*sin(conversion*current_angle);
-            highlightPoints->SetPoint( i, current_x, current_y, z );
+            double current_x = sinfo[2] * cos(conversion * current_angle);
+            double current_y = sinfo[2] * sin(conversion * current_angle);
+            highlightPoints->SetPoint(i, current_x, current_y, z);
 
             current_angle += 3.;
 
             highA->InsertCellPoint(i);
-            highA->InsertCellPoint((i+1)%120);
+            highA->InsertCellPoint((i + 1) % 120);
           }
 
           current_angle = 0.;
-          for( int i = 0; i < 120; ++i)
+          for (int i = 0; i < 120; ++i)
           {
             highA->InsertNextCell(2);
-            double current_x = sinfo[3]*cos(conversion*current_angle);
-            double current_y = sinfo[3]*sin(conversion*current_angle);
-            highlightPoints->SetPoint( 120+i, current_x, current_y, z );
+            double current_x = sinfo[3] * cos(conversion * current_angle);
+            double current_y = sinfo[3] * sin(conversion * current_angle);
+            highlightPoints->SetPoint(120 + i, current_x, current_y, z);
 
             current_angle += 3.;
 
-            highA->InsertCellPoint(120+i);
-            highA->InsertCellPoint(120+((i+1)%120));
+            highA->InsertCellPoint(120 + i);
+            highA->InsertCellPoint(120 + ((i + 1) % 120));
           }
           this->HighlightData->SetPoints(highlightPoints);
           this->HighlightData->SetLines(highA);
@@ -340,4 +340,3 @@ double vtkInteractorStyleAreaSelectHover::GetHighLightWidth()
 {
   return this->HighlightActor->GetProperty()->GetLineWidth();
 }
-

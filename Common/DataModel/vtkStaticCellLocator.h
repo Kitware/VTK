@@ -37,13 +37,11 @@
  * vtkModifiedBSPTree
  */
 
-
 #ifndef vtkStaticCellLocator_h
 #define vtkStaticCellLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
-
+#include "vtkCommonDataModelModule.h" // For export macro
 
 // Forward declarations for PIMPL
 struct vtkCellBinner;
@@ -51,15 +49,16 @@ struct vtkCellProcessor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLocator : public vtkAbstractCellLocator
 {
-friend struct vtkCellBinner;
-friend struct vtkCellProcessor;
+  friend struct vtkCellBinner;
+  friend struct vtkCellProcessor;
+
 public:
   //@{
   /**
    * Standard methods to instantiate, print and obtain type-related information.
    */
-  static vtkStaticCellLocator *New();
-  vtkTypeMacro(vtkStaticCellLocator,vtkAbstractCellLocator);
+  static vtkStaticCellLocator* New();
+  vtkTypeMacro(vtkStaticCellLocator, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -70,31 +69,31 @@ public:
    * NumberOfCellsPerNode and MaxNumberOfBuckets data members. The number
    * of divisions must be >= 1 in each direction.
    */
-  vtkSetVector3Macro(Divisions,int);
-  vtkGetVectorMacro(Divisions,int,3);
+  vtkSetVector3Macro(Divisions, int);
+  vtkGetVectorMacro(Divisions, int, 3);
   //@}
 
   using vtkAbstractCellLocator::FindClosestPoint;
+  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
 
   /**
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.
    */
-  vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,
-                     double pcoords[3], double* weights ) override;
+  vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell* cell, double pcoords[3],
+    double* weights) override;
 
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
-  vtkIdType FindCell(double x[3]) override
-    { return this->Superclass::FindCell(x); }
+  vtkIdType FindCell(double x[3]) override { return this->Superclass::FindCell(x); }
 
   /**
    * Return a list of unique cell ids inside of a given bounding box. The
    * user must provide the vtkIdList to populate. This method returns data
    * only after the locator has been built.
    */
-  void FindCellsWithinBounds(double *bbox, vtkIdList *cells) override;
+  void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
 
   /**
    * Given a finite line defined by the two points (p1,p2), return the list
@@ -103,8 +102,8 @@ public:
    * cell list to populate. This method returns data only after the locator
    * has been built.
    */
-  void FindCellsAlongLine(const double p1[3], const double p2[3],
-                          double tolerance, vtkIdList *cells) override;
+  void FindCellsAlongLine(
+    const double p1[3], const double p2[3], double tolerance, vtkIdList* cells) override;
 
   //@{
   /**
@@ -114,8 +113,8 @@ public:
    * provide the vtkIdList cell list to populate. This method returns data
    * only after the locator has been built.
    */
-  void FindCellsAlongPlane(const double o[3], const double n[3],
-                           double tolerance, vtkIdList *cells);
+  void FindCellsAlongPlane(
+    const double o[3], const double n[3], double tolerance, vtkIdList* cells);
   //@}
 
   /**
@@ -129,25 +128,40 @@ public:
    * found, "cell" contains the points and ptIds for the cell "cellId" upon
    * exit.
    */
-  void FindClosestPoint(
-    const double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2) override;
+  void FindClosestPoint(const double x[3], double closestPoint[3], vtkGenericCell* cell,
+    vtkIdType& cellId, int& subId, double& dist2) override;
+
+  /**
+   * Return the closest point within a specified radius and the cell which is
+   * closest to the point x. The closest point is somewhere on a cell, it
+   * need not be one of the vertices of the cell. This method returns 1 if a
+   * point is found within the specified radius. If there are no cells within
+   * the specified radius, the method returns 0 and the values of
+   * closestPoint, cellId, subId, and dist2 are undefined. This version takes
+   * in a vtkGenericCell to avoid allocating and deallocating the cell.  This
+   * is much faster than the version which does not take a *cell, especially
+   * when this function is called many times in a row such as by a for loop,
+   * where the allocation and dealloction can be done only once outside the
+   * for loop.  If a closest point is found, "cell" contains the points and
+   * ptIds for the cell "cellId" upon exit.  If a closest point is found,
+   * inside returns the return value of the EvaluatePosition call to the
+   * closest cell; inside(=1) or outside(=0).
+   */
+  vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
+    vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
    */
-  int IntersectWithLine(const double a0[3], const double a1[3], double tol,
-                        double& t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId,
-                        vtkGenericCell *cell) override;
+  int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol,
-                        double& t, double x[3], double pcoords[3], int &subId) override
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
   }
@@ -155,9 +169,8 @@ public:
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol,
-                        double &t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId) override
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId, vtkIdType& cellId) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
   }
@@ -165,8 +178,8 @@ public:
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3],
-                        vtkPoints *points, vtkIdList *cellIds) override
+  int IntersectWithLine(
+    const double p1[3], const double p2[3], vtkPoints* points, vtkIdList* cellIds) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
   }
@@ -175,7 +188,7 @@ public:
   /**
    * Satisfy vtkLocator abstract interface.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
   //@}
@@ -195,8 +208,8 @@ public:
    * in such a way as not to exceed the MaxNumberOfBuckets proportionally to
    * the size of the bounding box in the x-y-z directions.
    */
-  vtkSetClampMacro(MaxNumberOfBuckets,vtkIdType,1000,VTK_ID_MAX);
-  vtkGetMacro(MaxNumberOfBuckets,vtkIdType);
+  vtkSetClampMacro(MaxNumberOfBuckets, vtkIdType, 1000, VTK_ID_MAX);
+  vtkGetMacro(MaxNumberOfBuckets, vtkIdType);
   //@}
 
   /**
@@ -206,7 +219,7 @@ public:
    * of buckets (specified by the user). Note that LargeIds are only available
    * on 64-bit architectures.
    */
-  bool GetLargeIds() {return this->LargeIds;}
+  bool GetLargeIds() { return this->LargeIds; }
 
 protected:
   vtkStaticCellLocator();
@@ -214,17 +227,17 @@ protected:
 
   double Bounds[6]; // Bounding box of the whole dataset
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
-  double H[3]; // Width of each bin in x-y-z directions
+  double H[3];      // Width of each bin in x-y-z directions
 
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
-  bool LargeIds; //indicate whether integer ids are small or large
+  bool LargeIds;                // indicate whether integer ids are small or large
 
   // Support PIMPLd implementation
-  vtkCellBinner *Binner; // Does the binning
-  vtkCellProcessor *Processor; // Invokes methods (templated subclasses)
+  vtkCellBinner* Binner;       // Does the binning
+  vtkCellProcessor* Processor; // Invokes methods (templated subclasses)
 
   // Support query operations
-  unsigned char *CellHasBeenVisited;
+  unsigned char* CellHasBeenVisited;
   unsigned char QueryNumber;
 
 private:

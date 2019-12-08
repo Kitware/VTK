@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkCylinder.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkCylinder);
 
@@ -42,10 +42,10 @@ double vtkCylinder::EvaluateFunction(double x[3])
   x2C[2] = x[2] - this->Center[2];
 
   // projection onto cylinder axis
-  double proj = vtkMath::Dot(this->Axis,x2C);
+  double proj = vtkMath::Dot(this->Axis, x2C);
 
   // return distance^2 - R^2
-  return ( (vtkMath::Dot(x2C,x2C) - proj*proj) - this->Radius*this->Radius );
+  return ((vtkMath::Dot(x2C, x2C) - proj * proj) - this->Radius * this->Radius);
 }
 
 //----------------------------------------------------------------------------
@@ -57,14 +57,14 @@ void vtkCylinder::EvaluateGradient(double x[3], double g[3])
   // Determine the radial vector from the point x to the line. This
   // means finding the closest point to the line. Get parametric
   // location along cylinder axis. Remember Axis is normalized.
-  double t = this->Axis[0]*(x[0]-this->Center[0]) +
-    this->Axis[1]*(x[1]-this->Center[1]) + this->Axis[2]*(x[2]-this->Center[2]);
+  double t = this->Axis[0] * (x[0] - this->Center[0]) + this->Axis[1] * (x[1] - this->Center[1]) +
+    this->Axis[2] * (x[2] - this->Center[2]);
 
   // Compute closest point
   double cp[3];
-  cp[0] = this->Center[0] + t*this->Axis[0];
-  cp[1] = this->Center[1] + t*this->Axis[1];
-  cp[2] = this->Center[2] + t*this->Axis[2];
+  cp[0] = this->Center[0] + t * this->Axis[0];
+  cp[1] = this->Center[1] + t * this->Axis[1];
+  cp[2] = this->Center[2] + t * this->Axis[2];
 
   // Gradient is 2*r. Project onto x-y-z axes.
   g[0] = 2.0 * (x[0] - cp[0]);
@@ -89,13 +89,12 @@ void vtkCylinder::SetAxis(double ax, double ay, double az)
 void vtkCylinder::SetAxis(double a[3])
 {
   // If axis length is zero, then don't change it
-  if ( vtkMath::Normalize(a) < DBL_EPSILON )
+  if (vtkMath::Normalize(a) < DBL_EPSILON)
   {
     return;
   }
 
-  if ( a[0] != this->Axis[0] || a[1] != this->Axis[1] ||
-       a[2] != this->Axis[2] )
+  if (a[0] != this->Axis[0] || a[1] != this->Axis[1] || a[2] != this->Axis[2])
   {
     this->Modified();
     this->Axis[0] = a[0];
@@ -107,13 +106,13 @@ void vtkCylinder::SetAxis(double a[3])
 //----------------------------------------------------------------------------
 void vtkCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Center: " << "( " << this->Center[0] << ", " <<
-     this->Center[1] << ", " << this->Center[2] << " )";
+  os << indent << "Center: "
+     << "( " << this->Center[0] << ", " << this->Center[1] << ", " << this->Center[2] << " )";
 
-  os << indent << "Axis: " << "( " << this->Axis[0] << ", " <<
-     this->Axis[1] << ", " << this->Axis[2] << " )";
+  os << indent << "Axis: "
+     << "( " << this->Axis[0] << ", " << this->Axis[1] << ", " << this->Axis[2] << " )";
 
   os << indent << "Radius: " << this->Radius << "\n";
 }

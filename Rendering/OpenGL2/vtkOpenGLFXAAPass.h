@@ -27,15 +27,15 @@
  *
  * @sa
  * vtkRenderPass vtkDefaultPass
-*/
+ */
 
 #ifndef vtkOpenGLFXAAPass_h
 #define vtkOpenGLFXAAPass_h
 
 #include "vtkImageProcessingPass.h"
 
-#include "vtkNew.h" // For vtkNew
-#include "vtkOpenGLFXAAFilter.h" // For vtkOpenGLFXAAFilter
+#include "vtkNew.h"                    // For vtkNew
+#include "vtkOpenGLFXAAFilter.h"       // For vtkOpenGLFXAAFilter
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAPass : public vtkImageProcessingPass

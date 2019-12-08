@@ -24,13 +24,13 @@
  * IMPORTANT: This header must be in C++ only because it is included by .cxx files.
  * That means no Objective C may be used. That's why some instance variables are
  * void* instead of what they really should be.
-*/
+ */
 
 #ifndef vtkIOSRenderWindowInteractor_h
 #define vtkIOSRenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindowInteractor : public vtkRenderWindowInteractor
 {
@@ -38,9 +38,9 @@ public:
   /**
    * Construct object so that light follows camera motion.
    */
-  static vtkIOSRenderWindowInteractor *New();
+  static vtkIOSRenderWindowInteractor* New();
 
-  vtkTypeMacro(vtkIOSRenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkIOSRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -76,8 +76,8 @@ public:
    * provided as a means to control how an interactor is exited given
    * the various language bindings (IOS, etc.).
    */
-  static void SetClassExitMethod(void (*f)(void *), void *arg);
-  static void SetClassExitMethodArgDelete(void (*f)(void *));
+  static void SetClassExitMethod(void (*f)(void*), void* arg);
+  static void SetClassExitMethodArgDelete(void (*f)(void*));
   //@}
 
   /**
@@ -86,8 +86,8 @@ public:
    */
   void ExitCallback() override;
 
-//  int GetButtonDown();
-//  void SetButtonDown(int button);
+  //  int GetButtonDown();
+  //  void SetButtonDown(int button);
 
 protected:
   vtkIOSRenderWindowInteractor();
@@ -97,8 +97,8 @@ protected:
    * Accessors for the IOS member variables. These should be used at all time, even
    * by this class.
    */
-  void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
-  void *GetTimerDictionary();
+  void SetTimerDictionary(void* dictionary); // Really an NSMutableDictionary*
+  void* GetTimerDictionary();
 
   //@{
   /**
@@ -106,9 +106,9 @@ protected:
    * (used to set different exit methods for various language bindings,
    * i.e. java, IOS)
    */
-  static void (*ClassExitMethod)(void *);
-  static void (*ClassExitMethodArgDelete)(void *);
-  static void *ClassExitMethodArg;
+  static void (*ClassExitMethod)(void*);
+  static void (*ClassExitMethodArgDelete)(void*);
+  static void* ClassExitMethodArg;
   //@}
 
   //@{
@@ -132,8 +132,8 @@ protected:
    * Accessors for the IOS manager (Really an NSMutableDictionary*).
    * It manages all IOS objects in this C++ class.
    */
-  void SetIOSManager(void *manager);
-  void *GetIOSManager();
+  void SetIOSManager(void* manager);
+  void* GetIOSManager();
   //@}
 
 private:
@@ -146,8 +146,7 @@ private:
   // 2) because of garbage collection
   // Instead, use the IOSManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
-  void    *IOSManager;        // Really an NSMutableDictionary*
-
+  void* IOSManager; // Really an NSMutableDictionary*
 };
 
 #endif

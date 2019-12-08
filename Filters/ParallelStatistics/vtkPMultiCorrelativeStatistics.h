@@ -26,8 +26,9 @@
  * individual data points on the node that owns it.
  *
  * @par Thanks:
- * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories for implementing this class.
-*/
+ * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories for implementing
+ * this class.
+ */
 
 #ifndef vtkPMultiCorrelativeStatistics_h
 #define vtkPMultiCorrelativeStatistics_h
@@ -37,7 +38,8 @@
 
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPMultiCorrelativeStatistics : public vtkMultiCorrelativeStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPMultiCorrelativeStatistics
+  : public vtkMultiCorrelativeStatistics
 {
 public:
   static vtkPMultiCorrelativeStatistics* New();
@@ -56,8 +58,7 @@ public:
   /**
    * Performs Reduction
    */
-  static void GatherStatistics( vtkMultiProcessController *curController,
-                                vtkTable *sparseCov );
+  static void GatherStatistics(vtkMultiProcessController* curController, vtkTable* sparseCov);
 
 protected:
   vtkPMultiCorrelativeStatistics();
@@ -66,9 +67,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  void Learn( vtkTable* inData,
-              vtkTable* inParameters,
-              vtkMultiBlockDataSet* outMeta ) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
   vtkOrderStatistics* CreateOrderStatisticsInstance() override;
 

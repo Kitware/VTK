@@ -38,7 +38,7 @@
  *
  * @sa
  * vtkObject vtkCommand vtkInformationKey
-*/
+ */
 
 #ifndef vtkObjectBase_h
 #define vtkObjectBase_h
@@ -51,8 +51,9 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
-#include "vtkAtomicTypes.h" // needs to be included after vtkSystemIncludes.h
-                            // for warning suppressions to work on Visual Studio
+#include "vtkType.h"
+
+#include <atomic> // For std::atomic
 
 class vtkGarbageCollector;
 class vtkGarbageCollectorToObjectBaseFriendship;
@@ -67,12 +68,12 @@ class VTKCOMMONCORE_EXPORT vtkObjectBase
    * in vtkSetGet.h.
    */
   virtual const char* GetClassNameInternal() const { return "vtkObjectBase"; }
-public:
 
+public:
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
   // Avoid windows name mangling.
-# define GetClassNameA GetClassName
-# define GetClassNameW GetClassName
+#define GetClassNameA GetClassName
+#define GetClassNameW GetClassName
 #endif
 
   /**
@@ -81,8 +82,8 @@ public:
   const char* GetClassName() const;
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetClassNameW
-# undef GetClassNameA
+#undef GetClassNameW
+#undef GetClassNameA
 
   // Define possible mangled names.
   const char* GetClassNameA() const;
@@ -95,14 +96,14 @@ public:
    * the named class. Returns 0 otherwise. This method works in
    * combination with vtkTypeMacro found in vtkSetGet.h.
    */
-  static vtkTypeBool IsTypeOf(const char *name);
+  static vtkTypeBool IsTypeOf(const char* name);
 
   /**
    * Return 1 if this class is the same type of (or a subclass of)
    * the named class. Returns 0 otherwise. This method works in
    * combination with vtkTypeMacro found in vtkSetGet.h.
    */
-  virtual vtkTypeBool IsA(const char *name);
+  virtual vtkTypeBool IsA(const char* name);
 
   /**
    * Delete a VTK object.  This method should always be used to delete
@@ -124,9 +125,9 @@ public:
    * Create an object with Debug turned off, modified time initialized
    * to zero, and reference counting on.
    */
-  static vtkObjectBase *New()
+  static vtkObjectBase* New()
   {
-    vtkObjectBase *o = new vtkObjectBase;
+    vtkObjectBase* o = new vtkObjectBase;
     o->InitializeObjectBase();
     return o;
   }
@@ -137,8 +138,8 @@ public:
 
 #ifdef _WIN32
   // avoid dll boundary problems
-  void* operator new( size_t tSize );
-  void operator delete( void* p );
+  void* operator new(size_t tSize);
+  void operator delete(void* p);
 #endif
 
   /**
@@ -174,10 +175,7 @@ public:
   /**
    * Return the current reference count of this object.
    */
-  int GetReferenceCount()
-  {
-    return this->ReferenceCount;
-  }
+  int GetReferenceCount() { return this->ReferenceCount; }
 
   /**
    * Sets the reference count. (This is very dangerous, use with care.)
@@ -199,8 +197,8 @@ protected:
   virtual void CollectRevisions(ostream&) {} // Legacy; do not use!
 #endif
 
-  vtkAtomicInt32 ReferenceCount;
-  vtkWeakPointerBase **WeakPointers;
+  std::atomic<int32_t> ReferenceCount;
+  vtkWeakPointerBase** WeakPointers;
 
   // Internal Register/UnRegister implementation that accounts for
   // possible garbage collection participation.  The second argument
@@ -212,16 +210,13 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
 private:
-
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   friend class vtkGarbageCollectorToObjectBaseFriendship;
   friend class vtkWeakPointerBaseToObjectBaseFriendship;
 
 protected:
-
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}
-
 };
 
 #endif

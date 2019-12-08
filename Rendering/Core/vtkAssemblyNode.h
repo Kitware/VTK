@@ -41,13 +41,13 @@
  *
  * @sa
  * vtkAssemblyPath vtkProp vtkPicker vtkMatrix4x4
-*/
+ */
 
 #ifndef vtkAssemblyNode_h
 #define vtkAssemblyNode_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkMatrix4x4;
@@ -58,7 +58,7 @@ public:
   /**
    * Create an assembly node.
    */
-  static vtkAssemblyNode *New();
+  static vtkAssemblyNode* New();
 
   vtkTypeMacro(vtkAssemblyNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -79,7 +79,7 @@ public:
    * Also, internal to this object the matrix is copied because
    * the matrix is used for computation by vtkAssemblyPath.
    */
-  void SetMatrix(vtkMatrix4x4 *matrix);
+  void SetMatrix(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(Matrix, vtkMatrix4x4);
   //@}
 
@@ -94,8 +94,8 @@ protected:
   ~vtkAssemblyNode() override;
 
 private:
-  vtkProp *ViewProp; //reference to vtkProp
-  vtkMatrix4x4 *Matrix; //associated matrix
+  vtkProp* ViewProp;    // reference to vtkProp
+  vtkMatrix4x4* Matrix; // associated matrix
 
 private:
   void operator=(const vtkAssemblyNode&) = delete;

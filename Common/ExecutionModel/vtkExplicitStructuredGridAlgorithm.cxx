@@ -94,9 +94,8 @@ void vtkExplicitStructuredGridAlgorithm::AddInputData(int index, vtkDataObject* 
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkExplicitStructuredGridAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -127,8 +126,7 @@ int vtkExplicitStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;
@@ -136,8 +134,7 @@ int vtkExplicitStructuredGridAlgorithm::RequestInformation(vtkInformation* vtkNo
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   int numInputPorts = this->GetNumberOfInputPorts();
   for (int i = 0; i < numInputPorts; i++)
@@ -154,15 +151,14 @@ int vtkExplicitStructuredGridAlgorithm::RequestUpdateExtent(vtkInformation* vtkN
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridAlgorithm::FillOutputPortInformation(int vtkNotUsed(port),
-  vtkInformation* info)
+int vtkExplicitStructuredGridAlgorithm::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkExplicitStructuredGrid");
@@ -170,8 +166,8 @@ int vtkExplicitStructuredGridAlgorithm::FillOutputPortInformation(int vtkNotUsed
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridAlgorithm::FillInputPortInformation(int vtkNotUsed(port),
-  vtkInformation* info)
+int vtkExplicitStructuredGridAlgorithm::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;

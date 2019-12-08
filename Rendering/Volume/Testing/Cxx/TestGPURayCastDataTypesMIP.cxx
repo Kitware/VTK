@@ -21,308 +21,305 @@
 // Tests cell-data with a large data type (int).
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageShiftScale.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkTransform.h"
 #include "vtkPointDataToCellData.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkRegressionTestImage.h"
-
+#include "vtkTransform.h"
+#include "vtkVolumeProperty.h"
+#include "vtkXMLImageDataReader.h"
 
 namespace
 {
-  typedef struct {
-    vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper[4][4];
-    vtkSmartPointer<vtkVolumeProperty> volumeProperty[4][4];
-    vtkSmartPointer<vtkVolume> volume[4][4];
-    vtkSmartPointer<vtkTransform> userMatrix[4][4];
-    vtkSmartPointer<vtkImageShiftScale> shiftScale[4][4];
-    vtkSmartPointer<vtkAlgorithmOutput> algoOut[4][4];
-    vtkSmartPointer<vtkColorTransferFunction> color[4][4];
-    vtkSmartPointer<vtkPiecewiseFunction> opacity[4][4];
-  } VTKData;
+typedef struct
+{
+  vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper[4][4];
+  vtkSmartPointer<vtkVolumeProperty> volumeProperty[4][4];
+  vtkSmartPointer<vtkVolume> volume[4][4];
+  vtkSmartPointer<vtkTransform> userMatrix[4][4];
+  vtkSmartPointer<vtkImageShiftScale> shiftScale[4][4];
+  vtkSmartPointer<vtkAlgorithmOutput> algoOut[4][4];
+  vtkSmartPointer<vtkColorTransferFunction> color[4][4];
+  vtkSmartPointer<vtkPiecewiseFunction> opacity[4][4];
+} VTKData;
 
-  void RegisterVolumeToRender(VTKData& data, vtkRenderer* ren1, const int i, const int j)
-  {
-      data.volumeMapper[i][j]=vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
-      data.volumeMapper[i][j]->SetBlendModeToMaximumIntensity();
-      data.volumeMapper[i][j]->SetInputConnection(data.algoOut[i][j]);
+void RegisterVolumeToRender(VTKData& data, vtkRenderer* ren1, const int i, const int j)
+{
+  data.volumeMapper[i][j] = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
+  data.volumeMapper[i][j]->SetBlendModeToMaximumIntensity();
+  data.volumeMapper[i][j]->SetInputConnection(data.algoOut[i][j]);
 
-      data.volumeProperty[i][j]=vtkSmartPointer<vtkVolumeProperty>::New();
-      data.volumeProperty[i][j]->SetColor(data.color[i][j]);
-      data.volumeProperty[i][j]->SetScalarOpacity(data.opacity[i][j]);
-      data.volumeProperty[i][j]->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+  data.volumeProperty[i][j] = vtkSmartPointer<vtkVolumeProperty>::New();
+  data.volumeProperty[i][j]->SetColor(data.color[i][j]);
+  data.volumeProperty[i][j]->SetScalarOpacity(data.opacity[i][j]);
+  data.volumeProperty[i][j]->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
-      data.volume[i][j]=vtkSmartPointer<vtkVolume>::New();
-      data.volume[i][j]->SetMapper(data.volumeMapper[i][j]);
-      data.volume[i][j]->SetProperty(data.volumeProperty[i][j]);
+  data.volume[i][j] = vtkSmartPointer<vtkVolume>::New();
+  data.volume[i][j]->SetMapper(data.volumeMapper[i][j]);
+  data.volume[i][j]->SetProperty(data.volumeProperty[i][j]);
 
-      data.userMatrix[i][j]=vtkSmartPointer<vtkTransform>::New();
-      data.userMatrix[i][j]->PostMultiply();
-      data.userMatrix[i][j]->Identity();
-      data.userMatrix[i][j]->Translate(i*120,j*120,0);
+  data.userMatrix[i][j] = vtkSmartPointer<vtkTransform>::New();
+  data.userMatrix[i][j]->PostMultiply();
+  data.userMatrix[i][j]->Identity();
+  data.userMatrix[i][j]->Translate(i * 120, j * 120, 0);
 
-      data.volume[i][j]->SetUserTransform(data.userMatrix[i][j]);
-      ren1->AddViewProp(data.volume[i][j]);
-  }
+  data.volume[i][j]->SetUserTransform(data.userMatrix[i][j]);
+  ren1->AddViewProp(data.volume[i][j]);
+}
 }
 
-int TestGPURayCastDataTypesMIP(int argc,
-                               char *argv[])
+int TestGPURayCastDataTypesMIP(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
-  char *cfname=
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
 
   VTKData data;
 
   vtkNew<vtkXMLImageDataReader> reader;
   reader->SetFileName(cfname);
-  delete [] cfname;
+  delete[] cfname;
 
-// unsigned char
-  data.shiftScale[0][0]=vtkSmartPointer<vtkImageShiftScale>::New();
+  // unsigned char
+  data.shiftScale[0][0] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[0][0]->SetInputConnection(reader->GetOutputPort());
   data.algoOut[0][0] = data.shiftScale[0][0]->GetOutputPort();
 
-  data.color[0][0]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[0][0]->AddRGBPoint(0,0,0,1);
-  data.color[0][0]->AddRGBPoint(255,0,1,0);
+  data.color[0][0] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[0][0]->AddRGBPoint(0, 0, 0, 1);
+  data.color[0][0]->AddRGBPoint(255, 0, 1, 0);
 
-  data.opacity[0][0]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[0][0]->AddPoint(0,0);
-  data.opacity[0][0]->AddPoint(255,1);
+  data.opacity[0][0] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[0][0]->AddPoint(0, 0);
+  data.opacity[0][0]->AddPoint(255, 1);
 
-// unsigned char (cell data)
+  // unsigned char (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_02;
   pointsToCells_02->SetInputConnection(data.shiftScale[0][0]->GetOutputPort());
   data.algoOut[0][2] = pointsToCells_02->GetOutputPort();
 
-  data.color[0][2]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[0][2]->AddRGBPoint(0,0,0,1);
-  data.color[0][2]->AddRGBPoint(255,0,1,0);
+  data.color[0][2] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[0][2]->AddRGBPoint(0, 0, 0, 1);
+  data.color[0][2]->AddRGBPoint(255, 0, 1, 0);
 
-  data.opacity[0][2]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[0][2]->AddPoint(0,0);
-  data.opacity[0][2]->AddPoint(255,1);
+  data.opacity[0][2] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[0][2]->AddPoint(0, 0);
+  data.opacity[0][2]->AddPoint(255, 1);
 
-// signed char
-  data.shiftScale[0][1]=vtkSmartPointer<vtkImageShiftScale>::New();
+  // signed char
+  data.shiftScale[0][1] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[0][1]->SetInputConnection(data.shiftScale[0][0]->GetOutputPort());
   data.shiftScale[0][1]->SetShift(-128);
   data.shiftScale[0][1]->SetOutputScalarType(15);
   data.algoOut[0][1] = data.shiftScale[0][1]->GetOutputPort();
 
-  data.color[0][1]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[0][1]->AddRGBPoint(-128,0,0,1);
-  data.color[0][1]->AddRGBPoint(127,0,1,0);
+  data.color[0][1] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[0][1]->AddRGBPoint(-128, 0, 0, 1);
+  data.color[0][1]->AddRGBPoint(127, 0, 1, 0);
 
-  data.opacity[0][1]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[0][1]->AddPoint(-128,0);
-  data.opacity[0][1]->AddPoint(127,1);
+  data.opacity[0][1] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[0][1]->AddPoint(-128, 0);
+  data.opacity[0][1]->AddPoint(127, 1);
 
-// signed char (cell data)
+  // signed char (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_03;
   pointsToCells_03->SetInputConnection(data.shiftScale[0][1]->GetOutputPort());
   data.algoOut[0][3] = pointsToCells_03->GetOutputPort();
 
-  data.color[0][3]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[0][3]->AddRGBPoint(-128,0,0,1);
-  data.color[0][3]->AddRGBPoint(127,0,1,0);
+  data.color[0][3] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[0][3]->AddRGBPoint(-128, 0, 0, 1);
+  data.color[0][3]->AddRGBPoint(127, 0, 1, 0);
 
-  data.opacity[0][3]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[0][3]->AddPoint(-128,0);
-  data.opacity[0][3]->AddPoint(127,1);
+  data.opacity[0][3] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[0][3]->AddPoint(-128, 0);
+  data.opacity[0][3]->AddPoint(127, 1);
 
-// unsigned short
-  data.shiftScale[1][0]=vtkSmartPointer<vtkImageShiftScale>::New();
+  // unsigned short
+  data.shiftScale[1][0] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[1][0]->SetInputConnection(reader->GetOutputPort());
   data.shiftScale[1][0]->SetScale(256);
   data.shiftScale[1][0]->SetOutputScalarTypeToUnsignedShort();
   data.algoOut[1][0] = data.shiftScale[1][0]->GetOutputPort();
 
-  data.color[1][0]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[1][0]->AddRGBPoint(0,0,0,1);
-  data.color[1][0]->AddRGBPoint(65535,0,1,0);
+  data.color[1][0] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[1][0]->AddRGBPoint(0, 0, 0, 1);
+  data.color[1][0]->AddRGBPoint(65535, 0, 1, 0);
 
-  data.opacity[1][0]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[1][0]->AddPoint(0,0);
-  data.opacity[1][0]->AddPoint(65535,1);
+  data.opacity[1][0] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[1][0]->AddPoint(0, 0);
+  data.opacity[1][0]->AddPoint(65535, 1);
 
-// unsigned short (cell data)
+  // unsigned short (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_12;
   pointsToCells_12->SetInputConnection(data.shiftScale[1][0]->GetOutputPort());
   data.algoOut[1][2] = pointsToCells_12->GetOutputPort();
 
-  data.color[1][2]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[1][2]->AddRGBPoint(0,0,0,1);
-  data.color[1][2]->AddRGBPoint(65535,0,1,0);
+  data.color[1][2] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[1][2]->AddRGBPoint(0, 0, 0, 1);
+  data.color[1][2]->AddRGBPoint(65535, 0, 1, 0);
 
-  data.opacity[1][2]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[1][2]->AddPoint(0,0);
-  data.opacity[1][2]->AddPoint(65535,1);
+  data.opacity[1][2] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[1][2]->AddPoint(0, 0);
+  data.opacity[1][2]->AddPoint(65535, 1);
 
-//  short
-  data.shiftScale[1][1]=vtkSmartPointer<vtkImageShiftScale>::New();
+  //  short
+  data.shiftScale[1][1] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[1][1]->SetInputConnection(data.shiftScale[1][0]->GetOutputPort());
   data.shiftScale[1][1]->SetShift(-32768);
   data.shiftScale[1][1]->SetOutputScalarTypeToShort();
   data.algoOut[1][1] = data.shiftScale[1][1]->GetOutputPort();
 
-  data.color[1][1]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[1][1]->AddRGBPoint(-32768,0,0,1);
-  data.color[1][1]->AddRGBPoint(32767,0,1,0);
+  data.color[1][1] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[1][1]->AddRGBPoint(-32768, 0, 0, 1);
+  data.color[1][1]->AddRGBPoint(32767, 0, 1, 0);
 
-  data.opacity[1][1]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[1][1]->AddPoint(-32768,0);
-  data.opacity[1][1]->AddPoint(32767,1);
+  data.opacity[1][1] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[1][1]->AddPoint(-32768, 0);
+  data.opacity[1][1]->AddPoint(32767, 1);
 
-//  short (cell data)
+  //  short (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_13;
   pointsToCells_13->SetInputConnection(data.shiftScale[1][1]->GetOutputPort());
   data.algoOut[1][3] = pointsToCells_13->GetOutputPort();
 
-  data.color[1][3]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[1][3]->AddRGBPoint(-32768,0,0,1);
-  data.color[1][3]->AddRGBPoint(32767,0,1,0);
+  data.color[1][3] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[1][3]->AddRGBPoint(-32768, 0, 0, 1);
+  data.color[1][3]->AddRGBPoint(32767, 0, 1, 0);
 
-  data.opacity[1][3]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[1][3]->AddPoint(-32768,0);
-  data.opacity[1][3]->AddPoint(32767,1);
+  data.opacity[1][3] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[1][3]->AddPoint(-32768, 0);
+  data.opacity[1][3]->AddPoint(32767, 1);
 
-// unsigned int
-  data.shiftScale[2][0]=vtkSmartPointer<vtkImageShiftScale>::New();
-  data.shiftScale[2][0]->SetInputConnection (reader->GetOutputPort());
+  // unsigned int
+  data.shiftScale[2][0] = vtkSmartPointer<vtkImageShiftScale>::New();
+  data.shiftScale[2][0]->SetInputConnection(reader->GetOutputPort());
   data.shiftScale[2][0]->SetScale(16777216);
   data.shiftScale[2][0]->SetOutputScalarTypeToUnsignedInt();
 
-  data.color[2][0]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[2][0]->AddRGBPoint(0,0,0,1);
-  data.color[2][0]->AddRGBPoint(VTK_UNSIGNED_INT_MAX,0,1,0);
+  data.color[2][0] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[2][0]->AddRGBPoint(0, 0, 0, 1);
+  data.color[2][0]->AddRGBPoint(VTK_UNSIGNED_INT_MAX, 0, 1, 0);
   data.algoOut[2][0] = data.shiftScale[2][0]->GetOutputPort();
 
-  data.opacity[2][0]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[2][0]->AddPoint(0,0);
-  data.opacity[2][0]->AddPoint(VTK_UNSIGNED_INT_MAX,1);
+  data.opacity[2][0] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[2][0]->AddPoint(0, 0);
+  data.opacity[2][0]->AddPoint(VTK_UNSIGNED_INT_MAX, 1);
 
-// unsigned int (cell data)
+  // unsigned int (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_22;
   pointsToCells_22->SetInputConnection(data.shiftScale[2][0]->GetOutputPort());
   data.algoOut[2][2] = pointsToCells_22->GetOutputPort();
 
-  data.color[2][2]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[2][2]->AddRGBPoint(0,0,0,1);
-  data.color[2][2]->AddRGBPoint(VTK_UNSIGNED_INT_MAX,0,1,0);
+  data.color[2][2] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[2][2]->AddRGBPoint(0, 0, 0, 1);
+  data.color[2][2]->AddRGBPoint(VTK_UNSIGNED_INT_MAX, 0, 1, 0);
 
-  data.opacity[2][2]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[2][2]->AddPoint(0,0);
-  data.opacity[2][2]->AddPoint(VTK_UNSIGNED_INT_MAX,1);
+  data.opacity[2][2] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[2][2]->AddPoint(0, 0);
+  data.opacity[2][2]->AddPoint(VTK_UNSIGNED_INT_MAX, 1);
 
-// int
-  data.shiftScale[2][1]=vtkSmartPointer<vtkImageShiftScale>::New();
+  // int
+  data.shiftScale[2][1] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[2][1]->SetInputConnection(data.shiftScale[2][0]->GetOutputPort());
   data.shiftScale[2][1]->SetShift(VTK_INT_MIN);
   data.shiftScale[2][1]->SetOutputScalarTypeToInt();
   data.algoOut[2][1] = data.shiftScale[2][1]->GetOutputPort();
 
-  data.color[2][1]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[2][1]->AddRGBPoint(VTK_INT_MIN,0,0,1);
-  data.color[2][1]->AddRGBPoint(VTK_INT_MAX,0,1,0);
+  data.color[2][1] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[2][1]->AddRGBPoint(VTK_INT_MIN, 0, 0, 1);
+  data.color[2][1]->AddRGBPoint(VTK_INT_MAX, 0, 1, 0);
 
-  data.opacity[2][1]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[2][1]->AddPoint(VTK_INT_MIN,0);
-  data.opacity[2][1]->AddPoint(VTK_INT_MAX,1);
+  data.opacity[2][1] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[2][1]->AddPoint(VTK_INT_MIN, 0);
+  data.opacity[2][1]->AddPoint(VTK_INT_MAX, 1);
 
-// int (cell data)
+  // int (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells;
   pointsToCells->SetInputConnection(data.shiftScale[2][1]->GetOutputPort());
   data.algoOut[2][3] = pointsToCells->GetOutputPort();
 
-  data.color[2][3]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[2][3]->AddRGBPoint(VTK_INT_MIN,0,0,1);
-  data.color[2][3]->AddRGBPoint(VTK_INT_MAX,0,1,0);
+  data.color[2][3] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[2][3]->AddRGBPoint(VTK_INT_MIN, 0, 0, 1);
+  data.color[2][3]->AddRGBPoint(VTK_INT_MAX, 0, 1, 0);
 
-  data.opacity[2][3]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[2][3]->AddPoint(VTK_INT_MIN,0);
-  data.opacity[2][3]->AddPoint(VTK_INT_MAX,1);
+  data.opacity[2][3] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[2][3]->AddPoint(VTK_INT_MIN, 0);
+  data.opacity[2][3]->AddPoint(VTK_INT_MAX, 1);
 
-// float [-1 1]
+  // float [-1 1]
   vtkNew<vtkImageShiftScale> shiftScale_3_0_pre;
   shiftScale_3_0_pre->SetInputConnection(reader->GetOutputPort());
   shiftScale_3_0_pre->SetScale(0.0078125);
   shiftScale_3_0_pre->SetOutputScalarTypeToFloat();
 
-  data.shiftScale[3][0]=vtkSmartPointer<vtkImageShiftScale>::New();
+  data.shiftScale[3][0] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[3][0]->SetInputConnection(shiftScale_3_0_pre->GetOutputPort());
   data.shiftScale[3][0]->SetShift(-1.0);
   data.shiftScale[3][0]->SetOutputScalarTypeToFloat();
   data.algoOut[3][0] = data.shiftScale[3][0]->GetOutputPort();
 
-  data.color[3][0]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[3][0]->AddRGBPoint(-1.0,0,0,1);
-  data.color[3][0]->AddRGBPoint(1.0,0,1,0);
+  data.color[3][0] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[3][0]->AddRGBPoint(-1.0, 0, 0, 1);
+  data.color[3][0]->AddRGBPoint(1.0, 0, 1, 0);
 
-  data.opacity[3][0]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[3][0]->AddPoint(-1.0,0);
-  data.opacity[3][0]->AddPoint(1.0,1);
+  data.opacity[3][0] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[3][0]->AddPoint(-1.0, 0);
+  data.opacity[3][0]->AddPoint(1.0, 1);
 
-// float (cell data)
+  // float (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_32;
   pointsToCells_32->SetInputConnection(data.shiftScale[3][0]->GetOutputPort());
   data.algoOut[3][2] = pointsToCells_32->GetOutputPort();
 
-  data.color[3][2]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[3][2]->AddRGBPoint(-1.0,0,0,1);
-  data.color[3][2]->AddRGBPoint(1.0,0,1,0);
+  data.color[3][2] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[3][2]->AddRGBPoint(-1.0, 0, 0, 1);
+  data.color[3][2]->AddRGBPoint(1.0, 0, 1, 0);
 
-  data.opacity[3][2]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[3][2]->AddPoint(-1.0,0);
-  data.opacity[3][2]->AddPoint(1.0,1);
+  data.opacity[3][2] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[3][2]->AddPoint(-1.0, 0);
+  data.opacity[3][2]->AddPoint(1.0, 1);
 
-// double [-1000 3000]
+  // double [-1000 3000]
   vtkNew<vtkImageShiftScale> shiftScale_3_1_pre;
   shiftScale_3_1_pre->SetInputConnection(reader->GetOutputPort());
   shiftScale_3_1_pre->SetScale(15.625);
   shiftScale_3_1_pre->SetOutputScalarTypeToDouble();
 
-  data.shiftScale[3][1]=vtkSmartPointer<vtkImageShiftScale>::New();
+  data.shiftScale[3][1] = vtkSmartPointer<vtkImageShiftScale>::New();
   data.shiftScale[3][1]->SetInputConnection(shiftScale_3_1_pre->GetOutputPort());
   data.shiftScale[3][1]->SetShift(-1000);
   data.shiftScale[3][1]->SetOutputScalarTypeToDouble();
   data.algoOut[3][1] = data.shiftScale[3][1]->GetOutputPort();
 
-  data.color[3][1]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[3][1]->AddRGBPoint(-1000,0,0,1);
-  data.color[3][1]->AddRGBPoint(3000,0,1,0);
+  data.color[3][1] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[3][1]->AddRGBPoint(-1000, 0, 0, 1);
+  data.color[3][1]->AddRGBPoint(3000, 0, 1, 0);
 
-  data.opacity[3][1]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[3][1]->AddPoint(-1000,0);
-  data.opacity[3][1]->AddPoint(3000,1);
+  data.opacity[3][1] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[3][1]->AddPoint(-1000, 0);
+  data.opacity[3][1]->AddPoint(3000, 1);
 
-// double (cell data)
+  // double (cell data)
   vtkNew<vtkPointDataToCellData> pointsToCells_33;
   pointsToCells_33->SetInputConnection(data.shiftScale[3][1]->GetOutputPort());
   data.algoOut[3][3] = pointsToCells_33->GetOutputPort();
 
-  data.color[3][3]=vtkSmartPointer<vtkColorTransferFunction>::New();
-  data.color[3][3]->AddRGBPoint(-1000,0,0,1);
-  data.color[3][3]->AddRGBPoint(3000,0,1,0);
+  data.color[3][3] = vtkSmartPointer<vtkColorTransferFunction>::New();
+  data.color[3][3]->AddRGBPoint(-1000, 0, 0, 1);
+  data.color[3][3]->AddRGBPoint(3000, 0, 1, 0);
 
-  data.opacity[3][3]=vtkSmartPointer<vtkPiecewiseFunction>::New();
-  data.opacity[3][3]->AddPoint(-1000,0);
-  data.opacity[3][3]->AddPoint(3000,1);
-
+  data.opacity[3][3] = vtkSmartPointer<vtkPiecewiseFunction>::New();
+  data.opacity[3][3]->AddPoint(-1000, 0);
+  data.opacity[3][3]->AddPoint(3000, 1);
 
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
@@ -333,11 +330,11 @@ int TestGPURayCastDataTypesMIP(int argc,
 
   renWin->Render();
 
-  int i=0;
-  while(i<4)
+  int i = 0;
+  while (i < 4)
   {
-    int j=0;
-    while(j<4)
+    int j = 0;
+    while (j < 4)
     {
       RegisterVolumeToRender(data, ren1, i, j);
       ++j;
@@ -345,12 +342,12 @@ int TestGPURayCastDataTypesMIP(int argc,
     ++i;
   }
 
-  int valid=data.volumeMapper[0][1]->IsRenderSupported(renWin,data.volumeProperty[0][1]);
+  int valid = data.volumeMapper[0][1]->IsRenderSupported(renWin, data.volumeProperty[0][1]);
   int retVal;
-  if(valid)
+  if (valid)
   {
     iren->Initialize();
-    ren1->SetBackground(0.1,0.4,0.2);
+    ren1->SetBackground(0.1, 0.4, 0.2);
     ren1->ResetCamera();
     ren1->GetActiveCamera()->Zoom(1.25);
     renWin->Render();
@@ -363,7 +360,7 @@ int TestGPURayCastDataTypesMIP(int argc,
   }
   else
   {
-    retVal=vtkTesting::PASSED;
+    retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
   }
 

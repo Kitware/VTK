@@ -23,7 +23,7 @@
  * vtkImageReslice.
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkImageSlab_h
 #define vtkImageSlab_h
@@ -34,7 +34,7 @@
 class VTKIMAGINGGENERAL_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageSlab *New();
+  static vtkImageSlab* New();
   vtkTypeMacro(vtkImageSlab, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -44,12 +44,9 @@ public:
    * The default is the Z direction.
    */
   vtkSetClampMacro(Orientation, int, 0, 2);
-  void SetOrientationToX() {
-    this->SetOrientation(0); };
-  void SetOrientationToY() {
-    this->SetOrientation(1); };
-  void SetOrientationToZ() {
-    this->SetOrientation(2); };
+  void SetOrientationToX() { this->SetOrientation(0); }
+  void SetOrientationToY() { this->SetOrientation(1); }
+  void SetOrientationToZ() { this->SetOrientation(2); }
   vtkGetMacro(Orientation, int);
   //@}
 
@@ -68,16 +65,12 @@ public:
    * "Mean", "Sum", "Min", "Max".  The default is "Mean".
    */
   vtkSetClampMacro(Operation, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
-  void SetOperationToMin() {
-    this->SetOperation(VTK_IMAGE_SLAB_MIN); };
-  void SetOperationToMax() {
-    this->SetOperation(VTK_IMAGE_SLAB_MAX); };
-  void SetOperationToMean() {
-    this->SetOperation(VTK_IMAGE_SLAB_MEAN); };
-  void SetOperationToSum() {
-    this->SetOperation(VTK_IMAGE_SLAB_SUM); };
+  void SetOperationToMin() { this->SetOperation(VTK_IMAGE_SLAB_MIN); }
+  void SetOperationToMax() { this->SetOperation(VTK_IMAGE_SLAB_MAX); }
+  void SetOperationToMean() { this->SetOperation(VTK_IMAGE_SLAB_MEAN); }
+  void SetOperationToSum() { this->SetOperation(VTK_IMAGE_SLAB_SUM); }
   vtkGetMacro(Operation, int);
-  const char *GetOperationAsString();
+  const char* GetOperationAsString();
   //@}
 
   //@{
@@ -112,12 +105,9 @@ public:
    * The default is to use the scalar type of the input data,
    * and clamp the output to the range of the input scalar type.
    */
-  void SetOutputScalarTypeToFloat() {
-    this->SetOutputScalarType(VTK_FLOAT); };
-  void SetOutputScalarTypeToDouble() {
-    this->SetOutputScalarType(VTK_DOUBLE); };
-  void SetOutputScalarTypeToInputScalarType() {
-    this->SetOutputScalarType(0); };
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  void SetOutputScalarTypeToInputScalarType() { this->SetOutputScalarType(0); }
   vtkGetMacro(OutputScalarType, int);
   //@}
 
@@ -125,15 +115,11 @@ protected:
   vtkImageSlab();
   ~vtkImageSlab() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
 
   vtkSetMacro(OutputScalarType, int);
 

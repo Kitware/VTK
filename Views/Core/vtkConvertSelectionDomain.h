@@ -36,20 +36,20 @@
  *
  * The second output is the selection associated with the "current annotation"
  * normally representing the current interactive selection.
-*/
+ */
 
 #ifndef vtkConvertSelectionDomain_h
 #define vtkConvertSelectionDomain_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAnnotation;
 
 class VTKVIEWSCORE_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkConvertSelectionDomain *New();
+  static vtkConvertSelectionDomain* New();
   vtkTypeMacro(vtkConvertSelectionDomain, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -57,16 +57,11 @@ protected:
   vtkConvertSelectionDomain();
   ~vtkConvertSelectionDomain() override;
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int FillOutputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) = delete;

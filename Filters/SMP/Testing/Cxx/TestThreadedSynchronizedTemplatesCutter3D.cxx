@@ -21,8 +21,8 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkSmartPointer.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphere.h"
 #include "vtkSynchronizedTemplatesCutter3D.h"
 #include "vtkThreadedSynchronizedTemplatesCutter3D.h"
@@ -30,13 +30,12 @@
 
 #include <algorithm>
 
-
-int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
+int TestThreadedSynchronizedTemplatesCutter3D(int, char*[])
 {
   static const int dim = 257;
   static const int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
-  //vtkSMPTools::Initialize(4);
+  // vtkSMPTools::Initialize(4);
   vtkNew<vtkTimerLog> tl;
 
   vtkNew<vtkRTAnalyticSource> source;
@@ -50,11 +49,10 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
   double bounds[6];
   source->GetOutput()->GetBounds(bounds);
 
-  double center[3] = {(bounds[0] + bounds[1])/2.0, (bounds[2] + bounds[3])/2.0,
-                      (bounds[4] + bounds[5])/2.0};
-  double radius = std::min((bounds[1] - bounds[0])/2.0,
-                           std::min((bounds[3] - bounds[2])/2.0,
-                                    (bounds[5] - bounds[4])/2.0));
+  double center[3] = { (bounds[0] + bounds[1]) / 2.0, (bounds[2] + bounds[3]) / 2.0,
+    (bounds[4] + bounds[5]) / 2.0 };
+  double radius = std::min((bounds[1] - bounds[0]) / 2.0,
+    std::min((bounds[3] - bounds[2]) / 2.0, (bounds[5] - bounds[4]) / 2.0));
 
   vtkNew<vtkSphere> impfunc;
   impfunc->SetRadius(radius);
@@ -83,13 +81,11 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
   int numPieces = 0;
   vtkNew<vtkAppendPolyData> appender;
   vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(static_cast<vtkCompositeDataSet*>(
-    pc->GetOutputDataObject(0))->NewIterator());
+  iter.TakeReference(static_cast<vtkCompositeDataSet*>(pc->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
-  while(!iter->IsDoneWithTraversal())
+  while (!iter->IsDoneWithTraversal())
   {
-    vtkPolyData* piece =
-      static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
+    vtkPolyData* piece = static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     appender->AddInputData(piece);
     ++numPieces;
     iter->GoToNextItem();
@@ -111,16 +107,14 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
   int npoints2 = cleaner2->GetOutput()->GetNumberOfPoints();
   int ntriangles2 = cleaner2->GetOutput()->GetNumberOfCells();
 
-  cout << "Serial Output: Triangles=" << ntriangles1 << ", Points="
-       << npoints1 << endl;
-  cout << "SMP Output: Triangles=" << ntriangles2 << ", Points="
-       << npoints2 << endl;
+  cout << "Serial Output: Triangles=" << ntriangles1 << ", Points=" << npoints1 << endl;
+  cout << "SMP Output: Triangles=" << ntriangles2 << ", Points=" << npoints2 << endl;
 
   if (npoints1 == npoints2 && ntriangles1 == ntriangles2)
   {
     cout << "Outputs match" << endl;
-    cout << "speedup = " << serialTime/parallelTime << "x with "
-         << numPieces << " threads" << endl;
+    cout << "speedup = " << serialTime / parallelTime << "x with " << numPieces << " threads"
+         << endl;
     return EXIT_SUCCESS;
   }
 

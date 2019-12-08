@@ -35,14 +35,14 @@
  * rather than a gamma-correct sRGB input. Future work should combine this pass
  * with a gamma correction pass to correct this. Bonus points for precomputing
  * luminosity into the sRGB's alpha channel to save cycles in the FXAA shader!
-*/
+ */
 
 #ifndef vtkOpenGLFXAAFilter_h
 #define vtkOpenGLFXAAFilter_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkObject.h"
 #include "vtkFXAAOptions.h" // For DebugOptions enum
+#include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <string> // For std::string
 
@@ -53,17 +53,17 @@ class vtkShaderProgram;
 class vtkTextureObject;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAFilter: public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAFilter : public vtkObject
 {
 public:
   static vtkOpenGLFXAAFilter* New();
-  vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform FXAA on the current render buffer in @a ren.
    */
-  void Execute(vtkOpenGLRenderer *ren);
+  void Execute(vtkOpenGLRenderer* ren);
 
   /**
    * Release all OpenGL state.
@@ -75,28 +75,28 @@ public:
    * this copies the configuration values from opts -- it does not save the
    * @a opts pointer.
    */
-  void UpdateConfiguration(vtkFXAAOptions *opts);
+  void UpdateConfiguration(vtkFXAAOptions* opts);
 
   //@{
   /**
    * Parameter for tuning the FXAA implementation. See vtkFXAAOptions for
    * details and suggested values.
    */
-  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(RelativeContrastThreshold, float)
-  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(HardContrastThreshold, float)
-  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelBlendLimit, float)
-  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelContrastThreshold, float)
+  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(RelativeContrastThreshold, float);
+  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(HardContrastThreshold, float);
+  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelBlendLimit, float);
+  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelContrastThreshold, float);
   virtual void SetUseHighQualityEndpoints(bool val);
-  vtkGetMacro(UseHighQualityEndpoints, bool)
-  vtkBooleanMacro(UseHighQualityEndpoints, bool)
-  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX)
-  vtkGetMacro(EndpointSearchIterations, int)
+  vtkGetMacro(UseHighQualityEndpoints, bool);
+  vtkBooleanMacro(UseHighQualityEndpoints, bool);
+  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX);
+  vtkGetMacro(EndpointSearchIterations, int);
   virtual void SetDebugOptionValue(vtkFXAAOptions::DebugOption opt);
-  vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption)
+  vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption);
   //@}
 
 protected:
@@ -108,11 +108,11 @@ protected:
   void CreateGLObjects();
   void LoadInput();
   void ApplyFilter();
-  void SubstituteFragmentShader(std::string &fragShader);
+  void SubstituteFragmentShader(std::string& fragShader);
   void Finalize();
 
-  void StartTimeQuery(vtkOpenGLRenderTimer *timer);
-  void EndTimeQuery(vtkOpenGLRenderTimer *timer);
+  void StartTimeQuery(vtkOpenGLRenderTimer* timer);
+  void EndTimeQuery(vtkOpenGLRenderTimer* timer);
   void PrintBenchmark();
 
   // Cache GL state that we modify
@@ -122,8 +122,8 @@ protected:
   int Viewport[4]; // x, y, width, height
 
   // Used to measure execution time:
-  vtkOpenGLRenderTimer *PreparationTimer;
-  vtkOpenGLRenderTimer *FXAATimer;
+  vtkOpenGLRenderTimer* PreparationTimer;
+  vtkOpenGLRenderTimer* FXAATimer;
 
   // Parameters:
   float RelativeContrastThreshold;
@@ -138,10 +138,10 @@ protected:
   // Set to true when the shader definitions change so we know when to rebuild.
   bool NeedToRebuildShader;
 
-  vtkOpenGLRenderer *Renderer;
-  vtkTextureObject *Input;
+  vtkOpenGLRenderer* Renderer;
+  vtkTextureObject* Input;
 
-  vtkOpenGLQuadHelper *QHelper;
+  vtkOpenGLQuadHelper* QHelper;
 
 private:
   vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) = delete;

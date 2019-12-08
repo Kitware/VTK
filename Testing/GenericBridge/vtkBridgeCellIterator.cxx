@@ -22,34 +22,34 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeCell.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
 
-#include "vtkBridgeCellIteratorOnDataSet.h"
-#include "vtkBridgeCellIteratorOne.h"
 #include "vtkBridgeCellIteratorOnCellBoundaries.h"
 #include "vtkBridgeCellIteratorOnCellList.h"
+#include "vtkBridgeCellIteratorOnDataSet.h"
+#include "vtkBridgeCellIteratorOne.h"
 
 vtkStandardNewMacro(vtkBridgeCellIterator);
 
 //-----------------------------------------------------------------------------
 void vtkBridgeCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
 vtkBridgeCellIterator::vtkBridgeCellIterator()
 {
-//  this->DebugOn();
-  this->CurrentIterator=nullptr;
-  this->IteratorOnDataSet=vtkBridgeCellIteratorOnDataSet::New();
-  this->IteratorOneCell=vtkBridgeCellIteratorOne::New();
-  this->IteratorOnCellBoundaries=vtkBridgeCellIteratorOnCellBoundaries::New();
-  this->IteratorOnCellList=vtkBridgeCellIteratorOnCellList::New();
+  //  this->DebugOn();
+  this->CurrentIterator = nullptr;
+  this->IteratorOnDataSet = vtkBridgeCellIteratorOnDataSet::New();
+  this->IteratorOneCell = vtkBridgeCellIteratorOne::New();
+  this->IteratorOnCellBoundaries = vtkBridgeCellIteratorOnCellBoundaries::New();
+  this->IteratorOnCellList = vtkBridgeCellIteratorOnCellList::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ vtkBridgeCellIterator::~vtkBridgeCellIterator()
 // Move iterator to first position if any (loop initialization).
 void vtkBridgeCellIterator::Begin()
 {
-  if(this->CurrentIterator!=nullptr)
+  if (this->CurrentIterator != nullptr)
   {
     this->CurrentIterator->Begin();
   }
@@ -77,11 +77,11 @@ void vtkBridgeCellIterator::Begin()
 // Is there no cell at iterator position? (exit condition).
 vtkTypeBool vtkBridgeCellIterator::IsAtEnd()
 {
-  int result=1;
+  int result = 1;
 
-  if(this->CurrentIterator!=nullptr)
+  if (this->CurrentIterator != nullptr)
   {
-    result=this->CurrentIterator->IsAtEnd();
+    result = this->CurrentIterator->IsAtEnd();
   }
   return result;
 }
@@ -90,10 +90,10 @@ vtkTypeBool vtkBridgeCellIterator::IsAtEnd()
 // Description:
 // Create an empty cell.
 // \post result_exists: result!=0
-vtkGenericAdaptorCell *vtkBridgeCellIterator::NewCell()
+vtkGenericAdaptorCell* vtkBridgeCellIterator::NewCell()
 {
-  vtkGenericAdaptorCell *result=vtkBridgeCell::New();
-  assert("post: result_exists" && result!=nullptr);
+  vtkGenericAdaptorCell* result = vtkBridgeCell::New();
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
@@ -103,10 +103,10 @@ vtkGenericAdaptorCell *vtkBridgeCellIterator::NewCell()
 // \pre not_at_end: !IsAtEnd()
 // \pre c_exists: c!=0
 // THREAD SAFE
-void vtkBridgeCellIterator::GetCell(vtkGenericAdaptorCell *c)
+void vtkBridgeCellIterator::GetCell(vtkGenericAdaptorCell* c)
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  assert("pre: c_exists" && c!=nullptr);
+  assert("pre: c_exists" && c != nullptr);
 
   this->CurrentIterator->GetCell(c);
 }
@@ -117,11 +117,11 @@ void vtkBridgeCellIterator::GetCell(vtkGenericAdaptorCell *c)
 // NOT THREAD SAFE
 // \pre not_at_end: !IsAtEnd()
 // \post result_exits: result!=0
-vtkGenericAdaptorCell *vtkBridgeCellIterator::GetCell()
+vtkGenericAdaptorCell* vtkBridgeCellIterator::GetCell()
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  vtkGenericAdaptorCell *result=this->CurrentIterator->GetCell( );
-  assert("post: result_exits" && result!=nullptr);
+  vtkGenericAdaptorCell* result = this->CurrentIterator->GetCell();
+  assert("post: result_exits" && result != nullptr);
   return result;
 }
 
@@ -141,14 +141,13 @@ void vtkBridgeCellIterator::Next()
 // Iterate over cells of `ds' of some dimension `dim'.
 // \pre ds_exists: ds!=0
 // \pre valid_dim_range: (dim>=-1) && (dim<=3)
-void vtkBridgeCellIterator::InitWithDataSet(vtkBridgeDataSet *ds,
-                                            int dim)
+void vtkBridgeCellIterator::InitWithDataSet(vtkBridgeDataSet* ds, int dim)
 {
-  assert("pre: ds_exists" && ds!=nullptr);
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
+  assert("pre: ds_exists" && ds != nullptr);
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 3));
 
-  this->IteratorOnDataSet->InitWithDataSet(ds,dim);
-  this->CurrentIterator=this->IteratorOnDataSet;
+  this->IteratorOnDataSet->InitWithDataSet(ds, dim);
+  this->CurrentIterator = this->IteratorOnDataSet;
 }
 
 //-----------------------------------------------------------------------------
@@ -157,12 +156,11 @@ void vtkBridgeCellIterator::InitWithDataSet(vtkBridgeDataSet *ds,
 // Iterate over boundary cells of `ds' of some dimension `dim'.
 // \pre ds_exists: ds!=0
 // \pre valid_dim_range: (dim>=-1) && (dim<=3)
-void vtkBridgeCellIterator::InitWithDataSetBoundaries(vtkBridgeDataSet *ds,
-                                                      int dim,
-                                                      int exterior_only)
+void vtkBridgeCellIterator::InitWithDataSetBoundaries(
+  vtkBridgeDataSet* ds, int dim, int exterior_only)
 {
-  assert("pre: ds_exists" && ds!=nullptr);
-  assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
+  assert("pre: ds_exists" && ds != nullptr);
+  assert("pre: valid_dim_range" && (dim >= -1) && (dim <= 3));
 
   (void)ds;
   (void)dim;
@@ -177,14 +175,13 @@ void vtkBridgeCellIterator::InitWithDataSetBoundaries(vtkBridgeDataSet *ds,
 // Iterate on one cell `id' of `ds'.
 // \pre ds_exists: ds!=0
 // \pre valid_id: (id>=0)&&(id<=ds->GetNumberOfCells())
-void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeDataSet *ds,
-                                            vtkIdType cellid)
+void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeDataSet* ds, vtkIdType cellid)
 {
-  assert("pre: ds_exists" && ds!=nullptr);
-  assert("pre: valid_id" && (cellid>=0)&&(cellid<=ds->GetNumberOfCells()));
+  assert("pre: ds_exists" && ds != nullptr);
+  assert("pre: valid_id" && (cellid >= 0) && (cellid <= ds->GetNumberOfCells()));
 
-  this->IteratorOneCell->InitWithOneCell(ds,cellid);
-  this->CurrentIterator=this->IteratorOneCell;
+  this->IteratorOneCell->InitWithOneCell(ds, cellid);
+  this->CurrentIterator = this->IteratorOneCell;
 }
 
 //-----------------------------------------------------------------------------
@@ -192,11 +189,11 @@ void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeDataSet *ds,
 // Used internally by vtkBridgeCell.
 // Iterate on one cell `c'.
 // \pre c_exists: c!=0
-void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeCell *c)
+void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeCell* c)
 {
-  assert("pre: c_exists" && c!=nullptr);
+  assert("pre: c_exists" && c != nullptr);
   this->IteratorOneCell->InitWithOneCell(c);
-  this->CurrentIterator=this->IteratorOneCell;
+  this->CurrentIterator = this->IteratorOneCell;
 }
 
 //-----------------------------------------------------------------------------
@@ -205,13 +202,12 @@ void vtkBridgeCellIterator::InitWithOneCell(vtkBridgeCell *c)
 // Iterate on boundary cells of a cell.
 // \pre cell_exists: cell!=0
 // \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<cell->GetDimension()))
-void vtkBridgeCellIterator::InitWithCellBoundaries(vtkBridgeCell *cell,
-                                                   int dim)
+void vtkBridgeCellIterator::InitWithCellBoundaries(vtkBridgeCell* cell, int dim)
 {
-  assert("pre: cell_exists" && cell!=nullptr);
-  assert("pre: valid_dim_range" && ((dim==-1) || ((dim>=0)&&(dim<cell->GetDimension()))));
-  this->IteratorOnCellBoundaries->InitWithCellBoundaries(cell,dim);
-  this->CurrentIterator=this->IteratorOnCellBoundaries;
+  assert("pre: cell_exists" && cell != nullptr);
+  assert("pre: valid_dim_range" && ((dim == -1) || ((dim >= 0) && (dim < cell->GetDimension()))));
+  this->IteratorOnCellBoundaries->InitWithCellBoundaries(cell, dim);
+  this->CurrentIterator = this->IteratorOnCellBoundaries;
 }
 
 //-----------------------------------------------------------------------------
@@ -220,14 +216,13 @@ void vtkBridgeCellIterator::InitWithCellBoundaries(vtkBridgeCell *cell,
 // Iterate on neighbors defined by `cells' over the dataset `ds'.
 // \pre cells_exist: cells!=0
 // \pre ds_exists: ds!=0
-void vtkBridgeCellIterator::InitWithCells(vtkIdList *cells,
-                                          vtkBridgeDataSet *ds)
+void vtkBridgeCellIterator::InitWithCells(vtkIdList* cells, vtkBridgeDataSet* ds)
 {
-  assert("pre: cells_exist" && cells!=nullptr);
-  assert("pre: ds_exists" && ds!=nullptr);
+  assert("pre: cells_exist" && cells != nullptr);
+  assert("pre: ds_exists" && ds != nullptr);
 
-  this->IteratorOnCellList->InitWithCells(cells,ds);
-  this->CurrentIterator=this->IteratorOnCellList;
+  this->IteratorOnCellList->InitWithCells(cells, ds);
+  this->CurrentIterator = this->IteratorOnCellList;
 }
 
 //-----------------------------------------------------------------------------
@@ -239,16 +234,14 @@ void vtkBridgeCellIterator::InitWithCells(vtkIdList *cells,
 // \pre pts_exist: pts!=0
 // \pre valid_dim: dim>=0 && dim<=2
 // \pre valid_points: pts->GetNumberOfIds()>dim
-void vtkBridgeCellIterator::InitWithPoints(vtkPoints *coords,
-                                           vtkIdList *pts,
-                                           int dim,
-                                           vtkIdType cellid)
+void vtkBridgeCellIterator::InitWithPoints(
+  vtkPoints* coords, vtkIdList* pts, int dim, vtkIdType cellid)
 {
-  assert("pre: coords_exist" && coords!=nullptr);
-  assert("pre: pts_exist" && pts!=nullptr);
-  assert("pre: valid_dim" && dim>=0 && dim<=2);
-  assert("pre: valid_points" && pts->GetNumberOfIds()>dim);
+  assert("pre: coords_exist" && coords != nullptr);
+  assert("pre: pts_exist" && pts != nullptr);
+  assert("pre: valid_dim" && dim >= 0 && dim <= 2);
+  assert("pre: valid_points" && pts->GetNumberOfIds() > dim);
 
-  this->IteratorOneCell->InitWithPoints(coords,pts,dim,cellid);
-  this->CurrentIterator=this->IteratorOneCell;
+  this->IteratorOneCell->InitWithPoints(coords, pts, dim, cellid);
+  this->CurrentIterator = this->IteratorOneCell;
 }

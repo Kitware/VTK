@@ -15,19 +15,19 @@
  * @class   vtkSurfaceLICHelper
  *
  * A small collection of noise routines for LIC
-*/
+ */
 
 #ifndef vtkSurfaceLICHelper_h
 #define vtkSurfaceLICHelper_h
 #ifndef __VTK_WRAP__
 
-#include "vtkRenderingLICOpenGL2Module.h" // for export
-#include "vtkPixelExtent.h"
-#include "vtkWeakPointer.h"
-#include "vtkSmartPointer.h"
 #include "vtkOpenGLHelper.h"
-#include "vtk_glew.h"
+#include "vtkPixelExtent.h"
+#include "vtkRenderingLICOpenGL2Module.h" // for export
+#include "vtkSmartPointer.h"
 #include "vtkTextureObject.h"
+#include "vtkWeakPointer.h"
+#include "vtk_glew.h"
 
 #include <deque> // for methods
 
@@ -50,12 +50,12 @@ public:
   /**
    * Check for OpenGL support
    */
-  static bool IsSupported(vtkOpenGLRenderWindow *context);
+  static bool IsSupported(vtkOpenGLRenderWindow* context);
 
   /**
    * Free textures and shader programs we're holding a reference to.
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
   /**
    * Free textures we're holding a reference to.
@@ -65,26 +65,19 @@ public:
   /**
    * Allocate textures.
    */
-  void AllocateTextures(
-        vtkOpenGLRenderWindow *context,
-        int *viewsize);
+  void AllocateTextures(vtkOpenGLRenderWindow* context, int* viewsize);
 
   /**
    * Allocate a size texture, store in the given smart pointer.
    */
-  void AllocateTexture(
-        vtkOpenGLRenderWindow *context,
-        int *viewsize,
-        vtkSmartPointer<vtkTextureObject> &tex,
-        int filter = vtkTextureObject::Nearest);
+  void AllocateTexture(vtkOpenGLRenderWindow* context, int* viewsize,
+    vtkSmartPointer<vtkTextureObject>& tex, int filter = vtkTextureObject::Nearest);
 
   /**
    * Allocate a size texture, store in the given smart pointer.
    */
   void AllocateDepthTexture(
-        vtkOpenGLRenderWindow *context,
-        int *viewsize,
-        vtkSmartPointer<vtkTextureObject> &tex);
+    vtkOpenGLRenderWindow* context, int* viewsize, vtkSmartPointer<vtkTextureObject>& tex);
 
   /**
    * After LIC has been computed reset/clean internal state
@@ -101,7 +94,7 @@ public:
   /**
    * Convert viewport to texture coordinates
    */
-  void ViewportQuadTextureCoords(GLfloat *tcoords)
+  void ViewportQuadTextureCoords(GLfloat* tcoords)
   {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
@@ -112,7 +105,7 @@ public:
    * Convert a viewport to a bounding box and it's texture coordinates for a
    * screen size texture.
    */
-  void ViewportQuadPoints(const vtkPixelExtent &viewportExt, GLfloat *quadpts)
+  void ViewportQuadPoints(const vtkPixelExtent& viewportExt, GLfloat* quadpts)
   {
     viewportExt.GetData(quadpts);
   }
@@ -122,16 +115,14 @@ public:
    * screen size texture.
    */
   void ViewportQuadTextureCoords(
-        const vtkPixelExtent &viewExt,
-        const vtkPixelExtent &viewportExt,
-        GLfloat *tcoords);
+    const vtkPixelExtent& viewExt, const vtkPixelExtent& viewportExt, GLfloat* tcoords);
 
   //@{
   /**
    * Convert the entire view to a bounding box and it's texture coordinates for
    * a screen size texture.
    */
-  void ViewQuadPoints(GLfloat *quadpts)
+  void ViewQuadPoints(GLfloat* quadpts)
   {
     quadpts[0] = quadpts[2] = 0.0f;
     quadpts[1] = quadpts[3] = 1.0f;
@@ -143,7 +134,7 @@ public:
    * Convert the entire view to a bounding box and it's texture coordinates for
    * a screen size texture.
    */
-  void ViewQuadTextureCoords(GLfloat *tcoords)
+  void ViewQuadTextureCoords(GLfloat* tcoords)
   {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
@@ -154,14 +145,12 @@ public:
    * Render a quad (to trigger a shader to run)
    */
   void RenderQuad(
-        const vtkPixelExtent &viewExt,
-        const vtkPixelExtent &viewportExt,
-        vtkOpenGLHelper *cbo);
+    const vtkPixelExtent& viewExt, const vtkPixelExtent& viewportExt, vtkOpenGLHelper* cbo);
 
   /**
    * Compute the index into the 4x4 OpenGL ordered matrix.
    */
-  inline int idx(int row, int col) { return 4*col+row; }
+  inline int idx(int row, int col) { return 4 * col + row; }
 
   /**
    * given a axes aligned bounding box in
@@ -183,40 +172,29 @@ public:
    * in extent object is initialized with the corresponding
    * screen space extents.
    */
-  bool ProjectBounds(
-          double PMV[16],
-          int viewsize[2],
-          double bounds[6],
-          vtkPixelExtent &screenExt);
+  bool ProjectBounds(double PMV[16], int viewsize[2], double bounds[6], vtkPixelExtent& screenExt);
 
   /**
    * Compute screen space extents for each block in the input
    * dataset and for the entire dataset. Only visible blocks
    * are used in the computations.
    */
-  int ProjectBounds(
-        vtkRenderer *ren,
-        vtkActor *actor,
-        vtkDataObject *dobj,
-        int viewsize[2],
-        vtkPixelExtent &dataExt,
-        std::deque<vtkPixelExtent> &blockExts);
+  int ProjectBounds(vtkRenderer* ren, vtkActor* actor, vtkDataObject* dobj, int viewsize[2],
+    vtkPixelExtent& dataExt, std::deque<vtkPixelExtent>& blockExts);
 
   /**
    * Shrink an extent to tightly bound non-zero values
    */
-  void GetPixelBounds(float *rgba, int ni, vtkPixelExtent &ext);
+  void GetPixelBounds(float* rgba, int ni, vtkPixelExtent& ext);
 
   /**
    * Shrink a set of extents to tightly bound non-zero values
    * cull extent if it's empty
    */
-  void GetPixelBounds(float *rgba, int ni, std::deque<vtkPixelExtent> &blockExts);
+  void GetPixelBounds(float* rgba, int ni, std::deque<vtkPixelExtent>& blockExts);
 
   static void StreamingFindMinMax(
-    vtkOpenGLFramebufferObject *fbo,
-    std::deque<vtkPixelExtent> &blockExts,
-    float &min, float &max);
+    vtkOpenGLFramebufferObject* fbo, std::deque<vtkPixelExtent>& blockExts, float& min, float& max);
 
   vtkSmartPointer<vtkImageData> Noise;
   vtkSmartPointer<vtkTextureObject> NoiseImage;
@@ -233,16 +211,16 @@ public:
   bool HasVectors;
   std::deque<vtkPixelExtent> BlockExts;
 
-  vtkOpenGLHelper *ColorEnhancePass;
-  vtkOpenGLHelper *CopyPass;
-  vtkOpenGLHelper *ColorPass;
+  vtkOpenGLHelper* ColorEnhancePass;
+  vtkOpenGLHelper* CopyPass;
+  vtkOpenGLHelper* ColorPass;
 
   int Viewsize[2];
   vtkSmartPointer<vtkSurfaceLICComposite> Compositor;
   vtkSmartPointer<vtkOpenGLFramebufferObject> FBO;
 
   vtkSmartPointer<vtkLineIntegralConvolution2D> LICer;
-  vtkPainterCommunicator *Communicator;
+  vtkPainterCommunicator* Communicator;
   vtkPixelExtent DataSetExt;
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
@@ -250,9 +228,7 @@ public:
   bool ContextNeedsUpdate;
   bool CommunicatorNeedsUpdate;
 
-
 protected:
-
 };
 
 #endif

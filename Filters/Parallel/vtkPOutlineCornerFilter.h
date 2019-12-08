@@ -20,7 +20,7 @@
  * but it looks for data
  * partitions in other processes.  It assumes the filter is operated
  * in a data parallel pipeline.
-*/
+ */
 
 #ifndef vtkPOutlineCornerFilter_h
 #define vtkPOutlineCornerFilter_h
@@ -35,13 +35,13 @@ class vtkPOutlineFilterInternals;
 class VTKFILTERSPARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPOutlineCornerFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct outline corner filter with default corner factor = 0.2
    */
-  static vtkPOutlineCornerFilter *New();
+  static vtkPOutlineCornerFilter* New();
 
   /**
    * Set/Get the factor that controls the relative size of the corners
@@ -51,7 +51,7 @@ public:
    * the code in the macro
    */
   virtual void SetCornerFactor(double cornerFactor);
-  virtual double GetCornerFactorMinValue()  { return 0.001;}
+  virtual double GetCornerFactorMinValue() { return 0.001; }
   virtual double GetCornerFactorMaxValue() { return 0.5; }
 
   vtkGetMacro(CornerFactor, double);
@@ -69,11 +69,12 @@ protected:
   ~vtkPOutlineCornerFilter() override;
 
   vtkMultiProcessController* Controller;
-  vtkOutlineCornerSource *OutlineCornerSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  vtkOutlineCornerSource* OutlineCornerSource;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double CornerFactor;
+
 private:
   vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&) = delete;
   void operator=(const vtkPOutlineCornerFilter&) = delete;

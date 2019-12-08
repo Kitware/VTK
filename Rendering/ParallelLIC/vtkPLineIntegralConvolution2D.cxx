@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkPLineIntegralConvolution2D.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPainterCommunicator.h"
-#include "vtkPPainterCommunicator.h"
-#include "vtkParallelTimer.h"
 #include "vtkMPI.h"
+#include "vtkObjectFactory.h"
+#include "vtkPPainterCommunicator.h"
+#include "vtkPainterCommunicator.h"
+#include "vtkParallelTimer.h"
 
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPLineIntegralConvolution2D);
@@ -30,57 +30,41 @@ vtkPLineIntegralConvolution2D::vtkPLineIntegralConvolution2D()
 }
 
 // ----------------------------------------------------------------------------
-vtkPLineIntegralConvolution2D::~vtkPLineIntegralConvolution2D()
-{}
+vtkPLineIntegralConvolution2D::~vtkPLineIntegralConvolution2D() {}
 
 // ----------------------------------------------------------------------------
-void vtkPLineIntegralConvolution2D::SetCommunicator(vtkPainterCommunicator *comm)
+void vtkPLineIntegralConvolution2D::SetCommunicator(vtkPainterCommunicator* comm)
 {
   this->Comm->Copy(comm, false);
 }
 
 // ----------------------------------------------------------------------------
-vtkPainterCommunicator *vtkPLineIntegralConvolution2D::GetCommunicator()
+vtkPainterCommunicator* vtkPLineIntegralConvolution2D::GetCommunicator()
 {
   return this->Comm;
 }
 
 // ----------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::GetGlobalMinMax(
-      vtkPainterCommunicator *painterComm,
-      float &min,
-      float &max)
+  vtkPainterCommunicator* painterComm, float& min, float& max)
 {
-  vtkPPainterCommunicator *pPainterComm
-    = dynamic_cast<vtkPPainterCommunicator*>(painterComm);
+  vtkPPainterCommunicator* pPainterComm = dynamic_cast<vtkPPainterCommunicator*>(painterComm);
 
   if (pPainterComm->GetMPIInitialized())
   {
     MPI_Comm comm = *((MPI_Comm*)pPainterComm->GetCommunicator());
 
-    MPI_Allreduce(
-          MPI_IN_PLACE,
-          &min,
-          1,
-          MPI_FLOAT,
-          MPI_MIN,
-          comm);
+    MPI_Allreduce(MPI_IN_PLACE, &min, 1, MPI_FLOAT, MPI_MIN, comm);
 
-    MPI_Allreduce(
-          MPI_IN_PLACE,
-          &max,
-          1,
-          MPI_FLOAT,
-          MPI_MAX,
-          comm);
+    MPI_Allreduce(MPI_IN_PLACE, &max, 1, MPI_FLOAT, MPI_MAX, comm);
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkPLineIntegralConvolution2D::StartTimerEvent(const char *event)
+void vtkPLineIntegralConvolution2D::StartTimerEvent(const char* event)
 {
 #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
   log->StartEvent(event);
 #else
   (void)event;
@@ -88,10 +72,10 @@ void vtkPLineIntegralConvolution2D::StartTimerEvent(const char *event)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPLineIntegralConvolution2D::EndTimerEvent(const char *event)
+void vtkPLineIntegralConvolution2D::EndTimerEvent(const char* event)
 {
 #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
-  vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+  vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
   log->EndEvent(event);
 #else
   (void)event;
@@ -99,18 +83,18 @@ void vtkPLineIntegralConvolution2D::EndTimerEvent(const char *event)
 }
 
 //----------------------------------------------------------------------------
-void vtkPLineIntegralConvolution2D::WriteTimerLog(const char *fileName)
+void vtkPLineIntegralConvolution2D::WriteTimerLog(const char* fileName)
 {
 #ifdef vtkLineIntegralConvolution2DTIME
-  std::string fname = fileName?fileName:"";
-  if (fname==this->LogFileName)
+  std::string fname = fileName ? fileName : "";
+  if (fname == this->LogFileName)
   {
     return;
   }
   this->LogFileName = fname;
   if (!fname.empty())
   {
-    vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
+    vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
     log->SetFileName(fname.c_str());
     log->Update();
     log->Write();
@@ -121,7 +105,7 @@ void vtkPLineIntegralConvolution2D::WriteTimerLog(const char *fileName)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPLineIntegralConvolution2D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogFileName=" << this->LogFileName << endl;

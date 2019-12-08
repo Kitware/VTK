@@ -29,7 +29,6 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-
 //----------------------------------------------------------------------------
 vtkPoints2D* vtkPoints2D::New(int dataType)
 {
@@ -44,7 +43,7 @@ vtkPoints2D* vtkPoints2D::New(int dataType)
     return static_cast<vtkPoints2D*>(ret);
   }
   // If the factory was unable to create the object, then create it here.
-  vtkPoints2D *result = new vtkPoints2D(dataType);
+  vtkPoints2D* result = new vtkPoints2D(dataType);
   result->InitializeObjectBase();
   return result;
 }
@@ -75,7 +74,7 @@ vtkPoints2D::~vtkPoints2D()
 }
 
 // Given a list of pt ids, return an array of points.
-void vtkPoints2D::GetPoints(vtkIdList *ptIds, vtkPoints2D *fp)
+void vtkPoints2D::GetPoints(vtkIdList* ptIds, vtkPoints2D* fp)
 {
   vtkIdType num = ptIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < num; i++)
@@ -89,7 +88,7 @@ void vtkPoints2D::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
   {
-    this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
+    this->Bounds[0] = this->Bounds[2] = VTK_DOUBLE_MAX;
     this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
     for (vtkIdType i = 0; i < this->GetNumberOfPoints(); ++i)
     {
@@ -97,13 +96,13 @@ void vtkPoints2D::ComputeBounds()
       this->GetPoint(i, x);
       for (int j = 0; j < 2; ++j)
       {
-        if (x[j] < this->Bounds[2*j])
+        if (x[j] < this->Bounds[2 * j])
         {
-          this->Bounds[2*j] = x[j];
+          this->Bounds[2 * j] = x[j];
         }
-        if (x[j] > this->Bounds[2*j+1])
+        if (x[j] > this->Bounds[2 * j + 1])
         {
-          this->Bounds[2*j+1] = x[j];
+          this->Bounds[2 * j + 1] = x[j];
         }
       }
     }
@@ -113,7 +112,7 @@ void vtkPoints2D::ComputeBounds()
 }
 
 // Return the bounds of the points.
-double *vtkPoints2D::GetBounds()
+double* vtkPoints2D::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
@@ -160,13 +159,13 @@ void vtkPoints2D::SetDataType(int dataType)
 
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
-void vtkPoints2D::SetData(vtkDataArray *data)
+void vtkPoints2D::SetData(vtkDataArray* data)
 {
   if (data != this->Data && data != nullptr)
   {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
-      vtkErrorMacro(<<"Number of components is different...can't set data");
+      vtkErrorMacro(<< "Number of components is different...can't set data");
       return;
     }
     this->Data->UnRegister(this);
@@ -182,7 +181,7 @@ void vtkPoints2D::SetData(vtkDataArray *data)
 
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
-void vtkPoints2D::DeepCopy(vtkPoints2D *da)
+void vtkPoints2D::DeepCopy(vtkPoints2D* da)
 {
   if (da == nullptr)
   {
@@ -192,7 +191,7 @@ void vtkPoints2D::DeepCopy(vtkPoints2D *da)
   {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
-      vtkErrorMacro(<<"Number of components is different...can't copy");
+      vtkErrorMacro(<< "Number of components is different...can't copy");
       return;
     }
     this->Data->DeepCopy(da->Data);
@@ -202,7 +201,7 @@ void vtkPoints2D::DeepCopy(vtkPoints2D *da)
 
 // Shallow copy of data (i.e. via reference counting). Checks
 // consistency to make sure this operation makes sense.
-void vtkPoints2D::ShallowCopy(vtkPoints2D *da)
+void vtkPoints2D::ShallowCopy(vtkPoints2D* da)
 {
   this->SetData(da->GetData());
 }
@@ -218,7 +217,7 @@ void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Data: " << this->Data << "\n";
   os << indent << "Data Array Name: ";
-  if ( this->Data->GetName() )
+  if (this->Data->GetName())
   {
     os << this->Data->GetName() << "\n";
   }
@@ -228,7 +227,7 @@ void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  const double *bounds = this->GetBounds();
+  const double* bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";

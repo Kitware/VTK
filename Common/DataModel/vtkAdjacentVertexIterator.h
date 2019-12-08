@@ -29,7 +29,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkAdjacentVertexIterator_h
 #define vtkAdjacentVertexIterator_h
@@ -44,14 +44,14 @@ class vtkGraphEdge;
 class VTKCOMMONDATAMODEL_EXPORT vtkAdjacentVertexIterator : public vtkObject
 {
 public:
-  static vtkAdjacentVertexIterator *New();
+  static vtkAdjacentVertexIterator* New();
   vtkTypeMacro(vtkAdjacentVertexIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the iterator with a graph and vertex.
    */
-  void Initialize(vtkGraph *g, vtkIdType v);
+  void Initialize(vtkGraph* g, vtkIdType v);
 
   //@{
   /**
@@ -76,10 +76,7 @@ public:
   /**
    * Whether this iterator has more edges.
    */
-  bool HasNext()
-  {
-    return this->Current != this->End;
-  }
+  bool HasNext() { return this->Current != this->End; }
 
 protected:
   vtkAdjacentVertexIterator();
@@ -89,12 +86,12 @@ protected:
    * Protected method for setting the graph used
    * by Initialize().
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
-  vtkGraph            *Graph;
-  const vtkOutEdgeType *Current;
-  const vtkOutEdgeType *End;
-  vtkIdType             Vertex;
+  vtkGraph* Graph;
+  const vtkOutEdgeType* Current;
+  const vtkOutEdgeType* End;
+  vtkIdType Vertex;
 
 private:
   vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) = delete;

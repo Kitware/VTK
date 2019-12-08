@@ -17,15 +17,13 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
 
 #include <cmath>
 #include <sstream>
-
-
 
 #include "vtksys/MD5.h"
 
@@ -35,23 +33,15 @@ public:
   vtksysMD5* md5;
 
   // map of hash to shader program structs
-  std::map<std::string, vtkShaderProgram *> ShaderPrograms;
+  std::map<std::string, vtkShaderProgram*> ShaderPrograms;
 
-  Private()
-  {
-  md5 = vtksysMD5_New();
-  }
+  Private() { md5 = vtksysMD5_New(); }
 
-  ~Private()
-  {
-  vtksysMD5_Delete(this->md5);
-  }
+  ~Private() { vtksysMD5_Delete(this->md5); }
 
   //-----------------------------------------------------------------------------
-  void ComputeMD5(const char* content,
-                  const char* content2,
-                  const char* content3,
-                  std::string &hash)
+  void ComputeMD5(
+    const char* content, const char* content2, const char* content3, std::string& hash)
   {
     unsigned char digest[16];
     char md5Hash[33];
@@ -60,49 +50,44 @@ public:
     vtksysMD5_Initialize(this->md5);
     if (content)
     {
-      vtksysMD5_Append(this->md5,
-        reinterpret_cast<const unsigned char *>(content),
-        (int)strlen(content));
+      vtksysMD5_Append(
+        this->md5, reinterpret_cast<const unsigned char*>(content), (int)strlen(content));
     }
     if (content2)
     {
-      vtksysMD5_Append(this->md5,
-        reinterpret_cast<const unsigned char *>(content2),
-        (int)strlen(content2));
+      vtksysMD5_Append(
+        this->md5, reinterpret_cast<const unsigned char*>(content2), (int)strlen(content2));
     }
     if (content3)
     {
-      vtksysMD5_Append(this->md5,
-        reinterpret_cast<const unsigned char *>(content3),
-        (int)strlen(content3));
+      vtksysMD5_Append(
+        this->md5, reinterpret_cast<const unsigned char*>(content3), (int)strlen(content3));
     }
     vtksysMD5_Finalize(this->md5, digest);
     vtksysMD5_DigestToHex(digest, md5Hash);
 
     hash = md5Hash;
   }
-
-
 };
 
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLShaderCache);
 
 // ----------------------------------------------------------------------------
-vtkOpenGLShaderCache::vtkOpenGLShaderCache() : Internal(new Private)
+vtkOpenGLShaderCache::vtkOpenGLShaderCache()
+  : Internal(new Private)
 {
-  this->LastShaderBound  = nullptr;
+  this->LastShaderBound = nullptr;
   this->OpenGLMajorVersion = 0;
   this->OpenGLMinorVersion = 0;
-
 }
 
 // ----------------------------------------------------------------------------
 vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 {
-  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string, vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
-  for ( ; iter != this->Internal->ShaderPrograms.end(); ++iter)
+  for (; iter != this->Internal->ShaderPrograms.end(); ++iter)
   {
     iter->second->Delete();
   }
@@ -112,9 +97,7 @@ vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 
 // perform System and Output replacements
 unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
-  std::string &VSSource,
-  std::string &FSSource,
-  std::string &GSSource)
+  std::string& VSSource, std::string& FSSource, std::string& GSSource)
 {
   // first handle renaming any Fragment shader inputs
   // if we have a geometry shader. By default fragment shaders
@@ -123,7 +106,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   // to come from the geometry shader
   if (!GSSource.empty())
   {
-    vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
+    vtkShaderProgram::Substitute(FSSource, "VSOut", "GSOut");
   }
 
 #ifdef GL_ES_VERSION_3_0
@@ -133,8 +116,8 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   {
     this->OpenGLMajorVersion = 3;
     this->OpenGLMinorVersion = 2;
-    glGetIntegerv(GL_MAJOR_VERSION, & this->OpenGLMajorVersion);
-    glGetIntegerv(GL_MINOR_VERSION, & this->OpenGLMinorVersion);
+    glGetIntegerv(GL_MAJOR_VERSION, &this->OpenGLMajorVersion);
+    glGetIntegerv(GL_MINOR_VERSION, &this->OpenGLMinorVersion);
   }
 
   std::string version = "#version 150\n";
@@ -144,61 +127,60 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   }
 #endif
 
-  vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
+  vtkShaderProgram::Substitute(VSSource, "//VTK::System::Dec",
     version +
-    "#ifndef GL_ES\n"
-    "#define highp\n"
-    "#define mediump\n"
-    "#define lowp\n"
-    "#endif // GL_ES\n"
-    "#define attribute in\n"  // to be safe
-    "#define varying out\n" // to be safe
-    );
+      "#ifndef GL_ES\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp\n"
+      "#endif // GL_ES\n"
+      "#define attribute in\n" // to be safe
+      "#define varying out\n"  // to be safe
+  );
 
-  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
+  vtkShaderProgram::Substitute(FSSource, "//VTK::System::Dec",
     version +
-    "#ifdef GL_ES\n"
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "precision highp float;\n"
-    "precision highp sampler2D;\n"
-    "precision highp sampler3D;\n"
-    "#else\n"
-    "precision mediump float;\n"
-    "precision mediump sampler2D;\n"
-    "precision mediump sampler3D;\n"
-    "#endif\n"
-    "#define texelFetchBuffer texelFetch\n"
-    "#define texture1D texture\n"
-    "#define texture2D texture\n"
-    "#define texture3D texture\n"
-    "#else // GL_ES\n"
-    "#define highp\n"
-    "#define mediump\n"
-    "#define lowp\n"
-    "#if __VERSION__ == 150\n"
-    "#define texelFetchBuffer texelFetch\n"
-    "#define texture1D texture\n"
-    "#define texture2D texture\n"
-    "#define texture3D texture\n"
-    "#endif\n"
-    "#endif // GL_ES\n"
-    "#define varying in\n" // to be safe
-    );
+      "#ifdef GL_ES\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "precision highp sampler2D;\n"
+      "precision highp sampler3D;\n"
+      "#else\n"
+      "precision mediump float;\n"
+      "precision mediump sampler2D;\n"
+      "precision mediump sampler3D;\n"
+      "#endif\n"
+      "#define texelFetchBuffer texelFetch\n"
+      "#define texture1D texture\n"
+      "#define texture2D texture\n"
+      "#define texture3D texture\n"
+      "#else // GL_ES\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp\n"
+      "#if __VERSION__ == 150\n"
+      "#define texelFetchBuffer texelFetch\n"
+      "#define texture1D texture\n"
+      "#define texture2D texture\n"
+      "#define texture3D texture\n"
+      "#endif\n"
+      "#endif // GL_ES\n"
+      "#define varying in\n" // to be safe
+  );
 
-  vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
+  vtkShaderProgram::Substitute(GSSource, "//VTK::System::Dec",
     version +
-    "#ifdef GL_ES\n"
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "precision highp float;\n"
-    "#else\n"
-    "precision mediump float;\n"
-    "#endif\n"
-    "#else // GL_ES\n"
-    "#define highp\n"
-    "#define mediump\n"
-    "#define lowp\n"
-    "#endif // GL_ES\n"
-    );
+      "#ifdef GL_ES\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
+      "precision mediump float;\n"
+      "#endif\n"
+      "#else // GL_ES\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp\n"
+      "#endif // GL_ES\n");
 
   unsigned int count = 0;
   std::string fragDecls;
@@ -211,7 +193,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
     // this naming has to match the bindings
     // in vtkOpenGLShaderProgram.cxx
     dst << "fragOutput" << count;
-    done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
+    done = !vtkShaderProgram::Substitute(FSSource, src.str(), dst.str());
     if (!done)
     {
 #ifdef GL_ES_VERSION_3_0
@@ -224,34 +206,31 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       count++;
     }
   }
-  vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
+  vtkShaderProgram::Substitute(FSSource, "//VTK::Output::Dec", fragDecls);
   return count;
 }
 
-vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-    std::map<vtkShader::Type,vtkShader *> shaders,
-    vtkTransformFeedback *cap)
+vtkShaderProgram* vtkOpenGLShaderCache::ReadyShaderProgram(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkTransformFeedback* cap)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
-  unsigned int count =
-    this->ReplaceShaderValues(VSSource,FSSource,GSSource);
+  unsigned int count = this->ReplaceShaderValues(VSSource, FSSource, GSSource);
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
   shaders[vtkShader::Geometry]->SetSource(GSSource);
 
-  vtkShaderProgram *shader = this->GetShaderProgram(shaders);
+  vtkShaderProgram* shader = this->GetShaderProgram(shaders);
   shader->SetNumberOfOutputs(count);
 
   return this->ReadyShaderProgram(shader, cap);
 }
 
 // return nullptr if there is an issue
-vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-  const char *vertexCode, const char *fragmentCode, const char *geometryCode,
-  vtkTransformFeedback *cap)
+vtkShaderProgram* vtkOpenGLShaderCache::ReadyShaderProgram(const char* vertexCode,
+  const char* fragmentCode, const char* geometryCode, vtkTransformFeedback* cap)
 {
   // perform system wide shader replacements
   // desktops to not use precision statements
@@ -259,19 +238,17 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   std::string FSSource = fragmentCode;
   std::string GSSource = geometryCode;
 
-  unsigned int count =
-    this->ReplaceShaderValues(VSSource,FSSource,GSSource);
-  vtkShaderProgram *shader =
-    this->GetShaderProgram(
-      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+  unsigned int count = this->ReplaceShaderValues(VSSource, FSSource, GSSource);
+  vtkShaderProgram* shader =
+    this->GetShaderProgram(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
   shader->SetNumberOfOutputs(count);
 
   return this->ReadyShaderProgram(shader, cap);
 }
 
 // return nullptr if there is an issue
-vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-    vtkShaderProgram *shader, vtkTransformFeedback *cap)
+vtkShaderProgram* vtkOpenGLShaderCache::ReadyShaderProgram(
+  vtkShaderProgram* shader, vtkTransformFeedback* cap)
 {
   if (!shader)
   {
@@ -300,23 +277,22 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   return shader;
 }
 
-vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
-  std::map<vtkShader::Type,vtkShader *> shaders)
+vtkShaderProgram* vtkOpenGLShaderCache::GetShaderProgram(
+  std::map<vtkShader::Type, vtkShader*> shaders)
 {
   // compute the MD5 and the check the map
   std::string result;
-  this->Internal->ComputeMD5(
-    shaders[vtkShader::Vertex]->GetSource().c_str(),
+  this->Internal->ComputeMD5(shaders[vtkShader::Vertex]->GetSource().c_str(),
     shaders[vtkShader::Fragment]->GetSource().c_str(),
     shaders[vtkShader::Geometry]->GetSource().c_str(), result);
 
   // does it already exist?
-  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string, vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
   {
     // create one
-    vtkShaderProgram *sps = vtkShaderProgram::New();
+    vtkShaderProgram* sps = vtkShaderProgram::New();
     sps->SetVertexShader(shaders[vtkShader::Vertex]);
     sps->SetFragmentShader(shaders[vtkShader::Fragment]);
     sps->SetGeometryShader(shaders[vtkShader::Geometry]);
@@ -330,22 +306,20 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
   }
 }
 
-vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
-  const char *vertexCode,
-  const char *fragmentCode,
-  const char *geometryCode)
+vtkShaderProgram* vtkOpenGLShaderCache::GetShaderProgram(
+  const char* vertexCode, const char* fragmentCode, const char* geometryCode)
 {
   // compute the MD5 and the check the map
   std::string result;
   this->Internal->ComputeMD5(vertexCode, fragmentCode, geometryCode, result);
 
   // does it already exist?
-  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string, vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
   {
     // create one
-    vtkShaderProgram *sps = vtkShaderProgram::New();
+    vtkShaderProgram* sps = vtkShaderProgram::New();
     sps->GetVertexShader()->SetSource(vertexCode);
     sps->GetFragmentShader()->SetSource(fragmentCode);
     if (geometryCode != nullptr)
@@ -362,7 +336,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
   }
 }
 
-void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow* win)
 {
   // NOTE:
   // In the current implementation as of October 26th, if a shader
@@ -374,9 +348,9 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
 
   this->ReleaseCurrentShader();
 
-  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string, vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
-  for ( ; iter != this->Internal->ShaderPrograms.end(); ++iter)
+  for (; iter != this->Internal->ShaderPrograms.end(); ++iter)
   {
     iter->second->ReleaseGraphicsResources(win);
   }
@@ -395,24 +369,27 @@ void vtkOpenGLShaderCache::ReleaseCurrentShader()
 
 int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
 {
-  if (this->LastShaderBound == shader)
+  if (this->LastShaderBound != shader)
   {
-    return 1;
+    // release prior shader
+    if (this->LastShaderBound)
+    {
+      this->LastShaderBound->Release();
+    }
+    shader->Bind();
+    this->LastShaderBound = shader;
   }
 
-  // release prior shader
-  if (this->LastShaderBound)
+  if (shader->IsUniformUsed("vtkElapsedTime"))
   {
-    this->LastShaderBound->Release();
+    shader->SetUniformf("vtkElapsedTime", this->ElapsedTime);
   }
-  shader->Bind();
-  this->LastShaderBound = shader;
+
   return 1;
 }
-
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLShaderCache::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

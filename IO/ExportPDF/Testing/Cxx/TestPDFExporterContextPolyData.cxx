@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkAxis.h"
 #include "vtkAbstractMapper.h"
+#include "vtkAxis.h"
 #include "vtkBandedPolyDataContourFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
-#include "vtkInteractiveArea.h"
-#include "vtkInteractorStyle.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFeatureEdges.h"
 #include "vtkFloatArray.h"
+#include "vtkInteractiveArea.h"
+#include "vtkInteractorStyle.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPDFExporter.h"
@@ -32,28 +32,27 @@
 #include "vtkPolyDataConnectivityFilter.h"
 #include "vtkPolyDataItem.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTextProperty.h"
 #include "vtkTestUtilities.h"
 #include "vtkTestingInteractor.h"
+#include "vtkTextProperty.h"
 #include "vtkXMLPolyDataReader.h"
 
-namespace {
+namespace
+{
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkXMLPolyDataReader> ReadUVCDATPolyData(int argc, char* argv[])
 {
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/isofill_0.vtp");
-  vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/isofill_0.vtp");
+  vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   return reader;
 }
@@ -68,8 +67,9 @@ vtkSmartPointer<vtkPolyDataItem> CreateMapItem(int argc, char* argv[])
   double range[2];
   int scalarMode = VTK_SCALAR_MODE_USE_POINT_DATA;
 
-  vtkDataArray* activeData = scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ?
-    poly->GetPointData()->GetScalars() : poly->GetCellData()->GetScalars();
+  vtkDataArray* activeData = scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA
+    ? poly->GetPointData()->GetScalars()
+    : poly->GetCellData()->GetScalars();
   activeData->GetRange(range, 0);
 
   // Map scalars
@@ -81,12 +81,10 @@ vtkSmartPointer<vtkPolyDataItem> CreateMapItem(int argc, char* argv[])
     colorLut->SetAlpha(1.0);
     colorLut->SetRange(range[0], range[1]);
   }
-  vtkUnsignedCharArray* mappedColors = colorLut->MapScalars(activeData,
-    VTK_COLOR_MODE_DEFAULT, 0);
+  vtkUnsignedCharArray* mappedColors = colorLut->MapScalars(activeData, VTK_COLOR_MODE_DEFAULT, 0);
 
   // Setup item
-  vtkSmartPointer<vtkPolyDataItem> polyItem =
-    vtkSmartPointer<vtkPolyDataItem>::New();
+  vtkSmartPointer<vtkPolyDataItem> polyItem = vtkSmartPointer<vtkPolyDataItem>::New();
   polyItem->SetPolyData(poly);
   polyItem->SetScalarMode(scalarMode);
   polyItem->SetMappedColors(mappedColors);
@@ -130,8 +128,9 @@ vtkSmartPointer<vtkPolyDataItem> CreateContourItem(int argc, char* argv[])
   int scalarMode = VTK_SCALAR_MODE_USE_CELL_DATA;
 
   vtkPolyData* poly = edge->GetOutput();
-  vtkDataArray* activeData = scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ?
-    poly->GetPointData()->GetScalars() : poly->GetCellData()->GetScalars();
+  vtkDataArray* activeData = scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA
+    ? poly->GetPointData()->GetScalars()
+    : poly->GetCellData()->GetScalars();
   activeData->GetRange(range, 0);
 
   // Map scalars
@@ -143,12 +142,10 @@ vtkSmartPointer<vtkPolyDataItem> CreateContourItem(int argc, char* argv[])
     colorLut->SetAlpha(1.0);
     colorLut->SetRange(range[0], range[1]);
   }
-  vtkUnsignedCharArray* mappedColors = colorLut->MapScalars(activeData,
-    VTK_COLOR_MODE_DEFAULT, 0);
+  vtkUnsignedCharArray* mappedColors = colorLut->MapScalars(activeData, VTK_COLOR_MODE_DEFAULT, 0);
 
   // Setup item
-  vtkSmartPointer<vtkPolyDataItem> polyItem =
-    vtkSmartPointer<vtkPolyDataItem>::New();
+  vtkSmartPointer<vtkPolyDataItem> polyItem = vtkSmartPointer<vtkPolyDataItem>::New();
   polyItem->SetPolyData(poly);
   polyItem->SetScalarMode(scalarMode);
   polyItem->SetMappedColors(mappedColors);
@@ -166,7 +163,7 @@ vtkSmartPointer<vtkPolyDataItem> CreateContourItem(int argc, char* argv[])
  */
 
 ///////////////////////////////////////////////////////////////////////////////
-int TestPDFExporterContextPolyData( int argc, char * argv [] )
+int TestPDFExporterContextPolyData(int argc, char* argv[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -186,8 +183,8 @@ int TestPDFExporterContextPolyData( int argc, char * argv [] )
   area->GetDrawAreaItem()->AddItem(contourItem);
 
   vtkBoundingBox bounds(mapItem->GetPolyData()->GetBounds());
-  area->SetDrawAreaBounds(vtkRectd(bounds.GetBound(0), bounds.GetBound(2),
-                                   bounds.GetLength(0), bounds.GetLength(1)));
+  area->SetDrawAreaBounds(
+    vtkRectd(bounds.GetBound(0), bounds.GetBound(2), bounds.GetLength(0), bounds.GetLength(1)));
   area->SetFixedAspect(bounds.GetLength(0) / bounds.GetLength(1));
 
   area->GetAxis(vtkAxis::BOTTOM)->SetTitle("X Axis");
@@ -196,7 +193,7 @@ int TestPDFExporterContextPolyData( int argc, char * argv [] )
   area->GetAxis(vtkAxis::RIGHT)->SetVisible(false);
   for (int i = 0; i < 4; ++i)
   {
-    vtkAxis *axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
+    vtkAxis* axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
     axis->GetLabelProperties()->SetColor(.6, .6, .9);
     axis->GetTitleProperties()->SetColor(.6, .6, .9);
     axis->GetPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 255);
@@ -209,8 +206,7 @@ int TestPDFExporterContextPolyData( int argc, char * argv [] )
   view->Render();
 
   std::string filename =
-      vtkTestingInteractor::TempDirectory +
-      std::string("/TestPDFExporterContextPolyData.pdf");
+    vtkTestingInteractor::TempDirectory + std::string("/TestPDFExporterContextPolyData.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

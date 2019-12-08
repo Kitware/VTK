@@ -11,10 +11,10 @@ class vtkRenderWindow;
 
 @interface VTKView : GLKView
 
-- (void)displayCoordinates:(int *)coordinates ofTouch:(CGPoint)touchPoint;
-- (void)normalizedCoordinates:(double *)coordinates ofTouch:(CGPoint)touch;
+- (void)displayCoordinates:(int*)coordinates ofTouch:(CGPoint)touchPoint;
+- (void)normalizedCoordinates:(double*)coordinates ofTouch:(CGPoint)touch;
 
-@property (assign, readonly) vtkRenderWindow *renderWindow;
-@property (assign, readonly) vtkIOSRenderWindowInteractor *interactor;
+@property (assign, readonly) vtkRenderWindow* renderWindow;
+@property (assign, readonly) vtkIOSRenderWindowInteractor* interactor;
 
 @end

@@ -15,72 +15,71 @@
 #include "vtkUnstructuredGridVolumeRayCastMapper.h"
 
 #include "vtkCamera.h"
+#include "vtkDoubleArray.h"
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
+#include "vtkRayCastImageDisplayHelper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-#include "vtkVolumeProperty.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridBunykRayCastFunction.h"
-#include "vtkUnstructuredGridVolumeRayCastIterator.h"
-#include "vtkUnstructuredGridPreIntegration.h"
-#include "vtkUnstructuredGridPartialPreIntegration.h"
 #include "vtkUnstructuredGridHomogeneousRayIntegrator.h"
-#include "vtkRayCastImageDisplayHelper.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdList.h"
+#include "vtkUnstructuredGridPartialPreIntegration.h"
+#include "vtkUnstructuredGridPreIntegration.h"
+#include "vtkUnstructuredGridVolumeRayCastIterator.h"
+#include "vtkVolumeProperty.h"
 
 #include <cmath>
 
-VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
-
+VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays(void* arg);
 
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
-                     vtkUnstructuredGridVolumeRayCastFunction);
-vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayIntegrator,
-                     vtkUnstructuredGridVolumeRayIntegrator);
+  vtkUnstructuredGridVolumeRayCastFunction);
+vtkCxxSetObjectMacro(
+  vtkUnstructuredGridVolumeRayCastMapper, RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
 
 // Construct a new vtkUnstructuredGridVolumeRayCastMapper with default values
 vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
 {
-  this->ImageSampleDistance        =  1.0;
-  this->MinimumImageSampleDistance =  1.0;
+  this->ImageSampleDistance = 1.0;
+  this->MinimumImageSampleDistance = 1.0;
   this->MaximumImageSampleDistance = 10.0;
-  this->AutoAdjustSampleDistances  =  1;
+  this->AutoAdjustSampleDistances = 1;
 
-  this->ImageMemorySize[0]     = 0;
-  this->ImageMemorySize[1]     = 0;
+  this->ImageMemorySize[0] = 0;
+  this->ImageMemorySize[1] = 0;
 
-  this->Threader               = vtkMultiThreader::New();
-  this->NumberOfThreads        = this->Threader->GetNumberOfThreads();
+  this->Threader = vtkMultiThreader::New();
+  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 
-  this->Image                  = nullptr;
+  this->Image = nullptr;
 
-  this->RenderTimeTable        = nullptr;
-  this->RenderVolumeTable      = nullptr;
-  this->RenderRendererTable    = nullptr;
-  this->RenderTableSize        = 0;
-  this->RenderTableEntries     = 0;
+  this->RenderTimeTable = nullptr;
+  this->RenderVolumeTable = nullptr;
+  this->RenderRendererTable = nullptr;
+  this->RenderTableSize = 0;
+  this->RenderTableEntries = 0;
 
-  this->ZBuffer                = nullptr;
-  this->ZBufferSize[0]         = 0;
-  this->ZBufferSize[1]         = 0;
-  this->ZBufferOrigin[0]       = 0;
-  this->ZBufferOrigin[1]       = 0;
+  this->ZBuffer = nullptr;
+  this->ZBufferSize[0] = 0;
+  this->ZBufferSize[1] = 0;
+  this->ZBufferOrigin[0] = 0;
+  this->ZBufferOrigin[1] = 0;
 
   this->IntermixIntersectingGeometry = 1;
 
-  this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
+  this->ImageDisplayHelper = vtkRayCastImageDisplayHelper::New();
 
   this->RayCastFunction = vtkUnstructuredGridBunykRayCastFunction::New();
   this->RayIntegrator = nullptr;
@@ -92,13 +91,13 @@ vtkUnstructuredGridVolumeRayCastMapper::~vtkUnstructuredGridVolumeRayCastMapper(
 {
   this->Threader->Delete();
 
-  delete [] this->Image;
+  delete[] this->Image;
 
-  if ( this->RenderTableSize )
+  if (this->RenderTableSize)
   {
-    delete [] this->RenderTimeTable;
-    delete [] this->RenderVolumeTable;
-    delete [] this->RenderRendererTable;
+    delete[] this->RenderTimeTable;
+    delete[] this->RenderVolumeTable;
+    delete[] this->RenderRendererTable;
   }
 
   this->ImageDisplayHelper->Delete();
@@ -111,15 +110,13 @@ vtkUnstructuredGridVolumeRayCastMapper::~vtkUnstructuredGridVolumeRayCastMapper(
   }
 }
 
-float vtkUnstructuredGridVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren,
-                                                                  vtkVolume   *vol )
+float vtkUnstructuredGridVolumeRayCastMapper::RetrieveRenderTime(vtkRenderer* ren, vtkVolume* vol)
 {
   int i;
 
-  for ( i = 0; i < this->RenderTableEntries; i++ )
+  for (i = 0; i < this->RenderTableEntries; i++)
   {
-    if ( this->RenderVolumeTable[i] == vol &&
-         this->RenderRendererTable[i] == ren )
+    if (this->RenderVolumeTable[i] == vol && this->RenderRendererTable[i] == ren)
     {
       return this->RenderTimeTable[i];
     }
@@ -128,26 +125,23 @@ float vtkUnstructuredGridVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *r
   return 0.0;
 }
 
-void vtkUnstructuredGridVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
-                                                              vtkVolume   *vol,
-                                                              float       time )
+void vtkUnstructuredGridVolumeRayCastMapper::StoreRenderTime(
+  vtkRenderer* ren, vtkVolume* vol, float time)
 {
   int i;
-  for ( i = 0; i < this->RenderTableEntries; i++ )
+  for (i = 0; i < this->RenderTableEntries; i++)
   {
-    if ( this->RenderVolumeTable[i] == vol &&
-         this->RenderRendererTable[i] == ren )
+    if (this->RenderVolumeTable[i] == vol && this->RenderRendererTable[i] == ren)
     {
       this->RenderTimeTable[i] = time;
       return;
     }
   }
 
-
   // Need to increase size
-  if ( this->RenderTableEntries >= this->RenderTableSize )
+  if (this->RenderTableEntries >= this->RenderTableSize)
   {
-    if ( this->RenderTableSize == 0 )
+    if (this->RenderTableSize == 0)
     {
       this->RenderTableSize = 10;
     }
@@ -156,24 +150,24 @@ void vtkUnstructuredGridVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
       this->RenderTableSize *= 2;
     }
 
-    float       *oldTimePtr     = this->RenderTimeTable;
-    vtkVolume   **oldVolumePtr   = this->RenderVolumeTable;
-    vtkRenderer **oldRendererPtr = this->RenderRendererTable;
+    float* oldTimePtr = this->RenderTimeTable;
+    vtkVolume** oldVolumePtr = this->RenderVolumeTable;
+    vtkRenderer** oldRendererPtr = this->RenderRendererTable;
 
-    this->RenderTimeTable     = new float [this->RenderTableSize];
-    this->RenderVolumeTable   = new vtkVolume *[this->RenderTableSize];
-    this->RenderRendererTable = new vtkRenderer *[this->RenderTableSize];
+    this->RenderTimeTable = new float[this->RenderTableSize];
+    this->RenderVolumeTable = new vtkVolume*[this->RenderTableSize];
+    this->RenderRendererTable = new vtkRenderer*[this->RenderTableSize];
 
-    for (i = 0; i < this->RenderTableEntries; i++ )
+    for (i = 0; i < this->RenderTableEntries; i++)
     {
       this->RenderTimeTable[i] = oldTimePtr[i];
       this->RenderVolumeTable[i] = oldVolumePtr[i];
       this->RenderRendererTable[i] = oldRendererPtr[i];
     }
 
-    delete [] oldTimePtr;
-    delete [] oldVolumePtr;
-    delete [] oldRendererPtr;
+    delete[] oldTimePtr;
+    delete[] oldVolumePtr;
+    delete[] oldRendererPtr;
   }
 
   this->RenderTimeTable[this->RenderTableEntries] = time;
@@ -183,16 +177,14 @@ void vtkUnstructuredGridVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
   this->RenderTableEntries++;
 }
 
-void vtkUnstructuredGridVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *)
-{
-}
+void vtkUnstructuredGridVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow*) {}
 
-void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
+void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
   int i;
 
   // Check for input
-  if ( this->GetInput() == nullptr )
+  if (this->GetInput() == nullptr)
   {
     vtkErrorMacro(<< "No Input!");
     return;
@@ -202,10 +194,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
   inputAlg->UpdateWholeExtent();
 
-  this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode,
-                                   this->ArrayAccessMode,
-                                   this->ArrayId, this->ArrayName,
-                                   this->CellScalars);
+  this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+    this->ArrayId, this->ArrayName, this->CellScalars);
 
   if (this->Scalars == nullptr)
   {
@@ -229,15 +219,15 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   else
   {
 
-#define ESTABLISH_INTEGRATOR(classname)                                        \
-  if (   !this->RealRayIntegrator                                              \
-      || (!this->RealRayIntegrator->IsA(#classname)) )                         \
-  {                                                                          \
-    if (this->RealRayIntegrator) this->RealRayIntegrator->UnRegister(this);    \
-    this->RealRayIntegrator = classname::New();                                \
-    this->RealRayIntegrator->Register(this);                                   \
-    this->RealRayIntegrator->Delete();                                         \
-  }                                                                          \
+#define ESTABLISH_INTEGRATOR(classname)                                                            \
+  if (!this->RealRayIntegrator || (!this->RealRayIntegrator->IsA(#classname)))                     \
+  {                                                                                                \
+    if (this->RealRayIntegrator)                                                                   \
+      this->RealRayIntegrator->UnRegister(this);                                                   \
+    this->RealRayIntegrator = classname::New();                                                    \
+    this->RealRayIntegrator->Register(this);                                                       \
+    this->RealRayIntegrator->Delete();                                                             \
+  }
 
     if (this->CellScalars)
     {
@@ -272,17 +262,17 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // the adjusted image sample distance be less than the minimum image sample
   // distance or more than the maximum image sample distance.
   float oldImageSampleDistance = this->ImageSampleDistance;
-  if ( this->AutoAdjustSampleDistances )
+  if (this->AutoAdjustSampleDistances)
   {
-    float oldTime = this->RetrieveRenderTime( ren, vol );
+    float oldTime = this->RetrieveRenderTime(ren, vol);
     float newTime = vol->GetAllocatedRenderTime();
     this->ImageSampleDistance *= sqrt(oldTime / newTime);
-    this->ImageSampleDistance =
-      (this->ImageSampleDistance>this->MaximumImageSampleDistance)?
-      (this->MaximumImageSampleDistance):(this->ImageSampleDistance);
-    this->ImageSampleDistance =
-      (this->ImageSampleDistance<this->MinimumImageSampleDistance)?
-      (this->MinimumImageSampleDistance):(this->ImageSampleDistance);
+    this->ImageSampleDistance = (this->ImageSampleDistance > this->MaximumImageSampleDistance)
+      ? (this->MaximumImageSampleDistance)
+      : (this->ImageSampleDistance);
+    this->ImageSampleDistance = (this->ImageSampleDistance < this->MinimumImageSampleDistance)
+      ? (this->MinimumImageSampleDistance)
+      : (this->ImageSampleDistance);
   }
 
   // The full image fills the viewport. First, compute the actual viewport
@@ -290,10 +280,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // size in pixels
   int width, height;
   ren->GetTiledSize(&width, &height);
-  this->ImageViewportSize[0] =
-    static_cast<int>(width/this->ImageSampleDistance);
-  this->ImageViewportSize[1] =
-    static_cast<int>(height/this->ImageSampleDistance);
+  this->ImageViewportSize[0] = static_cast<int>(width / this->ImageSampleDistance);
+  this->ImageViewportSize[1] = static_cast<int>(height / this->ImageSampleDistance);
 
   this->ImageInUseSize[0] = this->ImageViewportSize[0];
   this->ImageInUseSize[1] = this->ImageViewportSize[1];
@@ -303,11 +291,11 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // What is a power of 2 size big enough to fit this image?
   this->ImageMemorySize[0] = 32;
   this->ImageMemorySize[1] = 32;
-  while ( this->ImageMemorySize[0] < this->ImageInUseSize[0] )
+  while (this->ImageMemorySize[0] < this->ImageInUseSize[0])
   {
     this->ImageMemorySize[0] *= 2;
   }
-  while ( this->ImageMemorySize[1] < this->ImageInUseSize[1] )
+  while (this->ImageMemorySize[1] < this->ImageInUseSize[1])
   {
     this->ImageMemorySize[1] *= 2;
   }
@@ -315,8 +303,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // If the old image size is much too big (more than twice in
   // either direction) then set the old width to 0 which will
   // cause the image to be recreated
-  if ( oldImageMemorySize[0] > 2*this->ImageMemorySize[0] ||
-       oldImageMemorySize[1] > 2*this->ImageMemorySize[1] )
+  if (oldImageMemorySize[0] > 2 * this->ImageMemorySize[0] ||
+    oldImageMemorySize[1] > 2 * this->ImageMemorySize[1])
   {
     oldImageMemorySize[0] = 0;
   }
@@ -324,8 +312,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // If the old image is big enough (but not too big - we handled
   // that above) then we'll bump up our required size to the
   // previous one. This will keep us from thrashing.
-  if ( oldImageMemorySize[0] >= this->ImageMemorySize[0] &&
-       oldImageMemorySize[1] >= this->ImageMemorySize[1] )
+  if (oldImageMemorySize[0] >= this->ImageMemorySize[0] &&
+    oldImageMemorySize[1] >= this->ImageMemorySize[1])
   {
     this->ImageMemorySize[0] = oldImageMemorySize[0];
     this->ImageMemorySize[1] = oldImageMemorySize[1];
@@ -333,19 +321,17 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
 
   // Do we already have a texture big enough? If not, create a new one and
   // clear it.
-  if ( !this->Image ||
-       this->ImageMemorySize[0] > oldImageMemorySize[0] ||
-       this->ImageMemorySize[1] > oldImageMemorySize[1] )
+  if (!this->Image || this->ImageMemorySize[0] > oldImageMemorySize[0] ||
+    this->ImageMemorySize[1] > oldImageMemorySize[1])
   {
     // If there is an image there must be row bounds
-    delete [] this->Image;
+    delete[] this->Image;
 
-    this->Image = new unsigned char[(this->ImageMemorySize[0] *
-                                     this->ImageMemorySize[1] * 4)];
+    this->Image = new unsigned char[(this->ImageMemorySize[0] * this->ImageMemorySize[1] * 4)];
 
-    unsigned char *ucptr = this->Image;
+    unsigned char* ucptr = this->Image;
 
-    for ( i = 0; i < this->ImageMemorySize[0]*this->ImageMemorySize[1]; i++ )
+    for (i = 0; i < this->ImageMemorySize[0] * this->ImageMemorySize[1]; i++)
     {
       *(ucptr++) = 0;
       *(ucptr++) = 0;
@@ -355,93 +341,86 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   }
 
   // Capture the zbuffer if necessary
-  if ( this->IntermixIntersectingGeometry &&
-       ren->GetNumberOfPropsRendered() )
+  if (this->IntermixIntersectingGeometry && ren->GetNumberOfPropsRendered())
   {
     int x1, x2, y1, y2;
-    double *viewport   =  ren->GetViewport();
-    int *renWinSize   =  ren->GetRenderWindow()->GetSize();
+    double* viewport = ren->GetViewport();
+    int* renWinSize = ren->GetRenderWindow()->GetSize();
 
     // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
     // coordinates.
-    x1 = static_cast<int> (
-      viewport[0] * static_cast<float>(renWinSize[0]) +
-      static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance );
-    y1 = static_cast<int> (
-      viewport[1] * static_cast<float>(renWinSize[1]) +
+    x1 = static_cast<int>(viewport[0] * static_cast<float>(renWinSize[0]) +
+      static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
+    y1 = static_cast<int>(viewport[1] * static_cast<float>(renWinSize[1]) +
       static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
 
     // compute z buffer size
-    this->ZBufferSize[0] = static_cast<int>(
-      static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
-    this->ZBufferSize[1] = static_cast<int>(
-      static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
+    this->ZBufferSize[0] =
+      static_cast<int>(static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
+    this->ZBufferSize[1] =
+      static_cast<int>(static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
 
     // Use the size to compute (x2,y2) in window coordinates
     x2 = x1 + this->ZBufferSize[0] - 1;
     y2 = y1 + this->ZBufferSize[1] - 1;
 
     // This is the z buffer origin (in viewport coordinates)
-    this->ZBufferOrigin[0] = static_cast<int>(
-      static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
-    this->ZBufferOrigin[1] = static_cast<int>(
-      static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
+    this->ZBufferOrigin[0] =
+      static_cast<int>(static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
+    this->ZBufferOrigin[1] =
+      static_cast<int>(static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
 
     // Capture the z buffer
-    this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
+    this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1, y1, x2, y2);
   }
 
-  this->RayCastFunction->Initialize( ren, vol );
+  this->RayCastFunction->Initialize(ren, vol);
 
   this->RealRayIntegrator->Initialize(vol, this->Scalars);
 
   // Save the volume and mapper temporarily so that they can be accessed later
-  this->CurrentVolume   = vol;
+  this->CurrentVolume = vol;
   this->CurrentRenderer = ren;
 
   // Create iterators and buffers here to prevent race conditions.
-  this->RayCastIterators
-    = new vtkUnstructuredGridVolumeRayCastIterator*[this->NumberOfThreads];
-  this->IntersectedCellsBuffer    = new vtkIdList*[this->NumberOfThreads];
+  this->RayCastIterators = new vtkUnstructuredGridVolumeRayCastIterator*[this->NumberOfThreads];
+  this->IntersectedCellsBuffer = new vtkIdList*[this->NumberOfThreads];
   this->IntersectionLengthsBuffer = new vtkDoubleArray*[this->NumberOfThreads];
-  this->NearIntersectionsBuffer   = new vtkDataArray*[this->NumberOfThreads];
-  this->FarIntersectionsBuffer    = new vtkDataArray*[this->NumberOfThreads];
+  this->NearIntersectionsBuffer = new vtkDataArray*[this->NumberOfThreads];
+  this->FarIntersectionsBuffer = new vtkDataArray*[this->NumberOfThreads];
   for (i = 0; i < this->NumberOfThreads; i++)
   {
     this->RayCastIterators[i] = this->RayCastFunction->NewIterator();
     this->IntersectionLengthsBuffer[i] = vtkDoubleArray::New();
-    this->IntersectionLengthsBuffer[i]
-      ->Allocate(this->RayCastIterators[i]->GetMaxNumberOfIntersections());
-    this->NearIntersectionsBuffer[i]
-      = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-    this->NearIntersectionsBuffer[i]
-      ->Allocate(this->RayCastIterators[i]->GetMaxNumberOfIntersections());
+    this->IntersectionLengthsBuffer[i]->Allocate(
+      this->RayCastIterators[i]->GetMaxNumberOfIntersections());
+    this->NearIntersectionsBuffer[i] = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
+    this->NearIntersectionsBuffer[i]->Allocate(
+      this->RayCastIterators[i]->GetMaxNumberOfIntersections());
     if (this->CellScalars)
     {
       this->IntersectedCellsBuffer[i] = vtkIdList::New();
-      this->IntersectedCellsBuffer[i]
-        ->Allocate(this->RayCastIterators[i]->GetMaxNumberOfIntersections());
+      this->IntersectedCellsBuffer[i]->Allocate(
+        this->RayCastIterators[i]->GetMaxNumberOfIntersections());
       this->FarIntersectionsBuffer[i] = this->NearIntersectionsBuffer[i];
     }
     else
     {
       this->IntersectedCellsBuffer[i] = nullptr;
-      this->FarIntersectionsBuffer[i]
-        = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-      this->FarIntersectionsBuffer[i]
-        ->Allocate(this->RayCastIterators[i]->GetMaxNumberOfIntersections());
+      this->FarIntersectionsBuffer[i] = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
+      this->FarIntersectionsBuffer[i]->Allocate(
+        this->RayCastIterators[i]->GetMaxNumberOfIntersections());
     }
   }
 
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
-  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( UnstructuredGridVolumeRayCastMapper_CastRays,
-                                   (void *)this);
+  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+  this->Threader->SetSingleMethod(UnstructuredGridVolumeRayCastMapper_CastRays, (void*)this);
   this->Threader->SingleMethodExecute();
 
   // We don't need these anymore
-  this->CurrentVolume   = nullptr;
+  this->CurrentVolume = nullptr;
   this->CurrentRenderer = nullptr;
   for (i = 0; i < this->NumberOfThreads; i++)
   {
@@ -463,124 +442,117 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   delete[] this->NearIntersectionsBuffer;
   delete[] this->FarIntersectionsBuffer;
 
-  if ( !ren->GetRenderWindow()->GetAbortRender() )
+  if (!ren->GetRenderWindow()->GetAbortRender())
   {
     float depth;
-    if ( this->IntermixIntersectingGeometry )
+    if (this->IntermixIntersectingGeometry)
     {
-      depth = this->GetMinimumBoundsDepth( ren, vol );
+      depth = this->GetMinimumBoundsDepth(ren, vol);
     }
     else
     {
       depth = -1;
     }
 
-    this->ImageDisplayHelper->
-      RenderTexture( vol, ren,
-                     this->ImageMemorySize,
-                     this->ImageViewportSize,
-                     this->ImageInUseSize,
-                     this->ImageOrigin,
-                     depth,
-                     this->Image );
+    this->ImageDisplayHelper->RenderTexture(vol, ren, this->ImageMemorySize,
+      this->ImageViewportSize, this->ImageInUseSize, this->ImageOrigin, depth, this->Image);
 
     this->Timer->StopTimer();
     this->TimeToDraw = this->Timer->GetElapsedTime();
-    this->StoreRenderTime( ren, vol, this->TimeToDraw );
+    this->StoreRenderTime(ren, vol, this->TimeToDraw);
   }
   else
   {
     this->ImageSampleDistance = oldImageSampleDistance;
   }
 
-
-  delete [] this->ZBuffer;
+  delete[] this->ZBuffer;
   this->ZBuffer = nullptr;
 
   this->UpdateProgress(1.0);
 }
 
-VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg )
+VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays(void* arg)
 {
   // Get the info out of the input structure
-  int threadID    = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  vtkUnstructuredGridVolumeRayCastMapper *me =
-    (vtkUnstructuredGridVolumeRayCastMapper *)((vtkMultiThreader::ThreadInfo *)arg)->UserData;
+  int threadID = ((vtkMultiThreader::ThreadInfo*)(arg))->ThreadID;
+  int threadCount = ((vtkMultiThreader::ThreadInfo*)(arg))->NumberOfThreads;
+  vtkUnstructuredGridVolumeRayCastMapper* me =
+    (vtkUnstructuredGridVolumeRayCastMapper*)((vtkMultiThreader::ThreadInfo*)arg)->UserData;
 
-  if ( !me )
+  if (!me)
   {
     vtkGenericWarningMacro("The volume does not have a ray cast mapper!");
     return VTK_THREAD_RETURN_VALUE;
   }
 
-  me->CastRays( threadID, threadCount );
+  me->CastRays(threadID, threadCount);
 
   return VTK_THREAD_RETURN_VALUE;
 }
 
-template<class T>
-inline void vtkUGVRCMLookupCopy(const T *src, T *dest, vtkIdType *lookup,
-                                int numcomponents, int numtuples)
+template <class T>
+inline void vtkUGVRCMLookupCopy(
+  const T* src, T* dest, vtkIdType* lookup, int numcomponents, int numtuples)
 {
   for (vtkIdType i = 0; i < numtuples; i++)
   {
-    const T *srctuple = src + lookup[i] * numcomponents;
+    const T* srctuple = src + lookup[i] * numcomponents;
     for (int j = 0; j < numcomponents; j++)
     {
       *dest = *srctuple;
-      dest++;  srctuple++;
+      dest++;
+      srctuple++;
     }
   }
 }
 
-void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadCount )
+void vtkUnstructuredGridVolumeRayCastMapper::CastRays(int threadID, int threadCount)
 {
   int i, j;
-  unsigned char *ucptr;
+  unsigned char* ucptr;
 
-  vtkRenderWindow *renWin = this->CurrentRenderer->GetRenderWindow();
-  vtkUnstructuredGridVolumeRayCastIterator *iterator
-    = this->RayCastIterators[threadID];
+  vtkRenderWindow* renWin = this->CurrentRenderer->GetRenderWindow();
+  vtkUnstructuredGridVolumeRayCastIterator* iterator = this->RayCastIterators[threadID];
 
-  vtkIdList *intersectedCells = this->IntersectedCellsBuffer[threadID];
-  vtkDoubleArray *intersectionLengths=this->IntersectionLengthsBuffer[threadID];
-  vtkDataArray *nearIntersections = this->NearIntersectionsBuffer[threadID];
-  vtkDataArray *farIntersections = this->FarIntersectionsBuffer[threadID];
+  vtkIdList* intersectedCells = this->IntersectedCellsBuffer[threadID];
+  vtkDoubleArray* intersectionLengths = this->IntersectionLengthsBuffer[threadID];
+  vtkDataArray* nearIntersections = this->NearIntersectionsBuffer[threadID];
+  vtkDataArray* farIntersections = this->FarIntersectionsBuffer[threadID];
 
-  for ( j = 0; j < this->ImageInUseSize[1]; j++ )
+  for (j = 0; j < this->ImageInUseSize[1]; j++)
   {
-    if ( j%threadCount != threadID )
+    if (j % threadCount != threadID)
     {
       continue;
     }
 
-    if ( !threadID )
+    if (!threadID)
     {
-      this->UpdateProgress((double)j/this->ImageInUseSize[1]);
-      if ( renWin->CheckAbortStatus() )
+      this->UpdateProgress((double)j / this->ImageInUseSize[1]);
+      if (renWin->CheckAbortStatus())
       {
         break;
       }
     }
-    else if ( renWin->GetAbortRender() )
+    else if (renWin->GetAbortRender())
     {
       break;
     }
 
-    ucptr = this->Image + 4*j*this->ImageMemorySize[0];
+    ucptr = this->Image + 4 * j * this->ImageMemorySize[0];
 
-    for ( i = 0; i < this->ImageInUseSize[0]; i++ )
+    for (i = 0; i < this->ImageInUseSize[0]; i++)
     {
       int x = i + this->ImageOrigin[0];
       int y = j + this->ImageOrigin[1];
 
-      double bounds[2] = {0.0,1.0};
-      float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+      double bounds[2] = { 0.0, 1.0 };
+      float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-      if ( this->ZBuffer )
+      if (this->ZBuffer)
       {
-        bounds[1] = this->GetZBufferValue( x, y );
+        bounds[1] = this->GetZBufferValue(x, y);
       }
 
       iterator->SetBounds(bounds);
@@ -591,59 +563,49 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
       {
         if (this->CellScalars)
         {
-          numIntersections = iterator->GetNextIntersections(intersectedCells,
-                                                            intersectionLengths,
-                                                            nullptr,
-                                                            nullptr, nullptr);
-          nearIntersections
-            ->SetNumberOfComponents(this->Scalars->GetNumberOfComponents());
+          numIntersections = iterator->GetNextIntersections(
+            intersectedCells, intersectionLengths, nullptr, nullptr, nullptr);
+          nearIntersections->SetNumberOfComponents(this->Scalars->GetNumberOfComponents());
           nearIntersections->SetNumberOfTuples(numIntersections);
           switch (this->Scalars->GetDataType())
           {
-            vtkTemplateMacro(vtkUGVRCMLookupCopy
-                             ((const VTK_TT*)this->Scalars->GetVoidPointer(0),
-                              (VTK_TT*)nearIntersections->GetVoidPointer(0),
-                              intersectedCells->GetPointer(0),
-                              this->Scalars->GetNumberOfComponents(),
-                              numIntersections));
+            vtkTemplateMacro(vtkUGVRCMLookupCopy((const VTK_TT*)this->Scalars->GetVoidPointer(0),
+              (VTK_TT*)nearIntersections->GetVoidPointer(0), intersectedCells->GetPointer(0),
+              this->Scalars->GetNumberOfComponents(), numIntersections));
           }
         }
         else
         {
-          numIntersections = iterator->GetNextIntersections(nullptr,
-                                                            intersectionLengths,
-                                                            this->Scalars,
-                                                            nearIntersections,
-                                                            farIntersections);
+          numIntersections = iterator->GetNextIntersections(
+            nullptr, intersectionLengths, this->Scalars, nearIntersections, farIntersections);
         }
-        if (numIntersections < 1) break;
-        this->RealRayIntegrator->Integrate(intersectionLengths,
-                                           nearIntersections,
-                                           farIntersections,
-                                           color);
+        if (numIntersections < 1)
+          break;
+        this->RealRayIntegrator->Integrate(
+          intersectionLengths, nearIntersections, farIntersections, color);
       } while (color[3] < 0.99);
 
-      if ( color[3] > 0.0 )
+      if (color[3] > 0.0)
       {
         int val;
-        val = static_cast<int>(color[0]*255.0);
-        val = (val > 255)?(255):(val);
-        val = (val <   0)?(  0):(val);
+        val = static_cast<int>(color[0] * 255.0);
+        val = (val > 255) ? (255) : (val);
+        val = (val < 0) ? (0) : (val);
         ucptr[0] = static_cast<unsigned char>(val);
 
-        val = static_cast<int>(color[1]*255.0);
-        val = (val > 255)?(255):(val);
-        val = (val <   0)?(  0):(val);
+        val = static_cast<int>(color[1] * 255.0);
+        val = (val > 255) ? (255) : (val);
+        val = (val < 0) ? (0) : (val);
         ucptr[1] = static_cast<unsigned char>(val);
 
-        val = static_cast<int>(color[2]*255.0);
-        val = (val > 255)?(255):(val);
-        val = (val <   0)?(  0):(val);
+        val = static_cast<int>(color[2] * 255.0);
+        val = (val > 255) ? (255) : (val);
+        val = (val < 0) ? (0) : (val);
         ucptr[2] = static_cast<unsigned char>(val);
 
-        val = static_cast<int>(color[3]*255.0);
-        val = (val > 255)?(255):(val);
-        val = (val <   0)?(  0):(val);
+        val = static_cast<int>(color[3] * 255.0);
+        val = (val > 255) ? (255) : (val);
+        val = (val < 0) ? (0) : (val);
         ucptr[3] = static_cast<unsigned char>(val);
       }
       else
@@ -653,50 +615,50 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
         ucptr[2] = 0;
         ucptr[3] = 0;
       }
-      ucptr+=4;
+      ucptr += 4;
     }
   }
 }
 
-double vtkUnstructuredGridVolumeRayCastMapper::
-GetMinimumBoundsDepth( vtkRenderer *ren, vtkVolume   *vol )
+double vtkUnstructuredGridVolumeRayCastMapper::GetMinimumBoundsDepth(
+  vtkRenderer* ren, vtkVolume* vol)
 {
   double bounds[6];
-  vol->GetBounds( bounds );
+  vol->GetBounds(bounds);
 
-  vtkTransform *perspectiveTransform = vtkTransform::New();
-  vtkMatrix4x4 *perspectiveMatrix = vtkMatrix4x4::New();
+  vtkTransform* perspectiveTransform = vtkTransform::New();
+  vtkMatrix4x4* perspectiveMatrix = vtkMatrix4x4::New();
 
   ren->ComputeAspect();
-  double *aspect = ren->GetAspect();
+  double* aspect = ren->GetAspect();
 
   // Get the view matrix in two steps - there is a one step method in camera
   // but it turns off stereo so we do not want to use that one
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkCamera* cam = ren->GetActiveCamera();
   perspectiveTransform->Identity();
   perspectiveTransform->Concatenate(
-    cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+    cam->GetProjectionTransformMatrix(aspect[0] / aspect[1], 0.0, 1.0));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
 
   double minZ = 1.0;
 
-  for ( int k = 0; k < 2; k++ )
+  for (int k = 0; k < 2; k++)
   {
-    for ( int j = 0; j < 2; j++ )
+    for (int j = 0; j < 2; j++)
     {
-      for ( int i = 0; i < 2; i++ )
+      for (int i = 0; i < 2; i++)
       {
         double inPoint[4];
-        inPoint[0] = bounds[  i];
-        inPoint[1] = bounds[2+j];
-        inPoint[2] = bounds[4+k];
+        inPoint[0] = bounds[i];
+        inPoint[1] = bounds[2 + j];
+        inPoint[2] = bounds[4 + k];
         inPoint[3] = 1.0;
 
         double outPoint[4];
-        perspectiveMatrix->MultiplyPoint( inPoint, outPoint );
+        perspectiveMatrix->MultiplyPoint(inPoint, outPoint);
         double testZ = outPoint[2] / outPoint[3];
-        minZ = ( testZ < minZ ) ? (testZ) : (minZ);
+        minZ = (testZ < minZ) ? (testZ) : (minZ);
       }
     }
   }
@@ -714,34 +676,29 @@ double vtkUnstructuredGridVolumeRayCastMapper::GetZBufferValue(int x, int y)
   xPos = static_cast<int>(static_cast<float>(x) * this->ImageSampleDistance);
   yPos = static_cast<int>(static_cast<float>(y) * this->ImageSampleDistance);
 
-  xPos = (xPos >= this->ZBufferSize[0])?(this->ZBufferSize[0]-1):(xPos);
-  yPos = (yPos >= this->ZBufferSize[1])?(this->ZBufferSize[1]-1):(yPos);
+  xPos = (xPos >= this->ZBufferSize[0]) ? (this->ZBufferSize[0] - 1) : (xPos);
+  yPos = (yPos >= this->ZBufferSize[1]) ? (this->ZBufferSize[1] - 1) : (yPos);
 
-  return *(this->ZBuffer + yPos*this->ZBufferSize[0] + xPos);
+  return *(this->ZBuffer + yPos * this->ZBufferSize[0] + xPos);
 }
 
 // Print method for vtkUnstructuredGridVolumeRayCastMapper
 void vtkUnstructuredGridVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Image Sample Distance: "
-     << this->ImageSampleDistance << "\n";
-  os << indent << "Minimum Image Sample Distance: "
-     << this->MinimumImageSampleDistance << "\n";
-  os << indent << "Maximum Image Sample Distance: "
-     << this->MaximumImageSampleDistance << "\n";
-  os << indent << "Auto Adjust Sample Distances: "
-     << this->AutoAdjustSampleDistances << "\n";
+  os << indent << "Image Sample Distance: " << this->ImageSampleDistance << "\n";
+  os << indent << "Minimum Image Sample Distance: " << this->MinimumImageSampleDistance << "\n";
+  os << indent << "Maximum Image Sample Distance: " << this->MaximumImageSampleDistance << "\n";
+  os << indent << "Auto Adjust Sample Distances: " << this->AutoAdjustSampleDistances << "\n";
   os << indent << "Intermix Intersecting Geometry: "
-    << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
+     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
 
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 
   if (this->RayCastFunction)
   {
-    os << indent << "RayCastFunction: " <<
-      this->RayCastFunction->GetClassName() << "\n";
+    os << indent << "RayCastFunction: " << this->RayCastFunction->GetClassName() << "\n";
   }
   else
   {
@@ -750,8 +707,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent in
 
   if (this->RayIntegrator)
   {
-    os << indent << "RayIntegrator: "
-       << this->RayIntegrator->GetClassName() << endl;
+    os << indent << "RayIntegrator: " << this->RayIntegrator->GetClassName() << endl;
   }
   else
   {
@@ -763,4 +719,3 @@ void vtkUnstructuredGridVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent in
   // methods for access from the ray cast function (not part of the public
   // API)
 }
-

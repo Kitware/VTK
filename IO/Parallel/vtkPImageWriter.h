@@ -21,7 +21,7 @@
  * determines whether the data will be written in one or multiple files.
  * This class is used as the superclass of most image writing classes
  * such as vtkBMPWriter etc. It supports streaming.
-*/
+ */
 
 #ifndef vtkPImageWriter_h
 #define vtkPImageWriter_h
@@ -33,8 +33,8 @@ class vtkPipelineSize;
 class VTKIOPARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 {
 public:
-  static vtkPImageWriter *New();
-  vtkTypeMacro(vtkPImageWriter,vtkImageWriter);
+  static vtkPImageWriter* New();
+  vtkTypeMacro(vtkPImageWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -52,17 +52,19 @@ protected:
 
   unsigned long MemoryLimit;
 
-  void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ostream *file) override;
-  void RecursiveWrite(int dim, vtkImageData *cache,
-                              vtkImageData *data, vtkInformation* inInfo, ostream *file) override
-  {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);};
+  void RecursiveWrite(
+    int dim, vtkImageData* region, vtkInformation* inInfo, ostream* file) override;
+  void RecursiveWrite(int dim, vtkImageData* cache, vtkImageData* data, vtkInformation* inInfo,
+    ostream* file) override
+  {
+    this->vtkImageWriter::RecursiveWrite(dim, cache, data, inInfo, file);
+  }
 
-  vtkPipelineSize *SizeEstimator;
+  vtkPipelineSize* SizeEstimator;
+
 private:
   vtkPImageWriter(const vtkPImageWriter&) = delete;
   void operator=(const vtkPImageWriter&) = delete;
 };
 
 #endif
-
-

@@ -39,7 +39,7 @@
  *
  * @sa
  * vtkSortDataArray
-*/
+ */
 
 #ifndef vtkSortFieldData_h
 #define vtkSortFieldData_h
@@ -49,7 +49,6 @@
 
 class vtkFieldData;
 
-
 class VTKCOMMONDATAMODEL_EXPORT vtkSortFieldData : public vtkSortDataArray
 {
 public:
@@ -58,7 +57,7 @@ public:
    * Standard VTK methods for instantiating, managing type, and printing
    * information about this class.
    */
-  static vtkSortFieldData *New();
+  static vtkSortFieldData* New();
   vtkTypeMacro(vtkSortFieldData, vtkSortDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -78,9 +77,10 @@ public:
    * if any array is not the same length as the sorting array, then it will
    * be skipped and not sorted.)
    */
-  static vtkIdType* Sort( vtkFieldData *fd, const char *arrayName,
-                          int k, int returnIndices)
-    {return vtkSortFieldData::Sort(fd,arrayName,k,returnIndices,0);}
+  static vtkIdType* Sort(vtkFieldData* fd, const char* arrayName, int k, int returnIndices)
+  {
+    return vtkSortFieldData::Sort(fd, arrayName, k, returnIndices, 0);
+  }
 
   /**
    * Given field data (and derived classes such as point data and cell data),
@@ -102,16 +102,16 @@ public:
    * the same length as the sorting array, then it will be skipped and not
    * sorted.)
    */
-  static vtkIdType* Sort( vtkFieldData *fd, const char *arrayName,
-                          int k, int returnIndices, int dir);
+  static vtkIdType* Sort(
+    vtkFieldData* fd, const char* arrayName, int k, int returnIndices, int dir);
 
 protected:
   vtkSortFieldData();
   ~vtkSortFieldData() override;
 
 private:
-  vtkSortFieldData(const vtkSortFieldData &) = delete;
-  void operator=(const vtkSortFieldData &) = delete;
+  vtkSortFieldData(const vtkSortFieldData&) = delete;
+  void operator=(const vtkSortFieldData&) = delete;
 };
 
-#endif //vtkSortFieldData_h
+#endif // vtkSortFieldData_h

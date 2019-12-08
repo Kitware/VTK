@@ -81,7 +81,7 @@ void Validate(vtkSelection* expr, const char* exprstr, const MapType& arrays, co
   ValidateIternal(result, f);
 }
 
-int TestSelectionExpression(int, char* [])
+int TestSelectionExpression(int, char*[])
 {
   vtkNew<vtkSelection> expr;
   vtkNew<vtkSelectionNode> aItem;

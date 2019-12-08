@@ -26,68 +26,54 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/Gradient.h>
 #include <vtkm/filter/PointAverage.h>
+#include <vtkm/filter/PointAverage.hxx>
 
-vtkStandardNewMacro(vtkmGradient)
+vtkStandardNewMacro(vtkmGradient);
 
 namespace
 {
 struct GradientTypes
-    : vtkm::ListTagBase<
-                        vtkm::Float32,
-                        vtkm::Float64,
-                        vtkm::Vec<vtkm::Float32,3>,
-                        vtkm::Vec<vtkm::Float64,3>,
-                        vtkm::Vec< vtkm::Vec<vtkm::Float32,3>, 3>,
-                        vtkm::Vec< vtkm::Vec<vtkm::Float64,3>, 3>
-                        >
+  : vtkm::ListTagBase<                           //
+      vtkm::Float32,                             //
+      vtkm::Float64,                             //
+      vtkm::Vec<vtkm::Float32, 3>,               //
+      vtkm::Vec<vtkm::Float64, 3>,               //
+      vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>, //
+      vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3>  //
+      >
 {
 };
 
 //------------------------------------------------------------------------------
-class vtkmGradientFilterPolicy
-      : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
-  {
-  public:
-    using FieldTypeList = GradientTypes;
+class vtkmGradientFilterPolicy : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
+{
+public:
+  using FieldTypeList = GradientTypes;
 
-    using StructuredCellSetList = tovtkm::CellListStructuredInVTK;
-    using UnstructuredCellSetList = tovtkm::CellListUnstructuredInVTK;
-    using AllCellSetList = tovtkm::CellListAllInVTK;
-  };
+  using StructuredCellSetList = tovtkm::CellListStructuredInVTK;
+  using UnstructuredCellSetList = tovtkm::CellListUnstructuredInVTK;
+  using AllCellSetList = tovtkm::CellListAllInVTK;
+};
 
-vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
+inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
 {
   vtkm::cont::DataSet cp;
-  for (vtkm::IdComponent i = 0; i < ds.GetNumberOfCoordinateSystems(); ++i)
-  {
-    cp.AddCoordinateSystem(ds.GetCoordinateSystem(i));
-  }
-  for (vtkm::IdComponent i = 0; i < ds.GetNumberOfCellSets(); ++i)
-  {
-    cp.AddCellSet(ds.GetCellSet(i));
-  }
+  cp.CopyStructure(ds);
   return cp;
 }
 
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
-vtkmGradient::vtkmGradient()
-{
-}
+vtkmGradient::vtkmGradient() {}
 
 //------------------------------------------------------------------------------
-vtkmGradient::~vtkmGradient()
-{
-}
+vtkmGradient::~vtkmGradient() {}
 
 //------------------------------------------------------------------------------
 void vtkmGradient::PrintSelf(ostream& os, vtkIndent indent)
@@ -96,17 +82,14 @@ void vtkmGradient::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkmGradient::RequestData(vtkInformation* request,
-                              vtkInformationVector** inputVector,
-                              vtkInformationVector* outputVector)
+int vtkmGradient::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataSet* output =
-      vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->ShallowCopy(input);
 
@@ -114,8 +97,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
   // the gradient for
   int association = this->GetInputArrayAssociation(0, inputVector);
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (inputArray == nullptr || inputArray->GetName() == nullptr ||
-      inputArray->GetName()[0] == '\0')
+  if (inputArray == nullptr || inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
   {
     vtkErrorMacro("Invalid input array.");
     return 0;
@@ -133,11 +115,10 @@ int vtkmGradient::RequestData(vtkInformation* request,
     const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::Association::POINTS;
     const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::Association::CELL_SET;
     const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
-    const bool fieldIsScalar = inputArray->GetDataType() == VTK_FLOAT ||
-                              inputArray->GetDataType() == VTK_DOUBLE;
-    const bool fieldValid = (fieldIsPoint || fieldIsCell) &&
-                            fieldIsScalar &&
-                            (field.GetName() != std::string());
+    const bool fieldIsScalar =
+      inputArray->GetDataType() == VTK_FLOAT || inputArray->GetDataType() == VTK_DOUBLE;
+    const bool fieldValid =
+      (fieldIsPoint || fieldIsCell) && fieldIsScalar && (field.GetName() != std::string());
 
     if (!fieldValid)
     {
@@ -147,14 +128,13 @@ int vtkmGradient::RequestData(vtkInformation* request,
     }
 
     vtkmGradientFilterPolicy policy;
-    auto passNoFields =
-      vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE);
+    auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE);
     vtkm::filter::Gradient filter;
     filter.SetFieldsToPass(passNoFields);
     filter.SetColumnMajorOrdering();
 
     if (fieldIsVec)
-    { //this properties are only valid when processing a vec<3> field
+    { // this properties are only valid when processing a vec<3> field
       filter.SetComputeDivergence(this->ComputeDivergence != 0);
       filter.SetComputeVorticity(this->ComputeVorticity != 0);
       filter.SetComputeQCriterion(this->ComputeQCriterion != 0);
@@ -193,9 +173,9 @@ int vtkmGradient::RequestData(vtkInformation* request,
       filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
       result = filter.Execute(in, policy);
 
-      //When we have faster approximation enabled the VTK-m gradient will output
-      //a cell field not a point field. So at that point we will need to convert
-      //back to a point field
+      // When we have faster approximation enabled the VTK-m gradient will output
+      // a cell field not a point field. So at that point we will need to convert
+      // back to a point field
       if (this->FasterApproximation)
       {
         vtkm::filter::PointAverage cellToPoint;
@@ -220,15 +200,15 @@ int vtkmGradient::RequestData(vtkInformation* request,
         }
         if (this->ComputeVorticity && fieldIsVec)
         {
-          cellToPoint.SetActiveField(filter.GetVorticityName(),
-            vtkm::cont::Field::Association::CELL_SET);
+          cellToPoint.SetActiveField(
+            filter.GetVorticityName(), vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeQCriterion && fieldIsVec)
         {
-          cellToPoint.SetActiveField(filter.GetQCriterionName(),
-            vtkm::cont::Field::Association::CELL_SET);
+          cellToPoint.SetActiveField(
+            filter.GetQCriterionName(), vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
@@ -236,7 +216,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
     }
     else
     {
-      //we need to convert the field to be a point field
+      // we need to convert the field to be a point field
       vtkm::filter::PointAverage cellToPoint;
       cellToPoint.SetFieldsToPass(passNoFields);
       cellToPoint.SetActiveField(field.GetName(), field.GetAssociation());
@@ -254,7 +234,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
     {
       requestedResult = CopyDataSetStructure(result);
       vtkm::Id numOfFields = static_cast<vtkm::Id>(result.GetNumberOfFields());
-      for (vtkm::Id i=0; i < numOfFields; ++i)
+      for (vtkm::Id i = 0; i < numOfFields; ++i)
       {
         if (result.GetField(i).GetName() != filter.GetOutputFieldName())
         {

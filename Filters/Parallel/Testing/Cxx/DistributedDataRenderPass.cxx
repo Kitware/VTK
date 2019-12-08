@@ -23,37 +23,37 @@
 // To run fast redistribution: SetUseMinimalMemoryOff() (Default)
 // To run memory conserving code instead: SetUseMinimalMemoryOn()
 
-#include "vtkObjectFactory.h"
-#include "vtkTestUtilities.h"
-#include "vtkTestErrorObserver.h"
-#include "vtkNew.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCameraPass.h"
+#include "vtkClearZPass.h"
+#include "vtkCompositeRGBAPass.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDistributedDataFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkPieceScalars.h"
+#include "vtkDistributedDataFilter.h"
+#include "vtkImageRenderManager.h"
+#include "vtkLightsPass.h"
 #include "vtkMPIController.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpaquePass.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOverlayPass.h"
+#include "vtkPieceScalars.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderPassCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkCamera.h"
-#include "vtkProperty.h"
-#include "vtkOpaquePass.h"
-#include "vtkTranslucentPass.h"
-#include "vtkVolumetricPass.h"
-#include "vtkOverlayPass.h"
-#include "vtkLightsPass.h"
 #include "vtkSequencePass.h"
-#include "vtkRenderPassCollection.h"
-#include "vtkCameraPass.h"
-#include "vtkCompositeRGBAPass.h"
-#include "vtkClearZPass.h"
-#include "vtkImageRenderManager.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
+#include "vtkTranslucentPass.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVolumetricPass.h"
 
 /*
 ** This test only builds if MPI is in use
@@ -68,66 +68,63 @@ namespace
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
   virtual void Execute();
 
-  void SetArgs(int anArgc,
-               char *anArgv[]);
+  void SetArgs(int anArgc, char* anArgv[]);
 
 protected:
   MyProcess();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
 {
-  this->Argc=0;
-  this->Argv=nullptr;
+  this->Argc = 0;
+  this->Argv = nullptr;
 }
 
-void MyProcess::SetArgs(int anArgc,
-                        char *anArgv[])
+void MyProcess::SetArgs(int anArgc, char* anArgv[])
 {
-  this->Argc=anArgc;
-  this->Argv=anArgv;
+  this->Argc = anArgc;
+  this->Argv = anArgv;
 }
 
 void MyProcess::Execute()
 {
-  this->ReturnValue=1;
-  int numProcs=this->Controller->GetNumberOfProcesses();
-  int me=this->Controller->GetLocalProcessId();
+  this->ReturnValue = 1;
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int me = this->Controller->GetLocalProcessId();
 
   int i, go;
 
-//  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
-//  vtkParallelRenderManager *prm = vtkParallelRenderManager::New();
-  vtkImageRenderManager *prm = vtkImageRenderManager::New();
+  //  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
+  //  vtkParallelRenderManager *prm = vtkParallelRenderManager::New();
+  vtkImageRenderManager* prm = vtkImageRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=nullptr;
+  vtkRenderWindowInteractor* iren = nullptr;
 
-  if(me==0)
+  if (me == 0)
   {
-    iren=vtkRenderWindowInteractor::New();
+    iren = vtkRenderWindowInteractor::New();
   }
 
   // READER
 
-  vtkDataSetReader *dsr = vtkDataSetReader::New();
-  vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
+  vtkDataSetReader* dsr = vtkDataSetReader::New();
+  vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = nullptr;
+  vtkDataSet* ds = nullptr;
 
   if (me == 0)
   {
     char* fname =
-      vtkTestUtilities::ExpandDataFileName(
-        this->Argc, this->Argv, "Data/tetraMesh.vtk");
+      vtkTestUtilities::ExpandDataFileName(this->Argc, this->Argv, "Data/tetraMesh.vtk");
 
     dsr->SetFileName(fname);
 
@@ -135,7 +132,7 @@ void MyProcess::Execute()
 
     dsr->Update();
 
-    delete [] fname;
+    delete[] fname;
 
     go = 1;
 
@@ -150,11 +147,10 @@ void MyProcess::Execute()
   }
   else
   {
-    ds = static_cast<vtkDataSet *>(ug);
+    ds = static_cast<vtkDataSet*>(ug);
   }
 
-  vtkMPICommunicator *comm =
-    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+  vtkMPICommunicator* comm = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
 
   comm->Broadcast(&go, 1, 0);
 
@@ -168,76 +164,75 @@ void MyProcess::Execute()
 
   // DATA DISTRIBUTION FILTER
 
-  vtkDistributedDataFilter *dd = vtkDistributedDataFilter::New();
+  vtkDistributedDataFilter* dd = vtkDistributedDataFilter::New();
 
   dd->SetInputData(ds);
   dd->SetController(this->Controller);
 
-  dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+  dd->SetBoundaryModeToSplitBoundaryCells(); // clipping
   dd->UseMinimalMemoryOff();
 
   // COLOR BY PROCESS NUMBER
 
-  vtkPieceScalars *ps = vtkPieceScalars::New();
+  vtkPieceScalars* ps = vtkPieceScalars::New();
   ps->SetInputConnection(dd->GetOutputPort());
   ps->SetScalarModeToCellData();
 
   // MORE FILTERING - this will request ghost cells
 
-  vtkDataSetSurfaceFilter *dss = vtkDataSetSurfaceFilter::New();
+  vtkDataSetSurfaceFilter* dss = vtkDataSetSurfaceFilter::New();
   dss->SetInputConnection(ps->GetOutputPort());
 
   // COMPOSITE RENDER
 
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(dss->GetOutputPort());
 
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("Piece");
-  mapper->SetScalarRange(0, numProcs-1);
+  mapper->SetScalarRange(0, numProcs - 1);
 
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
-  vtkProperty *p=actor->GetProperty();
+  vtkProperty* p = actor->GetProperty();
   p->SetOpacity(0.3);
 
-  vtkRenderer *renderer = prm->MakeRenderer();
-  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkRenderer* renderer = prm->MakeRenderer();
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
 #if 1
   // the rendering passes
-  vtkCameraPass *cameraP=vtkCameraPass::New();
+  vtkCameraPass* cameraP = vtkCameraPass::New();
 
-  vtkSequencePass *seq=vtkSequencePass::New();
-  vtkOpaquePass *opaque=vtkOpaquePass::New();
-//  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
-//  peeling->SetMaximumNumberOfPeels(200);
-//  peeling->SetOcclusionRatio(0.1);
+  vtkSequencePass* seq = vtkSequencePass::New();
+  vtkOpaquePass* opaque = vtkOpaquePass::New();
+  //  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
+  //  peeling->SetMaximumNumberOfPeels(200);
+  //  peeling->SetOcclusionRatio(0.1);
 
-  vtkTranslucentPass *translucent=vtkTranslucentPass::New();
-//  peeling->SetTranslucentPass(translucent);
+  vtkTranslucentPass* translucent = vtkTranslucentPass::New();
+  //  peeling->SetTranslucentPass(translucent);
 
-  vtkVolumetricPass *volume=vtkVolumetricPass::New();
-  vtkOverlayPass *overlay=vtkOverlayPass::New();
+  vtkVolumetricPass* volume = vtkVolumetricPass::New();
+  vtkOverlayPass* overlay = vtkOverlayPass::New();
 
-  vtkLightsPass *lights=vtkLightsPass::New();
+  vtkLightsPass* lights = vtkLightsPass::New();
 
-  vtkClearZPass *clearZ=vtkClearZPass::New();
+  vtkClearZPass* clearZ = vtkClearZPass::New();
   clearZ->SetDepth(0.9);
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
-  vtkCompositeRGBAPass *compositeRGBAPass=vtkCompositeRGBAPass::New();
-  compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent,
-                                 errorObserver1);
+  vtkCompositeRGBAPass* compositeRGBAPass = vtkCompositeRGBAPass::New();
+  compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
   compositeRGBAPass->SetController(this->Controller);
   compositeRGBAPass->SetKdtree(dd->GetKdtree());
-  vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  vtkRenderPassCollection* passes = vtkRenderPassCollection::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
-//  passes->AddItem(clearZ);
-//  passes->AddItem(peeling);
-   passes->AddItem(translucent);
+  //  passes->AddItem(clearZ);
+  //  passes->AddItem(peeling);
+  passes->AddItem(translucent);
   passes->AddItem(volume);
   passes->AddItem(overlay);
   passes->AddItem(compositeRGBAPass);
@@ -246,7 +241,7 @@ void MyProcess::Execute()
   glrenderer->SetPass(cameraP);
 
   opaque->Delete();
-//  peeling->Delete();
+  //  peeling->Delete();
   translucent->Delete();
   volume->Delete();
   overlay->Delete();
@@ -258,29 +253,27 @@ void MyProcess::Execute()
   clearZ->Delete();
 #endif
 
-
   renderer->AddActor(actor);
 
-  vtkRenderWindow *renWin = prm->MakeRenderWindow();
+  vtkRenderWindow* renWin = prm->MakeRenderWindow();
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
 
-  if(me==0)
+  if (me == 0)
   {
     iren->SetRenderWindow(renWin);
   }
 
-
   renWin->AddRenderer(renderer);
 
-  renderer->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
-  renWin->SetPosition(0, 360*me);
+  renderer->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
+  renWin->SetPosition(0, 360 * me);
 
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
 
-  prm->InitializeOffScreen();   // Mesa GL only
+  prm->InitializeOffScreen(); // Mesa GL only
 
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
@@ -292,53 +285,52 @@ void MyProcess::Execute()
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  const int MY_RETURN_VALUE_MESSAGE=0x11;
+  const int MY_RETURN_VALUE_MESSAGE = 0x11;
 
   if (me == 0)
   {
     renderer->ResetCamera();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    //camera->UpdateViewport(renderer);
+    vtkCamera* camera = renderer->GetActiveCamera();
+    // camera->UpdateViewport(renderer);
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
-    if(compositeRGBAPass->IsSupported(
-         static_cast<vtkOpenGLRenderWindow *>(renWin)))
+    if (compositeRGBAPass->IsSupported(static_cast<vtkOpenGLRenderWindow*>(renWin)))
     {
       renWin->Render();
-      this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
-                                                  10);
+      this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
     }
     else
     {
       std::string gotMsg(errorObserver1->GetErrorMessage());
       std::string expectedMsg("Missing required OpenGL extensions");
-      if (gotMsg.find(expectedMsg) == std::string::npos)    \
+      if (gotMsg.find(expectedMsg) == std::string::npos)
       {
-        std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl;
-        this->ReturnValue=vtkTesting::FAILED;
+        std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\""
+                  << gotMsg << std::endl;
+        this->ReturnValue = vtkTesting::FAILED;
       }
       else
       {
         std::cout << expectedMsg << std::endl;
       }
-      this->ReturnValue=vtkTesting::PASSED; // not supported.
+      this->ReturnValue = vtkTesting::PASSED; // not supported.
     }
 
-    if(this->ReturnValue==vtkRegressionTester::DO_INTERACTOR)
+    if (this->ReturnValue == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }
     prm->StopServices();
-    for (i=1; i < numProcs; i++)
+    for (i = 1; i < numProcs; i++)
     {
-      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+      this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
     }
   }
   else
   {
     prm->StartServices();
-    this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
+    this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
   }
 
   if (this->ReturnValue == vtkTesting::PASSED)
@@ -354,26 +346,24 @@ void MyProcess::Execute()
     if (me == 0)
     {
       renderer->ResetCamera();
-      vtkCamera *camera = renderer->GetActiveCamera();
+      vtkCamera* camera = renderer->GetActiveCamera();
       camera->UpdateViewport(renderer);
       camera->ParallelProjectionOn();
       camera->SetParallelScale(16);
 
       renWin->Render();
-      if(compositeRGBAPass->IsSupported(
-           static_cast<vtkOpenGLRenderWindow *>(renWin)))
+      if (compositeRGBAPass->IsSupported(static_cast<vtkOpenGLRenderWindow*>(renWin)))
       {
-        this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,
-                                                    renWin,10);
+        this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
       }
       else
       {
-        this->ReturnValue=vtkTesting::PASSED; // not supported.
+        this->ReturnValue = vtkTesting::PASSED; // not supported.
       }
 
-      for (i=1; i < numProcs; i++)
+      for (i = 1; i < numProcs; i++)
       {
-        this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+        this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
       }
 
       prm->StopServices();
@@ -381,12 +371,11 @@ void MyProcess::Execute()
     else
     {
       prm->StartServices();
-      this->Controller->Receive(&this->ReturnValue,1,0,
-                                MY_RETURN_VALUE_MESSAGE);
+      this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
     }
   }
 
-  if(me==0)
+  if (me == 0)
   {
     iren->Delete();
   }
@@ -410,11 +399,11 @@ void MyProcess::Execute()
 
 }
 
-int DistributedDataRenderPass(int argc, char *argv[])
+int DistributedDataRenderPass(int argc, char* argv[])
 {
   int retVal = 1;
 
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);
 
   vtkMultiProcessController::SetGlobalController(contr);
@@ -439,15 +428,15 @@ int DistributedDataRenderPass(int argc, char *argv[])
       cout << "DistributedData test requires MPI" << endl;
     }
     contr->Delete();
-    return retVal;   // is this the right error val?   TODO
+    return retVal; // is this the right error val?   TODO
   }
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  retVal = p->GetReturnValue();
   p->Delete();
 
   contr->Finalize();
@@ -455,4 +444,3 @@ int DistributedDataRenderPass(int argc, char *argv[])
 
   return !retVal;
 }
-

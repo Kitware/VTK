@@ -17,17 +17,17 @@
 // .SECTION Description
 // This program tests the direction API of the image data.
 
-#include "vtkMath.h"
-#include "vtkMathUtilities.h"
 #include "vtkCell.h"
 #include "vtkDebugLeaks.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
 inline int DoOrientationTest(
-                  int extent[6], double origin[3], double spacing[3], double direction[9])
+  int extent[6], double origin[3], double spacing[3], double direction[9])
 {
   double tol = 10e-15;
 
@@ -40,14 +40,13 @@ inline int DoOrientationTest(
   image->AllocateScalars(VTK_DOUBLE, 1);
 
   // Check some values in index to physical matrix
-  vtkMatrix4x4 *m4 = image->GetIndexToPhysicalMatrix();
-  if (m4->GetElement(0, 3) != origin[0] ||
-      m4->GetElement(1, 3) != origin[1] ||
-      m4->GetElement(2, 3) != origin[2] ||
-      m4->GetElement(3, 3) != 1)
+  vtkMatrix4x4* m4 = image->GetIndexToPhysicalMatrix();
+  if (m4->GetElement(0, 3) != origin[0] || m4->GetElement(1, 3) != origin[1] ||
+    m4->GetElement(2, 3) != origin[2] || m4->GetElement(3, 3) != 1)
   {
 
-    vtkGenericWarningMacro("IndexToPhysical matrix of the image data is missing the translation information");
+    vtkGenericWarningMacro(
+      "IndexToPhysical matrix of the image data is missing the translation information");
     return EXIT_FAILURE;
   }
 
@@ -69,22 +68,24 @@ inline int DoOrientationTest(
     return EXIT_FAILURE;
   }
   if (!vtkMathUtilities::FuzzyCompare(pcoords[0], 0.0, tol) ||
-      !vtkMathUtilities::FuzzyCompare(pcoords[1], 0.0, tol) ||
-      !vtkMathUtilities::FuzzyCompare(pcoords[2], 0.0, tol))
+    !vtkMathUtilities::FuzzyCompare(pcoords[1], 0.0, tol) ||
+    !vtkMathUtilities::FuzzyCompare(pcoords[2], 0.0, tol))
   {
-    vtkGenericWarningMacro("FindCell returns the proper cell (0), but pcoords isn't equal to {0,0,0}");
+    vtkGenericWarningMacro(
+      "FindCell returns the proper cell (0), but pcoords isn't equal to {0,0,0}");
     return EXIT_FAILURE;
   }
 
   // Test GetCell and ensure it returns the same value as XYZ above
-  vtkCell *cell = image->GetCell(cellId);
+  vtkCell* cell = image->GetCell(cellId);
   double pt[3];
   cell->GetPoints()->GetPoint(0, pt);
   if (!vtkMathUtilities::FuzzyCompare(pt[0], xyz[0], tol) ||
-      !vtkMathUtilities::FuzzyCompare(pt[1], xyz[1], tol) ||
-      !vtkMathUtilities::FuzzyCompare(pt[2], xyz[2], tol))
+    !vtkMathUtilities::FuzzyCompare(pt[1], xyz[1], tol) ||
+    !vtkMathUtilities::FuzzyCompare(pt[2], xyz[2], tol))
   {
-    vtkGenericWarningMacro("GetCell result for cell " << cellId << " does not match expected values.");
+    vtkGenericWarningMacro(
+      "GetCell result for cell " << cellId << " does not match expected values.");
     return EXIT_FAILURE;
   }
   // Go from physical coordinate to index coordinate and ensure
@@ -92,8 +93,8 @@ inline int DoOrientationTest(
   double index[3];
   image->TransformPhysicalPointToContinuousIndex(pt, index);
   if (!vtkMathUtilities::FuzzyCompare(index[0], (double)i, tol) ||
-      !vtkMathUtilities::FuzzyCompare(index[1], (double)j, tol) ||
-      !vtkMathUtilities::FuzzyCompare(index[2], (double)k, tol))
+    !vtkMathUtilities::FuzzyCompare(index[1], (double)j, tol) ||
+    !vtkMathUtilities::FuzzyCompare(index[2], (double)k, tol))
   {
     vtkGenericWarningMacro("Applying the PhysicalToIndex matrix does not return expected indices.");
     return EXIT_FAILURE;
@@ -102,61 +103,77 @@ inline int DoOrientationTest(
   return EXIT_SUCCESS;
 }
 
-int TestImageDataOrientation(int,char *[])
+int TestImageDataOrientation(int, char*[])
 {
   const double pi = vtkMath::Pi();
 
   // test 0D, 1D, 2D, 3D data with various extents, spacings, origins, directions
   static int dims[4][3] = {
-    { 1, 1, 1 }, { 3, 1, 1 }, { 3, 3, 1 }, { 3, 3, 3 } };
+    { 1, 1, 1 },
+    { 3, 1, 1 },
+    { 3, 3, 1 },
+    { 3, 3, 3 },
+  };
   static int starts[4][3] = {
-    { 0, 0, 0 }, { -1, 0, -1 }, { 2, 3, 6 }, { -10, 0, 5 } };
+    { 0, 0, 0 },
+    { -1, 0, -1 },
+    { 2, 3, 6 },
+    { -10, 0, 5 },
+  };
   static double spacings[4][3] = {
-    { 1, 1, 1 }, { 1.0/7, 1, 1 }, { 1, -1, 1 }, { -1, 1, -1/13.0 } };
+    { 1, 1, 1 },
+    { 1.0 / 7, 1, 1 },
+    { 1, -1, 1 },
+    { -1, 1, -1 / 13.0 },
+  };
   static double origins[4][3] = {
-    { 0, 0, 0 }, { 1.0/13, 0, 0 }, { 0, -1, 0 }, { -1, 0, -1/7.0 } };
+    { 0, 0, 0 },
+    { 1.0 / 13, 0, 0 },
+    { 0, -1, 0 },
+    { -1, 0, -1 / 7.0 },
+  };
   static double directions[7][9] = {
     {
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
+      1, 0, 0, //
+      0, 1, 0, //
+      0, 0, 1  //
     },
     {
-      -1, 0, 0,
-      0, -1, 0,
-      0, 0, 1
+      -1, 0, 0, //
+      0, -1, 0, //
+      0, 0, 1   //
     },
     {
-      1, 0, 0,
-      0, 0, 1,
-      0, 1, 0
+      1, 0, 0, //
+      0, 0, 1, //
+      0, 1, 0  //
     },
     {
-      0, -1, 0,
-      1, 0, 0,
-      0, 0, 1
+      0, -1, 0, //
+      1, 0, 0,  //
+      0, 0, 1   //
     },
     {
-      1, 0, 0,
-      0, cos(pi/4), sin(pi/4),
-      0, -sin(pi/4), cos(pi/4)
+      1, 0, 0,                     //
+      0, cos(pi / 4), sin(pi / 4), //
+      0, -sin(pi / 4), cos(pi / 4) //
     },
     {
-      cos(-pi/5), sin(-pi/5), 0,
-      -sin(-pi/5), cos(-pi/5), 0,
-      0, 0, 1
+      cos(-pi / 5), sin(-pi / 5), 0,  //
+      -sin(-pi / 5), cos(-pi / 5), 0, //
+      0, 0, 1                         //
     },
     {
-      cos(pi/0.8), 0, sin(pi/0.8),
-      0, 1, 0,
-      -sin(pi/0.8), 0, cos(pi/0.8),
-    }
+      cos(pi / 0.8), 0, sin(pi / 0.8),  //
+      0, 1, 0,                          //
+      -sin(pi / 0.8), 0, cos(pi / 0.8), //
+    },
   };
 
   int extent[6];
-  double *spacing;
-  double *origin;
-  double *direction;
+  double* spacing;
+  double* origin;
+  double* direction;
 
   int failed = 0;
 
@@ -172,8 +189,8 @@ int TestImageDataOrientation(int,char *[])
           origin = origins[l];
           for (int ii = 0; ii < 3; ii++)
           {
-            extent[2*ii] = starts[i][ii];
-            extent[2*ii+1] = starts[i][ii] + dims[j][ii] - 1;
+            extent[2 * ii] = starts[i][ii];
+            extent[2 * ii + 1] = starts[i][ii] + dims[j][ii] - 1;
           }
 
           for (int jj = 0; jj < 4; jj++)

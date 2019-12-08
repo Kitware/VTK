@@ -16,7 +16,7 @@
 /**
  * @class   vtkOpenGLTextMapper
  * @brief   vtkTextMapper override for OpenGL2.
-*/
+ */
 
 #ifndef vtkOpenGLTextMapper_h
 #define vtkOpenGLTextMapper_h
@@ -26,21 +26,20 @@
 
 class vtkOpenGLGL2PSHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper: public vtkTextMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper : public vtkTextMapper
 {
 public:
   static vtkOpenGLTextMapper* New();
-  vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void RenderOverlay(vtkViewport *vp, vtkActor2D *act) override;
+  void RenderOverlay(vtkViewport* vp, vtkActor2D* act) override;
 
 protected:
   vtkOpenGLTextMapper();
   ~vtkOpenGLTextMapper() override;
 
-  void RenderGL2PS(vtkViewport *vp, vtkActor2D *act,
-                   vtkOpenGLGL2PSHelper *gl2ps);
+  void RenderGL2PS(vtkViewport* vp, vtkActor2D* act, vtkOpenGLGL2PSHelper* gl2ps);
 
 private:
   vtkOpenGLTextMapper(const vtkOpenGLTextMapper&) = delete;

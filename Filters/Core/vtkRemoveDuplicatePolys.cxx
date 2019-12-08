@@ -17,30 +17,26 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCollection.h"
-#include "vtkIntArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <algorithm>
-#include <set>
 #include <map>
+#include <set>
 #include <vector>
 
 vtkStandardNewMacro(vtkRemoveDuplicatePolys);
 
 //----------------------------------------------------------------------------
-vtkRemoveDuplicatePolys::vtkRemoveDuplicatePolys()
-{
-}
+vtkRemoveDuplicatePolys::vtkRemoveDuplicatePolys() {}
 
 //----------------------------------------------------------------------------
-vtkRemoveDuplicatePolys::~vtkRemoveDuplicatePolys()
-{
-}
+vtkRemoveDuplicatePolys::~vtkRemoveDuplicatePolys() {}
 
 //----------------------------------------------------------------------------
 void vtkRemoveDuplicatePolys::PrintSelf(ostream& os, vtkIndent indent)
@@ -49,20 +45,16 @@ void vtkRemoveDuplicatePolys::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkRemoveDuplicatePolys::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkRemoveDuplicatePolys::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPolys() == 0)
   {
@@ -80,15 +72,15 @@ int vtkRemoveDuplicatePolys::RequestData(
   std::map<std::set<int>, vtkIdType>::iterator polyIter;
 
   // Now copy the polys.
-  vtkIdList *polyPoints = vtkIdList::New();
-  const int numberOfPolys = input->GetNumberOfPolys();
+  vtkIdList* polyPoints = vtkIdList::New();
+  const vtkIdType numberOfPolys = input->GetNumberOfPolys();
   vtkIdType progressStep = numberOfPolys / 100;
   if (progressStep == 0)
   {
     progressStep = 1;
   }
 
-  output->Allocate(numberOfPolys);
+  output->AllocateCopy(input);
   int ndup = 0;
 
   output->GetPointData()->PassData(input->GetPointData());
@@ -127,7 +119,7 @@ int vtkRemoveDuplicatePolys::RequestData(
 
     // only copy a cell to the output if it is neither degenerate nor duplicate
     if (nn.size() == static_cast<unsigned int>(polyPoints->GetNumberOfIds()) &&
-        polyIter == polySet.end())
+      polyIter == polySet.end())
     {
       vtkIdType newId = output->InsertNextCell(input->GetCellType(id), polyPoints);
       output->GetCellData()->CopyData(input->GetCellData(), id, newId);
@@ -142,8 +134,8 @@ int vtkRemoveDuplicatePolys::RequestData(
   if (ndup)
   {
     vtkDebugMacro(<< "vtkRemoveDuplicatePolys : " << ndup
-      << " duplicate polys (multiple instances of a polygon) have been"
-      << " removed." << endl);
+                  << " duplicate polys (multiple instances of a polygon) have been"
+                  << " removed." << endl);
 
     polyPoints->Delete();
     output->Squeeze();

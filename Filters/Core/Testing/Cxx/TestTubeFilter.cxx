@@ -22,9 +22,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyLine.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkTexture.h>
@@ -32,10 +32,10 @@
 
 namespace
 {
-void InitializePolyData(vtkPolyData *polyData, int dataType)
+void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -83,15 +83,15 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   // Same coordinates for point 0->4
   points->GetPoint(0, point);
   for (int i = 1; i < 5; i++)
-    {
+  {
     points->SetPoint(i, point);
-    }
+  }
   // Same coordinates for point 15->18
   points->GetPoint(15, point);
   for (int i = 16; i < 19; i++)
-    {
+  {
     points->SetPoint(i, point);
-    }
+  }
 
   points->Squeeze();
   polyData->SetPoints(points);
@@ -124,21 +124,22 @@ int TubeFilter(int dataType, int outputPointsPrecision)
   if (originalLines->GetNumberOfCells() != lines->GetNumberOfCells())
   {
     std::cerr << "vtkTubeFilter corrupted input polydata number of lines: "
-      << originalLines->GetNumberOfCells() << " != " << lines->GetNumberOfCells() << std::endl;
+              << originalLines->GetNumberOfCells() << " != " << lines->GetNumberOfCells()
+              << std::endl;
     return EXIT_FAILURE;
   }
   for (vtkIdType lineIndex = 0; lineIndex < originalLines->GetNumberOfCells(); lineIndex++)
   {
     vtkIdType originalNumberOfLinePoints = 0;
-    vtkIdType* originalLinePoints = nullptr;
-    originalLines->GetCell(lineIndex, originalNumberOfLinePoints, originalLinePoints);
+    const vtkIdType* originalLinePoints = nullptr;
+    originalLines->GetCellAtId(lineIndex, originalNumberOfLinePoints, originalLinePoints);
     vtkIdType numberOfLinePoints = 0;
-    vtkIdType* linePoints = nullptr;
-    lines->GetCell(lineIndex, numberOfLinePoints, linePoints);
+    const vtkIdType* linePoints = nullptr;
+    lines->GetCellAtId(lineIndex, numberOfLinePoints, linePoints);
     if (originalNumberOfLinePoints != numberOfLinePoints)
     {
       std::cerr << "vtkTubeFilter corrupted input polydata number of lines: "
-        << originalNumberOfLinePoints << " != " << numberOfLinePoints << std::endl;
+                << originalNumberOfLinePoints << " != " << numberOfLinePoints << std::endl;
       return EXIT_FAILURE;
     }
     for (vtkIdType pointIndex = 0; pointIndex < numberOfLinePoints; ++pointIndex)
@@ -148,8 +149,11 @@ int TubeFilter(int dataType, int outputPointsPrecision)
         std::cerr << "vtkTubeFilter corrupted input polydata point indices:" << std::endl;
         for (vtkIdType pointIndexLog = 0; pointIndexLog < numberOfLinePoints; ++pointIndexLog)
         {
-          std::cerr << "  " << originalLinePoints[pointIndexLog] << " -> " << linePoints[pointIndexLog] << " "
-            << (originalLinePoints[pointIndexLog] == linePoints[pointIndexLog] ? "OK" : "ERROR") << std::endl;
+          std::cerr << "  " << originalLinePoints[pointIndexLog] << " -> "
+                    << linePoints[pointIndexLog] << " "
+                    << (originalLinePoints[pointIndexLog] == linePoints[pointIndexLog] ? "OK"
+                                                                                       : "ERROR")
+                    << std::endl;
         }
         return EXIT_FAILURE;
       }
@@ -162,8 +166,7 @@ int TubeFilter(int dataType, int outputPointsPrecision)
 void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
 {
   // Define a polyline
-  vtkSmartPointer<vtkPolyData> inputPolyData =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
   double pt0[3] = { 0.0, 1.0 + 2 * generateTCoordsOption, 0.0 };
   double pt1[3] = { 1.0, 0.0 + 2 * generateTCoordsOption, 0.0 };
   double pt2[3] = { 5.0, 0.0 + 2 * generateTCoordsOption, 0.0 };
@@ -173,8 +176,7 @@ void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
   points->InsertNextPoint(pt1);
   points->InsertNextPoint(pt2);
 
-  vtkSmartPointer<vtkPolyLine> polyLine =
-    vtkSmartPointer<vtkPolyLine>::New();
+  vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
   polyLine->GetPointIds()->SetNumberOfIds(3);
   for (unsigned int i = 0; i < 3; i++)
   {
@@ -188,8 +190,7 @@ void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
   inputPolyData->SetLines(cells);
 
   // Define a tubeFilter
-  vtkSmartPointer<vtkTubeFilter> tubeFilter =
-    vtkSmartPointer<vtkTubeFilter>::New();
+  vtkSmartPointer<vtkTubeFilter> tubeFilter = vtkSmartPointer<vtkTubeFilter>::New();
   tubeFilter->SetInputData(inputPolyData);
   tubeFilter->SetNumberOfSides(50);
   tubeFilter->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
@@ -197,7 +198,7 @@ void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
 
   if (generateTCoordsOption == VTK_TCOORDS_FROM_LENGTH)
   {
-    //Calculate the length of the input polydata to normalize texture coordinates
+    // Calculate the length of the input polydata to normalize texture coordinates
     double inputLength = 0.0;
     for (vtkIdType i = 0; i < inputPolyData->GetNumberOfPoints() - 1; i++)
     {
@@ -213,7 +214,7 @@ void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
   }
   else if (generateTCoordsOption == VTK_TCOORDS_FROM_SCALARS)
   {
-    //Add a scalar array to the input polydata
+    // Add a scalar array to the input polydata
     vtkSmartPointer<vtkIntArray> scalars = vtkSmartPointer<vtkIntArray>::New();
     scalars->SetName("ActiveScalars");
     vtkIdType nbPts = inputPolyData->GetNumberOfPoints();
@@ -235,15 +236,14 @@ void TubeFilterGenerateTCoords(int generateTCoordsOption, vtkActor* tubeActor)
   }
   tubeFilter->Update();
 
-  vtkSmartPointer<vtkPolyDataMapper> tubeMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> tubeMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   tubeMapper->SetInputData(tubeFilter->GetOutput());
 
   tubeActor->SetMapper(tubeMapper);
 }
 }
 
-int TestTubeFilter(int argc, char *argv[])
+int TestTubeFilter(int argc, char* argv[])
 {
   int dataType = TubeFilter(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
@@ -288,10 +288,8 @@ int TestTubeFilter(int argc, char *argv[])
   }
 
   // Test GenerateTCoords
-  char* textureFileName = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/beach.jpg");
-  vtkSmartPointer<vtkJPEGReader> JPEGReader =
-    vtkSmartPointer<vtkJPEGReader>::New();
+  char* textureFileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.jpg");
+  vtkSmartPointer<vtkJPEGReader> JPEGReader = vtkSmartPointer<vtkJPEGReader>::New();
   JPEGReader->SetFileName(textureFileName);
   delete[] textureFileName;
 
@@ -314,11 +312,9 @@ int TestTubeFilter(int argc, char *argv[])
   tubeActor2->SetTexture(texture);
 
   // Setup render window, renderer, and interactor
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
 
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();

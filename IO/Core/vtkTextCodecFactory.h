@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkTextCodec
  *
-*/
+ */
 
 #ifndef vtkTextCodecFactory_h
 #define vtkTextCodecFactory_h
@@ -48,7 +48,7 @@ class VTKIOCORE_EXPORT vtkTextCodecFactory : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextCodecFactory, vtkObject);
-  static vtkTextCodecFactory* New() ;
+  static vtkTextCodecFactory* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -92,8 +92,8 @@ protected:
   ~vtkTextCodecFactory() override;
 
 private:
-  vtkTextCodecFactory(const vtkTextCodecFactory &) = delete;
-  void operator=(const vtkTextCodecFactory &) = delete;
+  vtkTextCodecFactory(const vtkTextCodecFactory&) = delete;
+  void operator=(const vtkTextCodecFactory&) = delete;
 
   //@{
   /**
@@ -102,7 +102,6 @@ private:
   class CallbackVector;
   static CallbackVector* Callbacks;
   //@}
-
 };
 
 #endif // vtkTextCodecFactory_h

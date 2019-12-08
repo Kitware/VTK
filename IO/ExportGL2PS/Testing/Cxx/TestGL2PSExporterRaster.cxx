@@ -13,23 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCubeAxesActor2D.h"
 #include "vtkConeSource.h"
+#include "vtkCubeAxesActor2D.h"
 #include "vtkLogoRepresentation.h"
 #include "vtkNew.h"
 #include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
@@ -37,7 +37,7 @@
 
 #include <string>
 
-int TestGL2PSExporterRaster(int argc, char * argv[])
+int TestGL2PSExporterRaster(int argc, char* argv[])
 {
   vtkNew<vtkConeSource> coneSource;
   vtkNew<vtkPolyDataMapper> coneMapper;
@@ -107,7 +107,6 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   text5->GetTextProperty()->SetOrientation(0);
   text5->GetTextProperty()->SetColor(0.2, 1.0, 0.2);
 
-
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
   ren->AddActor(coneActor);
@@ -120,13 +119,12 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   ren->SetBackground(0.8, 0.8, 0.8);
 
   // logo
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/vtk-transparent.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk-transparent.png");
 
   vtkNew<vtkPNGReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkLogoRepresentation> logo;
   logo->SetImage(reader->GetOutput());
@@ -136,8 +134,6 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   logo->GetImageProperty()->SetOpacity(0.8);
   logo->SetRenderer(ren);
   ren->AddActor(logo);
-
-
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
@@ -160,8 +156,8 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   exp->DrawBackgroundOn();
   exp->Write3DPropsAsRasterImageOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSExporterRaster");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

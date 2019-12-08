@@ -40,7 +40,7 @@
  * @sa
  * vtkSliceCubes vtkMarchingCubes vtkPNMReader vtkVolume16Reader
  * vtkImageReader
-*/
+ */
 
 #ifndef vtkVolumeReader_h
 #define vtkVolumeReader_h
@@ -51,7 +51,7 @@
 class VTKIOIMAGE_EXPORT vtkVolumeReader : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkVolumeReader,vtkImageAlgorithm);
+  vtkTypeMacro(vtkVolumeReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -74,45 +74,44 @@ public:
   /**
    * Set the range of files to read.
    */
-  vtkSetVector2Macro(ImageRange,int);
-  vtkGetVectorMacro(ImageRange,int,2);
+  vtkSetVector2Macro(ImageRange, int);
+  vtkGetVectorMacro(ImageRange, int, 2);
   //@}
 
   //@{
   /**
    * Specify the spacing for the data.
    */
-  vtkSetVector3Macro(DataSpacing,double);
-  vtkGetVectorMacro(DataSpacing,double,3);
+  vtkSetVector3Macro(DataSpacing, double);
+  vtkGetVectorMacro(DataSpacing, double, 3);
   //@}
 
   //@{
   /**
    * Specify the origin for the data.
    */
-  vtkSetVector3Macro(DataOrigin,double);
-  vtkGetVectorMacro(DataOrigin,double,3);
+  vtkSetVector3Macro(DataOrigin, double);
+  vtkGetVectorMacro(DataOrigin, double, 3);
   //@}
 
   /**
    * Other objects make use of this method.
    */
-  virtual vtkImageData *GetImage(int ImageNumber) = 0;
+  virtual vtkImageData* GetImage(int ImageNumber) = 0;
 
 protected:
   vtkVolumeReader();
   ~vtkVolumeReader() override;
 
-  char *FilePrefix;
-  char *FilePattern;
+  char* FilePrefix;
+  char* FilePattern;
   int ImageRange[2];
   double DataSpacing[3];
   double DataOrigin[3];
+
 private:
   vtkVolumeReader(const vtkVolumeReader&) = delete;
   void operator=(const vtkVolumeReader&) = delete;
 };
 
 #endif
-
-

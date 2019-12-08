@@ -13,10 +13,13 @@
 
 =========================================================================*/
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
@@ -26,29 +29,25 @@
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkCamera.h"
-#include "vtkImageActor.h"
 
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include "ExerciseMultiProcessController.h"
 
 static const int scMsgLength = 10;
 
 static void CleanUp(vtkSmartPointer<vtkSocketCommunicator> vtkNotUsed(comm),
-                    vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
+  vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
 {
   // This will close the connection as well as delete
   // the communicator
   // Deleting no longer necessary with smart pointers.
-//   comm->Delete();
-//   contr->Delete();
+  //   comm->Delete();
+  //   contr->Delete();
 }
 
 int main(int argc, char** argv)
@@ -63,35 +62,35 @@ int main(int argc, char** argv)
   // Get the host name from the command line arguments
   char* hostname = new char[30];
   strcpy(hostname, "localhost");
-  int dataIndex=-1;
-  for (i=0; i<argc; i++)
+  int dataIndex = -1;
+  for (i = 0; i < argc; i++)
   {
-    if ( strcmp("-H", argv[i]) == 0 )
+    if (strcmp("-H", argv[i]) == 0)
     {
-      if ( i < argc-1 )
+      if (i < argc - 1)
       {
-        dataIndex = i+1;
+        dataIndex = i + 1;
       }
     }
   }
   if (dataIndex != -1)
   {
     delete[] hostname;
-    hostname = new char[strlen(argv[dataIndex])+1];
+    hostname = new char[strlen(argv[dataIndex]) + 1];
     strcpy(hostname, argv[dataIndex]);
   }
 
   // Get the port from the command line arguments
-  int port=11111;
+  int port = 11111;
 
-  dataIndex=-1;
-  for (i=0; i<argc; i++)
+  dataIndex = -1;
+  for (i = 0; i < argc; i++)
   {
-    if ( strcmp("-P", argv[i]) == 0 )
+    if (strcmp("-P", argv[i]) == 0)
     {
-      if ( i < argc-1 )
+      if (i < argc - 1)
       {
-        dataIndex = i+1;
+        dataIndex = i + 1;
       }
     }
   }
@@ -103,8 +102,7 @@ int main(int argc, char** argv)
   // Establish connection
   if (!comm->ConnectTo(hostname, port))
   {
-    cerr << "Client error: Could not connect to the server."
-         << endl;
+    cerr << "Client error: Could not connect to the server." << endl;
     delete[] hostname;
     return 1;
   }
@@ -112,7 +110,7 @@ int main(int argc, char** argv)
 
   // Test sending all supported types of arrays
   int datai[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datai[i] = i;
   }
@@ -124,7 +122,7 @@ int main(int argc, char** argv)
   }
 
   unsigned long dataul[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     dataul[i] = static_cast<unsigned long>(i);
   }
@@ -136,7 +134,7 @@ int main(int argc, char** argv)
   }
 
   char datac[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datac[i] = static_cast<char>(i);
   }
@@ -148,7 +146,7 @@ int main(int argc, char** argv)
   }
 
   unsigned char datauc[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datauc[i] = static_cast<unsigned char>(i);
   }
@@ -160,7 +158,7 @@ int main(int argc, char** argv)
   }
 
   float dataf[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     dataf[i] = static_cast<float>(i);
   }
@@ -171,9 +169,8 @@ int main(int argc, char** argv)
     return 1;
   }
 
-
   double datad[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datad[i] = static_cast<double>(i);
   }
@@ -185,7 +182,7 @@ int main(int argc, char** argv)
   }
 
   vtkIdType datait[scMsgLength];
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     datait[i] = static_cast<vtkIdType>(i);
   }
@@ -222,7 +219,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<40; i++)
+  for (i = 0; i < 40; i++)
   {
     if (da->GetValue(i) != static_cast<double>(i))
     {
@@ -262,8 +259,7 @@ int main(int argc, char** argv)
   // Run the socket through the standard controller tests.  We have to make a
   // compliant controller first.
   int retVal;
-  vtkMultiProcessController *compliantController
-    = contr->CreateCompliantController();
+  vtkMultiProcessController* compliantController = contr->CreateCompliantController();
   retVal = ExerciseMultiProcessController(compliantController);
   compliantController->Delete();
   if (retVal)
@@ -303,7 +299,6 @@ int main(int argc, char** argv)
   sgactor->SetMapper(sgmapper);
   sgactor->SetPosition(10, -5, -40);
 
-
   VTK_CREATE(vtkImageData, id);
   comm->Receive(id, 1, 11);
 
@@ -320,14 +315,14 @@ int main(int argc, char** argv)
   ren->AddActor(imactor);
 
   VTK_CREATE(vtkRenderWindow, renWin);
-  renWin->SetSize(500,400);
+  renWin->SetSize(500, 400);
   renWin->AddRenderer(ren);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(2.2);
 
   renWin->Render();
 
-  retVal = vtkRegressionTestImage( renWin );
+  retVal = vtkRegressionTestImage(renWin);
 
   CleanUp(comm, contr);
 

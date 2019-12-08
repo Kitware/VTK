@@ -14,11 +14,11 @@
 #ifndef vtkRenderWidget_h
 #define vtkRenderWidget_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkObject.h"
 #include "vtkNew.h" // For member variables.
-#include "vtkVector.h" // For member variables.
-#include <string> // For member variables.
+#include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkVector.h"              // For member variables.
+#include <string>                   // For member variables.
 
 class vtkAbstractInteractionDevice;
 class vtkAbstractRenderDevice;
@@ -26,7 +26,7 @@ class vtkAbstractRenderDevice;
 class VTKRENDERINGCORE_EXPORT vtkRenderWidget : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkRenderWidget ,vtkObject)
+  vtkTypeMacro(vtkRenderWidget, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkRenderWidget* New();
 
@@ -34,7 +34,7 @@ public:
    * @brief Set the widget position in screen coordinates.
    * @param pos The position of the widget in screen coordinates.
    */
-  void SetPosition(const vtkVector2i &pos);
+  void SetPosition(const vtkVector2i& pos);
 
   /**
    * @brief Get the widget position in screen coordinates.
@@ -46,7 +46,7 @@ public:
    * @brief Set the widget size in screen coordinates.
    * @param size The width and height of the widget in screen coordinates
    */
-  void SetSize(const vtkVector2i &size);
+  void SetSize(const vtkVector2i& size);
 
   /**
    * @brief Get the widget size in screen coordinates.
@@ -59,7 +59,7 @@ public:
    * @brief Set the name of the widget.
    * @param name The name to set to the window.
    */
-  void SetName(const std::string &name);
+  void SetName(const std::string& name);
 
   /**
    * @brief Get the name of the widget.
@@ -87,11 +87,11 @@ protected:
   ~vtkRenderWidget() override;
 
   vtkVector2i Position; // Position of the widget in screen coordinates.
-  vtkVector2i Size; // Position of the widget in screen coordinates.
-  std::string Name; // The name of the widget.
+  vtkVector2i Size;     // Position of the widget in screen coordinates.
+  std::string Name;     // The name of the widget.
 
   vtkNew<vtkAbstractInteractionDevice> InteractionDevice; // Interaction device.
-  vtkNew<vtkAbstractRenderDevice> RenderDevice; // Render device target.
+  vtkNew<vtkAbstractRenderDevice> RenderDevice;           // Render device target.
 
 private:
   vtkRenderWidget(const vtkRenderWidget&) = delete;

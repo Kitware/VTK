@@ -20,9 +20,9 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleMeshPointNormals.h"
@@ -30,8 +30,7 @@
 
 int TestTriangleMeshPointNormals(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
   std::cout << fileName << std::endl;
 
   // reader
@@ -79,9 +78,9 @@ int TestTriangleMeshPointNormals(int argc, char* argv[])
   renderer->ResetCamera();
 
   // renderwindow, interactor
-  vtkNew<vtkRenderWindow> renWin ;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
@@ -94,7 +93,7 @@ int TestTriangleMeshPointNormals(int argc, char* argv[])
   {
     vtkNew<vtkInteractorStyleTrackballCamera> iStyle;
     iren->SetInteractorStyle(iStyle);
-    renWin->SetSize(1000,1000);
+    renWin->SetSize(1000, 1000);
     iren->Start();
   }
 

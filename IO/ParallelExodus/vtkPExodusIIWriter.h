@@ -63,18 +63,18 @@
  * @warning
  *     We use the terms "point" and "node" interchangeably.
  *     Also, we use the terms "element" and "cell" interchangeably.
-*/
+ */
 
 #ifndef vtkPExodusIIWriter_h
 #define vtkPExodusIIWriter_h
 
-#include "vtkIOParallelExodusModule.h" // For export macro
-#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkExodusIIWriter.h"
+#include "vtkIOParallelExodusModule.h" // For export macro
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
 
-#include <vector> // STL Header
 #include <map>    // STL Header
 #include <string> // STL Header
+#include <vector> // STL Header
 
 class vtkModelMetadata;
 class vtkDoubleArray;
@@ -84,19 +84,18 @@ class vtkUnstructuredGrid;
 class VTKIOPARALLELEXODUS_EXPORT vtkPExodusIIWriter : public vtkExodusIIWriter
 {
 public:
-  static vtkPExodusIIWriter *New ();
-  vtkTypeMacro(vtkPExodusIIWriter,vtkExodusIIWriter);
-  void PrintSelf (ostream& os, vtkIndent indent) override;
+  static vtkPExodusIIWriter* New();
+  vtkTypeMacro(vtkPExodusIIWriter, vtkExodusIIWriter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkPExodusIIWriter ();
-  ~vtkPExodusIIWriter () override;
-  int CheckParameters () override;
+  vtkPExodusIIWriter();
+  ~vtkPExodusIIWriter() override;
+  int CheckParameters() override;
   void CheckBlockInfoMap() override;
 
-  int RequestUpdateExtent (vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int GlobalContinueExecuting(int localContinue) override;
 
   /**
@@ -106,8 +105,8 @@ protected:
   virtual unsigned int GetMaxNameLength() override;
 
 private:
-  vtkPExodusIIWriter (const vtkPExodusIIWriter&) = delete;
-  void operator= (const vtkPExodusIIWriter&) = delete;
+  vtkPExodusIIWriter(const vtkPExodusIIWriter&) = delete;
+  void operator=(const vtkPExodusIIWriter&) = delete;
 };
 
 #endif

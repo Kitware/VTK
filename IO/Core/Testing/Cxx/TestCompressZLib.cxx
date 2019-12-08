@@ -20,7 +20,7 @@
 #include "vtkOutputWindow.h"
 #include "vtkZLibDataCompressor.h"
 
-int TestCompressZLib(int argc, char *argv[])
+int TestCompressZLib(int argc, char* argv[])
 {
   int res = 1;
   const unsigned int start_size = 100024;
@@ -31,7 +31,7 @@ int TestCompressZLib(int argc, char *argv[])
   size_t nlen;
   size_t rlen;
 
-  vtkZLibDataCompressor *compressor = vtkZLibDataCompressor::New();
+  vtkZLibDataCompressor* compressor = vtkZLibDataCompressor::New();
   for (cc = 0; cc < start_size; cc++)
   {
     buffer[cc] = static_cast<unsigned char>(cc % sizeof(unsigned char));
@@ -47,7 +47,8 @@ int TestCompressZLib(int argc, char *argv[])
   {
     ucbuffer = new unsigned char[start_size];
     rlen = compressor->Uncompress(cbuffer, rlen, ucbuffer, start_size);
-    if (rlen == start_size) {
+    if (rlen == start_size)
+    {
       cout << argv[0] << " Works " << argc << endl;
       cout << ucbuffer[0] << ucbuffer[1] << ucbuffer[2] << endl;
       res = 0;

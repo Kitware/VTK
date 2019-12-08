@@ -42,7 +42,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkUnicodeString_h
 #define vtkUnicodeString_h
@@ -62,8 +62,8 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
 
 // This is same as extra extended template macro with an
 // additional case for VTK_UNICODE_STRING
-#define vtkSuperExtraExtendedTemplateMacro(call)                                 \
-  vtkExtraExtendedTemplateMacro(call);                                            \
+#define vtkSuperExtraExtendedTemplateMacro(call)                                                   \
+  vtkExtraExtendedTemplateMacro(call);                                                             \
   vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
 
 class VTKCOMMONCORE_EXPORT vtkUnicodeString

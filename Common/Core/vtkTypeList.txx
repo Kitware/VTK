@@ -21,6 +21,51 @@
 namespace vtkTypeList
 {
 
+namespace detail
+{
+
+template <typename... Ts>
+struct CreateImpl;
+
+// Unroll small cases to help out compiler:
+template <typename T1, typename T2, typename T3, typename T4>
+struct CreateImpl<T1, T2, T3, T4>
+{
+  using type = vtkTypeList::TypeList<T1,
+    vtkTypeList::TypeList<T2,
+      vtkTypeList::TypeList<T3, vtkTypeList::TypeList<T4, vtkTypeList::NullType> > > >;
+};
+
+template <typename T1, typename T2, typename T3>
+struct CreateImpl<T1, T2, T3>
+{
+  using type = vtkTypeList::TypeList<T1,
+    vtkTypeList::TypeList<T2, vtkTypeList::TypeList<T3, vtkTypeList::NullType> > >;
+};
+
+template <typename T1, typename T2>
+struct CreateImpl<T1, T2>
+{
+  using type = vtkTypeList::TypeList<T1, vtkTypeList::TypeList<T2, vtkTypeList::NullType> >;
+};
+
+template <typename T1>
+struct CreateImpl<T1>
+{
+  using type = vtkTypeList::TypeList<T1, vtkTypeList::NullType>;
+};
+
+template <typename T1, typename T2, typename T3, typename T4, typename... Tail>
+struct CreateImpl<T1, T2, T3, T4, Tail...>
+{
+  using type = vtkTypeList::TypeList<T1,
+    vtkTypeList::TypeList<T2,
+      vtkTypeList::TypeList<T3,
+        vtkTypeList::TypeList<T4, typename vtkTypeList::detail::CreateImpl<Tail...>::type> > > >;
+};
+
+}
+
 //------------------------------------------------------------------------------
 // Description:
 // Sets Result to T if Exp is true, or F if Exp is false.
@@ -46,12 +91,16 @@ struct CanConvert
 {
 private:
   typedef char Small;
-  class Big { char dummy[2]; };
+  class Big
+  {
+    char dummy[2];
+  };
   static Small DoTest(const To&); // Not implemented
-  static Big DoTest(...); // Not implemented
-  static From* MakeFrom(); // Not implemented
+  static Big DoTest(...);         // Not implemented
+  static From* MakeFrom();        // Not implemented
 public:
-  enum {
+  enum
+  {
     Result = (sizeof(DoTest(*MakeFrom())) == sizeof(Small)),
     SameType = false
   };
@@ -61,7 +110,11 @@ public:
 template <typename T>
 struct CanConvert<T, T>
 {
-  enum { Result = true, SameType = true };
+  enum
+  {
+    Result = true,
+    SameType = true
+  };
 };
 
 //------------------------------------------------------------------------------
@@ -73,14 +126,20 @@ struct CanConvert<T, T>
 template <typename T>
 struct IndexOf<NullType, T>
 {
-  enum { Result = -1 };
+  enum
+  {
+    Result = -1
+  };
 };
 
 // Matching case:
 template <typename T, typename Tail>
 struct IndexOf<TypeList<T, Tail>, T>
 {
-  enum { Result = 0 };
+  enum
+  {
+    Result = 0
+  };
 };
 
 // Recursive case:
@@ -88,9 +147,16 @@ template <typename T, typename U, typename Tail>
 struct IndexOf<TypeList<U, Tail>, T>
 {
 private:
-  enum { TailResult = IndexOf<Tail, T>::Result };
+  enum
+  {
+    TailResult = IndexOf<Tail, T>::Result
+  };
+
 public:
-  enum { Result = TailResult == -1 ? -1 : 1 + TailResult };
+  enum
+  {
+    Result = TailResult == -1 ? -1 : 1 + TailResult
+  };
 };
 
 //------------------------------------------------------------------------------
@@ -160,6 +226,7 @@ struct Unique<TypeList<Head, Tail> >
 private:
   typedef typename Unique<Tail>::Result UniqueTail;
   typedef typename Erase<UniqueTail, Head>::Result NewTail;
+
 public:
   typedef TypeList<Head, NewTail> Result;
 };
@@ -247,11 +314,9 @@ struct MostDerived<TypeList<Head, Tail>, T>
 {
 private:
   typedef typename MostDerived<Tail, T>::Result TailResult;
+
 public:
-  typedef
-    typename Select<
-      CanConvert<TailResult, Head>::Result, Head, TailResult
-    >::Result Result;
+  typedef typename Select<CanConvert<TailResult, Head>::Result, Head, TailResult>::Result Result;
 };
 
 //------------------------------------------------------------------------------
@@ -275,6 +340,7 @@ private:
   typedef typename MostDerived<Tail, Head>::Result Derived;
   typedef typename Replace<Tail, Derived, Head>::Result Replaced;
   typedef typename DerivedToFront<Replaced>::Result NewTail;
+
 public:
   typedef TypeList<Derived, NewTail> Result;
 };
@@ -284,7 +350,7 @@ public:
 // Appends type T to TypeList TList and stores the result in Result.
 
 // Corner case, both are NullType:
-template < >
+template <>
 struct Append<vtkTypeList::NullType, vtkTypeList::NullType>
 {
   typedef vtkTypeList::NullType Result;
@@ -308,7 +374,7 @@ struct Append<vtkTypeList::NullType, vtkTypeList::TypeList<Head, Tail> >
 template <typename Head, typename Tail, typename T>
 struct Append<vtkTypeList::TypeList<Head, Tail>, T>
 {
-  typedef vtkTypeList::TypeList<Head, typename Append<Tail, T>::Result > Result;
+  typedef vtkTypeList::TypeList<Head, typename Append<Tail, T>::Result> Result;
 };
 
 }

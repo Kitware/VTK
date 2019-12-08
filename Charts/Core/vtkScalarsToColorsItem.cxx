@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkScalarsToColorsItem.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
@@ -27,7 +28,6 @@
 #include "vtkPen.h"
 #include "vtkPlotBar.h"
 #include "vtkPoints2D.h"
-#include "vtkScalarsToColorsItem.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTransform2D.h"
@@ -48,8 +48,7 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
   this->Shape->SetNumberOfPoints(0);
 
   this->Callback->SetClientData(this);
-  this->Callback->SetCallback(
-    vtkScalarsToColorsItem::OnScalarsToColorsModified);
+  this->Callback->SetCallback(vtkScalarsToColorsItem::OnScalarsToColorsModified);
 
   this->MaskAboveCurve = false;
 
@@ -81,45 +80,7 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 }
 
 //-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::TransformDataToScreen(
-    const double dataX, const double dataY, double &screenX, double &screenY)
-{
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  screenX = logX ? log10(dataX) : dataX;
-  screenY = logY ? log10(dataY) : dataY;
-
-  // now, shift/scale to screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  screenX = (screenX + ss[0]) * ss[2];
-  screenY = (screenY + ss[1]) * ss[3];
-}
-
-//-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::TransformScreenToData(
-    const double screenX, const double screenY, double &dataX, double &dataY)
-{
-  // inverse shift/scale from screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  dataX = (screenX / ss[2]) - ss[0];
-  dataY = (screenY / ss[3]) - ss[1];
-
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  if (logX)
-  {
-    dataX = pow(10., dataX);
-  }
-  if (logY)
-  {
-    dataY = pow(10., dataY);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkScalarsToColorsItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interpolate: " << this->Interpolate << endl;
@@ -128,8 +89,7 @@ void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
-  if (this->UserBounds[1] > this->UserBounds[0] &&
-      this->UserBounds[3] > this->UserBounds[2])
+  if (this->UserBounds[1] > this->UserBounds[0] && this->UserBounds[3] > this->UserBounds[2])
   {
     bounds[0] = this->UserBounds[0];
     bounds[1] = this->UserBounds[1];
@@ -153,8 +113,7 @@ void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
   this->TextureWidth = this->GetScene()->GetViewWidth();
-  if (this->Texture == nullptr ||
-      this->Texture->GetMTime() < this->GetMTime())
+  if (this->Texture == nullptr || this->Texture->GetMTime() < this->GetMTime())
   {
     this->ComputeTexture();
   }
@@ -178,23 +137,20 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     painter->GetBrush()->SetColorF(1., 1., 1., 1.);
     painter->GetBrush()->SetTexture(this->Texture);
     painter->GetBrush()->SetTextureProperties(
-      (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
-      vtkBrush::Stretch);
+      (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) | vtkBrush::Stretch);
     if (!this->MaskAboveCurve || size < 2)
     {
       double dbounds[4];
       this->GetBounds(dbounds);
-      painter->DrawQuad(dbounds[0], dbounds[2],
-                        dbounds[0], dbounds[3],
-                        dbounds[1], dbounds[3],
-                        dbounds[1], dbounds[2]);
+      painter->DrawQuad(dbounds[0], dbounds[2], dbounds[0], dbounds[3], dbounds[1], dbounds[3],
+        dbounds[1], dbounds[2]);
     }
     else
     {
       const vtkRectd& ss = this->ShiftScale;
 
       vtkNew<vtkPoints2D> trapezoids;
-      trapezoids->SetNumberOfPoints(2*size);
+      trapezoids->SetNumberOfPoints(2 * size);
       double point[2];
       vtkIdType j = -1;
       for (vtkIdType i = 0; i < size; ++i)
@@ -211,8 +167,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     }
   }
 
-  if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN
-    && size >= 2)
+  if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN && size >= 2)
   {
     const vtkRectd& ss = this->ShiftScale;
 
@@ -235,20 +190,16 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::OnScalarsToColorsModified(vtkObject* caller,
-                                                       unsigned long eid,
-                                                       void *clientdata,
-                                                       void* calldata)
+void vtkScalarsToColorsItem::OnScalarsToColorsModified(
+  vtkObject* caller, unsigned long eid, void* clientdata, void* calldata)
 {
-  vtkScalarsToColorsItem* self =
-    reinterpret_cast<vtkScalarsToColorsItem*>(clientdata);
+  vtkScalarsToColorsItem* self = reinterpret_cast<vtkScalarsToColorsItem*>(clientdata);
   self->ScalarsToColorsModified(caller, eid, calldata);
 }
 
 //-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* vtkNotUsed(object),
-                                                     unsigned long vtkNotUsed(eid),
-                                                     void* vtkNotUsed(calldata))
+void vtkScalarsToColorsItem::ScalarsToColorsModified(
+  vtkObject* vtkNotUsed(object), unsigned long vtkNotUsed(eid), void* vtkNotUsed(calldata))
 {
   this->Modified();
 }
@@ -256,16 +207,30 @@ void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* vtkNotUsed(objec
 //-----------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::ConfigurePlotBar()
 {
-  bool visible = this->HistogramTable && this->HistogramTable->GetNumberOfColumns() >= 2
-    && this->GetXAxis() && this->GetYAxis();
+  bool visible = this->HistogramTable && this->HistogramTable->GetNumberOfColumns() >= 2 &&
+    this->GetXAxis() && this->GetYAxis();
   if (visible)
   {
     // Configure the plot bar
-    this->PlotBar->SetInputData(this->HistogramTable,
-      this->HistogramTable->GetColumnName(0), this->HistogramTable->GetColumnName(1));
+    this->PlotBar->SetInputData(this->HistogramTable, this->HistogramTable->GetColumnName(0),
+      this->HistogramTable->GetColumnName(1));
     this->PlotBar->SelectColorArray(this->HistogramTable->GetColumnName(0));
     this->PlotBar->SetXAxis(this->GetXAxis());
     this->PlotBar->SetYAxis(this->GetYAxis());
+
+    // Configure the plot bar Y Axis
+    vtkDoubleArray* valueArray = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(1));
+    if (!valueArray)
+    {
+      vtkErrorMacro("HistogramTable is not containing expected data");
+      return false;
+    }
+    double valueRange[2];
+    valueArray->GetRange(valueRange);
+    double val = 1 / valueRange[1];
+    vtkRectd shiftScale = this->ShiftScale;
+    shiftScale.SetHeight(shiftScale.GetHeight() * val);
+    this->PlotBar->SetShiftScale(shiftScale);
 
     // Recover the range of the histogram
     vtkDoubleArray* binExtent = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(0));
@@ -273,7 +238,7 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
     {
       // It is necessary to extract the actual range of computation of the histogram
       // as it can be different to the range of the scalar to colors item.
-      int nBin =  this->HistogramTable->GetNumberOfRows();
+      int nBin = this->HistogramTable->GetNumberOfRows();
       double range = binExtent->GetValue(nBin - 1) - binExtent->GetValue(0);
       double delta = range / (nBin - 1);
       this->PlotBar->SetWidth((range + delta) / nBin);
@@ -286,4 +251,26 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
   this->PlotBar->SetVisible(visible);
   this->PlotBar->Update();
   return visible;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkScalarsToColorsItem::GetNearestPoint(const vtkVector2f& point,
+  const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* segmentIndex)
+{
+  if (this->PlotBar->GetVisible())
+  {
+    return this->PlotBar->GetNearestPoint(point, tolerance, location, segmentIndex);
+  }
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkScalarsToColorsItem::GetTooltipLabel(
+  const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
+{
+  if (this->PlotBar->GetVisible())
+  {
+    return this->PlotBar->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  }
+  return "";
 }

@@ -13,18 +13,17 @@
 
 =========================================================================*/
 #include "vtkResliceCursor.h"
-#include "vtkMath.h"
+#include "vtkCellArray.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
-#include "vtkCellArray.h"
-#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
 #include <cmath>
-
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkResliceCursor);
@@ -33,69 +32,64 @@ vtkCxxSetObjectMacro(vtkResliceCursor, Image, vtkImageData);
 //----------------------------------------------------------------------------
 vtkResliceCursor::vtkResliceCursor()
 {
-  this->XAxis[0]                = 1.0;
-  this->XAxis[1]                = 0.0;
-  this->XAxis[2]                = 0.0;
+  this->XAxis[0] = 1.0;
+  this->XAxis[1] = 0.0;
+  this->XAxis[2] = 0.0;
 
-  this->YAxis[0]                = 0.0;
-  this->YAxis[1]                = 1.0;
-  this->YAxis[2]                = 0.0;
+  this->YAxis[0] = 0.0;
+  this->YAxis[1] = 1.0;
+  this->YAxis[2] = 0.0;
 
-  this->ZAxis[0]                = 0.0;
-  this->ZAxis[1]                = 0.0;
-  this->ZAxis[2]                = 1.0;
+  this->ZAxis[0] = 0.0;
+  this->ZAxis[1] = 0.0;
+  this->ZAxis[2] = 1.0;
 
-  this->Center[0]               = 0.0;
-  this->Center[1]               = 0.0;
-  this->Center[2]               = 0.0;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
 
-  this->Thickness[0]            = 0.0;
-  this->Thickness[1]            = 0.0;
-  this->Thickness[2]            = 0.0;
+  this->Thickness[0] = 0.0;
+  this->Thickness[1] = 0.0;
+  this->Thickness[2] = 0.0;
 
-  this->HoleWidth               = 5.0;
-  this->HoleWidthInPixels       = 16.0;
-  this->Hole                    = 1;
+  this->HoleWidth = 5.0;
+  this->HoleWidthInPixels = 16.0;
+  this->Hole = 1;
 
-  this->ThickMode               = 1;
+  this->ThickMode = 1;
 
-  this->Image                   = nullptr;
+  this->Image = nullptr;
 
-  this->PolyData                = vtkPolyData::New();
-  vtkSmartPointer< vtkPoints > points
-    = vtkSmartPointer< vtkPoints >::New();
-  vtkSmartPointer< vtkCellArray > lines
-    = vtkSmartPointer< vtkCellArray >::New();
+  this->PolyData = vtkPolyData::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
   this->PolyData->SetPoints(points);
   this->PolyData->SetLines(lines);
 
-  this->ReslicePlanes           = vtkPlaneCollection::New();
+  this->ReslicePlanes = vtkPlaneCollection::New();
 
   // Reslice planes along the X, Y and Z axes. And the centerline and slab
   // polydata.
 
   for (int i = 0; i < 3; i++)
   {
-    vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
+    vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
     this->ReslicePlanes->AddItem(plane);
 
     // Centerline polydata.
 
     this->CenterlineAxis[i] = vtkPolyData::New();
 
-    vtkSmartPointer< vtkPoints > pointsc
-      = vtkSmartPointer< vtkPoints >::New();
-    vtkSmartPointer< vtkCellArray > linesc
-      = vtkSmartPointer< vtkCellArray >::New();
+    vtkSmartPointer<vtkPoints> pointsc = vtkSmartPointer<vtkPoints>::New();
+    vtkSmartPointer<vtkCellArray> linesc = vtkSmartPointer<vtkCellArray>::New();
 
     this->CenterlineAxis[i]->SetPoints(pointsc);
     this->CenterlineAxis[i]->SetLines(linesc);
-
   }
 
-  this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
-  this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
-  this->ReslicePlanes->GetItem(2)->SetNormal(0,0,1);
+  this->ReslicePlanes->GetItem(0)->SetNormal(1, 0, 0);
+  this->ReslicePlanes->GetItem(1)->SetNormal(0, -1, 0);
+  this->ReslicePlanes->GetItem(2)->SetNormal(0, 0, 1);
 
   this->BuildCursorTopology();
 }
@@ -168,17 +162,17 @@ void vtkResliceCursor::BuildCursorTopologyWithHole()
 //
 void vtkResliceCursor::Reset()
 {
-  this->XAxis[0]                = 1.0;
-  this->XAxis[1]                = 0.0;
-  this->XAxis[2]                = 0.0;
+  this->XAxis[0] = 1.0;
+  this->XAxis[1] = 0.0;
+  this->XAxis[2] = 0.0;
 
-  this->YAxis[0]                = 0.0;
-  this->YAxis[1]                = 1.0;
-  this->YAxis[2]                = 0.0;
+  this->YAxis[0] = 0.0;
+  this->YAxis[1] = 1.0;
+  this->YAxis[2] = 0.0;
 
-  this->ZAxis[0]                = 0.0;
-  this->ZAxis[1]                = 0.0;
-  this->ZAxis[2]                = 1.0;
+  this->ZAxis[0] = 0.0;
+  this->ZAxis[1] = 0.0;
+  this->ZAxis[2] = 1.0;
 
   if (this->GetImage())
   {
@@ -186,9 +180,9 @@ void vtkResliceCursor::Reset()
   }
   else
   {
-    this->Center[0]               = 0.0;
-    this->Center[1]               = 0.0;
-    this->Center[2]               = 0.0;
+    this->Center[0] = 0.0;
+    this->Center[1] = 0.0;
+    this->Center[2] = 0.0;
   }
 
   for (int i = 0; i < 3; i++)
@@ -196,9 +190,9 @@ void vtkResliceCursor::Reset()
     this->GetPlane(i)->SetOrigin(this->Center);
   }
 
-  this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
-  this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
-  this->ReslicePlanes->GetItem(2)->SetNormal(0,0,1);
+  this->ReslicePlanes->GetItem(0)->SetNormal(1, 0, 0);
+  this->ReslicePlanes->GetItem(1)->SetNormal(0, -1, 0);
+  this->ReslicePlanes->GetItem(2)->SetNormal(0, 0, 1);
 
   this->BuildCursorTopology();
   this->BuildCursorGeometry();
@@ -207,13 +201,13 @@ void vtkResliceCursor::Reset()
 }
 
 //----------------------------------------------------------------------------
-vtkPlane * vtkResliceCursor::GetPlane( int i )
+vtkPlane* vtkResliceCursor::GetPlane(int i)
 {
   return this->ReslicePlanes->GetItem(i);
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData * vtkResliceCursor::GetPolyData()
+vtkPolyData* vtkResliceCursor::GetPolyData()
 {
   this->Update();
   return this->PolyData;
@@ -224,7 +218,7 @@ void vtkResliceCursor::Update()
 {
   if (!this->Image)
   {
-    vtkErrorMacro( << "Image not set !" );
+    vtkErrorMacro(<< "Image not set !");
     return;
   }
 
@@ -260,15 +254,13 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
   this->Image->GetBounds(bounds);
 
   // Length of the principal diagonal.
-  const double pdLength = 20 * 0.5 * sqrt(
-    (bounds[1] - bounds[0])*(bounds[1] - bounds[0]) +
-    (bounds[3] - bounds[2])*(bounds[3] - bounds[2]) +
-    (bounds[5] - bounds[4])*(bounds[5] - bounds[4]));
-
+  const double pdLength = 20 * 0.5 *
+    sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
   // Precompute prior to use within the loop.
   const double holeHalfWidth = this->HoleWidth / 2.0;
-
 
   double pts[12][3];
   for (int i = 0; i < 3; i++)
@@ -292,11 +284,11 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
 
   for (int j = 0; j < 3; j++)
   {
-    vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
-    centerlinePoints->SetPoint(0, pts[2*j]);
-    centerlinePoints->SetPoint(1, pts[6+2*j]);
-    centerlinePoints->SetPoint(2, pts[6+2*j+1]);
-    centerlinePoints->SetPoint(3, pts[2*j+1]);
+    vtkPoints* centerlinePoints = this->CenterlineAxis[j]->GetPoints();
+    centerlinePoints->SetPoint(0, pts[2 * j]);
+    centerlinePoints->SetPoint(1, pts[6 + 2 * j]);
+    centerlinePoints->SetPoint(2, pts[6 + 2 * j + 1]);
+    centerlinePoints->SetPoint(3, pts[2 * j + 1]);
 
     this->CenterlineAxis[j]->Modified();
   }
@@ -313,11 +305,10 @@ void vtkResliceCursor::BuildCursorGeometryWithoutHole()
   this->Image->GetBounds(bounds);
 
   // Length of the principal diagonal.
-  const double pdLength = 20 * 0.5 * sqrt(
-    (bounds[1] - bounds[0])*(bounds[1] - bounds[0]) +
-    (bounds[3] - bounds[2])*(bounds[3] - bounds[2]) +
-    (bounds[5] - bounds[4])*(bounds[5] - bounds[4]));
-
+  const double pdLength = 20 * 0.5 *
+    sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
   // Precompute prior to use within the loop.
   double pts[6][3];
@@ -333,9 +324,9 @@ void vtkResliceCursor::BuildCursorGeometryWithoutHole()
 
   for (int j = 0; j < 3; j++)
   {
-    vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
-    centerlinePoints->SetPoint(0, pts[2*j]);
-    centerlinePoints->SetPoint(1, pts[2*j+1]);
+    vtkPoints* centerlinePoints = this->CenterlineAxis[j]->GetPoints();
+    centerlinePoints->SetPoint(0, pts[2 * j]);
+    centerlinePoints->SetPoint(1, pts[2 * j + 1]);
 
     this->CenterlineAxis[j]->Modified();
   }
@@ -365,24 +356,20 @@ void vtkResliceCursor::BuildPolyData()
   this->Image->GetBounds(bounds);
 
   // Length of the principal diagonal.
-  const double pdLength = 20 * 0.5 * sqrt(
-    (bounds[1] - bounds[0])*(bounds[1] - bounds[0]) +
-    (bounds[3] - bounds[2])*(bounds[3] - bounds[2]) +
-    (bounds[5] - bounds[4])*(bounds[5] - bounds[4]));
+  const double pdLength = 20 * 0.5 *
+    sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
-
-  vtkSmartPointer< vtkPoints > points
-    = vtkSmartPointer< vtkPoints >::New();
-  vtkSmartPointer< vtkCellArray > lines
-    = vtkSmartPointer< vtkCellArray >::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
 
   // Precompute the half thickness prior to use within the loop.
-  const double ht[3] = { this->Thickness[0] / 2.0,
-                         this->Thickness[1] / 2.0,
-                         this->Thickness[2] / 2.0 };
+  const double ht[3] = { this->Thickness[0] / 2.0, this->Thickness[1] / 2.0,
+    this->Thickness[2] / 2.0 };
 
   points->Allocate(24);
-  lines->Allocate(lines->Allocate(lines->EstimateSize(18,4)));
+  lines->AllocateEstimate(18, 4);
 
   double pts[30][3];
   for (int i = 0; i < 3; i++)
@@ -423,38 +410,35 @@ void vtkResliceCursor::BuildPolyData()
 
   vtkIdType ptIds[2];
 
-  vtkIdType facePtIds[6][4] =
-    { { 0, 2, 4, 6 }, { 1, 7, 5, 3 }, { 1,3,2,0 }, { 0,6,7,1 }, { 2,3,5,4 }, {6,4,5,7} };
+  vtkIdType facePtIds[6][4] = { { 0, 2, 4, 6 }, { 1, 7, 5, 3 }, { 1, 3, 2, 0 }, { 0, 6, 7, 1 },
+    { 2, 3, 5, 4 }, { 6, 4, 5, 7 } };
 
   for (int j = 0; j < 3; j++)
   {
 
-    vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
+    vtkPoints* centerlinePoints = this->CenterlineAxis[j]->GetPoints();
 
     for (int i = 0; i < 4; i++)
     {
-      ptIds[0] = 10 * j + 2 + 2*i;
+      ptIds[0] = 10 * j + 2 + 2 * i;
       ptIds[1] = ptIds[0] + 1;
 
       points->InsertNextPoint(pts[ptIds[0]]);
       points->InsertNextPoint(pts[ptIds[1]]);
     }
 
-    centerlinePoints->SetPoint(0, pts[10*j]);
-    centerlinePoints->SetPoint(1, pts[10*j+1]);
+    centerlinePoints->SetPoint(0, pts[10 * j]);
+    centerlinePoints->SetPoint(1, pts[10 * j + 1]);
 
-    vtkSmartPointer< vtkCellArray > slabPolys =
-      vtkSmartPointer< vtkCellArray >::New();
-    slabPolys->Allocate(slabPolys->EstimateSize(6,4));
+    vtkSmartPointer<vtkCellArray> slabPolys = vtkSmartPointer<vtkCellArray>::New();
+    slabPolys->AllocateEstimate(6, 4);
 
     for (int i = 0; i < 6; i++)
     {
-      vtkIdType currFacePtIds[4] = {facePtIds[i][0] + 8*j,
-                                    facePtIds[i][1] + 8*j,
-                                    facePtIds[i][2] + 8*j,
-                                    facePtIds[i][3] + 8*j };
-      lines->InsertNextCell(4,currFacePtIds);
-      slabPolys->InsertNextCell(4,facePtIds[i]);
+      vtkIdType currFacePtIds[4] = { facePtIds[i][0] + 8 * j, facePtIds[i][1] + 8 * j,
+        facePtIds[i][2] + 8 * j, facePtIds[i][3] + 8 * j };
+      lines->InsertNextCell(4, currFacePtIds);
+      slabPolys->InsertNextCell(4, facePtIds[i]);
     }
 
     this->CenterlineAxis[j]->Modified();
@@ -469,11 +453,9 @@ void vtkResliceCursor::BuildPolyData()
 }
 
 //----------------------------------------------------------------------------
-void vtkResliceCursor::SetCenter( double _arg1, double _arg2, double _arg3 )
+void vtkResliceCursor::SetCenter(double _arg1, double _arg2, double _arg3)
 {
-  if (  (this->Center[0] != _arg1)
-      ||(this->Center[1] != _arg2)
-      ||(this->Center[2] != _arg3))
+  if ((this->Center[0] != _arg1) || (this->Center[1] != _arg2) || (this->Center[2] != _arg3))
   {
 
     // Ensure that the center of the cursor lies within the image bounds.
@@ -482,9 +464,8 @@ void vtkResliceCursor::SetCenter( double _arg1, double _arg2, double _arg3 )
     {
       double bounds[6];
       this->Image->GetBounds(bounds);
-      if (_arg1 < bounds[0] || _arg1 > bounds[1] ||
-          _arg2 < bounds[2] || _arg2 > bounds[3] ||
-          _arg3 < bounds[4] || _arg3 > bounds[5])
+      if (_arg1 < bounds[0] || _arg1 > bounds[1] || _arg2 < bounds[2] || _arg2 > bounds[3] ||
+        _arg3 < bounds[4] || _arg3 > bounds[5])
       {
         return;
       }
@@ -508,14 +489,14 @@ void vtkResliceCursor::SetCenter(double _arg[3])
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData * vtkResliceCursor::GetCenterlineAxisPolyData( int axis )
+vtkPolyData* vtkResliceCursor::GetCenterlineAxisPolyData(int axis)
 {
   this->Update();
   return this->CenterlineAxis[axis];
 }
 
 //----------------------------------------------------------------------------
-double * vtkResliceCursor::GetAxis( int i )
+double* vtkResliceCursor::GetAxis(int i)
 {
   if (i == 0)
   {
@@ -534,7 +515,7 @@ double * vtkResliceCursor::GetAxis( int i )
 //----------------------------------------------------------------------------
 vtkMTimeType vtkResliceCursor::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   for (int i = 0; i < 3; i++)
   {
     vtkMTimeType time = this->GetPlane(i)->GetMTime();
@@ -550,40 +531,41 @@ vtkMTimeType vtkResliceCursor::GetMTime()
 //----------------------------------------------------------------------------
 void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Hole: ";
   if (this->Hole)
   {
-    os << indent << "On" << "\n";
+    os << indent << "On"
+       << "\n";
   }
   else
   {
-    os << indent << "Off" << "\n";
+    os << indent << "Off"
+       << "\n";
   }
   os << indent << "ThickMode: ";
   if (this->ThickMode)
   {
-    os << indent << "On" << "\n";
+    os << indent << "On"
+       << "\n";
   }
   else
   {
-    os << indent << "Off" << "\n";
+    os << indent << "Off"
+       << "\n";
   }
   os << indent << "HoleWidth: " << this->HoleWidth << endl;
   os << indent << "HoleWidthInPixels: " << this->HoleWidthInPixels << endl;
-  os << indent << "Thickness: (" << this->Thickness[0] << ","
-     << this->Thickness[1] << "," << this->Thickness[2] << ")" << endl;
-  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1]
-     << this->Center[2] << endl;
-  os << indent << "XAxis: (" << this->XAxis[0] << "," << this->XAxis[1]
-     << this->XAxis[2] << endl;
-  os << indent << "YAxis: (" << this->YAxis[0] << "," << this->YAxis[1]
-     << this->YAxis[2] << endl;
-  os << indent << "ZAxis: (" << this->ZAxis[0] << "," << this->ZAxis[1]
-     << this->ZAxis[2] << endl;
-  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1]
-     << this->Center[2] << endl;
+  os << indent << "Thickness: (" << this->Thickness[0] << "," << this->Thickness[1] << ","
+     << this->Thickness[2] << ")" << endl;
+  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1] << this->Center[2]
+     << endl;
+  os << indent << "XAxis: (" << this->XAxis[0] << "," << this->XAxis[1] << this->XAxis[2] << endl;
+  os << indent << "YAxis: (" << this->YAxis[0] << "," << this->YAxis[1] << this->YAxis[2] << endl;
+  os << indent << "ZAxis: (" << this->ZAxis[0] << "," << this->ZAxis[1] << this->ZAxis[2] << endl;
+  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1] << this->Center[2]
+     << endl;
   os << indent << "Image: " << this->Image << "\n";
   if (this->Image)
   {
@@ -602,5 +584,4 @@ void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
 
   // this->PolyDataBuildTime;
   // this->CenterlineAxis[3];
-
 }

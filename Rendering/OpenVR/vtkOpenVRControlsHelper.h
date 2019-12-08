@@ -13,23 +13,23 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
-* @class   vtkOpenVRControlsHelper
-* @brief   Tooltip helper explaining controls
-* Helper class to draw one tooltip per button around the controller.
-*
-* @sa
-* vtkOpenVRPanelRepresentation
-*/
+ * @class   vtkOpenVRControlsHelper
+ * @brief   Tooltip helper explaining controls
+ * Helper class to draw one tooltip per button around the controller.
+ *
+ * @sa
+ * vtkOpenVRPanelRepresentation
+ */
 
 #ifndef vtkOpenVRControlsHelper_h
 #define vtkOpenVRControlsHelper_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkProp.h"
-#include "vtkStdString.h" // needed for vtkStdString iVar.
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 #include "vtkEventData.h" // for enums
-#include "vtkNew.h" // for iVar
+#include "vtkNew.h"       // for iVar
+#include "vtkProp.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkStdString.h"             // needed for vtkStdString iVar.
+#include "vtkWeakPointer.h"           // needed for vtkWeakPointer iVar.
 
 class vtkActor;
 class vtkProperty;
@@ -45,45 +45,46 @@ class vtkPolyDataMapper;
 class vtkRenderer;
 class vtkCallbackCommand;
 
-
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRControlsHelper : public vtkProp
 {
 public:
   /**
-  * Instantiate the class.
-  */
-  static vtkOpenVRControlsHelper *New();
+   * Instantiate the class.
+   */
+  static vtkOpenVRControlsHelper* New();
 
   //@{
   /**
-  * Standard methods for the class.
-  */
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkOpenVRControlsHelper, vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
-  enum ButtonSides {
+  enum ButtonSides
+  {
     Back = -1,
     Front = 1
   };
 
-  enum DrawSides {
+  enum DrawSides
+  {
     Left = -1,
     Right = 1
   };
 
   //@{
   /**
-  * Methods to interface with the vtkOpenVRPanelWidget.
-  */
+   * Methods to interface with the vtkOpenVRPanelWidget.
+   */
   void BuildRepresentation();
   void UpdateRepresentation();
   //@}
 
   //@{
   /**
-  * Methods supporting the rendering process.
-  */
+   * Methods supporting the rendering process.
+   */
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
@@ -92,12 +93,12 @@ public:
 
   //@{
   /**
-  * Set Tooltip text (used by TextActor)
-  */
+   * Set Tooltip text (used by TextActor)
+   */
   void SetText(vtkStdString str);
   //@}
 
-  void SetTooltipInfo(const char* s, int buttonSide, int drawSide, const char *txt)
+  void SetTooltipInfo(const char* s, int buttonSide, int drawSide, const char* txt)
   {
     if (!s || !txt)
     {
@@ -115,30 +116,29 @@ public:
 
   void SetDevice(vtkEventDataDevice val);
 
-  virtual void SetRenderer(vtkRenderer *ren);
+  virtual void SetRenderer(vtkRenderer* ren);
   virtual vtkRenderer* GetRenderer();
 
 protected:
   vtkOpenVRControlsHelper();
   ~vtkOpenVRControlsHelper() override;
 
-
   double FrameSize[2];
 
   // The text
-  vtkTextActor3D *TextActor;
+  vtkTextActor3D* TextActor;
   vtkStdString Text;
 
   // The line
-  vtkLineSource *LineSource;
-  vtkPolyDataMapper *LineMapper;
-  vtkActor *LineActor;
+  vtkLineSource* LineSource;
+  vtkPolyDataMapper* LineMapper;
+  vtkActor* LineActor;
 
   vtkEventDataDevice Device;
 
-  //Tooltip parameters
+  // Tooltip parameters
   vtkStdString ComponentName;
-  int DrawSide; // Left/Right
+  int DrawSide;   // Left/Right
   int ButtonSide; // Front/Back
 
   bool Enabled;
@@ -150,10 +150,7 @@ protected:
 
   vtkCallbackCommand* MoveCallbackCommand;
   unsigned long ObserverTag;
-  static void MoveEvent(vtkObject* object,
-                        unsigned long event,
-                        void* clientdata,
-                        void* calldata);
+  static void MoveEvent(vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   void InitControlPosition();
 

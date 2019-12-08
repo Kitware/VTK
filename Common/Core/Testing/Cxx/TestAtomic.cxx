@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAtomicTypes.h"
+#include "vtkMultiThreader.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkMultiThreader.h"
 
 #include <algorithm>
+#include <atomic>
 
-static vtkAtomicInt32 TotalAtomic(0);
-static vtkAtomicInt64 TotalAtomic64(0);
+static std::atomic<int32_t> TotalAtomic(0);
+static std::atomic<int64_t> TotalAtomic64(0);
 static const int Target = 1000000;
-static int Values32[Target+1];
-static int Values64[Target+1];
+static int Values32[Target + 1];
+static int Values64[Target + 1];
 static vtkMTimeType MTimeValues[Target];
 static int NumThreads = 5;
 
@@ -35,10 +35,10 @@ static int Total = 0;
 static vtkTypeInt64 Total64 = 0;
 #endif
 
-VTK_THREAD_RETURN_TYPE MyFunction(void *)
+VTK_THREAD_RETURN_TYPE MyFunction(void*)
 {
   vtkNew<vtkObject> AnObject;
-  for (int i=0; i<Target/NumThreads; i++)
+  for (int i = 0; i < Target / NumThreads; i++)
   {
 #ifdef SHOW_DIFFERENCE
     Total++;
@@ -58,9 +58,9 @@ VTK_THREAD_RETURN_TYPE MyFunction(void *)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-VTK_THREAD_RETURN_TYPE MyFunction2(void *)
+VTK_THREAD_RETURN_TYPE MyFunction2(void*)
 {
-  for (int i=0; i<Target/NumThreads; i++)
+  for (int i = 0; i < Target / NumThreads; i++)
   {
     --TotalAtomic;
 
@@ -70,9 +70,9 @@ VTK_THREAD_RETURN_TYPE MyFunction2(void *)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-VTK_THREAD_RETURN_TYPE MyFunction3(void *)
+VTK_THREAD_RETURN_TYPE MyFunction3(void*)
 {
-  for (int i=0; i<Target/NumThreads; i++)
+  for (int i = 0; i < Target / NumThreads; i++)
   {
     int idx = TotalAtomic += 1;
     Values32[idx]++;
@@ -84,9 +84,9 @@ VTK_THREAD_RETURN_TYPE MyFunction3(void *)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-VTK_THREAD_RETURN_TYPE MyFunction4(void *)
+VTK_THREAD_RETURN_TYPE MyFunction4(void*)
 {
-  for (int i=0; i<Target/NumThreads; i++)
+  for (int i = 0; i < Target / NumThreads; i++)
   {
     TotalAtomic++;
     TotalAtomic += 1;
@@ -112,7 +112,7 @@ int TestAtomic(int, char*[])
   TotalAtomic = 0;
   TotalAtomic64 = 0;
 
-  for (int i=0; i<=Target; i++)
+  for (int i = 0; i <= Target; i++)
   {
     Values32[i] = 0;
     Values64[i] = 0;
@@ -134,28 +134,24 @@ int TestAtomic(int, char*[])
   // 1 to Target to be 2.
   if (Values32[0] != 0)
   {
-      cout << "Expecting Values32[0] to be 0. Got "
-           << Values32[0] << endl;
-      return 1;
+    cout << "Expecting Values32[0] to be 0. Got " << Values32[0] << endl;
+    return 1;
   }
   if (Values64[0] != 0)
   {
-      cout << "Expecting Values64[0] to be 0. Got "
-           << Values64[0] << endl;
-      return 1;
+    cout << "Expecting Values64[0] to be 0. Got " << Values64[0] << endl;
+    return 1;
   }
-  for (int i=1; i<=Target; i++)
+  for (int i = 1; i <= Target; i++)
   {
     if (Values32[i] != 2)
     {
-      cout << "Expecting Values32[" << i << "] to be 2. Got "
-           << Values32[i] << endl;
+      cout << "Expecting Values32[" << i << "] to be 2. Got " << Values32[i] << endl;
       return 1;
     }
     if (Values64[i] != 2)
     {
-      cout << "Expecting Values64[" << i << "] to be 2. Got "
-           << Values64[i] << endl;
+      cout << "Expecting Values64[" << i << "] to be 2. Got " << Values64[i] << endl;
       return 1;
     }
   }

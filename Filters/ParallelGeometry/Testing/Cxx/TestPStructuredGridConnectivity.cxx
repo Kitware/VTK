@@ -18,32 +18,32 @@
 //  A test for parallel structured grid connectivity.
 
 // C++ includes
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 #include <string>
 #include <vector>
 
 // MPI include
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 // VTK includes
-#include "vtkDataSet.h"
-#include "vtkUniformGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMPIController.h"
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkMPIController.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkPStructuredGridConnectivity.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkStructuredNeighbor.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMathUtilities.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 namespace
 {
@@ -51,21 +51,20 @@ namespace
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
 //------------------------------------------------------------------------------
-vtkMultiProcessController *Controller;
+vtkMultiProcessController* Controller;
 int Rank;
 int NumberOfProcessors;
 
 //------------------------------------------------------------------------------
-void WriteDistributedDataSet(
-    const std::string &prefix, vtkMultiBlockDataSet *dataset)
+void WriteDistributedDataSet(const std::string& prefix, vtkMultiBlockDataSet* dataset)
 {
 #ifdef DEBUG_ON
-  vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
+  vtkXMLPMultiBlockDataWriter* writer = vtkXMLPMultiBlockDataWriter::New();
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
-  writer->SetFileName( oss.str().c_str() );
+  writer->SetFileName(oss.str().c_str());
   writer->SetInputData(dataset);
-  if( Controller->GetLocalProcessId() == 0 )
+  if (Controller->GetLocalProcessId() == 0)
   {
     writer->SetWriteMetaFile(1);
   }
@@ -75,13 +74,12 @@ void WriteDistributedDataSet(
   (void)(prefix);
   (void)(dataset);
 #endif
-
 }
 
 //------------------------------------------------------------------------------
-void LogMessage( const std::string &msg)
+void LogMessage(const std::string& msg)
 {
-  if( Controller->GetLocalProcessId() == 0 )
+  if (Controller->GetLocalProcessId() == 0)
   {
     std::cout << msg << std::endl;
     std::cout.flush();
@@ -89,29 +87,28 @@ void LogMessage( const std::string &msg)
 }
 
 //------------------------------------------------------------------------------
-int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
+int GetTotalNumberOfNodes(vtkMultiBlockDataSet* multiblock)
 {
-  assert( "pre: Controller should not be nullptr" && (Controller != nullptr) );
-  assert( "pre: multi-block grid is nullptr" && (multiblock != nullptr) );
+  assert("pre: Controller should not be nullptr" && (Controller != nullptr));
+  assert("pre: multi-block grid is nullptr" && (multiblock != nullptr));
 
   // STEP 0: Count local number of nodes
   int numNodes = 0;
-  for(unsigned int block=0; block < multiblock->GetNumberOfBlocks(); ++block )
+  for (unsigned int block = 0; block < multiblock->GetNumberOfBlocks(); ++block)
   {
-    vtkUniformGrid *grid =
-        vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(multiblock->GetBlock(block));
 
-    if( grid != nullptr )
+    if (grid != nullptr)
     {
       vtkIdType pntIdx = 0;
-      for( ; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
+      for (; pntIdx < grid->GetNumberOfPoints(); ++pntIdx)
       {
-        if(grid->IsPointVisible(pntIdx))
+        if (grid->IsPointVisible(pntIdx))
         {
           ++numNodes;
         }
       } // END for all nodes
-    } // END if grid != nullptr
+    }   // END if grid != nullptr
 
   } // END for all blocks
 
@@ -120,16 +117,16 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
 
   // STEP 3: Get a global sum
   int totalSum = 0;
-  Controller->AllReduce(&numNodes,&totalSum,1,vtkCommunicator::SUM_OP);
+  Controller->AllReduce(&numNodes, &totalSum, 1, vtkCommunicator::SUM_OP);
 
-  return( totalSum );
+  return (totalSum);
 }
 
 //------------------------------------------------------------------------------
 // Description:
 // Generates a distributed multi-block dataset, each grid is added using
 // round-robin assignment.
-vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
+vtkMultiBlockDataSet* GetDataSet(const int numPartitions)
 {
   int wholeExtent[6];
   wholeExtent[0] = 0;
@@ -145,134 +142,119 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
 
   // Generate grid for the entire domain
-  vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
-  wholeGrid->SetOrigin( 0.0, 0.0, 0.0  );
-  wholeGrid->SetSpacing( 0.5, 0.5, 0.5 );
-  wholeGrid->SetDimensions( dims );
+  vtkUniformGrid* wholeGrid = vtkUniformGrid::New();
+  wholeGrid->SetOrigin(0.0, 0.0, 0.0);
+  wholeGrid->SetSpacing(0.5, 0.5, 0.5);
+  wholeGrid->SetDimensions(dims);
 
   // partition the grid, the grid partitioner will generate the whole extent and
   // node extent information.
-  vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInputData( wholeGrid  );
-  gridPartitioner->SetNumberOfPartitions( numPartitions );
+  vtkUniformGridPartitioner* gridPartitioner = vtkUniformGridPartitioner::New();
+  gridPartitioner->SetInputData(wholeGrid);
+  gridPartitioner->SetNumberOfPartitions(numPartitions);
   gridPartitioner->Update();
-  vtkMultiBlockDataSet *partitionedGrid =
-      vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
-  assert( "pre: partitionedGrid != nullptr" && (partitionedGrid != nullptr) );
+  vtkMultiBlockDataSet* partitionedGrid =
+    vtkMultiBlockDataSet::SafeDownCast(gridPartitioner->GetOutput());
+  assert("pre: partitionedGrid != nullptr" && (partitionedGrid != nullptr));
 
   // Each process has the same number of blocks, i.e., the same structure,
   // however some block entries are nullptr indicating that the data lives on
   // some other process
-  vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
-  mbds->SetNumberOfBlocks( numPartitions );
-  mbds->GetInformation()->Set(
-      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-      partitionedGrid->GetInformation()->Get(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-          6 );
-//  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
+  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::New();
+  mbds->SetNumberOfBlocks(numPartitions);
+  mbds->GetInformation()->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+    partitionedGrid->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+  //  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
 
   // Populate blocks for this process
-  unsigned int block=0;
-  for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
+  unsigned int block = 0;
+  for (; block < partitionedGrid->GetNumberOfBlocks(); ++block)
   {
-    if( Rank == static_cast<int>( block%NumberOfProcessors ) )
+    if (Rank == static_cast<int>(block % NumberOfProcessors))
     {
       // Copy the uniform grid
-      vtkUniformGrid *grid = vtkUniformGrid::New();
-      grid->DeepCopy( partitionedGrid->GetBlock(block) );
+      vtkUniformGrid* grid = vtkUniformGrid::New();
+      grid->DeepCopy(partitionedGrid->GetBlock(block));
 
-      mbds->SetBlock( block, grid );
+      mbds->SetBlock(block, grid);
       grid->Delete();
 
       // Copy the global extent for the blockinformation
-      vtkInformation *info = partitionedGrid->GetMetaData( block );
-      assert( "pre: null metadata!" && (info != nullptr) );
-      assert( "pre: must have a piece extent!" &&
-              (info->Has(vtkDataObject::PIECE_EXTENT() ) ) );
+      vtkInformation* info = partitionedGrid->GetMetaData(block);
+      assert("pre: null metadata!" && (info != nullptr));
+      assert("pre: must have a piece extent!" && (info->Has(vtkDataObject::PIECE_EXTENT())));
 
-      vtkInformation *metadata = mbds->GetMetaData( block );
-      assert( "pre: null metadata!" && (metadata != nullptr) );
-      metadata->Set(
-        vtkDataObject::PIECE_EXTENT(),
-        info->Get( vtkDataObject::PIECE_EXTENT() ),
-        6 );
+      vtkInformation* metadata = mbds->GetMetaData(block);
+      assert("pre: null metadata!" && (metadata != nullptr));
+      metadata->Set(vtkDataObject::PIECE_EXTENT(), info->Get(vtkDataObject::PIECE_EXTENT()), 6);
     } // END if we own the block
     else
     {
-      mbds->SetBlock( block, nullptr );
+      mbds->SetBlock(block, nullptr);
     } // END else we don't own the block
-  } // END for all blocks
+  }   // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
-  assert( "pre: mbds is nullptr" && (mbds != nullptr) );
-  return( mbds );
+  assert("pre: mbds is nullptr" && (mbds != nullptr));
+  return (mbds);
 }
 
 //------------------------------------------------------------------------------
-void RegisterGrids(
-    vtkMultiBlockDataSet *mbds, vtkPStructuredGridConnectivity *connectivity )
+void RegisterGrids(vtkMultiBlockDataSet* mbds, vtkPStructuredGridConnectivity* connectivity)
 {
-  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
-  assert( "pre: connectivity is nullptr!" && (connectivity != nullptr) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr));
+  assert("pre: connectivity is nullptr!" && (connectivity != nullptr));
 
-  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+  for (unsigned int block = 0; block < mbds->GetNumberOfBlocks(); ++block)
   {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    if( grid != nullptr )
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    if (grid != nullptr)
     {
-      vtkInformation *info = mbds->GetMetaData( block );
-      assert( "pre: metadata should not be nullptr" && (info != nullptr) );
-      assert( "pre: must have piece extent!" &&
-              info->Has(vtkDataObject::PIECE_EXTENT() ) );
-      connectivity->RegisterGrid(
-          block,info->Get(vtkDataObject::PIECE_EXTENT()),
-          grid->GetPointGhostArray(),
-          grid->GetCellGhostArray(),
-          grid->GetPointData(),
-          grid->GetCellData(),
-          nullptr );
+      vtkInformation* info = mbds->GetMetaData(block);
+      assert("pre: metadata should not be nullptr" && (info != nullptr));
+      assert("pre: must have piece extent!" && info->Has(vtkDataObject::PIECE_EXTENT()));
+      connectivity->RegisterGrid(block, info->Get(vtkDataObject::PIECE_EXTENT()),
+        grid->GetPointGhostArray(), grid->GetCellGhostArray(), grid->GetPointData(),
+        grid->GetCellData(), nullptr);
     } // END if block belongs to this process
-  } // END for all blocks
+  }   // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 // Tests StructuredGridConnectivity on a distributed data-set
-int TestPStructuredGridConnectivity( const int factor )
+int TestPStructuredGridConnectivity(const int factor)
 {
-  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
+  assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  int expected = 100*100*100;
+  int expected = 100 * 100 * 100;
 
   // STEP 0: Calculation number of partitions as factor of the number of
   // processes.
-  assert( "pre: factor >= 1" && (factor >= 1) );
+  assert("pre: factor >= 1" && (factor >= 1));
   int numPartitions = factor * NumberOfProcessors;
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
   // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
-  vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
+  vtkMultiBlockDataSet* mbds = GetDataSet(numPartitions);
   Controller->Barrier();
-  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
-  assert( "pre: numBlocks mismatch" &&
-           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
+  assert("pre: mbds != nullptr" && (mbds != nullptr));
+  assert(
+    "pre: numBlocks mismatch" && (static_cast<int>(mbds->GetNumberOfBlocks()) == numPartitions));
 
   // STEP 2: Setup the grid connectivity
-  vtkPStructuredGridConnectivity *gridConnectivity =
-      vtkPStructuredGridConnectivity::New();
-  gridConnectivity->SetController( Controller );
-  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  vtkPStructuredGridConnectivity* gridConnectivity = vtkPStructuredGridConnectivity::New();
+  gridConnectivity->SetController(Controller);
+  gridConnectivity->SetNumberOfGrids(mbds->GetNumberOfBlocks());
   gridConnectivity->SetWholeExtent(
-      mbds->GetInformation()->Get(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+    mbds->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
-  RegisterGrids( mbds, gridConnectivity );
+  RegisterGrids(mbds, gridConnectivity);
   Controller->Barrier();
 
   // STEP 4: Compute neighbors
@@ -280,7 +262,7 @@ int TestPStructuredGridConnectivity( const int factor )
   Controller->Barrier();
 
   // STEP 6: Total global count of the nodes
-  int count = GetTotalNumberOfNodes( mbds );
+  int count = GetTotalNumberOfNodes(mbds);
   Controller->Barrier();
 
   // STEP 7: Deallocate
@@ -288,7 +270,7 @@ int TestPStructuredGridConnectivity( const int factor )
   gridConnectivity->Delete();
 
   // STEP 8: return success or failure
-  if( count != expected )
+  if (count != expected)
     return 1;
   return 0;
 }
@@ -312,81 +294,79 @@ double CalculateExpectedAverage()
   dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
 
   // Generate grid for the entire domain
-  vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
-  wholeGrid->SetOrigin( 0.0, 0.0, 0.0  );
-  wholeGrid->SetSpacing( 0.5, 0.5, 0.5 );
-  wholeGrid->SetDimensions( dims );
+  vtkUniformGrid* wholeGrid = vtkUniformGrid::New();
+  wholeGrid->SetOrigin(0.0, 0.0, 0.0);
+  wholeGrid->SetSpacing(0.5, 0.5, 0.5);
+  wholeGrid->SetDimensions(dims);
 
   double pnt[3];
   double sum = 0.0;
-  for( vtkIdType pntIdx=0; pntIdx < wholeGrid->GetNumberOfPoints(); ++pntIdx )
+  for (vtkIdType pntIdx = 0; pntIdx < wholeGrid->GetNumberOfPoints(); ++pntIdx)
   {
-    wholeGrid->GetPoint( pntIdx, pnt );
+    wholeGrid->GetPoint(pntIdx, pnt);
     sum += pnt[0];
     sum += pnt[1];
     sum += pnt[2];
   } // END for all points
 
-  double N = static_cast< double >( wholeGrid->GetNumberOfPoints() );
+  double N = static_cast<double>(wholeGrid->GetNumberOfPoints());
   wholeGrid->Delete();
-  return( sum/N );
+  return (sum / N);
 }
 
 //------------------------------------------------------------------------------
-double GetXYZSumForGrid( vtkUniformGrid *grid )
+double GetXYZSumForGrid(vtkUniformGrid* grid)
 {
-  assert( "pre: input grid is nullptr!" && (grid != nullptr) );
+  assert("pre: input grid is nullptr!" && (grid != nullptr));
 
   double pnt[3];
   double sum = 0.0;
-  for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
+  for (vtkIdType pntIdx = 0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx)
   {
-    if(grid->IsPointVisible(pntIdx))
+    if (grid->IsPointVisible(pntIdx))
     {
-      grid->GetPoint( pntIdx, pnt );
+      grid->GetPoint(pntIdx, pnt);
       sum += pnt[0];
       sum += pnt[1];
       sum += pnt[2];
     }
   } // END for all points
-  return( sum );
+  return (sum);
 }
 
 //------------------------------------------------------------------------------
 // Tests computing the average serially vs. in paraller using a factor*N
 // partitions where N is the total number of processes. An artificialy field
 // F=X+Y+Z is imposed on each node.
-int TestAverage( const int factor )
+int TestAverage(const int factor)
 {
   // STEP 0: Calculate expected value
   double expected = CalculateExpectedAverage();
 
   // STEP 1: Calculation number of partitions as factor of the number of
   // processes.
-  assert( "pre: factor >= 1" && (factor >= 1) );
+  assert("pre: factor >= 1" && (factor >= 1));
   int numPartitions = factor * NumberOfProcessors;
 
   // STEP 2: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
   // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
-  vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
-  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
-  assert( "pre: numBlocks mismatch" &&
-           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
+  vtkMultiBlockDataSet* mbds = GetDataSet(numPartitions);
+  assert("pre: mbds != nullptr" && (mbds != nullptr));
+  assert(
+    "pre: numBlocks mismatch" && (static_cast<int>(mbds->GetNumberOfBlocks()) == numPartitions));
 
   // STEP 2: Setup the grid connectivity
-  vtkPStructuredGridConnectivity *gridConnectivity =
-      vtkPStructuredGridConnectivity::New();
-  gridConnectivity->SetController( Controller );
-  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  vtkPStructuredGridConnectivity* gridConnectivity = vtkPStructuredGridConnectivity::New();
+  gridConnectivity->SetController(Controller);
+  gridConnectivity->SetNumberOfGrids(mbds->GetNumberOfBlocks());
   gridConnectivity->SetWholeExtent(
-      mbds->GetInformation()->Get(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+    mbds->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
-  RegisterGrids( mbds, gridConnectivity );
+  RegisterGrids(mbds, gridConnectivity);
   Controller->Barrier();
 
   // STEP 4: Compute neighbors
@@ -394,37 +374,36 @@ int TestAverage( const int factor )
   Controller->Barrier();
 
   // STEP 6: Total global count of the nodes
-  int count = GetTotalNumberOfNodes( mbds );
+  int count = GetTotalNumberOfNodes(mbds);
   Controller->Barrier();
 
   // STEP 7: Compute partial local sum
-  double partialSum     = 0.0;
+  double partialSum = 0.0;
   unsigned int blockIdx = 0;
-  for( ; blockIdx < mbds->GetNumberOfBlocks(); ++blockIdx )
+  for (; blockIdx < mbds->GetNumberOfBlocks(); ++blockIdx)
   {
-    vtkUniformGrid *blockPtr =
-        vtkUniformGrid::SafeDownCast( mbds->GetBlock( blockIdx ) );
-    if( blockPtr != nullptr )
+    vtkUniformGrid* blockPtr = vtkUniformGrid::SafeDownCast(mbds->GetBlock(blockIdx));
+    if (blockPtr != nullptr)
     {
-      partialSum += GetXYZSumForGrid( blockPtr );
+      partialSum += GetXYZSumForGrid(blockPtr);
     } // END if
-  } // END for all blocks
+  }   // END for all blocks
 
   // STEP 8: All reduce to the global sum
   double globalSum = 0.0;
-  Controller->AllReduce(&partialSum,&globalSum,1,vtkCommunicator::SUM_OP);
+  Controller->AllReduce(&partialSum, &globalSum, 1, vtkCommunicator::SUM_OP);
 
   // STEP 9: Compute average
-  double average = globalSum / static_cast< double >( count );
+  double average = globalSum / static_cast<double>(count);
 
   // STEP 7: Deallocate
   mbds->Delete();
   gridConnectivity->Delete();
 
   // STEP 8: return success or failure
-  if( vtkMathUtilities::FuzzyCompare(average,expected) )
+  if (vtkMathUtilities::FuzzyCompare(average, expected))
   {
-    if( Rank == 0 )
+    if (Rank == 0)
     {
       std::cout << "Computed: " << average << " Expected: " << expected << "\n";
       std::cout.flush();
@@ -432,10 +411,10 @@ int TestAverage( const int factor )
     return 0;
   }
 
-  if( Rank == 0 )
+  if (Rank == 0)
   {
-    std::cout << "Global sum: "      << globalSum << std::endl;
-    std::cout << "Number of Nodes: " << count     << std::endl;
+    std::cout << "Global sum: " << globalSum << std::endl;
+    std::cout << "Number of Nodes: " << count << std::endl;
     std::cout << "Computed: " << average << " Expected: " << expected << "\n";
     std::cout.flush();
   }
@@ -444,35 +423,33 @@ int TestAverage( const int factor )
 }
 
 //------------------------------------------------------------------------------
-int TestGhostLayerCreation( int factor, int ng )
+int TestGhostLayerCreation(int factor, int ng)
 {
   // STEP 1: Calculation number of partitions as factor of the number of
   // processes.
-  assert( "pre: factor >= 1" && (factor >= 1) );
+  assert("pre: factor >= 1" && (factor >= 1));
   int numPartitions = factor * NumberOfProcessors;
 
   // STEP 2: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
   // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
-  vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
-  WriteDistributedDataSet( "PINITIAL", mbds );
-  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
-  assert( "pre: numBlocks mismatch" &&
-           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
+  vtkMultiBlockDataSet* mbds = GetDataSet(numPartitions);
+  WriteDistributedDataSet("PINITIAL", mbds);
+  assert("pre: mbds != nullptr" && (mbds != nullptr));
+  assert(
+    "pre: numBlocks mismatch" && (static_cast<int>(mbds->GetNumberOfBlocks()) == numPartitions));
 
   // STEP 2: Setup the grid connectivity
-  vtkPStructuredGridConnectivity *gridConnectivity =
-      vtkPStructuredGridConnectivity::New();
-  gridConnectivity->SetController( Controller );
-  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  vtkPStructuredGridConnectivity* gridConnectivity = vtkPStructuredGridConnectivity::New();
+  gridConnectivity->SetController(Controller);
+  gridConnectivity->SetNumberOfGrids(mbds->GetNumberOfBlocks());
   gridConnectivity->SetWholeExtent(
-      mbds->GetInformation()->Get(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+    mbds->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
-  RegisterGrids( mbds, gridConnectivity );
+  RegisterGrids(mbds, gridConnectivity);
   Controller->Barrier();
 
   // STEP 4: Compute neighbors
@@ -480,7 +457,7 @@ int TestGhostLayerCreation( int factor, int ng )
   Controller->Barrier();
 
   // STEP 5: Create ghost layers
-  gridConnectivity->CreateGhostLayers( ng );
+  gridConnectivity->CreateGhostLayers(ng);
   Controller->Barrier();
 
   mbds->Delete();
@@ -492,58 +469,58 @@ int TestGhostLayerCreation( int factor, int ng )
 
 //------------------------------------------------------------------------------
 // Program main
-int TestPStructuredGridConnectivity( int argc, char *argv[] )
+int TestPStructuredGridConnectivity(int argc, char* argv[])
 {
-  int rc       = 0;
+  int rc = 0;
 
   // STEP 0: Initialize
   Controller = vtkMPIController::New();
-  Controller->Initialize( &argc, &argv, 0 );
-  assert("pre: Controller should not be nullptr" && (Controller != nullptr) );
-  vtkMultiProcessController::SetGlobalController( Controller );
-  LogMessage( "Finished MPI Initialization!" );
+  Controller->Initialize(&argc, &argv, 0);
+  assert("pre: Controller should not be nullptr" && (Controller != nullptr));
+  vtkMultiProcessController::SetGlobalController(Controller);
+  LogMessage("Finished MPI Initialization!");
 
-  LogMessage( "Getting Rank ID and NumberOfProcessors..." );
-  Rank               = Controller->GetLocalProcessId();
+  LogMessage("Getting Rank ID and NumberOfProcessors...");
+  Rank = Controller->GetLocalProcessId();
   NumberOfProcessors = Controller->GetNumberOfProcesses();
-  assert( "pre: NumberOfProcessors >= 1" && (NumberOfProcessors >= 1) );
-  assert( "pre: Rank is out-of-bounds" && (Rank >= 0) );
+  assert("pre: NumberOfProcessors >= 1" && (NumberOfProcessors >= 1));
+  assert("pre: Rank is out-of-bounds" && (Rank >= 0));
 
   // STEP 1: Run test where the number of partitions is equal to the number of
   // processes
   Controller->Barrier();
-  LogMessage( "Testing with same number of partitions as processes..." );
-  rc += TestPStructuredGridConnectivity( 1 );
+  LogMessage("Testing with same number of partitions as processes...");
+  rc += TestPStructuredGridConnectivity(1);
   Controller->Barrier();
 
   // STEP 2: Run test where the number of partitions is double the number of
   // processes
   Controller->Barrier();
   LogMessage("Testing with double the number of partitions as processes...");
-  rc += TestPStructuredGridConnectivity( 2 );
+  rc += TestPStructuredGridConnectivity(2);
   Controller->Barrier();
 
   // STEP 4: Compute average
   LogMessage("Calculating average with same number of partitions as processes");
-  rc += TestAverage( 1 );
+  rc += TestAverage(1);
   Controller->Barrier();
 
   LogMessage("Calculating average with double the number of partitions");
-  rc += TestAverage( 2 );
+  rc += TestAverage(2);
   Controller->Barrier();
 
-  LogMessage( "Creating ghost-layers" );
-  rc += TestGhostLayerCreation( 1, 1 );
+  LogMessage("Creating ghost-layers");
+  rc += TestGhostLayerCreation(1, 1);
 
   // STEP 3: Deallocate controller and exit
-  LogMessage( "Finalizing..." );
+  LogMessage("Finalizing...");
   Controller->Finalize();
   Controller->Delete();
 
-  if( rc != 0 )
+  if (rc != 0)
   {
     std::cout << "Test Failed!\n";
     rc = 0;
   }
-  return( rc );
+  return (rc);
 }

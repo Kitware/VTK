@@ -38,15 +38,11 @@ protected:
    * Update the internal texture object using the gradient opacity transfer
    * function
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
 private:
-  vtkOpenGLVolumeGradientOpacityTable(
-    const vtkOpenGLVolumeGradientOpacityTable&) = delete;
+  vtkOpenGLVolumeGradientOpacityTable(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
   vtkOpenGLVolumeGradientOpacityTable& operator=(
     const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };

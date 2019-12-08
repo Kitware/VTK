@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkScatterPlotMatrix vtkOTDensityMap
-*/
+ */
 
 #ifndef vtkOTScatterPlotMatrix_h
 #define vtkOTScatterPlotMatrix_h
@@ -79,11 +79,8 @@ protected:
    * with provided row and column, computed with OpenTURNS
    * if DensityMapVisibility is true and we are not animating
    */
-  virtual void AddSupplementaryPlot(vtkChart* chart,
-    int plotType,
-    vtkStdString row,
-    vtkStdString column,
-    int plotCorner = 0) override;
+  virtual void AddSupplementaryPlot(vtkChart* chart, int plotType, vtkStdString row,
+    vtkStdString column, int plotCorner = 0) override;
 
 private:
   vtkOTScatterPlotMatrix(const vtkOTScatterPlotMatrix&) = delete;

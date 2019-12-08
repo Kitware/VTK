@@ -30,8 +30,8 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkInformationVector.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -44,8 +44,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include "vtk_netcdf.h"
 
@@ -57,22 +56,22 @@
 
 #include <vtksys/RegularExpression.hxx>
 
-
 //=============================================================================
-#define CALL_NETCDF(call)                       \
-  { \
-    int errorcode = call; \
-    if (errorcode != NC_NOERR) \
-    { \
-      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode)); \
-      return 0; \
-    } \
+#define CALL_NETCDF(call)                                                                          \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+    {                                                                                              \
+      vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode));                                \
+      return 0;                                                                                    \
+    }                                                                                              \
   }
 
-#define WRAP_NETCDF(call) \
-  { \
-    int errorcode = call; \
-    if (errorcode != NC_NOERR) return errorcode; \
+#define WRAP_NETCDF(call)                                                                          \
+  {                                                                                                \
+    int errorcode = call;                                                                          \
+    if (errorcode != NC_NOERR)                                                                     \
+      return errorcode;                                                                            \
   }
 
 //-----------------------------------------------------------------------------
@@ -82,7 +81,7 @@
 //#define nc_get_var_vtkIdType nc_get_var_longlong
 //#define nc_get_vars_vtkIdType nc_get_vars_longlong
 //#else // NC_INT64
-static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType *ip)
+static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType* ip)
 {
   // Step 1, figure out how many entries in the given variable.
   int numdims, dimids[NC_MAX_VAR_DIMS];
@@ -98,24 +97,22 @@ static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType *ip)
 
   // Step 2, read the data in as 32 bit integers.  Recast the input buffer
   // so we do not have to create a new one.
-  long *smallIp = reinterpret_cast<long*>(ip);
+  long* smallIp = reinterpret_cast<long*>(ip);
   WRAP_NETCDF(nc_get_var_long(ncid, varid, smallIp));
 
   // Step 3, recast the data from 32 bit integers to 64 bit integers.  Since we
   // are storing both in the same buffer, we need to be careful to not overwrite
   // uncopied 32 bit numbers with 64 bit numbers.  We can do that by copying
   // backwards.
-  for (vtkIdType i = numValues-1; i >= 0; i--)
+  for (vtkIdType i = numValues - 1; i >= 0; i--)
   {
     ip[i] = static_cast<vtkIdType>(smallIp[i]);
   }
 
   return NC_NOERR;
 }
-static int nc_get_vars_vtkIdType(int ncid, int varid,
-                                 const size_t start[], const size_t count[],
-                                 const ptrdiff_t stride[],
-                                 vtkIdType *ip)
+static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], const size_t count[],
+  const ptrdiff_t stride[], vtkIdType* ip)
 {
   // Step 1, figure out how many entries in the given variable.
   int numdims;
@@ -128,14 +125,14 @@ static int nc_get_vars_vtkIdType(int ncid, int varid,
 
   // Step 2, read the data in as 32 bit integers.  Recast the input buffer
   // so we do not have to create a new one.
-  long *smallIp = reinterpret_cast<long*>(ip);
+  long* smallIp = reinterpret_cast<long*>(ip);
   WRAP_NETCDF(nc_get_vars_long(ncid, varid, start, count, stride, smallIp));
 
   // Step 3, recast the data from 32 bit integers to 64 bit integers.  Since we
   // are storing both in the same buffer, we need to be careful to not overwrite
   // uncopied 32 bit numbers with 64 bit numbers.  We can do that by copying
   // backwards.
-  for (vtkIdType i = numValues-1; i >= 0; i--)
+  for (vtkIdType i = numValues - 1; i >= 0; i--)
   {
     ip[i] = static_cast<vtkIdType>(smallIp[i]);
   }
@@ -151,7 +148,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid,
 //-----------------------------------------------------------------------------
 // This convenience function gets a scalar variable as a double, doing the
 // appropriate checks.
-static int nc_get_scalar_double(int ncid, const char *name, double *dp)
+static int nc_get_scalar_double(int ncid, const char* name, double* dp)
 {
   int varid;
   WRAP_NETCDF(nc_inq_varid(ncid, name, &varid));
@@ -169,35 +166,31 @@ static int nc_get_scalar_double(int ncid, const char *name, double *dp)
 
 //=============================================================================
 // Describes how faces are defined in a tetrahedra in the files.
-const int tetFaces[4][3] = {
-  { 0, 2, 1 },
-  { 0, 3, 2 },
-  { 0, 1, 3 },
-  { 1, 2, 3 }
-};
+const int tetFaces[4][3] = { { 0, 2, 1 }, { 0, 3, 2 }, { 0, 1, 3 }, { 1, 2, 3 } };
 
 // Describes the points on each edge of a VTK triangle.  The edges are in the
 // same order as the midpoints are defined in a VTK quadratic triangle.
-const int triEdges[3][2] = {
-  { 0, 1 },
-  { 1, 2 },
-  { 0, 2 }
-};
+const int triEdges[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
 
 //=============================================================================
 static int NetCDFTypeToVTKType(nc_type type)
 {
   switch (type)
   {
-    case NC_BYTE: return VTK_UNSIGNED_CHAR;
-    case NC_CHAR: return VTK_CHAR;
-    case NC_SHORT: return VTK_SHORT;
-    case NC_INT: return VTK_INT;
-    case NC_FLOAT: return VTK_FLOAT;
-    case NC_DOUBLE: return VTK_DOUBLE;
+    case NC_BYTE:
+      return VTK_UNSIGNED_CHAR;
+    case NC_CHAR:
+      return VTK_CHAR;
+    case NC_SHORT:
+      return VTK_SHORT;
+    case NC_INT:
+      return VTK_INT;
+    case NC_FLOAT:
+      return VTK_FLOAT;
+    case NC_DOUBLE:
+      return VTK_DOUBLE;
     default:
-      vtkGenericWarningMacro(<< "Unknown netCDF variable type "
-                             << type);
+      vtkGenericWarningMacro(<< "Unknown netCDF variable type " << type);
       return -1;
   }
 }
@@ -216,16 +209,14 @@ public:
     *this->ReferenceCount = 1;
   }
 
-  vtkSLACReaderAutoCloseNetCDF(const char *filename, int omode,
-                               bool quiet=false)
+  vtkSLACReaderAutoCloseNetCDF(const char* filename, int omode, bool quiet = false)
   {
     int errorcode = nc_open(filename, omode, &this->FileDescriptor);
     if (errorcode != NC_NOERR)
     {
       if (!quiet)
       {
-        vtkGenericWarningMacro(<< "Could not open " << filename << endl
-                               << nc_strerror(errorcode));
+        vtkGenericWarningMacro(<< "Could not open " << filename << endl << nc_strerror(errorcode));
       }
       this->FileDescriptor = -1;
     }
@@ -235,19 +226,16 @@ public:
     *this->ReferenceCount = 1;
   }
 
-  ~vtkSLACReaderAutoCloseNetCDF()
-  {
-    this->UnReference();
-  }
+  ~vtkSLACReaderAutoCloseNetCDF() { this->UnReference(); }
 
-  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF &src)
+  vtkSLACReaderAutoCloseNetCDF(const vtkSLACReaderAutoCloseNetCDF& src)
   {
     this->FileDescriptor = src.FileDescriptor;
     this->ReferenceCount = src.ReferenceCount;
     (*this->ReferenceCount)++;
   }
 
-  vtkSLACReaderAutoCloseNetCDF& operator=(const vtkSLACReaderAutoCloseNetCDF &src)
+  vtkSLACReaderAutoCloseNetCDF& operator=(const vtkSLACReaderAutoCloseNetCDF& src)
   {
     this->UnReference();
     this->FileDescriptor = src.FileDescriptor;
@@ -259,11 +247,13 @@ public:
   operator int() const { return this->FileDescriptor; }
 
   bool Valid() const { return this->FileDescriptor != -1; }
+
 protected:
   int FileDescriptor;
-  int *ReferenceCount;
+  int* ReferenceCount;
 
-  void UnReference() {
+  void UnReference()
+  {
     assert(*this->ReferenceCount > 0);
     (*this->ReferenceCount)--;
     if (*this->ReferenceCount < 1)
@@ -281,9 +271,8 @@ protected:
 //=============================================================================
 // A convenience function that gets a block from a multiblock data set,
 // performing allocation if necessary.
-static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
-                                             unsigned int blockno,
-                                             vtkInformationIntegerKey *typeKey)
+static vtkUnstructuredGrid* AllocateGetBlock(
+  vtkMultiBlockDataSet* blocks, unsigned int blockno, vtkInformationIntegerKey* typeKey)
 {
   if (blockno > 1000)
   {
@@ -293,17 +282,16 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 
   if (blocks->GetNumberOfBlocks() <= blockno)
   {
-    blocks->SetNumberOfBlocks(blockno+1);
+    blocks->SetNumberOfBlocks(blockno + 1);
   }
 
-  vtkUnstructuredGrid *grid
-    = vtkUnstructuredGrid::SafeDownCast(blocks->GetBlock(blockno));
+  vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(blocks->GetBlock(blockno));
   if (!grid)
   {
     grid = vtkUnstructuredGrid::New();
     blocks->SetBlock(blockno, grid);
     blocks->GetMetaData(blockno)->Set(typeKey, 1);
-    grid->Delete();     // Not really deleted.
+    grid->Delete(); // Not really deleted.
   }
 
   return grid;
@@ -315,9 +303,11 @@ static vtkUnstructuredGrid *AllocateGetBlock(vtkMultiBlockDataSet *blocks,
 
 // I originally had this placed inside of the vtkSLACReader declaration, where
 // it makes much more sense.  However, MSVC6 seems to have a problem with this.
-struct vtkSLACReaderEdgeEndpointsHash {
+struct vtkSLACReaderEdgeEndpointsHash
+{
 public:
-  size_t operator()(const vtkSLACReader::EdgeEndpoints &edge) const {
+  size_t operator()(const vtkSLACReader::EdgeEndpoints& edge) const
+  {
     return static_cast<size_t>(edge.GetMinEndPoint() + edge.GetMaxEndPoint());
   }
 };
@@ -326,9 +316,9 @@ public:
 class vtkSLACReader::MidpointCoordinateMap::vtkInternal
 {
 public:
-  typedef std::unordered_map<vtkSLACReader::EdgeEndpoints,
-                           vtkSLACReader::MidpointCoordinates,
-                           vtkSLACReaderEdgeEndpointsHash> MapType;
+  typedef std::unordered_map<vtkSLACReader::EdgeEndpoints, vtkSLACReader::MidpointCoordinates,
+    vtkSLACReaderEdgeEndpointsHash>
+    MapType;
   MapType Map;
 };
 
@@ -343,14 +333,12 @@ vtkSLACReader::MidpointCoordinateMap::~MidpointCoordinateMap()
 }
 
 void vtkSLACReader::MidpointCoordinateMap::AddMidpoint(
-                                            const EdgeEndpoints &edge,
-                                            const MidpointCoordinates &midpoint)
+  const EdgeEndpoints& edge, const MidpointCoordinates& midpoint)
 {
   this->Internal->Map[edge] = midpoint;
 }
 
-void vtkSLACReader::MidpointCoordinateMap::RemoveMidpoint(
-                                                      const EdgeEndpoints &edge)
+void vtkSLACReader::MidpointCoordinateMap::RemoveMidpoint(const EdgeEndpoints& edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -369,8 +357,8 @@ vtkIdType vtkSLACReader::MidpointCoordinateMap::GetNumberOfMidpoints() const
   return static_cast<vtkIdType>(this->Internal->Map.size());
 }
 
-vtkSLACReader::MidpointCoordinates *
-vtkSLACReader::MidpointCoordinateMap::FindMidpoint(const EdgeEndpoints &edge)
+vtkSLACReader::MidpointCoordinates* vtkSLACReader::MidpointCoordinateMap::FindMidpoint(
+  const EdgeEndpoints& edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -388,7 +376,8 @@ class vtkSLACReader::MidpointIdMap::vtkInternal
 {
 public:
   typedef std::unordered_map<vtkSLACReader::EdgeEndpoints, vtkIdType,
-                           vtkSLACReaderEdgeEndpointsHash> MapType;
+    vtkSLACReaderEdgeEndpointsHash>
+    MapType;
   MapType Map;
   MapType::iterator Iterator;
 };
@@ -403,13 +392,12 @@ vtkSLACReader::MidpointIdMap::~MidpointIdMap()
   delete this->Internal;
 }
 
-void vtkSLACReader::MidpointIdMap::AddMidpoint(const EdgeEndpoints &edge,
-                                               vtkIdType midpoint)
+void vtkSLACReader::MidpointIdMap::AddMidpoint(const EdgeEndpoints& edge, vtkIdType midpoint)
 {
   this->Internal->Map[edge] = midpoint;
 }
 
-void vtkSLACReader::MidpointIdMap::RemoveMidpoint(const EdgeEndpoints &edge)
+void vtkSLACReader::MidpointIdMap::RemoveMidpoint(const EdgeEndpoints& edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -428,7 +416,7 @@ vtkIdType vtkSLACReader::MidpointIdMap::GetNumberOfMidpoints() const
   return static_cast<vtkIdType>(this->Internal->Map.size());
 }
 
-vtkIdType *vtkSLACReader::MidpointIdMap::FindMidpoint(const EdgeEndpoints &edge)
+vtkIdType* vtkSLACReader::MidpointIdMap::FindMidpoint(const EdgeEndpoints& edge)
 {
   vtkInternal::MapType::iterator iter = this->Internal->Map.find(edge);
   if (iter != this->Internal->Map.end())
@@ -446,10 +434,10 @@ void vtkSLACReader::MidpointIdMap::InitTraversal()
   this->Internal->Iterator = this->Internal->Map.begin();
 }
 
-bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
-                                                   vtkIdType &midpoint)
+bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints& edge, vtkIdType& midpoint)
 {
-  if (this->Internal->Iterator == this->Internal->Map.end()) return false;
+  if (this->Internal->Iterator == this->Internal->Map.end())
+    return false;
 
   edge = this->Internal->Iterator->first;
   midpoint = this->Internal->Iterator->second;
@@ -525,13 +513,11 @@ vtkSLACReader::vtkSLACReader()
   this->ReadExternalSurface = 1;
   this->ReadMidpoints = 1;
 
-  this->Internal->VariableArraySelection
-    = vtkSmartPointer<vtkDataArraySelection>::New();
+  this->Internal->VariableArraySelection = vtkSmartPointer<vtkDataArraySelection>::New();
   VTK_CREATE(vtkCallbackCommand, cbc);
   cbc->SetCallback(&vtkSLACReader::SelectionModifiedCallback);
   cbc->SetClientData(this);
-  this->Internal->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent,
-                                                      cbc);
+  this->Internal->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
 
   this->ReadModeData = false;
   this->TimeStepModes = false;
@@ -547,7 +533,7 @@ vtkSLACReader::~vtkSLACReader()
   delete this->Internal;
 }
 
-void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkSLACReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -562,8 +548,7 @@ void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
 
   for (unsigned int i = 0; i < this->Internal->ModeFileNames.size(); i++)
   {
-    os << indent << "ModeFileName[" << i << "]: "
-       << this->Internal->ModeFileNames[i] << endl;
+    os << indent << "ModeFileName[" << i << "]: " << this->Internal->ModeFileNames[i] << endl;
   }
 
   os << indent << "ReadInternalVolume: " << this->ReadInternalVolume << endl;
@@ -575,22 +560,26 @@ void vtkSLACReader::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::CanReadFile(const char *filename)
+int vtkSLACReader::CanReadFile(const char* filename)
 {
   vtkSLACReaderAutoCloseNetCDF ncFD(filename, NC_NOWRITE, true);
-  if (!ncFD.Valid()) return 0;
+  if (!ncFD.Valid())
+    return 0;
 
   // Check for the existence of several arrays we know should be in the file.
   int dummy;
-  if (nc_inq_varid(ncFD, "coords", &dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD, "tetrahedron_interior",&dummy) != NC_NOERR) return 0;
-  if (nc_inq_varid(ncFD, "tetrahedron_exterior",&dummy) != NC_NOERR) return 0;
+  if (nc_inq_varid(ncFD, "coords", &dummy) != NC_NOERR)
+    return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_interior", &dummy) != NC_NOERR)
+    return 0;
+  if (nc_inq_varid(ncFD, "tetrahedron_exterior", &dummy) != NC_NOERR)
+    return 0;
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkSLACReader::AddModeFileName(const char *fname)
+void vtkSLACReader::AddModeFileName(const char* fname)
 {
   this->Internal->ModeFileNames.push_back(fname);
   this->Modified();
@@ -607,20 +596,19 @@ unsigned int vtkSLACReader::GetNumberOfModeFileNames()
   return static_cast<unsigned int>(this->Internal->ModeFileNames.size());
 }
 
-const char *vtkSLACReader::GetModeFileName(unsigned int idx)
+const char* vtkSLACReader::GetModeFileName(unsigned int idx)
 {
   return this->Internal->ModeFileNames[idx].c_str();
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId,
-                                                int expectedNumComponents)
+vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId, int expectedNumComponents)
 {
   int numDims;
   CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims != 2)
   {
-    char name[NC_MAX_NAME+1];
+    char name[NC_MAX_NAME + 1];
     CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Wrong dimensions on " << name);
     return 0;
@@ -633,7 +621,7 @@ vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId,
   CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
   if (static_cast<int>(dimLength) != expectedNumComponents)
   {
-    char name[NC_MAX_NAME+1];
+    char name[NC_MAX_NAME + 1];
     CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Unexpected tuple size on " << name);
     return 0;
@@ -644,18 +632,14 @@ vtkIdType vtkSLACReader::GetNumTuplesInVariable(int ncFD, int varId,
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::RequestInformation(
-                                 vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **vtkNotUsed(inputVector),
-                                 vtkInformationVector *outputVector)
+int vtkSLACReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation *surfaceOutInfo
-    = outputVector->GetInformationObject(SURFACE_OUTPUT);
+  vtkInformation* surfaceOutInfo = outputVector->GetInformationObject(SURFACE_OUTPUT);
   surfaceOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   surfaceOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
-  vtkInformation *volumeOutInfo
-    = outputVector->GetInformationObject(VOLUME_OUTPUT);
+  vtkInformation* volumeOutInfo = outputVector->GetInformationObject(VOLUME_OUTPUT);
   volumeOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   volumeOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
@@ -668,9 +652,10 @@ int vtkSLACReader::RequestInformation(
   this->Internal->VariableArraySelection->RemoveAllArrays();
 
   vtkSLACReaderAutoCloseNetCDF meshFD(this->MeshFileName, NC_NOWRITE);
-  if (!meshFD.Valid()) return 0;
+  if (!meshFD.Valid())
+    return 0;
 
-  this->ReadModeData = false;   // Assume false until everything checks out.
+  this->ReadModeData = false; // Assume false until everything checks out.
   this->TimeStepModes = false;
   this->Internal->TimeStepToFile.clear();
   this->FrequencyModes = false;
@@ -678,19 +663,18 @@ int vtkSLACReader::RequestInformation(
   if (!this->Internal->ModeFileNames.empty())
   {
     // Check the first mode file, assume that the rest follow.
-    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0],
-                                        NC_NOWRITE);
-    if (!modeFD.Valid()) return 0;
+    vtkSLACReaderAutoCloseNetCDF modeFD(this->Internal->ModeFileNames[0], NC_NOWRITE);
+    if (!modeFD.Valid())
+      return 0;
 
     int meshCoordsVarId, modeCoordsVarId;
     CALL_NETCDF(nc_inq_varid(meshFD, "coords", &meshCoordsVarId));
     CALL_NETCDF(nc_inq_varid(modeFD, "coords", &modeCoordsVarId));
 
-    if (   this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3)
-        != this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3) )
+    if (this->GetNumTuplesInVariable(meshFD, meshCoordsVarId, 3) !=
+      this->GetNumTuplesInVariable(modeFD, modeCoordsVarId, 3))
     {
-      vtkWarningMacro(<< "Mode file "
-                      << this->Internal->ModeFileNames[0].c_str()
+      vtkWarningMacro(<< "Mode file " << this->Internal->ModeFileNames[0].c_str()
                       << " invalid for mesh file " << this->MeshFileName
                       << "; the number of coordinates do not match.");
     }
@@ -704,8 +688,8 @@ int vtkSLACReader::RequestInformation(
       // in simulations that write out this data.  Thus, we expect large numbers
       // to be frequency (in Hz) and small numbers to be time (in seconds).
       double frequency;
-      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
+      if ((nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR) &&
+        (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR))
       {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -713,8 +697,7 @@ int vtkSLACReader::RequestInformation(
       if (frequency < 100)
       {
         this->TimeStepModes = true;
-        this->Internal->TimeStepToFile[frequency]
-          = this->Internal->ModeFileNames[0];
+        this->Internal->TimeStepToFile[frequency] = this->Internal->ModeFileNames[0];
       }
       else
       {
@@ -723,7 +706,7 @@ int vtkSLACReader::RequestInformation(
         this->Internal->Frequencies[0] = frequency;
       }
 
-      //vtksys::RegularExpression imaginaryVar("_imag$");
+      // vtksys::RegularExpression imaginaryVar("_imag$");
 
       int ncoordDim;
       CALL_NETCDF(nc_inq_dimid(modeFD, "ncoord", &ncoordDim));
@@ -735,16 +718,19 @@ int vtkSLACReader::RequestInformation(
       {
         int numDims;
         CALL_NETCDF(nc_inq_varndims(modeFD, i, &numDims));
-        if ((numDims < 1) || (numDims > 2)) continue;
+        if ((numDims < 1) || (numDims > 2))
+          continue;
 
         int dimIds[2];
         CALL_NETCDF(nc_inq_vardimid(modeFD, i, dimIds));
-        if (dimIds[0] != ncoordDim) continue;
+        if (dimIds[0] != ncoordDim)
+          continue;
 
-        char name[NC_MAX_NAME+1];
+        char name[NC_MAX_NAME + 1];
         CALL_NETCDF(nc_inq_varname(modeFD, i, name));
-        if (strcmp(name, "coords") == 0) continue;
-        //if (this->FrequencyModes && imaginaryVar.find(name)) continue;
+        if (strcmp(name, "coords") == 0)
+          continue;
+        // if (this->FrequencyModes && imaginaryVar.find(name)) continue;
 
         this->Internal->VariableArraySelection->AddArray(name);
       }
@@ -756,17 +742,17 @@ int vtkSLACReader::RequestInformation(
     // If we are in time steps modes, we need to read in the time values from
     // all the files (and we have already read the first one).  We then report
     // the time steps we have.
-    std::vector<vtkStdString>::iterator fileitr
-      = this->Internal->ModeFileNames.begin();
+    std::vector<vtkStdString>::iterator fileitr = this->Internal->ModeFileNames.begin();
     ++fileitr;
-    for ( ; fileitr != this->Internal->ModeFileNames.end(); ++fileitr)
+    for (; fileitr != this->Internal->ModeFileNames.end(); ++fileitr)
     {
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
-      if (!modeFD.Valid()) return 0;
+      if (!modeFD.Valid())
+        return 0;
 
       double frequency;
-      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
+      if ((nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR) &&
+        (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR))
       {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -777,41 +763,36 @@ int vtkSLACReader::RequestInformation(
     double range[2];
     surfaceOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     volumeOutInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    std::map<double, vtkStdString>::iterator timeitr
-      = this->Internal->TimeStepToFile.begin();
+    std::map<double, vtkStdString>::iterator timeitr = this->Internal->TimeStepToFile.begin();
     range[0] = timeitr->first;
-    for ( ; timeitr != this->Internal->TimeStepToFile.end(); ++timeitr)
+    for (; timeitr != this->Internal->TimeStepToFile.end(); ++timeitr)
     {
-      range[1] = timeitr->first;        // Eventually set to last value.
-      surfaceOutInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                             timeitr->first);
-      volumeOutInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                            timeitr->first);
+      range[1] = timeitr->first; // Eventually set to last value.
+      surfaceOutInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeitr->first);
+      volumeOutInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeitr->first);
     }
-    surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
-    volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
+    surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+    volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
   }
   else if (this->FrequencyModes)
   {
     // If we are in time steps modes, we need to read in the frequencies from
     // all the files (and we have already read the first one) and record them.
-    std::vector<vtkStdString>::iterator fileitr =
-        this->Internal->ModeFileNames.begin();
+    std::vector<vtkStdString>::iterator fileitr = this->Internal->ModeFileNames.begin();
     ++fileitr;
-    std::vector<double>::iterator frequencyiter =
-        this->Internal->Frequencies.begin();
+    std::vector<double>::iterator frequencyiter = this->Internal->Frequencies.begin();
     ++frequencyiter;
-    for ( ; fileitr != this->Internal->ModeFileNames.end();
-          ++fileitr, ++frequencyiter)
+    for (; fileitr != this->Internal->ModeFileNames.end(); ++fileitr, ++frequencyiter)
     {
       assert(frequencyiter != this->Internal->Frequencies.end());
 
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
-      if (!modeFD.Valid()) return 0;
+      if (!modeFD.Valid())
+        return 0;
 
       double frequency;
-      if (   (nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR)
-          && (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR) )
+      if ((nc_get_scalar_double(modeFD, "frequency", &frequency) != NC_NOERR) &&
+        (nc_get_scalar_double(modeFD, "frequencyreal", &frequency) != NC_NOERR))
       {
         vtkWarningMacro(<< "Could not find frequency in mode data.");
         return 0;
@@ -820,42 +801,37 @@ int vtkSLACReader::RequestInformation(
     }
     assert(frequencyiter == this->Internal->Frequencies.end());
 
-    this->Internal->FrequencyScales.resize(
-          this->Internal->Frequencies.size(), 1.0);
-    this->Internal->PhaseShifts.resize(
-          this->Internal->Frequencies.size(), 0.0);
+    this->Internal->FrequencyScales.resize(this->Internal->Frequencies.size(), 1.0);
+    this->Internal->PhaseShifts.resize(this->Internal->Frequencies.size(), 0.0);
 
     // When there is more than one frequency (defined in multiple mode files),
     // the appropriate range is ill defined. Arbitrarily pick the smallest
     // frequency (the largest range) so that all modes will cycle at least once
     // within the range.
-    double minFrequency = *std::min_element(this->Internal->Frequencies.begin(),
-                                            this->Internal->Frequencies.end());
+    double minFrequency =
+      *std::min_element(this->Internal->Frequencies.begin(), this->Internal->Frequencies.end());
     double range[2];
     range[0] = 0;
-    range[1] = 1.0/minFrequency;
-    surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
-    volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),range,2);
+    range[1] = 1.0 / minFrequency;
+    surfaceOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+    volumeOutInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
   }
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::RequestData(vtkInformation *request,
-                               vtkInformationVector **vtkNotUsed(inputVector),
-                               vtkInformationVector *outputVector)
+int vtkSLACReader::RequestData(vtkInformation* request,
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo[NUM_OUTPUTS];
+  vtkInformation* outInfo[NUM_OUTPUTS];
   for (int i = 0; i < NUM_OUTPUTS; i++)
   {
     outInfo[i] = outputVector->GetInformationObject(i);
   }
 
-  vtkMultiBlockDataSet *surfaceOutput
-    = vtkMultiBlockDataSet::GetData(outInfo[SURFACE_OUTPUT]);
-  vtkMultiBlockDataSet *volumeOutput
-    = vtkMultiBlockDataSet::GetData(outInfo[VOLUME_OUTPUT]);
+  vtkMultiBlockDataSet* surfaceOutput = vtkMultiBlockDataSet::GetData(outInfo[SURFACE_OUTPUT]);
+  vtkMultiBlockDataSet* volumeOutput = vtkMultiBlockDataSet::GetData(outInfo[VOLUME_OUTPUT]);
 
   if (!this->MeshFileName)
   {
@@ -866,23 +842,19 @@ int vtkSLACReader::RequestData(vtkInformation *request,
   double time = 0.0;
   bool timeValid = false;
   int fromPort = request->Get(vtkExecutive::FROM_OUTPUT_PORT());
-  if (outInfo[fromPort]->Has(
-                         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  if (outInfo[fromPort]->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
-    time = outInfo[fromPort]->Get(
-                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    time = outInfo[fromPort]->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     timeValid = true;
   }
 
   if (this->FrequencyModes)
   {
     this->Internal->Phases.resize(this->Internal->Frequencies.size());
-    for (size_t modeIndex = 0;
-         modeIndex < this->Internal->Frequencies.size();
-         modeIndex++)
+    for (size_t modeIndex = 0; modeIndex < this->Internal->Frequencies.size(); modeIndex++)
     {
       this->Internal->Phases[modeIndex] =
-          2.0 * vtkMath::Pi()*(time*this->Internal->Frequencies[modeIndex]);
+        2.0 * vtkMath::Pi() * (time * this->Internal->Frequencies[modeIndex]);
     }
   }
   else
@@ -903,18 +875,21 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     this->Internal->MeshCache = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
     vtkSLACReaderAutoCloseNetCDF meshFD(this->MeshFileName, NC_NOWRITE);
-    if (!meshFD.Valid()) return 0;
+    if (!meshFD.Valid())
+      return 0;
 
-    if (!this->ReadInternalVolume && !this->ReadExternalSurface) return 1;
+    if (!this->ReadInternalVolume && !this->ReadExternalSurface)
+      return 1;
 
-    if (!this->ReadConnectivity(meshFD,surfaceOutput,volumeOutput)) return 0;
+    if (!this->ReadConnectivity(meshFD, surfaceOutput, volumeOutput))
+      return 0;
 
     this->UpdateProgress(0.25);
 
     // Shove two outputs in composite output.
     compositeOutput->SetNumberOfBlocks(2);
     compositeOutput->SetBlock(SURFACE_OUTPUT, surfaceOutput);
-    compositeOutput->SetBlock(VOLUME_OUTPUT,  volumeOutput);
+    compositeOutput->SetBlock(VOLUME_OUTPUT, volumeOutput);
     compositeOutput->GetMetaData(static_cast<unsigned int>(SURFACE_OUTPUT))
       ->Set(vtkCompositeDataSet::NAME(), "Internal Volume");
     compositeOutput->GetMetaData(static_cast<unsigned int>(VOLUME_OUTPUT))
@@ -926,7 +901,8 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINTS(), points);
     compositeOutput->GetInformation()->Set(vtkSLACReader::POINT_DATA(), pd);
 
-    if (!this->ReadCoordinates(meshFD, compositeOutput)) return 0;
+    if (!this->ReadCoordinates(meshFD, compositeOutput))
+      return 0;
 
     this->UpdateProgress(0.5);
 
@@ -937,8 +913,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       int dummy;
       if (nc_inq_varid(meshFD, "surface_midpoint", &dummy) == NC_NOERR)
       {
-        if (!this->ReadMidpointData(meshFD, compositeOutput,
-                                    this->Internal->MidpointIdCache))
+        if (!this->ReadMidpointData(meshFD, compositeOutput, this->Internal->MidpointIdCache))
         {
           return 0;
         }
@@ -946,7 +921,8 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       else // midpoints requested, but not in file
       {
         //   spit out warning and ignore the midpoint read request.
-        vtkWarningMacro(<< "Midpoints requested, but not present in the mesh file.  Ignoring the request.");
+        vtkWarningMacro(
+          << "Midpoints requested, but not present in the mesh file.  Ignoring the request.");
       }
     }
 
@@ -972,8 +948,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       modeFileNames.resize(1);
       if (timeValid)
       {
-        modeFileNames[0] =
-            this->Internal->TimeStepToFile.lower_bound(time)->second;
+        modeFileNames[0] = this->Internal->TimeStepToFile.lower_bound(time)->second;
       }
       else
       {
@@ -988,8 +963,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     std::vector<vtkSLACReaderAutoCloseNetCDF> modeFDVector;
     modeFDVector.reserve(modeFileNames.size());
     for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
-         nameIter != modeFileNames.end();
-         ++nameIter)
+         nameIter != modeFileNames.end(); ++nameIter)
     {
       vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
       if (modeFD.Valid())
@@ -1006,7 +980,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     // Copy file descriptors to a structure ReadFieldData can accept. The
     // ReadFieldData interface was designed to not use implementation of
     // private or templated objects.
-    int *modeFDCopy = new int[modeFDVector.size()];
+    int* modeFDCopy = new int[modeFDVector.size()];
     std::copy(modeFDVector.begin(), modeFDVector.end(), modeFDCopy);
     if (!this->ReadFieldData(modeFDCopy, static_cast<int>(modeFDVector.size()), compositeOutput))
     {
@@ -1016,8 +990,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     this->UpdateProgress(0.875);
 
-    if (!this->InterpolateMidpointData(compositeOutput,
-                                       this->Internal->MidpointIdCache))
+    if (!this->InterpolateMidpointData(compositeOutput, this->Internal->MidpointIdCache))
     {
       return 0;
     }
@@ -1030,25 +1003,25 @@ int vtkSLACReader::RequestData(vtkInformation *request,
   }
 
   // Push points to output.
-  vtkPoints *points = vtkPoints::SafeDownCast(
-               compositeOutput->GetInformation()->Get(vtkSLACReader::POINTS()));
+  vtkPoints* points =
+    vtkPoints::SafeDownCast(compositeOutput->GetInformation()->Get(vtkSLACReader::POINTS()));
   vtkSmartPointer<vtkCompositeDataIterator> outputIter;
-  for (outputIter.TakeReference(compositeOutput->NewIterator());
-       !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
+  for (outputIter.TakeReference(compositeOutput->NewIterator()); !outputIter->IsDoneWithTraversal();
+       outputIter->GoToNextItem())
   {
-    vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(
-                                       compositeOutput->GetDataSet(outputIter));
+    vtkUnstructuredGrid* ugrid =
+      vtkUnstructuredGrid::SafeDownCast(compositeOutput->GetDataSet(outputIter));
     ugrid->SetPoints(points);
   }
 
   // Push point field data to output.
-  vtkPointData *pd = vtkPointData::SafeDownCast(
-           compositeOutput->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
-  for (outputIter.TakeReference(compositeOutput->NewIterator());
-       !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
+  vtkPointData* pd =
+    vtkPointData::SafeDownCast(compositeOutput->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
+  for (outputIter.TakeReference(compositeOutput->NewIterator()); !outputIter->IsDoneWithTraversal();
+       outputIter->GoToNextItem())
   {
-    vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(
-                                       compositeOutput->GetDataSet(outputIter));
+    vtkUnstructuredGrid* ugrid =
+      vtkUnstructuredGrid::SafeDownCast(compositeOutput->GetDataSet(outputIter));
     ugrid->GetPointData()->ShallowCopy(pd);
   }
 
@@ -1056,8 +1029,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 }
 
 //----------------------------------------------------------------------------
-void vtkSLACReader::SelectionModifiedCallback(vtkObject*, unsigned long,
-                                              void* clientdata, void*)
+void vtkSLACReader::SelectionModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkSLACReader*>(clientdata)->Modified();
 }
@@ -1084,7 +1056,7 @@ int vtkSLACReader::GetVariableArrayStatus(const char* name)
 void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
-  if(status)
+  if (status)
   {
     this->Internal->VariableArraySelection->EnableArray(name);
   }
@@ -1097,16 +1069,13 @@ void vtkSLACReader::SetVariableArrayStatus(const char* name, int status)
 //-----------------------------------------------------------------------------
 void vtkSLACReader::ResetFrequencyScales()
 {
-  std::fill(this->Internal->FrequencyScales.begin(),
-            this->Internal->FrequencyScales.end(),
-            1.0);
+  std::fill(this->Internal->FrequencyScales.begin(), this->Internal->FrequencyScales.end(), 1.0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkSLACReader::SetFrequencyScale(int index, double scale)
 {
-  if ((index < 0) ||
-      (static_cast<size_t>(index) >= this->Internal->FrequencyScales.size()))
+  if ((index < 0) || (static_cast<size_t>(index) >= this->Internal->FrequencyScales.size()))
   {
     vtkErrorMacro(<< "Bad mode index: " << index);
   }
@@ -1123,9 +1092,8 @@ vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
   // don't copy to nullptr pointer
   if (this->Internal->FrequencyScalesArray->GetPointer(0) != nullptr)
   {
-    std::copy(this->Internal->FrequencyScales.begin(),
-          this->Internal->FrequencyScales.end(),
-          this->Internal->FrequencyScalesArray->GetPointer(0));
+    std::copy(this->Internal->FrequencyScales.begin(), this->Internal->FrequencyScales.end(),
+      this->Internal->FrequencyScalesArray->GetPointer(0));
   }
   return this->Internal->FrequencyScalesArray;
 }
@@ -1133,16 +1101,13 @@ vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
 //-----------------------------------------------------------------------------
 void vtkSLACReader::ResetPhaseShifts()
 {
-  std::fill(this->Internal->PhaseShifts.begin(),
-            this->Internal->PhaseShifts.end(),
-            0.0);
+  std::fill(this->Internal->PhaseShifts.begin(), this->Internal->PhaseShifts.end(), 0.0);
 }
 
 //-----------------------------------------------------------------------------
 void vtkSLACReader::SetPhaseShift(int index, double scale)
 {
-  if ((index < 0) ||
-      (static_cast<size_t>(index) >= this->Internal->PhaseShifts.size()))
+  if ((index < 0) || (static_cast<size_t>(index) >= this->Internal->PhaseShifts.size()))
   {
     vtkErrorMacro(<< "Bad mode index: " << index);
   }
@@ -1159,45 +1124,38 @@ vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
   // don't copy to nullptr pointer
   if (this->Internal->PhaseShiftsArray->GetPointer(0) != nullptr)
   {
-    std::copy(this->Internal->PhaseShifts.begin(),
-              this->Internal->PhaseShifts.end(),
-              this->Internal->PhaseShiftsArray->GetPointer(0));
+    std::copy(this->Internal->PhaseShifts.begin(), this->Internal->PhaseShifts.end(),
+      this->Internal->PhaseShiftsArray->GetPointer(0));
   }
   return this->Internal->PhaseShiftsArray;
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD,
-                                                vtkIdTypeArray *connectivity)
+int vtkSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetInteriorVarId;
   CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
-  vtkIdType numTetsInterior
-    = this->GetNumTuplesInVariable(meshFD, tetInteriorVarId, NumPerTetInt);
+  vtkIdType numTetsInterior = this->GetNumTuplesInVariable(meshFD, tetInteriorVarId, NumPerTetInt);
 
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(NumPerTetInt);
   connectivity->SetNumberOfTuples(numTetsInterior);
-  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetInteriorVarId,
-                                   connectivity->GetPointer(0)));
+  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetInteriorVarId, connectivity->GetPointer(0)));
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD,
-                                                vtkIdTypeArray *connectivity)
+int vtkSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* connectivity)
 {
   int tetExteriorVarId;
   CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_exterior", &tetExteriorVarId));
-  vtkIdType numTetsExterior
-    = this->GetNumTuplesInVariable(meshFD, tetExteriorVarId, NumPerTetExt);
+  vtkIdType numTetsExterior = this->GetNumTuplesInVariable(meshFD, tetExteriorVarId, NumPerTetExt);
 
   connectivity->Initialize();
   connectivity->SetNumberOfComponents(NumPerTetExt);
   connectivity->SetNumberOfTuples(numTetsExterior);
-  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetExteriorVarId,
-                                   connectivity->GetPointer(0)));
+  CALL_NETCDF(nc_get_var_vtkIdType(meshFD, tetExteriorVarId, connectivity->GetPointer(0)));
 
   return 1;
 }
@@ -1212,12 +1170,13 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
   CALL_NETCDF(nc_inq_varid(meshFD, "tetrahedron_interior", &tetInteriorVarId));
 
   size_t start[2], count[2];
-  start[0] = 0;  count[0] = 1;
-  start[1] = 0;  count[1] = NumPerTetInt;
+  start[0] = 0;
+  count[0] = 1;
+  start[1] = 0;
+  count[1] = NumPerTetInt;
 
   vtkIdType tetTopology[NumPerTetInt];
-  CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetInteriorVarId, start, count,
-                                    nullptr, tetTopology));
+  CALL_NETCDF(nc_get_vars_vtkIdType(meshFD, tetInteriorVarId, start, count, nullptr, tetTopology));
 
   // Read in the point coordinates for the tetrahedron.  The indices for the
   // points are stored in values 1-4 of tetTopology.
@@ -1227,10 +1186,11 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
   double pts[4][3];
   for (i = 0; i < 4; i++)
   {
-    start[0] = tetTopology[i+1];  count[0] = 1;
-    start[1] = 0;                 count[1] = 3;
-    CALL_NETCDF(nc_get_vars_double(meshFD, coordsVarId, start, count,
-                                   nullptr, pts[i]));
+    start[0] = tetTopology[i + 1];
+    count[0] = 1;
+    start[1] = 0;
+    count[1] = 3;
+    CALL_NETCDF(nc_get_vars_double(meshFD, coordsVarId, start, count, nullptr, pts[i]));
   }
 
   // Given the coordinates of the tetrahedron points, determine the direction of
@@ -1247,15 +1207,15 @@ int vtkSLACReader::CheckTetrahedraWinding(int meshFD)
   // For the VTK winding, the normal, n, should point toward the fourth point
   // of the tetrahedron.
   double v3[3];
-  for (i = 0; i < 3; i++)  v3[i] = pts[3][i] - pts[0][i];
+  for (i = 0; i < 3; i++)
+    v3[i] = pts[3][i] - pts[0][i];
   double dir = vtkMath::Dot(v3, n);
   return (dir >= 0.0);
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadConnectivity(int meshFD,
-                                    vtkMultiBlockDataSet *surfaceOutput,
-                                    vtkMultiBlockDataSet *volumeOutput)
+int vtkSLACReader::ReadConnectivity(
+  int meshFD, vtkMultiBlockDataSet* surfaceOutput, vtkMultiBlockDataSet* volumeOutput)
 {
   // Decide if we need to invert the tetrahedra to make them compatible
   // with VTK winding.
@@ -1265,7 +1225,8 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
   VTK_CREATE(vtkIdTypeArray, connectivity);
   if (this->ReadInternalVolume)
   {
-    if (!this->ReadTetrahedronInteriorArray(meshFD, connectivity)) return 0;
+    if (!this->ReadTetrahedronInteriorArray(meshFD, connectivity))
+      return 0;
     vtkIdType numTetsInterior = connectivity->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numTetsInterior; i++)
     {
@@ -1283,15 +1244,16 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
       // flag set earlier indicates whether we need to invert the tetrahedra.
       vtkIdType tetInfo[NumPerTetInt];
       connectivity->GetTypedTuple(i, tetInfo);
-      if (invertTets) std::swap(tetInfo[1], tetInfo[2]);
-      vtkUnstructuredGrid *ugrid = AllocateGetBlock(volumeOutput, tetInfo[0],
-                                                    IS_INTERNAL_VOLUME());
-      ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo+1);
+      if (invertTets)
+        std::swap(tetInfo[1], tetInfo[2]);
+      vtkUnstructuredGrid* ugrid = AllocateGetBlock(volumeOutput, tetInfo[0], IS_INTERNAL_VOLUME());
+      ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo + 1);
     }
   }
 
   // Read in exterior tetrahedra.
-  if (!this->ReadTetrahedronExteriorArray(meshFD, connectivity)) return 0;
+  if (!this->ReadTetrahedronExteriorArray(meshFD, connectivity))
+    return 0;
   vtkIdType numTetsExterior = connectivity->GetNumberOfTuples();
   for (vtkIdType i = 0; i < numTetsExterior; i++)
   {
@@ -1310,25 +1272,23 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
     }
     if (this->ReadInternalVolume)
     {
-      vtkUnstructuredGrid *ugrid = AllocateGetBlock(volumeOutput, tetInfo[0],
-                                                    IS_INTERNAL_VOLUME());
-      ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo+1);
+      vtkUnstructuredGrid* ugrid = AllocateGetBlock(volumeOutput, tetInfo[0], IS_INTERNAL_VOLUME());
+      ugrid->InsertNextCell(VTK_TETRA, 4, tetInfo + 1);
     }
 
     if (this->ReadExternalSurface)
     {
       for (int face = 0; face < 4; face++)
       {
-        int boundaryCondition = tetInfo[5+face];
+        int boundaryCondition = tetInfo[5 + face];
         if (boundaryCondition >= 0)
         {
-          vtkUnstructuredGrid *ugrid = AllocateGetBlock(surfaceOutput,
-                                                        boundaryCondition,
-                                                        IS_EXTERNAL_SURFACE());
+          vtkUnstructuredGrid* ugrid =
+            AllocateGetBlock(surfaceOutput, boundaryCondition, IS_EXTERNAL_SURFACE());
           vtkIdType ptids[3];
-          ptids[0] = tetInfo[1+tetFaces[face][0]];
-          ptids[1] = tetInfo[1+tetFaces[face][1]];
-          ptids[2] = tetInfo[1+tetFaces[face][2]];
+          ptids[0] = tetInfo[1 + tetFaces[face][0]];
+          ptids[1] = tetInfo[1 + tetFaces[face][1]];
+          ptids[2] = tetInfo[1 + tetFaces[face][2]];
           ugrid->InsertNextCell(VTK_TRIANGLE, 3, ptids);
         }
       }
@@ -1339,8 +1299,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD,
-                                                                int varId)
+vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int varId)
 {
   // Get the dimension info.  We should only need to worry about 1 or 2D arrays.
   int numDims;
@@ -1371,7 +1330,8 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD,
   nc_type ncType;
   CALL_NETCDF(nc_inq_vartype(ncFD, varId, &ncType));
   int vtkType = NetCDFTypeToVTKType(ncType);
-  if (vtkType < 1) return nullptr;
+  if (vtkType < 1)
+    return nullptr;
   vtkSmartPointer<vtkDataArray> dataArray;
   dataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
   dataArray->SetNumberOfComponents(static_cast<int>(numComponents));
@@ -1380,24 +1340,24 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD,
   // Read the data from the file.
   size_t start[2], count[2];
   start[0] = start[1] = 0;
-  count[0] = numCoords;  count[1] = numComponents;
-  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr,
-                          dataArray->GetVoidPointer(0)));
+  count[0] = numCoords;
+  count[1] = numComponents;
+  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   return dataArray;
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
+int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet* output)
 {
   // Read in the point coordinates.  The coordinates are 3-tuples in an array
   // named "coords".
   int coordsVarId;
   CALL_NETCDF(nc_inq_varid(meshFD, "coords", &coordsVarId));
 
-  vtkSmartPointer<vtkDataArray> coordData
-    = this->ReadPointDataArray(meshFD, coordsVarId);
-  if (!coordData) return 0;
+  vtkSmartPointer<vtkDataArray> coordData = this->ReadPointDataArray(meshFD, coordsVarId);
+  if (!coordData)
+    return 0;
   if (coordData->GetNumberOfComponents() != 3)
   {
     vtkErrorMacro(<< "Failed sanity check!  Coords have wrong dimensions.");
@@ -1405,27 +1365,25 @@ int vtkSLACReader::ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output)
   }
   coordData->SetName("coords");
 
-  vtkPoints *points = vtkPoints::SafeDownCast(
-                        output->GetInformation()->Get(vtkSLACReader::POINTS()));
+  vtkPoints* points =
+    vtkPoints::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINTS()));
   points->SetData(coordData);
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadFieldData(const int *modeFDArray,
-                                 int numModeFDs,
-                                 vtkMultiBlockDataSet *output)
+int vtkSLACReader::ReadFieldData(
+  const int* modeFDArray, int numModeFDs, vtkMultiBlockDataSet* output)
 {
   assert(numModeFDs > 0);
-  assert(
-    !this->FrequencyModes ||
-    (static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size()));
   assert(!this->FrequencyModes ||
-         (static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size()));
+    (static_cast<size_t>(numModeFDs) <= this->Internal->Frequencies.size()));
+  assert(
+    !this->FrequencyModes || (static_cast<size_t>(numModeFDs) <= this->Internal->Phases.size()));
 
-  vtkPointData *pd = vtkPointData::SafeDownCast(
-                    output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
+  vtkPointData* pd =
+    vtkPointData::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
 
   // Get the number of coordinates (which determines how many items are read
   // per variable).
@@ -1444,8 +1402,7 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     }
 
     // from the variable name, get the variable id
-    const char * cname
-      = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
+    const char* cname = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
     CALL_NETCDF(nc_inq_varid(modeFDArray[0], cname, &varId));
 
@@ -1456,10 +1413,9 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     CALL_NETCDF(nc_inq_varndims(modeFDArray[0], varId, &numDims));
     if (numDims < 1 || numDims > 2)
     {
-      vtkWarningMacro(<< "Encountered invalid variable dimensions.")
+      vtkWarningMacro(<< "Encountered invalid variable dimensions.");
       continue;
     }
-
 
     // Handle the imaginary component of mode data:
     // If simulation is purely real, all imaginary components would be zero.
@@ -1476,23 +1432,22 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     if (this->FrequencyModes && (name == "efield" || name == "bfield"))
     {
       // An array to accumulate the data.
-      vtkSmartPointer<vtkDoubleArray> dataArray =
-          vtkSmartPointer<vtkDoubleArray>::New();
+      vtkSmartPointer<vtkDoubleArray> dataArray = vtkSmartPointer<vtkDoubleArray>::New();
 
-      vtkSmartPointer<vtkDoubleArray> cplxMagArray =
-          vtkSmartPointer<vtkDoubleArray>::New();
+      vtkSmartPointer<vtkDoubleArray> cplxMagArray = vtkSmartPointer<vtkDoubleArray>::New();
 
-      vtkSmartPointer<vtkDoubleArray> phaseArray =
-          vtkSmartPointer<vtkDoubleArray>::New();
+      vtkSmartPointer<vtkDoubleArray> phaseArray = vtkSmartPointer<vtkDoubleArray>::New();
 
       for (int modeIndex = 0; modeIndex < numModeFDs; modeIndex++)
       {
         int modeFD = modeFDArray[modeIndex];
 
         // Read in the real array data.
-        vtkSmartPointer<vtkDataArray> realDataArray
-            = this->ReadPointDataArray(modeFD, varId);
-        if (!dataArray) { return 0; }
+        vtkSmartPointer<vtkDataArray> realDataArray = this->ReadPointDataArray(modeFD, varId);
+        if (!dataArray)
+        {
+          return 0;
+        }
 
         vtkIdType numTuples = realDataArray->GetNumberOfTuples();
         int numComponents = realDataArray->GetNumberOfComponents();
@@ -1515,20 +1470,17 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
         // if this variable name has a correstponding name_imag, use that,
         // otherwise assume zeroes.
         vtkSmartPointer<vtkDataArray> imagDataArray = nullptr;
-        if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
+        if (nc_inq_varid(modeFD, (name + "_imag").c_str(), &varId) == NC_NOERR)
         {
           imagDataArray = this->ReadPointDataArray(modeFD, varId);
         }
 
         for (vtkIdType tupleIndex = 0; tupleIndex < numTuples; tupleIndex++)
         {
-          double accumulatedMag= 0.0;
-          for (int componentIndex = 0;
-               componentIndex < numComponents;
-               componentIndex++)
+          double accumulatedMag = 0.0;
+          for (int componentIndex = 0; componentIndex < numComponents; componentIndex++)
           {
-            double real =
-                realDataArray->GetComponent(tupleIndex, componentIndex);
+            double real = realDataArray->GetComponent(tupleIndex, componentIndex);
 
             // when values are purely real, no imaginary component is saved in the
             // data file, because all those zeroes would waste space.  So if
@@ -1543,7 +1495,7 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
               imag = 0.0;
             }
 
-            double mag2 = real*real + imag*imag;
+            double mag2 = real * real + imag * imag;
             accumulatedMag += mag2;
             double mag = sqrt(mag2);
 
@@ -1556,15 +1508,13 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
             }
             else
             {
-              accumulatedMode =
-                  dataArray->GetComponent(tupleIndex, componentIndex);
+              accumulatedMode = dataArray->GetComponent(tupleIndex, componentIndex);
             }
             double modeMag = mag * this->Internal->FrequencyScales[modeIndex];
-            double modePhase =
-                startphase + this->Internal->Phases[modeIndex]
-                + this->Internal->PhaseShifts[modeIndex];
-            accumulatedMode += modeMag*cos(modePhase);
-            dataArray->SetComponent(tupleIndex,componentIndex,accumulatedMode);
+            double modePhase = startphase + this->Internal->Phases[modeIndex] +
+              this->Internal->PhaseShifts[modeIndex];
+            accumulatedMode += modeMag * cos(modePhase);
+            dataArray->SetComponent(tupleIndex, componentIndex, accumulatedMode);
             if (modeIndex == 0)
             {
               phaseArray->SetComponent(tupleIndex, componentIndex, startphase);
@@ -1582,20 +1532,20 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
       pd->AddArray(dataArray);
 
       // add complex magnitude data to the point data
-      vtkStdString cplxMagName= name + "_cplx_mag";
+      vtkStdString cplxMagName = name + "_cplx_mag";
       cplxMagArray->SetName(cplxMagName);
       pd->AddArray(cplxMagArray);
 
-      vtkStdString phaseName= name + "_phase";
+      vtkStdString phaseName = name + "_phase";
       phaseArray->SetName(phaseName);
       pd->AddArray(phaseArray);
     }
     else
     {
       // Must be a real-only field.  No animation/blending of modes.
-      vtkSmartPointer<vtkDataArray> dataArray
-          = this->ReadPointDataArray(modeFDArray[0], varId);
-      if (!dataArray) continue;
+      vtkSmartPointer<vtkDataArray> dataArray = this->ReadPointDataArray(modeFDArray[0], varId);
+      if (!dataArray)
+        continue;
 
       // Add the data to the point data.
       dataArray->SetName(name);
@@ -1608,34 +1558,31 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
 
 //-----------------------------------------------------------------------------
 int vtkSLACReader::ReadMidpointCoordinates(
-                                   int meshFD,
-                                   vtkMultiBlockDataSet *output,
-                                   vtkSLACReader::MidpointCoordinateMap &map)
+  int meshFD, vtkMultiBlockDataSet* output, vtkSLACReader::MidpointCoordinateMap& map)
 {
   // Get the number of midpoints.
   int midpointsVar;
   CALL_NETCDF(nc_inq_varid(meshFD, "surface_midpoint", &midpointsVar));
-  vtkIdType numMidpoints = this->GetNumTuplesInVariable(meshFD,midpointsVar,5);
-  if (numMidpoints < 1) return 0;
+  vtkIdType numMidpoints = this->GetNumTuplesInVariable(meshFD, midpointsVar, 5);
+  if (numMidpoints < 1)
+    return 0;
 
   // Read in the raw data.
   VTK_CREATE(vtkDoubleArray, midpointData);
   midpointData->SetNumberOfComponents(5);
   midpointData->SetNumberOfTuples(numMidpoints);
-  CALL_NETCDF(nc_get_var_double(meshFD, midpointsVar,
-                                midpointData->GetPointer(0)));
+  CALL_NETCDF(nc_get_var_double(meshFD, midpointsVar, midpointData->GetPointer(0)));
 
-  vtkPoints *points = vtkPoints::SafeDownCast(
-                        output->GetInformation()->Get(vtkSLACReader::POINTS()));
-  vtkIdType pointTotal = points->GetNumberOfPoints ();
+  vtkPoints* points =
+    vtkPoints::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINTS()));
+  vtkIdType pointTotal = points->GetNumberOfPoints();
   // Create a searchable structure.
   for (vtkIdType i = 0; i < numMidpoints; i++)
   {
-    double *mp = midpointData->GetPointer(i*5);
+    double* mp = midpointData->GetPointer(i * 5);
 
-    EdgeEndpoints edge(static_cast<vtkIdType>(mp[0]),
-                       static_cast<vtkIdType>(mp[1]));
-    MidpointCoordinates midpoint(mp+2, i+pointTotal);
+    EdgeEndpoints edge(static_cast<vtkIdType>(mp[0]), static_cast<vtkIdType>(mp[1]));
+    MidpointCoordinates midpoint(mp + 2, i + pointTotal);
     map.AddMidpoint(edge, midpoint);
   }
 
@@ -1643,39 +1590,40 @@ int vtkSLACReader::ReadMidpointCoordinates(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                                    MidpointIdMap &midpointIds)
+int vtkSLACReader::ReadMidpointData(
+  int meshFD, vtkMultiBlockDataSet* output, MidpointIdMap& midpointIds)
 {
   // Get the point information from the data.
-  vtkPoints *points = vtkPoints::SafeDownCast(
-                        output->GetInformation()->Get(vtkSLACReader::POINTS()));
+  vtkPoints* points =
+    vtkPoints::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINTS()));
 
   // Read in the midpoint coordinates.
   MidpointCoordinateMap midpointCoords;
-  if (!this->ReadMidpointCoordinates(meshFD, output, midpointCoords)) return 0;
+  if (!this->ReadMidpointCoordinates(meshFD, output, midpointCoords))
+    return 0;
 
-  vtkIdType newPointTotal
-    = points->GetNumberOfPoints() + midpointCoords.GetNumberOfMidpoints();
+  vtkIdType newPointTotal = points->GetNumberOfPoints() + midpointCoords.GetNumberOfMidpoints();
 
   // Iterate over all of the parts in the output and visit the ones for the
   // external surface.
   vtkSmartPointer<vtkCompositeDataIterator> outputIter;
-  for (outputIter.TakeReference(output->NewIterator());
-       !outputIter->IsDoneWithTraversal(); outputIter->GoToNextItem())
+  for (outputIter.TakeReference(output->NewIterator()); !outputIter->IsDoneWithTraversal();
+       outputIter->GoToNextItem())
   {
-    if (!output->GetMetaData(outputIter)->Get(IS_EXTERNAL_SURFACE())) continue;
+    if (!output->GetMetaData(outputIter)->Get(IS_EXTERNAL_SURFACE()))
+      continue;
 
     // Create a new cell array so that we can convert all the cells from
     // triangles to quadratic triangles.
-    vtkUnstructuredGrid *ugrid
-      = vtkUnstructuredGrid::SafeDownCast(output->GetDataSet(outputIter));
-    vtkCellArray *oldCells = ugrid->GetCells();
+    vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(output->GetDataSet(outputIter));
+    vtkCellArray* oldCells = ugrid->GetCells();
     VTK_CREATE(vtkCellArray, newCells);
-    newCells->Allocate(newCells->EstimateSize(oldCells->GetNumberOfCells(), 6));
+    newCells->AllocateEstimate(oldCells->GetNumberOfCells(), 6);
 
     // Iterate over all of the cells.
-    vtkIdType npts, *pts;
-    for (oldCells->InitTraversal(); oldCells->GetNextCell(npts, pts); )
+    vtkIdType npts;
+    const vtkIdType* pts;
+    for (oldCells->InitTraversal(); oldCells->GetNextCell(npts, pts);)
     {
       newCells->InsertNextCell(6);
 
@@ -1694,7 +1642,7 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 
         // See if we have already copied this midpoint.
         vtkIdType midId;
-        vtkIdType *midIdPointer = midpointIds.FindMidpoint(edge);
+        vtkIdType* midIdPointer = midpointIds.FindMidpoint(edge);
         if (midIdPointer != nullptr)
         {
           midId = *midIdPointer;
@@ -1704,18 +1652,17 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
           // Check to see if the midpoint was read from the file.  If not,
           // then interpolate linearly between the two edge points.
           MidpointCoordinates midpoint;
-          MidpointCoordinates *midpointPointer
-            = midpointCoords.FindMidpoint(edge);
+          MidpointCoordinates* midpointPointer = midpointCoords.FindMidpoint(edge);
           if (midpointPointer == nullptr)
           {
             double coord0[3], coord1[3], coordMid[3];
             points->GetPoint(p0, coord0);
             points->GetPoint(p1, coord1);
-            coordMid[0] = 0.5*(coord0[0] + coord1[0]);
-            coordMid[1] = 0.5*(coord0[1] + coord1[1]);
-            coordMid[2] = 0.5*(coord0[2] + coord1[2]);
+            coordMid[0] = 0.5 * (coord0[0] + coord1[0]);
+            coordMid[1] = 0.5 * (coord0[1] + coord1[1]);
+            coordMid[2] = 0.5 * (coord0[2] + coord1[2]);
             midpoint = MidpointCoordinates(coordMid, newPointTotal);
-            newPointTotal ++;
+            newPointTotal++;
           }
           else
           {
@@ -1746,15 +1693,15 @@ int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
-                                           vtkSLACReader::MidpointIdMap &map)
+int vtkSLACReader::InterpolateMidpointData(
+  vtkMultiBlockDataSet* output, vtkSLACReader::MidpointIdMap& map)
 {
   // Get the point information from the output data (where it was placed
   // earlier).
-  vtkPoints *points = vtkPoints::SafeDownCast(
-                        output->GetInformation()->Get(vtkSLACReader::POINTS()));
-  vtkPointData *pd = vtkPointData::SafeDownCast(
-                    output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
+  vtkPoints* points =
+    vtkPoints::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINTS()));
+  vtkPointData* pd =
+    vtkPointData::SafeDownCast(output->GetInformation()->Get(vtkSLACReader::POINT_DATA()));
   if (!pd)
   {
     vtkWarningMacro(<< "Missing point data.");
@@ -1766,10 +1713,9 @@ int vtkSLACReader::InterpolateMidpointData(vtkMultiBlockDataSet *output,
 
   EdgeEndpoints edge;
   vtkIdType midpoint;
-  for (map.InitTraversal(); map.GetNextMidpoint(edge, midpoint); )
+  for (map.InitTraversal(); map.GetNextMidpoint(edge, midpoint);)
   {
-    pd->InterpolateEdge(pd, midpoint,
-                        edge.GetMinEndPoint(), edge.GetMaxEndPoint(), 0.5);
+    pd->InterpolateEdge(pd, midpoint, edge.GetMinEndPoint(), edge.GetMaxEndPoint(), 0.5);
   }
 
   return 1;
@@ -1790,25 +1736,22 @@ int vtkSLACReader::MeshUpToDate()
 }
 
 //-----------------------------------------------------------------------------
-int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
-                                    vtkMultiBlockDataSet *volumeOutput,
-                                    vtkMultiBlockDataSet *compositeOutput)
+int vtkSLACReader::RestoreMeshCache(vtkMultiBlockDataSet* surfaceOutput,
+  vtkMultiBlockDataSet* volumeOutput, vtkMultiBlockDataSet* compositeOutput)
 {
-  surfaceOutput->ShallowCopy(
-                           this->Internal->MeshCache->GetBlock(SURFACE_OUTPUT));
+  surfaceOutput->ShallowCopy(this->Internal->MeshCache->GetBlock(SURFACE_OUTPUT));
   volumeOutput->ShallowCopy(this->Internal->MeshCache->GetBlock(VOLUME_OUTPUT));
 
   // Shove two outputs in composite output.
   compositeOutput->SetNumberOfBlocks(2);
   compositeOutput->SetBlock(SURFACE_OUTPUT, surfaceOutput);
-  compositeOutput->SetBlock(VOLUME_OUTPUT,  volumeOutput);
+  compositeOutput->SetBlock(VOLUME_OUTPUT, volumeOutput);
   compositeOutput->GetMetaData(static_cast<unsigned int>(SURFACE_OUTPUT))
     ->Set(vtkCompositeDataSet::NAME(), "Internal Volume");
   compositeOutput->GetMetaData(static_cast<unsigned int>(VOLUME_OUTPUT))
     ->Set(vtkCompositeDataSet::NAME(), "External Surface");
 
-  compositeOutput->GetInformation()->Set(vtkSLACReader::POINTS(),
-                                         this->Internal->PointCache);
+  compositeOutput->GetInformation()->Set(vtkSLACReader::POINTS(), this->Internal->PointCache);
 
   VTK_CREATE(vtkPointData, pd);
   compositeOutput->GetInformation()->Set(vtkSLACReader::POINT_DATA(), pd);

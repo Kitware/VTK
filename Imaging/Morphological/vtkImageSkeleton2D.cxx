@@ -15,11 +15,11 @@
 #include "vtkImageSkeleton2D.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageSkeleton2D);
@@ -42,8 +42,7 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 // an output region.  Before this method is called "region" should have the
 // extent of the output region.  After this method finishes, "region" should
 // have the extent of the required input region.
-int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
-                                                      vtkInformation* out)
+int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out)
 {
   int wholeExtent[6];
   int outExt[6];
@@ -53,21 +52,21 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
   int inExt[6];
   inExt[4] = outExt[4];
   inExt[5] = outExt[5];
-  for(int idx=0; idx < 2; ++idx)
+  for (int idx = 0; idx < 2; ++idx)
   {
-    inExt[idx*2] = outExt[idx*2] - 1;
-    inExt[idx*2+1] = outExt[idx*2+1] + 1;
+    inExt[idx * 2] = outExt[idx * 2] - 1;
+    inExt[idx * 2 + 1] = outExt[idx * 2 + 1] + 1;
 
     // If the expanded region is out of the IMAGE Extent (grow min)
-    if (inExt[idx*2] < wholeExtent[idx*2])
+    if (inExt[idx * 2] < wholeExtent[idx * 2])
     {
-      inExt[idx*2] = wholeExtent[idx*2];
+      inExt[idx * 2] = wholeExtent[idx * 2];
     }
     // If the expanded region is out of the IMAGE Extent (shrink max)
-    if (inExt[idx*2+1] > wholeExtent[idx*2+1])
+    if (inExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
     {
       // shrink the required region extent
-      inExt[idx*2+1] = wholeExtent[idx*2+1];
+      inExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
     }
   }
 
@@ -83,11 +82,8 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
 // but it is the only way I can think of to get the
 // desired results with a 3x3 kernel.
 template <class T>
-void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
-                               vtkImageData *inData, T *inPtr,
-                               vtkImageData *outData, int *outExt,
-                               T *outPtr, int id,
-                               int wholeExt[6])
+void vtkImageSkeleton2DExecute(vtkImageSkeleton2D* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, int* outExt, T* outPtr, int id, int wholeExt[6])
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
@@ -112,13 +108,16 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  outMin0 = outExt[0];  outMax0 = outExt[1];
-  outMin1 = outExt[2];  outMax1 = outExt[3];
-  outMin2 = outExt[4];  outMax2 = outExt[5];
+  outMin0 = outExt[0];
+  outMax0 = outExt[1];
+  outMin1 = outExt[2];
+  outMax1 = outExt[3];
+  outMin2 = outExt[4];
+  outMax2 = outExt[5];
   numComps = inData->GetNumberOfScalarComponents();
 
-  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
-                                      (outMax1-outMin1+1)/50.0);
+  target =
+    static_cast<unsigned long>(numComps * (outMax2 - outMin2 + 1) * (outMax1 - outMin1 + 1) / 50.0);
   target++;
 
   inPtrC = inPtr;
@@ -133,9 +132,9 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
       {
         if (!id)
         {
-          if (!(count%target))
+          if (!(count % target))
           {
-            self->UpdateProgress(0.9*count/(50.0*target));
+            self->UpdateProgress(0.9 * count / (50.0 * target));
           }
           count++;
         }
@@ -146,36 +145,64 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
           if (*inPtr0)
           {
             // neighbors independent of boundaries
-            n[0] = (idx0>wholeMin0) ? static_cast<float>(*(inPtr0-inInc0)) : 0;
-            n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1)
-              ? static_cast<float>(*(inPtr0-inInc0-inInc1)) : 0;
-            n[2] = (idx1>wholeMin1) ? static_cast<float>(*(inPtr0-inInc1)) : 0;
-            n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0)
-              ? static_cast<float>(*(inPtr0-inInc1+inInc0)) : 0;
-            n[4] = (idx0<wholeMax0) ? static_cast<float>(*(inPtr0+inInc0)) : 0;
-            n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1)
-              ? static_cast<float>(*(inPtr0+inInc0+inInc1)) : 0;
-            n[6] = (idx1<wholeMax1) ? static_cast<float>(*(inPtr0+inInc1)) : 0;
-            n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0)
-              ? static_cast<float>(*(inPtr0+inInc1-inInc0)) : 0;
+            n[0] = (idx0 > wholeMin0) ? static_cast<float>(*(inPtr0 - inInc0)) : 0;
+            n[1] = (idx0 > wholeMin0) && (idx1 > wholeMin1)
+              ? static_cast<float>(*(inPtr0 - inInc0 - inInc1))
+              : 0;
+            n[2] = (idx1 > wholeMin1) ? static_cast<float>(*(inPtr0 - inInc1)) : 0;
+            n[3] = (idx1 > wholeMin1) && (idx0 < wholeMax0)
+              ? static_cast<float>(*(inPtr0 - inInc1 + inInc0))
+              : 0;
+            n[4] = (idx0 < wholeMax0) ? static_cast<float>(*(inPtr0 + inInc0)) : 0;
+            n[5] = (idx0 < wholeMax0) && (idx1 < wholeMax1)
+              ? static_cast<float>(*(inPtr0 + inInc0 + inInc1))
+              : 0;
+            n[6] = (idx1 < wholeMax1) ? static_cast<float>(*(inPtr0 + inInc1)) : 0;
+            n[7] = (idx1 < wholeMax1) && (idx0 > wholeMin0)
+              ? static_cast<float>(*(inPtr0 + inInc1 - inInc0))
+              : 0;
 
             // Lets try a case table. (shifting bits would be faster)
             erodeCase = 0;
-            if (n[7] > 0) {++erodeCase;}
+            if (n[7] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[6] > 0) {++erodeCase;}
+            if (n[6] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[5] > 0) {++erodeCase;}
+            if (n[5] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[4] > 0) {++erodeCase;}
+            if (n[4] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[3] > 0) {++erodeCase;}
+            if (n[3] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[2] > 0) {++erodeCase;}
+            if (n[2] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[1] > 0) {++erodeCase;}
+            if (n[1] > 0)
+            {
+              ++erodeCase;
+            }
             erodeCase *= 2;
-            if (n[0] > 0) {++erodeCase;}
+            if (n[0] > 0)
+            {
+              ++erodeCase;
+            }
 
             if (erodeCase == 54 || erodeCase == 216)
             { // erode
@@ -191,13 +218,12 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
             else
             {
               // old heuristic method
-              countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
-              countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
+              countFaces = (n[0] > 0) + (n[2] > 0) + (n[4] > 0) + (n[6] > 0);
+              countCorners = (n[1] > 0) + (n[3] > 0) + (n[5] > 0) + (n[7] > 0);
 
               // special case to void split dependent results.
               // (should we just have a case table?)
-              if (countFaces == 2 && countCorners == 0 &&
-                  n[2] > 0 && n[4] > 0)
+              if (countFaces == 2 && countCorners == 0 && n[2] > 0 && n[4] > 0)
               {
                 *inPtr0 = 1;
               }
@@ -209,44 +235,40 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
               }
 
               // one of four face neighbors has to be off
-              if (n[0] == 0 || n[2] == 0 ||
-                  n[4] == 0 || n[6] == 0)
+              if (n[0] == 0 || n[2] == 0 || n[4] == 0 || n[6] == 0)
               {
                 // Special condition not to prune diamond corners
                 if (prune > 1 || countFaces != 1 || countCorners != 2 ||
-                    ((n[1]==0 || n[2]==0 || n[3]==0) &&
-                     (n[3]==0 || n[4]==0 || n[5]==0) &&
-                     (n[5]==0 || n[6]==0 || n[7]==0) &&
-                     (n[7]==0 || n[0]==0 || n[1]==0)))
+                  ((n[1] == 0 || n[2] == 0 || n[3] == 0) && (n[3] == 0 || n[4] == 0 || n[5] == 0) &&
+                    (n[5] == 0 || n[6] == 0 || n[7] == 0) && (n[7] == 0 || n[0] == 0 || n[1] == 0)))
                 {
                   // special condition (making another prune level)
                   // pruning 135 degree corners
                   if (prune || countFaces != 2 || countCorners != 2 ||
-                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]!=0) &&
-                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]!=0) &&
-                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]!=0) &&
-                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]!=0) &&
-                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]!=0) &&
-                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]!=0) &&
-                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]!=0) &&
-                       (n[2]==0 || n[3]==0 || n[4]==0 || n[5]!=0)))
+                    ((n[1] == 0 || n[2] == 0 || n[3] == 0 || n[4] != 0) &&
+                      (n[0] == 0 || n[1] == 0 || n[2] == 0 || n[3] != 0) &&
+                      (n[7] == 0 || n[0] == 0 || n[1] == 0 || n[2] != 0) &&
+                      (n[6] == 0 || n[7] == 0 || n[0] == 0 || n[1] != 0) &&
+                      (n[5] == 0 || n[6] == 0 || n[7] == 0 || n[0] != 0) &&
+                      (n[4] == 0 || n[5] == 0 || n[6] == 0 || n[7] != 0) &&
+                      (n[3] == 0 || n[4] == 0 || n[5] == 0 || n[6] != 0) &&
+                      (n[2] == 0 || n[3] == 0 || n[4] == 0 || n[5] != 0)))
                   {
                     // remaining pixels need to be connected.
                     // do not break corner connectivity
                     if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
-                        (n[3] == 0 || n[2] > 1 || n[4] > 1) &&
-                        (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
-                        (n[7] == 0 || n[6] > 1 || n[0] > 1))
+                      (n[3] == 0 || n[2] > 1 || n[4] > 1) && (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
+                      (n[7] == 0 || n[6] > 1 || n[0] > 1))
                     {
                       // opposite faces
                       // (special condition so double thick lines
                       // will not be completely eroded)
                       if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
-                          (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
+                        (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
                       {
                         // check to stop pruning (sort of a hack heuristic)
                         if (prune > 1 || (countFaces > 2) ||
-                            ((countFaces == 2) && (countCorners > 1)))
+                          ((countFaces == 2) && (countCorners > 1)))
                         {
                           *inPtr0 = 1;
                         }
@@ -256,7 +278,6 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                 }
               }
             }
-
           }
           inPtr0 += inInc0;
         }
@@ -266,7 +287,6 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
     }
     ++inPtrC;
   }
-
 
   // copy to output
   for (idxC = 0; idxC < numComps; ++idxC)
@@ -306,34 +326,25 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   }
 }
 
-
-
-
-
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageSkeleton2D::ThreadedRequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed( outputVector ),
-  vtkImageData ***inDataV,
-  vtkImageData **outDataV,
-  int outExt[6],
-  int id)
+void vtkImageSkeleton2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inDataV, vtkImageData** outDataV, int outExt[6], int id)
 {
   vtkImageData* inData = inDataV[0][0];
   vtkImageData* outData = outDataV[0];
-  void *inPtr;
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  vtkImageData *tempData;
+  void* inPtr;
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
+  vtkImageData* tempData;
   int inExt[6], wholeExt[6];
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
   {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-      << ", must match out ScalarType " << outData->GetScalarType());
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
@@ -341,8 +352,8 @@ void vtkImageSkeleton2D::ThreadedRequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  vtkInformation* inScalarInfo = vtkDataObject::GetActiveFieldInformation(
+    inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
   {
     vtkErrorMacro("Missing ActiveScalar info in input information!");
@@ -353,17 +364,14 @@ void vtkImageSkeleton2D::ThreadedRequestData(
   tempData = vtkImageData::New();
   tempData->SetExtent(inExt);
   tempData->AllocateScalars(inScalarInfo->Get(vtkImageData::FIELD_ARRAY_TYPE()),
-                            inScalarInfo->Get(vtkImageData::FIELD_NUMBER_OF_COMPONENTS()));
+    inScalarInfo->Get(vtkImageData::FIELD_NUMBER_OF_COMPONENTS()));
   tempData->CopyAndCastFrom(inData, inExt);
 
   inPtr = tempData->GetScalarPointerForExtent(outExt);
   switch (tempData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageSkeleton2DExecute(this, tempData,
-                                static_cast<VTK_TT *>(inPtr), outData, outExt,
-                                static_cast<VTK_TT *>(outPtr), id,
-                                wholeExt));
+    vtkTemplateMacro(vtkImageSkeleton2DExecute(this, tempData, static_cast<VTK_TT*>(inPtr), outData,
+      outExt, static_cast<VTK_TT*>(outPtr), id, wholeExt));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       tempData->Delete();
@@ -375,8 +383,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
 
 void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Prune: " << (this->Prune ? "On\n" : "Off\n");
-
 }

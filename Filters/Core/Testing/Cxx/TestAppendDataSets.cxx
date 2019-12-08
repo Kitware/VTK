@@ -16,8 +16,8 @@
 #include <vtkAppendDataSets.h>
 #include <vtkCellData.h>
 #include <vtkDataObjectTypes.h>
-#include <vtkDataSetAttributes.h>
 #include <vtkDataSet.h>
+#include <vtkDataSetAttributes.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkIntArray.h>
@@ -31,12 +31,14 @@
 #include <numeric> // for iota
 
 //////////////////////////////////////////////////////////////////////////////
-namespace {
+namespace
+{
 
-class DataArrayInfo {
+class DataArrayInfo
+{
 public:
-  std::string      Name;
-  int              NumberOfComponents;
+  std::string Name;
+  int NumberOfComponents;
   std::vector<int> Value;
 
   DataArrayInfo()
@@ -52,19 +54,19 @@ public:
 void FillComponentWithRandom(vtkIntArray* array, int component)
 {
   int numberOfComponents = array->GetNumberOfComponents();
-  int* values = static_cast<int*>(array->GetVoidPointer(0));
+  int* values = array->GetPointer(0);
   for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
   {
-    values[i*numberOfComponents + component] = vtkMath::Random()*100000;
+    values[i * numberOfComponents + component] = vtkMath::Random() * 100000;
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Create a dataset for testing
 //////////////////////////////////////////////////////////////////////////////
-void CreateDataset(vtkPointSet* dataset,
-                   int numberOfPoints, const std::vector<DataArrayInfo> & pointArrayInfo,
-                   int numberOfCells, const std::vector<DataArrayInfo> & cellArrayInfo)
+void CreateDataset(vtkPointSet* dataset, int numberOfPoints,
+  const std::vector<DataArrayInfo>& pointArrayInfo, int numberOfCells,
+  const std::vector<DataArrayInfo>& cellArrayInfo)
 {
   for (size_t i = 0; i < pointArrayInfo.size(); ++i)
   {
@@ -102,7 +104,7 @@ void CreateDataset(vtkPointSet* dataset,
   auto datasetUG = vtkUnstructuredGrid::SafeDownCast(dataset);
   if (datasetPD)
   {
-    datasetPD->Allocate(numberOfPoints);
+    datasetPD->AllocateEstimate(numberOfPoints, 1);
   }
   if (datasetUG)
   {
@@ -113,7 +115,7 @@ void CreateDataset(vtkPointSet* dataset,
   vtkNew<vtkIdList> ids;
   for (vtkIdType i = 0; i < numberOfPoints; ++i)
   {
-    points->InsertNextPoint( vtkMath::Random(), vtkMath::Random(), vtkMath::Random() );
+    points->InsertNextPoint(vtkMath::Random(), vtkMath::Random(), vtkMath::Random());
     ids->InsertId(0, i);
   }
 
@@ -131,7 +133,7 @@ void CreateDataset(vtkPointSet* dataset,
     }
   }
 
-  dataset->SetPoints( points );
+  dataset->SetPoints(points);
 
   // Add global point and cell ids.
   static int next_point_gid = 0;
@@ -189,19 +191,23 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* outputArrayName = outputArray->GetName();
     std::cout << "Array " << arrayIndex << " - ";
-    std::cout << (outputArrayName ? outputArrayName : "(null)")  << ": [ ";
+    std::cout << (outputArrayName ? outputArrayName : "(null)") << ": [ ";
     int numTuples = outputArray->GetNumberOfTuples();
     int numComponents = outputArray->GetNumberOfComponents();
     for (int i = 0; i < numTuples; ++i)
     {
-      if (numComponents > 1) std::cout << "(";
+      if (numComponents > 1)
+        std::cout << "(";
       for (int j = 0; j < numComponents; ++j)
       {
         std::cout << outputArray->GetComponent(i, j);
-        if (j < numComponents-1) std::cout << ", ";
+        if (j < numComponents - 1)
+          std::cout << ", ";
       }
-      if (numComponents > 1) std::cout << ")";
-      if (i < numTuples - 1) std::cout << ", ";
+      if (numComponents > 1)
+        std::cout << ")";
+      if (i < numTuples - 1)
+        std::cout << ", ";
     }
     std::cout << " ]\n";
   }
@@ -213,8 +219,8 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     const char* arrayName = outputArray->GetName();
     if (arrayName == nullptr)
     {
-      // Arrays with nullptr names can only come out of the filter if they are designated an attribute.
-      // We'll check those later.
+      // Arrays with nullptr names can only come out of the filter if they are designated an
+      // attribute. We'll check those later.
       continue;
     }
 
@@ -233,8 +239,10 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     }
     if (numInputTuples != outputArray->GetNumberOfTuples())
     {
-      std::cerr << "Number of tuples in output does not match total number of tuples in input arrays\n";
-      std::cerr << "Expected " << numInputTuples << ", but got " << outputArray->GetNumberOfTuples() << std::endl;
+      std::cerr
+        << "Number of tuples in output does not match total number of tuples in input arrays\n";
+      std::cerr << "Expected " << numInputTuples << ", but got " << outputArray->GetNumberOfTuples()
+                << std::endl;
       return 0;
     }
 
@@ -259,8 +267,8 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     }
   }
 
-
-  for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
+  for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES;
+       ++attributeIndex)
   {
     const char* attributeName = vtkDataSetAttributes::GetAttributeTypeAsString(attributeIndex);
 
@@ -269,8 +277,7 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     if (outputAttributeArray)
     {
       std::cout << "Active attribute '" << attributeName << "' in output: "
-                << (outputAttributeArray->GetName() ?
-                    outputAttributeArray->GetName() : "(null)")
+                << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
                 << "\n";
     }
 
@@ -281,12 +288,12 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
 
       if (outputAttributeArray && !inputAttributeArray)
       {
-        std::cerr << "Output had attribute array for '" << attributeName
-                  << "' but input " << inputIndex << " did not.\n";
+        std::cerr << "Output had attribute array for '" << attributeName << "' but input "
+                  << inputIndex << " did not.\n";
         return 0;
       }
       else if (outputAttributeArray && inputAttributeArray &&
-               strcmp_null(outputAttributeArray->GetName(), inputAttributeArray->GetName()) != 0)
+        strcmp_null(outputAttributeArray->GetName(), inputAttributeArray->GetName()) != 0)
       {
         std::cerr << "Output had array '"
                   << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
@@ -332,16 +339,19 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
       if (!outputAttributeArray)
       {
         std::cerr << "Inputs all have the attribute '" << attributeName << "' set to the name '"
-                  << (attributeArrayName ? attributeArrayName : "(null)") << "', but the output does not "
+                  << (attributeArrayName ? attributeArrayName : "(null)")
+                  << "', but the output does not "
                   << "have this attribute\n";
         return 0;
       }
       else if (strcmp_null(outputAttributeArray->GetName(), attributeArrayName) != 0)
       {
         std::cerr << "Inputs have attribute '" << attributeName << "' set to the name '"
-                  << (attributeArrayName ? attributeArrayName : "(null)") << "', but the output attribute "
+                  << (attributeArrayName ? attributeArrayName : "(null)")
+                  << "', but the output attribute "
                   << "has the attribute set to the name '"
-                  << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)") << "\n";
+                  << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
+                  << "\n";
         return 0;
       }
       else
@@ -350,7 +360,8 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
         vtkIdType offset = 0;
         for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
         {
-          vtkDataArray* attributeArray = inputs[inputIndex]->GetAttributes(fieldType)->GetAttribute(attributeIndex);
+          vtkDataArray* attributeArray =
+            inputs[inputIndex]->GetAttributes(fieldType)->GetAttribute(attributeIndex);
           if (!attributeArray)
           {
             continue;
@@ -359,10 +370,11 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
           {
             for (int j = 0; j < attributeArray->GetNumberOfComponents(); ++j)
             {
-              if (attributeArray->GetComponent(i, j) != outputAttributeArray->GetComponent(i + offset, j))
+              if (attributeArray->GetComponent(i, j) !=
+                outputAttributeArray->GetComponent(i + offset, j))
               {
-                std::cerr << "Mismatched output in attribute at output tuple " << i
-                          << "component " << j << " in input " << inputIndex << "\n";
+                std::cerr << "Mismatched output in attribute at output tuple " << i << "component "
+                          << j << " in input " << inputIndex << "\n";
                 return 0;
               }
             }
@@ -383,17 +395,17 @@ int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendDataSets* append)
 {
   append->MergePointsOn();
   append->Update();
-  vtkDataSet * output = append->GetOutput();
+  vtkDataSet* output = append->GetOutput();
 
   if (output->GetPointData()->GetNumberOfArrays() > 0 &&
-      output->GetPointData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfPoints())
+    output->GetPointData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfPoints())
   {
     std::cerr << "Wrong number of tuples in output point data arrays\n";
     return 0;
   }
 
   if (output->GetCellData()->GetNumberOfArrays() > 0 &&
-      output->GetCellData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfCells())
+    output->GetCellData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfCells())
   {
     std::cerr << "Wrong number of tuples in output cell data arrays\n";
     return 0;
@@ -421,7 +433,7 @@ int AppendDatasetsAndPrint(const std::vector<vtkDataSet*>& inputs, const char* e
   vtkNew<vtkAppendDataSets> append;
   for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
   {
-    append->AddInputData( inputs[inputIndex] );
+    append->AddInputData(inputs[inputIndex]);
   }
   append->SetOutputDataSetType(vtkDataObjectTypes::GetTypeIdFromClassName(expectedDataSetType));
   append->Update();
@@ -429,7 +441,7 @@ int AppendDatasetsAndPrint(const std::vector<vtkDataSet*>& inputs, const char* e
   if (!output->IsA(expectedDataSetType))
   {
     std::cerr << "Output dataset type is " << output->GetClassName() << " but is expected to be "
-      << expectedDataSetType << std::endl;
+              << expectedDataSetType << std::endl;
     return 0;
   }
 
@@ -479,13 +491,14 @@ bool TestToleranceModes(vtkDataSet* dataset1, vtkDataSet* dataset2)
   {
     double point[3];
     output->GetPoint(i, point);
-    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
+    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2]
+              << std::endl;
   }
 
   if (output->GetNumberOfPoints() != 2)
   {
-    std::cerr << "Point merging with relative tolerance yielded "
-      << output->GetNumberOfPoints() << " points instead of 2.\n";
+    std::cerr << "Point merging with relative tolerance yielded " << output->GetNumberOfPoints()
+              << " points instead of 2.\n";
     return false;
   }
 
@@ -499,13 +512,14 @@ bool TestToleranceModes(vtkDataSet* dataset1, vtkDataSet* dataset2)
   {
     double point[3];
     output->GetPoint(i, point);
-    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
+    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2]
+              << std::endl;
   }
 
   if (output->GetNumberOfPoints() != 3)
   {
-    std::cerr << "Point merging with absolute tolerance yielded "
-      << output->GetNumberOfPoints() << " points instead of 3.\n";
+    std::cerr << "Point merging with absolute tolerance yielded " << output->GetNumberOfPoints()
+              << " points instead of 3.\n";
     return false;
   }
 
@@ -522,15 +536,15 @@ bool TestToleranceModes()
   points2->InsertNextPoint(0.0, 1.0, 0.0);
   points2->InsertNextPoint(0.0, 4.0, 0.0);
 
-  vtkIdType ptIds[] = {0, 1};
+  vtkIdType ptIds[] = { 0, 1 };
 
   vtkNew<vtkPolyData> polydata1;
-  polydata1->Allocate(3, 10);
+  polydata1->AllocateEstimate(3, 10);
   polydata1->SetPoints(points1);
   polydata1->InsertNextCell(VTK_LINE, 2, ptIds);
 
   vtkNew<vtkPolyData> polydata2;
-  polydata2->Allocate(3, 10);
+  polydata2->AllocateEstimate(3, 10);
   polydata2->SetPoints(points2);
   polydata2->InsertNextCell(VTK_LINE, 2, ptIds);
 
@@ -562,7 +576,7 @@ bool TestToleranceModes()
 } // end anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
-int TestAppendDataSets( int, char* [])
+int TestAppendDataSets(int, char*[])
 {
   // Set up d1 data object
   std::vector<DataArrayInfo> d1PointInfo(2, DataArrayInfo());
@@ -625,10 +639,10 @@ int TestAppendDataSets( int, char* [])
 
   // Set the active scalars in the first dataset to "A" and the active scalars in
   // the second dataset to "B".
-  d1->GetPointData()->SetActiveScalars( "A" );
-  d1->GetCellData ()->SetActiveScalars( "a" );
-  d2->GetPointData()->SetActiveScalars( "B" );
-  d2->GetCellData ()->SetActiveScalars( "b" );
+  d1->GetPointData()->SetActiveScalars("A");
+  d1->GetCellData()->SetActiveScalars("a");
+  d2->GetPointData()->SetActiveScalars("B");
+  d2->GetCellData()->SetActiveScalars("b");
 
   std::cout << "===========================================================\n";
   std::cout << "Append result with 'A' active scalar in D1, 'B' active scalar in D2: " << std::endl;
@@ -640,10 +654,10 @@ int TestAppendDataSets( int, char* [])
 
   // Set the active scalars in the first dataset to "B" and the active scalars in
   // the second dataset to "A".
-  d1->GetPointData()->SetActiveScalars( "B" );
-  d1->GetCellData ()->SetActiveScalars( "b" );
-  d2->GetPointData()->SetActiveScalars( "A" );
-  d2->GetCellData ()->SetActiveScalars( "a" );
+  d1->GetPointData()->SetActiveScalars("B");
+  d1->GetCellData()->SetActiveScalars("b");
+  d2->GetPointData()->SetActiveScalars("A");
+  d2->GetCellData()->SetActiveScalars("a");
 
   std::cout << "===========================================================\n";
   std::cout << "Append result with 'B' active scalar in D1, 'A' active scalar in D2: " << std::endl;
@@ -654,10 +668,10 @@ int TestAppendDataSets( int, char* [])
   }
 
   // Set the active scalars in both datasets to "A"
-  d1->GetPointData()->SetActiveScalars( "A" );
-  d1->GetCellData ()->SetActiveScalars( "a" );
-  d2->GetPointData()->SetActiveScalars( "A" );
-  d2->GetCellData ()->SetActiveScalars( "a" );
+  d1->GetPointData()->SetActiveScalars("A");
+  d1->GetCellData()->SetActiveScalars("a");
+  d2->GetPointData()->SetActiveScalars("A");
+  d2->GetCellData()->SetActiveScalars("a");
 
   std::cout << "===========================================================\n";
   std::cout << "Append result with A active scalar in D1 and D2: " << std::endl;
@@ -668,10 +682,10 @@ int TestAppendDataSets( int, char* [])
   }
 
   // Set the active scalars in both datasets to "B"
-  d1->GetPointData()->SetActiveScalars( "B" );
-  d1->GetCellData ()->SetActiveScalars( "b" );
-  d2->GetPointData()->SetActiveScalars( "B" );
-  d2->GetCellData ()->SetActiveScalars( "b" );
+  d1->GetPointData()->SetActiveScalars("B");
+  d1->GetCellData()->SetActiveScalars("b");
+  d2->GetPointData()->SetActiveScalars("B");
+  d2->GetCellData()->SetActiveScalars("b");
 
   std::cout << "===========================================================\n";
   std::cout << "Append result with B active scalar in D1 and D2: " << std::endl;
@@ -825,12 +839,14 @@ int TestAppendDataSets( int, char* [])
   CreateDataset(d8, d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
 
   std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with same name but different number of components: " << std::endl;
+  std::cout << "Append result of scalar arrays with same name but different number of components: "
+            << std::endl;
   inputs[0] = d7;
   inputs[1] = d8;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with scalar arrays with same name but different components\n";
+    std::cerr
+      << "vtkAppendDataSets failed with scalar arrays with same name but different components\n";
     return EXIT_FAILURE;
   }
 

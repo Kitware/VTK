@@ -34,7 +34,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastRenderDepthToImage2(int argc, char *argv[])
+int TestGPURayCastRenderDepthToImage2(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -118,8 +118,8 @@ int TestGPURayCastRenderDepthToImage2(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

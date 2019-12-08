@@ -16,22 +16,22 @@
  * @brief   OpenVR Follower
  *
  * vtkOpenVRFollower a follower that aligns with PhysicalViewUp
-*/
+ */
 
 #ifndef vtkOpenVRFollower_h
 #define vtkOpenVRFollower_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkFollower.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRFollower : public vtkFollower
 {
 public:
-  static vtkOpenVRFollower *New();
+  static vtkOpenVRFollower* New();
   vtkTypeMacro(vtkOpenVRFollower, vtkFollower);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void Render(vtkRenderer *ren) override;
+  virtual void Render(vtkRenderer* ren) override;
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses

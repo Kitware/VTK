@@ -21,21 +21,21 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkNew.h"
-#include "vtkPLYReader.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
+#include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
-#include "vtkSSAAPass.h"
 #include "vtkRenderStepsPass.h"
+#include "vtkSSAAPass.h"
 
 #include "vtkCellArray.h"
 #include "vtkTimerLog.h"
@@ -55,8 +55,7 @@ int TestSSAAPass(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
@@ -69,17 +68,16 @@ int TestSSAAPass(int argc, char* argv[])
 
   // tell the renderer to use our render pass pipeline
   glrenderer->SetPass(ssaa);
-//  glrenderer->SetPass(basicPasses);
+  //  glrenderer->SetPass(basicPasses);
 
-  renWin->SetSize(500,500);
+  renWin->SetSize(500, 500);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
@@ -91,7 +89,7 @@ int TestSSAAPass(int argc, char* argv[])
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
 
- vtkNew<vtkTimerLog> timer;
+  vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
   renWin->Render();
   timer->StopTimer();
@@ -102,26 +100,26 @@ int TestSSAAPass(int argc, char* argv[])
   int numRenders = 4;
   for (int i = 0; i < numRenders; ++i)
   {
-    renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
-    renderer->GetActiveCamera()->Elevation(88.0/numRenders);
+    renderer->GetActiveCamera()->Azimuth(80.0 / numRenders);
+    renderer->GetActiveCamera()->Elevation(88.0 / numRenders);
     renWin->Render();
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
   unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
-  cerr << "number of triangles: " <<  numTris << endl;
-  cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
+  cerr << "number of triangles: " << numTris << endl;
+  cerr << "triangles per second: " << numTris * (numRenders / elapsed) << endl;
 
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

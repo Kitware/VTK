@@ -21,7 +21,7 @@
  *
  * This filter adds a cell data array containing the number of vertices per
  * cell.
-*/
+ */
 
 #ifndef vtkCountVertices_h
 #define vtkCountVertices_h
@@ -29,32 +29,32 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkCountVertices: public vtkPassInputTypeAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkCountVertices : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkCountVertices* New();
-  vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * The name of the new output array containing the vertex counts.
    */
-  vtkSetStringMacro(OutputArrayName)
-  vtkGetStringMacro(OutputArrayName)
+  vtkSetStringMacro(OutputArrayName);
+  vtkGetStringMacro(OutputArrayName);
   //@}
 
 protected:
   vtkCountVertices();
   ~vtkCountVertices() override;
 
-  int RequestData(vtkInformation* request, vtkInformationVector **inInfoVec,
-                  vtkInformationVector *outInfoVec) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  char *OutputArrayName;
+  char* OutputArrayName;
 
 private:
   vtkCountVertices(const vtkCountVertices&) = delete;

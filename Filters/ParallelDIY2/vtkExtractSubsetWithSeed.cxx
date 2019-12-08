@@ -55,7 +55,7 @@
 
 #include <set>
 
-template<typename T, int Size>
+template <typename T, int Size>
 bool operator<(const vtkVector<T, Size>& lhs, const vtkVector<T, Size>& rhs)
 {
   for (int cc = 0; cc < Size; ++cc)
@@ -87,6 +87,11 @@ struct BlockT
 
   void AddExtracts(vtkPartitionedDataSet* pds)
   {
+    if (!this->Input)
+    {
+      return;
+    }
+
     unsigned int idx = pds->GetNumberOfPartitions();
     for (auto& extract : this->Extracts)
     {
@@ -101,6 +106,11 @@ struct BlockT
 
 void BlockT::GenerateExtracts()
 {
+  if (!this->Input)
+  {
+    return;
+  }
+
   this->Extracts.clear();
   vtkNew<vtkExtractGrid> extractor; // TODO: avoid creating new one on each iteration.
   for (const auto& voi : this->Regions)
@@ -312,7 +322,7 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
 /**
  * shallow copy except those blocks where the predicate returns true.
  */
-template<typename UnaryPredicate>
+template <typename UnaryPredicate>
 void ShallowCopyIfNot(vtkCompositeDataSet* input, vtkCompositeDataSet* output, UnaryPredicate p)
 {
   output->CopyStructure(input);
@@ -338,7 +348,7 @@ void Append(vtkPartitionedDataSet* input, vtkPartitionedDataSet* output)
   }
 }
 
-template<typename V, typename SizeT>
+template <typename V, typename SizeT>
 vtkPartitionedDataSet* vtkSafeGet(V& vec, SizeT off)
 {
   return (off < static_cast<SizeT>(vec.size())) ? vec[off] : nullptr;
@@ -494,12 +504,20 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(), prunePredicate), datasets.end());
 
+  // since we're using collectives, if a rank has no blocks this can fall part
+  // very quickly (see paraview/paraview#19391); hence we add a single block.
+  if (datasets.size() == 0)
+  {
+    datasets.push_back(nullptr);
+  }
+
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->GetController());
   const int local_num_blocks = static_cast<int>(datasets.size());
 
   vtkDIYExplicitAssigner assigner(comm, local_num_blocks);
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
     [](void* b) { delete static_cast<BlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");
@@ -509,12 +527,14 @@ int vtkExtractSubsetWithSeed::RequestData(
   for (size_t lid = 0; lid < gids.size(); ++lid)
   {
     auto block = new BlockT();
-    block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
-    assert(block->Input != nullptr &&
-      vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
-
-    block->CellLocator->SetDataSet(block->Input);
-    block->CellLocator->BuildLocator();
+    if (datasets[lid] != nullptr)
+    {
+      block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
+      assert(block->Input != nullptr &&
+        vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
+      block->CellLocator->SetDataSet(block->Input);
+      block->CellLocator->BuildLocator();
+    }
     master.add(gids[lid], block, new diy::Link);
   }
   vtkLogEndScope("populate master");
@@ -523,13 +543,19 @@ int vtkExtractSubsetWithSeed::RequestData(
   vtkLogStartScope(TRACE, "populate block neighbours");
   std::map<int, std::vector<int> > neighbors;
   diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
-    double bds[6];
-    b->Input->GetBounds(bds);
-    vtkBoundingBox bbox(bds);
-    bbox.Inflate(0.000001);
+    vtkBoundingBox bbox;
+    if (b->Input)
+    {
+      double bds[6];
+      b->Input->GetBounds(bds);
+      bbox.SetBounds(bds);
+      bbox.Inflate(0.000001);
+    }
 
     if (rp.round() == 0)
     {
+      double bds[6];
+      bbox.GetBounds(bds);
       for (int i = 0; i < rp.out_link().size(); ++i)
       {
         const auto dest = rp.out_link().target(i);
@@ -544,7 +570,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         double in_bds[6];
         rp.dequeue(src, in_bds, 6);
         vtkBoundingBox in_bbx(in_bds);
-        if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
+        if (src.gid != rp.gid() && in_bbx.IsValid() && bbox.IsValid() && in_bbx.Intersects(bbox))
         {
           vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
           neighbors[rp.gid()].push_back(src.gid);
@@ -596,66 +622,69 @@ int vtkExtractSubsetWithSeed::RequestData(
   int round = 0;
   while (!all_done)
   {
-    master.foreach (
-      [this, &round, &propagation_mask](BlockT* b, const diy::Master::ProxyWithLink& cp) {
-        std::vector<SeedT> seeds;
-        if (round == 0)
+    master.foreach ([this, &round, &propagation_mask](
+                      BlockT* b, const diy::Master::ProxyWithLink& cp) {
+      std::vector<SeedT> seeds;
+      if (round == 0)
+      {
+        const vtkIdType cellid =
+          (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
+        if (cellid >= 0)
         {
-          const vtkIdType cellid = b->CellLocator->FindCell(this->GetSeed());
-          if (cellid >= 0)
+          auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
+          seeds.push_back(
+            std::make_tuple(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second));
+        }
+      }
+      else
+      {
+        // dequeue
+        std::vector<int> incoming;
+        cp.incoming(incoming);
+        for (const int& gid : incoming)
+        {
+          if (cp.incoming(gid).size() > 0)
           {
-            auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
-            seeds.push_back(
-              std::make_tuple(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second));
+            assert(b->Input != nullptr); // we should not be getting messages if we don't have data!
+            std::vector<SeedT> next_seeds;
+            cp.dequeue(gid, next_seeds);
+            seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
           }
         }
-        else
+      }
+
+      std::vector<SeedT> next_seeds;
+      for (const auto& seed : seeds)
+      {
+        std::vector<vtkVector3d> dirs;
+        if (std::get<1>(seed).SquaredNorm() != 0)
         {
-          // dequeue
-          std::vector<int> incoming;
-          cp.incoming(incoming);
-          for (const int& gid : incoming)
-          {
-            if (cp.incoming(gid).size() > 0)
-            {
-              std::vector<SeedT> next_seeds;
-              cp.dequeue(gid, next_seeds);
-              seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
-            }
-          }
+          dirs.push_back(std::get<1>(seed));
         }
-
-        std::vector<SeedT> next_seeds;
-        for (const auto& seed : seeds)
+        if (std::get<2>(seed).SquaredNorm() != 0)
         {
-          std::vector<vtkVector3d> dirs;
-          if (std::get<1>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<1>(seed));
-          }
-          if (std::get<2>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<2>(seed));
-          }
-          auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
-          next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+          dirs.push_back(std::get<2>(seed));
         }
+        auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
+        next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+      }
 
-        if (next_seeds.size() > 0)
+      if (next_seeds.size() > 0)
+      {
+        // enqueue
+        for (const auto& neighbor : cp.link()->neighbors())
         {
-          // enqueue
-          for (const auto& neighbor : cp.link()->neighbors())
-          {
-            vtkLogF(TRACE, "r=%d: enqueing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
-            cp.enqueue(neighbor, next_seeds);
-          }
+          vtkLogF(
+            TRACE, "r=%d: enqueing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
+          cp.enqueue(neighbor, next_seeds);
         }
+      }
 
-        cp.collectives()->clear();
+      cp.collectives()->clear();
 
-        const int has_seeds = (next_seeds.size() > 0) ? 1 : 0;
-        cp.all_reduce(has_seeds, std::logical_or<int>());
-      });
+      const int has_seeds = (next_seeds.size() > 0) ? 1 : 0;
+      cp.all_reduce(has_seeds, std::logical_or<int>());
+    });
     vtkLogF(TRACE, "r=%d, exchange", round);
     master.exchange();
     all_done = (master.proxy(master.loaded_block()).read<int>() == 0);

@@ -38,28 +38,29 @@
  *
  * @sa
  * vtkPointData vtkCellData vtkPointDataToCellData
-*/
+ */
 
 #ifndef vtkCellDataToPointData_h
 #define vtkCellDataToPointData_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 {
 public:
-  static vtkCellDataToPointData *New();
-  vtkTypeMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
+  static vtkCellDataToPointData* New();
+  vtkTypeMacro(vtkCellDataToPointData, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Options to choose what cells contribute to the calculation
-  enum ContributingCellEnum {
-    All=0,        //!< All cells
-    Patch=1,      //!< Highest dimension cells in the patch of cells contributing to the calculation
-    DataSetMax=2  //!< Highest dimension cells in the data set
+  enum ContributingCellEnum
+  {
+    All = 0,   //!< All cells
+    Patch = 1, //!< Highest dimension cells in the patch of cells contributing to the calculation
+    DataSetMax = 2 //!< Highest dimension cells in the data set
   };
 
   //@{
@@ -68,9 +69,9 @@ public:
    * on, then the input cell data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassCellData,bool);
-  vtkGetMacro(PassCellData,bool);
-  vtkBooleanMacro(PassCellData,bool);
+  vtkSetMacro(PassCellData, bool);
+  vtkGetMacro(PassCellData, bool);
+  vtkBooleanMacro(PassCellData, bool);
   //@}
 
   //@{
@@ -97,14 +98,14 @@ public:
    * ProcessAllArrays option is turned off. If a name is already present,
    * nothing happens.
    */
-  virtual void AddCellDataArray(const char *name);
+  virtual void AddCellDataArray(const char* name);
 
   /**
    * Removes an array to be processed. This only has an effect if the
    * ProcessAllArrays option is turned off. If the specified name is not
    * present, nothing happens.
    */
-  virtual void RemoveCellDataArray(const char *name);
+  virtual void RemoveCellDataArray(const char* name);
 
   /**
    * Removes all arrays to be processed from the list. This only has an effect
@@ -116,20 +117,19 @@ protected:
   vtkCellDataToPointData();
   ~vtkCellDataToPointData() override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //@{
   /**
    * Special algorithm for unstructured grids and polydata to make sure
    * that we properly take into account ContributingCellOption.
    */
-  int RequestDataForUnstructuredData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestDataForUnstructuredData(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   //@}
 
-  int InterpolatePointData(vtkDataSet *input, vtkDataSet *output);
+  int InterpolatePointData(vtkDataSet* input, vtkDataSet* output);
 
   //@{
   /**
@@ -152,7 +152,7 @@ protected:
   bool ProcessAllArrays;
 
   class Internals;
-  Internals *Implementation;
+  Internals* Implementation;
 
 private:
   vtkCellDataToPointData(const vtkCellDataToPointData&) = delete;
@@ -160,5 +160,3 @@ private:
 };
 
 #endif
-
-

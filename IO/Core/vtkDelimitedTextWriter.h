@@ -22,7 +22,7 @@
  * @class   vtkDelimitedTextWriter
  * @brief   Delimited text writer for vtkTable
  * Writes a vtkTable as a delimited text file (such as CSV).
-*/
+ */
 
 #ifndef vtkDelimitedTextWriter_h
 #define vtkDelimitedTextWriter_h
@@ -78,16 +78,16 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,bool);
-  vtkGetMacro(WriteToOutputString,bool);
-  vtkBooleanMacro(WriteToOutputString,bool);
+  vtkSetMacro(WriteToOutputString, bool);
+  vtkGetMacro(WriteToOutputString, bool);
+  vtkBooleanMacro(WriteToOutputString, bool);
   //@}
 
   /**
    * This convenience method returns the string, sets the IVAR to nullptr,
    * so that the user is responsible for deleting the string.
    */
-  char *RegisterAndGetOutputString();
+  char* RegisterAndGetOutputString();
 
   /**
    * Internal method: Returns the "string" with the "StringDelimiter" if
@@ -123,7 +123,4 @@ private:
   void operator=(const vtkDelimitedTextWriter&) = delete;
 };
 
-
-
 #endif
-

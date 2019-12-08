@@ -18,7 +18,7 @@
  *
  * vtkEvent is a class that fully describes a VTK event. It is used by the
  * widgets to help specify the mapping between VTK events and widget events.
-*/
+ */
 
 #ifndef vtkEvent_h
 #define vtkEvent_h
@@ -34,13 +34,13 @@ public:
   /**
    * The object factory constructor.
    */
-  static vtkEvent *New();
+  static vtkEvent* New();
 
   //@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkEvent,vtkObject);
+  vtkTypeMacro(vtkEvent, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -48,7 +48,8 @@ public:
    * Ways to specify modifiers to VTK events. These can be logical OR'd to
    * produce combinations of modifiers.
    */
-  enum EventModifiers {
+  enum EventModifiers
+  {
     AnyModifier = -1,
     NoModifier = 0,
     ShiftModifier = 1,
@@ -60,32 +61,32 @@ public:
   /**
    * Set the modifier for the event.
    */
-  vtkSetMacro(EventId,unsigned long);
-  vtkGetMacro(EventId,unsigned long);
+  vtkSetMacro(EventId, unsigned long);
+  vtkGetMacro(EventId, unsigned long);
   //@}
 
   //@{
   /**
    * Set the modifier for the event.
    */
-  vtkSetMacro(Modifier,int);
-  vtkGetMacro(Modifier,int);
+  vtkSetMacro(Modifier, int);
+  vtkGetMacro(Modifier, int);
   //@}
 
   //@{
   /**
    * Set the KeyCode for the event.
    */
-  vtkSetMacro(KeyCode,char);
-  vtkGetMacro(KeyCode,char);
+  vtkSetMacro(KeyCode, char);
+  vtkGetMacro(KeyCode, char);
   //@}
 
   //@{
   /**
    * Set the repease count for the event.
    */
-  vtkSetMacro(RepeatCount,int);
-  vtkGetMacro(RepeatCount,int);
+  vtkSetMacro(RepeatCount, int);
+  vtkGetMacro(RepeatCount, int);
   //@}
 
   //@{
@@ -106,22 +107,21 @@ public:
    * the EventId as well as the various modifiers.
    */
   bool operator==(vtkEvent*);
-  bool operator==(unsigned long VTKEvent);  //event with no modifiers
+  bool operator==(unsigned long VTKEvent); // event with no modifiers
 
 protected:
   vtkEvent();
   ~vtkEvent() override;
 
   unsigned long EventId;
-  int           Modifier;
-  char          KeyCode;
-  int           RepeatCount;
-  char*         KeySym;
+  int Modifier;
+  char KeyCode;
+  int RepeatCount;
+  char* KeySym;
 
 private:
   vtkEvent(const vtkEvent&) = delete;
   void operator=(const vtkEvent&) = delete;
-
 };
 
 #endif

@@ -69,7 +69,7 @@ public:
   enum : int
   {
     Equirectangular = 1, /**< Equirectangular projection */
-    Azimuthal = 2 /**< Azimuthal equidistant projection */
+    Azimuthal = 2        /**< Azimuthal equidistant projection */
   };
 
   //@{

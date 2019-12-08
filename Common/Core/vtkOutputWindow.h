@@ -20,13 +20,13 @@
  * with operating systems that have a stdout and stderr, and ones that
  * do not.  (i.e windows does not).  Sub-classes can be provided which can
  * redirect the output to a window.
-*/
+ */
 
 #ifndef vtkOutputWindow_h
 #define vtkOutputWindow_h
 
+#include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
@@ -44,8 +44,8 @@ class vtkOutputWindowPrivateAccessor;
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
 {
 public:
-// Methods from vtkObject
-  vtkTypeMacro(vtkOutputWindow,vtkObject);
+  // Methods from vtkObject
+  vtkTypeMacro(vtkOutputWindow, vtkObject);
   /**
    * Print ObjectFactor to stream.
    */
@@ -66,7 +66,7 @@ public:
    * Supply a user defined output window. Call ->Delete() on the supplied
    * instance after setting it.
    */
-  static void SetInstance(vtkOutputWindow *instance);
+  static void SetInstance(vtkOutputWindow* instance);
 
   //@{
   /**
@@ -203,6 +203,5 @@ private:
 
 // Uses schwartz counter idiom for singleton management
 static vtkOutputWindowCleanup vtkOutputWindowCleanupInstance;
-
 
 #endif

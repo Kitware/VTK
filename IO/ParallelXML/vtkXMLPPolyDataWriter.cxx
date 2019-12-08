@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkXMLPPolyDataWriter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkXMLPolyDataWriter.h"
-#include "vtkPolyData.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkXMLPolyDataWriter.h"
 
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
@@ -52,8 +52,7 @@ const char* vtkXMLPPolyDataWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLUnstructuredDataWriter*
-vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
+vtkXMLUnstructuredDataWriter* vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
 {
   // Create the writer for the piece.
   vtkXMLPolyDataWriter* pWriter = vtkXMLPolyDataWriter::New();
@@ -62,8 +61,7 @@ vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPPolyDataWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+int vtkXMLPPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

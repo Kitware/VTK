@@ -29,14 +29,14 @@
  *
  * This class is also the parent class for any more specialized view which uses
  * a renderer.
-*/
+ */
 
 #ifndef vtkRenderView_h
 #define vtkRenderView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkSmartPointer.h"       // For SP ivars
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAbstractTransform;
 class vtkActor2D;
@@ -67,7 +67,7 @@ public:
    * handling in order to do correctly - see the notes in the detailed
    * description of vtkRenderViewBase.
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
+  void SetInteractor(vtkRenderWindowInteractor* interactor) override;
 
   /**
    * The interactor style associated with the render view.
@@ -84,7 +84,7 @@ public:
    * handling in order to do correctly - see the notes in the detailed
    * description of vtkRenderViewBase.
    */
-  void SetRenderWindow(vtkRenderWindow *win) override;
+  void SetRenderWindow(vtkRenderWindow* win) override;
 
   enum
   {
@@ -101,10 +101,8 @@ public:
    * vtkRenderView::INTERACTION_MODE_2D - 2D interactor
    * vtkRenderView::INTERACTION_MODE_3D - 3D interactor
    */
-  virtual void SetInteractionModeTo2D()
-    { this->SetInteractionMode(INTERACTION_MODE_2D); }
-  virtual void SetInteractionModeTo3D()
-    { this->SetInteractionMode(INTERACTION_MODE_3D); }
+  virtual void SetInteractionModeTo2D() { this->SetInteractionMode(INTERACTION_MODE_2D); }
+  virtual void SetInteractionModeTo3D() { this->SetInteractionMode(INTERACTION_MODE_3D); }
 
   /**
    * Updates the representations, then calls Render() on the render window
@@ -135,7 +133,8 @@ public:
   vtkBooleanMacro(DisplayHoverText, bool);
   //@}
 
-  enum {
+  enum
+  {
     SURFACE = 0,
     FRUSTUM = 1
   };
@@ -189,7 +188,7 @@ public:
    */
   vtkSetVector2Macro(DisplaySize, int);
   int* GetDisplaySize();
-  void GetDisplaySize(int &dsx, int &dsy);
+  void GetDisplaySize(int& dsx, int& dsy);
   //@}
 
   enum
@@ -208,10 +207,8 @@ public:
    */
   virtual void SetLabelPlacementMode(int mode);
   virtual int GetLabelPlacementMode();
-  virtual void SetLabelPlacementModeToNoOverlap()
-    { this->SetLabelPlacementMode(NO_OVERLAP); }
-  virtual void SetLabelPlacementModeToAll()
-    { this->SetLabelPlacementMode(ALL); }
+  virtual void SetLabelPlacementModeToNoOverlap() { this->SetLabelPlacementMode(NO_OVERLAP); }
+  virtual void SetLabelPlacementModeToAll() { this->SetLabelPlacementMode(ALL); }
   //@}
 
   enum
@@ -228,10 +225,8 @@ public:
    */
   virtual void SetLabelRenderMode(int mode);
   virtual int GetLabelRenderMode();
-  virtual void SetLabelRenderModeToFreetype()
-    { this->SetLabelRenderMode(FREETYPE); }
-  virtual void SetLabelRenderModeToQt()
-    { this->SetLabelRenderMode(QT); }
+  virtual void SetLabelRenderModeToFreetype() { this->SetLabelRenderMode(FREETYPE); }
+  virtual void SetLabelRenderModeToQt() { this->SetLabelRenderMode(QT); }
   //@}
 
   //@{
@@ -252,14 +247,12 @@ protected:
    * Captures StartEvent events from the renderer and calls Update().
    * This may be overridden by subclasses to process additional events.
    */
-  void ProcessEvents(vtkObject* caller, unsigned long eventId,
-    void* callData) override;
+  void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData) override;
 
   /**
    * Generates the selection based on the view event and the selection mode.
    */
-  virtual void GenerateSelection(
-    void* callData, vtkSelection* selection);
+  virtual void GenerateSelection(void* callData, vtkSelection* selection);
 
   /**
    * Called by the view when the renderer is about to render.
@@ -299,12 +292,12 @@ protected:
   int InteractionMode;
   bool RenderOnMouseMove;
 
-  vtkSmartPointer<vtkRenderer>                 LabelRenderer;
-  vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
-  vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
-  vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
-  vtkSmartPointer<vtkHoverWidget>              HoverWidget;
-  vtkSmartPointer<vtkHardwareSelector>         Selector;
+  vtkSmartPointer<vtkRenderer> LabelRenderer;
+  vtkSmartPointer<vtkBalloonRepresentation> Balloon;
+  vtkSmartPointer<vtkLabelPlacementMapper> LabelPlacementMapper;
+  vtkSmartPointer<vtkTexturedActor2D> LabelActor;
+  vtkSmartPointer<vtkHoverWidget> HoverWidget;
+  vtkSmartPointer<vtkHardwareSelector> Selector;
 
 private:
   vtkRenderView(const vtkRenderView&) = delete;

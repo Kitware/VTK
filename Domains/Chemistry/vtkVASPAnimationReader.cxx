@@ -36,10 +36,11 @@
 
 typedef vtksys::RegularExpression RegEx;
 
-namespace {
+namespace
+{
 
 template <typename T>
-bool parse(const std::string &str, T &result)
+bool parse(const std::string& str, T& result)
 {
   if (!str.empty())
   {
@@ -52,30 +53,32 @@ bool parse(const std::string &str, T &result)
 
 } // end anon namespace
 
-vtkStandardNewMacro(vtkVASPAnimationReader)
+vtkStandardNewMacro(vtkVASPAnimationReader);
 
 //------------------------------------------------------------------------------
-void vtkVASPAnimationReader::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkVASPAnimationReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 vtkVASPAnimationReader::vtkVASPAnimationReader()
-  : FileName(nullptr),
-    TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
-    LatticeParser(new RegEx("^ *([0-9EeDd.+-]+) +" // Set of 3 floats
-                            "([0-9EeDd.+-]+) +"
-                            "([0-9EeDd.+-]+) *$")),
-    AtomCountParser(new RegEx("^ *([0-9]+) *$")), // Just a single integer
-    AtomParser(new RegEx("^ *[0-9]+ +" // Atom index
-                         "([0-9]+) +" // Atomic number
-                         "[A-Za-z]+ +" // Element symbol
-                         "([0-9EeDd.+-]+) +" // X coordinate
-                         "([0-9EeDd.+-]+) +" // Y coordinate
-                         "([0-9EeDd.+-]+) +" // Z coordinate
-                         "([0-9EeDd.+-]+) +" // Radius
-                         "([0-9EeDd.+-]+) *$")) // Kinetic energy
+  : FileName(nullptr)
+  , TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$"))
+  ,                                              // time = (timeVal)
+  LatticeParser(new RegEx("^ *([0-9EeDd.+-]+) +" // Set of 3 floats
+                          "([0-9EeDd.+-]+) +"
+                          "([0-9EeDd.+-]+) *$"))
+  , AtomCountParser(new RegEx("^ *([0-9]+) *$"))
+  ,                                           // Just a single integer
+  AtomParser(new RegEx("^ *[0-9]+ +"          // Atom index
+                       "([0-9]+) +"           // Atomic number
+                       "[A-Za-z]+ +"          // Element symbol
+                       "([0-9EeDd.+-]+) +"    // X coordinate
+                       "([0-9EeDd.+-]+) +"    // Y coordinate
+                       "([0-9EeDd.+-]+) +"    // Z coordinate
+                       "([0-9EeDd.+-]+) +"    // Radius
+                       "([0-9EeDd.+-]+) *$")) // Kinetic energy
 {
   this->SetNumberOfInputPorts(0);
 }
@@ -91,21 +94,18 @@ vtkVASPAnimationReader::~vtkVASPAnimationReader()
 }
 
 //------------------------------------------------------------------------------
-int vtkVASPAnimationReader::RequestData(vtkInformation *,
-                                        vtkInformationVector **,
-                                        vtkInformationVector *outInfos)
+int vtkVASPAnimationReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
-  vtkInformation *outInfo = outInfos->GetInformationObject(0);
+  vtkInformation* outInfo = outInfos->GetInformationObject(0);
 
-  vtkMolecule *output = vtkMolecule::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMolecule* output = vtkMolecule::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   assert(output);
 
   std::ifstream in(this->FileName);
   if (!in)
   {
-    vtkErrorMacro("Could not open file for reading: "
-                  << (this->FileName ? this->FileName : ""));
+    vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));
     return 1;
   }
 
@@ -116,9 +116,8 @@ int vtkVASPAnimationReader::RequestData(vtkInformation *,
   {
     if (!this->NextTimeStep(in, time))
     {
-      vtkErrorMacro("Error -- attempting to read timestep #" << (stepIdx + 1)
-                    << " but encountered a parsing error at timestep #"
-                    << (i + 1) << ".");
+      vtkErrorMacro("Error -- attempting to read timestep #"
+        << (stepIdx + 1) << " but encountered a parsing error at timestep #" << (i + 1) << ".");
       return 1;
     }
   }
@@ -136,15 +135,13 @@ int vtkVASPAnimationReader::RequestData(vtkInformation *,
 }
 
 //------------------------------------------------------------------------------
-int vtkVASPAnimationReader::RequestInformation(vtkInformation *,
-                                               vtkInformationVector **,
-                                               vtkInformationVector *outInfos)
+int vtkVASPAnimationReader::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
   std::ifstream in(this->FileName);
   if (!in)
   {
-    vtkErrorMacro("Could not open file for reading: "
-                  << (this->FileName ? this->FileName : ""));
+    vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));
     return 1;
   }
 
@@ -161,17 +158,17 @@ int vtkVASPAnimationReader::RequestInformation(vtkInformation *,
 
   if (!times.empty())
   {
-    vtkInformation *outInfo = outInfos->GetInformationObject(0);
+    vtkInformation* outInfo = outInfos->GetInformationObject(0);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0],
-                 static_cast<int>(times.size()));
+    outInfo->Set(
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
   }
 
   return 1;
 }
 
 //------------------------------------------------------------------------------
-bool vtkVASPAnimationReader::NextTimeStep(std::istream &in, double &time)
+bool vtkVASPAnimationReader::NextTimeStep(std::istream& in, double& time)
 {
   std::string line;
   while (std::getline(in, line))
@@ -181,7 +178,7 @@ bool vtkVASPAnimationReader::NextTimeStep(std::istream &in, double &time)
       // Parse timestamp:
       if (!parse(this->TimeParser->match(1), time))
       {
-        vtkErrorMacro("Error parsing time information from line: " << line );
+        vtkErrorMacro("Error parsing time information from line: " << line);
         return false;
       }
       return true;
@@ -192,15 +189,15 @@ bool vtkVASPAnimationReader::NextTimeStep(std::istream &in, double &time)
 }
 
 //------------------------------------------------------------------------------
-size_t vtkVASPAnimationReader::SelectTimeStepIndex(vtkInformation *info)
+size_t vtkVASPAnimationReader::SelectTimeStepIndex(vtkInformation* info)
 {
   if (!info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) ||
-      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+    !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     return 0;
   }
 
-  double *times = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* times = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int nTimes = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   double t = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
@@ -220,8 +217,7 @@ size_t vtkVASPAnimationReader::SelectTimeStepIndex(vtkInformation *info)
 }
 
 //------------------------------------------------------------------------------
-bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
-                                          vtkMolecule *molecule)
+bool vtkVASPAnimationReader::ReadMolecule(std::istream& in, vtkMolecule* molecule)
 {
   // Note: The leading time = XXXX line has already been read.
   std::string line;
@@ -231,35 +227,41 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
   {
     if (!std::getline(in, line))
     {
-      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
-                    "specification. Unexpected EOF.");
+      vtkErrorMacro("Error reading line " << (i + 1)
+                                          << " of the lattice "
+                                             "specification. Unexpected EOF.");
       return false;
     }
     if (!this->LatticeParser->find(line))
     {
-      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
-                    "specification. Expected three floats: " << line);
+      vtkErrorMacro("Error reading line " << (i + 1)
+                                          << " of the lattice "
+                                             "specification. Expected three floats: "
+                                          << line);
       return false;
     }
     if (!parse(this->LatticeParser->match(1), lattice[i][0]))
     {
-      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
-                    "specification. X component is not parsable: "
-                    << this->LatticeParser->match(1));
+      vtkErrorMacro("Error reading line " << (i + 1)
+                                          << " of the lattice "
+                                             "specification. X component is not parsable: "
+                                          << this->LatticeParser->match(1));
       return false;
     }
     if (!parse(this->LatticeParser->match(2), lattice[i][1]))
     {
-      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
-                    "specification. Y component is not parsable: "
-                    << this->LatticeParser->match(2));
+      vtkErrorMacro("Error reading line " << (i + 1)
+                                          << " of the lattice "
+                                             "specification. Y component is not parsable: "
+                                          << this->LatticeParser->match(2));
       return false;
     }
     if (!parse(this->LatticeParser->match(3), lattice[i][2]))
     {
-      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
-                    "specification. Z component is not parsable: "
-                    << this->LatticeParser->match(3));
+      vtkErrorMacro("Error reading line " << (i + 1)
+                                          << " of the lattice "
+                                             "specification. Z component is not parsable: "
+                                          << this->LatticeParser->match(3));
       return false;
     }
   }
@@ -281,8 +283,7 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
   vtkIdType numAtoms;
   if (!parse(this->AtomCountParser->match(1), numAtoms))
   {
-    vtkErrorMacro("Error parsing atom count as integer: "
-                  << this->AtomCountParser->match(1));
+    vtkErrorMacro("Error parsing atom count as integer: " << this->AtomCountParser->match(1));
     return false;
   }
 
@@ -312,44 +313,44 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
     unsigned short atomicNumber;
     if (!parse(this->AtomParser->match(1), atomicNumber))
     {
-      vtkErrorMacro("Error parsing atomic number '"
-                    << this->AtomParser->match(1) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing atomic number '" << this->AtomParser->match(1) << "' from line: " << line);
       return false;
     }
 
     vtkVector3f position;
     if (!parse(this->AtomParser->match(2), position[0]))
     {
-      vtkErrorMacro("Error parsing x coordinate '"
-                    << this->AtomParser->match(2) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing x coordinate '" << this->AtomParser->match(2) << "' from line: " << line);
       return false;
     }
     if (!parse(this->AtomParser->match(3), position[1]))
     {
-      vtkErrorMacro("Error parsing y coordinate '"
-                    << this->AtomParser->match(3) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing y coordinate '" << this->AtomParser->match(3) << "' from line: " << line);
       return false;
     }
     if (!parse(this->AtomParser->match(4), position[2]))
     {
-      vtkErrorMacro("Error parsing z coordinate '"
-                    << this->AtomParser->match(4) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing z coordinate '" << this->AtomParser->match(4) << "' from line: " << line);
       return false;
     }
 
     float radius;
     if (!parse(this->AtomParser->match(5), radius))
     {
-      vtkErrorMacro("Error parsing radius '"
-                    << this->AtomParser->match(5) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing radius '" << this->AtomParser->match(5) << "' from line: " << line);
       return false;
     }
 
     float kineticEnergy;
     if (!parse(this->AtomParser->match(6), kineticEnergy))
     {
-      vtkErrorMacro("Error parsing kinetic energy '"
-                    << this->AtomParser->match(6) << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing kinetic energy '" << this->AtomParser->match(6) << "' from line: " << line);
       return false;
     }
 
@@ -358,7 +359,7 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
     kineticEnergies->SetTypedComponent(atomIdx, 0, kineticEnergy);
   }
 
-  vtkDataSetAttributes *atomData = molecule->GetVertexData();
+  vtkDataSetAttributes* atomData = molecule->GetVertexData();
   atomData->AddArray(radii);
   atomData->AddArray(kineticEnergies);
 

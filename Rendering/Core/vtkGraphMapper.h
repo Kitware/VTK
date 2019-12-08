@@ -25,15 +25,15 @@
  *
  * vtkGraphMapper is a mapper to map vtkGraph
  * (and all derived classes) to graphics primitives.
-*/
+ */
 
 #ifndef vtkGraphMapper_h
 #define vtkGraphMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
 class vtkActor2D;
 class vtkMapArrayValues;
@@ -56,10 +56,10 @@ class vtkVertexGlyphFilter;
 class VTKRENDERINGCORE_EXPORT vtkGraphMapper : public vtkMapper
 {
 public:
-  static vtkGraphMapper *New();
+  static vtkGraphMapper* New();
   vtkTypeMacro(vtkGraphMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
   //@{
   /**
@@ -173,7 +173,7 @@ public:
    * containing "type" as a value in the vertex attribute array specified by
    * IconArrayName.
    */
-  void AddIconType(const char *type, int index);
+  void AddIconType(const char* type, int index);
 
   /**
    * Clear all icon mappings.
@@ -184,8 +184,8 @@ public:
   /**
    * Specify the Width and Height, in pixels, of an icon in the icon sheet.
    */
-  void SetIconSize(int *size);
-  int *GetIconSize();
+  void SetIconSize(int* size);
+  int* GetIconSize();
   //@}
 
   /**
@@ -198,8 +198,8 @@ public:
   /**
    * The texture containing the icon sheet.
    */
-  vtkTexture *GetIconTexture();
-  void SetIconTexture(vtkTexture *texture);
+  vtkTexture* GetIconTexture();
+  void SetIconTexture(vtkTexture* texture);
   //@}
 
   //@{
@@ -215,7 +215,7 @@ public:
   /**
    * Get/Set the vertex point size
    */
-  vtkGetMacro(VertexPointSize,float);
+  vtkGetMacro(VertexPointSize, float);
   void SetVertexPointSize(float size);
   //@}
 
@@ -223,7 +223,7 @@ public:
   /**
    * Get/Set the edge line width
    */
-  vtkGetMacro(EdgeLineWidth,float);
+  vtkGetMacro(EdgeLineWidth, float);
   void SetEdgeLineWidth(float width);
   //@}
 
@@ -232,7 +232,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Get the mtime also considering the lookup table.
@@ -243,17 +243,16 @@ public:
   /**
    * Set the Input of this mapper.
    */
-  void SetInputData(vtkGraph *input);
-  vtkGraph *GetInput();
+  void SetInputData(vtkGraph* input);
+  vtkGraph* GetInput();
   //@}
 
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double* bounds) override
-    { Superclass::GetBounds(bounds); }
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double* bounds) override { Superclass::GetBounds(bounds); }
 
   //@{
   /**

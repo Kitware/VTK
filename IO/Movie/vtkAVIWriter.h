@@ -21,21 +21,21 @@
  * unsigned char regardless of the input type.
  * @sa
  * vtkGenericMovieWriter
-*/
+ */
 
 #ifndef vtkAVIWriter_h
 #define vtkAVIWriter_h
 
-#include "vtkIOMovieModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOMovieModule.h" // For export macro
 
 class vtkAVIWriterInternal;
 
 class VTKIOMOVIE_EXPORT vtkAVIWriter : public vtkGenericMovieWriter
 {
 public:
-  static vtkAVIWriter *New();
-  vtkTypeMacro(vtkAVIWriter,vtkGenericMovieWriter);
+  static vtkAVIWriter* New();
+  vtkTypeMacro(vtkAVIWriter, vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -104,13 +104,13 @@ protected:
   vtkAVIWriter();
   ~vtkAVIWriter();
 
-  vtkAVIWriterInternal *Internals;
+  vtkAVIWriterInternal* Internals;
 
   int Rate;
   int Time;
   int Quality;
   int PromptCompressionOptions;
-  char *CompressorFourCC;
+  char* CompressorFourCC;
 
 private:
   vtkAVIWriter(const vtkAVIWriter&) = delete;
@@ -118,6 +118,3 @@ private:
 };
 
 #endif
-
-
-

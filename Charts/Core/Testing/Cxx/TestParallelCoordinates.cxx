@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkChartParallelCoordinates.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestParallelCoordinates(int , char* [])
+int TestParallelCoordinates(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -50,7 +50,7 @@ int TestParallelCoordinates(int , char* [])
   table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 200;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {

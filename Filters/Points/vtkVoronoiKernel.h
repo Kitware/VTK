@@ -27,7 +27,7 @@
  *
  * @sa
  * vtkInterpolationKernel vtkGeneralizedKernel vtkProbabilisticVoronoiKernel
-*/
+ */
 
 #ifndef vtkVoronoiKernel_h
 #define vtkVoronoiKernel_h
@@ -38,7 +38,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkVoronoiKernel : public vtkInterpolationKernel
 {
 public:
@@ -46,8 +45,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkVoronoiKernel *New();
-  vtkTypeMacro(vtkVoronoiKernel,vtkInterpolationKernel);
+  static vtkVoronoiKernel* New();
+  vtkTypeMacro(vtkVoronoiKernel, vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -58,7 +57,7 @@ public:
    * method returns the number of points in the basis. Typically this method
    * is called before ComputeWeights().
    */
-  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) override;
+  vtkIdType ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId = 0) override;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -69,8 +68,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights) override;
 
 protected:
   vtkVoronoiKernel();

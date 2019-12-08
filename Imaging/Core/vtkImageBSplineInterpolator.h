@@ -32,24 +32,23 @@
  * "Uniform B-Splines for the VTK Imaging Pipeline,"
  * VTK Journal, 2011,
  * http://hdl.handle.net/10380/3252
-*/
+ */
 
 #ifndef vtkImageBSplineInterpolator_h
 #define vtkImageBSplineInterpolator_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 #define VTK_IMAGE_BSPLINE_DEGREE_MAX 9
 
 class vtkImageData;
 struct vtkInterpolationInfo;
 
-class VTKIMAGINGCORE_EXPORT vtkImageBSplineInterpolator :
-  public vtkAbstractImageInterpolator
+class VTKIMAGINGCORE_EXPORT vtkImageBSplineInterpolator : public vtkAbstractImageInterpolator
 {
 public:
-  static vtkImageBSplineInterpolator *New();
+  static vtkImageBSplineInterpolator* New();
   vtkTypeMacro(vtkImageBSplineInterpolator, vtkAbstractImageInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -60,7 +59,7 @@ public:
    * degree of polynomial with vtkImageBSplineCoefficients.
    */
   void SetSplineDegree(int degree);
-  int GetSplineDegree() { return this->SplineDegree; };
+  int GetSplineDegree() { return this->SplineDegree; }
   int GetSplineDegreeMinValue() { return 0; }
   int GetSplineDegreeMaxValue() { return VTK_IMAGE_BSPLINE_DEGREE_MAX; }
   //@}
@@ -90,18 +89,16 @@ public:
    * A new extent is provided for out-of-bounds checks.
    * THIS METHOD IS THREAD SAFE.
    */
-  void PrecomputeWeightsForExtent(
-    const double matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) override;
-  void PrecomputeWeightsForExtent(
-    const float matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) override;
+  void PrecomputeWeightsForExtent(const double matrix[16], const int extent[6], int newExtent[6],
+    vtkInterpolationWeights*& weights) override;
+  void PrecomputeWeightsForExtent(const float matrix[16], const int extent[6], int newExtent[6],
+    vtkInterpolationWeights*& weights) override;
   //@}
 
   /**
    * Free the precomputed weights.  THIS METHOD IS THREAD SAFE.
    */
-  void FreePrecomputedWeights(vtkInterpolationWeights *&weights) override;
+  void FreePrecomputedWeights(vtkInterpolationWeights*& weights) override;
 
 protected:
   vtkImageBSplineInterpolator();
@@ -115,18 +112,16 @@ protected:
   /**
    * Copy the interpolator.
    */
-  void InternalDeepCopy(vtkAbstractImageInterpolator *obj) override;
+  void InternalDeepCopy(vtkAbstractImageInterpolator* obj) override;
 
   //@{
   /**
    * Get the interpolation functions.
    */
   void GetInterpolationFunc(
-    void (**doublefunc)(
-      vtkInterpolationInfo *, const double [3], double *)) override;
+    void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
-    void (**floatfunc)(
-      vtkInterpolationInfo *, const float [3], float *)) override;
+    void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
   //@}
 
   //@{
@@ -134,11 +129,9 @@ protected:
    * Get the row interpolation functions.
    */
   void GetRowInterpolationFunc(
-    void (**doublefunc)(
-      vtkInterpolationWeights *, int, int, int, double *, int)) override;
+    void (**doublefunc)(vtkInterpolationWeights*, int, int, int, double*, int)) override;
   void GetRowInterpolationFunc(
-    void (**floatfunc)(
-      vtkInterpolationWeights *, int, int, int, float *, int)) override;
+    void (**floatfunc)(vtkInterpolationWeights*, int, int, int, float*, int)) override;
   //@}
 
   /**
@@ -152,7 +145,7 @@ protected:
   virtual void FreeKernelLookupTable();
 
   int SplineDegree;
-  float *KernelLookupTable;
+  float* KernelLookupTable;
 
 private:
   vtkImageBSplineInterpolator(const vtkImageBSplineInterpolator&) = delete;

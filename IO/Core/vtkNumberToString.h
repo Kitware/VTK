@@ -44,13 +44,19 @@ public:
   struct TagDouble
   {
     double Value;
-    TagDouble(const double& value) : Value(value) {}
+    TagDouble(const double& value)
+      : Value(value)
+    {
+    }
   };
 
   struct TagFloat
   {
     float Value;
-    TagFloat(const float& value) : Value(value) {}
+    TagFloat(const float& value)
+      : Value(value)
+    {
+    }
   };
 
   template <typename T>

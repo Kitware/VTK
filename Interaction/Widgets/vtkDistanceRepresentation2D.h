@@ -26,17 +26,16 @@
  *
  * @sa
  * vtkDistanceWidget vtkDistanceRepresentation vtkDistanceRepresentation3D
-*/
+ */
 
 #ifndef vtkDistanceRepresentation2D_h
 #define vtkDistanceRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkDistanceRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAxisActor2D;
 class vtkProperty2D;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation2D : public vtkDistanceRepresentation
 {
@@ -44,21 +43,20 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkDistanceRepresentation2D *New();
+  static vtkDistanceRepresentation2D* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkDistanceRepresentation2D,vtkDistanceRepresentation);
+  vtkTypeMacro(vtkDistanceRepresentation2D, vtkDistanceRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Satisfy the superclasses API.
    */
-  double GetDistance() override
-    {return this->Distance;}
+  double GetDistance() override { return this->Distance; }
 
   //@{
   /**
@@ -85,8 +83,8 @@ public:
    * properties can be set and so on. There is also a convenience method to
    * get the axis property.
    */
-  vtkAxisActor2D *GetAxis();
-  vtkProperty2D  *GetAxisProperty();
+  vtkAxisActor2D* GetAxis();
+  vtkProperty2D* GetAxisProperty();
   //@}
 
   /**
@@ -98,9 +96,9 @@ public:
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
-  int RenderOverlay(vtkViewport *viewport) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
   //@}
 
 protected:
@@ -108,8 +106,8 @@ protected:
   ~vtkDistanceRepresentation2D() override;
 
   // Add a line to the mix
-  vtkAxisActor2D *AxisActor;
-  vtkProperty2D  *AxisProperty;
+  vtkAxisActor2D* AxisActor;
+  vtkProperty2D* AxisProperty;
 
   // The distance between the two points
   double Distance;

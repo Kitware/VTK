@@ -2,6 +2,8 @@
 
 #include "../Types.h"
 
+#include "Object.h"
+
 #include <VisRTX.h>
 #include <cassert>
 #include <string>

@@ -20,8 +20,8 @@
 // -W        => write data files at each step for closer inspection
 // -S        => draw sample data set in wireframe with each result
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
@@ -46,30 +46,35 @@
 #include <vtkUnstructuredGridWriter.h>
 #include <vtkXMLDataSetWriter.h>
 
+#include <vtkExtractSelection.h>
 #include <vtkInformation.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
-#include <vtkExtractSelection.h>
 
 #define XCELLS 3
 #define YCELLS 3
 #define ZCELLS 3
 
-static vtkRenderer *renderer = nullptr;
-static vtkImageData *sampleData = nullptr;
+static vtkRenderer* renderer = nullptr;
+static vtkImageData* sampleData = nullptr;
 static int DrawSampleData = 0;
 
-namespace {
-
-enum {COLORBYCELL, COLORBYPOINT};
-
-void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *array)
+namespace
 {
-  vtkDataSet *copy = result->NewInstance();
+
+enum
+{
+  COLORBYCELL,
+  COLORBYPOINT
+};
+
+void showMe(vtkDataSet* result, int X, int Y, int CellOrPoint, vtkDataArray* array)
+{
+  vtkDataSet* copy = result->NewInstance();
   copy->DeepCopy(result);
-  vtkDataSetMapper *mapper = vtkDataSetMapper::New();
+  vtkDataSetMapper* mapper = vtkDataSetMapper::New();
   mapper->SetInputData(copy);
-  double *range = array->GetRange();
+  double* range = array->GetRange();
   if (CellOrPoint == COLORBYCELL)
   {
     copy->GetCellData()->SetActiveScalars(array->GetName());
@@ -81,8 +86,8 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
     mapper->SetScalarModeToUsePointData();
   }
   mapper->SetScalarRange(range[0], range[1]);
-  vtkActor *actor = vtkActor::New();
-  actor->SetPosition(X*4,Y*4, 0);
+  vtkActor* actor = vtkActor::New();
+  actor->SetPosition(X * 4, Y * 4, 0);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetPointSize(6.0);
   mapper->Delete();
@@ -92,7 +97,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
 
   if (DrawSampleData)
   {
-    vtkDataSetMapper *mapper2 = vtkDataSetMapper::New();
+    vtkDataSetMapper* mapper2 = vtkDataSetMapper::New();
     mapper2->SetScalarModeToUseCellFieldData();
     if (CellOrPoint == COLORBYCELL)
     {
@@ -107,18 +112,18 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
       mapper2->SetScalarRange(10, 73);
     }
     mapper2->SetInputData(sampleData);
-    vtkActor *actor2 = vtkActor::New();
+    vtkActor* actor2 = vtkActor::New();
     actor2->GetProperty()->SetRepresentationToWireframe();
     actor2->SetMapper(mapper2);
-    actor2->SetPosition(X*4,Y*4, 0);
+    actor2->SetPosition(X * 4, Y * 4, 0);
     renderer->AddActor(actor2);
     mapper2->Delete();
     actor2->Delete();
   }
 }
 
-template<typename ExtractionFilter>
-int TestExtraction(int argc, char *argv[])
+template <typename ExtractionFilter>
+int TestExtraction(int argc, char* argv[])
 {
   int DoWrite = 0;
   for (int i = 0; i < argc; i++)
@@ -134,77 +139,77 @@ int TestExtraction(int argc, char *argv[])
   }
 
   //--------------------------------------------------------------------------
-  //create a visualization pipeline to see the results
+  // create a visualization pipeline to see the results
   renderer = vtkRenderer::New();
-  vtkRenderWindow *renwin = vtkRenderWindow::New();
+  vtkRenderWindow* renwin = vtkRenderWindow::New();
   renwin->SetMultiSamples(0);
-  renwin->SetSize(600,600);
+  renwin->SetSize(600, 600);
   renwin->AddRenderer(renderer);
 
-  vtkRenderWindowInteractor *rwi = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* rwi = vtkRenderWindowInteractor::New();
   rwi->SetRenderWindow(renwin);
 
   //--------------------------------------------------------------------------
-  //create a test data set with known structure and data values
-  //the structure will look like a Rubix' cube
-  //the values will be:
-  //three double arrays containing X,Y,and Z coordinates for
-  //each point and cell, where the cell coordinates are the center of the cell
-  //two id type arrays containing Id's or labels that range from 10 to
-  //numpts/cells+10, with one array being the reverse of the other
-  //the scalars datasetattibute will be the X array
-  //the globalids datasetattribute will be the forward running id array
+  // create a test data set with known structure and data values
+  // the structure will look like a Rubix' cube
+  // the values will be:
+  // three double arrays containing X,Y,and Z coordinates for
+  // each point and cell, where the cell coordinates are the center of the cell
+  // two id type arrays containing Id's or labels that range from 10 to
+  // numpts/cells+10, with one array being the reverse of the other
+  // the scalars datasetattibute will be the X array
+  // the globalids datasetattribute will be the forward running id array
 
   sampleData = vtkImageData::New();
   sampleData->Initialize();
-  sampleData->SetSpacing(1.0,1.0,1.0);
-  sampleData->SetOrigin(0.0,0.0,0.0);
-  sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
+  sampleData->SetSpacing(1.0, 1.0, 1.0);
+  sampleData->SetOrigin(0.0, 0.0, 0.0);
+  sampleData->SetDimensions(XCELLS + 1, YCELLS + 1, ZCELLS + 1);
   sampleData->AllocateScalars(VTK_FLOAT, 1);
 
-  vtkIdTypeArray *pia = vtkIdTypeArray::New();
+  vtkIdTypeArray* pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
   pia->SetName("Point Counter");
   sampleData->GetPointData()->AddArray(pia);
 
-  vtkIdTypeArray *piaF = vtkIdTypeArray::New();
+  vtkIdTypeArray* piaF = vtkIdTypeArray::New();
   piaF->SetNumberOfComponents(1);
   piaF->SetName("Forward Point Ids");
   sampleData->GetPointData()->AddArray(piaF);
 
-  vtkIdTypeArray *piaR = vtkIdTypeArray::New();
+  vtkIdTypeArray* piaR = vtkIdTypeArray::New();
   piaR->SetNumberOfComponents(1);
   piaR->SetName("Reverse Point Ids");
   sampleData->GetPointData()->AddArray(piaR);
 
-  vtkFloatArray *pxa = vtkFloatArray::New();
+  vtkFloatArray* pxa = vtkFloatArray::New();
   pxa->SetNumberOfComponents(1);
   pxa->SetName("Point X");
   sampleData->GetPointData()->AddArray(pxa);
 
-  vtkFloatArray *pya = vtkFloatArray::New();
+  vtkFloatArray* pya = vtkFloatArray::New();
   pya->SetNumberOfComponents(1);
   pya->SetName("Point Y");
   sampleData->GetPointData()->AddArray(pya);
 
-  vtkFloatArray *pza = vtkFloatArray::New();
+  vtkFloatArray* pza = vtkFloatArray::New();
   pza->SetNumberOfComponents(1);
   pza->SetName("Point Z");
   sampleData->GetPointData()->AddArray(pza);
 
-  //vtkPoints *points = vtkPoints::New();
+  // vtkPoints *points = vtkPoints::New();
   vtkIdType pcnt = 0;
-  for (int i = 0; i < ZCELLS+1; i++)
+  for (int i = 0; i < ZCELLS + 1; i++)
   {
-    for (int j = 0; j < YCELLS+1; j++)
+    for (int j = 0; j < YCELLS + 1; j++)
     {
-      for (int k = 0; k < XCELLS+1; k++)
+      for (int k = 0; k < XCELLS + 1; k++)
       {
-        //points->InsertNextPoint(k,j,i);
+        // points->InsertNextPoint(k,j,i);
 
         pia->InsertNextValue(pcnt);
         int idF = pcnt + 10;
-        int idR = (XCELLS+1)*(YCELLS+1)*(ZCELLS+1)-1 - pcnt + 10;
+        int idR = (XCELLS + 1) * (YCELLS + 1) * (ZCELLS + 1) - 1 - pcnt + 10;
         piaF->InsertNextValue(idF);
         piaR->InsertNextValue(idR);
         pcnt++;
@@ -216,37 +221,37 @@ int TestExtraction(int argc, char *argv[])
     }
   }
 
-  //sampleData->SetPoints(points);
-  //points->Delete();
+  // sampleData->SetPoints(points);
+  // points->Delete();
 
-  //vtkIdList *ids = vtkIdList::New();
+  // vtkIdList *ids = vtkIdList::New();
 
-  vtkIdTypeArray *cia = vtkIdTypeArray::New();
+  vtkIdTypeArray* cia = vtkIdTypeArray::New();
   cia->SetNumberOfComponents(1);
   cia->SetName("Cell Count");
   sampleData->GetCellData()->AddArray(cia);
 
-  vtkIdTypeArray *ciaF = vtkIdTypeArray::New();
+  vtkIdTypeArray* ciaF = vtkIdTypeArray::New();
   ciaF->SetNumberOfComponents(1);
   ciaF->SetName("Forward Cell Ids");
   sampleData->GetCellData()->AddArray(ciaF);
 
-  vtkIdTypeArray *ciaR = vtkIdTypeArray::New();
+  vtkIdTypeArray* ciaR = vtkIdTypeArray::New();
   ciaR->SetNumberOfComponents(1);
   ciaR->SetName("Reverse Cell Ids");
   sampleData->GetCellData()->AddArray(ciaR);
 
-  vtkDoubleArray *cxa = vtkDoubleArray::New();
+  vtkDoubleArray* cxa = vtkDoubleArray::New();
   cxa->SetNumberOfComponents(1);
   cxa->SetName("Cell X");
   sampleData->GetCellData()->AddArray(cxa);
 
-  vtkDoubleArray *cya = vtkDoubleArray::New();
+  vtkDoubleArray* cya = vtkDoubleArray::New();
   cya->SetNumberOfComponents(1);
   cya->SetName("Cell Y");
   sampleData->GetCellData()->AddArray(cya);
 
-  vtkDoubleArray *cza = vtkDoubleArray::New();
+  vtkDoubleArray* cza = vtkDoubleArray::New();
   cza->SetNumberOfComponents(1);
   cza->SetName("Cell Z");
   sampleData->GetCellData()->AddArray(cza);
@@ -284,19 +289,18 @@ int TestExtraction(int argc, char *argv[])
         cia->InsertNextValue(ccnt);
 
         int idF = ccnt + 10;
-        int idR = (XCELLS)*(YCELLS)*(ZCELLS)-1 - ccnt + 10;
+        int idR = (XCELLS) * (YCELLS) * (ZCELLS)-1 - ccnt + 10;
         ciaF->InsertNextValue(idF);
         ciaR->InsertNextValue(idR);
         ccnt++;
 
-        cxa->InsertNextValue(((double)k+0.5));
-        cya->InsertNextValue(((double)j+0.5));
-        cza->InsertNextValue(((double)i+0.5));
-
+        cxa->InsertNextValue(((double)k + 0.5));
+        cya->InsertNextValue(((double)j + 0.5));
+        cza->InsertNextValue(((double)i + 0.5));
       }
     }
   }
-  //ids->Delete();
+  // ids->Delete();
 
   sampleData->GetPointData()->SetGlobalIds(piaF);
   sampleData->GetPointData()->SetScalars(pxa);
@@ -304,8 +308,8 @@ int TestExtraction(int argc, char *argv[])
   sampleData->GetCellData()->SetGlobalIds(ciaF);
   sampleData->GetCellData()->SetScalars(cxa);
 
-  //save the test data set
-  vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New();
+  // save the test data set
+  vtkXMLDataSetWriter* xwriter = vtkXMLDataSetWriter::New();
   xwriter->SetInputData(sampleData);
   xwriter->SetFileName("sampleData.vti");
   if (DoWrite)
@@ -314,36 +318,35 @@ int TestExtraction(int argc, char *argv[])
   }
 
   //-------------------------------------------------------------------------
-  //Setup the components of the pipeline
-  vtkSelection *selection = vtkSelection::New();
-  vtkSelectionNode *sel = vtkSelectionNode::New();
+  // Setup the components of the pipeline
+  vtkSelection* selection = vtkSelection::New();
+  vtkSelectionNode* sel = vtkSelectionNode::New();
   selection->AddNode(sel);
-  ExtractionFilter *ext = ExtractionFilter::New();
+  ExtractionFilter* ext = ExtractionFilter::New();
   ext->SetInputData(0, sampleData);
   ext->SetInputData(1, selection);
   ext->PreserveTopologyOff();
-  vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
+  vtkUnstructuredGridWriter* writer = vtkUnstructuredGridWriter::New();
 
-  vtkUnstructuredGrid *extGrid;
-  vtkImageData *extIData;
-  vtkDataArray *insideArray;
+  vtkUnstructuredGrid* extGrid;
+  vtkImageData* extIData;
+  vtkDataArray* insideArray;
 
   //-------------------------------------------------------------------------
-  //Test extract GLOBALIDS filter on cells
-  vtkIdTypeArray *cellIds = nullptr;
+  // Test extract GLOBALIDS filter on cells
+  vtkIdTypeArray* cellIds = nullptr;
 
   sel->Initialize();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
   sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  9); //just before first cell -miss
-  cellIds->SetTuple1(1,  10); //first cell
-  cellIds->SetTuple1(2,  11); //second cells (distinguishes from reverse ids)
-  cellIds->SetTuple1(3,  36); //last cell
-  cellIds->SetTuple1(4,  37); //just beyond last cell -miss
+  cellIds->SetTuple1(0, 9);  // just before first cell -miss
+  cellIds->SetTuple1(1, 10); // first cell
+  cellIds->SetTuple1(2, 11); // second cells (distinguishes from reverse ids)
+  cellIds->SetTuple1(3, 36); // last cell
+  cellIds->SetTuple1(4, 37); // just beyond last cell -miss
   sel->SetSelectionList(cellIds);
   cellIds->Delete();
 
@@ -382,23 +385,21 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 0, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //Test extract GLOBALIDS filter on points
-  vtkIdTypeArray *pointIds = nullptr;
+  // Test extract GLOBALIDS filter on points
+  vtkIdTypeArray* pointIds = nullptr;
 
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
-  sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
+  sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
-  pointIds->SetTuple1(0,  9);  //just before first -miss
-  pointIds->SetTuple1(1,  10); //first
-  pointIds->SetTuple1(2,  11); //second
-  pointIds->SetTuple1(3,  73); //last
-  pointIds->SetTuple1(4,  74); //just passed last -miss
+  pointIds->SetTuple1(0, 9);  // just before first -miss
+  pointIds->SetTuple1(1, 10); // first
+  pointIds->SetTuple1(2, 11); // second
+  pointIds->SetTuple1(3, 73); // last
+  pointIds->SetTuple1(4, 74); // just passed last -miss
   sel->SetSelectionList(pointIds);
   pointIds->Delete();
 
@@ -448,7 +449,8 @@ int TestExtraction(int argc, char *argv[])
   insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
   if (insideArray)
   {
-    cerr << "ERROR: Extract point global id without containing cells made cell inside array." << endl;
+    cerr << "ERROR: Extract point global id without containing cells made cell inside array."
+         << endl;
   }
   insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
   showMe(extIData, 6, 0, COLORBYPOINT, insideArray);
@@ -467,20 +469,19 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 7, 0, COLORBYCELL, insideArray);
 
   //--------------------------------------------------------------------------
-  //Test extract INDICES filter on cells
+  // Test extract INDICES filter on cells
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  0);
-  cellIds->SetTuple1(1,  1);
-  cellIds->SetTuple1(2,  2);
-  cellIds->SetTuple1(3,  26); //last
-  cellIds->SetTuple1(4,  27); //just outside -miss
+  cellIds->SetTuple1(0, 0);
+  cellIds->SetTuple1(1, 1);
+  cellIds->SetTuple1(2, 2);
+  cellIds->SetTuple1(3, 26); // last
+  cellIds->SetTuple1(4, 27); // just outside -miss
   sel->SetSelectionList(cellIds);
   cellIds->Delete();
 
@@ -519,21 +520,19 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 1, COLORBYCELL, insideArray);
 
   //--------------------------------------------------------------------------
-  //Test extract INDICES filter on points
+  // Test extract INDICES filter on points
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
-  sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+  sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
-  pointIds->SetTuple1(0,  0); //first
-  pointIds->SetTuple1(1,  1); //second
-  pointIds->SetTuple1(2,  2); //third
-  pointIds->SetTuple1(3,  63);//last
-  pointIds->SetTuple1(4,  64); //just beyond last -miss
+  pointIds->SetTuple1(0, 0);  // first
+  pointIds->SetTuple1(1, 1);  // second
+  pointIds->SetTuple1(2, 2);  // third
+  pointIds->SetTuple1(3, 63); // last
+  pointIds->SetTuple1(4, 64); // just beyond last -miss
   sel->SetSelectionList(pointIds);
   pointIds->Delete();
 
@@ -602,21 +601,20 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 7, 1, COLORBYCELL, insideArray);
 
   //--------------------------------------------------------------------------
-  //Test extract VALUES filter on cells
+  // Test extract VALUES filter on cells
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
   sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetName("Reverse Cell Ids");
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  9); //just passed last -miss
-  cellIds->SetTuple1(1,  10); //last
-  cellIds->SetTuple1(2,  11); //next to last (distinguishes from forward ids)
-  cellIds->SetTuple1(3,  36); //first
-  cellIds->SetTuple1(4,  37); //just before first -miss
+  cellIds->SetTuple1(0, 9);  // just passed last -miss
+  cellIds->SetTuple1(1, 10); // last
+  cellIds->SetTuple1(2, 11); // next to last (distinguishes from forward ids)
+  cellIds->SetTuple1(3, 36); // first
+  cellIds->SetTuple1(4, 37); // just before first -miss
   sel->SetSelectionList(cellIds);
   cellIds->Delete();
 
@@ -655,22 +653,20 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 2, COLORBYCELL, insideArray);
 
   //--------------------------------------------------------------------------
-  //Test extract VALUES filter on points
+  // Test extract VALUES filter on points
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
-  sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
+  sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetName("Reverse Point Ids");
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
-  pointIds->SetTuple1(0,  9);  //just beyond last -miss
-  pointIds->SetTuple1(1,  10); //last
-  pointIds->SetTuple1(2,  11); //next to last
-  pointIds->SetTuple1(3,  73); //first
-  pointIds->SetTuple1(4,  74); //just before first -miss
+  pointIds->SetTuple1(0, 9);  // just beyond last -miss
+  pointIds->SetTuple1(1, 10); // last
+  pointIds->SetTuple1(2, 11); // next to last
+  pointIds->SetTuple1(3, 73); // first
+  pointIds->SetTuple1(4, 74); // just before first -miss
   sel->SetSelectionList(pointIds);
   pointIds->Delete();
 
@@ -739,16 +735,15 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 7, 2, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract THRESHOLD filter on cell data
+  // test the extract THRESHOLD filter on cell data
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
   sel->SetFieldType(vtkSelectionNode::CELL);
-  vtkDoubleArray *cellThresh = vtkDoubleArray::New();
+  vtkDoubleArray* cellThresh = vtkDoubleArray::New();
   cellThresh->SetNumberOfComponents(2);
   cellThresh->SetNumberOfTuples(1);
-  cellThresh->SetComponent(0, 0, 1.9); //the nine rightmost(+X) cells are in here
+  cellThresh->SetComponent(0, 0, 1.9); // the nine rightmost(+X) cells are in here
   cellThresh->SetComponent(0, 1, 3.1);
   sel->SetSelectionList(cellThresh);
   cellThresh->Delete();
@@ -788,16 +783,15 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 3, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract THRESHOLD filter on point data
+  // test the extract THRESHOLD filter on point data
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
   sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
-  vtkDoubleArray *pointThresh = vtkDoubleArray::New();
+  vtkDoubleArray* pointThresh = vtkDoubleArray::New();
   pointThresh->SetNumberOfComponents(2);
   pointThresh->SetNumberOfTuples(1);
-  pointThresh->SetComponent(0, 0, 0.9);  //the 18 leftmost cells have points in here
+  pointThresh->SetComponent(0, 0, 0.9); // the 18 leftmost cells have points in here
   pointThresh->SetComponent(0, 1, 1.1);
   sel->SetSelectionList(pointThresh);
   pointThresh->Delete();
@@ -866,20 +860,20 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 7, 3, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract LOCATIONS filter on cells
+  // test the extract LOCATIONS filter on cells
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::LOCATIONS);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::LOCATIONS);
   sel->SetFieldType(vtkSelectionNode::CELL);
-  vtkDoubleArray *cellLocs = vtkDoubleArray::New();
+  vtkDoubleArray* cellLocs = vtkDoubleArray::New();
   cellLocs->SetNumberOfComponents(3);
   cellLocs->SetNumberOfTuples(4);
-  cellLocs->SetTuple3(0, 0.0, 0.99, 0.5); //on the edge of two cells, pick one
-  //grr different data set types cell locators return different cells so I could not use 1.0 and had to make it 0.99 to make it consistent
-  cellLocs->SetTuple3(1, 2.5, 1.5, 0.5); //inside a cell
-  cellLocs->SetTuple3(2, 2.5, 2.1, 2.9); //inside a cell
-  cellLocs->SetTuple3(3, 5.0, 5.0, 5.0); //outside of all cells
+  cellLocs->SetTuple3(0, 0.0, 0.99, 0.5); // on the edge of two cells, pick one
+  // grr different data set types cell locators return different cells so I could not use 1.0 and
+  // had to make it 0.99 to make it consistent
+  cellLocs->SetTuple3(1, 2.5, 1.5, 0.5); // inside a cell
+  cellLocs->SetTuple3(2, 2.5, 2.1, 2.9); // inside a cell
+  cellLocs->SetTuple3(3, 5.0, 5.0, 5.0); // outside of all cells
   sel->SetSelectionList(cellLocs);
   cellLocs->Delete();
 
@@ -918,20 +912,19 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 4, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract LOCATIONS filter on points
+  // test the extract LOCATIONS filter on points
 
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::LOCATIONS);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::LOCATIONS);
   sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   sel->GetProperties()->Set(vtkSelectionNode::EPSILON(), 0.3);
-  vtkDoubleArray *pointLocs = vtkDoubleArray::New();
+  vtkDoubleArray* pointLocs = vtkDoubleArray::New();
   pointLocs->SetNumberOfComponents(3);
   pointLocs->SetNumberOfTuples(3);
-  pointLocs->SetTuple3(0, 0.0, 0.0, 0.29); //just close enough to the first point
-  pointLocs->SetTuple3(1, 1.0, 0.0, 0.31); //just a bit outside
-  pointLocs->SetTuple3(2, 1.0, 1.0, 3.1); //outside the dataset, but close enough
+  pointLocs->SetTuple3(0, 0.0, 0.0, 0.29); // just close enough to the first point
+  pointLocs->SetTuple3(1, 1.0, 0.0, 0.31); // just a bit outside
+  pointLocs->SetTuple3(2, 1.0, 1.0, 3.1);  // outside the dataset, but close enough
   sel->SetSelectionList(pointLocs);
   pointLocs->Delete();
 
@@ -995,24 +988,23 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 7, 4, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract FRUSTUM filter
+  // test the extract FRUSTUM filter
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
   sel->SetFieldType(vtkSelectionNode::CELL);
-  vtkDoubleArray *frustcorners = vtkDoubleArray::New();
+  vtkDoubleArray* frustcorners = vtkDoubleArray::New();
   frustcorners->SetNumberOfComponents(4);
   frustcorners->SetNumberOfTuples(8);
-  //a small frustum within the 3 lower left (-X,-Y) cells
-  frustcorners->SetTuple4(0,  0.1, 0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(1,  0.1, 0.1, 0.1, 0.0);
-  frustcorners->SetTuple4(2,  0.1,  0.9,  3.1, 0.0);
-  frustcorners->SetTuple4(3,  0.1,  0.9, 0.1, 0.0);
-  frustcorners->SetTuple4(4,  0.9, 0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(5,  0.9, 0.1, 0.1, 0.0);
-  frustcorners->SetTuple4(6,  0.9,  0.9,  3.1, 0.0);
-  frustcorners->SetTuple4(7,  0.9,  0.9, 0.1, 0.0);
+  // a small frustum within the 3 lower left (-X,-Y) cells
+  frustcorners->SetTuple4(0, 0.1, 0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(1, 0.1, 0.1, 0.1, 0.0);
+  frustcorners->SetTuple4(2, 0.1, 0.9, 3.1, 0.0);
+  frustcorners->SetTuple4(3, 0.1, 0.9, 0.1, 0.0);
+  frustcorners->SetTuple4(4, 0.9, 0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(5, 0.9, 0.1, 0.1, 0.0);
+  frustcorners->SetTuple4(6, 0.9, 0.9, 3.1, 0.0);
+  frustcorners->SetTuple4(7, 0.9, 0.9, 0.1, 0.0);
   sel->SetSelectionList(frustcorners);
   frustcorners->Delete();
 
@@ -1051,25 +1043,24 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 5, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
-  //test the extract FRUSTUM filter on points
+  // test the extract FRUSTUM filter on points
 
   sel->Initialize();
   ext->PreserveTopologyOff();
-  sel->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
+  sel->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
   sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   frustcorners = vtkDoubleArray::New();
   frustcorners->SetNumberOfComponents(4);
   frustcorners->SetNumberOfTuples(8);
-  //a frustum containing the 4 lower left (-X,-Y) vertices
-  frustcorners->SetTuple4(0,  -0.1, -0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(1,  -0.1, -0.1, -0.1, 0.0);
-  frustcorners->SetTuple4(2,  -0.1,  0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(3,  -0.1,  0.1, -0.1, 0.0);
-  frustcorners->SetTuple4(4,  0.1, -0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(5,  0.1, -0.1, -0.1, 0.0);
-  frustcorners->SetTuple4(6,  0.1,  0.1,  3.1, 0.0);
-  frustcorners->SetTuple4(7,  0.1,  0.1, -0.1, 0.0);
+  // a frustum containing the 4 lower left (-X,-Y) vertices
+  frustcorners->SetTuple4(0, -0.1, -0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(1, -0.1, -0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(2, -0.1, 0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(3, -0.1, 0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(4, 0.1, -0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(5, 0.1, -0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(6, 0.1, 0.1, 3.1, 0.0);
+  frustcorners->SetTuple4(7, 0.1, 0.1, -0.1, 0.0);
   sel->SetSelectionList(frustcorners);
   frustcorners->Delete();
 
@@ -1140,13 +1131,13 @@ int TestExtraction(int argc, char *argv[])
   cam->SetViewUp(0,1,0);
   renderer->SetActiveCamera(cam);
   */
-  int retVal = vtkRegressionTestImageThreshold( renwin, 85 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renwin, 85);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     rwi->Start();
   }
 
-  //cleanup
+  // cleanup
   selection->Delete();
   sel->Delete();
   ext->Delete();
@@ -1176,7 +1167,7 @@ int TestExtraction(int argc, char *argv[])
 
 }
 
-int TestExtraction(int argc, char *argv[])
+int TestExtraction(int argc, char* argv[])
 {
   return TestExtraction<vtkExtractSelection>(argc, argv);
 }

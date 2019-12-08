@@ -39,13 +39,13 @@
  * This class was modified by Jacques-Bernard Lekien, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridCellCenters_h
 #define vtkHyperTreeGridCellCenters_h
 
-#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkCellCenters.h"
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 
 class vtkBitArray;
 class vtkDataSetAttributes;
@@ -57,18 +57,17 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCen
 {
 public:
   static vtkHyperTreeGridCellCenters* New();
-  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkCellCenters );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridCellCenters, vtkCellCenters);
+  void PrintSelf(ostream&, vtkIndent) override;
 
 protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters() override;
 
-  int ProcessRequest( vtkInformation* request,
-                      vtkInformationVector** inputVector,
-                      vtkInformationVector* outputVector ) override;
-  int FillInputPortInformation( int, vtkInformation* ) override;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Main routine to process individual trees in the grid
@@ -78,7 +77,7 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;

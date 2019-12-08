@@ -14,14 +14,14 @@
 =========================================================================*/
 
 #include "vtkAvatar.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkAvatar)
+vtkObjectFactoryNewMacro(vtkAvatar);
 
 //------------------------------------------------------------------------------
-void vtkAvatar::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkAvatar::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -53,7 +53,8 @@ vtkAvatar::vtkAvatar()
   this->LeftHandOrientation[1] = 0.0;
   this->LeftHandOrientation[2] = 0.0;
 
-  for (int i = 0; i < NUM_BODY; ++i) {
+  for (int i = 0; i < NUM_BODY; ++i)
+  {
     this->BodyPosition[i][0] = 0.0;
     this->BodyPosition[i][1] = 0.0;
     this->BodyPosition[i][2] = 0.0;
@@ -69,7 +70,6 @@ vtkAvatar::vtkAvatar()
   UseLeftHand = true;
   UseRightHand = true;
   ShowHandsOnly = false;
-
 }
 
 //------------------------------------------------------------------------------

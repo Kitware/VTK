@@ -21,13 +21,13 @@
  *
  * @sa
  * vtkKdTree
-*/
+ */
 
 #ifndef vtkKdTreePointLocator_h
 #define vtkKdTreePointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkIdList;
 class vtkKdTree;
@@ -35,7 +35,7 @@ class vtkKdTree;
 class VTKCOMMONDATAMODEL_EXPORT vtkKdTreePointLocator : public vtkAbstractPointLocator
 {
 public:
-  vtkTypeMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
+  vtkTypeMacro(vtkKdTreePointLocator, vtkAbstractPointLocator);
   static vtkKdTreePointLocator* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,8 +52,7 @@ public:
    * closest to the point in that radius.
    * dist2 returns the squared distance to the point.
    */
-  vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) override;
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
 
   /**
    * Find the closest N points to a position. This returns the closest
@@ -63,8 +62,7 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindClosestNPoints(
-    int N, const double x[3], vtkIdList *result) override;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
    * Find all points within a specified radius R of position x.
@@ -72,8 +70,7 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindPointsWithinRadius(double R, const double x[3],
-                              vtkIdList *result) override;
+  void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
   //@{
   /**
@@ -82,7 +79,7 @@ public:
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
   //@}
 
 protected:
@@ -97,5 +94,3 @@ private:
 };
 
 #endif
-
-

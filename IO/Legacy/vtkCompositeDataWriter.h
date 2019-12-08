@@ -23,13 +23,13 @@
  * This is an experimental format. Use XML-based formats for writing composite
  * datasets. Saving composite dataset in legacy VTK format is expected to change
  * in future including changes to the file layout.
-*/
+ */
 
 #ifndef vtkCompositeDataWriter_h
 #define vtkCompositeDataWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkCompositeDataSet;
 class vtkHierarchicalBoxDataSet;
@@ -64,7 +64,7 @@ protected:
    * Performs the actual writing.
    */
   void WriteData() override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   //@}
 
   bool WriteCompositeData(ostream*, vtkMultiBlockDataSet*);
@@ -79,7 +79,6 @@ protected:
 private:
   vtkCompositeDataWriter(const vtkCompositeDataWriter&) = delete;
   void operator=(const vtkCompositeDataWriter&) = delete;
-
 };
 
 #endif

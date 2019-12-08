@@ -58,7 +58,7 @@
  * your mesh is deforming rapidly, you should be deforming the output mesh
  * of those two filters instead in order to only run them once.
  *
-*/
+ */
 
 #ifndef vtkTriangleMeshPointNormals_h
 #define vtkTriangleMeshPointNormals_h
@@ -68,21 +68,20 @@
 
 class vtkPolyData;
 
-
 class VTKFILTERSCORE_EXPORT vtkTriangleMeshPointNormals : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTriangleMeshPointNormals,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTriangleMeshPointNormals, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkTriangleMeshPointNormals *New();
+  static vtkTriangleMeshPointNormals* New();
 
 protected:
   vtkTriangleMeshPointNormals() {}
   ~vtkTriangleMeshPointNormals() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) = delete;

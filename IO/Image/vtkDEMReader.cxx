@@ -19,19 +19,19 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkDEMReader);
 
-#define VTK_SW  0
-#define VTK_NW  1
-#define VTK_NE  2
-#define VTK_SE  3
+#define VTK_SW 0
+#define VTK_NW 1
+#define VTK_NE 2
+#define VTK_SE 3
 #define VTK_METERS_PER_FEET .305
 #define VTK_METERS_PER_ARC_SECOND 23.111
 
-void ConvertDNotationToENotation (char *line);
+void ConvertDNotationToENotation(char* line);
 
 vtkDEMReader::vtkDEMReader()
 {
@@ -81,14 +81,12 @@ vtkDEMReader::vtkDEMReader()
 
 vtkDEMReader::~vtkDEMReader()
 {
-  delete [] this->FileName;
+  delete[] this->FileName;
 }
 
 //----------------------------------------------------------------------------
-int vtkDEMReader::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector *outputVector)
+int vtkDEMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -103,38 +101,34 @@ int vtkDEMReader::RequestInformation (
   }
 
   // read the header of the file to determine dimensions, origin and spacing
-  this->ReadTypeARecord ();
+  this->ReadTypeARecord();
 
   // compute the extent based on the header information
-  this->ComputeExtentOriginAndSpacing (extent, origin, spacing);
+  this->ComputeExtentOriginAndSpacing(extent, origin, spacing);
 
   // fill in the pertinent stuff from the header
-  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
-  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
 
   vtkImageData::SetNumberOfScalarComponents(1, outInfo);
   vtkImageData::SetScalarType(VTK_FLOAT, outInfo);
 
   // whole dem must be read
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 // Convert to Imaging API
-int vtkDEMReader::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+int vtkDEMReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *output = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  output->SetExtent(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars(outInfo);
 
   if (!this->FileName)
@@ -149,15 +143,15 @@ int vtkDEMReader::RequestData(
     return 1;
   }
 
-//
-// Read header
-//
-  if (this->ReadTypeARecord () == 0)
+  //
+  // Read header
+  //
+  if (this->ReadTypeARecord() == 0)
   {
     //
     // Read Profiles
     //
-    this->ReadProfiles (output);
+    this->ReadProfiles(output);
   }
 
   // Name the scalars.
@@ -166,13 +160,13 @@ int vtkDEMReader::RequestData(
   return 1;
 }
 
-int vtkDEMReader::ReadTypeARecord ()
+int vtkDEMReader::ReadTypeARecord()
 {
   char record[1025];
   float elevationConversion;
-  FILE *fp;
+  FILE* fp;
 
-  if (this->GetMTime () < this->ReadHeaderTime)
+  if (this->GetMTime() < this->ReadHeaderTime)
   {
     return 0;
   }
@@ -189,7 +183,7 @@ int vtkDEMReader::ReadTypeARecord ()
     return -1;
   }
 
-  vtkDebugMacro (<< "reading DEM header: type A record");
+  vtkDebugMacro(<< "reading DEM header: type A record");
 
   //
   // read the record. it is always 1024 characters long
@@ -197,16 +191,16 @@ int vtkDEMReader::ReadTypeARecord ()
   int result = fscanf(fp, "%512c", record);
   if (result != 1)
   {
-    vtkErrorMacro("For the file " << this->FileName
-                  << " fscanf expected 1 items but got " << result);
+    vtkErrorMacro(
+      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
     fclose(fp);
     return -1;
   }
-  result = fscanf(fp, "%512c", record+512);
+  result = fscanf(fp, "%512c", record + 512);
   if (result != 1)
   {
-    vtkErrorMacro("For the file " << this->FileName
-                  << " fscanf expected 1 items but got " << result);
+    vtkErrorMacro(
+      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
     fclose(fp);
     return -1;
   }
@@ -215,50 +209,34 @@ int vtkDEMReader::ReadTypeARecord ()
   //
   // convert any D+ or D- to E+ or E-. c++ and c i/o cannot read D+/-
   //
-  ConvertDNotationToENotation (record);
+  ConvertDNotationToENotation(record);
 
-  char *current = record;
+  char* current = record;
 
   this->MapLabel[144] = '\0';
   sscanf(current, "%144c", this->MapLabel);
   current += 144;
 
-  sscanf(current, "%6d%6d%6d%6d",
-                 &this->DEMLevel,
-                 &this->ElevationPattern,
-                 &this->GroundSystem,
-                 &this->GroundZone);
+  sscanf(current, "%6d%6d%6d%6d", &this->DEMLevel, &this->ElevationPattern, &this->GroundSystem,
+    &this->GroundZone);
   current += 24;
   sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g",
-   &this->ProjectionParameters[0],
-   &this->ProjectionParameters[1],
-   &this->ProjectionParameters[2],
-   &this->ProjectionParameters[3],
-   &this->ProjectionParameters[4],
-   &this->ProjectionParameters[5],
-   &this->ProjectionParameters[6],
-   &this->ProjectionParameters[7],
-   &this->ProjectionParameters[8],
-   &this->ProjectionParameters[9],
-   &this->ProjectionParameters[10],
-   &this->ProjectionParameters[11],
-   &this->ProjectionParameters[12],
-   &this->ProjectionParameters[13],
-   &this->ProjectionParameters[14]);
+    &this->ProjectionParameters[0], &this->ProjectionParameters[1], &this->ProjectionParameters[2],
+    &this->ProjectionParameters[3], &this->ProjectionParameters[4], &this->ProjectionParameters[5],
+    &this->ProjectionParameters[6], &this->ProjectionParameters[7], &this->ProjectionParameters[8],
+    &this->ProjectionParameters[9], &this->ProjectionParameters[10],
+    &this->ProjectionParameters[11], &this->ProjectionParameters[12],
+    &this->ProjectionParameters[13], &this->ProjectionParameters[14]);
   current += 360;
-  sscanf(current, "%6d%6d%6d",
-   &this->PlaneUnitOfMeasure,
-   &this->ElevationUnitOfMeasure,
-   &this->PolygonSize);
+  sscanf(current, "%6d%6d%6d", &this->PlaneUnitOfMeasure, &this->ElevationUnitOfMeasure,
+    &this->PolygonSize);
   current += 18;
-  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g",
-   &this->GroundCoords[0][0], &this->GroundCoords[0][1],
-   &this->GroundCoords[1][0], &this->GroundCoords[1][1],
-   &this->GroundCoords[2][0], &this->GroundCoords[2][1],
-   &this->GroundCoords[3][0], &this->GroundCoords[3][1]);
+  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g", &this->GroundCoords[0][0],
+    &this->GroundCoords[0][1], &this->GroundCoords[1][0], &this->GroundCoords[1][1],
+    &this->GroundCoords[2][0], &this->GroundCoords[2][1], &this->GroundCoords[3][0],
+    &this->GroundCoords[3][1]);
   current += 192;
-  sscanf(current, "%24g%24g",
-   &this->ElevationBounds[0], &this->ElevationBounds[1]);
+  sscanf(current, "%24g%24g", &this->ElevationBounds[0], &this->ElevationBounds[1]);
   elevationConversion = 1.0;
   if (this->ElevationUnitOfMeasure == 1) // feet
   {
@@ -271,36 +249,30 @@ int vtkDEMReader::ReadTypeARecord ()
   this->ElevationBounds[0] *= elevationConversion;
   this->ElevationBounds[1] *= elevationConversion;
   current += 48;
-  sscanf(current, "%24g",
-   &this->LocalRotation);
+  sscanf(current, "%24g", &this->LocalRotation);
   current += 24;
-  sscanf(current, "%6d",
-   &this->AccuracyCode);
+  sscanf(current, "%6d", &this->AccuracyCode);
   current += 6;
   char buf[13];
   buf[12] = 0;
   strncpy(buf, current, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[0]);
-  strncpy(buf, current+12, 12);
+  strncpy(buf, current + 12, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[1]);
-  strncpy(buf, current+24, 12);
+  strncpy(buf, current + 24, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[2]);
   current += 36;
-  sscanf(current, "%6d%6d",
-   &this->ProfileDimension[0],
-   &this->ProfileDimension[1]);
+  sscanf(current, "%6d%6d", &this->ProfileDimension[0], &this->ProfileDimension[1]);
 
-  this->ProfileSeekOffset = ftell (fp);
+  this->ProfileSeekOffset = ftell(fp);
 
   this->ReadHeaderTime.Modified();
-  fclose (fp);
+  fclose(fp);
 
   return 0;
 }
 
-void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
-                                                  double origin[3],
-                                                  double spacing[3])
+void vtkDEMReader::ComputeExtentOriginAndSpacing(int extent[6], double origin[3], double spacing[3])
 {
   float eastMost, westMost, northMost, southMost;
   float planeConversion;
@@ -309,22 +281,22 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   // compute number of samples
   //
   eastMost = this->GroundCoords[VTK_NE][0];
-  if (eastMost <  this->GroundCoords[VTK_SE][0])
+  if (eastMost < this->GroundCoords[VTK_SE][0])
   {
     eastMost = this->GroundCoords[VTK_SE][0];
   }
   westMost = this->GroundCoords[VTK_NW][0];
-  if (westMost >  this->GroundCoords[VTK_SW][0])
+  if (westMost > this->GroundCoords[VTK_SW][0])
   {
     westMost = this->GroundCoords[VTK_SW][0];
   }
   northMost = this->GroundCoords[VTK_NE][1];
-  if (northMost <  this->GroundCoords[VTK_NW][1])
+  if (northMost < this->GroundCoords[VTK_NW][1])
   {
     northMost = this->GroundCoords[VTK_NW][1];
   }
   southMost = this->GroundCoords[VTK_SW][1];
-  if (southMost >  this->GroundCoords[VTK_SE][1])
+  if (southMost > this->GroundCoords[VTK_SE][1])
   {
     southMost = this->GroundCoords[VTK_SE][1];
   }
@@ -332,15 +304,18 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   //
   // compute the number of rows and columns
   //
-  this->NumberOfColumns = (int) ((eastMost - westMost) / this->SpatialResolution[0] + 1.0);
-  this->NumberOfRows = (int) ((northMost - southMost) / this->SpatialResolution[1] + 1.0);
+  this->NumberOfColumns = (int)((eastMost - westMost) / this->SpatialResolution[0] + 1.0);
+  this->NumberOfRows = (int)((northMost - southMost) / this->SpatialResolution[1] + 1.0);
 
   //
   // convert to extent
   //
-  extent[0] = 0; extent[1] = this->NumberOfColumns - 1;
-  extent[2] = 0; extent[3] = this->NumberOfRows - 1;
-  extent[4] = 0; extent[5] = 0;
+  extent[0] = 0;
+  extent[1] = this->NumberOfColumns - 1;
+  extent[2] = 0;
+  extent[3] = this->NumberOfRows - 1;
+  extent[4] = 0;
+  extent[5] = 0;
 
   //
   // compute the spacing in meters
@@ -360,11 +335,11 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   //
   origin[0] = this->GroundCoords[VTK_SW][0];
   origin[1] = this->GroundCoords[VTK_SW][1];
-  if ( this->ElevationReference == REFERENCE_ELEVATION_BOUNDS )
+  if (this->ElevationReference == REFERENCE_ELEVATION_BOUNDS)
   {
     origin[2] = this->ElevationBounds[0];
   }
-  else //REFERENCE_SEA_LEVEL
+  else // REFERENCE_SEA_LEVEL
   {
     origin[2] = 0.0;
   }
@@ -374,7 +349,7 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   spacing[2] = 1.0;
 }
 
-int vtkDEMReader::ReadProfiles (vtkImageData *data)
+int vtkDEMReader::ReadProfiles(vtkImageData* data)
 {
   char record[145];
   float *outPtr, *ptr;
@@ -394,7 +369,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   int updateInterval;
   int status = 0;
   int result;
-  FILE *fp;
+  FILE* fp;
 
   if (!this->FileName)
   {
@@ -408,7 +383,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     return -1;
   }
 
-  vtkDebugMacro (<< "reading profiles");
+  vtkDebugMacro(<< "reading profiles");
 
   // elevation will always be stored in meters
   elevationConversion = 1.0;
@@ -423,12 +398,12 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
 
   units *= elevationConversion;
   // seek to start of profiles
-  fseek (fp, this->ProfileSeekOffset, SEEK_SET);
+  fseek(fp, this->ProfileSeekOffset, SEEK_SET);
   record[120] = '\0';
 
   // initialize output to the lowest elevation
   lowPoint = this->ElevationBounds[0];
-  ptr = outPtr = (float *) data->GetScalarPointer();
+  ptr = outPtr = (float*)data->GetScalarPointer();
   for (int i = 0; i < this->NumberOfColumns * this->NumberOfRows; i++)
   {
     *ptr++ = lowPoint;
@@ -441,11 +416,10 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     //
     // read four int's
     //
-    status = fscanf (fp, "%6d%6d%6d%6d",
-                   &profileId[0],       /* 1 */
-                   &profileId[1],       /* 1 */
-                   &profileSize[0],     /* 2 */
-                   &profileSize[1]);    /* 2 */
+    status = fscanf(fp, "%6d%6d%6d%6d", &profileId[0], /* 1 */
+      &profileId[1],                                   /* 1 */
+      &profileSize[0],                                 /* 2 */
+      &profileSize[1]);                                /* 2 */
     if (status == EOF)
     {
       break;
@@ -456,28 +430,27 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     result = fscanf(fp, "%120c", record);
     if (result != 1)
     {
-      vtkErrorMacro("For the file " << this->FileName
-                    << " fscanf expected 1 items but got " << result);
-      fclose (fp);
+      vtkErrorMacro(
+        "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+      fclose(fp);
       return -1;
     }
     //
     // convert any D+ or D- to E+ or E-
     //
-    ConvertDNotationToENotation (record);
-    sscanf(record, "%24g%24g%24g%24g%24g",
-                   &planCoords[0],      /* 3 */
-                   &planCoords[1],      /* 3 */
-                   &localElevation,     /* 4 */
-                   &elevationExtrema[0],        /* 5 */
-                   &elevationExtrema[1]);       /* 5 */
+    ConvertDNotationToENotation(record);
+    sscanf(record, "%24g%24g%24g%24g%24g", &planCoords[0], /* 3 */
+      &planCoords[1],                                      /* 3 */
+      &localElevation,                                     /* 4 */
+      &elevationExtrema[0],                                /* 5 */
+      &elevationExtrema[1]);                               /* 5 */
     rowId = profileId[0] - 1;
     columnId = profileId[1] - 1;
     lastRow = rowId + profileSize[0] - 1;
     // report progress at the start of each column
     if (column % updateInterval == 0)
     {
-      this->UpdateProgress ((float) column / ((float) columnCount - 1));
+      this->UpdateProgress((float)column / ((float)columnCount - 1));
       if (this->GetAbortExecute())
       {
         break;
@@ -489,45 +462,48 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
       result = fscanf(fp, "%6d", &elevation);
       if (result != 1)
       {
-        vtkErrorMacro("For the file " << this->FileName
-                      << " fscanf expected 1 items but got " << result);
-        fclose (fp);
+        vtkErrorMacro(
+          "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+        fclose(fp);
         return -1;
       }
       *(outPtr + columnId + row * numberOfColumns) = elevation * units;
     }
   }
-  fclose (fp);
+  fclose(fp);
 
   return status;
 }
 
 // Description: Converts Fortran D notation to C++ e notation
-void ConvertDNotationToENotation (char *line)
+void ConvertDNotationToENotation(char* line)
 {
-  char *ptr = line;
+  char* ptr = line;
 
   // first convert D+ to E+
-  while (*ptr && (ptr = strstr (ptr, "D+")))
+  while (*ptr && (ptr = strstr(ptr, "D+")))
   {
-    *ptr = 'e'; ptr++;
-    *ptr = '+'; ptr++;
+    *ptr = 'e';
+    ptr++;
+    *ptr = '+';
+    ptr++;
   }
 
   // first now D- to E-
   ptr = line;
-  while (*ptr && (ptr = strstr (ptr, "D-")))
+  while (*ptr && (ptr = strstr(ptr, "D-")))
   {
-    *ptr = 'e'; ptr++;
-    *ptr = '-'; ptr++;
+    *ptr = 'e';
+    ptr++;
+    *ptr = '-';
+    ptr++;
   }
 }
 
-
 // Return the elevation reference.
-const char *vtkDEMReader::GetElevationReferenceAsString()
+const char* vtkDEMReader::GetElevationReferenceAsString()
 {
-  if ( this->ElevationReference == REFERENCE_SEA_LEVEL )
+  if (this->ElevationReference == REFERENCE_SEA_LEVEL)
   {
     return "Sea Level";
   }
@@ -537,16 +513,14 @@ const char *vtkDEMReader::GetElevationReferenceAsString()
   }
 }
 
-
 void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
   if (this->FileName)
   {
-    this->UpdateInformation ();
+    this->UpdateInformation();
     os << indent << "MapLabel: " << this->MapLabel << "\n";
     os << indent << "DEMLevel: " << this->DEMLevel << "\n";
     os << indent << "ElevationPattern: " << this->ElevationPattern
@@ -570,7 +544,8 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
     }
     os << indent << "GroundZone: " << this->GroundZone << "\n";
     os << indent << "ElevationRefernce: " << this->GetElevationReferenceAsString() << "\n";
-    os << indent << "ProjectionParameters: all zero" << "\n"; // this->ProjectionParameters
+    os << indent << "ProjectionParameters: all zero"
+       << "\n"; // this->ProjectionParameters
     os << indent << "PlaneUnitOfMeasure: " << this->PlaneUnitOfMeasure;
     if (this->PlaneUnitOfMeasure == 0)
     {
@@ -608,18 +583,21 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
     }
     os << indent << "PolygonSize: " << this->PolygonSize << "\n";
     os << indent << "GroundCoordinates: \n";
-    os << indent << "        " << this->GroundCoords[0][0] << ", " << this->GroundCoords[0][1] << "\n";
-    os << indent << "        " << this->GroundCoords[1][0] << ", " << this->GroundCoords[1][1] << "\n";
-    os << indent << "        " << this->GroundCoords[2][0] << ", " << this->GroundCoords[2][1] << "\n";
-    os << indent << "        " << this->GroundCoords[3][0] << ", " << this->GroundCoords[3][1] << "\n";
+    os << indent << "        " << this->GroundCoords[0][0] << ", " << this->GroundCoords[0][1]
+       << "\n";
+    os << indent << "        " << this->GroundCoords[1][0] << ", " << this->GroundCoords[1][1]
+       << "\n";
+    os << indent << "        " << this->GroundCoords[2][0] << ", " << this->GroundCoords[2][1]
+       << "\n";
+    os << indent << "        " << this->GroundCoords[3][0] << ", " << this->GroundCoords[3][1]
+       << "\n";
 
     os << indent << "ElevationBounds: " << this->ElevationBounds[0] << ", "
-                                        << this->ElevationBounds[1]
-                                        << " (meters)\n";
+       << this->ElevationBounds[1] << " (meters)\n";
     os << indent << "LocalRotation: " << this->LocalRotation << "\n";
     os << indent << "AccuracyCode: " << this->AccuracyCode << "\n";
     os << indent << "SpatialResolution: " << this->SpatialResolution[0] << ", "
-                                          << this->SpatialResolution[1];
+       << this->SpatialResolution[1];
     if (this->PlaneUnitOfMeasure == 0)
     {
       os << indent << "(radians)";
@@ -655,6 +633,6 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "(unknown)\n";
     }
     os << indent << "ProfileDimension: " << this->ProfileDimension[0] << ", "
-                                         << this->ProfileDimension[1] << "\n";
+       << this->ProfileDimension[1] << "\n";
   }
 }

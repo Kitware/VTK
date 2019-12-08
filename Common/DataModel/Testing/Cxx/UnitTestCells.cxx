@@ -13,33 +13,32 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkCellType.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkEmptyCell.h"
-#include "vtkVertex.h"
-#include "vtkPolyVertex.h"
+#include "vtkHexagonalPrism.h"
+#include "vtkHexahedron.h"
 #include "vtkLine.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkPixel.h"
 #include "vtkPolyLine.h"
+#include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
+#include "vtkPolyhedron.h"
+#include "vtkPyramid.h"
+#include "vtkQuad.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
-#include "vtkPolygon.h"
-#include "vtkQuad.h"
-#include "vtkPixel.h"
+#include "vtkVertex.h"
 #include "vtkVoxel.h"
-#include "vtkHexahedron.h"
-#include "vtkPyramid.h"
-#include "vtkTetra.h"
-#include "vtkPolyhedron.h"
-#include "vtkPentagonalPrism.h"
-#include "vtkHexagonalPrism.h"
 #include "vtkWedge.h"
-#include "vtkPolyhedron.h"
 
 #include "vtkQuadraticEdge.h"
+#include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticLinearWedge.h"
-#include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPolygon.h"
 #include "vtkQuadraticPyramid.h"
 #include "vtkQuadraticQuad.h"
@@ -55,14 +54,14 @@
 
 #include "vtkCubicLine.h"
 
-#include "vtkMathUtilities.h"
-#include "vtkMath.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include <sstream>
-#include <vector>
-#include <string>
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
+#include "vtkPoints.h"
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 static vtkSmartPointer<vtkEmptyCell> MakeEmptyCell();
 static vtkSmartPointer<vtkVertex> MakeVertex();
@@ -102,11 +101,12 @@ static vtkSmartPointer<vtkBiQuadraticTriangle> MakeBiQuadraticTriangle();
 static vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron();
 static vtkSmartPointer<vtkCubicLine> MakeCubicLine();
 
-template<typename T> int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
+template <typename T>
+int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
 //----------------------------------------------------------------------------
 int UnitTestCells(int, char*[])
 {
-  std::map<std::string,int> results;
+  std::map<std::string, int> results;
 
   results["EmptyCell"] = TestOneCell<vtkEmptyCell>(VTK_EMPTY_CELL, MakeEmptyCell());
   results["Vertex"] = TestOneCell<vtkVertex>(VTK_VERTEX, MakeVertex());
@@ -123,36 +123,54 @@ int UnitTestCells(int, char*[])
   results["Hexahedron"] = TestOneCell<vtkHexahedron>(VTK_HEXAHEDRON, MakeHexahedron());
   results["Wedge"] = TestOneCell<vtkWedge>(VTK_WEDGE, MakeWedge());
   results["Pyramid"] = TestOneCell<vtkPyramid>(VTK_PYRAMID, MakePyramid());
-  results["PentagonalPrism"] = TestOneCell<vtkPentagonalPrism>(VTK_PENTAGONAL_PRISM, MakePentagonalPrism());
-  results["HexagonalPrism"] = TestOneCell<vtkHexagonalPrism>(VTK_HEXAGONAL_PRISM, MakeHexagonalPrism());
+  results["PentagonalPrism"] =
+    TestOneCell<vtkPentagonalPrism>(VTK_PENTAGONAL_PRISM, MakePentagonalPrism());
+  results["HexagonalPrism"] =
+    TestOneCell<vtkHexagonalPrism>(VTK_HEXAGONAL_PRISM, MakeHexagonalPrism());
   results["Polyhedron(Cube)"] = TestOneCell<vtkPolyhedron>(VTK_POLYHEDRON, MakeCube());
-  results["Polyhedron(Dodecahedron)"] = TestOneCell<vtkPolyhedron>(VTK_POLYHEDRON, MakeDodecahedron());
+  results["Polyhedron(Dodecahedron)"] =
+    TestOneCell<vtkPolyhedron>(VTK_POLYHEDRON, MakeDodecahedron());
 
-  results["QuadraticEdge"] = TestOneCell<vtkQuadraticEdge>(VTK_QUADRATIC_EDGE, MakeQuadraticEdge(), 0);
-  results["QuadraticHexahedron"] = TestOneCell<vtkQuadraticHexahedron>(VTK_QUADRATIC_HEXAHEDRON, MakeQuadraticHexahedron(), 0);
-  results["QuadraticPolygon"] = TestOneCell<vtkQuadraticPolygon>(VTK_QUADRATIC_POLYGON, MakeQuadraticPolygon(), 0);
-  results["QuadraticLinearQuad"] = TestOneCell<vtkQuadraticLinearQuad>(VTK_QUADRATIC_LINEAR_QUAD, MakeQuadraticLinearQuad(), 0);
-  results["QuadraticLinearWedge"] = TestOneCell<vtkQuadraticLinearWedge>(VTK_QUADRATIC_LINEAR_WEDGE, MakeQuadraticLinearWedge(), 0);
-  results["QuadraticPyramid"] = TestOneCell<vtkQuadraticPyramid>(VTK_QUADRATIC_PYRAMID, MakeQuadraticPyramid(), 0);
-  results["QuadraticQuad"] = TestOneCell<vtkQuadraticQuad>(VTK_QUADRATIC_QUAD, MakeQuadraticQuad(), 0);
-  results["QuadraticTetra"] = TestOneCell<vtkQuadraticTetra>(VTK_QUADRATIC_TETRA, MakeQuadraticTetra(), 0);
-  results["QuadraticTrangle"] = TestOneCell<vtkQuadraticTriangle>(VTK_QUADRATIC_TRIANGLE, MakeQuadraticTriangle(), 0);
-  results["QuadraticWedge"] = TestOneCell<vtkQuadraticWedge>(VTK_QUADRATIC_WEDGE, MakeQuadraticWedge(), 0);
+  results["QuadraticEdge"] =
+    TestOneCell<vtkQuadraticEdge>(VTK_QUADRATIC_EDGE, MakeQuadraticEdge(), 0);
+  results["QuadraticHexahedron"] =
+    TestOneCell<vtkQuadraticHexahedron>(VTK_QUADRATIC_HEXAHEDRON, MakeQuadraticHexahedron(), 0);
+  results["QuadraticPolygon"] =
+    TestOneCell<vtkQuadraticPolygon>(VTK_QUADRATIC_POLYGON, MakeQuadraticPolygon(), 0);
+  results["QuadraticLinearQuad"] =
+    TestOneCell<vtkQuadraticLinearQuad>(VTK_QUADRATIC_LINEAR_QUAD, MakeQuadraticLinearQuad(), 0);
+  results["QuadraticLinearWedge"] =
+    TestOneCell<vtkQuadraticLinearWedge>(VTK_QUADRATIC_LINEAR_WEDGE, MakeQuadraticLinearWedge(), 0);
+  results["QuadraticPyramid"] =
+    TestOneCell<vtkQuadraticPyramid>(VTK_QUADRATIC_PYRAMID, MakeQuadraticPyramid(), 0);
+  results["QuadraticQuad"] =
+    TestOneCell<vtkQuadraticQuad>(VTK_QUADRATIC_QUAD, MakeQuadraticQuad(), 0);
+  results["QuadraticTetra"] =
+    TestOneCell<vtkQuadraticTetra>(VTK_QUADRATIC_TETRA, MakeQuadraticTetra(), 0);
+  results["QuadraticTrangle"] =
+    TestOneCell<vtkQuadraticTriangle>(VTK_QUADRATIC_TRIANGLE, MakeQuadraticTriangle(), 0);
+  results["QuadraticWedge"] =
+    TestOneCell<vtkQuadraticWedge>(VTK_QUADRATIC_WEDGE, MakeQuadraticWedge(), 0);
 
-  results["BiQuadraticQuad"] = TestOneCell<vtkBiQuadraticQuad>(VTK_BIQUADRATIC_QUAD, MakeBiQuadraticQuad(), 0);
-  results["BiQuadraticQuadraticHexahedron"] = TestOneCell<vtkBiQuadraticQuadraticHexahedron>(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, MakeBiQuadraticQuadraticHexahedron(), 0);
-  results["BiQuadraticQuadraticWedge"] = TestOneCell<vtkBiQuadraticQuadraticWedge>(VTK_BIQUADRATIC_QUADRATIC_WEDGE, MakeBiQuadraticQuadraticWedge(), 0);
-  results["BiQuadraticTrangle"] = TestOneCell<vtkBiQuadraticTriangle>(VTK_BIQUADRATIC_TRIANGLE, MakeBiQuadraticTriangle(), 0);
+  results["BiQuadraticQuad"] =
+    TestOneCell<vtkBiQuadraticQuad>(VTK_BIQUADRATIC_QUAD, MakeBiQuadraticQuad(), 0);
+  results["BiQuadraticQuadraticHexahedron"] = TestOneCell<vtkBiQuadraticQuadraticHexahedron>(
+    VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, MakeBiQuadraticQuadraticHexahedron(), 0);
+  results["BiQuadraticQuadraticWedge"] = TestOneCell<vtkBiQuadraticQuadraticWedge>(
+    VTK_BIQUADRATIC_QUADRATIC_WEDGE, MakeBiQuadraticQuadraticWedge(), 0);
+  results["BiQuadraticTrangle"] =
+    TestOneCell<vtkBiQuadraticTriangle>(VTK_BIQUADRATIC_TRIANGLE, MakeBiQuadraticTriangle(), 0);
   results["CubicLine"] = TestOneCell<vtkCubicLine>(VTK_CUBIC_LINE, MakeCubicLine(), 0);
 
-  results["TriQuadraticHexahedron"] = TestOneCell<vtkTriQuadraticHexahedron>(VTK_TRIQUADRATIC_HEXAHEDRON, MakeTriQuadraticHexahedron(), 0);
+  results["TriQuadraticHexahedron"] = TestOneCell<vtkTriQuadraticHexahedron>(
+    VTK_TRIQUADRATIC_HEXAHEDRON, MakeTriQuadraticHexahedron(), 0);
 
   int status = 0;
   std::cout << "----- Unit Test Summary -----" << std::endl;
-  std::map <std::string, int>::iterator it;
+  std::map<std::string, int>::iterator it;
   for (it = results.begin(); it != results.end(); ++it)
   {
-    std:: cout << std::setw(25) << it->first << " "  << (it->second ? " FAILED" : " OK") << std::endl;
+    std::cout << std::setw(25) << it->first << " " << (it->second ? " FAILED" : " OK") << std::endl;
     if (it->second != 0)
     {
       ++status;
@@ -167,68 +185,62 @@ int UnitTestCells(int, char*[])
 
 vtkSmartPointer<vtkEmptyCell> MakeEmptyCell()
 {
-  vtkSmartPointer<vtkEmptyCell> anEmptyCell =
-    vtkSmartPointer<vtkEmptyCell>::New();
+  vtkSmartPointer<vtkEmptyCell> anEmptyCell = vtkSmartPointer<vtkEmptyCell>::New();
   return anEmptyCell;
 }
 
 vtkSmartPointer<vtkVertex> MakeVertex()
 {
-  vtkSmartPointer<vtkVertex> aVertex =
-    vtkSmartPointer<vtkVertex>::New();
-  aVertex->GetPointIds()->SetId(0,0);
-  aVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
+  vtkSmartPointer<vtkVertex> aVertex = vtkSmartPointer<vtkVertex>::New();
+  aVertex->GetPointIds()->SetId(0, 0);
+  aVertex->GetPoints()->SetPoint(0, 10.0, 20.0, 30.0);
 
   return aVertex;
 }
 
 vtkSmartPointer<vtkPolyVertex> MakePolyVertex()
 {
-  vtkSmartPointer<vtkPolyVertex> aPolyVertex =
-    vtkSmartPointer<vtkPolyVertex>::New();
+  vtkSmartPointer<vtkPolyVertex> aPolyVertex = vtkSmartPointer<vtkPolyVertex>::New();
   aPolyVertex->GetPointIds()->SetNumberOfIds(2);
-  aPolyVertex->GetPointIds()->SetId(0,0);
-  aPolyVertex->GetPointIds()->SetId(1,1);
+  aPolyVertex->GetPointIds()->SetId(0, 0);
+  aPolyVertex->GetPointIds()->SetId(1, 1);
 
   aPolyVertex->GetPoints()->SetNumberOfPoints(2);
-  aPolyVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
-  aPolyVertex->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
+  aPolyVertex->GetPoints()->SetPoint(0, 10.0, 20.0, 30.0);
+  aPolyVertex->GetPoints()->SetPoint(1, 30.0, 20.0, 10.0);
 
   return aPolyVertex;
 }
 
 vtkSmartPointer<vtkLine> MakeLine()
 {
-  vtkSmartPointer<vtkLine> aLine =
-    vtkSmartPointer<vtkLine>::New();
-  aLine->GetPointIds()->SetId(0,0);
-  aLine->GetPointIds()->SetId(1,1);
-  aLine->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
-  aLine->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
+  vtkSmartPointer<vtkLine> aLine = vtkSmartPointer<vtkLine>::New();
+  aLine->GetPointIds()->SetId(0, 0);
+  aLine->GetPointIds()->SetId(1, 1);
+  aLine->GetPoints()->SetPoint(0, 10.0, 20.0, 30.0);
+  aLine->GetPoints()->SetPoint(1, 30.0, 20.0, 10.0);
   return aLine;
 }
 
 vtkSmartPointer<vtkPolyLine> MakePolyLine()
 {
-  vtkSmartPointer<vtkPolyLine> aPolyLine =
-    vtkSmartPointer<vtkPolyLine>::New();
+  vtkSmartPointer<vtkPolyLine> aPolyLine = vtkSmartPointer<vtkPolyLine>::New();
   aPolyLine->GetPointIds()->SetNumberOfIds(3);
-  aPolyLine->GetPointIds()->SetId(0,0);
-  aPolyLine->GetPointIds()->SetId(1,1);
-  aPolyLine->GetPointIds()->SetId(2,2);
+  aPolyLine->GetPointIds()->SetId(0, 0);
+  aPolyLine->GetPointIds()->SetId(1, 1);
+  aPolyLine->GetPointIds()->SetId(2, 2);
 
   aPolyLine->GetPoints()->SetNumberOfPoints(3);
-  aPolyLine->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
-  aPolyLine->GetPoints()->SetPoint (1, 10.0, 30.0, 30.0);
-  aPolyLine->GetPoints()->SetPoint (2, 10.0, 30.0, 40.0);
+  aPolyLine->GetPoints()->SetPoint(0, 10.0, 20.0, 30.0);
+  aPolyLine->GetPoints()->SetPoint(1, 10.0, 30.0, 30.0);
+  aPolyLine->GetPoints()->SetPoint(2, 10.0, 30.0, 40.0);
 
   return aPolyLine;
 }
 
 vtkSmartPointer<vtkTriangle> MakeTriangle()
 {
-  vtkSmartPointer<vtkTriangle> aTriangle =
-    vtkSmartPointer<vtkTriangle>::New();
+  vtkSmartPointer<vtkTriangle> aTriangle = vtkSmartPointer<vtkTriangle>::New();
   aTriangle->GetPoints()->SetPoint(0, -10.0, -10.0, 0.0);
   aTriangle->GetPoints()->SetPoint(1, 10.0, -10.0, 0.0);
   aTriangle->GetPoints()->SetPoint(2, 10.0, 10.0, 0.0);
@@ -240,32 +252,30 @@ vtkSmartPointer<vtkTriangle> MakeTriangle()
 
 vtkSmartPointer<vtkTriangleStrip> MakeTriangleStrip()
 {
-  vtkSmartPointer<vtkTriangleStrip> aTriangleStrip =
-    vtkSmartPointer<vtkTriangleStrip>::New();
+  vtkSmartPointer<vtkTriangleStrip> aTriangleStrip = vtkSmartPointer<vtkTriangleStrip>::New();
   aTriangleStrip->GetPointIds()->SetNumberOfIds(4);
-  aTriangleStrip->GetPointIds()->SetId(0,0);
-  aTriangleStrip->GetPointIds()->SetId(1,1);
-  aTriangleStrip->GetPointIds()->SetId(2,2);
-  aTriangleStrip->GetPointIds()->SetId(3,3);
+  aTriangleStrip->GetPointIds()->SetId(0, 0);
+  aTriangleStrip->GetPointIds()->SetId(1, 1);
+  aTriangleStrip->GetPointIds()->SetId(2, 2);
+  aTriangleStrip->GetPointIds()->SetId(3, 3);
 
   aTriangleStrip->GetPoints()->SetNumberOfPoints(4);
-  aTriangleStrip->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
-  aTriangleStrip->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
-  aTriangleStrip->GetPoints()->SetPoint (2, 11.0, 12.0, 10.0);
-  aTriangleStrip->GetPoints()->SetPoint (3, 13.0, 10.0, 10.0);
+  aTriangleStrip->GetPoints()->SetPoint(0, 10.0, 10.0, 10.0);
+  aTriangleStrip->GetPoints()->SetPoint(1, 12.0, 10.0, 10.0);
+  aTriangleStrip->GetPoints()->SetPoint(2, 11.0, 12.0, 10.0);
+  aTriangleStrip->GetPoints()->SetPoint(3, 13.0, 10.0, 10.0);
 
   return aTriangleStrip;
 }
 
 vtkSmartPointer<vtkPolygon> MakePolygon()
 {
-  vtkSmartPointer<vtkPolygon> aPolygon =
-    vtkSmartPointer<vtkPolygon>::New();
+  vtkSmartPointer<vtkPolygon> aPolygon = vtkSmartPointer<vtkPolygon>::New();
   aPolygon->GetPointIds()->SetNumberOfIds(4);
-  aPolygon->GetPointIds()->SetId(0,0);
-  aPolygon->GetPointIds()->SetId(1,1);
-  aPolygon->GetPointIds()->SetId(2,2);
-  aPolygon->GetPointIds()->SetId(3,3);
+  aPolygon->GetPointIds()->SetId(0, 0);
+  aPolygon->GetPointIds()->SetId(1, 1);
+  aPolygon->GetPointIds()->SetId(2, 2);
+  aPolygon->GetPointIds()->SetId(3, 3);
 
   aPolygon->GetPoints()->SetNumberOfPoints(4);
   aPolygon->GetPoints()->SetPoint(0, 0.0, 0.0, 0.0);
@@ -278,8 +288,7 @@ vtkSmartPointer<vtkPolygon> MakePolygon()
 
 vtkSmartPointer<vtkQuad> MakeQuad()
 {
-  vtkSmartPointer<vtkQuad> aQuad =
-    vtkSmartPointer<vtkQuad>::New();
+  vtkSmartPointer<vtkQuad> aQuad = vtkSmartPointer<vtkQuad>::New();
   aQuad->GetPoints()->SetPoint(0, -10.0, -10.0, 0.0);
   aQuad->GetPoints()->SetPoint(1, 10.0, -10.0, 0.0);
   aQuad->GetPoints()->SetPoint(2, 10.0, 10.0, 0.0);
@@ -293,32 +302,30 @@ vtkSmartPointer<vtkQuad> MakeQuad()
 
 vtkSmartPointer<vtkPixel> MakePixel()
 {
-  vtkSmartPointer<vtkPixel> aPixel =
-    vtkSmartPointer<vtkPixel>::New();
-  aPixel->GetPointIds()->SetId(0,0);
-  aPixel->GetPointIds()->SetId(1,1);
-  aPixel->GetPointIds()->SetId(2,3);
-  aPixel->GetPointIds()->SetId(3,2);
+  vtkSmartPointer<vtkPixel> aPixel = vtkSmartPointer<vtkPixel>::New();
+  aPixel->GetPointIds()->SetId(0, 0);
+  aPixel->GetPointIds()->SetId(1, 1);
+  aPixel->GetPointIds()->SetId(2, 3);
+  aPixel->GetPointIds()->SetId(3, 2);
 
-  aPixel->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
-  aPixel->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
-  aPixel->GetPoints()->SetPoint (3, 12.0, 12.0, 10.0);
-  aPixel->GetPoints()->SetPoint (2, 10.0, 12.0, 10.0);
+  aPixel->GetPoints()->SetPoint(0, 10.0, 10.0, 10.0);
+  aPixel->GetPoints()->SetPoint(1, 12.0, 10.0, 10.0);
+  aPixel->GetPoints()->SetPoint(3, 12.0, 12.0, 10.0);
+  aPixel->GetPoints()->SetPoint(2, 10.0, 12.0, 10.0);
   return aPixel;
 }
 
 vtkSmartPointer<vtkVoxel> MakeVoxel()
 {
-  vtkSmartPointer<vtkVoxel> aVoxel =
-    vtkSmartPointer<vtkVoxel>::New();
-  aVoxel->GetPointIds()->SetId(0,0);
-  aVoxel->GetPointIds()->SetId(1,1);
-  aVoxel->GetPointIds()->SetId(2,3);
-  aVoxel->GetPointIds()->SetId(3,2);
-  aVoxel->GetPointIds()->SetId(4,4);
-  aVoxel->GetPointIds()->SetId(5,5);
-  aVoxel->GetPointIds()->SetId(6,7);
-  aVoxel->GetPointIds()->SetId(7,6);
+  vtkSmartPointer<vtkVoxel> aVoxel = vtkSmartPointer<vtkVoxel>::New();
+  aVoxel->GetPointIds()->SetId(0, 0);
+  aVoxel->GetPointIds()->SetId(1, 1);
+  aVoxel->GetPointIds()->SetId(2, 3);
+  aVoxel->GetPointIds()->SetId(3, 2);
+  aVoxel->GetPointIds()->SetId(4, 4);
+  aVoxel->GetPointIds()->SetId(5, 5);
+  aVoxel->GetPointIds()->SetId(6, 7);
+  aVoxel->GetPointIds()->SetId(7, 6);
 
   aVoxel->GetPoints()->SetPoint(0, 10, 10, 10);
   aVoxel->GetPoints()->SetPoint(1, 12, 10, 10);
@@ -333,16 +340,15 @@ vtkSmartPointer<vtkVoxel> MakeVoxel()
 
 vtkSmartPointer<vtkHexahedron> MakeHexahedron()
 {
-  vtkSmartPointer<vtkHexahedron> aHexahedron =
-    vtkSmartPointer<vtkHexahedron>::New();
-  aHexahedron->GetPointIds()->SetId(0,0);
-  aHexahedron->GetPointIds()->SetId(1,1);
-  aHexahedron->GetPointIds()->SetId(2,2);
-  aHexahedron->GetPointIds()->SetId(3,3);
-  aHexahedron->GetPointIds()->SetId(4,4);
-  aHexahedron->GetPointIds()->SetId(5,5);
-  aHexahedron->GetPointIds()->SetId(6,6);
-  aHexahedron->GetPointIds()->SetId(7,7);
+  vtkSmartPointer<vtkHexahedron> aHexahedron = vtkSmartPointer<vtkHexahedron>::New();
+  aHexahedron->GetPointIds()->SetId(0, 0);
+  aHexahedron->GetPointIds()->SetId(1, 1);
+  aHexahedron->GetPointIds()->SetId(2, 2);
+  aHexahedron->GetPointIds()->SetId(3, 3);
+  aHexahedron->GetPointIds()->SetId(4, 4);
+  aHexahedron->GetPointIds()->SetId(5, 5);
+  aHexahedron->GetPointIds()->SetId(6, 6);
+  aHexahedron->GetPointIds()->SetId(7, 7);
 
   aHexahedron->GetPoints()->SetPoint(0, 10, 10, 10);
   aHexahedron->GetPoints()->SetPoint(1, 12, 10, 10);
@@ -358,8 +364,7 @@ vtkSmartPointer<vtkHexahedron> MakeHexahedron()
 
 vtkSmartPointer<vtkPyramid> MakePyramid()
 {
-  vtkSmartPointer<vtkPyramid> aPyramid =
-    vtkSmartPointer<vtkPyramid>::New();
+  vtkSmartPointer<vtkPyramid> aPyramid = vtkSmartPointer<vtkPyramid>::New();
   aPyramid->GetPointIds()->SetId(0, 0);
   aPyramid->GetPointIds()->SetId(1, 1);
   aPyramid->GetPointIds()->SetId(2, 2);
@@ -377,8 +382,7 @@ vtkSmartPointer<vtkPyramid> MakePyramid()
 
 vtkSmartPointer<vtkQuadraticPyramid> MakeQuadraticPyramid()
 {
-  vtkSmartPointer<vtkQuadraticPyramid> aPyramid =
-    vtkSmartPointer<vtkQuadraticPyramid>::New();
+  vtkSmartPointer<vtkQuadraticPyramid> aPyramid = vtkSmartPointer<vtkQuadraticPyramid>::New();
   for (int i = 0; i < 13; ++i)
   {
     aPyramid->GetPointIds()->SetId(i, i);
@@ -395,18 +399,17 @@ vtkSmartPointer<vtkQuadraticPyramid> MakeQuadraticPyramid()
   aPyramid->GetPoints()->SetPoint(7, 0.5, 1.0, 0.0);
   aPyramid->GetPoints()->SetPoint(8, 0.0, 0.5, 0.0);
 
-  aPyramid->GetPoints()->SetPoint(9,  0.5,  0.5,  0.5);
-  aPyramid->GetPoints()->SetPoint(10, 0.75, 0.5,  0.5);
+  aPyramid->GetPoints()->SetPoint(9, 0.5, 0.5, 0.5);
+  aPyramid->GetPoints()->SetPoint(10, 0.75, 0.5, 0.5);
   aPyramid->GetPoints()->SetPoint(11, 0.75, 0.75, 0.5);
-  aPyramid->GetPoints()->SetPoint(12, 0.5,  0.75, 0.5);
+  aPyramid->GetPoints()->SetPoint(12, 0.5, 0.75, 0.5);
 
   return aPyramid;
 }
 
 vtkSmartPointer<vtkQuadraticEdge> MakeQuadraticEdge()
 {
-  vtkSmartPointer<vtkQuadraticEdge> anEdge =
-    vtkSmartPointer<vtkQuadraticEdge>::New();
+  vtkSmartPointer<vtkQuadraticEdge> anEdge = vtkSmartPointer<vtkQuadraticEdge>::New();
   for (int i = 0; i < 3; ++i)
   {
     anEdge->GetPointIds()->SetId(i, i);
@@ -423,14 +426,13 @@ vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron()
 {
   vtkSmartPointer<vtkQuadraticHexahedron> aHexahedron =
     vtkSmartPointer<vtkQuadraticHexahedron>::New();
-  double *pcoords = aHexahedron->GetParametricCoords();
+  double* pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i,
-                                       *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
+    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
   }
   return aHexahedron;
 }
@@ -439,14 +441,13 @@ vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexah
 {
   vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> aHexahedron =
     vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron>::New();
-  double *pcoords = aHexahedron->GetParametricCoords();
+  double* pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i,
-                                       *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
+    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
   }
   return aHexahedron;
 }
@@ -455,32 +456,30 @@ vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron()
 {
   vtkSmartPointer<vtkTriQuadraticHexahedron> aHexahedron =
     vtkSmartPointer<vtkTriQuadraticHexahedron>::New();
-  double *pcoords = aHexahedron->GetParametricCoords();
+  double* pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
   {
     aHexahedron->GetPointIds()->SetId(i, i);
-    aHexahedron->GetPoints()->SetPoint(i,
-                                       *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
-                                       *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
+    aHexahedron->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
   }
   return aHexahedron;
 }
 
 vtkSmartPointer<vtkQuadraticPolygon> MakeQuadraticPolygon()
 {
-  vtkSmartPointer<vtkQuadraticPolygon> aPolygon =
-    vtkSmartPointer<vtkQuadraticPolygon>::New();
+  vtkSmartPointer<vtkQuadraticPolygon> aPolygon = vtkSmartPointer<vtkQuadraticPolygon>::New();
 
   aPolygon->GetPointIds()->SetNumberOfIds(8);
-  aPolygon->GetPointIds()->SetId(0,0);
-  aPolygon->GetPointIds()->SetId(1,1);
-  aPolygon->GetPointIds()->SetId(2,2);
-  aPolygon->GetPointIds()->SetId(3,3);
-  aPolygon->GetPointIds()->SetId(4,4);
-  aPolygon->GetPointIds()->SetId(5,5);
-  aPolygon->GetPointIds()->SetId(6,6);
-  aPolygon->GetPointIds()->SetId(7,7);
+  aPolygon->GetPointIds()->SetId(0, 0);
+  aPolygon->GetPointIds()->SetId(1, 1);
+  aPolygon->GetPointIds()->SetId(2, 2);
+  aPolygon->GetPointIds()->SetId(3, 3);
+  aPolygon->GetPointIds()->SetId(4, 4);
+  aPolygon->GetPointIds()->SetId(5, 5);
+  aPolygon->GetPointIds()->SetId(6, 6);
+  aPolygon->GetPointIds()->SetId(7, 7);
 
   aPolygon->GetPoints()->SetNumberOfPoints(8);
   aPolygon->GetPoints()->SetPoint(0, 0.0, 0.0, 0.0);
@@ -499,14 +498,12 @@ vtkSmartPointer<vtkQuadraticLinearQuad> MakeQuadraticLinearQuad()
 {
   vtkSmartPointer<vtkQuadraticLinearQuad> aLinearQuad =
     vtkSmartPointer<vtkQuadraticLinearQuad>::New();
-  double *pcoords = aLinearQuad->GetParametricCoords();
+  double* pcoords = aLinearQuad->GetParametricCoords();
   for (int i = 0; i < aLinearQuad->GetNumberOfPoints(); ++i)
   {
     aLinearQuad->GetPointIds()->SetId(i, i);
-    aLinearQuad->GetPoints()->SetPoint(i,
-                                       *(pcoords + 3 * i),
-                                       *(pcoords + 3 * i + 1),
-                                       *(pcoords + 3 * i + 2));
+    aLinearQuad->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aLinearQuad;
 }
@@ -515,62 +512,52 @@ vtkSmartPointer<vtkQuadraticLinearWedge> MakeQuadraticLinearWedge()
 {
   vtkSmartPointer<vtkQuadraticLinearWedge> aLinearWedge =
     vtkSmartPointer<vtkQuadraticLinearWedge>::New();
-  double *pcoords = aLinearWedge->GetParametricCoords();
+  double* pcoords = aLinearWedge->GetParametricCoords();
   for (int i = 0; i < 12; ++i)
   {
     aLinearWedge->GetPointIds()->SetId(i, i);
-    aLinearWedge->GetPoints()->SetPoint(i,
-                                       *(pcoords + 3 * i),
-                                       *(pcoords + 3 * i + 1),
-                                       *(pcoords + 3 * i + 2));
+    aLinearWedge->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aLinearWedge;
 }
 
 vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad()
 {
-  vtkSmartPointer<vtkQuadraticQuad> aQuad =
-    vtkSmartPointer<vtkQuadraticQuad>::New();
-  double *pcoords = aQuad->GetParametricCoords();
+  vtkSmartPointer<vtkQuadraticQuad> aQuad = vtkSmartPointer<vtkQuadraticQuad>::New();
+  double* pcoords = aQuad->GetParametricCoords();
   for (int i = 0; i < 8; ++i)
   {
     aQuad->GetPointIds()->SetId(i, i);
-    aQuad->GetPoints()->SetPoint(i,
-                                 *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 2));
+    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1), *(pcoords + 3 * i + 2));
   }
   return aQuad;
 }
 
 vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra()
 {
-  vtkSmartPointer<vtkQuadraticTetra> aTetra =
-    vtkSmartPointer<vtkQuadraticTetra>::New();
-  double *pcoords = aTetra->GetParametricCoords();
+  vtkSmartPointer<vtkQuadraticTetra> aTetra = vtkSmartPointer<vtkQuadraticTetra>::New();
+  double* pcoords = aTetra->GetParametricCoords();
   for (int i = 0; i < 10; ++i)
   {
     aTetra->GetPointIds()->SetId(i, i);
-    aTetra->GetPoints()->SetPoint(i,
-                                  *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
+    aTetra->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
   }
   return aTetra;
 }
 
 vtkSmartPointer<vtkQuadraticTriangle> MakeQuadraticTriangle()
 {
-  vtkSmartPointer<vtkQuadraticTriangle> aTriangle =
-    vtkSmartPointer<vtkQuadraticTriangle>::New();
-  double *pcoords = aTriangle->GetParametricCoords();
+  vtkSmartPointer<vtkQuadraticTriangle> aTriangle = vtkSmartPointer<vtkQuadraticTriangle>::New();
+  double* pcoords = aTriangle->GetParametricCoords();
   for (int i = 0; i < aTriangle->GetNumberOfPoints(); ++i)
   {
     aTriangle->GetPointIds()->SetId(i, i);
-    aTriangle->GetPoints()->SetPoint(i,
-                                     *(pcoords + 3 * i),
-                                     *(pcoords + 3 * i + 1),
-                                     *(pcoords + 3 * i + 2));
+    aTriangle->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aTriangle;
 }
@@ -579,62 +566,51 @@ vtkSmartPointer<vtkBiQuadraticTriangle> MakeBiQuadraticTriangle()
 {
   vtkSmartPointer<vtkBiQuadraticTriangle> aTriangle =
     vtkSmartPointer<vtkBiQuadraticTriangle>::New();
-  double *pcoords = aTriangle->GetParametricCoords();
+  double* pcoords = aTriangle->GetParametricCoords();
   for (int i = 0; i < aTriangle->GetNumberOfPoints(); ++i)
   {
     aTriangle->GetPointIds()->SetId(i, i);
-    aTriangle->GetPoints()->SetPoint(i,
-                                     *(pcoords + 3 * i),
-                                     *(pcoords + 3 * i + 1),
-                                     *(pcoords + 3 * i + 2));
+    aTriangle->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aTriangle;
 }
 
 vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad()
 {
-  vtkSmartPointer<vtkBiQuadraticQuad> aQuad =
-    vtkSmartPointer<vtkBiQuadraticQuad>::New();
-  double *pcoords = aQuad->GetParametricCoords();
+  vtkSmartPointer<vtkBiQuadraticQuad> aQuad = vtkSmartPointer<vtkBiQuadraticQuad>::New();
+  double* pcoords = aQuad->GetParametricCoords();
   for (int i = 0; i < aQuad->GetNumberOfPoints(); ++i)
   {
     aQuad->GetPointIds()->SetId(i, i);
-    aQuad->GetPoints()->SetPoint(i,
-                                 *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
-                                 *(pcoords + 3 * i + 2));
+    aQuad->GetPoints()->SetPoint(i, *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
+      *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1), *(pcoords + 3 * i + 2));
   }
   return aQuad;
 }
 
 vtkSmartPointer<vtkCubicLine> MakeCubicLine()
 {
-  vtkSmartPointer<vtkCubicLine> aLine =
-    vtkSmartPointer<vtkCubicLine>::New();
-  double *pcoords = aLine->GetParametricCoords();
+  vtkSmartPointer<vtkCubicLine> aLine = vtkSmartPointer<vtkCubicLine>::New();
+  double* pcoords = aLine->GetParametricCoords();
   for (int i = 0; i < aLine->GetNumberOfPoints(); ++i)
   {
     aLine->GetPointIds()->SetId(i, i);
-    aLine->GetPoints()->SetPoint(i,
-                                 *(pcoords + 3 * i),
-                                 *(pcoords + 3 * i + 1),
-                                 *(pcoords + 3 * i + 2));
+    aLine->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aLine;
 }
 
 vtkSmartPointer<vtkQuadraticWedge> MakeQuadraticWedge()
 {
-  vtkSmartPointer<vtkQuadraticWedge> aWedge =
-    vtkSmartPointer<vtkQuadraticWedge>::New();
-  double *pcoords = aWedge->GetParametricCoords();
+  vtkSmartPointer<vtkQuadraticWedge> aWedge = vtkSmartPointer<vtkQuadraticWedge>::New();
+  double* pcoords = aWedge->GetParametricCoords();
   for (int i = 0; i < aWedge->GetNumberOfPoints(); ++i)
   {
     aWedge->GetPointIds()->SetId(i, i);
-    aWedge->GetPoints()->SetPoint(i,
-                                  *(pcoords + 3 * i),
-                                  *(pcoords + 3 * i + 1),
-                                  *(pcoords + 3 * i + 2));
+    aWedge->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aWedge;
 }
@@ -643,26 +619,23 @@ vtkSmartPointer<vtkBiQuadraticQuadraticWedge> MakeBiQuadraticQuadraticWedge()
 {
   vtkSmartPointer<vtkBiQuadraticQuadraticWedge> aWedge =
     vtkSmartPointer<vtkBiQuadraticQuadraticWedge>::New();
-  double *pcoords = aWedge->GetParametricCoords();
+  double* pcoords = aWedge->GetParametricCoords();
   for (int i = 0; i < aWedge->GetNumberOfPoints(); ++i)
   {
     aWedge->GetPointIds()->SetId(i, i);
-    aWedge->GetPoints()->SetPoint(i,
-                                  *(pcoords + 3 * i),
-                                  *(pcoords + 3 * i + 1),
-                                  *(pcoords + 3 * i + 2));
+    aWedge->GetPoints()->SetPoint(
+      i, *(pcoords + 3 * i), *(pcoords + 3 * i + 1), *(pcoords + 3 * i + 2));
   }
   return aWedge;
 }
 
 vtkSmartPointer<vtkTetra> MakeTetra()
 {
-  vtkSmartPointer<vtkTetra> aTetra =
-    vtkSmartPointer<vtkTetra>::New();
-  aTetra->GetPointIds()->SetId(0,0);
-  aTetra->GetPointIds()->SetId(1,1);
-  aTetra->GetPointIds()->SetId(2,2);
-  aTetra->GetPointIds()->SetId(3,3);
+  vtkSmartPointer<vtkTetra> aTetra = vtkSmartPointer<vtkTetra>::New();
+  aTetra->GetPointIds()->SetId(0, 0);
+  aTetra->GetPointIds()->SetId(1, 1);
+  aTetra->GetPointIds()->SetId(2, 2);
+  aTetra->GetPointIds()->SetId(3, 3);
   aTetra->GetPoints()->SetPoint(0, 10.0, 10.0, 10.0);
   aTetra->GetPoints()->SetPoint(1, 12.0, 10.0, 10.0);
   aTetra->GetPoints()->SetPoint(2, 11.0, 12.0, 10.0);
@@ -672,14 +645,13 @@ vtkSmartPointer<vtkTetra> MakeTetra()
 
 vtkSmartPointer<vtkWedge> MakeWedge()
 {
-  vtkSmartPointer<vtkWedge> aWedge =
-    vtkSmartPointer<vtkWedge>::New();
-  aWedge->GetPointIds()->SetId(0,0);
-  aWedge->GetPointIds()->SetId(1,1);
-  aWedge->GetPointIds()->SetId(2,2);
-  aWedge->GetPointIds()->SetId(3,3);
-  aWedge->GetPointIds()->SetId(4,4);
-  aWedge->GetPointIds()->SetId(5,5);
+  vtkSmartPointer<vtkWedge> aWedge = vtkSmartPointer<vtkWedge>::New();
+  aWedge->GetPointIds()->SetId(0, 0);
+  aWedge->GetPointIds()->SetId(1, 1);
+  aWedge->GetPointIds()->SetId(2, 2);
+  aWedge->GetPointIds()->SetId(3, 3);
+  aWedge->GetPointIds()->SetId(4, 4);
+  aWedge->GetPointIds()->SetId(5, 5);
 
   aWedge->GetPoints()->SetPoint(0, 10, 10, 10);
   aWedge->GetPoints()->SetPoint(1, 12, 10, 10);
@@ -690,14 +662,12 @@ vtkSmartPointer<vtkWedge> MakeWedge()
   return aWedge;
 }
 
-vtkSmartPointer<vtkPolyhedron>MakeCube()
+vtkSmartPointer<vtkPolyhedron> MakeCube()
 {
-  vtkSmartPointer<vtkPolyhedron> aCube =
-    vtkSmartPointer<vtkPolyhedron>::New();
+  vtkSmartPointer<vtkPolyhedron> aCube = vtkSmartPointer<vtkPolyhedron>::New();
 
   // create polyhedron (cube)
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
   aCube->GetPointIds()->SetNumberOfIds(8);
   aCube->GetPointIds()->SetId(0, 0);
@@ -710,78 +680,78 @@ vtkSmartPointer<vtkPolyhedron>MakeCube()
   aCube->GetPointIds()->SetId(7, 7);
 
   aCube->GetPoints()->SetNumberOfPoints(8);
-  aCube->GetPoints()->SetPoint(0, -1.0,-1.0,-1.0);
-  aCube->GetPoints()->SetPoint(1,  1.0,-1.0,-1.0);
-  aCube->GetPoints()->SetPoint(2,  1.0, 1.0,-1.0);
-  aCube->GetPoints()->SetPoint(3, -1.0, 1.0,-1.0);
-  aCube->GetPoints()->SetPoint(4, -1.0,-1.0, 1.0);
-  aCube->GetPoints()->SetPoint(5,  1.0,-1.0, 1.0);
-  aCube->GetPoints()->SetPoint(6,  1.0, 1.0, 1.0);
+  aCube->GetPoints()->SetPoint(0, -1.0, -1.0, -1.0);
+  aCube->GetPoints()->SetPoint(1, 1.0, -1.0, -1.0);
+  aCube->GetPoints()->SetPoint(2, 1.0, 1.0, -1.0);
+  aCube->GetPoints()->SetPoint(3, -1.0, 1.0, -1.0);
+  aCube->GetPoints()->SetPoint(4, -1.0, -1.0, 1.0);
+  aCube->GetPoints()->SetPoint(5, 1.0, -1.0, 1.0);
+  aCube->GetPoints()->SetPoint(6, 1.0, 1.0, 1.0);
   aCube->GetPoints()->SetPoint(7, -1.0, 1.0, 1.0);
 
-  vtkIdType faces[31] =
-    {6,              // number of faces
-     4, 0, 3, 2, 1,
-     4, 0, 4, 7, 3,
-     4, 4, 5, 6, 7,
-     4, 5, 1, 2, 6,
-     4, 0, 1, 5, 4,
-     4, 2, 3, 7, 6};
+  vtkIdType faces[31] = {
+    6,             // number of faces
+    4, 0, 3, 2, 1, //
+    4, 0, 4, 7, 3, //
+    4, 4, 5, 6, 7, //
+    4, 5, 1, 2, 6, //
+    4, 0, 1, 5, 4, //
+    4, 2, 3, 7, 6  //
+  };
 
   aCube->SetFaces(faces);
   aCube->Initialize();
   return aCube;
 }
 
-vtkSmartPointer<vtkPolyhedron>MakeDodecahedron()
+vtkSmartPointer<vtkPolyhedron> MakeDodecahedron()
 {
-  vtkSmartPointer<vtkPolyhedron> aDodecahedron =
-    vtkSmartPointer<vtkPolyhedron>::New();
+  vtkSmartPointer<vtkPolyhedron> aDodecahedron = vtkSmartPointer<vtkPolyhedron>::New();
 
   // create polyhedron (dodecahedron)
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
   for (int i = 0; i < 20; ++i)
   {
     aDodecahedron->GetPointIds()->InsertNextId(i);
   }
 
-  aDodecahedron->GetPoints()->InsertNextPoint(1.21412,    0,          1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.375185,   1.1547,     1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.982247,  0.713644,   1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.982247,  -0.713644,  1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.375185,   -1.1547,    1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(1.96449,    0,          0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.607062,   1.86835,    0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(-1.58931,   1.1547,     0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(-1.58931,   -1.1547,    0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.607062,   -1.86835,   0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(1.58931,    1.1547,     -0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.607062,  1.86835,    -0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(-1.96449,   0,          -0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.607062,  -1.86835,   -0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(1.58931,    -1.1547,    -0.375185);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.982247,   0.713644,   -1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.375185,  1.1547,     -1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(-1.21412,   0,          -1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(-0.375185,  -1.1547,    -1.58931);
-  aDodecahedron->GetPoints()->InsertNextPoint(0.982247,   -0.713644,  -1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(1.21412, 0, 1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.375185, 1.1547, 1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.982247, 0.713644, 1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.982247, -0.713644, 1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.375185, -1.1547, 1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(1.96449, 0, 0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.607062, 1.86835, 0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(-1.58931, 1.1547, 0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(-1.58931, -1.1547, 0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.607062, -1.86835, 0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(1.58931, 1.1547, -0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.607062, 1.86835, -0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(-1.96449, 0, -0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.607062, -1.86835, -0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(1.58931, -1.1547, -0.375185);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.982247, 0.713644, -1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.375185, 1.1547, -1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(-1.21412, 0, -1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(-0.375185, -1.1547, -1.58931);
+  aDodecahedron->GetPoints()->InsertNextPoint(0.982247, -0.713644, -1.58931);
 
-  vtkIdType faces[73] =
-    {12,                   // number of faces
-     5, 0, 1, 2, 3, 4,     // number of ids on face, ids
-     5, 0, 5, 10, 6, 1,
-     5, 1, 6, 11, 7, 2,
-     5, 2, 7, 12, 8, 3,
-     5, 3, 8, 13, 9, 4,
-     5, 4, 9, 14, 5, 0,
-     5, 15, 10, 5, 14, 19,
-     5, 16, 11, 6, 10, 15,
-     5, 17, 12, 7, 11, 16,
-     5, 18, 13, 8, 12, 17,
-     5, 19, 14, 9, 13, 18,
-     5, 19, 18, 17, 16, 15};
+  vtkIdType faces[73] = {
+    12,                   // number of faces
+    5, 0, 1, 2, 3, 4,     // number of ids on face, ids
+    5, 0, 5, 10, 6, 1,    //
+    5, 1, 6, 11, 7, 2,    //
+    5, 2, 7, 12, 8, 3,    //
+    5, 3, 8, 13, 9, 4,    //
+    5, 4, 9, 14, 5, 0,    //
+    5, 15, 10, 5, 14, 19, //
+    5, 16, 11, 6, 10, 15, //
+    5, 17, 12, 7, 11, 16, //
+    5, 18, 13, 8, 12, 17, //
+    5, 19, 14, 9, 13, 18, //
+    5, 19, 18, 17, 16, 15 //
+  };
 
   aDodecahedron->SetFaces(faces);
   aDodecahedron->Initialize();
@@ -791,19 +761,18 @@ vtkSmartPointer<vtkPolyhedron>MakeDodecahedron()
 
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism()
 {
-  vtkSmartPointer<vtkPentagonalPrism> aPentagonalPrism =
-    vtkSmartPointer<vtkPentagonalPrism>::New();
+  vtkSmartPointer<vtkPentagonalPrism> aPentagonalPrism = vtkSmartPointer<vtkPentagonalPrism>::New();
 
-  aPentagonalPrism->GetPointIds()->SetId(0,0);
-  aPentagonalPrism->GetPointIds()->SetId(1,1);
-  aPentagonalPrism->GetPointIds()->SetId(2,2);
-  aPentagonalPrism->GetPointIds()->SetId(3,3);
-  aPentagonalPrism->GetPointIds()->SetId(4,4);
-  aPentagonalPrism->GetPointIds()->SetId(5,5);
-  aPentagonalPrism->GetPointIds()->SetId(6,6);
-  aPentagonalPrism->GetPointIds()->SetId(7,7);
-  aPentagonalPrism->GetPointIds()->SetId(8,8);
-  aPentagonalPrism->GetPointIds()->SetId(9,9);
+  aPentagonalPrism->GetPointIds()->SetId(0, 0);
+  aPentagonalPrism->GetPointIds()->SetId(1, 1);
+  aPentagonalPrism->GetPointIds()->SetId(2, 2);
+  aPentagonalPrism->GetPointIds()->SetId(3, 3);
+  aPentagonalPrism->GetPointIds()->SetId(4, 4);
+  aPentagonalPrism->GetPointIds()->SetId(5, 5);
+  aPentagonalPrism->GetPointIds()->SetId(6, 6);
+  aPentagonalPrism->GetPointIds()->SetId(7, 7);
+  aPentagonalPrism->GetPointIds()->SetId(8, 8);
+  aPentagonalPrism->GetPointIds()->SetId(9, 9);
 
   aPentagonalPrism->GetPoints()->SetPoint(0, 11, 10, 10);
   aPentagonalPrism->GetPoints()->SetPoint(1, 13, 10, 10);
@@ -821,20 +790,19 @@ vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism()
 
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
 {
-  vtkSmartPointer<vtkHexagonalPrism> aHexagonalPrism =
-    vtkSmartPointer<vtkHexagonalPrism>::New();
-  aHexagonalPrism->GetPointIds()->SetId(0,0);
-  aHexagonalPrism->GetPointIds()->SetId(1,1);
-  aHexagonalPrism->GetPointIds()->SetId(2,2);
-  aHexagonalPrism->GetPointIds()->SetId(3,3);
-  aHexagonalPrism->GetPointIds()->SetId(4,4);
-  aHexagonalPrism->GetPointIds()->SetId(5,5);
-  aHexagonalPrism->GetPointIds()->SetId(6,6);
-  aHexagonalPrism->GetPointIds()->SetId(7,7);
-  aHexagonalPrism->GetPointIds()->SetId(8,8);
-  aHexagonalPrism->GetPointIds()->SetId(9,9);
-  aHexagonalPrism->GetPointIds()->SetId(10,10);
-  aHexagonalPrism->GetPointIds()->SetId(11,11);
+  vtkSmartPointer<vtkHexagonalPrism> aHexagonalPrism = vtkSmartPointer<vtkHexagonalPrism>::New();
+  aHexagonalPrism->GetPointIds()->SetId(0, 0);
+  aHexagonalPrism->GetPointIds()->SetId(1, 1);
+  aHexagonalPrism->GetPointIds()->SetId(2, 2);
+  aHexagonalPrism->GetPointIds()->SetId(3, 3);
+  aHexagonalPrism->GetPointIds()->SetId(4, 4);
+  aHexagonalPrism->GetPointIds()->SetId(5, 5);
+  aHexagonalPrism->GetPointIds()->SetId(6, 6);
+  aHexagonalPrism->GetPointIds()->SetId(7, 7);
+  aHexagonalPrism->GetPointIds()->SetId(8, 8);
+  aHexagonalPrism->GetPointIds()->SetId(9, 9);
+  aHexagonalPrism->GetPointIds()->SetId(10, 10);
+  aHexagonalPrism->GetPointIds()->SetId(11, 11);
 
   aHexagonalPrism->GetPoints()->SetPoint(0, 11, 10, 10);
   aHexagonalPrism->GetPoints()->SetPoint(1, 13, 10, 10);
@@ -852,9 +820,8 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
   return aHexagonalPrism;
 }
 
-template<typename T> int TestOneCell(const VTKCellType cellType,
-                                  vtkSmartPointer<T> aCell,
-                                  int linear)
+template <typename T>
+int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
 {
   int status = 0;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;
@@ -867,9 +834,8 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::cout << "  Testing GetCellType...";
   if (cellType != aCell->GetCellType())
   {
-    std::cout << "Expected " << cellType
-              << " but got " << aCell->GetCellType()
-              << " FAILED" << std::endl;
+    std::cout << "Expected " << cellType << " but got " << aCell->GetCellType() << " FAILED"
+              << std::endl;
     ++status;
   }
   else
@@ -925,11 +891,11 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::cout << "...PASSED" << std::endl;
 
   if (std::string(aCell->GetClassName()) != "vtkEmptyCell" &&
-      std::string(aCell->GetClassName()) != "vtkVertex" &&
-      std::string(aCell->GetClassName()) != "vtkPolyhedron")
+    std::string(aCell->GetClassName()) != "vtkVertex" &&
+    std::string(aCell->GetClassName()) != "vtkPolyhedron")
   {
     std::cout << "  Testing GetParametricCoords...";
-    double *parametricCoords = aCell->GetParametricCoords();
+    double* parametricCoords = aCell->GetParametricCoords();
     if (aCell->IsPrimaryCell() && parametricCoords == nullptr)
     {
       ++status;
@@ -946,20 +912,15 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
         int subId = 0;
         double x[3];
         aCell->EvaluateLocation(subId, parametricCoords + 3 * p, x, &(*pweights.begin()));
-        if (!vtkMathUtilities::FuzzyCompare(
-              x[0], vertex[0], 1.e-3) ||
-            !vtkMathUtilities::FuzzyCompare(
-              x[1], vertex[1], 1.e-3) ||
-            !vtkMathUtilities::FuzzyCompare(
-              x[2], vertex[2], 1.e-3))
+        if (!vtkMathUtilities::FuzzyCompare(x[0], vertex[0], 1.e-3) ||
+          !vtkMathUtilities::FuzzyCompare(x[1], vertex[1], 1.e-3) ||
+          !vtkMathUtilities::FuzzyCompare(x[2], vertex[2], 1.e-3))
         {
           std::cout << "EvaluateLocation failed...";
-          std::cout << "pcoords[" << p << "]: "
-                    << parametricCoords[3 * p] << " "
-                    << parametricCoords[3 * p  + 1] << " "
-                    << parametricCoords[3 * p + 2] << std::endl;
-          std::cout << "x[" << p << "]: "
-                    << x[0] << " " << x[1] << " " << x[2] << std::endl;
+          std::cout << "pcoords[" << p << "]: " << parametricCoords[3 * p] << " "
+                    << parametricCoords[3 * p + 1] << " " << parametricCoords[3 * p + 2]
+                    << std::endl;
+          std::cout << "x[" << p << "]: " << x[0] << " " << x[1] << " " << x[2] << std::endl;
           std::cout << "...FAILED" << std::endl;
           ++status;
         }
@@ -970,8 +931,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::cout << "  Testing GetBounds...";
   double bounds[6];
   aCell->GetBounds(bounds);
-  std::cout << bounds[0] << "," << bounds[1] << " "
-            << bounds[2] << "," << bounds[3] << " "
+  std::cout << bounds[0] << "," << bounds[1] << " " << bounds[2] << "," << bounds[3] << " "
             << bounds[4] << "," << bounds[5];
   std::cout << "...PASSED" << std::endl;
 
@@ -986,21 +946,15 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     int pSubId = 0;
     aCell->EvaluateLocation(pSubId, pcenter, center, &(*cweights.begin()));
     std::cout << " -> " << center[0] << ", " << center[1] << ", " << center[2];
-    if (center[0] < bounds[0] || center[0] > bounds[1] ||
-        center[1] < bounds[2] || center[1] > bounds[3] ||
-        center[2] < bounds[4] || center[2] > bounds[5])
+    if (center[0] < bounds[0] || center[0] > bounds[1] || center[1] < bounds[2] ||
+      center[1] > bounds[3] || center[2] < bounds[4] || center[2] > bounds[5])
     {
       std::cout << " The computed center is not within the bounds of the cell" << std::endl;
-      std::cout << "bounds: "
-                << bounds[0] << "," << bounds[1] << " "
-                << bounds[2] << "," << bounds[3] << " "
-                << bounds[4] << "," << bounds[5]
-                << std::endl;
-      std::cout << "parametric center "
-                << pcenter[0] << ", " << pcenter[1] << ", " << pcenter[2] << " "
-                << "center: "
-                << center[0] << ", " << center[1] << ", " << center[2]
-                << std::endl;
+      std::cout << "bounds: " << bounds[0] << "," << bounds[1] << " " << bounds[2] << ","
+                << bounds[3] << " " << bounds[4] << "," << bounds[5] << std::endl;
+      std::cout << "parametric center " << pcenter[0] << ", " << pcenter[1] << ", " << pcenter[2]
+                << " "
+                << "center: " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
       std::cout << "...FAILED" << std::endl;
     }
     else
@@ -1024,8 +978,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   }
 
   std::cout << "  Testing CellBoundaries...";
-  vtkSmartPointer<vtkIdList> cellIds =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
   int cellStatus = aCell->CellBoundary(0, pcenter, cellIds);
   if (aCell->GetCellDimension() > 0 && cellStatus != 1)
   {
@@ -1041,8 +994,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     std::cout << "PASSED" << std::endl;
   }
 
-  if (aCell->GetNumberOfPoints() > 0 &&
-      strcmp(aCell->GetClassName(), "vtkQuadraticEdge") != 0 )
+  if (aCell->GetNumberOfPoints() > 0 && strcmp(aCell->GetClassName(), "vtkQuadraticEdge") != 0)
   {
     std::cout << "  Testing Derivatives...";
     // Create scalars and set first scalar to 1.0
@@ -1060,17 +1012,14 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     }
     else
     {
-      std::cout << " "
-                << derivs[0] << " "
-                << derivs[1] << " "
-                << derivs[2] << " ";
+      std::cout << " " << derivs[0] << " " << derivs[1] << " " << derivs[2] << " ";
     }
     std::cout << "...PASSED" << std::endl;
   }
 
   std::cout << "  Testing EvaluateLocation vertex matches pcoord...";
   int status5 = 0;
-  double *locations = aCell->GetParametricCoords();
+  double* locations = aCell->GetParametricCoords();
   if (locations)
   {
     std::vector<double> lweights(aCell->GetNumberOfPoints());
@@ -1083,14 +1032,12 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
       aCell->EvaluateLocation(subId, locations + 3 * l, point, &(*lweights.begin()));
       for (int v = 0; v < 3; ++v)
       {
-        if (!vtkMathUtilities::FuzzyCompare(
-              point[v], vertex[v],
-              1.e-3))
+        if (!vtkMathUtilities::FuzzyCompare(point[v], vertex[v], 1.e-3))
         {
-          std::cout << " " << point[0] << ", " << point[1] << ", " << point[2] << " != "
-                    << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << " " ;
-          std::cout << "eps ratio is: " << (point[v] - vertex[v])
-            / std::numeric_limits<double>::epsilon() << std::endl;
+          std::cout << " " << point[0] << ", " << point[1] << ", " << point[2]
+                    << " != " << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << " ";
+          std::cout << "eps ratio is: "
+                    << (point[v] - vertex[v]) / std::numeric_limits<double>::epsilon() << std::endl;
 
           ++status5;
           break;
@@ -1105,7 +1052,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   }
   else
   {
-    std::cout << "...PASSED"<< std::endl;
+    std::cout << "...PASSED" << std::endl;
   }
 
   std::cout << "  Testing EvaluatePosition pcoord matches vertex...";
@@ -1113,7 +1060,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   int subId = 0;
   int status6 = 0;
   std::vector<double> weights(aCell->GetNumberOfPoints());
-  double *vlocations = aCell->GetParametricCoords();
+  double* vlocations = aCell->GetParametricCoords();
   if (vlocations)
   {
     for (int i = 0; i < aCell->GetNumberOfPoints(); ++i)
@@ -1124,12 +1071,10 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
       double pcoords[3];
       double dist2;
       aCell->GetPoints()->GetPoint(i, point);
-      aCell->EvaluatePosition( point, closestPoint, subId, pcoords, dist2, &(*weights.begin()));
+      aCell->EvaluatePosition(point, closestPoint, subId, pcoords, dist2, &(*weights.begin()));
       for (int v = 0; v < 3; ++v)
       {
-        if (!vtkMathUtilities::FuzzyCompare(
-              *(vlocations + 3 * i + v) ,pcoords[v],
-              1.e-3))
+        if (!vtkMathUtilities::FuzzyCompare(*(vlocations + 3 * i + v), pcoords[v], 1.e-3))
         {
           ++status61;
         }
@@ -1137,13 +1082,9 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
       if (status61)
       {
         std::cout << std::endl
-                  << *(vlocations + 3 * i + 0) << ", "
-                  << *(vlocations + 3 * i + 1) << ", "
-                  << *(vlocations + 3 * i + 2)
-                  << " != "
-                  << pcoords[0] << ", "
-                  << pcoords[1] << ", "
-                  << pcoords[2] << " " ;
+                  << *(vlocations + 3 * i + 0) << ", " << *(vlocations + 3 * i + 1) << ", "
+                  << *(vlocations + 3 * i + 2) << " != " << pcoords[0] << ", " << pcoords[1] << ", "
+                  << pcoords[2] << " ";
         ++status6;
       }
     }
@@ -1186,7 +1127,8 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     if (aCell->GetCellDimension() == 2)
     {
       std::vector<double> above(3);
-      above[0] = tCenter[0]; above[1] = tCenter[1];
+      above[0] = tCenter[0];
+      above[1] = tCenter[1];
       above[2] = tCenter[2] + aCell->GetLength2();
       testPoints.push_back(above);
       inOuts.push_back(0);
@@ -1198,7 +1140,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   for (int e = 0; e < aCell->GetNumberOfEdges(); ++e)
   {
     std::vector<double> eCenter(3);
-    vtkCell *c = aCell->GetEdge(e);
+    vtkCell* c = aCell->GetEdge(e);
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, &(*eCenter.begin()), &(*weights.begin()));
     testPoints.push_back(eCenter);
@@ -1210,7 +1152,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   for (int f = 0; f < aCell->GetNumberOfFaces(); ++f)
   {
     std::vector<double> fCenter(3);
-    vtkCell *c = aCell->GetFace(f);
+    vtkCell* c = aCell->GetFace(f);
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, &(*fCenter.begin()), &(*weights.begin()));
     testPoints.push_back(fCenter);
@@ -1229,10 +1171,8 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   for (size_t p = 0; p < testPoints.size(); ++p)
   {
     double closestPoint[3], pcoords[3], dist2;
-    int inOut = aCell->EvaluatePosition( &(*testPoints[p].begin()),
-                                         closestPoint, subId,
-                                         pcoords, dist2,
-                                         &(*weights.begin()));
+    int inOut = aCell->EvaluatePosition(
+      &(*testPoints[p].begin()), closestPoint, subId, pcoords, dist2, &(*weights.begin()));
     if ((inOut == 0 || inOut == -1) && inOuts[p] == 0)
     {
       continue;
@@ -1247,9 +1187,11 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     }
     // inOut failed
     std::cout << typePoint[p] << " failed inOut: " << inOut << " "
-              << "point: " <<testPoints[p][0] << ", " << testPoints[p][1] << ", " << testPoints[p][2] << "-> "
+              << "point: " << testPoints[p][0] << ", " << testPoints[p][1] << ", "
+              << testPoints[p][2] << "-> "
               << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << ": "
-              << "closestPoint: " << closestPoint[0] << ", " << closestPoint[1] << ", " << closestPoint[2] << " "
+              << "closestPoint: " << closestPoint[0] << ", " << closestPoint[1] << ", "
+              << closestPoint[2] << " "
               << "dist2: " << dist2;
     std::cout << " weights: ";
     for (int w = 0; w < aCell->GetNumberOfPoints(); ++w)
@@ -1269,8 +1211,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     std::cout << "PASSED" << std::endl;
   }
 
-  if (aCell->GetNumberOfPoints() > 0 &&
-      aCell->GetCellDimension() > 0)
+  if (aCell->GetNumberOfPoints() > 0 && aCell->GetCellDimension() > 0)
   {
     std::cout << "  Testing IntersectWithLine...";
     double tol = 1.e-5;
@@ -1286,13 +1227,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     startPoint[2] = startPoint[2] - aCell->GetLength2();
     int status3 = 0;
     int result =
-      aCell->IntersectWithLine(
-        startPoint, endPoint,
-        tol,
-        t,
-        intersection,
-        pintersection,
-        subId);
+      aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
     if (result == 0)
     {
       ++status3;
@@ -1303,13 +1238,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     }
     startPoint[2] = endPoint[2] + aCell->GetLength2();
     result =
-      aCell->IntersectWithLine(
-        startPoint, endPoint,
-        tol,
-        t,
-        intersection,
-        pintersection,
-        subId);
+      aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
     if (result == 1)
     {
       ++status3;
@@ -1329,11 +1258,9 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   // Triangulate
   std::cout << "  Testing Triangulate...";
   int index = 0;
-  vtkSmartPointer<vtkIdList> ptIds =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->SetNumberOfIds(100);
-  vtkSmartPointer<vtkPoints> triPoints =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> triPoints = vtkSmartPointer<vtkPoints>::New();
   aCell->Triangulate(index, ptIds, triPoints);
   int pts = ptIds->GetNumberOfIds();
   if (aCell->GetCellDimension() == 0)

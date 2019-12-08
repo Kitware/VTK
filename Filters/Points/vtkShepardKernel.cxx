@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkShepardKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
-#include "vtkPointData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkShepardKernel);
 
@@ -30,53 +30,51 @@ vtkShepardKernel::vtkShepardKernel()
   this->PowerParameter = 2.0;
 }
 
-
 //----------------------------------------------------------------------------
 vtkShepardKernel::~vtkShepardKernel() = default;
 
-
 //----------------------------------------------------------------------------
-vtkIdType vtkShepardKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
-               vtkDoubleArray *weights)
+vtkIdType vtkShepardKernel::ComputeWeights(
+  double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
-  double d, y[3], sum=0.0;
+  double d, y[3], sum = 0.0;
   weights->SetNumberOfTuples(numPts);
-  double *p = (prob ? prob->GetPointer(0) : nullptr);
-  double *w = weights->GetPointer(0);
+  double* p = (prob ? prob->GetPointer(0) : nullptr);
+  double* w = weights->GetPointer(0);
 
-  for (vtkIdType i=0; i<numPts; ++i)
+  for (vtkIdType i = 0; i < numPts; ++i)
   {
     vtkIdType id = pIds->GetId(i);
-    this->DataSet->GetPoint(id,y);
-    if ( this->PowerParameter == 2.0 )
+    this->DataSet->GetPoint(id, y);
+    if (this->PowerParameter == 2.0)
     {
-      d = vtkMath::Distance2BetweenPoints(x,y);
+      d = vtkMath::Distance2BetweenPoints(x, y);
     }
     else
     {
-      d = pow(sqrt(vtkMath::Distance2BetweenPoints(x,y)), this->PowerParameter);
+      d = pow(sqrt(vtkMath::Distance2BetweenPoints(x, y)), this->PowerParameter);
     }
-    if ( vtkMathUtilities::FuzzyCompare(d, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
+    if (vtkMathUtilities::FuzzyCompare(
+          d, 0.0, std::numeric_limits<double>::epsilon() * 256.0)) // precise hit on existing point
     {
       pIds->SetNumberOfIds(1);
-      pIds->SetId(0,id);
+      pIds->SetId(0, id);
       weights->SetNumberOfTuples(1);
-      weights->SetValue(0,1.0);
+      weights->SetValue(0, 1.0);
       return 1;
     }
     else
     {
-      w[i] = (p ? p[i]/d : 1.0/d); //take into account probability if provided
+      w[i] = (p ? p[i] / d : 1.0 / d); // take into account probability if provided
       sum += w[i];
     }
-  }//over all points
+  } // over all points
 
   // Normalize
-  if ( this->NormalizeWeights && sum != 0.0 )
+  if (this->NormalizeWeights && sum != 0.0)
   {
-    for (vtkIdType i=0; i<numPts; ++i)
+    for (vtkIdType i = 0; i < numPts; ++i)
     {
       w[i] /= sum;
     }
@@ -88,8 +86,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
 //----------------------------------------------------------------------------
 void vtkShepardKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Power Parameter: "
-     << this->GetPowerParameter() << "\n";
+  os << indent << "Power Parameter: " << this->GetPowerParameter() << "\n";
 }

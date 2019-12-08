@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 
@@ -71,23 +71,22 @@ vtkUnstructuredGrid* vtkUnstructuredGridAlgorithm::GetUnstructuredGridInput(int 
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+vtkTypeBool vtkUnstructuredGridAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -113,26 +112,22 @@ int vtkUnstructuredGridAlgorithm::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridAlgorithm::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkUnstructuredGridAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridAlgorithm::RequestUpdateExtent(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkUnstructuredGridAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   int numInputPorts = this->GetNumberOfInputPorts();
-  for (int i=0; i<numInputPorts; i++)
+  for (int i = 0; i < numInputPorts; i++)
   {
     int numInputConnections = this->GetNumberOfInputConnections(i);
-    for (int j=0; j<numInputConnections; j++)
+    for (int j = 0; j < numInputConnections; j++)
     {
       vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
@@ -144,10 +139,8 @@ int vtkUnstructuredGridAlgorithm::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-int vtkUnstructuredGridAlgorithm::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* vtkNotUsed( outputVector ))
+int vtkUnstructuredGridAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
 }
@@ -175,4 +168,3 @@ void vtkUnstructuredGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
-

@@ -16,11 +16,10 @@
 
 #include "vtkPiecewiseFunction.h"
 
-
 //----------------------------------------------------------------------------
 // Construct a spline with the following defaults:
 // ClampValueOff
-vtkSpline::vtkSpline ()
+vtkSpline::vtkSpline()
 {
   this->ComputeTime = 0;
   this->ClampValue = 0;
@@ -38,19 +37,19 @@ vtkSpline::vtkSpline ()
 }
 
 //----------------------------------------------------------------------------
-vtkSpline::~vtkSpline ()
+vtkSpline::~vtkSpline()
 {
   this->PiecewiseFunction->Delete();
-  delete [] this->Coefficients;
-  delete [] this->Intervals;
+  delete[] this->Coefficients;
+  delete[] this->Intervals;
 }
 
 //----------------------------------------------------------------------------
 void vtkSpline::SetParametricRange(double tMin, double tMax)
 {
-  if ( tMin != this->ParametricRange[0] || tMax != this->ParametricRange[1] )
+  if (tMin != this->ParametricRange[0] || tMax != this->ParametricRange[1])
   {
-    if ( tMin >= tMax )
+    if (tMin >= tMax)
     {
       tMax = tMin + 1;
     }
@@ -65,7 +64,7 @@ void vtkSpline::SetParametricRange(double tMin, double tMax)
 //----------------------------------------------------------------------------
 void vtkSpline::GetParametricRange(double tRange[2]) const
 {
-  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+  if (this->ParametricRange[0] != this->ParametricRange[1])
   {
     tRange[0] = this->ParametricRange[0];
     tRange[1] = this->ParametricRange[1];
@@ -80,30 +79,30 @@ void vtkSpline::GetParametricRange(double tRange[2]) const
 //----------------------------------------------------------------------------
 double vtkSpline::ComputeLeftDerivative()
 {
-  double *dptr = this->PiecewiseFunction->GetDataPointer();
+  double* dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
-  if ( dptr == nullptr || size < 2 )
+  if (dptr == nullptr || size < 2)
   {
     return 0.0;
   }
   else
   {
-    return (dptr[2]-dptr[0]);
+    return (dptr[2] - dptr[0]);
   }
 }
 
 //----------------------------------------------------------------------------
 double vtkSpline::ComputeRightDerivative()
 {
-  double *dptr = this->PiecewiseFunction->GetDataPointer();
+  double* dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
-  if ( dptr == nullptr || size < 2 )
+  if (dptr == nullptr || size < 2)
   {
     return 0.0;
   }
   else
   {
-    return (dptr[(size-1)*2]-dptr[(size-2)*2]);
+    return (dptr[(size - 1) * 2] - dptr[(size - 2) * 2]);
   }
 }
 
@@ -113,44 +112,45 @@ int vtkSpline::GetNumberOfPoints()
   return this->PiecewiseFunction->GetSize();
 }
 
-
 //----------------------------------------------------------------------------
 // Add a point to the Piecewise Functions containing the data
-void vtkSpline::AddPoint (double t, double x)
+void vtkSpline::AddPoint(double t, double x)
 {
-  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+  if (this->ParametricRange[0] != this->ParametricRange[1])
   {
-    t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
-         (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    t = (t < this->ParametricRange[0]
+        ? this->ParametricRange[0]
+        : (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
   }
-  this->PiecewiseFunction->AddPoint (t, x);
+  this->PiecewiseFunction->AddPoint(t, x);
 }
 
 //----------------------------------------------------------------------------
 // Remove a point from the Piecewise Functions.
-void vtkSpline::RemovePoint (double t)
+void vtkSpline::RemovePoint(double t)
 {
-  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+  if (this->ParametricRange[0] != this->ParametricRange[1])
   {
-    t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
-         (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    t = (t < this->ParametricRange[0]
+        ? this->ParametricRange[0]
+        : (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
   }
-  this->PiecewiseFunction->RemovePoint (t);
+  this->PiecewiseFunction->RemovePoint(t);
 }
 
 //----------------------------------------------------------------------------
 // Remove all points from the Piecewise Functions.
-void vtkSpline::RemoveAllPoints ()
+void vtkSpline::RemoveAllPoints()
 {
-  this->PiecewiseFunction->RemoveAllPoints ();
+  this->PiecewiseFunction->RemoveAllPoints();
 }
 
 //----------------------------------------------------------------------------
-void vtkSpline::DeepCopy(vtkSpline *s)
+void vtkSpline::DeepCopy(vtkSpline* s)
 {
-  vtkSpline *spline = vtkSpline::SafeDownCast(s);
+  vtkSpline* spline = vtkSpline::SafeDownCast(s);
 
-  if ( spline != nullptr )
+  if (spline != nullptr)
   {
     this->ClampValue = s->ClampValue;
     this->LeftConstraint = s->LeftConstraint;
@@ -167,13 +167,13 @@ void vtkSpline::DeepCopy(vtkSpline *s)
 // then this object is modified as well.
 vtkMTimeType vtkSpline::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType DataMTime;
 
-  if ( this->PiecewiseFunction != nullptr )
+  if (this->PiecewiseFunction != nullptr)
   {
     DataMTime = this->PiecewiseFunction->GetMTime();
-    mTime = ( DataMTime > mTime ? DataMTime : mTime );
+    mTime = (DataMTime > mTime ? DataMTime : mTime);
   }
 
   return mTime;
@@ -182,39 +182,38 @@ vtkMTimeType vtkSpline::GetMTime()
 //----------------------------------------------------------------------------
 int vtkSpline::FindIndex(int size, double t)
 {
-  int index=0;
-  if ( size > 2 ) //bisection method for speed
+  int index = 0;
+  if (size > 2) // bisection method for speed
   {
     int rightIdx = size - 1;
-    int centerIdx = rightIdx - size/2;
-    for (int converged=0; !converged; )
+    int centerIdx = rightIdx - size / 2;
+    for (int converged = 0; !converged;)
     {
-      if ( this->Intervals[index] <= t && t <= this->Intervals[centerIdx] )
+      if (this->Intervals[index] <= t && t <= this->Intervals[centerIdx])
       {
         rightIdx = centerIdx;
       }
-      else //if ( this->Intervals[centerIdx] < t && t <= this->Intervals[rightIdx] )
+      else // if ( this->Intervals[centerIdx] < t && t <= this->Intervals[rightIdx] )
       {
         index = centerIdx;
       }
-      if ( (index + 1) == rightIdx )
+      if ((index + 1) == rightIdx)
       {
         converged = 1;
       }
       else
       {
-        centerIdx = index + (rightIdx-index)/2;
+        centerIdx = index + (rightIdx - index) / 2;
       }
-    }//while not converged
+    } // while not converged
   }
   return index;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Clamp Value: " << (this->ClampValue ? "On\n" : "Off\n");
   os << indent << "Left Constraint: " << this->LeftConstraint << "\n";
@@ -224,7 +223,7 @@ void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Closed: " << (this->Closed ? "On\n" : "Off\n");
 
   os << indent << "Piecewise Function:\n";
-  this->PiecewiseFunction->PrintSelf(os,indent.GetNextIndent());
+  this->PiecewiseFunction->PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "Closed: " << (this->Closed ? "On\n" : "Off\n");
 }

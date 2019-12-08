@@ -18,29 +18,27 @@
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
 #include "vtkCubeAxesActor.h"
-#include "vtkLight.h"
 #include "vtkLODActor.h"
+#include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-
-
 //----------------------------------------------------------------------------
-int TestCubeAxesWithXInnerGrids( int argc, char * argv [] )
+int TestCubeAxesWithXInnerGrids(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   fohe->SetGeometryFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(fohe->GetOutputPort());
@@ -60,7 +58,7 @@ int TestCubeAxesWithXInnerGrids( int argc, char * argv [] )
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper(mapOutline);
-  outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
+  outlineActor->GetProperty()->SetColor(0.0, 0.0, 0.0);
 
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange(1.0, 100.0);
@@ -106,8 +104,8 @@ int TestCubeAxesWithXInnerGrids( int argc, char * argv [] )
   ren2->AddViewProp(axes2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

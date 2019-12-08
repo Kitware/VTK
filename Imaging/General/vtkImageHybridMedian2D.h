@@ -22,30 +22,28 @@
  * initially: the median of the + neighbors and the median of the x
  * neighbors.  It then computes the median of these two values plus the center
  * pixel.  This result of this second median is the output pixel value.
-*/
+ */
 
 #ifndef vtkImageHybridMedian2D_h
 #define vtkImageHybridMedian2D_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialAlgorithm
 {
 public:
-  static vtkImageHybridMedian2D *New();
-  vtkTypeMacro(vtkImageHybridMedian2D,vtkImageSpatialAlgorithm);
+  static vtkImageHybridMedian2D* New();
+  vtkTypeMacro(vtkImageHybridMedian2D, vtkImageSpatialAlgorithm);
 
 protected:
   vtkImageHybridMedian2D();
   ~vtkImageHybridMedian2D() override {}
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int outExt[6], int id) override;
+
 private:
   vtkImageHybridMedian2D(const vtkImageHybridMedian2D&) = delete;
   void operator=(const vtkImageHybridMedian2D&) = delete;

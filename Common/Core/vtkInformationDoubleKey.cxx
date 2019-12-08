@@ -16,10 +16,9 @@
 
 #include "vtkInformation.h"
 
-
 //----------------------------------------------------------------------------
-vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
@@ -34,7 +33,7 @@ void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-class vtkInformationDoubleValue: public vtkObjectBase
+class vtkInformationDoubleValue : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
@@ -44,9 +43,8 @@ public:
 //----------------------------------------------------------------------------
 void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 {
-  if(vtkInformationDoubleValue* oldv =
-     static_cast<vtkInformationDoubleValue *>(
-       this->GetAsObjectBase(info)))
+  if (vtkInformationDoubleValue* oldv =
+        static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info)))
   {
     if (oldv->Value != value)
     {
@@ -73,9 +71,8 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 double vtkInformationDoubleKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleValue* v =
-    static_cast<vtkInformationDoubleValue *>(
-      this->GetAsObjectBase(info));
-  return v?v->Value:0;
+    static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info));
+  return v ? v->Value : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -95,7 +92,7 @@ void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* 
 void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
-  if(this->Has(info))
+  if (this->Has(info))
   {
     os << this->Get(info);
   }
@@ -104,9 +101,8 @@ void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 //----------------------------------------------------------------------------
 double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationDoubleValue* v =
-     static_cast<vtkInformationDoubleValue *>(
-       this->GetAsObjectBase(info)))
+  if (vtkInformationDoubleValue* v =
+        static_cast<vtkInformationDoubleValue*>(this->GetAsObjectBase(info)))
   {
     return &v->Value;
   }

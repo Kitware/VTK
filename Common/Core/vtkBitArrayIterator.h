@@ -17,13 +17,13 @@
  * @brief   Iterator for vtkBitArray.
  * This iterator iterates over a vtkBitArray. It uses the double interface
  * to get/set bit values.
-*/
+ */
 
 #ifndef vtkBitArrayIterator_h
 #define vtkBitArrayIterator_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 class vtkBitArray;
 class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
@@ -50,7 +50,7 @@ public:
   /**
    * Must be called only after Initialize.
    */
-  int* GetTuple(vtkIdType id) ;
+  int* GetTuple(vtkIdType id);
 
   /**
    * Must be called only after Initialize.
@@ -97,14 +97,14 @@ protected:
   vtkBitArrayIterator();
   ~vtkBitArrayIterator() override;
 
-  int *Tuple;
+  int* Tuple;
   int TupleSize;
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
+
 private:
   vtkBitArrayIterator(const vtkBitArrayIterator&) = delete;
   void operator=(const vtkBitArrayIterator&) = delete;
 };
 
 #endif
-

@@ -51,25 +51,25 @@ vtkToneMappingPass::~vtkToneMappingPass()
 // ----------------------------------------------------------------------------
 void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FrameBufferObject:";
-  if(this->FrameBufferObject!=nullptr)
+  if (this->FrameBufferObject != nullptr)
   {
-    this->FrameBufferObject->PrintSelf(os,indent);
+    this->FrameBufferObject->PrintSelf(os, indent);
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
   os << indent << "ColorTexture:";
-  if(this->ColorTexture!=nullptr)
+  if (this->ColorTexture != nullptr)
   {
-    this->ColorTexture->PrintSelf(os,indent);
+    this->ColorTexture->PrintSelf(os, indent);
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
 }
 
@@ -113,10 +113,9 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->RenderDelegate(s, w, h, w, h, this->FrameBufferObject, this->ColorTexture);
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   if (this->QuadHelper &&
     static_cast<unsigned int>(this->ToneMappingType) != this->QuadHelper->ShaderChangeValue)
@@ -129,13 +128,11 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   {
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::FSQ::Decl",
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "uniform sampler2D source;\n"
       "//VTK::FSQ::Decl");
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::FSQ::Impl",
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
       "vec4 pixel = texture2D(source, texCoord);\n"
       "  float Y = 0.2126 * pixel.r + 0.7152 * pixel.g + 0.0722 * pixel.b;\n"
       "  //VTK::FSQ::Impl");
@@ -143,34 +140,28 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
     switch (this->ToneMappingType)
     {
       case Clamp:
-        vtkShaderProgram::Substitute(FSSource,
-          "//VTK::FSQ::Impl",
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
           "float scale = min(Y, 1.0) / Y;\n"
           "  //VTK::FSQ::Impl");
         break;
       case Reinhard:
-        vtkShaderProgram::Substitute(FSSource,
-          "//VTK::FSQ::Impl",
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
           "float scale = 1.0 / (Y + 1.0);\n"
           "  //VTK::FSQ::Impl");
         break;
       case Exponential:
         vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", "uniform float exposure;\n");
-        vtkShaderProgram::Substitute(FSSource,
-          "//VTK::FSQ::Impl",
+        vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
           "float scale = (1.0 - exp(-Y*exposure)) / Y;\n"
           "  //VTK::FSQ::Impl");
         break;
     }
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::FSQ::Impl",
-      "gl_FragData[0] = vec4(pixel.rgb * scale, pixel.a);");
+    vtkShaderProgram::Substitute(
+      FSSource, "//VTK::FSQ::Impl", "gl_FragData[0] = vec4(pixel.rgb * scale, pixel.a);");
 
     this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
-      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(),
-      FSSource.c_str(),
-      "");
+      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
 
     this->QuadHelper->ShaderChangeValue = this->ToneMappingType;
   }

@@ -14,7 +14,8 @@
 =========================================================================*/
 /**
  * @class   vtkAppendCompositeDataLeaves
- * @brief   appends one or more composite datasets with the same structure together into a single output composite dataset
+ * @brief   appends one or more composite datasets with the same structure together into a single
+ * output composite dataset
  *
  * vtkAppendCompositeDataLeaves is a filter that takes input composite datasets with the same
  * structure: (1) the same number of entries and -- if any children are composites -- the
@@ -49,13 +50,13 @@
  *
  * @sa
  * vtkAppendPolyData vtkAppendFilter
-*/
+ */
 
 #ifndef vtkAppendCompositeDataLeaves_h
 #define vtkAppendCompositeDataLeaves_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkCompositeDataIterator;
 class vtkDataSet;
@@ -65,18 +66,18 @@ class VTKFILTERSCORE_EXPORT vtkAppendCompositeDataLeaves : public vtkCompositeDa
 public:
   static vtkAppendCompositeDataLeaves* New();
 
-  vtkTypeMacro(vtkAppendCompositeDataLeaves,vtkCompositeDataSetAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkAppendCompositeDataLeaves, vtkCompositeDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
-   * Set/get whether the field data of each dataset in the composite dataset is copied to the output.
-   * If AppendFieldData is non-zero, then field data arrays from all the inputs are added
-   * to the output. If there are duplicates, the array on the first input encountered is taken.
+   * Set/get whether the field data of each dataset in the composite dataset is copied to the
+   * output. If AppendFieldData is non-zero, then field data arrays from all the inputs are added to
+   * the output. If there are duplicates, the array on the first input encountered is taken.
    */
-  vtkSetMacro(AppendFieldData,vtkTypeBool);
-  vtkGetMacro(AppendFieldData,vtkTypeBool);
-  vtkBooleanMacro(AppendFieldData,vtkTypeBool);
+  vtkSetMacro(AppendFieldData, vtkTypeBool);
+  vtkGetMacro(AppendFieldData, vtkTypeBool);
+  vtkBooleanMacro(AppendFieldData, vtkTypeBool);
   //@}
 
 protected:
@@ -87,29 +88,29 @@ protected:
    * Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
    * we must override the default implementation.
    */
-  int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Iterates over the datasets and appends corresponding notes.
    */
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * The input is repeatable, so we override the default implementation.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * When leaf nodes are unstructured grids, this uses a vtkAppendFilter to merge them.
    */
-  virtual void AppendUnstructuredGrids(vtkInformationVector* inputVector,
-    int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output );
+  virtual void AppendUnstructuredGrids(vtkInformationVector* inputVector, int i, int numInputs,
+    vtkCompositeDataIterator* iter, vtkCompositeDataSet* output);
 
   /**
    * When leaf nodes are polydata, this uses a vtkAppendPolyData to merge them.
    */
-  virtual void AppendPolyData(vtkInformationVector* inputVector,
-    int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output );
+  virtual void AppendPolyData(vtkInformationVector* inputVector, int i, int numInputs,
+    vtkCompositeDataIterator* iter, vtkCompositeDataSet* output);
 
   /**
    * Both AppendUnstructuredGrids and AppendPolyData call AppendFieldDataArrays. If
@@ -117,14 +118,14 @@ protected:
    * to the output. If there are duplicates, the array on the first input encountered
    * is taken.
    */
-  virtual void AppendFieldDataArrays(vtkInformationVector* inputVector,
-    int i, int numInputs, vtkCompositeDataIterator* iter, vtkDataSet* dset );
+  virtual void AppendFieldDataArrays(vtkInformationVector* inputVector, int i, int numInputs,
+    vtkCompositeDataIterator* iter, vtkDataSet* dset);
 
   vtkTypeBool AppendFieldData;
 
 private:
-  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) = delete;
-  void operator = ( const vtkAppendCompositeDataLeaves& ) = delete;
+  vtkAppendCompositeDataLeaves(const vtkAppendCompositeDataLeaves&) = delete;
+  void operator=(const vtkAppendCompositeDataLeaves&) = delete;
 };
 
 #endif // vtkAppendCompositeDataLeaves_h

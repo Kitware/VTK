@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkTerrainContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkCellArray.h"
 #include "vtkContourRepresentation.h"
 #include "vtkImageData.h"
-#include "vtkProjectedTerrainPath.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkProjectedTerrainPath.h"
 
 vtkStandardNewMacro(vtkTerrainContourLineInterpolator);
 
 //----------------------------------------------------------------------
 vtkTerrainContourLineInterpolator::vtkTerrainContourLineInterpolator()
 {
-  this->ImageData       = nullptr;
-  this->Projector       = vtkProjectedTerrainPath::New();
+  this->ImageData = nullptr;
+  this->Projector = vtkProjectedTerrainPath::New();
   this->Projector->SetHeightOffset(0.0);
   this->Projector->SetHeightTolerance(5);
   this->Projector->SetProjectionModeToHug();
@@ -42,11 +42,11 @@ vtkTerrainContourLineInterpolator::~vtkTerrainContourLineInterpolator()
 }
 
 //----------------------------------------------------------------------
-void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
+void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData* image)
 {
   if (this->ImageData != image)
   {
-    vtkImageData *temp = this->ImageData;
+    vtkImageData* temp = this->ImageData;
     this->ImageData = image;
     if (this->ImageData != nullptr)
     {
@@ -62,9 +62,8 @@ void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
 }
 
 //----------------------------------------------------------------------
-int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
-                                           vtkContourRepresentation *rep,
-                                                     int idx1, int idx2 )
+int vtkTerrainContourLineInterpolator::InterpolateLine(
+  vtkRenderer*, vtkContourRepresentation* rep, int idx1, int idx2)
 {
   if (!this->ImageData)
   {
@@ -72,18 +71,18 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   }
 
   double p1[3], p2[3];
-  rep->GetNthNodeWorldPosition( idx1, p1 );
-  rep->GetNthNodeWorldPosition( idx2, p2 );
+  rep->GetNthNodeWorldPosition(idx1, p1);
+  rep->GetNthNodeWorldPosition(idx2, p2);
 
-  vtkPoints *pts = vtkPoints::New();
+  vtkPoints* pts = vtkPoints::New();
   pts->InsertNextPoint(p1);
   pts->InsertNextPoint(p2);
-  vtkCellArray *lines = vtkCellArray::New();
-  lines-> InsertNextCell (2);
-  lines-> InsertCellPoint(0);
-  lines-> InsertCellPoint(1);
+  vtkCellArray* lines = vtkCellArray::New();
+  lines->InsertNextCell(2);
+  lines->InsertCellPoint(0);
+  lines->InsertCellPoint(1);
 
-  vtkPolyData *terrainPath = vtkPolyData::New();
+  vtkPolyData* terrainPath = vtkPolyData::New();
   terrainPath->SetPoints(pts);
   terrainPath->SetLines(lines);
   lines->Delete();
@@ -93,11 +92,12 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   this->Projector->Update();
   terrainPath->Delete();
 
-  vtkPolyData *interpolatedPd     = this->Projector->GetOutput();
-  vtkPoints *interpolatedPts      = interpolatedPd->GetPoints();
-  vtkCellArray *interpolatedCells = interpolatedPd->GetLines();
+  vtkPolyData* interpolatedPd = this->Projector->GetOutput();
+  vtkPoints* interpolatedPts = interpolatedPd->GetPoints();
+  vtkCellArray* interpolatedCells = interpolatedPd->GetLines();
 
-  vtkIdType *ptIdx, npts = 0;
+  const vtkIdType* ptIdx;
+  vtkIdType npts = 0;
 
   // Add an ordered set of lines to the representation...
   // The Projected path is a recursive filter and will not generate an ordered
@@ -109,18 +109,16 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   bool traversalDone = false;
   while (!traversalDone)
   {
-    for (interpolatedCells->InitTraversal();
-         interpolatedCells->GetNextCell(npts, ptIdx); )
+    for (interpolatedCells->InitTraversal(); interpolatedCells->GetNextCell(npts, ptIdx);)
     {
 
       double p[3];
       interpolatedPts->GetPoint(ptIdx[0], p);
 
-      if ((p[0]-p1[0])*(p[0]-p1[0]) + (p[1]-p1[1])*(p[1]-p1[1]) < tolerance)
+      if ((p[0] - p1[0]) * (p[0] - p1[0]) + (p[1] - p1[1]) * (p[1] - p1[1]) < tolerance)
       {
-        interpolatedPts->GetPoint(ptIdx[npts-1], p1);
-        if ((p2[0]-p1[0])*(p2[0]-p1[0])
-            + (p2[1]-p1[1])*(p2[1]-p1[1]) < tolerance)
+        interpolatedPts->GetPoint(ptIdx[npts - 1], p1);
+        if ((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) < tolerance)
         {
           --npts;
           traversalDone = true;
@@ -128,8 +126,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
 
         for (int i = 1; i < npts; i++)
         {
-          rep->AddIntermediatePointWorldPosition(
-              idx1, interpolatedPts->GetPoint(ptIdx[i]) );
+          rep->AddIntermediatePointWorldPosition(idx1, interpolatedPts->GetPoint(ptIdx[i]));
         }
         continue;
       }
@@ -140,9 +137,8 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
 }
 
 //----------------------------------------------------------------------
-int vtkTerrainContourLineInterpolator::UpdateNode( vtkRenderer *,
-                                      vtkContourRepresentation *,
-                 double * vtkNotUsed(node), int vtkNotUsed(idx) )
+int vtkTerrainContourLineInterpolator::UpdateNode(
+  vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node), int vtkNotUsed(idx))
 {
   return 0;
 }
@@ -150,7 +146,7 @@ int vtkTerrainContourLineInterpolator::UpdateNode( vtkRenderer *,
 //----------------------------------------------------------------------
 void vtkTerrainContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ImageData: " << this->ImageData << endl;
   if (this->ImageData)

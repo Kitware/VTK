@@ -29,14 +29,14 @@
  *
  * @sa
  * vtkGraph vtkMutableDirectedGraph vtkMutableUndirectedGraph
-*/
+ */
 
 #ifndef vtkMutableGraphHelper_h
 #define vtkMutableGraphHelper_h
 
+#include "vtkGraph.h"             // For vtkEdgeType
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkGraph.h" // For vtkEdgeType
 
 class vtkDataSetAttributes;
 class vtkGraph;
@@ -47,7 +47,7 @@ class vtkMutableUndirectedGraph;
 class VTKINFOVISCORE_EXPORT vtkMutableGraphHelper : public vtkObject
 {
 public:
-  static vtkMutableGraphHelper *New();
+  static vtkMutableGraphHelper* New();
   vtkTypeMacro(vtkMutableGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

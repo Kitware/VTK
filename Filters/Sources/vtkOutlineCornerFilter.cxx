@@ -23,35 +23,31 @@
 
 vtkStandardNewMacro(vtkOutlineCornerFilter);
 
-vtkOutlineCornerFilter::vtkOutlineCornerFilter ()
+vtkOutlineCornerFilter::vtkOutlineCornerFilter()
 {
   this->CornerFactor = 0.2;
   this->OutlineCornerSource = vtkOutlineCornerSource::New();
 }
 
-vtkOutlineCornerFilter::~vtkOutlineCornerFilter ()
+vtkOutlineCornerFilter::~vtkOutlineCornerFilter()
 {
   if (this->OutlineCornerSource != nullptr)
   {
-    this->OutlineCornerSource->Delete ();
+    this->OutlineCornerSource->Delete();
     this->OutlineCornerSource = nullptr;
   }
 }
 
-int vtkOutlineCornerFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkOutlineCornerFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Creating dataset outline");
 
@@ -67,7 +63,7 @@ int vtkOutlineCornerFilter::RequestData(
   return 1;
 }
 
-int vtkOutlineCornerFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkOutlineCornerFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -75,6 +71,6 @@ int vtkOutlineCornerFilter::FillInputPortInformation(int, vtkInformation *info)
 
 void vtkOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
 }

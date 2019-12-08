@@ -25,5 +25,5 @@ vtkHierarchicalPolyDataMapper::~vtkHierarchicalPolyDataMapper() = default;
 
 void vtkHierarchicalPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -13,24 +13,22 @@
 
 =========================================================================*/
 
-
 // PURPOSE: FiberSurface test cases output generator (new vtkFiberSurface filter)
 
 #include <cstring>
 #include <sstream>
 #include <string>
 
-#include "vtkFiberSurface.h"
-#include "vtkTestUtilities.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkCleanPolyData.h"
+#include "vtkFiberSurface.h"
 #include "vtkFloatArray.h"
-#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
@@ -41,10 +39,8 @@ int TestFiberSurface(int argc, char* argv[])
   /************** Input File paths using vtkTestUtilities ****************/
   const char* inputDataFiles[3] = { vtkTestUtilities::ExpandDataFileName(
                                       argc, argv, "Data/FiberSurface/one_cube.vtk"),
-    vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                      "Data/FiberSurface/one_cube_both_forking.vtk"),
-    vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                      "Data/FiberSurface/one_cube_closed.vtk") };
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/FiberSurface/one_cube_both_forking.vtk"),
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/FiberSurface/one_cube_closed.vtk") };
 
   /************** FSCP File paths using vtkTestUtilities ****************/
   const char* inputFSCPFiles[15] = { vtkTestUtilities::ExpandDataFileName(
@@ -209,13 +205,13 @@ int TestFiberSurface(int argc, char* argv[])
     } // end for
   }   // end for
 
-  for (int i = 0; i <  15; ++i)
+  for (int i = 0; i < 15; ++i)
   {
-    delete [] inputFSCPFiles[i];
+    delete[] inputFSCPFiles[i];
   }
-  delete [] inputDataFiles[0];
-  delete [] inputDataFiles[1];
-  delete [] inputDataFiles[2];
+  delete[] inputDataFiles[0];
+  delete[] inputDataFiles[1];
+  delete[] inputDataFiles[2];
 
   if (pass)
   {

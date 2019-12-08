@@ -26,17 +26,17 @@
 //
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkActor.h"
+#include "vtkBoxWidget.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkConeSource.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
-#include "vtkCommand.h"
-#include "vtkBoxWidget.h"
 #include "vtkTransform.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 
 //
 // Similar to Cone2.cxx, we define a callback for interaction.
@@ -44,15 +44,14 @@
 class vtkMyCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New()
-    { return new vtkMyCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkMyCallback* New() { return new vtkMyCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-      vtkTransform *t = vtkTransform::New();
-      vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
-      widget->GetTransform(t);
-      widget->GetProp3D()->SetUserTransform(t);
-      t->Delete();
+    vtkTransform* t = vtkTransform::New();
+    vtkBoxWidget* widget = reinterpret_cast<vtkBoxWidget*>(caller);
+    widget->GetTransform(t);
+    widget->GetProp3D()->SetUserTransform(t);
+    t->Delete();
   }
 };
 
@@ -64,10 +63,10 @@ int main()
   // visualization pipeline (it is a source process object); it produces data
   // (output type is vtkPolyData) which other filters may process.
   //
-  vtkConeSource *cone = vtkConeSource::New();
-  cone->SetHeight( 3.0 );
-  cone->SetRadius( 1.0 );
-  cone->SetResolution( 10 );
+  vtkConeSource* cone = vtkConeSource::New();
+  cone->SetHeight(3.0);
+  cone->SetRadius(1.0);
+  cone->SetResolution(10);
 
   //
   // In this example we terminate the pipeline with a mapper process object.
@@ -76,8 +75,8 @@ int main()
   // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
   // connect the output of the cone source to the input of this mapper.
   //
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
-  coneMapper->SetInputConnection( cone->GetOutputPort() );
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
+  coneMapper->SetInputConnection(cone->GetOutputPort());
 
   //
   // Create an actor to represent the cone. The actor orchestrates rendering
@@ -86,8 +85,8 @@ int main()
   // matrix. We set this actor's mapper to be coneMapper which we created
   // above.
   //
-  vtkActor *coneActor = vtkActor::New();
-  coneActor->SetMapper( coneMapper );
+  vtkActor* coneActor = vtkActor::New();
+  coneActor->SetMapper(coneMapper);
 
   //
   // Create the Renderer and assign actors to it. A renderer is like a
@@ -95,18 +94,18 @@ int main()
   // responsible for drawing the actors it has.  We also set the background
   // color here.
   //
-  vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( coneActor );
-  ren1->SetBackground( 0.1, 0.2, 0.4 );
+  vtkRenderer* ren1 = vtkRenderer::New();
+  ren1->AddActor(coneActor);
+  ren1->SetBackground(0.1, 0.2, 0.4);
 
   //
   // Finally we create the render window which will show up on the screen.
   // We put our renderer into the render window using AddRenderer. We also
   // set the size to be 300 pixels by 300.
   //
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AddRenderer( ren1 );
-  renWin->SetSize( 300, 300 );
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(ren1);
+  renWin->SetSize(300, 300);
 
   //
   // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
@@ -114,7 +113,7 @@ int main()
   // event invocations that VTK understands (see VTK/Common/vtkCommand.h
   // for all events that VTK processes). Then observers of these VTK
   // events can process them as appropriate.
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   //
@@ -123,8 +122,7 @@ int main()
   // it observes into operations on the camera, actors, and/or properties
   // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
   // Here we specify a particular interactor style.
-  vtkInteractorStyleTrackballCamera *style =
-    vtkInteractorStyleTrackballCamera::New();
+  vtkInteractorStyleTrackballCamera* style = vtkInteractorStyleTrackballCamera::New();
   iren->SetInteractorStyle(style);
 
   //
@@ -137,7 +135,7 @@ int main()
   // using the Command/Observer mechanism (AddObserver()). The place factor
   // controls the initial size of the widget with respect to the bounding box
   // of the input to the widget.
-  vtkBoxWidget *boxWidget = vtkBoxWidget::New();
+  vtkBoxWidget* boxWidget = vtkBoxWidget::New();
   boxWidget->SetInteractor(iren);
   boxWidget->SetPlaceFactor(1.25);
 
@@ -148,7 +146,7 @@ int main()
   //
   boxWidget->SetProp3D(coneActor);
   boxWidget->PlaceWidget();
-  vtkMyCallback *callback = vtkMyCallback::New();
+  vtkMyCallback* callback = vtkMyCallback::New();
   boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   //
@@ -179,5 +177,3 @@ int main()
 
   return 0;
 }
-
-

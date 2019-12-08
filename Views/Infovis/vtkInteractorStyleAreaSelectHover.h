@@ -29,13 +29,13 @@
  * This interactor style allows only 2D panning and zooming,
  * rubber band selection and provides a balloon containing the name of the
  * vertex hovered over.
-*/
+ */
 
 #ifndef vtkInteractorStyleAreaSelectHover_h
 #define vtkInteractorStyleAreaSelectHover_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleRubberBand2D.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAreaLayout;
 class vtkBalloonRepresentation;
@@ -45,11 +45,12 @@ class vtkTree;
 class vtkWorldPointPicker;
 class vtkPolyData;
 
-class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
+class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover
+  : public vtkInteractorStyleRubberBand2D
 {
 public:
   static vtkInteractorStyleAreaSelectHover* New();
-  vtkTypeMacro(vtkInteractorStyleAreaSelectHover,vtkInteractorStyleRubberBand2D);
+  vtkTypeMacro(vtkInteractorStyleAreaSelectHover, vtkInteractorStyleRubberBand2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -88,7 +89,7 @@ public:
   /**
    * Set the interactor that this interactor style works with.
    */
-  void SetInteractor(vtkRenderWindowInteractor *rwi) override;
+  void SetInteractor(vtkRenderWindowInteractor* rwi) override;
 
   /**
    * Set the color used to highlight the hovered vertex.
@@ -117,14 +118,14 @@ private:
   void operator=(const vtkInteractorStyleAreaSelectHover&) = delete;
 
   // These methods are used internally
-  void GetBoundingAreaForItem(vtkIdType id, float *sinfo);
+  void GetBoundingAreaForItem(vtkIdType id, float* sinfo);
 
   vtkWorldPointPicker* Picker;
   vtkBalloonRepresentation* Balloon;
-  vtkPolyData *HighlightData;
-  vtkActor *HighlightActor;
+  vtkPolyData* HighlightData;
+  vtkActor* HighlightActor;
   vtkAreaLayout* Layout;
-  char *LabelField;
+  char* LabelField;
   bool UseRectangularCoordinates;
 };
 

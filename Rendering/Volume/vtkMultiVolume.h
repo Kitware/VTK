@@ -31,17 +31,16 @@
  * inputs.
  *
  * @sa vtkVolume vtkAbstractVolumeMapper vtkGPUVolumeRayCastMapper
-*/
+ */
 #ifndef vtkMultiVolume_h
 #define vtkMultiVolume_h
-#include <array>                      // for std::array
-#include <unordered_map>              // For std::unordered_map
+#include <array>         // for std::array
+#include <unordered_map> // For std::unordered_map
 
 #include "vtkMatrix4x4.h"             // For Matrix
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 #include "vtkVolume.h"
-
 
 class vtkAbstractVolumeMapper;
 class vtkBoundingBox;
@@ -65,10 +64,7 @@ public:
    */
   void SetVolume(vtkVolume* volume, int port = 0);
   vtkVolume* GetVolume(int port = 0);
-  void RemoveVolume(int port)
-  {
-    this->SetVolume(nullptr, port);
-  }
+  void RemoveVolume(int port) { this->SetVolume(nullptr, port); }
   //@}
 
   //@{
@@ -101,7 +97,7 @@ public:
    * copy accordingly. Otherwise it falls back to vtkVolume::ShallowCopy.
    * \sa vtkVolume
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * As with other vtkProp3D, Matrix holds the transformation from data
@@ -112,25 +108,21 @@ public:
    * \sa vtkProp3D vtkVolume
    */
   using vtkVolume::GetMatrix;
-  vtkMatrix4x4* GetMatrix() override
-    { return this->Matrix; }
+  vtkMatrix4x4* GetMatrix() override { return this->Matrix; }
 
   /**
    * Returns the transformation from texture coordinates to data cooridinates
    * of the bounding-box. Since this class represents an axis-aligned bounding
    * -boxThis, this transformation only contains a scaling diagonal.
    */
-  vtkMatrix4x4* GetTextureMatrix()
-    { return this->TexToBBox.GetPointer(); };
+  vtkMatrix4x4* GetTextureMatrix() { return this->TexToBBox.GetPointer(); }
 
   /**
    * Total bounds in data coordinates.
    */
-  double* GetDataBounds()
-    { return this->DataBounds.data(); };
+  double* GetDataBounds() { return this->DataBounds.data(); }
 
-  vtkMTimeType GetBoundsTime()
-    { return this->BoundsComputeTime.GetMTime(); };
+  vtkMTimeType GetBoundsTime() { return this->BoundsComputeTime.GetMTime(); }
 
   /**
    * Since vtkMultiVolume acts like a proxy volume to compute the bounding box
@@ -143,8 +135,7 @@ public:
   /**
    * Return the eight corners of the volume
    */
-  double *GetDataGeometry()
-  { return this->DataGeometry.data(); };
+  double* GetDataGeometry() { return this->DataGeometry.data(); }
 
 protected:
   vtkMultiVolume();
@@ -156,7 +147,7 @@ protected:
    * For that reason this method does nothing.
    * \sa vtkProp3D
    */
-  void ComputeMatrix() override {};
+  void ComputeMatrix() override {}
 
   /**
    * Returns the vtkVolume registered in port.
@@ -175,9 +166,7 @@ protected:
    * from X to Y and bounds ([x_min, x_max, y_min, y_max, z_min, z_max])
    * the box in X.
    */
-  std::array<double, 6> ComputeAABounds(double bounds[6],
-    vtkMatrix4x4* T) const;
-
+  std::array<double, 6> ComputeAABounds(double bounds[6], vtkMatrix4x4* T) const;
 
   std::array<double, 6> DataBounds;
   std::array<double, 24> DataGeometry;

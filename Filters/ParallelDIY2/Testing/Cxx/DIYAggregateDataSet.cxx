@@ -30,7 +30,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkTransformFilter.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 int DIYAggregateDataSet(int argc, char* argv[])
 {
@@ -128,7 +128,6 @@ int DIYAggregateDataSet(int argc, char* argv[])
   aggregate2->Delete();
   transform->Delete();
   wavelet2->Delete();
-
 
   contr->Finalize();
   contr->Delete();

@@ -49,14 +49,14 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at  Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArray_h
 #define vtkArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
@@ -65,7 +65,7 @@ class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArray, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef vtkArrayExtents::CoordinateT CoordinateT;
   typedef vtkArrayExtents::DimensionT DimensionT;
@@ -228,9 +228,12 @@ public:
    * Overwrites a value with a value retrieved from another array.  Both
    * arrays must store the same data types.
    */
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) = 0;
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
+    const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(
+    vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(
+    vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) = 0;
   //@}
 
   /**
@@ -267,8 +270,8 @@ private:
    * Implemented in concrete derivatives to get dimension labels.
    */
   virtual vtkStdString InternalGetDimensionLabel(DimensionT i) = 0;
-};
   //@}
+};
 
 vtkVariant vtkArray::GetVariantValue(CoordinateT i)
 {

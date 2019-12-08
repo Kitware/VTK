@@ -21,7 +21,7 @@
  * the vtkIdentityTransform does so with much greater efficiency.
  * @sa
  * vtkLinearTransform
-*/
+ */
 
 #ifndef vtkIdentityTransform_h
 #define vtkIdentityTransform_h
@@ -32,42 +32,36 @@
 class VTKCOMMONTRANSFORMS_EXPORT vtkIdentityTransform : public vtkLinearTransform
 {
 public:
-  static vtkIdentityTransform *New();
+  static vtkIdentityTransform* New();
 
-  vtkTypeMacro(vtkIdentityTransform,vtkLinearTransform);
+  vtkTypeMacro(vtkIdentityTransform, vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) override;
+  void TransformPoints(vtkPoints* inPts, vtkPoints* outPts) override;
 
   /**
    * Apply the transformation to a series of normals, and append the
    * results to outNms.
    */
-  void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms) override;
+  void TransformNormals(vtkDataArray* inNms, vtkDataArray* outNms) override;
 
   /**
    * Apply the transformation to a series of vectors, and append the
    * results to outVrs.
    */
-  void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs) override;
+  void TransformVectors(vtkDataArray* inVrs, vtkDataArray* outVrs) override;
 
   /**
    * Apply the transformation to a combination of points, normals
    * and vectors.
    */
-  void TransformPointsNormalsVectors(vtkPoints *inPts,
-                                     vtkPoints *outPts,
-                                     vtkDataArray *inNms,
-                                     vtkDataArray *outNms,
-                                     vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs,
-                                     int nOptionalVectors = 0,
-                                     vtkDataArray** inVrsArr = nullptr,
-                                     vtkDataArray** outVrsArr = nullptr) override;
+  void TransformPointsNormalsVectors(vtkPoints* inPts, vtkPoints* outPts, vtkDataArray* inNms,
+    vtkDataArray* outNms, vtkDataArray* inVrs, vtkDataArray* outVrs, int nOptionalVectors = 0,
+    vtkDataArray** inVrsArr = nullptr, vtkDataArray** outVrsArr = nullptr) override;
 
   // Invert the transformation.  This doesn't do anything to the
   // identity transformation.
@@ -106,23 +100,23 @@ public:
    * without calling Update.  Meant for use only within other VTK
    * classes.
    */
-  void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) override;
-  void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) override;
+  void InternalTransformDerivative(
+    const float in[3], float out[3], float derivative[3][3]) override;
+  void InternalTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
   //@}
 
   /**
    * Make a transform of the same type.  This will actually
    * return the same transform.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
   vtkIdentityTransform();
   ~vtkIdentityTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t) override;
+  void InternalDeepCopy(vtkAbstractTransform* t) override;
 
 private:
   vtkIdentityTransform(const vtkIdentityTransform&) = delete;
@@ -130,8 +124,3 @@ private:
 };
 
 #endif
-
-
-
-
-

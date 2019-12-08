@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkODBCDatabase
-*/
+ */
 
 #ifndef vtkODBCQuery_h
 #define vtkODBCQuery_h
@@ -53,7 +53,7 @@ class VTKIOODBC_EXPORT vtkODBCQuery : public vtkSQLQuery
 public:
   vtkTypeMacro(vtkODBCQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkODBCQuery *New();
+  static vtkODBCQuery* New();
 
   /**
    * Execute the query.  This must be performed
@@ -112,8 +112,8 @@ public:
    * OK; false if there's some problem with it that can be detected
    * before execution.
    */
-  bool SetQuery(const char *queryString) override;
-  const char *GetQuery() override;
+  bool SetQuery(const char* queryString) override;
+  const char* GetQuery() override;
   //@}
 
   /**
@@ -143,13 +143,13 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue) override;
+  bool BindParameter(int index, const char* stringValue) override;
   //@{
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length) override;
-  bool BindParameter(int index, const vtkStdString &string) override;
+  bool BindParameter(int index, const char* stringValue, size_t length) override;
+  bool BindParameter(int index, const vtkStdString& string) override;
   //@}
   //@{
   /**
@@ -157,7 +157,7 @@ public:
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length) override;
+  bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
   //@}
 
@@ -169,11 +169,11 @@ protected:
   vtkSetStringMacro(QueryText);
   vtkGetStringMacro(QueryText);
 
-  char *QueryText;
+  char* QueryText;
 
 private:
-  vtkODBCQuery(const vtkODBCQuery &) = delete;
-  void operator=(const vtkODBCQuery &) = delete;
+  vtkODBCQuery(const vtkODBCQuery&) = delete;
+  void operator=(const vtkODBCQuery&) = delete;
 
   void ClearCurrentRow();
   bool CacheCurrentRow();
@@ -192,10 +192,9 @@ private:
   bool CacheFloatColumn(int column);
   bool CacheDoubleColumn(int column);
 
-  vtkODBCQueryInternals *Internals;
+  vtkODBCQueryInternals* Internals;
   bool InitialFetch;
-  char *LastErrorText;
+  char* LastErrorText;
 };
 
 #endif // vtkODBCQuery_h
-

@@ -17,7 +17,7 @@
  * @brief   vtkViewNode specialized for vtkRenderers
  *
  * State storage and graph traversal for vtkRenderer
-*/
+ */
 
 #ifndef vtkRendererNode_h
 #define vtkRendererNode_h
@@ -25,10 +25,9 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
-class  vtkCollection;
+class vtkCollection;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkRendererNode :
-  public vtkViewNode
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkRendererNode : public vtkViewNode
 {
 public:
   static vtkRendererNode* New();
@@ -38,16 +37,17 @@ public:
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
-   * Synchronize our state
+   * Get/Set the framebuffer size
    */
-  virtual void Synchronize(bool prepass) override;
+  vtkGetVector2Macro(Size, int);
+  vtkSetVector2Macro(Size, int);
 
 protected:
   vtkRendererNode();
-  ~vtkRendererNode();
+  ~vtkRendererNode() override;
 
   int Size[2];
 

@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
  * p1c1 p2c1 p3c1 ... pnc1 materialnum partnum
  * p1c2 p2c2 p3c2 ... pnc2 materialnum partnum
  * ...
-*/
+ */
 
 #ifndef vtkFacetReader_h
 #define vtkFacetReader_h
@@ -45,8 +45,8 @@ PURPOSE.  See the above copyright notice for more information.
 class VTKFILTERSHYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkFacetReader *New();
-  vtkTypeMacro(vtkFacetReader,vtkPolyDataAlgorithm);
+  static vtkFacetReader* New();
+  vtkTypeMacro(vtkFacetReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,15 +57,15 @@ public:
   vtkGetStringMacro(FileName);
   //@}
 
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(const char* filename);
 
 protected:
   vtkFacetReader();
   ~vtkFacetReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
+  char* FileName;
 
 private:
   vtkFacetReader(const vtkFacetReader&) = delete;
@@ -73,4 +73,3 @@ private:
 };
 
 #endif
-

@@ -15,24 +15,25 @@
 
 #include "vtkPlotPie.h"
 
-#include "vtkContext2D.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
-#include "vtkPoints2D.h"
+#include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkTable.h"
 #include "vtkMath.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
 #include "vtkRect.h"
+#include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
 
-namespace {
+namespace
+{
 
-template<class A>
-A SumData(A *a, int n)
+template <class A>
+A SumData(A* a, int n)
 {
   A sum = 0;
   for (int i = 0; i < n; ++i)
@@ -42,33 +43,33 @@ A SumData(A *a, int n)
   return sum;
 }
 
-template<class A>
-void CopyToPoints(vtkPoints2D *points, A *a, int n)
+template <class A>
+void CopyToPoints(vtkPoints2D* points, A* a, int n)
 {
   points->SetNumberOfPoints(n);
 
-  A sum = SumData(a,n);
+  A sum = SumData(a, n);
   float* data = static_cast<float*>(points->GetVoidPointer(0));
   float startAngle = 0.0;
 
   for (int i = 0; i < n; ++i)
   {
-    data[2*i] = startAngle;
-    data[2*i+1] = startAngle + ((static_cast<float>(a[i]) / sum) * 360.0);
-    startAngle = data[2*i+1];
+    data[2 * i] = startAngle;
+    data[2 * i + 1] = startAngle + ((static_cast<float>(a[i]) / sum) * 360.0);
+    startAngle = data[2 * i + 1];
   }
 }
 }
 
 class vtkPlotPiePrivate
 {
-  public:
-    vtkPlotPiePrivate()
-    {
-      this->CenterX = 0;
-      this->CenterY = 0;
-      this->Radius  = 0;
-    }
+public:
+  vtkPlotPiePrivate()
+  {
+    this->CenterX = 0;
+    this->CenterY = 0;
+    this->Radius = 0;
+  }
 
   float CenterX;
   float CenterY;
@@ -84,8 +85,7 @@ vtkPlotPie::vtkPlotPie()
   this->ColorSeries = vtkSmartPointer<vtkColorSeries>::New();
   this->Points = nullptr;
   this->Private = new vtkPlotPiePrivate();
-  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] =
-    this->Dimensions[3] = 0;
+  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkPlotPie::~vtkPlotPie()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPie::Paint(vtkContext2D *painter)
+bool vtkPlotPie::Paint(vtkContext2D* painter)
 {
   if (!this->Visible)
   {
@@ -109,15 +109,14 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
   }
 
   // First check if we have an input
-  vtkTable *table = this->Data->GetInput();
+  vtkTable* table = this->Data->GetInput();
   if (!table)
   {
     vtkDebugMacro(<< "Paint event called with no input table set.");
     return false;
   }
-  else if(this->Data->GetMTime() > this->BuildTime ||
-          table->GetMTime() > this->BuildTime ||
-          this->MTime > this->BuildTime)
+  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
+    this->MTime > this->BuildTime)
   {
     vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
     this->UpdateTableCache(table);
@@ -127,14 +126,10 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 
   for (int i = 0; i < this->Points->GetNumberOfPoints(); ++i)
   {
-    painter->GetBrush()
-        ->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
+    painter->GetBrush()->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
 
-    painter->DrawEllipseWedge(this->Private->CenterX, this->Private->CenterY,
-                              this->Private->Radius, this->Private->Radius,
-                              0.0, 0.0,
-                              data[2*i], data[2*i+1]
-                              );
+    painter->DrawEllipseWedge(this->Private->CenterX, this->Private->CenterY, this->Private->Radius,
+      this->Private->Radius, 0.0, 0.0, data[2 * i], data[2 * i + 1]);
   }
 
   this->PaintChildren(painter);
@@ -143,12 +138,10 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 
 //-----------------------------------------------------------------------------
 
-bool vtkPlotPie::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                             int legendIndex)
+bool vtkPlotPie::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex)
 {
   if (this->ColorSeries)
-    this->Brush
-      ->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
+    this->Brush->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
 
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
@@ -160,8 +153,8 @@ bool vtkPlotPie::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 
 void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 {
-  if (arg1 != this->Dimensions[0] || arg2 != this->Dimensions[1] ||
-      arg3 != this->Dimensions[2] || arg4 != this->Dimensions[3])
+  if (arg1 != this->Dimensions[0] || arg2 != this->Dimensions[1] || arg3 != this->Dimensions[2] ||
+    arg4 != this->Dimensions[3])
   {
     this->Dimensions[0] = arg1;
     this->Dimensions[1] = arg2;
@@ -170,20 +163,19 @@ void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 
     this->Private->CenterX = this->Dimensions[0] + 0.5 * this->Dimensions[2];
     this->Private->CenterY = this->Dimensions[1] + 0.5 * this->Dimensions[3];
-    this->Private->Radius  = this->Dimensions[2] < this->Dimensions[3]
-        ? 0.5 * this->Dimensions[2] : 0.5 * this->Dimensions[3];
+    this->Private->Radius = this->Dimensions[2] < this->Dimensions[3] ? 0.5 * this->Dimensions[2]
+                                                                      : 0.5 * this->Dimensions[3];
     this->Modified();
   }
 }
 
 void vtkPlotPie::SetDimensions(const int arg[4])
 {
-  this->SetDimensions(arg[0],arg[1],arg[2],arg[3]);
+  this->SetDimensions(arg[0], arg[1], arg[2], arg[3]);
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkPlotPie::SetColorSeries(vtkColorSeries *colorSeries)
+void vtkPlotPie::SetColorSeries(vtkColorSeries* colorSeries)
 {
   if (this->ColorSeries == colorSeries)
   {
@@ -194,36 +186,57 @@ void vtkPlotPie::SetColorSeries(vtkColorSeries *colorSeries)
 }
 
 //-----------------------------------------------------------------------------
-vtkColorSeries *vtkPlotPie::GetColorSeries()
+vtkColorSeries* vtkPlotPie::GetColorSeries()
 {
   return this->ColorSeries;
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
-                                      const vtkVector2f&,
-                                      vtkVector2f* value)
+#ifndef VTK_LEGACY_REMOVE
+  const vtkVector2f& tolerance,
+#else
+  const vtkVector2f& vtkNotUsed(tolerance),
+#endif // VTK_LEGACY_REMOVE
+  vtkVector2f* value, vtkIdType* vtkNotUsed(segmentId))
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType retLegacy = this->GetNearestPoint(point, tolerance, value);
+    this->LegacyRecursionFlag = false;
+    if (retLegacy != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
+                                 const vtkVector2f& tolerance, vtkVector2f* value),
+        "VTK 8.3",
+        vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+          vtkVector2f* value, vtkIdType* segmentId));
+      return retLegacy;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   float x = point.GetX() - this->Private->CenterX;
   float y = point.GetY() - this->Private->CenterY;
 
-  if (sqrt((x*x) + (y*y)) <= this->Private->Radius)
+  if (sqrt((x * x) + (y * y)) <= this->Private->Radius)
   {
-    float *angles = static_cast<float *>(this->Points->GetVoidPointer(0));
-    float pointAngle = vtkMath::DegreesFromRadians(atan2(y,x));
+    float* angles = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float pointAngle = vtkMath::DegreesFromRadians(atan2(y, x));
     if (pointAngle < 0)
     {
       pointAngle = 180.0 + (180.0 + pointAngle);
     }
-    float *lbound = std::lower_bound(angles,
-                                     angles + (this->Points->GetNumberOfPoints() * 2),
-                                     pointAngle);
+    float* lbound =
+      std::lower_bound(angles, angles + (this->Points->GetNumberOfPoints() * 2), pointAngle);
     // Location in the array
     int ret = lbound - angles;
     // There are two of each angle in the array (start,end for each point)
     ret = ret / 2;
 
-    vtkTable *table = this->Data->GetInput();
+    vtkTable* table = this->Data->GetInput();
     vtkDataArray* data = this->Data->GetInputArrayToProcess(0, table);
     value->SetX(ret);
     value->SetY(data->GetTuple1(ret));
@@ -234,13 +247,13 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotPie::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlotPie::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPie::UpdateTableCache(vtkTable *table)
+bool vtkPlotPie::UpdateTableCache(vtkTable* table)
 {
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkDataArray* data = this->Data->GetInputArrayToProcess(0, table);
@@ -256,13 +269,10 @@ bool vtkPlotPie::UpdateTableCache(vtkTable *table)
     this->Points = vtkPoints2D::New();
   }
 
-
   switch (data->GetDataType())
   {
-    vtkTemplateMacro(
-      CopyToPoints(this->Points,
-                   static_cast<VTK_TT*>(data->GetVoidPointer(0)),
-                   data->GetNumberOfTuples()));
+    vtkTemplateMacro(CopyToPoints(
+      this->Points, static_cast<VTK_TT*>(data->GetVoidPointer(0)), data->GetNumberOfTuples()));
   }
 
   this->BuildTime.Modified();

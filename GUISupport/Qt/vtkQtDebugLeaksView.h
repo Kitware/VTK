@@ -21,7 +21,7 @@
  * memory.  The widget is designed to be a debugging tool that is instantiated
  * at program startup and displayed as a top level widget.  Simply create the
  * widget and call show().
-*/
+ */
 
 #ifndef vtkQtDebugLeaksView_h
 #define vtkQtDebugLeaksView_h
@@ -38,8 +38,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksView : public QWidget
   Q_OBJECT
 
 public:
-
-  vtkQtDebugLeaksView(QWidget *p=nullptr);
+  vtkQtDebugLeaksView(QWidget* p = nullptr);
   ~vtkQtDebugLeaksView() override;
 
   vtkQtDebugLeaksModel* model();
@@ -65,7 +64,6 @@ public:
   void setFilterText(const QString& text);
 
 protected:
-
   virtual void onObjectDoubleClicked(vtkObjectBase* object);
   virtual void onClassNameDoubleClicked(const QString& className);
 
@@ -78,12 +76,10 @@ protected slots:
   void onFilterHelp();
 
 private:
-
   class qInternal;
   qInternal* Internal;
 
   Q_DISABLE_COPY(vtkQtDebugLeaksView);
-
 };
 
 #endif

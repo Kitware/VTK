@@ -32,7 +32,7 @@
  * @sa
  * vtkInteractorStyleTrackballCamera vtkInteractorStyleJoystickActor
  * vtkInteractorStyleJoystickCamera
-*/
+ */
 
 #ifndef vtkInteractorStyleTrackballActor_h
 #define vtkInteractorStyleTrackballActor_h
@@ -45,8 +45,8 @@ class vtkCellPicker;
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballActor : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleTrackballActor *New();
-  vtkTypeMacro(vtkInteractorStyleTrackballActor,vtkInteractorStyle);
+  static vtkInteractorStyleTrackballActor* New();
+  vtkTypeMacro(vtkInteractorStyleTrackballActor, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -79,16 +79,13 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D,
-                       double *boxCenter,
-                       int NumRotation,
-                       double **rotate,
-                       double *scale);
+  void Prop3DTransform(
+    vtkProp3D* prop3D, double* boxCenter, int NumRotation, double** rotate, double* scale);
 
   double MotionFactor;
 
-  vtkProp3D *InteractionProp;
-  vtkCellPicker *InteractionPicker;
+  vtkProp3D* InteractionProp;
+  vtkCellPicker* InteractionPicker;
 
 private:
   vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&) = delete;

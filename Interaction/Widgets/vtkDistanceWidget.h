@@ -64,18 +64,17 @@
  *
  * @sa
  * vtkHandleWidget
-*/
+ */
 
 #ifndef vtkDistanceWidget_h
 #define vtkDistanceWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkDistanceRepresentation;
 class vtkHandleWidget;
 class vtkDistanceWidgetCallback;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceWidget : public vtkAbstractWidget
 {
@@ -83,13 +82,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkDistanceWidget *New();
+  static vtkDistanceWidget* New();
 
   //@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkDistanceWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkDistanceWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -105,15 +104,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkDistanceRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(
-      reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkDistanceRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkDistanceRepresentation.
    */
-  vtkDistanceRepresentation *GetDistanceRepresentation()
-    {return reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep);}
+  vtkDistanceRepresentation* GetDistanceRepresentation()
+  {
+    return reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -133,7 +135,12 @@ public:
    * transitions to Define state. Once placed, the widget enters the Manipulate state.
    */
 
-  enum {Start=0,Define,Manipulate};
+  enum
+  {
+    Start = 0,
+    Define,
+    Manipulate
+  };
 
   //@{
   /**
@@ -153,8 +160,7 @@ public:
   /**
    * Return the current widget state.
    */
-  virtual int GetWidgetState()
-    {return this->WidgetState;}
+  virtual int GetWidgetState() { return this->WidgetState; }
 
 protected:
   vtkDistanceWidget();
@@ -174,10 +180,10 @@ protected:
   static void EndSelectAction3D(vtkAbstractWidget*);
 
   // The positioning handle widgets
-  vtkHandleWidget *Point1Widget;
-  vtkHandleWidget *Point2Widget;
-  vtkDistanceWidgetCallback *DistanceWidgetCallback1;
-  vtkDistanceWidgetCallback *DistanceWidgetCallback2;
+  vtkHandleWidget* Point1Widget;
+  vtkHandleWidget* Point2Widget;
+  vtkDistanceWidgetCallback* DistanceWidgetCallback1;
+  vtkDistanceWidgetCallback* DistanceWidgetCallback2;
 
   // Methods invoked when the handles at the
   // end points of the widget are manipulated

@@ -33,23 +33,22 @@
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 int TestCategoricalMaterials(int argc, char* argv[])
 {
   // set up the environment
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
-  renWin->SetSize(700,700);
+  renWin->SetSize(700, 700);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  renderer->SetBackground(0.0,0.0,0.0);
-  renderer->SetBackground2(0.8,0.8,1.0);
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  renderer->SetBackground(0.0, 0.0, 0.0);
+  renderer->SetBackground2(0.8, 0.8, 1.0);
   renderer->GradientBackgroundOn();
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
@@ -64,18 +63,17 @@ int TestCategoricalMaterials(int argc, char* argv[])
     }
   }
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 
-  //make some predictable data to test with
+  // make some predictable data to test with
   vtkSmartPointer<vtkPlaneSource> polysource = vtkSmartPointer<vtkPlaneSource>::New();
   polysource->SetXResolution(4);
   polysource->SetYResolution(3);
   polysource->Update();
-  vtkPolyData *pd = polysource->GetOutput();
+  vtkPolyData* pd = polysource->GetOutput();
   vtkSmartPointer<vtkDoubleArray> da = vtkSmartPointer<vtkDoubleArray>::New();
   da->SetNumberOfComponents(1);
   da->SetName("test array");
@@ -83,7 +81,7 @@ int TestCategoricalMaterials(int argc, char* argv[])
   {
     da->InsertNextValue(i);
   }
-  pd->GetCellData()->SetScalars(da); //this is what we'll color by, including materials
+  pd->GetCellData()->SetScalars(da); // this is what we'll color by, including materials
 
   // Choose a color scheme
   vtkSmartPointer<vtkColorSeries> palettes = vtkSmartPointer<vtkColorSeries>::New();
@@ -105,30 +103,30 @@ int TestCategoricalMaterials(int argc, char* argv[])
   lut->SetAnnotation(12, "Twelve");
   palettes->BuildLookupTable(lut);
 
-  //todo: test should turn on/off or let user do so
+  // todo: test should turn on/off or let user do so
   lut->SetIndexedLookup(1);
 
-  //get a hold of the material library
+  // get a hold of the material library
   vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
   vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
-  //add materials to it
+  // add materials to it
   ml->AddMaterial("Four", "Metal");
   ml->AddMaterial("One", "ThinGlass");
-  //some of material names use the same low level material implementation
+  // some of material names use the same low level material implementation
   ml->AddMaterial("Two", "ThinGlass");
-  //but each one  can be tuned
-  double green[3] = {0.0,0.9,0.0};
+  // but each one  can be tuned
+  double green[3] = { 0.0, 0.9, 0.0 };
   ml->AddShaderVariable("Two", "attenuationColor", 3, green);
-  ml->AddShaderVariable("Two", "eta", {1.});
+  ml->AddShaderVariable("Two", "eta", { 1. });
   ml->AddMaterial("Three", "ThinGlass");
-  double blue[3] = {0.0,0.0,0.9};
+  double blue[3] = { 0.0, 0.0, 0.9 };
   ml->AddShaderVariable("Three", "attenuationColor", 3, blue);
-  ml->AddShaderVariable("Three", "eta", {1.65});
+  ml->AddShaderVariable("Three", "eta", { 1.65 });
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-  vtkProperty *prop;
+  vtkProperty* prop;
   prop = actor->GetProperty();
-  prop->SetMaterialName("Value Indexed"); //using several from the library
+  prop->SetMaterialName("Value Indexed"); // using several from the library
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputData(pd);
@@ -136,15 +134,15 @@ int TestCategoricalMaterials(int argc, char* argv[])
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 
-  //set up progressive rendering
-  vtkCommand *looper = style->GetLooper(renWin);
-  vtkCamera *cam = renderer->GetActiveCamera();
+  // set up progressive rendering
+  vtkCommand* looper = style->GetLooper(renWin);
+  vtkCamera* cam = renderer->GetActiveCamera();
   iren->AddObserver(vtkCommand::KeyPressEvent, looper);
   cam->AddObserver(vtkCommand::ModifiedEvent, looper);
-  iren->CreateRepeatingTimer(10); //every 10 msec we'll rerender if needed
+  iren->CreateRepeatingTimer(10); // every 10 msec we'll rerender if needed
   iren->AddObserver(vtkCommand::TimerEvent, looper);
 
-  //todo: use standard vtk testing conventions
+  // todo: use standard vtk testing conventions
   iren->Start();
   return 0;
 }

@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkSQLQuery vtkMySQLDatabase
-*/
+ */
 
 #ifndef vtkMySQLQuery_h
 #define vtkMySQLQuery_h
@@ -52,13 +52,13 @@ class VTKIOMYSQL_EXPORT vtkMySQLQuery : public vtkSQLQuery
 public:
   vtkTypeMacro(vtkMySQLQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkMySQLQuery *New();
+  static vtkMySQLQuery* New();
 
   /**
    * Set the SQL query string.  This must be performed before
    * Execute() or BindParameter() can be called.
    */
-  bool SetQuery(const char *query) override;
+  bool SetQuery(const char* query) override;
 
   /**
    * Execute the query.  This must be performed
@@ -141,13 +141,13 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue) override;
+  bool BindParameter(int index, const char* stringValue) override;
   //@{
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length) override;
-  bool BindParameter(int index, const vtkStdString &string) override;
+  bool BindParameter(int index, const char* stringValue, size_t length) override;
+  bool BindParameter(int index, const vtkStdString& string) override;
   //@}
 
   //@{
@@ -156,14 +156,14 @@ public:
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length) override;
+  bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
   //@}
 
   /**
    * Escape a string for use in a query
    */
-  vtkStdString EscapeString( vtkStdString src, bool addSurroundingQuotes = true ) override;
+  vtkStdString EscapeString(vtkStdString src, bool addSurroundingQuotes = true) override;
 
 protected:
   vtkMySQLQuery();
@@ -172,13 +172,12 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkMySQLQuery(const vtkMySQLQuery &) = delete;
-  void operator=(const vtkMySQLQuery &) = delete;
+  vtkMySQLQuery(const vtkMySQLQuery&) = delete;
+  void operator=(const vtkMySQLQuery&) = delete;
 
-  vtkMySQLQueryInternals *Internals;
+  vtkMySQLQueryInternals* Internals;
   bool InitialFetch;
-  char *LastErrorText;
+  char* LastErrorText;
 };
 
 #endif // vtkMySQLQuery_h
-

@@ -14,13 +14,13 @@
 #define vtkOBJImporterInternals_h
 #ifndef __VTK_WRAP__
 
-#include <string>
+#include "vtkActor.h"
 #include "vtkOBJImporter.h"
 #include "vtkPolyDataAlgorithm.h"
-#include <memory>
-#include <vector>
 #include <map>
-#include "vtkActor.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
 {
@@ -38,10 +38,9 @@ struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
   double specularPower;
   double glossy;
   double refract_index;
-  const char *GetClassName() {return "vtkOBJImportedMaterial";}
+  const char* GetClassName() { return "vtkOBJImportedMaterial"; }
   vtkOBJImportedMaterial();
 };
-
 
 VTKIOIMPORT_EXPORT
 void obj_set_material_defaults(vtkOBJImportedMaterial* mtl);
@@ -51,8 +50,8 @@ struct vtkOBJImportedPolyDataWithMaterial;
 class VTKIOIMPORT_EXPORT vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkOBJPolyDataProcessor *New();
-  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm)
+  static vtkOBJPolyDataProcessor* New();
+  vtkTypeMacro(vtkOBJPolyDataProcessor, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
@@ -67,9 +66,9 @@ public:
     {
       return;
     }
-    FileName    = std::string(arg);
+    FileName = std::string(arg);
   }
-  void SetMTLfileName( const char* arg )
+  void SetMTLfileName(const char* arg)
   {
     if (arg == nullptr)
     {
@@ -82,74 +81,67 @@ public:
     MTLFileName = std::string(arg);
     this->DefaultMTLFileName = false;
   }
-  void SetTexturePath( const char* arg )
+  void SetTexturePath(const char* arg)
   {
     TexturePath = std::string(arg);
-    if(TexturePath.empty())
+    if (TexturePath.empty())
       return;
 #if defined(_WIN32)
     const char sep = '\\';
 #else
     const char sep = '/';
 #endif
-    if(TexturePath.at(TexturePath.size()-1) != sep )
+    if (TexturePath.at(TexturePath.size() - 1) != sep)
       TexturePath += sep;
   }
-  const std::string& GetTexturePath(  ) const
-  {
-    return TexturePath;
-  }
+  const std::string& GetTexturePath() const { return TexturePath; }
 
-  const std::string& GetFileName(  ) const
-  {
-    return FileName;
-  }
+  const std::string& GetFileName() const { return FileName; }
 
-  const std::string& GetMTLFileName(  ) const
-  {
-    return MTLFileName;
-  }
+  const std::string& GetMTLFileName() const { return MTLFileName; }
 
-  vtkSetMacro(VertexScale,double)
-  vtkGetMacro(VertexScale,double)
-  vtkGetMacro(SuccessParsingFiles,int)
+  vtkSetMacro(VertexScale, double);
+  vtkGetMacro(VertexScale, double);
+  vtkGetMacro(SuccessParsingFiles, int);
 
   virtual vtkPolyData* GetOutput(int idx);
 
-  vtkOBJImportedMaterial*  GetMaterial(int k);
+  vtkOBJImportedMaterial* GetMaterial(int k);
 
-  std::string GetTextureFilename( int idx ); // return string by index
+  std::string GetTextureFilename(int idx); // return string by index
 
   double VertexScale; // scale vertices by this during import
 
-  std::vector<vtkOBJImportedMaterial*>  parsedMTLs;
-  std::map<std::string,vtkOBJImportedMaterial*>  mtlName_to_mtlData;
+  std::vector<vtkOBJImportedMaterial*> parsedMTLs;
+  std::map<std::string, vtkOBJImportedMaterial*> mtlName_to_mtlData;
 
   // our internal parsing/storage
   std::vector<vtkOBJImportedPolyDataWithMaterial*> poly_list;
 
   // what gets returned to client code via GetOutput()
-  std::vector<vtkSmartPointer<vtkPolyData> >  outVector_of_vtkPolyData;
+  std::vector<vtkSmartPointer<vtkPolyData> > outVector_of_vtkPolyData;
 
-  std::vector<vtkSmartPointer<vtkActor> >  actor_list;
+  std::vector<vtkSmartPointer<vtkActor> > actor_list;
   /////////////////////
 
-  std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename,int& result_code);
+  std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename, int& result_code);
 
-  void ReadVertices(bool gotFirstUseMaterialTag, char *pLine, float xyz, int lineNr, const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
+  void ReadVertices(bool gotFirstUseMaterialTag, char* pLine, float xyz, int lineNr,
+    const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
+
 protected:
   vtkOBJPolyDataProcessor();
   ~vtkOBJPolyDataProcessor() override;
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) override /*override*/;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override
+    /*override*/;
 
-  vtkSetMacro(SuccessParsingFiles,int)
+  vtkSetMacro(SuccessParsingFiles, int);
 
-  std::string FileName;     // filename (.obj) being read
-  std::string MTLFileName;  // associated .mtl to *.obj, typically it is *.obj.mtl
-  bool DefaultMTLFileName;  // tells whether default of *.obj.mtl to be used
+  std::string FileName;    // filename (.obj) being read
+  std::string MTLFileName; // associated .mtl to *.obj, typically it is *.obj.mtl
+  bool DefaultMTLFileName; // tells whether default of *.obj.mtl to be used
   std::string TexturePath;
-  int         SuccessParsingFiles;
+  int SuccessParsingFiles;
 
 private:
   vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&) = delete;
@@ -159,9 +151,8 @@ private:
 class vtkRenderWindow;
 class vtkRenderer;
 VTKIOIMPORT_EXPORT
-void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
-                                          vtkRenderer* renderer,
-                                          vtkOBJPolyDataProcessor* reader );
+void bindTexturedPolydataToRenderWindow(
+  vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader);
 
 #endif
 #endif

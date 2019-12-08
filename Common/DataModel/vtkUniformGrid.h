@@ -18,7 +18,7 @@
  *
  * vtkUniformGrid is a subclass of vtkImageData. In addition to all
  * the image data functionality, it supports blanking.
-*/
+ */
 
 #ifndef vtkUniformGrid_h
 #define vtkUniformGrid_h
@@ -38,8 +38,8 @@ public:
   /**
    * Construct an empty uniform grid.
    */
-  static vtkUniformGrid *New();
-  vtkTypeMacro(vtkUniformGrid,vtkImageData);
+  static vtkUniformGrid* New();
+  vtkTypeMacro(vtkUniformGrid, vtkImageData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -47,39 +47,38 @@ public:
    * Copy the geometric and topological structure of an input image data
    * object.
    */
-  void CopyStructure(vtkDataSet *ds) override;
+  void CopyStructure(vtkDataSet* ds) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_UNIFORM_GRID;};
+  int GetDataObjectType() override { return VTK_UNIFORM_GRID; }
 
   //@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  vtkCell *GetCell(int i, int j, int k) override;
-  vtkCell *GetCell(vtkIdType cellId) override;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
-  vtkIdType FindCell(
-    double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-    int& subId, double pcoords[3], double *weights) override;
-  vtkIdType FindCell(
-    double x[3], vtkCell *cell, vtkGenericCell *gencell,
-    vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double *weights) override;
-  vtkCell *FindAndGetCell(
-    double x[3], vtkCell *cell, vtkIdType cellId,
-    double tol2, int& subId, double pcoords[3],
-    double *weights) override;
+  vtkCell* GetCell(int i, int j, int k) override;
+  vtkCell* GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
+  vtkCell* FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
   int GetCellType(vtkIdType cellId) override;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override
-    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->GetDataDescription(),
-                                      this->GetDimensions());}
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
-    {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
+  void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override
+  {
+    vtkStructuredData::GetCellPoints(
+      cellId, ptIds, this->GetDataDescription(), this->GetDimensions());
+  }
+  void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
+  {
+    vtkStructuredData::GetPointCells(ptId, cellIds, this->GetDimensions());
+  }
   void Initialize() override;
-  int GetMaxCellSize() override {return 8;}; //voxel is the largest
+  int GetMaxCellSize() override { return 8; } // voxel is the largest
   //@}
 
   /**
@@ -93,7 +92,7 @@ public:
    * data the set the third dimensions 0. eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
    */
-  int Initialize(const vtkAMRBox *def, double* origin, double* spacing);
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing);
   /**
    * Initialize from the definition in the given box, with ghost cell
    * arrays nGhosts cells thick in all directions. The box is expetced
@@ -101,7 +100,7 @@ public:
    * eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
    */
-  int Initialize(const vtkAMRBox *def, double* origin, double* spacing, int nGhosts);
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhosts);
 
   /**
    * Initialize from the definition in the given box, with ghost cell
@@ -110,7 +109,7 @@ public:
    * the set the third dimensions 0. eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
    */
-  int Initialize(const vtkAMRBox *def, double* origin, double* spacing, const int nGhosts[3]);
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, const int nGhosts[3]);
   /**
    * Construct a uniform grid, from the definition in the given box
    * "def", with ghost cell arrays of the thickness given in each
@@ -119,7 +118,8 @@ public:
    * (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
    */
-  int Initialize(const vtkAMRBox *def, double* origin, double* spacing, int nGhostsI,int nGhostsJ,int nGhostsK);
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhostsI, int nGhostsJ,
+    int nGhostsK);
 
   //@{
   /**
@@ -130,8 +130,8 @@ public:
    */
   virtual void BlankPoint(vtkIdType ptId);
   virtual void UnBlankPoint(vtkIdType ptId);
-  virtual void BlankPoint( const int i, const int j, const int k );
-  virtual void UnBlankPoint( const int i, const int j, const int k );
+  virtual void BlankPoint(const int i, const int j, const int k);
+  virtual void UnBlankPoint(const int i, const int j, const int k);
   //@}
 
   //@{
@@ -143,8 +143,8 @@ public:
    */
   virtual void BlankCell(vtkIdType ptId);
   virtual void UnBlankCell(vtkIdType ptId);
-  virtual void BlankCell( const int i, const int j, const int k );
-  virtual void UnBlankCell( const int i, const int j, const int k );
+  virtual void BlankCell(const int i, const int j, const int k);
+  virtual void UnBlankCell(const int i, const int j, const int k);
   //@}
 
   /**
@@ -179,7 +179,7 @@ public:
    * Retrieve an instance of this class from an information object.
    */
   static vtkUniformGrid* GetData(vtkInformation* info);
-  static vtkUniformGrid* GetData(vtkInformationVector* v, int i=0);
+  static vtkUniformGrid* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -189,7 +189,7 @@ protected:
   /**
    * Returns the cell dimensions for this vtkUniformGrid instance.
    */
-  void GetCellDims( int cellDims[3] );
+  void GetCellDims(int cellDims[3]);
 
   /**
    * Override this method because of blanking.
@@ -202,13 +202,9 @@ private:
   vtkUniformGrid(const vtkUniformGrid&) = delete;
   void operator=(const vtkUniformGrid&) = delete;
 
-  vtkEmptyCell *EmptyCell;
+  vtkEmptyCell* EmptyCell;
 
   static unsigned char MASKED_CELL_VALUE;
 };
 
-
 #endif
-
-
-

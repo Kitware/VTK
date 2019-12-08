@@ -17,16 +17,16 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLookupTable.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
@@ -36,7 +36,6 @@
 
 #define GPU_MAPPER
 
-
 //----------------------------------------------------------------------------
 int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 {
@@ -45,13 +44,12 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   // Color table 'hncma-atlas-lut' extracted from
   // nac-hncma-atlas-2015Nov-Slicer4-4Version.mrb on
   // http://www.spl.harvard.edu/publications/item/view/2037
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
 
   // Initialize vtkLookupTable
   int const NumValues = 5023;
   lut->SetNumberOfTableValues(NumValues);
-  lut->SetTableRange(0, NumValues-1);
+  lut->SetTableRange(0, NumValues - 1);
   for (int i = 0; i < NumValues; i++)
   {
     lut->SetTableValue(i, 0.0, 0.0, 0.0, 0.0);
@@ -394,8 +392,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   lut->SetTableValue(5021, 113 / 255.0, 128 / 255.0, 150 / 255.0, 255 / 255.0);
   lut->SetTableValue(5022, 113 / 255.0, 128 / 255.0, 150 / 255.0, 255 / 255.0);
 
-  vtkSmartPointer<vtkPiecewiseFunction> opacity =
-    vtkSmartPointer<vtkPiecewiseFunction>::New();
+  vtkSmartPointer<vtkPiecewiseFunction> opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
   const int numColors = lut->GetNumberOfAvailableColors();
@@ -408,20 +405,16 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   {
     lut->GetTableValue(i, color);
 
-    opacity->AddPoint(
-      value, color[3], midPoint, sharpness);
+    opacity->AddPoint(value, color[3], midPoint, sharpness);
 
-    colorTransferFunction->AddRGBPoint(
-      value, color[0], color[1], color[2], midPoint, sharpness);
+    colorTransferFunction->AddRGBPoint(value, color[0], color[1], color[2], midPoint, sharpness);
   }
 
-  vtkSmartPointer<vtkXMLImageDataReader> reader =
-    vtkSmartPointer<vtkXMLImageDataReader>::New();
-  char* filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hncma-atlas.vti");
+  vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
+  char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hncma-atlas.vti");
   reader->SetFileName(filename);
   reader->Update();
-  delete [] filename;
+  delete[] filename;
   filename = nullptr;
 
 #ifdef GPU_MAPPER
@@ -434,30 +427,25 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 
   volumeMapper->SetInputData(reader->GetOutput());
 
-  vtkSmartPointer<vtkVolumeProperty> volumeProperty =
-    vtkSmartPointer<vtkVolumeProperty>::New();
+  vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(opacity);
   volumeProperty->SetInterpolationTypeToNearest();
 
-  vtkSmartPointer<vtkVolume> volume =
-    vtkSmartPointer<vtkVolume>::New();
+  vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
 
-  vtkSmartPointer<vtkTransform> xf =
-    vtkSmartPointer<vtkTransform>::New();
+  vtkSmartPointer<vtkTransform> xf = vtkSmartPointer<vtkTransform>::New();
   xf->RotateY(-90.0);
   xf->RotateX(180);
   volume->SetUserTransform(xf);
 
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(400, 400);
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->AddVolume(volume);
   renderer->GetActiveCamera()->ParallelProjectionOn();
   renderer->GetActiveCamera()->SetFocalPoint(0, 0, -1);
@@ -472,7 +460,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
     vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
   iren->SetInteractorStyle(style);
   iren->SetRenderWindow(renderWindow);
-  renderWindow->Render();// make sure we have an OpenGL context.
+  renderWindow->Render(); // make sure we have an OpenGL context.
 
 #ifdef GPU_MAPPER
   int valid = volumeMapper->IsRenderSupported(renderWindow, volumeProperty);
@@ -497,6 +485,5 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
     cout << "Required extensions not supported." << endl;
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

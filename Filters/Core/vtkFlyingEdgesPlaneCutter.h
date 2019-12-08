@@ -44,7 +44,7 @@
  *
  * @sa
  * vtkFlyingEdges2D vtkFlyingEdges3D
-*/
+ */
 
 #ifndef vtkFlyingEdgesPlaneCutter_h
 #define vtkFlyingEdgesPlaneCutter_h
@@ -62,8 +62,8 @@ public:
   /**
    * Standard construction and print methods.
    */
-  static vtkFlyingEdgesPlaneCutter *New();
-  vtkTypeMacro(vtkFlyingEdgesPlaneCutter,vtkPolyDataAlgorithm);
+  static vtkFlyingEdgesPlaneCutter* New();
+  vtkTypeMacro(vtkFlyingEdgesPlaneCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -79,7 +79,7 @@ public:
    * instance of vtkPlane.
    */
   virtual void SetPlane(vtkPlane*);
-  vtkGetObjectMacro(Plane,vtkPlane);
+  vtkGetObjectMacro(Plane, vtkPlane);
   //@}
 
   //@{
@@ -87,9 +87,9 @@ public:
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. By default this is disabled.
    */
-  vtkSetMacro(ComputeNormals,vtkTypeBool);
-  vtkGetMacro(ComputeNormals,vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
   //@{
@@ -98,9 +98,9 @@ public:
    * scalars (which are required). That is, as the isosurface is generated,
    * interpolate all other point attribute data across intersected edges.
    */
-  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
+  vtkSetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkGetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
   //@}
 
   //@{
@@ -115,16 +115,14 @@ protected:
   vtkFlyingEdgesPlaneCutter();
   ~vtkFlyingEdgesPlaneCutter() override;
 
-  vtkPlane *Plane;
+  vtkPlane* Plane;
   vtkTypeBool ComputeNormals;
   vtkTypeBool InterpolateAttributes;
   int ArrayComponent;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) = delete;

@@ -21,78 +21,77 @@
 //#define WRITE_RESULT
 
 #include "vtkActor.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataPointSampler.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
-#include "vtkStripper.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataPointSampler.h"
 #include "vtkProperty.h"
-#include "vtkCamera.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkStripper.h"
+#include "vtkTestUtilities.h"
 
 int TestPolyDataPointSampler(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* renderer = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   // Create a generating polydata
-  vtkSphereSource *ss = vtkSphereSource::New();
+  vtkSphereSource* ss = vtkSphereSource::New();
   ss->SetPhiResolution(25);
   ss->SetThetaResolution(38);
   ss->SetCenter(4.5, 5.5, 5.0);
   ss->SetRadius(2.5);
 
   // Create multiple samplers to test different parts of the algorithm
-  vtkPolyDataPointSampler *sampler = vtkPolyDataPointSampler::New();
+  vtkPolyDataPointSampler* sampler = vtkPolyDataPointSampler::New();
   sampler->SetInputConnection(ss->GetOutputPort());
   sampler->SetDistance(0.05);
   sampler->GenerateInteriorPointsOn();
 
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(sampler->GetOutputPort());
 
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
 
-  vtkStripper *stripper = vtkStripper::New();
+  vtkStripper* stripper = vtkStripper::New();
   stripper->SetInputConnection(ss->GetOutputPort());
 
-  vtkPolyDataPointSampler *sampler2 = vtkPolyDataPointSampler::New();
+  vtkPolyDataPointSampler* sampler2 = vtkPolyDataPointSampler::New();
   sampler2->SetInputConnection(stripper->GetOutputPort());
   sampler2->SetDistance(0.05);
   sampler2->GenerateInteriorPointsOn();
 
-  vtkPolyDataMapper *mapper2 = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper2 = vtkPolyDataMapper::New();
   mapper2->SetInputConnection(sampler2->GetOutputPort());
 
-  vtkActor *actor2 = vtkActor::New();
+  vtkActor* actor2 = vtkActor::New();
   actor2->SetMapper(mapper2);
-  actor2->AddPosition(5.5,0,0);
-  actor2->GetProperty()->SetColor(0,1,0);
+  actor2->AddPosition(5.5, 0, 0);
+  actor2->GetProperty()->SetColor(0, 1, 0);
 
   // Add actors
   renderer->AddActor(actor);
   renderer->AddActor(actor2);
 
   // Standard testing code.
-  renWin->SetSize(500,250);
+  renWin->SetSize(500, 250);
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 0.3 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.3);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

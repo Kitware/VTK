@@ -16,12 +16,12 @@
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLImageDataReader.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
@@ -46,14 +46,13 @@ vtkImageData* vtkXMLPImageDataReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkImageData* vtkXMLPImageDataReader::GetOutput(int idx)
 {
-  return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkImageData::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkXMLPImageDataReader::GetPieceInput(int index)
 {
-  vtkXMLImageDataReader* reader =
-    static_cast<vtkXMLImageDataReader*>(this->PieceReaders[index]);
+  vtkXMLImageDataReader* reader = static_cast<vtkXMLImageDataReader*>(this->PieceReaders[index]);
   return reader->GetOutput();
 }
 
@@ -111,7 +110,7 @@ int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 //----------------------------------------------------------------------------
 // Note that any changes (add or removing information) made to this method
 // should be replicated in CopyOutputInformation
-void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
+void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation* outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
 
@@ -120,13 +119,11 @@ void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPImageDataReader::CopyOutputInformation(
-  vtkInformation *outInfo, int port)
+void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation* outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
 
-  vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation(port);
+  vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
   if (localInfo->Has(vtkDataObject::ORIGIN()))
   {
     outInfo->CopyEntry(localInfo, vtkDataObject::ORIGIN());

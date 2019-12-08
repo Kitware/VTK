@@ -16,21 +16,19 @@
 // .SECTION Description
 //
 
-
 #include "vtkSmartPointer.h"
 
 #include "vtkDICOMImageReader.h"
 
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-
-int TestDICOMImageReader(int argc, char *argv[])
+int TestDICOMImageReader(int argc, char* argv[])
 {
 
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <dicom file>" << endl;
     return 1;
@@ -38,8 +36,7 @@ int TestDICOMImageReader(int argc, char *argv[])
 
   std::string filename = argv[1];
 
-  vtkSmartPointer<vtkDICOMImageReader> DICOMReader =
-    vtkSmartPointer<vtkDICOMImageReader>::New();
+  vtkSmartPointer<vtkDICOMImageReader> DICOMReader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
   // Check the image can be read
   if (!DICOMReader->CanReadFile(filename.c_str()))
@@ -53,7 +50,7 @@ int TestDICOMImageReader(int argc, char *argv[])
   DICOMReader->Update();
 
   // Read and display the image properties
-  const char* fileExtensions = DICOMReader-> GetFileExtensions();
+  const char* fileExtensions = DICOMReader->GetFileExtensions();
   cout << "fileExtensions: " << fileExtensions << endl;
 
   const char* descriptiveName = DICOMReader->GetDescriptiveName();
@@ -104,15 +101,12 @@ int TestDICOMImageReader(int argc, char *argv[])
   float gantryAngle = DICOMReader->GetGantryAngle();
   cout << "gantryAngle: " << gantryAngle << endl;
 
-
   // Display the center slice
   int sliceNumber =
-    (DICOMReader->GetOutput()->GetExtent()[5] +
-     DICOMReader->GetOutput()->GetExtent()[4]) / 2;
+    (DICOMReader->GetOutput()->GetExtent()[5] + DICOMReader->GetOutput()->GetExtent()[4]) / 2;
 
   // Visualize
-  vtkSmartPointer<vtkImageViewer2> imageViewer =
-    vtkSmartPointer<vtkImageViewer2>::New();
+  vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInputConnection(DICOMReader->GetOutputPort());
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -124,7 +118,6 @@ int TestDICOMImageReader(int argc, char *argv[])
   imageViewer->Render();
 
   renderWindowInteractor->Start();
-
 
   return 0;
 }

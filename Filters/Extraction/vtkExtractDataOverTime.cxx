@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkExtractDataOverTime.h"
 
-#include "vtkPointSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkDoubleArray.h"
+#include "vtkPointSet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkExtractDataOverTime);
@@ -30,30 +30,25 @@ vtkExtractDataOverTime::vtkExtractDataOverTime()
   this->NumberOfTimeSteps = 0;
   this->CurrentTimeIndex = 0;
   this->PointIndex = 0;
-
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractDataOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Point Index: " << this->PointIndex << endl;
   os << indent << "NumberOfTimeSteps: " << this->NumberOfTimeSteps << endl;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkExtractDataOverTime::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkExtractDataOverTime::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    this->NumberOfTimeSteps =
-      inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   }
   else
   {
@@ -76,33 +71,30 @@ int vtkExtractDataOverTime::RequestInformation(
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
-                                           vtkInformationVector** inputVector,
-                                           vtkInformationVector* outputVector)
+vtkTypeBool vtkExtractDataOverTime::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
-  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  else if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     // get the requested update extent
-    double *inTimes = inputVector[0]->GetInformationObject(0)
-      ->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* inTimes =
+      inputVector[0]->GetInformationObject(0)->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (inTimes)
     {
       double timeReq = inTimes[this->CurrentTimeIndex];
-      inputVector[0]->GetInformationObject(0)->Set
-        ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-          timeReq);
+      inputVector[0]->GetInformationObject(0)->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
     }
     return 1;
   }
 
   // generate the data
-  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     if (this->NumberOfTimeSteps == 0)
     {
@@ -112,13 +104,11 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
 
     // get the output data object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkPointSet *output =
-      vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkPointSet* output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // and input data object
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    vtkPointSet *input =
-      vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // is this the first request
     if (!this->CurrentTimeIndex)
@@ -129,23 +119,22 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
     }
 
     // extract the actual data
-    output->GetPoints()->SetPoint( this->CurrentTimeIndex,
-      input->GetPoints()->GetPoint(this->PointIndex) );
-    output->GetPointData()->CopyData(input->GetPointData(), this->PointIndex,
-      this->CurrentTimeIndex);
+    output->GetPoints()->SetPoint(
+      this->CurrentTimeIndex, input->GetPoints()->GetPoint(this->PointIndex));
+    output->GetPointData()->CopyData(
+      input->GetPointData(), this->PointIndex, this->CurrentTimeIndex);
     if (input->GetPointData()->GetArray("Time"))
     {
-      output->GetPointData()->GetArray("TimeData")->SetTuple1
-        (this->CurrentTimeIndex,
-         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
+      output->GetPointData()
+        ->GetArray("TimeData")
+        ->SetTuple1(
+          this->CurrentTimeIndex, input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
     }
     else
     {
-      output->GetPointData()->GetArray("Time")->SetTuple1
-        (this->CurrentTimeIndex,
-         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
+      output->GetPointData()->GetArray("Time")->SetTuple1(
+        this->CurrentTimeIndex, input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
     }
-
 
     // increment the time index
     this->CurrentTimeIndex++;
@@ -162,7 +151,7 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *output)
+int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet* input, vtkPointSet* output)
 {
   // by default vtkPointSetAlgorithm::RequestDataObject already
   // created an output of the same type as the input
@@ -173,20 +162,20 @@ int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *
   }
 
   // 1st the points
-  vtkPoints *points = output->GetPoints();
+  vtkPoints* points = output->GetPoints();
   if (!points)
   {
     points = vtkPoints::New();
-    output->SetPoints( points );
+    output->SetPoints(points);
     points->Delete();
   }
-  points->SetNumberOfPoints( this->NumberOfTimeSteps );
+  points->SetNumberOfPoints(this->NumberOfTimeSteps);
 
   // now the point data
   output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfTimeSteps);
 
   // and finally add an array to hold the time at each step
-  vtkDoubleArray *timeArray = vtkDoubleArray::New();
+  vtkDoubleArray* timeArray = vtkDoubleArray::New();
   timeArray->SetNumberOfComponents(1);
   timeArray->SetNumberOfTuples(this->NumberOfTimeSteps);
   if (input->GetPointData()->GetArray("Time"))
@@ -202,5 +191,3 @@ int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *
 
   return 1;
 }
-
-

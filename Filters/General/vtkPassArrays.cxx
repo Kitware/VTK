@@ -37,26 +37,26 @@ vtkStandardNewMacro(vtkPassArrays);
 
 namespace
 {
-  // returns true if modified
-  typedef std::vector<std::pair<int, std::string> > ArraysType;
-  bool ClearArraysOfType(int type, ArraysType& arrays)
+// returns true if modified
+typedef std::vector<std::pair<int, std::string> > ArraysType;
+bool ClearArraysOfType(int type, ArraysType& arrays)
+{
+  bool retVal = false;
+  ArraysType::iterator iter = arrays.begin();
+  while (iter != arrays.end())
   {
-    bool retVal = false;
-    ArraysType::iterator iter = arrays.begin();
-    while (iter != arrays.end())
+    if (iter->first == type)
     {
-      if (iter->first == type)
-      {
-        iter = arrays.erase(iter);
-        retVal = true;
-      }
-      else
-      {
-        ++iter;
-      }
+      iter = arrays.erase(iter);
+      retVal = true;
     }
-    return retVal;
+    else
+    {
+      ++iter;
+    }
   }
+  return retVal;
+}
 }
 
 class vtkPassArrays::Internals
@@ -80,13 +80,13 @@ vtkPassArrays::~vtkPassArrays()
 
 void vtkPassArrays::AddArray(int fieldType, const char* name)
 {
-  if(!name)
+  if (!name)
   {
     vtkErrorMacro("name cannot be null.");
     return;
   }
-  std::string n=name;
-  this->Implementation->Arrays.push_back(std::make_pair(fieldType,n));
+  std::string n = name;
+  this->Implementation->Arrays.push_back(std::make_pair(fieldType, n));
   this->Modified();
 }
 
@@ -107,7 +107,7 @@ void vtkPassArrays::AddFieldDataArray(const char* name)
 
 void vtkPassArrays::RemoveArray(int fieldType, const char* name)
 {
-  if(!name)
+  if (!name)
   {
     vtkErrorMacro("name cannot be null.");
     return;
@@ -144,7 +144,7 @@ void vtkPassArrays::RemoveFieldDataArray(const char* name)
 
 void vtkPassArrays::ClearArrays()
 {
-  if(this->Implementation->Arrays.empty() == false)
+  if (this->Implementation->Arrays.empty() == false)
   {
     this->Modified();
   }
@@ -153,7 +153,7 @@ void vtkPassArrays::ClearArrays()
 
 void vtkPassArrays::ClearPointDataArrays()
 {
-  if(ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays) == true)
   {
     this->Modified();
   }
@@ -161,7 +161,7 @@ void vtkPassArrays::ClearPointDataArrays()
 
 void vtkPassArrays::ClearCellDataArrays()
 {
-  if(ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays) == true)
   {
     this->Modified();
   }
@@ -169,7 +169,7 @@ void vtkPassArrays::ClearCellDataArrays()
 
 void vtkPassArrays::ClearFieldDataArrays()
 {
-  if(ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays) == true)
   {
     this->Modified();
   }
@@ -188,13 +188,11 @@ void vtkPassArrays::ClearFieldTypes()
 }
 
 int vtkPassArrays::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the input and output objects
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -209,12 +207,12 @@ int vtkPassArrays::RequestData(
     {
       for (std::vector<int>::size_type i = 0; i < this->Implementation->FieldTypes.size(); ++i)
       {
-        if (vtkFieldData* outData = output->GetAttributesAsFieldData(
-              this->Implementation->FieldTypes[i]) )
+        if (vtkFieldData* outData =
+              output->GetAttributesAsFieldData(this->Implementation->FieldTypes[i]))
         {
           outData->Initialize();
-          if (vtkFieldData* inData = input->GetAttributesAsFieldData(
-                this->Implementation->FieldTypes[i]) )
+          if (vtkFieldData* inData =
+                input->GetAttributesAsFieldData(this->Implementation->FieldTypes[i]))
           {
             outData->AddArray(inData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
           }
@@ -225,12 +223,12 @@ int vtkPassArrays::RequestData(
     {
       for (ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
       {
-        if (vtkFieldData* outData = output->GetAttributesAsFieldData(
-              this->Implementation->Arrays[i].first) )
+        if (vtkFieldData* outData =
+              output->GetAttributesAsFieldData(this->Implementation->Arrays[i].first))
         {
           outData->Initialize();
-          if (vtkFieldData* inData = input->GetAttributesAsFieldData(
-                this->Implementation->Arrays[i].first) )
+          if (vtkFieldData* inData =
+                input->GetAttributesAsFieldData(this->Implementation->Arrays[i].first))
           {
             outData->AddArray(inData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
           }
@@ -246,10 +244,9 @@ int vtkPassArrays::RequestData(
     if (this->UseFieldTypes)
     {
       // Make sure this is a field type we are interested in
-      if (std::find(
-          this->Implementation->FieldTypes.begin(),
-          this->Implementation->FieldTypes.end(), it->first) ==
-          this->Implementation->FieldTypes.end())
+      if (std::find(this->Implementation->FieldTypes.begin(),
+            this->Implementation->FieldTypes.end(),
+            it->first) == this->Implementation->FieldTypes.end())
       {
         continue;
       }
@@ -294,13 +291,11 @@ int vtkPassArrays::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkPassArrays::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkPassArrays::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
@@ -317,6 +312,7 @@ int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid:");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
@@ -326,24 +322,22 @@ int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
 
 //----------------------------------------------------------------------------
 int vtkPassArrays::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
   {
     // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
+      vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
       {

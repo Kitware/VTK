@@ -18,13 +18,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationKey.h"
-#include "vtkInformationDoubleVectorKey.h"
-#include "vtkMultiBlockDataSet.h"
 
 vtkStandardNewMacro(vtkMultiTimeStepAlgorithm);
 
@@ -34,7 +34,7 @@ vtkInformationKeyMacro(vtkMultiTimeStepAlgorithm, UPDATE_TIME_STEPS, DoubleVecto
 // Instantiate object so that cell data is not passed to output.
 vtkMultiTimeStepAlgorithm::vtkMultiTimeStepAlgorithm()
 {
-  this->RequestUpdateIndex=0;
+  this->RequestUpdateIndex = 0;
   this->SetNumberOfInputPorts(1);
   this->CacheData = false;
   this->NumberOfCacheEntries = 1;
@@ -44,7 +44,7 @@ vtkMultiTimeStepAlgorithm::vtkMultiTimeStepAlgorithm()
 bool vtkMultiTimeStepAlgorithm::IsInCache(double time, size_t& idx)
 {
   std::vector<TimeCache>::iterator it = this->Cache.begin();
-  for(idx = 0; it != this->Cache.end(); ++it, ++idx)
+  for (idx = 0; it != this->Cache.end(); ++it, ++idx)
   {
     if (time == it->TimeValue)
     {
@@ -55,31 +55,28 @@ bool vtkMultiTimeStepAlgorithm::IsInCache(double time, size_t& idx)
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiTimeStepAlgorithm::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
 
-
   // set update extent
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
   {
     int retVal(1);
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    if(this->RequestUpdateIndex==0)
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    if (this->RequestUpdateIndex == 0)
     {
       retVal = this->RequestUpdateExtent(request, inputVector, outputVector);
 
-      double *upTimes =  inInfo->Get(UPDATE_TIME_STEPS());
-      int numUpTimes =  inInfo->Length(UPDATE_TIME_STEPS());
+      double* upTimes = inInfo->Get(UPDATE_TIME_STEPS());
+      int numUpTimes = inInfo->Length(UPDATE_TIME_STEPS());
       this->UpdateTimeSteps.clear();
-      for(int i=0; i<numUpTimes; i++)
+      for (int i = 0; i < numUpTimes; i++)
       {
         this->UpdateTimeSteps.push_back(upTimes[i]);
       }
@@ -87,10 +84,10 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     }
 
     size_t nTimeSteps = this->UpdateTimeSteps.size();
-    if(nTimeSteps > 0)
+    if (nTimeSteps > 0)
     {
       bool inCache = true;
-      for (size_t i=0; i<nTimeSteps; i++)
+      for (size_t i = 0; i < nTimeSteps; i++)
       {
         size_t idx;
         if (!this->IsInCache(this->UpdateTimeSteps[i], idx))
@@ -114,19 +111,19 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
   }
 
   // generate the data
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+  if (request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
   {
-    int retVal=1;
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    int retVal = 1;
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
-    if(this->UpdateTimeSteps.empty())
+    if (this->UpdateTimeSteps.empty())
     {
       vtkErrorMacro("No temporal data has been requested. ");
       return 0;
     }
 
-    if(this->RequestUpdateIndex==0) //first time step
+    if (this->RequestUpdateIndex == 0) // first time step
     {
       this->MDataSet = vtkSmartPointer<vtkMultiBlockDataSet>::New();
       this->MDataSet->SetNumberOfBlocks(static_cast<unsigned int>(this->UpdateTimeSteps.size()));
@@ -139,16 +136,15 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     size_t idx;
     if (!this->IsInCache(this->UpdateTimeSteps[this->RequestUpdateIndex], idx))
     {
-      this->Cache.push_back(
-        TimeCache(this->UpdateTimeSteps[this->RequestUpdateIndex], inDataCopy));
+      this->Cache.push_back(TimeCache(this->UpdateTimeSteps[this->RequestUpdateIndex], inDataCopy));
     }
 
     this->RequestUpdateIndex++;
 
     size_t nTimeSteps = this->UpdateTimeSteps.size();
-    if(this->RequestUpdateIndex==static_cast<int>(nTimeSteps)) // all the time steps are here
+    if (this->RequestUpdateIndex == static_cast<int>(nTimeSteps)) // all the time steps are here
     {
-      for (size_t i=0; i<nTimeSteps; i++)
+      for (size_t i = 0; i < nTimeSteps; i++)
       {
         if (this->IsInCache(this->UpdateTimeSteps[i], idx))
         {
@@ -161,12 +157,12 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
         }
       }
 
-      //change the input to the multiblock data and let child class to do the work
-      //make sure to set the input back to what it was to not break anything upstream
+      // change the input to the multiblock data and let child class to do the work
+      // make sure to set the input back to what it was to not break anything upstream
       inData->Register(this);
-      inInfo->Set(vtkDataObject::DATA_OBJECT(),this->MDataSet);
+      inInfo->Set(vtkDataObject::DATA_OBJECT(), this->MDataSet);
       retVal = this->RequestData(request, inputVector, outputVector);
-      inInfo->Set(vtkDataObject::DATA_OBJECT(),inData);
+      inInfo->Set(vtkDataObject::DATA_OBJECT(), inData);
       inData->Delete();
 
       this->UpdateTimeSteps.clear();
@@ -199,7 +195,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     // Upstream changed, clear the cache.
     this->Cache.clear();
@@ -209,9 +205,8 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkMultiTimeStepAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

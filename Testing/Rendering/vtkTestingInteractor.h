@@ -22,14 +22,14 @@
  * interaction.
  * @sa
  * vtkTestingObjectFactory
-*/
+ */
 
 #ifndef vtkTestingInteractor_h
 #define vtkTestingInteractor_h
 
-#include "vtkTestingRenderingModule.h" // For export macro
-#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTestingRenderingModule.h" // For export macro
 
 #include <string> // STL Header; Required for string
 
@@ -45,17 +45,17 @@ public:
   /**
    * Type and printing information.
    */
-  vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkTestingInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   void Start() override;
 
-  static int         TestReturnStatus;  // Return status of the test
-  static double      ErrorThreshold;    // Error Threshold
-  static std::string ValidBaseline;     // Name of the Baseline image
-  static std::string TempDirectory;     // Location of Testing/Temporary
-  static std::string DataDirectory;     // Location of VTKData
+  static int TestReturnStatus;      // Return status of the test
+  static double ErrorThreshold;     // Error Threshold
+  static std::string ValidBaseline; // Name of the Baseline image
+  static std::string TempDirectory; // Location of Testing/Temporary
+  static std::string DataDirectory; // Location of VTKData
 
 protected:
   vtkTestingInteractor() {}
@@ -63,7 +63,6 @@ protected:
 private:
   vtkTestingInteractor(const vtkTestingInteractor&) = delete;
   void operator=(const vtkTestingInteractor&) = delete;
-
 };
 
 #endif

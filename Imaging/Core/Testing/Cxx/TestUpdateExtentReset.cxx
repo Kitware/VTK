@@ -14,24 +14,24 @@
 =========================================================================*/
 #include <vtkColorTransferFunction.h>
 #include <vtkGlyph3D.h>
-#include <vtkImageData.h>
-#include <vtkImageReslice.h>
-#include <vtkImageMapToColors.h>
 #include <vtkImageAppendComponents.h>
+#include <vtkImageData.h>
+#include <vtkImageMapToColors.h>
+#include <vtkImageReslice.h>
 #include <vtkInformation.h>
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
-int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
+int TestUpdateExtentReset(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkImageData> img = vtkSmartPointer<vtkImageData>::New();
   img->SetDimensions(100, 100, 100);
   img->AllocateScalars(VTK_FLOAT, 1);
 
-  float *scalars = static_cast<float *>(img->GetScalarPointer());
-  vtkIdType n = 100*100*100;
+  float* scalars = static_cast<float*>(img->GetScalarPointer());
+  vtkIdType n = 100 * 100 * 100;
   for (vtkIdType i = 0; i < n; i++)
   {
     scalars[i] = 0.0;
@@ -41,18 +41,16 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   reslicer->SetInputData(img);
   reslicer->SetOutputExtent(0, 100, 0, 100, 0, 0);
 
-  vtkSmartPointer<vtkImageMapToColors> colors =
-    vtkSmartPointer<vtkImageMapToColors>::New();
+  vtkSmartPointer<vtkImageMapToColors> colors = vtkSmartPointer<vtkImageMapToColors>::New();
   colors->SetInputConnection(reslicer->GetOutputPort());
 
-  vtkSmartPointer<vtkColorTransferFunction> ctf =
-    vtkSmartPointer<vtkColorTransferFunction>::New();
+  vtkSmartPointer<vtkColorTransferFunction> ctf = vtkSmartPointer<vtkColorTransferFunction>::New();
   ctf->AddRGBPoint(0, 1., 0., 0.);
   colors->SetLookupTable(ctf);
 
   vtkSmartPointer<vtkImageAppendComponents> append =
     vtkSmartPointer<vtkImageAppendComponents>::New();
-  append->SetInputConnection(0 ,colors->GetOutputPort());
+  append->SetInputConnection(0, colors->GetOutputPort());
 
   colors->Update();
   append->Update();
@@ -76,9 +74,8 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   int combinedExtent[6];
   reslicer->GetExecutive()->GetOutputInformation(0)->Get(
     vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT(), combinedExtent);
-  if (combinedExtent[0] <= combinedExtent[1] ||
-      combinedExtent[2] <= combinedExtent[3] ||
-      combinedExtent[4] <= combinedExtent[5])
+  if (combinedExtent[0] <= combinedExtent[1] || combinedExtent[2] <= combinedExtent[3] ||
+    combinedExtent[4] <= combinedExtent[5])
   {
     return EXIT_FAILURE;
   }

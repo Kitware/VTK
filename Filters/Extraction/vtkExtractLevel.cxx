@@ -15,13 +15,13 @@
 #include "vtkExtractLevel.h"
 
 #include "vtkCompositeDataPipeline.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkOverlappingAMR.h"
 
 #include <set>
 #include <vector>
@@ -65,35 +65,34 @@ void vtkExtractLevel::RemoveAllLevels()
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractLevel::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info )
+int vtkExtractLevel::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(
-   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUniformGridAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractLevel::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+int vtkExtractLevel::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
 
-int vtkExtractLevel::RequestUpdateExtent(vtkInformation* , vtkInformationVector** inputVector,vtkInformationVector* )
+int vtkExtractLevel::RequestUpdateExtent(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Check if metadata are passed downstream
-  if( inInfo->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+  if (inInfo->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()))
   {
-    vtkOverlappingAMR *metadata = vtkOverlappingAMR::SafeDownCast(
+    vtkOverlappingAMR* metadata = vtkOverlappingAMR::SafeDownCast(
       inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
 
-    if(metadata)
+    if (metadata)
     {
-      // cout<<"Time dependent? "<<inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
+      // cout<<"Time dependent?
+      // "<<inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
       // std::cout<<"Receive Meta Data: ";
       // for(int levelIdx=0 ; levelIdx < metadata->GetNumberOfLevels(); ++levelIdx )
       //   {
@@ -104,20 +103,22 @@ int vtkExtractLevel::RequestUpdateExtent(vtkInformation* , vtkInformationVector*
       // std::cout<<endl;
 
       // Tell reader to load all requested blocks.
-      inInfo->Set( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1 );
+      inInfo->Set(vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1);
 
       // request the blocks
       std::vector<int> blocksToLoad;
-      for(vtkExtractLevel::vtkSet::iterator iter =this->Levels->begin(); iter!= this->Levels->end(); ++iter )
+      for (vtkExtractLevel::vtkSet::iterator iter = this->Levels->begin();
+           iter != this->Levels->end(); ++iter)
       {
         unsigned int level = (*iter);
-        for(unsigned int dataIdx=0;dataIdx < metadata->GetNumberOfDataSets(level);++dataIdx )
+        for (unsigned int dataIdx = 0; dataIdx < metadata->GetNumberOfDataSets(level); ++dataIdx)
         {
-          blocksToLoad.push_back(metadata->GetCompositeIndex(level,dataIdx));
+          blocksToLoad.push_back(metadata->GetCompositeIndex(level, dataIdx));
         }
       }
 
-      inInfo->Set( vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),&blocksToLoad[0], static_cast<int>(blocksToLoad.size()));
+      inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &blocksToLoad[0],
+        static_cast<int>(blocksToLoad.size()));
     }
   }
 
@@ -125,66 +126,63 @@ int vtkExtractLevel::RequestUpdateExtent(vtkInformation* , vtkInformationVector*
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractLevel::RequestData(
-    vtkInformation *vtkNotUsed(request),
-    vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector )
+int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // STEP 0: Get input object
 
-  vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
-  vtkUniformGridAMR *input =
-   vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if( input == nullptr )
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkUniformGridAMR* input =
+    vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (input == nullptr)
   {
-    return( 0 );
+    return (0);
   }
 
   // STEP 1: Get output object
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet *output =
-      vtkMultiBlockDataSet::SafeDownCast(
-          info->Get(vtkDataObject::DATA_OBJECT()));
-  if( output == nullptr )
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+  if (output == nullptr)
   {
-    return( 0 );
+    return (0);
   }
 
   // STEP 2: Compute the total number of blocks to be loaded
   unsigned int numBlocksToLoad = 0;
   vtkExtractLevel::vtkSet::iterator iter;
-  for( iter =this->Levels->begin(); iter != this->Levels->end(); ++iter )
+  for (iter = this->Levels->begin(); iter != this->Levels->end(); ++iter)
   {
     unsigned int level = (*iter);
     numBlocksToLoad += input->GetNumberOfDataSets(level);
   } // END for all requested levels
-  output->SetNumberOfBlocks( numBlocksToLoad );
+  output->SetNumberOfBlocks(numBlocksToLoad);
 
   // STEP 3: Load the blocks at the selected levels
-  if( numBlocksToLoad > 0 )
+  if (numBlocksToLoad > 0)
   {
     iter = this->Levels->begin();
     unsigned int blockIdx = 0;
-    for( ;iter != this->Levels->end(); ++iter )
+    for (; iter != this->Levels->end(); ++iter)
     {
-      unsigned int level   = (*iter);
+      unsigned int level = (*iter);
       unsigned int dataIdx = 0;
-      for(; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx )
+      for (; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx)
       {
-        vtkUniformGrid* data = input->GetDataSet(level,dataIdx);
-        if( data != nullptr )
+        vtkUniformGrid* data = input->GetDataSet(level, dataIdx);
+        if (data != nullptr)
         {
-          vtkUniformGrid *copy = data->NewInstance();
-          copy->ShallowCopy( data );
-          output->SetBlock( blockIdx, copy );
+          vtkUniformGrid* copy = data->NewInstance();
+          copy->ShallowCopy(data);
+          output->SetBlock(blockIdx, copy);
           copy->Delete();
           ++blockIdx;
         } // END if data is not nullptr
-      } // END for all data at level l
-    } // END for all requested levels
-  } // END if numBlocksToLoad is greater than 0
+      }   // END for all data at level l
+    }     // END for all requested levels
+  }       // END if numBlocksToLoad is greater than 0
 
-  return( 1 );
+  return (1);
 }
 
 //----------------------------------------------------------------------------
@@ -192,4 +190,3 @@ void vtkExtractLevel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

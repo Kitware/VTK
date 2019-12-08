@@ -1,10 +1,12 @@
-#[==[.md
-# `vtkModuleWrapPython`
+#[==[
+@defgroup module-wrapping-python Module Python CMake APIs
+#]==]
 
-This module includes logic necessary in order to wrap VTK modules using VTK's
-Python wrapping logic.
+#[==[
+@file vtkModuleWrapPython.cmake
+@brief APIs for wrapping modules for Python
 
-## Limitations
+@section Limitations
 
 Known limitations include:
 
@@ -18,16 +20,17 @@ Known limitations include:
     details.
 #]==]
 
-#[==[.md
-## Python module destination
+#[==[
+@ingroup module-wrapping-python
+@brief Determine Python module destination
 
-Some projects may need to know where VTK is going to place its Python modules
-in the installation directory. This function will provide it in a variable
-named as its first argument.
+Some projects may need to know where Python expects its modules to be placed in
+the install tree (assuming a shared prefix). This function computes the default
+and sets the passed variable to the value in the calling scope.
 
-```
+~~~
 vtk_module_python_default_destination(<var>)
-```
+~~~
 
 By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
 Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
@@ -50,16 +53,17 @@ function (vtk_module_python_default_destination var)
   set("${var}" "${destination}" PARENT_SCOPE)
 endfunction ()
 
-#[==[.md INTERNAL
-## Wrapping a single module
+#[==[
+@ingroup module-impl
+@brief Generate sources for using a module's classes from Python
 
 This function generates the wrapped sources for a module. It places the list of
 generated source files and classes in variables named in the second and third
 arguments, respectively.
 
-```
+~~~
 _vtk_module_wrap_python_sources(<module> <sources> <classes>)
-```
+~~~
 #]==]
 function (_vtk_module_wrap_python_sources module sources classes)
   _vtk_module_get_module_property("${module}"
@@ -90,12 +94,12 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
   if (_vtk_python_is_imported OR CMAKE_GENERATOR MATCHES "Ninja")
     set(_vtk_python_command_depend "${_vtk_python_hierarchy_file}")
   else ()
-    if (TARGET "${_vtk_python_target_name}-hierarchy")
-      set(_vtk_python_command_depend "${_vtk_python_target_name}-hierarchy")
+    if (TARGET "${_vtk_python_library_name}-hierarchy")
+      set(_vtk_python_command_depend "${_vtk_python_library_name}-hierarchy")
     else ()
       message(FATAL_ERROR
         "The ${module} hierarchy file is attached to a non-imported target "
-        "and a hierarchy target (${_vtk_python_target_name}-hierarchy) is "
+        "and a hierarchy target (${_vtk_python_library_name}-hierarchy) is "
         "missing.")
     endif ()
   endif ()
@@ -160,22 +164,23 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
     PARENT_SCOPE)
 endfunction ()
 
-#[==[.md INTERNAL
-## Generating a Python module library
+#[==[
+@ingroup module-impl
+@brief Generate a CPython library for a set of modules
 
-A Python module library may consist of the Python wrappings of multiple VTK
+A Python module library may consist of the Python wrappings of multiple
 modules. This is useful for kit-based builds where the modules part of the same
 kit belong to the same Python module as well.
 
-```
+~~~
 _vtk_module_wrap_python_library(<name> <module>...)
-```
+~~~
 
 The first argument is the name of the Python module. The remaining arguments
-are VTK modules to include in the Python module.
+are modules to include in the Python module.
 
 The remaining information it uses is assumed to be provided by the
-`vtk_module_wrap_python` function.
+@ref vtk_module_wrap_python function.
 #]==]
 function (_vtk_module_wrap_python_library name)
   set(_vtk_python_library_sources)
@@ -283,12 +288,20 @@ function (_vtk_module_wrap_python_library name)
       OUTPUT  "${_vtk_python_module_file}"
       CONTENT "${_vtk_python_module_contents}")
 
-    # TODO: Strip the `$<CONFIGURATION>` from the module destination for
-    # installs.
-    install(
-      FILES       "${_vtk_python_module_file}"
-      DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
-      COMPONENT   "${_vtk_python_COMPONENT}")
+    # Set `python_modules` to provide the list of python files that go along with
+    # this module
+    _vtk_module_set_module_property("${_vtk_python_module}" APPEND
+      PROPERTY  "python_modules"
+      VALUE     "${_vtk_python_module_file}")
+
+    if (NOT _vtk_python_BUILD_STATIC)
+      # TODO: Strip the `$<CONFIGURATION>` from the module destination for
+      # installs.
+      install(
+        FILES       "${_vtk_python_module_file}"
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
+        COMPONENT   "${_vtk_python_COMPONENT}")
+    endif ()
   endforeach ()
 
   if (NOT _vtk_python_library_sources)
@@ -337,7 +350,7 @@ function (_vtk_module_wrap_python_library name)
 "#ifndef ${name}_h
 #define ${name}_h
 
-#include <Python.h>
+#include <vtkPython.h>
 
 #ifdef __cplusplus
 extern \"C\" {
@@ -369,6 +382,9 @@ extern PyObject* PyInit_${name}();
     target_include_directories("${name}"
       INTERFACE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python>")
+    target_link_libraries("${name}"
+      PUBLIC
+        VTK::Python)
     set_property(TARGET "${name}"
       PROPERTY
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_python_STATIC_MODULE_DESTINATION}")
@@ -439,10 +455,11 @@ extern PyObject* PyInit_${name}();
     ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
 endfunction ()
 
-#[==[.md
-## Wrapping a set of VTK modules in Python
+#[==[
+@ingroup module-wrapping-python
+@brief Wrap a set of modules for use in Python
 
-```
+~~~
 vtk_module_wrap_python(
   MODULES <module>...
   [TARGET <target>]
@@ -450,6 +467,8 @@ vtk_module_wrap_python(
 
   [BUILD_STATIC <ON|OFF>]
   [INSTALL_HEADERS <ON|OFF>]
+
+  [DEPENDS <target>...]
 
   [MODULE_DESTINATION <destination>]
   [STATIC_MODULE_DESTINATION <destination>]
@@ -460,7 +479,7 @@ vtk_module_wrap_python(
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
-```
+~~~
 
   * `MODULES`: (Required) The list of modules to wrap.
   * `TARGET`: (Recommended) The target to create which represents all wrapped
@@ -479,6 +498,10 @@ vtk_module_wrap_python(
     the same function is provided, but it is a no-op.
   * `INSTALL_HEADERS` (Defaults to `ON`): If unset, CMake properties will not
     be installed.
+  * `DEPENDS`: This is list of other Python modules targets i.e. targets
+    generated from previous calls to `vtk_module_wrap_python` that this new
+    target depends on. This is used when `BUILD_STATIC` is true to ensure that
+    the `void <TARGET>_load()` is correctly called for each of the dependencies.
   * `MODULE_DESTINATION`: Modules will be placed in this location in the
     build tree. The install tree should remove `$<CONFIGURATION>` bits, but it
     currently does not. See `vtk_module_python_default_destination` for the
@@ -502,7 +525,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(_vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS"
     "MODULES"
     ${ARGN})
 
@@ -519,6 +542,12 @@ function (vtk_module_wrap_python)
   endif ()
 
   _vtk_module_split_module_name("${_vtk_python_TARGET}" _vtk_python)
+
+  set(_vtk_python_depends)
+  foreach (_dep IN LISTS _vtk_python_DEPENDS)
+    _vtk_module_split_module_name("${_dep}" _vtk_python_depends)
+    list(APPEND _vtk_python_depends ${_vtk_python_depends_TARGET_NAME})
+  endforeach ()
 
   if (NOT DEFINED _vtk_python_MODULE_DESTINATION)
     vtk_module_python_default_destination(_vtk_python_MODULE_DESTINATION)
@@ -606,7 +635,7 @@ function (vtk_module_wrap_python)
 
       list(APPEND CMAKE_INSTALL_RPATH
         "${_vtk_python_origin_rpath}")
-    endif()
+    endif ()
   endif ()
 
   set(_vtk_python_sorted_modules ${_vtk_python_MODULES})
@@ -689,24 +718,44 @@ function (vtk_module_wrap_python)
       endforeach ()
     endif ()
 
+    foreach (_dep IN LISTS _vtk_python_depends)
+      string(APPEND _vtk_python_all_modules_include_content
+        "#include \"${_dep}.h\"\n")
+    endforeach ()
+
     string(APPEND _vtk_python_all_modules_include_content
 "#if PY_VERSION_HEX < 0x03000000
-#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, init ## module)
+#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, init ## module)
+#define PY_IMPORT(module) init ## module();
 #else
-#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
+#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
+#define PY_IMPORT(module) { \\
+    PyObject* var_ ## module = PyInit_ ## module(); \\
+    PyDict_SetItemString(PyImport_GetModuleDict(), \"${_vtk_python_import_prefix}\" #module,var_ ## module); \\
+    Py_DECREF(var_ ## module); }
 #endif
+
+#define PY_APPEND_INIT_OR_IMPORT(module, do_import) \\
+  if (do_import) { PY_IMPORT(module); } else { PY_APPEND_INIT(module); }
 
 static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
+    foreach (_dep IN LISTS _vtk_python_depends)
+      string(APPEND _vtk_python_all_modules_include_content
+        "  ${_dep}_load();\n")
+    endforeach ()
+
     if (_vtk_python_BUILD_STATIC)
+      string(APPEND _vtk_python_all_modules_include_content
+        "  int do_import = Py_IsInitialized();\n")
       foreach (_vtk_python_module IN LISTS _vtk_python_all_modules)
         string(APPEND _vtk_python_all_modules_include_content
-          "  PY_IMPORT(${_vtk_python_module});\n")
+          "  PY_APPEND_INIT_OR_IMPORT(${_vtk_python_module}, do_import);\n")
       endforeach ()
     endif ()
 
     string(APPEND _vtk_python_all_modules_include_content
-      "}\n#endif\n")
+      "}\n#undef PY_APPEND_INIT\n#undef PY_IMPORT\n#undef PY_APPEND_INIT_OR_IMPORT\n#endif\n")
 
     # TODO: Install this header.
     file(GENERATE
@@ -719,22 +768,109 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         INTERFACE
           ${_vtk_python_all_modules})
     endif ()
+
+    if (_vtk_python_BUILD_STATIC)
+      # Next, we generate a Python module that can be imported to import any
+      # static artifacts e.g. all wrapping Python modules in static builds,
+      # (eventually, frozen modules etc.)
+      string(REPLACE "." "_" _vtk_python_static_importer_name "_${_vtk_python_PYTHON_PACKAGE}_static")
+      set(_vtk_python_static_importer_file
+        "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
+      set(_vtk_python_static_importer_content "// generated file, do not edit!
+#include <vtkPython.h>
+#include \"${_vtk_python_TARGET_NAME}.h\"
+
+  static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
+  {NULL, NULL, 0, NULL}};
+#if PY_VERSION_HEX >= 0x03000000
+  static PyModuleDef ${_vtk_python_static_importer_name}Module = {
+    PyModuleDef_HEAD_INIT,
+    \"${_vtk_python_static_importer_name}\", // m_name
+    \"module to import static components for ${_vtk_python_TARGET_NAME}\", // m_doc
+    0, // m_size
+    Py${_vtk_python_static_importer_name}_Methods, // m_methods
+    NULL, // m_reload
+    NULL, // m_traverse
+    NULL, // m_clear
+    NULL  // m_free
+  };
+#endif
+
+#if PY_VERSION_HEX >= 0x03000000
+  PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}(void)
+#else
+  PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
+#endif
+  {
+    // since this gets called after `Py_Initialize`, this will import the static
+    // modules and not just update the init table.
+    ${_vtk_python_TARGET_NAME}_load();
+#if PY_VERSION_HEX >= 0x03000000
+    return PyModule_Create(&${_vtk_python_static_importer_name}Module);
+#else
+    Py_InitModule(\"${_vtk_python_static_importer_name}\", Py${_vtk_python_static_importer_name}_Methods);
+#endif
+  }\n")
+
+      # TODO: Install this header.
+      file(GENERATE
+        OUTPUT  "${_vtk_python_static_importer_file}"
+        CONTENT "${_vtk_python_static_importer_content}")
+
+      add_library("${_vtk_python_static_importer_name}" MODULE
+        ${_vtk_python_static_importer_file})
+      if (WIN32 AND NOT CYGWIN)
+        set_property(TARGET "${_vtk_python_static_importer_name}"
+          PROPERTY
+            SUFFIX ".pyd")
+      endif()
+      set_property(TARGET "${_vtk_python_static_importer_name}"
+        PROPERTY
+          LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}")
+      get_property(_vtk_python_is_multi_config GLOBAL
+        PROPERTY GENERATOR_IS_MULTI_CONFIG)
+      if (_vtk_python_is_multi_config)
+        # XXX(MultiNinja): This isn't going to work in general since MultiNinja
+        # will error about overlapping output paths.
+        foreach (_vtk_python_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+          string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
+          set_property(TARGET "${_vtk_python_static_importer_name}"
+            PROPERTY
+              "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}")
+        endforeach ()
+      endif ()
+      set_property(TARGET "${_vtk_python_static_importer_name}"
+        PROPERTY
+          PREFIX "")
+      target_link_libraries("${_vtk_python_static_importer_name}"
+        PRIVATE
+          ${_vtk_python_TARGET_NAME}
+          VTK::WrappingPythonCore
+          VTK::Python)
+      install(
+        TARGETS             "${_vtk_python_static_importer_name}"
+        COMPONENT           "${_vtk_python_COMPONENT}"
+        RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}"
+        LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
+        ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
+    endif () # if (_vtk_python_BUILD_STATIC)
   endif ()
 endfunction ()
 
-#[==[.md
-## Python packages
+#[==[
+@ingroup module-wrapping-python
+@brief Install Python packages with a module
 
 Some modules may have associated Python code. This function should be used to
 install them.
 
-```
+~~~
 vtk_module_add_python_package(<module>
   PACKAGE <package>
   FILES <files>...
   [MODULE_DESTINATION <destination>]
   [COMPONENT <component>])
-```
+~~~
 
 The `<module>` argument must match the associated VTK module that the package
 is with. Each package is independent and should be installed separately. That
@@ -757,13 +893,11 @@ function.
 A `<module>-<package>` target is created which ensures that all Python modules
 have been copied to the correct location in the build tree.
 
-### TODO items
+@todo Support a tree of modules with a single call.
 
-  - [ ] Support a tree of modules with a single call.
-  - [ ] Support freezing the Python package. This should create a header and
-    the associated target should provide an interface for including this
-    header. The target should then be exported and the header installed
-    properly.
+@todo Support freezing the Python package. This should create a header and the
+associated target should provide an interface for including this header. The
+target should then be exported and the header installed properly.
 #]==]
 function (vtk_module_add_python_package name)
   if (NOT name STREQUAL _vtk_build_module)
@@ -826,11 +960,13 @@ function (vtk_module_add_python_package name)
       COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
     list(APPEND _vtk_add_python_package_file_outputs
       "${_vtk_add_python_package_file_output}")
-
-    install(
-      FILES       "${_vtk_add_python_package_name}"
-      DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
-      COMPONENT   "${_vtk_add_python_package_COMPONENT}")
+    # XXX
+    if (BUILD_SHARED_LIBS)
+      install(
+        FILES       "${_vtk_add_python_package_name}"
+        DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
+        COMPONENT   "${_vtk_add_python_package_COMPONENT}")
+    endif()
   endforeach ()
 
   get_property(_vtk_add_python_package_module GLOBAL
@@ -838,21 +974,28 @@ function (vtk_module_add_python_package name)
   add_custom_target("${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}" ALL
     DEPENDS
       ${_vtk_add_python_package_file_outputs})
+
+  # Set `python_modules` to provide the list of python files that go along with
+  # this module
+  set_property(TARGET "${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}"
+    PROPERTY
+      "python_modules" "${_vtk_add_python_package_file_outputs}")
 endfunction ()
 
-#[==[.md
-## Pure Python modules
+#[==[
+@ingroup module-wrapping-python
+@brief Use a Python package as a module
 
-If a VTK module is a Python package, this function should be used instead of
-`vtk_module_add_module`.
+If a module is a Python package, this function should be used instead of
+@ref vtk_module_add_module.
 
-```
+~~~
 vtk_module_add_python_module(<name>
   PACKAGES <packages>...)
-```
+~~~
 
-  * `PACKAGES`: (Required) The list of packages installed by this VTK module.
-    These must have been created by the `vtk_module_add_python_package`
+  * `PACKAGES`: (Required) The list of packages installed by this module.
+    These must have been created by the @ref vtk_module_add_python_package
     function.
 #]==]
 function (vtk_module_add_python_module name)
@@ -881,14 +1024,22 @@ function (vtk_module_add_python_module name)
   target_link_libraries("${_vtk_add_python_module_target_name}"
     INTERFACE
       ${_vtk_add_python_module_depends})
-  foreach (_vtk_add_python_module_package IN LISTS _vtk_add_python_module_PACKAGES)
-    add_dependencies("${_vtk_add_python_module_target_name}"
-      "${_vtk_build_module}-${_vtk_add_python_module_package}")
-  endforeach ()
   if (NOT _vtk_build_module STREQUAL _vtk_add_python_module_target_name)
     add_library("${_vtk_build_module}" ALIAS
       "${_vtk_add_python_module_target_name}")
   endif ()
+  foreach (_vtk_add_python_module_package IN LISTS _vtk_add_python_module_PACKAGES)
+    add_dependencies("${_vtk_add_python_module_target_name}"
+      "${_vtk_build_module}-${_vtk_add_python_module_package}")
+
+    # get the list of python files and add them on the module.
+    get_property(_vtk_module_python_modules
+      TARGET "${_vtk_add_python_module_target_name}-${_vtk_add_python_module_package}"
+      PROPERTY "python_modules")
+    _vtk_module_set_module_property("${_vtk_build_module}" APPEND
+      PROPERTY  "python_modules"
+      VALUE     "${_vtk_module_python_modules}")
+  endforeach ()
 
   _vtk_module_apply_properties("${_vtk_add_python_module_target_name}")
   _vtk_module_install("${_vtk_add_python_module_target_name}")

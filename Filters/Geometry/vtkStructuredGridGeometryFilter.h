@@ -39,7 +39,7 @@
  *
  * @sa
  * vtkGeometryFilter vtkExtractGrid vtkStructuredGrid
-*/
+ */
 
 #ifndef vtkStructuredGridGeometryFilter_h
 #define vtkStructuredGridGeometryFilter_h
@@ -50,8 +50,8 @@
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkStructuredGridGeometryFilter *New();
-  vtkTypeMacro(vtkStructuredGridGeometryFilter,vtkPolyDataAlgorithm);
+  static vtkStructuredGridGeometryFilter* New();
+  vtkTypeMacro(vtkStructuredGridGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -59,7 +59,7 @@ public:
    * Get the extent in topological coordinate range (imin,imax, jmin,jmax,
    * kmin,kmax).
    */
-  vtkGetVectorMacro(Extent,int,6);
+  vtkGetVectorMacro(Extent, int, 6);
   //@}
 
   /**
@@ -76,16 +76,15 @@ protected:
   vtkStructuredGridGeometryFilter();
   ~vtkStructuredGridGeometryFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int Extent[6];
+
 private:
   vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) = delete;
   void operator=(const vtkStructuredGridGeometryFilter&) = delete;
 };
 
 #endif
-
-

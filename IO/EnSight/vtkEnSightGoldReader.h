@@ -35,21 +35,20 @@
  * and variables).
  * @par Thanks:
  * Thanks to Yvan Fournier for providing the code to support nfaced elements.
-*/
+ */
 
 #ifndef vtkEnSightGoldReader_h
 #define vtkEnSightGoldReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
-
+#include "vtkIOEnSightModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
-  static vtkEnSightGoldReader *New();
+  static vtkEnSightGoldReader* New();
   vtkTypeMacro(vtkEnSightGoldReader, vtkEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -60,104 +59,94 @@ protected:
   /**
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
-  int ReadGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) override;
+  int ReadGeometryFile(const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
-  int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) override;
+  int ReadMeasuredGeometryFile(
+    const char* fileName, int timeStep, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one component in
    * the data array, it is assumed that 0 is the first component added.
    */
-  int ReadScalarsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0,
-    int numberOfComponents = 1,
+  int ReadScalarsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0, int numberOfComponents = 1,
     int component = 0) override;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0) override;
+  int ReadVectorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0) override;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one componenet in the
    * data array, it is assumed that 0 is the first component added.
    */
-  int ReadScalarsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output,
-    int numberOfComponents = 1,
-    int component = 0) override;
+  int ReadScalarsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int numberOfComponents = 1, int component = 0) override;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadVectorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadVectorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  int ReadTensorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) override;
+  int ReadTensorsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output) override;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
    * vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
    * an error occurred.
    */
-  int CreateUnstructuredGridOutput(int partId,
-    char line[256],
-    const char* name,
-    vtkMultiBlockDataSet *output) override;
+  int CreateUnstructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGrid output.  Return 0 if EOF reached.
    */
-  int CreateStructuredGridOutput(int partId,
-    char line[256],
-    const char* name,
-    vtkMultiBlockDataSet *output) override;
+  int CreateStructuredGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkRectilinearGrid output.  Return 0 if EOF reached.
    */
-  int CreateRectilinearGridOutput(int partId, char line[256], const char* name,
-    vtkMultiBlockDataSet *output);
+  int CreateRectilinearGridOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkImageData output.  Return 0 if EOF reached.
    */
-  int CreateImageDataOutput(int partId, char line[256], const char* name,
-    vtkMultiBlockDataSet *output);
+  int CreateImageDataOutput(
+    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
 
   /**
    * Skip next line in file if the 'undef' or 'partial' keyword was
    * specified after a sectional keyword
    */
-  int CheckForUndefOrPartial(const char *line);
+  int CheckForUndefOrPartial(const char* line);
 
   int NodeIdsListed;
   int ElementIdsListed;
@@ -169,7 +158,7 @@ protected:
   UndefPartialInternal* UndefPartial;
 
   class FileOffsetMapInternal;
-  FileOffsetMapInternal *FileOffsets;
+  FileOffsetMapInternal* FileOffsets;
 
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&) = delete;

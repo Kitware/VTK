@@ -14,18 +14,17 @@
 =========================================================================*/
 #include "vtkTransmitStructuredDataPiece.h"
 
+#include "vtkDataSet.h"
+#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSet.h"
-#include "vtkExtentTranslator.h"
 
 vtkStandardNewMacro(vtkTransmitStructuredDataPiece);
 
-vtkCxxSetObjectMacro(vtkTransmitStructuredDataPiece,Controller,
-                     vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkTransmitStructuredDataPiece, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkTransmitStructuredDataPiece::vtkTransmitStructuredDataPiece()
@@ -43,10 +42,8 @@ vtkTransmitStructuredDataPiece::~vtkTransmitStructuredDataPiece()
 }
 
 //----------------------------------------------------------------------------
-int vtkTransmitStructuredDataPiece::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTransmitStructuredDataPiece::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (this->Controller)
   {
@@ -64,16 +61,14 @@ int vtkTransmitStructuredDataPiece::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkTransmitStructuredDataPiece::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkTransmitStructuredDataPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   if (this->Controller)
   {
     if (this->Controller->GetLocalProcessId() > 0)
     {
-      int wExt[6] = {0, -1, 0, -1, 0, -1};
+      int wExt[6] = { 0, -1, 0, -1, 0, -1 };
       inputVector[0]->GetInformationObject(0)->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wExt, 6);
     }
@@ -82,13 +77,11 @@ int vtkTransmitStructuredDataPiece::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-int vtkTransmitStructuredDataPiece::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTransmitStructuredDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet *output = vtkDataSet::GetData(outputVector);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
   int procId;
 
@@ -101,7 +94,7 @@ int vtkTransmitStructuredDataPiece::RequestData(
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
   {
-    vtkDataSet *input = vtkDataSet::GetData(inputVector[0]);
+    vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
     this->RootExecute(input, output, outInfo);
   }
   else
@@ -113,16 +106,16 @@ int vtkTransmitStructuredDataPiece::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
-                                                 vtkDataSet *output,
-                                                 vtkInformation *outInfo)
+void vtkTransmitStructuredDataPiece::RootExecute(
+  vtkDataSet* input, vtkDataSet* output, vtkInformation* outInfo)
 {
-  vtkDataSet *tmp = input->NewInstance();
+  vtkDataSet* tmp = input->NewInstance();
   int numProcs, i;
 
   int updatePiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int updateNumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  int updatedGhost = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int updatedGhost =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   if (!this->CreateGhostCells)
   {
     updatedGhost = 0;
@@ -132,8 +125,8 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
   vtkExtentTranslator* et = vtkExtentTranslator::New();
 
   int newExt[6];
-  et->PieceToExtentThreadSafe(updatePiece, updateNumPieces, updatedGhost,
-                              wholeExt, newExt, vtkExtentTranslator::BLOCK_MODE, 0);
+  et->PieceToExtentThreadSafe(updatePiece, updateNumPieces, updatedGhost, wholeExt, newExt,
+    vtkExtentTranslator::BLOCK_MODE, 0);
   output->ShallowCopy(input);
   output->Crop(newExt);
 
@@ -141,8 +134,8 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
   {
     // Create ghost array
     int zeroExt[6];
-    et->PieceToExtentThreadSafe(updatePiece, updateNumPieces, 0,
-                                wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
+    et->PieceToExtentThreadSafe(
+      updatePiece, updateNumPieces, 0, wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
     output->GenerateGhostArray(zeroExt);
   }
 
@@ -151,8 +144,8 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
   {
     int updateInfo[3];
     this->Controller->Receive(updateInfo, 3, i, 22341);
-    et->PieceToExtentThreadSafe(updateInfo[0], updateInfo[1], updateInfo[2],
-                                wholeExt, newExt, vtkExtentTranslator::BLOCK_MODE, 0);
+    et->PieceToExtentThreadSafe(updateInfo[0], updateInfo[1], updateInfo[2], wholeExt, newExt,
+      vtkExtentTranslator::BLOCK_MODE, 0);
     tmp->ShallowCopy(input);
     tmp->Crop(newExt);
 
@@ -160,26 +153,27 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
     {
       // Create ghost array
       int zeroExt[6];
-      et->PieceToExtentThreadSafe(updateInfo[0], updateInfo[1], 0,
-                                  wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
+      et->PieceToExtentThreadSafe(
+        updateInfo[0], updateInfo[1], 0, wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
       tmp->GenerateGhostArray(zeroExt);
     }
 
     this->Controller->Send(tmp, i, 22342);
   }
 
-  //clean up the structures we've used here
+  // clean up the structures we've used here
   tmp->Delete();
   et->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkTransmitStructuredDataPiece::SatelliteExecute(
-  int, vtkDataSet *output, vtkInformation *outInfo)
+  int, vtkDataSet* output, vtkInformation* outInfo)
 {
   int updatePiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int updateNumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  int updatedGhost = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int updatedGhost =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   if (!this->CreateGhostCells)
   {
     updatedGhost = 0;
@@ -192,17 +186,16 @@ void vtkTransmitStructuredDataPiece::SatelliteExecute(
 
   this->Controller->Send(updateInfo, 3, 0, 22341);
 
-  //receive root's response
+  // receive root's response
   this->Controller->Receive(output, 0, 22342);
 }
 
 //----------------------------------------------------------------------------
 void vtkTransmitStructuredDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 
   os << indent << "Controller: (" << this->Controller << ")\n";
-
 }

@@ -15,36 +15,36 @@
 =========================================================================*/
 
 #ifdef _MSC_VER
-#pragma warning ( disable : 4514 )
-#pragma warning ( disable : 4710 )
-#pragma warning ( push, 3 )
+#pragma warning(disable : 4514)
+#pragma warning(disable : 4710)
+#pragma warning(push, 3)
 #endif
 
-#include "DICOMConfig.h"
 #include "DICOMFile.h"
+#include "DICOMConfig.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <string>
 
-DICOMFile::DICOMFile() : InputStream()
+DICOMFile::DICOMFile()
+  : InputStream()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
-  union
-  {
+  union {
     long l;
-    char c[sizeof (long)];
+    char c[sizeof(long)];
   } u;
   u.l = 1;
-  PlatformIsBigEndian = (u.c[sizeof (long) - 1] == 1);
+  PlatformIsBigEndian = (u.c[sizeof(long) - 1] == 1);
   if (PlatformIsBigEndian)
-    {
+  {
     PlatformEndian = "BigEndian";
-    }
+  }
   else
-    {
+  {
     PlatformEndian = "LittleEndian";
-    }
+  }
 }
 
 DICOMFile::~DICOMFile()
@@ -55,13 +55,13 @@ DICOMFile::~DICOMFile()
 DICOMFile::DICOMFile(const DICOMFile& in)
 {
   if (strcmp(in.PlatformEndian, "LittleEndian") == 0)
-    {
+  {
     PlatformEndian = "LittleEndian";
-    }
+  }
   else
-    {
+  {
     PlatformEndian = "BigEndian";
-    }
+  }
   //
   // Some compilers can't handle. Comment out for now.
   //
@@ -71,13 +71,13 @@ DICOMFile::DICOMFile(const DICOMFile& in)
 void DICOMFile::operator=(const DICOMFile& in)
 {
   if (strcmp(in.PlatformEndian, "LittleEndian") == 0)
-    {
+  {
     PlatformEndian = "LittleEndian";
-    }
+  }
   else
-    {
+  {
     PlatformEndian = "BigEndian";
-    }
+  }
   //
   // Some compilers can't handle. Comment out for now.
   //
@@ -92,15 +92,15 @@ bool DICOMFile::Open(const dicom_stl::string& filename)
   InputStream.open(filename.c_str(), dicom_stream::ios::in);
 #endif
 
-  //if (InputStream.is_open())
+  // if (InputStream.is_open())
   if (InputStream.rdbuf()->is_open())
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 void DICOMFile::Close()
@@ -124,7 +124,7 @@ long DICOMFile::GetSize()
 {
   long curpos = this->Tell();
 
-  InputStream.seekg(0,dicom_stream::ios::end);
+  InputStream.seekg(0, dicom_stream::ios::end);
 
   long size = this->Tell();
   // dicom_stream::cout << "Tell says size is: " << size << dicom_stream::endl;
@@ -153,50 +153,50 @@ doublebyte DICOMFile::ReadDoubleByte()
 {
   doublebyte sh = 0;
   int sz = sizeof(doublebyte);
-  this->Read(reinterpret_cast<char*>(&sh),sz);
+  this->Read(reinterpret_cast<char*>(&sh), sz);
   if (PlatformIsBigEndian)
-    {
+  {
     sh = swap2(sh);
-    }
-  return(sh);
+  }
+  return (sh);
 }
 
 doublebyte DICOMFile::ReadDoubleByteAsLittleEndian()
 {
   doublebyte sh = 0;
   int sz = sizeof(doublebyte);
-  this->Read(reinterpret_cast<char*>(&sh),sz);
+  this->Read(reinterpret_cast<char*>(&sh), sz);
   if (PlatformIsBigEndian)
-    {
+  {
     sh = swap2(sh);
-    }
-  return(sh);
+  }
+  return (sh);
 }
 
 quadbyte DICOMFile::ReadQuadByte()
 {
   quadbyte sh;
   int sz = sizeof(quadbyte);
-  this->Read(reinterpret_cast<char*>(&sh),sz);
+  this->Read(reinterpret_cast<char*>(&sh), sz);
   if (PlatformIsBigEndian)
-    {
+  {
     sh = static_cast<quadbyte>(swap4(static_cast<uint>(sh)));
-    }
-  return(sh);
+  }
+  return (sh);
 }
 
 quadbyte DICOMFile::ReadNBytes(int len)
 {
   quadbyte ret = -1;
   switch (len)
-    {
+  {
     case 1:
       char ch;
-      this->Read(&ch,1);  //from Image
-      ret =static_cast<quadbyte>(ch);
+      this->Read(&ch, 1); // from Image
+      ret = static_cast<quadbyte>(ch);
       break;
     case 2:
-      ret =static_cast<quadbyte>(ReadDoubleByte());
+      ret = static_cast<quadbyte>(ReadDoubleByte());
       break;
     case 4:
       ret = ReadQuadByte();
@@ -204,17 +204,16 @@ quadbyte DICOMFile::ReadNBytes(int len)
     default:
       dicom_stream::cerr << "Unable to read " << len << " bytes" << dicom_stream::endl;
       break;
-    }
+  }
   return (ret);
 }
 
 float DICOMFile::ReadAsciiFloat(int len)
 {
-  float ret=0.0;
+  float ret = 0.0;
 
-
-  char* val = new char[len+1];
-  this->Read(val,len);
+  char* val = new char[len + 1];
+  this->Read(val, len);
   val[len] = '\0';
 
 #if 0
@@ -229,21 +228,21 @@ float DICOMFile::ReadAsciiFloat(int len)
   data >> ret;
   delete [] val2;
 #else
-  sscanf(val,"%e",&ret);
+  sscanf(val, "%e", &ret);
 #endif
 
   dicom_stream::cout << "Read ASCII float: " << ret << dicom_stream::endl;
 
-  delete [] val;
+  delete[] val;
   return (ret);
 }
 
 int DICOMFile::ReadAsciiInt(int len)
 {
-  int ret=0;
+  int ret = 0;
 
-  char* val = new char[len+1];
-  this->Read(val,len);
+  char* val = new char[len + 1];
+  this->Read(val, len);
   val[len] = '\0';
 
 #if 0
@@ -258,21 +257,21 @@ int DICOMFile::ReadAsciiInt(int len)
   data >> ret;
   delete [] val2;
 #else
-  sscanf(val,"%d",&ret);
+  sscanf(val, "%d", &ret);
 #endif
 
   dicom_stream::cout << "Read ASCII int: " << ret << dicom_stream::endl;
 
-  delete [] val;
+  delete[] val;
   return (ret);
 }
 
 char* DICOMFile::ReadAsciiCharArray(int len)
 {
   if (len <= 0)
-    {
+  {
     return nullptr;
-    }
+  }
   char* val = new char[len + 1];
   this->Read(val, len);
   val[len] = 0; // NULL terminate.
@@ -280,5 +279,5 @@ char* DICOMFile::ReadAsciiCharArray(int len)
 }
 
 #ifdef _MSC_VER
-#pragma warning ( pop )
+#pragma warning(pop)
 #endif

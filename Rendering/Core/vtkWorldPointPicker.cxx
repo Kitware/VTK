@@ -25,13 +25,13 @@ vtkWorldPointPicker::vtkWorldPointPicker() = default;
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
-                              double selectionZ, vtkRenderer *renderer)
+int vtkWorldPointPicker::Pick(
+  double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer)
 {
-  vtkCamera *camera;
+  vtkCamera* camera;
   double cameraFP[4];
   double display[3], *world;
-  double *displayCoord;
+  double* displayCoord;
   double z;
 
   // Initialize the picking process
@@ -42,10 +42,9 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   this->SelectionPoint[2] = selectionZ;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
+  this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
-  z = renderer->GetZ (static_cast<int>(selectionX),
-                      static_cast<int>(selectionY));
+  z = renderer->GetZ(static_cast<int>(selectionX), static_cast<int>(selectionY));
 
   // if z is 1.0, we assume the user has picked a point on the
   // screen that has not been rendered into. Use the camera's focal
@@ -62,9 +61,10 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
     // Get camera focal point and position. Convert to display (screen)
     // coordinates. We need a depth value for z-buffer.
     camera = renderer->GetActiveCamera();
-    camera->GetFocalPoint(cameraFP); cameraFP[3] = 1.0;
+    camera->GetFocalPoint(cameraFP);
+    cameraFP[3] = 1.0;
 
-    renderer->SetWorldPoint(cameraFP[0],cameraFP[1],cameraFP[2],cameraFP[3]);
+    renderer->SetWorldPoint(cameraFP[0], cameraFP[1], cameraFP[2], cameraFP[3]);
     renderer->WorldToDisplay();
     displayCoord = renderer->GetDisplayPoint();
     selectionZ = displayCoord[2];
@@ -76,22 +76,22 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   display[1] = selectionY;
   display[2] = selectionZ;
 
-  renderer->SetDisplayPoint (display);
-  renderer->DisplayToWorld ();
-  world = renderer->GetWorldPoint ();
+  renderer->SetDisplayPoint(display);
+  renderer->DisplayToWorld();
+  world = renderer->GetWorldPoint();
 
-  for (int i=0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     this->PickPosition[i] = world[i] / world[3];
   }
 
   // Invoke end pick method if defined
-  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
 
   return 0;
 }
 
 void vtkWorldPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

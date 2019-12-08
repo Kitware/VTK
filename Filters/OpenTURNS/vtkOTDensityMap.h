@@ -20,7 +20,7 @@
  * The Output will be a MultiBlock of table, each table containing
  * X and Y coordinate of a density map line.
  *
-*/
+ */
 
 #ifndef vtkOTDensityMap_h
 #define vtkOTDensityMap_h
@@ -120,8 +120,7 @@ public:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -145,23 +144,15 @@ protected:
    * up is an input, allowing to specify the direction to follow. In any case, if the
    * next cell id cannot be found in this direction, the other direction will be tried, this is the
    * case where we consider the cell points are inverted.
-   * currentPointIndices is an optional output, if != nullptr, the current cell points will be stored
-   * in.
+   * currentPointIndices is an optional output, if != nullptr, the current cell points will be
+   * stored in.
    */
-  virtual vtkIdType FindNextCellId(vtkPolyData* pd,
-    vtkIdType cellId,
-    vtkIdType previousCellId,
-    bool& invertedPoints,
-    bool up = true,
-    vtkIdList* currentPointIndices = nullptr);
+  virtual vtkIdType FindNextCellId(vtkPolyData* pd, vtkIdType cellId, vtkIdType previousCellId,
+    bool& invertedPoints, bool up = true, vtkIdList* currentPointIndices = nullptr);
 
   void ClearCache();
-  void BuildContours(vtkPolyData* contourPd,
-    int numContours,
-    const double* contourValues,
-    const double* densityPDFContourValues,
-    const char* xArrayName,
-    const char* yArrayName,
+  void BuildContours(vtkPolyData* contourPd, int numContours, const double* contourValues,
+    const double* densityPDFContourValues, const char* xArrayName, const char* yArrayName,
     std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap);
 
   // Cache

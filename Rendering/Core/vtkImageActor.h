@@ -26,30 +26,29 @@
  *
  * @sa
  * vtkImageData vtkImageSliceMapper vtkImageProperty
-*/
+ */
 
 #ifndef vtkImageActor_h
 #define vtkImageActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageSlice.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAlgorithm;
 class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
 
-
 class VTKRENDERINGCORE_EXPORT vtkImageActor : public vtkImageSlice
 {
 public:
-  vtkTypeMacro(vtkImageActor,vtkImageSlice);
+  vtkTypeMacro(vtkImageActor, vtkImageSlice);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate the image actor.
    */
-  static vtkImageActor *New();
+  static vtkImageActor* New();
 
   //@{
   /**
@@ -57,8 +56,8 @@ public:
    * backwards compatibility, for a proper pipeline connection you
    * should use GetMapper()->SetInputConnection() instead.
    */
-  virtual void SetInputData(vtkImageData *);
-  virtual vtkImageData *GetInput();
+  virtual void SetInputData(vtkImageData*);
+  virtual vtkImageData* GetInput();
   //@}
 
   //@{
@@ -68,7 +67,7 @@ public:
    */
   virtual void SetInterpolate(vtkTypeBool);
   virtual vtkTypeBool GetInterpolate();
-  vtkBooleanMacro(Interpolate,vtkTypeBool);
+  vtkBooleanMacro(Interpolate, vtkTypeBool);
   //@}
 
   //@{
@@ -88,10 +87,9 @@ public:
    * it will be determined from the input image data.
    */
   void SetDisplayExtent(const int extent[6]);
-  void SetDisplayExtent(int minX, int maxX, int minY, int maxY,
-                        int minZ, int maxZ);
+  void SetDisplayExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetDisplayExtent(int extent[6]);
-  int *GetDisplayExtent() VTK_SIZEHINT(6) {return this->DisplayExtent;}
+  int* GetDisplayExtent() VTK_SIZEHINT(6) { return this->DisplayExtent; }
   //@}
 
   //@{
@@ -101,8 +99,8 @@ public:
    * In either case the bounds is expressed as a 6-vector
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); }
   //@}
 
   //@{
@@ -112,7 +110,7 @@ public:
    * identity matrix, this will return the same value as
    * GetBounds.
    */
-  double *GetDisplayBounds();
+  double* GetDisplayBounds();
   void GetDisplayBounds(double bounds[6]);
   //@}
 
@@ -136,11 +134,12 @@ public:
    * of slices is in reference to the display z axis, which is not
    * necessarily the z axis on disk. (due to reformatting etc)
    */
-  void SetZSlice(int z) {this->SetDisplayExtent(
-    this->DisplayExtent[0], this->DisplayExtent[1],
-    this->DisplayExtent[2], this->DisplayExtent[3], z, z);
-  };
-  int GetZSlice() { return this->DisplayExtent[4];};
+  void SetZSlice(int z)
+  {
+    this->SetDisplayExtent(this->DisplayExtent[0], this->DisplayExtent[1], this->DisplayExtent[2],
+      this->DisplayExtent[3], z, z);
+  }
+  int GetZSlice() { return this->DisplayExtent[4]; }
   int GetWholeZMin();
   int GetWholeZMax();
   //@}
@@ -175,11 +174,11 @@ protected:
    */
   static int GetOrientationFromExtent(const int extent[6]);
 
-  int           DisplayExtent[6];
-  double        DisplayBounds[6];
+  int DisplayExtent[6];
+  double DisplayBounds[6];
 
   // Convenience function that returns the input of the mapper
-  vtkAlgorithm *GetInputAlgorithm();
+  vtkAlgorithm* GetInputAlgorithm();
 
   // the result of HasTranslucentPolygonalGeometry is cached
   vtkTimeStamp TranslucentComputationTime;

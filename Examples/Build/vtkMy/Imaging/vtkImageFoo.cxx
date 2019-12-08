@@ -43,23 +43,21 @@ vtkImageFoo::~vtkImageFoo()
 //----------------------------------------------------------------------------
 void vtkImageFoo::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Foo: " << this->Foo << "\n";
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
 }
 
 //----------------------------------------------------------------------------
-int vtkImageFoo::RequestInformation(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector* outputVector)
+int vtkImageFoo::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Set the scalar type we will produce in the output information for
   // the first output port.
-  if(this->OutputScalarType != -1)
+  if (this->OutputScalarType != -1)
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkDataObject::SetPointDataActiveScalarInfo(
-      outInfo, this->OutputScalarType, -1);
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
   }
   return 1;
 }
@@ -68,10 +66,8 @@ int vtkImageFoo::RequestInformation(vtkInformation*,
 // This function template implements the filter for any combination of
 // input and output data type.
 template <class IT, class OT>
-void vtkImageFooExecute(vtkImageFoo* self,
-                        vtkImageData* inData, IT* inPtr,
-                        vtkImageData* outData, OT* outPtr,
-                        int outExt[6], int id)
+void vtkImageFooExecute(vtkImageFoo* self, vtkImageData* inData, IT* inPtr, vtkImageData* outData,
+  OT* outPtr, int outExt[6], int id)
 {
   float foo = self->GetFoo();
 
@@ -86,10 +82,10 @@ void vtkImageFooExecute(vtkImageFoo* self,
 
   // find the region to loop over
 
-  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
+  rowLength = (outExt[1] - outExt[0] + 1) * inData->GetNumberOfScalarComponents();
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = (unsigned long)((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
 
   // Get increments to march through data
@@ -105,9 +101,9 @@ void vtkImageFooExecute(vtkImageFoo* self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -131,21 +127,15 @@ void vtkImageFooExecute(vtkImageFoo* self,
 // forwards the call to the above function template for each output
 // data type.
 template <class T>
-void vtkImageFooExecute1(vtkImageFoo* self,
-                         vtkImageData* inData, T* inPtr,
-                         vtkImageData* outData,
-                         int outExt[6], int id)
+void vtkImageFooExecute1(
+  vtkImageFoo* self, vtkImageData* inData, T* inPtr, vtkImageData* outData, int outExt[6], int id)
 {
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
   int outType = outData->GetScalarType();
   switch (outType)
   {
     vtkTemplateMacro(
-      vtkImageFooExecute(self,
-                         inData, inPtr,
-                         outData, static_cast<VTK_TT*>(outPtr),
-                         outExt, id)
-      );
+      vtkImageFooExecute(self, inData, inPtr, outData, static_cast<VTK_TT*>(outPtr), outExt, id));
     default:
       vtkErrorWithObjectMacro(self, "Unknown output scalar type " << outType);
       return;
@@ -157,21 +147,15 @@ void vtkImageFooExecute1(vtkImageFoo* self,
 // filter algorithm to fill the output from the input.  It just
 // executes a switch statement to call the correct function for the
 // datas data types.
-void vtkImageFoo::ThreadedRequestData(vtkInformation*,
-                                      vtkInformationVector**,
-                                      vtkInformationVector*,
-                                      vtkImageData*** inData,
-                                      vtkImageData** outData,
-                                      int outExt[6], int id)
+void vtkImageFoo::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
+  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   int inType = inData[0][0]->GetScalarType();
   switch (inType)
   {
     vtkTemplateMacro(
-      vtkImageFooExecute1(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
-                          outData[0], outExt, id)
-      );
+      vtkImageFooExecute1(this, inData[0][0], static_cast<VTK_TT*>(inPtr), outData[0], outExt, id));
     default:
       vtkErrorMacro("Unknown input scalar type " << inType);
       return;

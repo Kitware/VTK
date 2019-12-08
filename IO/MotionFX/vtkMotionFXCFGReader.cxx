@@ -16,7 +16,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -24,7 +24,6 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 #include "vtkSTLReader.h"
@@ -51,7 +50,8 @@ namespace impl
 {
 struct Motion;
 
-using MapOfVectorOfMotions = std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
+using MapOfVectorOfMotions =
+  std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
 
 //-----------------------------------------------------------------------------
 // this exception is fired to indicate that a required parameter is missing for
@@ -60,12 +60,14 @@ class MissingParameterError : public std::runtime_error
 {
 public:
   MissingParameterError(const std::string& what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg)
+  {
+  }
   MissingParameterError(const char* what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg)
+  {
+  }
 };
-
-
 
 //-----------------------------------------------------------------------------
 // these are a bunch of convenience methods used in constructors for various
@@ -112,8 +114,7 @@ void set(double& ref, const char* pname, const MapType& params)
 // this is a variant of set that doesn't raise MissingParameterError exception
 // instead set the param to the default value indicated.
 template <typename Value, typename MapType>
-void set(Value& ref, const char* pname, const MapType& params,
-  const Value& defaultValue)
+void set(Value& ref, const char* pname, const MapType& params, const Value& defaultValue)
 {
   try
   {
@@ -200,15 +201,12 @@ protected:
     void operator()(InputArrayType* darray)
     {
       VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using ValueType = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        auto drange = vtk::DataArrayTupleRange(darray, begin, end);
+        for (auto tuple : drange)
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-
           vtkVector4<ValueType> in, out;
           in[0] = tuple[0];
           in[1] = tuple[1];
@@ -220,7 +218,7 @@ protected:
           out[0] /= out[3];
           out[1] /= out[3];
           out[2] /= out[3];
-          accessor.Set(cc, out.GetData());
+          tuple.SetTuple(out.GetData());
         }
       });
     }
@@ -270,7 +268,7 @@ struct ImposeVelMotion : public Motion
       ApplyDisplacement worker(s);
 
       // displace points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -290,19 +288,14 @@ private:
     template <typename InputArrayType>
     void operator()(InputArrayType* darray)
     {
-      VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using T = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        for (auto tuple : vtk::DataArrayTupleRange<3>(darray, begin, end))
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-          tuple[0] += this->Displacement[0];
-          tuple[1] += this->Displacement[1];
-          tuple[2] += this->Displacement[2];
-          accessor.Set(cc, tuple.GetData());
+          tuple[0] += static_cast<T>(this->Displacement[0]);
+          tuple[1] += static_cast<T>(this->Displacement[1]);
+          tuple[2] += static_cast<T>(this->Displacement[2]);
         }
       });
     }
@@ -380,7 +373,7 @@ struct RotateAxisMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -444,7 +437,7 @@ struct RotateMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -567,7 +560,7 @@ struct PlanetaryMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -741,7 +734,7 @@ struct PositionFileMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    using PointTypes = vtkTypeList_Create_2(float, double);
+    using PointTypes = vtkTypeList::Create<float, double>;
     vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
     pts->GetData()->Modified();
     return true;
@@ -808,7 +801,9 @@ using namespace tao::pegtl;
 namespace PositionFile
 {
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
 template <>
 struct action<MotionFX::Common::Number>
@@ -886,7 +881,10 @@ struct ActiveState
   std::map<std::string, Value> ActiveParameters;
   impl::MapOfVectorOfMotions& Motions;
 
-  ActiveState(impl::MapOfVectorOfMotions& motions) : Motions(motions) {}
+  ActiveState(impl::MapOfVectorOfMotions& motions)
+    : Motions(motions)
+  {
+  }
   ~ActiveState() {}
 
 private:
@@ -896,9 +894,11 @@ private:
 //-----------------------------------------------------------------------------
 
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
-template<>
+template <>
 struct action<MotionFX::CFG::Value>
 {
 
@@ -990,9 +990,9 @@ struct action<MotionFX::CFG::Grammar>
     // let's sort all motions according to tstart_prescribe.
     for (auto& apair : state.Motions)
     {
-      std::sort(
-        apair.second.begin(), apair.second.end(), [](const std::shared_ptr<const impl::Motion>& m0,
-                                                    const std::shared_ptr<const impl::Motion>& m1) {
+      std::sort(apair.second.begin(), apair.second.end(),
+        [](const std::shared_ptr<const impl::Motion>& m0,
+          const std::shared_ptr<const impl::Motion>& m1) {
           return m0->tstart_prescribe < m1->tstart_prescribe;
         });
     }
@@ -1015,15 +1015,13 @@ bool PositionFileMotion::read_position_file(const std::string& rootDir) const
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::OrientationsPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     else
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::LegacyPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     return true;
   }
@@ -1106,8 +1104,7 @@ public:
     {
       for (const auto& motion : pair.second)
       {
-        if (auto mpf =
-              std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
+        if (auto mpf = std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
         {
           mpf->read_position_file(dir);
         }

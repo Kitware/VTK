@@ -34,11 +34,11 @@
 
 #include <sstream>
 
-namespace vtkTestGL2PSTextMapper {
-void setupTextMapper(vtkTextMapper *mapper, vtkActor2D *actor,
-                     vtkPolyData *anchor)
+namespace vtkTestGL2PSTextMapper
 {
-  vtkTextProperty *p = mapper->GetTextProperty();
+void setupTextMapper(vtkTextMapper* mapper, vtkActor2D* actor, vtkPolyData* anchor)
+{
+  vtkTextProperty* p = mapper->GetTextProperty();
   std::ostringstream label;
   label << "Angle: " << p->GetOrientation() << "\n"
         << "HAlign: " << p->GetJustificationAsString() << "\n"
@@ -46,26 +46,25 @@ void setupTextMapper(vtkTextMapper *mapper, vtkActor2D *actor,
   mapper->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], 0.);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 } // end namespace vtkTestGL2PSTextMapper
 
 //----------------------------------------------------------------------------
-int TestGL2PSTextMapper(int, char *[])
+int TestGL2PSTextMapper(int, char*[])
 {
   using namespace vtkTestGL2PSTextMapper;
   vtkNew<vtkRenderer> ren;
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[4] = {100, 233, 366, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[4] = { 100, 233, 366, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -115,13 +114,10 @@ int TestGL2PSTextMapper(int, char *[])
           break;
       }
       mapper->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
-      mapper->GetTextProperty()->SetBackgroundColor(0.0,
-                                                    0.8 - col * .26,
-                                                    .8 - row * .2);
+      mapper->GetTextProperty()->SetBackgroundColor(0.0, 0.8 - col * .26, .8 - row * .2);
       mapper->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
-      setupTextMapper(mapper, actor,
-                      anchors);
+      setupTextMapper(mapper, actor, anchors);
       ren->AddActor2D(actor);
     }
   }
@@ -154,8 +150,8 @@ int TestGL2PSTextMapper(int, char *[])
   exp->TextAsPathOn();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSTextMapper");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSTextMapper");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

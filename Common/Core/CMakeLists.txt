@@ -261,7 +261,6 @@ set(headers
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAtomicTypeConcepts.h
-  vtkAtomicTypes.h
   vtkAutoInit.h
   vtkBuffer.h
   vtkCollectionRange.h

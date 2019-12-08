@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 #include "vtkAxis.h"
 
 //----------------------------------------------------------------------------
-int TestChartDouble(int, char *[])
+int TestChartDouble(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -64,7 +64,7 @@ int TestChartDouble(int, char *[])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
+  vtkPlot* line = chart->AddPlot(vtkChart::POINTS);
   line->SetInputData(table, 0, 1);
   line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 2);

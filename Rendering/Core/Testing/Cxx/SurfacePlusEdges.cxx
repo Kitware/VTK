@@ -25,16 +25,15 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int SurfacePlusEdges(int argc, char *argv[])
+int SurfacePlusEdges(int argc, char* argv[])
 {
   vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
   vtkMapper::SetResolveCoincidentTopologyZShift(0.1);

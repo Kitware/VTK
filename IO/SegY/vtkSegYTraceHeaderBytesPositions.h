@@ -29,10 +29,7 @@ public:
   int SampleInterval;
 
 public:
-  vtkSegYTraceHeaderBytesPositions()
-  {
-    initDefaultValues();
-  }
+  vtkSegYTraceHeaderBytesPositions() { initDefaultValues(); }
 
 private:
   void initDefaultValues()

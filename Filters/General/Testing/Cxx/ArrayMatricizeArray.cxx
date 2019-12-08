@@ -28,27 +28,28 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayMatricizeArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
     // Create an array ...
-    vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double> > array =
+      vtkSmartPointer<vtkSparseArray<double> >::New();
     array->Resize(vtkArrayExtents(2, 2, 2));
 
     double value = 0;
     const vtkArrayExtents extents = array->GetExtents();
-    for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
+    for (int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
     {
-      for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
+      for (int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
       {
-        for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
+        for (int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
         {
           array->AddValue(vtkArrayCoordinates(i, j, k), value++);
         }
@@ -86,10 +87,9 @@ int ArrayMatricizeArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return EXIT_SUCCESS;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
   }
 }
-

@@ -97,28 +97,23 @@ void vtkExtractSelectedGraph::SetAnnotationLayersConnection(vtkAlgorithmOutput* 
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
   {
     vtkInformation* info = outputVector->GetInformationObject(0);
-    vtkGraph *output = vtkGraph::SafeDownCast(
-      info->Get(vtkDataObject::DATA_OBJECT()));
+    vtkGraph* output = vtkGraph::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
     // Output a vtkDirectedGraph if the input is a tree.
-    if (!output
-        || (vtkTree::SafeDownCast(input) && !vtkDirectedGraph::SafeDownCast(output))
-        || (!vtkTree::SafeDownCast(input) && !output->IsA(input->GetClassName())))
+    if (!output || (vtkTree::SafeDownCast(input) && !vtkDirectedGraph::SafeDownCast(output)) ||
+      (!vtkTree::SafeDownCast(input) && !output->IsA(input->GetClassName())))
     {
       if (vtkTree::SafeDownCast(input))
       {
@@ -137,17 +132,15 @@ int vtkExtractSelectedGraph::RequestDataObject(
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedGraph::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkExtractSelectedGraph::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkSelection* inputSelection = vtkSelection::GetData(inputVector[1]);
   vtkAnnotationLayers* inputAnnotations = vtkAnnotationLayers::GetData(inputVector[2]);
   vtkGraph* output = vtkGraph::GetData(outputVector);
 
-  if(!inputSelection && !inputAnnotations)
+  if (!inputSelection && !inputAnnotations)
   {
     vtkErrorMacro("No vtkSelection or vtkAnnotationLayers provided as input.");
     return 0;
@@ -155,7 +148,7 @@ int vtkExtractSelectedGraph::RequestData(
 
   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
   int numSelections = 0;
-  if(inputSelection)
+  if (inputSelection)
   {
     selection->DeepCopy(inputSelection);
     numSelections++;
@@ -163,17 +156,17 @@ int vtkExtractSelectedGraph::RequestData(
 
   // If input annotations are provided, extract their selections only if
   // they are enabled and not hidden.
-  if(inputAnnotations)
+  if (inputAnnotations)
   {
-    for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
+    for (unsigned int i = 0; i < inputAnnotations->GetNumberOfAnnotations(); ++i)
     {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
       if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
-          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
+            a->GetInformation()->Get(vtkAnnotation::ENABLE()) == 0) ||
+        (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
+          a->GetInformation()->Get(vtkAnnotation::ENABLE()) == 1 &&
           a->GetInformation()->Has(vtkAnnotation::HIDE()) &&
-          a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
+          a->GetInformation()->Get(vtkAnnotation::HIDE()) == 1))
       {
         continue;
       }
@@ -184,7 +177,7 @@ int vtkExtractSelectedGraph::RequestData(
 
   // Handle case where there was no input selection and no enabled, non-hidden
   // annotations
-  if(numSelections == 0)
+  if (numSelections == 0)
   {
     output->ShallowCopy(input);
     return 1;
@@ -228,9 +221,9 @@ int vtkExtractSelectedGraph::RequestData(
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
         if (inverse)
         {
-          vtkIdType num =
-            (node->GetFieldType() == vtkSelectionNode::VERTEX) ?
-            input->GetNumberOfVertices() : input->GetNumberOfEdges();
+          vtkIdType num = (node->GetFieldType() == vtkSelectionNode::VERTEX)
+            ? input->GetNumberOfVertices()
+            : input->GetNumberOfEdges();
           for (vtkIdType j = 0; j < num; ++j)
           {
             if (curList->LookupValue(j) < 0 && list->LookupValue(j) < 0)
@@ -252,8 +245,8 @@ int vtkExtractSelectedGraph::RequestData(
           }
         }
       } // end if (curList)
-    } // end if (list)
-  } // end for each child
+    }   // end if (list)
+  }     // end for each child
 
   // If there is no selection list, return an empty graph
   if (vertexList->GetNumberOfTuples() == 0 && edgeList->GetNumberOfTuples() == 0)
@@ -417,7 +410,7 @@ int vtkExtractSelectedGraph::RequestData(
     {
       vtkEdgeType e = edges->Next();
       if (vertexMap.find(e.Source) != vertexMap.end() &&
-          vertexMap.find(e.Target) != vertexMap.end())
+        vertexMap.find(e.Target) != vertexMap.end())
       {
         vtkIdType source = vertexMap[e.Source];
         vtkIdType target = vertexMap[e.Target];
@@ -445,7 +438,7 @@ int vtkExtractSelectedGraph::RequestData(
   {
     if (!output->CheckedShallowCopy(dirBuilder))
     {
-      vtkErrorMacro(<<"Invalid graph structure.");
+      vtkErrorMacro(<< "Invalid graph structure.");
       return 0;
     }
   }
@@ -453,7 +446,7 @@ int vtkExtractSelectedGraph::RequestData(
   {
     if (!output->CheckedShallowCopy(undirBuilder))
     {
-      vtkErrorMacro(<<"Invalid graph structure.");
+      vtkErrorMacro(<< "Invalid graph structure.");
       return 0;
     }
   }
@@ -469,6 +462,6 @@ int vtkExtractSelectedGraph::RequestData(
 void vtkExtractSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RemoveIsolatedVertices: "
-     << (this->RemoveIsolatedVertices ? "on" : "off") << endl;
+  os << indent << "RemoveIsolatedVertices: " << (this->RemoveIsolatedVertices ? "on" : "off")
+     << endl;
 }

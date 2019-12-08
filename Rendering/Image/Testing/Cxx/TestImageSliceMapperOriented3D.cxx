@@ -27,9 +27,9 @@
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 
@@ -55,15 +55,11 @@ int TestImageSliceMapperOriented3D(int argc, char* argv[])
   trans->RotateX(20);
   vtkMatrix4x4::DeepCopy(mat4, trans->GetMatrix()->GetData());
 
-  double dir[9] = {
-    mat4[0], mat4[1], mat4[2],
-    mat4[4], mat4[5], mat4[6],
-    mat4[8], mat4[9], mat4[10]
-  };
+  double dir[9] = { mat4[0], mat4[1], mat4[2], mat4[4], mat4[5], mat4[6], mat4[8], mat4[9],
+    mat4[10] };
   reader->SetDataDirection(dir);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   reader->SetFilePrefix(fname);
   reader->Update();
@@ -72,21 +68,20 @@ int TestImageSliceMapperOriented3D(int argc, char* argv[])
   for (int i = 0; i < 4; i++)
   {
     vtkNew<vtkRenderer> renderer;
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
 
     vtkNew<vtkImageSliceMapper> imageMapper;
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->SliceAtFocalPointOn();
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     if (i < 3)
     {
@@ -100,7 +95,7 @@ int TestImageSliceMapperOriented3D(int argc, char* argv[])
     camera->SetParallelScale(120.0);
     if (imageMapper->GetOrientation() != 2)
     {
-      camera->SetViewUp(0.0, 0.0,-1.0);
+      camera->SetViewUp(0.0, 0.0, -1.0);
     }
 
     if (i == 3)
@@ -117,11 +112,11 @@ int TestImageSliceMapperOriented3D(int argc, char* argv[])
     image->GetProperty()->SetColorLevel(1000);
   }
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

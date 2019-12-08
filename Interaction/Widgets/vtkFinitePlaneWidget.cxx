@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkFinitePlaneWidget.h"
-#include "vtkFinitePlaneRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
+#include "vtkFinitePlaneRepresentation.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkFinitePlaneWidget);
 
@@ -34,17 +34,13 @@ vtkFinitePlaneWidget::vtkFinitePlaneWidget()
   this->ManagesCursor = 1;
 
   // Define widget events
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-                                          vtkWidgetEvent::Select,
-                                          this, vtkFinitePlaneWidget::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select,
+    this, vtkFinitePlaneWidget::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-                                          vtkWidgetEvent::EndSelect,
-                                          this, vtkFinitePlaneWidget::EndSelectAction);
+    vtkWidgetEvent::EndSelect, this, vtkFinitePlaneWidget::EndSelectAction);
 
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
-                                         vtkWidgetEvent::Move,
-                                          this, vtkFinitePlaneWidget::MoveAction);
-
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkFinitePlaneWidget::MoveAction);
 }
 
 //----------------------------------------------------------------------------
@@ -53,32 +49,32 @@ vtkFinitePlaneWidget::~vtkFinitePlaneWidget() = default;
 //----------------------------------------------------------------------------
 void vtkFinitePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkFinitePlaneWidget::SetRepresentation(vtkFinitePlaneRepresentation *r)
+void vtkFinitePlaneWidget::SetRepresentation(vtkFinitePlaneRepresentation* r)
 {
   this->Superclass::SetWidgetRepresentation(r);
 }
 
 //----------------------------------------------------------------------
-void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget *w)
+void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget* w)
 {
-   // We are in a static method, cast to ourself
-  vtkFinitePlaneWidget *self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
+  // We are in a static method, cast to ourself
+  vtkFinitePlaneWidget* self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
 
   // We want to compute an orthogonal vector to the plane that has been selected
-  reinterpret_cast<vtkFinitePlaneRepresentation*>(self->WidgetRep)->
-    SetInteractionState(vtkFinitePlaneRepresentation::Moving);
+  reinterpret_cast<vtkFinitePlaneRepresentation*>(self->WidgetRep)
+    ->SetInteractionState(vtkFinitePlaneRepresentation::Moving);
   int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
   self->UpdateCursorShape(interactionState);
 
-  if ( self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside )
+  if (self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside)
   {
     return;
   }
@@ -93,14 +89,14 @@ void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   self->Render();
 }
 
 //----------------------------------------------------------------------
-void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget *w)
+void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkFinitePlaneWidget *self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
+  vtkFinitePlaneWidget* self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
 
   // So as to change the cursor shape when the mouse is poised over
   // the widget. Unfortunately, this results in a few extra picks
@@ -118,7 +114,7 @@ void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget *w)
     int oldInteractionState = repr->GetInteractionState();
 
     repr->SetInteractionState(vtkFinitePlaneRepresentation::Moving);
-    int state = self->WidgetRep->ComputeInteractionState( X, Y );
+    int state = self->WidgetRep->ComputeInteractionState(X, Y);
     changed = self->UpdateCursorShape(state);
     repr->SetInteractionState(oldInteractionState);
     changed = (changed || state != oldInteractionState) ? 1 : 0;
@@ -142,17 +138,17 @@ void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget *w)
 
   // Moving something
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 }
 
 //----------------------------------------------------------------------
-void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkFinitePlaneWidget *self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
+  vtkFinitePlaneWidget* self = reinterpret_cast<vtkFinitePlaneWidget*>(w);
 
   if (self->WidgetState != vtkFinitePlaneWidget::Active ||
-      self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside)
+    self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside)
   {
     return;
   }
@@ -164,12 +160,12 @@ void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget *w)
   self->ReleaseFocus();
 
   // Update cursor if managed
-  self->UpdateCursorShape(reinterpret_cast<vtkFinitePlaneRepresentation*>
-    (self->WidgetRep)->GetRepresentationState());
+  self->UpdateCursorShape(
+    reinterpret_cast<vtkFinitePlaneRepresentation*>(self->WidgetRep)->GetRepresentationState());
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   self->Render();
 }
 

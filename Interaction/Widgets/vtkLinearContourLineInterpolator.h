@@ -22,35 +22,32 @@
  *
  * @sa
  * vtkContourLineInterpolator
-*/
+ */
 
 #ifndef vtkLinearContourLineInterpolator_h
 #define vtkLinearContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkLinearContourLineInterpolator
-                          : public vtkContourLineInterpolator
+  : public vtkContourLineInterpolator
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkLinearContourLineInterpolator *New();
+  static vtkLinearContourLineInterpolator* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkLinearContourLineInterpolator,vtkContourLineInterpolator);
+  vtkTypeMacro(vtkLinearContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
-  int InterpolateLine( vtkRenderer *ren,
-                               vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) override;
+  int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
 protected:
   vtkLinearContourLineInterpolator();

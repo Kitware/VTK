@@ -15,76 +15,75 @@
 #include "vtkOSPRayViewNodeFactory.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayAMRVolumeMapperNode.h"
+#include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 #include "vtkOSPRayLightNode.h"
-#include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
+#include "vtkOSPRayRendererNode.h"
+#include "vtkOSPRayTetrahedraMapperNode.h"
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
-#include "vtkOSPRayTetrahedraMapperNode.h"
 
-vtkViewNode *ren_maker()
+vtkViewNode* ren_maker()
 {
-  vtkOSPRayRendererNode *vn = vtkOSPRayRendererNode::New();
+  vtkOSPRayRendererNode* vn = vtkOSPRayRendererNode::New();
   return vn;
 }
 
-vtkViewNode *amrm_maker()
+vtkViewNode* amrm_maker()
 {
-  vtkOSPRayAMRVolumeMapperNode *vn = vtkOSPRayAMRVolumeMapperNode::New();
+  vtkOSPRayAMRVolumeMapperNode* vn = vtkOSPRayAMRVolumeMapperNode::New();
   return vn;
 }
 
-vtkViewNode *act_maker()
+vtkViewNode* act_maker()
 {
-  vtkOSPRayActorNode *vn = vtkOSPRayActorNode::New();
+  vtkOSPRayActorNode* vn = vtkOSPRayActorNode::New();
   return vn;
 }
 
-vtkViewNode *vol_maker()
+vtkViewNode* vol_maker()
 {
   return vtkOSPRayVolumeNode::New();
 }
 
-vtkViewNode *cam_maker()
+vtkViewNode* cam_maker()
 {
-  vtkOSPRayCameraNode *vn = vtkOSPRayCameraNode::New();
+  vtkOSPRayCameraNode* vn = vtkOSPRayCameraNode::New();
   return vn;
 }
 
-vtkViewNode *light_maker()
+vtkViewNode* light_maker()
 {
-  vtkOSPRayLightNode *vn = vtkOSPRayLightNode::New();
+  vtkOSPRayLightNode* vn = vtkOSPRayLightNode::New();
   return vn;
 }
 
-vtkViewNode *pd_maker()
+vtkViewNode* pd_maker()
 {
-  vtkOSPRayPolyDataMapperNode *vn = vtkOSPRayPolyDataMapperNode::New();
+  vtkOSPRayPolyDataMapperNode* vn = vtkOSPRayPolyDataMapperNode::New();
   return vn;
 }
 
-vtkViewNode *vm_maker()
+vtkViewNode* vm_maker()
 {
-  vtkOSPRayVolumeMapperNode *vn = vtkOSPRayVolumeMapperNode::New();
+  vtkOSPRayVolumeMapperNode* vn = vtkOSPRayVolumeMapperNode::New();
   return vn;
 }
 
-vtkViewNode *cpd_maker()
+vtkViewNode* cpd_maker()
 {
-  vtkOSPRayCompositePolyDataMapper2Node *vn = vtkOSPRayCompositePolyDataMapper2Node::New();
+  vtkOSPRayCompositePolyDataMapper2Node* vn = vtkOSPRayCompositePolyDataMapper2Node::New();
   return vn;
 }
 
-vtkViewNode *tetm_maker()
+vtkViewNode* tetm_maker()
 {
-  vtkOSPRayTetrahedraMapperNode *vn = vtkOSPRayTetrahedraMapperNode::New();
+  vtkOSPRayTetrahedraMapperNode* vn = vtkOSPRayTetrahedraMapperNode::New();
   return vn;
 }
-
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
@@ -92,7 +91,7 @@ vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
 //----------------------------------------------------------------------------
 vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
 {
-  //see vtkRenderWindow::GetRenderLibrary
+  // see vtkRenderWindow::GetRenderLibrary
   this->RegisterOverride("vtkOpenGLRenderer", ren_maker);
   this->RegisterOverride("vtkOpenGLActor", act_maker);
   this->RegisterOverride("vtkPVLODActor", act_maker);
@@ -115,9 +114,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
 }
 
 //----------------------------------------------------------------------------
-vtkOSPRayViewNodeFactory::~vtkOSPRayViewNodeFactory()
-{
-}
+vtkOSPRayViewNodeFactory::~vtkOSPRayViewNodeFactory() {}
 
 //----------------------------------------------------------------------------
 void vtkOSPRayViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)

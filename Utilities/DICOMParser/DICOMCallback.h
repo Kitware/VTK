@@ -18,12 +18,12 @@
 #define __DICOM_CALLBACK_H_
 
 #ifdef _MSC_VER
-#pragma warning ( disable : 4514 )
-#pragma warning ( disable : 4786 )
-#pragma warning ( disable : 4503 )
-#pragma warning ( disable : 4710 )
-#pragma warning ( disable : 4702 )
-#pragma warning ( push, 3 )
+#pragma warning(disable : 4514)
+#pragma warning(disable : 4786)
+#pragma warning(disable : 4503)
+#pragma warning(disable : 4710)
+#pragma warning(disable : 4702)
+#pragma warning(push, 3)
 #endif
 
 #include "DICOMConfig.h"
@@ -42,14 +42,10 @@
 
 class DICOM_EXPORT DICOMCallback
 {
- public:
+public:
   virtual ~DICOMCallback() {}
-  virtual void Execute(DICOMParser *parser,
-                       doublebyte group,
-                       doublebyte element,
-                       DICOMParser::VRTypes type,
-                       unsigned char* val,
-                       quadbyte len) = 0;
+  virtual void Execute(DICOMParser* parser, doublebyte group, doublebyte element,
+    DICOMParser::VRTypes type, unsigned char* val, quadbyte len) = 0;
 };
 
 //
@@ -59,21 +55,15 @@ class DICOM_EXPORT DICOMCallback
 template <class T>
 class DICOMMemberCallback : public DICOMCallback
 {
- public:
-  typedef  void (T::*TMemberFunctionPointer)(DICOMParser *parser,
-                                             doublebyte group,
-                                             doublebyte element,
-                                             DICOMParser::VRTypes type,
-                                             unsigned char* val,
-                                             quadbyte len);
-
+public:
+  typedef void (T::*TMemberFunctionPointer)(DICOMParser* parser, doublebyte group,
+    doublebyte element, DICOMParser::VRTypes type, unsigned char* val, quadbyte len);
 
   //
   // Method to set the object and member function pointers
   // that will be called in the callback.
   //
-  void SetCallbackFunction(T* object,
-                           TMemberFunctionPointer memberFunction)
+  void SetCallbackFunction(T* object, TMemberFunctionPointer memberFunction)
   {
     ObjectThis = object;
     MemberFunction = memberFunction;
@@ -82,28 +72,22 @@ class DICOMMemberCallback : public DICOMCallback
   //
   // Execute method implementation from DICOMCallback.
   //
-  void Execute(DICOMParser *parser,
-               doublebyte group,
-               doublebyte element,
-               DICOMParser::VRTypes type,
-               unsigned char* val,
-               quadbyte len) override
+  void Execute(DICOMParser* parser, doublebyte group, doublebyte element, DICOMParser::VRTypes type,
+    unsigned char* val, quadbyte len) override
   {
     if (MemberFunction)
-      {
-      ((*ObjectThis).*(MemberFunction))(parser, group, element, type, val,len);
-      }
+    {
+      ((*ObjectThis).*(MemberFunction))(parser, group, element, type, val, len);
+    }
   }
 
- protected:
+protected:
   T* ObjectThis;
   TMemberFunctionPointer MemberFunction;
-
 };
 
 #ifdef _MSC_VER
-#pragma warning ( pop )
+#pragma warning(pop)
 #endif
 
 #endif
-

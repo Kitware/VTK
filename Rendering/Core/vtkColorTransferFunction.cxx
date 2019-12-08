@@ -150,10 +150,8 @@ inline double vtkColorTransferFunctionAdjustHue(const double msh[3], double unsa
 }
 
 // Interpolate a diverging color map.
-inline void vtkColorTransferFunctionInterpolateDiverging(double s,
-  const double rgb1[3],
-  const double rgb2[3],
-  double result[3])
+inline void vtkColorTransferFunctionInterpolateDiverging(
+  double s, const double rgb1[3], const double rgb2[3], double result[3])
 {
   double lab1[3], lab2[3];
   vtkMath::RGBToLab(rgb1, lab1);
@@ -212,12 +210,16 @@ inline void vtkColorTransferFunctionInterpolateDiverging(double s,
 }
 
 // Interpolate a LAB/CIEDE2000 color map.
-inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s,
-  const double rgb1[3],
-  const double rgb2[3],
-  double result[3],
-  vtkSmartPointer<vtkColorTransferFunction>& cachedPathCTF)
+inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s, const double rgb1[3],
+  const double rgb2[3], double result[3], vtkSmartPointer<vtkColorTransferFunction>& cachedPathCTF,
+  bool forceExactSupportColors = false)
 {
+  if (!forceExactSupportColors)
+  {
+    CIEDE2000::MapColor(const_cast<double*>(rgb1));
+    CIEDE2000::MapColor(const_cast<double*>(rgb2));
+  }
+
   // Create and remember a color transfer function representing the
   // shortest color path from rgb1 to rgb2
   double val[6];
@@ -242,7 +244,7 @@ inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s,
 
     // Get the shortest color path and its overall length
     std::vector<CIEDE2000::Node> path;
-    double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path);
+    double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path, forceExactSupportColors);
 
     // Add the nodes of the new path to the path's color transfer function
     for (const auto& node : path)
@@ -363,12 +365,8 @@ int vtkColorTransferFunction::AddRGBPoint(double x, double r, double g, double b
 
 //----------------------------------------------------------------------------
 // Add a point defined in RGB
-int vtkColorTransferFunction::AddRGBPoint(double x,
-  double r,
-  double g,
-  double b,
-  double midpoint,
-  double sharpness)
+int vtkColorTransferFunction::AddRGBPoint(
+  double x, double r, double g, double b, double midpoint, double sharpness)
 {
   // Error check
   if (midpoint < 0.0 || midpoint > 1.0)
@@ -441,12 +439,8 @@ int vtkColorTransferFunction::AddHSVPoint(double x, double h, double s, double v
 
 //----------------------------------------------------------------------------
 // Add a point defined in HSV
-int vtkColorTransferFunction::AddHSVPoint(double x,
-  double h,
-  double s,
-  double v,
-  double midpoint,
-  double sharpness)
+int vtkColorTransferFunction::AddHSVPoint(
+  double x, double h, double s, double v, double midpoint, double sharpness)
 {
   double r, b, g;
 
@@ -594,14 +588,8 @@ void vtkColorTransferFunction::RemoveAllPoints()
 
 //----------------------------------------------------------------------------
 // Add a line defined in RGB
-void vtkColorTransferFunction::AddRGBSegment(double x1,
-  double r1,
-  double g1,
-  double b1,
-  double x2,
-  double r2,
-  double g2,
-  double b2)
+void vtkColorTransferFunction::AddRGBSegment(
+  double x1, double r1, double g1, double b1, double x2, double r2, double g2, double b2)
 {
   int done;
 
@@ -633,14 +621,8 @@ void vtkColorTransferFunction::AddRGBSegment(double x1,
 
 //----------------------------------------------------------------------------
 // Add a line defined in HSV
-void vtkColorTransferFunction::AddHSVSegment(double x1,
-  double h1,
-  double s1,
-  double v1,
-  double x2,
-  double h2,
-  double s2,
-  double v2)
+void vtkColorTransferFunction::AddHSVSegment(
+  double x1, double h1, double s1, double v1, double x2, double h2, double s2, double v2)
 {
   double r1, r2, b1, b2, g1, g2;
 
@@ -1249,10 +1231,8 @@ const unsigned char* vtkColorTransferFunction::GetTable(double xStart, double xE
 }
 
 //----------------------------------------------------------------------------
-void vtkColorTransferFunction::BuildFunctionFromTable(double xStart,
-  double xEnd,
-  int size,
-  double* table)
+void vtkColorTransferFunction::BuildFunctionFromTable(
+  double xStart, double xEnd, int size, double* table)
 {
   double inc = 0.0;
   double* tptr = table;
@@ -1398,14 +1378,9 @@ void vtkColorTransferFunction::ShallowCopy(vtkColorTransferFunction* f)
 // of 8-bit chunks.  The extra "long" argument is to help broken
 // compilers select the non-templates below for unsigned char
 // and unsigned short.
-template<class T>
-void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
-  T* input,
-  unsigned char* output,
-  int length,
-  int inIncr,
-  int outFormat,
-  long)
+template <class T>
+void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, T* input,
+  unsigned char* output, int length, int inIncr, int outFormat, long)
 {
   double x;
   int i = length;
@@ -1447,13 +1422,8 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned char input.
-static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
-  unsigned char* input,
-  unsigned char* output,
-  int length,
-  int inIncr,
-  int outFormat,
-  int)
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsigned char* input,
+  unsigned char* output, int length, int inIncr, int outFormat, int)
 {
   int x;
   int i = length;
@@ -1512,13 +1482,8 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
 //----------------------------------------------------------------------------
 // Special implementation for unsigned short input.
-static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
-  unsigned short* input,
-  unsigned char* output,
-  int length,
-  int inIncr,
-  int outFormat,
-  int)
+static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self, unsigned short* input,
+  unsigned char* output, int length, int inIncr, int outFormat, int)
 {
   int x;
   int i = length;
@@ -1576,14 +1541,9 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 }
 
 //----------------------------------------------------------------------------
-template<class T>
-void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self,
-  T* input,
-  unsigned char* output,
-  int length,
-  int inIncr,
-  int outFormat,
-  long)
+template <class T>
+void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self, T* input,
+  unsigned char* output, int length, int inIncr, int outFormat, long)
 {
   int i = length;
   double nodeVal[6];
@@ -1743,12 +1703,8 @@ void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self,
 }
 
 //----------------------------------------------------------------------------
-void vtkColorTransferFunction::MapScalarsThroughTable2(void* input,
-  unsigned char* output,
-  int inputDataType,
-  int numberOfValues,
-  int inputIncrement,
-  int outputFormat)
+void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned char* output,
+  int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
 {
   if (this->GetSize() == 0)
   {
@@ -1761,12 +1717,7 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void* input,
     {
       // Use vtkExtendedTemplateMacro to cover case of VTK_STRING input
       vtkExtendedTemplateMacro(vtkColorTransferFunctionIndexedMapData(this,
-        static_cast<VTK_TT*>(input),
-        output,
-        numberOfValues,
-        inputIncrement,
-        outputFormat,
-        1));
+        static_cast<VTK_TT*>(input), output, numberOfValues, inputIncrement, outputFormat, 1));
 
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
@@ -1777,13 +1728,8 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void* input,
   {
     switch (inputDataType)
     {
-      vtkTemplateMacro(vtkColorTransferFunctionMapData(this,
-        static_cast<VTK_TT*>(input),
-        output,
-        numberOfValues,
-        inputIncrement,
-        outputFormat,
-        1));
+      vtkTemplateMacro(vtkColorTransferFunctionMapData(this, static_cast<VTK_TT*>(input), output,
+        numberOfValues, inputIncrement, outputFormat, 1));
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
         return;
@@ -1892,8 +1838,7 @@ int vtkColorTransferFunction::AdjustRange(double range[2])
     this->Internal->FindNodeOutOfRange.X2 = range[1];
 
     std::vector<vtkCTFNode*>::iterator iter = std::find_if(this->Internal->Nodes.begin(),
-      this->Internal->Nodes.end(),
-      this->Internal->FindNodeOutOfRange);
+      this->Internal->Nodes.end(), this->Internal->FindNodeOutOfRange);
 
     if (iter != this->Internal->Nodes.end())
     {

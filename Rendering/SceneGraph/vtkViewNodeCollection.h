@@ -17,18 +17,17 @@
  * @brief   collection of view nodes
  *
  * vtk centric collection of vtkViewNodes
-*/
+ */
 
 #ifndef vtkViewNodeCollection_h
 #define vtkViewNodeCollection_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 class vtkViewNode;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeCollection :
-  public vtkCollection
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeCollection : public vtkCollection
 {
 public:
   static vtkViewNodeCollection* New();
@@ -38,33 +37,32 @@ public:
   /**
    * Add a ViewNode to the list.
    */
-  void AddItem(vtkViewNode *a);
+  void AddItem(vtkViewNode* a);
 
   /**
    * Get the next ViewNode in the list. NULL is returned when the collection is
    * exhausted.
    */
-  vtkViewNode *GetNextItem();
+  vtkViewNode* GetNextItem();
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkViewNode *GetNextViewNode(vtkCollectionSimpleIterator &cookie);
+  vtkViewNode* GetNextViewNode(vtkCollectionSimpleIterator& cookie);
 
   /**
    * Return true only if we have viewnode for obj.
    */
-  bool IsRenderablePresent(vtkObject *obj);
+  bool IsRenderablePresent(vtkObject* obj);
 
 protected:
-  vtkViewNodeCollection() {};
-  ~vtkViewNodeCollection() {};
+  vtkViewNodeCollection() {}
+  ~vtkViewNodeCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-    { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
   vtkViewNodeCollection(const vtkViewNodeCollection&) = delete;
   void operator=(const vtkViewNodeCollection&) = delete;

@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkAffineWidget.h"
 #include "vtkAffineRepresentation2D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkAffineWidget);
 
@@ -36,21 +36,16 @@ vtkAffineWidget::vtkAffineWidget()
   this->ModifierActive = 0;
 
   // Okay, define the events for this widget
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-                                          vtkWidgetEvent::Select,
-                                          this, vtkAffineWidget::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select, this, vtkAffineWidget::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-                                          vtkWidgetEvent::EndSelect,
-                                          this, vtkAffineWidget::EndSelectAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
-                                          vtkWidgetEvent::Move,
-                                          this, vtkAffineWidget::MoveAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
-                                          vtkWidgetEvent::ModifyEvent,
-                                          this, vtkAffineWidget::ModifyEventAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent,
-                                          vtkWidgetEvent::ModifyEvent,
-                                          this, vtkAffineWidget::ModifyEventAction);
+    vtkWidgetEvent::EndSelect, this, vtkAffineWidget::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkAffineWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkWidgetEvent::ModifyEvent,
+    this, vtkAffineWidget::ModifyEventAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkWidgetEvent::ModifyEvent,
+    this, vtkAffineWidget::ModifyEventAction);
 }
 
 //----------------------------------------------------------------------------------
@@ -65,7 +60,7 @@ void vtkAffineWidget::SetEnabled(int enabling)
 //----------------------------------------------------------------------
 void vtkAffineWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkAffineRepresentation2D::New();
   }
@@ -76,30 +71,39 @@ void vtkAffineWidget::SetCursor(int cState)
 {
   switch (cState)
   {
-    case vtkAffineRepresentation::ScaleNE: case vtkAffineRepresentation::ScaleSW:
+    case vtkAffineRepresentation::ScaleNE:
+    case vtkAffineRepresentation::ScaleSW:
       this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
-    case vtkAffineRepresentation::ScaleNW: case vtkAffineRepresentation::ScaleSE:
+    case vtkAffineRepresentation::ScaleNW:
+    case vtkAffineRepresentation::ScaleSE:
       this->RequestCursorShape(VTK_CURSOR_SIZENW);
       break;
-    case vtkAffineRepresentation::ScaleNEdge: case vtkAffineRepresentation::ScaleSEdge:
-    case vtkAffineRepresentation::ShearWEdge: case vtkAffineRepresentation::ShearEEdge:
+    case vtkAffineRepresentation::ScaleNEdge:
+    case vtkAffineRepresentation::ScaleSEdge:
+    case vtkAffineRepresentation::ShearWEdge:
+    case vtkAffineRepresentation::ShearEEdge:
       this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
-    case vtkAffineRepresentation::ScaleWEdge: case vtkAffineRepresentation::ScaleEEdge:
-    case vtkAffineRepresentation::ShearNEdge: case vtkAffineRepresentation::ShearSEdge:
+    case vtkAffineRepresentation::ScaleWEdge:
+    case vtkAffineRepresentation::ScaleEEdge:
+    case vtkAffineRepresentation::ShearNEdge:
+    case vtkAffineRepresentation::ShearSEdge:
       this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkAffineRepresentation::Rotate:
       this->RequestCursorShape(VTK_CURSOR_HAND);
       break;
-    case vtkAffineRepresentation::TranslateX: case vtkAffineRepresentation::MoveOriginX:
+    case vtkAffineRepresentation::TranslateX:
+    case vtkAffineRepresentation::MoveOriginX:
       this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
-    case vtkAffineRepresentation::TranslateY: case vtkAffineRepresentation::MoveOriginY:
+    case vtkAffineRepresentation::TranslateY:
+    case vtkAffineRepresentation::MoveOriginY:
       this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
-    case vtkAffineRepresentation::Translate: case vtkAffineRepresentation::MoveOrigin:
+    case vtkAffineRepresentation::Translate:
+    case vtkAffineRepresentation::MoveOrigin:
       this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;
     case vtkAffineRepresentation::Outside:
@@ -109,19 +113,18 @@ void vtkAffineWidget::SetCursor(int cState)
 }
 
 //-------------------------------------------------------------------------
-void vtkAffineWidget::SelectAction(vtkAbstractWidget *w)
+void vtkAffineWidget::SelectAction(vtkAbstractWidget* w)
 {
-  vtkAffineWidget *self = reinterpret_cast<vtkAffineWidget*>(w);
+  vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
 
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
 
-  self->ModifierActive = self->Interactor->GetShiftKey() |
-                         self->Interactor->GetControlKey();
-  reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)->
-    ComputeInteractionState(X, Y, self->ModifierActive);
+  self->ModifierActive = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
+  reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)
+    ->ComputeInteractionState(X, Y, self->ModifierActive);
 
-  if ( self->WidgetRep->GetInteractionState() == vtkAffineRepresentation::Outside )
+  if (self->WidgetRep->GetInteractionState() == vtkAffineRepresentation::Outside)
   {
     return;
   }
@@ -141,29 +144,28 @@ void vtkAffineWidget::SelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   self->Render();
 }
 
 //-------------------------------------------------------------------------
-void vtkAffineWidget::MoveAction(vtkAbstractWidget *w)
+void vtkAffineWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkAffineWidget *self = reinterpret_cast<vtkAffineWidget*>(w);
+  vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
 
   // Set the cursor appropriately
-  if ( self->WidgetState == vtkAffineWidget::Start )
+  if (self->WidgetState == vtkAffineWidget::Start)
   {
-    self->ModifierActive = self->Interactor->GetShiftKey() |
-                           self->Interactor->GetControlKey();
+    self->ModifierActive = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
     int state = self->WidgetRep->GetInteractionState();
-    reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)->
-      ComputeInteractionState(X, Y, self->ModifierActive );
+    reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)
+      ->ComputeInteractionState(X, Y, self->ModifierActive);
     self->SetCursor(self->WidgetRep->GetInteractionState());
-    if ( state != self->WidgetRep->GetInteractionState() )
+    if (state != self->WidgetRep->GetInteractionState())
     {
       self->Render();
     }
@@ -178,37 +180,35 @@ void vtkAffineWidget::MoveAction(vtkAbstractWidget *w)
 
   // Got this event, we are finished
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 }
 
 //-------------------------------------------------------------------------
-void vtkAffineWidget::ModifyEventAction(vtkAbstractWidget *w)
+void vtkAffineWidget::ModifyEventAction(vtkAbstractWidget* w)
 {
-  vtkAffineWidget *self = reinterpret_cast<vtkAffineWidget*>(w);
-  if ( self->WidgetState == vtkAffineWidget::Start )
+  vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
+  if (self->WidgetState == vtkAffineWidget::Start)
   {
-    int modifierActive = self->Interactor->GetShiftKey() |
-                         self->Interactor->GetControlKey();
-    if ( self->ModifierActive != modifierActive )
+    int modifierActive = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
+    if (self->ModifierActive != modifierActive)
     {
       self->ModifierActive = modifierActive;
       int X = self->Interactor->GetEventPosition()[0];
       int Y = self->Interactor->GetEventPosition()[1];
-      reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)->
-        ComputeInteractionState(X, Y, self->ModifierActive );
+      reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)
+        ->ComputeInteractionState(X, Y, self->ModifierActive);
       self->SetCursor(self->WidgetRep->GetInteractionState());
     }
   }
 }
 
-
 //-------------------------------------------------------------------------
-void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkAffineWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkAffineWidget *self = reinterpret_cast<vtkAffineWidget*>(w);
+  vtkAffineWidget* self = reinterpret_cast<vtkAffineWidget*>(w);
 
-  if ( self->WidgetState != vtkAffineWidget::Active )
+  if (self->WidgetState != vtkAffineWidget::Active)
   {
     return;
   }
@@ -231,7 +231,7 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->ReleaseFocus();
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
   self->WidgetState = vtkAffineWidget::Start;
   self->Render();
 }
@@ -239,7 +239,6 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
 //----------------------------------------------------------------------------------
 void vtkAffineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
-
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 }

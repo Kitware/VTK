@@ -29,13 +29,13 @@
  *
  * @sa
  * vtkParallelCoordinatesActor vtkXYPlotActor2D vtkSpiderPlotActor
-*/
+ */
 
 #ifndef vtkPieChartActor_h
 #define vtkPieChartActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
@@ -56,14 +56,14 @@ public:
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkPieChartActor,vtkActor2D);
+  vtkTypeMacro(vtkPieChartActor, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Instantiate this class.
    */
-  static vtkPieChartActor *New();
+  static vtkPieChartActor* New();
 
   //@{
   /**
@@ -102,8 +102,8 @@ public:
    * Set/Get the title text property. The property controls the
    * appearance of the plot title.
    */
-  virtual void SetTitleTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  virtual void SetTitleTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
   //@}
 
   //@{
@@ -120,8 +120,8 @@ public:
    * Set/Get the labels text property. This controls the appearance
    * of all pie piece labels.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  virtual void SetLabelTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
   //@}
 
   //@{
@@ -131,8 +131,10 @@ public:
    */
   void SetPieceColor(int i, double r, double g, double b);
   void SetPieceColor(int i, const double color[3])
-    { this->SetPieceColor(i, color[0], color[1], color[2]); }
-  double *GetPieceColor(int i);
+  {
+    this->SetPieceColor(i, color[0], color[1], color[2]);
+  }
+  double* GetPieceColor(int i);
   //@}
 
   //@{
@@ -140,7 +142,7 @@ public:
    * Specify the names for each piece of pie.  not specified, then an integer
    * number is automatically generated.
    */
-  void SetPieceLabel(const int i, const char *);
+  void SetPieceLabel(const int i, const char*);
   const char* GetPieceLabel(int i);
   //@}
 
@@ -160,7 +162,7 @@ public:
    * Retrieve handles to the legend box. This is useful if you would like
    * to manually control the legend appearance.
    */
-  vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
+  vtkGetObjectMacro(LegendActor, vtkLegendBoxActor);
   //@}
 
   //@{
@@ -169,7 +171,7 @@ public:
    */
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;}
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   //@}
 
   /**
@@ -182,59 +184,58 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
   vtkPieChartActor();
   ~vtkPieChartActor() override;
 
 private:
-
   vtkPieChartActorConnection* ConnectionHolder;
 
   vtkIdType ArrayNumber;
   vtkIdType ComponentNumber;
-  vtkTypeBool TitleVisibility;         // Should I see the title?
-  char *Title;                 // The title string
-  vtkTextProperty *TitleTextProperty;
+  vtkTypeBool TitleVisibility; // Should I see the title?
+  char* Title;                 // The title string
+  vtkTextProperty* TitleTextProperty;
   vtkTypeBool LabelVisibility;
-  vtkTextProperty *LabelTextProperty;
-  vtkPieceLabelArray *Labels;
+  vtkTextProperty* LabelTextProperty;
+  vtkPieceLabelArray* Labels;
   vtkTypeBool LegendVisibility;
-  vtkLegendBoxActor *LegendActor;
-  vtkGlyphSource2D *GlyphSource;
+  vtkLegendBoxActor* LegendActor;
+  vtkGlyphSource2D* GlyphSource;
 
   // Local variables needed to plot
-  vtkIdType N;                 // The number of values
-  double    Total;             // The total of all values in the data array
-  double   *Fractions;         // The fraction of the pie
+  vtkIdType N;       // The number of values
+  double Total;      // The total of all values in the data array
+  double* Fractions; // The fraction of the pie
 
-  vtkTextMapper    **PieceMappers; //a label for each radial spoke
-  vtkActor2D       **PieceActors;
+  vtkTextMapper** PieceMappers; // a label for each radial spoke
+  vtkActor2D** PieceActors;
 
-  vtkTextMapper    *TitleMapper;
-  vtkActor2D       *TitleActor;
+  vtkTextMapper* TitleMapper;
+  vtkActor2D* TitleActor;
 
-  vtkPolyData         *WebData;    // The web of the spider plot
-  vtkPolyDataMapper2D *WebMapper;
-  vtkActor2D          *WebActor;
+  vtkPolyData* WebData; // The web of the spider plot
+  vtkPolyDataMapper2D* WebMapper;
+  vtkActor2D* WebActor;
 
-  vtkPolyData         *PlotData;    // The lines drawn within the axes
-  vtkPolyDataMapper2D *PlotMapper;
-  vtkActor2D          *PlotActor;
+  vtkPolyData* PlotData; // The lines drawn within the axes
+  vtkPolyDataMapper2D* PlotMapper;
+  vtkActor2D* PlotActor;
 
-  vtkTimeStamp  BuildTime;
+  vtkTimeStamp BuildTime;
 
   double Center[3];
   double Radius;
 
-  int   LastPosition[2];
-  int   LastPosition2[2];
+  int LastPosition[2];
+  int LastPosition2[2];
   double P1[3];
   double P2[3];
 
   void Initialize();
-  int PlaceAxes(vtkViewport *viewport, int *size);
+  int PlaceAxes(vtkViewport* viewport, int* size);
   int BuildPlot(vtkViewport*);
 
 private:
@@ -242,6 +243,4 @@ private:
   void operator=(const vtkPieChartActor&) = delete;
 };
 
-
 #endif
-

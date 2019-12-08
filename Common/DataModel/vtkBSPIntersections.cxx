@@ -20,37 +20,36 @@
 
 #include "vtkBSPIntersections.h"
 #include "vtkBSPCuts.h"
-#include "vtkKdNode.h"
-#include "vtkObjectFactory.h"
 #include "vtkCell.h"
-#include "vtkPoints.h"
+#include "vtkKdNode.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
 #include <set>
 
-
 vtkStandardNewMacro(vtkBSPIntersections);
 
-#define REGIONCHECK(err)     \
-if (this->BuildRegionList()) \
-{                          \
-  return err;                \
-}
+#define REGIONCHECK(err)                                                                           \
+  if (this->BuildRegionList())                                                                     \
+  {                                                                                                \
+    return err;                                                                                    \
+  }
 
-#define REGIONIDCHECK_RETURNERR(id, err) \
-if (this->BuildRegionList()) \
-{                          \
-  return err;                \
-}                          \
-if (((id) < 0) || ((id) >= this->NumberOfRegions))  \
-{                                                 \
-  vtkErrorMacro(<< "Invalid region ID");            \
-  return (err);                                     \
-}
+#define REGIONIDCHECK_RETURNERR(id, err)                                                           \
+  if (this->BuildRegionList())                                                                     \
+  {                                                                                                \
+    return err;                                                                                    \
+  }                                                                                                \
+  if (((id) < 0) || ((id) >= this->NumberOfRegions))                                               \
+  {                                                                                                \
+    vtkErrorMacro(<< "Invalid region ID");                                                         \
+    return (err);                                                                                  \
+  }
 
 //----------------------------------------------------------------------------
 
-vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts)
+vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts);
 
 //----------------------------------------------------------------------------
 
@@ -86,21 +85,20 @@ vtkBSPIntersections::vtkBSPIntersections()
 vtkBSPIntersections::~vtkBSPIntersections()
 {
   this->SetCuts(nullptr);
-  delete [] this->RegionList;
+  delete[] this->RegionList;
 }
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::BuildRegionList()
 {
-  if ((this->RegionList != nullptr) &&
-      (this->RegionListBuildTime > this->GetMTime()))
+  if ((this->RegionList != nullptr) && (this->RegionListBuildTime > this->GetMTime()))
   {
     return 0;
   }
 
-  delete [] this->RegionList;
+  delete[] this->RegionList;
   this->RegionList = nullptr;
 
-  vtkKdNode *top = nullptr;
+  vtkKdNode* top = nullptr;
   if (this->Cuts)
   {
     top = this->Cuts->GetKdNodeTree();
@@ -119,7 +117,7 @@ int vtkBSPIntersections::BuildRegionList()
     return 1;
   }
 
-  this->RegionList = new vtkKdNode * [this->NumberOfRegions];
+  this->RegionList = new vtkKdNode*[this->NumberOfRegions];
 
   if (!this->RegionList)
   {
@@ -135,8 +133,8 @@ int vtkBSPIntersections::BuildRegionList()
     return 1;
   }
 
-  int min=0;
-  int max=0;
+  int min = 0;
+  int max = 0;
 
   vtkBSPIntersections::SetIDRanges(top, min, max);
 
@@ -145,7 +143,7 @@ int vtkBSPIntersections::BuildRegionList()
   return 0;
 }
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::SelfRegister(vtkKdNode *kd)
+int vtkBSPIntersections::SelfRegister(vtkKdNode* kd)
 {
   int fail = 0;
 
@@ -172,9 +170,9 @@ int vtkBSPIntersections::SelfRegister(vtkKdNode *kd)
   return fail;
 }
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::NumberOfLeafNodes(vtkKdNode *kd)
+int vtkBSPIntersections::NumberOfLeafNodes(vtkKdNode* kd)
 {
-  int nLeafNodes=1;
+  int nLeafNodes = 1;
 
   if (kd->GetLeft() != nullptr)
   {
@@ -187,10 +185,10 @@ int vtkBSPIntersections::NumberOfLeafNodes(vtkKdNode *kd)
   return nLeafNodes;
 }
 //----------------------------------------------------------------------------
-void vtkBSPIntersections::SetIDRanges(vtkKdNode *kd, int &min, int &max)
+void vtkBSPIntersections::SetIDRanges(vtkKdNode* kd, int& min, int& max)
 {
-  int tempMin=0;
-  int tempMax=0;
+  int tempMin = 0;
+  int tempMax = 0;
 
   if (kd->GetLeft() == nullptr)
   {
@@ -209,7 +207,7 @@ void vtkBSPIntersections::SetIDRanges(vtkKdNode *kd, int &min, int &max)
   kd->SetMaxID(max);
 }
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::GetBounds(double *bounds)
+int vtkBSPIntersections::GetBounds(double* bounds)
 {
   REGIONCHECK(1);
 
@@ -230,7 +228,7 @@ int vtkBSPIntersections::GetRegionBounds(int regionID, double bounds[6])
 {
   REGIONIDCHECK_RETURNERR(regionID, 1)
 
-  vtkKdNode *node = this->RegionList[regionID];
+  vtkKdNode* node = this->RegionList[regionID];
 
   node->GetBounds(bounds);
 
@@ -242,7 +240,7 @@ int vtkBSPIntersections::GetRegionDataBounds(int regionID, double bounds[6])
 {
   REGIONIDCHECK_RETURNERR(regionID, 1)
 
-  vtkKdNode *node = this->RegionList[regionID];
+  vtkKdNode* node = this->RegionList[regionID];
 
   node->GetDataBounds(bounds);
 
@@ -258,33 +256,31 @@ int vtkBSPIntersections::GetRegionDataBounds(int regionID, double bounds[6])
 //
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int regionId, double *x)
+int vtkBSPIntersections::IntersectsBox(int regionId, double* x)
 {
   return this->IntersectsBox(regionId, x[0], x[1], x[2], x[3], x[4], x[5]);
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int regionId, double x0, double x1,
-                           double y0, double y1, double z0, double z1)
+int vtkBSPIntersections::IntersectsBox(
+  int regionId, double x0, double x1, double y0, double y1, double z0, double z1)
 {
   REGIONIDCHECK_RETURNERR(regionId, 0);
 
-  vtkKdNode *node = this->RegionList[regionId];
+  vtkKdNode* node = this->RegionList[regionId];
 
-  return node->IntersectsBox(x0, x1, y0, y1, z0, z1,
-                     this->ComputeIntersectionsUsingDataBounds);
+  return node->IntersectsBox(x0, x1, y0, y1, z0, z1, this->ComputeIntersectionsUsingDataBounds);
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int *ids, int len, double *x)
+int vtkBSPIntersections::IntersectsBox(int* ids, int len, double* x)
 {
-  return this->IntersectsBox(ids, len,  x[0], x[1], x[2], x[3], x[4], x[5]);
+  return this->IntersectsBox(ids, len, x[0], x[1], x[2], x[3], x[4], x[5]);
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int *ids, int len,
-                             double x0, double x1,
-                             double y0, double y1, double z0, double z1)
+int vtkBSPIntersections::IntersectsBox(
+  int* ids, int len, double x0, double x1, double y0, double y1, double z0, double z1)
 {
   REGIONCHECK(0);
 
@@ -292,22 +288,19 @@ int vtkBSPIntersections::IntersectsBox(int *ids, int len,
 
   if (len > 0)
   {
-    nnodes = this->_IntersectsBox(this->Cuts->GetKdNodeTree(), ids, len,
-                             x0, x1, y0, y1, z0, z1);
+    nnodes = this->_IntersectsBox(this->Cuts->GetKdNodeTree(), ids, len, x0, x1, y0, y1, z0, z1);
   }
   return nnodes;
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
-                             double x0, double x1,
-                             double y0, double y1, double z0, double z1)
+int vtkBSPIntersections::_IntersectsBox(vtkKdNode* node, int* ids, int len, double x0, double x1,
+  double y0, double y1, double z0, double z1)
 {
   int result, nnodes1, nnodes2, listlen;
-  int *idlist;
+  int* idlist;
 
-  result = node->IntersectsBox(x0, x1, y0, y1, z0, z1,
-                             this->ComputeIntersectionsUsingDataBounds);
+  result = node->IntersectsBox(x0, x1, y0, y1, z0, z1, this->ComputeIntersectionsUsingDataBounds);
 
   if (!result)
   {
@@ -340,20 +333,19 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
 //----------------------------------------------------------------------------
 // Intersection with a sphere---------------------------------------
 //
-int vtkBSPIntersections::IntersectsSphere2(int regionId, double x, double y, double z,
-                                double rSquared)
+int vtkBSPIntersections::IntersectsSphere2(
+  int regionId, double x, double y, double z, double rSquared)
 {
   REGIONIDCHECK_RETURNERR(regionId, 0);
 
-  vtkKdNode *node = this->RegionList[regionId];
+  vtkKdNode* node = this->RegionList[regionId];
 
-  return node->IntersectsSphere2(x, y, z, rSquared,
-                     this->ComputeIntersectionsUsingDataBounds);
+  return node->IntersectsSphere2(x, y, z, rSquared, this->ComputeIntersectionsUsingDataBounds);
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsSphere2(int *ids, int len,
-                       double x, double y, double z, double rSquared)
+int vtkBSPIntersections::IntersectsSphere2(
+  int* ids, int len, double x, double y, double z, double rSquared)
 {
   REGIONCHECK(0)
 
@@ -361,21 +353,19 @@ int vtkBSPIntersections::IntersectsSphere2(int *ids, int len,
 
   if (len > 0)
   {
-    nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(),
-      ids, len, x, y, z, rSquared);
+    nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(), ids, len, x, y, z, rSquared);
   }
   return nnodes;
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
-                                  double x, double y, double z, double rSquared)
+int vtkBSPIntersections::_IntersectsSphere2(
+  vtkKdNode* node, int* ids, int len, double x, double y, double z, double rSquared)
 {
   int result, nnodes1, nnodes2, listlen;
-  int *idlist;
+  int* idlist;
 
-  result = node->IntersectsSphere2(x, y, z, rSquared,
-                             this->ComputeIntersectionsUsingDataBounds);
+  result = node->IntersectsSphere2(x, y, z, rSquared, this->ComputeIntersectionsUsingDataBounds);
 
   if (!result)
   {
@@ -410,24 +400,23 @@ int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
 //
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsCell(int regionId, vtkCell *cell, int cellRegion)
+int vtkBSPIntersections::IntersectsCell(int regionId, vtkCell* cell, int cellRegion)
 {
   REGIONIDCHECK_RETURNERR(regionId, 0);
 
-  vtkKdNode *node = this->RegionList[regionId];
+  vtkKdNode* node = this->RegionList[regionId];
 
-  return node->IntersectsCell(cell, this->ComputeIntersectionsUsingDataBounds,
-                              cellRegion);
+  return node->IntersectsCell(cell, this->ComputeIntersectionsUsingDataBounds, cellRegion);
 }
 //----------------------------------------------------------------------------
-void vtkBSPIntersections::SetCellBounds(vtkCell *cell, double *bounds)
+void vtkBSPIntersections::SetCellBounds(vtkCell* cell, double* bounds)
 {
-  vtkPoints *pts = cell->GetPoints();
-  pts->Modified();         // VTK bug - so bounds will be re-calculated
+  vtkPoints* pts = cell->GetPoints();
+  pts->Modified(); // VTK bug - so bounds will be re-calculated
   pts->GetBounds(bounds);
 }
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsCell(int *ids, int len, vtkCell *cell, int cellRegion)
+int vtkBSPIntersections::IntersectsCell(int* ids, int len, vtkCell* cell, int cellRegion)
 {
   REGIONCHECK(0)
 
@@ -436,30 +425,27 @@ int vtkBSPIntersections::IntersectsCell(int *ids, int len, vtkCell *cell, int ce
   return this->_IntersectsCell(this->Cuts->GetKdNodeTree(), ids, len, cell, cellRegion);
 }
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
-                                 vtkCell *cell, int cellRegion)
+int vtkBSPIntersections::_IntersectsCell(
+  vtkKdNode* node, int* ids, int len, vtkCell* cell, int cellRegion)
 {
   int result, nnodes1, nnodes2, listlen, intersects;
-  int *idlist;
+  int* idlist;
 
-  intersects = node->IntersectsCell(cell,
-                                this->ComputeIntersectionsUsingDataBounds,
-                                cellRegion, this->CellBoundsCache);
+  intersects = node->IntersectsCell(
+    cell, this->ComputeIntersectionsUsingDataBounds, cellRegion, this->CellBoundsCache);
 
   if (intersects)
   {
     if (node->GetLeft())
     {
-      nnodes1 = this->_IntersectsCell(node->GetLeft(), ids, len, cell,
-                                cellRegion);
+      nnodes1 = this->_IntersectsCell(node->GetLeft(), ids, len, cell, cellRegion);
 
       idlist = ids + nnodes1;
       listlen = len - nnodes1;
 
       if (listlen > 0)
       {
-        nnodes2 = this->_IntersectsCell(node->GetRight(), idlist, listlen, cell,
-                                  cellRegion);
+        nnodes2 = this->_IntersectsCell(node->GetRight(), idlist, listlen, cell, cellRegion);
       }
       else
       {
@@ -470,7 +456,7 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
     }
     else
     {
-      ids[0] = node->GetID();     // leaf node (spatial region)
+      ids[0] = node->GetID(); // leaf node (spatial region)
 
       result = 1;
     }
@@ -486,12 +472,12 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
 //----------------------------------------------------------------------------
 void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Cuts: ";
-  if( this->Cuts )
+  if (this->Cuts)
   {
-    this->Cuts->PrintSelf(os << endl, indent.GetNextIndent() );
+    this->Cuts->PrintSelf(os << endl, indent.GetNextIndent());
   }
   else
   {
@@ -500,7 +486,10 @@ void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfRegions: " << this->NumberOfRegions << endl;
   os << indent << "RegionList: " << this->RegionList << endl;
   os << indent << "RegionListBuildTime: " << this->RegionListBuildTime << endl;
-  os << indent << "ComputeIntersectionsUsingDataBounds: " << this->ComputeIntersectionsUsingDataBounds << endl;
-  double *d = this->CellBoundsCache;
-  os << indent << "CellBoundsCache " << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << " " << d[4] << " " << d[5] << " " << endl;
+  os << indent
+     << "ComputeIntersectionsUsingDataBounds: " << this->ComputeIntersectionsUsingDataBounds
+     << endl;
+  double* d = this->CellBoundsCache;
+  os << indent << "CellBoundsCache " << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << " "
+     << d[4] << " " << d[5] << " " << endl;
 }

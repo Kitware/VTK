@@ -24,14 +24,14 @@
  *
  * @sa
  * vtkSliderWidget
-*/
+ */
 
 #ifndef vtkSliderRepresentation2D_h
 #define vtkSliderRepresentation2D_h
 
+#include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
-#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
 class vtkPoints;
 class vtkCellArray;
@@ -49,20 +49,19 @@ class vtkTextProperty;
 class vtkTextMapper;
 class vtkTextActor;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation2D : public vtkSliderRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkSliderRepresentation2D *New();
+  static vtkSliderRepresentation2D* New();
 
   //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkSliderRepresentation2D,vtkSliderRepresentation);
+  vtkTypeMacro(vtkSliderRepresentation2D, vtkSliderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -74,7 +73,7 @@ public:
    * then invoke the necessary methods to put it into the correct coordinate
    * system and set the correct initial value.
    */
-  vtkCoordinate *GetPoint1Coordinate();
+  vtkCoordinate* GetPoint1Coordinate();
 
   /**
    * Position the second end point of the slider. Note that this point is an
@@ -84,7 +83,7 @@ public:
    * then invoke the necessary methods to put it into the correct coordinate
    * system and set the correct initial value.
    */
-  vtkCoordinate *GetPoint2Coordinate();
+  vtkCoordinate* GetPoint2Coordinate();
 
   //@{
   /**
@@ -100,15 +99,15 @@ public:
    * Get the slider properties. The properties of the slider when selected
    * and unselected can be manipulated.
    */
-  vtkGetObjectMacro(SliderProperty,vtkProperty2D);
+  vtkGetObjectMacro(SliderProperty, vtkProperty2D);
   //@}
 
   //@{
   /**
    * Get the properties for the tube and end caps.
    */
-  vtkGetObjectMacro(TubeProperty,vtkProperty2D);
-  vtkGetObjectMacro(CapProperty,vtkProperty2D);
+  vtkGetObjectMacro(TubeProperty, vtkProperty2D);
+  vtkGetObjectMacro(CapProperty, vtkProperty2D);
   //@}
 
   //@{
@@ -116,15 +115,15 @@ public:
    * Get the selection property. This property is used to modify the appearance of
    * selected objects (e.g., the slider).
    */
-  vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
+  vtkGetObjectMacro(SelectedProperty, vtkProperty2D);
   //@}
 
   //@{
   /**
    * Set/Get the properties for the label and title text.
    */
-  vtkGetObjectMacro(LabelProperty,vtkTextProperty);
-  vtkGetObjectMacro(TitleProperty,vtkTextProperty);
+  vtkGetObjectMacro(LabelProperty, vtkTextProperty);
+  vtkGetObjectMacro(TitleProperty, vtkTextProperty);
   //@}
 
   //@{
@@ -155,47 +154,47 @@ protected:
   ~vtkSliderRepresentation2D() override;
 
   // Positioning the widget
-  vtkCoordinate *Point1Coordinate;
-  vtkCoordinate *Point2Coordinate;
+  vtkCoordinate* Point1Coordinate;
+  vtkCoordinate* Point2Coordinate;
 
   // Determine the parameter t along the slider
   virtual double ComputePickPosition(double eventPos[2]);
 
   // Define the geometry. It is constructed in canaonical position
   // along the x-axis and then rotated into position.
-  vtkTransform        *XForm;
-  vtkPoints           *Points;
+  vtkTransform* XForm;
+  vtkPoints* Points;
 
-  vtkCellArray        *SliderCells;
-  vtkPolyData         *Slider;
-  vtkTransformPolyDataFilter *SliderXForm;
-  vtkPolyDataMapper2D *SliderMapper;
-  vtkActor2D          *SliderActor;
-  vtkProperty2D       *SliderProperty;
+  vtkCellArray* SliderCells;
+  vtkPolyData* Slider;
+  vtkTransformPolyDataFilter* SliderXForm;
+  vtkPolyDataMapper2D* SliderMapper;
+  vtkActor2D* SliderActor;
+  vtkProperty2D* SliderProperty;
 
-  vtkCellArray        *TubeCells;
-  vtkPolyData         *Tube;
-  vtkTransformPolyDataFilter *TubeXForm;
-  vtkPolyDataMapper2D *TubeMapper;
-  vtkActor2D          *TubeActor;
-  vtkProperty2D       *TubeProperty;
+  vtkCellArray* TubeCells;
+  vtkPolyData* Tube;
+  vtkTransformPolyDataFilter* TubeXForm;
+  vtkPolyDataMapper2D* TubeMapper;
+  vtkActor2D* TubeActor;
+  vtkProperty2D* TubeProperty;
 
-  vtkCellArray        *CapCells;
-  vtkPolyData         *Cap;
-  vtkTransformPolyDataFilter *CapXForm;
-  vtkPolyDataMapper2D *CapMapper;
-  vtkActor2D          *CapActor;
-  vtkProperty2D       *CapProperty;
+  vtkCellArray* CapCells;
+  vtkPolyData* Cap;
+  vtkTransformPolyDataFilter* CapXForm;
+  vtkPolyDataMapper2D* CapMapper;
+  vtkActor2D* CapActor;
+  vtkProperty2D* CapProperty;
 
-  vtkTextProperty     *LabelProperty;
-  vtkTextMapper       *LabelMapper;
-  vtkActor2D          *LabelActor;
+  vtkTextProperty* LabelProperty;
+  vtkTextMapper* LabelMapper;
+  vtkActor2D* LabelActor;
 
-  vtkTextProperty     *TitleProperty;
-  vtkTextMapper       *TitleMapper;
-  vtkActor2D          *TitleActor;
+  vtkTextProperty* TitleProperty;
+  vtkTextMapper* TitleMapper;
+  vtkActor2D* TitleActor;
 
-  vtkProperty2D       *SelectedProperty;
+  vtkProperty2D* SelectedProperty;
 
   // internal variables used for computation
   double X;

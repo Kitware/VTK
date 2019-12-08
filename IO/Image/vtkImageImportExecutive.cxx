@@ -20,21 +20,20 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkImageImport.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageImport.h"
 
 vtkStandardNewMacro(vtkImageImportExecutive);
 
 //----------------------------------------------------------------------------
-int vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
-                                            vtkInformationVector** inInfoVec,
-                                            vtkInformationVector* outInfoVec)
+vtkTypeBool vtkImageImportExecutive::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
-  if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
+  if (this->Algorithm && request->Has(REQUEST_INFORMATION()))
   {
     // Invoke the callback
-    vtkImageImport *ii = vtkImageImport::SafeDownCast(this->Algorithm);
+    vtkImageImport* ii = vtkImageImport::SafeDownCast(this->Algorithm);
     ii->InvokeUpdateInformationCallbacks();
   }
 

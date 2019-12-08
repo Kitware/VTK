@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkTransposeMatrix.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
@@ -26,7 +27,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
-#include "vtkTransposeMatrix.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTransposeMatrix
@@ -43,21 +43,20 @@ void vtkTransposeMatrix::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkTransposeMatrix::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  if(input->GetNumberOfArrays() != 1)
+  if (input->GetNumberOfArrays() != 1)
   {
-    vtkErrorMacro(<< "vtkTransposeMatrix requires vtkArrayData containing exactly one array as input.");
+    vtkErrorMacro(
+      << "vtkTransposeMatrix requires vtkArrayData containing exactly one array as input.");
     return 0;
   }
 
-  if(vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
-      input->GetArray(static_cast<vtkIdType>(0))))
+  if (vtkSparseArray<double>* const input_array =
+        vtkSparseArray<double>::SafeDownCast(input->GetArray(static_cast<vtkIdType>(0))))
   {
-    if(input_array->GetDimensions() != 2)
+    if (input_array->GetDimensions() != 2)
     {
       vtkErrorMacro(<< "vtkTransposeMatrix requires a matrix as input.");
       return 0;
@@ -72,10 +71,11 @@ int vtkTransposeMatrix::RequestData(
 
     vtkArrayCoordinates coordinates;
     const vtkIdType element_count = input_array->GetNonNullSize();
-    for(vtkIdType n = 0; n != element_count; ++n)
+    for (vtkIdType n = 0; n != element_count; ++n)
     {
       input_array->GetCoordinatesN(n, coordinates);
-      output_array->AddValue(vtkArrayCoordinates(coordinates[1], coordinates[0]), input_array->GetValueN(n));
+      output_array->AddValue(
+        vtkArrayCoordinates(coordinates[1], coordinates[0]), input_array->GetValueN(n));
     }
 
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -85,11 +85,11 @@ int vtkTransposeMatrix::RequestData(
   }
   else
   {
-    vtkDenseArray<double>* const input_array2=vtkDenseArray<double>::SafeDownCast(
-      input->GetArray(static_cast<vtkIdType>(0)));
-    if(input_array2!=nullptr)
+    vtkDenseArray<double>* const input_array2 =
+      vtkDenseArray<double>::SafeDownCast(input->GetArray(static_cast<vtkIdType>(0)));
+    if (input_array2 != nullptr)
     {
-      if(input_array2->GetDimensions() != 2)
+      if (input_array2->GetDimensions() != 2)
       {
         vtkErrorMacro(<< "vtkTransposeMatrix requires a matrix as input.");
         return 0;
@@ -99,17 +99,16 @@ int vtkTransposeMatrix::RequestData(
 
       vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
 
-      output_array->Resize(vtkArrayExtents(input_extents[1],input_extents[0]));
+      output_array->Resize(vtkArrayExtents(input_extents[1], input_extents[0]));
       output_array->SetDimensionLabel(0, input_array2->GetDimensionLabel(1));
       output_array->SetDimensionLabel(1, input_array2->GetDimensionLabel(0));
 
-      for(vtkIdType i = input_extents[0].GetBegin(); i != input_extents[0].GetEnd(); ++i)
+      for (vtkIdType i = input_extents[0].GetBegin(); i != input_extents[0].GetEnd(); ++i)
       {
-        for(vtkIdType j = input_extents[1].GetBegin(); j != input_extents[1].GetEnd(); ++j)
+        for (vtkIdType j = input_extents[1].GetBegin(); j != input_extents[1].GetEnd(); ++j)
         {
           output_array->SetValue(
-            vtkArrayCoordinates(j, i),
-            input_array2->GetValue(vtkArrayCoordinates(i, j)));
+            vtkArrayCoordinates(j, i), input_array2->GetValue(vtkArrayCoordinates(i, j)));
         }
       }
 
@@ -127,4 +126,3 @@ int vtkTransposeMatrix::RequestData(
 
   return 1;
 }
-

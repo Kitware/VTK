@@ -25,18 +25,19 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * Perform the table filtering operations provided by
  * vtkBivariateLinearTableThreshold in parallel.
-*/
+ */
 
 #ifndef vtkPBivariateLinearTableThreshold_h
 #define vtkPBivariateLinearTableThreshold_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkBivariateLinearTableThreshold.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPBivariateLinearTableThreshold : public vtkBivariateLinearTableThreshold
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPBivariateLinearTableThreshold
+  : public vtkBivariateLinearTableThreshold
 {
 public:
   static vtkPBivariateLinearTableThreshold* New();
@@ -49,19 +50,17 @@ public:
    * results from the individual nodes.
    */
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
 protected:
   vtkPBivariateLinearTableThreshold();
   ~vtkPBivariateLinearTableThreshold() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPBivariateLinearTableThreshold(const vtkPBivariateLinearTableThreshold&) = delete;
   void operator=(const vtkPBivariateLinearTableThreshold&) = delete;

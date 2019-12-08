@@ -18,13 +18,12 @@
 
 #include "vtkOpenGLHelper.h"
 
-
 #include "vtkFloatArray.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -38,13 +37,13 @@
 #include "vtkTextureObjectVS.h"
 #include "vtkTimerLog.h"
 
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <string>
+#include <vector>
 
 using std::deque;
-using std::vector;
 using std::string;
+using std::vector;
 
 // Enable stream min/max computations. Streaming is accomplished
 // via PBO+glReadPixels to read just the regions we are updating.
@@ -71,8 +70,7 @@ using std::string;
 #include <sstream>
 using std::ostringstream;
 //----------------------------------------------------------------------------
-static
-string mpifn(int rank, const char *fn)
+static string mpifn(int rank, const char* fn)
 {
   ostringstream oss;
   oss << rank << "_" << fn;
@@ -86,20 +84,19 @@ string mpifn(int rank, const char *fn)
 #endif
 
 // shader sources
-#include "vtkLineIntegralConvolution2D_VT.h" // normalized image space transform
+#include "vtkLineIntegralConvolution2D_AAH.h"  // horizontal part of anti-alias filter
+#include "vtkLineIntegralConvolution2D_AAV.h"  // vertical part of anti-alias filter
+#include "vtkLineIntegralConvolution2D_CE.h"   // contrast enhance
+#include "vtkLineIntegralConvolution2D_EE.h"   // Laplace edge-enhance
 #include "vtkLineIntegralConvolution2D_LIC0.h" // initialization for lic
 #include "vtkLineIntegralConvolution2D_LICI.h" // compute i'th lic step
 #include "vtkLineIntegralConvolution2D_LICN.h" // finalize lic
-#include "vtkLineIntegralConvolution2D_EE.h"   // Laplace edge-enhance
-#include "vtkLineIntegralConvolution2D_CE.h"   // contrast enhance
-#include "vtkLineIntegralConvolution2D_AAH.h"  // horizontal part of anti-alias filter
-#include "vtkLineIntegralConvolution2D_AAV.h"  // vertical part of anti-alias filter
+#include "vtkLineIntegralConvolution2D_VT.h"   // normalized image space transform
 
 #if defined(NDEBUG) || (vtkLineIntegralConvolution2DDEBUG < 3)
-# define DEBUG3CheckFrameBufferStatusMacro(mode)
+#define DEBUG3CheckFrameBufferStatusMacro(mode)
 #else
-# define DEBUG3CheckFrameBufferStatusMacro(mode) \
-    vtkStaticCheckFrameBufferStatusMacro(mode)
+#define DEBUG3CheckFrameBufferStatusMacro(mode) vtkStaticCheckFrameBufferStatusMacro(mode)
 #endif
 
 /// vtkLICPingPongBufferManager -- gpgpu buffer manager
@@ -112,14 +109,9 @@ is taken to avoid feedback loops.
 class vtkLICPingPongBufferManager
 {
 public:
-  vtkLICPingPongBufferManager(
-      vtkOpenGLFramebufferObject *fbo,
-      unsigned int *bufSize,
-      vtkTextureObject *vectorTexture,
-      vtkTextureObject *maskVectorTexture,
-      vtkTextureObject *noiseTexture,
-      int doEEPass,
-      int doVTPass)
+  vtkLICPingPongBufferManager(vtkOpenGLFramebufferObject* fbo, unsigned int* bufSize,
+    vtkTextureObject* vectorTexture, vtkTextureObject* maskVectorTexture,
+    vtkTextureObject* noiseTexture, int doEEPass, int doVTPass)
   {
     this->VectorTexture = vectorTexture;
     this->MaskVectorTexture = maskVectorTexture;
@@ -128,8 +120,7 @@ public:
     this->ReadIndex = 0;
 
     // allocate buffers
-    vtkOpenGLRenderWindow *context =
-      vtkOpenGLRenderWindow::SafeDownCast(fbo->GetContext());
+    vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(fbo->GetContext());
     this->LICTexture0 = this->AllocateLICBuffer(context, bufSize);
     this->SeedTexture0 = this->AllocateLICBuffer(context, bufSize);
     this->LICTexture1 = this->AllocateLICBuffer(context, bufSize);
@@ -152,9 +143,9 @@ public:
     this->QuadVBO = nullptr;
     this->LastQuadProgram = nullptr;
 
-    #if vtkLineIntegralConvolution2DDEBUG >= 3
+#if vtkLineIntegralConvolution2DDEBUG >= 3
     this->Print(cerr);
-    #endif
+#endif
   }
 
   ~vtkLICPingPongBufferManager()
@@ -188,10 +179,7 @@ public:
   //   noise        | 2
   //   lic          | 3
   //   seeds        | 4
-  int GetVectorTextureUnit()
-  {
-    return this->VectorTexture->GetTextureUnit();
-  }
+  int GetVectorTextureUnit() { return this->VectorTexture->GetTextureUnit(); }
   int GetImageVectorTextureUnit()
   {
     if (this->ImageVectorTexture)
@@ -234,47 +222,44 @@ public:
 
   // Description:
   // Switch input and output buffers
-  void Swap(){ this->ReadIndex = 1 - this->ReadIndex; }
+  void Swap() { this->ReadIndex = 1 - this->ReadIndex; }
 
   // Description:
   // Get the last output (assumes a swap has been done).
-  vtkTextureObject *GetLastLICBuffer()
+  vtkTextureObject* GetLastLICBuffer()
   {
     return this->ReadIndex == 0 ? this->LICTexture0 : this->LICTexture1;
   }
 
   // Description:
   // Get the last output (assumes a swap has been done).
-  vtkTextureObject *GetLastSeedBuffer()
+  vtkTextureObject* GetLastSeedBuffer()
   {
     return this->ReadIndex == 0 ? this->SeedTexture0 : this->SeedTexture1;
   }
 
   // Description:
   // Get the last output (assumes a swap has been done).
-  vtkTextureObject *GetLICBuffer()
+  vtkTextureObject* GetLICBuffer()
   {
-    return 1-this->ReadIndex == 0 ? this->LICTexture0 : this->LICTexture1;
+    return 1 - this->ReadIndex == 0 ? this->LICTexture0 : this->LICTexture1;
   }
 
   // Description:
   // Get the last output (assumes a swap has been done).
-  vtkTextureObject *GetSeedBuffer()
+  vtkTextureObject* GetSeedBuffer()
   {
-    return 1-this->ReadIndex == 0 ? this->SeedTexture0 : this->SeedTexture1;
+    return 1 - this->ReadIndex == 0 ? this->SeedTexture0 : this->SeedTexture1;
   }
 
   // Description:
   // Clear all the buffers used for writing.
-  void ClearBuffers(
-        vtkOpenGLFramebufferObject *fbo,
-        const vtkPixelExtent &viewExt,
-        const deque<vtkPixelExtent> &extents,
-        int clearEETex = 0)
+  void ClearBuffers(vtkOpenGLFramebufferObject* fbo, const vtkPixelExtent& viewExt,
+    const deque<vtkPixelExtent>& extents, int clearEETex = 0)
   {
-    vtkOpenGLState *ostate = fbo->GetContext()->GetState();
+    vtkOpenGLState* ostate = fbo->GetContext()->GetState();
 
-    //attach
+    // attach
     fbo->AddColorAttachment(0U, this->LICTexture0);
     fbo->AddColorAttachment(1U, this->SeedTexture0);
     fbo->AddColorAttachment(2U, this->LICTexture1);
@@ -293,7 +278,7 @@ public:
     ostate->vtkglClearColor(0.0, 1.0, 0.0, 0.0);
     ostate->vtkglEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
-    for (size_t e=0; e<nBlocks; ++e)
+    for (size_t e = 0; e < nBlocks; ++e)
     {
       vtkPixelExtent ext = extents[e];
       // add halo for linear filtering
@@ -317,15 +302,12 @@ public:
 
   // Description:
   // Clear the given buffer
-  void ClearBuffer(
-        vtkOpenGLFramebufferObject *fbo,
-        vtkTextureObject *tex,
-        const vtkPixelExtent &viewExt,
-        const deque<vtkPixelExtent> &extents)
+  void ClearBuffer(vtkOpenGLFramebufferObject* fbo, vtkTextureObject* tex,
+    const vtkPixelExtent& viewExt, const deque<vtkPixelExtent>& extents)
   {
-    vtkOpenGLState *ostate = fbo->GetContext()->GetState();
+    vtkOpenGLState* ostate = fbo->GetContext()->GetState();
 
-    //attach
+    // attach
     fbo->AddColorAttachment(0U, tex);
     fbo->ActivateDrawBuffers(1);
     DEBUG3CheckFrameBufferStatusMacro(GL_DRAW_FRAMEBUFFER);
@@ -335,7 +317,7 @@ public:
     ostate->vtkglClearColor(0.0, 1.0, 0.0, 0.0);
     ostate->vtkglEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
-    for (size_t e=0; e<nBlocks; ++e)
+    for (size_t e = 0; e < nBlocks; ++e)
     {
       vtkPixelExtent ext = extents[e];
       // add halo for linear filtering
@@ -433,123 +415,84 @@ public:
   // Description:
   // Setup read/write from/to the active lic/seed buffer texture pair
   // for LIC pass.
-  void AttachLICBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachLICBuffers(vtkOpenGLFramebufferObject* fbo)
   {
     // activate read textures
-    vtkTextureObject **readTex = this->Textures[this->ReadIndex];
+    vtkTextureObject** readTex = this->Textures[this->ReadIndex];
     readTex[0]->Activate();
     readTex[1]->Activate();
 
     // attach write textures
-    vtkTextureObject **writeTex = this->Textures[1-this->ReadIndex];
+    vtkTextureObject** writeTex = this->Textures[1 - this->ReadIndex];
 
     glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          writeTex[0]->GetHandle(),
-          0);
+      GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, writeTex[0]->GetHandle(), 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebuffereadTexture2D");
 
     glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT1,
-          GL_TEXTURE_2D,
-          writeTex[1]->GetHandle(),
-          0);
+      GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, writeTex[1]->GetHandle(), 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebuffereadTexture2D");
 
-    GLenum atts[2] = {
-          GL_COLOR_ATTACHMENT0,
-          GL_COLOR_ATTACHMENT1
-          };
-    glDrawBuffers(2, atts);
+    fbo->ActivateDrawBuffers(2);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Remove input/output buffers used for computing the LIC.
-  void DettachLICBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachLICBuffers(vtkOpenGLFramebufferObject* fbo)
   {
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          0U,
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0U, 0);
 
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT1,
-          GL_TEXTURE_2D,
-          0U,
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0U, 0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
-    vtkTextureObject **readTex = this->Textures[this->ReadIndex];
+    vtkTextureObject** readTex = this->Textures[this->ReadIndex];
     readTex[0]->Deactivate();
     readTex[1]->Deactivate();
   }
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void AttachImageVectorBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachImageVectorBuffer(vtkOpenGLFramebufferObject* fbo)
   {
     this->VectorTexture->Activate();
 
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          this->ImageVectorTexture->GetHandle(),
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      this->ImageVectorTexture->GetHandle(), 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum atts[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, atts);
+    fbo->ActivateDrawBuffers(1);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void DettachImageVectorBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachImageVectorBuffer(vtkOpenGLFramebufferObject* fbo)
   {
     this->VectorTexture->Deactivate();
 
-    glFramebufferTexture2D(
-      GL_DRAW_FRAMEBUFFER,
-      GL_COLOR_ATTACHMENT0,
-      GL_TEXTURE_2D,
-      0U,
-      0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0U, 0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void AttachEEBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachEEBuffer(vtkOpenGLFramebufferObject* fbo)
   {
-    vtkTextureObject **readTex = this->Textures[this->ReadIndex];
+    vtkTextureObject** readTex = this->Textures[this->ReadIndex];
     readTex[0]->Activate();
 
     glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          this->EETexture->GetHandle(),
-          0);
+      GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->EETexture->GetHandle(), 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum atts[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, atts);
+    fbo->ActivateDrawBuffers(1);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
     DEBUG3CheckFrameBufferStatusMacro(GL_DRAW_FRAMEBUFFER);
@@ -557,120 +500,93 @@ public:
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void DettachEEBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachEEBuffer(vtkOpenGLFramebufferObject* fbo)
   {
-    vtkTextureObject **readTex = this->Textures[this->ReadIndex];
+    vtkTextureObject** readTex = this->Textures[this->ReadIndex];
     readTex[0]->Deactivate();
 
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          0U,
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0U, 0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Deactivates and removes all read/write buffers that were in
   // use during the run, restoring a pristine FBO/texture unit state.
-  void DettachBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachBuffers(vtkOpenGLFramebufferObject* fbo)
   {
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D,
-          0U,
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0U, 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    glFramebufferTexture2D(
-          GL_DRAW_FRAMEBUFFER,
-          GL_COLOR_ATTACHMENT1,
-          GL_TEXTURE_2D,
-          0U,
-          0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0U, 0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum none = GL_NONE;
-    glDrawBuffers(1, &none);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
     // deactivate all textures?
-    vtkTextureObject **readTex = this->Textures[this->ReadIndex];
-    if (readTex[0]) { readTex[0]->Deactivate(); }
-    if (readTex[1]) { readTex[1]->Deactivate(); }
-    vtkTextureObject **writeTex = this->Textures[1-this->ReadIndex];
-    if (writeTex[0]) { writeTex[0]->Deactivate(); }
-    if (writeTex[1]) { writeTex[1]->Deactivate(); }
+    vtkTextureObject** readTex = this->Textures[this->ReadIndex];
+    if (readTex[0])
+    {
+      readTex[0]->Deactivate();
+    }
+    if (readTex[1])
+    {
+      readTex[1]->Deactivate();
+    }
+    vtkTextureObject** writeTex = this->Textures[1 - this->ReadIndex];
+    if (writeTex[0])
+    {
+      writeTex[0]->Deactivate();
+    }
+    if (writeTex[1])
+    {
+      writeTex[1]->Deactivate();
+    }
   }
 
   // Description:
   // Get the read/write ids
-  int GetReadIndex(){ return this->ReadIndex; }
-  int GetWriteIndex(){ return 1 - this->ReadIndex; }
+  int GetReadIndex() { return this->ReadIndex; }
+  int GetWriteIndex() { return 1 - this->ReadIndex; }
 
   // Description:
   // Allocate a texture of the given size.
   // with parameters for LIC lookups
-  vtkTextureObject *AllocateLICBuffer(
-        vtkOpenGLRenderWindow *context,
-        unsigned int texSize[2])
+  vtkTextureObject* AllocateLICBuffer(vtkOpenGLRenderWindow* context, unsigned int texSize[2])
   {
-    float border[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+    float border[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
     return this->AllocateBuffer(
-          context,
-          texSize,
-          vtkTextureObject::Nearest,
-          vtkTextureObject::ClampToBorder,
-          border);
+      context, texSize, vtkTextureObject::Nearest, vtkTextureObject::ClampToBorder, border);
   }
 
   // Description:
   // Allocate a texture of the given size.
   // with parameters for noise lookups
-  vtkTextureObject *AllocateNoiseBuffer(
-        vtkOpenGLRenderWindow *context,
-        unsigned int texSize[2])
+  vtkTextureObject* AllocateNoiseBuffer(vtkOpenGLRenderWindow* context, unsigned int texSize[2])
   {
-    float border[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float border[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     return this->AllocateBuffer(
-          context,
-          texSize,
-          vtkTextureObject::Nearest,
-          vtkTextureObject::ClampToEdge,
-          border);
+      context, texSize, vtkTextureObject::Nearest, vtkTextureObject::ClampToEdge, border);
   }
 
   // Description:
   // Allocate a texture of the given size.
   // with parameters for LIC
-  vtkTextureObject *AllocateVectorBuffer(
-        vtkOpenGLRenderWindow *context,
-        unsigned int texSize[2])
+  vtkTextureObject* AllocateVectorBuffer(vtkOpenGLRenderWindow* context, unsigned int texSize[2])
   {
-    float border[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float border[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     return this->AllocateBuffer(
-          context,
-          texSize,
-          vtkTextureObject::Linear,
-          vtkTextureObject::ClampToBorder,
-          border);
+      context, texSize, vtkTextureObject::Linear, vtkTextureObject::ClampToBorder, border);
   }
 
   // Description:
   // Allocate a texture of the given size.
-  vtkTextureObject *AllocateBuffer(
-        vtkOpenGLRenderWindow *context,
-        unsigned int texSize[2],
-        int filter,
-        int wrapping,
-        float *borderColor)
+  vtkTextureObject* AllocateBuffer(vtkOpenGLRenderWindow* context, unsigned int texSize[2],
+    int filter, int wrapping, float* borderColor)
   {
-    vtkTextureObject *tex = vtkTextureObject::New();
+    vtkTextureObject* tex = vtkTextureObject::New();
     tex->SetContext(context);
     tex->SetBaseLevel(0);
     tex->SetMaxLevel(0);
@@ -686,25 +602,17 @@ public:
 
   // Description:
   // Render screen aligned quad.
-  void RenderQuad(
-          float computeBoundsPt0[2],
-          float computeBoundsPt1[2],
-          vtkPixelExtent computeExtent,
-          vtkOpenGLHelper *cbo)
+  void RenderQuad(float computeBoundsPt0[2], float computeBoundsPt1[2],
+    vtkPixelExtent computeExtent, vtkOpenGLHelper* cbo)
   {
-    float computeBounds[4] = {
-          computeBoundsPt0[0], computeBoundsPt1[0],
-          computeBoundsPt0[1], computeBoundsPt1[1]
-          };
-     this->RenderQuad(computeBounds, computeExtent, cbo);
+    float computeBounds[4] = { computeBoundsPt0[0], computeBoundsPt1[0], computeBoundsPt0[1],
+      computeBoundsPt1[1] };
+    this->RenderQuad(computeBounds, computeExtent, cbo);
   }
 
   // Description:
   // Render screen aligned quad.
-  void RenderQuad(
-          float computeBounds[4],
-          vtkPixelExtent computeExtent,
-          vtkOpenGLHelper *cbo)
+  void RenderQuad(float computeBounds[4], vtkPixelExtent computeExtent, vtkOpenGLHelper* cbo)
   {
     float quadBounds[4];
     computeExtent.CellToNode();
@@ -719,28 +627,25 @@ public:
     {
       cbo->VAO->ShaderProgramChanged();
       cbo->VAO->Bind();
-      if (!cbo->VAO->AddAttributeArray(cbo->Program, this->QuadVBO, "vertexMC", 0,
-          sizeof(float)*5, VTK_FLOAT, 3, false))
+      if (!cbo->VAO->AddAttributeArray(
+            cbo->Program, this->QuadVBO, "vertexMC", 0, sizeof(float) * 5, VTK_FLOAT, 3, false))
       {
         vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
       }
-      if (!cbo->VAO->AddAttributeArray(cbo->Program, this->QuadVBO, "tcoordMC", sizeof(float)*3,
-          sizeof(float)*5, VTK_FLOAT, 2, false))
+      if (!cbo->VAO->AddAttributeArray(cbo->Program, this->QuadVBO, "tcoordMC", sizeof(float) * 3,
+            sizeof(float) * 5, VTK_FLOAT, 2, false))
       {
         vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
       }
       this->LastQuadProgram = cbo->Program;
     }
 
-    float vwt[] = {
-      computeBounds[0]*2.0f-1.0f, computeBounds[3]*2.0f-1.0f, 0.0f,
-      computeBounds[0], computeBounds[3],
-      computeBounds[0]*2.0f-1.0f, computeBounds[2]*2.0f-1.0f, 0.0f,
-      computeBounds[0], computeBounds[2],
-      computeBounds[1]*2.0f-1.0f, computeBounds[3]*2.0f-1.0f, 0.0f,
-      computeBounds[1], computeBounds[3],
-      computeBounds[1]*2.0f-1.0f, computeBounds[2]*2.0f-1.0f, 0.0f,
-      computeBounds[1], computeBounds[2]};
+    float vwt[] = { computeBounds[0] * 2.0f - 1.0f, computeBounds[3] * 2.0f - 1.0f, 0.0f,
+      computeBounds[0], computeBounds[3], computeBounds[0] * 2.0f - 1.0f,
+      computeBounds[2] * 2.0f - 1.0f, 0.0f, computeBounds[0], computeBounds[2],
+      computeBounds[1] * 2.0f - 1.0f, computeBounds[3] * 2.0f - 1.0f, 0.0f, computeBounds[1],
+      computeBounds[3], computeBounds[1] * 2.0f - 1.0f, computeBounds[2] * 2.0f - 1.0f, 0.0f,
+      computeBounds[1], computeBounds[2] };
 
     this->QuadVBO->Bind();
     this->QuadVBO->Upload(vwt, 20, vtkOpenGLBufferObject::ArrayBuffer);
@@ -748,101 +653,78 @@ public:
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 1)
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
   // Description:
   // Write the last output buffers to disk (assumes a swap has
   // already been done)
   void WriteBuffers(
-      int rank,
-      const char *licFileName,
-      const char *seedFileName,
-      const deque<vtkPixelExtent>& exts)
+    int rank, const char* licFileName, const char* seedFileName, const deque<vtkPixelExtent>& exts)
   {
     if (licFileName)
     {
-      vtkTextureIO::Write(
-              mpifn(rank, licFileName),
-              this->GetLastLICBuffer(),
-              exts);
+      vtkTextureIO::Write(mpifn(rank, licFileName), this->GetLastLICBuffer(), exts);
     }
     if (seedFileName)
     {
-      vtkTextureIO::Write(
-              mpifn(rank, seedFileName),
-              this->GetLastSeedBuffer(),
-              exts);
+      vtkTextureIO::Write(mpifn(rank, seedFileName), this->GetLastSeedBuffer(), exts);
     }
   }
-  void WriteEEBuffer(int rank, const deque<vtkPixelExtent> &exts)
+  void WriteEEBuffer(int rank, const deque<vtkPixelExtent>& exts)
   {
-    vtkTextureIO::Write(
-          mpifn(rank,"lic2d_ee.vtm"),
-          this->EETexture,
-          exts);
+    vtkTextureIO::Write(mpifn(rank, "lic2d_ee.vtm"), this->EETexture, exts);
   }
-  void WriteImageVectorBuffer(int rank, const deque<vtkPixelExtent> &exts)
+  void WriteImageVectorBuffer(int rank, const deque<vtkPixelExtent>& exts)
   {
-    vtkTextureIO::Write(
-          mpifn(rank,"lic2d_ivec.vtm"),
-          this->ImageVectorTexture,
-          exts);
+    vtkTextureIO::Write(mpifn(rank, "lic2d_ivec.vtm"), this->ImageVectorTexture, exts);
   }
   void WriteInputs(int rank, const deque<vtkPixelExtent>& exts)
   {
-    vtkTextureIO::Write(
-              mpifn(rank,"lic2d_vec.vtm"),
-              this->VectorTexture,
-              exts);
+    vtkTextureIO::Write(mpifn(rank, "lic2d_vec.vtm"), this->VectorTexture, exts);
     if (this->MaskVectorTexture)
     {
-      vtkTextureIO::Write(
-                mpifn(rank,"lic2d_mask.vtm"),
-                this->MaskVectorTexture,
-                exts);
+      vtkTextureIO::Write(mpifn(rank, "lic2d_mask.vtm"), this->MaskVectorTexture, exts);
     }
-    vtkTextureIO::Write(
-              mpifn(rank,"lic2d_noise.vtk"),
-              this->NoiseTexture);
+    vtkTextureIO::Write(mpifn(rank, "lic2d_noise.vtk"), this->NoiseTexture);
   }
 
   // Description:
   // Print current state to the given stream
-  void Print(ostream &os)
+  void Print(ostream& os)
   {
-    os
-      << "Vectors = " << this->VectorTexture->GetHandle() << endl
-      << "ImageVectors = " << this->ImageVectorTexture->GetHandle() << endl
-      << "MaskVectors = " << (this->MaskVectorTexture ? this->MaskVectorTexture->GetHandle() : 0U) << endl
-      << "Noise = " << this->NoiseTexture->GetHandle() << endl
-      << "EE = " << (this->EETexture ? this->EETexture->GetHandle() : 0U) << endl
-      << "LIC0 = " << this->LICTexture0->GetHandle() << endl
-      << "Seed0 = " << this->SeedTexture0->GetHandle() << endl
-      << "LIC1 = " << this->LICTexture1->GetHandle() << endl
-      << "Seed1 = " << this->SeedTexture1->GetHandle() << endl
-      << "ReadIndex=" << this->ReadIndex << endl
-      << "PingTextures[0]=" << this->Textures[0][0] << ", " << this->Textures[0][1] << endl
-      << "PongTextures[1]=" << this->Textures[1][0] << ", " << this->Textures[1][1] << endl;
+    os << "Vectors = " << this->VectorTexture->GetHandle() << endl
+       << "ImageVectors = " << this->ImageVectorTexture->GetHandle() << endl
+       << "MaskVectors = " << (this->MaskVectorTexture ? this->MaskVectorTexture->GetHandle() : 0U)
+       << endl
+       << "Noise = " << this->NoiseTexture->GetHandle() << endl
+       << "EE = " << (this->EETexture ? this->EETexture->GetHandle() : 0U) << endl
+       << "LIC0 = " << this->LICTexture0->GetHandle() << endl
+       << "Seed0 = " << this->SeedTexture0->GetHandle() << endl
+       << "LIC1 = " << this->LICTexture1->GetHandle() << endl
+       << "Seed1 = " << this->SeedTexture1->GetHandle() << endl
+       << "ReadIndex=" << this->ReadIndex << endl
+       << "PingTextures[0]=" << this->Textures[0][0] << ", " << this->Textures[0][1] << endl
+       << "PongTextures[1]=" << this->Textures[1][0] << ", " << this->Textures[1][1] << endl;
   }
-  #endif
+#endif
 
 private:
-  vtkTextureObject *VectorTexture;
-  vtkTextureObject *ImageVectorTexture;
-  vtkTextureObject *MaskVectorTexture;
-  vtkTextureObject *NoiseTexture;
-  vtkTextureObject *EETexture;
-  vtkTextureObject *LICTexture0;
-  vtkTextureObject *SeedTexture0;
-  vtkTextureObject *LICTexture1;
-  vtkTextureObject *SeedTexture1;
+  vtkTextureObject* VectorTexture;
+  vtkTextureObject* ImageVectorTexture;
+  vtkTextureObject* MaskVectorTexture;
+  vtkTextureObject* NoiseTexture;
+  vtkTextureObject* EETexture;
+  vtkTextureObject* LICTexture0;
+  vtkTextureObject* SeedTexture0;
+  vtkTextureObject* LICTexture1;
+  vtkTextureObject* SeedTexture1;
 
-  vtkOpenGLBufferObject *QuadVBO;
-  vtkShaderProgram *LastQuadProgram;
+  vtkOpenGLBufferObject* QuadVBO;
+  vtkShaderProgram* LastQuadProgram;
 
-  int  ReadIndex;
-  vtkTextureObject *PingTextures[2];
-  vtkTextureObject *PongTextures[2];
-  vtkTextureObject **Textures[2];
+  int ReadIndex;
+  vtkTextureObject* PingTextures[2];
+  vtkTextureObject* PongTextures[2];
+  vtkTextureObject** Textures[2];
 };
 
 namespace vtkLineIntegralConvolution2DUtil
@@ -850,11 +732,11 @@ namespace vtkLineIntegralConvolution2DUtil
 /**
 glsl shader code for selecting vector comps.
 */
-string GetComponentSelectionProgram(int *compIds)
+string GetComponentSelectionProgram(int* compIds)
 {
   // swizles at 45,46
   string srcCode(".$$");
-  const char *compNames = "xyzw";
+  const char* compNames = "xyzw";
   srcCode[1] = compNames[compIds[0]];
   srcCode[2] = compNames[compIds[1]];
   return srcCode;
@@ -863,10 +745,10 @@ string GetComponentSelectionProgram(int *compIds)
 /*
 Shader code for looking up vectors
 */
-const char *GetVectorLookupProgram(int normalize)
+const char* GetVectorLookupProgram(int normalize)
 {
   // lookup the vector and normalize
-  const char *getNormVecSrc = " \
+  const char* getNormVecSrc = " \
     vec2 getVector( vec2 vectc )\n \
       {\n \
       vec2 V = texture2D( texVectors, vectc ).xy;\n \
@@ -883,47 +765,43 @@ const char *GetVectorLookupProgram(int normalize)
       }\n \
     ";
 
-   // lookup the vector
-   const char *getVecSrc = " \
+  // lookup the vector
+  const char* getVecSrc = " \
     vec2 getVector( vec2 vectc )\n \
       {\n \
       return texture2D( texVectors, vectc ).xy;\n \
       }\n \
     ";
 
-  if ( normalize )
+  if (normalize)
   {
     return getNormVecSrc;
   }
- return getVecSrc;
+  return getVecSrc;
 }
 
 // Description
 // find min/max of unmasked fragments across all regions
 // download the entire screen then search each region
-void FindMinMax(
-      vtkTextureObject *tex,
-      const deque<vtkPixelExtent> &extents,
-      float &min,
-      float &max)
+void FindMinMax(vtkTextureObject* tex, const deque<vtkPixelExtent>& extents, float& min, float& max)
 {
   // download entire screen
   int size0 = tex->GetWidth();
-  vtkPixelBufferObject *colors = tex->Download();
-  float *pColors = static_cast<float*>(colors->MapPackedBuffer());
+  vtkPixelBufferObject* colors = tex->Download();
+  float* pColors = static_cast<float*>(colors->MapPackedBuffer());
   // search each region
   size_t nExtents = extents.size();
-  for (size_t q=0; q<nExtents; ++q)
+  for (size_t q = 0; q < nExtents; ++q)
   {
-    const vtkPixelExtent &extent = extents[q];
-    for (int j=extent[2]; j<=extent[3]; ++j)
+    const vtkPixelExtent& extent = extents[q];
+    for (int j = extent[2]; j <= extent[3]; ++j)
     {
-      for (int i=extent[0]; i<=extent[1]; ++i)
+      for (int i = extent[0]; i <= extent[1]; ++i)
       {
-        int id = 4*(j*size0+i);
-        bool masked = pColors[id+1] != 0.0f;
-        bool ceskip = pColors[id+2] != 0.0f;
-        if ( !masked && !ceskip )
+        int id = 4 * (j * size0 + i);
+        bool masked = pColors[id + 1] != 0.0f;
+        bool ceskip = pColors[id + 2] != 0.0f;
+        if (!masked && !ceskip)
         {
           float color = pColors[id];
           min = min > color ? color : min;
@@ -934,20 +812,16 @@ void FindMinMax(
   }
   colors->UnmapPackedBuffer();
   colors->Delete();
-  #if  vtkLineIntegralConvolution2DDEBUG>=1
+#if vtkLineIntegralConvolution2DDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
-  #endif
+#endif
 }
 
 // Description
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
-void StreamingFindMinMax(
-      vtkOpenGLFramebufferObject *fbo,
-      vtkTextureObject *tex,
-      const deque<vtkPixelExtent> &extents,
-      float &min,
-      float &max)
+void StreamingFindMinMax(vtkOpenGLFramebufferObject* fbo, vtkTextureObject* tex,
+  const deque<vtkPixelExtent>& extents, float& min, float& max)
 {
   size_t nExtents = extents.size();
   // initiate download of each region
@@ -956,33 +830,29 @@ void StreamingFindMinMax(
   fbo->ActivateReadBuffer(0U);
   fbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
   vector<vtkPixelBufferObject*> pbos(nExtents, nullptr);
-  for (size_t q=0; q<nExtents; ++q)
+  for (size_t q = 0; q < nExtents; ++q)
   {
-    pbos[q] = fbo->Download(
-          const_cast<int*>(extents[q].GetData()),
-          VTK_FLOAT,
-          4,
-          GL_FLOAT,
-          GL_RGBA);
+    pbos[q] =
+      fbo->Download(const_cast<int*>(extents[q].GetData()), VTK_FLOAT, 4, GL_FLOAT, GL_RGBA);
   }
   fbo->DeactivateDrawBuffers();
   fbo->DeactivateReadBuffer();
   fbo->RemoveColorAttachment(0U);
   fbo->RemoveColorAttachment(0U);
   // search each region
-  for (size_t q=0; q<nExtents; ++q)
+  for (size_t q = 0; q < nExtents; ++q)
   {
-    vtkPixelBufferObject *&pbo = pbos[q];
-    float *pColors = (float*)pbo->MapPackedBuffer();
+    vtkPixelBufferObject*& pbo = pbos[q];
+    float* pColors = (float*)pbo->MapPackedBuffer();
 
     size_t n = extents[q].Size();
-    for (size_t i = 0; i<n; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
-      bool masked = pColors[4*i+1] != 0.0f;
-      bool ceskip = pColors[4*i+2] != 0.0f;
-      if ( !masked && !ceskip )
+      bool masked = pColors[4 * i + 1] != 0.0f;
+      bool ceskip = pColors[4 * i + 2] != 0.0f;
+      if (!masked && !ceskip)
       {
-        float color = pColors[4*i];
+        float color = pColors[4 * i];
         min = min > color ? color : min;
         max = max < color ? color : max;
       }
@@ -993,9 +863,9 @@ void StreamingFindMinMax(
     pbo = nullptr;
   }
   pbos.clear();
-  #if  vtkLineIntegralConvolution2DDEBUG >= 1
+#if vtkLineIntegralConvolution2DDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
-  #endif
+#endif
 }
 
 };
@@ -1090,13 +960,13 @@ vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
 }
 
 // ----------------------------------------------------------------------------
-vtkOpenGLRenderWindow *vtkLineIntegralConvolution2D::GetContext()
+vtkOpenGLRenderWindow* vtkLineIntegralConvolution2D::GetContext()
 {
   return this->Context;
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow *renWin)
+void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow* renWin)
 {
   if (this->Context == renWin)
   {
@@ -1115,21 +985,20 @@ void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow *renWin)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
+bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow* renWin)
 {
-  vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
+  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if (!context)
   {
     return false;
   }
 
-  return vtkTextureObject::IsSupported(context, true, false, false)
-     && vtkOpenGLFramebufferObject::IsSupported(context)
-     && vtkPixelBufferObject::IsSupported(context);
+  return vtkTextureObject::IsSupported(context, true, false, false) &&
+    vtkOpenGLFramebufferObject::IsSupported(context) && vtkPixelBufferObject::IsSupported(context);
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject * tex)
+void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject* tex)
 {
   tex->SetBaseLevel(0);
   tex->SetMaxLevel(0);
@@ -1143,7 +1012,7 @@ void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject * tex)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetVectorTexParameters(vtkTextureObject *tex)
+void vtkLineIntegralConvolution2D::SetVectorTexParameters(vtkTextureObject* tex)
 {
   tex->SetBaseLevel(0);
   tex->SetMaxLevel(0);
@@ -1199,7 +1068,7 @@ void vtkLineIntegralConvolution2D::SetNormalizeVectors(int val)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram* prog)
 {
   if (this->VTShader)
   {
@@ -1208,7 +1077,7 @@ void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram* prog)
 {
   if (this->LIC0Shader)
   {
@@ -1217,7 +1086,7 @@ void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram* prog)
 {
   if (this->LICIShader)
   {
@@ -1226,7 +1095,7 @@ void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram* prog)
 {
   if (this->LICNShader)
   {
@@ -1235,7 +1104,7 @@ void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram* prog)
 {
   if (this->EEShader)
   {
@@ -1244,7 +1113,7 @@ void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram* prog)
 {
   if (this->CEShader)
   {
@@ -1253,7 +1122,7 @@ void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram* prog)
 {
   if (this->AAHShader)
   {
@@ -1262,7 +1131,7 @@ void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram * prog)
 }
 
 // ----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram * prog)
+void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram* prog)
 {
   if (this->AAVShader)
   {
@@ -1270,64 +1139,52 @@ void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram * prog)
   }
 }
 
-namespace {
-  void BuildAShader(vtkOpenGLRenderWindow *renWin,
-    vtkOpenGLHelper **cbor, const char *frag)
-  {
+namespace
+{
+void BuildAShader(vtkOpenGLRenderWindow* renWin, vtkOpenGLHelper** cbor, const char* frag)
+{
   if (*cbor == nullptr)
   {
     *cbor = new vtkOpenGLHelper;
     std::string VSSource = vtkTextureObjectVS;
     std::string GSSource;
     (*cbor)->Program =
-        renWin->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(),
-                                              frag,
-                                              GSSource.c_str());
+      renWin->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(), frag, GSSource.c_str());
   }
   else
   {
     renWin->GetShaderCache()->ReadyShaderProgram((*cbor)->Program);
   }
-  }
+}
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::BuildShaders()
 {
-  vtkOpenGLRenderWindow *renWin = this->Context;
+  vtkOpenGLRenderWindow* renWin = this->Context;
 
   std::string FSSource = vtkLineIntegralConvolution2D_VT;
-  vtkShaderProgram::Substitute(FSSource,"//VTK::LICComponentSelection::Impl",
+  vtkShaderProgram::Substitute(FSSource, "//VTK::LICComponentSelection::Impl",
     "vec2 V = texture2D(texVectors, tcoordVC.st)" +
-    GetComponentSelectionProgram(this->ComponentIds) + ";"
-    );
-  BuildAShader(renWin, &this->VTShader,
-    FSSource.c_str());
+      GetComponentSelectionProgram(this->ComponentIds) + ";");
+  BuildAShader(renWin, &this->VTShader, FSSource.c_str());
 
-  BuildAShader(renWin, &this->LIC0Shader,
-    vtkLineIntegralConvolution2D_LIC0);
+  BuildAShader(renWin, &this->LIC0Shader, vtkLineIntegralConvolution2D_LIC0);
 
   FSSource = vtkLineIntegralConvolution2D_LICI;
-  vtkShaderProgram::Substitute(FSSource,"//VTK::LICVectorLookup::Impl",
-    GetVectorLookupProgram(this->NormalizeVectors)
-    );
-  BuildAShader(renWin, &this->LICIShader,
-    FSSource.c_str());
+  vtkShaderProgram::Substitute(
+    FSSource, "//VTK::LICVectorLookup::Impl", GetVectorLookupProgram(this->NormalizeVectors));
+  BuildAShader(renWin, &this->LICIShader, FSSource.c_str());
 
-  BuildAShader(renWin, &this->LICNShader,
-    vtkLineIntegralConvolution2D_LICN);
-  BuildAShader(renWin, &this->EEShader,
-    vtkLineIntegralConvolution2D_EE);
-  BuildAShader(renWin, &this->CEShader,
-    vtkLineIntegralConvolution2D_CE);
-  BuildAShader(renWin, &this->AAHShader,
-    vtkLineIntegralConvolution2D_AAH);
-  BuildAShader(renWin, &this->AAVShader,
-    vtkLineIntegralConvolution2D_AAV);
+  BuildAShader(renWin, &this->LICNShader, vtkLineIntegralConvolution2D_LICN);
+  BuildAShader(renWin, &this->EEShader, vtkLineIntegralConvolution2D_EE);
+  BuildAShader(renWin, &this->CEShader, vtkLineIntegralConvolution2D_CE);
+  BuildAShader(renWin, &this->AAHShader, vtkLineIntegralConvolution2D_AAH);
+  BuildAShader(renWin, &this->AAVShader, vtkLineIntegralConvolution2D_AAV);
 }
 
 // ----------------------------------------------------------------------------
-vtkPainterCommunicator *vtkLineIntegralConvolution2D::GetCommunicator()
+vtkPainterCommunicator* vtkLineIntegralConvolution2D::GetCommunicator()
 {
   if (this->Comm == nullptr)
   {
@@ -1337,28 +1194,20 @@ vtkPainterCommunicator *vtkLineIntegralConvolution2D::GetCommunicator()
 }
 
 // ----------------------------------------------------------------------------
-vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
-        vtkTextureObject *vectorTex,
-        vtkTextureObject *noiseTex)
+vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
+  vtkTextureObject* vectorTex, vtkTextureObject* noiseTex)
 {
   // execute over the entire vector field, no guard pixels are present
   // parallel results will be incorrect.
 
-  vtkPixelExtent vectorTexExtent(
-        vectorTex->GetWidth(),
-        vectorTex->GetHeight());
+  vtkPixelExtent vectorTexExtent(vectorTex->GetWidth(), vectorTex->GetHeight());
 
-  return this->Execute(
-        vectorTexExtent.GetData(),
-        vectorTex,
-        noiseTex);
+  return this->Execute(vectorTexExtent.GetData(), vectorTex, noiseTex);
 }
 
 // ----------------------------------------------------------------------------
-vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
-      const int ext[4],
-      vtkTextureObject *vectorTex,
-      vtkTextureObject *noiseTex)
+vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
+  const int ext[4], vtkTextureObject* vectorTex, vtkTextureObject* noiseTex)
 {
   // execute over a subset of the input texture, no guard pixels are present
   // composite data and parallel results will be incorrect.
@@ -1381,23 +1230,15 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   unsigned int licSize[2];
   licExtent.Size(licSize);
 
-  return this->Execute(
-        vectorTexExtent,
-        vectorExtents,
-        licExtents,
-        vectorTex,
-        nullptr,
-        noiseTex);
+  return this->Execute(vectorTexExtent, vectorExtents, licExtents, vectorTex, nullptr, noiseTex);
 }
 
 // ----------------------------------------------------------------------------
-vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
-      const vtkPixelExtent &inputTexExtent,              // screen space extent of the input texture
-      const deque<vtkPixelExtent> &vectorExtents,        // disjoint set describing vector extents
-      const deque<vtkPixelExtent> &licExtents,           // disjoint set describing desired lic extents
-      vtkTextureObject *vectorTex,
-      vtkTextureObject *maskVectorTex,
-      vtkTextureObject *noiseTex)
+vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
+  const vtkPixelExtent& inputTexExtent,       // screen space extent of the input texture
+  const deque<vtkPixelExtent>& vectorExtents, // disjoint set describing vector extents
+  const deque<vtkPixelExtent>& licExtents,    // disjoint set describing desired lic extents
+  vtkTextureObject* vectorTex, vtkTextureObject* maskVectorTex, vtkTextureObject* noiseTex)
 {
   // validate inputs, internal state, etc...
   if (!this->Context)
@@ -1405,7 +1246,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     vtkErrorMacro("invalid this->Context");
     return nullptr;
   }
-  vtkOpenGLState *ostate = this->Context->GetState();
+  vtkOpenGLState* ostate = this->Context->GetState();
 
   if (this->NumberOfSteps < 0)
   {
@@ -1423,14 +1264,14 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     return nullptr;
   }
 
-  #if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
+#if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
   this->StartTimerEvent("vtkLineIntegralConvolution::Execute");
-  #elif defined(USE_VTK_TIMER)
+#elif defined(USE_VTK_TIMER)
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
-  #endif
+#endif
 
-  vtkOpenGLRenderWindow *renWin = this->Context;
+  vtkOpenGLRenderWindow* renWin = this->Context;
   // initialize shaders
   if (this->ShadersNeedBuild)
   {
@@ -1442,8 +1283,8 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   unsigned int inputTexSize[2];
   inputTexExtent.Size(inputTexSize);
 
-  float dx = 1.0f/((float)inputTexSize[0]);
-  float dy = 1.0f/((float)inputTexSize[1]);
+  float dx = 1.0f / ((float)inputTexSize[0]);
+  float dy = 1.0f / ((float)inputTexSize[1]);
 
   // texture coordinates and bounds for compute regions
   unsigned int computeTexSize[2];
@@ -1455,18 +1296,18 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   // are disjoint)this allows us to forgo expensive
   // halo exchanges when running in parallel.
   size_t nComputeExtents1 = vectorExtents.size();
-  const deque<vtkPixelExtent> &computeExtents1 = vectorExtents;
+  const deque<vtkPixelExtent>& computeExtents1 = vectorExtents;
 
-  size_t nbds = 4*nComputeExtents1;
+  size_t nbds = 4 * nComputeExtents1;
   vector<float> computeBounds1(nbds, 0.0f);
-  for (size_t i=0; i<nComputeExtents1; ++i)
+  for (size_t i = 0; i < nComputeExtents1; ++i)
   {
-    const vtkPixelExtent &computeExtent1 = computeExtents1[i];
-    float *bound = &computeBounds1[4*i];
-    bound[0] = ((float)computeExtent1[0])/((float)inputTexSize[0]);
-    bound[1] = ((float)computeExtent1[1]+1.0f)/((float)inputTexSize[0]);
-    bound[2] = ((float)computeExtent1[2])/((float)inputTexSize[1]);
-    bound[3] = ((float)computeExtent1[3]+1.0f)/((float)inputTexSize[1]);
+    const vtkPixelExtent& computeExtent1 = computeExtents1[i];
+    float* bound = &computeBounds1[4 * i];
+    bound[0] = ((float)computeExtent1[0]) / ((float)inputTexSize[0]);
+    bound[1] = ((float)computeExtent1[1] + 1.0f) / ((float)inputTexSize[0]);
+    bound[2] = ((float)computeExtent1[2]) / ((float)inputTexSize[1]);
+    bound[3] = ((float)computeExtent1[3] + 1.0f) / ((float)inputTexSize[1]);
   }
 
   // for CE only compute on valid extents
@@ -1474,66 +1315,57 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   // edges that will result in correct scaling
   // if it's used.
   size_t nComputeExtents2 = licExtents.size();
-  const deque<vtkPixelExtent> &computeExtents2 = licExtents;
+  const deque<vtkPixelExtent>& computeExtents2 = licExtents;
 
-  nbds = 4*nComputeExtents2;
+  nbds = 4 * nComputeExtents2;
   vector<float> computeBounds2(nbds, 0.0f);
 
-  for (size_t i=0; i<nComputeExtents2; ++i)
+  for (size_t i = 0; i < nComputeExtents2; ++i)
   {
-    const vtkPixelExtent &computeExtent2 = computeExtents2[i];
-    float *bound = &computeBounds2[4*i];
-    bound[0] = ((float)computeExtent2[0])/((float)inputTexSize[0]);
-    bound[1] = ((float)computeExtent2[1]+1.0f)/((float)inputTexSize[0]);
-    bound[2] = ((float)computeExtent2[2])/((float)inputTexSize[1]);
-    bound[3] = ((float)computeExtent2[3]+1.0f)/((float)inputTexSize[1]);
+    const vtkPixelExtent& computeExtent2 = computeExtents2[i];
+    float* bound = &computeBounds2[4 * i];
+    bound[0] = ((float)computeExtent2[0]) / ((float)inputTexSize[0]);
+    bound[1] = ((float)computeExtent2[1] + 1.0f) / ((float)inputTexSize[0]);
+    bound[2] = ((float)computeExtent2[2]) / ((float)inputTexSize[1]);
+    bound[3] = ((float)computeExtent2[3] + 1.0f) / ((float)inputTexSize[1]);
   }
 
   // during integration texture coordinates for
   // noise lookup is computed using the vector
   // texture coordinate this ensures that on any
   // rank we get the same noise value
-  unsigned int noiseTexSize[2] = {
-        noiseTex->GetWidth(),
-        noiseTex->GetHeight()
-        };
+  unsigned int noiseTexSize[2] = { noiseTex->GetWidth(), noiseTex->GetHeight() };
 
   vtkPixelExtent noiseExtent(noiseTexSize[0], noiseTexSize[1]);
 
   float noiseBoundsPt1[2];
-  noiseBoundsPt1[0] = ((float)noiseTexSize[0]+1.0f)/((float)inputTexSize[0]);
-  noiseBoundsPt1[1] = ((float)noiseTexSize[1]+1.0f)/((float)inputTexSize[1]);
+  noiseBoundsPt1[0] = ((float)noiseTexSize[0] + 1.0f) / ((float)inputTexSize[0]);
+  noiseBoundsPt1[1] = ((float)noiseTexSize[1] + 1.0f) / ((float)inputTexSize[1]);
 
   // bind our fbo
-  this->FBO->SaveCurrentBindings();
-  this->FBO->Bind(GL_FRAMEBUFFER);
+  ostate->PushFramebufferBindings();
+  this->FBO->Bind();
   this->FBO->InitializeViewport(computeTexSize[0], computeTexSize[1]);
 
   // initialize the buffer manager. Textures are assigned
   // and bound to individual units. These textures and units
   // are active and bound for the remainder of this execution.
-  vtkLICPingPongBufferManager bufs(
-        this->FBO,
-        computeTexSize,
-        vectorTex,
-        maskVectorTex,
-        noiseTex,
-        this->EnhancedLIC,
-        this->TransformVectors);
+  vtkLICPingPongBufferManager bufs(this->FBO, computeTexSize, vectorTex, maskVectorTex, noiseTex,
+    this->EnhancedLIC, this->TransformVectors);
 
-  #if  vtkLineIntegralConvolution2DDEBUG >= 1
+#if vtkLineIntegralConvolution2DDEBUG >= 1
   int rank = this->GetCommunicator()->GetRank();
-  #endif
-  #if vtkLineIntegralConvolution2DDEBUG >= 3
+#endif
+#if vtkLineIntegralConvolution2DDEBUG >= 3
   bufs.WriteInputs(rank, vectorExtents);
-  #endif
+#endif
 
   if (this->TransformVectors)
   {
-    // ------------------------------------------- begin normalized image space transform
-    #if defined(vtkLineIntegralConvolution2DTIME)
+// ------------------------------------------- begin normalized image space transform
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->StartTimerEvent("vtkLineIntegralConvolution::TransformVectors");
-    #endif
+#endif
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->VTShader->Program);
     bufs.AttachImageVectorBuffer(this->FBO);
@@ -1550,29 +1382,28 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
     vtkOpenGLCheckErrorMacro("failed");
     size_t nVectorExtents = vectorExtents.size();
-    for (size_t q=0; q<nVectorExtents; ++q)
+    for (size_t q = 0; q < nVectorExtents; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->VTShader);
-    vtkOpenGLCheckErrorMacro("failed");
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->VTShader);
+      vtkOpenGLCheckErrorMacro("failed");
     }
     bufs.DettachImageVectorBuffer(this->FBO);
     vtkOpenGLCheckErrorMacro("failed");
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 2)
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
     bufs.WriteImageVectorBuffer(rank, vectorExtents);
-    #endif
+#endif
 
-    #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->EndTimerEvent("vtkLineIntegralConvolution::TransformVectors");
-    #endif
+#endif
     // ------------------------------------------- end normalized image space transform
   }
 
-  // --------------------------------------------- begin first-pass LIC
-  #if defined(vtkLineIntegralConvolution2DTIME)
+// --------------------------------------------- begin first-pass LIC
+#if defined(vtkLineIntegralConvolution2DTIME)
   this->StartTimerEvent("vtkLineIntegralConvolution::Integrate1");
-  #endif
+#endif
 
   //
   // initialize convolution and seeds
@@ -1587,25 +1418,24 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   this->LIC0Shader->Program->SetUniformi("uPassNo", 0);
   this->LIC0Shader->Program->SetUniformf("uMaskThreshold", this->MaskThreshold);
   this->LIC0Shader->Program->SetUniform2f("uNoiseBoundsPt1", noiseBoundsPt1);
-    vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+  vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
   this->LIC0Shader->Program->SetUniformi("texMaskVectors", bufs.GetMaskVectorTextureUnit());
-    vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+  vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
   this->LIC0Shader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(0));
-    vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+  vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
   this->LIC0Shader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
-    vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+  vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
 
-  for (size_t q=0; q<nComputeExtents1; ++q)
+  for (size_t q = 0; q < nComputeExtents1; ++q)
   {
-    bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-      this->LIC0Shader);
+    bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LIC0Shader);
   }
   bufs.DettachLICBuffers(this->FBO);
   bufs.Swap();
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-  bufs.WriteBuffers(rank,"lic2d_lic0b_a.vtm","lic2d_lic0b_s.vtm",computeExtents1);
-  #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+  bufs.WriteBuffers(rank, "lic2d_lic0b_a.vtm", "lic2d_lic0b_s.vtm", computeExtents1);
+#endif
 
   //
   // backward LIC
@@ -1614,28 +1444,26 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   this->LICIShader->Program->SetUniformi("uPassNo", 0);
   this->LICIShader->Program->SetUniformf("uStepSize", -this->StepSize);
   this->LICIShader->Program->SetUniform2f("uNoiseBoundsPt1", noiseBoundsPt1);
-  this->LICIShader->Program->SetUniformi("texVectors",
-    bufs.GetImageVectorTextureUnit());
+  this->LICIShader->Program->SetUniformi("texVectors", bufs.GetImageVectorTextureUnit());
   this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(0));
 
   int stepNum = 0;
-  for (int stepIdx=0; stepIdx<this->NumberOfSteps; ++stepIdx, ++stepNum)
+  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx, ++stepNum)
   {
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-    for (size_t q=0; q<nComputeExtents1; ++q)
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->LICIShader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
   }
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-  bufs.WriteBuffers(rank,"lic2d_licib_a.vtm", "lic2d_licib_s.vtm", computeExtents1);
-  #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+  bufs.WriteBuffers(rank, "lic2d_licib_a.vtm", "lic2d_licib_s.vtm", computeExtents1);
+#endif
 
   // initialize seeds
   //
@@ -1643,17 +1471,16 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   this->LIC0Shader->Program->SetUniformi("uStepNo", 1);
 
   bufs.AttachLICBuffers(this->FBO);
-  for (size_t q=0; q<nComputeExtents1; ++q)
+  for (size_t q = 0; q < nComputeExtents1; ++q)
   {
-    bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-      this->LIC0Shader);
+    bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LIC0Shader);
   }
   bufs.DettachLICBuffers(this->FBO);
   bufs.Swap();
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-  bufs.WriteBuffers(rank,"lic2d_lic0f_a.vtm", "lic2d_lic0f_s.vtm", computeExtents1);
-  #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+  bufs.WriteBuffers(rank, "lic2d_lic0f_a.vtm", "lic2d_lic0f_s.vtm", computeExtents1);
+#endif
 
   //
   // forward LIC
@@ -1661,23 +1488,22 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
   this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
-  for (int stepIdx=0; stepIdx<this->NumberOfSteps; ++stepIdx, ++stepNum)
+  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx, ++stepNum)
   {
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-    for (size_t q=0; q<nComputeExtents1; ++q)
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->LICIShader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
   }
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-  bufs.WriteBuffers(rank,"lic2d_licif_a.vtm", "lic2d_licif_s.vtm", computeExtents1);
-  #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+  bufs.WriteBuffers(rank, "lic2d_licif_a.vtm", "lic2d_licif_s.vtm", computeExtents1);
+#endif
 
   // finally done with Noise Texture 0
   bufs.DettachNoiseTexture(0);
@@ -1692,53 +1518,49 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   bufs.AttachLICBuffers(this->FBO);
   this->LICNShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
   this->LICNShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-  for (size_t q=0; q<nComputeExtents1; ++q)
+  for (size_t q = 0; q < nComputeExtents1; ++q)
   {
-    bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-      this->LICNShader);
+    bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICNShader);
   }
   bufs.DettachBuffers(this->FBO);
   bufs.Swap();
 
-  #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-  bufs.WriteBuffers(rank,"lic2d_licn_a.vtm", "lic2d_licn_s.vtm", computeExtents1);
-  #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
+  bufs.WriteBuffers(rank, "lic2d_licn_a.vtm", "lic2d_licn_s.vtm", computeExtents1);
+#endif
 
-  #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
   this->EndTimerEvent("vtkLineIntegralConvolution::Integrate1");
-  #endif
+#endif
 
   // ----------------------------------------------- end first-pass LIC
   if (this->EnhancedLIC)
   {
     if (this->EnhanceContrast == ENHANCE_CONTRAST_ON)
     {
-      // ------------------------------------------- begin contrast enhance
-      #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
+// ------------------------------------------- begin contrast enhance
+#if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
       this->StartTimerEvent("vtkLineIntegralConvolution::ContrastEnhance1");
-      #endif
+#endif
 
-      vtkPainterCommunicator *comm = this->GetCommunicator();
+      vtkPainterCommunicator* comm = this->GetCommunicator();
 
       // find the min and max only on the valid extents
       // because there will be bleeding at the edges.
       float grayMin = VTK_FLOAT_MAX;
       float grayMax = -VTK_FLOAT_MAX;
       float grayMaxMinDiff = VTK_FLOAT_MAX;
-      vtkTextureObject *licTex = bufs.GetLastLICBuffer();
-      #ifdef STREAMING_MIN_MAX
+      vtkTextureObject* licTex = bufs.GetLastLICBuffer();
+#ifdef STREAMING_MIN_MAX
       StreamingFindMinMax(this->FBO, licTex, computeExtents2, grayMin, grayMax);
-      #else
+#else
       FindMinMax(licTex, computeExtents2, grayMin, grayMax);
-      #endif
+#endif
 
-      if ( computeExtents2.size()
-        && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)) )
+      if (computeExtents2.size() && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
       {
-        vtkErrorMacro(
-          << comm->GetRank()
-          << " : Invalid color range " << grayMin << ", " << grayMax
-          << ". Normlaization pass skipped");
+        vtkErrorMacro(<< comm->GetRank() << " : Invalid color range " << grayMin << ", " << grayMax
+                      << ". Normlaization pass skipped");
         grayMin = 0.0;
         grayMax = 1.0;
       }
@@ -1748,71 +1570,69 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       this->GetGlobalMinMax(comm, grayMin, grayMax);
 
       // its critical to update on the entire extent to
-      //ensure correct values in the guard pixles because
+      // ensure correct values in the guard pixles because
       // we don't do a halo exchange
-      grayMaxMinDiff = grayMax-grayMin;
+      grayMaxMinDiff = grayMax - grayMin;
 
       renWin->GetShaderCache()->ReadyShaderProgram(this->CEShader->Program);
       this->CEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
-      this->CEShader->Program->SetUniformf("uMin", grayMin );
+      this->CEShader->Program->SetUniformf("uMin", grayMin);
       this->CEShader->Program->SetUniformf("uMaxMinDiff", grayMaxMinDiff);
 
       bufs.AttachLICBuffers(this->FBO);
-      for (size_t q=0; q<nComputeExtents1; ++q)
+      for (size_t q = 0; q < nComputeExtents1; ++q)
       {
-        bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-          this->CEShader);
+        bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->CEShader);
       }
       bufs.DettachLICBuffers(this->FBO);
       bufs.Swap();
 
-      #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-      bufs.WriteBuffers(rank,"lic2d_1ce.vtm", nullptr, computeExtents1);
-      #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
+      bufs.WriteBuffers(rank, "lic2d_1ce.vtm", nullptr, computeExtents1);
+#endif
 
-      #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
+#if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
       this->EndTimerEvent("vtkLineIntegralConvolution::ContrastEnhance1");
-      #endif
+#endif
       // --------------------------------------------- end contrast enhance
     }
 
-    // --------------------------------------------- begin high-pass filtering
-    #if defined(vtkLineIntegralConvolution2DTIME)
+// --------------------------------------------- begin high-pass filtering
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->StartTimerEvent("vtkLineIntegralConvolution::EdgeEnahnce");
-    #endif
+#endif
 
-    #ifdef INTEL_BUG
+#ifdef INTEL_BUG
     bufs.AttachEEBuffer(this->FBO);
-    #endif
+#endif
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->EEShader->Program);
     this->EEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->EEShader->Program->SetUniformf("uDx", dx);
     this->EEShader->Program->SetUniformf("uDy", dy);
 
-    #ifndef INTEL_BUG
+#ifndef INTEL_BUG
     bufs.AttachEEBuffer(this->FBO);
-    #endif
-    for (size_t q=0; q<nComputeExtents1; ++q)
+#endif
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->EEShader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->EEShader);
     }
     bufs.DettachEEBuffer(this->FBO);
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 1)
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
     bufs.WriteEEBuffer(rank, computeExtents1);
-    #endif
+#endif
 
-    #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->EndTimerEvent("vtkLineIntegralConvolution::EdgeEnahnce");
-    #endif
-    // --------------------------------------------- end high-pass filtering
+#endif
+// --------------------------------------------- end high-pass filtering
 
-    // --------------------------------------------- begin second-pass LIC
-    #if defined(vtkLineIntegralConvolution2DTIME)
+// --------------------------------------------- begin second-pass LIC
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->StartTimerEvent("vtkLineIntegralConvolution::Integrate2");
-    #endif
+#endif
 
     // in pass 2 lic is computed by convolving edge-enhanced result of pass 1
     // rather than noise. This gives the result a nice smooth look, since the
@@ -1835,17 +1655,16 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->LIC0Shader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LIC0Shader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
     this->LIC0Shader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(1));
-    for (size_t q=0; q<nComputeExtents1; ++q)
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->LIC0Shader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LIC0Shader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-    bufs.WriteBuffers(rank,"lic2d_elic0b_a.vtm", "lic2d_elic0b_s.vtm", computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+    bufs.WriteBuffers(rank, "lic2d_elic0b_a.vtm", "lic2d_elic0b_s.vtm", computeExtents1);
+#endif
 
     //
     // backward LIC
@@ -1855,25 +1674,24 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->LICIShader->Program->SetUniformf("uStepSize", -this->StepSize);
     this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(1));
 
-    int nSteps = this->NumberOfSteps/2;
+    int nSteps = this->NumberOfSteps / 2;
     stepNum = 0;
-    for (int stepIdx=0; stepIdx<nSteps; ++stepIdx, ++stepNum)
+    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx, ++stepNum)
     {
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-      for (size_t q=0; q<nComputeExtents1; ++q)
+      for (size_t q = 0; q < nComputeExtents1; ++q)
       {
-        bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-          this->LICIShader);
+        bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
       }
       bufs.DettachLICBuffers(this->FBO);
       bufs.Swap();
     }
 
-    #if (vtkLineIntegralConvolution2DDEBUG >=2 )
-    bufs.WriteBuffers(rank,"lic2d_elicib_a.vtm", "lic2d_elicib_s.vtm",computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+    bufs.WriteBuffers(rank, "lic2d_elicib_a.vtm", "lic2d_elicib_s.vtm", computeExtents1);
+#endif
 
     //
     // initialize seeds
@@ -1884,17 +1702,16 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     bufs.AttachLICBuffers(this->FBO);
     this->LIC0Shader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LIC0Shader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-    for (size_t q=0; q<nComputeExtents1; ++q)
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->LIC0Shader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LIC0Shader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-    bufs.WriteBuffers(rank,"lic2d_elic0f_a.vtm", "lic2d_elic0f_s.vtm",computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+    bufs.WriteBuffers(rank, "lic2d_elic0f_a.vtm", "lic2d_elic0f_s.vtm", computeExtents1);
+#endif
 
     //
     // forward LIC
@@ -1902,23 +1719,22 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
     this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
-    for (int stepIdx=0; stepIdx<nSteps; ++stepIdx, ++stepNum)
+    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx, ++stepNum)
     {
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-      for (size_t q=0; q<nComputeExtents1; ++q)
+      for (size_t q = 0; q < nComputeExtents1; ++q)
       {
-        bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-          this->LICIShader);
+        bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
       }
       bufs.DettachLICBuffers(this->FBO);
       bufs.Swap();
     }
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-    bufs.WriteBuffers(rank,"lic2d_elicif_a.vtm", "lic2d_elicif_s.vtm",computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 2)
+    bufs.WriteBuffers(rank, "lic2d_elicif_a.vtm", "lic2d_elicif_s.vtm", computeExtents1);
+#endif
 
     // finally done with noise tyexture 1
     bufs.DettachNoiseTexture(1);
@@ -1933,21 +1749,20 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     bufs.AttachLICBuffers(this->FBO);
     this->LICNShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LICNShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-    for (size_t q=0; q<nComputeExtents1; ++q)
+    for (size_t q = 0; q < nComputeExtents1; ++q)
     {
-      bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-        this->LICNShader);
+      bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICNShader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-    bufs.WriteBuffers(rank,"lic2d_elicn_a.vtm", "lic2d_elicn_s.vtm",computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
+    bufs.WriteBuffers(rank, "lic2d_elicn_a.vtm", "lic2d_elicn_s.vtm", computeExtents1);
+#endif
 
-    #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->EndTimerEvent("vtkLineIntegralConvolution::Integrate2");
-    #endif
+#endif
     // --------------------------------------------- end second-pass LIC
   }
 
@@ -1955,9 +1770,9 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   {
     // --------------------------------------------- begin anti-alias
 
-    #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->StartTimerEvent("vtkLineIntegralConvolution::AntiAlias");
-    #endif
+#endif
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->AAHShader->Program);
     this->AAHShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
@@ -1972,17 +1787,16 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     // however computing over the entire extent avoids
     // bleeding at the edges when multiple passes are
     // requested.
-    for (int i=0; i<this->AntiAlias; ++i)
+    for (int i = 0; i < this->AntiAlias; ++i)
     {
       // horizontal pass
       renWin->GetShaderCache()->ReadyShaderProgram(this->AAHShader->Program);
       bufs.AttachLICBuffers(this->FBO);
       this->AAHShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->AAHShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-      for (size_t q=0; q<nComputeExtents1; ++q)
+      for (size_t q = 0; q < nComputeExtents1; ++q)
       {
-        bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-          this->AAHShader);
+        bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->AAHShader);
       }
       bufs.DettachLICBuffers(this->FBO);
       bufs.Swap();
@@ -1992,33 +1806,32 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       bufs.AttachLICBuffers(this->FBO);
       this->AAVShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->AAVShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
-      for (size_t q=0; q<nComputeExtents1; ++q)
+      for (size_t q = 0; q < nComputeExtents1; ++q)
       {
-        bufs.RenderQuad(&computeBounds1[4*q], computeExtents1[q],
-          this->AAVShader);
+        bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->AAVShader);
       }
       bufs.DettachLICBuffers(this->FBO);
       bufs.Swap();
     }
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-    bufs.WriteBuffers(rank,"lic2d_aa.vtm", nullptr, computeExtents1);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
+    bufs.WriteBuffers(rank, "lic2d_aa.vtm", nullptr, computeExtents1);
+#endif
 
-    #if defined(vtkLineIntegralConvolution2DTIME)
+#if defined(vtkLineIntegralConvolution2DTIME)
     this->EndTimerEvent("vtkLineIntegralConvolution::AntiAlias");
-    #endif
+#endif
     // --------------------------------------------- end anti-alias
   }
 
   if (this->EnhanceContrast)
   {
-    // ------------------------------------------- begin contrast enhance
-    #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
+// ------------------------------------------- begin contrast enhance
+#if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
     this->StartTimerEvent("vtkLineIntegralConvolution::ContrastEnhance2");
-    #endif
+#endif
 
-    vtkPainterCommunicator *comm = this->GetCommunicator();
+    vtkPainterCommunicator* comm = this->GetCommunicator();
 
     // the final contrast enhancement should
     // be applied only to the valid extents
@@ -2026,80 +1839,76 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     float grayMax = -VTK_FLOAT_MAX;
     float grayMaxMinDiff = 1.0f;
 
-    vtkTextureObject *licTex = bufs.GetLastLICBuffer();
-    #ifdef STREAMING_MIN_MAX
+    vtkTextureObject* licTex = bufs.GetLastLICBuffer();
+#ifdef STREAMING_MIN_MAX
     StreamingFindMinMax(this->FBO, licTex, computeExtents2, grayMin, grayMax);
-    #else
+#else
     FindMinMax(licTex, computeExtents2, grayMin, grayMax);
-    #endif
+#endif
 
-    if ( computeExtents2.size()
-      && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)) )
+    if (computeExtents2.size() && ((grayMax <= grayMin) || (grayMax > 1.0f) || (grayMin < 0.0f)))
     {
-      vtkErrorMacro(
-        << comm->GetRank()
-        << " : Invalid intensity range " << grayMin << ", " << grayMax
-        << "for contrast enhancement");
+      vtkErrorMacro(<< comm->GetRank() << " : Invalid intensity range " << grayMin << ", "
+                    << grayMax << "for contrast enhancement");
       grayMin = 0.0;
       grayMax = 1.0;
     }
 
     // in parallel use a reduction to obtain the image
     // wide min/max
-    //this->GetGlobalMinMax(comm, grayMin, grayMax);
+    // this->GetGlobalMinMax(comm, grayMin, grayMax);
 
     // select M and m as a fraction of the range.
-    grayMaxMinDiff = grayMax-grayMin;
-    grayMin += grayMaxMinDiff*this->LowContrastEnhancementFactor;
-    grayMax -= grayMaxMinDiff*this->HighContrastEnhancementFactor;
-    grayMaxMinDiff = grayMax-grayMin;
+    grayMaxMinDiff = grayMax - grayMin;
+    grayMin += grayMaxMinDiff * this->LowContrastEnhancementFactor;
+    grayMax -= grayMaxMinDiff * this->HighContrastEnhancementFactor;
+    grayMaxMinDiff = grayMax - grayMin;
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->CEShader->Program);
     this->CEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
-    this->CEShader->Program->SetUniformf("uMin", grayMin );
+    this->CEShader->Program->SetUniformf("uMin", grayMin);
     this->CEShader->Program->SetUniformf("uMaxMinDiff", grayMaxMinDiff);
 
     bufs.AttachLICBuffers(this->FBO);
-    for (size_t q=0; q<nComputeExtents2; ++q)
+    for (size_t q = 0; q < nComputeExtents2; ++q)
     {
-      bufs.RenderQuad(&computeBounds2[4*q], computeExtents2[q],
-        this->CEShader);
+      bufs.RenderQuad(&computeBounds2[4 * q], computeExtents2[q], this->CEShader);
     }
     bufs.DettachLICBuffers(this->FBO);
     bufs.Swap();
 
-    #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-    bufs.WriteBuffers(rank,"lic2d_2ce.vtm", nullptr, computeExtents2);
-    #endif
+#if (vtkLineIntegralConvolution2DDEBUG >= 1)
+    bufs.WriteBuffers(rank, "lic2d_2ce.vtm", nullptr, computeExtents2);
+#endif
 
-    #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
+#if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
     this->EndTimerEvent("vtkLineIntegralConvolution::ContrastEnhance2");
-    #endif
+#endif
 
     // --------------------------------------------- end contrast enahnce
   }
 
   bufs.DettachBuffers(this->FBO);
-  this->FBO->UnBind(GL_FRAMEBUFFER);
+  ostate->PopFramebufferBindings();
 
-  vtkTextureObject *outputTex = bufs.GetLastLICBuffer();
+  vtkTextureObject* outputTex = bufs.GetLastLICBuffer();
   outputTex->Register(nullptr);
 
-  #if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
+#if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
   this->EndTimerEvent("vtkLineIntegralConvolution::Execute");
-  #elif defined(USE_VTK_TIMER)
+#elif defined(USE_VTK_TIMER)
   timer->StopTimer();
-  #endif
+#endif
 
   return outputTex;
 }
 
 //-----------------------------------------------------------------------------
-void vtkLineIntegralConvolution2D::PrintSelf(ostream & os, vtkIndent indent)
+void vtkLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os
-//    << indent << "Comm=" << this->Comm << endl
+    //    << indent << "Comm=" << this->Comm << endl
     << indent << "Context=" << this->Context << endl
     << indent << "FBO=" << this->FBO << endl
     << indent << "ShadersNeedBuild=" << this->ShadersNeedBuild << endl

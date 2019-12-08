@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkImageHistogramStatistics.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
 
 #include <cmath>
 
@@ -48,7 +48,7 @@ vtkImageHistogramStatistics::~vtkImageHistogramStatistics() = default;
 //----------------------------------------------------------------------------
 void vtkImageHistogramStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Minimum: " << this->Minimum << "\n";
   os << indent << "Maximum: " << this->Maximum << "\n";
@@ -56,32 +56,27 @@ void vtkImageHistogramStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mean: " << this->Mean << "\n";
   os << indent << "StandardDeviation: " << this->StandardDeviation << "\n";
 
-  os << indent << "AutoRange: " << this->AutoRange[0] << " "
-     << this->AutoRange[1] << "\n";
-  os << indent << "AutoRangePercentiles: "
-     << this->AutoRangePercentiles[0] << " "
+  os << indent << "AutoRange: " << this->AutoRange[0] << " " << this->AutoRange[1] << "\n";
+  os << indent << "AutoRangePercentiles: " << this->AutoRangePercentiles[0] << " "
      << this->AutoRangePercentiles[1] << "\n";
-  os << indent << "AutoRangeExpansionFactors: "
-     << this->AutoRangeExpansionFactors[0] << " "
+  os << indent << "AutoRangeExpansionFactors: " << this->AutoRangeExpansionFactors[0] << " "
      << this->AutoRangeExpansionFactors[1] << "\n";
 }
 
 //----------------------------------------------------------------------------
 int vtkImageHistogramStatistics::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestData(request, inputVector, outputVector);
 
-  double lowPercentile = this->AutoRangePercentiles[0]*0.01;
-  double highPercentile = this->AutoRangePercentiles[1]*0.01;
+  double lowPercentile = this->AutoRangePercentiles[0] * 0.01;
+  double highPercentile = this->AutoRangePercentiles[1] * 0.01;
 
   vtkIdType total = this->Total;
   vtkIdType sum = 0;
-  vtkIdType lowSum = static_cast<vtkIdType>(total*lowPercentile);
-  vtkIdType highSum = static_cast<vtkIdType>(total*highPercentile);
-  vtkIdType midSum = total/2;
+  vtkIdType lowSum = static_cast<vtkIdType>(total * lowPercentile);
+  vtkIdType highSum = static_cast<vtkIdType>(total * highPercentile);
+  vtkIdType midSum = total / 2;
   vtkIdType lowVal = 0;
   vtkIdType highVal = 0;
   vtkIdType midVal = 0;
@@ -90,14 +85,14 @@ int vtkImageHistogramStatistics::RequestData(
   double mom1 = 0;
   double mom2 = 0;
   vtkIdType nx = this->Histogram->GetNumberOfTuples();
-  vtkIdType *histogram = this->Histogram->GetPointer(0);
+  vtkIdType* histogram = this->Histogram->GetPointer(0);
   for (int ix = 0; ix < nx; ++ix)
   {
     vtkIdType c = histogram[ix];
     sum += c;
     double dc = static_cast<double>(c);
-    mom1 += dc*ix;
-    mom2 += dc*ix*ix;
+    mom1 += dc * ix;
+    mom2 += dc * ix * ix;
     lowVal = (sum > lowSum ? lowVal : ix);
     highVal = (sum > highSum ? highVal : ix);
     midVal = (sum > midSum ? midVal : ix);
@@ -113,46 +108,46 @@ int vtkImageHistogramStatistics::RequestData(
   double binOrigin = this->BinOrigin;
 
   // do the basic statistics
-  this->Minimum = minVal*binSpacing + binOrigin;
-  this->Maximum = maxVal*binSpacing + binOrigin;
-  this->Median = midVal*binSpacing + binOrigin;
+  this->Minimum = minVal * binSpacing + binOrigin;
+  this->Maximum = maxVal * binSpacing + binOrigin;
+  this->Median = midVal * binSpacing + binOrigin;
   this->Mean = 0.0;
   this->StandardDeviation = 0.0;
   if (total > 0)
   {
-    this->Mean = mom1/total*binSpacing + binOrigin;
+    this->Mean = mom1 / total * binSpacing + binOrigin;
   }
   if (total > 1)
   {
-    double term2 = mom1*mom1/total;
-    if ((mom2 - term2) > 1e-10*mom2)
+    double term2 = mom1 * mom1 / total;
+    if ((mom2 - term2) > 1e-10 * mom2)
     {
       // use the fast method to compute standard deviation
-      this->StandardDeviation = sqrt((mom2 - term2)/(total - 1))*binSpacing;
+      this->StandardDeviation = sqrt((mom2 - term2) / (total - 1)) * binSpacing;
     }
     else
     {
       // use more accurate method to avoid cancellation error
-      double xmean = mom1/total;
+      double xmean = mom1 / total;
       for (int ix = 0; ix < nx; ++ix)
       {
         double ixd = xmean - ix;
-        mom2 += ixd*ixd*histogram[ix];
+        mom2 += ixd * ixd * histogram[ix];
       }
-      this->StandardDeviation = sqrt(mom2/(total - 1))*binSpacing;
+      this->StandardDeviation = sqrt(mom2 / (total - 1)) * binSpacing;
     }
   }
 
   // do the autorange: first expand range by 10% at each end
   double lowEF = this->AutoRangeExpansionFactors[0];
   double highEF = this->AutoRangeExpansionFactors[1];
-  int lowExpansion = static_cast<int>(lowEF*(highVal - lowVal));
-  int highExpansion = static_cast<int>(highEF*(highVal - lowVal));
+  int lowExpansion = static_cast<int>(lowEF * (highVal - lowVal));
+  int highExpansion = static_cast<int>(highEF * (highVal - lowVal));
   lowVal -= lowExpansion;
   highVal += highExpansion;
 
-  this->AutoRange[0] = lowVal*binSpacing + binOrigin;
-  this->AutoRange[1] = highVal*binSpacing + binOrigin;
+  this->AutoRange[0] = lowVal * binSpacing + binOrigin;
+  this->AutoRange[1] = highVal * binSpacing + binOrigin;
 
   // clamp the auto range to the full data range
   if (this->AutoRange[0] < this->Minimum)

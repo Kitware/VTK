@@ -23,7 +23,7 @@
 
 #include <vector>
 
-int TestSmartPointer(int,char *[])
+int TestSmartPointer(int, char*[])
 {
   int rval = 0;
   vtkIntArray* ia = vtkIntArray::New();
@@ -31,11 +31,9 @@ int TestSmartPointer(int,char *[])
   // Coverage:
   unsigned int testbits = 0;
   unsigned int correctbits = 0x00000953;
-  const char *tests[] = {
-    "da2 == ia", "da2 != ia", "da2 < ia", "da2 <= ia", "da2 > ia", "da2 <= ia",
-      "da2 > ia", "da2 >= ia",
-    "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
-    nullptr };
+  const char* tests[] = { "da2 == ia", "da2 != ia", "da2 < ia", "da2 <= ia", "da2 > ia",
+    "da2 <= ia", "da2 > ia", "da2 >= ia", "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0",
+    "da1 >= 0", nullptr };
 
   auto da2 = vtk::MakeSmartPointer(ia); // da2 is a vtkSmartPointer<vtkIntArray>
   vtkSmartPointer<vtkDataArray> da1(da2);
@@ -72,13 +70,14 @@ int TestSmartPointer(int,char *[])
   }
 
   (*da1).SetNumberOfComponents(1);
-  if(da2)
+  if (da2)
   {
     da2->SetNumberOfComponents(1);
   }
-  if(!da2)
+  if (!da2)
   {
-    cerr << "da2 is nullptr!" << "\n";
+    cerr << "da2 is nullptr!"
+         << "\n";
     rval = 1;
   }
   da1 = vtkSmartPointer<vtkDataArray>::NewInstance(ia);
@@ -93,18 +92,16 @@ int TestSmartPointer(int,char *[])
     vtkSmartPointer<vtkIntArray> aa(vtknew);
     intarrays.push_back(vtknew);
   }
-  if(intarrays[0]->GetReferenceCount() != 1)
+  if (intarrays[0]->GetReferenceCount() != 1)
   {
     cerr << "Didn't properly add vtkNew object to stl vector of smart pointers\n";
     rval = 1;
   }
 
-
   // Test move constructors
   {
-    vtkSmartPointer<vtkIntArray> intArray{vtkNew<vtkIntArray>{}};
-    if (intArray == nullptr ||
-        intArray->GetReferenceCount() != 1)
+    vtkSmartPointer<vtkIntArray> intArray{ vtkNew<vtkIntArray>{} };
+    if (intArray == nullptr || intArray->GetReferenceCount() != 1)
     {
       std::cerr << "Move constructing a vtkSmartPointer from a vtkNew "
                    "failed.\n";
@@ -112,9 +109,8 @@ int TestSmartPointer(int,char *[])
     }
 
     vtkSmartPointer<vtkIntArray> intArrayCopy(intArray);
-    if (intArrayCopy != intArray ||
-        intArray->GetReferenceCount() != 2 ||
-        intArrayCopy->GetReferenceCount() != 2)
+    if (intArrayCopy != intArray || intArray->GetReferenceCount() != 2 ||
+      intArrayCopy->GetReferenceCount() != 2)
     {
       std::cerr << "Copy constructing vtkSmartPointer yielded unexpected "
                    "result.\n";
@@ -122,9 +118,7 @@ int TestSmartPointer(int,char *[])
     }
 
     vtkSmartPointer<vtkIntArray> intArrayMoved(std::move(intArrayCopy));
-    if (intArrayCopy ||
-        !intArrayMoved ||
-        intArrayMoved->GetReferenceCount() != 2)
+    if (intArrayCopy || !intArrayMoved || intArrayMoved->GetReferenceCount() != 2)
     {
       std::cerr << "Move constructing vtkSmartPointer yielded unexpected "
                    "result.\n";
@@ -132,18 +126,15 @@ int TestSmartPointer(int,char *[])
     }
 
     vtkSmartPointer<vtkDataArray> dataArrayCopy(intArray);
-    if (dataArrayCopy != intArray ||
-        intArray->GetReferenceCount() != 3 ||
-        dataArrayCopy->GetReferenceCount() != 3)
+    if (dataArrayCopy != intArray || intArray->GetReferenceCount() != 3 ||
+      dataArrayCopy->GetReferenceCount() != 3)
     {
       std::cerr << "Cast constructing vtkSmartPointer failed.\n";
       rval = 1;
     }
 
     vtkSmartPointer<vtkDataArray> dataArrayMoved(std::move(intArrayMoved));
-    if (!dataArrayMoved ||
-        intArrayMoved ||
-        dataArrayMoved->GetReferenceCount() != 3)
+    if (!dataArrayMoved || intArrayMoved || dataArrayMoved->GetReferenceCount() != 3)
     {
       std::cerr << "Cast move-constructing vtkSmartPointer failed.\n";
       rval = 1;

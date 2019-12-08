@@ -19,13 +19,13 @@
  *
  *
  * This class implements an pie chart.
-*/
+ */
 
 #ifndef vtkChartPie_h
 #define vtkChartPie_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
+#include "vtkChartsCoreModule.h" // For export macro
 
 class vtkChartLegend;
 class vtkTooltipItem;
@@ -35,12 +35,12 @@ class VTKCHARTSCORE_EXPORT vtkChartPie : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartPie, vtkChart);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Chart object.
    */
-  static vtkChartPie *New();
+  static vtkChartPie* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -52,18 +52,17 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Add a plot to the chart.
    */
-  vtkPlot * AddPlot(int type) override;
+  vtkPlot* AddPlot(int type) override;
 
   /**
    * Add a plot to the chart. Return the index of the plot, -1 if it failed.
    */
-  vtkIdType AddPlot(vtkPlot* plot) override
-    { return Superclass::AddPlot(plot); }
+  vtkIdType AddPlot(vtkPlot* plot) override { return Superclass::AddPlot(plot); }
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
@@ -84,47 +83,47 @@ public:
    * Get the legend for the chart, if available. Can return nullptr if there is no
    * legend.
    */
-  vtkChartLegend * GetLegend() override;
+  vtkChartLegend* GetLegend() override;
 
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.
    */
-  void SetScene(vtkContextScene *scene) override;
+  void SetScene(vtkContextScene* scene) override;
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse enter event.
    */
-  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse leave event.
    */
-  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
 protected:
   vtkChartPie();
@@ -138,12 +137,12 @@ protected:
   /**
    * The legend for the chart.
    */
-  vtkChartLegend *Legend;
+  vtkChartLegend* Legend;
 
   /**
    * The tooltip item for the chart - can be used to display extra information.
    */
-  vtkTooltipItem *Tooltip;
+  vtkTooltipItem* Tooltip;
 
   /**
    * Does the plot area transform need to be recalculated?
@@ -151,19 +150,18 @@ protected:
   bool PlotTransformValid;
 
 private:
-  vtkChartPie(const vtkChartPie &) = delete;
-  void operator=(const vtkChartPie &) = delete;
+  vtkChartPie(const vtkChartPie&) = delete;
+  void operator=(const vtkChartPie&) = delete;
 
   /**
    * Try to locate a point within the plots to display in a tooltip
    */
-  bool LocatePointInPlots(const vtkContextMouseEvent &mouse);
+  bool LocatePointInPlots(const vtkContextMouseEvent& mouse);
 
   /**
    * Private implementation details
    */
-  vtkChartPiePrivate *Private;
-
+  vtkChartPiePrivate* Private;
 };
 
-#endif //vtkChartPie_h
+#endif // vtkChartPie_h

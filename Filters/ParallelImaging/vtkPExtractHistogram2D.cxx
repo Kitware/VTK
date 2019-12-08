@@ -20,8 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPExtractHistogram2D.h"
 
 #include "vtkDataArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -45,24 +45,24 @@ vtkPExtractHistogram2D::~vtkPExtractHistogram2D()
 //------------------------------------------------------------------------------
 void vtkPExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 //------------------------------------------------------------------------------
-void vtkPExtractHistogram2D::Learn(vtkTable *inData,
-                                   vtkTable* inParameters,
-                                   vtkMultiBlockDataSet *outMeta)
+void vtkPExtractHistogram2D::Learn(
+  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
-  vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! primaryTab )
+  vtkTable* primaryTab = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  if (!primaryTab)
   {
     return;
   }
 
-  vtkImageData* outImage = vtkImageData::SafeDownCast(this->GetOutputDataObject(vtkPExtractHistogram2D::HISTOGRAM_IMAGE));
+  vtkImageData* outImage =
+    vtkImageData::SafeDownCast(this->GetOutputDataObject(vtkPExtractHistogram2D::HISTOGRAM_IMAGE));
 
   // have all of the nodes compute their histograms
-  this->Superclass::Learn(inData,inParameters,outMeta);
+  this->Superclass::Learn(inData, inParameters, outMeta);
 
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
   {
@@ -88,7 +88,7 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
 
   // this sums up all of the images and distributes them to
   // every node
-  if (!comm->AllReduce(myArray,recvArray,vtkCommunicator::SUM_OP))
+  if (!comm->AllReduce(myArray, recvArray, vtkCommunicator::SUM_OP))
   {
     vtkErrorMacro(<< myid << ": Reduce failed!");
     reducedOutImage->Delete();
@@ -98,7 +98,7 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
   outImage->DeepCopy(reducedOutImage);
 
   // update the maximum bin count
-  for (int i=0; i<recvArray->GetNumberOfTuples(); i++)
+  for (int i = 0; i < recvArray->GetNumberOfTuples(); i++)
   {
     if (this->MaximumBinCount < recvArray->GetTuple1(i))
       this->MaximumBinCount = (long unsigned)recvArray->GetTuple1(i);
@@ -116,7 +116,7 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
     this->UseCustomHistogramExtents)
   {
     // Nothing extra to do for single process.
-    return this->Superclass::ComputeBinExtents(col1,col2);
+    return this->Superclass::ComputeBinExtents(col1, col2);
   }
 
   vtkCommunicator* comm = this->Controller->GetCommunicator();
@@ -127,24 +127,23 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
   }
 
   // have everyone compute their own bin extents
-  double myRange[4] = {VTK_DOUBLE_MAX,VTK_DOUBLE_MIN,VTK_DOUBLE_MAX,VTK_DOUBLE_MIN};
-  double allRange[4] = {VTK_DOUBLE_MAX,VTK_DOUBLE_MIN,VTK_DOUBLE_MAX,VTK_DOUBLE_MIN};
-  if (this->Superclass::ComputeBinExtents(col1,col2))
+  double myRange[4] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
+  double allRange[4] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
+  if (this->Superclass::ComputeBinExtents(col1, col2))
   {
-    double *r = this->GetHistogramExtents();
+    double* r = this->GetHistogramExtents();
     myRange[0] = r[0];
     myRange[1] = r[1];
     myRange[2] = r[2];
     myRange[3] = r[3];
   }
 
-
   int myid = this->Controller->GetLocalProcessId();
-  double *r = this->GetHistogramExtents();
-  if (!comm->AllReduce(myRange,allRange,1,vtkCommunicator::MIN_OP) ||
-      !comm->AllReduce(myRange+1,allRange+1,1,vtkCommunicator::MAX_OP) ||
-      !comm->AllReduce(myRange+2,allRange+2,1,vtkCommunicator::MIN_OP) ||
-      !comm->AllReduce(myRange+3,allRange+3,1,vtkCommunicator::MAX_OP))
+  double* r = this->GetHistogramExtents();
+  if (!comm->AllReduce(myRange, allRange, 1, vtkCommunicator::MIN_OP) ||
+    !comm->AllReduce(myRange + 1, allRange + 1, 1, vtkCommunicator::MAX_OP) ||
+    !comm->AllReduce(myRange + 2, allRange + 2, 1, vtkCommunicator::MIN_OP) ||
+    !comm->AllReduce(myRange + 3, allRange + 3, 1, vtkCommunicator::MAX_OP))
   {
     vtkErrorMacro(<< myid << ": Reduce failed!");
     return 0;

@@ -26,17 +26,17 @@
  * @par Thanks:
  * Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
  * Sandia National Laboratories for their help in developing this class.
-*/
+ */
 
 #ifndef vtkVariant_h
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
-#include "vtkSystemIncludes.h" // To define ostream
-#include "vtkSetGet.h"         // For vtkNotUsed macro
-#include "vtkObject.h"         // For vtkObject's warning support
+#include "vtkObject.h"           // For vtkObject's warning support
+#include "vtkSetGet.h"           // For vtkNotUsed macro
 #include "vtkStdString.h"
+#include "vtkSystemIncludes.h" // To define ostream
+#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 #include "vtkUnicodeString.h"
 
 //
@@ -44,14 +44,14 @@
 //
 
 // This is same as extended template macro with an additional case for VTK_VARIANT
-#define vtkExtraExtendedTemplateMacro(call)                                 \
-  vtkExtendedTemplateMacro(call);                                            \
+#define vtkExtraExtendedTemplateMacro(call)                                                        \
+  vtkExtendedTemplateMacro(call);                                                                  \
   vtkTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
 // This is same as Iterator Template macro with an additional case for VTK_VARIANT
-#define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
-  vtkArrayIteratorTemplateMacro(call);                                                   \
-  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
+#define vtkExtendedArrayIteratorTemplateMacro(call)                                                \
+  vtkArrayIteratorTemplateMacro(call);                                                             \
+  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
 class vtkStdString;
 class vtkUnicodeString;
@@ -60,12 +60,11 @@ class vtkAbstractArray;
 class vtkVariant;
 struct vtkVariantLessThan;
 
-VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkVariant& val);
 
 class VTKCOMMONCORE_EXPORT vtkVariant
 {
 public:
-
   /**
    * Create an invalid variant.
    */
@@ -79,7 +78,7 @@ public:
   /**
    * Copy constructor.
    */
-  vtkVariant(const vtkVariant & other);
+  vtkVariant(const vtkVariant& other);
 
   /**
    * Create a bool variant. Internally store it as char.
@@ -174,12 +173,12 @@ public:
   /**
    * Create a variant of a specific type.
    */
-  vtkVariant(const vtkVariant &other, unsigned int type);
+  vtkVariant(const vtkVariant& other, unsigned int type);
 
   /**
    * Copy the value of one variant into another.
    */
-  vtkVariant & operator= (const vtkVariant & other);
+  vtkVariant& operator=(const vtkVariant& other);
 
   /**
    * Get whether the variant value is valid.
@@ -316,51 +315,36 @@ public:
    * to the appropriate type.
    * Fail if it holds a VTK object which is not an array.
    */
-  float ToFloat(bool *valid) const;
-  float ToFloat() const {
-    return this->ToFloat(nullptr); };
-  double ToDouble(bool *valid) const;
-  double ToDouble() const {
-    return this->ToDouble(nullptr); };
-  char ToChar(bool *valid) const;
-  char ToChar() const {
-    return this->ToChar(nullptr); };
-  unsigned char ToUnsignedChar(bool *valid) const;
-  unsigned char ToUnsignedChar() const {
-    return this->ToUnsignedChar(nullptr); };
-  signed char ToSignedChar(bool *valid) const;
-  signed char ToSignedChar() const {
-    return this->ToSignedChar(nullptr); };
-  short ToShort(bool *valid) const;
-  short ToShort() const {
-    return this->ToShort(nullptr); };
-  unsigned short ToUnsignedShort(bool *valid) const;
-  unsigned short ToUnsignedShort() const {
-    return this->ToUnsignedShort(nullptr); };
-  int ToInt(bool *valid) const;
-  int ToInt() const {
-    return this->ToInt(nullptr); };
-  unsigned int ToUnsignedInt(bool *valid) const;
-  unsigned int ToUnsignedInt() const {
-    return this->ToUnsignedInt(nullptr); };
-  long ToLong(bool *valid) const;
-  long ToLong() const {
-    return this->ToLong(nullptr); };
-  unsigned long ToUnsignedLong(bool *valid) const;
-  unsigned long ToUnsignedLong() const {
-    return this->ToUnsignedLong(nullptr); };
-  long long ToLongLong(bool *valid) const;
-  long long ToLongLong() const {
-    return this->ToLongLong(nullptr); };
-  unsigned long long ToUnsignedLongLong(bool *valid) const;
-  unsigned long long ToUnsignedLongLong() const {
-    return this->ToUnsignedLongLong(nullptr); };
-  vtkTypeInt64 ToTypeInt64(bool *valid) const;
-  vtkTypeInt64 ToTypeInt64() const {
-    return this->ToTypeInt64(nullptr); };
-  vtkTypeUInt64 ToTypeUInt64(bool *valid) const;
-  vtkTypeUInt64 ToTypeUInt64() const {
-    return this->ToTypeUInt64(nullptr); };
+  float ToFloat(bool* valid) const;
+  float ToFloat() const { return this->ToFloat(nullptr); }
+  double ToDouble(bool* valid) const;
+  double ToDouble() const { return this->ToDouble(nullptr); }
+  char ToChar(bool* valid) const;
+  char ToChar() const { return this->ToChar(nullptr); }
+  unsigned char ToUnsignedChar(bool* valid) const;
+  unsigned char ToUnsignedChar() const { return this->ToUnsignedChar(nullptr); }
+  signed char ToSignedChar(bool* valid) const;
+  signed char ToSignedChar() const { return this->ToSignedChar(nullptr); }
+  short ToShort(bool* valid) const;
+  short ToShort() const { return this->ToShort(nullptr); }
+  unsigned short ToUnsignedShort(bool* valid) const;
+  unsigned short ToUnsignedShort() const { return this->ToUnsignedShort(nullptr); }
+  int ToInt(bool* valid) const;
+  int ToInt() const { return this->ToInt(nullptr); }
+  unsigned int ToUnsignedInt(bool* valid) const;
+  unsigned int ToUnsignedInt() const { return this->ToUnsignedInt(nullptr); }
+  long ToLong(bool* valid) const;
+  long ToLong() const { return this->ToLong(nullptr); }
+  unsigned long ToUnsignedLong(bool* valid) const;
+  unsigned long ToUnsignedLong() const { return this->ToUnsignedLong(nullptr); }
+  long long ToLongLong(bool* valid) const;
+  long long ToLongLong() const { return this->ToLongLong(nullptr); }
+  unsigned long long ToUnsignedLongLong(bool* valid) const;
+  unsigned long long ToUnsignedLongLong() const { return this->ToUnsignedLongLong(nullptr); }
+  vtkTypeInt64 ToTypeInt64(bool* valid) const;
+  vtkTypeInt64 ToTypeInt64() const { return this->ToTypeInt64(nullptr); }
+  vtkTypeUInt64 ToTypeUInt64(bool* valid) const;
+  vtkTypeUInt64 ToTypeUInt64() const { return this->ToTypeUInt64(nullptr); }
   //@}
 
   /**
@@ -416,23 +400,21 @@ public:
    * The actual definitions of these operators are in
    * vtkVariantInlineOperators.cxx.
    */
-  bool operator==(const vtkVariant &other) const;
-  bool operator!=(const vtkVariant &other) const;
-  bool operator<(const vtkVariant &other) const;
-  bool operator>(const vtkVariant &other) const;
-  bool operator<=(const vtkVariant &other) const;
-  bool operator>=(const vtkVariant &other) const;
+  bool operator==(const vtkVariant& other) const;
+  bool operator!=(const vtkVariant& other) const;
+  bool operator<(const vtkVariant& other) const;
+  bool operator>(const vtkVariant& other) const;
+  bool operator<=(const vtkVariant& other) const;
+  bool operator>=(const vtkVariant& other) const;
   //@}
 
-  friend VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+  friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkVariant& val);
 
 private:
-
   template <typename T>
-  T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
+  T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
-  union
-  {
+  union {
     vtkStdString* String;
     vtkUnicodeString* UnicodeString;
     float Float;
@@ -458,7 +440,6 @@ private:
   friend struct vtkVariantEqual;
   friend struct vtkVariantStrictWeakOrder;
   friend struct vtkVariantStrictEquality;
-
 };
 
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
@@ -472,13 +453,13 @@ private:
 struct VTKCOMMONCORE_EXPORT vtkVariantLessThan
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 struct VTKCOMMONCORE_EXPORT vtkVariantEqual
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 struct VTKCOMMONCORE_EXPORT vtkVariantStrictWeakOrder
@@ -493,7 +474,7 @@ public:
 struct VTKCOMMONCORE_EXPORT vtkVariantStrictEquality
 {
 public:
-  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 #endif

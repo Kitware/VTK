@@ -22,20 +22,19 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestSplitViewportStereoHorizontal(int argc, char *argv[])
+int TestSplitViewportStereoHorizontal(int argc, char* argv[])
 {
-  double bottomLeft[3]  = {-1.0, -1.0, -10.0};
-  double bottomRight[3] = { 1.0, -1.0, -10.0};
-  double topRight[3]    = { 1.0,  1.0, -10.0};
+  double bottomLeft[3] = { -1.0, -1.0, -10.0 };
+  double bottomRight[3] = { 1.0, -1.0, -10.0 };
+  double topRight[3] = { 1.0, 1.0, -10.0 };
 
   VTK_CREATE(vtkSphereSource, sphere1);
   sphere1->SetCenter(0.2, 0.0, -7.0);
@@ -76,9 +75,9 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  double eyePosition[3] = {0.0, 0.0, 2.0};
+  double eyePosition[3] = { 0.0, 0.0, 2.0 };
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetScreenBottomLeft(bottomLeft);
   camera->SetScreenBottomRight(bottomRight);
   camera->SetScreenTopRight(topRight);
@@ -91,7 +90,6 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
   camera->SetViewAngle(30.0);
 
   renwin->Render();
-
 
   int retVal = vtkRegressionTestImageThreshold(renwin, 25);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

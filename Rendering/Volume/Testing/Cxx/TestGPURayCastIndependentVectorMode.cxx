@@ -25,25 +25,24 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkSmartVolumeMapper.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointDataToCellData.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkSmartVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-
-int TestGPURayCastIndependentVectorMode(int argc, char *argv[])
+int TestGPURayCastIndependentVectorMode(int argc, char* argv[])
 {
-  //cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  int dims[3] = {20, 20, 20};
+  int dims[3] = { 20, 20, 20 };
 
   // Create a vtkImageData with two components
   vtkNew<vtkImageData> image;
@@ -56,14 +55,14 @@ int TestGPURayCastIndependentVectorMode(int argc, char *argv[])
     {
       for (int x = 0; x < dims[0]; ++x)
       {
-      // The 3-component vector field is described by:
-      // V = coords_x *  iHat   +   10 * coords_y * jHat   +   coords_z * kHat
-      float const valueX = static_cast<float>(x) - dims[0]/2.0f;
-      float const valueY = static_cast<float>(y) - dims[1]/2.0f;
-      float const valueZ = static_cast<float>(z) - dims[2]/2.0f;
-      image->SetScalarComponentFromFloat(x, y, z, 0, valueX);
-      image->SetScalarComponentFromFloat(x, y, z, 1, valueY * 10.f);
-      image->SetScalarComponentFromFloat(x, y, z, 2, valueZ);
+        // The 3-component vector field is described by:
+        // V = coords_x *  iHat   +   10 * coords_y * jHat   +   coords_z * kHat
+        float const valueX = static_cast<float>(x) - dims[0] / 2.0f;
+        float const valueY = static_cast<float>(y) - dims[1] / 2.0f;
+        float const valueZ = static_cast<float>(z) - dims[2] / 2.0f;
+        image->SetScalarComponentFromFloat(x, y, z, 0, valueX);
+        image->SetScalarComponentFromFloat(x, y, z, 1, valueY * 10.f);
+        image->SetScalarComponentFromFloat(x, y, z, 2, valueZ);
       }
     }
   }
@@ -180,7 +179,7 @@ int TestGPURayCastIndependentVectorMode(int argc, char *argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

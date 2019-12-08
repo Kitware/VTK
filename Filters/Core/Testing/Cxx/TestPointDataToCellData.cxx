@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include <vtkDataArray.h>
 #include <vtkCellData.h>
+#include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
@@ -22,37 +22,37 @@
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkThreshold.h>
 #include <vtkTestUtilities.h>
+#include <vtkThreshold.h>
+#include <vtkUnstructuredGrid.h>
 
-int TestPointDataToCellData (int, char*[])
+int TestPointDataToCellData(int, char*[])
 {
-  char const name [] = "RTData";
+  char const name[] = "RTData";
   vtkNew<vtkRTAnalyticSource> wavelet;
-    wavelet->SetWholeExtent(-2, 2, -2, 2, -2, 2);
-    wavelet->SetCenter(0, 0, 0);
-    wavelet->SetMaximum(255);
-    wavelet->SetStandardDeviation(.5);
-    wavelet->SetXFreq(60);
-    wavelet->SetYFreq(30);
-    wavelet->SetZFreq(40);
-    wavelet->SetXMag(10);
-    wavelet->SetYMag(18);
-    wavelet->SetZMag(5);
-    wavelet->SetSubsampleRate(1);
-    wavelet->Update();
+  wavelet->SetWholeExtent(-2, 2, -2, 2, -2, 2);
+  wavelet->SetCenter(0, 0, 0);
+  wavelet->SetMaximum(255);
+  wavelet->SetStandardDeviation(.5);
+  wavelet->SetXFreq(60);
+  wavelet->SetYFreq(30);
+  wavelet->SetZFreq(40);
+  wavelet->SetXMag(10);
+  wavelet->SetYMag(18);
+  wavelet->SetZMag(5);
+  wavelet->SetSubsampleRate(1);
+  wavelet->Update();
 
   vtkNew<vtkDoubleArray> dist;
   dist->SetNumberOfComponents(1);
   dist->SetName("Dist");
 
-  vtkImageData *original = wavelet->GetOutput();
+  vtkImageData* original = wavelet->GetOutput();
   for (vtkIdType i = 0; i < original->GetNumberOfPoints(); ++i)
   {
     double p[3];
     original->GetPoint(i, p);
-    dist->InsertNextValue(p[0]*p[0] + p[1]*p[1] + p[2]*p[2]);
+    dist->InsertNextValue(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
   }
   original->GetPointData()->AddArray(dist);
 
@@ -65,7 +65,7 @@ int TestPointDataToCellData (int, char*[])
 
   // test if selective CellDataToPointData operates on the correct
   int outNumPArrays = p2c->GetOutput()->GetPointData()->GetNumberOfArrays(); // should be 0
-  int outNumCArrays = p2c->GetOutput()->GetCellData()->GetNumberOfArrays(); // should be 1
+  int outNumCArrays = p2c->GetOutput()->GetCellData()->GetNumberOfArrays();  // should be 1
   std::string cArrayName = p2c->GetOutput()->GetCellData()->GetArrayName(0); // should be RTData
 
   if (outNumPArrays != 0)

@@ -17,10 +17,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-
-vtkCxxSetObjectMacro(vtkExporter,RenderWindow,vtkRenderWindow);
-vtkCxxSetObjectMacro(vtkExporter,ActiveRenderer,vtkRenderer);
-
+vtkCxxSetObjectMacro(vtkExporter, RenderWindow, vtkRenderWindow);
+vtkCxxSetObjectMacro(vtkExporter, ActiveRenderer, vtkRenderer);
 
 // Construct with no start and end write methods or arguments.
 vtkExporter::vtkExporter()
@@ -40,40 +38,38 @@ vtkExporter::~vtkExporter()
   this->SetRenderWindow(nullptr);
   this->SetActiveRenderer(nullptr);
 
-  if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
+  if ((this->StartWriteArg) && (this->StartWriteArgDelete))
   {
     (*this->StartWriteArgDelete)(this->StartWriteArg);
   }
-  if ((this->EndWriteArg)&&(this->EndWriteArgDelete))
+  if ((this->EndWriteArg) && (this->EndWriteArgDelete))
   {
     (*this->EndWriteArgDelete)(this->EndWriteArg);
   }
 }
-
 
 // Write data to output. Method executes subclasses WriteData() method, as
 // well as StartWrite() and EndWrite() methods.
 void vtkExporter::Write()
 {
   // make sure input is available
-  if ( !this->RenderWindow )
+  if (!this->RenderWindow)
   {
     vtkErrorMacro(<< "No render window provided!");
     return;
   }
-  if ( this->ActiveRenderer != nullptr
-    && !this->RenderWindow->HasRenderer(this->ActiveRenderer) )
+  if (this->ActiveRenderer != nullptr && !this->RenderWindow->HasRenderer(this->ActiveRenderer))
   {
     vtkErrorMacro(<< "ActiveRenderer must be a renderer owned by the RenderWindow");
     return;
   }
 
-  if ( this->StartWrite )
+  if (this->StartWrite)
   {
     (*this->StartWrite)(this->StartWriteArg);
   }
   this->WriteData();
-  if ( this->EndWrite )
+  if (this->EndWrite)
   {
     (*this->EndWrite)(this->EndWriteArg);
   }
@@ -87,12 +83,12 @@ void vtkExporter::Update()
 
 // Specify a function to be called before data is written.
 // Function will be called with argument provided.
-void vtkExporter::SetStartWrite(void (*f)(void *), void *arg)
+void vtkExporter::SetStartWrite(void (*f)(void*), void* arg)
 {
-  if ( f != this->StartWrite )
+  if (f != this->StartWrite)
   {
     // delete the current arg if there is one and a delete meth
-    if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
+    if ((this->StartWriteArg) && (this->StartWriteArgDelete))
     {
       (*this->StartWriteArgDelete)(this->StartWriteArg);
     }
@@ -102,11 +98,10 @@ void vtkExporter::SetStartWrite(void (*f)(void *), void *arg)
   }
 }
 
-
 // Set the arg delete method. This is used to free user memory.
-void vtkExporter::SetStartWriteArgDelete(void (*f)(void *))
+void vtkExporter::SetStartWriteArgDelete(void (*f)(void*))
 {
-  if ( f != this->StartWriteArgDelete)
+  if (f != this->StartWriteArgDelete)
   {
     this->StartWriteArgDelete = f;
     this->Modified();
@@ -114,9 +109,9 @@ void vtkExporter::SetStartWriteArgDelete(void (*f)(void *))
 }
 
 // Set the arg delete method. This is used to free user memory.
-void vtkExporter::SetEndWriteArgDelete(void (*f)(void *))
+void vtkExporter::SetEndWriteArgDelete(void (*f)(void*))
 {
-  if ( f != this->EndWriteArgDelete)
+  if (f != this->EndWriteArgDelete)
   {
     this->EndWriteArgDelete = f;
     this->Modified();
@@ -125,12 +120,12 @@ void vtkExporter::SetEndWriteArgDelete(void (*f)(void *))
 
 // Specify a function to be called after data is written.
 // Function will be called with argument provided.
-void vtkExporter::SetEndWrite(void (*f)(void *), void *arg)
+void vtkExporter::SetEndWrite(void (*f)(void*), void* arg)
 {
-  if ( f != this->EndWrite )
+  if (f != this->EndWrite)
   {
     // delete the current arg if there is one and a delete meth
-    if ((this->EndWriteArg)&&(this->EndWriteArgDelete))
+    if ((this->EndWriteArg) && (this->EndWriteArgDelete))
     {
       (*this->EndWriteArgDelete)(this->EndWriteArg);
     }
@@ -142,42 +137,38 @@ void vtkExporter::SetEndWrite(void (*f)(void *), void *arg)
 
 void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->RenderWindow )
+  if (this->RenderWindow)
   {
-    os << indent << "Render Window: (" <<
-      static_cast<void *>(this->RenderWindow) << ")\n";
+    os << indent << "Render Window: (" << static_cast<void*>(this->RenderWindow) << ")\n";
   }
   else
   {
     os << indent << "Render Window: (none)\n";
   }
 
-  if ( this->ActiveRenderer )
+  if (this->ActiveRenderer)
   {
-    os << indent << "Active Renderer: (" <<
-      static_cast<void *>(this->ActiveRenderer) << ")\n";
+    os << indent << "Active Renderer: (" << static_cast<void*>(this->ActiveRenderer) << ")\n";
   }
   else
   {
     os << indent << "Active Renderer: (none)\n";
   }
 
-  if ( this->StartWrite )
+  if (this->StartWrite)
   {
-    os << indent << "Start Write: (" <<
-      static_cast<void (*)(void *)>(this->StartWrite) << ")\n";
+    os << indent << "Start Write: (" << static_cast<void (*)(void*)>(this->StartWrite) << ")\n";
   }
   else
   {
     os << indent << "Start Write: (none)\n";
   }
 
-  if ( this->EndWrite )
+  if (this->EndWrite)
   {
-    os << indent << "End Write: (" <<
-      static_cast<void (*)(void *)>(this->EndWrite) << ")\n";
+    os << indent << "End Write: (" << static_cast<void (*)(void*)>(this->EndWrite) << ")\n";
   }
   else
   {
@@ -187,16 +178,13 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkMTimeType vtkExporter::GetMTime()
 {
-  vtkMTimeType mTime=this-> vtkObject::GetMTime();
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType time;
 
-  if ( this->RenderWindow != nullptr )
+  if (this->RenderWindow != nullptr)
   {
     time = this->RenderWindow->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
   return mTime;
 }
-
-
-

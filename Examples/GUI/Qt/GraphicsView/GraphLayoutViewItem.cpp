@@ -1,17 +1,17 @@
 
 #include "GraphLayoutViewItem.h"
-#include "vtkGraphLayoutView.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "QVTKInteractor.h"
-#include "vtkXMLTreeReader.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkGraphLayoutView.h"
+#include "vtkIdTypeArray.h"
+#include "vtkRenderedGraphRepresentation.h"
 #include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkStringArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkRenderedGraphRepresentation.h"
 #include "vtkStringToNumeric.h"
-#include "vtkViewTheme.h"
 #include "vtkTextProperty.h"
+#include "vtkViewTheme.h"
+#include "vtkXMLTreeReader.h"
 #include <QFile>
 
 GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
@@ -75,9 +75,6 @@ GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
   GraphLayoutView->SetHideEdgeLabelsOnInteraction(1);
 
   GraphLayoutView->ResetCamera();
-
 }
 
-GraphLayoutViewItem::~GraphLayoutViewItem()
-{
-}
+GraphLayoutViewItem::~GraphLayoutViewItem() {}

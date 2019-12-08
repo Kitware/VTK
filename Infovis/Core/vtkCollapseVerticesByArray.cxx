@@ -33,8 +33,8 @@
 #include "vtkVertexListIterator.h"
 
 #include <map>    // Using STL.
-#include <vector> // Using STL.
 #include <string> // Using STL.
+#include <vector> // Using STL.
 
 vtkStandardNewMacro(vtkCollapseVerticesByArray);
 
@@ -46,14 +46,14 @@ public:
 };
 
 //------------------------------------------------------------------------------
-vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
-  vtkGraphAlgorithm(),
-  AllowSelfLoops(false),
-  VertexArray(nullptr),
-  CountEdgesCollapsed(0),
-  EdgesCollapsedArray(nullptr),
-  CountVerticesCollapsed(0),
-  VerticesCollapsedArray(nullptr)
+vtkCollapseVerticesByArray::vtkCollapseVerticesByArray()
+  : vtkGraphAlgorithm()
+  , AllowSelfLoops(false)
+  , VertexArray(nullptr)
+  , CountEdgesCollapsed(0)
+  , EdgesCollapsedArray(nullptr)
+  , CountVerticesCollapsed(0)
+  , VerticesCollapsedArray(nullptr)
 {
   // Setting default names.
   this->SetVerticesCollapsedArray("VerticesCollapsedCountArray");
@@ -66,33 +66,31 @@ vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
 vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
 {
   delete this->Internal;
-  delete [] this->VertexArray;
-  delete [] this->VerticesCollapsedArray;
-  delete [] this->EdgesCollapsedArray;
+  delete[] this->VertexArray;
+  delete[] this->VerticesCollapsedArray;
+  delete[] this->EdgesCollapsedArray;
 }
 
 // ----------------------------------------------------------------------------
-void vtkCollapseVerticesByArray::PrintSelf(ostream &os, vtkIndent indent)
+void vtkCollapseVerticesByArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Base class print.
   vtkGraphAlgorithm::PrintSelf(os, indent);
 
-  os << indent << "AllowSelfLoops: "  << this->AllowSelfLoops << endl;
-  os << indent << "VertexArray: "     <<
-    (this->VertexArray ? this->VertexArray : "nullptr") << endl;
+  os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
+  os << indent << "VertexArray: " << (this->VertexArray ? this->VertexArray : "nullptr") << endl;
 
-  os << indent << "CountEdgesCollapsed: "  << this->CountEdgesCollapsed << endl;
+  os << indent << "CountEdgesCollapsed: " << this->CountEdgesCollapsed << endl;
   os << indent << "EdgesCollapsedArray: "
-    << (this->EdgesCollapsedArray ? this->EdgesCollapsedArray : "nullptr") << endl;
+     << (this->EdgesCollapsedArray ? this->EdgesCollapsedArray : "nullptr") << endl;
 
-  os << indent << "CountVerticesCollapsed: "  << this->CountVerticesCollapsed << endl;
+  os << indent << "CountVerticesCollapsed: " << this->CountVerticesCollapsed << endl;
   os << indent << "VerticesCollapsedArray: "
-    << (this->VerticesCollapsedArray ? this->VerticesCollapsedArray : "nullptr") << endl;
+     << (this->VerticesCollapsedArray ? this->VerticesCollapsedArray : "nullptr") << endl;
 }
 
 //------------------------------------------------------------------------------
-void vtkCollapseVerticesByArray::AddAggregateEdgeArray(
-  const char* arrName)
+void vtkCollapseVerticesByArray::AddAggregateEdgeArray(const char* arrName)
 {
   this->Internal->AggregateEdgeArrays.push_back(std::string(arrName));
 }
@@ -105,12 +103,11 @@ void vtkCollapseVerticesByArray::ClearAggregateEdgeArray()
 
 //------------------------------------------------------------------------------
 int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
-                                            vtkInformationVector** inputVector,
-                                            vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  if(!inInfo)
+  if (!inInfo)
   {
     vtkErrorMacro("Error: nullptr input vtkInformation");
     return 0;
@@ -118,29 +115,28 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataObject* inObj = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  if(!inObj)
+  if (!inObj)
   {
     vtkErrorMacro(<< "Error: nullptr vtkDataObject");
     return 0;
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if(!outInfo)
+  if (!outInfo)
   {
     vtkErrorMacro("Error: nullptr output vtkInformation");
     return 0;
   }
 
   vtkDataObject* outObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  if(!outObj)
+  if (!outObj)
   {
     vtkErrorMacro("Error: nullptr output vtkDataObject");
     return 0;
   }
 
-  vtkGraph* outGraph =
-    this->Create(vtkGraph::SafeDownCast(inObj));
-  if(outGraph)
+  vtkGraph* outGraph = this->Create(vtkGraph::SafeDownCast(inObj));
+  if (outGraph)
   {
     vtkDirectedGraph::SafeDownCast(outObj)->ShallowCopy(outGraph);
     outGraph->Delete();
@@ -155,7 +151,7 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
 
 //------------------------------------------------------------------------------
 int vtkCollapseVerticesByArray::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info)
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDirectedGraph");
   return 1;
@@ -164,25 +160,21 @@ int vtkCollapseVerticesByArray::FillOutputPortInformation(
 //------------------------------------------------------------------------------
 vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 {
-  if(!inGraph)
+  if (!inGraph)
   {
     return nullptr;
   }
 
-  if(!this->VertexArray)
+  if (!this->VertexArray)
   {
     return nullptr;
   }
 
-  typedef vtkSmartPointer<vtkMutableDirectedGraph>
-                                              vtkMutableDirectedGraphRefPtr;
-  typedef vtkSmartPointer<vtkEdgeListIterator>
-                                              vtkEdgeListIteratorRefPtr;
-  typedef vtkSmartPointer<vtkVertexListIterator>
-                                              vtkVertexListIteratorRefPtr;
-  typedef vtkSmartPointer<vtkIntArray>        vtkIntArrayRefPtr;
+  typedef vtkSmartPointer<vtkMutableDirectedGraph> vtkMutableDirectedGraphRefPtr;
+  typedef vtkSmartPointer<vtkEdgeListIterator> vtkEdgeListIteratorRefPtr;
+  typedef vtkSmartPointer<vtkVertexListIterator> vtkVertexListIteratorRefPtr;
+  typedef vtkSmartPointer<vtkIntArray> vtkIntArrayRefPtr;
   typedef std::pair<vtkVariant, vtkIdType> NameIdPair;
-
 
   // Create a new merged graph.
   vtkMutableDirectedGraphRefPtr outGraph(vtkMutableDirectedGraphRefPtr::New());
@@ -198,26 +190,25 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   vtkDataSetAttributes* inVtxDsAttrs = inGraph->GetVertexData();
   vtkDataSetAttributes* inEgeDsAttrs = inGraph->GetEdgeData();
 
-  if(!inVtxDsAttrs)
+  if (!inVtxDsAttrs)
   {
-    vtkErrorMacro("Error: No vertex data found on the graph.")
+    vtkErrorMacro("Error: No vertex data found on the graph.");
     return nullptr;
   }
 
   // Find the vertex array of interest.
-  vtkAbstractArray* inVertexAOI =
-    inVtxDsAttrs->GetAbstractArray(this->VertexArray);
+  vtkAbstractArray* inVertexAOI = inVtxDsAttrs->GetAbstractArray(this->VertexArray);
 
   // Cannot proceed if vertex array of interest is not found.
-  if(!inVertexAOI)
+  if (!inVertexAOI)
   {
-    vtkErrorMacro("Error: Could not find the key vertex array.")
+    vtkErrorMacro("Error: Could not find the key vertex array.");
     return nullptr;
   }
 
   // Optional.
   vtkIntArrayRefPtr countEdgesCollapsedArray(nullptr);
-  if(this->CountEdgesCollapsed)
+  if (this->CountEdgesCollapsed)
   {
     countEdgesCollapsedArray = vtkIntArrayRefPtr::New();
     countEdgesCollapsedArray->SetName(this->EdgesCollapsedArray);
@@ -227,7 +218,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
   // Optional.
   vtkIntArrayRefPtr countVerticesCollapsedArray(nullptr);
-  if(this->CountVerticesCollapsed)
+  if (this->CountVerticesCollapsed)
   {
     countVerticesCollapsedArray = vtkIntArrayRefPtr::New();
     countVerticesCollapsedArray->SetName(this->VerticesCollapsedArray);
@@ -235,10 +226,9 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     outGraph->GetVertexData()->AddArray(countVerticesCollapsedArray);
   }
 
-
   // Arrays of interest.
-  std::vector<vtkDataArray*>     inEdgeDataArraysOI;
-  std::vector<vtkDataArray*>     outEdgeDataArraysOI;
+  std::vector<vtkDataArray*> inEdgeDataArraysOI;
+  std::vector<vtkDataArray*> outEdgeDataArraysOI;
 
   // All other arrays.
   std::vector<vtkAbstractArray*> inEdgeDataArraysAO;
@@ -249,10 +239,10 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
   //++
   // Find all the input vertex data arrays except the one set as key.
-  for(int i=0; i < inVtxDsAttrs->GetNumberOfArrays(); ++i)
+  for (int i = 0; i < inVtxDsAttrs->GetNumberOfArrays(); ++i)
   {
     vtkAbstractArray* absArray = inVtxDsAttrs->GetAbstractArray(i);
-    if(strcmp(absArray->GetName(), inVertexAOI->GetName()) == 0)
+    if (strcmp(absArray->GetName(), inVertexAOI->GetName()) == 0)
     {
       continue;
     }
@@ -260,37 +250,33 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     inVertexDataArraysAO.push_back(absArray);
   }
 
-
-  for(size_t i=0; i < inVertexDataArraysAO.size(); ++i)
+  for (size_t i = 0; i < inVertexDataArraysAO.size(); ++i)
   {
-    if(!inVertexDataArraysAO[i]->GetName())
+    if (!inVertexDataArraysAO[i]->GetName())
     {
-      vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+      vtkErrorMacro("Error: Name on the array is nullptr or not set.");
       return nullptr;
     }
 
-    outVertexDataArraysAO.push_back(outGraph->GetVertexData()
-      ->GetAbstractArray(inVertexDataArraysAO[i]->GetName()));
-    outVertexDataArraysAO.back()->SetNumberOfTuples(inVertexDataArraysAO[i]->
-                                                    GetNumberOfTuples());
+    outVertexDataArraysAO.push_back(
+      outGraph->GetVertexData()->GetAbstractArray(inVertexDataArraysAO[i]->GetName()));
+    outVertexDataArraysAO.back()->SetNumberOfTuples(inVertexDataArraysAO[i]->GetNumberOfTuples());
   }
   //--
 
   //++
   // Find all the input edge data arrays of interest or not.
-  for(int i=0; i < inEgeDsAttrs->GetNumberOfArrays(); ++i)
+  for (int i = 0; i < inEgeDsAttrs->GetNumberOfArrays(); ++i)
   {
     vtkAbstractArray* absArray = inEgeDsAttrs->GetAbstractArray(i);
 
     bool alreadyAdded(false);
-    for(size_t j=0; j < this->Internal->AggregateEdgeArrays.size(); ++j)
+    for (size_t j = 0; j < this->Internal->AggregateEdgeArrays.size(); ++j)
     {
-      if(strcmp(absArray->GetName(),
-                this->Internal->AggregateEdgeArrays[j].c_str()) == 0)
+      if (strcmp(absArray->GetName(), this->Internal->AggregateEdgeArrays[j].c_str()) == 0)
       {
-        vtkDataArray* inDataArray =
-          vtkArrayDownCast<vtkDataArray>(absArray);
-        if(inDataArray)
+        vtkDataArray* inDataArray = vtkArrayDownCast<vtkDataArray>(absArray);
+        if (inDataArray)
         {
           inEdgeDataArraysOI.push_back(inDataArray);
         }
@@ -307,60 +293,56 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       }
     } // End inner for.
 
-    if(!alreadyAdded)
+    if (!alreadyAdded)
     {
-       inEdgeDataArraysAO.push_back(absArray);
+      inEdgeDataArraysAO.push_back(absArray);
     }
   }
 
   // Find the corresponding empty arrays in output graph.
-  vtkAbstractArray* outVertexAOI
-    (outGraph->GetVertexData()->GetAbstractArray(this->VertexArray));
+  vtkAbstractArray* outVertexAOI(outGraph->GetVertexData()->GetAbstractArray(this->VertexArray));
 
   // Arrays of interest.
-  if(!inEdgeDataArraysOI.empty())
+  if (!inEdgeDataArraysOI.empty())
   {
-    for(size_t i=0; i < inEdgeDataArraysOI.size(); ++i)
+    for (size_t i = 0; i < inEdgeDataArraysOI.size(); ++i)
     {
-      if(!inEdgeDataArraysOI[i]->GetName())
+      if (!inEdgeDataArraysOI[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.");
         return nullptr;
       }
 
       vtkDataArray* outDataArray = vtkArrayDownCast<vtkDataArray>(
-                                   outGraph->GetEdgeData()->GetAbstractArray(
-                                   inEdgeDataArraysOI[i]->GetName()));
+        outGraph->GetEdgeData()->GetAbstractArray(inEdgeDataArraysOI[i]->GetName()));
 
       outEdgeDataArraysOI.push_back(outDataArray);
-      outDataArray->SetNumberOfTuples
-        (inEdgeDataArraysOI[i]->GetNumberOfTuples());
+      outDataArray->SetNumberOfTuples(inEdgeDataArraysOI[i]->GetNumberOfTuples());
     }
   }
 
   // All others.
-  if(!inEdgeDataArraysAO.empty())
+  if (!inEdgeDataArraysAO.empty())
   {
-    for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
+    for (size_t i = 0; i < inEdgeDataArraysAO.size(); ++i)
     {
-      if(!inEdgeDataArraysAO[i]->GetName())
+      if (!inEdgeDataArraysAO[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.");
         return nullptr;
       }
 
-      vtkAbstractArray* outAbsArray = outGraph->GetEdgeData()->GetAbstractArray(
-                                      inEdgeDataArraysAO[i]->GetName());
+      vtkAbstractArray* outAbsArray =
+        outGraph->GetEdgeData()->GetAbstractArray(inEdgeDataArraysAO[i]->GetName());
 
       outEdgeDataArraysAO.push_back(outAbsArray);
-      outAbsArray->SetNumberOfTuples
-        (inEdgeDataArraysAO[i]->GetNumberOfTuples());
+      outAbsArray->SetNumberOfTuples(inEdgeDataArraysAO[i]->GetNumberOfTuples());
     }
   }
   //--
 
-  std::map<vtkVariant, vtkIdType>            myMap;
-  std::map<vtkVariant, vtkIdType>::iterator  myItr;
+  std::map<vtkVariant, vtkIdType> myMap;
+  std::map<vtkVariant, vtkIdType>::iterator myItr;
 
   vtkIdType inSourceId;
   vtkIdType inTargetId;
@@ -369,20 +351,21 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   vtkIdType outEdgeId;
 
   // Iterate over all the vertices.
-  while(itr->HasNext())
+  while (itr->HasNext())
   {
     inSourceId = itr->Next();
     vtkVariant source = inVertexAOI->GetVariantValue(inSourceId);
 
     myItr = myMap.find(source);
 
-    if(myItr != myMap.end())
+    if (myItr != myMap.end())
     {
       // If we already have a vertex for this "source" get its id.
       outSourceId = myItr->second;
-      if(this->CountVerticesCollapsed)
+      if (this->CountVerticesCollapsed)
       {
-        countVerticesCollapsedArray->SetValue(outSourceId, countVerticesCollapsedArray->GetValue(outSourceId) + 1);
+        countVerticesCollapsedArray->SetValue(
+          outSourceId, countVerticesCollapsedArray->GetValue(outSourceId) + 1);
       }
     }
     else
@@ -392,27 +375,25 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       outVertexAOI->InsertVariantValue(outSourceId, source);
       myMap.insert(NameIdPair(source, outSourceId));
 
-      if(this->CountVerticesCollapsed)
+      if (this->CountVerticesCollapsed)
       {
         countVerticesCollapsedArray->InsertValue(outSourceId, 1);
       }
     }
 
-
-    for(size_t i=0; i < inVertexDataArraysAO.size(); ++i)
+    for (size_t i = 0; i < inVertexDataArraysAO.size(); ++i)
     {
-      outVertexDataArraysAO[i]->SetTuple(outSourceId, inSourceId,
-                                         inVertexDataArraysAO[i]);
+      outVertexDataArraysAO[i]->SetTuple(outSourceId, inSourceId, inVertexDataArraysAO[i]);
     }
   }
 
   // Now itereate over all the edges in the graph.
   // Result vary dependeing on whether the input graph is
   // directed or not.
-  vtkEdgeListIteratorRefPtr elItr (vtkEdgeListIteratorRefPtr::New());
+  vtkEdgeListIteratorRefPtr elItr(vtkEdgeListIteratorRefPtr::New());
   inGraph->GetEdges(elItr);
 
-  while(elItr->HasNext())
+  while (elItr->HasNext())
   {
     vtkGraphEdge* edge = elItr->NextGraphEdge();
     inSourceId = edge->GetSource();
@@ -428,65 +409,62 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     myItr = myMap.find(target);
     outTargetId = myItr->second;
 
-
     // Find if there is an edge between the out source and target.
     FindEdge(outGraph, outSourceId, outTargetId, outEdgeId);
 
-    if((outSourceId == outTargetId) && !this->AllowSelfLoops)
+    if ((outSourceId == outTargetId) && !this->AllowSelfLoops)
     {
       continue;
     }
 
     //++
-    if(outEdgeId == -1)
+    if (outEdgeId == -1)
     {
       outEdgeId = outGraph->AddEdge(outSourceId, outTargetId).Id;
 
       // Edge does not exist. Add a new one.
-      if(inEdgeDataArraysOI.empty() && inEdgeDataArraysAO.empty())
+      if (inEdgeDataArraysOI.empty() && inEdgeDataArraysAO.empty())
       {
         continue;
       }
 
       // Arrays of interest.
-      for(size_t i=0; i < inEdgeDataArraysOI.size(); ++i)
+      for (size_t i = 0; i < inEdgeDataArraysOI.size(); ++i)
       {
 
-        outEdgeDataArraysOI[i]->SetTuple(
-          outEdgeId, edge->GetId(), inEdgeDataArraysOI[i]);
+        outEdgeDataArraysOI[i]->SetTuple(outEdgeId, edge->GetId(), inEdgeDataArraysOI[i]);
       }
 
       // All others. Last entered will override previous ones.
-      for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
+      for (size_t i = 0; i < inEdgeDataArraysAO.size(); ++i)
       {
-        outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
-                                         inEdgeDataArraysAO[i]);
+        outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(), inEdgeDataArraysAO[i]);
       }
 
-      if(this->CountEdgesCollapsed)
+      if (this->CountEdgesCollapsed)
       {
         countEdgesCollapsedArray->InsertValue(outEdgeId, 1);
       }
     }
     else
     {
-      if(inEdgeDataArraysOI.empty() && inEdgeDataArraysAO.empty())
+      if (inEdgeDataArraysOI.empty() && inEdgeDataArraysAO.empty())
       {
         continue;
       }
 
       // Find the data on the out edge and add the data from in edge
       // and set it on the out edge.
-      for(size_t i=0; i < inEdgeDataArraysOI.size(); ++i)
+      for (size_t i = 0; i < inEdgeDataArraysOI.size(); ++i)
       {
         double* outEdgeData = outEdgeDataArraysOI[i]->GetTuple(outEdgeId);
-        double* inEdgeData  = inEdgeDataArraysOI[i]->GetTuple(edge->GetId());
+        double* inEdgeData = inEdgeDataArraysOI[i]->GetTuple(edge->GetId());
 
-        if(!outEdgeData && !inEdgeData)
+        if (!outEdgeData && !inEdgeData)
         {
-        continue;
+          continue;
         }
-        for(int j=0; j < inEdgeDataArraysOI[i]->GetNumberOfComponents(); ++j)
+        for (int j = 0; j < inEdgeDataArraysOI[i]->GetNumberOfComponents(); ++j)
         {
           outEdgeData[j] = outEdgeData[j] + inEdgeData[j];
         }
@@ -495,17 +473,15 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       }
 
       // All others. Last entered will override previous ones.
-      for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
+      for (size_t i = 0; i < inEdgeDataArraysAO.size(); ++i)
       {
-        outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
-                                         inEdgeDataArraysAO[i]);
+        outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(), inEdgeDataArraysAO[i]);
       }
 
-      if(this->CountEdgesCollapsed)
+      if (this->CountEdgesCollapsed)
       {
         countEdgesCollapsedArray->SetValue(
-          outEdgeId,
-          static_cast<int>(countEdgesCollapsedArray->GetValue(outEdgeId) + 1));
+          outEdgeId, static_cast<int>(countEdgesCollapsedArray->GetValue(outEdgeId) + 1));
       }
     }
     //--
@@ -517,27 +493,27 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 }
 
 //------------------------------------------------------------------------------
-void vtkCollapseVerticesByArray::FindEdge(vtkGraph* outGraph, vtkIdType source,
-                                           vtkIdType target, vtkIdType& edgeId)
+void vtkCollapseVerticesByArray::FindEdge(
+  vtkGraph* outGraph, vtkIdType source, vtkIdType target, vtkIdType& edgeId)
 {
   typedef vtkSmartPointer<vtkOutEdgeIterator> vtkOutEdgeIteratorRefPtr;
   edgeId = -1;
 
-  if(!outGraph)
+  if (!outGraph)
   {
     return;
   }
 
- vtkOutEdgeIteratorRefPtr itr (vtkOutEdgeIteratorRefPtr::New());
+  vtkOutEdgeIteratorRefPtr itr(vtkOutEdgeIteratorRefPtr::New());
 
- outGraph->GetOutEdges(source, itr);
- while(itr->HasNext())
- {
-   vtkGraphEdge* edge = itr->NextGraphEdge();
-     if(edge->GetTarget() == target)
-     {
-     edgeId = edge->GetId();
-     break;
-     }
- }
+  outGraph->GetOutEdges(source, itr);
+  while (itr->HasNext())
+  {
+    vtkGraphEdge* edge = itr->NextGraphEdge();
+    if (edge->GetTarget() == target)
+    {
+      edgeId = edge->GetId();
+      break;
+    }
+  }
 }

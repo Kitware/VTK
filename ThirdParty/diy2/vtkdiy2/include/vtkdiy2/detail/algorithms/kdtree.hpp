@@ -244,7 +244,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
     std::vector<float>  splits(link->size());
     for (int i = 0; i < link->size(); ++i)
     {
-        float split; diy::Direction dir;
+        float split; diy::Direction dir(dim_,0);
 
         int in_gid = link->target(i).gid;
         while(srp.incoming(in_gid))
@@ -287,7 +287,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
                 if (wrap)
                     new_link.add_wrap(find_wrap(new_link.bounds(), bounds, domain));
                 else
-                    new_link.add_wrap(diy::Direction());
+                    new_link.add_wrap(diy::Direction(dim_,0));
             }
         } else // non-aligned side
         {
@@ -308,7 +308,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
                     if (wrap)
                         new_link.add_wrap(find_wrap(new_link.bounds(), bounds, domain));
                     else
-                        new_link.add_wrap(diy::Direction());
+                        new_link.add_wrap(diy::Direction(dim_, 0));
                 }
             }
         }
@@ -323,16 +323,16 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
     update_neighbor_bounds(nbr_bounds, find_split(new_link.bounds(), nbr_bounds), dim, !lower);
     new_link.add_bounds(nbr_bounds);
 
-    new_link.add_wrap(diy::Direction());    // dual block cannot be wrapped
+    new_link.add_wrap(diy::Direction(dim_,0));    // dual block cannot be wrapped
 
     if (lower)
     {
-        diy::Direction right;
+        diy::Direction right(dim_,0);
         right[dim] = 1;
         new_link.add_direction(right);
     } else
     {
-        diy::Direction left;
+        diy::Direction left(dim_,0);
         left[dim] = -1;
         new_link.add_direction(left);
     }
@@ -445,15 +445,18 @@ enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram
     size_t cur   = 0;
     float  width = (link->core().max[dim] - link->core().min[dim])/bins_;
     float  split = 0;
-    for (size_t i = 0; i < histogram.size(); ++i)
+    size_t i = 0;
+    for (; i < histogram.size(); ++i)
     {
         if (cur + histogram[i] > total/2)
-        {
-            split = link->core().min[dim] + width*i;
             break;
-        }
         cur += histogram[i];
     }
+    if (i == 0)
+        ++i;
+    else if (i >= histogram.size() - 1)
+        i = histogram.size() - 2;
+    split = link->core().min[dim] + width*i;
     log->trace("Found split: {} (dim={}) in {} - {}", split, dim, link->core().min[dim], link->core().max[dim]);
 
     // subset and enqueue
@@ -554,7 +557,7 @@ diy::Direction
 diy::detail::KDTreePartition<Block,Point>::
 find_wrap(const Bounds& bounds, const Bounds& nbr_bounds, const Bounds& domain) const
 {
-    diy::Direction wrap;
+    diy::Direction wrap(dim_,0);
     for (int i = 0; i < dim_; ++i)
     {
         if (bounds.min[i] == domain.min[i] && nbr_bounds.max[i] == domain.max[i])

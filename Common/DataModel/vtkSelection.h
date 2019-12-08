@@ -39,7 +39,7 @@
  *
  * @sa
  * vtkSelectionNode
-*/
+ */
 
 #ifndef vtkSelection_h
 #define vtkSelection_h
@@ -48,8 +48,8 @@
 #include "vtkDataObject.h"
 #include "vtkSmartPointer.h" // for  vtkSmartPointer.
 
-#include <string> // for string.
 #include <memory> // for unique_ptr.
+#include <string> // for string.
 
 class vtkSelectionNode;
 class vtkSignedCharArray;
@@ -57,7 +57,7 @@ class vtkSignedCharArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkSelection : public vtkDataObject
 {
 public:
-  vtkTypeMacro(vtkSelection,vtkDataObject);
+  vtkTypeMacro(vtkSelection, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelection* New();
 
@@ -69,7 +69,7 @@ public:
   /**
    * Returns VTK_SELECTION enumeration value.
    */
-  int GetDataObjectType() override  {return VTK_SELECTION;}
+  int GetDataObjectType() override { return VTK_SELECTION; }
 
   /**
    * Returns the number of nodes in this selection.
@@ -193,7 +193,7 @@ public:
    * Retrieve a vtkSelection stored inside an invormation object.
    */
   static vtkSelection* GetData(vtkInformation* info);
-  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
+  static vtkSelection* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -231,7 +231,7 @@ template <typename MapType>
 inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(const MapType& values_map) const
 {
   const unsigned int num_nodes = this->GetNumberOfNodes();
-  std::unique_ptr<vtkSignedCharArray* []> values(new vtkSignedCharArray*[num_nodes]);
+  std::unique_ptr<vtkSignedCharArray*[]> values(new vtkSignedCharArray*[num_nodes]);
   for (unsigned int cc = 0; cc < num_nodes; ++cc)
   {
     auto iter = values_map.find(this->GetNodeNameAtIndex(cc));

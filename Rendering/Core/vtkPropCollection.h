@@ -22,36 +22,36 @@
  *
  * @sa
  * vtkProp vtkCollection
-*/
+ */
 
 #ifndef vtkPropCollection_h
 #define vtkPropCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkProp.h" // Needed for inline methods
 
 class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 {
- public:
-  static vtkPropCollection *New();
-  vtkTypeMacro(vtkPropCollection,vtkCollection);
+public:
+  static vtkPropCollection* New();
+  vtkTypeMacro(vtkPropCollection, vtkCollection);
 
   /**
    * Add a Prop to the bottom of the list.
    */
-  void AddItem(vtkProp *a);
+  void AddItem(vtkProp* a);
 
   /**
    * Get the next Prop in the list.
    */
-  vtkProp *GetNextProp();
+  vtkProp* GetNextProp();
 
   /**
    * Get the last Prop in the list.
    */
-  vtkProp *GetLastProp();
+  vtkProp* GetLastProp();
 
   /**
    * Get the number of paths contained in this list. (Recall that a
@@ -65,49 +65,46 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkProp *GetNextProp(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));};
+  vtkProp* GetNextProp(vtkCollectionSimpleIterator& cookie)
+  {
+    return static_cast<vtkProp*>(this->GetNextItemAsObject(cookie));
+  }
 
 protected:
   vtkPropCollection() {}
   ~vtkPropCollection() override {}
 
-
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkPropCollection(const vtkPropCollection&) = delete;
   void operator=(const vtkPropCollection&) = delete;
 };
 
-inline void vtkPropCollection::AddItem(vtkProp *a)
+inline void vtkPropCollection::AddItem(vtkProp* a)
 {
   this->vtkCollection::AddItem(a);
 }
 
-inline vtkProp *vtkPropCollection::GetNextProp()
+inline vtkProp* vtkPropCollection::GetNextProp()
 {
-  return static_cast<vtkProp *>(this->GetNextItemAsObject());
+  return static_cast<vtkProp*>(this->GetNextItemAsObject());
 }
 
-inline vtkProp *vtkPropCollection::GetLastProp()
+inline vtkProp* vtkPropCollection::GetLastProp()
 {
-  if ( this->Bottom == nullptr )
+  if (this->Bottom == nullptr)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkProp *>(this->Bottom->Item);
+    return static_cast<vtkProp*>(this->Bottom->Item);
   }
 }
 
 #endif
-
-
-
-
 
 // VTK-HeaderTest-Exclude: vtkPropCollection.h

@@ -23,11 +23,11 @@
  */
 #include "vtkVisibilitySort.h"
 
-#include "vtkIdList.h"
-#include "vtkDataSet.h"
-#include "vtkMatrix4x4.h"
 #include "vtkCamera.h"
+#include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
+#include "vtkIdList.h"
+#include "vtkMatrix4x4.h"
 
 //-----------------------------------------------------------------------------
 
@@ -64,17 +64,17 @@ vtkVisibilitySort::~vtkVisibilitySort()
 
 //-----------------------------------------------------------------------------
 
-void vtkVisibilitySort::Register(vtkObjectBase *o)
+void vtkVisibilitySort::Register(vtkObjectBase* o)
 {
   this->RegisterInternal(o, 1);
 }
 
-void vtkVisibilitySort::UnRegister(vtkObjectBase *o)
+void vtkVisibilitySort::UnRegister(vtkObjectBase* o)
 {
   this->UnRegisterInternal(o, 1);
 }
 
-void vtkVisibilitySort::ReportReferences(vtkGarbageCollector *collector)
+void vtkVisibilitySort::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->Input, "Input");
@@ -82,7 +82,7 @@ void vtkVisibilitySort::ReportReferences(vtkGarbageCollector *collector)
 
 //-----------------------------------------------------------------------------
 
-void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4 *mat)
+void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4* mat)
 {
   // Less efficient than vtkMatrix4x4::DeepCopy, but only sets Modified if
   // there is a real change.
@@ -94,8 +94,7 @@ void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4 *mat)
     }
   }
 
-  if (  this->ModelTransform->GetMTime()
-      > this->InverseModelTransform->GetMTime() )
+  if (this->ModelTransform->GetMTime() > this->InverseModelTransform->GetMTime())
   {
     this->InverseModelTransform->DeepCopy(this->ModelTransform);
     this->InverseModelTransform->Invert();
@@ -104,7 +103,7 @@ void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4 *mat)
 
 //-----------------------------------------------------------------------------
 
-void vtkVisibilitySort::PrintSelf(ostream &os, vtkIndent indent)
+void vtkVisibilitySort::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

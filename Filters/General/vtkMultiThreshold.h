@@ -61,12 +61,12 @@
  * vtkMultiThreshold* thr;
  * int intervalSets[3];
  *
- * intervalSets[0] = thr->AddIntervalSet( vtkMath::NegInf(), 320., vtkMultiThreshold::CLOSED, vtkMultiThreshold::OPEN,
- *     vtkDataObject::FIELD_ASSOCIATION_POINTS, "T", 0, 1 );
- * intervalSets[1] = thr->AddIntervalSet( 101., vtkMath::Inf(), vtkMultiThreshold::OPEN, vtkMultiThreshold::CLOSED,
+ * intervalSets[0] = thr->AddIntervalSet( vtkMath::NegInf(), 320., vtkMultiThreshold::CLOSED,
+ * vtkMultiThreshold::OPEN, vtkDataObject::FIELD_ASSOCIATION_POINTS, "T", 0, 1 ); intervalSets[1] =
+ * thr->AddIntervalSet( 101., vtkMath::Inf(), vtkMultiThreshold::OPEN, vtkMultiThreshold::CLOSED,
  *     vtkDataObject::FIELD_ASSOCIATION_CELLS, "P", 0, 1 );
- * intervalSets[2] = thr->AddIntervalSet( vtkMath::NegInf(), 0.1, vtkMultiThreshold::CLOSED, vtkMultiThreshold::OPEN,
- *     vtkDataObject::FIELD_ASSOCIATION_POINTS, "s", 0, 1 );
+ * intervalSets[2] = thr->AddIntervalSet( vtkMath::NegInf(), 0.1, vtkMultiThreshold::CLOSED,
+ * vtkMultiThreshold::OPEN, vtkDataObject::FIELD_ASSOCIATION_POINTS, "s", 0, 1 );
  *
  * int intermediate = thr->AddBooleanSet( vtkMultiThreshold::OR, 2, &intervalSets[1] );
  *
@@ -78,10 +78,11 @@
  * int outputGridIndex = thr->OutputSet( outputSet );
  * thr->Update();
  * </pre>
- * The result of this filter will be a multiblock dataset that contains a single child with the desired cells.
- * If we had also called <code>thr->OutputSet( intervalSets[0] );</code>, there would be two child meshes and
- * one would contain all cells with T < 320 [K].
- * In that case, the output can be represented by this graph
+ * The result of this filter will be a multiblock dataset that contains a single child with the
+ * desired cells. If we had also called <code>thr->OutputSet( intervalSets[0] );</code>, there would
+ * be two child meshes and one would contain all cells with T < 320 [K]. In that case, the output
+ * can be represented by this graph
+ *
  * \dot
  * digraph MultiThreshold {
  *   set0 [shape=rect,style=filled,label="point T(0) in [-Inf,320["]
@@ -95,20 +96,21 @@
  *   set3 -> set4
  * }
  * \enddot
+ *
  * The filled rectangles represent sets that are output.
-*/
+ */
 
 #ifndef vtkMultiThreshold_h
 #define vtkMultiThreshold_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkMath.h"                 // for Inf() and NegInf()
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkMath.h" // for Inf() and NegInf()
 
-#include <vector> // for lists of threshold rules
-#include <map> // for IntervalRules map
-#include <set> // for UpdateDependents()
+#include <map>    // for IntervalRules map
+#include <set>    // for UpdateDependents()
 #include <string> // for holding array names in NormKey
+#include <vector> // for lists of threshold rules
 
 class vtkCell;
 class vtkCellData;
@@ -120,25 +122,29 @@ class vtkUnstructuredGrid;
 class VTKFILTERSGENERAL_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiThreshold, vtkMultiBlockDataSetAlgorithm);
   static vtkMultiThreshold* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Whether the endpoint value of an interval should be included or excluded.
-  enum Closure {
-    OPEN=0,   //!< Specify an open interval
-    CLOSED=1  //!< Specify a closed interval
+  enum Closure
+  {
+    OPEN = 0,  //!< Specify an open interval
+    CLOSED = 1 //!< Specify a closed interval
   };
   /// Norms that can be used to threshold vector attributes.
-  enum Norm {
-    LINFINITY_NORM=-3, //!< Use the \f$L_{\infty}\f$ norm for the specified array threshold.
-    L2_NORM=-2,        //!< Use the \f$L_2\f$ norm for the specified array threshold.
-    L1_NORM=-1         //!< Use the \f$L_1\f$ norm for the specified array threshold.
+  enum Norm
+  {
+    LINFINITY_NORM = -3, //!< Use the \f$L_{\infty}\f$ norm for the specified array threshold.
+    L2_NORM = -2,        //!< Use the \f$L_2\f$ norm for the specified array threshold.
+    L1_NORM = -1         //!< Use the \f$L_1\f$ norm for the specified array threshold.
   };
-  /// Operations that can be performed on sets to generate another set. Most of these operators take 2 or more input sets.
-  enum SetOperation {
+  /// Operations that can be performed on sets to generate another set. Most of these operators take
+  /// 2 or more input sets.
+  enum SetOperation
+  {
     AND, //!< Only include an element if it belongs to all the input sets
-    OR, //!< Include an element if it belongs to any input set
+    OR,  //!< Include an element if it belongs to any input set
     XOR, //!< Include an element if it belongs to exactly one input set
     WOR, //!< Include elements that belong to an odd number of input sets (a kind of "winding XOR")
     NAND //!< Only include elements that don't belong to any input set
@@ -147,7 +153,8 @@ public:
   //@{
   /**
    * Add a mesh subset to be computed by thresholding an attribute of the input mesh.
-   * The subset can then be added to an output mesh with OutputSet() or combined with other sets using AddBooleanSet.
+   * The subset can then be added to an output mesh with OutputSet() or combined with other sets
+   using AddBooleanSet.
    * If you wish to include all cells with values below some number \a a, call
    * with xmin set to vtkMath::NegInf() and xmax set to \a a.
    * Similarly, if you wish to include all cells with values above some number \a a,
@@ -165,65 +172,79 @@ public:
    * - \a center is invalid,
    * - \a xmin == \a xmax and \a omin and/or \a omax are vtkMultiThreshold::OPEN, or
    * - \a xmin > \a xmax.
-   * - \a xmin or \a xmax is not a number (i.e., IEEE NaN). Having both \a xmin and \a xmax equal NaN is allowed.
+   * - \a xmin or \a xmax is not a number (i.e., IEEE NaN). Having both \a xmin and \a xmax equal
+   NaN is allowed.
    * vtkMath provides a portable way to specify IEEE infinities and Nan.
-   * Note that specifying an interval completely out of the bounds of an attribute is considered valid.
-   * In fact, it is occasionally useful to create a closed interval with both endpoints set to \f$\infty\f$
+   * Note that specifying an interval completely out of the bounds of an attribute is considered
+   valid.
+   * In fact, it is occasionally useful to create a closed interval with both endpoints set to
+   \f$\infty\f$
    * or both endpoints set to \f$-\infty\f$ in order to locate cells with problematic values.
 
    * @param xmin The minimum attribute value
    * @param xmax The maximum attribute value
-   * @param omin Whether the interval should be open or closed at \a xmin. Use vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * @param omax Whether the interval should be open or closed at \a xmax. Use vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
+   * @param omin Whether the interval should be open or closed at \a xmin. Use
+   vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
+   * @param omax Whether the interval should be open or closed at \a xmax. Use
+   vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
+   * @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
+   vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
    * a point or cell array should be used.
    * @param arrayName The name of the array to use for thresholding
    * @param attribType The attribute to use for thresholding.
    * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
-   * @param component The number of the component to threshold on or one of the following enumerants for norms:
+   * @param component The number of the component to threshold on or one of the following enumerants
+   for norms:
    * LINFINITY_NORM, L2_NORM, L1_NORM.
-   * @param allScalars When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars be in the interval for
+   * @param allScalars When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars
+   be in the interval for
    * the cell to be passed to the output, or just a single point's scalar?
-   * @return An index used to identify the cells selected by the interval or -1 if the interval specification was invalid.
+   * @return An index used to identify the cells selected by the interval or -1 if the interval
+   specification was invalid.
    * If a valid value is returned, you may pass it to OutputSet().
    */
-  int AddIntervalSet( double xmin, double xmax, int omin, int omax,
-    int assoc, const char* arrayName, int component, int allScalars );
-  int AddIntervalSet( double xmin, double xmax, int omin, int omax,
-    int assoc, int attribType, int component, int allScalars );
+  int AddIntervalSet(double xmin, double xmax, int omin, int omax, int assoc, const char* arrayName,
+    int component, int allScalars);
+  int AddIntervalSet(double xmin, double xmax, int omin, int omax, int assoc, int attribType,
+    int component, int allScalars);
   //@}
 
   //@{
   /**
    * These convenience members make it easy to insert closed intervals.
-   * The "notch" interval is accomplished by creating a bandpass interval and applying a NAND operation.
-   * In this case, the set ID returned in the NAND operation set ID.
-   * Note that you can pass xmin == xmax when creating a bandpass threshold to retrieve elements matching exactly
-   * one value (since the intervals created by these routines are closed).
+   * The "notch" interval is accomplished by creating a bandpass interval and applying a NAND
+   * operation. In this case, the set ID returned in the NAND operation set ID. Note that you can
+   * pass xmin == xmax when creating a bandpass threshold to retrieve elements matching exactly one
+   * value (since the intervals created by these routines are closed).
    */
-  int AddLowpassIntervalSet( double xmax, int assoc, const char* arrayName, int component, int allScalars );
-  int AddHighpassIntervalSet( double xmin, int assoc, const char* arrayName, int component, int allScalars );
-  int AddBandpassIntervalSet( double xmin, double xmax, int assoc, const char* arrayName, int component, int allScalars );
-  int AddNotchIntervalSet( double xlo, double xhi, int assoc, const char* arrayName, int component, int allScalars );
+  int AddLowpassIntervalSet(
+    double xmax, int assoc, const char* arrayName, int component, int allScalars);
+  int AddHighpassIntervalSet(
+    double xmin, int assoc, const char* arrayName, int component, int allScalars);
+  int AddBandpassIntervalSet(
+    double xmin, double xmax, int assoc, const char* arrayName, int component, int allScalars);
+  int AddNotchIntervalSet(
+    double xlo, double xhi, int assoc, const char* arrayName, int component, int allScalars);
   //@}
 
   /**
    * Create a new mesh subset using boolean operations on pre-existing sets.
    */
-  int AddBooleanSet( int operation, int numInputs, int* inputs );
+  int AddBooleanSet(int operation, int numInputs, int* inputs);
 
   /**
    * Create an output mesh containing a boolean or interval subset of the input mesh.
    */
-  int OutputSet( int setId );
+  int OutputSet(int setId);
 
   /**
    * Remove all the intervals currently defined.
    */
   void Reset();
 
-  /// A pointer to a function that returns a norm (or a single component) of a tuple with 1 or more components.
-  typedef double (*TupleNorm)( vtkDataArray* arr, vtkIdType tuple, int component );
+  /// A pointer to a function that returns a norm (or a single component) of a tuple with 1 or more
+  /// components.
+  typedef double (*TupleNorm)(vtkDataArray* arr, vtkIdType tuple, int component);
 
   // NormKey must be able to use TupleNorm typedef:
   class NormKey;
@@ -235,39 +256,48 @@ public:
   class BooleanSet;
 
   /// A class with comparison operator used to index input array norms used in threshold rules.
-  class NormKey {
+  class NormKey
+  {
   public:
-    int Association; // vtkDataObject::FIELD_ASSOCIATION_POINTS or vtkDataObject::FIELD_ASSOCIATION_CELLS
-    int Type; // -1 => use Name, otherwise: vtkDataSetAttributes::{SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, GLOBALIDS}
+    int Association; // vtkDataObject::FIELD_ASSOCIATION_POINTS or
+                     // vtkDataObject::FIELD_ASSOCIATION_CELLS
+    int Type;        // -1 => use Name, otherwise: vtkDataSetAttributes::{SCALARS, VECTORS, TENSORS,
+                     // NORMALS, TCOORDS, GLOBALIDS}
     std::string Name; // Either empty or (when ArrayType == -1) an input array name
-    int Component; // LINFINITY_NORM, L1_NORM, L2_NORM or an integer component number
-    int AllScalars; // For Association == vtkDataObject::FIELD_ASSOCIATION_POINTS, must all points be in the interval?
-    int InputArrayIndex; // The number passed to vtkAlgorithm::SetInputArrayToProcess()
-    TupleNorm NormFunction; // A function pointer to compute the norm (or fetcht the correct component) of a tuple.
+    int Component;    // LINFINITY_NORM, L1_NORM, L2_NORM or an integer component number
+    int AllScalars;   // For Association == vtkDataObject::FIELD_ASSOCIATION_POINTS, must all points
+                      // be in the interval?
+    int InputArrayIndex;    // The number passed to vtkAlgorithm::SetInputArrayToProcess()
+    TupleNorm NormFunction; // A function pointer to compute the norm (or fetcht the correct
+                            // component) of a tuple.
 
-    /// Compute the norm of a cell by calling NormFunction for all its points or for its single cell-centered value.
-    void ComputeNorm( vtkIdType cellId, vtkCell* cell, vtkDataArray* array, double cellNorm[2] ) const;
+    /// Compute the norm of a cell by calling NormFunction for all its points or for its single
+    /// cell-centered value.
+    void ComputeNorm(
+      vtkIdType cellId, vtkCell* cell, vtkDataArray* array, double cellNorm[2]) const;
 
-    /// A partial ordering of NormKey objects is required for them to serve as keys in the vtkMultiThreshold::IntervalRules map.
-    bool operator < ( const NormKey& other ) const {
-      if ( this->Association < other.Association )
+    /// A partial ordering of NormKey objects is required for them to serve as keys in the
+    /// vtkMultiThreshold::IntervalRules map.
+    bool operator<(const NormKey& other) const
+    {
+      if (this->Association < other.Association)
         return true;
-      else if ( this->Association > other.Association )
+      else if (this->Association > other.Association)
         return false;
 
-      if ( this->Component < other.Component )
+      if (this->Component < other.Component)
         return true;
-      else if ( this->Component > other.Component )
+      else if (this->Component > other.Component)
         return false;
 
-      if ( (! this->AllScalars) && other.AllScalars )
+      if ((!this->AllScalars) && other.AllScalars)
         return true;
-      else if ( this->AllScalars && (! other.AllScalars) )
+      else if (this->AllScalars && (!other.AllScalars))
         return false;
 
-      if ( this->Type == -1 )
+      if (this->Type == -1)
       {
-        if ( other.Type == -1 )
+        if (other.Type == -1)
           return this->Name < other.Name;
         return true;
       }
@@ -282,28 +312,30 @@ public:
    * A set may be represented as a threshold interval over some attribute
    * or as a boolean combination of sets.
    */
-  class Set {
+  class Set
+  {
   public:
-    int Id; /// A unique identifier for this set.
-    int OutputId; /// The index of the output mesh that will hold this set or -1 if the set is not output.
+    int Id;       /// A unique identifier for this set.
+    int OutputId; /// The index of the output mesh that will hold this set or -1 if the set is not
+                  /// output.
 
-    /// Default constructur. The grid output ID is initialized to indicate that the set should not be output.
-    Set() {
-      this->OutputId = -1;
-    }
+    /// Default constructur. The grid output ID is initialized to indicate that the set should not
+    /// be output.
+    Set() { this->OutputId = -1; }
     /// Virtual destructor since we have virtual members.
-    virtual ~Set() { }
+    virtual ~Set() {}
     /// Print a graphviz node label statement (with fancy node name and shape).
-    virtual void PrintNodeName( ostream& os );
+    virtual void PrintNodeName(ostream& os);
     /// Print a graphviz node name for use in an edge statement.
-    virtual void PrintNode( ostream& os ) = 0;
+    virtual void PrintNode(ostream& os) = 0;
     /// Avoid dynamic_casts. Subclasses must override
     virtual BooleanSet* GetBooleanSetPointer();
     virtual Interval* GetIntervalPointer();
   };
 
   /// A subset of a mesh represented by a range of acceptable attribute values.
-  class Interval : public Set {
+  class Interval : public Set
+  {
   public:
     /// The values defining the interval. These must be in ascending order.
     double EndpointValues[2];
@@ -314,17 +346,19 @@ public:
 
     /** Does the specified range fall inside the interval?
      * For cell-centered attributes, only cellNorm[0] is examined.
-     * For point-centered attributes, cellNorm[0] is the minimum norm taken on over the cell and cellNorm[1] is the maximum.
+     * For point-centered attributes, cellNorm[0] is the minimum norm taken on over the cell and
+     * cellNorm[1] is the maximum.
      */
-    int Match( double cellNorm[2] );
+    int Match(double cellNorm[2]);
 
-    ~Interval() override { }
-    void PrintNode( ostream& os ) override;
+    ~Interval() override {}
+    void PrintNode(ostream& os) override;
     Interval* GetIntervalPointer() override;
   };
 
   /// A subset of a mesh represented as a boolean set operation
-  class BooleanSet : public Set {
+  class BooleanSet : public Set
+  {
   public:
     /// The boolean operation that will be performed on the inputs to obtain the output.
     int Operator;
@@ -332,17 +366,18 @@ public:
     std::vector<int> Inputs;
 
     /// Construct a new set with the given ID, operator, and inputs.
-    BooleanSet( int sId, int op, int* inBegin, int* inEnd ) : Inputs( inBegin, inEnd ) {
+    BooleanSet(int sId, int op, int* inBegin, int* inEnd)
+      : Inputs(inBegin, inEnd)
+    {
       this->Id = sId;
       this->Operator = op;
     }
-    ~BooleanSet() override { }
-    void PrintNode( ostream& os ) override;
+    ~BooleanSet() override {}
+    void PrintNode(ostream& os) override;
     BooleanSet* GetBooleanSetPointer() override;
   };
 
 protected:
-
   vtkMultiThreshold();
   ~vtkMultiThreshold() override;
 
@@ -360,23 +395,24 @@ protected:
    * we must examine C. If C is 12, then INCLUDE is returned, otherwise EXCLUDE
    * is returned.
    */
-  enum Ruling {
-    INCONCLUSIVE=-1,
-    INCLUDE=-2,
-    EXCLUDE=-3
+  enum Ruling
+  {
+    INCONCLUSIVE = -1,
+    INCLUDE = -2,
+    EXCLUDE = -3
   };
 
   /**
    * This function performs the actual thresholding.
    */
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * We accept any mesh that is descended from vtkPointSet.
    * In the future, it is possible to accept more types but this would require
    * us to generate a new vtkPoints object for each output mesh.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * A variable used to store the next index to use when calling SetInputArrayToProcess.
@@ -393,7 +429,7 @@ protected:
   /// A list of pointers to IntervalSets.
   typedef std::vector<Interval*> IntervalList;
   /// A map describing the IntervalSets that share a common attribute and norm.
-  typedef std::map<NormKey,IntervalList> RuleMap;
+  typedef std::map<NormKey, IntervalList> RuleMap;
 
   typedef std::vector<int> TruthTreeValues;
   typedef std::vector<TruthTreeValues> TruthTree;
@@ -405,7 +441,8 @@ protected:
 
   /**
    * A list of rules keyed by their unique integer ID.
-   * This list is used to quickly determine whether interval membership implies membership in a given output mesh.
+   * This list is used to quickly determine whether interval membership implies membership in a
+   * given output mesh.
    */
   std::vector<Set*> Sets;
 
@@ -420,49 +457,54 @@ protected:
   /**
    * Recursively update the setStates and unresolvedOutputs vectors based on this->DependentSets.
    */
-  void UpdateDependents(
-    int id, std::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
-    vtkCellData* inCellData, vtkIdType cellId, vtkGenericCell* cell, std::vector<vtkUnstructuredGrid*>& outv );
+  void UpdateDependents(int id, std::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
+    vtkCellData* inCellData, vtkIdType cellId, vtkGenericCell* cell,
+    std::vector<vtkUnstructuredGrid*>& outv);
 
   /**
    * A utility method called by the public AddInterval members.
    */
-  int AddIntervalSet( NormKey& nk, double xmin, double xmax, int omin, int omax );
+  int AddIntervalSet(NormKey& nk, double xmin, double xmax, int omin, int omax);
 
   /**
    * Print out a graphviz-formatted text description of all the sets.
    */
-  void PrintGraph( ostream& os );
+  void PrintGraph(ostream& os);
 
-  vtkMultiThreshold( const vtkMultiThreshold& ) = delete;
-  void operator = ( const vtkMultiThreshold& ) = delete;
+  vtkMultiThreshold(const vtkMultiThreshold&) = delete;
+  void operator=(const vtkMultiThreshold&) = delete;
 };
 
-inline int vtkMultiThreshold::AddLowpassIntervalSet( double xmax, int assoc, const char* arrayName, int component, int allScalars )
+inline int vtkMultiThreshold::AddLowpassIntervalSet(
+  double xmax, int assoc, const char* arrayName, int component, int allScalars)
 {
-  return this->AddIntervalSet( vtkMath::NegInf(), xmax, CLOSED, CLOSED, assoc, arrayName, component, allScalars );
+  return this->AddIntervalSet(
+    vtkMath::NegInf(), xmax, CLOSED, CLOSED, assoc, arrayName, component, allScalars);
 }
 
-inline int vtkMultiThreshold::AddHighpassIntervalSet( double xmin, int assoc, const char* arrayName, int component, int allScalars )
+inline int vtkMultiThreshold::AddHighpassIntervalSet(
+  double xmin, int assoc, const char* arrayName, int component, int allScalars)
 {
-  return this->AddIntervalSet( xmin, vtkMath::Inf(), CLOSED, CLOSED, assoc, arrayName, component, allScalars );
+  return this->AddIntervalSet(
+    xmin, vtkMath::Inf(), CLOSED, CLOSED, assoc, arrayName, component, allScalars);
 }
 
 inline int vtkMultiThreshold::AddBandpassIntervalSet(
-  double xmin, double xmax, int assoc, const char* arrayName, int component, int allScalars )
+  double xmin, double xmax, int assoc, const char* arrayName, int component, int allScalars)
 {
-  return this->AddIntervalSet( xmin, xmax, CLOSED, CLOSED, assoc, arrayName, component, allScalars );
+  return this->AddIntervalSet(xmin, xmax, CLOSED, CLOSED, assoc, arrayName, component, allScalars);
 }
 
 inline int vtkMultiThreshold::AddNotchIntervalSet(
-  double xlo, double xhi, int assoc, const char* arrayName, int component, int allScalars )
+  double xlo, double xhi, int assoc, const char* arrayName, int component, int allScalars)
 {
-  int band = this->AddIntervalSet( xlo, xhi, CLOSED, CLOSED, assoc, arrayName, component, allScalars );
-  if ( band < 0 )
+  int band =
+    this->AddIntervalSet(xlo, xhi, CLOSED, CLOSED, assoc, arrayName, component, allScalars);
+  if (band < 0)
   {
     return -1;
   }
-  return this->AddBooleanSet( NAND, 1, &band );
+  return this->AddBooleanSet(NAND, 1, &band);
 }
 
 inline vtkMultiThreshold::Interval* vtkMultiThreshold::Set::GetIntervalPointer()

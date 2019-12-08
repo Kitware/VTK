@@ -20,7 +20,7 @@
  *
  * @sa
  * vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
-*/
+ */
 
 #ifndef vtkHierarchicalBoxDataSet_h
 #define vtkHierarchicalBoxDataSet_h
@@ -31,13 +31,12 @@
 class vtkInformation;
 class vtkInformationVector;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
-  public vtkOverlappingAMR
+class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet : public vtkOverlappingAMR
 {
 public:
-  static vtkHierarchicalBoxDataSet *New();
-  vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkHierarchicalBoxDataSet* New();
+  vtkTypeMacro(vtkHierarchicalBoxDataSet, vtkOverlappingAMR);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by user).
@@ -47,14 +46,14 @@ public:
   /**
    * Return class name of data type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() override {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  int GetDataObjectType() override { return VTK_HIERARCHICAL_BOX_DATA_SET; }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkHierarchicalBoxDataSet* GetData(vtkInformation* info);
-  static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:

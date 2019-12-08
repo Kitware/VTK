@@ -27,19 +27,20 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-namespace {
+namespace
+{
 const int xVerts = 20;
 const int yVerts = 50;
-void AddArrayToVTKData(std::string scalarName, vtkDataSetAttributes* pd,
-                          double* data, vtkIdType size)
+void AddArrayToVTKData(
+  std::string scalarName, vtkDataSetAttributes* pd, double* data, vtkIdType size)
 {
   vtkNew<vtkDoubleArray> scalars;
   scalars->SetArray(data, size, 1);
@@ -47,7 +48,7 @@ void AddArrayToVTKData(std::string scalarName, vtkDataSetAttributes* pd,
   pd->AddArray(scalars);
 }
 
-void MakeStatDistDataSet (vtkDataSet* dataset)
+void MakeStatDistDataSet(vtkDataSet* dataset)
 {
   const int nVerts = xVerts * yVerts;
 
@@ -55,6 +56,7 @@ void MakeStatDistDataSet (vtkDataSet* dataset)
   const int yCells = yVerts - 1;
   const int nCells = xCells * yCells;
 
+  // clang-format off
   // Poisson distribution [0:49] mean = 10
   static double poisson[nVerts] = {
     8,  10, 9,  8,  14, 11, 12, 9,  19, 7,  8,  11, 7,  10, 11, 11, 11, 6,  8,  8,  7,  15, 9,  7,
@@ -238,63 +240,66 @@ void MakeStatDistDataSet (vtkDataSet* dataset)
     6,  5,  33, 41, 29, 32, 49, 0,  46, 9,  48, 26, 13, 35, 29, 41, 41, 32, 36, 32, 17, 26, 33, 16,
     43, 22, 45, 13, 47, 5,  20, 41, 48, 16, 26, 26, 40, 46, 33, 12
   };
+  // clang-format on
+
   vtkPointData* pd = dataset->GetPointData();
   vtkCellData* cd = dataset->GetCellData();
 
   // Due to the fact that SetScalars API on vtkDataSetAttributes would add the array
   // and replace it with the existing scalars, we need to add data as point arrays, then
   // switch active scalars when needed.
-  AddArrayToVTKData("p_poission",  pd, poisson, nVerts);
-  AddArrayToVTKData("p_normal",    pd, normal, nVerts);
+  AddArrayToVTKData("p_poission", pd, poisson, nVerts);
+  AddArrayToVTKData("p_normal", pd, normal, nVerts);
   AddArrayToVTKData("p_chiSquare", pd, chiSquare, nVerts);
-  AddArrayToVTKData("p_uniform",   pd, uniform, nVerts);
+  AddArrayToVTKData("p_uniform", pd, uniform, nVerts);
 
   // Set cell scalars
-  AddArrayToVTKData("c_poission",  cd, poisson,   nCells);
-  AddArrayToVTKData("c_normal",    cd, normal,    nCells);
+  AddArrayToVTKData("c_poission", cd, poisson, nCells);
+  AddArrayToVTKData("c_normal", cd, normal, nCells);
   AddArrayToVTKData("c_chiSquare", cd, chiSquare, nCells);
-  AddArrayToVTKData("c_uniform",   cd, uniform,   nCells);
+  AddArrayToVTKData("c_uniform", cd, uniform, nCells);
 
   // Add a simple data to test custom data range and center bins around min and max
-  static double simpleData[6] = {0, 2, 4, 6, 8, 10};
+  static double simpleData[6] = { 0, 2, 4, 6, 8, 10 };
   AddArrayToVTKData("simple_data", pd, simpleData, 6);
 }
 
 void VerifyHistogram(vtkmHistogram* filter, bool verifyPointData)
 {
   vtkTable* table = vtkTable::SafeDownCast(filter->GetOutput());
-  assert (table != nullptr);
-  vtkDoubleArray* binExtents = vtkDoubleArray::SafeDownCast(table->GetRowData()->GetArray("bin_extents"));
+  assert(table != nullptr);
+  vtkDoubleArray* binExtents =
+    vtkDoubleArray::SafeDownCast(table->GetRowData()->GetArray("bin_extents"));
   if (binExtents == nullptr)
   {
-    std::cout << "bin_extents is missing from the result vtkTable" <<std::endl;
+    std::cout << "bin_extents is missing from the result vtkTable" << std::endl;
     return;
   }
 
   assert(binExtents->GetNumberOfComponents() == 1);
   assert(static_cast<size_t>(binExtents->GetNumberOfTuples()) == filter->GetNumberOfBins());
 
-  vtkDataArray* binValues = vtkDataArray::SafeDownCast(table->GetRowData()->
-                                                  GetAbstractArray("bin_values"));
+  vtkDataArray* binValues =
+    vtkDataArray::SafeDownCast(table->GetRowData()->GetAbstractArray("bin_values"));
   assert(binValues != nullptr);
   double sum = 0;
   vtkIdType numberOfBins = static_cast<vtkIdType>(filter->GetNumberOfBins());
-  for (vtkIdType i =0; i < numberOfBins; i++)
+  for (vtkIdType i = 0; i < numberOfBins; i++)
   {
-    sum += binValues->GetComponent(i,0);
+    sum += binValues->GetComponent(i, 0);
   }
-  double rightSum = verifyPointData ? xVerts * yVerts : (xVerts - 1) * (yVerts -1);
-  assert (sum == rightSum);
+  double rightSum = verifyPointData ? xVerts * yVerts : (xVerts - 1) * (yVerts - 1);
+  assert(sum == rightSum);
   if (sum != rightSum)
   {
     std::cout << "sum does not much!" << std::endl;
   }
 }
 
-void testHistogramWithPointData (vtkmHistogram* filter, bool isPointType)
+void testHistogramWithPointData(vtkmHistogram* filter, bool isPointType)
 {
-  int fieldAsso = isPointType ? vtkDataObject::FIELD_ASSOCIATION_POINTS :
-                                 vtkDataObject::FIELD_ASSOCIATION_CELLS;
+  int fieldAsso =
+    isPointType ? vtkDataObject::FIELD_ASSOCIATION_POINTS : vtkDataObject::FIELD_ASSOCIATION_CELLS;
   std::string prefix = isPointType ? "p_" : "c_";
   filter->SetNumberOfBins(10);
   std::string scalarName = prefix + "poission";
@@ -305,22 +310,19 @@ void testHistogramWithPointData (vtkmHistogram* filter, bool isPointType)
 
   filter->SetNumberOfBins(100);
   scalarName = prefix + "normal";
-  filter->SetInputArrayToProcess(0, 0, 0,
-                   fieldAsso, scalarName.c_str());
+  filter->SetInputArrayToProcess(0, 0, 0, fieldAsso, scalarName.c_str());
   filter->Update();
   VerifyHistogram(filter, isPointType);
 
   filter->SetNumberOfBins(1);
   scalarName = prefix + "chiSquare";
-  filter->SetInputArrayToProcess(0, 0, 0,
-                   fieldAsso, scalarName.c_str());
+  filter->SetInputArrayToProcess(0, 0, 0, fieldAsso, scalarName.c_str());
   filter->Update();
   VerifyHistogram(filter, isPointType);
 
   filter->SetNumberOfBins(1000000);
   scalarName = prefix + "uniform";
-  filter->SetInputArrayToProcess(0, 0, 0,
-                   fieldAsso, scalarName.c_str());
+  filter->SetInputArrayToProcess(0, 0, 0, fieldAsso, scalarName.c_str());
   filter->Update();
   VerifyHistogram(filter, isPointType);
 }
@@ -349,22 +351,20 @@ int TestVTKMHistogram(int, char*[])
   filter->SetCenterBinsAroundMinAndMax(true);
   filter->SetUseCustomBinRanges(true);
   filter->SetCustomBinRange(2, 8);
-  filter->SetInputArrayToProcess(0, 0, 0,
-                                 vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                 "simple_data");
+  filter->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "simple_data");
   filter->Update();
   vtkTable* sdTable = vtkTable::SafeDownCast(filter->GetOutput());
   assert(sdTable != nullptr);
-  vtkDoubleArray* binExtents = vtkDoubleArray::SafeDownCast(
-        sdTable->GetRowData()->GetArray("bin_extents"));
-  double binExtentsResult[4] = {2, 4, 6, 8};
-  double binValuesResult[4] = {2, 1, 1, 2};
+  vtkDoubleArray* binExtents =
+    vtkDoubleArray::SafeDownCast(sdTable->GetRowData()->GetArray("bin_extents"));
+  double binExtentsResult[4] = { 2, 4, 6, 8 };
+  double binValuesResult[4] = { 2, 1, 1, 2 };
   for (vtkIdType i = 0; i < binExtents->GetNumberOfTuples(); i++)
   {
     assert(binExtents->GetComponent(i, 0) == binExtentsResult[i]);
     if (binExtents->GetComponent(i, 0) != binExtentsResult[i])
     {
-      std::cout << "bin_extents result does match at i=" << i <<std::endl;
+      std::cout << "bin_extents result does match at i=" << i << std::endl;
       return 1;
     }
   }
@@ -372,15 +372,15 @@ int TestVTKMHistogram(int, char*[])
   assert(binExtents->GetNumberOfComponents() == 1);
   assert(static_cast<size_t>(binExtents->GetNumberOfTuples()) == filter->GetNumberOfBins());
 
-  vtkDataArray* binValues = vtkDataArray::SafeDownCast(sdTable->GetRowData()->
-                                                  GetAbstractArray("bin_values"));
+  vtkDataArray* binValues =
+    vtkDataArray::SafeDownCast(sdTable->GetRowData()->GetAbstractArray("bin_values"));
   assert(binValues != nullptr);
   for (vtkIdType i = 0; i < binValues->GetNumberOfTuples(); i++)
   {
     assert(binValues->GetComponent(i, 0) == binValuesResult[i]);
     if (binValues->GetComponent(i, 0) != binValuesResult[i])
     {
-      std::cout << "bin_values result does match at i=" << i <<std::endl;
+      std::cout << "bin_values result does match at i=" << i << std::endl;
       return 1;
     }
   }

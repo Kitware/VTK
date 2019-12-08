@@ -27,15 +27,17 @@
 #ifndef _GUI_h
 #define _GUI_h
 
-#include <QMainWindow>
 #include "ui_GUI4.h"
+#include <QMainWindow>
 
 class vtkRenderer;
 class vtkEventQtSlotConnect;
 class vtkObject;
 class vtkCommand;
 
-class GUI4 : public QMainWindow, public Ui::GUI
+class GUI4
+  : public QMainWindow
+  , public Ui::GUI
 {
   Q_OBJECT
 public:
@@ -44,9 +46,7 @@ public:
 
 public slots:
   void updateCoords(vtkObject*);
-  void popup(vtkObject * obj, unsigned long,
-             void * client_data, void *,
-             vtkCommand * command);
+  void popup(vtkObject* obj, unsigned long, void* client_data, void*, vtkCommand* command);
   void color1(QAction*);
   void color2(QAction*);
 
@@ -57,4 +57,3 @@ protected:
 };
 
 #endif // _GUI_h
-

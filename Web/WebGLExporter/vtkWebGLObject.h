@@ -16,7 +16,7 @@
  * @class   vtkWebGLObject
  *
  * vtkWebGLObject represent and manipulate an WebGL object and its data.
-*/
+ */
 
 #ifndef vtkWebGLObject_h
 #define vtkWebGLObject_h
@@ -29,7 +29,8 @@
 class vtkMatrix4x4;
 class vtkUnsignedCharArray;
 
-enum WebGLObjectTypes {
+enum WebGLObjectTypes
+{
   wPOINTS = 0,
   wLINES = 1,
   wTRIANGLES = 2
@@ -39,8 +40,8 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLObject : public vtkObject
 {
 public:
   static vtkWebGLObject* New();
-  vtkTypeMacro(vtkWebGLObject, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkWebGLObject, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void GenerateBinaryData();
   virtual unsigned char* GetBinaryData(int part);
@@ -78,21 +79,21 @@ public:
   int GetLayer();
 
 protected:
-    vtkWebGLObject();
-    ~vtkWebGLObject() override;
+  vtkWebGLObject();
+  ~vtkWebGLObject() override;
 
-    float Matrix[16];
-    size_t rendererId;
-    int layer;                  // Renderer Layer
-    std::string id;          // Id of the object
-    std::string MD5;
-    bool hasChanged;
-    bool iswireframeMode;
-    bool isvisible;
-    WebGLObjectTypes webGlType;
-    bool hasTransparency;
-    bool iswidget;
-    bool interactAtServer;
+  float Matrix[16];
+  size_t rendererId;
+  int layer;      // Renderer Layer
+  std::string id; // Id of the object
+  std::string MD5;
+  bool hasChanged;
+  bool iswireframeMode;
+  bool isvisible;
+  WebGLObjectTypes webGlType;
+  bool hasTransparency;
+  bool iswidget;
+  bool interactAtServer;
 
 private:
   vtkWebGLObject(const vtkWebGLObject&) = delete;

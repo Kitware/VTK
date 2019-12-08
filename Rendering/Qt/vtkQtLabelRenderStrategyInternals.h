@@ -46,7 +46,7 @@ struct vtkQtLabelMapValue
   QRectF Bounds;
 };
 
-bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other);
+bool operator<(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other);
 
 class vtkQtLabelRenderStrategy::Internals
 {
@@ -66,11 +66,8 @@ public:
 
   QColor TextPropertyToColor(double* fc, double opacity)
   {
-    QColor textColor(
-      static_cast<int>(fc[0]*255),
-      static_cast<int>(fc[1]*255),
-      static_cast<int>(fc[2]*255),
-      static_cast<int>(opacity*255));
+    QColor textColor(static_cast<int>(fc[0] * 255), static_cast<int>(fc[1] * 255),
+      static_cast<int>(fc[2] * 255), static_cast<int>(opacity * 255));
     return textColor;
   }
 };

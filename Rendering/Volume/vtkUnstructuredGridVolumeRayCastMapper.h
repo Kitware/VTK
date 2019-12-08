@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkVolumeMapper
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeRayCastMapper_h
 #define vtkUnstructuredGridVolumeRayCastMapper_h
@@ -40,12 +40,13 @@ class vtkUnstructuredGridVolumeRayCastIterator;
 class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkVolume;
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastMapper
+  : public vtkUnstructuredGridVolumeMapper
 {
 public:
-  static vtkUnstructuredGridVolumeRayCastMapper *New();
-  vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper,vtkUnstructuredGridVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  static vtkUnstructuredGridVolumeRayCastMapper* New();
+  vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper, vtkUnstructuredGridVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -53,8 +54,8 @@ public:
    * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
    * set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
    */
-  vtkSetClampMacro( ImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( ImageSampleDistance, float );
+  vtkSetClampMacro(ImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(ImageSampleDistance, float);
   //@}
 
   //@{
@@ -62,8 +63,8 @@ public:
    * This is the minimum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
-  vtkSetClampMacro( MinimumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MinimumImageSampleDistance, float );
+  vtkSetClampMacro(MinimumImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(MinimumImageSampleDistance, float);
   //@}
 
   //@{
@@ -71,8 +72,8 @@ public:
    * This is the maximum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
-  vtkSetClampMacro( MaximumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MaximumImageSampleDistance, float );
+  vtkSetClampMacro(MaximumImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(MaximumImageSampleDistance, float);
   //@}
 
   //@{
@@ -82,9 +83,9 @@ public:
    * prop (controlled by the desired update rate and any culling in
    * use).
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
-  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkSetClampMacro(AutoAdjustSampleDistances, vtkTypeBool, 0, 1);
+  vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
+  vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
   //@}
 
   //@{
@@ -92,8 +93,8 @@ public:
    * Set/Get the number of threads to use. This by default is equal to
    * the number of available processors detected.
    */
-  vtkSetMacro( NumberOfThreads, int );
-  vtkGetMacro( NumberOfThreads, int );
+  vtkSetMacro(NumberOfThreads, int);
+  vtkGetMacro(NumberOfThreads, int);
   //@}
 
   //@{
@@ -101,16 +102,16 @@ public:
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
    */
-  vtkSetClampMacro( IntermixIntersectingGeometry, vtkTypeBool, 0, 1 );
-  vtkGetMacro( IntermixIntersectingGeometry, vtkTypeBool );
-  vtkBooleanMacro( IntermixIntersectingGeometry, vtkTypeBool );
+  vtkSetClampMacro(IntermixIntersectingGeometry, vtkTypeBool, 0, 1);
+  vtkGetMacro(IntermixIntersectingGeometry, vtkTypeBool);
+  vtkBooleanMacro(IntermixIntersectingGeometry, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the helper class for casting rays.
    */
-  virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction *f);
+  virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction* f);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridVolumeRayCastFunction);
   //@}
 
@@ -119,7 +120,7 @@ public:
    * Set/Get the helper class for integrating rays.  If set to NULL, a
    * default integrator will be assigned.
    */
-  virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
+  virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator* ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
   //@}
 
@@ -127,7 +128,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) override;
+  void Render(vtkRenderer*, vtkVolume*) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -135,88 +136,87 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
-  vtkGetVectorMacro( ImageInUseSize, int, 2 );
-  vtkGetVectorMacro( ImageOrigin, int, 2 );
-  vtkGetVectorMacro( ImageViewportSize, int , 2 );
+  vtkGetVectorMacro(ImageInUseSize, int, 2);
+  vtkGetVectorMacro(ImageOrigin, int, 2);
+  vtkGetVectorMacro(ImageViewportSize, int, 2);
 
-  void CastRays( int threadID, int threadCount );
+  void CastRays(int threadID, int threadCount);
 
 protected:
   vtkUnstructuredGridVolumeRayCastMapper();
   ~vtkUnstructuredGridVolumeRayCastMapper() override;
 
-  float                        ImageSampleDistance;
-  float                        MinimumImageSampleDistance;
-  float                        MaximumImageSampleDistance;
-  vtkTypeBool                          AutoAdjustSampleDistances;
+  float ImageSampleDistance;
+  float MinimumImageSampleDistance;
+  float MaximumImageSampleDistance;
+  vtkTypeBool AutoAdjustSampleDistances;
 
-  vtkMultiThreader  *Threader;
-  int               NumberOfThreads;
+  vtkMultiThreader* Threader;
+  int NumberOfThreads;
 
-  vtkRayCastImageDisplayHelper *ImageDisplayHelper;
+  vtkRayCastImageDisplayHelper* ImageDisplayHelper;
 
   // This is how big the image would be if it covered the entire viewport
-  int            ImageViewportSize[2];
+  int ImageViewportSize[2];
 
   // This is how big the allocated memory for image is. This may be bigger
   // or smaller than ImageFullSize - it will be bigger if necessary to
   // ensure a power of 2, it will be smaller if the volume only covers a
   // small region of the viewport
-  int            ImageMemorySize[2];
+  int ImageMemorySize[2];
 
   // This is the size of subregion in ImageSize image that we are using for
   // the current image. Since ImageSize is a power of 2, there is likely
   // wasted space in it. This number will be used for things such as clearing
   // the image if necessary.
-  int            ImageInUseSize[2];
+  int ImageInUseSize[2];
 
   // This is the location in ImageFullSize image where our ImageSize image
   // is located.
-  int            ImageOrigin[2];
+  int ImageOrigin[2];
 
   // This is the allocated image
-  unsigned char *Image;
+  unsigned char* Image;
 
-  float        *RenderTimeTable;
-  vtkVolume   **RenderVolumeTable;
-  vtkRenderer **RenderRendererTable;
-  int           RenderTableSize;
-  int           RenderTableEntries;
+  float* RenderTimeTable;
+  vtkVolume** RenderVolumeTable;
+  vtkRenderer** RenderRendererTable;
+  int RenderTableSize;
+  int RenderTableEntries;
 
-  void StoreRenderTime( vtkRenderer *ren, vtkVolume *vol, float t );
-  float RetrieveRenderTime( vtkRenderer *ren, vtkVolume *vol );
+  void StoreRenderTime(vtkRenderer* ren, vtkVolume* vol, float t);
+  float RetrieveRenderTime(vtkRenderer* ren, vtkVolume* vol);
 
-  vtkTypeBool           IntermixIntersectingGeometry;
+  vtkTypeBool IntermixIntersectingGeometry;
 
-  float        *ZBuffer;
-  int           ZBufferSize[2];
-  int           ZBufferOrigin[2];
+  float* ZBuffer;
+  int ZBufferSize[2];
+  int ZBufferOrigin[2];
 
   // Get the ZBuffer value corresponding to location (x,y) where (x,y)
   // are indexing into the ImageInUse image. This must be converted to
   // the zbuffer image coordinates. Nearest neighbor value is returned.
-  double         GetZBufferValue( int x, int y );
+  double GetZBufferValue(int x, int y);
 
-  double         GetMinimumBoundsDepth( vtkRenderer *ren,
-                                       vtkVolume   *vol );
+  double GetMinimumBoundsDepth(vtkRenderer* ren, vtkVolume* vol);
 
-  vtkUnstructuredGridVolumeRayCastFunction  *RayCastFunction;
-  vtkUnstructuredGridVolumeRayCastIterator **RayCastIterators;
-  vtkUnstructuredGridVolumeRayIntegrator    *RayIntegrator;
-  vtkUnstructuredGridVolumeRayIntegrator    *RealRayIntegrator;
+  vtkUnstructuredGridVolumeRayCastFunction* RayCastFunction;
+  vtkUnstructuredGridVolumeRayCastIterator** RayCastIterators;
+  vtkUnstructuredGridVolumeRayIntegrator* RayIntegrator;
+  vtkUnstructuredGridVolumeRayIntegrator* RealRayIntegrator;
 
-  vtkIdList      **IntersectedCellsBuffer;
-  vtkDoubleArray **IntersectionLengthsBuffer;
-  vtkDataArray   **NearIntersectionsBuffer;
-  vtkDataArray   **FarIntersectionsBuffer;
+  vtkIdList** IntersectedCellsBuffer;
+  vtkDoubleArray** IntersectionLengthsBuffer;
+  vtkDataArray** NearIntersectionsBuffer;
+  vtkDataArray** FarIntersectionsBuffer;
 
-  vtkVolume     *CurrentVolume;
-  vtkRenderer   *CurrentRenderer;
+  vtkVolume* CurrentVolume;
+  vtkRenderer* CurrentRenderer;
 
-  vtkDataArray *Scalars;
-  int           CellScalars;
+  vtkDataArray* Scalars;
+  int CellScalars;
 
 private:
   vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) = delete;
@@ -224,4 +224,3 @@ private:
 };
 
 #endif
-

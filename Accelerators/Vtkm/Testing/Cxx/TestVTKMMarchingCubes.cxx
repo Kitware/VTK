@@ -16,7 +16,6 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkCountVertices.h"
-#include "vtkmContour.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
@@ -24,14 +23,15 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkmContour.h"
 
 namespace
 {
-template<typename T>
-int RunVTKPipeline(T *t, int argc, char* argv[])
+template <typename T>
+int RunVTKPipeline(T* t, int argc, char* argv[])
 {
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
@@ -43,10 +43,9 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   vtkNew<vtkmContour> cubes;
 
   cubes->SetInputConnection(t->GetOutputPort());
-  cubes->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Iterations");
+  cubes->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Iterations");
   cubes->SetNumberOfContours(1);
-  cubes->SetValue(0,50.5f);
+  cubes->SetValue(0, 50.5f);
   cubes->ComputeScalarsOn();
   cubes->ComputeNormalsOn();
 
@@ -65,13 +64,13 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
-  vtkDataSet *output = cubes->GetOutput();
+  vtkDataSet* output = cubes->GetOutput();
 
   if (!output->GetPointData()->GetNormals())
   {
@@ -79,7 +78,7 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkDataArray *cellvar = output->GetCellData()->GetArray("Vertex Count");
+  vtkDataArray* cellvar = output->GetCellData()->GetArray("Vertex Count");
   if (!cellvar)
   {
     std::cerr << "Cell data missing.\n";
@@ -89,8 +88,8 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   if (cellvar->GetNumberOfTuples() != output->GetNumberOfCells())
   {
     std::cerr << "Mapped cell field does not match number of output cells.\n"
-              << "Expected: " << output->GetNumberOfCells() << " Actual: "
-              << cellvar->GetNumberOfTuples() << "\n";
+              << "Expected: " << output->GetNumberOfCells()
+              << " Actual: " << cellvar->GetNumberOfTuples() << "\n";
     return EXIT_FAILURE;
   }
 
@@ -99,15 +98,13 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
 
 } // Anonymous namespace
 
-
-
 int TestVTKMMarchingCubes(int argc, char* argv[])
 {
-  //create the sample grid
+  // create the sample grid
   vtkNew<vtkImageMandelbrotSource> src;
-  src->SetWholeExtent(0,250,0,250,0,250);
+  src->SetWholeExtent(0, 250, 0, 250, 0, 250);
 
-  //create a secondary field for interpolation
+  // create a secondary field for interpolation
   vtkNew<vtkElevationFilter> elevation;
   elevation->SetInputConnection(src->GetOutputPort());
   elevation->SetScalarRange(0.0, 1.0);
@@ -117,6 +114,6 @@ int TestVTKMMarchingCubes(int argc, char* argv[])
   vtkNew<vtkCountVertices> countVerts;
   countVerts->SetInputConnection(elevation->GetOutputPort());
 
-  //run the pipeline
-  return RunVTKPipeline(countVerts.GetPointer(),argc,argv);
+  // run the pipeline
+  return RunVTKPipeline(countVerts.GetPointer(), argc, argv);
 }

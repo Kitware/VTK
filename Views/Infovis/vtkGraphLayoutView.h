@@ -37,13 +37,13 @@
  *
  * @par Thanks:
  * Thanks a bunch to the holographic unfolding pattern.
-*/
+ */
 
 #ifndef vtkGraphLayoutView_h
 #define vtkGraphLayoutView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkEdgeLayoutStrategy;
 class vtkGraphLayoutStrategy;
@@ -53,7 +53,7 @@ class vtkViewTheme;
 class VTKVIEWSINFOVIS_EXPORT vtkGraphLayoutView : public vtkRenderView
 {
 public:
-  static vtkGraphLayoutView *New();
+  static vtkGraphLayoutView* New();
   vtkTypeMacro(vtkGraphLayoutView, vtkRenderView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -231,30 +231,18 @@ public:
    * Default is "Simple 2D".
    */
   void SetLayoutStrategy(const char* name);
-  void SetLayoutStrategyToRandom()
-    { this->SetLayoutStrategy("Random"); }
-  void SetLayoutStrategyToForceDirected()
-    { this->SetLayoutStrategy("Force Directed"); }
-  void SetLayoutStrategyToSimple2D()
-    { this->SetLayoutStrategy("Simple 2D"); }
-  void SetLayoutStrategyToClustering2D()
-    { this->SetLayoutStrategy("Clustering 2D"); }
-  void SetLayoutStrategyToCommunity2D()
-    { this->SetLayoutStrategy("Community 2D"); }
-  void SetLayoutStrategyToFast2D()
-    { this->SetLayoutStrategy("Fast 2D"); }
-  void SetLayoutStrategyToPassThrough()
-    { this->SetLayoutStrategy("Pass Through"); }
-  void SetLayoutStrategyToCircular()
-    { this->SetLayoutStrategy("Circular"); }
-  void SetLayoutStrategyToTree()
-    { this->SetLayoutStrategy("Tree"); }
-  void SetLayoutStrategyToCosmicTree()
-    { this->SetLayoutStrategy("Cosmic Tree"); }
-  void SetLayoutStrategyToCone()
-    { this->SetLayoutStrategy("Cone"); }
-  void SetLayoutStrategyToSpanTree()
-    { this->SetLayoutStrategy("Span Tree"); }
+  void SetLayoutStrategyToRandom() { this->SetLayoutStrategy("Random"); }
+  void SetLayoutStrategyToForceDirected() { this->SetLayoutStrategy("Force Directed"); }
+  void SetLayoutStrategyToSimple2D() { this->SetLayoutStrategy("Simple 2D"); }
+  void SetLayoutStrategyToClustering2D() { this->SetLayoutStrategy("Clustering 2D"); }
+  void SetLayoutStrategyToCommunity2D() { this->SetLayoutStrategy("Community 2D"); }
+  void SetLayoutStrategyToFast2D() { this->SetLayoutStrategy("Fast 2D"); }
+  void SetLayoutStrategyToPassThrough() { this->SetLayoutStrategy("Pass Through"); }
+  void SetLayoutStrategyToCircular() { this->SetLayoutStrategy("Circular"); }
+  void SetLayoutStrategyToTree() { this->SetLayoutStrategy("Tree"); }
+  void SetLayoutStrategyToCosmicTree() { this->SetLayoutStrategy("Cosmic Tree"); }
+  void SetLayoutStrategyToCone() { this->SetLayoutStrategy("Cone"); }
+  void SetLayoutStrategyToSpanTree() { this->SetLayoutStrategy("Span Tree"); }
   const char* GetLayoutStrategyName();
   //@}
 
@@ -265,7 +253,7 @@ public:
    * object directly and simply set the pointer through this method.
    */
   vtkGraphLayoutStrategy* GetLayoutStrategy();
-  void SetLayoutStrategy(vtkGraphLayoutStrategy *s);
+  void SetLayoutStrategy(vtkGraphLayoutStrategy* s);
   //@}
 
   //@{
@@ -277,10 +265,8 @@ public:
    * Default is "Arc Parallel".
    */
   void SetEdgeLayoutStrategy(const char* name);
-  void SetEdgeLayoutStrategyToArcParallel()
-    { this->SetEdgeLayoutStrategy("Arc Parallel"); }
-  void SetEdgeLayoutStrategyToPassThrough()
-    { this->SetEdgeLayoutStrategy("Pass Through"); }
+  void SetEdgeLayoutStrategyToArcParallel() { this->SetEdgeLayoutStrategy("Arc Parallel"); }
+  void SetEdgeLayoutStrategyToPassThrough() { this->SetEdgeLayoutStrategy("Pass Through"); }
   const char* GetEdgeLayoutStrategyName();
   //@}
 
@@ -291,7 +277,7 @@ public:
    * object directly and simply set the pointer through this method.
    */
   vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
-  void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s);
+  void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* s);
   //@}
 
   /**
@@ -299,7 +285,7 @@ public:
    * containing "type" as a value in the vertex attribute array specified by
    * IconArrayName.
    */
-  void AddIconType(const char *type, int index);
+  void AddIconType(const char* type, int index);
 
   /**
    * Clear all icon mappings.

@@ -32,25 +32,23 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/RuntimeDeviceTracker.h>
 
 #include <vtkm/filter/ClipWithField.h>
+#include <vtkm/filter/ClipWithField.hxx>
 #include <vtkm/filter/ClipWithImplicitFunction.h>
+#include <vtkm/filter/ClipWithImplicitFunction.hxx>
 
 #include <algorithm>
 
-
-vtkStandardNewMacro(vtkmClip)
+vtkStandardNewMacro(vtkmClip);
 
 //------------------------------------------------------------------------------
-void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -62,20 +60,18 @@ void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkmClip::vtkmClip()
-  : ClipValue(0.),
-    ComputeScalars(true),
-    ClipFunction(nullptr),
-    ClipFunctionConverter(new tovtkm::ImplicitFunctionConverter)
+  : ClipValue(0.)
+  , ComputeScalars(true)
+  , ClipFunction(nullptr)
+  , ClipFunctionConverter(new tovtkm::ImplicitFunctionConverter)
 {
   // Clip active point scalars by default
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
 //------------------------------------------------------------------------------
-vtkmClip::~vtkmClip()
-{
-}
+vtkmClip::~vtkmClip() {}
 
 //----------------------------------------------------------------------------
 vtkMTimeType vtkmClip::GetMTime()
@@ -89,7 +85,7 @@ vtkMTimeType vtkmClip::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkmClip::SetClipFunction(vtkImplicitFunction *clipFunction)
+void vtkmClip::SetClipFunction(vtkImplicitFunction* clipFunction)
 {
   if (this->ClipFunction != clipFunction)
   {
@@ -100,29 +96,26 @@ void vtkmClip::SetClipFunction(vtkImplicitFunction *clipFunction)
 }
 
 //------------------------------------------------------------------------------
-int vtkmClip::RequestData(vtkInformation *,
-                          vtkInformationVector **inInfoVec,
-                          vtkInformationVector *outInfoVec)
+int vtkmClip::RequestData(
+  vtkInformation*, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
-  vtkm::cont::ScopedRuntimeDeviceTracker tracker(vtkm::cont::DeviceAdapterTagCuda{},
-                                                 vtkm::cont::RuntimeDeviceTrackerMode::Disable);
+  vtkm::cont::ScopedRuntimeDeviceTracker tracker(
+    vtkm::cont::DeviceAdapterTagCuda{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
 
   vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
   vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
 
   // Extract data objects from info:
-  vtkDataSet *input =
-    vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output =
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Find the scalar array:
   int assoc = this->GetInputArrayAssociation(0, inInfoVec);
-  vtkDataArray *scalars = this->GetInputArrayToProcess(0, inInfoVec);
+  vtkDataArray* scalars = this->GetInputArrayToProcess(0, inInfoVec);
   if (!this->ClipFunction &&
-      (assoc != vtkDataObject::FIELD_ASSOCIATION_POINTS ||
-      scalars == nullptr || scalars->GetName() == nullptr ||
-      scalars->GetName()[0] == '\0'))
+    (assoc != vtkDataObject::FIELD_ASSOCIATION_POINTS || scalars == nullptr ||
+      scalars->GetName() == nullptr || scalars->GetName()[0] == '\0'))
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 0;
@@ -137,9 +130,8 @@ int vtkmClip::RequestData(vtkInformation *,
   try
   {
     // Convert inputs to vtkm objects:
-    auto fieldsFlag = this->ComputeScalars ?
-                      tovtkm::FieldsFlag::PointsAndCells :
-                      tovtkm::FieldsFlag::None;
+    auto fieldsFlag =
+      this->ComputeScalars ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
     auto in = tovtkm::Convert(input, fieldsFlag);
 
     // Run filter:
@@ -203,7 +195,7 @@ int vtkmClip::RequestData(vtkInformation *,
 }
 
 //------------------------------------------------------------------------------
-int vtkmClip::FillInputPortInformation(int, vtkInformation *info)
+int vtkmClip::FillInputPortInformation(int, vtkInformation* info)
 {
   // These are the types supported by tovtkm::Convert:
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

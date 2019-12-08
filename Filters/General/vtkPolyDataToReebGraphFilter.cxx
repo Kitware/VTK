@@ -18,8 +18,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkReebGraph.h"
 
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);
@@ -35,7 +35,8 @@ vtkPolyDataToReebGraphFilter::vtkPolyDataToReebGraphFilter()
 vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter() = default;
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToReebGraphFilter::FillInputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)
+int vtkPolyDataToReebGraphFilter::FillInputPortInformation(
+  int vtkNotUsed(portNumber), vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
@@ -43,8 +44,7 @@ int vtkPolyDataToReebGraphFilter::FillInputPortInformation(int vtkNotUsed(portNu
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToReebGraphFilter::FillOutputPortInformation(
-  int, vtkInformation *info)
+int vtkPolyDataToReebGraphFilter::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
@@ -53,7 +53,7 @@ int vtkPolyDataToReebGraphFilter::FillOutputPortInformation(
 //----------------------------------------------------------------------------
 void vtkPolyDataToReebGraphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
@@ -64,36 +64,32 @@ vtkReebGraph* vtkPolyDataToReebGraphFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
-                                    vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector)
+int vtkPolyDataToReebGraphFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
-  vtkInformation  *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkPolyData::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkPolyData::DATA_OBJECT()));
 
-  vtkInformation  *outInfo = outputVector->GetInformationObject(0);
-  vtkReebGraph    *output = vtkReebGraph::SafeDownCast(
-    outInfo->Get(vtkReebGraph::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkReebGraph* output = vtkReebGraph::SafeDownCast(outInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
   // check for the presence of a scalar field
-  vtkDataArray *scalarField = input->GetPointData()->GetArray(FieldId);
-  if(!scalarField)
+  vtkDataArray* scalarField = input->GetPointData()->GetArray(FieldId);
+  if (!scalarField)
   {
     vtkElevationFilter* eFilter = vtkElevationFilter::New();
     eFilter->SetInputData(input);
     eFilter->Update();
-    output->Build(vtkPolyData::SafeDownCast(eFilter->GetOutput()),
-                  "Elevation");
+    output->Build(vtkPolyData::SafeDownCast(eFilter->GetOutput()), "Elevation");
     eFilter->Delete();
   }
   else
   {
     output->Build(input, FieldId);
   }
-  if(scalarField)
+  if (scalarField)
   {
   }
   else

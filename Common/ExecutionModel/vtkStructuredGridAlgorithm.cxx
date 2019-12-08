@@ -78,23 +78,22 @@ vtkStructuredGrid* vtkStructuredGridAlgorithm::GetStructuredGridInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+vtkTypeBool vtkStructuredGridAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -112,18 +111,15 @@ int vtkStructuredGridAlgorithm::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkStructuredGridAlgorithm::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkStructuredGridAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkStructuredGridAlgorithm::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkStructuredGridAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;
@@ -132,14 +128,11 @@ int vtkStructuredGridAlgorithm::RequestInformation(
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-int vtkStructuredGridAlgorithm::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* vtkNotUsed( outputVector ))
+int vtkStructuredGridAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkStructuredGridAlgorithm::SetInputData(vtkDataObject* input)
@@ -164,4 +157,3 @@ void vtkStructuredGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
 }
-

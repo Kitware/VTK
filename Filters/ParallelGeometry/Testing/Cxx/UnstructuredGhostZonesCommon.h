@@ -16,8 +16,8 @@
 #define UNSTRUCTUREDGHOSTZONESCOMMON_H_
 
 // VTK includes
-#include "vtkMathUtilities.h"
 #include "vtkMPIUtilities.h"
+#include "vtkMathUtilities.h"
 
 // C/C++ includes
 #include <cmath>
@@ -51,12 +51,10 @@ void SetXYZCellField();
 void SetXYZNodeField();
 
 //------------------------------------------------------------------------------
-void WriteDataSet(
-      vtkUnstructuredGrid* grid, const std::string& file);
+void WriteDataSet(vtkUnstructuredGrid* grid, const std::string& file);
 
 //------------------------------------------------------------------------------
-void GetPoint(
-      const int i, const int j, const int k,double pnt[3]);
+void GetPoint(const int i, const int j, const int k, double pnt[3]);
 
 void GenerateDataSet();
 

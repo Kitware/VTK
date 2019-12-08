@@ -26,37 +26,35 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkGraph vtkDataReader vtkGraphWriter
-*/
+ */
 
 #ifndef vtkGraphReader_h
 #define vtkGraphReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkGraph;
 
 class VTKIOLEGACY_EXPORT vtkGraphReader : public vtkDataReader
 {
 public:
-  static vtkGraphReader *New();
-  vtkTypeMacro(vtkGraphReader,vtkDataReader);
+  static vtkGraphReader* New();
+  vtkTypeMacro(vtkGraphReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this reader.
    */
-  vtkGraph *GetOutput();
-  vtkGraph *GetOutput(int idx);
+  vtkGraph* GetOutput();
+  vtkGraph* GetOutput(int idx);
   //@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkGraphReader();
@@ -73,10 +71,10 @@ protected:
   vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
   // Read beginning of file to determine whether the graph is directed.
-  virtual int ReadGraphType(const char* fname, GraphType &type);
-
+  virtual int ReadGraphType(const char* fname, GraphType& type);
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkGraphReader(const vtkGraphReader&) = delete;
   void operator=(const vtkGraphReader&) = delete;

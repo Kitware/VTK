@@ -23,8 +23,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTree.h"
 
 vtkStandardNewMacro(vtkTreeAlgorithm);
 
@@ -47,23 +47,22 @@ void vtkTreeAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+vtkTypeBool vtkTreeAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -72,8 +71,7 @@ int vtkTreeAlgorithm::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkTreeAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTree");
@@ -81,8 +79,7 @@ int vtkTreeAlgorithm::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkTreeAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTree");
   return 1;
@@ -101,26 +98,22 @@ void vtkTreeAlgorithm::SetInputData(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkTreeAlgorithm::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::RequestUpdateExtent(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkTreeAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   int numInputPorts = this->GetNumberOfInputPorts();
-  for (int i=0; i<numInputPorts; i++)
+  for (int i = 0; i < numInputPorts; i++)
   {
     int numInputConnections = this->GetNumberOfInputConnections(i);
-    for (int j=0; j<numInputConnections; j++)
+    for (int j = 0; j < numInputConnections; j++)
     {
       vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
@@ -132,10 +125,8 @@ int vtkTreeAlgorithm::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-int vtkTreeAlgorithm::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* vtkNotUsed( outputVector ) )
+int vtkTreeAlgorithm::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
 }

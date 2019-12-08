@@ -22,21 +22,19 @@
  * different pixel values.  This has important implications when a stream
  * requests overlapping regions.  The same pixels will have different values
  * on different updates.
-*/
+ */
 
 #ifndef vtkImageNoiseSource_h
 #define vtkImageNoiseSource_h
 
-
-#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-
+#include "vtkImagingSourcesModule.h" // For export macro
 
 class VTKIMAGINGSOURCES_EXPORT vtkImageNoiseSource : public vtkImageAlgorithm
 {
 public:
-  static vtkImageNoiseSource *New();
-  vtkTypeMacro(vtkImageNoiseSource,vtkImageAlgorithm);
+  static vtkImageNoiseSource* New();
+  vtkTypeMacro(vtkImageNoiseSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,8 +51,7 @@ public:
   /**
    * Set how large of an image to generate.
    */
-  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
-                      int zMin, int zMax);
+  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax, int zMin, int zMax);
   void SetWholeExtent(const int ext[6])
   {
     this->SetWholeExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
@@ -69,14 +66,12 @@ protected:
   double Maximum;
   int WholeExtent[6];
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
+
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&) = delete;
   void operator=(const vtkImageNoiseSource&) = delete;
 };
 
-
 #endif
-
-

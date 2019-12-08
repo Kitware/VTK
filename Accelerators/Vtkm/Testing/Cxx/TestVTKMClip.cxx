@@ -25,17 +25,18 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkUnstructuredGrid.h"
 
-namespace {
+namespace
+{
 
 template <typename DataSetT>
-void GenerateScalars(DataSetT *dataset, bool negate)
+void GenerateScalars(DataSetT* dataset, bool negate)
 {
   vtkIdType numPoints = dataset->GetNumberOfPoints();
 
@@ -48,8 +49,7 @@ void GenerateScalars(DataSetT *dataset, bool negate)
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     dataset->GetPoint(i, point);
-    scalars->SetTypedComponent(i, 0, (negate ?-point[0] - point[1]
-                                             : point[0] + point[1]));
+    scalars->SetTypedComponent(i, 0, (negate ? -point[0] - point[1] : point[0] + point[1]));
   }
   dataset->GetPointData()->SetScalars(scalars);
 }
@@ -66,7 +66,7 @@ int TestVTKMClip(int, char*[])
   sphereSource->SetThetaResolution(50);
   sphereSource->SetPhiResolution(50);
   sphereSource->Update();
-  vtkPolyData *sphere = sphereSource->GetOutput();
+  vtkPolyData* sphere = sphereSource->GetOutput();
   GenerateScalars(sphere, false);
 
   // Clip at zero:
@@ -104,7 +104,7 @@ int TestVTKMClip(int, char*[])
   vtkNew<vtkDelaunay3D> tetrahedralizer;
   tetrahedralizer->SetInputConnection(imageToPoints->GetOutputPort());
   tetrahedralizer->Update();
-  vtkUnstructuredGrid *tets = tetrahedralizer->GetOutput();
+  vtkUnstructuredGrid* tets = tetrahedralizer->GetOutput();
   GenerateScalars(tets, true);
 
   // Clip at zero:
@@ -129,7 +129,7 @@ int TestVTKMClip(int, char*[])
   renderer->AddActor(tetActor);
 
   // Third dataset tests imagedata. This should produce an unstructured grid:
-  vtkImageData *image = imageSource->GetOutput();
+  vtkImageData* image = imageSource->GetOutput();
   GenerateScalars(image, false);
 
   vtkNew<vtkmClip> imageClipper;
@@ -159,10 +159,10 @@ int TestVTKMClip(int, char*[])
   iren->SetRenderWindow(renWin);
   renWin->AddRenderer(renderer);
 
-  renWin->SetSize(500,500);
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renWin->SetSize(500, 500);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
 
   renWin->Render();

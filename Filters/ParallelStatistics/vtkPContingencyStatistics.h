@@ -35,20 +35,21 @@
  *
  * @par Thanks:
  * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
-*/
+ */
 
 #ifndef vtkPContingencyStatistics_h
 #define vtkPContingencyStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 #include <vector> // STL Header
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics
+  : public vtkContingencyStatistics
 {
 public:
   static vtkPContingencyStatistics* New();
@@ -67,9 +68,7 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn( vtkTable*,
-              vtkTable*,
-              vtkMultiBlockDataSet* ) override;
+  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
 
 protected:
   vtkPContingencyStatistics();
@@ -78,28 +77,19 @@ protected:
   /**
    * Reduce the collection of local contingency tables to the global one
    */
-  bool Reduce( vtkIdType&,
-               char*,
-               vtkStdString&,
-               vtkIdType&,
-               vtkIdType*,
-               std::vector<vtkIdType>& );
+  bool Reduce(vtkIdType&, char*, vtkStdString&, vtkIdType&, vtkIdType*, std::vector<vtkIdType>&);
 
   /**
    * Broadcast reduced contingency table to all processes
    */
-  bool Broadcast( vtkIdType,
-                  vtkStdString&,
-                  std::vector<vtkStdString>&,
-                  vtkIdType,
-                  std::vector<vtkIdType>&,
-                  vtkIdType );
+  bool Broadcast(vtkIdType, vtkStdString&, std::vector<vtkStdString>&, vtkIdType,
+    std::vector<vtkIdType>&, vtkIdType);
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPContingencyStatistics(const vtkPContingencyStatistics&) = delete;
   void operator=(const vtkPContingencyStatistics&) = delete;
 };
 
 #endif
-

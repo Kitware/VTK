@@ -16,26 +16,26 @@
 // .SECTION Description
 //
 
-#include "vtkProStarReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkProStarReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkGeometryFilter.h"
 #include "vtkIdList.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
-int TestProStarReader( int argc, char *argv[] )
+int TestProStarReader(int argc, char* argv[])
 {
   // Read file name.
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/prostar.vrt");
@@ -44,18 +44,17 @@ int TestProStarReader( int argc, char *argv[] )
   vtkSmartPointer<vtkProStarReader> reader = vtkSmartPointer<vtkProStarReader>::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
-  if(grid->GetNumberOfPoints() != 44)
+  if (grid->GetNumberOfPoints() != 44)
   {
-    vtkGenericWarningMacro("Input grid has " << grid->GetNumberOfPoints()
-                           << " but should have 44.");
+    vtkGenericWarningMacro(
+      "Input grid has " << grid->GetNumberOfPoints() << " but should have 44.");
     return 1;
   }
-  if(grid->GetNumberOfCells() != 10)
+  if (grid->GetNumberOfCells() != 10)
   {
-    vtkGenericWarningMacro("Input grid has " << grid->GetNumberOfCells()
-                           << " but should have 10.");
+    vtkGenericWarningMacro("Input grid has " << grid->GetNumberOfCells() << " but should have 10.");
     return 1;
   }
 
@@ -65,9 +64,9 @@ int TestProStarReader( int argc, char *argv[] )
   newGrid->SetPoints(grid->GetPoints());
   newGrid->Allocate(8);
   vtkIdList* cellIds = vtkIdList::New();
-  for(vtkIdType i=0;i<grid->GetNumberOfCells();i++)
+  for (vtkIdType i = 0; i < grid->GetNumberOfCells(); i++)
   {
-    if(i != 8 && i != 9)
+    if (i != 8 && i != 9)
     {
       grid->GetCellPoints(i, cellIds);
       newGrid->InsertNextCell(grid->GetCellType(i), cellIds);
@@ -93,19 +92,19 @@ int TestProStarReader( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -1,14 +1,14 @@
-#include <vtkNew.h>
 #include <vtkActor.h>
+#include <vtkNew.h>
+#include <vtkPTSReader.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkPTSReader.h>
 
-int TestPTSReader(int argc, char *argv[])
+int TestPTSReader(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -22,7 +22,6 @@ int TestPTSReader(int argc, char *argv[])
   reader->SetFileName(inputFilename.c_str());
   reader->SetLimitToMaxNumberOfPoints(true);
   reader->SetMaxNumberOfPoints(100000);
-
 
   reader->Update();
 
@@ -44,8 +43,8 @@ int TestPTSReader(int argc, char *argv[])
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();
   }

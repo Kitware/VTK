@@ -41,14 +41,14 @@ int TestVectorOperators(int, char*[])
   }
   if (vec3ia == vec3ib)
   {
-    cerr << "vec3ia == vec3ib failed (are not equal, but reported equal)."
-         << endl << "vec3i = " << vec3i << ", vec3ia = " << vec3ia << endl;
+    cerr << "vec3ia == vec3ib failed (are not equal, but reported equal)." << endl
+         << "vec3i = " << vec3i << ", vec3ia = " << vec3ia << endl;
     ++retVal;
   }
   if (vector3f == vec3i)
   {
-    cerr << "vector3f == vec3ib failed (are not equal, but reported equal)."
-         << endl << "vec3i = " << vector3f << ", vec3ia = " << vec3ia << endl;
+    cerr << "vector3f == vec3ib failed (are not equal, but reported equal)." << endl
+         << "vec3i = " << vector3f << ", vec3ia = " << vec3ia << endl;
     ++retVal;
   }
 

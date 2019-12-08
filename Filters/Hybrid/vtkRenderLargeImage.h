@@ -17,14 +17,14 @@
  * @brief   Use tiling to generate a large rendering
  *
  * vtkRenderLargeImage provides methods needed to read a region from a file.
-*/
+ */
 
 #ifndef vtkRenderLargeImage_h
 #define vtkRenderLargeImage_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkImageData.h"           // makes things a bit easier
 
 class vtkRenderer;
 class vtkActor2DCollection;
@@ -34,16 +34,16 @@ class vtkRenderLargeImage2DHelperClass;
 class VTKFILTERSHYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
 {
 public:
-  static vtkRenderLargeImage *New();
-  vtkTypeMacro(vtkRenderLargeImage,vtkAlgorithm);
+  static vtkRenderLargeImage* New();
+  vtkTypeMacro(vtkRenderLargeImage, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * The magnification of the current render window
    */
-  vtkSetMacro(Magnification,int);
-  vtkGetMacro(Magnification,int);
+  vtkSetMacro(Magnification, int);
+  vtkGetMacro(Magnification, int);
   //@}
 
   /**
@@ -55,7 +55,7 @@ public:
   /**
    * Returns which renderer is being used as the source for the pixel data.
    */
-  vtkGetObjectMacro(Input,vtkRenderer);
+  vtkGetObjectMacro(Input, vtkRenderer);
   //@}
 
   /**
@@ -66,20 +66,17 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkRenderLargeImage();
   ~vtkRenderLargeImage() override;
 
   int Magnification;
-  vtkRenderer *Input;
-  void RequestData(vtkInformation *,
-                   vtkInformationVector **, vtkInformationVector *);
-  void RequestInformation (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *);
+  vtkRenderer* Input;
+  void RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  void RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;
@@ -92,7 +89,7 @@ protected:
   void Restore2DActors();
   // 2D Actors need to be rescaled and shifted about for each tile
   // use this helper class to make life easier.
-  vtkRenderLargeImage2DHelperClass *StoredData;
+  vtkRenderLargeImage2DHelperClass* StoredData;
 
 private:
   vtkRenderLargeImage(const vtkRenderLargeImage&) = delete;

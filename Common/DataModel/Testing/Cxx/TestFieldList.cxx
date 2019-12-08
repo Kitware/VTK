@@ -27,7 +27,7 @@ vtkSmartPointer<T> CreateArray(const char* aname, int num_comps, vtkIdType numTu
   }
 }
 
-int TestFieldList(int, char* [])
+int TestFieldList(int, char*[])
 {
 
   {

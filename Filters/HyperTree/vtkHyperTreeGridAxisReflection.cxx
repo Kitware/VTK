@@ -142,7 +142,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   }
   else
   {
-    vtkDataArray* inCoords = 0;
+    vtkDataArray* inCoords = nullptr;
     unsigned int pmod3 = this->Plane % 3;
     if (!pmod3)
     {

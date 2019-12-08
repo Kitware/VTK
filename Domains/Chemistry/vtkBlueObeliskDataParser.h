@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkPeriodicTable vtkBlueObeliskData
-*/
+ */
 
 #ifndef vtkBlueObeliskDataParser_h
 #define vtkBlueObeliskDataParser_h
@@ -50,17 +50,17 @@ class vtkUnsignedShortArray;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
 {
- public:
+public:
   vtkTypeMacro(vtkBlueObeliskDataParser, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkBlueObeliskDataParser * New();
+  static vtkBlueObeliskDataParser* New();
 
   /**
    * Set the target vtkBlueObeliskData object that this parser will
    * populate
    */
-  virtual void SetTarget(vtkBlueObeliskData *bodr);
+  virtual void SetTarget(vtkBlueObeliskData* bodr);
 
   /**
    * Start parsing
@@ -73,35 +73,36 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
    * virtual overloads. This function simply call Parse(); the arguments are
    * ignored.
    */
-  int Parse(const char *) override;
-  int Parse(const char *, unsigned int) override;
+  int Parse(const char*) override;
+  int Parse(const char*, unsigned int) override;
   //@}
 
 protected:
   vtkBlueObeliskDataParser();
   ~vtkBlueObeliskDataParser() override;
 
-  void StartElement(const char *name, const char **attr) override;
-  void EndElement(const char *name) override;
+  void StartElement(const char* name, const char** attr) override;
+  void EndElement(const char* name) override;
 
-  void CharacterDataHandler(const char *data, int length) override;
+  void CharacterDataHandler(const char* data, int length) override;
 
-  void SetCurrentValue(const char *data, int length);
-  void SetCurrentValue(const char *data);
+  void SetCurrentValue(const char* data, int length);
+  void SetCurrentValue(const char* data);
 
-  vtkBlueObeliskData *Target;
+  vtkBlueObeliskData* Target;
 
   bool IsProcessingAtom;
-  void NewAtomStarted(const char **attr);
+  void NewAtomStarted(const char** attr);
   void NewAtomFinished();
 
   bool IsProcessingValue;
-  void NewValueStarted(const char **attr);
+  void NewValueStarted(const char** attr);
   void NewValueFinished();
 
   std::string CharacterDataValueBuffer;
 
-  enum AtomValueType {
+  enum AtomValueType
+  {
     None = 0,
     AtomicNumber,
     Symbol,
@@ -124,11 +125,11 @@ protected:
   } CurrentValueType;
 
   int CurrentAtomicNumber;
-  vtkStdString *CurrentSymbol;
-  vtkStdString *CurrentName;
-  vtkStdString *CurrentPeriodicTableBlock;
-  vtkStdString *CurrentElectronicConfiguration;
-  vtkStdString *CurrentFamily;
+  vtkStdString* CurrentSymbol;
+  vtkStdString* CurrentName;
+  vtkStdString* CurrentPeriodicTableBlock;
+  vtkStdString* CurrentElectronicConfiguration;
+  vtkStdString* CurrentFamily;
   float CurrentMass;
   float CurrentExactMass;
   float CurrentIonizationEnergy;
@@ -150,26 +151,20 @@ private:
   /**
    * Resize array if needed and set the entry at ind to val.
    */
-  static void ResizeArrayIfNeeded(vtkAbstractArray *arr, vtkIdType ind);
-  static void ResizeAndSetValue(vtkStdString *val,
-                                vtkStringArray *arr,
-                                vtkIdType ind);
-  static void ResizeAndSetValue(float val,
-                                vtkFloatArray *arr,
-                                vtkIdType ind);
-  static void ResizeAndSetValue(unsigned short val,
-                                vtkUnsignedShortArray *arr,
-                                vtkIdType ind);
+  static void ResizeArrayIfNeeded(vtkAbstractArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(vtkStdString* val, vtkStringArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(float val, vtkFloatArray* arr, vtkIdType ind);
+  static void ResizeAndSetValue(unsigned short val, vtkUnsignedShortArray* arr, vtkIdType ind);
   //@}
 
   //@{
   /**
    * Parse types from const char *
    */
-  static int parseInt(const char *);
-  static float parseFloat(const char *);
-  static void parseFloat3(const char * str, float[3]);
-  static unsigned short parseUnsignedShort(const char *);
+  static int parseInt(const char*);
+  static float parseFloat(const char*);
+  static void parseFloat3(const char* str, float[3]);
+  static unsigned short parseUnsignedShort(const char*);
   //@}
 
   //@{
@@ -177,8 +172,8 @@ private:
    * Convert a string to lower case. This will modify the input string
    * and return the input pointer.
    */
-  static vtkStdString * ToLower(vtkStdString *);
-};
+  static vtkStdString* ToLower(vtkStdString*);
   //@}
+};
 
 #endif

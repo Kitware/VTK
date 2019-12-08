@@ -41,14 +41,14 @@
  *
  * @sa
  * vtkLookupTable vtkColorTransferFunction
-*/
+ */
 
 #ifndef vtkScalarsToColors_h
 #define vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkVariant.h" // Set/get annotation methods require variants.
 #include "vtkObject.h"
+#include "vtkVariant.h" // Set/get annotation methods require variants.
 
 class vtkAbstractArray;
 class vtkDataArray;
@@ -56,13 +56,12 @@ class vtkUnsignedCharArray;
 class vtkAbstractArray;
 class vtkStringArray;
 
-
 class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkScalarsToColors,vtkObject);
+  vtkTypeMacro(vtkScalarsToColors, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkScalarsToColors *New();
+  static vtkScalarsToColors* New();
 
   //@{
   /**
@@ -71,8 +70,7 @@ public:
    * signature will yield more accurate results.
    */
   virtual int IsOpaque();
-  virtual int IsOpaque(vtkAbstractArray *scalars,
-                       int colorMode, int component);
+  virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
   //@}
 
   /**
@@ -85,17 +83,16 @@ public:
   /**
    * Sets/Gets the range of scalars that will be mapped.
    */
-  virtual double *GetRange() VTK_SIZEHINT(2);
+  virtual double* GetRange() VTK_SIZEHINT(2);
   virtual void SetRange(double min, double max);
-  virtual void SetRange(const double rng[2])
-    {this->SetRange(rng[0],rng[1]);}
+  virtual void SetRange(const double rng[2]) { this->SetRange(rng[0], rng[1]); }
   //@}
 
   /**
    * Map one value through the lookup table and return a color defined
    * as an RGBA unsigned char tuple (4 bytes).
    */
-  virtual const unsigned char *MapValue(double v);
+  virtual const unsigned char* MapValue(double v);
 
   /**
    * Map one value through the lookup table and store the color as
@@ -107,8 +104,11 @@ public:
    * Map one value through the lookup table and return the color as
    * an RGB array of doubles between 0 and 1.
    */
-  double *GetColor(double v) VTK_SIZEHINT(3)
-    {this->GetColor(v,this->RGB); return this->RGB;}
+  double* GetColor(double v) VTK_SIZEHINT(3)
+  {
+    this->GetColor(v, this->RGB);
+    return this->RGB;
+  }
 
   /**
    * Map one value through the lookup table and return the alpha value
@@ -123,8 +123,11 @@ public:
    * Returns the luminance value for the specified scalar value.
    */
   double GetLuminance(double x)
-    {double rgb[3]; this->GetColor(x,rgb);
-    return static_cast<double>(rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11);}
+  {
+    double rgb[3];
+    this->GetColor(x, rgb);
+    return static_cast<double>(rgb[0] * 0.30 + rgb[1] * 0.59 + rgb[2] * 0.11);
+  }
 
   //@{
   /**
@@ -134,7 +137,7 @@ public:
    * blend its opacity. Value is clamped between 0 and 1.
    */
   virtual void SetAlpha(double alpha);
-  vtkGetMacro(Alpha,double);
+  vtkGetMacro(Alpha, double);
   //@}
 
   //@{
@@ -157,12 +160,10 @@ public:
    * When the component argument is -1, then the this object uses its own
    * selected technique to change a vector into a scalar to map.
    */
-  virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
-                                           int component,
-                                           int outputFormat = VTK_RGBA);
-  virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
-                                           int component,
-                                           int outputFormat = VTK_RGBA);
+  virtual vtkUnsignedCharArray* MapScalars(
+    vtkDataArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
+  virtual vtkUnsignedCharArray* MapScalars(
+    vtkAbstractArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
   //@}
 
   //@{
@@ -178,10 +179,11 @@ public:
   void SetVectorModeToRGBColors();
   //@}
 
-  enum VectorModes {
-    MAGNITUDE=0,
-    COMPONENT=1,
-    RGBCOLORS=2
+  enum VectorModes
+  {
+    MAGNITUDE = 0,
+    COMPONENT = 1,
+    RGBCOLORS = 2
   };
 
   //@{
@@ -212,15 +214,14 @@ public:
    * VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
    * or VTK_LUMINANCE_ALPHA (2 components)
    */
-  void MapVectorsThroughTable(void *input, unsigned char *output,
-                              int inputDataType, int numberOfValues,
-                              int inputIncrement, int outputFormat,
-                              int vectorComponent, int vectorSize);
-  void MapVectorsThroughTable(void *input, unsigned char *output,
-                              int inputDataType, int numberOfValues,
-                              int inputIncrement, int outputFormat)
-    { this->MapVectorsThroughTable(input, output, inputDataType, numberOfValues,
-                                   inputIncrement, outputFormat, -1, -1); }
+  void MapVectorsThroughTable(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputFormat, int vectorComponent, int vectorSize);
+  void MapVectorsThroughTable(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputFormat)
+  {
+    this->MapVectorsThroughTable(
+      input, output, inputDataType, numberOfValues, inputIncrement, outputFormat, -1, -1);
+  }
 
   /**
    * Map a set of scalars through the lookup table in a single operation.
@@ -230,40 +231,36 @@ public:
    * or VTK_LUMINANCE_ALPHA (2 components)
    * If not supplied, the output format defaults to RGBA.
    */
-  void MapScalarsThroughTable(vtkDataArray *scalars,
-                              unsigned char *output,
-                              int outputFormat);
-  void MapScalarsThroughTable(vtkDataArray *scalars,
-                              unsigned char *output)
-    {this->MapScalarsThroughTable(scalars,output,VTK_RGBA);}
-  void MapScalarsThroughTable(void *input, unsigned char *output,
-                              int inputDataType, int numberOfValues,
-                              int inputIncrement,
-                              int outputFormat)
-    {this->MapScalarsThroughTable2(input, output, inputDataType,
-       numberOfValues, inputIncrement, outputFormat);}
+  void MapScalarsThroughTable(vtkDataArray* scalars, unsigned char* output, int outputFormat);
+  void MapScalarsThroughTable(vtkDataArray* scalars, unsigned char* output)
+  {
+    this->MapScalarsThroughTable(scalars, output, VTK_RGBA);
+  }
+  void MapScalarsThroughTable(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputFormat)
+  {
+    this->MapScalarsThroughTable2(
+      input, output, inputDataType, numberOfValues, inputIncrement, outputFormat);
+  }
 
   /**
    * An internal method typically not used in applications.  This should
    * be a protected function, but it must be kept public for backwards
    * compatibility.  Never call this method directly.
    */
-  virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
-                                       int inputDataType, int numberOfValues,
-                                       int inputIncrement,
-                                       int outputFormat);
+  virtual void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputFormat);
 
   /**
    * Copy the contents from another object.
    */
-  virtual void DeepCopy(vtkScalarsToColors *o);
+  virtual void DeepCopy(vtkScalarsToColors* o);
 
   /**
    * This should return 1 is the subclass is using log scale for mapping scalars
    * to colors. Default implementation always returns 0.
    */
-  virtual int UsingLogScale()
-    { return 0; }
+  virtual int UsingLogScale() { return 0; }
 
   /**
    * Get the number of available colors for mapping to.
@@ -284,9 +281,9 @@ public:
    * call to map scalar values to colors would require us to check the MTime
    * of the arrays.
    */
-  virtual void SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations );
-  vtkGetObjectMacro(AnnotatedValues,vtkAbstractArray);
-  vtkGetObjectMacro(Annotations,vtkStringArray);
+  virtual void SetAnnotations(vtkAbstractArray* values, vtkStringArray* annotations);
+  vtkGetObjectMacro(AnnotatedValues, vtkAbstractArray);
+  vtkGetObjectMacro(Annotations, vtkStringArray);
   //@}
 
   /**
@@ -324,7 +321,7 @@ public:
   /**
    * Return the index of the given value in the list of annotated values (or -1 if not present).
    */
-  vtkIdType GetAnnotatedValueIndex( vtkVariant val );
+  vtkIdType GetAnnotatedValueIndex(vtkVariant val);
 
   /**
    * Look up an index into the array of annotations given a
@@ -369,11 +366,10 @@ public:
    * When categorical data is present, only values in the lookup table will be
    * considered valid; all other values will be assigned \a NanColor.
    */
-  vtkSetMacro(IndexedLookup,vtkTypeBool);
-  vtkGetMacro(IndexedLookup,vtkTypeBool);
-  vtkBooleanMacro(IndexedLookup,vtkTypeBool);
+  vtkSetMacro(IndexedLookup, vtkTypeBool);
+  vtkGetMacro(IndexedLookup, vtkTypeBool);
+  vtkBooleanMacro(IndexedLookup, vtkTypeBool);
   //@}
-
 
   //@{
   /**
@@ -381,19 +377,17 @@ public:
    * is already in the range 0-255. If it is not, behavior is undefined.
    * Floating point types are assumed to be in interval 0.0-1.0
    */
-  template<typename T> static
-    unsigned char ColorToUChar(T t)
+  template <typename T>
+  static unsigned char ColorToUChar(T t)
   {
     return static_cast<unsigned char>(t);
   }
-  template<typename T> static
-    void ColorToUChar(T t, unsigned char* dest)
+  template <typename T>
+  static void ColorToUChar(T t, unsigned char* dest)
   {
     *dest = ColorToUChar(t);
   }
   //@}
-
-
 
 protected:
   vtkScalarsToColors();
@@ -410,33 +404,28 @@ protected:
    * then the components will be combined to compute the luminance.
    * Any components past the fourth component will be ignored.
    */
-  void MapColorsToColors(void *input, unsigned char *output,
-                         int inputDataType, int numberOfValues,
-                         int numberOfComponents, int vectorSize,
-                         int outputFormat);
+  void MapColorsToColors(void* input, unsigned char* output, int inputDataType, int numberOfValues,
+    int numberOfComponents, int vectorSize, int outputFormat);
 
   /**
    * An internal method used to convert a color array to RGBA. The
    * method instantiates a vtkUnsignedCharArray and returns it. The user is
    * responsible for managing the memory.
    */
-  vtkUnsignedCharArray *ConvertToRGBA(
-    vtkDataArray *colors, int numComp, int numTuples);
-
+  vtkUnsignedCharArray* ConvertToRGBA(vtkDataArray* colors, int numComp, int numTuples);
 
   /**
    * An internal method for converting vectors to magnitudes, used as
    * a preliminary step before doing magnitude mapping.
    */
-  void MapVectorsToMagnitude(void *input, double *output,
-                             int inputDataType, int numberOfValues,
-                             int numberOfComponents, int vectorSize);
+  void MapVectorsToMagnitude(void* input, double* output, int inputDataType, int numberOfValues,
+    int numberOfComponents, int vectorSize);
 
   /**
    * Allocate annotation arrays if needed, then return the index of
    * the given \a value or -1 if not present.
    */
-  virtual vtkIdType CheckForAnnotatedValue( vtkVariant value );
+  virtual vtkIdType CheckForAnnotatedValue(vtkVariant value);
 
   /**
    * Update the map from annotated values to indices in the array of
@@ -446,7 +435,7 @@ protected:
 
   // Annotations of specific values.
   vtkAbstractArray* AnnotatedValues;
-  vtkStringArray*   Annotations;
+  vtkStringArray* Annotations;
 
   class vtkInternalAnnotatedValueMap;
   vtkInternalAnnotatedValueMap* AnnotatedValueMap;
@@ -479,17 +468,16 @@ private:
  * Converts from a color in a floating point type in range 0.0-1.0 to a uchar
  * in range 0-255.
  */
-template<> inline
-unsigned char vtkScalarsToColors::ColorToUChar(double t)
+template <>
+inline unsigned char vtkScalarsToColors::ColorToUChar(double t)
 {
-  return static_cast<unsigned char>(t*255 + 0.5);
+  return static_cast<unsigned char>(t * 255 + 0.5);
 }
-template<> inline
-unsigned char vtkScalarsToColors::ColorToUChar(float t)
+template <>
+inline unsigned char vtkScalarsToColors::ColorToUChar(float t)
 {
-  return static_cast<unsigned char>(t*255 + 0.5);
+  return static_cast<unsigned char>(t * 255 + 0.5);
 }
 //@}
-
 
 #endif

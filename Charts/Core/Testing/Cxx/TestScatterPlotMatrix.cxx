@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkMath.h"
-#include "vtkScatterPlotMatrix.h"
-#include "vtkRenderWindow.h"
 #include "vtkChart.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkScatterPlotMatrix.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestScatterPlotMatrix(int, char * [])
+int TestScatterPlotMatrix(int, char*[])
 {
   // Set up a 2D scene, add a chart to it
   vtkNew<vtkContextView> view;
@@ -54,7 +54,7 @@ int TestScatterPlotMatrix(int, char * [])
   table->AddColumn(tangent);
   // Test the chart scatter plot matrix
   int numPoints = 100;
-  float inc = 4.0 * vtkMath::Pi() / (numPoints-1);
+  float inc = 4.0 * vtkMath::Pi() / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -71,8 +71,8 @@ int TestScatterPlotMatrix(int, char * [])
   matrix->SetNumberOfBins(7);
 
   view->Render();
-  matrix->GetMainChart()->SetActionToButton(vtkChart::SELECT_POLYGON,
-                                            vtkContextMouseEvent::RIGHT_BUTTON);
+  matrix->GetMainChart()->SetActionToButton(
+    vtkChart::SELECT_POLYGON, vtkContextMouseEvent::RIGHT_BUTTON);
 
   // Test animation by releasing a right click on subchart (1,2)
   vtkContextMouseEvent mouseEvent;
@@ -84,7 +84,7 @@ int TestScatterPlotMatrix(int, char * [])
   mouseEvent.SetPos(pos);
   matrix->MouseButtonReleaseEvent(mouseEvent);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

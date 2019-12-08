@@ -16,10 +16,9 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkDataSetMapper.h"
-#include "vtkDataSetTriangleFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
@@ -33,6 +32,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
@@ -94,7 +94,6 @@ int TestLagrangianIntegrationModel(int, char*[])
   transform->SetInputConnection(triangle->GetOutputPort());
   transform->Update();
 
-
   // Create a particle
   vtkNew<vtkDoubleArray> vel;
   vel->SetNumberOfComponents(3);
@@ -128,18 +127,17 @@ int TestLagrangianIntegrationModel(int, char*[])
 
   int nvar = odeWavelet->GetNumberOfIndependentVariables();
   int seedIdx = 13;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
-  odeWavelet->SetInputArrayToProcess(3, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
-  odeWavelet->SetInputArrayToProcess(4, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
-  odeWavelet->SetInputArrayToProcess(5, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
-  odeWavelet->SetInputArrayToProcess(6, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
-  odeWavelet->SetInputArrayToProcess(7, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  odeWavelet->SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
+  odeWavelet->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  odeWavelet->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
+  odeWavelet->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  odeWavelet->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  odeWavelet->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
   vtkNew<vtkStaticCellLocator> locator;
   odeWavelet->SetLocator(locator);
   odeWavelet->AddDataSet(wavelet->GetOutput());
@@ -179,7 +177,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   odeWavelet->InitializeParticle(&part);
   if (odeWavelet->CheckFreeFlightTermination(&part))
   {
-    std::cerr << "CheckFreeFlightTermination should not return true with a matida model" << std::endl;
+    std::cerr << "CheckFreeFlightTermination should not return true with a matida model"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -201,7 +200,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   vtkDataObject* tmpDo = nullptr;
   if (!odeWavelet->FinalizeOutputs(tmpPd, tmpDo))
   {
-    std::cerr << "FinalizeOutputs should be doing nothing and return true with matida model" << std::endl;
+    std::cerr << "FinalizeOutputs should be doing nothing and return true with matida model"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -245,44 +245,44 @@ int TestLagrangianIntegrationModel(int, char*[])
   double* tmpPt = nullptr;
   double tmpVald = 0;
   int tmpVali = 0;
-  if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, 1, tmpVald, tmpVali))
+  if (odeWavelet->ManualIntegration(
+        nullptr, tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, 1, tmpVald, tmpVali, &part))
   {
-    std::cerr << "ManualIntegration should do nothing and return false with matida model" << std::endl;
+    std::cerr << "ManualIntegration should do nothing and return false with matida model"
+              << std::endl;
   }
 
   // Test on a vtkUnstructuredGrid
   vtkNew<vtkLagrangianMatidaIntegrationModel> odeTriangle;
   odeTriangle->SetTracker(tracker);
-  odeTriangle->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
-  odeTriangle->SetInputArrayToProcess(3, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
-  odeTriangle->SetInputArrayToProcess(4, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
-  odeTriangle->SetInputArrayToProcess(5, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
-  odeTriangle->SetInputArrayToProcess(6, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
-  odeTriangle->SetInputArrayToProcess(7, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  odeTriangle->SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
+  odeTriangle->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  odeTriangle->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
+  odeTriangle->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  odeTriangle->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  odeTriangle->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
   odeTriangle->SetLocator(locator);
   odeTriangle->AddDataSet(triangle->GetOutput());
 
   // Test on multiple mixed dataset
   vtkNew<vtkLagrangianMatidaIntegrationModel> odeTransform;
   odeTransform->SetTracker(tracker);
-  odeTransform->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
-  odeTransform->SetInputArrayToProcess(3, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
-  odeTransform->SetInputArrayToProcess(4, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
-  odeTransform->SetInputArrayToProcess(5, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
-  odeTransform->SetInputArrayToProcess(6, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
-  odeTransform->SetInputArrayToProcess(7, 1, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  odeTransform->SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "");
+  odeTransform->SetInputArrayToProcess(
+    3, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowVelocity");
+  odeTransform->SetInputArrayToProcess(
+    4, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "FlowDensity");
+  odeTransform->SetInputArrayToProcess(
+    5, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "FlowDynamicViscosity");
+  odeTransform->SetInputArrayToProcess(
+    6, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
+  odeTransform->SetInputArrayToProcess(
+    7, 1, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
   odeTransform->SetLocator(locator);
   odeTransform->AddDataSet(transform->GetOutput());
   odeTransform->AddDataSet(wavelet->GetOutput());
@@ -299,8 +299,8 @@ int TestLagrangianIntegrationModel(int, char*[])
 
   while (x0 <= 10 + tolerance)
   {
-    x[0]  = x0;
-    y[0]  = x0 + xTranslation;
+    x[0] = x0;
+    y[0] = x0 + xTranslation;
     bool imageTest = (odeWavelet->FunctionValues(x, f, &part) == 1);
     bool locatorsTest = odeWavelet->FindInLocators(x, &part);
     bool unstrucTest = (odeTriangle->FunctionValues(x, f, &part) == 1);
@@ -343,16 +343,12 @@ int TestLagrangianIntegrationModel(int, char*[])
   x[4] = 1.4;
   x[5] = 1.5;
   odeTransform->FunctionValues(x, f, &part);
-  if (f[0] != 1.3 ||
-      f[1] != 1.4 ||
-      f[2] != 1.5 ||
-      !doubleEquals(f[3], 26.2735) ||
-      !doubleEquals(f[4], 26.125) ||
-      !doubleEquals(f[5], 24.4689))
+  if (f[0] != 1.3 || f[1] != 1.4 || f[2] != 1.5 || !doubleEquals(f[3], 26.2735) ||
+    !doubleEquals(f[4], 26.125) || !doubleEquals(f[5], 24.4689))
   {
     std::cerr << "Unexpected value from Integration Model" << std::endl;
-    std::cerr << f[0] << " " << f[1] << " " << f[2] << " " << f[3] << " " << f[4]
-      << " " << f[5] << " " << std::endl;
+    std::cerr << f[0] << " " << f[1] << " " << f[2] << " " << f[3] << " " << f[4] << " " << f[5]
+              << " " << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -373,40 +369,35 @@ int TestLagrangianIntegrationModel(int, char*[])
   surfaceTypeModel->SetNumberOfComponents(1);
   surfaceTypeModel->SetName("SurfaceTypeModel");
   surfaceTypeModel->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypeModel->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_MODEL);
+  surfaceTypeModel->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_MODEL);
   surfacePd->GetCellData()->AddArray(surfaceTypeModel);
 
   vtkNew<vtkDoubleArray> surfaceTypeTerm;
   surfaceTypeTerm->SetNumberOfComponents(1);
   surfaceTypeTerm->SetName("SurfaceTypeTerm");
   surfaceTypeTerm->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypeTerm->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_TERM);
+  surfaceTypeTerm->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_TERM);
   surfacePd->GetCellData()->AddArray(surfaceTypeTerm);
 
   vtkNew<vtkDoubleArray> surfaceTypeBounce;
   surfaceTypeBounce->SetNumberOfComponents(1);
   surfaceTypeBounce->SetName("SurfaceTypeBounce");
   surfaceTypeBounce->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypeBounce->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BOUNCE);
+  surfaceTypeBounce->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BOUNCE);
   surfacePd->GetCellData()->AddArray(surfaceTypeBounce);
 
   vtkNew<vtkDoubleArray> surfaceTypeBreak;
   surfaceTypeBreak->SetNumberOfComponents(1);
   surfaceTypeBreak->SetName("SurfaceTypeBreak");
   surfaceTypeBreak->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypeBreak->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BREAK);
+  surfaceTypeBreak->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BREAK);
   surfacePd->GetCellData()->AddArray(surfaceTypeBreak);
 
   vtkNew<vtkDoubleArray> surfaceTypePass;
   surfaceTypePass->SetNumberOfComponents(1);
   surfaceTypePass->SetName("SurfaceTypePass");
   surfaceTypePass->SetNumberOfTuples(surfacePd->GetNumberOfCells());
-  surfaceTypePass->FillComponent(0,
-    vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS);
+  surfaceTypePass->FillComponent(0, vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS);
   surfacePd->GetCellData()->AddArray(surfaceTypePass);
 
   odeWavelet->AddDataSet(surfacePd, true);
@@ -432,8 +423,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeModel");
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeModel");
   vtkLagrangianParticle* interactionParticle = odeWavelet->ComputeSurfaceInteraction(
     &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (!interactionParticle)
@@ -443,23 +434,20 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
   delete interactionParticle;
 
-  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeModel"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeModel" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || !passThroughParticles.empty())
   {
-    std::cerr << "Unexpected new particles created with SurfaceTypeModel"
-      << std::endl;
+    std::cerr << "Unexpected new particles created with SurfaceTypeModel" << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
-    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeModel"
-      << std::endl;
+    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeModel" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -467,8 +455,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeTerm");
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeTerm");
   vtkLagrangianParticle* interactionParticle2 = odeWavelet->ComputeSurfaceInteraction(
     &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (!interactionParticle2)
@@ -477,23 +465,20 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
   delete interactionParticle2;
-  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeTerm"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeTerm" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || !passThroughParticles.empty())
   {
-    std::cerr << "Unexpected number particles created with SurfaceTypeTerm"
-      << std::endl;
+    std::cerr << "Unexpected number particles created with SurfaceTypeTerm" << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
-    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeTerm"
-      << std::endl;
+    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeTerm" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -501,8 +486,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeBounce");
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeBounce");
   vtkLagrangianParticle* interactionParticle3 = odeWavelet->ComputeSurfaceInteraction(
     &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (!interactionParticle3)
@@ -511,23 +496,21 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
   delete interactionParticle3;
-  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeBounce"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeBounce" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || !passThroughParticles.empty())
   {
-    std::cerr << "Unexpected number particles created with SurfaceTypeBounce:"
-      << particles.size() << " " << passThroughParticles.size() << std::endl;
+    std::cerr << "Unexpected number particles created with SurfaceTypeBounce:" << particles.size()
+              << " " << passThroughParticles.size() << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
-    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeBounce"
-      << std::endl;
+    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeBounce" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -542,27 +525,27 @@ int TestLagrangianIntegrationModel(int, char*[])
   if (interactionParticle4)
   {
     std::cerr << "Unexpected interaction with SurfaceTypeBounce perforation management"
-      << std::endl;
+              << std::endl;
     delete interactionParticle4;
     return EXIT_FAILURE;
   }
-  if (nextPos[0] > 6 + tolerance || nextPos[0] < 6 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 6 + tolerance || nextPos[0] < 6 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeBounce perforation"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeBounce perforation" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected number particles created with SurfaceTypeBounce perforation:"
-      << particles.size() << " " << passThroughParticles.size() << std::endl;
+              << particles.size() << " " << passThroughParticles.size() << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
     std::cerr << "Unexpected Interacted surface flat index "
-      "with SurfaceTypeBounce perforation" << std::endl;
+                 "with SurfaceTypeBounce perforation"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -573,33 +556,31 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeBreak");
-  vtkLagrangianParticle* interactionParticle5 = odeWavelet->ComputeSurfaceInteraction(&part, particles,
-    interactedSurfaceFlatIndex, passThroughParticles);
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeBreak");
+  vtkLagrangianParticle* interactionParticle5 = odeWavelet->ComputeSurfaceInteraction(
+    &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (!interactionParticle5)
   {
     std::cerr << "No interaction with SurfaceTypeBreak" << std::endl;
     return EXIT_FAILURE;
   }
   delete interactionParticle5;
-  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 10 + tolerance || nextPos[0] < 10 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeBreak"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeBreak" << std::endl;
     return EXIT_FAILURE;
   }
   if (particles.size() != 2 || !passThroughParticles.empty())
   {
-    std::cerr << "Unexpected number particles created with SurfaceTypeBreak:"
-      << particles.size() << " " << passThroughParticles.size() << std::endl;
+    std::cerr << "Unexpected number particles created with SurfaceTypeBreak:" << particles.size()
+              << " " << passThroughParticles.size() << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
-    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeBreak"
-      << std::endl;
+    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypeBreak" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -611,10 +592,10 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypePass");
-  vtkLagrangianParticle* interactionParticle6 = odeWavelet->ComputeSurfaceInteraction(&part, particles,
-    interactedSurfaceFlatIndex, passThroughParticles);
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypePass");
+  vtkLagrangianParticle* interactionParticle6 = odeWavelet->ComputeSurfaceInteraction(
+    &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (interactionParticle6)
   {
     std::cerr << "Unexpected interaction with SurfaceTypePass" << std::endl;
@@ -622,23 +603,21 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (nextPos[0] > 20 + tolerance || nextPos[0] < 20 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 20 + tolerance || nextPos[0] < 20 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypePass"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypePass" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || passThroughParticles.size() != 1)
   {
-    std::cerr << "Unexpected number particles created with SurfaceTypePass: "
-      << particles.size() << " " << passThroughParticles.size() << std::endl;
+    std::cerr << "Unexpected number particles created with SurfaceTypePass: " << particles.size()
+              << " " << passThroughParticles.size() << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
-    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypePass"
-      << std::endl;
+    std::cerr << "Unexpected Interacted surface flat index with SurfaceTypePass" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -649,34 +628,33 @@ int TestLagrangianIntegrationModel(int, char*[])
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
-  odeWavelet->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeModel");
+  odeWavelet->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "SurfaceTypeModel");
   vtkLagrangianParticle* interactionParticle7 = odeWavelet->ComputeSurfaceInteraction(
     &part, particles, interactedSurfaceFlatIndex, passThroughParticles);
   if (interactionParticle7)
   {
-    std::cerr << "Unexpected interaction with SurfaceTypeModel Cleared"
-      << std::endl;
+    std::cerr << "Unexpected interaction with SurfaceTypeModel Cleared" << std::endl;
     delete interactionParticle7;
     return EXIT_FAILURE;
   }
-  if (nextPos[0] > 20 + tolerance || nextPos[0] < 20 - tolerance
-    || nextPos[1] != 0 || nextPos[2] != 0)
+  if (nextPos[0] > 20 + tolerance || nextPos[0] < 20 - tolerance || nextPos[1] != 0 ||
+    nextPos[2] != 0)
   {
-    std::cerr << "Unexpected interaction position with SurfaceTypeModel Cleared"
-      << std::endl;
+    std::cerr << "Unexpected interaction position with SurfaceTypeModel Cleared" << std::endl;
     return EXIT_FAILURE;
   }
   if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected new particles created with SurfaceTypeModel Cleared"
-      << particles.size() << " " << passThroughParticles.size() << std::endl;
+              << particles.size() << " " << passThroughParticles.size() << std::endl;
     return EXIT_FAILURE;
   }
   if (interactedSurfaceFlatIndex != 0)
   {
     std::cerr << "Unexpected Interacted surface flat index "
-      "with SurfaceTypeModel Cleared" << std::endl;
+                 "with SurfaceTypeModel Cleared"
+              << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

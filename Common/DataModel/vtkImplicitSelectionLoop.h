@@ -43,7 +43,7 @@
  * @sa
  * vtkImplicitFunction vtkImplicitBoolean vtkExtractGeometry vtkClipPolyData
  * vtkConnectivityFilter vtkPolyDataConnectivityFilter
-*/
+ */
 
 #ifndef vtkImplicitSelectionLoop_h
 #define vtkImplicitSelectionLoop_h
@@ -61,14 +61,14 @@ public:
   /**
    * Standard VTK methods for printing and type information.
    */
-  vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitSelectionLoop, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Instantiate object with no initial loop.
    */
-  static vtkImplicitSelectionLoop *New();
+  static vtkImplicitSelectionLoop* New();
 
   //@{
   /**
@@ -89,7 +89,7 @@ public:
    * be at least three points used to define a loop.
    */
   virtual void SetLoop(vtkPoints*);
-  vtkGetObjectMacro(Loop,vtkPoints);
+  vtkGetObjectMacro(Loop, vtkPoints);
   //@}
 
   //@{
@@ -98,9 +98,9 @@ public:
    * computed from the accumulated cross product of the edges. You can also
    * specify the normal to use.
    */
-  vtkSetMacro(AutomaticNormalGeneration,vtkTypeBool);
-  vtkGetMacro(AutomaticNormalGeneration,vtkTypeBool);
-  vtkBooleanMacro(AutomaticNormalGeneration,vtkTypeBool);
+  vtkSetMacro(AutomaticNormalGeneration, vtkTypeBool);
+  vtkGetMacro(AutomaticNormalGeneration, vtkTypeBool);
+  vtkBooleanMacro(AutomaticNormalGeneration, vtkTypeBool);
   //@}
 
   //@{
@@ -108,8 +108,8 @@ public:
    * Set / get the normal used to determine whether a point is inside or outside
    * the selection loop.
    */
-  vtkSetVector3Macro(Normal,double);
-  vtkGetVectorMacro(Normal,double,3);
+  vtkSetVector3Macro(Normal, double);
+  vtkGetVectorMacro(Normal, double, 3);
   //@}
 
   /**
@@ -121,16 +121,16 @@ protected:
   vtkImplicitSelectionLoop();
   ~vtkImplicitSelectionLoop() override;
 
-  vtkPoints *Loop;
+  vtkPoints* Loop;
   double Normal[3];
   vtkTypeBool AutomaticNormalGeneration;
 
 private:
   void Initialize();
-  vtkPolygon *Polygon;
+  vtkPolygon* Polygon;
 
   double Origin[3];
-  double Bounds[6]; //bounds of the projected polyon
+  double Bounds[6]; // bounds of the projected polyon
   double DeltaX;
   double DeltaY;
   double DeltaZ;
@@ -143,5 +143,3 @@ private:
 };
 
 #endif
-
-

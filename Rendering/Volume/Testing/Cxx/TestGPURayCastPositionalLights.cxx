@@ -23,31 +23,30 @@
 #include <vtkNew.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtkLightActor.h>
-#include <vtkContourFilter.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkContourFilter.h>
+#include <vtkLightActor.h>
+#include <vtkPolyDataMapper.h>
 
-int TestGPURayCastPositionalLights(int argc, char *argv[])
+int TestGPURayCastPositionalLights(int argc, char* argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
-  delete [] volumeFile;
+  delete[] volumeFile;
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
@@ -63,15 +62,15 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   vtkNew<vtkLight> light1;
   light1->SetLightTypeToSceneLight();
   light1->SetPositional(true);
-  light1->SetDiffuseColor(1,0,0);
-  light1->SetAmbientColor(0,0,0);
-  light1->SetSpecularColor(1,1,1);
+  light1->SetDiffuseColor(1, 0, 0);
+  light1->SetAmbientColor(0, 0, 0);
+  light1->SetSpecularColor(1, 1, 1);
   light1->SetConeAngle(60);
   light1->SetPosition(0.0, 0.0, 100.0);
   light1->SetFocalPoint(0.0, 0.0, 0.0);
-//  light1->SetColor(1,0,0);
-//  light1->SetPosition(40,40,301);
-//  light1->SetPosition(-57, -50, -360);
+  //  light1->SetColor(1,0,0);
+  //  light1->SetPosition(40,40,301);
+  //  light1->SetPosition(-57, -50, -360);
 
   vtkNew<vtkLightActor> lightActor;
   lightActor->SetLight(light1);
@@ -120,7 +119,7 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   ren->AddActor(ac);
   vtkNew<vtkActor> ac1;
   ac1->SetMapper(pm);
-  ac1->SetPosition(0,0,0);
+  ac1->SetPosition(0, 0, 0);
   ren->SetTwoSidedLighting(0);
 
   ren->AddLight(light1);
@@ -129,8 +128,8 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   ren->ResetCamera();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

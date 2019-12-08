@@ -49,6 +49,17 @@ void vtkPBRPrefilterTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PrefilterSamples: " << this->PrefilterSamples << endl;
 }
 
+// ---------------------------------------------------------------------------
+// Release the graphics resources used by this texture.
+void vtkPBRPrefilterTexture::ReleaseGraphicsResources(vtkWindow* win)
+{
+  if (this->InputCubeMap)
+  {
+    this->InputCubeMap->ReleaseGraphicsResources(win);
+  }
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
 //------------------------------------------------------------------------------
 void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 {
@@ -136,7 +147,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
     if (this->ConvertToLinear)
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
     }
     else
     {
@@ -224,7 +236,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
       vtkNew<vtkOpenGLFramebufferObject> fbo;
       fbo->SetContext(renWin);
-      fbo->SaveCurrentBindingsAndBuffers();
+
+      renWin->GetState()->PushFramebufferBindings();
       fbo->Bind();
 
       for (unsigned int mip = 0; mip < this->PrefilterLevels; mip++)
@@ -245,7 +258,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         quadHelper.Render();
       }
 
-      fbo->RestorePreviousBindingsAndBuffers();
+      renWin->GetState()->PopFramebufferBindings();
 
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }

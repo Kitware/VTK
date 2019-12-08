@@ -20,13 +20,13 @@
  *
  * An 2D array where each element is the id of an entity drawn at the given
  * pixel.
-*/
+ */
 
 #ifndef vtkOpenGLContextBufferId_h
 #define vtkOpenGLContextBufferId_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkAbstractContextBufferId.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
@@ -35,12 +35,12 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextBufferId : public vtkAbs
 {
 public:
   vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
    */
-  static vtkOpenGLContextBufferId *New();
+  static vtkOpenGLContextBufferId* New();
 
   /**
    * Release any graphics resources that are being consumed by this object.
@@ -51,8 +51,8 @@ public:
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
-  void SetContext(vtkRenderWindow *context) override;
-  vtkRenderWindow *GetContext() override;
+  void SetContext(vtkRenderWindow* context) override;
+  vtkRenderWindow* GetContext() override;
   //@}
 
   /**
@@ -79,8 +79,7 @@ public:
    * starting at lower left corner of the framebuffer (srcXmin,srcYmin).
    * \pre is_allocated: this->IsAllocated()
    */
-  void SetValues(int srcXmin,
-                         int srcYmin) override;
+  void SetValues(int srcXmin, int srcYmin) override;
 
   /**
    * Return item under abscissa x and ordinate y.
@@ -96,12 +95,12 @@ protected:
   vtkOpenGLContextBufferId();
   ~vtkOpenGLContextBufferId() override;
 
-  vtkOpenGLRenderWindow *Context;
-  vtkTextureObject *Texture;
+  vtkOpenGLRenderWindow* Context;
+  vtkTextureObject* Texture;
 
 private:
-  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &) = delete;
-  void operator=(const vtkOpenGLContextBufferId &) = delete;
+  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId&) = delete;
+  void operator=(const vtkOpenGLContextBufferId&) = delete;
 };
 
 #endif // #ifndef vtkOpenGLContextBufferId_h

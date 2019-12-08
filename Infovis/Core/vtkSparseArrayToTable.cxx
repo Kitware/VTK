@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkSparseArrayToTable.h"
 #include "vtkArrayData.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -27,27 +28,26 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
-#include "vtkSparseArrayToTable.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
 #include <sstream>
 #include <stdexcept>
 
-template<typename ValueT, typename ValueColumnT>
+template <typename ValueT, typename ValueColumnT>
 static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
 {
   vtkSparseArray<ValueT>* const array = vtkSparseArray<ValueT>::SafeDownCast(Array);
-  if(!array)
+  if (!array)
     return false;
 
-  if(!ValueColumn)
+  if (!ValueColumn)
     throw std::runtime_error("ValueColumn not specified.");
 
   const vtkIdType dimensions = array->GetDimensions();
   const vtkIdType value_count = array->GetNonNullSize();
 
-  for(vtkIdType dimension = 0; dimension != dimensions; ++dimension)
+  for (vtkIdType dimension = 0; dimension != dimensions; ++dimension)
   {
     vtkIdType* const array_coordinates = array->GetCoordinateStorage(dimension);
 
@@ -77,8 +77,8 @@ vtkStandardNewMacro(vtkSparseArrayToTable);
 
 // ----------------------------------------------------------------------
 
-vtkSparseArrayToTable::vtkSparseArrayToTable() :
-  ValueColumn(nullptr)
+vtkSparseArrayToTable::vtkSparseArrayToTable()
+  : ValueColumn(nullptr)
 {
   this->SetValueColumn("value");
 
@@ -103,7 +103,7 @@ void vtkSparseArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkSparseArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
@@ -116,28 +116,28 @@ int vtkSparseArrayToTable::FillInputPortInformation(int port, vtkInformation* in
 // ----------------------------------------------------------------------
 
 int vtkSparseArrayToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   try
   {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
-    if(input_array_data->GetNumberOfArrays() != 1)
-      throw std::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
+    if (input_array_data->GetNumberOfArrays() != 1)
+      throw std::runtime_error(
+        "vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
 
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
 
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
-    if(Convert<double, vtkDoubleArray>(input_array, this->ValueColumn, output_table)) return 1;
-    if(Convert<vtkStdString, vtkStringArray>(input_array, this->ValueColumn, output_table)) return 1;
+    if (Convert<double, vtkDoubleArray>(input_array, this->ValueColumn, output_table))
+      return 1;
+    if (Convert<vtkStdString, vtkStringArray>(input_array, this->ValueColumn, output_table))
+      return 1;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro(<< e.what());
   }
 
   return 0;
 }
-

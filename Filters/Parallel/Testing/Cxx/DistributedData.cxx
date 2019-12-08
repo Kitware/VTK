@@ -55,57 +55,54 @@ namespace
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
   virtual void Execute();
 
-  void SetArgs(int anArgc,
-               char *anArgv[]);
+  void SetArgs(int anArgc, char* anArgv[]);
 
 protected:
   MyProcess();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
 {
-  this->Argc=0;
-  this->Argv=nullptr;
+  this->Argc = 0;
+  this->Argv = nullptr;
 }
 
-void MyProcess::SetArgs(int anArgc,
-                        char *anArgv[])
+void MyProcess::SetArgs(int anArgc, char* anArgv[])
 {
-  this->Argc=anArgc;
-  this->Argv=anArgv;
+  this->Argc = anArgc;
+  this->Argv = anArgv;
 }
 
 void MyProcess::Execute()
 {
-  this->ReturnValue=1;
-  int numProcs=this->Controller->GetNumberOfProcesses();
-  int me=this->Controller->GetLocalProcessId();
+  this->ReturnValue = 1;
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int me = this->Controller->GetLocalProcessId();
 
   int i, go;
 
-  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
+  vtkCompositeRenderManager* prm = vtkCompositeRenderManager::New();
 
   // READER
 
-  vtkDataSetReader *dsr = vtkDataSetReader::New();
-  vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
+  vtkDataSetReader* dsr = vtkDataSetReader::New();
+  vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = nullptr;
+  vtkDataSet* ds = nullptr;
 
   if (me == 0)
   {
     char* fname =
-      vtkTestUtilities::ExpandDataFileName(
-        this->Argc, this->Argv, "Data/tetraMesh.vtk");
+      vtkTestUtilities::ExpandDataFileName(this->Argc, this->Argv, "Data/tetraMesh.vtk");
 
     dsr->SetFileName(fname);
 
@@ -120,7 +117,7 @@ void MyProcess::Execute()
     ds->GetPointData()->AddArray(fa);
     fa->Delete();
 
-    delete [] fname;
+    delete[] fname;
 
     go = 1;
 
@@ -135,11 +132,10 @@ void MyProcess::Execute()
   }
   else
   {
-    ds = static_cast<vtkDataSet *>(ug);
+    ds = static_cast<vtkDataSet*>(ug);
   }
 
-  vtkMPICommunicator *comm =
-    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+  vtkMPICommunicator* comm = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
 
   comm->Broadcast(&go, 1, 0);
 
@@ -153,53 +149,53 @@ void MyProcess::Execute()
 
   // DATA DISTRIBUTION FILTER
 
-  vtkDistributedDataFilter *dd = vtkDistributedDataFilter::New();
+  vtkDistributedDataFilter* dd = vtkDistributedDataFilter::New();
 
   dd->SetInputData(ds);
   dd->SetController(this->Controller);
 
   dd->UseMinimalMemoryOff();
-  dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+  dd->SetBoundaryModeToSplitBoundaryCells(); // clipping
 
   // COLOR BY PROCESS NUMBER
 
-  vtkPieceScalars *ps = vtkPieceScalars::New();
+  vtkPieceScalars* ps = vtkPieceScalars::New();
   ps->SetInputConnection(dd->GetOutputPort());
   ps->SetScalarModeToCellData();
 
   // MORE FILTERING - this will request ghost cells
 
-  vtkDataSetSurfaceFilter *dss = vtkDataSetSurfaceFilter::New();
+  vtkDataSetSurfaceFilter* dss = vtkDataSetSurfaceFilter::New();
   dss->SetPieceInvariant(1);
   dss->SetInputConnection(ps->GetOutputPort());
 
   // COMPOSITE RENDER
 
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(dss->GetOutputPort());
 
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("Piece");
-  mapper->SetScalarRange(0, numProcs-1);
+  mapper->SetScalarRange(0, numProcs - 1);
 
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
 
-  vtkRenderer *renderer = prm->MakeRenderer();
+  vtkRenderer* renderer = prm->MakeRenderer();
   renderer->AddActor(actor);
 
-  vtkRenderWindow *renWin = prm->MakeRenderWindow();
+  vtkRenderWindow* renWin = prm->MakeRenderWindow();
   renWin->AddRenderer(renderer);
 
-  renderer->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
-  renWin->SetPosition(0, 360*me);
+  renderer->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
+  renWin->SetPosition(0, 360 * me);
 
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
 
-  prm->InitializeOffScreen();   // Mesa GL only
+  prm->InitializeOffScreen(); // Mesa GL only
 
   // Test the minimum ghost cell settings:
   bool ghostCellSuccess = true;
@@ -227,7 +223,7 @@ void MyProcess::Execute()
 
     dd->SetMinimumGhostLevel(0);
     dd->UseMinimalMemoryOff();
-    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+    dd->SetBoundaryModeToSplitBoundaryCells(); // clipping
   }
 
   // We must update the whole pipeline here, otherwise node 0
@@ -240,13 +236,13 @@ void MyProcess::Execute()
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  const int MY_RETURN_VALUE_MESSAGE=0x11;
+  const int MY_RETURN_VALUE_MESSAGE = 0x11;
 
   if (me == 0)
   {
     renderer->ResetCamera();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    //camera->UpdateViewport(renderer);
+    vtkCamera* camera = renderer->GetActiveCamera();
+    // camera->UpdateViewport(renderer);
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
@@ -261,10 +257,9 @@ void MyProcess::Execute()
     prm->StopServices();
 
     dd->UseMinimalMemoryOff();
-    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+    dd->SetBoundaryModeToSplitBoundaryCells(); // clipping
 
-    this->ReturnValue =
-      vtkRegressionTester::Test(this->Argc,this->Argv,renWin, 10);
+    this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
     if (this->ReturnValue == vtkTesting::PASSED && !ghostCellSuccess)
     {
@@ -275,9 +270,9 @@ void MyProcess::Execute()
     {
       this->ReturnValue = vtkTesting::FAILED;
     }
-    for (i=1; i < numProcs; i++)
+    for (i = 1; i < numProcs; i++)
     {
-      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+      this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
     }
 
     prm->StopServices();
@@ -290,10 +285,10 @@ void MyProcess::Execute()
     prm->StartServices();
 
     dd->UseMinimalMemoryOff();
-    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+    dd->SetBoundaryModeToSplitBoundaryCells(); // clipping
 
     prm->StartServices();
-    this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
+    this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
   }
 
   // CLEAN UP
@@ -316,16 +311,16 @@ void MyProcess::Execute()
 class MyProcess2 : public vtkProcess
 {
 public:
-  static MyProcess2 *New();
+  static MyProcess2* New();
 
   virtual void Execute();
-  void SetArgs(int anArgc, char *anArgv[]);
+  void SetArgs(int anArgc, char* anArgv[]);
 
 protected:
   MyProcess2();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess2);
@@ -336,7 +331,7 @@ MyProcess2::MyProcess2()
   this->Argv = nullptr;
 }
 
-void MyProcess2::SetArgs(int anArgc, char *anArgv[])
+void MyProcess2::SetArgs(int anArgc, char* anArgv[])
 {
   this->Argc = anArgc;
   this->Argv = anArgv;
@@ -347,7 +342,7 @@ void MyProcess2::Execute()
   int me = this->Controller->GetLocalProcessId();
 
   // generate 1 cell in proc 0 and no cells on other procs
-  vtkUnstructuredGrid *input = nullptr;
+  vtkUnstructuredGrid* input = nullptr;
   if (me == 0)
   {
     vtkNew<vtkCellTypeSource> source;
@@ -372,7 +367,7 @@ void MyProcess2::Execute()
 
   // compute total number of cells
   vtkIdType nbCellsTot = 0;
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(dd->GetOutput());
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(dd->GetOutput());
   vtkIdType nbCells = output->GetNumberOfCells();
   this->Controller->AllReduce(&nbCells, &nbCellsTot, 1, vtkCommunicator::SUM_OP);
 
@@ -382,11 +377,11 @@ void MyProcess2::Execute()
 
 }
 
-int DistributedData(int argc, char *argv[])
+int DistributedData(int argc, char* argv[])
 {
   int retVal = 1;
 
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);
 
   vtkMultiProcessController::SetGlobalController(contr);
@@ -411,20 +406,20 @@ int DistributedData(int argc, char *argv[])
       cout << "DistributedData test requires MPI" << endl;
     }
     contr->Delete();
-    return retVal;   // is this the right error val?   TODO
+    return retVal; // is this the right error val?   TODO
   }
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  retVal = p->GetReturnValue();
   p->Delete();
 
   // test special case 'numCells < numProcs'
   vtkNew<MyProcess2> p2;
-  p2->SetArgs(argc,argv);
+  p2->SetArgs(argc, argv);
   contr->SetSingleProcessObject(p2.Get());
   contr->SingleMethodExecute();
   if (retVal == vtkTesting::PASSED)
@@ -437,4 +432,3 @@ int DistributedData(int argc, char *argv[])
 
   return !retVal;
 }
-

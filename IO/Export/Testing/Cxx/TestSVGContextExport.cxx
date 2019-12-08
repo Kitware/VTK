@@ -15,7 +15,9 @@
 
 #include "vtkSVGExporter.h"
 
+#include "vtkAbstractMapper.h"
 #include "vtkBrush.h"
+#include "vtkCellArray.h"
 #include "vtkContext2D.h"
 #include "vtkContextItem.h"
 #include "vtkContextScene.h"
@@ -26,13 +28,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyLine.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangle.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
@@ -43,13 +49,60 @@
 //----------------------------------------------------------------------------
 class ContextSVGTest : public vtkContextItem
 {
-  void SetSpritePoint(int x, int y, vtkImageData *sprite);
+  void SetSpritePoint(int x, int y, vtkImageData* sprite);
+
 public:
-  static ContextSVGTest *New();
-  vtkTypeMacro(ContextSVGTest, vtkContextItem)
+  static ContextSVGTest* New();
+  vtkTypeMacro(ContextSVGTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 };
+
+void drawPolyLinePolyData(vtkContext2D *painter)
+{
+  // Setup points
+  vtkSmartPointer<vtkPoints> points =
+    vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(50.0, 0.0, 0.0);
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(0.0, 50.0, 0.0);
+  points->InsertNextPoint(50.0, 0.0, 0.0);
+
+
+  // Define some colors
+  unsigned char black[4] = {0, 0, 0, 255};
+
+
+  // Setup the colors array
+  vtkSmartPointer<vtkUnsignedCharArray> colors =
+    vtkSmartPointer<vtkUnsignedCharArray>::New();
+  colors->SetNumberOfComponents(4);
+  colors->SetName("Colors");
+
+  // Add the three colors we have created to the array
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+
+  vtkNew<vtkCellArray> polylines;
+  vtkNew<vtkPolyLine> polyline;
+  polyline->GetPointIds()->SetNumberOfIds(4);
+  polyline->GetPointIds()->SetId(0, 0);
+  polyline->GetPointIds()->SetId(1, 1);
+  polyline->GetPointIds()->SetId(2, 2);
+  polyline->GetPointIds()->SetId(3, 3);
+  polylines->InsertNextCell(polyline);
+
+  // Create a polydata object and add everything to it
+  vtkSmartPointer<vtkPolyData> polydata =
+    vtkSmartPointer<vtkPolyData>::New();
+  polydata->SetPoints(points);
+  polydata->SetLines(polylines);
+  painter->GetPen()->SetWidth(2.0);
+  painter->DrawPolyData(475,  200, polydata, colors, VTK_SCALAR_MODE_USE_POINT_DATA);
+}
+
 
 int TestSVGContextExport(int, char*[])
 {
@@ -65,14 +118,13 @@ int TestSVGContextExport(int, char*[])
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
+    ->SetStringRendererToFreeType();
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 
   std::string filename =
-      vtkTestingInteractor::TempDirectory +
-      std::string("/TestSVGContextExport.svg");
+    vtkTestingInteractor::TempDirectory + std::string("/TestSVGContextExport.svg");
 
   vtkNew<vtkSVGExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
@@ -90,10 +142,10 @@ int TestSVGContextExport(int, char*[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextSVGTest)
+vtkStandardNewMacro(ContextSVGTest);
 
 // This function aims to test the primitives provided by the 2D API.
-bool ContextSVGTest::Paint(vtkContext2D *painter)
+bool ContextSVGTest::Paint(vtkContext2D* painter)
 {
   // Reset painter state that we care about:
   painter->GetBrush()->SetTexture(nullptr);
@@ -127,26 +179,25 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->GetTextProp()->SetOrientation(-38.);
   painter->GetTextProp()->SetJustificationToRight();
   painter->GetTextProp()->SetVerticalJustificationToCentered();
-  painter->DrawString(475, 250,
-                      "Testing multi-\nline justified\nand rotated text.");
+  painter->DrawString(475, 250, "Testing multi-\nline justified\nand rotated text.");
+
+  drawPolyLinePolyData(painter);
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
   {
     painter->GetPen()->SetColor(255, i * 25, 0);
     painter->GetPen()->SetWidth(1.f + static_cast<float>(i));
-    painter->DrawLine(10, 50 + float(i)*10, 60, 50 + float(i)*10);
+    painter->DrawLine(10, 50 + float(i) * 10, 60, 50 + float(i) * 10);
   }
 
   // Draw some individual lines of different thicknesses.
   painter->GetPen()->SetWidth(10);
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetLineType(i % (vtkPen::DENSE_DOT_LINE+1));
-    painter->GetPen()->SetColor(static_cast<unsigned char>(float(i)*25.0),
-                                255,
-                                128);
-    painter->DrawLine(10, 250 + float(i)*10, 60, 250 + float(i)*10);
+    painter->GetPen()->SetLineType(i % (vtkPen::DENSE_DOT_LINE + 1));
+    painter->GetPen()->SetColor(static_cast<unsigned char>(float(i) * 25.0), 255, 128);
+    painter->DrawLine(10, 250 + float(i) * 10, 60, 250 + float(i) * 10);
   }
   painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
 
@@ -155,8 +206,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   points->SetNumberOfPoints(30);
   for (int i = 0; i < 30; ++i)
   {
-    double point[2] = { float(i) * 25.0 + 10.0,
-                        sin(float(i) / 5.0) * 100.0 + 200.0 };
+    double point[2] = { float(i) * 25.0 + 10.0, sin(float(i) / 5.0) * 100.0 + 200.0 };
     points->SetPoint(i, point);
   }
   painter->GetPen()->SetColor(0, 255, 0);
@@ -164,19 +214,17 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->DrawPoly(points);
 
   // Test the markers
-  float markerPoints[10*2];
-  unsigned char markerColors[10*4];
+  float markerPoints[10 * 2];
+  unsigned char markerColors[10 * 4];
   for (int i = 0; i < 10; ++i)
   {
-    markerPoints[2 * i]     = 500.0 + i * 30.0;
+    markerPoints[2 * i] = 500.0 + i * 30.0;
     markerPoints[2 * i + 1] = 20 * sin(markerPoints[2 * i]) + 375.0;
 
-    markerColors[4 * i]     = static_cast<unsigned char>(255 * i / 10.0);
-    markerColors[4 * i + 1] =
-        static_cast<unsigned char>(255 * (1.0 - i / 10.0));
+    markerColors[4 * i] = static_cast<unsigned char>(255 * i / 10.0);
+    markerColors[4 * i + 1] = static_cast<unsigned char>(255 * (1.0 - i / 10.0));
     markerColors[4 * i + 2] = static_cast<unsigned char>(255 * (0.3));
-    markerColors[4 * i + 3] =
-        static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
+    markerColors[4 * i + 3] = static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
   }
 
   for (int style = VTK_MARKER_NONE + 1; style < VTK_MARKER_UNKNOWN; ++style)
@@ -184,24 +232,22 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
     // Increment the y values:
     for (int i = 0; i < 10; ++i)
     {
-      markerPoints[2*i + 1] += 35.0;
+      markerPoints[2 * i + 1] += 35.0;
     }
     painter->GetPen()->SetWidth(style * 5 + 5);
     // Not highlighted:
     painter->DrawMarkers(style, false, markerPoints, 10, markerColors, 4);
     // Highlight the middle 4 points.
     painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
-    painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
+    painter->DrawMarkers(style, true, markerPoints + 3 * 2, 4);
   }
 
   // Draw some points of different widths.
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetColor(0,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                255, 255);
+    painter->GetPen()->SetColor(0, static_cast<unsigned char>(float(i) * 25.0), 255, 255);
     painter->GetPen()->SetWidth(1.0 + float(i));
-    painter->DrawPoint(75, 50 + float(i)*10);
+    painter->DrawPoint(75, 50 + float(i) * 10);
   }
 
   painter->GetPen()->SetColor(0, 0, 255);
@@ -217,8 +263,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(159, 0, 255);
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(100, 55, 0, 200);
-  painter->DrawQuad(350, 50, 375, 150,
-                    525, 199, 666, 45);
+  painter->DrawQuad(350, 50, 375, 150, 525, 199, 666, 45);
 
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;
@@ -272,15 +317,14 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   imageSrc->SetWholeExtent(0, 49, 0, 49, 0, 0);
   imageSrc->SetMaximum(1.0);
   imageSrc->Update();
-  vtkImageData *image = imageSrc->GetOutput();
+  vtkImageData* image = imageSrc->GetOutput();
 
   // convert to RGB bytes:
-  vtkFloatArray *vals = static_cast<vtkFloatArray*>(
-        image->GetPointData()->GetScalars());
+  vtkFloatArray* vals = static_cast<vtkFloatArray*>(image->GetPointData()->GetScalars());
   float imgRange[2];
   vals->GetValueRange(imgRange);
   float invRange = 1.f / (imgRange[1] - imgRange[0]);
-  vtkUnsignedCharArray *scalars = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
   scalars->SetNumberOfComponents(3);
   scalars->SetNumberOfTuples(vals->GetNumberOfTuples());
   for (vtkIdType i = 0; i < vals->GetNumberOfTuples(); ++i)
@@ -289,7 +333,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
     val = (val - imgRange[0]) * invRange; // normalize to (0, 1)
     scalars->SetComponent(i, 0, val * 255);
     scalars->SetComponent(i, 1, (1.f - val) * 255);
-    scalars->SetComponent(i, 2, (val*val) * 255);
+    scalars->SetComponent(i, 2, (val * val) * 255);
   }
   image->GetPointData()->SetScalars(scalars);
   scalars->Delete();
@@ -331,7 +375,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->DrawString(alignX, alignY, "dug");
   // Centering:
   float rect[4];
-  const char *centerString = "Center";
+  const char* centerString = "Center";
   painter->ComputeStringBounds(centerString, rect);
   rect[0] += 350.f;
   rect[1] += 550.f;
@@ -339,9 +383,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   painter->GetTextProp()->SetJustificationToCentered();
   painter->GetTextProp()->SetVerticalJustificationToCentered();
-  painter->DrawString(rect[0] + rect[2] * 0.5f,
-                      rect[1] + rect[3] * 0.5f,
-                      centerString);
+  painter->DrawString(rect[0] + rect[2] * 0.5f, rect[1] + rect[3] * 0.5f, centerString);
 
   // Texturing:
   vtkNew<vtkImageData> pattern;
@@ -365,20 +407,12 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->GetBrush()->SetOpacity(0);
 
   // Stretching:
-  painter->GetBrush()->SetTextureProperties(vtkBrush::Nearest |
-                                            vtkBrush::Stretch);
-  painter->DrawQuad(200, 485,
-                    300, 400,
-                    190, 420,
-                    125, 390);
+  painter->GetBrush()->SetTextureProperties(vtkBrush::Nearest | vtkBrush::Stretch);
+  painter->DrawQuad(200, 485, 300, 400, 190, 420, 125, 390);
 
   // Tiling:
-  painter->GetBrush()->SetTextureProperties(vtkBrush::Linear |
-                                            vtkBrush::Repeat);
-  painter->DrawQuad(300, 585,
-                    400, 500,
-                    290, 520,
-                    230, 560);
+  painter->GetBrush()->SetTextureProperties(vtkBrush::Linear | vtkBrush::Repeat);
+  painter->DrawQuad(300, 585, 400, 500, 290, 520, 230, 560);
 
   painter->GetBrush()->SetTexture(nullptr);
 
@@ -387,7 +421,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   sprite->SetDimensions(25, 25, 1);
   vtkNew<vtkUnsignedCharArray> spriteScalars;
   spriteScalars->SetNumberOfComponents(3);
-  spriteScalars->SetNumberOfTuples(25*25);
+  spriteScalars->SetNumberOfTuples(25 * 25);
   spriteScalars->FillValue(0);
   sprite->GetPointData()->SetScalars(spriteScalars);
   std::vector<float> spritePoints;
@@ -396,25 +430,24 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   spriteColors.reserve(100);
   for (int i = 0; i < 25; ++i)
   {
-    this->SetSpritePoint(i,  0,  sprite);
-    this->SetSpritePoint(0,  i,  sprite);
-    this->SetSpritePoint(i,  i,  sprite);
-    this->SetSpritePoint(10, i,  sprite);
-    this->SetSpritePoint(i,  10, sprite);
-    spritePoints.push_back(790.f); // x
-    spritePoints.push_back(50.f + i * 20); // y
-    spriteColors.push_back(static_cast<unsigned char>(127 + 128 / (i+1))); // r
-    spriteColors.push_back(static_cast<unsigned char>(255 - 128 / (i+1))); // g
-    spriteColors.push_back(static_cast<unsigned char>(64  + 128 / (i+1))); // b
-    spriteColors.push_back(static_cast<unsigned char>(64  + 191 / (i+1))); // a
+    this->SetSpritePoint(i, 0, sprite);
+    this->SetSpritePoint(0, i, sprite);
+    this->SetSpritePoint(i, i, sprite);
+    this->SetSpritePoint(10, i, sprite);
+    this->SetSpritePoint(i, 10, sprite);
+    spritePoints.push_back(790.f);                                           // x
+    spritePoints.push_back(50.f + i * 20);                                   // y
+    spriteColors.push_back(static_cast<unsigned char>(127 + 128 / (i + 1))); // r
+    spriteColors.push_back(static_cast<unsigned char>(255 - 128 / (i + 1))); // g
+    spriteColors.push_back(static_cast<unsigned char>(64 + 128 / (i + 1)));  // b
+    spriteColors.push_back(static_cast<unsigned char>(64 + 191 / (i + 1)));  // a
   }
   for (int i = 0; i < 10; ++i)
   {
     this->SetSpritePoint(24 - i, i, sprite);
   }
   painter->GetPen()->SetWidth(18);
-  painter->DrawPointSprites(sprite, spritePoints.data(), 25,
-                            spriteColors.data(), 4);
+  painter->DrawPointSprites(sprite, spritePoints.data(), 25, spriteColors.data(), 4);
 
   painter->GetPen()->SetColor(0, 255, 0, 64);
   painter->GetPen()->SetWidth(1);
@@ -448,9 +481,8 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
 }
 
 //------------------------------------------------------------------------------
-void ContextSVGTest::SetSpritePoint(int x, int y, vtkImageData *sprite)
+void ContextSVGTest::SetSpritePoint(int x, int y, vtkImageData* sprite)
 {
-  unsigned char *ptr =
-      static_cast<unsigned char*>(sprite->GetScalarPointer(x, y, 0));
+  unsigned char* ptr = static_cast<unsigned char*>(sprite->GetScalarPointer(x, y, 0));
   std::fill(ptr, ptr + 3, 255);
 }

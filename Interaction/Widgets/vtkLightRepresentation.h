@@ -155,7 +155,7 @@ protected:
   vtkNew<vtkBox> BoundingBox;
   vtkCellPicker* LastPicker;
   double LastScalingDistance2 = -1;
-  double LastEventPosition[3] = { 0, 0, 0};
+  double LastEventPosition[3] = { 0, 0, 0 };
 
   // the Sphere
   vtkNew<vtkSphereSource> Sphere;

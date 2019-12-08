@@ -55,16 +55,16 @@
  *
  * use VAO
  *
-*/
+ */
 
 #ifndef vtkOpenGLVertexBufferObjectGroup_h
 #define vtkOpenGLVertexBufferObjectGroup_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include <map> // for methods
-#include <vector> // for ivars
-#include <string> // for ivars
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <map>                         // for methods
+#include <string>                      // for ivars
+#include <vector>                      // for ivars
 
 class vtkDataArray;
 class vtkOpenGLVertexArrayObject;
@@ -77,7 +77,7 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObjectGroup : public vtkObject
 {
 public:
-  static vtkOpenGLVertexBufferObjectGroup *New();
+  static vtkOpenGLVertexBufferObjectGroup* New();
   vtkTypeMacro(vtkOpenGLVertexBufferObjectGroup, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -85,52 +85,47 @@ public:
    * Returns the number of components for this attribute
    * zero if the attribute does not exist
    */
-  int GetNumberOfComponents(const char *attribute);
+  int GetNumberOfComponents(const char* attribute);
 
   /**
    * Returns the number of tuples for this attribute
    * zero if the attribute does not exist
    */
-  int GetNumberOfTuples(const char *attribute);
+  int GetNumberOfTuples(const char* attribute);
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow*);
 
   /**
    * Returns the VBO for an attribute, NULL if
    * it is not present.
    */
-  vtkOpenGLVertexBufferObject *GetVBO(const char *attribute);
+  vtkOpenGLVertexBufferObject* GetVBO(const char* attribute);
 
   /**
    * Attach all VBOs to their attributes
    */
-  void AddAllAttributesToVAO(
-    vtkShaderProgram *program,
-    vtkOpenGLVertexArrayObject *vao);
+  void AddAllAttributesToVAO(vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao);
 
   /**
    * used to remove a no longer needed attribute
    * Calling CacheDataArray with a nullptr
    * attribute will also work.
    */
-  void RemoveAttribute(const char *attribute);
+  void RemoveAttribute(const char* attribute);
 
   /**
    * Set the data array for an attribute in the VBO Group
    * registers the data array until build is called
    * once this is called a valid VBO will exist
    */
-  void CacheDataArray(const char *attribute, vtkDataArray *da,
-    vtkOpenGLVertexBufferObjectCache *cache,
-    int destType);
-  void CacheDataArray(const char *attribute, vtkDataArray *da,
-    vtkViewport *vp,
-    int destType);
+  void CacheDataArray(
+    const char* attribute, vtkDataArray* da, vtkOpenGLVertexBufferObjectCache* cache, int destType);
+  void CacheDataArray(const char* attribute, vtkDataArray* da, vtkViewport* vp, int destType);
 
   /**
    * Check if the array already exists.
@@ -138,23 +133,22 @@ public:
    * totalOffset is the total number of vertices in the appended arrays.
    * Note that if the array does not exist, offset is equal to totalOffset.
    */
-  bool ArrayExists(const char *attribute, vtkDataArray *da,
-    vtkIdType& offset,
-    vtkIdType& totalOffset);
+  bool ArrayExists(
+    const char* attribute, vtkDataArray* da, vtkIdType& offset, vtkIdType& totalOffset);
 
   /**
    * Append a data array for an attribute in the VBO Group
    * registers the data array until build is called
    */
-  void AppendDataArray(const char *attribute, vtkDataArray *da, int destType);
+  void AppendDataArray(const char* attribute, vtkDataArray* da, int destType);
 
   /**
    * using the data arrays in this group
    * build all the VBOs, once this has been called the
    * reference to the data arrays will be freed.
    */
-  void BuildAllVBOs(vtkOpenGLVertexBufferObjectCache *);
-  void BuildAllVBOs(vtkViewport *);
+  void BuildAllVBOs(vtkOpenGLVertexBufferObjectCache*);
+  void BuildAllVBOs(vtkViewport*);
 
   /**
    * Force all the VBOs to be freed from this group.
@@ -187,7 +181,6 @@ protected:
 private:
   vtkOpenGLVertexBufferObjectGroup(const vtkOpenGLVertexBufferObjectGroup&) = delete;
   void operator=(const vtkOpenGLVertexBufferObjectGroup&) = delete;
-
 };
 
 #endif

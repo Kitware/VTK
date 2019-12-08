@@ -18,7 +18,7 @@
  *
  * vtkInformationObjectBaseKey is used to represent keys in
  * vtkInformation for values that are vtkObjectBase instances.
-*/
+ */
 
 #ifndef vtkInformationObjectBaseKey_h
 #define vtkInformationObjectBaseKey_h
@@ -33,11 +33,11 @@ class vtkObjectBase;
 class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationObjectBaseKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationObjectBaseKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkInformationObjectBaseKey(const char* name, const char* location,
-                              const char* requiredClass=nullptr);
+  vtkInformationObjectBaseKey(
+    const char* name, const char* location, const char* requiredClass = nullptr);
   ~vtkInformationObjectBaseKey() override;
 
   /**
@@ -46,8 +46,8 @@ public:
    * which class types can be set with this key). This method is provided
    * for wrappers. Use the constructor directly from C++ instead.
    */
-  static vtkInformationObjectBaseKey* MakeKey(const char* name, const char* location,
-                                             const char* requiredClass=nullptr)
+  static vtkInformationObjectBaseKey* MakeKey(
+    const char* name, const char* location, const char* requiredClass = nullptr)
   {
     return new vtkInformationObjectBaseKey(name, location, requiredClass);
   }

@@ -35,13 +35,13 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkArrayData_h
 #define vtkArrayData_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkArray.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkArray;
@@ -51,7 +51,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
 public:
   static vtkArrayData* New();
   vtkTypeMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkArrayData* GetData(vtkInformation* info);
   static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
@@ -79,12 +79,12 @@ public:
   /**
    * Returns the array having called name from the collection
    */
-  vtkArray* GetArrayByName(const char *name);
+  vtkArray* GetArrayByName(const char* name);
 
   /**
    * Return class name of data type (VTK_ARRAY_DATA).
    */
-  int GetDataObjectType() override {return VTK_ARRAY_DATA;}
+  int GetDataObjectType() override { return VTK_ARRAY_DATA; }
 
   void ShallowCopy(vtkDataObject* other) override;
   void DeepCopy(vtkDataObject* other) override;
@@ -99,7 +99,6 @@ private:
 
   class implementation;
   implementation* const Implementation;
-
 };
 
 #endif

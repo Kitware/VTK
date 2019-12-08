@@ -30,10 +30,10 @@
 #include <sstream>
 #include <string>
 
-vtkStandardNewMacro(vtkOpenGLGL2PSExporter)
+vtkStandardNewMacro(vtkOpenGLGL2PSExporter);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLGL2PSExporter::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLGL2PSExporter::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -60,7 +60,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   {
     fname << ".gz";
   }
-  FILE *file = fopen(fname.str().c_str(), "wb");
+  FILE* file = fopen(fname.str().c_str(), "wb");
   if (!file)
   {
     vtkErrorMacro("Unable to open file: " << fname.str());
@@ -68,14 +68,12 @@ void vtkOpenGLGL2PSExporter::WriteData()
   }
 
   // Setup information that GL2PS will need to export the scene:
-  std::string title = (this->Title && this->Title[0]) ? this->Title
-                                                      : "VTK GL2PS Export";
+  std::string title = (this->Title && this->Title[0]) ? this->Title : "VTK GL2PS Export";
   GLint options = static_cast<GLint>(this->GetGL2PSOptions());
   GLint sort = static_cast<GLint>(this->GetGL2PSSort());
   GLint format = static_cast<GLint>(this->GetGL2PSFormat());
-  int *winsize = this->RenderWindow->GetSize();
-  GLint viewport[4] = {0, 0, static_cast<GLint>(winsize[0]),
-                       static_cast<GLint>(winsize[1])};
+  int* winsize = this->RenderWindow->GetSize();
+  GLint viewport[4] = { 0, 0, static_cast<GLint>(winsize[0]), static_cast<GLint>(winsize[1]) };
 
   // Setup helper class:
   vtkNew<vtkOpenGLGL2PSHelper> gl2ps;
@@ -108,9 +106,8 @@ void vtkOpenGLGL2PSExporter::WriteData()
 
   // Export file. No worries about buffersize, since we're manually adding
   // geometry through vtkOpenGLGL2PSHelper::ProcessTransformFeedback.
-  GLint err = gl2psBeginPage(title.c_str(), "VTK", viewport, format, sort,
-                             options, GL_RGBA, 0, nullptr, 0, 0, 0, 0, file,
-                             fname.str().c_str());
+  GLint err = gl2psBeginPage(title.c_str(), "VTK", viewport, format, sort, options, GL_RGBA, 0,
+    nullptr, 0, 0, 0, 0, file, fname.str().c_str());
   if (err != GL2PS_SUCCESS)
   {
     vtkErrorMacro("Error calling gl2psBeginPage. Error code: " << err);
@@ -130,8 +127,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
     std::fill(rasterPos.rgba, rasterPos.rgba + 4, 0.f);
 
     gl2psForceRasterPos(&rasterPos);
-    gl2psDrawPixels(dims[0], dims[1], 0, 0, GL_RGB, GL_FLOAT,
-                    background->GetScalarPointer());
+    gl2psDrawPixels(dims[0], dims[1], 0, 0, GL_RGB, GL_FLOAT, background->GetScalarPointer());
     background->ReleaseData();
   }
 
@@ -163,7 +159,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   this->RenderWindow->Render();
 }
 
-bool vtkOpenGLGL2PSExporter::RasterizeBackground(vtkImageData *image)
+bool vtkOpenGLGL2PSExporter::RasterizeBackground(vtkImageData* image)
 {
   vtkNew<vtkWindowToImageFilter> windowToImage;
   windowToImage->SetInput(this->RenderWindow);
@@ -175,7 +171,7 @@ bool vtkOpenGLGL2PSExporter::RasterizeBackground(vtkImageData *image)
   byteToFloat->SetScale(1.0 / 255.0);
   byteToFloat->SetInputConnection(windowToImage->GetOutputPort());
 
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Background);
   // Render twice to set the backbuffer:
   this->RenderWindow->Render();
@@ -190,7 +186,7 @@ bool vtkOpenGLGL2PSExporter::RasterizeBackground(vtkImageData *image)
 
 bool vtkOpenGLGL2PSExporter::CaptureVectorProps()
 {
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Capture);
   this->RenderWindow->Render();
   gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Inactive);

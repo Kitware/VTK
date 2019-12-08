@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricMobius.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricMobius);
 
@@ -40,18 +40,17 @@ vtkParametricMobius::vtkParametricMobius()
 vtkParametricMobius::~vtkParametricMobius() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3],
-                                   double Duvw[9])
+void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double cu2 = cos(u / 2);
   double su = sin(u);
-  double su2 = sin(u  / 2);
+  double su2 = sin(u / 2);
   double t = this->Radius - v * su2;
 
   // The point
@@ -59,7 +58,7 @@ void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = t * cu;
   Pt[2] = v * cu2;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -v * cu2 * su / 2 + Pt[1];
   Du[1] = -v * cu2 * cu / 2 - Pt[0];
   Du[2] = -v * su2 / 2;
@@ -69,7 +68,7 @@ void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricMobius::EvaluateScalar(double *, double*, double *)
+double vtkParametricMobius::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }

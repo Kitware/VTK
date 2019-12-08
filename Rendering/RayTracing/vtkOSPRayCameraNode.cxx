@@ -15,15 +15,15 @@
 #include "vtkOSPRayCameraNode.h"
 
 #include "vtkCamera.h"
-#include "vtkWindow.h"
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkViewNodeCollection.h"
+#include "vtkWindow.h"
 
 #include "RTWrapper/RTWrapper.h"
 
@@ -31,14 +31,10 @@
 vtkStandardNewMacro(vtkOSPRayCameraNode);
 
 //----------------------------------------------------------------------------
-vtkOSPRayCameraNode::vtkOSPRayCameraNode()
-{
-}
+vtkOSPRayCameraNode::vtkOSPRayCameraNode() {}
 
 //----------------------------------------------------------------------------
-vtkOSPRayCameraNode::~vtkOSPRayCameraNode()
-{
-}
+vtkOSPRayCameraNode::~vtkOSPRayCameraNode() {}
 
 //----------------------------------------------------------------------------
 void vtkOSPRayCameraNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -51,15 +47,14 @@ void vtkOSPRayCameraNode::Render(bool prepass)
 {
   if (prepass)
   {
-    vtkOSPRayRendererNode *orn =
-      static_cast<vtkOSPRayRendererNode *>(
-        this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
-    RTW::Backend *backend = orn->GetBackend();
+    vtkOSPRayRendererNode* orn =
+      static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer* ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    RTW::Backend* backend = orn->GetBackend();
     if (backend == nullptr)
-        return;
+      return;
 
-    vtkRenderWindow *rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
+    vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     bool stereo = false;
     bool right = false;
     if (rwin)
@@ -69,21 +64,17 @@ void vtkOSPRayCameraNode::Render(bool prepass)
         stereo = true;
       }
     }
-    int tiledSize[2];
-    int tiledOrigin[2];
-    ren->GetTiledSizeAndOrigin(
-      &tiledSize[0], &tiledSize[1], &tiledOrigin[0], &tiledOrigin[1]);
 
-    vtkWindow *win = ren->GetVTKWindow();
-    double *vp = win->GetTileViewport();
-    int *ts = win->GetTileScale();
+    vtkWindow* win = ren->GetVTKWindow();
+    double* vp = win->GetTileViewport();
+    int* ts = win->GetTileScale();
 
-    vtkCamera *cam = static_cast<vtkCamera *>(this->Renderable);
+    vtkCamera* cam = static_cast<vtkCamera*>(this->Renderable);
     double myDistance = cam->GetDistance();
     double myEyeSeparation = cam->GetEyeSeparation();
     double myScaledEyeSeparation = myEyeSeparation * myDistance;
     double shiftDistance = (myScaledEyeSeparation / 2);
-    double * myFocalPoint = cam->GetFocalPoint();
+    double* myFocalPoint = cam->GetFocalPoint();
     double myFocalDisk = cam->GetFocalDisk();
     double myFocalDistance = cam->GetFocalDistance();
     if (!cam->GetLeftEye())
@@ -119,14 +110,16 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     }
 
     ospSetObject(orn->GetORenderer(), "camera", ospCamera);
+    int tiledSize[2];
+    orn->GetSize(tiledSize);
     ospSetf(ospCamera, "aspect", float(tiledSize[0]) / float(tiledSize[1]));
-    double *pos = cam->GetPosition();
+    double* pos = cam->GetPosition();
 
     double shiftedCamPos[3];
     if (stereo)
     {
-      //todo this is good for starters, but we should reuse the code
-      //or results from vtk proper to ensure 1:1 match with GL
+      // todo this is good for starters, but we should reuse the code
+      // or results from vtk proper to ensure 1:1 match with GL
       if (!right)
       {
         shiftedCamPos[0] = pos[0] - shiftDistance;
@@ -143,18 +136,17 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     shiftedCamPos[1] = pos[1];
     shiftedCamPos[2] = pos[2];
 
-    ospSet3f(ospCamera, "pos",
-             shiftedCamPos[0], shiftedCamPos[1], shiftedCamPos[2]);
+    ospSet3f(ospCamera, "pos", shiftedCamPos[0], shiftedCamPos[1], shiftedCamPos[2]);
 
-    double *up = cam->GetViewUp();
+    double* up = cam->GetViewUp();
     ospSet3f(ospCamera, "up", up[0], up[1], up[2]);
 
-    //double *dop = cam->GetDirectionOfProjection();
+    // double *dop = cam->GetDirectionOfProjection();
     double shiftedDOP[3];
     shiftedDOP[0] = myFocalPoint[0] - shiftedCamPos[0];
     shiftedDOP[1] = myFocalPoint[1] - shiftedCamPos[1];
     shiftedDOP[2] = myFocalPoint[2] - shiftedCamPos[2];
-    //ospSet3f(ospCamera, "dir", dop[0], dop[1], dop[2]);
+    // ospSet3f(ospCamera, "dir", dop[0], dop[1], dop[2]);
     ospSet3f(ospCamera, "dir", shiftedDOP[0], shiftedDOP[1], shiftedDOP[2]);
     ospSet2f(ospCamera, "imageStart", (float)vp[0], (float)vp[1]);
     ospSet2f(ospCamera, "imageEnd", (float)vp[2], (float)vp[3]);

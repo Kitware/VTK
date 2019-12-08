@@ -19,23 +19,23 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkGlyph3D.h"
-#include "vtkSphereSource.h"
-#include "vtkImageGridSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkPlaneSource.h"
-#include "vtkLookupTable.h"
-#include "vtkProperty.h"
 #include "vtkCubeSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkImageData.h"
+#include "vtkImageGridSource.h"
+#include "vtkLookupTable.h"
+#include "vtkPlaneSource.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 // if not defined, we use spherical glyphs (slower) instead of cubic
 // glyphs (faster)
@@ -44,13 +44,13 @@
 int TestOpacity(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* renderer = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
   renderer->Delete();
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
@@ -59,36 +59,35 @@ int TestOpacity(int argc, char* argv[])
   // we create a uniform grid and glyph it with a spherical shape.
 
   // Create the glyph source
-  vtkSphereSource *sphere=vtkSphereSource::New();
+  vtkSphereSource* sphere = vtkSphereSource::New();
   sphere->SetRadius(1);
-  sphere->SetCenter(0.0,0.0,0.0);
+  sphere->SetCenter(0.0, 0.0, 0.0);
   sphere->SetThetaResolution(10);
   sphere->SetPhiResolution(10);
   sphere->SetLatLongTessellation(0);
 
-  vtkCubeSource *cube=vtkCubeSource::New();
+  vtkCubeSource* cube = vtkCubeSource::New();
   cube->SetXLength(1.0);
   cube->SetYLength(1.0);
   cube->SetZLength(1.0);
-  cube->SetCenter(0.0,0.0,0.0);
+  cube->SetCenter(0.0, 0.0, 0.0);
 
-
-  vtkImageGridSource *grid=vtkImageGridSource::New();
-  grid->SetGridSpacing(1,1,1);
-  grid->SetGridOrigin(0,0,0);
+  vtkImageGridSource* grid = vtkImageGridSource::New();
+  grid->SetGridSpacing(1, 1, 1);
+  grid->SetGridOrigin(0, 0, 0);
   grid->SetLineValue(1.0); // white
   grid->SetFillValue(0.5); // gray
   grid->SetDataScalarTypeToUnsignedChar();
-  grid->SetDataExtent(0,10,0,10,0,10);
-  grid->SetDataSpacing(0.1,0.1,0.1);
-  grid->SetDataOrigin(0.0,0.0,0.0);
+  grid->SetDataExtent(0, 10, 0, 10, 0, 10);
+  grid->SetDataSpacing(0.1, 0.1, 0.1);
+  grid->SetDataOrigin(0.0, 0.0, 0.0);
   grid->Update(); // to get the range
 
   double range[2];
   grid->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
 
-  vtkGlyph3D *glyph=vtkGlyph3D::New();
-  glyph->SetInputConnection(0,grid->GetOutputPort(0));
+  vtkGlyph3D* glyph = vtkGlyph3D::New();
+  glyph->SetInputConnection(0, grid->GetOutputPort(0));
   grid->Delete();
 #ifdef VTK_TEST_OPACITY_CUBE
   glyph->SetSourceConnection(cube->GetOutputPort(0));
@@ -108,44 +107,44 @@ int TestOpacity(int argc, char* argv[])
   glyph->SetIndexModeToOff();
   glyph->SetGeneratePointIds(0);
 
-  vtkPolyDataMapper *mapper=vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(glyph->GetOutputPort(0));
   glyph->Delete();
 
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New();
-  lut->SetHueRange (0.667, 0.0);
+  vtkLookupTable* lut = vtkLookupTable::New();
+  lut->SetHueRange(0.667, 0.0);
   mapper->SetLookupTable(lut);
   lut->Delete();
   mapper->SetScalarRange(range);
 
-  vtkActor *actor=vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
   mapper->Delete();
   renderer->AddActor(actor);
   actor->Delete();
 
-  vtkProperty *property=vtkProperty::New();
+  vtkProperty* property = vtkProperty::New();
   property->SetOpacity(0.2);
-  property->SetColor(0.0,1.0,0.0);
+  property->SetColor(0.0, 1.0, 0.0);
   actor->SetProperty(property);
   property->Delete();
 
-  vtkPlaneSource *plane=vtkPlaneSource::New();
-  plane->SetCenter(0.5,0.5,0.5);
+  vtkPlaneSource* plane = vtkPlaneSource::New();
+  plane->SetCenter(0.5, 0.5, 0.5);
 
-  vtkPolyDataMapper *planeMapper=vtkPolyDataMapper::New();
-  planeMapper->SetInputConnection(0,plane->GetOutputPort(0));
+  vtkPolyDataMapper* planeMapper = vtkPolyDataMapper::New();
+  planeMapper->SetInputConnection(0, plane->GetOutputPort(0));
   plane->Delete();
 
-  vtkActor *planeActor=vtkActor::New();
+  vtkActor* planeActor = vtkActor::New();
   planeActor->SetMapper(planeMapper);
   planeMapper->Delete();
   renderer->AddActor(planeActor);
 
-  vtkProperty *planeProperty=vtkProperty::New();
+  vtkProperty* planeProperty = vtkProperty::New();
   planeProperty->SetOpacity(1.0);
-  planeProperty->SetColor(1.0,0.0,0.0);
+  planeProperty->SetColor(1.0, 0.0, 0.0);
   planeActor->SetProperty(planeProperty);
   planeProperty->Delete();
   planeProperty->SetBackfaceCulling(0);
@@ -163,20 +162,20 @@ int TestOpacity(int argc, char* argv[])
   property->SetFrontfaceCulling(0);
 
   // Standard testing code.
-  renderer->SetBackground(0.0,0.5,0.0);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.0, 0.5, 0.0);
+  renWin->SetSize(300, 300);
   renWin->Render();
 
-  if(renderer->GetLastRenderingUsedDepthPeeling())
+  if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout<<"depth peeling was used"<<endl;
+    cout << "depth peeling was used" << endl;
   }
   else
   {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+    cout << "depth peeling was not used (alpha blending instead)" << endl;
   }
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

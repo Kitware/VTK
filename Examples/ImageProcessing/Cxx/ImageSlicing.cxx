@@ -22,51 +22,47 @@
 // Thanks to David Gobbi of Atamai Inc. for contributing this example.
 //
 
-#include "vtkSmartPointer.h"
-#include "vtkImageReader2.h"
-#include "vtkMatrix4x4.h"
-#include "vtkImageReslice.h"
-#include "vtkLookupTable.h"
-#include "vtkImageMapToColors.h"
+#include "vtkCommand.h"
 #include "vtkImageActor.h"
-#include "vtkRenderer.h"
+#include "vtkImageData.h"
+#include "vtkImageMapToColors.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageReader2.h"
+#include "vtkImageReslice.h"
+#include "vtkInformation.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLookupTable.h"
+#include "vtkMatrix4x4.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkCommand.h"
-#include "vtkImageData.h"
-#include "vtkImageMapper3D.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
 
 // The mouse motion callback, to turn "Slicing" on and off
 class vtkImageInteractionCallback : public vtkCommand
 {
 public:
+  static vtkImageInteractionCallback* New() { return new vtkImageInteractionCallback; }
 
-  static vtkImageInteractionCallback *New() {
-    return new vtkImageInteractionCallback; };
-
-  vtkImageInteractionCallback() {
+  vtkImageInteractionCallback()
+  {
     this->Slicing = 0;
     this->ImageReslice = nullptr;
-    this->Interactor = nullptr; };
+    this->Interactor = nullptr;
+  }
 
-  void SetImageReslice(vtkImageReslice *reslice) {
-    this->ImageReslice = reslice; };
+  void SetImageReslice(vtkImageReslice* reslice) { this->ImageReslice = reslice; }
 
-  vtkImageReslice *GetImageReslice() {
-    return this->ImageReslice; };
+  vtkImageReslice* GetImageReslice() { return this->ImageReslice; }
 
-  void SetInteractor(vtkRenderWindowInteractor *interactor) {
-    this->Interactor = interactor; };
+  void SetInteractor(vtkRenderWindowInteractor* interactor) { this->Interactor = interactor; }
 
-  vtkRenderWindowInteractor *GetInteractor() {
-    return this->Interactor; };
+  vtkRenderWindowInteractor* GetInteractor() { return this->Interactor; }
 
-  void Execute(vtkObject *, unsigned long event, void *) override
+  void Execute(vtkObject*, unsigned long event, void*) override
   {
-    vtkRenderWindowInteractor *interactor = this->GetInteractor();
+    vtkRenderWindowInteractor* interactor = this->GetInteractor();
 
     int lastPos[2];
     interactor->GetLastEventPosition(lastPos);
@@ -85,14 +81,14 @@ public:
     {
       if (this->Slicing)
       {
-        vtkImageReslice *reslice = this->ImageReslice;
+        vtkImageReslice* reslice = this->ImageReslice;
 
         // Increment slice position by deltaY of mouse
         int deltaY = lastPos[1] - currPos[1];
 
         reslice->Update();
         double sliceSpacing = reslice->GetOutput()->GetSpacing()[2];
-        vtkMatrix4x4 *matrix = reslice->GetResliceAxes();
+        vtkMatrix4x4* matrix = reslice->GetResliceAxes();
         // move the center point that we are slicing through
         double point[4];
         double center[4];
@@ -108,30 +104,29 @@ public:
       }
       else
       {
-        vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(
-          interactor->GetInteractorStyle());
+        vtkInteractorStyle* style =
+          vtkInteractorStyle::SafeDownCast(interactor->GetInteractorStyle());
         if (style)
         {
           style->OnMouseMove();
         }
       }
     }
-  };
+  }
 
 private:
-
   // Actions (slicing only, for now)
   int Slicing;
 
   // Pointer to vtkImageReslice
-  vtkImageReslice *ImageReslice;
+  vtkImageReslice* ImageReslice;
 
   // Pointer to the interactor
-  vtkRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor* Interactor;
 };
 
 // The program entry point
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -140,8 +135,7 @@ int main (int argc, char *argv[])
   }
 
   // Start by loading some data.
-  vtkSmartPointer<vtkImageReader2> reader =
-    vtkSmartPointer<vtkImageReader2>::New();
+  vtkSmartPointer<vtkImageReader2> reader = vtkSmartPointer<vtkImageReader2>::New();
   reader->SetFilePrefix(argv[1]);
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
@@ -156,7 +150,6 @@ int main (int argc, char *argv[])
   double spacing[3];
   double origin[3];
 
-
   reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   reader->GetOutput()->GetSpacing(spacing);
   reader->GetOutput()->GetOrigin(origin);
@@ -167,33 +160,33 @@ int main (int argc, char *argv[])
   center[2] = origin[2] + spacing[2] * 0.5 * (extent[4] + extent[5]);
 
   // Matrices for axial, coronal, sagittal, oblique view orientations
-  //static double axialElements[16] = {
+  // static double axialElements[16] = {
   //         1, 0, 0, 0,
   //         0, 1, 0, 0,
   //         0, 0, 1, 0,
   //         0, 0, 0, 1 };
 
-  //static double coronalElements[16] = {
+  // static double coronalElements[16] = {
   //         1, 0, 0, 0,
   //         0, 0, 1, 0,
   //         0,-1, 0, 0,
   //         0, 0, 0, 1 };
 
   static double sagittalElements[16] = {
-           0, 0,-1, 0,
-           1, 0, 0, 0,
-           0,-1, 0, 0,
-           0, 0, 0, 1 };
+    0, 0, -1, 0, //
+    1, 0, 0, 0,  //
+    0, -1, 0, 0, //
+    0, 0, 0, 1   //
+  };
 
-  //static double obliqueElements[16] = {
+  // static double obliqueElements[16] = {
   //         1, 0, 0, 0,
   //         0, 0.866025, -0.5, 0,
   //         0, 0.5, 0.866025, 0,
   //         0, 0, 0, 1 };
 
   // Set the slice orientation
-  vtkSmartPointer<vtkMatrix4x4> resliceAxes =
-    vtkSmartPointer<vtkMatrix4x4>::New();
+  vtkSmartPointer<vtkMatrix4x4> resliceAxes = vtkSmartPointer<vtkMatrix4x4>::New();
   resliceAxes->DeepCopy(sagittalElements);
   // Set the point through which to slice
   resliceAxes->SetElement(0, 3, center[0]);
@@ -201,39 +194,33 @@ int main (int argc, char *argv[])
   resliceAxes->SetElement(2, 3, center[2]);
 
   // Extract a slice in the desired orientation
-  vtkSmartPointer<vtkImageReslice> reslice =
-    vtkSmartPointer<vtkImageReslice>::New();
+  vtkSmartPointer<vtkImageReslice> reslice = vtkSmartPointer<vtkImageReslice>::New();
   reslice->SetInputConnection(reader->GetOutputPort());
   reslice->SetOutputDimensionality(2);
   reslice->SetResliceAxes(resliceAxes);
   reslice->SetInterpolationModeToLinear();
 
   // Create a greyscale lookup table
-  vtkSmartPointer<vtkLookupTable> table =
-    vtkSmartPointer<vtkLookupTable>::New();
-  table->SetRange(0, 2000); // image intensity range
-  table->SetValueRange(0.0, 1.0); // from black to white
+  vtkSmartPointer<vtkLookupTable> table = vtkSmartPointer<vtkLookupTable>::New();
+  table->SetRange(0, 2000);            // image intensity range
+  table->SetValueRange(0.0, 1.0);      // from black to white
   table->SetSaturationRange(0.0, 0.0); // no color saturation
   table->SetRampToLinear();
   table->Build();
 
   // Map the image through the lookup table
-  vtkSmartPointer<vtkImageMapToColors> color =
-    vtkSmartPointer<vtkImageMapToColors>::New();
+  vtkSmartPointer<vtkImageMapToColors> color = vtkSmartPointer<vtkImageMapToColors>::New();
   color->SetLookupTable(table);
   color->SetInputConnection(reslice->GetOutputPort());
 
   // Display the image
-  vtkSmartPointer<vtkImageActor> actor =
-    vtkSmartPointer<vtkImageActor>::New();
+  vtkSmartPointer<vtkImageActor> actor = vtkSmartPointer<vtkImageActor>::New();
   actor->GetMapper()->SetInputConnection(color->GetOutputPort());
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->AddActor(actor);
 
-  vtkSmartPointer<vtkRenderWindow> window =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> window = vtkSmartPointer<vtkRenderWindow>::New();
   window->AddRenderer(renderer);
 
   // Set up the interaction
@@ -260,4 +247,3 @@ int main (int argc, char *argv[])
 
   return EXIT_SUCCESS;
 }
-

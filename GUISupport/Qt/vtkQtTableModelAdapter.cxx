@@ -22,7 +22,6 @@
 #include "vtkConvertSelection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -30,40 +29,34 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
-#include "vtkVariant.h"
-#include "vtkDoubleArray.h"
+#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVariant.h"
 
 #include <QColor>
-#include <QIcon>
-#include <QPainter>
-#include <QPixmap>
 #include <QHash>
+#include <QIcon>
+#include <QImage>
 #include <QMap>
 #include <QMimeData>
+#include <QPainter>
 #include <QPair>
 #include <QPixmap>
-#include <QImage>
 
 #include <set>
 #include <sstream>
 
 //----------------------------------------------------------------------------
-class vtkQtTableModelAdapter::vtkInternal {
+class vtkQtTableModelAdapter::vtkInternal
+{
 public:
+  vtkInternal() {}
+  ~vtkInternal() {}
 
-  vtkInternal()
-  {
-  }
-  ~vtkInternal()
-  {
-  }
-
-  QHash<QModelIndex, QVariant>                       IndexToDecoration;
-  QHash<int, QPair<vtkIdType, int> >                 ModelColumnToTableColumn;
-  QHash<int, QString>                                 ModelColumnNames;
+  QHash<QModelIndex, QVariant> IndexToDecoration;
+  QHash<int, QPair<vtkIdType, int> > ModelColumnToTableColumn;
+  QHash<int, QString> ModelColumnNames;
   QHash<vtkIdType, vtkSmartPointer<vtkDoubleArray> > MagnitudeColumns;
-
 };
 
 //----------------------------------------------------------------------------
@@ -83,7 +76,8 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
 
 //----------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
-  : vtkQtAbstractModelAdapter(p), Table(t)
+  : vtkQtAbstractModelAdapter(p)
+  , Table(t)
 {
   this->Internal = new vtkInternal;
   this->SplitMultiComponentColumns = false;
@@ -120,8 +114,8 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
   else if (this->SplitMultiComponentColumns)
   {
     this->ColorColumn = -1;
-    int color_index=0;
-    foreach(QString columnname, this->Internal->ModelColumnNames)
+    int color_index = 0;
+    foreach (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -160,8 +154,8 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
   else if (this->SplitMultiComponentColumns)
   {
     this->IconIndexColumn = -1;
-    int color_index=0;
-    foreach(QString columnname, this->Internal->ModelColumnNames)
+    int color_index = 0;
+    foreach (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -200,8 +194,8 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   else if (this->SplitMultiComponentColumns)
   {
     this->KeyColumn = -1;
-    int key_index=0;
-    foreach(QString columnname, this->Internal->ModelColumnNames)
+    int key_index = 0;
+    foreach (QString columnname, this->Internal->ModelColumnNames)
     {
       if (columnname == name)
       {
@@ -230,9 +224,9 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
+void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject* obj)
 {
-  vtkTable *t = vtkTable::SafeDownCast(obj);
+  vtkTable* t = vtkTable::SafeDownCast(obj);
   if (obj && !t)
   {
     qWarning("vtkQtTableModelAdapter needs a vtkTable for SetVTKDataObject");
@@ -274,9 +268,8 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
   }
 
   // Double check to make sure startColumn and endColumn are within bounds
-  int maxColumn = this->Table->GetNumberOfColumns()-1;
-  if ((startColumn < 0 || startColumn > maxColumn) ||
-      (endColumn   < 0 || endColumn   > maxColumn))
+  int maxColumn = this->Table->GetNumberOfColumns() - 1;
+  if ((startColumn < 0 || startColumn > maxColumn) || (endColumn < 0 || endColumn > maxColumn))
   {
     return;
   }
@@ -312,8 +305,8 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
         double mag = 0;
         for (int j = 0; j < nComponents; ++j)
         {
-          double tmp = dataArray->GetComponent(i,j);
-          mag += tmp*tmp;
+          double tmp = dataArray->GetComponent(i, j);
+          mag += tmp * tmp;
         }
         mag = sqrt(mag);
         magArray->InsertNextValue(mag);
@@ -382,12 +375,10 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
 {
   // Create vtk index selection
   vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
   node->SetContentType(vtkSelectionNode::INDICES);
   node->SetFieldType(vtkSelectionNode::ROW);
-  vtkSmartPointer<vtkIdTypeArray> index_arr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> index_arr = vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(index_arr);
   IndexSelection->AddNode(node);
 
@@ -407,8 +398,7 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
 }
 
 //----------------------------------------------------------------------------
-QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
-  vtkSelection *vtksel) const
+QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const
 {
 
   QItemSelection qis_list;
@@ -421,8 +411,7 @@ QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
       {
         vtkIdType vtk_index = arr->GetValue(i);
-        QModelIndex qmodel_index =
-          this->createIndex(vtk_index, 0, static_cast<int>(vtk_index));
+        QModelIndex qmodel_index = this->createIndex(vtk_index, 0, static_cast<int>(vtk_index));
         qis_list.select(qmodel_index, qmodel_index);
       }
     }
@@ -465,7 +454,7 @@ void vtkQtTableModelAdapter::SetDecorationLocation(int s)
 }
 
 //----------------------------------------------------------------------------
-QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
+QVariant vtkQtTableModelAdapter::data(const QModelIndex& idx, int role) const
 {
   if (this->noTableCheck())
   {
@@ -499,12 +488,12 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Return a byte array if they ask for a decorate role
   if (role == Qt::DecorationRole)
   {
-    if(this->DecorationStrategy == vtkQtTableModelAdapter::COLORS &&
+    if (this->DecorationStrategy == vtkQtTableModelAdapter::COLORS &&
       this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->ColorColumn >= 0)
     {
       return this->getColorIcon(idx.row());
     }
-    else if(this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
+    else if (this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
       this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->IconIndexColumn >= 0)
     {
       return this->getIcon(idx.row());
@@ -525,11 +514,10 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Hmmm... if the role isn't decorate, user or display
   // then just punt and return a empty qvariant
   return QVariant();
-
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtTableModelAdapter::setData(const QModelIndex &idx, const QVariant &value, int role)
+bool vtkQtTableModelAdapter::setData(const QModelIndex& idx, const QVariant& value, int role)
 {
   if (role == Qt::DecorationRole)
   {
@@ -541,7 +529,7 @@ bool vtkQtTableModelAdapter::setData(const QModelIndex &idx, const QVariant &val
 }
 
 //----------------------------------------------------------------------------
-Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex &idx) const
+Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex& idx) const
 {
   if (!idx.isValid())
   {
@@ -552,8 +540,8 @@ Qt::ItemFlags vtkQtTableModelAdapter::flags(const QModelIndex &idx) const
 }
 
 //----------------------------------------------------------------------------
-QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orientation,
-                    int role) const
+QVariant vtkQtTableModelAdapter::headerData(
+  int section, Qt::Orientation orientation, int role) const
 {
   if (this->noTableCheck())
   {
@@ -562,8 +550,7 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
 
   // For horizontal headers, try to convert the column names to double.
   // If it doesn't work, return a string.
-  if (orientation == Qt::Horizontal &&
-      (role == Qt::DisplayRole || role == Qt::UserRole))
+  if (orientation == Qt::Horizontal && (role == Qt::DisplayRole || role == Qt::UserRole))
   {
 
     QString columnName;
@@ -591,9 +578,9 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
   // KeyColumn is valid.
   if (orientation == Qt::Vertical)
   {
-    if(role == Qt::DisplayRole || role == Qt::UserRole)
+    if (role == Qt::DisplayRole || role == Qt::UserRole)
     {
-      if(this->KeyColumn >= 0)
+      if (this->KeyColumn >= 0)
       {
         vtkVariant v;
         this->getValue(section, this->KeyColumn, v);
@@ -604,7 +591,7 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
         return QVariant(v.ToString().c_str());
       }
     }
-    else if(role == Qt::DecorationRole &&
+    else if (role == Qt::DecorationRole &&
       this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
       this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->IconIndexColumn >= 0)
     {
@@ -655,7 +642,7 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
       if (component < nComponents)
       {
         // If component is in range, then fetch the component's value
-        v = array->GetVariantValue(nComponents*row + component);
+        v = array->GetVariantValue(nComponents * row + component);
       }
       else
       {
@@ -669,10 +656,10 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
       QString strValue;
       for (int i = 0; i < nComponents; ++i)
       {
-        strValue.append(QString("%1, ").arg(
-            array->GetVariantValue(row*nComponents + i).ToString().c_str()));
+        strValue.append(
+          QString("%1, ").arg(array->GetVariantValue(row * nComponents + i).ToString().c_str()));
       }
-      strValue = strValue.remove(strValue.size()-2, 2); // remove the last comma
+      strValue = strValue.remove(strValue.size() - 2, 2); // remove the last comma
 
       // Reconstruct the variant using this string value
       v = vtkVariant(strValue.toLatin1().data());
@@ -681,20 +668,20 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
 }
 
 //----------------------------------------------------------------------------
-QModelIndex vtkQtTableModelAdapter::index(int row, int column,
-                  const QModelIndex & vtkNotUsed(parentIdx)) const
+QModelIndex vtkQtTableModelAdapter::index(
+  int row, int column, const QModelIndex& vtkNotUsed(parentIdx)) const
 {
   return createIndex(row, column, row);
 }
 
 //----------------------------------------------------------------------------
-QModelIndex vtkQtTableModelAdapter::parent(const QModelIndex & vtkNotUsed(idx)) const
+QModelIndex vtkQtTableModelAdapter::parent(const QModelIndex& vtkNotUsed(idx)) const
 {
   return QModelIndex();
 }
 
 //----------------------------------------------------------------------------
-int vtkQtTableModelAdapter::rowCount(const QModelIndex & mIndex) const
+int vtkQtTableModelAdapter::rowCount(const QModelIndex& mIndex) const
 {
   if (this->noTableCheck())
   {
@@ -708,7 +695,7 @@ int vtkQtTableModelAdapter::rowCount(const QModelIndex & mIndex) const
 }
 
 //----------------------------------------------------------------------------
-int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
+int vtkQtTableModelAdapter::columnCount(const QModelIndex&) const
 {
   if (this->noTableCheck())
   {
@@ -735,8 +722,8 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
   return 0;
 }
 
-bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *d,
-     Qt::DropAction action, int vtkNotUsed(row), int vtkNotUsed(column), const QModelIndex& vtkNotUsed(parent))
+bool vtkQtTableModelAdapter::dropMimeData(const QMimeData* d, Qt::DropAction action,
+  int vtkNotUsed(row), int vtkNotUsed(column), const QModelIndex& vtkNotUsed(parent))
 {
   if (action == Qt::IgnoreAction)
     return true;
@@ -763,25 +750,31 @@ QStringList vtkQtTableModelAdapter::mimeTypes() const
 
 Qt::DropActions vtkQtTableModelAdapter::supportedDropActions() const
 {
-   return Qt::CopyAction;
+  return Qt::CopyAction;
 }
 
-QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) const
+QMimeData* vtkQtTableModelAdapter::mimeData(const QModelIndexList& indexes) const
 {
   // Only supports dragging single item right now ...
 
-  if(indexes.size() == 0)
+  if (indexes.size() == 0)
   {
     return nullptr;
   }
 
-  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::Take(QModelIndexListToVTKIndexSelection(indexes));
-  //vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::Take(vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS));
+  vtkSmartPointer<vtkSelection> indexSelection =
+    vtkSmartPointer<vtkSelection>::Take(QModelIndexListToVTKIndexSelection(indexes));
+  // vtkSmartPointer<vtkSelection> pedigreeIdSelection =
+  // vtkSmartPointer<vtkSelection>::Take(vtkConvertSelection::ToSelectionType(indexSelection,
+  // this->Table, vtkSelectionNode::PEDIGREEIDS));
 
-  // This is a memory-leak, we need to serialize its contents as a string, instead of serializing a pointer to the object
-  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
+  // This is a memory-leak, we need to serialize its contents as a string, instead of serializing a
+  // pointer to the object
+  vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(
+    indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
 
-  if(pedigreeIdSelection->GetNode(0) == nullptr || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
+  if (pedigreeIdSelection->GetNode(0) == nullptr ||
+    pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
   {
     return nullptr;
   }
@@ -789,7 +782,7 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
   std::ostringstream buffer;
   buffer << pedigreeIdSelection;
 
-  QMimeData *mime_data = new QMimeData();
+  QMimeData* mime_data = new QMimeData();
   mime_data->setData("vtk/selection", buffer.str().c_str());
 
   return mime_data;
@@ -806,14 +799,15 @@ QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
   {
     column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
   }
-  vtkUnsignedCharArray* colors = vtkArrayDownCast<vtkUnsignedCharArray>(this->Table->GetColumn(column));
+  vtkUnsignedCharArray* colors =
+    vtkArrayDownCast<vtkUnsignedCharArray>(this->Table->GetColumn(column));
   if (!colors)
   {
     return QVariant();
   }
 
   const int nComponents = colors->GetNumberOfComponents();
-  if(nComponents >= 3)
+  if (nComponents >= 3)
   {
     unsigned char rgba[4];
     colors->GetTypedTuple(row, rgba);
@@ -854,10 +848,10 @@ QVariant vtkQtTableModelAdapter::getIcon(int row) const
 
   int icon_idx = icon_indices->GetValue(row);
   int x, y;
-  int dimX = this->IconSheetSize[0]/this->IconSize[0];
+  int dimX = this->IconSheetSize[0] / this->IconSize[0];
   x = (icon_idx >= dimX) ? icon_idx % dimX : icon_idx;
   x *= this->IconSize[0];
-  y = (icon_idx >= dimX) ? static_cast<int>(icon_idx/dimX) : 0;
+  y = (icon_idx >= dimX) ? static_cast<int>(icon_idx / dimX) : 0;
   y *= this->IconSize[1];
 
   return this->IconSheet.copy(x, y, this->IconSize[0], this->IconSize[1]);

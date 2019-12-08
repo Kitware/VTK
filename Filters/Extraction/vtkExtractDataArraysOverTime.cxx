@@ -17,7 +17,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDescriptiveStatistics.h"
@@ -34,7 +34,6 @@
 #include "vtkSplitColumnComponents.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkCharArray.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>
@@ -60,35 +59,14 @@ public:
   template <typename ArrayType>
   void operator()(ArrayType* vtkarray)
   {
-    using value_type = typename vtkDataArrayAccessor<ArrayType>::APIType;
-    vtkDataArrayAccessor<ArrayType> a(vtkarray);
-    const auto tuples = vtkarray->GetNumberOfTuples();
-    const int comps = vtkarray->GetNumberOfComponents();
-    for (vtkIdType t = 0; t < tuples; ++t)
-    {
-      if (this->MaskArray->GetTypedComponent(t, 0) == 0)
-      {
-        for (int c = 0; c < comps; ++c)
-        {
-          a.Set(t, c, value_type());
-        }
-      }
-    }
-  }
+    const auto mask = vtk::DataArrayValueRange<1>(this->MaskArray);
+    auto data = vtk::DataArrayTupleRange(vtkarray);
 
-  // fallback implementation using slow vtkDataArray API.
-  void operator()(vtkDataArray* vtkarray)
-  {
-    const auto tuples = vtkarray->GetNumberOfTuples();
-    const int comps = vtkarray->GetNumberOfComponents();
-    for (vtkIdType t = 0; t < tuples; ++t)
+    for (vtkIdType t = 0; t < data.size(); ++t)
     {
-      if (this->MaskArray->GetTypedComponent(t, 0) == 0)
+      if (mask[t] == 0)
       {
-        for (int c = 0; c < comps; ++c)
-        {
-          vtkarray->SetComponent(t, c, 0.0);
-        }
+        data[t].fill(0);
       }
     }
   }
@@ -164,13 +142,12 @@ private:
   void RemoveInvalidPoints(vtkCharArray* validArray, vtkDataSetAttributes* dsa)
   {
     ClearInvalidElementsWorker worker(validArray);
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     const auto narrays = dsa->GetNumberOfArrays();
     for (vtkIdType a = 0; a < narrays; a++)
     {
       if (vtkDataArray* da = dsa->GetArray(a))
       {
-        if (!Dispatcher::Execute(da, worker))
+        if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
         {
           // use vtkDataArray fallback.
           worker(da);

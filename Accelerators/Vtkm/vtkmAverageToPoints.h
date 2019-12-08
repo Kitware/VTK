@@ -23,17 +23,17 @@
  * values of all cells using a particular point. This filter will also
  * pass through any existing point and cell arrays.
  *
-*/
+ */
 #ifndef vtkmAverageToPoints_h
 #define vtkmAverageToPoints_h
 
-#include "vtkDataSetAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkDataSetAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmAverageToPoints : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmAverageToPoints,vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmAverageToPoints, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToPoints* New();
 
@@ -41,9 +41,7 @@ protected:
   vtkmAverageToPoints();
   ~vtkmAverageToPoints();
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmAverageToPoints(const vtkmAverageToPoints&) = delete;

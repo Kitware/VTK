@@ -72,8 +72,8 @@
 #ifndef vtk3DLinearGridPlaneCutter_h
 #define vtk3DLinearGridPlaneCutter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkPlane;
 class vtkUnstructuredGrid;
@@ -87,8 +87,8 @@ public:
   /**
    * Standard methods for construction, type info, and printing.
    */
-  static vtk3DLinearGridPlaneCutter *New();
-  vtkTypeMacro(vtk3DLinearGridPlaneCutter,vtkDataObjectAlgorithm);
+  static vtk3DLinearGridPlaneCutter* New();
+  vtkTypeMacro(vtk3DLinearGridPlaneCutter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -109,9 +109,9 @@ public:
    * surface. On the other hand, merging reduced output data size and may be
    * just as fast especially for smaller data. By default this is off.
    */
-  vtkSetMacro(MergePoints,vtkTypeBool);
-  vtkGetMacro(MergePoints,vtkTypeBool);
-  vtkBooleanMacro(MergePoints,vtkTypeBool);
+  vtkSetMacro(MergePoints, vtkTypeBool);
+  vtkGetMacro(MergePoints, vtkTypeBool);
+  vtkBooleanMacro(MergePoints, vtkTypeBool);
   //@}
 
   //@{
@@ -119,9 +119,9 @@ public:
    * Indicate whether to interpolate input attributes onto the cut
    * plane. By default this option is on.
    */
-  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
+  vtkSetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkGetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
   //@}
 
   //@{
@@ -161,17 +161,16 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing,vtkTypeBool)
-  vtkGetMacro(SequentialProcessing,vtkTypeBool);
-  vtkBooleanMacro(SequentialProcessing,vtkTypeBool);
+  vtkSetMacro(SequentialProcessing, vtkTypeBool);
+  vtkGetMacro(SequentialProcessing, vtkTypeBool);
+  vtkBooleanMacro(SequentialProcessing, vtkTypeBool);
   //@}
 
   /**
    *  Return the number of threads actually used during execution. This is
    *  valid only after algorithm execution.
    */
-  int GetNumberOfThreadsUsed()
-  {return this->NumberOfThreadsUsed;}
+  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
 
   /**
    * Inform the user as to whether large ids were used during filter
@@ -181,8 +180,7 @@ public:
    * computation. Note that LargeIds are only available on 64-bit
    * architectures.)
    */
-  bool GetLargeIds()
-  {return this->LargeIds;}
+  bool GetLargeIds() { return this->LargeIds; }
 
   /**
    * Returns true if the data object passed in is fully supported by this
@@ -196,30 +194,27 @@ protected:
   vtk3DLinearGridPlaneCutter();
   ~vtk3DLinearGridPlaneCutter() override;
 
-  vtkPlane *Plane;
+  vtkPlane* Plane;
   vtkTypeBool MergePoints;
   vtkTypeBool InterpolateAttributes;
   vtkTypeBool ComputeNormals;
   int OutputPointsPrecision;
   vtkTypeBool SequentialProcessing;
   int NumberOfThreadsUsed;
-  bool LargeIds; //indicate whether integral ids are large(==true) or not
+  bool LargeIds; // indicate whether integral ids are large(==true) or not
 
   // Process the data: input unstructured grid and output polydata
-  int ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output);
+  int ProcessPiece(vtkUnstructuredGrid* input, vtkPlane* plane, vtkPolyData* output);
 
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtk3DLinearGridPlaneCutter(const vtk3DLinearGridPlaneCutter&) = delete;
   void operator=(const vtk3DLinearGridPlaneCutter&) = delete;
 };
-
 
 #endif

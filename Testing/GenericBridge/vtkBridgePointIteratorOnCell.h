@@ -19,7 +19,7 @@
  * It iterates over the corner points of a cell.
  * @sa
  * vtkGenericPointIterator, vtkBridgeDataSet
-*/
+ */
 
 #ifndef vtkBridgePointIteratorOnCell_h
 #define vtkBridgePointIteratorOnCell_h
@@ -34,8 +34,8 @@ class vtkIdList;
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOnCell : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIteratorOnCell *New();
-  vtkTypeMacro(vtkBridgePointIteratorOnCell,vtkGenericPointIterator);
+  static vtkBridgePointIteratorOnCell* New();
+  vtkTypeMacro(vtkBridgePointIteratorOnCell, vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -59,7 +59,7 @@ public:
    * \pre not_off: !IsAtEnd()
    * \post result_exists: result!=0
    */
-  double *GetPosition() override;
+  double* GetPosition() override;
 
   /**
    * Point at iterator position.
@@ -78,7 +78,7 @@ public:
    * The iterator will iterate over the point of a cell
    * \pre cell_exists: cell!=0
    */
-  void InitWithCell(vtkBridgeCell *cell);
+  void InitWithCell(vtkBridgeCell* cell);
 
 protected:
   /**
@@ -91,10 +91,10 @@ protected:
    */
   ~vtkBridgePointIteratorOnCell() override;
 
-  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
-  vtkIdType Cursor; // current position
+  vtkBridgeDataSet* DataSet; // the structure on which the object iterates.
+  vtkIdType Cursor;          // current position
 
-  vtkIdList *PtIds; // list of points of the cell
+  vtkIdList* PtIds; // list of points of the cell
 
 private:
   vtkBridgePointIteratorOnCell(const vtkBridgePointIteratorOnCell&) = delete;

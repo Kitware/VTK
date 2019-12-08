@@ -26,17 +26,16 @@
  *
  * @sa
  * vtkAngleWidget vtkHandleRepresentation
-*/
+ */
 
 #ifndef vtkAngleRepresentation2D_h
 #define vtkAngleRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAngleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkLeaderActor2D;
 class vtkProperty2D;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation2D : public vtkAngleRepresentation
 {
@@ -44,13 +43,13 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkAngleRepresentation2D *New();
+  static vtkAngleRepresentation2D* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAngleRepresentation2D,vtkAngleRepresentation);
+  vtkTypeMacro(vtkAngleRepresentation2D, vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -82,9 +81,9 @@ public:
    * By obtaining these leaders the user can set the appropriate
    * properties, etc.
    */
-  vtkGetObjectMacro(Ray1,vtkLeaderActor2D);
-  vtkGetObjectMacro(Ray2,vtkLeaderActor2D);
-  vtkGetObjectMacro(Arc,vtkLeaderActor2D);
+  vtkGetObjectMacro(Ray1, vtkLeaderActor2D);
+  vtkGetObjectMacro(Ray2, vtkLeaderActor2D);
+  vtkGetObjectMacro(Arc, vtkLeaderActor2D);
   //@}
 
   /**
@@ -97,8 +96,8 @@ public:
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
-  int RenderOverlay(vtkViewport *viewport) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+  int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
 protected:
@@ -106,9 +105,9 @@ protected:
   ~vtkAngleRepresentation2D() override;
 
   // The pieces that make up the angle representations
-  vtkLeaderActor2D *Ray1;
-  vtkLeaderActor2D *Ray2;
-  vtkLeaderActor2D *Arc;
+  vtkLeaderActor2D* Ray1;
+  vtkLeaderActor2D* Ray2;
+  vtkLeaderActor2D* Arc;
 
 private:
   vtkAngleRepresentation2D(const vtkAngleRepresentation2D&) = delete;

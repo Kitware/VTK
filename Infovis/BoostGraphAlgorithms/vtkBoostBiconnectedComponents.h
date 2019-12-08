@@ -40,7 +40,7 @@
  * @warning
  * The boost graph bindings currently only support boost version 1.33.1.
  * There are apparently backwards-compatibility issues with later versions.
-*/
+ */
 
 #ifndef vtkBoostBiconnectedComponents_h
 #define vtkBoostBiconnectedComponents_h
@@ -48,10 +48,11 @@
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBiconnectedComponents : public vtkUndirectedGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBiconnectedComponents
+  : public vtkUndirectedGraphAlgorithm
 {
 public:
-  static vtkBoostBiconnectedComponents *New();
+  static vtkBoostBiconnectedComponents* New();
   vtkTypeMacro(vtkBoostBiconnectedComponents, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -67,10 +68,9 @@ protected:
   vtkBoostBiconnectedComponents();
   ~vtkBoostBiconnectedComponents();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   char* OutputArrayName;
 
   vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&) = delete;

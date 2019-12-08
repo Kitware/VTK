@@ -21,7 +21,7 @@
  * This filter can be used to redistribute data from producers that can't
  * produce data in parallel. All data is produced on first process and
  * the distributed to others using the multiprocess controller.
-*/
+ */
 
 #ifndef vtkTransmitUnstructuredGridPiece_h
 #define vtkTransmitUnstructuredGridPiece_h
@@ -31,10 +31,11 @@
 
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkTransmitUnstructuredGridPiece *New();
+  static vtkTransmitUnstructuredGridPiece* New();
   vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -61,14 +62,13 @@ protected:
   ~vtkTransmitUnstructuredGridPiece() override;
 
   // Data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  void RootExecute(vtkUnstructuredGrid *input, vtkUnstructuredGrid *output,
-                   vtkInformation *outInfo);
-  void SatelliteExecute(int procId, vtkUnstructuredGrid *output,
-                        vtkInformation *outInfo);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void RootExecute(
+    vtkUnstructuredGrid* input, vtkUnstructuredGrid* output, vtkInformation* outInfo);
+  void SatelliteExecute(int procId, vtkUnstructuredGrid* output, vtkInformation* outInfo);
 
   vtkTypeBool CreateGhostCells;
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
 private:
   vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&) = delete;

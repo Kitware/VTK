@@ -29,26 +29,26 @@
  *
  * @sa
  * vtkCommunicator vtkSocketController
-*/
+ */
 
 #ifndef vtkSocketCommunicator_h
 #define vtkSocketCommunicator_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 #include "vtkByteSwap.h" // Needed for vtkSwap macros
 
 #ifdef VTK_WORDS_BIGENDIAN
-# define vtkSwap4 vtkByteSwap::Swap4LE
-# define vtkSwap4Range vtkByteSwap::Swap4LERange
-# define vtkSwap8 vtkByteSwap::Swap8LE
-# define vtkSwap8Range vtkByteSwap::Swap8LERange
+#define vtkSwap4 vtkByteSwap::Swap4LE
+#define vtkSwap4Range vtkByteSwap::Swap4LERange
+#define vtkSwap8 vtkByteSwap::Swap8LE
+#define vtkSwap8Range vtkByteSwap::Swap8LERange
 #else
-# define vtkSwap4 vtkByteSwap::Swap4BE
-# define vtkSwap4Range vtkByteSwap::Swap4BERange
-# define vtkSwap8 vtkByteSwap::Swap8BE
-# define vtkSwap8Range vtkByteSwap::Swap8BERange
+#define vtkSwap4 vtkByteSwap::Swap4BE
+#define vtkSwap4Range vtkByteSwap::Swap4BERange
+#define vtkSwap8 vtkByteSwap::Swap8BE
+#define vtkSwap8Range vtkByteSwap::Swap8BERange
 #endif
 
 class vtkClientSocket;
@@ -57,8 +57,8 @@ class vtkServerSocket;
 class VTKPARALLELCORE_EXPORT vtkSocketCommunicator : public vtkCommunicator
 {
 public:
-  static vtkSocketCommunicator *New();
-  vtkTypeMacro(vtkSocketCommunicator,vtkCommunicator);
+  static vtkSocketCommunicator* New();
+  vtkTypeMacro(vtkSocketCommunicator, vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -67,8 +67,7 @@ public:
    * These methods return 1 on success, 0 on error.
    */
   virtual int WaitForConnection(int port);
-  virtual int WaitForConnection(vtkServerSocket* socket,
-    unsigned  long msec = 0);
+  virtual int WaitForConnection(vtkServerSocket* socket, unsigned long msec = 0);
   //@}
 
   /**
@@ -105,10 +104,9 @@ public:
    * Performs the actual communication.  You will usually use the convenience
    * Send functions defined in the superclass.
    */
-  int SendVoidArray(const void *data, vtkIdType length, int type,
-                            int remoteHandle, int tag) override;
-  int ReceiveVoidArray(void *data, vtkIdType length, int type,
-                               int remoteHandle, int tag) override;
+  int SendVoidArray(
+    const void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
+  int ReceiveVoidArray(void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
   //@}
 
   /**
@@ -123,36 +121,27 @@ public:
    * default implementations of these methods do not work.  These just give
    * errors instead.
    */
-  int BroadcastVoidArray(void *data, vtkIdType length, int type,
-                                 int srcProcessId) override;
-  int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type, int destProcessId) override;
-  int GatherVVoidArray(const void *sendBuffer, void *recvBuffer,
-                               vtkIdType sendLength, vtkIdType *recvLengths,
-                               vtkIdType *offsets, int type, int destProcessId) override;
-  int ScatterVoidArray(const void *sendBuffer, void *recvBuffer,
-                               vtkIdType length, int type, int srcProcessId) override;
-  int ScatterVVoidArray(const void *sendBuffer, void *recvBuffer,
-                                vtkIdType *sendLengths, vtkIdType *offsets,
-                                vtkIdType recvLength, int type,
-                                int srcProcessId) override;
-  int AllGatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type) override;
-  int AllGatherVVoidArray(const void *sendBuffer, void *recvBuffer,
-                                  vtkIdType sendLength, vtkIdType *recvLengths,
-                                  vtkIdType *offsets, int type) override;
-  int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type,
-                              int operation, int destProcessId) override;
-  int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type,
-                              Operation *operation, int destProcessId) override;
-  int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type,
-                                 int operation) override;
-  int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type,
-                                 Operation *operation) override;
+  int BroadcastVoidArray(void* data, vtkIdType length, int type, int srcProcessId) override;
+  int GatherVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int destProcessId) override;
+  int GatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int type, int destProcessId) override;
+  int ScatterVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int srcProcessId) override;
+  int ScatterVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int type, int srcProcessId) override;
+  int AllGatherVoidArray(
+    const void* sendBuffer, void* recvBuffer, vtkIdType length, int type) override;
+  int AllGatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int type) override;
+  int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int operation, int destProcessId) override;
+  int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    Operation* operation, int destProcessId) override;
+  int AllReduceVoidArray(
+    const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation) override;
+  int AllReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    Operation* operation) override;
   //@}
 
   //@{
@@ -244,8 +233,7 @@ public:
    * automatically processed the next time one does a ReceiveTagged() with a
    * matching tag.
    */
-  void BufferCurrentMessage()
-    { this->BufferMessage = true; }
+  void BufferCurrentMessage() { this->BufferMessage = true; }
 
   /**
    * Returns true if there are any messages in the receive buffer.
@@ -253,7 +241,6 @@ public:
   bool HasBufferredMessages();
 
 protected:
-
   vtkClientSocket* Socket;
   int SwapBytesInReceivedData;
   int RemoteHas64BitIds;
@@ -270,12 +257,9 @@ protected:
 
   // Wrappers around send/recv calls to implement loops.  Return 1 for
   // success, and 0 for failure.
-  int SendTagged(const void* data, int wordSize, int numWords, int tag,
-                 const char* logName);
-  int ReceiveTagged(void* data, int wordSize, int numWords, int tag,
-                    const char* logName);
-  int ReceivePartialTagged(void* data, int wordSize, int numWords, int tag,
-                    const char* logName);
+  int SendTagged(const void* data, int wordSize, int numWords, int tag, const char* logName);
+  int ReceiveTagged(void* data, int wordSize, int numWords, int tag, const char* logName);
+  int ReceivePartialTagged(void* data, int wordSize, int numWords, int tag, const char* logName);
 
   int ReceivedTaggedFromBuffer(
     void* data, int wordSize, int numWords, int tag, const char* logName);
@@ -286,10 +270,11 @@ protected:
   void FixByteOrder(void* data, int wordSize, int numWords);
 
   // Internal utility methods.
-  void LogTagged(const char* name, const void* data, int wordSize, int numWords,
-                 int tag, const char* logName);
+  void LogTagged(
+    const char* name, const void* data, int wordSize, int numWords, int tag, const char* logName);
   int CheckForErrorInternal(int id);
   bool BufferMessage;
+
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&) = delete;
   void operator=(const vtkSocketCommunicator&) = delete;
@@ -298,7 +283,8 @@ private:
 
   // SwapBytesInReceiveData needs an invalid / not set.
   // This avoids checking length of endian handshake.
-  enum ErrorIds {
+  enum ErrorIds
+  {
     SwapOff = 0,
     SwapOn,
     SwapNotSet
@@ -311,7 +297,6 @@ private:
   //  Buffer to save messages received with different tag than requested.
   class vtkMessageBuffer;
   vtkMessageBuffer* ReceivedMessageBuffer;
-
 };
 
 #endif

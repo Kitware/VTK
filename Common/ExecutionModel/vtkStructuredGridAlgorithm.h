@@ -26,14 +26,14 @@
  * constructor for the default. This class also provides a FillInputPortInfo
  * method that by default says that all inputs will be StructuredGrid. If that
  * isn't the case then please override this method in your subclass.
-*/
+ */
 
 #ifndef vtkStructuredGridAlgorithm_h
 #define vtkStructuredGridAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkStructuredGrid.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkStructuredGrid.h"             // makes things a bit easier
 
 class vtkDataSet;
 class vtkStructuredGrid;
@@ -41,8 +41,8 @@ class vtkStructuredGrid;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStructuredGridAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkStructuredGridAlgorithm *New();
-  vtkTypeMacro(vtkStructuredGridAlgorithm,vtkAlgorithm);
+  static vtkStructuredGridAlgorithm* New();
+  vtkTypeMacro(vtkStructuredGridAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,15 +57,14 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
   vtkDataObject* GetInput();
-  vtkDataObject *GetInput(int port);
-  vtkStructuredGrid *GetStructuredGridInput(int port);
+  vtkDataObject* GetInput(int port);
+  vtkStructuredGrid* GetStructuredGridInput(int port);
 
   //@{
   /**
@@ -73,7 +72,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(vtkDataObject *);
+  void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
   //@}
 
@@ -83,7 +82,7 @@ public:
    * establish a pipeline connection. Use AddInputConnection() to
    * setup a pipeline connection.
    */
-  void AddInputData(vtkDataObject *);
+  void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
   //@}
 
@@ -92,28 +91,24 @@ protected:
   ~vtkStructuredGridAlgorithm() override;
 
   // convenience method
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   //@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*)
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
-      return 1;
+    return 1;
   };
   //@}
 

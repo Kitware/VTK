@@ -34,19 +34,19 @@
  * The list of unique strings, in the order they are mapped, can also be
  * retrieved from output port 1. They are in a vtkTable, stored in the "Strings"
  * column as a vtkStringArray.
-*/
+ */
 
 #ifndef vtkStringToCategory_h
 #define vtkStringToCategory_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkStringToCategory : public vtkDataObjectAlgorithm
 {
 public:
   static vtkStringToCategory* New();
-  vtkTypeMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkStringToCategory, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -60,9 +60,8 @@ public:
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.
    */
-  int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkStringToCategory();
@@ -71,18 +70,14 @@ protected:
   /**
    * Creates the same output type as the input type.
    */
-  int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  char *CategoryArrayName;
+  char* CategoryArrayName;
 
 private:
   vtkStringToCategory(const vtkStringToCategory&) = delete;
@@ -90,4 +85,3 @@ private:
 };
 
 #endif
-

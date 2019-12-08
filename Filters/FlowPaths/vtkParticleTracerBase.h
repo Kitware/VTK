@@ -23,17 +23,17 @@
  * @sa
  * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
-*/
+ */
 
 #ifndef vtkParticleTracerBase_h
 #define vtkParticleTracerBase_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 
-#include <vector> // STL Header
 #include <list>   // STL Header
+#include <vector> // STL Header
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
@@ -56,40 +56,44 @@ class vtkTemporalInterpolatedVelocityField;
 
 namespace vtkParticleTracerBaseNamespace
 {
-  typedef struct { double x[4]; } Position;
-  typedef struct {
-    // These are used during iteration
-    Position      CurrentPosition;
-    int           CachedDataSetId[2];
-    vtkIdType     CachedCellId[2];
-    int           LocationState;
-    // These are computed scalars we might display
-    int           SourceID;
-    int           TimeStepAge; // amount of time steps the particle has advanced
-    int           InjectedPointId;
-    int           InjectedStepId;  // time step the particle was injected
-    int           UniqueParticleId;
-    double        SimulationTime;
-    // These are useful to track for debugging etc
-    int           ErrorCode;
-    float         age;
-    // these are needed across time steps to compute vorticity
-    float         rotation;
-    float         angularVel;
-    float         time;
-    float         speed;
-    // once the partice is added, PointId is valid and is the tuple location
-    // in ProtoPD.
-    vtkIdType     PointId;
-    // if PointId is negative then in parallel this particle was just
-    // received and we need to get the tuple value from vtkPParticleTracerBase::Tail.
-    vtkIdType     TailPointId;
-  } ParticleInformation;
+typedef struct
+{
+  double x[4];
+} Position;
+typedef struct
+{
+  // These are used during iteration
+  Position CurrentPosition;
+  int CachedDataSetId[2];
+  vtkIdType CachedCellId[2];
+  int LocationState;
+  // These are computed scalars we might display
+  int SourceID;
+  int TimeStepAge; // amount of time steps the particle has advanced
+  int InjectedPointId;
+  int InjectedStepId; // time step the particle was injected
+  int UniqueParticleId;
+  double SimulationTime;
+  // These are useful to track for debugging etc
+  int ErrorCode;
+  float age;
+  // these are needed across time steps to compute vorticity
+  float rotation;
+  float angularVel;
+  float time;
+  float speed;
+  // once the partice is added, PointId is valid and is the tuple location
+  // in ProtoPD.
+  vtkIdType PointId;
+  // if PointId is negative then in parallel this particle was just
+  // received and we need to get the tuple value from vtkPParticleTracerBase::Tail.
+  vtkIdType TailPointId;
+} ParticleInformation;
 
-  typedef std::vector<ParticleInformation>  ParticleVector;
-  typedef ParticleVector::iterator             ParticleIterator;
-  typedef std::list<ParticleInformation>    ParticleDataList;
-  typedef ParticleDataList::iterator           ParticleListIterator;
+typedef std::vector<ParticleInformation> ParticleVector;
+typedef ParticleVector::iterator ParticleIterator;
+typedef std::list<ParticleInformation> ParticleDataList;
+typedef ParticleDataList::iterator ParticleListIterator;
 };
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
@@ -104,7 +108,7 @@ public:
     UNKNOWN
   };
 
-  vtkTypeMacro(vtkParticleTracerBase,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkParticleTracerBase, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintParticleHistories();
 
@@ -155,7 +159,7 @@ public:
    * redundant as the particles will be reinjected whenever the source changes
    * anyway
    */
-  vtkGetMacro(ForceReinjectionEveryNSteps,int);
+  vtkGetMacro(ForceReinjectionEveryNSteps, int);
   void SetForceReinjectionEveryNSteps(int);
   //@}
 
@@ -167,11 +171,11 @@ public:
    * primary time variable.
    */
   void SetTerminationTime(double t);
-  vtkGetMacro(TerminationTime,double);
+  vtkGetMacro(TerminationTime, double);
   //@}
 
-  void SetIntegrator(vtkInitialValueProblemSolver *);
-  vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  void SetIntegrator(vtkInitialValueProblemSolver*);
+  vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
 
   void SetIntegratorType(int type);
   int GetIntegratorType();
@@ -195,8 +199,8 @@ public:
    * the motion will be ignored and results will not be as expected.
    * The default is that StaticSeeds is 0.
    */
-  vtkSetMacro(StaticSeeds,int);
-  vtkGetMacro(StaticSeeds,int);
+  vtkSetMacro(StaticSeeds, int);
+  vtkGetMacro(StaticSeeds, int);
   //@}
 
   //@{
@@ -209,8 +213,8 @@ public:
    * as this will invalidate all results.
    * The default is that StaticMesh is 0.
    */
-  vtkSetMacro(StaticMesh,int);
-  vtkGetMacro(StaticMesh,int);
+  vtkSetMacro(StaticMesh, int);
+  vtkGetMacro(StaticMesh, int);
   //@}
 
   //@{
@@ -220,7 +224,7 @@ public:
    * which will collect particles from all parallel processes
    * and write them to a single HDF5 file.
    */
-  virtual void SetParticleWriter(vtkAbstractParticleWriter *pw);
+  virtual void SetParticleWriter(vtkAbstractParticleWriter* pw);
   vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
   //@}
 
@@ -238,9 +242,9 @@ public:
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
    */
-  vtkSetMacro(EnableParticleWriting,vtkTypeBool);
-  vtkGetMacro(EnableParticleWriting,vtkTypeBool);
-  vtkBooleanMacro(EnableParticleWriting,vtkTypeBool);
+  vtkSetMacro(EnableParticleWriting, vtkTypeBool);
+  vtkGetMacro(EnableParticleWriting, vtkTypeBool);
+  vtkBooleanMacro(EnableParticleWriting, vtkTypeBool);
   //@}
 
   //@{
@@ -249,9 +253,9 @@ public:
    * This is off by default and turned on in special circumstances
    * such as in a coprocessing workflow
    */
-  vtkSetMacro(DisableResetCache,vtkTypeBool);
-  vtkGetMacro(DisableResetCache,vtkTypeBool);
-  vtkBooleanMacro(DisableResetCache,vtkTypeBool);
+  vtkSetMacro(DisableResetCache, vtkTypeBool);
+  vtkGetMacro(DisableResetCache, vtkTypeBool);
+  vtkBooleanMacro(DisableResetCache, vtkTypeBool);
   //@}
 
   //@{
@@ -262,21 +266,21 @@ public:
   void RemoveAllSources();
   //@}
 
- protected:
-  vtkSmartPointer<vtkPolyData> Output; //managed by child classes
+protected:
+  vtkSmartPointer<vtkPolyData> Output; // managed by child classes
   //@{
   /**
    * ProtoPD is used just to keep track of the input array names and number of components
    * for copy allocating from other vtkPointDatas where the data is really stored
    */
   vtkSmartPointer<vtkPointData> ProtoPD;
-  vtkIdType UniqueIdCounter;// global Id counter used to give particles a stamp
-  vtkParticleTracerBaseNamespace::ParticleDataList  ParticleHistories;
-  vtkSmartPointer<vtkPointData>     ParticlePointData; //the current particle point data consistent
-                                                       //with particle history
-  //Everything related to time
-  vtkTypeBool IgnorePipelineTime; //whether to use the pipeline time for termination
-  vtkTypeBool DisableResetCache; //whether to enable ResetCache() method
+  vtkIdType UniqueIdCounter; // global Id counter used to give particles a stamp
+  vtkParticleTracerBaseNamespace::ParticleDataList ParticleHistories;
+  vtkSmartPointer<vtkPointData> ParticlePointData; // the current particle point data consistent
+                                                   // with particle history
+  // Everything related to time
+  vtkTypeBool IgnorePipelineTime; // whether to use the pipeline time for termination
+  vtkTypeBool DisableResetCache;  // whether to enable ResetCache() method
   //@}
 
   vtkParticleTracerBase();
@@ -290,31 +294,27 @@ public:
   //
   // The usual suspects
   //
-  int ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //
   // Store any information we need in the output and fetch what we can
   // from the input
   //
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //
   // Compute input time steps given the output step
   //
-  int RequestUpdateExtent(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //
   // what the pipeline calls for each time step
   //
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //
   // these routines are internally called to actually generate the output
@@ -324,15 +324,16 @@ public:
   // This is the main part of the algorithm:
   //  * move all the particles one step
   //  * Reinject particles (by adding them to this->ParticleHistories)
-  //    either at the beginning or at the end of each step (modulo this->ForceReinjectionEveryNSteps)
+  //    either at the beginning or at the end of each step (modulo
+  //    this->ForceReinjectionEveryNSteps)
   //  * Output a polydata representing the moved particles
   // Note that if the starting and the ending time coincide, the polydata is still valid.
   virtual vtkPolyData* Execute(vtkInformationVector** inputVector);
 
   // the RequestData will call these methods in turn
-  virtual void Initialize(){} //the first iteration
-  virtual int OutputParticles(vtkPolyData* poly)=0; //every iteration
-  virtual void Finalize(){} //the last iteration
+  virtual void Initialize() {}                        // the first iteration
+  virtual int OutputParticles(vtkPolyData* poly) = 0; // every iteration
+  virtual void Finalize() {}                          // the last iteration
 
   /**
    * Method to get the data set seed sources.
@@ -344,19 +345,17 @@ public:
   // Initialization of input (vector-field) geometry
   //
   int InitializeInterpolator();
-  int UpdateDataCache(vtkDataObject *td);
+  int UpdateDataCache(vtkDataObject* td);
 
   /**
    * inside our data. Add good ones to passed list and set count to the
    * number that passed
    */
-  void TestParticles(
-    vtkParticleTracerBaseNamespace::ParticleVector &candidates,
-    vtkParticleTracerBaseNamespace::ParticleVector &passed,
-    int &count);
+  void TestParticles(vtkParticleTracerBaseNamespace::ParticleVector& candidates,
+    vtkParticleTracerBaseNamespace::ParticleVector& passed, int& count);
 
   void TestParticles(
-    vtkParticleTracerBaseNamespace::ParticleVector &candidates, std::vector<int> &passed);
+    vtkParticleTracerBaseNamespace::ParticleVector& candidates, std::vector<int>& passed);
 
   /**
    * all the injection/seed points according to which processor
@@ -364,45 +363,38 @@ public:
    * providing 1) The volumes are static, 2) the seed points are static
    * If either are non static, then this step is skipped.
    */
-  virtual void AssignSeedsToProcessors(
-    double time, vtkDataSet *source, int sourceID, int ptId,
-    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints,
-    int &localAssignedCount);
+  virtual void AssignSeedsToProcessors(double time, vtkDataSet* source, int sourceID, int ptId,
+    vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints, int& localAssignedCount);
 
   /**
    * give each one a unique ID. We need to use MPI to find out
    * who is using which numbers.
    */
-  virtual void AssignUniqueIds(
-    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints);
+  virtual void AssignUniqueIds(vtkParticleTracerBaseNamespace::ParticleVector& localSeedPoints);
 
   /**
    * and sending between processors, into a list, which is used as the master
    * list on this processor
    */
-  void UpdateParticleList(
-    vtkParticleTracerBaseNamespace::ParticleVector &candidates);
+  void UpdateParticleList(vtkParticleTracerBaseNamespace::ParticleVector& candidates);
 
   /**
    * this is used during classification of seed points and also between iterations
    * of the main loop as particles leave each processor domain. Returns true
    * if particles moved between processes and false otherwise.
    */
-  virtual bool UpdateParticleListFromOtherProcesses(){return false;}
+  virtual bool UpdateParticleListFromOtherProcesses() { return false; }
 
   /**
    * particle between the two times supplied.
    */
-  void IntegrateParticle(
-    vtkParticleTracerBaseNamespace::ParticleListIterator &it,
-    double currenttime, double terminationtime,
-    vtkInitialValueProblemSolver* integrator);
+  void IntegrateParticle(vtkParticleTracerBaseNamespace::ParticleListIterator& it,
+    double currenttime, double terminationtime, vtkInitialValueProblemSolver* integrator);
 
   // if the particle is added to send list, then returns value is 1,
   // if it is kept on this process after a retry return value is 0
-  virtual bool SendParticleToAnotherProcess(
-    vtkParticleTracerBaseNamespace::ParticleInformation &,
-    vtkParticleTracerBaseNamespace::ParticleInformation &, vtkPointData*)
+  virtual bool SendParticleToAnotherProcess(vtkParticleTracerBaseNamespace::ParticleInformation&,
+    vtkParticleTracerBaseNamespace::ParticleInformation&, vtkPointData*)
   {
     return true;
   }
@@ -414,38 +406,36 @@ public:
    * dodgy rotating meshes need special care....
    */
   bool ComputeDomainExitLocation(
-    double pos[4], double p2[4], double intersection[4],
-    vtkGenericCell *cell);
+    double pos[4], double p2[4], double intersection[4], vtkGenericCell* cell);
 
   //
   // Scalar arrays that are generated as each particle is updated
   //
   void CreateProtoPD(vtkDataObject* input);
 
-  vtkFloatArray*    GetParticleAge(vtkPointData*);
-  vtkIntArray*      GetParticleIds(vtkPointData*);
-  vtkCharArray*     GetParticleSourceIds(vtkPointData*);
-  vtkIntArray*      GetInjectedPointIds(vtkPointData*);
-  vtkIntArray*      GetInjectedStepIds(vtkPointData*);
-  vtkIntArray*      GetErrorCodeArr(vtkPointData*);
-  vtkFloatArray*    GetParticleVorticity(vtkPointData*);
-  vtkFloatArray*    GetParticleRotation(vtkPointData*);
-  vtkFloatArray*    GetParticleAngularVel(vtkPointData*);
+  vtkFloatArray* GetParticleAge(vtkPointData*);
+  vtkIntArray* GetParticleIds(vtkPointData*);
+  vtkCharArray* GetParticleSourceIds(vtkPointData*);
+  vtkIntArray* GetInjectedPointIds(vtkPointData*);
+  vtkIntArray* GetInjectedStepIds(vtkPointData*);
+  vtkIntArray* GetErrorCodeArr(vtkPointData*);
+  vtkFloatArray* GetParticleVorticity(vtkPointData*);
+  vtkFloatArray* GetParticleRotation(vtkPointData*);
+  vtkFloatArray* GetParticleAngularVel(vtkPointData*);
 
   // utility function we use to test if a point is inside any of our local datasets
   bool InsideBounds(double point[]);
 
-  void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
-                           vtkDoubleArray* cellVectors, double vorticity[3] );
+  void CalculateVorticity(
+    vtkGenericCell* cell, double pcoords[3], vtkDoubleArray* cellVectors, double vorticity[3]);
 
   //------------------------------------------------------
-
 
   double GetCacheDataTime(int i);
   double GetCacheDataTime();
 
   virtual void ResetCache();
-  void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity);
+  void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity);
 
   //@{
   /**
@@ -467,7 +457,7 @@ public:
    */
   virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
 
-  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) {}
+  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) {}
 
   vtkTemporalInterpolatedVelocityField* GetInterpolator();
 
@@ -477,7 +467,7 @@ public:
    */
   virtual void AddRestartSeeds(vtkInformationVector** /*inputVector*/) {}
 
- private:
+private:
   /**
    * Hide this because we require a new interpolator type
    */
@@ -492,12 +482,12 @@ public:
    * first order integration though so it may introduce a bit extra error compared
    * to the integrator that is used.
    */
-  bool RetryWithPush(
-    vtkParticleTracerBaseNamespace::ParticleInformation &info, double* point1,double delT, int subSteps);
+  bool RetryWithPush(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* point1,
+    double delT, int subSteps);
 
   bool SetTerminationTimeNoModify(double t);
 
-  //Parameters of tracing
+  // Parameters of tracing
   vtkInitialValueProblemSolver* Integrator;
   double IntegrationStep;
   double MaximumError;
@@ -509,43 +499,44 @@ public:
   int ReinjectionCounter;
 
   // Important for Caching of Cells/Ids/Weights etc
-  int           AllFixedGeometry;
-  int           StaticMesh;
-  int           StaticSeeds;
+  int AllFixedGeometry;
+  int StaticMesh;
+  int StaticSeeds;
 
-  std::vector<double>  InputTimeValues;
+  std::vector<double> InputTimeValues;
   double StartTime;
   double TerminationTime;
   double CurrentTimeValue;
 
-  int  StartTimeStep; //InputTimeValues[StartTimeStep] <= StartTime <= InputTimeValues[StartTimeStep+1]
-  int  CurrentTimeStep;
-  int  TerminationTimeStep; //computed from start time
+  int StartTimeStep; // InputTimeValues[StartTimeStep] <= StartTime <=
+                     // InputTimeValues[StartTimeStep+1]
+  int CurrentTimeStep;
+  int TerminationTimeStep; // computed from start time
   bool FirstIteration;
 
-  //Innjection parameters
-  int           ForceReinjectionEveryNSteps;
-  vtkTimeStamp  ParticleInjectionTime;
-  bool          HasCache;
+  // Innjection parameters
+  int ForceReinjectionEveryNSteps;
+  vtkTimeStamp ParticleInjectionTime;
+  bool HasCache;
 
   // Particle writing to disk
-  vtkAbstractParticleWriter *ParticleWriter;
-  char                      *ParticleFileName;
-  vtkTypeBool                        EnableParticleWriting;
-
+  vtkAbstractParticleWriter* ParticleWriter;
+  char* ParticleFileName;
+  vtkTypeBool EnableParticleWriting;
 
   // The main lists which are held during operation- between time step updates
-  vtkParticleTracerBaseNamespace::ParticleVector    LocalSeeds;
+  vtkParticleTracerBaseNamespace::ParticleVector LocalSeeds;
 
   // The velocity interpolator
-  vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
-  vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
+  vtkSmartPointer<vtkTemporalInterpolatedVelocityField> Interpolator;
+  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
 
   // Data for time step CurrentTimeStep-1 and CurrentTimeStep
   vtkSmartPointer<vtkMultiBlockDataSet> CachedData[2];
 
   // Cache bounds info for each dataset we will use repeatedly
-  typedef struct {
+  typedef struct
+  {
     double b[6];
   } bounds;
   std::vector<bounds> CachedBounds[2];
@@ -553,19 +544,19 @@ public:
   // temporary variables used by Exeucte(), for convenience only
 
   vtkSmartPointer<vtkPoints> OutputCoordinates;
-  vtkSmartPointer<vtkFloatArray>    ParticleAge;
-  vtkSmartPointer<vtkIntArray>      ParticleIds;
-  vtkSmartPointer<vtkCharArray>     ParticleSourceIds;
-  vtkSmartPointer<vtkIntArray>      InjectedPointIds;
-  vtkSmartPointer<vtkIntArray>      InjectedStepIds;
-  vtkSmartPointer<vtkIntArray>      ErrorCodeArray;
-  vtkSmartPointer<vtkFloatArray>    ParticleVorticity;
-  vtkSmartPointer<vtkFloatArray>    ParticleRotation;
-  vtkSmartPointer<vtkFloatArray>    ParticleAngularVel;
-  vtkSmartPointer<vtkDoubleArray>   CellVectors;
-  vtkSmartPointer<vtkPointData>     OutputPointData;
-  vtkSmartPointer<vtkDataSet>       DataReferenceT[2];
-  vtkSmartPointer<vtkCellArray>     ParticleCells;
+  vtkSmartPointer<vtkFloatArray> ParticleAge;
+  vtkSmartPointer<vtkIntArray> ParticleIds;
+  vtkSmartPointer<vtkCharArray> ParticleSourceIds;
+  vtkSmartPointer<vtkIntArray> InjectedPointIds;
+  vtkSmartPointer<vtkIntArray> InjectedStepIds;
+  vtkSmartPointer<vtkIntArray> ErrorCodeArray;
+  vtkSmartPointer<vtkFloatArray> ParticleVorticity;
+  vtkSmartPointer<vtkFloatArray> ParticleRotation;
+  vtkSmartPointer<vtkFloatArray> ParticleAngularVel;
+  vtkSmartPointer<vtkDoubleArray> CellVectors;
+  vtkSmartPointer<vtkPointData> OutputPointData;
+  vtkSmartPointer<vtkDataSet> DataReferenceT[2];
+  vtkSmartPointer<vtkCellArray> ParticleCells;
 
   vtkParticleTracerBase(const vtkParticleTracerBase&) = delete;
   void operator=(const vtkParticleTracerBase&) = delete;

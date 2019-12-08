@@ -18,6 +18,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkBase64Utilities.h"
+#include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoaderInternals.h"
 #include "vtkGLTFUtils.h"
@@ -64,7 +65,7 @@ namespace
 {
 //----------------------------------------------------------------------------
 // Replacement for std::to_string as it is not supported by certain compilers
-template<typename T>
+template <typename T>
 std::string value_to_string(const T& val)
 {
   std::ostringstream ss;
@@ -111,7 +112,7 @@ void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
     primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP ||
     primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
   {
-    primitive.Indices->Allocate(1);
+    primitive.Indices->AllocateEstimate(1, 1);
     std::vector<vtkIdType> cell(nVert);
     // Append all indices
     std::iota(cell.begin(), cell.end(), 0);
@@ -124,7 +125,7 @@ void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
   else
   {
     vtkIdType nCells = GetNumberOfCellsForPrimitive(primitive.Mode, primitive.CellSize, nVert);
-    primitive.Indices->Allocate(nCells);
+    primitive.Indices->AllocateEstimate(nCells, 1);
     std::vector<vtkIdType> cell(primitive.CellSize, 0);
     for (int cellId = 0; cellId < nCells; cellId++)
     {
@@ -180,7 +181,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
 
 /** Data loading **/
 //----------------------------------------------------------------------------
-template<typename Type>
+template <typename Type>
 struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
 {
   int ByteOffset;
@@ -197,7 +198,7 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
    * If NormalizeTuples is set to true, tuples will be normalized between 0 and 1
    * If normalized is set to true, normalized integers will be converted to float
    */
-  template<typename ArrayType>
+  template <typename ArrayType>
   void operator()(ArrayType* output)
   {
     if (output == nullptr)
@@ -296,7 +297,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Maps ComponentType value to actual component type, then calls
    * ExecuteBufferDataExtractionWorker, forwarding template types and parameters.
    */
-  template<typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ArrayType, typename vtkArrayDispatchType>
   void DispatchWorkerExecutionByComponentType(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -335,7 +336,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Determines vtkArrayDispatch type, then calls DispatchWorkerExecutionByComponentType,
    * forwarding template types and parameters.
    */
-  template<typename ArrayType>
+  template <typename ArrayType>
   void DispatchWorkerExecution(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -354,7 +355,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
   /**
    * Creates a new BufferDataExtractionWorker, initializes it and starts its execution
    */
-  template<typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
   void ExecuteBufferDataExtractionWorker(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -380,7 +381,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
     this->ExpectedType = expectedType;
   }
 
-  template<typename ArrayType>
+  template <typename ArrayType>
   void operator()(ArrayType* output)
   {
     this->Result = false;
@@ -474,7 +475,7 @@ namespace
  * Extracts a primitive's connectivity indices, and stores the corresponding cells into a
  * vtkCellArray.
  */
-template<typename Type>
+template <typename Type>
 void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
   vtkSmartPointer<vtkCellArray> output, int byteOffset, int byteStride, int count,
   int numberOfComponents, int mode = vtkGLTFDocumentLoaderInternals::GL_TRIANGLES)
@@ -502,7 +503,7 @@ void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
 
   // Preallocate cells
   vtkIdType nCells = GetNumberOfCellsForPrimitive(mode, numberOfComponents, count);
-  output->Allocate(nCells);
+  output->AllocateEstimate(nCells, 1);
 
   std::vector<vtkIdType> currentCell(cellSize);
 
@@ -636,7 +637,7 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
   using AttributeArrayTypes =
-    vtkTypeList_Create_3(vtkFloatArray, vtkIntArray, vtkUnsignedShortArray);
+    vtkTypeList::Create<vtkFloatArray, vtkIntArray, vtkUnsignedShortArray>;
 
   // Load all attributes
   for (auto& attributePair : primitive.AttributeIndices)
@@ -707,7 +708,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
 
-  using AttributeArrayTypes = vtkTypeList_Create_1(vtkFloatArray);
+  using AttributeArrayTypes = vtkTypeList::Create<vtkFloatArray>;
 
   for (Animation& animation : this->InternalModel->Animations)
   {
@@ -865,7 +866,7 @@ bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
 
-  using AttributeArrayTypes = vtkTypeList_Create_2(vtkFloatArray, vtkIntArray);
+  using AttributeArrayTypes = vtkTypeList::Create<vtkFloatArray, vtkIntArray>;
 
   for (Skin& skin : this->InternalModel->Skins)
   {
@@ -922,14 +923,17 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
   impl.LoadBuffers(!glbBuffer.empty());
 
   // Read primitive attributes from buffers
-  for (Mesh& mesh : this->InternalModel->Meshes)
+  size_t numberOfMeshes = this->InternalModel->Meshes.size();
+  for (size_t i = 0; i < numberOfMeshes; i++)
   {
-    for (Primitive& primitive : mesh.Primitives)
+    for (Primitive& primitive : this->InternalModel->Meshes[i].Primitives)
     {
       this->ExtractPrimitiveAccessorData(primitive);
     }
+    double progress = (i + 1) / static_cast<double>(numberOfMeshes);
+    this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   }
-  // Read additionnal buffer data
+  // Read additional buffer data
   if (!this->LoadAnimationData())
   {
     return false;
@@ -1058,7 +1062,6 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
       break;
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP:
       primitive.Geometry->SetStrips(primitive.Indices);
-      primitive.Indices->SetNumberOfCells(1);
       break;
     default:
       vtkWarningMacro("Invalid primitive draw mode. Ignoring connectivity.");

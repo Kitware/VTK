@@ -24,15 +24,16 @@
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
 int TestOSPRayLayers(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   renWin->SetNumberOfLayers(2);
@@ -43,15 +44,15 @@ int TestOSPRayLayers(int argc, char* argv[])
   sphere->SetPhiResolution(10);
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(sphere->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renderer->SetBackground(0.5,0.5,1.0); //should see a light blue background
+  renderer->SetBackground(0.5, 0.5, 1.0); // should see a light blue background
 
   vtkSmartPointer<vtkRenderer> renderer2 = vtkSmartPointer<vtkRenderer>::New();
   renderer2->SetLayer(1);
   renWin->AddRenderer(renderer2);
-  renderer2->SetBackground(1.0,0.0,0.0); //should not see red background
+  renderer2->SetBackground(1.0, 0.0, 0.0); // should not see red background
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> mapper2 = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper2->SetInputConnection(cone->GetOutputPort());
@@ -59,11 +60,11 @@ int TestOSPRayLayers(int argc, char* argv[])
   renderer2->AddActor(actor2);
   actor2->SetMapper(mapper2);
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
-  vtkSmartPointer<vtkOSPRayPass> ospray2=vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray2 = vtkSmartPointer<vtkOSPRayPass>::New();
 
   for (int i = 0; i < argc; ++i)
   {

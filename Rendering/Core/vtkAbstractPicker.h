@@ -53,13 +53,13 @@
  * or vtkPointPicker. vtkWorldPointPicker is the fastest picker, returning
  * an x-y-z coordinate value using the hardware z-buffer. vtkPicker can be
  * used to pick the bounding box of 3D props.
-*/
+ */
 
 #ifndef vtkAbstractPicker_h
 #define vtkAbstractPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkProp;
@@ -68,14 +68,14 @@ class vtkPropCollection;
 class VTKRENDERINGCORE_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractPicker,vtkObject);
+  vtkTypeMacro(vtkAbstractPicker, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the renderer in which pick event occurred.
    */
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
   //@}
 
   //@{
@@ -83,14 +83,14 @@ public:
    * Get the selection point in screen (pixel) coordinates. The third
    * value is related to z-buffer depth. (Normally should be =0.)
    */
-  vtkGetVectorMacro(SelectionPoint,double,3);
+  vtkGetVectorMacro(SelectionPoint, double, 3);
   //@}
 
   //@{
   /**
    * Return position in global coordinates of pick point.
    */
-  vtkGetVectorMacro(PickPosition,double,3);
+  vtkGetVectorMacro(PickPosition, double, 3);
   //@}
 
   /**
@@ -99,32 +99,40 @@ public:
    * the third value is =0. Return non-zero if something was successfully
    * picked.
    */
-  virtual int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer) = 0;
+  virtual int Pick(
+    double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer) = 0;
 
   /**
    * provided. Normally the first two values for the selection point
    * are x-y pixel coordinate, and the third value is =0. Return
    * non-zero if something was successfully picked.
    */
-  int Pick(double selectionPt[3], vtkRenderer *ren)
-    {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};
+  int Pick(double selectionPt[3], vtkRenderer* ren)
+  {
+    return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren);
+  }
 
   /**
    * Perform pick operation with selection point provided. The
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  virtual int Pick3DPoint(double /* selectionPt */[3], vtkRenderer * /*ren*/)
-    { vtkErrorMacro("Pick3DPoint called without implementation"); return 0;};
+  virtual int Pick3DPoint(double /* selectionPt */[3], vtkRenderer* /*ren*/)
+  {
+    vtkErrorMacro("Pick3DPoint called without implementation");
+    return 0;
+  }
 
   /**
    * Perform pick operation with selection point and orientation provided.
    * The selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  virtual int Pick3DRay(double /* selectionPt */[3], double /* orient */ [4], vtkRenderer * /*ren*/)
-    { vtkErrorMacro("Pick3DRay called without implementation"); return 0;};
+  virtual int Pick3DRay(double /* selectionPt */[3], double /* orient */[4], vtkRenderer* /*ren*/)
+  {
+    vtkErrorMacro("Pick3DRay called without implementation");
+    return 0;
+  }
 
   //@{
   /**
@@ -132,9 +140,9 @@ public:
    * (rather than renderer's actors). Make sure that the pick list contains
    * actors that referred to by the picker's renderer.
    */
-  vtkSetMacro(PickFromList,vtkTypeBool);
-  vtkGetMacro(PickFromList,vtkTypeBool);
-  vtkBooleanMacro(PickFromList,vtkTypeBool);
+  vtkSetMacro(PickFromList, vtkTypeBool);
+  vtkGetMacro(PickFromList, vtkTypeBool);
+  vtkBooleanMacro(PickFromList, vtkTypeBool);
   //@}
 
   /**
@@ -145,17 +153,17 @@ public:
   /**
    * Add an actor to the pick list.
    */
-  void AddPickList(vtkProp *);
+  void AddPickList(vtkProp*);
 
   /**
    * Delete an actor from the pick list.
    */
-  void DeletePickList(vtkProp *);
+  void DeletePickList(vtkProp*);
 
   /**
    * Return the list of actors in the PickList.
    */
-  vtkPropCollection *GetPickList() {return this->PickList;}
+  vtkPropCollection* GetPickList() { return this->PickList; }
 
 protected:
   vtkAbstractPicker();
@@ -163,18 +171,17 @@ protected:
 
   virtual void Initialize();
 
-  vtkRenderer *Renderer; //pick occurred in this renderer's viewport
-  double SelectionPoint[3]; //selection point in window (pixel) coordinates
-  double PickPosition[3]; //selection point in world coordinates
+  vtkRenderer* Renderer;    // pick occurred in this renderer's viewport
+  double SelectionPoint[3]; // selection point in window (pixel) coordinates
+  double PickPosition[3];   // selection point in world coordinates
 
   // use the following to control picking from a list
   vtkTypeBool PickFromList;
-  vtkPropCollection *PickList;
+  vtkPropCollection* PickList;
+
 private:
   vtkAbstractPicker(const vtkAbstractPicker&) = delete;
   void operator=(const vtkAbstractPicker&) = delete;
 };
 
 #endif
-
-

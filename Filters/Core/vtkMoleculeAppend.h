@@ -23,8 +23,8 @@
  *
  * Option MergeCoincidentAtoms specifies if coincident atoms should be merged or not.
  * This may be useful in Parallel mode to remove ghost atoms when gather molecule on a rank.
- * When merging, use the data of the non ghost atom. If none, use the data of the last coincident atom.
- * This option is active by default.
+ * When merging, use the data of the non ghost atom. If none, use the data of the last coincident
+ * atom. This option is active by default.
  */
 
 #ifndef vtkMoleculeAppend_h
@@ -47,7 +47,7 @@ public:
    */
   vtkDataObject* GetInput(int num);
   vtkDataObject* GetInput() { return this->GetInput(0); }
-    //@}
+  //@}
 
   //@{
   /**

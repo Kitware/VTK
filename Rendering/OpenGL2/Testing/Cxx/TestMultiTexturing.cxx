@@ -8,12 +8,12 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 #include "vtkTexturedSphereSource.h"
-#include "vtkTIFFReader.h"
 
 //----------------------------------------------------------------------------
 int TestMultiTexturing(int argc, char* argv[])
@@ -23,17 +23,16 @@ int TestMultiTexturing(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkTexturedSphereSource> sphere;
   sphere->SetThetaResolution(64);
   sphere->SetPhiResolution(32);
   sphere->Update();
-  vtkPolyData *pd = sphere->GetOutput();
+  vtkPolyData* pd = sphere->GetOutput();
 
-  vtkFloatArray *tcoord =
-    vtkFloatArray::SafeDownCast(pd->GetPointData()->GetTCoords());
+  vtkFloatArray* tcoord = vtkFloatArray::SafeDownCast(pd->GetPointData()->GetTCoords());
   vtkNew<vtkFloatArray> tcoord2;
   tcoord2->SetNumberOfComponents(2);
   tcoord2->SetNumberOfTuples(tcoord->GetNumberOfTuples());
@@ -43,7 +42,7 @@ int TestMultiTexturing(int argc, char* argv[])
     tcoord->GetTypedTuple(i, tmp);
     // mess with the tcoords to make sure
     // this array is getting used
-    tcoord2->SetTuple2(i, tmp[0], tmp[1]*2.0);
+    tcoord2->SetTuple2(i, tmp[0], tmp[1] * 2.0);
   }
   tcoord2->SetName("tcoord2");
   pd->GetPointData()->AddArray(tcoord2);
@@ -54,22 +53,20 @@ int TestMultiTexturing(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  const char* file1 = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/GIS/raster.tif");
+  const char* file1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/raster.tif");
   vtkNew<vtkTIFFReader> reader1;
   reader1->SetFileName(file1);
-  delete [] file1;
+  delete[] file1;
 
   vtkNew<vtkTexture> tex1;
   tex1->InterpolateOn();
   tex1->SetInputConnection(reader1->GetOutputPort());
   actor->GetProperty()->SetTexture("earth_color", tex1);
 
-  const char* file2 = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/clouds.jpeg");
+  const char* file2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/clouds.jpeg");
   vtkNew<vtkJPEGReader> reader2;
   reader2->SetFileName(file2);
-  delete [] file2;
+  delete[] file2;
 
   vtkNew<vtkTexture> tex2;
   tex2->InterpolateOn();
@@ -89,11 +86,11 @@ int TestMultiTexturing(int argc, char* argv[])
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

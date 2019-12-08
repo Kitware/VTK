@@ -21,14 +21,14 @@
  * @class   vtkEmptyRepresentation
  *
  *
-*/
+ */
 
 #ifndef vtkEmptyRepresentation_h
 #define vtkEmptyRepresentation_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkSmartPointer.h"    // For SP ivars
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkConvertSelectionDomain;
 
@@ -45,9 +45,13 @@ public:
    * to have an annotation output.
    */
   vtkAlgorithmOutput* GetInternalAnnotationOutputPort() override
-    { return this->GetInternalAnnotationOutputPort(0); }
+  {
+    return this->GetInternalAnnotationOutputPort(0);
+  }
   vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port) override
-    { return this->GetInternalAnnotationOutputPort(port, 0); }
+  {
+    return this->GetInternalAnnotationOutputPort(port, 0);
+  }
   vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn) override;
 
 protected:
@@ -59,8 +63,6 @@ private:
   void operator=(const vtkEmptyRepresentation&) = delete;
 
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
-
 };
 
 #endif
-

@@ -22,10 +22,10 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkTree.h"
@@ -48,30 +48,26 @@ int vtkTreeMapToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   return 1;
 }
 
-int vtkTreeMapToPolyData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTreeMapToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkTree *inputTree = vtkTree::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* inputTree = vtkTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* outputPoly = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // For each input vertex create 4 points and 1 cell (quad)
   vtkPoints* outputPoints = vtkPoints::New();
-  outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices()*4);
+  outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices() * 4);
   vtkCellArray* outputCells = vtkCellArray::New();
 
   // Create an array for the point normals
   vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
-  normals->SetNumberOfTuples(inputTree->GetNumberOfVertices()*4);
+  normals->SetNumberOfTuples(inputTree->GetNumberOfVertices() * 4);
   normals->SetName("normals");
 
   vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
@@ -87,7 +83,7 @@ int vtkTreeMapToPolyData::RequestData(
   {
     // Grab coords from the input
     double coords[4];
-    coordArray->GetTuple(i,coords);
+    coordArray->GetTuple(i, coords);
 
     double z = 0;
     if (levelArray)
@@ -99,35 +95,34 @@ int vtkTreeMapToPolyData::RequestData(
       z = this->LevelDeltaZ * inputTree->GetLevel(i);
     }
 
-    int index = i*4;
-    outputPoints->SetPoint(index,   coords[0], coords[2], z);
-    outputPoints->SetPoint(index+1, coords[1], coords[2], z);
-    outputPoints->SetPoint(index+2, coords[1], coords[3], z);
-    outputPoints->SetPoint(index+3, coords[0], coords[3], z);
+    int index = i * 4;
+    outputPoints->SetPoint(index, coords[0], coords[2], z);
+    outputPoints->SetPoint(index + 1, coords[1], coords[2], z);
+    outputPoints->SetPoint(index + 2, coords[1], coords[3], z);
+    outputPoints->SetPoint(index + 3, coords[0], coords[3], z);
 
     // Create an asymmetric gradient on the cells
     // this gradient helps differentiate same colored
     // cells from their neighbors. The asymmetric
     // nature of the gradient is required.
-    normals->SetComponent(index,   0, 0);
-    normals->SetComponent(index,   1, .707);
-    normals->SetComponent(index,   2, .707);
+    normals->SetComponent(index, 0, 0);
+    normals->SetComponent(index, 1, .707);
+    normals->SetComponent(index, 2, .707);
 
-    normals->SetComponent(index+1, 0, 0);
-    normals->SetComponent(index+1, 1, .866);
-    normals->SetComponent(index+1, 2, .5);
+    normals->SetComponent(index + 1, 0, 0);
+    normals->SetComponent(index + 1, 1, .866);
+    normals->SetComponent(index + 1, 2, .5);
 
-    normals->SetComponent(index+2, 0, 0);
-    normals->SetComponent(index+2, 1, .707);
-    normals->SetComponent(index+2, 2, .707);
+    normals->SetComponent(index + 2, 0, 0);
+    normals->SetComponent(index + 2, 1, .707);
+    normals->SetComponent(index + 2, 2, .707);
 
-    normals->SetComponent(index+3, 0, 0);
-    normals->SetComponent(index+3, 1, 0);
-    normals->SetComponent(index+3, 2, 1);
-
+    normals->SetComponent(index + 3, 0, 0);
+    normals->SetComponent(index + 3, 1, 0);
+    normals->SetComponent(index + 3, 2, 1);
 
     // Create the cell that uses these points
-    vtkIdType cellConn[] = {index, index+1, index+2, index+3};
+    vtkIdType cellConn[] = { index, index + 1, index + 2, index + 3 };
     outputCells->InsertNextCell(4, cellConn);
   }
 
@@ -138,9 +133,9 @@ int vtkTreeMapToPolyData::RequestData(
   outputPoly->SetPoints(outputPoints);
   outputPoly->SetPolys(outputCells);
 
-  if( this->AddNormals )
+  if (this->AddNormals)
   {
-      // Set the point normals
+    // Set the point normals
     outputPoly->GetPointData()->AddArray(normals);
     outputPoly->GetPointData()->SetActiveNormals("normals");
   }
@@ -155,7 +150,7 @@ int vtkTreeMapToPolyData::RequestData(
 
 void vtkTreeMapToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "LevelDeltaZ: " << this->LevelDeltaZ << endl;
   os << indent << "AddNormals: " << this->AddNormals << endl;
 }

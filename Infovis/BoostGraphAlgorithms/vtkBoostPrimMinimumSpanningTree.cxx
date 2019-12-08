@@ -22,21 +22,21 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkBoostGraphAdapter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
-#include "vtkMutableDirectedGraph.h"
-#include "vtkUndirectedGraph.h"
 #include "vtkTree.h"
+#include "vtkUndirectedGraph.h"
 
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
 #include <boost/pending/queue.hpp>
@@ -81,8 +81,7 @@ void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(vtkIdType index)
 // but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
-void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(
-  vtkStdString arrayName, vtkVariant value)
+void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(vtkStdString arrayName, vtkVariant value)
 {
   this->SetArrayName(arrayName);
   this->ArrayNameSet = true;
@@ -95,10 +94,11 @@ void vtkBoostPrimMinimumSpanningTree::SetNegateEdgeWeights(bool value)
   this->NegateEdgeWeights = value;
   if (this->NegateEdgeWeights)
   {
-    vtkWarningMacro("The Boost implementation of Prim's minimum spanning tree algorithm does not allow negation of edge weights.");
+    vtkWarningMacro("The Boost implementation of Prim's minimum spanning tree algorithm does not "
+                    "allow negation of edge weights.");
     return;
 
-    //this->EdgeWeightMultiplier = -1.0;
+    // this->EdgeWeightMultiplier = -1.0;
   }
   else
     this->EdgeWeightMultiplier = 1.0;
@@ -108,14 +108,14 @@ void vtkBoostPrimMinimumSpanningTree::SetNegateEdgeWeights(bool value)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkBoostPrimMinimumSpanningTree::GetVertexIndex(
-  vtkAbstractArray *abstract, vtkVariant value)
+  vtkAbstractArray* abstract, vtkVariant value)
 {
   // Okay now what type of array is it
   if (abstract->IsNumeric())
   {
-    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
+    vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
-    for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
+    for (int i = 0; i < dataArray->GetNumberOfTuples(); ++i)
     {
       if (intValue == static_cast<int>(dataArray->GetTuple1(i)))
       {
@@ -125,9 +125,9 @@ vtkIdType vtkBoostPrimMinimumSpanningTree::GetVertexIndex(
   }
   else
   {
-    vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
+    vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
     vtkStdString stringValue(value.ToString());
-    for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
+    for (int i = 0; i < stringArray->GetNumberOfTuples(); ++i)
     {
       if (stringValue == stringArray->GetValue(i))
       {
@@ -142,18 +142,15 @@ vtkIdType vtkBoostPrimMinimumSpanningTree::GetVertexIndex(
 }
 
 //----------------------------------------------------------------------------
-int vtkBoostPrimMinimumSpanningTree::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBoostPrimMinimumSpanningTree::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Now figure out the origin vertex of the MST
   if (this->ArrayNameSet)
@@ -167,7 +164,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
       return 0;
     }
 
-    this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
+    this->OriginVertexIndex = this->GetVertexIndex(abstract, this->OriginValue);
   }
 
   // Retrieve the edge-weight array.
@@ -181,26 +178,24 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   // Does the edge-weight array exist at all?
   if (edgeWeightArray == nullptr)
   {
-    vtkErrorMacro("Could not find edge-weight array named "
-                  << this->EdgeWeightArrayName);
+    vtkErrorMacro("Could not find edge-weight array named " << this->EdgeWeightArrayName);
     return 0;
   }
 
   // Create the mutable graph to build the tree
-  vtkSmartPointer<vtkMutableDirectedGraph> temp =
-    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkMutableDirectedGraph> temp = vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
   temp->GetVertexData()->PassData(input->GetVertexData());
   temp->GetPoints()->ShallowCopy(input->GetPoints());
-  //FIXME - We're not copying the edge data, see FIXME note below.
+  // FIXME - We're not copying the edge data, see FIXME note below.
   //  temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
 
   // Send the property map through both the multiplier and the
   // helper (for edge_descriptor indexing)
   typedef vtkGraphPropertyMapMultiplier<vtkDataArray*> mapMulti;
-  mapMulti multi(edgeWeightArray,this->EdgeWeightMultiplier);
+  mapMulti multi(edgeWeightArray, this->EdgeWeightMultiplier);
   vtkGraphEdgePropertyMapHelper<mapMulti> weight_helper(multi);
 
   // Create a predecessorMap
@@ -209,26 +204,28 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   // Run the algorithm
   if (vtkDirectedGraph::SafeDownCast(input))
   {
-    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
-    prim_minimum_spanning_tree(g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex) );
+    vtkDirectedGraph* g = vtkDirectedGraph::SafeDownCast(input);
+    prim_minimum_spanning_tree(
+      g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex));
   }
   else
   {
-    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
-    prim_minimum_spanning_tree(g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex) );
+    vtkUndirectedGraph* g = vtkUndirectedGraph::SafeDownCast(input);
+    prim_minimum_spanning_tree(
+      g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex));
   }
 
   vtkIdType i;
-  if ( temp->SetNumberOfVertices( input->GetNumberOfVertices() ) < 0 )
+  if (temp->SetNumberOfVertices(input->GetNumberOfVertices()) < 0)
   { // The graph must be distributed.
-    vtkErrorMacro( "Prim MST algorithm will not work on distributed graphs." );
+    vtkErrorMacro("Prim MST algorithm will not work on distributed graphs.");
     return 0;
   }
-  for( i = 0; i < temp->GetNumberOfVertices(); i++ )
+  for (i = 0; i < temp->GetNumberOfVertices(); i++)
   {
-    if( predecessorMap->GetValue(i) == i )
+    if (predecessorMap->GetValue(i) == i)
     {
-      if( i == this->OriginVertexIndex )
+      if (i == this->OriginVertexIndex)
       {
         continue;
       }
@@ -239,9 +236,9 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
       }
     }
 
-    temp->AddEdge( predecessorMap->GetValue(i), i );
+    temp->AddEdge(predecessorMap->GetValue(i), i);
 
-    //FIXME - We're not copying the edge data from the graph to the MST because
+    // FIXME - We're not copying the edge data from the graph to the MST because
     //  of the ambiguity associated with copying data when parallel edges between
     //  vertices in the original graph exist.
     //    temp->GetEdgeData()->CopyData(input->GetEdgeData(), e.Id, tree_e.Id);
@@ -254,11 +251,10 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   }
 
   // Copy the builder graph structure into the output tree
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* output = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output->CheckedShallowCopy(temp))
   {
-    vtkErrorMacro(<<"Invalid tree.");
+    vtkErrorMacro(<< "Invalid tree.");
     return 0;
   }
 
@@ -268,8 +264,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkBoostPrimMinimumSpanningTree::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkBoostPrimMinimumSpanningTree::FillInputPortInformation(int port, vtkInformation* info)
 {
   // now add our info
   if (port == 0)
@@ -285,24 +280,19 @@ void vtkBoostPrimMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
 
-  os << indent << "ArrayName: "
-     << (this->ArrayName ? this->ArrayName : "(none)") << endl;
+  os << indent << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(none)") << endl;
 
   os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
 
-  os << indent << "ArrayNameSet: "
-     << (this->ArrayNameSet ? "true" : "false") << endl;
+  os << indent << "ArrayNameSet: " << (this->ArrayNameSet ? "true" : "false") << endl;
 
-  os << indent << "NegateEdgeWeights: "
-     << (this->NegateEdgeWeights ? "true" : "false") << endl;
+  os << indent << "NegateEdgeWeights: " << (this->NegateEdgeWeights ? "true" : "false") << endl;
 
   os << indent << "EdgeWeightMultiplier: " << this->EdgeWeightMultiplier << endl;
 
-  os << indent << "CreateGraphVertexIdArray: "
-     << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;
+  os << indent << "CreateGraphVertexIdArray: " << (this->CreateGraphVertexIdArray ? "on" : "off")
+     << endl;
 
   os << indent << "EdgeWeightArrayName: "
-     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)")
-     << endl;
+     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)") << endl;
 }
-

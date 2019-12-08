@@ -26,50 +26,48 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkStructuredGrid vtkDataReader
-*/
+ */
 
 #ifndef vtkStructuredGridReader_h
 #define vtkStructuredGridReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkStructuredGrid;
 
 class VTKIOLEGACY_EXPORT vtkStructuredGridReader : public vtkDataReader
 {
 public:
-  static vtkStructuredGridReader *New();
-  vtkTypeMacro(vtkStructuredGridReader,vtkDataReader);
+  static vtkStructuredGridReader* New();
+  vtkTypeMacro(vtkStructuredGridReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this reader.
    */
-  vtkStructuredGrid *GetOutput();
-  vtkStructuredGrid *GetOutput(int idx);
-  void SetOutput(vtkStructuredGrid *output);
+  vtkStructuredGrid* GetOutput();
+  vtkStructuredGrid* GetOutput(int idx);
+  void SetOutput(vtkStructuredGrid* output);
   //@}
 
   /**
    * Read the meta information from the file (WHOLE_EXTENT).
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation *metadata) override;
+  int ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkStructuredGridReader();
   ~vtkStructuredGridReader() override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkStructuredGridReader(const vtkStructuredGridReader&) = delete;
   void operator=(const vtkStructuredGridReader&) = delete;

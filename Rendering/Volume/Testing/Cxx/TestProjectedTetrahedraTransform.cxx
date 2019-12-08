@@ -27,9 +27,9 @@
 #include <vtkRectilinearGrid.h>
 #include <vtkRectilinearGridToTetrahedra.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTesting.h>
 #include <vtkTransform.h>
@@ -62,8 +62,7 @@ vtkSmartPointer<vtkVolume> CubeVolume(double r, double g, double b)
   rectilinearGridToTetrahedra->SetInputData(grid);
   rectilinearGridToTetrahedra->Update();
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid
-    = rectilinearGridToTetrahedra->GetOutput();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid = rectilinearGridToTetrahedra->GetOutput();
 
   // Add scalars to the grid
   vtkNew<vtkDoubleArray> scalars;
@@ -107,8 +106,7 @@ vtkSmartPointer<vtkActor> ConeActor(double r, double g, double b)
   return actor;
 }
 
-
-int TestProjectedTetrahedraTransform(int argc, char *argv[])
+int TestProjectedTetrahedraTransform(int argc, char* argv[])
 {
   // Create the props
 

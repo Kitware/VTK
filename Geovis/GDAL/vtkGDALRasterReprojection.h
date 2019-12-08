@@ -64,12 +64,8 @@ public:
    * "WGS84".
    * Returns boolean indicating if computed dimensions are valid.
    */
-  bool SuggestOutputDimensions(GDALDataset* inputDataset,
-                               const char* outputProjection,
-                               double geoTransform[6],
-                               int* nPixels,
-                               int* nLines,
-                               double maxError = 0.0);
+  bool SuggestOutputDimensions(GDALDataset* inputDataset, const char* outputProjection,
+    double geoTransform[6], int* nPixels, int* nLines, double maxError = 0.0);
 
   /**
    * Compute the reprojection of the input dataset.

@@ -20,14 +20,14 @@
  *
  * Provides a convenient data structure to represent mouse events in the
  * vtkContextScene. Passed to vtkAbstractContextItem objects.
-*/
+ */
 
 #ifndef vtkContextMouseEvent_h
 #define vtkContextMouseEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkWin32Header.h" // For export macros.
-#include "vtkVector.h"      // Needed for vtkVector2f and vtkVector2i
+#include "vtkVector.h"                   // Needed for vtkVector2f and vtkVector2i
+#include "vtkWin32Header.h"              // For export macros.
 
 class vtkRenderWindowInteractor;
 
@@ -37,7 +37,8 @@ public:
   /**
    * Enumeration of mouse buttons.
    */
-  enum {
+  enum
+  {
     NO_BUTTON = 0,
     LEFT_BUTTON = 1,
     MIDDLE_BUTTON = 2,
@@ -47,68 +48,61 @@ public:
   /**
    * Enumeration of modifier keys.
    */
-  enum {
+  enum
+  {
     NO_MODIFIER = 0,
     ALT_MODIFIER = 1,
     SHIFT_MODIFIER = 2,
     CONTROL_MODIFIER = 4
   };
 
-  vtkContextMouseEvent()
-  {
-  }
+  vtkContextMouseEvent() {}
 
   /**
    * Set the interactor for the mouse event.
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor)
-  {
-    this->Interactor = interactor;
-  }
+  void SetInteractor(vtkRenderWindowInteractor* interactor) { this->Interactor = interactor; }
 
   /**
    * Get the interactor for the mouse event. This can be null, and is provided
    * only for convenience.
    */
-  vtkRenderWindowInteractor* GetInteractor() const
-  {
-    return this->Interactor;
-  }
+  vtkRenderWindowInteractor* GetInteractor() const { return this->Interactor; }
 
   /**
    * Set/get the position of the mouse in the item's coordinates.
    */
-  void SetPos(const vtkVector2f &pos) { this->Pos = pos; }
+  void SetPos(const vtkVector2f& pos) { this->Pos = pos; }
   vtkVector2f GetPos() const { return this->Pos; }
 
   /**
    * Set/get the position of the mouse in scene coordinates.
    */
-  void SetScenePos(const vtkVector2f &pos) { this->ScenePos = pos; }
+  void SetScenePos(const vtkVector2f& pos) { this->ScenePos = pos; }
   vtkVector2f GetScenePos() const { return this->ScenePos; }
 
   /**
    * Set/get the position of the mouse in screen coordinates.
    */
-  void SetScreenPos(const vtkVector2i &pos) { this->ScreenPos = pos; }
+  void SetScreenPos(const vtkVector2i& pos) { this->ScreenPos = pos; }
   vtkVector2i GetScreenPos() const { return this->ScreenPos; }
 
   /**
    * Set/get the position of the mouse in the item's coordinates.
    */
-  void SetLastPos(const vtkVector2f &pos) { this->LastPos = pos; }
+  void SetLastPos(const vtkVector2f& pos) { this->LastPos = pos; }
   vtkVector2f GetLastPos() const { return this->LastPos; }
 
   /**
    * Set/get the position of the mouse in scene coordinates.
    */
-  void SetLastScenePos(const vtkVector2f &pos) { this->LastScenePos = pos; }
+  void SetLastScenePos(const vtkVector2f& pos) { this->LastScenePos = pos; }
   vtkVector2f GetLastScenePos() const { return this->LastScenePos; }
 
   /**
    * Set/get the position of the mouse in screen coordinates.
    */
-  void SetLastScreenPos(const vtkVector2i &pos) { this->LastScreenPos = pos; }
+  void SetLastScreenPos(const vtkVector2i& pos) { this->LastScreenPos = pos; }
   vtkVector2i GetLastScreenPos() const { return this->LastScreenPos; }
 
   /**
@@ -161,7 +155,7 @@ protected:
   int Button;
 
 protected:
-  vtkRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor* Interactor;
 };
 
 #endif // vtkContextMouseEvent_h

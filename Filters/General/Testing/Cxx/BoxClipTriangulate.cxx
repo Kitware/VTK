@@ -31,96 +31,95 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include "vtkActor.h"
 #include "vtkExtractEdges.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 #include <ctime>
 
 #include <vector>
 
 const int NumPoints = 13;
-const double PointData[NumPoints*3] = {
-  0.0, 0.0, 0.0,
-  0.0, 1.0, 0.0,
-  1.0, 0.0, 0.0,
-  1.0, 1.0, 0.0,
-  2.0, 0.0, 0.0,
-  2.0, 1.0, 0.0,
+const double PointData[NumPoints * 3] = {
+  0.0, 0.0, 0.0, //
+  0.0, 1.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  1.0, 1.0, 0.0, //
+  2.0, 0.0, 0.0, //
+  2.0, 1.0, 0.0, //
 
-  0.0, 0.0, 1.0,
-  0.0, 1.0, 1.0,
-  1.0, 0.0, 1.0,
-  1.0, 1.0, 1.0,
-  2.0, 0.0, 1.0,
-  2.0, 1.0, 1.0,
-  2.0, 0.5, 1.0
+  0.0, 0.0, 1.0, //
+  0.0, 1.0, 1.0, //
+  1.0, 0.0, 1.0, //
+  1.0, 1.0, 1.0, //
+  2.0, 0.0, 1.0, //
+  2.0, 1.0, 1.0, //
+  2.0, 0.5, 1.0  //
 };
-
 
 const vtkIdType NumTriStripCells = 1;
 const vtkIdType TriStripCells[] = {
-  6, 1, 0, 3, 2, 5, 4
+  6, 1, 0, 3, 2, 5, 4 //
 };
 
 const vtkIdType NumQuadCells = 2;
 const vtkIdType QuadCells[] = {
-  4, 0, 2, 3, 1,
-  4, 2, 4, 5, 3
+  4, 0, 2, 3, 1, //
+  4, 2, 4, 5, 3  //
 };
 
 const vtkIdType NumPixelCells = 2;
 const vtkIdType PixelCells[] = {
-  4, 0, 2, 1, 3,
-  4, 2, 4, 3, 5
+  4, 0, 2, 1, 3, //
+  4, 2, 4, 3, 5  //
 };
 
 const vtkIdType NumPolyCells = 3;
 const vtkIdType PolyCells[] = {
-  4, 0, 2, 3, 1,
-  3, 2, 4, 5,
-  5, 6, 8, 12, 9, 7
+  4, 0, 2, 3, 1,    //
+  3, 2, 4, 5,       //
+  5, 6, 8, 12, 9, 7 //
 };
-
 
 const vtkIdType NumHexCells = 2;
 const vtkIdType HexCells[] = {
-  8, 6, 8, 2, 0, 7, 9, 3, 1,
-  8, 4, 2, 8, 10, 5, 3, 9, 11
+  8, 6, 8, 2, 0, 7, 9, 3, 1,  //
+  8, 4, 2, 8, 10, 5, 3, 9, 11 //
 };
 const vtkIdType NumExpectedHexSurfacePolys = 20;
 
 const vtkIdType NumVoxelCells = 2;
 const vtkIdType VoxelCells[] = {
-  8, 0, 2, 1, 3, 6, 8, 7, 9,
-  8, 10, 8, 11, 9, 4, 2, 5, 3
+  8, 0, 2, 1, 3, 6, 8, 7, 9,  //
+  8, 10, 8, 11, 9, 4, 2, 5, 3 //
 };
 const vtkIdType NumExpectedVoxelSurfacePolys = 20;
 
 const vtkIdType NumWedgeCells = 4;
 const vtkIdType WedgeCells[] = {
-  6, 0, 1, 2, 6, 7, 8,
-  6, 7, 8, 9, 1, 2, 3,
-  6, 8, 11, 9, 2, 5, 3,
-  6, 2, 5, 4, 8, 11, 10
+  6, 0, 1, 2, 6, 7, 8,  //
+  6, 7, 8, 9, 1, 2, 3,  //
+  6, 8, 11, 9, 2, 5, 3, //
+  6, 2, 5, 4, 8, 11, 10 //
 };
 const vtkIdType NumExpectedWedgeSurfacePolys = 20;
 
 const vtkIdType NumPyramidCells = 2;
 const vtkIdType PyramidCells[] = {
-  5, 8, 9, 3, 2, 0,
-  5, 2, 3, 9, 8, 12
+  5, 8, 9, 3, 2, 0, //
+  5, 2, 3, 9, 8, 12 //
 };
 const vtkIdType NumExpectedPyramidSurfacePolys = 8;
 
-class BoxClipTriangulateFailed { };
+class BoxClipTriangulateFailed
+{
+};
 
 //-----------------------------------------------------------------------------
 
@@ -129,12 +128,13 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
   alg->Update();
   vtkUnstructuredGrid* data = alg->GetOutput();
 
-  vtkPoints *points = data->GetPoints();
+  vtkPoints* points = data->GetPoints();
 
-  vtkCellArray *cells = data->GetCells();
+  vtkCellArray* cells = data->GetCells();
   cells->InitTraversal();
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType* pts;
   while (cells->GetNextCell(npts, pts))
   {
     if (npts != 4)
@@ -152,14 +152,20 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
     // If the winding is correct, the normal to triangle p0,p1,p2 should point
     // towards p3.
     double v0[3], v1[3];
-    v0[0] = p1[0] - p0[0];    v0[1] = p1[1] - p0[1];    v0[2] = p1[2] - p0[2];
-    v1[0] = p2[0] - p0[0];    v1[1] = p2[1] - p0[1];    v1[2] = p2[2] - p0[2];
+    v0[0] = p1[0] - p0[0];
+    v0[1] = p1[1] - p0[1];
+    v0[2] = p1[2] - p0[2];
+    v1[0] = p2[0] - p0[0];
+    v1[1] = p2[1] - p0[1];
+    v1[2] = p2[2] - p0[2];
 
     double n[3];
     vtkMath::Cross(v0, v1, n);
 
     double d[3];
-    d[0] = p3[0] - p0[0];    d[1] = p3[1] - p0[1];    d[2] = p3[2] - p0[2];
+    d[0] = p3[0] - p0[0];
+    d[1] = p3[1] - p0[1];
+    d[2] = p3[2] - p0[2];
 
     if (vtkMath::Dot(n, d) < 0)
     {
@@ -171,9 +177,8 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
 
 //-----------------------------------------------------------------------------
 
-static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
-                                                       vtkIdType numcells,
-                                                       const vtkIdType *cells)
+static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(
+  int type, vtkIdType numcells, const vtkIdType* cells)
 {
   vtkIdType i;
 
@@ -191,8 +196,7 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
 
   while (!idsLeft.empty())
   {
-    vtkIdType next
-      = std::lround(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
+    vtkIdType next = std::lround(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
     std::vector<vtkIdType>::iterator nextp = idsLeft.begin() + next;
     idMap.push_back(*nextp);
     idsLeft.erase(nextp, nextp + 1);
@@ -203,16 +207,17 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
   points->SetNumberOfPoints(NumPoints);
   for (i = 0; i < NumPoints; i++)
   {
-    points->SetPoint(idMap[i], PointData + 3*i);
+    points->SetPoint(idMap[i], PointData + 3 * i);
   }
   input->SetPoints(points);
 
   // Add the cells with indices properly mapped.
   VTK_CREATE(vtkIdList, ptIds);
-  const vtkIdType *c = cells;
+  const vtkIdType* c = cells;
   for (i = 0; i < numcells; i++)
   {
-    vtkIdType npts = *c;  c++;
+    vtkIdType npts = *c;
+    c++;
     ptIds->Initialize();
     for (vtkIdType j = 0; j < npts; j++)
     {
@@ -227,11 +232,9 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
 
 //-----------------------------------------------------------------------------
 
-static void Check2DPrimitive(int type, vtkIdType numcells,
-                             const vtkIdType *cells)
+static void Check2DPrimitive(int type, vtkIdType numcells, const vtkIdType* cells)
 {
-  vtkSmartPointer<vtkUnstructuredGrid> input
-    = BuildInput(type, numcells, cells);
+  vtkSmartPointer<vtkUnstructuredGrid> input = BuildInput(type, numcells, cells);
 
   VTK_CREATE(vtkBoxClipDataSet, clipper);
   clipper->SetInputData(input);
@@ -239,7 +242,7 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
   clipper->SetBoxClip(0.0, 2.0, 0.0, 1.0, 0.0, 1.0);
   clipper->Update();
 
-  vtkUnstructuredGrid *output = clipper->GetOutput();
+  vtkUnstructuredGrid* output = clipper->GetOutput();
 
   if (output->GetNumberOfCells() < 1)
   {
@@ -248,9 +251,10 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
   }
 
   // Check to make sure all the normals point in the z direction.
-  vtkCellArray *outCells = output->GetCells();
+  vtkCellArray* outCells = output->GetCells();
   outCells->InitTraversal();
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType* pts;
   while (outCells->GetNextCell(npts, pts))
   {
     if (npts != 3)
@@ -271,11 +275,10 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
 
 //-----------------------------------------------------------------------------
 
-static void Check3DPrimitive(int type, vtkIdType numcells,
-                             const vtkIdType *cells, vtkIdType numSurfacePolys)
+static void Check3DPrimitive(
+  int type, vtkIdType numcells, const vtkIdType* cells, vtkIdType numSurfacePolys)
 {
-  vtkSmartPointer<vtkUnstructuredGrid> input
-    = BuildInput(type, numcells, cells);
+  vtkSmartPointer<vtkUnstructuredGrid> input = BuildInput(type, numcells, cells);
 
   VTK_CREATE(vtkBoxClipDataSet, clipper);
   clipper->SetInputData(input);
@@ -283,7 +286,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   clipper->SetBoxClip(0.0, 2.0, 0.0, 1.0, 0.0, 1.0);
   clipper->Update();
 
-  vtkUnstructuredGrid *output = clipper->GetOutput();
+  vtkUnstructuredGrid* output = clipper->GetOutput();
 
   if (output->GetNumberOfCells() < 1)
   {
@@ -317,14 +320,14 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   if (surface->GetOutput()->GetNumberOfCells() != numSurfacePolys)
   {
     std::cout << "Expected " << numSurfacePolys << " triangles on the surface, got "
-         << surface->GetOutput()->GetNumberOfCells() << std::endl;
+              << surface->GetOutput()->GetNumberOfCells() << std::endl;
     throw BoxClipTriangulateFailed();
   }
 }
 
 //-----------------------------------------------------------------------------
 
-int BoxClipTriangulate(int, char *[])
+int BoxClipTriangulate(int, char*[])
 {
   long seed = time(nullptr);
   std::cout << "Random seed = " << seed << std::endl;
@@ -348,20 +351,16 @@ int BoxClipTriangulate(int, char *[])
     Check2DPrimitive(VTK_POLYGON, NumPolyCells, PolyCells);
 
     std::cout << "Checking hexahedrons." << std::endl;
-    Check3DPrimitive(VTK_HEXAHEDRON, NumHexCells, HexCells,
-                     NumExpectedHexSurfacePolys);
+    Check3DPrimitive(VTK_HEXAHEDRON, NumHexCells, HexCells, NumExpectedHexSurfacePolys);
 
     std::cout << "Checking voxels." << std::endl;
-    Check3DPrimitive(VTK_VOXEL, NumVoxelCells, VoxelCells,
-                     NumExpectedVoxelSurfacePolys);
+    Check3DPrimitive(VTK_VOXEL, NumVoxelCells, VoxelCells, NumExpectedVoxelSurfacePolys);
 
     std::cout << "Checking wedges." << std::endl;
-    Check3DPrimitive(VTK_WEDGE, NumWedgeCells, WedgeCells,
-                     NumExpectedWedgeSurfacePolys);
+    Check3DPrimitive(VTK_WEDGE, NumWedgeCells, WedgeCells, NumExpectedWedgeSurfacePolys);
 
     std::cout << "Checking pyramids." << std::endl;
-    Check3DPrimitive(VTK_PYRAMID, NumPyramidCells, PyramidCells,
-                     NumExpectedPyramidSurfacePolys);
+    Check3DPrimitive(VTK_PYRAMID, NumPyramidCells, PyramidCells, NumExpectedPyramidSurfacePolys);
   }
   catch (BoxClipTriangulateFailed)
   {

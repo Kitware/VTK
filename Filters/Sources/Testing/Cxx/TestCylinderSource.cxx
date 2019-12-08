@@ -17,21 +17,20 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 
-int TestCylinderSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestCylinderSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkCylinderSource> cylinderSource
-    = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkSmartPointer<vtkCylinderSource> cylinderSource = vtkSmartPointer<vtkCylinderSource>::New();
   cylinderSource->SetResolution(8);
   cylinderSource->CappingOn();
 
   cylinderSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
   double center[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
@@ -51,14 +50,14 @@ int TestCylinderSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = cylinderSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   cylinderSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
@@ -78,7 +77,7 @@ int TestCylinderSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = cylinderSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

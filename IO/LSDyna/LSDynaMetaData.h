@@ -29,9 +29,9 @@
 
 #include "LSDynaFamily.h"
 
-#include <string>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 class LSDynaMetaData
@@ -39,9 +39,9 @@ class LSDynaMetaData
 public:
   LSDynaMetaData();
 
-  bool AddPointArray( const std::string& name, int numComponents, int status );
+  bool AddPointArray(const std::string& name, int numComponents, int status);
 
-  bool AddCellArray( int cellType, const std::string& name, int numComponents, int status );
+  bool AddCellArray(int cellType, const std::string& name, int numComponents, int status);
 
   vtkIdType GetTotalMaterialCount();
 
@@ -54,7 +54,8 @@ public:
    * Note that \a NUM_CELL_TYPES is not a cell type, but an enumerant that
    * specifies the total number of cell types. It is used to size arrays.
    */
-  enum LSDYNA_TYPES{
+  enum LSDYNA_TYPES
+  {
     PARTICLE = 0,
     BEAM = 1,
     SHELL = 2,
@@ -69,25 +70,27 @@ public:
   // values (although "derived-value" arrays will be
   // initialized to nullptr)
   int FileIsValid;
-  int FileSizeFactor; // scale factor used to compute MaxFileLength
+  int FileSizeFactor;      // scale factor used to compute MaxFileLength
   vtkIdType MaxFileLength; // Maximum size of any file (data too big is split into multiple files)
 
   LSDynaFamily Fam; // file family I/O aggregator
 
-  char  Title[41];
-  char  ReleaseNumber[16];
+  char Title[41];
+  char ReleaseNumber[16];
   float CodeVersion;
   int Dimensionality;
   vtkIdType CurrentState; // time step
   vtkIdType NumberOfNodes;
   vtkIdType NumberOfCells[LSDynaMetaData::NUM_CELL_TYPES];
-  int ReadRigidRoadMvmt; // Are some of the quads rigid? (eliminating a lot of state)
+  int ReadRigidRoadMvmt;    // Are some of the quads rigid? (eliminating a lot of state)
   int ConnectivityUnpacked; // Is the connectivity packed, 3 to a word?
-  std::map<std::string,vtkIdType> Dict;
+  std::map<std::string, vtkIdType> Dict;
 
-  /// List of material IDs that indicate the associated shell element is rigid (and has no state data)
+  /// List of material IDs that indicate the associated shell element is rigid (and has no state
+  /// data)
   std::set<int> RigidMaterials;
-  /// List of material IDs that indicate the associated solid element represents an Eulerian or ALE fluid.
+  /// List of material IDs that indicate the associated solid element represents an Eulerian or ALE
+  /// fluid.
   std::set<int> FluidMaterials;
 
   std::vector<std::string> PointArrayNames;
@@ -119,10 +122,10 @@ public:
   // Number of bytes required to store a single timestep
   vtkIdType StateSize;
 
-  //Number of words into the state that the element deletion starts at
+  // Number of words into the state that the element deletion starts at
   vtkIdType ElementDeletionOffset;
 
-  //Number of words into the state that the SPH state data starts at
+  // Number of words into the state that the SPH state data starts at
   vtkIdType SPHStateOffset;
 };
 

@@ -31,7 +31,7 @@
  * vtkPythonInterpreter instance include vtkCommand::EnterEvent,
  * vtkCommand::ExitEvent, vtkCommand::UpdateEvent, vtkCommand::ErrorEvent and
  * vtkCommand::SetOutputEvent.
-*/
+ */
 
 #ifndef vtkPythonInteractiveInterpreter_h
 #define vtkPythonInteractiveInterpreter_h

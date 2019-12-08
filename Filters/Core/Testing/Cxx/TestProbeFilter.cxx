@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkProbeFilter.h"
-#include "vtkLineSource.h"
 #include "vtkArrayCalculator.h"
-#include "vtkNew.h"
-#include "vtkDataSet.h"
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkLineSource.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkProbeFilter.h"
 
 // Gets the number of points the probe filter counted as valid.
 // The parameter should be the output of the probe filter
@@ -40,22 +40,22 @@ int GetNumberOfValidPoints(vtkDataSet* pd)
 // Tests the CompteThreshold and Threshold parameters on the vtkProbeFilter
 int TestProbeFilterThreshold()
 {
-  vtkNew< vtkLineSource > line1;
-  line1->SetPoint1(-1,0,0);
-  line1->SetPoint2(10,0,0);
+  vtkNew<vtkLineSource> line1;
+  line1->SetPoint1(-1, 0, 0);
+  line1->SetPoint2(10, 0, 0);
   line1->SetResolution(11);
 
-  vtkNew< vtkLineSource > line2;
-  line2->SetPoint1(-0.499962,-0.00872654,0);
-  line2->SetPoint2(10.4996,0.0872654,0);
+  vtkNew<vtkLineSource> line2;
+  line2->SetPoint1(-0.499962, -0.00872654, 0);
+  line2->SetPoint2(10.4996, 0.0872654, 0);
   line2->SetResolution(11);
 
-  vtkNew< vtkArrayCalculator > calc;
+  vtkNew<vtkArrayCalculator> calc;
   calc->SetInputConnection(line1->GetOutputPort());
   calc->AddCoordinateScalarVariable("coordsX");
   calc->SetFunction("sin(coordsX)");
 
-  vtkNew< vtkProbeFilter > probe;
+  vtkNew<vtkProbeFilter> probe;
   probe->SetInputConnection(calc->GetOutputPort());
   probe->SetSourceConnection(line2->GetOutputPort());
   probe->Update();
@@ -68,7 +68,7 @@ int TestProbeFilterThreshold()
   // turn off computing tolerance and set it to 11 times what is was.
   // 11 is magic number to get all the points within line1 selected.
   probe->SetComputeTolerance(false);
-  probe->SetTolerance(11*probe->GetTolerance());
+  probe->SetTolerance(11 * probe->GetTolerance());
   probe->Update();
 
   int validNext = GetNumberOfValidPoints(probe->GetOutput());

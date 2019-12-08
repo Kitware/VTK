@@ -166,8 +166,7 @@ int TestQtPicking(int argc, char* argv[])
   }
 
   // Check that picks outside of spheres hit no actors
-  bool missesOk = std::all_of(misses.begin(),
-    misses.end(),
+  bool missesOk = std::all_of(misses.begin(), misses.end(),
     [](const vtkSmartPointer<vtkActor2D>& actor) { return (actor == nullptr); });
   if (!missesOk)
   {

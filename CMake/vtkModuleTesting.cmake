@@ -20,9 +20,9 @@ get_filename_component(_vtkModuleTesting_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECT
 
 Data may be downloaded manually using this function:
 
-```
+~~~
 vtk_module_test_data(<PATHSPEC>...)
-```
+~~~
 
 This will download data inside of the input data directory for the modules
 being built at that time (see the `TEST_INPUT_DATA_DIRECTORY` argument of
@@ -57,9 +57,9 @@ This function creates an executable from the list of sources passed to it. It
 is automatically linked to the module the tests are intended for as well as any
 declared test dependencies of the module.
 
-```
+~~~
 vtk_module_test_executable(<NAME> <SOURCE>...)
-```
+~~~
 
 This function is not usually used directly, but instead through the other
 convenience functions.
@@ -122,9 +122,9 @@ setting `vtk_test_prefix`, the test name will instead be
 This function parses the name from a testspec. The calling scope has
 `test_name` and `test_file` variables set in it.
 
-```
+~~~
 _vtk_test_parse_name(<TESTSPEC>)
-```
+~~~
 #]==]
 function (_vtk_test_parse_name name)
   if (name AND name MATCHES "^([^,]*),(.*)$")
@@ -160,9 +160,9 @@ variables:
     `_vtk_test_parse_name`.
   - `_<NAME>_options`: Options specific to a certain test.
 
-```
+~~~
 _vtk_test_parse_args(<OPTIONS> <SOURCE_EXT> <ARG>...)
-```
+~~~
 
 In order to be recognized as a source file, the `SOURCE_EXT` must be used.
 Without it, all non-option arguments are placed into `args`. Each test is
@@ -210,9 +210,9 @@ For handling global option settings, this function sets variables in the
 calling scoped named `<PREFIX><OPTION>` to either `0` or `1` if the option is
 present in the remaining argument list.
 
-```
+~~~
 _vtk_test_set_options(<OPTIONS> <PREFIX> <ARG>...)
-```
+~~~
 
 Additionally, a non-`0` default for a given option may be specified by a
 variable with the same name as the option and specifying a prefix for the
@@ -253,9 +253,9 @@ set_property(CACHE VTK_MPI_NUMPROCS
 This function declares C++ tests. Source files are required to use the `cxx`
 extension.
 
-```
+~~~
 vtk_add_test_cxx(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 
 Each argument should be either an option, a test specification, or it is passed
 as flags to all tests declared in the group. The list of tests is set in the
@@ -334,9 +334,9 @@ endfunction ()
 This function declares C++ tests which should be run under an MPI environment.
 Source files are required to use the `cxx` extension.
 
-```
+~~~
 vtk_add_test_mpi(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 
 Each argument should be either an option, a test specification, or it is passed
 as flags to all tests declared in the group. The list of tests is set in the
@@ -429,9 +429,9 @@ endfunction ()
 #[==[.md
 ### C++ test executable
 
-```
+~~~
 vtk_test_cxx_executable(<EXENAME> <VARNAME> [RENDERING_FACTORY] [<SRC>...])
-```
+~~~
 
 Creates an executable named `EXENAME` which contains the tests listed in the
 variable named in the `VARNAME` argument. The `EXENAME` must match the
@@ -491,9 +491,9 @@ endfunction ()
 This function declares Python tests. Test files are required to use the `py`
 extension.
 
-```
+~~~
 vtk_add_test_python(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 #]==]
 
 #[==[.md INTERNAL
@@ -526,8 +526,10 @@ Options:
     current source directory. If alternate baseline images are required,
     `<NAME>` may be suffixed by `_1`, `_2`, etc. The valid image is passed via
     the `-V` flag.
-  - `NO_RT`: If `NO_RT` is specified, `-B` is passed instead of `-V` assuming
-    `NO_VALID` is not specified.
+  - `NO_RT`: If `NO_RT` is specified, `-B` is passed instead of `-V`, only
+     providing a baseline dir, assuming `NO_VALID` is not specified.
+  - `DIRECT_DATA` : If `DIRECT_DATA` is specified, the baseline path will be provided
+     as is, without the use of ExternalData_add_test.
   - `JUST_VALID`: Only applies when both `NO_VALID` and `NO_RT` are not
     present. If it is not specified, `-A` is passed with path to the directory
     of the `vtkTclTest2Py` Python package and the test is run via the
@@ -550,6 +552,7 @@ function (vtk_add_test_python)
     NO_VALID
     NO_OUTPUT
     NO_RT
+    DIRECT_DATA
     JUST_VALID
     )
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
@@ -572,9 +575,17 @@ function (vtk_add_test_python)
     set(_A "")
     if (NOT local_NO_VALID)
       if (local_NO_RT)
-        set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${test_name}(-.*)?(_[0-9]+)?.png}")
+        if (local_DIRECT_DATA)
+          set(_B -B "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/")
+        else ()
+          set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${test_name}(-.*)?(_[0-9]+)?.png}")
+        endif()
       else ()
-        set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+        if (local_DIRECT_DATA)
+          set(_V -V "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/${test_name}.png")
+        else ()
+          set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+        endif()
         if (NOT local_JUST_VALID)
           # TODO: This should be fixed to also work from an installed VTK.
           set(rtImageTest "${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py")
@@ -588,16 +599,26 @@ function (vtk_add_test_python)
       set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
     endif ()
 
-    ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
-      NAME    "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
-      COMMAND ${_vtk_test_python_pre_args}
-              "${_vtk_testing_python_exe}" --enable-bt
-              ${rtImageTest}
-              "${CMAKE_CURRENT_SOURCE_DIR}/${test_file}.py"
-              ${args}
-              ${${_vtk_build_test}_ARGS}
-              ${${name}_ARGS}
-              ${_D} ${_B} ${_T} ${_V} ${_A})
+    if (NOT _vtk_build_TEST_FILE_DIRECTORY)
+      set(_vtk_build_TEST_FILE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
+    set(testArgs NAME "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
+                 COMMAND ${_vtk_test_python_pre_args}
+                         "${_vtk_testing_python_exe}" ${_vtk_test_python_args} --enable-bt
+                         ${rtImageTest}
+                         "${_vtk_build_TEST_FILE_DIRECTORY}/${test_file}.py"
+                         ${args}
+                         ${${_vtk_build_test}_ARGS}
+                         ${${name}_ARGS}
+                         ${_D} ${_B} ${_T} ${_V} ${_A})
+
+    if (local_DIRECT_DATA)
+      add_test(${testArgs})
+    else ()
+      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}" ${testArgs})
+    endif()
+
     set_tests_properties("${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"

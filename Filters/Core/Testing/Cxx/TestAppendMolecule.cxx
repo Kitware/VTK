@@ -64,14 +64,8 @@ void AddAtomData(vtkMolecule* molecule)
   molecule->GetBondData()->AddArray(stringData);
 }
 
-int CheckMolecule(vtkMolecule* molecule,
-  int nbAtoms,
-  int nbBonds,
-  int nbOfAtomArrays,
-  int nbOfBondArrays,
-  vtkDoubleArray* values,
-  int nbGhostAtoms,
-  int nbGhostBonds)
+int CheckMolecule(vtkMolecule* molecule, int nbAtoms, int nbBonds, int nbOfAtomArrays,
+  int nbOfBondArrays, vtkDoubleArray* values, int nbGhostAtoms, int nbGhostBonds)
 {
   CheckNumbers("atoms", molecule->GetNumberOfAtoms(), nbAtoms);
   CheckNumbers("bonds", molecule->GetNumberOfBonds(), nbBonds);
@@ -126,7 +120,7 @@ int CheckMolecule(vtkMolecule* molecule,
   return EXIT_SUCCESS;
 }
 
-int TestAppendMolecule(int, char* [])
+int TestAppendMolecule(int, char*[])
 {
   // --------------------------------------------------------------------------
   // Simple test : 2 molecules, no data
@@ -222,14 +216,8 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertNextValue(
     fullMolecule2->GetAtomData()->GetArray("Data")->GetTuple1(2));
 
-  int res = CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    1,
-    1);
+  int res = CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds,
+    nbOfExpectedArrays, nbOfExpectedBondArrays, expectedResultValues, 1, 1);
   if (res == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
@@ -259,14 +247,8 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertNextValue(
     fullMolecule3->GetAtomData()->GetArray("Data")->GetTuple1(2));
 
-  res = CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    2,
-    2);
+  res = CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds, nbOfExpectedArrays,
+    nbOfExpectedBondArrays, expectedResultValues, 2, 2);
   if (res == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
@@ -290,12 +272,6 @@ int TestAppendMolecule(int, char* [])
   expectedResultValues->InsertValue(
     4, fullMolecule3->GetAtomData()->GetArray("Data")->GetTuple1(1));
 
-  return CheckMolecule(resultFullMolecule,
-    nbOfExpectedAtoms,
-    nbOfExpectedBonds,
-    nbOfExpectedArrays,
-    nbOfExpectedBondArrays,
-    expectedResultValues,
-    0,
-    0);
+  return CheckMolecule(resultFullMolecule, nbOfExpectedAtoms, nbOfExpectedBonds, nbOfExpectedArrays,
+    nbOfExpectedBondArrays, expectedResultValues, 0, 0);
 }

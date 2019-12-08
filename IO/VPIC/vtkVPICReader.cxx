@@ -30,8 +30,8 @@
 
 #include "vtkMultiProcessController.h"
 
-#include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/GridExchange.h"
+#include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/VPICView.h"
 
 vtkStandardNewMacro(vtkVPICReader);
@@ -54,8 +54,7 @@ vtkVPICReader::vtkVPICReader()
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkVPICReader::SelectionCallback);
   this->SelectionObserver->SetClientData(this);
-  this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
-                                             this->SelectionObserver);
+  this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   // External VPICDataSet for actually reading files
   this->vpicData = 0;
   this->exchanger = 0;
@@ -82,7 +81,7 @@ vtkVPICReader::vtkVPICReader()
 
   this->MPIController = vtkMultiProcessController::GetGlobalController();
 
-  if(this->MPIController)
+  if (this->MPIController)
   {
     this->Rank = this->MPIController->GetLocalProcessId();
     this->TotalRank = this->MPIController->GetNumberOfProcesses();
@@ -107,14 +106,14 @@ vtkVPICReader::vtkVPICReader()
 //----------------------------------------------------------------------------
 vtkVPICReader::~vtkVPICReader()
 {
-  delete [] this->FileName;
+  delete[] this->FileName;
   this->PointDataArraySelection->Delete();
 
   delete this->vpicData;
-  delete [] this->VariableName;
-  delete [] this->VariableStruct;
-  delete [] this->TimeSteps;
-  delete [] this->dataLoaded;
+  delete[] this->VariableName;
+  delete[] this->VariableStruct;
+  delete[] this->TimeSteps;
+  delete[] this->dataLoaded;
 
   delete this->exchanger;
 
@@ -127,7 +126,7 @@ vtkVPICReader::~vtkVPICReader()
         this->data[var]->Delete();
       }
     }
-    delete [] this->data;
+    delete[] this->data;
   }
 
   this->SelectionObserver->Delete();
@@ -140,28 +139,27 @@ vtkVPICReader::~vtkVPICReader()
 //----------------------------------------------------------------------------
 // Verify that the file exists
 //----------------------------------------------------------------------------
-int vtkVPICReader::RequestInformation(
-  vtkInformation *vtkNotUsed(reqInfo),
-  vtkInformationVector **vtkNotUsed(inVector),
-  vtkInformationVector *outVector)
+int vtkVPICReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
+  vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
   // Verify that file exists
-  if ( !this->FileName ) {
+  if (!this->FileName)
+  {
     vtkErrorMacro("No filename specified");
     return 0;
   }
 
   // Get ParaView information and output pointers
   vtkInformation* outInfo = outVector->GetInformationObject(0);
-  vtkImageData *output = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // RequestInformation() is called for every Modified() event which means
   // when more variable data is selected, time step is changed or stride
   // is changed it will be called again
   // Only want to create the VPICDataSet one time
 
-  if (this->vpicData == 0) {
+  if (this->vpicData == 0)
+  {
 
     // Create the general VPICDataSet structure first time method is called
     // At this point we only know the file name driving the data set but
@@ -184,7 +182,8 @@ int vtkVPICReader::RequestInformation(
     // Data is SCALAR, VECTOR or TENSOR
     this->VariableStruct = new int[this->NumberOfVariables];
 
-    for (int var = 0; var < this->NumberOfVariables; var++) {
+    for (int var = 0; var < this->NumberOfVariables; var++)
+    {
       this->VariableName[var] = this->vpicData->getVariableName(var);
       this->VariableStruct[var] = this->vpicData->getVariableStruct(var);
       this->PointDataArraySelection->AddArray(this->VariableName[var].c_str());
@@ -193,7 +192,8 @@ int vtkVPICReader::RequestInformation(
     // Allocate the ParaView data arrays which will hold the variable data
     this->data = new vtkFloatArray*[this->NumberOfVariables];
     this->dataLoaded = new int[this->NumberOfVariables];
-    for (int var = 0; var < this->NumberOfVariables; var++) {
+    for (int var = 0; var < this->NumberOfVariables; var++)
+    {
       this->data[var] = vtkFloatArray::New();
       this->data[var]->SetName(VariableName[var].c_str());
       this->dataLoaded[var] = 0;
@@ -202,37 +202,41 @@ int vtkVPICReader::RequestInformation(
     // Set the overall problem file decomposition for the GUI extent range
     int layoutSize[DIMENSION];
     this->vpicData->getLayoutSize(layoutSize);
-    this->XLayout[0] = 0;       this->XLayout[1] = layoutSize[0] - 1;
-    this->YLayout[0] = 0;       this->YLayout[1] = layoutSize[1] - 1;
-    this->ZLayout[0] = 0;       this->ZLayout[1] = layoutSize[2] - 1;
+    this->XLayout[0] = 0;
+    this->XLayout[1] = layoutSize[0] - 1;
+    this->YLayout[0] = 0;
+    this->YLayout[1] = layoutSize[1] - 1;
+    this->ZLayout[0] = 0;
+    this->ZLayout[1] = layoutSize[2] - 1;
 
-    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
-     1);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
     // Collect temporal information
     this->NumberOfTimeSteps = this->vpicData->getNumberOfTimeSteps();
     this->TimeSteps = nullptr;
 
-    if (this->NumberOfTimeSteps > 0) {
+    if (this->NumberOfTimeSteps > 0)
+    {
       this->TimeSteps = new double[this->NumberOfTimeSteps];
 
       for (int step = 0; step < this->NumberOfTimeSteps; step++)
-         this->TimeSteps[step] = (double) this->vpicData->getTimeStep(step);
+        this->TimeSteps[step] = (double)this->vpicData->getTimeStep(step);
 
       // Tell the pipeline what steps are available
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                   this->TimeSteps, this->NumberOfTimeSteps);
+      outInfo->Set(
+        vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps, this->NumberOfTimeSteps);
 
       // Range is required to get GUI to show things
       double tRange[2];
       tRange[0] = this->TimeSteps[0];
       tRange[1] = this->TimeSteps[this->NumberOfTimeSteps - 1];
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                   tRange, 2);
-    } else {
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
+    }
+    else
+    {
       outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                   this->TimeSteps, this->NumberOfTimeSteps);
+      outInfo->Set(
+        vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps, this->NumberOfTimeSteps);
     }
   }
 
@@ -245,7 +249,8 @@ int vtkVPICReader::RequestInformation(
   // Repartition only has to be done when the stride changes
   // To handle the loading for the very first time, vpicData stride is set
   // to 0 so that by setting to the default of 1, the partition has be to done
-  if (this->vpicData->needsGridCalculation() == true) {
+  if (this->vpicData->needsGridCalculation() == true)
+  {
 
     // If grid is recalculated all data must be realoaded
     for (int var = 0; var < this->NumberOfVariables; var++)
@@ -262,34 +267,36 @@ int vtkVPICReader::RequestInformation(
     this->vpicData->getWholeExtent(this->WholeExtent);
     output->SetDimensions(this->Dimension);
 
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                 this->WholeExtent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
 
     int processorUsed = this->vpicData->getProcessorUsed();
 
-    if(this->MPIController)
+    if (this->MPIController)
     {
-      this->MPIController->AllReduce(&processorUsed, &this->UsedRank,
-                                     1, vtkCommunicator::SUM_OP);
+      this->MPIController->AllReduce(&processorUsed, &this->UsedRank, 1, vtkCommunicator::SUM_OP);
     }
 
     this->vpicData->getSubExtent(this->Rank, this->SubExtent);
 
     // Reset the SubExtent on this processor to include ghost cells
     // Leave the subextents in the extent table as the size without ghosts
-    for (int dim = 0; dim < DIMENSION; dim++) {
-      if (this->SubExtent[dim*2] != 0)
-        this->SubExtent[dim*2] -= 1;
-      if (this->SubExtent[dim*2+1] != this->Dimension[dim] - 1)
-        this->SubExtent[dim*2+1] += 1;
+    for (int dim = 0; dim < DIMENSION; dim++)
+    {
+      if (this->SubExtent[dim * 2] != 0)
+        this->SubExtent[dim * 2] -= 1;
+      if (this->SubExtent[dim * 2 + 1] != this->Dimension[dim] - 1)
+        this->SubExtent[dim * 2 + 1] += 1;
     }
 
     // Set the subextent dimension size
-    if (processorUsed == 1) {
+    if (processorUsed == 1)
+    {
       this->SubDimension[0] = this->SubExtent[1] - this->SubExtent[0] + 1;
       this->SubDimension[1] = this->SubExtent[3] - this->SubExtent[2] + 1;
       this->SubDimension[2] = this->SubExtent[5] - this->SubExtent[4] + 1;
-    } else {
+    }
+    else
+    {
       this->SubDimension[0] = 0;
       this->SubDimension[1] = 0;
       this->SubDimension[2] = 0;
@@ -302,7 +309,8 @@ int vtkVPICReader::RequestInformation(
 
     // Set ghost cell edges
     this->NumberOfGhostTuples = 1;
-    for (int dim = 0; dim < DIMENSION; dim++) {
+    for (int dim = 0; dim < DIMENSION; dim++)
+    {
 
       // Local block dimensions for loading a component of data
       // Different number of ghost cells are added depending on where the
@@ -311,13 +319,15 @@ int vtkVPICReader::RequestInformation(
 
       // If processor is on an edge don't write a ghost cell (offset the start)
       this->Start[dim] = 0;
-      if (SubExtent[dim*2] == 0) {
+      if (SubExtent[dim * 2] == 0)
+      {
         this->Start[dim] = this->ghostLevel0;
         this->GhostDimension[dim] += this->ghostLevel0;
       }
 
       // Processors not on last plane already have one overlap cell
-      if (SubExtent[dim*2 + 1] == (this->Dimension[dim] - 1)) {
+      if (SubExtent[dim * 2 + 1] == (this->Dimension[dim] - 1))
+      {
         this->GhostDimension[dim] += this->ghostLevel1;
       }
 
@@ -325,7 +335,7 @@ int vtkVPICReader::RequestInformation(
       this->NumberOfGhostTuples *= this->GhostDimension[dim];
     }
 
-    if (this->TotalRank>1)
+    if (this->TotalRank > 1)
     {
       // Set up the GridExchange for sharing ghost cells on this view
       int decomposition[DIMENSION];
@@ -333,9 +343,8 @@ int vtkVPICReader::RequestInformation(
 
       delete this->exchanger;
 
-      this->exchanger = new GridExchange
-        (this->Rank, this->TotalRank, decomposition,
-         this->GhostDimension, this->ghostLevel0, this->ghostLevel1);
+      this->exchanger = new GridExchange(this->Rank, this->TotalRank, decomposition,
+        this->GhostDimension, this->ghostLevel0, this->ghostLevel1);
     }
   }
   return 1;
@@ -345,14 +354,11 @@ int vtkVPICReader::RequestInformation(
 // Data is read into a vtkImageData
 // BLOCK structured means data is organized by variable and then by cell
 //----------------------------------------------------------------------------
-int vtkVPICReader::RequestData(
-  vtkInformation *vtkNotUsed(reqInfo),
-  vtkInformationVector **vtkNotUsed(inVector),
-  vtkInformationVector *outVector)
+int vtkVPICReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
+  vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
-  vtkInformation *outInfo = outVector->GetInformationObject(0);
-  vtkImageData *output = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outVector->GetInformationObject(0);
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Set the subextent for this processor
   output->SetExtent(this->SubExtent);
@@ -363,18 +369,19 @@ int vtkVPICReader::RequestData(
   int numberOfTimeSteps = this->vpicData->getNumberOfTimeSteps();
 
   // If more time steps ParaView must update information
-  if (numberOfTimeSteps > this->NumberOfTimeSteps) {
+  if (numberOfTimeSteps > this->NumberOfTimeSteps)
+  {
 
     this->NumberOfTimeSteps = numberOfTimeSteps;
-    delete [] this->TimeSteps;
+    delete[] this->TimeSteps;
     this->TimeSteps = new double[this->NumberOfTimeSteps];
 
     for (int step = 0; step < this->NumberOfTimeSteps; step++)
-      this->TimeSteps[step] = (double) this->vpicData->getTimeStep(step);
+      this->TimeSteps[step] = (double)this->vpicData->getTimeStep(step);
 
     // Tell the pipeline what steps are available
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 this->TimeSteps, this->NumberOfTimeSteps);
+    outInfo->Set(
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps, this->NumberOfTimeSteps);
 
     // Range is required to get GUI to show things
     double tRange[2];
@@ -386,12 +393,12 @@ int vtkVPICReader::RequestData(
   // Collect the time step requested
   double requestedTimeStep(0);
   vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>
-      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   // Actual time for the time step
   double dTime = this->TimeSteps[0];
-  if (outInfo->Has(timeKey)) {
+  if (outInfo->Has(timeKey))
+  {
     requestedTimeStep = outInfo->Get(timeKey);
     dTime = requestedTimeStep;
   }
@@ -400,13 +407,13 @@ int vtkVPICReader::RequestData(
 
   // Index of the time step to request
   int timeStep = 0;
-  while (timeStep < this->NumberOfTimeSteps &&
-         this->TimeSteps[timeStep] < dTime)
+  while (timeStep < this->NumberOfTimeSteps && this->TimeSteps[timeStep] < dTime)
     timeStep++;
 
   // If this is a new time step read all the data from files
   int timeChanged = 0;
-  if (this->CurrentTimeStep != timeStep) {
+  if (this->CurrentTimeStep != timeStep)
+  {
     timeChanged = 1;
     this->CurrentTimeStep = timeStep;
   }
@@ -419,17 +426,21 @@ int vtkVPICReader::RequestData(
   output->SetOrigin(origin);
 
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->NumberOfVariables; var++) {
+  for (int var = 0; var < this->NumberOfVariables; var++)
+  {
 
     // Is this variable requested
-    if (this->PointDataArraySelection->GetArraySetting(var)) {
-      if (this->dataLoaded[var] == 0 || timeChanged) {
+    if (this->PointDataArraySelection->GetArraySetting(var))
+    {
+      if (this->dataLoaded[var] == 0 || timeChanged)
+      {
         LoadVariableData(var, timeStep);
         this->dataLoaded[var] = 1;
       }
       output->GetPointData()->AddArray(this->data[var]);
-
-    } else {
+    }
+    else
+    {
       this->dataLoaded[var] = 0;
     }
   }
@@ -453,15 +464,18 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 
   // First set the number of components for this variable
   int numberOfComponents = 0;
-  if (this->VariableStruct[var] == SCALAR) {
+  if (this->VariableStruct[var] == SCALAR)
+  {
     numberOfComponents = 1;
     this->data[var]->SetNumberOfComponents(numberOfComponents);
   }
-  else if (this->VariableStruct[var] == VECTOR) {
+  else if (this->VariableStruct[var] == VECTOR)
+  {
     numberOfComponents = DIMENSION;
     this->data[var]->SetNumberOfComponents(numberOfComponents);
   }
-  else if (this->VariableStruct[var] == TENSOR) {
+  else if (this->VariableStruct[var] == TENSOR)
+  {
     numberOfComponents = TENSOR_DIMENSION;
     this->data[var]->SetNumberOfComponents(TENSOR9_DIMENSION);
   }
@@ -470,55 +484,58 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
   this->data[var]->SetNumberOfTuples(this->NumberOfTuples);
 
   // For each component of the requested variable load data
-  float* block = new float[this->NumberOfGhostTuples];
+  std::vector<float> block(this->NumberOfGhostTuples);
   float* varData = this->data[var]->GetPointer(0);
 
-  for (int comp = 0; comp < numberOfComponents; comp++) {
+  for (int comp = 0; comp < numberOfComponents; comp++)
+  {
 
     // Fetch the data for a single component into temporary storage
-    this->vpicData->loadVariableData(block, this->ghostLevel0,
-                                     this->GhostDimension, timeStep, var, comp);
+    this->vpicData->loadVariableData(
+      block.data(), this->ghostLevel0, this->GhostDimension, timeStep, var, comp);
 
     // Exchange the single component block retrieved from files to get ghosts
-    if (this->TotalRank>1)
+    if (this->TotalRank > 1)
     {
-      this->exchanger->exchangeGrid(block);
+      this->exchanger->exchangeGrid(block.data());
     }
 
     // Load the ghost component block into ParaView array
-    if (this->VariableStruct[var] != TENSOR) {
-      LoadComponent(varData, block, comp, numberOfComponents);
+    if (this->VariableStruct[var] != TENSOR)
+    {
+      LoadComponent(varData, block.data(), comp, numberOfComponents);
     }
 
-    else {
+    else
+    {
       // Tensors are 6 point and must be written as 9 point
       // (0->0) (1->4) (2->8) (3->5,7) (4->2,6) (5->1,3)
-      switch (comp) {
-      case 0:
-        LoadComponent(varData, block, 0, TENSOR9_DIMENSION);
-        break;
-      case 1:
-        LoadComponent(varData, block, 4, TENSOR9_DIMENSION);
-        break;
-      case 2:
-        LoadComponent(varData, block, 8, TENSOR9_DIMENSION);
-        break;
-      case 3:
-        LoadComponent(varData, block, 5, TENSOR9_DIMENSION);
-        LoadComponent(varData, block, 7, TENSOR9_DIMENSION);
-        break;
-      case 4:
-        LoadComponent(varData, block, 2, TENSOR9_DIMENSION);
-        LoadComponent(varData, block, 6, TENSOR9_DIMENSION);
-        break;
-      case 5:
-        LoadComponent(varData, block, 1, TENSOR9_DIMENSION);
-        LoadComponent(varData, block, 3, TENSOR9_DIMENSION);
-        break;
+      switch (comp)
+      {
+        case 0:
+          LoadComponent(varData, block.data(), 0, TENSOR9_DIMENSION);
+          break;
+        case 1:
+          LoadComponent(varData, block.data(), 4, TENSOR9_DIMENSION);
+          break;
+        case 2:
+          LoadComponent(varData, block.data(), 8, TENSOR9_DIMENSION);
+          break;
+        case 3:
+          LoadComponent(varData, block.data(), 5, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 7, TENSOR9_DIMENSION);
+          break;
+        case 4:
+          LoadComponent(varData, block.data(), 2, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 6, TENSOR9_DIMENSION);
+          break;
+        case 5:
+          LoadComponent(varData, block.data(), 1, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 3, TENSOR9_DIMENSION);
+          break;
       }
     }
   }
-  delete [] block;
 }
 
 //----------------------------------------------------------------------------
@@ -528,21 +545,23 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 // the ghost cells which can be loaded.  ParaView array is contiguous
 // memory so start at the right location and offset by number of components
 //----------------------------------------------------------------------------
-void vtkVPICReader::LoadComponent(float* varData, float* block,
-                                  int comp, int numberOfComponents)
+void vtkVPICReader::LoadComponent(float* varData, float* block, int comp, int numberOfComponents)
 {
 
   // Load into the data array by tuple so place data every comp'th spot
   int pos = comp;
-  for (int k = 0; k < this->SubDimension[2]; k++) {
+  for (int k = 0; k < this->SubDimension[2]; k++)
+  {
     int kk = k + this->Start[2];
-    for (int j = 0; j < this->SubDimension[1]; j++) {
+    for (int j = 0; j < this->SubDimension[1]; j++)
+    {
       int jj = j + this->Start[1];
-      for (int i = 0; i < this->SubDimension[0]; i++) {
+      for (int i = 0; i < this->SubDimension[0]; i++)
+      {
         int ii = i + this->Start[0];
 
         int index = (kk * this->GhostDimension[0] * this->GhostDimension[1]) +
-                    (jj * this->GhostDimension[0]) + ii;
+          (jj * this->GhostDimension[0]) + ii;
 
         varData[pos] = block[index];
         pos += numberOfComponents;
@@ -552,8 +571,8 @@ void vtkVPICReader::LoadComponent(float* varData, float* block,
 }
 
 //----------------------------------------------------------------------------
-void vtkVPICReader::SelectionCallback(vtkObject*, unsigned long vtkNotUsed(eventid),
-                                      void* clientdata, void* vtkNotUsed(calldata))
+void vtkVPICReader::SelectionCallback(
+  vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkVPICReader*>(clientdata)->Modified();
 }
@@ -573,7 +592,7 @@ vtkImageData* vtkVPICReader::GetOutput(int idx)
   }
   else
   {
-    return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
+    return vtkImageData::SafeDownCast(this->GetOutputDataObject(idx));
   }
 }
 
@@ -586,13 +605,13 @@ int vtkVPICReader::GetNumberOfPointArrays()
 //----------------------------------------------------------------------------
 void vtkVPICReader::EnableAllPointArrays()
 {
-    this->PointDataArraySelection->EnableAllArrays();
+  this->PointDataArraySelection->EnableAllArrays();
 }
 
 //----------------------------------------------------------------------------
 void vtkVPICReader::DisableAllPointArrays()
 {
-    this->PointDataArraySelection->DisableAllArrays();
+  this->PointDataArraySelection->DisableAllArrays();
 }
 
 //----------------------------------------------------------------------------
@@ -619,8 +638,8 @@ void vtkVPICReader::SetPointArrayStatus(const char* name, int status)
 void vtkVPICReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "FileName: " << (this->FileName != nullptr ? this->FileName : "") << endl;
-  os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1]
-     << ", " << this->Stride[2] << "}" << endl;
+  os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1] << ", "
+     << this->Stride[2] << "}" << endl;
   os << indent << "XLayout: {" << this->XLayout[0] << ", " << this->XLayout[1] << "}" << endl;
   os << indent << "YLayout: {" << this->YLayout[0] << ", " << this->YLayout[1] << "}" << endl;
   os << indent << "ZLayout: {" << this->ZLayout[0] << ", " << this->ZLayout[1] << "}" << endl;

@@ -14,48 +14,46 @@
 =========================================================================*/
 
 #include "vtkActor.h"
-#include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
 #include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkHardwareSelector.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleDrawPolygon.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-const char eventLog[] =
-  "# StreamVersion 1\n"
-  "RenderEvent 0 0 0 0 0 0 0\n"
-  "EnterEvent 278 0 0 0 0 0 0\n"
-  "MouseMoveEvent 278 0 0 0 0 0 0\n"
-  "MouseMoveEvent 274 8 0 0 0 0 0\n"
-  "MouseMoveEvent 144 44 0 0 0 0 0\n"
-  "MouseMoveEvent 144 43 0 0 0 0 0\n"
-  "LeftButtonPressEvent 144 43 0 0 0 0 0\n"
-  "StartInteractionEvent 144 43 0 0 0 0 0\n"
-  "MouseMoveEvent 143 43 0 0 0 0 0\n"
-  "MouseMoveEvent 29 43 0 0 0 0 0\n"
-  "MouseMoveEvent 29 278 0 0 0 0 0\n"
-  "MouseMoveEvent 146 278 0 0 0 0 0\n"
-  "LeftButtonReleaseEvent 146 278 0 0 0 0 0\n"
-  "EndInteractionEvent 146 278 0 0 0 0 0\n"
-  "MouseMoveEvent 146 278 0 0 0 0 0\n"
-  "MouseMoveEvent 146 279 0 0 0 0 0\n"
-  "MouseMoveEvent 146 280 0 0 0 0 0\n"
-  "MouseMoveEvent 294 207 0 0 0 0 0\n"
-  "LeaveEvent 294 207 0 0 0 0 0\n"
-  ;
+const char eventLog[] = "# StreamVersion 1\n"
+                        "RenderEvent 0 0 0 0 0 0 0\n"
+                        "EnterEvent 278 0 0 0 0 0 0\n"
+                        "MouseMoveEvent 278 0 0 0 0 0 0\n"
+                        "MouseMoveEvent 274 8 0 0 0 0 0\n"
+                        "MouseMoveEvent 144 44 0 0 0 0 0\n"
+                        "MouseMoveEvent 144 43 0 0 0 0 0\n"
+                        "LeftButtonPressEvent 144 43 0 0 0 0 0\n"
+                        "StartInteractionEvent 144 43 0 0 0 0 0\n"
+                        "MouseMoveEvent 143 43 0 0 0 0 0\n"
+                        "MouseMoveEvent 29 43 0 0 0 0 0\n"
+                        "MouseMoveEvent 29 278 0 0 0 0 0\n"
+                        "MouseMoveEvent 146 278 0 0 0 0 0\n"
+                        "LeftButtonReleaseEvent 146 278 0 0 0 0 0\n"
+                        "EndInteractionEvent 146 278 0 0 0 0 0\n"
+                        "MouseMoveEvent 146 278 0 0 0 0 0\n"
+                        "MouseMoveEvent 146 279 0 0 0 0 0\n"
+                        "MouseMoveEvent 146 280 0 0 0 0 0\n"
+                        "MouseMoveEvent 294 207 0 0 0 0 0\n"
+                        "LeaveEvent 294 207 0 0 0 0 0\n";
 
-int TestPolygonSelection( int argc, char* argv[] )
+int TestPolygonSelection(int argc, char* argv[])
 {
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(16);
@@ -63,7 +61,7 @@ int TestPolygonSelection( int argc, char* argv[] )
   sphere->SetRadius(0.5);
 
   vtkNew<vtkActor> sactor;
-  sactor->PickableOn(); //lets the HardwareSelector select in it
+  sactor->PickableOn(); // lets the HardwareSelector select in it
   vtkNew<vtkPolyDataMapper> smapper;
   sactor->SetMapper(smapper);
 
@@ -77,14 +75,14 @@ int TestPolygonSelection( int argc, char* argv[] )
   ren->AddActor(eactor);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  //use the draw-polygon interactor style
+  // use the draw-polygon interactor style
   vtkRenderWindowInteractor* rwi = renWin->GetInteractor();
   vtkNew<vtkInteractorStyleDrawPolygon> polyStyle;
   polyStyle->DrawPolygonPixelsOff();
@@ -116,15 +114,15 @@ int TestPolygonSelection( int argc, char* argv[] )
   renWin->Render();
 
   std::vector<vtkVector2i> points = polyStyle->GetPolygonPoints();
-  if(points.size() >= 3)
+  if (points.size() >= 3)
   {
     vtkNew<vtkIntArray> polygonPointsArray;
     polygonPointsArray->SetNumberOfComponents(2);
     polygonPointsArray->SetNumberOfTuples(static_cast<vtkIdType>(points.size()));
     for (unsigned int j = 0; j < points.size(); ++j)
     {
-      const vtkVector2i &v = points[j];
-      int pos[2] = {v[0], v[1]};
+      const vtkVector2i& v = points[j];
+      int pos[2] = { v[0], v[1] };
       polygonPointsArray->SetTypedTuple(j, pos);
     }
 
@@ -133,20 +131,19 @@ int TestPolygonSelection( int argc, char* argv[] )
 
     int* wsize = ren->GetSize();
     int* origin = ren->GetOrigin();
-    hardSel->SetArea(origin[0], origin[1], origin[0]+wsize[0]-1, origin[1]+wsize[1]-1);
+    hardSel->SetArea(origin[0], origin[1], origin[0] + wsize[0] - 1, origin[1] + wsize[1] - 1);
     hardSel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
 
     if (hardSel->CaptureBuffers())
     {
       vtkSelection* psel = hardSel->GeneratePolygonSelection(
-        polygonPointsArray->GetPointer(0),
-        polygonPointsArray->GetNumberOfTuples()*2);
+        polygonPointsArray->GetPointer(0), polygonPointsArray->GetNumberOfTuples() * 2);
       hardSel->ClearBuffers();
 
       vtkSmartPointer<vtkSelection> sel;
       sel.TakeReference(psel);
       vtkNew<vtkExtractSelectedPolyDataIds> selFilter;
-      selFilter->SetInputConnection(0,sphere->GetOutputPort());
+      selFilter->SetInputConnection(0, sphere->GetOutputPort());
       selFilter->SetInputData(1, sel);
       selFilter->Update();
 
@@ -157,8 +154,8 @@ int TestPolygonSelection( int argc, char* argv[] )
       renWin->Render();
     }
   }
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

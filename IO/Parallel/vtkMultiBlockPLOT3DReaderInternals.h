@@ -15,8 +15,8 @@
 #ifndef vtkMultiBlockPLOT3DReaderInternals_h
 #define vtkMultiBlockPLOT3DReaderInternals_h
 
-#include "vtkIOParallelModule.h" // For export macro
 #include "vtkByteSwap.h"
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
@@ -27,13 +27,13 @@
 class vtkMultiProcessController;
 
 #ifdef _WIN64
-# define vtk_fseek _fseeki64
-# define vtk_ftell _ftelli64
-# define vtk_off_t __int64
+#define vtk_fseek _fseeki64
+#define vtk_ftell _ftelli64
+#define vtk_off_t __int64
 #else
-# define vtk_fseek fseek
-# define vtk_ftell ftell
-# define vtk_off_t long
+#define vtk_fseek fseek
+#define vtk_ftell ftell
+#define vtk_off_t long
 #endif
 
 struct vtkMultiBlockPLOT3DReaderInternals
@@ -41,12 +41,9 @@ struct vtkMultiBlockPLOT3DReaderInternals
   struct Dims
   {
 
-  Dims()
-  {
-    memset(this->Values, 0, 3*sizeof(int));
-  }
+    Dims() { memset(this->Values, 0, 3 * sizeof(int)); }
 
-  int Values[3];
+    int Values[3];
   };
 
   std::vector<Dims> Dimensions;
@@ -61,14 +58,14 @@ struct vtkMultiBlockPLOT3DReaderInternals
     int NumberOfDimensions;
     int Precision; // in bytes
     int IBlanking;
-    InternalSettings() :
-      BinaryFile(1),
-      ByteOrder(vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN),
-      HasByteCount(1),
-      MultiGrid(0),
-      NumberOfDimensions(3),
-      Precision(4),
-      IBlanking(0)
+    InternalSettings()
+      : BinaryFile(1)
+      , ByteOrder(vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN)
+      , HasByteCount(1)
+      , MultiGrid(0)
+      , NumberOfDimensions(3)
+      , Precision(4)
+      , IBlanking(0)
     {
     }
   };
@@ -76,13 +73,13 @@ struct vtkMultiBlockPLOT3DReaderInternals
   InternalSettings Settings;
   bool NeedToCheckXYZFile;
 
-  vtkMultiBlockPLOT3DReaderInternals() :
-    NeedToCheckXYZFile(true)
+  vtkMultiBlockPLOT3DReaderInternals()
+    : NeedToCheckXYZFile(true)
   {
   }
 
   int ReadInts(FILE* fp, int n, int* val);
-  void CheckBinaryFile(FILE *fp, size_t fileSize);
+  void CheckBinaryFile(FILE* fp, size_t fileSize);
   int CheckByteOrder(FILE* fp);
   int CheckByteCount(FILE* fp);
   int CheckMultiGrid(FILE* fp);
@@ -90,22 +87,15 @@ struct vtkMultiBlockPLOT3DReaderInternals
   int CheckBlankingAndPrecision(FILE* fp);
   int CheckCFile(FILE* fp, size_t fileSize);
   size_t CalculateFileSize(int mgrid,
-                         int precision, // in bytes
-                         int blanking,
-                         int ndims,
-                         int hasByteCount,
-                         int nGrids,
-                         int* gridDims);
+    int precision, // in bytes
+    int blanking, int ndims, int hasByteCount, int nGrids, int* gridDims);
   size_t CalculateFileSizeForBlock(int precision, // in bytes
-                                 int blanking,
-                                 int ndims,
-                                 int hasByteCount,
-                                 int* gridDims);
+    int blanking, int ndims, int hasByteCount, int* gridDims);
 
-  static void CalculateSkips(const int extent[6], const int wextent[6],
-    vtkIdType& preskip, vtkIdType& postskip)
+  static void CalculateSkips(
+    const int extent[6], const int wextent[6], vtkIdType& preskip, vtkIdType& postskip)
   {
-    vtkIdType nPtsInPlane = static_cast<vtkIdType>(wextent[1]+1)*(wextent[3]+1);
+    vtkIdType nPtsInPlane = static_cast<vtkIdType>(wextent[1] + 1) * (wextent[3] + 1);
     preskip = nPtsInPlane * extent[4];
     postskip = nPtsInPlane * (wextent[5] - extent[5]);
   }
@@ -168,7 +158,7 @@ public:
   // 2. offset is same as the start offset for this record.
   bool AtStart(vtkTypeUInt64 offset)
   {
-    return (this->SubRecords.size()==0 || this->SubRecords.front().HeaderOffset == offset);
+    return (this->SubRecords.size() == 0 || this->SubRecords.front().HeaderOffset == offset);
   }
 
   // Description:
@@ -177,7 +167,7 @@ public:
   // 2. offset is at the end of this record i.e. the start of the next record.
   bool AtEnd(vtkTypeUInt64 offset)
   {
-    return (this->SubRecords.size()==0 ||
+    return (this->SubRecords.size() == 0 ||
       (this->SubRecords.back().FooterOffset + sizeof(int) == offset));
   }
 
@@ -187,12 +177,11 @@ public:
   SubRecordSeparators GetSubRecordSeparators(vtkTypeUInt64 startOffset, vtkTypeUInt64 length) const;
 
   // Description:
-  // When reading between file offsets \c start and  \c (start + length) from the file, if it has any
-  // sub-record separators, this method splits the read into chunks so that it
-  // skips the sub-record separators. The returned value is a vector of pairs
-  // (offset, length-in-bytes).
+  // When reading between file offsets \c start and  \c (start + length) from the file, if it has
+  // any sub-record separators, this method splits the read into chunks so that it skips the
+  // sub-record separators. The returned value is a vector of pairs (offset, length-in-bytes).
   static std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > GetChunksToRead(
-    vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64> &markers);
+    vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64>& markers);
 
   // Description:
   // If the block in file (start, start+length) steps over sub-record separators
@@ -206,7 +195,6 @@ public:
   {
     return this->GetChunksToRead(start, length, this->GetSubRecordSeparators(start, length));
   }
-
 };
 
 #endif

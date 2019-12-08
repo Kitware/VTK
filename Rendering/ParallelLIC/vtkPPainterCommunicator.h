@@ -21,7 +21,7 @@
  * A simple container holding an MPI communicator. The simple API
  * is sufficient to allow serial code (no MPI available) to steer
  * execution.
-*/
+ */
 
 #ifndef vtkPPainterCommunicator_h
 #define vtkPPainterCommunicator_h
@@ -41,21 +41,27 @@ public:
   /**
    * Copier and assignment operators.
    */
-  vtkPPainterCommunicator(const vtkPPainterCommunicator &other) : vtkPainterCommunicator(other)
-    { this->Copy(&other, false); }
+  vtkPPainterCommunicator(const vtkPPainterCommunicator& other)
+    : vtkPainterCommunicator(other)
+  {
+    this->Copy(&other, false);
+  }
 
-  vtkPPainterCommunicator &operator=(const vtkPPainterCommunicator &other)
-    { this->Copy(&other, false); return *this; }
+  vtkPPainterCommunicator& operator=(const vtkPPainterCommunicator& other)
+  {
+    this->Copy(&other, false);
+    return *this;
+  }
 
   /**
    * Copy the communicator.
    */
-  virtual void Copy(const vtkPainterCommunicator *other, bool ownership);
+  virtual void Copy(const vtkPainterCommunicator* other, bool ownership);
 
   /**
    * Duplicate the communicator.
    */
-  virtual void Duplicate(const vtkPainterCommunicator *other);
+  virtual void Duplicate(const vtkPainterCommunicator* other);
 
   //@{
   /**
@@ -77,8 +83,8 @@ public:
   /**
    * Querry MPI state.
    */
-  virtual bool GetMPIInitialized(){ return this->MPIInitialized(); }
-  virtual bool GetMPIFinalized(){ return this->MPIFinalized(); }
+  virtual bool GetMPIInitialized() { return this->MPIInitialized(); }
+  virtual bool GetMPIFinalized() { return this->MPIFinalized(); }
 
   static bool MPIInitialized();
   static bool MPIFinalized();
@@ -90,9 +96,9 @@ public:
    * this class is in use and free the communicator when
    * finished.
    */
-  void SetCommunicator(vtkMPICommunicatorOpaqueComm *comm);
-  void GetCommunicator(vtkMPICommunicatorOpaqueComm *comm);
-  void *GetCommunicator();
+  void SetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
+  void GetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
+  void* GetCommunicator();
   //@}
 
   /**
@@ -102,17 +108,17 @@ public:
    * accessed via GetCommunicator. In parallel this call is mpi
    * collective on the world communicator. In serial this is a no-op.
    */
-  void SubsetCommunicator(vtkMPICommunicatorOpaqueComm *comm, int include);
+  void SubsetCommunicator(vtkMPICommunicatorOpaqueComm* comm, int include);
 
   /**
    * Get VTK's world communicator. Return's a null communictor if
    * MPI was not yet initialized.
    */
-  static vtkMPICommunicatorOpaqueComm *GetGlobalCommunicator();
+  static vtkMPICommunicatorOpaqueComm* GetGlobalCommunicator();
 
 private:
   // PImpl for MPI datatypes
-  vtkPPainterCommunicatorInternals *Internals;
+  vtkPPainterCommunicatorInternals* Internals;
 };
 
 #endif

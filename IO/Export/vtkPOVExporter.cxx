@@ -68,16 +68,16 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCompositeDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkGeometryFilter.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTypeTraits.h"
@@ -89,8 +89,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 vtkStandardNewMacro(vtkPOVExporter);
 
-//Can't use printf("%d", a_vtkIdType) because vtkIdType is not always int.
-//This internal class holds format strings vtkPOVExporter can use instead.
+// Can't use printf("%d", a_vtkIdType) because vtkIdType is not always int.
+// This internal class holds format strings vtkPOVExporter can use instead.
 class vtkPOVInternals
 {
 public:
@@ -101,7 +101,7 @@ public:
     strcat(this->CountFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
     strcat(this->CountFormat, ",\n");
 
-    char *triFormat = new char[100]; //"%d, %d, %d"
+    char* triFormat = new char[100]; //"%d, %d, %d"
     strcpy(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
     strcat(triFormat, ", ");
     strcat(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
@@ -128,9 +128,9 @@ public:
     delete[] this->TriangleFormat2;
   }
 
-  char *CountFormat;
-  char *TriangleFormat1;
-  char *TriangleFormat2;
+  char* CountFormat;
+  char* TriangleFormat1;
+  char* TriangleFormat2;
 };
 
 #define VTKPOV_CNTFMT this->Internals->CountFormat
@@ -160,8 +160,8 @@ void vtkPOVExporter::WriteData()
     return;
   }
 
-  //get the renderer
-  vtkRenderer *renderer = this->ActiveRenderer;
+  // get the renderer
+  vtkRenderer* renderer = this->ActiveRenderer;
   if (!renderer)
   {
     renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
@@ -178,10 +178,9 @@ void vtkPOVExporter::WriteData()
   this->FilePtr = fopen(this->FileName, "w");
   if (this->FilePtr == nullptr)
   {
-    vtkErrorMacro (<< "Cannot open " << this->FileName);
+    vtkErrorMacro(<< "Cannot open " << this->FileName);
     return;
   }
-
 
   // write header
   this->WriteHeader(renderer);
@@ -190,7 +189,7 @@ void vtkPOVExporter::WriteData()
   this->WriteCamera(renderer->GetActiveCamera());
 
   // write lights
-  vtkLightCollection *lc = renderer->GetLights();
+  vtkLightCollection* lc = renderer->GetLights();
   vtkCollectionSimpleIterator sit;
   lc->InitTraversal(sit);
   if (lc->GetNextLight(sit) == nullptr)
@@ -198,7 +197,7 @@ void vtkPOVExporter::WriteData()
     vtkWarningMacro(<< "No light defined, creating one at camera position");
     renderer->CreateLight();
   }
-  vtkLight *light;
+  vtkLight* light;
   for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit));)
   {
     if (light->GetSwitch())
@@ -208,15 +207,15 @@ void vtkPOVExporter::WriteData()
   }
 
   // write actors
-  vtkActorCollection *ac = renderer->GetActors();
-  vtkAssemblyPath *apath;
+  vtkActorCollection* ac = renderer->GetActors();
+  vtkAssemblyPath* apath;
   vtkCollectionSimpleIterator ait;
   vtkActor *anActor, *aPart;
-  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
   {
-    for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath()); )
+    for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath());)
     {
-      aPart = static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
+      aPart = static_cast<vtkActor*>(apath->GetLastNode()->GetViewProp());
       this->WriteActor(aPart);
     }
   }
@@ -224,14 +223,14 @@ void vtkPOVExporter::WriteData()
   fclose(this->FilePtr);
 }
 
-void vtkPOVExporter::WriteHeader(vtkRenderer *renderer)
+void vtkPOVExporter::WriteHeader(vtkRenderer* renderer)
 {
   fprintf(this->FilePtr, "// POVRay file exported by vtkPOVExporter\n");
   fprintf(this->FilePtr, "//\n");
 
   // width and height of output image,
-  //and other default command line args to POVRay
-  int *size = renderer->GetSize();
+  // and other default command line args to POVRay
+  int* size = renderer->GetSize();
   fprintf(this->FilePtr, "// +W%d +H%d\n\n", size[0], size[1]);
 
   // global settings
@@ -241,12 +240,11 @@ void vtkPOVExporter::WriteHeader(vtkRenderer *renderer)
   fprintf(this->FilePtr, "}\n\n");
 
   // background
-  double *color = renderer->GetBackground();
-  fprintf(this->FilePtr, "background { color rgb <%f, %f, %f>}\n\n",
-          color[0], color[1], color[2]);
+  double* color = renderer->GetBackground();
+  fprintf(this->FilePtr, "background { color rgb <%f, %f, %f>}\n\n", color[0], color[1], color[2]);
 }
 
-void vtkPOVExporter::WriteCamera(vtkCamera *camera)
+void vtkPOVExporter::WriteCamera(vtkCamera* camera)
 {
   fprintf(this->FilePtr, "camera {\n");
   if (camera->GetParallelProjection())
@@ -258,40 +256,36 @@ void vtkPOVExporter::WriteCamera(vtkCamera *camera)
     fprintf(this->FilePtr, "\tperspective\n");
   }
 
-  double *position = camera->GetPosition();
-  fprintf(this->FilePtr, "\tlocation <%f, %f, %f>\n",
-          position[0], position[1], position[2]);
+  double* position = camera->GetPosition();
+  fprintf(this->FilePtr, "\tlocation <%f, %f, %f>\n", position[0], position[1], position[2]);
 
-  double *up = camera->GetViewUp();
+  double* up = camera->GetViewUp();
   // the camera up vector is called "sky" in POVRay
   fprintf(this->FilePtr, "\tsky <%f, %f, %f>\n", up[0], up[1], up[2]);
 
   // make POVRay to use left handed system to right handed
   // TODO: aspect ratio
   fprintf(this->FilePtr, "\tright <-1, 0, 0>\n");
-  //fprintf(this->FilePtr, "\tup <-1, 0, 0>\n");
+  // fprintf(this->FilePtr, "\tup <-1, 0, 0>\n");
 
   fprintf(this->FilePtr, "\tangle %f\n", camera->GetViewAngle());
 
-  double *focal = camera->GetFocalPoint();
-  fprintf(this->FilePtr, "\tlook_at <%f, %f, %f>\n",
-          focal[0], focal[1], focal[2]);
+  double* focal = camera->GetFocalPoint();
+  fprintf(this->FilePtr, "\tlook_at <%f, %f, %f>\n", focal[0], focal[1], focal[2]);
 
   fprintf(this->FilePtr, "}\n\n");
 }
 
-void vtkPOVExporter::WriteLight(vtkLight *light)
+void vtkPOVExporter::WriteLight(vtkLight* light)
 {
   fprintf(this->FilePtr, "light_source {\n");
 
-  double *position = light->GetPosition();
-  fprintf(this->FilePtr, "\t<%f, %f, %f>\n",
-          position[0], position[1], position[2]);
+  double* position = light->GetPosition();
+  fprintf(this->FilePtr, "\t<%f, %f, %f>\n", position[0], position[1], position[2]);
 
-  double *color = light->GetDiffuseColor();
-  fprintf(this->FilePtr, "\tcolor <%f, %f, %f>*%f\n",
-          color[0], color[1], color[2],
-          light->GetIntensity());
+  double* color = light->GetDiffuseColor();
+  fprintf(this->FilePtr, "\tcolor <%f, %f, %f>*%f\n", color[0], color[1], color[2],
+    light->GetIntensity());
 
   if (light->GetPositional())
   {
@@ -303,14 +297,13 @@ void vtkPOVExporter::WriteLight(vtkLight *light)
   {
     fprintf(this->FilePtr, "\tparallel\n");
   }
-  double *focal    = light->GetFocalPoint();
-  fprintf(this->FilePtr, "\tpoint_at <%f, %f, %f>\n",
-          focal[0], focal[1], focal[2]);
+  double* focal = light->GetFocalPoint();
+  fprintf(this->FilePtr, "\tpoint_at <%f, %f, %f>\n", focal[0], focal[1], focal[2]);
 
   fprintf(this->FilePtr, "}\n\n");
 }
 
-void vtkPOVExporter::WriteActor(vtkActor *actor)
+void vtkPOVExporter::WriteActor(vtkActor* actor)
 {
   if (actor->GetMapper() == nullptr)
   {
@@ -322,7 +315,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   }
 
   // write geometry, first ask the pipeline to update data
-  vtkDataSet *dataset = nullptr;
+  vtkDataSet* dataset = nullptr;
   vtkSmartPointer<vtkDataSet> tempDS;
 
   vtkDataObject* dObj = actor->GetMapper()->GetInputDataObject(0, 0);
@@ -349,29 +342,28 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   actor->GetMapper()->GetInputAlgorithm()->Update();
 
   // convert non polygon data to polygon data if needed
-  vtkGeometryFilter *geometryFilter = nullptr;
-  vtkPolyData *polys = nullptr;
+  vtkGeometryFilter* geometryFilter = nullptr;
+  vtkPolyData* polys = nullptr;
   if (dataset->GetDataObjectType() != VTK_POLY_DATA)
   {
     geometryFilter = vtkGeometryFilter::New();
-    geometryFilter->SetInputConnection(
-      actor->GetMapper()->GetInputConnection(0, 0));
+    geometryFilter->SetInputConnection(actor->GetMapper()->GetInputConnection(0, 0));
     geometryFilter->Update();
     polys = geometryFilter->GetOutput();
   }
   else
   {
-    polys = static_cast<vtkPolyData *>(dataset);
+    polys = static_cast<vtkPolyData*>(dataset);
   }
 
   // we only export Polygons and Triangle Strips
   if ((polys->GetNumberOfPolys() == 0) && (polys->GetNumberOfStrips() == 0))
   {
-      return;
+    return;
   }
 
   // write point coordinates
-  vtkPoints *points = polys->GetPoints();
+  vtkPoints* points = polys->GetPoints();
 
   // we use mesh2 since it maps better to how VTK stores
   // polygons/triangle strips
@@ -381,23 +373,22 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   fprintf(this->FilePtr, VTKPOV_CNTFMT, points->GetNumberOfPoints());
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
   {
-    double *pos = points->GetPoint(i);
+    double* pos = points->GetPoint(i);
     fprintf(this->FilePtr, "\t\t<%f, %f, %f>,\n", pos[0], pos[1], pos[2]);
   }
   fprintf(this->FilePtr, "\t}\n");
 
   // write vertex normal
-  vtkPointData *pointData = polys->GetPointData();
+  vtkPointData* pointData = polys->GetPointData();
   if (pointData->GetNormals())
   {
-    vtkDataArray *normals = pointData->GetNormals();
+    vtkDataArray* normals = pointData->GetNormals();
     fprintf(this->FilePtr, "\tnormal_vectors {\n");
     fprintf(this->FilePtr, VTKPOV_CNTFMT, normals->GetNumberOfTuples());
     for (vtkIdType i = 0; i < normals->GetNumberOfTuples(); i++)
     {
-      double *normal = normals->GetTuple(i);
-      fprintf(this->FilePtr, "\t\t<%f, %f, %f>,\n",
-              normal[0], normal[1], normal[2]);
+      double* normal = normals->GetTuple(i);
+      fprintf(this->FilePtr, "\t\t<%f, %f, %f>,\n", normal[0], normal[1], normal[2]);
     }
     fprintf(this->FilePtr, "\t}\n");
   }
@@ -409,20 +400,17 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   bool scalar_visible = false;
   if (actor->GetMapper()->GetScalarVisibility())
   {
-    vtkUnsignedCharArray *color_array = actor->GetMapper()->MapScalars(1.0);
+    vtkUnsignedCharArray* color_array = actor->GetMapper()->MapScalars(1.0);
     if (color_array != nullptr)
     {
       scalar_visible = true;
       fprintf(this->FilePtr, "\ttexture_list {\n");
       fprintf(this->FilePtr, VTKPOV_CNTFMT, color_array->GetNumberOfTuples());
-      for (vtkIdType i = 0; i < color_array->GetNumberOfTuples(); i++) {
-        unsigned char *color = color_array->GetPointer(4*i);
-        fprintf(this->FilePtr,
-                "\t\ttexture { pigment {color rgbf <%f, %f, %f, %f> } },\n",
-                color[0]/255.0,
-                color[1]/255.0,
-                color[2]/255.0,
-                1.0 - color[3]/255.0);
+      for (vtkIdType i = 0; i < color_array->GetNumberOfTuples(); i++)
+      {
+        unsigned char* color = color_array->GetPointer(4 * i);
+        fprintf(this->FilePtr, "\t\ttexture { pigment {color rgbf <%f, %f, %f, %f> } },\n",
+          color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 - color[3] / 255.0);
       }
       fprintf(this->FilePtr, "\t}\n");
     }
@@ -441,23 +429,15 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   }
 
   // write transformation for the actor, it is column major and looks like transposed
-  vtkMatrix4x4 *matrix = actor->GetMatrix();
-  fprintf(this->FilePtr, "\tmatrix < %f, %f, %f,\n",
-          matrix->GetElement(0, 0),
-          matrix->GetElement(1, 0),
-          matrix->GetElement(2, 0));
-  fprintf(this->FilePtr, "\t\t %f, %f, %f,\n",
-          matrix->GetElement(0, 1),
-          matrix->GetElement(1, 1),
-          matrix->GetElement(2, 1));
-  fprintf(this->FilePtr, "\t\t %f, %f, %f,\n",
-          matrix->GetElement(0, 2),
-          matrix->GetElement(1, 2),
-          matrix->GetElement(2, 2));
-  fprintf(this->FilePtr, "\t\t %f, %f, %f >\n",
-          matrix->GetElement(0, 3),
-          matrix->GetElement(1, 3),
-          matrix->GetElement(2, 3));
+  vtkMatrix4x4* matrix = actor->GetMatrix();
+  fprintf(this->FilePtr, "\tmatrix < %f, %f, %f,\n", matrix->GetElement(0, 0),
+    matrix->GetElement(1, 0), matrix->GetElement(2, 0));
+  fprintf(this->FilePtr, "\t\t %f, %f, %f,\n", matrix->GetElement(0, 1), matrix->GetElement(1, 1),
+    matrix->GetElement(2, 1));
+  fprintf(this->FilePtr, "\t\t %f, %f, %f,\n", matrix->GetElement(0, 2), matrix->GetElement(1, 2),
+    matrix->GetElement(2, 2));
+  fprintf(this->FilePtr, "\t\t %f, %f, %f >\n", matrix->GetElement(0, 3), matrix->GetElement(1, 3),
+    matrix->GetElement(2, 3));
 
   // write property
   this->WriteProperty(actor->GetProperty());
@@ -471,13 +451,14 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   }
 }
 
-void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
+void vtkPOVExporter::WritePolygons(vtkPolyData* polys, bool scalar_visible)
 {
   // write polygons with on the fly triangulation,
   // assuming polygon are simple and can be triangulated into "fans"
   vtkIdType numtriangles = 0;
-  vtkCellArray *cells = polys->GetPolys();
-  vtkIdType npts = 0, *pts = nullptr;
+  vtkCellArray* cells = polys->GetPolys();
+  vtkIdType npts = 0;
+  const vtkIdType* pts = nullptr;
 
   // first pass,
   // calculate how many triangles there will be after triangulation
@@ -498,29 +479,25 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
     triangle[1] = pts[1];
     triangle[2] = pts[2];
 
-    fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-            triangle[0], triangle[1], triangle[2]);
+    fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
     {
-      fprintf(this->FilePtr, VTKPOV_TRIFMT2,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT2, triangle[0], triangle[1], triangle[2]);
     }
     else
     {
       fprintf(this->FilePtr, "\n");
     }
 
-  // the rest of triangles
+    // the rest of triangles
     for (vtkIdType i = 3; i < npts; i++)
     {
       triangle[1] = triangle[2];
       triangle[2] = pts[i];
-      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
       {
-        fprintf(this->FilePtr, VTKPOV_TRIFMT2,
-                triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, VTKPOV_TRIFMT2, triangle[0], triangle[1], triangle[2]);
       }
       else
       {
@@ -543,8 +520,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
       triangle[1] = pts[1];
       triangle[2] = pts[2];
 
-      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
       fprintf(this->FilePtr, "\n");
 
       // the rest of triangles
@@ -552,8 +528,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
       {
         triangle[1] = triangle[2];
         triangle[2] = pts[i];
-        fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-                triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
         fprintf(this->FilePtr, "\n");
       }
     }
@@ -561,16 +536,15 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   }
 
   // TODO: 4th pass, texture indices
-
 }
 
-void vtkPOVExporter::WriteTriangleStrips(
-  vtkPolyData *polys, bool scalar_visible)
+void vtkPOVExporter::WriteTriangleStrips(vtkPolyData* polys, bool scalar_visible)
 {
   // convert triangle strips into triangles
   vtkIdType numtriangles = 0;
-  vtkCellArray *cells = polys->GetStrips();
-  vtkIdType npts = 0, *pts = nullptr;
+  vtkCellArray* cells = polys->GetStrips();
+  vtkIdType npts = 0;
+  const vtkIdType* pts = nullptr;
 
   // first pass, calculate how many triangles there will be after conversion
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
@@ -590,30 +564,26 @@ void vtkPOVExporter::WriteTriangleStrips(
     triangle[1] = pts[1];
     triangle[2] = pts[2];
 
-    fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-            triangle[0], triangle[1], triangle[2]);
+    fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
     {
-      fprintf(this->FilePtr, VTKPOV_TRIFMT2,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT2, triangle[0], triangle[1], triangle[2]);
     }
     else
     {
       fprintf(this->FilePtr, "\n");
     }
 
-  // the rest of triangles
+    // the rest of triangles
     for (vtkIdType i = 3; i < npts; i++)
     {
       triangle[0] = triangle[1];
       triangle[1] = triangle[2];
       triangle[2] = pts[i];
-      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
       {
-        fprintf(this->FilePtr, VTKPOV_TRIFMT2,
-                triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, VTKPOV_TRIFMT2, triangle[0], triangle[1], triangle[2]);
       }
       else
       {
@@ -636,8 +606,7 @@ void vtkPOVExporter::WriteTriangleStrips(
       triangle[1] = pts[1];
       triangle[2] = pts[2];
 
-      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-              triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
       fprintf(this->FilePtr, "\n");
 
       // the rest of triangles
@@ -646,8 +615,7 @@ void vtkPOVExporter::WriteTriangleStrips(
         triangle[0] = triangle[1];
         triangle[1] = triangle[2];
         triangle[2] = pts[i];
-        fprintf(this->FilePtr, VTKPOV_TRIFMT1,
-                triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, VTKPOV_TRIFMT1, triangle[0], triangle[1], triangle[2]);
         fprintf(this->FilePtr, "\n");
       }
     }
@@ -657,15 +625,15 @@ void vtkPOVExporter::WriteTriangleStrips(
   // TODO: 4th pass, texture indices
 }
 
-void vtkPOVExporter::WriteProperty(vtkProperty *property)
+void vtkPOVExporter::WriteProperty(vtkProperty* property)
 {
   fprintf(this->FilePtr, "\ttexture {\n");
 
   /* write color */
   fprintf(this->FilePtr, "\t\tpigment {\n");
-  double *color   = property->GetColor();
-  fprintf(this->FilePtr, "\t\t\tcolor rgbf <%f, %f, %f %f>\n",
-          color[0], color[1], color[2], 1.0 - property->GetOpacity());
+  double* color = property->GetColor();
+  fprintf(this->FilePtr, "\t\t\tcolor rgbf <%f, %f, %f %f>\n", color[0], color[1], color[2],
+    1.0 - property->GetOpacity());
   fprintf(this->FilePtr, "\t\t}\n");
 
   /* write ambient, diffuse and specular coefficients */

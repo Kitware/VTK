@@ -16,27 +16,24 @@
 // .SECTION Description
 //
 
-
 #include "vtkSmartPointer.h"
 
 #include "vtkDICOMImageReader.h"
 
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-
-int TestDICOMImageReaderFileCollection(int argc, char *argv[])
+int TestDICOMImageReaderFileCollection(int argc, char* argv[])
 {
 
-  char* dirName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/dicom/collection" );
+  char* dirName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dicom/collection");
   std::string directoryName = dirName;
-  delete [] dirName;
+  delete[] dirName;
 
-  vtkSmartPointer<vtkDICOMImageReader> DICOMReader =
-    vtkSmartPointer<vtkDICOMImageReader>::New();
+  vtkSmartPointer<vtkDICOMImageReader> DICOMReader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
   // Read the input files
   DICOMReader->SetDirectoryName(directoryName.c_str());
@@ -96,15 +93,12 @@ int TestDICOMImageReaderFileCollection(int argc, char *argv[])
   float gantryAngle = DICOMReader->GetGantryAngle();
   cout << "Gantry angle: " << gantryAngle << endl;
 
-
   // Display the center slice
   int sliceNumber =
-    (DICOMReader->GetOutput()->GetExtent()[5] +
-     DICOMReader->GetOutput()->GetExtent()[4]) / 2;
+    (DICOMReader->GetOutput()->GetExtent()[5] + DICOMReader->GetOutput()->GetExtent()[4]) / 2;
 
   // Visualize
-  vtkSmartPointer<vtkImageViewer2> imageViewer =
-    vtkSmartPointer<vtkImageViewer2>::New();
+  vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInputConnection(DICOMReader->GetOutputPort());
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -116,7 +110,6 @@ int TestDICOMImageReaderFileCollection(int argc, char *argv[])
   imageViewer->Render();
 
   renderWindowInteractor->Start();
-
 
   return 0;
 }

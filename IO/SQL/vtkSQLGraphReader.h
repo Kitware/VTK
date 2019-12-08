@@ -51,13 +51,13 @@
  * names of these fields.
  * These arrays must be data arrays.  The z-coordinate array is optional,
  * and if not given the z-coordinates are set to zero.
-*/
+ */
 
 #ifndef vtkSQLGraphReader_h
 #define vtkSQLGraphReader_h
 
-#include "vtkIOSQLModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkIOSQLModule.h" // For export macro
 
 class vtkSQLQuery;
 
@@ -65,7 +65,7 @@ class VTKIOSQL_EXPORT vtkSQLGraphReader : public vtkGraphAlgorithm
 {
 public:
   static vtkSQLGraphReader* New();
-  vtkTypeMacro(vtkSQLGraphReader,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkSQLGraphReader, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //@{
@@ -169,15 +169,9 @@ protected:
   char* YField;
   char* ZField;
 
-  virtual int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  virtual int RequestDataObject(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*);
+  virtual int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
 private:
   vtkSQLGraphReader(const vtkSQLGraphReader&) = delete;
@@ -185,4 +179,3 @@ private:
 };
 
 #endif
-

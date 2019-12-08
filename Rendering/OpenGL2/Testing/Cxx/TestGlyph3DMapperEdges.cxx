@@ -12,9 +12,8 @@
 
 =========================================================================*/
 
-
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -31,14 +30,14 @@
 
 int TestGlyph3DMapperEdges(int argc, char* argv[])
 {
-  int res=1;
+  int res = 1;
   vtkNew<vtkPlaneSource> plane;
-  plane->SetResolution(res,res);
+  plane->SetResolution(res, res);
 
   vtkNew<vtkElevationFilter> colors;
   colors->SetInputConnection(plane->GetOutputPort());
-  colors->SetLowPoint(-1,-1,-1);
-  colors->SetHighPoint(0.5,0.5,0.5);
+  colors->SetLowPoint(-1, -1, -1);
+  colors->SetHighPoint(0.5, 0.5, 0.5);
 
   vtkNew<vtkSphereSource> squad;
   squad->SetPhiResolution(5);
@@ -52,7 +51,7 @@ int TestGlyph3DMapperEdges(int argc, char* argv[])
   vtkNew<vtkActor> glyphActor1;
   glyphActor1->SetMapper(glypher);
   glyphActor1->GetProperty()->SetEdgeVisibility(1);
-  glyphActor1->GetProperty()->SetEdgeColor(1.0,0.5,0.5);
+  glyphActor1->GetProperty()->SetEdgeColor(1.0, 0.5, 0.5);
   // glyphActor1->GetProperty()->SetRenderLinesAsTubes(1);
   // glyphActor1->GetProperty()->SetLineWidth(5);
 
@@ -64,23 +63,23 @@ int TestGlyph3DMapperEdges(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  //set up the view
-  renderer->SetBackground(0.2,0.2,0.2);
-  renWin->SetSize(300,300);
+  // set up the view
+  renderer->SetBackground(0.2, 0.2, 0.2);
+  renWin->SetSize(300, 300);
 
   renderer->AddActor(glyphActor1);
 
   ////////////////////////////////////////////////////////////
 
-  //run the test
+  // run the test
 
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(1.3);
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

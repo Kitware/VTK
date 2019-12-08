@@ -14,9 +14,8 @@
 #ifndef vtkOpenGLIndexBufferObject_h
 #define vtkOpenGLIndexBufferObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkOpenGLBufferObject.h"
-
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 /**
  * @brief OpenGL vertex buffer object
@@ -25,11 +24,10 @@
  * GPU.
  */
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLIndexBufferObject :
-  public vtkOpenGLBufferObject
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLIndexBufferObject : public vtkOpenGLBufferObject
 {
 public:
-  static vtkOpenGLIndexBufferObject *New();
+  static vtkOpenGLIndexBufferObject* New();
   vtkTypeMacro(vtkOpenGLIndexBufferObject, vtkOpenGLBufferObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -38,80 +36,62 @@ public:
 
   // Description:
   // used to create an IBO for triangle primitives
-  size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
-     vtkPoints *points);
+  size_t CreateTriangleIndexBuffer(vtkCellArray* cells, vtkPoints* points);
 
   // Description:
   // used to create an IBO for triangle primitives
-  static void AppendTriangleIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkPoints *points,
-    vtkIdType vertexOffset);
+  static void AppendTriangleIndexBuffer(std::vector<unsigned int>& indexArray, vtkCellArray* cells,
+    vtkPoints* points, vtkIdType vertexOffset);
 
   // Description:
   // create a IBO for wireframe polys/tris
-  size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells);
+  size_t CreateTriangleLineIndexBuffer(vtkCellArray* cells);
 
   // Description:
   // used to create an IBO for line primitives
   static void AppendLineIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkIdType vertexOffset);
+    std::vector<unsigned int>& indexArray, vtkCellArray* cells, vtkIdType vertexOffset);
 
   // Description:
   // create a IBO for wireframe polys/tris
-  size_t CreateLineIndexBuffer(vtkCellArray *cells);
+  size_t CreateLineIndexBuffer(vtkCellArray* cells);
 
   // Description:
   // create a IBO for wireframe polys/tris
   static void AppendTriangleLineIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkIdType vertexOffset);
+    std::vector<unsigned int>& indexArray, vtkCellArray* cells, vtkIdType vertexOffset);
 
   // Description:
   // used to create an IBO for primitives as points
-  size_t CreatePointIndexBuffer(vtkCellArray *cells);
+  size_t CreatePointIndexBuffer(vtkCellArray* cells);
 
   // Description:
   // used to create an IBO for primitives as points
   static void AppendPointIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkIdType vertexOffset);
+    std::vector<unsigned int>& indexArray, vtkCellArray* cells, vtkIdType vertexOffset);
 
   // Description:
   // used to create an IBO for line strips and triangle strips
-  size_t CreateStripIndexBuffer(
-    vtkCellArray *cells, bool wireframeTriStrips);
+  size_t CreateStripIndexBuffer(vtkCellArray* cells, bool wireframeTriStrips);
 
-  static void AppendStripIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkIdType vertexOffset,  bool wireframeTriStrips);
+  static void AppendStripIndexBuffer(std::vector<unsigned int>& indexArray, vtkCellArray* cells,
+    vtkIdType vertexOffset, bool wireframeTriStrips);
 
   // Description:
   // special index buffer for polys wireframe with edge visibilityflags
-  static void AppendEdgeFlagIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray *cells,
-    vtkIdType vertexOffset,  vtkDataArray *edgeflags);
+  static void AppendEdgeFlagIndexBuffer(std::vector<unsigned int>& indexArray, vtkCellArray* cells,
+    vtkIdType vertexOffset, vtkDataArray* edgeflags);
 
-  size_t CreateEdgeFlagIndexBuffer(
-    vtkCellArray *cells, vtkDataArray *edgeflags);
+  size_t CreateEdgeFlagIndexBuffer(vtkCellArray* cells, vtkDataArray* edgeflags);
 
   // Description:
   // used to create an IBO for cell Vertices as points
-  size_t CreateVertexIndexBuffer(vtkCellArray **cells);
+  size_t CreateVertexIndexBuffer(vtkCellArray** cells);
 
   // Description:
   // used to create an IBO for primitives as points
   static void AppendVertexIndexBuffer(
-    std::vector<unsigned int> &indexArray,
-    vtkCellArray **cells,
-    vtkIdType vertexOffset);
+    std::vector<unsigned int>& indexArray, vtkCellArray** cells, vtkIdType vertexOffset);
 
 protected:
   vtkOpenGLIndexBufferObject();

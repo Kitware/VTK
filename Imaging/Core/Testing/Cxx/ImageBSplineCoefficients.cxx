@@ -19,38 +19,34 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
+#include "vtkImageBSplineCoefficients.h"
+#include "vtkImageBSplineInterpolator.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkPNGReader.h"
-#include "vtkImageBSplineInterpolator.h"
-#include "vtkImageBSplineCoefficients.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 
-int ImageBSplineCoefficients(int argc, char *argv[])
+int ImageBSplineCoefficients(int argc, char* argv[])
 {
   int retVal = EXIT_SUCCESS;
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkInteractorStyle> style =
-    vtkSmartPointer<vtkInteractorStyle>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkInteractorStyle> style = vtkSmartPointer<vtkInteractorStyle>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
-  vtkSmartPointer<vtkPNGReader> reader =
-    vtkSmartPointer<vtkPNGReader>::New();
+  vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/fullhead15.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
 
   reader->SetFileName(fname);
   reader->SetDataSpacing(0.8, 0.8, 1.5);
@@ -93,11 +89,7 @@ int ImageBSplineCoefficients(int argc, char *argv[])
     { 6.08451, 185.60837, 0.0 },
   };
 
-  int modes[3] = {
-    VTK_IMAGE_BORDER_CLAMP,
-    VTK_IMAGE_BORDER_REPEAT,
-    VTK_IMAGE_BORDER_MIRROR
-  };
+  int modes[3] = { VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_REPEAT, VTK_IMAGE_BORDER_MIRROR };
 
   int m = VTK_IMAGE_BSPLINE_DEGREE_MAX;
 
@@ -128,23 +120,23 @@ int ImageBSplineCoefficients(int argc, char *argv[])
         // fiddle with points to test border modes
         if (mode == VTK_IMAGE_BORDER_REPEAT)
         {
-          x += 256*spacing[0];
-          y -= 256*spacing[1];
+          x += 256 * spacing[0];
+          y -= 256 * spacing[1];
         }
         else if (mode == VTK_IMAGE_BORDER_MIRROR)
         {
           x = origin[0] - x;
-          y = 2*(origin[1] + 255*spacing[1]) - y;
+          y = 2 * (origin[1] + 255 * spacing[1]) - y;
         }
         // use interpolator
         double v1 = interp->Interpolate(x, y, z, 0);
 
         double tol = 1e-6;
-        double e = (v0 - v1)/(range[1] - range[0]);
+        double e = (v0 - v1) / (range[1] - range[0]);
         if (fabs(e) > tol)
         {
-          cerr << "Bad interpolation, error is " << e << " k = " << k
-               << " degree = " << j << " mode = " << mode << "\n";
+          cerr << "Bad interpolation, error is " << e << " k = " << k << " degree = " << j
+               << " mode = " << mode << "\n";
           cerr << v0 << " " << v1 << "\n";
           retVal = EXIT_FAILURE;
         }
@@ -156,16 +148,13 @@ int ImageBSplineCoefficients(int argc, char *argv[])
 
   for (int i = 0; i < 2; i++)
   {
-    vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    renderer->SetBackground(0.0,0.0,0.0);
-    renderer->SetViewport(0.5*(i&1), 0.0,
-                          0.5 + 0.5*(i&1), 1.0);
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
+    renderer->SetBackground(0.0, 0.0, 0.0);
+    renderer->SetViewport(0.5 * (i & 1), 0.0, 0.5 + 0.5 * (i & 1), 1.0);
     renWin->AddRenderer(renderer);
 
-    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
-      vtkSmartPointer<vtkImageSliceMapper>::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper = vtkSmartPointer<vtkImageSliceMapper>::New();
     if (i == 0)
     {
       imageMapper->SetInputConnection(reader->GetOutputPort());
@@ -176,11 +165,11 @@ int ImageBSplineCoefficients(int argc, char *argv[])
       imageMapper->SetInputConnection(coeffs->GetOutputPort());
     }
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     camera->SetFocalPoint(point);
     point[imageMapper->GetOrientation()] += 500.0;
@@ -189,17 +178,15 @@ int ImageBSplineCoefficients(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    vtkSmartPointer<vtkImageSlice> image =
-      vtkSmartPointer<vtkImageSlice>::New();
+    vtkSmartPointer<vtkImageSlice> image = vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
     renderer->AddViewProp(image);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
-    image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
-
+    image->GetProperty()->SetColorLevel(0.5 * (range[0] + range[1]));
   }
 
-  renWin->SetSize(512,256);
+  renWin->SetSize(512, 256);
 
   iren->Initialize();
   renWin->Render();

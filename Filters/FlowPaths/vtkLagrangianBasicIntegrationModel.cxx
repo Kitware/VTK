@@ -15,7 +15,6 @@
 #include "vtkLagrangianBasicIntegrationModel.h"
 
 #include "vtkCellData.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDataSet.h"
@@ -33,6 +32,7 @@
 #include "vtkQuad.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
@@ -578,18 +578,6 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     return;
   }
 
-  // Threadsafe initial dummy calls
-  double x[3];
-  dataset->GetPoint(0, x);
-
-  vtkNew<vtkGenericCell> cell;
-  dataset->GetCell(0, cell);
-
-  int subId;
-  double pcoords[3];
-  std::vector<double> weights(dataset->GetMaxCellSize());
-  dataset->FindCell(x, nullptr, cell, 0, 0, subId, pcoords, weights.data());
-
   // There seems to be some kind of problem with the garbage collector
   // and the referencing of datasets and locators.
   // In order to avoid leaks we shallow copy the dataset.
@@ -626,6 +614,22 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     locator->CacheCellBoundsOn();
     locator->AutomaticOn();
     locator->BuildLocator();
+  }
+  else
+  {
+    // for non-vtkPointSet vtkDataSet, we are using their internal locator
+    // It is required to do a findCell call before the threaded code
+    // so the locator is built first.
+    double x[3];
+    dataset->GetPoint(0, x);
+
+    vtkNew<vtkGenericCell> cell;
+    dataset->GetCell(0, cell);
+
+    int subId;
+    double pcoords[3];
+    std::vector<double> weights(dataset->GetMaxCellSize());
+    dataset->FindCell(x, nullptr, cell, 0, 0, subId, pcoords, weights.data());
   }
 
   // Add locator
@@ -1136,9 +1140,9 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(
   double* x, vtkLagrangianParticle* particle, vtkDataSet*& dataset, vtkIdType& cellId)
 {
   vtkAbstractCellLocator* loc;
-  double* weights = new double[this->WeightsSize];
-  bool ret = this->FindInLocators(x, particle, dataset, cellId, loc, weights);
-  delete[] weights;
+  std::vector<double> weights(this->WeightsSize);
+  double* wPtr = weights.data(); // FindInLocators expects a double*&, though it doesn't modify?
+  bool ret = this->FindInLocators(x, particle, dataset, cellId, loc, wPtr);
   return ret;
 }
 
@@ -1510,7 +1514,8 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayTypes()
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
 {
   this->SurfaceArrayNames->SetNumberOfValues(0);
-  for (auto it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end(); ++it)
+  for (auto it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
+       ++it)
   {
     this->SurfaceArrayNames->InsertNextValue(it->first.c_str());
   }
@@ -1556,14 +1561,13 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
   {
-    double* defaultValues = new double[it->second.nComp];
+    std::vector<double> defaultValues(it->second.nComp);
     for (size_t iDs = 0; iDs < this->Surfaces->size(); iDs++)
     {
       this->ComputeSurfaceDefaultValues(
-        it->first.c_str(), (*this->Surfaces)[iDs].second, it->second.nComp, defaultValues);
-      this->SurfaceArrayDefaultValues->InsertNextTuple(defaultValues);
+        it->first.c_str(), (*this->Surfaces)[iDs].second, it->second.nComp, defaultValues.data());
+      this->SurfaceArrayDefaultValues->InsertNextTuple(defaultValues.data());
     }
-    delete[] defaultValues;
   }
   return this->SurfaceArrayDefaultValues;
 }
@@ -1582,11 +1586,12 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
 }
 
 //---------------------------------------------------------------------------
-bool vtkLagrangianBasicIntegrationModel::ManualIntegration(double* vtkNotUsed(xcur),
+bool vtkLagrangianBasicIntegrationModel::ManualIntegration(
+  vtkInitialValueProblemSolver* vtkNotUsed(integrator), double* vtkNotUsed(xcur),
   double* vtkNotUsed(xnext), double vtkNotUsed(t), double& vtkNotUsed(delT),
   double& vtkNotUsed(delTActual), double vtkNotUsed(minStep), double vtkNotUsed(maxStep),
-  double vtkNotUsed(maxError), double vtkNotUsed(cellLength),
-  double& vtkNotUsed(error), int& vtkNotUsed(integrationResult))
+  double vtkNotUsed(maxError), double vtkNotUsed(cellLength), double& vtkNotUsed(error),
+  int& vtkNotUsed(integrationResult), vtkLagrangianParticle* vtkNotUsed(particle))
 {
   return false;
 }
@@ -1601,7 +1606,8 @@ void vtkLagrangianBasicIntegrationModel::ComputeSurfaceDefaultValues(
 }
 
 //---------------------------------------------------------------------------
-void vtkLagrangianBasicIntegrationModel::InitializeParticleData(vtkFieldData* particleData, int maxTuple)
+void vtkLagrangianBasicIntegrationModel::InitializeParticleData(
+  vtkFieldData* particleData, int maxTuple)
 {
   vtkNew<vtkIntArray> particleStepNumArray;
   particleStepNumArray->SetName("StepNumber");

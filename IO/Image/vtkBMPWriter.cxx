@@ -23,7 +23,7 @@
 
 vtkStandardNewMacro(vtkBMPWriter);
 
-vtkCxxSetObjectMacro(vtkBMPWriter,Result,vtkUnsignedCharArray);
+vtkCxxSetObjectMacro(vtkBMPWriter, Result, vtkUnsignedCharArray);
 
 vtkBMPWriter::vtkBMPWriter()
 {
@@ -40,9 +40,7 @@ vtkBMPWriter::~vtkBMPWriter()
   }
 }
 
-void vtkBMPWriter::WriteFileHeader(ostream *file,
-                                   vtkImageData *,
-                                   int wExt[6])
+void vtkBMPWriter::WriteFileHeader(ostream* file, vtkImageData*, int wExt[6])
 {
   long temp;
   int width, height, dataWidth;
@@ -52,15 +50,15 @@ void vtkBMPWriter::WriteFileHeader(ostream *file,
   width = (wExt[1] - wExt[0] + 1);
   height = (wExt[3] - wExt[2] + 1);
 
-  dataWidth = ((width*3+3)/4)*4;
+  dataWidth = ((width * 3 + 3) / 4) * 4;
 
   // spit out the BMP header
   file->put((char)66);
   file->put((char)77);
-  temp = (long)(dataWidth*height) + 54L;
-  file->put((char)(temp%256));
-  file->put((char)((temp%65536L)/256));
-  file->put((char)(temp/65536L));
+  temp = (long)(dataWidth * height) + 54L;
+  file->put((char)(temp % 256));
+  file->put((char)((temp % 65536L) / 256));
+  file->put((char)(temp / 65536L));
   for (row = 0; row < 5; row++)
   {
     file->put((char)0);
@@ -76,13 +74,13 @@ void vtkBMPWriter::WriteFileHeader(ostream *file,
   file->put((char)0);
   file->put((char)0);
 
-  file->put((char)(width%256));
-  file->put((char)(width/256));
+  file->put((char)(width % 256));
+  file->put((char)(width / 256));
   file->put((char)0);
   file->put((char)0);
 
-  file->put((char)(height%256));
-  file->put((char)(height/256));
+  file->put((char)(height % 256));
+  file->put((char)(height / 256));
   file->put((char)0);
   file->put((char)0);
 
@@ -95,13 +93,11 @@ void vtkBMPWriter::WriteFileHeader(ostream *file,
   }
 }
 
-
-void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
-                             int extent[6], int wExtent[6])
+void vtkBMPWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6])
 {
   int idx1, idx2;
   int rowLength, rowAdder, i; // in bytes
-  unsigned char *ptr;
+  unsigned char* ptr;
   int bpp;
   unsigned long count = 0;
   unsigned long target;
@@ -111,7 +107,7 @@ void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
   bpp = data->GetNumberOfScalarComponents();
 
   // Make sure we actually have data.
-  if ( !data->GetPointData()->GetScalars())
+  if (!data->GetPointData()->GetScalars())
   {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
@@ -126,27 +122,25 @@ void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
 
   // Row length of x axis
   rowLength = extent[1] - extent[0] + 1;
-  rowAdder = (4 - ((extent[1]-extent[0] + 1)*3)%4)%4;
+  rowAdder = (4 - ((extent[1] - extent[0] + 1) * 3) % 4) % 4;
 
-  area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-          (extent[1] - extent[0] + 1)) /
-    ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
-     (wExtent[1] -wExtent[0] + 1));
+  area = ((extent[5] - extent[4] + 1) * (extent[3] - extent[2] + 1) * (extent[1] - extent[0] + 1)) /
+    ((wExtent[5] - wExtent[4] + 1) * (wExtent[3] - wExtent[2] + 1) * (wExtent[1] - wExtent[0] + 1));
 
-  target = (unsigned long)((extent[5]-extent[4]+1)*
-                           (extent[3]-extent[2]+1)/(50.0*area));
+  target =
+    (unsigned long)((extent[5] - extent[4] + 1) * (extent[3] - extent[2] + 1) / (50.0 * area));
   target++;
 
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
   {
     for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
     {
-      if (!(count%target))
+      if (!(count % target))
       {
-        this->UpdateProgress(progress + count/(50.0*target));
+        this->UpdateProgress(progress + count / (50.0 * target));
       }
       count++;
-      ptr = (unsigned char *)data->GetScalarPointer(extent[0], idx1, idx2);
+      ptr = (unsigned char*)data->GetScalarPointer(extent[0], idx1, idx2);
       if (bpp == 1)
       {
         for (i = 0; i < rowLength; i++)
@@ -160,27 +154,27 @@ void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
       {
         for (i = 0; i < rowLength; i++)
         {
-          file->put(ptr[i*2]);
-          file->put(ptr[i*2]);
-          file->put(ptr[i*2]);
+          file->put(ptr[i * 2]);
+          file->put(ptr[i * 2]);
+          file->put(ptr[i * 2]);
         }
       }
       if (bpp == 3)
       {
         for (i = 0; i < rowLength; i++)
         {
-          file->put(ptr[i*3 + 2]);
-          file->put(ptr[i*3 + 1]);
-          file->put(ptr[i*3]);
+          file->put(ptr[i * 3 + 2]);
+          file->put(ptr[i * 3 + 1]);
+          file->put(ptr[i * 3]);
         }
       }
       if (bpp == 4)
       {
         for (i = 0; i < rowLength; i++)
         {
-          file->put(ptr[i*4 + 2]);
-          file->put(ptr[i*4 + 1]);
-          file->put(ptr[i*4]);
+          file->put(ptr[i * 4 + 2]);
+          file->put(ptr[i * 4 + 1]);
+          file->put(ptr[i * 4]);
         }
       }
       for (i = 0; i < rowAdder; i++)
@@ -191,23 +185,19 @@ void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
   }
 }
 
-void vtkBMPWriter::MemoryWrite(
-  int dim,
-  vtkImageData *input,
-  int wExt[6],
-  vtkInformation*inInfo)
+void vtkBMPWriter::MemoryWrite(int dim, vtkImageData* input, int wExt[6], vtkInformation* inInfo)
 {
-  std::ostringstream *oss;
+  std::ostringstream* oss;
   oss = new std::ostringstream();
 
   this->WriteFileHeader(oss, input, wExt);
   this->RecursiveWrite(dim, input, inInfo, oss);
 
-  vtkUnsignedCharArray *r = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* r = vtkUnsignedCharArray::New();
   r->SetNumberOfComponents(1);
   size_t alen = oss->str().length();
   r->SetNumberOfTuples(static_cast<vtkIdType>(alen));
-  unsigned char *buff = static_cast<unsigned char *>(r->GetVoidPointer(0));
+  unsigned char* buff = r->GetPointer(0);
   memcpy(buff, oss->str().data(), alen);
   this->SetResult(r);
   r->Delete();
@@ -217,7 +207,7 @@ void vtkBMPWriter::MemoryWrite(
 //----------------------------------------------------------------------------
 void vtkBMPWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Result: " << this->Result << "\n";
 }

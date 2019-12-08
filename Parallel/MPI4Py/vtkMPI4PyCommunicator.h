@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkMPICommunicator
-*/
+ */
 
 #ifndef vtkMPI4PyCommunicator_h
 #define vtkMPI4PyCommunicator_h
@@ -29,15 +29,14 @@
 
 #include "vtkPython.h" // For PyObject*; must be first
 
-#include "vtkParallelMPI4PyModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelMPI4PyModule.h" // For export macro
 
 class vtkMPICommunicator;
 
 class VTKPARALLELMPI4PY_EXPORT vtkMPI4PyCommunicator : public vtkObject
 {
 public:
-
   vtkTypeMacro(vtkMPI4PyCommunicator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

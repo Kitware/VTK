@@ -12,22 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImageData.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkPointData.h"
-#include "vtkImageMapper.h"
 #include "vtkActor2D.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper.h"
 #include "vtkLookupTable.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cmath>
 
-int TestMapVectorsAsRGBColors(int argc, char *argv[])
+int TestMapVectorsAsRGBColors(int argc, char* argv[])
 {
   // Cases to check:
   // 1, 2, 3, 4 components to 1, 2, 3, 4, components
@@ -40,8 +40,8 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
   vtkSmartPointer<vtkUnsignedCharArray> inputs[4];
   for (int ncomp = 1; ncomp <= 4; ncomp++)
   {
-    inputs[ncomp-1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    vtkUnsignedCharArray *arr = inputs[ncomp-1];
+    inputs[ncomp - 1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    vtkUnsignedCharArray* arr = inputs[ncomp - 1];
 
     arr->SetNumberOfComponents(ncomp);
     arr->SetNumberOfTuples(6400);
@@ -61,11 +61,11 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
       {
         for (int k = 0; k < 16; k++)
         {
-          cval[0] = ((k >> 2) & 3)*f;
-          cval[1] = (k & 3)*f;
-          cval[2] = ((j >> 2) & 3)*f;
-          cval[3] = (j & 3)*f;
-          float l = cval[0]*a + cval[1]*b + cval[2]*c + d;
+          cval[0] = ((k >> 2) & 3) * f;
+          cval[1] = (k & 3) * f;
+          cval[2] = ((j >> 2) & 3) * f;
+          cval[3] = (j & 3) * f;
+          float l = cval[0] * a + cval[1] * b + cval[2] * c + d;
           unsigned char lc = static_cast<unsigned char>(l);
           cval[0] = (ncomp > 2 ? cval[0] : lc);
           cval[1] = (ncomp > 2 ? cval[1] : cval[3]);
@@ -78,15 +78,12 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
     }
   }
 
-  vtkSmartPointer<vtkLookupTable> table =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> table = vtkSmartPointer<vtkLookupTable>::New();
   table->SetVectorModeToRGBColors();
 
-  vtkSmartPointer<vtkLookupTable> table2 =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> table2 = vtkSmartPointer<vtkLookupTable>::New();
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -100,10 +97,10 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
   {
     int j = (i & 7);
     int k = ((i >> 3) & 7);
-    double alpha = 0.5*(2 - (j & 1));
+    double alpha = 0.5 * (2 - (j & 1));
     double range[2];
-    range[0] = 63.75*(k & 1);
-    range[1] = 255.0 - 63.75*(k & 1);
+    range[0] = 63.75 * (k & 1);
+    range[1] = 255.0 - 63.75 * (k & 1);
     int inputc = ((j >> 1) & 3) + 1;
     int outputc = ((k >> 1) & 3) + 1;
 
@@ -115,57 +112,47 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
     outputs[i]->SetNumberOfTuples(0);
 
     // test mapping with a count of zero
-    vtkUnsignedCharArray *tmparray =
+    vtkUnsignedCharArray* tmparray =
       table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     tmparray->Delete();
 
-    table->MapVectorsThroughTable(
-      inputs[inputc-1]->GetPointer(0),
-      outputs[i]->WritePointer(0, 6400),
-      VTK_UNSIGNED_CHAR, 0, inputc, outputc);
+    table->MapVectorsThroughTable(inputs[inputc - 1]->GetPointer(0),
+      outputs[i]->WritePointer(0, 6400), VTK_UNSIGNED_CHAR, 0, inputc, outputc);
 
     // now the real thing
     outputs[i]->SetNumberOfTuples(6400);
 
-    table->MapVectorsThroughTable(
-      inputs[inputc-1]->GetPointer(0),
-      outputs[i]->WritePointer(0, 6400),
-      VTK_UNSIGNED_CHAR, 6400, inputc, outputc);
+    table->MapVectorsThroughTable(inputs[inputc - 1]->GetPointer(0),
+      outputs[i]->WritePointer(0, 6400), VTK_UNSIGNED_CHAR, 6400, inputc, outputc);
 
-    vtkSmartPointer<vtkImageData> image =
-      vtkSmartPointer<vtkImageData>::New();
+    vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
     image->SetDimensions(80, 80, 1);
-    vtkUnsignedCharArray *colors =
-      table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
+    vtkUnsignedCharArray* colors = table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     image->GetPointData()->SetScalars(colors);
     colors->Delete();
 
     int pos[2];
-    pos[0] = j*80;
-    pos[1] = k*80;
+    pos[0] = j * 80;
+    pos[1] = k * 80;
 
-    vtkSmartPointer<vtkImageMapper> mapper =
-      vtkSmartPointer<vtkImageMapper>::New();
+    vtkSmartPointer<vtkImageMapper> mapper = vtkSmartPointer<vtkImageMapper>::New();
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
     mapper->SetInputData(image);
 
-    vtkSmartPointer<vtkActor2D> actor =
-      vtkSmartPointer<vtkActor2D>::New();
+    vtkSmartPointer<vtkActor2D> actor = vtkSmartPointer<vtkActor2D>::New();
     actor->SetMapper(mapper);
 
-    vtkSmartPointer<vtkRenderer> ren =
-      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
     ren->AddViewProp(actor);
-    ren->SetViewport(pos[0]/640.0, pos[1]/640.0,
-                    (pos[0] + 80)/640.0, (pos[1] + 80)/640.0);
+    ren->SetViewport(pos[0] / 640.0, pos[1] / 640.0, (pos[0] + 80) / 640.0, (pos[1] + 80) / 640.0);
 
     renWin->AddRenderer(ren);
   }
 
   renWin->Render();
   int retVal = vtkRegressionTestImage(renWin);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

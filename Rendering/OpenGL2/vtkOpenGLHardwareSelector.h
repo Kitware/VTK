@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkHardwareSelector
-*/
+ */
 
 #ifndef vtkOpenGLHardwareSelector_h
 #define vtkOpenGLHardwareSelector_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkHardwareSelector.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {
@@ -69,8 +69,8 @@ protected:
 
   // Called internally before each prop is rendered
   // for device specific configuration/preparation etc.
-  void BeginRenderProp(vtkRenderWindow *) override;
-  void EndRenderProp(vtkRenderWindow *) override;
+  void BeginRenderProp(vtkRenderWindow*) override;
+  void EndRenderProp(vtkRenderWindow*) override;
 
   void SavePixelBuffer(int passNo) override;
 

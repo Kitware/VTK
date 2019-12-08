@@ -20,72 +20,72 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
-#include "vtkImageSinusoidSource.h"
+#include "vtkCamera.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkImageSinusoidSource.h"
 #include "vtkLookupTable.h"
-#include "vtkCamera.h"
+#include "vtkPolyDataMapper.h"
 
 #include "vtkCameraPass.h"
 #include "vtkLightsPass.h"
-#include "vtkSequencePass.h"
 #include "vtkOpaquePass.h"
+#include "vtkSequencePass.h"
 //#include "vtkDepthPeelingPass.h"
-#include "vtkTranslucentPass.h"
-#include "vtkVolumetricPass.h"
+#include "vtkConeSource.h"
+#include "vtkGaussianBlurPass.h"
 #include "vtkOverlayPass.h"
 #include "vtkRenderPassCollection.h"
-#include "vtkGaussianBlurPass.h"
 #include "vtkSobelGradientMagnitudePass.h"
-#include "vtkConeSource.h"
+#include "vtkTranslucentPass.h"
+#include "vtkVolumetricPass.h"
 
 int TestBlurAndSobelPasses(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
 
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
-  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
-  vtkCameraPass *cameraP=vtkCameraPass::New();
+  vtkCameraPass* cameraP = vtkCameraPass::New();
 
-  vtkSequencePass *seq=vtkSequencePass::New();
-  vtkOpaquePass *opaque=vtkOpaquePass::New();
-//  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
-//  peeling->SetMaximumNumberOfPeels(200);
-//  peeling->SetOcclusionRatio(0.1);
+  vtkSequencePass* seq = vtkSequencePass::New();
+  vtkOpaquePass* opaque = vtkOpaquePass::New();
+  //  vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
+  //  peeling->SetMaximumNumberOfPeels(200);
+  //  peeling->SetOcclusionRatio(0.1);
 
-  vtkTranslucentPass *translucent=vtkTranslucentPass::New();
-//  peeling->SetTranslucentPass(translucent);
+  vtkTranslucentPass* translucent = vtkTranslucentPass::New();
+  //  peeling->SetTranslucentPass(translucent);
 
-  vtkVolumetricPass *volume=vtkVolumetricPass::New();
-  vtkOverlayPass *overlay=vtkOverlayPass::New();
+  vtkVolumetricPass* volume = vtkVolumetricPass::New();
+  vtkOverlayPass* overlay = vtkOverlayPass::New();
 
-  vtkLightsPass *lights=vtkLightsPass::New();
+  vtkLightsPass* lights = vtkLightsPass::New();
 
-  vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  vtkRenderPassCollection* passes = vtkRenderPassCollection::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
 
-//  passes->AddItem(peeling);
+  //  passes->AddItem(peeling);
   passes->AddItem(translucent);
 
   passes->AddItem(volume);
@@ -93,20 +93,18 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
 
-
-  vtkGaussianBlurPass *blurP=vtkGaussianBlurPass::New();
+  vtkGaussianBlurPass* blurP = vtkGaussianBlurPass::New();
   blurP->SetDelegatePass(cameraP);
 
-
-  vtkSobelGradientMagnitudePass *sobelP=vtkSobelGradientMagnitudePass::New();
+  vtkSobelGradientMagnitudePass* sobelP = vtkSobelGradientMagnitudePass::New();
   sobelP->SetDelegatePass(blurP);
 
   glrenderer->SetPass(sobelP);
 
-//  renderer->SetPass(cameraP);
+  //  renderer->SetPass(cameraP);
 
   opaque->Delete();
-//  peeling->Delete();
+  //  peeling->Delete();
   translucent->Delete();
   volume->Delete();
   overlay->Delete();
@@ -117,28 +115,28 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   sobelP->Delete();
   lights->Delete();
 
-  vtkImageSinusoidSource *imageSource=vtkImageSinusoidSource::New();
-  imageSource->SetWholeExtent(0,9,0,9,0,9);
+  vtkImageSinusoidSource* imageSource = vtkImageSinusoidSource::New();
+  imageSource->SetWholeExtent(0, 9, 0, 9, 0, 9);
   imageSource->SetPeriod(5);
   imageSource->Update();
 
-  vtkImageData *image=imageSource->GetOutput();
+  vtkImageData* image = imageSource->GetOutput();
   double range[2];
   image->GetScalarRange(range);
 
-  vtkDataSetSurfaceFilter *surface=vtkDataSetSurfaceFilter::New();
+  vtkDataSetSurfaceFilter* surface = vtkDataSetSurfaceFilter::New();
 
   surface->SetInputConnection(imageSource->GetOutputPort());
   imageSource->Delete();
 
-  vtkPolyDataMapper *mapper=vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(surface->GetOutputPort());
   surface->Delete();
 
-  vtkLookupTable *lut=vtkLookupTable::New();
+  vtkLookupTable* lut = vtkLookupTable::New();
   lut->SetTableRange(range);
-  lut->SetAlphaRange(0.5,0.5);
-  lut->SetHueRange(0.2,0.7);
+  lut->SetAlphaRange(0.5, 0.5);
+  lut->SetHueRange(0.2, 0.7);
   lut->SetNumberOfTableValues(256);
   lut->Build();
 
@@ -146,35 +144,35 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   lut->Delete();
 
-  vtkActor *actor=vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   renderer->AddActor(actor);
   actor->Delete();
   actor->SetMapper(mapper);
   mapper->Delete();
   actor->SetVisibility(0);
 
-  vtkConeSource *cone=vtkConeSource::New();
-  vtkPolyDataMapper *coneMapper=vtkPolyDataMapper::New();
+  vtkConeSource* cone = vtkConeSource::New();
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
   cone->Delete();
-  vtkActor *coneActor=vtkActor::New();
+  vtkActor* coneActor = vtkActor::New();
   coneActor->SetMapper(coneMapper);
   coneActor->SetVisibility(1);
   coneMapper->Delete();
   renderer->AddActor(coneActor);
   coneActor->Delete();
 
-  renderer->SetBackground(0.1,0.3,0.0);
-  renWin->SetSize(400,400);
+  renderer->SetBackground(0.1, 0.3, 0.0);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  vtkCamera *camera=renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->Azimuth(-40.0);
   camera->Elevation(20.0);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

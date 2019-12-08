@@ -32,10 +32,10 @@ vtkOutlineSource::vtkOutlineSource()
 
   this->OutputPointsPrecision = SINGLE_PRECISION;
 
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    this->Bounds[2*i] = -1.0;
-    this->Bounds[2*i+1] = 1.0;
+    this->Bounds[2 * i] = -1.0;
+    this->Bounds[2 * i + 1] = 1.0;
   }
 
   // Sensible initial values
@@ -68,31 +68,28 @@ vtkOutlineSource::vtkOutlineSource()
 }
 
 //----------------------------------------------------------------------------
-int vtkOutlineSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   double bounds[6];
   double x[3];
   vtkIdType pts[4];
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
-  vtkCellArray *newPolys = nullptr;
+  vtkPoints* newPts;
+  vtkCellArray* newLines;
+  vtkCellArray* newPolys = nullptr;
 
   //
   // Initialize
   //
-  for (int i = 0; i < 6; i+=2)
+  for (int i = 0; i < 6; i += 2)
   {
-    int j = i+1;
+    int j = i + 1;
     bounds[i] = this->Bounds[i];
     bounds[j] = this->Bounds[j];
     if (bounds[i] > bounds[j])
@@ -109,7 +106,7 @@ int vtkOutlineSource::RequestData(
   newPts = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
@@ -120,34 +117,50 @@ int vtkOutlineSource::RequestData(
 
   newPts->Allocate(8);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(12,2));
+  newLines->AllocateEstimate(12, 2);
 
   if (this->GenerateFaces)
   {
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(newPolys->EstimateSize(6,4));
+    newPolys->AllocateEstimate(6, 4);
   }
 
-  if (this->BoxType==VTK_BOX_TYPE_AXIS_ALIGNED)
+  if (this->BoxType == VTK_BOX_TYPE_AXIS_ALIGNED)
   {
-    x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
-    newPts->InsertPoint(0,x);
-    x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
-    newPts->InsertPoint(1,x);
-    x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[4];
-    newPts->InsertPoint(2,x);
-    x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
-    newPts->InsertPoint(3,x);
-    x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[5];
-    newPts->InsertPoint(4,x);
-    x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
-    newPts->InsertPoint(5,x);
-    x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[5];
-    newPts->InsertPoint(6,x);
-    x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
-    newPts->InsertPoint(7,x);
+    x[0] = bounds[0];
+    x[1] = bounds[2];
+    x[2] = bounds[4];
+    newPts->InsertPoint(0, x);
+    x[0] = bounds[1];
+    x[1] = bounds[2];
+    x[2] = bounds[4];
+    newPts->InsertPoint(1, x);
+    x[0] = bounds[0];
+    x[1] = bounds[3];
+    x[2] = bounds[4];
+    newPts->InsertPoint(2, x);
+    x[0] = bounds[1];
+    x[1] = bounds[3];
+    x[2] = bounds[4];
+    newPts->InsertPoint(3, x);
+    x[0] = bounds[0];
+    x[1] = bounds[2];
+    x[2] = bounds[5];
+    newPts->InsertPoint(4, x);
+    x[0] = bounds[1];
+    x[1] = bounds[2];
+    x[2] = bounds[5];
+    newPts->InsertPoint(5, x);
+    x[0] = bounds[0];
+    x[1] = bounds[3];
+    x[2] = bounds[5];
+    newPts->InsertPoint(6, x);
+    x[0] = bounds[1];
+    x[1] = bounds[3];
+    x[2] = bounds[5];
+    newPts->InsertPoint(7, x);
   }
-  else //VTK_BOX_TYPE_ORIENTED
+  else // VTK_BOX_TYPE_ORIENTED
   {
     newPts->InsertPoint(0, &Corners[0]);
     newPts->InsertPoint(1, &Corners[3]);
@@ -159,45 +172,75 @@ int vtkOutlineSource::RequestData(
     newPts->InsertPoint(7, &Corners[21]);
   }
 
-  pts[0] = 0; pts[1] = 1;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 2; pts[1] = 3;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 4; pts[1] = 5;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 6; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 0; pts[1] = 2;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 1; pts[1] = 3;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 4; pts[1] = 6;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 5; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 0; pts[1] = 4;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 1; pts[1] = 5;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 2; pts[1] = 6;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 3; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
+  pts[0] = 0;
+  pts[1] = 1;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 2;
+  pts[1] = 3;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 4;
+  pts[1] = 5;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 6;
+  pts[1] = 7;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 0;
+  pts[1] = 2;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 1;
+  pts[1] = 3;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 4;
+  pts[1] = 6;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 5;
+  pts[1] = 7;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 0;
+  pts[1] = 4;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 1;
+  pts[1] = 5;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 2;
+  pts[1] = 6;
+  newLines->InsertNextCell(2, pts);
+  pts[0] = 3;
+  pts[1] = 7;
+  newLines->InsertNextCell(2, pts);
 
   if (newPolys)
   {
-    pts[0] = 1; pts[1] = 0; pts[2] = 2; pts[3] = 3;
-    newPolys->InsertNextCell(4,pts);
-    pts[0] = 0; pts[1] = 1; pts[2] = 5; pts[3] = 4;
-    newPolys->InsertNextCell(4,pts);
-    pts[0] = 2; pts[1] = 0; pts[2] = 4; pts[3] = 6;
-    newPolys->InsertNextCell(4,pts);
-    pts[0] = 3; pts[1] = 2; pts[2] = 6; pts[3] = 7;
-    newPolys->InsertNextCell(4,pts);
-    pts[0] = 1; pts[1] = 3; pts[2] = 7; pts[3] = 5;
-    newPolys->InsertNextCell(4,pts);
-    pts[0] = 7; pts[1] = 6; pts[2] = 4; pts[3] = 5;
-    newPolys->InsertNextCell(4,pts);
+    pts[0] = 1;
+    pts[1] = 0;
+    pts[2] = 2;
+    pts[3] = 3;
+    newPolys->InsertNextCell(4, pts);
+    pts[0] = 0;
+    pts[1] = 1;
+    pts[2] = 5;
+    pts[3] = 4;
+    newPolys->InsertNextCell(4, pts);
+    pts[0] = 2;
+    pts[1] = 0;
+    pts[2] = 4;
+    pts[3] = 6;
+    newPolys->InsertNextCell(4, pts);
+    pts[0] = 3;
+    pts[1] = 2;
+    pts[2] = 6;
+    pts[3] = 7;
+    newPolys->InsertNextCell(4, pts);
+    pts[0] = 1;
+    pts[1] = 3;
+    pts[2] = 7;
+    pts[3] = 5;
+    newPolys->InsertNextCell(4, pts);
+    pts[0] = 7;
+    pts[1] = 6;
+    pts[2] = 4;
+    pts[3] = 5;
+    newPolys->InsertNextCell(4, pts);
   }
 
   // Update selves and release memory
@@ -220,13 +263,12 @@ int vtkOutlineSource::RequestData(
 //----------------------------------------------------------------------------
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Generate Faces: "
-     << (this->GenerateFaces ? "On\n" : "Off\n");
+  os << indent << "Generate Faces: " << (this->GenerateFaces ? "On\n" : "Off\n");
 
   os << indent << "Box Type: ";
-  if ( this->BoxType == VTK_BOX_TYPE_AXIS_ALIGNED )
+  if (this->BoxType == VTK_BOX_TYPE_AXIS_ALIGNED)
   {
     os << "Axis Aligned\n";
     os << indent << "Bounds: "
@@ -237,15 +279,13 @@ void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << "Corners: (\n";
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
     {
-      os << "\t" << this->Corners[3*i] << ", "
-         << this->Corners[3*i+1] << ", "
-         << this->Corners[3*i+2] << "\n";
+      os << "\t" << this->Corners[3 * i] << ", " << this->Corners[3 * i + 1] << ", "
+         << this->Corners[3 * i + 2] << "\n";
     }
     os << ")\n";
   }
 
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
-     << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

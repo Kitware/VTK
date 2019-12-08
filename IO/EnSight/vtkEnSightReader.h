@@ -15,14 +15,13 @@
 /**
  * @class   vtkEnSightReader
  * @brief   superclass for EnSight file readers
-*/
+ */
 
 #ifndef vtkEnSightReader_h
 #define vtkEnSightReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkGenericEnSightReader.h"
-
+#include "vtkIOEnSightModule.h" // For export macro
 
 class vtkDataSet;
 class vtkDataSetCollection;
@@ -38,38 +37,38 @@ public:
 
   enum ElementTypesList
   {
-    POINT     = 0,
-    BAR2      = 1,
-    BAR3      = 2,
-    NSIDED    = 3,
-    TRIA3     = 4,
-    TRIA6     = 5,
-    QUAD4     = 6,
-    QUAD8     = 7,
-    NFACED    = 8,
-    TETRA4    = 9,
-    TETRA10   = 10,
-    PYRAMID5  = 11,
+    POINT = 0,
+    BAR2 = 1,
+    BAR3 = 2,
+    NSIDED = 3,
+    TRIA3 = 4,
+    TRIA6 = 5,
+    QUAD4 = 6,
+    QUAD8 = 7,
+    NFACED = 8,
+    TETRA4 = 9,
+    TETRA10 = 10,
+    PYRAMID5 = 11,
     PYRAMID13 = 12,
-    HEXA8     = 13,
-    HEXA20    = 14,
-    PENTA6    = 15,
-    PENTA15   = 16,
-    NUMBER_OF_ELEMENT_TYPES  = 17
+    HEXA8 = 13,
+    HEXA20 = 14,
+    PENTA6 = 15,
+    PENTA15 = 16,
+    NUMBER_OF_ELEMENT_TYPES = 17
   };
 
   enum VariableTypesList
   {
-    SCALAR_PER_NODE            = 0,
-    VECTOR_PER_NODE            = 1,
-    TENSOR_SYMM_PER_NODE       = 2,
-    SCALAR_PER_ELEMENT         = 3,
-    VECTOR_PER_ELEMENT         = 4,
-    TENSOR_SYMM_PER_ELEMENT    = 5,
-    SCALAR_PER_MEASURED_NODE   = 6,
-    VECTOR_PER_MEASURED_NODE   = 7,
-    COMPLEX_SCALAR_PER_NODE    = 8,
-    COMPLEX_VECTOR_PER_NODE    = 9,
+    SCALAR_PER_NODE = 0,
+    VECTOR_PER_NODE = 1,
+    TENSOR_SYMM_PER_NODE = 2,
+    SCALAR_PER_ELEMENT = 3,
+    VECTOR_PER_ELEMENT = 4,
+    TENSOR_SYMM_PER_ELEMENT = 5,
+    SCALAR_PER_MEASURED_NODE = 6,
+    VECTOR_PER_MEASURED_NODE = 7,
+    COMPLEX_SCALAR_PER_NODE = 8,
+    COMPLEX_VECTOR_PER_NODE = 9,
     COMPLEX_SCALAR_PER_ELEMENT = 10,
     COMPLEX_VECTOR_PER_ELEMENT = 11
   };
@@ -77,8 +76,8 @@ public:
   enum SectionTypeList
   {
     COORDINATES = 0,
-    BLOCK       = 1,
-    ELEMENT     = 2
+    BLOCK = 1,
+    ELEMENT = 2
   };
 
   //@{
@@ -101,12 +100,8 @@ protected:
   vtkEnSightReader();
   ~vtkEnSightReader() override;
 
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ClearForNewCaseFileName() override;
 
@@ -141,85 +136,77 @@ protected:
   /**
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
-  virtual int ReadGeometryFile(const char* fileName, int timeStep,
-                               vtkMultiBlockDataSet *output) = 0;
+  virtual int ReadGeometryFile(
+    const char* fileName, int timeStep, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
-  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-                                       vtkMultiBlockDataSet *output) = 0;
+  virtual int ReadMeasuredGeometryFile(
+    const char* fileName, int timeStep, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read the variable files. If an error occurred, 0 is returned; otherwise 1.
    */
-  int ReadVariableFiles(vtkMultiBlockDataSet *output);
+  int ReadVariableFiles(vtkMultiBlockDataSet* output);
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadScalarsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output,
-                                 int measured = 0, int numberOfComponents = 1,
-                                 int component = 0) = 0;
+  virtual int ReadScalarsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0, int numberOfComponents = 1,
+    int component = 0) = 0;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadVectorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output,
-                                 int measured = 0) = 0;
+  virtual int ReadVectorsPerNode(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int measured = 0) = 0;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output) = 0;
+  virtual int ReadTensorsPerNode(
+    const char* fileName, const char* description, int timeStep, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadScalarsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output,
-                                    int numberOfComponents = 1,
-                                    int component = 0) = 0;
+  virtual int ReadScalarsPerElement(const char* fileName, const char* description, int timeStep,
+    vtkMultiBlockDataSet* output, int numberOfComponents = 1, int component = 0) = 0;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) = 0;
+  virtual int ReadVectorsPerElement(
+    const char* fileName, const char* description, int timeStep, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) = 0;
+  virtual int ReadTensorsPerElement(
+    const char* fileName, const char* description, int timeStep, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
    * vtkUnstructuredGrid output.  Return 0 if EOF reached.
    */
-  virtual int CreateUnstructuredGridOutput(int partId,
-                                           char line[80],
-                                           const char* name,
-                                           vtkMultiBlockDataSet *output) = 0;
+  virtual int CreateUnstructuredGridOutput(
+    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGridOutput.  Return 0 if EOF reached.
    */
-  virtual int CreateStructuredGridOutput(int partId,
-                                         char line[80],
-                                         const char* name,
-                                         vtkMultiBlockDataSet *output) = 0;
+  virtual int CreateStructuredGridOutput(
+    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output) = 0;
 
   /**
    * Add another file name to the list for a particular variable type.
@@ -246,7 +233,7 @@ protected:
    * Determine the section type from a line read a file.  Return -1 for
    * invalid section type.
    */
- int GetSectionType(const char *line);
+  int GetSectionType(const char* line);
 
   /**
    * Replace the *'s in the filename with the given filename number.
@@ -256,7 +243,7 @@ protected:
   /**
    * Remove leading blank spaces from a string.
    */
-  void RemoveLeadingBlanks(char *line);
+  void RemoveLeadingBlanks(char* line);
 
   // Get the vtkIdList for the given output index and cell type.
   vtkIdList* GetCellIds(int index, int cellType);
@@ -265,22 +252,18 @@ protected:
    * Convenience method use to convert the readers from VTK 5 multiblock API
    * to the current composite data infrastructure.
    */
-  void AddToBlock(vtkMultiBlockDataSet* output,
-                  unsigned int blockNo,
-                  vtkDataSet* dataset);
+  void AddToBlock(vtkMultiBlockDataSet* output, unsigned int blockNo, vtkDataSet* dataset);
 
   /**
    * Convenience method use to convert the readers from VTK 5 multiblock API
    * to the current composite data infrastructure.
    */
-  vtkDataSet* GetDataSetFromBlock(vtkMultiBlockDataSet* output,
-                                  unsigned int blockNo);
+  vtkDataSet* GetDataSetFromBlock(vtkMultiBlockDataSet* output, unsigned int blockNo);
 
   /**
    * Set the name of a block.
    */
-  void SetBlockName(vtkMultiBlockDataSet* output, unsigned int blockNo,
-    const char* name);
+  void SetBlockName(vtkMultiBlockDataSet* output, unsigned int blockNo, const char* name);
 
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file
@@ -298,27 +281,27 @@ protected:
   char** ComplexVariableFileNames;
 
   // array of time sets
-  vtkIdList *VariableTimeSetIds;
-  vtkIdList *ComplexVariableTimeSetIds;
+  vtkIdList* VariableTimeSetIds;
+  vtkIdList* ComplexVariableTimeSetIds;
 
   // array of file sets
-  vtkIdList *VariableFileSetIds;
-  vtkIdList *ComplexVariableFileSetIds;
+  vtkIdList* VariableFileSetIds;
+  vtkIdList* ComplexVariableFileSetIds;
 
   // collection of filename numbers per time set
-  vtkIdListCollection *TimeSetFileNameNumbers;
-  vtkIdList *TimeSetsWithFilenameNumbers;
+  vtkIdListCollection* TimeSetFileNameNumbers;
+  vtkIdList* TimeSetsWithFilenameNumbers;
 
   // collection of filename numbers per file set
-  vtkIdListCollection *FileSetFileNameNumbers;
-  vtkIdList *FileSetsWithFilenameNumbers;
+  vtkIdListCollection* FileSetFileNameNumbers;
+  vtkIdList* FileSetsWithFilenameNumbers;
 
   // collection of number of steps per file per file set
-  vtkIdListCollection *FileSetNumberOfSteps;
+  vtkIdListCollection* FileSetNumberOfSteps;
 
   // ids of the time and file sets
-  vtkIdList *TimeSetIds;
-  vtkIdList *FileSets;
+  vtkIdList* TimeSetIds;
+  vtkIdList* FileSets;
 
   int GeometryTimeSet;
   int GeometryFileSet;

@@ -16,22 +16,23 @@
 #include "vtkPlot.h"
 
 #include "vtkAxis.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkTable.h"
+#include "vtkContextMapper2D.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
-#include "vtkContextMapper2D.h"
-#include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 #include <sstream>
 
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
 
 //-----------------------------------------------------------------------------
-vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
+vtkPlot::vtkPlot()
+  : ShiftScale(0.0, 0.0, 1.0, 1.0)
 {
   this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
@@ -77,21 +78,66 @@ bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
   return false;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
-vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
-                                   vtkVector2f*)
+vtkIdType vtkPlot::GetNearestPoint(
+  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location)
 {
+  // When using legacy code, we need to make sure old override are still called
+  // and old call are still working. This is the more generic way to achieve that
+  // The flag is here to ensure that the two implementation
+  // do not call each other in an infinite loop.
+  if (!this->LegacyRecursionFlag)
+  {
+    vtkIdType segmentId;
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tolerance, location, &segmentId);
+    this->LegacyRecursionFlag = false;
+    return ret;
+  }
+  else
+  {
+    return -1;
+  }
+}
+#endif // VTK_LEGACY_REMOVE
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkPlot::GetNearestPoint(
+#ifndef VTK_LEGACY_REMOVE
+  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location,
+#else
+  const vtkVector2f& vtkNotUsed(point), const vtkVector2f& vtkNotUsed(tolerance),
+  vtkVector2f* vtkNotUsed(location),
+#endif // VTK_LEGACY_REMOVE
+  vtkIdType* vtkNotUsed(segmentId))
+{
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    int ret = this->GetNearestPoint(point, tolerance, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(vtkPlot::GetNearestPoint(const vtkVector2f& point,
+                                 const vtkVector2f& tol, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
+          vtkVector2f* location, vtkIdType* segmentId));
+    }
+    return ret;
+  }
+#endif // VTK_LEGACY_REMOVE
   return -1;
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
-                                      vtkIdType seriesIndex,
-                                      vtkIdType)
+vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType)
 {
   vtkStdString tooltipLabel;
-  vtkStdString &format = this->TooltipLabelFormat.empty() ?
-        this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
+  vtkStdString& format =
+    this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
   for (size_t i = 0; i < format.length(); ++i)
@@ -107,9 +153,8 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
           tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'i':
-          if (this->IndexedLabels &&
-              seriesIndex >= 0 &&
-              seriesIndex < this->IndexedLabels->GetNumberOfTuples())
+          if (this->IndexedLabels && seriesIndex >= 0 &&
+            seriesIndex < this->IndexedLabels->GetNumberOfTuples())
           {
             tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
           }
@@ -141,18 +186,18 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
+vtkStdString vtkPlot::GetNumber(double position, vtkAxis* axis)
 {
   // Determine and format the X and Y position in the chart
   std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
   ostr.precision(this->GetTooltipPrecision());
 
-  if(this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)
+  if (this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)
   {
     ostr.setf(ios::scientific, ios::floatfield);
   }
-  else if(this->GetTooltipNotation() == vtkAxis::FIXED_NOTATION)
+  else if (this->GetTooltipNotation() == vtkAxis::FIXED_NOTATION)
   {
     ostr.setf(ios::fixed, ios::floatfield);
   }
@@ -181,7 +226,7 @@ bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon &)
+bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon&)
 {
   if (this->Selection)
   {
@@ -191,8 +236,7 @@ bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon &)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
-                       unsigned char a)
+void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   this->Pen->SetColor(r, g, b, a);
 }
@@ -232,7 +276,7 @@ float vtkPlot::GetWidth()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetPen(vtkPen *pen)
+void vtkPlot::SetPen(vtkPen* pen)
 {
   if (this->Pen != pen)
   {
@@ -248,7 +292,7 @@ vtkPen* vtkPlot::GetPen()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetBrush(vtkBrush *brush)
+void vtkPlot::SetBrush(vtkBrush* brush)
 {
   if (this->Brush != brush)
   {
@@ -264,7 +308,7 @@ vtkBrush* vtkPlot::GetBrush()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetSelectionPen(vtkPen *pen)
+void vtkPlot::SetSelectionPen(vtkPen* pen)
 {
   if (this->SelectionPen != pen)
   {
@@ -280,7 +324,7 @@ vtkPen* vtkPlot::GetSelectionPen()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetSelectionBrush(vtkBrush *brush)
+void vtkPlot::SetSelectionBrush(vtkBrush* brush)
 {
   if (this->SelectionBrush != brush)
   {
@@ -310,7 +354,7 @@ vtkStdString vtkPlot::GetLabel()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetLabels(vtkStringArray *labels)
+void vtkPlot::SetLabels(vtkStringArray* labels)
 {
   if (this->Labels == labels)
   {
@@ -322,7 +366,7 @@ void vtkPlot::SetLabels(vtkStringArray *labels)
 }
 
 //-----------------------------------------------------------------------------
-vtkStringArray * vtkPlot::GetLabels()
+vtkStringArray* vtkPlot::GetLabels()
 {
   // If the label string is empty, return the y column name
   if (this->Labels)
@@ -333,11 +377,11 @@ vtkStringArray * vtkPlot::GetLabels()
   {
     return this->AutoLabels;
   }
-  else if (this->Data->GetInput() &&
-           this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
+  else if (this->Data->GetInput() && this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
   {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
+    this->AutoLabels->InsertNextValue(
+      this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
     return this->AutoLabels;
   }
   else
@@ -348,7 +392,7 @@ vtkStringArray * vtkPlot::GetLabels()
 //-----------------------------------------------------------------------------
 int vtkPlot::GetNumberOfLabels()
 {
-  vtkStringArray *labels = this->GetLabels();
+  vtkStringArray* labels = this->GetLabels();
   if (labels)
   {
     return labels->GetNumberOfValues();
@@ -360,7 +404,7 @@ int vtkPlot::GetNumberOfLabels()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
+void vtkPlot::SetIndexedLabels(vtkStringArray* labels)
 {
   if (this->IndexedLabels == labels)
   {
@@ -381,19 +425,19 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
 }
 
 //-----------------------------------------------------------------------------
-vtkStringArray * vtkPlot::GetIndexedLabels()
+vtkStringArray* vtkPlot::GetIndexedLabels()
 {
   return this->IndexedLabels;
 }
 
 //-----------------------------------------------------------------------------
-vtkContextMapper2D * vtkPlot::GetData()
+vtkContextMapper2D* vtkPlot::GetData()
 {
   return this->Data;
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetTooltipLabelFormat(const vtkStdString &labelFormat)
+void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
 {
   if (this->TooltipLabelFormat == labelFormat)
   {
@@ -439,7 +483,7 @@ int vtkPlot::GetTooltipPrecision()
 //-----------------------------------------------------------------------------
 vtkStdString vtkPlot::GetLabel(vtkIdType index)
 {
-  vtkStringArray *labels = this->GetLabels();
+  vtkStringArray* labels = this->GetLabels();
   if (labels && index >= 0 && index < labels->GetNumberOfValues())
   {
     return labels->GetValue(index);
@@ -450,36 +494,31 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
   }
 }
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInputData(vtkTable *table)
+void vtkPlot::SetInputData(vtkTable* table)
 {
   this->Data->SetInputData(table);
-  this->AutoLabels = nullptr;  // No longer valid
+  this->AutoLabels = nullptr; // No longer valid
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInputData(vtkTable *table, const vtkStdString &xColumn,
-                           const vtkStdString &yColumn)
+void vtkPlot::SetInputData(
+  vtkTable* table, const vtkStdString& xColumn, const vtkStdString& yColumn)
 {
-  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str()
-                << "\", " << "Y column = \"" << yColumn.c_str() << "\"");
+  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str() << "\", "
+                << "Y column = \"" << yColumn.c_str() << "\"");
 
   this->Data->SetInputData(table);
-  this->Data->SetInputArrayToProcess(0, 0, 0,
-                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     xColumn.c_str());
-  this->Data->SetInputArrayToProcess(1, 0, 0,
-                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     yColumn.c_str());
-  this->AutoLabels = nullptr;  // No longer valid
+  this->Data->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, xColumn.c_str());
+  this->Data->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, yColumn.c_str());
+  this->AutoLabels = nullptr; // No longer valid
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInputData(vtkTable *table, vtkIdType xColumn,
-                           vtkIdType yColumn)
+void vtkPlot::SetInputData(vtkTable* table, vtkIdType xColumn, vtkIdType yColumn)
 {
-  this->SetInputData(table,
-                     table->GetColumnName(xColumn),
-                     table->GetColumnName(yColumn));
+  this->SetInputData(table, table->GetColumnName(xColumn), table->GetColumnName(yColumn));
 }
 
 //-----------------------------------------------------------------------------
@@ -489,26 +528,25 @@ vtkTable* vtkPlot::GetInput()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInputArray(int index, const vtkStdString &name)
+void vtkPlot::SetInputArray(int index, const vtkStdString& name)
 {
-  this->Data->SetInputArrayToProcess(index, 0, 0,
-                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     name.c_str());
+  this->Data->SetInputArrayToProcess(
+    index, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, name.c_str());
   this->AutoLabels = nullptr; // No longer valid
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetSelection(vtkIdTypeArray *id)
+void vtkPlot::SetSelection(vtkIdTypeArray* id)
 {
   if (!this->GetSelectable())
   {
     return;
   }
-  vtkSetObjectBodyMacro(Selection,vtkIdTypeArray,id);
+  vtkSetObjectBodyMacro(Selection, vtkIdTypeArray, id);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetShiftScale(const vtkRectd &shiftScale)
+void vtkPlot::SetShiftScale(const vtkRectd& shiftScale)
 {
   if (shiftScale != this->ShiftScale)
   {
@@ -524,9 +562,7 @@ vtkRectd vtkPlot::GetShiftScale()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetProperty(const vtkStdString&, const vtkVariant&)
-{
-}
+void vtkPlot::SetProperty(const vtkStdString&, const vtkVariant&) {}
 
 //-----------------------------------------------------------------------------
 vtkVariant vtkPlot::GetProperty(const vtkStdString&)
@@ -535,8 +571,113 @@ vtkVariant vtkPlot::GetProperty(const vtkStdString&)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlot::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LegendVisibility: " << this->LegendVisibility << endl;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformScreenToData(const vtkVector2f& in, vtkVector2f& out)
+{
+  double tmp[2] = { in.GetX(), in.GetY() };
+
+  this->TransformScreenToData(tmp[0], tmp[1], tmp[0], tmp[1]);
+
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
+{
+  double tmp[2] = { in.GetX(), in.GetY() };
+
+  this->TransformDataToScreen(tmp[0], tmp[1], tmp[0], tmp[1]);
+
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformScreenToData(const double inX, const double inY, double& outX, double& outY)
+{
+  // inverse shift/scale from screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  outX = (inX / ss[2]) - ss[0];
+  outY = (inY / ss[3]) - ss[1];
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    outX = std::pow(10., outX);
+  }
+  if (logY)
+  {
+    outY = std::pow(10., outY);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformDataToScreen(const double inX, const double inY, double& outX, double& outY)
+{
+  outX = inX;
+  outY = inY;
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    outX = std::log10(outX);
+  }
+  if (logY)
+  {
+    outY = std::log10(outY);
+  }
+
+  // now, shift/scale to screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  outX = (outX + ss[0]) * ss[2];
+  outY = (outY + ss[1]) * ss[3];
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlot::ClampPos(double pos[2], double bounds[4])
+{
+  if (bounds[1] < bounds[0] || bounds[3] < bounds[2])
+  {
+    // bounds are not valid. Don't clamp.
+    return false;
+  }
+  bool clamped = false;
+  if (pos[0] < bounds[0] || vtkMath::IsNan(pos[0]))
+  {
+    pos[0] = bounds[0];
+    clamped = true;
+  }
+  if (pos[0] > bounds[1])
+  {
+    pos[0] = bounds[1];
+    clamped = true;
+  }
+  if (pos[1] < 0. || vtkMath::IsNan(pos[0]))
+  {
+    pos[1] = 0.;
+    clamped = true;
+  }
+  if (pos[1] > 1.)
+  {
+    pos[1] = 1.;
+    clamped = true;
+  }
+  return clamped;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlot::ClampPos(double pos[2])
+{
+  double bounds[4];
+  this->GetBounds(bounds);
+  return vtkPlot::ClampPos(pos, bounds);
 }

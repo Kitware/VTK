@@ -18,19 +18,19 @@
 // Get my new commands
 #include "vtkCommand.h"
 
-#include "vtkContext2D.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkTextProperty.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkPen.h"
 #include "vtkStdString.h"
+#include "vtkTextProperty.h"
 #include "vtkVectorOperators.h"
 
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkBlockItem)
+vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
@@ -47,7 +47,7 @@ vtkBlockItem::vtkBlockItem()
 vtkBlockItem::~vtkBlockItem() = default;
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::Paint(vtkContext2D *painter)
+bool vtkBlockItem::Paint(vtkContext2D* painter)
 {
   painter->GetTextProp()->SetVerticalJustificationToCentered();
   painter->GetTextProp()->SetJustificationToCentered();
@@ -63,8 +63,8 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
   {
     painter->GetBrush()->SetColor(0, 255, 0);
   }
-  painter->DrawRect(this->Dimensions[0], this->Dimensions[1],
-                    this->Dimensions[2], this->Dimensions[3]);
+  painter->DrawRect(
+    this->Dimensions[0], this->Dimensions[1], this->Dimensions[2], this->Dimensions[3]);
 
   float x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
   float y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
@@ -84,13 +84,11 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::Hit(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f pos = mouse.GetPos();
-  if (pos[0] > this->Dimensions[0] &&
-      pos[0] < this->Dimensions[0] + this->Dimensions[2] &&
-      pos[1] > this->Dimensions[1] &&
-      pos[1] < this->Dimensions[1] + this->Dimensions[3])
+  if (pos[0] > this->Dimensions[0] && pos[0] < this->Dimensions[0] + this->Dimensions[2] &&
+    pos[1] > this->Dimensions[1] && pos[1] < this->Dimensions[1] + this->Dimensions[3])
   {
     return true;
   }
@@ -101,7 +99,7 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
+bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = true;
   this->GetScene()->SetDirty(true);
@@ -109,7 +107,7 @@ bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
 
@@ -146,7 +144,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &)
+bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   this->MouseOver = false;
   this->GetScene()->SetDirty(true);
@@ -154,19 +152,19 @@ bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
+bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkBlockItem::SetLabel(const vtkStdString &label)
+void vtkBlockItem::SetLabel(const vtkStdString& label)
 {
   if (this->Label != label)
   {
@@ -188,7 +186,7 @@ void vtkBlockItem::SetScalarFunctor(double (*ScalarFunction)(double, double))
 }
 
 //-----------------------------------------------------------------------------
-void vtkBlockItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkBlockItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

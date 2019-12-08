@@ -19,51 +19,51 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkTimerLog.h"
 
 #include "vtkDICOMImageReader.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkCullerCollection.h"
-#include "vtkLight.h"
-#include "vtkImageShrink3D.h"
 #include "vtkImageData.h"
+#include "vtkImageShrink3D.h"
+#include "vtkLight.h"
 
 #define USE_VIVE
 #ifdef USE_VIVE
-#include "vtkOpenVRRenderer.h"
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
+#include "vtkOpenVRRenderer.h"
 #else
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLCamera.h"
-#include "vtkWin32RenderWindowInteractor.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkWin32RenderWindowInteractor.h"
 #endif
 
 //----------------------------------------------------------------------------
-int Medical(int argc, char *argv[])
+int Medical(int argc, char* argv[])
 {
 #ifdef USE_VIVE
   vtkNew<vtkOpenVRRenderer> renderer;
   vtkNew<vtkOpenVRRenderWindow> renderWindow;
-  vtkNew<vtkOpenVRRenderWindowInteractor>  iren;
+  vtkNew<vtkOpenVRRenderWindowInteractor> iren;
   vtkNew<vtkOpenVRCamera> cam;
 #else
   vtkNew<vtkOpenGLRenderer> renderer;
   vtkNew<vtkWin32OpenGLRenderWindow> renderWindow;
-  renderWindow->SetSize(1100,1100);
-  vtkNew<vtkWin32RenderWindowInteractor>  iren;
+  renderWindow->SetSize(1100, 1100);
+  vtkNew<vtkWin32RenderWindowInteractor> iren;
   vtkNew<vtkOpenGLCamera> cam;
 #endif
 
@@ -82,14 +82,14 @@ int Medical(int argc, char *argv[])
   renderer->AddLight(light);
 
   vtkNew<vtkDICOMImageReader> reader;
-  //reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/CTLung");
-  //reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/Panc");
+  // reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/CTLung");
+  // reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/Panc");
   reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/LIDC");
   reader->Update();
   reader->Print(cerr);
 
   vtkNew<vtkImageShrink3D> shrink;
-  shrink->SetShrinkFactors(2,2,1);
+  shrink->SetShrinkFactors(2, 2, 1);
   shrink->SetAveraging(1);
   shrink->SetInputConnection(reader->GetOutputPort());
   shrink->Update();
@@ -105,15 +105,15 @@ int Medical(int argc, char *argv[])
   // gradientOpacity="4 0 1 255 1"
   // scalarOpacity="10 -3024 0 -1278.35 0 22.8277 0.428571 439.291 0.625 3071 0.616071"
   // specular="0" shade="1" ambient="0.2"
-  // colorTransfer="20 -3024 0 0 0 -1278.35 0.54902 0.25098 0.14902 22.8277 0.882353 0.603922 0.290196
-  // 439.291 1 0.937033 0.954531 3071 0.827451 0.658824 1"
-  // selectable="true" diffuse="1" interpolation="1"/>
+  // colorTransfer="20 -3024 0 0 0 -1278.35 0.54902 0.25098 0.14902 22.8277 0.882353 0.603922
+  // 0.290196 439.291 1 0.937033 0.954531 3071 0.827451 0.658824 1" selectable="true" diffuse="1"
+  // interpolation="1"/>
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(-250, 1.0, 0.6, 0.4);
   ctf->AddRGBPoint(40, 1.0, 0.6, 0.4);
-  ctf->AddRGBPoint(450, 1.0, 1.0, 238/255.0);
-  ctf->AddRGBPoint(1150, 1.0, 1.0, 238/255.0);
+  ctf->AddRGBPoint(450, 1.0, 1.0, 238 / 255.0);
+  ctf->AddRGBPoint(1150, 1.0, 1.0, 238 / 255.0);
   ctf->AddRGBPoint(3070, 0.2, 1.0, 0.3);
 
   vtkNew<vtkPiecewiseFunction> pwf;
@@ -128,7 +128,7 @@ int Medical(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty1;
   volumeProperty1->SetScalarOpacity(pwf);
   volumeProperty1->SetColor(ctf);
-  //volumeProperty1->SetDisableGradientOpacity(1);
+  // volumeProperty1->SetDisableGradientOpacity(1);
   volumeProperty1->SetGradientOpacity(gf);
   volumeProperty1->ShadeOn();
   volumeProperty1->SetAmbient(0.0);
@@ -142,7 +142,7 @@ int Medical(int argc, char *argv[])
   renderer->AddVolume(volume1);
 
   renderer->ResetCamera();
-  //cam->SetViewAngle(110);
+  // cam->SetViewAngle(110);
   renderWindow->Render();
 
 #ifndef USE_VIVE
@@ -178,11 +178,11 @@ int Medical(int argc, char *argv[])
     renderWindow->Render();
   }
   timer->StopTimer();
-  cerr << "FPS: " << floor(100*numFrames/timer->GetElapsedTime())/100.0 << "\n";
+  cerr << "FPS: " << floor(100 * numFrames / timer->GetElapsedTime()) / 100.0 << "\n";
 #endif
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

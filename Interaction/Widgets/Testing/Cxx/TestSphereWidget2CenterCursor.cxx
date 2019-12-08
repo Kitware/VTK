@@ -24,7 +24,7 @@
 #include <vtkSphereRepresentation.h>
 #include <vtkSphereWidget2.h>
 
-int TestSphereWidget2CenterCursor( int argc, char* argv[] )
+int TestSphereWidget2CenterCursor(int argc, char* argv[])
 {
   // Create a renderer and a render window
   vtkNew<vtkRenderer> renderer;
@@ -41,9 +41,9 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
   sphereWidget->CreateDefaultRepresentation();
 
   vtkSphereRepresentation* sphereRepresentation =
-    vtkSphereRepresentation::SafeDownCast( sphereWidget->GetRepresentation() );
+    vtkSphereRepresentation::SafeDownCast(sphereWidget->GetRepresentation());
   sphereRepresentation->HandleVisibilityOff();
-  double center[3] = {4, 0, 0};
+  double center[3] = { 4, 0, 0 };
   sphereRepresentation->SetCenter(center);
   sphereRepresentation->SetRadius(3);
 
@@ -53,9 +53,9 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
   sphereWidget2->CreateDefaultRepresentation();
 
   vtkSphereRepresentation* sphereRepresentation2 =
-    vtkSphereRepresentation::SafeDownCast( sphereWidget2->GetRepresentation() );
+    vtkSphereRepresentation::SafeDownCast(sphereWidget2->GetRepresentation());
   sphereRepresentation2->HandleVisibilityOff();
-  double center2[3] = {-4, 0, 0};
+  double center2[3] = { -4, 0, 0 };
   sphereRepresentation2->SetCenter(center2);
   sphereRepresentation2->SetRadius(3);
   sphereRepresentation2->SetCenterCursor(true);
@@ -71,8 +71,8 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
   sphereWidget2->On();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();
   }

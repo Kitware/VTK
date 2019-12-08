@@ -26,7 +26,7 @@
  * @sa
  * vtkUniformGridGhostDataGenerator, vtkStructuredGridGhostDataGenerator,
  * vtkRectilinearGridGhostDataGenerator
-*/
+ */
 
 #ifndef vtkDataSetGhostGenerator_h
 #define vtkDataSetGhostGenerator_h
@@ -39,28 +39,26 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkMultiBlockDataSet;
 
-class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator:
-  public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDataSetGhostGenerator,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkDataSetGhostGenerator, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get for number of ghost layers to generate.
    */
-  vtkSetMacro( NumberOfGhostLayers, int );
-  vtkGetMacro( NumberOfGhostLayers, int );
+  vtkSetMacro(NumberOfGhostLayers, int);
+  vtkGetMacro(NumberOfGhostLayers, int);
   //@}
 
   // Standard VTK pipeline routines
-  int FillInputPortInformation(int port,vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-      vtkInformation *rqst, vtkInformationVector **inputVector,
-      vtkInformationVector* outputVector ) override;
+  int RequestData(vtkInformation* rqst, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkDataSetGhostGenerator();
@@ -69,16 +67,13 @@ protected:
   /**
    * Generate ghost layers. Implemented by concrete implementations.
    */
-  virtual void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) = 0;
-
+  virtual void GenerateGhostLayers(vtkMultiBlockDataSet* in, vtkMultiBlockDataSet* out) = 0;
 
   int NumberOfGhostLayers;
 
 private:
   vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&) = delete;
   void operator=(const vtkDataSetGhostGenerator&) = delete;
-
 };
 
 #endif /* vtkDataSetGhostGenerator_h */

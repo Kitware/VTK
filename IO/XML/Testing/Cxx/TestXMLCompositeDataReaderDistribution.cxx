@@ -19,8 +19,8 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
-#include "vtkXMLMultiBlockDataReader.h"
 #include "vtkPolyData.h"
+#include "vtkXMLMultiBlockDataReader.h"
 
 #include "vtkNew.h"
 
@@ -28,21 +28,22 @@
 #include <set>
 #include <sstream>
 
-#define TEST_ASSERT(cond, message) \
-  do { \
-    if (!(cond)) \
-    {  \
-      std::cerr << "Failure at line " << __LINE__ << ":\n" \
-                << "\tCondition: " << #cond << "\n" \
-                << "\tError: " << message << "\n"; \
-      return EXIT_FAILURE; \
-    } \
+#define TEST_ASSERT(cond, message)                                                                 \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(cond))                                                                                   \
+    {                                                                                              \
+      std::cerr << "Failure at line " << __LINE__ << ":\n"                                         \
+                << "\tCondition: " << #cond << "\n"                                                \
+                << "\tError: " << message << "\n";                                                 \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
   } while (0) /* do-while swallows semicolons */
 
 namespace
 {
 // Returns a multiset containing the number of points in each leaf dataset.
-std::multiset<vtkIdType> PointCounts(vtkCompositeDataSet *cds)
+std::multiset<vtkIdType> PointCounts(vtkCompositeDataSet* cds)
 {
   std::multiset<vtkIdType> result;
 
@@ -51,7 +52,7 @@ std::multiset<vtkIdType> PointCounts(vtkCompositeDataSet *cds)
   it->SkipEmptyNodesOn();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
     if (pd)
     {
       result.insert(pd->GetNumberOfPoints());
@@ -60,13 +61,12 @@ std::multiset<vtkIdType> PointCounts(vtkCompositeDataSet *cds)
   return result;
 }
 
-bool VerifyCounts(vtkCompositeDataSet *cds,
-                  const std::multiset<vtkIdType> &expected)
+bool VerifyCounts(vtkCompositeDataSet* cds, const std::multiset<vtkIdType>& expected)
 {
   return PointCounts(cds) == expected;
 }
 
-std::string DumpCounts(vtkCompositeDataSet *cds)
+std::string DumpCounts(vtkCompositeDataSet* cds)
 {
   const std::multiset<vtkIdType> ids = PointCounts(cds);
   std::ostringstream out;
@@ -96,8 +96,8 @@ int TestXMLCompositeDataReaderDistribution(int argc, char* argv[])
   // number of points spanning 1-10 inclusive.
   {
     in->Update();
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
   }
 
   // Simulate a request for a partitioning across 3 processors:
@@ -111,20 +111,20 @@ int TestXMLCompositeDataReaderDistribution(int argc, char* argv[])
     // First processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 0);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {1, 2, 3, 4}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 1, 2, 3, 4 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Second processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 1);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {5, 6, 7}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 5, 6, 7 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Third processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 2);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {8, 9, 10}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 8, 9, 10 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
   }
 
   // Verify that interleaved loading works as expected.
@@ -134,20 +134,20 @@ int TestXMLCompositeDataReaderDistribution(int argc, char* argv[])
     // First processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 0);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {1, 4, 7, 10}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 1, 4, 7, 10 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Second processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 1);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {2, 5, 8}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 2, 5, 8 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Third processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 2);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {3, 6, 9}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 3, 6, 9 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
   }
 
   // Add an update restriction to test that loading is balanced when datasets 2
@@ -168,20 +168,20 @@ int TestXMLCompositeDataReaderDistribution(int argc, char* argv[])
     // First processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 0);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {1, 3, 4}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 1, 3, 4 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Second processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 1);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {5, 6, 8}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 5, 6, 8 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Third processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 2);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {9, 10}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 9, 10 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
   }
 
   // Verify that interleaved loading works as expected.
@@ -191,20 +191,20 @@ int TestXMLCompositeDataReaderDistribution(int argc, char* argv[])
     // First processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 0);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {1, 5, 9}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 1, 5, 9 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Second processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 1);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {3, 6, 10}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 3, 6, 10 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
 
     // Third processor:
     req->Set(vtkCompositeDataPipeline::UPDATE_PIECE_NUMBER(), 2);
     in->Update(req);
-    TEST_ASSERT(VerifyCounts(in->GetOutput(), {4, 8}),
-                "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
+    TEST_ASSERT(VerifyCounts(in->GetOutput(), { 4, 8 }),
+      "Incorrect partitioning: " << DumpCounts(in->GetOutput()));
   }
 
   return EXIT_SUCCESS;

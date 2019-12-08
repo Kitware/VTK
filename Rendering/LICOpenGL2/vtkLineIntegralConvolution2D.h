@@ -87,15 +87,15 @@
  *
  * @sa
  *  vtkImageDataLIC2D vtkStructuredGridLIC2D
-*/
+ */
 
 #ifndef vtkLineIntegralConvolution2D_h
 #define vtkLineIntegralConvolution2D_h
 
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // for ren context
 #include "vtkRenderingLICOpenGL2Module.h" // for export macro
-#include <deque> // for deque
+#include "vtkWeakPointer.h"               // for ren context
+#include <deque>                          // for deque
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
@@ -109,22 +109,22 @@ class vtkTextureObject;
 class VTKRENDERINGLICOPENGL2_EXPORT vtkLineIntegralConvolution2D : public vtkObject
 {
 public:
-  static vtkLineIntegralConvolution2D *New();
+  static vtkLineIntegralConvolution2D* New();
   vtkTypeMacro(vtkLineIntegralConvolution2D, vtkObject);
-  void PrintSelf(ostream & os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns if the context supports the required extensions.
    */
-  static bool IsSupported(vtkRenderWindow * renWin);
+  static bool IsSupported(vtkRenderWindow* renWin);
 
   //@{
   /**
    * Set/Get the rendering context. A reference is not explicitly held,
    * thus reference to the context must be held externally.
    */
-  void SetContext(vtkOpenGLRenderWindow *context);
-  vtkOpenGLRenderWindow *GetContext();
+  void SetContext(vtkOpenGLRenderWindow* context);
+  vtkOpenGLRenderWindow* GetContext();
   //@}
 
   //@{
@@ -160,9 +160,11 @@ public:
 
    * This feature is disabled by default.
    */
-  enum {
-    ENHANCE_CONTRAST_OFF=0,
-    ENHANCE_CONTRAST_ON=1};
+  enum
+  {
+    ENHANCE_CONTRAST_OFF = 0,
+    ENHANCE_CONTRAST_ON = 1
+  };
   vtkSetClampMacro(EnhanceContrast, int, 0, 2);
   vtkGetMacro(EnhanceContrast, int);
   vtkBooleanMacro(EnhanceContrast, int);
@@ -232,7 +234,7 @@ public:
    * [0, 3].
    */
   void SetComponentIds(int c0, int c1);
-  void SetComponentIds(int c[2]){ this->SetComponentIds(c[0], c[1]); }
+  void SetComponentIds(int c[2]) { this->SetComponentIds(c[0], c[1]); }
   vtkGetVector2Macro(ComponentIds, int);
   //@}
 
@@ -296,22 +298,17 @@ public:
   vtkGetMacro(MaskThreshold, double);
   //@}
 
-
   /**
    * Compute the lic on the entire vector field texture.
    */
-  vtkTextureObject *Execute(
-        vtkTextureObject *vectorTex,
-        vtkTextureObject *noiseTex);
+  vtkTextureObject* Execute(vtkTextureObject* vectorTex, vtkTextureObject* noiseTex);
 
   /**
    * Compute the lic on the indicated subset of the vector field
    * texture.
    */
-  vtkTextureObject *Execute(
-        const int extent[4],
-        vtkTextureObject *vectorTex,
-        vtkTextureObject *noiseTex);
+  vtkTextureObject* Execute(
+    const int extent[4], vtkTextureObject* vectorTex, vtkTextureObject* noiseTex);
 
   /**
    * Compute LIC over the desired subset of the input texture. The
@@ -324,23 +321,17 @@ public:
    * outputTexExtent : screen space extent of the output texture
    * outputExtent    : part of the output texture to store the result
    */
-  vtkTextureObject *Execute(
-        const vtkPixelExtent &inputTexExtent,
-        const std::deque<vtkPixelExtent> &vectorExtent,
-        const std::deque<vtkPixelExtent> &licExtent,
-        vtkTextureObject *vectorTex,
-        vtkTextureObject *maskVectorTex,
-        vtkTextureObject *noiseTex);
+  vtkTextureObject* Execute(const vtkPixelExtent& inputTexExtent,
+    const std::deque<vtkPixelExtent>& vectorExtent, const std::deque<vtkPixelExtent>& licExtent,
+    vtkTextureObject* vectorTex, vtkTextureObject* maskVectorTex, vtkTextureObject* noiseTex);
 
   /**
    * Convenience functions to ensure that the input textures are
    * configured correctly.
    */
-  static
-  void SetVectorTexParameters(vtkTextureObject *vectors);
+  static void SetVectorTexParameters(vtkTextureObject* vectors);
 
-  static
-  void SetNoiseTexParameters(vtkTextureObject *noise);
+  static void SetNoiseTexParameters(vtkTextureObject* noise);
 
   /**
    * Set the communicator to use during parallel operation
@@ -349,17 +340,14 @@ public:
    * hold/manage reference to the communicator during use
    * of the LIC object.
    */
-  virtual void SetCommunicator(vtkPainterCommunicator *){}
-  virtual vtkPainterCommunicator *GetCommunicator();
+  virtual void SetCommunicator(vtkPainterCommunicator*) {}
+  virtual vtkPainterCommunicator* GetCommunicator();
 
   /**
    * For parallel operation, find global min/max
    * min/max are in/out.
    */
- virtual void GetGlobalMinMax(
-       vtkPainterCommunicator*,
-       float&,
-       float&) {}
+  virtual void GetGlobalMinMax(vtkPainterCommunicator*, float&, float&) {}
 
   /**
    * Methods used for parallel benchmarks. Use cmake to define
@@ -367,36 +355,34 @@ public:
    * During each update timing information is stored, it can
    * be written to disk by calling WriteLog.
    */
-  virtual void WriteTimerLog(const char *){}
+  virtual void WriteTimerLog(const char*) {}
 
 protected:
   vtkLineIntegralConvolution2D();
   ~vtkLineIntegralConvolution2D() override;
 
-  vtkPainterCommunicator *Comm;
+  vtkPainterCommunicator* Comm;
 
-  void SetVTShader(vtkShaderProgram *prog);
-  void SetLIC0Shader(vtkShaderProgram *prog);
-  void SetLICIShader(vtkShaderProgram *prog);
-  void SetLICNShader(vtkShaderProgram *prog);
-  void SetEEShader(vtkShaderProgram *prog);
-  void SetCEShader(vtkShaderProgram *prog);
-  void SetAAHShader(vtkShaderProgram *prog);
-  void SetAAVShader(vtkShaderProgram *prog);
+  void SetVTShader(vtkShaderProgram* prog);
+  void SetLIC0Shader(vtkShaderProgram* prog);
+  void SetLICIShader(vtkShaderProgram* prog);
+  void SetLICNShader(vtkShaderProgram* prog);
+  void SetEEShader(vtkShaderProgram* prog);
+  void SetCEShader(vtkShaderProgram* prog);
+  void SetAAHShader(vtkShaderProgram* prog);
+  void SetAAVShader(vtkShaderProgram* prog);
 
   void BuildShaders();
 
-  void RenderQuad(
-        float computeBounds[4],
-        vtkPixelExtent computeExtent);
+  void RenderQuad(float computeBounds[4], vtkPixelExtent computeExtent);
 
-  vtkTextureObject *AllocateBuffer(unsigned int texSize[2]);
+  vtkTextureObject* AllocateBuffer(unsigned int texSize[2]);
 
   /**
    * Convenience functions to ensure that the input textures are
    * configured correctly.
    */
-  void SetNoise2TexParameters(vtkTextureObject *noise);
+  void SetNoise2TexParameters(vtkTextureObject* noise);
 
   /**
    * Methods used for parallel benchmarks. Use cmake to define
@@ -404,42 +390,42 @@ protected:
    * update timing information is stored, it can be written to
    * disk by calling WriteLog (defined in vtkSurfaceLICPainter).
    */
-  virtual void StartTimerEvent(const char *){}
-  virtual void EndTimerEvent(const char *){}
+  virtual void StartTimerEvent(const char*) {}
+  virtual void EndTimerEvent(const char*) {}
 
 protected:
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
-  vtkOpenGLFramebufferObject *FBO;
+  vtkOpenGLFramebufferObject* FBO;
 
   int ShadersNeedBuild;
-  vtkOpenGLHelper *FinalBlendProgram;
-  vtkOpenGLHelper *IntermediateBlendProgram;
-  vtkOpenGLHelper *VTShader;
-  vtkOpenGLHelper *LIC0Shader;
-  vtkOpenGLHelper *LICIShader;
-  vtkOpenGLHelper *LICNShader;
-  vtkOpenGLHelper *EEShader;
-  vtkOpenGLHelper *CEShader;
-  vtkOpenGLHelper *AAHShader;
-  vtkOpenGLHelper *AAVShader;
+  vtkOpenGLHelper* FinalBlendProgram;
+  vtkOpenGLHelper* IntermediateBlendProgram;
+  vtkOpenGLHelper* VTShader;
+  vtkOpenGLHelper* LIC0Shader;
+  vtkOpenGLHelper* LICIShader;
+  vtkOpenGLHelper* LICNShader;
+  vtkOpenGLHelper* EEShader;
+  vtkOpenGLHelper* CEShader;
+  vtkOpenGLHelper* AAHShader;
+  vtkOpenGLHelper* AAVShader;
 
-  int     NumberOfSteps;
-  double  StepSize;
-  int     EnhancedLIC;
-  int     EnhanceContrast;
-  double  LowContrastEnhancementFactor;
-  double  HighContrastEnhancementFactor;
-  int     AntiAlias;
-  int     NoiseTextureLookupCompatibilityMode;
-  double  MaskThreshold;
-  int     TransformVectors;
-  int     NormalizeVectors;
-  int     ComponentIds[2];
-  double  MaxNoiseValue;
+  int NumberOfSteps;
+  double StepSize;
+  int EnhancedLIC;
+  int EnhanceContrast;
+  double LowContrastEnhancementFactor;
+  double HighContrastEnhancementFactor;
+  int AntiAlias;
+  int NoiseTextureLookupCompatibilityMode;
+  double MaskThreshold;
+  int TransformVectors;
+  int NormalizeVectors;
+  int ComponentIds[2];
+  double MaxNoiseValue;
 
 private:
-  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &) = delete;
-  void operator = (const vtkLineIntegralConvolution2D &) = delete;
+  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D&) = delete;
+  void operator=(const vtkLineIntegralConvolution2D&) = delete;
 };
 
 #endif

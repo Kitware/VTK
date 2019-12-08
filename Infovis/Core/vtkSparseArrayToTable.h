@@ -36,7 +36,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkSparseArrayToTable_h
 #define vtkSparseArrayToTable_h
@@ -66,10 +66,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* ValueColumn;
 
@@ -79,4 +76,3 @@ private:
 };
 
 #endif
-

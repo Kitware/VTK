@@ -43,7 +43,7 @@
  *
  * @sa
  * vtkVoxelGridFilter vtkEuclideanClusterExtraction vtkBoundedPointSource
-*/
+ */
 
 #ifndef vtkDensifyPointCloudFilter_h
 #define vtkDensifyPointCloudFilter_h
@@ -59,8 +59,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkDensifyPointCloudFilter *New();
-  vtkTypeMacro(vtkDensifyPointCloudFilter,vtkPolyDataAlgorithm);
+  static vtkDensifyPointCloudFilter* New();
+  vtkTypeMacro(vtkDensifyPointCloudFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -74,8 +74,8 @@ public:
    */
   enum NeighborhoodType
   {
-    RADIUS=0,
-    N_CLOSEST=1
+    RADIUS = 0,
+    N_CLOSEST = 1
   };
 
   //@{
@@ -84,12 +84,10 @@ public:
    * closest neighborhood is used. This tends to avoid explosive point
    * creation.
    */
-  vtkSetMacro(NeighborhoodType,int);
-  vtkGetMacro(NeighborhoodType,int);
-  void SetNeighborhoodTypeToRadius()
-    { this->SetNeighborhoodType(RADIUS); }
-  void SetNeighborhoodTypeToNClosest()
-    { this->SetNeighborhoodType(N_CLOSEST); }
+  vtkSetMacro(NeighborhoodType, int);
+  vtkGetMacro(NeighborhoodType, int);
+  void SetNeighborhoodTypeToRadius() { this->SetNeighborhoodType(RADIUS); }
+  void SetNeighborhoodTypeToNClosest() { this->SetNeighborhoodType(N_CLOSEST); }
   //@}
 
   //@{
@@ -98,8 +96,8 @@ public:
    * radius. By default, the radius is 1.0. This data member is relevant only
    * if the neighborhood type is RADIUS.
    */
-  vtkSetClampMacro(Radius,double,1,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 1, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
@@ -108,8 +106,8 @@ public:
    * the number of the closest points is =6. This data member is relevant
    * only if the neighborhood type is N_CLOSEST.
    */
-  vtkSetClampMacro(NumberOfClosestPoints,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfClosestPoints,int);
+  vtkSetClampMacro(NumberOfClosestPoints, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfClosestPoints, int);
   //@}
 
   //@{
@@ -121,8 +119,8 @@ public:
    * distance is set to 0.5. Note that the TargetDistance should be less than
    * the Radius or nothing will change on output.
    */
-  vtkSetClampMacro(TargetDistance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(TargetDistance,double);
+  vtkSetClampMacro(TargetDistance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(TargetDistance, double);
   //@}
 
   //@{
@@ -142,8 +140,8 @@ public:
    * limit is hit, it may result in premature termination of the
    * algorithm. Consider it a pressure relief valve.
    */
-  vtkSetClampMacro(MaximumNumberOfPoints,vtkIdType,1,VTK_ID_MAX);
-  vtkGetMacro(MaximumNumberOfPoints,vtkIdType);
+  vtkSetClampMacro(MaximumNumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
+  vtkGetMacro(MaximumNumberOfPoints, vtkIdType);
   //@}
 
   //@{
@@ -151,9 +149,9 @@ public:
    * Turn on/off the interpolation of attribute data from the input point
    * cloud to new, added points.
    */
-  vtkSetMacro(InterpolateAttributeData,bool);
-  vtkGetMacro(InterpolateAttributeData,bool);
-  vtkBooleanMacro(InterpolateAttributeData,bool);
+  vtkSetMacro(InterpolateAttributeData, bool);
+  vtkGetMacro(InterpolateAttributeData, bool);
+  vtkBooleanMacro(InterpolateAttributeData, bool);
   //@}
 
 protected:
@@ -170,14 +168,12 @@ protected:
   vtkIdType MaximumNumberOfPoints;
 
   // Pipeline management
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) = delete;
   void operator=(const vtkDensifyPointCloudFilter&) = delete;
-
 };
 
 #endif

@@ -18,10 +18,10 @@
 #include "vtkBlueObeliskDataInternal.h"
 #include "vtkBlueObeliskDataParser.h"
 #include "vtkFloatArray.h"
+#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTypeTraits.h"
-#include "vtkMutexLock.h"
 #include "vtkUnsignedShortArray.h"
 
 #include <vector>
@@ -35,9 +35,10 @@ vtkStandardNewMacro(vtkBlueObeliskData);
 
 //----------------------------------------------------------------------------
 vtkBlueObeliskData::vtkBlueObeliskData()
-  : WriteMutex(vtkSimpleMutexLock::New()),
-    Initialized(false), NumberOfElements(0),
-    Arrays(new MyStdVectorOfVtkAbstractArrays)
+  : WriteMutex(vtkSimpleMutexLock::New())
+  , Initialized(false)
+  , NumberOfElements(0)
+  , Arrays(new MyStdVectorOfVtkAbstractArrays)
 {
   // Setup arrays and build Arrays
   this->Arrays->reserve(19);
@@ -110,56 +111,40 @@ vtkBlueObeliskData::~vtkBlueObeliskData()
 //----------------------------------------------------------------------------
 void vtkBlueObeliskData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfElements: " << this->NumberOfElements << "\n";
 
-  this->PrintSelfIfExists("this->Symbols",
-                          this->Symbols.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->LowerSymbols",
-                          this->LowerSymbols.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->Names",
-                          this->Names.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->LowerNames",
-                          this->LowerNames.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->PeriodicTableBlocks",
-                          this->PeriodicTableBlocks.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->ElectronicConfigurations",
-                          this->ElectronicConfigurations.GetPointer(),
-                          os, indent);
-  this->PrintSelfIfExists("this->Families",
-                          this->Families.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Symbols", this->Symbols.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->LowerSymbols", this->LowerSymbols.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Names", this->Names.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->LowerNames", this->LowerNames.GetPointer(), os, indent);
+  this->PrintSelfIfExists(
+    "this->PeriodicTableBlocks", this->PeriodicTableBlocks.GetPointer(), os, indent);
+  this->PrintSelfIfExists(
+    "this->ElectronicConfigurations", this->ElectronicConfigurations.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Families", this->Families.GetPointer(), os, indent);
 
-  this->PrintSelfIfExists("this->Masses",
-                          this->Masses.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->ExactMasses",
-                          this->ExactMasses.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->IonizationEnergies",
-                          this->IonizationEnergies.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->ElectronAffinities",
-                          this->ElectronAffinities.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->PaulingElectronegativities",
-                          this->PaulingElectronegativities.GetPointer(),
-                          os, indent);
-  this->PrintSelfIfExists("this->CovalentRadii",
-                          this->CovalentRadii.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->VDWRadii",
-                          this->VDWRadii.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->DefaultColors",
-                          this->DefaultColors.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->BoilingPoints",
-                          this->BoilingPoints.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->MeltingPoints",
-                          this->MeltingPoints.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->Periods",
-                          this->Periods.GetPointer(), os, indent);
-  this->PrintSelfIfExists("this->Groups",
-                          this->Groups.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Masses", this->Masses.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->ExactMasses", this->ExactMasses.GetPointer(), os, indent);
+  this->PrintSelfIfExists(
+    "this->IonizationEnergies", this->IonizationEnergies.GetPointer(), os, indent);
+  this->PrintSelfIfExists(
+    "this->ElectronAffinities", this->ElectronAffinities.GetPointer(), os, indent);
+  this->PrintSelfIfExists(
+    "this->PaulingElectronegativities", this->PaulingElectronegativities.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->CovalentRadii", this->CovalentRadii.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->VDWRadii", this->VDWRadii.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->DefaultColors", this->DefaultColors.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->BoilingPoints", this->BoilingPoints.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->MeltingPoints", this->MeltingPoints.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Periods", this->Periods.GetPointer(), os, indent);
+  this->PrintSelfIfExists("this->Groups", this->Groups.GetPointer(), os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkBlueObeliskData::PrintSelfIfExists(const char * name, vtkObject *obj,
-                                ostream& os, vtkIndent indent)
+void vtkBlueObeliskData::PrintSelfIfExists(
+  const char* name, vtkObject* obj, ostream& os, vtkIndent indent)
 {
   if (obj)
   {
@@ -173,9 +158,10 @@ void vtkBlueObeliskData::PrintSelfIfExists(const char * name, vtkObject *obj,
 }
 
 // Helpers for reading raw data from the private header into a VTK array.
-namespace {
+namespace
+{
 
-void LoadStringArray(vtkStringArray *array, const char *data[], vtkIdType size)
+void LoadStringArray(vtkStringArray* array, const char* data[], vtkIdType size)
 {
   array->SetNumberOfTuples(size);
   for (vtkIdType i = 0; i < size; ++i)
@@ -185,9 +171,8 @@ void LoadStringArray(vtkStringArray *array, const char *data[], vtkIdType size)
 }
 
 template <int NumComps, typename ArrayT>
-void LoadDataArray(ArrayT *array,
-                   const typename ArrayT::ValueType data[][NumComps],
-                   vtkIdType numTuples)
+void LoadDataArray(
+  ArrayT* array, const typename ArrayT::ValueType data[][NumComps], vtkIdType numTuples)
 {
   array->SetNumberOfTuples(numTuples);
 
@@ -207,16 +192,14 @@ void vtkBlueObeliskData::Initialize()
 {
   if (IsInitialized())
   {
-    vtkDebugMacro(<<"vtkBlueObeliskData @" << this
-                  << " already initialized.\n");
+    vtkDebugMacro(<< "vtkBlueObeliskData @" << this << " already initialized.\n");
     return;
   }
 
   this->NumberOfElements = _vtkBlueObeliskData::numberOfElements;
   vtkIdType arraySize = this->NumberOfElements + 1; // 0 is dummy element
 
-#define READARRAY(name) \
-  LoadStringArray(this->name.Get(), _vtkBlueObeliskData::name, arraySize)
+#define READARRAY(name) LoadStringArray(this->name.Get(), _vtkBlueObeliskData::name, arraySize)
 
   READARRAY(Symbols);
   READARRAY(LowerSymbols);
@@ -227,7 +210,7 @@ void vtkBlueObeliskData::Initialize()
   READARRAY(Families);
 
 #undef READARRAY
-#define READARRAY(numComps, name) \
+#define READARRAY(numComps, name)                                                                  \
   LoadDataArray<numComps>(this->name.Get(), _vtkBlueObeliskData::name, arraySize)
 
   READARRAY(1, Masses);
@@ -249,16 +232,14 @@ void vtkBlueObeliskData::Initialize()
 }
 
 // Helpers for GenerateHeaderFromXML:
-namespace {
-
-void WriteStringArray(const std::string &name, vtkStringArray *data,
-                      std::ostream &out)
+namespace
 {
-  out << "static const char *" << name
-      << "[" << data->GetNumberOfTuples() << "] = {\n";
 
-  assert("Single component string array: " &&
-         data->GetNumberOfComponents() == 1);
+void WriteStringArray(const std::string& name, vtkStringArray* data, std::ostream& out)
+{
+  out << "static const char *" << name << "[" << data->GetNumberOfTuples() << "] = {\n";
+
+  assert("Single component string array: " && data->GetNumberOfComponents() == 1);
   vtkIdType numTuples = data->GetNumberOfTuples();
   for (vtkIdType i = 0; i < numTuples; ++i)
   {
@@ -277,10 +258,7 @@ template <typename T>
 struct TypeTraits
 {
   static const char* Suffix() { return ""; }
-  static void PrepStream(std::ostream &out)
-  {
-    out.unsetf(std::ostream::floatfield);
-  }
+  static void PrepStream(std::ostream& out) { out.unsetf(std::ostream::floatfield); }
 };
 
 template <>
@@ -289,26 +267,25 @@ struct TypeTraits<float>
   // Float literals need the 'f' suffix:
   static const char* Suffix() { return "f"; }
   // Need to make sure that we have a decimal point when using 'f' suffix:
-  static void PrepStream(std::ostream &out) { out << std::scientific; }
+  static void PrepStream(std::ostream& out) { out << std::scientific; }
 };
 
 template <typename ArrayT>
-void WriteDataArray(const std::string &name, ArrayT *data, std::ostream &out)
+void WriteDataArray(const std::string& name, ArrayT* data, std::ostream& out)
 {
   typedef typename ArrayT::ValueType ValueType;
   vtkIdType numTuples = data->GetNumberOfTuples();
   int numComps = data->GetNumberOfComponents();
   TypeTraits<ValueType>::PrepStream(out);
-  out << "static const " << vtkTypeTraits<ValueType>::Name()
-      << " " << name << "[" << numTuples << "][" << numComps << "] = {\n";
+  out << "static const " << vtkTypeTraits<ValueType>::Name() << " " << name << "[" << numTuples
+      << "][" << numComps << "] = {\n";
 
   for (vtkIdType t = 0; t < numTuples; ++t)
   {
     out << "  { ";
     for (int c = 0; c < numComps; ++c)
     {
-      out << data->GetTypedComponent(t, c)
-          << TypeTraits<ValueType>::Suffix();
+      out << data->GetTypedComponent(t, c) << TypeTraits<ValueType>::Suffix();
       if (c < numComps - 1)
       {
         out << ",";
@@ -329,8 +306,7 @@ void WriteDataArray(const std::string &name, ArrayT *data, std::ostream &out)
 } // end anon namespace
 
 //----------------------------------------------------------------------------
-bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream &xml,
-                                               std::ostream &out)
+bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream& xml, std::ostream& out)
 {
   vtkNew<vtkBlueObeliskData> data;
   vtkNew<vtkBlueObeliskDataParser> parser;
@@ -349,8 +325,7 @@ bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream &xml,
          "const static unsigned int numberOfElements = "
       << data->GetNumberOfElements() << ";\n\n";
 
-#define DUMPARRAY(type, name) \
-  Write ## type ## Array(#name, data->Get ## name(), out)
+#define DUMPARRAY(type, name) Write##type##Array(#name, data->Get##name(), out)
 
   DUMPARRAY(String, Symbols);
   DUMPARRAY(String, LowerSymbols);
@@ -384,7 +359,8 @@ bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream &xml,
 vtkTypeBool vtkBlueObeliskData::Allocate(vtkIdType sz, vtkIdType ext)
 {
   for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
-         it_end = this->Arrays->end(); it != it_end; ++it)
+                                                it_end = this->Arrays->end();
+       it != it_end; ++it)
   {
     if ((*it)->Allocate(sz * (*it)->GetNumberOfComponents(), ext) == 0)
     {
@@ -398,7 +374,8 @@ vtkTypeBool vtkBlueObeliskData::Allocate(vtkIdType sz, vtkIdType ext)
 void vtkBlueObeliskData::Squeeze()
 {
   for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
-         it_end = this->Arrays->end(); it != it_end; ++it)
+                                                it_end = this->Arrays->end();
+       it != it_end; ++it)
   {
     (*it)->Squeeze();
   }
@@ -408,7 +385,8 @@ void vtkBlueObeliskData::Squeeze()
 void vtkBlueObeliskData::Reset()
 {
   for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
-         it_end = this->Arrays->end(); it != it_end; ++it)
+                                                it_end = this->Arrays->end();
+       it != it_end; ++it)
   {
     (*it)->Reset();
   }

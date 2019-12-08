@@ -23,15 +23,15 @@
 #ifndef vtkAvatar_h
 #define vtkAvatar_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkAvatar: public vtkActor
+class VTKRENDERINGCORE_EXPORT vtkAvatar : public vtkActor
 {
 public:
   static vtkAvatar* New();
-  vtkTypeMacro(vtkAvatar, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkAvatar, vtkActor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set/Get the head and hand transforms.
@@ -90,7 +90,8 @@ protected:
   double LeftHandOrientation[3];
   double RightHandPosition[3];
   double RightHandOrientation[3];
-  enum {
+  enum
+  {
     TORSO,
     LEFT_FORE,
     RIGHT_FORE,

@@ -21,14 +21,10 @@
 vtkStandardNewMacro(vtkPCellSizeFilter);
 
 //-----------------------------------------------------------------------------
-vtkPCellSizeFilter::vtkPCellSizeFilter()
-{
-}
+vtkPCellSizeFilter::vtkPCellSizeFilter() {}
 
 //-----------------------------------------------------------------------------
-vtkPCellSizeFilter::~vtkPCellSizeFilter()
-{
-}
+vtkPCellSizeFilter::~vtkPCellSizeFilter() {}
 
 //-----------------------------------------------------------------------------
 void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])
@@ -38,7 +34,7 @@ void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])
   {
     double globalSum[4];
     controller->AllReduce(sum, globalSum, 4, vtkCommunicator::SUM_OP);
-    for (int i=0;i<4;i++)
+    for (int i = 0; i < 4; i++)
     {
       sum[i] = globalSum[i];
     }

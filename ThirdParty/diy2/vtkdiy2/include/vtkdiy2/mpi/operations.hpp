@@ -1,4 +1,5 @@
 #include <functional>
+#include <algorithm> // for std::min/max
 
 namespace diy
 {

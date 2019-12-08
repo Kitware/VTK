@@ -22,32 +22,34 @@
 
 #include "QVTKGraphicsItem.h"
 #include <QGLFramebufferObject>
-#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 
 #include "QVTKInteractor.h"
 #include "QVTKInteractorAdapter.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
-  : QGraphicsWidget(p), mContext(ctx)
+  : QGraphicsWidget(p)
+  , mContext(ctx)
 {
   mFBO = nullptr;
   mIren = vtkSmartPointer<QVTKInteractor>::New();
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
   mConnect->Connect(mIren, vtkCommand::RenderEvent, this, SLOT(Update()));
-  vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> win =
+    vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
   this->SetRenderWindow(win);
 
   this->setFlag(QGraphicsItem::ItemIsFocusable, true);
   setFocusPolicy(Qt::ClickFocus);
   setAcceptHoverEvents(true);
-  this->setSizePolicy(QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding));
+  this->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   QPalette pal = this->palette();
-  pal.setColor(QPalette::Window, QColor(255,255,255,255));
+  pal.setColor(QPalette::Window, QColor(255, 255, 255, 255));
   this->setPalette(pal);
 }
 
@@ -58,38 +60,42 @@ QVTKGraphicsItem::~QVTKGraphicsItem()
 
 void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
-  if(mWin)
+  if (mWin)
   {
     mWin->SetMapped(0);
     mConnect->Disconnect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Disconnect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Disconnect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Disconnect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
-    mConnect->Disconnect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Disconnect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Disconnect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mWin, vtkCommand::WindowIsCurrentEvent, this,
+      SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mWin, vtkCommand::WindowIsDirectEvent, this,
+      SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Disconnect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this,
+      SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   }
 
   mIren->SetRenderWindow(win);
   mWin = win;
   mIren->Initialize();
 
-  if(mWin)
+  if (mWin)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
-    mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
-    mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
 
     mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Connect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Connect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
-    mConnect->Connect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Connect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Connect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mWin, vtkCommand::WindowIsCurrentEvent, this,
+      SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mWin, vtkCommand::WindowIsDirectEvent, this,
+      SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    mConnect->Connect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this,
+      SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   }
 }
 
@@ -105,7 +111,7 @@ QVTKInteractor* QVTKGraphicsItem::GetInteractor() const
 
 void QVTKGraphicsItem::Update()
 {
-  if(this->mWin && this->mFBO)
+  if (this->mWin && this->mFBO)
   {
     this->update(boundingRect());
   }
@@ -116,15 +122,15 @@ void QVTKGraphicsItem::MakeCurrent()
   mContext->makeCurrent();
 
   QSize sz = this->size().toSize();
-  if(!mFBO || sz != mFBO->size())
+  if (!mFBO || sz != mFBO->size())
   {
     delete mFBO;
 
-    if(!sz.isEmpty())
+    if (!sz.isEmpty())
       mFBO = new QGLFramebufferObject(sz, QGLFramebufferObject::Depth);
   }
 
-  if(mFBO)
+  if (mFBO)
     mFBO->bind();
 }
 
@@ -132,7 +138,7 @@ void QVTKGraphicsItem::Start()
 {
   MakeCurrent();
 
-  if(!mFBO)
+  if (!mFBO)
   {
     mWin->SetAbortRender(1);
     return;
@@ -144,7 +150,7 @@ void QVTKGraphicsItem::Start()
 
 void QVTKGraphicsItem::End()
 {
-  if(!mFBO)
+  if (!mFBO)
     return;
 
   mWin->PopState();
@@ -154,7 +160,7 @@ void QVTKGraphicsItem::End()
 
 void QVTKGraphicsItem::IsCurrent(vtkObject*, unsigned long, void*, void* call_data)
 {
-  if(mFBO)
+  if (mFBO)
   {
     bool* ptr = reinterpret_cast<bool*>(call_data);
     *ptr = QGLContext::currentContext() == mContext && mFBO->isBound();
@@ -173,29 +179,28 @@ void QVTKGraphicsItem::SupportsOpenGL(vtkObject*, unsigned long, void*, void* ca
   *ptr = QGLFormat::hasOpenGL();
 }
 
-
-void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
+void QVTKGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
-  if(!mWin)
+  if (!mWin)
     return;
 
- vtkOpenGLClearErrorMacro();
+  vtkOpenGLClearErrorMacro();
 
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
   painter->beginNativePainting();
 
-  if(!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
+  if (!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
   {
     // first time or is enabled
     // if its not the first time and it is disabled, don't update the scene
-    if(!mFBO || isEnabled())
+    if (!mFBO || isEnabled())
     {
       mIren->Render();
     }
   }
 
-  if(!mFBO)
+  if (!mFBO)
     return;
 
   // simply draw the already existing texture to the scene
@@ -203,13 +208,12 @@ void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*,
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, mFBO->texture());
 
-
   QRectF r = this->rect();
 
   QColor c = this->palette().color(QPalette::Window);
-  glColor4ub(c.red(),c.green(),c.blue(),c.alpha());
+  glColor4ub(c.red(), c.green(), c.blue(), c.alpha());
 
-  if(c.alpha() < 255)
+  if (c.alpha() < 255)
   {
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -220,14 +224,14 @@ void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*,
   }
 
   glBegin(GL_QUADS);
-  glTexCoord2i(0,1);
-  glVertex2f(r.left(),r.top());
-  glTexCoord2i(1,1);
-  glVertex2f(r.right(),r.top());
-  glTexCoord2i(1,0);
-  glVertex2f(r.right(),r.bottom());
-  glTexCoord2i(0,0);
-  glVertex2f(r.left(),r.bottom());
+  glTexCoord2i(0, 1);
+  glVertex2f(r.left(), r.top());
+  glTexCoord2i(1, 1);
+  glVertex2f(r.right(), r.top());
+  glTexCoord2i(1, 0);
+  glVertex2f(r.right(), r.bottom());
+  glTexCoord2i(0, 0);
+  glVertex2f(r.left(), r.bottom());
   glEnd();
 
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -255,8 +259,7 @@ void QVTKGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* e)
   QPoint pi = pf.toPoint();
 
   e->accept();
-  QMouseEvent e2(QEvent::MouseButtonPress, pi, e->button(),
-      e->buttons(), e->modifiers());
+  QMouseEvent e2(QEvent::MouseButtonPress, pi, e->button(), e->buttons(), e->modifiers());
   mIrenAdapter->ProcessEvent(&e2, mIren);
 }
 
@@ -265,8 +268,7 @@ void QVTKGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
   QPointF pf = e->pos();
   QPoint pi = pf.toPoint();
   e->accept();
-  QMouseEvent e2(QEvent::MouseButtonRelease, pi, e->button(),
-      e->buttons(), e->modifiers());
+  QMouseEvent e2(QEvent::MouseButtonRelease, pi, e->button(), e->buttons(), e->modifiers());
   mIrenAdapter->ProcessEvent(&e2, mIren);
 }
 
@@ -275,16 +277,15 @@ void QVTKGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* e)
   QPointF pf = e->pos();
   QPoint pi = pf.toPoint();
   e->accept();
-  QMouseEvent e2(QEvent::MouseMove, pi, e->button(),
-      e->buttons(), e->modifiers());
+  QMouseEvent e2(QEvent::MouseMove, pi, e->button(), e->buttons(), e->modifiers());
   mIrenAdapter->ProcessEvent(&e2, mIren);
 }
 
 void QVTKGraphicsItem::wheelEvent(QGraphicsSceneWheelEvent* e)
 {
   e->accept();
-  QWheelEvent e2(e->pos().toPoint(), e->scenePos().toPoint(), e->delta(),
-      e->buttons(), e->modifiers(), e->orientation());
+  QWheelEvent e2(e->pos().toPoint(), e->scenePos().toPoint(), e->delta(), e->buttons(),
+    e->modifiers(), e->orientation());
   mIrenAdapter->ProcessEvent(&e2, mIren);
 }
 
@@ -293,16 +294,15 @@ void QVTKGraphicsItem::resizeEvent(QGraphicsSceneResizeEvent* e)
   e->accept();
   QResizeEvent e2(e->newSize().toSize(), e->oldSize().toSize());
   mIrenAdapter->ProcessEvent(&e2, mIren);
-  if(mWin)
+  if (mWin)
     mWin->SetSize(e2.size().width(), e2.size().height());
-
 }
 
 void QVTKGraphicsItem::moveEvent(QGraphicsSceneMoveEvent* e)
 {
   e->accept();
   QMoveEvent e2(e->newPos().toPoint(), e->oldPos().toPoint());
-  if(mWin)
+  if (mWin)
     mWin->SetPosition(e2.pos().x(), e2.pos().y());
 }
 

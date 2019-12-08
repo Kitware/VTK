@@ -4,6 +4,7 @@ vtk_module_test_data(
   Data/UCD2D/UCD_00005.inp
   Data/fullhead15.png
   Data/hexa.vtk
+  Data/mine_with_dates.vtp
   Data/quadraticTetra01.vtu
   Data/waveletMaterial.vti)
 

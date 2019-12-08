@@ -28,8 +28,8 @@
  *
  */
 
-#include <jni.h>
 #include <errno.h>
+#include <jni.h>
 #include <sstream>
 
 #include "vtkNew.h"
@@ -42,16 +42,16 @@
 #include "vtkNrrdReader.h"
 #endif
 
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
-#include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkVolume.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkConeSource.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
+#include "vtkImageData.h"
+#include "vtkOpenGLGPUVolumeRayCastMapper.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -59,8 +59,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkCommand.h"
@@ -70,36 +70,36 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "NativeVTK", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "NativeVTK", __VA_ARGS__))
 
-extern "C" {
-    JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height);
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong renWinP);
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
-      jboolean down, jint keyCode, jint metaState, jint repeatCount
-      );
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
-      jint action,
-      jint eventPointer,
-      jint numPtrs,
-      jfloatArray xPos, jfloatArray yPos,
-      jintArray ids, jint metaState);
+extern "C"
+{
+  JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(
+    JNIEnv* env, jobject obj, jint width, jint height);
+  JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(
+    JNIEnv* env, jobject obj, jlong renWinP);
+  JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv* env,
+    jobject obj, jlong udp, jboolean down, jint keyCode, jint metaState, jint repeatCount);
+  JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv* env,
+    jobject obj, jlong udp, jint action, jint eventPointer, jint numPtrs, jfloatArray xPos,
+    jfloatArray yPos, jintArray ids, jint metaState);
 };
 
 struct userData
 {
-  vtkRenderWindow *RenderWindow;
-  vtkRenderer *Renderer;
-  vtkAndroidRenderWindowInteractor *Interactor;
+  vtkRenderWindow* RenderWindow;
+  vtkRenderer* Renderer;
+  vtkAndroidRenderWindowInteractor* Interactor;
 };
 
 /*
  * Here is where you would setup your pipeline and other normal VTK logic
  */
-JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
+JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(
+  JNIEnv* env, jobject obj, jint width, jint height)
 {
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  char jniS[4] = {'j','n','i',0};
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  char jniS[4] = { 'j', 'n', 'i', 0 };
   renWin->SetWindowInfo(jniS); // tell the system that jni owns the window not us
-  renWin->SetSize(width,height);
+  renWin->SetSize(width, height);
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer.Get());
 
@@ -112,9 +112,7 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
 
 #ifdef SYNTHETIC
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-63, 64,
-                          -63, 64,
-                          -63, 64);
+  wavelet->SetWholeExtent(-63, 64, -63, 64, -63, 64);
   wavelet->SetCenter(0.0, 0.0, 0.0);
 
   vtkNew<vtkImageCast> ic;
@@ -137,10 +135,10 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
 
   double tweak = 80.0;
   pwf->AddPoint(0, 0);
-  pwf->AddPoint(255*(67.0106+tweak)/3150.0, 0);
-  pwf->AddPoint(255*(251.105+tweak)/3150.0, 0.3);
-  pwf->AddPoint(255*(439.291+tweak)/3150.0, 0.5);
-  pwf->AddPoint(255*3071/3150.0, 0.616071);
+  pwf->AddPoint(255 * (67.0106 + tweak) / 3150.0, 0);
+  pwf->AddPoint(255 * (251.105 + tweak) / 3150.0, 0.3);
+  pwf->AddPoint(255 * (439.291 + tweak) / 3150.0, 0.5);
+  pwf->AddPoint(255 * 3071 / 3150.0, 0.616071);
 #endif
 
   volumeMapper->SetAutoAdjustSampleDistances(1);
@@ -152,10 +150,10 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(0, 0, 0, 0);
-  ctf->AddRGBPoint(255*67.0106/3150.0, 0.54902, 0.25098, 0.14902);
-  ctf->AddRGBPoint(255*251.105/3150.0, 0.882353, 0.603922, 0.290196);
-  ctf->AddRGBPoint(255*439.291/3150.0, 1, 0.937033, 0.954531);
-  ctf->AddRGBPoint(255*3071/3150.0, 0.827451, 0.658824, 1);
+  ctf->AddRGBPoint(255 * 67.0106 / 3150.0, 0.54902, 0.25098, 0.14902);
+  ctf->AddRGBPoint(255 * 251.105 / 3150.0, 0.882353, 0.603922, 0.290196);
+  ctf->AddRGBPoint(255 * 439.291 / 3150.0, 1, 0.937033, 0.954531);
+  ctf->AddRGBPoint(255 * 3071 / 3150.0, 0.827451, 0.658824, 1);
 
   volumeProperty->SetColor(ctf.GetPointer());
   volumeProperty->SetScalarOpacity(pwf.GetPointer());
@@ -164,15 +162,15 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  renderer->SetBackground2(0.2,0.3,0.4);
-  renderer->SetBackground(0.1,0.1,0.1);
+  renderer->SetBackground2(0.2, 0.3, 0.4);
+  renderer->SetBackground(0.1, 0.1, 0.1);
   renderer->GradientBackgroundOn();
   renderer->AddVolume(volume.GetPointer());
   renderer->ResetCamera();
-//  renderer->GetActiveCamera()->Zoom(1.4);
+  //  renderer->GetActiveCamera()->Zoom(1.4);
   renderer->GetActiveCamera()->Zoom(0.7);
 
-  struct userData *foo = new struct userData();
+  struct userData* foo = new struct userData();
   foo->RenderWindow = renWin;
   foo->Renderer = renderer.Get();
   foo->Interactor = iren.Get();
@@ -180,29 +178,27 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   return (jlong)foo;
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong udp)
+JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(
+  JNIEnv* env, jobject obj, jlong udp)
 {
-  struct userData *foo = (userData *)(udp);
+  struct userData* foo = (userData*)(udp);
   foo->RenderWindow->SwapBuffersOff(); // android does it
   foo->RenderWindow->Render();
   foo->RenderWindow->SwapBuffersOn(); // reset
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
-  jboolean down, jint keyCode, jint metaState, jint repeatCount)
+JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv* env,
+  jobject obj, jlong udp, jboolean down, jint keyCode, jint metaState, jint repeatCount)
 {
-  struct userData *foo = (userData *)(udp);
+  struct userData* foo = (userData*)(udp);
   foo->Interactor->HandleKeyEvent(down, keyCode, metaState, repeatCount);
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
-      jint action,
-      jint eventPointer,
-      jint numPtrs,
-      jfloatArray xPos, jfloatArray yPos,
-      jintArray ids, jint metaState)
+JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv* env,
+  jobject obj, jlong udp, jint action, jint eventPointer, jint numPtrs, jfloatArray xPos,
+  jfloatArray yPos, jintArray ids, jint metaState)
 {
-  struct userData *foo = (userData *)(udp);
+  struct userData* foo = (userData*)(udp);
 
   int xPtr[VTKI_MAX_POINTERS];
   int yPtr[VTKI_MAX_POINTERS];
@@ -215,9 +211,9 @@ JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEve
   }
 
   // fill in the arrays
-  jfloat *xJPtr = env->GetFloatArrayElements(xPos, 0);
-  jfloat *yJPtr = env->GetFloatArrayElements(yPos, 0);
-  jint *idJPtr = env->GetIntArrayElements(ids, 0);
+  jfloat* xJPtr = env->GetFloatArrayElements(xPos, 0);
+  jfloat* yJPtr = env->GetFloatArrayElements(yPos, 0);
+  jint* idJPtr = env->GetIntArrayElements(ids, 0);
   for (int i = 0; i < numPtrs; ++i)
   {
     xPtr[i] = (int)xJPtr[i];

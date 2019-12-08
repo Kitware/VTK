@@ -35,39 +35,40 @@
  *
  * @sa
  * vtkElevationFilter
-*/
+ */
 
 #ifndef vtkSimpleElevationFilter_h
 #define vtkSimpleElevationFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkSimpleElevationFilter : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSimpleElevationFilter,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkSimpleElevationFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Vector=(0,0,1).
    */
-  static vtkSimpleElevationFilter *New();
+  static vtkSimpleElevationFilter* New();
 
   //@{
   /**
    * Define the vector with which to dot against.
    */
-  vtkSetVector3Macro(Vector,double);
-  vtkGetVectorMacro(Vector,double,3);
+  vtkSetVector3Macro(Vector, double);
+  vtkGetVectorMacro(Vector, double, 3);
   //@}
 
 protected:
   vtkSimpleElevationFilter();
   ~vtkSimpleElevationFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Vector[3];
+
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) = delete;
   void operator=(const vtkSimpleElevationFilter&) = delete;

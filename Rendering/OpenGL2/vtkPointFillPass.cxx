@@ -18,19 +18,18 @@
 #include <cassert>
 
 #include "vtkCamera.h"
-#include "vtkRenderState.h"
-#include "vtkRenderer.h"
+#include "vtkMath.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-#include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRenderState.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
-#include "vtkMath.h"
 
 #include "vtkPointFillPassFS.h"
 #include "vtkTextureObjectVS.h"
@@ -40,55 +39,55 @@ vtkStandardNewMacro(vtkPointFillPass);
 // ----------------------------------------------------------------------------
 vtkPointFillPass::vtkPointFillPass()
 {
-  this->FrameBufferObject=nullptr;
-  this->Pass1=nullptr;
-  this->Pass1Depth=nullptr;
+  this->FrameBufferObject = nullptr;
+  this->Pass1 = nullptr;
+  this->Pass1Depth = nullptr;
   this->QuadHelper = nullptr;
-  this->MinimumCandidateAngle = 1.5*vtkMath::Pi();
+  this->MinimumCandidateAngle = 1.5 * vtkMath::Pi();
   this->CandidatePointRatio = 0.99;
 }
 
 // ----------------------------------------------------------------------------
 vtkPointFillPass::~vtkPointFillPass()
 {
-  if(this->FrameBufferObject!=nullptr)
+  if (this->FrameBufferObject != nullptr)
   {
-    vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
+    vtkErrorMacro(<< "FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
   }
-   if(this->Pass1!=nullptr)
-   {
-    vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
-   }
-   if(this->Pass1Depth!=nullptr)
-   {
-    vtkErrorMacro(<<"Pass1Depth should have been deleted in ReleaseGraphicsResources().");
-   }
+  if (this->Pass1 != nullptr)
+  {
+    vtkErrorMacro(<< "Pass1 should have been deleted in ReleaseGraphicsResources().");
+  }
+  if (this->Pass1Depth != nullptr)
+  {
+    vtkErrorMacro(<< "Pass1Depth should have been deleted in ReleaseGraphicsResources().");
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkPointFillPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // ----------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
-void vtkPointFillPass::Render(const vtkRenderState *s)
+void vtkPointFillPass::Render(const vtkRenderState* s)
 {
-  assert("pre: s_exists" && s!=nullptr);
+  assert("pre: s_exists" && s != nullptr);
 
   vtkOpenGLClearErrorMacro();
 
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
 
-  vtkRenderer *r=s->GetRenderer();
-  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkRenderer* r = s->GetRenderer();
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(r->GetRenderWindow());
 
-  if(this->DelegatePass == nullptr)
+  if (this->DelegatePass == nullptr)
   {
-    vtkWarningMacro(<<" no delegate.");
+    vtkWarningMacro(<< " no delegate.");
     return;
   }
 
@@ -101,13 +100,12 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   width = size[0];
   height = size[1];
 
-  if(this->Pass1==nullptr)
+  if (this->Pass1 == nullptr)
   {
     this->Pass1 = vtkTextureObject::New();
     this->Pass1->SetContext(renWin);
-    this->Pass1->Create2D(static_cast<unsigned int>(width),
-                          static_cast<unsigned int>(height),4,
-                          VTK_UNSIGNED_CHAR,false);
+    this->Pass1->Create2D(static_cast<unsigned int>(width), static_cast<unsigned int>(height), 4,
+      VTK_UNSIGNED_CHAR, false);
   }
   this->Pass1->Resize(width, height);
 
@@ -116,33 +114,27 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   {
     this->Pass1Depth = vtkTextureObject::New();
     this->Pass1Depth->SetContext(renWin);
-    this->Pass1Depth->AllocateDepth(
-      width, height, vtkTextureObject::Float32);
+    this->Pass1Depth->AllocateDepth(width, height, vtkTextureObject::Float32);
   }
   this->Pass1Depth->Resize(width, height);
 
-  if(this->FrameBufferObject==nullptr)
+  if (this->FrameBufferObject == nullptr)
   {
-    this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
+    this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
-  this->RenderDelegate(s,width,height,width,height,this->FrameBufferObject,
-                       this->Pass1, this->Pass1Depth);
-
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
+  this->RenderDelegate(
+    s, width, height, width, height, this->FrameBufferObject, this->Pass1, this->Pass1Depth);
+  renWin->GetState()->PopFramebufferBindings();
 
   // has something changed that would require us to recreate the shader?
   if (!this->QuadHelper)
   {
     // build the shader source code
     // compile and bind it if needed
-    this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
-        nullptr,
-        vtkPointFillPassFS,
-        "");
+    this->QuadHelper = new vtkOpenGLQuadHelper(renWin, nullptr, vtkPointFillPassFS, "");
   }
   else
   {
@@ -155,29 +147,27 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   }
 
   renWin->GetState()->vtkglDisable(GL_BLEND);
-//  glDisable(GL_DEPTH_TEST);
+  //  glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  this->QuadHelper->Program->SetUniformi("source",this->Pass1->GetTextureUnit());
+  this->QuadHelper->Program->SetUniformi("source", this->Pass1->GetTextureUnit());
 
   this->Pass1Depth->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  this->QuadHelper->Program->SetUniformi("depth",this->Pass1Depth->GetTextureUnit());
+  this->QuadHelper->Program->SetUniformi("depth", this->Pass1Depth->GetTextureUnit());
 
-  vtkCamera *cam = r->GetActiveCamera();
-  double *frange = cam->GetClippingRange();
-  this->QuadHelper->Program->SetUniformf("nearC",frange[0]);
-  this->QuadHelper->Program->SetUniformf("farC",frange[1]);
-  this->QuadHelper->Program->SetUniformf("MinimumCandidateAngle",
-    this->MinimumCandidateAngle);
-  this->QuadHelper->Program->SetUniformf("CandidatePointRatio",
-    this->CandidatePointRatio);
+  vtkCamera* cam = r->GetActiveCamera();
+  double* frange = cam->GetClippingRange();
+  this->QuadHelper->Program->SetUniformf("nearC", frange[0]);
+  this->QuadHelper->Program->SetUniformf("farC", frange[1]);
+  this->QuadHelper->Program->SetUniformf("MinimumCandidateAngle", this->MinimumCandidateAngle);
+  this->QuadHelper->Program->SetUniformf("CandidatePointRatio", this->CandidatePointRatio);
   float offset[2];
-  offset[0] = 1.0/width;
-  offset[1] = 1.0/height;
+  offset[0] = 1.0 / width;
+  offset[1] = 1.0 / height;
   this->QuadHelper->Program->SetUniform2f("pixelToTCoord", offset);
 
   this->QuadHelper->Render();
@@ -192,30 +182,30 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
 // Release graphics resources and ask components to release their own
 // resources.
 // \pre w_exists: w!=0
-void vtkPointFillPass::ReleaseGraphicsResources(vtkWindow *w)
+void vtkPointFillPass::ReleaseGraphicsResources(vtkWindow* w)
 {
-  assert("pre: w_exists" && w!=nullptr);
+  assert("pre: w_exists" && w != nullptr);
 
   this->Superclass::ReleaseGraphicsResources(w);
 
-  if (this->QuadHelper !=nullptr)
+  if (this->QuadHelper != nullptr)
   {
     delete this->QuadHelper;
     this->QuadHelper = nullptr;
   }
-  if(this->FrameBufferObject!=nullptr)
+  if (this->FrameBufferObject != nullptr)
   {
     this->FrameBufferObject->Delete();
-    this->FrameBufferObject=nullptr;
+    this->FrameBufferObject = nullptr;
   }
-   if(this->Pass1!=nullptr)
-   {
+  if (this->Pass1 != nullptr)
+  {
     this->Pass1->Delete();
-    this->Pass1=nullptr;
-   }
-   if(this->Pass1Depth!=nullptr)
-   {
+    this->Pass1 = nullptr;
+  }
+  if (this->Pass1Depth != nullptr)
+  {
     this->Pass1Depth->Delete();
-    this->Pass1Depth=nullptr;
-   }
+    this->Pass1Depth = nullptr;
+  }
 }

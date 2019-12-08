@@ -17,15 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkSmartPointer.h"
-#include "vtkKCoreDecomposition.h"
-#include "vtkMutableUndirectedGraph.h"
-#include "vtkMutableDirectedGraph.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkKCoreDecomposition.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
+#include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -44,40 +43,40 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // An O(m) Algorithm for Cores Decomposition of Networks
   //   V. Batagelj, M. Zaversnik, 2001
 
-  for(int i = 0; i < 21; i++)
+  for (int i = 0; i < 21; i++)
   {
     dg->AddVertex();
   }
 
-  dg->AddEdge(0,8);
-  dg->AddEdge(1,8);
-  dg->AddEdge(2,7);
-  dg->AddEdge(3,7);
-  dg->AddEdge(3,5);
-  dg->AddEdge(5,6);
-  dg->AddEdge(6,7);
-  dg->AddEdge(8,9);
-  dg->AddEdge(8,10);
-  dg->AddEdge(9,18);
-  dg->AddEdge(9,10);
-  dg->AddEdge(10,13);
-  dg->AddEdge(10,12);
-  dg->AddEdge(10,11);
-  dg->AddEdge(11,13);
-  dg->AddEdge(11,12);
-  dg->AddEdge(12,13);
-  dg->AddEdge(13,14);
-  dg->AddEdge(13,15);
-  dg->AddEdge(13,17);
-  dg->AddEdge(14,15);
-  dg->AddEdge(15,16);
-  dg->AddEdge(15,17);
-  dg->AddEdge(17,18);
-  dg->AddEdge(17,19);
-  dg->AddEdge(17,20);
-  dg->AddEdge(18,20);
-  dg->AddEdge(18,19);
-  dg->AddEdge(19,20);
+  dg->AddEdge(0, 8);
+  dg->AddEdge(1, 8);
+  dg->AddEdge(2, 7);
+  dg->AddEdge(3, 7);
+  dg->AddEdge(3, 5);
+  dg->AddEdge(5, 6);
+  dg->AddEdge(6, 7);
+  dg->AddEdge(8, 9);
+  dg->AddEdge(8, 10);
+  dg->AddEdge(9, 18);
+  dg->AddEdge(9, 10);
+  dg->AddEdge(10, 13);
+  dg->AddEdge(10, 12);
+  dg->AddEdge(10, 11);
+  dg->AddEdge(11, 13);
+  dg->AddEdge(11, 12);
+  dg->AddEdge(12, 13);
+  dg->AddEdge(13, 14);
+  dg->AddEdge(13, 15);
+  dg->AddEdge(13, 17);
+  dg->AddEdge(14, 15);
+  dg->AddEdge(15, 16);
+  dg->AddEdge(15, 17);
+  dg->AddEdge(17, 18);
+  dg->AddEdge(17, 19);
+  dg->AddEdge(17, 20);
+  dg->AddEdge(18, 20);
+  dg->AddEdge(18, 19);
+  dg->AddEdge(19, 20);
 
   kcp->SetInputData(dg);
 
@@ -85,9 +84,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkDataArray* da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != kCores[i])
+    if (da->GetVariantValue(i).ToInt() != kCores[i])
     {
       cerr << "Incorrect k-core value found in directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
@@ -95,40 +94,40 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     }
   }
 
-  for(int i = 0; i < 21; i++)
+  for (int i = 0; i < 21; i++)
   {
     ug->AddVertex();
   }
 
-  ug->AddEdge(0,8);
-  ug->AddEdge(1,8);
-  ug->AddEdge(2,7);
-  ug->AddEdge(3,7);
-  ug->AddEdge(3,5);
-  ug->AddEdge(5,6);
-  ug->AddEdge(6,7);
-  ug->AddEdge(8,9);
-  ug->AddEdge(8,10);
-  ug->AddEdge(9,18);
-  ug->AddEdge(9,10);
-  ug->AddEdge(10,13);
-  ug->AddEdge(10,12);
-  ug->AddEdge(10,11);
-  ug->AddEdge(11,13);
-  ug->AddEdge(11,12);
-  ug->AddEdge(12,13);
-  ug->AddEdge(13,14);
-  ug->AddEdge(13,15);
-  ug->AddEdge(13,17);
-  ug->AddEdge(14,15);
-  ug->AddEdge(15,16);
-  ug->AddEdge(15,17);
-  ug->AddEdge(17,18);
-  ug->AddEdge(17,19);
-  ug->AddEdge(17,20);
-  ug->AddEdge(18,20);
-  ug->AddEdge(18,19);
-  ug->AddEdge(19,20);
+  ug->AddEdge(0, 8);
+  ug->AddEdge(1, 8);
+  ug->AddEdge(2, 7);
+  ug->AddEdge(3, 7);
+  ug->AddEdge(3, 5);
+  ug->AddEdge(5, 6);
+  ug->AddEdge(6, 7);
+  ug->AddEdge(8, 9);
+  ug->AddEdge(8, 10);
+  ug->AddEdge(9, 18);
+  ug->AddEdge(9, 10);
+  ug->AddEdge(10, 13);
+  ug->AddEdge(10, 12);
+  ug->AddEdge(10, 11);
+  ug->AddEdge(11, 13);
+  ug->AddEdge(11, 12);
+  ug->AddEdge(12, 13);
+  ug->AddEdge(13, 14);
+  ug->AddEdge(13, 15);
+  ug->AddEdge(13, 17);
+  ug->AddEdge(14, 15);
+  ug->AddEdge(15, 16);
+  ug->AddEdge(15, 17);
+  ug->AddEdge(17, 18);
+  ug->AddEdge(17, 19);
+  ug->AddEdge(17, 20);
+  ug->AddEdge(18, 20);
+  ug->AddEdge(18, 19);
+  ug->AddEdge(19, 20);
 
   kcp->SetInputData(ug);
 
@@ -136,9 +135,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != kCores[i])
+    if (da->GetVariantValue(i).ToInt() != kCores[i])
     {
       cerr << "Incorrect k-core value found in undirected graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
@@ -157,9 +156,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sug->AddVertex();
   sug->AddVertex();
 
-  sug->AddEdge(3,0);
-  sug->AddEdge(0,2);
-  sug->AddEdge(1,0);
+  sug->AddEdge(3, 0);
+  sug->AddEdge(0, 2);
+  sug->AddEdge(1, 0);
 
   kcp->SetInputData(sug);
 
@@ -169,9 +168,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != undirected_kCores[i])
+    if (da->GetVariantValue(i).ToInt() != undirected_kCores[i])
     {
       cerr << "Incorrect k-core value found in small undirected graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << undirected_kCores[i] << endl;
@@ -189,10 +188,10 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sdg->AddVertex();
   sdg->AddVertex();
 
-  sdg->AddEdge(0,3);
-  sdg->AddEdge(3,0);
-  sdg->AddEdge(0,2);
-  sdg->AddEdge(1,0);
+  sdg->AddEdge(0, 3);
+  sdg->AddEdge(3, 0);
+  sdg->AddEdge(0, 2);
+  sdg->AddEdge(1, 0);
 
   kcp->SetInputData(sdg);
 
@@ -202,9 +201,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != directed_kCores[i])
+    if (da->GetVariantValue(i).ToInt() != directed_kCores[i])
     {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << directed_kCores[i] << endl;
@@ -220,12 +219,13 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != no_out_edges_directed_kCores[i])
+    if (da->GetVariantValue(i).ToInt() != no_out_edges_directed_kCores[i])
     {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << no_out_edges_directed_kCores[i] << endl;
+           << da->GetVariantValue(i).ToInt() << ", should be " << no_out_edges_directed_kCores[i]
+           << endl;
       return 1;
     }
   }
@@ -239,12 +239,13 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
-  for(int i=0;i< da->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < da->GetNumberOfTuples(); ++i)
   {
-    if(da->GetVariantValue(i).ToInt() != no_in_edges_directed_kCores[i])
+    if (da->GetVariantValue(i).ToInt() != no_in_edges_directed_kCores[i])
     {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << no_in_edges_directed_kCores[i] << endl;
+           << da->GetVariantValue(i).ToInt() << ", should be " << no_in_edges_directed_kCores[i]
+           << endl;
       return 1;
     }
   }

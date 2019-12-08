@@ -17,7 +17,7 @@
 
 vtkPolygonBuilder::vtkPolygonBuilder() = default;
 
-void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
+void vtkPolygonBuilder::InsertTriangle(const vtkIdType* abc)
 {
   // basic sanity check (see TestPolygonBuilder3)
   if (!abc)
@@ -39,14 +39,14 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
   if (found != Tris.end())
   {
     Triangles& tris = found->second;
-    for(Triangles::iterator it = tris.begin(); !duplicate && it != tris.end(); ++it)
+    for (Triangles::iterator it = tris.begin(); !duplicate && it != tris.end(); ++it)
     {
       Triangle& tri = *it;
-      for(int i = 0; i < 3; ++i)
+      for (int i = 0; i < 3; ++i)
       {
-        vtkIdType ta = tri[(i+0)%3];
-        vtkIdType tb = tri[(i+1)%3];
-        vtkIdType tc = tri[(i+2)%3];
+        vtkIdType ta = tri[(i + 0) % 3];
+        vtkIdType tb = tri[(i + 1) % 3];
+        vtkIdType tc = tri[(i + 2) % 3];
         if (abc[0] == ta && abc[1] == tb && abc[2] == tc)
         {
           duplicate = true;
@@ -59,11 +59,11 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
         }
       }
     }
-      Triangle my;
-      my.push_back(abc[0]);
-      my.push_back(abc[1]);
-      my.push_back(abc[2]);
-      tris.push_back(my);
+    Triangle my;
+    my.push_back(abc[0]);
+    my.push_back(abc[1]);
+    my.push_back(abc[2]);
+    tris.push_back(my);
   }
   else
   {
@@ -84,21 +84,20 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
   // For each triangle edge: the number of instances of each edge are recorded,
   // and edges with exactly one instance are stored. Triangle edges are only
   // traversed in a counterclockwise direction.
-  for (int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
-    Edge edge(abc[i],abc[(i+1)%3]);
-    Edge inverseEdge(abc[(i+1)%3],abc[i]);
+    Edge edge(abc[i], abc[(i + 1) % 3]);
+    Edge inverseEdge(abc[(i + 1) % 3], abc[i]);
 
     ++(this->EdgeCounter[edge]);
 
     if (this->EdgeCounter[inverseEdge] == 0)
     {
-      this->Edges.insert(std::make_pair(edge.first,edge.second));
+      this->Edges.insert(std::make_pair(edge.first, edge.second));
     }
     else if (this->EdgeCounter[edge] == 1)
     {
-      std::pair<EdgeMap::iterator,
-        EdgeMap::iterator> range = Edges.equal_range(inverseEdge.first);
+      std::pair<EdgeMap::iterator, EdgeMap::iterator> range = Edges.equal_range(inverseEdge.first);
 
       EdgeMap::iterator it = range.first;
       for (; it != range.second; ++it)
@@ -119,7 +118,7 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
 
   // We now have exactly one instance of each outer edge, corresponding to a
   // counterclockwise traversal of the polygon
-  if (this->Edges.size()<3)
+  if (this->Edges.size() < 3)
   {
     return;
   }
@@ -145,14 +144,13 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
       // get dangling edges. See TestPolygonBuilder5 for details.
       if (at == this->Edges.end())
       {
-        Edges.erase(edgeIt); //remove offending edge
-        poly->Reset(); // empty the list so it does not get added below
+        Edges.erase(edgeIt); // remove offending edge
+        poly->Reset();       // empty the list so it does not get added below
         break;
       }
       edge = *(at);
       Edges.erase(at);
-    }
-    while (edge.first != firstVtx);
+    } while (edge.first != firstVtx);
 
     if (poly->GetNumberOfIds() > 0)
     {

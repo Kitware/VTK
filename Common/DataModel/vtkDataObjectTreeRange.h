@@ -16,9 +16,9 @@
 #ifndef vtkDataObjectTreeRange_h
 #define vtkDataObjectTreeRange_h
 
-#include "vtkDataObjectTreeIterator.h"
-#include "vtkDataObjectTree.h"
 #include "vtkCompositeDataSetNodeReference.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkMeta.h"
 #include "vtkRange.h"
 #include "vtkSmartPointer.h"
@@ -33,8 +33,8 @@ namespace vtk
 // Pass these to vtk::Range(cds, options):
 enum class DataObjectTreeOptions : unsigned int
 {
-  None =            0,
-  SkipEmptyNodes =  1 << 1, // Skip null datasets.
+  None = 0,
+  SkipEmptyNodes = 1 << 1,  // Skip null datasets.
   VisitOnlyLeaves = 1 << 2, // Skip child composite datasets.
   TraverseSubTree = 1 << 3, // Descend into child composite datasets.
 };
@@ -53,22 +53,15 @@ struct DataObjectTreeRange;
 struct DataObjectTreeIterator;
 
 using DataObjectTreeIteratorReference =
-    vtk::CompositeDataSetNodeReference<vtkDataObjectTreeIterator,
-                                       DataObjectTreeIterator>;
+  vtk::CompositeDataSetNodeReference<vtkDataObjectTreeIterator, DataObjectTreeIterator>;
 
-struct DataObjectTreeIterator :
-    public std::iterator<std::forward_iterator_tag,
-                         vtkDataObject*,
-                         int,
-                         DataObjectTreeIteratorReference,
-                         DataObjectTreeIteratorReference>
+struct DataObjectTreeIterator
+  : public std::iterator<std::forward_iterator_tag, vtkDataObject*, int,
+      DataObjectTreeIteratorReference, DataObjectTreeIteratorReference>
 {
 private:
-  using Superclass = std::iterator<std::forward_iterator_tag,
-                                   vtkDataObject*,
-                                   int,
-                                   DataObjectTreeIteratorReference,
-                                   DataObjectTreeIteratorReference>;
+  using Superclass = std::iterator<std::forward_iterator_tag, vtkDataObject*, int,
+    DataObjectTreeIteratorReference, DataObjectTreeIteratorReference>;
   using InternalIterator = vtkDataObjectTreeIterator;
   using SmartIterator = vtkSmartPointer<InternalIterator>;
 
@@ -80,8 +73,7 @@ public:
   using reference = typename Superclass::reference;
 
   DataObjectTreeIterator(const DataObjectTreeIterator& o)
-    : Iterator(o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance())
-                          : nullptr)
+    : Iterator(o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance()) : nullptr)
   {
     this->CopyState(o.Iterator);
   }
@@ -90,8 +82,7 @@ public:
 
   DataObjectTreeIterator& operator=(const DataObjectTreeIterator& o)
   {
-    this->Iterator = o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance())
-                                : nullptr;
+    this->Iterator = o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance()) : nullptr;
     this->CopyState(o.Iterator);
     return *this;
   }
@@ -109,22 +100,15 @@ public:
     return other;
   }
 
-  reference operator*() const
-  {
-    return this->GetData();
-  }
+  reference operator*() const { return this->GetData(); }
 
-  pointer operator->() const
-  {
-    return this->GetData();
-  }
+  pointer operator->() const { return this->GetData(); }
 
-  friend bool operator==(const DataObjectTreeIterator& lhs,
-                         const DataObjectTreeIterator& rhs)
+  friend bool operator==(const DataObjectTreeIterator& lhs, const DataObjectTreeIterator& rhs)
   {
     // A null internal iterator means it is an 'end' sentinal.
-    InternalIterator *l = lhs.Iterator;
-    InternalIterator *r = rhs.Iterator;
+    InternalIterator* l = lhs.Iterator;
+    InternalIterator* r = rhs.Iterator;
 
     if (!r && !l)
     { // end == end
@@ -144,14 +128,12 @@ public:
     }
   }
 
-  friend bool operator!=(const DataObjectTreeIterator& lhs,
-                         const DataObjectTreeIterator& rhs)
+  friend bool operator!=(const DataObjectTreeIterator& lhs, const DataObjectTreeIterator& rhs)
   {
     return !(lhs == rhs); // let the compiler handle this one =)
   }
 
-  friend void swap(DataObjectTreeIterator& lhs,
-                   DataObjectTreeIterator& rhs) noexcept
+  friend void swap(DataObjectTreeIterator& lhs, DataObjectTreeIterator& rhs) noexcept
   {
     using std::swap;
     swap(lhs.Iterator, rhs.Iterator);
@@ -162,17 +144,14 @@ public:
 protected:
   // Note: This takes ownership of iter and manages its lifetime.
   // Iter should not be used past this point by the caller.
-  DataObjectTreeIterator(SmartIterator &&iter) noexcept
-    : Iterator(std::move(iter))
-  {
-  }
+  DataObjectTreeIterator(SmartIterator&& iter) noexcept : Iterator(std::move(iter)) {}
 
   // Note: Iterators constructed using this ctor will be considered
   // 'end' iterators via a sentinal pattern.
-  DataObjectTreeIterator() noexcept : Iterator{nullptr} {}
+  DataObjectTreeIterator() noexcept : Iterator{ nullptr } {}
 
 private:
-  void CopyState(InternalIterator *source)
+  void CopyState(InternalIterator* source)
   {
     if (source)
     {
@@ -207,7 +186,7 @@ private:
   {
     assert(this->Iterator != nullptr);
     assert(!this->Iterator->IsDoneWithTraversal());
-    return DataObjectTreeIteratorReference{this->Iterator};
+    return DataObjectTreeIteratorReference{ this->Iterator };
   }
 
   mutable SmartIterator Iterator;
@@ -229,23 +208,17 @@ public:
   using const_reference = const DataObjectTreeIteratorReference;
   using value_type = vtkDataObject*;
 
-  DataObjectTreeRange(vtkDataObjectTree *cds,
-                      DataObjectTreeOptions opts = DataObjectTreeOptions::None)
+  DataObjectTreeRange(
+    vtkDataObjectTree* cds, DataObjectTreeOptions opts = DataObjectTreeOptions::None)
     : DataObjectTree(cds)
     , Options(opts)
   {
     assert(this->DataObjectTree);
   }
 
-  vtkDataObjectTree* GetDataObjectTree() const noexcept
-  {
-    return this->DataObjectTree;
-  }
+  vtkDataObjectTree* GetDataObjectTree() const noexcept { return this->DataObjectTree; }
 
-  DataObjectTreeOptions GetOptions() const noexcept
-  {
-    return this->Options;
-  }
+  DataObjectTreeOptions GetOptions() const noexcept { return this->Options; }
 
   // This is O(N), since the size requires traversal due to various options.
   size_type size() const
@@ -261,27 +234,15 @@ public:
     return result;
   }
 
-  iterator begin() const
-  {
-    return DataObjectTreeIterator{this->NewIterator()};
-  }
+  iterator begin() const { return DataObjectTreeIterator{ this->NewIterator() }; }
 
-  iterator end() const
-  {
-    return DataObjectTreeIterator{};
-  }
+  iterator end() const { return DataObjectTreeIterator{}; }
 
   // Note: These return mutable objects because const vtkObject are unusable.
-  const_iterator cbegin() const
-  {
-    return DataObjectTreeIterator{this->NewIterator()};
-  }
+  const_iterator cbegin() const { return DataObjectTreeIterator{ this->NewIterator() }; }
 
   // Note: These return mutable objects because const vtkObjects are unusable.
-  const_iterator cend() const
-  {
-    return DataObjectTreeIterator{};
-  }
+  const_iterator cend() const { return DataObjectTreeIterator{}; }
 
 private:
   SmartIterator NewIterator() const

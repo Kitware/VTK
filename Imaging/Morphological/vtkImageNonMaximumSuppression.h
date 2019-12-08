@@ -22,7 +22,7 @@
  * and a vector.  Output is magnitude information and is always in doubles.
  * Typically this filter is used with vtkImageGradient and
  * vtkImageGradientMagnitude as inputs.
-*/
+ */
 
 #ifndef vtkImageNonMaximumSuppression_h
 #define vtkImageNonMaximumSuppression_h
@@ -30,23 +30,24 @@
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_MAGNITUDE_INPUT 0
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1
 
+#include "vtkImageData.h"                  // makes things a bit easier
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
 
-class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageNonMaximumSuppression : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageNonMaximumSuppression
+  : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageNonMaximumSuppression *New();
-  vtkTypeMacro(vtkImageNonMaximumSuppression,vtkThreadedImageAlgorithm);
+  static vtkImageNonMaximumSuppression* New();
+  vtkTypeMacro(vtkImageNonMaximumSuppression, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set the magnitude and vector inputs.
    */
-  void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);};
-  void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);};
+  void SetMagnitudeInputData(vtkImageData* input) { this->SetInputData(0, input); }
+  void SetVectorInputData(vtkImageData* input) { this->SetInputData(1, input); }
   //@}
 
   //@{
@@ -63,8 +64,8 @@ public:
   /**
    * Determines how the input is interpreted (set of 2d slices or a 3D volume)
    */
-  vtkSetClampMacro(Dimensionality,int,2,3);
-  vtkGetMacro(Dimensionality,int);
+  vtkSetClampMacro(Dimensionality, int, 2, 3);
+  vtkGetMacro(Dimensionality, int);
   //@}
 
 protected:
@@ -74,20 +75,13 @@ protected:
   vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData,
-                                   int extent[6], int threadId) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int threadId) override;
 
 private:
   vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) = delete;
@@ -95,6 +89,3 @@ private:
 };
 
 #endif
-
-
-

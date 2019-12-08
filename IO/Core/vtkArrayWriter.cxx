@@ -26,12 +26,13 @@
 
 #include <cmath>
 #include <limits>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
-namespace {
+namespace
+{
 
-template<typename T>
+template <typename T>
 inline void WriteValue(std::ostream& stream, const T& value)
 {
   stream << value;
@@ -39,7 +40,7 @@ inline void WriteValue(std::ostream& stream, const T& value)
 
 inline void WriteValue(std::ostream& stream, const double& value)
 {
-  if(std::abs(value) < std::numeric_limits<double>::min())
+  if (std::abs(value) < std::numeric_limits<double>::min())
     stream << 0;
   else
     stream << value;
@@ -55,17 +56,17 @@ inline void WriteValue(std::ostream& stream, const vtkUnicodeString& value)
   stream << value.utf8_str();
 }
 
-void WriteHeader(const vtkStdString& array_type,
-                 const vtkStdString& type_name,
-                 vtkArray* array,
-                 ostream& stream,
-                 bool WriteBinary)
+void WriteHeader(const vtkStdString& array_type, const vtkStdString& type_name, vtkArray* array,
+  ostream& stream, bool WriteBinary)
 {
   // Serialize the array type ...
   stream << array_type << " " << type_name << "\n";
 
   // Serialize output format, binary or ascii
-  WriteBinary ? stream << "binary" <<"\n" : stream << "ascii" << "\n";
+  WriteBinary ? stream << "binary"
+                       << "\n"
+              : stream << "ascii"
+                       << "\n";
 
   const vtkArrayExtents extents = array->GetExtents();
   const vtkIdType dimensions = array->GetDimensions();
@@ -74,12 +75,12 @@ void WriteHeader(const vtkStdString& array_type,
   stream << array->GetName() << "\n";
 
   // Serialize the array extents and number of non-nullptr values ...
-  for(vtkIdType i = 0; i != dimensions; ++i)
+  for (vtkIdType i = 0; i != dimensions; ++i)
     stream << extents[i].GetBegin() << " " << extents[i].GetEnd() << " ";
   stream << array->GetNonNullSize() << "\n";
 
   // Serialize the dimension-label for each dimension ...
-  for(vtkIdType i = 0; i != dimensions; ++i)
+  for (vtkIdType i = 0; i != dimensions; ++i)
     stream << array->GetDimensionLabel(i) << "\n";
 }
 
@@ -87,16 +88,14 @@ void WriteEndianOrderMark(ostream& stream)
 {
   // Serialize an endian-order mark ...
   const vtkTypeUInt32 endian_order = 0x12345678;
-  stream.write(
-    reinterpret_cast<const char*>(&endian_order),
-    sizeof(endian_order));
+  stream.write(reinterpret_cast<const char*>(&endian_order), sizeof(endian_order));
 }
 
-template<typename ValueT>
+template <typename ValueT>
 bool WriteSparseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkSparseArray<ValueT>* const concrete_array = vtkSparseArray<ValueT>::SafeDownCast(array);
-  if(!concrete_array)
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -104,31 +103,29 @@ bool WriteSparseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostr
   WriteEndianOrderMark(stream);
 
   // Serialize the array nullptr value ...
-  stream.write(
-    reinterpret_cast<const char*>(&concrete_array->GetNullValue()),
-    sizeof(ValueT));
+  stream.write(reinterpret_cast<const char*>(&concrete_array->GetNullValue()), sizeof(ValueT));
 
   // Serialize the array coordinates ...
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for (vtkIdType i = 0; i != array->GetDimensions(); ++i)
   {
-    stream.write(
-      reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
+    stream.write(reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
       concrete_array->GetNonNullSize() * sizeof(vtkIdType));
   }
 
   // Serialize the array values ...
-  stream.write(
-    reinterpret_cast<char*>(concrete_array->GetValueStorage()),
+  stream.write(reinterpret_cast<char*>(concrete_array->GetValueStorage()),
     concrete_array->GetNonNullSize() * sizeof(ValueT));
 
   return true;
 }
 
-template<>
-bool WriteSparseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+template <>
+bool WriteSparseArrayBinary<vtkStdString>(
+  const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
-  vtkSparseArray<vtkStdString>* const concrete_array = vtkSparseArray<vtkStdString>::SafeDownCast(array);
-  if(!concrete_array)
+  vtkSparseArray<vtkStdString>* const concrete_array =
+    vtkSparseArray<vtkStdString>::SafeDownCast(array);
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -136,37 +133,34 @@ bool WriteSparseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArra
   WriteEndianOrderMark(stream);
 
   // Serialize the array nullptr value ...
-  stream.write(
-    concrete_array->GetNullValue().c_str(),
-    concrete_array->GetNullValue().size() + 1);
+  stream.write(concrete_array->GetNullValue().c_str(), concrete_array->GetNullValue().size() + 1);
 
   // Serialize the array coordinates ...
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for (vtkIdType i = 0; i != array->GetDimensions(); ++i)
   {
-    stream.write(
-      reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
+    stream.write(reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
       concrete_array->GetNonNullSize() * sizeof(vtkIdType));
   }
 
   // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
-  for(vtkIdType n = 0; n != value_count; ++n)
+  for (vtkIdType n = 0; n != value_count; ++n)
   {
     const vtkStdString& value = concrete_array->GetValueN(n);
 
-    stream.write(
-      value.c_str(),
-      value.size() + 1);
+    stream.write(value.c_str(), value.size() + 1);
   }
 
   return true;
 }
 
-template<>
-bool WriteSparseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+template <>
+bool WriteSparseArrayBinary<vtkUnicodeString>(
+  const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
-  vtkSparseArray<vtkUnicodeString>* const concrete_array = vtkSparseArray<vtkUnicodeString>::SafeDownCast(array);
-  if(!concrete_array)
+  vtkSparseArray<vtkUnicodeString>* const concrete_array =
+    vtkSparseArray<vtkUnicodeString>::SafeDownCast(array);
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -174,37 +168,33 @@ bool WriteSparseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtk
   WriteEndianOrderMark(stream);
 
   // Serialize the array nullptr value ...
-  stream.write(
-    concrete_array->GetNullValue().utf8_str(),
+  stream.write(concrete_array->GetNullValue().utf8_str(),
     strlen(concrete_array->GetNullValue().utf8_str()) + 1);
 
   // Serialize the array coordinates ...
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for (vtkIdType i = 0; i != array->GetDimensions(); ++i)
   {
-    stream.write(
-      reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
+    stream.write(reinterpret_cast<char*>(concrete_array->GetCoordinateStorage(i)),
       concrete_array->GetNonNullSize() * sizeof(vtkIdType));
   }
 
   // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
-  for(vtkIdType n = 0; n != value_count; ++n)
+  for (vtkIdType n = 0; n != value_count; ++n)
   {
     const vtkUnicodeString& value = concrete_array->GetValueN(n);
 
-    stream.write(
-      value.utf8_str(),
-      strlen(value.utf8_str()) + 1);
+    stream.write(value.utf8_str(), strlen(value.utf8_str()) + 1);
   }
 
   return true;
 }
 
-template<typename ValueT>
+template <typename ValueT>
 bool WriteDenseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkDenseArray<ValueT>* const concrete_array = vtkDenseArray<ValueT>::SafeDownCast(array);
-  if(!concrete_array)
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -212,18 +202,19 @@ bool WriteDenseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostre
   WriteEndianOrderMark(stream);
 
   // Serialize the array values ...
-  stream.write(
-    reinterpret_cast<char*>(concrete_array->GetStorage()),
+  stream.write(reinterpret_cast<char*>(concrete_array->GetStorage()),
     concrete_array->GetNonNullSize() * sizeof(ValueT));
 
   return true;
 }
 
-template<>
-bool WriteDenseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+template <>
+bool WriteDenseArrayBinary<vtkStdString>(
+  const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
-  vtkDenseArray<vtkStdString>* const concrete_array = vtkDenseArray<vtkStdString>::SafeDownCast(array);
-  if(!concrete_array)
+  vtkDenseArray<vtkStdString>* const concrete_array =
+    vtkDenseArray<vtkStdString>::SafeDownCast(array);
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -232,23 +223,23 @@ bool WriteDenseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArray
 
   // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
-  for(vtkIdType n = 0; n != value_count; ++n)
+  for (vtkIdType n = 0; n != value_count; ++n)
   {
     const vtkStdString& value = concrete_array->GetValueN(n);
 
-    stream.write(
-      value.c_str(),
-      value.size() + 1);
+    stream.write(value.c_str(), value.size() + 1);
   }
 
   return true;
 }
 
-template<>
-bool WriteDenseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtkArray* array, ostream& stream)
+template <>
+bool WriteDenseArrayBinary<vtkUnicodeString>(
+  const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
-  vtkDenseArray<vtkUnicodeString>* const concrete_array = vtkDenseArray<vtkUnicodeString>::SafeDownCast(array);
-  if(!concrete_array)
+  vtkDenseArray<vtkUnicodeString>* const concrete_array =
+    vtkDenseArray<vtkUnicodeString>::SafeDownCast(array);
+  if (!concrete_array)
     return false;
 
   // Write the array header ...
@@ -257,30 +248,28 @@ bool WriteDenseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtkA
 
   // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
-  for(vtkIdType n = 0; n != value_count; ++n)
+  for (vtkIdType n = 0; n != value_count; ++n)
   {
     const vtkUnicodeString& value = concrete_array->GetValueN(n);
 
-    stream.write(
-      value.utf8_str(),
-      strlen(value.utf8_str()) + 1);
+    stream.write(value.utf8_str(), strlen(value.utf8_str()) + 1);
   }
 
   return true;
 }
 
-template<typename ValueT>
+template <typename ValueT>
 bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkSparseArray<ValueT>* const concrete_array = vtkSparseArray<ValueT>::SafeDownCast(array);
-  if(!concrete_array)
+  if (!concrete_array)
     return false;
 
   // Write the header ...
   WriteHeader("vtk-sparse-array", type_name, array, stream, false);
 
   // Ensure that floating-point types are serialized with full precision
-  if(std::numeric_limits<ValueT>::is_specialized)
+  if (std::numeric_limits<ValueT>::is_specialized)
     stream.precision(std::numeric_limits<ValueT>::digits10 + 1);
 
   // Write the array nullptr value ...
@@ -292,10 +281,10 @@ bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostre
   const vtkIdType non_null_size = array->GetNonNullSize();
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != non_null_size; ++n)
+  for (vtkIdType n = 0; n != non_null_size; ++n)
   {
     array->GetCoordinatesN(n, coordinates);
-    for(vtkIdType i = 0; i != dimensions; ++i)
+    for (vtkIdType i = 0; i != dimensions; ++i)
       stream << coordinates[i] << " ";
     WriteValue(stream, concrete_array->GetValueN(n));
     stream << "\n";
@@ -304,11 +293,11 @@ bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostre
   return true;
 }
 
-template<typename ValueT>
+template <typename ValueT>
 bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostream& stream)
 {
   vtkDenseArray<ValueT>* const concrete_array = vtkDenseArray<ValueT>::SafeDownCast(array);
-  if(!concrete_array)
+  if (!concrete_array)
     return false;
 
   // Write the header ...
@@ -318,11 +307,11 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
   const vtkArrayExtents extents = array->GetExtents();
 
   // Ensure that floating-point types are serialized with full precision
-  if(std::numeric_limits<ValueT>::is_specialized)
+  if (std::numeric_limits<ValueT>::is_specialized)
     stream.precision(std::numeric_limits<ValueT>::digits10 + 1);
 
   vtkArrayCoordinates coordinates;
-  for(vtkArrayExtents::SizeT n = 0; n != extents.GetSize(); ++n)
+  for (vtkArrayExtents::SizeT n = 0; n != extents.GetSize(); ++n)
   {
     extents.GetRightToLeftCoordinatesN(n, coordinates);
     WriteValue(stream, concrete_array->GetValue(coordinates));
@@ -336,10 +325,10 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 
 vtkStandardNewMacro(vtkArrayWriter);
 
-vtkArrayWriter::vtkArrayWriter() :
-  FileName(nullptr),
-  Binary(false),
-  WriteToOutputString(false)
+vtkArrayWriter::vtkArrayWriter()
+  : FileName(nullptr)
+  , Binary(false)
+  , WriteToOutputString(false)
 {
 }
 
@@ -350,14 +339,14 @@ vtkArrayWriter::~vtkArrayWriter()
 
 void vtkArrayWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Binary: " << this->Binary << endl;
   os << indent << "WriteToOutputString: " << (this->WriteToOutputString ? "on" : "off") << endl;
   os << indent << "OutputString: " << this->OutputString << endl;
 }
 
-int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info)
+int vtkArrayWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
   return 1;
@@ -365,7 +354,7 @@ int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformati
 
 void vtkArrayWriter::WriteData()
 {
-  if(this->WriteToOutputString)
+  if (this->WriteToOutputString)
   {
     this->OutputString = this->Write(this->Binary > 0 ? true : false);
   }
@@ -396,23 +385,24 @@ bool vtkArrayWriter::Write(ostream& stream, bool WriteBinary)
 {
   try
   {
-    if(this->GetNumberOfInputConnections(0) != 1)
+    if (this->GetNumberOfInputConnections(0) != 1)
       throw std::runtime_error("Exactly one input required.");
 
-    vtkArrayData* const array_data = vtkArrayData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
-    if(!array_data)
+    vtkArrayData* const array_data =
+      vtkArrayData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+    if (!array_data)
       throw std::runtime_error("vtkArrayData input required.");
 
-    if(array_data->GetNumberOfArrays() != 1)
+    if (array_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("vtkArrayData with exactly one array required.");
 
     vtkArray* const array = array_data->GetArray(static_cast<vtkIdType>(0));
-    if(!array)
+    if (!array)
       throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
     return this->Write(array, stream, WriteBinary);
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro("caught exception: " << e.what());
   }
@@ -423,37 +413,53 @@ bool vtkArrayWriter::Write(vtkArray* array, ostream& stream, bool WriteBinary)
 {
   try
   {
-    if(!array)
+    if (!array)
       throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
-    if(WriteBinary)
+    if (WriteBinary)
     {
-      if(WriteSparseArrayBinary<vtkIdType>("integer", array, stream)) return true;
-      if(WriteSparseArrayBinary<double>("double", array, stream)) return true;
-      if(WriteSparseArrayBinary<vtkStdString>("string", array, stream)) return true;
-      if(WriteSparseArrayBinary<vtkUnicodeString>("unicode-string", array, stream)) return true;
+      if (WriteSparseArrayBinary<vtkIdType>("integer", array, stream))
+        return true;
+      if (WriteSparseArrayBinary<double>("double", array, stream))
+        return true;
+      if (WriteSparseArrayBinary<vtkStdString>("string", array, stream))
+        return true;
+      if (WriteSparseArrayBinary<vtkUnicodeString>("unicode-string", array, stream))
+        return true;
 
-      if(WriteDenseArrayBinary<vtkIdType>("integer", array, stream)) return true;
-      if(WriteDenseArrayBinary<double>("double", array, stream)) return true;
-      if(WriteDenseArrayBinary<vtkStdString>("string", array, stream)) return true;
-      if(WriteDenseArrayBinary<vtkUnicodeString>("unicode-string", array, stream)) return true;
+      if (WriteDenseArrayBinary<vtkIdType>("integer", array, stream))
+        return true;
+      if (WriteDenseArrayBinary<double>("double", array, stream))
+        return true;
+      if (WriteDenseArrayBinary<vtkStdString>("string", array, stream))
+        return true;
+      if (WriteDenseArrayBinary<vtkUnicodeString>("unicode-string", array, stream))
+        return true;
     }
     else
     {
-      if(WriteSparseArrayAscii<vtkIdType>("integer", array, stream)) return true;
-      if(WriteSparseArrayAscii<double>("double", array, stream)) return true;
-      if(WriteSparseArrayAscii<vtkStdString>("string", array, stream)) return true;
-      if(WriteSparseArrayAscii<vtkUnicodeString>("unicode-string", array, stream)) return true;
+      if (WriteSparseArrayAscii<vtkIdType>("integer", array, stream))
+        return true;
+      if (WriteSparseArrayAscii<double>("double", array, stream))
+        return true;
+      if (WriteSparseArrayAscii<vtkStdString>("string", array, stream))
+        return true;
+      if (WriteSparseArrayAscii<vtkUnicodeString>("unicode-string", array, stream))
+        return true;
 
-      if(WriteDenseArrayAscii<vtkIdType>("integer", array, stream)) return true;
-      if(WriteDenseArrayAscii<double>("double", array, stream)) return true;
-      if(WriteDenseArrayAscii<vtkStdString>("string", array, stream)) return true;
-      if(WriteDenseArrayAscii<vtkUnicodeString>("unicode-string", array, stream)) return true;
+      if (WriteDenseArrayAscii<vtkIdType>("integer", array, stream))
+        return true;
+      if (WriteDenseArrayAscii<double>("double", array, stream))
+        return true;
+      if (WriteDenseArrayAscii<vtkStdString>("string", array, stream))
+        return true;
+      if (WriteDenseArrayAscii<vtkUnicodeString>("unicode-string", array, stream))
+        return true;
     }
 
     throw std::runtime_error(std::string("Unhandled array type: ") + array->GetClassName());
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkGenericWarningMacro("caught exception: " << e.what());
   }

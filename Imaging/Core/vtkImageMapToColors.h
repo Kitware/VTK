@@ -24,11 +24,10 @@
  *
  * @sa
  * vtkLookupTable vtkScalarsToColors
-*/
+ */
 
 #ifndef vtkImageMapToColors_h
 #define vtkImageMapToColors_h
-
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -38,8 +37,8 @@ class vtkScalarsToColors;
 class VTKIMAGINGCORE_EXPORT vtkImageMapToColors : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageMapToColors *New();
-  vtkTypeMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
+  static vtkImageMapToColors* New();
+  vtkTypeMacro(vtkImageMapToColors, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -47,27 +46,27 @@ public:
    * Set the lookup table.
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
   //@}
 
   //@{
   /**
    * Set the output format, the default is RGBA.
    */
-  vtkSetMacro(OutputFormat,int);
-  vtkGetMacro(OutputFormat,int);
-  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; };
-  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; };
-  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; };
-  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; };
+  vtkSetMacro(OutputFormat, int);
+  vtkGetMacro(OutputFormat, int);
+  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; }
+  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; }
+  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; }
+  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; }
   //@}
 
   //@{
   /**
    * Set the component to map for multi-component images (default: 0)
    */
-  vtkSetMacro(ActiveComponent,int);
-  vtkGetMacro(ActiveComponent,int);
+  vtkSetMacro(ActiveComponent, int);
+  vtkGetMacro(ActiveComponent, int);
   //@}
 
   //@{
@@ -75,9 +74,9 @@ public:
    * Use the alpha component of the input when computing the alpha component
    * of the output (useful when converting monochrome+alpha data to RGBA)
    */
-  vtkSetMacro(PassAlphaToOutput,vtkTypeBool);
-  vtkBooleanMacro(PassAlphaToOutput,vtkTypeBool);
-  vtkGetMacro(PassAlphaToOutput,vtkTypeBool);
+  vtkSetMacro(PassAlphaToOutput, vtkTypeBool);
+  vtkBooleanMacro(PassAlphaToOutput, vtkTypeBool);
+  vtkGetMacro(PassAlphaToOutput, vtkTypeBool);
   //@}
 
   /**
@@ -98,21 +97,16 @@ protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors() override;
 
-  int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  vtkScalarsToColors *LookupTable;
+  vtkScalarsToColors* LookupTable;
   int OutputFormat;
 
   int ActiveComponent;
@@ -121,16 +115,10 @@ protected:
   int DataWasPassed;
 
   unsigned char NaNColor[4];
+
 private:
   vtkImageMapToColors(const vtkImageMapToColors&) = delete;
   void operator=(const vtkImageMapToColors&) = delete;
 };
 
 #endif
-
-
-
-
-
-
-

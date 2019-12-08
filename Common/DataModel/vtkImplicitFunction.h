@@ -45,7 +45,7 @@
  * vtkAbstractTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane
  * vtkPlanes vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter
  * vtkClipPolyData
-*/
+ */
 
 #ifndef vtkImplicitFunction_h
 #define vtkImplicitFunction_h
@@ -60,7 +60,7 @@ class vtkAbstractTransform;
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkImplicitFunction,vtkObject);
+  vtkTypeMacro(vtkImplicitFunction, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -76,8 +76,11 @@ public:
    */
   virtual void FunctionValue(vtkDataArray* input, vtkDataArray* output);
   double FunctionValue(const double x[3]);
-  double FunctionValue(double x, double y, double z) {
-    double xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
+  double FunctionValue(double x, double y, double z)
+  {
+    double xyz[3] = { x, y, z };
+    return this->FunctionValue(xyz);
+  }
   //@}
 
   //@{
@@ -86,11 +89,16 @@ public:
    * x[3] is transformed through transform (if provided).
    */
   void FunctionGradient(const double x[3], double g[3]);
-  double *FunctionGradient(const double x[3]) VTK_SIZEHINT(3) {
-    this->FunctionGradient(x,this->ReturnValue);
-    return this->ReturnValue; };
-  double *FunctionGradient(double x, double y, double z) VTK_SIZEHINT(3) {
-    double xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
+  double* FunctionGradient(const double x[3]) VTK_SIZEHINT(3)
+  {
+    this->FunctionGradient(x, this->ReturnValue);
+    return this->ReturnValue;
+  }
+  double* FunctionGradient(double x, double y, double z) VTK_SIZEHINT(3)
+  {
+    double xyz[3] = { x, y, z };
+    return this->FunctionGradient(xyz);
+  }
   //@}
 
   //@{
@@ -100,7 +108,7 @@ public:
    */
   virtual void SetTransform(vtkAbstractTransform*);
   virtual void SetTransform(const double elements[16]);
-  vtkGetObjectMacro(Transform,vtkAbstractTransform);
+  vtkGetObjectMacro(Transform, vtkAbstractTransform);
   //@}
 
   //@{
@@ -112,8 +120,11 @@ public:
    */
   virtual double EvaluateFunction(double x[3]) = 0;
   virtual void EvaluateFunction(vtkDataArray* input, vtkDataArray* output);
-  virtual double EvaluateFunction(double x, double y, double z) {
-    double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
+  virtual double EvaluateFunction(double x, double y, double z)
+  {
+    double xyz[3] = { x, y, z };
+    return this->EvaluateFunction(xyz);
+  }
   //@}
 
   /**
@@ -128,8 +139,9 @@ protected:
   vtkImplicitFunction();
   ~vtkImplicitFunction() override;
 
-  vtkAbstractTransform *Transform;
+  vtkAbstractTransform* Transform;
   double ReturnValue[3];
+
 private:
   vtkImplicitFunction(const vtkImplicitFunction&) = delete;
   void operator=(const vtkImplicitFunction&) = delete;

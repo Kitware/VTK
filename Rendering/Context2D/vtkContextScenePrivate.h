@@ -23,7 +23,7 @@
  * in vtkContextScene, vtkAbstractContextItem and friends.
  *
  * \internal
-*/
+ */
 
 #ifndef vtkContextScenePrivate_h
 #define vtkContextScenePrivate_h
@@ -44,29 +44,25 @@ public:
    * Default constructor.
    */
   vtkContextScenePrivate(vtkAbstractContextItem* item)
-    : std::vector<vtkAbstractContextItem*>(), Scene(nullptr), Item(item)
+    : std::vector<vtkAbstractContextItem*>()
+    , Scene(nullptr)
+    , Item(item)
   {
   }
 
   /**
    * Destructor.
    */
-  ~vtkContextScenePrivate()
-  {
-    this->Clear();
-  }
+  ~vtkContextScenePrivate() { this->Clear(); }
 
   //@{
   /**
    * A few standard defines
    */
-  typedef std::vector<vtkAbstractContextItem*>::const_iterator
-    const_iterator;
+  typedef std::vector<vtkAbstractContextItem*>::const_iterator const_iterator;
   typedef std::vector<vtkAbstractContextItem*>::iterator iterator;
-  typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator
-    const_reverse_iterator;
-  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
-    reverse_iterator;
+  typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator const_reverse_iterator;
+  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator reverse_iterator;
   //@}
 
   /**
@@ -74,7 +70,7 @@ public:
    */
   void PaintItems(vtkContext2D* context)
   {
-    for(const_iterator it = this->begin(); it != this->end(); ++it)
+    for (const_iterator it = this->begin(); it != this->end(); ++it)
     {
       if ((*it)->GetVisible())
       {
@@ -92,10 +88,10 @@ public:
     item->Register(this->Scene);
     item->SetScene(this->Scene);
     item->SetParent(this->Item);
-  //@}
+    //@}
 
     this->push_back(item);
-    return static_cast<unsigned int>(this->size()-1);
+    return static_cast<unsigned int>(this->size() - 1);
   }
 
   //@{
@@ -104,7 +100,7 @@ public:
    */
   bool RemoveItem(vtkAbstractContextItem* item)
   {
-    for(iterator it = this->begin(); it != this->end(); ++it)
+    for (iterator it = this->begin(); it != this->end(); ++it)
     {
       if (item == *it)
       {
@@ -139,7 +135,7 @@ public:
    */
   void Clear()
   {
-    for(const_iterator it = this->begin(); it != this->end(); ++it)
+    for (const_iterator it = this->begin(); it != this->end(); ++it)
     {
       (*it)->SetParent(nullptr);
       (*it)->SetScene(nullptr);
@@ -160,9 +156,9 @@ public:
       return;
     }
     this->Scene = scene;
-    for(const_iterator it = this->begin(); it != this->end(); ++it)
+    for (const_iterator it = this->begin(); it != this->end(); ++it)
     {
-        (*it)->SetScene(scene);
+      (*it)->SetScene(scene);
     }
   }
   //@}
@@ -178,8 +174,8 @@ public:
    * May be NULL for items in the scene itself.
    */
   vtkAbstractContextItem* Item;
-};
   //@}
+};
 
-#endif //vtkContextScenePrivate_h
+#endif // vtkContextScenePrivate_h
 // VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

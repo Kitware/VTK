@@ -22,18 +22,17 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro on a templated class.
-template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar> *
-vtkCPExodusIIResultsArrayTemplate<Scalar>::New()
+template <class Scalar>
+vtkCPExodusIIResultsArrayTemplate<Scalar>* vtkCPExodusIIResultsArrayTemplate<Scalar>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkCPExodusIIResultsArrayTemplate<Scalar>)
+  VTK_STANDARD_NEW_BODY(vtkCPExodusIIResultsArrayTemplate<Scalar>);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::PrintSelf(ostream &os, vtkIndent indent)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCPExodusIIResultsArrayTemplate<Scalar>::Superclass::PrintSelf(
-        os, indent);
+  this->vtkCPExodusIIResultsArrayTemplate<Scalar>::Superclass::PrintSelf(os, indent);
 
   os << indent << "Number of arrays: " << this->Arrays.size() << "\n";
   vtkIndent deeper = indent.GetNextIndent();
@@ -47,32 +46,33 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetExodusScalarArrays(std::vector<Scalar *> arrays, vtkIdType numTuples)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetExodusScalarArrays(
+  std::vector<Scalar*> arrays, vtkIdType numTuples)
 {
   this->Initialize();
   this->NumberOfComponents = static_cast<int>(arrays.size());
   this->Arrays = arrays;
   this->Size = this->NumberOfComponents * numTuples;
   this->MaxId = this->Size - 1;
-  this->TempDoubleArray = new double [this->NumberOfComponents];
+  this->TempDoubleArray = new double[this->NumberOfComponents];
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetExodusScalarArrays(std::vector<Scalar *> arrays, vtkIdType numTuples,
-                        bool save)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetExodusScalarArrays(
+  std::vector<Scalar*> arrays, vtkIdType numTuples, bool save)
 {
   this->SetExodusScalarArrays(arrays, numTuples);
   this->Save = save;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::Initialize()
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::Initialize()
 {
-  if(!this->Save)
+  if (!this->Save)
   {
     for (size_t i = 0; i < this->Arrays.size(); ++i)
     {
@@ -82,7 +82,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   this->Arrays.clear();
   this->Arrays.push_back(nullptr);
 
-  delete [] this->TempDoubleArray;
+  delete[] this->TempDoubleArray;
   this->TempDoubleArray = nullptr;
 
   this->MaxId = -1;
@@ -93,19 +93,20 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTuples(vtkIdList *ptIds, vtkAbstractArray *output)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::GetTuples(
+  vtkIdList* ptIds, vtkAbstractArray* output)
 {
-  vtkDataArray *da = vtkDataArray::FastDownCast(output);
+  vtkDataArray* da = vtkDataArray::FastDownCast(output);
   if (!da)
   {
-    vtkWarningMacro(<<"Input is not a vtkDataArray");
+    vtkWarningMacro(<< "Input is not a vtkDataArray");
     return;
   }
 
   if (da->GetNumberOfComponents() != this->GetNumberOfComponents())
   {
-    vtkWarningMacro(<<"Incorrect number of components in input array.");
+    vtkWarningMacro(<< "Incorrect number of components in input array.");
     return;
   }
 
@@ -117,19 +118,20 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::GetTuples(
+  vtkIdType p1, vtkIdType p2, vtkAbstractArray* output)
 {
-  vtkDataArray *da = vtkDataArray::FastDownCast(output);
+  vtkDataArray* da = vtkDataArray::FastDownCast(output);
   if (!da)
   {
-    vtkErrorMacro(<<"Input is not a vtkDataArray");
+    vtkErrorMacro(<< "Input is not a vtkDataArray");
     return;
   }
 
   if (da->GetNumberOfComponents() != this->GetNumberOfComponents())
   {
-    vtkErrorMacro(<<"Incorrect number of components in input array.");
+    vtkErrorMacro(<< "Incorrect number of components in input array.");
     return;
   }
 
@@ -140,23 +142,23 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::Squeeze()
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::Squeeze()
 {
   // noop
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkArrayIterator*
-vtkCPExodusIIResultsArrayTemplate<Scalar>::NewIterator()
+template <class Scalar>
+vtkArrayIterator* vtkCPExodusIIResultsArrayTemplate<Scalar>::NewIterator()
 {
-  vtkErrorMacro(<<"Not implemented.");
+  vtkErrorMacro(<< "Not implemented.");
   return nullptr;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::LookupValue(vtkVariant value)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::LookupValue(vtkVariant value)
 {
   bool valid = true;
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
@@ -168,8 +170,8 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::LookupValue(vtkVariant value, vtkIdList *ids)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::LookupValue(vtkVariant value, vtkIdList* ids)
 {
   bool valid = true;
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
@@ -186,30 +188,30 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkVariant vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetVariantValue(vtkIdType idx)
+template <class Scalar>
+vtkVariant vtkCPExodusIIResultsArrayTemplate<Scalar>::GetVariantValue(vtkIdType idx)
 {
   return vtkVariant(this->GetValueReference(idx));
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::ClearLookup()
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::ClearLookup()
 {
   // no-op, no fast lookup implemented.
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> double* vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTuple(vtkIdType i)
+template <class Scalar>
+double* vtkCPExodusIIResultsArrayTemplate<Scalar>::GetTuple(vtkIdType i)
 {
   this->GetTuple(i, this->TempDoubleArray);
   return this->TempDoubleArray;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTuple(vtkIdType i, double *tuple)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::GetTuple(vtkIdType i, double* tuple)
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
   {
@@ -218,15 +220,15 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::LookupTypedValue(Scalar value)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::LookupTypedValue(Scalar value)
 {
   return this->Lookup(value, 0);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::LookupTypedValue(Scalar value, vtkIdList *ids)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::LookupTypedValue(Scalar value, vtkIdList* ids)
 {
   ids->Reset();
   vtkIdType index = 0;
@@ -242,8 +244,7 @@ template <class Scalar>
 typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ValueType
 vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
-  return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(
-        this)->GetValueReference(idx);
+  return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
@@ -257,8 +258,9 @@ vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValueReference(vtkIdType idx)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::GetTypedTuple(
+  vtkIdType tupleId, Scalar* tuple) const
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
   {
@@ -267,265 +269,268 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
-::Allocate(vtkIdType, vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>::Allocate(vtkIdType, vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
-::Resize(vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>::Resize(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetNumberOfTuples(vtkIdType)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetNumberOfTuples(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetTuple(vtkIdType, const float*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetTuple(vtkIdType, const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuple(vtkIdType, const float*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuple(vtkIdType, const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTuples(vtkIdList *, vtkIdList *, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuples(
+  vtkIdList*, vtkIdList*, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuples(
+  vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTuple(vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertNextTuple(vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTuple(const float *)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertNextTuple(const float*)
 {
 
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTuple(const double *)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertNextTuple(const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::DeepCopy(vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::DeepCopy(vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::DeepCopy(vtkDataArray *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::DeepCopy(vtkDataArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdList *, vtkAbstractArray *, double *)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdList*, vtkAbstractArray*, double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType,
-                   vtkAbstractArray*, double)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType, vtkAbstractArray*, double)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetVariantValue(vtkIdType, vtkVariant)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertVariantValue(vtkIdType, vtkVariant)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::RemoveTuple(vtkIdType)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::RemoveTuple(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::RemoveFirstTuple()
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::RemoveFirstTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::RemoveLastTuple()
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::RemoveLastTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTypedTuple(vtkIdType, const Scalar*)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTypedTuple(vtkIdType, const Scalar*)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTypedTuple(const Scalar *)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertNextTypedTuple(const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetValue(vtkIdType, Scalar)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::SetValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextValue(Scalar)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertNextValue(Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertValue(vtkIdType, Scalar)
+template <class Scalar>
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
-::vtkCPExodusIIResultsArrayTemplate()
-  : TempDoubleArray(nullptr), Save(false)
+template <class Scalar>
+vtkCPExodusIIResultsArrayTemplate<Scalar>::vtkCPExodusIIResultsArrayTemplate()
+  : TempDoubleArray(nullptr)
+  , Save(false)
 {
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
-::~vtkCPExodusIIResultsArrayTemplate()
+template <class Scalar>
+vtkCPExodusIIResultsArrayTemplate<Scalar>::~vtkCPExodusIIResultsArrayTemplate()
 {
   typedef typename std::vector<Scalar*>::const_iterator ArrayIterator;
-  if(!this->Save)
+  if (!this->Save)
   {
-    for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end();
-         it != itEnd; ++it)
+    for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end(); it != itEnd; ++it)
     {
-      delete [] *it;
+      delete[] * it;
     }
   }
-  delete [] this->TempDoubleArray;
+  delete[] this->TempDoubleArray;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::Lookup(const Scalar &val, vtkIdType index)
+template <class Scalar>
+vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>::Lookup(const Scalar& val, vtkIdType index)
 {
   while (index <= this->MaxId)
   {

@@ -16,21 +16,21 @@
 // .SECTION Description
 //
 
-#include "vtkPLYReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkPLYReader.h"
 
 #include "vtkActor.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkWindowToImageFilter.h"
 
-int TestPLYReader( int argc, char *argv[] )
+int TestPLYReader(int argc, char* argv[])
 {
   // Read file name.
   const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
@@ -43,7 +43,7 @@ int TestPLYReader( int argc, char *argv[] )
   vtkPLYReader* reader = vtkPLYReader::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkStringArray* comments = reader->GetComments();
   if (comments->GetNumberOfValues() != 2)
@@ -51,11 +51,10 @@ int TestPLYReader( int argc, char *argv[] )
     cerr << "Error: expected 2 comments, found " << comments->GetNumberOfValues() << endl;
     return EXIT_FAILURE;
   }
-  if (comments->GetValue(0) != "zipper output"
-    || comments->GetValue(1) != "modified by flipply")
+  if (comments->GetValue(0) != "zipper output" || comments->GetValue(1) != "modified by flipply")
   {
-    cerr << "Error: comment strings differ from expected " << comments->GetValue(0)
-      << "; " << comments->GetValue(1) << endl;
+    cerr << "Error: comment strings differ from expected " << comments->GetValue(0) << "; "
+         << comments->GetValue(1) << endl;
     return EXIT_FAILURE;
   }
 
@@ -72,19 +71,19 @@ int TestPLYReader( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

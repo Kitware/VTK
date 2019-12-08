@@ -113,9 +113,9 @@
 #ifndef vtkContour3DLinearGrid_h
 #define vtkContour3DLinearGrid_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkDataObjectAlgorithm.h"
 #include "vtkContourValues.h" // Needed for inline methods
+#include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkPolyData;
 class vtkUnstructuredGrid;
@@ -129,8 +129,8 @@ public:
   /**
    * Standard methods for construction, type info, and printing.
    */
-  static vtkContour3DLinearGrid *New();
-  vtkTypeMacro(vtkContour3DLinearGrid,vtkDataObjectAlgorithm);
+  static vtkContour3DLinearGrid* New();
+  vtkTypeMacro(vtkContour3DLinearGrid, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -140,8 +140,8 @@ public:
    */
   void SetValue(int i, double value);
   double GetValue(int i);
-  double *GetValues();
-  void GetValues(double *contourValues);
+  double* GetValues();
+  void GetValues(double* contourValues);
   void SetNumberOfContours(int number);
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
@@ -154,9 +154,9 @@ public:
    * produces fewer output points, creating a "watertight" contour
    * surface. By default this is off.
    */
-  vtkSetMacro(MergePoints,vtkTypeBool);
-  vtkGetMacro(MergePoints,vtkTypeBool);
-  vtkBooleanMacro(MergePoints,vtkTypeBool);
+  vtkSetMacro(MergePoints, vtkTypeBool);
+  vtkGetMacro(MergePoints, vtkTypeBool);
+  vtkBooleanMacro(MergePoints, vtkTypeBool);
   //@}
 
   //@{
@@ -164,9 +164,9 @@ public:
    * Indicate whether to interpolate input attributes onto the isosurface. By
    * default this option is off.
    */
-  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
-  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
+  vtkSetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkGetMacro(InterpolateAttributes, vtkTypeBool);
+  vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
   //@}
 
   //@{
@@ -175,9 +175,9 @@ public:
    * used to average shared triangle normals. By default this if off. This is
    * a relatively expensive option so use judiciously.
    */
-  vtkSetMacro(ComputeNormals,vtkTypeBool);
-  vtkGetMacro(ComputeNormals,vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
   //@{
@@ -202,9 +202,9 @@ public:
    * default this is off. If enabled, and a scalar tree is not specified, then
    * a vtkSpanSpace instance will be constructed and used.
    */
-  vtkSetMacro(UseScalarTree,vtkTypeBool);
-  vtkGetMacro(UseScalarTree,vtkTypeBool);
-  vtkBooleanMacro(UseScalarTree,vtkTypeBool);
+  vtkSetMacro(UseScalarTree, vtkTypeBool);
+  vtkGetMacro(UseScalarTree, vtkTypeBool);
+  vtkBooleanMacro(UseScalarTree, vtkTypeBool);
   //@}
 
   //@{
@@ -213,7 +213,7 @@ public:
    * used.
    */
   virtual void SetScalarTree(vtkScalarTree*);
-  vtkGetObjectMacro(ScalarTree,vtkScalarTree);
+  vtkGetObjectMacro(ScalarTree, vtkScalarTree);
   //@}
 
   //@{
@@ -225,17 +225,16 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing,vtkTypeBool)
-  vtkGetMacro(SequentialProcessing,vtkTypeBool);
-  vtkBooleanMacro(SequentialProcessing,vtkTypeBool);
+  vtkSetMacro(SequentialProcessing, vtkTypeBool);
+  vtkGetMacro(SequentialProcessing, vtkTypeBool);
+  vtkBooleanMacro(SequentialProcessing, vtkTypeBool);
   //@}
 
   /**
    *  Return the number of threads actually used during execution. This is
    *  valid only after algorithm execution.
    */
-  int GetNumberOfThreadsUsed()
-  {return this->NumberOfThreadsUsed;}
+  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
 
   /**
    * Inform the user as to whether large ids were used during filter
@@ -245,8 +244,7 @@ public:
    * computation. Note that LargeIds are only available on 64-bit
    * architectures.)
    */
-  bool GetLargeIds()
-  {return this->LargeIds;}
+  bool GetLargeIds() { return this->LargeIds; }
 
   /**
    * Returns true if the data object passed in is fully supported by this
@@ -260,30 +258,28 @@ protected:
   vtkContour3DLinearGrid();
   ~vtkContour3DLinearGrid() override;
 
-  vtkContourValues *ContourValues;
+  vtkContourValues* ContourValues;
   int OutputPointsPrecision;
   vtkTypeBool MergePoints;
   vtkTypeBool InterpolateAttributes;
   vtkTypeBool ComputeNormals;
   vtkTypeBool SequentialProcessing;
   int NumberOfThreadsUsed;
-  bool LargeIds; //indicate whether integral ids are large(==true) or not
+  bool LargeIds; // indicate whether integral ids are large(==true) or not
 
   // Manage scalar trees, including mapping scalar tree to input dataset
   vtkTypeBool UseScalarTree;
-  vtkScalarTree *ScalarTree;
-  struct vtkScalarTreeMap *ScalarTreeMap;
+  vtkScalarTree* ScalarTree;
+  struct vtkScalarTreeMap* ScalarTreeMap;
 
   // Process the data: input unstructured grid and output polydata
-  void ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *output);
+  void ProcessPiece(vtkUnstructuredGrid* input, vtkDataArray* inScalars, vtkPolyData* output);
 
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkContour3DLinearGrid(const vtkContour3DLinearGrid&) = delete;
@@ -295,28 +291,36 @@ private:
  * between 0<=i<NumberOfContours.
  */
 inline void vtkContour3DLinearGrid::SetValue(int i, double value)
-{this->ContourValues->SetValue(i,value);}
+{
+  this->ContourValues->SetValue(i, value);
+}
 
 /**
  * Get the ith contour value.
  */
 inline double vtkContour3DLinearGrid::GetValue(int i)
-{return this->ContourValues->GetValue(i);}
+{
+  return this->ContourValues->GetValue(i);
+}
 
 /**
  * Get a pointer to an array of contour values. There will be
  * GetNumberOfContours() values in the list.
  */
-inline double *vtkContour3DLinearGrid::GetValues()
-{return this->ContourValues->GetValues();}
+inline double* vtkContour3DLinearGrid::GetValues()
+{
+  return this->ContourValues->GetValues();
+}
 
 /**
  * Fill a supplied list with contour values. There will be
  * GetNumberOfContours() values in the list. Make sure you allocate
  * enough memory to hold the list.
  */
-inline void vtkContour3DLinearGrid::GetValues(double *contourValues)
-{this->ContourValues->GetValues(contourValues);}
+inline void vtkContour3DLinearGrid::GetValues(double* contourValues)
+{
+  this->ContourValues->GetValues(contourValues);
+}
 
 /**
  * Set the number of contours to place into the list. You only really
@@ -324,28 +328,35 @@ inline void vtkContour3DLinearGrid::GetValues(double *contourValues)
  * will automatically increase list size as needed.
  */
 inline void vtkContour3DLinearGrid::SetNumberOfContours(int number)
-{this->ContourValues->SetNumberOfContours(number);}
+{
+  this->ContourValues->SetNumberOfContours(number);
+}
 
 /**
  * Get the number of contours in the list of contour values.
  */
 inline vtkIdType vtkContour3DLinearGrid::GetNumberOfContours()
-{return this->ContourValues->GetNumberOfContours();}
+{
+  return this->ContourValues->GetNumberOfContours();
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
 inline void vtkContour3DLinearGrid::GenerateValues(int numContours, double range[2])
-{this->ContourValues->GenerateValues(numContours, range);}
+{
+  this->ContourValues->GenerateValues(numContours, range);
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
-inline void vtkContour3DLinearGrid::GenerateValues(int numContours, double
-                                             rangeStart, double rangeEnd)
-{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
-
+inline void vtkContour3DLinearGrid::GenerateValues(
+  int numContours, double rangeStart, double rangeEnd)
+{
+  this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+}
 
 #endif

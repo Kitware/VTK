@@ -20,14 +20,14 @@
  *
  * This is a vtkContextItem that can be placed into a vtkContextScene. It draws
  * a block of the given dimensions, and reacts to mouse events.
-*/
+ */
 
 #ifndef vtkBlockItem_h
 #define vtkBlockItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkStdString.h"                // For vtkStdString ivars
 
 class vtkContext2D;
 
@@ -35,49 +35,49 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkBlockItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkBlockItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkBlockItem *New();
+  static vtkBlockItem* New();
 
   /**
    * Paint event for the item.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Returns true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse enter event.
    */
-  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse leave event.
    */
-  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event.
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Set the block label.
    */
-  virtual void SetLabel(const vtkStdString &label);
+  virtual void SetLabel(const vtkStdString& label);
 
   /**
    * Get the block label.
@@ -120,9 +120,8 @@ protected:
   double (*scalarFunction)(double, double);
 
 private:
-  vtkBlockItem(const vtkBlockItem &) = delete;
-  void operator=(const vtkBlockItem &) = delete;
-
+  vtkBlockItem(const vtkBlockItem&) = delete;
+  void operator=(const vtkBlockItem&) = delete;
 };
 
-#endif //vtkBlockItem_h
+#endif // vtkBlockItem_h

@@ -20,7 +20,7 @@
  * point attribute data (e.g., scalars, vectors, normals, texture
  * coordinates, etc.) Most of the functionality is handled by
  * vtkDataSetAttributes
-*/
+ */
 
 #ifndef vtkPointData_h
 #define vtkPointData_h
@@ -31,9 +31,9 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
-  static vtkPointData *New();
+  static vtkPointData* New();
 
-  vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
+  vtkTypeMacro(vtkPointData, vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void NullPoint(vtkIdType ptId);
 
@@ -47,5 +47,3 @@ private:
 };
 
 #endif
-
-

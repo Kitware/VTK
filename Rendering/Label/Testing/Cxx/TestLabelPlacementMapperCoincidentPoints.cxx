@@ -23,35 +23,33 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkLabeledDataMapper.h"
+#include "vtkImageData.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkLabelPlacementMapper.h"
+#include "vtkLabeledDataMapper.h"
 #include "vtkMath.h"
-#include "vtkPointSetToLabelHierarchy.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkStringArray.h"
-#include "vtkTextProperty.h"
-#include "vtkPolyData.h"
-#include "vtkImageData.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTextProperty.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 
 #include "vtkSphereSource.h"
 
-
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 /*
 void prtbds( const char* msg, const double* bds )
@@ -63,7 +61,7 @@ void prtbds( const char* msg, const double* bds )
 }
 */
 
-int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
+int TestLabelPlacementMapperCoincidentPoints(int argc, char* argv[])
 {
   int maxLevels = 5;
   int targetLabels = 7;
@@ -71,26 +69,19 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   int i = 0;
   int iteratorType = vtkLabelHierarchy::QUEUE;
 
-  vtkSmartPointer<vtkLabelHierarchy> labelHierarchy =
-    vtkSmartPointer<vtkLabelHierarchy>::New();
+  vtkSmartPointer<vtkLabelHierarchy> labelHierarchy = vtkSmartPointer<vtkLabelHierarchy>::New();
   vtkSmartPointer<vtkLabelPlacementMapper> labelPlacer =
     vtkSmartPointer<vtkLabelPlacementMapper>::New();
   vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy =
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
 
-  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
-  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper2 =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  vtkSmartPointer<vtkActor> actor2 =
-    vtkSmartPointer<vtkActor>::New();
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper2 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkActor> actor2 = vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0); // ensure to have the same test image everywhere
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -98,39 +89,34 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
 
   vtkSmartPointer<vtkLabeledDataMapper> labeledMapper =
     vtkSmartPointer<vtkLabeledDataMapper>::New();
-  vtkSmartPointer<vtkActor2D> textActor =
-    vtkSmartPointer<vtkActor2D>::New();
+  vtkSmartPointer<vtkActor2D> textActor = vtkSmartPointer<vtkActor2D>::New();
 
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  //renderer->GetActiveCamera()->ParallelProjectionOn();
+  // renderer->GetActiveCamera()->ParallelProjectionOn();
 
   vtkMath::RandomSeed(5678);
 
-  for(i = 0; i < 29; i++)
+  for (i = 0; i < 29; i++)
   {
-    //points->InsertPoint( i, vtkMath::Random(-1.0, 1.0), vtkMath::Random(-1.0, 1.0), 0. );
-    points->InsertPoint( i, 0.0, 0.0, 0.0 );
+    // points->InsertPoint( i, vtkMath::Random(-1.0, 1.0), vtkMath::Random(-1.0, 1.0), 0. );
+    points->InsertPoint(i, 0.0, 0.0, 0.0);
   }
-  points->InsertPoint( 29, 2.2, 2.2, 0.0 );
+  points->InsertPoint(29, 2.2, 2.2, 0.0);
 
-  vtkSmartPointer<vtkCellArray> cells =
-    vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
 
   cells->InsertNextCell(30);
-  for(i = 0; i < 30; i++)
+  for (i = 0; i < 30; i++)
   {
     cells->InsertCellPoint(i);
   }
 
-  vtkSmartPointer<vtkPolyData> polyData =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
   polyData->SetPoints(points);
   polyData->SetVerts(cells);
 
-  vtkSmartPointer<vtkStringArray> stringData =
-    vtkSmartPointer<vtkStringArray>::New();
+  vtkSmartPointer<vtkStringArray> stringData = vtkSmartPointer<vtkStringArray>::New();
   stringData->SetName("PlaceNames");
   stringData->InsertNextValue("Abu Dhabi");
   stringData->InsertNextValue("Amsterdam");
@@ -166,34 +152,34 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   polyData->GetPointData()->AddArray(stringData);
 
   vtkSmartPointer<vtkTextProperty> tprop = vtkSmartPointer<vtkTextProperty>::New();
-  tprop->SetFontSize( 12 );
-  tprop->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
-  tprop->SetColor( 0.0, 0.8, 0.2 );
+  tprop->SetFontSize(12);
+  tprop->SetFontFamily(vtkTextProperty::GetFontFamilyFromString("Arial"));
+  tprop->SetColor(0.0, 0.8, 0.2);
 
   pointSetToLabelHierarchy->SetInputData(polyData);
   pointSetToLabelHierarchy->SetTextProperty(tprop);
   pointSetToLabelHierarchy->SetPriorityArrayName("Priority");
   pointSetToLabelHierarchy->SetLabelArrayName("PlaceNames");
-  pointSetToLabelHierarchy->SetMaximumDepth( maxLevels );
-  pointSetToLabelHierarchy->SetTargetLabelCount( targetLabels );
+  pointSetToLabelHierarchy->SetMaximumDepth(maxLevels);
+  pointSetToLabelHierarchy->SetTargetLabelCount(targetLabels);
 
-  labelPlacer->SetInputConnection( pointSetToLabelHierarchy->GetOutputPort() );
-  labelPlacer->SetIteratorType( iteratorType );
-  labelPlacer->SetMaximumLabelFraction( labelRatio );
-  //labelPlacer->SetIteratorType(1); // Quadtree is only available type for 2-D.
+  labelPlacer->SetInputConnection(pointSetToLabelHierarchy->GetOutputPort());
+  labelPlacer->SetIteratorType(iteratorType);
+  labelPlacer->SetMaximumLabelFraction(labelRatio);
+  // labelPlacer->SetIteratorType(1); // Quadtree is only available type for 2-D.
 
   polyDataMapper->SetInputData(polyData);
-  //polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
+  // polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
 
   actor->SetMapper(polyDataMapper);
-  //actor2->SetMapper(polyDataMapper2);
+  // actor2->SetMapper(polyDataMapper2);
 
-  //labelPlacer->Update();
+  // labelPlacer->Update();
 
   textActor->SetMapper(labelPlacer);
 
-  //renderer->AddActor(actor);
-  //renderer->AddActor(actor2);
+  // renderer->AddActor(actor);
+  // renderer->AddActor(actor2);
   renderer->AddActor(textActor);
 
   renWin->SetSize(600, 600);
@@ -201,11 +187,11 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   iren->SetRenderWindow(renWin);
 
-  //labelPlacer->Update();
-  //cout << "Pre-reset-camera bounds of...\n";
-  //prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
-  //prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
-  //prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );
+  // labelPlacer->Update();
+  // cout << "Pre-reset-camera bounds of...\n";
+  // prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
+  // prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
+  // prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );
   /*
   renWin->Render();
   renderer->ResetCamera();
@@ -213,14 +199,14 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   renderer->ResetCamera();
   renWin->Render();
   */
-  //cout << "Post-reset-camera Bounds of...\n";
-  //prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
-  //prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
-  //prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );
+  // cout << "Post-reset-camera Bounds of...\n";
+  // prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
+  // prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
+  // prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -17,8 +17,8 @@
 // .SECTION Description
 // this program tests the TimerLog
 
-#include "vtkTimerLog.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTimerLog.h"
 
 #include <sstream>
 
@@ -26,7 +26,7 @@
 #if defined(__CYGWIN__)
 #include <sys/unistd.h>
 #elif defined(_WIN32)
-# include <io.h>
+#include <io.h>
 #endif
 
 #include "vtkWindows.h" // for Sleep
@@ -37,7 +37,7 @@ void otherTimerLogTest(ostream& strm)
   float a = 1.0;
   int i, j;
   strm << "Test vtkTimerLog Start" << endl;
-  vtkTimerLog *timer1 = vtkTimerLog::New();
+  vtkTimerLog* timer1 = vtkTimerLog::New();
 
   timer1->SetMaxEntries(8);
   timer1->StartTimer();
@@ -49,7 +49,7 @@ void otherTimerLogTest(ostream& strm)
       a *= a;
     }
 #ifndef _WIN32
-    sleep (1);
+    sleep(1);
 #else
     Sleep(1000);
 #endif
@@ -60,9 +60,9 @@ void otherTimerLogTest(ostream& strm)
   strm << *timer1;
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
-  timer1->DumpLog( "timing" );
+  timer1->DumpLog("timing");
   timer1->DumpLogWithIndents(&cerr, 0);
-  timer1->ResetLog ();
+  timer1->ResetLog();
   timer1->CleanupLog();
   unlink("timing");
 
@@ -79,7 +79,7 @@ void otherTimerLogTest(ostream& strm)
       a *= a;
     }
 #ifndef _WIN32
-    sleep (1);
+    sleep(1);
 #else
     Sleep(1000);
 #endif
@@ -90,10 +90,10 @@ void otherTimerLogTest(ostream& strm)
   strm << *timer1;
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
-  timer1->DumpLog( "timing2" );
+  timer1->DumpLog("timing2");
   timer1->DumpLogWithIndents(&cerr, 0);
   timer1->PrintSelf(cerr, vtkIndent());
-  timer1->ResetLog ();
+  timer1->ResetLog();
   timer1->CleanupLog();
   unlink("timing2");
 
@@ -110,13 +110,13 @@ void timerLogScopeTest()
     {
       vtkTimerLogScope timer2("Test2");
 #ifndef _WIN32
-      sleep (1);
+      sleep(1);
 #else
       Sleep(1000);
 #endif
     }
 #ifndef _WIN32
-    sleep (1);
+    sleep(1);
 #else
     Sleep(1000);
 #endif
@@ -124,7 +124,7 @@ void timerLogScopeTest()
   vtkTimerLog::DumpLogWithIndents(&cerr, 0);
 }
 
-int otherTimerLog(int,char *[])
+int otherTimerLog(int, char*[])
 {
   std::ostringstream vtkmsg_with_warning_C4701;
   otherTimerLogTest(vtkmsg_with_warning_C4701);

@@ -19,16 +19,16 @@
 #include "vtkCylinderSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkMath.h"
 
 // Test for multiblock data sets with field data arrays defined on
 // only a subset of the blocks. The expected behavior is to have
@@ -37,12 +37,10 @@
 // data array.
 int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindow> win =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 
@@ -62,7 +60,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   data->SetNumberOfBlocks(numBlocks);
 
   double radius = 10.0;
-  double deltaTheta = 2.0*vtkMath::Pi() / numBlocks;
+  double deltaTheta = 2.0 * vtkMath::Pi() / numBlocks;
   for (int i = 0; i < numBlocks; ++i)
   {
     double theta = i * deltaTheta;
@@ -92,7 +90,6 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
       dataArray->InsertValue(0, static_cast<double>(i));
 
       pd->GetFieldData()->AddArray(dataArray);
-
     }
     data->SetBlock(i, pd);
     pd->Delete();
@@ -100,7 +97,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
   vtkNew<vtkColorTransferFunction> lookupTable;
   lookupTable->AddRGBPoint(0.0, 1.0, 1.0, 1.0);
-  lookupTable->AddRGBPoint(static_cast<double>(numBlocks-1), 0.0, 1.0, 0.0);
+  lookupTable->AddRGBPoint(static_cast<double>(numBlocks - 1), 0.0, 1.0, 0.0);
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
@@ -114,8 +111,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   mapper->UseLookupTableScalarRangeOn();
   mapper->ScalarVisibilityOn();
 
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1.0, 0.67, 1.0);
 
@@ -126,8 +122,8 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
   win->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( win,15);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(win, 15);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -31,7 +31,7 @@
  * a very good reason to use vtkMutexLock. If higher-performance equivalents
  * for non-Windows platforms (Irix, SunOS, etc) are discovered, they
  * should replace the implementations in this class
-*/
+ */
 
 #ifndef vtkCriticalSection_h
 #define vtkCriticalSection_h
@@ -43,9 +43,9 @@
 class VTKCOMMONCORE_EXPORT vtkCriticalSection : public vtkObject
 {
 public:
-  static vtkCriticalSection *New();
+  static vtkCriticalSection* New();
 
-  vtkTypeMacro(vtkCriticalSection,vtkObject);
+  vtkTypeMacro(vtkCriticalSection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,7 +67,6 @@ private:
   vtkCriticalSection(const vtkCriticalSection&) = delete;
   void operator=(const vtkCriticalSection&) = delete;
 };
-
 
 inline void vtkCriticalSection::Lock()
 {

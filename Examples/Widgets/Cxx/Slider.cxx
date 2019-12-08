@@ -1,23 +1,19 @@
-#include <vtkSphereSource.h>
-#include <vtkSmartPointer.h>
-#include <vtkPolyData.h>
-#include <vtkSliderWidget.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCommand.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSliderRepresentation3D.h>
+#include <vtkSliderWidget.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkCommand.h>
 #include <vtkWidgetEvent.h>
-#include <vtkCallbackCommand.h>
 #include <vtkWidgetEventTranslator.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkSliderWidget.h>
-#include <vtkSliderRepresentation3D.h>
-#include <vtkProperty.h>
 
 // The callback does the work.
 // The callback keeps a pointer to the sphere whose resolution is
@@ -27,23 +23,23 @@
 class vtkSliderCallback : public vtkCommand
 {
 public:
-  static vtkSliderCallback *New()
+  static vtkSliderCallback* New() { return new vtkSliderCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    return new vtkSliderCallback;
-  }
-  void Execute(vtkObject *caller, unsigned long, void*) override
-  {
-    vtkSliderWidget *sliderWidget =
-      reinterpret_cast<vtkSliderWidget*>(caller);
-    int value = static_cast<int>(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
-    this->SphereSource->SetPhiResolution(value/2);
+    vtkSliderWidget* sliderWidget = reinterpret_cast<vtkSliderWidget*>(caller);
+    int value = static_cast<int>(
+      static_cast<vtkSliderRepresentation*>(sliderWidget->GetRepresentation())->GetValue());
+    this->SphereSource->SetPhiResolution(value / 2);
     this->SphereSource->SetThetaResolution(value);
   }
-  vtkSliderCallback():SphereSource(nullptr) {}
-  vtkSphereSource *SphereSource;
+  vtkSliderCallback()
+    : SphereSource(nullptr)
+  {
+  }
+  vtkSphereSource* SphereSource;
 };
 
-int main (int, char *[])
+int main(int, char*[])
 {
   // A sphere
   vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
@@ -65,7 +61,8 @@ int main (int, char *[])
   renderWindow->AddRenderer(renderer);
 
   // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Add the actors to the scene
@@ -74,15 +71,16 @@ int main (int, char *[])
   // Render an image (lights and cameras are created automatically)
   renderWindow->Render();
 
-  vtkSmartPointer<vtkSliderRepresentation3D> sliderRep = vtkSmartPointer<vtkSliderRepresentation3D>::New();
+  vtkSmartPointer<vtkSliderRepresentation3D> sliderRep =
+    vtkSmartPointer<vtkSliderRepresentation3D>::New();
   sliderRep->SetMinimumValue(3.0);
   sliderRep->SetMaximumValue(50.0);
   sliderRep->SetValue(sphereSource->GetThetaResolution());
   sliderRep->SetTitleText("Sphere Resolution");
   sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
-  sliderRep->GetPoint1Coordinate()->SetValue(-4,6,0);
+  sliderRep->GetPoint1Coordinate()->SetValue(-4, 6, 0);
   sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
-  sliderRep->GetPoint2Coordinate()->SetValue(4,6,0);
+  sliderRep->GetPoint2Coordinate()->SetValue(4, 6, 0);
   sliderRep->SetSliderLength(0.075);
   sliderRep->SetSliderWidth(0.05);
   sliderRep->SetEndCapLength(0.05);
@@ -96,7 +94,7 @@ int main (int, char *[])
   vtkSmartPointer<vtkSliderCallback> callback = vtkSmartPointer<vtkSliderCallback>::New();
   callback->SphereSource = sphereSource;
 
-  sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+  sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   renderWindowInteractor->Initialize();
   renderWindow->Render();

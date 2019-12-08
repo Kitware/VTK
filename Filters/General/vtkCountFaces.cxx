@@ -24,15 +24,16 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkCountFaces)
+vtkStandardNewMacro(vtkCountFaces);
 
 //------------------------------------------------------------------------------
-void vtkCountFaces::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkCountFaces::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(nullptr)") << "\n";
+  os << indent
+     << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(nullptr)")
+     << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -49,19 +50,16 @@ vtkCountFaces::~vtkCountFaces()
 }
 
 //------------------------------------------------------------------------------
-int vtkCountFaces::RequestData(vtkInformation *,
-                               vtkInformationVector **inInfoVec,
-                               vtkInformationVector *outInfoVec)
+int vtkCountFaces::RequestData(
+  vtkInformation*, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
   // get the info objects
-  vtkInformation *inInfo = inInfoVec[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outInfoVec->GetInformationObject(0);
+  vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-        inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   assert(input && output);
 
@@ -72,7 +70,7 @@ int vtkCountFaces::RequestData(vtkInformation *,
   faceCount->SetName(this->OutputArrayName);
   output->GetCellData()->AddArray(faceCount);
 
-  vtkCellIterator *it = input->NewCellIterator();
+  vtkCellIterator* it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
     faceCount->InsertNextValue(it->GetNumberOfFaces());
@@ -83,14 +81,14 @@ int vtkCountFaces::RequestData(vtkInformation *,
 }
 
 //------------------------------------------------------------------------------
-int vtkCountFaces::FillOutputPortInformation(int, vtkInformation *info)
+int vtkCountFaces::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkCountFaces::FillInputPortInformation(int, vtkInformation *info)
+int vtkCountFaces::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;

@@ -20,45 +20,54 @@
 #include "vtkPolyDataSilhouette.h"
 
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
-#include "vtkMath.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkProp3D.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkPolygon.h"
 
 #include <map>
 
 vtkStandardNewMacro(vtkPolyDataSilhouette);
 
-vtkCxxSetObjectMacro(vtkPolyDataSilhouette,Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkPolyDataSilhouette, Camera, vtkCamera);
 
 struct vtkOrderedEdge
 {
   inline vtkOrderedEdge(vtkIdType a, vtkIdType b)
   {
-    if(a<=b) { p1=a; p2=b; }
-    else     { p1=b; p2=a; }
+    if (a <= b)
+    {
+      p1 = a;
+      p2 = b;
+    }
+    else
+    {
+      p1 = b;
+      p2 = a;
+    }
   }
-  inline bool operator < (const vtkOrderedEdge& oe) const
+  inline bool operator<(const vtkOrderedEdge& oe) const
   {
-    return (p1<oe.p1) || ( (p1==oe.p1) && (p2<oe.p2) ) ;
+    return (p1 < oe.p1) || ((p1 == oe.p1) && (p2 < oe.p2));
   }
-  vtkIdType p1,p2;
+  vtkIdType p1, p2;
 };
 
 struct vtkTwoNormals
 {
-  double leftNormal[3]; // normal of the left polygon
+  double leftNormal[3];  // normal of the left polygon
   double rightNormal[3]; // normal of the right polygon
   inline vtkTwoNormals()
   {
@@ -76,10 +85,15 @@ class vtkPolyDataEdges
 public:
   vtkTimeStamp mtime;
   double vec[3];
-  std::map<vtkOrderedEdge,vtkTwoNormals> edges;
-  bool * edgeFlag;
+  std::map<vtkOrderedEdge, vtkTwoNormals> edges;
+  bool* edgeFlag;
   vtkCellArray* lines;
-  inline vtkPolyDataEdges() : edgeFlag(nullptr), lines(nullptr) { vec[0]=vec[1]=vec[2]=0.0; }
+  inline vtkPolyDataEdges()
+    : edgeFlag(nullptr)
+    , lines(nullptr)
+  {
+    vec[0] = vec[1] = vec[2] = 0.0;
+  }
 };
 
 vtkPolyDataSilhouette::vtkPolyDataSilhouette()
@@ -101,125 +115,125 @@ vtkPolyDataSilhouette::~vtkPolyDataSilhouette()
 {
   this->Transform->Delete();
 
-  if ( this->Camera )
+  if (this->Camera)
   {
     this->Camera->Delete();
   }
 
-  delete [] this->PreComp->edgeFlag;
+  delete[] this->PreComp->edgeFlag;
   if (this->PreComp->lines)
   {
     this->PreComp->lines->Delete();
   }
   delete this->PreComp;
 
-  //Note: vtkProp3D is not deleted to avoid reference count cycle
+  // Note: vtkProp3D is not deleted to avoid reference count cycle
 }
 
 // Don't reference count to avoid nasty cycle
-void vtkPolyDataSilhouette::SetProp3D(vtkProp3D *prop3d)
+void vtkPolyDataSilhouette::SetProp3D(vtkProp3D* prop3d)
 {
-  if ( this->Prop3D != prop3d )
+  if (this->Prop3D != prop3d)
   {
     this->Prop3D = prop3d;
     this->Modified();
   }
 }
 
-vtkProp3D *vtkPolyDataSilhouette::GetProp3D()
+vtkProp3D* vtkPolyDataSilhouette::GetProp3D()
 {
   return this->Prop3D;
 }
 
-int vtkPolyDataSilhouette::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPolyDataSilhouette::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(input==nullptr || output==nullptr)
+  if (input == nullptr || output == nullptr)
   {
-    vtkErrorMacro(<<"Need correct connections");
+    vtkErrorMacro(<< "Need correct connections");
     return 0;
   }
 
-  vtkDebugMacro(<<"RequestData\n");
+  vtkDebugMacro(<< "RequestData\n");
 
-  const double featureAngleCos = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle ) );
+  const double featureAngleCos = cos(vtkMath::RadiansFromDegrees(this->FeatureAngle));
 
   bool vectorMode = true;
   double vector[3];
   double origin[3];
 
   // Compute the sort vector
-  switch( this->Direction )
+  switch (this->Direction)
   {
-    case VTK_DIRECTION_SPECIFIED_VECTOR :
+    case VTK_DIRECTION_SPECIFIED_VECTOR:
       vector[0] = this->Vector[0];
       vector[1] = this->Vector[1];
       vector[2] = this->Vector[2];
       break;
 
-    case VTK_DIRECTION_SPECIFIED_ORIGIN :
+    case VTK_DIRECTION_SPECIFIED_ORIGIN:
       origin[0] = this->Origin[0];
       origin[1] = this->Origin[1];
       origin[2] = this->Origin[2];
       vectorMode = false;
       break;
 
-    case VTK_DIRECTION_CAMERA_ORIGIN :
+    case VTK_DIRECTION_CAMERA_ORIGIN:
       vectorMode = false;
       VTK_FALLTHROUGH;
 
-    case VTK_DIRECTION_CAMERA_VECTOR :
-      if ( this->Camera == nullptr)
+    case VTK_DIRECTION_CAMERA_VECTOR:
+      if (this->Camera == nullptr)
       {
-        vtkErrorMacro(<<"Need a camera when direction is set to VTK_DIRECTION_CAMERA_*");
+        vtkErrorMacro(<< "Need a camera when direction is set to VTK_DIRECTION_CAMERA_*");
         return 0;
       }
       this->ComputeProjectionVector(vector, origin);
       break;
   }
 
-  vtkIdType nPolys = input->GetNumberOfPolys();
-  vtkIdTypeArray* polysArray = input->GetPolys()->GetData();
   vtkPoints* inPoints = input->GetPoints();
 
-  if( input->GetMTime() > this->PreComp->mtime.GetMTime() )
+  if (input->GetMTime() > this->PreComp->mtime.GetMTime())
   {
-    vtkDebugMacro(<<"Compute edge-face connectivity and face normals\n");
+    vtkDebugMacro(<< "Compute edge-face connectivity and face normals\n");
 
     this->PreComp->mtime.Modified();
     this->PreComp->edges.clear();
 
-    vtkIdType* polys = polysArray->GetPointer(0);
+    vtkCellArray* polyCells = input->GetPolys();
+    auto polyIter = vtkSmartPointer<vtkCellArrayIterator>::Take(polyCells->NewIterator());
 
-    for(vtkIdType i=0;i<nPolys;i++)
+    for (polyIter->GoToFirstCell(); !polyIter->IsDoneWithTraversal(); polyIter->GoToNextCell())
     {
-      int np = *(polys); ++polys;
-      double normal[3];
-      vtkPolygon::ComputeNormal(inPoints, np, polys, normal);
+      vtkIdType np;
+      const vtkIdType* polys;
+      polyIter->GetCurrentCell(np, polys);
 
-      for(int j=0;j<np;j++)
+      double normal[3];
+      vtkPolygon::ComputeNormal(
+        inPoints, static_cast<int>(np), const_cast<vtkIdType*>(polys), normal);
+
+      for (int j = 0; j < np; j++)
       {
-        vtkIdType p1=j, p2=(j+1)%np;
-        vtkOrderedEdge oe( polys[p1], polys[p2] );
+        vtkIdType p1 = j, p2 = (j + 1) % np;
+        vtkOrderedEdge oe(polys[p1], polys[p2]);
         vtkTwoNormals& tn = this->PreComp->edges[oe];
-        if( polys[p1] < polys[p2] )
+        if (polys[p1] < polys[p2])
         {
 #ifdef DEBUG
-          if( vtkMath::Dot(tn.leftNormal,tn.leftNormal) > 0 )
+          if (vtkMath::Dot(tn.leftNormal, tn.leftNormal) > 0)
           {
-            vtkDebugMacro(<<"Warning: vtkPolyDataSilhouette: non-manifold mesh: edge-L ("<<polys[p1]<<","<<polys[p2]<<") counted more than once\n");
+            vtkDebugMacro(<< "Warning: vtkPolyDataSilhouette: non-manifold mesh: edge-L ("
+                          << polys[p1] << "," << polys[p2] << ") counted more than once\n");
           }
 #endif
           tn.leftNormal[0] = normal[0];
@@ -229,9 +243,10 @@ int vtkPolyDataSilhouette::RequestData(
         else
         {
 #ifdef DEBUG
-          if( vtkMath::Dot(tn.rightNormal,tn.rightNormal) > 0 )
+          if (vtkMath::Dot(tn.rightNormal, tn.rightNormal) > 0)
           {
-            vtkDebugMacro(<<"Warning: vtkPolyDataSilhouette: non-manifold mesh: edge-R ("<<polys[p1]<<","<<polys[p2]<<") counted more than once\n");
+            vtkDebugMacro(<< "Warning: vtkPolyDataSilhouette: non-manifold mesh: edge-R ("
+                          << polys[p1] << "," << polys[p2] << ") counted more than once\n");
           }
 #endif
           tn.rightNormal[0] = normal[0];
@@ -239,100 +254,100 @@ int vtkPolyDataSilhouette::RequestData(
           tn.rightNormal[2] = normal[2];
         }
       }
-      polys += np;
     }
 
-    delete [] this->PreComp->edgeFlag;
-    this->PreComp->edgeFlag = new bool[ this->PreComp->edges.size() ];
+    delete[] this->PreComp->edgeFlag;
+    this->PreComp->edgeFlag = new bool[this->PreComp->edges.size()];
   }
 
   bool vecChanged = false;
-  for(int d=0;d<3;d++)
+  for (int d = 0; d < 3; d++)
   {
-    vecChanged = vecChanged || this->PreComp->vec[d]!=vector[d] ;
+    vecChanged = vecChanged || this->PreComp->vec[d] != vector[d];
   }
 
-  if( ( this->PreComp->mtime.GetMTime() > output->GetMTime() ) ||
-      ( this->Camera && this->Camera->GetMTime() > output->GetMTime() ) ||
-      ( this->Prop3D && this->Prop3D->GetMTime() > output->GetMTime() ) ||
-      vecChanged )
+  if ((this->PreComp->mtime.GetMTime() > output->GetMTime()) ||
+    (this->Camera && this->Camera->GetMTime() > output->GetMTime()) ||
+    (this->Prop3D && this->Prop3D->GetMTime() > output->GetMTime()) || vecChanged)
   {
-    vtkDebugMacro(<<"Extract edges\n");
+    vtkDebugMacro(<< "Extract edges\n");
 
-    vtkIdType i=0, silhouetteEdges=0;
+    vtkIdType i = 0, silhouetteEdges = 0;
 
-    for(std::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
+    for (std::map<vtkOrderedEdge, vtkTwoNormals>::iterator it = this->PreComp->edges.begin();
+         it != this->PreComp->edges.end(); ++it)
     {
-      double d1,d2;
+      double d1, d2;
 
       // does this edge have two co-faces ?
-      bool winged =  vtkMath::Norm(it->second.leftNormal)>0.5 && vtkMath::Norm(it->second.rightNormal)>0.5 ;
+      bool winged =
+        vtkMath::Norm(it->second.leftNormal) > 0.5 && vtkMath::Norm(it->second.rightNormal) > 0.5;
 
       // cosine of feature angle, to be compared with scalar product of two co-faces normals
-      double edgeAngleCos = vtkMath::Dot( it->second.leftNormal, it->second.rightNormal );
+      double edgeAngleCos = vtkMath::Dot(it->second.leftNormal, it->second.rightNormal);
 
-      if( vectorMode ) // uniform direction
+      if (vectorMode) // uniform direction
       {
-        d1 = vtkMath::Dot( vector, it->second.leftNormal );
-        d2 = vtkMath::Dot( vector, it->second.rightNormal );
+        d1 = vtkMath::Dot(vector, it->second.leftNormal);
+        d2 = vtkMath::Dot(vector, it->second.rightNormal);
       }
       else // origin to edge's center direction
       {
         double p1[3];
         double p2[3];
         double vec[3];
-        inPoints->GetPoint( it->first.p1 , p1 );
-        inPoints->GetPoint( it->first.p2 , p2 );
-        vec[0] = origin[0] - ( (p1[0]+p2[0])*0.5 );
-        vec[1] = origin[1] - ( (p1[1]+p2[1])*0.5 );
-        vec[2] = origin[2] - ( (p1[2]+p2[2])*0.5 );
-        d1 = vtkMath::Dot( vec, it->second.leftNormal );
-        d2 = vtkMath::Dot( vec, it->second.rightNormal );
+        inPoints->GetPoint(it->first.p1, p1);
+        inPoints->GetPoint(it->first.p2, p2);
+        vec[0] = origin[0] - ((p1[0] + p2[0]) * 0.5);
+        vec[1] = origin[1] - ((p1[1] + p2[1]) * 0.5);
+        vec[2] = origin[2] - ((p1[2] + p2[2]) * 0.5);
+        d1 = vtkMath::Dot(vec, it->second.leftNormal);
+        d2 = vtkMath::Dot(vec, it->second.rightNormal);
       }
 
       // shall we output this edge ?
-      bool outputEdge =
-        ( winged && (d1*d2)<0 )
-        || ( this->EnableFeatureAngle && edgeAngleCos<featureAngleCos )
-        || ( this->BorderEdges && !winged );
+      bool outputEdge = (winged && (d1 * d2) < 0) ||
+        (this->EnableFeatureAngle && edgeAngleCos < featureAngleCos) ||
+        (this->BorderEdges && !winged);
 
-      if( outputEdge ) // add this edge
+      if (outputEdge) // add this edge
       {
-        this->PreComp->edgeFlag[i] = true ;
+        this->PreComp->edgeFlag[i] = true;
         ++silhouetteEdges;
       }
       else // skip this edge
       {
-        this->PreComp->edgeFlag[i] = false ;
+        this->PreComp->edgeFlag[i] = false;
       }
       ++i;
     }
 
-
     // build output data set (lines)
     vtkIdTypeArray* la = vtkIdTypeArray::New();
-    la->SetNumberOfValues( 3*silhouetteEdges );
-    vtkIdType* laPtr = la->WritePointer(0,3*silhouetteEdges);
+    la->SetNumberOfValues(3 * silhouetteEdges);
+    vtkIdType* laPtr = la->WritePointer(0, 3 * silhouetteEdges);
 
-    i=0;
-    silhouetteEdges=0;
-    for(std::map<vtkOrderedEdge,vtkTwoNormals>::iterator it=this->PreComp->edges.begin(); it!=this->PreComp->edges.end(); ++it)
+    i = 0;
+    silhouetteEdges = 0;
+    for (std::map<vtkOrderedEdge, vtkTwoNormals>::iterator it = this->PreComp->edges.begin();
+         it != this->PreComp->edges.end(); ++it)
     {
-      if( this->PreComp->edgeFlag[i] )
+      if (this->PreComp->edgeFlag[i])
       {
-        laPtr[ silhouetteEdges*3+0 ] = 2 ;
-        laPtr[ silhouetteEdges*3+1 ] = it->first.p1 ;
-        laPtr[ silhouetteEdges*3+2 ] = it->first.p2 ;
+        laPtr[silhouetteEdges * 3 + 0] = 2;
+        laPtr[silhouetteEdges * 3 + 1] = it->first.p1;
+        laPtr[silhouetteEdges * 3 + 2] = it->first.p2;
         ++silhouetteEdges;
       }
       ++i;
     }
 
-    if( this->PreComp->lines == nullptr )
+    if (this->PreComp->lines == nullptr)
     {
       this->PreComp->lines = vtkCellArray::New();
     }
-    this->PreComp->lines->SetCells( silhouetteEdges, la );
+    this->PreComp->lines->AllocateEstimate(silhouetteEdges, 2);
+    this->PreComp->lines->ImportLegacyFormat(la);
     la->Delete();
   }
 
@@ -343,23 +358,22 @@ int vtkPolyDataSilhouette::RequestData(
   return 1;
 }
 
-void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
-                                                   double origin[3])
+void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3], double origin[3])
 {
-  double *focalPoint = this->Camera->GetFocalPoint();
-  double *position = this->Camera->GetPosition();
+  double* focalPoint = this->Camera->GetFocalPoint();
+  double* position = this->Camera->GetPosition();
 
   // If a camera is present, use it
-  if ( !this->Prop3D )
+  if (!this->Prop3D)
   {
-    for(int i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
       vector[i] = focalPoint[i] - position[i];
       origin[i] = position[i];
     }
   }
 
-  else  //Otherwise, use Prop3D
+  else // Otherwise, use Prop3D
   {
     double focalPt[4], pos[4];
     int i;
@@ -368,16 +382,16 @@ void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
     this->Transform->Push();
     this->Transform->Inverse();
 
-    for(i=0; i<4; i++)
+    for (i = 0; i < 4; i++)
     {
       focalPt[i] = focalPoint[i];
       pos[i] = position[i];
     }
 
-    this->Transform->TransformPoint(focalPt,focalPt);
-    this->Transform->TransformPoint(pos,pos);
+    this->Transform->TransformPoint(focalPt, focalPt);
+    this->Transform->TransformPoint(pos, pos);
 
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
       vector[i] = focalPt[i] - pos[i];
       origin[i] = pos[i];
@@ -388,21 +402,21 @@ void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
 
 vtkMTimeType vtkPolyDataSilhouette::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
+  if (this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR)
   {
     vtkMTimeType time;
-    if ( this->Camera != nullptr )
+    if (this->Camera != nullptr)
     {
       time = this->Camera->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
+      mTime = (time > mTime ? time : mTime);
     }
 
-    if ( this->Prop3D != nullptr )
+    if (this->Prop3D != nullptr)
     {
       time = this->Prop3D->GetMTime();
-      mTime = ( time > mTime ? time : mTime );
+      mTime = (time > mTime ? time : mTime);
     }
   }
 
@@ -412,22 +426,22 @@ vtkMTimeType vtkPolyDataSilhouette::GetMTime()
 void vtkPolyDataSilhouette::PrintSelf(ostream& os, vtkIndent indent)
 {
 
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Camera )
+  if (this->Camera)
   {
     os << indent << "Camera:\n";
-    this->Camera->PrintSelf(os,indent.GetNextIndent());
+    this->Camera->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Camera: (none)\n";
   }
 
-  if ( this->Prop3D )
+  if (this->Prop3D)
   {
     os << indent << "Prop3D:\n";
-    this->Prop3D->PrintSelf(os,indent.GetNextIndent());
+    this->Prop3D->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -435,23 +449,28 @@ void vtkPolyDataSilhouette::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Direction: ";
-#define DIRECTION_CASE(name) case VTK_DIRECTION_##name :os << "VTK_DIRECTION_" << #name <<"\n"; break
-  switch(this->Direction)
+#define DIRECTION_CASE(name)                                                                       \
+  case VTK_DIRECTION_##name:                                                                       \
+    os << "VTK_DIRECTION_" << #name << "\n";                                                       \
+    break
+  switch (this->Direction)
   {
-    DIRECTION_CASE( SPECIFIED_ORIGIN );
-    DIRECTION_CASE( SPECIFIED_VECTOR );
-    DIRECTION_CASE( CAMERA_ORIGIN );
-    DIRECTION_CASE( CAMERA_VECTOR );
+    DIRECTION_CASE(SPECIFIED_ORIGIN);
+    DIRECTION_CASE(SPECIFIED_VECTOR);
+    DIRECTION_CASE(CAMERA_ORIGIN);
+    DIRECTION_CASE(CAMERA_VECTOR);
   }
 #undef DIRECTION_CASE
 
-  if( this->Direction == VTK_DIRECTION_SPECIFIED_VECTOR )
+  if (this->Direction == VTK_DIRECTION_SPECIFIED_VECTOR)
   {
-    os << "Specified Vector: (" << this->Vector[0] << ", " << this->Vector[1] << ", " << this->Vector[2] << ")\n";
+    os << "Specified Vector: (" << this->Vector[0] << ", " << this->Vector[1] << ", "
+       << this->Vector[2] << ")\n";
   }
-  if( this->Direction == VTK_DIRECTION_SPECIFIED_ORIGIN )
+  if (this->Direction == VTK_DIRECTION_SPECIFIED_ORIGIN)
   {
-    os << "Specified Origin: (" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+    os << "Specified Origin: (" << this->Origin[0] << ", " << this->Origin[1] << ", "
+       << this->Origin[2] << ")\n";
   }
 
   os << indent << "PieceInvariant: " << this->PieceInvariant << "\n";
@@ -459,4 +478,3 @@ void vtkPolyDataSilhouette::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EnableFeatureAngle: " << this->EnableFeatureAngle << "\n";
   os << indent << "BorderEdges: " << this->BorderEdges << "\n";
 }
-

@@ -29,7 +29,7 @@
  * @par Thanks:
  * This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
  * Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkRectilinearGridToPointSet_h
 #define vtkRectilinearGridToPointSet_h
@@ -44,26 +44,24 @@ class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToPointSet : public vtkStructur
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToPointSet, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkRectilinearGridToPointSet *New();
+  static vtkRectilinearGridToPointSet* New();
 
 protected:
   vtkRectilinearGridToPointSet();
   ~vtkRectilinearGridToPointSet() override;
 
-  int RequestData(vtkInformation *request,
-                  vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &) = delete;
-  void operator=(const vtkRectilinearGridToPointSet &) = delete;
+  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet&) = delete;
+  void operator=(const vtkRectilinearGridToPointSet&) = delete;
 
-  int CopyStructure(vtkStructuredGrid *outData, vtkRectilinearGrid *inData);
+  int CopyStructure(vtkStructuredGrid* outData, vtkRectilinearGrid* inData);
 };
 
-
-#endif //vtkRectilinearGridToPointSet_h
+#endif // vtkRectilinearGridToPointSet_h

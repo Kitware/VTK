@@ -31,18 +31,17 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastCropping1(int argc, char *argv[])
+int TestGPURayCastCropping1(int argc, char* argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
-   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->AutoAdjustSampleDistancesOff();
   volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
@@ -95,8 +94,8 @@ int TestGPURayCastCropping1(int argc, char *argv[])
   renWin->Render();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

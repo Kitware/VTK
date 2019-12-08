@@ -4,21 +4,19 @@
 #include <iostream>
 
 #include "vtkImageData.h"
-#include "vtkTextProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
 
 #include "WidgetTestingMacros.h"
 
-#include "vtkTextActor.h"
 #include "vtkPointHandleRepresentation3D.h"
+#include "vtkTextActor.h"
 
-int vtkTextRepresentationTest1(int , char * [] )
+int vtkTextRepresentationTest1(int, char*[])
 {
-  vtkSmartPointer< vtkTextRepresentation > node1 = vtkSmartPointer< vtkTextRepresentation >::New();
+  vtkSmartPointer<vtkTextRepresentation> node1 = vtkSmartPointer<vtkTextRepresentation>::New();
 
   EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkTextRepresentation, node1);
-
-
 
   vtkSmartPointer<vtkTextActor> textActor = vtkSmartPointer<vtkTextActor>::New();
   node1->SetTextActor(textActor);
@@ -30,35 +28,35 @@ int vtkTextRepresentationTest1(int , char * [] )
 
   TEST_SET_GET_INT_RANGE(node1, WindowLocation, 0, 6);
 
-  double pos[2] = {-99.0, 100.0};
+  double pos[2] = { -99.0, 100.0 };
   node1->SetPosition(pos);
-  double *pos2;
+  double* pos2;
   pos2 = node1->GetPosition();
   if (!pos2)
   {
-    std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1] << ", instead got nullptr" << std::endl;
+    std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1]
+              << ", instead got nullptr" << std::endl;
     return EXIT_FAILURE;
   }
-  else if (pos2[0] != pos[0] ||
-           pos2[1] != pos[1])
+  else if (pos2[0] != pos[0] || pos2[1] != pos[1])
   {
-    std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
+    std::cerr << "Failure in Get/Set Position, expected " << pos[0] << ", " << pos[1]
+              << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
     return EXIT_FAILURE;
   }
   pos[1] = 99.0;
   node1->SetPosition(pos[0], pos[1]);
   pos2 = node1->GetPosition();
-  if (!pos2 ||
-      pos2[0] != pos[0] ||
-      pos2[1] != pos[1])
+  if (!pos2 || pos2[0] != pos[0] || pos2[1] != pos[1])
   {
-    std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1] << ", instead got nullptr" << std::endl;
+    std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1]
+              << ", instead got nullptr" << std::endl;
     return EXIT_FAILURE;
   }
-  else if (pos2[0] != pos[0] ||
-           pos2[1] != pos[1])
+  else if (pos2[0] != pos[0] || pos2[1] != pos[1])
   {
-    std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
+    std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1]
+              << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

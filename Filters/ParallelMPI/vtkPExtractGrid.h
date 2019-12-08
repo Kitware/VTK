@@ -26,41 +26,40 @@
  *
  * @sa
  *  vtkExtractGrid
-*/
+ */
 
 #ifndef vtkPExtractGrid_h
 #define vtkPExtractGrid_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractGrid.h"
+#include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward declarations
 class vtkMPIController;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractGrid: public vtkExtractGrid
+class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractGrid : public vtkExtractGrid
 {
 public:
-    static vtkPExtractGrid* New();
-    vtkTypeMacro(vtkPExtractGrid,vtkExtractGrid);
-    void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkPExtractGrid* New();
+  vtkTypeMacro(vtkPExtractGrid, vtkExtractGrid);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-    vtkPExtractGrid();
-    virtual ~vtkPExtractGrid();
+  vtkPExtractGrid();
+  virtual ~vtkPExtractGrid();
 
-    // Standard VTK Pipeline methods
-    virtual int RequestData(
-        vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
-    virtual int RequestInformation(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-    virtual int RequestUpdateExtent(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // Standard VTK Pipeline methods
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-    vtkMPIController* Controller;
+  vtkMPIController* Controller;
 
 private:
-    vtkPExtractGrid(const vtkPExtractGrid&) = delete;
-    void operator=(const vtkPExtractGrid&) = delete;
+  vtkPExtractGrid(const vtkPExtractGrid&) = delete;
+  void operator=(const vtkPExtractGrid&) = delete;
 };
 
 #endif

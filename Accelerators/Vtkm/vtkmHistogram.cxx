@@ -26,17 +26,16 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
 #include "vtkmFilterPolicy.h"
-#include <vtkm/filter/Histogram.h>
 #include <vtkm/cont/ArrayRangeCompute.hxx>
+#include <vtkm/filter/Histogram.h>
 
-vtkStandardNewMacro(vtkmHistogram)
+vtkStandardNewMacro(vtkmHistogram);
 
 //------------------------------------------------------------------------------
 vtkmHistogram::vtkmHistogram()
@@ -49,9 +48,7 @@ vtkmHistogram::vtkmHistogram()
 }
 
 //------------------------------------------------------------------------------
-vtkmHistogram::~vtkmHistogram()
-{
-}
+vtkmHistogram::~vtkmHistogram() {}
 
 //-----------------------------------------------------------------------------
 int vtkmHistogram::FillInputPortInformation(int port, vtkInformation* info)
@@ -64,12 +61,10 @@ int vtkmHistogram::FillInputPortInformation(int port, vtkInformation* info)
 
 //------------------------------------------------------------------------------
 int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkTable* output = vtkTable::GetData(outputVector, 0);
   output->Initialize();
@@ -85,9 +80,8 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
   int association = this->GetInputArrayAssociation(0, inputVector);
   auto fieldArray = this->GetInputArrayToProcess(0, inputVector);
   if ((association != vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-       association != vtkDataObject::FIELD_ASSOCIATION_CELLS) ||
-      fieldArray == nullptr ||
-      fieldArray->GetName() == nullptr || fieldArray->GetName()[0] == '\0')
+        association != vtkDataObject::FIELD_ASSOCIATION_CELLS) ||
+    fieldArray == nullptr || fieldArray->GetName() == nullptr || fieldArray->GetName()[0] == '\0')
   {
     vtkErrorMacro(<< "Invalid field: Requires a point or cell field with a valid name.");
     return 0;
@@ -124,12 +118,11 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     this->ComputedRange[1] = filter.GetComputedRange().Max;
 
     // Convert the result back
-    vtkDataArray* resultingArray =
-        fromvtkm::Convert(result.GetField("histogram"));
+    vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField("histogram"));
     resultingArray->SetName("bin_values");
-    if (resultingArray ==  nullptr)
+    if (resultingArray == nullptr)
     {
-      vtkErrorMacro(<<"Unable to convert result array from VTK-m to VTK");
+      vtkErrorMacro(<< "Unable to convert result array from VTK-m to VTK");
       return 0;
     }
     this->FillBinExtents(binExtents);
@@ -147,15 +140,14 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-void vtkmHistogram::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkmHistogram::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "NumberOfBins: "        << NumberOfBins << "\n";
-  os << indent << "UseCustomBinRanges: "  <<UseCustomBinRanges << "\n";
+  os << indent << "NumberOfBins: " << NumberOfBins << "\n";
+  os << indent << "UseCustomBinRanges: " << UseCustomBinRanges << "\n";
   os << indent << "CenterBinsAroundMinAndMax: " << CenterBinsAroundMinAndMax << "\n";
-  os << indent << "CustomBinRange: "   <<CustomBinRange[0] <<
-       ", " << CustomBinRange[1] << "\n";
+  os << indent << "CustomBinRange: " << CustomBinRange[0] << ", " << CustomBinRange[1] << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -163,13 +155,14 @@ void vtkmHistogram::FillBinExtents(vtkDoubleArray* binExtents)
 {
   binExtents->SetNumberOfComponents(1);
   binExtents->SetNumberOfTuples(static_cast<vtkIdType>(this->NumberOfBins));
-  double binDelta = this->CenterBinsAroundMinAndMax ?
-        ((this->ComputedRange[1] - this->ComputedRange[0]) / (this->NumberOfBins -1))
-                                                : this->BinDelta;
+  double binDelta = this->CenterBinsAroundMinAndMax
+    ? ((this->ComputedRange[1] - this->ComputedRange[0]) / (this->NumberOfBins - 1))
+    : this->BinDelta;
   double halfBinDelta = binDelta / 2.0;
   for (vtkIdType i = 0; i < static_cast<vtkIdType>(this->NumberOfBins); i++)
   {
-    binExtents->SetValue(i, this->ComputedRange[0] + (i*binDelta) +
-        (this->CenterBinsAroundMinAndMax ?  0.0 : halfBinDelta));
+    binExtents->SetValue(i,
+      this->ComputedRange[0] + (i * binDelta) +
+        (this->CenterBinsAroundMinAndMax ? 0.0 : halfBinDelta));
   }
 }

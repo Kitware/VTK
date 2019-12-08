@@ -22,25 +22,24 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 {
   // Read file name.
   char* filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                         "Data/OpenFOAM/64BitFloats/test.foam");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/OpenFOAM/64BitFloats/test.foam");
 
   // Read the file
   vtkNew<vtkOpenFOAMReader> reader;
   reader->SetFileName(filename);
-  delete [] filename;
+  delete[] filename;
   reader->Use64BitFloatsOn();
 
   // Visualize
@@ -65,8 +64,8 @@ int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();
   }

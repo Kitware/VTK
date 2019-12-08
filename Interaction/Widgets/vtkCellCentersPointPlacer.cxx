@@ -14,25 +14,25 @@
 =========================================================================*/
 #include "vtkCellCentersPointPlacer.h"
 
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
+#include "vtkCell.h"
+#include "vtkCellPicker.h"
+#include "vtkDataSet.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
+#include "vtkPoints.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAssemblyNode.h"
-#include "vtkInteractorObserver.h"
-#include "vtkDataSet.h"
-#include "vtkCell.h"
-#include "vtkPoints.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkCellCentersPointPlacer);
 
 //----------------------------------------------------------------------
 vtkCellCentersPointPlacer::vtkCellCentersPointPlacer()
 {
-  this->PickProps    = vtkPropCollection::New();
-  this->CellPicker   = vtkCellPicker::New();
+  this->PickProps = vtkPropCollection::New();
+  this->CellPicker = vtkCellPicker::New();
   this->CellPicker->PickFromListOn();
 
   this->Mode = vtkCellCentersPointPlacer::CellPointsMean;
@@ -46,17 +46,17 @@ vtkCellCentersPointPlacer::~vtkCellCentersPointPlacer()
 }
 
 //----------------------------------------------------------------------
-void vtkCellCentersPointPlacer::AddProp(vtkProp *prop)
+void vtkCellCentersPointPlacer::AddProp(vtkProp* prop)
 {
   this->PickProps->AddItem(prop);
   this->CellPicker->AddPickList(prop);
 }
 
 //----------------------------------------------------------------------
-void vtkCellCentersPointPlacer::RemoveViewProp(vtkProp *prop)
+void vtkCellCentersPointPlacer::RemoveViewProp(vtkProp* prop)
 {
-  this->PickProps->RemoveItem( prop );
-  this->CellPicker->DeletePickList( prop );
+  this->PickProps->RemoveItem(prop);
+  this->CellPicker->DeletePickList(prop);
 }
 
 //----------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkCellCentersPointPlacer::RemoveAllProps()
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::HasProp(vtkProp *prop)
+int vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
 {
   return this->PickProps->IsItemPresent(prop);
 }
@@ -80,28 +80,22 @@ int vtkCellCentersPointPlacer::GetNumberOfProps()
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
-                                        double  displayPos[2],
-                                        double *vtkNotUsed(refWorldPos),
-                                        double  worldPos[3],
-                                        double  worldOrient[9] )
+int vtkCellCentersPointPlacer::ComputeWorldPosition(vtkRenderer* ren, double displayPos[2],
+  double* vtkNotUsed(refWorldPos), double worldPos[3], double worldOrient[9])
 {
   return this->ComputeWorldPosition(ren, displayPos, worldPos, worldOrient);
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
-                                      double displayPos[2],
-                                      double worldPos[3],
-                                      double vtkNotUsed(worldOrient)[9] )
+int vtkCellCentersPointPlacer::ComputeWorldPosition(
+  vtkRenderer* ren, double displayPos[2], double worldPos[3], double vtkNotUsed(worldOrient)[9])
 {
-  vtkDebugMacro( << "Request for computing world position at " <<
-    "display position of " << displayPos[0] << "," << displayPos[1] );
+  vtkDebugMacro(<< "Request for computing world position at "
+                << "display position of " << displayPos[0] << "," << displayPos[1]);
 
-  if ( this->CellPicker->Pick(displayPos[0],
-                              displayPos[1], 0.0, ren) )
+  if (this->CellPicker->Pick(displayPos[0], displayPos[1], 0.0, ren))
   {
-    if (vtkAssemblyPath *path = this->CellPicker->GetPath())
+    if (vtkAssemblyPath* path = this->CellPicker->GetPath())
     {
 
       // We are checking if the prop present in the path is present
@@ -109,42 +103,41 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       // If not, no prop will be picked.
 
       bool found = false;
-      vtkAssemblyNode *node = nullptr;
+      vtkAssemblyNode* node = nullptr;
       vtkCollectionSimpleIterator sit;
       this->PickProps->InitTraversal(sit);
 
-      while (vtkProp *p = this->PickProps->GetNextProp(sit))
+      while (vtkProp* p = this->PickProps->GetNextProp(sit))
       {
         vtkCollectionSimpleIterator psit;
         path->InitTraversal(psit);
 
-        for ( int i = 0; i < path->GetNumberOfItems() && !found ; ++i )
+        for (int i = 0; i < path->GetNumberOfItems() && !found; ++i)
         {
           node = path->GetNextNode(psit);
-          found = ( node->GetViewProp() == p );
+          found = (node->GetViewProp() == p);
         }
 
         if (found)
         {
           vtkIdType pickedCellId = this->CellPicker->GetCellId();
-          vtkCell * pickedCell = this->CellPicker->
-                  GetDataSet()->GetCell(pickedCellId);
+          vtkCell* pickedCell = this->CellPicker->GetDataSet()->GetCell(pickedCellId);
 
           if (this->Mode == vtkCellCentersPointPlacer::ParametricCenter)
           {
             double pcoords[3];
             pickedCell->GetParametricCenter(pcoords);
-            double *weights = new double[pickedCell->GetNumberOfPoints()];
+            double* weights = new double[pickedCell->GetNumberOfPoints()];
 
             int subId;
-            pickedCell->EvaluateLocation( subId, pcoords, worldPos, weights );
-            delete [] weights;
+            pickedCell->EvaluateLocation(subId, pcoords, worldPos, weights);
+            delete[] weights;
           }
 
           if (this->Mode == vtkCellCentersPointPlacer::CellPointsMean)
           {
             const vtkIdType nPoints = pickedCell->GetNumberOfPoints();
-            vtkPoints *points = pickedCell->GetPoints();
+            vtkPoints* points = pickedCell->GetPoints();
             worldPos[0] = worldPos[1] = worldPos[2] = 0.0;
             double pp[3];
             for (vtkIdType i = 0; i < nPoints; i++)
@@ -155,9 +148,9 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
               worldPos[2] += pp[2];
             }
 
-            worldPos[0] /= (static_cast< double >(nPoints));
-            worldPos[1] /= (static_cast< double >(nPoints));
-            worldPos[2] /= (static_cast< double >(nPoints));
+            worldPos[0] /= (static_cast<double>(nPoints));
+            worldPos[1] /= (static_cast<double>(nPoints));
+            worldPos[2] /= (static_cast<double>(nPoints));
           }
 
           if (this->Mode == vtkCellCentersPointPlacer::None)
@@ -175,22 +168,21 @@ int vtkCellCentersPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::ValidateWorldPosition( double worldPos[3],
-                                           double *vtkNotUsed(worldOrient) )
+int vtkCellCentersPointPlacer::ValidateWorldPosition(
+  double worldPos[3], double* vtkNotUsed(worldOrient))
 {
-  return this->ValidateWorldPosition( worldPos );
+  return this->ValidateWorldPosition(worldPos);
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::ValidateWorldPosition(
-                     double vtkNotUsed(worldPos)[3] )
+int vtkCellCentersPointPlacer::ValidateWorldPosition(double vtkNotUsed(worldPos)[3])
 {
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkCellCentersPointPlacer::ValidateDisplayPosition( vtkRenderer *,
-                                      double vtkNotUsed(displayPos)[2] )
+int vtkCellCentersPointPlacer::ValidateDisplayPosition(
+  vtkRenderer*, double vtkNotUsed(displayPos)[2])
 {
   return 1;
 }
@@ -198,7 +190,7 @@ int vtkCellCentersPointPlacer::ValidateDisplayPosition( vtkRenderer *,
 //----------------------------------------------------------------------
 void vtkCellCentersPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CellPicker: " << this->CellPicker << endl;
   if (this->CellPicker)

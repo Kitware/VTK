@@ -54,7 +54,7 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override {return VTK_PARTITIONED_DATA_SET;}
+  int GetDataObjectType() override { return VTK_PARTITIONED_DATA_SET; }
 
   /**
    * Set the number of partitionss. This will cause allocation if the new number of
@@ -82,40 +82,47 @@ public:
    */
   void SetPartition(unsigned int idx, vtkDataObject* partition);
 
-
-/**
- * Returns true if meta-data is available for a given partition.
- */
-  int HasMetaData(unsigned int idx)
-    { return this->Superclass::HasChildMetaData(idx); }
+  /**
+   * Returns true if meta-data is available for a given partition.
+   */
+  int HasMetaData(unsigned int idx) { return this->Superclass::HasChildMetaData(idx); }
 
   /**
    * Returns the meta-data for the partition. If none is already present, a new
    * vtkInformation object will be allocated. Use HasMetaData to avoid
    * allocating vtkInformation objects.
    */
-  vtkInformation* GetMetaData(unsigned int idx)
-    { return this->Superclass::GetChildMetaData(idx); }
+  vtkInformation* GetMetaData(unsigned int idx) { return this->Superclass::GetChildMetaData(idx); }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPartitionedDataSet* GetData(vtkInformation* info);
-  static vtkPartitionedDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkPartitionedDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
    * Unhiding superclass method.
    */
   vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::GetMetaData(iter); }
+  {
+    return this->Superclass::GetMetaData(iter);
+  }
 
   /**
    * Unhiding superclass method.
    */
   int HasMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::HasMetaData(iter); }
+  {
+    return this->Superclass::HasMetaData(iter);
+  }
+
+  /**
+   * Removes all partitions that have null datasets and resizes the dataset.
+   * Note any meta data associated with the null datasets will get lost.
+   */
+  void RemoveNullPartitions();
 
 protected:
   vtkPartitionedDataSet();
@@ -124,7 +131,6 @@ protected:
 private:
   vtkPartitionedDataSet(const vtkPartitionedDataSet&) = delete;
   void operator=(const vtkPartitionedDataSet&) = delete;
-
 };
 
 #endif

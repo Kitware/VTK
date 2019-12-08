@@ -63,27 +63,25 @@ void vtkKdTreeSelector::PrintSelf(ostream& os, vtkIndent indent)
   {
     this->KdTree->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "SelectionFieldName: "
-    << (this->SelectionFieldName ? this->SelectionFieldName : "(null)") << endl;
-  os << indent << "BuildKdTreeFromInput: "
-    << (this->BuildKdTreeFromInput ? "on" : "off") << endl;
+  os << indent
+     << "SelectionFieldName: " << (this->SelectionFieldName ? this->SelectionFieldName : "(null)")
+     << endl;
+  os << indent << "BuildKdTreeFromInput: " << (this->BuildKdTreeFromInput ? "on" : "off") << endl;
   os << indent << "SelectionBounds: " << endl;
-  os << indent << "  xmin, xmax = (" << this->SelectionBounds[0]
-    << "," << this->SelectionBounds[1] << ")" << endl;
-  os << indent << "  ymin, ymax = (" << this->SelectionBounds[2]
-    << "," << this->SelectionBounds[3] << ")" << endl;
-  os << indent << "  zmin, zmax = (" << this->SelectionBounds[4]
-    << "," << this->SelectionBounds[5] << ")" << endl;
-  os << indent << "SingleSelection: "
-    << (this->SingleSelection ? "on" : "off") << endl;
+  os << indent << "  xmin, xmax = (" << this->SelectionBounds[0] << "," << this->SelectionBounds[1]
+     << ")" << endl;
+  os << indent << "  ymin, ymax = (" << this->SelectionBounds[2] << "," << this->SelectionBounds[3]
+     << ")" << endl;
+  os << indent << "  zmin, zmax = (" << this->SelectionBounds[4] << "," << this->SelectionBounds[5]
+     << ")" << endl;
+  os << indent << "SingleSelection: " << (this->SingleSelection ? "on" : "off") << endl;
   os << indent << "SingleSelectionThreshold: " << this->SingleSelectionThreshold << endl;
   os << indent << "SelectionAttribute: " << this->SelectionAttribute << endl;
 }
 
 void vtkKdTreeSelector::SetKdTree(vtkKdTree* arg)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting KdTree to " << arg );
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting KdTree to " << arg);
   if (this->KdTree != arg)
   {
     vtkKdTree* tempSGMacroVar = this->KdTree;
@@ -116,10 +114,8 @@ vtkMTimeType vtkKdTreeSelector::GetMTime()
   return mTime;
 }
 
-int vtkKdTreeSelector::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkKdTreeSelector::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkAbstractArray* field = nullptr;
   vtkGraph* graph = nullptr;
@@ -132,21 +128,21 @@ int vtkKdTreeSelector::RequestData(
       vtkErrorMacro("No input, but building kd-tree from input");
       return 0;
     }
-    vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
     if (input == nullptr)
     {
       vtkErrorMacro("Input is nullptr");
       return 0;
     }
     graph = vtkGraph::SafeDownCast(input);
-    vtkPointSet *pointSet = vtkPointSet::SafeDownCast(input);
+    vtkPointSet* pointSet = vtkPointSet::SafeDownCast(input);
     if (!graph && !pointSet)
     {
       vtkErrorMacro("Input must be a graph or point set");
       return 0;
     }
 
-    vtkPoints *points = nullptr;
+    vtkPoints* points = nullptr;
     if (graph)
     {
       points = graph->GetPoints();
@@ -175,7 +171,7 @@ int vtkKdTreeSelector::RequestData(
 
     // Look for selection field
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
-        this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+      this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
     {
       if (graph)
       {
@@ -222,7 +218,7 @@ int vtkKdTreeSelector::RequestData(
     double center[3];
     for (int c = 0; c < 3; c++)
     {
-      center[c] = (this->SelectionBounds[2*c] + this->SelectionBounds[2*c+1]) / 2.0;
+      center[c] = (this->SelectionBounds[2 * c] + this->SelectionBounds[2 * c + 1]) / 2.0;
     }
     double dist;
     vtkIdType closestToCenter = this->KdTree->FindClosestPoint(center, dist);
@@ -238,8 +234,7 @@ int vtkKdTreeSelector::RequestData(
 
   // Fill the selection with the found ids
   vtkSelection* output = vtkSelection::GetData(outputVector);
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
   output->AddNode(node);
   if (graph)
   {
@@ -258,7 +253,7 @@ int vtkKdTreeSelector::RequestData(
       arr->InsertNextTuple(ids->GetValue(i), field);
     }
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
-        this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+      this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
     {
       if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS)
       {
@@ -288,9 +283,7 @@ int vtkKdTreeSelector::RequestData(
   return 1;
 }
 
-int vtkKdTreeSelector::FillInputPortInformation(
-  int vtkNotUsed(port),
-  vtkInformation* info)
+int vtkKdTreeSelector::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // Input (if specified) may be a point set or graph.
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());

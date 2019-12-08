@@ -24,12 +24,12 @@
  * around the specified point. Lookup is not implemented.
  * Creating the array is virtually free, accessing a tuple require some
  * computation.
-*/
+ */
 
 #ifndef vtkAngularPeriodicDataArray_h
 #define vtkAngularPeriodicDataArray_h
 
-#include "vtkPeriodicDataArray.h"   // Parent
+#include "vtkPeriodicDataArray.h" // Parent
 
 #define VTK_PERIODIC_ARRAY_AXIS_X 0
 #define VTK_PERIODIC_ARRAY_AXIS_Y 1
@@ -38,13 +38,12 @@
 class vtkMatrix3x3;
 
 template <class Scalar>
-class vtkAngularPeriodicDataArray: public vtkPeriodicDataArray<Scalar>
+class vtkAngularPeriodicDataArray : public vtkPeriodicDataArray<Scalar>
 {
 public:
-  vtkAbstractTemplateTypeMacro(vtkAngularPeriodicDataArray<Scalar>,
-                               vtkPeriodicDataArray<Scalar>)
-  vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>)
-  static vtkAngularPeriodicDataArray *New();
+  vtkAbstractTemplateTypeMacro(vtkAngularPeriodicDataArray<Scalar>, vtkPeriodicDataArray<Scalar>);
+  vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>);
+  static vtkAngularPeriodicDataArray* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -94,18 +93,18 @@ protected:
   void UpdateRotationMatrix();
 
 private:
-  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &) = delete;
-  void operator=(const vtkAngularPeriodicDataArray &) = delete;
+  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray&) = delete;
+  void operator=(const vtkAngularPeriodicDataArray&) = delete;
 
-  double Angle;            // Rotation angle in degrees
-  double AngleInRadians;   // Rotation angle in radians
-  double Center[3];        // Rotation center
-  int Axis;                // Rotation Axis
+  double Angle;          // Rotation angle in degrees
+  double AngleInRadians; // Rotation angle in radians
+  double Center[3];      // Rotation center
+  int Axis;              // Rotation Axis
 
   vtkMatrix3x3* RotationMatrix;
 };
 
 #include "vtkAngularPeriodicDataArray.txx"
 
-#endif //vtkAngularPeriodicDataArray_h
+#endif // vtkAngularPeriodicDataArray_h
 // VTK-HeaderTest-Exclude: vtkAngularPeriodicDataArray.h

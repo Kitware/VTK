@@ -131,7 +131,8 @@
  * - The reader doesn't handle printer files (d3hsp)
  * - The reader doesn't handle modal neutral files (d3mnf)
  * - The reader doesn't handle packed connectivity.
- * - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna doesn't implement it).
+ * - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna
+ * doesn't implement it).
  * - All the sample datasets have MATTYP = 0. Need something to test MATTYP = 1.
  * - I have no test datasets with rigid body and/or road surfaces, so the
  * implementation is half-baked.
@@ -146,13 +147,14 @@
  * so we shouldn't eliminate the ability to get at the raw simulation data.
  * Perhaps a filter could be applied to "fancify" the geometry.
  *
-*/
+ */
 
 #ifndef vtkLSDynaReader_h
 #define vtkLSDynaReader_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include <string> // for method signature
 
 class LSDynaMetaData;
 class vtkLSDynaPartCollection;
@@ -164,15 +166,15 @@ class vtkUnstructuredGrid;
 class VTKIOLSDYNA_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkLSDynaReader *New();
+  vtkTypeMacro(vtkLSDynaReader, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkLSDynaReader* New();
 
   /**
    * Print out more complete information about the dataset
    * (and less complete information about the VTK hierarchy) than PrintSelf.
    */
-  void Dump( ostream &os );
+  void Dump(ostream& os);
 
   /**
    * A routine to call Dump() from within a lame debugger that won't
@@ -183,15 +185,20 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile( const char* fname );
+  virtual int CanReadFile(const char* fname);
 
   //@{
   /**
    * Get/Set the directory containing the LS-Dyna database and determine
    * whether it is valid.
    */
-  virtual void SetDatabaseDirectory( const char* );
-  const char* GetDatabaseDirectory();
+  virtual void SetDatabaseDirectory(const std::string&);
+  virtual void SetDatabaseDirectory(const char*);
+#ifdef VTK_LEGACY_REMOVE
+  std::string GetDatabaseDirectory();
+#else
+  VTK_LEGACY(const char* GetDatabaseDirectory());
+#endif
   int IsDatabaseValid();
   //@}
 
@@ -202,8 +209,13 @@ public:
    * filename you choose is irrelevant -- only the directory name is used.
    * This is done in order to accommodate ParaView.
    */
-  virtual void SetFileName( const char* );
-  const char* GetFileName();
+  virtual void SetFileName(const std::string&);
+  virtual void SetFileName(const char*);
+#ifdef VTK_LEGACY_REMOVE
+  std::string GetFileName();
+#else
+  VTK_LEGACY(const char* GetFileName());
+#endif
   //@}
 
   /**
@@ -286,7 +298,8 @@ public:
 
   /**
    * Retrieve the number of cells of a given type in the database.
-   * Do not call this function before setting the database directory and calling UpdateInformation().
+   * Do not call this function before setting the database directory and calling
+   * UpdateInformation().
    */
   vtkIdType GetNumberOfBeamCells();
 
@@ -304,11 +317,11 @@ public:
    * calling UpdateInformation().
    */
   vtkIdType GetNumberOfTimeSteps();
-  virtual void SetTimeStep( vtkIdType );
+  virtual void SetTimeStep(vtkIdType);
   vtkIdType GetTimeStep();
-  double GetTimeValue( vtkIdType );
-  vtkGetVector2Macro(TimeStepRange,int);
-  vtkSetVector2Macro(TimeStepRange,int);
+  double GetTimeValue(vtkIdType);
+  vtkGetVector2Macro(TimeStepRange, int);
+  vtkSetVector2Macro(TimeStepRange, int);
   //@}
 
   //@{
@@ -318,12 +331,12 @@ public:
    */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int);
-  virtual void SetPointArrayStatus( int arr, int status );
-  virtual void SetPointArrayStatus( const char* arrName, int status );
-  int GetPointArrayStatus( int arr );
-  int GetPointArrayStatus( const char* arrName );
-  int GetNumberOfComponentsInPointArray( int arr );
-  int GetNumberOfComponentsInPointArray( const char* arrName );
+  virtual void SetPointArrayStatus(int arr, int status);
+  virtual void SetPointArrayStatus(const char* arrName, int status);
+  int GetPointArrayStatus(int arr);
+  int GetPointArrayStatus(const char* arrName);
+  int GetNumberOfComponentsInPointArray(int arr);
+  int GetNumberOfComponentsInPointArray(const char* arrName);
   //@}
 
   //@{
@@ -333,14 +346,14 @@ public:
    * should be one of: LS_POINT, LS_BEAM, LS_SHELL, LS_THICK_SHELL,
    * LS_SOLID, LS_RIGID_BODY, or LS_ROAD_SURFACE
    */
-  int GetNumberOfCellArrays( int cellType );
-  const char* GetCellArrayName( int cellType, int arr );
-  virtual void SetCellArrayStatus( int cellType, int arr, int status );
-  virtual void SetCellArrayStatus( int cellType, const char* arrName, int status );
-  int GetCellArrayStatus( int cellType, int arr );
-  int GetCellArrayStatus( int cellType, const char* arrName );
-  int GetNumberOfComponentsInCellArray( int cellType, int arr );
-  int GetNumberOfComponentsInCellArray( int cellType, const char* arrName );
+  int GetNumberOfCellArrays(int cellType);
+  const char* GetCellArrayName(int cellType, int arr);
+  virtual void SetCellArrayStatus(int cellType, int arr, int status);
+  virtual void SetCellArrayStatus(int cellType, const char* arrName, int status);
+  int GetCellArrayStatus(int cellType, int arr);
+  int GetCellArrayStatus(int cellType, const char* arrName);
+  int GetNumberOfComponentsInCellArray(int cellType, int arr);
+  int GetNumberOfComponentsInCellArray(int cellType, const char* arrName);
   //@}
 
   //@{
@@ -350,14 +363,14 @@ public:
    */
   int GetNumberOfSolidArrays();
   const char* GetSolidArrayName(int);
-  virtual void SetSolidArrayStatus( int arr, int status );
-  virtual void SetSolidArrayStatus( const char* arrName, int status );
-  int GetSolidArrayStatus( int arr );
-  int GetSolidArrayStatus( const char* arrName );
+  virtual void SetSolidArrayStatus(int arr, int status);
+  virtual void SetSolidArrayStatus(const char* arrName, int status);
+  int GetSolidArrayStatus(int arr);
+  int GetSolidArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInSolidArray( int a );
-  int GetNumberOfComponentsInSolidArray( const char* arrName );
+  int GetNumberOfComponentsInSolidArray(int a);
+  int GetNumberOfComponentsInSolidArray(const char* arrName);
 
   //@{
   /**
@@ -366,14 +379,14 @@ public:
    */
   int GetNumberOfThickShellArrays();
   const char* GetThickShellArrayName(int);
-  virtual void SetThickShellArrayStatus( int arr, int status );
-  virtual void SetThickShellArrayStatus( const char* arrName, int status );
-  int GetThickShellArrayStatus( int arr );
-  int GetThickShellArrayStatus( const char* arrName );
+  virtual void SetThickShellArrayStatus(int arr, int status);
+  virtual void SetThickShellArrayStatus(const char* arrName, int status);
+  int GetThickShellArrayStatus(int arr);
+  int GetThickShellArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInThickShellArray( int a );
-  int GetNumberOfComponentsInThickShellArray( const char* arrName );
+  int GetNumberOfComponentsInThickShellArray(int a);
+  int GetNumberOfComponentsInThickShellArray(const char* arrName);
 
   //@{
   /**
@@ -382,14 +395,14 @@ public:
    */
   int GetNumberOfShellArrays();
   const char* GetShellArrayName(int);
-  virtual void SetShellArrayStatus( int arr, int status );
-  virtual void SetShellArrayStatus( const char* arrName, int status );
-  int GetShellArrayStatus( int arr );
-  int GetShellArrayStatus( const char* arrName );
+  virtual void SetShellArrayStatus(int arr, int status);
+  virtual void SetShellArrayStatus(const char* arrName, int status);
+  int GetShellArrayStatus(int arr);
+  int GetShellArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInShellArray( int a );
-  int GetNumberOfComponentsInShellArray( const char* arrName );
+  int GetNumberOfComponentsInShellArray(int a);
+  int GetNumberOfComponentsInShellArray(const char* arrName);
 
   //@{
   /**
@@ -398,14 +411,14 @@ public:
    */
   int GetNumberOfRigidBodyArrays();
   const char* GetRigidBodyArrayName(int);
-  virtual void SetRigidBodyArrayStatus( int arr, int status );
-  virtual void SetRigidBodyArrayStatus( const char* arrName, int status );
-  int GetRigidBodyArrayStatus( int arr );
-  int GetRigidBodyArrayStatus( const char* arrName );
+  virtual void SetRigidBodyArrayStatus(int arr, int status);
+  virtual void SetRigidBodyArrayStatus(const char* arrName, int status);
+  int GetRigidBodyArrayStatus(int arr);
+  int GetRigidBodyArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInRigidBodyArray( int a );
-  int GetNumberOfComponentsInRigidBodyArray( const char* arrName );
+  int GetNumberOfComponentsInRigidBodyArray(int a);
+  int GetNumberOfComponentsInRigidBodyArray(const char* arrName);
 
   //@{
   /**
@@ -414,14 +427,14 @@ public:
    */
   int GetNumberOfRoadSurfaceArrays();
   const char* GetRoadSurfaceArrayName(int);
-  virtual void SetRoadSurfaceArrayStatus( int arr, int status );
-  virtual void SetRoadSurfaceArrayStatus( const char* arrName, int status );
-  int GetRoadSurfaceArrayStatus( int arr );
-  int GetRoadSurfaceArrayStatus( const char* arrName );
+  virtual void SetRoadSurfaceArrayStatus(int arr, int status);
+  virtual void SetRoadSurfaceArrayStatus(const char* arrName, int status);
+  int GetRoadSurfaceArrayStatus(int arr);
+  int GetRoadSurfaceArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInRoadSurfaceArray( int a );
-  int GetNumberOfComponentsInRoadSurfaceArray( const char* arrName );
+  int GetNumberOfComponentsInRoadSurfaceArray(int a);
+  int GetNumberOfComponentsInRoadSurfaceArray(const char* arrName);
 
   //@{
   /**
@@ -430,14 +443,14 @@ public:
    */
   int GetNumberOfBeamArrays();
   const char* GetBeamArrayName(int);
-  virtual void SetBeamArrayStatus( int arr, int status );
-  virtual void SetBeamArrayStatus( const char* arrName, int status );
-  int GetBeamArrayStatus( int arr );
-  int GetBeamArrayStatus( const char* arrName );
+  virtual void SetBeamArrayStatus(int arr, int status);
+  virtual void SetBeamArrayStatus(const char* arrName, int status);
+  int GetBeamArrayStatus(int arr);
+  int GetBeamArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInBeamArray( int a );
-  int GetNumberOfComponentsInBeamArray( const char* arrName );
+  int GetNumberOfComponentsInBeamArray(int a);
+  int GetNumberOfComponentsInBeamArray(const char* arrName);
 
   //@{
   /**
@@ -446,14 +459,14 @@ public:
    */
   int GetNumberOfParticleArrays();
   const char* GetParticleArrayName(int);
-  virtual void SetParticleArrayStatus( int arr, int status );
-  virtual void SetParticleArrayStatus( const char* arrName, int status );
-  int GetParticleArrayStatus( int arr );
-  int GetParticleArrayStatus( const char* arrName );
+  virtual void SetParticleArrayStatus(int arr, int status);
+  virtual void SetParticleArrayStatus(const char* arrName, int status);
+  int GetParticleArrayStatus(int arr);
+  int GetParticleArrayStatus(const char* arrName);
   //@}
 
-  int GetNumberOfComponentsInParticleArray( int a );
-  int GetNumberOfComponentsInParticleArray( const char* arrName );
+  int GetNumberOfComponentsInParticleArray(int a);
+  int GetNumberOfComponentsInParticleArray(const char* arrName);
 
   //@{
   /**
@@ -462,8 +475,8 @@ public:
    * nodal "Deflected Coordinates" array is not set to be loaded.
    */
   void SetDeformedMesh(vtkTypeBool);
-  vtkGetMacro(DeformedMesh,vtkTypeBool);
-  vtkBooleanMacro(DeformedMesh,vtkTypeBool);
+  vtkGetMacro(DeformedMesh, vtkTypeBool);
+  vtkBooleanMacro(DeformedMesh, vtkTypeBool);
   //@}
 
   //@{
@@ -477,9 +490,9 @@ public:
    * denote <b>points</b> (not cells) as deleted; in that case, "Death"
    * will appear to be a point array.
    */
-  vtkSetMacro(RemoveDeletedCells,vtkTypeBool);
-  vtkGetMacro(RemoveDeletedCells,vtkTypeBool);
-  vtkBooleanMacro(RemoveDeletedCells,vtkTypeBool);
+  vtkSetMacro(RemoveDeletedCells, vtkTypeBool);
+  vtkGetMacro(RemoveDeletedCells, vtkTypeBool);
+  vtkBooleanMacro(RemoveDeletedCells, vtkTypeBool);
   //@}
 
   //@{
@@ -487,9 +500,9 @@ public:
    * Instead of removing the cells that are dead, hide them by setting
    * the array as the ghost levels arrays
    */
-  vtkSetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
-  vtkGetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
-  vtkBooleanMacro(DeletedCellsAsGhostArray,vtkTypeBool);
+  vtkSetMacro(DeletedCellsAsGhostArray, vtkTypeBool);
+  vtkGetMacro(DeletedCellsAsGhostArray, vtkTypeBool);
+  vtkBooleanMacro(DeletedCellsAsGhostArray, vtkTypeBool);
   //@}
 
   //@{
@@ -521,14 +534,14 @@ public:
    */
   int GetNumberOfPartArrays();
   const char* GetPartArrayName(int);
-  virtual void SetPartArrayStatus( int arr, int status );
-  virtual void SetPartArrayStatus( const char* partName, int status );
-  int GetPartArrayStatus( int arr );
-  int GetPartArrayStatus( const char* partName );
+  virtual void SetPartArrayStatus(int arr, int status);
+  virtual void SetPartArrayStatus(const char* partName, int status);
+  int GetPartArrayStatus(int arr);
+  int GetPartArrayStatus(const char* partName);
   //@}
 
 protected:
-  //holds all the parts and all the properties for each part
+  // holds all the parts and all the properties for each part
   vtkLSDynaPartCollection* Parts;
 
   /**
@@ -568,7 +581,7 @@ protected:
    * modified.  Upon success, -1 is returned. "Soft" failures return 0 and
    * "hard" failures return 1.
    */
-  int ReadHeaderInformation( int currentAdaptLevel );
+  int ReadHeaderInformation(int currentAdaptLevel);
 
   /**
    * This function scans the list of files in the database and bookmarks the
@@ -581,8 +594,8 @@ protected:
    */
   int ScanDatabaseTimeSteps();
 
-  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //@{
   /**
@@ -599,11 +612,11 @@ protected:
   virtual int ReadPartSizes();
   virtual int ReadConnectivityAndMaterial();
   virtual int ReadUserIds();
-  virtual int ReadState( vtkIdType );
-  virtual int ReadNodeStateInfo( vtkIdType );
-  virtual int ReadCellStateInfo( vtkIdType );
+  virtual int ReadState(vtkIdType);
+  virtual int ReadNodeStateInfo(vtkIdType);
+  virtual int ReadCellStateInfo(vtkIdType);
   virtual int ReadDeletion();
-  virtual int ReadSPHState( vtkIdType );
+  virtual int ReadSPHState(vtkIdType);
   virtual int ComputeDeflectionAndUpdateGeometry(vtkUnstructuredGrid* grid);
   //@}
 
@@ -637,15 +650,15 @@ protected:
    * ReadInputDeck determines the type of file (keyword or XML summary) and
    * calls one of these two routines to read the file.
    */
-  int ReadInputDeckXML( ifstream& deck );
-  int ReadInputDeckKeywords( ifstream& deck );
+  int ReadInputDeckXML(ifstream& deck);
+  int ReadInputDeckKeywords(ifstream& deck);
   //@}
 
   /**
    * ReadInputDeckKeywords calls this function if it was successful in reading
    * part names for materials.
    */
-  int WriteInputDeckSummary( const char* fname );
+  int WriteInputDeckSummary(const char* fname);
 
   /**
    * Read an array of deletion data.
@@ -663,406 +676,406 @@ protected:
   /**
    * Read all the cell properties of a given part type
    */
-  virtual void ReadCellProperties(const int& type,const int& numTuples);
+  virtual void ReadCellProperties(const int& type, const int& numTuples);
 
   LSDynaMetaData* P;
 
   void ResetPartsCache();
+
 private:
+  // Helper templated methods to optimize reading. We cast the entire buffer
+  // to a given type instead of casting each element to improve performance
+  template <typename T>
+  void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start,
+    const vtkIdType& numCells, const int& deathPos, const int& cellSize);
 
-  //Helper templated methods to optimize reading. We cast the entire buffer
-  //to a given type instead of casting each element to improve performance
-  template<typename T>
-  void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start, const vtkIdType& numCells,
-                         const int& deathPos, const int& cellSize);
-
-  template<int wordSize, typename T>
+  template <int wordSize, typename T>
   int FillTopology(T* buffer);
 
-  template<typename T, int blockType, vtkIdType numWordsPerCell, vtkIdType cellLength>
+  template <typename T, int blockType, vtkIdType numWordsPerCell, vtkIdType cellLength>
   void ReadBlockCellSizes();
 
-  template<typename T>
+  template <typename T>
   int FillPartSizes();
 
-  vtkLSDynaReader( const vtkLSDynaReader& ) = delete;
-  void operator = ( const vtkLSDynaReader& ) = delete;
+  vtkLSDynaReader(const vtkLSDynaReader&) = delete;
+  void operator=(const vtkLSDynaReader&) = delete;
 };
 
-inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetPointArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfPointArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfPointArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetPointArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetPointArrayName(a)) == 0)
     {
-      this->SetPointArrayStatus( a, status );
+      this->SetPointArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Point array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Point array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetPointArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetPointArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfPointArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfPointArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetPointArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetPointArrayName(a)) == 0)
     {
-      return this->GetPointArrayStatus( a );
+      return this->GetPointArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Point array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Point array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInPointArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInPointArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfPointArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfPointArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetPointArrayName( a ) ) == 0 )
+    if (strcmp(arrName, this->GetPointArrayName(a)) == 0)
     {
-      return this->GetNumberOfComponentsInPointArray( a );
+      return this->GetNumberOfComponentsInPointArray(a);
     }
   }
-  //vtkWarningMacro( "Point array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Point array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetCellArrayStatus( int cellType, const char* arrName, int status )
+inline void vtkLSDynaReader::SetCellArrayStatus(int cellType, const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfCellArrays( cellType ); ++a )
+  for (int a = 0; a < this->GetNumberOfCellArrays(cellType); ++a)
   {
-    if ( strcmp( arrName, this->GetCellArrayName( cellType, a ) ) == 0 )
+    if (strcmp(arrName, this->GetCellArrayName(cellType, a)) == 0)
     {
-      this->SetCellArrayStatus( cellType, a, status );
+      this->SetCellArrayStatus(cellType, a, status);
       return;
     }
   }
-  vtkWarningMacro( "Cell array \"" << arrName << "\" (type " << cellType << ") does not exist" );
+  vtkWarningMacro("Cell array \"" << arrName << "\" (type " << cellType << ") does not exist");
 }
 
-inline int vtkLSDynaReader::GetCellArrayStatus( int cellType, const char* arrName )
+inline int vtkLSDynaReader::GetCellArrayStatus(int cellType, const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfCellArrays( cellType ); ++a )
+  for (int a = 0; a < this->GetNumberOfCellArrays(cellType); ++a)
   {
-    if ( strcmp( arrName, this->GetCellArrayName( cellType, a ) ) == 0 )
+    if (strcmp(arrName, this->GetCellArrayName(cellType, a)) == 0)
     {
-      return this->GetCellArrayStatus( cellType, a );
+      return this->GetCellArrayStatus(cellType, a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInCellArray( int cellType, const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInCellArray(int cellType, const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfCellArrays( cellType ); ++a )
+  for (int a = 0; a < this->GetNumberOfCellArrays(cellType); ++a)
   {
-    if ( strcmp( arrName, this->GetCellArrayName( cellType, a ) ) == 0 )
+    if (strcmp(arrName, this->GetCellArrayName(cellType, a)) == 0)
     {
-     return this->GetNumberOfComponentsInCellArray( cellType, a );
+      return this->GetNumberOfComponentsInCellArray(cellType, a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetSolidArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetSolidArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfSolidArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfSolidArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetSolidArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetSolidArrayName(a)) == 0)
     {
-      this->SetSolidArrayStatus( a, status );
+      this->SetSolidArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Solid array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Solid array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetSolidArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetSolidArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfSolidArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfSolidArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetSolidArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetSolidArrayName(a)) == 0)
     {
-      return this->GetSolidArrayStatus( a );
+      return this->GetSolidArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInSolidArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInSolidArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfSolidArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfSolidArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetSolidArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetSolidArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInSolidArray( a );
+      return this->GetNumberOfComponentsInSolidArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetThickShellArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetThickShellArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfThickShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfThickShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetThickShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetThickShellArrayName(a)) == 0)
     {
-      this->SetThickShellArrayStatus( a, status );
+      this->SetThickShellArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Thick shell array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Thick shell array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetThickShellArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetThickShellArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfThickShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfThickShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetThickShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetThickShellArrayName(a)) == 0)
     {
-      return this->GetThickShellArrayStatus( a );
+      return this->GetThickShellArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInThickShellArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInThickShellArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfThickShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfThickShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetThickShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetThickShellArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInThickShellArray( a );
+      return this->GetNumberOfComponentsInThickShellArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetShellArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetShellArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetShellArrayName(a)) == 0)
     {
-      this->SetShellArrayStatus( a, status );
+      this->SetShellArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Shell array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Shell array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetShellArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetShellArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetShellArrayName(a)) == 0)
     {
-      return this->GetShellArrayStatus( a );
+      return this->GetShellArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInShellArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInShellArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfShellArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfShellArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetShellArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetShellArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInShellArray( a );
+      return this->GetNumberOfComponentsInShellArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetBeamArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetBeamArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfBeamArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfBeamArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetBeamArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetBeamArrayName(a)) == 0)
     {
-      this->SetBeamArrayStatus( a, status );
+      this->SetBeamArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Beam array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Beam array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetBeamArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetBeamArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfBeamArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfBeamArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetBeamArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetBeamArrayName(a)) == 0)
     {
-      return this->GetBeamArrayStatus( a );
+      return this->GetBeamArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInBeamArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInBeamArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfBeamArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfBeamArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetBeamArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetBeamArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInBeamArray( a );
+      return this->GetNumberOfComponentsInBeamArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetParticleArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetParticleArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfParticleArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfParticleArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetParticleArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetParticleArrayName(a)) == 0)
     {
-      this->SetParticleArrayStatus( a, status );
+      this->SetParticleArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Particle array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Particle array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetParticleArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetParticleArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfParticleArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfParticleArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetParticleArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetParticleArrayName(a)) == 0)
     {
-      return this->GetParticleArrayStatus( a );
+      return this->GetParticleArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInParticleArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInParticleArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfParticleArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfParticleArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetParticleArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetParticleArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInParticleArray( a );
+      return this->GetNumberOfComponentsInParticleArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetRigidBodyArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetRigidBodyArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfRigidBodyArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRigidBodyArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRigidBodyArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRigidBodyArrayName(a)) == 0)
     {
-      this->SetRigidBodyArrayStatus( a, status );
+      this->SetRigidBodyArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Rigid body array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Rigid body array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetRigidBodyArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetRigidBodyArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfRigidBodyArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRigidBodyArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRigidBodyArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRigidBodyArrayName(a)) == 0)
     {
-      return this->GetRigidBodyArrayStatus( a );
+      return this->GetRigidBodyArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInRigidBodyArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInRigidBodyArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfRigidBodyArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRigidBodyArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRigidBodyArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRigidBodyArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInRigidBodyArray( a );
+      return this->GetNumberOfComponentsInRigidBodyArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetRoadSurfaceArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetRoadSurfaceArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfRoadSurfaceArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRoadSurfaceArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRoadSurfaceArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRoadSurfaceArrayName(a)) == 0)
     {
-      this->SetRoadSurfaceArrayStatus( a, status );
+      this->SetRoadSurfaceArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Road surface array \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Road surface array \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetRoadSurfaceArrayStatus( const char* arrName )
+inline int vtkLSDynaReader::GetRoadSurfaceArrayStatus(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfRoadSurfaceArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRoadSurfaceArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRoadSurfaceArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRoadSurfaceArrayName(a)) == 0)
     {
-      return this->GetRoadSurfaceArrayStatus( a );
+      return this->GetRoadSurfaceArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline int vtkLSDynaReader::GetNumberOfComponentsInRoadSurfaceArray( const char* arrName )
+inline int vtkLSDynaReader::GetNumberOfComponentsInRoadSurfaceArray(const char* arrName)
 {
-  for ( int a=0; a<this->GetNumberOfRoadSurfaceArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfRoadSurfaceArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetRoadSurfaceArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetRoadSurfaceArrayName(a)) == 0)
     {
-     return this->GetNumberOfComponentsInRoadSurfaceArray( a );
+      return this->GetNumberOfComponentsInRoadSurfaceArray(a);
     }
   }
-  //vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
+  // vtkWarningMacro( "Cell array \"" << arrName << "\" does not exist" );
   return 0;
 }
 
-inline void vtkLSDynaReader::SetPartArrayStatus( const char* arrName, int status )
+inline void vtkLSDynaReader::SetPartArrayStatus(const char* arrName, int status)
 {
-  for ( int a=0; a<this->GetNumberOfPartArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfPartArrays(); ++a)
   {
-    if ( strcmp( arrName, this->GetPartArrayName(a) ) == 0 )
+    if (strcmp(arrName, this->GetPartArrayName(a)) == 0)
     {
-      this->SetPartArrayStatus( a, status );
+      this->SetPartArrayStatus(a, status);
       return;
     }
   }
-  vtkWarningMacro( "Part \"" << arrName << "\" does not exist" );
+  vtkWarningMacro("Part \"" << arrName << "\" does not exist");
 }
 
-inline int vtkLSDynaReader::GetPartArrayStatus( const char* partName )
+inline int vtkLSDynaReader::GetPartArrayStatus(const char* partName)
 {
-  for ( int a=0; a<this->GetNumberOfPartArrays(); ++a )
+  for (int a = 0; a < this->GetNumberOfPartArrays(); ++a)
   {
-    if ( strcmp( partName, this->GetPartArrayName(a) ) == 0 )
+    if (strcmp(partName, this->GetPartArrayName(a)) == 0)
     {
-      return this->GetPartArrayStatus( a );
+      return this->GetPartArrayStatus(a);
     }
   }
-  //vtkWarningMacro( "PartArray \"" << partName << "\" does not exist" );
+  // vtkWarningMacro( "PartArray \"" << partName << "\" does not exist" );
   return 0;
 }
 

@@ -16,28 +16,28 @@
 // .SECTION Description
 //
 
-#include "vtkTecplotReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTecplotReader.h"
 
 #include "vtkActor.h"
-#include "vtkCamera.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPointData.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
-#include "vtkDirectory.h"
-#include "vtkStringArray.h"
 #include "vtkArrayIterator.h"
 #include "vtkArrayIteratorTemplate.h"
-#include <vtksys/SystemTools.hxx>
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkCompositeDataGeometryFilter.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkDirectory.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTestUtilities.h"
 #include <string>
+#include <vtksys/SystemTools.hxx>
 
 using namespace std;
 
@@ -51,7 +51,8 @@ public:
     ErrorMessage.clear();
   }
 
-  static void OnError(vtkObject* vtkNotUsed(caller), unsigned long int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* callData)
+  static void OnError(vtkObject* vtkNotUsed(caller), unsigned long int vtkNotUsed(eventId),
+    void* vtkNotUsed(clientData), void* callData)
   {
     HasError = true;
     char* pString = (char*)callData;
@@ -68,65 +69,51 @@ public:
 bool vtkErrorObserver::HasError = false;
 string vtkErrorObserver::ErrorMessage = string();
 
-int TestTecplotReader2( int argc, char *argv[] )
+int TestTecplotReader2(int argc, char* argv[])
 {
   char* dataRoot = vtkTestUtilities::GetDataRoot(argc, argv);
-  string tecplotDir = string(dataRoot) + "/Data/TecPlot/";
+  const string tecplotDir = string(dataRoot) + "/Data/TecPlot/";
 
-  vtkNew<vtkDirectory> dir;
-  if (1 != dir->Open(tecplotDir.c_str()))
+  if (argc < 2)
   {
-    cerr << "Unable to list files in " << tecplotDir << endl;
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
   }
+
+  const char* filename = argv[1];
 
   vtkNew<vtkCallbackCommand> cmd;
   cmd->SetCallback(&(vtkErrorObserver::OnError));
 
-  int nErrors(0);
-  for (int i = 0; i < dir->GetNumberOfFiles(); ++i)
+  const string ext = vtksys::SystemTools::GetFilenameLastExtension(filename);
+  if (ext != ".dat")
   {
-    string filename = tecplotDir;
-    filename += dir->GetFile(i);
-    string ext = vtksys::SystemTools::GetFilenameLastExtension(filename);
-    if (ext != ".dat")
-    {
-      continue;
-    }
-
-    vtkErrorObserver::Reset();
-    vtkNew<vtkTecplotReader> r;
-    r->AddObserver("ErrorEvent", cmd);
-    r->SetFileName(filename.c_str());
-    r->Update();
-    r->RemoveAllObservers();
-
-    vtkMultiBlockDataSet* ds = r->GetOutput();
-    if (ds == nullptr)
-    {
-      cerr << "Failed to read data set from " << filename << endl;
-      return EXIT_FAILURE;
-    }
-    if (vtkErrorObserver::HasError)
-    {
-      nErrors++;
-      cerr << "Failed to read from " << filename << endl;
-      if (!vtkErrorObserver::ErrorMessage.empty())
-      {
-        cerr << "Error message: " << vtkErrorObserver::ErrorMessage << endl;
-      }
-    }
+    return EXIT_FAILURE;
   }
 
-  if (nErrors > 0)
+  vtkErrorObserver::Reset();
+  vtkNew<vtkTecplotReader> r;
+  r->AddObserver("ErrorEvent", cmd);
+  r->SetFileName((tecplotDir + filename).c_str());
+  r->Update();
+  r->RemoveAllObservers();
+
+  vtkMultiBlockDataSet* ds = r->GetOutput();
+  if (ds == nullptr)
   {
-    cerr << nErrors << "/" << dir->GetNumberOfFiles() << " files could not be loaded" << endl;
+    cerr << "Failed to read data set from " << filename << endl;
+    return EXIT_FAILURE;
   }
-  else
+  if (vtkErrorObserver::HasError)
   {
-    cout << "All files were loaded without errors." << endl;
+    cerr << "Failed to read from " << filename << endl;
+    if (!vtkErrorObserver::ErrorMessage.empty())
+    {
+      cerr << "Error message: " << vtkErrorObserver::ErrorMessage << endl;
+    }
+    return EXIT_FAILURE;
   }
 
+  cout << filename << " was read without errors." << endl;
   delete[] dataRoot;
-  return nErrors > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

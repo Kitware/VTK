@@ -38,14 +38,14 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArraySort_h
 #define vtkArraySort_h
 
+#include "vtkArrayCoordinates.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayCoordinates.h"
 #include <vector>
 
 class VTKCOMMONCORE_EXPORT vtkArraySort
@@ -96,7 +96,6 @@ public:
    */
   const DimensionT& operator[](DimensionT i) const;
 
-
   /**
    * Equality comparison
    */
@@ -110,13 +109,10 @@ public:
   /**
    * Serialization
    */
-  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
-    ostream& stream, const vtkArraySort& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArraySort& rhs);
 
 private:
-
   std::vector<DimensionT> Storage;
-
 };
 
 #endif

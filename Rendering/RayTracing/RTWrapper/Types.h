@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sys/types.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 typedef enum : uint32_t
 {

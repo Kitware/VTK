@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricCrossCap.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricCrossCap);
 
@@ -39,14 +39,13 @@ vtkParametricCrossCap::vtkParametricCrossCap()
 vtkParametricCrossCap::~vtkParametricCrossCap() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3],
-                                     double Duvw[9])
+void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
 
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double su = sin(u);
@@ -60,7 +59,7 @@ void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = su * s2v;
   Pt[2] = cv * cv - cu * cu * sv * sv;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -Pt[1];
   Du[1] = Pt[0];
   Du[2] = 2 * cu * su * sv * sv;
@@ -70,8 +69,7 @@ void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricCrossCap::EvaluateScalar(double *, double *,
-    double *)
+double vtkParametricCrossCap::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }

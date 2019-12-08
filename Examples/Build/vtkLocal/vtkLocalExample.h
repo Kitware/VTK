@@ -8,7 +8,7 @@ wishing to create their own VTK classes locally.
  *
  * vtkLocalExample is a simple class that uses VTK.  This class can be
  * copied and modified to produce your own classes.
-*/
+ */
 
 #ifndef vtkLocalExample_h
 #define vtkLocalExample_h

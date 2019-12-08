@@ -24,9 +24,9 @@
 #ifndef vtkQWidgetWidget_h
 #define vtkQWidgetWidget_h
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkAbstractWidget.h"
-#include <QPointF> // for ivar
+#include "vtkGUISupportQtModule.h" // For export macro
+#include <QPointF>                 // for ivar
 
 class QWidget;
 class vtkQWidgetRepresentation;
@@ -39,13 +39,13 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkQWidgetWidget *New();
+  static vtkQWidgetWidget* New();
 
   //@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkQWidgetWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkQWidgetWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -54,7 +54,7 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation( vtkQWidgetRepresentation *rep );
+  void SetRepresentation(vtkQWidgetRepresentation* rep);
 
   // Description:
   // Disable/Enable the widget if needed.
@@ -64,7 +64,7 @@ public:
   /**
    * Return the representation as a vtkQWidgetRepresentation
    */
-  vtkQWidgetRepresentation *GetQWidgetRepresentation();
+  vtkQWidgetRepresentation* GetQWidgetRepresentation();
 
   /**
    * Create the default widget representation if one is not set.
@@ -74,7 +74,7 @@ public:
   /**
    * Set the QWidget that will receive the events.
    */
-  void SetWidget(QWidget *w);
+  void SetWidget(QWidget* w);
 
 protected:
   vtkQWidgetWidget();
@@ -82,9 +82,13 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
 
-  QWidget *Widget;
+  QWidget* Widget;
   QPointF LastWidgetCoordinates;
 
   // These methods handle events

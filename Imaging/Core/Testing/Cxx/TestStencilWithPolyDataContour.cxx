@@ -13,25 +13,25 @@
 
 =========================================================================*/
 
-#include "vtkImageData.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataToImageStencil.h"
-#include "vtkTransform.h"
-#include "vtkImageStencil.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
+#include "vtkCellArray.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
 #include "vtkImageSliceMapper.h"
-#include "vtkImageProperty.h"
+#include "vtkImageStencil.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataToImageStencil.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 // this contour used to cause trouble
 static double contour[262][2] = {
@@ -299,29 +299,23 @@ static double contour[262][2] = {
   { -57.617199, 199.574005 },
 };
 
-int TestStencilWithPolyDataContour(int, char *[])
+int TestStencilWithPolyDataContour(int, char*[])
 {
-  vtkSmartPointer<vtkImageData> image =
-    vtkSmartPointer<vtkImageData>::New();
+  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
   double spacing[3] = { 0.9765625, 0.9765625, 1.0 };
   double origin[3] = { -61.035206, 163.441589, 0.0 };
   int extent[6] = { 0, 65, 0, 71, 0, 0 };
-  double center[3] = {
-    origin[0] + 0.5*spacing[0]*extent[1],
-    origin[1] + 0.5*spacing[1]*extent[3],
-    0.0 };
+  double center[3] = { origin[0] + 0.5 * spacing[0] * extent[1],
+    origin[1] + 0.5 * spacing[1] * extent[3], 0.0 };
   image->SetSpacing(spacing);
   image->SetOrigin(origin);
   image->SetExtent(extent);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-  unsigned char *vptr =
-    static_cast<unsigned char *>(image->GetScalarPointer());
+  unsigned char* vptr = static_cast<unsigned char*>(image->GetScalarPointer());
   memset(vptr, 255, image->GetNumberOfPoints());
 
-  vtkSmartPointer<vtkCellArray> lines =
-    vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetNumberOfPoints(262);
   lines->InsertNextCell(262);
   for (vtkIdType i = 0; i < 262; i++)
@@ -352,8 +346,7 @@ int TestStencilWithPolyDataContour(int, char *[])
   lines->InsertCellPoint(ptId0);
   lines->InsertCellPoint(ptId1);
 
-  vtkSmartPointer<vtkPolyData> polyData =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
   polyData->SetPoints(points);
   polyData->SetLines(lines);
 
@@ -364,43 +357,37 @@ int TestStencilWithPolyDataContour(int, char *[])
   stencilSource->SetOutputWholeExtent(extent);
   stencilSource->SetInputData(polyData);
 
-  vtkSmartPointer<vtkImageStencil> stencil =
-    vtkSmartPointer<vtkImageStencil>::New();
+  vtkSmartPointer<vtkImageStencil> stencil = vtkSmartPointer<vtkImageStencil>::New();
   stencil->SetInputData(image);
   stencil->SetStencilConnection(stencilSource->GetOutputPort());
   stencil->Update();
 
-  vtkSmartPointer<vtkImageSliceMapper> mapper =
-    vtkSmartPointer<vtkImageSliceMapper>::New();
+  vtkSmartPointer<vtkImageSliceMapper> mapper = vtkSmartPointer<vtkImageSliceMapper>::New();
   mapper->BorderOn();
   mapper->SetInputConnection(stencil->GetOutputPort());
 
-  vtkSmartPointer<vtkImageSlice> actor =
-    vtkSmartPointer<vtkImageSlice>::New();
+  vtkSmartPointer<vtkImageSlice> actor = vtkSmartPointer<vtkImageSlice>::New();
   actor->GetProperty()->SetColorWindow(255.0);
   actor->GetProperty()->SetColorLevel(127.5);
   actor->GetProperty()->SetInterpolationTypeToNearest();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->AddViewProp(actor);
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->ParallelProjectionOn();
-  camera->SetParallelScale(40.0*spacing[1]);
+  camera->SetParallelScale(40.0 * spacing[1]);
   camera->SetFocalPoint(center[0], center[1], center[2]);
   camera->SetPosition(center[0], center[1], center[2] + 10.0);
   camera->SetViewUp(0.0, 1.0, 0.0);
   camera->SetClippingRange(5.0, 15.0);
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(renderer);
   renWin->SetSize(200, 200);
 
-  vtkSmartPointer<vtkInteractorStyleImage> style =
-    vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();

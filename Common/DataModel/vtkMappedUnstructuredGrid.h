@@ -134,7 +134,7 @@
  * The vtkCPExodusIIElementBlock class provides an example of
  * vtkMappedUnstructuredGrid usage, adapting the Exodus II data structures for
  * the VTK pipeline.
-*/
+ */
 
 #ifndef vtkMappedUnstructuredGrid_h
 #define vtkMappedUnstructuredGrid_h
@@ -142,40 +142,40 @@
 #include "vtkUnstructuredGridBase.h"
 
 #include "vtkMappedUnstructuredGridCellIterator.h" // For default cell iterator
-#include "vtkNew.h" // For vtkNew
-#include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkNew.h"                                // For vtkNew
+#include "vtkSmartPointer.h"                       // For vtkSmartPointer
 
 template <class Implementation,
-          class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation> >
-class vtkMappedUnstructuredGrid:
-    public vtkUnstructuredGridBase
+  class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation> >
+class vtkMappedUnstructuredGrid : public vtkUnstructuredGridBase
 {
   typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> SelfType;
+
 public:
-  vtkTemplateTypeMacro(SelfType, vtkUnstructuredGridBase)
+  vtkTemplateTypeMacro(SelfType, vtkUnstructuredGridBase);
   typedef Implementation ImplementationType;
   typedef CellIterator CellIteratorType;
 
   // Virtuals from various base classes:
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  void CopyStructure(vtkDataSet *pd) override;
-  void ShallowCopy(vtkDataObject *src) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  void CopyStructure(vtkDataSet* pd) override;
+  void ShallowCopy(vtkDataObject* src) override;
   vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
   vtkCell* GetCell(vtkIdType cellId) override;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   int GetCellType(vtkIdType cellId) override;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   vtkCellIterator* NewCellIterator() override;
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
+  void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
   int GetMaxCellSize() override;
-  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) override;
+  void GetIdsOfCellsOfType(int type, vtkIdTypeArray* array) override;
   int IsHomogeneous() override;
   void Allocate(vtkIdType numCells, int extSize = 1000) override;
   vtkMTimeType GetMTime() override;
 
-  void SetImplementation(ImplementationType *impl);
-  ImplementationType *GetImplementation();
+  void SetImplementation(ImplementationType* impl);
+  ImplementationType* GetImplementation();
 
 protected:
   vtkMappedUnstructuredGrid();
@@ -187,14 +187,14 @@ protected:
   vtkSmartPointer<ImplementationType> Impl;
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
-  vtkIdType InternalInsertNextCell(int type, vtkIdList *ptIds) override;
+  vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
     vtkIdType nfaces, const vtkIdType faces[]) override;
   void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) override;
 
 private:
-  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &) = delete;
-  void operator=(const vtkMappedUnstructuredGrid &) = delete;
+  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid&) = delete;
+  void operator=(const vtkMappedUnstructuredGrid&) = delete;
 
   vtkNew<vtkGenericCell> TempCell;
 };
@@ -205,88 +205,90 @@ private:
 // the template:
 #ifndef __VTK_WRAP__
 
-#define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl) \
-class _exportDecl _className : \
-    public vtkMappedUnstructuredGrid<_impl> \
-{ \
-public: \
-  vtkTypeMacro(_className, \
-               vtkMappedUnstructuredGrid<_impl>) \
-  static _className* New(); \
-protected: \
-  _className() \
-  { \
-    _impl *i = _impl::New(); \
-    this->SetImplementation(i); \
-    i->Delete(); \
-  } \
-  ~_className() override {} \
-private: \
-  _className(const _className&); \
-  void operator=(const _className&); \
-};
+#define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl)                      \
+  class _exportDecl _className : public vtkMappedUnstructuredGrid<_impl>                           \
+  {                                                                                                \
+  public:                                                                                          \
+    vtkTypeMacro(_className, vtkMappedUnstructuredGrid<_impl>);                                    \
+    static _className* New();                                                                      \
+                                                                                                   \
+  protected:                                                                                       \
+    _className()                                                                                   \
+    {                                                                                              \
+      _impl* i = _impl::New();                                                                     \
+      this->SetImplementation(i);                                                                  \
+      i->Delete();                                                                                 \
+    }                                                                                              \
+    ~_className() override {}                                                                      \
+                                                                                                   \
+  private:                                                                                         \
+    _className(const _className&);                                                                 \
+    void operator=(const _className&);                                                             \
+  }
 
-#define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
-class _exportDecl _className : \
-  public vtkMappedUnstructuredGrid<_impl, _cIter> \
-{ \
-public: \
-  vtkTypeMacro(_className, \
-               vtkMappedUnstructuredGrid<_impl, _cIter>) \
-  static _className* New(); \
-protected: \
-  _className() \
-  { \
-    _impl *i = _impl::New(); \
-    this->SetImplementation(i); \
-    i->Delete(); \
-  } \
-  ~_className() override {} \
-private: \
-  _className(const _className&); \
-  void operator=(const _className&); \
-};
+#define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)      \
+  class _exportDecl _className : public vtkMappedUnstructuredGrid<_impl, _cIter>                   \
+  {                                                                                                \
+  public:                                                                                          \
+    vtkTypeMacro(_className, vtkMappedUnstructuredGrid<_impl, _cIter>);                            \
+    static _className* New();                                                                      \
+                                                                                                   \
+  protected:                                                                                       \
+    _className()                                                                                   \
+    {                                                                                              \
+      _impl* i = _impl::New();                                                                     \
+      this->SetImplementation(i);                                                                  \
+      i->Delete();                                                                                 \
+    }                                                                                              \
+    ~_className() override {}                                                                      \
+                                                                                                   \
+  private:                                                                                         \
+    _className(const _className&);                                                                 \
+    void operator=(const _className&);                                                             \
+  }
 
 #else // __VTK_WRAP__
 
-#define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl) \
-  class _exportDecl _className : \
-  public vtkUnstructuredGridBase \
-  { \
-public: \
-  vtkTypeMacro(_className, vtkUnstructuredGridBase) \
-  static _className* New(); \
-protected: \
-  _className() {} \
-  ~_className() override {} \
-private: \
-  _className(const _className&); \
-  void operator=(const _className&); \
-  };
+#define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl)                      \
+  class _exportDecl _className : public vtkUnstructuredGridBase                                    \
+  {                                                                                                \
+  public:                                                                                          \
+    vtkTypeMacro(_className, vtkUnstructuredGridBase);                                             \
+    static _className* New();                                                                      \
+                                                                                                   \
+  protected:                                                                                       \
+    _className() {}                                                                                \
+    ~_className() override {}                                                                      \
+                                                                                                   \
+  private:                                                                                         \
+    _className(const _className&);                                                                 \
+    void operator=(const _className&);                                                             \
+  }
 
-#define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
-  class _exportDecl _className : \
-  public vtkUnstructuredGridBase \
-  { \
-public: \
-  vtkTypeMacro(_className, vtkUnstructuredGridBase) \
-  static _className* New(); \
-protected: \
-  _className() {} \
-  ~_className() override {} \
-private: \
-  _className(const _className&); \
-  void operator=(const _className&); \
-  };
+#define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)      \
+  class _exportDecl _className : public vtkUnstructuredGridBase                                    \
+  {                                                                                                \
+  public:                                                                                          \
+    vtkTypeMacro(_className, vtkUnstructuredGridBase);                                             \
+    static _className* New();                                                                      \
+                                                                                                   \
+  protected:                                                                                       \
+    _className() {}                                                                                \
+    ~_className() override {}                                                                      \
+                                                                                                   \
+  private:                                                                                         \
+    _className(const _className&);                                                                 \
+    void operator=(const _className&);                                                             \
+  }
 
 #endif // __VTK_WRAP__
 
-#define vtkMakeMappedUnstructuredGrid(_className, _impl) \
+#define vtkMakeMappedUnstructuredGrid(_className, _impl)                                           \
   vtkMakeExportedMappedUnstructuredGrid(_className, _impl, )
 
-#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
+#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)              \
   vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, )
 
-#endif //vtkMappedUnstructuredGrid_h
+#endif // vtkMappedUnstructuredGrid_h
 
 // VTK-HeaderTest-Exclude: vtkMappedUnstructuredGrid.h

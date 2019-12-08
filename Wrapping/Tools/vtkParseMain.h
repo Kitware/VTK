@@ -44,6 +44,7 @@
 #define vtkParseMain_h
 
 #include "vtkParseData.h"
+#include "vtkWrappingToolsModule.h"
 #include <stdio.h>
 
 /**
@@ -51,36 +52,40 @@
  */
 typedef struct _OptionInfo
 {
-  int           NumberOfFiles;      /* the total number of file arguments */
-  char        **Files;              /* all of the file arguments */
-  char         *InputFileName;      /* the first file argument */
-  char         *OutputFileName;     /* the second file, or the "-o" file */
-  int           NumberOfHintFileNames; /* the total number of hints arguments */
-  char        **HintFileNames;      /* all of the hints arguments */
-  int           NumberOfHierarchyFileNames; /* the total number of types argument */
-  char        **HierarchyFileNames; /* the file preceded by "--types" */
-  int           DumpMacros; /* dump macros to output */
+  int NumberOfFiles;              /* the total number of file arguments */
+  char** Files;                   /* all of the file arguments */
+  char* InputFileName;            /* the first file argument */
+  char* OutputFileName;           /* the second file, or the "-o" file */
+  int NumberOfHintFileNames;      /* the total number of hints arguments */
+  char** HintFileNames;           /* all of the hints arguments */
+  int NumberOfHierarchyFileNames; /* the total number of types argument */
+  char** HierarchyFileNames;      /* the file preceded by "--types" */
+  int DumpMacros;                 /* dump macros to output */
 } OptionInfo;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
- * Return the options provided on the command line
- */
-OptionInfo *vtkParse_GetCommandLineOptions(void);
+  /**
+   * Return the options provided on the command line
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  OptionInfo* vtkParse_GetCommandLineOptions(void);
 
-/**
- * The main function, parses the file and returns the result.
- */
-FileInfo *vtkParse_Main(int argc, char *argv[]);
+  /**
+   * The main function, parses the file and returns the result.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  FileInfo* vtkParse_Main(int argc, char* argv[]);
 
-/**
- * A main function that can take multiple input files.
- * It does not parse the files.  It will exit on error.
- */
-StringCache *vtkParse_MainMulti(int argc, char *argv[]);
+  /**
+   * A main function that can take multiple input files.
+   * It does not parse the files.  It will exit on error.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  StringCache* vtkParse_MainMulti(int argc, char* argv[]);
 
 #ifdef __cplusplus
 } /* extern "C" */

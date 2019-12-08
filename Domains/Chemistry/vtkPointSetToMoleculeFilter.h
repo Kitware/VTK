@@ -55,6 +55,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool ConvertLinesIntoBonds;
+
 private:
   vtkPointSetToMoleculeFilter(const vtkPointSetToMoleculeFilter&) = delete;
   void operator=(const vtkPointSetToMoleculeFilter&) = delete;

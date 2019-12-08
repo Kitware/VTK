@@ -22,22 +22,22 @@
 #ifndef vtkSkybox_h
 #define vtkSkybox_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkSkybox: public vtkActor
+class VTKRENDERINGCORE_EXPORT vtkSkybox : public vtkActor
 {
 public:
   static vtkSkybox* New();
-  vtkTypeMacro(vtkSkybox, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkSkybox, vtkActor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() override;
+  double* GetBounds() override;
 
   //@{
   /**
@@ -53,9 +53,9 @@ public:
   vtkGetMacro(Projection, int);
   vtkSetMacro(Projection, int);
   void SetProjectionToCube() { this->SetProjection(vtkSkybox::Cube); }
-  void SetProjectionToSphere() {this->SetProjection(vtkSkybox::Sphere); }
-  void SetProjectionToStereoSphere() {this->SetProjection(vtkSkybox::StereoSphere); }
-  void SetProjectionToFloor() {this->SetProjection(vtkSkybox::Floor); }
+  void SetProjectionToSphere() { this->SetProjection(vtkSkybox::Sphere); }
+  void SetProjectionToStereoSphere() { this->SetProjection(vtkSkybox::StereoSphere); }
+  void SetProjectionToFloor() { this->SetProjection(vtkSkybox::Floor); }
   //@}
 
   //@{

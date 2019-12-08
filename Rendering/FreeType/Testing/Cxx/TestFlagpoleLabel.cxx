@@ -35,28 +35,26 @@
 
 namespace
 {
-void setupFlagpoleText(vtkFlagpoleLabel *actor,
-                        vtkPolyData *anchor)
+void setupFlagpoleText(vtkFlagpoleLabel* actor, vtkPolyData* anchor)
 {
-  vtkTextProperty *p = actor->GetTextProperty();
+  vtkTextProperty* p = actor->GetTextProperty();
   std::ostringstream label;
   label << "HAlign: " << p->GetJustificationAsString() << "\n"
         << "VAlign: " << p->GetVerticalJustificationAsString();
   actor->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetTopPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetTopPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], pos[2]);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 
-void setupGrid(vtkPolyData *grid)
+void setupGrid(vtkPolyData* grid)
 {
-  double marks[4] = {0., 200., 400., 600.};
+  double marks[4] = { 0., 200., 400., 600. };
   double thickness = 200.;
 
   vtkNew<vtkPoints> points;
@@ -96,15 +94,15 @@ void setupGrid(vtkPolyData *grid)
 }
 
 //----------------------------------------------------------------------------
-int TestFlagpoleLabel(int, char *[])
+int TestFlagpoleLabel(int, char*[])
 {
   vtkNew<vtkRenderer> ren;
   ren->UseDepthPeelingOn();
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[3] = {100, 300, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[3] = { 100, 300, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -146,11 +144,8 @@ int TestFlagpoleLabel(int, char *[])
           break;
       }
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
-      actor->GetTextProperty()->SetBackgroundColor(0.,
-                                                   1. - col * .26,
-                                                   1. - row * .26);
-      actor->GetTextProperty()->SetFrameColor(
-        actor->GetTextProperty()->GetBackgroundColor());
+      actor->GetTextProperty()->SetBackgroundColor(0., 1. - col * .26, 1. - row * .26);
+      actor->GetTextProperty()->SetFrameColor(actor->GetTextProperty()->GetBackgroundColor());
       actor->GetTextProperty()->SetBackgroundOpacity(0.85);
       actor->SetBasePosition(x[col], y[row] - 50.0, 0.);
       actor->SetTopPosition(x[col], y[row] + 50.0, 0.);
@@ -182,8 +177,8 @@ int TestFlagpoleLabel(int, char *[])
   iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
-  ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);
-  ren->GetActiveCamera()->SetFocalPoint(width/2, height/2, 0);
+  ren->GetActiveCamera()->SetPosition(width / 2, height / 2, 1400);
+  ren->GetActiveCamera()->SetFocalPoint(width / 2, height / 2, 0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->GetActiveCamera()->Azimuth(15.);
   ren->GetActiveCamera()->Roll(5.);

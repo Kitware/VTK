@@ -21,14 +21,14 @@
  * data files are meta-files that point to a list of serial VTK XML files.
  * @sa
  * vtkXMLPCompositeDataWriter
-*/
+ */
 
 #ifndef vtkXMLCompositeDataWriter_h
 #define vtkXMLCompositeDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtkStdString.h"   // needed for vtkStdString.
 #include "vtkXMLWriter.h"
-#include "vtkStdString.h" // needed for vtkStdString.
 
 class vtkCallbackCommand;
 class vtkCompositeDataSet;
@@ -38,7 +38,7 @@ class vtkXMLCompositeDataWriterInternals;
 class VTKIOXML_EXPORT vtkXMLCompositeDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLCompositeDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLCompositeDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -69,9 +69,8 @@ public:
   /**
    * See the vtkAlgorithm for a description of what these do
    */
-  int ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkXMLCompositeDataWriter();
@@ -93,10 +92,8 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*  , vtkInformationVector** , vtkInformationVector*) override;
-  int RequestUpdateExtent(
-    vtkInformation*  , vtkInformationVector** , vtkInformationVector*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   int WriteData() override;
   const char* GetDataSetName() override;
@@ -163,8 +160,7 @@ protected:
   int WriteMetaFile;
 
   // Callback registered with the InternalProgressObserver.
-  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
+  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 
@@ -180,8 +176,8 @@ protected:
    * This function returns 0 if no files were written from
    * compositeData.
    */
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* element, int &writerIdx)=0;
+  virtual int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* element, int& writerIdx) = 0;
 
   /**
    * Internal method to write a non vtkCompositeDataSet subclass as
@@ -194,8 +190,7 @@ protected:
    * this->ErrorCode is set on error.
    */
   virtual int WriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* element,
-    int& writerIdx, const char* fileName);
+    vtkDataObject* dObj, vtkXMLDataElement* element, int& writerIdx, const char* fileName);
 
   /**
    * Utility function to remove any already written files

@@ -2,35 +2,41 @@
 # Build the documentation
 #
 
-INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
+include(${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+if(BUILD_DOCUMENTATION)
 
-IF (BUILD_DOCUMENTATION)
-  OPTION (DOCUMENTATION_DOWNLOAD_VTK_TAGFILE
-         "Download the VTK tag file." ON)
-  MARK_AS_ADVANCED (
-    DOCUMENTATION_DOWNLOAD_VTK_TAGFILE
-  )
+  #
+  # The needed perl scripts are in Utilities/Doxygen in VTK_SOURCE_DIR
+  #
+  if(NOT DEFINED VTK_SOURCE_DIR)
+    # go up three directories from vtkMy source directory
+    get_filename_component(_tmp "${VTKMY_SOURCE_DIR}" DIRECTORY)
+    get_filename_component(_tmp "${_tmp}" DIRECTORY)
+    get_filename_component(_tmp "${_tmp}" DIRECTORY)
+    set(VTK_SOURCE_DIR "${_tmp}" CACHE PATH "VTK Source Directory")
+  endif()
+
+  option(DOCUMENTATION_DOWNLOAD_VTK_TAGFILE "Download the VTK tag file." ON)
+  mark_as_advanced(DOCUMENTATION_DOWNLOAD_VTK_TAGFILE)
 
   #
   # Configure the script and the doxyfile, then add target
   #
-  IF(NOT DOT_PATH)
-    GET_FILENAME_COMPONENT(DOT_PATH ${DOT} PATH)
-  ENDIF()
+  if(DOT AND NOT DOT_PATH)
+    get_filename_component(DOT_PATH "${DOT}" DIRECTORY)
+  endif()
 
-  CONFIGURE_FILE(
-    ${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in
-    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doxyfile)
+  configure_file(
+    "${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in"
+    "${VTKMY_BINARY_DIR}/Utilities/Doxygen/doxyfile")
 
-  CONFIGURE_FILE(
-    ${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.sh.in
-    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+  configure_file(
+    "${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.sh.in"
+    "${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh")
 
-  ADD_CUSTOM_TARGET(vtkMyDoxygenDoc
-    ${BASH}
-    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+  add_custom_target(vtkMyDoxygenDoc
+    "${BASH}"
+    "${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh")
 
-ENDIF ()
+endif()

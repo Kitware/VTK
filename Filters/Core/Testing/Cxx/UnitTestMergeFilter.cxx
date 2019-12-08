@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkMergeFilter.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkCommand.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkFloatArray.h"
+#include "vtkCommand.h"
 #include "vtkDataObjectGenerator.h"
-#include "vtkTestErrorObserver.h"
+#include "vtkFloatArray.h"
 #include "vtkMathUtilities.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkTestErrorObserver.h"
 
 #include <cstdio>
 #include <sstream>
@@ -31,18 +31,16 @@
 static vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints);
 static vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells);
 
-int UnitTestMergeFilter (int, char*[])
+int UnitTestMergeFilter(int, char*[])
 {
   int status = 0;
 
-  vtkSmartPointer<vtkPolyData> polyData0 =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polyData0 = vtkSmartPointer<vtkPolyData>::New();
 
   // Test empty input
   std::cout << "Testing empty input...";
   std::ostringstream print0;
-  vtkSmartPointer<vtkMergeFilter> merge0 =
-    vtkSmartPointer<vtkMergeFilter>::New();
+  vtkSmartPointer<vtkMergeFilter> merge0 = vtkSmartPointer<vtkMergeFilter>::New();
   merge0->Print(print0);
 
   // Check for null inputs
@@ -95,7 +93,7 @@ int UnitTestMergeFilter (int, char*[])
   status0 = 0;
 
   merge0->SetGeometryInputData(polyData0);
-  vtkSmartPointer<vtkTest::ErrorObserver>  warningObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> warningObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
   merge0->AddObserver(vtkCommand::WarningEvent, warningObserver);
   merge0->Update();
@@ -111,20 +109,15 @@ int UnitTestMergeFilter (int, char*[])
   }
 
   // Create a PolyData
-  vtkSmartPointer<vtkDataObjectGenerator> dog1 =
-    vtkSmartPointer<vtkDataObjectGenerator>::New();
+  vtkSmartPointer<vtkDataObjectGenerator> dog1 = vtkSmartPointer<vtkDataObjectGenerator>::New();
   dog1->SetProgram("PD1");
   dog1->Update();
-  vtkSmartPointer<vtkPolyData> polyData =
-    vtkPolyData::SafeDownCast(dog1->GetOutput());
+  vtkSmartPointer<vtkPolyData> polyData = vtkPolyData::SafeDownCast(dog1->GetOutput());
 
-  vtkSmartPointer<vtkPolyData> polyData2 =
-    vtkPolyData::SafeDownCast(dog1->GetOutput());
+  vtkSmartPointer<vtkPolyData> polyData2 = vtkPolyData::SafeDownCast(dog1->GetOutput());
 
-  vtkSmartPointer<vtkPointData> pointData =
-    MakePointData(polyData2->GetNumberOfPoints());
-  vtkSmartPointer<vtkCellData> cellData =
-    MakeCellData(polyData2->GetNumberOfCells());
+  vtkSmartPointer<vtkPointData> pointData = MakePointData(polyData2->GetNumberOfPoints());
+  vtkSmartPointer<vtkCellData> cellData = MakeCellData(polyData2->GetNumberOfCells());
   polyData2->GetPointData()->SetScalars(pointData->GetScalars());
   polyData2->GetPointData()->SetNormals(pointData->GetNormals());
   polyData2->GetPointData()->SetVectors(pointData->GetVectors());
@@ -136,8 +129,7 @@ int UnitTestMergeFilter (int, char*[])
   polyData2->GetCellData()->SetTCoords(cellData->GetTCoords());
   polyData2->GetCellData()->SetTensors(cellData->GetTensors());
 
-  vtkSmartPointer<vtkMergeFilter> merge1 =
-    vtkSmartPointer<vtkMergeFilter>::New();
+  vtkSmartPointer<vtkMergeFilter> merge1 = vtkSmartPointer<vtkMergeFilter>::New();
   merge1->SetGeometryInputData(polyData);
   merge1->SetScalarsData(polyData2);
   merge1->SetNormalsData(polyData2);
@@ -159,41 +151,34 @@ int UnitTestMergeFilter (int, char*[])
     std::cout << "ERROR: Input geometry does not match" << std::endl;
     status++;
   }
-  if (merge1->GetScalars()->GetPointData()->GetScalars() !=
-      polyData2->GetPointData()->GetScalars())
+  if (merge1->GetScalars()->GetPointData()->GetScalars() != polyData2->GetPointData()->GetScalars())
   {
     std::cout << "ERROR: Scalars not merged" << std::endl;
     status++;
   }
-  if (merge1->GetVectors()->GetPointData()->GetVectors() !=
-      polyData2->GetPointData()->GetVectors())
+  if (merge1->GetVectors()->GetPointData()->GetVectors() != polyData2->GetPointData()->GetVectors())
   {
     std::cout << "ERROR: Vectors not merged" << std::endl;
     status++;
   }
-  if (merge1->GetNormals()->GetPointData()->GetNormals() !=
-      polyData2->GetPointData()->GetNormals())
+  if (merge1->GetNormals()->GetPointData()->GetNormals() != polyData2->GetPointData()->GetNormals())
   {
     std::cout << "ERROR: Normals not merged" << std::endl;
     status++;
   }
-  if (merge1->GetTCoords()->GetPointData()->GetTCoords() !=
-      polyData2->GetPointData()->GetTCoords())
+  if (merge1->GetTCoords()->GetPointData()->GetTCoords() != polyData2->GetPointData()->GetTCoords())
   {
     std::cout << "ERROR: TCoords not merged" << std::endl;
     status++;
   }
-  if (merge1->GetTensors()->GetPointData()->GetTensors() !=
-      polyData2->GetPointData()->GetTensors())
+  if (merge1->GetTensors()->GetPointData()->GetTensors() != polyData2->GetPointData()->GetTensors())
   {
     std::cout << "ERROR: Tensors not merged" << std::endl;
     status++;
   }
   merge1->AddObserver(vtkCommand::WarningEvent, warningObserver);
-  vtkSmartPointer<vtkPointData> pointData2 =
-    MakePointData(100);
-  vtkSmartPointer<vtkCellData> cellData2 =
-    MakeCellData(100);
+  vtkSmartPointer<vtkPointData> pointData2 = MakePointData(100);
+  vtkSmartPointer<vtkCellData> cellData2 = MakeCellData(100);
   polyData2->GetPointData()->SetScalars(pointData2->GetScalars());
   polyData2->GetPointData()->SetNormals(pointData2->GetNormals());
   polyData2->GetPointData()->SetVectors(pointData2->GetVectors());
@@ -232,40 +217,34 @@ int UnitTestMergeFilter (int, char*[])
 
 vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints)
 {
-  vtkSmartPointer<vtkPointData> pointData =
-    vtkSmartPointer<vtkPointData>::New();
-  vtkSmartPointer<vtkFloatArray> scalarsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkPointData> pointData = vtkSmartPointer<vtkPointData>::New();
+  vtkSmartPointer<vtkFloatArray> scalarsArray = vtkSmartPointer<vtkFloatArray>::New();
   scalarsArray->SetNumberOfTuples(numberOfPoints);
   scalarsArray->SetNumberOfComponents(1);
   scalarsArray->SetName("Scalars:floatArray");
-  vtkSmartPointer<vtkFloatArray> normalsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> normalsArray = vtkSmartPointer<vtkFloatArray>::New();
   normalsArray->SetNumberOfTuples(numberOfPoints);
   normalsArray->SetNumberOfComponents(3);
   normalsArray->SetName("Normals:floatArray");
-  vtkSmartPointer<vtkFloatArray> vectorsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> vectorsArray = vtkSmartPointer<vtkFloatArray>::New();
   vectorsArray->SetNumberOfTuples(numberOfPoints);
   vectorsArray->SetNumberOfComponents(3);
   vectorsArray->SetName("Vectors:floatArray");
-  vtkSmartPointer<vtkFloatArray> tcoordsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> tcoordsArray = vtkSmartPointer<vtkFloatArray>::New();
   tcoordsArray->SetNumberOfTuples(numberOfPoints);
   tcoordsArray->SetNumberOfComponents(2);
   tcoordsArray->SetName("Tcoords:floatArray");
-  vtkSmartPointer<vtkFloatArray> tensorsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> tensorsArray = vtkSmartPointer<vtkFloatArray>::New();
   tensorsArray->SetNumberOfTuples(numberOfPoints);
   tensorsArray->SetNumberOfComponents(9);
   tensorsArray->SetName("Tensors:floatArray");
   for (unsigned int i = 0; i < numberOfPoints; ++i)
   {
     scalarsArray->InsertTuple1(i, i);
-    normalsArray->InsertTuple3(i, i, i+1, i+2);
-    vectorsArray->InsertTuple3(i, i+1, i+2, i+3);
-    tcoordsArray->InsertTuple2(i, i*2, i*3);
-    tensorsArray->InsertTuple9(i, i, i+1, i+2, i+3, i+4, i+5,i+6, i+7,i+8);
+    normalsArray->InsertTuple3(i, i, i + 1, i + 2);
+    vectorsArray->InsertTuple3(i, i + 1, i + 2, i + 3);
+    tcoordsArray->InsertTuple2(i, i * 2, i * 3);
+    tensorsArray->InsertTuple9(i, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8);
   }
   pointData->SetScalars(scalarsArray);
   pointData->SetNormals(normalsArray);
@@ -277,40 +256,34 @@ vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints)
 
 vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells)
 {
-  vtkSmartPointer<vtkCellData> cellData =
-    vtkSmartPointer<vtkCellData>::New();
-  vtkSmartPointer<vtkFloatArray> scalarsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkCellData> cellData = vtkSmartPointer<vtkCellData>::New();
+  vtkSmartPointer<vtkFloatArray> scalarsArray = vtkSmartPointer<vtkFloatArray>::New();
   scalarsArray->SetNumberOfTuples(numberOfCells);
   scalarsArray->SetNumberOfComponents(1);
   scalarsArray->SetName("Scalars:floatArray");
-  vtkSmartPointer<vtkFloatArray> normalsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> normalsArray = vtkSmartPointer<vtkFloatArray>::New();
   normalsArray->SetNumberOfTuples(numberOfCells);
   normalsArray->SetNumberOfComponents(3);
   normalsArray->SetName("Normals:floatArray");
-  vtkSmartPointer<vtkFloatArray> vectorsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> vectorsArray = vtkSmartPointer<vtkFloatArray>::New();
   vectorsArray->SetNumberOfTuples(numberOfCells);
   vectorsArray->SetNumberOfComponents(3);
   vectorsArray->SetName("Vectors:floatArray");
-  vtkSmartPointer<vtkFloatArray> tcoordsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> tcoordsArray = vtkSmartPointer<vtkFloatArray>::New();
   tcoordsArray->SetNumberOfTuples(numberOfCells);
   tcoordsArray->SetNumberOfComponents(2);
   tcoordsArray->SetName("Tcoords:floatArray");
-  vtkSmartPointer<vtkFloatArray> tensorsArray =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> tensorsArray = vtkSmartPointer<vtkFloatArray>::New();
   tensorsArray->SetNumberOfTuples(numberOfCells);
   tensorsArray->SetNumberOfComponents(9);
   tensorsArray->SetName("Tensors:floatArray");
   for (unsigned int i = 0; i < numberOfCells; ++i)
   {
     scalarsArray->InsertTuple1(i, i);
-    normalsArray->InsertTuple3(i, i, i+1, i+2);
-    vectorsArray->InsertTuple3(i, i+1, i+2, i+3);
-    tcoordsArray->InsertTuple2(i, i*2, i*3);
-    tensorsArray->InsertTuple9(i, i, i+1, i+2, i+3, i+4, i+5,i+6, i+7,i+8);
+    normalsArray->InsertTuple3(i, i, i + 1, i + 2);
+    vectorsArray->InsertTuple3(i, i + 1, i + 2, i + 3);
+    tcoordsArray->InsertTuple2(i, i * 2, i * 3);
+    tensorsArray->InsertTuple9(i, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8);
   }
   cellData->SetScalars(scalarsArray);
   cellData->SetNormals(normalsArray);

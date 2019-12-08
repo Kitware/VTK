@@ -39,24 +39,22 @@ vtkSplitByCellScalarFilter::vtkSplitByCellScalarFilter()
 {
   this->PassAllPoints = true;
   // by default process active cells scalars
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS,
-                               vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
 vtkSplitByCellScalarFilter::~vtkSplitByCellScalarFilter() = default;
 
 //----------------------------------------------------------------------------
-int vtkSplitByCellScalarFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the input and output
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
-  vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
 
   if (!inScalars)
   {
@@ -87,23 +85,22 @@ int vtkSplitByCellScalarFilter::RequestData(
     return 1;
   }
 
-  vtkPointData *inPD = input->GetPointData();
-  vtkCellData *inCD = input->GetCellData();
-  vtkPointSet *inputPS = vtkPointSet::SafeDownCast(input);
+  vtkPointData* inPD = input->GetPointData();
+  vtkCellData* inCD = input->GetCellData();
+  vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input);
   vtkPolyData* inputPD = vtkPolyData::SafeDownCast(input);
   vtkUnstructuredGrid* inputUG = vtkUnstructuredGrid::SafeDownCast(input);
 
   // Create one UnstructuredGrid block per scalar ids
   std::vector<vtkPointSet*> blocks(nbBlocks);
-  std::map<vtkIdType,int >::const_iterator it = scalarValuesToBlockId.begin();
+  std::map<vtkIdType, int>::const_iterator it = scalarValuesToBlockId.begin();
   bool passAllPoints = inputPS && inputPS->GetPoints() && this->PassAllPoints;
   for (int i = 0; i < nbBlocks; i++, ++it)
   {
     vtkSmartPointer<vtkPointSet> ds;
-    ds.TakeReference(inputPD ?
-      static_cast<vtkPointSet*>(vtkPolyData::New()) :
-      static_cast<vtkPointSet*>(vtkUnstructuredGrid::New()));
-    if(passAllPoints)
+    ds.TakeReference(inputPD ? static_cast<vtkPointSet*>(vtkPolyData::New())
+                             : static_cast<vtkPointSet*>(vtkUnstructuredGrid::New()));
+    if (passAllPoints)
     {
       ds->SetPoints(inputPS->GetPoints());
       ds->GetPointData()->ShallowCopy(inPD);
@@ -118,7 +115,7 @@ int vtkSplitByCellScalarFilter::RequestData(
     }
     if (inputPD)
     {
-      vtkPolyData::SafeDownCast(ds)->Allocate();
+      vtkPolyData::SafeDownCast(ds)->AllocateCopy(inputPD);
     }
     ds->GetCellData()->CopyGlobalIdsOn();
     ds->GetCellData()->CopyAllocate(inCD);
@@ -227,7 +224,7 @@ int vtkSplitByCellScalarFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkSplitByCellScalarFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkSplitByCellScalarFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -238,6 +235,5 @@ void vtkSplitByCellScalarFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Pass All Points: "
-     << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
+  os << indent << "Pass All Points: " << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
 }

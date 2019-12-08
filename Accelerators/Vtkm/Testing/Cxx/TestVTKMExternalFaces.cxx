@@ -22,38 +22,36 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphere.h"
 #include "vtkTableBasedClipDataSet.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkPointData.h"
 
-
-namespace {
-
-bool Convert2DUnstructuredGridToPolyData(vtkUnstructuredGrid *in,
-                                         vtkPolyData *out)
+namespace
 {
-  out->Allocate();
+
+bool Convert2DUnstructuredGridToPolyData(vtkUnstructuredGrid* in, vtkPolyData* out)
+{
+  vtkIdType numCells = in->GetNumberOfCells();
+  out->AllocateEstimate(numCells, 1);
   out->SetPoints(in->GetPoints());
 
-  vtkIdType numCells = in->GetNumberOfCells();
   for (vtkIdType i = 0; i < numCells; ++i)
   {
-    vtkCell *cell = in->GetCell(i);
+    vtkCell* cell = in->GetCell(i);
     if (cell->GetCellType() != VTK_TRIANGLE && cell->GetCellType() != VTK_QUAD)
     {
-      std::cout << "Error: Unexpected cell type: " << cell->GetCellType()
-                << "\n";
+      std::cout << "Error: Unexpected cell type: " << cell->GetCellType() << "\n";
       return false;
     }
     out->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
@@ -115,14 +113,13 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   if (result->GetNumberOfPoints() >= numInputPoints)
   {
     std::cout << "Expecting the number of points in the output to be less "
-              << "than the input ("
-              << result->GetNumberOfPoints() << ">="
-              << numInputPoints << ")\n";
+              << "than the input (" << result->GetNumberOfPoints() << ">=" << numInputPoints
+              << ")\n";
     return 1;
   }
 
   if (result->GetCellData()->GetArray("RandomCellVectors")->GetNumberOfTuples() !=
-      result->GetNumberOfCells())
+    result->GetNumberOfCells())
   {
     std::cout << "Expecting a cell field with number of entries equal to "
               << "the number of cells";
@@ -135,7 +132,6 @@ int TestVTKMExternalFaces(int argc, char* argv[])
     std::cout << "Error converting result to polydata\n";
     return 1;
   }
-
 
   // render results
   double scalarRange[2];

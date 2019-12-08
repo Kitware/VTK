@@ -19,11 +19,11 @@ vtkStandardNewMacro(vtkPropCollection);
 
 int vtkPropCollection::GetNumberOfPaths()
 {
-  int numPaths=0;
-  vtkProp *aProp;
+  int numPaths = 0;
+  vtkProp* aProp;
 
   vtkCollectionSimpleIterator pit;
-  for ( this->InitTraversal(pit); (aProp=this->GetNextProp(pit)); )
+  for (this->InitTraversal(pit); (aProp = this->GetNextProp(pit));)
   {
     numPaths += aProp->GetNumberOfPaths();
   }

@@ -28,7 +28,7 @@
  * @warning
  * Binary files written on one system may not be readable on other systems.
  * Be sure to specify the endian-ness of the file when reading it into EnSight
-*/
+ */
 
 #ifndef vtkEnSightWriter_h
 #define vtkEnSightWriter_h
@@ -42,20 +42,20 @@ class VTKIOPARALLEL_EXPORT vtkEnSightWriter : public vtkWriter
 {
 
 public:
-  vtkTypeMacro(vtkEnSightWriter,vtkWriter);
+  vtkTypeMacro(vtkEnSightWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
 
    */
-  static vtkEnSightWriter *New();
+  static vtkEnSightWriter* New();
 
   //@{
   /**
    * Specify which process this writer is
    */
-  vtkSetMacro(ProcessNumber,int);
-  vtkGetMacro(ProcessNumber,int);
+  vtkSetMacro(ProcessNumber, int);
+  vtkGetMacro(ProcessNumber, int);
   //@}
 
   //@{
@@ -86,16 +86,16 @@ public:
   /**
    * Specify the Timestep that this data is for
    */
-  vtkSetMacro(TimeStep,int);
-  vtkGetMacro(TimeStep,int);
+  vtkSetMacro(TimeStep, int);
+  vtkGetMacro(TimeStep, int);
   //@}
 
   //@{
   /**
    * Specify the number of ghost levels to include in output files
    */
-  vtkSetMacro(GhostLevel,int);
-  vtkGetMacro(GhostLevel,int);
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
   //@}
 
   //@{
@@ -103,16 +103,16 @@ public:
    * Specify whether the geometry changes each timestep
    * if false, geometry is only written at timestep 0
    */
-  vtkSetMacro(TransientGeometry,bool);
-  vtkGetMacro(TransientGeometry,bool);
+  vtkSetMacro(TransientGeometry, bool);
+  vtkGetMacro(TransientGeometry, bool);
   //@}
 
   //@{
   /**
    * set the number of block ID's
    */
-  vtkSetMacro(NumberOfBlocks,int);
-  vtkGetMacro(NumberOfBlocks,int);
+  vtkSetMacro(NumberOfBlocks, int);
+  vtkGetMacro(NumberOfBlocks, int);
   //@}
 
   //@{
@@ -120,21 +120,15 @@ public:
    * set the array of Block ID's
    * this class keeps a reference to the array and will not delete it
    */
-  virtual void SetBlockIDs(int* val)
-  {
-    BlockIDs=val;
-  }
-  virtual int* GetBlockIDs()
-  {
-    return BlockIDs;
-  }
+  virtual void SetBlockIDs(int* val) { BlockIDs = val; }
+  virtual int* GetBlockIDs() { return BlockIDs; }
   //@}
 
   //@{
   /**
    * Specify the input data or filter.
    */
-  virtual void SetInputData(vtkUnstructuredGrid *input);
+  virtual void SetInputData(vtkUnstructuredGrid* input);
   virtual vtkUnstructuredGrid* GetInput();
   //@}
 
@@ -160,8 +154,8 @@ protected:
 
   virtual void WriteStringToFile(const char* string, FILE* file);
   virtual void WriteTerminatedStringToFile(const char* string, FILE* file);
-  virtual void WriteIntToFile(const int i,FILE* file);
-  virtual void WriteFloatToFile(const float f,FILE* file);
+  virtual void WriteIntToFile(const int i, FILE* file);
+  virtual void WriteFloatToFile(const float f, FILE* file);
   virtual void WriteElementTypeToFile(int ElementType, FILE* fd);
 
   virtual bool ShouldWriteGeometry();
@@ -171,24 +165,23 @@ protected:
   void ComputeNames();
   void DefaultNames();
 
-  int GetExodusModelIndex(int *ElementArray,int NumberElements,int PartID);
+  int GetExodusModelIndex(int* ElementArray, int NumberElements, int PartID);
 
-  char *Path;
-  char *BaseName;
-  char *FileName;
+  char* Path;
+  char* BaseName;
+  char* FileName;
   int TimeStep;
   int GhostLevelMultiplier;
   int ProcessNumber;
   int NumberOfProcesses;
   int NumberOfBlocks;
-  int * BlockIDs;
+  int* BlockIDs;
   bool TransientGeometry;
   int GhostLevel;
   vtkUnstructuredGrid* TmpInput;
 
   vtkEnSightWriter(const vtkEnSightWriter&) = delete;
   void operator=(const vtkEnSightWriter&) = delete;
-
 };
 
 #endif

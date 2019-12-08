@@ -14,22 +14,22 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenVRModel.h"
 
+#include "vtkInteractorObserver.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRCamera.h"
-#include "vtkOpenVRRay.h"
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
-#include "vtkTextureObject.h"
-#include "vtkRendererCollection.h"
-#include "vtkMatrix4x4.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRay.h"
+#include "vtkOpenVRRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRendererCollection.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 /*=========================================================================
 vtkOpenVRModel
@@ -57,27 +57,22 @@ void vtkOpenVRModel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Loaded "
-     << (this->Loaded  ? "On\n" : "Off\n");
+  os << indent << "Loaded " << (this->Loaded ? "On\n" : "Off\n");
 }
 
-void vtkOpenVRModel::ReleaseGraphicsResources(vtkRenderWindow *win)
+void vtkOpenVRModel::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->ModelVBO->ReleaseGraphicsResources();
   this->ModelHelper.ReleaseGraphicsResources(win);
   this->TextureObject->ReleaseGraphicsResources(win);
 }
 
-bool vtkOpenVRModel::Build(vtkOpenVRRenderWindow *win)
+bool vtkOpenVRModel::Build(vtkOpenVRRenderWindow* win)
 {
   this->ModelVBO->Upload(
-    this->RawModel->rVertexData,
-    this->RawModel->unVertexCount,
-    vtkOpenGLBufferObject::ArrayBuffer);
+    this->RawModel->rVertexData, this->RawModel->unVertexCount, vtkOpenGLBufferObject::ArrayBuffer);
 
-  this->ModelHelper.IBO->Upload(
-    this->RawModel->rIndexData,
-    this->RawModel->unTriangleCount * 3,
+  this->ModelHelper.IBO->Upload(this->RawModel->rIndexData, this->RawModel->unTriangleCount * 3,
     vtkOpenGLBufferObject::ElementArrayBuffer);
   this->ModelHelper.IBO->IndexCount = this->RawModel->unTriangleCount * 3;
 
@@ -96,7 +91,7 @@ bool vtkOpenVRModel::Build(vtkOpenVRRenderWindow *win)
     " gl_Position = matrix * vec4(position.xyz, 1);\n"
     "}\n",
 
-    //fragment shader
+    // fragment shader
     "//VTK::System::Dec\n"
     "//VTK::Output::Dec\n"
     "uniform sampler2D diffuse;\n"
@@ -108,50 +103,38 @@ bool vtkOpenVRModel::Build(vtkOpenVRRenderWindow *win)
     "}\n",
 
     // geom shader
-    ""
-    );
+    "");
 
-  vtkShaderProgram *program = this->ModelHelper.Program;
+  vtkShaderProgram* program = this->ModelHelper.Program;
   this->ModelHelper.VAO->Bind();
-  if (!this->ModelHelper.VAO->AddAttributeArray(program,
-    this->ModelVBO,
-    "position",
-    offsetof(vr::RenderModel_Vertex_t, vPosition),
-    sizeof(vr::RenderModel_Vertex_t),
-    VTK_FLOAT, 3, false))
+  if (!this->ModelHelper.VAO->AddAttributeArray(program, this->ModelVBO, "position",
+        offsetof(vr::RenderModel_Vertex_t, vPosition), sizeof(vr::RenderModel_Vertex_t), VTK_FLOAT,
+        3, false))
   {
     vtkErrorMacro(<< "Error setting position in shader VAO.");
   }
-  if (!this->ModelHelper.VAO->AddAttributeArray(program,
-    this->ModelVBO,
-    "v2TexCoordsIn",
-    offsetof(vr::RenderModel_Vertex_t, rfTextureCoord),
-    sizeof(vr::RenderModel_Vertex_t),
-    VTK_FLOAT, 2, false))
+  if (!this->ModelHelper.VAO->AddAttributeArray(program, this->ModelVBO, "v2TexCoordsIn",
+        offsetof(vr::RenderModel_Vertex_t, rfTextureCoord), sizeof(vr::RenderModel_Vertex_t),
+        VTK_FLOAT, 2, false))
   {
     vtkErrorMacro(<< "Error setting tcoords in shader VAO.");
   }
 
   // create and populate the texture
   this->TextureObject->SetContext(win);
-  this->TextureObject->Create2DFromRaw(
-    this->RawTexture->unWidth, this->RawTexture->unHeight,
-    4, VTK_UNSIGNED_CHAR,
-    const_cast<void *>(static_cast<const void *const>(
-      this->RawTexture->rubTextureMapData)));
+  this->TextureObject->Create2DFromRaw(this->RawTexture->unWidth, this->RawTexture->unHeight, 4,
+    VTK_UNSIGNED_CHAR,
+    const_cast<void*>(static_cast<const void* const>(this->RawTexture->rubTextureMapData)));
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
 
-  this->TextureObject->SetMinificationFilter(
-    vtkTextureObject::LinearMipmapLinear);
+  this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
   this->TextureObject->SetGenerateMipmap(true);
 
   return true;
 }
 
-void vtkOpenVRModel::Render(
-  vtkOpenVRRenderWindow *win,
-  const vr::TrackedDevicePose_t &pose)
+void vtkOpenVRModel::Render(vtkOpenVRRenderWindow* win, const vr::TrackedDevicePose_t& pose)
 {
   if (this->FailedToLoad)
   {
@@ -162,16 +145,15 @@ void vtkOpenVRModel::Render(
   if (!this->RawModel)
   {
     // start loading the model if we didn't find one
-    vr::EVRRenderModelError result = vr::VRRenderModels()->LoadRenderModel_Async(
-      this->GetName().c_str(), &this->RawModel);
-    if (result
-        > vr::EVRRenderModelError::VRRenderModelError_Loading)
+    vr::EVRRenderModelError result =
+      vr::VRRenderModels()->LoadRenderModel_Async(this->GetName().c_str(), &this->RawModel);
+    if (result > vr::EVRRenderModelError::VRRenderModelError_Loading)
     {
       this->FailedToLoad = true;
       if (result != vr::VRRenderModelError_NotEnoughTexCoords)
       {
-        vtkErrorMacro("Unable to load render model " <<
-          this->GetName() << " with error code " << result);
+        vtkErrorMacro(
+          "Unable to load render model " << this->GetName() << " with error code " << result);
       }
       return; // move on to the next tracked device
     }
@@ -180,12 +162,10 @@ void vtkOpenVRModel::Render(
   // if we have the model try loading the texture
   if (this->RawModel && !this->RawTexture)
   {
-    if (vr::VRRenderModels()->LoadTexture_Async(
-      this->RawModel->diffuseTextureId, &this->RawTexture)
-        > vr::EVRRenderModelError::VRRenderModelError_Loading)
+    if (vr::VRRenderModels()->LoadTexture_Async(this->RawModel->diffuseTextureId,
+          &this->RawTexture) > vr::EVRRenderModelError::VRRenderModelError_Loading)
     {
-      vtkErrorMacro(<< "Unable to load render texture for render model "
-        << this->GetName());
+      vtkErrorMacro(<< "Unable to load render texture for render model " << this->GetName());
     }
 
     // if this call succeeded and we have the texture
@@ -194,8 +174,7 @@ void vtkOpenVRModel::Render(
     {
       if (!this->Build(win))
       {
-        vtkErrorMacro("Unable to create GL model from render model "
-          << this->GetName());
+        vtkErrorMacro("Unable to create GL model from render model " << this->GetName());
       }
       vr::VRRenderModels()->FreeRenderModel(this->RawModel);
       vr::VRRenderModels()->FreeTexture(this->RawTexture);
@@ -212,15 +191,12 @@ void vtkOpenVRModel::Render(
     this->ModelHelper.IBO->Bind();
 
     this->TextureObject->Activate();
-    this->ModelHelper.Program->SetUniformi("diffuse",
-      this->TextureObject->GetTextureUnit());
+    this->ModelHelper.Program->SetUniformi("diffuse", this->TextureObject->GetTextureUnit());
 
-    vtkRenderer *ren = static_cast<vtkRenderer *>(
-      win->GetRenderers()->GetItemAsObject(0));
+    vtkRenderer* ren = static_cast<vtkRenderer*>(win->GetRenderers()->GetItemAsObject(0));
     if (ren)
     {
-      vtkOpenVRCamera *cam =
-        static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+      vtkOpenVRCamera* cam = static_cast<vtkOpenVRCamera*>(ren->GetActiveCamera());
 
       double elems[16];
       for (int j = 0; j < 3; j++)
@@ -239,20 +215,16 @@ void vtkOpenVRModel::Render(
       cam->GetTrackingToDCMatrix(tcdc);
 
       vtkMatrix4x4::Multiply4x4(
-        elems,
-        (double *)(tcdc->Element),
-        (double *)(this->PoseMatrix->Element));
+        elems, (double*)(tcdc->Element), (double*)(this->PoseMatrix->Element));
 
-      this->ModelHelper.Program->SetUniformMatrix("matrix",
-        this->PoseMatrix);
+      this->ModelHelper.Program->SetUniformMatrix("matrix", this->PoseMatrix);
     }
 
-    glDrawElements(GL_TRIANGLES,
-      static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount),
-      GL_UNSIGNED_SHORT, 0);
+    glDrawElements(
+      GL_TRIANGLES, static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount), GL_UNSIGNED_SHORT, 0);
     this->TextureObject->Deactivate();
 
-    //Draw ray
+    // Draw ray
     if (this->Ray->GetShow())
     {
       this->Ray->Render(win, this->PoseMatrix);

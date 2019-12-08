@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
+#include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextItem.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkTransform2D.h"
-#include "vtkContextItem.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkTextProperty.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkPoints2D.h"
-#include "vtkNew.h"
+#include "vtkTransform2D.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -36,14 +36,14 @@
 class ContextTest : public vtkContextItem
 {
 public:
-  static ContextTest *New();
+  static ContextTest* New();
   vtkTypeMacro(ContextTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 };
 
 //----------------------------------------------------------------------------
-int TestContext( int, char * [] )
+int TestContext(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -54,7 +54,7 @@ int TestContext( int, char * [] )
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
+    ->SetStringRendererToFreeType();
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
@@ -65,7 +65,7 @@ int TestContext( int, char * [] )
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(ContextTest);
 // This function aims to test the primitives provided by the 2D API.
-bool ContextTest::Paint(vtkContext2D *painter)
+bool ContextTest::Paint(vtkContext2D* painter)
 {
   // Test the string drawing functionality of the context
   painter->GetTextProp()->SetVerticalJustificationToCentered();
@@ -80,11 +80,9 @@ bool ContextTest::Paint(vtkContext2D *painter)
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetColor(255,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                0);
+    painter->GetPen()->SetColor(255, static_cast<unsigned char>(float(i) * 25.0), 0);
     painter->GetPen()->SetWidth(1.0 + float(i));
-    painter->DrawLine(10, 50 + float(i)*10, 60, 50 + float(i)*10);
+    painter->DrawLine(10, 50 + float(i) * 10, 60, 50 + float(i) * 10);
   }
 
   // Use the draw lines function now to draw a shape.
@@ -92,8 +90,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
   points->SetNumberOfPoints(30);
   for (int i = 0; i < 30; ++i)
   {
-    double point[2] = { float(i) * 25.0 + 10.0,
-                        sin(float(i) / 5.0) * 100.0 + 200.0 };
+    double point[2] = { float(i) * 25.0 + 10.0, sin(float(i) / 5.0) * 100.0 + 200.0 };
     points->SetPoint(i, point);
   }
   painter->GetPen()->SetColor(0, 255, 0);
@@ -109,19 +106,17 @@ bool ContextTest::Paint(vtkContext2D *painter)
   painter->DrawPoint(790, 590);
 
   // Test the markers
-  float markerPoints[10*2];
-  unsigned char markerColors[10*4];
+  float markerPoints[10 * 2];
+  unsigned char markerColors[10 * 4];
   for (int i = 0; i < 10; ++i)
   {
-    markerPoints[2 * i]     = 500.0 + i * 30.0;
+    markerPoints[2 * i] = 500.0 + i * 30.0;
     markerPoints[2 * i + 1] = 20 * sin(markerPoints[2 * i]) + 375.0;
 
-    markerColors[4 * i]     = static_cast<unsigned char>(255 * i / 10.0);
-    markerColors[4 * i + 1] =
-        static_cast<unsigned char>(255 * (1.0 - i / 10.0));
+    markerColors[4 * i] = static_cast<unsigned char>(255 * i / 10.0);
+    markerColors[4 * i + 1] = static_cast<unsigned char>(255 * (1.0 - i / 10.0));
     markerColors[4 * i + 2] = static_cast<unsigned char>(255 * (0.3));
-    markerColors[4 * i + 3] =
-        static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
+    markerColors[4 * i + 3] = static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
   }
 
   for (int style = VTK_MARKER_NONE + 1; style < VTK_MARKER_UNKNOWN; ++style)
@@ -136,17 +131,15 @@ bool ContextTest::Paint(vtkContext2D *painter)
     painter->DrawMarkers(style, false, markerPoints, 10, markerColors, 4);
     // Highlight the middle 4 points
     painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
-    painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
+    painter->DrawMarkers(style, true, markerPoints + 3 * 2, 4);
   }
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetColor(0,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                255, 255);
+    painter->GetPen()->SetColor(0, static_cast<unsigned char>(float(i) * 25.0), 255, 255);
     painter->GetPen()->SetWidth(1.0 + float(i));
-    painter->DrawPoint(75, 50 + float(i)*10);
+    painter->DrawPoint(75, 50 + float(i) * 10);
   }
 
   painter->GetPen()->SetColor(0, 0, 255);
@@ -163,8 +156,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(159, 0, 255);
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(100, 55, 0, 200);
-  painter->DrawQuad(350, 50, 375, 150,
-                    525, 199, 666, 45);
+  painter->DrawQuad(350, 50, 375, 150, 525, 199, 666, 45);
 
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;

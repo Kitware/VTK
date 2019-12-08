@@ -25,14 +25,14 @@
  *
  * This filter is useful for analyzing the efficacy of an input mesh's ability
  * to represent the cell data of the source mesh.
-*/
+ */
 
 #ifndef vtkBinCellDataFilter_h
 #define vtkBinCellDataFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
+#include "vtkFiltersCoreModule.h" // For export macro
 
 #include "vtkContourValues.h" // Needed for inline methods
 
@@ -47,13 +47,13 @@ public:
    * Construct object with initial range (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX) and
    * a single bin.
    */
-  static vtkBinCellDataFilter *New();
+  static vtkBinCellDataFilter* New();
 
   //@{
   /**
    * Standard methods for type and printing.
    */
-  vtkTypeMacro(vtkBinCellDataFilter,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkBinCellDataFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -63,8 +63,8 @@ public:
    */
   void SetValue(int i, double value);
   double GetValue(int i);
-  double *GetValues();
-  void GetValues(double *binValues);
+  double* GetValues();
+  void GetValues(double* binValues);
   void SetNumberOfBins(int numBins);
   vtkIdType GetNumberOfBins();
   void GenerateValues(int numBins, double range[2]);
@@ -78,8 +78,8 @@ public:
    * while the Source is used to determine how many source cells lie within
    * each input cell.
    */
-  void SetSourceData(vtkDataObject *source);
-  vtkDataObject *GetSource();
+  void SetSourceData(vtkDataObject* source);
+  vtkDataObject* GetSource();
   //@}
 
   /**
@@ -122,8 +122,8 @@ public:
    * of nonzero bins per cell.
    * Set to "NumberOfNonzeroBins" by default.
    */
-  vtkSetStringMacro(NumberOfNonzeroBinsArrayName)
-  vtkGetStringMacro(NumberOfNonzeroBinsArrayName)
+  vtkSetStringMacro(NumberOfNonzeroBinsArrayName);
+  vtkGetStringMacro(NumberOfNonzeroBinsArrayName);
   //@}
 
   //@{
@@ -151,14 +151,14 @@ public:
   /**
    * Set/get which component of the scalar array to bin; defaults to 0.
    */
-  vtkSetMacro(ArrayComponent,int);
-  vtkGetMacro(ArrayComponent,int);
+  vtkSetMacro(ArrayComponent, int);
+  vtkGetMacro(ArrayComponent, int);
   //@}
 
   enum CellOverlapCriterion
   {
-    CELL_CENTROID=0,
-    CELL_POINTS=1,
+    CELL_CENTROID = 0,
+    CELL_POINTS = 1,
   };
 
   //@{
@@ -167,7 +167,7 @@ public:
    * cell points.
    * Centroid by default.
    */
-  vtkSetClampMacro(CellOverlapMethod,int,CELL_CENTROID,CELL_POINTS);
+  vtkSetClampMacro(CellOverlapMethod, int, CELL_CENTROID, CELL_POINTS);
   vtkGetMacro(CellOverlapMethod, int);
   //@}
 
@@ -176,8 +176,8 @@ public:
    * Set/Get a spatial locator for speeding the search process. By
    * default an instance of vtkStaticCellLocator is used.
    */
-  virtual void SetCellLocator(vtkAbstractCellLocator *cellLocator);
-  vtkGetObjectMacro(CellLocator,vtkAbstractCellLocator);
+  virtual void SetCellLocator(vtkAbstractCellLocator* cellLocator);
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   //@}
 
 protected:
@@ -192,16 +192,13 @@ protected:
   int ArrayComponent;
   int CellOverlapMethod;
 
-  vtkBinValues *BinValues;
-  vtkAbstractCellLocator *CellLocator;
+  vtkBinValues* BinValues;
+  vtkAbstractCellLocator* CellLocator;
   virtual void CreateDefaultLocator();
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* NumberOfNonzeroBinsArrayName;
 
@@ -215,28 +212,36 @@ private:
  * between 0<=i<NumberOfBins.
  */
 inline void vtkBinCellDataFilter::SetValue(int i, double value)
-{this->BinValues->SetValue(i,value);}
+{
+  this->BinValues->SetValue(i, value);
+}
 
 /**
  * Get the ith bin value.
  */
 inline double vtkBinCellDataFilter::GetValue(int i)
-{return this->BinValues->GetValue(i);}
+{
+  return this->BinValues->GetValue(i);
+}
 
 /**
  * Get a pointer to an array of bin values. There will be
  * GetNumberOfBins() values in the list.
  */
-inline double *vtkBinCellDataFilter::GetValues()
-{return this->BinValues->GetValues();}
+inline double* vtkBinCellDataFilter::GetValues()
+{
+  return this->BinValues->GetValues();
+}
 
 /**
  * Fill a supplied list with bin values. There will be
  * GetNumberOfBins() values in the list. Make sure you allocate
  * enough memory to hold the list.
  */
-inline void vtkBinCellDataFilter::GetValues(double *binValues)
-{this->BinValues->GetValues(binValues);}
+inline void vtkBinCellDataFilter::GetValues(double* binValues)
+{
+  this->BinValues->GetValues(binValues);
+}
 
 /**
  * Set the number of bins to place into the list. You only really
@@ -244,28 +249,35 @@ inline void vtkBinCellDataFilter::GetValues(double *binValues)
  * will automatically increase list size as needed.
  */
 inline void vtkBinCellDataFilter::SetNumberOfBins(int number)
-{this->BinValues->SetNumberOfContours(number);}
+{
+  this->BinValues->SetNumberOfContours(number);
+}
 
 /**
  * Get the number of bins in the list of bin values, not counting the overflow
  * bin.
  */
 inline vtkIdType vtkBinCellDataFilter::GetNumberOfBins()
-{return this->BinValues->GetNumberOfContours();}
+{
+  return this->BinValues->GetNumberOfContours();
+}
 
 /**
  * Generate numBins equally spaced bin values between specified
  * range. Bin values will include min/max range values.
  */
 inline void vtkBinCellDataFilter::GenerateValues(int numBins, double range[2])
-{this->BinValues->GenerateValues(numBins, range);}
+{
+  this->BinValues->GenerateValues(numBins, range);
+}
 
 /**
  * Generate numBins equally spaced bin values between specified
  * range. Bin values will include min/max range values.
  */
-inline void vtkBinCellDataFilter::GenerateValues(int numBins, double
-                                                 rangeStart, double rangeEnd)
-{this->BinValues->GenerateValues(numBins, rangeStart, rangeEnd);}
+inline void vtkBinCellDataFilter::GenerateValues(int numBins, double rangeStart, double rangeEnd)
+{
+  this->BinValues->GenerateValues(numBins, rangeStart, rangeEnd);
+}
 
 #endif

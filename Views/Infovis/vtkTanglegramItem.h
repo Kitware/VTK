@@ -24,7 +24,7 @@
  *
  * .SEE ALSO
  * vtkTree vtkTable vtkDendrogramItem vtkNewickTreeReader
-*/
+ */
 
 #ifndef vtkTanglegramItem_h
 #define vtkTanglegramItem_h
@@ -32,8 +32,8 @@
 #include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h"       // For SmartPointer ivars
-#include "vtkTable.h"  // For get/set
+#include "vtkSmartPointer.h" // For SmartPointer ivars
+#include "vtkTable.h"        // For get/set
 
 class vtkDendrogramItem;
 class vtkLookupTable;
@@ -43,19 +43,19 @@ class vtkTree;
 class VTKVIEWSINFOVIS_EXPORT vtkTanglegramItem : public vtkContextItem
 {
 public:
-  static vtkTanglegramItem *New();
+  static vtkTanglegramItem* New();
   vtkTypeMacro(vtkTanglegramItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the first tree
    */
-  virtual void SetTree1(vtkTree *tree);
+  virtual void SetTree1(vtkTree* tree);
 
   /**
    * Set the second tree
    */
-  virtual void SetTree2(vtkTree *tree);
+  virtual void SetTree2(vtkTree* tree);
 
   //@{
   /**
@@ -67,8 +67,8 @@ public:
    * in the table will result in connections being drawn in different
    * colors.
    */
-  vtkTable * GetTable();
-  void SetTable(vtkTable *table);
+  vtkTable* GetTable();
+  void SetTable(vtkTable* table);
   //@}
 
   //@{
@@ -139,13 +139,13 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Propagate any double click onto the dendrograms to check if any
    * subtrees should be collapsed or expanded.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& event) override;
 
 protected:
   vtkTanglegramItem();
@@ -154,7 +154,7 @@ protected:
   /**
    * Update the bounds of our two dendrograms.
    */
-  void RefreshBuffers(vtkContext2D *painter);
+  void RefreshBuffers(vtkContext2D* painter);
 
   /**
    * Calculate and set an appropriate position for our second dendrogram.
@@ -164,12 +164,12 @@ protected:
   /**
    * Draw the lines between the corresponding vertices of our two dendrograms.
    */
-  void PaintCorrespondenceLines(vtkContext2D *painter);
+  void PaintCorrespondenceLines(vtkContext2D* painter);
 
   /**
    * Draw the labels of our two dendrograms.
    */
-  void PaintTreeLabels(vtkContext2D *painter);
+  void PaintTreeLabels(vtkContext2D* painter);
 
   /**
    * Reorder the children of tree #2 to minimize the amount of crossings
@@ -182,7 +182,7 @@ protected:
    * Rearrange the children of the specified parent vertex in order to minimize
    * tanglegram crossings.
    */
-  void ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree);
+  void ReorderTreeAtVertex(vtkIdType parent, vtkTree* tree);
 
   /**
    * Helper function used by ReorderTreeAtVertex.  Get the average height of
@@ -190,7 +190,7 @@ protected:
    * is used to determine what order sibling vertices should have within the
    * tree.
    */
-  double GetPositionScoreForVertex(vtkIdType vertex, vtkTree *tree);
+  double GetPositionScoreForVertex(vtkIdType vertex, vtkTree* tree);
 
   /**
    * Initialize the lookup table used to color the lines between the two
@@ -201,16 +201,16 @@ protected:
   /**
    * Paints the tree & associated table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 private:
   vtkSmartPointer<vtkDendrogramItem> Dendrogram1;
   vtkSmartPointer<vtkDendrogramItem> Dendrogram2;
   vtkSmartPointer<vtkLookupTable> LookupTable;
   vtkSmartPointer<vtkTable> Table;
-  vtkStringArray *Tree1Names;
-  vtkStringArray *Tree2Names;
-  vtkStringArray *SourceNames;
+  vtkStringArray* Tree1Names;
+  vtkStringArray* Tree2Names;
+  vtkStringArray* SourceNames;
   double Tree1Bounds[4];
   double Tree2Bounds[4];
   double Spacing;
@@ -227,7 +227,6 @@ private:
 
   vtkTanglegramItem(const vtkTanglegramItem&) = delete;
   void operator=(const vtkTanglegramItem&) = delete;
-
 };
 
 #endif

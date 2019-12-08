@@ -24,14 +24,14 @@
  * I may also add block id and level as extra cell arrays.
  * This source produces a vtkHierarchicalBoxDataSet when
  * GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
-*/
+ */
 
 #ifndef vtkTemporalFractal_h
 #define vtkTemporalFractal_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkSmartPointer.h" //for ivars
+#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkSmartPointer.h"        //for ivars
 
 class vtkCompositeDataSet;
 class vtkDataSet;
@@ -41,15 +41,15 @@ class vtkRectilinearGrid;
 class vtkUniformGrid;
 class TemporalFractalOutputUtil;
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal : public vtkAlgorithm
 {
 public:
   //@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
-  static vtkTemporalFractal *New();
-  vtkTypeMacro(vtkTemporalFractal,vtkAlgorithm);
+  static vtkTemporalFractal* New();
+  vtkTypeMacro(vtkTemporalFractal, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -123,8 +123,8 @@ public:
    * Test the case when the blocks do not have the same sizes.
    * Adds 2 to the x extent of the far x blocks (level 1).
    */
-  vtkSetMacro(Asymmetric,int);
-  vtkGetMacro(Asymmetric,int);
+  vtkSetMacro(Asymmetric, int);
+  vtkGetMacro(Asymmetric, int);
   //@}
 
   //@{
@@ -135,7 +135,6 @@ public:
   vtkGetMacro(AdaptiveSubdivision, vtkTypeBool);
   vtkBooleanMacro(AdaptiveSubdivision, vtkTypeBool);
   //@}
-
 
 protected:
   vtkTemporalFractal();
@@ -150,79 +149,59 @@ protected:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector**,
-                                vtkInformationVector*);
+  virtual int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   //@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
-  virtual int RequestOneTimeStep(vtkCompositeDataSet *output,
-                                 vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  virtual int RequestOneTimeStep(vtkCompositeDataSet* output, vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
   //@}
 
-  void Traverse(int &blockId, int level, vtkDataObject* output,
-                int x0,int x1, int y0,int y1, int z0,int z1,
-                int onFace[6]);
+  void Traverse(int& blockId, int level, vtkDataObject* output, int x0, int x1, int y0, int y1,
+    int z0, int z1, int onFace[6]);
 
-  int LineTest2(float x0, float y0, float z0,
-                float x1, float y1, float z1,
-                double bds[6]);
-  int LineTest(float x0, float y0, float z0,
-               float x1, float y1, float z1,
-               double bds[6], int level, int target);
+  int LineTest2(float x0, float y0, float z0, float x1, float y1, float z1, double bds[6]);
+  int LineTest(float x0, float y0, float z0, float x1, float y1, float z1, double bds[6], int level,
+    int target);
 
-  void SetBlockInfo(vtkUniformGrid *grid, int level, int* ext,int onFace[6]);
-  void SetRBlockInfo(vtkRectilinearGrid *grid, int level, int* ext,
-                     int onFace[6]);
+  void SetBlockInfo(vtkUniformGrid* grid, int level, int* ext, int onFace[6]);
+  void SetRBlockInfo(vtkRectilinearGrid* grid, int level, int* ext, int onFace[6]);
 
-  void AddVectorArray(vtkHierarchicalBoxDataSet *output);
-  void AddTestArray(vtkHierarchicalBoxDataSet *output);
+  void AddVectorArray(vtkHierarchicalBoxDataSet* output);
+  void AddTestArray(vtkHierarchicalBoxDataSet* output);
   void AddFractalArray(vtkCompositeDataSet* output);
-  void AddBlockIdArray(vtkHierarchicalBoxDataSet *output);
-  void AddDepthArray(vtkHierarchicalBoxDataSet *output);
+  void AddBlockIdArray(vtkHierarchicalBoxDataSet* output);
+  void AddDepthArray(vtkHierarchicalBoxDataSet* output);
 
-  void AddGhostLevelArray(vtkDataSet *grid,
-                          int dim[3],
-                          int onFace[6]);
+  void AddGhostLevelArray(vtkDataSet* grid, int dim[3], int onFace[6]);
 
   int MandelbrotTest(double x, double y);
   int TwoDTest(double bds[6], int level, int target);
 
-  void CellExtentToBounds(int level,
-                          int ext[6],
-                          double bds[6]);
+  void CellExtentToBounds(int level, int ext[6], double bds[6]);
 
-  void ExecuteRectilinearMandelbrot(vtkRectilinearGrid *grid,
-                                    double *ptr);
+  void ExecuteRectilinearMandelbrot(vtkRectilinearGrid* grid, double* ptr);
   double EvaluateSet(double p[4]);
-  void GetContinuousIncrements(int extent[6],
-                               vtkIdType &incX,
-                               vtkIdType &incY,
-                               vtkIdType &incZ);
+  void GetContinuousIncrements(int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
 
   // Dimensions:
   // Specify blocks relative to this top level block.
@@ -232,14 +211,14 @@ protected:
   vtkSetVector3Macro(TopLevelOrigin, double);
   vtkGetVector3Macro(TopLevelOrigin, double);
 
-  void InternalImageDataCopy(vtkTemporalFractal *src);
+  void InternalImageDataCopy(vtkTemporalFractal* src);
 
   int Asymmetric;
   int MaximumLevel;
   int Dimensions;
   float FractalValue;
   vtkTypeBool GhostLevels;
-  vtkIntArray *Levels;
+  vtkIntArray* Levels;
   vtkTypeBool TwoDimensional;
   vtkTypeBool DiscreteTimeSteps;
 
@@ -258,6 +237,5 @@ private:
   vtkTemporalFractal(const vtkTemporalFractal&) = delete;
   void operator=(const vtkTemporalFractal&) = delete;
 };
-
 
 #endif

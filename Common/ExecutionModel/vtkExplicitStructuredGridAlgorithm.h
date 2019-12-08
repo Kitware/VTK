@@ -45,7 +45,8 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -78,16 +79,14 @@ protected:
   ~vtkExplicitStructuredGridAlgorithm() override = default;
 
   // convenience method
-  virtual int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
   /**

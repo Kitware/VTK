@@ -19,7 +19,7 @@
  * vtkStructuredGridAppend takes the components from multiple inputs and merges
  * them into one output. All inputs must have the same number of scalar components.
  * All inputs must have the same scalar type.
-*/
+ */
 
 #ifndef vtkStructuredGridAppend_h
 #define vtkStructuredGridAppend_h
@@ -29,9 +29,9 @@
 
 class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAlgorithm
 {
- public:
-  static vtkStructuredGridAppend *New();
-  vtkTypeMacro(vtkStructuredGridAppend,vtkStructuredGridAlgorithm);
+public:
+  static vtkStructuredGridAppend* New();
+  vtkTypeMacro(vtkStructuredGridAppend, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -48,8 +48,8 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(int num, vtkDataObject *input);
-  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); };
+  void SetInputData(int num, vtkDataObject* input);
+  void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
   //@}
 
   //@{
@@ -58,8 +58,8 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
    * old-style pipeline connections.  When writing new code you should
    * use vtkAlgorithm::GetInputConnection(0, num).
    */
-  vtkDataObject *GetInput(int num);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject* GetInput(int num);
+  vtkDataObject* GetInput() { return this->GetInput(0); }
   //@}
 
   /**
@@ -67,28 +67,22 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
    * support of old-style pipeline connections.  When writing new code
    * you should use vtkAlgorithm::GetNumberOfInputConnections(0).
    */
-  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
 
- protected:
+protected:
   vtkStructuredGridAppend();
   ~vtkStructuredGridAppend() override;
 
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // see vtkAlgorithm for docs.
   int FillInputPortInformation(int, vtkInformation*) override;
 
- private:
+private:
   vtkStructuredGridAppend(const vtkStructuredGridAppend&) = delete;
   void operator=(const vtkStructuredGridAppend&) = delete;
 };

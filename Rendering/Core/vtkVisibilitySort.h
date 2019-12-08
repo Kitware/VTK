@@ -41,13 +41,13 @@
  * loop holding the visibility sort should also report that to the garbage
  * collector.
  *
-*/
+ */
 
 #ifndef vtkVisibilitySort_h
 #define vtkVisibilitySort_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkDataSet;
@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -73,7 +73,7 @@ public:
    * after subsequent calls to GetNextCells.
    */
   virtual void InitTraversal() = 0;
-  virtual vtkIdTypeArray *GetNextCells() = 0;
+  virtual vtkIdTypeArray* GetNextCells() = 0;
   //@}
 
   //@{
@@ -91,7 +91,7 @@ public:
    * Generally, you get this matrix from a call to GetMatrix of a vtkProp3D
    * (vtkActor).
    */
-  virtual void SetModelTransform(vtkMatrix4x4 *mat);
+  virtual void SetModelTransform(vtkMatrix4x4* mat);
   vtkGetObjectMacro(ModelTransform, vtkMatrix4x4);
   //@}
 
@@ -101,7 +101,7 @@ public:
   /**
    * Set/Get the camera that specifies the viewing parameters.
    */
-  virtual void SetCamera(vtkCamera *camera);
+  virtual void SetCamera(vtkCamera* camera);
   vtkGetObjectMacro(Camera, vtkCamera);
   //@}
 
@@ -109,7 +109,7 @@ public:
   /**
    * Set/Get the data set containing the cells to sort.
    */
-  virtual void SetInput(vtkDataSet *data);
+  virtual void SetInput(vtkDataSet* data);
   vtkGetObjectMacro(Input, vtkDataSet);
   //@}
 
@@ -124,14 +124,18 @@ public:
   void SetDirectionToFrontToBack() { this->SetDirection(FRONT_TO_BACK); }
   //@}
 
-  enum { BACK_TO_FRONT, FRONT_TO_BACK };
+  enum
+  {
+    BACK_TO_FRONT,
+    FRONT_TO_BACK
+  };
 
   //@{
   /**
    * Overwritten to enable garbage collection.
    */
-  void Register(vtkObjectBase *o) override;
-  void UnRegister(vtkObjectBase *o) override;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
 protected:
@@ -140,21 +144,20 @@ protected:
 
   vtkTimeStamp LastSortTime;
 
-  vtkMatrix4x4 *ModelTransform;
-  vtkMatrix4x4 *InverseModelTransform;
-  vtkCamera *Camera;
-  vtkDataSet *Input;
+  vtkMatrix4x4* ModelTransform;
+  vtkMatrix4x4* InverseModelTransform;
+  vtkCamera* Camera;
+  vtkDataSet* Input;
 
   int MaxCellsReturned;
 
   int Direction;
 
-  void ReportReferences(vtkGarbageCollector *collector) override;
+  void ReportReferences(vtkGarbageCollector* collector) override;
 
 private:
-  vtkVisibilitySort(const vtkVisibilitySort &) = delete;
-  void operator=(const vtkVisibilitySort &) = delete;
+  vtkVisibilitySort(const vtkVisibilitySort&) = delete;
+  void operator=(const vtkVisibilitySort&) = delete;
 };
 
-#endif //vtkVisibilitySort_h
-
+#endif // vtkVisibilitySort_h

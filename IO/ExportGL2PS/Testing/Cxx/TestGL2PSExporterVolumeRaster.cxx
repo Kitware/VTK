@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
-#include "vtkCubeAxesActor2D.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCone.h"
+#include "vtkCubeAxesActor2D.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
@@ -29,19 +29,19 @@
 #include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSampleFunction.h"
 #include "vtkSmartPointer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkTestingInteractor.h"
-#include "vtkVolumeProperty.h"
 #include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <string>
 
-int TestGL2PSExporterVolumeRaster( int, char *[] )
+int TestGL2PSExporterVolumeRaster(int, char*[])
 {
   vtkNew<vtkCone> coneFunction;
   vtkNew<vtkSampleFunction> coneSample;
@@ -64,7 +64,7 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   {
     mag = 1.0;
   }
-  coneShift->SetScale(255.0/mag);
+  coneShift->SetScale(255.0 / mag);
   coneShift->SetOutputScalarTypeToUnsignedChar();
   coneShift->Update();
 
@@ -78,19 +78,19 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   volProp->SetInterpolationTypeToLinear();
 
   vtkNew<vtkPiecewiseFunction> opacity;
-  opacity->AddPoint(0.0,   0.9);
-  opacity->AddPoint(20.0,  0.9);
-  opacity->AddPoint(40.0,  0.3);
-  opacity->AddPoint(90.0,  0.8);
+  opacity->AddPoint(0.0, 0.9);
+  opacity->AddPoint(20.0, 0.9);
+  opacity->AddPoint(40.0, 0.3);
+  opacity->AddPoint(90.0, 0.8);
   opacity->AddPoint(100.1, 0.0);
   opacity->AddPoint(255.0, 0.0);
   volProp->SetScalarOpacity(opacity);
 
   vtkNew<vtkColorTransferFunction> color;
-  color->AddRGBPoint(0.0,   0.0, 0.0, 1.0);
-  color->AddRGBPoint(20.0,  0.0, 1.0, 1.0);
-  color->AddRGBPoint(40.0,  0.5, 0.0, 1.0);
-  color->AddRGBPoint(80.0,  1.0, 0.2, 0.3);
+  color->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
+  color->AddRGBPoint(20.0, 0.0, 1.0, 1.0);
+  color->AddRGBPoint(40.0, 0.5, 0.0, 1.0);
+  color->AddRGBPoint(80.0, 1.0, 0.2, 0.3);
   color->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
   volProp->SetColor(color);
 
@@ -131,8 +131,8 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   exp->DrawBackgroundOn();
   exp->Write3DPropsAsRasterImageOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSExporterVolumeRaster");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterVolumeRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

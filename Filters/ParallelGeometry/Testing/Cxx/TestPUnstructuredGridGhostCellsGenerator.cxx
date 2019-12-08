@@ -20,8 +20,8 @@
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPUnstructuredGridGhostCellsGenerator.h"
+#include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
@@ -35,18 +35,18 @@ namespace
 class vtkRTAnalyticSource2 : public vtkRTAnalyticSource
 {
 public:
-  static vtkRTAnalyticSource2 *New();
+  static vtkRTAnalyticSource2* New();
   vtkTypeMacro(vtkRTAnalyticSource2, vtkRTAnalyticSource);
 
 protected:
   vtkRTAnalyticSource2() {}
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) override
+  virtual void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo) override
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 
     // Split the update extent further based on piece request.
-    vtkImageData *data = vtkImageData::GetData(outInfo);
+    vtkImageData* data = vtkImageData::GetData(outInfo);
     int* outExt = data->GetExtent();
     int* whlExt = this->GetWholeExtent();
 
@@ -70,8 +70,8 @@ protected:
       {
         for (int idxX = 0; idxX < maxX; idxX++, cnt++)
         {
-          ids->SetValue(cnt, (idxX + outExt[0]) +
-            (idxY + outExt[2]) * dX + (idxZ + outExt[4]) * (dX*dY));
+          ids->SetValue(
+            cnt, (idxX + outExt[0]) + (idxY + outExt[2]) * dX + (idxZ + outExt[4]) * (dX * dY));
         }
       }
     }
@@ -138,7 +138,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   // Check if algorithm works with empty input on all nodes except first one
   vtkNew<vtkUnstructuredGrid> emptyGrid;
   ghostGenerator->SetInputData(myRank == 0 ? initialGrid : emptyGrid);
-  for(int step = 0; step < 2; ++step)
+  for (int step = 0; step < 2; ++step)
   {
     ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
     ghostGenerator->UpdatePiece(myRank, nbRanks, 1);
@@ -150,9 +150,9 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   // for several ghost layer levels
   int maxGhostLevel = 2;
   vtkSmartPointer<vtkUnstructuredGrid> outGrids[2];
-  for(int ghostLevel = 1; ghostLevel <= maxGhostLevel; ++ghostLevel)
+  for (int ghostLevel = 1; ghostLevel <= maxGhostLevel; ++ghostLevel)
   {
-    for(int step = 0; step < 2; ++step)
+    for (int step = 0; step < 2; ++step)
     {
       ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
       ghostGenerator->Modified();
@@ -174,10 +174,10 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       controller->Reduce(&elapsed, &maxGhostUpdateTime, 1, vtkCommunicator::MAX_OP, 0);
       controller->Reduce(&elapsed, &avgGhostUpdateTime, 1, vtkCommunicator::SUM_OP, 0);
       avgGhostUpdateTime /= static_cast<double>(nbRanks);
-      if(controller->GetLocalProcessId() == 0)
+      if (controller->GetLocalProcessId() == 0)
       {
-        cerr << "-- Ghost Level: " << ghostLevel << " UseGlobalPointIds: "
-             << ghostGenerator->GetUseGlobalPointIds()
+        cerr << "-- Ghost Level: " << ghostLevel
+             << " UseGlobalPointIds: " << ghostGenerator->GetUseGlobalPointIds()
              << " Elapsed Time: min=" << minGhostUpdateTime << ", avg=" << avgGhostUpdateTime
              << ", max=" << maxGhostUpdateTime << endl;
       }
@@ -187,40 +187,43 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
     // quantitative correct values for runs with 4 MPI processes
     // components are for [ghostlevel][procid][bounds]
-    vtkIdType correctCellCounts[2] = {675800/4, 728800/4};
-    double correctBounds[2][4][6] =
-      { { {0.000000, 50.000000, 0.000000, 26.000000, 0.000000, 26.000000},
-          {0.000000, 50.000000, 24.000000, 50.000000, 0.000000, 26.000000},
-          {0.000000, 50.000000, 0.000000, 26.000000, 24.000000, 50.000000},
-          {0.000000, 50.000000, 24.000000, 50.000000, 24.000000, 50.000000}, },
-        { {0.000000, 50.000000, 0.000000, 27.000000, 0.000000, 27.000000},
-          {0.000000, 50.000000, 23.000000, 50.000000, 0.000000, 27.000000},
-          {0.000000, 50.000000, 0.000000, 27.000000, 23.000000, 50.000000},
-          {0.000000, 50.000000, 23.000000, 50.000000, 23.000000, 50.000000} } };
+    vtkIdType correctCellCounts[2] = { 675800 / 4, 728800 / 4 };
+    double correctBounds[2][4][6] = {
+      {
+        { 0.000000, 50.000000, 0.000000, 26.000000, 0.000000, 26.000000 },
+        { 0.000000, 50.000000, 24.000000, 50.000000, 0.000000, 26.000000 },
+        { 0.000000, 50.000000, 0.000000, 26.000000, 24.000000, 50.000000 },
+        { 0.000000, 50.000000, 24.000000, 50.000000, 24.000000, 50.000000 },
+      },
+      { { 0.000000, 50.000000, 0.000000, 27.000000, 0.000000, 27.000000 },
+        { 0.000000, 50.000000, 23.000000, 50.000000, 0.000000, 27.000000 },
+        { 0.000000, 50.000000, 0.000000, 27.000000, 23.000000, 50.000000 },
+        { 0.000000, 50.000000, 23.000000, 50.000000, 23.000000, 50.000000 } }
+    };
     for (int step = 0; step < 2; ++step)
     {
       if (nbRanks == 4)
       {
-        if (outGrids[step]->GetNumberOfCells() != correctCellCounts[ghostLevel-1])
+        if (outGrids[step]->GetNumberOfCells() != correctCellCounts[ghostLevel - 1])
         {
-          cerr << "Wrong number of cells on process " << myRank
-               << " for " << ghostLevel << " ghost levels!\n";
+          cerr << "Wrong number of cells on process " << myRank << " for " << ghostLevel
+               << " ghost levels!\n";
           ret = EXIT_FAILURE;
         }
         double bounds[6];
         outGrids[step]->GetBounds(bounds);
-        for (int i=0;i<6;i++)
+        for (int i = 0; i < 6; i++)
         {
-          if (std::abs(bounds[i]-correctBounds[ghostLevel-1][myRank][i]) > .001)
+          if (std::abs(bounds[i] - correctBounds[ghostLevel - 1][myRank][i]) > .001)
           {
-          cerr << "Wrong bounds for " << ghostLevel << " ghost levels!\n";
-          ret = EXIT_FAILURE;
+            cerr << "Wrong bounds for " << ghostLevel << " ghost levels!\n";
+            ret = EXIT_FAILURE;
           }
         }
-       }
+      }
 
-      vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
-        outGrids[step]->GetCellGhostArray());
+      vtkUnsignedCharArray* ghosts =
+        vtkArrayDownCast<vtkUnsignedCharArray>(outGrids[step]->GetCellGhostArray());
       if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
       {
         cerr << "Obtained grids for ghost level " << ghostLevel
@@ -229,8 +232,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       }
       if (!ghosts)
       {
-        cerr << "Ghost cells array not found at ghost level " << ghostLevel
-             << ", step " << step << "!\n";
+        cerr << "Ghost cells array not found at ghost level " << ghostLevel << ", step " << step
+             << "!\n";
         ret = EXIT_FAILURE;
         continue;
       }
@@ -255,7 +258,6 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       }
     }
   }
-
 
   controller->Finalize();
   return ret;

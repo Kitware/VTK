@@ -20,26 +20,20 @@
  * vtkCamera.  vtkExternalOpenGLCamera interfaces to the OpenGL rendering library.
  * This class extends vtkOpenGLCamera by introducing API wherein the camera
  * matrices can be set explicitly by the application.
-*/
+ */
 
 #ifndef vtkExternalOpenGLCamera_h
 #define vtkExternalOpenGLCamera_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLCamera.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
-class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera :
-  public vtkOpenGLCamera
+class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera : public vtkOpenGLCamera
 {
 public:
-  static vtkExternalOpenGLCamera *New();
+  static vtkExternalOpenGLCamera* New();
   vtkTypeMacro(vtkExternalOpenGLCamera, vtkOpenGLCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Implement base class method.
-   */
-  void Render(vtkRenderer *ren) override;
 
   /**
    * Set the view transform matrix

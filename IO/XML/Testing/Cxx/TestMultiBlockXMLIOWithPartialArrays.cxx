@@ -40,13 +40,13 @@ int TestMultiBlockXMLIOWithPartialArrays(int argc, char* argv[])
   reader->Update();
 
   auto inMB = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
-  if (inMB->GetNumberOfBlocks() != 2 ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(0)) == nullptr ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(0))->GetPointData()->GetArray("Normals") == nullptr ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(0))->GetPointData()->GetArray("NewNormals") != nullptr ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(1)) == nullptr ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(1))->GetPointData()->GetArray("Normals") != nullptr ||
-      vtkPolyData::SafeDownCast(inMB->GetBlock(1))->GetPointData()->GetArray("NewNormals") == nullptr)
+  if (inMB->GetNumberOfBlocks() != 2 || vtkPolyData::SafeDownCast(inMB->GetBlock(0)) == nullptr ||
+    vtkPolyData::SafeDownCast(inMB->GetBlock(0))->GetPointData()->GetArray("Normals") == nullptr ||
+    vtkPolyData::SafeDownCast(inMB->GetBlock(0))->GetPointData()->GetArray("NewNormals") !=
+      nullptr ||
+    vtkPolyData::SafeDownCast(inMB->GetBlock(1)) == nullptr ||
+    vtkPolyData::SafeDownCast(inMB->GetBlock(1))->GetPointData()->GetArray("Normals") != nullptr ||
+    vtkPolyData::SafeDownCast(inMB->GetBlock(1))->GetPointData()->GetArray("NewNormals") == nullptr)
   {
     cerr << "ERROR: In/out data mismatched!" << endl;
     return EXIT_FAILURE;

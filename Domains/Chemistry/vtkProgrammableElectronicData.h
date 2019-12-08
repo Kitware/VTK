@@ -16,24 +16,23 @@
  * @class   vtkProgrammableElectronicData
  * @brief   Provides access to and storage of
  * user-generated vtkImageData that describes electrons.
-*/
+ */
 
 #ifndef vtkProgrammableElectronicData_h
 #define vtkProgrammableElectronicData_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
+#include "vtkDomainsChemistryModule.h" // For export macro
 
 class vtkImageData;
 
 class StdVectorOfImageDataPointers;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkProgrammableElectronicData
-    : public vtkAbstractElectronicData
+class VTKDOMAINSCHEMISTRY_EXPORT vtkProgrammableElectronicData : public vtkAbstractElectronicData
 {
 public:
-  static vtkProgrammableElectronicData *New();
-  vtkTypeMacro(vtkProgrammableElectronicData,vtkAbstractElectronicData);
+  static vtkProgrammableElectronicData* New();
+  vtkTypeMacro(vtkProgrammableElectronicData, vtkAbstractElectronicData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -50,10 +49,7 @@ public:
    * Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
    * convenience functions
    */
-  vtkIdType GetNumberOfElectrons() override
-  {
-    return this->NumberOfElectrons;
-  }
+  vtkIdType GetNumberOfElectrons() override { return this->NumberOfElectrons; }
   vtkSetMacro(NumberOfElectrons, vtkIdType);
   //@}
 
@@ -61,19 +57,16 @@ public:
   /**
    * Get/Set the vtkImageData for the requested molecular orbital.
    */
-  vtkImageData * GetMO(vtkIdType orbitalNumber) override;
-  void SetMO(vtkIdType orbitalNumber, vtkImageData *data);
+  vtkImageData* GetMO(vtkIdType orbitalNumber) override;
+  void SetMO(vtkIdType orbitalNumber, vtkImageData* data);
   //@}
 
   //@{
   /**
    * Get/Set the vtkImageData for the molecule's electron density.
    */
-  vtkImageData* GetElectronDensity() override
-  {
-    return this->ElectronDensity;
-  }
-  virtual void SetElectronDensity(vtkImageData *);
+  vtkImageData* GetElectronDensity() override { return this->ElectronDensity; }
+  virtual void SetElectronDensity(vtkImageData*);
   //@}
 
   //@{
@@ -87,7 +80,7 @@ public:
   /**
    * Deep copies the data object into this.
    */
-  void DeepCopy(vtkDataObject *obj) override;
+  void DeepCopy(vtkDataObject* obj) override;
 
 protected:
   vtkProgrammableElectronicData();
@@ -102,8 +95,8 @@ protected:
   /**
    * Storage for the vtkImageData objects
    */
-  StdVectorOfImageDataPointers *MOs;
-  vtkImageData *ElectronDensity;
+  StdVectorOfImageDataPointers* MOs;
+  vtkImageData* ElectronDensity;
   //@}
 
 private:

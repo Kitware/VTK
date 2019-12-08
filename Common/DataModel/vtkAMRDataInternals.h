@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkOverlappingAMR, vtkAMRBox
-*/
+ */
 
 #ifndef vtkAMRDataInternals_h
 #define vtkAMRDataInternals_h
@@ -29,7 +29,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" //for storing smart pointers to blocks
-#include <vector> //for storing blocks
+#include <vector>            //for storing blocks
 
 class vtkUniformGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRDataInternals : public vtkObject
@@ -52,24 +52,23 @@ public:
   void Insert(unsigned int index, vtkUniformGrid* grid);
   vtkUniformGrid* GetDataSet(unsigned int compositeIndex);
 
-  virtual void ShallowCopy(vtkObject *src);
+  virtual void ShallowCopy(vtkObject* src);
 
-  bool Empty()const{ return this->GetNumberOfBlocks()==0;}
+  bool Empty() const { return this->GetNumberOfBlocks() == 0; }
 
 public:
-  unsigned int GetNumberOfBlocks() const{ return static_cast<unsigned int>(this->Blocks.size());}
-  const Block& GetBlock(unsigned int i) { return this->Blocks[i];}
-  const BlockList& GetAllBlocks() const{ return this->Blocks;}
+  unsigned int GetNumberOfBlocks() const { return static_cast<unsigned int>(this->Blocks.size()); }
+  const Block& GetBlock(unsigned int i) { return this->Blocks[i]; }
+  const BlockList& GetAllBlocks() const { return this->Blocks; }
 
 protected:
-
   vtkAMRDataInternals();
   ~vtkAMRDataInternals() override;
 
-  void GenerateIndex(bool force=false);
+  void GenerateIndex(bool force = false);
 
   std::vector<Block> Blocks;
-  std::vector<int>* InternalIndex; //map from the composite index to internal index
+  std::vector<int>* InternalIndex; // map from the composite index to internal index
   bool GetInternalIndex(unsigned int compositeIndex, unsigned int& internalIndex);
 
 private:

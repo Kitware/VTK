@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkWindows.h"
 #include "vtkAVIWriter.h"
+#include "vtkWindows.h"
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -23,13 +23,13 @@
 #include "vtkErrorCode.h"
 
 #ifdef _MSC_VER
-#pragma warning (push, 3)
+#pragma warning(push, 3)
 #endif
 
 #include <vfw.h>
 
 #ifdef _MSC_VER
-#pragma warning (pop)
+#pragma warning(pop)
 #endif
 
 class vtkAVIWriterInternal
@@ -38,8 +38,8 @@ public:
   PAVISTREAM Stream;
   PAVISTREAM StreamCompressed;
   PAVIFILE AVIFile;
-  LPBITMAPINFOHEADER  lpbi;       // pointer to BITMAPINFOHEADER
-  HANDLE              hDIB;  // handle to DIB, temp handle
+  LPBITMAPINFOHEADER lpbi; // pointer to BITMAPINFOHEADER
+  HANDLE hDIB;             // handle to DIB, temp handle
 };
 
 //---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkAVIWriter::vtkAVIWriter()
   this->Time = 0;
   this->Quality = 10000;
   this->Rate = 1000;
-  this->Internals->hDIB = nullptr;  // handle to DIB, temp handle
+  this->Internals->hDIB = nullptr; // handle to DIB, temp handle
   this->PromptCompressionOptions = 0;
   this->CompressorFourCC = nullptr;
   this->SetCompressorFourCC("MSVC");
@@ -77,15 +77,15 @@ void vtkAVIWriter::Start()
 {
   // Error checking
   this->Error = 1;
-  if ( this->GetInput() == nullptr )
+  if (this->GetInput() == nullptr)
   {
-    vtkErrorMacro(<<"Write:Please specify an input!");
+    vtkErrorMacro(<< "Write:Please specify an input!");
     this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
     return;
   }
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"Write:Please specify a FileName");
+    vtkErrorMacro(<< "Write:Please specify a FileName");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
   }
@@ -93,16 +93,14 @@ void vtkAVIWriter::Start()
   // Fill in image information.
   this->GetInputAlgorithm(0, 0)->UpdateInformation();
   int wExtent[6];
-  this->GetInputInformation(0,0)->Get(
-    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
+  this->GetInputInformation(0, 0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
 
   LONG hr;
   AVISTREAMINFO strhdr;
 
   AVIFileInit();
   // opens AVIFile library
-  hr = AVIFileOpen(&this->Internals->AVIFile, this->FileName,
-                   OF_WRITE | OF_CREATE, 0L);
+  hr = AVIFileOpen(&this->Internals->AVIFile, this->FileName, OF_WRITE | OF_CREATE, 0L);
   if (hr != 0)
   {
     vtkErrorMacro("Unable to open " << this->FileName);
@@ -113,35 +111,33 @@ void vtkAVIWriter::Start()
   // Fill in the header for the video stream....
   // The video stream will run in 15ths of a second....
   memset(&strhdr, 0, sizeof(strhdr));
-  strhdr.fccType                = streamtypeVIDEO;// stream type
-  strhdr.fccHandler             = 0;
-  strhdr.dwScale                = 1;
-  strhdr.dwRate                 = this->Rate;
-  strhdr.dwQuality              = (DWORD) -1;
-  strhdr.dwSuggestedBufferSize  = (wExtent[1] - wExtent[0] + 1)*
-    (wExtent[3] - wExtent[2] + 1)*3;
-  SetRect(&strhdr.rcFrame, 0, 0, wExtent[1] - wExtent[0] + 1,
-          wExtent[3] - wExtent[2] + 1);
+  strhdr.fccType = streamtypeVIDEO; // stream type
+  strhdr.fccHandler = 0;
+  strhdr.dwScale = 1;
+  strhdr.dwRate = this->Rate;
+  strhdr.dwQuality = (DWORD)-1;
+  strhdr.dwSuggestedBufferSize = (wExtent[1] - wExtent[0] + 1) * (wExtent[3] - wExtent[2] + 1) * 3;
+  SetRect(&strhdr.rcFrame, 0, 0, wExtent[1] - wExtent[0] + 1, wExtent[3] - wExtent[2] + 1);
 
   // And create the stream;
-  AVIFileCreateStream(this->Internals->AVIFile,  // file pointer
-                      &this->Internals->Stream,  // returned stream pointer
-                      &strhdr);      // stream header
+  AVIFileCreateStream(this->Internals->AVIFile, // file pointer
+    &this->Internals->Stream,                   // returned stream pointer
+    &strhdr);                                   // stream header
 
   // do not want to display this dialog
   AVICOMPRESSOPTIONS opts;
-  AVICOMPRESSOPTIONS FAR * aopts[1] = {&opts};
+  AVICOMPRESSOPTIONS FAR* aopts[1] = { &opts };
   memset(&opts, 0, sizeof(opts));
 
   // need to setup opts
   opts.fccType = 0;
-  char fourcc[4] = {' ', ' ', ' ', ' '};
+  char fourcc[4] = { ' ', ' ', ' ', ' ' };
   if (this->CompressorFourCC)
   {
     size_t len = strlen(this->CompressorFourCC);
     memcpy(fourcc, this->CompressorFourCC, len > 4 ? 4 : len);
   }
-  opts.fccHandler=mmioFOURCC(fourcc[0], fourcc[1], fourcc[2], fourcc[3]);
+  opts.fccHandler = mmioFOURCC(fourcc[0], fourcc[1], fourcc[2], fourcc[3]);
   switch (this->GetQuality())
   {
     case 0:
@@ -160,35 +156,34 @@ void vtkAVIWriter::Start()
 
   if (this->PromptCompressionOptions)
   {
-    if (!AVISaveOptions(nullptr, 0,
-                        1, &this->Internals->Stream,
-                        (LPAVICOMPRESSOPTIONS FAR *) &aopts))
+    if (!AVISaveOptions(nullptr, 0, 1, &this->Internals->Stream, (LPAVICOMPRESSOPTIONS FAR*)&aopts))
     {
       vtkErrorMacro("Unable to save " << this->FileName);
       return;
     }
   }
 
-  int avierr = AVIMakeCompressedStream(&this->Internals->StreamCompressed,
-                              this->Internals->Stream,
-                              &opts, nullptr);
+  int avierr = AVIMakeCompressedStream(
+    &this->Internals->StreamCompressed, this->Internals->Stream, &opts, nullptr);
   if (avierr != AVIERR_OK)
   {
-    vtkErrorMacro("Unable to compress " << this->FileName << ": " <<
-        (avierr == AVIERR_NOCOMPRESSOR ? "unknown compressor" :
-        (avierr == AVIERR_MEMORY ? "not enough memory" :
-        (avierr == AVIERR_UNSUPPORTED ? "unsupported data type" :
-         "unknown error"))));
+    vtkErrorMacro("Unable to compress "
+      << this->FileName << ": "
+      << (avierr == AVIERR_NOCOMPRESSOR
+             ? "unknown compressor"
+             : (avierr == AVIERR_MEMORY
+                   ? "not enough memory"
+                   : (avierr == AVIERR_UNSUPPORTED ? "unsupported data type" : "unknown error"))));
     this->SetErrorCode(vtkGenericMovieWriter::CanNotCompress);
     return;
   }
 
-  DWORD               dwLen;      // size of memory block
-  int dataWidth = (((wExtent[1] - wExtent[0] + 1)*3+3)/4)*4;
+  DWORD dwLen; // size of memory block
+  int dataWidth = (((wExtent[1] - wExtent[0] + 1) * 3 + 3) / 4) * 4;
 
-  dwLen = sizeof(BITMAPINFOHEADER) + dataWidth*(wExtent[3] - wExtent[2] + 1);
+  dwLen = sizeof(BITMAPINFOHEADER) + dataWidth * (wExtent[3] - wExtent[2] + 1);
   this->Internals->hDIB = ::GlobalAlloc(GHND, dwLen);
-  this->Internals->lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(this->Internals->hDIB);
+  this->Internals->lpbi = (LPBITMAPINFOHEADER)::GlobalLock(this->Internals->hDIB);
 
   this->Internals->lpbi->biSize = sizeof(BITMAPINFOHEADER);
   this->Internals->lpbi->biWidth = wExtent[1] - wExtent[0] + 1;
@@ -198,12 +193,15 @@ void vtkAVIWriter::Start()
   this->Internals->lpbi->biCompression = BI_RGB;
   this->Internals->lpbi->biClrUsed = 0;
   this->Internals->lpbi->biClrImportant = 0;
-  this->Internals->lpbi->biSizeImage = dataWidth*(wExtent[3] - wExtent[2] + 1);
+  this->Internals->lpbi->biSizeImage = dataWidth * (wExtent[3] - wExtent[2] + 1);
 
-  if (AVIStreamSetFormat(this->Internals->StreamCompressed, 0,
-                         this->Internals->lpbi, this->Internals->lpbi->biSize))
+  if (AVIStreamSetFormat(
+        this->Internals->StreamCompressed, 0, this->Internals->lpbi, this->Internals->lpbi->biSize))
   {
-    vtkErrorMacro("Unable to format " << this->FileName << " Most likely this means that the video compression scheme you selected could not handle the data. Try selecting a different compression scheme." );
+    vtkErrorMacro("Unable to format "
+      << this->FileName
+      << " Most likely this means that the video compression scheme you selected could not handle "
+         "the data. Try selecting a different compression scheme.");
     this->SetErrorCode(vtkGenericMovieWriter::CanNotFormat);
     return;
   }
@@ -223,19 +221,17 @@ void vtkAVIWriter::Write()
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
   this->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
-  int *wExtent = input->GetExtent();
+  int* wExtent = input->GetExtent();
 
   // get the pointer to the data
-  unsigned char *ptr =
-    (unsigned char *)(input->GetScalarPointer());
+  unsigned char* ptr = (unsigned char*)(input->GetScalarPointer());
 
-  int dataWidth = (((wExtent[1] - wExtent[0] + 1)*3+3)/4)*4;
-  int srcWidth = (wExtent[1] - wExtent[0] + 1)*3;
+  int dataWidth = (((wExtent[1] - wExtent[0] + 1) * 3 + 3) / 4) * 4;
+  int srcWidth = (wExtent[1] - wExtent[0] + 1) * 3;
 
   // copy the data to the clipboard
-  unsigned char *dest
-    = (unsigned char *)this->Internals->lpbi + this->Internals->lpbi->biSize;
-  int i,j;
+  unsigned char* dest = (unsigned char*)this->Internals->lpbi + this->Internals->lpbi->biSize;
+  int i, j;
   for (i = 0; i < this->Internals->lpbi->biHeight; i++)
   {
     for (j = 0; j < this->Internals->lpbi->biWidth; j++)
@@ -248,14 +244,14 @@ void vtkAVIWriter::Write()
     dest = dest + (dataWidth - srcWidth);
   }
 
-  AVIStreamWrite(this->Internals->StreamCompressed,  // stream pointer
-                 this->Time, // time of this frame
-                 1,        // number to write
-                 (LPBYTE) this->Internals->lpbi +    // pointer to data
-                 this->Internals->lpbi->biSize,
-                 this->Internals->lpbi->biSizeImage,  // size of this frame
-                 AVIIF_KEYFRAME,       // flags....
-                 nullptr, nullptr);
+  AVIStreamWrite(this->Internals->StreamCompressed, // stream pointer
+    this->Time,                                     // time of this frame
+    1,                                              // number to write
+    (LPBYTE)this->Internals->lpbi +                 // pointer to data
+      this->Internals->lpbi->biSize,
+    this->Internals->lpbi->biSizeImage, // size of this frame
+    AVIIF_KEYFRAME,                     // flags....
+    nullptr, nullptr);
   this->Time++;
 }
 
@@ -281,7 +277,7 @@ void vtkAVIWriter::End()
     this->Internals->AVIFile = nullptr;
   }
 
-  AVIFileExit();          // releases AVIFile library
+  AVIFileExit(); // releases AVIFile library
 }
 
 //---------------------------------------------------------------------------
@@ -290,7 +286,10 @@ void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "Quality: " << this->Quality << endl;
-  os << indent << "PromptCompressionOptions: " << (this->GetPromptCompressionOptions() ? "on":"off") << endl;
-  os << indent << "CompressorFourCC: "
-     << (this->CompressorFourCC ? this->CompressorFourCC : "(None)") << endl;
+  os << indent
+     << "PromptCompressionOptions: " << (this->GetPromptCompressionOptions() ? "on" : "off")
+     << endl;
+  os << indent
+     << "CompressorFourCC: " << (this->CompressorFourCC ? this->CompressorFourCC : "(None)")
+     << endl;
 }

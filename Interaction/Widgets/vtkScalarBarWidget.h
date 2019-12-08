@@ -30,13 +30,13 @@
  *
  * @sa
  * vtkInteractorObserver
-*/
+ */
 
 #ifndef vtkScalarBarWidget_h
 #define vtkScalarBarWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkScalarBarActor;
 class vtkScalarBarRepresentation;
@@ -44,7 +44,7 @@ class vtkScalarBarRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
-  static vtkScalarBarWidget *New();
+  static vtkScalarBarWidget* New();
   vtkTypeMacro(vtkScalarBarWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,20 +53,22 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  virtual void SetRepresentation(vtkScalarBarRepresentation *rep);
+  virtual void SetRepresentation(vtkScalarBarRepresentation* rep);
 
   /**
    * Return the representation as a vtkScalarBarRepresentation.
    */
-  vtkScalarBarRepresentation *GetScalarBarRepresentation()
-    { return reinterpret_cast<vtkScalarBarRepresentation *>(this->GetRepresentation()); }
+  vtkScalarBarRepresentation* GetScalarBarRepresentation()
+  {
+    return reinterpret_cast<vtkScalarBarRepresentation*>(this->GetRepresentation());
+  }
 
   //@{
   /**
    * Get the ScalarBar used by this Widget. One is created automatically.
    */
-  virtual void SetScalarBarActor(vtkScalarBarActor *actor);
-  virtual vtkScalarBarActor *GetScalarBarActor();
+  virtual void SetScalarBarActor(vtkScalarBarActor* actor);
+  virtual vtkScalarBarActor* GetScalarBarActor();
   //@}
 
   //@{

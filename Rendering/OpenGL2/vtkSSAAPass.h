@@ -32,13 +32,13 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkSSAAPass_h
 #define vtkSSAAPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
@@ -47,22 +47,22 @@ class vtkTextureObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkSSAAPass : public vtkRenderPass
 {
 public:
-  static vtkSSAAPass *New();
-  vtkTypeMacro(vtkSSAAPass,vtkRenderPass);
+  static vtkSSAAPass* New();
+  vtkTypeMacro(vtkSSAAPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
   //@{
   /**
@@ -71,11 +71,11 @@ public:
    * It is usually set to a vtkCameraPass or to a post-processing pass.
    * Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(DelegatePass,vtkRenderPass);
-  virtual void SetDelegatePass(vtkRenderPass *delegatePass);
+  vtkGetObjectMacro(DelegatePass, vtkRenderPass);
+  virtual void SetDelegatePass(vtkRenderPass* delegatePass);
   //@}
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -89,16 +89,16 @@ public:
   /**
    * Graphics resources.
    */
-  vtkOpenGLFramebufferObject *FrameBufferObject;
-  vtkTextureObject *Pass1; // render target for the scene
-  vtkTextureObject *Pass2; // render target for the horizontal pass
+  vtkOpenGLFramebufferObject* FrameBufferObject;
+  vtkTextureObject* Pass1; // render target for the scene
+  vtkTextureObject* Pass2; // render target for the horizontal pass
 
   // Structures for the various cell types we render.
-  vtkOpenGLHelper *SSAAProgram;
+  vtkOpenGLHelper* SSAAProgram;
 
-  vtkRenderPass *DelegatePass;
+  vtkRenderPass* DelegatePass;
 
- private:
+private:
   vtkSSAAPass(const vtkSSAAPass&) = delete;
   void operator=(const vtkSSAAPass&) = delete;
 };

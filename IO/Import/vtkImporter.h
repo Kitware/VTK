@@ -40,7 +40,7 @@
  *
  * @sa
  * vtk3DSImporter vtkExporter
-*/
+ */
 
 #ifndef vtkImporter_h
 #define vtkImporter_h
@@ -54,16 +54,15 @@ class vtkRenderer;
 class VTKIOIMPORT_EXPORT vtkImporter : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkImporter,vtkObject);
+  vtkTypeMacro(vtkImporter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
 
   //@{
   /**
    * Get the renderer that contains the imported actors, cameras and
    * lights.
    */
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
   //@}
 
   //@{
@@ -76,32 +75,30 @@ public:
    * can be accessed using GetRenderer.
    */
   virtual void SetRenderWindow(vtkRenderWindow*);
-  vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   //@}
-
 
   //@{
   /**
    * Import the actors, cameras, lights and properties into a vtkRenderWindow.
    */
   void Read();
-  void Update() {this->Read();};
+  void Update() { this->Read(); }
   //@}
-
 
 protected:
   vtkImporter();
   ~vtkImporter() override;
 
-  virtual int ImportBegin () {return 1;};
-  virtual void ImportEnd () {}
-  virtual void ImportActors (vtkRenderer*) {}
-  virtual void ImportCameras (vtkRenderer*) {}
-  virtual void ImportLights (vtkRenderer*) {}
-  virtual void ImportProperties (vtkRenderer*) {}
+  virtual int ImportBegin() { return 1; }
+  virtual void ImportEnd() {}
+  virtual void ImportActors(vtkRenderer*) {}
+  virtual void ImportCameras(vtkRenderer*) {}
+  virtual void ImportLights(vtkRenderer*) {}
+  virtual void ImportProperties(vtkRenderer*) {}
 
-  vtkRenderer *Renderer;
-  vtkRenderWindow *RenderWindow;
+  vtkRenderer* Renderer;
+  vtkRenderWindow* RenderWindow;
 
   virtual void ReadData();
 
@@ -111,7 +108,3 @@ private:
 };
 
 #endif
-
-
-
-

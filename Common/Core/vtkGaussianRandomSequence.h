@@ -20,7 +20,7 @@
  * standard deviation=1)
  *
  * This is just an interface.
-*/
+ */
 
 #ifndef vtkGaussianRandomSequence_h
 #define vtkGaussianRandomSequence_h
@@ -35,7 +35,7 @@ public:
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
+  vtkTypeMacro(vtkGaussianRandomSequence, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 

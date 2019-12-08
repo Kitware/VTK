@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
+#include "vtkPlotBag.h"
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkPlotBag.h"
 #include "vtkPoints.h"
 #include "vtkPoints2D.h"
 #include "vtkPointsProjectedHull.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimeStamp.h"
-#include "vtkMath.h"
 
 #include <algorithm>
 #include <sstream>
@@ -82,16 +82,15 @@ void vtkPlotBag::Update()
   }
 
   // Check if we have an input
-  vtkTable *table = this->Data->GetInput();
-  vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
-    this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
+  vtkTable* table = this->Data->GetInput();
+  vtkDataArray* density =
+    vtkArrayDownCast<vtkDataArray>(this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
   if (!table || !density)
   {
     vtkDebugMacro(<< "Update event called with no input table or density column set.");
     return;
   }
-  bool update = (this->Data->GetMTime() > this->BuildTime ||
-    table->GetMTime() > this->BuildTime ||
+  bool update = (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
     this->MTime > this->BuildTime);
 
   this->Superclass::Update();
@@ -107,11 +106,12 @@ void vtkPlotBag::Update()
 class DensityVal
 {
 public:
-  DensityVal(double d, vtkIdType cid) : Density(d), Id(cid) {}
-  bool operator<(const DensityVal& b) const
+  DensityVal(double d, vtkIdType cid)
+    : Density(d)
+    , Id(cid)
   {
-    return this->Density > b.Density;
   }
+  bool operator<(const DensityVal& b) const { return this->Density > b.Density; }
   double Density;
   vtkIdType Id;
 };
@@ -178,7 +178,7 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   {
     int size = medianPoints->GetSizeCCWHullZ();
     this->MedianPoints->SetDataTypeToFloat();
-    this->MedianPoints->SetNumberOfPoints(size+1);
+    this->MedianPoints->SetNumberOfPoints(size + 1);
     medianPoints->GetCCWHullZ(
       static_cast<float*>(this->MedianPoints->GetData()->GetVoidPointer(0)), size);
     double x[3];
@@ -202,9 +202,8 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   {
     int size = q3Points->GetSizeCCWHullZ();
     this->Q3Points->SetDataTypeToFloat();
-    this->Q3Points->SetNumberOfPoints(size+1);
-    q3Points->GetCCWHullZ(
-      static_cast<float*>(this->Q3Points->GetData()->GetVoidPointer(0)), size);
+    this->Q3Points->SetNumberOfPoints(size + 1);
+    q3Points->GetCCWHullZ(static_cast<float*>(this->Q3Points->GetData()->GetVoidPointer(0)), size);
     double x[3];
     this->Q3Points->GetPoint(0, x);
     this->Q3Points->SetPoint(size, x);
@@ -224,11 +223,11 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotBag::Paint(vtkContext2D *painter)
+bool vtkPlotBag::Paint(vtkContext2D* painter)
 {
   vtkDebugMacro(<< "Paint event called in vtkPlotBag.");
 
-  vtkTable *table = this->Data->GetInput();
+  vtkTable* table = this->Data->GetInput();
 
   if (!this->Visible || !this->Points || !table)
   {
@@ -275,7 +274,7 @@ bool vtkPlotBag::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotBag::PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int)
+bool vtkPlotBag::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
 {
   painter->ApplyPen(this->LinePen);
   unsigned char bcolor[4];
@@ -290,7 +289,7 @@ bool vtkPlotBag::PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int)
   this->Brush->SetColor(bcolor);
   this->Brush->SetOpacity(128);
   painter->ApplyBrush(this->Brush);
-  painter->DrawRect(rect[0] + rect[2] / 2.f, rect[1], rect[2]/2, rect[3]);
+  painter->DrawRect(rect[0] + rect[2] / 2.f, rect[1], rect[2] / 2, rect[3]);
   this->Brush->SetOpacity(opacity);
 
   return true;
@@ -311,7 +310,7 @@ vtkStringArray* vtkPlotBag::GetLabels()
   else if (this->Data->GetInput())
   {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
+    vtkDataArray* density = vtkArrayDownCast<vtkDataArray>(
       this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
     if (density)
     {
@@ -323,17 +322,16 @@ vtkStringArray* vtkPlotBag::GetLabels()
 }
 
 //-----------------------------------------------------------------------------
-vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
-                                         vtkIdType seriesIndex,
-                                         vtkIdType)
+vtkStdString vtkPlotBag::GetTooltipLabel(
+  const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType)
 {
   vtkStdString tooltipLabel;
-  vtkStdString &format = this->TooltipLabelFormat.empty() ?
-        this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
+  vtkStdString& format =
+    this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
-  vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
-    this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
+  vtkDataArray* density =
+    vtkArrayDownCast<vtkDataArray>(this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
   for (size_t i = 0; i < format.length(); ++i)
   {
     if (escapeNext)
@@ -347,14 +345,12 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'z':
-          tooltipLabel += density ?
-            density->GetVariantValue(seriesIndex).ToString() :
-            vtkStdString("?");
+          tooltipLabel +=
+            density ? density->GetVariantValue(seriesIndex).ToString() : vtkStdString("?");
           break;
         case 'i':
-          if (this->IndexedLabels &&
-              seriesIndex >= 0 &&
-              seriesIndex < this->IndexedLabels->GetNumberOfTuples())
+          if (this->IndexedLabels && seriesIndex >= 0 &&
+            seriesIndex < this->IndexedLabels->GetNumberOfTuples())
           {
             tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
           }
@@ -369,11 +365,11 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           ss << seriesIndex;
           tooltipLabel += ss.str();
         }
-          break;
+        break;
         case 'C':
         {
-          vtkAbstractArray *colName = vtkArrayDownCast<vtkAbstractArray>(
-            this->GetInput()->GetColumnByName("ColName"));
+          vtkAbstractArray* colName =
+            vtkArrayDownCast<vtkAbstractArray>(this->GetInput()->GetColumnByName("ColName"));
           std::stringstream ss;
           if (colName)
           {
@@ -385,7 +381,7 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           }
           tooltipLabel += ss.str();
         }
-          break;
+        break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";
           tooltipLabel += format[i];
@@ -409,21 +405,21 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBag::SetInputData(vtkTable *table)
+void vtkPlotBag::SetInputData(vtkTable* table)
 {
   this->Data->SetInputData(table);
   this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &yColumn,
-                              const vtkStdString &densityColumn)
+void vtkPlotBag::SetInputData(
+  vtkTable* table, const vtkStdString& yColumn, const vtkStdString& densityColumn)
 {
   vtkDebugMacro(<< "Setting input, Y column = \"" << yColumn.c_str() << "\", "
                 << "Density column = \"" << densityColumn.c_str() << "\"");
 
-  if (table->GetColumnByName(densityColumn.c_str())->GetNumberOfTuples()
-    != table->GetColumnByName(yColumn.c_str())->GetNumberOfTuples())
+  if (table->GetColumnByName(densityColumn.c_str())->GetNumberOfTuples() !=
+    table->GetColumnByName(yColumn.c_str())->GetNumberOfTuples())
   {
     vtkErrorMacro(<< "Input table not correctly initialized!");
     return;
@@ -434,23 +430,21 @@ void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &yColumn,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &xColumn,
-                              const vtkStdString &yColumn,
-                              const vtkStdString &densityColumn)
+void vtkPlotBag::SetInputData(vtkTable* table, const vtkStdString& xColumn,
+  const vtkStdString& yColumn, const vtkStdString& densityColumn)
 {
-  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str()
-                << "\", " << "Y column = \""
-                << yColumn.c_str() << "\""
-                << "\", " << "Density column = \""
-                << densityColumn.c_str() << "\"");
+  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str() << "\", "
+                << "Y column = \"" << yColumn.c_str() << "\""
+                << "\", "
+                << "Density column = \"" << densityColumn.c_str() << "\"");
 
   this->Data->SetInputData(table);
-  this->Data->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, xColumn.c_str());
-  this->Data->SetInputArrayToProcess(1, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, yColumn.c_str());
-  this->Data->SetInputArrayToProcess(2, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_ROWS, densityColumn.c_str());
+  this->Data->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, xColumn.c_str());
+  this->Data->SetInputArrayToProcess(
+    1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, yColumn.c_str());
+  this->Data->SetInputArrayToProcess(
+    2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, densityColumn.c_str());
   if (this->AutoLabels)
   {
     this->AutoLabels = nullptr;
@@ -458,18 +452,15 @@ void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &xColumn,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBag::SetInputData(vtkTable *table, vtkIdType xColumn,
-                              vtkIdType yColumn,
-                              vtkIdType densityColumn)
+void vtkPlotBag::SetInputData(
+  vtkTable* table, vtkIdType xColumn, vtkIdType yColumn, vtkIdType densityColumn)
 {
-  this->SetInputData(table,
-    table->GetColumnName(xColumn),
-    table->GetColumnName(yColumn),
+  this->SetInputData(table, table->GetColumnName(xColumn), table->GetColumnName(yColumn),
     table->GetColumnName(densityColumn));
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotBag::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlotBag::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

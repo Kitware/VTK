@@ -26,8 +26,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
@@ -35,14 +35,15 @@
 #include "vtkVariantArray.h"
 
 #include <sstream>
+#include <vector>
 
-vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
+vtkCxxSetObjectMacro(vtkStatisticsAlgorithm, AssessNames, vtkStringArray);
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
-  this->SetNumberOfInputPorts( 3 );
-  this->SetNumberOfOutputPorts( 3 );
+  this->SetNumberOfInputPorts(3);
+  this->SetNumberOfOutputPorts(3);
 
   // If not told otherwise, only run Learn option
   this->LearnOption = true;
@@ -58,45 +59,45 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 {
-  this->SetAssessNames( nullptr );
+  this->SetAssessNames(nullptr);
   delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
+void vtkStatisticsAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Learn: " << this->LearnOption << endl;
   os << indent << "Derive: " << this->DeriveOption << endl;
   os << indent << "Assess: " << this->AssessOption << endl;
   os << indent << "Test: " << this->TestOption << endl;
   os << indent << "NumberOfPrimaryTables: " << this->NumberOfPrimaryTables << endl;
-  if ( this->AssessNames )
+  if (this->AssessNames)
   {
-    this->AssessNames->PrintSelf( os, indent.GetNextIndent() );
+    this->AssessNames->PrintSelf(os, indent.GetNextIndent());
   }
   os << indent << "Internals: " << this->Internals << endl;
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* info )
+int vtkStatisticsAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == INPUT_DATA )
+  if (port == INPUT_DATA)
   {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
   }
-  else if ( port == INPUT_MODEL )
+  else if (port == INPUT_MODEL)
   {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
     return 1;
   }
-  else if ( port == LEARN_PARAMETERS )
+  else if (port == LEARN_PARAMETERS)
   {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
   }
 
@@ -104,21 +105,21 @@ int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* 
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
+int vtkStatisticsAlgorithm::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == OUTPUT_DATA )
+  if (port == OUTPUT_DATA)
   {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
-  else if ( port == OUTPUT_MODEL )
+  else if (port == OUTPUT_MODEL)
   {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   }
-  else if ( port == OUTPUT_TEST )
+  else if (port == OUTPUT_TEST)
   {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
 
@@ -126,9 +127,9 @@ int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation*
 }
 
 //---------------------------------------------------------------------------
-void vtkStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
+void vtkStatisticsAlgorithm::SetColumnStatus(const char* namCol, int status)
 {
-  this->Internals->SetBufferColumnStatus( namCol, status );
+  this->Internals->SetBufferColumnStatus(namCol, status);
 }
 
 //---------------------------------------------------------------------------
@@ -156,16 +157,16 @@ vtkIdType vtkStatisticsAlgorithm::GetNumberOfRequests()
 }
 
 //---------------------------------------------------------------------------
-vtkIdType vtkStatisticsAlgorithm::GetNumberOfColumnsForRequest( vtkIdType request )
+vtkIdType vtkStatisticsAlgorithm::GetNumberOfColumnsForRequest(vtkIdType request)
 {
-  return this->Internals->GetNumberOfColumnsForRequest( request );
+  return this->Internals->GetNumberOfColumnsForRequest(request);
 }
 
 //---------------------------------------------------------------------------
-const char* vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c )
+const char* vtkStatisticsAlgorithm::GetColumnForRequest(vtkIdType r, vtkIdType c)
 {
   static vtkStdString columnName;
-  if ( this->Internals->GetColumnForRequest( r, c, columnName ) )
+  if (this->Internals->GetColumnForRequest(r, c, columnName))
   {
     return columnName.c_str();
   }
@@ -173,56 +174,54 @@ const char* vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType 
 }
 
 //---------------------------------------------------------------------------
-int vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName )
+int vtkStatisticsAlgorithm::GetColumnForRequest(vtkIdType r, vtkIdType c, vtkStdString& columnName)
 {
-  return this->Internals->GetColumnForRequest( r, c, columnName ) ? 1 : 0;
+  return this->Internals->GetColumnForRequest(r, c, columnName) ? 1 : 0;
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::AddColumn( const char* namCol )
+void vtkStatisticsAlgorithm::AddColumn(const char* namCol)
 {
-  if ( this->Internals->AddColumnToRequests( namCol ) )
+  if (this->Internals->AddColumnToRequests(namCol))
   {
     this->Modified();
   }
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* namColY )
+void vtkStatisticsAlgorithm::AddColumnPair(const char* namColX, const char* namColY)
 {
-  if ( this->Internals->AddColumnPairToRequests( namColX, namColY ) )
+  if (this->Internals->AddColumnPairToRequests(namColX, namColY))
   {
     this->Modified();
   }
 }
 
 // ----------------------------------------------------------------------
-bool vtkStatisticsAlgorithm::SetParameter( const char* vtkNotUsed(parameter),
-                                           int vtkNotUsed(index),
-                                           vtkVariant vtkNotUsed(value) )
+bool vtkStatisticsAlgorithm::SetParameter(
+  const char* vtkNotUsed(parameter), int vtkNotUsed(index), vtkVariant vtkNotUsed(value))
 {
   return false;
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector )
+int vtkStatisticsAlgorithm::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Extract inputs
-  vtkTable*             inData       = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
-  vtkMultiBlockDataSet* inModel      = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
-  vtkTable*             inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
+  vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0);
+  vtkMultiBlockDataSet* inModel = vtkMultiBlockDataSet::GetData(inputVector[INPUT_MODEL], 0);
+  vtkTable* inParameters = vtkTable::GetData(inputVector[LEARN_PARAMETERS], 0);
 
   // Extract outputs
-  vtkTable*             outData  = vtkTable::GetData( outputVector, OUTPUT_DATA );
-  vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData( outputVector, OUTPUT_MODEL );
-  vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
+  vtkTable* outData = vtkTable::GetData(outputVector, OUTPUT_DATA);
+  vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData(outputVector, OUTPUT_MODEL);
+  vtkTable* outTest = vtkTable::GetData(outputVector, OUTPUT_TEST);
 
   // If input data table is not null then shallow copy it to output
-  if ( inData )
+  if (inData)
   {
-    outData->ShallowCopy( inData );
+    outData->ShallowCopy(inData);
   }
 
   // If there are any columns selected in the buffer which have not been
@@ -234,137 +233,131 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   this->RequestSelectedColumns();
 
   // Calculate primary statistics if requested
-  if ( this->LearnOption )
+  if (this->LearnOption)
   {
     // First, learn primary statistics from data; otherwise, only use input model as output model
-    this->Learn( inData, inParameters, outModel );
+    this->Learn(inData, inParameters, outModel);
 
     // Second, aggregate learned models with input model if one is present
-    if ( inModel )
+    if (inModel)
     {
       vtkDataObjectCollection* models = vtkDataObjectCollection::New();
-      models->AddItem( inModel );
-      models->AddItem( outModel );
-      this->Aggregate( models, outModel );
+      models->AddItem(inModel);
+      models->AddItem(outModel);
+      this->Aggregate(models, outModel);
       models->Delete();
     }
   }
   else
   {
     // No input data and no input model result in an error condition
-    if ( ! inModel )
+    if (!inModel)
     {
-      vtkErrorMacro( "No model available AND no Learn phase requested. Cannot proceed with statistics algorithm." );
+      vtkErrorMacro("No model available AND no Learn phase requested. Cannot proceed with "
+                    "statistics algorithm.");
       return 1;
     }
 
     // Since no learn phase was requested, the output model is equal to the input one
-    outModel->ShallowCopy( inModel );
+    outModel->ShallowCopy(inModel);
   }
 
   // Calculate derived statistics if requested
-  if ( this->DeriveOption )
+  if (this->DeriveOption)
   {
-    this->Derive( outModel );
+    this->Derive(outModel);
   }
 
   // Assess data with respect to statistical model if requested
-  if ( this->AssessOption )
+  if (this->AssessOption)
   {
-    this->Assess( inData, outModel, outData );
+    this->Assess(inData, outModel, outData);
   }
 
   // Calculate test statistics if requested
-  if ( this->TestOption )
+  if (this->TestOption)
   {
-    this->Test( inData, outModel, outTest );
+    this->Test(inData, outModel, outTest);
   }
 
   return 1;
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
-                                     vtkMultiBlockDataSet* inMeta,
-                                     vtkTable* outData,
-                                     int numVariables )
+void vtkStatisticsAlgorithm::Assess(
+  vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData, int numVariables)
 {
-  if ( ! inData )
+  if (!inData)
   {
     return;
   }
 
-  if ( ! inMeta )
+  if (!inMeta)
   {
     return;
   }
 
   // Loop over requests
-  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
-        rit != this->Internals->Requests.end(); ++ rit )
+  for (std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+       rit != this->Internals->Requests.end(); ++rit)
   {
     // Storage for variable names of the request (smart pointer because of several exit points)
     vtkSmartPointer<vtkStringArray> varNames = vtkSmartPointer<vtkStringArray>::New();
-    varNames->SetNumberOfValues( numVariables );
+    varNames->SetNumberOfValues(numVariables);
 
     // Each request must contain numVariables columns of interest (additional columns are ignored)
     bool invalidRequest = false;
     int v = 0;
-    for ( std::set<vtkStdString>::const_iterator it = rit->begin();
-          v < numVariables && it != rit->end(); ++ v, ++ it )
+    for (std::set<vtkStdString>::const_iterator it = rit->begin();
+         v < numVariables && it != rit->end(); ++v, ++it)
     {
       // Try to retrieve column with corresponding name in input data
       vtkStdString varName = *it;
 
       // If requested column does not exist in input, ignore request
-      if ( ! inData->GetColumnByName( varName ) )
+      if (!inData->GetColumnByName(varName))
       {
-        vtkWarningMacro( "InData table does not have a column "
-                         << varName.c_str()
-                         << ". Ignoring request containing it." );
+        vtkWarningMacro("InData table does not have a column "
+          << varName.c_str() << ". Ignoring request containing it.");
 
         invalidRequest = true;
         break;
       }
 
       // If column with corresponding name was found, store name
-      varNames->SetValue( v, varName );
+      varNames->SetValue(v, varName);
     }
-    if ( invalidRequest )
+    if (invalidRequest)
     {
       continue;
     }
 
     // If request is too short, it must also be ignored
-    if ( v < numVariables )
+    if (v < numVariables)
     {
-      vtkWarningMacro( "Only "
-                       << v
-                       << " variables in the request while "
-                       << numVariables
-                       << "are needed. Ignoring request." );
+      vtkWarningMacro("Only " << v << " variables in the request while " << numVariables
+                              << "are needed. Ignoring request.");
 
       continue;
     }
 
     // Store names to be able to use SetValueByName, and create the outData columns
     vtkIdType nAssessments = this->AssessNames->GetNumberOfValues();
-    vtkStdString* names = new vtkStdString[nAssessments];
+    std::vector<vtkStdString> names(nAssessments);
     vtkIdType nRowData = inData->GetNumberOfRows();
-    for ( vtkIdType a = 0; a < nAssessments; ++ a )
+    for (vtkIdType a = 0; a < nAssessments; ++a)
     {
       // Prepare string for numVariables-tuple of variable names
       std::ostringstream assessColName;
-      assessColName << this->AssessNames->GetValue( a )
-                    << "(";
-      for ( int i = 0 ; i < numVariables ; ++ i )
+      assessColName << this->AssessNames->GetValue(a) << "(";
+      for (int i = 0; i < numVariables; ++i)
       {
         // Insert comma before each variable name, save the first one
-        if ( i > 0 )
+        if (i > 0)
         {
           assessColName << ",";
         }
-        assessColName << varNames->GetValue( i );
+        assessColName << varNames->GetValue(i);
       }
       assessColName << ")";
 
@@ -372,38 +365,33 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
 
       // Create assessment columns with names <AssessmentName>(var1,...,varN)
       vtkDoubleArray* assessColumn = vtkDoubleArray::New();
-      assessColumn->SetName( names[a] );
-      assessColumn->SetNumberOfTuples( nRowData  );
-      outData->AddColumn( assessColumn );
+      assessColumn->SetName(names[a]);
+      assessColumn->SetNumberOfTuples(nRowData);
+      outData->AddColumn(assessColumn);
       assessColumn->Delete();
     }
 
     // Select assess functor
     AssessFunctor* dfunc;
-    this->SelectAssessFunctor( outData,
-                               inMeta,
-                               varNames,
-                               dfunc );
+    this->SelectAssessFunctor(outData, inMeta, varNames, dfunc);
 
-    if ( ! dfunc )
+    if (!dfunc)
     {
       // Functor selection did not work. Do nothing.
-      vtkWarningMacro( "AssessFunctors could not be allocated. Ignoring request." );
+      vtkWarningMacro("AssessFunctors could not be allocated. Ignoring request.");
     }
     else
     {
       // Assess each entry of the column
       vtkDoubleArray* assessResult = vtkDoubleArray::New();
-      for ( vtkIdType r = 0; r < nRowData; ++ r )
+      for (vtkIdType r = 0; r < nRowData; ++r)
       {
         // Apply functor
-        (*dfunc)( assessResult, r );
-        for ( vtkIdType a = 0; a < nAssessments; ++ a )
+        (*dfunc)(assessResult, r);
+        for (vtkIdType a = 0; a < nAssessments; ++a)
         {
           // Store each assessment value in corresponding assessment column
-          outData->SetValueByName( r,
-                                   names[a],
-                                   assessResult->GetValue( a ) );
+          outData->SetValueByName(r, names[a], assessResult->GetValue(a));
         }
       }
 
@@ -411,6 +399,5 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     }
 
     delete dfunc;
-    delete [] names;
   }
 }

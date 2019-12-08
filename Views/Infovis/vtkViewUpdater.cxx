@@ -23,18 +23,17 @@
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkView.h"
 #include "vtkRenderView.h"
+#include "vtkView.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkViewUpdater);
 
 class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
 {
 public:
-
   void Execute(vtkObject*, unsigned long, void*) override
   {
     for (unsigned int i = 0; i < this->Views.size(); ++i)
@@ -67,13 +66,13 @@ vtkViewUpdater::~vtkViewUpdater()
 void vtkViewUpdater::AddView(vtkView* view)
 {
   this->Internals->Views.push_back(view);
-  //view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
+  // view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
 }
 void vtkViewUpdater::RemoveView(vtkView* view)
 {
   std::vector<vtkView*>::iterator p;
   p = std::find(this->Internals->Views.begin(), this->Internals->Views.end(), view);
-  if(p == this->Internals->Views.end())
+  if (p == this->Internals->Views.end())
     return;
   this->Internals->Views.erase(p);
 }

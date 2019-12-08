@@ -45,7 +45,7 @@ vtkBMPReader::vtkBMPReader()
 vtkBMPReader::~vtkBMPReader()
 {
   // free any old memory
-  delete [] this->Colors;
+  delete[] this->Colors;
   this->Colors = nullptr;
 
   if (this->LookupTable)
@@ -59,20 +59,20 @@ vtkBMPReader::~vtkBMPReader()
 void vtkBMPReader::ExecuteInformation()
 {
   int xsize, ysize;
-  FILE *fp;
+  FILE* fp;
   vtkTypeInt32 tmp;
   vtkTypeInt32 offset;
   vtkTypeInt32 infoSize;
   vtkTypeInt16 stmp1, stmp2;
 
   // free any old memory
-  delete [] this->Colors;
+  delete[] this->Colors;
   this->Colors = nullptr;
 
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
-  if (this->DataExtent[4]==0 && this->DataExtent[5] == 0 &&
-      (this->DataVOI[4] || this->DataVOI[5]))
+  if (this->DataExtent[4] == 0 && this->DataExtent[5] == 0 &&
+    (this->DataVOI[4] || this->DataVOI[5]))
   {
     this->DataExtent[4] = this->DataVOI[4];
     this->DataExtent[5] = this->DataVOI[5];
@@ -84,7 +84,7 @@ void vtkBMPReader::ExecuteInformation()
     return;
   }
   // get the magic number by reading in a file
-  fp = vtksys::SystemTools::Fopen(this->InternalFileName,"rb");
+  fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
   if (!fp)
   {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -92,10 +92,10 @@ void vtkBMPReader::ExecuteInformation()
   }
 
   // compare magic number to determine file type
-  if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
+  if ((fgetc(fp) != 'B') || (fgetc(fp) != 'M'))
   {
-    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName
-                  <<" is not a Windows BMP file!");
+    vtkErrorMacro(<< "Unknown file type! " << this->InternalFileName
+                  << " is not a Windows BMP file!");
     fclose(fp);
     return;
   }
@@ -106,30 +106,29 @@ void vtkBMPReader::ExecuteInformation()
   // get the size of the file
 
   // skip 4 bytes
-  if (fread(&tmp,4,1,fp) != 1)
+  if (fread(&tmp, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // skip 4 more bytes
-  else if (fread(&tmp,4,1,fp) != 1)
+  else if (fread(&tmp, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // read the offset
-  else if (fread(&offset,4,1,fp) != 1)
+  else if (fread(&offset, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // get size of header
-  else if (fread(&infoSize,4,1,fp) != 1)
+  else if (fread(&infoSize, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
 
   if (errorOccurred)
   {
-    vtkErrorMacro("Error reading file: " << this->InternalFileName
-                  <<" Premature end of file.");
+    vtkErrorMacro("Error reading file: " << this->InternalFileName << " Premature end of file.");
     fclose(fp);
     return;
   }
@@ -137,10 +136,9 @@ void vtkBMPReader::ExecuteInformation()
   vtkByteSwap::Swap4LE(&infoSize);
 
   // error checking
-  if ((infoSize != 40)&&(infoSize != 12))
+  if ((infoSize != 40) && (infoSize != 12))
   {
-    vtkErrorMacro("Unknown file type! " << this->InternalFileName
-                  <<" is not a Windows BMP file!");
+    vtkErrorMacro("Unknown file type! " << this->InternalFileName << " is not a Windows BMP file!");
     fclose(fp);
     return;
   }
@@ -149,11 +147,11 @@ void vtkBMPReader::ExecuteInformation()
   if (infoSize == 40)
   {
     // now get the dimensions
-    if (fread(&xsize,4,1,fp) != 1)
+    if (fread(&xsize, 4, 1, fp) != 1)
     {
       errorOccurred = true;
     }
-    else if (fread(&ysize,4,1,fp) != 1)
+    else if (fread(&ysize, 4, 1, fp) != 1)
     {
       errorOccurred = true;
     }
@@ -162,11 +160,11 @@ void vtkBMPReader::ExecuteInformation()
   }
   else
   {
-    if (fread(&stmp1,2,1,fp) != 1)
+    if (fread(&stmp1, 2, 1, fp) != 1)
     {
       errorOccurred = true;
     }
-    else if (fread(&stmp2,2,1,fp) != 1)
+    else if (fread(&stmp2, 2, 1, fp) != 1)
     {
       errorOccurred = true;
     }
@@ -178,16 +176,16 @@ void vtkBMPReader::ExecuteInformation()
 
   if (errorOccurred)
   {
-    vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
-                   << " Premature EOF while reading size.");
-    fclose (fp);
+    vtkErrorMacro("BMPReader error reading file: " << this->InternalFileName
+                                                   << " Premature EOF while reading size.");
+    fclose(fp);
     return;
   }
 
   // is corner in upper left or lower left
   if (ysize < 0)
   {
-    ysize = ysize*-1;
+    ysize = ysize * -1;
     this->FileLowerLeft = 0;
   }
   else
@@ -196,31 +194,30 @@ void vtkBMPReader::ExecuteInformation()
   }
 
   // ignore planes
-  if (fread(&stmp1,2,1,fp) != 1)
+  if (fread(&stmp1, 2, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // read depth
-  else if (fread(&stmp2,2,1,fp) != 1)
+  else if (fread(&stmp2, 2, 1, fp) != 1)
   {
     errorOccurred = true;
   }
 
   if (errorOccurred)
   {
-    vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
-                   << " Premature EOF while reading depth.");
-    fclose (fp);
+    vtkErrorMacro("BMPReader error reading file: " << this->InternalFileName
+                                                   << " Premature EOF while reading depth.");
+    fclose(fp);
     return;
   }
 
   vtkByteSwap::Swap2LE(&stmp2);
   this->Depth = stmp2;
 
-  if ((this->Depth != 8)&&(this->Depth != 24))
+  if ((this->Depth != 8) && (this->Depth != 24))
   {
-    vtkErrorMacro("Only BMP depths of (8,24) are supported. Not "
-                  << this->Depth);
+    vtkErrorMacro("Only BMP depths of (8,24) are supported. Not " << this->Depth);
     fclose(fp);
     return;
   }
@@ -229,11 +226,11 @@ void vtkBMPReader::ExecuteInformation()
   if (infoSize == 40)
   {
     int skip[6];
-    if (fread(&skip,4,6,fp) != 6)
+    if (fread(&skip, 4, 6, fp) != 6)
     {
-      vtkErrorMacro ("BMPReader error reading file: " << this->InternalFileName
-                     << " Premature EOF skipping rest of info for long format.");
-      fclose (fp);
+      vtkErrorMacro("BMPReader error reading file: "
+        << this->InternalFileName << " Premature EOF skipping rest of info for long format.");
+      fclose(fp);
       return;
     }
   }
@@ -242,12 +239,12 @@ void vtkBMPReader::ExecuteInformation()
   if (this->Depth < 24)
   {
     int numColors = 256;
-    this->Colors = new unsigned char [numColors*3];
+    this->Colors = new unsigned char[numColors * 3];
     for (tmp = 0; tmp < numColors; tmp++)
     {
-      this->Colors[tmp*3+2] = fgetc(fp);
-      this->Colors[tmp*3+1] = fgetc(fp);
-      this->Colors[tmp*3] = fgetc(fp);
+      this->Colors[tmp * 3 + 2] = fgetc(fp);
+      this->Colors[tmp * 3 + 1] = fgetc(fp);
+      this->Colors[tmp * 3] = fgetc(fp);
       if (infoSize == 40)
       {
         fgetc(fp);
@@ -260,15 +257,12 @@ void vtkBMPReader::ExecuteInformation()
         this->LookupTable = vtkLookupTable::New();
       }
       this->LookupTable->SetNumberOfTableValues(numColors);
-      for (tmp=0; tmp<numColors; tmp++)
+      for (tmp = 0; tmp < numColors; tmp++)
       {
-        this->LookupTable->SetTableValue(tmp,
-              this->Colors[tmp*3+0]/255.0,
-              this->Colors[tmp*3+1]/255.0,
-              this->Colors[tmp*3+2]/255.0,
-              1);
+        this->LookupTable->SetTableValue(tmp, this->Colors[tmp * 3 + 0] / 255.0,
+          this->Colors[tmp * 3 + 1] / 255.0, this->Colors[tmp * 3 + 2] / 255.0, 1);
       }
-      this->LookupTable->SetRange(0,255);
+      this->LookupTable->SetRange(0, 255);
     }
   }
 
@@ -283,16 +277,14 @@ void vtkBMPReader::ExecuteInformation()
   this->HeaderSize = offset;
 
   // if the user has set the VOI, just make sure its valid
-  if (this->DataVOI[0] || this->DataVOI[1] ||
-      this->DataVOI[2] || this->DataVOI[3] ||
-      this->DataVOI[4] || this->DataVOI[5])
+  if (this->DataVOI[0] || this->DataVOI[1] || this->DataVOI[2] || this->DataVOI[3] ||
+    this->DataVOI[4] || this->DataVOI[5])
   {
-    if ((this->DataVOI[0] < 0) ||
-        (this->DataVOI[1] >= xsize) ||
-        (this->DataVOI[2] < 0) ||
-        (this->DataVOI[3] >= ysize))
+    if ((this->DataVOI[0] < 0) || (this->DataVOI[1] >= xsize) || (this->DataVOI[2] < 0) ||
+      (this->DataVOI[3] >= ysize))
     {
-      vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
+      vtkWarningMacro(
+        "The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
       this->DataVOI[1] = xsize - 1;
       this->DataVOI[2] = 0;
@@ -349,22 +341,21 @@ void vtkBMPReader::ComputeDataIncrements()
       return;
   }
 
-  fileDataLength *= (this->Depth/8);
+  fileDataLength *= (this->Depth / 8);
 
   // a row must end on a 4 byte boundary
   // so update the Increments[1]
   this->DataIncrements[0] = fileDataLength;
-  fileDataLength = fileDataLength *
-    (this->DataExtent[1] - this->DataExtent[0] + 1);
+  fileDataLength = fileDataLength * (this->DataExtent[1] - this->DataExtent[0] + 1);
   // move to 4 byte boundary
-  fileDataLength = fileDataLength + (4 - fileDataLength%4)%4;
+  fileDataLength = fileDataLength + (4 - fileDataLength % 4) % 4;
 
   // compute the fileDataLength (in units of bytes)
   for (idx = 1; idx < 3; ++idx)
   {
     this->DataIncrements[idx] = fileDataLength;
-    fileDataLength = fileDataLength *
-      (this->DataExtent[idx*2+1] - this->DataExtent[idx*2] + 1);
+    fileDataLength =
+      fileDataLength * (this->DataExtent[idx * 2 + 1] - this->DataExtent[idx * 2] + 1);
   }
 }
 
@@ -372,7 +363,7 @@ void vtkBMPReader::ComputeDataIncrements()
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
+void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
 {
   vtkIdType inIncr[3], outIncr[3];
   OT *outPtr0, *outPtr1, *outPtr2;
@@ -382,8 +373,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   int inExtent[6];
   int dataExtent[6];
   int pixelSkip;
-  unsigned char *inPtr;
-  unsigned char *Colors;
+  unsigned char* Colors;
   unsigned long count = 0;
   unsigned long target;
   int Keep8bit = 0;
@@ -391,11 +381,11 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   // Get the requested extents.
   data->GetExtent(inExtent);
   // Convert them into to the extent needed from the file.
-  self->ComputeInverseTransformedExtent(inExtent,dataExtent);
+  self->ComputeInverseTransformedExtent(inExtent, dataExtent);
 
   // get and transform the increments
   data->GetIncrements(inIncr);
-  self->ComputeInverseTransformedIncrements(inIncr,outIncr);
+  self->ComputeInverseTransformedIncrements(inIncr, outIncr);
 
   // get the color lut
   Colors = self->GetColors();
@@ -410,95 +400,88 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   outPtr2 = outPtr;
   if (outIncr[0] < 0)
   {
-    outPtr2 = outPtr2 - outIncr[0]*(dataExtent[1] - dataExtent[0]);
+    outPtr2 = outPtr2 - outIncr[0] * (dataExtent[1] - dataExtent[0]);
   }
   if (outIncr[1] < 0)
   {
-    outPtr2 = outPtr2 - outIncr[1]*(dataExtent[3] - dataExtent[2]);
+    outPtr2 = outPtr2 - outIncr[1] * (dataExtent[3] - dataExtent[2]);
   }
   if (outIncr[2] < 0)
   {
-    outPtr2 = outPtr2 - outIncr[2]*(dataExtent[5] - dataExtent[4]);
+    outPtr2 = outPtr2 - outIncr[2] * (dataExtent[5] - dataExtent[4]);
   }
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1;
-  streamRead = (vtkIdType) (pixelRead * self->GetDataIncrements()[0]);
-  streamSkip0 = (vtkIdType) (self->GetDataIncrements()[1] - streamRead);
-  streamSkip1 = (vtkIdType) (self->GetDataIncrements()[2] -
-    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
-  pixelSkip = self->GetDepth()/8;
+  streamRead = (vtkIdType)(pixelRead * self->GetDataIncrements()[0]);
+  streamSkip0 = (vtkIdType)(self->GetDataIncrements()[1] - streamRead);
+  streamSkip1 = (vtkIdType)(self->GetDataIncrements()[2] -
+    (dataExtent[3] - dataExtent[2] + 1) * self->GetDataIncrements()[1]);
+  pixelSkip = self->GetDepth() / 8;
 
   // read from the bottom up
   if (!self->GetFileLowerLeft())
   {
-    streamSkip0 = (vtkIdType) (-streamRead - self->GetDataIncrements()[1]);
+    streamSkip0 = (vtkIdType)(-streamRead - self->GetDataIncrements()[1]);
   }
 
-  target = (unsigned long)((dataExtent[5]-dataExtent[4]+1)*
-                           (dataExtent[3]-dataExtent[2]+1)/50.0);
+  target = (unsigned long)((dataExtent[5] - dataExtent[4] + 1) *
+    (dataExtent[3] - dataExtent[2] + 1) / 50.0);
   target++;
 
   if (self->GetFileDimensionality() == 3)
   {
-    if (!self->OpenAndSeekFile(dataExtent,0))
+    if (!self->OpenAndSeekFile(dataExtent, 0))
     {
       return;
     }
   }
 
   // create a buffer to hold a row of the data
-  unsigned char *buf = new unsigned char[streamRead];
+  std::vector<unsigned char> buf(streamRead);
 
   // read the data row by row
   for (idx2 = dataExtent[4]; idx2 <= dataExtent[5]; ++idx2)
   {
     if (self->GetFileDimensionality() == 2)
     {
-      if (!self->OpenAndSeekFile(dataExtent,idx2))
+      if (!self->OpenAndSeekFile(dataExtent, idx2))
       {
-        delete [] buf;
         return;
       }
     }
     outPtr1 = outPtr2;
-    for (idx1 = dataExtent[2];
-         !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
+    for (idx1 = dataExtent[2]; !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
     {
-      if (!(count%target))
+      if (!(count % target))
       {
-        self->UpdateProgress(count/(50.0*target));
+        self->UpdateProgress(count / (50.0 * target));
       }
       count++;
       outPtr0 = outPtr1;
 
       // read the row.
-      if ( ! self->GetFile()->read((char *)buf, streamRead))
+      if (!self->GetFile()->read(reinterpret_cast<char*>(buf.data()), streamRead))
       {
         vtkErrorWithObjectMacro(self,
-                               "File operation failed. row = " << idx1
-                               << ", Read = " << streamRead
-                               << ", Skip0 = " << streamSkip0
-                               << ", Skip1 = " << streamSkip1
-                               << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg())
-                               << ", FileName = " << self->GetInternalFileName()
-                               );
+          "File operation failed. row = "
+            << idx1 << ", Read = " << streamRead << ", Skip0 = " << streamSkip0 << ", Skip1 = "
+            << streamSkip1 << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg())
+            << ", FileName = " << self->GetInternalFileName());
         self->GetFile()->close();
-        delete [] buf;
         return;
       }
 
-
       // copy the bytes into the typed data
-      inPtr = buf;
+      auto inPtr = buf.cbegin();
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
       {
         // Copy pixel into the output.
         if (self->GetDepth() == 8 && !Keep8bit)
         {
-          outPtr0[0] = (OT)(Colors[inPtr[0]*3]);
-          outPtr0[1] = (OT)(Colors[inPtr[0]*3+1]);
-          outPtr0[2] = (OT)(Colors[inPtr[0]*3+2]);
+          outPtr0[0] = (OT)(Colors[inPtr[0] * 3]);
+          outPtr0[1] = (OT)(Colors[inPtr[0] * 3 + 1]);
+          outPtr0[2] = (OT)(Colors[inPtr[0] * 3 + 2]);
         }
         else if (self->GetDepth() == 8 && Keep8bit)
         {
@@ -526,17 +509,14 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   self->GetFile()->close();
 
   // delete the temporary buffer
-  delete [] buf;
 }
-
 
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
-                                              vtkInformation* outInfo)
+void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output, outInfo);
+  vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
   if (this->UpdateExtentIsEmpty(outInfo, output))
   {
@@ -553,15 +533,13 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
   this->ComputeDataIncrements();
 
   // Call the correct templated function for the output
-  void *outPtr;
+  void* outPtr;
 
   // Call the correct templated function for the input
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkBMPReaderUpdate2(this, data, static_cast<VTK_TT*>(outPtr))
-      );
+    vtkTemplateMacro(vtkBMPReaderUpdate2(this, data, static_cast<VTK_TT*>(outPtr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
   }
@@ -570,7 +548,7 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
 //----------------------------------------------------------------------------
 void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   // this->Colors is not printed
   os << indent << "Depth: " << this->Depth << "\n";
@@ -596,7 +574,7 @@ int vtkBMPReader::CanReadFile(const char* fname)
   }
 
   // compare magic number to determine file type
-  if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
+  if ((fgetc(fp) != 'B') || (fgetc(fp) != 'M'))
   {
     fclose(fp);
     return 0;
@@ -609,22 +587,22 @@ int vtkBMPReader::CanReadFile(const char* fname)
   bool errorOccurred = false;
 
   // skip 4 bytes
-  if (fread(&tmp,4,1,fp) != 1)
+  if (fread(&tmp, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // skip 4 more bytes
-  else if (fread(&tmp,4,1,fp) != 1)
+  else if (fread(&tmp, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // read the offset
-  else if (fread(&tmp,4,1,fp) != 1)
+  else if (fread(&tmp, 4, 1, fp) != 1)
   {
     errorOccurred = true;
   }
   // get size of header
-  else if (fread(&infoSize,4,1,fp) != 1)
+  else if (fread(&infoSize, 4, 1, fp) != 1)
   {
     infoSize = 0;
     errorOccurred = true;
@@ -633,7 +611,7 @@ int vtkBMPReader::CanReadFile(const char* fname)
   vtkByteSwap::Swap4LE(&infoSize);
 
   // error checking
-  if ((infoSize != 40)&&(infoSize != 12))
+  if ((infoSize != 40) && (infoSize != 12))
   {
     errorOccurred = true;
   }

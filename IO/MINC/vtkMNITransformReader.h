@@ -59,13 +59,13 @@ POSSIBILITY OF SUCH DAMAGES.
  * @par Thanks:
  * Thanks to David Gobbi for writing this class and Atamai Inc. for
  * contributing it to VTK.
-*/
+ */
 
 #ifndef vtkMNITransformReader_h
 #define vtkMNITransformReader_h
 
-#include "vtkIOMINCModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOMINCModule.h" // For export macro
 
 class vtkAbstractTransform;
 class vtkDoubleArray;
@@ -74,9 +74,9 @@ class vtkCollection;
 class VTKIOMINC_EXPORT vtkMNITransformReader : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMNITransformReader,vtkAlgorithm);
+  vtkTypeMacro(vtkMNITransformReader, vtkAlgorithm);
 
-  static vtkMNITransformReader *New();
+  static vtkMNITransformReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -90,14 +90,12 @@ public:
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".xfm"; }
+  virtual const char* GetFileExtensions() { return ".xfm"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI Transform"; }
+  virtual const char* GetDescriptiveName() { return "MNI Transform"; }
 
   /**
    * Test whether the specified file can be read.
@@ -112,61 +110,54 @@ public:
   /**
    * Get one of the transforms listed in the file.
    */
-  virtual vtkAbstractTransform *GetNthTransform(int i);
+  virtual vtkAbstractTransform* GetNthTransform(int i);
 
   /**
    * Get the transform that results from concatenating all
    * of the transforms in the file.  This will return null
    * if you have not specified a file name.
    */
-  virtual vtkAbstractTransform *GetTransform();
+  virtual vtkAbstractTransform* GetTransform();
 
   /**
    * Get any comments that are included in the file.
    */
-  virtual const char *GetComments();
+  virtual const char* GetComments();
 
 protected:
   vtkMNITransformReader();
   ~vtkMNITransformReader() override;
 
-  char *FileName;
-  vtkAbstractTransform *Transform;
-  vtkCollection *Transforms;
+  char* FileName;
+  vtkAbstractTransform* Transform;
+  vtkCollection* Transforms;
   int LineNumber;
-  char *Comments;
+  char* Comments;
 
-  void SetTransform(vtkAbstractTransform *transform);
+  void SetTransform(vtkAbstractTransform* transform);
 
-  int ReadLine(istream &infile, char result[256]);
-  int ReadLineAfterComments(istream &infile, char result[256]);
-  int SkipWhitespace(istream &infile, char linetext[256], char **cpp);
-  int ParseLeftHandSide(istream &infile, char linetext[256], char **cpp,
-                        char identifier[256]);
-  int ParseStringValue(istream &infile, char linetext[256], char **cpp,
-                       char data[256]);
-  int ParseFloatValues(istream &infile, char linetext[256], char **cpp,
-                       vtkDoubleArray *array);
-  int ParseInvertFlagValue(istream &infile, char linetext[256], char **cpp,
-                           int *invertFlag);
+  int ReadLine(istream& infile, char result[256]);
+  int ReadLineAfterComments(istream& infile, char result[256]);
+  int SkipWhitespace(istream& infile, char linetext[256], char** cpp);
+  int ParseLeftHandSide(istream& infile, char linetext[256], char** cpp, char identifier[256]);
+  int ParseStringValue(istream& infile, char linetext[256], char** cpp, char data[256]);
+  int ParseFloatValues(istream& infile, char linetext[256], char** cpp, vtkDoubleArray* array);
+  int ParseInvertFlagValue(istream& infile, char linetext[256], char** cpp, int* invertFlag);
 
-  int ReadLinearTransform(istream &infile, char linetext[256], char **cp);
-  int ReadThinPlateSplineTransform(istream &infile, char linetext[256],
-                                   char **cp);
-  int ReadGridTransform(istream &infile, char linetext[256], char **cp);
+  int ReadLinearTransform(istream& infile, char linetext[256], char** cp);
+  int ReadThinPlateSplineTransform(istream& infile, char linetext[256], char** cp);
+  int ReadGridTransform(istream& infile, char linetext[256], char** cp);
 
-  virtual int ReadNextTransform(istream &infile, char linetext[256]);
+  virtual int ReadNextTransform(istream& infile, char linetext[256]);
 
   virtual int ReadFile();
 
-  int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
 private:
   vtkMNITransformReader(const vtkMNITransformReader&) = delete;
   void operator=(const vtkMNITransformReader&) = delete;
-
 };
 
 #endif

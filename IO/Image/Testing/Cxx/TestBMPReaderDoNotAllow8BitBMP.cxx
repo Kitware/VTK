@@ -16,7 +16,6 @@
 // .SECTION Description
 //
 
-
 #include "vtkSmartPointer.h"
 
 #include "vtkBMPReader.h"
@@ -24,14 +23,13 @@
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-
-int TestBMPReaderDoNotAllow8BitBMP(int argc, char *argv[])
+int TestBMPReaderDoNotAllow8BitBMP(int argc, char* argv[])
 {
 
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <bmp file>" << endl;
     return EXIT_FAILURE;
@@ -39,8 +37,7 @@ int TestBMPReaderDoNotAllow8BitBMP(int argc, char *argv[])
 
   std::string filename = argv[1];
 
-  vtkSmartPointer<vtkBMPReader> BMPReader =
-    vtkSmartPointer<vtkBMPReader>::New();
+  vtkSmartPointer<vtkBMPReader> BMPReader = vtkSmartPointer<vtkBMPReader>::New();
 
   // Check the image can be read
   if (!BMPReader->CanReadFile(filename.c_str()))
@@ -67,10 +64,10 @@ int TestBMPReaderDoNotAllow8BitBMP(int argc, char *argv[])
   lookupTable->Print(cout);
 
   const unsigned char* colors = BMPReader->GetColors();
-  unsigned char const * first = reinterpret_cast<unsigned char *>(&colors);
-  unsigned char const * last = reinterpret_cast<unsigned char *>(&colors + 1);
+  unsigned char const* first = reinterpret_cast<unsigned char*>(&colors);
+  unsigned char const* last = reinterpret_cast<unsigned char*>(&colors + 1);
   cout << "colors: ";
-  while( first != last )
+  while (first != last)
   {
     cout << (int)*first << ' ';
     ++first;
@@ -81,10 +78,8 @@ int TestBMPReaderDoNotAllow8BitBMP(int argc, char *argv[])
   BMPReader->SetAllow8BitBMP(allow8BitBMP);
   cout << "allow8BitBMP: " << BMPReader->GetAllow8BitBMP() << endl;
 
-
   // Visualize
-  vtkSmartPointer<vtkImageViewer2> imageViewer =
-    vtkSmartPointer<vtkImageViewer2>::New();
+  vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInputConnection(BMPReader->GetOutputPort());
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();

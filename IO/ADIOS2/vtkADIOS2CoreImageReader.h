@@ -31,6 +31,7 @@
 #define vtkADIOS2CoreImageReader_h
 
 #include <map>    // For independently time stepped array indexing
+#include <memory> // For std::unique_ptr
 #include <string> // For variable name index mapping
 #include <vector> // For independently time stepped array indexing
 
@@ -63,11 +64,10 @@ public:
   };
   using Params = std::map<std::string, std::string>;
   using StringToParams = std::map<std::string, Params>;
-  using InquireVariablesType = std::vector<std::pair<std::string, VarType>>;
+  using InquireVariablesType = std::vector<std::pair<std::string, VarType> >;
   static vtkADIOS2CoreImageReader* New(void);
-  vtkTypeMacro(vtkADIOS2CoreImageReader,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkADIOS2CoreImageReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
 
   /**
    * Test whether or not a given file should even be attempted for use with this
@@ -121,7 +121,7 @@ public:
    * Enable/Disable the assumption that the dimension array is cell data.
    * On by default.
    */
-  vtkSetMacro(DimensionArrayAsCell, bool)
+  vtkSetMacro(DimensionArrayAsCell, bool);
   vtkGetMacro(DimensionArrayAsCell, bool);
   vtkBooleanMacro(DimensionArrayAsCell, bool);
   //@}
@@ -158,7 +158,6 @@ public:
   int GetArrayStatus(const char* name);
   //@}
 
-
   //@{
   /**
    * Enable/Disable the assumption that the order of input data is column major.
@@ -167,7 +166,7 @@ public:
    * we **flip the dimensions** here to avoid a deep copy.
    *
    */
-  vtkSetMacro(IsColumnMajor, bool)
+  vtkSetMacro(IsColumnMajor, bool);
   vtkGetMacro(IsColumnMajor, bool);
   vtkBooleanMacro(IsColumnMajor, bool);
   //@}
@@ -204,8 +203,8 @@ public:
   /**
    * The main interface which triggers the reader to start
    */
-  virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
-    vtkInformationVector*) override;
+  virtual int ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkADIOS2CoreImageReader();
@@ -213,12 +212,10 @@ protected:
 
   int RequestDataObjectInternal(vtkInformationVector*);
 
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **input,
-                                 vtkInformationVector *output) override;
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **input,
-                          vtkInformationVector *output) override;
+  virtual int RequestInformation(
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
+  virtual int RequestData(
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
 
   std::string FetchTypeStringFromVarName(const std::string& name);
 
@@ -239,16 +236,16 @@ protected:
   bool GatherTimeSteps();
 
   // Helper function for InitWorkDistribution to calculate how many blocks each process shall read
-  template<typename T>
+  template <typename T>
   void CalculateWorkDistribution(const std::string& varName);
 
   // Helper function for ReadImageBlocks to populate vtk data array from adios variable
-  template<typename T, template<typename...> class U>
-  vtkSmartPointer<vtkAbstractArray> PopulateDataArrayFromVar(const std::string& varName,
-                                size_t blockIndex);
+  template <typename T, template <typename...> class U>
+  vtkSmartPointer<vtkAbstractArray> PopulateDataArrayFromVar(
+    const std::string& varName, size_t blockIndex);
 
   // Helper function to gather time steps from adios time array
-  template<typename T>
+  template <typename T>
   void GatherTimeStepsFromADIOSTimeArray();
 
   std::string FileName;

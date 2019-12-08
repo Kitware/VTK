@@ -38,10 +38,7 @@
 
 // returns an int, zero indicates a problem though right now
 // all paths return 1.
-int HandleOpenGL32Issues(
-  const char *pathToTestOpenGLExecutable,
-  const char *mesaLibPath
-  )
+int HandleOpenGL32Issues(const char* pathToTestOpenGLExecutable, const char* mesaLibPath)
 {
   // run the test executable and collect the result
   int result = system(pathToTestOpenGLExecutable);

@@ -14,8 +14,10 @@
   =========================================================================*/
 #include "vtkCellDataToPointData.h"
 
-#include "vtkCellData.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -38,50 +40,64 @@ vtkStandardNewMacro(vtkCellDataToPointData);
 
 namespace
 {
+
 //----------------------------------------------------------------------------
 // Helper template function that implement the major part of the algorighm
 // which will be expanded by the vtkTemplateMacro. The template function is
 // provided so that coverage test can cover this function.
-  template <typename T>
-  void __spread (vtkDataSet* const src, vtkUnsignedIntArray* const num,
-                 vtkDataArray* const srcarray, vtkDataArray* const dstarray,
-                 vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
-                 int highestCellDimension, int contributingCellOption)
+struct Spread
+{
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray,
+                  vtkDataSet* const src, vtkUnsignedIntArray* const num,
+                  vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
+                  int highestCellDimension, int contributingCellOption) const
   {
-    T const* const srcptr = static_cast<T const*>(srcarray->GetVoidPointer(0));
-    T      * const dstptr = static_cast<T      *>(dstarray->GetVoidPointer(0));
+    // Both arrays will have the same value type:
+    using T = vtk::GetAPIType<SrcArrayT>;
 
     // zero initialization
-    std::fill_n(dstptr, npoints*ncomps, T(0));
+    std::fill_n(vtk::DataArrayValueRange(dstarray).begin(),
+                npoints*ncomps, T(0));
+
+    const auto srcTuples = vtk::DataArrayTupleRange(srcarray);
+    auto dstTuples = vtk::DataArrayTupleRange(dstarray);
 
     // accumulate
     if (contributingCellOption != vtkCellDataToPointData::Patch)
     {
-      T const* srcbeg = srcptr;
-      for (vtkIdType cid = 0; cid < ncells; ++cid, srcbeg += ncomps)
+      for (vtkIdType cid = 0; cid < ncells; ++cid)
       {
         vtkCell* cell = src->GetCell(cid);
         if (cell->GetCellDimension() >= highestCellDimension)
         {
+          const auto srcTuple = srcTuples[cid];
           vtkIdList* pids = cell->GetPointIds();
           for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
           {
-            T* const dstbeg = dstptr + pids->GetId(i)*ncomps;
+            const vtkIdType ptId = pids->GetId(i);
+            auto dstTuple = dstTuples[ptId];
             // accumulate cell data to point data <==> point_data += cell_data
-            std::transform(srcbeg,srcbeg+ncomps,dstbeg,dstbeg,std::plus<T>());
+            std::transform(srcTuple.cbegin(),
+                           srcTuple.cend(),
+                           dstTuple.cbegin(),
+                           dstTuple.begin(),
+                           std::plus<T>());
           }
         }
       }
       // average
-      T* dstbeg = dstptr;
-      for (vtkIdType pid = 0; pid < npoints; ++pid, dstbeg += ncomps)
+      for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
         // guard against divide by zero
         if (unsigned int const denom = num->GetValue(pid))
         {
           // divide point data by the number of cells using it <==>
           // point_data /= denum
-          std::transform(dstbeg, dstbeg+ncomps, dstbeg,
+          auto dstTuple = dstTuples[pid];
+          std::transform(dstTuple.cbegin(),
+                         dstTuple.cend(),
+                         dstTuple.begin(),
                          std::bind(std::divides<T>(), std::placeholders::_1, denom));
         }
       }
@@ -102,18 +118,20 @@ namespace
           vtkIdType cellId = cellsOnPoint->GetId(pc);
           int cellDimension = src->GetCell(cellId)->GetCellDimension();
           numPointCells[cellDimension] += 1;
+          const auto srcTuple = srcTuples[cellId];
           for (int comp=0;comp<ncomps;comp++)
           {
-            data[comp+ncomps*cellDimension] += srcptr[comp+cellId*ncomps];
+            data[comp+ncomps*cellDimension] += srcTuple[comp];
           }
         }
+        auto dstTuple = dstTuples[pid];
         for (int dimension=3;dimension>=0;dimension--)
         {
           if (numPointCells[dimension])
           {
             for (int comp=0;comp<ncomps;comp++)
             {
-              dstptr[comp+pid*ncomps] = data[comp+dimension*ncomps] / numPointCells[dimension];
+              dstTuple[comp] = data[comp+dimension*ncomps] / numPointCells[dimension];
             }
             break;
           }
@@ -121,98 +139,100 @@ namespace
       }
     }
   }
+};
+
 } // end anonymous namespace
 
 class vtkCellDataToPointData::Internals
 {
-  public:
-    std::set<std::string> CellDataArrays;
+public:
+  std::set<std::string> CellDataArrays;
 
-    // Special traversal algorithm for vtkUniformGrid and vtkRectilinearGrid to support blanking
-    // points will not have more than 8 cells for either of these data sets
-    template <typename T>
-    int InterpolatePointDataWithMask(vtkCellDataToPointData* filter, T *input, vtkDataSet *output)
+  // Special traversal algorithm for vtkUniformGrid and vtkRectilinearGrid to support blanking
+  // points will not have more than 8 cells for either of these data sets
+  template <typename T>
+  int InterpolatePointDataWithMask(vtkCellDataToPointData* filter, T* input, vtkDataSet* output)
+  {
+    vtkNew<vtkIdList> allCellIds;
+    allCellIds->Allocate(8);
+    vtkNew<vtkIdList> cellIds;
+    cellIds->Allocate(8);
+
+    vtkIdType numPts = input->GetNumberOfPoints();
+
+    vtkCellData* inputInCD = input->GetCellData();
+    vtkCellData* inCD;
+    vtkPointData* outPD = output->GetPointData();
+
+    if (!filter->GetProcessAllArrays())
     {
-      vtkNew<vtkIdList> allCellIds;
-      allCellIds->Allocate(8);
-      vtkNew<vtkIdList> cellIds;
-      cellIds->Allocate(8);
+      inCD = vtkCellData::New();
 
-      vtkIdType numPts = input->GetNumberOfPoints();
-
-      vtkCellData *inputInCD = input->GetCellData();
-      vtkCellData *inCD;
-      vtkPointData *outPD = output->GetPointData();
-
-      if (!filter->GetProcessAllArrays())
+      for (const auto& name : this->CellDataArrays)
       {
-        inCD = vtkCellData::New();
-
-        for (const auto &name : this->CellDataArrays)
+        vtkAbstractArray* arr = inputInCD->GetAbstractArray(name.c_str());
+        if (arr == nullptr)
         {
-          vtkAbstractArray *arr = inputInCD->GetAbstractArray(name.c_str());
-          if (arr == nullptr)
-          {
-            vtkWarningWithObjectMacro(filter, "cell data array name not found.");
-            continue;
-          }
-          inCD->AddArray(arr);
+          vtkWarningWithObjectMacro(filter, "cell data array name not found.");
+          continue;
         }
+        inCD->AddArray(arr);
+      }
+    }
+    else
+    {
+      inCD = inputInCD;
+    }
+
+    outPD->InterpolateAllocate(inCD, numPts);
+
+    double weights[8];
+
+    int abort = 0;
+    vtkIdType progressInterval = numPts / 20 + 1;
+    for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
+    {
+      if (!(ptId % progressInterval))
+      {
+        filter->UpdateProgress(static_cast<double>(ptId) / numPts);
+        abort = filter->GetAbortExecute();
+      }
+      input->GetPointCells(ptId, allCellIds);
+      cellIds->Reset();
+      // Only consider cells that are not masked:
+      for (vtkIdType cId = 0; cId < allCellIds->GetNumberOfIds(); ++cId)
+      {
+        vtkIdType curCell = allCellIds->GetId(cId);
+        if (input->IsCellVisible(curCell))
+        {
+          cellIds->InsertNextId(curCell);
+        }
+      }
+
+      vtkIdType numCells = cellIds->GetNumberOfIds();
+
+      if (numCells > 0)
+      {
+        double weight = 1.0 / numCells;
+        for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+        {
+          weights[cellId] = weight;
+        }
+        outPD->InterpolatePoint(inCD, ptId, cellIds, weights);
       }
       else
       {
-        inCD = inputInCD;
+        outPD->NullPoint(ptId);
       }
-
-      outPD->InterpolateAllocate(inCD,numPts);
-
-      double weights[8];
-
-      int abort = 0;
-      vtkIdType progressInterval = numPts / 20 + 1;
-      for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
-      {
-        if ( !(ptId % progressInterval) )
-        {
-          filter->UpdateProgress(static_cast<double>(ptId)/numPts);
-          abort = filter->GetAbortExecute();
-        }
-        input->GetPointCells(ptId, allCellIds);
-        cellIds->Reset();
-        // Only consider cells that are not masked:
-        for (vtkIdType cId = 0; cId < allCellIds->GetNumberOfIds(); ++cId)
-        {
-          vtkIdType curCell = allCellIds->GetId(cId);
-          if (input->IsCellVisible(curCell))
-          {
-            cellIds->InsertNextId(curCell);
-          }
-        }
-
-        vtkIdType numCells = cellIds->GetNumberOfIds();
-
-        if ( numCells > 0 )
-        {
-          double weight = 1.0 / numCells;
-          for (vtkIdType cellId = 0; cellId < numCells; cellId++)
-          {
-            weights[cellId] = weight;
-          }
-          outPD->InterpolatePoint(inCD, ptId, cellIds, weights);
-        }
-        else
-        {
-          outPD->NullPoint(ptId);
-        }
-      }
-
-      if(!filter->GetProcessAllArrays())
-      {
-        inCD->Delete();
-      }
-
-      return 1;
     }
+
+    if (!filter->GetProcessAllArrays())
+    {
+      inCD->Delete();
+    }
+
+    return 1;
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -232,7 +252,7 @@ vtkCellDataToPointData::~vtkCellDataToPointData()
 }
 
 //----------------------------------------------------------------------------
-void vtkCellDataToPointData::AddCellDataArray(const char *name)
+void vtkCellDataToPointData::AddCellDataArray(const char* name)
 {
   if (!name)
   {
@@ -245,7 +265,7 @@ void vtkCellDataToPointData::AddCellDataArray(const char *name)
 }
 
 //----------------------------------------------------------------------------
-void vtkCellDataToPointData::RemoveCellDataArray(const char *name)
+void vtkCellDataToPointData::RemoveCellDataArray(const char* name)
 {
   if (!name)
   {
@@ -269,19 +289,15 @@ void vtkCellDataToPointData::ClearCellDataArrays()
 
 //----------------------------------------------------------------------------
 int vtkCellDataToPointData::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<<"Mapping cell data to point data");
+  vtkDebugMacro(<< "Mapping cell data to point data");
 
   // Special traversal algorithm for unstructured grid
   if (input->IsA("vtkUnstructuredGrid") || input->IsA("vtkPolyData"))
@@ -289,10 +305,10 @@ int vtkCellDataToPointData::RequestData(
     return this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
   }
 
-  vtkDebugMacro(<<"Mapping cell data to point data");
+  vtkDebugMacro(<< "Mapping cell data to point data");
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
   // Pass the point data first. The fields and attributes
   // which also exist in the cell data of the input will
@@ -303,13 +319,13 @@ int vtkCellDataToPointData::RequestData(
 
   if (input->GetNumberOfPoints() < 1)
   {
-    vtkDebugMacro(<<"No input point data!");
+    vtkDebugMacro(<< "No input point data!");
     return 1;
   }
 
   // Do the interpolation, taking care of masked cells if needed.
-  vtkStructuredGrid *sGrid = vtkStructuredGrid::SafeDownCast(input);
-  vtkUniformGrid *uniformGrid = vtkUniformGrid::SafeDownCast(input);
+  vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(input);
+  vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input);
   int result;
   if (sGrid && sGrid->HasAnyBlankCells())
   {
@@ -343,28 +359,26 @@ int vtkCellDataToPointData::RequestData(
 //----------------------------------------------------------------------------
 void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "PassCellData: " << (this->PassCellData ? "On\n" : "Off\n");
   os << indent << "ContributingCellOption: " << this->ContributingCellOption << endl;
 }
 
 //----------------------------------------------------------------------------
-int vtkCellDataToPointData::RequestDataForUnstructuredData
-(vtkInformation*,
- vtkInformationVector** inputVector,
- vtkInformationVector* outputVector)
+int vtkCellDataToPointData::RequestDataForUnstructuredData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataSet* const src = vtkDataSet::SafeDownCast(
     inputVector[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* const dst = vtkDataSet::SafeDownCast(
     outputVector->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType const ncells  = src->GetNumberOfCells ();
+  vtkIdType const ncells = src->GetNumberOfCells();
   vtkIdType const npoints = src->GetNumberOfPoints();
   if (ncells < 1 || npoints < 1)
   {
-    vtkDebugMacro(<<"No input data!");
+    vtkDebugMacro(<< "No input data!");
     return 1;
   }
 
@@ -381,7 +395,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
     if (this->ContributingCellOption == vtkCellDataToPointData::DataSetMax)
     {
       int maxDimension = src->IsA("vtkPolyData") == 1 ? 2 : 3;
-      for (vtkIdType i=0;i<src->GetNumberOfCells();i++)
+      for (vtkIdType i = 0; i < src->GetNumberOfCells(); i++)
       {
         int dim = src->GetCell(i)->GetCellDimension();
         if (dim > highestCellDimension)
@@ -403,7 +417,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
         for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
         {
           vtkIdType const pid = pids->GetId(i);
-          num->SetValue(pid, num->GetValue(pid)+1);
+          num->SetValue(pid, num->GetValue(pid) + 1);
         }
       }
     }
@@ -427,10 +441,10 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
   {
     processedCellData = vtkSmartPointer<vtkCellData>::New();
 
-    vtkCellData *processedCellDataTemp = src->GetCellData();
-    for (const auto &name : this->Implementation->CellDataArrays)
+    vtkCellData* processedCellDataTemp = src->GetCellData();
+    for (const auto& name : this->Implementation->CellDataArrays)
     {
-      vtkAbstractArray *arr = processedCellDataTemp->GetAbstractArray(name.c_str());
+      vtkAbstractArray* arr = processedCellDataTemp->GetAbstractArray(name.c_str());
       if (arr == nullptr)
       {
         vtkWarningMacro("cell data array name not found.");
@@ -477,10 +491,15 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
     {
       dstarray->SetNumberOfTuples(npoints);
       vtkIdType const ncomps = srcarray->GetNumberOfComponents();
-      switch (srcarray->GetDataType())
-      {
-        vtkTemplateMacro(__spread<VTK_TT>(src, num, srcarray, dstarray, ncells, npoints, ncomps,
-          highestCellDimension, this->ContributingCellOption));
+
+      Spread worker;
+      using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+      if (!Dispatcher::Execute(srcarray, dstarray, worker, src, num,
+                               ncells, npoints, ncomps, highestCellDimension,
+                               this->ContributingCellOption))
+      { // fallback for unknown arrays:
+        worker(srcarray, dstarray, src, num, ncells, npoints, ncomps,
+               highestCellDimension, this->ContributingCellOption);
       }
     }
   };
@@ -500,24 +519,24 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
   return 1;
 }
 
-int vtkCellDataToPointData::InterpolatePointData(vtkDataSet *input, vtkDataSet *output)
+int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* output)
 {
   vtkNew<vtkIdList> cellIds;
   cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
 
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  vtkCellData *inputInCD = input->GetCellData();
-  vtkCellData *inCD;
-  vtkPointData *outPD = output->GetPointData();
+  vtkCellData* inputInCD = input->GetCellData();
+  vtkCellData* inCD;
+  vtkPointData* outPD = output->GetPointData();
 
   if (!this->ProcessAllArrays)
   {
     inCD = vtkCellData::New();
 
-    for (const auto &name : this->Implementation->CellDataArrays)
+    for (const auto& name : this->Implementation->CellDataArrays)
     {
-      vtkAbstractArray *arr = inputInCD->GetAbstractArray(name.c_str());
+      vtkAbstractArray* arr = inputInCD->GetAbstractArray(name.c_str());
       if (arr == nullptr)
       {
         vtkWarningMacro("cell data array name not found.");
@@ -531,7 +550,7 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet *input, vtkDataSet *
     inCD = inputInCD;
   }
 
-  outPD->InterpolateAllocate(inCD,numPts);
+  outPD->InterpolateAllocate(inCD, numPts);
 
   double weights[VTK_MAX_CELLS_PER_POINT];
 
@@ -539,16 +558,16 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet *input, vtkDataSet *
   vtkIdType progressInterval = numPts / 20 + 1;
   for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
   {
-    if ( !(ptId % progressInterval) )
+    if (!(ptId % progressInterval))
     {
-      this->UpdateProgress(static_cast<double>(ptId)/numPts);
+      this->UpdateProgress(static_cast<double>(ptId) / numPts);
       abort = GetAbortExecute();
     }
 
     input->GetPointCells(ptId, cellIds);
     vtkIdType numCells = cellIds->GetNumberOfIds();
 
-    if ( numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT )
+    if (numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT)
     {
       double weight = 1.0 / numCells;
       for (vtkIdType cellId = 0; cellId < numCells; cellId++)

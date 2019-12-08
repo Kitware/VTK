@@ -18,7 +18,7 @@
  *
  * This filter is the new home for what was the dataset API within the
  * vtkHyperTreeGrid class.
-*/
+ */
 
 #ifndef vtkHyperTreeGridToDualGrid_h
 #define vtkHyperTreeGridToDualGrid_h
@@ -38,8 +38,8 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToDualGrid : public vtkHyperTre
 {
 public:
   static vtkHyperTreeGridToDualGrid* New();
-  vtkTypeMacro( vtkHyperTreeGridToDualGrid, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridToDualGrid, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
 protected:
   vtkHyperTreeGridToDualGrid();
@@ -48,40 +48,39 @@ protected:
   /**
    * For this algorithm the output is a vtkUnstructuredGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to convert the grid of tree into an unstructured grid
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
 private:
   vtkHyperTreeGridToDualGrid(const vtkHyperTreeGridToDualGrid&) = delete;
   void operator=(const vtkHyperTreeGridToDualGrid&) = delete;
 
-  void TraverseDualRecursively( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid *in );
-  void GenerateDualCornerFromLeaf1D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid *in);
-  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid *in );
-  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid *in );
+  void TraverseDualRecursively(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid* in);
+  void GenerateDualCornerFromLeaf1D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid* in);
+  void GenerateDualCornerFromLeaf2D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid* in);
+  void GenerateDualCornerFromLeaf3D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkHyperTreeGrid* in);
 
-  void TraverseDualRecursively( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor,
-                                vtkBitArray* mask,
-                                vtkHyperTreeGrid *in);
-  void ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor,
-                                        vtkBitArray* mask,
-                                        vtkHyperTreeGrid *in);
-  void ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor,
-                                        vtkBitArray* mask,
-                                        vtkHyperTreeGrid *in);
-  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor,
-                                     vtkBitArray* mask,
-                                     vtkHyperTreeGrid *in);
-  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor,
-                                     vtkBitArray* mask,
-                                     vtkHyperTreeGrid *in);
+  void TraverseDualRecursively(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkBitArray* mask, vtkHyperTreeGrid* in);
+  void ShiftDualCornerFromMaskedLeaf2D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkBitArray* mask, vtkHyperTreeGrid* in);
+  void ShiftDualCornerFromMaskedLeaf3D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkBitArray* mask, vtkHyperTreeGrid* in);
+  void GenerateDualCornerFromLeaf2D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkBitArray* mask, vtkHyperTreeGrid* in);
+  void GenerateDualCornerFromLeaf3D(
+    vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkBitArray* mask, vtkHyperTreeGrid* in);
 
-  vtkPoints *Points;
-  vtkIdTypeArray *Connectivity;
+  vtkPoints* Points;
+  vtkIdTypeArray* Connectivity;
   std::map<vtkIdType, bool> PointShifted;
   std::map<vtkIdType, double> PointShifts[3];
   std::map<vtkIdType, double> ReductionFactors;

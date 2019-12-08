@@ -39,9 +39,9 @@
 #ifndef vtkSVGContextDevice2D_h
 #define vtkSVGContextDevice2D_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkContextDevice2D.h"
-#include "vtkNew.h" // For vtkNew!
+#include "vtkIOExportModule.h" // For export macro
+#include "vtkNew.h"            // For vtkNew!
 
 #include <array> // For std::array!
 
@@ -53,17 +53,16 @@ class vtkTransform;
 class vtkVector3f;
 class vtkXMLDataElement;
 
-class VTKIOEXPORT_EXPORT vtkSVGContextDevice2D: public vtkContextDevice2D
+class VTKIOEXPORT_EXPORT vtkSVGContextDevice2D : public vtkContextDevice2D
 {
 public:
   static vtkSVGContextDevice2D* New();
-  vtkTypeMacro(vtkSVGContextDevice2D, vtkContextDevice2D)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkSVGContextDevice2D, vtkContextDevice2D);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /** The svg container element to draw into, and the global definitions
    *  element. */
-  void SetSVGContext(vtkXMLDataElement *context,
-                     vtkXMLDataElement *defs);
+  void SetSVGContext(vtkXMLDataElement* context, vtkXMLDataElement* defs);
 
   /**
    * EXPERIMENTAL: If true, the font glyph information will be embedded in the
@@ -75,9 +74,9 @@ public:
    *
    * @{
    */
-  vtkSetMacro(EmbedFonts, bool)
-  vtkGetMacro(EmbedFonts, bool)
-  vtkBooleanMacro(EmbedFonts, bool)
+  vtkSetMacro(EmbedFonts, bool);
+  vtkGetMacro(EmbedFonts, bool);
+  vtkBooleanMacro(EmbedFonts, bool);
   /**@}*/
 
   /**
@@ -95,9 +94,9 @@ public:
    *
    * @{
    */
-  vtkSetMacro(TextAsPath, bool)
-  vtkGetMacro(TextAsPath, bool)
-  vtkBooleanMacro(TextAsPath, bool)
+  vtkSetMacro(TextAsPath, bool);
+  vtkGetMacro(TextAsPath, bool);
+  vtkBooleanMacro(TextAsPath, bool);
   /**@}*/
 
   /**
@@ -115,8 +114,8 @@ public:
    *
    * @{
    */
-  vtkSetMacro(SubdivisionThreshold, float)
-  vtkGetMacro(SubdivisionThreshold, float)
+  vtkSetMacro(SubdivisionThreshold, float);
+  vtkGetMacro(SubdivisionThreshold, float);
   /**@}*/
 
   /**
@@ -128,51 +127,42 @@ public:
   void Begin(vtkViewport*) override;
   void End() override;
 
-  void DrawPoly(float *points, int n, unsigned char *colors = nullptr,
-                int nc_comps = 0) override;
-  void DrawLines(float *f, int n, unsigned char *colors = nullptr,
-                 int nc_comps = 0) override;
-  void DrawPoints(float *points, int n, unsigned char* colors = nullptr,
-                  int nc_comps = 0) override;
-  void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-                        unsigned char *colors = nullptr,
-                        int nc_comps = 0) override;
-  void DrawMarkers(int shape, bool highlight, float *points, int n,
-                   unsigned char *colors = nullptr, int nc_comps = 0) override;
-  void DrawQuad(float *, int) override;
-  void DrawQuadStrip(float *, int) override;
-  void DrawPolygon(float *, int) override;
-  void DrawColoredPolygon(float *points, int numPoints,
-                          unsigned char *colors = nullptr,
-                          int nc_comps = 0) override;
-  void DrawEllipseWedge(float x, float y, float outRx, float outRy,
-                        float inRx, float inRy, float startAngle,
-                        float stopAngle) override;
-  void DrawEllipticArc(float x, float y, float rX, float rY,
-                       float startAngle, float stopAngle) override;
-  void DrawString(float *point, const vtkStdString &string) override;
-  void ComputeStringBounds(const vtkStdString &string,
-                           float bounds[4]) override;
-  void DrawString(float *point, const vtkUnicodeString &string) override;
-  void ComputeStringBounds(const vtkUnicodeString &string,
-                           float bounds[4]) override;
-  void ComputeJustifiedStringBounds(const char* string,
-                                    float bounds[4]) override;
-  void DrawMathTextString(float *point, const vtkStdString &str) override;
-  void DrawImage(float p[2], float scale, vtkImageData *image) override;
-  void DrawImage(const vtkRectf& pos, vtkImageData *image) override;
+  void DrawPoly(float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
+  void DrawLines(float* f, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
+  void DrawPoints(float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
+  void DrawPointSprites(vtkImageData* sprite, float* points, int n, unsigned char* colors = nullptr,
+    int nc_comps = 0) override;
+  void DrawMarkers(int shape, bool highlight, float* points, int n, unsigned char* colors = nullptr,
+    int nc_comps = 0) override;
+  void DrawQuad(float*, int) override;
+  void DrawQuadStrip(float*, int) override;
+  void DrawPolygon(float*, int) override;
+  void DrawColoredPolygon(
+    float* points, int numPoints, unsigned char* colors = nullptr, int nc_comps = 0) override;
+  void DrawEllipseWedge(float x, float y, float outRx, float outRy, float inRx, float inRy,
+    float startAngle, float stopAngle) override;
+  void DrawEllipticArc(
+    float x, float y, float rX, float rY, float startAngle, float stopAngle) override;
+  void DrawString(float* point, const vtkStdString& string) override;
+  void ComputeStringBounds(const vtkStdString& string, float bounds[4]) override;
+  void DrawString(float* point, const vtkUnicodeString& string) override;
+  void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]) override;
+  void ComputeJustifiedStringBounds(const char* string, float bounds[4]) override;
+  void DrawMathTextString(float* point, const vtkStdString& str) override;
+  void DrawImage(float p[2], float scale, vtkImageData* image) override;
+  void DrawImage(const vtkRectf& pos, vtkImageData* image) override;
   void SetColor4(unsigned char color[4]) override;
   void SetTexture(vtkImageData* image, int properties) override;
   void SetPointSize(float size) override;
   void SetLineWidth(float width) override;
 
   void SetLineType(int type) override;
-  void SetMatrix(vtkMatrix3x3 *m) override;
-  void GetMatrix(vtkMatrix3x3 *m) override;
-  void MultiplyMatrix(vtkMatrix3x3 *m) override;
+  void SetMatrix(vtkMatrix3x3* m) override;
+  void GetMatrix(vtkMatrix3x3* m) override;
+  void MultiplyMatrix(vtkMatrix3x3* m) override;
   void PushMatrix() override;
   void PopMatrix() override;
-  void SetClipping(int *x) override;
+  void SetClipping(int* x) override;
   void EnableClipping(bool enable) override;
 
 protected:
@@ -188,26 +178,25 @@ protected:
   void SetupClippingAndTransform();
 
   // pen -> stroke state
-  void ApplyPenStateToNode(vtkXMLDataElement *node);
-  void ApplyPenColorToNode(vtkXMLDataElement *node);
-  void ApplyPenOpacityToNode(vtkXMLDataElement *node);
-  void ApplyPenWidthToNode(vtkXMLDataElement *node);
-  void ApplyPenStippleToNode(vtkXMLDataElement *node);
+  void ApplyPenStateToNode(vtkXMLDataElement* node);
+  void ApplyPenColorToNode(vtkXMLDataElement* node);
+  void ApplyPenOpacityToNode(vtkXMLDataElement* node);
+  void ApplyPenWidthToNode(vtkXMLDataElement* node);
+  void ApplyPenStippleToNode(vtkXMLDataElement* node);
 
   // pen -> fill state
-  void ApplyPenAsFillColorToNode(vtkXMLDataElement *node);
-  void ApplyPenAsFillOpacityToNode(vtkXMLDataElement *node);
+  void ApplyPenAsFillColorToNode(vtkXMLDataElement* node);
+  void ApplyPenAsFillOpacityToNode(vtkXMLDataElement* node);
 
   // brush -> fill state
-  void ApplyBrushStateToNode(vtkXMLDataElement *node);
-  void ApplyBrushColorToNode(vtkXMLDataElement *node);
-  void ApplyBrushOpacityToNode(vtkXMLDataElement *node);
-  void ApplyBrushTextureToNode(vtkXMLDataElement *node);
+  void ApplyBrushStateToNode(vtkXMLDataElement* node);
+  void ApplyBrushColorToNode(vtkXMLDataElement* node);
+  void ApplyBrushOpacityToNode(vtkXMLDataElement* node);
+  void ApplyBrushTextureToNode(vtkXMLDataElement* node);
 
   // tprop --> text state
-  void ApplyTextPropertyStateToNode(vtkXMLDataElement *node, float x, float y);
-  void ApplyTextPropertyStateToNodeForPath(vtkXMLDataElement *node,
-                                           float x, float y);
+  void ApplyTextPropertyStateToNode(vtkXMLDataElement* node, float x, float y);
+  void ApplyTextPropertyStateToNodeForPath(vtkXMLDataElement* node, float x, float y);
 
   void ApplyTransform();
 
@@ -218,28 +207,21 @@ protected:
   std::string AddCircleSymbol(bool highlight);
   std::string AddDiamondSymbol(bool highlight);
 
-  void DrawPath(vtkPath *path, std::ostream &out);
+  void DrawPath(vtkPath* path, std::ostream& out);
 
-  void DrawLineGradient(const vtkVector2f &p1, const vtkColor4ub &c1,
-                        const vtkVector2f &p2, const vtkColor4ub &c2,
-                        bool useAlpha);
-  void DrawTriangleGradient(const vtkVector2f &p1, const vtkColor4ub &c1,
-                            const vtkVector2f &p2, const vtkColor4ub &c2,
-                            const vtkVector2f &p3, const vtkColor4ub &c3,
-                            bool useAlpha);
+  void DrawLineGradient(const vtkVector2f& p1, const vtkColor4ub& c1, const vtkVector2f& p2,
+    const vtkColor4ub& c2, bool useAlpha);
+  void DrawTriangleGradient(const vtkVector2f& p1, const vtkColor4ub& c1, const vtkVector2f& p2,
+    const vtkColor4ub& c2, const vtkVector2f& p3, const vtkColor4ub& c3, bool useAlpha);
 
   // Used by the Draw*Gradient methods to prevent subdividing triangles / lines
   // that are already really small.
-  bool AreaLessThanTolerance(const vtkVector2f &p1,
-                             const vtkVector2f &p2,
-                             const vtkVector2f &p3);
-  bool LengthLessThanTolerance(const vtkVector2f &p1,
-                               const vtkVector2f &p2);
+  bool AreaLessThanTolerance(const vtkVector2f& p1, const vtkVector2f& p2, const vtkVector2f& p3);
+  bool LengthLessThanTolerance(const vtkVector2f& p1, const vtkVector2f& p2);
 
-  bool ColorsAreClose(const vtkColor4ub &c1, const vtkColor4ub &c2,
-                      bool useAlpha);
-  bool ColorsAreClose(const vtkColor4ub &c1, const vtkColor4ub &c2,
-                      const vtkColor4ub &c3, bool useAlpha);
+  bool ColorsAreClose(const vtkColor4ub& c1, const vtkColor4ub& c2, bool useAlpha);
+  bool ColorsAreClose(
+    const vtkColor4ub& c1, const vtkColor4ub& c2, const vtkColor4ub& c3, bool useAlpha);
 
   void WriteFonts();
   void WriteImages();
@@ -253,24 +235,24 @@ protected:
   static void Matrix4ToMatrix3(const double mat4[16], double mat3[9]);
 
   float GetScaledPenWidth();
-  void GetScaledPenWidth(float &x, float &y);
-  void TransformSize(float &x, float &y);
+  void GetScaledPenWidth(float& x, float& y);
+  void TransformSize(float& x, float& y);
 
-  vtkImageData* PreparePointSprite(vtkImageData *in);
+  vtkImageData* PreparePointSprite(vtkImageData* in);
 
   struct Details;
-  Details *Impl;
+  Details* Impl;
 
-  vtkViewport *Viewport;
-  vtkXMLDataElement *ContextNode;
-  vtkXMLDataElement *ActiveNode;
-  vtkXMLDataElement *DefinitionNode;
+  vtkViewport* Viewport;
+  vtkXMLDataElement* ContextNode;
+  vtkXMLDataElement* ActiveNode;
+  vtkXMLDataElement* DefinitionNode;
 
   // This is a 3D transform, the 2D version doesn't support push/pop.
   vtkNew<vtkTransform> Matrix;
   std::array<double, 9> ActiveNodeTransform;
 
-  std::array<int, 4> ClipRect; // x, y, w, h
+  std::array<int, 4> ClipRect;           // x, y, w, h
   std::array<int, 4> ActiveNodeClipRect; // x, y, w, h
 
   float CanvasHeight; // Used in y coordinate conversions.

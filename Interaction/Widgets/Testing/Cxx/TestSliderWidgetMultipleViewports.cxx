@@ -38,106 +38,105 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
-const char TestSliderWidgetMultipleViewportsLog[] =
-  "# StreamVersion 1\n"
-  "EnterEvent 292 46 0 0 0 0 0\n"
-  "MouseMoveEvent 273 65 0 0 0 0 0\n"
-  "MouseMoveEvent 252 88 0 0 0 0 0\n"
-  "MouseMoveEvent 148 299 0 0 0 0 0\n"
-  "LeaveEvent 147 301 0 0 0 0 0\n"
-  "EnterEvent 145 299 0 0 0 0 0\n"
-  "MouseMoveEvent 145 299 0 0 0 0 0\n"
-  "MouseMoveEvent 115 190 0 0 0 0 0\n"
-  "LeftButtonPressEvent 115 190 0 0 0 0 0\n"
-  "StartInteractionEvent 115 190 0 0 0 0 0\n"
-  "LeftButtonReleaseEvent 115 190 0 0 0 0 0\n"
-  "EndInteractionEvent 115 190 0 0 0 0 0\n"
-  "RenderEvent 115 190 0 0 0 0 0\n"
-  "KeyPressEvent 115 190 0 0 114 1 r\n"
-  "CharEvent 115 190 0 0 114 1 r\n"
-  "RenderEvent 115 190 0 0 114 1 r\n"
-  "KeyReleaseEvent 115 190 0 0 114 1 r\n"
-  "MouseMoveEvent 194 163 0 0 0 0 r\n"
-  "MouseMoveEvent 195 163 0 0 0 0 r\n"
-  "LeftButtonPressEvent 195 163 0 0 0 0 r\n"
-  "RenderEvent 195 163 0 0 0 0 r\n"
-  "MouseMoveEvent 195 163 0 0 0 0 r\n"
-  "MouseMoveEvent 201 151 0 0 0 0 r\n"
-  "RenderEvent 201 151 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 201 151 0 0 0 0 r\n"
-  "RenderEvent 201 151 0 0 0 0 r\n"
-  "LeftButtonPressEvent 204 29 0 0 0 0 r\n"
-  "RenderEvent 204 29 0 0 0 0 r\n"
-  "RenderEvent 210 30 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 210 30 0 0 0 0 r\n"
-  "LeftButtonPressEvent 158 159 0 0 0 0 r\n"
-  "RenderEvent 158 159 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 169 138 0 0 0 0 r\n"
-  "RenderEvent 169 138 0 0 0 0 r\n"
-  "RenderEvent 169 138 0 0 0 0 r\n"
-  "MouseMoveEvent 251 159 0 0 0 0 r\n"
-  "LeftButtonPressEvent 251 159 0 0 0 0 r\n"
-  "StartInteractionEvent 251 159 0 0 0 0 r\n"
-  "TimerEvent 251 159 0 0 0 0 r\n"
-  "RenderEvent 251 159 0 0 0 0 r\n"
-  "TimerEvent 251 159 0 0 0 0 r\n"
-  "RenderEvent 251 159 0 0 0 0 r\n"
-  "TimerEvent 251 159 0 0 0 0 r\n"
-  "RenderEvent 251 159 0 0 0 0 r\n"
-  "TimerEvent 251 159 0 0 0 0 r\n"
-  "RenderEvent 251 159 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 251 159 0 0 0 0 r\n"
-  "EndInteractionEvent 251 159 0 0 0 0 r\n"
-  "RenderEvent 251 159 0 0 0 0 r\n"
-  "LeftButtonPressEvent 250 159 0 0 0 0 r\n"
-  "StartInteractionEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "TimerEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 250 159 0 0 0 0 r\n"
-  "EndInteractionEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "LeftButtonPressEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 250 159 0 0 0 0 r\n"
-  "RenderEvent 250 159 0 0 0 0 r\n"
-  "LeftButtonPressEvent 209 30 0 0 0 0 r\n"
-  "RenderEvent 209 30 0 0 0 0 r\n"
-  "MouseMoveEvent 209 30 0 0 0 0 r\n"
-  "RenderEvent 209 30 0 0 0 0 r\n"
-  "MouseMoveEvent 210 30 0 0 0 0 r\n"
-  "RenderEvent 210 30 0 0 0 0 r\n"
-  "MouseMoveEvent 210 30 0 0 0 0 r\n"
-  "RenderEvent 210 30 0 0 0 0 r\n"
-  "MouseMoveEvent 211 30 0 0 0 0 r\n"
-  "RenderEvent 211 30 0 0 0 0 r\n"
-  "MouseMoveEvent 212 30 0 0 0 0 r\n"
-  "RenderEvent 212 30 0 0 0 0 r\n"
-  "MouseMoveEvent 214 30 0 0 0 0 r\n"
-  "RenderEvent 214 30 0 0 0 0 r\n"
-  "MouseMoveEvent 214 30 0 0 0 0 r\n"
-  "RenderEvent 214 30 0 0 0 0 r\n"
-  "MouseMoveEvent 215 30 0 0 0 0 r\n"
-  "RenderEvent 215 30 0 0 0 0 r\n"
-  "MouseMoveEvent 233 30 0 0 0 0 r\n"
-  "RenderEvent 233 30 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 233 30 0 0 0 0 r\n"
-  "MouseMoveEvent 204 30 0 0 0 0 r\n"
-  "LeftButtonPressEvent 204 30 0 0 0 0 r\n"
-  "RenderEvent 204 30 0 0 0 0 r\n"
-  "LeftButtonReleaseEvent 204 30 0 0 0 0 r\n"
-  "RenderEvent 204 30 0 0 0 0 r\n"
-  "RenderEvent 204 30 0 0 0 0 r\n"
-  "MouseMoveEvent 239 83 0 0 0 0 r\n";
+const char TestSliderWidgetMultipleViewportsLog[] = "# StreamVersion 1\n"
+                                                    "EnterEvent 292 46 0 0 0 0 0\n"
+                                                    "MouseMoveEvent 273 65 0 0 0 0 0\n"
+                                                    "MouseMoveEvent 252 88 0 0 0 0 0\n"
+                                                    "MouseMoveEvent 148 299 0 0 0 0 0\n"
+                                                    "LeaveEvent 147 301 0 0 0 0 0\n"
+                                                    "EnterEvent 145 299 0 0 0 0 0\n"
+                                                    "MouseMoveEvent 145 299 0 0 0 0 0\n"
+                                                    "MouseMoveEvent 115 190 0 0 0 0 0\n"
+                                                    "LeftButtonPressEvent 115 190 0 0 0 0 0\n"
+                                                    "StartInteractionEvent 115 190 0 0 0 0 0\n"
+                                                    "LeftButtonReleaseEvent 115 190 0 0 0 0 0\n"
+                                                    "EndInteractionEvent 115 190 0 0 0 0 0\n"
+                                                    "RenderEvent 115 190 0 0 0 0 0\n"
+                                                    "KeyPressEvent 115 190 0 0 114 1 r\n"
+                                                    "CharEvent 115 190 0 0 114 1 r\n"
+                                                    "RenderEvent 115 190 0 0 114 1 r\n"
+                                                    "KeyReleaseEvent 115 190 0 0 114 1 r\n"
+                                                    "MouseMoveEvent 194 163 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 195 163 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 195 163 0 0 0 0 r\n"
+                                                    "RenderEvent 195 163 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 195 163 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 201 151 0 0 0 0 r\n"
+                                                    "RenderEvent 201 151 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 201 151 0 0 0 0 r\n"
+                                                    "RenderEvent 201 151 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 204 29 0 0 0 0 r\n"
+                                                    "RenderEvent 204 29 0 0 0 0 r\n"
+                                                    "RenderEvent 210 30 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 210 30 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 158 159 0 0 0 0 r\n"
+                                                    "RenderEvent 158 159 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 169 138 0 0 0 0 r\n"
+                                                    "RenderEvent 169 138 0 0 0 0 r\n"
+                                                    "RenderEvent 169 138 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 251 159 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 251 159 0 0 0 0 r\n"
+                                                    "StartInteractionEvent 251 159 0 0 0 0 r\n"
+                                                    "TimerEvent 251 159 0 0 0 0 r\n"
+                                                    "RenderEvent 251 159 0 0 0 0 r\n"
+                                                    "TimerEvent 251 159 0 0 0 0 r\n"
+                                                    "RenderEvent 251 159 0 0 0 0 r\n"
+                                                    "TimerEvent 251 159 0 0 0 0 r\n"
+                                                    "RenderEvent 251 159 0 0 0 0 r\n"
+                                                    "TimerEvent 251 159 0 0 0 0 r\n"
+                                                    "RenderEvent 251 159 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 251 159 0 0 0 0 r\n"
+                                                    "EndInteractionEvent 251 159 0 0 0 0 r\n"
+                                                    "RenderEvent 251 159 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 250 159 0 0 0 0 r\n"
+                                                    "StartInteractionEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "TimerEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 250 159 0 0 0 0 r\n"
+                                                    "EndInteractionEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 250 159 0 0 0 0 r\n"
+                                                    "RenderEvent 250 159 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 209 30 0 0 0 0 r\n"
+                                                    "RenderEvent 209 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 209 30 0 0 0 0 r\n"
+                                                    "RenderEvent 209 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 210 30 0 0 0 0 r\n"
+                                                    "RenderEvent 210 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 210 30 0 0 0 0 r\n"
+                                                    "RenderEvent 210 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 211 30 0 0 0 0 r\n"
+                                                    "RenderEvent 211 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 212 30 0 0 0 0 r\n"
+                                                    "RenderEvent 212 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 214 30 0 0 0 0 r\n"
+                                                    "RenderEvent 214 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 214 30 0 0 0 0 r\n"
+                                                    "RenderEvent 214 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 215 30 0 0 0 0 r\n"
+                                                    "RenderEvent 215 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 233 30 0 0 0 0 r\n"
+                                                    "RenderEvent 233 30 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 233 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 204 30 0 0 0 0 r\n"
+                                                    "LeftButtonPressEvent 204 30 0 0 0 0 r\n"
+                                                    "RenderEvent 204 30 0 0 0 0 r\n"
+                                                    "LeftButtonReleaseEvent 204 30 0 0 0 0 r\n"
+                                                    "RenderEvent 204 30 0 0 0 0 r\n"
+                                                    "RenderEvent 204 30 0 0 0 0 r\n"
+                                                    "MouseMoveEvent 239 83 0 0 0 0 r\n";
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
@@ -152,8 +151,7 @@ public:
   {
     vtkSliderWidget* sliderWidget = reinterpret_cast<vtkSliderWidget*>(caller);
     this->Glyph->SetScaleFactor(
-      static_cast<vtkSliderRepresentation*>(sliderWidget->GetRepresentation())
-        ->GetValue());
+      static_cast<vtkSliderRepresentation*>(sliderWidget->GetRepresentation())->GetValue());
   }
   vtkSliderMultipleViewportsCallback()
     : Glyph(nullptr)
@@ -166,8 +164,7 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
 {
   // Create a mace out of filters.
   //
-  vtkSmartPointer<vtkSphereSource> sphereSource =
-    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkGlyph3D> glyph = vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphereSource->GetOutputPort());
@@ -178,13 +175,11 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
 
   // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
-  vtkSmartPointer<vtkAppendPolyData> apd =
-    vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkSmartPointer<vtkAppendPolyData> apd = vtkSmartPointer<vtkAppendPolyData>::New();
   apd->AddInputConnection(glyph->GetOutputPort());
   apd->AddInputConnection(sphereSource->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataMapper> maceMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> maceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(apd->GetOutputPort());
 
   vtkSmartPointer<vtkLODActor> maceActor = vtkSmartPointer<vtkLODActor>::New();
@@ -196,8 +191,7 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
   //
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   ren1->SetViewport(0, 0, 0.5, 1.0);
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
   vtkSmartPointer<vtkRenderer> ren2 = vtkSmartPointer<vtkRenderer>::New();
   ren2->SetViewport(0.5, 0, 1.0, 1.0);
@@ -224,8 +218,7 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
   sliderRep->SetEndCapWidth(0.03);
   sliderRep->SetTubeWidth(0.005);
 
-  vtkSmartPointer<vtkSliderWidget> sliderWidget =
-    vtkSmartPointer<vtkSliderWidget>::New();
+  vtkSmartPointer<vtkSliderWidget> sliderWidget = vtkSmartPointer<vtkSliderWidget>::New();
   sliderWidget->SetInteractor(iren);
   sliderWidget->SetRepresentation(sliderRep);
   sliderWidget->SetCurrentRenderer(ren2);
@@ -250,8 +243,7 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
   sliderRep3D->SetSliderWidth(0.05);
   sliderRep3D->SetEndCapLength(0.05);
 
-  vtkSmartPointer<vtkSliderWidget> sliderWidget3D =
-    vtkSmartPointer<vtkSliderWidget>::New();
+  vtkSmartPointer<vtkSliderWidget> sliderWidget3D = vtkSmartPointer<vtkSliderWidget>::New();
   sliderWidget3D->GetEventTranslator()->SetTranslation(
     vtkCommand::RightButtonPressEvent, vtkWidgetEvent::Select);
   sliderWidget3D->GetEventTranslator()->SetTranslation(
@@ -275,6 +267,5 @@ int TestSliderWidgetMultipleViewports(int argc, char* argv[])
   iren->Initialize();
   renWin->Render();
 
-  return vtkTesting::InteractorEventLoop(
-    argc, argv, iren, TestSliderWidgetMultipleViewportsLog);
+  return vtkTesting::InteractorEventLoop(argc, argv, iren, TestSliderWidgetMultipleViewportsLog);
 }

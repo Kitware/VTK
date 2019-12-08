@@ -35,8 +35,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -47,11 +47,11 @@ vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
 {
-  this->TransformFilter         = vtkTransformFilter::New();
-  this->ApplyColors             = vtkApplyColors::New();
-  this->GeometryFilter          = vtkGeometryFilter::New();
-  this->Mapper                  = vtkPolyDataMapper::New();
-  this->Actor                   = vtkActor::New();
+  this->TransformFilter = vtkTransformFilter::New();
+  this->ApplyColors = vtkApplyColors::New();
+  this->GeometryFilter = vtkGeometryFilter::New();
+  this->Mapper = vtkPolyDataMapper::New();
+  this->Actor = vtkActor::New();
 
   this->CellColorArrayNameInternal = nullptr;
 
@@ -68,8 +68,7 @@ vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
   this->Mapper->SetScalarVisibility(true);
 
   // Apply default theme
-  vtkSmartPointer<vtkViewTheme> theme =
-    vtkSmartPointer<vtkViewTheme>::New();
+  vtkSmartPointer<vtkViewTheme> theme = vtkSmartPointer<vtkViewTheme>::New();
   theme->SetCellOpacity(1.0);
   this->ApplyViewTheme(theme);
 }
@@ -87,9 +86,7 @@ vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
 
 //----------------------------------------------------------------------------
 int vtkRenderedSurfaceRepresentation::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector*)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   this->TransformFilter->SetInputConnection(0, this->GetInternalOutputPort());
   this->ApplyColors->SetInputConnection(1, this->GetInternalAnnotationOutputPort());
@@ -130,11 +127,9 @@ bool vtkRenderedSurfaceRepresentation::RemoveFromView(vtkView* view)
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
-  vtkView* vtkNotUsed(view),
-  vtkSelection* selection)
+  vtkView* vtkNotUsed(view), vtkSelection* selection)
 {
-  vtkSmartPointer<vtkSelection> propSelection =
-    vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelection> propSelection = vtkSmartPointer<vtkSelection>::New();
 
   // Extract the selection for the right prop
   if (selection->GetNumberOfNodes() > 1)
@@ -142,12 +137,10 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
     for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
     {
       vtkSelectionNode* node = selection->GetNode(i);
-      vtkProp* prop = vtkProp::SafeDownCast(
-        node->GetProperties()->Get(vtkSelectionNode::PROP()));
+      vtkProp* prop = vtkProp::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (prop == this->Actor)
       {
-        vtkSmartPointer<vtkSelectionNode> nodeCopy =
-          vtkSmartPointer<vtkSelectionNode>::New();
+        vtkSmartPointer<vtkSelectionNode> nodeCopy = vtkSmartPointer<vtkSelectionNode>::New();
         nodeCopy->ShallowCopy(node);
         nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
         propSelection->AddNode(nodeCopy);
@@ -164,8 +157,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
   vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
   node->SetContentType(this->SelectionType);
   node->SetFieldType(vtkSelectionNode::CELL);
-  vtkSmartPointer<vtkIdTypeArray> empty =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> empty = vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(empty);
   converted->AddNode(node);
   // Convert to the correct type of selection
@@ -175,8 +167,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
     if (obj)
     {
       vtkSelection* index = vtkConvertSelection::ToSelectionType(
-        propSelection, obj, this->SelectionType,
-        this->SelectionArrayNames);
+        propSelection, obj, this->SelectionType, this->SelectionArrayNames);
       converted->ShallowCopy(index);
       index->Delete();
     }
@@ -186,8 +177,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderedSurfaceRepresentation::SetCellColorArrayName(
- const char* arrayName)
+void vtkRenderedSurfaceRepresentation::SetCellColorArrayName(const char* arrayName)
 {
   this->SetCellColorArrayNameInternal(arrayName);
   this->ApplyColors->SetInputArrayToProcess(
@@ -207,9 +197,9 @@ void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->ApplyColors->SetDefaultCellColor(theme->GetCellColor());
   this->ApplyColors->SetDefaultCellOpacity(theme->GetCellOpacity());
   this->ApplyColors->SetSelectedPointColor(theme->GetSelectedPointColor());
-  //this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
+  // this->ApplyColors->SetSelectedPointOpacity(theme->GetSelectedPointOpacity());
   this->ApplyColors->SetSelectedCellColor(theme->GetSelectedCellColor());
-  //this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
+  // this->ApplyColors->SetSelectedCellOpacity(theme->GetSelectedCellOpacity());
   this->ApplyColors->SetScalePointLookupTable(theme->GetScalePointLookupTable());
   this->ApplyColors->SetScaleCellLookupTable(theme->GetScaleCellLookupTable());
 
@@ -219,15 +209,15 @@ void vtkRenderedSurfaceRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   this->Actor->GetProperty()->SetLineWidth(lineWidth);
 
   // TODO: Enable labeling
-  //this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
-  //this->VertexTextProperty->SetLineOffset(-2*baseSize);
-  //this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
+  // this->VertexTextProperty->SetColor(theme->GetVertexLabelColor());
+  // this->VertexTextProperty->SetLineOffset(-2*baseSize);
+  // this->EdgeTextProperty->SetColor(theme->GetEdgeLabelColor());
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderedSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "ApplyColors:" << endl;
   this->ApplyColors->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GeometryFilter:" << endl;

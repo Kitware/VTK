@@ -88,17 +88,16 @@
  *
  * @sa
  * vtkBoxRepresentation vtkBoxWidget
-*/
+ */
 
 #ifndef vtkBoxWidget2_h
 #define vtkBoxWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkBoxRepresentation;
 class vtkHandleWidget;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBoxWidget2 : public vtkAbstractWidget
 {
@@ -106,13 +105,13 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkBoxWidget2 *New();
+  static vtkBoxWidget2* New();
 
   //@{
   /**
    * Standard class methods for type information and printing.
    */
-  vtkTypeMacro(vtkBoxWidget2,vtkAbstractWidget);
+  vtkTypeMacro(vtkBoxWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -121,8 +120,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkBoxRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkBoxRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   //@{
   /**
@@ -133,18 +134,18 @@ public:
    * scaling of the widget one face (axis) at a time (default through grabbing
    * one of the representation spherical handles).
    */
-  vtkSetMacro(TranslationEnabled,vtkTypeBool);
-  vtkGetMacro(TranslationEnabled,vtkTypeBool);
-  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
-  vtkSetMacro(ScalingEnabled,vtkTypeBool);
-  vtkGetMacro(ScalingEnabled,vtkTypeBool);
-  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
-  vtkSetMacro(RotationEnabled,vtkTypeBool);
-  vtkGetMacro(RotationEnabled,vtkTypeBool);
-  vtkBooleanMacro(RotationEnabled,vtkTypeBool);
-  vtkSetMacro(MoveFacesEnabled,vtkTypeBool);
-  vtkGetMacro(MoveFacesEnabled,vtkTypeBool);
-  vtkBooleanMacro(MoveFacesEnabled,vtkTypeBool);
+  vtkSetMacro(TranslationEnabled, vtkTypeBool);
+  vtkGetMacro(TranslationEnabled, vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled, vtkTypeBool);
+  vtkSetMacro(ScalingEnabled, vtkTypeBool);
+  vtkGetMacro(ScalingEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled, vtkTypeBool);
+  vtkSetMacro(RotationEnabled, vtkTypeBool);
+  vtkGetMacro(RotationEnabled, vtkTypeBool);
+  vtkBooleanMacro(RotationEnabled, vtkTypeBool);
+  vtkSetMacro(MoveFacesEnabled, vtkTypeBool);
+  vtkGetMacro(MoveFacesEnabled, vtkTypeBool);
+  vtkBooleanMacro(MoveFacesEnabled, vtkTypeBool);
   //@}
 
   /**
@@ -165,7 +166,11 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -177,7 +182,6 @@ protected:
   static void EndSelectAction3D(vtkAbstractWidget*);
   static void MoveAction3D(vtkAbstractWidget*);
   static void StepAction3D(vtkAbstractWidget*);
-
 
   // Control whether scaling, rotation, and translation are supported
   vtkTypeBool TranslationEnabled;

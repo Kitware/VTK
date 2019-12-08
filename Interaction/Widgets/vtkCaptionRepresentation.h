@@ -31,19 +31,18 @@
  *
  * @sa
  * vtkCaptionWidget vtkBorderWidget vtkBorderRepresentation vtkCaptionActor
-*/
+ */
 
 #ifndef vtkCaptionRepresentation_h
 #define vtkCaptionRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkRenderer;
 class vtkCaptionActor2D;
 class vtkConeSource;
 class vtkPointHandleRepresentation3D;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionRepresentation : public vtkBorderRepresentation
 {
@@ -51,13 +50,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkCaptionRepresentation *New();
+  static vtkCaptionRepresentation* New();
 
   //@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkCaptionRepresentation,vtkBorderRepresentation);
+  vtkTypeMacro(vtkCaptionRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -75,8 +74,8 @@ public:
    * Specify the vtkCaptionActor2D to manage. If not specified, then one
    * is automatically created.
    */
-  void SetCaptionActor2D(vtkCaptionActor2D *captionActor);
-  vtkGetObjectMacro(CaptionActor2D,vtkCaptionActor2D);
+  void SetCaptionActor2D(vtkCaptionActor2D* captionActor);
+  vtkGetObjectMacro(CaptionActor2D, vtkCaptionActor2D);
   //@}
 
   //@{
@@ -86,7 +85,7 @@ public:
    * specify the ones you want to use.
    */
   void SetAnchorRepresentation(vtkPointHandleRepresentation3D*);
-  vtkGetObjectMacro(AnchorRepresentation,vtkPointHandleRepresentation3D);
+  vtkGetObjectMacro(AnchorRepresentation, vtkPointHandleRepresentation3D);
   //@}
 
   /**
@@ -94,7 +93,10 @@ public:
    */
   void BuildRepresentation() override;
   void GetSize(double size[2]) override
-    {size[0]=2.0; size[1]=2.0;}
+  {
+    size[0] = 2.0;
+    size[1] = 2.0;
+  }
 
   //@{
   /**
@@ -123,15 +125,15 @@ protected:
   ~vtkCaptionRepresentation() override;
 
   // the text to manage
-  vtkCaptionActor2D *CaptionActor2D;
-  vtkConeSource     *CaptionGlyph;
+  vtkCaptionActor2D* CaptionActor2D;
+  vtkConeSource* CaptionGlyph;
 
   int PointWidgetState;
   int DisplayAttachmentPoint[2];
   double FontFactor;
 
   // Internal representation for the anchor
-  vtkPointHandleRepresentation3D *AnchorRepresentation;
+  vtkPointHandleRepresentation3D* AnchorRepresentation;
 
   // Check and adjust boundaries according to the size of the caption text
   virtual void AdjustCaptionBoundary();

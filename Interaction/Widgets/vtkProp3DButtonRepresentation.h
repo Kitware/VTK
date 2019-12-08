@@ -35,18 +35,18 @@
  * @sa
  * vtkButtonWidget vtkButtonRepresentation vtkButtonSource vtkEllipticalButtonSource
  * vtkRectangularButtonSource
-*/
+ */
 
 #ifndef vtkProp3DButtonRepresentation_h
 #define vtkProp3DButtonRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPropPicker;
 class vtkProp3D;
 class vtkProp3DFollower;
-class vtkPropArray; //PIMPLd
+class vtkPropArray; // PIMPLd
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkProp3DButtonRepresentation : public vtkButtonRepresentation
 {
@@ -54,13 +54,13 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkProp3DButtonRepresentation *New();
+  static vtkProp3DButtonRepresentation* New();
 
   //@{
   /**
    * Standard methods for instances of the class.
    */
-  vtkTypeMacro(vtkProp3DButtonRepresentation,vtkButtonRepresentation);
+  vtkTypeMacro(vtkProp3DButtonRepresentation, vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -69,8 +69,8 @@ public:
    * Add the ith texture corresponding to the ith button state.
    * The parameter i should be (0 <= i < NumberOfStates).
    */
-  void SetButtonProp(int i, vtkProp3D *prop);
-  vtkProp3D *GetButtonProp(int i);
+  void SetButtonProp(int i, vtkProp3D* prop);
+  vtkProp3D* GetButtonProp(int i);
   //@}
 
   //@{
@@ -78,9 +78,9 @@ public:
    * Specify whether the button should always face the camera. If enabled,
    * the button reorients itself towards the camera as the camera moves.
    */
-  vtkSetMacro(FollowCamera,vtkTypeBool);
-  vtkGetMacro(FollowCamera,vtkTypeBool);
-  vtkBooleanMacro(FollowCamera,vtkTypeBool);
+  vtkSetMacro(FollowCamera, vtkTypeBool);
+  vtkGetMacro(FollowCamera, vtkTypeBool);
+  vtkBooleanMacro(FollowCamera, vtkTypeBool);
   //@}
 
   /**
@@ -92,7 +92,7 @@ public:
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void BuildRepresentation() override;
   //@}
 
@@ -106,9 +106,9 @@ public:
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
-  void ShallowCopy(vtkProp *prop) override;
-  double *GetBounds() override;
-  void GetActors(vtkPropCollection *pc) override;
+  void ShallowCopy(vtkProp* prop) override;
+  double* GetBounds() override;
+  void GetActors(vtkPropCollection* pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderVolumetricGeometry(vtkViewport*) override;
@@ -117,8 +117,8 @@ public:
   //@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
 protected:
@@ -126,18 +126,18 @@ protected:
   ~vtkProp3DButtonRepresentation() override;
 
   // The current vtkProp3D used to represent the button
-  vtkProp3D *CurrentProp;
+  vtkProp3D* CurrentProp;
 
   // Follow the camera if requested
-  vtkProp3DFollower *Follower;
+  vtkProp3DFollower* Follower;
   vtkTypeBool FollowCamera;
 
   // Keep track of the props associated with the N
   // states of the button. This is a PIMPLd stl map.
-  vtkPropArray *PropArray;
+  vtkPropArray* PropArray;
 
   // For picking the button
-  vtkPropPicker *Picker;
+  vtkPropPicker* Picker;
 
 private:
   vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) = delete;

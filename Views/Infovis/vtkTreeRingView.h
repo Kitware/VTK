@@ -34,18 +34,18 @@
  *
  * @par Thanks:
  * Thanks to Jason Shepherd for implementing this class
-*/
+ */
 
 #ifndef vtkTreeRingView_h
 #define vtkTreeRingView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class VTKVIEWSINFOVIS_EXPORT vtkTreeRingView : public vtkTreeAreaView
 {
 public:
-  static vtkTreeRingView *New();
+  static vtkTreeRingView* New();
   vtkTypeMacro(vtkTreeRingView, vtkTreeAreaView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

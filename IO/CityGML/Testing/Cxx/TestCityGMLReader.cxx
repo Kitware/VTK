@@ -18,7 +18,6 @@
 // this program tests the CityGML Reader and setting of textures to
 // individual datasets of the multiblock tree.
 
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCityGMLReader.h"
@@ -26,26 +25,25 @@
 #include "vtkFieldData.h"
 #include "vtkJPEGReader.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+#include "vtksys/SystemTools.hxx"
 
-
-int TestCityGMLReader(int argc, char *argv[])
+int TestCityGMLReader(int argc, char* argv[])
 {
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CityGML/Part-4-Buildings-V4-one.gml");
 
   std::cout << fname << std::endl;
   vtkNew<vtkRenderer> renderer;
-  renderer->SetBackground(0.5,0.7,0.7);
+  renderer->SetBackground(0.5, 0.7, 0.7);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
@@ -59,7 +57,7 @@ int TestCityGMLReader(int argc, char *argv[])
   vtkMultiBlockDataSet* mb = reader->GetOutput();
 
   vtkSmartPointer<vtkCompositeDataIterator> it;
-  for(it.TakeReference(mb->NewIterator()); ! it->IsDoneWithTraversal(); it->GoToNextItem())
+  for (it.TakeReference(mb->NewIterator()); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
     vtkPolyData* poly = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
     if (poly)
@@ -96,13 +94,13 @@ int TestCityGMLReader(int argc, char *argv[])
   renderer->GetActiveCamera()->Roll(-90);
   renderer->GetActiveCamera()->Zoom(1.5);
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
   renWin->Render();
   interactor->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();
   }

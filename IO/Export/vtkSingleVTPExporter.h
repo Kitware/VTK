@@ -25,14 +25,14 @@
  *
  * @sa
  * vtkExporter
-*/
+ */
 
 #ifndef vtkSingleVTPExporter_h
 #define vtkSingleVTPExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
-#include <vector> // for method args
+#include "vtkIOExportModule.h" // For export macro
+#include <vector>              // for method args
 
 class vtkActor;
 class vtkPolyData;
@@ -41,8 +41,8 @@ class vtkTexture;
 class VTKIOEXPORT_EXPORT vtkSingleVTPExporter : public vtkExporter
 {
 public:
-  static vtkSingleVTPExporter *New();
-  vtkTypeMacro(vtkSingleVTPExporter,vtkExporter);
+  static vtkSingleVTPExporter* New();
+  vtkTypeMacro(vtkSingleVTPExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,7 +57,7 @@ public:
   // computes the file prefix from a filename by removing
   // the .vtp extension if present. Useful for APIs that
   // are filename centric.
-  void SetFileName(const char *);
+  void SetFileName(const char*);
 
 protected:
   vtkSingleVTPExporter();
@@ -68,25 +68,25 @@ protected:
   class actorData
   {
   public:
-    vtkActor *Actor = nullptr;
-    vtkTexture *Texture = nullptr;
+    vtkActor* Actor = nullptr;
+    vtkTexture* Texture = nullptr;
     int ImagePosition[2];
     double URange[2];
     double VRange[2];
     bool HaveRepeatingTexture = false;
   };
   int TextureSize[2];
-  void WriteTexture(std::vector<actorData> &actors);
-  void WriteVTP(std::vector<actorData> &actors);
-  char *FilePrefix;
+  void WriteTexture(std::vector<actorData>& actors);
+  void WriteVTP(std::vector<actorData>& actors);
+  char* FilePrefix;
 
   // handle repeating textures by subdividing triangles
   // so that they do not span mode than 0.0-1.5 of texture
   // range.
-  vtkPolyData *FixTextureCoordinates(vtkPolyData *);
+  vtkPolyData* FixTextureCoordinates(vtkPolyData*);
 
   // recursive method that handles one triangle
-  void ProcessTriangle(vtkIdType *pts, vtkPolyData *out);
+  void ProcessTriangle(const vtkIdType* pts, vtkPolyData* out);
 
 private:
   vtkSingleVTPExporter(const vtkSingleVTPExporter&) = delete;

@@ -25,21 +25,21 @@
  * six cropping planes.
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkVolumeOutlineSource_h
 #define vtkVolumeOutlineSource_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkVolumeMapper;
 
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkVolumeOutlineSource *New();
-  vtkTypeMacro(vtkVolumeOutlineSource,vtkPolyDataAlgorithm);
+  static vtkVolumeOutlineSource* New();
+  vtkTypeMacro(vtkVolumeOutlineSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -49,8 +49,8 @@ public:
    * bounds of the data must be computed in order to generate the
    * outline.
    */
-  virtual void SetVolumeMapper(vtkVolumeMapper *mapper);
-  vtkVolumeMapper *GetVolumeMapper() { return this->VolumeMapper; };
+  virtual void SetVolumeMapper(vtkVolumeMapper* mapper);
+  vtkVolumeMapper* GetVolumeMapper() { return this->VolumeMapper; }
   //@}
 
   //@{
@@ -118,7 +118,7 @@ protected:
   vtkVolumeOutlineSource();
   ~vtkVolumeOutlineSource() override;
 
-  vtkVolumeMapper *VolumeMapper;
+  vtkVolumeMapper* VolumeMapper;
   vtkTypeBool GenerateScalars;
   vtkTypeBool GenerateOutline;
   vtkTypeBool GenerateFaces;
@@ -131,50 +131,29 @@ protected:
   double Bounds[6];
   double CroppingRegionPlanes[6];
 
-  static int ComputeCubePlanes(double planes[3][4],
-                               double croppingPlanes[6],
-                               double bounds[6]);
+  static int ComputeCubePlanes(double planes[3][4], double croppingPlanes[6], double bounds[6]);
 
-  static void GeneratePolys(vtkCellArray *polys,
-                            vtkUnsignedCharArray *scalars,
-                            unsigned char colors[2][3],
-                            int activePlane,
-                            int flags,
-                            int tolPtId[3][4]);
+  static void GeneratePolys(vtkCellArray* polys, vtkUnsignedCharArray* scalars,
+    unsigned char colors[2][3], int activePlane, int flags, int tolPtId[3][4]);
 
-  static void GenerateLines(vtkCellArray *lines,
-                            vtkUnsignedCharArray *scalars,
-                            unsigned char colors[2][3],
-                            int activePlane,
-                            int flags,
-                            int tolPtId[3][4]);
+  static void GenerateLines(vtkCellArray* lines, vtkUnsignedCharArray* scalars,
+    unsigned char colors[2][3], int activePlane, int flags, int tolPtId[3][4]);
 
-  static void GeneratePoints(vtkPoints *points,
-                             vtkCellArray *lines,
-                             vtkCellArray *polys,
-                             double planes[3][4],
-                             double tol);
+  static void GeneratePoints(
+    vtkPoints* points, vtkCellArray* lines, vtkCellArray* polys, double planes[3][4], double tol);
 
-  static void NudgeCropPlanesToBounds(int tolPtId[3][4],
-                                      double planes[3][4],
-                                      double tol);
+  static void NudgeCropPlanesToBounds(int tolPtId[3][4], double planes[3][4], double tol);
 
-  static void CreateColorValues(unsigned char colors[2][3],
-                                double color1[3], double color2[3]);
+  static void CreateColorValues(unsigned char colors[2][3], double color1[3], double color2[3]);
 
-  int ComputePipelineMTime(vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector,
-                                   int requestFromOutputPort,
-                                   vtkMTimeType* mtime) override;
+  int ComputePipelineMTime(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, int requestFromOutputPort, vtkMTimeType* mtime) override;
 
-  int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) = delete;

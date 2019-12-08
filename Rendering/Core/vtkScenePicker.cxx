@@ -14,25 +14,25 @@
 =========================================================================*/
 #include "vtkScenePicker.h"
 
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
+#include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkProp.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkHardwareSelector.h"
-#include "vtkCommand.h"
-#include "vtkDataObject.h"
+#include "vtkRenderer.h"
 
 class vtkScenePickerSelectionRenderCommand : public vtkCommand
 {
 public:
-  vtkScenePicker * m_Picker;
-  static vtkScenePickerSelectionRenderCommand *New()
+  vtkScenePicker* m_Picker;
+  static vtkScenePickerSelectionRenderCommand* New()
   {
     return new vtkScenePickerSelectionRenderCommand;
   }
 
-  void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*) override
+  void Execute(vtkObject* vtkNotUsed(o), unsigned long event, void*) override
   {
     if (event == vtkCommand::StartInteractionEvent)
     {
@@ -54,7 +54,9 @@ public:
 
 protected:
   vtkScenePickerSelectionRenderCommand()
-                                      : InteractiveRender(false) {}
+    : InteractiveRender(false)
+  {
+  }
   ~vtkScenePickerSelectionRenderCommand() override = default;
   bool InteractiveRender;
 };
@@ -64,16 +66,15 @@ vtkStandardNewMacro(vtkScenePicker);
 //----------------------------------------------------------------------------
 vtkScenePicker::vtkScenePicker()
 {
-  this->EnableVertexPicking  = 1;
-  this->Renderer             = nullptr;
-  this->Interactor           = nullptr;
-  this->Selector  = vtkHardwareSelector::New();
-  this->NeedToUpdate         = false;
-  this->VertId               = -1;
-  this->CellId               = -1;
-  this->Prop                 = nullptr;
-  this->SelectionRenderCommand
-    = vtkScenePickerSelectionRenderCommand::New();
+  this->EnableVertexPicking = 1;
+  this->Renderer = nullptr;
+  this->Interactor = nullptr;
+  this->Selector = vtkHardwareSelector::New();
+  this->NeedToUpdate = false;
+  this->VertId = -1;
+  this->CellId = -1;
+  this->Prop = nullptr;
+  this->SelectionRenderCommand = vtkScenePickerSelectionRenderCommand::New();
   this->SelectionRenderCommand->m_Picker = this;
 }
 
@@ -86,9 +87,9 @@ vtkScenePicker::~vtkScenePicker()
 }
 
 //----------------------------------------------------------------------------
-void vtkScenePicker::SetRenderer( vtkRenderer * r )
+void vtkScenePicker::SetRenderer(vtkRenderer* r)
 {
-  vtkRenderWindowInteractor *rwi = nullptr;
+  vtkRenderWindowInteractor* rwi = nullptr;
   if (r && r->GetRenderWindow())
   {
     rwi = r->GetRenderWindow()->GetInteractor();
@@ -101,31 +102,28 @@ void vtkScenePicker::SetRenderer( vtkRenderer * r )
   }
   if (r && !r->GetRenderWindow())
   {
-    vtkErrorMacro( << "Renderer: " << this->Renderer
-                   << " does not have its render window set." );
+    vtkErrorMacro(<< "Renderer: " << this->Renderer << " does not have its render window set.");
     return;
   }
 
   if (this->Renderer)
   {
-    this->Renderer->GetRenderWindow()->RemoveObserver(
-                        this->SelectionRenderCommand );
+    this->Renderer->GetRenderWindow()->RemoveObserver(this->SelectionRenderCommand);
   }
 
-  vtkSetObjectBodyMacro( Renderer, vtkRenderer, r );
+  vtkSetObjectBodyMacro(Renderer, vtkRenderer, r);
 
   if (this->Renderer)
   {
-    this->Renderer->GetRenderWindow()->AddObserver( vtkCommand::EndEvent,
-          this->SelectionRenderCommand, 0.01 );
+    this->Renderer->GetRenderWindow()->AddObserver(
+      vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01);
   }
 
   this->Selector->SetRenderer(this->Renderer);
 }
 
 //----------------------------------------------------------------------------
-void vtkScenePicker::SetInteractor(
-                         vtkRenderWindowInteractor *rwi )
+void vtkScenePicker::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
   if (this->Interactor == rwi)
   {
@@ -133,17 +131,17 @@ void vtkScenePicker::SetInteractor(
   }
   if (this->Interactor)
   {
-    this->Interactor->RemoveObserver( this->SelectionRenderCommand );
+    this->Interactor->RemoveObserver(this->SelectionRenderCommand);
   }
 
-  vtkSetObjectBodyMacro( Interactor, vtkRenderWindowInteractor, rwi );
+  vtkSetObjectBodyMacro(Interactor, vtkRenderWindowInteractor, rwi);
 
   if (this->Interactor)
   {
-    this->Interactor->AddObserver( vtkCommand::StartInteractionEvent,
-          this->SelectionRenderCommand, 0.01 );
-    this->Interactor->AddObserver( vtkCommand::EndInteractionEvent,
-          this->SelectionRenderCommand, 0.01 );
+    this->Interactor->AddObserver(
+      vtkCommand::StartInteractionEvent, this->SelectionRenderCommand, 0.01);
+    this->Interactor->AddObserver(
+      vtkCommand::EndInteractionEvent, this->SelectionRenderCommand, 0.01);
   }
 }
 
@@ -167,38 +165,34 @@ void vtkScenePicker::PickRender()
   }
 
   double vp[4];
-  this->Renderer->GetViewport( vp );
+  this->Renderer->GetViewport(vp);
   int size[2] = { this->Renderer->GetRenderWindow()->GetSize()[0],
-                  this->Renderer->GetRenderWindow()->GetSize()[1] };
+    this->Renderer->GetRenderWindow()->GetSize()[1] };
 
-  int rx1 = static_cast<int>(vp[0]*(size[0] - 1));
-  int ry1 = static_cast<int>(vp[1]*(size[1] - 1));
-  int rx2 = static_cast<int>(vp[2]*(size[0] - 1));
-  int ry2 = static_cast<int>(vp[3]*(size[1] - 1));
+  int rx1 = static_cast<int>(vp[0] * (size[0] - 1));
+  int ry1 = static_cast<int>(vp[1] * (size[1] - 1));
+  int rx2 = static_cast<int>(vp[2] * (size[0] - 1));
+  int ry2 = static_cast<int>(vp[3] * (size[1] - 1));
 
-  this->PickRender( rx1,ry1,rx2,ry2 );
+  this->PickRender(rx1, ry1, rx2, ry2);
 }
 
 // ----------------------------------------------------------------------------
 // Do a selection render.. for caching object selection stuff.
-void vtkScenePicker::PickRender(
-               int x0, int y0, int x1, int y1 )
+void vtkScenePicker::PickRender(int x0, int y0, int x1, int y1)
 {
-  this->Renderer->GetRenderWindow()->RemoveObserver(
-      this->SelectionRenderCommand );
+  this->Renderer->GetRenderWindow()->RemoveObserver(this->SelectionRenderCommand);
 
   if (this->EnableVertexPicking)
   {
-    this->Selector->SetFieldAssociation(
-      vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    this->Selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
   }
   else
   {
-    this->Selector->SetFieldAssociation(
-      vtkDataObject::FIELD_ASSOCIATION_CELLS);
+    this->Selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   }
   cout << "Area: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 << endl;
-  this->Selector->SetArea(x0,y0,x1,y1);
+  this->Selector->SetArea(x0, y0, x1, y1);
   if (!this->Selector->CaptureBuffers())
   {
     vtkErrorMacro("Failed to capture buffers.");
@@ -206,52 +200,51 @@ void vtkScenePicker::PickRender(
   this->NeedToUpdate = true;
   this->PickRenderTime.Modified();
   this->Renderer->GetRenderWindow()->AddObserver(
-        vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01 );
+    vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScenePicker::GetCellId( int displayPos[2] )
+vtkIdType vtkScenePicker::GetCellId(int displayPos[2])
 {
   if (this->EnableVertexPicking)
   {
     return -1;
   }
-  this->Update( displayPos );
+  this->Update(displayPos);
   return this->CellId;
 }
 
 //----------------------------------------------------------------------------
-vtkProp * vtkScenePicker::GetViewProp( int displayPos[2] )
+vtkProp* vtkScenePicker::GetViewProp(int displayPos[2])
 {
-  this->Update( displayPos );
+  this->Update(displayPos);
   return this->Prop;
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkScenePicker::GetVertexId( int displayPos[2] )
+vtkIdType vtkScenePicker::GetVertexId(int displayPos[2])
 {
   if (!this->EnableVertexPicking)
   {
     return -1;
   }
-  this->Update( displayPos );
+  this->Update(displayPos);
   return this->CellId;
 }
 
 //----------------------------------------------------------------------------
-void vtkScenePicker::Update( int displayPos[2] )
+void vtkScenePicker::Update(int displayPos[2])
 {
   if (this->PickRenderTime <= this->GetMTime())
   {
     this->PickRender();
   }
 
-  if (this->NeedToUpdate ||
-      this->LastQueriedDisplayPos[0] != displayPos[0] ||
-      this->LastQueriedDisplayPos[1] != displayPos[1])
+  if (this->NeedToUpdate || this->LastQueriedDisplayPos[0] != displayPos[0] ||
+    this->LastQueriedDisplayPos[1] != displayPos[1])
   {
     this->Prop = nullptr;
-    unsigned int dpos[2] = {0, 0};
+    unsigned int dpos[2] = { 0, 0 };
     if (displayPos[0] >= 0 && displayPos[1] >= 0)
     {
       dpos[0] = static_cast<unsigned int>(displayPos[0]);
@@ -262,14 +255,14 @@ void vtkScenePicker::Update( int displayPos[2] )
     }
     this->LastQueriedDisplayPos[0] = displayPos[0];
     this->LastQueriedDisplayPos[1] = displayPos[1];
-    this->NeedToUpdate             = false;
+    this->NeedToUpdate = false;
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkScenePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "EnableVertexPicking: " << this->EnableVertexPicking << endl;
 }

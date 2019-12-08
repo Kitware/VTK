@@ -23,14 +23,14 @@
  * opacity defaults to 255, but can be modified separately to the other
  * components. Ideally we would use a lightweight color class to store and pass
  * around colors.
-*/
+ */
 
 #ifndef vtkBrush_h
 #define vtkBrush_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor4ub
+#include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkImageData;
 
@@ -38,9 +38,9 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkBrush : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBrush, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkBrush *New();
+  static vtkBrush* New();
 
   /**
    * Set the color of the brush with three component doubles (RGB), ranging from
@@ -88,9 +88,8 @@ public:
    * Set the color of the brush with four component unsigned chars (RGBA),
    * ranging from 0 to 255.
    */
-  void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                unsigned char a);
-  void SetColor(const vtkColor4ub &color);
+  void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  void SetColor(const vtkColor4ub& color);
   //@}
 
   /**
@@ -117,7 +116,7 @@ public:
   /**
    * Get the color of the brush - gives a pointer to the underlying data.
    */
-  unsigned char * GetColor() { return &this->Color[0]; }
+  unsigned char* GetColor() { return &this->Color[0]; }
 
   /**
    * Get the color of the brush.
@@ -142,11 +141,12 @@ public:
   /**
    * Texture properties
    */
-  enum TextureProperty {
+  enum TextureProperty
+  {
     Nearest = 0x01,
-    Linear  = 0x02,
+    Linear = 0x02,
     Stretch = 0x04,
-    Repeat  = 0x08
+    Repeat = 0x08
   };
 
   //@{
@@ -170,7 +170,7 @@ public:
   /**
    * Make a deep copy of the supplied brush.
    */
-  void DeepCopy(vtkBrush *brush);
+  void DeepCopy(vtkBrush* brush);
 
 protected:
   vtkBrush();
@@ -178,14 +178,13 @@ protected:
 
   // Storage of the color in RGBA format (0-255 per channel).
   unsigned char* Color;
-  vtkColor4ub    BrushColor;
-  vtkImageData*  Texture;
-  int            TextureProperties;
+  vtkColor4ub BrushColor;
+  vtkImageData* Texture;
+  int TextureProperties;
 
 private:
-  vtkBrush(const vtkBrush &) = delete;
-  void operator=(const vtkBrush &) = delete;
-
+  vtkBrush(const vtkBrush&) = delete;
+  void operator=(const vtkBrush&) = delete;
 };
 
-#endif //vtkBrush_h
+#endif // vtkBrush_h

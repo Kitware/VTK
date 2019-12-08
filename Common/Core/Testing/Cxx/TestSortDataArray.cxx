@@ -23,35 +23,35 @@
  */
 // -*- c++ -*- *******************************************************
 
-#include "vtkSortDataArray.h"
-#include "vtkIntArray.h"
 #include "vtkFloatArray.h"
-#include "vtkStringArray.h"
 #include "vtkIdList.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkSortDataArray.h"
+#include "vtkStringArray.h"
 #include "vtkTimerLog.h"
 
-#include <sstream>
 #include <locale> // C++ locale
+#include <sstream>
 
 //#define ARRAY_SIZE (2*1024*1024)
 #define ARRAY_SIZE 2048
 
-int TestSortDataArray(int, char *[])
+int TestSortDataArray(int, char*[])
 {
   vtkIdType i;
-  vtkTimerLog *timer = vtkTimerLog::New();
+  vtkTimerLog* timer = vtkTimerLog::New();
   int retVal = 0;
 
   //---------------------------------------------------------------------------
   // Sort data array
   cout << "Building array----------" << endl;
-  vtkIntArray *keys = vtkIntArray::New();
+  vtkIntArray* keys = vtkIntArray::New();
   keys->SetNumberOfComponents(1);
   keys->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
+    keys->SetComponent(i, 0, static_cast<int>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
   cout << "Sorting array" << endl;
@@ -61,9 +61,9 @@ int TestSortDataArray(int, char *[])
 
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
-    if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
+    if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
@@ -79,9 +79,9 @@ int TestSortDataArray(int, char *[])
 
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
-    if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
+    if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
@@ -93,11 +93,11 @@ int TestSortDataArray(int, char *[])
   //---------------------------------------------------------------------------
   // Sort id list (ascending)
   cout << "Building id list (ascending order)----------" << endl;
-  vtkIdList *ids = vtkIdList::New();
+  vtkIdList* ids = vtkIdList::New();
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    ids->SetId(i,static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE*4)));
+    ids->SetId(i, static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
   cout << "Sorting ids" << endl;
@@ -107,9 +107,9 @@ int TestSortDataArray(int, char *[])
 
   cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
-    if (ids->GetId(i) > ids->GetId(i+1))
+    if (ids->GetId(i) > ids->GetId(i + 1))
     {
       cout << "Id list not properly sorted!" << endl;
       retVal = 1;
@@ -117,7 +117,6 @@ int TestSortDataArray(int, char *[])
     }
   }
   cout << "Id list consistency check finished\n" << endl;
-
 
   //---------------------------------------------------------------------------
   // Sort id list (descending)
@@ -125,19 +124,19 @@ int TestSortDataArray(int, char *[])
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    ids->SetId(i,static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE*4)));
+    ids->SetId(i, static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
   cout << "Sorting ids" << endl;
   timer->StartTimer();
-  vtkSortDataArray::Sort(ids,1);
+  vtkSortDataArray::Sort(ids, 1);
   timer->StopTimer();
 
   cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
-    if (ids->GetId(i) < ids->GetId(i+1))
+    if (ids->GetId(i) < ids->GetId(i + 1))
     {
       cout << "Id list not properly sorted!" << endl;
       retVal = 1;
@@ -146,23 +145,21 @@ int TestSortDataArray(int, char *[])
   }
   cout << "Id list consistency check finished\n" << endl;
 
-
   //---------------------------------------------------------------------------
   // Sort key/value pairs
   cout << "Building key/value arrays----------\n" << endl;
-  vtkIntArray *values = vtkIntArray::New();
+  vtkIntArray* values = vtkIntArray::New();
   values->SetNumberOfComponents(2);
   values->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
+    keys->SetComponent(i, 0, static_cast<int>(vtkMath::Random(0, ARRAY_SIZE * 4)));
     values->SetComponent(i, 0, i);
-    values->SetComponent(i,1,
-                         static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
+    values->SetComponent(i, 1, static_cast<int>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
-  vtkIntArray *saveKeys = vtkIntArray::New();
+  vtkIntArray* saveKeys = vtkIntArray::New();
   saveKeys->DeepCopy(keys);
-  vtkIntArray *saveValues = vtkIntArray::New();
+  vtkIntArray* saveValues = vtkIntArray::New();
   saveValues->DeepCopy(values);
 
   cout << "Sorting arrays" << endl;
@@ -172,10 +169,10 @@ int TestSortDataArray(int, char *[])
 
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
-    if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
+    if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
@@ -203,10 +200,10 @@ int TestSortDataArray(int, char *[])
 
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
-    if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
+    if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
@@ -230,28 +227,28 @@ int TestSortDataArray(int, char *[])
   //---------------------------------------------------------------------------
   // Sort data array on component value pairs
   cout << "Building data array----------\n" << endl;
-  vtkFloatArray *fvalues = vtkFloatArray::New();
+  vtkFloatArray* fvalues = vtkFloatArray::New();
   fvalues->SetNumberOfComponents(3);
   fvalues->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    fvalues->SetComponent(i,0, i);
-    fvalues->SetComponent(i,1, static_cast<float>(vtkMath::Random(0, ARRAY_SIZE*4)));
-    fvalues->SetComponent(i,2, i);
+    fvalues->SetComponent(i, 0, i);
+    fvalues->SetComponent(i, 1, static_cast<float>(vtkMath::Random(0, ARRAY_SIZE * 4)));
+    fvalues->SetComponent(i, 2, i);
   }
-  vtkFloatArray *saveFValues = vtkFloatArray::New();
+  vtkFloatArray* saveFValues = vtkFloatArray::New();
   saveFValues->DeepCopy(fvalues);
 
   cout << "Sorting data array with component #1" << endl;
   timer->StartTimer();
-  vtkSortDataArray::SortArrayByComponent(fvalues,1);
+  vtkSortDataArray::SortArrayByComponent(fvalues, 1);
   timer->StopTimer();
 
   cout << "Time to sort data array: " << timer->GetElapsedTime() << " sec" << endl;
 
-  for (i = 0; i < ARRAY_SIZE-1; i++)
+  for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
-    if (fvalues->GetComponent(i, 1) > fvalues->GetComponent(i+1, 1))
+    if (fvalues->GetComponent(i, 1) > fvalues->GetComponent(i + 1, 1))
     {
       cout << "Data array sorted incorrectly!" << endl;
       retVal = 1;
@@ -271,29 +268,29 @@ int TestSortDataArray(int, char *[])
   std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
   cout << "Building string array----------\n" << endl;
-  vtkStringArray *sarray = vtkStringArray::New();
+  vtkStringArray* sarray = vtkStringArray::New();
   sarray->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; ++i)
   {
-    ostr.str(""); //clear it out
-    ostr << static_cast<int>(vtkMath::Random(0,ARRAY_SIZE*4));
-    sarray->SetValue(i,ostr.str());
+    ostr.str(""); // clear it out
+    ostr << static_cast<int>(vtkMath::Random(0, ARRAY_SIZE * 4));
+    sarray->SetValue(i, ostr.str());
   }
 
   cout << "Sorting string array" << endl;
   timer->StartTimer();
-  vtkSortDataArray::Sort(sarray,1);
+  vtkSortDataArray::Sort(sarray, 1);
   timer->StopTimer();
   cout << "Time to sort strings: " << timer->GetElapsedTime() << " sec" << endl;
 
   vtkStdString s1, s2;
-  for (i = 0; i < ARRAY_SIZE-1; ++i)
+  for (i = 0; i < ARRAY_SIZE - 1; ++i)
   {
     // s1 = std::stoi(sarray->GetValue(i));
     // s2 = std::stoi(sarray->GetValue(i+1));
     s1 = sarray->GetValue(i);
-    s2 = sarray->GetValue(i+1);
-    if ( s1 < s2 )
+    s2 = sarray->GetValue(i + 1);
+    if (s1 < s2)
     {
       cout << "String array sorted incorrectly!" << endl;
       retVal = 1;
@@ -301,7 +298,6 @@ int TestSortDataArray(int, char *[])
     }
   }
   cout << "String array consistency check finished\n" << endl;
-
 
   timer->Delete();
   keys->Delete();

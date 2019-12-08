@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkInterpolationKernel vtkGeneralizedKernel vtkVoronoiKernel
-*/
+ */
 
 #ifndef vtkProbabilisticVoronoiKernel_h
 #define vtkProbabilisticVoronoiKernel_h
@@ -42,7 +42,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkProbabilisticVoronoiKernel : public vtkGeneralizedKernel
 {
 public:
@@ -50,8 +49,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkProbabilisticVoronoiKernel *New();
-  vtkTypeMacro(vtkProbabilisticVoronoiKernel,vtkGeneralizedKernel);
+  static vtkProbabilisticVoronoiKernel* New();
+  vtkTypeMacro(vtkProbabilisticVoronoiKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -72,8 +71,8 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
 protected:
   vtkProbabilisticVoronoiKernel();

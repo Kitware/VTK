@@ -21,14 +21,11 @@
 #include "vtkParseHierarchy.h"
 
 /* check whether a method is wrappable */
-int vtkWrapPython_MethodCheck(
-  ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo);
+int vtkWrapPython_MethodCheck(ClassInfo* data, FunctionInfo* currentFunction, HierarchyInfo* hinfo);
 
 /* print out all methods and the method table */
-void vtkWrapPython_GenerateMethods(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo,
-  int is_vtkobject, int do_constructors);
+void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,
+  FileInfo* finfo, HierarchyInfo* hinfo, int is_vtkobject, int do_constructors);
 
 #endif /* vtkWrapPythonMethodDef_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonMethodDef.h */

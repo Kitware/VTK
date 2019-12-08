@@ -17,52 +17,51 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
-#include "vtkImageMapToColors.h"
-#include "vtkImageResliceMapper.h"
-#include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
-#include "vtkImageReader2.h"
 #include "vtkImageGridSource.h"
+#include "vtkImageMapToColors.h"
+#include "vtkImageProperty.h"
+#include "vtkImageReader2.h"
+#include "vtkImageResliceMapper.h"
+#include "vtkImageSlice.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLookupTable.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestImageResliceMapperAlpha(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkInteractorStyle* style = vtkInteractorStyleImage::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
   renWin->Delete();
   style->Delete();
 
-  vtkImageReader2 *reader = vtkImageReader2::New();
+  vtkImageReader2* reader = vtkImageReader2::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
   // a nice random-ish origin for testing
   reader->SetDataOrigin(2.5, -13.6, 2.8);
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
   reader->SetFilePrefix(fname);
   delete[] fname;
 
-  vtkImageGridSource *grid = vtkImageGridSource::New();
+  vtkImageGridSource* grid = vtkImageGridSource::New();
   grid->SetDataExtent(0, 60, 0, 60, 1, 93);
   grid->SetDataSpacing(3.2, 3.2, 1.5);
   grid->SetDataOrigin(0, 0, 0);
   grid->SetDataScalarTypeToUnsignedChar();
   grid->SetLineValue(255);
 
-  vtkLookupTable *table = vtkLookupTable::New();
+  vtkLookupTable* table = vtkLookupTable::New();
   table->SetRampToLinear();
   table->SetRange(0.0, 255.0);
   table->SetValueRange(1.0, 1.0);
@@ -70,7 +69,7 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
   table->SetAlphaRange(0.0, 1.0);
   table->Build();
 
-  vtkLookupTable *table2 = vtkLookupTable::New();
+  vtkLookupTable* table2 = vtkLookupTable::New();
   table2->SetRampToLinear();
   table2->SetRange(0.0, 255.0);
   table2->SetValueRange(1.0, 1.0);
@@ -79,41 +78,40 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
   table2->SetAlphaRange(0.5, 1.0);
   table2->Build();
 
-  vtkImageMapToColors *colors = vtkImageMapToColors::New();
+  vtkImageMapToColors* colors = vtkImageMapToColors::New();
   colors->SetInputConnection(grid->GetOutputPort());
   colors->SetLookupTable(table);
   colors->PassAlphaToOutputOn();
   colors->SetOutputFormatToLuminanceAlpha();
 
-  vtkImageMapToColors *colors2 = vtkImageMapToColors::New();
+  vtkImageMapToColors* colors2 = vtkImageMapToColors::New();
   colors2->SetInputConnection(grid->GetOutputPort());
   colors2->SetLookupTable(table2);
   colors2->SetOutputFormatToRGB();
 
   for (int i = 0; i < 4; i++)
   {
-    vtkRenderer *renderer = vtkRenderer::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    renderer->SetBackground(0.1,0.2,0.4);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    vtkRenderer* renderer = vtkRenderer::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
+    renderer->SetBackground(0.1, 0.2, 0.4);
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
     renderer->Delete();
 
-    vtkImageResliceMapper *imageMapper = vtkImageResliceMapper::New();
+    vtkImageResliceMapper* imageMapper = vtkImageResliceMapper::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->SliceFacesCameraOn();
     imageMapper->SliceAtFocalPointOn();
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkImageSlice* image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
     image->GetProperty()->SetColorWindow(2000.0);
     image->GetProperty()->SetColorLevel(1000.0);
     imageMapper->Delete();
 
-    vtkImageResliceMapper *imageMapper2 = vtkImageResliceMapper::New();
+    vtkImageResliceMapper* imageMapper2 = vtkImageResliceMapper::New();
     imageMapper2->SliceFacesCameraOn();
     imageMapper2->SliceAtFocalPointOn();
-    vtkImageSlice *image2 = vtkImageSlice::New();
+    vtkImageSlice* image2 = vtkImageSlice::New();
     image2->SetMapper(imageMapper2);
     imageMapper2->Delete();
 
@@ -155,11 +153,11 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
   table->Delete();
   table2->Delete();
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

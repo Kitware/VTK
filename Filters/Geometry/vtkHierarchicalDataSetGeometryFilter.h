@@ -20,25 +20,23 @@
  *
  * @sa
  * vtkCompositeDataGeometryFilter
-*/
+ */
 
 #ifndef vtkHierarchicalDataSetGeometryFilter_h
 #define vtkHierarchicalDataSetGeometryFilter_h
 
-#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkCompositeDataGeometryFilter.h"
+#include "vtkFiltersGeometryModule.h" // For export macro
 
 class vtkPolyData;
 
-class VTKFILTERSGEOMETRY_EXPORT vtkHierarchicalDataSetGeometryFilter :
-  public vtkCompositeDataGeometryFilter
+class VTKFILTERSGEOMETRY_EXPORT vtkHierarchicalDataSetGeometryFilter
+  : public vtkCompositeDataGeometryFilter
 {
 public:
-  static vtkHierarchicalDataSetGeometryFilter *New();
-  vtkTypeMacro(vtkHierarchicalDataSetGeometryFilter,
-    vtkCompositeDataGeometryFilter);
+  static vtkHierarchicalDataSetGeometryFilter* New();
+  vtkTypeMacro(vtkHierarchicalDataSetGeometryFilter, vtkCompositeDataGeometryFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
 
 protected:
   vtkHierarchicalDataSetGeometryFilter();
@@ -50,5 +48,3 @@ private:
 };
 
 #endif
-
-

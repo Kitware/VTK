@@ -24,23 +24,23 @@
  * vtkImplicitFunctionToImageStencil vtkLassoStencilSource
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkROIStencilSource_h
 #define vtkROIStencilSource_h
 
-
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class VTKIMAGINGSTENCIL_EXPORT vtkROIStencilSource : public vtkImageStencilSource
 {
 public:
-  static vtkROIStencilSource *New();
+  static vtkROIStencilSource* New();
   vtkTypeMacro(vtkROIStencilSource, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {
+  enum
+  {
     BOX = 0,
     ELLIPSOID = 1,
     CYLINDERX = 2,
@@ -55,12 +55,12 @@ public:
    */
   vtkGetMacro(Shape, int);
   vtkSetClampMacro(Shape, int, BOX, CYLINDERZ);
-  void SetShapeToBox() { this->SetShape(BOX); };
-  void SetShapeToEllipsoid() { this->SetShape(ELLIPSOID); };
-  void SetShapeToCylinderX() { this->SetShape(CYLINDERX); };
-  void SetShapeToCylinderY() { this->SetShape(CYLINDERY); };
-  void SetShapeToCylinderZ() { this->SetShape(CYLINDERZ); };
-  virtual const char *GetShapeAsString();
+  void SetShapeToBox() { this->SetShape(BOX); }
+  void SetShapeToEllipsoid() { this->SetShape(ELLIPSOID); }
+  void SetShapeToCylinderX() { this->SetShape(CYLINDERX); }
+  void SetShapeToCylinderY() { this->SetShape(CYLINDERY); }
+  void SetShapeToCylinderZ() { this->SetShape(CYLINDERZ); }
+  virtual const char* GetShapeAsString();
   //@}
 
   //@{
@@ -76,8 +76,7 @@ protected:
   vtkROIStencilSource();
   ~vtkROIStencilSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Shape;
   double Bounds[6];

@@ -53,14 +53,14 @@
  * @sa
  * vtkRendererSource vtkRendererPointCloudSource vtkWindow
  * vtkRenderLargeImage
-*/
+ */
 
 #ifndef vtkWindowToImageFilter_h
 #define vtkWindowToImageFilter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkImageData.h"           // makes things a bit easier
+#include "vtkRenderingCoreModule.h" // For export macro
 
 // VTK_RGB and VTK_RGBA are defined in system includes
 #define VTK_ZBUFFER 5
@@ -71,22 +71,22 @@ class vtkWTI2DHelperClass;
 class VTKRENDERINGCORE_EXPORT vtkWindowToImageFilter : public vtkAlgorithm
 {
 public:
-  static vtkWindowToImageFilter *New();
+  static vtkWindowToImageFilter* New();
 
-  vtkTypeMacro(vtkWindowToImageFilter,vtkAlgorithm);
+  vtkTypeMacro(vtkWindowToImageFilter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Indicates what renderer to get the pixel data from. Initial value is 0.
    */
-  void SetInput(vtkWindow *input);
+  void SetInput(vtkWindow* input);
 
   //@{
   /**
    * Returns which renderer is being used as the source for the pixel data.
    * Initial value is 0.
    */
-  vtkGetObjectMacro(Input,vtkWindow);
+  vtkGetObjectMacro(Input, vtkWindow);
   //@}
 
   //@{
@@ -141,7 +141,7 @@ public:
    */
   void SetViewport(double, double, double, double);
   void SetViewport(double*);
-  vtkGetVectorMacro(Viewport,double,4);
+  vtkGetVectorMacro(Viewport, double, 4);
   //@}
 
   //@{
@@ -153,11 +153,10 @@ public:
    */
   vtkSetMacro(InputBufferType, int);
   vtkGetMacro(InputBufferType, int);
-  void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);};
-  void SetInputBufferTypeToRGBA() {this->SetInputBufferType(VTK_RGBA);};
-  void SetInputBufferTypeToZBuffer() {this->SetInputBufferType(VTK_ZBUFFER);};
+  void SetInputBufferTypeToRGB() { this->SetInputBufferType(VTK_RGB); }
+  void SetInputBufferTypeToRGBA() { this->SetInputBufferType(VTK_RGBA); }
+  void SetInputBufferTypeToZBuffer() { this->SetInputBufferType(VTK_ZBUFFER); }
   //@}
-
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -167,16 +166,15 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter() override;
 
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
-  vtkWindow *Input;
+  vtkWindow* Input;
   int Scale[2];
   vtkTypeBool ReadFrontBuffer;
   vtkTypeBool ShouldRerender;
@@ -184,12 +182,9 @@ protected:
   int InputBufferType;
   bool FixBoundary;
 
-  void RequestData(vtkInformation *,
-                   vtkInformationVector **, vtkInformationVector *);
+  void RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  virtual void RequestInformation (vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  virtual void RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;
@@ -207,7 +202,7 @@ protected:
   void Rescale2DActors();
   void Shift2DActors(int x, int y);
   void Restore2DActors();
-  vtkWTI2DHelperClass *StoredData;
+  vtkWTI2DHelperClass* StoredData;
 
 private:
   vtkWindowToImageFilter(const vtkWindowToImageFilter&) = delete;

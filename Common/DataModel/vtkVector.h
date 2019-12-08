@@ -23,28 +23,27 @@
  * memory layout is a contiguous array of the specified type, such that a
  * float[2] can be cast to a vtkVector2f and manipulated. Also a float[6] could
  * be cast and used as a vtkVector2f[3].
-*/
+ */
 
 #ifndef vtkVector_h
 #define vtkVector_h
 
-#include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
+#include "vtkTuple.h"
 
-#include <cmath>   // For math functions
+#include <cmath> // For math functions
 
-template<typename T, int Size>
+template <typename T, int Size>
 class vtkVector : public vtkTuple<T, Size>
 {
 public:
-  vtkVector()
-  {
-  }
+  vtkVector() {}
 
   /**
    * Initialize all of the vector's elements with the supplied scalar.
    */
-  explicit vtkVector(const T& scalar) : vtkTuple<T, Size>(scalar)
+  explicit vtkVector(const T& scalar)
+    : vtkTuple<T, Size>(scalar)
   {
   }
 
@@ -53,7 +52,8 @@ public:
    * Note that the supplied pointer must contain at least as many elements as
    * the vector, or it will result in access to out of bounds memory.
    */
-  explicit vtkVector(const T* init) : vtkTuple<T, Size>(init)
+  explicit vtkVector(const T* init)
+    : vtkTuple<T, Size>(init)
   {
   }
 
@@ -75,10 +75,7 @@ public:
   /**
    * Get the norm of the vector, i.e. its length.
    */
-  double Norm() const
-  {
-    return sqrt(static_cast<double>(this->SquaredNorm()));
-  }
+  double Norm() const { return sqrt(static_cast<double>(this->SquaredNorm())); }
 
   //@{
   /**
@@ -133,7 +130,7 @@ public:
   /**
    * Cast the vector to the specified type, returning the result.
    */
-  template<typename TR>
+  template <typename TR>
   vtkVector<TR, Size> Cast() const
   {
     vtkVector<TR, Size> result;
@@ -143,24 +140,24 @@ public:
     }
     return result;
   }
-};
   //@}
+};
 
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
 //
-template<typename T>
+template <typename T>
 class vtkVector2 : public vtkVector<T, 2>
 {
 public:
-  vtkVector2()
+  vtkVector2() {}
+
+  explicit vtkVector2(const T& scalar)
+    : vtkVector<T, 2>(scalar)
   {
   }
 
-  explicit vtkVector2(const T& scalar) : vtkVector<T, 2>(scalar)
-  {
-  }
-
-  explicit vtkVector2(const T* init) : vtkVector<T, 2>(init)
+  explicit vtkVector2(const T* init)
+    : vtkVector<T, 2>(init)
   {
   }
 
@@ -205,28 +202,28 @@ public:
   /**
    * Lexicographical comparison of two vector.
    */
-  bool operator<(const vtkVector2<T> &v) const
+  bool operator<(const vtkVector2<T>& v) const
   {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
   }
-};
   //@}
+};
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
 //
-template<typename T>
+template <typename T>
 class vtkVector3 : public vtkVector<T, 3>
 {
 public:
-  vtkVector3()
+  vtkVector3() {}
+
+  explicit vtkVector3(const T& scalar)
+    : vtkVector<T, 3>(scalar)
   {
   }
 
-  explicit vtkVector3(const T& scalar) : vtkVector<T, 3>(scalar)
-  {
-  }
-
-  explicit vtkVector3(const T* init) : vtkVector<T, 3>(init)
+  explicit vtkVector3(const T* init)
+    : vtkVector<T, 3>(init)
   {
   }
 
@@ -297,29 +294,30 @@ public:
   /**
    * Lexicographical comparison of two vector.
    */
-  bool operator<(const vtkVector3<T> &v) const
+  bool operator<(const vtkVector3<T>& v) const
   {
-    return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
+    return (this->Data[0] < v.Data[0]) ||
+      (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
       (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
   }
-};
   //@}
+};
 
 // .NAME vtkVector4 - templated base type for storage of 4D vectors.
 //
-template<typename T>
+template <typename T>
 class vtkVector4 : public vtkVector<T, 4>
 {
 public:
-  vtkVector4()
+  vtkVector4() {}
+
+  explicit vtkVector4(const T& scalar)
+    : vtkVector<T, 4>(scalar)
   {
   }
 
-  explicit vtkVector4(const T& scalar) : vtkVector<T, 4>(scalar)
-  {
-  }
-
-  explicit vtkVector4(const T* init) : vtkVector<T, 4>(init)
+  explicit vtkVector4(const T* init)
+    : vtkVector<T, 4>(init)
   {
   }
 
@@ -383,24 +381,36 @@ public:
    * Get the w component of the vector, i.e. element 3.
    */
   const T& GetW() const { return this->Data[3]; }
-};
   //@}
+};
 
 /**
  * Some inline functions for the derived types.
  */
-#define vtkVectorNormalized(vectorType, type, size) \
-vectorType Normalized() const \
-{ \
-  return vectorType(vtkVector<type, size>::Normalized().GetData()); \
-} \
+#define vtkVectorNormalized(vectorType, type, size)                                                \
+  vectorType Normalized() const                                                                    \
+  {                                                                                                \
+    return vectorType(vtkVector<type, size>::Normalized().GetData());                              \
+  }
 
-#define vtkVectorDerivedMacro(vectorType, type, size) \
-vtkVectorNormalized(vectorType, type, size) \
-explicit vectorType(type s) : Superclass(s) {} \
-explicit vectorType(const type *i) : Superclass(i) {} \
-explicit vectorType(const vtkTuple<type, size> &o) : Superclass(o.GetData()) {} \
-vectorType(const vtkVector<type, size> &o) : Superclass(o.GetData()) {} \
+#define vtkVectorDerivedMacro(vectorType, type, size)                                              \
+  vtkVectorNormalized(vectorType, type, size);                                                     \
+  explicit vectorType(type s)                                                                      \
+    : Superclass(s)                                                                                \
+  {                                                                                                \
+  }                                                                                                \
+  explicit vectorType(const type* i)                                                               \
+    : Superclass(i)                                                                                \
+  {                                                                                                \
+  }                                                                                                \
+  explicit vectorType(const vtkTuple<type, size>& o)                                               \
+    : Superclass(o.GetData())                                                                      \
+  {                                                                                                \
+  }                                                                                                \
+  vectorType(const vtkVector<type, size>& o)                                                       \
+    : Superclass(o.GetData())                                                                      \
+  {                                                                                                \
+  }
 
 //@{
 /**
@@ -411,8 +421,11 @@ class vtkVector2i : public vtkVector2<int>
 public:
   typedef vtkVector2<int> Superclass;
   vtkVector2i() {}
-  vtkVector2i(int x, int y) : vtkVector2<int>(x, y) {}
-  vtkVectorDerivedMacro(vtkVector2i, int, 2)
+  vtkVector2i(int x, int y)
+    : vtkVector2<int>(x, y)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector2i, int, 2);
 };
 //@}
 
@@ -421,8 +434,11 @@ class vtkVector2f : public vtkVector2<float>
 public:
   typedef vtkVector2<float> Superclass;
   vtkVector2f() {}
-  vtkVector2f(float x, float y) : vtkVector2<float>(x, y) {}
-  vtkVectorDerivedMacro(vtkVector2f, float, 2)
+  vtkVector2f(float x, float y)
+    : vtkVector2<float>(x, y)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector2f, float, 2);
 };
 
 class vtkVector2d : public vtkVector2<double>
@@ -430,24 +446,30 @@ class vtkVector2d : public vtkVector2<double>
 public:
   typedef vtkVector2<double> Superclass;
   vtkVector2d() {}
-  vtkVector2d(double x, double y) : vtkVector2<double>(x, y) {}
-  vtkVectorDerivedMacro(vtkVector2d, double, 2)
+  vtkVector2d(double x, double y)
+    : vtkVector2<double>(x, y)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector2d, double, 2);
 };
 
-#define vtkVector3Cross(vectorType, type) \
-vectorType Cross(const vectorType& other) const \
-{ \
-  return vectorType(vtkVector3<type>::Cross(other).GetData()); \
-} \
+#define vtkVector3Cross(vectorType, type)                                                          \
+  vectorType Cross(const vectorType& other) const                                                  \
+  {                                                                                                \
+    return vectorType(vtkVector3<type>::Cross(other).GetData());                                   \
+  }
 
 class vtkVector3i : public vtkVector3<int>
 {
 public:
   typedef vtkVector3<int> Superclass;
   vtkVector3i() {}
-  vtkVector3i(int x, int y, int z) : vtkVector3<int>(x, y, z) {}
-  vtkVectorDerivedMacro(vtkVector3i, int, 3)
-  vtkVector3Cross(vtkVector3i, int)
+  vtkVector3i(int x, int y, int z)
+    : vtkVector3<int>(x, y, z)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector3i, int, 3);
+  vtkVector3Cross(vtkVector3i, int);
 };
 
 class vtkVector3f : public vtkVector3<float>
@@ -455,9 +477,12 @@ class vtkVector3f : public vtkVector3<float>
 public:
   typedef vtkVector3<float> Superclass;
   vtkVector3f() {}
-  vtkVector3f(float x, float y, float z) : vtkVector3<float>(x, y, z) {}
-  vtkVectorDerivedMacro(vtkVector3f, float, 3)
-  vtkVector3Cross(vtkVector3f, float)
+  vtkVector3f(float x, float y, float z)
+    : vtkVector3<float>(x, y, z)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector3f, float, 3);
+  vtkVector3Cross(vtkVector3f, float);
 };
 
 class vtkVector3d : public vtkVector3<double>
@@ -465,9 +490,12 @@ class vtkVector3d : public vtkVector3<double>
 public:
   typedef vtkVector3<double> Superclass;
   vtkVector3d() {}
-  vtkVector3d(double x, double y, double z) : vtkVector3<double>(x, y, z) {}
-  vtkVectorDerivedMacro(vtkVector3d, double, 3)
-  vtkVector3Cross(vtkVector3d, double)
+  vtkVector3d(double x, double y, double z)
+    : vtkVector3<double>(x, y, z)
+  {
+  }
+  vtkVectorDerivedMacro(vtkVector3d, double, 3);
+  vtkVector3Cross(vtkVector3d, double);
 };
 
 class vtkVector4d : public vtkVector4<double>
@@ -475,9 +503,9 @@ class vtkVector4d : public vtkVector4<double>
 public:
   using Superclass = vtkVector4<double>;
   vtkVector4d() {}
-  vtkVector4d(double x, double y, double z, double w) :
-    vtkVector4<double>(x, y, z, w) {};
-  vtkVectorDerivedMacro(vtkVector4d, double, 4)
+  vtkVector4d(double x, double y, double z, double w)
+    : vtkVector4<double>(x, y, z, w){};
+  vtkVectorDerivedMacro(vtkVector4d, double, 4);
 };
 
 #endif // vtkVector_h

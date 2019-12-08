@@ -7,22 +7,19 @@
  * statement of authorship are reproduced on all copies.
  */
 
-
-#include "ui_SimpleView.h"
 #include "SimpleView.h"
+#include "ui_SimpleView.h"
 
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkSmartPointer.h"
 #include <vtkDataObjectToTable.h>
 #include <vtkElevationFilter.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkQtTableView.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
-#include "vtkSmartPointer.h"
+#include <vtkRenderer.h>
 #include <vtkVectorText.h>
-
-
 
 // Constructor
 SimpleView::SimpleView()
@@ -41,8 +38,8 @@ SimpleView::SimpleView()
   text->SetText("VTK and Qt!");
   vtkNew<vtkElevationFilter> elevation;
   elevation->SetInputConnection(text->GetOutputPort());
-  elevation->SetLowPoint(0,0,0);
-  elevation->SetHighPoint(10,0,0);
+  elevation->SetLowPoint(0, 0, 0);
+  elevation->SetHighPoint(10, 0, 0);
 
   // Mapper
   vtkNew<vtkPolyDataMapper> mapper;
@@ -75,21 +72,17 @@ SimpleView::SimpleView()
   // Set up action signals and slots
   connect(this->ui->actionOpenFile, SIGNAL(triggered()), this, SLOT(slotOpenFile()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
-
 };
 
 SimpleView::~SimpleView()
 {
   // The smart pointers should clean up for up
-
 }
 
 // Action to be taken upon file open
-void SimpleView::slotOpenFile()
+void SimpleView::slotOpenFile() {}
+
+void SimpleView::slotExit()
 {
-
-}
-
-void SimpleView::slotExit() {
   qApp->exit();
 }

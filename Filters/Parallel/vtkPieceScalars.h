@@ -23,13 +23,13 @@
  *
  * @sa
  * vtkPolyDataStreamer
-*/
+ */
 
 #ifndef vtkPieceScalars_h
 #define vtkPieceScalars_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFloatArray;
 class vtkIntArray;
@@ -37,17 +37,17 @@ class vtkIntArray;
 class VTKFILTERSPARALLEL_EXPORT vtkPieceScalars : public vtkDataSetAlgorithm
 {
 public:
-  static vtkPieceScalars *New();
+  static vtkPieceScalars* New();
 
-  vtkTypeMacro(vtkPieceScalars,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkPieceScalars, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Option to centerate cell scalars of points scalars.  Default is point scalars.
    */
-  void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
-  void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
-  int GetScalarMode() {return this->CellScalarsFlag;}
+  void SetScalarModeToCellData() { this->SetCellScalarsFlag(1); }
+  void SetScalarModeToPointData() { this->SetCellScalarsFlag(0); }
+  int GetScalarMode() { return this->CellScalarsFlag; }
 
   // Dscription:
   // This option uses a random mapping between pieces and scalar values.
@@ -61,14 +61,15 @@ protected:
   ~vtkPieceScalars() override;
 
   // Append the pieces.
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkIntArray *MakePieceScalars(int piece, vtkIdType numScalars);
-  vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);
+  vtkIntArray* MakePieceScalars(int piece, vtkIdType numScalars);
+  vtkFloatArray* MakeRandomScalars(int piece, vtkIdType numScalars);
 
-  vtkSetMacro(CellScalarsFlag,int);
+  vtkSetMacro(CellScalarsFlag, int);
   int CellScalarsFlag;
   vtkTypeBool RandomMode;
+
 private:
   vtkPieceScalars(const vtkPieceScalars&) = delete;
   void operator=(const vtkPieceScalars&) = delete;

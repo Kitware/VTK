@@ -41,15 +41,15 @@
  *
  * @sa
  *    vtkDelaunay3D
-*/
+ */
 
 #ifndef vtkRectilinearGridToTetrahedra_h
 #define vtkRectilinearGridToTetrahedra_h
 
 // ways to create the mesh from voxels
-#define VTK_VOXEL_TO_12_TET      12
-#define VTK_VOXEL_TO_5_TET        5
-#define VTK_VOXEL_TO_6_TET        6
+#define VTK_VOXEL_TO_12_TET 12
+#define VTK_VOXEL_TO_5_TET 5
+#define VTK_VOXEL_TO_6_TET 6
 #define VTK_VOXEL_TO_5_AND_12_TET -1
 
 #include "vtkFiltersGeneralModule.h" // For export macro
@@ -63,25 +63,25 @@ class vtkPoints;
 class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkRectilinearGridToTetrahedra,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkRectilinearGridToTetrahedra, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Form 5 Tetrahedra per cube. Do not RememberVoxelId.
    */
-  static vtkRectilinearGridToTetrahedra *New();
+  static vtkRectilinearGridToTetrahedra* New();
 
   //@{
   /**
    * Set the method to divide each cell (voxel) in the RectilinearGrid
    * into tetrahedra.
    */
-  void SetTetraPerCellTo5()      {SetTetraPerCell(VTK_VOXEL_TO_5_TET);};
-  void SetTetraPerCellTo6()      {SetTetraPerCell(VTK_VOXEL_TO_6_TET);};
-  void SetTetraPerCellTo12()     {SetTetraPerCell(VTK_VOXEL_TO_12_TET);};
-  void SetTetraPerCellTo5And12() {SetTetraPerCell(VTK_VOXEL_TO_5_AND_12_TET);};
-  vtkSetMacro(TetraPerCell,int);
-  vtkGetMacro(TetraPerCell,int);
+  void SetTetraPerCellTo5() { SetTetraPerCell(VTK_VOXEL_TO_5_TET); }
+  void SetTetraPerCellTo6() { SetTetraPerCell(VTK_VOXEL_TO_6_TET); }
+  void SetTetraPerCellTo12() { SetTetraPerCell(VTK_VOXEL_TO_12_TET); }
+  void SetTetraPerCellTo5And12() { SetTetraPerCell(VTK_VOXEL_TO_5_AND_12_TET); }
+  vtkSetMacro(TetraPerCell, int);
+  vtkGetMacro(TetraPerCell, int);
   //@}
 
   //@{
@@ -89,9 +89,9 @@ public:
    * Should the tetrahedra have scalar data
    * indicating which Voxel they came from in the vtkRectilinearGrid?
    */
-  vtkSetMacro(RememberVoxelId,vtkTypeBool);
-  vtkGetMacro(RememberVoxelId,vtkTypeBool);
-  vtkBooleanMacro(RememberVoxelId,vtkTypeBool);
+  vtkSetMacro(RememberVoxelId, vtkTypeBool);
+  vtkGetMacro(RememberVoxelId, vtkTypeBool);
+  vtkBooleanMacro(RememberVoxelId, vtkTypeBool);
   //@}
 
   /**
@@ -101,31 +101,25 @@ public:
    * If Extent[i]/Spacing[i] is within tol of an integer, then
    * assume the programmer meant an integer for direction i.
    */
-  void SetInput(const double Extent[3], const double Spacing[3],
-                const double tol=0.001);
+  void SetInput(const double Extent[3], const double Spacing[3], const double tol = 0.001);
   /**
    * This version of the function for the wrappers
    */
-  void SetInput(const double ExtentX,
-                const double ExtentY,
-                const double ExtentZ,
-                const double SpacingX,
-                const double SpacingY,
-                const double SpacingZ,
-                const double tol=0.001);
+  void SetInput(const double ExtentX, const double ExtentY, const double ExtentZ,
+    const double SpacingX, const double SpacingY, const double SpacingZ, const double tol = 0.001);
 
 protected:
   vtkRectilinearGridToTetrahedra();
   ~vtkRectilinearGridToTetrahedra() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool RememberVoxelId;
   int TetraPerCell;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
- private:
+private:
   vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) = delete;
 
   void operator=(const vtkRectilinearGridToTetrahedra&) = delete;
@@ -134,18 +128,14 @@ protected:
    * Determine how to Divide each cell (voxel) in the RectilinearGrid
    * Overwrites VoxelSubdivisionType with flipping information for forming the mesh
    */
-  static void DetermineGridDivisionTypes(vtkRectilinearGrid *RectGrid,
-                                         vtkSignedCharArray *VoxelSubdivisionType,
-                                         const int &TetraPerCell);
+  static void DetermineGridDivisionTypes(vtkRectilinearGrid* RectGrid,
+    vtkSignedCharArray* VoxelSubdivisionType, const int& TetraPerCell);
 
   /**
    * Take the grid and make it into a tetrahedral mesh.
    */
-  static void GridToTetMesh(vtkRectilinearGrid *RectGrid,
-                            vtkSignedCharArray *VoxelSubdivisionType,
-                            const int &TetraPerCell,
-                            const int &RememberVoxelId,
-                            vtkUnstructuredGrid *TetMesh);
+  static void GridToTetMesh(vtkRectilinearGrid* RectGrid, vtkSignedCharArray* VoxelSubdivisionType,
+    const int& TetraPerCell, const int& RememberVoxelId, vtkUnstructuredGrid* TetMesh);
 
   /**
    * Take a voxel and make tetrahedra out of it.
@@ -153,19 +143,14 @@ protected:
    * points need to be created, add them to NodeList.
    * Note that vtkIdList may be changed during this process (a point added).
    */
-  static int TetrahedralizeVoxel(vtkIdList *VoxelCorners,
-                                 const int &DivisionType,
-                                 vtkPoints *NodeList,
-                                 vtkCellArray *TetList);
+  static int TetrahedralizeVoxel(
+    vtkIdList* VoxelCorners, const int& DivisionType, vtkPoints* NodeList, vtkCellArray* TetList);
 
   /**
    * Helper Function for TetrahedraizeVoxel
    * Adds a center point in the middle of the voxel
    */
-  static inline void TetrahedralizeAddCenterPoint(vtkIdList *VoxelCorners,
-                                                  vtkPoints *NodeList);
-
+  static inline void TetrahedralizeAddCenterPoint(vtkIdList* VoxelCorners, vtkPoints* NodeList);
 };
 
 #endif /* vtkRectilinearGridToTetrahedra_h */
-

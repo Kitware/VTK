@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
-#include <cassert>
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkEGLRenderWindow.h"
 
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 #include <android/log.h>
 #include <android_native_app_glue.h>
@@ -33,9 +33,10 @@
 
 vtkStandardNewMacro(vtkAndroidRenderWindowInteractor);
 
-void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))nullptr;
-void *vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void *)nullptr;
-void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))nullptr;
+void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))nullptr;
+void* vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
+void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(
+  void*) = (void (*)(void*))nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
@@ -44,7 +45,7 @@ vtkAndroidRenderWindowInteractor::vtkAndroidRenderWindowInteractor()
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
 
-  this->KeyCodeToKeySymTable = (const char **)malloc(sizeof(const char *)*AKEYCODE_3D_MODE);
+  this->KeyCodeToKeySymTable = (const char**)malloc(sizeof(const char*) * AKEYCODE_3D_MODE);
   this->KeyCodeToKeySymTable[AKEYCODE_UNKNOWN] = "None";
   this->KeyCodeToKeySymTable[AKEYCODE_SOFT_LEFT] = 0;
   this->KeyCodeToKeySymTable[AKEYCODE_SOFT_RIGHT] = 0;
@@ -125,7 +126,7 @@ vtkAndroidRenderWindowInteractor::vtkAndroidRenderWindowInteractor()
   this->KeyCodeToKeySymTable[AKEYCODE_AT] = "quotedbl";
   this->KeyCodeToKeySymTable[AKEYCODE_NUM] = 0;
   this->KeyCodeToKeySymTable[AKEYCODE_HEADSETHOOK] = 0;
-  this->KeyCodeToKeySymTable[AKEYCODE_FOCUS] = 0;   // *Camera* focus
+  this->KeyCodeToKeySymTable[AKEYCODE_FOCUS] = 0; // *Camera* focus
   this->KeyCodeToKeySymTable[AKEYCODE_PLUS] = "plus";
   this->KeyCodeToKeySymTable[AKEYCODE_MENU] = 0;
   this->KeyCodeToKeySymTable[AKEYCODE_NOTIFICATION] = 0;
@@ -255,12 +256,10 @@ vtkAndroidRenderWindowInteractor::vtkAndroidRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-vtkAndroidRenderWindowInteractor::~vtkAndroidRenderWindowInteractor()
-{
-}
+vtkAndroidRenderWindowInteractor::~vtkAndroidRenderWindowInteractor() {}
 
 //----------------------------------------------------------------------------
-void  vtkAndroidRenderWindowInteractor::StartEventLoop()
+void vtkAndroidRenderWindowInteractor::StartEventLoop()
 {
   this->StartedMessageLoop = 1;
   this->Done = false;
@@ -290,7 +289,7 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
         int height = ANativeWindow_getHeight(this->AndroidApplication->window);
         if (width != this->Size[0] || height != this->Size[1])
         {
-          this->UpdateSize(width,height);
+          this->UpdateSize(width, height);
           this->RenderWindow->Render();
           this->RenderWindow->Render();
           vtkErrorMacro("Config Resized to " << width << " by " << height);
@@ -321,7 +320,7 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
 
 static void android_handle_cmd(struct android_app* app, int32_t cmd)
 {
-  vtkAndroidRenderWindowInteractor *self = (vtkAndroidRenderWindowInteractor *)app->userData;
+  vtkAndroidRenderWindowInteractor* self = (vtkAndroidRenderWindowInteractor*)app->userData;
   self->HandleCommand(cmd);
 }
 
@@ -336,31 +335,30 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
       {
         LOGW("Creating Window");
         this->RenderWindow->SetWindowId(this->AndroidApplication->window);
-        this->RenderWindow->Start();
         LOGW("Done Creating Window start");
         this->RenderWindow->Render();
         LOGW("Done first render");
       }
       break;
-//    case APP_CMD_CONFIG_CHANGED:
-//      {
+      //    case APP_CMD_CONFIG_CHANGED:
+      //      {
       // android seems to change window sizes at some random amount of time after this
       // event so not much to do here as we do not really know the new size yet
-//      }
-//      break;
+      //      }
+      //      break;
     case APP_CMD_WINDOW_REDRAW_NEEDED:
     {
       this->RenderWindow->Render();
     }
-      break;
+    break;
     case APP_CMD_TERM_WINDOW:
     {
       LOGW("Terminating Window");
       this->RenderWindow->Finalize();
       LOGW("Terminated");
-  //    ANativeActivity_finish(this->AndroidApplication->activity);
+      //    ANativeActivity_finish(this->AndroidApplication->activity);
     }
-      break;
+    break;
     case APP_CMD_DESTROY:
       LOGW("Destroying Application");
       this->Done = true;
@@ -370,13 +368,13 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
 
 static int32_t android_handle_input(struct android_app* app, AInputEvent* event)
 {
-  vtkAndroidRenderWindowInteractor *self = (vtkAndroidRenderWindowInteractor *)app->userData;
+  vtkAndroidRenderWindowInteractor* self = (vtkAndroidRenderWindowInteractor*)app->userData;
   return self->HandleInput(event);
 }
 
-const char *vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
+const char* vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
 {
-  const char *keysym = "None";
+  const char* keysym = "None";
   if (keyCode <= AKEYCODE_3D_MODE)
   {
     keysym = this->KeyCodeToKeySymTable[keyCode];
@@ -384,51 +382,41 @@ const char *vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
   return keysym;
 }
 
-void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int metaState, int nRepCnt)
+void vtkAndroidRenderWindowInteractor::HandleKeyEvent(
+  bool down, int nChar, int metaState, int nRepCnt)
 {
-  const char *keysym = this->GetKeySym(nChar);
+  const char* keysym = this->GetKeySym(nChar);
   if (down)
   {
-    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                 metaState & AMETA_SHIFT_ON,
-                                 nChar, nRepCnt,
-                                 keysym);
+    this->SetKeyEventInformation(
+      metaState & AMETA_CTRL_ON, metaState & AMETA_SHIFT_ON, nChar, nRepCnt, keysym);
     this->SetAltKey(metaState & AMETA_ALT_ON);
     this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
     return;
   }
 
-  this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                               metaState & AMETA_SHIFT_ON,
-                               nChar, nRepCnt,
-                               keysym);
+  this->SetKeyEventInformation(
+    metaState & AMETA_CTRL_ON, metaState & AMETA_SHIFT_ON, nChar, nRepCnt, keysym);
   this->SetAltKey(metaState & AMETA_ALT_ON);
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
   if (keysym && strlen(keysym) == 1)
   {
-    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                 metaState & AMETA_SHIFT_ON,
-                                 keysym[0],
-                                 nRepCnt);
+    this->SetKeyEventInformation(
+      metaState & AMETA_CTRL_ON, metaState & AMETA_SHIFT_ON, keysym[0], nRepCnt);
     this->InvokeEvent(vtkCommand::CharEvent, nullptr);
   }
 }
 
 void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
-  int actionType, int actionId, int numPtrs,
-  int *xPtr, int *yPtr, int *idPtr, int metaState)
+  int actionType, int actionId, int numPtrs, int* xPtr, int* yPtr, int* idPtr, int metaState)
 {
   for (int i = 0; i < numPtrs; ++i)
   {
-    this->SetEventInformationFlipY(xPtr[i],
-                                   yPtr[i],
-                                   metaState & AMETA_CTRL_ON,
-                                   metaState & AMETA_SHIFT_ON,
-                                   0,0,0,
-                                   idPtr[i]);
+    this->SetEventInformationFlipY(
+      xPtr[i], yPtr[i], metaState & AMETA_CTRL_ON, metaState & AMETA_SHIFT_ON, 0, 0, 0, idPtr[i]);
   }
 
-  switch(actionType)
+  switch (actionType)
   {
     case AMOTION_EVENT_ACTION_POINTER_DOWN:
     case AMOTION_EVENT_ACTION_DOWN:
@@ -450,7 +438,7 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
     case AMOTION_EVENT_ACTION_UP:
     {
       // kill off all current pointers
-      for (int i=0; i < VTKI_MAX_POINTERS; i++)
+      for (int i = 0; i < VTKI_MAX_POINTERS; i++)
       {
         if (this->IsPointerIndexSet(i))
         {
@@ -496,9 +484,9 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       int eventPointer = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
       action = action & AMOTION_EVENT_ACTION_MASK;
 
-      int *xPtr = (int *)malloc(numPtrs*sizeof(int));
-      int *yPtr = (int *)malloc(numPtrs*sizeof(int));
-      int *idPtr = (int *)malloc(numPtrs*sizeof(int));
+      int* xPtr = (int*)malloc(numPtrs * sizeof(int));
+      int* yPtr = (int*)malloc(numPtrs * sizeof(int));
+      int* idPtr = (int*)malloc(numPtrs * sizeof(int));
       for (int i = 0; i < numPtrs; ++i)
       {
         idPtr[i] = AMotionEvent_getPointerId(event, i);
@@ -506,40 +494,35 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
         yPtr[i] = AMotionEvent_getY(event, i);
       }
       int actionId = AMotionEvent_getPointerId(event, eventPointer);
-      this->HandleMotionEvent(action, actionId, numPtrs,
-        xPtr, yPtr, idPtr, metaState);
+      this->HandleMotionEvent(action, actionId, numPtrs, xPtr, yPtr, idPtr, metaState);
       free(xPtr);
       free(yPtr);
       free(idPtr);
       return 1;
     }
-      break;
+    break;
     case AINPUT_EVENT_TYPE_KEY:
     {
       int action = AKeyEvent_getAction(event);
       int nChar = AKeyEvent_getKeyCode(event);
       int metaState = AKeyEvent_getMetaState(event);
       int nRepCnt = AKeyEvent_getRepeatCount(event);
-      this->HandleKeyEvent(action == AKEY_EVENT_ACTION_DOWN,
-        nChar,
-        metaState,
-        nRepCnt);
+      this->HandleKeyEvent(action == AKEY_EVENT_ACTION_DOWN, nChar, metaState, nRepCnt);
       return 1;
     }
-      break;
+    break;
   } // end switch event type motion versus key
 
   return 0;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkAndroidRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
-  if ( ! this->RenderWindow)
+  if (!this->RenderWindow)
   {
-    vtkErrorMacro(<<"No renderer defined!");
+    vtkErrorMacro(<< "No renderer defined!");
     return;
   }
   if (this->Initialized)
@@ -547,12 +530,12 @@ void vtkAndroidRenderWindowInteractor::Initialize()
     return;
   }
 
-  vtkEGLRenderWindow *ren;
-  int *size;
+  vtkEGLRenderWindow* ren;
+  int* size;
 
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  ren = (vtkEGLRenderWindow *)(this->RenderWindow);
+  ren = (vtkEGLRenderWindow*)(this->RenderWindow);
 
   if (ren->GetOwnWindow())
   {
@@ -608,7 +591,6 @@ void vtkAndroidRenderWindowInteractor::Enable()
   this->Modified();
 }
 
-
 //----------------------------------------------------------------------------
 void vtkAndroidRenderWindowInteractor::Disable()
 {
@@ -629,12 +611,12 @@ void vtkAndroidRenderWindowInteractor::TerminateApp(void)
     ANativeActivity_finish(this->AndroidApplication->activity);
   }
 
-//  this->AndroidApplication->destroyRequested = 1;
+  //  this->AndroidApplication->destroyRequested = 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkAndroidRenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType),
-                                                          unsigned long duration)
+int vtkAndroidRenderWindowInteractor::InternalCreateTimer(
+  int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
   // todo
   return 0;
@@ -647,22 +629,20 @@ int vtkAndroidRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   return 0;
 }
 
-
 //----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
-void
-vtkAndroidRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+void vtkAndroidRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void* arg)
 {
-  if ( f != vtkAndroidRenderWindowInteractor::ClassExitMethod
-       || arg != vtkAndroidRenderWindowInteractor::ClassExitMethodArg)
+  if (f != vtkAndroidRenderWindowInteractor::ClassExitMethod ||
+    arg != vtkAndroidRenderWindowInteractor::ClassExitMethodArg)
   {
     // delete the current arg if there is a delete method
-    if ((vtkAndroidRenderWindowInteractor::ClassExitMethodArg)
-        && (vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete))
+    if ((vtkAndroidRenderWindowInteractor::ClassExitMethodArg) &&
+      (vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete))
     {
-      (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)
-        (vtkAndroidRenderWindowInteractor::ClassExitMethodArg);
+      (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(
+        vtkAndroidRenderWindowInteractor::ClassExitMethodArg);
     }
     vtkAndroidRenderWindowInteractor::ClassExitMethod = f;
     vtkAndroidRenderWindowInteractor::ClassExitMethodArg = arg;
@@ -673,8 +653,7 @@ vtkAndroidRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg
 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
-void
-vtkAndroidRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+void vtkAndroidRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void*))
 {
   if (f != vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)
   {
@@ -687,7 +666,7 @@ vtkAndroidRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 //----------------------------------------------------------------------------
 void vtkAndroidRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
 }
 
@@ -696,7 +675,7 @@ void vtkAndroidRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,nullptr);
+    this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
   }
   else if (this->ClassExitMethod)
   {

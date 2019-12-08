@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkImageDivergence.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>
@@ -33,22 +33,17 @@ vtkImageDivergence::vtkImageDivergence()
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
-int vtkImageDivergence::RequestInformation (
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
+int vtkImageDivergence::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkDataObject::SetPointDataActiveScalarInfo(
-    outputVector->GetInformationObject(0), -1, 1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outputVector->GetInformationObject(0), -1, 1);
   return 1;
 }
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-int vtkImageDivergence::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageDivergence::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -57,16 +52,15 @@ int vtkImageDivergence::RequestUpdateExtent (
   int idx;
   int wholeExtent[6];
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  vtkInformation* inScalarInfo = vtkDataObject::GetActiveFieldInformation(
+    inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
   {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
   }
 
-  int dimensionality =
-    inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+  int dimensionality = inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
 
   if (dimensionality > 3)
   {
@@ -75,33 +69,33 @@ int vtkImageDivergence::RequestUpdateExtent (
   }
 
   // handle XYZ
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   int inUExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt);
 
   // update and Clip
   for (idx = 0; idx < dimensionality; ++idx)
   {
-    --inUExt[idx*2];
-    ++inUExt[idx*2+1];
-    if (inUExt[idx*2] < wholeExtent[idx*2])
+    --inUExt[idx * 2];
+    ++inUExt[idx * 2 + 1];
+    if (inUExt[idx * 2] < wholeExtent[idx * 2])
     {
-      inUExt[idx*2] = wholeExtent[idx*2];
+      inUExt[idx * 2] = wholeExtent[idx * 2];
     }
-    if (inUExt[idx*2] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx * 2] > wholeExtent[idx * 2 + 1])
     {
-      inUExt[idx*2] = wholeExtent[idx*2 + 1];
+      inUExt[idx * 2] = wholeExtent[idx * 2 + 1];
     }
-    if (inUExt[idx*2+1] < wholeExtent[idx*2])
+    if (inUExt[idx * 2 + 1] < wholeExtent[idx * 2])
     {
-      inUExt[idx*2+1] = wholeExtent[idx*2];
+      inUExt[idx * 2 + 1] = wholeExtent[idx * 2];
     }
-    if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
     {
-      inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      inUExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
     }
   }
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt,6);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;
 }
@@ -111,10 +105,8 @@ int vtkImageDivergence::RequestUpdateExtent (
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageDivergenceExecute(vtkImageDivergence *self,
-                               vtkImageData *inData, T *inPtr,
-                               vtkImageData *outData, T *outPtr,
-                               int outExt[6], int id)
+void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, T* outPtr, int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -122,7 +114,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int *wholeExtent;
+  int* wholeExtent;
   vtkIdType inIncs[3];
   double r[3], d, sum;
   int useMin[3], useMax[3];
@@ -137,7 +129,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
 
   // Get increments to march through data
@@ -165,9 +157,9 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -197,38 +189,30 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageDivergence::ThreadedExecute (vtkImageData *inData,
-                                           vtkImageData *outData,
-                                           int outExt[6], int id)
+void vtkImageDivergence::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void* inPtr = inData->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input ScalarType, "
-                  << inData->GetScalarType()
-                  << ", must match out ScalarType "
-                  << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageDivergenceExecute(this, inData,
-                                static_cast<VTK_TT *>(inPtr), outData,
-                                static_cast<VTK_TT *>(outPtr),
-                                outExt, id));
+    vtkTemplateMacro(vtkImageDivergenceExecute(this, inData, static_cast<VTK_TT*>(inPtr), outData,
+      static_cast<VTK_TT*>(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
-

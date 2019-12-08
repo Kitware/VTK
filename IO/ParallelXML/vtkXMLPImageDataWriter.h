@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLImageDataWriter
-*/
+ */
 
 #ifndef vtkXMLPImageDataWriter_h
 #define vtkXMLPImageDataWriter_h
@@ -38,7 +38,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredD
 {
 public:
   static vtkXMLPImageDataWriter* New();
-  vtkTypeMacro(vtkXMLPImageDataWriter,vtkXMLPStructuredDataWriter);
+  vtkTypeMacro(vtkXMLPImageDataWriter, vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -56,7 +56,7 @@ protected:
   ~vtkXMLPImageDataWriter() override;
 
   const char* GetDataSetName() override;
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter() override;
 
   // see algorithm for more info

@@ -20,44 +20,44 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
-#include "vtkTesting.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
-#include "vtkUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridWriter.h"
-#include "vtkPolyData.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkDataObject.h"
+#include "vtkDataSetSurfaceFilter.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractGeometry.h"
+#include "vtkGlyph3D.h"
+#include "vtkPNGWriter.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkQuadratureSchemeDictionaryGenerator.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkQuadraturePointInterpolator.h"
 #include "vtkQuadraturePointsGenerator.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
+#include "vtkQuadratureSchemeDictionaryGenerator.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
-#include "vtkGlyph3D.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkDoubleArray.h"
-#include "vtkWarpVector.h"
-#include "vtkExtractGeometry.h"
+#include "vtkTesting.h"
 #include "vtkThreshold.h"
-#include "vtkPlane.h"
-#include "vtkDataObject.h"
-#include "vtkProperty.h"
-#include "vtkPNGWriter.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridReader.h"
+#include "vtkWarpVector.h"
 #include "vtkWindowToImageFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
+#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
 
-#include <string>
 #include "vtkSmartPointer.h"
+#include <string>
 
 // Generate a vector to warp by.
-int GenerateWarpVector(vtkUnstructuredGrid *usg);
+int GenerateWarpVector(vtkUnstructuredGrid* usg);
 // Generate a scalar to threshold by.
-int GenerateThresholdScalar(vtkUnstructuredGrid *usg);
+int GenerateThresholdScalar(vtkUnstructuredGrid* usg);
 
-int TestQuadraturePoints(int argc,char *argv[])
+int TestQuadraturePoints(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
@@ -66,82 +66,85 @@ int TestQuadraturePoints(int argc,char *argv[])
     std::cerr << "Error: -D /path/to/data was not specified.";
     return EXIT_FAILURE;
   }
-  std::string dataRoot=testHelper->GetDataRoot();
-  std::string tempDir=testHelper->GetTempDirectory();
-  std::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
-  std::string tempFile=tempDir+"/tmp.vtu";
-  std::string tempBaseline=tempDir+"/TestQuadraturePoints.png";
+  std::string dataRoot = testHelper->GetDataRoot();
+  std::string tempDir = testHelper->GetTempDirectory();
+  std::string inputFileName = dataRoot + "/Data/Quadratic/CylinderQuadratic.vtk";
+  std::string tempFile = tempDir + "/tmp.vtu";
+  std::string tempBaseline = tempDir + "/TestQuadraturePoints.png";
 
   // Raed, xml or legacy file.
-  vtkUnstructuredGrid *input=nullptr;
-  vtkSmartPointer<vtkXMLUnstructuredGridReader> xusgr = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+  vtkUnstructuredGrid* input = nullptr;
+  vtkSmartPointer<vtkXMLUnstructuredGridReader> xusgr =
+    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
   xusgr->SetFileName(inputFileName.c_str());
 
-  vtkSmartPointer<vtkUnstructuredGridReader> lusgr = vtkSmartPointer<vtkUnstructuredGridReader>::New();
+  vtkSmartPointer<vtkUnstructuredGridReader> lusgr =
+    vtkSmartPointer<vtkUnstructuredGridReader>::New();
   lusgr->SetFileName(inputFileName.c_str());
   if (xusgr->CanReadFile(inputFileName.c_str()))
   {
-    input=xusgr->GetOutput();
+    input = xusgr->GetOutput();
     xusgr->Update();
-    lusgr=nullptr;
+    lusgr = nullptr;
   }
   else if (lusgr->IsFileValid("unstructured_grid"))
   {
     lusgr->SetFileName(inputFileName.c_str());
-    input=lusgr->GetOutput();
+    input = lusgr->GetOutput();
     lusgr->Update();
-    xusgr=nullptr;
+    xusgr = nullptr;
   }
-  if (input==nullptr)
+  if (input == nullptr)
   {
     std::cerr << "Error: Could not read file " << inputFileName << "." << std::endl;
     return EXIT_FAILURE;
   }
 
   // Add a couple arrays to be used in the demonstrations.
-  int warpIdx=GenerateWarpVector(input);
-  std::string warpName=input->GetPointData()->GetArray(warpIdx)->GetName();
-  int threshIdx=GenerateThresholdScalar(input);
-  std::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
+  int warpIdx = GenerateWarpVector(input);
+  std::string warpName = input->GetPointData()->GetArray(warpIdx)->GetName();
+  int threshIdx = GenerateThresholdScalar(input);
+  std::string threshName = input->GetPointData()->GetArray(threshIdx)->GetName();
 
   // Add a quadrature scheme dictionary to the data set. This filter is
   // solely for our convenience. Typically we would expect that users
   // provide there own in XML format and use the readers or to generate
   // them on the fly.
-  vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen
-    = vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator>::New();
+  vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen =
+    vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator>::New();
   dictGen->SetInputData(input);
 
   // Interpolate fields to the quadrature points. This generates new field data
   // arrays, but not a set of points.
   vtkSmartPointer<vtkQuadraturePointInterpolator> fieldInterp =
     vtkSmartPointer<vtkQuadraturePointInterpolator>::New();
-  fieldInterp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
+  fieldInterp->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   fieldInterp->SetInputConnection(dictGen->GetOutputPort());
 
   // Write the dataset as XML. This exercises the information writer.
-  vtkSmartPointer<vtkXMLUnstructuredGridWriter> xusgw
-    = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+  vtkSmartPointer<vtkXMLUnstructuredGridWriter> xusgw =
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
   xusgw->SetFileName(tempFile.c_str());
   xusgw->SetInputConnection(fieldInterp->GetOutputPort());
   xusgw->Write();
-  xusgw=nullptr;
-  fieldInterp=nullptr;
+  xusgw = nullptr;
+  fieldInterp = nullptr;
 
   // Read the data back in form disk. This exercises the information reader.
-  xusgr=nullptr;
+  xusgr = nullptr;
   xusgr.TakeReference(vtkXMLUnstructuredGridReader::New());
   xusgr->SetFileName(tempFile.c_str());
   xusgr->Update();
 
-  input=xusgr->GetOutput();
+  input = xusgr->GetOutput();
   input->Register(nullptr);
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
 
-  xusgr=nullptr;
+  xusgr = nullptr;
 
- // Demonstrate warp by vector.
+  // Demonstrate warp by vector.
   vtkSmartPointer<vtkWarpVector> warper = vtkSmartPointer<vtkWarpVector>::New();
   warper->SetInputData(input);
   warper->SetScaleFactor(0.02);
@@ -149,8 +152,8 @@ int TestQuadraturePoints(int argc,char *argv[])
 
   // Demonstrate clip functionality.
   vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
-  plane->SetOrigin(0.0,0.0,0.03);
-  plane->SetNormal(0.0,0.0,-1.0);
+  plane->SetOrigin(0.0, 0.0, 0.03);
+  plane->SetNormal(0.0, 0.0, -1.0);
   vtkSmartPointer<vtkExtractGeometry> clip = vtkSmartPointer<vtkExtractGeometry>::New();
   clip->SetImplicitFunction(plane);
   clip->SetInputConnection(warper->GetOutputPort());
@@ -158,13 +161,15 @@ int TestQuadraturePoints(int argc,char *argv[])
   // Demonstrate threshold functionality.
   vtkSmartPointer<vtkThreshold> thresholder = vtkSmartPointer<vtkThreshold>::New();
   thresholder->SetInputConnection(clip->GetOutputPort());
-  thresholder->ThresholdBetween(0.0,3.0);
+  thresholder->ThresholdBetween(0.0, 3.0);
 
   // Generate the quadrature point set using a specific array as point data.
-  vtkSmartPointer<vtkQuadraturePointsGenerator> pointGen = vtkSmartPointer<vtkQuadraturePointsGenerator>::New();
-  pointGen->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
+  vtkSmartPointer<vtkQuadraturePointsGenerator> pointGen =
+    vtkSmartPointer<vtkQuadraturePointsGenerator>::New();
+  pointGen->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   pointGen->SetInputConnection(thresholder->GetOutputPort());
-  vtkPolyData *output=vtkPolyData::SafeDownCast(pointGen->GetOutput());
+  vtkPolyData* output = vtkPolyData::SafeDownCast(pointGen->GetOutput());
   pointGen->Update();
   const char* activeScalars = "pressure";
   output->GetPointData()->SetActiveScalars(activeScalars);
@@ -182,9 +187,9 @@ int TestQuadraturePoints(int argc,char *argv[])
   pdmQPts->SetInputConnection(glyphs->GetOutputPort());
   pdmQPts->SetColorModeToMapScalars();
   pdmQPts->SetScalarModeToUsePointData();
-  if(output->GetPointData()->GetArray(0) == nullptr)
+  if (output->GetPointData()->GetArray(0) == nullptr)
   {
-    vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
+    vtkGenericWarningMacro(<< "no point data in output of vtkQuadraturePointsGenerator");
     return EXIT_FAILURE;
   }
   pdmQPts->SetScalarRange(output->GetPointData()->GetArray(activeScalars)->GetRange());
@@ -192,31 +197,32 @@ int TestQuadraturePoints(int argc,char *argv[])
   outputActor->SetMapper(pdmQPts);
 
   // Extract the surface of the warped input, for reference.
-  vtkSmartPointer<vtkDataSetSurfaceFilter> surface = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+  vtkSmartPointer<vtkDataSetSurfaceFilter> surface =
+    vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
   surface->SetInputConnection(warper->GetOutputPort());
   // Map the warped surface.
   vtkSmartPointer<vtkPolyDataMapper> pdmWSurf = vtkSmartPointer<vtkPolyDataMapper>::New();
   pdmWSurf->SetInputConnection(surface->GetOutputPort());
   pdmWSurf->ScalarVisibilityOff();
   vtkSmartPointer<vtkActor> surfaceActor = vtkSmartPointer<vtkActor>::New();
-  surfaceActor->GetProperty()->SetColor(1.0,1.0,1.0);
+  surfaceActor->GetProperty()->SetColor(1.0, 1.0, 1.0);
   surfaceActor->GetProperty()->SetRepresentationToSurface();
   surfaceActor->SetMapper(pdmWSurf);
   // Setup left render pane.
-  vtkCamera *camera=nullptr;
+  vtkCamera* camera = nullptr;
   vtkSmartPointer<vtkRenderer> ren0 = vtkSmartPointer<vtkRenderer>::New();
-  ren0->SetViewport(0.0,0.0,0.5,1.0);
+  ren0->SetViewport(0.0, 0.0, 0.5, 1.0);
   ren0->AddActor(outputActor);
   ren0->SetBackground(0.328125, 0.347656, 0.425781);
   ren0->ResetCamera();
   camera = ren0->GetActiveCamera();
   camera->Elevation(95.0);
-  camera->SetViewUp(0.0,0.0,1.0);
+  camera->SetViewUp(0.0, 0.0, 1.0);
   camera->Azimuth(180.0);
 
   // Setup upper right pane.
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-  ren1->SetViewport(0.5,0.5,1.0,1.0);
+  ren1->SetViewport(0.5, 0.5, 1.0, 1.0);
   ren1->AddActor(outputActor);
   ren1->AddActor(surfaceActor);
   ren1->SetBackground(0.328125, 0.347656, 0.425781);
@@ -231,7 +237,7 @@ int TestQuadraturePoints(int argc,char *argv[])
 
   // Setup lower right pane.
   vtkSmartPointer<vtkRenderer> ren2 = vtkSmartPointer<vtkRenderer>::New();
-  ren2->SetViewport(0.5,0.0,1.0,0.5);
+  ren2->SetViewport(0.5, 0.0, 1.0, 0.5);
   ren2->AddActor(outputActor);
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
   ren2->AddActor(surfaceActor);
@@ -249,7 +255,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   renwin->AddRenderer(ren0);
   renwin->AddRenderer(ren1);
   renwin->AddRenderer(ren2);
-  renwin->SetSize(800,600);
+  renwin->SetSize(800, 600);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -261,85 +267,78 @@ int TestQuadraturePoints(int argc,char *argv[])
 }
 
 //-----------------------------------------------------------------------------
-int GenerateWarpVector(vtkUnstructuredGrid *usg)
+int GenerateWarpVector(vtkUnstructuredGrid* usg)
 {
-  vtkDoubleArray *pts
-    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
+  vtkDoubleArray* pts = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
-  vtkIdType nTups
-    = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
+  vtkIdType nTups = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
 
   double ptsBounds[6];
   usg->GetPoints()->GetBounds(ptsBounds);
-  double zmax=ptsBounds[5];
-  double zmin=ptsBounds[4];
-  double zmid=(zmax+zmin)/4.0;
+  double zmax = ptsBounds[5];
+  double zmin = ptsBounds[4];
+  double zmid = (zmax + zmin) / 4.0;
 
   vtkSmartPointer<vtkDoubleArray> da = vtkSmartPointer<vtkDoubleArray>::New();
-  int idx=usg->GetPointData()->AddArray(da); // note: returns the index.
+  int idx = usg->GetPointData()->AddArray(da); // note: returns the index.
   da->SetName("warp");
   da->SetNumberOfComponents(3);
   da->SetNumberOfTuples(nTups);
-  double *pda=da->GetPointer(0);
-  double *ppts=pts->GetPointer(0);
-  for (vtkIdType i=0; i<nTups; ++i)
+  double* pda = da->GetPointer(0);
+  double* ppts = pts->GetPointer(0);
+  for (vtkIdType i = 0; i < nTups; ++i)
   {
-    double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
-    double fzs=zs*zs*zs;                  // z**3
-    double r[2];                          // radial vector
-    r[0]=ppts[0];
-    r[1]=ppts[1];
-    double modR=sqrt(r[0]*r[0]+r[1]*r[1]);
-    r[0]/=modR;                           // unit radial vector
-    r[0]*=fzs;                            // scale by z**3 in -1 to 1
-    r[1]/=modR;
-    r[1]*=fzs;
-    pda[0]=r[0];                          // copy into result
-    pda[1]=r[1];
-    pda[2]=0.0;
-    pda+=3;                               // next
-    ppts+=3;
+    double zs = (ppts[2] - zmid) / (zmax - zmid); // move z to -1 to 1
+    double fzs = zs * zs * zs;                    // z**3
+    double r[2];                                  // radial vector
+    r[0] = ppts[0];
+    r[1] = ppts[1];
+    double modR = sqrt(r[0] * r[0] + r[1] * r[1]);
+    r[0] /= modR; // unit radial vector
+    r[0] *= fzs;  // scale by z**3 in -1 to 1
+    r[1] /= modR;
+    r[1] *= fzs;
+    pda[0] = r[0]; // copy into result
+    pda[1] = r[1];
+    pda[2] = 0.0;
+    pda += 3; // next
+    ppts += 3;
   }
   return idx;
 }
 //-----------------------------------------------------------------------------
-int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
+int GenerateThresholdScalar(vtkUnstructuredGrid* usg)
 {
-  vtkDoubleArray *pts
-    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
+  vtkDoubleArray* pts = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
-  vtkIdType nTups
-    = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
+  vtkIdType nTups = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
 
   double ptsBounds[6];
   usg->GetPoints()->GetBounds(ptsBounds);
-  double zmax=ptsBounds[5];
-  double zmin=ptsBounds[4];
-  double zmid=(zmax+zmin)/4.0;
+  double zmax = ptsBounds[5];
+  double zmin = ptsBounds[4];
+  double zmid = (zmax + zmin) / 4.0;
 
   vtkSmartPointer<vtkDoubleArray> da = vtkSmartPointer<vtkDoubleArray>::New();
-  int idx=usg->GetPointData()->AddArray(da); // note: returns the index.
+  int idx = usg->GetPointData()->AddArray(da); // note: returns the index.
   da->SetName("threshold");
   da->SetNumberOfComponents(1);
   da->SetNumberOfTuples(nTups);
-  double *pda=da->GetPointer(0);
-  double *ppts=pts->GetPointer(0);
-  for (vtkIdType i=0; i<nTups; ++i)
+  double* pda = da->GetPointer(0);
+  double* ppts = pts->GetPointer(0);
+  for (vtkIdType i = 0; i < nTups; ++i)
   {
-    double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
-    double fzs=zs*zs*zs;                  // z**3
-    double r[2];                          // radial vector
-    r[0]=ppts[0];
-    r[1]=ppts[1];
-    double modR=sqrt(r[0]*r[0]+r[1]*r[1]);
-    r[1]/=modR;                           // scale by z**3 in -1 to 1
-    r[1]*=fzs;
-    pda[0]=r[1];                          // copy into result
-    pda+=1;                               // next
-    ppts+=3;
+    double zs = (ppts[2] - zmid) / (zmax - zmid); // move z to -1 to 1
+    double fzs = zs * zs * zs;                    // z**3
+    double r[2];                                  // radial vector
+    r[0] = ppts[0];
+    r[1] = ppts[1];
+    double modR = sqrt(r[0] * r[0] + r[1] * r[1]);
+    r[1] /= modR; // scale by z**3 in -1 to 1
+    r[1] *= fzs;
+    pda[0] = r[1]; // copy into result
+    pda += 1;      // next
+    ppts += 3;
   }
   return idx;
 }
-
-
-

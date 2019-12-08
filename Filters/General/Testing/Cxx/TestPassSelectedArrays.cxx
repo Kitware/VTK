@@ -60,7 +60,7 @@ int GetArrayCount(vtkDataObject* dobj, int assoc)
 }
 }
 
-int TestPassSelectedArrays(int, char* [])
+int TestPassSelectedArrays(int, char*[])
 {
   auto data = GetData();
   AddArray(data, "Temp", vtkDataObject::FIELD_ASSOCIATION_POINTS);

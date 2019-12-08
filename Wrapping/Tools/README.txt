@@ -5,7 +5,7 @@ The contents of this directory are used to generate a C library called
 vtkWrappingTools, which provides utility functions for parsing C++ header
 files.  The core of the wrapping tools is a parser that is built using
 the classic compiler-generator tools lex and yacc.  These tools are
-available on OS X and on most linux systems.
+available on macOS and on most linux systems.
 
 
 LEX:
@@ -17,30 +17,21 @@ included (i.e. as a C file) by the main parser file, vtkParse.tab.c.
 
 To generate lex.yy.c from vtkParse.l, use the following steps:
 
-1. Get a copy of flex, version 2.5.35 or later
-2. Run flex --nodefault -olex.yy.c vtkParse.l
+1. Get a copy of flex, version 2.6.4 or later
+2. Run flex --nodefault --noline -olex.yy.c vtkParse.l
 3. Edit the file lex.yy.c as follows, to eliminate compiler warnings and
    to make it pass the git commit hook tests:
-a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
+a) Convert tabs to 2 spaces, e.g. :%s/\t/  /g
 b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
 c) Remove blank lines at the beginning and end of the file
-d) Replace "int yyl;" with "yy_size_t yyl;", e.g. :%s/int yyl;/yy_size_t yyl;/
-e) Remove any instances of the "register" keyword.
+d) Remove the definition of "struct yy_trans_info", which is used nowhere
+   and will cause a compiler warning.
+e) Add the following code (around line 24) to avoid warnings about
+   isatty() being used without a declaration:
 
-Some known warnings with recent flex/gcc:
-
-   - Add the following code if not already present to avoid warnings about
-     isatty being used without a declaration:
-         #ifndef __cplusplus
-         extern int isatty(int);
-         #endif /* __cplusplus */
-   - Change 'int i;' to 'yy_size_t i;' in yy_scan_bytes (line ~3700).
-   - Add text after "@param line_number" (line ~3505) since doxygen
-     does not permit empty @param paragraphs (clang -Wdocumentation).
-     upstream bug: <https://sourceforge.net/p/flex/bugs/158/>
-
-Step "d" removes a potential signed/unsigned comparison compiler
-warning.  It might not be necessary in later versions of flex.
+#ifndef __cplusplus
+extern int isatty(int);
+#endif /* __cplusplus */
 
 
 YACC:

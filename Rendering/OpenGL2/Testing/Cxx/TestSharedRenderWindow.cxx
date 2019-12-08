@@ -12,31 +12,31 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkSphereSource.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
+#include "vtkCamera.h"
 #include "vtkLight.h"
+#include "vtkNew.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkOpenGLRenderWindow.h"
 
 //----------------------------------------------------------------------------
-int TestSharedRenderWindow(int argc, char *argv[])
+int TestSharedRenderWindow(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkSphereSource> sphere;
@@ -64,7 +64,7 @@ int TestSharedRenderWindow(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renderWindow2;
   renderWindow2->SetSize(300, 300);
   renderWindow2->AddRenderer(renderer2);
-  vtkNew<vtkRenderWindowInteractor>  iren2;
+  vtkNew<vtkRenderWindowInteractor> iren2;
   iren2->SetRenderWindow(renderWindow2);
   renderWindow2->SetSharedRenderWindow(renderWindow);
 
@@ -83,11 +83,11 @@ int TestSharedRenderWindow(int argc, char *argv[])
   renderer2->ResetCameraClippingRange();
   renderWindow2->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow2 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  int retVal = vtkRegressionTestImage(renderWindow2);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

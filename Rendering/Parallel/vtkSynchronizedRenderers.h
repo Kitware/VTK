@@ -25,15 +25,15 @@
  * of rendered images across processes on its own. You typically either subclass
  * to implement a compositing algorithm or use a renderer capable of compositing
  * eg. IceT based renderer.
-*/
+ */
 
 #ifndef vtkSynchronizedRenderers_h
 #define vtkSynchronizedRenderers_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkUnsignedCharArray.h" // needed for vtkUnsignedCharArray.
-#include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkRenderingParallelModule.h" // For export macro
+#include "vtkSmartPointer.h"            // needed for vtkSmartPointer.
+#include "vtkUnsignedCharArray.h"       // needed for vtkUnsignedCharArray.
 
 class vtkFXAAOptions;
 class vtkRenderer;
@@ -159,7 +159,7 @@ public:
   enum
   {
     SYNC_RENDERER_TAG = 15101,
-    RESET_CAMERA_TAG  = 15102,
+    RESET_CAMERA_TAG = 15102,
     COMPUTE_BOUNDS_TAG = 15103
   };
 
@@ -190,10 +190,9 @@ public:
     void MarkInValid() { this->Valid = false; }
 
     bool IsValid() { return this->Valid; }
-    int GetWidth() { return this->Size[0];}
-    int GetHeight() { return this->Size[1];}
-    vtkUnsignedCharArray* GetRawPtr()
-      { return this->Data; }
+    int GetWidth() { return this->Size[0]; }
+    int GetHeight() { return this->Size[1]; }
+    vtkUnsignedCharArray* GetRawPtr() { return this->Data; }
 
     /**
      * Pushes the image to the viewport. The OpenGL viewport  and scissor region
@@ -309,4 +308,3 @@ private:
 };
 
 #endif
-

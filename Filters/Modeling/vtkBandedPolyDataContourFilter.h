@@ -36,7 +36,7 @@
  * @sa
  * vtkClipDataSet vtkClipPolyData vtkClipVolume vtkContourFilter
  *
-*/
+ */
 
 #ifndef vtkBandedPolyDataContourFilter_h
 #define vtkBandedPolyDataContourFilter_h
@@ -60,13 +60,13 @@ struct vtkBandedPolyDataContourFilterInternals;
 class VTKFILTERSMODELING_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkBandedPolyDataContourFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkBandedPolyDataContourFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no contours defined.
    */
-  static vtkBandedPolyDataContourFilter *New();
+  static vtkBandedPolyDataContourFilter* New();
 
   //@{
   /**
@@ -77,8 +77,8 @@ public:
    */
   void SetValue(int i, double value);
   double GetValue(int i);
-  double *GetValues();
-  void GetValues(double *contourValues);
+  double* GetValues();
+  void GetValues(double* contourValues);
   void SetNumberOfContours(int number);
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
@@ -92,9 +92,9 @@ public:
    * Clipping means all cells outside of the range specified are not
    * sent to the output.
    */
-  vtkSetMacro(Clipping,vtkTypeBool);
-  vtkGetMacro(Clipping,vtkTypeBool);
-  vtkBooleanMacro(Clipping,vtkTypeBool);
+  vtkSetMacro(Clipping, vtkTypeBool);
+  vtkGetMacro(Clipping, vtkTypeBool);
+  vtkBooleanMacro(Clipping, vtkTypeBool);
   //@}
 
   //@{
@@ -104,12 +104,10 @@ public:
    * by the clipping range. If a value, then a scalar value which is a
    * value between clip values is used.
    */
-  vtkSetClampMacro(ScalarMode,int,VTK_SCALAR_MODE_INDEX,VTK_SCALAR_MODE_VALUE);
-  vtkGetMacro(ScalarMode,int);
-  void SetScalarModeToIndex()
-    {this->SetScalarMode(VTK_SCALAR_MODE_INDEX);}
-  void SetScalarModeToValue()
-    {this->SetScalarMode(VTK_SCALAR_MODE_VALUE);}
+  vtkSetClampMacro(ScalarMode, int, VTK_SCALAR_MODE_INDEX, VTK_SCALAR_MODE_VALUE);
+  vtkGetMacro(ScalarMode, int);
+  void SetScalarModeToIndex() { this->SetScalarMode(VTK_SCALAR_MODE_INDEX); }
+  void SetScalarModeToValue() { this->SetScalarMode(VTK_SCALAR_MODE_VALUE); }
   //@}
 
   //@{
@@ -119,9 +117,9 @@ public:
    * generated from polygons/triangle strips and placed into the second
    * output (the ContourEdgesOutput).
    */
-  vtkSetMacro(GenerateContourEdges,vtkTypeBool);
-  vtkGetMacro(GenerateContourEdges,vtkTypeBool);
-  vtkBooleanMacro(GenerateContourEdges,vtkTypeBool);
+  vtkSetMacro(GenerateContourEdges, vtkTypeBool);
+  vtkGetMacro(GenerateContourEdges, vtkTypeBool);
+  vtkBooleanMacro(GenerateContourEdges, vtkTypeBool);
   //@}
 
   //@{
@@ -131,8 +129,8 @@ public:
    * of FLT_EPSILON at your own risk. The actual internal clip tolerance
    * is computed by multiplying ClipTolerance by the scalar range.
    */
-  vtkSetMacro(ClipTolerance,double);
-  vtkGetMacro(ClipTolerance,double);
+  vtkSetMacro(ClipTolerance, double);
+  vtkGetMacro(ClipTolerance, double);
   //@}
 
   //@{
@@ -140,15 +138,15 @@ public:
    * Set/Get the component to use of an input scalars array with more than one
    * component. Default is 0.
    */
-  vtkSetMacro(Component,int);
-  vtkGetMacro(Component,int);
+  vtkSetMacro(Component, int);
+  vtkGetMacro(Component, int);
   //@}
 
   /**
    * Get the second output which contains the edges dividing the contour
    * bands. This output is empty unless GenerateContourEdges is enabled.
    */
-  vtkPolyData *GetContourEdgesOutput();
+  vtkPolyData* GetContourEdgesOutput();
 
   /**
    * Overload GetMTime because we delegate to vtkContourValues so its
@@ -160,25 +158,24 @@ protected:
   vtkBandedPolyDataContourFilter();
   ~vtkBandedPolyDataContourFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *inScalars,
-               vtkDoubleArray *outScalars,
-               vtkPointData *inPD, vtkPointData *outPD, vtkIdType edgePts[]);
-  int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
-                 int cellId, double s, vtkFloatArray *newS);
-  int InsertLine(vtkCellArray *cells, vtkIdType pt1, vtkIdType pt2,
-                 int cellId, double s, vtkFloatArray *newS);
+  int ClipEdge(int v1, int v2, vtkPoints* pts, vtkDataArray* inScalars, vtkDoubleArray* outScalars,
+    vtkPointData* inPD, vtkPointData* outPD, vtkIdType edgePts[]);
+  int InsertCell(
+    vtkCellArray* cells, int npts, const vtkIdType* pts, int cellId, double s, vtkFloatArray* newS);
+  int InsertLine(
+    vtkCellArray* cells, vtkIdType pt1, vtkIdType pt2, int cellId, double s, vtkFloatArray* newS);
   int ComputeClippedIndex(double s);
   int InsertNextScalar(vtkFloatArray* scalars, int cellId, int idx);
   // data members
-  vtkContourValues *ContourValues;
+  vtkContourValues* ContourValues;
 
   vtkTypeBool Clipping;
   int ScalarMode;
   int Component;
-  double ClipTolerance; //specify numerical accuracy during clipping
-  //the second output
+  double ClipTolerance; // specify numerical accuracy during clipping
+  // the second output
   vtkTypeBool GenerateContourEdges;
 
   vtkBandedPolyDataContourFilterInternals* Internal;
@@ -193,28 +190,36 @@ private:
  * between 0<=i<NumberOfContours.
  */
 inline void vtkBandedPolyDataContourFilter::SetValue(int i, double value)
-  {this->ContourValues->SetValue(i,value);}
+{
+  this->ContourValues->SetValue(i, value);
+}
 
 /**
  * Get the ith contour value.
  */
 inline double vtkBandedPolyDataContourFilter::GetValue(int i)
-  {return this->ContourValues->GetValue(i);}
+{
+  return this->ContourValues->GetValue(i);
+}
 
 /**
  * Get a pointer to an array of contour values. There will be
  * GetNumberOfContours() values in the list.
  */
-inline double *vtkBandedPolyDataContourFilter::GetValues()
-  {return this->ContourValues->GetValues();}
+inline double* vtkBandedPolyDataContourFilter::GetValues()
+{
+  return this->ContourValues->GetValues();
+}
 
 /**
  * Fill a supplied list with contour values. There will be
  * GetNumberOfContours() values in the list. Make sure you allocate
  * enough memory to hold the list.
  */
-inline void vtkBandedPolyDataContourFilter::GetValues(double *contourValues)
-  {this->ContourValues->GetValues(contourValues);}
+inline void vtkBandedPolyDataContourFilter::GetValues(double* contourValues)
+{
+  this->ContourValues->GetValues(contourValues);
+}
 
 /**
  * Set the number of contours to place into the list. You only really
@@ -222,30 +227,35 @@ inline void vtkBandedPolyDataContourFilter::GetValues(double *contourValues)
  * will automatically increase list size as needed.
  */
 inline void vtkBandedPolyDataContourFilter::SetNumberOfContours(int number)
-  {this->ContourValues->SetNumberOfContours(number);}
+{
+  this->ContourValues->SetNumberOfContours(number);
+}
 
 /**
  * Get the number of contours in the list of contour values.
  */
 inline vtkIdType vtkBandedPolyDataContourFilter::GetNumberOfContours()
-  {return this->ContourValues->GetNumberOfContours();}
+{
+  return this->ContourValues->GetNumberOfContours();
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
-inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours,
-                                                           double range[2])
-  {this->ContourValues->GenerateValues(numContours, range);}
+inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, double range[2])
+{
+  this->ContourValues->GenerateValues(numContours, range);
+}
 
 /**
  * Generate numContours equally spaced contour values between specified
  * range. Contour values will include min/max range values.
  */
-inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours,
-                                                           double rangeStart,
-                                                           double rangeEnd)
-  {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
-
+inline void vtkBandedPolyDataContourFilter::GenerateValues(
+  int numContours, double rangeStart, double rangeEnd)
+{
+  this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+}
 
 #endif

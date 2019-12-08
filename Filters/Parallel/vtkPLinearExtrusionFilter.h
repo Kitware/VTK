@@ -20,7 +20,7 @@
  *
  * @sa
  * vtkLinearExtrusionFilter
-*/
+ */
 
 #ifndef vtkPLinearExtrusionFilter_h
 #define vtkPLinearExtrusionFilter_h
@@ -31,13 +31,13 @@
 class VTKFILTERSPARALLEL_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter
 {
 public:
-  vtkTypeMacro(vtkPLinearExtrusionFilter,vtkLinearExtrusionFilter);
+  vtkTypeMacro(vtkPLinearExtrusionFilter, vtkLinearExtrusionFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an object with PieceInvariant off.
    */
-  static vtkPLinearExtrusionFilter *New();
+  static vtkPLinearExtrusionFilter* New();
 
   // To get piece invariance, this filter has to request an
   // extra ghost level.  Since piece invariance is not very
@@ -53,10 +53,11 @@ protected:
   vtkPLinearExtrusionFilter();
   ~vtkPLinearExtrusionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool PieceInvariant;
+
 private:
   vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&) = delete;
   void operator=(const vtkPLinearExtrusionFilter&) = delete;

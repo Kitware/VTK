@@ -20,13 +20,13 @@
  * This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
  * vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
  * not handle sub-grids of type vtkCompositeDataSet.
-*/
+ */
 
 #ifndef vtkExtractPiece_h
 #define vtkExtractPiece_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 
 class vtkImageData;
 class vtkPolyData;
@@ -46,37 +46,23 @@ protected:
   vtkExtractPiece() {}
   ~vtkExtractPiece() override {}
 
-  int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ExtractImageData(vtkImageData *imageData,
-                        vtkCompositeDataSet *output,
-                        int piece, int numberOfPieces, int ghostLevel,
-                        vtkCompositeDataIterator* iter);
-  void ExtractPolyData(vtkPolyData *polyData,
-                       vtkCompositeDataSet *output,
-                       int piece, int numberOfPieces, int ghostLevel,
-                       vtkCompositeDataIterator* iter);
-  void ExtractRectilinearGrid(vtkRectilinearGrid *rGrid,
-                              vtkCompositeDataSet *output,
-                              int piece, int numberOfPieces, int ghostLevel,
-                              vtkCompositeDataIterator* iter);
-  void ExtractStructuredGrid(vtkStructuredGrid *sGrid,
-                             vtkCompositeDataSet *output,
-                             int piece, int numberOfPieces, int ghostLevel,
-                             vtkCompositeDataIterator* iter);
-  void ExtractUnstructuredGrid(vtkUnstructuredGrid *uGrid,
-                               vtkCompositeDataSet *output,
-                               int piece, int numberOfPieces, int ghostLevel,
-                               vtkCompositeDataIterator* iter);
+  void ExtractImageData(vtkImageData* imageData, vtkCompositeDataSet* output, int piece,
+    int numberOfPieces, int ghostLevel, vtkCompositeDataIterator* iter);
+  void ExtractPolyData(vtkPolyData* polyData, vtkCompositeDataSet* output, int piece,
+    int numberOfPieces, int ghostLevel, vtkCompositeDataIterator* iter);
+  void ExtractRectilinearGrid(vtkRectilinearGrid* rGrid, vtkCompositeDataSet* output, int piece,
+    int numberOfPieces, int ghostLevel, vtkCompositeDataIterator* iter);
+  void ExtractStructuredGrid(vtkStructuredGrid* sGrid, vtkCompositeDataSet* output, int piece,
+    int numberOfPieces, int ghostLevel, vtkCompositeDataIterator* iter);
+  void ExtractUnstructuredGrid(vtkUnstructuredGrid* uGrid, vtkCompositeDataSet* output, int piece,
+    int numberOfPieces, int ghostLevel, vtkCompositeDataIterator* iter);
+
 private:
   vtkExtractPiece(const vtkExtractPiece&) = delete;
   void operator=(const vtkExtractPiece&) = delete;

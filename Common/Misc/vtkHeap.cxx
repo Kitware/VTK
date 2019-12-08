@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkHeap.h"
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObjectFactory.h"
 #include <cstddef>
 
@@ -23,8 +23,8 @@ static size_t vtkGetLongAlignment()
 {
   struct vtkTestAlignLong
   {
-    char    pad;
-    long    x;
+    char pad;
+    long x;
   };
 
   return offsetof(vtkTestAlignLong, x);
@@ -33,15 +33,18 @@ static size_t vtkGetLongAlignment()
 class VTKCOMMONMISC_EXPORT vtkHeapBlock
 {
 public:
-  char*         Data;
+  char* Data;
   vtkHeapBlock* Next;
-  size_t        Size; //Variable size guards against block size changing from SetBlockSize()
-                      //or large requests greater than the standard block size.
+  size_t Size; // Variable size guards against block size changing from SetBlockSize()
+               // or large requests greater than the standard block size.
 
-  vtkHeapBlock(size_t size):Next(nullptr),Size(size)
-    {this->Data = new char [size];}
-  ~vtkHeapBlock()
-    {delete [] this->Data;}
+  vtkHeapBlock(size_t size)
+    : Next(nullptr)
+    , Size(size)
+  {
+    this->Data = new char[size];
+  }
+  ~vtkHeapBlock() { delete[] this->Data; }
 };
 
 vtkHeap::vtkHeap()
@@ -63,9 +66,8 @@ vtkHeap::~vtkHeap()
 
 void vtkHeap::SetBlockSize(size_t _arg)
 {
-  vtkDebugMacro(
-    << this->GetClassName() << " (" << this << "): setting BlockSize to "
-    << static_cast<int>(_arg));
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting BlockSize to "
+                << static_cast<int>(_arg));
   if (this->BlockSize != _arg)
   {
     this->BlockSize = _arg;
@@ -75,21 +77,20 @@ void vtkHeap::SetBlockSize(size_t _arg)
 
 void* vtkHeap::AllocateMemory(size_t n)
 {
-  if ( n%this->Alignment ) //4-byte word alignment
+  if (n % this->Alignment) // 4-byte word alignment
   {
-    n += this->Alignment - (n%this->Alignment);
+    n += this->Alignment - (n % this->Alignment);
   }
 
-  size_t blockSize = (n > this->BlockSize ? n : this->BlockSize );
+  size_t blockSize = (n > this->BlockSize ? n : this->BlockSize);
   this->NumberOfAllocations++;
 
-  if ( ! this->Current ||
-       (this->Position + n) >= this->Current->Size )
+  if (!this->Current || (this->Position + n) >= this->Current->Size)
   {
     this->Add(blockSize);
   }
 
-  char *ptr = this->Current->Data + this->Position;
+  char* ptr = this->Current->Data + this->Position;
   this->Position += n;
 
   return ptr;
@@ -100,15 +101,15 @@ void* vtkHeap::AllocateMemory(size_t n)
 // the list of blocks.
 void vtkHeap::Add(size_t blockSize)
 {
-  this->Position = 0; //reset to the beginning of the block
+  this->Position = 0; // reset to the beginning of the block
 
-  if ( this->Current && this->Current != this->Last &&
-       this->Current->Next->Size >= blockSize ) //reuse
+  if (this->Current && this->Current != this->Last &&
+    this->Current->Next->Size >= blockSize) // reuse
   {
     this->Current = this->Current->Next;
   }
 
-  else //allocate a new block
+  else // allocate a new block
   {
     this->NumberOfBlocks++;
     vtkHeapBlock* block = new vtkHeapBlock(blockSize);
@@ -130,7 +131,10 @@ void vtkHeap::Add(size_t blockSize)
 void vtkHeap::CleanAll()
 {
   this->Current = this->First;
-  if (!this->Current) { return; }
+  if (!this->Current)
+  {
+    return;
+  }
   while (this->DeleteAndNext())
   {
     ;
@@ -162,20 +166,20 @@ void vtkHeap::Reset()
 
 char* vtkHeap::StringDup(const char* str)
 {
-  char *newStr = static_cast<char*>(this->AllocateMemory(strlen(str)+1));
-  strcpy(newStr,str);
+  char* newStr = static_cast<char*>(this->AllocateMemory(strlen(str) + 1));
+  strcpy(newStr, str);
   return newStr;
 }
 
 void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Block Size: " << static_cast<int>(this->BlockSize) << "\n";
   os << indent << "Number of Blocks: " << this->NumberOfBlocks << "\n";
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
   os << indent << "Current bytes allocated: "
-     << ((this->NumberOfBlocks-1)*static_cast<int>(this->BlockSize) +
-         static_cast<int>(this->Position)) << "\n";
+     << ((this->NumberOfBlocks - 1) * static_cast<int>(this->BlockSize) +
+          static_cast<int>(this->Position))
+     << "\n";
 }
-

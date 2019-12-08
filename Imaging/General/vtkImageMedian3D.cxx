@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkImageMedian3D);
 vtkImageMedian3D::vtkImageMedian3D()
 {
   this->NumberOfElements = 0;
-  this->SetKernelSize(1,1,1);
+  this->SetKernelSize(1, 1, 1);
   this->HandleBoundaries = 1;
 }
 
@@ -55,8 +55,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   int volume;
   int modified = 1;
 
-  if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 &&
-      this->KernelSize[2] == size2)
+  if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 && this->KernelSize[2] == size2)
   {
     modified = 0;
   }
@@ -74,28 +73,29 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   volume *= size2;
 
   this->NumberOfElements = volume;
-  if ( modified )
+  if (modified)
   {
     this->Modified();
   }
 }
 
-namespace {
+namespace
+{
 
 //-----------------------------------------------------------------------------
 // Compute the median with std::nth_element
-template<class T>
-T vtkComputeMedianOfArray(T *aBegin, T *aEnd)
+template <class T>
+T vtkComputeMedianOfArray(T* aBegin, T* aEnd)
 {
-  T *aMid = aBegin + (aEnd - aBegin)/2;
+  T* aMid = aBegin + (aEnd - aBegin) / 2;
   std::nth_element(aBegin, aMid, aEnd);
   T m = *aMid;
 
   // if even size, get max of lower part of array and compute the average
   if (aMid - aBegin == aEnd - aMid)
   {
-    T *lowMid = std::max_element(aBegin, aMid);
-    m = *lowMid + (m - *lowMid)/2;
+    T* lowMid = std::max_element(aBegin, aMid);
+    m = *lowMid + (m - *lowMid) / 2;
   }
 
   return m;
@@ -107,11 +107,8 @@ T vtkComputeMedianOfArray(T *aBegin, T *aEnd)
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
-void vtkImageMedian3DExecute(vtkImageMedian3D *self,
-                             vtkImageData *inData, T *inPtr,
-                             vtkImageData *outData, T *outPtr,
-                             int outExt[6], int id,
-                             vtkDataArray *inArray)
+void vtkImageMedian3DExecute(vtkImageMedian3D* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, T* outPtr, int outExt[6], int id, vtkDataArray* inArray)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -128,7 +125,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   // The portion of the out image that needs no boundary processing.
   int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
   int numComp;
-  int *inExt;
+  int* inExt;
   unsigned long count = 0;
   unsigned long target;
 
@@ -138,7 +135,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   }
 
   // Array used to compute the median
-  T *workArray = new T[self->GetNumberOfElements()];
+  T* workArray = new T[self->GetNumberOfElements()];
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
@@ -165,8 +162,10 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   hoodMax2 = (hoodMax2 < inExt[5]) ? hoodMax2 : inExt[5];
 
   // Save the starting neighborhood dimensions (2 loops only once)
-  hoodStartMin0 = hoodMin0;    hoodStartMax0 = hoodMax0;
-  hoodStartMin1 = hoodMin1;    hoodStartMax1 = hoodMax1;
+  hoodStartMin0 = hoodMin0;
+  hoodStartMax0 = hoodMax0;
+  hoodStartMin1 = hoodMin1;
+  hoodStartMax1 = hoodMax1;
 
   // The portion of the output that needs no boundary computation.
   middleMin0 = inExt[0] + kernelMiddle[0];
@@ -176,29 +175,26 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   middleMin2 = inExt[4] + kernelMiddle[2];
   middleMax2 = inExt[5] - (kernelSize[2] - 1) + kernelMiddle[2];
 
-  target = static_cast<unsigned long>((outExt[5] - outExt[4] + 1)*
-                                      (outExt[3] - outExt[2] + 1)/50.0);
+  target =
+    static_cast<unsigned long>((outExt[5] - outExt[4] + 1) * (outExt[3] - outExt[2] + 1) / 50.0);
   target++;
 
   // loop through pixel of output
-  inPtr = static_cast<T *>(
-    inArray->GetVoidPointer((hoodMin0 - inExt[0])* inInc0 +
-                            (hoodMin1 - inExt[2])* inInc1 +
-                            (hoodMin2 - inExt[4])* inInc2));
+  inPtr = static_cast<T*>(inArray->GetVoidPointer((hoodMin0 - inExt[0]) * inInc0 +
+    (hoodMin1 - inExt[2]) * inInc1 + (hoodMin2 - inExt[4]) * inInc2));
   inPtr2 = inPtr;
   for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
   {
     inPtr1 = inPtr2;
     hoodMin1 = hoodStartMin1;
     hoodMax1 = hoodStartMax1;
-    for (outIdx1 = outExt[2];
-         !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+    for (outIdx1 = outExt[2]; !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -210,7 +206,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
         for (outIdxC = 0; outIdxC < numComp; outIdxC++)
         {
           // Compute median of neighborhood
-          T *workEnd = workArray;
+          T* workEnd = workArray;
 
           // loop through neighborhood pixels
           tmpPtr2 = inPtr0 + outIdxC;
@@ -271,24 +267,20 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     outPtr += outIncZ;
   }
 
-  delete [] workArray;
+  delete[] workArray;
 }
 
 //-----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian3D::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  void *inPtr;
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  void* inPtr;
+  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
+  vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
   if (id == 0)
   {
     outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
@@ -300,18 +292,14 @@ void vtkImageMedian3D::ThreadedRequestData(
   if (inArray->GetDataType() != outData[0]->GetScalarType())
   {
     vtkErrorMacro(<< "Execute: input data type, " << inArray->GetDataType()
-                << ", must match out ScalarType "
-                  << outData[0]->GetScalarType());
+                  << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
   }
 
   switch (inArray->GetDataType())
   {
-    vtkTemplateMacro(
-      vtkImageMedian3DExecute(this,inData[0][0],
-                              static_cast<VTK_TT *>(inPtr),
-                              outData[0], static_cast<VTK_TT *>(outPtr),
-                              outExt, id,inArray));
+    vtkTemplateMacro(vtkImageMedian3DExecute(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+      outData[0], static_cast<VTK_TT*>(outPtr), outExt, id, inArray));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

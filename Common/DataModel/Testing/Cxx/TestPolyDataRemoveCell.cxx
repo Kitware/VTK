@@ -19,8 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-
-int TestPolyDataRemoveCell(int , char *[])
+int TestPolyDataRemoveCell(int, char*[])
 {
   int rval = 0;
 
@@ -29,41 +28,41 @@ int TestPolyDataRemoveCell(int , char *[])
   vtkIdType numLines = 8;
   vtkIdType numTriangles = 3;
   vtkIdType numStrips = 2;
-  vtkIdType numCells = numVerts+numLines+numTriangles+numStrips;
+  vtkIdType numCells = numVerts + numLines + numTriangles + numStrips;
   vtkIdType i;
 
   vtkPoints* points = vtkPoints::New();
   points->SetNumberOfPoints(numPoints);
-  for(i=0;i<numPoints;i++)
+  for (i = 0; i < numPoints; i++)
   {
-    double loc[3] = {static_cast<double>(i), static_cast<double>(i*i), 0.0};
+    double loc[3] = { static_cast<double>(i), static_cast<double>(i * i), 0.0 };
     points->InsertPoint(i, loc);
   }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
-  poly->Allocate(numCells, numCells);
+  poly->AllocateExact(numCells, numCells);
   poly->SetPoints(points);
   points->Delete();
 
-  for(i=0;i<numVerts;i++)
+  for (i = 0; i < numVerts; i++)
   {
     poly->InsertNextCell(VTK_VERTEX, 1, &i);
   }
 
-  for(i=0;i<numLines;i++)
+  for (i = 0; i < numLines; i++)
   {
-    vtkIdType pts[2] = {i, i+1};
+    vtkIdType pts[2] = { i, i + 1 };
     poly->InsertNextCell(VTK_LINE, 2, pts);
   }
 
-  for(i=0;i<numTriangles;i++)
+  for (i = 0; i < numTriangles; i++)
   {
-    vtkIdType pts[3] = {0, i+1, i+2};
+    vtkIdType pts[3] = { 0, i + 1, i + 2 };
     poly->InsertNextCell(VTK_TRIANGLE, 3, pts);
   }
 
-  for(i=0;i<numStrips;i++)
+  for (i = 0; i < numStrips; i++)
   {
-    vtkIdType pts[3] = {0, i+1, i+2};
+    vtkIdType pts[3] = { 0, i + 1, i + 2 };
     poly->InsertNextCell(VTK_TRIANGLE_STRIP, 3, pts);
   }
 
@@ -72,7 +71,7 @@ int TestPolyDataRemoveCell(int , char *[])
   cellTypes->SetName(ctName);
   cellTypes->SetNumberOfComponents(1);
   cellTypes->SetNumberOfTuples(numCells);
-  for(i=0;i<numCells;i++)
+  for (i = 0; i < numCells; i++)
   {
     cellTypes->SetValue(i, poly->GetCellType(i));
   }
@@ -84,14 +83,15 @@ int TestPolyDataRemoveCell(int , char *[])
   cellPoints->SetName(cpName);
   cellPoints->SetNumberOfComponents(4); // num points + point ids
   cellPoints->SetNumberOfTuples(numCells);
-  for(i=0;i<numCells;i++)
+  for (i = 0; i < numCells; i++)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType* pts;
     poly->GetCellPoints(i, npts, pts);
-    vtkIdType data[4] = {npts, pts[0], 0, 0};
-    for(vtkIdType j=1;j<npts;j++)
+    vtkIdType data[4] = { npts, pts[0], 0, 0 };
+    for (vtkIdType j = 1; j < npts; j++)
     {
-      data[j+1] = pts[j];
+      data[j + 1] = pts[j];
     }
     cellPoints->SetTypedTuple(i, data);
   }
@@ -100,14 +100,14 @@ int TestPolyDataRemoveCell(int , char *[])
 
   poly->BuildCells();
   // now that we're all set up, try deleting one of each object
-  poly->DeleteCell(numVerts-1); // vertex
-  poly->DeleteCell(numVerts+numLines-1); // line
-  poly->DeleteCell(numVerts+numLines+numTriangles-1); // triangle
-  poly->DeleteCell(numCells-1); // strip
+  poly->DeleteCell(numVerts - 1);                           // vertex
+  poly->DeleteCell(numVerts + numLines - 1);                // line
+  poly->DeleteCell(numVerts + numLines + numTriangles - 1); // triangle
+  poly->DeleteCell(numCells - 1);                           // strip
 
   poly->RemoveDeletedCells();
 
-  if(poly->GetNumberOfCells() != numCells-4)
+  if (poly->GetNumberOfCells() != numCells - 4)
   {
     cout << "Wrong number of cells after removal.\n";
     return 1;
@@ -118,9 +118,9 @@ int TestPolyDataRemoveCell(int , char *[])
   cellPoints = vtkArrayDownCast<vtkIdTypeArray>(poly->GetCellData()->GetArray(cpName));
 
   // check the cell types and arrays
-  for(i=0;i<poly->GetNumberOfCells();i++)
+  for (i = 0; i < poly->GetNumberOfCells(); i++)
   {
-    if(cellTypes->GetValue(i) != poly->GetCellType(i))
+    if (cellTypes->GetValue(i) != poly->GetCellType(i))
     {
       cout << "Problem with cell type for cell " << i << endl;
       return 1;
@@ -128,20 +128,21 @@ int TestPolyDataRemoveCell(int , char *[])
   }
 
   // check the cell's points
-  for(i=0;i<poly->GetNumberOfCells();i++)
+  for (i = 0; i < poly->GetNumberOfCells(); i++)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType* pts;
     poly->GetCellPoints(i, npts, pts);
     vtkIdType data[4];
     cellPoints->GetTypedTuple(i, data);
-    if(data[0] != npts)
+    if (data[0] != npts)
     {
       cout << "Problem with the number of points for cell " << i << endl;
       return 1;
     }
-    for(vtkIdType j=0;j<npts;j++)
+    for (vtkIdType j = 0; j < npts; j++)
     {
-      if(pts[j] != data[j+1])
+      if (pts[j] != data[j + 1])
       {
         cout << "Problem with point " << j << " for cell " << i << endl;
         return 1;
@@ -151,5 +152,3 @@ int TestPolyDataRemoveCell(int , char *[])
 
   return rval;
 }
-
-

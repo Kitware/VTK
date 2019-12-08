@@ -31,7 +31,7 @@
  * @par Thanks:
  * Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories
  * contributed code to this class.
-*/
+ */
 
 #ifndef vtkAnnotation_h
 #define vtkAnnotation_h
@@ -65,7 +65,7 @@ public:
    * Retrieve a vtkAnnotation stored inside an information object.
    */
   static vtkAnnotation* GetData(vtkInformation* info);
-  static vtkAnnotation* GetData(vtkInformationVector* v, int i=0);
+  static vtkAnnotation* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -137,8 +137,6 @@ protected:
 private:
   vtkAnnotation(const vtkAnnotation&) = delete;
   void operator=(const vtkAnnotation&) = delete;
-
 };
 
 #endif
-

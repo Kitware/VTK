@@ -21,9 +21,9 @@
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkContext3D)
+vtkStandardNewMacro(vtkContext3D);
 
-void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkContext3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Context Device: ";
@@ -38,7 +38,7 @@ void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
   }
 }
 
-bool vtkContext3D::Begin(vtkContextDevice3D *device)
+bool vtkContext3D::Begin(vtkContextDevice3D* device)
 {
   if (this->Device == device)
   {
@@ -48,7 +48,7 @@ bool vtkContext3D::Begin(vtkContextDevice3D *device)
   return true;
 }
 
-vtkContextDevice3D * vtkContext3D::GetDevice()
+vtkContextDevice3D* vtkContext3D::GetDevice()
 {
   return this->Device;
 }
@@ -62,58 +62,56 @@ bool vtkContext3D::End()
   return true;
 }
 
-void vtkContext3D::DrawLine(const vtkVector3f &start, const vtkVector3f &end)
+void vtkContext3D::DrawLine(const vtkVector3f& start, const vtkVector3f& end)
 {
   assert(this->Device);
   vtkVector3f line[2] = { start, end };
   this->Device->DrawPoly(line[0].GetData(), 2);
 }
 
-void vtkContext3D::DrawPoly(const float *points, int n)
+void vtkContext3D::DrawPoly(const float* points, int n)
 {
   assert(this->Device);
   this->Device->DrawPoly(points, n);
 }
 
-void vtkContext3D::DrawPoint(const vtkVector3f &point)
+void vtkContext3D::DrawPoint(const vtkVector3f& point)
 {
   assert(this->Device);
   this->Device->DrawPoints(point.GetData(), 1);
 }
 
-void vtkContext3D::DrawPoints(const float *points, int n)
+void vtkContext3D::DrawPoints(const float* points, int n)
 {
   assert(this->Device);
   this->Device->DrawPoints(points, n);
 }
 
-void vtkContext3D::DrawPoints(const float *points, int n,
-                              unsigned char *colors, int nc_comps)
+void vtkContext3D::DrawPoints(const float* points, int n, unsigned char* colors, int nc_comps)
 {
   assert(this->Device);
   this->Device->DrawPoints(points, n, colors, nc_comps);
 }
 
-void vtkContext3D::DrawTriangleMesh(const float *mesh, int n,
-                                    const unsigned char *colors, int nc)
+void vtkContext3D::DrawTriangleMesh(const float* mesh, int n, const unsigned char* colors, int nc)
 {
   assert(this->Device);
   this->Device->DrawTriangleMesh(mesh, n, colors, nc);
 }
 
-void vtkContext3D::ApplyPen(vtkPen *pen)
+void vtkContext3D::ApplyPen(vtkPen* pen)
 {
   assert(this->Device);
   this->Device->ApplyPen(pen);
 }
 
-void vtkContext3D::ApplyBrush(vtkBrush *brush)
+void vtkContext3D::ApplyBrush(vtkBrush* brush)
 {
   assert(this->Device);
   this->Device->ApplyBrush(brush);
 }
 
-void vtkContext3D::SetTransform(vtkTransform *transform)
+void vtkContext3D::SetTransform(vtkTransform* transform)
 {
   if (transform)
   {
@@ -121,7 +119,7 @@ void vtkContext3D::SetTransform(vtkTransform *transform)
   }
 }
 
-vtkTransform * vtkContext3D::GetTransform()
+vtkTransform* vtkContext3D::GetTransform()
 {
   if (this->Device && this->Transform)
   {
@@ -131,9 +129,9 @@ vtkTransform * vtkContext3D::GetTransform()
   return nullptr;
 }
 
-void vtkContext3D::AppendTransform(vtkTransform *transform)
+void vtkContext3D::AppendTransform(vtkTransform* transform)
 {
-  if(transform)
+  if (transform)
   {
     this->Device->MultiplyMatrix(transform->GetMatrix());
   }
@@ -149,7 +147,7 @@ void vtkContext3D::PopMatrix()
   this->Device->PopMatrix();
 }
 
-void vtkContext3D::EnableClippingPlane(int i, double *planeEquation)
+void vtkContext3D::EnableClippingPlane(int i, double* planeEquation)
 {
   assert(this->Device);
   this->Device->EnableClippingPlane(i, planeEquation);

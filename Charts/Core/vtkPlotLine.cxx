@@ -16,10 +16,10 @@
 #include "vtkPlotLine.h"
 
 #include "vtkContext2D.h"
-#include "vtkPen.h"
-#include "vtkRect.h"
-#include "vtkPoints2D.h"
 #include "vtkIdTypeArray.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkRect.h"
 
 #include "vtkObjectFactory.h"
 
@@ -37,7 +37,7 @@ vtkPlotLine::vtkPlotLine()
 vtkPlotLine::~vtkPlotLine() = default;
 
 //-----------------------------------------------------------------------------
-bool vtkPlotLine::Paint(vtkContext2D *painter)
+bool vtkPlotLine::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotLine.");
@@ -53,7 +53,7 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
   {
     // draw lines skipping bad points
-    float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
+    float* points = static_cast<float*>(this->Points->GetVoidPointer(0));
     const int pointSize = 2;
     vtkIdType lastGood = 0;
     vtkIdType bpIdx = 0;
@@ -63,8 +63,8 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 
     while (lastGood < nPoints)
     {
-      vtkIdType id = bpIdx < nBadPoints ?
-        this->BadPoints->GetValue(bpIdx) : this->Points->GetNumberOfPoints();
+      vtkIdType id =
+        bpIdx < nBadPoints ? this->BadPoints->GetValue(bpIdx) : this->Points->GetNumberOfPoints();
 
       // With non polyline, we discard a line if any of its points are bad
       if (!this->PolyLine && id % 2 == 1)
@@ -107,17 +107,16 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotLine::PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int)
+bool vtkPlotLine::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int)
 {
   painter->ApplyPen(this->Pen);
-  painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
-                    rect[0]+rect[2], rect[1]+0.5*rect[3]);
+  painter->DrawLine(rect[0], rect[1] + 0.5 * rect[3], rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
   this->Superclass::PaintLegend(painter, rect, 0);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotLine::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlotLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

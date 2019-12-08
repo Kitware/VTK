@@ -1,20 +1,20 @@
 
 #include "TreeRingViewItem.h"
-#include "vtkTreeRingView.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "QVTKInteractor.h"
-#include "vtkXMLTreeReader.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkRenderedTreeAreaRepresentation.h"
-#include "vtkViewTheme.h"
-#include "vtkTextProperty.h"
 #include "vtkRenderer.h"
+#include "vtkTextProperty.h"
+#include "vtkTreeRingView.h"
+#include "vtkViewTheme.h"
+#include "vtkXMLTreeReader.h"
 #include <QFile>
 
 TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   : QVTKGraphicsItem(ctx, p)
 {
   QPalette pal = this->palette();
-  pal.setColor(QPalette::Window, QColor(255,255,255,250));
+  pal.setColor(QPalette::Window, QColor(255, 255, 255, 250));
   this->setPalette(pal);
 
   TreeRingView.TakeReference(vtkTreeRingView::New());
@@ -50,18 +50,19 @@ TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   TreeRingView->SetAreaColorArrayName("VertexDegree");
 
   // Uncomment for edge colors
-  //TreeRingView->SetEdgeColorArrayName("graph edge");
-  //TreeRingView->SetColorEdges(true);
+  // TreeRingView->SetEdgeColorArrayName("graph edge");
+  // TreeRingView->SetColorEdges(true);
 
   // Uncomment for edge labels
-  //TreeRingView->SetEdgeLabelArrayName("graph edge");
-  //TreeRingView->SetEdgeLabelVisibility(true);
+  // TreeRingView->SetEdgeLabelArrayName("graph edge");
+  // TreeRingView->SetEdgeLabelVisibility(true);
 
   TreeRingView->SetAreaLabelArrayName("id");
   TreeRingView->SetAreaLabelVisibility(true);
   TreeRingView->SetAreaHoverArrayName("id");
   TreeRingView->SetAreaSizeArrayName("VertexDegree");
-  vtkRenderedTreeAreaRepresentation::SafeDownCast(TreeRingView->GetRepresentation())->SetGraphHoverArrayName("graph edge");
+  vtkRenderedTreeAreaRepresentation::SafeDownCast(TreeRingView->GetRepresentation())
+    ->SetGraphHoverArrayName("graph edge");
 
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
   theme->SetLineWidth(1);
@@ -70,13 +71,9 @@ TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   theme->Delete();
 
   this->TreeRingView->GetRenderer()->SetGradientBackground(0);
-  this->TreeRingView->GetRenderer()->SetBackground(0.1,0.1,0.1);
+  this->TreeRingView->GetRenderer()->SetBackground(0.1, 0.1, 0.1);
 
   TreeRingView->ResetCamera();
-
-
 }
 
-TreeRingViewItem::~TreeRingViewItem()
-{
-}
+TreeRingViewItem::~TreeRingViewItem() {}

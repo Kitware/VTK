@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkParametricSpline.h"
 #include "vtkCardinalSpline.h"
 #include "vtkKochanekSpline.h"
-#include "vtkPoints.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkParametricSpline.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 
 #include <cmath>
 
@@ -30,14 +30,13 @@ int TestSetGet();
 int TestConstraints();
 int TestErrors();
 int TestMisc();
-int TestSetPoints(vtkPoints *, bool closed = false);
+int TestSetPoints(vtkPoints*, bool closed = false);
 void GeneratePoints(int, vtkSmartPointer<vtkPoints>&);
 void GenerateRandomPoints(int, vtkSmartPointer<vtkPoints>&);
-int UnitTestParametricSpline(int,char *[])
+int UnitTestParametricSpline(int, char*[])
 {
   int status = 0;
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   GeneratePoints(100, points);
   TestPrint();
   status += TestErrors();
@@ -50,7 +49,7 @@ int UnitTestParametricSpline(int,char *[])
   return status == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void GeneratePoints(int npts, vtkSmartPointer<vtkPoints> &points)
+void GeneratePoints(int npts, vtkSmartPointer<vtkPoints>& points)
 {
   points->SetNumberOfPoints(npts);
   double deltaX = vtkMath::Pi() * 2.0 / (npts - 1);
@@ -65,12 +64,11 @@ void GeneratePoints(int npts, vtkSmartPointer<vtkPoints> &points)
   }
 }
 
-int TestSetPoints(vtkPoints *points, bool closed)
+int TestSetPoints(vtkPoints* points, bool closed)
 {
   int status = 0;
 
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
   if (closed)
   {
     pspline->ClosedOn();
@@ -79,7 +77,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
   {
     pspline->ClosedOff();
   }
-  int npts =  points->GetNumberOfPoints();
+  int npts = points->GetNumberOfPoints();
 
   pspline->SetNumberOfPoints(npts);
 
@@ -88,7 +86,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
   vtkPoints* knots = vtkPoints::New(VTK_DOUBLE);
   knots->SetNumberOfPoints(npts);
 
-  double xm1[3] = {0.0,0.0,0.0};
+  double xm1[3] = { 0.0, 0.0, 0.0 };
   double x[3];
   for (int n = 0; n < npts; ++n)
   {
@@ -109,7 +107,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
     length += std::sqrt(vtkMath::Distance2BetweenPoints(x, xm1));
   }
 
-  double tolerance = 4.0*std::numeric_limits<double>::epsilon();
+  double tolerance = 4.0 * std::numeric_limits<double>::epsilon();
   pspline->ParameterizeByLengthOff();
   for (int n = 0; n < npts; ++n)
   {
@@ -129,20 +127,17 @@ int TestSetPoints(vtkPoints *points, bool closed)
     double result[3];
     pspline->Evaluate(t, result, nullptr);
     if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
-        !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
-        !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
+      !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
+      !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
     {
-      std::cout << "TestSetPoints(by point id): Expected "
-                << x[0] << ", " << x[1] << ", " << x[2]
-                << " but got "
-                << result[0] << ", " << result[1] << ", " << result[2]
-                << std::endl;
+      std::cout << "TestSetPoints(by point id): Expected " << x[0] << ", " << x[1] << ", " << x[2]
+                << " but got " << result[0] << ", " << result[1] << ", " << result[2] << std::endl;
       ++status;
     }
   }
 
   // Test with externally created points
-  tolerance = 8.0*std::numeric_limits<double>::epsilon();
+  tolerance = 8.0 * std::numeric_limits<double>::epsilon();
   pspline->SetPoints(points);
   pspline->ParameterizeByLengthOn();
   double totalLength = length;
@@ -163,14 +158,11 @@ int TestSetPoints(vtkPoints *points, bool closed)
     double result[3];
     pspline->Evaluate(t, result, nullptr);
     if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
-        !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
-        !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
+      !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
+      !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
     {
-      std::cout << "TestSetPoints(by length): Expected "
-                << x[0] << ", " << x[1] << ", " << x[2]
-                << " but got "
-                << result[0] << ", " << result[1] << ", " << result[2]
-                << std::endl;
+      std::cout << "TestSetPoints(by length): Expected " << x[0] << ", " << x[1] << ", " << x[2]
+                << " but got " << result[0] << ", " << result[1] << ", " << result[2] << std::endl;
       ++status;
     }
     xm1[0] = x[0];
@@ -185,23 +177,23 @@ int TestSetPoints(vtkPoints *points, bool closed)
 int TestErrors()
 {
   int status = 0;
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
   pspline->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   double x[3];
-  x[0] = 0.0; x[1] = 0.0; x[2] = 0.0;
+  x[0] = 0.0;
+  x[1] = 0.0;
+  x[2] = 0.0;
   double result[3];
 
   pspline->Evaluate(x, result, nullptr);
   // Check for model bounds error
   if (errorObserver->GetError())
   {
-    std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+    std::cout << "Caught expected error: " << errorObserver->GetErrorMessage();
   }
   else
   {
@@ -214,8 +206,7 @@ int TestErrors()
   pspline->EvaluateScalar(x, nullptr, nullptr);
   if (errorObserver->GetError())
   {
-    std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+    std::cout << "Caught expected error: " << errorObserver->GetErrorMessage();
   }
   else
   {
@@ -228,8 +219,7 @@ int TestErrors()
   pspline->Evaluate(x, result, nullptr);
   if (errorObserver->GetError())
   {
-    std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+    std::cout << "Caught expected error: " << errorObserver->GetErrorMessage();
   }
   else
   {
@@ -244,27 +234,24 @@ int TestErrors()
 int TestSetGet()
 {
   int status = 0;
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
 
   if (pspline->GetDimension() != 1)
   {
-    std::cout << "GetDimension: expected 1 but got "
-              << pspline->GetDimension()<< std::endl;
+    std::cout << "GetDimension: expected 1 but got " << pspline->GetDimension() << std::endl;
     ++status;
   }
 
   if (pspline->GetParameterizeByLength() != 1)
   {
     std::cout << "GetParameterizeByLength: expected 1 but got "
-              << pspline->GetParameterizeByLength()<< std::endl;
+              << pspline->GetParameterizeByLength() << std::endl;
     ++status;
   }
 
   if (pspline->GetPoints() != nullptr)
   {
-    std::cout << "GetPoints: Expected nullptr but got "
-              << pspline->GetPoints() << std::endl;
+    std::cout << "GetPoints: Expected nullptr but got " << pspline->GetPoints() << std::endl;
     ++status;
   }
 
@@ -273,61 +260,58 @@ int TestSetGet()
   if (className != "vtkCardinalSpline")
   {
     std::cout << "GetXSpline: Expected "
-              << "vtkCardinalSpline" << " but got "
-              << className << std::endl;
+              << "vtkCardinalSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
   className = pspline->GetYSpline()->GetClassName();
   if (className != "vtkCardinalSpline")
   {
     std::cout << "GetYSpline: Expected "
-              << "vtkCardinalSpline" << " but got "
-              << className << std::endl;
+              << "vtkCardinalSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
   className = pspline->GetZSpline()->GetClassName();
   if (className != "vtkCardinalSpline")
   {
     std::cout << "GetZSpline: Expected "
-              << "vtkCardinalSpline" << " but got "
-              << className << std::endl;
+              << "vtkCardinalSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
 
   // Now change the spline tyeps
-  vtkSmartPointer<vtkKochanekSpline> xSpline =
-    vtkSmartPointer<vtkKochanekSpline>::New();
+  vtkSmartPointer<vtkKochanekSpline> xSpline = vtkSmartPointer<vtkKochanekSpline>::New();
   pspline->SetXSpline(xSpline);
   className = pspline->GetXSpline()->GetClassName();
   if (className != "vtkKochanekSpline")
   {
     std::cout << "GetXSpline: Expected "
-              << "vtkKochanekSpline" << " but got "
-              << className << std::endl;
+              << "vtkKochanekSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
 
-  vtkSmartPointer<vtkKochanekSpline> ySpline =
-    vtkSmartPointer<vtkKochanekSpline>::New();
+  vtkSmartPointer<vtkKochanekSpline> ySpline = vtkSmartPointer<vtkKochanekSpline>::New();
   pspline->SetYSpline(ySpline);
   className = pspline->GetYSpline()->GetClassName();
   if (className != "vtkKochanekSpline")
   {
     std::cout << "GetYSpline: Expected "
-              << "vtkKochanekSpline" << " but got "
-              << className << std::endl;
+              << "vtkKochanekSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
 
-  vtkSmartPointer<vtkKochanekSpline> zSpline =
-    vtkSmartPointer<vtkKochanekSpline>::New();
+  vtkSmartPointer<vtkKochanekSpline> zSpline = vtkSmartPointer<vtkKochanekSpline>::New();
   pspline->SetZSpline(zSpline);
   className = pspline->GetZSpline()->GetClassName();
   if (className != "vtkKochanekSpline")
   {
     std::cout << "GetZSpline: Expected "
-              << "vtkKochanekSpline" << " but got "
-              << className << std::endl;
+              << "vtkKochanekSpline"
+              << " but got " << className << std::endl;
     ++status;
   }
 
@@ -338,8 +322,7 @@ int TestConstraints()
 {
   int status = 0;
 
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
 
   pspline->SetNumberOfPoints(2);
   double x[3], result[3];
@@ -355,60 +338,42 @@ int TestConstraints()
   // Force initialize
   pspline->Evaluate(x, result, nullptr);
 
-  if (pspline->GetXSpline()->GetLeftConstraint() !=
-      pspline->GetLeftConstraint())
+  if (pspline->GetXSpline()->GetLeftConstraint() != pspline->GetLeftConstraint())
   {
-    std::cout << "GetXSpline->GetLeftContraint: Expected "
-              << pspline->GetLeftConstraint()
-              << " but got " << pspline->GetXSpline()->GetLeftConstraint()
-              << std::endl;
+    std::cout << "GetXSpline->GetLeftContraint: Expected " << pspline->GetLeftConstraint()
+              << " but got " << pspline->GetXSpline()->GetLeftConstraint() << std::endl;
     ++status;
   }
-  if (pspline->GetXSpline()->GetLeftValue() !=
-      pspline->GetLeftValue())
+  if (pspline->GetXSpline()->GetLeftValue() != pspline->GetLeftValue())
   {
-    std::cout << "GetXSpline->GetLeftValue: Expected "
-              << pspline->GetLeftValue()
-              << " but got " << pspline->GetXSpline()->GetLeftValue()
-              << std::endl;
+    std::cout << "GetXSpline->GetLeftValue: Expected " << pspline->GetLeftValue() << " but got "
+              << pspline->GetXSpline()->GetLeftValue() << std::endl;
     ++status;
   }
 
-  if (pspline->GetYSpline()->GetLeftConstraint() !=
-      pspline->GetLeftConstraint())
+  if (pspline->GetYSpline()->GetLeftConstraint() != pspline->GetLeftConstraint())
   {
-    std::cout << "GetYSpline->GetLeftContraint: Expected "
-              << pspline->GetLeftConstraint()
-              << " but got " << pspline->GetYSpline()->GetLeftConstraint()
-              << std::endl;
+    std::cout << "GetYSpline->GetLeftContraint: Expected " << pspline->GetLeftConstraint()
+              << " but got " << pspline->GetYSpline()->GetLeftConstraint() << std::endl;
     ++status;
   }
-  if (pspline->GetYSpline()->GetLeftValue() !=
-      pspline->GetLeftValue())
+  if (pspline->GetYSpline()->GetLeftValue() != pspline->GetLeftValue())
   {
-    std::cout << "GetYSpline->GetLeftValue: Expected "
-              << pspline->GetLeftValue()
-              << " but got " << pspline->GetYSpline()->GetLeftValue()
-              << std::endl;
+    std::cout << "GetYSpline->GetLeftValue: Expected " << pspline->GetLeftValue() << " but got "
+              << pspline->GetYSpline()->GetLeftValue() << std::endl;
     ++status;
   }
 
-  if (pspline->GetZSpline()->GetLeftConstraint() !=
-      pspline->GetLeftConstraint())
+  if (pspline->GetZSpline()->GetLeftConstraint() != pspline->GetLeftConstraint())
   {
-    std::cout << "GetZSpline->GetLeftContraint: Expected "
-              << pspline->GetLeftConstraint()
-              << " but got " << pspline->GetZSpline()->GetLeftConstraint()
-              << std::endl;
+    std::cout << "GetZSpline->GetLeftContraint: Expected " << pspline->GetLeftConstraint()
+              << " but got " << pspline->GetZSpline()->GetLeftConstraint() << std::endl;
     ++status;
   }
-  if (pspline->GetZSpline()->GetLeftValue() !=
-      pspline->GetLeftValue())
+  if (pspline->GetZSpline()->GetLeftValue() != pspline->GetLeftValue())
   {
-    std::cout << "GetZSpline->GetLeftValue: Expected "
-              << pspline->GetLeftValue()
-              << " but got " << pspline->GetZSpline()->GetLeftValue()
-              << std::endl;
+    std::cout << "GetZSpline->GetLeftValue: Expected " << pspline->GetLeftValue() << " but got "
+              << pspline->GetZSpline()->GetLeftValue() << std::endl;
     ++status;
   }
   return status;
@@ -417,8 +382,7 @@ int TestConstraints()
 int TestMisc()
 {
   int status = 0;
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
   pspline->SetNumberOfPoints(1);
   double x[3];
   x[0] = 1.0;
@@ -427,19 +391,15 @@ int TestMisc()
 
   if (pspline->EvaluateScalar(x, nullptr, nullptr) != x[0])
   {
-    std::cout << "EvaluateScalar: Expected "
-              << x[0]
-              << " but got "
-              << pspline->EvaluateScalar(x, nullptr, nullptr)
-              << std::endl;
+    std::cout << "EvaluateScalar: Expected " << x[0] << " but got "
+              << pspline->EvaluateScalar(x, nullptr, nullptr) << std::endl;
     ++status;
   }
   return status;
 }
 void TestPrint()
 {
-  vtkSmartPointer<vtkParametricSpline> pspline =
-    vtkSmartPointer<vtkParametricSpline>::New();
+  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
   // First test uninitialized spline
   pspline->Print(std::cout);
 

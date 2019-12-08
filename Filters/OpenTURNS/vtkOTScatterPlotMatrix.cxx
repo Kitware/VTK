@@ -68,9 +68,9 @@ public:
   std::map<double, vtkColor4ub> DensityMapColorMap;
 };
 
-vtkStandardNewMacro(vtkOTScatterPlotMatrix)
+vtkStandardNewMacro(vtkOTScatterPlotMatrix);
 
-  vtkOTScatterPlotMatrix::vtkOTScatterPlotMatrix()
+vtkOTScatterPlotMatrix::vtkOTScatterPlotMatrix()
 {
   this->DensityMapsSettings[vtkScatterPlotMatrix::SCATTERPLOT] =
     new vtkOTScatterPlotMatrix::DensityMapSettings;
@@ -84,11 +84,8 @@ vtkOTScatterPlotMatrix::~vtkOTScatterPlotMatrix()
 }
 
 //---------------------------------------------------------------------------
-void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
-  int plotType,
-  vtkStdString row,
-  vtkStdString column,
-  int plotCorner)
+void vtkOTScatterPlotMatrix::AddSupplementaryPlot(
+  vtkChart* chart, int plotType, vtkStdString row, vtkStdString column, int plotCorner)
 {
   vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
 
@@ -212,9 +209,8 @@ void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
 }
 
 //----------------------------------------------------------------------------
-void vtkOTScatterPlotMatrix::SetDensityMapColor(int plotType,
-  unsigned int densityLineIndex,
-  const vtkColor4ub& color)
+void vtkOTScatterPlotMatrix::SetDensityMapColor(
+  int plotType, unsigned int densityLineIndex, const vtkColor4ub& color)
 {
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
     densityLineIndex < this->DensityMapsSettings[plotType]->DensityMapValues.size())

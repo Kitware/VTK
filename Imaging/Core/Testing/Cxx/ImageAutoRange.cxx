@@ -19,36 +19,32 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageHistogramStatistics.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkPNGReader.h"
-#include "vtkImageHistogramStatistics.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 
-int ImageAutoRange(int argc, char *argv[])
+int ImageAutoRange(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkInteractorStyle> style =
-    vtkSmartPointer<vtkInteractorStyle>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkInteractorStyle> style = vtkSmartPointer<vtkInteractorStyle>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
-  vtkSmartPointer<vtkPNGReader> reader =
-    vtkSmartPointer<vtkPNGReader>::New();
+  vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/fullhead15.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
 
   reader->SetFileName(fname);
   delete[] fname;
@@ -70,23 +66,20 @@ int ImageAutoRange(int argc, char *argv[])
 
   for (int i = 0; i < 2; i++)
   {
-    vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    renderer->SetBackground(0.0,0.0,0.0);
-    renderer->SetViewport(0.5*(i&1), 0.0,
-                          0.5 + 0.5*(i&1), 1.0);
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
+    renderer->SetBackground(0.0, 0.0, 0.0);
+    renderer->SetViewport(0.5 * (i & 1), 0.0, 0.5 + 0.5 * (i & 1), 1.0);
     renWin->AddRenderer(renderer);
 
-    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
-      vtkSmartPointer<vtkImageSliceMapper>::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper = vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     camera->SetFocalPoint(point);
     point[imageMapper->GetOrientation()] += 500.0;
@@ -95,25 +88,23 @@ int ImageAutoRange(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    vtkSmartPointer<vtkImageSlice> image =
-      vtkSmartPointer<vtkImageSlice>::New();
+    vtkSmartPointer<vtkImageSlice> image = vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
     renderer->AddViewProp(image);
 
     if ((i & 1) == 0)
     {
       image->GetProperty()->SetColorWindow(range[1] - range[0]);
-      image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
+      image->GetProperty()->SetColorLevel(0.5 * (range[0] + range[1]));
     }
     else
     {
       image->GetProperty()->SetColorWindow(autorange[1] - autorange[0]);
-      image->GetProperty()->SetColorLevel(0.5*(autorange[0] + autorange[1]));
+      image->GetProperty()->SetColorLevel(0.5 * (autorange[0] + autorange[1]));
     }
-
   }
 
-  renWin->SetSize(512,256);
+  renWin->SetSize(512, 256);
 
   iren->Initialize();
   renWin->Render();

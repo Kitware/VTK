@@ -20,7 +20,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkStandardNewMacro(vtkDirectory)
+vtkStandardNewMacro(vtkDirectory);
 
 vtkDirectory::vtkDirectory()
   : Path(nullptr)
@@ -28,11 +28,10 @@ vtkDirectory::vtkDirectory()
   this->Files = vtkStringArray::New();
 }
 
-
 void vtkDirectory::CleanUpFilesAndPath()
 {
   this->Files->Reset();
-  delete [] this->Path;
+  delete[] this->Path;
   this->Path = nullptr;
 }
 
@@ -43,22 +42,20 @@ vtkDirectory::~vtkDirectory()
   this->Files = nullptr;
 }
 
-
-
 void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Files:  (" << this->Files << ")\n";
-  if(!this->Path)
+  if (!this->Path)
   {
     os << indent << "Directory not open\n";
     return;
   }
 
-  os << indent << "Directory for: " <<  this->Path << "\n";
+  os << indent << "Directory for: " << this->Path << "\n";
   os << indent << "Contains the following files:\n";
   indent = indent.GetNextIndent();
-  for(int i = 0; i < this->Files->GetNumberOfValues(); i++)
+  for (int i = 0; i < this->Files->GetNumberOfValues(); i++)
   {
     os << indent << this->Files->GetValue(i) << "\n";
   }
@@ -68,13 +65,13 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__)
 #include "vtkWindows.h"
-#include <io.h>
 #include <cctype>
-#include <direct.h>
-#include <fcntl.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <direct.h>
+#include <fcntl.h>
+#include <io.h>
 #include <sys/types.h>
 
 int vtkDirectory::Open(const char* name)
@@ -82,7 +79,7 @@ int vtkDirectory::Open(const char* name)
   // clean up from any previous open
   this->CleanUpFilesAndPath();
 
-  char* buf=0;
+  char* buf = 0;
   int n = static_cast<int>(strlen(name));
   if (name[n - 1] == '/')
   {
@@ -94,7 +91,7 @@ int vtkDirectory::Open(const char* name)
     buf = new char[n + 2 + 1];
     snprintf(buf, n + 2 + 1, "%s/*", name);
   }
-  struct _finddata_t data;      // data of current file
+  struct _finddata_t data; // data of current file
 
   // First count the number of files in the directory
   intptr_t srchHandle;
@@ -108,22 +105,20 @@ int vtkDirectory::Open(const char* name)
     return 0;
   }
 
-  delete [] buf;
+  delete[] buf;
 
   // Loop through names
   do
   {
     this->Files->InsertNextValue(data.name);
-  }
-  while (_findnext(srchHandle, &data) != -1);
+  } while (_findnext(srchHandle, &data) != -1);
 
-  this->Path = strcpy(new char[strlen(name)+1], name);
+  this->Path = strcpy(new char[strlen(name) + 1], name);
 
   return _findclose(srchHandle) != -1;
 }
 
-const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
-                                                     unsigned int len)
+const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len)
 {
   return _getcwd(buf, len);
 }
@@ -132,8 +127,8 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 
 // Now the POSIX style directory access
 
-#include <sys/types.h>
 #include <dirent.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 // PGI with glibc has trouble with dirent and large file support:
@@ -141,13 +136,13 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 //  p=1992&sid=f16167f51964f1a68fe5041b8eb213b6
 // Work around the problem by mapping dirent the same way as readdir.
 #if defined(__PGI) && defined(__GLIBC__)
-# define vtkdirectory_dirent_readdir dirent
-# define vtkdirectory_dirent_readdir64 dirent64
-# define vtkdirectory_dirent vtkdirectory_dirent_lookup(readdir)
-# define vtkdirectory_dirent_lookup(x) vtkdirectory_dirent_lookup_delay(x)
-# define vtkdirectory_dirent_lookup_delay(x) vtkdirectory_dirent_##x
+#define vtkdirectory_dirent_readdir dirent
+#define vtkdirectory_dirent_readdir64 dirent64
+#define vtkdirectory_dirent vtkdirectory_dirent_lookup(readdir)
+#define vtkdirectory_dirent_lookup(x) vtkdirectory_dirent_lookup_delay(x)
+#define vtkdirectory_dirent_lookup_delay(x) vtkdirectory_dirent_##x
 #else
-# define vtkdirectory_dirent dirent
+#define vtkdirectory_dirent dirent
 #endif
 
 int vtkDirectory::Open(const char* name)
@@ -162,21 +157,20 @@ int vtkDirectory::Open(const char* name)
     return 0;
   }
 
-  vtkdirectory_dirent* d =nullptr;
+  vtkdirectory_dirent* d = nullptr;
 
   for (d = readdir(dir); d; d = readdir(dir))
   {
     this->Files->InsertNextValue(d->d_name);
   }
-  this->Path = strcpy(new char[strlen(name)+1], name);
+  this->Path = strcpy(new char[strlen(name) + 1], name);
 
   closedir(dir);
 
   return 1;
 }
 
-const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
-                                                     unsigned int len)
+const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len)
 {
   return getcwd(buf, len);
 }
@@ -189,18 +183,16 @@ int vtkDirectory::MakeDirectory(const char* dir)
   return vtksys::SystemTools::MakeDirectory(dir);
 }
 
-
 const char* vtkDirectory::GetFile(vtkIdType index)
 {
-  if(index >= this->Files->GetNumberOfValues() || index < 0)
+  if (index >= this->Files->GetNumberOfValues() || index < 0)
   {
-    vtkErrorMacro( << "Bad index for GetFile on vtkDirectory\n");
+    vtkErrorMacro(<< "Bad index for GetFile on vtkDirectory\n");
     return nullptr;
   }
 
   return this->Files->GetValue(index).c_str();
 }
-
 
 vtkIdType vtkDirectory::GetNumberOfFiles()
 {
@@ -208,7 +200,7 @@ vtkIdType vtkDirectory::GetNumberOfFiles()
 }
 
 //----------------------------------------------------------------------------
-int vtkDirectory::FileIsDirectory(const char *name)
+int vtkDirectory::FileIsDirectory(const char* name)
 {
   // The vtksys::SystemTools::FileIsDirectory()
   // does not equal the following code (it probably should),
@@ -248,7 +240,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
   }
 #endif
 
-  char *fullPath;
+  char* fullPath;
 
   int n = 0;
   if (!absolutePath && this->Path)
@@ -258,14 +250,13 @@ int vtkDirectory::FileIsDirectory(const char *name)
 
   int m = static_cast<int>(strlen(name));
 
-  fullPath = new char[n+m+2];
+  fullPath = new char[n + m + 2];
 
   if (!absolutePath && this->Path)
   {
     strcpy(fullPath, this->Path);
 #if defined(_WIN32)
-    if (fullPath[n-1] != '/'
-        && fullPath[n-1] != '\\')
+    if (fullPath[n - 1] != '/' && fullPath[n - 1] != '\\')
     {
 #if !defined(__CYGWIN__)
       fullPath[n++] = '\\';
@@ -274,7 +265,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
 #endif
     }
 #else
-    if (fullPath[n-1] != '/')
+    if (fullPath[n - 1] != '/')
     {
       fullPath[n++] = '/';
     }
@@ -285,7 +276,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
 
   int result = 0;
   vtksys::SystemTools::Stat_t fs;
-  if(vtksys::SystemTools::Stat(fullPath, &fs) == 0)
+  if (vtksys::SystemTools::Stat(fullPath, &fs) == 0)
   {
 #if defined(_WIN32)
     result = ((fs.st_mode & _S_IFDIR) != 0);
@@ -294,7 +285,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
 #endif
   }
 
-  delete [] fullPath;
+  delete[] fullPath;
 
   return result;
 }

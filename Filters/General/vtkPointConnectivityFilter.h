@@ -22,13 +22,13 @@
  * connectivity is the number of cells that use each point. The output
  * scalar array is represented by a 16-bit integral value. A value of zero
  * means that no cells use a particular point.
-*/
+ */
 
 #ifndef vtkPointConnectivityFilter_h
 #define vtkPointConnectivityFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkPointConnectivityFilter : public vtkDataSetAlgorithm
 {
@@ -38,8 +38,8 @@ public:
    * Standard methods for instantiation, obtaining type information and
    * printing.
    */
-  static vtkPointConnectivityFilter *New();
-  vtkTypeMacro(vtkPointConnectivityFilter,vtkDataSetAlgorithm);
+  static vtkPointConnectivityFilter* New();
+  vtkTypeMacro(vtkPointConnectivityFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -47,9 +47,7 @@ protected:
   vtkPointConnectivityFilter();
   ~vtkPointConnectivityFilter() override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkPointConnectivityFilter(const vtkPointConnectivityFilter&) = delete;

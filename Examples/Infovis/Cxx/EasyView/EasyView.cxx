@@ -4,15 +4,14 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-
-#include "ui_EasyView.h"
 #include "EasyView.h"
+#include "ui_EasyView.h"
 
 // VTK includes
+#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkAnnotationLink.h>
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>
@@ -32,8 +31,7 @@
 #include <QTreeView>
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
 EasyView::EasyView()
@@ -43,11 +41,11 @@ EasyView::EasyView()
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   this->ui->vtkGraphViewWidget->SetRenderWindow(renderWindow);
 
-  this->XMLReader    = vtkSmartPointer<vtkXMLTreeReader>::New();
-  this->GraphView    = vtkSmartPointer<vtkGraphLayoutView>::New();
-  this->TreeView     = vtkSmartPointer<vtkQtTreeView>::New();
-  this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
-  this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
+  this->XMLReader = vtkSmartPointer<vtkXMLTreeReader>::New();
+  this->GraphView = vtkSmartPointer<vtkGraphLayoutView>::New();
+  this->TreeView = vtkSmartPointer<vtkQtTreeView>::New();
+  this->TableView = vtkSmartPointer<vtkQtTableView>::New();
+  this->ColumnView = vtkSmartPointer<vtkQtTreeView>::New();
   this->ColumnView->SetUseColumnView(1);
 
   // Tell the table view to sort selections that it receives (but does
@@ -75,8 +73,8 @@ EasyView::EasyView()
   // Apply application stylesheet
   QString css = "* { font: bold italic 18px \"Calibri\"; color: midnightblue }";
   css += "QTreeView { font: bold italic 16px \"Calibri\"; color: midnightblue }";
-  //qApp->setStyleSheet(css); // Seems to cause a bug on some systems
-                              // But at least it's here as an example
+  // qApp->setStyleSheet(css); // Seems to cause a bug on some systems
+  // But at least it's here as an example
 
   this->GraphView->Render();
 };
@@ -85,7 +83,7 @@ EasyView::EasyView()
 void EasyView::SetupAnnotationLink()
 {
   // Create a selection link and have all the views use it
-  VTK_CREATE(vtkAnnotationLink,annLink);
+  VTK_CREATE(vtkAnnotationLink, annLink);
   this->TreeView->GetRepresentation()->SetAnnotationLink(annLink);
   this->TreeView->GetRepresentation()->SetSelectionType(vtkSelectionNode::PEDIGREEIDS);
   this->TableView->GetRepresentation()->SetAnnotationLink(annLink);
@@ -101,7 +99,7 @@ void EasyView::SetupAnnotationLink()
   this->GraphView->Update();
   theme->Delete();
 
-  VTK_CREATE(vtkViewUpdater,updater);
+  VTK_CREATE(vtkViewUpdater, updater);
   updater->AddView(this->TreeView);
   updater->AddView(this->TableView);
   updater->AddView(this->ColumnView);
@@ -109,10 +107,7 @@ void EasyView::SetupAnnotationLink()
   updater->AddAnnotationLink(annLink);
 }
 
-EasyView::~EasyView()
-{
-
-}
+EasyView::~EasyView() {}
 
 // Action to be taken upon graph file open
 void EasyView::slotOpenXMLFile()
@@ -122,10 +117,7 @@ void EasyView::slotOpenXMLFile()
 
   // Open the text data file
   QString fileName = QFileDialog::getOpenFileName(
-    this,
-    "Select the text data file",
-    QDir::homePath(),
-    "XML Files (*.xml);;All Files (*.*)");
+    this, "Select the text data file", QDir::homePath(), "XML Files (*.xml);;All Files (*.*)");
 
   if (fileName.isNull())
   {
@@ -134,7 +126,7 @@ void EasyView::slotOpenXMLFile()
   }
 
   // Create XML reader
-  this->XMLReader->SetFileName( fileName.toLatin1() );
+  this->XMLReader->SetFileName(fileName.toLatin1());
   this->XMLReader->ReadTagNameOff();
   this->XMLReader->Update();
 
@@ -152,7 +144,6 @@ void EasyView::slotOpenXMLFile()
   treeStrat->SetAngle(360);
   treeStrat->SetLogSpacingValue(1);
   this->GraphView->SetLayoutStrategy(treeStrat);
-
 
   // Set the input to the graph view
   this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
@@ -190,6 +181,7 @@ void EasyView::slotOpenXMLFile()
   this->GraphView->Render();
 }
 
-void EasyView::slotExit() {
+void EasyView::slotExit()
+{
   qApp->exit();
 }

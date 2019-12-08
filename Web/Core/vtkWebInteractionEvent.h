@@ -16,7 +16,7 @@
  * @class   vtkWebInteractionEvent
  *
  *
-*/
+ */
 
 #ifndef vtkWebInteractionEvent_h
 #define vtkWebInteractionEvent_h
@@ -101,7 +101,6 @@ protected:
 private:
   vtkWebInteractionEvent(const vtkWebInteractionEvent&) = delete;
   void operator=(const vtkWebInteractionEvent&) = delete;
-
 };
 
 #endif

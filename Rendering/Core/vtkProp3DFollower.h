@@ -29,31 +29,30 @@
  *
  * @sa
  * vtkFollower vtkProp3D vtkCamera vtkProp3DAxisFollower
-*/
+ */
 
 #ifndef vtkProp3DFollower_h
 #define vtkProp3DFollower_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 class vtkMapper;
 
-
 class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
 {
- public:
+public:
   /**
    * Creates a follower with no camera set.
    */
-  static vtkProp3DFollower *New();
+  static vtkProp3DFollower* New();
 
   //@{
   /**
    * Standard VTK methods for type and printing.
    */
-  vtkTypeMacro(vtkProp3DFollower,vtkProp3D);
+  vtkTypeMacro(vtkProp3DFollower, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -61,8 +60,8 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
   /**
    * Set/Get the vtkProp3D to control (i.e., face the camera).
    */
-  virtual void SetProp3D(vtkProp3D *prop);
-  virtual vtkProp3D *GetProp3D();
+  virtual void SetProp3D(vtkProp3D* prop);
+  virtual vtkProp3D* GetProp3D();
   //@}
 
   //@{
@@ -80,9 +79,9 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  int RenderVolumetricGeometry(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  int RenderVolumetricGeometry(vtkViewport* viewport) override;
   //@}
 
   /**
@@ -104,12 +103,12 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * Return the bounds of this vtkProp3D.
    */
-  double *GetBounds() override;
+  double* GetBounds() override;
 
   //@{
   /**
@@ -117,18 +116,18 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
    * the documentation for vtkProp.
    */
   void InitPathTraversal() override;
-  vtkAssemblyPath *GetNextPath() override;
+  vtkAssemblyPath* GetNextPath() override;
   //@}
 
 protected:
   vtkProp3DFollower();
   ~vtkProp3DFollower() override;
 
-  vtkCamera *Camera;
-  vtkProp3D  *Device;
+  vtkCamera* Camera;
+  vtkProp3D* Device;
 
-  //Internal matrices to avoid New/Delete for performance reasons
-  vtkMatrix4x4 *InternalMatrix;
+  // Internal matrices to avoid New/Delete for performance reasons
+  vtkMatrix4x4* InternalMatrix;
 
 private:
   vtkProp3DFollower(const vtkProp3DFollower&) = delete;

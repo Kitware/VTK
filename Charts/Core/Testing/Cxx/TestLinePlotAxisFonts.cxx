@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
 #include "vtkAxis.h"
-#include "vtkTextProperty.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
+#include "vtkChartXY.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlotAxisFonts(int, char * [])
+int TestLinePlotAxisFonts(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -53,7 +53,7 @@ int TestLinePlotAxisFonts(int, char * [])
   table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -62,13 +62,13 @@ int TestLinePlotAxisFonts(int, char * [])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
 
-  vtkAxis *left = chart->GetAxis(vtkAxis::LEFT);
-  vtkAxis *bottom = chart->GetAxis(vtkAxis::BOTTOM);
+  vtkAxis* left = chart->GetAxis(vtkAxis::LEFT);
+  vtkAxis* bottom = chart->GetAxis(vtkAxis::BOTTOM);
   left->SetTitle("Test Title");
   bottom->SetTitle("Bottom axis");
   // Load up the string image cache.
@@ -78,7 +78,7 @@ int TestLinePlotAxisFonts(int, char * [])
   left->GetTitleProperties()->SetColor(1.0, 0.0, 0.0);
   bottom->GetTitleProperties()->SetColor(0.0, 0.0, 1.0);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

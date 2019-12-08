@@ -28,10 +28,10 @@ vtkStandardNewMacro(vtkDummyGPUInfoList);
 // \post probed: IsProbed()
 void vtkDummyGPUInfoList::Probe()
 {
-  if(!this->Probed)
+  if (!this->Probed)
   {
-    this->Probed=true;
-    this->Array=new vtkGPUInfoListArray;
+    this->Probed = true;
+    this->Array = new vtkGPUInfoListArray;
     this->Array->v.resize(0); // no GPU.
   }
   assert("post: probed" && this->IsProbed());
@@ -46,5 +46,5 @@ vtkDummyGPUInfoList::~vtkDummyGPUInfoList() = default;
 // ----------------------------------------------------------------------------
 void vtkDummyGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

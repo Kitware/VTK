@@ -29,18 +29,18 @@
  * strongly connected components of the graph (i.e. the maximal sets of
  * vertices where there is a directed path between any pair of vertices
  * within each set).
-*/
+ */
 
 #ifndef vtkBoostConnectedComponents_h
 #define vtkBoostConnectedComponents_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
 {
 public:
-  static vtkBoostConnectedComponents *New();
+  static vtkBoostConnectedComponents* New();
   vtkTypeMacro(vtkBoostConnectedComponents, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -48,10 +48,9 @@ protected:
   vtkBoostConnectedComponents();
   ~vtkBoostConnectedComponents();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   vtkBoostConnectedComponents(const vtkBoostConnectedComponents&) = delete;
   void operator=(const vtkBoostConnectedComponents&) = delete;
 };

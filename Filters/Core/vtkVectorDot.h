@@ -30,24 +30,24 @@
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
-*/
+ */
 
 #ifndef vtkVectorDot_h
 #define vtkVectorDot_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkVectorDot,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkVectorDot, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scalar range (-1,1).
    */
-  static vtkVectorDot *New();
+  static vtkVectorDot* New();
 
   //@{
   /**
@@ -57,9 +57,9 @@ public:
    * data. By default, MapScalars is enabled, and the output scalar
    * values will fall into the range ScalarRange.
    */
-  vtkSetMacro(MapScalars,vtkTypeBool);
-  vtkGetMacro(MapScalars,vtkTypeBool);
-  vtkBooleanMacro(MapScalars,vtkTypeBool);
+  vtkSetMacro(MapScalars, vtkTypeBool);
+  vtkGetMacro(MapScalars, vtkTypeBool);
+  vtkBooleanMacro(MapScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -67,8 +67,8 @@ public:
    * Specify the range into which to map the scalars. This mapping only
    * occurs if MapScalars is enabled.
    */
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
   //@}
 
   //@{
@@ -76,7 +76,7 @@ public:
    * Return the actual range of the generated scalars (prior to mapping).
    * Note that the data is valid only after the filter executes.
    */
-  vtkGetVectorMacro(ActualRange,double,2);
+  vtkGetVectorMacro(ActualRange, double, 2);
   //@}
 
 protected:
@@ -87,7 +87,7 @@ protected:
   double ScalarRange[2];
   double ActualRange[2];
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkVectorDot(const vtkVectorDot&) = delete;

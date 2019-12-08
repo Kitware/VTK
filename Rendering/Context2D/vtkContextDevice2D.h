@@ -21,16 +21,16 @@
  * This defines the interface for a vtkContextDevice2D. In this sense a
  * ContextDevice is a class used to paint 2D primitives onto a device, such as
  * an OpenGL context or a QGraphicsView.
-*/
+ */
 
 #ifndef vtkContextDevice2D_h
 #define vtkContextDevice2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h" // For vtkVector2i ivar
-#include "vtkRect.h"   // For vtkRecti ivar
-#include "vtkRenderingCoreEnums.h" // For marker enum
+#include "vtkRect.h"                     // For vtkRecti ivar
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkRenderingCoreEnums.h"       // For marker enum
+#include "vtkVector.h"                   // For vtkVector2i ivar
 
 class vtkWindow;
 class vtkViewport;
@@ -51,9 +51,9 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkContextDevice2D * New();
+  static vtkContextDevice2D* New();
 
   /**
    * Draw a poly line using the points - fastest code path due to memory
@@ -62,8 +62,8 @@ public:
    * color).
    * \sa DrawLines()
    */
-  virtual void DrawPoly(float *points, int n,
-                        unsigned char *colors = nullptr, int nc_comps = 0) = 0;
+  virtual void DrawPoly(
+    float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) = 0;
 
   /**
    * Draw lines using the points - memory layout is as follows:
@@ -71,15 +71,14 @@ public:
    * which has nc_comps components (defining a single color).
    * \sa DrawPoly()
    */
-  virtual void DrawLines(float *f, int n, unsigned char *colors = nullptr,
-                         int nc_comps = 0) = 0;
+  virtual void DrawLines(float* f, int n, unsigned char* colors = nullptr, int nc_comps = 0) = 0;
 
   /**
    * Draw a series of points - fastest code path due to memory layout of the
    * coordinates. The colors and nc_comps are optional - color array.
    */
-  virtual void DrawPoints(float *points, int n, unsigned char* colors = nullptr,
-                          int nc_comps = 0) = 0;
+  virtual void DrawPoints(
+    float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) = 0;
 
   /**
    * Draw a series of point sprites, images centred at the points supplied.
@@ -88,8 +87,8 @@ public:
    * \param colors is an optional array of colors.
    * \param nc_comps is the number of components for the color.
    */
-  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-                                unsigned char *colors = nullptr, int nc_comps = 0) = 0;
+  virtual void DrawPointSprites(vtkImageData* sprite, float* points, int n,
+    unsigned char* colors = nullptr, int nc_comps = 0) = 0;
 
   /**
    * Draw a series of markers centered at the points supplied. The \a shape
@@ -102,27 +101,26 @@ public:
    * \param colors is an optional array of colors.
    * \param nc_comps is the number of components for the color.
    */
-  virtual void DrawMarkers(int shape, bool highlight, float *points, int n,
-                           unsigned char *colors = nullptr, int nc_comps = 0);
+  virtual void DrawMarkers(int shape, bool highlight, float* points, int n,
+    unsigned char* colors = nullptr, int nc_comps = 0);
 
   /**
    * Draw a quad using the specified number of points.
    */
-  virtual void DrawQuad(float *, int) { ; }
+  virtual void DrawQuad(float*, int) { ; }
 
   /**
    * Draw a quad using the specified number of points.
    */
-  virtual void DrawQuadStrip(float *, int) { ; }
+  virtual void DrawQuadStrip(float*, int) { ; }
 
   /**
    * Draw a polygon using the specified number of points.
    * @{
    */
-  virtual void DrawPolygon(float *p, int n) { this->DrawColoredPolygon(p, n); }
-  virtual void DrawColoredPolygon(float *points, int numPoints,
-                                  unsigned char *colors = nullptr,
-                                  int nc_comps = 0);
+  virtual void DrawPolygon(float* p, int n) { this->DrawColoredPolygon(p, n); }
+  virtual void DrawColoredPolygon(
+    float* points, int numPoints, unsigned char* colors = nullptr, int nc_comps = 0);
   /**@}*/
 
   /**
@@ -136,9 +134,8 @@ public:
    * \pre ordered_rx: inRx<=outRx
    * \pre ordered_ry: inRy<=outRy
    */
-  virtual void DrawEllipseWedge(float x, float y, float outRx, float outRy,
-                                float inRx, float inRy, float startAngle,
-                                float stopAngle)=0;
+  virtual void DrawEllipseWedge(float x, float y, float outRx, float outRy, float inRx, float inRy,
+    float startAngle, float stopAngle) = 0;
 
   /**
    * Draw an elliptic arc with center at x,y with radii rX and rY between
@@ -146,13 +143,13 @@ public:
    * \pre positive_rX: rX>=0
    * \pre positive_rY: rY>=0
    */
-  virtual void DrawEllipticArc(float x, float y, float rX, float rY,
-                               float startAngle, float stopAngle)=0;
+  virtual void DrawEllipticArc(
+    float x, float y, float rX, float rY, float startAngle, float stopAngle) = 0;
 
   /**
    * Draw some text to the screen.
    */
-  virtual void DrawString(float *point, const vtkStdString &string) = 0;
+  virtual void DrawString(float* point, const vtkStdString& string) = 0;
 
   /**
    * Compute the bounds of the supplied string. The bounds will be copied to the
@@ -161,13 +158,12 @@ public:
    * bounding box.
    * NOTE: This function does not take account of the text rotation or justification.
    */
-  virtual void ComputeStringBounds(const vtkStdString &string,
-                                   float bounds[4]) = 0;
+  virtual void ComputeStringBounds(const vtkStdString& string, float bounds[4]) = 0;
 
   /**
    * Draw some text to the screen.
    */
-  virtual void DrawString(float *point, const vtkUnicodeString &string) = 0;
+  virtual void DrawString(float* point, const vtkUnicodeString& string) = 0;
 
   /**
    * Compute the bounds of the supplied string. The bounds will be copied to the
@@ -176,8 +172,7 @@ public:
    * bounding box.
    * NOTE: This function does not take account of the text rotation or justification.
    */
-  virtual void ComputeStringBounds(const vtkUnicodeString &string,
-                                   float bounds[4]) = 0;
+  virtual void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]) = 0;
 
   /**
    * Compute the bounds of the supplied string while taking into account the
@@ -190,7 +185,7 @@ public:
    * Draw text using MathText markup for mathematical equations. See
    * http://matplotlib.sourceforge.net/users/mathtext.html for more information.
    */
-  virtual void DrawMathTextString(float *point, const vtkStdString &string) = 0;
+  virtual void DrawMathTextString(float* point, const vtkStdString& string) = 0;
 
   /**
    * Return true if MathText rendering available on this device.
@@ -201,14 +196,14 @@ public:
    * Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
    * scaled by scale (1.0 would match the image).
    */
-  virtual void DrawImage(float p[2], float scale, vtkImageData *image) = 0;
+  virtual void DrawImage(float p[2], float scale, vtkImageData* image) = 0;
 
   /**
    * Draw the supplied image at the given position. The origin, width, and
    * height are specified by the supplied vtkRectf variable pos. The image
    * will be drawn scaled to that size.
    */
-  virtual void DrawImage(const vtkRectf& pos, vtkImageData *image) = 0;
+  virtual void DrawImage(const vtkRectf& pos, vtkImageData* image) = 0;
 
   /**
    * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
@@ -229,15 +224,15 @@ public:
    * individually using the device API. Subclasses should override this method
    * with a batch-drawing implementation if performance is a concern.
    */
-  virtual void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
-    vtkUnsignedCharArray* colors, int scalarMode);
+  virtual void DrawPolyData(
+    float p[2], float scale, vtkPolyData* polyData, vtkUnsignedCharArray* colors, int scalarMode);
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkPen
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  virtual void ApplyPen(vtkPen *pen);
+  virtual void ApplyPen(vtkPen* pen);
 
   //@{
   /**
@@ -253,7 +248,7 @@ public:
    * lines, points and related primitives. This makes a deep copy of the vtkBrush
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  virtual void ApplyBrush(vtkBrush *brush);
+  virtual void ApplyBrush(vtkBrush* brush);
 
   //@{
   /**
@@ -268,7 +263,7 @@ public:
    * This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
    * it does not hold a pointer to the supplied object.
    */
-  virtual void ApplyTextProp(vtkTextProperty *prop);
+  virtual void ApplyTextProp(vtkTextProperty* prop);
 
   //@{
   /**
@@ -282,11 +277,12 @@ public:
    */
   virtual void SetColor4(unsigned char color[4]) = 0;
 
-  enum TextureProperty {
+  enum TextureProperty
+  {
     Nearest = 0x01,
-    Linear  = 0x02,
+    Linear = 0x02,
     Stretch = 0x04,
-    Repeat  = 0x08
+    Repeat = 0x08
   };
   /**
    * Set the texture for the device, it is used to fill the polygons
@@ -321,17 +317,17 @@ public:
   /**
    * Set the model view matrix for the display
    */
-  virtual void SetMatrix(vtkMatrix3x3 *m) = 0;
+  virtual void SetMatrix(vtkMatrix3x3* m) = 0;
 
   /**
    * Set the model view matrix for the display
    */
-  virtual void GetMatrix(vtkMatrix3x3 *m) = 0;
+  virtual void GetMatrix(vtkMatrix3x3* m) = 0;
 
   /**
    * Multiply the current model view matrix by the supplied one
    */
-  virtual void MultiplyMatrix(vtkMatrix3x3 *m) = 0;
+  virtual void MultiplyMatrix(vtkMatrix3x3* m) = 0;
 
   /**
    * Push the current matrix onto the stack.
@@ -347,7 +343,7 @@ public:
    * Supply an int array of length 4 with x1, y1, width, height specifying
    * clipping region for the device in pixels.
    */
-  virtual void SetClipping(int *x) = 0;
+  virtual void SetClipping(int* x) = 0;
 
   /**
    * Disable clipping of the display.
@@ -363,12 +359,12 @@ public:
   /**
    * Begin drawing, pass in the viewport to set up the view.
    */
-  virtual void Begin(vtkViewport*) { }
+  virtual void Begin(vtkViewport*) {}
 
   /**
    * End drawing, clean up the view.
    */
-  virtual void End() { }
+  virtual void End() {}
 
   /**
    * Tell if the device context is in BufferId creation mode.
@@ -383,7 +379,7 @@ public:
    * \pre bufferId_exists: bufferId!=0
    * \post started: GetBufferIdMode()
    */
-  virtual void BufferIdModeBegin(vtkAbstractContextBufferId *bufferId);
+  virtual void BufferIdModeBegin(vtkAbstractContextBufferId* bufferId);
 
   /**
    * Finalize BufferId creation Mode. It makes sure that the content of the
@@ -394,17 +390,11 @@ public:
    */
   virtual void BufferIdModeEnd();
 
-  virtual void SetViewportSize(const vtkVector2i &size)
-  {
-    this->ViewportSize = size;
-  }
-  vtkGetMacro(ViewportSize, vtkVector2i)
+  virtual void SetViewportSize(const vtkVector2i& size) { this->ViewportSize = size; }
+  vtkGetMacro(ViewportSize, vtkVector2i);
 
-  virtual void SetViewportRect(const vtkRecti &rect)
-  {
-    this->ViewportRect = rect;
-  }
-  vtkGetMacro(ViewportRect, vtkRecti)
+  virtual void SetViewportRect(const vtkRecti& rect) { this->ViewportRect = rect; }
+  vtkGetMacro(ViewportRect, vtkRecti);
 
 protected:
   vtkContextDevice2D();
@@ -425,16 +415,15 @@ protected:
    */
   vtkRecti ViewportRect;
 
-  vtkAbstractContextBufferId *BufferId;
+  vtkAbstractContextBufferId* BufferId;
 
-  vtkPen *Pen;                // Outlining
-  vtkBrush *Brush;            // Fills
-  vtkTextProperty *TextProp;  // Text property
+  vtkPen* Pen;               // Outlining
+  vtkBrush* Brush;           // Fills
+  vtkTextProperty* TextProp; // Text property
 
 private:
-  vtkContextDevice2D(const vtkContextDevice2D &) = delete;
-  void operator=(const vtkContextDevice2D &) = delete;
-
+  vtkContextDevice2D(const vtkContextDevice2D&) = delete;
+  void operator=(const vtkContextDevice2D&) = delete;
 };
 
-#endif //vtkContextDevice2D_h
+#endif // vtkContextDevice2D_h

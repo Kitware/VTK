@@ -141,7 +141,8 @@ public:
         {
           auto& darray = dpair.second;
           auto& sarray = iter->second;
-          darray->InsertTuples(static_cast<vtkIdType>(this->Offset), sarray->GetNumberOfTuples(), 0, sarray);
+          darray->InsertTuples(
+            static_cast<vtkIdType>(this->Offset), sarray->GetNumberOfTuples(), 0, sarray);
         }
       }
       // remove arrays that were not available in the current set

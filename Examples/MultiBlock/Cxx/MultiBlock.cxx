@@ -29,9 +29,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
@@ -46,10 +46,10 @@ int main(int argc, char* argv[])
   exec->Delete();
 
   // Standard rendering classes
-  vtkRenderer *ren = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer* ren = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   // We will read three files and collect them together in one
@@ -62,14 +62,13 @@ int main(int argc, char* argv[])
   // the class documentation for more information.
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     // Here we load the three separate files (each containing
     // a structured grid dataset)
     std::ostringstream fname;
     fname << "Data/multicomb_" << i << ".vts" << ends;
-    char* cfname =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, fname.str().c_str());
+    char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, fname.str().c_str());
     reader->SetFileName(cfname);
     // We have to update since we are working without a VTK pipeline.
     // This will read the file and the output of the reader will be
@@ -104,8 +103,7 @@ int main(int argc, char* argv[])
   // This filter is multi-block aware and will request blocks from the
   // input. These blocks will be processed by simple processes as if they
   // are the whole dataset
-  vtkCompositeDataGeometryFilter* geom1 =
-    vtkCompositeDataGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom1 = vtkCompositeDataGeometryFilter::New();
   geom1->SetInputConnection(0, of->GetOutputPort(0));
 
   // Rendering objects
@@ -126,8 +124,7 @@ int main(int argc, char* argv[])
   contour->SetValue(0, 0.45);
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom2 =
-    vtkCompositeDataGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom2 = vtkCompositeDataGeometryFilter::New();
   geom2->SetInputConnection(0, contour->GetOutputPort(0));
 
   // Rendering objects
@@ -139,8 +136,8 @@ int main(int argc, char* argv[])
   contActor->GetProperty()->SetColor(1, 0, 0);
   ren->AddActor(contActor);
 
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
   iren->Start();
 
   // Cleanup

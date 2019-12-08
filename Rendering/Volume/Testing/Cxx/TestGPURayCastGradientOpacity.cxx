@@ -23,9 +23,9 @@
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -51,13 +51,12 @@ int TestGPURayCastGradientOpacity(int argc, char* argv[])
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style);
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                     "Data/HeadMRVolume.mhd");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HeadMRVolume.mhd");
 
   vtkNew<vtkMetaImageReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper1;
   mapper1->SetInputConnection(reader->GetOutputPort());
@@ -116,6 +115,5 @@ int TestGPURayCastGradientOpacity(int argc, char* argv[])
     iren->Start();
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

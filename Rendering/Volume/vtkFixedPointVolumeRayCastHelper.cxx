@@ -25,7 +25,5 @@ vtkFixedPointVolumeRayCastHelper::~vtkFixedPointVolumeRayCastHelper() = default;
 
 void vtkFixedPointVolumeRayCastHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-
-

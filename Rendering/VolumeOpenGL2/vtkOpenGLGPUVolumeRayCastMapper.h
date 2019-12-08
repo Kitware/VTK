@@ -59,14 +59,13 @@
 
 #ifndef vtkOpenGLGPUVolumeRayCastMapper_h
 #define vtkOpenGLGPUVolumeRayCastMapper_h
-#include <map>                               // For methods
+#include <map> // For methods
 
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkShader.h"                       // For methods
 #include "vtkSmartPointer.h"                 // For smartptr
-
 
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkImplicitFunction;
@@ -82,8 +81,8 @@ class vtkVolumeInputHelper;
 class vtkVolumeTexture;
 class vtkOpenGLShaderProperty;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
-  public vtkGPUVolumeRayCastMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper
+  : public vtkGPUVolumeRayCastMapper
 {
 public:
   static vtkOpenGLGPUVolumeRayCastMapper* New();
@@ -95,7 +94,7 @@ public:
   };
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Low level API to enable access to depth texture in
@@ -134,7 +133,7 @@ public:
   // the standard depth texture code is skipped
   // The depth texture should be activated
   // and deactivated outside of this class
-  void SetSharedDepthTexture(vtkTextureObject *nt);
+  void SetSharedDepthTexture(vtkTextureObject* nt);
 
   /**
    * Set a fixed number of partitions in which to split the volume
@@ -156,19 +155,18 @@ public:
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
   ~vtkOpenGLGPUVolumeRayCastMapper() override;
 
-  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
+  vtkGenericOpenGLResourceFreeCallback* ResourceCallback;
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
-  void BuildDepthPassShader(vtkRenderer* ren, vtkVolume* vol,
-                            int noOfComponents,
-                            int independentComponents);
+  void BuildDepthPassShader(
+    vtkRenderer* ren, vtkVolume* vol, int noOfComponents, int independentComponents);
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
@@ -176,31 +174,28 @@ protected:
 
   // TODO Take these out as these are no longer needed
   // Methods called by the AMR Volume Mapper.
-  void PreRender(vtkRenderer * vtkNotUsed(ren),
-                         vtkVolume *vtkNotUsed(vol),
-                         double vtkNotUsed(datasetBounds)[6],
-                         double vtkNotUsed(scalarRange)[2],
-                         int vtkNotUsed(noOfComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) override {};
+  void PreRender(vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol),
+    double vtkNotUsed(datasetBounds)[6], double vtkNotUsed(scalarRange)[2],
+    int vtkNotUsed(noOfComponents), unsigned int vtkNotUsed(numberOfLevels)) override
+  {
+  }
 
   // \pre input is up-to-date
-  void RenderBlock(vtkRenderer *vtkNotUsed(ren),
-                           vtkVolume *vtkNotUsed(vol),
-                           unsigned int vtkNotUsed(level)) override {}
+  void RenderBlock(vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol),
+    unsigned int vtkNotUsed(level)) override
+  {
+  }
 
-  void PostRender(vtkRenderer *vtkNotUsed(ren),
-                          int vtkNotUsed(noOfComponents)) override {}
+  void PostRender(vtkRenderer* vtkNotUsed(ren), int vtkNotUsed(noOfComponents)) override {}
 
   // Description:
   // Rendering volume on GPU
-  void GPURender(vtkRenderer *ren, vtkVolume *vol) override;
+  void GPURender(vtkRenderer* ren, vtkVolume* vol) override;
 
   // Description:
   // Method that performs the actual rendering given a volume and a shader
-  void DoGPURender(vtkRenderer* ren,
-                   vtkOpenGLCamera* cam,
-                   vtkShaderProgram* shaderProgram,
-                   vtkOpenGLShaderProperty* shaderProperty);
+  void DoGPURender(vtkRenderer* ren, vtkOpenGLCamera* cam, vtkShaderProgram* shaderProgram,
+    vtkOpenGLShaderProperty* shaderProperty);
 
   // Description:
   // Update the reduction factor of the render viewport (this->ReductionFactor)
@@ -215,16 +210,12 @@ protected:
 
   // Description:
   // Empty implementation.
-  void GetReductionRatio(double* ratio) override
-  {
-    ratio[0] = ratio[1] = ratio[2] = 1.0;
-  }
-
+  void GetReductionRatio(double* ratio) override { ratio[0] = ratio[1] = ratio[2] = 1.0; }
 
   // Description:
   // Empty implementation.
-  int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
-                                vtkVolumeProperty *vtkNotUsed(property)) override
+  int IsRenderSupported(
+    vtkRenderWindow* vtkNotUsed(window), vtkVolumeProperty* vtkNotUsed(property)) override
   {
     return 1;
   }
@@ -238,40 +229,41 @@ protected:
   /**
    * Create the basic shader template strings before substitutions
    */
-  void GetShaderTemplate(std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p);
+  void GetShaderTemplate(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty* p);
 
   /**
    * Perform string replacements on the shader templates
    */
-  void ReplaceShaderValues(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderValues(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
 
   /**
    *  RenderPass string replacements on shader templates called from
    *  ReplaceShaderValues.
    */
   void ReplaceShaderCustomUniforms(
-    std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p );
-  void ReplaceShaderBase(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderTermination(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderShading(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderCompute(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderCropping(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderClipping(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderMasking(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderPicking(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderRTT(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkRenderer* ren, vtkVolume* vol, int numComps);
-  void ReplaceShaderRenderPass(std::map<vtkShader::Type, vtkShader*>& shaders,
-    vtkVolume* vol, bool prePass);
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty* p);
+  void ReplaceShaderBase(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderTermination(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderShading(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCompute(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCropping(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderClipping(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderMasking(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderPicking(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRTT(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRenderPass(
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkVolume* vol, bool prePass);
 
   /**
    *  Update parameters from RenderPass
@@ -287,7 +279,7 @@ protected:
   //@}
 
   double ReductionFactor;
-  int    CurrentPass;
+  int CurrentPass;
 
 public:
   using VolumeInput = vtkVolumeInputHelper;
@@ -300,8 +292,7 @@ private:
 
   friend class vtkVolumeTexture;
 
-  vtkOpenGLGPUVolumeRayCastMapper(
-    const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
+  vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
   void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
 };
 

@@ -22,22 +22,21 @@
  * The difference between the neighbor values and center value is computed
  * and squared for each neighbor.  These values are summed and divided by
  * the total number of neighbors to produce the output value.
-*/
+ */
 
 #ifndef vtkImageVariance3D_h
 #define vtkImageVariance3D_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class vtkImageEllipsoidSource;
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageVariance3D : public vtkImageSpatialAlgorithm
 {
 public:
-  static vtkImageVariance3D *New();
-  vtkTypeMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
+  static vtkImageVariance3D* New();
+  vtkTypeMacro(vtkImageVariance3D, vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -50,20 +49,16 @@ protected:
   vtkImageVariance3D();
   ~vtkImageVariance3D() override;
 
-  vtkImageEllipsoidSource *Ellipse;
+  vtkImageEllipsoidSource* Ellipse;
 
-  int RequestInformation (vtkInformation *request,
-                                  vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkImageVariance3D(const vtkImageVariance3D&) = delete;

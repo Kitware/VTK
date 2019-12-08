@@ -43,10 +43,10 @@
 
 #include <cstddef>
 
-#cmakedefine VTK_HAVE_SYNC_BUILTINS
+#cmakedefine VTK_HAVE_ATOMIC_BUILTINS
 
 // Assume 64-bit atomic operations are not available on 32 bit platforms
-#if defined(VTK_HAVE_SYNC_BUILTINS)
+#if defined(VTK_HAVE_ATOMIC_BUILTINS)
 # define VTK_GCC_ATOMICS_32
 # if VTK_SIZEOF_VOID_P == 8
 #   define VTK_GCC_ATOMICS_64
@@ -88,44 +88,42 @@ public:
 
   static value_type AddAndFetch(value_type *ref, value_type val)
   {
-    return __sync_add_and_fetch(ref, val);
+    return __atomic_add_fetch(ref, val, __ATOMIC_SEQ_CST);
   }
 
   static value_type SubAndFetch(value_type *ref, value_type val)
   {
-    return __sync_sub_and_fetch(ref, val);
+    return __atomic_sub_fetch(ref, val, __ATOMIC_SEQ_CST);
   }
 
   static value_type PreIncrement(value_type *ref)
   {
-    return __sync_add_and_fetch(ref, 1);
+    return __atomic_add_fetch(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PreDecrement(value_type *ref)
   {
-    return __sync_sub_and_fetch(ref, 1);
+    return __atomic_sub_fetch(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PostIncrement(value_type *ref)
   {
-    return __sync_fetch_and_add(ref, 1);
+    return __atomic_fetch_add(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PostDecrement(value_type *ref)
   {
-    return __sync_fetch_and_sub(ref, 1);
+    return __atomic_fetch_sub(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type Load(const value_type *ref)
   {
-    __sync_synchronize();
-    return *static_cast<const volatile value_type *>(ref);
+    return __atomic_load_n(ref, __ATOMIC_SEQ_CST);
   }
 
   static void Store(value_type *ref, value_type val)
   {
-    *static_cast<volatile value_type*>(ref) = val;
-    __sync_synchronize();
+    __atomic_store_n(ref, val, __ATOMIC_SEQ_CST);
   }
 };
 
@@ -169,44 +167,42 @@ public:
 
   static value_type AddAndFetch(value_type *ref, value_type val)
   {
-    return __sync_add_and_fetch(ref, val);
+    return __atomic_add_fetch(ref, val, __ATOMIC_SEQ_CST);
   }
 
   static value_type SubAndFetch(value_type *ref, value_type val)
   {
-    return __sync_sub_and_fetch(ref, val);
+    return __atomic_sub_fetch(ref, val, __ATOMIC_SEQ_CST);
   }
 
   static value_type PreIncrement(value_type *ref)
   {
-    return __sync_add_and_fetch(ref, 1);
+    return __atomic_add_fetch(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PreDecrement(value_type *ref)
   {
-    return __sync_sub_and_fetch(ref, 1);
+    return __atomic_sub_fetch(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PostIncrement(value_type *ref)
   {
-    return __sync_fetch_and_add(ref, 1);
+    return __atomic_fetch_add(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type PostDecrement(value_type *ref)
   {
-    return __sync_fetch_and_sub(ref, 1);
+    return __atomic_fetch_sub(ref, 1, __ATOMIC_SEQ_CST);
   }
 
   static value_type Load(const value_type *ref)
   {
-    __sync_synchronize();
-    return *static_cast<const volatile value_type *>(ref);
+    return __atomic_load_n(ref, __ATOMIC_SEQ_CST);
   }
 
   static void Store(value_type *ref, value_type val)
   {
-    *static_cast<volatile value_type*>(ref) = val;
-    __sync_synchronize();
+    __atomic_store_n(ref, val, __ATOMIC_SEQ_CST);
   }
 };
 

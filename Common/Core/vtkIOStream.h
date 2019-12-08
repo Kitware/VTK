@@ -17,7 +17,7 @@
  * @brief   Include C++ iostreams as used by VTK.
  *
  * This header includes the proper streams.
-*/
+ */
 
 #ifndef vtkIOStream_h
 #define vtkIOStream_h
@@ -25,31 +25,31 @@
 #include "vtkConfigure.h"
 
 #ifdef _MSC_VER
-#pragma warning (push, 3)
+#pragma warning(push, 3)
 #endif
 
-#include <iostream>  // Include real ansi istream and ostream.
-#include <fstream>   // Include real ansi ifstream and ofstream.
-#include <iomanip>   // Include real ansi io manipulators.
+#include <fstream>  // Include real ansi ifstream and ofstream.
+#include <iomanip>  // Include real ansi io manipulators.
+#include <iostream> // Include real ansi istream and ostream.
 
 // Need these in global namespace so the same code will work with ansi
 // and old-style streams.
-using std::dec;
-using std::hex;
-using std::setw;
-using std::setfill;
-using std::setprecision;
 using std::cerr;
-using std::cout;
 using std::cin;
-using std::ios;
+using std::cout;
+using std::dec;
 using std::endl;
 using std::ends;
-using std::ostream;
+using std::fstream;
+using std::hex;
+using std::ifstream;
+using std::ios;
 using std::istream;
 using std::ofstream;
-using std::ifstream;
-using std::fstream;
+using std::ostream;
+using std::setfill;
+using std::setprecision;
+using std::setw;
 
 #ifdef _MSC_VER
 #pragma warning(pop)

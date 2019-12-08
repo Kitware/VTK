@@ -20,67 +20,64 @@
  * lists of objects of type vtkImplicitFunction.
  * @sa
  * vtkCollection vtkPlaneCollection
-*/
+ */
 
 #ifndef vtkImplicitFunctionCollection_h
 #define vtkImplicitFunctionCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkImplicitFunction.h" // Needed for inline methods
 
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkImplicitFunctionCollection,vtkCollection);
-  static vtkImplicitFunctionCollection *New();
+  vtkTypeMacro(vtkImplicitFunctionCollection, vtkCollection);
+  static vtkImplicitFunctionCollection* New();
 
   /**
    * Add an implicit function to the list.
    */
-  void AddItem(vtkImplicitFunction *);
+  void AddItem(vtkImplicitFunction*);
 
   /**
    * Get the next implicit function in the list.
    */
-  vtkImplicitFunction *GetNextItem();
+  vtkImplicitFunction* GetNextItem();
 
   //@{
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkImplicitFunction *GetNextImplicitFunction(
-    vtkCollectionSimpleIterator &cookie)
+  vtkImplicitFunction* GetNextImplicitFunction(vtkCollectionSimpleIterator& cookie)
   {
-      return static_cast<vtkImplicitFunction *>(
-        this->GetNextItemAsObject(cookie));
-  };
+    return static_cast<vtkImplicitFunction*>(this->GetNextItemAsObject(cookie));
+  }
   //@}
 
 protected:
   vtkImplicitFunctionCollection() {}
   ~vtkImplicitFunctionCollection() override {}
 
-
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) = delete;
   void operator=(const vtkImplicitFunctionCollection&) = delete;
 };
 
-inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f)
+inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction* f)
 {
   this->vtkCollection::AddItem(f);
 }
 
-inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem()
+inline vtkImplicitFunction* vtkImplicitFunctionCollection::GetNextItem()
 {
- return static_cast<vtkImplicitFunction *>(this->GetNextItemAsObject());
+  return static_cast<vtkImplicitFunction*>(this->GetNextItemAsObject());
 }
 
 #endif

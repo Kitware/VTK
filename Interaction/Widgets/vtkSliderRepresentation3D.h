@@ -24,14 +24,14 @@
  *
  * @sa
  * vtkSliderWidget
-*/
+ */
 
 #ifndef vtkSliderRepresentation3D_h
 #define vtkSliderRepresentation3D_h
 
+#include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
-#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
 class vtkActor;
 class vtkPolyDataMapper;
@@ -45,20 +45,19 @@ class vtkTransform;
 class vtkTransformPolyDataFilter;
 class vtkMatrix4x4;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation3D : public vtkSliderRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkSliderRepresentation3D *New();
+  static vtkSliderRepresentation3D* New();
 
   //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkSliderRepresentation3D,vtkSliderRepresentation);
+  vtkTypeMacro(vtkSliderRepresentation3D, vtkSliderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -71,7 +70,7 @@ public:
    * then invoke the necessary methods to put it into the correct coordinate
    * system and set the correct initial value.
    */
-  vtkCoordinate *GetPoint1Coordinate();
+  vtkCoordinate* GetPoint1Coordinate();
   void SetPoint1InWorldCoordinates(double x, double y, double z);
   //@}
 
@@ -84,7 +83,7 @@ public:
    * then invoke the necessary methods to put it into the correct coordinate
    * system and set the correct initial value.
    */
-  vtkCoordinate *GetPoint2Coordinate();
+  vtkCoordinate* GetPoint2Coordinate();
   void SetPoint2InWorldCoordinates(double x, double y, double z);
   //@}
 
@@ -102,7 +101,7 @@ public:
    * Specify whether to use a sphere or cylinder slider shape. By default, a
    * sphere shape is used.
    */
-  vtkSetClampMacro(SliderShape,int,SphereShape,CylinderShape);
+  vtkSetClampMacro(SliderShape, int, SphereShape, CylinderShape);
   vtkGetMacro(SliderShape, int);
   void SetSliderShapeToSphere() { this->SetSliderShape(SphereShape); }
   void SetSliderShapeToCylinder() { this->SetSliderShape(CylinderShape); }
@@ -114,8 +113,8 @@ public:
    * used to control which way the widget is initially oriented. (This is especially
    * important for the label and title.)
    */
-  vtkSetMacro(Rotation,double);
-  vtkGetMacro(Rotation,double);
+  vtkSetMacro(Rotation, double);
+  vtkGetMacro(Rotation, double);
   //@}
 
   //@{
@@ -123,15 +122,15 @@ public:
    * Get the slider properties. The properties of the slider when selected
    * and unselected can be manipulated.
    */
-  vtkGetObjectMacro(SliderProperty,vtkProperty);
+  vtkGetObjectMacro(SliderProperty, vtkProperty);
   //@}
 
   //@{
   /**
    * Get the properties for the tube and end caps.
    */
-  vtkGetObjectMacro(TubeProperty,vtkProperty);
-  vtkGetObjectMacro(CapProperty,vtkProperty);
+  vtkGetObjectMacro(TubeProperty, vtkProperty);
+  vtkGetObjectMacro(CapProperty, vtkProperty);
   //@}
 
   //@{
@@ -139,7 +138,7 @@ public:
    * Get the selection property. This property is used to modify the appearance of
    * selected objects (e.g., the slider).
    */
-  vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  vtkGetObjectMacro(SelectedProperty, vtkProperty);
   //@}
 
   //@{
@@ -157,7 +156,7 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
   void GetActors(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
@@ -171,8 +170,8 @@ public:
   vtkMTimeType GetMTime() override;
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
 protected:
@@ -180,21 +179,21 @@ protected:
   ~vtkSliderRepresentation3D() override;
 
   // Positioning the widget
-  vtkCoordinate *Point1Coordinate;
-  vtkCoordinate *Point2Coordinate;
-  double        Length;
+  vtkCoordinate* Point1Coordinate;
+  vtkCoordinate* Point2Coordinate;
+  double Length;
 
   // These are the slider end points taking into account the thickness
   // of the slider
-  double        SP1[3];
-  double        SP2[3];
+  double SP1[3];
+  double SP2[3];
 
   // More ivars controlling the appearance of the widget
   double Rotation;
-  int    SliderShape;
+  int SliderShape;
 
   // Do the picking
-  vtkCellPicker *Picker;
+  vtkCellPicker* Picker;
 
   // Determine the parameter t along the slider
   virtual double ComputePickPosition(double eventPos[2]);
@@ -202,54 +201,53 @@ protected:
   // The widget consists of several actors, all grouped
   // together using an assembly. This makes it easier to
   // perform the final transformation into
-  vtkAssembly *WidgetAssembly;
+  vtkAssembly* WidgetAssembly;
 
   // Cylinder used by other objects
-  vtkCylinderSource          *CylinderSource;
-  vtkTransformPolyDataFilter *Cylinder;
+  vtkCylinderSource* CylinderSource;
+  vtkTransformPolyDataFilter* Cylinder;
 
   // The tube
-  vtkPolyDataMapper *TubeMapper;
-  vtkActor          *TubeActor;
-  vtkProperty       *TubeProperty;
+  vtkPolyDataMapper* TubeMapper;
+  vtkActor* TubeActor;
+  vtkProperty* TubeProperty;
 
   // The slider
-  vtkSphereSource   *SliderSource;
-  vtkPolyDataMapper *SliderMapper;
-  vtkActor          *SliderActor;
-  vtkProperty       *SliderProperty;
-  vtkProperty       *SelectedProperty;
+  vtkSphereSource* SliderSource;
+  vtkPolyDataMapper* SliderMapper;
+  vtkActor* SliderActor;
+  vtkProperty* SliderProperty;
+  vtkProperty* SelectedProperty;
 
   // The left cap
-  vtkPolyDataMapper *LeftCapMapper;
-  vtkActor          *LeftCapActor;
-  vtkProperty       *CapProperty;
+  vtkPolyDataMapper* LeftCapMapper;
+  vtkActor* LeftCapActor;
+  vtkProperty* CapProperty;
 
   // The right cap
-  vtkPolyDataMapper *RightCapMapper;
-  vtkActor          *RightCapActor;
+  vtkPolyDataMapper* RightCapMapper;
+  vtkActor* RightCapActor;
 
   // The text. There is an extra transform used to rotate
   // both the title and label
-  vtkVectorText     *LabelText;
-  vtkPolyDataMapper *LabelMapper;
-  vtkActor          *LabelActor;
+  vtkVectorText* LabelText;
+  vtkPolyDataMapper* LabelMapper;
+  vtkActor* LabelActor;
 
-  vtkVectorText     *TitleText;
-  vtkPolyDataMapper *TitleMapper;
-  vtkActor          *TitleActor;
+  vtkVectorText* TitleText;
+  vtkPolyDataMapper* TitleMapper;
+  vtkActor* TitleActor;
 
   // Transform used during slider motion
-  vtkMatrix4x4 *Matrix;
-  vtkTransform *Transform;
+  vtkMatrix4x4* Matrix;
+  vtkTransform* Transform;
 
   // Manage the state of the widget
-  enum _SliderShape {
+  enum _SliderShape
+  {
     SphereShape,
     CylinderShape
   };
-
-
 
 private:
   vtkSliderRepresentation3D(const vtkSliderRepresentation3D&) = delete;

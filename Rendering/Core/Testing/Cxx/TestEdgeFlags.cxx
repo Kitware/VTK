@@ -26,14 +26,12 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTestUtilities.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
-
-int TestEdgeFlags(int argc, char *argv[])
+int TestEdgeFlags(int argc, char* argv[])
 {
   vtkNew<vtkPoints> pts;
   pts->SetNumberOfPoints(9);
@@ -41,20 +39,11 @@ int TestEdgeFlags(int argc, char *argv[])
   // twice because 2 edges start from them and we will have to attach an
   // edge flags to each point. The last center point is not duplicated
   // as its edge flag will always be 0 (edge hidden).
-  const double pcoords[] =
-    {
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
+  const double pcoords[] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
 
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
 
-    0.5, 0.5, 0.0
-    };
+    0.5, 0.5, 0.0 };
 
   for (int i = 0; i < 9; i++)
   {
@@ -63,7 +52,7 @@ int TestEdgeFlags(int argc, char *argv[])
 
   // Define the 4 triangles
   vtkNew<vtkCellArray> cells;
-  const vtkIdType tris[] = { 0,5,8, 1,6,8, 2,7,8, 3,4,8 };
+  const vtkIdType tris[] = { 0, 5, 8, 1, 6, 8, 2, 7, 8, 3, 4, 8 };
   for (int i = 0; i < 4; i++)
   {
     cells->InsertNextCell(3, tris + 3 * i);
@@ -87,15 +76,14 @@ int TestEdgeFlags(int argc, char *argv[])
   pd->SetPolys(cells);
   vtkPointData* pointData = pd->GetPointData();
   pointData->AddArray(edgeflags);
-  pointData->SetActiveAttribute(
-    edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
+  pointData->SetActiveAttribute(edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(pd);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  actor->SetPosition(-0.75,0,0);
+  actor->SetPosition(-0.75, 0, 0);
   actor->RotateZ(45.0);
 
   vtkProperty* property = actor->GetProperty();
@@ -103,10 +91,9 @@ int TestEdgeFlags(int argc, char *argv[])
   property->SetRepresentationToWireframe();
   property->SetLineWidth(4.0);
 
-
   // Define the 4 triangles
   vtkNew<vtkCellArray> cells2;
-  const vtkIdType polys [] = { 0,1,6,8,3 };
+  const vtkIdType polys[] = { 0, 1, 6, 8, 3 };
   cells2->InsertNextCell(5, polys);
 
   vtkNew<vtkPolyData> pd2;
@@ -114,15 +101,14 @@ int TestEdgeFlags(int argc, char *argv[])
   pd2->SetPolys(cells2);
   pointData = pd2->GetPointData();
   pointData->AddArray(edgeflags);
-  pointData->SetActiveAttribute(
-    edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
+  pointData->SetActiveAttribute(edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
 
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputData(pd2);
 
   vtkNew<vtkActor> actor2;
   actor2->SetMapper(mapper2);
-  actor2->SetPosition(0.75,0,0);
+  actor2->SetPosition(0.75, 0, 0);
   vtkProperty* property2 = actor2->GetProperty();
   property2->SetColor(0.0, 1.0, 0.0);
   property2->SetRepresentationToWireframe();

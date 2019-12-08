@@ -28,8 +28,7 @@
 
 vtkStandardNewMacro(vtkProcessIdScalars);
 
-vtkCxxSetObjectMacro(vtkProcessIdScalars,Controller,
-                     vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkProcessIdScalars, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkProcessIdScalars::vtkProcessIdScalars()
@@ -56,22 +55,18 @@ vtkProcessIdScalars::~vtkProcessIdScalars()
 
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
-int vtkProcessIdScalars::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProcessIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray *pieceColors;
+  vtkDataArray* pieceColors;
   vtkIdType num;
 
   if (this->CellScalarsFlag)
@@ -83,7 +78,7 @@ int vtkProcessIdScalars::RequestData(
     num = input->GetNumberOfPoints();
   }
 
-  int piece = (this->Controller?this->Controller->GetLocalProcessId():0);
+  int piece = (this->Controller ? this->Controller->GetLocalProcessId() : 0);
 
   if (this->RandomMode)
   {
@@ -113,9 +108,9 @@ int vtkProcessIdScalars::RequestData(
 }
 
 //----------------------------------------------------------------------------
-vtkIntArray *vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
+vtkIntArray* vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 {
-  vtkIntArray *pieceColors = vtkIntArray::New();
+  vtkIntArray* pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
 
   for (vtkIdType i = 0; i < num; ++i)
@@ -127,12 +122,12 @@ vtkIntArray *vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 }
 
 //----------------------------------------------------------------------------
-vtkFloatArray *vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
+vtkFloatArray* vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
   vtkMath::RandomSeed(piece);
   float randomValue = vtkMath::Random();
 
-  vtkFloatArray *pieceColors = vtkFloatArray::New();
+  vtkFloatArray* pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
 
   for (vtkIdType i = 0; i < num; ++i)
@@ -146,7 +141,7 @@ vtkFloatArray *vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
 //----------------------------------------------------------------------------
 void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)

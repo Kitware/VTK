@@ -18,29 +18,26 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkTextWidget.h"
-#include "vtkTextActor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTextWidget.h"
 
-int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestTextWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -49,29 +46,23 @@ int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   // Create a test pipeline
   //
-  vtkSmartPointer<vtkSphereSource> ss =
-    vtkSmartPointer<vtkSphereSource>::New();
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(ss->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkSmartPointer<vtkTextActor> ta =
-    vtkSmartPointer<vtkTextActor>::New();
+  vtkSmartPointer<vtkTextActor> ta = vtkSmartPointer<vtkTextActor>::New();
   ta->SetInput("This is a test");
-  ta->GetTextProperty()->SetColor( 0.0, 1.0, 0.0 );
+  ta->GetTextProperty()->SetColor(0.0, 1.0, 0.0);
 
-  vtkSmartPointer<vtkTextWidget> widget =
-    vtkSmartPointer<vtkTextWidget>::New();
+  vtkSmartPointer<vtkTextWidget> widget = vtkSmartPointer<vtkTextWidget>::New();
 
-  vtkSmartPointer<vtkTextRepresentation> rep =
-    vtkSmartPointer<vtkTextRepresentation>::New();
-  rep->GetPositionCoordinate()->SetValue( .15, .15 );
-  rep->GetPosition2Coordinate()->SetValue( .7, .2 );
-  widget->SetRepresentation( rep );
+  vtkSmartPointer<vtkTextRepresentation> rep = vtkSmartPointer<vtkTextRepresentation>::New();
+  rep->GetPositionCoordinate()->SetValue(.15, .15);
+  rep->GetPosition2Coordinate()->SetValue(.7, .2);
+  widget->SetRepresentation(rep);
 
   widget->SetInteractor(iren);
   widget->SetTextActor(ta);
@@ -88,9 +79,9 @@ int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
+  //  recorder->Record();
+  //  recorder->ReadFromInputStringOn();
+  //  recorder->SetInputString(eventLog);
 
   // render the image
   //
@@ -98,7 +89,7 @@ int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   renWin->Render();
   widget->On();
   renWin->Render();
-//  recorder->Play();
+  //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
@@ -107,7 +98,4 @@ int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->Start();
 
   return EXIT_SUCCESS;
-
 }
-
-

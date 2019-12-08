@@ -17,16 +17,16 @@
  *
  *
  * An abstract class that encapsulates common functionality for all AMR readers.
-*/
+ */
 
 #ifndef vtkAMRBaseReader_h
 #define vtkAMRBaseReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
-#include <vector>    // STL vector header
-#include <map>       // STL map header
-#include <utility>   // for STL pair
+#include <map>     // STL map header
+#include <utility> // for STL pair
+#include <vector>  // STL vector header
 
 // Forward Declarations
 class vtkOverlappingAMR;
@@ -38,12 +38,11 @@ class vtkAMRDataSetCache;
 class vtkUniformGrid;
 class vtkDataArray;
 
-class VTKIOAMR_EXPORT vtkAMRBaseReader :
-  public vtkOverlappingAMRAlgorithm
+class VTKIOAMR_EXPORT vtkAMRBaseReader : public vtkOverlappingAMRAlgorithm
 {
 public:
-  vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkAMRBaseReader, vtkOverlappingAMRAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initializes the AMR reader.
@@ -55,13 +54,10 @@ public:
   /**
    * Set/Get Reader caching property
    */
-  vtkSetMacro( EnableCaching, vtkTypeBool );
-  vtkGetMacro( EnableCaching, vtkTypeBool );
-  vtkBooleanMacro( EnableCaching, vtkTypeBool );
-  bool IsCachingEnabled() const
-  {
-     return( (this->EnableCaching)?true:false);
-  };
+  vtkSetMacro(EnableCaching, vtkTypeBool);
+  vtkGetMacro(EnableCaching, vtkTypeBool);
+  vtkBooleanMacro(EnableCaching, vtkTypeBool);
+  bool IsCachingEnabled() const { return ((this->EnableCaching) ? true : false); };
   //@}
 
   //@{
@@ -69,15 +65,15 @@ public:
    * Set/Get a multiprocess-controller for reading in parallel.
    * By default this parameter is set to nullptr by the constructor.
    */
-  vtkSetMacro( Controller, vtkMultiProcessController* );
-  vtkGetMacro( Controller, vtkMultiProcessController* );
+  vtkSetMacro(Controller, vtkMultiProcessController*);
+  vtkGetMacro(Controller, vtkMultiProcessController*);
   //@}
 
   //@{
   /**
    * Set the level, up to which the blocks are loaded.
    */
-  vtkSetMacro( MaxLevel,int);
+  vtkSetMacro(MaxLevel, int);
   //@}
 
   //@{
@@ -122,8 +118,8 @@ public:
    * Set/Get the filename. Concrete instances of this class must implement
    * the SetFileName method accordingly.
    */
-  vtkGetStringMacro( FileName );
-  virtual void SetFileName( const char *fileName ) = 0;
+  vtkGetStringMacro(FileName);
+  virtual void SetFileName(const char* fileName) = 0;
   //@}
 
   /**
@@ -149,20 +145,20 @@ protected:
    * Determines if the block is owned by this process based on the
    * the block index and total number of processes.
    */
-  bool IsBlockMine( const int blockIdx );
+  bool IsBlockMine(const int blockIdx);
 
   /**
    * Loads the AMR block corresponding to the given index. The block
    * is either loaded from the file, or, from the cache if caching is
    * enabled.
    */
-  vtkUniformGrid* GetAMRBlock( const int blockIdx );
+  vtkUniformGrid* GetAMRBlock(const int blockIdx);
 
   /**
    * This method assigns blocks to processes using block-cyclic distribution.
    * It is the method that is used to load distributed AMR data by default.
    */
-  void AssignAndLoadBlocks( vtkOverlappingAMR *amrds );
+  void AssignAndLoadBlocks(vtkOverlappingAMR* amrds);
 
   /**
    * This method loads all the blocks in the BlockMap for the given process.
@@ -170,28 +166,25 @@ protected:
    * the flag LOAD_REQUESTED_BLOCKS which indicates that the downstream filter
    * has already assigned which blocks are needed for each process.
    */
-  void LoadRequestedBlocks( vtkOverlappingAMR *amrds );
+  void LoadRequestedBlocks(vtkOverlappingAMR* amrds);
 
   /**
    * Loads the AMR data corresponding to the given field name.
    * NOTE: Currently, only cell-data are supported.
    */
-  void GetAMRData(
-    const int blockIdx, vtkUniformGrid *block, const char *fieldName );
-
+  void GetAMRData(const int blockIdx, vtkUniformGrid* block, const char* fieldName);
 
   /**
    * Loads the AMR point data corresponding to the given field name.
    */
-  void GetAMRPointData(
-    const int blockIdx, vtkUniformGrid *block, const char *fieldName );
+  void GetAMRPointData(const int blockIdx, vtkUniformGrid* block, const char* fieldName);
 
   /**
    * A wrapper that loops over point arrays and load the point
    * arrays that are enabled, i.e., selected for the given block.
    * NOTE: This method is currently not implemented.
    */
-  void LoadPointData( const int blockIdx, vtkUniformGrid *block );
+  void LoadPointData(const int blockIdx, vtkUniformGrid* block);
 
   /**
    * A wrapper that loops over all cell arrays and loads the cell
@@ -199,7 +192,7 @@ protected:
    * The data are either loaded from the file, or, from the cache if
    * caching is enabled.
    */
-  void LoadCellData( const int blockIdx, vtkUniformGrid *block );
+  void LoadCellData(const int blockIdx, vtkUniformGrid* block);
 
   /**
    * Returns the block process ID for the block corresponding to the
@@ -209,7 +202,7 @@ protected:
    * a process according to blockIdx%N, where N is the total number of
    * processes.
    */
-  int GetBlockProcessId( const int blockIdx );
+  int GetBlockProcessId(const int blockIdx);
 
   /**
    * Initializes the request of blocks to be loaded. This method checks
@@ -218,7 +211,7 @@ protected:
    * level associated with this reader instance to determine which blocks
    * are to be loaded.
    */
-  void SetupBlockRequest( vtkInformation *outputInfo );
+  void SetupBlockRequest(vtkInformation* outputInfo);
 
   /**
    * Reads all the metadata from the file. Implemented by concrete classes.
@@ -228,51 +221,46 @@ protected:
   /**
    * Returns the block level for the given block
    */
-  virtual int GetBlockLevel( const int blockIdx ) = 0;
+  virtual int GetBlockLevel(const int blockIdx) = 0;
 
   /**
    * Loads all the AMR metadata & constructs the LevelIdxPair12InternalIdx
    * datastructure which maps (level,id) pairs to an internal linear index
    * used to identify the corresponding block.
    */
-  virtual int FillMetaData( ) = 0;
+  virtual int FillMetaData() = 0;
 
   /**
    * Loads the block according to the index w.r.t. the generated BlockMap.
    */
-  virtual vtkUniformGrid* GetAMRGrid( const int blockIdx ) = 0;
+  virtual vtkUniformGrid* GetAMRGrid(const int blockIdx) = 0;
 
   /**
    * Loads the block data
    */
-  virtual void GetAMRGridData(
-      const int blockIdx, vtkUniformGrid *block, const char *field ) = 0;
+  virtual void GetAMRGridData(const int blockIdx, vtkUniformGrid* block, const char* field) = 0;
 
   /**
    * Loads the block Point data
    */
   virtual void GetAMRGridPointData(
-      const int blockIdx, vtkUniformGrid *block, const char *field ) = 0;
+    const int blockIdx, vtkUniformGrid* block, const char* field) = 0;
 
   //@{
   /**
    * Standard Pipeline methods, subclasses may override this method if needed.
    */
- int RequestData(
-      vtkInformation* vtkNotUsed(request),
-      vtkInformationVector** vtkNotUsed(inputVector),
-      vtkInformationVector* outputVector ) override;
-  int RequestInformation(
-      vtkInformation* rqst,
-      vtkInformationVector** inputVector,
-      vtkInformationVector* outputVector ) override;
-  int FillOutputPortInformation(int port,vtkInformation *info) override;
+  int RequestData(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* rqst, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   //@}
 
   // Array selection member variables and methods
-  vtkDataArraySelection *PointDataArraySelection;
-  vtkDataArraySelection *CellDataArraySelection;
-  vtkCallbackCommand    *SelectionObserver;
+  vtkDataArraySelection* PointDataArraySelection;
+  vtkDataArraySelection* CellDataArraySelection;
+  vtkCallbackCommand* SelectionObserver;
 
   /**
    * Initializes the array selections. If this is an initial request,
@@ -290,26 +278,26 @@ protected:
    * Call-back registered with the SelectionObserver.
    */
   static void SelectionModifiedCallback(
-    vtkObject *caller,unsigned long eid,void *clientdata,void *calldata );
+    vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
   bool InitialRequest;
   int MaxLevel;
-  char *FileName;
-  vtkMultiProcessController *Controller;
+  char* FileName;
+  vtkMultiProcessController* Controller;
 
   vtkTypeBool EnableCaching;
-  vtkAMRDataSetCache *Cache;
+  vtkAMRDataSetCache* Cache;
   int NumBlocksFromFile;
   int NumBlocksFromCache;
 
-  vtkOverlappingAMR *Metadata;
+  vtkOverlappingAMR* Metadata;
   bool LoadedMetaData;
 
-    std::vector<int> BlockMap;
+  std::vector<int> BlockMap;
 
 private:
-  vtkAMRBaseReader( const vtkAMRBaseReader& ) = delete;
-  void operator=( const vtkAMRBaseReader& ) = delete;
+  vtkAMRBaseReader(const vtkAMRBaseReader&) = delete;
+  void operator=(const vtkAMRBaseReader&) = delete;
 };
 
 #endif /* vtkAMRBaseReader_h */

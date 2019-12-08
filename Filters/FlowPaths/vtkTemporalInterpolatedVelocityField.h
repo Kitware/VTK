@@ -43,7 +43,7 @@
  * @sa
  * vtkCachingInterpolatedVelocityField vtkParticleTracerBase
  * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
-*/
+ */
 
 #ifndef vtkTemporalInterpolatedVelocityField_h
 #define vtkTemporalInterpolatedVelocityField_h
@@ -54,10 +54,10 @@
 
 #include <vector> // Because they are good
 
-#define ID_INSIDE_ALL  00
+#define ID_INSIDE_ALL 00
 #define ID_OUTSIDE_ALL 01
-#define ID_OUTSIDE_T0  02
-#define ID_OUTSIDE_T1  03
+#define ID_OUTSIDE_T0 02
+#define ID_OUTSIDE_T1 03
 
 class vtkDataSet;
 class vtkDataArray;
@@ -69,14 +69,14 @@ class vtkCachingInterpolatedVelocityField;
 class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
-  vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
+  vtkTypeMacro(vtkTemporalInterpolatedVelocityField, vtkFunctionSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkTemporalInterpolatedVelocityField with no initial data set.
    * Caching is on. LastCellId is set to -1.
    */
-  static vtkTemporalInterpolatedVelocityField *New();
+  static vtkTemporalInterpolatedVelocityField* New();
 
   using Superclass::FunctionValues;
   //@{
@@ -93,8 +93,7 @@ public:
    * here. By default this is nullptr and the filter will use the active vector
    * array.
    */
-  void SelectVectors(const char *fieldName)
-    {this->SetVectorsSelection(fieldName);}
+  void SelectVectors(const char* fieldName) { this->SetVectorsSelection(fieldName); }
 
   /**
    * In order to use this class, two sets of data must be supplied,
@@ -133,24 +132,22 @@ public:
    * If an interpolation was successful, we can retrieve the last computed
    * value from here. Initial value is (0.0,0.0,0.0)
    */
-  vtkGetVector3Macro(LastGoodVelocity,double);
+  vtkGetVector3Macro(LastGoodVelocity, double);
   //@}
 
   //@{
   /**
    * Get the most recent weight between 0->1 from T1->T2. Initial value is 0.
    */
-  vtkGetMacro(CurrentWeight,double);
+  vtkGetMacro(CurrentWeight, double);
   //@}
 
-  bool InterpolatePoint(vtkPointData *outPD1,
-    vtkPointData *outPD2, vtkIdType outIndex);
+  bool InterpolatePoint(vtkPointData* outPD1, vtkPointData* outPD2, vtkIdType outIndex);
 
-  bool InterpolatePoint(int T, vtkPointData *outPD1, vtkIdType outIndex);
+  bool InterpolatePoint(int T, vtkPointData* outPD1, vtkIdType outIndex);
 
   bool GetVorticityData(
-    int T, double pcoords[3], double *weights,
-    vtkGenericCell *&cell, vtkDoubleArray *cellVectors);
+    int T, double pcoords[3], double* weights, vtkGenericCell*& cell, vtkDoubleArray* cellVectors);
 
   void ShowCacheResults();
   bool IsStatic(int datasetIndex);
@@ -162,7 +159,7 @@ protected:
   ~vtkTemporalInterpolatedVelocityField() override;
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
-  virtual void SetVectorsSelection(const char *v);
+  virtual void SetVectorsSelection(const char* v);
 
   double Vals1[3];
   double Vals2[3];

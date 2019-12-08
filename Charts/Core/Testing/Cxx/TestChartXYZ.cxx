@@ -15,41 +15,39 @@
 
 #include "vtkAxis.h"
 #include "vtkChartXYZ.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkPlotPoints3D.h"
 
-#include "vtkRenderer.h"
+#include "vtkCallbackCommand.h"
+#include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkCallbackCommand.h"
 
 // Need a timer so that we can animate, and then take a snapshot!
 namespace
 {
 static double angle = 0;
 
-void ProcessEvents(vtkObject *caller, unsigned long,
-                   void *clientData, void *callerData)
+void ProcessEvents(vtkObject* caller, unsigned long, void* clientData, void* callerData)
 {
-  vtkChartXYZ *chart = reinterpret_cast<vtkChartXYZ *>(clientData);
-  vtkRenderWindowInteractor *interactor =
-      reinterpret_cast<vtkRenderWindowInteractor *>(caller);
+  vtkChartXYZ* chart = reinterpret_cast<vtkChartXYZ*>(clientData);
+  vtkRenderWindowInteractor* interactor = reinterpret_cast<vtkRenderWindowInteractor*>(caller);
   angle += 2;
   chart->SetAngle(angle);
   interactor->Render();
   if (angle >= 90)
   {
-    int timerId = *reinterpret_cast<int *>(callerData);
+    int timerId = *reinterpret_cast<int*>(callerData);
     interactor->DestroyTimer(timerId);
   }
 }
 } // End of anonymous namespace.
 
-int TestChartXYZ(int , char * [])
+int TestChartXYZ(int, char*[])
 {
   // Now the chart
   vtkNew<vtkChartXYZ> chart;
@@ -81,7 +79,7 @@ int TestChartXYZ(int , char * [])
   table->AddColumn(arrS);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -90,16 +88,16 @@ int TestChartXYZ(int , char * [])
     table->SetValue(i, 2, sin(i * inc) + 0.0);
   }
 
-  //chart->SetAroundX(true);
+  // chart->SetAroundX(true);
   // Add the three dimensions we are interested in visualizing.
   vtkNew<vtkPlotPoints3D> plot;
   plot->SetInputData(table, "X Axis", "Sine", "Cosine");
   chart->AddPlot(plot);
   const vtkColor4ub axisColor(20, 200, 30);
   chart->SetAxisColor(axisColor);
-  chart->GetAxis(0)->SetUnscaledRange(-0.1,7.6);
-  chart->GetAxis(1)->SetUnscaledRange(-1.1,1.1);
-  chart->GetAxis(2)->SetUnscaledRange(-1.1,1.1);
+  chart->GetAxis(0)->SetUnscaledRange(-0.1, 7.6);
+  chart->GetAxis(1)->SetUnscaledRange(-1.1, 1.1);
+  chart->GetAxis(2)->SetUnscaledRange(-1.1, 1.1);
   chart->RecalculateTransform();
 
   // We want a duplicate, that does not move.
@@ -114,8 +112,7 @@ int TestChartXYZ(int , char * [])
   vtkNew<vtkCallbackCommand> callback;
   callback->SetClientData(chart);
   callback->SetCallback(::ProcessEvents);
-  view->GetInteractor()->AddObserver(vtkCommand::TimerEvent, callback,
-                                0);
+  view->GetInteractor()->AddObserver(vtkCommand::TimerEvent, callback, 0);
   view->GetInteractor()->CreateRepeatingTimer(1000 / 25);
 
   view->GetInteractor()->Start();

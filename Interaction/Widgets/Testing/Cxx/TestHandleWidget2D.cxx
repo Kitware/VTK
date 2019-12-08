@@ -18,76 +18,70 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkCursor2D.h"
-#include "vtkCoordinate.h"
-#include "vtkDiskSource.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkActor2D.h"
-#include "vtkRenderer.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkCursor2D.h"
+#include "vtkDiskSource.h"
+#include "vtkHandleWidget.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkPointHandleRepresentation2D.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkRenderer.h"
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
 class vtkHandle2Callback : public vtkCommand
 {
 public:
-  static vtkHandle2Callback *New()
-  { return new vtkHandle2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkHandle2Callback* New() { return new vtkHandle2Callback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkHandleWidget *handleWidget =
-      reinterpret_cast<vtkHandleWidget*>(caller);
+    vtkHandleWidget* handleWidget = reinterpret_cast<vtkHandleWidget*>(caller);
     double pos[3];
-    static_cast<vtkHandleRepresentation *>(handleWidget->GetRepresentation())->GetDisplayPosition(pos);
-    this->Actor->SetPosition(pos[0],pos[1]);
+    static_cast<vtkHandleRepresentation*>(handleWidget->GetRepresentation())
+      ->GetDisplayPosition(pos);
+    this->Actor->SetPosition(pos[0], pos[1]);
   }
-  vtkHandle2Callback():Actor(nullptr) {}
-  vtkActor2D *Actor;
+  vtkHandle2Callback()
+    : Actor(nullptr)
+  {
+  }
+  vtkActor2D* Actor;
 };
 
-int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestHandleWidget2D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create two widgets
   //
-  vtkSmartPointer<vtkDiskSource> diskSource =
-    vtkSmartPointer<vtkDiskSource>::New();
+  vtkSmartPointer<vtkDiskSource> diskSource = vtkSmartPointer<vtkDiskSource>::New();
   diskSource->SetInnerRadius(0.0);
   diskSource->SetOuterRadius(2);
 
-  vtkSmartPointer<vtkPolyDataMapper2D> diskMapper =
-    vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  vtkSmartPointer<vtkPolyDataMapper2D> diskMapper = vtkSmartPointer<vtkPolyDataMapper2D>::New();
   diskMapper->SetInputConnection(diskSource->GetOutputPort());
 
-  vtkSmartPointer<vtkActor2D> diskActor =
-    vtkSmartPointer<vtkActor2D>::New();
+  vtkSmartPointer<vtkActor2D> diskActor = vtkSmartPointer<vtkActor2D>::New();
   diskActor->SetMapper(diskMapper);
-  diskActor->SetPosition(165,180);
+  diskActor->SetPosition(165, 180);
 
-  vtkSmartPointer<vtkDiskSource> diskSource2 =
-    vtkSmartPointer<vtkDiskSource>::New();
+  vtkSmartPointer<vtkDiskSource> diskSource2 = vtkSmartPointer<vtkDiskSource>::New();
   diskSource2->SetInnerRadius(0.0);
   diskSource2->SetOuterRadius(2);
 
-  vtkSmartPointer<vtkPolyDataMapper2D> diskMapper2 =
-    vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  vtkSmartPointer<vtkPolyDataMapper2D> diskMapper2 = vtkSmartPointer<vtkPolyDataMapper2D>::New();
   diskMapper2->SetInputConnection(diskSource2->GetOutputPort());
 
-  vtkSmartPointer<vtkActor2D> diskActor2 =
-    vtkSmartPointer<vtkActor2D>::New();
+  vtkSmartPointer<vtkActor2D> diskActor2 = vtkSmartPointer<vtkActor2D>::New();
   diskActor2->SetMapper(diskMapper2);
-  diskActor2->SetPosition(50,50);
+  diskActor2->SetPosition(50, 50);
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -95,8 +89,7 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->SetRenderWindow(renWin);
 
   // The cursor shape can be defined externally. Here we use a default.
-  vtkSmartPointer<vtkCursor2D> cursor2D =
-    vtkSmartPointer<vtkCursor2D>::New();
+  vtkSmartPointer<vtkCursor2D> cursor2D = vtkSmartPointer<vtkCursor2D>::New();
   cursor2D->AllOff();
   cursor2D->AxesOn();
   cursor2D->OutlineOn();
@@ -109,31 +102,27 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   handleRep->ActiveRepresentationOn();
   handleRep->SetCursorShape(cursor2D->GetOutput());
 
-  vtkSmartPointer<vtkHandleWidget> handleWidget =
-    vtkSmartPointer<vtkHandleWidget>::New();
+  vtkSmartPointer<vtkHandleWidget> handleWidget = vtkSmartPointer<vtkHandleWidget>::New();
   handleWidget->SetInteractor(iren);
   handleWidget->SetRepresentation(handleRep);
 
-  vtkSmartPointer<vtkHandle2Callback> callback =
-    vtkSmartPointer<vtkHandle2Callback>::New();
+  vtkSmartPointer<vtkHandle2Callback> callback = vtkSmartPointer<vtkHandle2Callback>::New();
   callback->Actor = diskActor;
-  handleWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+  handleWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   vtkSmartPointer<vtkPointHandleRepresentation2D> handleRep2 =
     vtkSmartPointer<vtkPointHandleRepresentation2D>::New();
   handleRep2->SetDisplayPosition(diskActor2->GetPosition());
-//  handleRep2->ActiveRepresentationOn();
+  //  handleRep2->ActiveRepresentationOn();
   handleRep2->SetCursorShape(cursor2D->GetOutput());
 
-  vtkSmartPointer<vtkHandleWidget> handleWidget2 =
-    vtkSmartPointer<vtkHandleWidget>::New();
+  vtkSmartPointer<vtkHandleWidget> handleWidget2 = vtkSmartPointer<vtkHandleWidget>::New();
   handleWidget2->SetInteractor(iren);
   handleWidget2->SetRepresentation(handleRep2);
 
-  vtkSmartPointer<vtkHandle2Callback> callback2 =
-    vtkSmartPointer<vtkHandle2Callback>::New();
+  vtkSmartPointer<vtkHandle2Callback> callback2 = vtkSmartPointer<vtkHandle2Callback>::New();
   callback2->Actor = diskActor2;
-  handleWidget2->AddObserver(vtkCommand::InteractionEvent,callback2);
+  handleWidget2->AddObserver(vtkCommand::InteractionEvent, callback2);
 
   ren1->AddActor(diskActor);
   ren1->AddActor(diskActor2);
@@ -148,15 +137,15 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
+  //  recorder->Record();
+  //  recorder->ReadFromInputStringOn();
+  //  recorder->SetInputString(eventLog);
 
   // render the image
   //
   iren->Initialize();
   renWin->Render();
-//  recorder->Play();
+  //  recorder->Play();
   handleWidget->On();
   handleWidget2->On();
 
@@ -167,5 +156,4 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->Start();
 
   return EXIT_SUCCESS;
-
 }

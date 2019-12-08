@@ -22,12 +22,12 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
@@ -39,17 +39,15 @@
 // Define to print debugging info:
 //#define DEBUG_BTA3D
 
-namespace {
+namespace
+{
 
 #ifdef DEBUG_BTA3D
-std::ostream& PrintCoords(const std::string &label,
-                          const double w[4], const double d[4],
-                          std::ostream &out)
+std::ostream& PrintCoords(
+  const std::string& label, const double w[4], const double d[4], std::ostream& out)
 {
-  out << label
-      << "\n-WorldCoord: " << w[0] << " " << w[1] << " " << w[2] << " " << w[3]
-      << "\n-DispCoord:  " << d[0] << " " << d[1] << " " << d[2] << " " << d[3]
-      << "\n";
+  out << label << "\n-WorldCoord: " << w[0] << " " << w[1] << " " << w[2] << " " << w[3]
+      << "\n-DispCoord:  " << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << "\n";
   return out;
 }
 #endif // DEBUG_BTA3D
@@ -62,13 +60,13 @@ std::ostream& PrintCoords(const std::string &label,
 class FastDepthAwareCoordinateConverter
 {
 public:
-  explicit FastDepthAwareCoordinateConverter(vtkRenderer *ren);
+  explicit FastDepthAwareCoordinateConverter(vtkRenderer* ren);
 
   void WorldToDisplay(const double wc[4], double dc[4]) const;
   void DisplayToWorld(const double dc[4], double wc[4]) const;
 
 private:
-  double MVP[16]; // Model * View * Proj matrix
+  double MVP[16];    // Model * View * Proj matrix
   double InvMVP[16]; // Inverse Model * View * Proj matrix
   double Viewport[4];
   double NormalizedViewport[4];
@@ -76,34 +74,31 @@ private:
   double DisplayOffset[2];
 };
 
-FastDepthAwareCoordinateConverter::
-FastDepthAwareCoordinateConverter(vtkRenderer *ren)
+FastDepthAwareCoordinateConverter::FastDepthAwareCoordinateConverter(vtkRenderer* ren)
 {
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkCamera* cam = ren->GetActiveCamera();
   assert(cam); // We check in the text actor for this.
 
   // figure out the same aspect ratio used by the render engine
   // (see vtkOpenGLCamera::Render())
-  int  lowerLeft[2];
+  int lowerLeft[2];
   int usize, vsize;
   double aspect1[2];
   double aspect2[2];
-  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
   ren->ComputeAspect();
   ren->GetAspect(aspect1);
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = (aspect1[0] * aspect2[1]) /
-                              (aspect1[1] * aspect2[0]);
+  double aspectModification = (aspect1[0] * aspect2[1]) / (aspect1[1] * aspect2[0]);
   double aspect = aspectModification * usize / vsize;
 
   // Build AMVP/InvAMVP
-  vtkMatrix4x4::DeepCopy(
-        this->MVP, cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1));
+  vtkMatrix4x4::DeepCopy(this->MVP, cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1));
   vtkMatrix4x4::Invert(this->MVP, this->InvMVP);
 
   // Various other bits needed for conversion
-  int *size = ren->GetSize();
+  int* size = ren->GetSize();
   this->ViewportSize[0] = size[0];
   this->ViewportSize[1] = size[1];
 
@@ -122,33 +117,30 @@ FastDepthAwareCoordinateConverter(vtkRenderer *ren)
   this->DisplayOffset[1] = this->Viewport[1] * size[1] + 0.5;
 }
 
-void FastDepthAwareCoordinateConverter::
-WorldToDisplay(const double wc[4], double dc[4]) const
+void FastDepthAwareCoordinateConverter::WorldToDisplay(const double wc[4], double dc[4]) const
 {
   // This is adapted from vtkCoordinate's world to display conversion. It is
   // extended to handle a depth value for the display coordinate.
 
   // vtkRenderer::WorldToView
-  const double *x = this->MVP; // Alias so we can write math easier
-  dc[0] = wc[0] * x[0]  + wc[1] * x[1]  + wc[2] * x[2]  + wc[3] * x[3];
-  dc[1] = wc[0] * x[4]  + wc[1] * x[5]  + wc[2] * x[6]  + wc[3] * x[7];
-  dc[2] = wc[0] * x[8]  + wc[1] * x[9]  + wc[2] * x[10] + wc[3] * x[11];
+  const double* x = this->MVP; // Alias so we can write math easier
+  dc[0] = wc[0] * x[0] + wc[1] * x[1] + wc[2] * x[2] + wc[3] * x[3];
+  dc[1] = wc[0] * x[4] + wc[1] * x[5] + wc[2] * x[6] + wc[3] * x[7];
+  dc[2] = wc[0] * x[8] + wc[1] * x[9] + wc[2] * x[10] + wc[3] * x[11];
   dc[3] = wc[0] * x[12] + wc[1] * x[13] + wc[2] * x[14] + wc[3] * x[15];
 
-  double invW  = 1. / dc[3];
+  double invW = 1. / dc[3];
   dc[0] *= invW;
   dc[1] *= invW;
   dc[2] *= invW;
 
   // vtkViewport::ViewToNormalizedViewport
-  dc[0] = this->NormalizedViewport[0] + ((dc[0] + 1.) / 2.) *
-      (this->NormalizedViewport[2] - this->NormalizedViewport[0]);
-  dc[1] = this->NormalizedViewport[1] + ((dc[1] + 1.) / 2.) *
-      (this->NormalizedViewport[3] - this->NormalizedViewport[1]);
-  dc[0] = (dc[0] - this->Viewport[0]) /
-      (this->Viewport[2] - this->Viewport[0]);
-  dc[1] = (dc[1] - this->Viewport[1]) /
-      (this->Viewport[3] - this->Viewport[1]);
+  dc[0] = this->NormalizedViewport[0] +
+    ((dc[0] + 1.) / 2.) * (this->NormalizedViewport[2] - this->NormalizedViewport[0]);
+  dc[1] = this->NormalizedViewport[1] +
+    ((dc[1] + 1.) / 2.) * (this->NormalizedViewport[3] - this->NormalizedViewport[1]);
+  dc[0] = (dc[0] - this->Viewport[0]) / (this->Viewport[2] - this->Viewport[0]);
+  dc[1] = (dc[1] - this->Viewport[1]) / (this->Viewport[3] - this->Viewport[1]);
 
   // vtkViewport::NormalizedViewportToViewport
   dc[0] *= this->ViewportSize[0] - 1.;
@@ -160,13 +152,12 @@ WorldToDisplay(const double wc[4], double dc[4]) const
   dc[1] += this->DisplayOffset[1];
 }
 
-void FastDepthAwareCoordinateConverter::
-DisplayToWorld(const double dc[4], double wc[4]) const
+void FastDepthAwareCoordinateConverter::DisplayToWorld(const double dc[4], double wc[4]) const
 {
   // Just the inverse of WorldToDisplay....
 
   // Make a copy of the input so we can modify it in place before the matrix mul
-  double t[4] = {dc[0], dc[1], dc[2], dc[3]};
+  double t[4] = { dc[0], dc[1], dc[2], dc[3] };
   t[0] -= this->DisplayOffset[0];
   t[1] -= this->DisplayOffset[1];
 
@@ -177,29 +168,31 @@ DisplayToWorld(const double dc[4], double wc[4]) const
   t[1] = t[1] * (this->Viewport[3] - this->Viewport[1]) + this->Viewport[1];
 
   t[0] = 2. * (t[0] - this->NormalizedViewport[0]) /
-      (this->NormalizedViewport[2] - this->NormalizedViewport[0]) - 1.;
+      (this->NormalizedViewport[2] - this->NormalizedViewport[0]) -
+    1.;
   t[1] = 2. * (t[1] - this->NormalizedViewport[1]) /
-      (this->NormalizedViewport[3] - this->NormalizedViewport[1]) - 1.;
+      (this->NormalizedViewport[3] - this->NormalizedViewport[1]) -
+    1.;
 
   t[0] *= t[3];
   t[1] *= t[3];
   t[2] *= t[3];
 
-  const double *x = this->InvMVP; // Alias so we can write math easier
-  wc[0] = t[0] * x[0]  + t[1] * x[1]  + t[2] * x[2]  + t[3] * x[3];
-  wc[1] = t[0] * x[4]  + t[1] * x[5]  + t[2] * x[6]  + t[3] * x[7];
-  wc[2] = t[0] * x[8]  + t[1] * x[9]  + t[2] * x[10] + t[3] * x[11];
+  const double* x = this->InvMVP; // Alias so we can write math easier
+  wc[0] = t[0] * x[0] + t[1] * x[1] + t[2] * x[2] + t[3] * x[3];
+  wc[1] = t[0] * x[4] + t[1] * x[5] + t[2] * x[6] + t[3] * x[7];
+  wc[2] = t[0] * x[8] + t[1] * x[9] + t[2] * x[10] + t[3] * x[11];
   wc[3] = t[0] * x[12] + t[1] * x[13] + t[2] * x[14] + t[3] * x[15];
 }
 
 } // end anon namespace
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkBillboardTextActor3D)
-vtkCxxSetObjectMacro(vtkBillboardTextActor3D, TextProperty, vtkTextProperty)
+vtkObjectFactoryNewMacro(vtkBillboardTextActor3D);
+vtkCxxSetObjectMacro(vtkBillboardTextActor3D, TextProperty, vtkTextProperty);
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkBillboardTextActor3D::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -208,10 +201,10 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
      << indent << "RenderedDPI: " << this->RenderedDPI << "\n"
      << indent << "InputMTime: " << this->InputMTime << "\n"
      << indent << "TextRenderer: " << this->TextRenderer << "\n"
-     << indent << "AnchorDC: " << this->AnchorDC[0] << " " << this->AnchorDC[1]
-     << " " << this->AnchorDC[2] << "\n"
-     << indent << "DisplayOffset: " << this->DisplayOffset[0] << " "
-     << this->DisplayOffset[1] << "\n";
+     << indent << "AnchorDC: " << this->AnchorDC[0] << " " << this->AnchorDC[1] << " "
+     << this->AnchorDC[2] << "\n"
+     << indent << "DisplayOffset: " << this->DisplayOffset[0] << " " << this->DisplayOffset[1]
+     << "\n";
 
   os << indent << "Image:\n";
   this->Image->PrintSelf(os, indent.GetNextIndent());
@@ -230,11 +223,11 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::SetInput(const char *in)
+void vtkBillboardTextActor3D::SetInput(const char* in)
 {
   // Adapted vtkSetStringMacro to also mark InputMTime as modified:
   if ((this->Input == nullptr && in == nullptr) ||
-      (this->Input && in && strcmp(this->Input, in) == 0))
+    (this->Input && in && strcmp(this->Input, in) == 0))
   {
     return;
   }
@@ -309,14 +302,14 @@ vtkTypeBool vtkBillboardTextActor3D::HasTranslucentPolygonalGeometry()
 }
 
 //------------------------------------------------------------------------------
-int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
+int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport* vp)
 {
   if (!this->InputIsValid())
   {
     return 0;
   }
 
-  vtkRenderer *ren = vtkRenderer::SafeDownCast(vp);
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(vp);
   if (!ren || ren->GetActiveCamera() == nullptr)
   {
     vtkErrorMacro("Viewport is not a renderer, or missing a camera.");
@@ -328,8 +321,7 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
   this->RenderedRenderer = ren;
 
   // Alert OpenGL1 GL2PS export that this prop needs special handling:
-  if (ren->GetRenderWindow() &&
-      ren->GetRenderWindow()->GetCapturingGL2PSSpecialProps())
+  if (ren->GetRenderWindow() && ren->GetRenderWindow()->GetCapturingGL2PSSpecialProps())
   {
     ren->CaptureGL2PSSpecialProp(this);
   }
@@ -341,7 +333,7 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-int vtkBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+int vtkBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
   if (!this->InputIsValid() || !this->IsValid())
   {
@@ -357,7 +349,7 @@ int vtkBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
+void vtkBillboardTextActor3D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->RenderedRenderer = nullptr;
   this->Texture->ReleaseGraphicsResources(win);
@@ -366,7 +358,7 @@ void vtkBillboardTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //------------------------------------------------------------------------------
-double *vtkBillboardTextActor3D::GetBounds()
+double* vtkBillboardTextActor3D::GetBounds()
 {
   if (this->RenderedRenderer)
   {
@@ -389,9 +381,9 @@ double *vtkBillboardTextActor3D::GetBounds()
 
 //------------------------------------------------------------------------------
 vtkBillboardTextActor3D::vtkBillboardTextActor3D()
-  : Input(nullptr),
-    TextProperty(vtkTextProperty::New()),
-    RenderedDPI(-1)
+  : Input(nullptr)
+  , TextProperty(vtkTextProperty::New())
+  , RenderedDPI(-1)
 {
   std::fill(this->AnchorDC, this->AnchorDC + 3, 0.);
   std::fill(this->DisplayOffset, this->DisplayOffset + 2, 0);
@@ -433,14 +425,12 @@ vtkBillboardTextActor3D::~vtkBillboardTextActor3D()
 //------------------------------------------------------------------------------
 bool vtkBillboardTextActor3D::InputIsValid()
 {
-  return (this->Input != nullptr &&
-          this->Input[0] != '\0' &&
-          this->TextProperty != nullptr &&
-          this->TextRenderer != nullptr);
+  return (this->Input != nullptr && this->Input[0] != '\0' && this->TextProperty != nullptr &&
+    this->TextRenderer != nullptr);
 }
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::UpdateInternals(vtkRenderer *ren)
+void vtkBillboardTextActor3D::UpdateInternals(vtkRenderer* ren)
 {
   if (this->TextureIsStale(ren))
   {
@@ -454,15 +444,15 @@ void vtkBillboardTextActor3D::UpdateInternals(vtkRenderer *ren)
 }
 
 //------------------------------------------------------------------------------
-bool vtkBillboardTextActor3D::TextureIsStale(vtkRenderer *ren)
+bool vtkBillboardTextActor3D::TextureIsStale(vtkRenderer* ren)
 {
   return (this->RenderedDPI != ren->GetRenderWindow()->GetDPI() ||
-          this->Image->GetMTime() < this->InputMTime ||
-          this->Image->GetMTime() < this->TextProperty->GetMTime());
+    this->Image->GetMTime() < this->InputMTime ||
+    this->Image->GetMTime() < this->TextProperty->GetMTime());
 }
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
+void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer* ren)
 {
 #ifdef DEBUG_BTA3D
   std::cerr << "Generating texture for string: " << this->Input << std::endl;
@@ -470,8 +460,7 @@ void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
 
   int dpi = ren->GetRenderWindow()->GetDPI();
 
-  if (!this->TextRenderer->RenderString(this->TextProperty, this->Input,
-                                        this->Image, nullptr, dpi))
+  if (!this->TextRenderer->RenderString(this->TextProperty, this->Input, this->Image, nullptr, dpi))
   {
     vtkErrorMacro("Error rendering text string: " << this->Input);
     this->Invalidate();
@@ -482,25 +471,23 @@ void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
 }
 
 //------------------------------------------------------------------------------
-bool vtkBillboardTextActor3D::QuadIsStale(vtkRenderer *ren)
+bool vtkBillboardTextActor3D::QuadIsStale(vtkRenderer* ren)
 {
   return (this->Quad->GetMTime() < this->GetMTime() ||
-          this->Quad->GetMTime() < this->Image->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetRenderWindow()->GetMTime() ||
-          this->Quad->GetMTime() < ren->GetActiveCamera()->GetMTime());
+    this->Quad->GetMTime() < this->Image->GetMTime() || this->Quad->GetMTime() < ren->GetMTime() ||
+    this->Quad->GetMTime() < ren->GetRenderWindow()->GetMTime() ||
+    this->Quad->GetMTime() < ren->GetActiveCamera()->GetMTime());
 }
 
 //------------------------------------------------------------------------------
-void vtkBillboardTextActor3D::GenerateQuad(vtkRenderer *ren)
+void vtkBillboardTextActor3D::GenerateQuad(vtkRenderer* ren)
 {
 #ifdef DEBUG_BTA3D
   std::cerr << "Generating quad for string: " << this->Input << std::endl;
 #endif // DEBUG_BTA3D
 
   vtkTextRenderer::Metrics metrics;
-  if (!this->TextRenderer->GetMetrics(this->TextProperty, this->Input, metrics,
-                                      this->RenderedDPI))
+  if (!this->TextRenderer->GetMetrics(this->TextProperty, this->Input, metrics, this->RenderedDPI))
   {
     vtkErrorMacro("Error retrieving text metrics for string: " << this->Input);
     this->Invalidate();
@@ -515,14 +502,13 @@ void vtkBillboardTextActor3D::GenerateQuad(vtkRenderer *ren)
 
   // Actual size of the text in the texture (in case we allocated NPOT)
   int textSize[2] = { metrics.BoundingBox[1] - metrics.BoundingBox[0] + 1,
-                      metrics.BoundingBox[3] - metrics.BoundingBox[2] + 1 };
+    metrics.BoundingBox[3] - metrics.BoundingBox[2] + 1 };
 
   // Maximum texture coordinate:
   float tcMax[2] = { textSize[0] / static_cast<float>(textureSize[0]),
-                     textSize[1] / static_cast<float>(textureSize[1]) };
+    textSize[1] / static_cast<float>(textureSize[1]) };
 
-  vtkFloatArray *tc =
-      vtkFloatArray::FastDownCast(this->Quad->GetPointData()->GetTCoords());
+  vtkFloatArray* tc = vtkFloatArray::FastDownCast(this->Quad->GetPointData()->GetTCoords());
   assert(tc);
   tc->SetNumberOfComponents(2);
   tc->SetNumberOfTuples(4);
@@ -537,8 +523,7 @@ void vtkBillboardTextActor3D::GenerateQuad(vtkRenderer *ren)
   tc->Modified();
 
   // Now figure out the world coordinates for our quad (the hard part...):
-  vtkFloatArray *quadPoints =
-      vtkFloatArray::FastDownCast(this->Quad->GetPoints()->GetData());
+  vtkFloatArray* quadPoints = vtkFloatArray::FastDownCast(this->Quad->GetPoints()->GetData());
   assert(quadPoints);
 
   // This takes care of projecting/unprojecting the points:

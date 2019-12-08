@@ -14,21 +14,20 @@
 =========================================================================*/
 #include "vtkLeaderActor2D.h"
 
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkLeaderActor2D);
 
-vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
-
+vtkCxxSetObjectMacro(vtkLeaderActor2D, LabelTextProperty, vtkTextProperty);
 
 //----------------------------------------------------------------------------
 // Instantiate this object.
@@ -49,7 +48,7 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LabelFactor = 1.0;
   this->AutoLabel = 0;
   this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
+  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
 
   this->ArrowPlacement = vtkLeaderActor2D::VTK_ARROW_BOTH;
   this->ArrowStyle = vtkLeaderActor2D::VTK_ARROW_FILLED;
@@ -74,10 +73,10 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LeaderPoints = vtkPoints::New();
 
   this->LeaderLines = vtkCellArray::New();
-  this->LeaderLines->EstimateSize(1,2);
+  this->LeaderLines->AllocateEstimate(1, 2);
 
   this->LeaderArrows = vtkCellArray::New();
-  this->LeaderArrows->EstimateSize(2,3);
+  this->LeaderArrows->AllocateEstimate(2, 3);
 
   this->Leader = vtkPolyData::New();
   this->Leader->SetPoints(this->LeaderPoints);
@@ -100,10 +99,10 @@ vtkLeaderActor2D::~vtkLeaderActor2D()
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
 
-  delete [] this->Label;
+  delete[] this->Label;
   this->Label = nullptr;
 
-  delete [] this->LabelFormat;
+  delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
 
   this->LeaderPoints->Delete();
@@ -117,26 +116,24 @@ vtkLeaderActor2D::~vtkLeaderActor2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
+void vtkLeaderActor2D::BuildLeader(vtkViewport* viewport)
 {
   // Check to see whether we need to rebuild-----------------------------
   int positionsHaveChanged = 0;
   if (viewport->GetMTime() > this->BuildTime ||
-      (viewport->GetVTKWindow() && viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
+    (viewport->GetVTKWindow() && viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
-    int *lastPosition = this->PositionCoordinate->GetComputedViewportValue(viewport);
-    int *lastPosition2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-    if (lastPosition[0] != this->LastPosition[0] ||
-        lastPosition[1] != this->LastPosition[1] ||
-        lastPosition2[0] != this->LastPosition2[0] ||
-        lastPosition2[1] != this->LastPosition2[1] )
+    int* lastPosition = this->PositionCoordinate->GetComputedViewportValue(viewport);
+    int* lastPosition2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
+    if (lastPosition[0] != this->LastPosition[0] || lastPosition[1] != this->LastPosition[1] ||
+      lastPosition2[0] != this->LastPosition2[0] || lastPosition2[1] != this->LastPosition2[1])
     {
       positionsHaveChanged = 1;
     }
   }
 
-  int *size = viewport->GetSize();
-  int viewportSizeHasChanged=0;
+  int* size = viewport->GetSize();
+  int viewportSizeHasChanged = 0;
   // See whether fonts have to be rebuilt (font size depends on viewport size)
   if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1])
   {
@@ -145,9 +142,8 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
     this->LastSize[1] = size[1];
   }
 
-  if (!positionsHaveChanged && !viewportSizeHasChanged &&
-      this->GetMTime() < this->BuildTime &&
-      this->LabelTextProperty->GetMTime() < this->BuildTime )
+  if (!positionsHaveChanged && !viewportSizeHasChanged && this->GetMTime() < this->BuildTime &&
+    this->LabelTextProperty->GetMTime() < this->BuildTime)
   {
     return;
   }
@@ -155,7 +151,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
   // Okay, we have some work to do. We build the leader in three parts:
   // 1) the line connecting the two points, 2) the text label, and 3) the
   // arrow head(s) if any.
-  vtkDebugMacro(<<"Rebuilding leader"); //---------------------------------
+  vtkDebugMacro(<< "Rebuilding leader"); //---------------------------------
 
   // Initialize the data
   this->LeaderPoints->Initialize();
@@ -166,7 +162,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
 
   // The easiest part is determining the two end points of the line.
   double p1[3], p2[3], ray[3];
-  int *x = this->PositionCoordinate->GetComputedViewportValue(viewport);
+  int* x = this->PositionCoordinate->GetComputedViewportValue(viewport);
   p1[0] = static_cast<double>(x[0]);
   p1[1] = static_cast<double>(x[1]);
   p1[2] = 0.0;
@@ -184,7 +180,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
   ray[1] = p2[1] - p1[1];
   ray[2] = 0.0;
   double rayLength = vtkMath::Norm(ray);
-  if ( rayLength <= 0.0 )
+  if (rayLength <= 0.0)
   {
     return;
   }
@@ -202,29 +198,29 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
 
   // If there is a suitable radius then a curved leader must be created.
   // Remember the radius is expresses as a factor times the distance between (p1,p2).
-  if ( fabs(this->Radius) > 0.5 )
+  if (fabs(this->Radius) > 0.5)
   {
-    this->BuildCurvedLeader(p1,p2,ray,rayLength,theta,viewport,viewportSizeHasChanged);
+    this->BuildCurvedLeader(p1, p2, ray, rayLength, theta, viewport, viewportSizeHasChanged);
     return;
   }
 
   // Okay, we can continue building the straight leader--------------------------
   this->LeaderPoints->SetNumberOfPoints(8);
-  this->LeaderPoints->SetPoint(0,p1);
-  this->LeaderPoints->SetPoint(4,p2);
+  this->LeaderPoints->SetPoint(0, p1);
+  this->LeaderPoints->SetPoint(4, p2);
   this->LeaderPoints->Modified();
 
   // Build the labels
-  int i, clippedLeader=0;
+  int i, clippedLeader = 0;
   double xL[3], xR[3], c1[3], c2[3];
-  double *x1 = this->PositionCoordinate->GetComputedWorldValue(viewport);
-  double *x2 = this->Position2Coordinate->GetComputedWorldValue(viewport);
-  this->Length = sqrt(vtkMath::Distance2BetweenPoints(x1,x2));
+  double* x1 = this->PositionCoordinate->GetComputedWorldValue(viewport);
+  double* x2 = this->Position2Coordinate->GetComputedWorldValue(viewport);
+  this->Length = sqrt(vtkMath::Distance2BetweenPoints(x1, x2));
 
-  if ( this->AutoLabel || (this->Label != nullptr && this->Label[0] != 0) )
+  if (this->AutoLabel || (this->Label != nullptr && this->Label[0] != 0))
   {
     int stringSize[2];
-    if ( this->AutoLabel )
+    if (this->AutoLabel)
     {
       char string[512];
       snprintf(string, sizeof(string), this->LabelFormat, this->Length);
@@ -248,37 +244,37 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
     {
       this->LabelMapper->GetSize(viewport, stringSize);
     }
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      xL[i] = p1[i] + 0.5*ray[i];
+      xL[i] = p1[i] + 0.5 * ray[i];
     }
 
     // Now clip the leader with the label box
-    if ( (clippedLeader=this->ClipLeader(xL,stringSize,p1,ray,c1,c2)) )
+    if ((clippedLeader = this->ClipLeader(xL, stringSize, p1, ray, c1, c2)))
     {
-      this->LabelActor->SetPosition(xL[0],xL[1]);
-      this->LeaderPoints->SetPoint(3,c1);
-      this->LeaderPoints->SetPoint(7,c2);
+      this->LabelActor->SetPosition(xL[0], xL[1]);
+      this->LeaderPoints->SetPoint(3, c1);
+      this->LeaderPoints->SetPoint(7, c2);
     }
-    else //we cannot fit the text in the leader, it has to be placed next to the leader
+    else // we cannot fit the text in the leader, it has to be placed next to the leader
     {
-      double w = static_cast<double>(stringSize[0])/2.0;
-      double h = static_cast<double>(stringSize[1])/2.0;
-      double r = sqrt(h*h+w*w);
-      xL[0] = xL[0] + r*sin(theta);
-      xL[1] = xL[1] - r*cos(theta);
-      this->LabelActor->SetPosition(xL[0],xL[1]);
+      double w = static_cast<double>(stringSize[0]) / 2.0;
+      double h = static_cast<double>(stringSize[1]) / 2.0;
+      double r = sqrt(h * h + w * w);
+      xL[0] = xL[0] + r * sin(theta);
+      xL[1] = xL[1] - r * cos(theta);
+      this->LabelActor->SetPosition(xL[0], xL[1]);
     }
   } // If label visible
 
-  if ( !clippedLeader )
-  { //we just draw a single line across 'cause there is no label in the leader
+  if (!clippedLeader)
+  { // we just draw a single line across 'cause there is no label in the leader
     this->LeaderLines->InsertNextCell(2);
     this->LeaderLines->InsertCellPoint(0);
     this->LeaderLines->InsertCellPoint(4);
   }
   else
-  { //draw two lines separated by label
+  { // draw two lines separated by label
     this->LeaderLines->InsertNextCell(2);
     this->LeaderLines->InsertCellPoint(0);
     this->LeaderLines->InsertCellPoint(3);
@@ -288,71 +284,71 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
   }
 
   // Build the arrows---------------------------------------
-  if ( this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_NONE )
+  if (this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_NONE)
   {
-    ; //do nothin
+    ; // do nothin
   }
-  else //we are creating arrows
+  else // we are creating arrows
   {
     this->Leader->Modified();
     // Convert width and length to viewport (pixel) coordinates
-    double dist = sqrt(static_cast<double>(size[0]*size[0] + size[1]*size[1]));
+    double dist = sqrt(static_cast<double>(size[0] * size[0] + size[1] * size[1]));
     double width = this->ArrowWidth * dist / 2.0;
     double length = this->ArrowLength * dist;
-    if ( length < width && length < this->MinimumArrowSize )
+    if (length < width && length < this->MinimumArrowSize)
     {
-      width = this->MinimumArrowSize*width/length;
+      width = this->MinimumArrowSize * width / length;
       length = this->MinimumArrowSize;
     }
-    else if ( width < length && width < this->MinimumArrowSize )
+    else if (width < length && width < this->MinimumArrowSize)
     {
-      length = this->MinimumArrowSize*length/width;
+      length = this->MinimumArrowSize * length / width;
       width = this->MinimumArrowSize;
     }
-    if ( length > width && length > this->MaximumArrowSize )
+    if (length > width && length > this->MaximumArrowSize)
     {
-      width = this->MaximumArrowSize*width/length;
+      width = this->MaximumArrowSize * width / length;
       length = this->MaximumArrowSize;
     }
-    else if ( width > length && width > this->MaximumArrowSize )
+    else if (width > length && width > this->MaximumArrowSize)
     {
-      length = this->MaximumArrowSize*length/width;
+      length = this->MaximumArrowSize * length / width;
       width = this->MaximumArrowSize;
     }
 
     // Find the position along the line for the arrows and create the additional points
     double a1[3], a2[3];
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      a1[i] = p1[i] + (length/rayLength)*ray[i];
-      a2[i] = p1[i] + (1.0-(length/rayLength))*ray[i];
+      a1[i] = p1[i] + (length / rayLength) * ray[i];
+      a2[i] = p1[i] + (1.0 - (length / rayLength)) * ray[i];
     }
-    if ( this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_POINT1 ||
-         this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_BOTH )
+    if (this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_POINT1 ||
+      this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_BOTH)
     {
-      xL[0] = a1[0] + width*sin(theta);
-      xL[1] = a1[1] - width*cos(theta);
-      xR[0] = a1[0] + width*sin(theta2);
-      xR[1] = a1[1] - width*cos(theta2);
+      xL[0] = a1[0] + width * sin(theta);
+      xL[1] = a1[1] - width * cos(theta);
+      xR[0] = a1[0] + width * sin(theta2);
+      xR[1] = a1[1] - width * cos(theta2);
       xR[2] = xL[2] = 0.0;
 
-      this->LeaderPoints->SetPoint(1,xL);
-      this->LeaderPoints->SetPoint(2,xR);
-      if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_FILLED )
+      this->LeaderPoints->SetPoint(1, xL);
+      this->LeaderPoints->SetPoint(2, xR);
+      if (this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_FILLED)
       {
         this->LeaderArrows->InsertNextCell(3);
         this->LeaderArrows->InsertCellPoint(0);
         this->LeaderArrows->InsertCellPoint(1);
         this->LeaderArrows->InsertCellPoint(2);
       }
-      else if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_OPEN )
+      else if (this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_OPEN)
       {
         this->LeaderLines->InsertNextCell(3);
         this->LeaderLines->InsertCellPoint(1);
         this->LeaderLines->InsertCellPoint(0);
         this->LeaderLines->InsertCellPoint(2);
       }
-      else //if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_HOLLOW )
+      else // if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_HOLLOW )
       {
         this->LeaderLines->InsertNextCell(4);
         this->LeaderLines->InsertCellPoint(1);
@@ -361,32 +357,32 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
         this->LeaderLines->InsertCellPoint(1);
       }
     }
-    if ( this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_POINT2 ||
-         this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_BOTH )
+    if (this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_POINT2 ||
+      this->ArrowPlacement == vtkLeaderActor2D::VTK_ARROW_BOTH)
     {
-      xL[0] = a2[0] + width*sin(theta);
-      xL[1] = a2[1] - width*cos(theta);
-      xR[0] = a2[0] + width*sin(theta2);
-      xR[1] = a2[1] - width*cos(theta2);
+      xL[0] = a2[0] + width * sin(theta);
+      xL[1] = a2[1] - width * cos(theta);
+      xR[0] = a2[0] + width * sin(theta2);
+      xR[1] = a2[1] - width * cos(theta2);
       xR[2] = xL[2] = 0.0;
 
-      this->LeaderPoints->SetPoint(5,xL);
-      this->LeaderPoints->SetPoint(6,xR);
-      if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_FILLED )
+      this->LeaderPoints->SetPoint(5, xL);
+      this->LeaderPoints->SetPoint(6, xR);
+      if (this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_FILLED)
       {
         this->LeaderArrows->InsertNextCell(3);
         this->LeaderArrows->InsertCellPoint(4);
         this->LeaderArrows->InsertCellPoint(5);
         this->LeaderArrows->InsertCellPoint(6);
       }
-      else if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_OPEN )
+      else if (this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_OPEN)
       {
         this->LeaderLines->InsertNextCell(3);
         this->LeaderLines->InsertCellPoint(5);
         this->LeaderLines->InsertCellPoint(4);
         this->LeaderLines->InsertCellPoint(6);
       }
-      else //if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_HOLLOW )
+      else // if ( this->ArrowStyle == vtkLeaderActor2D::VTK_ARROW_HOLLOW )
       {
         this->LeaderLines->InsertNextCell(4);
         this->LeaderLines->InsertCellPoint(5);
@@ -395,22 +391,21 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
         this->LeaderLines->InsertCellPoint(5);
       }
     }
-  } //creating arrows
-
+  } // creating arrows
 
   this->BuildTime.Modified();
 }
 
 //----------------------------------------------------------------------------
 #define VTK_LA2D_FACTOR 0.015
-int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper,
-                                  int *targetSize, double factor, int *stringSize)
+int vtkLeaderActor2D::SetFontSize(
+  vtkViewport* viewport, vtkTextMapper* textMapper, int* targetSize, double factor, int* stringSize)
 {
   int fontSize, targetWidth, targetHeight;
 
   targetWidth = targetSize[0] > targetSize[1] ? targetSize[0] : targetSize[1];
-  targetHeight = static_cast<int>(VTK_LA2D_FACTOR * factor * targetSize[0] +
-                                  VTK_LA2D_FACTOR * factor * targetSize[1]);
+  targetHeight = static_cast<int>(
+    VTK_LA2D_FACTOR * factor * targetSize[0] + VTK_LA2D_FACTOR * factor * targetSize[1]);
 
   fontSize = textMapper->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
   textMapper->GetSize(viewport, stringSize);
@@ -419,10 +414,9 @@ int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapp
 }
 #undef VTK_LA2D_FACTOR
 
-
 //----------------------------------------------------------------------------
-int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
-                                 double ray[3], double c1[3], double c2[3])
+int vtkLeaderActor2D::ClipLeader(
+  double center[3], int box[2], double p1[3], double ray[3], double c1[3], double c2[3])
 {
   // Separately compute the parametric coordinates due to x-line and y-line
   // intersections. Take the coordinate closest to the center of the line.
@@ -431,9 +425,9 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
   double y = center[1] + box[1];
 
   // x-line
-  if ( ray[0] != 0.0 )
+  if (ray[0] != 0.0)
   {
-    tx = (x - p1[0])/ray[0];
+    tx = (x - p1[0]) / ray[0];
   }
   else
   {
@@ -441,9 +435,9 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
   }
 
   // y-line
-  if ( ray[1] != 0.0 )
+  if (ray[1] != 0.0)
   {
-    ty = (y - p1[1])/ray[1];
+    ty = (y - p1[1]) / ray[1];
   }
   else
   {
@@ -451,18 +445,18 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
   }
 
   // Find the closest intersection point nearest the center of the box
-  t = ( fabs(tx-0.5) < fabs(ty-0.5) ? tx : ty );
-  if ( fabs(t-0.5) > 0.45 )
+  t = (fabs(tx - 0.5) < fabs(ty - 0.5) ? tx : ty);
+  if (fabs(t - 0.5) > 0.45)
   {
-    return 0; //won't fit along line
+    return 0; // won't fit along line
   }
   else
   {
-    t = ( t>0.5 ? t : 1.0-t); //make sure t is to the right of the midpoint
-    for (int i=0; i<3; i++)
+    t = (t > 0.5 ? t : 1.0 - t); // make sure t is to the right of the midpoint
+    for (int i = 0; i < 3; i++)
     {
-      c1[i] = p1[i] + (1.0-t)*ray[i];
-      c2[i] = p1[i] +       t*ray[i];
+      c1[i] = p1[i] + (1.0 - t) * ray[i];
+      c2[i] = p1[i] + t * ray[i];
     }
     return 1;
   }
@@ -470,74 +464,72 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
 
 //----------------------------------------------------------------------------
 void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[3],
-                                         double rayLength, double theta,
-                                         vtkViewport *viewport, int viewportChanged)
+  double rayLength, double theta, vtkViewport* viewport, int viewportChanged)
 {
   // Determine where the center is
-  double radius = fabs(this->Radius)*rayLength;
+  double radius = fabs(this->Radius) * rayLength;
   double midPoint[3], center[3];
   int i;
-  midPoint[0] = p1[0] + 0.5*ray[0];
-  midPoint[1] = p1[1] + 0.5*ray[1];
-  midPoint[2] = p1[2] + 0.5*ray[2];
-  double d = sqrt(radius*radius - rayLength*rayLength/4.0);
-  if ( this->Radius > 0 )
+  midPoint[0] = p1[0] + 0.5 * ray[0];
+  midPoint[1] = p1[1] + 0.5 * ray[1];
+  midPoint[2] = p1[2] + 0.5 * ray[2];
+  double d = sqrt(radius * radius - rayLength * rayLength / 4.0);
+  if (this->Radius > 0)
   {
-    center[0] = midPoint[0] + d*sin(theta);
-    center[1] = midPoint[1] - d*cos(theta);
+    center[0] = midPoint[0] + d * sin(theta);
+    center[1] = midPoint[1] - d * cos(theta);
     center[2] = 0.0;
   }
   else
   {
-    center[0] = midPoint[0] - d*sin(theta);
-    center[1] = midPoint[1] + d*cos(theta);
+    center[0] = midPoint[0] - d * sin(theta);
+    center[1] = midPoint[1] + d * cos(theta);
     center[2] = 0.0;
   }
 
   // Compute some angles; make sure they are <= 180 degrees
-  double phi = atan2(rayLength/2.0,d);
-  double theta1 = atan2(p1[1]-center[1],p1[0]-center[0]);
-  double theta2 = atan2(p2[1]-center[1],p2[0]-center[0]);
-  if ( (theta1 >= 0.0 && theta1 <= vtkMath::Pi() &&
-        theta2 >= 0.0 && theta2 <= vtkMath::Pi()) ||
-       (theta1 <= 0.0 && theta1 >= -vtkMath::Pi() &&
-        theta2 <= 0.0 && theta2 >= -vtkMath::Pi()) )
+  double phi = atan2(rayLength / 2.0, d);
+  double theta1 = atan2(p1[1] - center[1], p1[0] - center[0]);
+  double theta2 = atan2(p2[1] - center[1], p2[0] - center[0]);
+  if ((theta1 >= 0.0 && theta1 <= vtkMath::Pi() && theta2 >= 0.0 && theta2 <= vtkMath::Pi()) ||
+    (theta1 <= 0.0 && theta1 >= -vtkMath::Pi() && theta2 <= 0.0 && theta2 >= -vtkMath::Pi()))
   {
-    ; //do nothin angles are fine
+    ; // do nothin angles are fine
   }
-  else if ( theta1 >= 0.0 && theta2 <= 0.0 )
+  else if (theta1 >= 0.0 && theta2 <= 0.0)
   {
-    if ( (theta1 - theta2) >= vtkMath::Pi() )
+    if ((theta1 - theta2) >= vtkMath::Pi())
     {
-      theta2 = theta2 + 2.0*vtkMath::Pi();
+      theta2 = theta2 + 2.0 * vtkMath::Pi();
     }
   }
-  else //if ( theta1 <= 0.0 && theta2 >= 0.0 )
+  else // if ( theta1 <= 0.0 && theta2 >= 0.0 )
   {
-    if ( (theta2 - theta1) >= vtkMath::Pi() )
+    if ((theta2 - theta1) >= vtkMath::Pi())
     {
-      theta1 = theta1 + 2.0*vtkMath::Pi();
+      theta1 = theta1 + 2.0 * vtkMath::Pi();
     }
   }
 
   // Build the polyline for the leader. Start by generating the points.
-  double x[3]; x[2]=0.0;
-  double length = radius*phi;
-  int numDivs = static_cast<int>((length / 3.0) + 1); //every three pixels
-  for (i=0; i<=numDivs; i++)
+  double x[3];
+  x[2] = 0.0;
+  double length = radius * phi;
+  int numDivs = static_cast<int>((length / 3.0) + 1); // every three pixels
+  for (i = 0; i <= numDivs; i++)
   {
-    theta = theta1 + (static_cast<double>(i)/numDivs)*(theta2-theta1);
-    x[0] = center[0] + radius*cos(theta);
-    x[1] = center[1] + radius*sin(theta);
-    this->LeaderPoints->InsertPoint(i,x);
+    theta = theta1 + (static_cast<double>(i) / numDivs) * (theta2 - theta1);
+    x[0] = center[0] + radius * cos(theta);
+    x[1] = center[1] + radius * sin(theta);
+    this->LeaderPoints->InsertPoint(i, x);
   }
 
   // Now insert lines. Only those not clipped by the string are added.
-  this->Angle = vtkMath::DegreesFromRadians( theta1 - theta2);
-  if ( this->AutoLabel || (this->Label != nullptr && this->Label[0] != 0) )
+  this->Angle = vtkMath::DegreesFromRadians(theta1 - theta2);
+  if (this->AutoLabel || (this->Label != nullptr && this->Label[0] != 0))
   {
     int stringSize[2];
-    if ( this->AutoLabel )
+    if (this->AutoLabel)
     {
       char string[512];
       snprintf(string, sizeof(string), this->LabelFormat, this->Angle);
@@ -554,7 +546,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
 
     if (viewportChanged || this->LabelTextProperty->GetMTime() > this->BuildTime)
     {
-      int *size = viewport->GetSize();
+      int* size = viewport->GetSize();
       this->SetFontSize(viewport, this->LabelMapper, size, this->LabelFactor, stringSize);
     }
     else
@@ -563,43 +555,42 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
     }
 
     double x1[3], c[3];
-    theta = (theta1 + theta2)/2.0;
-    c[0] = center[0] + radius*cos(theta);
-    c[1] = center[1] + radius*sin(theta);
+    theta = (theta1 + theta2) / 2.0;
+    c[0] = center[0] + radius * cos(theta);
+    c[1] = center[1] + radius * sin(theta);
     c[2] = 0.0;
-    this->LabelActor->SetPosition(c[0],c[1]);
-    for (i=0; i<numDivs; i++)
+    this->LabelActor->SetPosition(c[0], c[1]);
+    for (i = 0; i < numDivs; i++)
     {
-      this->LeaderPoints->GetPoint(i,x);
-      this->LeaderPoints->GetPoint(i+1,x1);
-      if ( ! this->InStringBox(c,stringSize,x) &&
-           ! this->InStringBox(c,stringSize,x1)  )
+      this->LeaderPoints->GetPoint(i, x);
+      this->LeaderPoints->GetPoint(i + 1, x1);
+      if (!this->InStringBox(c, stringSize, x) && !this->InStringBox(c, stringSize, x1))
       {
         this->LeaderLines->InsertNextCell(2);
         this->LeaderLines->InsertCellPoint(i);
-        this->LeaderLines->InsertCellPoint(i+1);
+        this->LeaderLines->InsertCellPoint(i + 1);
       }
     }
   }
   else // no clipping against the string necessary
   {
-    for (i=0; i<numDivs; i++)
+    for (i = 0; i < numDivs; i++)
     {
       this->LeaderLines->InsertNextCell(2);
       this->LeaderLines->InsertCellPoint(i);
-      this->LeaderLines->InsertCellPoint(i+1);
+      this->LeaderLines->InsertCellPoint(i + 1);
     }
   }
 }
 
 int vtkLeaderActor2D::InStringBox(double center[3], int stringSize[2], double x[3])
 {
-  double minX = center[0] - static_cast<double>(stringSize[0])/2.0;
-  double maxX = center[0] + static_cast<double>(stringSize[0])/2.0;
-  double minY = center[1] - static_cast<double>(stringSize[1])/2.0;
-  double maxY = center[1] + static_cast<double>(stringSize[1])/2.0;
+  double minX = center[0] - static_cast<double>(stringSize[0]) / 2.0;
+  double maxX = center[0] + static_cast<double>(stringSize[0]) / 2.0;
+  double minY = center[1] - static_cast<double>(stringSize[1]) / 2.0;
+  double maxY = center[1] + static_cast<double>(stringSize[1]) / 2.0;
 
-  if ( minX <= x[0] && x[0] <= maxX && minY <= x[1] && x[1] <= maxY )
+  if (minX <= x[0] && x[0] <= maxX && minY <= x[1] && x[1] <= maxY)
   {
     return 1;
   }
@@ -613,7 +604,7 @@ int vtkLeaderActor2D::InStringBox(double center[3], int stringSize[2], double x[
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
-void vtkLeaderActor2D::ReleaseGraphicsResources(vtkWindow *win)
+void vtkLeaderActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->LabelActor->ReleaseGraphicsResources(win);
   this->LeaderActor->ReleaseGraphicsResources(win);
@@ -622,14 +613,14 @@ void vtkLeaderActor2D::ReleaseGraphicsResources(vtkWindow *win)
 //----------------------------------------------------------------------------
 // Build the axis, ticks, title, and labels and render.
 
-int vtkLeaderActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkLeaderActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
-  int renderedSomething=0;
+  int renderedSomething = 0;
   this->BuildLeader(viewport);
 
   // Everything is built, just have to render
-  if ( (this->Label != nullptr && this->Label[0]) || \
-       (this->AutoLabel && this->LabelMapper->GetInput() != nullptr ) )
+  if ((this->Label != nullptr && this->Label[0]) ||
+    (this->AutoLabel && this->LabelMapper->GetInput() != nullptr))
   {
     renderedSomething += this->LabelActor->RenderOpaqueGeometry(viewport);
   }
@@ -641,14 +632,14 @@ int vtkLeaderActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 //----------------------------------------------------------------------------
 // Render the axis, ticks, title, and labels.
 
-int vtkLeaderActor2D::RenderOverlay(vtkViewport *viewport)
+int vtkLeaderActor2D::RenderOverlay(vtkViewport* viewport)
 {
-  int renderedSomething=0;
+  int renderedSomething = 0;
   this->BuildLeader(viewport);
 
   // Everything is built, just have to render
-  if ( (this->Label != nullptr && this->Label[0]) || \
-       (this->AutoLabel && this->LabelMapper->GetInput() != nullptr ) )
+  if ((this->Label != nullptr && this->Label[0]) ||
+    (this->AutoLabel && this->LabelMapper->GetInput() != nullptr))
   {
     renderedSomething += this->LabelActor->RenderOverlay(viewport);
   }
@@ -666,10 +657,10 @@ vtkTypeBool vtkLeaderActor2D::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-void vtkLeaderActor2D::ShallowCopy(vtkProp *prop)
+void vtkLeaderActor2D::ShallowCopy(vtkProp* prop)
 {
-  vtkLeaderActor2D *a = vtkLeaderActor2D::SafeDownCast(prop);
-  if ( a != nullptr )
+  vtkLeaderActor2D* a = vtkLeaderActor2D::SafeDownCast(prop);
+  if (a != nullptr)
   {
     this->SetLabel(a->GetLabel());
     this->SetLabelTextProperty(a->GetLabelTextProperty());
@@ -688,14 +679,14 @@ void vtkLeaderActor2D::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Label: " << (this->Label ? this->Label : "(none)") << "\n";
   if (this->LabelTextProperty)
   {
     os << indent << "Label Text Property:\n";
-    this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    this->LabelTextProperty->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -706,11 +697,11 @@ void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 
   os << indent << "Arrow Style: ";
-  if ( this->ArrowStyle == VTK_ARROW_FILLED )
+  if (this->ArrowStyle == VTK_ARROW_FILLED)
   {
     os << "Filled\n";
   }
-  else if ( this->ArrowStyle == VTK_ARROW_OPEN )
+  else if (this->ArrowStyle == VTK_ARROW_OPEN)
   {
     os << "Open\n";
   }
@@ -725,15 +716,15 @@ void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Arrow Size: " << this->MaximumArrowSize << "\n";
 
   os << indent << "Arrow Placement: ";
-  if ( this->ArrowPlacement == VTK_ARROW_NONE )
+  if (this->ArrowPlacement == VTK_ARROW_NONE)
   {
     os << "No Arrows\n";
   }
-  else if ( this->ArrowPlacement == VTK_ARROW_POINT1 )
+  else if (this->ArrowPlacement == VTK_ARROW_POINT1)
   {
     os << "Arrow on first point\n";
   }
-  else if ( this->ArrowPlacement == VTK_ARROW_POINT2 )
+  else if (this->ArrowPlacement == VTK_ARROW_POINT2)
   {
     os << "Arrow on second point\n";
   }
@@ -745,4 +736,3 @@ void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Angle: " << this->Angle << "\n";
   os << indent << "Length: " << this->Length << "\n";
 }
-

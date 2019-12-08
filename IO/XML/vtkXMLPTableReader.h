@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLTableReader
-*/
+ */
 
 #ifndef vtkXMLPTableReader_h
 #define vtkXMLPTableReader_h
@@ -51,9 +51,9 @@ public:
   //@}
 
   /**
-  * For the specified port, copy the information this reader sets up in
-  * SetupOutputInformation to outInfo
-  */
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
   void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
   /**
@@ -97,9 +97,9 @@ protected:
   vtkIdType GetNumberOfRows();
 
   /**
-  * Get the number of rows in the given piece.  Valid after
-  * UpdateInformation.
-  */
+   * Get the number of rows in the given piece.  Valid after
+   * UpdateInformation.
+   */
   virtual vtkIdType GetNumberOfRowsInPiece(int piece);
 
   vtkTable* GetOutputAsTable();
@@ -194,27 +194,27 @@ protected:
     vtkInformationVector* outputVector) override;
 
   /**
-  * Callback registered with the PieceProgressObserver.
-  */
+   * Callback registered with the PieceProgressObserver.
+   */
   void PieceProgressCallback() override;
 
   /**
-  * Check whether the given array element is an enabled array.
-  */
+   * Check whether the given array element is an enabled array.
+   */
   int ColumnIsEnabled(vtkXMLDataElement* elementRowData);
 
   int GetNumberOfRowArrays();
   const char* GetRowArrayName(int index);
 
   /**
-  * The update request.
-  */
+   * The update request.
+   */
   int UpdatePieceId;
   int UpdateNumberOfPieces;
 
   /**
-  * The range of pieces from the file that will form the UpdatePiece.
-  */
+   * The range of pieces from the file that will form the UpdatePiece.
+   */
   int StartPiece;
   int EndPiece;
   vtkIdType TotalNumberOfRows;
@@ -223,8 +223,8 @@ protected:
   vtkXMLTableReader** PieceReaders;
 
   /**
-  * The PRowData element representations.
-  */
+   * The PRowData element representations.
+   */
   vtkXMLDataElement* PRowElement;
 
   vtkDataArraySelection* ColumnSelection;

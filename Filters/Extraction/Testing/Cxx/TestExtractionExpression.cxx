@@ -1,5 +1,5 @@
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
@@ -29,21 +29,27 @@
 
 #include <numeric>
 
-#define XCELLS  15
-#define YCELLS  15
-#define ZCELLS  15
+#define XCELLS 15
+#define YCELLS 15
+#define ZCELLS 15
 
-namespace {
+namespace
+{
 
-enum {COLORBYCELL, COLORBYPOINT};
+enum
+{
+  COLORBYCELL,
+  COLORBYPOINT
+};
 
-void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *array, vtkRenderer* renderer)
+void showMe(
+  vtkDataSet* result, int X, int Y, int CellOrPoint, vtkDataArray* array, vtkRenderer* renderer)
 {
   vtkSmartPointer<vtkDataSet> copy = vtkSmartPointer<vtkDataSet>::NewInstance(result);
   copy->DeepCopy(result);
   vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputData(copy);
-  double *range = array->GetRange();
+  double* range = array->GetRange();
   if (CellOrPoint == COLORBYCELL)
   {
     copy->GetCellData()->SetActiveScalars(array->GetName());
@@ -56,7 +62,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   }
   mapper->SetScalarRange(range[0], range[1]);
   vtkNew<vtkActor> actor;
-  actor->SetPosition(X*20,Y*20, 0);
+  actor->SetPosition(X * 20, Y * 20, 0);
   actor->SetMapper(mapper);
   actor->GetProperty()->SetPointSize(6.0);
   renderer->AddActor(actor);
@@ -65,21 +71,21 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
 vtkSmartPointer<vtkDataSet> createTestData()
 {
   //--------------------------------------------------------------------------
-  //create a test data set with known structure and data values
-  //the structure will look like a Rubix' cube
-  //the values will be:
-  //three double arrays containing X,Y,and Z coordinates for
-  //each point and cell, where the cell coordinates are the center of the cell
-  //two id type arrays containing Id's or labels that range from 10 to
-  //numpts/cells+10, with one array being the reverse of the other
-  //the scalars datasetattibute will be the X array
-  //the globalids datasetattribute will be the forward running id array
+  // create a test data set with known structure and data values
+  // the structure will look like a Rubix' cube
+  // the values will be:
+  // three double arrays containing X,Y,and Z coordinates for
+  // each point and cell, where the cell coordinates are the center of the cell
+  // two id type arrays containing Id's or labels that range from 10 to
+  // numpts/cells+10, with one array being the reverse of the other
+  // the scalars datasetattibute will be the X array
+  // the globalids datasetattribute will be the forward running id array
 
   auto sampleData = vtkSmartPointer<vtkImageData>::New();
   sampleData->Initialize();
-  sampleData->SetSpacing(1.0,1.0,1.0);
-  sampleData->SetOrigin(0.0,0.0,0.0);
-  sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
+  sampleData->SetSpacing(1.0, 1.0, 1.0);
+  sampleData->SetOrigin(0.0, 0.0, 0.0);
+  sampleData->SetDimensions(XCELLS + 1, YCELLS + 1, ZCELLS + 1);
   sampleData->AllocateScalars(VTK_DOUBLE, 1);
 
   vtkNew<vtkIdTypeArray> pia;
@@ -112,19 +118,19 @@ vtkSmartPointer<vtkDataSet> createTestData()
   pza->SetName("Point Z");
   sampleData->GetPointData()->AddArray(pza);
 
-  //vtkPoints *points = vtkPoints::New();
+  // vtkPoints *points = vtkPoints::New();
   vtkIdType pcnt = 0;
-  for (int i = 0; i < ZCELLS+1; i++)
+  for (int i = 0; i < ZCELLS + 1; i++)
   {
-    for (int j = 0; j < YCELLS+1; j++)
+    for (int j = 0; j < YCELLS + 1; j++)
     {
-      for (int k = 0; k < XCELLS+1; k++)
+      for (int k = 0; k < XCELLS + 1; k++)
       {
-        //points->InsertNextPoint(k,j,i);
+        // points->InsertNextPoint(k,j,i);
 
         pia->InsertNextValue(pcnt);
         int idF = pcnt + 10;
-        int idR = (XCELLS+1)*(YCELLS+1)*(ZCELLS+1)-1 - pcnt + 10;
+        int idR = (XCELLS + 1) * (YCELLS + 1) * (ZCELLS + 1) - 1 - pcnt + 10;
         piaF->InsertNextValue(idF);
         piaR->InsertNextValue(idR);
         pcnt++;
@@ -136,10 +142,10 @@ vtkSmartPointer<vtkDataSet> createTestData()
     }
   }
 
-  //sampleData->SetPoints(points);
-  //points->Delete();
+  // sampleData->SetPoints(points);
+  // points->Delete();
 
-  //vtkIdList *ids = vtkIdList::New();
+  // vtkIdList *ids = vtkIdList::New();
 
   vtkNew<vtkIdTypeArray> cia;
   cia->SetNumberOfComponents(1);
@@ -204,19 +210,18 @@ vtkSmartPointer<vtkDataSet> createTestData()
         cia->InsertNextValue(ccnt);
 
         int idF = ccnt + 10;
-        int idR = (XCELLS)*(YCELLS)*(ZCELLS)-1 - ccnt + 10;
+        int idR = (XCELLS) * (YCELLS) * (ZCELLS)-1 - ccnt + 10;
         ciaF->InsertNextValue(idF);
         ciaR->InsertNextValue(idR);
         ccnt++;
 
-        cxa->InsertNextValue(((double)k+0.5));
-        cya->InsertNextValue(((double)j+0.5));
-        cza->InsertNextValue(((double)i+0.5));
-
+        cxa->InsertNextValue(((double)k + 0.5));
+        cya->InsertNextValue(((double)j + 0.5));
+        cza->InsertNextValue(((double)i + 0.5));
       }
     }
   }
-  //ids->Delete();
+  // ids->Delete();
 
   sampleData->GetPointData()->SetGlobalIds(piaF);
   sampleData->GetPointData()->SetScalars(pxa);
@@ -229,7 +234,7 @@ vtkSmartPointer<vtkDataSet> createTestData()
 
 }
 
-int TestExtractionExpression(int argc, char *argv[])
+int TestExtractionExpression(int argc, char* argv[])
 {
   int DoWrite = 0;
   for (int i = 0; i < argc; i++)
@@ -241,18 +246,18 @@ int TestExtractionExpression(int argc, char *argv[])
   }
 
   //--------------------------------------------------------------------------
-  //create a visualization pipeline to see the results
+  // create a visualization pipeline to see the results
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renwin;
   renwin->SetMultiSamples(0);
-  renwin->SetSize(600,600);
+  renwin->SetSize(600, 600);
   renwin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> rwi;
   rwi->SetRenderWindow(renwin);
 
   auto sampleData = createTestData();
-  //save the test data set
+  // save the test data set
   vtkNew<vtkXMLDataSetWriter> xwriter;
   xwriter->SetInputData(sampleData);
   xwriter->SetFileName("sampleData.vti");
@@ -262,7 +267,7 @@ int TestExtractionExpression(int argc, char *argv[])
   }
 
   //-------------------------------------------------------------------------
-  //Setup the components of the pipeline
+  // Setup the components of the pipeline
   vtkNew<vtkSelection> selection;
   vtkNew<vtkSelectionNode> sel1;
   vtkNew<vtkSelectionNode> sel2;
@@ -288,14 +293,14 @@ int TestExtractionExpression(int argc, char *argv[])
   frustcorners->SetNumberOfComponents(4);
   frustcorners->SetNumberOfTuples(8);
 
-  frustcorners->SetTuple4(0,  0.1, 2.5, 9.5, 0.0);
-  frustcorners->SetTuple4(1,  0.1, 2.5, 2.5, 0.0);
-  frustcorners->SetTuple4(2,  0.1, 9.5, 9.5, 0.0);
-  frustcorners->SetTuple4(3,  0.1, 9.5, 2.5, 0.0);
-  frustcorners->SetTuple4(4,  8.2, 3.2, 4.3, 0.0);
-  frustcorners->SetTuple4(5,  8.2, 3.2, 3.2, 0.0);
-  frustcorners->SetTuple4(6,  8.2, 4.3, 4.3, 0.0);
-  frustcorners->SetTuple4(7,  8.2, 4.3, 3.2, 0.0);
+  frustcorners->SetTuple4(0, 0.1, 2.5, 9.5, 0.0);
+  frustcorners->SetTuple4(1, 0.1, 2.5, 2.5, 0.0);
+  frustcorners->SetTuple4(2, 0.1, 9.5, 9.5, 0.0);
+  frustcorners->SetTuple4(3, 0.1, 9.5, 2.5, 0.0);
+  frustcorners->SetTuple4(4, 8.2, 3.2, 4.3, 0.0);
+  frustcorners->SetTuple4(5, 8.2, 3.2, 3.2, 0.0);
+  frustcorners->SetTuple4(6, 8.2, 4.3, 4.3, 0.0);
+  frustcorners->SetTuple4(7, 8.2, 4.3, 3.2, 0.0);
   sel1->SetSelectionList(frustcorners);
 
   sel2->Initialize();
@@ -306,14 +311,14 @@ int TestExtractionExpression(int argc, char *argv[])
   frustcorners2->SetNumberOfComponents(4);
   frustcorners2->SetNumberOfTuples(8);
 
-  frustcorners2->SetTuple4(0,  0.1, 3.7,  3.1, 0.0);
-  frustcorners2->SetTuple4(1,  0.1, 3.7, 0.1, 0.0);
-  frustcorners2->SetTuple4(2,  7.3,  8.9,  3.1, 0.0);
-  frustcorners2->SetTuple4(3,  7.3,  8.9, 0.1, 0.0);
-  frustcorners2->SetTuple4(4,  2.5, 3.7,  3.1, 0.0);
-  frustcorners2->SetTuple4(5,  2.5, 3.7, 0.1, 0.0);
-  frustcorners2->SetTuple4(6,  9.4,  8.9,  3.1, 0.0);
-  frustcorners2->SetTuple4(7,  9.4,  8.9, 0.1, 0.0);
+  frustcorners2->SetTuple4(0, 0.1, 3.7, 3.1, 0.0);
+  frustcorners2->SetTuple4(1, 0.1, 3.7, 0.1, 0.0);
+  frustcorners2->SetTuple4(2, 7.3, 8.9, 3.1, 0.0);
+  frustcorners2->SetTuple4(3, 7.3, 8.9, 0.1, 0.0);
+  frustcorners2->SetTuple4(4, 2.5, 3.7, 3.1, 0.0);
+  frustcorners2->SetTuple4(5, 2.5, 3.7, 0.1, 0.0);
+  frustcorners2->SetTuple4(6, 9.4, 8.9, 3.1, 0.0);
+  frustcorners2->SetTuple4(7, 9.4, 8.9, 0.1, 0.0);
   sel2->SetSelectionList(frustcorners2);
 
   // add id based selection.
@@ -337,7 +342,6 @@ int TestExtractionExpression(int argc, char *argv[])
     locations->GetNumberOfTuples(), [&]() { return vtkVector3d(index++); });
   sel4->SetSelectionList(locations);
 
-
   // add threshold-based selection
   sel5->SetContentType(vtkSelectionNode::THRESHOLDS);
   sel5->SetFieldType(vtkSelectionNode::CELL);
@@ -348,7 +352,7 @@ int TestExtractionExpression(int argc, char *argv[])
   thresholds->SetTuple2(0, 3350, 4000);
   thresholds->SetTuple2(1, 2000, 2010);
   sel5->SetSelectionList(thresholds);
-
+  sel5->GetProperties()->Set(vtkSelectionNode::CONNECTED_LAYERS(), 1);
 
   ext->Update();
   auto extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -357,8 +361,8 @@ int TestExtractionExpression(int argc, char *argv[])
   double bounds[6];
   sampleData->GetBounds(bounds);
 
-  int retVal = vtkRegressionTestImageThreshold( renwin, 85 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renwin, 85);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     rwi->Start();
   }

@@ -18,9 +18,9 @@
 #ifndef vtkLagrangeInterpolation_h
 #define vtkLagrangeInterpolation_h
 
+#include "vtkCommonDataModelModule.h" // For export macro.
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For API.
-#include "vtkCommonDataModelModule.h" // For export macro.
 
 #include <vector> // For scratch storage.
 
@@ -36,11 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkLagrangeInterpolation : public vtkObject
 public:
   static vtkLagrangeInterpolation* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkLagrangeInterpolation,vtkObject);
-
-  enum Constants {
-    MaxDegree = 10 // The maximum degree that VTK will support.
-  };
+  vtkTypeMacro(vtkLagrangeInterpolation, vtkObject);
 
   static void EvaluateShapeFunctions(int order, double pcoord, double* shape);
   static void EvaluateShapeAndGradient(int order, double pcoord, double* shape, double* grad);
@@ -54,16 +50,13 @@ public:
   static int Tensor3ShapeFunctions(const int order[3], const double* pcoords, double* shape);
   static int Tensor3ShapeDerivatives(const int order[3], const double* pcoords, double* derivs);
 
-  void Tensor3EvaluateDerivative(
-    const int order[3],
-    const double* pcoords,
-    vtkPoints* points,
-    const double* fieldVals,
-    int fieldDim,
-    double* fieldDerivs);
+  void Tensor3EvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,
+    const double* fieldVals, int fieldDim, double* fieldDerivs);
 
-  static void WedgeShapeFunctions(const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
-  static void WedgeShapeDerivatives(const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
+  static void WedgeShapeFunctions(
+    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
+  static void WedgeShapeDerivatives(
+    const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
 
   /**
    * Compute the inverse of the Jacobian and put the values in `inverse`. Returns
@@ -72,21 +65,11 @@ public:
   int JacobianInverse(vtkPoints* points, const double* derivs, double** inverse);
   int JacobianInverseWedge(vtkPoints* points, const double* derivs, double** inverse);
 
-  void WedgeEvaluate(
-    const int order[3],
-    const vtkIdType numberOfPoints,
-    const double* pcoords,
-    double* fieldVals,
-    int fieldDim,
-    double* fieldAtPCoords);
+  void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints, const double* pcoords,
+    double* fieldVals, int fieldDim, double* fieldAtPCoords);
 
-  void WedgeEvaluateDerivative(
-    const int order[3],
-    const double* pcoords,
-    vtkPoints* points,
-    const double* fieldVals,
-    int fieldDim,
-    double* fieldDerivs);
+  void WedgeEvaluateDerivative(const int order[3], const double* pcoords, vtkPoints* points,
+    const double* fieldVals, int fieldDim, double* fieldDerivs);
 
   static vtkVector3d GetParametricHexCoordinates(int vertexId);
   static vtkVector2i GetPointIndicesBoundingHexEdge(int edgeId);
@@ -109,12 +92,15 @@ public:
   static int GetFixedParameterOfWedgeFace(int faceId);
 
   static void AppendCurveCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[1]);
-  static void AppendQuadrilateralCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[2]);
-  static void AppendHexahedronCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[3]);
+  static void AppendQuadrilateralCollocationPoints(
+    vtkSmartPointer<vtkPoints>& pts, const int order[2]);
+  static void AppendHexahedronCollocationPoints(
+    vtkSmartPointer<vtkPoints>& pts, const int order[3]);
   static void AppendWedgeCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[3]);
 
-  template<int N>
+  template <int N>
   static int NumberOfIntervals(const int order[N]);
+
 protected:
   vtkLagrangeInterpolation();
   ~vtkLagrangeInterpolation() override;
@@ -129,14 +115,14 @@ private:
   void operator=(const vtkLagrangeInterpolation&) = delete;
 };
 
-template<int N>
+template <int N>
 int vtkLagrangeInterpolation::NumberOfIntervals(const int order[N])
 {
   int ni = 1;
   for (int n = 0; n < N; ++n)
-    {
+  {
     ni *= order[n];
-    }
+  }
   return ni;
 }
 

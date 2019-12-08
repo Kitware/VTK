@@ -18,7 +18,7 @@
 
 #include "vtkAssume.h"
 #include "vtkConfigure.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArray.h"
 #include "vtkMeta.h"
 #include "vtkSetGet.h"
 #include "vtkType.h"
@@ -36,7 +36,7 @@
 // Specifically:
 // - Specializations are disabled (All code uses the generic implementation).
 // - Additional assertions are inserted to ensure correct runtime usage.
-// - Perfomance-related annotations (e.g. force inlining) are disabled.
+// - Performance-related annotations (e.g. force inlining) are disabled.
 #if defined(VTK_DEBUG_RANGE_ITERATORS)
 #define VTK_ITER_ASSERT(x, msg) assert((x) && msg)
 #else
@@ -58,7 +58,8 @@
 VTK_ITER_OPTIMIZE_START
 
 // For IsAOSDataArray:
-template <typename ValueType> class vtkAOSDataArrayTemplate;
+template <typename ValueType>
+class vtkAOSDataArrayTemplate;
 
 namespace vtk
 {
@@ -78,69 +79,73 @@ static constexpr ComponentIdType DynamicTupleSize = 0;
 //------------------------------------------------------------------------------
 // Detect data array value types
 template <typename T>
-struct IsVtkDataArray : std::is_base_of<vtkDataArray, T> {};
+struct IsVtkDataArray : std::is_base_of<vtkDataArray, T>
+{
+};
 
 template <typename T>
-using EnableIfVtkDataArray =
-typename std::enable_if<IsVtkDataArray<T>::value>::type;
+using EnableIfVtkDataArray = typename std::enable_if<IsVtkDataArray<T>::value>::type;
 
 //------------------------------------------------------------------------------
 // If a value is a valid tuple size
 template <ComponentIdType Size>
-struct IsValidTupleSize :
-    std::integral_constant<bool, (Size > 0 || Size == DynamicTupleSize)> {};
+struct IsValidTupleSize : std::integral_constant<bool, (Size > 0 || Size == DynamicTupleSize)>
+{
+};
 
 template <ComponentIdType TupleSize>
-using EnableIfValidTupleSize =
-typename std::enable_if<IsValidTupleSize<TupleSize>::value>::type;
+using EnableIfValidTupleSize = typename std::enable_if<IsValidTupleSize<TupleSize>::value>::type;
 
 //------------------------------------------------------------------------------
 // If a value is a non-dynamic tuple size
 template <ComponentIdType Size>
-struct IsStaticTupleSize : std::integral_constant<bool, (Size > 0)> {};
+struct IsStaticTupleSize : std::integral_constant<bool, (Size > 0)>
+{
+};
 
 template <ComponentIdType TupleSize>
-using EnableIfStaticTupleSize =
-typename std::enable_if<IsStaticTupleSize<TupleSize>::value>::type;
+using EnableIfStaticTupleSize = typename std::enable_if<IsStaticTupleSize<TupleSize>::value>::type;
 
 //------------------------------------------------------------------------------
 // If two values are valid non-dynamic tuple sizes:
 template <ComponentIdType S1, ComponentIdType S2>
-struct AreStaticTupleSizes :
-    std::integral_constant<bool, (IsStaticTupleSize<S1>::value &&
-                                  IsStaticTupleSize<S2>::value)> {};
+struct AreStaticTupleSizes
+  : std::integral_constant<bool, (IsStaticTupleSize<S1>::value && IsStaticTupleSize<S2>::value)>
+{
+};
 
 template <ComponentIdType S1, ComponentIdType S2, typename T = void>
 using EnableIfStaticTupleSizes =
-typename std::enable_if<AreStaticTupleSizes<S1, S2>::value, T>::type;
+  typename std::enable_if<AreStaticTupleSizes<S1, S2>::value, T>::type;
 
 //------------------------------------------------------------------------------
 // If either of the tuple sizes is not statically defined
 template <ComponentIdType S1, ComponentIdType S2>
-struct IsEitherTupleSizeDynamic :
-    std::integral_constant<bool, (!IsStaticTupleSize<S1>::value ||
-                                  !IsStaticTupleSize<S2>::value)> {};
+struct IsEitherTupleSizeDynamic
+  : std::integral_constant<bool, (!IsStaticTupleSize<S1>::value || !IsStaticTupleSize<S2>::value)>
+{
+};
 
 template <ComponentIdType S1, ComponentIdType S2, typename T = void>
 using EnableIfEitherTupleSizeIsDynamic =
-typename std::enable_if<IsEitherTupleSizeDynamic<S1, S2>::value, T>::type;
+  typename std::enable_if<IsEitherTupleSizeDynamic<S1, S2>::value, T>::type;
 
 //------------------------------------------------------------------------------
 // Helper that switches between a storageless integral constant for known
 // sizes, and a runtime variable for variable sizes.
 template <ComponentIdType TupleSize>
-struct GenericTupleSize :
-    public std::integral_constant<ComponentIdType, TupleSize>
+struct GenericTupleSize : public std::integral_constant<ComponentIdType, TupleSize>
 {
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
 
 private:
   using Superclass = std::integral_constant<ComponentIdType, TupleSize>;
+
 public:
   // Need to construct from array for specialization.
   using Superclass::Superclass;
-  VTK_ITER_INLINE GenericTupleSize() = default;
-  VTK_ITER_INLINE GenericTupleSize(vtkDataArray *) {}
+  VTK_ITER_INLINE GenericTupleSize() noexcept = default;
+  VTK_ITER_INLINE GenericTupleSize(vtkDataArray*) noexcept {}
 };
 
 // Specialize for dynamic types, mimicking integral_constant API:
@@ -150,7 +155,7 @@ struct GenericTupleSize<DynamicTupleSize>
   using value_type = ComponentIdType;
 
   VTK_ITER_INLINE GenericTupleSize() noexcept : value(0) {}
-  VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray *array)
+  VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray* array)
     : value(array->GetNumberOfComponents())
   {
   }
@@ -161,13 +166,23 @@ struct GenericTupleSize<DynamicTupleSize>
   ComponentIdType value;
 };
 
+template <typename ArrayType>
+struct GetAPITypeImpl
+{
+  using APIType = typename ArrayType::ValueType;
+};
+template <>
+struct GetAPITypeImpl<vtkDataArray>
+{
+  using APIType = double;
+};
+
 } // end namespace detail
 
 //------------------------------------------------------------------------------
 // Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
-template <typename ArrayType,
-          typename = detail::EnableIfVtkDataArray<ArrayType>>
-using GetAPIType = typename vtkDataArrayAccessor<ArrayType>::APIType;
+template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType> >
+using GetAPIType = typename detail::GetAPITypeImpl<ArrayType>::APIType;
 
 //------------------------------------------------------------------------------
 namespace detail
@@ -177,9 +192,7 @@ template <typename ArrayType>
 struct IsAOSDataArrayImpl
 {
   using APIType = GetAPIType<ArrayType>;
-  static constexpr bool value =
-      std::is_base_of<vtkAOSDataArrayTemplate<APIType>, ArrayType>::value;
-
+  static constexpr bool value = std::is_base_of<vtkAOSDataArrayTemplate<APIType>, ArrayType>::value;
 };
 
 } // end namespace detail
@@ -187,8 +200,7 @@ struct IsAOSDataArrayImpl
 //------------------------------------------------------------------------------
 // True if ArrayType inherits some specialization of vtkAOSDataArrayTemplate
 template <typename ArrayType>
-using IsAOSDataArray =
-std::integral_constant<bool, detail::IsAOSDataArrayImpl<ArrayType>::value>;
+using IsAOSDataArray = std::integral_constant<bool, detail::IsAOSDataArrayImpl<ArrayType>::value>;
 
 } // end namespace vtk
 

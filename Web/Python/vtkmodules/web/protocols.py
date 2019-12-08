@@ -183,16 +183,17 @@ class vtkWebViewPort(vtkWebProtocol):
         return str(self.getGlobalId(view))
 
     @exportRpc("viewport.camera.update")
-    def updateCamera(self, view_id, focal_point, view_up, position):
+    def updateCamera(self, view_id, focal_point, view_up, position, forceUpdate = True):
         view = self.getView(view_id)
 
         camera = view.GetRenderers().GetFirstRenderer().GetActiveCamera()
         camera.SetFocalPoint(focal_point)
         camera.SetViewUp(view_up)
         camera.SetPosition(position)
-        self.getApplication().InvalidateCache(view)
 
-        self.getApplication().InvokeEvent('UpdateEvent')
+        if forceUpdate:
+            self.getApplication().InvalidateCache(view)
+            self.getApplication().InvokeEvent('UpdateEvent')
 
 # =============================================================================
 #

@@ -30,14 +30,14 @@
  *    Port 0 - vtkDataObject
  *    Port 1 - vtkAnnotationLayers (optional)
  *
-*/
+ */
 
 #ifndef vtkRemoveHiddenData_h
 #define vtkRemoveHiddenData_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkSmartPointer.h"  // For Smartpointer
+#include "vtkSmartPointer.h" // For Smartpointer
 
 class vtkExtractSelectedGraph;
 class vtkExtractSelectedRows;
@@ -45,7 +45,7 @@ class vtkExtractSelectedRows;
 class VTKINFOVISCORE_EXPORT vtkRemoveHiddenData : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkRemoveHiddenData *New();
+  static vtkRemoveHiddenData* New();
   vtkTypeMacro(vtkRemoveHiddenData, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -56,8 +56,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
@@ -70,7 +69,6 @@ private:
 
   vtkSmartPointer<vtkExtractSelectedGraph> ExtractGraph;
   vtkSmartPointer<vtkExtractSelectedRows> ExtractTable;
-
 };
 
 #endif

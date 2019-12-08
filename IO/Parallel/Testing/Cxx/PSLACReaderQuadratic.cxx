@@ -23,44 +23,43 @@
 #include "vtkCamera.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositeRenderManager.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPSLACReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
-#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 struct TestArgs
 {
-  int *retval;
+  int* retval;
   int argc;
-  char **argv;
+  char** argv;
 };
 
 //=============================================================================
-void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_args)
+void PSLACReaderQuadraticMethod(vtkMultiProcessController* controller, void* _args)
 {
-  TestArgs *args = reinterpret_cast<TestArgs *>(_args);
+  TestArgs* args = reinterpret_cast<TestArgs*>(_args);
   int argc = args->argc;
-  char **argv = args->argv;
+  char** argv = args->argv;
   *(args->retval) = 1;
 
   // Set up reader.
   VTK_CREATE(vtkPSLACReader, reader);
 
-  char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                  "Data/SLAC/ll-9cell-f523/ll-9cell-f523.ncdf");
-  char *modeFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-              "Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3");
+  char* meshFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/ll-9cell-f523/ll-9cell-f523.ncdf");
+  char* modeFileName = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3");
   reader->SetMeshFileName(meshFileName);
   reader->AddModeFileName(modeFileName);
 
@@ -70,8 +69,7 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
 
   // Extract geometry that we can render.
   VTK_CREATE(vtkCompositeDataGeometryFilter, geometry);
-  geometry->SetInputConnection(
-                          reader->GetOutputPort(vtkSLACReader::SURFACE_OUTPUT));
+  geometry->SetInputConnection(reader->GetOutputPort(vtkSLACReader::SURFACE_OUTPUT));
 
   // Set up rendering stuff.
   VTK_CREATE(vtkPolyDataMapper, mapper);
@@ -97,7 +95,7 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
   vtkSmartPointer<vtkRenderer> renderer;
   renderer.TakeReference(prm->MakeRenderer());
   renderer->AddActor(actor);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.75, 0.0, 0.7);
   camera->SetFocalPoint(0.0, 0.0, 0.7);
   camera->SetViewUp(0.0, 1.0, 0.0);
@@ -105,13 +103,13 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
   vtkSmartPointer<vtkRenderWindow> renwin;
   renwin.TakeReference(prm->MakeRenderWindow());
   renwin->SetSize(600, 150);
-  renwin->SetPosition(0, 200*controller->GetLocalProcessId());
+  renwin->SetPosition(0, 200 * controller->GetLocalProcessId());
   renwin->AddRenderer(renderer);
 
   prm->SetRenderWindow(renwin);
   prm->SetController(controller);
   prm->InitializePieces();
-  prm->InitializeOffScreen();           // Mesa GL only
+  prm->InitializeOffScreen(); // Mesa GL only
 
   if (controller->GetLocalProcessId() == 0)
   {
@@ -121,8 +119,7 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
     // Change the time to test the periodic mode interpolation.
     geometry->UpdateInformation();
     geometry->GetOutputInformation(0)->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-      3e-10);
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 3e-10);
     renwin->Render();
 
     // Do the test comparison.
@@ -146,8 +143,7 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
     // Change the time to test the periodic mode interpolation.
     geometry->UpdateInformation();
     geometry->GetOutputInformation(0)->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-      3e-10);
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 3e-10);
     prm->StartServices();
   }
 
@@ -155,7 +151,7 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
 }
 
 //=============================================================================
-int PSLACReaderQuadratic(int argc, char *argv[])
+int PSLACReaderQuadratic(int argc, char* argv[])
 {
   int retval = 1;
 

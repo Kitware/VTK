@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricDini.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricDini);
 
@@ -42,14 +42,13 @@ vtkParametricDini::vtkParametricDini()
 vtkParametricDini::~vtkParametricDini() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricDini::Evaluate(double uvw[3], double Pt[3],
-                                 double Duvw[9])
+void vtkParametricDini::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
 
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double cv = cos(v);
@@ -61,7 +60,7 @@ void vtkParametricDini::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = this->A * su * sv;
   Pt[2] = this->A * (cos(v) + log(tan((v / 2)))) + this->B * u;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -Pt[1];
   Dv[0] = this->A * cu * cv;
   Du[1] = Pt[0];
@@ -79,7 +78,7 @@ void vtkParametricDini::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricDini::EvaluateScalar(double *, double *, double *)
+double vtkParametricDini::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
@@ -91,5 +90,4 @@ void vtkParametricDini::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "A: " << this->A << "\n";
   os << indent << "B: " << this->B << "\n";
-
 }

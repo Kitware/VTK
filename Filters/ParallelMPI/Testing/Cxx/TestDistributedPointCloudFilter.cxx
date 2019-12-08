@@ -17,9 +17,9 @@
 #include "vtkDistributedPointCloudFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdFilter.h"
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -77,9 +77,12 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
     for (vtkIdType i = 0; i < initialNumberOfPoints; i++)
     {
       double coords[3];
-      coords[0] = random->GetValue(); random->Next();
-      coords[1] = random->GetValue(); random->Next();
-      coords[2] = random->GetValue(); random->Next();
+      coords[0] = random->GetValue();
+      random->Next();
+      coords[1] = random->GetValue();
+      random->Next();
+      coords[2] = random->GetValue();
+      random->Next();
       points->SetPoint(i, coords);
       data->SetValue(i, totalNumberOfPoints - i - 1);
       sdata->SetValue(i, ss.str());
@@ -104,7 +107,7 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   vtkNew<vtkProcessIdScalars> outProcIdScalars;
   outProcIdScalars->SetInputConnection(filter->GetOutputPort());
   outProcIdScalars->Update();
-  vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(outProcIdScalars->GetOutput());
+  vtkPolyData* outputPoly = vtkPolyData::SafeDownCast(outProcIdScalars->GetOutput());
 
   bool error = false;
   int nbOfLocallyReceivedPoints = outputPoly->GetNumberOfPoints();
@@ -124,7 +127,8 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   double bounds[6];
   outputPoly->GetBounds(bounds);
   vtkBoundingBox bbox(bounds);
-  if (!bbox.IsValid() || bbox.GetLength(0) == 0. || bbox.GetLength(1) == 0. || bbox.GetLength(2) == 0.)
+  if (!bbox.IsValid() || bbox.GetLength(0) == 0. || bbox.GetLength(1) == 0. ||
+    bbox.GetLength(2) == 0.)
   {
     cerr << "Incorrect bounding box of output points on rank " << rank << "\n";
     error = true;

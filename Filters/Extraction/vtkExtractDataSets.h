@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
-*/
+ */
 
 #ifndef vtkExtractDataSets_h
 #define vtkExtractDataSets_h
@@ -32,8 +32,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataSets :
-          public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataSets : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExtractDataSets* New();
@@ -54,11 +53,9 @@ protected:
   vtkExtractDataSets();
   ~vtkExtractDataSets() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkExtractDataSets(const vtkExtractDataSets&) = delete;
@@ -66,9 +63,6 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-
 };
 
 #endif
-
-

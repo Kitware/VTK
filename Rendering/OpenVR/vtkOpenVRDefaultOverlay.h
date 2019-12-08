@@ -16,18 +16,18 @@
  * @brief   OpenVR overlay
  *
  * vtkOpenVRDefaultOverlay support for VR overlays
-*/
+ */
 
 #ifndef vtkOpenVRDefaultOverlay_h
 #define vtkOpenVRDefaultOverlay_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkOpenVROverlay.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverlay
 {
 public:
-  static vtkOpenVRDefaultOverlay *New();
+  static vtkOpenVRDefaultOverlay* New();
   vtkTypeMacro(vtkOpenVRDefaultOverlay, vtkOpenVROverlay);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

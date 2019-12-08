@@ -23,7 +23,7 @@ class @_vtk_object_factory_configure_EXPORT_MACRO@ @_vtk_object_factory_library_
 {
 public:
   static @_vtk_object_factory_library_name@ObjectFactory * New();
-  vtkTypeMacro(@_vtk_object_factory_library_name@ObjectFactory, vtkObjectFactory)
+  vtkTypeMacro(@_vtk_object_factory_library_name@ObjectFactory, vtkObjectFactory);
 
   const char * GetDescription() override { return "@_vtk_object_factory_library_name@ factory overrides."; }
 

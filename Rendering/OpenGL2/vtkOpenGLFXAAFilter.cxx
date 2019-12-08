@@ -22,10 +22,10 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLQuadHelper.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -43,25 +43,19 @@
 // Define to perform/dump benchmarking info:
 //#define FXAA_BENCHMARK
 
-vtkStandardNewMacro(vtkOpenGLFXAAFilter)
+vtkStandardNewMacro(vtkOpenGLFXAAFilter);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLFXAAFilter::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "RelativeContrastThreshold: "
-     << this->RelativeContrastThreshold << "\n";
-  os << indent << "HardContrastThreshold: "
-     << this->HardContrastThreshold << "\n";
-  os << indent << "SubpixelBlendLimit: " <<
-        this->SubpixelBlendLimit << "\n";
-  os << indent << "SubpixelContrastThreshold: "
-     << this->SubpixelContrastThreshold << "\n";
-  os << indent << "EndpointSearchIterations: "
-     << this->EndpointSearchIterations << "\n";
-  os << indent << "UseHighQualityEndpoints: "
-     << this->UseHighQualityEndpoints << "\n";
+  os << indent << "RelativeContrastThreshold: " << this->RelativeContrastThreshold << "\n";
+  os << indent << "HardContrastThreshold: " << this->HardContrastThreshold << "\n";
+  os << indent << "SubpixelBlendLimit: " << this->SubpixelBlendLimit << "\n";
+  os << indent << "SubpixelContrastThreshold: " << this->SubpixelContrastThreshold << "\n";
+  os << indent << "EndpointSearchIterations: " << this->EndpointSearchIterations << "\n";
+  os << indent << "UseHighQualityEndpoints: " << this->UseHighQualityEndpoints << "\n";
 
   os << indent << "DebugOptionValue: ";
   switch (this->DebugOptionValue)
@@ -95,7 +89,7 @@ void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::Execute(vtkOpenGLRenderer *ren)
+void vtkOpenGLFXAAFilter::Execute(vtkOpenGLRenderer* ren)
 {
   assert(ren);
   this->Renderer = ren;
@@ -129,7 +123,7 @@ void vtkOpenGLFXAAFilter::ReleaseGraphicsResources()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::UpdateConfiguration(vtkFXAAOptions *opts)
+void vtkOpenGLFXAAFilter::UpdateConfiguration(vtkFXAAOptions* opts)
 {
   // Use the setters -- some of these options will trigger a shader rebuild
   // when they change, and the setters hold the logic for determining this.
@@ -166,21 +160,21 @@ void vtkOpenGLFXAAFilter::SetDebugOptionValue(vtkFXAAOptions::DebugOption opt)
 
 //------------------------------------------------------------------------------
 vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
-  : BlendState(false),
-    DepthTestState(false),
-    PreparationTimer(new vtkOpenGLRenderTimer),
-    FXAATimer(new vtkOpenGLRenderTimer),
-    RelativeContrastThreshold(1.f/8.f),
-    HardContrastThreshold(1.f/16.f),
-    SubpixelBlendLimit(3.f/4.f),
-    SubpixelContrastThreshold(1.f/4.f),
-    EndpointSearchIterations(12),
-    UseHighQualityEndpoints(true),
-    DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG),
-    NeedToRebuildShader(true),
-    Renderer(nullptr),
-    Input(nullptr),
-    QHelper(nullptr)
+  : BlendState(false)
+  , DepthTestState(false)
+  , PreparationTimer(new vtkOpenGLRenderTimer)
+  , FXAATimer(new vtkOpenGLRenderTimer)
+  , RelativeContrastThreshold(1.f / 8.f)
+  , HardContrastThreshold(1.f / 16.f)
+  , SubpixelBlendLimit(3.f / 4.f)
+  , SubpixelContrastThreshold(1.f / 4.f)
+  , EndpointSearchIterations(12)
+  , UseHighQualityEndpoints(true)
+  , DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG)
+  , NeedToRebuildShader(true)
+  , Renderer(nullptr)
+  , Input(nullptr)
+  , QHelper(nullptr)
 {
   std::fill(this->Viewport, this->Viewport + 4, 0);
 }
@@ -201,16 +195,15 @@ vtkOpenGLFXAAFilter::~vtkOpenGLFXAAFilter()
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::Prepare()
 {
-  this->Renderer->GetTiledSizeAndOrigin(&this->Viewport[2], &this->Viewport[3],
-                                        &this->Viewport[0], &this->Viewport[1]);
+  this->Renderer->GetTiledSizeAndOrigin(
+    &this->Viewport[2], &this->Viewport[3], &this->Viewport[0], &this->Viewport[1]);
 
   // Check if we need to create a new working texture:
   if (this->Input)
   {
     unsigned int rendererWidth = static_cast<unsigned int>(this->Viewport[2]);
     unsigned int rendererHeight = static_cast<unsigned int>(this->Viewport[3]);
-    if (this->Input->GetWidth()  != rendererWidth ||
-        this->Input->GetHeight() != rendererHeight)
+    if (this->Input->GetWidth() != rendererWidth || this->Input->GetHeight() != rendererHeight)
     {
       this->FreeGLObjects();
     }
@@ -221,7 +214,7 @@ void vtkOpenGLFXAAFilter::Prepare()
     this->CreateGLObjects();
   }
 
-  vtkOpenGLState *ostate = this->Renderer->GetState();
+  vtkOpenGLState* ostate = this->Renderer->GetState();
   this->BlendState = ostate->GetEnumState(GL_BLEND);
   this->DepthTestState = ostate->GetEnumState(GL_DEPTH_TEST);
 
@@ -232,7 +225,7 @@ void vtkOpenGLFXAAFilter::Prepare()
   // For reference, see QCocoaWindow::initialize().
   int origin[2];
   int usize, vsize;
-  this->Renderer->GetTiledSizeAndOrigin(&usize, &vsize, origin, origin+1);
+  this->Renderer->GetTiledSizeAndOrigin(&usize, &vsize, origin, origin + 1);
   ostate->vtkglViewport(origin[0], origin[1], usize, vsize);
 #endif
 
@@ -244,8 +237,10 @@ void vtkOpenGLFXAAFilter::Prepare()
 
 //------------------------------------------------------------------------------
 // Delete the vtkObject subclass pointed at by ptr if it is set.
-namespace {
-template <typename T> void DeleteHelper(T *& ptr)
+namespace
+{
+template <typename T>
+void DeleteHelper(T*& ptr)
 {
   if (ptr)
   {
@@ -285,7 +280,7 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
     // What a world.
 #ifdef GL_ES_VERSION_3_0
     this->Input->SetInternalFormat(GL_RGB);
-#else // OpenGL ES
+#else  // OpenGL ES
     this->Input->SetInternalFormat(GL_RGB8);
 #endif // OpenGL ES
   }
@@ -299,15 +294,15 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
   this->Input->SetWrapT(vtkTextureObject::ClampToEdge);
   this->Input->SetWrapR(vtkTextureObject::ClampToEdge);
 
-  this->Input->Allocate2D(this->Viewport[2], this->Viewport[3], 4,
-                          vtkTypeTraits<vtkTypeUInt8>::VTK_TYPE_ID);
+  this->Input->Allocate2D(
+    this->Viewport[2], this->Viewport[3], 4, vtkTypeTraits<vtkTypeUInt8>::VTK_TYPE_ID);
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::LoadInput()
 {
-  this->Input->CopyFromFrameBuffer(this->Viewport[0], this->Viewport[1], 0, 0,
-                                   this->Viewport[2], this->Viewport[3]);
+  this->Input->CopyFromFrameBuffer(
+    this->Viewport[0], this->Viewport[1], 0, 0, this->Viewport[2], this->Viewport[3]);
 }
 
 //------------------------------------------------------------------------------
@@ -315,8 +310,8 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
 {
   typedef vtkOpenGLRenderUtilities GLUtil;
 
-  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
-        this->Renderer->GetRenderWindow());
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
 
   this->Input->Activate();
 
@@ -331,32 +326,25 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
   {
     std::string fragShader = vtkFXAAFilterFS;
     this->SubstituteFragmentShader(fragShader);
-    this->QHelper = new vtkOpenGLQuadHelper(renWin,
-      GLUtil::GetFullScreenQuadVertexShader().c_str(),
-      fragShader.c_str(),
-      GLUtil::GetFullScreenQuadGeometryShader().c_str());
+    this->QHelper = new vtkOpenGLQuadHelper(renWin, GLUtil::GetFullScreenQuadVertexShader().c_str(),
+      fragShader.c_str(), GLUtil::GetFullScreenQuadGeometryShader().c_str());
   }
   else
   {
     renWin->GetShaderCache()->ReadyShaderProgram(this->QHelper->Program);
   }
 
-  vtkShaderProgram *program = this->QHelper->Program;
+  vtkShaderProgram* program = this->QHelper->Program;
   program->SetUniformi("Input", this->Input->GetTextureUnit());
   float invTexSize[2] = { 1.f / static_cast<float>(this->Viewport[2]),
-                          1.f / static_cast<float>(this->Viewport[3]) };
+    1.f / static_cast<float>(this->Viewport[3]) };
   program->SetUniform2f("InvTexSize", invTexSize);
 
-  program->SetUniformf("RelativeContrastThreshold",
-                             this->RelativeContrastThreshold);
-  program->SetUniformf("HardContrastThreshold",
-                             this->HardContrastThreshold);
-  program->SetUniformf("SubpixelBlendLimit",
-                             this->SubpixelBlendLimit);
-  program->SetUniformf("SubpixelContrastThreshold",
-                             this->SubpixelContrastThreshold);
-  program->SetUniformi("EndpointSearchIterations",
-                             this->EndpointSearchIterations);
+  program->SetUniformf("RelativeContrastThreshold", this->RelativeContrastThreshold);
+  program->SetUniformf("HardContrastThreshold", this->HardContrastThreshold);
+  program->SetUniformf("SubpixelBlendLimit", this->SubpixelBlendLimit);
+  program->SetUniformf("SubpixelContrastThreshold", this->SubpixelContrastThreshold);
+  program->SetUniformi("EndpointSearchIterations", this->EndpointSearchIterations);
 
   this->QHelper->Render();
 
@@ -364,33 +352,31 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
+void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string& fragShader)
 {
   if (this->UseHighQualityEndpoints)
   {
-    vtkShaderProgram::Substitute(fragShader, "//VTK::EndpointAlgo::Def",
-                                 "#define FXAA_USE_HIGH_QUALITY_ENDPOINTS");
+    vtkShaderProgram::Substitute(
+      fragShader, "//VTK::EndpointAlgo::Def", "#define FXAA_USE_HIGH_QUALITY_ENDPOINTS");
   }
 
-#define DEBUG_OPT_CASE(optName) \
-  case vtkFXAAOptions::optName: \
-    vtkShaderProgram::Substitute(fragShader, "//VTK::DebugOptions::Def", \
-                                 "#define " #optName); \
+#define DEBUG_OPT_CASE(optName)                                                                    \
+  case vtkFXAAOptions::optName:                                                                    \
+    vtkShaderProgram::Substitute(fragShader, "//VTK::DebugOptions::Def", "#define " #optName);     \
     break
-
 
   switch (this->DebugOptionValue)
   {
     default:
     case vtkFXAAOptions::FXAA_NO_DEBUG:
       break;
-    DEBUG_OPT_CASE(FXAA_DEBUG_SUBPIXEL_ALIASING);
-    DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_DIRECTION);
-    DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_NUM_STEPS);
-    DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_DISTANCE);
-    DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_SAMPLE_OFFSET);
-    DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_SUBPIX_AA);
-    DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_EDGE_AA);
+      DEBUG_OPT_CASE(FXAA_DEBUG_SUBPIXEL_ALIASING);
+      DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_DIRECTION);
+      DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_NUM_STEPS);
+      DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_DISTANCE);
+      DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_SAMPLE_OFFSET);
+      DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_SUBPIX_AA);
+      DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_EDGE_AA);
   }
 
 #undef DEBUG_OPT_CASE
@@ -399,7 +385,7 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::Finalize()
 {
-  vtkOpenGLState *ostate = this->Renderer->GetState();
+  vtkOpenGLState* ostate = this->Renderer->GetState();
   if (this->BlendState)
   {
     ostate->vtkglEnable(GL_BLEND);
@@ -413,7 +399,7 @@ void vtkOpenGLFXAAFilter::Finalize()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::StartTimeQuery(vtkOpenGLRenderTimer *timer)
+void vtkOpenGLFXAAFilter::StartTimeQuery(vtkOpenGLRenderTimer* timer)
 {
   // Since it may take a few frames for the results to become available,
   // check if we've started the timer already.
@@ -424,7 +410,7 @@ void vtkOpenGLFXAAFilter::StartTimeQuery(vtkOpenGLRenderTimer *timer)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::EndTimeQuery(vtkOpenGLRenderTimer *timer)
+void vtkOpenGLFXAAFilter::EndTimeQuery(vtkOpenGLRenderTimer* timer)
 {
   // Since it may take a few frames for the results to become available,
   // check if we've stopped the timer already.
@@ -437,8 +423,7 @@ void vtkOpenGLFXAAFilter::EndTimeQuery(vtkOpenGLRenderTimer *timer)
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::PrintBenchmark()
 {
-  if (this->PreparationTimer->Ready() &&
-      this->FXAATimer->Ready())
+  if (this->PreparationTimer->Ready() && this->FXAATimer->Ready())
   {
 
 #ifdef FXAA_BENCHMARK
@@ -447,20 +432,17 @@ void vtkOpenGLFXAAFilter::PrintBenchmark()
     float ftime = this->FXAATimer->GetElapsedMilliseconds();
     float ttime = ptime + ftime;
 
-    float ptimePerPixel = (this->PreparationTimer->GetElapsedNanoseconds() /
-                           static_cast<float>(numPixels));
-    float ftimePerPixel = (this->FXAATimer->GetElapsedNanoseconds() /
-                           static_cast<float>(numPixels));
-    float ttimePerPixel =  ptimePerPixel + ftimePerPixel;
+    float ptimePerPixel =
+      (this->PreparationTimer->GetElapsedNanoseconds() / static_cast<float>(numPixels));
+    float ftimePerPixel =
+      (this->FXAATimer->GetElapsedNanoseconds() / static_cast<float>(numPixels));
+    float ttimePerPixel = ptimePerPixel + ftimePerPixel;
 
     std::cerr << "FXAA Info:\n"
               << " - Number of pixels: " << numPixels << "\n"
-              << " - Preparation time: " << ptime << "ms ("
-              << ptimePerPixel << "ns per pixel)\n"
-              << " - FXAA time: " << ftime << "ms ("
-              << ftimePerPixel << "ns per pixel)\n"
-              << " - Total time: " << ttime << "ms ("
-              << ttimePerPixel << "ns per pixel)\n";
+              << " - Preparation time: " << ptime << "ms (" << ptimePerPixel << "ns per pixel)\n"
+              << " - FXAA time: " << ftime << "ms (" << ftimePerPixel << "ns per pixel)\n"
+              << " - Total time: " << ttime << "ms (" << ttimePerPixel << "ns per pixel)\n";
 #endif // FXAA_BENCHMARK
 
     this->PreparationTimer->Reset();

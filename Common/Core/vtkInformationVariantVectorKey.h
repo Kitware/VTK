@@ -18,7 +18,7 @@
  *
  * vtkInformationVariantVectorKey is used to represent keys for variant
  * vector values in vtkInformation.h
-*/
+ */
 
 #ifndef vtkInformationVariantVectorKey_h
 #define vtkInformationVariantVectorKey_h
@@ -33,11 +33,10 @@ class vtkVariant;
 class VTKCOMMONCORE_EXPORT vtkInformationVariantVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationVariantVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationVariantVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkInformationVariantVectorKey(const char* name, const char* location,
-                                 int length=-1);
+  vtkInformationVariantVectorKey(const char* name, const char* location, int length = -1);
   ~vtkInformationVariantVectorKey() override;
 
   /**
@@ -45,8 +44,8 @@ public:
    * name, a location and a required length. This method is provided for
    * wrappers. Use the constructor directly from C++ instead.
    */
-  static vtkInformationVariantVectorKey* MakeKey(const char* name, const char* location,
-    int length=-1)
+  static vtkInformationVariantVectorKey* MakeKey(
+    const char* name, const char* location, int length = -1)
   {
     return new vtkInformationVariantVectorKey(name, location, length);
   }

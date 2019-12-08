@@ -3,17 +3,17 @@
 #import "BasicVTKView.h"
 #import "CustomView.h"
 
-#import "vtkInteractorStyleSwitch.h"
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkConeSource.h"
 #import "vtkCylinderSource.h"
+#import "vtkInteractorStyleSwitch.h"
 #import "vtkPolyDataMapper.h"
 #import "vtkSmartPointer.h"
 #import "vtkTextActor.h"
 #import "vtkTextProperty.h"
 
 // Private Interface
-@interface MyWindowController()
+@interface MyWindowController ()
 @property (readwrite, weak, nonatomic) IBOutlet BasicVTKView* leftView;
 @property (readwrite, weak, nonatomic) IBOutlet BasicVTKView* middleView;
 @property (readwrite, weak, nonatomic) IBOutlet CustomView* rightView;
@@ -24,8 +24,7 @@
 // ----------------------------------------------------------------------------
 // Private helper method to get the path to the system font appropriate for
 // the given font and font size.
-+ (nullable NSURL*)fontPathForString:(nullable NSString*)inString
-                                size:(CGFloat)inSize
++ (nullable NSURL*)fontPathForString:(nullable NSString*)inString size:(CGFloat)inSize
 {
   NSURL* fontUrl = nil;
 
@@ -33,8 +32,7 @@
   {
     NSFont* startFont = [NSFont systemFontOfSize:inSize];
     CTFontRef font = CTFontCreateForString((__bridge CTFontRef)startFont,
-                                           (__bridge CFStringRef)inString,
-                                           CFRangeMake(0, [inString length]));
+      (__bridge CFStringRef)inString, CFRangeMake(0, [inString length]));
     if (font)
     {
       NSFontDescriptor* fontDesc = [(__bridge NSFont*)font fontDescriptor];
@@ -60,10 +58,10 @@
   // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
-  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
+  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
+    vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView getInteractor]->SetInteractorStyle(intStyle);
-
+  [thisView getInteractor] -> SetInteractorStyle(intStyle);
 
   // Create a cone, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
@@ -77,8 +75,7 @@
   vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
   coneActor->SetMapper(coneMapper);
 
-  [thisView getRenderer]->AddActor(coneActor);
-
+  [thisView getRenderer] -> AddActor(coneActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -94,8 +91,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.0, 0.5, 0.0);
-  [thisView getRenderer]->AddViewProp(textActor);
-
+  [thisView getRenderer] -> AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];
@@ -115,10 +111,10 @@
   // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
-  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
+  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
+    vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView getInteractor]->SetInteractorStyle(intStyle);
-
+  [thisView getInteractor] -> SetInteractorStyle(intStyle);
 
   // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
@@ -130,8 +126,7 @@
   vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
   cylinderActor->SetMapper(cylinderMapper);
 
-  [thisView getRenderer]->AddActor(cylinderActor);
-
+  [thisView getRenderer] -> AddActor(cylinderActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -147,8 +142,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.3, 0.5, 0.0);
-  [thisView getRenderer]->AddViewProp(textActor);
-
+  [thisView getRenderer] -> AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];
@@ -159,7 +153,8 @@
 {
   CustomView* thisView = [self rightView];
 
-  // Explicitly enable HiDPI/Retina (this is required when using CAOpenGLLayer, otherwise the view will be 1/4 size on Retina).
+  // Explicitly enable HiDPI/Retina (this is required when using CAOpenGLLayer, otherwise the view
+  // will be 1/4 size on Retina).
   [thisView setWantsBestResolutionOpenGLSurface:YES];
 
   [thisView initializeVTKSupport];
@@ -168,10 +163,10 @@
   // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
-  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
+  vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
+    vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView renderWindowInteractor]->SetInteractorStyle(intStyle);
-
+  [thisView renderWindowInteractor] -> SetInteractorStyle(intStyle);
 
   // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
@@ -183,8 +178,7 @@
   vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
   cylinderActor->SetMapper(cylinderMapper);
 
-  [thisView renderer]->AddActor(cylinderActor);
-
+  [thisView renderer] -> AddActor(cylinderActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -200,8 +194,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.3, 0.5, 0.0);
-  [thisView renderer]->AddViewProp(textActor);
-
+  [thisView renderer] -> AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];
@@ -230,7 +223,7 @@
 
 // ----------------------------------------------------------------------------
 // Called once when the window is closed.
-- (void)windowWillClose:(NSNotification *)inNotification
+- (void)windowWillClose:(NSNotification*)inNotification
 {
   // Releases memory allocated in initializeVTKSupport.
   [[self leftView] cleanUpVTKSupport];

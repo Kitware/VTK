@@ -16,15 +16,15 @@
 #include "vtkDataSetMapper.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkPointSource.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkStreamTracer.h"
 #include "vtkWarpScalar.h"
 
@@ -46,7 +46,8 @@ int TestStreamTracerSurface(int argc, char* argv[])
 
   vtkNew<vtkPoints> points;
   vtkDataSet* calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
-  vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
+  vtkIdType nLine =
+    static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
   {
     points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));

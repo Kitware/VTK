@@ -22,11 +22,13 @@
 
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractSelection.h"
@@ -94,37 +96,30 @@ void vtkExtractSelectedRows::SetAnnotationLayersConnection(vtkAlgorithmOutput* i
   this->SetInputConnection(2, in);
 }
 
-template <class T>
-void vtkCopySelectedRows(
-  vtkAbstractArray* list, vtkTable* input,
-  vtkTable* output, vtkIdTypeArray* originalRowIds,
-  vtkExtractSelectedRows* self)
+namespace
 {
-  bool addOriginalRowIdsArray = self->GetAddOriginalRowIdsArray();
-
-  const T* rawPtr = static_cast<T*>(list->GetVoidPointer(0));
-  vtkIdType numTuples = list->GetNumberOfTuples();
-  if (list->GetNumberOfComponents() != 1 && numTuples > 0)
+struct vtkCopySelectedRows
+{
+  template <class ArrayT>
+  void operator()(ArrayT* list, vtkTable* input, vtkTable* output, vtkIdTypeArray* originalRowIds,
+    bool addOriginalRowIdsArray) const
   {
-    vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
-  }
-  for (vtkIdType j = 0; j < numTuples; ++j)
-  {
-    vtkIdType val = static_cast<vtkIdType>(rawPtr[j]);
-    output->InsertNextRow(input->GetRow(val));
-    if (addOriginalRowIdsArray)
+    for (auto value : vtk::DataArrayValueRange(list))
     {
-      originalRowIds->InsertNextValue(val);
+      vtkIdType val = static_cast<vtkIdType>(value);
+      output->InsertNextRow(input->GetRow(val));
+      if (addOriginalRowIdsArray)
+      {
+        originalRowIds->InsertNextValue(val);
+      }
     }
   }
-}
-
+};
+} // namespace
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedRows::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkTable* input = vtkTable::GetData(inputVector[0]);
   vtkSelection* inputSelection = vtkSelection::GetData(inputVector[1]);
@@ -132,7 +127,7 @@ int vtkExtractSelectedRows::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(!inputSelection && !inputAnnotations)
+  if (!inputSelection && !inputAnnotations)
   {
     vtkErrorMacro("No vtkSelection or vtkAnnotationLayers provided as input.");
     return 0;
@@ -140,7 +135,7 @@ int vtkExtractSelectedRows::RequestData(
 
   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
   int numSelections = 0;
-  if(inputSelection)
+  if (inputSelection)
   {
     selection->DeepCopy(inputSelection);
     numSelections++;
@@ -148,17 +143,17 @@ int vtkExtractSelectedRows::RequestData(
 
   // If input annotations are provided, extract their selections only if
   // they are enabled and not hidden.
-  if(inputAnnotations)
+  if (inputAnnotations)
   {
-    for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
+    for (unsigned int i = 0; i < inputAnnotations->GetNumberOfAnnotations(); ++i)
     {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
       if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
-          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
+            a->GetInformation()->Get(vtkAnnotation::ENABLE()) == 0) ||
+        (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
+          a->GetInformation()->Get(vtkAnnotation::ENABLE()) == 1 &&
           a->GetInformation()->Has(vtkAnnotation::HIDE()) &&
-          a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
+          a->GetInformation()->Get(vtkAnnotation::HIDE()) == 1))
       {
         continue;
       }
@@ -169,7 +164,7 @@ int vtkExtractSelectedRows::RequestData(
 
   // Handle case where there was no input selection and no enabled, non-hidden
   // annotations
-  if(numSelections == 0)
+  if (numSelections == 0)
   {
     output->ShallowCopy(input);
     return 1;
@@ -195,16 +190,16 @@ int vtkExtractSelectedRows::RequestData(
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
     {
-      vtkAbstractArray* list = node->GetSelectionList();
+      vtkDataArray* list = vtkDataArray::SafeDownCast(node->GetSelectionList());
       if (list)
       {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
         if (inverse)
         {
-          vtkIdType numRows = input->GetNumberOfRows();  //How many rows are in the whole dataset
+          vtkIdType numRows = input->GetNumberOfRows(); // How many rows are in the whole dataset
           for (vtkIdType j = 0; j < numRows; ++j)
           {
-            if(list->LookupValue(j) < 0)
+            if (list->LookupValue(j) < 0)
             {
               output->InsertNextRow(input->GetRow(j));
               if (this->AddOriginalRowIdsArray)
@@ -216,9 +211,17 @@ int vtkExtractSelectedRows::RequestData(
         }
         else
         {
-          switch (list->GetDataType())
+          if (list->GetNumberOfComponents() != 1)
           {
-            vtkTemplateMacro(vtkCopySelectedRows<VTK_TT>(list, input, output, originalRowIds, this));
+            vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
+          }
+
+          using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>;
+          if (!Dispatcher::Execute(list, vtkCopySelectedRows{}, input, output, originalRowIds,
+                this->AddOriginalRowIdsArray))
+          { // fallback for unsupported array types and non-integral value types:
+            vtkCopySelectedRows{}(
+              list, input, output, originalRowIds, this->AddOriginalRowIdsArray);
           }
         }
       }
@@ -236,6 +239,5 @@ int vtkExtractSelectedRows::RequestData(
 void vtkExtractSelectedRows::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "AddOriginalRowIdsArray: " << this->AddOriginalRowIdsArray <<
-    endl;
+  os << indent << "AddOriginalRowIdsArray: " << this->AddOriginalRowIdsArray << endl;
 }

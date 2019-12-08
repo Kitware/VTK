@@ -50,27 +50,27 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkMath.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkMINCImageAttributes.h"
-#include "vtkMINCImageWriter.h"
-#include "vtkMINC.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCollection.h"
-#include "vtkTransform.h"
-#include "vtkHomogeneousTransform.h"
-#include "vtkGeneralTransform.h"
-#include "vtkThinPlateSplineTransform.h"
-#include "vtkGridTransform.h"
 #include "vtkDoubleArray.h"
+#include "vtkGeneralTransform.h"
+#include "vtkGridTransform.h"
+#include "vtkHomogeneousTransform.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMINC.h"
+#include "vtkMINCImageAttributes.h"
+#include "vtkMINCImageWriter.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkThinPlateSplineTransform.h"
+#include "vtkTransform.h"
 
-#include <ctime>
 #include <cctype>
 #include <cstdio>
+#include <ctime>
 
 #include <stack>
 #include <vtksys/SystemTools.hxx>
@@ -98,38 +98,33 @@ vtkMNITransformWriter::~vtkMNITransformWriter()
   {
     this->Transform->Delete();
   }
-  delete [] this->FileName;
-  delete [] this->Comments;
+  delete[] this->FileName;
+  delete[] this->Comments;
 }
 
 //-------------------------------------------------------------------------
 void vtkMNITransformWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "none") << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << "\n";
   os << indent << "Transform: " << this->Transform << "\n";
   if (this->Transform)
   {
     this->Transform->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "NumberOfTransforms: "
-     << this->Transforms->GetNumberOfItems() << "\n";
-  os << indent << "Comments: "
-     << (this->Comments ? this->Comments : "none") << "\n";
+  os << indent << "NumberOfTransforms: " << this->Transforms->GetNumberOfItems() << "\n";
+  os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
 //-------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteLinearTransform(
-  ostream &outfile, vtkHomogeneousTransform *transform)
+  ostream& outfile, vtkHomogeneousTransform* transform)
 {
-  vtkMatrix4x4 *matrix = transform->GetMatrix();
+  vtkMatrix4x4* matrix = transform->GetMatrix();
 
-  if (matrix->GetElement(3,0) != 0.0 ||
-      matrix->GetElement(3,1) != 0.0 ||
-      matrix->GetElement(3,2) != 0.0 ||
-      matrix->GetElement(3,3) != 1.0)
+  if (matrix->GetElement(3, 0) != 0.0 || matrix->GetElement(3, 1) != 0.0 ||
+    matrix->GetElement(3, 2) != 0.0 || matrix->GetElement(3, 3) != 1.0)
   {
     vtkErrorMacro("WriteLinearTransform: The transform is not linear");
     return 0;
@@ -141,11 +136,8 @@ int vtkMNITransformWriter::WriteLinearTransform(
   for (int i = 0; i < 3; i++)
   {
     outfile << "\n";
-    snprintf(text, sizeof(text), " %.15g %.15g %.15g %.15g",
-             matrix->GetElement(i, 0),
-             matrix->GetElement(i, 1),
-             matrix->GetElement(i, 2),
-             matrix->GetElement(i, 3));
+    snprintf(text, sizeof(text), " %.15g %.15g %.15g %.15g", matrix->GetElement(i, 0),
+      matrix->GetElement(i, 1), matrix->GetElement(i, 2), matrix->GetElement(i, 3));
     outfile << text;
   }
   outfile << ";\n";
@@ -155,7 +147,7 @@ int vtkMNITransformWriter::WriteLinearTransform(
 
 //-------------------------------------------------------------------------
 int vtkMNITransformWriter::WriteThinPlateSplineTransform(
-  ostream &outfile, vtkThinPlateSplineTransform *transform)
+  ostream& outfile, vtkThinPlateSplineTransform* transform)
 {
   // Write the inverse flag if necessary
   if (transform->GetInverseFlag())
@@ -164,8 +156,8 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   }
 
   // Get the landmarks
-  vtkPoints *source = transform->GetSourceLandmarks();
-  vtkPoints *target = transform->GetTargetLandmarks();
+  vtkPoints* source = transform->GetSourceLandmarks();
+  vtkPoints* target = transform->GetTargetLandmarks();
   int n = source->GetNumberOfPoints();
 
   if (target->GetNumberOfPoints() != n)
@@ -241,24 +233,19 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
 
   // Create two matrices
   int msize = n + ndim + 1;
-  double **X = new double *[ndim];
-  double **L = new double *[msize];
-  int storagelen = ndim*msize + msize*msize;
-  double *storage = new double[storagelen];
-
-  for (i = 0; i < storagelen; i++)
-  {
-    storage[i] = 0.0;
-  }
+  int storagelen = ndim * msize + msize * msize;
+  std::vector<double> storage(storagelen); // actual data
+  std::vector<double*> X(ndim);            // pointers into storage
+  std::vector<double*> L(msize);           // pointers into storage
 
   // Create the X and L matrices
   for (i = 0; i < ndim; i++)
   {
-    X[i] = &storage[i*msize];
+    X[i] = storage.data() + i * msize;
   }
   for (i = 0; i < msize; i++)
   {
-    L[i] = &storage[ndim*msize + i*msize];
+    L[i] = storage.data() + ndim * msize + i * msize;
   }
 
   // Fill in L matrix
@@ -278,12 +265,12 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
       double r = 0.0;
       for (k = 0; k < ndim; k++)
       {
-        r += (p[k] - p1[k])*(p[k] - p1[k]);
+        r += (p[k] - p1[k]) * (p[k] - p1[k]);
       }
       r = sqrt(r);
       if (ndim == 2)
       {
-        r = r*r*log(r);
+        r = r * r * log(r);
       }
       L[i][j] = L[j][i] = r;
     }
@@ -292,7 +279,7 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   // Fill in X matrix
   for (i = 0; i < n; i++)
   {
-    double *p = target->GetPoint(i);
+    double* p = target->GetPoint(i);
     for (k = 0; k < ndim; k++)
     {
       X[k][i] = p[k];
@@ -300,15 +287,15 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   }
 
   // Solve to make X into the thin-plate spline matrix
-  int *pivots = new int[msize];
-  double *tmpstore = new double[msize];
-  vtkMath::LUFactorLinearSystem(L, pivots, msize, tmpstore);
-  for (i = 0; i < ndim; i++)
   {
-    vtkMath::LUSolveLinearSystem(L, pivots, X[i], msize);
+    std::vector<int> pivots(msize);
+    std::vector<double> tmpstore(msize);
+    vtkMath::LUFactorLinearSystem(L.data(), pivots.data(), msize, tmpstore.data());
+    for (i = 0; i < ndim; i++)
+    {
+      vtkMath::LUSolveLinearSystem(L.data(), pivots.data(), X[i], msize);
+    }
   }
-  delete [] tmpstore;
-  delete [] pivots;
 
   // Write out the matrix as "Displacements"
   outfile << "Displacements =";
@@ -327,16 +314,11 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
 
   outfile << ";\n";
 
-  delete [] storage;
-  delete [] L;
-  delete [] X;
-
   return 1;
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITransformWriter::WriteGridTransform(
-  ostream &outfile, vtkGridTransform *transform)
+int vtkMNITransformWriter::WriteGridTransform(ostream& outfile, vtkGridTransform* transform)
 {
   // Write the inverse flag if necessary
   if (transform->GetInverseFlag())
@@ -355,8 +337,7 @@ int vtkMNITransformWriter::WriteGridTransform(
 
   // Replace the ".xfm" extension of the filename with "_grid.mnc"
   size_t i = xfmpath.size() - 1;
-  std::string filename =
-    vtksys::SystemTools::GetFilenameWithoutLastExtension(xfmpath[i]);
+  std::string filename = vtksys::SystemTools::GetFilenameWithoutLastExtension(xfmpath[i]);
   filename.append("_grid.mnc");
   xfmpath[i] = filename;
 
@@ -364,11 +345,10 @@ int vtkMNITransformWriter::WriteGridTransform(
   outfile << "Displacement_Volume = " << filename << ";\n";
 
   // Use the full path to write the minc file
-  vtkMINCImageWriter *writer = vtkMINCImageWriter::New();
+  vtkMINCImageWriter* writer = vtkMINCImageWriter::New();
   writer->SetFileName(vtksys::SystemTools::JoinPath(xfmpath).c_str());
   writer->SetInputData(transform->GetDisplacementGrid());
-  if (transform->GetDisplacementShift() != 0.0 ||
-      transform->GetDisplacementScale() != 1.0)
+  if (transform->GetDisplacementShift() != 0.0 || transform->GetDisplacementScale() != 1.0)
   {
     writer->SetRescaleIntercept(transform->GetDisplacementShift());
     writer->SetRescaleSlope(transform->GetDisplacementScale());
@@ -382,32 +362,27 @@ int vtkMNITransformWriter::WriteGridTransform(
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITransformWriter::WriteTransform(
-  ostream &outfile, vtkAbstractTransform *transform)
+int vtkMNITransformWriter::WriteTransform(ostream& outfile, vtkAbstractTransform* transform)
 {
   outfile << "Transform_Type = ";
 
   if (transform->IsA("vtkHomogeneousTransform"))
   {
     outfile << "Linear;\n";
-    return this->WriteLinearTransform(
-      outfile, (vtkHomogeneousTransform *)transform);
+    return this->WriteLinearTransform(outfile, (vtkHomogeneousTransform*)transform);
   }
   else if (transform->IsA("vtkThinPlateSplineTransform"))
   {
     outfile << "Thin_Plate_Spline_Transform;\n";
-    return this->WriteThinPlateSplineTransform(
-      outfile, (vtkThinPlateSplineTransform *)transform);
+    return this->WriteThinPlateSplineTransform(outfile, (vtkThinPlateSplineTransform*)transform);
   }
   else if (transform->IsA("vtkGridTransform"))
   {
     outfile << "Grid_Transform;\n";
-    return this->WriteGridTransform(
-      outfile, (vtkGridTransform *)transform);
+    return this->WriteGridTransform(outfile, (vtkGridTransform*)transform);
   }
 
-  vtkErrorMacro("Unsupported transform type "
-                << transform->GetClassName());
+  vtkErrorMacro("Unsupported transform type " << transform->GetClassName());
 
   return 0;
 }
@@ -451,7 +426,7 @@ int vtkMNITransformWriter::WriteFile()
   // Write user comments
   if (this->Comments)
   {
-    char *cp = this->Comments;
+    char* cp = this->Comments;
     while (*cp)
     {
       if (*cp != '%')
@@ -478,12 +453,11 @@ int vtkMNITransformWriter::WriteFile()
   outfile << "\n";
 
   // Push the transforms onto the stack in reverse order
-  std::stack<vtkAbstractTransform *> tstack;
+  std::stack<vtkAbstractTransform*> tstack;
   int i = this->Transforms->GetNumberOfItems();
   while (i > 0)
   {
-    tstack.push(
-      ((vtkAbstractTransform *)this->Transforms->GetItemAsObject(--i)));
+    tstack.push(((vtkAbstractTransform*)this->Transforms->GetItemAsObject(--i)));
   }
   tstack.push(this->Transform);
 
@@ -491,13 +465,13 @@ int vtkMNITransformWriter::WriteFile()
   int status = 1;
   while (status != 0 && !tstack.empty())
   {
-    vtkAbstractTransform *transform = tstack.top();
+    vtkAbstractTransform* transform = tstack.top();
     tstack.pop();
 
     if (transform->IsA("vtkGeneralTransform"))
     {
       // Decompose general transforms
-      vtkGeneralTransform *gtrans = (vtkGeneralTransform *)transform;
+      vtkGeneralTransform* gtrans = (vtkGeneralTransform*)transform;
       int n = gtrans->GetNumberOfConcatenatedTransforms();
       while (n > 0)
       {
@@ -522,9 +496,8 @@ int vtkMNITransformWriter::WriteFile()
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITransformWriter::ProcessRequest(vtkInformation *request,
-                                    vtkInformationVector **inputVector,
-                                    vtkInformationVector *outputVector)
+vtkTypeBool vtkMNITransformWriter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
@@ -535,8 +508,7 @@ int vtkMNITransformWriter::ProcessRequest(vtkInformation *request,
     int n = this->Transforms->GetNumberOfItems();
     for (int i = 0; i < n; i++)
     {
-      ((vtkAbstractTransform *)this->Transforms->GetItemAsObject(i))
-        ->Update();
+      ((vtkAbstractTransform*)this->Transforms->GetItemAsObject(i))->Update();
     }
     return this->WriteFile();
   }
@@ -563,7 +535,7 @@ int vtkMNITransformWriter::GetNumberOfTransforms()
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITransformWriter::SetTransform(vtkAbstractTransform *transform)
+void vtkMNITransformWriter::SetTransform(vtkAbstractTransform* transform)
 {
   if (transform == this->Transform)
   {
@@ -586,7 +558,7 @@ void vtkMNITransformWriter::SetTransform(vtkAbstractTransform *transform)
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITransformWriter::AddTransform(vtkAbstractTransform *transform)
+void vtkMNITransformWriter::AddTransform(vtkAbstractTransform* transform)
 {
   if (transform == nullptr)
   {

@@ -28,58 +28,57 @@
  * the normals to put them into world coordinates) there is a shading table
  * per volume. This is necessary because multiple volumes can share a
  * volume mapper.
-*/
+ */
 
 #ifndef vtkEncodedGradientShader_h
 #define vtkEncodedGradientShader_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkVolume;
 class vtkRenderer;
 class vtkEncodedGradientEstimator;
 
-#define VTK_MAX_SHADING_TABLES   100
+#define VTK_MAX_SHADING_TABLES 100
 
 class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
-  static vtkEncodedGradientShader *New();
-  vtkTypeMacro(vtkEncodedGradientShader,vtkObject);
+  static vtkEncodedGradientShader* New();
+  vtkTypeMacro(vtkEncodedGradientShader, vtkObject);
 
   /**
    * Print the vtkEncodedGradientShader
    */
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set / Get the intensity diffuse / specular light used for the
    * zero normals.
    */
-  vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0f, 1.0f);
-  vtkGetMacro( ZeroNormalDiffuseIntensity, float );
-  vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
-  vtkGetMacro( ZeroNormalSpecularIntensity, float );
+  vtkSetClampMacro(ZeroNormalDiffuseIntensity, float, 0.0f, 1.0f);
+  vtkGetMacro(ZeroNormalDiffuseIntensity, float);
+  vtkSetClampMacro(ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
+  vtkGetMacro(ZeroNormalSpecularIntensity, float);
   //@}
 
   /**
    * Cause the shading table to be updated
    */
-  void UpdateShadingTable( vtkRenderer *ren, vtkVolume *vol,
-                           vtkEncodedGradientEstimator *gradest);
+  void UpdateShadingTable(vtkRenderer* ren, vtkVolume* vol, vtkEncodedGradientEstimator* gradest);
 
   //@{
   /**
    * Get the red/green/blue shading table.
    */
-  float *GetRedDiffuseShadingTable(    vtkVolume *vol );
-  float *GetGreenDiffuseShadingTable(  vtkVolume *vol );
-  float *GetBlueDiffuseShadingTable(   vtkVolume *vol );
-  float *GetRedSpecularShadingTable(   vtkVolume *vol );
-  float *GetGreenSpecularShadingTable( vtkVolume *vol );
-  float *GetBlueSpecularShadingTable(  vtkVolume *vol );
+  float* GetRedDiffuseShadingTable(vtkVolume* vol);
+  float* GetGreenDiffuseShadingTable(vtkVolume* vol);
+  float* GetBlueDiffuseShadingTable(vtkVolume* vol);
+  float* GetRedSpecularShadingTable(vtkVolume* vol);
+  float* GetGreenSpecularShadingTable(vtkVolume* vol);
+  float* GetBlueSpecularShadingTable(vtkVolume* vol);
   //@}
 
   //@{
@@ -88,8 +87,8 @@ public:
    * ambient / diffuse / specular / specular power values will
    * be used to create the shading table. The default is 1.0
    */
-  vtkSetClampMacro( ActiveComponent, int, 0, 3 );
-  vtkGetMacro( ActiveComponent, int );
+  vtkSetClampMacro(ActiveComponent, int, 0, 3);
+  vtkGetMacro(ActiveComponent, int);
   //@}
 
 protected:
@@ -110,37 +109,30 @@ protected:
    * table per volume, and the index value indicated which index table
    * should be used. It is computed in the UpdateShadingTable method.
    */
-  void  BuildShadingTable( int index,
-                           double lightDirection[3],
-                           double lightAmbientColor[3],
-                           double lightDiffuseColor[3],
-                           double lightSpecularColor[3],
-                           double lightIntensity,
-                           double viewDirection[3],
-                           double material[4],
-                           int twoSided,
-                           vtkEncodedGradientEstimator *gradest,
-                           int updateFlag );
+  void BuildShadingTable(int index, double lightDirection[3], double lightAmbientColor[3],
+    double lightDiffuseColor[3], double lightSpecularColor[3], double lightIntensity,
+    double viewDirection[3], double material[4], int twoSided, vtkEncodedGradientEstimator* gradest,
+    int updateFlag);
 
   // The six shading tables (r diffuse ,g diffuse ,b diffuse,
   // r specular, g specular, b specular ) - with an entry for each
   // encoded normal plus one entry at the end for the zero normal
   // There is one shading table per volume listed in the ShadingTableVolume
   // array. A null entry indicates an available slot.
-  float                        *ShadingTable[VTK_MAX_SHADING_TABLES][6];
-  vtkVolume                    *ShadingTableVolume[VTK_MAX_SHADING_TABLES];
-  int                          ShadingTableSize[VTK_MAX_SHADING_TABLES];
+  float* ShadingTable[VTK_MAX_SHADING_TABLES][6];
+  vtkVolume* ShadingTableVolume[VTK_MAX_SHADING_TABLES];
+  int ShadingTableSize[VTK_MAX_SHADING_TABLES];
 
-  int                          ActiveComponent;
+  int ActiveComponent;
 
   // The intensity of light used for the zero normals, since it
   // can not be computed from the normal angles. Defaults to 0.0.
-  float    ZeroNormalDiffuseIntensity;
-  float    ZeroNormalSpecularIntensity;
+  float ZeroNormalDiffuseIntensity;
+  float ZeroNormalSpecularIntensity;
+
 private:
   vtkEncodedGradientShader(const vtkEncodedGradientShader&) = delete;
   void operator=(const vtkEncodedGradientShader&) = delete;
 };
-
 
 #endif

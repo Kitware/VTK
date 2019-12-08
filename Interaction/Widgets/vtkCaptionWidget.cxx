@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkCaptionWidget.h"
-#include "vtkCaptionRepresentation.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCaptionRepresentation.h"
+#include "vtkCommand.h"
+#include "vtkHandleWidget.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation3D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
@@ -31,27 +31,28 @@ vtkStandardNewMacro(vtkCaptionWidget);
 class vtkCaptionAnchorCallback : public vtkCommand
 {
 public:
-  static vtkCaptionAnchorCallback *New()
-    { return new vtkCaptionAnchorCallback; }
+  static vtkCaptionAnchorCallback* New() { return new vtkCaptionAnchorCallback; }
   void Execute(vtkObject*, unsigned long eventId, void*) override
   {
-      switch (eventId)
-      {
-        case vtkCommand::StartInteractionEvent:
-          this->CaptionWidget->StartAnchorInteraction();
-          break;
-        case vtkCommand::InteractionEvent:
-          this->CaptionWidget->AnchorInteraction();
-          break;
-        case vtkCommand::EndInteractionEvent:
-          this->CaptionWidget->EndAnchorInteraction();
-          break;
-      }
+    switch (eventId)
+    {
+      case vtkCommand::StartInteractionEvent:
+        this->CaptionWidget->StartAnchorInteraction();
+        break;
+      case vtkCommand::InteractionEvent:
+        this->CaptionWidget->AnchorInteraction();
+        break;
+      case vtkCommand::EndInteractionEvent:
+        this->CaptionWidget->EndAnchorInteraction();
+        break;
+    }
   }
-  vtkCaptionAnchorCallback():CaptionWidget(nullptr) {}
-  vtkCaptionWidget *CaptionWidget;
+  vtkCaptionAnchorCallback()
+    : CaptionWidget(nullptr)
+  {
+  }
+  vtkCaptionWidget* CaptionWidget;
 };
-
 
 //-------------------------------------------------------------------------
 vtkCaptionWidget::vtkCaptionWidget()
@@ -60,15 +61,14 @@ vtkCaptionWidget::vtkCaptionWidget()
   // This is so Enable/Disable events are caught by the anchor and then
   // dispatched to the BorderWidget.
   this->HandleWidget = vtkHandleWidget::New();
-  this->HandleWidget->SetPriority(this->Priority+0.01);
+  this->HandleWidget->SetPriority(this->Priority + 0.01);
   this->HandleWidget->KeyPressActivationOff();
 
   // over ride the call back mapper on the border widget superclass to move
   // the caption widget using the left mouse button (still moves on middle
   // mouse button press). Release is already mapped to end select action
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-                                          vtkWidgetEvent::Select,
-                                          this, vtkBorderWidget::TranslateAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select,
+    this, vtkBorderWidget::TranslateAction);
 
   this->AnchorCallback = vtkCaptionAnchorCallback::New();
   this->AnchorCallback->CaptionWidget = this;
@@ -87,16 +87,16 @@ vtkCaptionWidget::~vtkCaptionWidget()
 //----------------------------------------------------------------------
 void vtkCaptionWidget::SetEnabled(int enabling)
 {
-  if ( this->Interactor )
+  if (this->Interactor)
   {
-    this->Interactor->Disable(); //avoid extra renders
+    this->Interactor->Disable(); // avoid extra renders
   }
 
-  if ( enabling )
+  if (enabling)
   {
     this->CreateDefaultRepresentation();
-    this->HandleWidget->SetRepresentation(reinterpret_cast<vtkCaptionRepresentation*>
-                                          (this->WidgetRep)->GetAnchorRepresentation());
+    this->HandleWidget->SetRepresentation(
+      reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep)->GetAnchorRepresentation());
     this->HandleWidget->SetInteractor(this->Interactor);
     this->HandleWidget->SetEnabled(1);
   }
@@ -104,7 +104,7 @@ void vtkCaptionWidget::SetEnabled(int enabling)
   {
     this->HandleWidget->SetEnabled(0);
   }
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->Interactor->Enable();
   }
@@ -115,23 +115,23 @@ void vtkCaptionWidget::SetEnabled(int enabling)
 //----------------------------------------------------------------------
 void vtkCaptionWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkCaptionRepresentation::New();
   }
 }
 
 //-------------------------------------------------------------------------
-void vtkCaptionWidget::SetCaptionActor2D(vtkCaptionActor2D *capActor)
+void vtkCaptionWidget::SetCaptionActor2D(vtkCaptionActor2D* capActor)
 {
-  vtkCaptionRepresentation *capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
-  if ( ! capRep )
+  vtkCaptionRepresentation* capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
+  if (!capRep)
   {
     this->CreateDefaultRepresentation();
     capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
   }
 
-  if ( capRep->GetCaptionActor2D() != capActor )
+  if (capRep->GetCaptionActor2D() != capActor)
   {
     capRep->SetCaptionActor2D(capActor);
     this->Modified();
@@ -139,10 +139,10 @@ void vtkCaptionWidget::SetCaptionActor2D(vtkCaptionActor2D *capActor)
 }
 
 //-------------------------------------------------------------------------
-vtkCaptionActor2D *vtkCaptionWidget::GetCaptionActor2D()
+vtkCaptionActor2D* vtkCaptionWidget::GetCaptionActor2D()
 {
-  vtkCaptionRepresentation *capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
-  if ( ! capRep )
+  vtkCaptionRepresentation* capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
+  if (!capRep)
   {
     return nullptr;
   }
@@ -156,29 +156,28 @@ vtkCaptionActor2D *vtkCaptionWidget::GetCaptionActor2D()
 void vtkCaptionWidget::StartAnchorInteraction()
 {
   this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkCaptionWidget::AnchorInteraction()
 {
-  vtkCaptionRepresentation *rep=  reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
+  vtkCaptionRepresentation* rep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
   double pos[3];
   rep->GetAnchorRepresentation()->GetWorldPosition(pos);
   rep->SetAnchorPosition(pos);
-  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkCaptionWidget::EndAnchorInteraction()
 {
   this->Superclass::EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 }
 
 //-------------------------------------------------------------------------
 void vtkCaptionWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }

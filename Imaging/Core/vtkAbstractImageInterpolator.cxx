@@ -14,44 +14,41 @@
 =========================================================================*/
 
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkImageInterpolatorInternals.h"
 #include "vtkPointData.h"
-#include "vtkImageData.h"
-#include "vtkDataArray.h"
 #include "vtkTypeTraits.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types, because
 // they cannot be faithfully represented by doubles
-# undef VTK_USE_INT64
-# define VTK_USE_INT64 0
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
+#undef VTK_USE_INT64
+#define VTK_USE_INT64 0
+#undef VTK_USE_UINT64
+#define VTK_USE_UINT64 0
 
 //----------------------------------------------------------------------------
 // default do-nothing interpolation functions
-namespace {
+namespace
+{
 
-template<class F>
+template <class F>
 struct vtkInterpolateNOP
 {
-  static void InterpolationFunc(
-    vtkInterpolationInfo *info, const F point[3], F *outPtr);
+  static void InterpolationFunc(vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
   static void RowInterpolationFunc(
-    vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-    F *outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
-template<class F>
-void vtkInterpolateNOP<F>::InterpolationFunc(
-  vtkInterpolationInfo *, const F [3], F *)
+template <class F>
+void vtkInterpolateNOP<F>::InterpolationFunc(vtkInterpolationInfo*, const F[3], F*)
 {
 }
 
-template<class F>
-void vtkInterpolateNOP<F>::RowInterpolationFunc(
-    vtkInterpolationWeights *, int, int, int, F *, int)
+template <class F>
+void vtkInterpolateNOP<F>::RowInterpolationFunc(vtkInterpolationWeights*, int, int, int, F*, int)
 {
 }
 
@@ -72,8 +69,8 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
 
   for (int j = 0; j < 3; j++)
   {
-    this->Extent[2*j] = 0;
-    this->Extent[2*j+1] = -1;
+    this->Extent[2 * j] = 0;
+    this->Extent[2 * j + 1] = -1;
     this->Spacing[j] = 1.0;
     this->Origin[j] = 0.0;
   }
@@ -89,14 +86,10 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   this->InterpolationInfo->InterpolationMode = 0;
   this->InterpolationInfo->ExtraInfo = nullptr;
 
-  this->InterpolationFuncDouble =
-    &(vtkInterpolateNOP<double>::InterpolationFunc);
-  this->InterpolationFuncFloat =
-    &(vtkInterpolateNOP<float>::InterpolationFunc);
-  this->RowInterpolationFuncDouble =
-    &(vtkInterpolateNOP<double>::RowInterpolationFunc);
-  this->RowInterpolationFuncFloat =
-    &(vtkInterpolateNOP<float>::RowInterpolationFunc);
+  this->InterpolationFuncDouble = &(vtkInterpolateNOP<double>::InterpolationFunc);
+  this->InterpolationFuncFloat = &(vtkInterpolateNOP<float>::InterpolationFunc);
+  this->RowInterpolationFuncDouble = &(vtkInterpolateNOP<double>::RowInterpolationFunc);
+  this->RowInterpolationFuncFloat = &(vtkInterpolateNOP<float>::RowInterpolationFunc);
 }
 
 //----------------------------------------------------------------------------
@@ -110,7 +103,7 @@ vtkAbstractImageInterpolator::~vtkAbstractImageInterpolator()
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator *obj)
+void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator* obj)
 {
   this->SetTolerance(obj->Tolerance);
   this->SetOutValue(obj->OutValue);
@@ -137,7 +130,7 @@ void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator *obj)
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "OutValue: " << this->OutValue << "\n";
@@ -145,13 +138,12 @@ void vtkAbstractImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ComponentCount: " << this->ComponentCount << "\n";
   os << indent << "BorderMode: " << this->GetBorderModeAsString() << "\n";
   os << indent << "SlidingWindow: " << (this->SlidingWindow ? "On\n" : "Off\n");
-  os << indent << "Extent: " << this->Extent[0] << " " << this->Extent[1]
-     << " " << this->Extent[2] << " " << this->Extent[3]
-     << " " << this->Extent[4] << " " << this->Extent[5] << "\n";
-  os << indent << "Origin: " << this->Origin[0] << " " << this->Origin[1]
-     << " " << this->Origin[2] << "\n";
-  os << indent << "Spacing: " << this->Spacing[0] << " " << this->Spacing[1]
-     << " " << this->Spacing[2] << "\n";
+  os << indent << "Extent: " << this->Extent[0] << " " << this->Extent[1] << " " << this->Extent[2]
+     << " " << this->Extent[3] << " " << this->Extent[4] << " " << this->Extent[5] << "\n";
+  os << indent << "Origin: " << this->Origin[0] << " " << this->Origin[1] << " " << this->Origin[2]
+     << "\n";
+  os << indent << "Spacing: " << this->Spacing[0] << " " << this->Spacing[1] << " "
+     << this->Spacing[2] << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +158,7 @@ void vtkAbstractImageInterpolator::SetBorderMode(int mode)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkAbstractImageInterpolator::GetBorderModeAsString()
+const char* vtkAbstractImageInterpolator::GetBorderModeAsString()
 {
   switch (this->BorderMode)
   {
@@ -208,9 +200,9 @@ int vtkAbstractImageInterpolator::ComputeNumberOfComponents(int inputCount)
   int count = this->ComponentCount;
 
   component = ((component > 0) ? component : 0);
-  component = ((component < inputCount) ? component : inputCount-1);
-  count = ((count < (inputCount-component)) ? count : (inputCount-component));
-  count = ((count > 0) ? count : (inputCount-component));
+  component = ((component < inputCount) ? component : inputCount - 1);
+  count = ((count < (inputCount - component)) ? count : (inputCount - component));
+  count = ((count > 0) ? count : (inputCount - component));
 
   return count;
 }
@@ -252,14 +244,14 @@ void vtkAbstractImageInterpolator::SetSlidingWindow(bool x)
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractImageInterpolator::Initialize(vtkDataObject *o)
+void vtkAbstractImageInterpolator::Initialize(vtkDataObject* o)
 {
   // free any previous scalars
   this->ReleaseData();
 
   // check for valid data
-  vtkImageData *data = vtkImageData::SafeDownCast(o);
-  vtkDataArray *scalars = nullptr;
+  vtkImageData* data = vtkImageData::SafeDownCast(o);
+  vtkDataArray* scalars = nullptr;
   if (data)
   {
     scalars = data->GetPointData()->GetScalars();
@@ -294,15 +286,14 @@ void vtkAbstractImageInterpolator::ReleaseData()
   }
 }
 
-
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
-template<class F>
-void vtkSlidingWindowAllocateWorkspace(
-  vtkInterpolationWeights *weights, F *)
+template <class F>
+void vtkSlidingWindowAllocateWorkspace(vtkInterpolationWeights* weights, F*)
 {
-  int *extent = weights->WeightExtent;
+  int* extent = weights->WeightExtent;
 
   int kernelSizeX = weights->KernelSize[0];
   int kernelSizeY = weights->KernelSize[1];
@@ -312,9 +303,9 @@ void vtkSlidingWindowAllocateWorkspace(
   rowSize *= weights->NumberOfComponents;
 
   // workPtr2 is a cache for partial sums
-  F *workPtr2;
+  F* workPtr2;
   // workPtr provides an index into the cache
-  F **workPtr;
+  F** workPtr;
 
   if (kernelSizeX == 1 && kernelSizeY == 1 && kernelSizeZ == 1)
   {
@@ -325,37 +316,37 @@ void vtkSlidingWindowAllocateWorkspace(
   else if (kernelSizeZ == 1)
   {
     // allocate workspace for a 2D sliding window
-    vtkIdType workSize = rowSize*kernelSizeY;
+    vtkIdType workSize = rowSize * kernelSizeY;
     workPtr2 = new F[workSize];
 
     // allocate the sliding row pointers
-    workPtr = new F *[kernelSizeY];
+    workPtr = new F*[kernelSizeY];
     for (int i = 0; i < kernelSizeY; i++)
     {
-      workPtr[i] = workPtr2 + i*rowSize;
+      workPtr[i] = workPtr2 + i * rowSize;
     }
   }
   else
   {
     // allocate workspace for sliding window (slices and rows)
-    vtkIdType sliceSize = rowSize*(extent[3] - extent[2] + 1);
-    vtkIdType workSize = rowSize*kernelSizeY;
-    workSize += sliceSize*kernelSizeZ;
+    vtkIdType sliceSize = rowSize * (extent[3] - extent[2] + 1);
+    vtkIdType workSize = rowSize * kernelSizeY;
+    workSize += sliceSize * kernelSizeZ;
     workPtr2 = new F[workSize];
 
     // allocate the sliding row and slice pointers
-    workPtr = new F *[kernelSizeZ + kernelSizeY];
+    workPtr = new F*[kernelSizeZ + kernelSizeY];
     // sliding rows
     for (int i = 0; i < kernelSizeY; i++)
     {
-      workPtr[i] = workPtr2 + i*rowSize;
+      workPtr[i] = workPtr2 + i * rowSize;
     }
     // sliding slices
-    F **slicePtr = workPtr + kernelSizeY;
-    F *workPtr3 = workPtr2 + kernelSizeY*rowSize;
+    F** slicePtr = workPtr + kernelSizeY;
+    F* workPtr3 = workPtr2 + kernelSizeY * rowSize;
     for (int i = 0; i < kernelSizeZ; i++)
     {
-      slicePtr[i] = workPtr3 + i*sliceSize;
+      slicePtr[i] = workPtr3 + i * sliceSize;
     }
   }
 
@@ -371,17 +362,16 @@ void vtkSlidingWindowAllocateWorkspace(
 //----------------------------------------------------------------------------
 // Apply a 1D filter in the X direction.
 // The inPtr parameter must be positioned at the correct slice.
-template<class T, class F>
-void vtkSlidingWindowX(
-  const T *inPtr, F *outPtr, int pixelCount, int ncomp,
-  const vtkIdType *a, const F *f, int kernelSize)
+template <class T, class F>
+void vtkSlidingWindowX(const T* inPtr, F* outPtr, int pixelCount, int ncomp, const vtkIdType* a,
+  const F* f, int kernelSize)
 {
   if (kernelSize == 1)
   {
     for (int i = 0; i < pixelCount; i++)
     {
       // 'a' maps output pixel to input pixel in the x direction
-      const T *tmpPtr = inPtr + (*a++);
+      const T* tmpPtr = inPtr + (*a++);
       for (int j = 0; j < ncomp; j++)
       {
         *outPtr++ = *tmpPtr++;
@@ -392,21 +382,20 @@ void vtkSlidingWindowX(
   {
     for (int i = 0; i < pixelCount; i++)
     {
-      const T *tmpPtr = inPtr;
+      const T* tmpPtr = inPtr;
       for (int j = 0; j < ncomp; j++)
       {
         // do the convolution sum in the x direction, where
         // 'a' gives the input pixel positions and
         // 'g' gives the weights
         int k = kernelSize - 1;
-        const vtkIdType *b = a;
-        const F *g = f;
-        F val = (*g++)*tmpPtr[*b++];
+        const vtkIdType* b = a;
+        const F* g = f;
+        F val = (*g++) * tmpPtr[*b++];
         do
         {
-          val += (*g++)*tmpPtr[*b++];
-        }
-        while (--k);
+          val += (*g++) * tmpPtr[*b++];
+        } while (--k);
         tmpPtr++;
         *outPtr++ = val;
       }
@@ -420,15 +409,14 @@ void vtkSlidingWindowX(
 // Apply a 1D filter along the Y or Z direction, given kernelSize rows
 // of data as input and producing one row of data as output.  This function
 // must be called for each row of the output to filter a whole slice.
-template<class F>
+template <class F>
 void vtkSlidingWindowYOrZ(
-  F **rowPtr, F *outPtr, vtkIdType begin, vtkIdType end,
-  const F *f, int kernelSize)
+  F** rowPtr, F* outPtr, vtkIdType begin, vtkIdType end, const F* f, int kernelSize)
 {
   if (kernelSize == 1)
   {
     // don't apply the filter, just copy the data
-    F *tmpPtr = *rowPtr + begin;
+    F* tmpPtr = *rowPtr + begin;
     for (vtkIdType i = begin; i < end; i++)
     {
       *outPtr++ = *tmpPtr++;
@@ -440,15 +428,14 @@ void vtkSlidingWindowYOrZ(
     for (vtkIdType i = begin; i < end; i++)
     {
       int k = kernelSize - 1;
-      F **tmpPtr = rowPtr;
+      F** tmpPtr = rowPtr;
       // 'f' is an array of weights
-      const F *g = f;
-      F val = (*g++)*((*tmpPtr++)[i]);
+      const F* g = f;
+      F val = (*g++) * ((*tmpPtr++)[i]);
       do
       {
-        val += (*g++)*((*tmpPtr++)[i]);
-      }
-      while (--k);
+        val += (*g++) * ((*tmpPtr++)[i]);
+      } while (--k);
       *outPtr++ = val;
     }
   }
@@ -457,28 +444,23 @@ void vtkSlidingWindowYOrZ(
 //----------------------------------------------------------------------------
 // Apply a 2D filter to image slices,
 // The inPtr parameter must be positioned at the correct slice.
-template<class T, class F>
-void vtkSlidingWindow2D(
-  const T *inPtr, F *outPtr, const int extent[6],
-  int idX, int idY, int lastIdY, int pixelCount, int ncomp,
-  const vtkIdType *aX, const F *fX, int kernelSizeX,
-  const vtkIdType *aY, const F *fY, int kernelSizeY,
-  F **workPtr)
+template <class T, class F>
+void vtkSlidingWindow2D(const T* inPtr, F* outPtr, const int extent[6], int idX, int idY,
+  int lastIdY, int pixelCount, int ncomp, const vtkIdType* aX, const F* fX, int kernelSizeX,
+  const vtkIdType* aY, const F* fY, int kernelSizeY, F** workPtr)
 {
   int extentX = extent[1] - extent[0] + 1;
   vtkIdType outIncX = ncomp;
-  vtkIdType begin = (idX - extent[0])*outIncX;
-  vtkIdType end = begin + pixelCount*outIncX;
+  vtkIdType begin = (idX - extent[0]) * outIncX;
+  vtkIdType end = begin + pixelCount * outIncX;
 
   if (kernelSizeY == 1)
   {
     // filter only in the X direction
-    vtkSlidingWindowX(
-      &inPtr[*aY], *workPtr, extentX, ncomp, aX, fX, kernelSizeX);
+    vtkSlidingWindowX(&inPtr[*aY], *workPtr, extentX, ncomp, aX, fX, kernelSizeX);
 
     // this becomes a copy operation since kernelSizeY is 1
-    vtkSlidingWindowYOrZ(
-      workPtr, outPtr, begin, end, fY, kernelSizeY);
+    vtkSlidingWindowYOrZ(workPtr, outPtr, begin, end, fY, kernelSizeY);
   }
   else
   {
@@ -489,17 +471,19 @@ void vtkSlidingWindow2D(
     // if lastIdY was outside of extent, then this is the first iteration
     if (lastIdY >= extent[2])
     {
-      const vtkIdType *lY = aY - (idY - lastIdY)*kernelSizeY;
+      const vtkIdType* lY = aY - (idY - lastIdY) * kernelSizeY;
       for (int j = 0; j < kernelSizeY; j++)
       {
-        const vtkIdType *bY = lY + j;
-        const vtkIdType *cY = aY;
+        const vtkIdType* bY = lY + j;
+        const vtkIdType* cY = aY;
         int i = kernelSizeY - j;
         do
         {
-          if (*cY++ != *bY++) { break; }
-        }
-        while (--i);
+          if (*cY++ != *bY++)
+          {
+            break;
+          }
+        } while (--i);
         if (i == 0)
         {
           // if all indices after offset 'j' match, then 'j' rows worth of
@@ -516,7 +500,7 @@ void vtkSlidingWindow2D(
       for (int k = 0; k < n; k++)
       {
         int j = kernelSizeY + k - n;
-        F *tmpPtr = workPtr[k];
+        F* tmpPtr = workPtr[k];
         workPtr[k] = workPtr[j];
         workPtr[j] = tmpPtr;
       }
@@ -524,24 +508,20 @@ void vtkSlidingWindow2D(
       // compute the new rows that are needed
       for (int k = n; k < kernelSizeY; k++)
       {
-        vtkSlidingWindowX(
-          &inPtr[aY[k]], workPtr[k], extentX, ncomp, aX, fX,
-          kernelSizeX);
+        vtkSlidingWindowX(&inPtr[aY[k]], workPtr[k], extentX, ncomp, aX, fX, kernelSizeX);
       }
     }
 
-    vtkSlidingWindowYOrZ(
-      workPtr, outPtr, begin, end, fY, kernelSizeY);
+    vtkSlidingWindowYOrZ(workPtr, outPtr, begin, end, fY, kernelSizeY);
   }
 }
 
 //----------------------------------------------------------------------------
-template<class F, class T>
+template <class F, class T>
 struct vtkSlidingWindow
 {
   static void InterpolateRow(
-    vtkInterpolationWeights *weights, int idX, int idY, int idZ,
-    F *outPtr, int n);
+    vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
 //----------------------------------------------------------------------------
@@ -549,10 +529,9 @@ struct vtkSlidingWindow
 // memory overhead (3 rows of temp storage for 2D, 3 slices for 3D).
 // The aX, aY, and aZ contain increments for the X, Y, and Z
 // directions.
-template<class F, class T>
+template <class F, class T>
 void vtkSlidingWindow<F, T>::InterpolateRow(
-  vtkInterpolationWeights *weights,
-  int idX, int idY, int idZ, F *outPtr, int pixelCount)
+  vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int pixelCount)
 {
   if (!weights->Workspace)
   {
@@ -564,35 +543,35 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
   weights->LastY = idY;
   weights->LastZ = idZ;
 
-  const T *inPtr = static_cast<const T *>(weights->Pointer);
-  F **workPtr = static_cast<F **>(weights->Workspace);
+  const T* inPtr = static_cast<const T*>(weights->Pointer);
+  F** workPtr = static_cast<F**>(weights->Workspace);
 
-  const int *extent = weights->WeightExtent;
+  const int* extent = weights->WeightExtent;
   int ncomp = weights->NumberOfComponents;
 
   int kernelSizeX = weights->KernelSize[0];
   int kernelSizeY = weights->KernelSize[1];
   int kernelSizeZ = weights->KernelSize[2];
 
-  const vtkIdType *aX = weights->Positions[0];
-  const vtkIdType *aY = weights->Positions[1];
-  const vtkIdType *aZ = weights->Positions[2];
+  const vtkIdType* aX = weights->Positions[0];
+  const vtkIdType* aY = weights->Positions[1];
+  const vtkIdType* aZ = weights->Positions[2];
 
-  const F *fX = static_cast<const F *>(weights->Weights[0]);
-  const F *fY = static_cast<const F *>(weights->Weights[1]);
-  const F *fZ = static_cast<const F *>(weights->Weights[2]);
+  const F* fX = static_cast<const F*>(weights->Weights[0]);
+  const F* fY = static_cast<const F*>(weights->Weights[1]);
+  const F* fZ = static_cast<const F*>(weights->Weights[2]);
 
   if (kernelSizeX == 1 && kernelSizeY == 1 && kernelSizeZ == 1)
   {
     // no interpolation, direct input to output
-    aX += idX*kernelSizeX;
-    aY += idY*kernelSizeY;
-    aZ += idZ*kernelSizeZ;
+    aX += idX * kernelSizeX;
+    aY += idY * kernelSizeY;
+    aZ += idZ * kernelSizeZ;
     inPtr += *aY + *aZ;
 
     for (int j = 0; j < pixelCount; j++)
     {
-      const T *tmpPtr = inPtr + (*aX++);
+      const T* tmpPtr = inPtr + (*aX++);
       for (int i = 0; i < ncomp; i++)
       {
         *outPtr++ = *tmpPtr++;
@@ -602,31 +581,29 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
   else if (kernelSizeZ == 1)
   {
     // it is possible to just apply a 2D filter to each slice
-    aX += extent[0]*kernelSizeX;
-    aY += idY*kernelSizeY;
-    aZ += idZ*kernelSizeZ;
-    fX += extent[0]*kernelSizeX;
-    fY += idY*kernelSizeY;
+    aX += extent[0] * kernelSizeX;
+    aY += idY * kernelSizeY;
+    aZ += idZ * kernelSizeZ;
+    fX += extent[0] * kernelSizeX;
+    fY += idY * kernelSizeY;
 
-    vtkSlidingWindow2D(
-      &inPtr[*aZ], outPtr, extent, idX, idY, lastIdY, pixelCount, ncomp,
-      aX, fX, kernelSizeX, aY, fY, kernelSizeY,
-      workPtr);
+    vtkSlidingWindow2D(&inPtr[*aZ], outPtr, extent, idX, idY, lastIdY, pixelCount, ncomp, aX, fX,
+      kernelSizeX, aY, fY, kernelSizeY, workPtr);
   }
   else
   {
     // apply filter in all three directions
-    F **slicePtr = workPtr + kernelSizeY;
+    F** slicePtr = workPtr + kernelSizeY;
     int extentX = extent[1] - extent[0] + 1;
     vtkIdType outIncX = ncomp;
-    vtkIdType rowSize = extentX*ncomp;
+    vtkIdType rowSize = extentX * ncomp;
 
-    aX += extent[0]*kernelSizeX;
-    aY += extent[2]*kernelSizeY;
-    aZ += idZ*kernelSizeZ;
-    fX += extent[0]*kernelSizeX;
-    fY += extent[2]*kernelSizeY;
-    fZ += idZ*kernelSizeZ;
+    aX += extent[0] * kernelSizeX;
+    aY += extent[2] * kernelSizeY;
+    aZ += idZ * kernelSizeZ;
+    fX += extent[0] * kernelSizeX;
+    fY += extent[2] * kernelSizeY;
+    fZ += idZ * kernelSizeZ;
 
     // loop through the XY slices
     if (idZ != lastIdZ)
@@ -636,17 +613,19 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
       int m = 0;
       if (lastIdZ >= extent[4])
       {
-        const vtkIdType *lZ = aZ - (idZ - lastIdZ)*kernelSizeZ;
+        const vtkIdType* lZ = aZ - (idZ - lastIdZ) * kernelSizeZ;
         for (int j = 0; j < kernelSizeZ; j++)
         {
-          const vtkIdType *bZ = lZ + j;
-          const vtkIdType *cZ = aZ;
+          const vtkIdType* bZ = lZ + j;
+          const vtkIdType* cZ = aZ;
           int i = kernelSizeZ - j;
           do
           {
-            if (*cZ++ != *bZ++) { break; }
-          }
-          while (--i);
+            if (*cZ++ != *bZ++)
+            {
+              break;
+            }
+          } while (--i);
           if (i == 0)
           {
             m = kernelSizeZ - j;
@@ -661,7 +640,7 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
         for (int i = 0; i < m; i++)
         {
           int j = kernelSizeZ + i - m;
-          F *tmpPtr = slicePtr[i];
+          F* tmpPtr = slicePtr[i];
           slicePtr[i] = slicePtr[j];
           slicePtr[j] = tmpPtr;
         }
@@ -672,20 +651,17 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
         {
           for (int dY = 0; dY < extentY; dY++)
           {
-            vtkSlidingWindow2D(
-              &inPtr[aZ[i]], slicePtr[i] + dY*rowSize, extent,
-              extent[0], extent[2] + dY, extent[2] + dY - 1, extentX, ncomp,
-              aX, fX, kernelSizeX,
-              aY + dY*kernelSizeY, fY + dY*kernelSizeY, kernelSizeY,
-              workPtr);
+            vtkSlidingWindow2D(&inPtr[aZ[i]], slicePtr[i] + dY * rowSize, extent, extent[0],
+              extent[2] + dY, extent[2] + dY - 1, extentX, ncomp, aX, fX, kernelSizeX,
+              aY + dY * kernelSizeY, fY + dY * kernelSizeY, kernelSizeY, workPtr);
           }
         }
       }
     }
 
     // get one row of output data at the current Y,Z position
-    vtkIdType begin = (idY - extent[2])*rowSize + (idX - extent[0])*outIncX;
-    vtkIdType end = begin + pixelCount*outIncX;
+    vtkIdType begin = (idY - extent[2]) * rowSize + (idX - extent[0]) * outIncX;
+    vtkIdType end = begin + pixelCount * outIncX;
     vtkSlidingWindowYOrZ(slicePtr, outPtr, begin, end, fZ, kernelSizeZ);
   }
 }
@@ -693,17 +669,14 @@ void vtkSlidingWindow<F, T>::InterpolateRow(
 //----------------------------------------------------------------------------
 // get row interpolation function for different interpolation modes
 // and different scalar types
-template<class F>
+template <class F>
 void vtkSlidingWindowGetRowInterpolationFunc(
-  void (**summation)(vtkInterpolationWeights *weights, int idX, int idY,
-                     int idZ, F *outPtr, int n),
+  void (**summation)(vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n),
   int scalarType)
 {
   switch (scalarType)
   {
-    vtkTemplateAliasMacro(
-      *summation = &(vtkSlidingWindow<F,VTK_TT>::InterpolateRow)
-      );
+    vtkTemplateAliasMacro(*summation = &(vtkSlidingWindow<F, VTK_TT>::InterpolateRow));
     default:
       *summation = nullptr;
   }
@@ -711,11 +684,10 @@ void vtkSlidingWindowGetRowInterpolationFunc(
 
 } // namespace
 
-
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::Update()
 {
-  vtkDataArray *scalars = this->Scalars;
+  vtkDataArray* scalars = this->Scalars;
 
   // check for scalars
   if (!scalars)
@@ -723,22 +695,18 @@ void vtkAbstractImageInterpolator::Update()
     this->InterpolationInfo->Pointer = nullptr;
     this->InterpolationInfo->NumberOfComponents = 1;
 
-    this->InterpolationFuncDouble =
-      &(vtkInterpolateNOP<double>::InterpolationFunc);
-    this->InterpolationFuncFloat =
-      &(vtkInterpolateNOP<float>::InterpolationFunc);
-    this->RowInterpolationFuncDouble =
-      &(vtkInterpolateNOP<double>::RowInterpolationFunc);
-    this->RowInterpolationFuncFloat =
-      &(vtkInterpolateNOP<float>::RowInterpolationFunc);
+    this->InterpolationFuncDouble = &(vtkInterpolateNOP<double>::InterpolationFunc);
+    this->InterpolationFuncFloat = &(vtkInterpolateNOP<float>::InterpolationFunc);
+    this->RowInterpolationFuncDouble = &(vtkInterpolateNOP<double>::RowInterpolationFunc);
+    this->RowInterpolationFuncFloat = &(vtkInterpolateNOP<float>::RowInterpolationFunc);
 
     return;
   }
 
   // set the InterpolationInfo object
-  vtkInterpolationInfo *info = this->InterpolationInfo;
-  vtkIdType *inc = info->Increments;
-  int *extent = info->Extent;
+  vtkInterpolationInfo* info = this->InterpolationInfo;
+  vtkIdType* inc = info->Increments;
+  int* extent = info->Extent;
   extent[0] = this->Extent[0];
   extent[1] = this->Extent[1];
   extent[2] = this->Extent[2];
@@ -747,8 +715,8 @@ void vtkAbstractImageInterpolator::Update()
   extent[5] = this->Extent[5];
 
   // use the Extent and Tolerance to set the bounds
-  double *bounds = this->StructuredBoundsDouble;
-  float *fbounds = this->StructuredBoundsFloat;
+  double* bounds = this->StructuredBoundsDouble;
+  float* fbounds = this->StructuredBoundsFloat;
   double tol = this->Tolerance;
   // always restrict the bounds to the limits of int
   int supportSize[3];
@@ -757,21 +725,21 @@ void vtkAbstractImageInterpolator::Update()
   int kernelSize = supportSize[0];
   kernelSize = ((supportSize[1] < kernelSize) ? kernelSize : supportSize[1]);
   kernelSize = ((supportSize[2] < kernelSize) ? kernelSize : supportSize[2]);
-  double minbound = VTK_INT_MIN + kernelSize/2;
-  double maxbound = VTK_INT_MAX - kernelSize/2;
+  double minbound = VTK_INT_MIN + kernelSize / 2;
+  double maxbound = VTK_INT_MAX - kernelSize / 2;
 
   for (int i = 0; i < 3; i++)
   {
     // use min tolerance of 0.5 if just one slice thick
-    double newtol = 0.5*(extent[2*i] == extent[2*i+1]);
+    double newtol = 0.5 * (extent[2 * i] == extent[2 * i + 1]);
     newtol = ((newtol > tol) ? newtol : tol);
 
-    double bound = extent[2*i] - newtol;
+    double bound = extent[2 * i] - newtol;
     bound = ((bound > minbound) ? bound : minbound);
-    fbounds[2*i] = bounds[2*i] = bound;
-    bound = extent[2*i+1] + newtol;
+    fbounds[2 * i] = bounds[2 * i] = bound;
+    bound = extent[2 * i + 1] + newtol;
     bound = ((bound < maxbound) ? bound : maxbound);
-    fbounds[2*i+1] = bounds[2*i+1] = bound;
+    fbounds[2 * i + 1] = bounds[2 * i + 1] = bound;
   }
 
   // generate the increments
@@ -786,11 +754,11 @@ void vtkAbstractImageInterpolator::Update()
   // compute first component and adjust data pointer
   int component = this->ComponentOffset;
   component = ((component > 0) ? component : 0);
-  component = ((component < ncomp) ? component : ncomp-1);
+  component = ((component < ncomp) ? component : ncomp - 1);
 
   int dataSize = scalars->GetDataTypeSize();
-  void *inPtr = scalars->GetVoidPointer(0);
-  info->Pointer = static_cast<char *>(inPtr) + component*dataSize;
+  void* inPtr = scalars->GetVoidPointer(0);
+  info->Pointer = static_cast<char*>(inPtr) + component * dataSize;
 
   // set all other elements of the InterpolationInfo
   info->ScalarType = scalars->GetDataType();
@@ -817,13 +785,12 @@ void vtkAbstractImageInterpolator::Update()
 }
 
 //----------------------------------------------------------------------------
-bool vtkAbstractImageInterpolator::Interpolate(
-  const double point[3], double *value)
+bool vtkAbstractImageInterpolator::Interpolate(const double point[3], double* value)
 {
   double p[3];
-  p[0] = (point[0] - this->Origin[0])/this->Spacing[0];
-  p[1] = (point[1] - this->Origin[1])/this->Spacing[1];
-  p[2] = (point[2] - this->Origin[2])/this->Spacing[2];
+  p[0] = (point[0] - this->Origin[0]) / this->Spacing[0];
+  p[1] = (point[1] - this->Origin[1]) / this->Spacing[1];
+  p[2] = (point[2] - this->Origin[2]) / this->Spacing[2];
 
   if (this->CheckBoundsIJK(p))
   {
@@ -840,8 +807,7 @@ bool vtkAbstractImageInterpolator::Interpolate(
 }
 
 //----------------------------------------------------------------------------
-double vtkAbstractImageInterpolator::Interpolate(
-  double x, double y, double z, int component)
+double vtkAbstractImageInterpolator::Interpolate(double x, double y, double z, int component)
 {
   double value = this->OutValue;
   double point[3];
@@ -850,9 +816,9 @@ double vtkAbstractImageInterpolator::Interpolate(
   point[2] = z;
 
   double p[3];
-  p[0] = (point[0] - this->Origin[0])/this->Spacing[0];
-  p[1] = (point[1] - this->Origin[1])/this->Spacing[1];
-  p[2] = (point[2] - this->Origin[2])/this->Spacing[2];
+  p[0] = (point[0] - this->Origin[0]) / this->Spacing[0];
+  p[1] = (point[1] - this->Origin[1]) / this->Spacing[1];
+  p[2] = (point[2] - this->Origin[2]) / this->Spacing[2];
 
   if (this->CheckBoundsIJK(p))
   {
@@ -862,10 +828,9 @@ double vtkAbstractImageInterpolator::Interpolate(
     int size = vtkAbstractArray::GetDataTypeSize(iinfo.ScalarType);
 
     component = ((component > 0) ? component : 0);
-    component = ((component < ncomp) ? component : ncomp-1);
+    component = ((component < ncomp) ? component : ncomp - 1);
 
-    iinfo.Pointer = (static_cast<const char *>(iinfo.Pointer) +
-                     size*component);
+    iinfo.Pointer = (static_cast<const char*>(iinfo.Pointer) + size * component);
     iinfo.NumberOfComponents = 1;
 
     this->InterpolationFuncDouble(&iinfo, p, &value);
@@ -876,84 +841,81 @@ double vtkAbstractImageInterpolator::Interpolate(
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetInterpolationFunc(
-  void (**)(vtkInterpolationInfo *, const double [3], double *))
+  void (**)(vtkInterpolationInfo*, const double[3], double*))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetInterpolationFunc(
-  void (**)(vtkInterpolationInfo *, const float [3], float *))
+  void (**)(vtkInterpolationInfo*, const float[3], float*))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetRowInterpolationFunc(
-  void (**)(vtkInterpolationWeights *, int, int, int, double *, int))
+  void (**)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetRowInterpolationFunc(
-  void (**)(vtkInterpolationWeights *, int, int, int, float *, int))
+  void (**)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetSlidingWindowFunc(
-  void (**)(vtkInterpolationWeights *, int, int, int, double *, int))
+  void (**)(vtkInterpolationWeights*, int, int, int, double*, int))
 {
   vtkSlidingWindowGetRowInterpolationFunc(
-    &this->RowInterpolationFuncDouble,
-    this->InterpolationInfo->ScalarType);
+    &this->RowInterpolationFuncDouble, this->InterpolationInfo->ScalarType);
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetSlidingWindowFunc(
-  void (**)(vtkInterpolationWeights *, int, int, int, float *, int))
+  void (**)(vtkInterpolationWeights*, int, int, int, float*, int))
 {
   vtkSlidingWindowGetRowInterpolationFunc(
-    &this->RowInterpolationFuncFloat,
-    this->InterpolationInfo->ScalarType);
+    &this->RowInterpolationFuncFloat, this->InterpolationInfo->ScalarType);
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::PrecomputeWeightsForExtent(
-  const double [16], const int [6], int [6], vtkInterpolationWeights *&)
+  const double[16], const int[6], int[6], vtkInterpolationWeights*&)
 {
   vtkErrorMacro("PrecomputeWeights not supported for this interpolator");
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::PrecomputeWeightsForExtent(
-  const float [16], const int [6], int [6], vtkInterpolationWeights *&)
+  const float[16], const int[6], int[6], vtkInterpolationWeights*&)
 {
   vtkErrorMacro("PrecomputeWeights not supported for this interpolator");
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractImageInterpolator::FreePrecomputedWeights(
-  vtkInterpolationWeights *&weights)
+void vtkAbstractImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
-  int *extent = weights->WeightExtent;
+  int* extent = weights->WeightExtent;
 
   for (int k = 0; k < 3; k++)
   {
     int step = weights->KernelSize[k];
-    weights->Positions[k] += step*extent[2*k];
-    delete [] weights->Positions[k];
+    weights->Positions[k] += step * extent[2 * k];
+    delete[] weights->Positions[k];
     if (weights->Weights[k])
     {
       if (weights->WeightType == VTK_FLOAT)
       {
-        float *constants = static_cast<float *>(weights->Weights[k]);
-        constants += step*extent[2*k];
-        delete [] constants;
+        float* constants = static_cast<float*>(weights->Weights[k]);
+        constants += step * extent[2 * k];
+        delete[] constants;
       }
       else
       {
-        double *constants = static_cast<double *>(weights->Weights[k]);
-        constants += step*extent[2*k];
-        delete [] constants;
+        double* constants = static_cast<double*>(weights->Weights[k]);
+        constants += step * extent[2 * k];
+        delete[] constants;
       }
     }
   }
@@ -962,25 +924,25 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(
   {
     if (weights->WeightType == VTK_FLOAT)
     {
-      float **workPtr = static_cast<float **>(weights->Workspace);
-      float *firstPtr = workPtr[0];
+      float** workPtr = static_cast<float**>(weights->Workspace);
+      float* firstPtr = workPtr[0];
       for (int i = 1; i < weights->KernelSize[1]; i++)
       {
         firstPtr = (workPtr[i] < firstPtr ? workPtr[i] : firstPtr);
       }
-      delete [] firstPtr;
-      delete [] workPtr;
+      delete[] firstPtr;
+      delete[] workPtr;
     }
     else
     {
-      double **workPtr = static_cast<double **>(weights->Workspace);
-      double *firstPtr = workPtr[0];
+      double** workPtr = static_cast<double**>(weights->Workspace);
+      double* firstPtr = workPtr[0];
       for (int i = 1; i < weights->KernelSize[1]; i++)
       {
         firstPtr = (workPtr[i] < firstPtr ? workPtr[i] : firstPtr);
       }
-      delete [] firstPtr;
-      delete [] workPtr;
+      delete[] firstPtr;
+      delete[] workPtr;
     }
   }
 
@@ -991,18 +953,16 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(
 
 //----------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
-int *vtkAbstractImageInterpolator::GetWholeExtent()
+int* vtkAbstractImageInterpolator::GetWholeExtent()
 {
-  VTK_LEGACY_REPLACED_BODY(
-    vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
     vtkAbstractImageInterpolator::GetExtent);
   return this->GetExtent();
 }
 
 void vtkAbstractImageInterpolator::GetWholeExtent(int extent[6])
 {
-  VTK_LEGACY_REPLACED_BODY(
-    vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
     vtkAbstractImageInterpolator::GetExtent);
   this->GetExtent(extent);
 }

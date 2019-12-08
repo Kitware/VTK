@@ -28,8 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkStandardNewMacro(vtkDIMACSGraphWriter);
 
@@ -37,10 +36,10 @@ void vtkDIMACSGraphWriter::WriteData()
 {
   vtkGraph* const input = this->GetInput();
 
-  vtkDebugMacro(<<"Writing vtk graph data...");
+  vtkDebugMacro(<< "Writing vtk graph data...");
 
-  ostream *fp = this->OpenVTKFile();
-  if(!fp)
+  ostream* fp = this->OpenVTKFile();
+  if (!fp)
   {
     vtkErrorMacro("Failed to open output stream");
     return;
@@ -48,7 +47,7 @@ void vtkDIMACSGraphWriter::WriteData()
 
   *fp << "c vtkGraph as DIMACS format\n";
 
-  if(vtkDirectedGraph::SafeDownCast(input))
+  if (vtkDirectedGraph::SafeDownCast(input))
   {
     *fp << "c Graph stored as DIRECTED\n";
   }
@@ -62,7 +61,7 @@ void vtkDIMACSGraphWriter::WriteData()
 
   // Output this 'special' line with the 'problem type' and then
   // vertex and edge counts
-  *fp << "p graph "<< vertex_count << " " << edge_count << "\n";
+  *fp << "p graph " << vertex_count << " " << edge_count << "\n";
 
   // See if the input has a "weight" array
   vtkDataArray* weight = input->GetEdgeData()->GetArray("weight");
@@ -73,19 +72,19 @@ void vtkDIMACSGraphWriter::WriteData()
   input->GetEdges(edges);
   if (weight)
   {
-    while(edges->HasNext())
+    while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
       float value = weight->GetTuple1(e.Id);
-      *fp << "e " << e.Source+1 << " " << e.Target+1 << " " << value << "\n";
+      *fp << "e " << e.Source + 1 << " " << e.Target + 1 << " " << value << "\n";
     }
   }
   else
   {
-    while(edges->HasNext())
+    while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
-      *fp << "e " << e.Source+1 << " " << e.Target+1 << " 1\n";
+      *fp << "e " << e.Source + 1 << " " << e.Target + 1 << " 1\n";
     }
   }
 
@@ -95,7 +94,7 @@ void vtkDIMACSGraphWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-int vtkDIMACSGraphWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkDIMACSGraphWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
@@ -113,5 +112,5 @@ vtkGraph* vtkDIMACSGraphWriter::GetInput(int port)
 
 void vtkDIMACSGraphWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

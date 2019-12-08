@@ -22,7 +22,7 @@
  *
  * This filter has code to collect a table from across processes onto node 0.
  * Collection can be turned on or off using the "PassThrough" flag.
-*/
+ */
 
 #ifndef vtkCollectTable_h
 #define vtkCollectTable_h
@@ -36,7 +36,7 @@ class vtkSocketController;
 class VTKFILTERSPARALLEL_EXPORT vtkCollectTable : public vtkTableAlgorithm
 {
 public:
-  static vtkCollectTable *New();
+  static vtkCollectTable* New();
   vtkTypeMacro(vtkCollectTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -75,11 +75,11 @@ protected:
   vtkTypeBool PassThrough;
 
   // Data generation method
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkMultiProcessController *Controller;
-  vtkSocketController *SocketController;
+  vtkMultiProcessController* Controller;
+  vtkSocketController* SocketController;
 
 private:
   vtkCollectTable(const vtkCollectTable&) = delete;

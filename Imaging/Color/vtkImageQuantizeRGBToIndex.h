@@ -38,21 +38,21 @@
  * and re-map the indices accordingly. This option does not introduce any
  * computational complexity and has no impact on actual colors in the
  * lookup table (only their order).
-*/
+ */
 
 #ifndef vtkImageQuantizeRGBToIndex_h
 #define vtkImageQuantizeRGBToIndex_h
 
-#include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingColorModule.h" // For export macro
 
 class vtkLookupTable;
 
 class VTKIMAGINGCOLOR_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageAlgorithm
 {
 public:
-  static vtkImageQuantizeRGBToIndex *New();
-  vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
+  static vtkImageQuantizeRGBToIndex* New();
+  vtkTypeMacro(vtkImageQuantizeRGBToIndex, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -60,8 +60,8 @@ public:
    * Set / Get the number of color index values to produce - must be
    * a number between 2 and 65536.
    */
-  vtkSetClampMacro( NumberOfColors, int, 2, 65536 );
-  vtkGetMacro( NumberOfColors, int );
+  vtkSetClampMacro(NumberOfColors, int, 2, 65536);
+  vtkGetMacro(NumberOfColors, int);
   //@}
 
   vtkSetVector3Macro(SamplingRate, int);
@@ -76,49 +76,47 @@ public:
    * Get the resulting lookup table that contains the color definitions
    * corresponding to the index values in the output image.
    */
-  vtkGetObjectMacro( LookupTable, vtkLookupTable );
+  vtkGetObjectMacro(LookupTable, vtkLookupTable);
   //@}
 
-  vtkGetMacro( InitializeExecuteTime, double );
-  vtkGetMacro( BuildTreeExecuteTime, double );
-  vtkGetMacro( LookupIndexExecuteTime, double );
+  vtkGetMacro(InitializeExecuteTime, double);
+  vtkGetMacro(BuildTreeExecuteTime, double);
+  vtkGetMacro(LookupIndexExecuteTime, double);
 
   //@{
   /**
    * For internal use only - get the type of the image
    */
-  vtkGetMacro( InputType, int );
+  vtkGetMacro(InputType, int);
   //@}
 
   //@{
   /**
    * For internal use only - set the times for execution
    */
-  vtkSetMacro( InitializeExecuteTime, double );
-  vtkSetMacro( BuildTreeExecuteTime, double );
-  vtkSetMacro( LookupIndexExecuteTime, double );
+  vtkSetMacro(InitializeExecuteTime, double);
+  vtkSetMacro(BuildTreeExecuteTime, double);
+  vtkSetMacro(LookupIndexExecuteTime, double);
   //@}
 
 protected:
   vtkImageQuantizeRGBToIndex();
   ~vtkImageQuantizeRGBToIndex() override;
 
-  vtkLookupTable  *LookupTable;
-  int             NumberOfColors;
-  int             InputType;
-  int             SamplingRate[3];
-  bool            SortIndexByLuminance;
+  vtkLookupTable* LookupTable;
+  int NumberOfColors;
+  int InputType;
+  int SamplingRate[3];
+  bool SortIndexByLuminance;
 
-  double           InitializeExecuteTime;
-  double           BuildTreeExecuteTime;
-  double           LookupIndexExecuteTime;
+  double InitializeExecuteTime;
+  double BuildTreeExecuteTime;
+  double LookupIndexExecuteTime;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) = delete;
@@ -126,11 +124,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-

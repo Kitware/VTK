@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkAbstractElectronicData.h"
 #include "vtkActor.h"
@@ -26,8 +26,8 @@
 #include "vtkNew.h"
 #include "vtkOpenQubeMoleculeSource.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSimpleBondPerceiver.h"
 #include "vtkSmartPointer.h"
@@ -35,19 +35,18 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <openqube/basissetloader.h>
 #include <openqube/basisset.h>
+#include <openqube/basissetloader.h>
 
-int TestOpenQubeMOPACDensity(int argc, char *argv[])
+int TestOpenQubeMOPACDensity(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/2h2o.aux");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2h2o.aux");
 
   vtkNew<vtkOpenQubeMoleculeSource> oq;
   oq->SetFileName(fname);
   oq->Update();
 
-  delete [] fname;
+  delete[] fname;
 
   vtkSmartPointer<vtkMolecule> mol = vtkSmartPointer<vtkMolecule>::New();
   mol = oq->GetOutput();
@@ -72,7 +71,7 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   vtkNew<vtkActor> molActor;
   molActor->SetMapper(molMapper);
 
-  vtkAbstractElectronicData *edata = oq->GetOutput()->GetElectronicData();
+  vtkAbstractElectronicData* edata = oq->GetOutput()->GetElectronicData();
   if (!edata)
   {
     cout << "null vtkAbstractElectronicData returned from "
@@ -92,15 +91,15 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
 
   double range[2];
   data->GetScalarRange(range);
-  cout << "ImageData range: " << range[0] <<" "<< range[1] << "\n";
+  cout << "ImageData range: " << range[0] << " " << range[1] << "\n";
 
   vtkNew<vtkImageShiftScale> t;
   t->SetInputData(data);
   t->SetShift(0.0);
   double magnitude = range[1];
-  if(fabs(magnitude) < 1e-10)
+  if (fabs(magnitude) < 1e-10)
     magnitude = 1.0;
-  t->SetScale(255.0/magnitude);
+  t->SetScale(255.0 / magnitude);
   t->SetOutputScalarTypeToDouble();
 
   cout << "magnitude: " << magnitude << "\n";
@@ -110,16 +109,16 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   cout << "Shifted min/max: " << range[0] << " " << range[1] << "\n";
 
   vtkNew<vtkPiecewiseFunction> compositeOpacity;
-  compositeOpacity->AddPoint(  0.000, 0.00);
-  compositeOpacity->AddPoint(  0.001, 0.00);
-  compositeOpacity->AddPoint(  5.000, 0.45);
-//  compositeOpacity->AddPoint( 10.000, 0.45);
+  compositeOpacity->AddPoint(0.000, 0.00);
+  compositeOpacity->AddPoint(0.001, 0.00);
+  compositeOpacity->AddPoint(5.000, 0.45);
+  //  compositeOpacity->AddPoint( 10.000, 0.45);
   compositeOpacity->AddPoint(255.000, 0.90);
 
   vtkNew<vtkColorTransferFunction> color;
-  color->AddRGBPoint(  0.000, 0.0, 0.0, 0.00);
-  color->AddRGBPoint(  0.001, 0.0, 0.0, 0.20);
-  color->AddRGBPoint(  5.000, 0.0, 0.0, 0.50);
+  color->AddRGBPoint(0.000, 0.0, 0.0, 0.00);
+  color->AddRGBPoint(0.001, 0.0, 0.0, 0.20);
+  color->AddRGBPoint(5.000, 0.0, 0.0, 0.50);
   color->AddRGBPoint(255.000, 0.0, 0.0, 1.00);
 
   vtkNew<vtkSmartVolumeMapper> volumeMapper;
@@ -147,7 +146,7 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   ren->AddActor(molActor);
 
   ren->SetBackground(0.0, 0.0, 0.0);
-  win->SetSize(450,450);
+  win->SetSize(450, 450);
   win->Render();
   ren->GetActiveCamera()->Zoom(2.4);
 

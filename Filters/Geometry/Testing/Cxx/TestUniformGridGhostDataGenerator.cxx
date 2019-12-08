@@ -20,93 +20,88 @@
 //  domain and ensure that the created ghost data have the correct fields.
 
 // C++ includes
-#include <iostream>
-#include <sstream>
 #include <cassert>
+#include <iostream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <set>
 
 // VTK includes
+#include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkUniformGrid.h"
+#include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkDataObject.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkXMLImageDataWriter.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDoubleArray.h"
-#include "vtkCell.h"
-#include "vtkUniformGridPartitioner.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridGhostDataGenerator.h"
+#include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkMathUtilities.h"
 
 //------------------------------------------------------------------------------
-bool CheckNodeFieldsForGrid( vtkUniformGrid *grid )
+bool CheckNodeFieldsForGrid(vtkUniformGrid* grid)
 {
-  assert("pre: grid should not be nullptr" && (grid != nullptr) );
-  assert("pre: grid should have a NODE-XYZ array" &&
-          grid->GetPointData()->HasArray("NODE-XYZ") );
+  assert("pre: grid should not be nullptr" && (grid != nullptr));
+  assert("pre: grid should have a NODE-XYZ array" && grid->GetPointData()->HasArray("NODE-XYZ"));
 
   double xyz[3];
-  vtkDoubleArray *array =
-     vtkArrayDownCast<vtkDoubleArray>( grid->GetPointData()->GetArray("NODE-XYZ") );
+  vtkDoubleArray* array =
+    vtkArrayDownCast<vtkDoubleArray>(grid->GetPointData()->GetArray("NODE-XYZ"));
   assert("pre: num tuples must match number of nodes" &&
-         (array->GetNumberOfTuples() == grid->GetNumberOfPoints()) );
-  assert("pre: num components must be 3" &&
-         (array->GetNumberOfComponents()==3));
+    (array->GetNumberOfTuples() == grid->GetNumberOfPoints()));
+  assert("pre: num components must be 3" && (array->GetNumberOfComponents() == 3));
 
-  for( vtkIdType idx=0; idx < grid->GetNumberOfPoints(); ++idx )
+  for (vtkIdType idx = 0; idx < grid->GetNumberOfPoints(); ++idx)
   {
-    grid->GetPoint( idx, xyz );
+    grid->GetPoint(idx, xyz);
 
-    for( int i=0; i < 3; ++i )
+    for (int i = 0; i < 3; ++i)
     {
-      if( !vtkMathUtilities::FuzzyCompare(xyz[i],array->GetComponent(idx,i) ) )
+      if (!vtkMathUtilities::FuzzyCompare(xyz[i], array->GetComponent(idx, i)))
       {
         return false;
       } // END if fuzzy-compare
-    } // END for all components
-  } // END for all nodes
+    }   // END for all components
+  }     // END for all nodes
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
+bool CheckCellFieldsForGrid(vtkUniformGrid* grid)
 {
-  assert("pre: grid should not be nullptr" && (grid != nullptr) );
-  assert("pre: grid should have a NODE-XYZ array" &&
-          grid->GetCellData()->HasArray("CELL-XYZ") );
+  assert("pre: grid should not be nullptr" && (grid != nullptr));
+  assert("pre: grid should have a NODE-XYZ array" && grid->GetCellData()->HasArray("CELL-XYZ"));
 
   double centroid[3];
   double xyz[3];
-  vtkDoubleArray *array =
-      vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetArray("CELL-XYZ") );
+  vtkDoubleArray* array =
+    vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetArray("CELL-XYZ"));
   assert("pre: num tuples must match number of nodes" &&
-         (array->GetNumberOfTuples() == grid->GetNumberOfCells()) );
-  assert("pre: num components must be 3" &&
-         (array->GetNumberOfComponents()==3));
+    (array->GetNumberOfTuples() == grid->GetNumberOfCells()));
+  assert("pre: num components must be 3" && (array->GetNumberOfComponents() == 3));
 
-  for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+  for (vtkIdType cellIdx = 0; cellIdx < grid->GetNumberOfCells(); ++cellIdx)
   {
-    vtkCell *c = grid->GetCell( cellIdx );
-    assert( "pre: cell is not nullptr" && (c != nullptr) );
+    vtkCell* c = grid->GetCell(cellIdx);
+    assert("pre: cell is not nullptr" && (c != nullptr));
 
     double xsum = 0.0;
     double ysum = 0.0;
     double zsum = 0.0;
-    for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
+    for (vtkIdType node = 0; node < c->GetNumberOfPoints(); ++node)
     {
-      vtkIdType meshPntIdx = c->GetPointId( node );
-      grid->GetPoint( meshPntIdx, xyz );
+      vtkIdType meshPntIdx = c->GetPointId(node);
+      grid->GetPoint(meshPntIdx, xyz);
       xsum += xyz[0];
       ysum += xyz[1];
       zsum += xyz[2];
@@ -116,44 +111,43 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
     centroid[1] = ysum / c->GetNumberOfPoints();
     centroid[2] = zsum / c->GetNumberOfPoints();
 
-    for( int i=0; i < 3; ++i )
+    for (int i = 0; i < 3; ++i)
     {
-      if( !vtkMathUtilities::FuzzyCompare(
-          centroid[i],array->GetComponent(cellIdx,i)) )
+      if (!vtkMathUtilities::FuzzyCompare(centroid[i], array->GetComponent(cellIdx, i)))
       {
         return false;
       } // END if fuzz-compare
-    } // END for all components
-  } // END for all cells
+    }   // END for all components
+  }     // END for all cells
   return true;
 }
 
 //------------------------------------------------------------------------------
-int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
+int CheckFields(vtkMultiBlockDataSet* mbds, bool hasNodeData, bool hasCellData)
 {
-  assert("pre: input multi-block is nullptr" && (mbds != nullptr) );
+  assert("pre: input multi-block is nullptr" && (mbds != nullptr));
 
-  if( !hasNodeData && !hasCellData )
+  if (!hasNodeData && !hasCellData)
   {
     return 0;
   }
 
-  for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+  for (unsigned int block = 0; block < mbds->GetNumberOfBlocks(); ++block)
   {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is not nullptr" && (grid != nullptr) );
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    assert("pre: grid is not nullptr" && (grid != nullptr));
 
-    if( hasNodeData )
+    if (hasNodeData)
     {
-      if( !CheckNodeFieldsForGrid( grid ) )
+      if (!CheckNodeFieldsForGrid(grid))
       {
         return 1;
       }
     }
 
-    if( hasCellData )
+    if (hasCellData)
     {
-      if( !CheckCellFieldsForGrid( grid ) )
+      if (!CheckCellFieldsForGrid(grid))
       {
         return 1;
       }
@@ -167,19 +161,18 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
 //------------------------------------------------------------------------------
 // Description:
 // Write the uniform grid multi-block dataset into an XML file.
-void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
+void WriteMultiBlock(vtkMultiBlockDataSet* mbds, const std::string& prefix)
 {
-  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr));
 
-  vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
-  assert( "pre: Cannot allocate writer" && (writer != nullptr) );
+  vtkXMLMultiBlockDataWriter* writer = vtkXMLMultiBlockDataWriter::New();
+  assert("pre: Cannot allocate writer" && (writer != nullptr));
 
   std::ostringstream oss;
   oss.str("");
-  oss << prefix << mbds->GetNumberOfBlocks() << "."
-      << writer->GetDefaultFileExtension();
-  writer->SetFileName( oss.str().c_str() );
-  writer->SetInputData( mbds );
+  oss << prefix << mbds->GetNumberOfBlocks() << "." << writer->GetDefaultFileExtension();
+  writer->SetFileName(oss.str().c_str());
+  writer->SetInputData(mbds);
   writer->Write();
 
   writer->Delete();
@@ -188,66 +181,65 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 //------------------------------------------------------------------------------
 // Description:
 // Adds and XYZ vector field in the nodes of the data-set
-void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
+void AddNodeCenteredXYZField(vtkMultiBlockDataSet* mbds)
 {
-  assert("pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr));
 
-  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+  for (unsigned int block = 0; block < mbds->GetNumberOfBlocks(); ++block)
   {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is nullptr for the given block" && (grid != nullptr) );
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    assert("pre: grid is nullptr for the given block" && (grid != nullptr));
 
-    vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
-    nodeXYZArray->SetName( "NODE-XYZ" );
-    nodeXYZArray->SetNumberOfComponents( 3 );
-    nodeXYZArray->SetNumberOfTuples( grid->GetNumberOfPoints() );
+    vtkDoubleArray* nodeXYZArray = vtkDoubleArray::New();
+    nodeXYZArray->SetName("NODE-XYZ");
+    nodeXYZArray->SetNumberOfComponents(3);
+    nodeXYZArray->SetNumberOfTuples(grid->GetNumberOfPoints());
 
     double xyz[3];
-    for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
+    for (vtkIdType pntIdx = 0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx)
     {
-      grid->GetPoint( pntIdx, xyz );
-      nodeXYZArray->SetComponent( pntIdx, 0, xyz[0] );
-      nodeXYZArray->SetComponent( pntIdx, 1, xyz[1] );
-      nodeXYZArray->SetComponent( pntIdx, 2, xyz[2] );
+      grid->GetPoint(pntIdx, xyz);
+      nodeXYZArray->SetComponent(pntIdx, 0, xyz[0]);
+      nodeXYZArray->SetComponent(pntIdx, 1, xyz[1]);
+      nodeXYZArray->SetComponent(pntIdx, 2, xyz[2]);
     } // END for all points
 
-    grid->GetPointData()->AddArray( nodeXYZArray );
+    grid->GetPointData()->AddArray(nodeXYZArray);
     nodeXYZArray->Delete();
   } // END for all blocks
-
 }
 
 //------------------------------------------------------------------------------
 // Description:
 // Adds and XYZ vector field in the nodes of the dataset
-void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
+void AddCellCenteredXYZField(vtkMultiBlockDataSet* mbds)
 {
-  assert("pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr));
 
-  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+  for (unsigned int block = 0; block < mbds->GetNumberOfBlocks(); ++block)
   {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is nullptr for the given block" && (grid != nullptr) );
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    assert("pre: grid is nullptr for the given block" && (grid != nullptr));
 
-    vtkDoubleArray *cellXYZArray = vtkDoubleArray::New();
-    cellXYZArray->SetName( "CELL-XYZ" );
-    cellXYZArray->SetNumberOfComponents( 3 );
-    cellXYZArray->SetNumberOfTuples( grid->GetNumberOfCells() );
+    vtkDoubleArray* cellXYZArray = vtkDoubleArray::New();
+    cellXYZArray->SetName("CELL-XYZ");
+    cellXYZArray->SetNumberOfComponents(3);
+    cellXYZArray->SetNumberOfTuples(grid->GetNumberOfCells());
 
     double centroid[3];
     double xyz[3];
-    for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
+    for (vtkIdType cellIdx = 0; cellIdx < grid->GetNumberOfCells(); ++cellIdx)
     {
-      vtkCell *c = grid->GetCell( cellIdx );
-      assert( "pre: cell is not nullptr" && (c != nullptr) );
+      vtkCell* c = grid->GetCell(cellIdx);
+      assert("pre: cell is not nullptr" && (c != nullptr));
 
       double xsum = 0.0;
       double ysum = 0.0;
       double zsum = 0.0;
-      for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
+      for (vtkIdType node = 0; node < c->GetNumberOfPoints(); ++node)
       {
-        vtkIdType meshPntIdx = c->GetPointId( node );
-        grid->GetPoint( meshPntIdx, xyz );
+        vtkIdType meshPntIdx = c->GetPointId(node);
+        grid->GetPoint(meshPntIdx, xyz);
         xsum += xyz[0];
         ysum += xyz[1];
         zsum += xyz[2];
@@ -257,12 +249,12 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
       centroid[1] = ysum / c->GetNumberOfPoints();
       centroid[2] = zsum / c->GetNumberOfPoints();
 
-      cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
-      cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
-      cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
+      cellXYZArray->SetComponent(cellIdx, 0, centroid[0]);
+      cellXYZArray->SetComponent(cellIdx, 1, centroid[1]);
+      cellXYZArray->SetComponent(cellIdx, 2, centroid[2]);
     } // END for all cells
 
-    grid->GetCellData()->AddArray( cellXYZArray );
+    grid->GetCellData()->AddArray(cellXYZArray);
     cellXYZArray->Delete();
   } // END for all blocks
 }
@@ -270,80 +262,74 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
 //------------------------------------------------------------------------------
 // Description:
 // Creates a test data-set.
-vtkMultiBlockDataSet* GetDataSet(
-    double globalOrigin[3], int WholeExtent[6],double gridSpacing[3],
-    const int numPartitions, const int numGhosts,
-    const bool AddNodeData, const bool AddCellData )
+vtkMultiBlockDataSet* GetDataSet(double globalOrigin[3], int WholeExtent[6], double gridSpacing[3],
+  const int numPartitions, const int numGhosts, const bool AddNodeData, const bool AddCellData)
 {
   // STEP 0: Get the global grid dimensions
   int dims[3];
-  vtkStructuredData::GetDimensionsFromExtent( WholeExtent, dims );
+  vtkStructuredData::GetDimensionsFromExtent(WholeExtent, dims);
 
   // STEP 1: Get the whole grid
-  vtkUniformGrid *wholeGrid = vtkUniformGrid::New();
-  wholeGrid->SetOrigin( globalOrigin );
-  wholeGrid->SetSpacing( gridSpacing );
-  wholeGrid->SetDimensions( dims );
+  vtkUniformGrid* wholeGrid = vtkUniformGrid::New();
+  wholeGrid->SetOrigin(globalOrigin);
+  wholeGrid->SetSpacing(gridSpacing);
+  wholeGrid->SetDimensions(dims);
 
   // STEP 2: Partition the whole grid
-  vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInputData( wholeGrid );
-  gridPartitioner->SetNumberOfPartitions( numPartitions );
-  gridPartitioner->SetNumberOfGhostLayers( numGhosts );
+  vtkUniformGridPartitioner* gridPartitioner = vtkUniformGridPartitioner::New();
+  gridPartitioner->SetInputData(wholeGrid);
+  gridPartitioner->SetNumberOfPartitions(numPartitions);
+  gridPartitioner->SetNumberOfGhostLayers(numGhosts);
   gridPartitioner->Update();
 
   // STEP 3: Get the partitioned dataset
-  vtkMultiBlockDataSet *mbds =
-      vtkMultiBlockDataSet::SafeDownCast(gridPartitioner->GetOutput() );
-  mbds->SetReferenceCount( mbds->GetReferenceCount()+1 );
+  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(gridPartitioner->GetOutput());
+  mbds->SetReferenceCount(mbds->GetReferenceCount() + 1);
 
   // STEP 4: Delete temporary data
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
   // STEP 5: Add node-centered and cell-centered fields
-  if( AddNodeData )
+  if (AddNodeData)
   {
-   AddNodeCenteredXYZField( mbds );
+    AddNodeCenteredXYZField(mbds);
   }
 
-  if( AddCellData )
+  if (AddCellData)
   {
-   AddCellCenteredXYZField( mbds );
+    AddCellCenteredXYZField(mbds);
   }
 
-  return( mbds );
+  return (mbds);
 }
 
 //------------------------------------------------------------------------------
 // Description:
 // Tests UniformGridGhostDataGenerator
 int Test2D(
-    const bool hasNodeData,const bool hasCellData,
-    const int numPartitions, const int numGhosts)
+  const bool hasNodeData, const bool hasCellData, const int numPartitions, const int numGhosts)
 {
   int rc = 0;
 
-  int WholeExtent[6] = {0,49,0,49,0,0};
-  double h[3] = {0.5,0.5,0.5};
-  double p[3] = {0.0,0.0,0.0};
+  int WholeExtent[6] = { 0, 49, 0, 49, 0, 0 };
+  double h[3] = { 0.5, 0.5, 0.5 };
+  double p[3] = { 0.0, 0.0, 0.0 };
 
-  vtkMultiBlockDataSet *mbds = GetDataSet(p,WholeExtent,h,
-      numPartitions,numGhosts,hasNodeData,hasCellData);
-//  WriteMultiBlock( mbds, "INITIAL");
+  vtkMultiBlockDataSet* mbds =
+    GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
+  //  WriteMultiBlock( mbds, "INITIAL");
 
-  vtkUniformGridGhostDataGenerator *ghostDataGenerator =
-      vtkUniformGridGhostDataGenerator::New();
+  vtkUniformGridGhostDataGenerator* ghostDataGenerator = vtkUniformGridGhostDataGenerator::New();
 
-  ghostDataGenerator->SetInputData( mbds );
-  ghostDataGenerator->SetNumberOfGhostLayers( 1 );
+  ghostDataGenerator->SetInputData(mbds);
+  ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet *ghostedDataSet = ghostDataGenerator->GetOutput();
-//  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
+  vtkMultiBlockDataSet* ghostedDataSet = ghostDataGenerator->GetOutput();
+  //  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
 
-
-  rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
+  rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
   mbds->Delete();
   ghostDataGenerator->Delete();
   return rc;
@@ -353,30 +339,27 @@ int Test2D(
 // Description:
 // Tests UniformGridGhostDataGenerator
 int Test3D(
-    const bool hasNodeData, const bool hasCellData,
-    const int numPartitions, const int numGhosts )
+  const bool hasNodeData, const bool hasCellData, const int numPartitions, const int numGhosts)
 {
   int rc = 0;
-  int WholeExtent[6] = {0,49,0,49,0,49};
-  double h[3] = {0.5,0.5,0.5};
-  double p[3] = {0.0,0.0,0.0};
+  int WholeExtent[6] = { 0, 49, 0, 49, 0, 49 };
+  double h[3] = { 0.5, 0.5, 0.5 };
+  double p[3] = { 0.0, 0.0, 0.0 };
 
-  vtkMultiBlockDataSet *mbds = GetDataSet(p,WholeExtent,h,
-      numPartitions,numGhosts,hasNodeData,hasCellData);
-//  WriteMultiBlock( mbds, "INITIAL");
+  vtkMultiBlockDataSet* mbds =
+    GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
+  //  WriteMultiBlock( mbds, "INITIAL");
 
-  vtkUniformGridGhostDataGenerator *ghostDataGenerator =
-      vtkUniformGridGhostDataGenerator::New();
+  vtkUniformGridGhostDataGenerator* ghostDataGenerator = vtkUniformGridGhostDataGenerator::New();
 
-  ghostDataGenerator->SetInputData( mbds );
-  ghostDataGenerator->SetNumberOfGhostLayers( 1 );
+  ghostDataGenerator->SetInputData(mbds);
+  ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet *ghostedDataSet = ghostDataGenerator->GetOutput();
-//  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
+  vtkMultiBlockDataSet* ghostedDataSet = ghostDataGenerator->GetOutput();
+  //  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
 
-
-  rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
+  rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
   mbds->Delete();
   ghostDataGenerator->Delete();
   return rc;
@@ -385,12 +368,12 @@ int Test3D(
 //------------------------------------------------------------------------------
 // Description:
 // Tests UniformGridGhostDataGenerator
-int TestUniformGridGhostDataGenerator(int, char *[])
+int TestUniformGridGhostDataGenerator(int, char*[])
 {
   int rc = 0;
 
-  rc += Test2D(true,false,4,0);
-  rc += Test2D(true,true,16,0);
-  rc += Test3D(false,true,8,0);
-  return( rc );
+  rc += Test2D(true, false, 4, 0);
+  rc += Test2D(true, true, 16, 0);
+  rc += Test3D(false, true, 8, 0);
+  return (rc);
 }

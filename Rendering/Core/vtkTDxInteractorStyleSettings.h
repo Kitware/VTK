@@ -23,19 +23,19 @@
  * @sa
  * vtkInteractorStyle vtkRenderWindowInteractor
  * vtkTDxInteractorStyle
-*/
+ */
 
 #ifndef vtkTDxInteractorStyleSettings_h
 #define vtkTDxInteractorStyleSettings_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleSettings : public vtkObject
 {
 public:
-  static vtkTDxInteractorStyleSettings *New();
-  vtkTypeMacro(vtkTDxInteractorStyleSettings,vtkObject);
+  static vtkTDxInteractorStyleSettings* New();
+  vtkTypeMacro(vtkTDxInteractorStyleSettings, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -50,8 +50,8 @@ public:
    * - x=1.0: neutral
    * - x>1.0: faster
    */
-  vtkSetMacro(AngleSensitivity,double);
-  vtkGetMacro(AngleSensitivity,double);
+  vtkSetMacro(AngleSensitivity, double);
+  vtkGetMacro(AngleSensitivity, double);
   //@}
 
   //@{
@@ -59,8 +59,8 @@ public:
    * Use or mask the rotation component around the X-axis. Initial value is
    * true.
    */
-  vtkSetMacro(UseRotationX,bool);
-  vtkGetMacro(UseRotationX,bool);
+  vtkSetMacro(UseRotationX, bool);
+  vtkGetMacro(UseRotationX, bool);
   //@}
 
   //@{
@@ -68,8 +68,8 @@ public:
    * Use or mask the rotation component around the Y-axis. Initial value is
    * true.
    */
-  vtkSetMacro(UseRotationY,bool);
-  vtkGetMacro(UseRotationY,bool);
+  vtkSetMacro(UseRotationY, bool);
+  vtkGetMacro(UseRotationY, bool);
   //@}
 
   //@{
@@ -77,8 +77,8 @@ public:
    * Use or mask the rotation component around the Z-axis. Initial value is
    * true.
    */
-  vtkSetMacro(UseRotationZ,bool);
-  vtkGetMacro(UseRotationZ,bool);
+  vtkSetMacro(UseRotationZ, bool);
+  vtkGetMacro(UseRotationZ, bool);
   //@}
 
   //@{
@@ -94,8 +94,8 @@ public:
    * - x>1.0: faster
    * Initial value is 1.0
    */
-  vtkSetMacro(TranslationXSensitivity,double);
-  vtkGetMacro(TranslationXSensitivity,double);
+  vtkSetMacro(TranslationXSensitivity, double);
+  vtkGetMacro(TranslationXSensitivity, double);
   //@}
 
   //@{
@@ -103,8 +103,8 @@ public:
    * Sensitivity of the translation along the Y-axis.
    * See comment of SetTranslationXSensitivity().
    */
-  vtkSetMacro(TranslationYSensitivity,double);
-  vtkGetMacro(TranslationYSensitivity,double);
+  vtkSetMacro(TranslationYSensitivity, double);
+  vtkGetMacro(TranslationYSensitivity, double);
   //@}
 
   //@{
@@ -112,8 +112,8 @@ public:
    * Sensitivity of the translation along the Z-axis.
    * See comment of SetTranslationXSensitivity().
    */
-  vtkSetMacro(TranslationZSensitivity,double);
-  vtkGetMacro(TranslationZSensitivity,double);
+  vtkSetMacro(TranslationZSensitivity, double);
+  vtkGetMacro(TranslationZSensitivity, double);
   //@}
 
 protected:

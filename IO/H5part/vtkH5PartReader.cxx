@@ -63,7 +63,6 @@
 #include <vtksys/SystemTools.hxx>
 //
 #include "vtkCharArray.h"
-#include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
@@ -762,11 +761,10 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->GenerateVertexCells)
   {
     vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
-    vtkIdType* cells = vertices->WritePointer(Nt, 2 * Nt);
+    vertices->AllocateEstimate(Nt, 1);
     for (vtkIdType i = 0; i < Nt; ++i)
     {
-      cells[2 * i] = 1;
-      cells[2 * i + 1] = i;
+      vertices->InsertNextCell(1, &i);
     }
     output->SetVerts(vertices);
   }

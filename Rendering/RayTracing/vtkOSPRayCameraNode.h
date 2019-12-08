@@ -17,19 +17,18 @@
  * @brief   links vtkCamera to OSPRay
  *
  * Translates vtkCamera state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayCameraNode_h
 #define vtkOSPRayCameraNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkCameraNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 class vtkInformationIntegerKey;
 class vtkCamera;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCameraNode :
-  public vtkCameraNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCameraNode : public vtkCameraNode
 {
 public:
   static vtkOSPRayCameraNode* New();
@@ -39,11 +38,11 @@ public:
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
 protected:
   vtkOSPRayCameraNode();
-  ~vtkOSPRayCameraNode();
+  ~vtkOSPRayCameraNode() override;
 
 private:
   vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;

@@ -33,22 +33,20 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include <boost/version.hpp>
 #include "vtkBoostBiconnectedComponents.h"
+#include <boost/version.hpp>
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 template <typename Algorithm>
-void RenderGraph(vtkRenderer* ren, Algorithm* alg,
-  double xoffset, double yoffset,
-  const char* vertColorArray, double vertMin, double vertMax,
-  const char* edgeColorArray, double edgeMin, double edgeMax)
+void RenderGraph(vtkRenderer* ren, Algorithm* alg, double xoffset, double yoffset,
+  const char* vertColorArray, double vertMin, double vertMax, const char* edgeColorArray,
+  double edgeMin, double edgeMax)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(alg->GetOutputPort());
@@ -162,8 +160,8 @@ int TestBoostAlgorithms(int argc, char* argv[])
   // Only available in Boost 1.33 or later
   VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
   biconn->SetInputData(g);
-  RenderGraph(ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
-
+  RenderGraph(
+    ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);
@@ -211,4 +209,3 @@ int TestBoostAlgorithms(int argc, char* argv[])
 
   return !retVal;
 }
-

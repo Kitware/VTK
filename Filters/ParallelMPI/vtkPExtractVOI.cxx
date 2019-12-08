@@ -15,7 +15,6 @@
 #include "vtkPExtractVOI.h"
 
 // VTK includes
-#include "vtkStructuredExtent.h"
 #include "vtkExtractStructuredGridHelper.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -25,44 +24,41 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredExtent.h"
 #include "vtkStructuredImplicitConnectivity.h"
 
 #include <cassert>
 #include <sstream>
 
 // Some useful extent macros
-#define EMIN(ext, dim) (ext[2*dim])
-#define EMAX(ext, dim) (ext[2*dim+1])
+#define EMIN(ext, dim) (ext[2 * dim])
+#define EMAX(ext, dim) (ext[2 * dim + 1])
 
 // #define DEBUG
 
 #ifdef DEBUG
-#define DEBUG_EXTENT(label, extent) \
-  if (this->Controller) \
-  { \
-    vtkMPIUtilities::SynchronizedPrintf( \
-        this->Controller, #label "=[%d,%d,%d,%d,%d,%d]\n", \
-        extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]); \
-  } \
-  else \
-  { \
-    std::cout << label << "=[" \
-              << extent[0] << "," << extent[1] << "," \
-              << extent[2] << "," << extent[3] << "," \
-              << extent[4] << "," << extent[5] << "]\n"; \
+#define DEBUG_EXTENT(label, extent)                                                                \
+  if (this->Controller)                                                                            \
+  {                                                                                                \
+    vtkMPIUtilities::SynchronizedPrintf(this->Controller, #label "=[%d,%d,%d,%d,%d,%d]\n",         \
+      extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);                           \
+  }                                                                                                \
+  else                                                                                             \
+  {                                                                                                \
+    std::cout << label << "=[" << extent[0] << "," << extent[1] << "," << extent[2] << ","         \
+              << extent[3] << "," << extent[4] << "," << extent[5] << "]\n";                       \
   }
 
-#define DEBUG_OUT(out) \
-  if (this->Controller) \
-  { \
-    std::ostringstream tmpStreamOut; \
-    tmpStreamOut << out; \
-    vtkMPIUtilities::SynchronizedPrintf(this->Controller, \
-                                        tmpStreamOut.str().c_str()); \
-  } \
-  else \
-  { \
-    std::cout << out; \
+#define DEBUG_OUT(out)                                                                             \
+  if (this->Controller)                                                                            \
+  {                                                                                                \
+    std::ostringstream tmpStreamOut;                                                               \
+    tmpStreamOut << out;                                                                           \
+    vtkMPIUtilities::SynchronizedPrintf(this->Controller, tmpStreamOut.str().c_str());             \
+  }                                                                                                \
+  else                                                                                             \
+  {                                                                                                \
+    std::cout << out;                                                                              \
   }
 #else // DEBUG
 #define DEBUG_EXTENT(label, extent)
@@ -74,33 +70,27 @@ vtkStandardNewMacro(vtkPExtractVOI);
 //------------------------------------------------------------------------------
 vtkPExtractVOI::vtkPExtractVOI()
 {
-  this->Controller = vtkMPIController::SafeDownCast(
-          vtkMultiProcessController::GetGlobalController());
+  this->Controller =
+    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractVOI::~vtkPExtractVOI()
-{
-
-}
+vtkPExtractVOI::~vtkPExtractVOI() {}
 
 //------------------------------------------------------------------------------
 void vtkPExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 int vtkPExtractVOI::RequestData(
-        vtkInformation* request,
-        vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   DEBUG_OUT("########### RequestData\n");
 
-  bool isSubSampling = this->SampleRate[0] != 1 ||
-                       this->SampleRate[1] != 1 ||
-                       this->SampleRate[2] != 1;
+  bool isSubSampling =
+    this->SampleRate[0] != 1 || this->SampleRate[1] != 1 || this->SampleRate[2] != 1;
 
   // No MPI, or no subsampling? Just run the serial implementation.
   if (!this->Controller || !isSubSampling)
@@ -118,16 +108,12 @@ int vtkPExtractVOI::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int inputWholeExtent[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               inputWholeExtent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inputWholeExtent);
   int outputWholeExtent[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               outputWholeExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outputWholeExtent);
 
-  vtkImageData *input = vtkImageData::SafeDownCast(
-        inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *output = vtkImageData::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int inputExtent[6];
   input->GetExtent(inputExtent);
@@ -174,7 +160,7 @@ int vtkPExtractVOI::RequestData(
   for (int dim = 0; partitionContainsVOI && dim < 3; ++dim)
   {
     partitionContainsVOI = EMAX(inputExtent, dim) >= EMIN(globalVOI, dim) &&
-                           EMIN(inputExtent, dim) <= EMAX(globalVOI, dim);
+      EMIN(inputExtent, dim) <= EMAX(globalVOI, dim);
   }
 
   DEBUG_EXTENT("InputWholeExtent", inputWholeExtent);
@@ -182,8 +168,8 @@ int vtkPExtractVOI::RequestData(
   DEBUG_EXTENT("GlobalVOI", globalVOI);
   DEBUG_EXTENT("InputPartitionedExtent", inputExtent);
 
-  int partitionedVOI[6] = {0, -1, 0, -1, 0, -1};
-  int partitionedOutputExtent[6] = {0, -1, 0, -1, 0, -1};
+  int partitionedVOI[6] = { 0, -1, 0, -1, 0, -1 };
+  int partitionedOutputExtent[6] = { 0, -1, 0, -1, 0, -1 };
 
   if (partitionContainsVOI)
   {
@@ -191,8 +177,7 @@ int vtkPExtractVOI::RequestData(
     // 1) Compute actual VOI for aligning the partitions outputs: //
     ////////////////////////////////////////////////////////////////
     vtkExtractStructuredGridHelper::GetPartitionedVOI(
-          globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0,
-          partitionedVOI);
+      globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0, partitionedVOI);
   }
   DEBUG_EXTENT("PartitionedVOI", partitionedVOI);
 
@@ -201,9 +186,8 @@ int vtkPExtractVOI::RequestData(
     ////////////////////////////////////////////////////////////////
     // 2) Compute and update the output dataset's actual extents. //
     ////////////////////////////////////////////////////////////////
-    vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
-          globalVOI, partitionedVOI, outputWholeExtent, this->SampleRate,
-          this->IncludeBoundary != 0, partitionedOutputExtent);
+    vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(globalVOI, partitionedVOI,
+      outputWholeExtent, this->SampleRate, this->IncludeBoundary != 0, partitionedOutputExtent);
     output->SetExtent(partitionedOutputExtent);
   }
   DEBUG_EXTENT("PartitionedOutputExtent", partitionedOutputExtent);
@@ -222,30 +206,24 @@ int vtkPExtractVOI::RequestData(
   //////////////////////////////
   // 4: Detect & resolve gaps //
   //////////////////////////////
-  vtkStructuredImplicitConnectivity* gridConnectivity =
-      vtkStructuredImplicitConnectivity::New();
+  vtkStructuredImplicitConnectivity* gridConnectivity = vtkStructuredImplicitConnectivity::New();
   gridConnectivity->SetWholeExtent(outputWholeExtent);
 
   // Register the grid, grid ID is the same as the process ID
   gridConnectivity->RegisterGrid(
-    this->Controller->GetLocalProcessId(),
-    output->GetExtent(),
-    nullptr,
-    output->GetPointData()
-    );
+    this->Controller->GetLocalProcessId(), output->GetExtent(), nullptr, output->GetPointData());
 
   // Establish neighbor connectivity & detect any gaps
   gridConnectivity->EstablishConnectivity();
 
   // Check if there are any gaps, if any close them now
-  if( gridConnectivity->HasImplicitConnectivity() )
+  if (gridConnectivity->HasImplicitConnectivity())
   {
     DEBUG_OUT("Closing gaps...\n");
     // there are gaps, grow the grid to the right
     gridConnectivity->ExchangeData();
 
-    gridConnectivity->GetOutputImageData(this->Controller->GetLocalProcessId(),
-                                         output);
+    gridConnectivity->GetOutputImageData(this->Controller->GetLocalProcessId(), output);
   }
 
   gridConnectivity->Delete();
@@ -261,22 +239,16 @@ int vtkPExtractVOI::RequestData(
 
 //------------------------------------------------------------------------------
 int vtkPExtractVOI::RequestInformation(
-        vtkInformation* request,
-        vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   DEBUG_OUT("########### RequestInformation\n");
-  return this->Superclass::RequestInformation(request, inputVector,
-                                              outputVector);
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------
 int vtkPExtractVOI::RequestUpdateExtent(
-        vtkInformation* request,
-        vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   DEBUG_OUT("########### RequestUpdateExtent\n");
-  return this->Superclass::RequestUpdateExtent(request, inputVector,
-                                               outputVector);
+  return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
 }

@@ -21,13 +21,13 @@
  * draws all the points and does not require cell arrays. If cell arrays are
  * provided it will only draw the points used by the Verts cell array. The shape
  * of the imposter is a triangle.
-*/
+ */
 
 #ifndef vtkPointGaussianMapper_h
 #define vtkPointGaussianMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPiecewiseFunction;
 
@@ -35,7 +35,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 {
 public:
   static vtkPointGaussianMapper* New();
-  vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper)
+  vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -43,8 +43,8 @@ public:
    * Set/Get the optional scale transfer function. This is only
    * used when a ScaleArray is also specified.
    */
-  void SetScaleFunction(vtkPiecewiseFunction *);
-  vtkGetObjectMacro(ScaleFunction,vtkPiecewiseFunction);
+  void SetScaleFunction(vtkPiecewiseFunction*);
+  vtkGetObjectMacro(ScaleFunction, vtkPiecewiseFunction);
   //@}
 
   //@{
@@ -81,8 +81,8 @@ public:
    * A scale factor of 0.0 indicates that the splats should be rendered
    * as simple points.
    */
-  vtkSetMacro(ScaleFactor,double);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
   //@}
 
   //@{
@@ -99,8 +99,8 @@ public:
    * Set/Get the optional opacity transfer function. This is only
    * used when an OpacityArray is also specified.
    */
-  void SetScalarOpacityFunction(vtkPiecewiseFunction *);
-  vtkGetObjectMacro(ScalarOpacityFunction,vtkPiecewiseFunction);
+  void SetScalarOpacityFunction(vtkPiecewiseFunction*);
+  vtkGetObjectMacro(ScalarOpacityFunction, vtkPiecewiseFunction);
   //@}
 
   //@{
@@ -157,8 +157,8 @@ public:
    * to avoid sending many fragments to the shader that will just get
    * discarded.
    */
-  vtkSetMacro(TriangleScale,float);
-  vtkGetMacro(TriangleScale,float);
+  vtkSetMacro(TriangleScale, float);
+  vtkGetMacro(TriangleScale, float);
   //@}
 
   /**
@@ -167,23 +167,22 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() override
-    { return true; }
+  bool GetSupportsSelection() override { return true; }
 
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper() override;
 
-  char *ScaleArray;
+  char* ScaleArray;
   int ScaleArrayComponent;
-  char *OpacityArray;
+  char* OpacityArray;
   int OpacityArrayComponent;
-  char *SplatShaderCode;
+  char* SplatShaderCode;
 
-  vtkPiecewiseFunction *ScaleFunction;
+  vtkPiecewiseFunction* ScaleFunction;
   int ScaleTableSize;
 
-  vtkPiecewiseFunction *ScalarOpacityFunction;
+  vtkPiecewiseFunction* ScalarOpacityFunction;
   int OpacityTableSize;
 
   double ScaleFactor;

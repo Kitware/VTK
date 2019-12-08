@@ -17,6 +17,7 @@ DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::FiltersTexture
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms

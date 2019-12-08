@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkJPEGReader
-*/
+ */
 
 #ifndef vtkJPEGWriter_h
 #define vtkJPEGWriter_h
@@ -36,8 +36,8 @@ class vtkImageData;
 class VTKIOIMAGE_EXPORT vtkJPEGWriter : public vtkImageWriter
 {
 public:
-  static vtkJPEGWriter *New();
-  vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
+  static vtkJPEGWriter* New();
+  vtkTypeMacro(vtkJPEGWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -84,13 +84,13 @@ protected:
   vtkJPEGWriter();
   ~vtkJPEGWriter() override;
 
-  void WriteSlice(vtkImageData *data, int* uExtent);
+  void WriteSlice(vtkImageData* data, int* uExtent);
 
 private:
   int Quality;
   vtkTypeUBool Progressive;
-  vtkUnsignedCharArray *Result;
-  FILE *TempFP;
+  vtkUnsignedCharArray* Result;
+  FILE* TempFP;
 
 private:
   vtkJPEGWriter(const vtkJPEGWriter&) = delete;
@@ -98,5 +98,3 @@ private:
 };
 
 #endif
-
-

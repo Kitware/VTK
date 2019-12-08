@@ -27,13 +27,13 @@
  * @par Thanks:
  * Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
  * Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
-*/
+ */
 
 #ifndef vtkImageHistogramStatistics_h
 #define vtkImageHistogramStatistics_h
 
-#include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkImageHistogram.h"
+#include "vtkImagingStatisticsModule.h" // For export macro
 
 class vtkImageStencilData;
 class vtkIdTypeArray;
@@ -41,8 +41,8 @@ class vtkIdTypeArray;
 class VTKIMAGINGSTATISTICS_EXPORT vtkImageHistogramStatistics : public vtkImageHistogram
 {
 public:
-  static vtkImageHistogramStatistics *New();
-  vtkTypeMacro(vtkImageHistogramStatistics,vtkImageHistogram);
+  static vtkImageHistogramStatistics* New();
+  vtkTypeMacro(vtkImageHistogramStatistics, vtkImageHistogram);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -117,9 +117,7 @@ protected:
   vtkImageHistogramStatistics();
   ~vtkImageHistogramStatistics() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Minimum;
   double Maximum;

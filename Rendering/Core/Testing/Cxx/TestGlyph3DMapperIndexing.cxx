@@ -19,17 +19,17 @@
 #include "vtkCubeSource.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-int TestGlyph3DMapperIndexing(int argc, char *argv[])
+int TestGlyph3DMapperIndexing(int argc, char* argv[])
 {
   // The points to glyph:
   vtkNew<vtkPolyData> input;

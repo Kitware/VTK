@@ -26,7 +26,7 @@
  * @par Thanks:
  * Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
  * Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
-*/
+ */
 
 #ifndef vtkImageHistogram_h
 #define vtkImageHistogram_h
@@ -42,15 +42,16 @@ class vtkImageHistogramSMPThreadLocal;
 class VTKIMAGINGSTATISTICS_EXPORT vtkImageHistogram : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageHistogram *New();
-  vtkTypeMacro(vtkImageHistogram,vtkThreadedImageAlgorithm);
+  static vtkImageHistogram* New();
+  vtkTypeMacro(vtkImageHistogram, vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Scale types for the histogram image.
    */
-  enum {
+  enum
+  {
     Linear = 0,
     Log = 1,
     Sqrt = 2
@@ -127,8 +128,8 @@ public:
   /**
    * Use a stencil to compute the histogram for just a part of the image.
    */
-  void SetStencilData(vtkImageStencilData *stencil);
-  vtkImageStencilData *GetStencil();
+  void SetStencilData(vtkImageStencilData* stencil);
+  vtkImageStencilData* GetStencil();
   //@}
 
   /**
@@ -161,23 +162,19 @@ public:
    * Set the scale to use for the histogram image.  The default is
    * a linear scale, but sqrt and log provide better visualization.
    */
-  vtkSetClampMacro(HistogramImageScale, int,
-    vtkImageHistogram::Linear, vtkImageHistogram::Sqrt);
-  void SetHistogramImageScaleToLinear() {
-    this->SetHistogramImageScale(vtkImageHistogram::Linear); }
-  void SetHistogramImageScaleToLog() {
-    this->SetHistogramImageScale(vtkImageHistogram::Log); }
-  void SetHistogramImageScaleToSqrt() {
-    this->SetHistogramImageScale(vtkImageHistogram::Sqrt); }
+  vtkSetClampMacro(HistogramImageScale, int, vtkImageHistogram::Linear, vtkImageHistogram::Sqrt);
+  void SetHistogramImageScaleToLinear() { this->SetHistogramImageScale(vtkImageHistogram::Linear); }
+  void SetHistogramImageScaleToLog() { this->SetHistogramImageScale(vtkImageHistogram::Log); }
+  void SetHistogramImageScaleToSqrt() { this->SetHistogramImageScale(vtkImageHistogram::Sqrt); }
   vtkGetMacro(HistogramImageScale, int);
-  const char *GetHistogramImageScaleAsString();
+  const char* GetHistogramImageScaleAsString();
   //@}
 
   /**
    * Get the histogram as a vtkIdTypeArray.  You must call Update()
    * before calling this method.
    */
-  vtkIdTypeArray *GetHistogram();
+  vtkIdTypeArray* GetHistogram();
 
   /**
    * Get the total count of the histogram.  This will be the number of
@@ -189,35 +186,29 @@ public:
    * This is part of the executive, but is public so that it can be accessed
    * by non-member functions.
    */
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
 
 protected:
   vtkImageHistogram();
   ~vtkImageHistogram() override;
 
-  int RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo)) override;
-  int RequestInformation(vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo)) override;
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation* vtkNotUsed(request), vtkInformationVector** inInfo,
+    vtkInformationVector* vtkNotUsed(outInfo)) override;
+  int RequestInformation(vtkInformation* vtkNotUsed(request), vtkInformationVector** inInfo,
+    vtkInformationVector* vtkNotUsed(outInfo)) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Compute the range of the data.  The GetScalarRange() function of
    * vtkImageData only computes the range of the first component, but
    * this filter requires the range for all components.
    */
-  void ComputeImageScalarRange(vtkImageData *data, double range[2]);
+  void ComputeImageScalarRange(vtkImageData* data, double range[2]);
 
   int ActiveComponent;
   vtkTypeBool AutomaticBinning;
@@ -231,14 +222,14 @@ protected:
   double BinOrigin;
   double BinSpacing;
 
-  vtkIdTypeArray *Histogram;
+  vtkIdTypeArray* Histogram;
   vtkIdType Total;
 
   // Used for vtkMultiThreader operation.
-  vtkImageHistogramThreadData *ThreadData;
+  vtkImageHistogramThreadData* ThreadData;
 
   // Used for vtkSMPTools operation.
-  vtkImageHistogramSMPThreadLocal *SMPThreadData;
+  vtkImageHistogramSMPThreadLocal* SMPThreadData;
 
 private:
   vtkImageHistogram(const vtkImageHistogram&) = delete;

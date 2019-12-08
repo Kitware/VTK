@@ -20,38 +20,38 @@
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
  * rectilinear data (vtkImageData). Several basic types of volume mappers
  * are supported.
-*/
+ */
 
 #ifndef vtkVolumeMapper_h
 #define vtkVolumeMapper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkRenderer;
 class vtkVolume;
 class vtkImageData;
 
-#define VTK_CROP_SUBVOLUME              0x0002000
-#define VTK_CROP_FENCE                  0x2ebfeba
-#define VTK_CROP_INVERTED_FENCE         0x5140145
-#define VTK_CROP_CROSS                  0x0417410
-#define VTK_CROP_INVERTED_CROSS         0x7be8bef
+#define VTK_CROP_SUBVOLUME 0x0002000
+#define VTK_CROP_FENCE 0x2ebfeba
+#define VTK_CROP_INVERTED_FENCE 0x5140145
+#define VTK_CROP_CROSS 0x0417410
+#define VTK_CROP_INVERTED_CROSS 0x7be8bef
 
 class vtkWindow;
 
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkVolumeMapper, vtkAbstractVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the input data
    */
-  virtual void SetInputData( vtkImageData * );
-  virtual void SetInputData( vtkDataSet * );
+  virtual void SetInputData(vtkImageData*);
+  virtual void SetInputData(vtkDataSet*);
   virtual vtkImageData* GetInput();
   virtual vtkImageData* GetInput(const int port);
   //@}
@@ -99,20 +99,24 @@ public:
    * \sa SetAverageIPScalarRange()
    * \sa GetIsosurfaceValues()
    */
-  vtkSetMacro( BlendMode, int );
-  void SetBlendModeToComposite()
-    { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
+  vtkSetMacro(BlendMode, int);
+  void SetBlendModeToComposite() { this->SetBlendMode(vtkVolumeMapper::COMPOSITE_BLEND); }
   void SetBlendModeToMaximumIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
+  {
+    this->SetBlendMode(vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND);
+  }
   void SetBlendModeToMinimumIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
+  {
+    this->SetBlendMode(vtkVolumeMapper::MINIMUM_INTENSITY_BLEND);
+  }
   void SetBlendModeToAverageIntensity()
-    { this->SetBlendMode( vtkVolumeMapper::AVERAGE_INTENSITY_BLEND ); }
-  void SetBlendModeToAdditive()
-    { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
-  void SetBlendModeToIsoSurface()
-    { this->SetBlendMode( vtkVolumeMapper::ISOSURFACE_BLEND ); }
-  vtkGetMacro( BlendMode, int );
+  {
+    this->SetBlendMode(vtkVolumeMapper::AVERAGE_INTENSITY_BLEND);
+  }
+  void SetBlendModeToAdditive() { this->SetBlendMode(vtkVolumeMapper::ADDITIVE_BLEND); }
+  void SetBlendModeToIsoSurface() { this->SetBlendMode(vtkVolumeMapper::ISOSURFACE_BLEND); }
+  void SetBlendModeToSlice() { this->SetBlendMode(vtkVolumeMapper::SLICE_BLEND); }
+  vtkGetMacro(BlendMode, int);
   //@}
 
   //@{
@@ -133,9 +137,9 @@ public:
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  vtkSetClampMacro(Cropping,vtkTypeBool,0,1);
-  vtkGetMacro(Cropping,vtkTypeBool);
-  vtkBooleanMacro(Cropping,vtkTypeBool);
+  vtkSetClampMacro(Cropping, vtkTypeBool, 0, 1);
+  vtkGetMacro(Cropping, vtkTypeBool);
+  vtkBooleanMacro(Cropping, vtkTypeBool);
   //@}
 
   //@{
@@ -144,8 +148,8 @@ public:
    * These planes are defined in volume coordinates - spacing and origin are
    * considered.
    */
-  vtkSetVector6Macro( CroppingRegionPlanes, double );
-  vtkGetVectorMacro(  CroppingRegionPlanes, double, 6 );
+  vtkSetVector6Macro(CroppingRegionPlanes, double);
+  vtkGetVectorMacro(CroppingRegionPlanes, double, 6);
   //@}
 
   //@{
@@ -153,7 +157,7 @@ public:
    * Get the cropping region planes in voxels. Only valid during the
    * rendering process
    */
-  vtkGetVectorMacro( VoxelCroppingRegionPlanes, double, 6 );
+  vtkGetVectorMacro(VoxelCroppingRegionPlanes, double, 6);
   //@}
 
   //@{
@@ -168,18 +172,19 @@ public:
    * clip plane pairs), inverted fence, cross (between any two of the
    * clip plane pairs) and inverted cross.
    */
-  vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
-  vtkGetMacro( CroppingRegionFlags, int );
-  void SetCroppingRegionFlagsToSubVolume()
-    {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );};
-  void SetCroppingRegionFlagsToFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_FENCE );};
+  vtkSetClampMacro(CroppingRegionFlags, int, 0x0, 0x7ffffff);
+  vtkGetMacro(CroppingRegionFlags, int);
+  void SetCroppingRegionFlagsToSubVolume() { this->SetCroppingRegionFlags(VTK_CROP_SUBVOLUME); }
+  void SetCroppingRegionFlagsToFence() { this->SetCroppingRegionFlags(VTK_CROP_FENCE); }
   void SetCroppingRegionFlagsToInvertedFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );};
-  void SetCroppingRegionFlagsToCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
+  {
+    this->SetCroppingRegionFlags(VTK_CROP_INVERTED_FENCE);
+  }
+  void SetCroppingRegionFlagsToCross() { this->SetCroppingRegionFlags(VTK_CROP_CROSS); }
   void SetCroppingRegionFlagsToInvertedCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
+  {
+    this->SetCroppingRegionFlags(VTK_CROP_INVERTED_CROSS);
+  }
   //@}
 
   /**
@@ -187,7 +192,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) override =0;
+  void Render(vtkRenderer* ren, vtkVolume* vol) override = 0;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -195,7 +200,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override {}
+  void ReleaseGraphicsResources(vtkWindow*) override {}
 
   /**
    * Blend modes.
@@ -246,7 +251,8 @@ public:
     MINIMUM_INTENSITY_BLEND,
     AVERAGE_INTENSITY_BLEND,
     ADDITIVE_BLEND,
-    ISOSURFACE_BLEND
+    ISOSURFACE_BLEND,
+    SLICE_BLEND
   };
 
 protected:
@@ -258,10 +264,9 @@ protected:
    * voxels is 8, the sample distance will be roughly 1/200 the average voxel
    * size. The distance will grow proportionally to numVoxels^(1/3).
    */
-  double SpacingAdjustedSampleDistance(double inputSpacing[3],
-                                       int inputExtent[6]);
+  double SpacingAdjustedSampleDistance(double inputSpacing[3], int inputExtent[6]);
 
-  int   BlendMode;
+  int BlendMode;
 
   /**
    * Threshold range for average intensity projection
@@ -273,10 +278,10 @@ protected:
    * Cropping variables, and a method for converting the world
    * coordinate cropping region planes to voxel coordinates
    */
-  vtkTypeBool                  Cropping;
-  double               CroppingRegionPlanes[6];
-  double               VoxelCroppingRegionPlanes[6];
-  int                  CroppingRegionFlags;
+  vtkTypeBool Cropping;
+  double CroppingRegionPlanes[6];
+  double VoxelCroppingRegionPlanes[6];
+  int CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
   //@}
 
@@ -287,7 +292,4 @@ private:
   void operator=(const vtkVolumeMapper&) = delete;
 };
 
-
 #endif
-
-

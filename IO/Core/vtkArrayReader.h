@@ -34,16 +34,15 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkArrayReader_h
 #define vtkArrayReader_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkIOCoreModule.h" // For export macro
 
-class VTKIOCORE_EXPORT vtkArrayReader :
-  public vtkArrayDataAlgorithm
+class VTKIOCORE_EXPORT vtkArrayReader : public vtkArrayDataAlgorithm
 {
 public:
   static vtkArrayReader* New();
@@ -92,10 +91,7 @@ protected:
   vtkArrayReader();
   ~vtkArrayReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
   vtkStdString InputString;
@@ -107,4 +103,3 @@ private:
 };
 
 #endif
-

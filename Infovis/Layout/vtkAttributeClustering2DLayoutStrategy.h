@@ -28,15 +28,15 @@
  * @par Thanks:
  * Thanks to Godzilla for not eating my computer so that this class
  * could be written.
-*/
+ */
 
 #ifndef vtkAttributeClustering2DLayoutStrategy_h
 #define vtkAttributeClustering2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
 class vtkFastSplatter;
 class vtkImageData;
@@ -46,7 +46,7 @@ class vtkFloatArray;
 class VTKINFOVISLAYOUT_EXPORT vtkAttributeClustering2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkAttributeClustering2DLayoutStrategy *New();
+  static vtkAttributeClustering2DLayoutStrategy* New();
 
   vtkTypeMacro(vtkAttributeClustering2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -147,24 +147,23 @@ public:
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() override {return this->LayoutComplete;}
+  int IsLayoutComplete() override { return this->LayoutComplete; }
 
 protected:
   vtkAttributeClustering2DLayoutStrategy();
   ~vtkAttributeClustering2DLayoutStrategy() override;
 
-  int    MaxNumberOfIterations;  //Maximum number of iterations.
-  float  InitialTemperature;
-  float  CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  int MaxNumberOfIterations; // Maximum number of iterations.
+  float InitialTemperature;
+  float CoolDownRate; // Cool-down rate.  Note:  Higher # = Slower rate.
 
 private:
-
   // This class 'has a' vtkFastSplatter for the density grid
-  vtkSmartPointer<vtkFastSplatter>        DensityGrid;
-  vtkSmartPointer<vtkImageData>           SplatImage;
-  vtkSmartPointer<vtkFloatArray>          RepulsionArray;
-  vtkSmartPointer<vtkFloatArray>          AttractionArray;
-  vtkSmartPointer<vtkIntArray>            EdgeCountArray;
+  vtkSmartPointer<vtkFastSplatter> DensityGrid;
+  vtkSmartPointer<vtkImageData> SplatImage;
+  vtkSmartPointer<vtkFloatArray> RepulsionArray;
+  vtkSmartPointer<vtkFloatArray> AttractionArray;
+  vtkSmartPointer<vtkIntArray> EdgeCountArray;
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -176,8 +175,8 @@ private:
   char* VertexAttribute;
 
   // Private helper methods
-  void GenerateCircularSplat(vtkImageData *splat, int x, int y);
-  void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
+  void GenerateCircularSplat(vtkImageData* splat, int x, int y);
+  void GenerateGaussianSplat(vtkImageData* splat, int x, int y);
   void ResolveCoincidentVertices();
 
   class Internals;
@@ -188,4 +187,3 @@ private:
 };
 
 #endif
-

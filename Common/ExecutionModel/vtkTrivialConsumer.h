@@ -20,19 +20,19 @@
  * hanging around when a pipeline executes when data is set to be released (see
  * vtkDataObject::SetGlobalReleaseDataFlag). This is intended to be used for
  * tools such as Catalyst and not end users.
-*/
+ */
 
 #ifndef vtkTrivialConsumer_h
 #define vtkTrivialConsumer_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialConsumer : public vtkAlgorithm
 {
 public:
-  static vtkTrivialConsumer *New();
-  vtkTypeMacro(vtkTrivialConsumer,vtkAlgorithm);
+  static vtkTrivialConsumer* New();
+  vtkTypeMacro(vtkTrivialConsumer, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -41,6 +41,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkTrivialConsumer(const vtkTrivialConsumer&) = delete;
   void operator=(const vtkTrivialConsumer&) = delete;

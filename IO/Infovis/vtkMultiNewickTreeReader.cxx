@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkMultiNewickTreeReader.h"
 
-#include "vtkNew.h"
-#include "vtkTree.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkNew.h"
+#include "vtkNewickTreeReader.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkNewickTreeReader.h"
-#include "vtkMultiPieceDataSet.h"
-#include "vtkSmartPointer.h"
+#include "vtkTree.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 vtkStandardNewMacro(vtkMultiNewickTreeReader);
 
@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkMultiNewickTreeReader);
 //----------------------------------------------------------------------------
 vtkMultiNewickTreeReader::vtkMultiNewickTreeReader()
 {
-  vtkMultiPieceDataSet * output = vtkMultiPieceDataSet::New();
+  vtkMultiPieceDataSet* output = vtkMultiPieceDataSet::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty.
@@ -50,98 +50,95 @@ vtkMultiNewickTreeReader::vtkMultiNewickTreeReader()
 vtkMultiNewickTreeReader::~vtkMultiNewickTreeReader() = default;
 
 //----------------------------------------------------------------------------
-vtkMultiPieceDataSet * vtkMultiNewickTreeReader::GetOutput()
+vtkMultiPieceDataSet* vtkMultiNewickTreeReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
-vtkMultiPieceDataSet * vtkMultiNewickTreeReader::GetOutput(int idx)
+vtkMultiPieceDataSet* vtkMultiNewickTreeReader::GetOutput(int idx)
 {
   return vtkMultiPieceDataSet::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiNewickTreeReader::SetOutput(vtkMultiPieceDataSet * output)
+void vtkMultiNewickTreeReader::SetOutput(vtkMultiPieceDataSet* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiNewickTreeReader::ReadMeshSimple(const std::string& fname,
-                                             vtkDataObject* doOutput)
+int vtkMultiNewickTreeReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkDebugMacro(<<"Reading Multiple Newick trees ...");
+  vtkDebugMacro(<< "Reading Multiple Newick trees ...");
 
-  if(fname.empty())
+  if (fname.empty())
   {
-    vtkErrorMacro(<<"Input filename not set");
+    vtkErrorMacro(<< "Input filename not set");
     return 1;
   }
 
-  std::ifstream ifs( fname.c_str(), std::ifstream::in );
-  if(!ifs.good())
+  std::ifstream ifs(fname.c_str(), std::ifstream::in);
+  if (!ifs.good())
   {
-    vtkErrorMacro(<<"Unable to open " << fname << " for reading");
+    vtkErrorMacro(<< "Unable to open " << fname << " for reading");
     return 1;
   }
 
-  vtkMultiPieceDataSet * const output = vtkMultiPieceDataSet::SafeDownCast(
-    doOutput);
+  vtkMultiPieceDataSet* const output = vtkMultiPieceDataSet::SafeDownCast(doOutput);
 
   // Read the input file into a char *
   int fileSize;
   ifs.seekg(0, std::ios::end);
   fileSize = ifs.tellg();
   ifs.seekg(0, std::ios::beg);
-  char * buffer = new char[fileSize+1];
+  char* buffer = new char[fileSize + 1];
   ifs.read(buffer, fileSize);
   ifs.close();
   buffer[fileSize] = '\0';
 
-  //use the separator ";" to decide how many trees are contained in the file
-  char * current = buffer;
+  // use the separator ";" to decide how many trees are contained in the file
+  char* current = buffer;
   unsigned int NumOfTrees = 0;
-  while ( *current != '\0')
+  while (*current != '\0')
   {
     while (*current == '\n' || *current == ' ')
-    {//ignore extra \n and spaces
-      current ++;
+    { // ignore extra \n and spaces
+      current++;
     }
 
-    char * currentTreeStart = current; //record the starting char of the tree
+    char* currentTreeStart = current; // record the starting char of the tree
     unsigned int singleTreeLength = 0;
-    while ( *current != ';' &&  *current != '\0')
+    while (*current != ';' && *current != '\0')
     {
       singleTreeLength++;
       current++;
     }
 
-    if (*current == ';')  // each newick tree string ends with ";"
+    if (*current == ';') // each newick tree string ends with ";"
     {
-      char * singleTreeBuffer = new char[singleTreeLength+1];
+      char* singleTreeBuffer = new char[singleTreeLength + 1];
       for (unsigned int i = 0; i < singleTreeLength; i++)
       {
-         singleTreeBuffer[i] = * (currentTreeStart +i);
+        singleTreeBuffer[i] = *(currentTreeStart + i);
       }
       singleTreeBuffer[singleTreeLength] = '\0';
-      current ++;//skip ';'
+      current++; // skip ';'
 
       vtkNew<vtkNewickTreeReader> treeReader;
       vtkSmartPointer<vtkTree> tree = vtkSmartPointer<vtkTree>::New();
       treeReader->ReadNewickTree(singleTreeBuffer, *tree);
 
-      output->SetPiece(NumOfTrees,tree);
+      output->SetPiece(NumOfTrees, tree);
       NumOfTrees++;
 
-      delete [] singleTreeBuffer;
+      delete[] singleTreeBuffer;
     }
   }
-  delete [] buffer;
+  delete[] buffer;
 
   return 1;
 }
-
 
 //----------------------------------------------------------------------------
 int vtkMultiNewickTreeReader::FillOutputPortInformation(int, vtkInformation* info)
@@ -153,5 +150,5 @@ int vtkMultiNewickTreeReader::FillOutputPortInformation(int, vtkInformation* inf
 //----------------------------------------------------------------------------
 void vtkMultiNewickTreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

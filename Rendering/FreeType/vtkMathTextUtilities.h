@@ -19,14 +19,14 @@
  * vtkMathTextUtilities defines an interface for equation rendering. Intended
  * for use with the python matplotlib.mathtext module (implemented in the
  * vtkMatplotlib module).
-*/
+ */
 
 #ifndef vtkMathTextUtilities_h
 #define vtkMathTextUtilities_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTextRenderer.h" // for metrics
+#include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkTextRenderer.h"            // for metrics
 
 class vtkImageData;
 class vtkPath;
@@ -67,7 +67,7 @@ public:
    * the program exits. You should just use the static GetInstance() method
    * anyway to get the singleton.
    */
-  static vtkMathTextUtilities *New();
+  static vtkMathTextUtilities* New();
 
   /**
    * Return the singleton instance with no reference counting.
@@ -78,20 +78,19 @@ public:
    * Supply a user defined instance. Call Delete() on the supplied
    * instance after setting it to fix the reference count.
    */
-  static void SetInstance(vtkMathTextUtilities *instance);
+  static void SetInstance(vtkMathTextUtilities* instance);
 
   /**
    * Determine the dimensions of the image that RenderString will produce for
    * a given str, tprop, and dpi
    */
-  virtual bool GetBoundingBox(vtkTextProperty *tprop, const char *str, int dpi,
-                              int bbox[4]) = 0;
+  virtual bool GetBoundingBox(vtkTextProperty* tprop, const char* str, int dpi, int bbox[4]) = 0;
 
   /**
    * Return the metrics for the rendered str, tprop, and dpi.
    */
-  virtual bool GetMetrics(vtkTextProperty *tprop, const char *str, int dpi,
-                          vtkTextRenderer::Metrics &metrics) = 0;
+  virtual bool GetMetrics(
+    vtkTextProperty* tprop, const char* str, int dpi, vtkTextRenderer::Metrics& metrics) = 0;
 
   /**
    * Render the given string @a str into the vtkImageData @a data with a
@@ -100,16 +99,14 @@ public:
    * set to true, and the image dimensions may not match the dimensions of the
    * rendered text.
    */
- virtual bool RenderString(const char *str, vtkImageData *data,
-                           vtkTextProperty *tprop, int dpi,
-                           int textDims[2] = nullptr) = 0;
+  virtual bool RenderString(const char* str, vtkImageData* data, vtkTextProperty* tprop, int dpi,
+    int textDims[2] = nullptr) = 0;
 
   /**
    * Parse the MathText expression in str and fill path with a contour of the
    * glyphs.
    */
-  virtual bool StringToPath(const char *str, vtkPath *path,
-                            vtkTextProperty *tprop, int dpi) = 0;
+  virtual bool StringToPath(const char* str, vtkPath* path, vtkTextProperty* tprop, int dpi) = 0;
 
   /**
    * This function returns the font size (in points) required to fit the string
@@ -117,10 +114,8 @@ public:
    * value as well. If an error occurs (e.g. an improperly formatted MathText
    * string), -1 is returned.
    */
-  virtual int GetConstrainedFontSize(const char *str,
-                                     vtkTextProperty *tprop,
-                                     int targetWidth, int targetHeight,
-                                     int dpi);
+  virtual int GetConstrainedFontSize(
+    const char* str, vtkTextProperty* tprop, int targetWidth, int targetHeight, int dpi);
 
   //@{
   /**
@@ -146,7 +141,7 @@ private:
    */
   static vtkMathTextUtilities* Instance;
   static vtkMathTextUtilitiesCleanup Cleanup;
-};
   //@}
+};
 
 #endif

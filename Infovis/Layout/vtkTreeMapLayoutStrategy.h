@@ -33,14 +33,13 @@
  * @par Thanks:
  * Thanks to Brian Wylie and Ken Moreland from Sandia National Laboratories
  * for help developing this class.
-*/
+ */
 
 #ifndef vtkTreeMapLayoutStrategy_h
 #define vtkTreeMapLayoutStrategy_h
 
-
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkTree;
 class vtkDataArray;
@@ -54,17 +53,16 @@ public:
   /**
    * Find the vertex at a certain location, or -1 if none found.
    */
-  vtkIdType FindVertex(
-      vtkTree* tree, vtkDataArray* areaArray, float pnt[2]) override;
+  vtkIdType FindVertex(vtkTree* tree, vtkDataArray* areaArray, float pnt[2]) override;
 
 protected:
   vtkTreeMapLayoutStrategy();
   ~vtkTreeMapLayoutStrategy() override;
-  void AddBorder( float *boxInfo);
+  void AddBorder(float* boxInfo);
+
 private:
   vtkTreeMapLayoutStrategy(const vtkTreeMapLayoutStrategy&) = delete;
   void operator=(const vtkTreeMapLayoutStrategy&) = delete;
 };
 
 #endif
-

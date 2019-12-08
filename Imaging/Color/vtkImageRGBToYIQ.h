@@ -19,11 +19,10 @@
  * For each pixel with red, blue, and green components this
  * filter output the color coded as YIQ.
  * Output type must be the same as input type.
-*/
+ */
 
 #ifndef vtkImageRGBToYIQ_h
 #define vtkImageRGBToYIQ_h
-
 
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -31,21 +30,21 @@
 class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToYIQ : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageRGBToYIQ *New();
-  vtkTypeMacro(vtkImageRGBToYIQ,vtkThreadedImageAlgorithm);
+  static vtkImageRGBToYIQ* New();
+  vtkTypeMacro(vtkImageRGBToYIQ, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkSetMacro(Maximum,double);
-  vtkGetMacro(Maximum,double);
+  vtkSetMacro(Maximum, double);
+  vtkGetMacro(Maximum, double);
 
 protected:
   vtkImageRGBToYIQ();
   ~vtkImageRGBToYIQ() override {}
 
-  double Maximum;      // Maximum value of pixel intensity allowed
+  double Maximum; // Maximum value of pixel intensity allowed
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) override;
+  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
+
 private:
   vtkImageRGBToYIQ(const vtkImageRGBToYIQ&) = delete;
   void operator=(const vtkImageRGBToYIQ&) = delete;

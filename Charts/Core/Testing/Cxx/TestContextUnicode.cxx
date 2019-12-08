@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
+#include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextItem.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkContextItem.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
@@ -36,15 +36,15 @@
 class ContextUnicode : public vtkContextItem
 {
 public:
-  static ContextUnicode *New();
+  static ContextUnicode* New();
   vtkTypeMacro(ContextUnicode, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
   std::string FontFile;
 };
 
 //----------------------------------------------------------------------------
-int TestContextUnicode(int argc, char * argv [])
+int TestContextUnicode(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -65,7 +65,7 @@ int TestContextUnicode(int argc, char * argv [])
   view->GetRenderWindow()->Render();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
@@ -76,7 +76,7 @@ int TestContextUnicode(int argc, char * argv [])
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(ContextUnicode);
 // This function aims to test the primitives provided by the 2D API.
-bool ContextUnicode::Paint(vtkContext2D *painter)
+bool ContextUnicode::Paint(vtkContext2D* painter)
 {
   // Test the string drawing functionality of the context
   painter->GetTextProp()->SetVerticalJustificationToCentered();
@@ -87,9 +87,7 @@ bool ContextUnicode::Paint(vtkContext2D *painter)
   painter->GetTextProp()->SetFontFile(this->FontFile.c_str());
   painter->DrawString(70, 20, "Angstrom");
   painter->DrawString(150, 20, vtkUnicodeString::from_utf8("\xe2\x84\xab"));
-  painter->DrawString(100, 80,
-                      vtkUnicodeString::from_utf8("a\xce\xb1"));
-  painter->DrawString(100, 50,
-                      vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3"));
+  painter->DrawString(100, 80, vtkUnicodeString::from_utf8("a\xce\xb1"));
+  painter->DrawString(100, 50, vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3"));
   return true;
 }

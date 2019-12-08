@@ -21,31 +21,28 @@
  *
  * @sa
  * vtkParticlePathFilterBase has the details of the algorithms
-*/
+ */
 
 #ifndef vtkParticlePathFilter_h
 #define vtkParticlePathFilter_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
-#include <vector> // For protected ivars
+#include "vtkSmartPointer.h" // For protected ivars.
+#include <vector>            // For protected ivars
 
 class VTKFILTERSFLOWPATHS_EXPORT ParticlePathFilterInternal
 {
 public:
-  ParticlePathFilterInternal():Filter(nullptr){}
+  ParticlePathFilterInternal()
+    : Filter(nullptr)
+  {
+  }
   void Initialize(vtkParticleTracerBase* filter);
-  virtual ~ParticlePathFilterInternal(){}
+  virtual ~ParticlePathFilterInternal() {}
   virtual int OutputParticles(vtkPolyData* poly);
-  void SetClearCache(bool clearCache)
-  {
-    this->ClearCache = clearCache;
-  }
-  bool GetClearCache()
-  {
-    return this->ClearCache;
-  }
+  void SetClearCache(bool clearCache) { this->ClearCache = clearCache; }
+  bool GetClearCache() { return this->ClearCache; }
   void Finalize();
   void Reset();
 
@@ -57,13 +54,13 @@ private:
   bool ClearCache; // false by default
 };
 
-class VTKFILTERSFLOWPATHS_EXPORT vtkParticlePathFilter: public vtkParticleTracerBase
+class VTKFILTERSFLOWPATHS_EXPORT vtkParticlePathFilter : public vtkParticleTracerBase
 {
 public:
-  vtkTypeMacro(vtkParticlePathFilter,vtkParticleTracerBase)
+  vtkTypeMacro(vtkParticlePathFilter, vtkParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkParticlePathFilter *New();
+  static vtkParticlePathFilter* New();
 
 protected:
   vtkParticlePathFilter();
@@ -74,7 +71,7 @@ protected:
   void ResetCache() override;
   int OutputParticles(vtkPolyData* poly) override;
   void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
-  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) override;
+  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) override;
 
   void Finalize() override;
 
@@ -82,9 +79,8 @@ protected:
   // Store any information we need in the output and fetch what we can
   // from the input
   //
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   ParticlePathFilterInternal It;
 

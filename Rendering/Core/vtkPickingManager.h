@@ -65,7 +65,7 @@
  * to an other !!
  * This has been done to allow adding multiple times the same picker to the manager
  * by not passing the referenced object to not force the suppression of all pickers
-*/
+ */
 
 #ifndef vtkPickingManager_h
 #define vtkPickingManager_h
@@ -82,8 +82,8 @@ class vtkRenderWindowInteractor;
 class VTKRENDERINGCORE_EXPORT vtkPickingManager : public vtkObject
 {
 public:
-  static vtkPickingManager *New();
-  vtkTypeMacro(vtkPickingManager,vtkObject);
+  static vtkPickingManager* New();
+  vtkTypeMacro(vtkPickingManager, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -170,10 +170,8 @@ public:
    * Otherwise it simply proceeds to a pick using the given renderer and
    * returns the corresponding assembly path.
    */
-  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
-                                   vtkAbstractPropPicker* picker,
-                                   vtkRenderer* renderer,
-                                   vtkObject* obj);
+  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker,
+    vtkRenderer* renderer, vtkObject* obj);
 
   /**
    * Return the number of pickers registered.

@@ -18,7 +18,7 @@
  *
  * vtkGenericAttributeCollection is a class that collects attributes
  * (represented by vtkGenericAttribute).
-*/
+ */
 
 #ifndef vtkGenericAttributeCollection_h
 #define vtkGenericAttributeCollection_h
@@ -36,13 +36,13 @@ public:
   /**
    * Create an empty collection.
    */
-  static vtkGenericAttributeCollection *New();
+  static vtkGenericAttributeCollection* New();
 
   //@{
   /**
    * Standard type definition and print methods for a VTK class.
    */
-  vtkTypeMacro(vtkGenericAttributeCollection,vtkObject);
+  vtkTypeMacro(vtkGenericAttributeCollection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -93,7 +93,7 @@ public:
    * \pre valid_i: i>=0 && i<GetNumberOfAttributes()
    * \post result_exists: result!=0
    */
-  vtkGenericAttribute *GetAttribute(int i);
+  vtkGenericAttribute* GetAttribute(int i);
 
   /**
    * Return the index of the attribute named `name'. Return the non-negative
@@ -101,7 +101,7 @@ public:
    * \pre name_exists: name!=0
    * \post valid_result: (result==-1) || (result>=0) && (result<=GetNumberOfAttributes())
    */
-  int FindAttribute(const char *name);
+  int FindAttribute(const char* name);
 
   /**
    * Return the index of the first component of attribute `i' in an array of
@@ -117,7 +117,7 @@ public:
    * \post more_items: GetNumberOfAttributes()==old GetNumberOfAttributes()+1
    * \post a_is_set: GetAttribute(GetNumberOfAttributes()-1)==a
    */
-  void InsertNextAttribute(vtkGenericAttribute *a);
+  void InsertNextAttribute(vtkGenericAttribute* a);
 
   /**
    * Replace the attribute at index `i' by `a'.
@@ -127,7 +127,7 @@ public:
    * \post same_size: GetNumberOfAttributes()==old GetNumberOfAttributes()
    * \post item_is_set: GetAttribute(i)==a
    */
-  void InsertAttribute(int i, vtkGenericAttribute *a);
+  void InsertAttribute(int i, vtkGenericAttribute* a);
 
   /**
    * Remove the attribute at `i'.
@@ -149,7 +149,7 @@ public:
    * \pre not_self: other!=this
    * \post same_size: GetNumberOfAttributes()==other->GetNumberOfAttributes()
    */
-  void DeepCopy(vtkGenericAttributeCollection *other);
+  void DeepCopy(vtkGenericAttributeCollection* other);
 
   /**
    * Copy, via reference counting, the other attribute array.
@@ -157,7 +157,7 @@ public:
    * \pre not_self: other!=this
    * \post same_size: GetNumberOfAttributes()==other->GetNumberOfAttributes()
    */
-  void ShallowCopy(vtkGenericAttributeCollection *other);
+  void ShallowCopy(vtkGenericAttributeCollection* other);
 
   /**
    * vtkAttributeCollection is a composite object and needs to check each
@@ -213,14 +213,14 @@ public:
    * \pre not_empty: !IsEmpty()
    * \post valid_result: GetNumberOfAttributesToInterpolate()>0
    */
-  int *GetAttributesToInterpolate();
+  int* GetAttributesToInterpolate();
 
   /**
    * Does the array `attributes' of size `size' have `attribute'?
    * \pre positive_size: size>=0
    * \pre valid_attributes: size>0 implies attributes!=0
    */
-  int HasAttribute(int size, int *attributes, int attribute);
+  int HasAttribute(int size, int* attributes, int attribute);
 
   //@{
   /**
@@ -233,7 +233,7 @@ public:
    * \post is_set: (GetNumberOfAttributesToInterpolate()==size)&&
    * (GetAttributesToInterpolate()==attributes)
    */
-  void SetAttributesToInterpolate(int size, int *attributes);
+  void SetAttributesToInterpolate(int size, int* attributes);
   void SetAttributesToInterpolateToAll();
   //@}
 
@@ -255,18 +255,18 @@ protected:
   /**
    * STL vector for storing index of point centered attributes
    */
-  vtkIntInternalVector *AttributeIndices;
+  vtkIntInternalVector* AttributeIndices;
 
   int ActiveAttribute;
   int ActiveComponent;
   int NumberOfAttributesToInterpolate;
   int AttributesToInterpolate[10];
 
-  int NumberOfComponents; // cache
+  int NumberOfComponents;              // cache
   int NumberOfPointCenteredComponents; // cache
-  int MaxNumberOfComponents; // cache
-  unsigned long ActualMemorySize; // cache
-  vtkTimeStamp ComputeTime; // cache time stamp
+  int MaxNumberOfComponents;           // cache
+  unsigned long ActualMemorySize;      // cache
+  vtkTimeStamp ComputeTime;            // cache time stamp
 
   /**
    * Compute number of components, max number of components and actual
@@ -275,7 +275,7 @@ protected:
   void ComputeNumbers();
 
 private:
-  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) = delete;
-  void operator=(const vtkGenericAttributeCollection &) = delete;
+  vtkGenericAttributeCollection(const vtkGenericAttributeCollection&) = delete;
+  void operator=(const vtkGenericAttributeCollection&) = delete;
 };
 #endif

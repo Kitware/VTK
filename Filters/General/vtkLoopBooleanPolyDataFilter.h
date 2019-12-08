@@ -29,13 +29,13 @@
  * The output result will have data about the Original Surface,
  * BoundaryPoints, Boundary Cells,
  * Free Edges, and Bad Triangles
-*/
+ */
 #ifndef vtkLoopBooleanPolyDataFilter_h
 #define vtkLoopBooleanPolyDataFilter_h
 
+#include "vtkDataSetAttributes.h"    // Needed for CopyCells() method
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkDataSetAttributes.h" // Needed for CopyCells() method
 
 class vtkIdList;
 
@@ -43,17 +43,15 @@ class vtkIdList;
  *  \brief Filter to perform boolean operations
  *  \author Adam Updegrove
  */
-class VTKFILTERSGENERAL_EXPORT vtkLoopBooleanPolyDataFilter :
-        public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkLoopBooleanPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   /**
    * Construct object that computes the boolean surface.
    */
-  static vtkLoopBooleanPolyDataFilter *New();
+  static vtkLoopBooleanPolyDataFilter* New();
 
-  vtkTypeMacro(vtkLoopBooleanPolyDataFilter,
-               vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLoopBooleanPolyDataFilter, vtkPolyDataAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -76,17 +74,17 @@ public:
   vtkBooleanMacro(NoIntersectionOutput, int);
   //@}
 
-  //Union intersection, or difference
+  // Union intersection, or difference
   enum OperationType
   {
-    VTK_UNION=0,
+    VTK_UNION = 0,
     VTK_INTERSECTION,
     VTK_DIFFERENCE
   };
-  //Output if no intersection
+  // Output if no intersection
   enum NoIntersectionOutputType
   {
-    VTK_NEITHER=0,
+    VTK_NEITHER = 0,
     VTK_FIRST,
     VTK_SECOND,
     VTK_BOTH,
@@ -96,14 +94,11 @@ public:
   /**
    * Set the boolean operation to perform. Defaults to union.
    */
-  vtkSetClampMacro( Operation, int, VTK_UNION, VTK_DIFFERENCE );
-  vtkGetMacro( Operation, int );
-  void SetOperationToUnion()
-  { this->SetOperation( VTK_UNION ); }
-  void SetOperationToIntersection()
-  { this->SetOperation( VTK_INTERSECTION ); }
-  void SetOperationToDifference()
-  { this->SetOperation( VTK_DIFFERENCE ); }
+  vtkSetClampMacro(Operation, int, VTK_UNION, VTK_DIFFERENCE);
+  vtkGetMacro(Operation, int);
+  void SetOperationToUnion() { this->SetOperation(VTK_UNION); }
+  void SetOperationToIntersection() { this->SetOperation(VTK_INTERSECTION); }
+  void SetOperationToDifference() { this->SetOperation(VTK_DIFFERENCE); }
   //@}
 
   //@{
@@ -127,9 +122,8 @@ protected:
   vtkLoopBooleanPolyDataFilter();
   ~vtkLoopBooleanPolyDataFilter() override;
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*)  override;
-  int FillInputPortInformation(int, vtkInformation*)  override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) = delete;
@@ -150,7 +144,6 @@ private:
   double Tolerance;
 
   class Impl;
-
 };
 
 #endif

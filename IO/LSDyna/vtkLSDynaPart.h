@@ -16,124 +16,115 @@
 #define vtkLSDynaPart_h
 #ifndef __VTK_WRAP__
 
+#include "LSDynaMetaData.h"    //needed for lsdyna types
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
-#include "LSDynaMetaData.h" //needed for lsdyna types
 #include "vtkStdString.h" //needed for string
 
 class vtkUnstructuredGrid;
 class vtkPoints;
 
-class VTKIOLSDYNA_EXPORT vtkLSDynaPart: public vtkObject
+class VTKIOLSDYNA_EXPORT vtkLSDynaPart : public vtkObject
 {
 public:
-  static vtkLSDynaPart *New();
+  static vtkLSDynaPart* New();
 
-  vtkTypeMacro(vtkLSDynaPart,vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkLSDynaPart, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //Description: Set the type of the part
+  // Description: Set the type of the part
   void SetPartType(int type);
 
-  //Description: Returns the type of the part
+  // Description: Returns the type of the part
   LSDynaMetaData::LSDYNA_TYPES PartType() const { return Type; }
 
-  //Description: Returns if the type of the part is considered valid
+  // Description: Returns if the type of the part is considered valid
   bool hasValidType() const;
 
   vtkIdType GetUserMaterialId() const { return UserMaterialId; }
   vtkIdType GetPartId() const { return PartId; }
   bool HasCells() const;
 
-  //Setup the part with some basic information about what it holds
-  void InitPart(vtkStdString name,
-                const vtkIdType& partId,
-                const vtkIdType& userMaterialId,
-                const vtkIdType& numGlobalPoints,
-                const int& sizeOfWord);
+  // Setup the part with some basic information about what it holds
+  void InitPart(vtkStdString name, const vtkIdType& partId, const vtkIdType& userMaterialId,
+    const vtkIdType& numGlobalPoints, const int& sizeOfWord);
 
-  //Reserves the needed space in memory for this part
-  //that way we never over allocate memory
+  // Reserves the needed space in memory for this part
+  // that way we never over allocate memory
   void AllocateCellMemory(const vtkIdType& numCells, const vtkIdType& cellLen);
 
-  //Add a cell to the part
+  // Add a cell to the part
   void AddCell(const int& cellType, const vtkIdType& npts, vtkIdType conn[8]);
 
-  //Description:
-  //Setups the part cell topology so that we can cache information
-  //between timesteps.
+  // Description:
+  // Setups the part cell topology so that we can cache information
+  // between timesteps.
   void BuildToplogy();
 
-  //Description:
-  //Returns if the toplogy for this part has been constructed
+  // Description:
+  // Returns if the toplogy for this part has been constructed
   bool IsTopologyBuilt() const { return TopologyBuilt; }
 
-  //Description:
-  //Constructs the grid for this part and returns it.
+  // Description:
+  // Constructs the grid for this part and returns it.
   vtkUnstructuredGrid* GenerateGrid();
 
-  //Description:
-  //allows the part to store dead cells
+  // Description:
+  // allows the part to store dead cells
   void EnableDeadCells(const int& deadCellsAsGhostArray);
 
-  //Description:
-  //removes the dead cells array if it exists from the grid
+  // Description:
+  // removes the dead cells array if it exists from the grid
   void DisableDeadCells();
 
-  //Description:
-  //We set cells as dead to make them not show up during rendering
-  void SetCellsDeadState(unsigned char *dead, const vtkIdType &size);
+  // Description:
+  // We set cells as dead to make them not show up during rendering
+  void SetCellsDeadState(unsigned char* dead, const vtkIdType& size);
 
-  //Description:
-  //allows the part to store user cell ids
+  // Description:
+  // allows the part to store user cell ids
   void EnableCellUserIds();
 
-  //Description:
-  //Set the user ids for the cells of this grid
+  // Description:
+  // Set the user ids for the cells of this grid
   void SetNextCellUserIds(const vtkIdType& value);
 
+  // Description:
+  // Called to init point filling for a property
+  // is also able to set the point position of the grid too as that
+  // is stored as a point property
+  void AddPointProperty(const char* name, const vtkIdType& numComps, const bool& isIdTypeProperty,
+    const bool& isProperty, const bool& isGeometryPoints);
 
-  //Description:
-  //Called to init point filling for a property
-  //is also able to set the point position of the grid too as that
-  //is stored as a point property
-  void AddPointProperty(const char* name, const vtkIdType& numComps,
-    const bool& isIdTypeProperty, const bool &isProperty,
-    const bool& isGeometryPoints);
+  // Description:
+  // Given a chunk of point property memory copy it to the correct
+  // property on the part
+  void ReadPointBasedProperty(float* data, const vtkIdType& numTuples, const vtkIdType& numComps,
+    const vtkIdType& currentGlobalPointIndex);
 
-  //Description:
-  //Given a chunk of point property memory copy it to the correct
-  //property on the part
-  void ReadPointBasedProperty(float *data,
-                              const vtkIdType& numTuples,
-                              const vtkIdType& numComps,
-                              const vtkIdType& currentGlobalPointIndex);
+  void ReadPointBasedProperty(double* data, const vtkIdType& numTuples, const vtkIdType& numComps,
+    const vtkIdType& currentGlobalPointIndex);
 
-  void ReadPointBasedProperty(double *data,
-                              const vtkIdType& numTuples,
-                              const vtkIdType& numComps,
-                              const vtkIdType& currentGlobalPointIndex);
-
-  //Description:
-  //Adds a property to the part
+  // Description:
+  // Adds a property to the part
   void AddCellProperty(const char* name, const int& offset, const int& numComps);
 
-  //Description:
-  //Given the raw data converts it to be the properties for this part
-  //The cell properties are woven together as a block for each cell
-  void ReadCellProperties(float *cellProperties, const vtkIdType& numCells,
-                          const vtkIdType &numPropertiesInCell);
-  void ReadCellProperties(double *cellsProperties, const vtkIdType& numCells,
-                          const vtkIdType &numPropertiesInCell);
+  // Description:
+  // Given the raw data converts it to be the properties for this part
+  // The cell properties are woven together as a block for each cell
+  void ReadCellProperties(
+    float* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell);
+  void ReadCellProperties(
+    double* cellsProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell);
 
-  //Description:
-  //Get the id of the lowest global point this part needs
-  //Note: Presumes topology has been built already
+  // Description:
+  // Get the id of the lowest global point this part needs
+  // Note: Presumes topology has been built already
   vtkIdType GetMinGlobalPointId() const;
 
-  //Description:
-  //Get the id of the largest global point this part needs
-  //Note: Presumes topology has been built already
+  // Description:
+  // Get the id of the largest global point this part needs
+  // Note: Presumes topology has been built already
   vtkIdType GetMaxGlobalPointId() const;
 
 protected:
@@ -145,16 +136,14 @@ protected:
   void BuildUniquePoints();
   void BuildCells();
 
-  void GetPropertyData(const char* name, const vtkIdType &numComps,
-  const bool &isIdTypeArray, const bool& isProperty, const bool& isGeometry);
+  void GetPropertyData(const char* name, const vtkIdType& numComps, const bool& isIdTypeArray,
+    const bool& isProperty, const bool& isGeometry);
 
-  template<typename T>
-  void AddPointInformation(T *buffer,T *pointData,
-                           const vtkIdType& numTuples,
-                           const vtkIdType& numComps,
-                           const vtkIdType& currentGlobalPointIndex);
+  template <typename T>
+  void AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
 
-  //basic info about the part
+  // basic info about the part
   LSDynaMetaData::LSDYNA_TYPES Type;
   vtkStdString Name;
   vtkIdType UserMaterialId;
@@ -176,23 +165,23 @@ protected:
   vtkPoints* Points;
 
   class InternalCells;
-  InternalCells *Cells;
+  InternalCells* Cells;
 
   class InternalCellProperties;
-  InternalCellProperties *CellProperties;
+  InternalCellProperties* CellProperties;
 
   class InternalPointsUsed;
   class DensePointsUsed;
   class SparsePointsUsed;
-  InternalPointsUsed *GlobalPointsUsed;
+  InternalPointsUsed* GlobalPointsUsed;
 
-  //used when reading properties
+  // used when reading properties
   class InternalCurrentPointInfo;
-  InternalCurrentPointInfo *CurrentPointPropInfo;
+  InternalCurrentPointInfo* CurrentPointPropInfo;
 
 private:
-  vtkLSDynaPart( const vtkLSDynaPart& ) = delete;
-  void operator = ( const vtkLSDynaPart& ) = delete;
+  vtkLSDynaPart(const vtkLSDynaPart&) = delete;
+  void operator=(const vtkLSDynaPart&) = delete;
 };
 
 #endif

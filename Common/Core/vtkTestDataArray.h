@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkGenericDataArray
-*/
+ */
 
 #ifndef vtkTestDataArray_h
 #define vtkTestDataArray_h
@@ -34,58 +34,64 @@
 #include "vtkObjectFactory.h" // For VTK_STANDARD_NEW_BODY
 
 template <class ArrayT>
-class vtkTestDataArray : public vtkGenericDataArray<vtkTestDataArray<ArrayT>,
-                                                    typename ArrayT::ValueType>
+class vtkTestDataArray
+  : public vtkGenericDataArray<vtkTestDataArray<ArrayT>, typename ArrayT::ValueType>
 {
 public:
   typedef ArrayT ArrayType;
   typedef typename ArrayType::ValueType ValueType;
   typedef vtkTestDataArray<ArrayT> SelfType;
-  typedef vtkGenericDataArray<vtkTestDataArray<ArrayT>, ValueType>
-          GenericDataArrayType;
+  typedef vtkGenericDataArray<vtkTestDataArray<ArrayT>, ValueType> GenericDataArrayType;
   friend class vtkGenericDataArray<vtkTestDataArray<ArrayT>, ValueType>;
 
-  vtkAbstractTemplateTypeMacro(SelfType, GenericDataArrayType)
-  vtkAOSArrayNewInstanceMacro(SelfType)
+  vtkAbstractTemplateTypeMacro(SelfType, GenericDataArrayType);
+  vtkAOSArrayNewInstanceMacro(SelfType);
 
-  static vtkTestDataArray<ArrayType>* New()
-  { VTK_STANDARD_NEW_BODY(vtkTestDataArray<ArrayType>); }
+  static vtkTestDataArray<ArrayType>* New() { VTK_STANDARD_NEW_BODY(vtkTestDataArray<ArrayType>); }
 
-  void PrintSelf(ostream &os, vtkIndent indent) override
-  { GenericDataArrayType::PrintSelf(os,indent); }
+  void PrintSelf(ostream& os, vtkIndent indent) override
+  {
+    GenericDataArrayType::PrintSelf(os, indent);
+  }
 
-  ValueType GetValue(vtkIdType valueIdx) const
-  { return this->Array->GetValue(valueIdx); }
-  void SetValue(vtkIdType valueIdx, ValueType value)
-  { this->Array->SetValue(valueIdx,value); }
+  ValueType GetValue(vtkIdType valueIdx) const { return this->Array->GetValue(valueIdx); }
+  void SetValue(vtkIdType valueIdx, ValueType value) { this->Array->SetValue(valueIdx, value); }
 
   void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
-  { this->Array->SetTypedTuple(tupleIdx,tuple); }
+  {
+    this->Array->SetTypedTuple(tupleIdx, tuple);
+  }
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
-  { this->Array->SetTypedTuple(tupleIdx,tuple); }
+  {
+    this->Array->SetTypedTuple(tupleIdx, tuple);
+  }
 
   ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
-  { return this->Array->GetTypedComponent(tupleIdx,compIdx); }
+  {
+    return this->Array->GetTypedComponent(tupleIdx, compIdx);
+  }
   void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
-  { this->Array->SetTypedComponent(tupleIdx,compIdx,value); }
+  {
+    this->Array->SetTypedComponent(tupleIdx, compIdx, value);
+  }
 
-  void *GetVoidPointer(vtkIdType valueIdx) override
-  { return this->Array->GetVoidPointer(valueIdx); }
+  void* GetVoidPointer(vtkIdType valueIdx) override
+  {
+    return this->Array->GetVoidPointer(valueIdx);
+  }
 
 protected:
   vtkTestDataArray() { this->Array = ArrayType::New(); }
   ~vtkTestDataArray() override { this->Array->Delete(); }
 
-  bool AllocateTuples(vtkIdType numTuples)
-  { return this->Array->Allocate(numTuples) != 0; }
-  bool ReallocateTuples(vtkIdType numTuples)
-  { return this->Array->Allocate(numTuples) != 0; }
+  bool AllocateTuples(vtkIdType numTuples) { return this->Array->Allocate(numTuples) != 0; }
+  bool ReallocateTuples(vtkIdType numTuples) { return this->Array->Allocate(numTuples) != 0; }
 
 private:
   ArrayType* Array;
 
-  vtkTestDataArray(const vtkTestDataArray &) = delete;
-  void operator=(const vtkTestDataArray &) = delete;
+  vtkTestDataArray(const vtkTestDataArray&) = delete;
+  void operator=(const vtkTestDataArray&) = delete;
 };
 
 #endif

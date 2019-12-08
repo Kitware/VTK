@@ -30,7 +30,6 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkPolyDataMapper.h"
 #include "vtkTexture.h"
 
-
 vtkStandardNewMacro(vtkOpenVRRenderer);
 
 vtkOpenVRRenderer::vtkOpenVRRenderer()
@@ -44,8 +43,8 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
   this->FloorActor->SetMapper(pdm);
   vtkNew<vtkPlaneSource> plane;
   pdm->SetInputConnection(plane->GetOutputPort());
-  plane->SetOrigin(-5.0, 0.0,-5.0);
-  plane->SetPoint1( 5.0, 0.0,-5.0);
+  plane->SetOrigin(-5.0, 0.0, -5.0);
+  plane->SetPoint1(5.0, 0.0, -5.0);
   plane->SetPoint2(-5.0, 0.0, 5.0);
 
   vtkNew<vtkTransform> tf;
@@ -59,19 +58,19 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
   vtkNew<vtkImageCanvasSource2D> grid;
   grid->SetScalarTypeToUnsignedChar();
   grid->SetNumberOfScalarComponents(4);
-  grid->SetExtent(0,511,0,511,0,0);
+  grid->SetExtent(0, 511, 0, 511, 0, 0);
   int divisions = 16;
-  int divSize = 512/divisions;
+  int divSize = 512 / divisions;
   double alpha = 1.0;
   for (int i = 0; i < divisions; i++)
   {
     for (int j = 0; j < divisions; j++)
     {
-      grid->SetDrawColor(255, 255, 255, 255*alpha);
-      grid->FillBox(i*divSize, (i+1)*divSize-1, j*divSize, (j+1)*divSize-1);
-      grid->SetDrawColor(230, 230, 230, 255*alpha);
-      grid->DrawSegment(i*divSize, j*divSize, (i+1)*divSize-1, j*divSize);
-      grid->DrawSegment(i*divSize, j*divSize, i*divSize, (j+1)*divSize-1);
+      grid->SetDrawColor(255, 255, 255, 255 * alpha);
+      grid->FillBox(i * divSize, (i + 1) * divSize - 1, j * divSize, (j + 1) * divSize - 1);
+      grid->SetDrawColor(230, 230, 230, 255 * alpha);
+      grid->DrawSegment(i * divSize, j * divSize, (i + 1) * divSize - 1, j * divSize);
+      grid->DrawSegment(i * divSize, j * divSize, i * divSize, (j + 1) * divSize - 1);
     }
   }
 
@@ -91,7 +90,7 @@ vtkOpenVRRenderer::~vtkOpenVRRenderer()
 //----------------------------------------------------------------------------
 vtkCamera* vtkOpenVRRenderer::MakeCamera()
 {
-  vtkCamera *cam = vtkOpenVRCamera::New();
+  vtkCamera* cam = vtkOpenVRCamera::New();
   this->InvokeEvent(vtkCommand::CreateCameraEvent, cam);
   return cam;
 }
@@ -101,28 +100,26 @@ void vtkOpenVRRenderer::DeviceRender()
 {
   if (this->ShowFloor)
   {
-    vtkOpenVRRenderWindow *win =
-      static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
+    vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
 
     double physicalScale = win->GetPhysicalScale();
 
     double trans[3];
     win->GetPhysicalTranslation(trans);
 
-    double *vup = win->GetPhysicalViewUp();
-    double *dop = win->GetPhysicalViewDirection();
+    double* vup = win->GetPhysicalViewUp();
+    double* dop = win->GetPhysicalViewDirection();
     double vr[3];
-    vtkMath::Cross(dop,vup,vr);
-    double rot[16] = {
-      vr[0], vup[0], -dop[0], 0.0,
-      vr[1], vup[1], -dop[1], 0.0,
-      vr[2], vup[2], -dop[2], 0.0,
-      0.0, 0.0, 0.0, 1.0};
+    vtkMath::Cross(dop, vup, vr);
+    double rot[16] = { vr[0], vup[0], -dop[0], 0.0, vr[1], vup[1], -dop[1], 0.0, vr[2], vup[2],
+      -dop[2], 0.0, 0.0, 0.0, 0.0, 1.0 };
 
-    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Identity();
-    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Translate(-trans[0], -trans[1], -trans[2]);
-    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Scale(physicalScale, physicalScale, physicalScale);
-    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Concatenate(rot);
+    static_cast<vtkTransform*>(this->FloorActor->GetUserTransform())->Identity();
+    static_cast<vtkTransform*>(this->FloorActor->GetUserTransform())
+      ->Translate(-trans[0], -trans[1], -trans[2]);
+    static_cast<vtkTransform*>(this->FloorActor->GetUserTransform())
+      ->Scale(physicalScale, physicalScale, physicalScale);
+    static_cast<vtkTransform*>(this->FloorActor->GetUserTransform())->Concatenate(rot);
   }
   this->Superclass::DeviceRender();
 }
@@ -169,7 +166,7 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   double vn[3], *vup;
 
   this->GetActiveCamera();
-  if ( this->ActiveCamera != nullptr )
+  if (this->ActiveCamera != nullptr)
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
   }
@@ -185,9 +182,9 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
 
   this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
 
-  center[0] = (bounds[0] + bounds[1])/2.0;
-  center[1] = (bounds[2] + bounds[3])/2.0;
-  center[2] = (bounds[4] + bounds[5])/2.0;
+  center[0] = (bounds[0] + bounds[1]) / 2.0;
+  center[1] = (bounds[2] + bounds[3]) / 2.0;
+  center[2] = (bounds[4] + bounds[5]) / 2.0;
 
   double w1 = bounds[1] - bounds[0];
   double w2 = bounds[3] - bounds[2];
@@ -198,10 +195,10 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   double radius = w1 + w2 + w3;
 
   // If we have just a single point, pick a radius of 1.0
-  radius = (radius==0)?(1.0):(radius);
+  radius = (radius == 0) ? (1.0) : (radius);
 
   // compute the radius of the enclosing sphere
-  radius = sqrt(radius)*0.5;
+  radius = sqrt(radius) * 0.5;
 
   // default so that the bounding sphere fits within the view fustrum
 
@@ -216,41 +213,40 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   // this forms a right triangle with one side being the radius, another being
   // the target distance for the camera, then just find the target dist using
   // a sin.
-  double angle=vtkMath::RadiansFromDegrees(this->ActiveCamera->GetViewAngle());
+  double angle = vtkMath::RadiansFromDegrees(this->ActiveCamera->GetViewAngle());
 
   this->ComputeAspect();
   double aspect[2];
   this->GetAspect(aspect);
 
-  if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
+  if (aspect[0] >= 1.0) // horizontal window, deal with vertical angle|scale
   {
-    if(this->ActiveCamera->GetUseHorizontalViewAngle())
+    if (this->ActiveCamera->GetUseHorizontalViewAngle())
     {
-      angle=2.0*atan(tan(angle*0.5)/aspect[0]);
+      angle = 2.0 * atan(tan(angle * 0.5) / aspect[0]);
     }
   }
   else // vertical window, deal with horizontal angle|scale
   {
-    if(!this->ActiveCamera->GetUseHorizontalViewAngle())
+    if (!this->ActiveCamera->GetUseHorizontalViewAngle())
     {
-      angle=2.0*atan(tan(angle*0.5)*aspect[0]);
+      angle = 2.0 * atan(tan(angle * 0.5) * aspect[0]);
     }
   }
-  distance =radius/sin(angle*0.5);
+  distance = radius / sin(angle * 0.5);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
-  if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
+  if (fabs(vtkMath::Dot(vup, vn)) > 0.999)
   {
-    vtkWarningMacro(<<"Resetting view-up since view plane normal is parallel");
+    vtkWarningMacro(<< "Resetting view-up since view plane normal is parallel");
     this->ActiveCamera->SetViewUp(-vup[2], vup[0], vup[1]);
   }
 
   // update the camera
-  this->ActiveCamera->SetFocalPoint(center[0],center[1],center[2]);
-  this->ActiveCamera->SetPosition(center[0]+distance*vn[0],
-                                  center[1]+distance*vn[1],
-                                  center[2]+distance*vn[2]);
+  this->ActiveCamera->SetFocalPoint(center[0], center[1], center[2]);
+  this->ActiveCamera->SetPosition(
+    center[0] + distance * vn[0], center[1] + distance * vn[1], center[2] + distance * vn[2]);
 
   // now set the cameras shift and scale to the HMD space
   // since the vive is always in meters (or something like that)
@@ -262,16 +258,14 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   // matrix as that is broken.
   // The +distance in the Y translation is because we want
   // the center of the world to be 1 meter up
-  vtkOpenVRRenderWindow *win =
-    static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
-  win->SetPhysicalTranslation(-center[0],-center[1]+distance,-center[2]);
+  vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
+  win->SetPhysicalTranslation(-center[0], -center[1] + distance, -center[2]);
   win->SetPhysicalScale(distance);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
-void vtkOpenVRRenderer::ResetCamera(double xmin, double xmax,
-                              double ymin, double ymax,
-                              double zmin, double zmax)
+void vtkOpenVRRenderer::ResetCamera(
+  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
   double bounds[6];
 
@@ -286,10 +280,10 @@ void vtkOpenVRRenderer::ResetCamera(double xmin, double xmax,
 }
 
 // Reset the camera clipping range to include this entire bounding box
-void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
+void vtkOpenVRRenderer::ResetCameraClippingRange(double bounds[6])
 {
-  double  range[2];
-  int     i, j, k;
+  double range[2];
+  int i, j, k;
 
   // Don't reset the clipping range when we don't have any 3D visible props
   if (!vtkMath::AreBoundsInitialized(bounds))
@@ -298,7 +292,7 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
   }
 
   this->GetActiveCameraAndResetIfCreated();
-  if ( this->ActiveCamera == nullptr )
+  if (this->ActiveCamera == nullptr)
   {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existent camera");
     return;
@@ -307,8 +301,7 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
   this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
 
   double trans[3];
-  vtkOpenVRRenderWindow *win =
-    static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
+  vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
   win->GetPhysicalTranslation(trans);
   double physicalScale = win->GetPhysicalScale();
 
@@ -316,23 +309,22 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
   range[1] = 0.0;
 
   // Find the farthest bounding box vertex
-  for ( k = 0; k < 2; k++ )
+  for (k = 0; k < 2; k++)
   {
-    for ( j = 0; j < 2; j++ )
+    for (j = 0; j < 2; j++)
     {
-      for ( i = 0; i < 2; i++ )
+      for (i = 0; i < 2; i++)
       {
-        double fard = sqrt(
-          (bounds[i] - trans[0])*(bounds[i] - trans[0]) +
-          (bounds[2+j] - trans[1])*(bounds[2+j] - trans[1]) +
-          (bounds[4+k] - trans[2])*(bounds[4+k] - trans[2]));
+        double fard = sqrt((bounds[i] - trans[0]) * (bounds[i] - trans[0]) +
+          (bounds[2 + j] - trans[1]) * (bounds[2 + j] - trans[1]) +
+          (bounds[4 + k] - trans[2]) * (bounds[4 + k] - trans[2]));
         range[1] = (fard > range[1]) ? fard : range[1];
       }
     }
   }
 
   range[1] /= physicalScale; // convert to physical scale
-  range[1] += 3.0; // add 3 meters for room to walk around
+  range[1] += 3.0;           // add 3 meters for room to walk around
 
   // to see transmitters make sure far is at least 10 meters
   if (range[1] < 10.0)
@@ -340,10 +332,10 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
     range[1] = 10.0;
   }
 
-  this->ActiveCamera->SetClippingRange( range[0]*physicalScale, range[1]*physicalScale );
+  this->ActiveCamera->SetClippingRange(range[0] * physicalScale, range[1] * physicalScale);
 }
 
 void vtkOpenVRRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

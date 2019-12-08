@@ -14,45 +14,42 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
-#include "vtkConeSource.h"
-#include "vtkCubeSource.h"
-#include "vtkGlyph3D.h"
-#include "vtkSphereSource.h"
-#include "vtkAppendPolyData.h"
-#include "vtkHandleWidget.h"
-#include "vtkMeasurementCubeHandleRepresentation3D.h"
-#include "vtkCoordinate.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkAppendPolyData.h"
+#include "vtkBillboardTextActor3D.h"
+#include "vtkBoundedPlanePointPlacer.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkCoordinate.h"
+#include "vtkCubeSource.h"
+#include "vtkCutter.h"
+#include "vtkGlyph3D.h"
+#include "vtkHandleWidget.h"
+#include "vtkImplicitPlaneRepresentation.h"
+#include "vtkImplicitPlaneWidget2.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkLODActor.h"
+#include "vtkMeasurementCubeHandleRepresentation3D.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPlane.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkOutlineFilter.h"
-#include "vtkImplicitPlaneWidget2.h"
-#include "vtkImplicitPlaneRepresentation.h"
-#include "vtkBoundedPlanePointPlacer.h"
-#include "vtkCutter.h"
-#include "vtkLODActor.h"
-#include "vtkPlane.h"
-#include "vtkProperty.h"
-#include "vtkBillboardTextActor3D.h"
-#include "vtkTextProperty.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 
-int TestMeasurementCubeHandleRepresentation3D(int vtkNotUsed(argc),
-                                              char* vtkNotUsed(argv)[])
+int TestMeasurementCubeHandleRepresentation3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  double bounds[6] = {-1.,1.,-1.,1.,-1.,1.};
+  double bounds[6] = { -1., 1., -1., 1., -1., 1. };
 
   // Create the RenderWindow and Renderer
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
 
@@ -63,8 +60,7 @@ int TestMeasurementCubeHandleRepresentation3D(int vtkNotUsed(argc),
   // VTK widgets consist of two parts: the widget part that handles event
   // processing, and the widget representation that defines how the widget
   // appears in the scene (i.e., matters pertaining to geometry).
-  vtkSmartPointer<vtkHandleWidget> handleWidget =
-    vtkSmartPointer<vtkHandleWidget>::New();
+  vtkSmartPointer<vtkHandleWidget> handleWidget = vtkSmartPointer<vtkHandleWidget>::New();
   handleWidget->SetInteractor(iren);
 
   // Use a vtkMeasurementCubeHandleRepresentation3D to represent the handle widget
@@ -73,26 +69,24 @@ int TestMeasurementCubeHandleRepresentation3D(int vtkNotUsed(argc),
   unitCubeRep->PlaceWidget(bounds);
   unitCubeRep->SetHandleSize(30);
   handleWidget->SetRepresentation(unitCubeRep);
-  double p[3] = {1.,0.,0.};
+  double p[3] = { 1., 0., 0. };
   unitCubeRep->SetWorldPosition(p);
 
   {
-    //Create a sphere
-    vtkSmartPointer<vtkSphereSource> sphereSource =
-      vtkSmartPointer<vtkSphereSource>::New();
+    // Create a sphere
+    vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
     sphereSource->Update();
 
-    //Create a mapper and actor
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-      vtkSmartPointer<vtkPolyDataMapper>::New();
+    // Create a mapper and actor
+    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(sphereSource->GetOutputPort());
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
 
-    //Set the color of the sphere
+    // Set the color of the sphere
     actor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
 
-    //Add the actor to the scene
+    // Add the actor to the scene
     ren1->AddActor(actor);
   }
 

@@ -15,58 +15,55 @@
 
 #include "vtkCameraPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderUtilities.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderState.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkCameraPass);
-vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
+vtkCxxSetObjectMacro(vtkCameraPass, DelegatePass, vtkRenderPass);
 
 // ----------------------------------------------------------------------------
 vtkCameraPass::vtkCameraPass()
 {
-  this->DelegatePass=nullptr;
+  this->DelegatePass = nullptr;
   this->AspectRatioOverride = 1.0;
 }
 
 // ----------------------------------------------------------------------------
 vtkCameraPass::~vtkCameraPass()
 {
-  if(this->DelegatePass!=nullptr)
+  if (this->DelegatePass != nullptr)
   {
-      this->DelegatePass->Delete();
+    this->DelegatePass->Delete();
   }
 }
 
 // ----------------------------------------------------------------------------
 void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "AspectRatioOverride: " << this->AspectRatioOverride
-    << endl;
+  os << indent << "AspectRatioOverride: " << this->AspectRatioOverride << endl;
   os << indent << "DelegatePass:";
-  if(this->DelegatePass!=nullptr)
+  if (this->DelegatePass != nullptr)
   {
-    this->DelegatePass->PrintSelf(os,indent);
+    this->DelegatePass->PrintSelf(os, indent);
   }
   else
   {
-    os << "(none)" <<endl;
+    os << "(none)" << endl;
   }
 }
 
 void vtkCameraPass::GetTiledSizeAndOrigin(
-  const vtkRenderState* render_state,
-  int* width, int* height, int *originX,
-  int* originY)
+  const vtkRenderState* render_state, int* width, int* height, int* originX, int* originY)
 {
-  vtkRenderer *ren = render_state->GetRenderer();
+  vtkRenderer* ren = render_state->GetRenderer();
   ren->GetTiledSizeAndOrigin(width, height, originX, originY);
 }
 
@@ -74,15 +71,15 @@ void vtkCameraPass::GetTiledSizeAndOrigin(
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
-void vtkCameraPass::Render(const vtkRenderState *s)
+void vtkCameraPass::Render(const vtkRenderState* s)
 {
-  assert("pre: s_exists" && s!=nullptr);
+  assert("pre: s_exists" && s != nullptr);
 
   vtkOpenGLClearErrorMacro();
 
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
 
-  vtkRenderer *ren=s->GetRenderer();
+  vtkRenderer* ren = s->GetRenderer();
 
   if (!ren->IsActiveCameraCreated())
   {
@@ -102,25 +99,25 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   int lowerLeft[2];
   int usize;
   int vsize;
-  vtkOpenGLFramebufferObject *fbo=vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer());
+  vtkOpenGLFramebufferObject* fbo = vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer());
 
-  vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   win->MakeCurrent();
-  vtkOpenGLState *ostate = win->GetState();
+  vtkOpenGLState* ostate = win->GetState();
 
-  if(fbo==nullptr)
+  if (fbo == nullptr)
   {
-    this->GetTiledSizeAndOrigin(s, &usize,&vsize,lowerLeft,lowerLeft+1);
+    this->GetTiledSizeAndOrigin(s, &usize, &vsize, lowerLeft, lowerLeft + 1);
   }
   else
   {
     // FBO size. This is the renderer size as a renderstate is per renderer.
     int size[2];
     fbo->GetLastSize(size);
-    usize=size[0];
-    vsize=size[1];
-    lowerLeft[0]=0;
-    lowerLeft[1]=0;
+    usize = size[0];
+    vsize = size[1];
+    lowerLeft[0] = 0;
+    lowerLeft[1] = 0;
     // we assume the drawbuffer state is already initialized before.
   }
 
@@ -130,7 +127,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
 
   ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  ostate->vtkglEnable( GL_SCISSOR_TEST );
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
   ostate->vtkglScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase())
@@ -141,17 +138,16 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   // Done with camera initialization. The delegate can be called.
   vtkOpenGLCheckErrorMacro("failed after camera initialization");
 
-  if(this->DelegatePass!=nullptr)
+  if (this->DelegatePass != nullptr)
   {
     vtkOpenGLRenderUtilities::MarkDebugEvent("Start vtkCameraPass delegate");
     this->DelegatePass->Render(s);
     vtkOpenGLRenderUtilities::MarkDebugEvent("End vtkCameraPass delegate");
-    this->NumberOfRenderedProps+=
-      this->DelegatePass->GetNumberOfRenderedProps();
+    this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
   }
   else
   {
-    vtkWarningMacro(<<" no delegate.");
+    vtkWarningMacro(<< " no delegate.");
   }
   vtkOpenGLCheckErrorMacro("failed after delegate pass");
 }
@@ -161,10 +157,10 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 // Release graphics resources and ask components to release their own
 // resources.
 // \pre w_exists: w!=0
-void vtkCameraPass::ReleaseGraphicsResources(vtkWindow *w)
+void vtkCameraPass::ReleaseGraphicsResources(vtkWindow* w)
 {
-  assert("pre: w_exists" && w!=nullptr);
-  if(this->DelegatePass!=nullptr)
+  assert("pre: w_exists" && w != nullptr);
+  if (this->DelegatePass != nullptr)
   {
     this->DelegatePass->ReleaseGraphicsResources(w);
   }

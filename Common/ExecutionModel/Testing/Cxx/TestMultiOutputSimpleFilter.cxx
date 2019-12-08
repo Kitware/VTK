@@ -25,7 +25,7 @@ public:
   vtkTestAlgorithm(const vtkTestAlgorithm&) = delete;
   void operator=(const vtkTestAlgorithm&) = delete;
 
-  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm)
+  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm);
 
 protected:
   vtkTestAlgorithm()
@@ -222,15 +222,14 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
 
 int TestMultiOutputSimpleFilter(int argc, char* argv[])
 {
-  char const *tmp = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
+  char const* tmp =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
   std::string inputAMR = tmp;
-  delete [] tmp;
+  delete[] tmp;
 
-  tmp = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/many_blocks/many_blocks.vtm");
+  tmp = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/many_blocks/many_blocks.vtm");
   std::string inputMultiblock = tmp;
-  delete [] tmp;
+  delete[] tmp;
 
   int retVal = TestComposite(inputAMR, true);
 

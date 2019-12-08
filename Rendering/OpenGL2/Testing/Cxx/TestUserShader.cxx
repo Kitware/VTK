@@ -12,15 +12,15 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPLYReader.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProperty.h"
 #include "vtkTriangleMeshPointNormals.h"
 
@@ -30,7 +30,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 //----------------------------------------------------------------------------
-int TestUserShader(int argc, char *argv[])
+int TestUserShader(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;
   vtkNew<vtkRenderer> renderer;
@@ -40,16 +40,15 @@ int TestUserShader(int argc, char *argv[])
   renderWindow->SetSize(400, 400);
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                               "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
@@ -75,72 +74,61 @@ int TestUserShader(int argc, char *argv[])
   // Then we modify the fragment shader to set the diffuse color
   // based on that normal. First lets modify the vertex
   // shader
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  sp->AddVertexShaderReplacement(
-    "//VTK::Normal::Dec", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Dec\n" // we still want the default
-    "  out vec3 myNormalMCVSOutput;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddVertexShaderReplacement(
-    "//VTK::Normal::Impl", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Impl\n" // we still want the default
-    "  myNormalMCVSOutput = normalMC;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddVertexShaderReplacement(
-    "//VTK::Color::Impl", // dummy replacement for testing clear method
-    true,
-    "VTK::Color::Impl\n",
-    false
-    );
-  sp->ClearVertexShaderReplacement(
-    "//VTK::Color::Impl",
-    true
-    );
+  vtkShaderProperty* sp = actor->GetShaderProperty();
+  sp->AddVertexShaderReplacement("//VTK::Normal::Dec", // replace the normal block
+    true,                                              // before the standard replacements
+    "//VTK::Normal::Dec\n"                             // we still want the default
+    "  out vec3 myNormalMCVSOutput;\n",                // but we add this
+    false                                              // only do it once
+  );
+  sp->AddVertexShaderReplacement("//VTK::Normal::Impl", // replace the normal block
+    true,                                               // before the standard replacements
+    "//VTK::Normal::Impl\n"                             // we still want the default
+    "  myNormalMCVSOutput = normalMC;\n",               // but we add this
+    false                                               // only do it once
+  );
+  sp->AddVertexShaderReplacement("//VTK::Color::Impl", // dummy replacement for testing clear method
+    true, "VTK::Color::Impl\n", false);
+  sp->ClearVertexShaderReplacement("//VTK::Color::Impl", true);
 
   // now modify the fragment shader
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Normal::Dec", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Dec\n" // we still want the default
-    "  in vec3 myNormalMCVSOutput;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Normal::Impl", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Impl\n" // we still want the default calc
-    "  diffuseColor = abs(myNormalMCVSOutput);\n", //but we add this
-    false // only do it once
-    );
+  sp->AddFragmentShaderReplacement("//VTK::Normal::Dec", // replace the normal block
+    true,                                                // before the standard replacements
+    "//VTK::Normal::Dec\n"                               // we still want the default
+    "  in vec3 myNormalMCVSOutput;\n",                   // but we add this
+    false                                                // only do it once
+  );
+  sp->AddFragmentShaderReplacement("//VTK::Normal::Impl", // replace the normal block
+    true,                                                 // before the standard replacements
+    "//VTK::Normal::Impl\n"                               // we still want the default calc
+    "  diffuseColor = abs(myNormalMCVSOutput);\n",        // but we add this
+    false                                                 // only do it once
+  );
 
   // Test enumerating shader replacements
   int nbReplacements = sp->GetNumberOfShaderReplacements();
-  if( nbReplacements != 4 )
+  if (nbReplacements != 4)
   {
     return EXIT_FAILURE;
   }
-  if( sp->GetNthShaderReplacementTypeAsString(0) != std::string("Vertex") ||
-      sp->GetNthShaderReplacementTypeAsString(1) != std::string("Fragment") ||
-      sp->GetNthShaderReplacementTypeAsString(2) != std::string("Vertex") ||
-      sp->GetNthShaderReplacementTypeAsString(3) != std::string("Fragment") )
+  if (sp->GetNthShaderReplacementTypeAsString(0) != std::string("Vertex") ||
+    sp->GetNthShaderReplacementTypeAsString(1) != std::string("Fragment") ||
+    sp->GetNthShaderReplacementTypeAsString(2) != std::string("Vertex") ||
+    sp->GetNthShaderReplacementTypeAsString(3) != std::string("Fragment"))
   {
     return EXIT_FAILURE;
   }
 
   renderWindow->Render();
-  renderer->GetActiveCamera()->SetPosition(-0.2,0.4,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->GetActiveCamera()->SetPosition(-0.2, 0.4, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(1.3);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

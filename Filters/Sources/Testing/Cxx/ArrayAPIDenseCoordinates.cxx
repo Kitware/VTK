@@ -29,17 +29,18 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
+    vtkSmartPointer<vtkDiagonalMatrixSource> source =
+      vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::DENSE);
     source->SetDiagonal(1.0);
@@ -47,8 +48,8 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->SetSubDiagonal(-0.5);
     source->Update();
 
-    vtkDenseArray<double>* const array = vtkDenseArray<double>::SafeDownCast(
-      source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
+    vtkDenseArray<double>* const array =
+      vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
     cout << "dense diagonal matrix:\n";
     vtkPrintMatrixFormat(cout, array);
@@ -67,20 +68,20 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetValue(vtkArrayCoordinates(1, 2)) == 0.5);
     test_expression(array->GetValue(vtkArrayCoordinates(2, 2)) == 1.0);
 
-    for(vtkArray::SizeT n = 0; n != array->GetNonNullSize(); ++n)
+    for (vtkArray::SizeT n = 0; n != array->GetNonNullSize(); ++n)
     {
       vtkArrayCoordinates coordinates;
       array->GetCoordinatesN(n, coordinates);
 
-      if(coordinates[0] == 0 && coordinates[1] == 0)
+      if (coordinates[0] == 0 && coordinates[1] == 0)
       {
         test_expression(array->GetValueN(n) == 1.0);
       }
-      else if(coordinates[0] == 0 && coordinates[1] == 1)
+      else if (coordinates[0] == 0 && coordinates[1] == 1)
       {
         test_expression(array->GetValueN(n) == 0.5);
       }
-      else if(coordinates[0] == 1 && coordinates[1] == 0)
+      else if (coordinates[0] == 1 && coordinates[1] == 0)
       {
         test_expression(array->GetValueN(n) == -0.5);
       }
@@ -88,10 +89,9 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

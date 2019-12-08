@@ -16,7 +16,7 @@
  * @class   vtkDataArrayTemplate
  *
  * vtkDataArrayTemplate is deprecated, use vtkAOSDataArrayTemplate instead.
-*/
+ */
 
 #ifndef vtkDataArrayTemplate_h
 #define vtkDataArrayTemplate_h
@@ -29,8 +29,7 @@ template <typename ValueType>
 class vtkDataArrayTemplate : public vtkAOSDataArrayTemplate<ValueType>
 {
 public:
-  vtkTemplateTypeMacro(vtkDataArrayTemplate<ValueType>,
-                       vtkAOSDataArrayTemplate<ValueType>)
+  vtkTemplateTypeMacro(vtkDataArrayTemplate<ValueType>, vtkAOSDataArrayTemplate<ValueType>);
 
   static vtkDataArrayTemplate<ValueType>* New()
   {

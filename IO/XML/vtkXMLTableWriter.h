@@ -18,7 +18,7 @@
  *
  * vtkXMLTableWriter provides a functionality for writing vtTable as
  * XML .vtt files.
-*/
+ */
 
 #ifndef vtkXMLTableWriter_h
 #define vtkXMLTableWriter_h
@@ -54,9 +54,10 @@ public:
   //@}
 
   /**
-  * See the vtkAlgorithm for a description of what these do
-  */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+   * See the vtkAlgorithm for a description of what these do
+   */
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkXMLTableWriter();
@@ -65,8 +66,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkTable* GetInputAsTable();
-  const char* GetDataSetName()
-    override; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
+  const char* GetDataSetName() override; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
 
   /**
    * Get the default file extension for files written by this writer.
@@ -99,24 +99,24 @@ protected:
   void WriteRowDataInline(vtkDataSetAttributes* ds, vtkIndent indent);
 
   /**
-  * Number of pieces used for streaming.
-  */
+   * Number of pieces used for streaming.
+   */
   int NumberOfPieces;
 
   /**
-  * Which piece to write, if not all.
-  */
+   * Which piece to write, if not all.
+   */
   int WritePiece;
 
   /**
-  * Positions of attributes for each piece.
-  */
+   * Positions of attributes for each piece.
+   */
   vtkTypeInt64* NumberOfColsPositions;
   vtkTypeInt64* NumberOfRowsPositions;
 
   /**
-  * For TimeStep support
-  */
+   * For TimeStep support
+   */
   OffsetsManagerArray* RowsOM;
 
   int CurrentPiece;

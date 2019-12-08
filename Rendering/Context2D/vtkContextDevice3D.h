@@ -23,15 +23,15 @@
  * an OpenGL context.
  *
  * This is private API, and should not be used outside of the vtkContext3D.
-*/
+ */
 
 #ifndef vtkContextDevice3D_h
 #define vtkContextDevice3D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h"       // For the vector coordinates.
-#include "vtkRect.h"         // For the rectangles..
+#include "vtkRect.h"                     // For the rectangles..
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkVector.h"                   // For the vector coordinates.
 
 class vtkMatrix4x4;
 class vtkViewport;
@@ -42,64 +42,63 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice3D, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkContextDevice3D * New();
+  static vtkContextDevice3D* New();
 
   /**
    * Draw a polyline between the specified points.
    * \sa DrawLines()
    */
-  virtual void DrawPoly(const float *verts, int n,
-                        const unsigned char *colors = nullptr, int nc = 0) = 0;
+  virtual void DrawPoly(
+    const float* verts, int n, const unsigned char* colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw lines defined by specified pair of points.
    * \sa DrawPoly()
    */
-  virtual void DrawLines(const float *verts, int n,
-                         const unsigned char *colors = nullptr, int nc = 0) = 0;
+  virtual void DrawLines(
+    const float* verts, int n, const unsigned char* colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw points at the vertex positions specified.
    */
-  virtual void DrawPoints(const float *verts, int n,
-                          const unsigned char *colors = nullptr, int nc = 0) = 0;
+  virtual void DrawPoints(
+    const float* verts, int n, const unsigned char* colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw triangles to generate the specified mesh.
    */
-  virtual void DrawTriangleMesh(const float *mesh, int n,
-                                const unsigned char *colors, int nc) = 0;
+  virtual void DrawTriangleMesh(const float* mesh, int n, const unsigned char* colors, int nc) = 0;
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkPen
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  virtual void ApplyPen(vtkPen *pen) = 0;
+  virtual void ApplyPen(vtkPen* pen) = 0;
 
   /**
    * Apply the supplied brush which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkBrush
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  virtual void ApplyBrush(vtkBrush *brush) = 0;
+  virtual void ApplyBrush(vtkBrush* brush) = 0;
 
   /**
    * Set the model view matrix for the display
    */
-  virtual void SetMatrix(vtkMatrix4x4 *m) = 0;
+  virtual void SetMatrix(vtkMatrix4x4* m) = 0;
 
   /**
    * Set the model view matrix for the display
    */
-  virtual void GetMatrix(vtkMatrix4x4 *m) = 0;
+  virtual void GetMatrix(vtkMatrix4x4* m) = 0;
 
   /**
    * Multiply the current model view matrix by the supplied one
    */
-  virtual void MultiplyMatrix(vtkMatrix4x4 *m) = 0;
+  virtual void MultiplyMatrix(vtkMatrix4x4* m) = 0;
 
   /**
    * Push the current matrix onto the stack.
@@ -115,7 +114,7 @@ public:
    * Supply a float array of length 4 with x1, y1, width, height specifying
    * clipping region for the device in pixels.
    */
-  virtual void SetClipping(const vtkRecti &rect) = 0;
+  virtual void SetClipping(const vtkRecti& rect) = 0;
 
   /**
    * Disable clipping of the display.
@@ -132,7 +131,7 @@ public:
   /**
    * Enable/Disable the specified clipping plane.
    */
-  virtual void EnableClippingPlane(int i, double *planeEquation) = 0;
+  virtual void EnableClippingPlane(int i, double* planeEquation) = 0;
   virtual void DisableClippingPlane(int i) = 0;
   //@}
 
@@ -141,8 +140,8 @@ protected:
   ~vtkContextDevice3D() override;
 
 private:
-  vtkContextDevice3D(const vtkContextDevice3D &) = delete;
-  void operator=(const vtkContextDevice3D &) = delete;
+  vtkContextDevice3D(const vtkContextDevice3D&) = delete;
+  void operator=(const vtkContextDevice3D&) = delete;
 };
 
 #endif

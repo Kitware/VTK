@@ -32,13 +32,13 @@
  * that are adjacent to at least one selected edge.  Alternately, you may
  * indicate that an edge selection should maintain the full set of vertices,
  * by turning RemoveIsolatedVertices off.
-*/
+ */
 
 #ifndef vtkExtractSelectedGraph_h
 #define vtkExtractSelectedGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkSelection;
 class vtkDataSet;
@@ -47,7 +47,7 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkExtractSelectedGraph* New();
-  vtkTypeMacro(vtkExtractSelectedGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -80,15 +80,9 @@ protected:
   vtkExtractSelectedGraph();
   ~vtkExtractSelectedGraph() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestDataObject(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool RemoveIsolatedVertices;
 
@@ -98,4 +92,3 @@ private:
 };
 
 #endif
-

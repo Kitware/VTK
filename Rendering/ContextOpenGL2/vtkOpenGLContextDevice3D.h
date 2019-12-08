@@ -20,15 +20,15 @@
  *
  * This defines the implementation of a 3D context device for drawing simple
  * primitives.
-*/
+ */
 
 #ifndef vtkOpenGLContextDevice3D_h
 #define vtkOpenGLContextDevice3D_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice3D.h"
-#include "vtkNew.h"             // For ivars.
-#include <vector> // STL Header
+#include "vtkNew.h"                           // For ivars.
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
+#include <vector>                             // STL Header
 
 class vtkBrush;
 class vtkOpenGLContextDevice2D;
@@ -43,61 +43,59 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice3D : public vtkCon
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkOpenGLContextDevice3D * New();
+  static vtkOpenGLContextDevice3D* New();
 
   /**
    * Draw a polyline between the specified points.
    */
-  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc) override;
+  void DrawPoly(const float* verts, int n, const unsigned char* colors, int nc) override;
 
   /**
    * Draw lines defined by specified pair of points.
    * \sa DrawPoly()
    */
-  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc) override;
+  void DrawLines(const float* verts, int n, const unsigned char* colors, int nc) override;
 
   /**
    * Draw points at the vertex positions specified.
    */
-  void DrawPoints(const float *verts, int n,
-                  const unsigned char *colors, int nc) override;
+  void DrawPoints(const float* verts, int n, const unsigned char* colors, int nc) override;
 
   /**
    * Draw triangles to generate the specified mesh.
    */
-  void DrawTriangleMesh(const float *mesh, int n,
-                        const unsigned char *colors, int nc) override;
+  void DrawTriangleMesh(const float* mesh, int n, const unsigned char* colors, int nc) override;
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkPen
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  void ApplyPen(vtkPen *pen) override;
+  void ApplyPen(vtkPen* pen) override;
 
   /**
    * Apply the supplied brush which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkBrush
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  void ApplyBrush(vtkBrush *brush) override;
+  void ApplyBrush(vtkBrush* brush) override;
 
   /**
    * Set the model view matrix for the display
    */
-  void SetMatrix(vtkMatrix4x4 *m) override;
+  void SetMatrix(vtkMatrix4x4* m) override;
 
   /**
    * Set the model view matrix for the display
    */
-  void GetMatrix(vtkMatrix4x4 *m) override;
+  void GetMatrix(vtkMatrix4x4* m) override;
 
   /**
    * Multiply the current model view matrix by the supplied one
    */
-  void MultiplyMatrix(vtkMatrix4x4 *m) override;
+  void MultiplyMatrix(vtkMatrix4x4* m) override;
 
   /**
    * Push the current matrix onto the stack.
@@ -113,7 +111,7 @@ public:
    * Supply a float array of length 4 with x1, y1, width, height specifying
    * clipping region for the device in pixels.
    */
-  void SetClipping(const vtkRecti &rect) override;
+  void SetClipping(const vtkRecti& rect) override;
 
   /**
    * Enable or disable the clipping of the scene.
@@ -128,14 +126,14 @@ public:
    * clipping plane: Ax + By + Cz + D = 0.  This is the equation format
    * expected by glClipPlane.
    */
-  void EnableClippingPlane(int i, double *planeEquation) override;
+  void EnableClippingPlane(int i, double* planeEquation) override;
   void DisableClippingPlane(int i) override;
   //@}
 
   /**
    * This must be set during initialization
    */
-  void Initialize(vtkRenderer *, vtkOpenGLContextDevice2D *);
+  void Initialize(vtkRenderer*, vtkOpenGLContextDevice2D*);
 
   /**
    * Begin drawing, pass in the viewport to set up the view.
@@ -156,22 +154,20 @@ protected:
    */
   virtual void DisableDepthBuffer();
 
-  vtkOpenGLHelper *VCBO;  // vertex + color
+  vtkOpenGLHelper* VCBO; // vertex + color
   void ReadyVCBOProgram();
-  vtkOpenGLHelper *VBO;  // vertex
+  vtkOpenGLHelper* VBO; // vertex
   void ReadyVBOProgram();
 
-  void SetMatrices(vtkShaderProgram *prog);
-  void BuildVBO(vtkOpenGLHelper *cbo,
-    const float *v, int nv,
-    const unsigned char *coolors, int nc,
-    float *tcoords);
-  void CoreDrawTriangles(std::vector<float> &tverts);
+  void SetMatrices(vtkShaderProgram* prog);
+  void BuildVBO(vtkOpenGLHelper* cbo, const float* v, int nv, const unsigned char* coolors, int nc,
+    float* tcoords);
+  void CoreDrawTriangles(std::vector<float>& tverts);
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines();
 
-  vtkTransform *ModelMatrix;
+  vtkTransform* ModelMatrix;
 
   /**
    * The OpenGL render window being used by the device
@@ -181,30 +177,30 @@ protected:
   /**
    * We need to store a pointer to get the camera mats
    */
-  vtkRenderer *Renderer;
+  vtkRenderer* Renderer;
 
   std::vector<bool> ClippingPlaneStates;
   std::vector<double> ClippingPlaneValues;
 
 private:
-  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &) = delete;
-  void operator=(const vtkOpenGLContextDevice3D &) = delete;
+  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D&) = delete;
+  void operator=(const vtkOpenGLContextDevice3D&) = delete;
 
   //@{
   /**
    * Private data pointer of the class
    */
   class Private;
-  Private *Storage;
+  Private* Storage;
   //@}
 
   // we need a pointer to this because only
   // the 2D device gets a Begin and sets up
   // the ortho matrix
-  vtkOpenGLContextDevice2D *Device2D;
+  vtkOpenGLContextDevice2D* Device2D;
 
   vtkNew<vtkBrush> Brush;
-  vtkNew<vtkPen>   Pen;
+  vtkNew<vtkPen> Pen;
 };
 
 #endif

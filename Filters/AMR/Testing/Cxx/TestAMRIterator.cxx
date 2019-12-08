@@ -12,44 +12,38 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOverlappingAMR.h"
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
 #include <iostream>
 #include <string>
 
 //-----------------------------------------------------------------------------
-int TestAMRIterator( int, char *[] )
+int TestAMRIterator(int, char*[])
 {
-  unsigned int expected[3][2] =
-    {
-     {0,0},
-     {1,0},
-     {1,1}
-    };
+  unsigned int expected[3][2] = { { 0, 0 }, { 1, 0 }, { 1, 1 } };
 
   int rc = 0;
 
-  vtkAMRGaussianPulseSource *amrSource = vtkAMRGaussianPulseSource::New();
+  vtkAMRGaussianPulseSource* amrSource = vtkAMRGaussianPulseSource::New();
   amrSource->Update();
-  vtkOverlappingAMR *amrData =
-      vtkOverlappingAMR::SafeDownCast( amrSource->GetOutput() );
+  vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(amrSource->GetOutput());
 
-
-  vtkUniformGridAMRDataIterator *iter = vtkUniformGridAMRDataIterator::SafeDownCast(amrData->NewIterator());
+  vtkUniformGridAMRDataIterator* iter =
+    vtkUniformGridAMRDataIterator::SafeDownCast(amrData->NewIterator());
   iter->InitTraversal();
-  for(int idx=0 ;!iter->IsDoneWithTraversal(); iter->GoToNextItem(),++idx )
+  for (int idx = 0; !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++idx)
   {
-    unsigned int level  = iter->GetCurrentLevel();
+    unsigned int level = iter->GetCurrentLevel();
     unsigned int id = iter->GetCurrentIndex();
     cout << "Level: " << level << " Block: " << id;
     cout << endl;
-    if( level != expected[idx][0] )
+    if (level != expected[idx][0])
     {
       ++rc;
     }
-    if( id != expected[idx][1] )
+    if (id != expected[idx][1])
     {
       ++rc;
     }
@@ -57,5 +51,5 @@ int TestAMRIterator( int, char *[] )
   iter->Delete();
 
   amrSource->Delete();
-  return( rc );
+  return (rc);
 }

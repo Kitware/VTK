@@ -25,13 +25,13 @@
  * @par Thanks:
  * Thanks to the galaxy and David Thompson hierarchically nested inside it
  * for inspiring this layout strategy.
-*/
+ */
 
 #ifndef vtkCosmicTreeLayoutStrategy_h
 #define vtkCosmicTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkDataArray;
@@ -42,8 +42,8 @@ class VTKINFOVISLAYOUT_EXPORT vtkCosmicTreeLayoutStrategy : public vtkGraphLayou
 {
 public:
   static vtkCosmicTreeLayoutStrategy* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
-  vtkTypeMacro(vtkCosmicTreeLayoutStrategy,vtkGraphLayoutStrategy);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkCosmicTreeLayoutStrategy, vtkGraphLayoutStrategy);
 
   /**
    * Perform the layout.
@@ -59,9 +59,9 @@ public:
    * the size specification provided, and the parent node sizes are
    * calculated by the algorithm.
    */
-  vtkSetMacro(SizeLeafNodesOnly,vtkTypeBool);
-  vtkGetMacro(SizeLeafNodesOnly,vtkTypeBool);
-  vtkBooleanMacro(SizeLeafNodesOnly,vtkTypeBool);
+  vtkSetMacro(SizeLeafNodesOnly, vtkTypeBool);
+  vtkGetMacro(SizeLeafNodesOnly, vtkTypeBool);
+  vtkBooleanMacro(SizeLeafNodesOnly, vtkTypeBool);
   //@}
 
   //@{
@@ -73,8 +73,8 @@ public:
    * the LayoutRoot will be presented.
    * This defaults to 0.
    */
-  vtkSetMacro(LayoutDepth,int);
-  vtkGetMacro(LayoutDepth,int);
+  vtkSetMacro(LayoutDepth, int);
+  vtkGetMacro(LayoutDepth, int);
   //@}
 
   //@{
@@ -87,8 +87,8 @@ public:
    * of the tree should be used as the root node of the layout.
    * This defaults to -1.
    */
-  vtkSetMacro(LayoutRoot,vtkIdType);
-  vtkGetMacro(LayoutRoot,vtkIdType);
+  vtkSetMacro(LayoutRoot, vtkIdType);
+  vtkGetMacro(LayoutRoot, vtkIdType);
   //@}
 
   //@{
@@ -103,13 +103,13 @@ public:
   //@}
 
 protected:
-
   /// How are node sizes specified?
   enum RadiusMode
   {
-    NONE,     //!< No node sizes specified... unit radius is assumed.
-    LEAVES,   //!< Only leaf node sizes specified... parents are calculated during layout.
-    ALL       //!< All node sizes specified (overconstrained, so a scale factor for each parent is calculated during layout).
+    NONE,   //!< No node sizes specified... unit radius is assumed.
+    LEAVES, //!< Only leaf node sizes specified... parents are calculated during layout.
+    ALL     //!< All node sizes specified (overconstrained, so a scale factor for each parent is
+            //!< calculated during layout).
   };
 
   vtkCosmicTreeLayoutStrategy();
@@ -118,9 +118,8 @@ protected:
   /**
    * Recursive routine used to lay out tree nodes. Called from Layout().
    */
-  void LayoutChildren(
-    vtkTree* tree, vtkPoints* newPoints, vtkDoubleArray* radii, vtkDoubleArray* scale,
-    vtkIdType root, int depth, RadiusMode mode );
+  void LayoutChildren(vtkTree* tree, vtkPoints* newPoints, vtkDoubleArray* radii,
+    vtkDoubleArray* scale, vtkIdType root, int depth, RadiusMode mode);
 
   /**
    * Recursive routine that adds each parent node's (x,y) position to its children.
@@ -128,19 +127,20 @@ protected:
    * since we will not know the parent's position until after the child radii have
    * been determined.
    */
-  void OffsetChildren(
-    vtkTree* tree, vtkPoints* pts, vtkDoubleArray* radii, vtkDoubleArray* scale,
-    double parent[4], vtkIdType root, int depth, RadiusMode mode );
+  void OffsetChildren(vtkTree* tree, vtkPoints* pts, vtkDoubleArray* radii, vtkDoubleArray* scale,
+    double parent[4], vtkIdType root, int depth, RadiusMode mode);
 
   /**
    * Create an array to hold radii, named appropriately (depends on \a NodeSizeArrayName)
    * and initialized to either (a) -1.0 for each node or (b) a deep copy of an existing array.
    * @param numVertices  The number of vertices on the tree.
-   * @param initialValue The starting value of each node's radius. Only used when \a inputRadii is nullptr.
-   * @param inputRadii   Either nullptr or the address of another array to be copied into the output array
+   * @param initialValue The starting value of each node's radius. Only used when \a inputRadii is
+   * nullptr.
+   * @param inputRadii   Either nullptr or the address of another array to be copied into the output
+   * array
    * @retval             The array of node radii to be set on the output
    */
-  vtkDoubleArray* CreateRadii( vtkIdType numVertices, double initialValue, vtkDataArray* inputRadii );
+  vtkDoubleArray* CreateRadii(vtkIdType numVertices, double initialValue, vtkDataArray* inputRadii);
 
   /**
    * Create an array to hold scale factors, named appropriately (depends on \a NodeSizeArrayName)
@@ -148,7 +148,7 @@ protected:
    * @param numVertices The number of vertices on the tree.
    * @retval            The array of node scale factors to be set on the output
    */
-  vtkDoubleArray* CreateScaleFactors( vtkIdType numVertices );
+  vtkDoubleArray* CreateScaleFactors(vtkIdType numVertices);
 
   vtkTypeBool SizeLeafNodesOnly;
   int LayoutDepth;
@@ -156,8 +156,8 @@ protected:
   char* NodeSizeArrayName;
 
 private:
-  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ) = delete;
-  void operator = ( const vtkCosmicTreeLayoutStrategy& ) = delete;
+  vtkCosmicTreeLayoutStrategy(const vtkCosmicTreeLayoutStrategy&) = delete;
+  void operator=(const vtkCosmicTreeLayoutStrategy&) = delete;
 };
 
 #endif // vtkCosmicTreeLayoutStrategy_h

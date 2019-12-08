@@ -24,13 +24,13 @@
  *
  * @sa
  * vtkCompositeManager.
-*/
+ */
 
 #ifndef vtkCompositer_h
 #define vtkCompositer_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 class vtkCompositer;
@@ -41,23 +41,23 @@ class vtkUnsignedCharArray;
 class VTKRENDERINGPARALLEL_EXPORT vtkCompositer : public vtkObject
 {
 public:
-  static vtkCompositer *New();
-  vtkTypeMacro(vtkCompositer,vtkObject);
+  static vtkCompositer* New();
+  vtkTypeMacro(vtkCompositer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method gets called on every process.  The final image gets
    * put into pBuf and zBuf.
    */
-  virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                               vtkDataArray *pTmp, vtkFloatArray *zTmp);
+  virtual void CompositeBuffer(
+    vtkDataArray* pBuf, vtkFloatArray* zBuf, vtkDataArray* pTmp, vtkFloatArray* zTmp);
 
   //@{
   /**
    * Access to the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
   //@{
@@ -73,17 +73,15 @@ public:
    * Methods that allocate and delete memory with special MPIPro calls.
    */
   static void DeleteArray(vtkDataArray* da);
-  static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
-                               vtkIdType size);
-  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
-                                      int numComp, vtkIdType size);
+  static void ResizeFloatArray(vtkFloatArray* fa, int numComp, vtkIdType size);
+  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, int numComp, vtkIdType size);
   //@}
 
 protected:
   vtkCompositer();
   ~vtkCompositer() override;
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
   int NumberOfProcesses;
 
 private:

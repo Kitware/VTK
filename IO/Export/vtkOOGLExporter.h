@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkExporter
-*/
+ */
 
 #ifndef vtkOOGLExporter_h
 #define vtkOOGLExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkLight;
 class vtkActor;
@@ -36,8 +36,8 @@ class vtkActor;
 class VTKIOEXPORT_EXPORT vtkOOGLExporter : public vtkExporter
 {
 public:
-  static vtkOOGLExporter *New();
-  vtkTypeMacro(vtkOOGLExporter,vtkExporter);
+  static vtkOOGLExporter* New();
+  vtkTypeMacro(vtkOOGLExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,9 +53,9 @@ protected:
   ~vtkOOGLExporter() override;
 
   void WriteData() override;
-  void WriteALight(vtkLight *aLight, FILE *fp);
-  void WriteAnActor(vtkActor *anActor, FILE *fp, int count);
-  char *FileName;
+  void WriteALight(vtkLight* aLight, FILE* fp);
+  void WriteAnActor(vtkActor* anActor, FILE* fp, int count);
+  char* FileName;
 
 private:
   vtkOOGLExporter(const vtkOOGLExporter&) = delete;
@@ -63,4 +63,3 @@ private:
 };
 
 #endif
-

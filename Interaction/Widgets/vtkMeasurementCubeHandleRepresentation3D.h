@@ -18,13 +18,13 @@
  *
  * @sa
  * vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
-*/
+ */
 
 #ifndef vtkMeasurementCubeHandleRepresentation3D_h
 #define vtkMeasurementCubeHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty;
 class vtkPolyDataMapper;
@@ -39,21 +39,19 @@ class vtkFollower;
 class vtkBillboardTextActor3D;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkMeasurementCubeHandleRepresentation3D
-                           : public vtkHandleRepresentation
+  : public vtkHandleRepresentation
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkMeasurementCubeHandleRepresentation3D *New();
+  static vtkMeasurementCubeHandleRepresentation3D* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkMeasurementCubeHandleRepresentation3D,
-               vtkHandleRepresentation);
+  vtkTypeMacro(vtkMeasurementCubeHandleRepresentation3D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -69,7 +67,7 @@ public:
   /**
    * Get the handle polydata.
    */
-  vtkPolyData * GetHandle();
+  vtkPolyData* GetHandle();
   //@}
 
   //@{
@@ -78,15 +76,15 @@ public:
    */
   void SetProperty(vtkProperty*);
   void SetSelectedProperty(vtkProperty*);
-  vtkGetObjectMacro(Property,vtkProperty);
-  vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  vtkGetObjectMacro(Property, vtkProperty);
+  vtkGetObjectMacro(SelectedProperty, vtkProperty);
   //@}
 
   /**
    * Get the transform used to transform the generic handle polydata before
    * placing it in the render window
    */
-  virtual vtkAbstractTransform * GetTransform();
+  virtual vtkAbstractTransform* GetTransform();
 
   //@{
   /**
@@ -95,21 +93,21 @@ public:
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  void ShallowCopy(vtkProp *prop) override;
-  void DeepCopy(vtkProp *prop) override;
-  void GetActors(vtkPropCollection *) override;
-  void ReleaseGraphicsResources(vtkWindow *) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  void ShallowCopy(vtkProp* prop) override;
+  void DeepCopy(vtkProp* prop) override;
+  void GetActors(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  double *GetBounds() override;
+  double* GetBounds() override;
   //@}
 
   //@{
@@ -117,31 +115,31 @@ public:
    * A label may be associated with the cube. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
    */
-  vtkSetMacro( LabelVisibility, vtkTypeBool );
-  vtkGetMacro( LabelVisibility, vtkTypeBool );
-  vtkBooleanMacro( LabelVisibility, vtkTypeBool );
-  vtkSetMacro( SelectedLabelVisibility, vtkTypeBool );
-  vtkGetMacro( SelectedLabelVisibility, vtkTypeBool );
-  vtkBooleanMacro( SelectedLabelVisibility, vtkTypeBool );
+  vtkSetMacro(LabelVisibility, vtkTypeBool);
+  vtkGetMacro(LabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(LabelVisibility, vtkTypeBool);
+  vtkSetMacro(SelectedLabelVisibility, vtkTypeBool);
+  vtkGetMacro(SelectedLabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(SelectedLabelVisibility, vtkTypeBool);
 
-  virtual void SetLabelTextInput( const char * label );
-  virtual char * GetLabelTextInput();
+  virtual void SetLabelTextInput(const char* label);
+  virtual char* GetLabelTextInput();
   //@}
 
   //@{
   /**
    * Get the label text actor
    */
-  vtkGetObjectMacro( LabelText, vtkBillboardTextActor3D );
+  vtkGetObjectMacro(LabelText, vtkBillboardTextActor3D);
   //@}
 
   //@{
   /**
    * Toggle the visibility of the handle on and off
    */
-  vtkSetMacro( HandleVisibility, vtkTypeBool );
-  vtkGetMacro( HandleVisibility, vtkTypeBool );
-  vtkBooleanMacro( HandleVisibility, vtkTypeBool );
+  vtkSetMacro(HandleVisibility, vtkTypeBool);
+  vtkGetMacro(HandleVisibility, vtkTypeBool);
+  vtkBooleanMacro(HandleVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -162,9 +160,9 @@ public:
    * handle placement might conflict with a request for smooth motion of the
    * handles.
    */
-  vtkSetMacro( SmoothMotion, vtkTypeBool );
-  vtkGetMacro( SmoothMotion, vtkTypeBool );
-  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
+  vtkSetMacro(SmoothMotion, vtkTypeBool);
+  vtkGetMacro(SmoothMotion, vtkTypeBool);
+  vtkBooleanMacro(SmoothMotion, vtkTypeBool);
   //@}
 
   //@{
@@ -172,16 +170,16 @@ public:
    * Set the length of a side of the cube (default is 1).
    */
   void SetSideLength(double);
-  vtkGetMacro( SideLength, double );
+  vtkGetMacro(SideLength, double);
   //@}
 
   //@{
   /**
    * Turn on/off adaptive scaling for the cube.
    */
-  vtkSetMacro( AdaptiveScaling, vtkTypeBool );
-  vtkGetMacro( AdaptiveScaling, vtkTypeBool );
-  vtkBooleanMacro( AdaptiveScaling, vtkTypeBool );
+  vtkSetMacro(AdaptiveScaling, vtkTypeBool);
+  vtkGetMacro(AdaptiveScaling, vtkTypeBool);
+  vtkBooleanMacro(AdaptiveScaling, vtkTypeBool);
   //@}
 
   //@{
@@ -189,8 +187,8 @@ public:
    * Set/Get the rescaling increment for the cube. This value is applied to
    * each dimension, so volume scaling = std::pow(RescaleFactor, 3).
    */
-  vtkSetClampMacro( RescaleFactor, double, 1., VTK_DOUBLE_MAX );
-  vtkGetMacro( RescaleFactor, double );
+  vtkSetClampMacro(RescaleFactor, double, 1., VTK_DOUBLE_MAX);
+  vtkGetMacro(RescaleFactor, double);
   //@}
 
   //@{
@@ -202,9 +200,9 @@ public:
    * <RescaleFactor> greater than MinRelativeCubeScreenArea.
    */
   void SetMinRelativeCubeScreenArea(double);
-  vtkGetMacro( MinRelativeCubeScreenArea, double );
+  vtkGetMacro(MinRelativeCubeScreenArea, double);
   void SetMaxRelativeCubeScreenArea(double);
-  vtkGetMacro( MaxRelativeCubeScreenArea, double );
+  vtkGetMacro(MaxRelativeCubeScreenArea, double);
   //@}
 
   //@{
@@ -216,34 +214,34 @@ public:
   //@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
 protected:
   vtkMeasurementCubeHandleRepresentation3D();
   ~vtkMeasurementCubeHandleRepresentation3D() override;
 
-  vtkActor                   * Actor;
-  vtkPolyDataMapper          * Mapper;
-  vtkTransformPolyDataFilter * HandleTransformFilter;
-  vtkMatrixToLinearTransform * HandleTransform;
-  vtkMatrix4x4               * HandleTransformMatrix;
-  vtkCellPicker              * HandlePicker;
-  double                       LastPickPosition[3];
-  double                       LastEventPosition[2];
-  vtkProperty                * Property;
-  vtkProperty                * SelectedProperty;
-  int                          WaitingForMotion;
-  int                          WaitCount;
-  vtkTypeBool                          HandleVisibility;
-  double                       Offset[3];
-  vtkTypeBool                          AdaptiveScaling;
-  double                       RescaleFactor;
-  double                       MinRelativeCubeScreenArea;
-  double                       MaxRelativeCubeScreenArea;
-  double                       SideLength;
-  char                       * LengthUnit;
+  vtkActor* Actor;
+  vtkPolyDataMapper* Mapper;
+  vtkTransformPolyDataFilter* HandleTransformFilter;
+  vtkMatrixToLinearTransform* HandleTransform;
+  vtkMatrix4x4* HandleTransformMatrix;
+  vtkCellPicker* HandlePicker;
+  double LastPickPosition[3];
+  double LastEventPosition[2];
+  vtkProperty* Property;
+  vtkProperty* SelectedProperty;
+  int WaitingForMotion;
+  int WaitCount;
+  vtkTypeBool HandleVisibility;
+  double Offset[3];
+  vtkTypeBool AdaptiveScaling;
+  double RescaleFactor;
+  double MinRelativeCubeScreenArea;
+  double MaxRelativeCubeScreenArea;
+  double SideLength;
+  char* LengthUnit;
 
   // Methods to manipulate the cursor
   virtual void Scale(const double* p1, const double* p2, const double eventPos[2]);
@@ -259,15 +257,15 @@ protected:
   void ScaleIfNecessary(vtkViewport*);
 
   /**
-  * Given a motion vector defined by p1 --> p2 (p1 and p2 are in
-  * world coordinates), the new display position of the handle center is
-  * populated into requestedDisplayPos. This is again only a request for the
-  * new display position. It is up to the point placer to deduce the
-  * appropriate world co-ordinates that this display position will map into.
-  * The placer may even disallow such a movement.
-  * If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
-  * as the event position, ie the location of the mouse cursor. If its OFF,
-  * incremental offsets as described above are used to compute it.
+   * Given a motion vector defined by p1 --> p2 (p1 and p2 are in
+   * world coordinates), the new display position of the handle center is
+   * populated into requestedDisplayPos. This is again only a request for the
+   * new display position. It is up to the point placer to deduce the
+   * appropriate world co-ordinates that this display position will map into.
+   * The placer may even disallow such a movement.
+   * If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
+   * as the event position, ie the location of the mouse cursor. If its OFF,
+   * incremental offsets as described above are used to compute it.
    */
   void MoveFocusRequest(
     const double* p1, const double* p2, const double eventPos[2], double requestedDisplayPos[3]);
@@ -277,7 +275,7 @@ protected:
    * API. The handle can also be scaled interactively using the right
    * mouse button.
    */
-  virtual void SetUniformScale( double scale );
+  virtual void SetUniformScale(double scale);
 
   /**
    * Update the actor position. Different subclasses handle this differently.
@@ -298,15 +296,14 @@ protected:
   // Handle the label.
   vtkTypeBool LabelVisibility;
   vtkTypeBool SelectedLabelVisibility;
-  vtkBillboardTextActor3D *LabelText;
+  vtkBillboardTextActor3D* LabelText;
   bool LabelAnnotationTextScaleInitialized;
   vtkTypeBool SmoothMotion;
 
 private:
   vtkMeasurementCubeHandleRepresentation3D(
     const vtkMeasurementCubeHandleRepresentation3D&) = delete;
-  void operator=(
-    const vtkMeasurementCubeHandleRepresentation3D&) = delete;
+  void operator=(const vtkMeasurementCubeHandleRepresentation3D&) = delete;
 };
 
 #endif

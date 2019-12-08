@@ -53,10 +53,10 @@
 #include "vtkNew.h"
 #include "vtkPickingManager.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkSeedRepresentation.h"
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
@@ -65,11 +65,12 @@
 #include "vtkTimerLog.h"
 
 // STL includes
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <list>
 
-const char eventLogTestPickingManagerSeedWidget2[] = ""
+const char eventLogTestPickingManagerSeedWidget2[] =
+  ""
   "# StreamVersion 1\n"
   "EnterEvent 599 295 0 0 0 0 0\n"
   "MouseMoveEvent 599 295 0 0 0 0 0\n"
@@ -111,43 +112,39 @@ const char eventLogTestPickingManagerSeedWidget2[] = ""
   "MouseMoveEvent 554 568 0 0 0 0 Alt_L\n"
   "MouseMoveEvent 564 580 0 0 0 0 Alt_L\n"
   "MouseMoveEvent 574 595 0 0 0 0 Alt_L\n"
-  "ExitEvent 574 595 0 0 0 0 Alt_L\n"
-  ;
+  "ExitEvent 574 595 0 0 0 0 Alt_L\n";
 
 //------------------------------------------------------------------------------
 // Press 'Space' to reorganize the cube of seeds
 class vtkPickingManagerSeedWidgetTest2Callback : public vtkCommand
 {
 public:
-  static vtkPickingManagerSeedWidgetTest2Callback *New()
-  { return new vtkPickingManagerSeedWidgetTest2Callback; }
-
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkPickingManagerSeedWidgetTest2Callback* New()
   {
-    vtkRenderWindowInteractor *iren =
-      static_cast<vtkRenderWindowInteractor*>(caller);
+    return new vtkPickingManagerSeedWidgetTest2Callback;
+  }
+
+  void Execute(vtkObject* caller, unsigned long, void*) override
+  {
+    vtkRenderWindowInteractor* iren = static_cast<vtkRenderWindowInteractor*>(caller);
 
     // Reorganize the cube
-    if(vtkStdString(iren->GetKeySym()) == "space")
+    if (vtkStdString(iren->GetKeySym()) == "space")
     {
-      const int baseCube =
-        static_cast<int>(pow(this->Seeds.size(), 1./3.) / 2 + 0.5);
-      std::list<vtkSmartPointer<vtkHandleWidget> >::iterator it =
-        this->Seeds.begin();
+      const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
+      std::list<vtkSmartPointer<vtkHandleWidget> >::iterator it = this->Seeds.begin();
 
-      for(int i=-baseCube; i<baseCube; ++i)
+      for (int i = -baseCube; i < baseCube; ++i)
       {
-        for(int j=-baseCube; j<baseCube; ++j)
+        for (int j = -baseCube; j < baseCube; ++j)
         {
-          for(int k=-baseCube; k<baseCube; ++k)
+          for (int k = -baseCube; k < baseCube; ++k)
           {
             vtkSphereHandleRepresentation* newHandleRep =
-                vtkSphereHandleRepresentation::SafeDownCast(
-                  (*it)->GetRepresentation());
+              vtkSphereHandleRepresentation::SafeDownCast((*it)->GetRepresentation());
 
-            double pos[3] = {static_cast<double>(i),
-                             static_cast<double>(j),
-                             static_cast<double>(k)};
+            double pos[3] = { static_cast<double>(i), static_cast<double>(j),
+              static_cast<double>(k) };
             newHandleRep->SetWorldPosition(pos);
 
             ++it;
@@ -156,17 +153,15 @@ public:
       }
     }
     // Disable every other seed
-    if (vtkStdString(iren->GetKeySym()) == "Alt_L" ||
-      vtkStdString(iren->GetKeySym()) == "Alt_R")
+    if (vtkStdString(iren->GetKeySym()) == "Alt_L" || vtkStdString(iren->GetKeySym()) == "Alt_R")
     {
-      const int baseCube =
-        static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
+      const int baseCube = static_cast<int>(pow(this->Seeds.size(), 1. / 3.) / 2 + 0.5);
       int n = 0;
-      for (int i =-baseCube; i<baseCube; ++i)
+      for (int i = -baseCube; i < baseCube; ++i)
       {
-        for (int j =-baseCube; j<baseCube; ++j)
+        for (int j = -baseCube; j < baseCube; ++j)
         {
-          for (int k =-baseCube; k<baseCube; ++k)
+          for (int k = -baseCube; k < baseCube; ++k)
           {
             if (n % 2 == 0)
             {
@@ -210,16 +205,16 @@ int TestPickingManagerSeedWidget2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   // SEEDS
   /*--------------------------------------------------------------------------*/
   // Representations
-  double pos[3] = {0, 0, 0};
+  double pos[3] = { 0, 0, 0 };
   vtkNew<vtkSphereHandleRepresentation> handle;
-  //handle->SetHandleSize(15.0);
+  // handle->SetHandleSize(15.0);
   handle->GetProperty()->SetRepresentationToWireframe();
-  handle->GetProperty()->SetColor(1,1,1);
+  handle->GetProperty()->SetColor(1, 1, 1);
 
   vtkNew<vtkSeedRepresentation> seedRepresentation;
   seedRepresentation->SetHandleRepresentation(handle);
 
-    // Settings
+  // Settings
   vtkNew<vtkSeedWidget> seedWidget;
   seedWidget->SetRepresentation(seedRepresentation);
   seedWidget->SetInteractor(interactor);
@@ -228,24 +223,23 @@ int TestPickingManagerSeedWidget2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   // Create a cube full of seeds
   // base correspond to the side of the cube --> (2*base)^3 seeds
   const int baseCube = 2;
-  std::list <vtkSmartPointer<vtkHandleWidget> > seeds;
-  for(int i=-baseCube; i<baseCube; ++i)
+  std::list<vtkSmartPointer<vtkHandleWidget> > seeds;
+  for (int i = -baseCube; i < baseCube; ++i)
   {
-    for(int j=-baseCube; j<baseCube; ++j)
+    for (int j = -baseCube; j < baseCube; ++j)
     {
-      for(int k=-baseCube; k<baseCube; ++k)
+      for (int k = -baseCube; k < baseCube; ++k)
       {
         vtkHandleWidget* newHandle = seedWidget->CreateNewHandle();
         newHandle->SetEnabled(1);
         vtkSphereHandleRepresentation* newHandleRep =
-            vtkSphereHandleRepresentation::SafeDownCast(
-              newHandle->GetRepresentation());
+          vtkSphereHandleRepresentation::SafeDownCast(newHandle->GetRepresentation());
 
         pos[0] = i;
         pos[1] = j;
         pos[2] = k;
         newHandleRep->GetProperty()->SetRepresentationToWireframe();
-        newHandleRep->GetProperty()->SetColor(1,1,1);
+        newHandleRep->GetProperty()->SetColor(1, 1, 1);
         newHandleRep->SetWorldPosition(pos);
 
         seeds.push_back(newHandle);
@@ -275,7 +269,7 @@ int TestPickingManagerSeedWidget2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
 
   // render the image
   interactor->Initialize();
-  double extent[6] = {-7, 7, -7, 7, -1, 1};
+  double extent[6] = { -7, 7, -7, 7, -1, 1 };
   renderer->ResetCamera(extent);
   renderWindow->Render();
 

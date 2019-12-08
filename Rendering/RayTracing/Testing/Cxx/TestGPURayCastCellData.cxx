@@ -22,24 +22,23 @@
 #include <vtkImageData.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOSPRayPass.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRTAnalyticSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTesting.h>
 #include <vtkTestUtilities.h>
+#include <vtkTesting.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-
-int TestGPURayCastCellData(int argc, char *argv[])
+int TestGPURayCastCellData(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
@@ -59,8 +58,7 @@ int TestGPURayCastCellData(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   delete[] volumeFile;
 
@@ -122,14 +120,13 @@ int TestGPURayCastCellData(int argc, char *argv[])
     ren->SetPass(osprayPass);
   }
 
-
   renWin->Render();
   ren->ResetCamera();
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

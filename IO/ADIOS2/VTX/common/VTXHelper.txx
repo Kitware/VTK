@@ -39,64 +39,50 @@ namespace vtx
 namespace helper
 {
 
-template<class T>
-std::vector<T> StringToVector(const std::string& input) noexcept
-{
-  std::vector<T> output;
-  std::istringstream inputSS(input);
-
-  T record;
-  while (inputSS >> record)
-  {
-    output.push_back(record);
-  }
-  return output;
-}
-
 // TODO: extend other types
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<int>()
 {
   return vtkSmartPointer<vtkIntArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>()
 {
   return vtkSmartPointer<vtkUnsignedIntArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<long int>()
 {
   return vtkSmartPointer<vtkLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>()
 {
   return vtkSmartPointer<vtkUnsignedLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<long long int>()
 {
   return vtkSmartPointer<vtkLongLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>()
 {
   return vtkSmartPointer<vtkUnsignedLongLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<float>()
 {
   return vtkSmartPointer<vtkFloatArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<double>()
 {
   return vtkSmartPointer<vtkDoubleArray>::New();

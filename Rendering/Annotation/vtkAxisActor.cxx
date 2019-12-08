@@ -541,7 +541,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
   // Everything is built, just have to render
 
   // pass keys to sub props
-  vtkInformation *propKeys = this->GetPropertyKeys();
+  vtkInformation* propKeys = this->GetPropertyKeys();
 
   if (!this->AxisHasZeroLength)
   {
@@ -657,7 +657,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   // Everything is built, just have to render
 
   // pass keys to sub props
-  vtkInformation *propKeys = this->GetPropertyKeys();
+  vtkInformation* propKeys = this->GetPropertyKeys();
 
   if (!this->AxisHasZeroLength && !this->DrawGridlinesOnly)
   {
@@ -1123,8 +1123,9 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
   double labelSin = fabs(sin(labelAngle));
   vtkAxisFollower* pAxisFollower = nullptr;
 
-  for (int i = 0, ptIdx = 0; i < this->NumberOfLabelsBuilt &&
-    ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints()); i++, ptIdx += 4)
+  for (int i = 0, ptIdx = 0;
+       i < this->NumberOfLabelsBuilt && ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints());
+       i++, ptIdx += 4)
   {
     this->MajorTickPts->GetPoint(ptIdx, tickTop);
     this->MajorTickPts->GetPoint(ptIdx + 1, tickBottom);
@@ -1167,8 +1168,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
       pos[2] = (tickTop[2] + tickBottom[2]) / 2;
     }
 
-    double deltaPixels =
-      0.5 * (labelWidth * labelSin + labelHeight * labelCos) / labelMagnitude;
+    double deltaPixels = 0.5 * (labelWidth * labelSin + labelHeight * labelCos) / labelMagnitude;
     pAxisFollower->SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
     this->LabelProps3D[i]->SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
 
@@ -1262,8 +1262,9 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
     return;
   }
 
-  for (int i = 0, ptIdx = 1; i < this->NumberOfLabelsBuilt &&
-    ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints()); i++, ptIdx += 4)
+  for (int i = 0, ptIdx = 1;
+       i < this->NumberOfLabelsBuilt && ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints());
+       i++, ptIdx += 4)
   {
     this->MajorTickPts->GetPoint(ptIdx, tick);
 

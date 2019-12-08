@@ -42,20 +42,16 @@ vtkRemoveIsolatedVertices::vtkRemoveIsolatedVertices() = default;
 vtkRemoveIsolatedVertices::~vtkRemoveIsolatedVertices() = default;
 
 //----------------------------------------------------------------------------
-int vtkRemoveIsolatedVertices::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkRemoveIsolatedVertices::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
 
   // Set up our mutable graph helper.
-  vtkSmartPointer<vtkMutableGraphHelper> builder =
-    vtkSmartPointer<vtkMutableGraphHelper>::New();
+  vtkSmartPointer<vtkMutableGraphHelper> builder = vtkSmartPointer<vtkMutableGraphHelper>::New();
   if (vtkDirectedGraph::SafeDownCast(input))
   {
-    vtkSmartPointer<vtkMutableDirectedGraph> dir =
-      vtkSmartPointer<vtkMutableDirectedGraph>::New();
+    vtkSmartPointer<vtkMutableDirectedGraph> dir = vtkSmartPointer<vtkMutableDirectedGraph>::New();
     builder->SetGraph(dir);
   }
   else
@@ -66,12 +62,12 @@ int vtkRemoveIsolatedVertices::RequestData(
   }
 
   // Initialize edge data, vertex data, and points.
-  vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
-  vtkDataSetAttributes *builderEdgeData = builder->GetGraph()->GetEdgeData();
+  vtkDataSetAttributes* inputEdgeData = input->GetEdgeData();
+  vtkDataSetAttributes* builderEdgeData = builder->GetGraph()->GetEdgeData();
   builderEdgeData->CopyAllocate(inputEdgeData);
 
-  vtkDataSetAttributes *inputVertData = input->GetVertexData();
-  vtkDataSetAttributes *builderVertData = builder->GetGraph()->GetVertexData();
+  vtkDataSetAttributes* inputVertData = input->GetVertexData();
+  vtkDataSetAttributes* builderVertData = builder->GetGraph()->GetVertexData();
   builderVertData->CopyAllocate(inputVertData);
 
   vtkPoints* inputPoints = input->GetPoints();
@@ -83,8 +79,7 @@ int vtkRemoveIsolatedVertices::RequestData(
   vtkIdType numVert = input->GetNumberOfVertices();
   std::vector<int> outputVertex(numVert, -1);
 
-  vtkSmartPointer<vtkEdgeListIterator> edgeIter =
-    vtkSmartPointer<vtkEdgeListIterator>::New();
+  vtkSmartPointer<vtkEdgeListIterator> edgeIter = vtkSmartPointer<vtkEdgeListIterator>::New();
   input->GetEdges(edgeIter);
   while (edgeIter->HasNext())
   {

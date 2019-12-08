@@ -17,12 +17,50 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestProStarReader.cxx
   TestTecplotReader.cxx
-  TestTecplotReader2.cxx,NO_VALID
   TestAMRReadWrite.cxx,NO_VALID
   TestSimplePointsReaderWriter.cxx,NO_VALID
   TestHoudiniPolyDataWriter.cxx,NO_VALID
   UnitTestSTLWriter.cxx,NO_VALID
   )
+
+LIST(APPEND tecplotFiles
+    3dgeom.dat
+    block_febrick_3d.dat
+    block_fetet_3d.dat
+    channel.dat
+    crystal_plot.dat
+    cube.dat
+    cylinder_3d.dat
+    cylinder_slice.dat
+    cylindrical.dat
+    ell.dat
+    humanoid_quad.dat
+    humanoid_tri.dat
+    movie.dat
+    multzn2d.dat
+    plane_slice.dat
+    point_febrick_3d_01.dat
+    point_febrick_3d_02.dat
+    point_fequad_2d.dat
+    point_fetet_3d.dat
+    point_fetri_2d_01.dat
+    point_fetri_2d_03.dat
+    simp3dbk.dat
+    simp3dpt.dat
+    simpscat.dat
+    simpxy.dat
+    simpxy2.dat
+    tecplot_fepolygon.dat
+    tecplot_fepolyhedron.dat
+    tiny.dat
+)
+foreach(item IN LISTS tecplotFiles)
+    get_filename_component(name "${item}" NAME_WE)
+
+    vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+      TestTecplotReader2_${name},TestTecplotReader2.cxx ${item} NO_VALID NO_OUTPUT)
+
+endforeach()
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestSTLReaderSinglePatch,TestSTLReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/42400-IDGH.stl}

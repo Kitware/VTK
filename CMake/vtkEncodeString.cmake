@@ -1,24 +1,24 @@
-#[==[.md
-# vtkEncodeString
+#[==[
+@file vtkEncodeString.cmake
 
-This module contains the `vtk_encode_string` function which may be used to turn
-a file into a C string. This is primarily used within a program so that the
-content does not need to be retrieved from the filesystem at runtime, but can
-still be developed as a standalone file.
+This module contains the @ref vtk_encode_string function which may be used to
+turn a file into a C string. This is primarily used within a program so that
+the content does not need to be retrieved from the filesystem at runtime, but
+can still be developed as a standalone file.
 #]==]
 
 set(_vtkEncodeString_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
 include(CMakeParseArguments)
 
-#[==[.md
-# `vtk_encode_string`
+#[==[
+@brief Encode a file as a C string at build time
 
 Adds a rule to turn a file into a C string. Note that any Unicode characters
 will not be replaced with escaping, so it is recommended to avoid their usage
 in the input.
 
-```
+~~~
 vtk_encode_string
   INPUT           <input>
   [NAME           <name>]
@@ -27,7 +27,7 @@ vtk_encode_string
   [HEADER_OUTPUT  <variable>]
   [SOURCE_OUTPUT  <variable>]
   [BINARY] [NUL_TERMINATE])
-```
+~~~
 
 The only required variable is `INPUT`, however, it is likely that at least one
 of `HEADER_OUTPUT` or `SOURCE_OUTPUT` will be required to add them to a

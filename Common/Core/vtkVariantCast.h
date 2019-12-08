@@ -31,7 +31,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkVariantCast_h
 #define vtkVariantCast_h
@@ -39,122 +39,121 @@
 #include "vtkUnicodeString.h"
 #include <typeinfo> // for warnings
 
-template<typename T>
+template <typename T>
 T vtkVariantCast(const vtkVariant& value, bool* valid = nullptr)
 {
-  vtkGenericWarningMacro(
-    << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "
-    << "to unsupported type [" << typeid(T).name() << "].  "
-    << "Create a vtkVariantCast<> specialization to eliminate this warning."
-    );
+  vtkGenericWarningMacro(<< "Cannot convert vtkVariant containing [" << value.GetTypeAsString()
+                         << "] "
+                         << "to unsupported type [" << typeid(T).name() << "].  "
+                         << "Create a vtkVariantCast<> specialization to eliminate this warning.");
 
-  if(valid)
+  if (valid)
     *valid = false;
 
   static T dummy;
   return dummy;
 }
 
-template<>
+template <>
 inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 {
   return value.ToChar(valid);
 }
 
-template<>
+template <>
 inline signed char vtkVariantCast<signed char>(const vtkVariant& value, bool* valid)
 {
   return value.ToSignedChar(valid);
 }
 
-template<>
+template <>
 inline unsigned char vtkVariantCast<unsigned char>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedChar(valid);
 }
 
-template<>
+template <>
 inline short vtkVariantCast<short>(const vtkVariant& value, bool* valid)
 {
   return value.ToShort(valid);
 }
 
-template<>
+template <>
 inline unsigned short vtkVariantCast<unsigned short>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedShort(valid);
 }
 
-template<>
+template <>
 inline int vtkVariantCast<int>(const vtkVariant& value, bool* valid)
 {
   return value.ToInt(valid);
 }
 
-template<>
+template <>
 inline unsigned int vtkVariantCast<unsigned int>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedInt(valid);
 }
 
-template<>
+template <>
 inline long vtkVariantCast<long>(const vtkVariant& value, bool* valid)
 {
   return value.ToLong(valid);
 }
 
-template<>
+template <>
 inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedLong(valid);
 }
 
-template<>
+template <>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
   return value.ToLongLong(valid);
 }
 
-template<>
+template <>
 inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedLongLong(valid);
 }
 
-template<>
+template <>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)
 {
   return value.ToFloat(valid);
 }
 
-template<>
+template <>
 inline double vtkVariantCast<double>(const vtkVariant& value, bool* valid)
 {
   return value.ToDouble(valid);
 }
 
-template<>
+template <>
 inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
 
   return value.ToString();
 }
 
-template<>
+template <>
 inline vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
 
   return value.ToUnicodeString();
 }
 
-template<>
+template <>
 inline vtkVariant vtkVariantCast<vtkVariant>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
 
   return value;

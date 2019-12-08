@@ -125,6 +125,11 @@ The following variable can be set to guide the search for HDF5 libraries and inc
 include(SelectLibraryConfigurations)
 include(FindPackageHandleStandardArgs)
 
+# We haven't found HDF5 yet. Clear its state in case it is set in the parent
+# scope somewhere else. We can't rely on it because different components may
+# have been requested for this call.
+set(HDF5_FOUND OFF)
+
 # List of the valid HDF5 components
 set(HDF5_VALID_LANGUAGE_BINDINGS C CXX Fortran)
 
@@ -977,6 +982,9 @@ if (HDF5_FOUND)
         vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
         add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
         string(REPLACE "-D" "" _hdf5_definitions "${HDF5_${hdf5_lang}_DEFINITIONS}")
+        if (NOT HDF5_${hdf5_lang}_INCLUDE_DIRS)
+         set(HDF5_${hdf5_lang}_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+        endif ()
         set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
           IMPORTED_LOCATION "${_hdf5_location}"
           IMPORTED_IMPLIB "${_hdf5_location}"

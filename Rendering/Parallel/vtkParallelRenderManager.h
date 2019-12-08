@@ -39,13 +39,13 @@
  * Query ranges of scalar values of objects in addition to the boundary in
  * three-space
  *
-*/
+ */
 
 #ifndef vtkParallelRenderManager_h
 #define vtkParallelRenderManager_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkMultiProcessController;
@@ -60,7 +60,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
 {
 public:
   vtkTypeMacro(vtkParallelRenderManager, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Builds a vtkRenderWindow compatible with this render manager.  The
@@ -69,7 +69,7 @@ public:
    * a parallel render manager with a render window that was not built with
    * this method.
    */
-  virtual vtkRenderWindow *MakeRenderWindow();
+  virtual vtkRenderWindow* MakeRenderWindow();
 
   /**
    * Builds a vtkRenderer compatible with this render manager.  (Should we
@@ -77,7 +77,7 @@ public:
    * Delete.  It is not advisable to use a parallel render manager with a
    * renderer that was not built with this method.
    */
-  virtual vtkRenderer *MakeRenderer();
+  virtual vtkRenderer* MakeRenderer();
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
    * We add a start and end observer to the window.
    */
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  virtual void SetRenderWindow(vtkRenderWindow *renWin);
+  virtual void SetRenderWindow(vtkRenderWindow* renWin);
   //@}
 
   //@{
@@ -94,7 +94,7 @@ public:
    * for the parallel rendering.
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  virtual void SetController(vtkMultiProcessController *controller);
+  virtual void SetController(vtkMultiProcessController* controller);
   //@}
 
   /**
@@ -140,8 +140,8 @@ public:
   virtual void SatelliteStartRender();
   virtual void SatelliteEndRender();
   virtual void RenderRMI();
-  virtual void ResetCamera(vtkRenderer *ren);
-  virtual void ResetCameraClippingRange(vtkRenderer *ren);
+  virtual void ResetCamera(vtkRenderer* ren);
+  virtual void ResetCameraClippingRange(vtkRenderer* ren);
   virtual void ComputeVisiblePropBoundsRMI(int renderId);
   //@}
 
@@ -157,7 +157,7 @@ public:
   /**
    * Calculates the bounds by gathering information from all processes.
    */
-  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, double bounds[6]);
+  virtual void ComputeVisiblePropBounds(vtkRenderer* ren, double bounds[6]);
 
   //@{
   /**
@@ -189,9 +189,13 @@ public:
    * Set to true by default.
    */
   static void SetDefaultRenderEventPropagation(bool val)
-    { vtkParallelRenderManager::DefaultRenderEventPropagation = val; }
+  {
+    vtkParallelRenderManager::DefaultRenderEventPropagation = val;
+  }
   static bool GetDefaultRenderEventPropagation()
-    { return vtkParallelRenderManager::DefaultRenderEventPropagation; }
+  {
+    return vtkParallelRenderManager::DefaultRenderEventPropagation;
+  }
 
   //@{
   /**
@@ -265,8 +269,8 @@ public:
   vtkGetMacro(SyncRenderWindowRenderers, int);
   vtkSetMacro(SyncRenderWindowRenderers, int);
   vtkBooleanMacro(SyncRenderWindowRenderers, int);
-  virtual void AddRenderer(vtkRenderer *);
-  virtual void RemoveRenderer(vtkRenderer *);
+  virtual void AddRenderer(vtkRenderer*);
+  virtual void RemoveRenderer(vtkRenderer*);
   virtual void RemoveAllRenderers();
   //@}
 
@@ -296,7 +300,11 @@ public:
   vtkBooleanMacro(MagnifyImages, int);
   //@}
 
-  enum { NEAREST, LINEAR };
+  enum
+  {
+    NEAREST,
+    LINEAR
+  };
 
   //@{
   /**
@@ -306,36 +314,23 @@ public:
    */
   virtual void SetMagnifyImageMethod(int method);
   vtkGetMacro(MagnifyImageMethod, int);
-  void SetMagnifyImageMethodToNearest() {
-    this->SetMagnifyImageMethod(NEAREST);
-  }
-  void SetMagnifyImageMethodToLinear() {
-    this->SetMagnifyImageMethod(LINEAR);
-  }
+  void SetMagnifyImageMethodToNearest() { this->SetMagnifyImageMethod(NEAREST); }
+  void SetMagnifyImageMethodToLinear() { this->SetMagnifyImageMethod(LINEAR); }
   //@}
 
   //@{
   /**
    * Convenience functions for magnifying images.
    */
-  virtual void MagnifyImage(vtkUnsignedCharArray *fullImage,
-                            const int fullImageSize[2],
-                            vtkUnsignedCharArray *reducedImage,
-                            const int reducedImageSize[2],
-                            const int fullImageViewport[4] = nullptr,
-                            const int reducedImageViewport[4] = nullptr);
-  static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
-                                  const int fullImageSize[2],
-                                  vtkUnsignedCharArray *reducedImage,
-                                  const int reducedImageSize[2],
-                                  const int fullImageViewport[4] = nullptr,
-                                  const int reducedImageViewport[4] = nullptr);
-  static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
-                                 const int fullImageSize[2],
-                                 vtkUnsignedCharArray *reducedImage,
-                                 const int reducedImageSize[2],
-                                 const int fullImageViewport[4] = nullptr,
-                                 const int reducedImageViewport[4] = nullptr);
+  virtual void MagnifyImage(vtkUnsignedCharArray* fullImage, const int fullImageSize[2],
+    vtkUnsignedCharArray* reducedImage, const int reducedImageSize[2],
+    const int fullImageViewport[4] = nullptr, const int reducedImageViewport[4] = nullptr);
+  static void MagnifyImageNearest(vtkUnsignedCharArray* fullImage, const int fullImageSize[2],
+    vtkUnsignedCharArray* reducedImage, const int reducedImageSize[2],
+    const int fullImageViewport[4] = nullptr, const int reducedImageViewport[4] = nullptr);
+  static void MagnifyImageLinear(vtkUnsignedCharArray* fullImage, const int fullImageSize[2],
+    vtkUnsignedCharArray* reducedImage, const int reducedImageSize[2],
+    const int fullImageViewport[4] = nullptr, const int reducedImageViewport[4] = nullptr);
   //@}
 
   //@{
@@ -346,9 +341,8 @@ public:
    * an internal array.  Therefore, the data may be invalid after the next
    * render or if the ParallelRenderManager is destroyed.
    */
-  virtual void GetPixelData(vtkUnsignedCharArray *data);
-  virtual void GetPixelData(int x1, int y1, int x2, int y2,
-          vtkUnsignedCharArray *data);
+  virtual void GetPixelData(vtkUnsignedCharArray* data);
+  virtual void GetPixelData(int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data);
   //@}
 
   //@{
@@ -359,9 +353,8 @@ public:
    * an internal array.  Therefore, the data may be invalid after the next
    * render or if the ParallelRenderManager is destroyed.
    */
-  virtual void GetReducedPixelData(vtkUnsignedCharArray *data);
-  virtual void GetReducedPixelData(int x1, int y1, int x2, int y2,
-           vtkUnsignedCharArray *data);
+  virtual void GetReducedPixelData(vtkUnsignedCharArray* data);
+  virtual void GetReducedPixelData(int x1, int y1, int x2, int y2, vtkUnsignedCharArray* data);
   //@}
 
   //@{
@@ -410,18 +403,19 @@ public:
   vtkGetVector2Macro(ForcedRenderWindowSize, int);
   //@}
 
-  enum Tags {
-    RENDER_RMI_TAG=34532,
-    COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG=54636,
-    WIN_INFO_TAG=87834,
-    REN_INFO_TAG=87836,
-    LIGHT_INFO_TAG=87838,
-    REN_ID_TAG=58794,
-    BOUNDS_TAG=23543
+  enum Tags
+  {
+    RENDER_RMI_TAG = 34532,
+    COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG = 54636,
+    WIN_INFO_TAG = 87834,
+    REN_INFO_TAG = 87836,
+    LIGHT_INFO_TAG = 87838,
+    REN_ID_TAG = 58794,
+    BOUNDS_TAG = 23543
   };
 
   virtual void CheckForAbortRender() {}
-  virtual int CheckForAbortComposite() {return 0;}
+  virtual int CheckForAbortComposite() { return 0; }
 
   //@{
   /**
@@ -460,7 +454,6 @@ protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager() override;
 
-
   //@{
   /**
    * Add/Remove event handlers for the render window.
@@ -469,11 +462,11 @@ protected:
   void RemoveRenderWindowEventHandlers();
   //@}
 
-  vtkRenderWindow *RenderWindow;
-  vtkMultiProcessController *Controller;
-  vtkRendererCollection *Renderers;
+  vtkRenderWindow* RenderWindow;
+  vtkMultiProcessController* Controller;
+  vtkRendererCollection* Renderers;
 
-  virtual vtkRendererCollection *GetRenderers();
+  virtual vtkRendererCollection* GetRenderers();
 
   int ForceRenderWindowSize;
   int ForcedRenderWindowSize[2];
@@ -510,14 +503,14 @@ protected:
   int FullImageSize[2];
   int ReducedImageSize[2];
 
-  vtkUnsignedCharArray *FullImage;
-  vtkUnsignedCharArray *ReducedImage;
+  vtkUnsignedCharArray* FullImage;
+  vtkUnsignedCharArray* ReducedImage;
 
   int FullImageUpToDate;
   int ReducedImageUpToDate;
   int RenderWindowImageUpToDate;
 
-  vtkDoubleArray *Viewports;
+  vtkDoubleArray* Viewports;
 
   int Lock;
   int ParallelRendering;
@@ -525,7 +518,7 @@ protected:
   int UseCompositing;
   int SyncRenderWindowRenderers;
 
-  vtkTimerLog *Timer;
+  vtkTimerLog* Timer;
 
   double RenderTime;
   double ImageProcessingTime;
@@ -544,8 +537,8 @@ protected:
    */
   virtual void SendWindowInformation() {}
   virtual void ReceiveWindowInformation() {}
-  virtual void SendRendererInformation(vtkRenderer *) {}
-  virtual void ReceiveRendererInformation(vtkRenderer *) {}
+  virtual void SendRendererInformation(vtkRenderer*) {}
+  virtual void ReceiveRendererInformation(vtkRenderer*) {}
 
   /**
    * Subclass should override these methods (instead of
@@ -556,12 +549,9 @@ protected:
    * in any of these methods otherwise deadlocks may ensue.
    */
   virtual void CollectWindowInformation(vtkMultiProcessStream&) {}
-  virtual bool ProcessWindowInformation(vtkMultiProcessStream&)
-    { return true; }
-  virtual void CollectRendererInformation(vtkRenderer*,
-    vtkMultiProcessStream&) {}
-  virtual bool ProcessRendererInformation(vtkRenderer*,
-    vtkMultiProcessStream&) { return true; }
+  virtual bool ProcessWindowInformation(vtkMultiProcessStream&) { return true; }
+  virtual void CollectRendererInformation(vtkRenderer*, vtkMultiProcessStream&) {}
+  virtual bool ProcessRendererInformation(vtkRenderer*, vtkMultiProcessStream&) { return true; }
 
   //@{
   /**
@@ -583,7 +573,7 @@ protected:
    * renderer.  Override this method if the true bounds are different than
    * those reported by the renderer.
    */
-  virtual void LocalComputeVisiblePropBounds(vtkRenderer *ren, double bounds[6]);
+  virtual void LocalComputeVisiblePropBounds(vtkRenderer* ren, double bounds[6]);
 
   /**
    * When called, fills FullImage.
@@ -614,8 +604,7 @@ protected:
   /**
    * Sets the current render window's pixel data.
    */
-  virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
-          const int pixelDimensions[2]);
+  virtual void SetRenderWindowPixelData(vtkUnsignedCharArray* pixels, const int pixelDimensions[2]);
 
   /**
    * Returns true if the image for the given renderer should be rendered at a
@@ -623,7 +612,7 @@ protected:
    * subclasses may render some renderers at a reduced size, magnify them, and
    * then render the other renderers at full resolution.
    */
-  virtual int ImageReduceRenderer(vtkRenderer *) { return 1; }
+  virtual int ImageReduceRenderer(vtkRenderer*) { return 1; }
 
   struct RenderWindowInfo
   {
@@ -691,9 +680,8 @@ protected:
   static bool DefaultRenderEventPropagation;
 
 private:
-  vtkParallelRenderManager(const vtkParallelRenderManager &) = delete;
-  void operator=(const vtkParallelRenderManager &) = delete;
-
+  vtkParallelRenderManager(const vtkParallelRenderManager&) = delete;
+  void operator=(const vtkParallelRenderManager&) = delete;
 };
 
-#endif //vtkParalleRenderManager_h
+#endif // vtkParalleRenderManager_h

@@ -49,13 +49,13 @@
  * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
  * vtkDataSetAttributes vtkDataArray vtkAssignAttribute
  * vtkSplitField vtkMergeFields
-*/
+ */
 
 #ifndef vtkRearrangeFields_h
 #define vtkRearrangeFields_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
@@ -64,24 +64,24 @@ class vtkFieldData;
 class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkRearrangeFields, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkRearrangeFields with an empty operation list.
    */
-  static vtkRearrangeFields *New();
+  static vtkRearrangeFields* New();
 
   enum OperationType
   {
-    COPY=0,
-    MOVE=1
+    COPY = 0,
+    MOVE = 1
   };
   enum FieldLocation
   {
-    DATA_OBJECT=0,
-    POINT_DATA=1,
-    CELL_DATA=2
+    DATA_OBJECT = 0,
+    POINT_DATA = 1,
+    CELL_DATA = 2
   };
 
   /**
@@ -89,22 +89,20 @@ public:
    * one field data to another. Returns an operation id which can later
    * be used to remove the operation.
    */
-  int AddOperation(int operationType, int attributeType, int fromFieldLoc,
-                   int toFieldLoc);
+  int AddOperation(int operationType, int attributeType, int fromFieldLoc, int toFieldLoc);
   /**
    * Add an operation which copies a field (data array) from one field
    * data to another. Returns an operation id which can later
    * be used to remove the operation.
    */
-  int AddOperation(int operationType, const char* name, int fromFieldLoc,
-                   int toFieldLoc);
+  int AddOperation(int operationType, const char* name, int fromFieldLoc, int toFieldLoc);
   /**
    * Helper method used by other language bindings. Allows the caller to
    * specify arguments as strings instead of enums.Returns an operation id
    * which can later be used to remove the operation.
    */
-  int AddOperation(const char* operationType, const char* attributeType,
-                   const char* fromFieldLoc,  const char* toFieldLoc);
+  int AddOperation(const char* operationType, const char* attributeType, const char* fromFieldLoc,
+    const char* toFieldLoc);
 
   /**
    * Remove an operation with the given id.
@@ -114,20 +112,18 @@ public:
    * Remove an operation with the given signature. See AddOperation
    * for details.
    */
-  int RemoveOperation(int operationType, int attributeType, int fromFieldLoc,
-                      int toFieldLoc);
+  int RemoveOperation(int operationType, int attributeType, int fromFieldLoc, int toFieldLoc);
   /**
    * Remove an operation with the given signature. See AddOperation
    * for details.
    */
-  int RemoveOperation(int operationType, const char* name, int fromFieldLoc,
-                      int toFieldLoc);
+  int RemoveOperation(int operationType, const char* name, int fromFieldLoc, int toFieldLoc);
   /**
    * Remove an operation with the given signature. See AddOperation
    * for details.
    */
   int RemoveOperation(const char* operationType, const char* attributeType,
-                      const char* fromFieldLoc,  const char* toFieldLoc);
+    const char* fromFieldLoc, const char* toFieldLoc);
 
   //@{
   /**
@@ -155,19 +151,17 @@ public:
     int AttributeType;
     int FromFieldLoc; // fd, pd or do
     int ToFieldLoc;   // fd, pd or do
-    int Id;            // assigned during creation
-    Operation* Next;   // linked list
+    int Id;           // assigned during creation
+    Operation* Next;  // linked list
     Operation() { FieldName = nullptr; }
     ~Operation() { delete[] FieldName; }
   };
 
 protected:
-
   vtkRearrangeFields();
   ~vtkRearrangeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Operations are stored as a linked list.
   Operation* Head;
@@ -177,20 +171,16 @@ protected:
   int LastId;
 
   // Methods to browse/modify the linked list.
-  Operation* GetNextOperation(Operation* op)
-    { return op->Next; }
-  Operation* GetFirst()
-    { return this->Head; }
+  Operation* GetNextOperation(Operation* op) { return op->Next; }
+  Operation* GetFirst() { return this->Head; }
   void AddOperation(Operation* op);
   void DeleteOperation(Operation* op, Operation* before);
   Operation* FindOperation(int id, Operation*& before);
   Operation* FindOperation(const char* name, Operation*& before);
-  Operation* FindOperation(int operationType, const char* name,
-                           int fromFieldLoc, int toFieldLoc,
-                           Operation*& before);
-  Operation* FindOperation(int operationType, int attributeType,
-                           int fromFieldLoc, int toFieldLoc,
-                           Operation*& before);
+  Operation* FindOperation(
+    int operationType, const char* name, int fromFieldLoc, int toFieldLoc, Operation*& before);
+  Operation* FindOperation(
+    int operationType, int attributeType, int fromFieldLoc, int toFieldLoc, Operation*& before);
   // Used when finding/deleting an operation given a signature.
   int CompareOperationsByType(const Operation* op1, const Operation* op2);
   int CompareOperationsByName(const Operation* op1, const Operation* op2);
@@ -209,11 +199,10 @@ protected:
 
   void PrintAllOperations(ostream& os, vtkIndent indent);
   void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
+
 private:
   vtkRearrangeFields(const vtkRearrangeFields&) = delete;
   void operator=(const vtkRearrangeFields&) = delete;
 };
 
 #endif
-
-

@@ -17,12 +17,12 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkMath.h"
 #include "vtkPlanesIntersection.h"
-#include "vtkPointsProjectedHull.h"
-#include "vtkFloatArray.h"
 #include "vtkCell.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointsProjectedHull.h"
 
 vtkStandardNewMacro(vtkPlanesIntersection);
 
@@ -31,13 +31,13 @@ vtkStandardNewMacro(vtkPlanesIntersection);
 
 #define VTK_SMALL_DOUBLE (10e-5)
 
-const int Inside   = 0;
-const int Outside  = 1;
+const int Inside = 0;
+const int Outside = 1;
 const int Straddle = 2;
 
-const int Xdim=0;  // don't change these three values
-const int Ydim=1;
-const int Zdim=2;
+const int Xdim = 0; // don't change these three values
+const int Ydim = 1;
+const int Zdim = 2;
 
 vtkPlanesIntersection::vtkPlanesIntersection()
 {
@@ -51,10 +51,10 @@ vtkPlanesIntersection::~vtkPlanesIntersection()
     this->RegionPts->Delete();
     this->RegionPts = nullptr;
   }
-  delete [] this->Planes;
+  delete[] this->Planes;
   this->Planes = nullptr;
 }
-void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
+void vtkPlanesIntersection::SetRegionVertices(vtkPoints* v)
 {
   int i;
   if (this->RegionPts)
@@ -74,15 +74,15 @@ void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
     int npts = v->GetNumberOfPoints();
     this->RegionPts->SetNumberOfPoints(npts);
 
-    double *pt;
-    for (i=0; i<npts; i++)
+    double* pt;
+    for (i = 0; i < npts; i++)
     {
       pt = v->GetPoint(i);
       RegionPts->SetPoint(i, pt[0], pt[1], pt[2]);
     }
   }
 }
-void vtkPlanesIntersection::SetRegionVertices(double *v, int nvertices)
+void vtkPlanesIntersection::SetRegionVertices(double* v, int nvertices)
 {
   int i;
   if (this->RegionPts)
@@ -94,12 +94,12 @@ void vtkPlanesIntersection::SetRegionVertices(double *v, int nvertices)
   this->RegionPts->SetDataTypeToDouble();
   this->RegionPts->SetNumberOfPoints(nvertices);
 
-  for (i=0; i<nvertices; i++)
+  for (i = 0; i < nvertices; i++)
   {
-    this->RegionPts->SetPoint(i, v + (i*3));
+    this->RegionPts->SetPoint(i, v + (i * 3));
   }
 }
-int vtkPlanesIntersection::GetRegionVertices(double *v, int nvertices)
+int vtkPlanesIntersection::GetRegionVertices(double* v, int nvertices)
 {
   int i;
   if (this->RegionPts == nullptr)
@@ -114,9 +114,9 @@ int vtkPlanesIntersection::GetRegionVertices(double *v, int nvertices)
     npts = nvertices;
   }
 
-  for (i=0; i<npts; i++)
+  for (i = 0; i < npts; i++)
   {
-    this->RegionPts->GetPoint(i, v + i*3);
+    this->RegionPts->GetPoint(i, v + i * 3);
   }
 
   return npts;
@@ -135,10 +135,10 @@ int vtkPlanesIntersection::GetNumberOfRegionVertices()
 // the convex region bounded by the planes.
 //---------------------------------------------------------------------
 
-int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
+int vtkPlanesIntersection::IntersectsRegion(vtkPoints* R)
 {
   int plane;
-  int allInside=0;
+  int allInside = 0;
   int nplanes = this->GetNumberOfPlanes();
 
   if (nplanes < 4)
@@ -163,72 +163,71 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
     return 0;
   }
 
-  int *where = new int[nplanes];
+  int* where = new int[nplanes];
 
   int intersects = -1;
 
-//  Here's the algorithm from Graphics Gems IV, page 81,
-//
-//  R is an axis aligned box (could represent a region in a spatial
-//    spatial partitioning of a volume of data).
-//
-//  P is a set of planes defining a convex region in space (could be
-//    a view frustum).
-//
-//  The question is does P intersect R.  We expect to be doing the
-//    calculation for one P and many Rs.
+  //  Here's the algorithm from Graphics Gems IV, page 81,
+  //
+  //  R is an axis aligned box (could represent a region in a spatial
+  //    spatial partitioning of a volume of data).
+  //
+  //  P is a set of planes defining a convex region in space (could be
+  //    a view frustum).
+  //
+  //  The question is does P intersect R.  We expect to be doing the
+  //    calculation for one P and many Rs.
 
-//    You may wonder why we don't do what vtkClipPolyData does, which
-//    computes the following on every point of it's PolyData input:
-//
-//      for each point in the input
-//        for each plane defining the convex region
-//          evaluate plane eq to determine if outside, inside or on plane
-//
-//     For each cell, if some points are inside and some outside, then
-//     vtkClipPolyData decides it straddles the region and clips it.  If
-//     every point is inside, it tosses it.
-//
-//     The reason is that the Graphics Gems algorithm is faster in some
-//     cases (we may only need to evaluate one vertex of the box).  And
-//     also because if the convex region passes through the box without
-//     including any vertices of the box, all box vertices will be
-//     "outside" and the algorithm will fail.  vtkClipPolyData assumes
-//     cells are very small relative to the clip region.  In general
-//     the axis-aligned box may be a large portion of world coordinate
-//     space, and the convex region a view frustum representing a
-//     small portion of the screen.
+  //    You may wonder why we don't do what vtkClipPolyData does, which
+  //    computes the following on every point of it's PolyData input:
+  //
+  //      for each point in the input
+  //        for each plane defining the convex region
+  //          evaluate plane eq to determine if outside, inside or on plane
+  //
+  //     For each cell, if some points are inside and some outside, then
+  //     vtkClipPolyData decides it straddles the region and clips it.  If
+  //     every point is inside, it tosses it.
+  //
+  //     The reason is that the Graphics Gems algorithm is faster in some
+  //     cases (we may only need to evaluate one vertex of the box).  And
+  //     also because if the convex region passes through the box without
+  //     including any vertices of the box, all box vertices will be
+  //     "outside" and the algorithm will fail.  vtkClipPolyData assumes
+  //     cells are very small relative to the clip region.  In general
+  //     the axis-aligned box may be a large portion of world coordinate
+  //     space, and the convex region a view frustum representing a
+  //     small portion of the screen.
 
-
-//  1.  If R does not intersect P's bounding box, return 0.
+  //  1.  If R does not intersect P's bounding box, return 0.
 
   if (this->IntersectsBoundingBox(R) == 0)
   {
     intersects = 0;
   }
 
-//  2.  If P's bounding box is entirely inside R, return 1.
+  //  2.  If P's bounding box is entirely inside R, return 1.
 
   else if (this->EnclosesBoundingBox(R) == 1)
   {
     intersects = 1;
   }
 
-//  3.  For each face plane F of P
-//
-//      Suppose the plane equation is negative inside P and
-//      positive outside P. Choose the vertex (n) of R which is
-//      most in the direction of the negative pointing normal of
-//      the plane.  The opposite vertex (p) is most in the
-//      direction of the positive pointing normal.  (This is
-//      a very quick calculation.)
-//
-//      If n is on the positive side of the plane, R is
-//      completely outside of P, so return 0.
-//
-//      If n and p are both on the negative side, then R is on
-//      the "inside" of F.  Keep track to see if all R is inside
-//      all planes defining the region.
+  //  3.  For each face plane F of P
+  //
+  //      Suppose the plane equation is negative inside P and
+  //      positive outside P. Choose the vertex (n) of R which is
+  //      most in the direction of the negative pointing normal of
+  //      the plane.  The opposite vertex (p) is most in the
+  //      direction of the positive pointing normal.  (This is
+  //      a very quick calculation.)
+  //
+  //      If n is on the positive side of the plane, R is
+  //      completely outside of P, so return 0.
+  //
+  //      If n and p are both on the negative side, then R is on
+  //      the "inside" of F.  Keep track to see if all R is inside
+  //      all planes defining the region.
 
   else
   {
@@ -238,11 +237,11 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
     }
     allInside = 1;
 
-    for (plane=0; plane < nplanes; plane++)
+    for (plane = 0; plane < nplanes; plane++)
     {
       where[plane] = this->EvaluateFacePlane(plane, R);
 
-      if (allInside &&  (where[plane] != Inside))
+      if (allInside && (where[plane] != Inside))
       {
         allInside = 0;
       }
@@ -259,36 +258,35 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
   if (intersects == -1)
   {
 
-//  4.  If n and p were "inside" all faces, R is inside P
-//      so return 1.
+    //  4.  If n and p were "inside" all faces, R is inside P
+    //      so return 1.
 
-    if ( allInside)
+    if (allInside)
     {
       intersects = 1;
     }
-//  5.  For each of three orthographic projections (X, Y and Z)
-//
-//      Compute the equations of the edge lines of P in those views.
-//
-//      If R's projection lies outside any of these lines (using 2D
-//      version of n & p tests), return 0.
+    //  5.  For each of three orthographic projections (X, Y and Z)
+    //
+    //      Compute the equations of the edge lines of P in those views.
+    //
+    //      If R's projection lies outside any of these lines (using 2D
+    //      version of n & p tests), return 0.
 
     else if ((this->IntersectsProjection(R, Xdim) == 0) ||
-             (this->IntersectsProjection(R, Ydim) == 0) ||
-             (this->IntersectsProjection(R, Zdim) == 0)    )
+      (this->IntersectsProjection(R, Ydim) == 0) || (this->IntersectsProjection(R, Zdim) == 0))
     {
     }
     else
     {
-//    6.  Return 1.
+      //    6.  Return 1.
 
       intersects = 1;
     }
   }
 
-  delete [] where;
+  delete[] where;
 
-  return (intersects==1);
+  return (intersects == 1);
 }
 
 // a static convenience function - since we have all the machinery
@@ -298,15 +296,15 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
 // it is assumed "pts" represents a planar polygon
 //
 
-int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints *pts)
+int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints* pts)
 {
   // a bogus vtkPlanesIntersection object containing only one plane
 
-  vtkPlanesIntersection *pi = vtkPlanesIntersection::New();
+  vtkPlanesIntersection* pi = vtkPlanesIntersection::New();
 
   pi->SetRegionVertices(pts);
 
-  vtkPoints *Box = vtkPoints::New();
+  vtkPoints* Box = vtkPoints::New();
   Box->SetNumberOfPoints(8);
   Box->SetPoint(0, bounds[0], bounds[2], bounds[4]);
   Box->SetPoint(1, bounds[1], bounds[2], bounds[4]);
@@ -319,31 +317,30 @@ int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints *pt
 
   int intersects = -1;
 
-//  1.  Does Box intersect the polygon's bounding box?
+  //  1.  Does Box intersect the polygon's bounding box?
 
   if (pi->IntersectsBoundingBox(Box) == 0)
   {
     intersects = 0;
   }
 
-//  2.  If so, does Box entirely contain the polygon's bounding box?
+  //  2.  If so, does Box entirely contain the polygon's bounding box?
 
   else if (pi->EnclosesBoundingBox(Box) == 1)
   {
     intersects = 1;
   }
 
-
   if (intersects == -1)
   {
 
-//  3. If not, determine whether the Box intersects the plane of the polygon
+    //  3. If not, determine whether the Box intersects the plane of the polygon
 
-    vtkPoints *origin = vtkPoints::New();
+    vtkPoints* origin = vtkPoints::New();
     origin->SetNumberOfPoints(1);
     origin->SetPoint(0, pts->GetPoint(0));
 
-    vtkFloatArray *normal = vtkFloatArray::New();
+    vtkFloatArray* normal = vtkFloatArray::New();
     normal->SetNumberOfComponents(3);
     normal->SetNumberOfTuples(1);
 
@@ -389,23 +386,22 @@ int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints *pt
   if (intersects == -1)
   {
 
-//  4.  The Box intersects the plane of the polygon.
-//
-//      For each of three orthographic projections (X, Y and Z),
-//      compute the equations of the edge lines of the polygon in those views.
-//
-//      If Box's projection lies outside any of these projections, they
-//      don't intersect in 3D.  Otherwise they do intersect in 3D.
-//
-//      KDM: I'm pretty sure the above statement is untrue.  I can think of a
-//      situation where all 3 projections intersect, but the 3D intersection
-//      does not.  However, if the two intersect in 3D, then they will
-//      intersect in the 3 2D projections.  Since I'm not worried about
-//      false positives, I'm not going to fix this right now.
+    //  4.  The Box intersects the plane of the polygon.
+    //
+    //      For each of three orthographic projections (X, Y and Z),
+    //      compute the equations of the edge lines of the polygon in those views.
+    //
+    //      If Box's projection lies outside any of these projections, they
+    //      don't intersect in 3D.  Otherwise they do intersect in 3D.
+    //
+    //      KDM: I'm pretty sure the above statement is untrue.  I can think of a
+    //      situation where all 3 projections intersect, but the 3D intersection
+    //      does not.  However, if the two intersect in 3D, then they will
+    //      intersect in the 3 2D projections.  Since I'm not worried about
+    //      false positives, I'm not going to fix this right now.
 
-    if ((pi->IntersectsProjection(Box, Xdim) == 0) ||
-        (pi->IntersectsProjection(Box, Ydim) == 0) ||
-        (pi->IntersectsProjection(Box, Zdim) == 0)    )
+    if ((pi->IntersectsProjection(Box, Xdim) == 0) || (pi->IntersectsProjection(Box, Ydim) == 0) ||
+      (pi->IntersectsProjection(Box, Zdim) == 0))
     {
       intersects = 0;
     }
@@ -429,25 +425,25 @@ int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints *pt
 // a static convenience function that converts a 3D cell into a
 // vtkPlanesIntersection object
 
-vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
+vtkPlanesIntersection* vtkPlanesIntersection::Convert3DCell(vtkCell* cell)
 {
   int i;
   int nfaces = cell->GetNumberOfFaces();
 
-  vtkPoints *origins = vtkPoints::New();
+  vtkPoints* origins = vtkPoints::New();
   origins->SetNumberOfPoints(nfaces);
 
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(nfaces);
 
-  double inside[3] = {0.0, 0.0, 0.0};
+  double inside[3] = { 0.0, 0.0, 0.0 };
 
-  for (i=0; i < nfaces; i++)
+  for (i = 0; i < nfaces; i++)
   {
-    vtkCell *face = cell->GetFace(i);
+    vtkCell* face = cell->GetFace(i);
 
-    vtkPoints *facePts = face->GetPoints();
+    vtkPoints* facePts = face->GetPoints();
     int npts = facePts->GetNumberOfPoints();
 
     double p0[3], p1[3], pp[3], n[3];
@@ -481,7 +477,7 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
 
   // ensure that all normals are outward pointing
 
-  for (i=0; i < nfaces; i++)
+  for (i = 0; i < nfaces; i++)
   {
     double ns[3], xs[3];
     double n[3], x[3], p[4];
@@ -506,12 +502,10 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
 
     double insideVal = vtkPlanesIntersection::EvaluatePlaneEquation(inside, p);
 
-    double normalDirection =
-      vtkPlanesIntersection::EvaluatePlaneEquation(outside, p);
+    double normalDirection = vtkPlanesIntersection::EvaluatePlaneEquation(outside, p);
 
     int sameSide =
-      ( (insideVal < 0) && (normalDirection < 0)) ||
-      ( (insideVal > 0) && (normalDirection > 0));
+      ((insideVal < 0) && (normalDirection < 0)) || ((insideVal > 0) && (normalDirection > 0));
 
     if (sameSide)
     {
@@ -523,7 +517,7 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
     }
   }
 
-  vtkPlanesIntersection *pi = vtkPlanesIntersection::New();
+  vtkPlanesIntersection* pi = vtkPlanesIntersection::New();
 
   pi->SetPoints(origins);
   pi->SetNormals(normals);
@@ -538,21 +532,23 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
 
 //--------------------------------------------------------------------------
 
-void vtkPlanesIntersection::ComputeNormal(double *p1, double *p2, double *p3,
-                                          double normal[3])
+void vtkPlanesIntersection::ComputeNormal(double* p1, double* p2, double* p3, double normal[3])
 {
   double v1[3], v2[3];
 
-  v1[0] = p1[0] - p2[0]; v1[1] = p1[1] - p2[1]; v1[2] = p1[2] - p2[2];
-  v2[0] = p3[0] - p2[0]; v2[1] = p3[1] - p2[1]; v2[2] = p3[2] - p2[2];
+  v1[0] = p1[0] - p2[0];
+  v1[1] = p1[1] - p2[1];
+  v1[2] = p1[2] - p2[2];
+  v2[0] = p3[0] - p2[0];
+  v2[1] = p3[1] - p2[1];
+  v2[2] = p3[2] - p2[2];
 
   vtkMath::Cross(v1, v2, normal);
 }
-int vtkPlanesIntersection::GoodNormal(double *n)
+int vtkPlanesIntersection::GoodNormal(double* n)
 {
-  if ( (n[0] < VTK_SMALL_DOUBLE) || (n[0] > VTK_SMALL_DOUBLE) ||
-       (n[1] < VTK_SMALL_DOUBLE) || (n[1] > VTK_SMALL_DOUBLE) ||
-       (n[2] < VTK_SMALL_DOUBLE) || (n[2] > VTK_SMALL_DOUBLE) )
+  if ((n[0] < VTK_SMALL_DOUBLE) || (n[0] > VTK_SMALL_DOUBLE) || (n[1] < VTK_SMALL_DOUBLE) ||
+    (n[1] > VTK_SMALL_DOUBLE) || (n[2] < VTK_SMALL_DOUBLE) || (n[2] > VTK_SMALL_DOUBLE))
   {
     return 1;
   }
@@ -561,16 +557,16 @@ int vtkPlanesIntersection::GoodNormal(double *n)
     return 0;
   }
 }
-double vtkPlanesIntersection::EvaluatePlaneEquation(double *x, double *p)
+double vtkPlanesIntersection::EvaluatePlaneEquation(double* x, double* p)
 {
-  return (x[0]*p[0] + x[1]*p[1] + x[2]*p[2] + p[3]);
+  return (x[0] * p[0] + x[1] * p[1] + x[2] * p[2] + p[3]);
 }
-void vtkPlanesIntersection::PlaneEquation(double *n, double *x, double *p)
+void vtkPlanesIntersection::PlaneEquation(double* n, double* x, double* p)
 {
   p[0] = n[0];
   p[1] = n[1];
   p[2] = n[2];
-  p[3] = -(n[0]*x[0] + n[1]*x[1] + n[2]*x[2]);
+  p[3] = -(n[0] * x[0] + n[1] * x[1] + n[2] * x[2]);
 }
 
 // The plane equations ***********************************************
@@ -583,11 +579,11 @@ void vtkPlanesIntersection::SetPlaneEquations()
   // vtkPlanes stores normals & pts instead of
   //   plane equation coefficients
 
-  delete [] this->Planes;
+  delete[] this->Planes;
 
-  this->Planes = new double[nplanes*4];
+  this->Planes = new double[nplanes * 4];
 
-  for (i=0; i<nplanes; i++)
+  for (i = 0; i < nplanes; i++)
   {
     double n[3], x[3];
 
@@ -596,11 +592,14 @@ void vtkPlanesIntersection::SetPlaneEquations()
 
     double nd[3], xd[3];
 
-    nd[0] = n[0]; xd[0] = x[0];
-    nd[1] = n[1]; xd[1] = x[1];
-    nd[2] = n[2]; xd[2] = x[2];
+    nd[0] = n[0];
+    xd[0] = x[0];
+    nd[1] = n[1];
+    xd[1] = x[1];
+    nd[2] = n[2];
+    xd[2] = x[2];
 
-    double *p = this->Planes + (i*4);
+    double* p = this->Planes + (i * 4);
 
     vtkPlanesIntersection::PlaneEquation(nd, xd, p);
   }
@@ -625,8 +624,7 @@ void vtkPlanesIntersection::ComputeRegionVertices()
 
   if (nplanes <= 3)
   {
-    vtkErrorMacro( <<
-                   "vtkPlanesIntersection::ComputeRegionVertices invalid region");
+    vtkErrorMacro(<< "vtkPlanesIntersection::ComputeRegionVertices invalid region");
     return;
   }
 
@@ -640,13 +638,13 @@ void vtkPlanesIntersection::ComputeRegionVertices()
   // planes to see if they intersect in a point that is
   // not "outside" any plane.
 
-  int nvertices=0;
+  int nvertices = 0;
 
-  for (i=0; i < nplanes; i++)
+  for (i = 0; i < nplanes; i++)
   {
-    for (j=i+1; j < nplanes; j++)
+    for (j = i + 1; j < nplanes; j++)
     {
-      for (k=j+1; k < nplanes; k++)
+      for (k = j + 1; k < nplanes; k++)
       {
         this->planesMatrix(i, j, k, M);
 
@@ -681,11 +679,11 @@ int vtkPlanesIntersection::duplicate(double testv[3]) const
   double pt[3];
   int npts = this->RegionPts->GetNumberOfPoints();
 
-  for (i=0; i<npts; i++)
+  for (i = 0; i < npts; i++)
   {
     this->RegionPts->GetPoint(i, pt);
 
-    if ( (pt[0] == testv[0]) && (pt[1] == testv[1]) && (pt[2] == testv[2]))
+    if ((pt[0] == testv[0]) && (pt[1] == testv[1]) && (pt[2] == testv[2]))
     {
       return 1;
     }
@@ -695,18 +693,18 @@ int vtkPlanesIntersection::duplicate(double testv[3]) const
 void vtkPlanesIntersection::planesMatrix(int p1, int p2, int p3, double M[3][3]) const
 {
   int i;
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    M[0][i] = this->Planes[p1*4 + i];
-    M[1][i] = this->Planes[p2*4 + i];
-    M[2][i] = this->Planes[p3*4 + i];
+    M[0][i] = this->Planes[p1 * 4 + i];
+    M[1][i] = this->Planes[p2 * 4 + i];
+    M[2][i] = this->Planes[p3 * 4 + i];
   }
 }
 void vtkPlanesIntersection::planesRHS(int p1, int p2, int p3, double r[3]) const
 {
-  r[0] = -(this->Planes[p1*4 + 3]);
-  r[1] = -(this->Planes[p2*4 + 3]);
-  r[2] = -(this->Planes[p3*4 + 3]);
+  r[0] = -(this->Planes[p1 * 4 + 3]);
+  r[1] = -(this->Planes[p2 * 4 + 3]);
+  r[2] = -(this->Planes[p3 * 4 + 3]);
 }
 int vtkPlanesIntersection::outsideRegion(double testv[3])
 {
@@ -714,12 +712,11 @@ int vtkPlanesIntersection::outsideRegion(double testv[3])
   int outside = 0;
   int nplanes = this->GetNumberOfPlanes();
 
-  for (i=0; i<nplanes; i++)
+  for (i = 0; i < nplanes; i++)
   {
-    int row=i*4;
+    int row = i * 4;
 
-    double fx =
-      vtkPlanesIntersection::EvaluatePlaneEquation(testv, this->Planes + row);
+    double fx = vtkPlanesIntersection::EvaluatePlaneEquation(testv, this->Planes + row);
 
     if (fx > VTK_SMALL_DOUBLE)
     {
@@ -736,15 +733,15 @@ int vtkPlanesIntersection::Invert3x3(double M[3][3])
 
   double det = vtkMath::Determinant3x3(M);
 
-  if ( (det > -VTK_SMALL_DOUBLE) && (det < VTK_SMALL_DOUBLE))
+  if ((det > -VTK_SMALL_DOUBLE) && (det < VTK_SMALL_DOUBLE))
   {
     return -1;
   }
   vtkMath::Invert3x3(M, temp);
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    for (j=0; j<3; j++)
+    for (j = 0; j < 3; j++)
     {
       M[i][j] = temp[i][j];
     }
@@ -755,7 +752,7 @@ int vtkPlanesIntersection::Invert3x3(double M[3][3])
 
 // Region / box intersection tests *******************************
 
-int vtkPlanesIntersection::IntersectsBoundingBox(vtkPoints *R)
+int vtkPlanesIntersection::IntersectsBoundingBox(vtkPoints* R)
 {
   double BoxBounds[6], RegionBounds[6];
 
@@ -763,18 +760,15 @@ int vtkPlanesIntersection::IntersectsBoundingBox(vtkPoints *R)
 
   this->RegionPts->GetBounds(RegionBounds);
 
-  if ((BoxBounds[1] < RegionBounds[0]) ||
-      (BoxBounds[0] > RegionBounds[1]) ||
-      (BoxBounds[3] < RegionBounds[2]) ||
-      (BoxBounds[2] > RegionBounds[3]) ||
-      (BoxBounds[5] < RegionBounds[4]) ||
-      (BoxBounds[4] > RegionBounds[5]))
+  if ((BoxBounds[1] < RegionBounds[0]) || (BoxBounds[0] > RegionBounds[1]) ||
+    (BoxBounds[3] < RegionBounds[2]) || (BoxBounds[2] > RegionBounds[3]) ||
+    (BoxBounds[5] < RegionBounds[4]) || (BoxBounds[4] > RegionBounds[5]))
   {
     return 0;
   }
   return 1;
 }
-int vtkPlanesIntersection::EnclosesBoundingBox(vtkPoints *R)
+int vtkPlanesIntersection::EnclosesBoundingBox(vtkPoints* R)
 {
   double BoxBounds[6], RegionBounds[6];
 
@@ -782,19 +776,16 @@ int vtkPlanesIntersection::EnclosesBoundingBox(vtkPoints *R)
 
   this->RegionPts->GetBounds(RegionBounds);
 
-  if ((BoxBounds[0] > RegionBounds[0]) ||
-      (BoxBounds[1] < RegionBounds[1]) ||
-      (BoxBounds[2] > RegionBounds[2]) ||
-      (BoxBounds[3] < RegionBounds[3]) ||
-      (BoxBounds[4] > RegionBounds[4]) ||
-      (BoxBounds[5] < RegionBounds[5]))
+  if ((BoxBounds[0] > RegionBounds[0]) || (BoxBounds[1] < RegionBounds[1]) ||
+    (BoxBounds[2] > RegionBounds[2]) || (BoxBounds[3] < RegionBounds[3]) ||
+    (BoxBounds[4] > RegionBounds[4]) || (BoxBounds[5] < RegionBounds[5]))
   {
     return 0;
   }
 
   return 1;
 }
-int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
+int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints* R)
 {
   int i;
   double n[3], bounds[6];
@@ -807,17 +798,17 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
   // Find vertex of R most in direction of normal, and find
   //  oppposite vertex
 
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     if (n[i] < 0)
     {
-      withN[i]     = bounds[i*2];
-      oppositeN[i] = bounds[i*2 + 1];
+      withN[i] = bounds[i * 2];
+      oppositeN[i] = bounds[i * 2 + 1];
     }
     else
     {
-      withN[i]     = bounds[i*2 + 1];
-      oppositeN[i] = bounds[i*2];
+      withN[i] = bounds[i * 2 + 1];
+      oppositeN[i] = bounds[i * 2];
     }
   }
 
@@ -825,7 +816,7 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
   //    positive half plane, or whether it straddles the plane.
   //    The normal points in direction of positive half plane.
 
-  double *p = this->Planes + (plane * 4);
+  double* p = this->Planes + (plane * 4);
 
   double negVal =
 
@@ -845,9 +836,10 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
     return Inside;
   }
 
-  else             return Straddle;
+  else
+    return Straddle;
 }
-int vtkPlanesIntersection::IntersectsProjection(vtkPoints *R, int dir)
+int vtkPlanesIntersection::IntersectsProjection(vtkPoints* R, int dir)
 {
   int intersects = 0;
 
@@ -874,7 +866,7 @@ int vtkPlanesIntersection::IntersectsProjection(vtkPoints *R, int dir)
 
 void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Planes: " << this->Planes << endl;
   os << indent << "RegionPts: " << this->RegionPts << endl;
@@ -885,14 +877,14 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
   {
     npts = this->Points->GetNumberOfPoints();
 
-    for (i=0; i<npts; i++)
+    for (i = 0; i < npts; i++)
     {
-      double *pt = this->Points->GetPoint(i);
-      double *n = this->Normals->GetTuple(i);
+      double* pt = this->Points->GetPoint(i);
+      double* n = this->Normals->GetTuple(i);
 
-      os << indent << "Origin " <<  pt[0] << " " << pt[1] << " " << pt[2] << " " ;
+      os << indent << "Origin " << pt[0] << " " << pt[1] << " " << pt[2] << " ";
 
-      os << indent << "Normal " <<  n[0] << " " << n[1] << " " << n[2] << endl;
+      os << indent << "Normal " << n[0] << " " << n[1] << " " << n[2] << endl;
     }
   }
 
@@ -900,11 +892,11 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
   {
     npts = this->RegionPts->GetNumberOfPoints();
 
-    for (i=0; i<npts; i++)
+    for (i = 0; i < npts; i++)
     {
-      double *pt = this->RegionPts->GetPoint(i);
+      double* pt = this->RegionPts->GetPoint(i);
 
-      os << indent << "Vertex " <<  pt[0] << " " << pt[1] << " " << pt[2] << endl;
+      os << indent << "Vertex " << pt[0] << " " << pt[1] << " " << pt[2] << endl;
     }
   }
 }

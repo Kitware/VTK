@@ -72,13 +72,13 @@
  *
  * @sa
  * vtkGaussianSplatter vtkCheckerboardSplatter
-*/
+ */
 
 #ifndef vtkShepardMethod_h
 #define vtkShepardMethod_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class VTKIMAGINGHYBRID_EXPORT vtkShepardMethod : public vtkImageAlgorithm
 {
@@ -87,7 +87,7 @@ public:
   /**
    * Standard type and print methods.
    */
-  vtkTypeMacro(vtkShepardMethod,vtkImageAlgorithm);
+  vtkTypeMacro(vtkShepardMethod, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -96,7 +96,7 @@ public:
    * automatically computed from the input. The null value for each unvisited
    * output point is 0.0. Maximum distance is 0.25. Power parameter p=2.
    */
-  static vtkShepardMethod *New();
+  static vtkShepardMethod* New();
 
   /**
    * Set the i-j-k dimensions on which to interpolate the input points.
@@ -112,7 +112,7 @@ public:
   /**
    * Retrieve the i-j-k dimensions on which to interpolate the input points.
    */
-  vtkGetVectorMacro(SampleDimensions,int,3);
+  vtkGetVectorMacro(SampleDimensions, int, 3);
   //@}
 
   //@{
@@ -123,8 +123,8 @@ public:
    * points in the volume dataset. Values less than 1.0 can improve
    * performance significantly. By default the maximum distance is 0.25.
    */
-  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
-  vtkGetMacro(MaximumDistance,double);
+  vtkSetClampMacro(MaximumDistance, double, 0.0, 1.0);
+  vtkGetMacro(MaximumDistance, double);
   //@}
 
   //@{
@@ -133,8 +133,8 @@ public:
    * input point(s). Output points may not receive a contribution when the
    * MaximumDistance < 1.
    */
-  vtkSetMacro(NullValue,double);
-  vtkGetMacro(NullValue,double);
+  vtkSetMacro(NullValue, double);
+  vtkGetMacro(NullValue, double);
   //@}
 
   //@{
@@ -144,8 +144,8 @@ public:
    * ModelBounds are set to an invalid state [zero or negative volume] then
    * the bounds are computed automatically.)
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
   //@}
 
   //@{
@@ -153,8 +153,8 @@ public:
    * Set / Get the power parameter p. By default p=2. Values (which must be
    * a positive, real value) != 2 may affect performance significantly.
    */
-  vtkSetClampMacro(PowerParameter,double,0.001,100);
-  vtkGetMacro(PowerParameter,double);
+  vtkSetClampMacro(PowerParameter, double, 0.001, 100);
+  vtkGetMacro(PowerParameter, double);
   //@}
 
   /**
@@ -166,14 +166,11 @@ protected:
   vtkShepardMethod();
   ~vtkShepardMethod() override {}
 
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // see vtkAlgorithm for details
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;

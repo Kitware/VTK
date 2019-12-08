@@ -31,13 +31,13 @@
  *
  * @sa
  * vtkMPIController vtkProcessGroup
-*/
+ */
 
 #ifndef vtkMPICommunicator_h
 #define vtkMPICommunicator_h
 
-#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkCommunicator.h"
+#include "vtkParallelMPIModule.h" // For export macro
 
 class vtkMPIController;
 class vtkProcessGroup;
@@ -49,21 +49,20 @@ class vtkMPICommunicatorReceiveDataInfo;
 class VTKPARALLELMPI_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 public:
-
   class VTKPARALLELMPI_EXPORT Request
   {
   public:
     Request();
-    Request( const Request& );
+    Request(const Request&);
     ~Request();
-    Request& operator = ( const Request& );
+    Request& operator=(const Request&);
     int Test();
     void Cancel();
     void Wait();
     vtkMPICommunicatorOpaqueRequest* Req;
   };
 
-  vtkTypeMacro( vtkMPICommunicator,vtkCommunicator);
+  vtkTypeMacro(vtkMPICommunicator, vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -77,19 +76,18 @@ public:
    */
   static vtkMPICommunicator* GetWorldCommunicator();
 
-
   /**
    * Used to initialize the communicator (i.e. create the underlying MPI_Comm).
    * The group must be associated with a valid vtkMPICommunicator.
    */
-  int Initialize(vtkProcessGroup *group);
+  int Initialize(vtkProcessGroup* group);
 
   /**
    * Used to initialize the communicator (i.e. create the underlying MPI_Comm)
    * using MPI_Comm_split on the given communicator. Return values are 1 for success
    * and 0 otherwise.
    */
-  int SplitInitialize(vtkCommunicator *oldcomm, int color, int key);
+  int SplitInitialize(vtkCommunicator* oldcomm, int color, int key);
 
   //@{
   /**
@@ -97,10 +95,10 @@ public:
    * Send functions defined in the superclass. Return values are 1 for success
    * and 0 otherwise.
    */
-  virtual int SendVoidArray(const void *data, vtkIdType length, int type,
-                            int remoteProcessId, int tag) override;
-  virtual int ReceiveVoidArray(void *data, vtkIdType length, int type,
-                               int remoteProcessId, int tag) override;
+  virtual int SendVoidArray(
+    const void* data, vtkIdType length, int type, int remoteProcessId, int tag) override;
+  virtual int ReceiveVoidArray(
+    void* data, vtkIdType length, int type, int remoteProcessId, int tag) override;
   //@}
 
   //@{
@@ -112,21 +110,16 @@ public:
    * req.Test() ) to test the success of the message. Return values are 1
    * for success and 0 otherwise.
    */
-  int NoBlockSend(const int* data, int length, int remoteProcessId, int tag,
-                  Request& req);
-  int NoBlockSend(const unsigned long* data, int length, int remoteProcessId,
-                  int tag, Request& req);
-  int NoBlockSend(const char* data, int length, int remoteProcessId,
-                  int tag, Request& req);
-  int NoBlockSend(const unsigned char* data, int length, int remoteProcessId,
-                    int tag, Request& req);
-  int NoBlockSend(const float* data, int length, int remoteProcessId,
-                  int tag, Request& req);
-  int NoBlockSend(const double* data, int length, int remoteProcessId,
-                  int tag, Request& req);
+  int NoBlockSend(const int* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const unsigned long* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(const char* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(
+    const unsigned char* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(const float* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockSend(const double* data, int length, int remoteProcessId, int tag, Request& req);
 #ifdef VTK_USE_64BIT_IDS
-  int NoBlockSend(const vtkIdType* data, int length, int remoteProcessId,
-                  int tag, Request& req);
+  int NoBlockSend(const vtkIdType* data, int length, int remoteProcessId, int tag, Request& req);
 #endif
   //@}
 
@@ -138,24 +131,16 @@ public:
    * req.Test() ) to test the success of the message. Return values
    * are 1 for success and 0 otherwise.
    */
-  int NoBlockReceive(int* data, int length, int remoteProcessId,
-                     int tag, Request& req);
-  int NoBlockReceive(unsigned long* data, int length,
-                     int remoteProcessId, int tag, Request& req);
-  int NoBlockReceive(char* data, int length, int remoteProcessId,
-                     int tag, Request& req);
-  int NoBlockReceive(unsigned char* data, int length, int remoteProcessId,
-                     int tag, Request& req);
-  int NoBlockReceive(float* data, int length, int remoteProcessId,
-                     int tag, Request& req);
-  int NoBlockReceive(double* data, int length, int remoteProcessId,
-                     int tag, Request& req);
+  int NoBlockReceive(int* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(unsigned long* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(char* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(unsigned char* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(float* data, int length, int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(double* data, int length, int remoteProcessId, int tag, Request& req);
 #ifdef VTK_USE_64BIT_IDS
-  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId,
-                     int tag, Request& req);
+  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, int tag, Request& req);
 #endif
   //@}
-
 
   //@{
   /**
@@ -164,36 +149,27 @@ public:
    * and 0 otherwise.
    */
   virtual void Barrier() override;
-  virtual int BroadcastVoidArray(void *data, vtkIdType length, int type,
-                                 int srcProcessId) override;
-  virtual int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type, int destProcessId) override;
-  virtual int GatherVVoidArray(const void *sendBuffer, void *recvBuffer,
-                               vtkIdType sendLength, vtkIdType *recvLengths,
-                               vtkIdType *offsets, int type, int destProcessId) override;
-  virtual int ScatterVoidArray(const void *sendBuffer, void *recvBuffer,
-                               vtkIdType length, int type, int srcProcessId) override;
-  virtual int ScatterVVoidArray(const void *sendBuffer, void *recvBuffer,
-                                vtkIdType *sendLengths, vtkIdType *offsets,
-                                vtkIdType recvLength, int type,
-                                int srcProcessId) override;
-  virtual int AllGatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type) override;
-  virtual int AllGatherVVoidArray(const void *sendBuffer, void *recvBuffer,
-                                  vtkIdType sendLength, vtkIdType *recvLengths,
-                                  vtkIdType *offsets, int type) override;
-  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type,
-                              int operation, int destProcessId) override;
-  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type,
-                              Operation *operation, int destProcessId) override;
-  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type,
-                                 int operation) override;
-  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type,
-                                 Operation *operation) override;
+  virtual int BroadcastVoidArray(void* data, vtkIdType length, int type, int srcProcessId) override;
+  virtual int GatherVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int destProcessId) override;
+  virtual int GatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int type, int destProcessId) override;
+  virtual int ScatterVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int srcProcessId) override;
+  virtual int ScatterVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType* sendLengths,
+    vtkIdType* offsets, vtkIdType recvLength, int type, int srcProcessId) override;
+  virtual int AllGatherVoidArray(
+    const void* sendBuffer, void* recvBuffer, vtkIdType length, int type) override;
+  virtual int AllGatherVVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType sendLength,
+    vtkIdType* recvLengths, vtkIdType* offsets, int type) override;
+  virtual int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    int operation, int destProcessId) override;
+  virtual int ReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
+    Operation* operation, int destProcessId) override;
+  virtual int AllReduceVoidArray(
+    const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation) override;
+  virtual int AllReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length,
+    int type, Operation* operation) override;
   //@}
 
   //@{
@@ -207,16 +183,11 @@ public:
    * value is 1 for success and 0 otherwise.
    */
   int Iprobe(int source, int tag, int* flag, int* actualSource);
-  int Iprobe(int source, int tag, int* flag, int* actualSource,
-             int* type, int* size);
-  int Iprobe(int source, int tag, int* flag, int* actualSource,
-             unsigned long* type, int* size);
-  int Iprobe(int source, int tag, int* flag, int* actualSource,
-             const char* type, int* size);
-  int Iprobe(int source, int tag, int* flag, int* actualSource,
-             float* type, int* size);
-  int Iprobe(int source, int tag, int* flag, int* actualSource,
-             double* type, int* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, int* type, int* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, unsigned long* type, int* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, const char* type, int* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, float* type, int* size);
+  int Iprobe(int source, int tag, int* flag, int* actualSource, double* type, int* size);
   //@}
 
   /**
@@ -237,20 +208,21 @@ public:
    * request array completes. Upon return, the list of handles that have
    * completed is stored in the completed vtkIntArray.
    */
-  int WaitSome(
-      const int count, Request requests[], int &NCompleted, int *completed ) VTK_SIZEHINT(requests, count);
+  int WaitSome(const int count, Request requests[], int& NCompleted, int* completed)
+    VTK_SIZEHINT(requests, count);
 
   /**
    * Checks if the given communication request objects are complete. Upon
    * return, flag evaluates to true iff *all* of the communication request
    * objects are complete.
    */
-  int TestAll( const int count, Request requests[], int& flag ) VTK_SIZEHINT(requests, count);
+  int TestAll(const int count, Request requests[], int& flag) VTK_SIZEHINT(requests, count);
 
   /**
    * Check if at least *one* of the specified requests has completed.
    */
-  int TestAny(const int count, Request requests[], int &idx, int &flag ) VTK_SIZEHINT(requests, count);
+  int TestAny(const int count, Request requests[], int& idx, int& flag)
+    VTK_SIZEHINT(requests, count);
 
   /**
    * Checks the status of *all* the given request communication object handles.
@@ -258,21 +230,17 @@ public:
    * and the indices of the completed requests, w.r.t. the requests array is
    * given the by the pre-allocated completed array.
    */
-  int TestSome(const int count,Request requests[],
-               int& NCompleted,int *completed) VTK_SIZEHINT(requests, count);
+  int TestSome(const int count, Request requests[], int& NCompleted, int* completed)
+    VTK_SIZEHINT(requests, count);
 
   friend class vtkMPIController;
 
-  vtkMPICommunicatorOpaqueComm *GetMPIComm()
-  {
-    return this->MPIComm;
-  }
+  vtkMPICommunicatorOpaqueComm* GetMPIComm() { return this->MPIComm; }
 
-  int InitializeExternal(vtkMPICommunicatorOpaqueComm *comm);
+  int InitializeExternal(vtkMPICommunicatorOpaqueComm* comm);
 
   static char* Allocate(size_t size);
   static void Free(char* ptr);
-
 
   //@{
   /**
@@ -316,7 +284,6 @@ protected:
   vtkBooleanMacro(KeepHandle, int);
   //@}
 
-
   static vtkMPICommunicator* WorldCommunicator;
 
   void InitializeCopy(vtkMPICommunicator* source);
@@ -335,11 +302,8 @@ protected:
   /**
    * Implementation for receive data.
    */
-  virtual int ReceiveDataInternal(
-    char* data, int length, int sizeoftype,
-    int remoteProcessId, int tag,
-    vtkMPICommunicatorReceiveDataInfo* info,
-    int useCopy, int& senderId);
+  virtual int ReceiveDataInternal(char* data, int length, int sizeoftype, int remoteProcessId,
+    int tag, vtkMPICommunicatorReceiveDataInfo* info, int useCopy, int& senderId);
 
   vtkMPICommunicatorOpaqueComm* MPIComm;
 

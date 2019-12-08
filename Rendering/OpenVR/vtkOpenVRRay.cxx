@@ -17,15 +17,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRRenderWindow.h"
 // #include "vtkOpenVRCamera.h"
-#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 // #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkMatrix4x4.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
 #include "vtkRendererCollection.h"
-#include "vtkMatrix4x4.h"
+#include "vtkShaderProgram.h"
 // #include "vtkRenderWindowInteractor.h"
 // #include "vtkInteractorObserver.h"
 
@@ -52,27 +52,21 @@ void vtkOpenVRRay::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Loaded "
-     << (this->Loaded  ? "On\n" : "Off\n");
+  os << indent << "Loaded " << (this->Loaded ? "On\n" : "Off\n");
 }
 
-void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow *win)
+void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow* win)
 {
   this->ModelVBO->ReleaseGraphicsResources();
   this->ModelHelper.ReleaseGraphicsResources(win);
 }
 
-bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow *win)
+bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow* win)
 {
-  //Ray geometry
-  float vert[] = {
-    0, 0, 0,
-    0, 0, -1};
+  // Ray geometry
+  float vert[] = { 0, 0, 0, 0, 0, -1 };
 
-  this->ModelVBO->Upload(
-    vert,
-    2 * 3,
-    vtkOpenGLBufferObject::ArrayBuffer);
+  this->ModelVBO->Upload(vert, 2 * 3, vtkOpenGLBufferObject::ArrayBuffer);
 
   this->ModelHelper.Program = win->GetShaderCache()->ReadyShaderProgram(
 
@@ -86,7 +80,7 @@ bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow *win)
     " gl_Position =  matrix * vec4(scale * position, 1.0);\n"
     "}\n",
 
-    //fragment shader
+    // fragment shader
     "//VTK::System::Dec\n"
     "//VTK::Output::Dec\n"
     "void main()\n"
@@ -95,16 +89,11 @@ bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow *win)
     "}\n",
 
     // geom shader
-    ""
-    );
-  vtkShaderProgram *program = this->ModelHelper.Program;
+    "");
+  vtkShaderProgram* program = this->ModelHelper.Program;
   this->ModelHelper.VAO->Bind();
-  if (!this->ModelHelper.VAO->AddAttributeArray(program,
-    this->ModelVBO,
-    "position",
-    0,
-    3 * sizeof(float),
-    VTK_FLOAT, 3, false))
+  if (!this->ModelHelper.VAO->AddAttributeArray(
+        program, this->ModelVBO, "position", 0, 3 * sizeof(float), VTK_FLOAT, 3, false))
   {
     vtkErrorMacro(<< "Error setting position in shader VAO.");
   }
@@ -112,11 +101,9 @@ bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow *win)
   return true;
 }
 
-void vtkOpenVRRay::Render(
-  vtkOpenGLRenderWindow *win,
-  vtkMatrix4x4 *poseMatrix)
+void vtkOpenVRRay::Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseMatrix)
 {
-  //Load ray
+  // Load ray
   if (!this->Loaded)
   {
     if (!this->Build(win))
@@ -131,23 +118,19 @@ void vtkOpenVRRay::Render(
   win->GetShaderCache()->ReadyShaderProgram(this->ModelHelper.Program);
   this->ModelHelper.VAO->Bind();
 
-  vtkRenderer *ren = static_cast< vtkRenderer * >(
-    win->GetRenderers()->GetItemAsObject(0));
+  vtkRenderer* ren = static_cast<vtkRenderer*>(win->GetRenderers()->GetItemAsObject(0));
   if (!ren)
   {
     vtkErrorMacro("Unable get renderer");
     return;
   }
 
-  double unitV[4] = {0, 0, 0, 1};
-  double scaleFactor =
-    vtkMath::Norm( poseMatrix->MultiplyDoublePoint(unitV));
+  double unitV[4] = { 0, 0, 0, 1 };
+  double scaleFactor = vtkMath::Norm(poseMatrix->MultiplyDoublePoint(unitV));
 
-  this->ModelHelper.Program->SetUniformf("scale",
-    this->Length / scaleFactor);
+  this->ModelHelper.Program->SetUniformf("scale", this->Length / scaleFactor);
 
-  this->ModelHelper.Program->SetUniformMatrix("matrix",
-    poseMatrix);
+  this->ModelHelper.Program->SetUniformMatrix("matrix", poseMatrix);
 
   glDrawArrays(GL_LINES, 0, 6);
 }

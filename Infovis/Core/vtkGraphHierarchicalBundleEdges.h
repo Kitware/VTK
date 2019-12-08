@@ -50,20 +50,20 @@
  * Danny Holten. Hierarchical Edge Bundles: Visualization of Adjacency Relations
  * Relations in Hierarchical Data. IEEE Transactions on Visualization and
  * Computer Graphics, Vol. 12, No. 5, 2006. pp. 741-748.
-*/
+ */
 
 #ifndef vtkGraphHierarchicalBundleEdges_h
 #define vtkGraphHierarchicalBundleEdges_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkGraphHierarchicalBundleEdges : public vtkGraphAlgorithm
 {
 public:
-  static vtkGraphHierarchicalBundleEdges *New();
+  static vtkGraphHierarchicalBundleEdges* New();
 
-  vtkTypeMacro(vtkGraphHierarchicalBundleEdges,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkGraphHierarchicalBundleEdges, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -104,7 +104,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&) = delete;

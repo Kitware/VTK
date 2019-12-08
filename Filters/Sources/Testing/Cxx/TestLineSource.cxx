@@ -13,24 +13,23 @@
 
 =========================================================================*/
 
+#include <vtkLineSource.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
-#include <vtkLineSource.h>
 
-int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestLineSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkLineSource> lineSource
-    = vtkSmartPointer<vtkLineSource>::New();
+  vtkSmartPointer<vtkLineSource> lineSource = vtkSmartPointer<vtkLineSource>::New();
   lineSource->SetResolution(8);
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
   double point1[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
@@ -38,7 +37,7 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   lineSource->SetPoint1(point1);
 
   double point2[3];
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
@@ -50,21 +49,21 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = lineSource->GetOutput();
   vtkSmartPointer<vtkPoints> outputPoints = polyData->GetPoints();
 
-  if(outputPoints->GetDataType() != VTK_FLOAT)
+  if (outputPoints->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
   }
   lineSource->SetPoint1(point1);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
@@ -76,7 +75,7 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = lineSource->GetOutput();
   outputPoints = polyData->GetPoints();
 
-  if(outputPoints->GetDataType() != VTK_DOUBLE)
+  if (outputPoints->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
@@ -86,14 +85,14 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> inputPoints = vtkSmartPointer<vtkPoints>::New();
   inputPoints->SetDataType(VTK_DOUBLE);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
   }
   inputPoints->InsertNextPoint(point1);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
@@ -107,7 +106,7 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = lineSource->GetOutput();
   outputPoints = polyData->GetPoints();
 
-  if(outputPoints->GetDataType() != VTK_FLOAT)
+  if (outputPoints->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
@@ -116,14 +115,14 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
   }
   inputPoints->InsertNextPoint(point1);
 
-  for(unsigned int i = 0; i < 3; ++i)
+  for (unsigned int i = 0; i < 3; ++i)
   {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
@@ -137,7 +136,7 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = lineSource->GetOutput();
   outputPoints = polyData->GetPoints();
 
-  if(outputPoints->GetDataType() != VTK_DOUBLE)
+  if (outputPoints->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

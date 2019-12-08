@@ -27,13 +27,13 @@
  *
  * @sa
  * vtkAbstractMapper vtkMapper vtkPolyDataMapper vtkVolumeMapper
-*/
+ */
 
 #ifndef vtkAbstractMapper3D_h
 #define vtkAbstractMapper3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkWindow;
 class vtkDataSet;
@@ -50,7 +50,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * Update this->Bounds as a side effect.
    */
-  virtual double *GetBounds() VTK_SIZEHINT(6) = 0;
+  virtual double* GetBounds() VTK_SIZEHINT(6) = 0;
 
   /**
    * Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -61,11 +61,13 @@ public:
   /**
    * Return the Center of this mapper's data.
    */
-  double *GetCenter() VTK_SIZEHINT(3);
+  double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double center[3])
   {
-      double *rc = this->GetCenter();
-      center[0] = rc[0]; center[1] = rc[1]; center[2] = rc[2];
+    double* rc = this->GetCenter();
+    center[0] = rc[0];
+    center[1] = rc[1];
+    center[2] = rc[2];
   }
   //@}
 
@@ -78,26 +80,23 @@ public:
    * Is this a ray cast mapper? A subclass would return 1 if the
    * ray caster is needed to generate an image from this mapper.
    */
-  virtual vtkTypeBool IsARayCastMapper()
-    { return 0; }
+  virtual vtkTypeBool IsARayCastMapper() { return 0; }
 
   /**
    * Is this a "render into image" mapper? A subclass would return 1 if the
    * mapper produces an image by rendering into a software image buffer.
    */
-  virtual vtkTypeBool IsARenderIntoImageMapper()
-    { return 0; }
+  virtual vtkTypeBool IsARenderIntoImageMapper() { return 0; }
 
   /**
    * Get the ith clipping plane as a homogeneous plane equation.
    * Use GetNumberOfClippingPlanes to get the number of planes.
    */
-  void GetClippingPlaneInDataCoords(
-    vtkMatrix4x4 *propMatrix, int i, double planeEquation[4]);
+  void GetClippingPlaneInDataCoords(vtkMatrix4x4* propMatrix, int i, double planeEquation[4]);
 
 protected:
-   vtkAbstractMapper3D();
-   ~vtkAbstractMapper3D() override {}
+  vtkAbstractMapper3D();
+  ~vtkAbstractMapper3D() override {}
 
   double Bounds[6];
   double Center[3];

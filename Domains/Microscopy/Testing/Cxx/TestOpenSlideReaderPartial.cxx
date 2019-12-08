@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <vtkImageData.h>
+#include <vtkImageViewer2.h>
 #include <vtkNew.h>
 #include <vtkOpenSlideReader.h>
-#include <vtkRenderer.h>
+#include <vtkPNGWriter.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkImageViewer2.h>
-#include <vtkImageData.h>
-#include <vtkPNGWriter.h>
+#include <vtkRenderer.h>
 
 // VTK includes
 #include <vtkTestUtilities.h>
@@ -30,7 +30,7 @@
 // Main program
 int TestOpenSlideReaderPartial(int argc, char** argv)
 {
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     std::cout << "Usage: " << argv[0] << " <image file>" << endl;
     return EXIT_FAILURE;
@@ -43,7 +43,7 @@ int TestOpenSlideReaderPartial(int argc, char** argv)
   reader->SetFileName(argv[1]);
   reader->UpdateInformation();
 
-  int extent[6] = {100,299,100,299,0,0};
+  int extent[6] = { 100, 299, 100, 299, 0, 0 };
 
   reader->UpdateExtent(extent);
 
@@ -68,9 +68,9 @@ int TestOpenSlideReaderPartial(int argc, char** argv)
 
   vtkNew<vtkImageViewer2> imageViewer;
   imageViewer->SetInputData(data);
-  //imageViewer->SetExtent(1000,1500,1000,1500,0,0);
+  // imageViewer->SetExtent(1000,1500,1000,1500,0,0);
   imageViewer->SetupInteractor(renderWindowInteractor);
-  //imageViewer->SetSlice(0);
+  // imageViewer->SetSlice(0);
   imageViewer->Render();
   imageViewer->GetRenderer()->ResetCamera();
   renderWindowInteractor->Initialize();

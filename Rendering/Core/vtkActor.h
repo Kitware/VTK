@@ -27,13 +27,13 @@
  *
  * @sa
  * vtkProperty vtkTexture vtkMapper vtkAssembly vtkFollower vtkLODActor
-*/
+ */
 
 #ifndef vtkActor_h
 #define vtkActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkPropCollection;
@@ -53,21 +53,21 @@ public:
    * position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
    * orientation=(0,0,0). No user defined matrix and no texture map.
    */
-  static vtkActor *New();
+  static vtkActor* New();
 
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  void GetActors(vtkPropCollection *) override;
+  void GetActors(vtkPropCollection*) override;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   //@}
 
   //@{
@@ -84,19 +84,19 @@ public:
    * assigned, then the actor will create one automatically. Note that a side
    * effect of this method is that the pipeline will be updated.
    */
-  virtual void Render(vtkRenderer *, vtkMapper *) {}
+  virtual void Render(vtkRenderer*, vtkMapper*) {}
 
   /**
    * Shallow copy of an actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -106,8 +106,8 @@ public:
    * then one will be generated automatically. Multiple actors can share one
    * property object.
    */
-  void SetProperty(vtkProperty *lut);
-  vtkProperty *GetProperty();
+  void SetProperty(vtkProperty* lut);
+  vtkProperty* GetProperty();
   //@}
 
   /**
@@ -124,8 +124,8 @@ public:
    * isn't specified, then the front face properties will be used.  Multiple
    * actors can share one property object.
    */
-  void SetBackfaceProperty(vtkProperty *lut);
-  vtkGetObjectMacro(BackfaceProperty,vtkProperty);
+  void SetBackfaceProperty(vtkProperty* lut);
+  vtkGetObjectMacro(BackfaceProperty, vtkProperty);
   //@}
 
   //@{
@@ -144,7 +144,7 @@ public:
    * of vtkMapper. Typically vtkPolyDataMapper and vtkDataSetMapper will
    * be used.
    */
-  virtual void SetMapper(vtkMapper *);
+  virtual void SetMapper(vtkMapper*);
 
   //@{
   /**
@@ -158,7 +158,7 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() VTK_SIZEHINT(6) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
 
   /**
    * Apply the current properties to all parts that compose this actor.
@@ -208,15 +208,12 @@ public:
    * Default just forwards to the Mapper
    */
   void ProcessSelectorPixelBuffers(
-    vtkHardwareSelector *sel,
-    std::vector<unsigned int> &pixeloffsets) override;
+    vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets) override;
 
   //@{
   // Get if we are in the translucent polygonal geometry pass
-  bool IsRenderingTranslucentPolygonalGeometry() override {
-    return this->InTranslucentPass; };
-  void SetIsRenderingTranslucentPolygonalGeometry(bool val) {
-    this->InTranslucentPass = val; };
+  bool IsRenderingTranslucentPolygonalGeometry() override { return this->InTranslucentPass; }
+  void SetIsRenderingTranslucentPolygonalGeometry(bool val) { this->InTranslucentPass = val; }
   //@}
 
 protected:
@@ -229,10 +226,10 @@ protected:
   bool ForceTranslucent;
   bool InTranslucentPass;
 
-  vtkProperty *Property;
-  vtkProperty *BackfaceProperty;
-  vtkTexture *Texture;
-  vtkMapper *Mapper;
+  vtkProperty* Property;
+  vtkProperty* BackfaceProperty;
+  vtkTexture* Texture;
+  vtkMapper* Mapper;
 
   // Bounds are cached in an actor - the MapperBounds are also cache to
   // help know when the Bounds need to be recomputed.

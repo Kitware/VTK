@@ -46,13 +46,12 @@
  * vtkSphereTreeFilter vtkPlaneCutter
  */
 
-
 #ifndef vtkSphereTree_h
 #define vtkSphereTree_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkPlane.h" // to specify the cutting plane
 #include "vtkObject.h"
+#include "vtkPlane.h" // to specify the cutting plane
 
 class vtkDoubleArray;
 class vtkDataArray;
@@ -73,13 +72,13 @@ public:
   /**
    * Instantiate the sphere tree.
    */
-  static vtkSphereTree *New();
+  static vtkSphereTree* New();
 
   //@{
   /**
    * Standard type related macros and PrintSelf() method.
    */
-  vtkTypeMacro(vtkSphereTree,vtkObject);
+  vtkTypeMacro(vtkSphereTree, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -88,7 +87,7 @@ public:
    * Specify the dataset from which to build the sphere tree.
    */
   virtual void SetDataSet(vtkDataSet*);
-  vtkGetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet, vtkDataSet);
   //@}
 
   //@{
@@ -99,7 +98,7 @@ public:
    * then build the sphere tree.
    */
   void Build();
-  void Build(vtkDataSet *input);
+  void Build(vtkDataSet* input);
   //@}
 
   //@{
@@ -122,12 +121,9 @@ public:
    * infinite line. SelectPlane marks all cells that may intersect with an
    * infinite plane.
    */
-  const unsigned char *SelectPoint(double point[3],
-                                   vtkIdType &numSelected);
-  const unsigned char *SelectLine(double origin[3], double ray[3],
-                                  vtkIdType &numSelected);
-  const unsigned char *SelectPlane(double origin[3], double normal[3],
-                                   vtkIdType &numSelected);
+  const unsigned char* SelectPoint(double point[3], vtkIdType& numSelected);
+  const unsigned char* SelectLine(double origin[3], double ray[3], vtkIdType& numSelected);
+  const unsigned char* SelectPlane(double origin[3], double normal[3], vtkIdType& numSelected);
   //@}
 
   //@{
@@ -141,9 +137,9 @@ public:
    * line. SelectPlane lists all cells that may intersect with an infinite
    * plane.
    */
-  void SelectPoint(double point[3], vtkIdList *cellIds);
-  void SelectLine(double origin[3], double ray[3], vtkIdList *cellIds);
-  void SelectPlane(double origin[3], double normal[3], vtkIdList *cellIds);
+  void SelectPoint(double point[3], vtkIdList* cellIds);
+  void SelectLine(double origin[3], double ray[3], vtkIdList* cellIds);
+  void SelectPlane(double origin[3], double normal[3], vtkIdList* cellIds);
   //@}
 
   //@{
@@ -154,8 +150,8 @@ public:
    * unstructured). For example, in 3D structured data, blocks of resolution
    * Resolution^3 are created. By default the Resolution is three.
    */
-  vtkSetClampMacro(Resolution,int,2,VTK_MAX_SPHERE_TREE_RESOLUTION);
-  vtkGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution, int, 2, VTK_MAX_SPHERE_TREE_RESOLUTION);
+  vtkGetMacro(Resolution, int);
   //@}
 
   //@{
@@ -166,8 +162,8 @@ public:
    * are created). Note that the actual level of the tree may be less than
    * this value depending on the number of cells and Resolution factor.
    */
-  vtkSetClampMacro(MaxLevel,int,1,VTK_MAX_SPHERE_TREE_LEVELS);
-  vtkGetMacro(MaxLevel,int);
+  vtkSetClampMacro(MaxLevel, int, 1, VTK_MAX_SPHERE_TREE_LEVELS);
+  vtkGetMacro(MaxLevel, int);
   //@}
 
   /**
@@ -176,7 +172,7 @@ public:
    * resolution) changes. Note that after building the sphere tree there are
    * [0,this->NumberOfLevels) defined levels.
    */
-  vtkGetMacro(NumberOfLevels,int);
+  vtkGetMacro(NumberOfLevels, int);
 
   //@{
   /**
@@ -190,8 +186,8 @@ public:
    * be returned if the request is not consistent with the state of
    * the sphere tree.
    */
-  const double *GetCellSpheres();
-  const double *GetTreeSpheres(int level, vtkIdType &numSpheres);
+  const double* GetCellSpheres();
+  const double* GetTreeSpheres(int level, vtkIdType& numSpheres);
   //@}
 
 protected:
@@ -199,37 +195,35 @@ protected:
   ~vtkSphereTree() override;
 
   // Data members
-  vtkDataSet *DataSet;
-  unsigned char *Selected;
+  vtkDataSet* DataSet;
+  unsigned char* Selected;
   int Resolution;
   int MaxLevel;
   int NumberOfLevels;
   bool BuildHierarchy;
 
   // The tree and its hierarchy
-  vtkDoubleArray *Tree;
-  double         *TreePtr;
-  vtkSphereTreeHierarchy *Hierarchy;
+  vtkDoubleArray* Tree;
+  double* TreePtr;
+  vtkSphereTreeHierarchy* Hierarchy;
 
   // Supporting data members
-  double AverageRadius; //average radius of cell sphere
-  double SphereBounds[6]; //the dataset bounds computed from cell spheres
-  vtkTimeStamp BuildTime; //time at which tree was built
+  double AverageRadius;   // average radius of cell sphere
+  double SphereBounds[6]; // the dataset bounds computed from cell spheres
+  vtkTimeStamp BuildTime; // time at which tree was built
 
   // Supporting methods
-  void BuildTreeSpheres(vtkDataSet *input);
-  void ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
-                      vtkIdType numSelected);
+  void BuildTreeSpheres(vtkDataSet* input);
+  void ExtractCellIds(const unsigned char* selected, vtkIdList* cellIds, vtkIdType numSelected);
 
-  void BuildTreeHierarchy(vtkDataSet *input);
-  void BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree);
-  void BuildUnstructuredHierarchy(vtkDataSet *input, double *tree);
-  int SphereTreeType; //keep track of the type of tree hierarchy generated
+  void BuildTreeHierarchy(vtkDataSet* input);
+  void BuildStructuredHierarchy(vtkStructuredGrid* input, double* tree);
+  void BuildUnstructuredHierarchy(vtkDataSet* input, double* tree);
+  int SphereTreeType; // keep track of the type of tree hierarchy generated
 
 private:
   vtkSphereTree(const vtkSphereTree&) = delete;
   void operator=(const vtkSphereTree&) = delete;
-
 };
 
 #endif

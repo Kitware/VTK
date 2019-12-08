@@ -21,13 +21,13 @@
  *
  * @sa
  * vtkActor2D
-*/
+ */
 
 #ifndef vtkMapper2D_h
 #define vtkMapper2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkViewport;
 class vtkActor2D;

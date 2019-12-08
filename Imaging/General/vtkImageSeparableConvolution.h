@@ -24,38 +24,36 @@
  * convolve separable filters that can be decomposed into 1 or more 1D
  * convolutions.  It also handles arbitrarily large kernel sizes, and
  * uses edge replication to handle boundaries.
-*/
+ */
 
 #ifndef vtkImageSeparableConvolution_h
 #define vtkImageSeparableConvolution_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class vtkFloatArray;
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageSeparableConvolution : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageSeparableConvolution *New();
-  vtkTypeMacro(vtkImageSeparableConvolution,vtkImageDecomposeFilter);
-
+  static vtkImageSeparableConvolution* New();
+  vtkTypeMacro(vtkImageSeparableConvolution, vtkImageDecomposeFilter);
 
   // Set the X convolution kernel, a null value indicates no convolution to
   // be done.  The kernel must be of odd length
   virtual void SetXKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( XKernel, vtkFloatArray );
+  vtkGetObjectMacro(XKernel, vtkFloatArray);
 
   // Set the Y convolution kernel, a null value indicates no convolution to
   // be done The kernel must be of odd length
   virtual void SetYKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( YKernel, vtkFloatArray );
+  vtkGetObjectMacro(YKernel, vtkFloatArray);
 
   // Set the Z convolution kernel, a null value indicates no convolution to
   // be done The kernel must be of odd length
   virtual void SetZKernel(vtkFloatArray*);
-  vtkGetObjectMacro ( ZKernel, vtkFloatArray );
+  vtkGetObjectMacro(ZKernel, vtkFloatArray);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -73,14 +71,10 @@ protected:
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;
 
-  int IterativeRequestData(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*) override;
+  int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out) override;
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
+  int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
 
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&) = delete;
@@ -88,13 +82,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

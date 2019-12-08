@@ -19,9 +19,9 @@
 
 =========================================================================*/
 
+#include "vtkExtractArray.h"
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkExtractArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -32,8 +32,8 @@
 
 vtkStandardNewMacro(vtkExtractArray);
 
-vtkExtractArray::vtkExtractArray() :
-  Index(0)
+vtkExtractArray::vtkExtractArray()
+  : Index(0)
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -49,7 +49,7 @@ void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
@@ -60,15 +60,14 @@ int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 int vtkExtractArray::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
 
-  if(this->Index < 0 || this->Index >= input->GetNumberOfArrays())
+  if (this->Index < 0 || this->Index >= input->GetNumberOfArrays())
   {
-    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing " << input->GetNumberOfArrays() << " arrays.");
+    vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing "
+                  << input->GetNumberOfArrays() << " arrays.");
     return 0;
   }
 
@@ -78,4 +77,3 @@ int vtkExtractArray::RequestData(
 
   return 1;
 }
-

@@ -15,39 +15,38 @@
 
 #include "vtkCPExodusIIInSituReader.h"
 
-#include "vtkCellData.h"
 #include "vtkCPExodusIIElementBlock.h"
 #include "vtkCPExodusIINodalCoordinatesTemplate.h"
 #include "vtkCPExodusIIResultsArrayTemplate.h"
+#include "vtkCellData.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkMultiBlockDataSet.h"
 
 #include "vtk_exodusII.h"
 
-vtkStandardNewMacro(vtkCPExodusIIInSituReader)
+vtkStandardNewMacro(vtkCPExodusIIInSituReader);
 
 //------------------------------------------------------------------------------
-void vtkCPExodusIIInSituReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkCPExodusIIInSituReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
 //------------------------------------------------------------------------------
 vtkCPExodusIIInSituReader::vtkCPExodusIIInSituReader()
-  : FileName(nullptr),
-    FileId(-1),
-    NumberOfDimensions(0),
-    NumberOfNodes(0),
-    NumberOfElementBlocks(0),
-    CurrentTimeStep(0)
+  : FileName(nullptr)
+  , FileId(-1)
+  , NumberOfDimensions(0)
+  , NumberOfNodes(0)
+  , NumberOfElementBlocks(0)
+  , CurrentTimeStep(0)
 {
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
@@ -61,16 +60,15 @@ vtkCPExodusIIInSituReader::~vtkCPExodusIIInSituReader()
 }
 
 //------------------------------------------------------------------------------
-int vtkCPExodusIIInSituReader::ProcessRequest(
-    vtkInformation *request, vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector)
+vtkTypeBool vtkCPExodusIIInSituReader::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -79,14 +77,13 @@ int vtkCPExodusIIInSituReader::ProcessRequest(
 }
 
 //------------------------------------------------------------------------------
-int vtkCPExodusIIInSituReader::RequestData(vtkInformation *,
-                                         vtkInformationVector **,
-                                         vtkInformationVector *outputVector)
+int vtkCPExodusIIInSituReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Get output object:
   vtkInformation* outInfo(outputVector->GetInformationObject(0));
-  vtkMultiBlockDataSet *output(vtkMultiBlockDataSet::SafeDownCast(
-                                 outInfo->Get( vtkDataObject::DATA_OBJECT())));
+  vtkMultiBlockDataSet* output(
+    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())));
 
   // Prepare high-level structure:
   //
@@ -141,7 +138,7 @@ int vtkCPExodusIIInSituReader::RequestData(vtkInformation *,
 
 //------------------------------------------------------------------------------
 int vtkCPExodusIIInSituReader::RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
   if (!this->ExOpen())
   {
@@ -162,8 +159,7 @@ bool vtkCPExodusIIInSituReader::ExOpen()
   int fileRealSize = 0;
   float exodusVersion;
 
-  this->FileId = ex_open(this->FileName, EX_READ, &doubleSize, &fileRealSize,
-                         &exodusVersion);
+  this->FileId = ex_open(this->FileName, EX_READ, &doubleSize, &fileRealSize, &exodusVersion);
 
   if (this->FileId < 0)
   {
@@ -180,13 +176,8 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   int numElem, numNodeSets, numSideSets;
   std::string title(MAX_LINE_LENGTH + 1, '\0');
 
-  int error = ex_get_init(this->FileId,
-                          &title[0],
-                          &this->NumberOfDimensions,
-                          &this->NumberOfNodes,
-                          &numElem,
-                          &NumberOfElementBlocks,
-                          &numNodeSets, &numSideSets);
+  int error = ex_get_init(this->FileId, &title[0], &this->NumberOfDimensions, &this->NumberOfNodes,
+    &numElem, &NumberOfElementBlocks, &numNodeSets, &numSideSets);
 
   // Trim excess null characters from string:
   title.resize(strlen(title.c_str()));
@@ -209,21 +200,19 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   }
 
   // Names of nodal variables
-  this->NodalVariableNames = std::vector<std::string>(
-        numNodalVars, std::string(MAX_STR_LENGTH+1, '\0'));
+  this->NodalVariableNames =
+    std::vector<std::string>(numNodalVars, std::string(MAX_STR_LENGTH + 1, '\0'));
 
   for (int i = 0; i < numNodalVars; ++i)
   {
-    error = ex_get_var_name(this->FileId, "n", i + 1,
-                            &(this->NodalVariableNames[i][0]));
+    error = ex_get_var_name(this->FileId, "n", i + 1, &(this->NodalVariableNames[i][0]));
     if (error < 0)
     {
       vtkErrorMacro("Error retrieving nodal variable name at index" << i);
       return false;
     }
     // Trim excess null chars from the strings:
-    this->NodalVariableNames[i].resize(
-          strlen(this->NodalVariableNames[i].c_str()));
+    this->NodalVariableNames[i].resize(strlen(this->NodalVariableNames[i].c_str()));
   }
 
   // Number of element variables
@@ -238,21 +227,19 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   }
 
   // Names of element variables
-  this->ElementVariableNames = std::vector<std::string>(
-        numElemVars, std::string(MAX_STR_LENGTH+1, '\0'));
+  this->ElementVariableNames =
+    std::vector<std::string>(numElemVars, std::string(MAX_STR_LENGTH + 1, '\0'));
 
   for (int i = 0; i < numElemVars; ++i)
   {
-    error = ex_get_var_name(this->FileId, "e", i + 1,
-                            &(this->ElementVariableNames[i][0]));
+    error = ex_get_var_name(this->FileId, "e", i + 1, &(this->ElementVariableNames[i][0]));
     if (error < 0)
     {
       vtkErrorMacro("Error retrieving element variable name at index" << i);
       return false;
     }
     // Trim excess null chars from the strings:
-    this->ElementVariableNames[i].resize(
-          strlen(this->ElementVariableNames[i].c_str()));
+    this->ElementVariableNames[i].resize(strlen(this->ElementVariableNames[i].c_str()));
   }
 
   // Element block ids:
@@ -269,8 +256,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   // Timesteps
   int numTimeSteps;
 
-  error = ex_inquire(this->FileId, EX_INQ_TIME,
-                     &numTimeSteps, nullptr, nullptr);
+  error = ex_inquire(this->FileId, EX_INQ_TIME, &numTimeSteps, nullptr, nullptr);
   if (error < 0)
   {
     vtkErrorMacro("Error retrieving the number of timesteps.");
@@ -301,19 +287,17 @@ bool vtkCPExodusIIInSituReader::ExGetCoords()
   vtkNew<vtkCPExodusIINodalCoordinatesTemplate<double> > nodeCoords;
 
   // Get coordinates
-  double *x(new double[this->NumberOfNodes]);
-  double *y(new double[this->NumberOfNodes]);
-  double *z(this->NumberOfDimensions >= 3
-            ? new double[this->NumberOfNodes]
-            : nullptr);
+  double* x(new double[this->NumberOfNodes]);
+  double* y(new double[this->NumberOfNodes]);
+  double* z(this->NumberOfDimensions >= 3 ? new double[this->NumberOfNodes] : nullptr);
 
   int error = ex_get_coord(this->FileId, x, y, z);
 
   if (error < 0)
   {
-    delete [] x;
-    delete [] y;
-    delete [] z;
+    delete[] x;
+    delete[] y;
+    delete[] z;
     vtkErrorMacro("Error retrieving coordinates.");
     return false;
   }
@@ -331,10 +315,9 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
   const int numNodalVars = static_cast<int>(this->NodalVariableNames.size());
   for (int nodalVarIndex = 0; nodalVarIndex < numNodalVars; ++nodalVarIndex)
   {
-    double *nodalVars = new double[this->NumberOfNodes];
-    int error = ex_get_nodal_var(this->FileId, this->CurrentTimeStep + 1,
-                                 nodalVarIndex + 1, this->NumberOfNodes,
-                                 nodalVars);
+    double* nodalVars = new double[this->NumberOfNodes];
+    int error = ex_get_nodal_var(
+      this->FileId, this->CurrentTimeStep + 1, nodalVarIndex + 1, this->NumberOfNodes, nodalVars);
     std::vector<double*> varsVector(1, nodalVars);
     vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > nodalVarArray;
     nodalVarArray->SetExodusScalarArrays(varsVector, this->NumberOfNodes);
@@ -342,8 +325,8 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
 
     if (error < 0)
     {
-      vtkErrorMacro("Failed to read nodal variable array '"
-                    << this->NodalVariableNames[nodalVarIndex] << "'");
+      vtkErrorMacro(
+        "Failed to read nodal variable array '" << this->NodalVariableNames[nodalVarIndex] << "'");
       return false;
     }
 
@@ -366,30 +349,26 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
     int nodesPerElem;
     int numAttributes;
 
-    int error = ex_get_elem_block(this->FileId,
-                                  this->ElementBlockIds[blockInd],
-                                  &(elemType[0]), &numElem, &nodesPerElem,
-                                  &numAttributes);
+    int error = ex_get_elem_block(this->FileId, this->ElementBlockIds[blockInd], &(elemType[0]),
+      &numElem, &nodesPerElem, &numAttributes);
 
     // Trim excess null chars from the type string:
     elemType.resize(strlen(elemType.c_str()));
 
     if (error < 0)
     {
-      vtkErrorMacro("Failed to get the element block metadata for block "
-                    << blockInd);
+      vtkErrorMacro("Failed to get the element block metadata for block " << blockInd);
       return false;
     }
 
     // Get element block connectivity
     vtkNew<vtkCPExodusIIElementBlock> block;
-    int *connect = new int[numElem * nodesPerElem];
-    error = ex_get_elem_conn(this->FileId, this->ElementBlockIds[blockInd],
-                             connect);
+    int* connect = new int[numElem * nodesPerElem];
+    error = ex_get_elem_conn(this->FileId, this->ElementBlockIds[blockInd], connect);
     if (!block->GetImplementation()->SetExodusConnectivityArray(
           connect, elemType, numElem, nodesPerElem))
     {
-      delete [] connect;
+      delete[] connect;
       return false;
     }
 
@@ -408,10 +387,9 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
     // Read the element variables (cell data)
     for (int elemVarIndex = 0; elemVarIndex < numElemVars; ++elemVarIndex)
     {
-      double *elemVars = new double[numElem];
-      error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1,
-                              elemVarIndex + 1, this->ElementBlockIds[blockInd],
-                              numElem, elemVars);
+      double* elemVars = new double[numElem];
+      error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1, elemVarIndex + 1,
+        this->ElementBlockIds[blockInd], numElem, elemVars);
       std::vector<double*> varsVector(1, elemVars);
       vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > elemVarArray;
       elemVarArray->SetExodusScalarArrays(varsVector, numElem);
@@ -420,7 +398,7 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
       if (error < 0)
       {
         vtkErrorMacro("Failed to read element block variable array '"
-                      << this->ElementVariableNames[elemVarIndex] << "'");
+          << this->ElementVariableNames[elemVarIndex] << "'");
         return false;
       }
 

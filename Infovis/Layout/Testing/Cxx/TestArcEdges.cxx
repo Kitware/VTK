@@ -11,15 +11,14 @@
 #include "vtkProperty.h"
 #include "vtkRandomGraphSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVertexGlyphFilter.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestArcEdges(int argc, char* argv[])
 {
@@ -57,23 +56,23 @@ int TestArcEdges(int argc, char* argv[])
   edgeLayout->Update();
   vtkGraph* g = edgeLayout->GetOutput();
   vtkIdType npts = g->GetNumberOfEdgePoints(0);
-  double* pts = new double[3*npts];
+  double* pts = new double[3 * npts];
   for (vtkIdType i = 0; i < npts; ++i)
   {
     double* pt = g->GetEdgePoint(0, i);
-    pts[3*i + 0] = pt[0];
-    pts[3*i + 1] = pt[1];
-    pts[3*i + 2] = pt[2];
+    pts[3 * i + 0] = pt[0];
+    pts[3 * i + 1] = pt[1];
+    pts[3 * i + 2] = pt[2];
   }
   g->ClearEdgePoints(0);
   for (vtkIdType i = 0; i < npts; ++i)
   {
-    double* pt = pts + 3*i;
+    double* pt = pts + 3 * i;
     g->AddEdgePoint(0, pt);
     g->SetEdgePoint(0, i, pt);
     g->SetEdgePoint(0, i, pt[0], pt[1], pt[2]);
   }
-  delete [] pts;
+  delete[] pts;
 
   graphToPoly->SetInputData(g);
   edgeMapper->SetInputConnection(graphToPoly->GetOutputPort());
@@ -101,4 +100,3 @@ int TestArcEdges(int argc, char* argv[])
 
   return !retVal;
 }
-

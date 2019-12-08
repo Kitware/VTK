@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkThresholdPoints vtkThresholdTextureCoords
-*/
+ */
 
 #ifndef vtkThreshold_h
 #define vtkThreshold_h
@@ -40,14 +40,14 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#define VTK_ATTRIBUTE_MODE_DEFAULT         0
-#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA  1
-#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA   2
+#define VTK_ATTRIBUTE_MODE_DEFAULT 0
+#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
+#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
 // order / values are important because of the SetClampMacro
-#define VTK_COMPONENT_MODE_USE_SELECTED    0
-#define VTK_COMPONENT_MODE_USE_ALL         1
-#define VTK_COMPONENT_MODE_USE_ANY         2
+#define VTK_COMPONENT_MODE_USE_SELECTED 0
+#define VTK_COMPONENT_MODE_USE_ALL 1
+#define VTK_COMPONENT_MODE_USE_ANY 2
 
 class vtkDataArray;
 class vtkIdList;
@@ -55,8 +55,8 @@ class vtkIdList;
 class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkThreshold *New();
-  vtkTypeMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
+  static vtkThreshold* New();
+  vtkTypeMacro(vtkThreshold, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -79,8 +79,8 @@ public:
   /**
    * Get the Upper and Lower thresholds.
    */
-  vtkGetMacro(UpperThreshold,double);
-  vtkGetMacro(LowerThreshold,double);
+  vtkGetMacro(UpperThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
   //@}
 
   //@{
@@ -91,15 +91,15 @@ public:
    * used. Alternatively you can explicitly set the filter to use point data
    * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
    */
-  vtkSetMacro(AttributeMode,int);
-  vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+  vtkSetMacro(AttributeMode, int);
+  vtkGetMacro(AttributeMode, int);
+  void SetAttributeModeToDefault() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT); }
   void SetAttributeModeToUsePointData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  const char *GetAttributeModeAsString();
+  {
+    this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
+  }
+  void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
+  const char* GetAttributeModeAsString();
   //@}
 
   //@{
@@ -111,17 +111,12 @@ public:
    * the rule (UseAll) or if any satisfy is (UseAny). The default value is
    * UseSelected.
    */
-  vtkSetClampMacro(ComponentMode,int,
-                   VTK_COMPONENT_MODE_USE_SELECTED,
-                   VTK_COMPONENT_MODE_USE_ANY);
-  vtkGetMacro(ComponentMode,int);
-  void SetComponentModeToUseSelected()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED);};
-  void SetComponentModeToUseAll()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL);};
-  void SetComponentModeToUseAny()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY);};
-  const char *GetComponentModeAsString();
+  vtkSetClampMacro(ComponentMode, int, VTK_COMPONENT_MODE_USE_SELECTED, VTK_COMPONENT_MODE_USE_ANY);
+  vtkGetMacro(ComponentMode, int);
+  void SetComponentModeToUseSelected() { this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED); }
+  void SetComponentModeToUseAll() { this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL); }
+  void SetComponentModeToUseAny() { this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY); }
+  const char* GetComponentModeAsString();
   //@}
 
   //@{
@@ -129,8 +124,8 @@ public:
    * When the component mode is UseSelected, this ivar indicated the selected
    * component. The default value is 0.
    */
-  vtkSetClampMacro(SelectedComponent,int,0,VTK_INT_MAX);
-  vtkGetMacro(SelectedComponent,int);
+  vtkSetClampMacro(SelectedComponent, int, 0, VTK_INT_MAX);
+  vtkGetMacro(SelectedComponent, int);
   //@}
 
   //@{
@@ -140,9 +135,9 @@ public:
    * just a single scalar value satisfying the threshold criterion enables
    * will extract the cell.
    */
-  vtkSetMacro(AllScalars,vtkTypeBool);
-  vtkGetMacro(AllScalars,vtkTypeBool);
-  vtkBooleanMacro(AllScalars,vtkTypeBool);
+  vtkSetMacro(AllScalars, vtkTypeBool);
+  vtkGetMacro(AllScalars, vtkTypeBool);
+  vtkBooleanMacro(AllScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -154,9 +149,9 @@ public:
    * not the same as the vertex scalar interval used here, so the
    * result will not be accurate.
    */
-  vtkSetMacro(UseContinuousCellRange,vtkTypeBool);
-  vtkGetMacro(UseContinuousCellRange,vtkTypeBool);
-  vtkBooleanMacro(UseContinuousCellRange,vtkTypeBool);
+  vtkSetMacro(UseContinuousCellRange, vtkTypeBool);
+  vtkGetMacro(UseContinuousCellRange, vtkTypeBool);
+  vtkBooleanMacro(UseContinuousCellRange, vtkTypeBool);
   //@}
 
   //@{
@@ -167,8 +162,8 @@ public:
    * These methods are deprecated. Please use the SetOutputPointsPrecision()
    * and GetOutputPointsPrecision() methods instead.
    */
-  void SetPointsDataTypeToDouble() { this->SetPointsDataType( VTK_DOUBLE ); }
-  void SetPointsDataTypeToFloat()  { this->SetPointsDataType( VTK_FLOAT  ); }
+  void SetPointsDataTypeToDouble() { this->SetPointsDataType(VTK_DOUBLE); }
+  void SetPointsDataTypeToFloat() { this->SetPointsDataType(VTK_FLOAT); }
   void SetPointsDataType(int type);
   int GetPointsDataType();
   //@}
@@ -194,36 +189,50 @@ public:
   int GetOutputPointsPrecision() const;
   //@}
 
+  //@{
+  /**
+   * Methods used for thresholding. vtkThreshold::Lower returns true if s is lower than threshold,
+   * vtkThreshold::Upper returns true if s is upper than treshold, and vtkThreshold::Between returns
+   * true if s is between two threshold.
+   *
+   * @warning vtkThreshold::Lower and vtkThreshold::Upper use different thresholds which are set
+   * using the methods vtkThreshold::ThresholdByLower and vtkThreshold::ThresholdByUpper
+   * respectively. vtkThreshold::ThresholdBetween sets both thresholds. Do not use those methods
+   * without priorly setting the corresponding threshold.
+   *
+   * @note They are not protected member for inheritance purposes. The addresses of those methods is
+   * stored in one of this class attributes to figure out which version of the threshold to apply,
+   * which are inaccessible if protected.
+   */
+  int Lower(double s) const;
+  int Upper(double s) const;
+  int Between(double s) const;
+  //@}
 protected:
   vtkThreshold();
   ~vtkThreshold() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-
-  vtkTypeBool    AllScalars;
+  vtkTypeBool AllScalars;
   double LowerThreshold;
   double UpperThreshold;
-  int    AttributeMode;
-  int    ComponentMode;
-  int    SelectedComponent;
+  int AttributeMode;
+  int ComponentMode;
+  int SelectedComponent;
   int OutputPointsPrecision;
   vtkTypeBool UseContinuousCellRange;
-  bool   Invert;
+  bool Invert;
 
-  int (vtkThreshold::*ThresholdFunction)(double s);
+  int (vtkThreshold::*ThresholdFunction)(double s) const;
 
-  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ?
-                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+  int EvaluateComponents(vtkDataArray* scalars, vtkIdType id);
+  int EvaluateCell(vtkDataArray* scalars, vtkIdList* cellPts, int numCellPts);
+  int EvaluateCell(vtkDataArray* scalars, int c, vtkIdList* cellPts, int numCellPts);
 
-  int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
-  int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
-  int EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts );
 private:
   vtkThreshold(const vtkThreshold&) = delete;
   void operator=(const vtkThreshold&) = delete;

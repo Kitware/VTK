@@ -19,7 +19,7 @@
  *
  *
  * This class is a templated data type for storing and manipulating tuples.
-*/
+ */
 
 #ifndef vtkTuple_h
 #define vtkTuple_h
@@ -28,10 +28,10 @@
 #include "vtkSystemIncludes.h"
 
 #include <cassert> // For inline assert for bounds checked methods.
+#include <cmath>   // for std::abs() with float overloads
 #include <cstdlib> // for std::abs() with int overloads
-#include <cmath> // for std::abs() with float overloads
 
-template<typename T, int Size>
+template <typename T, int Size>
 class vtkTuple
 {
 public:
@@ -40,9 +40,7 @@ public:
    * desired, this should be done explicitly using the constructors for scalar
    * initialization, or other suitable constructors taking arguments.
    */
-  vtkTuple()
-  {
-  }
+  vtkTuple() {}
 
   /**
    * Initialize all of the tuple's elements with the supplied scalar.
@@ -125,7 +123,7 @@ public:
   /**
    * Cast the tuple to the specified type, returning the result.
    */
-  template<typename TR>
+  template <typename TR>
   vtkTuple<TR, Size> Cast() const
   {
     vtkTuple<TR, Size> result;
@@ -143,14 +141,14 @@ protected:
    * The only thing stored in memory!
    */
   T Data[Size];
-};
   //@}
+};
 
 //@{
 /**
  * Output the contents of a tuple, mainly useful for debugging.
  */
-template<typename A, int Size>
+template <typename A, int Size>
 ostream& operator<<(ostream& out, const vtkTuple<A, Size>& t)
 {
   out << "(";
@@ -171,7 +169,7 @@ ostream& operator<<(ostream& out, const vtkTuple<A, Size>& t)
   return out;
 }
 // Specialize for unsigned char so that we can see the numbers!
-template<int Size>
+template <int Size>
 ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
 {
   out << "(";
@@ -197,7 +195,7 @@ ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
 /**
  * Equality operator performs an equality check on each component.
  */
-template<typename A, int Size>
+template <typename A, int Size>
 bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
 {
   for (int i = 0; i < Size; ++i)
@@ -214,7 +212,7 @@ bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
 /**
  * Inequality for vector type.
  */
-template<typename A, int Size>
+template <typename A, int Size>
 bool operator!=(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
 {
   return !(t1 == t2);

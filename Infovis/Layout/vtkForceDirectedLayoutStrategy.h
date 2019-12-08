@@ -29,18 +29,18 @@
  * @par Thanks:
  * Thanks to Brian Wylie for adding functionality for allowing this layout
  * to be incremental.
-*/
+ */
 
 #ifndef vtkForceDirectedLayoutStrategy_h
 #define vtkForceDirectedLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkForceDirectedLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkForceDirectedLayoutStrategy *New();
+  static vtkForceDirectedLayoutStrategy* New();
 
   vtkTypeMacro(vtkForceDirectedLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -61,8 +61,8 @@ public:
    * The GraphBounds only affects the results if AutomaticBoundsComputation
    * is off.
    */
-  vtkSetVector6Macro(GraphBounds,double);
-  vtkGetVectorMacro(GraphBounds,double,6);
+  vtkSetVector6Macro(GraphBounds, double);
+  vtkGetVectorMacro(GraphBounds, double, 6);
   //@}
 
   //@{
@@ -156,21 +156,20 @@ public:
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() override {return this->LayoutComplete;}
+  int IsLayoutComplete() override { return this->LayoutComplete; }
 
 protected:
   vtkForceDirectedLayoutStrategy();
   ~vtkForceDirectedLayoutStrategy() override;
 
   double GraphBounds[6];
-  vtkTypeBool   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.
-  int   MaxNumberOfIterations;  //Maximum number of iterations.
-  double CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  vtkTypeBool AutomaticBoundsComputation; // Boolean controls automatic bounds calc.
+  int MaxNumberOfIterations;              // Maximum number of iterations.
+  double CoolDownRate;                    // Cool-down rate.  Note:  Higher # = Slower rate.
   double InitialTemperature;
-  vtkTypeBool   ThreeDimensionalLayout;  //Boolean for a third dimension.
-  vtkTypeBool RandomInitialPoints; //Boolean for having random points
+  vtkTypeBool ThreeDimensionalLayout; // Boolean for a third dimension.
+  vtkTypeBool RandomInitialPoints;    // Boolean for having random points
 private:
-
   // A vertex contains a position and a displacement.
   typedef struct
   {
@@ -192,12 +191,11 @@ private:
   int LayoutComplete;
   double Temp;
   double optDist;
-  vtkLayoutVertex *v;
-  vtkLayoutEdge *e;
+  vtkLayoutVertex* v;
+  vtkLayoutEdge* e;
 
   vtkForceDirectedLayoutStrategy(const vtkForceDirectedLayoutStrategy&) = delete;
   void operator=(const vtkForceDirectedLayoutStrategy&) = delete;
 };
 
 #endif
-

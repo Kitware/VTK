@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkRenderWindow vtkRenderer
-*/
+ */
 
 #ifndef vtkTkRenderWidget_h
 #define vtkTkRenderWidget_h
@@ -47,12 +47,12 @@
 
 struct vtkTkRenderWidget
 {
-  Tk_Window  TkWin;             /* Tk window structure */
-  Tcl_Interp *Interp;           /* Tcl interpreter */
+  Tk_Window TkWin;    /* Tk window structure */
+  Tcl_Interp* Interp; /* Tcl interpreter */
   int Width;
   int Height;
-  vtkRenderWindow *RenderWindow;
-  char *RW;
+  vtkRenderWindow* RenderWindow;
+  char* RW;
 #ifdef _WIN32
   WNDPROC OldProc;
 #endif

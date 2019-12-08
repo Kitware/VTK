@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkBorderWidget vtkCaptionWidget
-*/
+ */
 
 #ifndef vtkTextWidget_h
 #define vtkTextWidget_h
@@ -34,8 +34,8 @@
 class vtkTextRepresentation;
 class vtkTextActor;
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkTextWidget : public vtkBorderWidget
 {
@@ -43,13 +43,13 @@ public:
   /**
    * Instantiate class.
    */
-  static vtkTextWidget *New();
+  static vtkTextWidget* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkTextWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkTextWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -58,9 +58,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkTextRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(
-      reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkTextRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   //@{
   /**
@@ -69,8 +70,8 @@ public:
    * of SetRepresentation()). It internally creates a vtkTextRepresentation
    * and then invokes vtkTextRepresentation::SetTextActor().
    */
-  void SetTextActor(vtkTextActor *textActor);
-  vtkTextActor *GetTextActor();
+  void SetTextActor(vtkTextActor* textActor);
+  vtkTextActor* GetTextActor();
   //@}
 
   /**

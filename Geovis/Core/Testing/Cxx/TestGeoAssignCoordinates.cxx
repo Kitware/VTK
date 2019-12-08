@@ -25,15 +25,14 @@
 #include "vtkGraphMapper.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestGeoAssignCoordinates(int argc, char *argv[])
+int TestGeoAssignCoordinates(int argc, char* argv[])
 {
   VTK_CREATE(vtkMutableDirectedGraph, g);
   VTK_CREATE(vtkDoubleArray, latitude);

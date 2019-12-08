@@ -63,21 +63,19 @@
 #if !defined(__WRAP__)
 namespace vtkThreadedTaskQueueInternals
 {
-template<typename R>
+template <typename R>
 class TaskQueue;
 
-template<typename R>
+template <typename R>
 class ResultQueue;
 };
 
-template<typename R, typename... Args>
+template <typename R, typename... Args>
 class vtkThreadedTaskQueue
 {
 public:
-  vtkThreadedTaskQueue(std::function<R(Args...)> worker,
-    bool strict_ordering = true,
-    int buffer_size = -1,
-    int max_concurrent_tasks = -1);
+  vtkThreadedTaskQueue(std::function<R(Args...)> worker, bool strict_ordering = true,
+    int buffer_size = -1, int max_concurrent_tasks = -1);
   ~vtkThreadedTaskQueue();
 
   /**
@@ -121,14 +119,12 @@ private:
   std::unique_ptr<std::thread[]> Threads;
 };
 
-template<typename... Args>
+template <typename... Args>
 class vtkThreadedTaskQueue<void, Args...>
 {
 public:
-  vtkThreadedTaskQueue(std::function<void(Args...)> worker,
-    bool strict_ordering = true,
-    int buffer_size = -1,
-    int max_concurrent_tasks = -1);
+  vtkThreadedTaskQueue(std::function<void(Args...)> worker, bool strict_ordering = true,
+    int buffer_size = -1, int max_concurrent_tasks = -1);
   ~vtkThreadedTaskQueue();
 
   /**

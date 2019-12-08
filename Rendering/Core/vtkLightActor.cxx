@@ -15,15 +15,15 @@
 #include "vtkLightActor.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
 #include "vtkCameraActor.h"
 #include "vtkConeSource.h"
-#include "vtkCamera.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkBoundingBox.h"
 
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
@@ -31,42 +31,42 @@ vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 // ----------------------------------------------------------------------------
 vtkLightActor::vtkLightActor()
 {
-  this->Light=nullptr;
-  this->ClippingRange[0]=0.5;
-  this->ClippingRange[1]=10.0;
+  this->Light = nullptr;
+  this->ClippingRange[0] = 0.5;
+  this->ClippingRange[1] = 10.0;
 
-  this->ConeSource=nullptr;
-  this->ConeMapper=nullptr;
-  this->ConeActor=nullptr;
-  this->CameraLight=nullptr;
-  this->FrustumActor=nullptr;
+  this->ConeSource = nullptr;
+  this->ConeMapper = nullptr;
+  this->ConeActor = nullptr;
+  this->CameraLight = nullptr;
+  this->FrustumActor = nullptr;
 
-  this->BoundingBox=new vtkBoundingBox;
+  this->BoundingBox = new vtkBoundingBox;
 }
 
 // ----------------------------------------------------------------------------
 vtkLightActor::~vtkLightActor()
 {
   this->SetLight(nullptr);
-  if(this->ConeActor!=nullptr)
+  if (this->ConeActor != nullptr)
   {
     this->ConeActor->Delete();
   }
 
-   if(this->ConeMapper!=nullptr)
-   {
+  if (this->ConeMapper != nullptr)
+  {
     this->ConeMapper->Delete();
-   }
+  }
 
-  if(this->FrustumActor!=nullptr)
+  if (this->FrustumActor != nullptr)
   {
     this->FrustumActor->Delete();
   }
-  if(this->ConeSource!=nullptr)
+  if (this->ConeSource != nullptr)
   {
     this->ConeSource->Delete();
   }
-  if(this->CameraLight!=nullptr)
+  if (this->CameraLight != nullptr)
   {
     this->CameraLight->Delete();
   }
@@ -74,15 +74,14 @@ vtkLightActor::~vtkLightActor()
 }
 
 // ----------------------------------------------------------------------------
- // Description:
+// Description:
 // Set/Get the location of the near and far clipping planes along the
 // direction of projection.  Both of these values must be positive.
 // Initial values are  (0.5,11.0)
-void vtkLightActor::SetClippingRange(double dNear,
-                                     double dFar)
+void vtkLightActor::SetClippingRange(double dNear, double dFar)
 {
-  this->ClippingRange[0]=dNear;
-  this->ClippingRange[1]=dFar;
+  this->ClippingRange[0] = dNear;
+  this->ClippingRange[1] = dFar;
 }
 
 // ----------------------------------------------------------------------------
@@ -94,16 +93,16 @@ void vtkLightActor::SetClippingRange(const double a[2])
 // ----------------------------------------------------------------------------
 // Description:
 // Support the standard render methods.
-int vtkLightActor::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkLightActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->UpdateViewProps();
 
-  int result=0;
+  int result = 0;
 
-  if(this->ConeActor!=nullptr && this->ConeActor->GetMapper()!=nullptr)
+  if (this->ConeActor != nullptr && this->ConeActor->GetMapper() != nullptr)
   {
-    result=this->ConeActor->RenderOpaqueGeometry(viewport);
-    result+=this->FrustumActor->RenderOpaqueGeometry(viewport);
+    result = this->ConeActor->RenderOpaqueGeometry(viewport);
+    result += this->FrustumActor->RenderOpaqueGeometry(viewport);
   }
 
   return result;
@@ -117,11 +116,10 @@ vtkTypeBool vtkLightActor::HasTranslucentPolygonalGeometry()
   return false;
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkLightActor::ReleaseGraphicsResources(vtkWindow *window)
+void vtkLightActor::ReleaseGraphicsResources(vtkWindow* window)
 {
-  if(this->ConeActor!=nullptr)
+  if (this->ConeActor != nullptr)
   {
     this->ConeActor->ReleaseGraphicsResources(window);
     this->FrustumActor->ReleaseGraphicsResources(window);
@@ -130,7 +128,7 @@ void vtkLightActor::ReleaseGraphicsResources(vtkWindow *window)
 
 //-------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-double *vtkLightActor::GetBounds()
+double* vtkLightActor::GetBounds()
 {
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
@@ -139,25 +137,25 @@ double *vtkLightActor::GetBounds()
 
   this->BoundingBox->Reset();
 
-  if(this->ConeActor!=nullptr)
+  if (this->ConeActor != nullptr)
   {
-    if(this->ConeActor->GetUseBounds())
+    if (this->ConeActor->GetUseBounds())
     {
       this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
     }
-    if(this->FrustumActor->GetUseBounds())
+    if (this->FrustumActor->GetUseBounds())
     {
       this->BoundingBox->AddBounds(this->FrustumActor->GetBounds());
     }
   }
 
-  int i=0;
-  while(i<6)
+  int i = 0;
+  while (i < 6)
   {
-    this->Bounds[i]=this->BoundingBox->GetBound(i);
+    this->Bounds[i] = this->BoundingBox->GetBound(i);
     ++i;
   }
-  if(this->Bounds[0]==VTK_DOUBLE_MAX)
+  if (this->Bounds[0] == VTK_DOUBLE_MAX)
   {
     // we cannot initialize the Bounds the same way vtkBoundingBox does because
     // vtkProp3D::GetLength() does not check if the Bounds are initialized or
@@ -174,57 +172,57 @@ double *vtkLightActor::GetBounds()
 //-------------------------------------------------------------------------
 vtkMTimeType vtkLightActor::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
-   if(this->Light!=nullptr)
-   {
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  if (this->Light != nullptr)
+  {
     vtkMTimeType time;
     time = this->Light->GetMTime();
-    if(time>mTime)
+    if (time > mTime)
     {
-      mTime=time;
+      mTime = time;
     }
-   }
+  }
   return mTime;
 }
 
 // ----------------------------------------------------------------------------
 void vtkLightActor::UpdateViewProps()
 {
-  if(this->Light==nullptr)
+  if (this->Light == nullptr)
   {
     vtkDebugMacro(<< "no light.");
     return;
   }
-  double angle=this->Light->GetConeAngle();
+  double angle = this->Light->GetConeAngle();
 
   if (this->Light->GetPositional() && angle < 90.0)
   {
-    if(this->ConeSource==nullptr)
+    if (this->ConeSource == nullptr)
     {
-      this->ConeSource=vtkConeSource::New();
+      this->ConeSource = vtkConeSource::New();
     }
 
     this->ConeSource->SetResolution(24);
-    double *pos=this->Light->GetPosition();
-    double *f=this->Light->GetFocalPoint();
+    double* pos = this->Light->GetPosition();
+    double* f = this->Light->GetFocalPoint();
 
     double direction[3];
-    int i=0;
-    while(i<3)
+    int i = 0;
+    while (i < 3)
     {
-      direction[i]=pos[i]-f[i];
+      direction[i] = pos[i] - f[i];
       ++i;
     }
-    double height=1.0;
+    double height = 1.0;
     double center[3]; //=pos
 
-    double n=vtkMath::Norm(direction);
+    double n = vtkMath::Norm(direction);
 
     // cone center is the middle of its axis, not the center of the base...
-    i=0;
-    while(i<3)
+    i = 0;
+    while (i < 3)
     {
-      center[i]=pos[i]-0.5*height/n*direction[i];
+      center[i] = pos[i] - 0.5 * height / n * direction[i];
       ++i;
     }
     this->ConeSource->SetCenter(center);
@@ -232,43 +230,43 @@ void vtkLightActor::UpdateViewProps()
     this->ConeSource->SetHeight(height);
     this->ConeSource->SetAngle(angle);
 
-    if(this->ConeMapper==nullptr)
+    if (this->ConeMapper == nullptr)
     {
-      this->ConeMapper=vtkPolyDataMapper::New();
+      this->ConeMapper = vtkPolyDataMapper::New();
       this->ConeMapper->SetInputConnection(this->ConeSource->GetOutputPort());
       this->ConeMapper->SetScalarVisibility(0);
     }
 
-    if(this->ConeActor==nullptr)
+    if (this->ConeActor == nullptr)
     {
-      this->ConeActor=vtkActor::New();
+      this->ConeActor = vtkActor::New();
       this->ConeActor->SetMapper(this->ConeMapper);
     }
 
     this->ConeActor->SetVisibility(this->Light->GetSwitch());
 
-    vtkProperty *p=this->ConeActor->GetProperty();
+    vtkProperty* p = this->ConeActor->GetProperty();
     p->SetLighting(false);
     p->SetColor(this->Light->GetDiffuseColor());
     p->SetRepresentationToWireframe();
 
-    if(this->CameraLight==nullptr)
+    if (this->CameraLight == nullptr)
     {
-      this->CameraLight=vtkCamera::New();
+      this->CameraLight = vtkCamera::New();
     }
 
     this->CameraLight->SetPosition(this->Light->GetPosition());
     this->CameraLight->SetFocalPoint(this->Light->GetFocalPoint());
-    this->CameraLight->SetViewUp(0.0,1.0,0.0);
+    this->CameraLight->SetViewUp(0.0, 1.0, 0.0);
     // view angle is an aperture, but cone (or light) angle is between
     // the axis of the cone and a ray along the edge of the cone.
-    this->CameraLight->SetViewAngle(angle*2.0);
+    this->CameraLight->SetViewAngle(angle * 2.0);
     // initial clip=(0.1,1000). near>0, far>near);
     this->CameraLight->SetClippingRange(this->ClippingRange);
 
-    if(this->FrustumActor==nullptr)
+    if (this->FrustumActor == nullptr)
     {
-      this->FrustumActor=vtkCameraActor::New();
+      this->FrustumActor = vtkCameraActor::New();
     }
     this->FrustumActor->SetCamera(this->CameraLight);
     this->FrustumActor->SetWidthByHeightRatio(1.0); // camera light is square
@@ -276,11 +274,11 @@ void vtkLightActor::UpdateViewProps()
   }
   else
   {
-    if(this->ConeActor)
+    if (this->ConeActor)
     {
       this->ConeActor->SetMapper(nullptr);
     }
-    if(this->FrustumActor)
+    if (this->FrustumActor)
     {
       this->FrustumActor->SetCamera(nullptr);
     }
@@ -292,18 +290,18 @@ void vtkLightActor::UpdateViewProps()
 //-------------------------------------------------------------------------
 void vtkLightActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Light: ";
-  if(this->Light==nullptr)
+  if (this->Light == nullptr)
   {
     os << "(none)" << endl;
   }
   else
   {
-    this->Light->PrintSelf(os,indent);
+    this->Light->PrintSelf(os, indent);
   }
 
-  os << indent << "ClippingRange: " << this->ClippingRange[0] << ","
-     << this->ClippingRange[1] <<  endl;
+  os << indent << "ClippingRange: " << this->ClippingRange[0] << "," << this->ClippingRange[1]
+     << endl;
 }

@@ -20,19 +20,27 @@
  *
  * vtkmCoordinateSystemTransform is a filter that transforms a coordinate system
  * between Cartesian&Cylindrical and Cartesian&Spherical.
-*/
+ */
 
 #ifndef vtkmCoordinateSystemTransform_h
 #define vtkmCoordinateSystemTransform_h
 
-#include "vtkPointSetAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkPointSetAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmCoordinateSystemTransform : public vtkPointSetAlgorithm
 {
-  enum struct TransformTypes {None, CarToCyl, CylToCar, CarToSph, SphToCar};
+  enum struct TransformTypes
+  {
+    None,
+    CarToCyl,
+    CylToCar,
+    CarToSph,
+    SphToCar
+  };
+
 public:
-  vtkTypeMacro(vtkmCoordinateSystemTransform, vtkPointSetAlgorithm)
+  vtkTypeMacro(vtkmCoordinateSystemTransform, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmCoordinateSystemTransform* New();
@@ -44,15 +52,14 @@ public:
   void SetSphericalToCartesian();
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
 protected:
   vtkmCoordinateSystemTransform();
   ~vtkmCoordinateSystemTransform();
 
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* , vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmCoordinateSystemTransform(const vtkmCoordinateSystemTransform&) = delete;

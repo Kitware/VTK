@@ -21,16 +21,16 @@
  * This class contains a matrix of charts. These charts will be of type
  * vtkChartXY by default, but this can be overridden. The class will manage
  * their layout and object lifetime.
-*/
+ */
 
 #ifndef vtkChartMatrix_h
 #define vtkChartMatrix_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
-#include "vtkVector.h" // For ivars
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkVector.h"           // For ivars
 
-#include <map> // For specific gutter
+#include <map>     // For specific gutter
 #include <utility> // For specific gutter
 
 class vtkChart;
@@ -39,12 +39,12 @@ class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkChartMatrix, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new object.
    */
-  static vtkChartMatrix *New();
+  static vtkChartMatrix* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -54,7 +54,7 @@ public:
   /**
    * Paint event for the chart matrix.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the width and height of the chart matrix. This will cause an immediate
@@ -79,9 +79,9 @@ public:
   void SetBorderTop(int value);
   virtual void GetBorders(int borders[4])
   {
-    for(int i=0;i<4;i++)
+    for (int i = 0; i < 4; i++)
     {
-      borders[i]=this->Borders[i];
+      borders[i] = this->Borders[i];
     }
   }
   //@}
@@ -133,8 +133,7 @@ public:
    * exceed the remaining space in x or y.
    * \return false If the span is not possible.
    */
-  virtual bool SetChartSpan(const vtkVector2i& position,
-                            const vtkVector2i& span);
+  virtual bool SetChartSpan(const vtkVector2i& position, const vtkVector2i& span);
 
   /**
    * Get the span of the specified chart.
@@ -161,11 +160,11 @@ protected:
   bool LayoutIsDirty;
 
 private:
-  vtkChartMatrix(const vtkChartMatrix &) = delete;
-  void operator=(const vtkChartMatrix &) = delete;
+  vtkChartMatrix(const vtkChartMatrix&) = delete;
+  void operator=(const vtkChartMatrix&) = delete;
 
   class PIMPL;
-  PIMPL *Private;
+  PIMPL* Private;
 };
 
-#endif //vtkChartMatrix_h
+#endif // vtkChartMatrix_h

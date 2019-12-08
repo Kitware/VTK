@@ -36,32 +36,30 @@
  *
  * @sa
  * vtkMultiProcessController vtkSocketCommunicator vtkInputPort vtkOutputPort
-*/
+ */
 
 #ifndef vtkSocketController_h
 #define vtkSocketController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class vtkSocketCommunicator;
 
 class VTKPARALLELCORE_EXPORT vtkSocketController : public vtkMultiProcessController
 {
 public:
-  static vtkSocketController *New();
-  vtkTypeMacro(vtkSocketController,vtkMultiProcessController);
+  static vtkSocketController* New();
+  vtkTypeMacro(vtkSocketController, vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method is for initialiazing sockets.
    * One of these is REQUIRED for Windows.
    */
-  void Initialize(int* argc, char*** argv, int) override
-    { this->Initialize(argc,argv); }
+  void Initialize(int* argc, char*** argv, int) override { this->Initialize(argc, argv); }
   void Initialize(int* argc, char*** argv) override;
-  virtual void Initialize()
-    { this->Initialize(nullptr,nullptr); }
+  virtual void Initialize() { this->Initialize(nullptr, nullptr); }
 
   /**
    * Does not apply to sockets. Does nothing.
@@ -100,7 +98,7 @@ public:
    * Open a connection to a give machine, forwarded
    * to the communicator
    */
-  virtual int ConnectTo(const char* hostName, int port );
+  virtual int ConnectTo(const char* hostName, int port);
 
   int GetSwapBytesInReceivedData();
 
@@ -118,26 +116,26 @@ public:
    * correct process id semantics.  The calling code is responsible for
    * deleting this controller.
    */
-  vtkMultiProcessController *CreateCompliantController();
+  vtkMultiProcessController* CreateCompliantController();
 
-  enum Consts {
-    ENDIAN_TAG=1010580540,      // 0x3c3c3c3c
-    IDTYPESIZE_TAG=1027423549,  // 0x3d3d3d3d
-    VERSION_TAG=1044266558,     // 0x3e3e3e3e
-    HASH_TAG=0x3f3f3f3f
+  enum Consts
+  {
+    ENDIAN_TAG = 1010580540,     // 0x3c3c3c3c
+    IDTYPESIZE_TAG = 1027423549, // 0x3d3d3d3d
+    VERSION_TAG = 1044266558,    // 0x3e3e3e3e
+    HASH_TAG = 0x3f3f3f3f
   };
 
 protected:
-
   vtkSocketController();
   ~vtkSocketController() override;
 
   // Initialize only once, finialize on destruction.
   static int Initialized;
+
 private:
   vtkSocketController(const vtkSocketController&) = delete;
   void operator=(const vtkSocketController&) = delete;
 };
-
 
 #endif // vtkSocketController_h

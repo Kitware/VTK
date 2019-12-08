@@ -40,13 +40,13 @@
  *
  * @sa
  * vtk3DWidget vtkBoxWidget vtkLineWidget
-*/
+ */
 
 #ifndef vtkInteractorObserver_h
 #define vtkInteractorObserver_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
@@ -59,7 +59,7 @@ class vtkPickingManager;
 class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkInteractorObserver,vtkObject);
+  vtkTypeMacro(vtkInteractorObserver, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -71,11 +71,11 @@ public:
    * SetInteractor()). Initial value is 0.
    */
   virtual void SetEnabled(int) {}
-  int GetEnabled() {return this->Enabled;}
-  void EnabledOn() {this->SetEnabled(1);}
-  void EnabledOff() {this->SetEnabled(0);}
-  void On() {this->SetEnabled(1);}
-  void Off() {this->SetEnabled(0);}
+  int GetEnabled() { return this->Enabled; }
+  void EnabledOn() { this->SetEnabled(1); }
+  void EnabledOff() { this->SetEnabled(0); }
+  void On() { this->SetEnabled(1); }
+  void Off() { this->SetEnabled(0); }
 
   //@{
   /**
@@ -101,8 +101,8 @@ public:
    * to SetInteractor(NULL), change priority, and then SetInteractor(iren)
    * to have the priority take effect.)
    */
-  vtkSetClampMacro(Priority,float,0.0f,1.0f);
-  vtkGetMacro(Priority,float);
+  vtkSetClampMacro(Priority, float, 0.0f, 1.0f);
+  vtkGetMacro(Priority, float);
   //@}
 
   //@{
@@ -122,9 +122,9 @@ public:
    * observer".)  Set the KeyPressActivationValue to change which key
    * activates the widget.)
    */
-  vtkSetMacro(KeyPressActivation,vtkTypeBool);
-  vtkGetMacro(KeyPressActivation,vtkTypeBool);
-  vtkBooleanMacro(KeyPressActivation,vtkTypeBool);
+  vtkSetMacro(KeyPressActivation, vtkTypeBool);
+  vtkGetMacro(KeyPressActivation, vtkTypeBool);
+  vtkBooleanMacro(KeyPressActivation, vtkTypeBool);
   //@}
 
   //@{
@@ -135,8 +135,8 @@ public:
    * invoked, changing the key press activation value will not affect the key
    * press until SetInteractor(NULL)/SetInteractor(iren) is called.
    */
-  vtkSetMacro(KeyPressActivationValue,char);
-  vtkGetMacro(KeyPressActivationValue,char);
+  vtkSetMacro(KeyPressActivationValue, char);
+  vtkGetMacro(KeyPressActivationValue, char);
   //@}
 
   //@{
@@ -148,7 +148,7 @@ public:
    * renderer to bind the interactor to when the interactor observer is
    * activated.
    */
-  vtkGetObjectMacro(DefaultRenderer,vtkRenderer);
+  vtkGetObjectMacro(DefaultRenderer, vtkRenderer);
   virtual void SetDefaultRenderer(vtkRenderer*);
   //@}
 
@@ -164,7 +164,7 @@ public:
    * unless it is NULL.
    * (i.e., SetCurrentRenderer(foo) = SetCurrentRenderer(DefaultRenderer).
    */
-  vtkGetObjectMacro(CurrentRenderer,vtkRenderer);
+  vtkGetObjectMacro(CurrentRenderer, vtkRenderer);
   virtual void SetCurrentRenderer(vtkRenderer*);
   //@}
 
@@ -178,10 +178,10 @@ public:
    * Convenience methods for outside classes. Make sure that the
    * parameter "ren" is not-null.
    */
-  static void ComputeDisplayToWorld(vtkRenderer *ren, double x, double y,
-                                    double z, double worldPt[4]);
-  static void ComputeWorldToDisplay(vtkRenderer *ren, double x, double y,
-                                    double z, double displayPt[3]);
+  static void ComputeDisplayToWorld(
+    vtkRenderer* ren, double x, double y, double z, double worldPt[4]);
+  static void ComputeWorldToDisplay(
+    vtkRenderer* ren, double x, double y, double z, double displayPt[3]);
   //@}
 
   //@{
@@ -195,7 +195,7 @@ public:
    * as well as listening for DeleteEvents, without actually having to process
    * mouse events.)
    */
-  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=nullptr);
+  void GrabFocus(vtkCommand* mouseEvents, vtkCommand* keypressEvents = nullptr);
   void ReleaseFocus();
   //@}
 
@@ -216,27 +216,23 @@ protected:
   /**
    * Handles the char widget activation event. Also handles the delete event.
    */
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   //@{
   /**
    * Helper method for subclasses.
    */
-  void ComputeDisplayToWorld(double x, double y, double z,
-                             double worldPt[4]);
-  void ComputeWorldToDisplay(double x, double y, double z,
-                             double displayPt[3]);
+  void ComputeDisplayToWorld(double x, double y, double z, double worldPt[4]);
+  void ComputeWorldToDisplay(double x, double y, double z, double displayPt[3]);
   //@}
 
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;
 
   // Used to process events
-  vtkCallbackCommand* EventCallbackCommand; //subclasses use one
-  vtkCallbackCommand* KeyPressCallbackCommand; //listens to key activation
+  vtkCallbackCommand* EventCallbackCommand;    // subclasses use one
+  vtkCallbackCommand* KeyPressCallbackCommand; // listens to key activation
 
   // Priority at which events are processed
   float Priority;
@@ -267,31 +263,29 @@ protected:
    * Proceed to a pick, whether through the PickingManager if the picking is
    * managed or directly using the picker, and return the assembly path.
    */
-  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
-                                   vtkAbstractPropPicker* picker);
+  vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker);
 
   // Keypress activation controls
   vtkTypeBool KeyPressActivation;
   char KeyPressActivationValue;
 
   // Used to associate observers with the interactor
-  vtkRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor* Interactor;
 
   // Internal ivars for processing events
-  vtkRenderer *CurrentRenderer;
-  vtkRenderer *DefaultRenderer;
+  vtkRenderer* CurrentRenderer;
+  vtkRenderer* DefaultRenderer;
 
   unsigned long CharObserverTag;
   unsigned long DeleteObserverTag;
 
   // The mediator used to request resources from the interactor.
-  vtkObserverMediator *ObserverMediator;
+  vtkObserverMediator* ObserverMediator;
   int RequestCursorShape(int requestedShape);
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&) = delete;
   void operator=(const vtkInteractorObserver&) = delete;
-
 };
 
 #endif

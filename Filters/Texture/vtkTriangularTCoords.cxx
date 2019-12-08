@@ -26,42 +26,38 @@
 
 vtkStandardNewMacro(vtkTriangularTCoords);
 
-int vtkTriangularTCoords::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType tmp;
   int j;
-  vtkPoints *inPts;
-  vtkPointData *pd;
-  vtkCellArray *inPolys,*inStrips;
+  vtkPoints* inPts;
+  vtkPointData* pd;
+  vtkCellArray *inPolys, *inStrips;
   vtkIdType numNewPts, numNewPolys, polyAllocSize;
-  vtkFloatArray *newTCoords;
+  vtkFloatArray* newTCoords;
   vtkIdType newId, numCells, cellId;
-  vtkIdType *pts = nullptr;
+  const vtkIdType* pts = nullptr;
   vtkIdType newIds[3];
   vtkIdType npts = 0;
   int errorLogging = 1;
-  vtkPoints *newPoints;
-  vtkCellArray *newPolys;
+  vtkPoints* newPoints;
+  vtkCellArray* newPolys;
   double p1[3], p2[3], p3[3];
   double tCoords[6];
-  vtkPointData *pointData = output->GetPointData();
+  vtkPointData* pointData = output->GetPointData();
 
   // Initialize
   //
-  vtkDebugMacro(<<"Generating triangular texture coordinates");
+  vtkDebugMacro(<< "Generating triangular texture coordinates");
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
@@ -77,15 +73,15 @@ int vtkTriangularTCoords::RequestData(
   numNewPolys = 0;
   polyAllocSize = 0;
 
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
   {
     numNewPts += npts;
     numNewPolys++;
     polyAllocSize += npts + 1;
   }
-  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
   {
-    numNewPts += (npts-2) * 3;
+    numNewPts += (npts - 2) * 3;
     polyAllocSize += (npts - 2) * 4;
   }
   numCells = inPolys->GetNumberOfCells() + inStrips->GetNumberOfCells();
@@ -94,7 +90,7 @@ int vtkTriangularTCoords::RequestData(
   //
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2*numNewPts);
+  newTCoords->Allocate(2 * numNewPts);
 
   // Allocate
   //
@@ -102,86 +98,84 @@ int vtkTriangularTCoords::RequestData(
   newPoints->Allocate(numNewPts);
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(polyAllocSize);
+  newPolys->AllocateEstimate(polyAllocSize, 1);
 
   pointData->CopyTCoordsOff();
   pointData->CopyAllocate(pd);
 
   // Texture coordinates are the same for each triangle
   //
-  tCoords[0]= 0.0;
-  tCoords[1]= 0.0;
-  tCoords[2]= 1.0;
-  tCoords[3]= 0.0;
-  tCoords[4]= 0.5;
-  tCoords[5]= sqrt(3.0)/2.0;
+  tCoords[0] = 0.0;
+  tCoords[1] = 0.0;
+  tCoords[2] = 1.0;
+  tCoords[3] = 0.0;
+  tCoords[4] = 0.5;
+  tCoords[5] = sqrt(3.0) / 2.0;
 
-  int abort=0;
-  vtkIdType progressInterval=numCells/20 + 1;
-  for (cellId=0, inPolys->InitTraversal();
-       inPolys->GetNextCell(npts,pts) && !abort; cellId++)
+  int abort = 0;
+  vtkIdType progressInterval = numCells / 20 + 1;
+  for (cellId = 0, inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts) && !abort; cellId++)
   {
-    if ( !(cellId % progressInterval) )
+    if (!(cellId % progressInterval))
     {
-      this->UpdateProgress((double)cellId/numCells);
+      this->UpdateProgress((double)cellId / numCells);
       abort = this->GetAbortExecute();
     }
 
     if (npts != 3)
     {
-      if (errorLogging) vtkWarningMacro(
-        << "No texture coordinates for this cell, it is not a triangle");
+      if (errorLogging)
+        vtkWarningMacro(<< "No texture coordinates for this cell, it is not a triangle");
       errorLogging = 0;
       continue;
     }
     newPolys->InsertNextCell(npts);
-    for (j=0; j<npts; j++)
+    for (j = 0; j < npts; j++)
     {
       inPts->GetPoint(pts[j], p1);
       newId = newPoints->InsertNextPoint(p1);
       newPolys->InsertCellPoint(newId);
-      pointData->CopyData(pd,pts[j],newId);
-      newTCoords->InsertNextTuple (&tCoords[2*j]);
+      pointData->CopyData(pd, pts[j], newId);
+      newTCoords->InsertNextTuple(&tCoords[2 * j]);
     }
   }
 
   // Triangle strips
   //
-  for (inStrips->InitTraversal();
-       inStrips->GetNextCell(npts,pts) && !abort; cellId++)
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts) && !abort; cellId++)
   {
-    if ( !(cellId % progressInterval) )
+    if (!(cellId % progressInterval))
     {
-      this->UpdateProgress((double)cellId/numCells);
+      this->UpdateProgress((double)cellId / numCells);
       abort = this->GetAbortExecute();
     }
 
-    for (j=0; j<(npts-2); j++)
+    for (j = 0; j < (npts - 2); j++)
     {
       inPts->GetPoint(pts[j], p1);
-      inPts->GetPoint(pts[j+1], p2);
-      inPts->GetPoint(pts[j+2], p3);
+      inPts->GetPoint(pts[j + 1], p2);
+      inPts->GetPoint(pts[j + 2], p3);
 
       newIds[0] = newPoints->InsertNextPoint(p1);
-      pointData->CopyData(pd,pts[j],newIds[0]);
-      newTCoords->InsertNextTuple (&tCoords[0]);
+      pointData->CopyData(pd, pts[j], newIds[0]);
+      newTCoords->InsertNextTuple(&tCoords[0]);
 
       newIds[1] = newPoints->InsertNextPoint(p2);
-      pointData->CopyData(pd,pts[j+1],newIds[1]);
-      newTCoords->InsertNextTuple (&tCoords[2]);
+      pointData->CopyData(pd, pts[j + 1], newIds[1]);
+      newTCoords->InsertNextTuple(&tCoords[2]);
 
       newIds[2] = newPoints->InsertNextPoint(p3);
-      pointData->CopyData(pd,pts[j+2],newIds[2]);
-      newTCoords->InsertNextTuple (&tCoords[4]);
+      pointData->CopyData(pd, pts[j + 2], newIds[2]);
+      newTCoords->InsertNextTuple(&tCoords[4]);
 
       // flip orientation for odd tris
-      if (j%2)
+      if (j % 2)
       {
         tmp = newIds[0];
         newIds[0] = newIds[2];
         newIds[2] = tmp;
       }
-      newPolys->InsertNextCell(3,newIds);
+      newPolys->InsertNextCell(3, newIds);
     }
   }
 
@@ -201,5 +195,5 @@ int vtkTriangularTCoords::RequestData(
 
 void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

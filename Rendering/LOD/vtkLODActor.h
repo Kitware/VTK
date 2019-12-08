@@ -51,13 +51,13 @@
  *
  * @sa
  * vtkActor vtkRenderer vtkLODProp3D
-*/
+ */
 
 #ifndef vtkLODActor_h
 #define vtkLODActor_h
 
-#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingLODModule.h" // For export macro
 
 class vtkMapper;
 class vtkMapperCollection;
@@ -84,7 +84,7 @@ public:
    * This causes the actor to be rendered.
    * It, in turn, will render the actor's property and then mapper.
    */
-  void Render(vtkRenderer *, vtkMapper *) override;
+  void Render(vtkRenderer*, vtkMapper*) override;
 
   /**
    * This method is used internally by the rendering process. We override
@@ -141,7 +141,7 @@ public:
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkLODActor();

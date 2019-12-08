@@ -12,79 +12,70 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkSmartPointer.h>
 #include <vtkDataSetGradient.h>
 #include <vtkDataSetGradientPrecompute.h>
+#include <vtkSmartPointer.h>
 
-#include <vtkMaskPoints.h>
 #include <vtkArrowSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkMaskPoints.h>
 
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkGenericCell.h>
 #include <vtkPointData.h>
 
-#include <vtkUnstructuredGridReader.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridReader.h>
 
+#include <vtkActor.h>
+#include <vtkCamera.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkCamera.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include "vtkTestUtilities.h"
 
 // NOTE: This test is identical to TestDataSetGradient except is uses
 // vtkDataSetGradientPrecompute to compute the gradients.
 
-int TestDataSetGradientPrecompute(int argc, char *argv[])
+int TestDataSetGradientPrecompute(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/hexa.vtk");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/hexa.vtk");
 
   // Read the data
   vtkSmartPointer<vtkUnstructuredGridReader> reader =
     vtkSmartPointer<vtkUnstructuredGridReader>::New();
-  reader->SetFileName (fileName);
-  delete [] fileName;
+  reader->SetFileName(fileName);
+  delete[] fileName;
 
   vtkSmartPointer<vtkDataSetGradientPrecompute> gradientPrecompute =
     vtkSmartPointer<vtkDataSetGradientPrecompute>::New();
-  gradientPrecompute->SetInputConnection (reader->GetOutputPort());
+  gradientPrecompute->SetInputConnection(reader->GetOutputPort());
 
   // This class computes the gradient for each cell
-  vtkSmartPointer<vtkDataSetGradient> gradient =
-    vtkSmartPointer<vtkDataSetGradient>::New();
-  gradient->SetInputConnection (gradientPrecompute->GetOutputPort());
+  vtkSmartPointer<vtkDataSetGradient> gradient = vtkSmartPointer<vtkDataSetGradient>::New();
+  gradient->SetInputConnection(gradientPrecompute->GetOutputPort());
   gradient->SetInputArrayToProcess(0, 0, 0, 0, "scalars");
   gradient->Update();
 
   // Create a polydata
   //  Points at the parametric center of each cell
   //  PointData contains the gradient
-  vtkDoubleArray *gradientAtCenters =
-    vtkDoubleArray::SafeDownCast(
-      gradient->GetOutput()->GetCellData()->GetArray("gradient"));
+  vtkDoubleArray* gradientAtCenters =
+    vtkDoubleArray::SafeDownCast(gradient->GetOutput()->GetCellData()->GetArray("gradient"));
 
-  vtkSmartPointer<vtkDoubleArray> gradients =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> gradients = vtkSmartPointer<vtkDoubleArray>::New();
   gradients->ShallowCopy(gradientAtCenters);
 
-  vtkSmartPointer<vtkPolyData> polyData =
-    vtkSmartPointer<vtkPolyData>::New();
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetNumberOfPoints(gradient->GetOutput()->GetNumberOfCells());
 
-  vtkSmartPointer<vtkGenericCell> aCell =
-    vtkSmartPointer<vtkGenericCell>::New();
-  for (vtkIdType cellId = 0;
-       cellId < gradient->GetOutput()->GetNumberOfCells();
-       ++cellId)
+  vtkSmartPointer<vtkGenericCell> aCell = vtkSmartPointer<vtkGenericCell>::New();
+  for (vtkIdType cellId = 0; cellId < gradient->GetOutput()->GetNumberOfCells(); ++cellId)
   {
     gradient->GetOutput()->GetCell(cellId, aCell);
     reader->GetOutput()->GetCell(cellId, aCell);
@@ -101,22 +92,19 @@ int TestDataSetGradientPrecompute(int argc, char *argv[])
 
   // Select a small percentage of the gradients
   // Use 10% of the points
-  int onRatio = reader->GetOutput()->GetNumberOfPoints() /
-    (reader->GetOutput()->GetNumberOfPoints() * .1);
+  int onRatio =
+    reader->GetOutput()->GetNumberOfPoints() / (reader->GetOutput()->GetNumberOfPoints() * .1);
 
-  vtkSmartPointer<vtkMaskPoints> maskPoints =
-    vtkSmartPointer<vtkMaskPoints>::New();
+  vtkSmartPointer<vtkMaskPoints> maskPoints = vtkSmartPointer<vtkMaskPoints>::New();
   maskPoints->SetInputData(polyData);
   maskPoints->RandomModeOff();
   maskPoints->SetOnRatio(onRatio);
 
   // Create the Glyphs for the gradient
-  vtkSmartPointer<vtkArrowSource> arrowSource =
-    vtkSmartPointer<vtkArrowSource>::New();
+  vtkSmartPointer<vtkArrowSource> arrowSource = vtkSmartPointer<vtkArrowSource>::New();
 
   double scaleFactor = .005;
-  vtkSmartPointer<vtkGlyph3D> vectorGradientGlyph =
-    vtkSmartPointer<vtkGlyph3D>::New();
+  vtkSmartPointer<vtkGlyph3D> vectorGradientGlyph = vtkSmartPointer<vtkGlyph3D>::New();
   vectorGradientGlyph->SetSourceConnection(arrowSource->GetOutputPort());
   vectorGradientGlyph->SetInputConnection(maskPoints->GetOutputPort());
   vectorGradientGlyph->SetScaleModeToScaleByVector();
@@ -128,18 +116,15 @@ int TestDataSetGradientPrecompute(int argc, char *argv[])
   vectorGradientMapper->SetInputConnection(vectorGradientGlyph->GetOutputPort());
   vectorGradientMapper->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkActor> vectorGradientActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> vectorGradientActor = vtkSmartPointer<vtkActor>::New();
   vectorGradientActor->SetMapper(vectorGradientMapper);
   vectorGradientActor->GetProperty()->SetColor(1.0000, 0.3882, 0.2784);
 
   // Create a renderer, render window, and interactor
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->SetBackground(.5, .5, .5);
 
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();

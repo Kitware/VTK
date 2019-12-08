@@ -12,20 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkIntersectionPolyDataFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkStripper.h"
 #include <cassert>
 
-bool
-TestSpherePlaneIntersection(bool joinSegments)
+bool TestSpherePlaneIntersection(bool joinSegments)
 {
   // Sphere
-  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<
-      vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
   sphereSource->SetCenter(0.0, 0.0, 0.0);
   sphereSource->SetRadius(2.0f);
   sphereSource->SetPhiResolution(20);
@@ -34,8 +32,7 @@ TestSpherePlaneIntersection(bool joinSegments)
 
   // Plane
   vtkSmartPointer<vtkPoints> PlanePoints = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> PlaneCells =
-      vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkCellArray> PlaneCells = vtkSmartPointer<vtkCellArray>::New();
   // 4 points
   PlanePoints->InsertNextPoint(-3, -1, 0);
   PlanePoints->InsertNextPoint(3, -1, 0);
@@ -59,11 +56,10 @@ TestSpherePlaneIntersection(bool joinSegments)
 
   // Intersect plane with sphere, get lines
   vtkSmartPointer<vtkIntersectionPolyDataFilter> intersectionPolyDataFilter =
-      vtkSmartPointer<vtkIntersectionPolyDataFilter>::New();
+    vtkSmartPointer<vtkIntersectionPolyDataFilter>::New();
   intersectionPolyDataFilter->SplitFirstOutputOff();
   intersectionPolyDataFilter->SplitSecondOutputOff();
-  intersectionPolyDataFilter->SetInputConnection(0,
-      sphereSource->GetOutputPort());
+  intersectionPolyDataFilter->SetInputConnection(0, sphereSource->GetOutputPort());
   intersectionPolyDataFilter->SetInputData(1, Plane);
   intersectionPolyDataFilter->Update();
 
@@ -77,8 +73,7 @@ TestSpherePlaneIntersection(bool joinSegments)
   }
 
   stripper->Update();
-  vtkSmartPointer<vtkPolyDataMapper> intersectionMapper = vtkSmartPointer<
-      vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> intersectionMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   intersectionMapper->SetInputConnection(stripper->GetOutputPort());
 
   if (joinSegments)
@@ -99,8 +94,7 @@ TestSpherePlaneIntersection(bool joinSegments)
   return true;
 }
 
-int
-TestStripper(int, char *[])
+int TestStripper(int, char*[])
 {
   if (!TestSpherePlaneIntersection(false))
   {

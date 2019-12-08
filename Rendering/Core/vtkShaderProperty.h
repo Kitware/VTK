@@ -25,32 +25,32 @@
  * @par Thanks:
  * Developed by Simon Drouin (sdrouin2@bwh.harvard.edu) at Brigham and Women's Hospital.
  *
-*/
+ */
 
 #ifndef vtkShaderProperty_h
 #define vtkShaderProperty_h
 
+#include "vtkNew.h" // For iVars
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkNew.h"                 // For iVars
 
 class vtkUniforms;
 
 class VTKRENDERINGCORE_EXPORT vtkShaderProperty : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkShaderProperty,vtkObject);
+  vtkTypeMacro(vtkShaderProperty, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no shader replacements
    */
-  static vtkShaderProperty *New();
+  static vtkShaderProperty* New();
 
   /**
    * Assign one property to another.
    */
-  void DeepCopy(vtkShaderProperty *p);
+  void DeepCopy(vtkShaderProperty* p);
 
   /**
    * @brief GetShaderMTime returns the last time a modification
@@ -87,9 +87,9 @@ public:
    * The Uniforms object allows to set custom uniform variables
    * that are used in replacement shader code.
    */
-  vtkGetObjectMacro(FragmentCustomUniforms,vtkUniforms);
-  vtkGetObjectMacro(VertexCustomUniforms,vtkUniforms);
-  vtkGetObjectMacro(GeometryCustomUniforms,vtkUniforms);
+  vtkGetObjectMacro(FragmentCustomUniforms, vtkUniforms);
+  vtkGetObjectMacro(VertexCustomUniforms, vtkUniforms);
+  vtkGetObjectMacro(GeometryCustomUniforms, vtkUniforms);
   //@}
 
   //@{
@@ -100,38 +100,25 @@ public:
    * shader template. Using this function you can apply your
    * own string replacements to add features you desire.
    */
-  virtual void AddVertexShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) = 0;
-  virtual void AddFragmentShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) = 0;
-  virtual void AddGeometryShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst,  // do this replacement before the default
-      const std::string& replacementValue,
-      bool replaceAll) = 0;
+  virtual void AddVertexShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) = 0;
+  virtual void AddFragmentShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) = 0;
+  virtual void AddGeometryShaderReplacement(const std::string& originalValue,
+    bool replaceFirst, // do this replacement before the default
+    const std::string& replacementValue, bool replaceAll) = 0;
   virtual int GetNumberOfShaderReplacements() = 0;
-  virtual std::string GetNthShaderReplacementTypeAsString( vtkIdType index ) = 0;
-  virtual void GetNthShaderReplacement(
-      vtkIdType index,
-      std::string & name,
-      bool & replaceFirst,
-      std::string & replacementValue,
-      bool & replaceAll ) = 0;
+  virtual std::string GetNthShaderReplacementTypeAsString(vtkIdType index) = 0;
+  virtual void GetNthShaderReplacement(vtkIdType index, std::string& name, bool& replaceFirst,
+    std::string& replacementValue, bool& replaceAll) = 0;
   virtual void ClearVertexShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) = 0;
+    const std::string& originalValue, bool replaceFirst) = 0;
   virtual void ClearFragmentShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) = 0;
+    const std::string& originalValue, bool replaceFirst) = 0;
   virtual void ClearGeometryShaderReplacement(
-      const std::string& originalValue,
-      bool replaceFirst) = 0;
+    const std::string& originalValue, bool replaceFirst) = 0;
   virtual void ClearAllVertexShaderReplacements() = 0;
   virtual void ClearAllFragmentShaderReplacements() = 0;
   virtual void ClearAllGeometryShaderReplacements() = 0;
@@ -142,9 +129,9 @@ protected:
   vtkShaderProperty();
   ~vtkShaderProperty() override;
 
-  char *VertexShaderCode;
-  char *FragmentShaderCode;
-  char *GeometryShaderCode;
+  char* VertexShaderCode;
+  char* FragmentShaderCode;
+  char* GeometryShaderCode;
 
   vtkNew<vtkUniforms> FragmentCustomUniforms;
   vtkNew<vtkUniforms> VertexCustomUniforms;

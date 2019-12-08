@@ -76,17 +76,16 @@
  *
  * @sa
  * vtkAxesTransformRepresentation vtkAffineWidget vtkBoxWidget2
-*/
+ */
 
 #ifndef vtkAxesTransformWidget_h
 #define vtkAxesTransformWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAxesTransformRepresentation;
 class vtkHandleWidget;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkAxesTransformWidget : public vtkAbstractWidget
 {
@@ -94,13 +93,13 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkAxesTransformWidget *New();
+  static vtkAxesTransformWidget* New();
 
   //@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkAxesTransformWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkAxesTransformWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -115,14 +114,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkAxesTransformRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkAxesTransformRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkAxesTransformRepresentation.
    */
-  vtkAxesTransformRepresentation *GetLineRepresentation()
-    {return reinterpret_cast<vtkAxesTransformRepresentation*>(this->WidgetRep);}
+  vtkAxesTransformRepresentation* GetLineRepresentation()
+  {
+    return reinterpret_cast<vtkAxesTransformRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -140,7 +143,11 @@ protected:
   ~vtkAxesTransformWidget() override;
 
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
   int CurrentHandle;
 
   // These methods handle events
@@ -149,8 +156,8 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
   // The positioning handle widgets
-  vtkHandleWidget *OriginWidget; //first end point
-  vtkHandleWidget *SelectionWidget; //used when selecting any one of the axes
+  vtkHandleWidget* OriginWidget;    // first end point
+  vtkHandleWidget* SelectionWidget; // used when selecting any one of the axes
 
 private:
   vtkAxesTransformWidget(const vtkAxesTransformWidget&) = delete;

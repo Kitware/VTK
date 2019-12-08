@@ -29,29 +29,26 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmFilterPolicy.h"
 #include "vtkm/cont/DataSetFieldAdd.h"
+#include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/WarpScalar.h>
 
-vtkStandardNewMacro(vtkmWarpScalar)
+vtkStandardNewMacro(vtkmWarpScalar);
 
 //------------------------------------------------------------------------------
-vtkmWarpScalar::vtkmWarpScalar() : vtkWarpScalar()
+vtkmWarpScalar::vtkmWarpScalar()
+  : vtkWarpScalar()
 {
 }
 
 //------------------------------------------------------------------------------
-vtkmWarpScalar::~vtkmWarpScalar()
-{
-}
+vtkmWarpScalar::~vtkmWarpScalar() {}
 
 //------------------------------------------------------------------------------
 int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
   vtkSmartPointer<vtkPointSet> output = vtkPointSet::GetData(outputVector);
@@ -59,7 +56,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   if (!input)
   {
     // Try converting image data.
-    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
     {
       vtkNew<vtkImageDataToPointSet> image2points;
@@ -72,7 +69,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   if (!input)
   {
     // Try converting rectilinear grid.
-    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
@@ -99,7 +96,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   // InScalars is not used when XYPlane is on
   if (!inPts || (!inScalars && !this->XYPlane))
   {
-    vtkDebugMacro( << "No data to warp");
+    vtkDebugMacro(<< "No data to warp");
     return 1;
   }
 
@@ -120,8 +117,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     // Get/generate the normal field
     if (inNormals && !this->UseNormal)
     { // DataNormal
-      auto inNormalsField = tovtkm::Convert(inNormals,
-                                       vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      auto inNormalsField = tovtkm::Convert(inNormals, vtkDataObject::FIELD_ASSOCIATION_POINTS);
       in.AddField(inNormalsField);
       warpScalar.SetNormalField(inNormals->GetName());
     }
@@ -130,19 +126,17 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       using vecType = vtkm::Vec<vtkm::FloatDefault, 3>;
       vecType normal = vtkm::make_Vec<vtkm::FloatDefault>(0.0, 0.0, 1.0);
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
-        vtkm::cont::make_ArrayHandleConstant(normal,
-                                             numberOfPoints);
+        vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
       vtkm::cont::DataSetFieldAdd::AddPointField(in, "zNormal", vectorAH);
       warpScalar.SetNormalField("zNormal");
     }
     else
     {
       using vecType = vtkm::Vec<vtkm::FloatDefault, 3>;
-      vecType normal = vtkm::make_Vec<vtkm::FloatDefault>(this->Normal[0],
-                                              this->Normal[1], this->Normal[2]);
+      vecType normal =
+        vtkm::make_Vec<vtkm::FloatDefault>(this->Normal[0], this->Normal[1], this->Normal[2]);
       vtkm::cont::ArrayHandleConstant<vecType> vectorAH =
-        vtkm::cont::make_ArrayHandleConstant(normal,
-                                             numberOfPoints);
+        vtkm::cont::make_ArrayHandleConstant(normal, numberOfPoints);
       vtkm::cont::DataSetFieldAdd::AddPointField(in, "instanceNormal", vectorAH);
       warpScalar.SetNormalField("instanceNormal");
     }
@@ -165,8 +159,8 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
 
     vtkmInputFilterPolicy policy;
     auto result = warpScalar.Execute(in, policy);
-    vtkDataArray* warpScalarResult = fromvtkm::Convert(result.GetField("warpscalar",
-                  vtkm::cont::Field::Association::POINTS));
+    vtkDataArray* warpScalarResult =
+      fromvtkm::Convert(result.GetField("warpscalar", vtkm::cont::Field::Association::POINTS));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
     newPts->SetNumberOfPoints(warpScalarResult->GetNumberOfTuples());
@@ -190,9 +184,8 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-
 //------------------------------------------------------------------------------
-void vtkmWarpScalar::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkmWarpScalar::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

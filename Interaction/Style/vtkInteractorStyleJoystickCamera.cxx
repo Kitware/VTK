@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkInteractorStyleJoystickCamera.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
@@ -57,8 +57,8 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnLeftButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
-                          this->Interactor->GetEventPosition()[1]);
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == nullptr)
   {
     return;
@@ -110,7 +110,7 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
       this->EndRotate();
       break;
   }
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->ReleaseFocus();
   }
@@ -119,8 +119,8 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
-                          this->Interactor->GetEventPosition()[1]);
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == nullptr)
   {
     return;
@@ -139,7 +139,7 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp()
       this->EndPan();
       break;
   }
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->ReleaseFocus();
   }
@@ -148,8 +148,8 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnRightButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
-                          this->Interactor->GetEventPosition()[1]);
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == nullptr)
   {
     return;
@@ -168,7 +168,7 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
       this->EndDolly();
       break;
   }
-  if ( this->Interactor )
+  if (this->Interactor)
   {
     this->ReleaseFocus();
   }
@@ -177,8 +177,8 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMouseWheelForward()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
-                          this->Interactor->GetEventPosition()[1]);
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == nullptr)
   {
     return;
@@ -195,8 +195,8 @@ void vtkInteractorStyleJoystickCamera::OnMouseWheelForward()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMouseWheelBackward()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
-                          this->Interactor->GetEventPosition()[1]);
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == nullptr)
   {
     return;
@@ -218,18 +218,18 @@ void vtkInteractorStyleJoystickCamera::Rotate()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkRenderWindowInteractor* rwi = this->Interactor;
 
-  double *center = this->CurrentRenderer->GetCenter();
+  double* center = this->CurrentRenderer->GetCenter();
 
   double dx = rwi->GetEventPosition()[0] - center[0];
   double dy = rwi->GetEventPosition()[1] - center[1];
 
-  double *vp = this->CurrentRenderer->GetViewport();
-  int *size = rwi->GetSize();
+  double* vp = this->CurrentRenderer->GetViewport();
+  int* size = rwi->GetSize();
 
-  double delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
-  double delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
+  double delta_elevation = -20.0 / ((vp[3] - vp[1]) * size[1]);
+  double delta_azimuth = -20.0 / ((vp[2] - vp[0]) * size[0]);
 
   double rxf = dx * delta_azimuth;
   double ryf = dy * delta_elevation;
@@ -260,27 +260,27 @@ void vtkInteractorStyleJoystickCamera::Spin()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkRenderWindowInteractor* rwi = this->Interactor;
 
-  double *center = this->CurrentRenderer->GetCenter();
+  double* center = this->CurrentRenderer->GetCenter();
 
   // Spin is based on y value
 
-  double yf = ( rwi->GetEventPosition()[1] - center[1] ) / center[1];
+  double yf = (rwi->GetEventPosition()[1] - center[1]) / center[1];
 
-  if ( yf > 1. )
+  if (yf > 1.)
   {
     yf = 1.;
   }
-  else if ( yf < -1. )
+  else if (yf < -1.)
   {
     yf = -1.;
   }
 
-  double newAngle = vtkMath::DegreesFromRadians( asin( yf ) );
+  double newAngle = vtkMath::DegreesFromRadians(asin(yf));
 
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
-  camera->Roll( newAngle );
+  camera->Roll(newAngle);
   camera->OrthogonalizeViewUp();
 
   rwi->Render();
@@ -294,7 +294,7 @@ void vtkInteractorStyleJoystickCamera::Pan()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkRenderWindowInteractor* rwi = this->Interactor;
 
   double ViewFocus[4];
   double NewPickPoint[4];
@@ -303,19 +303,16 @@ void vtkInteractorStyleJoystickCamera::Pan()
 
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetFocalPoint(ViewFocus);
-  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1], ViewFocus[2],
-                              ViewFocus);
+  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1], ViewFocus[2], ViewFocus);
   double focalDepth = ViewFocus[2];
 
-  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0],
-                              rwi->GetEventPosition()[1],
-                              focalDepth,
-                              NewPickPoint);
+  this->ComputeDisplayToWorld(
+    rwi->GetEventPosition()[0], rwi->GetEventPosition()[1], focalDepth, NewPickPoint);
 
   // Get the current focal point and position
 
   camera->GetFocalPoint(ViewFocus);
-  double *ViewPoint = camera->GetPosition();
+  double* ViewPoint = camera->GetPosition();
 
   // Compute a translation vector, moving everything 1/10
   // the distance to the cursor. (Arbitrary scale factor)
@@ -325,13 +322,11 @@ void vtkInteractorStyleJoystickCamera::Pan()
   MotionVector[1] = 0.1 * (ViewFocus[1] - NewPickPoint[1]);
   MotionVector[2] = 0.1 * (ViewFocus[2] - NewPickPoint[2]);
 
-  camera->SetFocalPoint(MotionVector[0] + ViewFocus[0],
-                        MotionVector[1] + ViewFocus[1],
-                        MotionVector[2] + ViewFocus[2]);
+  camera->SetFocalPoint(
+    MotionVector[0] + ViewFocus[0], MotionVector[1] + ViewFocus[1], MotionVector[2] + ViewFocus[2]);
 
-  camera->SetPosition(MotionVector[0] + ViewPoint[0],
-                      MotionVector[1] + ViewPoint[1],
-                      MotionVector[2] + ViewPoint[2]);
+  camera->SetPosition(
+    MotionVector[0] + ViewPoint[0], MotionVector[1] + ViewPoint[1], MotionVector[2] + ViewPoint[2]);
 
   if (rwi->GetLightFollowCamera())
   {
@@ -349,8 +344,8 @@ void vtkInteractorStyleJoystickCamera::Dolly()
     return;
   }
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  double *center = this->CurrentRenderer->GetCenter();
+  vtkRenderWindowInteractor* rwi = this->Interactor;
+  double* center = this->CurrentRenderer->GetCenter();
   double dy = rwi->GetEventPosition()[1] - center[1];
   double dyf = 0.5 * dy / center[1];
   this->Dolly(pow(1.1, dyf));
@@ -389,5 +384,5 @@ void vtkInteractorStyleJoystickCamera::Dolly(double factor)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

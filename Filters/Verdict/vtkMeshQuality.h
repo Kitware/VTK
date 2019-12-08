@@ -57,13 +57,13 @@
  * only.
  * The minimal angle is not, strictly speaking, a quality function, but it is
  * provided because of its usage by many authors.
-*/
+ */
 
 #ifndef vtkMeshQuality_h
 #define vtkMeshQuality_h
 
-#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersVerdictModule.h" // For export macro
 
 class vtkCell;
 class vtkDataArray;
@@ -103,7 +103,7 @@ class VTKFILTERSVERDICT_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkMeshQuality,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkMeshQuality, vtkDataSetAlgorithm);
   static vtkMeshQuality* New();
 
   //@{
@@ -113,9 +113,9 @@ public:
    * aggregate quality average of the entire mesh, recorded in the
    * FieldData).
    */
-  vtkSetMacro(SaveCellQuality,vtkTypeBool);
-  vtkGetMacro(SaveCellQuality,vtkTypeBool);
-  vtkBooleanMacro(SaveCellQuality,vtkTypeBool);
+  vtkSetMacro(SaveCellQuality, vtkTypeBool);
+  vtkGetMacro(SaveCellQuality, vtkTypeBool);
+  vtkBooleanMacro(SaveCellQuality, vtkTypeBool);
   //@}
 
   //@{
@@ -127,59 +127,53 @@ public:
    * VTK_QUALITY_SCALED_JACOBIAN, VTK_QUALITY_RELATIVE_SIZE_SQUARED,
    * VTK_QUALITY_SHAPE, VTK_QUALITY_SHAPE_AND_SIZE, and VTK_QUALITY_DISTORTION.
    */
-  vtkSetMacro(TriangleQualityMeasure,int);
-  vtkGetMacro(TriangleQualityMeasure,int);
-  void SetTriangleQualityMeasureToArea()
-  {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_AREA );
-  }
+  vtkSetMacro(TriangleQualityMeasure, int);
+  vtkGetMacro(TriangleQualityMeasure, int);
+  void SetTriangleQualityMeasureToArea() { this->SetTriangleQualityMeasure(VTK_QUALITY_AREA); }
   void SetTriangleQualityMeasureToEdgeRatio()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_EDGE_RATIO);
   }
   void SetTriangleQualityMeasureToAspectRatio()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_ASPECT_RATIO);
   }
   void SetTriangleQualityMeasureToRadiusRatio()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_RADIUS_RATIO);
   }
   void SetTriangleQualityMeasureToAspectFrobenius()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_FROBENIUS );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_ASPECT_FROBENIUS);
   }
   void SetTriangleQualityMeasureToMinAngle()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_MIN_ANGLE );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_MIN_ANGLE);
   }
   void SetTriangleQualityMeasureToMaxAngle()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_MAX_ANGLE );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_MAX_ANGLE);
   }
   void SetTriangleQualityMeasureToCondition()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_CONDITION );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_CONDITION);
   }
   void SetTriangleQualityMeasureToScaledJacobian()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_SCALED_JACOBIAN);
   }
   void SetTriangleQualityMeasureToRelativeSizeSquared()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_RELATIVE_SIZE_SQUARED);
   }
-  void SetTriangleQualityMeasureToShape()
-  {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_SHAPE );
-  }
+  void SetTriangleQualityMeasureToShape() { this->SetTriangleQualityMeasure(VTK_QUALITY_SHAPE); }
   void SetTriangleQualityMeasureToShapeAndSize()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_SHAPE_AND_SIZE);
   }
   void SetTriangleQualityMeasureToDistortion()
   {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_DISTORTION );
+    this->SetTriangleQualityMeasure(VTK_QUALITY_DISTORTION);
   }
   //@}
 
@@ -199,100 +193,58 @@ public:
    * quadrilaterals only; use at your own risk if you really want to assess non-planar
    * quadrilateral quality with those.
    */
-  vtkSetMacro(QuadQualityMeasure,int);
-  vtkGetMacro(QuadQualityMeasure,int);
-  void SetQuadQualityMeasureToEdgeRatio()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-  }
+  vtkSetMacro(QuadQualityMeasure, int);
+  vtkGetMacro(QuadQualityMeasure, int);
+  void SetQuadQualityMeasureToEdgeRatio() { this->SetQuadQualityMeasure(VTK_QUALITY_EDGE_RATIO); }
   void SetQuadQualityMeasureToAspectRatio()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    this->SetQuadQualityMeasure(VTK_QUALITY_ASPECT_RATIO);
   }
   void SetQuadQualityMeasureToRadiusRatio()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    this->SetQuadQualityMeasure(VTK_QUALITY_RADIUS_RATIO);
   }
   void SetQuadQualityMeasureToMedAspectFrobenius()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MED_ASPECT_FROBENIUS );
+    this->SetQuadQualityMeasure(VTK_QUALITY_MED_ASPECT_FROBENIUS);
   }
   void SetQuadQualityMeasureToMaxAspectFrobenius()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ASPECT_FROBENIUS );
+    this->SetQuadQualityMeasure(VTK_QUALITY_MAX_ASPECT_FROBENIUS);
   }
   void SetQuadQualityMeasureToMaxEdgeRatios()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
+    this->SetQuadQualityMeasure(VTK_QUALITY_MAX_EDGE_RATIO);
   }
-  void SetQuadQualityMeasureToSkew()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SKEW );
-  }
-  void SetQuadQualityMeasureToTaper()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_TAPER );
-  }
-  void SetQuadQualityMeasureToWarpage()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_WARPAGE );
-  }
-  void SetQuadQualityMeasureToArea()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_AREA );
-  }
-  void SetQuadQualityMeasureToStretch()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_STRETCH );
-  }
-  void SetQuadQualityMeasureToMinAngle()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-  }
-  void SetQuadQualityMeasureToMaxAngle()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ANGLE );
-  }
-  void SetQuadQualityMeasureToOddy()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_ODDY );
-  }
-  void SetQuadQualityMeasureToCondition()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_CONDITION );
-  }
-  void SetQuadQualityMeasureToJacobian()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_JACOBIAN );
-  }
+  void SetQuadQualityMeasureToSkew() { this->SetQuadQualityMeasure(VTK_QUALITY_SKEW); }
+  void SetQuadQualityMeasureToTaper() { this->SetQuadQualityMeasure(VTK_QUALITY_TAPER); }
+  void SetQuadQualityMeasureToWarpage() { this->SetQuadQualityMeasure(VTK_QUALITY_WARPAGE); }
+  void SetQuadQualityMeasureToArea() { this->SetQuadQualityMeasure(VTK_QUALITY_AREA); }
+  void SetQuadQualityMeasureToStretch() { this->SetQuadQualityMeasure(VTK_QUALITY_STRETCH); }
+  void SetQuadQualityMeasureToMinAngle() { this->SetQuadQualityMeasure(VTK_QUALITY_MIN_ANGLE); }
+  void SetQuadQualityMeasureToMaxAngle() { this->SetQuadQualityMeasure(VTK_QUALITY_MAX_ANGLE); }
+  void SetQuadQualityMeasureToOddy() { this->SetQuadQualityMeasure(VTK_QUALITY_ODDY); }
+  void SetQuadQualityMeasureToCondition() { this->SetQuadQualityMeasure(VTK_QUALITY_CONDITION); }
+  void SetQuadQualityMeasureToJacobian() { this->SetQuadQualityMeasure(VTK_QUALITY_JACOBIAN); }
   void SetQuadQualityMeasureToScaledJacobian()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
+    this->SetQuadQualityMeasure(VTK_QUALITY_SCALED_JACOBIAN);
   }
-  void SetQuadQualityMeasureToShear()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SHEAR );
-  }
-  void SetQuadQualityMeasureToShape()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SHAPE );
-  }
+  void SetQuadQualityMeasureToShear() { this->SetQuadQualityMeasure(VTK_QUALITY_SHEAR); }
+  void SetQuadQualityMeasureToShape() { this->SetQuadQualityMeasure(VTK_QUALITY_SHAPE); }
   void SetQuadQualityMeasureToRelativeSizeSquared()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
+    this->SetQuadQualityMeasure(VTK_QUALITY_RELATIVE_SIZE_SQUARED);
   }
   void SetQuadQualityMeasureToShapeAndSize()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
+    this->SetQuadQualityMeasure(VTK_QUALITY_SHAPE_AND_SIZE);
   }
   void SetQuadQualityMeasureToShearAndSize()
   {
-    this->SetQuadQualityMeasure( VTK_QUALITY_SHEAR_AND_SIZE );
+    this->SetQuadQualityMeasure(VTK_QUALITY_SHEAR_AND_SIZE);
   }
-  void SetQuadQualityMeasureToDistortion()
-  {
-    this->SetQuadQualityMeasure( VTK_QUALITY_DISTORTION );
-  }
+  void SetQuadQualityMeasureToDistortion() { this->SetQuadQualityMeasure(VTK_QUALITY_DISTORTION); }
   //@}
 
   //@{
@@ -306,72 +258,39 @@ public:
    * VTK_QUALITY_SCALED_JACOBIAN, VTK_QUALITY_SHAPE, VTK_QUALITY_RELATIVE_SIZE_SQUARED,
    * VTK_QUALITY_SHAPE_AND_SIZE, and VTK_QUALITY_DISTORTION.
    */
-  vtkSetMacro(TetQualityMeasure,int);
-  vtkGetMacro(TetQualityMeasure,int);
-  void SetTetQualityMeasureToEdgeRatio()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-  }
-  void SetTetQualityMeasureToAspectRatio()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
-  }
-  void SetTetQualityMeasureToRadiusRatio()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
-  }
+  vtkSetMacro(TetQualityMeasure, int);
+  vtkGetMacro(TetQualityMeasure, int);
+  void SetTetQualityMeasureToEdgeRatio() { this->SetTetQualityMeasure(VTK_QUALITY_EDGE_RATIO); }
+  void SetTetQualityMeasureToAspectRatio() { this->SetTetQualityMeasure(VTK_QUALITY_ASPECT_RATIO); }
+  void SetTetQualityMeasureToRadiusRatio() { this->SetTetQualityMeasure(VTK_QUALITY_RADIUS_RATIO); }
   void SetTetQualityMeasureToAspectFrobenius()
   {
-    this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_FROBENIUS );
+    this->SetTetQualityMeasure(VTK_QUALITY_ASPECT_FROBENIUS);
   }
-  void SetTetQualityMeasureToMinAngle()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-  }
+  void SetTetQualityMeasureToMinAngle() { this->SetTetQualityMeasure(VTK_QUALITY_MIN_ANGLE); }
   void SetTetQualityMeasureToCollapseRatio()
   {
-    this->SetTetQualityMeasure( VTK_QUALITY_COLLAPSE_RATIO );
+    this->SetTetQualityMeasure(VTK_QUALITY_COLLAPSE_RATIO);
   }
-  void SetTetQualityMeasureToAspectBeta()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_BETA );
-  }
-  void SetTetQualityMeasureToAspectGamma()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_GAMMA );
-  }
-  void SetTetQualityMeasureToVolume()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_VOLUME );
-  }
-  void SetTetQualityMeasureToCondition()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_CONDITION );
-  }
-  void SetTetQualityMeasureToJacobian()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_JACOBIAN );
-  }
+  void SetTetQualityMeasureToAspectBeta() { this->SetTetQualityMeasure(VTK_QUALITY_ASPECT_BETA); }
+  void SetTetQualityMeasureToAspectGamma() { this->SetTetQualityMeasure(VTK_QUALITY_ASPECT_GAMMA); }
+  void SetTetQualityMeasureToVolume() { this->SetTetQualityMeasure(VTK_QUALITY_VOLUME); }
+  void SetTetQualityMeasureToCondition() { this->SetTetQualityMeasure(VTK_QUALITY_CONDITION); }
+  void SetTetQualityMeasureToJacobian() { this->SetTetQualityMeasure(VTK_QUALITY_JACOBIAN); }
   void SetTetQualityMeasureToScaledJacobian()
   {
-    this->SetTetQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
+    this->SetTetQualityMeasure(VTK_QUALITY_SCALED_JACOBIAN);
   }
-  void SetTetQualityMeasureToShape()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_SHAPE );
-  }
+  void SetTetQualityMeasureToShape() { this->SetTetQualityMeasure(VTK_QUALITY_SHAPE); }
   void SetTetQualityMeasureToRelativeSizeSquared()
   {
-    this->SetTetQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
+    this->SetTetQualityMeasure(VTK_QUALITY_RELATIVE_SIZE_SQUARED);
   }
   void SetTetQualityMeasureToShapeAndSize()
   {
-    this->SetTetQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
+    this->SetTetQualityMeasure(VTK_QUALITY_SHAPE_AND_SIZE);
   }
-  void SetTetQualityMeasureToDistortion()
-  {
-    this->SetTetQualityMeasure( VTK_QUALITY_DISTORTION );
-  }
+  void SetTetQualityMeasureToDistortion() { this->SetTetQualityMeasure(VTK_QUALITY_DISTORTION); }
   //@}
 
   //@{
@@ -386,88 +305,49 @@ public:
    * VTK_QUALITY_RELATIVE_SIZE_SQUARED, VTK_QUALITY_SHAPE_AND_SIZE,
    * VTK_QUALITY_SHEAR_AND_SIZE, and VTK_QUALITY_DISTORTION.
    */
-  vtkSetMacro(HexQualityMeasure,int);
-  vtkGetMacro(HexQualityMeasure,int);
-  void SetHexQualityMeasureToEdgeRatio()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-  }
+  vtkSetMacro(HexQualityMeasure, int);
+  vtkGetMacro(HexQualityMeasure, int);
+  void SetHexQualityMeasureToEdgeRatio() { this->SetHexQualityMeasure(VTK_QUALITY_EDGE_RATIO); }
   void SetHexQualityMeasureToMedAspectFrobenius()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_MED_ASPECT_FROBENIUS );
+    this->SetHexQualityMeasure(VTK_QUALITY_MED_ASPECT_FROBENIUS);
   }
   void SetHexQualityMeasureToMaxAspectFrobenius()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_MAX_ASPECT_FROBENIUS );
+    this->SetHexQualityMeasure(VTK_QUALITY_MAX_ASPECT_FROBENIUS);
   }
   void SetHexQualityMeasureToMaxEdgeRatios()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
+    this->SetHexQualityMeasure(VTK_QUALITY_MAX_EDGE_RATIO);
   }
-  void SetHexQualityMeasureToSkew()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_SKEW );
-  }
-  void SetHexQualityMeasureToTaper()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_TAPER );
-  }
-  void SetHexQualityMeasureToVolume()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_VOLUME );
-  }
-  void SetHexQualityMeasureToStretch()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_STRETCH );
-  }
-  void SetHexQualityMeasureToDiagonal()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_DIAGONAL );
-  }
-  void SetHexQualityMeasureToDimension()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_DIMENSION );
-  }
-  void SetHexQualityMeasureToOddy()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_ODDY );
-  }
-  void SetHexQualityMeasureToCondition()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_CONDITION );
-  }
-  void SetHexQualityMeasureToJacobian()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_JACOBIAN );
-  }
+  void SetHexQualityMeasureToSkew() { this->SetHexQualityMeasure(VTK_QUALITY_SKEW); }
+  void SetHexQualityMeasureToTaper() { this->SetHexQualityMeasure(VTK_QUALITY_TAPER); }
+  void SetHexQualityMeasureToVolume() { this->SetHexQualityMeasure(VTK_QUALITY_VOLUME); }
+  void SetHexQualityMeasureToStretch() { this->SetHexQualityMeasure(VTK_QUALITY_STRETCH); }
+  void SetHexQualityMeasureToDiagonal() { this->SetHexQualityMeasure(VTK_QUALITY_DIAGONAL); }
+  void SetHexQualityMeasureToDimension() { this->SetHexQualityMeasure(VTK_QUALITY_DIMENSION); }
+  void SetHexQualityMeasureToOddy() { this->SetHexQualityMeasure(VTK_QUALITY_ODDY); }
+  void SetHexQualityMeasureToCondition() { this->SetHexQualityMeasure(VTK_QUALITY_CONDITION); }
+  void SetHexQualityMeasureToJacobian() { this->SetHexQualityMeasure(VTK_QUALITY_JACOBIAN); }
   void SetHexQualityMeasureToScaledJacobian()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
+    this->SetHexQualityMeasure(VTK_QUALITY_SCALED_JACOBIAN);
   }
-  void SetHexQualityMeasureToShear()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_SHEAR );
-  }
-  void SetHexQualityMeasureToShape()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_SHAPE );
-  }
+  void SetHexQualityMeasureToShear() { this->SetHexQualityMeasure(VTK_QUALITY_SHEAR); }
+  void SetHexQualityMeasureToShape() { this->SetHexQualityMeasure(VTK_QUALITY_SHAPE); }
   void SetHexQualityMeasureToRelativeSizeSquared()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
+    this->SetHexQualityMeasure(VTK_QUALITY_RELATIVE_SIZE_SQUARED);
   }
   void SetHexQualityMeasureToShapeAndSize()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
+    this->SetHexQualityMeasure(VTK_QUALITY_SHAPE_AND_SIZE);
   }
   void SetHexQualityMeasureToShearAndSize()
   {
-    this->SetHexQualityMeasure( VTK_QUALITY_SHEAR_AND_SIZE );
+    this->SetHexQualityMeasure(VTK_QUALITY_SHEAR_AND_SIZE);
   }
-  void SetHexQualityMeasureToDistortion()
-  {
-    this->SetHexQualityMeasure( VTK_QUALITY_DISTORTION );
-  }
+  void SetHexQualityMeasureToDistortion() { this->SetHexQualityMeasure(VTK_QUALITY_DISTORTION); }
   //@}
 
   /**
@@ -476,7 +356,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleArea( vtkCell* cell );
+  static double TriangleArea(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the edge ratio of a triangle.
@@ -488,7 +368,7 @@ public:
    * where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
    * the smallest edge lengths of \f$t\f$.
    */
-  static double TriangleEdgeRatio( vtkCell* cell );
+  static double TriangleEdgeRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the aspect ratio of a triangle.
@@ -500,7 +380,7 @@ public:
    * where \f$|t|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
    * length and the inradius of \f$t\f$.
    */
-  static double TriangleAspectRatio( vtkCell* cell );
+  static double TriangleAspectRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the radius ratio of a triangle.
@@ -512,7 +392,7 @@ public:
    * where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
    * the inradius of \f$t\f$.
    */
-  static double TriangleRadiusRatio( vtkCell* cell );
+  static double TriangleRadiusRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the Frobenius condition number
@@ -526,7 +406,7 @@ public:
    * where \f$|t|^2_2\f$ and \f$\cal A\f$ respectively denote the sum of the
    * squared edge lengths and the area of \f$t\f$.
    */
-  static double TriangleAspectFrobenius( vtkCell* cell );
+  static double TriangleAspectFrobenius(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the minimal (nonoriented) angle
@@ -535,7 +415,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleMinAngle( vtkCell* cell );
+  static double TriangleMinAngle(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the maximal (nonoriented) angle
@@ -544,7 +424,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleMaxAngle( vtkCell* cell );
+  static double TriangleMaxAngle(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the condition number
@@ -553,7 +433,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleCondition( vtkCell* cell );
+  static double TriangleCondition(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the scaled Jacobian of a triangle.
@@ -561,7 +441,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleScaledJacobian( vtkCell* cell );
+  static double TriangleScaledJacobian(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the square of the relative size of a triangle.
@@ -569,7 +449,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleRelativeSizeSquared( vtkCell* cell );
+  static double TriangleRelativeSizeSquared(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the shape of a triangle.
@@ -577,15 +457,14 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleShape( vtkCell* cell );
+  static double TriangleShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the product of shape and relative size of a triangle.
-   * It assumes that you pass the correct type of cell -- no type checking is
-   * performed because this method is called from the inner loop of the Execute()
-   * member function.
+   * This is a static function used to calculate the product of shape and relative size of a
+   * triangle. It assumes that you pass the correct type of cell -- no type checking is performed
+   * because this method is called from the inner loop of the Execute() member function.
    */
-  static double TriangleShapeAndSize( vtkCell* cell );
+  static double TriangleShapeAndSize(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the distortion of a triangle.
@@ -593,7 +472,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TriangleDistortion( vtkCell* cell );
+  static double TriangleDistortion(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the edge ratio of a quadrilateral.
@@ -605,7 +484,7 @@ public:
    * where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
    * the smallest edge lengths of \f$q\f$.
    */
-  static double QuadEdgeRatio( vtkCell* cell );
+  static double QuadEdgeRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the aspect ratio of a planar
@@ -618,7 +497,7 @@ public:
    * where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the
    * perimeter, the greatest edge length and the area of \f$q\f$.
    */
-  static double QuadAspectRatio( vtkCell* cell );
+  static double QuadAspectRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the radius ratio of a planar
@@ -634,7 +513,7 @@ public:
    * the sum of the squared edge lengths, the greatest amongst diagonal and edge
    * lengths and the smallest area of the 4 triangles extractable from \f$q\f$.
    */
-  static double QuadRadiusRatio( vtkCell* cell );
+  static double QuadRadiusRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the average Frobenius aspect of
@@ -649,7 +528,7 @@ public:
    * where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the
    * squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
    */
-  static double QuadMedAspectFrobenius( vtkCell* cell );
+  static double QuadMedAspectFrobenius(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the maximal Frobenius aspect of
@@ -664,7 +543,7 @@ public:
    * where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the
    * squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
    */
-  static double QuadMaxAspectFrobenius( vtkCell* cell );
+  static double QuadMaxAspectFrobenius(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the minimal (nonoriented) angle
@@ -673,25 +552,25 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double QuadMinAngle( vtkCell* cell );
+  static double QuadMinAngle(vtkCell* cell);
 
-  static double QuadMaxEdgeRatios( vtkCell* cell );
-  static double QuadSkew( vtkCell* cell );
-  static double QuadTaper( vtkCell* cell );
-  static double QuadWarpage( vtkCell* cell );
-  static double QuadArea( vtkCell* cell );
-  static double QuadStretch( vtkCell* cell );
-  static double QuadMaxAngle( vtkCell* cell );
-  static double QuadOddy( vtkCell* cell );
-  static double QuadCondition( vtkCell* cell );
-  static double QuadJacobian( vtkCell* cell );
-  static double QuadScaledJacobian( vtkCell* cell );
-  static double QuadShear( vtkCell* cell );
-  static double QuadShape( vtkCell* cell );
-  static double QuadRelativeSizeSquared( vtkCell* cell );
-  static double QuadShapeAndSize( vtkCell* cell );
-  static double QuadShearAndSize( vtkCell* cell );
-  static double QuadDistortion( vtkCell* cell );
+  static double QuadMaxEdgeRatios(vtkCell* cell);
+  static double QuadSkew(vtkCell* cell);
+  static double QuadTaper(vtkCell* cell);
+  static double QuadWarpage(vtkCell* cell);
+  static double QuadArea(vtkCell* cell);
+  static double QuadStretch(vtkCell* cell);
+  static double QuadMaxAngle(vtkCell* cell);
+  static double QuadOddy(vtkCell* cell);
+  static double QuadCondition(vtkCell* cell);
+  static double QuadJacobian(vtkCell* cell);
+  static double QuadScaledJacobian(vtkCell* cell);
+  static double QuadShear(vtkCell* cell);
+  static double QuadShape(vtkCell* cell);
+  static double QuadRelativeSizeSquared(vtkCell* cell);
+  static double QuadShapeAndSize(vtkCell* cell);
+  static double QuadShearAndSize(vtkCell* cell);
+  static double QuadDistortion(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the edge ratio of a tetrahedron.
@@ -703,7 +582,7 @@ public:
    * where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
    * the smallest edge lengths of \f$K\f$.
    */
-  static double TetEdgeRatio( vtkCell* cell );
+  static double TetEdgeRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the aspect ratio of a tetrahedron.
@@ -715,7 +594,7 @@ public:
    * where \f$|K|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
    * length and the inradius of \f$K\f$.
    */
-  static double TetAspectRatio( vtkCell* cell );
+  static double TetAspectRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the radius ratio of a tetrahedron.
@@ -727,7 +606,7 @@ public:
    * where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
    * the inradius of \f$K\f$.
    */
-  static double TetRadiusRatio( vtkCell* cell );
+  static double TetRadiusRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the Frobenius condition number
@@ -742,7 +621,7 @@ public:
    * where \f$T\f$ and \f$l_{ij}\f$ respectively denote the edge matrix of \f$K\f$
    * and the entries of \f$L=T^t\,T\f$.
    */
-  static double TetAspectFrobenius( vtkCell* cell );
+  static double TetAspectFrobenius(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the minimal (nonoriented) dihedral
@@ -751,7 +630,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TetMinAngle( vtkCell* cell );
+  static double TetMinAngle(vtkCell* cell);
 
   //@{
   /**
@@ -763,17 +642,17 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double TetCollapseRatio( vtkCell* cell );
-  static double TetAspectBeta( vtkCell* cell );
-  static double TetAspectGamma( vtkCell* cell );
-  static double TetVolume( vtkCell* cell );
-  static double TetCondition( vtkCell* cell );
-  static double TetJacobian( vtkCell* cell );
-  static double TetScaledJacobian( vtkCell* cell );
-  static double TetShape( vtkCell* cell );
-  static double TetRelativeSizeSquared( vtkCell* cell );
-  static double TetShapeandSize( vtkCell* cell );
-  static double TetDistortion( vtkCell* cell );
+  static double TetCollapseRatio(vtkCell* cell);
+  static double TetAspectBeta(vtkCell* cell);
+  static double TetAspectGamma(vtkCell* cell);
+  static double TetVolume(vtkCell* cell);
+  static double TetCondition(vtkCell* cell);
+  static double TetJacobian(vtkCell* cell);
+  static double TetScaledJacobian(vtkCell* cell);
+  static double TetShape(vtkCell* cell);
+  static double TetRelativeSizeSquared(vtkCell* cell);
+  static double TetShapeandSize(vtkCell* cell);
+  static double TetDistortion(vtkCell* cell);
   //@}
 
   /**
@@ -786,7 +665,7 @@ public:
    * where \f$|H|_\infty\f$ and \f$|H|_0\f$ respectively denote the greatest and
    * the smallest edge lengths of \f$H\f$.
    */
-  static double HexEdgeRatio( vtkCell* cell );
+  static double HexEdgeRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the average Frobenius aspect of
@@ -796,7 +675,7 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double HexMedAspectFrobenius( vtkCell* cell );
+  static double HexMedAspectFrobenius(vtkCell* cell);
 
   //@{
   /**
@@ -807,24 +686,24 @@ public:
    * performed because this method is called from the inner loop of the Execute()
    * member function.
    */
-  static double HexMaxAspectFrobenius( vtkCell* cell );
-  static double HexMaxEdgeRatio( vtkCell* cell );
-  static double HexSkew( vtkCell* cell );
-  static double HexTaper( vtkCell* cell );
-  static double HexVolume( vtkCell* cell );
-  static double HexStretch( vtkCell* cell );
-  static double HexDiagonal( vtkCell* cell );
-  static double HexDimension( vtkCell* cell );
-  static double HexOddy( vtkCell* cell );
-  static double HexCondition( vtkCell* cell );
-  static double HexJacobian( vtkCell* cell );
-  static double HexScaledJacobian( vtkCell* cell );
-  static double HexShear( vtkCell* cell );
-  static double HexShape( vtkCell* cell );
-  static double HexRelativeSizeSquared( vtkCell* cell );
-  static double HexShapeAndSize( vtkCell* cell );
-  static double HexShearAndSize( vtkCell* cell );
-  static double HexDistortion( vtkCell* cell );
+  static double HexMaxAspectFrobenius(vtkCell* cell);
+  static double HexMaxEdgeRatio(vtkCell* cell);
+  static double HexSkew(vtkCell* cell);
+  static double HexTaper(vtkCell* cell);
+  static double HexVolume(vtkCell* cell);
+  static double HexStretch(vtkCell* cell);
+  static double HexDiagonal(vtkCell* cell);
+  static double HexDimension(vtkCell* cell);
+  static double HexOddy(vtkCell* cell);
+  static double HexCondition(vtkCell* cell);
+  static double HexJacobian(vtkCell* cell);
+  static double HexScaledJacobian(vtkCell* cell);
+  static double HexShear(vtkCell* cell);
+  static double HexShape(vtkCell* cell);
+  static double HexRelativeSizeSquared(vtkCell* cell);
+  static double HexShapeAndSize(vtkCell* cell);
+  static double HexShearAndSize(vtkCell* cell);
+  static double HexDistortion(vtkCell* cell);
   //@}
 
   /**
@@ -837,9 +716,9 @@ public:
    * This allows average cell quality of a mesh to be
    * calculated without requiring per-cell storage.
    */
-  virtual void SetRatio( vtkTypeBool r ) { this->SetSaveCellQuality( r ); }
+  virtual void SetRatio(vtkTypeBool r) { this->SetSaveCellQuality(r); }
   vtkTypeBool GetRatio() { return this->GetSaveCellQuality(); }
-  vtkBooleanMacro(Ratio,vtkTypeBool);
+  vtkBooleanMacro(Ratio, vtkTypeBool);
 
   //@{
   /**
@@ -859,24 +738,21 @@ public:
    * mode is off, since it does not make a lot of sense for
    * meshes with non-tetrahedral cells.
    */
-  virtual void SetVolume( vtkTypeBool cv )
+  virtual void SetVolume(vtkTypeBool cv)
   {
-    if ( ! ((cv != 0) ^ (this->Volume != 0)) )
+    if (!((cv != 0) ^ (this->Volume != 0)))
     {
       return;
     }
     this->Modified();
     this->Volume = cv;
-    if ( this->Volume )
+    if (this->Volume)
     {
       this->CompatibilityModeOn();
     }
   }
-  vtkTypeBool GetVolume()
-  {
-    return this->Volume;
-  }
-  vtkBooleanMacro(Volume,vtkTypeBool);
+  vtkTypeBool GetVolume() { return this->Volume; }
+  vtkBooleanMacro(Volume, vtkTypeBool);
   //@}
 
   //@{
@@ -907,34 +783,34 @@ public:
    * diving off of the Combinatorial Coding Cliff into
    * Certain Insanity.
    */
-  virtual void SetCompatibilityMode( vtkTypeBool cm )
+  virtual void SetCompatibilityMode(vtkTypeBool cm)
   {
-    if ( !((cm != 0) ^ (this->CompatibilityMode != 0)) )
+    if (!((cm != 0) ^ (this->CompatibilityMode != 0)))
     {
       return;
     }
     this->CompatibilityMode = cm;
     this->Modified();
-    if ( this->CompatibilityMode )
+    if (this->CompatibilityMode)
     {
       this->Volume = 1;
       this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
     }
   }
-  vtkGetMacro(CompatibilityMode,vtkTypeBool);
-  vtkBooleanMacro(CompatibilityMode,vtkTypeBool);
+  vtkGetMacro(CompatibilityMode, vtkTypeBool);
+  vtkBooleanMacro(CompatibilityMode, vtkTypeBool);
   //@}
 
 protected:
   vtkMeshQuality();
   ~vtkMeshQuality() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * A function called by some VERDICT triangle quality functions to test for inverted triangles.
    */
-  static int GetCurrentTriangleNormal( double point[3], double normal[3] );
+  static int GetCurrentTriangleNormal(double point[3], double normal[3]);
 
   vtkTypeBool SaveCellQuality;
   int TriangleQualityMeasure;
@@ -949,8 +825,8 @@ protected:
   static double CurrentTriNormal[3];
 
 private:
-  vtkMeshQuality( const vtkMeshQuality& ) = delete;
-  void operator = ( const vtkMeshQuality& ) = delete;
+  vtkMeshQuality(const vtkMeshQuality&) = delete;
+  void operator=(const vtkMeshQuality&) = delete;
 };
 
 #endif // vtkMeshQuality_h

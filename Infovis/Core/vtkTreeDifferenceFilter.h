@@ -24,16 +24,16 @@
  * the basis of coparison.  This array can either be part of the trees'
  * EdgeData or VertexData.
  *
-*/
+ */
 
 #ifndef vtkTreeDifferenceFilter_h
 #define vtkTreeDifferenceFilter_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
-#include "vtkSmartPointer.h"      // For ivars
-#include <vector>                 // For ivars
+#include "vtkSmartPointer.h" // For ivars
+#include <vector>            // For ivars
 
 class vtkDoubleArray;
 class vtkTree;
@@ -42,7 +42,7 @@ class VTKINFOVISCORE_EXPORT vtkTreeDifferenceFilter : public vtkGraphAlgorithm
 {
 public:
   static vtkTreeDifferenceFilter* New();
-  vtkTypeMacro(vtkTreeDifferenceFilter,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkTreeDifferenceFilter, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -95,34 +95,30 @@ protected:
   vtkTreeDifferenceFilter();
   ~vtkTreeDifferenceFilter() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Populate VertexMap and EdgeMap with meaningful values.  These maps
    * allow us to look up the vtkIdType of a vertex or edge in tree #2,
    * given its vtkIdType in tree #1.
    */
-  bool GenerateMapping(vtkTree *tree1, vtkTree *tree2);
+  bool GenerateMapping(vtkTree* tree1, vtkTree* tree2);
 
   /**
    * Compute the differences between tree #1 and tree #2's copies of the
    * comparison array.
    */
-  vtkSmartPointer<vtkDoubleArray> ComputeDifference(vtkTree *tree1,
-                                                    vtkTree *tree2);
+  vtkSmartPointer<vtkDoubleArray> ComputeDifference(vtkTree* tree1, vtkTree* tree2);
 
   char* IdArrayName;
   char* ComparisonArrayName;
   char* OutputArrayName;
   bool ComparisonArrayIsVertexData;
 
-  std::vector< vtkIdType > VertexMap;
-  std::vector< vtkIdType > EdgeMap;
+  std::vector<vtkIdType> VertexMap;
+  std::vector<vtkIdType> EdgeMap;
 
 private:
   vtkTreeDifferenceFilter(const vtkTreeDifferenceFilter&) = delete;

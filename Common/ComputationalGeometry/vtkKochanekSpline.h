@@ -40,7 +40,7 @@
  *
  * @sa
  * vtkSpline vtkCardinalSpline
-*/
+ */
 
 #ifndef vtkKochanekSpline_h
 #define vtkKochanekSpline_h
@@ -51,61 +51,61 @@
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
-  vtkTypeMacro(vtkKochanekSpline,vtkSpline);
+  vtkTypeMacro(vtkKochanekSpline, vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a KochanekSpline with the following defaults: DefaultBias = 0,
    * DefaultTension = 0, DefaultContinuity = 0.
    */
-  static vtkKochanekSpline *New();
+  static vtkKochanekSpline* New();
 
   /**
    * Compute Kochanek Spline coefficients.
    */
-  void Compute () override;
+  void Compute() override;
 
   /**
    * Evaluate a 1D Kochanek spline.
    */
-  double Evaluate (double t) override;
+  double Evaluate(double t) override;
 
   //@{
   /**
    * Set the bias for all points. Default is 0.
    */
-  vtkSetMacro(DefaultBias,double);
-  vtkGetMacro(DefaultBias,double);
+  vtkSetMacro(DefaultBias, double);
+  vtkGetMacro(DefaultBias, double);
   //@}
 
   //@{
   /**
    * Set the tension for all points. Default is 0.
    */
-  vtkSetMacro(DefaultTension,double);
-  vtkGetMacro(DefaultTension,double);
+  vtkSetMacro(DefaultTension, double);
+  vtkGetMacro(DefaultTension, double);
   //@}
 
   //@{
   /**
    * Set the continuity for all points. Default is 0.
    */
-  vtkSetMacro(DefaultContinuity,double);
-  vtkGetMacro(DefaultContinuity,double);
+  vtkSetMacro(DefaultContinuity, double);
+  vtkGetMacro(DefaultContinuity, double);
   //@}
 
   /**
    * Deep copy of cardinal spline data.
    */
-  void DeepCopy(vtkSpline *s) override;
+  void DeepCopy(vtkSpline* s) override;
 
 protected:
   vtkKochanekSpline();
   ~vtkKochanekSpline() override {}
 
-  void Fit1D (int n, double *x, double *y, double tension, double bias,
-              double continuity, double coefficients[][4], int leftConstraint,
-              double leftValue, int rightConstraint, double rightValue);
+  void Fit1D(int n, double* x, double* y, double tension, double bias, double continuity,
+    double coefficients[][4], int leftConstraint, double leftValue, int rightConstraint,
+    double rightValue);
 
   double DefaultBias;
   double DefaultTension;
@@ -117,4 +117,3 @@ private:
 };
 
 #endif
-

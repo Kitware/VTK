@@ -19,7 +19,7 @@
  * vtkMoleculeToPolyDataFilter is an abstract filter class whose
  * subclasses take as input datasets of type vtkMolecule and
  * generate polygonal data on output.
-*/
+ */
 
 #ifndef vtkMoleculeToPolyDataFilter_h
 #define vtkMoleculeToPolyDataFilter_h
@@ -29,14 +29,13 @@
 
 class vtkMolecule;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToPolyDataFilter
-: public vtkPolyDataAlgorithm
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMoleculeToPolyDataFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMoleculeToPolyDataFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkMolecule * GetInput();
+  vtkMolecule* GetInput();
 
 protected:
   vtkMoleculeToPolyDataFilter();

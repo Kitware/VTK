@@ -26,9 +26,9 @@
 #include "vtkPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 #include "vtkUnsignedCharArray.h"
@@ -40,17 +40,16 @@
 vtkSmartPointer<vtkUnstructuredGrid> CreateThreeTetra()
 {
   vtkNew<vtkPoints> points;
-  points->InsertPoint(0, 0,    0,   0);
-  points->InsertPoint(1, 1,    0,   0);
-  points->InsertPoint(2, 0.5,  1,   0);
-  points->InsertPoint(3, 0.5,  0.5, 1);
-  points->InsertPoint(4, 0.5, -1,   0);
+  points->InsertPoint(0, 0, 0, 0);
+  points->InsertPoint(1, 1, 0, 0);
+  points->InsertPoint(2, 0.5, 1, 0);
+  points->InsertPoint(3, 0.5, 0.5, 1);
+  points->InsertPoint(4, 0.5, -1, 0);
   points->InsertPoint(5, 0.5, -0.5, 1);
 
-  vtkIdType v[3][4] = {{0,1,2,3}, {0,4,1,5}, {5,3,1,0}};
+  vtkIdType v[3][4] = { { 0, 1, 2, 3 }, { 0, 4, 1, 5 }, { 5, 3, 1, 0 } };
 
-  vtkSmartPointer<vtkUnstructuredGrid> grid =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   grid->InsertNextCell(VTK_TETRA, 4, v[0]);
   grid->InsertNextCell(VTK_TETRA, 4, v[1]);
   grid->InsertNextCell(VTK_TETRA, 4, v[2]);
@@ -76,14 +75,13 @@ void WriteThreeTetra()
   writer->Write();
 }
 
-
-int TestXMLGhostCellsImport(int argc, char *argv[])
+int TestXMLGhostCellsImport(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;
   testing->AddArguments(argc, argv);
 
   // this was used to generate ghost_cells.vtu
-  //WriteThreeTetra();
+  // WriteThreeTetra();
 
   std::string filename = testing->GetDataRoot();
   filename += "/Data/ghost_cells.vtu";
@@ -114,9 +112,9 @@ int TestXMLGhostCellsImport(int argc, char *argv[])
 
   renwin->Render();
 
-  int retVal = vtkRegressionTestImage( renwin );
+  int retVal = vtkRegressionTestImage(renwin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

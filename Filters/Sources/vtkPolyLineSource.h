@@ -18,7 +18,7 @@
  *
  * vtkPolyLineSource is a source object that creates a poly line from
  * user-specified points. The output is a vtkPolyLine.
-*/
+ */
 
 #ifndef vtkPolyLineSource_h
 #define vtkPolyLineSource_h
@@ -48,7 +48,7 @@ protected:
   vtkPolyLineSource();
   ~vtkPolyLineSource() override;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool Closed;
 

@@ -13,12 +13,12 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkParticleTracer.h"
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
 
-vtkObjectFactoryNewMacro(vtkParticleTracer)
+vtkObjectFactoryNewMacro(vtkParticleTracer);
 
 vtkParticleTracer::vtkParticleTracer()
 {
@@ -33,5 +33,5 @@ int vtkParticleTracer::OutputParticles(vtkPolyData* poly)
 
 void vtkParticleTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }

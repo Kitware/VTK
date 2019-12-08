@@ -21,8 +21,8 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkDotProductSimilarity.h>
 #include <vtkDenseArray.h>
+#include <vtkDotProductSimilarity.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkVariant.h>
@@ -30,11 +30,11 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
 #if 0
 static bool close_enough(const double lhs, const double rhs)
@@ -43,14 +43,15 @@ static bool close_enough(const double lhs, const double rhs)
 }
 #endif
 
-int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayDotProductSimilarity(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
 
   try
   {
     // Run tests on one matrix ...
-    vtkSmartPointer<vtkDenseArray<double> > matrix_a = vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double> > matrix_a =
+      vtkSmartPointer<vtkDenseArray<double> >::New();
     matrix_a->Resize(vtkArrayExtents(2, 2));
     matrix_a->SetValue(vtkArrayCoordinates(0, 0), 1);
     matrix_a->SetValue(vtkArrayCoordinates(1, 0), 2);
@@ -60,7 +61,8 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkArrayData> matrix_data_a = vtkSmartPointer<vtkArrayData>::New();
     matrix_data_a->AddArray(matrix_a);
 
-    vtkSmartPointer<vtkDotProductSimilarity> similarity =   vtkSmartPointer<vtkDotProductSimilarity>::New();
+    vtkSmartPointer<vtkDotProductSimilarity> similarity =
+      vtkSmartPointer<vtkDotProductSimilarity>::New();
     similarity->SetInputData(0, matrix_data_a);
     similarity->SetVectorDimension(1);
     similarity->SetMinimumThreshold(0);
@@ -103,7 +105,8 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(similarity->GetOutput()->GetValueByName(0, "similarity").ToInt() == 11);
 
     // Run tests with two matrices ...
-    vtkSmartPointer<vtkDenseArray<double> > matrix_b = vtkSmartPointer<vtkDenseArray<double> >::New();
+    vtkSmartPointer<vtkDenseArray<double> > matrix_b =
+      vtkSmartPointer<vtkDenseArray<double> >::New();
     matrix_b->Resize(vtkArrayExtents(2, 2));
     matrix_b->SetValue(vtkArrayCoordinates(0, 0), 5);
     matrix_b->SetValue(vtkArrayCoordinates(1, 0), 6);
@@ -155,10 +158,9 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

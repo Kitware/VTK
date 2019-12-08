@@ -28,26 +28,20 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/RuntimeDeviceTracker.h>
-#include <vtkm/filter/MarchingCubes.h>
+#include <vtkm/filter/Contour.h>
+#include <vtkm/filter/Contour.hxx>
 
-vtkStandardNewMacro(vtkmContour)
-
-//------------------------------------------------------------------------------
-vtkmContour::vtkmContour()
-{
-}
+vtkStandardNewMacro(vtkmContour);
 
 //------------------------------------------------------------------------------
-vtkmContour::~vtkmContour()
-{
-}
+vtkmContour::vtkmContour() {}
+
+//------------------------------------------------------------------------------
+vtkmContour::~vtkmContour() {}
 
 //------------------------------------------------------------------------------
 void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
@@ -56,46 +50,41 @@ void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkmContour::RequestData(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector)
+int vtkmContour::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkm::cont::ScopedRuntimeDeviceTracker tracker(vtkm::cont::DeviceAdapterTagCuda{},
-                                                 vtkm::cont::RuntimeDeviceTrackerMode::Disable);
-
+  vtkm::cont::ScopedRuntimeDeviceTracker tracker(
+    vtkm::cont::DeviceAdapterTagCuda{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPolyData* output =
-      vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Find the scalar array:
   int association = this->GetInputArrayAssociation(0, inputVector);
-  vtkDataArray *inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS ||
-      inputArray == nullptr || inputArray->GetName() == nullptr ||
-      inputArray->GetName()[0] == '\0')
+  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS || inputArray == nullptr ||
+    inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 0;
   }
 
   const int numContours = this->GetNumberOfContours();
-  if(numContours == 0)
+  if (numContours == 0)
   {
     return 1;
   }
 
   try
   {
-    vtkm::filter::MarchingCubes filter;
+    vtkm::filter::Contour filter;
     filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
     filter.SetNumberOfIsoValues(numContours);
-    for(int i = 0; i < numContours; ++i)
+    for (int i = 0; i < numContours; ++i)
     {
       filter.SetIsoValue(i, this->GetValue(i));
     }
@@ -113,12 +102,12 @@ int vtkmContour::RequestData(vtkInformation* request,
       auto inField = tovtkm::Convert(inputArray, association);
       in.AddField(inField);
       // don't pass this field
-      filter.SetFieldsToPass(
-        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+      filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
     }
 
     vtkm::cont::DataSet result;
     vtkmInputFilterPolicy policy;
+
     result = filter.Execute(in, policy);
 
     // convert back the dataset to VTK
@@ -136,7 +125,7 @@ int vtkmContour::RequestData(vtkInformation* request,
     if (this->ComputeNormals)
     {
       output->GetPointData()->SetActiveAttribute(
-            filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
+        filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
     }
   }
   catch (const vtkm::cont::Error& e)

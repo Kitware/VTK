@@ -27,18 +27,16 @@
 #include <unordered_map>
 #include <vector>
 
-static const char *vtkDebugLeaksIgnoreClasses[] = {
-  nullptr
-};
+static const char* vtkDebugLeaksIgnoreClasses[] = { nullptr };
 
 //----------------------------------------------------------------------------
 // return 1 if the class should be ignored
 static int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 {
   int i = 0;
-  while(vtkDebugLeaksIgnoreClasses[i])
+  while (vtkDebugLeaksIgnoreClasses[i])
   {
-    if(strcmp(s, vtkDebugLeaksIgnoreClasses[i]) == 0)
+    if (strcmp(s, vtkDebugLeaksIgnoreClasses[i]) == 0)
     {
       return 1;
     }
@@ -55,17 +53,17 @@ class vtkDebugLeaksHashTable
 public:
   vtkDebugLeaksHashTable() {}
   ~vtkDebugLeaksHashTable() {}
-  void IncrementCount(const char *name);
+  void IncrementCount(const char* name);
   vtkTypeBool DecrementCount(const char* name);
-  void PrintTable(std::string &os);
+  void PrintTable(std::string& os);
   bool IsEmpty();
 
 private:
-  std::unordered_map<const char *, unsigned int> CountMap;
+  std::unordered_map<const char*, unsigned int> CountMap;
 };
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaksHashTable::IncrementCount(const char * key)
+void vtkDebugLeaksHashTable::IncrementCount(const char* key)
 {
   this->CountMap[key]++;
 }
@@ -77,7 +75,7 @@ bool vtkDebugLeaksHashTable::IsEmpty()
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkDebugLeaksHashTable::DecrementCount(const char *key)
+vtkTypeBool vtkDebugLeaksHashTable::DecrementCount(const char* key)
 {
   if (this->CountMap.count(key) > 0)
   {
@@ -95,7 +93,7 @@ vtkTypeBool vtkDebugLeaksHashTable::DecrementCount(const char *key)
 }
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaksHashTable::PrintTable(std::string &os)
+void vtkDebugLeaksHashTable::PrintTable(std::string& os)
 {
   auto iter = this->CountMap.begin();
   while (iter != this->CountMap.end())
@@ -104,7 +102,7 @@ void vtkDebugLeaksHashTable::PrintTable(std::string &os)
     {
       char tmp[256];
       snprintf(tmp, 256, "\" has %i %s still around.\n", iter->second,
-               (iter->second == 1) ? "instance" : "instances");
+        (iter->second == 1) ? "instance" : "instances");
       os += "Class \"";
       os += iter->first;
       os += tmp;
@@ -119,7 +117,8 @@ class vtkDebugLeaksTraceManager
 public:
   vtkDebugLeaksTraceManager()
   {
-    const char* debugLeaksTraceClasses = vtksys::SystemTools::GetEnv("VTK_DEBUG_LEAKS_TRACE_CLASSES");
+    const char* debugLeaksTraceClasses =
+      vtksys::SystemTools::GetEnv("VTK_DEBUG_LEAKS_TRACE_CLASSES");
     if (debugLeaksTraceClasses)
     {
       std::vector<std::string> classes;
@@ -131,7 +130,7 @@ public:
 
   void RegisterObject(vtkObjectBase* obj);
   void UnRegisterObject(vtkObjectBase* obj);
-  void PrintObjects(std::ostream &os);
+  void PrintObjects(std::ostream& os);
 
 private:
   std::set<std::string> ClassesToTrace;
@@ -146,16 +145,13 @@ void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* obj)
   if (this->ClassesToTrace.find(obj->GetClassName()) != this->ClassesToTrace.end())
   {
     const int firstFrame = 5; // skip debug leaks frames and start at the call to New()
-    const int wholePath = 1; // produce the whole path to the file if available
+    const int wholePath = 1;  // produce the whole path to the file if available
     std::string trace = vtksys::SystemInformation::GetProgramStack(firstFrame, wholePath);
     this->ObjectTraceMap[obj] = trace;
   }
 }
 #else
-void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* vtkNotUsed(obj))
-{
-
-}
+void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* vtkNotUsed(obj)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -165,15 +161,12 @@ void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* obj)
   this->ObjectTraceMap.erase(obj);
 }
 #else
-void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* vtkNotUsed(obj))
-{
-
-}
+void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* vtkNotUsed(obj)) {}
 #endif
 
 //----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
-void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &os)
+void vtkDebugLeaksTraceManager::PrintObjects(std::ostream& os)
 {
   // Iterate over any remaining object traces and print them
   auto iter = this->ObjectTraceMap.begin();
@@ -186,10 +179,7 @@ void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &os)
   }
 }
 #else
-void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &vtkNotUsed(os))
-{
-
-}
+void vtkDebugLeaksTraceManager::PrintObjects(std::ostream& vtkNotUsed(os)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -202,9 +192,7 @@ void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object))
-{
-}
+void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -216,10 +204,7 @@ void vtkDebugLeaks::ConstructClass(const char* className)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::ConstructClass(const char* vtkNotUsed(className))
-{
-
-}
+void vtkDebugLeaks::ConstructClass(const char* vtkNotUsed(className)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -236,17 +221,15 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
 
   // Due to globals being deleted, this table may already have
   // been deleted.
-  if(vtkDebugLeaks::MemoryTable &&
-     !vtkDebugLeaks::MemoryTable->DecrementCount(object->GetClassName()))
+  if (vtkDebugLeaks::MemoryTable &&
+    !vtkDebugLeaks::MemoryTable->DecrementCount(object->GetClassName()))
   {
     vtkGenericWarningMacro("Deleting unknown object: " << object->GetClassName());
   }
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object))
-{
-}
+void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -257,18 +240,14 @@ void vtkDebugLeaks::DestructClass(const char* className)
 
   // Due to globals being deleted, this table may already have
   // been deleted.
-  if(vtkDebugLeaks::MemoryTable &&
-     !vtkDebugLeaks::MemoryTable->DecrementCount(className))
+  if (vtkDebugLeaks::MemoryTable && !vtkDebugLeaks::MemoryTable->DecrementCount(className))
   {
     vtkGenericWarningMacro("Deleting unknown object: " << className);
   }
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::DestructClass(const char* vtkNotUsed(className))
-{
-
-}
+void vtkDebugLeaks::DestructClass(const char* vtkNotUsed(className)) {}
 #endif
 
 //----------------------------------------------------------------------------
@@ -305,7 +284,7 @@ void vtkDebugLeaks::DestructingObject(vtkObjectBase* object)
 int vtkDebugLeaks::PrintCurrentLeaks()
 {
 #ifdef VTK_DEBUG_LEAKS
-  if(vtkDebugLeaks::MemoryTable->IsEmpty())
+  if (vtkDebugLeaks::MemoryTable->IsEmpty())
   {
     // Log something anyway, so users know vtkDebugLeaks is active/working.
     cerr << "vtkDebugLeaks has found no leaks.\n";
@@ -321,8 +300,7 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   vtkDebugLeaks::TraceManager->PrintObjects(std::cerr);
 
 #ifdef _WIN32
-  if(getenv("DASHBOARD_TEST_FROM_CTEST") ||
-     getenv("DART_TEST_FROM_DART"))
+  if (getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
   {
     // Skip dialogs when running on dashboard.
     return 1;
@@ -330,12 +308,12 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   std::string::size_type myPos = 0;
   int cancel = 0;
   int count = 0;
-  while(!cancel && myPos != leaks.npos)
+  while (!cancel && myPos != leaks.npos)
   {
-    std::string::size_type newPos = leaks.find('\n',myPos);
+    std::string::size_type newPos = leaks.find('\n', myPos);
     if (newPos != leaks.npos)
     {
-      msg += leaks.substr(myPos,newPos-myPos);
+      msg += leaks.substr(myPos, newPos - myPos);
       msg += "\n";
       myPos = newPos;
       myPos++;
@@ -366,14 +344,12 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 int vtkDebugLeaks::DisplayMessageBox(const char* msg)
 {
 #ifdef UNICODE
-  wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, msg, 32000)+1];
+  wchar_t* wmsg = new wchar_t[mbstowcs(nullptr, msg, 32000) + 1];
   mbstowcs(wmsg, msg, 32000);
-  int result = (MessageBox(nullptr, wmsg, L"Error",
-                           MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
-  delete [] wmsg;
+  int result = (MessageBox(nullptr, wmsg, L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
+  delete[] wmsg;
 #else
-  int result = (MessageBox(nullptr, msg, "Error",
-                           MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
+  int result = (MessageBox(nullptr, msg, "Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
 #endif
   return result;
 }
@@ -440,7 +416,7 @@ void vtkDebugLeaks::ClassFinalize()
   vtkDebugLeaks::CriticalSection = nullptr;
 
   // Exit with error if leaks occurred and error mode is on.
-  if(leaked && vtkDebugLeaks::ExitError)
+  if (leaked && vtkDebugLeaks::ExitError)
   {
     exit(1);
   }

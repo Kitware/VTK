@@ -15,17 +15,16 @@
 
 #include "vtkImageThresholdConnectivity.h"
 
-#include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 #include "vtkImageStencilData.h"
 #include "vtkImageStencilIterator.h"
-#include "vtkImageIterator.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkImageStencilData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 
 #include <stack>
@@ -112,11 +111,9 @@ void vtkImageThresholdConnectivity::ThresholdByUpper(double thresh)
 
 //----------------------------------------------------------------------------
 // The values less than or equal to the value match.
-void vtkImageThresholdConnectivity::ThresholdByLower(
-  double thresh)
+void vtkImageThresholdConnectivity::ThresholdByLower(double thresh)
 {
-  if (this->UpperThreshold != thresh ||
-      this->LowerThreshold > -VTK_FLOAT_MAX)
+  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_FLOAT_MAX)
   {
     this->UpperThreshold = thresh;
     this->LowerThreshold = -VTK_FLOAT_MAX;
@@ -126,11 +123,9 @@ void vtkImageThresholdConnectivity::ThresholdByLower(
 
 //----------------------------------------------------------------------------
 // The values in a range (inclusive) match
-void vtkImageThresholdConnectivity::ThresholdBetween(
-  double lower, double upper)
+void vtkImageThresholdConnectivity::ThresholdBetween(double lower, double upper)
 {
-  if (this->LowerThreshold != lower ||
-      this->UpperThreshold != upper)
+  if (this->LowerThreshold != lower || this->UpperThreshold != upper)
   {
     this->LowerThreshold = lower;
     this->UpperThreshold = upper;
@@ -139,8 +134,7 @@ void vtkImageThresholdConnectivity::ThresholdBetween(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageThresholdConnectivity::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkImageThresholdConnectivity::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
   {
@@ -155,21 +149,20 @@ int vtkImageThresholdConnectivity::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThresholdConnectivity::SetStencilData(vtkImageStencilData *stencil)
+void vtkImageThresholdConnectivity::SetStencilData(vtkImageStencilData* stencil)
 {
   this->SetInputData(1, stencil);
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilData *vtkImageThresholdConnectivity::GetStencil()
+vtkImageStencilData* vtkImageThresholdConnectivity::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
     return nullptr;
   }
 
-  return vtkImageStencilData::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, 0));
+  return vtkImageStencilData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -181,7 +174,7 @@ vtkMTimeType vtkImageThresholdConnectivity::GetMTime()
   if (this->SeedPoints)
   {
     pointsMTime = this->SeedPoints->GetMTime();
-    mTime = ( pointsMTime > mTime ? pointsMTime : mTime );
+    mTime = (pointsMTime > mTime ? pointsMTime : mTime);
   }
 
   return mTime;
@@ -192,16 +185,32 @@ vtkMTimeType vtkImageThresholdConnectivity::GetMTime()
 class vtkFloodFillSeed
 {
 public:
-  vtkFloodFillSeed() {
-    store[0]=0; store[1]=0; store[2]=0; };
-  vtkFloodFillSeed(int i, int j, int k) {
-    store[0]=i; store[1]=j; store[2]=k; };
-  vtkFloodFillSeed(const vtkFloodFillSeed &seed) {
-    store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2]; };
-  const int &operator[](int i) const { return store[i]; };
-  vtkFloodFillSeed &operator=(const vtkFloodFillSeed &seed) {
-    store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2];
-    return *this; };
+  vtkFloodFillSeed()
+  {
+    store[0] = 0;
+    store[1] = 0;
+    store[2] = 0;
+  }
+  vtkFloodFillSeed(int i, int j, int k)
+  {
+    store[0] = i;
+    store[1] = j;
+    store[2] = k;
+  }
+  vtkFloodFillSeed(const vtkFloodFillSeed& seed)
+  {
+    store[0] = seed.store[0];
+    store[1] = seed.store[1];
+    store[2] = seed.store[2];
+  }
+  const int& operator[](int i) const { return store[i]; }
+  vtkFloodFillSeed& operator=(const vtkFloodFillSeed& seed)
+  {
+    store[0] = seed.store[0];
+    store[1] = seed.store[1];
+    store[2] = seed.store[2];
+    return *this;
+  }
 
 private:
   int store[3];
@@ -211,8 +220,7 @@ private:
 // Make sure the thresholds are valid for the input scalar range
 template <class IT>
 void vtkImageThresholdConnectivityThresholds(
-  vtkImageThresholdConnectivity *self,
-  vtkImageData *inData, IT &lowerThreshold, IT &upperThreshold)
+  vtkImageThresholdConnectivity* self, vtkImageData* inData, IT& lowerThreshold, IT& upperThreshold)
 {
   if (self->GetLowerThreshold() < inData->GetScalarTypeMin())
   {
@@ -250,8 +258,7 @@ void vtkImageThresholdConnectivityThresholds(
 // Make sure the replacement values are within the output scalar range
 template <class OT>
 void vtkImageThresholdConnectivityValues(
-  vtkImageThresholdConnectivity *self,
-  vtkImageData *outData, OT &inValue, OT &outValue)
+  vtkImageThresholdConnectivity* self, vtkImageData* outData, OT& inValue, OT& outValue)
 {
   if (self->GetInValue() < outData->GetScalarTypeMin())
   {
@@ -287,16 +294,16 @@ void vtkImageThresholdConnectivityValues(
 
 //----------------------------------------------------------------------------
 static void vtkImageThresholdConnectivityApplyStencil(
-  vtkImageData *maskData, vtkImageStencilData *stencil, int extent[6])
+  vtkImageData* maskData, vtkImageStencilData* stencil, int extent[6])
 {
   vtkImageStencilIterator<unsigned char> iter(maskData, stencil, extent);
   while (!iter.IsAtEnd())
   {
-    unsigned char *beginptr = iter.BeginSpan();
-    unsigned char *endptr = iter.EndSpan();
+    unsigned char* beginptr = iter.BeginSpan();
+    unsigned char* endptr = iter.EndSpan();
     unsigned char val = (iter.IsInStencil() ? 0 : 1);
 
-    for (unsigned char *ptr = beginptr; ptr < endptr; ptr++)
+    for (unsigned char* ptr = beginptr; ptr < endptr; ptr++)
     {
       *ptr = val;
     }
@@ -308,22 +315,22 @@ static void vtkImageThresholdConnectivityApplyStencil(
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-void vtkImageThresholdConnectivityExecute(
-  vtkImageThresholdConnectivity *self,
-  vtkImageData *inData, vtkImageData *outData, vtkImageStencilData *stencil,
-  vtkImageData *maskData, int outExt[6], int id, IT *inPtr, OT *outPtr,
-  int &voxelCount)
+void vtkImageThresholdConnectivityExecute(vtkImageThresholdConnectivity* self, vtkImageData* inData,
+  vtkImageData* outData, vtkImageStencilData* stencil, vtkImageData* maskData, int outExt[6],
+  int id, IT* inPtr, OT* outPtr, int& voxelCount)
 {
   // Get active component (only one component is thresholded)
   int nComponents = outData->GetNumberOfScalarComponents();
   int activeComponent = self->GetActiveComponent();
-  if (activeComponent < 0) { activeComponent = 0; }
+  if (activeComponent < 0)
+  {
+    activeComponent = 0;
+  }
   activeComponent = activeComponent % nComponents;
 
   // Get thresholds as input data type
   IT lowerThreshold, upperThreshold;
-  vtkImageThresholdConnectivityThresholds(
-    self, inData, lowerThreshold, upperThreshold);
+  vtkImageThresholdConnectivityThresholds(self, inData, lowerThreshold, upperThreshold);
 
   // Get replace values as output data type
   bool replaceIn = (self->GetReplaceIn() != 0);
@@ -392,20 +399,20 @@ void vtkImageThresholdConnectivityExecute(
   int outCheck = 0;
   for (int ii = 0; ii < 3; ii++)
   {
-    if (extent[2*ii] > inExt[2*ii+1] || extent[2*ii+1] < inExt[2*ii])
+    if (extent[2 * ii] > inExt[2 * ii + 1] || extent[2 * ii + 1] < inExt[2 * ii])
     { // extents don't intersect, we're done
       return;
     }
-    if (extent[2*ii] < inExt[2*ii])
+    if (extent[2 * ii] < inExt[2 * ii])
     {
-      extent[2*ii] = inExt[2*ii];
+      extent[2 * ii] = inExt[2 * ii];
     }
-    if (extent[2*ii+1] > inExt[2*ii+1])
+    if (extent[2 * ii + 1] > inExt[2 * ii + 1])
     {
-      extent[2*ii+1] = inExt[2*ii+1];
+      extent[2 * ii + 1] = inExt[2 * ii + 1];
     }
     // check against output extent
-    if (extent[2*ii] < outExt[2*ii] || extent[2*ii+1] > outExt[2*ii+1])
+    if (extent[2 * ii] < outExt[2 * ii] || extent[2 * ii + 1] > outExt[2 * ii + 1])
     {
       outCheck = 1;
     }
@@ -425,13 +432,13 @@ void vtkImageThresholdConnectivityExecute(
   int maxOutIdZ = outExt[5] - extent[4];
 
   // Total number of voxels
-  vtkIdType fullsize = (static_cast<vtkIdType>(extent[1] - extent[0] + 1)*
-                        static_cast<vtkIdType>(extent[3] - extent[2] + 1)*
-                        static_cast<vtkIdType>(extent[5] - extent[4] + 1));
+  vtkIdType fullsize = (static_cast<vtkIdType>(extent[1] - extent[0] + 1) *
+    static_cast<vtkIdType>(extent[3] - extent[2] + 1) *
+    static_cast<vtkIdType>(extent[5] - extent[4] + 1));
 
   // for the progress meter
   double progress = 0.0;
-  vtkIdType target = static_cast<vtkIdType>(fullsize/50.0);
+  vtkIdType target = static_cast<vtkIdType>(fullsize / 50.0);
   target++;
 
   // Setup the mask
@@ -440,24 +447,23 @@ void vtkImageThresholdConnectivityExecute(
   maskData->SetExtent(extent);
   maskData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
-  unsigned char *maskPtr =
-    static_cast<unsigned char *>(maskData->GetScalarPointerForExtent(extent));
+  unsigned char* maskPtr = static_cast<unsigned char*>(maskData->GetScalarPointerForExtent(extent));
   vtkIdType maskInc[3];
   maskInc[0] = 1;
   maskInc[1] = (extent[1] - extent[0] + 1);
-  maskInc[2] = maskInc[1]*(extent[3] - extent[2] + 1);
+  maskInc[2] = maskInc[1] * (extent[3] - extent[2] + 1);
 
   // Get input pointer for the extent used by the maskData
-  inPtr = static_cast<IT *>(inData->GetScalarPointerForExtent(extent));
+  inPtr = static_cast<IT*>(inData->GetScalarPointerForExtent(extent));
   vtkIdType inInc[3];
   inData->GetIncrements(inInc);
 
   // Get output pointer for the whole output extent
-  outPtr = static_cast<OT *>(outData->GetScalarPointerForExtent(outExt));
+  outPtr = static_cast<OT*>(outData->GetScalarPointerForExtent(outExt));
   vtkIdType outInc[3];
   outData->GetIncrements(outInc);
   // Adjust it so that it corresponds to the maskData extent
-  outPtr -= minOutIdX*outInc[0] + minOutIdY*outInc[1] + minOutIdZ*outInc[2];
+  outPtr -= minOutIdX * outInc[0] + minOutIdY * outInc[1] + minOutIdZ * outInc[2];
 
   // Adjust pointers to active component
   inPtr += activeComponent;
@@ -484,9 +490,9 @@ void vtkImageThresholdConnectivityExecute(
   bool useNeighborhood = ((xradius > 0) & (yradius > 0) & (zradius > 0));
   if (useNeighborhood)
   {
-    fx = 1.0/radius[0];
-    fy = 1.0/radius[1];
-    fz = 1.0/radius[2];
+    fx = 1.0 / radius[0];
+    fy = 1.0 / radius[1];
+    fz = 1.0 / radius[2];
   }
 
   // Perform the flood fill within the extent
@@ -500,7 +506,7 @@ void vtkImageThresholdConnectivityExecute(
   std::stack<vtkFloodFillSeed> seedStack;
 
   // initialize with the seeds provided by the user
-  vtkPoints *points = self->GetSeedPoints();
+  vtkPoints* points = self->GetSeedPoints();
   if (points == nullptr)
   { // no seeds!
     return;
@@ -510,15 +516,14 @@ void vtkImageThresholdConnectivityExecute(
   vtkIdType nPoints = points->GetNumberOfPoints();
   for (vtkIdType p = 0; p < nPoints; p++)
   {
-    points->GetPoint(p,point);
-    vtkFloodFillSeed seed = vtkFloodFillSeed(
-      vtkMath::Floor((point[0] - origin[0])/spacing[0] + 0.5) - extent[0],
-      vtkMath::Floor((point[1] - origin[1])/spacing[1] + 0.5) - extent[2],
-      vtkMath::Floor((point[2] - origin[2])/spacing[2] + 0.5) - extent[4]);
+    points->GetPoint(p, point);
+    vtkFloodFillSeed seed =
+      vtkFloodFillSeed(vtkMath::Floor((point[0] - origin[0]) / spacing[0] + 0.5) - extent[0],
+        vtkMath::Floor((point[1] - origin[1]) / spacing[1] + 0.5) - extent[2],
+        vtkMath::Floor((point[2] - origin[2]) / spacing[2] + 0.5) - extent[4]);
 
-    if (seed[0] >= 0 && seed[0] <= maxIdX &&
-        seed[1] >= 0 && seed[1] <= maxIdY &&
-        seed[2] >= 0 && seed[2] <= maxIdZ)
+    if (seed[0] >= 0 && seed[0] <= maxIdX && seed[1] >= 0 && seed[1] <= maxIdY && seed[2] >= 0 &&
+      seed[2] <= maxIdZ)
     {
       seedStack.push(seed);
     }
@@ -532,9 +537,8 @@ void vtkImageThresholdConnectivityExecute(
     vtkFloodFillSeed seed = seedStack.top();
     seedStack.pop();
 
-    unsigned char *maskPtr1 = maskPtr + (seed[0]*maskInc[0] +
-                                         seed[1]*maskInc[1] +
-                                         seed[2]*maskInc[2]);
+    unsigned char* maskPtr1 =
+      maskPtr + (seed[0] * maskInc[0] + seed[1] * maskInc[1] + seed[2] * maskInc[2]);
 
     if (*maskPtr1)
     {
@@ -545,8 +549,8 @@ void vtkImageThresholdConnectivityExecute(
     fullcount++;
     if (id == 0 && (fullcount % target) == 0)
     {
-      double v = counter/(10.0*fullcount);
-      double p = fullcount/(v*fullsize + (1.0 - v)*fullcount);
+      double v = counter / (10.0 * fullcount);
+      double p = fullcount / (v * fullsize + (1.0 - v) * fullcount);
       if (p > progress)
       {
         progress = p;
@@ -554,9 +558,7 @@ void vtkImageThresholdConnectivityExecute(
       }
     }
 
-    IT *inPtr1 = inPtr + (seed[0]*inInc[0] +
-                          seed[1]*inInc[1] +
-                          seed[2]*inInc[2]);
+    IT* inPtr1 = inPtr + (seed[0] * inInc[0] + seed[1] * inInc[1] + seed[2] * inInc[2]);
     IT temp = *inPtr1;
 
     bool inside = ((lowerThreshold <= temp) & (temp <= upperThreshold));
@@ -579,62 +581,53 @@ void vtkImageThresholdConnectivityExecute(
       int zmax = seed[2] + zradius;
       zmax = (zmax <= maxIdZ ? zmax : maxIdZ);
 
-      inPtr1 = inPtr + (xmin*inInc[0] +
-                        ymin*inInc[1] +
-                        zmin*inInc[2]);
+      inPtr1 = inPtr + (xmin * inInc[0] + ymin * inInc[1] + zmin * inInc[2]);
 
       int totalcount = 0;
       int threshcount = 0;
       int iz = zmin;
       do
       {
-        IT *inPtr2 = inPtr1;
-        double rz = (iz - seed[2])*fz;
+        IT* inPtr2 = inPtr1;
+        double rz = (iz - seed[2]) * fz;
         rz *= rz;
         int iy = ymin;
         do
         {
-          IT *inPtr3 = inPtr2;
-          double ry = (iy - seed[1])*fy;
+          IT* inPtr3 = inPtr2;
+          double ry = (iy - seed[1]) * fy;
           ry *= ry;
           double rzy = rz + ry;
           int ix = xmin;
           do
           {
-            double rx = (ix - seed[0])*fx;
+            double rx = (ix - seed[0]) * fx;
             rx *= rx;
             double rzyx = rzy + rx;
             // include a tolerance in radius check
             bool isgood = (rzyx < (1.0 + 7.62939453125e-06));
             totalcount += isgood;
-            isgood &= ((lowerThreshold <= *inPtr3) &
-                       (*inPtr3 <= upperThreshold));
+            isgood &= ((lowerThreshold <= *inPtr3) & (*inPtr3 <= upperThreshold));
             threshcount += isgood;
             inPtr3 += inInc[0];
-          }
-          while (++ix <= xmax);
+          } while (++ix <= xmax);
           inPtr2 += inInc[1];
-        }
-        while (++iy <= ymax);
+        } while (++iy <= ymax);
         inPtr1 += inInc[2];
-      }
-      while (++iz <= zmax);
+      } while (++iz <= zmax);
 
       // what fraction of the sphere is within threshold?
-      inside &= !(static_cast<double>(threshcount) < totalcount*f);
+      inside &= !(static_cast<double>(threshcount) < totalcount * f);
     }
 
     if (inside)
     {
       // match
-      OT *outPtr1 = outPtr + (seed[0]*outInc[0] +
-                              seed[1]*outInc[1] +
-                              seed[2]*outInc[2]);
+      OT* outPtr1 = outPtr + (seed[0] * outInc[0] + seed[1] * outInc[1] + seed[2] * outInc[2]);
 
       if (outCheck == 0 ||
-          (seed[0] >= minOutIdX && seed[0] <= maxOutIdX &&
-           seed[1] >= minOutIdY && seed[1] <= maxOutIdY &&
-           seed[2] >= minOutIdZ && seed[2] <= maxOutIdZ))
+        (seed[0] >= minOutIdX && seed[0] <= maxOutIdX && seed[1] >= minOutIdY &&
+          seed[1] <= maxOutIdY && seed[2] >= minOutIdZ && seed[2] <= maxOutIdZ))
       {
         *outPtr1 = (replaceIn ? inValue : static_cast<OT>(temp));
       }
@@ -679,13 +672,11 @@ void vtkImageThresholdConnectivityExecute(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageThresholdConnectivity::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkImageThresholdConnectivity::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *stencilInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* stencilInfo = inputVector[1]->GetInformationObject(0);
 
   int inExt[6], extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
@@ -699,47 +690,41 @@ int vtkImageThresholdConnectivity::RequestUpdateExtent(
   // Clip the extent to the inExt
   for (int i = 0; i < 3; i++)
   {
-    if (extent[2*i] < inExt[2*i])
+    if (extent[2 * i] < inExt[2 * i])
     {
-      extent[2*i] = inExt[2*i];
+      extent[2 * i] = inExt[2 * i];
     }
-    if (extent[2*i+1] > inExt[2*i+1])
+    if (extent[2 * i + 1] > inExt[2 * i + 1])
     {
-      extent[2*i+1] = inExt[2*i+1];
+      extent[2 * i + 1] = inExt[2 * i + 1];
     }
   }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
   if (stencilInfo)
   {
-    stencilInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                     extent, 6);
+    stencilInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
   }
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageThresholdConnectivity::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageThresholdConnectivity::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *stencilInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* stencilInfo = inputVector[1]->GetInformationObject(0);
 
-  vtkImageData* outData = static_cast<vtkImageData *>(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData* inData = static_cast<vtkImageData *>(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *maskData = this->ImageMask;
+  vtkImageData* outData = static_cast<vtkImageData*>(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* inData = static_cast<vtkImageData*>(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* maskData = this->ImageMask;
 
   vtkImageStencilData* stencil = nullptr;
   if (stencilInfo)
   {
-    stencil = static_cast<vtkImageStencilData *>(
-      stencilInfo->Get(vtkDataObject::DATA_OBJECT()));
+    stencil = static_cast<vtkImageStencilData*>(stencilInfo->Get(vtkDataObject::DATA_OBJECT()));
   }
 
   int outExt[6];
@@ -747,27 +732,23 @@ int vtkImageThresholdConnectivity::RequestData(
   this->AllocateOutputData(outData, outInfo, outExt);
 
   // get scalar pointers
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void* inPtr = inData->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
 
   int id = 0; // not multi-threaded
 
   if (inData->GetScalarType() != outData->GetScalarType())
   {
     vtkErrorMacro("Execute: Output ScalarType "
-                  << outData->GetScalarType()
-                  << ", must Input ScalarType "
-                  << inData->GetScalarType());
+      << outData->GetScalarType() << ", must Input ScalarType " << inData->GetScalarType());
     return 0;
   }
 
   switch (inData->GetScalarType())
   {
     vtkTemplateAliasMacro(
-      vtkImageThresholdConnectivityExecute(
-        this, inData, outData, stencil, maskData, outExt, id,
-        static_cast<VTK_TT *>(inPtr), static_cast<VTK_TT *>(outPtr),
-        this->NumberOfInVoxels));
+      vtkImageThresholdConnectivityExecute(this, inData, outData, stencil, maskData, outExt, id,
+        static_cast<VTK_TT*>(inPtr), static_cast<VTK_TT*>(outPtr), this->NumberOfInVoxels));
 
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
@@ -780,7 +761,7 @@ int vtkImageThresholdConnectivity::RequestData(
 //----------------------------------------------------------------------------
 void vtkImageThresholdConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "InValue: " << this->InValue << "\n";
   os << indent << "OutValue: " << this->OutValue << "\n";
@@ -789,21 +770,16 @@ void vtkImageThresholdConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReplaceIn: " << this->ReplaceIn << "\n";
   os << indent << "ReplaceOut: " << this->ReplaceOut << "\n";
   os << indent << "NeighborhoodRadius: " << this->NeighborhoodRadius[0] << " "
-     << this->NeighborhoodRadius[1] << " "
-     << this->NeighborhoodRadius[2] << "\n";
-  os << indent << "NeighborhoodFraction: "
-     << this->NeighborhoodFraction << "\n";
+     << this->NeighborhoodRadius[1] << " " << this->NeighborhoodRadius[2] << "\n";
+  os << indent << "NeighborhoodFraction: " << this->NeighborhoodFraction << "\n";
   os << indent << "NumberOfInVoxels: " << this->NumberOfInVoxels << "\n";
-  os << indent << "SliceRangeX: "
-     << this->SliceRangeX[0] << " " << this->SliceRangeX[1] << "\n";
-  os << indent << "SliceRangeY: "
-     << this->SliceRangeY[0] << " " << this->SliceRangeY[1] << "\n";
-  os << indent << "SliceRangeZ: "
-     << this->SliceRangeZ[0] << " " << this->SliceRangeZ[1] << "\n";
+  os << indent << "SliceRangeX: " << this->SliceRangeX[0] << " " << this->SliceRangeX[1] << "\n";
+  os << indent << "SliceRangeY: " << this->SliceRangeY[0] << " " << this->SliceRangeY[1] << "\n";
+  os << indent << "SliceRangeZ: " << this->SliceRangeZ[0] << " " << this->SliceRangeZ[1] << "\n";
   os << indent << "SeedPoints: " << this->SeedPoints << "\n";
   if (this->SeedPoints)
   {
-    this->SeedPoints->PrintSelf(os,indent.GetNextIndent());
+    this->SeedPoints->PrintSelf(os, indent.GetNextIndent());
   }
   os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ActiveComponent: " << this->ActiveComponent << "\n";

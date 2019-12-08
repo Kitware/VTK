@@ -18,7 +18,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkNonOverlappingAMRAlgorithm_h
 #define vtkNonOverlappingAMRAlgorithm_h
@@ -29,37 +29,37 @@
 class vtkNonOverlappingAMR;
 class vtkInformation;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
-  public vtkUniformGridAMRAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm
+  : public vtkUniformGridAMRAlgorithm
 {
-  public:
-    static vtkNonOverlappingAMRAlgorithm* New();
-    vtkTypeMacro(vtkNonOverlappingAMRAlgorithm,vtkUniformGridAMRAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) override;
+public:
+  static vtkNonOverlappingAMRAlgorithm* New();
+  vtkTypeMacro(vtkNonOverlappingAMRAlgorithm, vtkUniformGridAMRAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    //@{
-    /**
-     * Get the output data object for a port on this algorithm
-     */
-    vtkNonOverlappingAMR* GetOutput();
-    vtkNonOverlappingAMR* GetOutput(int);
-    //@}
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm
+   */
+  vtkNonOverlappingAMR* GetOutput();
+  vtkNonOverlappingAMR* GetOutput(int);
+  //@}
 
-  protected:
-    vtkNonOverlappingAMRAlgorithm();
-    ~vtkNonOverlappingAMRAlgorithm() override;
+protected:
+  vtkNonOverlappingAMRAlgorithm();
+  ~vtkNonOverlappingAMRAlgorithm() override;
 
-    //@{
-    /**
-     * See algorithm for more info.
-     */
-    int FillOutputPortInformation(int port, vtkInformation* info) override;
-    int FillInputPortInformation(int port, vtkInformation* info) override;
-    //@}
+  //@{
+  /**
+   * See algorithm for more info.
+   */
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  //@}
 
-  private:
-    vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) = delete;
-    void operator=(const vtkNonOverlappingAMRAlgorithm&) = delete;
+private:
+  vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) = delete;
+  void operator=(const vtkNonOverlappingAMRAlgorithm&) = delete;
 };
 
 #endif /* VTKNONOVERLAPPINGAMRALGORITHM_H_ */

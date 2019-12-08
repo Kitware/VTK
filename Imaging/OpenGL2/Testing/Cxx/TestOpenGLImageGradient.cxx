@@ -14,24 +14,24 @@
 
 #include "vtkNew.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
 #include "vtkImageReader2.h"
+#include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkOpenGLImageGradient.h"
 #include "vtkPointData.h"
-#include "vtkDataArray.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-int TestOpenGLImageGradient(int argc, char *argv[])
+int TestOpenGLImageGradient(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyleImage> style;
@@ -40,16 +40,15 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   vtkNew<vtkImageReader2> reader;
   reader->SetDataByteOrderToLittleEndian();
-  reader->SetDataExtent(0,63,0,63,1,93);
+  reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
   reader->SetFilePrefix(fname);
 
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkOpenGLImageGradient> filter;
   //  vtkNew<vtkImageGradient> filter;
@@ -68,21 +67,21 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   double range[2] = { -100, 100 };
 
   image->GetProperty()->SetColorWindow(range[1] - range[0]);
-  image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
+  image->GetProperty()->SetColorLevel(0.5 * (range[0] + range[1]));
   image->GetProperty()->SetInterpolationTypeToNearest();
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddViewProp(image);
-  renderer->SetBackground(0.2,0.3,0.4);
+  renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->AddRenderer(renderer);
 
-  const double *bounds = imageMapper->GetBounds();
+  const double* bounds = imageMapper->GetBounds();
   double point[3];
-  point[0] = 0.5*(bounds[0] + bounds[1]);
-  point[1] = 0.5*(bounds[2] + bounds[3]);
-  point[2] = 0.5*(bounds[4] + bounds[5]);
+  point[0] = 0.5 * (bounds[0] + bounds[1]);
+  point[1] = 0.5 * (bounds[2] + bounds[3]);
+  point[2] = 0.5 * (bounds[4] + bounds[5]);
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetFocalPoint(point);
   point[imageMapper->GetOrientation()] += 500.0;
   camera->SetPosition(point);
@@ -95,14 +94,14 @@ int TestOpenGLImageGradient(int argc, char *argv[])
     camera->SetViewUp(0.0, 0.0, -1.0);
   }
   camera->ParallelProjectionOn();
-  camera->SetParallelScale(0.8*128);
+  camera->SetParallelScale(0.8 * 128);
 
-  renWin->SetSize(512,512);
+  renWin->SetSize(512, 512);
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

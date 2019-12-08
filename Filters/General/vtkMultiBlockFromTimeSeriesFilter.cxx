@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro(vtkMultiBlockFromTimeSeriesFilter)
+vtkStandardNewMacro(vtkMultiBlockFromTimeSeriesFilter);
 
 vtkMultiBlockFromTimeSeriesFilter::vtkMultiBlockFromTimeSeriesFilter()
 {
@@ -30,20 +30,19 @@ vtkMultiBlockFromTimeSeriesFilter::vtkMultiBlockFromTimeSeriesFilter()
 
 vtkMultiBlockFromTimeSeriesFilter::~vtkMultiBlockFromTimeSeriesFilter() = default;
 
-int vtkMultiBlockFromTimeSeriesFilter::FillInputPortInformation(
-  int, vtkInformation *info)
+int vtkMultiBlockFromTimeSeriesFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
-int vtkMultiBlockFromTimeSeriesFilter::RequestInformation(vtkInformation *vtkNotUsed(request),
-    vtkInformationVector** inInfo, vtkInformationVector* outInfoVec)
+int vtkMultiBlockFromTimeSeriesFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inInfo, vtkInformationVector* outInfoVec)
 {
   this->UpdateTimeIndex = 0;
-  vtkInformation *info = inInfo[0]->GetInformationObject(0);
+  vtkInformation* info = inInfo[0]->GetInformationObject(0);
   int len = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  double *timeSteps = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* timeSteps = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   this->TimeSteps.resize(len);
   std::copy(timeSteps, timeSteps + len, this->TimeSteps.begin());
   this->TempDataset = vtkSmartPointer<vtkMultiBlockDataSet>::New();
@@ -56,25 +55,24 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestInformation(vtkInformation *vtkNot
   return 1;
 }
 
-int vtkMultiBlockFromTimeSeriesFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
-    vtkInformationVector** inInfo, vtkInformationVector* vtkNotUsed(outInfo))
+int vtkMultiBlockFromTimeSeriesFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inInfo, vtkInformationVector* vtkNotUsed(outInfo))
 {
   if (this->TimeSteps.size() > static_cast<size_t>(this->UpdateTimeIndex))
   {
-    vtkInformation *info = inInfo[0]->GetInformationObject(0);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-        this->TimeSteps[this->UpdateTimeIndex]);
+    vtkInformation* info = inInfo[0]->GetInformationObject(0);
+    info->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->TimeSteps[this->UpdateTimeIndex]);
   }
   return 1;
 }
 
-int vtkMultiBlockFromTimeSeriesFilter::RequestData(vtkInformation *request,
-    vtkInformationVector** inInfo, vtkInformationVector* outInfo)
+int vtkMultiBlockFromTimeSeriesFilter::RequestData(
+  vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
-  vtkInformation *info = inInfo[0]->GetInformationObject(0);
-  vtkDataObject *data = vtkDataObject::GetData(info);
-  vtkSmartPointer<vtkDataObject> clone =
-    vtkSmartPointer<vtkDataObject>::Take(data->NewInstance());
+  vtkInformation* info = inInfo[0]->GetInformationObject(0);
+  vtkDataObject* data = vtkDataObject::GetData(info);
+  vtkSmartPointer<vtkDataObject> clone = vtkSmartPointer<vtkDataObject>::Take(data->NewInstance());
   clone->ShallowCopy(data);
   this->TempDataset->SetBlock(this->UpdateTimeIndex, clone);
   if (this->UpdateTimeIndex < static_cast<vtkTypeInt64>(this->TimeSteps.size()) - 1)
@@ -84,7 +82,7 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestData(vtkInformation *request,
   }
   else
   {
-    vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outInfo);
+    vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
     output->ShallowCopy(this->TempDataset);
     for (unsigned i = 0; i < this->TempDataset->GetNumberOfBlocks(); ++i)
     {

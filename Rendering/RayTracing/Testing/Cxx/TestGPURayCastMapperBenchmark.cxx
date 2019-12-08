@@ -15,20 +15,20 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkOSPRayPass.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkOSPRayPass.h"
 
 // TODO , tweak the sampling rate and number of samples to test if the
 // baseline image would be matched (only visible differences on the edges)
@@ -39,8 +39,8 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
   bool useOSP = true;
   bool useFP = false;
-  int EXT=128;
-  int RES=900;
+  int EXT = 128;
+  int RES = 900;
   for (int i = 0; i < argc; i++)
   {
     if (!strcmp(argv[i], "-GL"))
@@ -53,18 +53,16 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     }
     if (!strcmp(argv[i], "-EXT"))
     {
-      EXT = atoi(argv[i+1]);
+      EXT = atoi(argv[i + 1]);
     }
     if (!strcmp(argv[i], "-RES"))
     {
-      RES = atoi(argv[i+1]);
+      RES = atoi(argv[i + 1]);
     }
   }
 
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-(EXT-1), EXT,
-                          -(EXT-1), EXT,
-                          -(EXT-1), EXT);
+  wavelet->SetWholeExtent(-(EXT - 1), EXT, -(EXT - 1), EXT, -(EXT - 1), EXT);
   wavelet->SetCenter(0.0, 0.0, 0.0);
   vtkNew<vtkTimerLog> timer;
   cerr << "Make data" << endl;
@@ -76,7 +74,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
   vtkNew<vtkGPUVolumeRayCastMapper> gpu_volumeMapper;
   vtkNew<vtkFixedPointVolumeRayCastMapper> cpu_volumeMapper;
-  vtkVolumeMapper *volumeMapper = gpu_volumeMapper;
+  vtkVolumeMapper* volumeMapper = gpu_volumeMapper;
   if (useFP)
   {
     cerr << "USE FP" << endl;
@@ -111,7 +109,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   renderer->ResetCamera();
   renderWindow->AddRenderer(renderer);
 
-// Attach OSPRay render pass
+  // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP && !useFP)
   {
@@ -124,8 +122,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   int valid = true;
   if (!useFP)
   {
-    valid = gpu_volumeMapper->IsRenderSupported(renderWindow,
-                                                volumeProperty);
+    valid = gpu_volumeMapper->IsRenderSupported(renderWindow, volumeProperty);
   }
   int retVal;
   if (valid)
@@ -157,9 +154,9 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     double elapsed = timer->GetElapsedTime();
     cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
 
-    renderer->GetActiveCamera()->SetPosition(0,0,1);
-    renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-    renderer->GetActiveCamera()->SetViewUp(0,1,0);
+    renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+    renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+    renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
     renderer->ResetCamera();
 
     renderWindow->SetSize(300, 300);
@@ -167,8 +164,8 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     iren->Initialize();
 
-    retVal = vtkRegressionTestImage( renderWindow );
-    if( retVal == vtkRegressionTester::DO_INTERACTOR)
+    retVal = vtkRegressionTestImage(renderWindow);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }
@@ -179,6 +176,5 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     cout << "Required extensions not supported." << endl;
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

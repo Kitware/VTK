@@ -12,28 +12,30 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkTemporalStreamTracer.h"
 #include "vtkPTemporalStreamTracer.h"
+#include "vtkTemporalStreamTracer.h"
 
+#include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCharArray.h"
+#include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
@@ -43,11 +45,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
-#include "vtkOutputWindow.h"
-#include "vtkAbstractParticleWriter.h"
 #include "vtkToolkits.h"
 #include <cassert>
-#include "vtkMPIController.h"
 
 using namespace vtkTemporalStreamTracerNamespace;
 
@@ -59,9 +58,7 @@ vtkPTemporalStreamTracer::vtkPTemporalStreamTracer()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  VTK_LEGACY_BODY(
-    vtkPTemporalStreamTracer::vtkPTemporalStreamTracer,
-    "VTK 8.90");
+  VTK_LEGACY_BODY(vtkPTemporalStreamTracer::vtkPTemporalStreamTracer, "VTK 8.90");
 }
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()
@@ -70,14 +67,13 @@ vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()
   this->SetParticleWriter(nullptr);
 }
 //---------------------------------------------------------------------------
-void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
-  vtkDataSet *source, int sourceID, int ptId,
-  ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
+void vtkPTemporalStreamTracer::AssignSeedsToProcessors(vtkDataSet* source, int sourceID, int ptId,
+  ParticleVector& LocalSeedPoints, int& LocalAssignedCount)
 {
-  if(!this->Controller)
+  if (!this->Controller)
   {
-    return Superclass::AssignSeedsToProcessors(source, sourceID, ptId,
-                                               LocalSeedPoints, LocalAssignedCount);
+    return Superclass::AssignSeedsToProcessors(
+      source, sourceID, ptId, LocalSeedPoints, LocalAssignedCount);
   }
 
   ParticleVector candidates;
@@ -90,33 +86,35 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
 #endif
   candidates.resize(numSeeds);
   //
-  for (int i=0; i<numSeeds; i++) {
-    ParticleInformation &info = candidates[i];
-    memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double)*3);
+  for (int i = 0; i < numSeeds; i++)
+  {
+    ParticleInformation& info = candidates[i];
+    memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double) * 3);
     info.CurrentPosition.x[3] = this->CurrentTimeSteps[0];
-    info.LocationState        = 0;
-    info.CachedCellId[0]      =-1;
-    info.CachedCellId[1]      =-1;
-    info.CachedDataSetId[0]   = 0;
-    info.CachedDataSetId[1]   = 0;
-    info.SourceID             = sourceID;
-    info.InjectedPointId      = i+ptId;
-    info.InjectedStepId       = this->ReinjectionCounter;
-    info.TimeStepAge          = 0;
-    info.UniqueParticleId     =-1;
-    info.rotation             = 0.0;
-    info.angularVel           = 0.0;
-    info.time                 = 0.0;
-    info.age                  = 0.0;
-    info.speed                = 0.0;
-    info.ErrorCode            = 0;
+    info.LocationState = 0;
+    info.CachedCellId[0] = -1;
+    info.CachedCellId[1] = -1;
+    info.CachedDataSetId[0] = 0;
+    info.CachedDataSetId[1] = 0;
+    info.SourceID = sourceID;
+    info.InjectedPointId = i + ptId;
+    info.InjectedStepId = this->ReinjectionCounter;
+    info.TimeStepAge = 0;
+    info.UniqueParticleId = -1;
+    info.rotation = 0.0;
+    info.angularVel = 0.0;
+    info.time = 0.0;
+    info.age = 0.0;
+    info.speed = 0.0;
+    info.ErrorCode = 0;
   }
   //
   // Gather all Seeds to all processors for classification
   //
   // TODO : can we just use the same array here for send and receive
   ParticleVector allCandidates;
-  if (this->UpdateNumPieces>1) {
+  if (this->UpdateNumPieces > 1)
+  {
     // Gather all seed particles to all processes
     this->TransmitReceiveParticles(candidates, allCandidates, false);
 #ifndef NDEBUG
@@ -126,7 +124,8 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
     // Test to see which ones belong to us
     this->TestParticles(allCandidates, LocalSeedPoints, LocalAssignedCount);
   }
-  else {
+  else
+  {
 #ifndef NDEBUG
     numTested = static_cast<int>(candidates.size());
 #endif
@@ -147,57 +146,61 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
 }
 //---------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AssignUniqueIds(
-  vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
+  vtkTemporalStreamTracerNamespace::ParticleVector& LocalSeedPoints)
 {
-  if(!this->Controller)
+  if (!this->Controller)
   {
     return Superclass::AssignUniqueIds(LocalSeedPoints);
   }
 
   vtkIdType ParticleCountOffset = 0;
   vtkIdType numParticles = static_cast<vtkIdType>(LocalSeedPoints.size());
-  if (this->UpdateNumPieces>1) {
-    vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
-      this->Controller->GetCommunicator());
-    if (com == 0) {
+  if (this->UpdateNumPieces > 1)
+  {
+    vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+    if (com == 0)
+    {
       vtkErrorMacro("MPICommunicator needed for this operation.");
       return;
     }
     // everyone starts with the master index
     com->Broadcast(&this->UniqueIdCounter, 1, 0);
-//    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
+    //    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
     // setup arrays used by the AllGather call.
     std::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
     // Broadcast and receive count to/from all other processes.
     com->AllGather(&numParticles, &recvNumParticles[0], 1);
     // Each process is allocating a certain number.
     // start our indices from sum[0,this->UpdatePieceId](numparticles)
-    for (int i=0; i<this->UpdatePieceId; ++i) {
+    for (int i = 0; i < this->UpdatePieceId; ++i)
+    {
       ParticleCountOffset += recvNumParticles[i];
     }
-    for (vtkIdType i=0; i<numParticles; i++) {
-      LocalSeedPoints[i].UniqueParticleId =
-        this->UniqueIdCounter + ParticleCountOffset + i;
+    for (vtkIdType i = 0; i < numParticles; i++)
+    {
+      LocalSeedPoints[i].UniqueParticleId = this->UniqueIdCounter + ParticleCountOffset + i;
     }
-    for (int i=0; i<this->UpdateNumPieces; ++i) {
+    for (int i = 0; i < this->UpdateNumPieces; ++i)
+    {
       this->UniqueIdCounter += recvNumParticles[i];
     }
   }
-  else {
-    for (vtkIdType i=0; i<numParticles; i++) {
-      LocalSeedPoints[i].UniqueParticleId =
-        this->UniqueIdCounter + ParticleCountOffset + i;
+  else
+  {
+    for (vtkIdType i = 0; i < numParticles; i++)
+    {
+      LocalSeedPoints[i].UniqueParticleId = this->UniqueIdCounter + ParticleCountOffset + i;
     }
     this->UniqueIdCounter += numParticles;
   }
 }
 //---------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::TransmitReceiveParticles(
-  ParticleVector &sending, ParticleVector &received, bool removeself)
+  ParticleVector& sending, ParticleVector& received, bool removeself)
 {
-  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
-    this->Controller->GetCommunicator());
-  if (com == 0) {
+  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+  if (com == 0)
+  {
     vtkErrorMacro("MPICommunicator needed for this operation.");
     return;
   }
@@ -213,41 +216,40 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   com->AllGather(&OurParticles, &recvLengths[0], 1);
   // Compute the displacements.
   const vtkIdType TypeSize = sizeof(ParticleInformation);
-  for (int i=0; i<this->UpdateNumPieces; ++i)
+  for (int i = 0; i < this->UpdateNumPieces; ++i)
   {
     //  << i << ": " << recvLengths[i] << "   ";
-    recvOffsets[i] = TotalParticles*TypeSize;
+    recvOffsets[i] = TotalParticles * TypeSize;
     TotalParticles += recvLengths[i];
     recvLengths[i] *= TypeSize;
   }
   //  << '\n';
   // Allocate the space for all particles
   received.resize(TotalParticles);
-  if (TotalParticles==0) return;
+  if (TotalParticles == 0)
+    return;
   // Gather the data from all procs.
-  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : nullptr);
-  char *recvbuf = (char*) (&(received[0]));
-  com->AllGatherV(sendbuf, recvbuf,
-    OurParticles*TypeSize, &recvLengths[0], &recvOffsets[0]);
+  char* sendbuf = (char*)((sending.size() > 0) ? &(sending[0]) : nullptr);
+  char* recvbuf = (char*)(&(received[0]));
+  com->AllGatherV(sendbuf, recvbuf, OurParticles * TypeSize, &recvLengths[0], &recvOffsets[0]);
   // Now all particles from all processors are in one big array
   // remove any from ourself that we have already tested
-  if (removeself) {
+  if (removeself)
+  {
     std::vector<ParticleInformation>::iterator first =
-      received.begin() + recvOffsets[this->UpdatePieceId]/TypeSize;
+      received.begin() + recvOffsets[this->UpdatePieceId] / TypeSize;
     std::vector<ParticleInformation>::iterator last =
-      first + recvLengths[this->UpdatePieceId]/TypeSize;
+      first + recvLengths[this->UpdatePieceId] / TypeSize;
     received.erase(first, last);
   }
 }
 //---------------------------------------------------------------------------
 int vtkPTemporalStreamTracer::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   int rvalue = this->Superclass::RequestData(request, inputVector, outputVector);
 
-  if(this->Controller)
+  if (this->Controller)
   {
     this->Controller->Barrier();
   }
@@ -257,22 +259,24 @@ int vtkPTemporalStreamTracer::RequestData(
 //---------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Controller: " << this->Controller << endl;
 }
 //---------------------------------------------------------------------------
-void vtkPTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation &info)
+void vtkPTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation& info)
 {
-  double eps = (this->CurrentTimeSteps[1]-this->CurrentTimeSteps[0])/100;
-  if (info.CurrentPosition.x[3]<(this->CurrentTimeSteps[0]-eps) ||
-      info.CurrentPosition.x[3]>(this->CurrentTimeSteps[1]+eps)) {
+  double eps = (this->CurrentTimeSteps[1] - this->CurrentTimeSteps[0]) / 100;
+  if (info.CurrentPosition.x[3] < (this->CurrentTimeSteps[0] - eps) ||
+    info.CurrentPosition.x[3] > (this->CurrentTimeSteps[1] + eps))
+  {
     vtkDebugMacro(<< "Unexpected time value in MPISendList - expected ("
-      << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] << ") got "
-      << info.CurrentPosition.x[3]);
+                  << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] << ") got "
+                  << info.CurrentPosition.x[3]);
   }
-  if (this->MPISendList.capacity()<(this->MPISendList.size()+1)) {
-    this->MPISendList.reserve(static_cast<int>(this->MPISendList.size()*1.5));
+  if (this->MPISendList.capacity() < (this->MPISendList.size() + 1))
+  {
+    this->MPISendList.reserve(static_cast<int>(this->MPISendList.size() * 1.5));
   }
   this->MPISendList.push_back(info);
 }

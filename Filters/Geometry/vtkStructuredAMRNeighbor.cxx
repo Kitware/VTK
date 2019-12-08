@@ -17,84 +17,75 @@
 
 vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor()
 {
-  this->GridLevel     = -1;
+  this->GridLevel = -1;
   this->NeighborLevel = -1;
-  this->NeighborID    = 0;
-  this->RelationShip  = vtkStructuredAMRNeighbor::UNDEFINED;
+  this->NeighborID = 0;
+  this->RelationShip = vtkStructuredAMRNeighbor::UNDEFINED;
 
-  for( int i=0; i < 3; ++i )
+  for (int i = 0; i < 3; ++i)
   {
-    this->Orientation[ i ] = vtkStructuredNeighbor::UNDEFINED;
-    int minIdx = i*2;
-    int maxIdx = i*2+1;
+    this->Orientation[i] = vtkStructuredNeighbor::UNDEFINED;
+    int minIdx = i * 2;
+    int maxIdx = i * 2 + 1;
     this->GridOverlapExtent[minIdx] = this->GridOverlapExtent[maxIdx] =
-    this->OverlapExtent[minIdx]     = this->OverlapExtent[maxIdx]     =
-    this->SendExtent[minIdx]        = this->SendExtent[maxIdx]        =
-    this->RcvExtent[minIdx]         = this->RcvExtent[maxIdx]         = -1;
+      this->OverlapExtent[minIdx] = this->OverlapExtent[maxIdx] = this->SendExtent[minIdx] =
+        this->SendExtent[maxIdx] = this->RcvExtent[minIdx] = this->RcvExtent[maxIdx] = -1;
   } // END for all dimensions
 }
 
 //-----------------------------------------------------------------------------
-vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(
-    const int gridLevel,
-    const int neiID, const int neighborLevel,
-    int gridOverlap[6], int neiOverlap[6],
-    int orient[3],
-    const int relationShip)
+vtkStructuredAMRNeighbor::vtkStructuredAMRNeighbor(const int gridLevel, const int neiID,
+  const int neighborLevel, int gridOverlap[6], int neiOverlap[6], int orient[3],
+  const int relationShip)
 {
-  this->GridLevel     = gridLevel;
-  this->NeighborID    = neiID;
+  this->GridLevel = gridLevel;
+  this->NeighborID = neiID;
   this->NeighborLevel = neighborLevel;
-  this->RelationShip  = relationShip;
+  this->RelationShip = relationShip;
 
-  for( int i=0; i < 3; ++i )
+  for (int i = 0; i < 3; ++i)
   {
-    int minIdx = i*2;
-    int maxIdx = i*2+1;
+    int minIdx = i * 2;
+    int maxIdx = i * 2 + 1;
 
-    this->RcvExtent[minIdx]     =
-    this->OverlapExtent[minIdx] = neiOverlap[minIdx];
-    this->RcvExtent[maxIdx]     =
-    this->OverlapExtent[maxIdx] = neiOverlap[maxIdx];
+    this->RcvExtent[minIdx] = this->OverlapExtent[minIdx] = neiOverlap[minIdx];
+    this->RcvExtent[maxIdx] = this->OverlapExtent[maxIdx] = neiOverlap[maxIdx];
 
-    this->SendExtent[minIdx]        =
-    this->GridOverlapExtent[minIdx] = gridOverlap[minIdx];
-    this->SendExtent[maxIdx]        =
-    this->GridOverlapExtent[maxIdx] = gridOverlap[maxIdx];
+    this->SendExtent[minIdx] = this->GridOverlapExtent[minIdx] = gridOverlap[minIdx];
+    this->SendExtent[maxIdx] = this->GridOverlapExtent[maxIdx] = gridOverlap[maxIdx];
 
     this->Orientation[i] = orient[i];
   } // END for all dimensions
 }
 
 //-----------------------------------------------------------------------------
-vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
-      const vtkStructuredAMRNeighbor &N)
+vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(const vtkStructuredAMRNeighbor& N)
 {
-  if( this != &N )
+  if (this != &N)
   {
-   this->GridLevel     = N.GridLevel;
-   this->NeighborID    = N.NeighborID;
-   this->NeighborLevel = N.NeighborLevel;
-   this->RelationShip  = N.RelationShip;
+    this->GridLevel = N.GridLevel;
+    this->NeighborID = N.NeighborID;
+    this->NeighborLevel = N.NeighborLevel;
+    this->RelationShip = N.RelationShip;
 
-   for( int i=0; i < 3; ++i )
-   {
-     int minIdx = i*2;
-     int maxIdx = i*2+1;
+    for (int i = 0; i < 3; ++i)
+    {
+      int minIdx = i * 2;
+      int maxIdx = i * 2 + 1;
 
-     this->RcvExtent[minIdx]  = N.RcvExtent[minIdx];
-     this->RcvExtent[maxIdx]  = N.RcvExtent[maxIdx];
+      this->RcvExtent[minIdx] = N.RcvExtent[minIdx];
+      this->RcvExtent[maxIdx] = N.RcvExtent[maxIdx];
 
-     this->SendExtent[minIdx] = N.SendExtent[minIdx];
-     this->SendExtent[maxIdx] = N.SendExtent[maxIdx];
+      this->SendExtent[minIdx] = N.SendExtent[minIdx];
+      this->SendExtent[maxIdx] = N.SendExtent[maxIdx];
 
-     this->OverlapExtent[minIdx] = N.OverlapExtent[minIdx];
-     this->OverlapExtent[maxIdx] = N.OverlapExtent[maxIdx];
+      this->OverlapExtent[minIdx] = N.OverlapExtent[minIdx];
+      this->OverlapExtent[maxIdx] = N.OverlapExtent[maxIdx];
 
-     this->GridOverlapExtent[minIdx] = N.GridOverlapExtent[minIdx];
-     this->GridOverlapExtent[maxIdx] = N.GridOverlapExtent[maxIdx];
-   } // END for all dimensions
-  } // END if
+      this->GridOverlapExtent[minIdx] = N.GridOverlapExtent[minIdx];
+      this->GridOverlapExtent[maxIdx] = N.GridOverlapExtent[maxIdx];
+    } // END for all dimensions
+  }   // END if
   return *this;
 }
 
@@ -102,7 +93,7 @@ vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
 std::string vtkStructuredAMRNeighbor::GetRelationShipString()
 {
   std::string str;
-  switch( this->RelationShip )
+  switch (this->RelationShip)
   {
     case PARENT:
       str = "PARENT";
@@ -130,50 +121,46 @@ std::string vtkStructuredAMRNeighbor::GetRelationShipString()
       str = "UNDEFINED";
   } // END switch
 
-  return( str );
+  return (str);
 }
 
 //-----------------------------------------------------------------------------
-void vtkStructuredAMRNeighbor::GetReceiveExtentOnGrid(
-        const int ng, int gridExtent[6], int ext[6])
+void vtkStructuredAMRNeighbor::GetReceiveExtentOnGrid(const int ng, int gridExtent[6], int ext[6])
 {
-  for( int i=0; i < 6; ++i)
+  for (int i = 0; i < 6; ++i)
   {
-    ext[i]=this->GridOverlapExtent[i];
+    ext[i] = this->GridOverlapExtent[i];
   }
 
-  for( int i=0; i < 3; ++i )
+  for (int i = 0; i < 3; ++i)
   {
-    switch( this->Orientation[i] )
+    switch (this->Orientation[i])
     {
       case vtkStructuredNeighbor::SUPERSET:
         /* NO OP */
         break;
       case vtkStructuredNeighbor::SUBSET_HI:
       case vtkStructuredNeighbor::HI:
-        ext[i*2+1] += ng;
+        ext[i * 2 + 1] += ng;
         break;
       case vtkStructuredNeighbor::SUBSET_LO:
       case vtkStructuredNeighbor::LO:
-        ext[i*2]  -= ng;
+        ext[i * 2] -= ng;
         break;
       case vtkStructuredNeighbor::SUBSET_BOTH:
-        ext[i*2]   -= ng;
-        ext[i*2+1] += ng;
+        ext[i * 2] -= ng;
+        ext[i * 2 + 1] += ng;
         break;
-      default:
-        ; /* NO OP */
-    } // END switch
-  } // END for all dimensions
-  vtkStructuredExtent::Clamp(ext,gridExtent);
+      default:; /* NO OP */
+    }           // END switch
+  }             // END for all dimensions
+  vtkStructuredExtent::Clamp(ext, gridExtent);
 }
 
 //-----------------------------------------------------------------------------
-void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(
-    int gridRealExtent[6], int* vtkNotUsed(gridGhostedExtent),
-    int neiRealExtent[6],
-    int* vtkNotUsed(WholeExtent),
-    const int N)
+void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6],
+  int* vtkNotUsed(gridGhostedExtent), int neiRealExtent[6], int* vtkNotUsed(WholeExtent),
+  const int N)
 {
 
   // TODO: Here we need to make sure that the send/rcv extent between a coarse
@@ -181,36 +168,35 @@ void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(
   // the entire lower res cell based on the level difference between the
   // grid and its neighbor.
 
-  for( int i=0; i < 3; ++i )
+  for (int i = 0; i < 3; ++i)
   {
-    switch( this->Orientation[i] )
+    switch (this->Orientation[i])
     {
       case vtkStructuredNeighbor::SUPERSET:
-        this->SendExtent[i*2]   -= N;
-        this->SendExtent[i*2+1] += N;
+        this->SendExtent[i * 2] -= N;
+        this->SendExtent[i * 2 + 1] += N;
         break;
       case vtkStructuredNeighbor::SUBSET_HI:
       case vtkStructuredNeighbor::HI:
-        this->RcvExtent[i*2+1] += N;
-        this->SendExtent[i*2]  -= N;
+        this->RcvExtent[i * 2 + 1] += N;
+        this->SendExtent[i * 2] -= N;
         break;
       case vtkStructuredNeighbor::SUBSET_LO:
       case vtkStructuredNeighbor::LO:
-        this->RcvExtent[i*2]    -= N;
-        this->SendExtent[i*2+1] += N;
+        this->RcvExtent[i * 2] -= N;
+        this->SendExtent[i * 2 + 1] += N;
         break;
       case vtkStructuredNeighbor::SUBSET_BOTH:
-        this->RcvExtent[i*2]    -= N;
-        this->SendExtent[i*2+1] += N;
-        this->RcvExtent[i*2+1]  += N;
-        this->SendExtent[i*2]   -= N;
+        this->RcvExtent[i * 2] -= N;
+        this->SendExtent[i * 2 + 1] += N;
+        this->RcvExtent[i * 2 + 1] += N;
+        this->SendExtent[i * 2] -= N;
         break;
-      default:
-        ; /* NO OP */
-    } // END switch
-  } // END for all dimensions
+      default:; /* NO OP */
+    }           // END switch
+  }             // END for all dimensions
 
   // Hmm...restricting receive extent to the real extent of the neighbor
-  vtkStructuredExtent::Clamp( this->RcvExtent, neiRealExtent );
-  vtkStructuredExtent::Clamp( this->SendExtent, gridRealExtent );
+  vtkStructuredExtent::Clamp(this->RcvExtent, neiRealExtent);
+  vtkStructuredExtent::Clamp(this->SendExtent, gridRealExtent);
 }

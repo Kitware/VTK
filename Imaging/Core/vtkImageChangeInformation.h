@@ -19,20 +19,20 @@
  * vtkImageChangeInformation  modify the spacing, origin, or extent of
  * the data without changing the data itself.  The data is not resampled
  * by this filter, only the information accompanying the data is modified.
-*/
+ */
 
 #ifndef vtkImageChangeInformation_h
 #define vtkImageChangeInformation_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkImageData;
 
 class VTKIMAGINGCORE_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
 {
 public:
-  static vtkImageChangeInformation *New();
+  static vtkImageChangeInformation* New();
   vtkTypeMacro(vtkImageChangeInformation, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -42,7 +42,7 @@ public:
    * the information is copied from the input.
    */
   virtual void SetInformationInputData(vtkImageData*);
-  virtual vtkImageData *GetInformationInput();
+  virtual vtkImageData* GetInformationInput();
   //@}
 
   //@{
@@ -139,27 +139,16 @@ protected:
   double OriginScale[3];
   double OriginTranslation[3];
 
-  int RequestUpdateExtent (vtkInformation *,
-                                   vtkInformationVector **,
-                                   vtkInformationVector *) override;
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkImageChangeInformation(const vtkImageChangeInformation&) = delete;
   void operator=(const vtkImageChangeInformation&) = delete;
 };
 
-
-
 #endif
-
-
-

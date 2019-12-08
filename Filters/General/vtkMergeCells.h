@@ -40,14 +40,14 @@
  *    the same field arrays, while vtkAppendFilter intersects the field
  *    arrays (3) this class knows duplicate points may be appearing in
  *    the DataSets and can filter those out, (4) this class is not a filter.
-*/
+ */
 
 #ifndef vtkMergeCells_h
 #define vtkMergeCells_h
 
+#include "vtkDataSetAttributes.h"    // Needed for FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkDataSetAttributes.h" // Needed for FieldList
 #include "vtkSmartPointer.h" //fot vtkSmartPointer
 
 class vtkCellData;
@@ -61,9 +61,9 @@ class VTKFILTERSGENERAL_EXPORT vtkMergeCells : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMergeCells, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkMergeCells *New();
+  static vtkMergeCells* New();
 
   //@{
   /**
@@ -160,7 +160,7 @@ public:
    * SetTotalNumberOfCells, SetTotalNumberOfPoints, and SetTotalNumberOfDataSets
    * before making this call.  Return 0 if OK, -1 if error.
    */
-  int MergeDataSet(vtkDataSet *set);
+  int MergeDataSet(vtkDataSet* set);
 
   /**
    * Call Finish() after merging last DataSet to free unneeded memory and to
@@ -174,32 +174,22 @@ protected:
   ~vtkMergeCells() override;
 
   void FreeLists();
-  void StartUGrid(vtkDataSet *set);
-  vtkIdType *MapPointsToIdsUsingGlobalIds(vtkDataSet *set);
-  vtkIdType *MapPointsToIdsUsingLocator(vtkDataSet *set);
-  vtkIdType AddNewCellsUnstructuredGrid(vtkDataSet *set, vtkIdType *idMap);
-  vtkIdType AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap);
-
-  vtkIdType GlobalCellIdAccessGetId(vtkIdType idx);
-  bool GlobalCellIdAccessStart(vtkDataSet *set);
-  vtkIdType GlobalNodeIdAccessGetId(vtkIdType idx);
-  bool GlobalNodeIdAccessStart(vtkDataSet *set);
+  void StartUGrid(vtkDataSet* set);
+  vtkIdType* MapPointsToIdsUsingGlobalIds(vtkDataSet* set);
+  vtkIdType* MapPointsToIdsUsingLocator(vtkDataSet* set);
+  vtkIdType AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType* idMap);
+  vtkIdType AddNewCellsDataSet(vtkDataSet* set, vtkIdType* idMap);
 
   int TotalNumberOfDataSets;
 
   vtkIdType TotalNumberOfCells;
   vtkIdType TotalNumberOfPoints;
 
-  vtkIdType NumberOfCells;     // so far
+  vtkIdType NumberOfCells; // so far
   vtkIdType NumberOfPoints;
 
-  int UseGlobalIds;       // point, or node, IDs
-  int GlobalIdArrayType;
-  void* GlobalIdArray;
-
-  int UseGlobalCellIds;   // cell IDs
-  int GlobalCellIdArrayType;
-  void* GlobalCellIdArray;
+  int UseGlobalIds;     // point, or node, IDs
+  int UseGlobalCellIds; // cell IDs
 
   float PointMergeTolerance;
   bool MergeDuplicatePoints;
@@ -207,13 +197,13 @@ protected:
   char InputIsUGrid;
   char InputIsPointSet;
 
-  vtkMergeCellsSTLCloak *GlobalIdMap;
-  vtkMergeCellsSTLCloak *GlobalCellIdMap;
+  vtkMergeCellsSTLCloak* GlobalIdMap;
+  vtkMergeCellsSTLCloak* GlobalCellIdMap;
 
-  vtkDataSetAttributes::FieldList *PointList;
-  vtkDataSetAttributes::FieldList *CellList;
+  vtkDataSetAttributes::FieldList* PointList;
+  vtkDataSetAttributes::FieldList* CellList;
 
-  vtkUnstructuredGrid *UnstructuredGrid;
+  vtkUnstructuredGrid* UnstructuredGrid;
 
   int NextGrid;
 

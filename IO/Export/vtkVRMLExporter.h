@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkExporter
-*/
+ */
 
 #ifndef vtkVRMLExporter_h
 #define vtkVRMLExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkLight;
 class vtkActor;
@@ -41,8 +41,8 @@ class vtkPointData;
 class VTKIOEXPORT_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
-  static vtkVRMLExporter *New();
-  vtkTypeMacro(vtkVRMLExporter,vtkExporter);
+  static vtkVRMLExporter* New();
+  vtkTypeMacro(vtkVRMLExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,37 +57,35 @@ public:
   /**
    * Specify the Speed of navigation. Default is 4.
    */
-  vtkSetMacro(Speed,double);
-  vtkGetMacro(Speed,double);
+  vtkSetMacro(Speed, double);
+  vtkGetMacro(Speed, double);
   //@}
 
   /**
    * Set the file pointer to write to. This will override
    * a FileName if specified.
    */
-  void SetFilePointer(FILE *);
+  void SetFilePointer(FILE*);
 
 protected:
   vtkVRMLExporter();
   ~vtkVRMLExporter() override;
 
   void WriteData() override;
-  void WriteALight(vtkLight *aLight, FILE *fp);
-  void WriteAnActor(vtkActor *anActor, FILE *fp);
-  void WritePointData(vtkPoints *points, vtkDataArray *normals,
-                      vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
-                      FILE *fp);
-  void WriteShapeBegin(vtkActor* actor, FILE *fileP,
-                       vtkPolyData *polyData,vtkPointData *pntData,
-                       vtkUnsignedCharArray *color);
-  void WriteShapeEnd( FILE *fileP );
-  char *FileName;
-  FILE *FilePointer;
+  void WriteALight(vtkLight* aLight, FILE* fp);
+  void WriteAnActor(vtkActor* anActor, FILE* fp);
+  void WritePointData(vtkPoints* points, vtkDataArray* normals, vtkDataArray* tcoords,
+    vtkUnsignedCharArray* colors, FILE* fp);
+  void WriteShapeBegin(vtkActor* actor, FILE* fileP, vtkPolyData* polyData, vtkPointData* pntData,
+    vtkUnsignedCharArray* color);
+  void WriteShapeEnd(FILE* fileP);
+  char* FileName;
+  FILE* FilePointer;
   double Speed;
+
 private:
   vtkVRMLExporter(const vtkVRMLExporter&) = delete;
   void operator=(const vtkVRMLExporter&) = delete;
 };
 
 #endif
-

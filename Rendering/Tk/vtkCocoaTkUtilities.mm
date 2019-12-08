@@ -17,13 +17,13 @@
 #define MAC_OSX_TK 1
 #endif
 
-#import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+#import <Cocoa/Cocoa.h>
 
+#import "tkMacOSXInt.h"
 #import "vtkCocoaTkUtilities.h"
 #import "vtkObjectFactory.h"
 #import "vtkTcl.h"
-#import "tkMacOSXInt.h"
 
 vtkStandardNewMacro(vtkCocoaTkUtilities);
 
@@ -37,7 +37,7 @@ void vtkCocoaTkUtilities::PrintSelf(ostream& os, vtkIndent indent)
 // included in the distributed PrivateHeaders in later releases of Tk.
 void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
 {
-  MacDrawable *macWin = reinterpret_cast<TkWindow *>(window)->privatePtr;
+  MacDrawable* macWin = reinterpret_cast<TkWindow*>(window)->privatePtr;
 
   if (!macWin)
   {
@@ -54,7 +54,7 @@ void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
   }
 
   TkMacOSXMakeRealWindowExist(macWin->winPtr);
-  NSView *result = macWin->view;
+  NSView* result = macWin->view;
 
-  return reinterpret_cast<void *>(result);
+  return reinterpret_cast<void*>(result);
 }

@@ -35,10 +35,10 @@
 #ifndef Q_VTK_WIDGET_H
 #define Q_VTK_WIDGET_H
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKInteractor.h"
-#include <QWidget>
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QTimer>
+#include <QWidget>
 
 class QVTKInteractorAdapter;
 
@@ -53,13 +53,12 @@ class vtkTDxDevice;
 #endif
 
 #if defined(Q_WS_MAC)
-# if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
-#  define QVTK_USE_COCOA
-# elif defined(VTK_USE_COCOA)
-#  error "VTK configured to use Cocoa, but Qt configured to use Carbon"
-# endif
+#if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
+#define QVTK_USE_COCOA
+#elif defined(VTK_USE_COCOA)
+#error "VTK configured to use Cocoa, but Qt configured to use Carbon"
 #endif
-
+#endif
 
 #include "QVTKWin32Header.h"
 
@@ -67,19 +66,16 @@ class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
 {
   Q_OBJECT
 
-  Q_PROPERTY(bool automaticImageCacheEnabled
-             READ isAutomaticImageCacheEnabled
-             WRITE setAutomaticImageCacheEnabled)
-  Q_PROPERTY(double maxRenderRateForImageCache
-             READ maxRenderRateForImageCache
-             WRITE setMaxRenderRateForImageCache)
-  Q_PROPERTY(bool deferRenderInPaintEvent
-             READ deferRenderInPaintEvent
-             WRITE setDeferRenderInPaintEvent)
+  Q_PROPERTY(bool automaticImageCacheEnabled READ isAutomaticImageCacheEnabled WRITE
+      setAutomaticImageCacheEnabled)
+  Q_PROPERTY(double maxRenderRateForImageCache READ maxRenderRateForImageCache WRITE
+      setMaxRenderRateForImageCache)
+  Q_PROPERTY(
+    bool deferRenderInPaintEvent READ deferRenderInPaintEvent WRITE setDeferRenderInPaintEvent)
 
 public:
   //! constructor
-  VTK_LEGACY(QVTKWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget(QWidget* parent = nullptr, Qt::WindowFlags f = 0));
   //! destructor
   ~QVTKWidget() override;
 
@@ -191,7 +187,7 @@ public Q_SLOTS:
   // Receive notification of the creation of the TDxDevice.
   // Only relevant for Unix.
 #ifdef VTK_USE_TDX
-  void setDevice(vtkTDxDevice *device);
+  void setDevice(vtkTDxDevice* device);
 #endif
 
 protected Q_SLOTS:
@@ -236,7 +232,7 @@ protected:
   // overload focus event
   void focusOutEvent(QFocusEvent*) override;
   // overload Qt's event() to capture more keys
-  bool event( QEvent* e ) override;
+  bool event(QEvent* e) override;
 
   // overload context menu event
   void contextMenuEvent(QContextMenuEvent*) override;
@@ -280,9 +276,8 @@ protected:
   QVTKInteractorAdapter* mIrenAdapter;
   bool mDeferRenderInPaintEvent;
 
-
 private:
-  QVTKWidget & operator=(QVTKWidget const&) = delete;
+  QVTKWidget& operator=(QVTKWidget const&) = delete;
   QVTKWidget(const QVTKWidget&) = delete;
 
   unsigned long renderEventCallbackObserverId;

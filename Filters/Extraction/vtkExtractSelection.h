@@ -30,13 +30,13 @@
  *
  * @sa
  * vtkSelection vtkSelector vtkSelectionNode
-*/
+ */
 
 #ifndef vtkExtractSelection_h
 #define vtkExtractSelection_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 #include "vtkSelectionNode.h" // for vtkSelectionNode::SelectionContent
 #include "vtkSmartPointer.h"  // for smart pointer
@@ -51,7 +51,7 @@ class vtkTable;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelection : public vtkDataObjectAlgorithm
 {
 public:
-  static vtkExtractSelection *New();
+  static vtkExtractSelection* New();
   vtkTypeMacro(vtkExtractSelection, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -82,15 +82,13 @@ protected:
   /**
    * Sets up empty output dataset
    */
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   /**
    * Sets up empty output dataset
    */
-  int RequestData(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   // Gets the attribute association of the selection.  Currently we support ROW, POINT, and CELL.
   // If the selection types are mismatched the boolean parameter will be set to false, otherwise
@@ -120,31 +118,26 @@ protected:
    * Given a vtkDataSet and an array of which cells to extract, this populates
    * the given vtkUnstructuredGrid with the selected cells.
    */
-  void ExtractSelectedCells(vtkDataSet* input,
-                            vtkUnstructuredGrid* output,
-                            vtkSignedCharArray* cellInside);
+  void ExtractSelectedCells(
+    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside);
   /**
    * Given a vtkDataSet and an array of which points to extract, the populates
    * the given vtkUnstructuredGrid with the selected points and a cell of type vertex
    * for each point.
    */
-  void ExtractSelectedPoints(vtkDataSet* input,
-                             vtkUnstructuredGrid* output,
-                             vtkSignedCharArray* pointInside);
+  void ExtractSelectedPoints(
+    vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside);
   /**
    * Given an input vtkTable and an array of which rows to extract, this populates
    * the output table with the selected rows.
    */
-  void ExtractSelectedRows(vtkTable* input,
-                           vtkTable* output,
-                           vtkSignedCharArray* rowsInside);
+  void ExtractSelectedRows(vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside);
 
-  bool PreserveTopology;
+  bool PreserveTopology = false;
 
 private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;
   void operator=(const vtkExtractSelection&) = delete;
-
 };
 
 #endif

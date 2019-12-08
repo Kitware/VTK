@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkOpenGLRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
-*/
+ */
 
 #ifndef vtkImageProcessingPass_h
 #define vtkImageProcessingPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
@@ -38,7 +38,7 @@ class vtkTextureObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkImageProcessingPass : public vtkOpenGLRenderPass
 {
 public:
-  vtkTypeMacro(vtkImageProcessingPass,vtkOpenGLRenderPass);
+  vtkTypeMacro(vtkImageProcessingPass, vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -46,7 +46,7 @@ public:
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
   //@{
   /**
@@ -55,11 +55,11 @@ public:
    * It is usually set to a vtkCameraPass or to a post-processing pass.
    * Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(DelegatePass,vtkRenderPass);
-  virtual void SetDelegatePass(vtkRenderPass *delegatePass);
+  vtkGetObjectMacro(DelegatePass, vtkRenderPass);
+  virtual void SetDelegatePass(vtkRenderPass* delegatePass);
   //@}
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -79,18 +79,12 @@ public:
    * \pre target_exists: target!=0
    * \pre target_has_context: target->GetContext()!=0
    */
-  void RenderDelegate(const vtkRenderState *s,
-                      int width,
-                      int height,
-                      int newWidth,
-                      int newHeight,
-                      vtkOpenGLFramebufferObject *fbo,
-                      vtkTextureObject *target);
+  void RenderDelegate(const vtkRenderState* s, int width, int height, int newWidth, int newHeight,
+    vtkOpenGLFramebufferObject* fbo, vtkTextureObject* target);
 
+  vtkRenderPass* DelegatePass;
 
-  vtkRenderPass *DelegatePass;
-
- private:
+private:
   vtkImageProcessingPass(const vtkImageProcessingPass&) = delete;
   void operator=(const vtkImageProcessingPass&) = delete;
 };

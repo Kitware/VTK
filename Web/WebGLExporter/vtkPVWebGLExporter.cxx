@@ -19,15 +19,15 @@
 #include "vtkExporter.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
 
-#include <string>
-#include <sstream>
 #include <fstream>
+#include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------
@@ -57,20 +57,19 @@ void vtkPVWebGLExporter::WriteData()
 
   // We use the camera focal point to be the center of rotation
   double centerOfRotation[3];
-  vtkRenderer *ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkRenderer* ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkCamera* cam = ren->GetActiveCamera();
   cam->GetFocalPoint(centerOfRotation);
-  exporter->SetCenterOfRotation( static_cast<float>(centerOfRotation[0]),
-                                 static_cast<float>(centerOfRotation[1]),
-                                 static_cast<float>(centerOfRotation[2]));
+  exporter->SetCenterOfRotation(static_cast<float>(centerOfRotation[0]),
+    static_cast<float>(centerOfRotation[1]), static_cast<float>(centerOfRotation[2]));
 
   exporter->parseScene(this->RenderWindow->GetRenderers(), "1", VTK_PARSEALL);
 
   // Write meta-data file
   std::string baseFileName = this->FileName;
-  baseFileName.erase(baseFileName.size()-6,6);
+  baseFileName.erase(baseFileName.size() - 6, 6);
   std::string metadatFile = this->FileName;
-  FILE *fp = fopen(metadatFile.c_str(),"w");
+  FILE* fp = fopen(metadatFile.c_str(), "w");
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open JSON MetaData file " << metadatFile.c_str());
@@ -82,32 +81,32 @@ void vtkPVWebGLExporter::WriteData()
   // Write binary objects
   vtkNew<vtkBase64Utilities> base64;
   int nbObjects = exporter->GetNumberOfObjects();
-  for(int idx=0; idx < nbObjects; ++idx)
+  for (int idx = 0; idx < nbObjects; ++idx)
   {
     vtkWebGLObject* obj = exporter->GetWebGLObject(idx);
-    if(obj->isVisible())
+    if (obj->isVisible())
     {
       int nbParts = obj->GetNumberOfParts();
-      for(int part = 0; part < nbParts; ++part)
+      for (int part = 0; part < nbParts; ++part)
       {
         // Manage binary content
         std::stringstream filePath;
         filePath << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part;
         std::fstream binaryFile;
-        binaryFile.open( filePath.str().c_str(),
-                         std::ios_base::out | std::ios_base::binary);
-        binaryFile.write((const char *)obj->GetBinaryData(part), obj->GetBinarySize(part));
+        binaryFile.open(filePath.str().c_str(), std::ios_base::out | std::ios_base::binary);
+        binaryFile.write((const char*)obj->GetBinaryData(part), obj->GetBinarySize(part));
         binaryFile.close();
 
         // Manage Base64
         std::stringstream filePathBase64;
-        filePathBase64 << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part << ".base64";
+        filePathBase64 << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part
+                       << ".base64";
         std::fstream base64File;
-        unsigned char* output = new unsigned char[obj->GetBinarySize(part)*2];
-        int size = base64->Encode(
-              obj->GetBinaryData(part), obj->GetBinarySize(part), output, false);
+        unsigned char* output = new unsigned char[obj->GetBinarySize(part) * 2];
+        int size =
+          base64->Encode(obj->GetBinaryData(part), obj->GetBinarySize(part), output, false);
         base64File.open(filePathBase64.str().c_str(), std::ios_base::out);
-        base64File.write((const char *)output, size);
+        base64File.write((const char*)output, size);
         base64File.close();
         delete[] output;
       }
@@ -122,7 +121,7 @@ void vtkPVWebGLExporter::WriteData()
 // ---------------------------------------------------------------------------
 void vtkPVWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->FileName)
   {

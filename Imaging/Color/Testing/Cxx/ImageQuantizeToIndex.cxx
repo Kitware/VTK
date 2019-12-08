@@ -1,20 +1,20 @@
 #include <array>
 #include <set>
 
-#include "vtkTIFFReader.h"
-#include "vtkLookupTable.h"
 #include "vtkImageData.h"
 #include "vtkImageQuantizeRGBToIndex.h"
+#include "vtkLookupTable.h"
 #include "vtkSmartPointer.h"
+#include "vtkTIFFReader.h"
 
 #include "vtkTestUtilities.h"
 
 #include <cmath>
 
-int ImageQuantizeToIndex(int argc, char *argv[])
+int ImageQuantizeToIndex(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/libtiff/gourds_tiled_200x300.tif");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/libtiff/gourds_tiled_200x300.tif");
   // \note first I used earth.ppm, but the test failed because
   // the lookup table contains duplicate colors (the non-sorted and sorted are identical).
 
@@ -43,22 +43,21 @@ int ImageQuantizeToIndex(int argc, char *argv[])
   if (retVal)
   {
     // SortIndexByLuminance should produce the same colors, just at a different index
-    std::array<int,16> mapping;
+    std::array<int, 16> mapping;
     double rgba[4];
     double rgba2[4];
 
-    for (int i=0; i<16; i++)
+    for (int i = 0; i < 16; i++)
     {
       lut->GetTableValue(i, rgba);
       mapping[i] = 0;
       double best = VTK_DOUBLE_MAX;
 
-      for (int j=0; j<16; j++)
+      for (int j = 0; j < 16; j++)
       {
         lut2->GetTableValue(j, rgba2);
-        double dist = std::pow(rgba[0]-rgba2[0],2.)
-          + std::pow(rgba[1]-rgba2[1],2.)
-          + std::pow(rgba[2]-rgba2[2],2.);
+        double dist = std::pow(rgba[0] - rgba2[0], 2.) + std::pow(rgba[1] - rgba2[1], 2.) +
+          std::pow(rgba[2] - rgba2[2], 2.);
 
         if (dist < best)
         {
@@ -74,11 +73,9 @@ int ImageQuantizeToIndex(int argc, char *argv[])
 
     if (retVal)
     {
-      const auto data
-        = static_cast<unsigned short*>(filter->GetOutput()->GetScalarPointer());
-      const auto data2
-        = static_cast<unsigned short*>(filter2->GetOutput()->GetScalarPointer());
-      for (vtkIdType i=0; i<filter->GetOutput()->GetNumberOfPoints(); i++)
+      const auto data = static_cast<unsigned short*>(filter->GetOutput()->GetScalarPointer());
+      const auto data2 = static_cast<unsigned short*>(filter2->GetOutput()->GetScalarPointer());
+      for (vtkIdType i = 0; i < filter->GetOutput()->GetNumberOfPoints(); i++)
       {
         retVal = retVal && (mapping.at(data[i]) == data2[i]);
       }

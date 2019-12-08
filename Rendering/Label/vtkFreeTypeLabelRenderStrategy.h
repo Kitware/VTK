@@ -19,13 +19,13 @@
  *
  * Uses the FreeType to render labels and compute label sizes.
  * This strategy may be used with vtkLabelPlacementMapper.
-*/
+ */
 
 #ifndef vtkFreeTypeLabelRenderStrategy_h
 #define vtkFreeTypeLabelRenderStrategy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkActor2D;
 class vtkTextRenderer;
@@ -33,7 +33,7 @@ class vtkTextMapper;
 
 class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRenderStrategy
 {
- public:
+public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkFreeTypeLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkFreeTypeLabelRenderStrategy* New();
@@ -41,20 +41,20 @@ class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelR
   /**
    * The free type render strategy currently does not support rotation.
    */
-  bool SupportsRotation() override
-    { return false; }
+  bool SupportsRotation() override { return false; }
 
   /**
    * The free type render strategy currently does not support bounded size labels.
    */
-  bool SupportsBoundedSize() override
-    { return false; }
+  bool SupportsBoundedSize() override { return false; }
 
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.
    */
   void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override
-    { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
+  {
+    this->Superclass::ComputeLabelBounds(tprop, label, bds);
+  }
   void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) override;
 
   /**
@@ -62,25 +62,31 @@ class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelR
    * Must be performed between StartFrame() and EndFrame() calls.
    */
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override
-    { this->Superclass::RenderLabel(x, tprop, label); }
+  {
+    this->Superclass::RenderLabel(x, tprop, label);
+  }
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int width) override
-    { this->Superclass::RenderLabel(x, tprop, label, width); }
+  {
+    this->Superclass::RenderLabel(x, tprop, label, width);
+  }
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) override;
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int width) override
-    { this->Superclass::RenderLabel(x, tprop, label, width); }
+  {
+    this->Superclass::RenderLabel(x, tprop, label, width);
+  }
 
   /**
    * Release any graphics resources that are being consumed by this strategy.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
 protected:
   vtkFreeTypeLabelRenderStrategy();
   ~vtkFreeTypeLabelRenderStrategy() override;
 
-  vtkTextRenderer *TextRenderer;
+  vtkTextRenderer* TextRenderer;
   vtkTextMapper* Mapper;
   vtkActor2D* Actor;
 
@@ -90,4 +96,3 @@ private:
 };
 
 #endif
-

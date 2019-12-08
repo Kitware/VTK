@@ -30,17 +30,14 @@ vtkZLibDataCompressor::~vtkZLibDataCompressor() = default;
 //----------------------------------------------------------------------------
 void vtkZLibDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CompressionLevel: " << this->CompressionLevel << endl;
 }
 
 //----------------------------------------------------------------------------
-size_t
-vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
-                                      size_t uncompressedSize,
-                                      unsigned char* compressedData,
-                                      size_t compressionSpace)
+size_t vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
+  size_t uncompressedSize, unsigned char* compressedData, size_t compressionSpace)
 {
   uLongf cs = static_cast<uLongf>(compressionSpace);
   Bytef* cd = reinterpret_cast<Bytef*>(compressedData);
@@ -48,7 +45,7 @@ vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
   uLong us = static_cast<uLong>(uncompressedSize);
 
   // Call zlib's compress function.
-  if(compress2(cd, &cs, ud, us, this->CompressionLevel) != Z_OK)
+  if (compress2(cd, &cs, ud, us, this->CompressionLevel) != Z_OK)
   {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
@@ -58,11 +55,8 @@ vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
 }
 
 //----------------------------------------------------------------------------
-size_t
-vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
-                                        size_t compressedSize,
-                                        unsigned char* uncompressedData,
-                                        size_t uncompressedSize)
+size_t vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
+  size_t compressedSize, unsigned char* uncompressedData, size_t uncompressedSize)
 {
   uLongf us = static_cast<uLongf>(uncompressedSize);
   Bytef* ud = reinterpret_cast<Bytef*>(uncompressedData);
@@ -70,17 +64,18 @@ vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
   uLong cs = static_cast<uLong>(compressedSize);
 
   // Call zlib's uncompress function.
-  if(uncompress(ud, &us, cd, cs) != Z_OK)
+  if (uncompress(ud, &us, cd, cs) != Z_OK)
   {
     vtkErrorMacro("Zlib error while uncompressing data.");
     return 0;
   }
 
   // Make sure the output size matched that expected.
-  if(us != static_cast<uLongf>(uncompressedSize))
+  if (us != static_cast<uLongf>(uncompressedSize))
   {
     vtkErrorMacro("Decompression produced incorrect size.\n"
-                  "Expected " << uncompressedSize << " and got " << us);
+                  "Expected "
+      << uncompressedSize << " and got " << us);
     return 0;
   }
 
@@ -89,26 +84,29 @@ vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
 //----------------------------------------------------------------------------
 int vtkZLibDataCompressor::GetCompressionLevel()
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel " << this->CompressionLevel );
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel "
+                << this->CompressionLevel);
   return this->CompressionLevel;
 }
 //----------------------------------------------------------------------------
 void vtkZLibDataCompressor::SetCompressionLevel(int compressionLevel)
 {
-  int min=1;
-  int max=9;
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to " << compressionLevel );
-  if (this->CompressionLevel != (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel)))
+  int min = 1;
+  int max = 9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to "
+                << compressionLevel);
+  if (this->CompressionLevel !=
+    (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel)))
   {
-    this->CompressionLevel = (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    this->CompressionLevel =
+      (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
     this->Modified();
   }
 }
 
 //----------------------------------------------------------------------------
-size_t
-vtkZLibDataCompressor::GetMaximumCompressionSpace(size_t size)
+size_t vtkZLibDataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   // ZLib specifies that destination buffer must be 0.1% larger + 12 bytes.
-  return size + (size+999)/1000 + 12;
+  return size + (size + 999) / 1000 + 12;
 }

@@ -29,9 +29,9 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPMultiCorrelativeStatistics.h"
 #include "vtkPOrderStatistics.h"
 #include "vtkTable.h"
-#include "vtkPMultiCorrelativeStatistics.h"
 
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
@@ -39,13 +39,13 @@ vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 vtkPPCAStatistics::vtkPPCAStatistics()
 {
   this->Controller = 0;
-  this->SetController( vtkMultiProcessController::GetGlobalController() );
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //-----------------------------------------------------------------------------
 vtkPPCAStatistics::~vtkPPCAStatistics()
 {
-  this->SetController( 0 );
+  this->SetController(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -56,43 +56,40 @@ void vtkPPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-void vtkPPCAStatistics::Learn( vtkTable* inData,
-                               vtkTable* inParameters,
-                               vtkMultiBlockDataSet* outMeta )
+void vtkPPCAStatistics::Learn(
+  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
-  if ( ! outMeta )
+  if (!outMeta)
   {
     return;
   }
 
   // First calculate correlative statistics on local data set
-  this->Superclass::Learn( inData, inParameters, outMeta );
+  this->Superclass::Learn(inData, inParameters, outMeta);
 
   // Get a hold of the (sparse) covariance matrix
-  vtkTable* sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! sparseCov )
+  vtkTable* sparseCov = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  if (!sparseCov)
   {
     return;
   }
 
-  if ( !this->MedianAbsoluteDeviation )
+  if (!this->MedianAbsoluteDeviation)
   {
-    vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+    vtkPMultiCorrelativeStatistics::GatherStatistics(this->Controller, sparseCov);
   }
 }
 
 // ----------------------------------------------------------------------
-void vtkPPCAStatistics::Test( vtkTable* inData,
-                              vtkMultiBlockDataSet* inMeta,
-                              vtkTable* outMeta )
+void vtkPPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
 {
-  if ( this->Controller->GetNumberOfProcesses() > 1 )
+  if (this->Controller->GetNumberOfProcesses() > 1)
   {
-    vtkWarningMacro( "Parallel PCA: Hypothesis testing not implemented for more than 1 process." );
+    vtkWarningMacro("Parallel PCA: Hypothesis testing not implemented for more than 1 process.");
     return;
   }
 
-  this->Superclass::Test( inData, inMeta, outMeta );
+  this->Superclass::Test(inData, inMeta, outMeta);
 }
 
 // ----------------------------------------------------------------------

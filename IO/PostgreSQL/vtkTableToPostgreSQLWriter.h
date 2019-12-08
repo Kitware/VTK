@@ -18,7 +18,7 @@
  *
  * vtkTableToPostgreSQLWriter reads a vtkTable and inserts it into a PostgreSQL
  * database.
-*/
+ */
 
 #ifndef vtkTableToPostgreSQLWriter_h
 #define vtkTableToPostgreSQLWriter_h
@@ -31,8 +31,8 @@ class vtkPostgreSQLDatabase;
 class VTKIOPOSTGRESQL_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatabaseWriter
 {
 public:
-  static vtkTableToPostgreSQLWriter *New();
-  vtkTypeMacro(vtkTableToPostgreSQLWriter,vtkTableToDatabaseWriter);
+  static vtkTableToPostgreSQLWriter* New();
+  vtkTypeMacro(vtkTableToPostgreSQLWriter, vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -44,13 +44,13 @@ public:
   //@}
 
 protected:
-   vtkTableToPostgreSQLWriter();
+  vtkTableToPostgreSQLWriter();
   ~vtkTableToPostgreSQLWriter();
   void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTable *Input;
+  vtkTable* Input;
 
 private:
   vtkTableToPostgreSQLWriter(const vtkTableToPostgreSQLWriter&) = delete;

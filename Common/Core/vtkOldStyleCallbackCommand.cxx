@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkOldStyleCallbackCommand.h"
 
-#include "vtkSetGet.h"
 #include "vtkObject.h"
+#include "vtkSetGet.h"
 
-#include <cstring>
 #include <cctype>
+#include <cstring>
 
 //----------------------------------------------------------------
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()
@@ -36,7 +36,7 @@ vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand()
   }
 }
 
-void vtkOldStyleCallbackCommand::Execute(vtkObject *,unsigned long, void *)
+void vtkOldStyleCallbackCommand::Execute(vtkObject*, unsigned long, void*)
 {
   if (this->Callback)
   {

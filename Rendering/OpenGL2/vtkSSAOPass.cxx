@@ -197,8 +197,8 @@ void vtkSSAOPass::ComputeKernel()
 }
 
 // ----------------------------------------------------------------------------
-bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program), vtkAbstractMapper* mapper,
-  vtkProp* vtkNotUsed(prop), vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
+bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program),
+  vtkAbstractMapper* mapper, vtkProp* vtkNotUsed(prop), vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
   if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
@@ -217,7 +217,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
 {
   this->PreRender(s);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
 
   this->FrameBufferObject->AddColorAttachment(0, this->ColorTexture);
@@ -230,8 +230,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->PostRender(s);
 }
@@ -267,42 +266,45 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", ssDecl.str());
 
     std::stringstream ssImpl;
-    ssImpl << "\n"
-              "  float occlusion = 0.0;\n"
-              "  float depth = texture(texDepth, texCoord).r;\n"
-              "  if (depth < 1.0)\n"
-              "  {\n"
-              "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
-              "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
-              "    fragPosDC.xyz /= fragPosDC.w;\n"
-              "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
-              "    if (fragPosDC.z - depth < 0.0001)\n"
-              "    {\n"
-              "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
-              "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
-              "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
-              "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
-              "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
-              "      vec3 bitangent = cross(normal, tangent);\n"
-              "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
-              "      const int kernelSize = "
-           << this->KernelSize
-           << ";\n"
-              "      for (int i = 0; i < kernelSize; i++)\n"
-              "      {\n"
-              "        vec3 sampleVC = TBN * samples[i];\n"
-              "        sampleVC = fragPosVC + sampleVC * kernelRadius;\n"
-              "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
-              "        sampleDC.xyz /= sampleDC.w;\n"
-              "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n" // to clip space
-              "        float sampleDepth = textureLod(texPosition, sampleDC.xy, 40.0 * distance(fragPosDC.xy, sampleDC.xy)).z;\n"
-              "        float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPosVC.z - sampleDepth));\n"
-              "        occlusion += (sampleDepth >= sampleVC.z + kernelBias ? 1.0 : 0.0) * rangeCheck;\n"
-              "      }\n"
-              "      occlusion = occlusion / float(kernelSize);\n"
-              "    }\n"
-              "  }\n"
-              "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
+    ssImpl
+      << "\n"
+         "  float occlusion = 0.0;\n"
+         "  float depth = texture(texDepth, texCoord).r;\n"
+         "  if (depth < 1.0)\n"
+         "  {\n"
+         "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
+         "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
+         "    fragPosDC.xyz /= fragPosDC.w;\n"
+         "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
+         "    if (fragPosDC.z - depth < 0.0001)\n"
+         "    {\n"
+         "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
+         "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
+         "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
+         "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
+         "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
+         "      vec3 bitangent = cross(normal, tangent);\n"
+         "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
+         "      const int kernelSize = "
+      << this->KernelSize
+      << ";\n"
+         "      for (int i = 0; i < kernelSize; i++)\n"
+         "      {\n"
+         "        vec3 sampleVC = TBN * samples[i];\n"
+         "        sampleVC = fragPosVC + sampleVC * kernelRadius;\n"
+         "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
+         "        sampleDC.xyz /= sampleDC.w;\n"
+         "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n" // to clip space
+         "        float sampleDepth = textureLod(texPosition, sampleDC.xy, 40.0 * "
+         "distance(fragPosDC.xy, sampleDC.xy)).z;\n"
+         "        float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPosVC.z - "
+         "sampleDepth));\n"
+         "        occlusion += (sampleDepth >= sampleVC.z + kernelBias ? 1.0 : 0.0) * rangeCheck;\n"
+         "      }\n"
+         "      occlusion = occlusion / float(kernelSize);\n"
+         "    }\n"
+         "  }\n"
+         "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ssImpl.str());
 
@@ -338,7 +340,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
   int size[2] = { w, h };
   this->SSAOQuadHelper->Program->SetUniform2i("size", size);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
 
   this->FrameBufferObject->AddColorAttachment(0, this->SSAOTexture);
@@ -347,8 +349,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
   this->SSAOQuadHelper->Render();
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->DepthTexture->Deactivate();
   this->PositionTexture->Deactivate();

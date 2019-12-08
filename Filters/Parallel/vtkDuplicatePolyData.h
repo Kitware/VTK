@@ -20,7 +20,7 @@
  * Converts data parallel so every node has a complete copy of the data.
  * The filter is used at the end of a pipeline for driving a tiled
  * display.
-*/
+ */
 
 #ifndef vtkDuplicatePolyData_h
 #define vtkDuplicatePolyData_h
@@ -33,7 +33,7 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkDuplicatePolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkDuplicatePolyData *New();
+  static vtkDuplicatePolyData* New();
   vtkTypeMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -67,10 +67,10 @@ public:
    * client and server because the socket controller is odd:
    * Proth processes think their id is 0.
    */
-  vtkSocketController *GetSocketController() {return this->SocketController;}
-  void SetSocketController (vtkSocketController *controller);
-  vtkSetMacro(ClientFlag,int);
-  vtkGetMacro(ClientFlag,int);
+  vtkSocketController* GetSocketController() { return this->SocketController; }
+  void SetSocketController(vtkSocketController* controller);
+  vtkSetMacro(ClientFlag, int);
+  vtkGetMacro(ClientFlag, int);
   //@}
 
   //@{
@@ -87,19 +87,19 @@ protected:
   ~vtkDuplicatePolyData() override;
 
   // Data generation method
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  void ClientExecute(vtkPolyData *output);
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ClientExecute(vtkPolyData* output);
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
   vtkTypeBool Synchronous;
 
   int NumberOfProcesses;
   int ScheduleLength;
-  int **Schedule;
+  int** Schedule;
 
   // For client server mode.
-  vtkSocketController *SocketController;
+  vtkSocketController* SocketController;
   int ClientFlag;
 
   unsigned long MemorySize;
@@ -110,4 +110,3 @@ private:
 };
 
 #endif
-

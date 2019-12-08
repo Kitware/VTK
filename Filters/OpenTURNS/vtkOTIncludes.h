@@ -16,8 +16,8 @@
 #define vtkOTIncludes_h
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
- #pragma GCC diagnostic ignored "-Woverloaded-virtual"
- #pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 #include "openturns/DistributionFactoryImplementation.hxx"
@@ -30,7 +30,7 @@
 #include "openturns/Triangular.hxx"
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
- #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 #endif

@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPRectilinearGridWriter
-*/
+ */
 
 #ifndef vtkXMLRectilinearGridWriter_h
 #define vtkXMLRectilinearGridWriter_h
@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLRectilinearGridWriter : public vtkXMLStructuredDataW
 {
 public:
   static vtkXMLRectilinearGridWriter* New();
-  vtkTypeMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLRectilinearGridWriter, vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,7 +67,7 @@ protected:
   void CalculateSuperclassFraction(float* fractions);
 
   // Coordinate array appended data positions.
-  OffsetsManagerArray *CoordinateOM;
+  OffsetsManagerArray* CoordinateOM;
 
   void AllocatePositionArrays() override;
   void DeletePositionArrays() override;

@@ -1,5 +1,5 @@
-#include "vtkmDataArray.h"
 #include "vtkSmartPointer.h"
+#include "vtkmDataArray.h"
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/ArrayHandleConstant.h>
@@ -15,7 +15,8 @@ class TestError
 {
 public:
   TestError(const std::string& message, int line)
-    : Message(message), Line(line)
+    : Message(message)
+    , Line(line)
   {
   }
 
@@ -31,7 +32,9 @@ private:
 
 #define RAISE_TEST_ERROR(msg) throw TestError((msg), __LINE__)
 
-#define TEST_VERIFY(cond, msg) if (!(cond)) RAISE_TEST_ERROR((msg))
+#define TEST_VERIFY(cond, msg)                                                                     \
+  if (!(cond))                                                                                     \
+  RAISE_TEST_ERROR((msg))
 
 inline bool IsEqualFloat(double a, double b, double e = 1e-6f)
 {
@@ -53,9 +56,9 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 
   int numberOfComponents = vtkArray->GetNumberOfComponents();
   std::cout << "Number of components: " << numberOfComponents << "\n";
-  TEST_VERIFY(
-    numberOfComponents ==
-    internal::FlattenVec<typename ArrayHandleType::ValueType>::GetNumberOfComponents(vtkmPortal.Get(0)),
+  TEST_VERIFY(numberOfComponents ==
+      internal::FlattenVec<typename ArrayHandleType::ValueType>::GetNumberOfComponents(
+        vtkmPortal.Get(0)),
     "Number of components don't match");
 
   for (vtkIdType i = 0; i < length; ++i)
@@ -66,9 +69,9 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
     for (int j = 0; j < numberOfComponents; ++j)
     {
       auto comp = internal::FlattenVec<typename ArrayHandleType::ValueType>::GetComponent(val, j);
-      TEST_VERIFY (IsEqualFloat(tuple[j], static_cast<double>(comp)), "values don't match");
-      TEST_VERIFY (IsEqualFloat(vtkArray->GetComponent(i, j), static_cast<double>(comp)),
-                   "values don't match");
+      TEST_VERIFY(IsEqualFloat(tuple[j], static_cast<double>(comp)), "values don't match");
+      TEST_VERIFY(IsEqualFloat(vtkArray->GetComponent(i, j), static_cast<double>(comp)),
+        "values don't match");
     }
   }
 }
@@ -86,11 +89,12 @@ try
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleConstant\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandleConstant(vtkm::Vec<vtkm::Vec<float, 3>, 3>{{1.0f, 2.0f, 3.0f}}, 10));
+  TestWithArrayHandle(vtkm::cont::make_ArrayHandleConstant(
+    vtkm::Vec<vtkm::Vec<float, 3>, 3>{ { 1.0f, 2.0f, 3.0f } }, 10));
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleUniformPointCoordinates\n";
-  TestWithArrayHandle(vtkm::cont::ArrayHandleUniformPointCoordinates(vtkm::Id3{3}));
+  TestWithArrayHandle(vtkm::cont::ArrayHandleUniformPointCoordinates(vtkm::Id3{ 3 }));
   std::cout << "Passed\n";
 
   return EXIT_SUCCESS;

@@ -22,13 +22,13 @@
  * lines, and polygons/triangle strips and then mapped to the graphics
  * system. The 2D faces of 3D cells are mapped only if they are used by
  * only one cell, i.e., on the boundary of the data set.
-*/
+ */
 
 #ifndef vtkDataSetMapper_h
 #define vtkDataSetMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPolyDataMapper;
 class vtkDataSetSurfaceFilter;
@@ -36,10 +36,10 @@ class vtkDataSetSurfaceFilter;
 class VTKRENDERINGCORE_EXPORT vtkDataSetMapper : public vtkMapper
 {
 public:
-  static vtkDataSetMapper *New();
+  static vtkDataSetMapper* New();
   vtkTypeMacro(vtkDataSetMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
   //@{
   /**
@@ -53,7 +53,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Get the mtime also considering the lookup table.
@@ -64,16 +64,16 @@ public:
   /**
    * Set the Input of this mapper.
    */
-  void SetInputData(vtkDataSet *input);
-  vtkDataSet *GetInput();
+  void SetInputData(vtkDataSet* input);
+  vtkDataSet* GetInput();
   //@}
 
 protected:
   vtkDataSetMapper();
   ~vtkDataSetMapper() override;
 
-  vtkDataSetSurfaceFilter *GeometryExtractor;
-  vtkPolyDataMapper *PolyDataMapper;
+  vtkDataSetSurfaceFilter* GeometryExtractor;
+  vtkPolyDataMapper* PolyDataMapper;
 
   void ReportReferences(vtkGarbageCollector*) override;
 

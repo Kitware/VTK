@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkAbstractContextItem
-*/
+ */
 
 #ifndef vtkPythonItem_h
 #define vtkPythonItem_h
@@ -30,8 +30,8 @@
 
 #include "vtkPython.h" // Must be first
 
-#include "vtkPythonContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkPythonContext2DModule.h" // For export macro
 
 class vtkSmartPyObject;
 
@@ -39,9 +39,9 @@ class VTKPYTHONCONTEXT2D_EXPORT vtkPythonItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPythonItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPythonItem * New();
+  static vtkPythonItem* New();
 
   /**
    * Specify the Python object to use to operate on the data. A reference will
@@ -51,15 +51,15 @@ public:
    */
   void SetPythonObject(PyObject* obj);
 
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 protected:
   vtkPythonItem();
   ~vtkPythonItem() override;
 
 private:
-  vtkPythonItem(const vtkPythonItem &) = delete;
-  void operator=(const vtkPythonItem &) = delete;
+  vtkPythonItem(const vtkPythonItem&) = delete;
+  void operator=(const vtkPythonItem&) = delete;
 
   bool CheckResult(const char* method, const vtkSmartPyObject& res);
 

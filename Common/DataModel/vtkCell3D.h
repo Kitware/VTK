@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkTetra vtkHexahedron vtkVoxel vtkWedge vtkPyramid
-*/
+ */
 
 #ifndef vtkCell3D_h
 #define vtkCell3D_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkOrderedTriangulator;
 class vtkTetra;
@@ -38,7 +38,7 @@ class vtkDoubleArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkCell3D : public vtkCell
 {
 public:
-  vtkTypeMacro(vtkCell3D,vtkCell);
+  vtkTypeMacro(vtkCell3D, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -48,7 +48,7 @@ public:
    * the point ids of the mesh that the cell belongs to. The edgeId must
    * range between 0<=edgeId<this->GetNumberOfEdges().
    */
-  virtual void GetEdgePoints(int edgeId, int* &pts) = 0;
+  virtual void GetEdgePoints(int edgeId, int*& pts) = 0;
 
   /**
    * Get the list of vertices that define a face.  The list is terminated
@@ -57,14 +57,11 @@ public:
    * the cell belongs to. The faceId must range between
    * 0<=faceId<this->GetNumberOfFaces().
    */
-  virtual void GetFacePoints(int faceId, int* &pts) = 0;
+  virtual void GetFacePoints(int faceId, int*& pts) = 0;
 
-  void Contour(double value, vtkDataArray *cellScalars,
-               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId,
-               vtkCellData *outCd) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
 
   /**
    * Cut (or clip) the cell based on the input cellScalars and the specified
@@ -78,16 +75,14 @@ public:
    * be invoked on both the output cell and point data. The cellId refers to
    * the cell from which the cell data is copied.)  (Satisfies vtkCell API.)
    */
-  void Clip(double value, vtkDataArray *cellScalars,
-            vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
 
   /**
    * The topological dimension of the cell. (Satisfies vtkCell API.)
    */
-  int GetCellDimension() override {return 3;}
+  int GetCellDimension() override { return 3; }
 
   //@{
   /**
@@ -95,20 +90,20 @@ public:
    * the vertices of cells. This tolerance is used to prevent the generation
    * of degenerate tetrahedra during clipping.
    */
-  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,double);
+  vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
+  vtkGetMacro(MergeTolerance, double);
   //@}
 
 protected:
   vtkCell3D();
   ~vtkCell3D() override;
 
-  vtkOrderedTriangulator *Triangulator;
-  double                  MergeTolerance;
+  vtkOrderedTriangulator* Triangulator;
+  double MergeTolerance;
 
-  //used to support clipping
-  vtkTetra               *ClipTetra;
-  vtkDoubleArray         *ClipScalars;
+  // used to support clipping
+  vtkTetra* ClipTetra;
+  vtkDoubleArray* ClipScalars;
 
 private:
   vtkCell3D(const vtkCell3D&) = delete;
@@ -116,5 +111,3 @@ private:
 };
 
 #endif
-
-

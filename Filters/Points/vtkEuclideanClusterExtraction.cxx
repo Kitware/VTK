@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkEuclideanClusterExtraction.h"
 
-#include "vtkPointSet.h"
+#include "vtkAbstractPointLocator.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkAbstractPointLocator.h"
 #include "vtkStaticPointLocator.h"
-#include "vtkIdTypeArray.h"
 
 vtkStandardNewMacro(vtkEuclideanClusterExtraction);
-vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction,Locator,vtkAbstractPointLocator);
+vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction, Locator, vtkAbstractPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with default extraction mode to extract largest cluster.
@@ -56,7 +56,6 @@ vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
   this->SpecifiedClusterIds = vtkIdList::New();
 
   this->NewScalars = nullptr;
-
 }
 
 //----------------------------------------------------------------------------
@@ -71,41 +70,37 @@ vtkEuclideanClusterExtraction::~vtkEuclideanClusterExtraction()
 }
 
 //----------------------------------------------------------------------------
-int vtkEuclideanClusterExtraction::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numPts, i, ptId;
-  vtkPoints *newPts;
-  int maxPointsInCluster, clusterId, largestClusterId=0;
-  vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
+  vtkPoints* newPts;
+  int maxPointsInCluster, clusterId, largestClusterId = 0;
+  vtkPointData *pd = input->GetPointData(), *outputPD = output->GetPointData();
 
-  vtkDebugMacro(<<"Executing point clustering filter.");
+  vtkDebugMacro(<< "Executing point clustering filter.");
 
   //  Check input/allocate storage
   //
-  if ( (numPts=input->GetNumberOfPoints()) < 1 )
+  if ((numPts = input->GetNumberOfPoints()) < 1)
   {
-    vtkDebugMacro(<<"No data to cluster!");
+    vtkDebugMacro(<< "No data to cluster!");
     return 1;
   }
-  vtkPoints *inPts = input->GetPoints();
+  vtkPoints* inPts = input->GetPoints();
 
   // Need to build a locator
-  if ( !this->Locator )
+  if (!this->Locator)
   {
-    vtkErrorMacro(<<"Point locator required\n");
+    vtkErrorMacro(<< "Point locator required\n");
     return 0;
   }
   this->Locator->SetDataSet(input);
@@ -114,14 +109,14 @@ int vtkEuclideanClusterExtraction::RequestData(
   // See whether to consider scalar connectivity
   //
   this->InScalars = input->GetPointData()->GetScalars();
-  if ( !this->ScalarConnectivity )
+  if (!this->ScalarConnectivity)
   {
     this->InScalars = nullptr;
   }
   else
   {
     this->NeighborScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-    if ( this->ScalarRange[1] < this->ScalarRange[0] )
+    if (this->ScalarRange[1] < this->ScalarRange[0])
     {
       this->ScalarRange[1] = this->ScalarRange[0];
     }
@@ -129,7 +124,7 @@ int vtkEuclideanClusterExtraction::RequestData(
 
   // Initialize.  Keep track of the points visited.
   //
-  this->Visited = new char [numPts];
+  this->Visited = new char[numPts];
   std::fill_n(this->Visited, numPts, static_cast<char>(0));
 
   this->ClusterSizes->Reset();
@@ -149,9 +144,9 @@ int vtkEuclideanClusterExtraction::RequestData(
   // using a connected wave propagation.
   //
   this->Wave = vtkIdList::New();
-  this->Wave->Allocate(numPts/4+1,numPts);
+  this->Wave->Allocate(numPts / 4 + 1, numPts);
   this->Wave2 = vtkIdList::New();
-  this->Wave2->Allocate(numPts/4+1,numPts);
+  this->Wave2->Allocate(numPts / 4 + 1, numPts);
 
   this->PointNumber = 0;
   this->ClusterNumber = 0;
@@ -160,32 +155,31 @@ int vtkEuclideanClusterExtraction::RequestData(
   this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8, VTK_CELL_SIZE);
 
-  if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_CLUSTERS &&
-  this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_CLUSTER )
-  { //visit all points assigning cluster number
-    for (ptId=0; ptId < numPts; ptId++)
+  if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_CLUSTERS &&
+    this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_CLUSTER)
+  { // visit all points assigning cluster number
+    for (ptId = 0; ptId < numPts; ptId++)
     {
-      if ( ptId && !(ptId % 10000) )
+      if (ptId && !(ptId % 10000))
       {
-        this->UpdateProgress (0.1 + 0.8*ptId/numPts);
+        this->UpdateProgress(0.1 + 0.8 * ptId / numPts);
       }
 
-      if ( ! this->Visited[ptId] )
+      if (!this->Visited[ptId])
       {
         this->NumPointsInCluster = 0;
-        this->InsertIntoWave(this->Wave,ptId);
-        this->TraverseAndMark (inPts);
+        this->InsertIntoWave(this->Wave, ptId);
+        this->TraverseAndMark(inPts);
 
-        if ( this->NumPointsInCluster > maxPointsInCluster )
+        if (this->NumPointsInCluster > maxPointsInCluster)
         {
           maxPointsInCluster = this->NumPointsInCluster;
           largestClusterId = this->ClusterNumber;
         }
 
-        if ( this->NumPointsInCluster > 0 )
+        if (this->NumPointsInCluster > 0)
         {
-          this->ClusterSizes->InsertValue(this->ClusterNumber++,
-                                          this->NumPointsInCluster);
+          this->ClusterSizes->InsertValue(this->ClusterNumber++, this->NumPointsInCluster);
         }
         this->Wave->Reset();
         this->Wave2->Reset();
@@ -196,94 +190,94 @@ int vtkEuclideanClusterExtraction::RequestData(
   {
     this->NumPointsInCluster = 0;
 
-    if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS )
+    if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS)
     {
       this->NumPointsInCluster = 0;
-      for (i=0; i < this->Seeds->GetNumberOfIds(); i++)
+      for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
         ptId = this->Seeds->GetId(i);
-        if ( ptId >= 0 )
+        if (ptId >= 0)
         {
-          this->InsertIntoWave(this->Wave,ptId);
+          this->InsertIntoWave(this->Wave, ptId);
         }
       }
     }
-    else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER )
-    {//loop over points, find closest one
+    else if (this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER)
+    { // loop over points, find closest one
       ptId = this->Locator->FindClosestPoint(this->ClosestPoint);
-      this->InsertIntoWave(this->Wave,ptId);
+      this->InsertIntoWave(this->Wave, ptId);
     }
-    this->UpdateProgress (0.5);
+    this->UpdateProgress(0.5);
 
-    //mark all seeded clusters
-    this->TraverseAndMark (inPts);
-    this->ClusterSizes->InsertValue(this->ClusterNumber,this->NumPointsInCluster);
-    this->UpdateProgress (0.9);
+    // mark all seeded clusters
+    this->TraverseAndMark(inPts);
+    this->ClusterSizes->InsertValue(this->ClusterNumber, this->NumPointsInCluster);
+    this->UpdateProgress(0.9);
   }
 
-  vtkDebugMacro (<<"Extracted " << this->ClusterNumber << " cluster(s)");
+  vtkDebugMacro(<< "Extracted " << this->ClusterNumber << " cluster(s)");
   this->Wave->Delete();
   this->Wave2->Delete();
-  delete [] this->Visited;
+  delete[] this->Visited;
 
   // Now that points have been marked, traverse the PointMap pulling
   // everything that has been visited and is selected for output.
   outputPD->CopyAllocate(pd);
-  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS ||
-  this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER ||
-  this->ExtractionMode == VTK_EXTRACT_ALL_CLUSTERS)
+  if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS ||
+    this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER ||
+    this->ExtractionMode == VTK_EXTRACT_ALL_CLUSTERS)
   { // extract any point that's been visited
-    for (ptId=0; ptId < numPts; ptId++)
+    for (ptId = 0; ptId < numPts; ptId++)
     {
-      if ( this->PointMap[ptId] >= 0 )
+      if (this->PointMap[ptId] >= 0)
       {
-        newPts->InsertPoint(this->PointMap[ptId],inPts->GetPoint(ptId));
-        outputPD->CopyData(pd,ptId,this->PointMap[ptId]);
+        newPts->InsertPoint(this->PointMap[ptId], inPts->GetPoint(ptId));
+        outputPD->CopyData(pd, ptId, this->PointMap[ptId]);
       }
     }
   }
-  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_CLUSTERS )
+  else if (this->ExtractionMode == VTK_EXTRACT_SPECIFIED_CLUSTERS)
   {
     bool inCluster;
-    for (ptId=0; ptId < numPts; ptId++)
+    for (ptId = 0; ptId < numPts; ptId++)
     {
-      if ( this->PointMap[ptId] >= 0 )
+      if (this->PointMap[ptId] >= 0)
       {
         clusterId = this->NewScalars->GetValue(this->PointMap[ptId]);
-        for (inCluster=false,i=0; i<this->SpecifiedClusterIds->GetNumberOfIds(); i++)
+        for (inCluster = false, i = 0; i < this->SpecifiedClusterIds->GetNumberOfIds(); i++)
         {
-          if ( clusterId == this->SpecifiedClusterIds->GetId(i) )
+          if (clusterId == this->SpecifiedClusterIds->GetId(i))
           {
             inCluster = true;
             break;
           }
         }
-        if ( inCluster )
+        if (inCluster)
         {
-          newPts->InsertPoint(this->PointMap[ptId],inPts->GetPoint(ptId));
-          outputPD->CopyData(pd,ptId,this->PointMap[ptId]);
+          newPts->InsertPoint(this->PointMap[ptId], inPts->GetPoint(ptId));
+          outputPD->CopyData(pd, ptId, this->PointMap[ptId]);
         }
       }
     }
   }
-  else //extract largest cluster
+  else // extract largest cluster
   {
-    for (ptId=0; ptId < numPts; ptId++)
+    for (ptId = 0; ptId < numPts; ptId++)
     {
-      if ( this->PointMap[ptId] >= 0 )
+      if (this->PointMap[ptId] >= 0)
       {
         clusterId = this->NewScalars->GetValue(this->PointMap[ptId]);
-        if ( clusterId == largestClusterId )
+        if (clusterId == largestClusterId)
         {
-          newPts->InsertPoint(this->PointMap[ptId],inPts->GetPoint(ptId));
-          outputPD->CopyData(pd,ptId,this->PointMap[ptId]);
+          newPts->InsertPoint(this->PointMap[ptId], inPts->GetPoint(ptId));
+          outputPD->CopyData(pd, ptId, this->PointMap[ptId]);
         }
       }
     }
   }
 
   // if coloring clusters; send down new scalar data
-  if ( this->ColorClusters )
+  if (this->ColorClusters)
   {
     int idx = outputPD->AddArray(this->NewScalars);
     outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
@@ -293,7 +287,7 @@ int vtkEuclideanClusterExtraction::RequestData(
   newPts->Squeeze();
   output->SetPoints(newPts);
 
-  delete [] this->PointMap;
+  delete[] this->PointMap;
   this->PointIds->Delete();
 
   // print out some debugging information
@@ -302,27 +296,25 @@ int vtkEuclideanClusterExtraction::RequestData(
 
   for (int ii = 0; ii < num; ii++)
   {
-    count += this->ClusterSizes->GetValue (ii);
+    count += this->ClusterSizes->GetValue(ii);
   }
-  vtkDebugMacro (<< "Total # of points accounted for: " << count);
-  vtkDebugMacro (<< "Extracted " << newPts->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<< "Total # of points accounted for: " << count);
+  vtkDebugMacro(<< "Extracted " << newPts->GetNumberOfPoints() << " points");
   newPts->Delete();
 
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
 // Insert point into connected wave. Check to make sure it satisfies connectivity
 // criterion (if enabled).
-void vtkEuclideanClusterExtraction::
-InsertIntoWave(vtkIdList *wave, vtkIdType ptId)
+void vtkEuclideanClusterExtraction::InsertIntoWave(vtkIdList* wave, vtkIdType ptId)
 {
   this->Visited[ptId] = 1;
-  if ( this->InScalars ) //is scalar connectivity enabled?
+  if (this->InScalars) // is scalar connectivity enabled?
   {
     double s = this->InScalars->GetTuple1(ptId);
-    if ( s >= this->ScalarRange[0] && s <= this->ScalarRange[1] )
+    if (s >= this->ScalarRange[0] && s <= this->ScalarRange[1])
     {
       wave->InsertNextId(ptId);
     }
@@ -333,46 +325,45 @@ InsertIntoWave(vtkIdList *wave, vtkIdType ptId)
   }
 }
 
-
 //----------------------------------------------------------------------------
 // Update current point information including updating cluster number.  Note:
 // traversal occurs across proximally located points, possibly limited by
 // scalar connectivty.
 //
-void vtkEuclideanClusterExtraction::TraverseAndMark (vtkPoints *inPts)
+void vtkEuclideanClusterExtraction::TraverseAndMark(vtkPoints* inPts)
 {
   vtkIdType i, j, numPts, numIds, ptId;
-  vtkIdList *tmpWave;
+  vtkIdList* tmpWave;
   double x[3];
 
-  while ( (numIds=this->Wave->GetNumberOfIds()) > 0 )
+  while ((numIds = this->Wave->GetNumberOfIds()) > 0)
   {
-    for ( i=0; i < numIds; i++ ) //for all points in this wave
+    for (i = 0; i < numIds; i++) // for all points in this wave
     {
       ptId = this->Wave->GetId(i);
       this->PointMap[ptId] = this->PointNumber++;
-      this->NewScalars->SetValue(this->PointMap[ptId],this->ClusterNumber);
+      this->NewScalars->SetValue(this->PointMap[ptId], this->ClusterNumber);
       this->NumPointsInCluster++;
 
-      inPts->GetPoint(ptId,x);
-      this->Locator->FindPointsWithinRadius(this->Radius,x,this->NeighborPointIds);
+      inPts->GetPoint(ptId, x);
+      this->Locator->FindPointsWithinRadius(this->Radius, x, this->NeighborPointIds);
 
       numPts = this->NeighborPointIds->GetNumberOfIds();
-      for (j=0; j < numPts; ++j)
+      for (j = 0; j < numPts; ++j)
       {
         ptId = this->NeighborPointIds->GetId(j);
-        if ( ! this->Visited[ptId] )
+        if (!this->Visited[ptId])
         {
-          this->InsertIntoWave(this->Wave2,ptId);
-        }//if point not yet visited
-      }//for all neighbors
-    }//for all cells in this connected wave
+          this->InsertIntoWave(this->Wave2, ptId);
+        } // if point not yet visited
+      }   // for all neighbors
+    }     // for all cells in this connected wave
 
     tmpWave = this->Wave;
     this->Wave = this->Wave2;
     this->Wave2 = tmpWave;
     tmpWave->Reset();
-  } //while wave is not empty
+  } // while wave is not empty
 }
 
 //----------------------------------------------------------------------------
@@ -431,8 +422,7 @@ void vtkEuclideanClusterExtraction::DeleteSpecifiedCluster(int id)
 }
 
 //----------------------------------------------------------------------------
-int vtkEuclideanClusterExtraction::
-FillInputPortInformation(int, vtkInformation *info)
+int vtkEuclideanClusterExtraction::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
@@ -441,20 +431,19 @@ FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 void vtkEuclideanClusterExtraction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Extraction Mode: ";
   os << this->GetExtractionModeAsString() << "\n";
 
-  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", "
-     << this->ClosestPoint[1] << ", " << this->ClosestPoint[2] << ")\n";
+  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", " << this->ClosestPoint[1]
+     << ", " << this->ClosestPoint[2] << ")\n";
 
   os << indent << "Color Clusters: " << (this->ColorClusters ? "On\n" : "Off\n");
 
-  os << indent << "Scalar Connectivity: "
-     << (this->ScalarConnectivity ? "On\n" : "Off\n");
+  os << indent << "Scalar Connectivity: " << (this->ScalarConnectivity ? "On\n" : "Off\n");
 
-  double *range = this->GetScalarRange();
+  double* range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 
   os << indent << "Locator: " << this->Locator << "\n";

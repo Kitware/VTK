@@ -89,7 +89,7 @@ public:
   vtkIdType GetNumberOfCells() override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
-  int GetMaxCellSize() override { return 8; }; // hexahedron is the largest
+  int GetMaxCellSize() override { return 8; } // hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   //@}
 
@@ -187,11 +187,8 @@ public:
    * extent beginning.
    * The default adjustForExtent is true.
    */
-  void ComputeCellStructuredCoords(vtkIdType cellId,
-    int& i,
-    int& j,
-    int& k,
-    bool adjustForExtent = true);
+  void ComputeCellStructuredCoords(
+    vtkIdType cellId, int& i, int& j, int& k, bool adjustForExtent = true);
 
   /**
    * Given a location in structured coordinates (i-j-k), return the cell id.
@@ -258,7 +255,8 @@ public:
    * and the source generated more than the update extent.
    */
   void Crop(const int* updateExtent) override;
-  virtual void Crop(const int* updateExtent, bool generateOriginalCellIds);
+  virtual void Crop(
+    vtkExplicitStructuredGrid* input, const int* updateExtent, bool generateOriginalCellIds);
   //@}
 
   //@{
@@ -380,11 +378,8 @@ inline void vtkExplicitStructuredGrid::GetCellDims(int cellDims[3])
 }
 
 //----------------------------------------------------------------------------
-inline void vtkExplicitStructuredGrid::ComputeCellStructuredCoords(vtkIdType cellId,
-  int& i,
-  int& j,
-  int& k,
-  bool adjustForExtent)
+inline void vtkExplicitStructuredGrid::ComputeCellStructuredCoords(
+  vtkIdType cellId, int& i, int& j, int& k, bool adjustForExtent)
 {
   int ijk[3];
   if (adjustForExtent)

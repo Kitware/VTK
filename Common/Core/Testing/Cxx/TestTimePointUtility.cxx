@@ -15,8 +15,8 @@
 
 #include "vtkTimePointUtility.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkMath.h"
+#include "vtkSmartPointer.h"
 
 #include <sstream>
 #include <string>
@@ -25,7 +25,7 @@ static int TestSpecialDates();
 static void TestBadFormatWarning();
 static void TestPrintSelf();
 
-int TestTimePointUtility(int, char *[])
+int TestTimePointUtility(int, char*[])
 {
   int testResult = EXIT_SUCCESS;
 
@@ -56,11 +56,11 @@ int TestTimePointUtility(int, char *[])
 
     // Compute time points and their ISO representations
     vtkTypeUInt64 tp1 = vtkTimePointUtility::DateToTimePoint(y, m, d);
-    const char *iso0 = vtkTimePointUtility::TimePointToISO8601(tp1, 0);
-    const char *iso1 = vtkTimePointUtility::TimePointToISO8601(tp1, 1);
-    const char *iso2 = vtkTimePointUtility::TimePointToISO8601(tp1, 2);
-    const char *iso3 = vtkTimePointUtility::TimePointToISO8601(tp1, 3);
-    const char *iso4 = vtkTimePointUtility::TimePointToISO8601(tp1, 4);
+    const char* iso0 = vtkTimePointUtility::TimePointToISO8601(tp1, 0);
+    const char* iso1 = vtkTimePointUtility::TimePointToISO8601(tp1, 1);
+    const char* iso2 = vtkTimePointUtility::TimePointToISO8601(tp1, 2);
+    const char* iso3 = vtkTimePointUtility::TimePointToISO8601(tp1, 3);
+    const char* iso4 = vtkTimePointUtility::TimePointToISO8601(tp1, 4);
 
     // Test to see if the converted data
     // [YYYY]-[MM]-[DD]T[hh]:[mm]:[ss]
@@ -71,8 +71,7 @@ int TestTimePointUtility(int, char *[])
     if (!ok)
     {
       std::cout << m << "/" << d << "/" << y << std::endl;
-      std::cout << "FAILED to convert " << iso0copy
-                << " to a time point. Return value: " << tp1
+      std::cout << "FAILED to convert " << iso0copy << " to a time point. Return value: " << tp1
                 << std::endl;
       testResult = EXIT_FAILURE;
     }
@@ -80,33 +79,29 @@ int TestTimePointUtility(int, char *[])
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso1, &ok);
     if (!ok)
     {
-      std::cout << "FAILED to convert " << iso1
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+      std::cout << "FAILED to convert " << iso1 << " to a time point. Return value: " << tp1
+                << std::endl;
       testResult = EXIT_FAILURE;
     }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso2, &ok);
     if (!ok)
     {
-      std::cout << "FAILED to convert " << iso2
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+      std::cout << "FAILED to convert " << iso2 << " to a time point. Return value: " << tp1
+                << std::endl;
       testResult = EXIT_FAILURE;
     }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso3, &ok);
     if (!ok)
     {
-      std::cout << "FAILED to convert " << iso3
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+      std::cout << "FAILED to convert " << iso3 << " to a time point. Return value: " << tp1
+                << std::endl;
       testResult = EXIT_FAILURE;
     }
     tp1 = vtkTimePointUtility::ISO8601ToTimePoint(iso4, &ok);
     if (!ok)
     {
-      std::cout << "FAILED to convert " << iso4
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+      std::cout << "FAILED to convert " << iso4 << " to a time point. Return value: " << tp1
+                << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -116,8 +111,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -127,8 +121,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -138,8 +131,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -149,8 +141,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -160,8 +151,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso0copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -176,8 +166,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso2copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -187,8 +176,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso2copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -203,8 +191,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -214,8 +201,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -225,8 +211,7 @@ int TestTimePointUtility(int, char *[])
     if (ok)
     {
       std::cout << "Should have FAILED to convert " << iso3copy
-        << " to a time point. Return value: " << tp1
-        << std::endl;
+                << " to a time point. Return value: " << tp1 << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -239,22 +224,19 @@ int TestTimePointUtility(int, char *[])
     year2 = vtkTimePointUtility::GetYear(tp1);
     if (year != year2)
     {
-      std::cout << "GetYear() returned " << year2
-                << ", but expected "<< year << std::endl;
+      std::cout << "GetYear() returned " << year2 << ", but expected " << year << std::endl;
       testResult = EXIT_FAILURE;
     }
     month2 = vtkTimePointUtility::GetMonth(tp1);
     if (month != month2)
     {
-      std::cout << "GetMonth() returned " << month2
-                << ", but expected "<< month << std::endl;
+      std::cout << "GetMonth() returned " << month2 << ", but expected " << month << std::endl;
       testResult = EXIT_FAILURE;
     }
     day2 = vtkTimePointUtility::GetDay(tp1);
     if (day != day2)
     {
-      std::cout << "GetDay() returned " << day2
-                << ", but expected "<< day << std::endl;
+      std::cout << "GetDay() returned " << day2 << ", but expected " << day << std::endl;
       testResult = EXIT_FAILURE;
     }
 
@@ -265,37 +247,34 @@ int TestTimePointUtility(int, char *[])
     hour2 = vtkTimePointUtility::GetHour(tp1);
     if (hour != hour2)
     {
-      std::cout << "GetHour() returned " << hour2
-                << ", but expected "<< hour << std::endl;
+      std::cout << "GetHour() returned " << hour2 << ", but expected " << hour << std::endl;
       testResult = EXIT_FAILURE;
     }
     minute2 = vtkTimePointUtility::GetMinute(tp1);
     if (minute != minute2)
     {
-      std::cout << "GetMinute() returned "
-                << minute2 << ", but expected "<< minute << std::endl;
+      std::cout << "GetMinute() returned " << minute2 << ", but expected " << minute << std::endl;
       testResult = EXIT_FAILURE;
     }
     second2 = vtkTimePointUtility::GetSecond(tp1);
     if (second != second2)
     {
-      std::cout << "GetSecond() returned "
-                << second2 << ", but expected "<< second << std::endl;
+      std::cout << "GetSecond() returned " << second2 << ", but expected " << second << std::endl;
       testResult = EXIT_FAILURE;
     }
     millis2 = vtkTimePointUtility::GetMillisecond(tp1);
     if (millis != millis2)
     {
-      std::cout << "GetMillisecond() returned "
-                << millis2 << ", but expected "<< millis << std::endl;
+      std::cout << "GetMillisecond() returned " << millis2 << ", but expected " << millis
+                << std::endl;
       testResult = EXIT_FAILURE;
     }
 
-    delete []iso0;
-    delete []iso1;
-    delete []iso2;
-    delete []iso3;
-    delete []iso4;
+    delete[] iso0;
+    delete[] iso1;
+    delete[] iso2;
+    delete[] iso3;
+    delete[] iso4;
   }
 
   if (TestSpecialDates() != EXIT_SUCCESS)
@@ -312,8 +291,7 @@ int TestTimePointUtility(int, char *[])
 
 void TestPrintSelf()
 {
-  vtkSmartPointer<vtkTimePointUtility> tpu =
-    vtkSmartPointer<vtkTimePointUtility>::New();
+  vtkSmartPointer<vtkTimePointUtility> tpu = vtkSmartPointer<vtkTimePointUtility>::New();
   std::cout << "Verify PrintSelf...";
   std::ostringstream pout;
   std::cout << "PASSED" << std::endl;
@@ -322,16 +300,14 @@ void TestPrintSelf()
 
 void TestBadFormatWarning()
 {
-  vtkTypeUInt64 tp2 = vtkTimePointUtility::DateTimeToTimePoint
-    (1946, 11, 8, 0, 0, 0, 0);
+  vtkTypeUInt64 tp2 = vtkTimePointUtility::DateTimeToTimePoint(1946, 11, 8, 0, 0, 0, 0);
 
   std::cout << "******* Expected warning starts *****" << std::endl;
-  vtkSmartPointer<vtkTimePointUtility> tpu =
-    vtkSmartPointer<vtkTimePointUtility>::New();
-  const char *iso5 = tpu->TimePointToISO8601(tp2, 10);
+  vtkSmartPointer<vtkTimePointUtility> tpu = vtkSmartPointer<vtkTimePointUtility>::New();
+  const char* iso5 = tpu->TimePointToISO8601(tp2, 10);
   std::cout << "******* Expected warning ends *****" << std::endl;
 
-  delete []iso5;
+  delete[] iso5;
 }
 
 int TestSpecialDates()
@@ -344,16 +320,12 @@ int TestSpecialDates()
   vtkTypeUInt64 expectedJD;
 
   expectedJD = 2432133;
-  vtkTypeUInt64 tp1 =
-    vtkTimePointUtility::DateTimeToTimePoint(1946, 11, 8, 0, 0, 0, 0);
+  vtkTypeUInt64 tp1 = vtkTimePointUtility::DateTimeToTimePoint(1946, 11, 8, 0, 0, 0, 0);
   vtkTypeUInt64 jd1 = tp1 / vtkTimePointUtility::MILLIS_PER_DAY;
-  const char *iso6 = vtkTimePointUtility::TimePointToISO8601(tp1, 0);
-  std::cout << "Julian Day for this historic date 11/8/1946 is: "
-            << jd1
-            << " and its representation is "
-            << iso6
-            << std::endl;
-  delete []iso6;
+  const char* iso6 = vtkTimePointUtility::TimePointToISO8601(tp1, 0);
+  std::cout << "Julian Day for this historic date 11/8/1946 is: " << jd1
+            << " and its representation is " << iso6 << std::endl;
+  delete[] iso6;
 
   if (jd1 != expectedJD)
   {
@@ -363,17 +335,13 @@ int TestSpecialDates()
   }
 
   expectedJD = 2299160;
-  vtkTypeUInt64 tp2 =
-    vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 4, 0, 0, 0, 0);
+  vtkTypeUInt64 tp2 = vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 4, 0, 0, 0, 0);
   vtkTypeUInt64 jd2 = tp2 / vtkTimePointUtility::MILLIS_PER_DAY;
 
-  const char *iso7 = vtkTimePointUtility::TimePointToISO8601(tp2, 0);
-  std::cout << "Julian Day for this historic date 10/4/1582 is: "
-            << jd2
-            << " and its representation is "
-            << iso7
-            << std::endl;
-  delete []iso7;
+  const char* iso7 = vtkTimePointUtility::TimePointToISO8601(tp2, 0);
+  std::cout << "Julian Day for this historic date 10/4/1582 is: " << jd2
+            << " and its representation is " << iso7 << std::endl;
+  delete[] iso7;
 
   if (jd2 != expectedJD)
   {
@@ -383,17 +351,13 @@ int TestSpecialDates()
   }
 
   expectedJD = 2299161;
-  vtkTypeUInt64 tp3 =
-    vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 15, 0, 0, 0, 0);
+  vtkTypeUInt64 tp3 = vtkTimePointUtility::DateTimeToTimePoint(1582, 10, 15, 0, 0, 0, 0);
   vtkTypeUInt64 jd3 = tp3 / vtkTimePointUtility::MILLIS_PER_DAY;
 
-  const char *iso8 = vtkTimePointUtility::TimePointToISO8601(tp3, 0);
-  std::cout << "Julian Day for this historic date 10/15/1582 is: "
-            << jd3
-            << " and its representation is "
-            << iso8
-            << std::endl;
-  delete []iso8;
+  const char* iso8 = vtkTimePointUtility::TimePointToISO8601(tp3, 0);
+  std::cout << "Julian Day for this historic date 10/15/1582 is: " << jd3
+            << " and its representation is " << iso8 << std::endl;
+  delete[] iso8;
   if (jd3 != expectedJD)
   {
     std::cout << "ERROR: The computed Julian Day is " << jd3
@@ -402,13 +366,10 @@ int TestSpecialDates()
   }
 
   expectedJD = 0;
-  vtkTypeUInt64 tp4 =
-    vtkTimePointUtility::DateTimeToTimePoint(-4713, 1, 1, 0, 0, 0, 0);
+  vtkTypeUInt64 tp4 = vtkTimePointUtility::DateTimeToTimePoint(-4713, 1, 1, 0, 0, 0, 0);
   vtkTypeUInt64 jd4 = tp4 / vtkTimePointUtility::MILLIS_PER_DAY;
 
-  std::cout << "Julian Day for the beginning of time 1/1/4713 BC is: "
-            << tp4
-            << std::endl;
+  std::cout << "Julian Day for the beginning of time 1/1/4713 BC is: " << tp4 << std::endl;
   if (jd4 != expectedJD)
   {
     std::cout << "ERROR: The computed Julian Day is " << jd4

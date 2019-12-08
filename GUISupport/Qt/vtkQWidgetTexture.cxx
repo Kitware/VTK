@@ -26,7 +26,6 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QWidget>
 
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkQWidgetTexture);
 
@@ -40,41 +39,45 @@ vtkQWidgetTexture::vtkQWidgetTexture()
   this->SetMagnificationFilter(vtkTextureObject::Linear);
   this->SetMinificationFilter(vtkTextureObject::Linear);
 
-  this->RedrawMethod =
-    [this] () {
-      if (this->Framebuffer)
-      {
-        this->Framebuffer->bind();
+  this->RedrawMethod = [this]() {
+    if (this->Framebuffer)
+    {
+      this->Context->MakeCurrent();
+      auto state = this->Context->GetState();
+      state->PushFramebufferBindings();
+      this->Framebuffer->bind();
 
-        QOpenGLPaintDevice *device = new QOpenGLPaintDevice( this->Framebuffer->size() );
-        QPainter *painter = new QPainter( device );
+      QOpenGLPaintDevice* device = new QOpenGLPaintDevice(this->Framebuffer->size());
+      QPainter* painter = new QPainter(device);
 
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        this->Scene->render( painter );
-        this->Framebuffer->release();
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+      this->Scene->render(painter);
+      this->Framebuffer->release();
 
-        this->AssignToExistingTexture(this->Framebuffer->texture(), GL_TEXTURE_2D);
+      this->AssignToExistingTexture(this->Framebuffer->texture(), GL_TEXTURE_2D);
 
-        delete painter;
-        delete device;
+      delete painter;
+      delete device;
 
-        // bring vtk state back in sync with Qt state
-        auto state = this->Context->GetState();
-        state->ResetEnumState(GL_BLEND);
-        state->ResetEnumState(GL_DEPTH_TEST);
-        state->ResetEnumState(GL_SCISSOR_TEST);
+      // bring vtk state back in sync with Qt state
+      state->PopFramebufferBindings();
+      state->ResetEnumState(GL_BLEND);
+      state->ResetEnumState(GL_DEPTH_TEST);
+      state->ResetEnumState(GL_SCISSOR_TEST);
 #ifdef GL_MULTISAMPLE
-        state->ResetEnumState(GL_MULTISAMPLE);
+      state->ResetEnumState(GL_MULTISAMPLE);
 #endif
-        state->ResetGLScissorState();
-        state->ResetGLViewportState();
-        state->ResetGLDepthFuncState();
-        state->ResetGLBlendFuncState();
-        // reset the depth test to LEQUAL as all vtk classes
-        // expect this to be the case when called
-        state->vtkglDepthFunc(GL_LEQUAL);
-      }
-    };
+      state->ResetGLScissorState();
+      state->ResetGLClearColorState();
+      state->ResetGLViewportState();
+      state->ResetGLDepthFuncState();
+      state->ResetGLBlendFuncState();
+      state->ResetFramebufferBindings();
+      // reset the depth test to LEQUAL as all vtk classes
+      // expect this to be the case when called
+      state->vtkglDepthFunc(GL_LEQUAL);
+    }
+  };
 }
 
 //----------------------------------------------------------------------------
@@ -89,7 +92,7 @@ vtkQWidgetTexture::~vtkQWidgetTexture()
 }
 
 //---------------------------------------------------------------------------
-void vtkQWidgetTexture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkQWidgetTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (!this->ResourceCallback->IsReleasing())
   {
@@ -104,16 +107,14 @@ void vtkQWidgetTexture::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 // just hold onto the widget until opengl context is active
-void vtkQWidgetTexture::SetWidget(QWidget *w)
+void vtkQWidgetTexture::SetWidget(QWidget* w)
 {
   if (this->Widget == w)
   {
     return;
   }
 
-  if (w == nullptr &&
-      this->Scene &&
-      this->Widget->graphicsProxyWidget())
+  if (w == nullptr && this->Scene && this->Widget->graphicsProxyWidget())
   {
     this->Scene->removeItem(this->Widget->graphicsProxyWidget());
   }
@@ -157,8 +158,8 @@ void vtkQWidgetTexture::AllocateFromWidget()
 
     this->Scene = new QGraphicsScene();
 
-    this->Widget->move( 0, 0 );
-    this->Scene->addWidget( this->Widget );
+    this->Widget->move(0, 0);
+    this->Scene->addWidget(this->Widget);
 
     QObject::connect(this->Scene, &QGraphicsScene::changed, this->RedrawMethod);
   }
@@ -167,8 +168,8 @@ void vtkQWidgetTexture::AllocateFromWidget()
   // so re setup as needed
   if (!this->Framebuffer)
   {
-    this->Framebuffer = new
-      QOpenGLFramebufferObject(this->Widget->width(), this->Widget->height(), GL_TEXTURE_2D );
+    this->Framebuffer =
+      new QOpenGLFramebufferObject(this->Widget->width(), this->Widget->height(), GL_TEXTURE_2D);
     this->RedrawMethod();
   }
 }

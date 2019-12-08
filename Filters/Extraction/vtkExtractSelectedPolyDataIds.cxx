@@ -37,36 +37,30 @@ vtkExtractSelectedPolyDataIds::vtkExtractSelectedPolyDataIds()
 //----------------------------------------------------------------------------
 vtkExtractSelectedPolyDataIds::~vtkExtractSelectedPolyDataIds() = default;
 
-
 //----------------------------------------------------------------------------
-int vtkExtractSelectedPolyDataIds::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractSelectedPolyDataIds::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkSelection *sel = vtkSelection::SafeDownCast(
-    selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if ( ! sel )
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkSelection* sel = vtkSelection::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!sel)
   {
-    vtkErrorMacro(<<"No selection specified");
+    vtkErrorMacro(<< "No selection specified");
     return 1;
   }
 
-  vtkPointData *pd = input->GetPointData();
-  vtkCellData *cd = input->GetCellData();
+  vtkPointData* pd = input->GetPointData();
+  vtkCellData* cd = input->GetCellData();
 
-  vtkPointData *outputPD = output->GetPointData();
-  vtkCellData *outputCD = output->GetCellData();
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
 
   vtkDebugMacro(<< "Extracting poly data geometry");
 
@@ -80,30 +74,28 @@ int vtkExtractSelectedPolyDataIds::RequestData(
     return 1;
   }
   if (!node->GetProperties()->Has(vtkSelectionNode::CONTENT_TYPE()) ||
-      node->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE()) != vtkSelectionNode::INDICES ||
-      !node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()) ||
-      node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE()) != vtkSelectionNode::CELL)
+    node->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE()) != vtkSelectionNode::INDICES ||
+    !node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()) ||
+    node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE()) != vtkSelectionNode::CELL)
   {
     return 1;
   }
 
-  vtkIdTypeArray* idArray =
-    vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
+  vtkIdTypeArray* idArray = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
 
   if (!idArray)
   {
     return 1;
   }
 
-  vtkIdType numCells =
-    idArray->GetNumberOfComponents()*idArray->GetNumberOfTuples();
+  vtkIdType numCells = idArray->GetNumberOfComponents() * idArray->GetNumberOfTuples();
 
   if (numCells == 0)
   {
     return 1;
   }
 
-  output->Allocate(numCells);
+  output->AllocateEstimate(numCells, 1);
   output->SetPoints(input->GetPoints());
   outputPD->PassData(pd);
   outputCD->CopyAllocate(cd);
@@ -114,7 +106,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
   vtkIdList* ids = vtkIdList::New();
 
   vtkIdType numInputCells = input->GetNumberOfCells();
-  for (vtkIdType i=0; i < numCells; i++)
+  for (vtkIdType i = 0; i < numCells; i++)
   {
     vtkIdType cellId = idArray->GetValue(i);
     if (cellId >= numInputCells)
@@ -122,8 +114,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
       continue;
     }
     input->GetCellPoints(cellId, ids);
-    vtkIdType newId = output->InsertNextCell(
-      input->GetCellType(cellId), ids);
+    vtkIdType newId = output->InsertNextCell(input->GetCellType(cellId), ids);
     outputCD->CopyData(cd, cellId, newId);
   }
   ids->Delete();
@@ -135,14 +126,13 @@ int vtkExtractSelectedPolyDataIds::RequestData(
 //----------------------------------------------------------------------------
 void vtkExtractSelectedPolyDataIds::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedPolyDataIds::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkExtractSelectedPolyDataIds::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if (port==0)
+  if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   }

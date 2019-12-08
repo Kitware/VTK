@@ -14,9 +14,9 @@
 =========================================================================*/
 
 #include "vtkAbstractContextItem.h"
-#include "vtkObjectFactory.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
+#include "vtkObjectFactory.h"
 
 // STL headers
 #include <algorithm>
@@ -38,23 +38,21 @@ vtkAbstractContextItem::~vtkAbstractContextItem()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::Paint(vtkContext2D *painter)
+bool vtkAbstractContextItem::Paint(vtkContext2D* painter)
 {
   this->Children->PaintItems(painter);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::PaintChildren(vtkContext2D *painter)
+bool vtkAbstractContextItem::PaintChildren(vtkContext2D* painter)
 {
   this->Children->PaintItems(painter);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-void vtkAbstractContextItem::Update()
-{
-}
+void vtkAbstractContextItem::Update() {}
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
@@ -125,8 +123,7 @@ vtkIdType vtkAbstractContextItem::Raise(vtkIdType index)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkAbstractContextItem::StackAbove(vtkIdType index,
-                                             vtkIdType under)
+vtkIdType vtkAbstractContextItem::StackAbove(vtkIdType index, vtkIdType under)
 {
   vtkIdType res = index;
   if (index == under || index < 0)
@@ -157,9 +154,8 @@ vtkIdType vtkAbstractContextItem::StackAbove(vtkIdType index,
     end = under + 1;
     res = end - 1;
   }
-  std::rotate(this->Children->begin() + start,
-              this->Children->begin() + middle,
-              this->Children->begin() + end);
+  std::rotate(this->Children->begin() + start, this->Children->begin() + middle,
+    this->Children->begin() + end);
   return res;
 }
 
@@ -170,38 +166,37 @@ vtkIdType vtkAbstractContextItem::Lower(vtkIdType index)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkAbstractContextItem::StackUnder(vtkIdType child,
-                                             vtkIdType above)
+vtkIdType vtkAbstractContextItem::StackUnder(vtkIdType child, vtkIdType above)
 {
   return this->StackAbove(child, above - 1);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
@@ -219,7 +214,7 @@ bool vtkAbstractContextItem::MouseDoubleClickEvent(const vtkContextMouseEvent&)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
+bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent&, int)
 {
   return false;
 }
@@ -237,14 +232,13 @@ bool vtkAbstractContextItem::KeyReleaseEvent(const vtkContextKeyEvent&)
 }
 
 // ----------------------------------------------------------------------------
-vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
-  const vtkContextMouseEvent &mouse)
+vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMouseEvent& mouse)
 {
   vtkContextMouseEvent childMouse = mouse;
   childMouse.SetPos(this->MapFromParent(mouse.GetPos()));
   childMouse.SetLastPos(this->MapFromParent(mouse.GetLastPos()));
-  for(vtkContextScenePrivate::const_reverse_iterator it =
-      this->Children->rbegin(); it != this->Children->rend(); ++it)
+  for (vtkContextScenePrivate::const_reverse_iterator it = this->Children->rbegin();
+       it != this->Children->rend(); ++it)
   {
     vtkAbstractContextItem* item = (*it)->GetPickedItem(childMouse);
     if (item)
@@ -258,8 +252,8 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
 // ----------------------------------------------------------------------------
 void vtkAbstractContextItem::ReleaseGraphicsResources()
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
+  for (vtkContextScenePrivate::const_iterator it = this->Children->begin();
+       it != this->Children->end(); ++it)
   {
     (*it)->ReleaseGraphicsResources();
   }
@@ -321,7 +315,7 @@ vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAbstractContextItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkAbstractContextItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

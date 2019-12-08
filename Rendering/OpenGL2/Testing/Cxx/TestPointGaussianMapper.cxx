@@ -27,27 +27,26 @@
 //
 // </verbatim>
 
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkLookupTable.h"
-#include "vtkProperty.h"
-#include "vtkPointGaussianMapper.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkRandomAttributeGenerator.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
+#include "vtkPointGaussianMapper.h"
+#include "vtkProperty.h"
+#include "vtkRandomAttributeGenerator.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTimerLog.h"
 
-#include "vtkPointSource.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkPointSource.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkPolyDataReader.h"
 
@@ -55,13 +54,13 @@
 //#define TestFile
 #define TestSplats
 
-int TestPointGaussianMapper(int argc, char *argv[])
+int TestPointGaussianMapper(int argc, char* argv[])
 {
   int desiredPoints = 1.0e4;
 
   vtkNew<vtkPointSource> points;
   points->SetNumberOfPoints(desiredPoints);
-  points->SetRadius(pow(desiredPoints,0.33)*20.0);
+  points->SetRadius(pow(desiredPoints, 0.33) * 20.0);
   points->Update();
 
   vtkNew<vtkRandomAttributeGenerator> randomAttr;
@@ -75,7 +74,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   renderWindow->SetSize(300, 300);
   renderWindow->SetMultiSamples(0);
   renderWindow->AddRenderer(renderer);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkActor> actor;
@@ -106,7 +105,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetScalefactor(0.0);
   mapper->EmissiveOff();
 
-  //actor->GetProperty()->SetPointSize(3.0);
+  // actor->GetProperty()->SetPointSize(3.0);
 #endif
 
 #ifdef TestSplats
@@ -134,8 +133,8 @@ int TestPointGaussianMapper(int argc, char *argv[])
   // mapper->SetLookupTable(lut);
 
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
-  ctf->AddHSVPoint(1.0,0.2,0.5,1.0);
+  ctf->AddHSVPoint(0.0, 0.1, 1.0, 0.8);
+  ctf->AddHSVPoint(1.0, 0.2, 0.5, 1.0);
   ctf->SetColorSpaceToRGB();
   mapper->SetLookupTable(ctf);
 #endif
@@ -160,20 +159,20 @@ int TestPointGaussianMapper(int argc, char *argv[])
 
   int numPts = mapper->GetInput()->GetPoints()->GetNumberOfPoints();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
-  cerr << "number of points: " <<  numPts << endl;
-  cerr << "points per second: " <<  numPts*(numRenders/elapsed) << endl;
+  cerr << "number of points: " << numPts << endl;
+  cerr << "points per second: " << numPts * (numRenders / elapsed) << endl;
 
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
   //  renderer->GetActiveCamera()->Print(cerr);
 
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

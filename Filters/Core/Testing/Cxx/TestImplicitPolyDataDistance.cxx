@@ -20,9 +20,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
@@ -32,8 +32,7 @@
 
 int TestImplicitPolyDataDistance(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CuspySurface.vtp");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CuspySurface.vtp");
   std::cout << fileName << std::endl;
 
   // Set up reader
@@ -47,10 +46,10 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   implicitDistance->SetInput(reader->GetOutput());
 
   // Test SetNoClosestPoint() and GetNoClosestPoint()
-  double noClosestPoint[3] = {1.0, 1.0, 1.0};
+  double noClosestPoint[3] = { 1.0, 1.0, 1.0 };
   implicitDistance->SetNoClosestPoint(noClosestPoint);
   implicitDistance->GetNoClosestPoint(noClosestPoint);
-  if(noClosestPoint[0] != 1.0 && noClosestPoint[1] != 1.0 && noClosestPoint[2] != 1.0)
+  if (noClosestPoint[0] != 1.0 && noClosestPoint[1] != 1.0 && noClosestPoint[2] != 1.0)
   {
     return EXIT_FAILURE;
   }
@@ -58,9 +57,9 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   // Compute distances to test points, saving those within the cuspy surface for display
   vtkNew<vtkPoints> insidePoints;
   vtkNew<vtkPoints> surfacePoints;
-  double xRange[2] = {-47.6, 46.9};
-  double yRange[2] = {-18.2, 82.1};
-  double zRange[2] = {1.63, 102};
+  double xRange[2] = { -47.6, 46.9 };
+  double yRange[2] = { -18.2, 82.1 };
+  double zRange[2] = { 1.63, 102 };
   const double spacing = 10.0;
   for (double z = zRange[0]; z < zRange[1]; z += spacing)
   {
@@ -68,7 +67,7 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
     {
       for (double x = xRange[0]; x < xRange[1]; x += spacing)
       {
-        double point[3] = {x, y, z};
+        double point[3] = { x, y, z };
         double surfacePoint[3];
         double distance = implicitDistance->EvaluateFunctionAndGetClosestPoint(point, surfacePoint);
         if (distance <= 0.0)
@@ -127,10 +126,8 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   surfaceActor->GetProperty()->FrontfaceCullingOn();
 
   // Standard rendering classes
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -143,9 +140,9 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
 
   // Standard testing code.
   renderer->SetBackground(0.0, 0.0, 0.0);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   renderer->ResetCamera();
   camera->Azimuth(30);
   camera->Elevation(-20);

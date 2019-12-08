@@ -26,16 +26,16 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
@@ -43,58 +43,56 @@
 
 int TestPathTracerLuminous(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->AutomaticLightCreationOff();
-  renderer->SetBackground(0.0,0.0,0.0);
+  renderer->SetBackground(0.0, 0.0, 0.0);
   renderer->UseShadowsOn();
   vtkOSPRayRendererNode::SetSamplesPerPixel(30, renderer);
   renWin->AddRenderer(renderer);
 
   vtkSmartPointer<vtkCamera> c = vtkSmartPointer<vtkCamera>::New();
-  c->SetPosition(0,0,80);
-  c->SetFocalPoint(0,0,0);
-  c->SetViewUp(0,1,0);
+  c->SetPosition(0, 0, 80);
+  c->SetFocalPoint(0, 0, 0);
+  c->SetViewUp(0, 1, 0);
   renderer->SetActiveCamera(c);
 
   vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
-  ss->SetCenter(11,1,20);
-  vtkSmartPointer<vtkPolyDataMapper> mapper=
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  ss->SetCenter(11, 1, 20);
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(ss->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor1=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor1 = vtkSmartPointer<vtkActor>::New();
   vtkSmartPointer<vtkProperty> prop = actor1->GetProperty();
-  prop->SetColor(1,1,0);
+  prop->SetColor(1, 1, 0);
   vtkOSPRayActorNode::SetLuminosity(200, prop);
   renderer->AddActor(actor1);
   actor1->SetMapper(mapper);
 
-  vtkSmartPointer<vtkPlaneSource> shadowee =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  shadowee->SetOrigin(-10,-10,0);
-  shadowee->SetPoint1(10,-10,0);
-  shadowee->SetPoint2(-10,10,0);
+  vtkSmartPointer<vtkPlaneSource> shadowee = vtkSmartPointer<vtkPlaneSource>::New();
+  shadowee->SetOrigin(-10, -10, 0);
+  shadowee->SetPoint1(10, -10, 0);
+  shadowee->SetPoint2(-10, 10, 0);
   mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(shadowee->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkPlaneSource> shadower =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  shadower->SetOrigin(-5,-5,10);
-  shadower->SetPoint1(5,-5,10);
-  shadower->SetPoint2(-5,5,10);
+  vtkSmartPointer<vtkPlaneSource> shadower = vtkSmartPointer<vtkPlaneSource>::New();
+  shadower->SetOrigin(-5, -5, 10);
+  shadower->SetPoint1(5, -5, 10);
+  shadower->SetPoint2(-5, 5, 10);
   mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(shadower->GetOutputPort());
   actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
   for (int i = 0; i < argc; ++i)
@@ -106,14 +104,13 @@ int TestPathTracerLuminous(int argc, char* argv[])
     }
   }
 
-  for (double i = 0.; i < 2.0; i+=0.25)
+  for (double i = 0.; i < 2.0; i += 0.25)
   {
-    vtkOSPRayActorNode::SetLuminosity(200+i*400, prop);
+    vtkOSPRayActorNode::SetLuminosity(200 + i * 400, prop);
     renWin->Render();
   }
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

@@ -28,15 +28,14 @@
 #include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 const double minpoint1[] = { -1.00002, -0.50002, -0.50002 };
 const double maxpoint1[] = { -0.0511337, 0.5, 0.5 };
@@ -55,48 +54,33 @@ const double plusy[] = { 0.0, 1.0, 0.0 };
 const double plusz[] = { 0.0, 0.0, 1.0 };
 
 const int numTriangles = 6;
-const int numTrianglePoints = numTriangles*3*3;
-static double trianglePointData[numTrianglePoints] = {
-  -4.0, -1.0, 0.0,
-  -2.0, -1.0, 0.0,
-  -3.0, -0.5, 0.0,
+const int numTrianglePoints = numTriangles * 3 * 3;
+static double trianglePointData[numTrianglePoints] = { -4.0, -1.0, 0.0, -2.0, -1.0, 0.0, -3.0, -0.5,
+  0.0,
 
-  -2.0, -1.0, 0.0,
-  -1.0e-17, -1.0, 0.0,
-  -1.0, -0.5, 0.0,
+  -2.0, -1.0, 0.0, -1.0e-17, -1.0, 0.0, -1.0, -0.5, 0.0,
 
-  -3.0, 0.25, 0.0,
-  -4.0, -0.25, 0.0,
-  -2.0, -0.25, 0.0,
+  -3.0, 0.25, 0.0, -4.0, -0.25, 0.0, -2.0, -0.25, 0.0,
 
-  -1.0, 0.25, 0.0,
-  -2.0, -0.25, 0.0,
-  1.0e-17, -0.25, 0.0,
+  -1.0, 0.25, 0.0, -2.0, -0.25, 0.0, 1.0e-17, -0.25, 0.0,
 
-  -2.0, 0.5, 0.0,
-  -3.0, 1.0, 0.0,
-  -4.0, 0.5, 0.0,
+  -2.0, 0.5, 0.0, -3.0, 1.0, 0.0, -4.0, 0.5, 0.0,
 
-  1.0e-17, 0.5, 0.0,
-  -1.0, 1.0, 0.0,
-  -2.0, 0.5, 0.0
-};
+  1.0e-17, 0.5, 0.0, -1.0, 1.0, 0.0, -2.0, 0.5, 0.0 };
 
 //-----------------------------------------------------------------------------
 
 const int numPolySets = 5;
 
-static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
-                         const double minBoxPoint[3],
-                         const double maxBoxPoint[3])
+static void TestPolyData(vtkPolyData* data, int num, vtkRenderWindow* renwin,
+  const double minBoxPoint[3], const double maxBoxPoint[3])
 {
   // Set up test of normal box.
   VTK_CREATE(vtkBoxClipDataSet, clipper1);
   clipper1->SetInputData(data);
   clipper1->GenerateClippedOutputOff();
-  clipper1->SetBoxClip(minBoxPoint[0], maxBoxPoint[0],
-                       minBoxPoint[1], maxBoxPoint[1],
-                       minBoxPoint[2], maxBoxPoint[2]);
+  clipper1->SetBoxClip(
+    minBoxPoint[0], maxBoxPoint[0], minBoxPoint[1], maxBoxPoint[1], minBoxPoint[2], maxBoxPoint[2]);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface1);
   surface1->SetInputConnection(0, clipper1->GetOutputPort(0));
@@ -111,17 +95,16 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer1);
   renderer1->AddActor(actor1);
   renderer1->SetBackground(0.0, 0.5, 0.5);
-  renderer1->SetViewport(static_cast<double>(num)/numPolySets, 0.75,
-                         static_cast<double>(num+1)/numPolySets, 1.0);
+  renderer1->SetViewport(
+    static_cast<double>(num) / numPolySets, 0.75, static_cast<double>(num + 1) / numPolySets, 1.0);
   renwin->AddRenderer(renderer1);
 
   // Set up test of normal box with generation of clipped output.
   VTK_CREATE(vtkBoxClipDataSet, clipper2);
   clipper2->SetInputData(data);
   clipper2->GenerateClippedOutputOn();
-  clipper2->SetBoxClip(minBoxPoint[0], maxBoxPoint[0],
-                       minBoxPoint[1], maxBoxPoint[1],
-                       minBoxPoint[2], maxBoxPoint[2]);
+  clipper2->SetBoxClip(
+    minBoxPoint[0], maxBoxPoint[0], minBoxPoint[1], maxBoxPoint[1], minBoxPoint[2], maxBoxPoint[2]);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface2_1);
   surface2_1->SetInputConnection(0, clipper2->GetOutputPort(0));
@@ -148,20 +131,16 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer2->AddActor(actor2_1);
   renderer2->AddActor(actor2_2);
   renderer2->SetBackground(0.0, 0.5, 0.5);
-  renderer2->SetViewport(static_cast<double>(num)/numPolySets, 0.5,
-                         static_cast<double>(num+1)/numPolySets, 0.75);
+  renderer2->SetViewport(
+    static_cast<double>(num) / numPolySets, 0.5, static_cast<double>(num + 1) / numPolySets, 0.75);
   renwin->AddRenderer(renderer2);
 
   // Set up test of an oriented box.
   VTK_CREATE(vtkBoxClipDataSet, clipper3);
   clipper3->SetInputData(data);
   clipper3->GenerateClippedOutputOff();
-  clipper3->SetBoxClip(minusx, minBoxPoint,
-                       minusy, minBoxPoint,
-                       minusz, minBoxPoint,
-                       plusx, maxBoxPoint,
-                       plusy, maxBoxPoint,
-                       plusz, maxBoxPoint);
+  clipper3->SetBoxClip(minusx, minBoxPoint, minusy, minBoxPoint, minusz, minBoxPoint, plusx,
+    maxBoxPoint, plusy, maxBoxPoint, plusz, maxBoxPoint);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface3);
   surface3->SetInputConnection(0, clipper3->GetOutputPort(0));
@@ -176,20 +155,16 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer3);
   renderer3->AddActor(actor3);
   renderer3->SetBackground(0.0, 0.5, 0.5);
-  renderer3->SetViewport(static_cast<double>(num)/numPolySets, 0.25,
-                         static_cast<double>(num+1)/numPolySets, 0.5);
+  renderer3->SetViewport(
+    static_cast<double>(num) / numPolySets, 0.25, static_cast<double>(num + 1) / numPolySets, 0.5);
   renwin->AddRenderer(renderer3);
 
   // Set up test of an oriented box with generation of clipped output.
   VTK_CREATE(vtkBoxClipDataSet, clipper4);
   clipper4->SetInputData(data);
   clipper4->GenerateClippedOutputOn();
-  clipper4->SetBoxClip(minusx, minBoxPoint,
-                       minusy, minBoxPoint,
-                       minusz, minBoxPoint,
-                       plusx, maxBoxPoint,
-                       plusy, maxBoxPoint,
-                       plusz, maxBoxPoint);
+  clipper4->SetBoxClip(minusx, minBoxPoint, minusy, minBoxPoint, minusz, minBoxPoint, plusx,
+    maxBoxPoint, plusy, maxBoxPoint, plusz, maxBoxPoint);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface4_1);
   surface4_1->SetInputConnection(0, clipper4->GetOutputPort(0));
@@ -216,14 +191,14 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer4->AddActor(actor4_1);
   renderer4->AddActor(actor4_2);
   renderer4->SetBackground(0.0, 0.5, 0.5);
-  renderer4->SetViewport(static_cast<double>(num)/numPolySets, 0.0,
-                         static_cast<double>(num+1)/numPolySets, 0.25);
+  renderer4->SetViewport(
+    static_cast<double>(num) / numPolySets, 0.0, static_cast<double>(num + 1) / numPolySets, 0.25);
   renwin->AddRenderer(renderer4);
 }
 
 //-----------------------------------------------------------------------------
 
-int BoxClipPolyData(int, char *[])
+int BoxClipPolyData(int, char*[])
 {
   vtkIdType i;
 
@@ -244,7 +219,7 @@ int BoxClipPolyData(int, char *[])
   VTK_CREATE(vtkDoubleArray, trianglePointsArray);
   trianglePointsArray->SetArray(trianglePointData, numTrianglePoints, 1);
   trianglePointsArray->SetNumberOfComponents(3);
-  trianglePointsArray->SetNumberOfTuples(numTriangles*3);
+  trianglePointsArray->SetNumberOfTuples(numTriangles * 3);
 
   VTK_CREATE(vtkPoints, trianglePoints);
   trianglePoints->SetData(trianglePointsArray);
@@ -255,14 +230,16 @@ int BoxClipPolyData(int, char *[])
   triangleNormals->SetNumberOfTuples(numTriangles);
 
   VTK_CREATE(vtkCellArray, triangleCells);
-  triangleCells->Allocate(numTriangles*4);
+  triangleCells->AllocateEstimate(numTriangles, 3);
 
   for (i = 0; i < numTriangles; i++)
   {
     triangleNormals->SetTuple3(i, 0.0, 0.0, 1.0);
 
     vtkIdType pts[3];
-    pts[0] = i*3+0;  pts[1] = i*3+1;  pts[2] = i*3+2;
+    pts[0] = i * 3 + 0;
+    pts[1] = i * 3 + 1;
+    pts[2] = i * 3 + 2;
     triangleCells->InsertNextCell(3, pts);
   }
 
@@ -293,11 +270,11 @@ int BoxClipPolyData(int, char *[])
 
   // Test verts.
   VTK_CREATE(vtkPolyData, verts);
-  vtkPoints *vertsPoints = sphereNoNormals->GetPoints();
+  vtkPoints* vertsPoints = sphereNoNormals->GetPoints();
   verts->SetPoints(vertsPoints);
 
   VTK_CREATE(vtkCellArray, vertsCells);
-  vertsCells->Allocate(2*vertsPoints->GetNumberOfPoints());
+  vertsCells->AllocateEstimate(vertsPoints->GetNumberOfPoints(), 1);
   for (i = 0; i < vertsPoints->GetNumberOfPoints(); i++)
   {
     vertsCells->InsertNextCell(1, &i);

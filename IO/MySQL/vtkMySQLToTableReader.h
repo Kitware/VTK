@@ -18,33 +18,31 @@
  *
  * vtkMySQLToTableReader reads a table from a MySQL database and
  * outputs it as a vtkTable.
-*/
+ */
 
 #ifndef vtkMySQLToTableReader_h
 #define vtkMySQLToTableReader_h
 
-#include "vtkIOMySQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
+#include "vtkIOMySQLModule.h" // For export macro
 
 class vtkMySQLDatabase;
 
-class VTKIOMYSQL_EXPORT vtkMySQLToTableReader :
-  public vtkDatabaseToTableReader
+class VTKIOMYSQL_EXPORT vtkMySQLToTableReader : public vtkDatabaseToTableReader
 {
 public:
-  static vtkMySQLToTableReader *New();
-  vtkTypeMacro(vtkMySQLToTableReader,vtkDatabaseToTableReader);
+  static vtkMySQLToTableReader* New();
+  vtkTypeMacro(vtkMySQLToTableReader, vtkDatabaseToTableReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-   vtkMySQLToTableReader();
+  vtkMySQLToTableReader();
   ~vtkMySQLToTableReader();
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkMySQLToTableReader(const vtkMySQLToTableReader&) = delete;
   void operator=(const vtkMySQLToTableReader&) = delete;
-
 };
 
 #endif

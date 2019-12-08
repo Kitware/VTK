@@ -26,13 +26,13 @@
  * position (tuple id or number) within the cell or point array.
  * @sa
  * vtkSelection vtkExtractSelection
-*/
+ */
 
 #ifndef vtkExtractSelectedIds_h
 #define vtkExtractSelectedIds_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;
@@ -40,7 +40,7 @@ class vtkSelectionNode;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
 {
 public:
-  static vtkExtractSelectedIds *New();
+  static vtkExtractSelectedIds* New();
   vtkTypeMacro(vtkExtractSelectedIds, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,15 +52,10 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-
-  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
-                   vtkDataSet *output);
-  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
-                    vtkDataSet *output);
+  int ExtractCells(vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output);
+  int ExtractPoints(vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output);
 
 private:
   vtkExtractSelectedIds(const vtkExtractSelectedIds&) = delete;

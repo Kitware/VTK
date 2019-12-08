@@ -22,24 +22,24 @@
  * and mappers rely on the modelview/projection matrices from vtkCamera. This
  * class is a layer between the two that updates the camera with the current
  * OpenGL state.
-*/
+ */
 
 #ifndef vtkOpenGLPropItem_h
 #define vtkOpenGLPropItem_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
-#include "vtkPropItem.h"
 #include "vtkNew.h" // for vtkNew
+#include "vtkPropItem.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
 class vtkCamera;
 
-class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem: public vtkPropItem
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem : public vtkPropItem
 {
 public:
-  static vtkOpenGLPropItem *New();
-  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem)
+  static vtkOpenGLPropItem* New();
+  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem);
 
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 protected:
   vtkOpenGLPropItem();
@@ -53,10 +53,10 @@ protected:
 
 private:
   vtkNew<vtkCamera> CameraCache;
-  vtkContext2D *Painter;
+  vtkContext2D* Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &) = delete;
-  void operator=(const vtkOpenGLPropItem &) = delete;
+  vtkOpenGLPropItem(const vtkOpenGLPropItem&) = delete;
+  void operator=(const vtkOpenGLPropItem&) = delete;
 };
 
-#endif //vtkOpenGLPropItem_h
+#endif // vtkOpenGLPropItem_h

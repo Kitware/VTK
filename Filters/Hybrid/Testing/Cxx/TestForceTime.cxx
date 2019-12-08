@@ -24,44 +24,41 @@
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkRTAnalyticSource.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkUnstructuredGrid.h>
 
 class vtkTimeRTAnalyticSource : public vtkRTAnalyticSource
 {
 public:
-  static vtkTimeRTAnalyticSource *New();
+  static vtkTimeRTAnalyticSource* New();
   vtkTypeMacro(vtkTimeRTAnalyticSource, vtkRTAnalyticSource);
 
 protected:
   vtkTimeRTAnalyticSource() = default;
 
-  int RequestInformation(vtkInformation * request,
-                         vtkInformationVector **inputVector,
-                         vtkInformationVector *outputVector) override
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override
   {
     // get the info objects
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    double range[2] = {0, 5};
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                 range, 2);
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    double range[2] = { 0, 5 };
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
 
-    double outTimes[6] = {0, 1, 2, 3, 4, 5};
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 outTimes, 6);
+    double outTimes[6] = { 0, 1, 2, 3, 4, 5 };
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes, 6);
     vtkRTAnalyticSource::RequestInformation(request, inputVector, outputVector);
     return 1;
   }
 
-  void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) override
+  void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo) override
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 
     // Split the update extent further based on piece request.
-    vtkImageData *data = vtkImageData::GetData(outInfo);
+    vtkImageData* data = vtkImageData::GetData(outInfo);
     int* outExt = data->GetExtent();
 
     // find the region to loop over
@@ -109,12 +106,13 @@ int TestForceTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   forceTime->IgnorePipelineTimeOn();
 
   forceTime->UpdateInformation();
-  forceTime->GetOutputInformation(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 2);
+  forceTime->GetOutputInformation(0)->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 2);
   forceTime->Update();
 
   if (vtkUnstructuredGrid::SafeDownCast(forceTime->GetOutput(0))
-      ->GetPointData()->GetScalars()->GetTuple1(0) != 1)
+        ->GetPointData()
+        ->GetScalars()
+        ->GetTuple1(0) != 1)
   {
     std::cerr << "Incorrect data in force time output" << std::endl;
     return EXIT_FAILURE;

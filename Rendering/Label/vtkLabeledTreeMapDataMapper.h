@@ -39,13 +39,13 @@
  * @par Thanks:
  * Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
  * Sandia National Laboratories for their help in developing this class.
-*/
+ */
 
 #ifndef vtkLabeledTreeMapDataMapper_h
 #define vtkLabeledTreeMapDataMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkTree;
 class vtkPoints;
@@ -57,8 +57,8 @@ class vtkIdList;
 class VTKRENDERINGLABEL_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
 {
 public:
-  static vtkLabeledTreeMapDataMapper *New();
-  vtkTypeMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
+  static vtkLabeledTreeMapDataMapper* New();
+  vtkTypeMacro(vtkLabeledTreeMapDataMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -66,13 +66,13 @@ public:
    * Draw the text to the screen at each input point.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
   //@}
 
   /**
    * The input to this filter.
    */
-  virtual vtkTree *GetInputTree();
+  virtual vtkTree* GetInputTree();
 
   /**
    * The name of the 4-tuple array used for
@@ -108,13 +108,13 @@ public:
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
    * The range of font sizes to use when rendering the labels.
    */
-  void SetFontSizeRange(int maxSize, int minSize, int delta=4);
+  void SetFontSizeRange(int maxSize, int minSize, int delta = 4);
   void GetFontSizeRange(int range[3]);
   //@}
 
@@ -131,49 +131,45 @@ public:
 protected:
   vtkLabeledTreeMapDataMapper();
   ~vtkLabeledTreeMapDataMapper() override;
-  void LabelTree(vtkTree *tree, vtkFloatArray *boxInfo,
-                 vtkDataArray *numericData, vtkStringArray *stringData,
-                 int activeComp, int numComps);
-  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData,
-                      vtkStringArray *stringData, int activeComp, int numComps,
-                      char *string, size_t stringSize);
+  void LabelTree(vtkTree* tree, vtkFloatArray* boxInfo, vtkDataArray* numericData,
+    vtkStringArray* stringData, int activeComp, int numComps);
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData, vtkStringArray* stringData,
+    int activeComp, int numComps, char* string, size_t stringSize);
   void UpdateFontSizes();
-  int UpdateWindowInfo(vtkViewport *viewport);
-  int GetStringSize(char *string, int level);
+  int UpdateWindowInfo(vtkViewport* viewport);
+  int GetStringSize(char* string, int level);
   // Returns 1 if the transformed box is off screen
-  int ConvertToDC(float *origBoxInfo, float *newBoxInfo);
+  int ConvertToDC(float* origBoxInfo, float* newBoxInfo);
   // Returns 1 if the label will not fit in box - 2 if the text could
   // not be placed due to other labels
-  int AnalyseLabel(char * string, int level, float *blimitsDC,
-                   float *textPosWC,
-                   vtkTextProperty **tprop);
+  int AnalyseLabel(
+    char* string, int level, float* blimitsDC, float* textPosWC, vtkTextProperty** tprop);
   int ApplyMasks(int level, float flimits[4], float blimits[4]);
-  vtkViewport *CurrentViewPort;
-  int *FontHeights;
-  int **FontWidths;
+  vtkViewport* CurrentViewPort;
+  int* FontHeights;
+  int** FontWidths;
   int MaxFontLevel;
-  int *ChildrenCount;
+  int* ChildrenCount;
   int MaxTreeLevels;
   double BoxTrans[2][2];
   double WindowLimits[2][2];
 
   float (*LabelMasks)[4];
 
-  vtkIdList *VertexList;
-  vtkPoints *TextPoints;
-  vtkCoordinate *VCoord;
+  vtkIdList* VertexList;
+  vtkPoints* TextPoints;
+  vtkCoordinate* VCoord;
   int ClipTextMode;
   int ChildMotion;
   int StartLevel;
   int EndLevel;
   int DynamicLevel;
-  vtkTextProperty *VerticalLabelProperty;
-  vtkTextProperty **HLabelProperties;
+  vtkTextProperty* VerticalLabelProperty;
+  vtkTextProperty** HLabelProperties;
 
 private:
   vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&) = delete;
   void operator=(const vtkLabeledTreeMapDataMapper&) = delete;
 };
-
 
 #endif

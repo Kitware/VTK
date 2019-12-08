@@ -19,13 +19,13 @@
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Collection.h"
 #include "vtkJPEGReader.h"
+#include "vtkMetaImageReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkPNGReader.h"
 #include "vtkPNMReader.h"
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
-#include "vtkMetaImageReader.h"
 
 // Destroying the prototype readers requires information keys.
 // Include the manager here to make sure the keys are not destroyed
@@ -37,12 +37,10 @@ vtkStandardNewMacro(vtkImageReader2Factory);
 class vtkImageReader2FactoryCleanup
 {
 public:
-  inline void Use()
-  {
-  }
+  inline void Use() {}
   ~vtkImageReader2FactoryCleanup()
   {
-    if(vtkImageReader2Factory::AvailableReaders)
+    if (vtkImageReader2Factory::AvailableReaders)
     {
       vtkImageReader2Factory::AvailableReaders->Delete();
       vtkImageReader2Factory::AvailableReaders = nullptr;
@@ -57,7 +55,7 @@ void vtkImageReader2Factory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Available Readers : ";
-  if(AvailableReaders)
+  if (AvailableReaders)
   {
     AvailableReaders->PrintSelf(os, indent);
   }
@@ -77,23 +75,21 @@ void vtkImageReader2Factory::RegisterReader(vtkImageReader2* r)
   AvailableReaders->AddItem(r);
 }
 
-
 vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
 {
   vtkImageReader2Factory::InitializeReaders();
   vtkImageReader2* ret;
   vtkCollection* collection = vtkCollection::New();
-  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject",
-                                      collection);
+  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject", collection);
   vtkObject* o;
   // first try the current registered object factories to see
   // if one of them can
-  for(collection->InitTraversal(); (o = collection->GetNextItemAsObject()); )
+  for (collection->InitTraversal(); (o = collection->GetNextItemAsObject());)
   {
-    if(o)
+    if (o)
     {
       ret = vtkImageReader2::SafeDownCast(o);
-      if(ret && ret->CanReadFile(path))
+      if (ret && ret->CanReadFile(path))
       {
         return ret;
       }
@@ -102,10 +98,10 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
   // get rid of the collection
   collection->Delete();
   vtkCollectionSimpleIterator sit;
-  for(vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
-      (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
+  for (vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
+       (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
   {
-    if(ret->CanReadFile(path))
+    if (ret->CanReadFile(path))
     {
       // like a new call
       return ret->NewInstance();
@@ -114,10 +110,9 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
   return nullptr;
 }
 
-
 void vtkImageReader2Factory::InitializeReaders()
 {
-  if(vtkImageReader2Factory::AvailableReaders)
+  if (vtkImageReader2Factory::AvailableReaders)
   {
     return;
   }
@@ -125,29 +120,21 @@ void vtkImageReader2Factory::InitializeReaders()
   vtkImageReader2Factory::AvailableReaders = vtkImageReader2Collection::New();
   vtkImageReader2* reader;
 
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkPNGReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkPNGReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkPNMReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkPNMReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkTIFFReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkTIFFReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkBMPReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkBMPReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkSLCReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkSLCReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkJPEGReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkJPEGReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkGESignaReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkGESignaReader::New()));
   reader->Delete();
-  vtkImageReader2Factory::AvailableReaders->
-    AddItem((reader = vtkMetaImageReader::New()));
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkMetaImageReader::New()));
   reader->Delete();
 }
 
@@ -155,16 +142,13 @@ void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* col
 {
   vtkImageReader2Factory::InitializeReaders();
   // get all dynamic readers
-  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject",
-                                      collection);
+  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject", collection);
   // get the current registered readers
   vtkImageReader2* ret;
   vtkCollectionSimpleIterator sit;
-  for(vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
-      (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
+  for (vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
+       (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
   {
     collection->AddItem(ret);
   }
 }
-
-

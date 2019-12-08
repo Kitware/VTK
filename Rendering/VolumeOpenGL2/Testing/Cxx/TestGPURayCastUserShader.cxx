@@ -31,18 +31,17 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkShaderProperty.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkShaderProperty.h"
 
 int TestGPURayCastUserShader(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Load data
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
   vtkNew<vtkNrrdReader> reader;
   reader->SetFileName(fname);
   reader->Update();
@@ -80,24 +79,19 @@ int TestGPURayCastUserShader(int argc, char* argv[])
   vtkNew<vtkShaderProperty> shaderProperty;
 
   // Modify the shader to color based on the depth of the translucent voxel
-  shaderProperty->AddFragmentShaderReplacement(
-    "//VTK::Base::Dec",     // Source string to replace
-    true,                   // before the standard replacements
-    "//VTK::Base::Dec"      // We still want the default
+  shaderProperty->AddFragmentShaderReplacement("//VTK::Base::Dec", // Source string to replace
+    true,              // before the standard replacements
+    "//VTK::Base::Dec" // We still want the default
     "\n bool l_updateDepth;"
     "\n vec3 l_opaqueFragPos;",
-    false                   // only do it once i.e. only replace the first match
+    false // only do it once i.e. only replace the first match
   );
-  shaderProperty->AddFragmentShaderReplacement(
-    "//VTK::Base::Init",
-    true,
+  shaderProperty->AddFragmentShaderReplacement("//VTK::Base::Init", true,
     "//VTK::Base::Init\n"
     "\n l_updateDepth = true;"
     "\n l_opaqueFragPos = vec3(0.0);",
     false);
-  shaderProperty->AddFragmentShaderReplacement(
-    "//VTK::Base::Impl",
-    true,
+  shaderProperty->AddFragmentShaderReplacement("//VTK::Base::Impl", true,
     "//VTK::Base::Impl"
     "\n    if(!g_skip && g_srcColor.a > 0.0 && l_updateDepth)"
     "\n      {"
@@ -105,9 +99,7 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n      l_updateDepth = false;"
     "\n      }",
     false);
-  shaderProperty->AddFragmentShaderReplacement(
-    "//VTK::RenderToImage::Exit",
-    true,
+  shaderProperty->AddFragmentShaderReplacement("//VTK::RenderToImage::Exit", true,
     "//VTK::RenderToImage::Exit"
     "\n  if (l_opaqueFragPos == vec3(0.0))"
     "\n    {"
@@ -125,13 +117,9 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n    }",
     false);
   shaderProperty->AddFragmentShaderReplacement( // add dummy replacement
-    "//VTK::ComputeGradient::Dec",
-    true,
-    "VTK::ComputeGradient::Dec",
-    false);
+    "//VTK::ComputeGradient::Dec", true, "VTK::ComputeGradient::Dec", false);
   shaderProperty->ClearFragmentShaderReplacement( // clear dummy replacement
-    "//VTK::ComputeGradient::Dec",
-    true);
+    "//VTK::ComputeGradient::Dec", true);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());

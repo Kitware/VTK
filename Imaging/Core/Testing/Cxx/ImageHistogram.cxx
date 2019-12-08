@@ -17,22 +17,22 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkNew.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageHistogram.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkNew.h"
 #include "vtkPNGReader.h"
-#include "vtkImageHistogram.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 
-int ImageHistogram(int argc, char *argv[])
+int ImageHistogram(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyle> style;
@@ -42,8 +42,7 @@ int ImageHistogram(int argc, char *argv[])
 
   vtkNew<vtkPNGReader> reader;
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/fullhead15.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
 
   reader->SetFileName(fname);
   delete[] fname;
@@ -51,7 +50,7 @@ int ImageHistogram(int argc, char *argv[])
   vtkNew<vtkImageHistogram> histogram;
   histogram->SetInputConnection(reader->GetOutputPort());
   histogram->GenerateHistogramImageOn();
-  histogram->SetHistogramImageSize(256,256);
+  histogram->SetHistogramImageSize(256, 256);
   histogram->SetHistogramImageScaleToSqrt();
   histogram->AutomaticBinningOn();
   histogram->Update();
@@ -59,15 +58,14 @@ int ImageHistogram(int argc, char *argv[])
   vtkIdType nbins = histogram->GetNumberOfBins();
   double range[2];
   range[0] = histogram->GetBinOrigin();
-  range[1] = range[0] + (nbins - 1)*histogram->GetBinSpacing();
+  range[1] = range[0] + (nbins - 1) * histogram->GetBinSpacing();
 
   for (int i = 0; i < 2; i++)
   {
     vtkNew<vtkRenderer> renderer;
-    vtkCamera *camera = renderer->GetActiveCamera();
-    renderer->SetBackground(0.0,0.0,0.0);
-    renderer->SetViewport(0.5*(i&1), 0.0,
-                          0.5 + 0.5*(i&1), 1.0);
+    vtkCamera* camera = renderer->GetActiveCamera();
+    renderer->SetBackground(0.0, 0.0, 0.0);
+    renderer->SetViewport(0.5 * (i & 1), 0.0, 0.5 + 0.5 * (i & 1), 1.0);
     renWin->AddRenderer(renderer);
 
     vtkNew<vtkImageSliceMapper> imageMapper;
@@ -81,11 +79,11 @@ int ImageHistogram(int argc, char *argv[])
       imageMapper->BorderOn();
     }
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     camera->SetFocalPoint(point);
     point[imageMapper->GetOrientation()] += 500.0;
@@ -102,7 +100,7 @@ int ImageHistogram(int argc, char *argv[])
     if ((i & 1) == 0)
     {
       image->GetProperty()->SetColorWindow(range[1] - range[0]);
-      image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
+      image->GetProperty()->SetColorLevel(0.5 * (range[0] + range[1]));
     }
     else
     {
@@ -112,7 +110,7 @@ int ImageHistogram(int argc, char *argv[])
     }
   }
 
-  renWin->SetSize(512,256);
+  renWin->SetSize(512, 256);
 
   iren->Initialize();
   renWin->Render();

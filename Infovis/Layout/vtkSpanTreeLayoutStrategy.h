@@ -13,9 +13,9 @@
 
 =========================================================================*/
 //-------------------------------------------------------------------------
-//Copyright 2008 Sandia Corporation.
-//Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-//the U.S. Government retains certain rights in this software.
+// Copyright 2008 Sandia Corporation.
+// Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+// the U.S. Government retains certain rights in this software.
 //-------------------------------------------------------------------------
 
 /**
@@ -57,18 +57,18 @@
  * @par Thanks:
  * Thanks to David Duke from the University of Leeds for providing this
  * implementation.
-*/
+ */
 
 #ifndef vtkSpanTreeLayoutStrategy_h
 #define vtkSpanTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkSpanTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkSpanTreeLayoutStrategy *New();
+  static vtkSpanTreeLayoutStrategy* New();
 
   vtkTypeMacro(vtkSpanTreeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -95,7 +95,7 @@ protected:
   vtkSpanTreeLayoutStrategy();
   ~vtkSpanTreeLayoutStrategy() override;
 
-  vtkGraphLayoutStrategy *TreeLayout;
+  vtkGraphLayoutStrategy* TreeLayout;
   bool DepthFirstSpanningTree;
 
 private:
@@ -104,4 +104,3 @@ private:
 };
 
 #endif
-

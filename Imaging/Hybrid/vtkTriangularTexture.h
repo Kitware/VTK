@@ -26,48 +26,48 @@
  *
  * @sa
  * vtkTriangularTCoords
-*/
+ */
 
 #ifndef vtkTriangularTexture_h
 #define vtkTriangularTexture_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class VTKIMAGINGHYBRID_EXPORT vtkTriangularTexture : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTriangularTexture,vtkImageAlgorithm);
+  vtkTypeMacro(vtkTriangularTexture, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with XSize and YSize = 64; the texture pattern =1
    * (opaque at centroid); and the scale factor set to 1.0.
    */
-  static vtkTriangularTexture *New();
+  static vtkTriangularTexture* New();
 
   //@{
   /**
    * Set a Scale Factor.
    */
-  vtkSetMacro(ScaleFactor,double);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
   //@}
 
   //@{
   /**
    * Set the X texture map dimension. Default is 64.
    */
-  vtkSetMacro(XSize,int);
-  vtkGetMacro(XSize,int);
+  vtkSetMacro(XSize, int);
+  vtkGetMacro(XSize, int);
   //@}
 
   //@{
   /**
    * Set the Y texture map dimension. Default is 64.
    */
-  vtkSetMacro(YSize,int);
-  vtkGetMacro(YSize,int);
+  vtkSetMacro(YSize, int);
+  vtkGetMacro(YSize, int);
   //@}
 
   //@{
@@ -77,27 +77,26 @@ public:
    * 2 = opaque at vertices
    * 3 = opaque in rings around vertices
    */
-  vtkSetClampMacro(TexturePattern,int,1,3);
-  vtkGetMacro(TexturePattern,int);
+  vtkSetClampMacro(TexturePattern, int, 1, 3);
+  vtkGetMacro(TexturePattern, int);
   //@}
 
 protected:
   vtkTriangularTexture();
   ~vtkTriangularTexture() override {}
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
 
   int XSize;
   int YSize;
   double ScaleFactor;
 
   int TexturePattern;
+
 private:
   vtkTriangularTexture(const vtkTriangularTexture&) = delete;
   void operator=(const vtkTriangularTexture&) = delete;
 };
 
 #endif
-
-

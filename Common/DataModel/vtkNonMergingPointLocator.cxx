@@ -14,21 +14,20 @@
 =========================================================================*/
 #include "vtkNonMergingPointLocator.h"
 
-#include "vtkPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
-vtkStandardNewMacro( vtkNonMergingPointLocator );
+vtkStandardNewMacro(vtkNonMergingPointLocator);
 
 //----------------------------------------------------------------------------
-int vtkNonMergingPointLocator::InsertUniquePoint
-  ( const double x[3], vtkIdType & ptId )
+int vtkNonMergingPointLocator::InsertUniquePoint(const double x[3], vtkIdType& ptId)
 {
-  ptId = this->Points->InsertNextPoint( x );
+  ptId = this->Points->InsertNextPoint(x);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkNonMergingPointLocator::PrintSelf( ostream & os, vtkIndent indent )
+void vtkNonMergingPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os,indent );
+  this->Superclass::PrintSelf(os, indent);
 }

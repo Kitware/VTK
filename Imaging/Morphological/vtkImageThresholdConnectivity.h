@@ -28,23 +28,22 @@
  * vtkImageThreshold
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkImageThresholdConnectivity_h
 #define vtkImageThresholdConnectivity_h
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkPoints;
 class vtkImageData;
 class vtkImageStencilData;
 
-class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageThresholdConnectivity :
-  public vtkImageAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageThresholdConnectivity : public vtkImageAlgorithm
 {
 public:
-  static vtkImageThresholdConnectivity *New();
+  static vtkImageThresholdConnectivity* New();
   vtkTypeMacro(vtkImageThresholdConnectivity, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,7 +52,7 @@ public:
    * Set the seeds.  The seeds are in real data coordinates, not in
    * voxel index locations.
    */
-  void SetSeedPoints(vtkPoints *points);
+  void SetSeedPoints(vtkPoints* points);
   vtkGetObjectMacro(SeedPoints, vtkPoints);
   //@}
 
@@ -132,8 +131,8 @@ public:
    * Specify a stencil that will be used to limit the flood fill to
    * an arbitrarily-shaped region of the image.
    */
-  virtual void SetStencilData(vtkImageStencilData *stencil);
-  vtkImageStencilData *GetStencil();
+  virtual void SetStencilData(vtkImageStencilData* stencil);
+  vtkImageStencilData* GetStencil();
   //@}
 
   //@{
@@ -141,8 +140,8 @@ public:
    * For multi-component images, you can set which component will be
    * used for the threshold checks.
    */
-  vtkSetMacro(ActiveComponent,int);
-  vtkGetMacro(ActiveComponent,int);
+  vtkSetMacro(ActiveComponent, int);
+  vtkGetMacro(ActiveComponent, int);
   //@}
 
   //@{
@@ -192,7 +191,7 @@ protected:
   double NeighborhoodRadius[3];
   double NeighborhoodFraction;
 
-  vtkPoints *SeedPoints;
+  vtkPoints* SeedPoints;
 
   int SliceRangeX[2];
   int SliceRangeY[2];
@@ -202,15 +201,13 @@ protected:
 
   int ActiveComponent;
 
-  vtkImageData *ImageMask;
+  vtkImageData* ImageMask;
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&) = delete;

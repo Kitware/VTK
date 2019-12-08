@@ -35,65 +35,65 @@
 
 double exponential_distribution(const int i, const double beta)
 {
-  double xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
-  return( xi );
+  double xi = ((exp(i * beta) - 1) / (exp(beta) - 1));
+  return (xi);
 }
 
 //------------------------------------------------------------------------------
 void WriteGrid(vtkRectilinearGrid* grid, const std::string& file)
 {
-  assert( "pre: input grid instance is nullptr!" && (grid != nullptr) );
+  assert("pre: input grid instance is nullptr!" && (grid != nullptr));
 
   std::ostringstream oss;
   oss << file << ".vtk";
 
   vtkRectilinearGridWriter* writer = vtkRectilinearGridWriter::New();
-  writer->SetFileName( oss.str().c_str() );
-  writer->SetInputData( grid );
+  writer->SetFileName(oss.str().c_str());
+  writer->SetInputData(grid);
   writer->Write();
   writer->Delete();
 }
 
 //------------------------------------------------------------------------------
-int CheckGrid( vtkRectilinearGrid* grid )
+int CheckGrid(vtkRectilinearGrid* grid)
 {
   int rc = 0;
 
   vtkPointData* PD = grid->GetPointData();
-  if( !PD->HasArray("xyz") )
+  if (!PD->HasArray("xyz"))
   {
     ++rc;
-    return( rc );
+    return (rc);
   }
 
   vtkDoubleArray* xyz_data = vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("xyz"));
-  double* xyz = static_cast<double*>( xyz_data->GetVoidPointer(0));
+  double* xyz = static_cast<double*>(xyz_data->GetVoidPointer(0));
 
   vtkIdType npoints = grid->GetNumberOfPoints();
-  for( vtkIdType pntIdx=0; pntIdx < npoints; ++pntIdx )
+  for (vtkIdType pntIdx = 0; pntIdx < npoints; ++pntIdx)
   {
-    double* pnt = grid->GetPoint( pntIdx );
-    if( !vtkMathUtilities::NearlyEqual(pnt[0],xyz[pntIdx*3],1.e-9)   ||
-        !vtkMathUtilities::NearlyEqual(pnt[1],xyz[pntIdx*3+1],1.e-9) ||
-        !vtkMathUtilities::NearlyEqual(pnt[2],xyz[pntIdx*3+2],1.e-9)  )
+    double* pnt = grid->GetPoint(pntIdx);
+    if (!vtkMathUtilities::NearlyEqual(pnt[0], xyz[pntIdx * 3], 1.e-9) ||
+      !vtkMathUtilities::NearlyEqual(pnt[1], xyz[pntIdx * 3 + 1], 1.e-9) ||
+      !vtkMathUtilities::NearlyEqual(pnt[2], xyz[pntIdx * 3 + 2], 1.e-9))
     {
       std::cerr << "ERROR: point=(" << pnt[0] << ", ";
       std::cerr << pnt[1] << ", ";
       std::cerr << pnt[2] << ") ";
-      std::cerr << "data = (" << xyz[pntIdx*3] << ", ";
-      std::cerr << xyz[pntIdx*3+1] << ", ";
-      std::cerr << xyz[pntIdx*3+2] << ") ";
+      std::cerr << "data = (" << xyz[pntIdx * 3] << ", ";
+      std::cerr << xyz[pntIdx * 3 + 1] << ", ";
+      std::cerr << xyz[pntIdx * 3 + 2] << ") ";
       ++rc;
     } // END if
-  } // END for all points
+  }   // END for all points
 
-  return( rc );
+  return (rc);
 }
 
 //------------------------------------------------------------------------------
-void GenerateGrid( vtkRectilinearGrid* grid,  int ext[6] )
+void GenerateGrid(vtkRectilinearGrid* grid, int ext[6])
 {
-  assert( "pre: input grid instance is nullptr!" && (grid != nullptr) );
+  assert("pre: input grid instance is nullptr!" && (grid != nullptr));
   grid->Initialize();
   grid->SetExtent(ext);
 
@@ -101,48 +101,48 @@ void GenerateGrid( vtkRectilinearGrid* grid,  int ext[6] )
 
   int dims[3];
   int dataDesc = vtkStructuredData::GetDataDescriptionFromExtent(ext);
-  vtkStructuredData::GetDimensionsFromExtent(ext,dims,dataDesc);
+  vtkStructuredData::GetDimensionsFromExtent(ext, dims, dataDesc);
 
   // compute & populate coordinate vectors
   double beta = 0.05; /* controls the intensity of the stretching */
-  for(int i=0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
     coords[i] = vtkDataArray::CreateDataArray(VTK_DOUBLE);
-    if( dims[i] == 0 )
+    if (dims[i] == 0)
     {
       continue;
     }
     coords[i]->SetNumberOfTuples(dims[i]);
 
     double prev = 0.0;
-    for(int j=0; j < dims[i]; ++j)
+    for (int j = 0; j < dims[i]; ++j)
     {
-      double val = prev + ( (j==0)? 0.0 : exponential_distribution(j,beta) );
-      coords[ i ]->SetTuple( j, &val );
+      double val = prev + ((j == 0) ? 0.0 : exponential_distribution(j, beta));
+      coords[i]->SetTuple(j, &val);
       prev = val;
     } // END for all points along this dimension
 
   } // END for all dimensions
 
-  grid->SetXCoordinates( coords[0] );
-  grid->SetYCoordinates( coords[1] );
-  grid->SetZCoordinates( coords[2] );
+  grid->SetXCoordinates(coords[0]);
+  grid->SetYCoordinates(coords[1]);
+  grid->SetZCoordinates(coords[2]);
   coords[0]->Delete();
   coords[1]->Delete();
   coords[2]->Delete();
 
   // compute & populate XYZ field
-  vtkIdType npoints = vtkStructuredData::GetNumberOfPoints(ext,dataDesc);
+  vtkIdType npoints = vtkStructuredData::GetNumberOfPoints(ext, dataDesc);
   vtkDoubleArray* xyz = vtkDoubleArray::New();
-  xyz->SetName( "xyz" );
+  xyz->SetName("xyz");
   xyz->SetNumberOfComponents(3);
-  xyz->SetNumberOfTuples( npoints );
+  xyz->SetNumberOfTuples(npoints);
 
-  for(vtkIdType pntIdx=0; pntIdx < npoints; ++pntIdx )
+  for (vtkIdType pntIdx = 0; pntIdx < npoints; ++pntIdx)
   {
-    xyz->SetTuple(pntIdx, grid->GetPoint(pntIdx) );
+    xyz->SetTuple(pntIdx, grid->GetPoint(pntIdx));
   } // END for all points
-  grid->GetPointData()->AddArray( xyz );
+  grid->GetPointData()->AddArray(xyz);
 
   vtkNew<vtkPointDataToCellData> pd2cd;
   pd2cd->PassPointDataOn();
@@ -154,7 +154,7 @@ void GenerateGrid( vtkRectilinearGrid* grid,  int ext[6] )
 }
 
 //------------------------------------------------------------------------------
-int TestExtractRectilinearGrid( int argc, char* argv[])
+int TestExtractRectilinearGrid(int argc, char* argv[])
 {
   int rc = 0;
 
@@ -162,27 +162,27 @@ int TestExtractRectilinearGrid( int argc, char* argv[])
   static_cast<void>(argc);
   static_cast<void>(argv);
 
-  int ext[6] = {0,49,0,49,0,0};
+  int ext[6] = { 0, 49, 0, 49, 0, 0 };
   vtkRectilinearGrid* grid = vtkRectilinearGrid::New();
-  GenerateGrid( grid, ext );
+  GenerateGrid(grid, ext);
 #ifdef DEBUG
-  WriteGrid( grid, "initial" );
+  WriteGrid(grid, "initial");
 #endif
 
-  int sub_ext[6] = {0,35,0,35,0,0};
+  int sub_ext[6] = { 0, 35, 0, 35, 0, 0 };
   vtkExtractRectilinearGrid* extractFilter = vtkExtractRectilinearGrid::New();
-  extractFilter->SetInputData( grid );
+  extractFilter->SetInputData(grid);
   extractFilter->SetVOI(sub_ext);
-  extractFilter->SetSampleRate(2,2,1);
+  extractFilter->SetSampleRate(2, 2, 1);
   extractFilter->IncludeBoundaryOn();
   extractFilter->Update();
 
   vtkRectilinearGrid* subGrid = extractFilter->GetOutput();
 #ifdef DEBUG
-  WriteGrid( subGrid, "sub-grid" );
+  WriteGrid(subGrid, "sub-grid");
 #endif
 
-  rc += CheckGrid( subGrid );
+  rc += CheckGrid(subGrid);
 
   // Let's extract outer face too.
   int sub_ext2[6] = { 49, 49, 0, 49, 0, 0 };
@@ -196,5 +196,5 @@ int TestExtractRectilinearGrid( int argc, char* argv[])
 
   extractFilter->Delete();
   grid->Delete();
-  return( rc );
+  return (rc);
 }

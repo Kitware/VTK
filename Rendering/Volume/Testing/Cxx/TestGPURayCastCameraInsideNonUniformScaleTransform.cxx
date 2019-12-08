@@ -44,16 +44,12 @@ int TestGPURayCastCameraInsideNonUniformScaleTransform(int argc, char* argv[])
   reader->SetDataDimensions(64, 64);
   reader->SetImageRange(1, 93);
   reader->SetDataByteOrderToLittleEndian();
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
   reader->SetFilePrefix(fname);
   delete[] fname;
   reader->SetDataSpacing(1, 1, 1);
 
-  double elements[16] = { 3.2, 0, 0, 200,
-                          0, 3.2, 0, 100,
-                          0, 0, 1.5, 40,
-                          0, 0, 0, 1 };
+  double elements[16] = { 3.2, 0, 0, 200, 0, 3.2, 0, 100, 0, 0, 1.5, 40, 0, 0, 0, 1 };
 
   vtkNew<vtkMatrix4x4> matrix;
   matrix->DeepCopy(elements);

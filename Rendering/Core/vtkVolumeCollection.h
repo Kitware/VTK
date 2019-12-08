@@ -22,51 +22,49 @@
  *
  * @sa
  * vtkCollection vtkVolume
-*/
+ */
 
 #ifndef vtkVolumeCollection_h
 #define vtkVolumeCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
-#include "vtkVolume.h"  // Needed for static cast
+#include "vtkVolume.h" // Needed for static cast
 
 class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
- public:
-  static vtkVolumeCollection *New();
+public:
+  static vtkVolumeCollection* New();
   vtkTypeMacro(vtkVolumeCollection, vtkPropCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a Volume to the bottom of the list.
    */
-  void AddItem(vtkVolume *a)
-    { this->vtkCollection::AddItem(a); }
+  void AddItem(vtkVolume* a) { this->vtkCollection::AddItem(a); }
 
   /**
    * Get the next Volume in the list. Return NULL when at the end of the
    * list.
    */
-  vtkVolume *GetNextVolume()
-    { return static_cast<vtkVolume *>(this->GetNextItemAsObject()); }
-
+  vtkVolume* GetNextVolume() { return static_cast<vtkVolume*>(this->GetNextItemAsObject()); }
 
   /**
    * Access routine provided for compatibility with previous
    * versions of VTK.  Please use the GetNextVolume() variant
    * where possible.
    */
-  vtkVolume *GetNextItem()
-    { return this->GetNextVolume(); }
+  vtkVolume* GetNextItem() { return this->GetNextVolume(); }
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkVolume *GetNextVolume(vtkCollectionSimpleIterator &cookie)
-    { return static_cast<vtkVolume *>(this->GetNextItemAsObject(cookie)); }
+  vtkVolume* GetNextVolume(vtkCollectionSimpleIterator& cookie)
+  {
+    return static_cast<vtkVolume*>(this->GetNextItemAsObject(cookie));
+  }
 
 protected:
   vtkVolumeCollection() {}
@@ -74,10 +72,8 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-    { this->vtkCollection::AddItem(o); }
-  void AddItem(vtkProp *o)
-    { this->vtkPropCollection::AddItem(o); }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
 private:
   vtkVolumeCollection(const vtkVolumeCollection&) = delete;

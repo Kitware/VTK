@@ -30,13 +30,13 @@
  * vtkDataReader vtkGraphReader vtkPolyDataReader vtkRectilinearGridReader
  * vtkStructuredPointsReader vtkStructuredGridReader vtkTableReader
  * vtkTreeReader vtkUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkGenericDataObjectReader_h
 #define vtkGenericDataObjectReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkDataObject;
 class vtkGraph;
@@ -52,16 +52,16 @@ class vtkUnstructuredGrid;
 class VTKIOLEGACY_EXPORT vtkGenericDataObjectReader : public vtkDataReader
 {
 public:
-  static vtkGenericDataObjectReader *New();
-  vtkTypeMacro(vtkGenericDataObjectReader,vtkDataReader);
+  static vtkGenericDataObjectReader* New();
+  vtkTypeMacro(vtkGenericDataObjectReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this filter
    */
-  vtkDataObject *GetOutput();
-  vtkDataObject *GetOutput(int idx);
+  vtkDataObject* GetOutput();
+  vtkDataObject* GetOutput(int idx);
   //@}
 
   //@{
@@ -72,15 +72,15 @@ public:
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */
-  vtkGraph *GetGraphOutput();
-  vtkMolecule *GetMoleculeOutput();
-  vtkPolyData *GetPolyDataOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkTable *GetTableOutput();
-  vtkTree *GetTreeOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkGraph* GetGraphOutput();
+  vtkMolecule* GetMoleculeOutput();
+  vtkPolyData* GetPolyDataOutput();
+  vtkRectilinearGrid* GetRectilinearGridOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
+  vtkStructuredPoints* GetStructuredPointsOutput();
+  vtkTable* GetTableOutput();
+  vtkTree* GetTreeOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
   //@}
 
   /**
@@ -92,15 +92,12 @@ public:
   /**
    * Read metadata from file.
    */
-  int ReadMetaDataSimple(const std::string& fname,
-                         vtkInformation* metadata) override;
+  int ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata) override;
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkGenericDataObjectReader();
@@ -108,18 +105,16 @@ protected:
 
   vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) = delete;
   void operator=(const vtkGenericDataObjectReader&) = delete;
 
-  template<typename ReaderT, typename DataT>
-    void ReadData(
-      const char* fname, const char* dataClass, vtkDataObject* output);
+  template <typename ReaderT, typename DataT>
+  void ReadData(const char* fname, const char* dataClass, vtkDataObject* output);
 
   vtkSetStringMacro(Header);
-
 };
 
 #endif

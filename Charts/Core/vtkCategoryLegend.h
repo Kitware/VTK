@@ -23,13 +23,13 @@
  * input to this class is a vtkVariantArray.  This should contain the
  * annotated values from the vtkScalarsToColors that you wish to include
  * within the legend.
-*/
+ */
 
 #ifndef vtkCategoryLegend_h
 #define vtkCategoryLegend_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew ivars
 #include "vtkStdString.h"        // For vtkStdString ivars
 #include "vtkVector.h"           // For vtkRectf
@@ -38,7 +38,7 @@ class vtkScalarsToColors;
 class vtkTextProperty;
 class vtkVariantArray;
 
-class VTKCHARTSCORE_EXPORT vtkCategoryLegend: public vtkChartLegend
+class VTKCHARTSCORE_EXPORT vtkCategoryLegend : public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkCategoryLegend, vtkChartLegend);
@@ -47,7 +47,8 @@ public:
   /**
    * Enum of legend orientation types
    */
-  enum {
+  enum
+  {
     VERTICAL = 0,
     HORIZONTAL
   };
@@ -55,7 +56,7 @@ public:
   /**
    * Paint the legend into a rectangle defined by the bounds.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Compute and return the lower left corner of this legend, along
@@ -70,7 +71,7 @@ public:
    * vtkScalarsToColors must have been populated using SetAnnotation().
    */
   virtual void SetScalarsToColors(vtkScalarsToColors* stc);
-  virtual vtkScalarsToColors * GetScalarsToColors();
+  virtual vtkScalarsToColors* GetScalarsToColors();
   //@}
 
   //@{
@@ -88,7 +89,7 @@ public:
   /**
    * Get/set the title text of the legend.
    */
-  virtual void SetTitle(const vtkStdString &title);
+  virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
   //@}
 
@@ -104,17 +105,17 @@ protected:
   vtkCategoryLegend();
   ~vtkCategoryLegend() override;
 
-  bool                                HasOutliers;
-  float                               TitleWidthOffset;
-  vtkScalarsToColors*                 ScalarsToColors;
-  vtkStdString                        OutlierLabel;
-  vtkStdString                        Title;
-  vtkNew<vtkTextProperty>             TitleProperties;
-  vtkVariantArray*                    Values;
+  bool HasOutliers;
+  float TitleWidthOffset;
+  vtkScalarsToColors* ScalarsToColors;
+  vtkStdString OutlierLabel;
+  vtkStdString Title;
+  vtkNew<vtkTextProperty> TitleProperties;
+  vtkVariantArray* Values;
 
 private:
-  vtkCategoryLegend(const vtkCategoryLegend &) = delete;
-  void operator=(const vtkCategoryLegend &) = delete;
+  vtkCategoryLegend(const vtkCategoryLegend&) = delete;
+  void operator=(const vtkCategoryLegend&) = delete;
 };
 
 #endif

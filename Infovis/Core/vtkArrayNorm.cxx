@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
+#include "vtkArrayNorm.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkArrayNorm.h"
 
-#include <sstream>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,11 +36,11 @@
 
 vtkStandardNewMacro(vtkArrayNorm);
 
-vtkArrayNorm::vtkArrayNorm() :
-  Dimension(0),
-  L(2),
-  Invert(false),
-  Window(0, std::numeric_limits<vtkIdType>::max())
+vtkArrayNorm::vtkArrayNorm()
+  : Dimension(0)
+  , L(2)
+  , Invert(false)
+  , Window(0, std::numeric_limits<vtkIdType>::max())
 {
 }
 
@@ -48,7 +48,7 @@ vtkArrayNorm::~vtkArrayNorm() = default;
 
 void vtkArrayNorm::SetWindow(const vtkArrayRange& window)
 {
-  if(window == this->Window)
+  if (window == this->Window)
     return;
 
   this->Window = window;
@@ -71,13 +71,13 @@ void vtkArrayNorm::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkArrayNorm::SetL(int value)
 {
-  if(value < 1)
+  if (value < 1)
   {
     vtkErrorMacro(<< "Cannot compute array norm for L < 1");
     return;
   }
 
-  if(this->L == value)
+  if (this->L == value)
     return;
 
   this->L = value;
@@ -85,27 +85,25 @@ void vtkArrayNorm::SetL(int value)
 }
 
 int vtkArrayNorm::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   try
   {
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
-    if(!input_data)
+    if (!input_data)
       throw std::runtime_error("Missing vtkArrayData on input port 0.");
-    if(input_data->GetNumberOfArrays() != 1)
+    if (input_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
-    vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(
-      input_data->GetArray(static_cast<vtkIdType>(0)));
-    if(!input_array)
+    vtkTypedArray<double>* const input_array =
+      vtkTypedArray<double>::SafeDownCast(input_data->GetArray(static_cast<vtkIdType>(0)));
+    if (!input_array)
       throw std::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
-    if(input_array->GetDimensions() != 2)
+    if (input_array->GetDimensions() != 2)
       throw std::runtime_error("vtkArray on input port 0 must be a matrix.");
 
     const vtkIdType vector_dimension = this->Dimension;
-    if(vector_dimension < 0 || vector_dimension > 1)
+    if (vector_dimension < 0 || vector_dimension > 1)
       throw std::runtime_error("Dimension must be zero or one.");
     const vtkIdType element_dimension = 1 - vector_dimension;
 
@@ -126,35 +124,37 @@ int vtkArrayNorm::RequestData(
     // Make it happen ...
     vtkArrayCoordinates coordinates;
     const vtkIdType non_null_count = input_array->GetNonNullSize();
-    for(vtkIdType n = 0; n != non_null_count; ++n)
+    for (vtkIdType n = 0; n != non_null_count; ++n)
     {
       input_array->GetCoordinatesN(n, coordinates);
-      if(!this->Window.Contains(coordinates[element_dimension]))
+      if (!this->Window.Contains(coordinates[element_dimension]))
         continue;
-      output_array->SetValue(coordinates[vector_dimension], output_array->GetValue(coordinates[vector_dimension]) + pow(input_array->GetValueN(n), this->L));
+      output_array->SetValue(coordinates[vector_dimension],
+        output_array->GetValue(coordinates[vector_dimension]) +
+          pow(input_array->GetValueN(n), this->L));
     }
 
-    for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
+    for (vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
     {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
     }
 
     // Optionally invert the output vector
-    if(this->Invert)
+    if (this->Invert)
     {
-      for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
+      for (vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
       {
-        if(output_array->GetValueN(n))
+        if (output_array->GetValueN(n))
           output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));
       }
     }
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
   }
-  catch(...)
+  catch (...)
   {
     vtkErrorMacro(<< "unknown exception");
     return 0;
@@ -162,4 +162,3 @@ int vtkArrayNorm::RequestData(
 
   return 1;
 }
-

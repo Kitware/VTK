@@ -17,27 +17,35 @@
 #include "vtkIOStream.h"
 #include "vtkIndent.h"
 #include "vtkLargeInteger.h"
-#include "vtkStdString.h"
 #include "vtkObjectBase.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkStdString.h"
 
 #include <string>
 
-#define VTKOSTREAM_OPERATOR(type) \
-  vtkOStreamWrapper& vtkOStreamWrapper::operator << (type a) \
-    { this->ostr << a; return *this; }
+#define VTKOSTREAM_OPERATOR(type)                                                                  \
+  vtkOStreamWrapper& vtkOStreamWrapper::operator<<(type a)                                         \
+  {                                                                                                \
+    this->ostr << a;                                                                               \
+    return *this;                                                                                  \
+  }
 
-#define VTKOSTREAM_OPERATOR_FUNC(arg) \
-  vtkOStreamWrapper& vtkOStreamWrapper::operator << (arg) \
-    { this->ostr << a; return *this; }
+#define VTKOSTREAM_OPERATOR_FUNC(arg)                                                              \
+  vtkOStreamWrapper& vtkOStreamWrapper::operator<<(arg)                                            \
+  {                                                                                                \
+    this->ostr << a;                                                                               \
+    return *this;                                                                                  \
+  }
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper::vtkOStreamWrapper(ostream& os): ostr(os)
+vtkOStreamWrapper::vtkOStreamWrapper(ostream& os)
+  : ostr(os)
 {
 }
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
+vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r)
+  : ostr(r.ostr)
 {
 }
 
@@ -45,7 +53,7 @@ vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
 vtkOStreamWrapper::~vtkOStreamWrapper() = default;
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::operator << (const EndlType&)
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(const EndlType&)
 {
   this->ostr << endl;
   return *this;
@@ -81,7 +89,7 @@ VTKOSTREAM_OPERATOR_FUNC(const char* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*, int*));
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::operator << (std_string const& s)
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string const& s)
 {
   this->ostr << reinterpret_cast<std::string const&>(s);
   return *this;
@@ -102,8 +110,7 @@ vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(void* a)
 #endif
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str,
-                                            unsigned long size)
+vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str, unsigned long size)
 {
   this->ostr.write(str, size);
   return *this;
@@ -124,7 +131,7 @@ vtkOStreamWrapper::operator ostream&()
 //----------------------------------------------------------------------------
 vtkOStreamWrapper::operator int()
 {
-  return this->ostr? 1:0;
+  return this->ostr ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------

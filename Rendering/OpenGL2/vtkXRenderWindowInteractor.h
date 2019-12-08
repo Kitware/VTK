@@ -28,7 +28,7 @@
  * I've been though this and deleted all I think should go, tried to create
  * the basic structure and if you're lucky it might even work!
  * but frankly I doubt it
-*/
+ */
 
 #ifndef vtkXRenderWindowInteractor_h
 #define vtkXRenderWindowInteractor_h
@@ -36,23 +36,24 @@
 //===========================================================
 // now we define the C++ class
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
-#include <X11/StringDefs.h> // Needed for X types in the public interface
-#include <X11/Intrinsic.h> // Needed for X types in the public interface
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <X11/Intrinsic.h>             // Needed for X types in the public interface
+#include <X11/StringDefs.h>            // Needed for X types in the public interface
 
 class vtkCallbackCommand;
 class vtkXRenderWindowInteractorInternals;
 
 // Forward declare internal friend functions.
-void VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
-void VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+void VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractorCallback(
+  Widget, XtPointer, XEvent*, Boolean*);
+void VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractorTimer(XtPointer, XtIntervalId*);
 
 class VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkXRenderWindowInteractor *New();
-  vtkTypeMacro(vtkXRenderWindowInteractor,vtkRenderWindowInteractor);
+  static vtkXRenderWindowInteractor* New();
+  vtkTypeMacro(vtkXRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -66,6 +67,13 @@ public:
    * Break the event loop on 'q','e' keypress. Want more ???
    */
   void TerminateApp() override;
+
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
 
   //@{
   /**
@@ -86,7 +94,7 @@ public:
    * provided.  This assumes that you want to own the event loop.
    */
   virtual void Initialize(XtAppContext app);
-  vtkGetMacro( App, XtAppContext );
+  vtkGetMacro(App, XtAppContext);
   //@}
 
   //@{
@@ -107,7 +115,7 @@ public:
    * Update the Size data member and set the associated RenderWindow's
    * size.
    */
-  void UpdateSize(int,int) override;
+  void UpdateSize(int, int) override;
 
   //@{
   /**
@@ -127,7 +135,7 @@ public:
    * about that widget. It's X and it's not terribly easy, but it looks cool.
    */
   virtual void SetWidget(Widget);
-  Widget GetWidget() {return this->Top;};
+  Widget GetWidget() { return this->Top; }
   //@}
 
   //@{
@@ -161,21 +169,20 @@ public:
    * not set TopLevelShell (each has its own top level shell already)
    */
   virtual void SetTopLevelShell(Widget);
-  Widget GetTopLevelShell() {return this->TopLevelShell;};
+  Widget GetTopLevelShell() { return this->TopLevelShell; }
   //@}
 
   /**
    * Re-defines virtual function to get mouse position by querying X-server.
    */
-  void GetMousePosition(int *x, int *y) override;
+  void GetMousePosition(int* x, int* y) override;
 
   //@{
   /**
    * Functions that are used internally.
    */
-  friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
-                                                 XEvent *,Boolean *);
-  friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+  friend void vtkXRenderWindowInteractorCallback(Widget, XtPointer, XEvent*, Boolean*);
+  friend void vtkXRenderWindowInteractorTimer(XtPointer, XtIntervalId*);
   //@}
 
 protected:
@@ -186,14 +193,13 @@ protected:
    * Update the Size data member and set the associated RenderWindow's
    * size but do not resize the XWindow.
    */
-  void UpdateSizeNoXResize(int,int);
+  void UpdateSizeNoXResize(int, int);
 
-
-  //Using static here to avoid destroying context when many apps are open:
+  // Using static here to avoid destroying context when many apps are open:
   static XtAppContext App;
   static int NumAppInitialized;
 
-  Display *DisplayId;
+  Display* DisplayId;
   Window WindowId;
   Atom KillAtom;
   Widget Top;
@@ -213,9 +219,9 @@ protected:
   //@}
 
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
-                          XtTimerCallbackProc proc, XtPointer client_data) ;
-  void Timer(XtPointer client_data, XtIntervalId *id);
-  void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
+    XtTimerCallbackProc proc, XtPointer client_data);
+  void Timer(XtPointer client_data, XtIntervalId* id);
+  void Callback(Widget w, XtPointer client_data, XEvent* event, Boolean* ctd);
 
   static int BreakLoopFlag;
 

@@ -30,19 +30,19 @@
  *
  * @sa
  * vtkTextMapper vtkCaptionActor2D
-*/
+ */
 
 #ifndef vtkVectorText_h
 #define vtkVectorText_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 
 class VTKRENDERINGFREETYPE_EXPORT vtkVectorText : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkVectorText *New();
-  vtkTypeMacro(vtkVectorText,vtkPolyDataAlgorithm);
+  static vtkVectorText* New();
+  vtkTypeMacro(vtkVectorText, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,8 +57,8 @@ protected:
   vtkVectorText();
   ~vtkVectorText() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  char *Text;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  char* Text;
 
 private:
   vtkVectorText(const vtkVectorText&) = delete;

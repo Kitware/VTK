@@ -205,7 +205,7 @@
  * Thanks to Brian Wylie, Timothy Shead, Ken Moreland of Sandia National
  * Laboratories and Douglas Gregor of Indiana University for designing these
  * classes.
-*/
+ */
 
 #ifndef vtkGraph_h
 #define vtkGraph_h
@@ -235,45 +235,53 @@ class vtkVariantArray;
 // are turned off.
 namespace boost
 {
-  class vtk_edge_iterator;
-  class vtk_out_edge_pointer_iterator;
-  class vtk_in_edge_pointer_iterator;
+class vtk_edge_iterator;
+class vtk_out_edge_pointer_iterator;
+class vtk_in_edge_pointer_iterator;
 }
 
 // Edge structures.
 struct vtkEdgeBase
 {
-  vtkEdgeBase() { }
-  vtkEdgeBase(vtkIdType id) :
-    Id(id) { }
+  vtkEdgeBase() {}
+  vtkEdgeBase(vtkIdType id)
+    : Id(id)
+  {
+  }
   vtkIdType Id;
 };
 
 struct vtkOutEdgeType : vtkEdgeBase
 {
-  vtkOutEdgeType() { }
-  vtkOutEdgeType(vtkIdType t, vtkIdType id) :
-    vtkEdgeBase(id),
-    Target(t) { }
+  vtkOutEdgeType() {}
+  vtkOutEdgeType(vtkIdType t, vtkIdType id)
+    : vtkEdgeBase(id)
+    , Target(t)
+  {
+  }
   vtkIdType Target;
 };
 
 struct vtkInEdgeType : vtkEdgeBase
 {
-  vtkInEdgeType() { }
-  vtkInEdgeType(vtkIdType s, vtkIdType id) :
-    vtkEdgeBase(id),
-    Source(s) { }
+  vtkInEdgeType() {}
+  vtkInEdgeType(vtkIdType s, vtkIdType id)
+    : vtkEdgeBase(id)
+    , Source(s)
+  {
+  }
   vtkIdType Source;
 };
 
 struct vtkEdgeType : vtkEdgeBase
 {
-  vtkEdgeType() { }
-  vtkEdgeType(vtkIdType s, vtkIdType t, vtkIdType id) :
-    vtkEdgeBase(id),
-    Source(s),
-    Target(t) { }
+  vtkEdgeType() {}
+  vtkEdgeType(vtkIdType s, vtkIdType t, vtkIdType id)
+    : vtkEdgeBase(id)
+    , Source(s)
+    , Target(t)
+  {
+  }
   vtkIdType Source;
   vtkIdType Target;
 };
@@ -295,7 +303,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_GRAPH;}
+  int GetDataObjectType() override { return VTK_GRAPH; }
 
   /**
    * Initialize to an empty graph.
@@ -309,7 +317,7 @@ public:
    * distributed graph, only the points for local vertices can be
    * retrieved.
    */
-  double *GetPoint(vtkIdType ptId);
+  double* GetPoint(vtkIdType ptId);
   void GetPoint(vtkIdType ptId, double x[3]);
   //@}
 
@@ -322,7 +330,7 @@ public:
    * retrieved or modified.
    */
   vtkPoints* GetPoints();
-  virtual void SetPoints(vtkPoints *points);
+  virtual void SetPoints(vtkPoints* points);
   //@}
 
   /**
@@ -337,7 +345,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax). In a distributed graph, this
    * computes the bounds around the local part of the graph.
    */
-  double *GetBounds();
+  double* GetBounds();
   void GetBounds(double bounds[6]);
   //@}
 
@@ -352,7 +360,7 @@ public:
    * returns all incident edges. In a distributed graph, the vertex
    * v must be local to this processor.
    */
-  virtual void GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it);
+  virtual void GetOutEdges(vtkIdType v, vtkOutEdgeIterator* it);
 
   /**
    * The total of all incoming and outgoing vertices for vertex v.
@@ -388,7 +396,7 @@ public:
    * returns all incident edges. In a distributed graph, the vertex
    * v must be local to this processor.
    */
-  virtual void GetInEdges(vtkIdType v, vtkInEdgeIterator *it);
+  virtual void GetInEdges(vtkIdType v, vtkInEdgeIterator* it);
 
   /**
    * The number of incoming edges to vertex v.
@@ -416,7 +424,7 @@ public:
    * returns all adjacent vertices. In a distributed graph, the vertex
    * v must be local to this processor.
    */
-  virtual void GetAdjacentVertices(vtkIdType v, vtkAdjacentVertexIterator *it);
+  virtual void GetAdjacentVertices(vtkIdType v, vtkAdjacentVertexIterator* it);
 
   /**
    * Initializes the edge list iterator to iterate over all
@@ -424,7 +432,7 @@ public:
    * increasing edge id. In a distributed graph, this returns edges
    * that are stored locally.
    */
-  virtual void GetEdges(vtkEdgeListIterator *it);
+  virtual void GetEdges(vtkEdgeListIterator* it);
 
   /**
    * The number of edges in the graph. In a distributed graph,
@@ -437,7 +445,7 @@ public:
    * vertices in the graph. In a distributed graph, the iterator
    * traverses all local vertices.
    */
-  virtual void GetVertices(vtkVertexListIterator *it);
+  virtual void GetVertices(vtkVertexListIterator* it);
 
   /**
    * The number of vertices in the graph. In a distributed graph,
@@ -450,12 +458,12 @@ public:
    * distributed graph. This operation can only be executed on an empty
    * graph.
    */
-  void SetDistributedGraphHelper(vtkDistributedGraphHelper *helper);
+  void SetDistributedGraphHelper(vtkDistributedGraphHelper* helper);
 
   /**
    * Retrieves the distributed graph helper for this graph
    */
-  vtkDistributedGraphHelper *GetDistributedGraphHelper();
+  vtkDistributedGraphHelper* GetDistributedGraphHelper();
 
   /**
    * Retrieve the vertex with the given pedigree ID. If successful,
@@ -471,33 +479,33 @@ public:
    * Shallow copies the data object into this graph.
    * If it is an incompatible graph, reports an error.
    */
-  void ShallowCopy(vtkDataObject *obj) override;
+  void ShallowCopy(vtkDataObject* obj) override;
 
   /**
    * Deep copies the data object into this graph.
    * If it is an incompatible graph, reports an error.
    */
-  void DeepCopy(vtkDataObject *obj) override;
+  void DeepCopy(vtkDataObject* obj) override;
 
   /**
    * Does a shallow copy of the topological information,
    * but not the associated attributes.
    */
-  virtual void CopyStructure(vtkGraph *g);
+  virtual void CopyStructure(vtkGraph* g);
 
   /**
    * Performs the same operation as ShallowCopy(),
    * but instead of reporting an error for an incompatible graph,
    * returns false.
    */
-  virtual bool CheckedShallowCopy(vtkGraph *g);
+  virtual bool CheckedShallowCopy(vtkGraph* g);
 
   /**
    * Performs the same operation as DeepCopy(),
    * but instead of reporting an error for an incompatible graph,
    * returns false.
    */
-  virtual bool CheckedDeepCopy(vtkGraph *g);
+  virtual bool CheckedDeepCopy(vtkGraph* g);
 
   /**
    * Reclaim unused memory.
@@ -517,8 +525,8 @@ public:
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkGraph *GetData(vtkInformation *info);
-  static vtkGraph *GetData(vtkInformationVector *v, int i=0);
+  static vtkGraph* GetData(vtkInformation* info);
+  static vtkGraph* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -528,13 +536,13 @@ public:
    * This method does not change the topology of the graph.
    * In a distributed graph, the vertex v must be local.
    */
-  void ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices);
+  void ReorderOutVertices(vtkIdType v, vtkIdTypeArray* vertices);
 
   /**
    * Returns true if both graphs point to the same adjacency structure.
    * Can be used to test the copy-on-write feature of the graph.
    */
-  bool IsSameStructure(vtkGraph *other);
+  bool IsSameStructure(vtkGraph* other);
 
   //@{
   /**
@@ -582,14 +590,20 @@ public:
    */
   void SetEdgePoint(vtkIdType e, vtkIdType i, const double x[3]);
   void SetEdgePoint(vtkIdType e, vtkIdType i, double x, double y, double z)
-    { double p[3] = {x, y, z}; this->SetEdgePoint(e, i, p); }
+  {
+    double p[3] = { x, y, z };
+    this->SetEdgePoint(e, i, p);
+  }
 
   /**
    * Adds a point to the end of the list of edge points for a certain edge.
    */
   void AddEdgePoint(vtkIdType e, const double x[3]);
   void AddEdgePoint(vtkIdType e, double x, double y, double z)
-    { double p[3] = {x, y, z}; this->AddEdgePoint(e, p); }
+  {
+    double p[3] = { x, y, z };
+    this->AddEdgePoint(e, p);
+  }
 
   //@{
   /**
@@ -605,7 +619,7 @@ public:
    * true, then the returned vtkGraphInternals object will be unique to
    * this vtkGraph object.
    */
-  vtkGraphInternals *GetGraphInternals(bool modifying);
+  vtkGraphInternals* GetGraphInternals(bool modifying);
 
   /**
    * Fills a list of edge indices with the edges contained in the induced
@@ -652,7 +666,6 @@ public:
   bool ToUndirectedGraph(vtkUndirectedGraph* g);
 
 protected:
-
   vtkGraph();
   ~vtkGraph() override;
 
@@ -663,8 +676,7 @@ protected:
    * non-null and the vertex data contains pedigree IDs, a vertex will
    * only be added if there is no vertex with that pedigree ID.
    */
-  void AddVertexInternal(vtkVariantArray *propertyArr = nullptr,
-                         vtkIdType *vertex = nullptr);
+  void AddVertexInternal(vtkVariantArray* propertyArr = nullptr, vtkIdType* vertex = nullptr);
 
   /**
    * Adds a vertex with the given pedigree ID to the graph. If a vertex with
@@ -672,7 +684,7 @@ protected:
    * argument is set to the ID of the existing vertex.  Otherwise, a
    * new vertex is added and its ID is provided.
    */
-  void AddVertexInternal(const vtkVariant& pedigree, vtkIdType *vertex);
+  void AddVertexInternal(const vtkVariant& pedigree, vtkIdType* vertex);
 
   //@{
   /**
@@ -681,15 +693,14 @@ protected:
    * the properties to be attached to the newly-created edge. If
    * non-null, edge will receive the newly-added edge.
    */
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
-                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
+  void AddEdgeInternal(
+    vtkIdType u, vtkIdType v, bool directed, vtkVariantArray* propertyArr, vtkEdgeType* edge);
   void AddEdgeInternal(const vtkVariant& uPedigree, vtkIdType v, bool directed,
-                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
+    vtkVariantArray* propertyArr, vtkEdgeType* edge);
   void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigree, bool directed,
-                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
-  void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree,
-                       bool directed, vtkVariantArray *propertyArr,
-                       vtkEdgeType *edge);
+    vtkVariantArray* propertyArr, vtkEdgeType* edge);
+  void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree, bool directed,
+    vtkVariantArray* propertyArr, vtkEdgeType* edge);
   //@}
 
   /**
@@ -718,22 +729,22 @@ protected:
    * Subclasses override this method to accept the structure
    * based on their requirements.
    */
-  virtual bool IsStructureValid(vtkGraph *g) = 0;
+  virtual bool IsStructureValid(vtkGraph* g) = 0;
 
   /**
    * Copy internal data structure.
    */
-  virtual void CopyInternal(vtkGraph *g, bool deep);
+  virtual void CopyInternal(vtkGraph* g, bool deep);
 
   /**
    * The adjacency list internals of this graph.
    */
-  vtkGraphInternals *Internals;
+  vtkGraphInternals* Internals;
 
   /**
    * The distributed graph helper. Only non-nullptr for distributed graphs.
    */
-  vtkDistributedGraphHelper *DistributedHelper;
+  vtkDistributedGraphHelper* DistributedHelper;
 
   /**
    * Private method for setting internals.
@@ -743,7 +754,7 @@ protected:
   /**
    * The structure for holding the edge points.
    */
-  vtkGraphEdgePoints *EdgePoints;
+  vtkGraphEdgePoints* EdgePoints;
 
   /**
    * Private method for setting edge points.
@@ -760,8 +771,8 @@ protected:
   /**
    * Fast access functions for iterators.
    */
-  virtual void GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType & nedges);
-  virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
+  virtual void GetOutEdges(vtkIdType v, const vtkOutEdgeType*& edges, vtkIdType& nedges);
+  virtual void GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vtkIdType& nedges);
   //@}
 
   /**
@@ -786,8 +797,8 @@ protected:
   /**
    * The vertex and edge data.
    */
-  vtkDataSetAttributes *VertexData;
-  vtkDataSetAttributes *EdgeData;
+  vtkDataSetAttributes* VertexData;
+  vtkDataSetAttributes* EdgeData;
   //@}
 
   /**
@@ -804,7 +815,7 @@ protected:
   /**
    * The vertex locations.
    */
-  vtkPoints *Points;
+  vtkPoints* Points;
   static double DefaultPoint[3];
   //@}
 
@@ -814,7 +825,7 @@ protected:
    */
   vtkGetObjectMacro(EdgeList, vtkIdTypeArray);
   virtual void SetEdgeList(vtkIdTypeArray* list);
-  vtkIdTypeArray *EdgeList;
+  vtkIdTypeArray* EdgeList;
   //@}
 
 private:

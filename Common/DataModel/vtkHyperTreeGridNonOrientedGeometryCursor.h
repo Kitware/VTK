@@ -34,7 +34,7 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedGeometryCursor_h
 #define vtkHyperTreeGridNonOrientedGeometryCursor_h
@@ -42,12 +42,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkSmartPointer.h" // Used internally
 #include "vtkHyperTreeGridGeometryEntry.h" // Used internally
-#include "vtkHyperTreeGridTools.h" // for HasTree
-#include <vector> // std::vector
-#include <memory> // std::shared_ptr
-
+#include "vtkHyperTreeGridTools.h"         // for HasTree
+#include "vtkSmartPointer.h"               // Used internally
+#include <memory>                          // std::shared_ptr
+#include <vector>                          // std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;
@@ -58,13 +57,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedGeometryCursor : publ
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridNonOrientedGeometryCursor, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedGeometryCursor* New();
 
-  void Dump( ostream& os );
+  void Dump(ostream& os);
 
-// JB TODO 102018 On autorise le ToParent que jusqu'à ce que Level soit celui de la creation...
-// mais sans toRoot ? Une variante... qui serait utile aussi au niveau des SC
+  // JB TODO 102018 On autorise le ToParent que jusqu'à ce que Level soit celui de la creation...
+  // mais sans toRoot ? Une variante... qui serait utile aussi au niveau des SC
 
   /**
    * Create a copy of `this'.
@@ -75,38 +74,30 @@ public:
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false );
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize(
-    vtkHyperTreeGrid* grid,
-    vtkHyperTree* tree,
-    unsigned int level,
-    vtkHyperTreeGridGeometryEntry& entry );
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level,
+    vtkHyperTreeGridGeometryEntry& entry);
 
   /**
    * JB
    */
-  void Initialize(
-    vtkHyperTreeGrid* grid,
-    vtkHyperTree* tree,
-    unsigned int level,
-    vtkIdType index,
-    double* origin
-  );
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index,
+    double* origin);
 
   /**
    * JB
    */
-  void Initialize( vtkHyperTreeGridNonOrientedGeometryCursor* cursor );
+  void Initialize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
 
   //@{
   /**
    * Return if a Tree pointing exist
    */
-  bool HasTree() const { return vtk::hypertreegrid::HasTree( *this ); }
+  bool HasTree() const { return vtk::hypertreegrid::HasTree(*this); }
   //@}
 
   //@{
@@ -142,12 +133,12 @@ public:
   /**
    * JB
    */
-  void SetGlobalIndexStart( vtkIdType index );
+  void SetGlobalIndexStart(vtkIdType index);
 
   /**
    * JB
    */
-  void SetGlobalIndexFromLocal( vtkIdType index );
+  void SetGlobalIndexFromLocal(vtkIdType index);
 
   /**
    * JB
@@ -158,14 +149,14 @@ public:
   /**
    * JB
    */
-  void GetBounds( double bounds[6] );
-  void GetPoint( double point[3] );
+  void GetBounds(double bounds[6]);
+  void GetPoint(double point[3]);
 
   /**
    * Set the blanking mask is empty or not
    * \pre not_tree: tree
    */
-  void SetMask( bool state ) ;
+  void SetMask(bool state);
 
   /**
    * Determine whether blanking mask is empty or not
@@ -199,7 +190,7 @@ public:
    * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
    * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char ichild );
+  void ToChild(unsigned char ichild);
 
   /**
    * Move the cursor to the root vertex.
@@ -219,11 +210,10 @@ public:
    * JB Create a vtkHyperTreeGridOrientedGeometryCursor from input grid and
    * current entry data
    */
-  vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>
-  GetHyperTreeGridOrientedGeometryCursor( vtkHyperTreeGrid* grid );
+  vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor> GetHyperTreeGridOrientedGeometryCursor(
+    vtkHyperTreeGrid* grid);
 
 protected:
-
   /**
    * Constructor
    * JB Just pour vtkHyperTreeGridNonOrientedVonNeumannSuperCursor et Moore
@@ -262,10 +252,11 @@ protected:
   int LastValidEntry;
 
   // Hyper tree grid to which the cursor is attached
-  std::vector< vtkHyperTreeGridGeometryEntry > Entries;
+  std::vector<vtkHyperTreeGridGeometryEntry> Entries;
 
 private:
-  vtkHyperTreeGridNonOrientedGeometryCursor(const vtkHyperTreeGridNonOrientedGeometryCursor&) = delete;
+  vtkHyperTreeGridNonOrientedGeometryCursor(
+    const vtkHyperTreeGridNonOrientedGeometryCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedGeometryCursor&) = delete;
 };
 #endif

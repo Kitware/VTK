@@ -12,13 +12,13 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkExecutive.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
@@ -26,13 +26,13 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVASPTessellationReader.h"
 
-int TestVASPTessellationReader(int argc, char *argv[])
+int TestVASPTessellationReader(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -46,8 +46,8 @@ int TestVASPTessellationReader(int argc, char *argv[])
   reader->SetFileName(fname.c_str());
 
   reader->UpdateInformation();
-  vtkInformation *outInfo = reader->GetExecutive()->GetOutputInformation(0);
-  double *times = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  vtkInformation* outInfo = reader->GetExecutive()->GetOutputInformation(0);
+  double* times = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (nTimes < 8)
   {
@@ -102,7 +102,7 @@ int TestVASPTessellationReader(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win);
 
-  win->SetSize(450,450);
+  win->SetSize(450, 450);
   win->Render();
 
   for (size_t i = 0; i < 4; ++i)

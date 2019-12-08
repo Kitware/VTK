@@ -28,14 +28,14 @@
  *
  * @sa
  * vtkProp3D
-*/
+ */
 
 #ifndef vtkTextActor3D_h
 #define vtkTextActor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
-#include <string> // for ivar
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <string>                   // for ivar
 
 class vtkImageActor;
 class vtkImageData;
@@ -44,8 +44,8 @@ class vtkTextProperty;
 class VTKRENDERINGCORE_EXPORT vtkTextActor3D : public vtkProp3D
 {
 public:
-  static vtkTextActor3D *New();
-  vtkTypeMacro(vtkTextActor3D,vtkProp3D);
+  static vtkTextActor3D* New();
+  vtkTypeMacro(vtkTextActor3D, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -60,8 +60,8 @@ public:
   /**
    * Set/Get the text property.
    */
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  virtual void SetTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   //@}
 
   /**
@@ -76,13 +76,13 @@ public:
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
 
   /**
    * Get the vtkTextRenderer-derived bounding box for the given vtkTextProperty
@@ -98,7 +98,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Force the actor to render during the opaque or translucent pass.
@@ -131,16 +131,16 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
 protected:
-   vtkTextActor3D();
+  vtkTextActor3D();
   ~vtkTextActor3D() override;
 
-  char            *Input;
+  char* Input;
 
-  vtkImageActor   *ImageActor;
-  vtkImageData    *ImageData;
-  vtkTextProperty *TextProperty;
+  vtkImageActor* ImageActor;
+  vtkImageData* ImageData;
+  vtkTextProperty* TextProperty;
 
-  vtkTimeStamp    BuildTime;
+  vtkTimeStamp BuildTime;
   std::string LastInputString;
 
   virtual int UpdateImageActor();
@@ -149,6 +149,5 @@ private:
   vtkTextActor3D(const vtkTextActor3D&) = delete;
   void operator=(const vtkTextActor3D&) = delete;
 };
-
 
 #endif

@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
-*/
+ */
 
 #ifndef vtkUniformGridPartitioner_h
 #define vtkUniformGridPartitioner_h
@@ -35,53 +35,52 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
-  public vtkMultiBlockDataSetAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner
+  : public vtkMultiBlockDataSetAlgorithm
 {
-  public:
-      static vtkUniformGridPartitioner *New();
-      vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf(ostream &oss, vtkIndent indent ) override;
+public:
+  static vtkUniformGridPartitioner* New();
+  vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-      //@{
-      /**
-       * Set/Get macro for the number of subdivisions.
-       */
-      vtkGetMacro(NumberOfPartitions,int);
-      vtkSetMacro(NumberOfPartitions,int);
-      //@}
+  //@{
+  /**
+   * Set/Get macro for the number of subdivisions.
+   */
+  vtkGetMacro(NumberOfPartitions, int);
+  vtkSetMacro(NumberOfPartitions, int);
+  //@}
 
-      //@{
-      /**
-       * Set/Get macro for the number of ghost layers.
-       */
-      vtkGetMacro(NumberOfGhostLayers,int);
-      vtkSetMacro(NumberOfGhostLayers,int);
-      //@}
+  //@{
+  /**
+   * Set/Get macro for the number of ghost layers.
+   */
+  vtkGetMacro(NumberOfGhostLayers, int);
+  vtkSetMacro(NumberOfGhostLayers, int);
+  //@}
 
-      //@{
-      vtkGetMacro(DuplicateNodes,vtkTypeBool);
-      vtkSetMacro(DuplicateNodes,vtkTypeBool);
-      vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
-      //@}
+  //@{
+  vtkGetMacro(DuplicateNodes, vtkTypeBool);
+  vtkSetMacro(DuplicateNodes, vtkTypeBool);
+  vtkBooleanMacro(DuplicateNodes, vtkTypeBool);
+  //@}
 
-  protected:
-    vtkUniformGridPartitioner();
-    ~vtkUniformGridPartitioner() override;
+protected:
+  vtkUniformGridPartitioner();
+  ~vtkUniformGridPartitioner() override;
 
-    // Standard Pipeline methods
-    int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
-    int FillInputPortInformation(int port, vtkInformation *info) override;
-    int FillOutputPortInformation(int port, vtkInformation *info) override;
+  // Standard Pipeline methods
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-    int NumberOfPartitions;
-    int NumberOfGhostLayers;
-    vtkTypeBool DuplicateNodes;
-  private:
-    vtkUniformGridPartitioner(const vtkUniformGridPartitioner &) = delete;
-    void operator=(const vtkUniformGridPartitioner &) = delete;
+  int NumberOfPartitions;
+  int NumberOfGhostLayers;
+  vtkTypeBool DuplicateNodes;
 
+private:
+  vtkUniformGridPartitioner(const vtkUniformGridPartitioner&) = delete;
+  void operator=(const vtkUniformGridPartitioner&) = delete;
 };
 
 #endif /* VTKUNIFORMGRIDPARTITIONER_H_ */

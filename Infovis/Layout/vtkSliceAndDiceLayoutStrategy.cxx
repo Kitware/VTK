@@ -43,14 +43,12 @@ vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy() = default;
 
 void vtkSliceAndDiceLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // Alternating tree layout method
 void vtkSliceAndDiceLayoutStrategy::Layout(
-    vtkTree* inputTree,
-    vtkDataArray* coordsArray,
-    vtkDataArray* sizeArray)
+  vtkTree* inputTree, vtkDataArray* coordsArray, vtkDataArray* sizeArray)
 {
   if (!inputTree)
   {
@@ -62,13 +60,11 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
     return;
   }
 
-  vtkSmartPointer<vtkTreeDFSIterator> dfs =
-    vtkSmartPointer<vtkTreeDFSIterator>::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
 
-  vtkSmartPointer<vtkAdjacentVertexIterator> it =
-    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+  vtkSmartPointer<vtkAdjacentVertexIterator> it = vtkSmartPointer<vtkAdjacentVertexIterator>::New();
 
   while (dfs->HasNext())
   {
@@ -76,12 +72,13 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
     bool vertical = (inputTree->GetLevel(vertex) % 2) == 1;
     if (vertex == inputTree->GetRoot())
     {
-      coords[0] = 0; coords[1] = 1; coords[2] = 0; coords[3] = 1;
+      coords[0] = 0;
+      coords[1] = 1;
+      coords[2] = 0;
+      coords[3] = 1;
       coordsArray->SetTuple(vertex, coords);
-      inputTree->GetPoints()->SetPoint(vertex,
-        (coords[0] + coords[1])/2.0,
-        (coords[2] + coords[3])/2.0,
-        0.0);
+      inputTree->GetPoints()->SetPoint(
+        vertex, (coords[0] + coords[1]) / 2.0, (coords[2] + coords[3]) / 2.0, 0.0);
     }
     double doubleCoords[4];
     coordsArray->GetTuple(vertex, doubleCoords);
@@ -131,24 +128,22 @@ void vtkSliceAndDiceLayoutStrategy::Layout(
       if (vertical)
       {
         delta = xSpace * (part / total);
-        coords[0] = parentMinX + oldDelta;     // minX
-        coords[1] = parentMinX + delta;        // maxX
-        coords[2] = parentMinY;                // minY
-        coords[3] = parentMaxY;                // maxY
+        coords[0] = parentMinX + oldDelta; // minX
+        coords[1] = parentMinX + delta;    // maxX
+        coords[2] = parentMinY;            // minY
+        coords[3] = parentMaxY;            // maxY
       }
       else
       {
         delta = ySpace * (part / total);
-        coords[0] = parentMinX;                // minX
-        coords[1] = parentMaxX;                // maxX
-        coords[2] = parentMaxY - delta;        // maxY
-        coords[3] = parentMaxY - oldDelta;     // minY
+        coords[0] = parentMinX;            // minX
+        coords[1] = parentMaxX;            // maxX
+        coords[2] = parentMaxY - delta;    // maxY
+        coords[3] = parentMaxY - oldDelta; // minY
       }
       coordsArray->SetTuple(child, coords);
-      inputTree->GetPoints()->SetPoint(child,
-        (coords[0] + coords[1])/2.0,
-        (coords[2] + coords[3])/2.0,
-        0.0);
+      inputTree->GetPoints()->SetPoint(
+        child, (coords[0] + coords[1]) / 2.0, (coords[2] + coords[3]) / 2.0, 0.0);
     }
   }
 }

@@ -16,6 +16,7 @@
 
 #include "vtkCell.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -29,21 +30,20 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-
 namespace
 {
 
-  void determineMinMax(int piece, int numPieces, vtkIdType numCells,
-                       vtkIdType& minCell, vtkIdType& maxCell)
-  {
-    const float fnumPieces = static_cast<float>(numPieces);
-    const float fminCell = (numCells/fnumPieces) * piece;
-    const float fmaxCell = fminCell + (numCells/fnumPieces);
+void determineMinMax(
+  int piece, int numPieces, vtkIdType numCells, vtkIdType& minCell, vtkIdType& maxCell)
+{
+  const float fnumPieces = static_cast<float>(numPieces);
+  const float fminCell = (numCells / fnumPieces) * piece;
+  const float fmaxCell = fminCell + (numCells / fnumPieces);
 
-    //round up if over N.5
-    minCell = static_cast<vtkIdType>(fminCell + 0.5f);
-    maxCell = static_cast<vtkIdType>(fmaxCell + 0.5f);
-  }
+  // round up if over N.5
+  minCell = static_cast<vtkIdType>(fminCell + 0.5f);
+  maxCell = static_cast<vtkIdType>(fmaxCell + 0.5f);
+}
 }
 
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
@@ -53,10 +53,8 @@ vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
   this->CreateGhostCells = 1;
 }
 
-int vtkExtractUnstructuredGridPiece::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkExtractUnstructuredGridPiece::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
@@ -64,28 +62,22 @@ int vtkExtractUnstructuredGridPiece::RequestInformation(
   return 1;
 }
 
-int vtkExtractUnstructuredGridPiece::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkExtractUnstructuredGridPiece::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   return 1;
 }
 
-void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
-                                              vtkIdList *pointOwnership,
-                                              int piece, int numPieces,
-                                              vtkUnstructuredGrid *input)
+void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray* tags, vtkIdList* pointOwnership,
+  int piece, int numPieces, vtkUnstructuredGrid* input)
 {
   vtkIdType idx, ptId;
-  vtkIdType numCellPts;
 
   vtkIdType numCells = input->GetNumberOfCells();
 
@@ -99,17 +91,17 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     }
   }
 
-  //no point on tagging cells if we have no cells
-  if(numCells == 0)
+  // no point on tagging cells if we have no cells
+  if (numCells == 0)
   {
     return;
   }
 
   // Brute force division.
-  //mark all we own as zero and the rest as -1
+  // mark all we own as zero and the rest as -1
   vtkIdType minCell = 0;
   vtkIdType maxCell = 0;
-  determineMinMax(piece,numPieces,numCells,minCell,maxCell);
+  determineMinMax(piece, numPieces, numCells, minCell, maxCell);
 
   for (idx = 0; idx < minCell; ++idx)
   {
@@ -124,17 +116,18 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     tags->SetValue(idx, -1);
   }
 
-  vtkIdType* cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : nullptr);
-  if(pointOwnership && cellPointer)
+  vtkCellArray* cells = input->GetCells();
+  if (pointOwnership && cells)
   {
-    for (idx = 0; idx < numCells; ++idx)
+    auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(cells->NewIterator());
+    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
-      // Fill in point ownership mapping.
-      numCellPts = cellPointer[0];
-      vtkIdType* ids = cellPointer+1;
-      // Move to the next cell.
-      cellPointer += (1 + numCellPts);
-      for (int j = 0; j < numCellPts; ++j)
+      // Fill in point ownership mapping
+      vtkIdType numCellPts;
+      const vtkIdType* ids;
+      cellIter->GetCurrentCell(numCellPts, ids);
+
+      for (vtkIdType j = 0; j < numCellPts; ++j)
       {
         ptId = ids[j];
         if (pointOwnership->GetId(ptId) == -1)
@@ -146,50 +139,43 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
   }
 }
 
-int vtkExtractUnstructuredGridPiece::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* input =
+    vtkUnstructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
-  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  unsigned char* cellTypes = (input->GetCellTypesArray() ? input->GetCellTypesArray()->GetPointer(0) : nullptr);
+  vtkPointData *pd = input->GetPointData(), *outPD = output->GetPointData();
+  vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
+  unsigned char* cellTypes =
+    (input->GetCellTypesArray() ? input->GetCellTypesArray()->GetPointer(0) : nullptr);
   int cellType;
-  vtkIntArray *cellTags;
+  vtkIntArray* cellTags;
   int ghostLevel, piece, numPieces;
-  vtkIdType cellId, newCellId;
-  vtkIdList *pointMap;
-  vtkIdList *newCellPts = vtkIdList::New();
-  vtkPoints *newPoints;
+  vtkIdType newCellId;
+  vtkIdList* pointMap;
+  vtkIdList* newCellPts = vtkIdList::New();
+  vtkPoints* newPoints;
   vtkUnsignedCharArray* cellGhostLevels = nullptr;
-  vtkIdList *pointOwnership = nullptr;
+  vtkIdList* pointOwnership = nullptr;
   vtkUnsignedCharArray* pointGhostLevels = nullptr;
   vtkIdType i, ptId, newId, numPts, numCells;
-  int numCellPts;
-  vtkIdType *cellPointer;
-  vtkIdType *ids;
-  vtkIdType *faceStream;
+  vtkIdType* faceStream;
   vtkIdType numFaces;
   vtkIdType numFacePts;
-  double *x;
+  double* x;
 
   // Pipeline update piece will tell us what to generate.
-  ghostLevel = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  piece = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
@@ -235,87 +221,93 @@ int vtkExtractUnstructuredGridPiece::RequestData(
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
 
-  pointMap = vtkIdList::New(); //maps old point ids into new
+  pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
-  for (i=0; i < numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    pointMap->SetId(i,-1);
+    pointMap->SetId(i, -1);
   }
 
   // Filter the cells
-  cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : nullptr);
-  for (cellId=0; cellId < numCells; cellId++)
+  vtkCellArray* cells = input->GetCells();
+  if (cells)
   {
-    // Direct access to cells.
-    cellType = cellTypes[cellId];
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
+    auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(cells->NewIterator());
 
-    if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
+    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
-      if (cellGhostLevels)
+      const vtkIdType cellId = cellIter->GetCurrentCellId();
+      vtkIdType numCellPts;
+      const vtkIdType* ids;
+      cellIter->GetCurrentCell(numCellPts, ids);
+
+      cellType = cellTypes[cellId];
+
+      if (cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {
-        cellGhostLevels->InsertNextValue(
-          cellTags->GetValue(cellId) > 0 ?
-          vtkDataSetAttributes::DUPLICATECELL : 0);
-      }
-      if (cellType != VTK_POLYHEDRON)
-      {
-        for (i=0; i < numCellPts; i++)
+        if (cellGhostLevels)
         {
-          ptId = ids[i];
-          if ( (newId = pointMap->GetId(ptId)) < 0 )
-          {
-            x = input->GetPoint(ptId);
-            newId = newPoints->InsertNextPoint(x);
-            if (pointGhostLevels && pointOwnership)
-            {
-              pointGhostLevels->InsertNextValue(
-                cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ?
-                vtkDataSetAttributes::DUPLICATEPOINT : 0);
-            }
-            pointMap->SetId(ptId,newId);
-            outPD->CopyData(pd,ptId,newId);
-          }
-          newCellPts->InsertId(i,newId);
+          cellGhostLevels->InsertNextValue(
+            cellTags->GetValue(cellId) > 0 ? vtkDataSetAttributes::DUPLICATECELL : 0);
         }
-      }
-      else
-      { // Polyhedron, need to process face stream.
-        faceStream = input->GetFaces(cellId);
-        numFaces = *faceStream++;
-        newCellPts->InsertNextId(numFaces);
-        for (vtkIdType face = 0; face < numFaces; ++face)
+        if (cellType != VTK_POLYHEDRON)
         {
-          numFacePts = *faceStream++;
-          newCellPts->InsertNextId(numFacePts);
-          while (numFacePts-- > 0)
+          for (i = 0; i < numCellPts; i++)
           {
-            ptId = *faceStream++;
-            if ( (newId = pointMap->GetId(ptId)) < 0 )
+            ptId = ids[i];
+            if ((newId = pointMap->GetId(ptId)) < 0)
             {
               x = input->GetPoint(ptId);
               newId = newPoints->InsertNextPoint(x);
               if (pointGhostLevels && pointOwnership)
               {
                 pointGhostLevels->InsertNextValue(
-                  cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ?
-                  vtkDataSetAttributes::DUPLICATEPOINT : 0);
+                  cellTags->GetValue(pointOwnership->GetId(ptId)) > 0
+                    ? vtkDataSetAttributes::DUPLICATEPOINT
+                    : 0);
               }
-              pointMap->SetId(ptId,newId);
-              outPD->CopyData(pd,ptId,newId);
+              pointMap->SetId(ptId, newId);
+              outPD->CopyData(pd, ptId, newId);
             }
-            newCellPts->InsertNextId(newId);
+            newCellPts->InsertId(i, newId);
           }
         }
-      }
-      newCellId = output->InsertNextCell(cellType,newCellPts);
-      outCD->CopyData(cd,cellId,newCellId);
-      newCellPts->Reset();
-    } // satisfied thresholding
-  } // for all cells
+        else
+        { // Polyhedron, need to process face stream.
+          faceStream = input->GetFaces(cellId);
+          numFaces = *faceStream++;
+          newCellPts->InsertNextId(numFaces);
+          for (vtkIdType face = 0; face < numFaces; ++face)
+          {
+            numFacePts = *faceStream++;
+            newCellPts->InsertNextId(numFacePts);
+            while (numFacePts-- > 0)
+            {
+              ptId = *faceStream++;
+              if ((newId = pointMap->GetId(ptId)) < 0)
+              {
+                x = input->GetPoint(ptId);
+                newId = newPoints->InsertNextPoint(x);
+                if (pointGhostLevels && pointOwnership)
+                {
+                  pointGhostLevels->InsertNextValue(
+                    cellTags->GetValue(pointOwnership->GetId(ptId)) > 0
+                      ? vtkDataSetAttributes::DUPLICATEPOINT
+                      : 0);
+                }
+                pointMap->SetId(ptId, newId);
+                outPD->CopyData(pd, ptId, newId);
+              }
+              newCellPts->InsertNextId(newId);
+            }
+          }
+        }
+        newCellId = output->InsertNextCell(cellType, newCellPts);
+        outCD->CopyData(cd, cellId, newCellId);
+        newCellPts->Reset();
+      } // satisfied thresholding
+    }   // for all cells
+  }     // input has cells
 
   // Split up points that are not used by cells,
   // and have not been assigned to any piece.
@@ -344,13 +336,12 @@ int vtkExtractUnstructuredGridPiece::RequestData(
         {
           pointGhostLevels->InsertNextValue(0);
         }
-        outPD->CopyData(pd,idx,newId);
+        outPD->CopyData(pd, idx, newId);
       }
     }
   }
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
-                << " number of cells.");
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " number of cells.");
 
   // now clean up / update ourselves
   pointMap->Delete();
@@ -386,26 +377,23 @@ int vtkExtractUnstructuredGridPiece::RequestData(
 
 void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Create Ghost Cells: "
-     << (this->CreateGhostCells ? "On\n" : "Off\n");
+  os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }
 
 void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
-                                                    vtkUnstructuredGrid *input,
-                                                    vtkIntArray *cellTags,
-                                                    int piece, int numPieces)
+  vtkUnstructuredGrid* input, vtkIntArray* cellTags, int piece, int numPieces)
 {
   const vtkIdType numCells = input->GetNumberOfCells();
   vtkNew<vtkIdList> cellPointIds;
   vtkNew<vtkIdList> neighborIds;
 
-  //for level 1 we have an optimal implementation
-  //that can compute the subset of cells we need to check
+  // for level 1 we have an optimal implementation
+  // that can compute the subset of cells we need to check
   vtkIdType minCell = 0;
   vtkIdType maxCell = 0;
-  determineMinMax(piece,numPieces,numCells,minCell,maxCell);
+  determineMinMax(piece, numPieces, numCells, minCell, maxCell);
   for (vtkIdType idx = minCell; idx < maxCell; ++idx)
   {
     input->GetCellPoints(idx, cellPointIds);
@@ -416,10 +404,10 @@ void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
       input->GetPointCells(pointId, neighborIds);
 
       const vtkIdType numNeighbors = neighborIds->GetNumberOfIds();
-      for(vtkIdType k= 0; k < numNeighbors; ++k)
+      for (vtkIdType k = 0; k < numNeighbors; ++k)
       {
         const vtkIdType neighborCellId = neighborIds->GetId(k);
-        if(cellTags->GetValue(neighborCellId) == -1)
+        if (cellTags->GetValue(neighborCellId) == -1)
         {
           cellTags->SetValue(neighborCellId, 1);
         }
@@ -428,33 +416,32 @@ void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
   }
 }
 
-void vtkExtractUnstructuredGridPiece::AddGhostLevel(vtkUnstructuredGrid *input,
-                                                    vtkIntArray *cellTags,
-                                                    int level)
+void vtkExtractUnstructuredGridPiece::AddGhostLevel(
+  vtkUnstructuredGrid* input, vtkIntArray* cellTags, int level)
 {
-  //for layers of ghost cells after the first we have to search
-  //the entire input dataset. in the future we can extend this
-  //function to return the list of cells that we set on our
-  //level so we only have to search that subset for neighbors
+  // for layers of ghost cells after the first we have to search
+  // the entire input dataset. in the future we can extend this
+  // function to return the list of cells that we set on our
+  // level so we only have to search that subset for neighbors
   const vtkIdType numCells = input->GetNumberOfCells();
   vtkNew<vtkIdList> cellPointIds;
   vtkNew<vtkIdList> neighborIds;
   for (vtkIdType idx = 0; idx < numCells; ++idx)
   {
-    if(cellTags->GetValue(idx) == level - 1)
+    if (cellTags->GetValue(idx) == level - 1)
     {
       input->GetCellPoints(idx, cellPointIds);
       const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
       for (vtkIdType j = 0; j < numCellPoints; j++)
       {
         const vtkIdType pointId = cellPointIds->GetId(j);
-        input->GetPointCells(pointId,neighborIds);
+        input->GetPointCells(pointId, neighborIds);
 
-        const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
-        for(vtkIdType k= 0; k < numNeighbors; ++k)
+        const vtkIdType numNeighbors = neighborIds->GetNumberOfIds();
+        for (vtkIdType k = 0; k < numNeighbors; ++k)
         {
           const vtkIdType neighborCellId = neighborIds->GetId(k);
-          if(cellTags->GetValue(neighborCellId) == -1)
+          if (cellTags->GetValue(neighborCellId) == -1)
           {
             cellTags->SetValue(neighborCellId, level);
           }

@@ -49,13 +49,13 @@
  * @sa
  * vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
  * vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
-*/
+ */
 
 #ifndef vtkImageTracerWidget_h
 #define vtkImageTracerWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAbstractPropPicker;
 class vtkActor;
@@ -74,8 +74,8 @@ class vtkTransformPolyDataFilter;
 #define VTK_ITW_PROJECTION_YZ 0
 #define VTK_ITW_PROJECTION_XZ 1
 #define VTK_ITW_PROJECTION_XY 2
-#define VTK_ITW_SNAP_CELLS    0
-#define VTK_ITW_SNAP_POINTS   1
+#define VTK_ITW_SNAP_CELLS 0
+#define VTK_ITW_SNAP_POINTS 1
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkImageTracerWidget : public vtk3DWidget
 {
@@ -83,9 +83,9 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkImageTracerWidget *New();
+  static vtkImageTracerWidget* New();
 
-  vtkTypeMacro(vtkImageTracerWidget,vtk3DWidget);
+  vtkTypeMacro(vtkImageTracerWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -94,11 +94,12 @@ public:
    */
   void SetEnabled(int) override;
   void PlaceWidget(double bounds[6]) override;
-  void PlaceWidget() override
-    {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
+  void PlaceWidget() override { this->Superclass::PlaceWidget(); }
+  void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override
+  {
+    this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
+  }
   //@}
 
   //@{
@@ -132,9 +133,9 @@ public:
   /**
    * Force handles to be on a specific ortho plane. Default is Off.
    */
-  vtkSetMacro(ProjectToPlane,vtkTypeBool);
-  vtkGetMacro(ProjectToPlane,vtkTypeBool);
-  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
+  vtkSetMacro(ProjectToPlane, vtkTypeBool);
+  vtkGetMacro(ProjectToPlane, vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane, vtkTypeBool);
   //@}
 
   //@{
@@ -144,14 +145,11 @@ public:
    * necessary to specify a plane on which to generate them, even though
    * ProjectToPlane may be turned off.
    */
-  vtkSetClampMacro(ProjectionNormal,int,VTK_ITW_PROJECTION_YZ,VTK_ITW_PROJECTION_XY);
-  vtkGetMacro(ProjectionNormal,int);
-  void SetProjectionNormalToXAxes()
-    { this->SetProjectionNormal(0); }
-  void SetProjectionNormalToYAxes()
-    { this->SetProjectionNormal(1); }
-  void SetProjectionNormalToZAxes()
-    { this->SetProjectionNormal(2); }
+  vtkSetClampMacro(ProjectionNormal, int, VTK_ITW_PROJECTION_YZ, VTK_ITW_PROJECTION_XY);
+  vtkGetMacro(ProjectionNormal, int);
+  void SetProjectionNormalToXAxes() { this->SetProjectionNormal(0); }
+  void SetProjectionNormalToYAxes() { this->SetProjectionNormal(1); }
+  void SetProjectionNormalToZAxes() { this->SetProjectionNormal(2); }
   //@}
 
   //@{
@@ -163,17 +161,17 @@ public:
    * the prop on which tracing is performed.
    */
   void SetProjectionPosition(double position);
-  vtkGetMacro(ProjectionPosition,double);
+  vtkGetMacro(ProjectionPosition, double);
   //@}
 
-   //@{
-   /**
-    * Force snapping to image data while tracing. Default is Off.
-    */
+  //@{
+  /**
+   * Force snapping to image data while tracing. Default is Off.
+   */
   void SetSnapToImage(vtkTypeBool snap);
-  vtkGetMacro(SnapToImage,vtkTypeBool);
-  vtkBooleanMacro(SnapToImage,vtkTypeBool);
-   //@}
+  vtkGetMacro(SnapToImage, vtkTypeBool);
+  vtkBooleanMacro(SnapToImage, vtkTypeBool);
+  //@}
 
   //@{
   /**
@@ -181,9 +179,9 @@ public:
    * form a closed path by connecting first to last path points.
    * Default is Off.
    */
-  vtkSetMacro(AutoClose,vtkTypeBool);
-  vtkGetMacro(AutoClose,vtkTypeBool);
-  vtkBooleanMacro(AutoClose,vtkTypeBool);
+  vtkSetMacro(AutoClose, vtkTypeBool);
+  vtkGetMacro(AutoClose, vtkTypeBool);
+  vtkBooleanMacro(AutoClose, vtkTypeBool);
   //@}
 
   //@{
@@ -193,8 +191,8 @@ public:
    * centers.
    * Default is 1.0
    */
-  vtkSetMacro(CaptureRadius,double);
-  vtkGetMacro(CaptureRadius,double);
+  vtkSetMacro(CaptureRadius, double);
+  vtkGetMacro(CaptureRadius, double);
   //@}
 
   /**
@@ -203,7 +201,7 @@ public:
    * EndInteraction events are invoked. The user provides the vtkPolyData and
    * the points and cells representing the line are added to it.
    */
-  void GetPath(vtkPolyData *pd);
+  void GetPath(vtkPolyData* pd);
 
   /**
    * Get the handles' geometric representation via vtkGlyphSource2D.
@@ -215,8 +213,8 @@ public:
    * Set/Get the type of snapping to image data: center of a pixel/voxel or
    * nearest point defining a pixel/voxel.
    */
-  vtkSetClampMacro(ImageSnapType,int,VTK_ITW_SNAP_CELLS,VTK_ITW_SNAP_POINTS);
-  vtkGetMacro(ImageSnapType,int);
+  vtkSetClampMacro(ImageSnapType, int, VTK_ITW_SNAP_CELLS, VTK_ITW_SNAP_POINTS);
+  vtkGetMacro(ImageSnapType, int);
   //@}
 
   //@{
@@ -233,7 +231,7 @@ public:
   /**
    * Get the number of handles.
    */
-  vtkGetMacro(NumberOfHandles,int);
+  vtkGetMacro(NumberOfHandles, int);
   //@}
 
   //@{
@@ -241,8 +239,8 @@ public:
    * Enable/disable mouse interaction when the widget is visible.
    */
   void SetInteraction(vtkTypeBool interact);
-  vtkGetMacro(Interaction,vtkTypeBool);
-  vtkBooleanMacro(Interaction,vtkTypeBool);
+  vtkGetMacro(Interaction, vtkTypeBool);
+  vtkBooleanMacro(Interaction, vtkTypeBool);
   //@}
 
   /**
@@ -261,15 +259,15 @@ public:
   /**
    * Enable/Disable mouse button events
    */
-  vtkSetMacro(HandleLeftMouseButton,vtkTypeBool);
-  vtkGetMacro(HandleLeftMouseButton,vtkTypeBool);
-  vtkBooleanMacro(HandleLeftMouseButton,vtkTypeBool);
-  vtkSetMacro(HandleMiddleMouseButton,vtkTypeBool);
-  vtkGetMacro(HandleMiddleMouseButton,vtkTypeBool);
-  vtkBooleanMacro(HandleMiddleMouseButton,vtkTypeBool);
-  vtkSetMacro(HandleRightMouseButton,vtkTypeBool);
-  vtkGetMacro(HandleRightMouseButton,vtkTypeBool);
-  vtkBooleanMacro(HandleRightMouseButton,vtkTypeBool);
+  vtkSetMacro(HandleLeftMouseButton, vtkTypeBool);
+  vtkGetMacro(HandleLeftMouseButton, vtkTypeBool);
+  vtkBooleanMacro(HandleLeftMouseButton, vtkTypeBool);
+  vtkSetMacro(HandleMiddleMouseButton, vtkTypeBool);
+  vtkGetMacro(HandleMiddleMouseButton, vtkTypeBool);
+  vtkBooleanMacro(HandleMiddleMouseButton, vtkTypeBool);
+  vtkSetMacro(HandleRightMouseButton, vtkTypeBool);
+  vtkGetMacro(HandleRightMouseButton, vtkTypeBool);
+  vtkBooleanMacro(HandleRightMouseButton, vtkTypeBool);
   //@}
 
 protected:
@@ -280,7 +278,7 @@ protected:
   int State;
   enum WidgetState
   {
-    Start=0,
+    Start = 0,
     Tracing,
     Snapping,
     Erasing,
@@ -290,11 +288,9 @@ protected:
     Outside
   };
 
-  //handles the events
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  // handles the events
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // ProcessEvents() dispatches to these methods.
   void OnLeftButtonDown();
@@ -308,66 +304,66 @@ protected:
   void AddObservers();
 
   // Controlling ivars
-  vtkTypeBool    Interaction;
-  int    ProjectionNormal;
+  vtkTypeBool Interaction;
+  int ProjectionNormal;
   double ProjectionPosition;
-  vtkTypeBool    ProjectToPlane;
-  int    ImageSnapType;
-  vtkTypeBool    SnapToImage;
+  vtkTypeBool ProjectToPlane;
+  int ImageSnapType;
+  vtkTypeBool SnapToImage;
   double CaptureRadius; // tolerance for auto path close
-  vtkTypeBool    AutoClose;
-  int    IsSnapping;
-  int    LastX;
-  int    LastY;
+  vtkTypeBool AutoClose;
+  int IsSnapping;
+  int LastX;
+  int LastY;
 
-  void  Trace(int , int );
-  void  Snap(double* );
-  void  MovePoint(const double* , const double* );
-  void  Translate(const double* , const double* );
-  void  ClosePath();
+  void Trace(int, int);
+  void Snap(double*);
+  void MovePoint(const double*, const double*);
+  void Translate(const double*, const double*);
+  void ClosePath();
 
   // 2D glyphs representing hot spots (e.g., handles)
-  vtkActor          **Handle;
-  vtkPolyData       **HandleGeometry;
-  vtkGlyphSource2D   *HandleGenerator;
+  vtkActor** Handle;
+  vtkPolyData** HandleGeometry;
+  vtkGlyphSource2D* HandleGenerator;
 
   // Transforms required as 2D glyphs are generated in the x-y plane
-  vtkTransformPolyDataFilter *TransformFilter;
-  vtkTransform               *Transform;
-  vtkFloatArray              *TemporaryHandlePoints;
+  vtkTransformPolyDataFilter* TransformFilter;
+  vtkTransform* Transform;
+  vtkFloatArray* TemporaryHandlePoints;
 
   void AppendHandles(double*);
   void ResetHandles();
-  void AllocateHandles(const int& );
-  void AdjustHandlePosition(const int& , double*);
-  int  HighlightHandle(vtkProp* ); // returns handle index or -1 on fail
-  void EraseHandle(const int& );
+  void AllocateHandles(const int&);
+  void AdjustHandlePosition(const int&, double*);
+  int HighlightHandle(vtkProp*); // returns handle index or -1 on fail
+  void EraseHandle(const int&);
   void SizeHandles() override;
-  void InsertHandleOnLine(double* );
+  void InsertHandleOnLine(double*);
 
   int NumberOfHandles;
-  vtkActor *CurrentHandle;
+  vtkActor* CurrentHandle;
   int CurrentHandleIndex;
 
-  vtkProp       *ViewProp;    // the prop we want to pick on
-  vtkPropPicker *PropPicker;  // the prop's picker
+  vtkProp* ViewProp;         // the prop we want to pick on
+  vtkPropPicker* PropPicker; // the prop's picker
 
   // Representation of the line
-  vtkPoints         *LinePoints;
-  vtkCellArray      *LineCells;
-  vtkActor          *LineActor;
-  vtkPolyData       *LineData;
-  vtkIdType          CurrentPoints[2];
+  vtkPoints* LinePoints;
+  vtkCellArray* LineCells;
+  vtkActor* LineActor;
+  vtkPolyData* LineData;
+  vtkIdType CurrentPoints[2];
 
-  void HighlightLine(const int& );
+  void HighlightLine(const int&);
   void BuildLinesFromHandles();
-  void ResetLine(double* );
-  void AppendLine(double* );
-  int  PickCount;
+  void ResetLine(double*);
+  void AppendLine(double*);
+  int PickCount;
 
   // Do the picking of the handles and the lines
-  vtkCellPicker *HandlePicker;
-  vtkCellPicker *LinePicker;
+  vtkCellPicker* HandlePicker;
+  vtkCellPicker* LinePicker;
   vtkAbstractPropPicker* CurrentPicker;
 
   // Register internal Pickers within PickingManager
@@ -375,10 +371,10 @@ protected:
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *HandleProperty;
-  vtkProperty *SelectedHandleProperty;
-  vtkProperty *LineProperty;
-  vtkProperty *SelectedLineProperty;
+  vtkProperty* HandleProperty;
+  vtkProperty* SelectedHandleProperty;
+  vtkProperty* LineProperty;
+  vtkProperty* SelectedLineProperty;
   void CreateDefaultProperties();
 
   // Enable/Disable mouse button events

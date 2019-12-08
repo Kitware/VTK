@@ -47,22 +47,21 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkArrayWriter_h
 #define vtkArrayWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
+#include "vtkStdString.h"    // For string API
 #include "vtkWriter.h"
-#include "vtkStdString.h" // For string API
 
 class vtkArray;
 
-class VTKIOCORE_EXPORT vtkArrayWriter :
-  public vtkWriter
+class VTKIOCORE_EXPORT vtkArrayWriter : public vtkWriter
 {
 public:
-  static vtkArrayWriter *New();
+  static vtkArrayWriter* New();
   vtkTypeMacro(vtkArrayWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -86,8 +85,7 @@ public:
   /**
    * The output string. This is only set when WriteToOutputString is set.
    */
-  virtual vtkStdString GetOutputString()
-    { return this->OutputString; }
+  virtual vtkStdString GetOutputString() { return this->OutputString; }
 
   //@{
   /**
@@ -151,4 +149,3 @@ private:
 };
 
 #endif
-

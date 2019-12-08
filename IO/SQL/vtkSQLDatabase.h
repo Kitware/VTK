@@ -48,7 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkSQLQuery
  * vtkSQLDatabaseSchema
-*/
+ */
 
 #ifndef vtkSQLDatabase_h
 #define vtkSQLDatabase_h
@@ -66,16 +66,16 @@ class vtkStringArray;
 // This is a list of features that each database may or may not
 // support.  As yet (April 2008) we don't provide access to most of
 // them.
-#define VTK_SQL_FEATURE_TRANSACTIONS            1000
-#define VTK_SQL_FEATURE_QUERY_SIZE              1001
-#define VTK_SQL_FEATURE_BLOB                    1002
-#define VTK_SQL_FEATURE_UNICODE                 1003
-#define VTK_SQL_FEATURE_PREPARED_QUERIES        1004
-#define VTK_SQL_FEATURE_NAMED_PLACEHOLDERS      1005
+#define VTK_SQL_FEATURE_TRANSACTIONS 1000
+#define VTK_SQL_FEATURE_QUERY_SIZE 1001
+#define VTK_SQL_FEATURE_BLOB 1002
+#define VTK_SQL_FEATURE_UNICODE 1003
+#define VTK_SQL_FEATURE_PREPARED_QUERIES 1004
+#define VTK_SQL_FEATURE_NAMED_PLACEHOLDERS 1005
 #define VTK_SQL_FEATURE_POSITIONAL_PLACEHOLDERS 1006
-#define VTK_SQL_FEATURE_LAST_INSERT_ID          1007
-#define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
-#define VTK_SQL_FEATURE_TRIGGERS                1009 // supported
+#define VTK_SQL_FEATURE_LAST_INSERT_ID 1007
+#define VTK_SQL_FEATURE_BATCH_OPERATIONS 1008
+#define VTK_SQL_FEATURE_TRIGGERS 1009 // supported
 
 // Default size for columns types which require a size to be specified
 // (i.e., VARCHAR), when no size has been specified
@@ -137,7 +137,7 @@ public:
   /**
    * Get the list of fields for a particular table.
    */
-  virtual vtkStringArray* GetRecord(const char *table) = 0;
+  virtual vtkStringArray* GetRecord(const char* table) = 0;
 
   /**
    * Return whether a feature is supported by the database.
@@ -156,7 +156,7 @@ public:
    * It must be overwritten for those SQL backends which allow such
    * preambles such as, e.g., MySQL.
    */
-  virtual vtkStdString GetTablePreamble( bool ) { return vtkStdString(); }
+  virtual vtkStdString GetTablePreamble(bool) { return vtkStdString(); }
 
   /**
    * Return the SQL string with the syntax to create a column inside a
@@ -166,9 +166,8 @@ public:
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., MySQL.
    */
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle );
+  virtual vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle);
 
   /**
    * Return the SQL string with the syntax to create an index inside a
@@ -182,10 +181,8 @@ public:
    * in the schema, a CREATE INDEX statement is returned and skipped is
    * set to true. Otherwise, skipped will always be returned false.
    */
-  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                              int tblHandle,
-                                              int idxHandle,
-                                              bool& skipped );
+  virtual vtkStdString GetIndexSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped);
 
   /**
    * Return the SQL string with the syntax to create a trigger using a
@@ -197,21 +194,20 @@ public:
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., PostgreSQL.
    */
-  virtual vtkStdString GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
-                                                int tblHandle,
-                                                int trgHandle );
+  virtual vtkStdString GetTriggerSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int trgHandle);
 
   /**
    * Create a the proper subclass given a URL.
    * The URL format for SQL databases is a true URL of the form:
    * 'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
    */
-  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL( const char* URL );
+  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL(const char* URL);
 
   /**
    * Effect a database schema.
    */
-  virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
+  virtual bool EffectSchema(vtkSQLDatabaseSchema*, bool dropIfExists = false);
 
   /**
    * Type for CreateFromURL callback.
@@ -248,11 +244,11 @@ protected:
    * given the URL. This is called by CreateFromURL() to initialize the instance.
    * Look at CreateFromURL() for details about the URL format.
    */
-  virtual bool ParseURL( const char* url ) = 0;
+  virtual bool ParseURL(const char* url) = 0;
 
 private:
-  vtkSQLDatabase(const vtkSQLDatabase &) = delete;
-  void operator=(const vtkSQLDatabase &) = delete;
+  vtkSQLDatabase(const vtkSQLDatabase&) = delete;
+  void operator=(const vtkSQLDatabase&) = delete;
 
   //@{
   /**
@@ -261,7 +257,6 @@ private:
   class vtkCallbackVector;
   static vtkCallbackVector* Callbacks;
   //@}
-
 };
 
 #endif // vtkSQLDatabase_h

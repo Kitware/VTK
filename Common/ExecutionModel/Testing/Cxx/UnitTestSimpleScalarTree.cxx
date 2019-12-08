@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkSimpleScalarTree.h"
-#include "vtkImageData.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
-#include "vtkSphereSource.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkSimpleScalarTree.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTestErrorObserver.h"
 
 #include <sstream>
@@ -30,12 +30,11 @@ int UnitTestSimpleScalarTree(int, char*[])
 {
   int status = 0;
 
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   std::cout << "Testing empty Print...";
-  vtkSmartPointer<vtkSimpleScalarTree> stree =
-    vtkSmartPointer<vtkSimpleScalarTree>::New();
+  vtkSmartPointer<vtkSimpleScalarTree> stree = vtkSmartPointer<vtkSimpleScalarTree>::New();
   std::ostringstream streePrint;
   stree->Print(streePrint);
   std::cout << "Passed" << std::endl;
@@ -55,8 +54,7 @@ int UnitTestSimpleScalarTree(int, char*[])
   }
 
   std::cout << "Testing no scalar data error...";
-  vtkSmartPointer<vtkSphereSource> aSphere =
-    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> aSphere = vtkSmartPointer<vtkSphereSource>::New();
   aSphere->Update();
   stree->SetDataSet(aSphere->GetOutput());
   stree->BuildTree();
@@ -74,15 +72,13 @@ int UnitTestSimpleScalarTree(int, char*[])
   std::cout << "Testing GetNextCell...";
   int status3 = 0;
   int dim = 5;
-  vtkSmartPointer<vtkImageData> anImage =
-    MakeImage(dim, dim, dim);
+  vtkSmartPointer<vtkImageData> anImage = MakeImage(dim, dim, dim);
   stree->SetDataSet(anImage);
   stree->SetMaxLevel(VTK_INT_MAX);
 
   vtkIdType cell;
-  vtkIdList *ids;
-  vtkSmartPointer<vtkFloatArray> scalars =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkIdList* ids;
+  vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
 
   // Verify that branching does not affect the number of cells found
   int numExpected = (dim - 1) * (dim - 1);
@@ -101,9 +97,8 @@ int UnitTestSimpleScalarTree(int, char*[])
       }
       if (numGot != numExpected)
       {
-        std::cout << "For " << v
-                  << " Expected " << numExpected
-                  << " but got " << numGot << std::endl;
+        std::cout << "For " << v << " Expected " << numExpected << " but got " << numGot
+                  << std::endl;
         ++status3;
       }
     }
@@ -134,18 +129,17 @@ int UnitTestSimpleScalarTree(int, char*[])
 
 vtkSmartPointer<vtkImageData> MakeImage(int dimx, int dimy, int dimz)
 {
-  vtkSmartPointer<vtkImageData> anImage =
-    vtkSmartPointer<vtkImageData>::New();
+  vtkSmartPointer<vtkImageData> anImage = vtkSmartPointer<vtkImageData>::New();
   anImage->SetDimensions(dimx, dimy, dimz);
-  anImage->AllocateScalars(VTK_FLOAT,1);
-  float* pixel = static_cast<float *>(anImage->GetScalarPointer(0,0,0));
+  anImage->AllocateScalars(VTK_FLOAT, 1);
+  float* pixel = static_cast<float*>(anImage->GetScalarPointer(0, 0, 0));
   float value = 0.0;
 
-  for(int z = 0; z < dimz; z++)
+  for (int z = 0; z < dimz; z++)
   {
-    for(int y = 0; y < dimy; y++)
+    for (int y = 0; y < dimy; y++)
     {
-      for(int x = 0; x < dimx; x++)
+      for (int x = 0; x < dimx; x++)
       {
         *pixel++ = value;
       }

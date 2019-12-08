@@ -18,13 +18,13 @@
  *
  * vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
  * vtkOpenGLActor interfaces to the OpenGL rendering library.
-*/
+ */
 
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
@@ -34,16 +34,16 @@ class vtkMatrix3x3;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
 {
 public:
-  static vtkOpenGLActor *New();
+  static vtkOpenGLActor* New();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
+  void Render(vtkRenderer* ren, vtkMapper* mapper) override;
 
-  virtual void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
+  virtual void GetKeyMatrices(vtkMatrix4x4*& WCVCMatrix, vtkMatrix3x3*& normalMatrix);
 
   /**
    * If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
@@ -65,9 +65,9 @@ protected:
   vtkOpenGLActor();
   ~vtkOpenGLActor() override;
 
-  vtkMatrix4x4 *MCWCMatrix;
-  vtkMatrix3x3 *NormalMatrix;
-  vtkTransform *NormalTransform;
+  vtkMatrix4x4* MCWCMatrix;
+  vtkMatrix3x3* NormalMatrix;
+  vtkTransform* NormalTransform;
   vtkTimeStamp KeyMatrixTime;
 
 private:

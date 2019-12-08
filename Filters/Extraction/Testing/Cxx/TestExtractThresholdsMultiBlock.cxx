@@ -18,6 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelection.h"
 #include "vtkIdFilter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMultiBlockDataGroupFilter.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -143,10 +144,12 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   }
   if (!vtkPointSet::SafeDownCast(extracted->GetBlock(1)))
   {
-    std::cerr << "Block 1 was not a vtkPointSet, but a " << extracted->GetBlock(1)->GetClassName() << " instead." << std::endl;
+    std::cerr << "Block 1 was not a vtkPointSet, but a " << extracted->GetBlock(1)->GetClassName()
+              << " instead." << std::endl;
     return EXIT_FAILURE;
   }
-  if (vtkPointSet::SafeDownCast(extracted->GetBlock(1))->GetPoints()->GetData()->GetDataType() != VTK_DOUBLE)
+  if (vtkPointSet::SafeDownCast(extracted->GetBlock(1))->GetPoints()->GetData()->GetDataType() !=
+    VTK_DOUBLE)
   {
     std::cerr << "Output for block 1 should have points with double precision" << std::endl;
     return EXIT_FAILURE;
@@ -179,7 +182,7 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     std::cerr << "Output was not a vtkMultiBlockDataSet." << std::endl;
     return EXIT_FAILURE;
   }
-  if (extracted->GetBlock(0) || extracted->GetBlock(1) || ! extracted->GetBlock(2))
+  if (extracted->GetBlock(0) || extracted->GetBlock(1) || !extracted->GetBlock(2))
   {
     std::cerr << "Blocks were not as expected" << std::endl;
     return EXIT_FAILURE;
@@ -190,5 +193,5 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     return EXIT_FAILURE;
   }
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

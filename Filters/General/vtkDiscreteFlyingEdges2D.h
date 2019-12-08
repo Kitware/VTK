@@ -39,14 +39,14 @@
  *
  * @sa
  * vtkDiscreteMarchingCubes vtkContourLoopExtraction
-*/
+ */
 
 #ifndef vtkDiscreteFlyingEdges2D_h
 #define vtkDiscreteFlyingEdges2D_h
 
+#include "vtkContourValues.h"        // Needed for direct access to ContourValues
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkImageData;
 
@@ -56,8 +56,8 @@ public:
   /**
    * Standard methods for instantiation, printing, and type information.
    */
-  static vtkDiscreteFlyingEdges2D *New();
-  vtkTypeMacro(vtkDiscreteFlyingEdges2D,vtkPolyDataAlgorithm);
+  static vtkDiscreteFlyingEdges2D* New();
+  vtkTypeMacro(vtkDiscreteFlyingEdges2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -69,43 +69,37 @@ public:
    * Set a particular contour value at contour number i. The index i ranges
    * between 0<=i<NumberOfContours.
    */
-  void SetValue(int i, double value)
-    {this->ContourValues->SetValue(i,value);}
+  void SetValue(int i, double value) { this->ContourValues->SetValue(i, value); }
 
   /**
    * Get the ith contour value.
    */
-  double GetValue(int i)
-    {return this->ContourValues->GetValue(i);}
+  double GetValue(int i) { return this->ContourValues->GetValue(i); }
 
   /**
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
-  double *GetValues()
-    {return this->ContourValues->GetValues();}
+  double* GetValues() { return this->ContourValues->GetValues(); }
 
   /**
    * Fill a supplied list with contour values. There will be
    * GetNumberOfContours() values in the list. Make sure you allocate
    * enough memory to hold the list.
    */
-  void GetValues(double *contourValues)
-    {this->ContourValues->GetValues(contourValues);}
+  void GetValues(double* contourValues) { this->ContourValues->GetValues(contourValues); }
 
   /**
    * Set the number of contours to place into the list. You only really
    * need to use this method to reduce list size. The method SetValue()
    * will automatically increase list size as needed.
    */
-  void SetNumberOfContours(int number)
-    {this->ContourValues->SetNumberOfContours(number);}
+  void SetNumberOfContours(int number) { this->ContourValues->SetNumberOfContours(number); }
 
   /**
    * Get the number of contours in the list of contour values.
    */
-  vtkIdType GetNumberOfContours()
-    {return this->ContourValues->GetNumberOfContours();}
+  vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
   //@{
   /**
@@ -113,9 +107,13 @@ public:
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double range[2])
-    {this->ContourValues->GenerateValues(numContours, range);}
+  {
+    this->ContourValues->GenerateValues(numContours, range);
+  }
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
-    {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
+  {
+    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+  }
   //@}
 
   //@{
@@ -123,9 +121,9 @@ public:
    * Option to set the point scalars of the output.  The scalars will be the
    * label values.  By default this flag is on.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars, int);
+  vtkGetMacro(ComputeScalars, int);
+  vtkBooleanMacro(ComputeScalars, int);
   //@}
 
   //@{
@@ -140,11 +138,10 @@ protected:
   vtkDiscreteFlyingEdges2D();
   ~vtkDiscreteFlyingEdges2D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkContourValues *ContourValues;
+  vtkContourValues* ContourValues;
   int ComputeScalars;
   int ArrayComponent;
 
@@ -152,6 +149,5 @@ private:
   vtkDiscreteFlyingEdges2D(const vtkDiscreteFlyingEdges2D&) = delete;
   void operator=(const vtkDiscreteFlyingEdges2D&) = delete;
 };
-
 
 #endif

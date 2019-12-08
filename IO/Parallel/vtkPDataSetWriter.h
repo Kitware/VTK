@@ -18,15 +18,15 @@
  *
  * vtkPDataSetWriter will write a piece of a file, and will also create
  * a metadata file that lists all of the files in a data set.
-*/
+ */
 
 #ifndef vtkPDataSetWriter_h
 #define vtkPDataSetWriter_h
 
-#include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetWriter.h"
+#include "vtkIOParallelModule.h" // For export macro
 
-#include <map> // for keeping track of extents
+#include <map>    // for keeping track of extents
 #include <vector> // for keeping track of extents
 
 class vtkImageData;
@@ -38,8 +38,8 @@ class VTKIOPARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
-  static vtkPDataSetWriter *New();
+  vtkTypeMacro(vtkPDataSetWriter, vtkDataSetWriter);
+  static vtkPDataSetWriter* New();
 
   /**
    * Write the pvtk file and cooresponding vtk files.
@@ -111,19 +111,14 @@ protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter() override;
 
-  ostream *OpenFile();
-  int WriteUnstructuredMetaData(vtkDataSet *input,
-                                char *root, char *str,
-                                size_t strSize, ostream *fptr);
-  int WriteImageMetaData(vtkImageData *input,
-                         char *root, char *str,
-                         size_t strSize, ostream *fptr);
-  int WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
-                                   char *root, char *str,
-                                   size_t strSize, ostream *fptr);
-  int WriteStructuredGridMetaData(vtkStructuredGrid *input,
-                                  char *root, char *str,
-                                  size_t strSize, ostream *fptr);
+  ostream* OpenFile();
+  int WriteUnstructuredMetaData(
+    vtkDataSet* input, char* root, char* str, size_t strSize, ostream* fptr);
+  int WriteImageMetaData(vtkImageData* input, char* root, char* str, size_t strSize, ostream* fptr);
+  int WriteRectilinearGridMetaData(
+    vtkRectilinearGrid* input, char* root, char* str, size_t strSize, ostream* fptr);
+  int WriteStructuredGridMetaData(
+    vtkStructuredGrid* input, char* root, char* str, size_t strSize, ostream* fptr);
 
   int StartPiece;
   int EndPiece;
@@ -132,7 +127,7 @@ protected:
 
   vtkTypeBool UseRelativeFileNames;
 
-  char *FilePattern;
+  char* FilePattern;
 
   void DeleteFiles();
 

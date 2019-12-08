@@ -42,7 +42,7 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 //----------------------------------------------------------------------------
 vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
 {
-  if( this->Internal != nullptr )
+  if (this->Internal != nullptr)
   {
     this->Internal->Delete();
   }
@@ -50,9 +50,7 @@ vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
 
 //----------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (!this->Internal->IsValid())
   {
@@ -61,11 +59,11 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
 
   int i;
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   bool emptyExtent = false;
   int uExt[6];
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     if (this->Internal->GetSize(i) < 1)
     {
@@ -85,22 +83,22 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
     int oWExt[6]; // For parallel parititon this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
+      int idx = oUExt[2 * i] - oWExt[2 * i]; // Extent value to index
       if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         idx = 0;
       }
-      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
-      int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
+      uExt[2 * i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
+      int jdx = oUExt[2 * i + 1] - oWExt[2 * i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         jdx = 0;
       }
-      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
+      uExt[2 * i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
     }
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -112,20 +110,18 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int wholeExtent[6], outWholeExt[6];
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
 
   this->Internal->Initialize(
-      this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
+    this->VOI, wholeExtent, this->SampleRate, (this->IncludeBoundary == 1));
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
   if (!this->Internal->IsValid())
@@ -134,22 +130,19 @@ int vtkExtractRectilinearGrid::RequestInformation(
     return 0;
   }
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               outWholeExt, 6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt, 6);
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkExtractRectilinearGrid::RequestData(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Reset internal helper to the actual extents of the piece we're working on:
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkRectilinearGrid *inGrid = vtkRectilinearGrid::GetData(inInfo);
-  this->Internal->Initialize(this->VOI, inGrid->GetExtent(), this->SampleRate,
-                             (this->IncludeBoundary != 0));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkRectilinearGrid* inGrid = vtkRectilinearGrid::GetData(inInfo);
+  this->Internal->Initialize(
+    this->VOI, inGrid->GetExtent(), this->SampleRate, (this->IncludeBoundary != 0));
 
   if (!this->Internal->IsValid())
   {
@@ -157,9 +150,9 @@ int vtkExtractRectilinearGrid::RequestData(
   }
 
   // Set the output extent -- this is how RequestDataImpl knows what to copy.
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkRectilinearGrid* output =
+    vtkRectilinearGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->SetExtent(this->Internal->GetOutputWholeExtent());
 
   return this->RequestDataImpl(inputVector, outputVector) ? 1 : 0;
@@ -167,46 +160,43 @@ int vtkExtractRectilinearGrid::RequestData(
 
 //----------------------------------------------------------------------------
 bool vtkExtractRectilinearGrid::RequestDataImpl(
-    vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if( (this->SampleRate[0] < 1) ||
-      (this->SampleRate[1] < 1) ||
-      (this->SampleRate[2] < 1) )
+  if ((this->SampleRate[0] < 1) || (this->SampleRate[1] < 1) || (this->SampleRate[2] < 1))
   {
     vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
     return false;
   }
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkRectilinearGrid* input =
+    vtkRectilinearGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkRectilinearGrid* output =
+    vtkRectilinearGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
   {
     return true;
   }
 
-  vtkPointData *pd=input->GetPointData();
-  vtkCellData *cd=input->GetCellData();
-  vtkPointData *outPD=output->GetPointData();
-  vtkCellData *outCD=output->GetCellData();
+  vtkPointData* pd = input->GetPointData();
+  vtkCellData* cd = input->GetCellData();
+  vtkPointData* outPD = output->GetPointData();
+  vtkCellData* outCD = output->GetCellData();
 
-  int *inExt = input->GetExtent();
-  int *outExt = output->GetExtent();
+  int* inExt = input->GetExtent();
+  int* outExt = output->GetExtent();
 
   int outDims[3];
-  vtkStructuredData::GetDimensionsFromExtent(outExt,outDims);
+  vtkStructuredData::GetDimensionsFromExtent(outExt, outDims);
 
   vtkDebugMacro(<< "Extracting Grid");
-  this->Internal->CopyPointsAndPointData(inExt,outExt,pd,nullptr,outPD,nullptr);
-  this->Internal->CopyCellData(inExt,outExt,cd,outCD);
+  this->Internal->CopyPointsAndPointData(inExt, outExt, pd, nullptr, outPD, nullptr);
+  this->Internal->CopyCellData(inExt, outExt, cd, outCD);
 
   // copy coordinates
   vtkDataArray* in_coords[3];
@@ -216,24 +206,23 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
 
   vtkDataArray* out_coords[3];
 
-  for(int dim=0; dim < 3; ++dim )
+  for (int dim = 0; dim < 3; ++dim)
   {
     // Allocate coordinates array for this dimension
-    out_coords[ dim ] =
-        vtkDataArray::CreateDataArray( in_coords[ dim ]->GetDataType() );
-    out_coords[ dim ]->SetNumberOfTuples( outDims[ dim ] );
+    out_coords[dim] = vtkDataArray::CreateDataArray(in_coords[dim]->GetDataType());
+    out_coords[dim]->SetNumberOfTuples(outDims[dim]);
 
-    for (int oExtVal = outExt[2*dim]; oExtVal <= outExt[2*dim+1]; ++oExtVal)
+    for (int oExtVal = outExt[2 * dim]; oExtVal <= outExt[2 * dim + 1]; ++oExtVal)
     {
-      int outExtIdx = oExtVal - outExt[2*dim];
+      int outExtIdx = oExtVal - outExt[2 * dim];
       int inExtIdx = this->Internal->GetMappedIndex(dim, outExtIdx);
       out_coords[dim]->SetTuple(outExtIdx, inExtIdx, in_coords[dim]);
     } // END for all points along this dimension in the output
-  } // END for all dimensions
+  }   // END for all dimensions
 
-  output->SetXCoordinates( out_coords[0] );
-  output->SetYCoordinates( out_coords[1] );
-  output->SetZCoordinates( out_coords[2] );
+  output->SetXCoordinates(out_coords[0]);
+  output->SetYCoordinates(out_coords[1]);
+  output->SetZCoordinates(out_coords[2]);
   out_coords[0]->Delete();
   out_coords[1]->Delete();
   out_coords[2]->Delete();
@@ -244,20 +233,15 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
 //----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", "
-     << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", "
-     << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", "
-     << this->VOI[5] << ")\n";
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " << this->VOI[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " << this->VOI[5] << ")\n";
 
-  os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "
-               << this->SampleRate[1] << ", "
-               << this->SampleRate[2] << ")\n";
+  os << indent << "Sample Rate: (" << this->SampleRate[0] << ", " << this->SampleRate[1] << ", "
+     << this->SampleRate[2] << ")\n";
 
-  os << indent << "Include Boundary: "
-     << (this->IncludeBoundary ? "On\n" : "Off\n");
+  os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }

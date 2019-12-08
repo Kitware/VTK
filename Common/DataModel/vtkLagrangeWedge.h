@@ -29,16 +29,16 @@
  * Lagrange wedge or for the triangular base and vary between 0 and 1. The
  * third parametric coordinate is between the two triangular faces and goes
  * from 0 to 1 as well.
-*/
+ */
 
 #ifndef vtkLagrangeWedge_h
 #define vtkLagrangeWedge_h
 
+#include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
-#include "vtkCellType.h" // For GetCellType.
-#include "vtkNew.h" // For member variable.
 
 class vtkCellData;
 class vtkDoubleArray;
@@ -57,7 +57,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkLagrangeWedge : public vtkNonLinearCell
 {
 public:
   static vtkLagrangeWedge* New();
-  vtkTypeMacro(vtkLagrangeWedge,vtkNonLinearCell);
+  vtkTypeMacro(vtkLagrangeWedge, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   int GetCellType() override { return VTK_LAGRANGE_WEDGE; }
@@ -71,30 +71,20 @@ public:
   void Initialize() override;
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-    int& subId, double pcoords[3],
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
-  void EvaluateLocation(
-    int& subId, const double pcoords[3], double x[3],
-    double* weights) override;
-  void Contour(
-    double value, vtkDataArray* cellScalars,
-    vtkIncrementalPointLocator* locator, vtkCellArray* verts,
-    vtkCellArray* lines, vtkCellArray* polys,
-    vtkPointData* inPd, vtkPointData* outPd,
-    vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
-  void Clip(
-    double value, vtkDataArray* cellScalars,
-    vtkIncrementalPointLocator* locator, vtkCellArray* polys,
-    vtkPointData* inPd, vtkPointData* outPd,
-    vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
-    int insideOut) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-    double x[3], double pcoords[3], int& subId) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
   void Derivatives(
-    int subId, const double pcoords[3], const double* values,
-    int dim, double* derivs) override;
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
   int GetParametricCenter(double center[3]) override;
 
@@ -115,14 +105,17 @@ public:
 
   static int GetNumberOfApproximatingWedges(const int* order);
   int GetNumberOfApproximatingWedges()
-  { return vtkLagrangeWedge::GetNumberOfApproximatingWedges(this->GetOrder()); }
+  {
+    return vtkLagrangeWedge::GetNumberOfApproximatingWedges(this->GetOrder());
+  }
 
 protected:
   vtkLagrangeWedge();
   ~vtkLagrangeWedge() override;
 
   vtkWedge* GetApprox();
-  void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
+  void PrepareApproxData(
+    vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
   vtkWedge* GetApproximateWedge(
     int subId, vtkDataArray* scalarsIn = nullptr, vtkDataArray* scalarsOut = nullptr);
 
@@ -150,7 +143,7 @@ private:
 
 inline int vtkLagrangeWedge::GetParametricCenter(double center[3])
 {
-  center[0] = center[1] = 1./3.;
+  center[0] = center[1] = 1. / 3.;
   center[2] = 0.5;
   return 0;
 }

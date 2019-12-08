@@ -19,7 +19,7 @@
  * vtkXMLUniformGridAMRWriter is a vtkXMLCompositeDataWriter subclass to
  * handle vtkUniformGridAMR datasets (including vtkNonOverlappingAMR and
  * vtkOverlappingAMR).
-*/
+ */
 
 #ifndef vtkXMLUniformGridAMRWriter_h
 #define vtkXMLUniformGridAMRWriter_h
@@ -37,8 +37,7 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() override
-    { return "vth"; }
+  const char* GetDefaultFileExtension() override { return "vth"; }
 
 protected:
   vtkXMLUniformGridAMRWriter();
@@ -56,13 +55,12 @@ protected:
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx) override;
+  int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx) override;
 
 private:
   vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) = delete;
   void operator=(const vtkXMLUniformGridAMRWriter&) = delete;
-
 };
 
 #endif

@@ -25,9 +25,9 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkUndirectedGraph.h"
 
 #include <algorithm>
@@ -39,20 +39,17 @@ vtkBoostExtractLargestComponent::vtkBoostExtractLargestComponent()
   this->InvertSelection = false;
 }
 
-int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(request),
-                                         vtkInformationVector **inputVector,
-                                         vtkInformationVector *outputVector)
+int vtkBoostExtractLargestComponent::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the input and output
-  vtkGraph* input = vtkGraph::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkGraph* output = vtkGraph::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkSmartPointer<vtkGraph> inputCopy;
   if (vtkDirectedGraph::SafeDownCast(input))
@@ -80,7 +77,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   components->GetValueRange(componentRange);
   std::vector<int> componentCount(componentRange[1] + 1);
 
-  for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
+  for (vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
   {
     componentCount[components->GetValue(i)]++;
   }
@@ -93,10 +90,10 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   std::sort(componentCount.rbegin(), componentCount.rend());
 
   // Find the original component ID of the component with the highest count
-  std::vector<int>::iterator it = find(originalComponentCount.begin(),
-    originalComponentCount.end(), componentCount[0]);
+  std::vector<int>::iterator it =
+    find(originalComponentCount.begin(), originalComponentCount.end(), componentCount[0]);
 
-  if(it == originalComponentCount.end())
+  if (it == originalComponentCount.end())
   {
     vtkErrorMacro("Should never get to the end of the components!");
     return 0;
@@ -104,26 +101,25 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
 
   int largestComponent = it - originalComponentCount.begin();
 
-  vtkDebugMacro("The largest component is " << largestComponent
-      << " and it has " << componentCount[0] << " vertices.");
+  vtkDebugMacro("The largest component is " << largestComponent << " and it has "
+                                            << componentCount[0] << " vertices.");
 
   // Put either the index of the vertices belonging to the largest connected component
   // or the index of the vertices NOT the largest connected component (depending on the
   // InververtSelection flag) into an array to be used to extract this part of the graph.
-  vtkSmartPointer<vtkIdTypeArray> ids =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
+  vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
+  for (vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
   {
-    if(!this->InvertSelection)
+    if (!this->InvertSelection)
     {
-      if(components->GetValue(i) == largestComponent)
+      if (components->GetValue(i) == largestComponent)
       {
         ids->InsertNextValue(i);
       }
     }
     else
     {
-      if(components->GetValue(i) != largestComponent)
+      if (components->GetValue(i) != largestComponent)
       {
         ids->InsertNextValue(i);
       }
@@ -133,11 +129,9 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   vtkDebugMacro(<< ids->GetNumberOfTuples() << " values selected.");
 
   // Mark all of the things in the graph that should be extracted
-  vtkSmartPointer<vtkSelection> selection =
-      vtkSmartPointer<vtkSelection>::New();
+  vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
 
-  vtkSmartPointer<vtkSelectionNode> node =
-    vtkSmartPointer<vtkSelectionNode>::New();
+  vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
   selection->AddNode(node);
   node->SetSelectionList(ids);
   node->SetContentType(vtkSelectionNode::INDICES);
@@ -157,7 +151,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
 
 void vtkBoostExtractLargestComponent::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "InvertSelection: " << this->InvertSelection << "\n";
 }

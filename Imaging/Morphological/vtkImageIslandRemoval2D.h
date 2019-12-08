@@ -20,18 +20,18 @@
  * a mask image.  It removes any island that has less than AreaThreshold
  * pixels.  Output has the same ScalarType as input.  It generates
  * the whole 2D output image for any output request.
-*/
+ */
 
 #ifndef vtkImageIslandRemoval2D_h
 #define vtkImageIslandRemoval2D_h
 
-
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
-typedef struct{
-  void *inPtr;
-  void *outPtr;
+typedef struct
+{
+  void* inPtr;
+  void* outPtr;
   int idx0;
   int idx1;
 } vtkImage2DIslandPixel;
@@ -43,8 +43,8 @@ public:
   /**
    * Constructor: Sets default filter to be identity.
    */
-  static vtkImageIslandRemoval2D *New();
-  vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
+  static vtkImageIslandRemoval2D* New();
+  vtkTypeMacro(vtkImageIslandRemoval2D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -90,9 +90,7 @@ protected:
   double IslandValue;
   double ReplaceValue;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) = delete;
@@ -100,6 +98,3 @@ private:
 };
 
 #endif
-
-
-

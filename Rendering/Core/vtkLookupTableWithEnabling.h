@@ -28,22 +28,22 @@
  * Indices of EnabledArray must map directly to those of the array passed
  * to MapScalars().
  *
-*/
+ */
 
 #ifndef vtkLookupTableWithEnabling_h
 #define vtkLookupTableWithEnabling_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkDataArray;
 
 class VTKRENDERINGCORE_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
 {
 public:
-  static vtkLookupTableWithEnabling *New();
+  static vtkLookupTableWithEnabling* New();
 
-  vtkTypeMacro(vtkLookupTableWithEnabling,vtkLookupTable);
+  vtkTypeMacro(vtkLookupTableWithEnabling, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,36 +53,31 @@ public:
    * passed to MapScalars().
    * Values of 0 in the array indicate the color should be desaturatated.
    */
-  vtkGetObjectMacro(EnabledArray,vtkDataArray);
-  virtual void SetEnabledArray(vtkDataArray *enabledArray);
+  vtkGetObjectMacro(EnabledArray, vtkDataArray);
+  virtual void SetEnabledArray(vtkDataArray* enabledArray);
   //@}
 
   /**
    * Map a set of scalars through the lookup table.
    */
-  void MapScalarsThroughTable2(void *input, unsigned char *output,
-                               int inputDataType, int numberOfValues,
-                               int inputIncrement, int outputIncrement) override;
+  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputIncrement) override;
 
   /**
    * A convenience method for taking a color and desaturating it.
    */
-  virtual void DisableColor(unsigned char r, unsigned char g, unsigned char b,
-                   unsigned char *rd, unsigned char *gd, unsigned char *bd);
+  virtual void DisableColor(unsigned char r, unsigned char g, unsigned char b, unsigned char* rd,
+    unsigned char* gd, unsigned char* bd);
 
 protected:
-  vtkLookupTableWithEnabling(int sze=256, int ext=256);
+  vtkLookupTableWithEnabling(int sze = 256, int ext = 256);
   ~vtkLookupTableWithEnabling() override;
 
-  vtkDataArray *EnabledArray;
+  vtkDataArray* EnabledArray;
 
 private:
   vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&) = delete;
   void operator=(const vtkLookupTableWithEnabling&) = delete;
 };
 
-
 #endif
-
-
-

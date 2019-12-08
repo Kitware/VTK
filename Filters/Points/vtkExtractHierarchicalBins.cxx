@@ -14,31 +14,31 @@
 =========================================================================*/
 #include "vtkExtractHierarchicalBins.h"
 
+#include "vtkDataArray.h"
+#include "vtkGarbageCollector.h"
+#include "vtkHierarchicalBinningFilter.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkDataArray.h"
-#include "vtkHierarchicalBinningFilter.h"
-#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkExtractHierarchicalBins);
-vtkCxxSetObjectMacro(vtkExtractHierarchicalBins,BinningFilter,vtkHierarchicalBinningFilter);
+vtkCxxSetObjectMacro(vtkExtractHierarchicalBins, BinningFilter, vtkHierarchicalBinningFilter);
 
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
 // Mark points to be extracted
-static void MaskPoints(vtkIdType numPts, vtkIdType *map, vtkIdType offset,
-                       vtkIdType numFill)
+static void MaskPoints(vtkIdType numPts, vtkIdType* map, vtkIdType offset, vtkIdType numFill)
 {
   std::fill_n(map, offset, static_cast<vtkIdType>(-1));
-  std::fill_n(map+offset, numFill, static_cast<vtkIdType>(1));
-  std::fill_n(map+offset+numFill, numPts-(offset+numFill), static_cast<vtkIdType>(-1));
+  std::fill_n(map + offset, numFill, static_cast<vtkIdType>(1));
+  std::fill_n(map + offset + numFill, numPts - (offset + numFill), static_cast<vtkIdType>(-1));
 }
 
-} //anonymous namespace
+} // anonymous namespace
 
 //================= Begin class proper =======================================
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkExtractHierarchicalBins::~vtkExtractHierarchicalBins()
   this->SetBinningFilter(nullptr);
 }
 
- void vtkExtractHierarchicalBins::ReportReferences(vtkGarbageCollector* collector)
+void vtkExtractHierarchicalBins::ReportReferences(vtkGarbageCollector* collector)
 {
   // Report references held by this object that may be in a loop.
   this->Superclass::ReportReferences(collector);
@@ -65,12 +65,12 @@ vtkExtractHierarchicalBins::~vtkExtractHierarchicalBins()
 //----------------------------------------------------------------------------
 // Traverse all the input points and extract points that are contained within
 // and implicit function.
-int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet *input)
+int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet* input)
 {
   // Check the input.
-  if ( !this->BinningFilter )
+  if (!this->BinningFilter)
   {
-    vtkErrorMacro(<<"vtkHierarchicalBinningFilter required\n");
+    vtkErrorMacro(<< "vtkHierarchicalBinningFilter required\n");
     return 0;
   }
 
@@ -78,21 +78,21 @@ int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet *input)
   vtkIdType offset;
   vtkIdType numFill;
 
-  if ( this->Level >= 0 )
+  if (this->Level >= 0)
   {
-    int level =
-      (this->Level < this->BinningFilter->GetNumberOfLevels() ? this->Level :
-       (this->BinningFilter->GetNumberOfLevels() - 1) );
+    int level = (this->Level < this->BinningFilter->GetNumberOfLevels()
+        ? this->Level
+        : (this->BinningFilter->GetNumberOfLevels() - 1));
     offset = this->BinningFilter->GetLevelOffset(level, numFill);
   }
-  else if ( this->Bin >= 0 )
+  else if (this->Bin >= 0)
   {
-    int bin =
-      (this->Level < this->BinningFilter->GetNumberOfGlobalBins() ? this->Bin :
-       (this->BinningFilter->GetNumberOfGlobalBins() - 1) );
+    int bin = (this->Level < this->BinningFilter->GetNumberOfGlobalBins()
+        ? this->Bin
+        : (this->BinningFilter->GetNumberOfGlobalBins() - 1));
     offset = this->BinningFilter->GetBinOffset(bin, numFill);
   }
-  else //pass everything through
+  else // pass everything through
   {
     return 1;
   }
@@ -106,11 +106,9 @@ int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet *input)
 //----------------------------------------------------------------------------
 void vtkExtractHierarchicalBins::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Level: " << this->Level << "\n";
   os << indent << "Bin: " << this->Bin << "\n";
-  os << indent << "Binning Filter: "
-     << static_cast<void *>(this->BinningFilter) << "\n";
-
+  os << indent << "Binning Filter: " << static_cast<void*>(this->BinningFilter) << "\n";
 }

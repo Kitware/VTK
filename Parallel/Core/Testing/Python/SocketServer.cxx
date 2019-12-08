@@ -13,38 +13,37 @@
 
 =========================================================================*/
 #include "vtkBYUReader.h"
+#include "vtkDataSetReader.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPNMReader.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
-#include "vtkTestUtilities.h"
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkImageData.h"
-#include "vtkDataSetReader.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include "ExerciseMultiProcessController.h"
 
 static const int scMsgLength = 10;
 
 static void CleanUp(vtkSmartPointer<vtkSocketCommunicator> comm,
-                    vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
+  vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
 {
   comm->CloseConnection();
   // Deleting no longer necessary with smart pointers.
-//   comm->Delete();
-//   contr->Delete();
+  //   comm->Delete();
+  //   contr->Delete();
 }
 
 int main(int argc, char** argv)
@@ -54,19 +53,19 @@ int main(int argc, char** argv)
 
   VTK_CREATE(vtkSocketCommunicator, comm);
 
-  int port=11111;
+  int port = 11111;
 
   int i;
 
   // Get the port from the command line arguments
-  int dataIndex=-1;
-  for (i=0; i<argc; i++)
+  int dataIndex = -1;
+  for (i = 0; i < argc; i++)
   {
-    if ( strcmp("-P", argv[i]) == 0 )
+    if (strcmp("-P", argv[i]) == 0)
     {
-      if ( i < argc-1 )
+      if (i < argc - 1)
       {
-        dataIndex = i+1;
+        dataIndex = i + 1;
       }
     }
   }
@@ -78,11 +77,9 @@ int main(int argc, char** argv)
   // Establish connection
   if (!comm->WaitForConnection(port))
   {
-    cerr << "Server error: Wait timed out or could not initialize socket."
-         << endl;
+    cerr << "Server error: Wait timed out or could not initialize socket." << endl;
     return 1;
   }
-
 
   // Test receiving all supported types of arrays
   int datai[scMsgLength];
@@ -92,7 +89,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (datai[i] != i)
     {
@@ -109,7 +106,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (dataul[i] != static_cast<unsigned long>(i))
     {
@@ -126,7 +123,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (datac[i] != static_cast<char>(i))
     {
@@ -143,7 +140,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (datauc[i] != static_cast<unsigned char>(i))
     {
@@ -160,7 +157,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (dataf[i] != static_cast<float>(i))
     {
@@ -170,7 +167,6 @@ int main(int argc, char** argv)
     }
   }
 
-
   double datad[scMsgLength];
   if (!comm->Receive(datad, scMsgLength, 1, 7))
   {
@@ -178,7 +174,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (datad[i] != static_cast<double>(i))
     {
@@ -195,7 +191,7 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
   }
-  for (i=0; i<scMsgLength; i++)
+  for (i = 0; i < scMsgLength; i++)
   {
     if (datait[i] != static_cast<vtkIdType>(i))
     {
@@ -205,11 +201,9 @@ int main(int argc, char** argv)
     }
   }
 
-
   // Test sending vtkDataObject
   VTK_CREATE(vtkUnstructuredGridReader, ugrid);
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                     "Data/blow.vtk");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/blow.vtk");
   ugrid->SetFileName(fname);
   delete[] fname;
 
@@ -226,9 +220,9 @@ int main(int argc, char** argv)
   VTK_CREATE(vtkDoubleArray, da);
   da->SetNumberOfComponents(4);
   da->SetNumberOfTuples(10);
-  for(i=0; i<40; i++)
+  for (i = 0; i < 40; i++)
   {
-    da->SetValue(i,static_cast<double>(i));
+    da->SetValue(i, static_cast<double>(i));
   }
   if (!comm->Send(da, 1, 9))
   {
@@ -238,7 +232,7 @@ int main(int argc, char** argv)
   }
 
   // Test receiving null vtkDataArray
-  vtkDoubleArray *da2 = nullptr;
+  vtkDoubleArray* da2 = nullptr;
   if (!comm->Send(da2, 1, 9))
   {
     cerr << "Client error: Error sending data." << endl;
@@ -259,8 +253,7 @@ int main(int argc, char** argv)
   // First, run the socket through the standard controller tests.  We have
   // to make a compliant controller first.
   int retVal;
-  vtkMultiProcessController *compliantController
-    = contr->CreateCompliantController();
+  vtkMultiProcessController* compliantController = contr->CreateCompliantController();
   retVal = ExerciseMultiProcessController(compliantController);
   compliantController->Delete();
   if (retVal)
@@ -279,8 +272,7 @@ int main(int argc, char** argv)
   comm->Send(pd->GetOutput(), 1, 11);
 
   VTK_CREATE(vtkRectilinearGridReader, rgrid);
-  fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                               "Data/RectGrid2.vtk");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/RectGrid2.vtk");
   rgrid->SetFileName(fname);
   delete[] fname;
 

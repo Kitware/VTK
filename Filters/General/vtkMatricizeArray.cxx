@@ -19,10 +19,10 @@
 
 =========================================================================*/
 
+#include "vtkMatricizeArray.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMatricizeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
@@ -34,8 +34,8 @@
 
 vtkStandardNewMacro(vtkMatricizeArray);
 
-vtkMatricizeArray::vtkMatricizeArray() :
-  SliceDimension(0)
+vtkMatricizeArray::vtkMatricizeArray()
+  : SliceDimension(0)
 {
 }
 
@@ -48,28 +48,28 @@ void vtkMatricizeArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkMatricizeArray::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
-  if(input->GetNumberOfArrays() != 1)
+  if (input->GetNumberOfArrays() != 1)
   {
-    vtkErrorMacro(<< "vtkMatricizeArray requires vtkArrayData containing exactly one array as input.");
+    vtkErrorMacro(
+      << "vtkMatricizeArray requires vtkArrayData containing exactly one array as input.");
     return 0;
   }
 
-  vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
-    input->GetArray(static_cast<vtkIdType>(0)));
-  if(!input_array)
+  vtkSparseArray<double>* const input_array =
+    vtkSparseArray<double>::SafeDownCast(input->GetArray(static_cast<vtkIdType>(0)));
+  if (!input_array)
   {
     vtkErrorMacro(<< "vtkMatricizeArray requires a vtkSparseArray<double> as input.");
     return 0;
   }
 
-  if(this->SliceDimension < 0 || this->SliceDimension >= input_array->GetDimensions())
+  if (this->SliceDimension < 0 || this->SliceDimension >= input_array->GetDimensions())
   {
-    vtkErrorMacro(<< "Slice dimension " << this->SliceDimension << " out-of-range for array with " << input_array->GetDimensions() << " dimensions.");
+    vtkErrorMacro(<< "Slice dimension " << this->SliceDimension << " out-of-range for array with "
+                  << input_array->GetDimensions() << " dimensions.");
     return 0;
   }
 
@@ -79,7 +79,8 @@ int vtkMatricizeArray::RequestData(
   const vtkArrayExtents input_extents = input_array->GetExtents();
   vtkArrayExtents output_extents(0, 0);
   output_extents[0] = input_extents[this->SliceDimension];
-  output_extents[1] = vtkArrayRange(0, input_extents.GetSize() / input_extents[this->SliceDimension].GetSize());
+  output_extents[1] =
+    vtkArrayRange(0, input_extents.GetSize() / input_extents[this->SliceDimension].GetSize());
   output_array->Resize(output_extents);
 
   // "Map" every non-null element in the input array to its position in the output array.
@@ -90,9 +91,9 @@ int vtkMatricizeArray::RequestData(
   // Setting the slice-dimension stride to zero simplifies computation of column coordinates
   // later-on and eliminate an inner-loop comparison.
   std::vector<vtkIdType> strides(input_array->GetDimensions());
-  for(vtkIdType i = input_array->GetDimensions() - 1, stride = 1; i >= 0; --i)
+  for (vtkIdType i = input_array->GetDimensions() - 1, stride = 1; i >= 0; --i)
   {
-    if(i == this->SliceDimension)
+    if (i == this->SliceDimension)
     {
       strides[i] = 0;
     }
@@ -108,13 +109,13 @@ int vtkMatricizeArray::RequestData(
   vtkArrayCoordinates coordinates;
   vtkArrayCoordinates new_coordinates(0, 0);
   const vtkIdType element_count = input_array->GetNonNullSize();
-  for(vtkIdType n = 0; n != element_count; ++n)
+  for (vtkIdType n = 0; n != element_count; ++n)
   {
     input_array->GetCoordinatesN(n, coordinates);
 
     new_coordinates[0] = coordinates[this->SliceDimension];
 
-    for(vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
+    for (vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
       temp[i] = (coordinates[i] - input_extents[i].GetBegin()) * strides[i];
     new_coordinates[1] = std::accumulate(temp.begin(), temp.end(), 0);
 
@@ -128,4 +129,3 @@ int vtkMatricizeArray::RequestData(
 
   return 1;
 }
-

@@ -93,6 +93,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPieChart.cxx
   TestPlotMatrix.cxx
   TestPropItem.cxx
+  TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
   TestScatterPlot.cxx
   TestScatterPlotMatrix.cxx

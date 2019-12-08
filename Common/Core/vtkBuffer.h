@@ -20,7 +20,7 @@
  * vtkBuffer makes it easier to keep data pointers in vtkDataArray subclasses.
  * This is an internal class and not intended for direct use expect when writing
  * new types of vtkDataArray subclasses.
-*/
+ */
 
 #ifndef vtkBuffer_h
 #define vtkBuffer_h
@@ -28,11 +28,13 @@
 #include "vtkObject.h"
 #include "vtkObjectFactory.h" // New() implementation
 
+#include <algorithm> // for std::min and std::copy
+
 template <class ScalarTypeT>
 class vtkBuffer : public vtkObject
 {
 public:
-  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject)
+  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject);
   typedef ScalarTypeT ScalarType;
 
   static vtkBuffer<ScalarTypeT>* New();
@@ -55,8 +57,8 @@ public:
    * If @a noFreeFunction is true, the buffer will not be freed when
    * this vtkBuffer object is deleted or resize -- otherwise, @a deleteFunction
    * will be called to free the buffer
-  **/
-  void SetFreeFunction(bool noFreeFunction, void(*deleteFunction)(void*)=free);
+   **/
+  void SetFreeFunction(bool noFreeFunction, void (*deleteFunction)(void*) = free);
 
   /**
    * Return the number of elements the current buffer can hold.
@@ -76,18 +78,15 @@ public:
 
 protected:
   vtkBuffer()
-    : Pointer(nullptr),
-      Size(0),
-      DeleteFunction(free)
+    : Pointer(nullptr)
+    , Size(0)
+    , DeleteFunction(free)
   {
   }
 
-  ~vtkBuffer() override
-  {
-    this->SetBuffer(nullptr, 0);
-  }
+  ~vtkBuffer() override { this->SetBuffer(nullptr, 0); }
 
-  ScalarType *Pointer;
+  ScalarType* Pointer;
   vtkIdType Size;
   void (*DeleteFunction)(void*);
 
@@ -97,18 +96,18 @@ private:
 };
 
 template <class ScalarT>
-inline vtkBuffer<ScalarT> *vtkBuffer<ScalarT>::New()
+inline vtkBuffer<ScalarT>* vtkBuffer<ScalarT>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkBuffer<ScalarT>)
+  VTK_STANDARD_NEW_BODY(vtkBuffer<ScalarT>);
 }
 
 //------------------------------------------------------------------------------
 template <typename ScalarT>
-void vtkBuffer<ScalarT>::SetBuffer(
-    typename vtkBuffer<ScalarT>::ScalarType *array, vtkIdType size) {
+void vtkBuffer<ScalarT>::SetBuffer(typename vtkBuffer<ScalarT>::ScalarType* array, vtkIdType size)
+{
   if (this->Pointer != array)
   {
-    if(this->DeleteFunction)
+    if (this->DeleteFunction)
     {
       this->DeleteFunction(this->Pointer);
     }
@@ -118,9 +117,9 @@ void vtkBuffer<ScalarT>::SetBuffer(
 }
 //------------------------------------------------------------------------------
 template <typename ScalarT>
-void vtkBuffer<ScalarT>::SetFreeFunction(bool noFreeFunction, void(*deleteFunction)(void*))
+void vtkBuffer<ScalarT>::SetFreeFunction(bool noFreeFunction, void (*deleteFunction)(void*))
 {
-  if(noFreeFunction)
+  if (noFreeFunction)
   {
     this->DeleteFunction = nullptr;
   }
@@ -138,8 +137,7 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
   this->SetBuffer(nullptr, 0);
   if (size > 0)
   {
-    ScalarType* newArray =
-        static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
+    ScalarType* newArray = static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
     if (newArray)
     {
       this->SetBuffer(newArray, size);
@@ -155,18 +153,19 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
 template <typename ScalarT>
 bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
 {
-  if (newsize == 0) { return this->Allocate(0); }
+  if (newsize == 0)
+  {
+    return this->Allocate(0);
+  }
 
   if (this->Pointer && this->DeleteFunction != free)
   {
-    ScalarType* newArray =
-        static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
+    ScalarType* newArray = static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
     if (!newArray)
     {
       return false;
     }
-    std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize),
-              newArray);
+    std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize);
     this->DeleteFunction = free;
@@ -175,8 +174,8 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
   {
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
-    ScalarType* newArray = static_cast<ScalarType*>(
-          realloc(this->Pointer, newsize * sizeof(ScalarType)));
+    ScalarType* newArray =
+      static_cast<ScalarType*>(realloc(this->Pointer, newsize * sizeof(ScalarType)));
     if (!newArray)
     {
       return false;

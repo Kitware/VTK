@@ -21,13 +21,13 @@
  *
  * @sa
  * vtkTDxDevice
-*/
+ */
 
 #ifndef vtkTDxMotionEventInfo_h
 #define vtkTDxMotionEventInfo_h
 
+#include "vtkObject.h"              // for the export macro
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkObject.h" // for the export macro
 
 class VTKRENDERINGCORE_EXPORT vtkTDxMotionEventInfo
 {
@@ -58,8 +58,8 @@ public:
   double AxisX;
   double AxisY;
   double AxisZ;
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTDxMotionEventInfo.h

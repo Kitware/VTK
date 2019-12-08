@@ -1,4 +1,20 @@
 include(CMakeParseArguments)
+
+#[==[
+@brief Detect library type of a library
+
+Sometimes it needs to be known whether a library is shared or static on a
+system in order to change the usage requirements of an imported target
+representing that library. This commonly occurs between static and shared
+builds that share a set of installed headers. This function returns one of
+`SHARED`, `STATIC`, or `UNKNOWN` into the variable passed as the first
+argument.
+
+~~~
+vtk_detect_library_type(<variable>
+  PATH <path>)
+~~~
+#]==]
 function (vtk_detect_library_type output)
   cmake_parse_arguments(vdlt
     ""
@@ -81,6 +97,23 @@ function (vtk_detect_library_type output)
     PARENT_SCOPE)
 endfunction ()
 
+#[==[
+@brief Detect whether an imported target is shared or not
+
+This is intended for use with modules using
+@ref vtk_module_third_party_external to detect whether that module is shared or
+not. Generally, this should be replaced with the `Find` module providing this
+information and modifying the usage requirements as necessary instead, but it
+is not always possible.
+
+~~~
+vtk_detect_library_shared(<name> <target>)
+~~~
+
+Sets `<name>_is_shared` in the caller's scope if `<target>` is a shared
+library. If it is an `UNKNOWN_LIBRARY`, a cache variable is exposed to allow
+the user to provide the information if it ends up breaking something.
+#]==]
 function (vtk_detect_library_shared name target)
   if (VTK_MODULE_USE_EXTERNAL_${name})
     get_property(library_type

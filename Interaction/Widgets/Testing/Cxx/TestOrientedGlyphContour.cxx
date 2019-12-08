@@ -18,36 +18,35 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkContourWidget.h"
-#include "vtkOrientedGlyphContourRepresentation.h"
-#include "vtkCoordinate.h"
 #include "vtkActor2D.h"
-#include "vtkRenderer.h"
+#include "vtkBoundedPlanePointPlacer.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkContourWidget.h"
+#include "vtkCoordinate.h"
+#include "vtkEvent.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageShiftScale.h"
+#include "vtkOrientedGlyphContourRepresentation.h"
+#include "vtkPlane.h"
+#include "vtkProperty.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkProperty.h"
-#include "vtkCommand.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
-#include "vtkVolume16Reader.h"
-#include "vtkImageShiftScale.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkImageData.h"
-#include "vtkProperty2D.h"
-#include "vtkCamera.h"
-#include "vtkPlane.h"
-#include "vtkBoundedPlanePointPlacer.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetEvent.h"
-#include "vtkEvent.h"
 #include "vtkTesting.h"
+#include "vtkVolume16Reader.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
-int TestOrientedGlyphContour( int argc, char *argv[] )
+int TestOrientedGlyphContour(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkSmartPointer<vtkVolume16Reader> v16 =
-    vtkSmartPointer<vtkVolume16Reader>::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 = vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -61,17 +60,15 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkSmartPointer<vtkImageShiftScale> shifter =
-    vtkSmartPointer<vtkImageShiftScale>::New();
-  shifter->SetShift(-1.0*range[0]);
-  shifter->SetScale(255.0/(range[1]-range[0]));
+  vtkSmartPointer<vtkImageShiftScale> shifter = vtkSmartPointer<vtkImageShiftScale>::New();
+  shifter->SetShift(-1.0 * range[0]);
+  shifter->SetScale(255.0 / (range[1] - range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
 
-  vtkSmartPointer<vtkImageActor> imageActor =
-    vtkSmartPointer<vtkImageActor>::New();
+  vtkSmartPointer<vtkImageActor> imageActor = vtkSmartPointer<vtkImageActor>::New();
   imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
@@ -79,10 +76,8 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -97,39 +92,34 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
 
   // render the image
   //
-  ren1->GetActiveCamera()->SetPosition(0,0,0);
-  ren1->GetActiveCamera()->SetFocalPoint(0,0,1);
-  ren1->GetActiveCamera()->SetViewUp(0,1,0);
+  ren1->GetActiveCamera()->SetPosition(0, 0, 0);
+  ren1->GetActiveCamera()->SetFocalPoint(0, 0, 1);
+  ren1->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren1->ResetCamera();
   renWin->Render();
 
   double bounds[6];
-  imageActor->GetBounds( bounds );
+  imageActor->GetBounds(bounds);
 
-  vtkSmartPointer<vtkPlane> p1 =
-    vtkSmartPointer<vtkPlane>::New();
-  p1->SetOrigin( bounds[0], bounds[2], bounds[4] );
-  p1->SetNormal( 1.0, 0.0, 0.0 );
+  vtkSmartPointer<vtkPlane> p1 = vtkSmartPointer<vtkPlane>::New();
+  p1->SetOrigin(bounds[0], bounds[2], bounds[4]);
+  p1->SetNormal(1.0, 0.0, 0.0);
 
-  vtkSmartPointer<vtkPlane> p2 =
-    vtkSmartPointer<vtkPlane>::New();
-  p2->SetOrigin( bounds[0], bounds[2], bounds[4] );
-  p2->SetNormal( 0.0, 1.0, 0.0 );
+  vtkSmartPointer<vtkPlane> p2 = vtkSmartPointer<vtkPlane>::New();
+  p2->SetOrigin(bounds[0], bounds[2], bounds[4]);
+  p2->SetNormal(0.0, 1.0, 0.0);
 
-  vtkSmartPointer<vtkPlane> p3 =
-    vtkSmartPointer<vtkPlane>::New();
-  p3->SetOrigin( bounds[1], bounds[3], bounds[5] );
-  p3->SetNormal( -1.0, 0.0, 0.0 );
+  vtkSmartPointer<vtkPlane> p3 = vtkSmartPointer<vtkPlane>::New();
+  p3->SetOrigin(bounds[1], bounds[3], bounds[5]);
+  p3->SetNormal(-1.0, 0.0, 0.0);
 
-  vtkSmartPointer<vtkPlane> p4 =
-    vtkSmartPointer<vtkPlane>::New();
-  p4->SetOrigin( bounds[1], bounds[3], bounds[5] );
-  p4->SetNormal( 0.0, -1.0, 0.0 );
+  vtkSmartPointer<vtkPlane> p4 = vtkSmartPointer<vtkPlane>::New();
+  p4->SetOrigin(bounds[1], bounds[3], bounds[5]);
+  p4->SetNormal(0.0, -1.0, 0.0);
 
   vtkSmartPointer<vtkOrientedGlyphContourRepresentation> contourRep =
     vtkSmartPointer<vtkOrientedGlyphContourRepresentation>::New();
-  vtkSmartPointer<vtkContourWidget> contourWidget =
-    vtkSmartPointer<vtkContourWidget>::New();
+  vtkSmartPointer<vtkContourWidget> contourWidget = vtkSmartPointer<vtkContourWidget>::New();
   vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
     vtkSmartPointer<vtkBoundedPlanePointPlacer>::New();
 
@@ -137,19 +127,15 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   contourWidget->SetRepresentation(contourRep);
 
   // Change bindings.
-  vtkWidgetEventTranslator *eventTranslator = contourWidget->GetEventTranslator();
-  eventTranslator->RemoveTranslation( vtkCommand::RightButtonPressEvent );
+  vtkWidgetEventTranslator* eventTranslator = contourWidget->GetEventTranslator();
+  eventTranslator->RemoveTranslation(vtkCommand::RightButtonPressEvent);
   eventTranslator->SetTranslation(
-    vtkCommand::KeyPressEvent,
-    vtkEvent::NoModifier, 103, 0, "g",
-    vtkWidgetEvent::AddFinalPoint );
-  eventTranslator->SetTranslation(
-    vtkCommand::RightButtonPressEvent,
-    vtkWidgetEvent::Translate );
+    vtkCommand::KeyPressEvent, vtkEvent::NoModifier, 103, 0, "g", vtkWidgetEvent::AddFinalPoint);
+  eventTranslator->SetTranslation(vtkCommand::RightButtonPressEvent, vtkWidgetEvent::Translate);
   contourWidget->On();
 
-  contourRep->SetPointPlacer( placer );
-//  contourRep->AlwaysOnTopOn();
+  contourRep->SetPointPlacer(placer);
+  //  contourRep->AlwaysOnTopOn();
 
   placer->SetProjectionNormalToZAxis();
   placer->SetProjectionPosition(imageActor->GetCenter()[2]);
@@ -159,11 +145,9 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   placer->AddBoundingPlane(p3);
   placer->AddBoundingPlane(p4);
 
-
   iren->Initialize();
   renWin->Render();
-  int retVal = vtkTesting::InteractorEventLoop(
-    argc, argv, iren);
+  int retVal = vtkTesting::InteractorEventLoop(argc, argv, iren);
 
   return retVal;
 }

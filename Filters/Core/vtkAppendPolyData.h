@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkAppendFilter
-*/
+ */
 
 #ifndef vtkAppendPolyData_h
 #define vtkAppendPolyData_h
@@ -42,9 +42,9 @@ class vtkPolyData;
 class VTKFILTERSCORE_EXPORT vtkAppendPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkAppendPolyData *New();
+  static vtkAppendPolyData* New();
 
-  vtkTypeMacro(vtkAppendPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkAppendPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -54,29 +54,29 @@ public:
    * SetNumberOfInputs/SetInputConnectionByNumber should not be mixed with calls
    * to AddInput/RemoveInput. By default, UserManagedInputs is false.
    */
-  vtkSetMacro(UserManagedInputs,vtkTypeBool);
-  vtkGetMacro(UserManagedInputs,vtkTypeBool);
-  vtkBooleanMacro(UserManagedInputs,vtkTypeBool);
+  vtkSetMacro(UserManagedInputs, vtkTypeBool);
+  vtkGetMacro(UserManagedInputs, vtkTypeBool);
+  vtkBooleanMacro(UserManagedInputs, vtkTypeBool);
   //@}
 
   /**
    * Add a dataset to the list of data to append. Should not be
    * used when UserManagedInputs is true, use SetInputByNumber instead.
    */
-  void AddInputData(vtkPolyData *);
+  void AddInputData(vtkPolyData*);
 
   /**
    * Remove a dataset from the list of data to append. Should not be
    * used when UserManagedInputs is true, use SetInputByNumber (nullptr) instead.
    */
-  void RemoveInputData(vtkPolyData *);
+  void RemoveInputData(vtkPolyData*);
 
   //@{
   /**
    * Get any input of this filter.
    */
-  vtkPolyData *GetInput(int idx);
-  vtkPolyData *GetInput() { return this->GetInput( 0 ); };
+  vtkPolyData* GetInput(int idx);
+  vtkPolyData* GetInput() { return this->GetInput(0); }
   //@}
 
   /**
@@ -86,8 +86,8 @@ public:
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
-  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
-  void SetInputDataByNumber(int num, vtkPolyData *ds);
+  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput* input);
+  void SetInputDataByNumber(int num, vtkPolyData* ds);
 
   //@{
   /**
@@ -111,12 +111,12 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
-  int ExecuteAppend(vtkPolyData* output,
-    vtkPolyData* inputs[], int numInputs) VTK_SIZEHINT(inputs, numInputs);
+  int ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[], int numInputs)
+    VTK_SIZEHINT(inputs, numInputs);
 
 protected:
   vtkAppendPolyData();
@@ -127,24 +127,22 @@ protected:
   int OutputPointsPrecision;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   // An efficient templated way to append data.
-  void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset);
-
+  void AppendData(vtkDataArray* dest, vtkDataArray* src, vtkIdType offset);
 
   // An efficient way to append cells.
-  vtkIdType *AppendCells(vtkIdType *pDest, vtkCellArray *src,
-                         vtkIdType offset);
+  void AppendCells(vtkCellArray* dest, vtkCellArray* src, vtkIdType offset);
 
- private:
+private:
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInputData(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
+  void AddInputData(vtkDataObject*)
+  {
+    vtkErrorMacro(<< "AddInput() must be called with a vtkPolyData not a vtkDataObject.");
+  }
 
   vtkTypeBool UserManagedInputs;
 

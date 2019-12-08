@@ -15,12 +15,12 @@
 #include "vtkPixelExtent.h"
 #include "vtkPixelExtentIO.h"
 
-#include <iostream>
 #include <deque>
+#include <iostream>
 
 using std::cerr;
-using std::endl;
 using std::deque;
+using std::endl;
 
 int TestPixelExtent(int argc, char* argv[])
 {
@@ -30,7 +30,7 @@ int TestPixelExtent(int argc, char* argv[])
   cerr << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // small extent in the middle of the region of interest
-  vtkPixelExtent A(4,8,4,8);
+  vtkPixelExtent A(4, 8, 4, 8);
 
   // larger region that covers A
   vtkPixelExtent B(A);
@@ -42,7 +42,7 @@ int TestPixelExtent(int argc, char* argv[])
 
   // shift D to upper right corner of larger region
   vtkPixelExtent D(A);
-  int s1[2]={4,4};
+  int s1[2] = { 4, 4 };
   D.Shift(s1);
 
   bool testPass = true;
@@ -65,13 +65,12 @@ int TestPixelExtent(int argc, char* argv[])
     testPass = false;
   }
 
-
   tmp1 = A;
-  int s2[2] = {-2,-2};
+  int s2[2] = { -2, -2 };
   tmp1.Shift(s2);
 
   tmp2 = A;
-  int s3[2] = {2,2};
+  int s3[2] = { 2, 2 };
   tmp2.Shift(s3);
 
   tmp3 = tmp1;
@@ -79,7 +78,7 @@ int TestPixelExtent(int argc, char* argv[])
 
   cerr << tmp1 << " & " << tmp2 << " = " << tmp3 << endl;
 
-  if (!(tmp3 == vtkPixelExtent(6,6,6,6)))
+  if (!(tmp3 == vtkPixelExtent(6, 6, 6, 6)))
   {
     cerr << "Test intersection failed" << endl;
     testPass = false;
@@ -114,7 +113,7 @@ int TestPixelExtent(int argc, char* argv[])
   tmp5.push_back(vtkPixelExtent(0, 3, 0, 3));
 
   size_t n = tmp4.size();
-  for (size_t i=0; i<n; ++i)
+  for (size_t i = 0; i < n; ++i)
   {
     if (!(tmp4[i] == tmp5[i]))
     {
@@ -128,7 +127,7 @@ int TestPixelExtent(int argc, char* argv[])
   if (n)
   {
     cerr << tmp4[0];
-    for (size_t i=1; i<n; ++i)
+    for (size_t i = 1; i < n; ++i)
     {
       cerr << ", " << tmp4[i];
     }

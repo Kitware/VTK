@@ -32,22 +32,21 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRect.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStripper.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestPropItem(int argc, char *argv[])
+int TestPropItem(int argc, char* argv[])
 {
   // Prepare some data for plotting:
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
   vtkNew<vtkDEMReader> demReader;
   demReader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   // Get dataset metadata:
   demReader->Update();
@@ -124,8 +123,8 @@ int TestPropItem(int argc, char *argv[])
 
   vtkNew<vtkContextArea> area;
   area->ShowGridOff();
-  area->SetDrawAreaBounds(vtkRectd(bounds.GetBound(0), bounds.GetBound(2),
-                                   bounds.GetLength(0), bounds.GetLength(1)));
+  area->SetDrawAreaBounds(
+    vtkRectd(bounds.GetBound(0), bounds.GetBound(2), bounds.GetLength(0), bounds.GetLength(1)));
 
   area->SetFixedAspect(bounds.GetLength(0) / bounds.GetLength(1));
 
@@ -136,7 +135,7 @@ int TestPropItem(int argc, char *argv[])
 
   for (int i = 0; i < 4; ++i)
   {
-    vtkAxis *axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
+    vtkAxis* axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
     axis->GetLabelProperties()->SetColor(.6, .6, .9);
     axis->GetTitleProperties()->SetColor(.6, .6, .9);
     axis->GetPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 255);

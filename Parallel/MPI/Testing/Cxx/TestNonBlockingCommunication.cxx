@@ -29,21 +29,21 @@
 #include <cassert>
 
 // MPI
-#include <mpi.h>
+#include <vtk_mpi.h>
 
-void FillArray( const int rank, const int size, double array[] )
+void FillArray(const int rank, const int size, double array[])
 {
-  for( int i=0; i < size; ++i )
+  for (int i = 0; i < size; ++i)
   {
-    array[ i ] = (rank+1)*(i+1);
+    array[i] = (rank + 1) * (i + 1);
   } // END for
 }
 
 //------------------------------------------------------------------------------
-int TestNonBlockingCommunication( int argc, char *argv[] )
+int TestNonBlockingCommunication(int argc, char* argv[])
 {
-  vtkMPIController *myController = vtkMPIController::New();
-  myController->Initialize( &argc, &argv, 0);
+  vtkMPIController* myController = vtkMPIController::New();
+  myController->Initialize(&argc, &argv, 0);
 
   double sndarray[10];
   double rcvarray[10];
@@ -51,51 +51,51 @@ int TestNonBlockingCommunication( int argc, char *argv[] )
 
   vtkMPICommunicator::Request requests[2];
 
-  int N        = myController->GetNumberOfProcesses();
-  int Rank     = myController->GetLocalProcessId();
-  int SendRank = (Rank==0)? 1 : 0;
-  if( N != 2 )
+  int N = myController->GetNumberOfProcesses();
+  int Rank = myController->GetLocalProcessId();
+  int SendRank = (Rank == 0) ? 1 : 0;
+  if (N != 2)
   {
     cerr << "This test must be run with 2 MPI processes!\n";
     myController->Finalize();
     myController->Delete();
-    return(-1);
+    return (-1);
   }
-  assert("pre: N must be 2" && (N==2));
-  assert("pre: Rank is out-of-bounds" && (Rank >= 0) && (Rank < N) );
+  assert("pre: N must be 2" && (N == 2));
+  assert("pre: Rank is out-of-bounds" && (Rank >= 0) && (Rank < N));
 
   cout << "Filling arrays...";
   cout.flush();
-  FillArray( Rank, 10, sndarray );
-  FillArray( SendRank, 10, expected );
+  FillArray(Rank, 10, sndarray);
+  FillArray(SendRank, 10, expected);
   cout << "[DONE]\n";
   cout.flush();
 
   // Post receives
   cout << "Posting receives....\n";
   cout.flush();
-  myController->NoBlockReceive( rcvarray, 10, SendRank, 0, requests[0] );
+  myController->NoBlockReceive(rcvarray, 10, SendRank, 0, requests[0]);
 
   // Post sends
   cout << "Posting sends...\n";
   cout.flush();
-  myController->NoBlockSend( sndarray, 10, SendRank, 0, requests[1] );
+  myController->NoBlockSend(sndarray, 10, SendRank, 0, requests[1]);
 
   // Wait all
   cout << "Do a wait all!\n";
   cout.flush();
-  myController->WaitAll(2,requests);
+  myController->WaitAll(2, requests);
 
   bool arraysMatch = true;
-  for( int i=0; i < 10; ++i )
+  for (int i = 0; i < 10; ++i)
   {
-    if( !vtkMathUtilities::FuzzyCompare(rcvarray[i],expected[i]) )
+    if (!vtkMathUtilities::FuzzyCompare(rcvarray[i], expected[i]))
     {
       arraysMatch = false;
       break;
     }
   }
-  if( arraysMatch )
+  if (arraysMatch)
   {
     cout << "RcvArray matches expected data!\n";
     cout.flush();

@@ -24,15 +24,15 @@
  * @warning
  * Note, stream operators cannot be combined with the Push/Pop array operators.
  * For example, if you push an array to the stream,
-*/
+ */
 
 #ifndef vtkMultiProcessStream_h
 #define vtkMultiProcessStream_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <vector> // needed for vector.
-#include <string> // needed for string.
+#include "vtkParallelCoreModule.h" // For export macro
+#include <string>                  // needed for string.
+#include <vector>                  // needed for vector.
 
 class VTKPARALLELCORE_EXPORT vtkMultiProcessStream
 {
@@ -46,37 +46,37 @@ public:
   /**
    * Add-to-stream operators. Adds to the end of the stream.
    */
-  vtkMultiProcessStream& operator << (double value);
-  vtkMultiProcessStream& operator << (float value);
-  vtkMultiProcessStream& operator << (int value);
-  vtkMultiProcessStream& operator << (char value);
-  vtkMultiProcessStream& operator << (bool value);
-  vtkMultiProcessStream& operator << (unsigned int value);
-  vtkMultiProcessStream& operator << (unsigned char value);
-  vtkMultiProcessStream& operator << (vtkTypeInt64 value);
-  vtkMultiProcessStream& operator << (vtkTypeUInt64 value);
-  vtkMultiProcessStream& operator << (const std::string& value);
+  vtkMultiProcessStream& operator<<(double value);
+  vtkMultiProcessStream& operator<<(float value);
+  vtkMultiProcessStream& operator<<(int value);
+  vtkMultiProcessStream& operator<<(char value);
+  vtkMultiProcessStream& operator<<(bool value);
+  vtkMultiProcessStream& operator<<(unsigned int value);
+  vtkMultiProcessStream& operator<<(unsigned char value);
+  vtkMultiProcessStream& operator<<(vtkTypeInt64 value);
+  vtkMultiProcessStream& operator<<(vtkTypeUInt64 value);
+  vtkMultiProcessStream& operator<<(const std::string& value);
   // Without this operator, the compiler would convert
   // a char* to a bool instead of a std::string.
-  vtkMultiProcessStream& operator << (const char* value);
-  vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
+  vtkMultiProcessStream& operator<<(const char* value);
+  vtkMultiProcessStream& operator<<(const vtkMultiProcessStream&);
   //@}
 
   //@{
   /**
    * Remove-from-stream operators. Removes from the head of the stream.
    */
-  vtkMultiProcessStream& operator >> (double &value);
-  vtkMultiProcessStream& operator >> (float &value);
-  vtkMultiProcessStream& operator >> (int &value);
-  vtkMultiProcessStream& operator >> (char &value);
-  vtkMultiProcessStream& operator >> (bool &value);
-  vtkMultiProcessStream& operator >> (unsigned int &value);
-  vtkMultiProcessStream& operator >> (unsigned char &value);
-  vtkMultiProcessStream& operator >> (vtkTypeInt64 &value);
-  vtkMultiProcessStream& operator >> (vtkTypeUInt64 &value);
-  vtkMultiProcessStream& operator >> (std::string &value);
-  vtkMultiProcessStream& operator >> (vtkMultiProcessStream&);
+  vtkMultiProcessStream& operator>>(double& value);
+  vtkMultiProcessStream& operator>>(float& value);
+  vtkMultiProcessStream& operator>>(int& value);
+  vtkMultiProcessStream& operator>>(char& value);
+  vtkMultiProcessStream& operator>>(bool& value);
+  vtkMultiProcessStream& operator>>(unsigned int& value);
+  vtkMultiProcessStream& operator>>(unsigned char& value);
+  vtkMultiProcessStream& operator>>(vtkTypeInt64& value);
+  vtkMultiProcessStream& operator>>(vtkTypeUInt64& value);
+  vtkMultiProcessStream& operator>>(std::string& value);
+  vtkMultiProcessStream& operator>>(vtkMultiProcessStream&);
   //@}
 
   //@{
@@ -87,10 +87,10 @@ public:
   void Push(float array[], unsigned int size);
   void Push(int array[], unsigned int size);
   void Push(char array[], unsigned int size);
-  void Push(unsigned int array[], unsigned int size );
-  void Push(unsigned char array[], unsigned int size );
-  void Push(vtkTypeInt64 array[], unsigned int size );
-  void Push(vtkTypeUInt64 array[], unsigned int size );
+  void Push(unsigned int array[], unsigned int size);
+  void Push(unsigned char array[], unsigned int size);
+  void Push(vtkTypeInt64 array[], unsigned int size);
+  void Push(vtkTypeUInt64 array[], unsigned int size);
   //@}
 
   //@{
@@ -105,12 +105,11 @@ public:
   void Pop(float*& array, unsigned int& size);
   void Pop(int*& array, unsigned int& size);
   void Pop(char*& array, unsigned int& size);
-  void Pop(unsigned int*& array, unsigned int& size );
-  void Pop(unsigned char*& array, unsigned int& size );
-  void Pop(vtkTypeInt64*& array, unsigned int& size );
-  void Pop(vtkTypeUInt64*& array, unsigned int& size );
+  void Pop(unsigned int*& array, unsigned int& size);
+  void Pop(unsigned char*& array, unsigned int& size);
+  void Pop(vtkTypeInt64*& array, unsigned int& size);
+  void Pop(vtkTypeUInt64*& array, unsigned int& size);
   //@}
-
 
   /**
    * Clears everything in the stream.
@@ -126,8 +125,7 @@ public:
    * Returns the size of the raw data returned by GetRawData. This
    * includes 1 byte to store the endian type.
    */
-  int RawSize()
-    {return(this->Size()+1);};
+  int RawSize() { return (this->Size() + 1); }
 
   /**
    * Returns true iff the stream is empty.
@@ -140,7 +138,7 @@ public:
    * Note: The 1st byte of the raw data buffer consists of the endian type.
    */
   void GetRawData(std::vector<unsigned char>& data) const;
-  void GetRawData( unsigned char*& data, unsigned int &size );
+  void GetRawData(unsigned char*& data, unsigned int& size);
   void SetRawData(const std::vector<unsigned char>& data);
   void SetRawData(const unsigned char*, unsigned int size);
   std::vector<unsigned char> GetRawData() const;
@@ -158,6 +156,5 @@ private:
 };
 
 #endif
-
 
 // VTK-HeaderTest-Exclude: vtkMultiProcessStream.h

@@ -29,12 +29,12 @@
 
 #include <cassert>
 
-vtkStandardNewMacro( vtkRectilinearGridPartitioner );
+vtkStandardNewMacro(vtkRectilinearGridPartitioner);
 
 //------------------------------------------------------------------------------
 vtkRectilinearGridPartitioner::vtkRectilinearGridPartitioner()
 {
-  this->NumberOfPartitions  = 2;
+  this->NumberOfPartitions = 2;
   this->NumberOfGhostLayers = 0;
   this->DuplicateNodes = 1;
   this->SetNumberOfInputPorts(1);
@@ -45,44 +45,42 @@ vtkRectilinearGridPartitioner::vtkRectilinearGridPartitioner()
 vtkRectilinearGridPartitioner::~vtkRectilinearGridPartitioner() = default;
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGridPartitioner::PrintSelf(
-    std::ostream &oss, vtkIndent indent )
+void vtkRectilinearGridPartitioner::PrintSelf(std::ostream& oss, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( oss, indent );
+  this->Superclass::PrintSelf(oss, indent);
   oss << "NumberOfPartitions: " << this->NumberOfPartitions << std::endl;
   oss << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
 
 //------------------------------------------------------------------------------
 int vtkRectilinearGridPartitioner::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkRectilinearGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
 
 //------------------------------------------------------------------------------
 int vtkRectilinearGridPartitioner::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
-    vtkRectilinearGrid *grd, int subext[6],
-    vtkDoubleArray *xcoords, vtkDoubleArray *ycoords, vtkDoubleArray *zcoords )
+void vtkRectilinearGridPartitioner::ExtractGridCoordinates(vtkRectilinearGrid* grd, int subext[6],
+  vtkDoubleArray* xcoords, vtkDoubleArray* ycoords, vtkDoubleArray* zcoords)
 {
-  assert("pre: nullptr rectilinear grid" && (grd != nullptr) );
-  assert("pre: nullptr xcoords" && (xcoords != nullptr) );
-  assert("pre: nullptr ycoords" && (ycoords != nullptr) );
-  assert("pre: nullptr zcoords" && (zcoords != nullptr) );
+  assert("pre: nullptr rectilinear grid" && (grd != nullptr));
+  assert("pre: nullptr xcoords" && (xcoords != nullptr));
+  assert("pre: nullptr ycoords" && (ycoords != nullptr));
+  assert("pre: nullptr zcoords" && (zcoords != nullptr));
 
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(subext);
 
   int ndims[3];
-  vtkStructuredData::GetDimensionsFromExtent(subext,ndims,dataDescription );
+  vtkStructuredData::GetDimensionsFromExtent(subext, ndims, dataDescription);
 
   vtkDoubleArray* coords[3];
   coords[0] = xcoords;
@@ -94,50 +92,48 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
   src_coords[1] = grd->GetYCoordinates();
   src_coords[2] = grd->GetZCoordinates();
 
-  for(int dim=0; dim < 3; ++dim)
+  for (int dim = 0; dim < 3; ++dim)
   {
-    coords[ dim ]->SetNumberOfComponents( 1 );
-    coords[ dim ]->SetNumberOfTuples( ndims[ dim ] );
+    coords[dim]->SetNumberOfComponents(1);
+    coords[dim]->SetNumberOfTuples(ndims[dim]);
 
-    for(int idx=subext[dim*2]; idx <= subext[dim*2+1]; ++idx)
+    for (int idx = subext[dim * 2]; idx <= subext[dim * 2 + 1]; ++idx)
     {
-      vtkIdType lidx = idx-subext[dim*2];
-      coords[ dim ]->SetTuple1(lidx,src_coords[dim]->GetTuple1(idx));
+      vtkIdType lidx = idx - subext[dim * 2];
+      coords[dim]->SetTuple1(lidx, src_coords[dim]->GetTuple1(idx));
     } // END for all ids
 
   } // END for all dimensions
 }
 
 //------------------------------------------------------------------------------
-int vtkRectilinearGridPartitioner::RequestData(
-    vtkInformation* vtkNotUsed(request),
-    vtkInformationVector** inputVector,vtkInformationVector* outputVector )
+int vtkRectilinearGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // STEP 0: Get input object
-  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert("pre: input information object is nullptr" && (input != nullptr) );
-  vtkRectilinearGrid *grd =
-     vtkRectilinearGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* input = inputVector[0]->GetInformationObject(0);
+  assert("pre: input information object is nullptr" && (input != nullptr));
+  vtkRectilinearGrid* grd =
+    vtkRectilinearGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
   // STEP 1: Get output object
-  vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert("pre: output information object is nullptr" && (output != nullptr) );
-  vtkMultiBlockDataSet *multiblock =
-      vtkMultiBlockDataSet::SafeDownCast(
-          output->Get(vtkDataObject::DATA_OBJECT()));
-  assert("pre: multi-block grid is nullptr" && (multiblock != nullptr) );
+  vtkInformation* output = outputVector->GetInformationObject(0);
+  assert("pre: output information object is nullptr" && (output != nullptr));
+  vtkMultiBlockDataSet* multiblock =
+    vtkMultiBlockDataSet::SafeDownCast(output->Get(vtkDataObject::DATA_OBJECT()));
+  assert("pre: multi-block grid is nullptr" && (multiblock != nullptr));
 
   // STEP 2: Get the global extent
   int extent[6];
-  grd->GetExtent( extent );
+  grd->GetExtent(extent);
 
   // STEP 3: Setup extent partitioner
-  vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
-  assert("pre: extent partitioner is nullptr" && (extentPartitioner != nullptr) );
-  extentPartitioner->SetGlobalExtent( extent );
-  extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
-  extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
-  if( this->DuplicateNodes == 1 )
+  vtkExtentRCBPartitioner* extentPartitioner = vtkExtentRCBPartitioner::New();
+  assert("pre: extent partitioner is nullptr" && (extentPartitioner != nullptr));
+  extentPartitioner->SetGlobalExtent(extent);
+  extentPartitioner->SetNumberOfPartitions(this->NumberOfPartitions);
+  extentPartitioner->SetNumberOfGhostLayers(this->NumberOfGhostLayers);
+  if (this->DuplicateNodes == 1)
   {
     extentPartitioner->DuplicateNodesOn();
   }
@@ -150,36 +146,35 @@ int vtkRectilinearGridPartitioner::RequestData(
   extentPartitioner->Partition();
 
   // STEP 5: Extract partition in a multi-block
-  multiblock->SetNumberOfBlocks( extentPartitioner->GetNumExtents( ) );
+  multiblock->SetNumberOfBlocks(extentPartitioner->GetNumExtents());
 
   // Set the whole extent of the grid
-  multiblock->GetInformation()->Set(
-      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  multiblock->GetInformation()->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
   int subext[6];
   unsigned int blockIdx = 0;
-  for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
+  for (; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx)
   {
-    extentPartitioner->GetPartitionExtent( blockIdx, subext );
-    vtkRectilinearGrid *subgrid = vtkRectilinearGrid::New();
-    subgrid->SetExtent( subext );
+    extentPartitioner->GetPartitionExtent(blockIdx, subext);
+    vtkRectilinearGrid* subgrid = vtkRectilinearGrid::New();
+    subgrid->SetExtent(subext);
 
-    vtkDoubleArray *xcoords = vtkDoubleArray::New();
-    vtkDoubleArray *ycoords = vtkDoubleArray::New();
-    vtkDoubleArray *zcoords = vtkDoubleArray::New();
+    vtkDoubleArray* xcoords = vtkDoubleArray::New();
+    vtkDoubleArray* ycoords = vtkDoubleArray::New();
+    vtkDoubleArray* zcoords = vtkDoubleArray::New();
 
-    this->ExtractGridCoordinates(grd,subext,xcoords,ycoords,zcoords);
+    this->ExtractGridCoordinates(grd, subext, xcoords, ycoords, zcoords);
 
-    subgrid->SetXCoordinates( xcoords );
-    subgrid->SetYCoordinates( ycoords );
-    subgrid->SetZCoordinates( zcoords );
+    subgrid->SetXCoordinates(xcoords);
+    subgrid->SetYCoordinates(ycoords);
+    subgrid->SetZCoordinates(zcoords);
     xcoords->Delete();
     ycoords->Delete();
     zcoords->Delete();
 
-    vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
-    assert( "pre: metadata is nullptr" && (metadata != nullptr) );
-    metadata->Set( vtkDataObject::PIECE_EXTENT(), subext, 6);
+    vtkInformation* metadata = multiblock->GetMetaData(blockIdx);
+    assert("pre: metadata is nullptr" && (metadata != nullptr));
+    metadata->Set(vtkDataObject::PIECE_EXTENT(), subext, 6);
 
     multiblock->SetBlock(blockIdx, subgrid);
     subgrid->Delete();

@@ -18,115 +18,106 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace
 {
 
-static const char* TypeNames[] = {
-  "PARTICLE",
-  "BEAM",
-  "SHELL",
-  "THICK_SHELL",
-  "SOLID",
-  "RIGID_BODY",
-  "ROAD_SURFACE",
-  nullptr};
+static const char* TypeNames[] = { "PARTICLE", "BEAM", "SHELL", "THICK_SHELL", "SOLID",
+  "RIGID_BODY", "ROAD_SURFACE", nullptr };
 
 typedef std::vector<bool> BitVector;
 
 }
 
 //-----------------------------------------------------------------------------
-//lightweight class that holds the cell properties
+// lightweight class that holds the cell properties
 class vtkLSDynaPart::InternalCellProperties
 {
 protected:
   class CellProperty
   {
-    public:
-      template<typename T>
-      CellProperty(T, const int& sp,
-        const vtkIdType &numTuples, const vtkIdType& nc):
-      startPos(sp),
-      numComps(nc)
-      {
-        Data =new unsigned char[numTuples * nc * sizeof(T)];
-        loc = Data;
-        len = numComps * sizeof(T);
-      }
-      ~CellProperty()
-      {
-        delete[] Data;
-      }
-      template<typename T>
-      void insertNextTuple(T* values)
-      {
-        memcpy(loc,values+startPos,len);
-        loc = ((T*)loc) + numComps;
-      }
-      void resetForNextTimeStep()
-      {
-        loc = Data;
-      }
+  public:
+    template <typename T>
+    CellProperty(T, const int& sp, const vtkIdType& numTuples, const vtkIdType& nc)
+      : startPos(sp)
+      , numComps(nc)
+    {
+      Data = new unsigned char[numTuples * nc * sizeof(T)];
+      loc = Data;
+      len = numComps * sizeof(T);
+    }
+    ~CellProperty() { delete[] Data; }
+    template <typename T>
+    void insertNextTuple(T* values)
+    {
+      memcpy(loc, values + startPos, len);
+      loc = ((T*)loc) + numComps;
+    }
+    void resetForNextTimeStep() { loc = Data; }
 
-    unsigned char *Data;
+    unsigned char* Data;
 
   protected:
     int startPos;
     size_t len;
     vtkIdType numComps;
-    void *loc;
+    void* loc;
   };
 
 public:
-  InternalCellProperties():
-    DeadCells(nullptr),DeadIndex(0),UserIds(nullptr),UserIdIndex(0){}
+  InternalCellProperties()
+    : DeadCells(nullptr)
+    , DeadIndex(0)
+    , UserIds(nullptr)
+    , UserIdIndex(0)
+  {
+  }
 
   ~InternalCellProperties()
   {
-  std::vector<CellProperty*>::iterator it;
-  for(it=Properties.begin();it!=Properties.end();++it)
-  {
-    delete (*it);
-    (*it)=nullptr;
-  }
-  this->Properties.clear();
+    std::vector<CellProperty*>::iterator it;
+    for (it = Properties.begin(); it != Properties.end(); ++it)
+    {
+      delete (*it);
+      (*it) = nullptr;
+    }
+    this->Properties.clear();
 
-  delete[] this->DeadCells;
-  delete[] this->UserIds;
+    delete[] this->DeadCells;
+    delete[] this->UserIds;
   }
 
   bool NoDeadCells() const { return DeadCells == nullptr; }
   bool NoUserIds() const { return UserIds == nullptr; }
 
-  template<typename T>
+  template <typename T>
   void* AddProperty(const int& offset, const int& numTuples, const int& numComps)
   {
-    CellProperty *prop = new CellProperty(T(),offset,numTuples,numComps);
+    CellProperty* prop = new CellProperty(T(), offset, numTuples, numComps);
     this->Properties.push_back(prop);
 
-    //return the location to set the void pointer too
+    // return the location to set the void pointer too
     return prop->Data;
   }
 
-  template<typename T>
+  template <typename T>
   void AddCellInfo(T* cellproperty)
   {
     std::vector<CellProperty*>::iterator it;
-    for(it=Properties.begin();it!=Properties.end();++it)
+    for (it = Properties.begin(); it != Properties.end(); ++it)
     {
       (*it)->insertNextTuple(cellproperty);
     }
@@ -134,20 +125,13 @@ public:
 
   void SetDeadCells(unsigned char* dead, const vtkIdType& size)
   {
-    memcpy(this->DeadCells+this->DeadIndex,dead,sizeof(unsigned char)*size);
+    memcpy(this->DeadCells + this->DeadIndex, dead, sizeof(unsigned char) * size);
     this->DeadIndex += size;
   }
 
-  bool IsCellDead(const vtkIdType &index) const
-  {
-    return this->DeadCells[index]==0;
-  }
+  bool IsCellDead(const vtkIdType& index) const { return this->DeadCells[index] == 0; }
 
-  void SetNextUserId(const vtkIdType &id)
-  {
-    this->UserIds[this->UserIdIndex++]=id;
-  }
-
+  void SetNextUserId(const vtkIdType& id) { this->UserIds[this->UserIdIndex++] = id; }
 
   void SetDeadCellArray(unsigned char* gc)
   {
@@ -166,21 +150,18 @@ public:
     this->DeadIndex = 0;
     this->UserIdIndex = 0;
     std::vector<CellProperty*>::iterator it;
-    for(it=Properties.begin();it!=Properties.end();++it)
+    for (it = Properties.begin(); it != Properties.end(); ++it)
     {
       (*it)->resetForNextTimeStep();
     }
   }
 
-  void* GetDeadVoidPtr()
-  {
-    return static_cast<void*>(this->DeadCells);
-  }
+  void* GetDeadVoidPtr() { return static_cast<void*>(this->DeadCells); }
 
 protected:
   std::vector<CellProperty*> Properties;
 
-  //the two cell data arrays that aren't packed with cell state info
+  // the two cell data arrays that aren't packed with cell state info
   unsigned char* DeadCells;
   vtkIdType DeadIndex;
 
@@ -191,28 +172,27 @@ protected:
 //-----------------------------------------------------------------------------
 class vtkLSDynaPart::InternalCells
 {
-//lightweight class that holds the cell topology.In buildTopology
-//we will set the unstructured grid pointers to look at these vectors
+  // lightweight class that holds the cell topology.In buildTopology
+  // we will set the unstructured grid pointers to look at these vectors
 public:
-
-  size_t size() const {return types.size();}
-  size_t dataSize() const {return data.size();}
+  size_t size() const { return types.size(); }
+  size_t dataSize() const { return data.size(); }
 
   void add(const int& cellType, const vtkIdType& npts, vtkIdType conn[8])
   {
     types.push_back(static_cast<unsigned char>(cellType));
 
-    data.push_back(npts); //add in the num of points
-    locations.push_back(static_cast<vtkIdType>(data.size()-1));
-    data.insert(data.end(),conn,conn+npts);
+    data.push_back(npts); // add in the num of points
+    locations.push_back(static_cast<vtkIdType>(data.size() - 1));
+    data.insert(data.end(), conn, conn + npts);
   }
 
   void reserve(const vtkIdType& numCells, const vtkIdType& dataLen)
   {
     types.reserve(numCells);
     locations.reserve(numCells);
-    //data len only holds total number of points across the cells
-    data.reserve(numCells+dataLen);
+    // data len only holds total number of points across the cells
+    data.reserve(numCells + dataLen);
   }
 
   std::vector<unsigned char> types;
@@ -223,22 +203,25 @@ public:
 //-----------------------------------------------------------------------------
 class vtkLSDynaPart::InternalPointsUsed
 {
-//Base class that tracks which points this part uses
+  // Base class that tracks which points this part uses
 public:
-  //uses the relative index based on the minId
-  InternalPointsUsed(const vtkIdType& min,
-                     const vtkIdType& max):
-    MinId(min),MaxId(max+1){} //maxId is meant to be exclusive
+  // uses the relative index based on the minId
+  InternalPointsUsed(const vtkIdType& min, const vtkIdType& max)
+    : MinId(min)
+    , MaxId(max + 1)
+  {
+  } // maxId is meant to be exclusive
 
   virtual ~InternalPointsUsed() = default;
 
-  virtual bool isUsed(const vtkIdType &index) const = 0;
+  virtual bool isUsed(const vtkIdType& index) const = 0;
 
-  //the min and max id allow the parts to be sorted in the collection
-  //based on the points they need to allow for subsections of the global point
-  //array to be sent to only parts that use it
+  // the min and max id allow the parts to be sorted in the collection
+  // based on the points they need to allow for subsections of the global point
+  // array to be sent to only parts that use it
   vtkIdType minId() const { return MinId; }
   vtkIdType maxId() const { return MaxId; }
+
 protected:
   vtkIdType MinId;
   vtkIdType MaxId;
@@ -247,18 +230,17 @@ protected:
 //-----------------------------------------------------------------------------
 class vtkLSDynaPart::DensePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 {
-  //uses a min and max id to bound the bit vector of points that this part
-  //uses. If the points for the part are all bunched up in the global point
-  //space this is used as it saves tons of space.
+  // uses a min and max id to bound the bit vector of points that this part
+  // uses. If the points for the part are all bunched up in the global point
+  // space this is used as it saves tons of space.
 public:
-  DensePointsUsed(BitVector *pointsUsed, const vtkIdType& min,
-                  const vtkIdType& max):
-    InternalPointsUsed(min,max),
-    UsedPoints(pointsUsed->begin()+min,pointsUsed->begin()+(max+1))
+  DensePointsUsed(BitVector* pointsUsed, const vtkIdType& min, const vtkIdType& max)
+    : InternalPointsUsed(min, max)
+    , UsedPoints(pointsUsed->begin() + min, pointsUsed->begin() + (max + 1))
   {
   }
 
-  bool isUsed(const vtkIdType &index) const override {return UsedPoints[index];}
+  bool isUsed(const vtkIdType& index) const override { return UsedPoints[index]; }
 
 protected:
   BitVector UsedPoints;
@@ -267,27 +249,27 @@ protected:
 //-----------------------------------------------------------------------------
 class vtkLSDynaPart::SparsePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 {
-  //uses a set to store highly unrelated points. I doubt this is used by
-  //many parts as the part would need to use a few points whose indices was
-  //at the extremes of the global point set
+  // uses a set to store highly unrelated points. I doubt this is used by
+  // many parts as the part would need to use a few points whose indices was
+  // at the extremes of the global point set
 public:
-  SparsePointsUsed(BitVector *pointsUsed, const vtkIdType& min,
-                   const vtkIdType& max):
-    InternalPointsUsed(min,max)
+  SparsePointsUsed(BitVector* pointsUsed, const vtkIdType& min, const vtkIdType& max)
+    : InternalPointsUsed(min, max)
   {
-    for(vtkIdType i=this->MinId; i<this->MaxId; ++i)
+    for (vtkIdType i = this->MinId; i < this->MaxId; ++i)
     {
-      //we need relative ids
-      if((*pointsUsed)[i])
+      // we need relative ids
+      if ((*pointsUsed)[i])
       {
-        this->UsedPoints.insert(i-this->MinId);
+        this->UsedPoints.insert(i - this->MinId);
       }
     }
   }
-  bool isUsed(const vtkIdType &index) const override
+  bool isUsed(const vtkIdType& index) const override
   {
     return this->UsedPoints.find(index) != this->UsedPoints.end();
   }
+
 protected:
   std::set<vtkIdType> UsedPoints;
 };
@@ -295,9 +277,13 @@ protected:
 //-----------------------------------------------------------------------------
 class vtkLSDynaPart::InternalCurrentPointInfo
 {
-  public:
-  InternalCurrentPointInfo():ptr(nullptr),index(0){}
-  void *ptr;
+public:
+  InternalCurrentPointInfo()
+    : ptr(nullptr)
+    , index(0)
+  {
+  }
+  void* ptr;
   vtkIdType index;
 };
 
@@ -336,32 +322,32 @@ vtkLSDynaPart::~vtkLSDynaPart()
   delete this->CellProperties;
   delete this->CurrentPointPropInfo;
 
-  if(Grid)
+  if (Grid)
   {
     Grid->Delete();
-    Grid=nullptr;
+    Grid = nullptr;
   }
-  if(Points)
+  if (Points)
   {
     Points->Delete();
-    Points=nullptr;
+    Points = nullptr;
   }
   delete this->GlobalPointsUsed;
-  if(this->ThresholdGrid)
+  if (this->ThresholdGrid)
   {
     this->ThresholdGrid->Delete();
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::PrintSelf(ostream &os, vtkIndent indent)
+void vtkLSDynaPart::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Type " << this->Type << "(" << TypeNames[this->Type] << ")" << endl;
   os << indent << "Name " << this->Name << endl;
   os << indent << "UserMaterialId " << this->UserMaterialId << endl;
   os << indent << "Number of Cells " << this->NumberOfCells << endl;
   os << indent << "Number of Points " << this->NumberOfPoints << endl;
-  os << indent << "TopologyBuilt"  << this->TopologyBuilt << endl;
+  os << indent << "TopologyBuilt" << this->TopologyBuilt << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -370,18 +356,14 @@ bool vtkLSDynaPart::HasCells() const
   return this->Cells->size() > 0;
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::InitPart(vtkStdString name,
-                             const vtkIdType& partId,
-                             const vtkIdType& userMatId,
-                             const vtkIdType& numGlobalPoints,
-                             const int& sizeOfWord)
+void vtkLSDynaPart::InitPart(vtkStdString name, const vtkIdType& partId, const vtkIdType& userMatId,
+  const vtkIdType& numGlobalPoints, const int& sizeOfWord)
 {
-  //we don't know intill we read the material section
-  //which type of a part we are. This is because
-  //when using user material ids they are in Id sorted order
-  //not in order based on the part type
+  // we don't know intill we read the material section
+  // which type of a part we are. This is because
+  // when using user material ids they are in Id sorted order
+  // not in order based on the part type
   this->Name = name;
   this->PartId = partId;
   this->UserMaterialId = userMatId;
@@ -395,28 +377,28 @@ void vtkLSDynaPart::InitPart(vtkStdString name,
 
   this->Grid->SetPoints(this->Points);
 
-  //now add in the field data to the grid.
-  //Data is the name, type, and material id
-  vtkFieldData *fd = this->Grid->GetFieldData();
+  // now add in the field data to the grid.
+  // Data is the name, type, and material id
+  vtkFieldData* fd = this->Grid->GetFieldData();
 
-  vtkStringArray *partName = vtkStringArray::New();
+  vtkStringArray* partName = vtkStringArray::New();
   partName->SetName("Name");
   partName->SetNumberOfValues(1);
-  partName->SetValue(0,this->Name);
+  partName->SetValue(0, this->Name);
   fd->AddArray(partName);
   partName->FastDelete();
 
-  vtkStringArray *partType = vtkStringArray::New();
+  vtkStringArray* partType = vtkStringArray::New();
   partType->SetName("Type");
   partType->SetNumberOfValues(1);
-  partType->SetValue(0,TypeNames[this->Type]);
+  partType->SetValue(0, TypeNames[this->Type]);
   fd->AddArray(partType);
   partType->FastDelete();
 
-  vtkIntArray *materialId = vtkIntArray::New();
+  vtkIntArray* materialId = vtkIntArray::New();
   materialId->SetName("Material Id");
   materialId->SetNumberOfValues(1);
-  materialId->SetValue(0,this->UserMaterialId);
+  materialId->SetValue(0, this->UserMaterialId);
   fd->AddArray(materialId);
   materialId->FastDelete();
 }
@@ -424,7 +406,7 @@ void vtkLSDynaPart::InitPart(vtkStdString name,
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::SetPartType(int type)
 {
-  switch(type)
+  switch (type)
   {
     case 0:
       this->Type = LSDynaMetaData::PARTICLE;
@@ -453,37 +435,36 @@ void vtkLSDynaPart::SetPartType(int type)
   }
 }
 
-
 //-----------------------------------------------------------------------------
 bool vtkLSDynaPart::hasValidType() const
 {
-  return (this->Type >= LSDynaMetaData::PARTICLE &&
-      this->Type <= LSDynaMetaData::ROAD_SURFACE);
+  return (this->Type >= LSDynaMetaData::PARTICLE && this->Type <= LSDynaMetaData::ROAD_SURFACE);
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::AllocateCellMemory(const vtkIdType& numCells,
-                                       const vtkIdType& cellLen)
+void vtkLSDynaPart::AllocateCellMemory(const vtkIdType& numCells, const vtkIdType& cellLen)
 {
-  this->Cells->reserve(numCells,cellLen);
+  this->Cells->reserve(numCells, cellLen);
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::AddCell(const int& cellType, const vtkIdType& npts, vtkIdType conn[8])
 {
-  this->Cells->add(cellType,npts,conn);
+  this->Cells->add(cellType, npts, conn);
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::BuildToplogy()
 {
-  //make the unstrucuted grid data point to the Cells memory
-  this->BuildCells();
-
-  //determine the number of points that this part has
-  //and what points those are in the global point map
-  //fixup the cell topology to use the local parts point ids
+  // determine the number of points that this part has
+  // and what points those are in the global point map
+  // fixup the cell topology to use the local parts point ids
+  // This must come before BuildCells since it remaps the point ids in the
+  // connectivity structures.
   this->BuildUniquePoints();
+
+  // make the unstrucuted grid data point to the Cells memory
+  this->BuildCells();
 
   this->TopologyBuilt = true;
 }
@@ -493,31 +474,31 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
 {
   this->CellProperties->ResetForNextTimeStep();
 
-  //we have to mark all the properties as modified so the information
-  //tab will be at the correct values
+  // we have to mark all the properties as modified so the information
+  // tab will be at the correct values
   vtkCellData* cd = this->Grid->GetCellData();
   int numArrays = cd->GetNumberOfArrays();
-  for(int i=0; i<numArrays; ++i)
+  for (int i = 0; i < numArrays; ++i)
   {
     cd->GetArray(i)->Modified();
   }
 
   this->Points->Modified();
-  vtkPointData *pd = this->Grid->GetPointData();
+  vtkPointData* pd = this->Grid->GetPointData();
   numArrays = pd->GetNumberOfArrays();
-  for(int i=0; i<numArrays; ++i)
+  for (int i = 0; i < numArrays; ++i)
   {
     pd->GetArray(i)->Modified();
   }
 
-  if(!this->HasDeadCells || this->DeadCellsAsGhostArray)
+  if (!this->HasDeadCells || this->DeadCellsAsGhostArray)
   {
     return this->Grid;
   }
   else
   {
-    //we threshold the datset on the ghost cells and return
-    //the new dataset
+    // we threshold the datset on the ghost cells and return
+    // the new dataset
     return this->RemoveDeletedCells();
   }
 }
@@ -525,28 +506,28 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
 //-----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
 {
-  if(this->ThresholdGrid)
+  if (this->ThresholdGrid)
   {
     this->ThresholdGrid->Delete();
   }
   this->ThresholdGrid = vtkUnstructuredGrid::New();
   this->ThresholdGrid->Allocate(this->NumberOfCells);
 
-  //copy field data
+  // copy field data
   this->ThresholdGrid->SetFieldData(this->Grid->GetFieldData());
 
-  vtkPointData *oldPd = this->Grid->GetPointData();
+  vtkPointData* oldPd = this->Grid->GetPointData();
   vtkPointData* pd = this->ThresholdGrid->GetPointData();
   pd->CopyGlobalIdsOn();
   pd->CopyAllocate(oldPd);
 
-  vtkCellData *oldCd = this->Grid->GetCellData();
-  vtkCellData *cd = this->ThresholdGrid->GetCellData();
+  vtkCellData* oldCd = this->Grid->GetCellData();
+  vtkCellData* cd = this->ThresholdGrid->GetCellData();
   cd->CopyGlobalIdsOn();
   cd->CopyAllocate(oldCd);
 
   vtkPoints* newPoints = vtkPoints::New();
-  if(this->DoubleBased)
+  if (this->DoubleBased)
   {
     newPoints->SetDataTypeToDouble();
   }
@@ -556,41 +537,40 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
   }
   newPoints->Allocate(this->NumberOfPoints);
 
-  vtkIdList *pointMap = vtkIdList::New();
+  vtkIdList* pointMap = vtkIdList::New();
   pointMap->SetNumberOfIds(this->NumberOfPoints);
-  for(vtkIdType i=0; i < this->NumberOfPoints; ++i)
+  for (vtkIdType i = 0; i < this->NumberOfPoints; ++i)
   {
-    pointMap->SetId(i,-1);
+    pointMap->SetId(i, -1);
   }
 
   double pt[3];
-  vtkIdType numCellPts=0, ptId=0, newId=0, newCellId=0;
-  vtkIdList *newCellPts = vtkIdList::New();
-  vtkIdList *cellPts = nullptr;
-  for(vtkIdType cellId=0; cellId < this->NumberOfCells; ++cellId)
+  vtkIdType numCellPts = 0, ptId = 0, newId = 0, newCellId = 0;
+  vtkIdList* newCellPts = vtkIdList::New();
+  vtkIdList* cellPts = nullptr;
+  for (vtkIdType cellId = 0; cellId < this->NumberOfCells; ++cellId)
   {
-    vtkCell *cell = this->Grid->GetCell(cellId);
+    vtkCell* cell = this->Grid->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 
-    if(this->CellProperties->IsCellDead(cellId) && numCellPts > 0)
+    if (this->CellProperties->IsCellDead(cellId) && numCellPts > 0)
     {
-        for (vtkIdType i=0; i < numCellPts; i++)
+      for (vtkIdType i = 0; i < numCellPts; i++)
+      {
+        ptId = cellPts->GetId(i);
+        if ((newId = pointMap->GetId(ptId)) < 0)
         {
-          ptId = cellPts->GetId(i);
-          if ( (newId = pointMap->GetId(ptId)) < 0 )
-          {
-            this->Grid->GetPoint(ptId, pt);
-            newId = newPoints->InsertNextPoint(pt);
-            pointMap->SetId(ptId,newId);
-            pd->CopyData(oldPd,ptId,newId);
-          }
-          newCellPts->InsertId(i,newId);
+          this->Grid->GetPoint(ptId, pt);
+          newId = newPoints->InsertNextPoint(pt);
+          pointMap->SetId(ptId, newId);
+          pd->CopyData(oldPd, ptId, newId);
         }
-        newCellId = this->ThresholdGrid->InsertNextCell(
-                                          cell->GetCellType(),newCellPts);
-        cd->CopyData(oldCd,cellId,newCellId);
-        newCellPts->Reset();
+        newCellPts->InsertId(i, newId);
+      }
+      newCellId = this->ThresholdGrid->InsertNextCell(cell->GetCellType(), newCellPts);
+      cd->CopyData(oldCd, cellId, newCellId);
+      newCellPts->Reset();
     }
   }
 
@@ -609,23 +589,22 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
 void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
 {
   this->HasDeadCells = true;
-  this->DeadCellsAsGhostArray = deadCellsAsGhostArray==1;
-  if(this->CellProperties->NoDeadCells())
+  this->DeadCellsAsGhostArray = deadCellsAsGhostArray == 1;
+  if (this->CellProperties->NoDeadCells())
   {
-    //we are using the ghost levels to hide cells that have been
-    //classified as dead, rather than the intended purpose
+    // we are using the ghost levels to hide cells that have been
+    // classified as dead, rather than the intended purpose
     unsigned char* dead = new unsigned char[this->NumberOfCells];
 
-    //the cell properties will delete the ghost array when needed
+    // the cell properties will delete the ghost array when needed
     this->CellProperties->SetDeadCellArray(dead);
   }
 
-  if(!this->Grid->GetCellData()->HasArray(vtkDataSetAttributes::GhostArrayName()))
+  if (!this->Grid->GetCellData()->HasArray(vtkDataSetAttributes::GhostArrayName()))
   {
-    vtkUnsignedCharArray *deadCells = vtkUnsignedCharArray::New();
+    vtkUnsignedCharArray* deadCells = vtkUnsignedCharArray::New();
     deadCells->SetName(vtkDataSetAttributes::GhostArrayName());
-    deadCells->SetVoidArray(this->CellProperties->GetDeadVoidPtr(),
-                             this->NumberOfCells,1);
+    deadCells->SetVoidArray(this->CellProperties->GetDeadVoidPtr(), this->NumberOfCells, 1);
 
     this->Grid->GetCellData()->AddArray(deadCells);
     deadCells->FastDelete();
@@ -636,32 +615,32 @@ void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
 void vtkLSDynaPart::DisableDeadCells()
 {
   this->HasDeadCells = false;
-  if(this->Grid->GetCellData()->HasArray(vtkDataSetAttributes::GhostArrayName()))
+  if (this->Grid->GetCellData()->HasArray(vtkDataSetAttributes::GhostArrayName()))
   {
     this->Grid->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::SetCellsDeadState(unsigned char *dead,const vtkIdType &size)
+void vtkLSDynaPart::SetCellsDeadState(unsigned char* dead, const vtkIdType& size)
 {
-  //presumes the HideDeletedCells is true, doesn't check for speed
-  this->CellProperties->SetDeadCells(dead,size);
+  // presumes the HideDeletedCells is true, doesn't check for speed
+  this->CellProperties->SetDeadCells(dead, size);
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::EnableCellUserIds()
 {
-  if(this->CellProperties->NoUserIds())
+  if (this->CellProperties->NoUserIds())
   {
-    vtkIdType *ids = new vtkIdType[this->NumberOfCells];
+    vtkIdType* ids = new vtkIdType[this->NumberOfCells];
 
-    //the cell properties will delete the ghost array when needed
+    // the cell properties will delete the ghost array when needed
     this->CellProperties->SetMaterialIdArray(ids);
 
-    vtkIdTypeArray *userIds = vtkIdTypeArray::New();
+    vtkIdTypeArray* userIds = vtkIdTypeArray::New();
     userIds->SetName("UserIds");
-    userIds->SetVoidArray(ids,this->NumberOfCells,1);
+    userIds->SetVoidArray(ids, this->NumberOfCells, 1);
     this->Grid->GetCellData()->SetGlobalIds(userIds);
     userIds->FastDelete();
   }
@@ -674,77 +653,67 @@ void vtkLSDynaPart::SetNextCellUserIds(const vtkIdType& value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::AddPointProperty(const char* name,
-        const vtkIdType& numComps, const bool &isIdTypeProperty,
-        const bool &isProperty, const bool& isGeometryPoints)
+void vtkLSDynaPart::AddPointProperty(const char* name, const vtkIdType& numComps,
+  const bool& isIdTypeProperty, const bool& isProperty, const bool& isGeometryPoints)
 {
-  //adding a point property means that this is the next property
-  //we are going to be reading from file
+  // adding a point property means that this is the next property
+  // we are going to be reading from file
 
-  //first step is getting the ptr to the start of the right property
-  this->GetPropertyData(name,numComps,isIdTypeProperty,isProperty,
-                        isGeometryPoints);
+  // first step is getting the ptr to the start of the right property
+  this->GetPropertyData(name, numComps, isIdTypeProperty, isProperty, isGeometryPoints);
   this->CurrentPointPropInfo->index = 0;
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::ReadPointBasedProperty(float *data, const vtkIdType& numTuples,
-                                      const vtkIdType& numComps,
-                                      const vtkIdType& currentGlobalPointIndex)
+void vtkLSDynaPart::ReadPointBasedProperty(float* data, const vtkIdType& numTuples,
+  const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
 {
-  float *ptr = static_cast<float*>(this->CurrentPointPropInfo->ptr);
-  this->AddPointInformation(data,ptr,numTuples,
-                            numComps,currentGlobalPointIndex);
+  float* ptr = static_cast<float*>(this->CurrentPointPropInfo->ptr);
+  this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::ReadPointBasedProperty(double *data, const vtkIdType& numTuples,
-                            const vtkIdType& numComps,
-                            const vtkIdType& currentGlobalPointIndex)
+void vtkLSDynaPart::ReadPointBasedProperty(double* data, const vtkIdType& numTuples,
+  const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
 {
-  double *ptr = static_cast<double*>(this->CurrentPointPropInfo->ptr);
-  this->AddPointInformation(data,ptr,numTuples,
-                            numComps,currentGlobalPointIndex);
+  double* ptr = static_cast<double*>(this->CurrentPointPropInfo->ptr);
+  this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
 }
 
 //-----------------------------------------------------------------------------
-template<typename T>
-void vtkLSDynaPart::AddPointInformation(T *buffer, T* pointData,
-                                       const vtkIdType& numTuples,
-                                       const vtkIdType& numComps,
-                                       const vtkIdType& currentGlobalIndex)
+template <typename T>
+void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
+  const vtkIdType& numComps, const vtkIdType& currentGlobalIndex)
 {
-  //only read the subset of points of this part that fall
-  //inside the src buffer
-  vtkIdType start(std::max(this->GlobalPointsUsed->minId(),
-                                 currentGlobalIndex));
-  vtkIdType end(std::min(this->GlobalPointsUsed->maxId(),
-                               currentGlobalIndex+numTuples));
+  // only read the subset of points of this part that fall
+  // inside the src buffer
+  vtkIdType start(std::max(this->GlobalPointsUsed->minId(), currentGlobalIndex));
+  vtkIdType end(std::min(this->GlobalPointsUsed->maxId(), currentGlobalIndex + numTuples));
 
-  //if the part has no place in this section of the points buffer
-  //end will be larger than start
-  if(start>=end)
+  // if the part has no place in this section of the points buffer
+  // end will be larger than start
+  if (start >= end)
   {
     return;
   }
 
-  //offset all the pointers to the correct place
-  T *src = buffer + ((start-currentGlobalIndex) * numComps);
-  T *dest = pointData + (this->CurrentPointPropInfo->index * numComps);
+  // offset all the pointers to the correct place
+  T* src = buffer + ((start - currentGlobalIndex) * numComps);
+  T* dest = pointData + (this->CurrentPointPropInfo->index * numComps);
   const size_t msize = sizeof(T) * numComps;
 
-  //fix the start and end to be relative to the min id
-  //this is because the global point used class is relative index based
+  // fix the start and end to be relative to the min id
+  // this is because the global point used class is relative index based
   start -= this->GlobalPointsUsed->minId();
   end -= this->GlobalPointsUsed->minId();
   vtkIdType numPointsRead = 0;
-  for(;start<end;++start,src+=numComps)
+  for (; start < end; ++start, src += numComps)
   {
 
-    if(this->GlobalPointsUsed->isUsed(start))
+    if (this->GlobalPointsUsed->isUsed(start))
     {
-      memcpy(dest,src,msize);
-      dest+=numComps;
+      memcpy(dest, src, msize);
+      dest += numComps;
       ++numPointsRead;
     }
   }
@@ -753,28 +722,26 @@ void vtkLSDynaPart::AddPointInformation(T *buffer, T* pointData,
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
-    const bool &isIdTypeProperty, const bool& isProperty,
-    const bool& isGeometry)
+void vtkLSDynaPart::GetPropertyData(const char* name, const vtkIdType& numComps,
+  const bool& isIdTypeProperty, const bool& isProperty, const bool& isGeometry)
 {
   this->CurrentPointPropInfo->ptr = nullptr;
-  vtkDataArray *data = nullptr;
-  if(isProperty)
+  vtkDataArray* data = nullptr;
+  if (isProperty)
   {
     data = this->Grid->GetPointData()->GetArray(name);
-    if(!data)
+    if (!data)
     {
-      //we have to construct the data array first
-      if(!isIdTypeProperty)
+      // we have to construct the data array first
+      if (!isIdTypeProperty)
       {
-        data = (this->DoubleBased) ?
-             (vtkDataArray*) vtkDoubleArray::New() :
-             (vtkDataArray*) vtkFloatArray::New();
+        data = (this->DoubleBased) ? (vtkDataArray*)vtkDoubleArray::New()
+                                   : (vtkDataArray*)vtkFloatArray::New();
         this->Grid->GetPointData()->AddArray(data);
       }
       else
       {
-        //the exception of the point arrays is the idType array which is
+        // the exception of the point arrays is the idType array which is
         data = vtkIdTypeArray::New();
         this->Grid->GetPointData()->SetGlobalIds(data);
       }
@@ -784,9 +751,9 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
       data->FastDelete();
     }
   }
-  if(isGeometry)
+  if (isGeometry)
   {
-    if(this->DoubleBased)
+    if (this->DoubleBased)
     {
       this->Points->SetDataTypeToDouble();
     }
@@ -795,15 +762,15 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
       this->Points->SetDataTypeToFloat();
     }
 
-    if(data)
+    if (data)
     {
-      //this is the deflection array and needs to be set as the points
-      //array
+      // this is the deflection array and needs to be set as the points
+      // array
       this->Points->SetData(data);
     }
     else
     {
-      //this is a pure geometry array and nothing else
+      // this is a pure geometry array and nothing else
       this->Points->SetNumberOfPoints(this->NumberOfPoints);
       data = this->Points->GetData();
     }
@@ -811,68 +778,59 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
   this->CurrentPointPropInfo->ptr = data->GetVoidPointer(0);
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset,
-                                    const int& numComps)
+void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset, const int& numComps)
 {
-  if(this->Grid->GetCellData()->HasArray(name))
+  if (this->Grid->GetCellData()->HasArray(name))
   {
-    //we only have to fill the cell properties class the first
-    //time step after creating the part, the reset of the time
-    //we are just changing the value in the data arrays
+    // we only have to fill the cell properties class the first
+    // time step after creating the part, the reset of the time
+    // we are just changing the value in the data arrays
     return;
   }
 
-  vtkDataArray *data=nullptr;
-  void *ptr = nullptr;
-  if(this->DoubleBased)
+  vtkDataArray* data = nullptr;
+  void* ptr = nullptr;
+  if (this->DoubleBased)
   {
-    ptr = this->CellProperties->AddProperty<double>(offset,this->NumberOfCells,
-                                                    numComps);
+    ptr = this->CellProperties->AddProperty<double>(offset, this->NumberOfCells, numComps);
   }
   else
   {
-    ptr = this->CellProperties->AddProperty<float>(offset,this->NumberOfCells,
-                                                   numComps);
+    ptr = this->CellProperties->AddProperty<float>(offset, this->NumberOfCells, numComps);
   }
 
-  if(ptr)
+  if (ptr)
   {
-    data = (this->DoubleBased) ?
-             (vtkDataArray*) vtkDoubleArray::New():
-             (vtkDataArray*) vtkFloatArray::New();
+    data = (this->DoubleBased) ? (vtkDataArray*)vtkDoubleArray::New()
+                               : (vtkDataArray*)vtkFloatArray::New();
 
-    //we will manage the memory that the cell property points too
+    // we will manage the memory that the cell property points too
     data->SetNumberOfComponents(numComps);
-    data->SetVoidArray(ptr,this->NumberOfCells*numComps,1);
+    data->SetVoidArray(ptr, this->NumberOfCells * numComps, 1);
     data->SetName(name);
     this->Grid->GetCellData()->AddArray(data);
     data->FastDelete();
   }
-
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::ReadCellProperties(float *cellProperties,
-                                       const vtkIdType& numCells,
-                                       const vtkIdType& numPropertiesInCell)
+void vtkLSDynaPart::ReadCellProperties(
+  float* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
-  float *cell = cellProperties;
-  for(vtkIdType i=0;i<numCells;++i)
+  float* cell = cellProperties;
+  for (vtkIdType i = 0; i < numCells; ++i)
   {
     this->CellProperties->AddCellInfo(cell);
     cell += numPropertiesInCell;
   }
-
 }
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::ReadCellProperties(double *cellProperties,
-                                       const vtkIdType& numCells,
-                                       const vtkIdType& numPropertiesInCell)
+void vtkLSDynaPart::ReadCellProperties(
+  double* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
-  double *cell = cellProperties;
-  for(vtkIdType i=0;i<numCells;++i)
+  double* cell = cellProperties;
+  for (vtkIdType i = 0; i < numCells; ++i)
   {
     this->CellProperties->AddCellInfo(cell);
     cell += numPropertiesInCell;
@@ -882,14 +840,14 @@ void vtkLSDynaPart::ReadCellProperties(double *cellProperties,
 //-----------------------------------------------------------------------------
 vtkIdType vtkLSDynaPart::GetMinGlobalPointId() const
 {
-  //presumes topology has been built already
+  // presumes topology has been built already
   return this->GlobalPointsUsed->minId();
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkLSDynaPart::GetMaxGlobalPointId() const
 {
-  //presumes topology has been built already
+  // presumes topology has been built already
   return this->GlobalPointsUsed->maxId();
 }
 
@@ -898,33 +856,28 @@ void vtkLSDynaPart::BuildCells()
 {
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells->size());
 
-  //make the unstrucuted grid data structures point to the
-  //Cells vectors underlying memory
+  // make the unstrucuted grid data structures point to the
+  // Cells vectors underlying memory
   vtkIdType cellDataSize = static_cast<vtkIdType>(this->Cells->dataSize());
 
-  //copy the contents from the part into a cell array.
-  vtkIdTypeArray *cellArray = vtkIdTypeArray::New();
-  cellArray->SetVoidArray(&this->Cells->data[0],cellDataSize,1);
+  // copy the contents from the part into a cell array.
+  vtkIdTypeArray* cellArray = vtkIdTypeArray::New();
+  cellArray->SetVoidArray(&this->Cells->data[0], cellDataSize, 1);
 
-  //set the idtype array as the cellarray
-  vtkCellArray *cells = vtkCellArray::New();
-  cells->SetCells(this->NumberOfCells,cellArray);
+  // set the idtype array as the cellarray
+  vtkCellArray* cells = vtkCellArray::New();
+  cells->ImportLegacyFormat(cellArray);
   cellArray->FastDelete();
 
-  //now copy the cell types from the vector to
+  // now copy the cell types from the vector to
   vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
-  cellTypes->SetVoidArray(&this->Cells->types[0],this->NumberOfCells,1);
+  cellTypes->SetVoidArray(&this->Cells->types[0], this->NumberOfCells, 1);
 
-  //last is the cell locations
-  vtkIdTypeArray *cellLocations = vtkIdTypeArray::New();
-  cellLocations->SetVoidArray(&this->Cells->locations[0],this->NumberOfCells,1);
+  // actually set up the grid
+  this->Grid->SetCells(cellTypes, cells, nullptr, nullptr);
 
-  //actually set up the grid
-  this->Grid->SetCells(cellTypes,cellLocations,cells,nullptr,nullptr);
-
-  //remove references
+  // remove references
   cellTypes->FastDelete();
-  cellLocations->FastDelete();
   cells->FastDelete();
 }
 
@@ -932,92 +885,91 @@ void vtkLSDynaPart::BuildCells()
 void vtkLSDynaPart::BuildUniquePoints()
 {
 
-  //we need to determine the number of unique points in this part
-  //walk the cell structure to find all the unique points
+  // we need to determine the number of unique points in this part
+  // walk the cell structure to find all the unique points
 
   std::vector<vtkIdType>::const_iterator cellIt;
   std::vector<vtkIdType>::iterator cIt;
 
-  BitVector pointUsage(this->NumberOfGlobalPoints,false);
+  BitVector pointUsage(this->NumberOfGlobalPoints, false);
   this->NumberOfPoints = 0;
-  for(cellIt=this->Cells->data.begin();cellIt!=this->Cells->data.end();)
+  for (cellIt = this->Cells->data.begin(); cellIt != this->Cells->data.end();)
   {
     const vtkIdType npts(*cellIt);
     ++cellIt;
-    for(vtkIdType i=0;i<npts;++i,++cellIt)
+    for (vtkIdType i = 0; i < npts; ++i, ++cellIt)
     {
-      const vtkIdType id((*cellIt)-1);
-      if(!pointUsage[id])
+      const vtkIdType id((*cellIt) - 1);
+      if (!pointUsage[id])
       {
         pointUsage[id] = true;
-        ++this->NumberOfPoints; //get the number of unique points
+        ++this->NumberOfPoints; // get the number of unique points
       }
     }
   }
 
-  //find the min and max points used
-  vtkIdType min = this->NumberOfGlobalPoints+1;
+  // find the min and max points used
+  vtkIdType min = this->NumberOfGlobalPoints + 1;
   vtkIdType max = -1;
-  vtkIdType pos=0, numPointsFound=0;
-  for(BitVector::const_iterator constIt=pointUsage.begin();
-      constIt!=pointUsage.end();
-      ++constIt,++pos)
+  vtkIdType pos = 0, numPointsFound = 0;
+  for (BitVector::const_iterator constIt = pointUsage.begin(); constIt != pointUsage.end();
+       ++constIt, ++pos)
   {
-    if(*constIt)
+    if (*constIt)
     {
       ++numPointsFound;
     }
-    if(numPointsFound==1 && min > pos)
+    if (numPointsFound == 1 && min > pos)
     {
       min = pos;
     }
-    if(numPointsFound==this->NumberOfPoints)
+    if (numPointsFound == this->NumberOfPoints)
     {
       max = pos;
-      break; //we iterated long enough
+      break; // we iterated long enough
     }
   }
 
-  //we do a two phase because we can minimize memory usage
-  //we should make this a class like DensePointsUsed since
-  //we can use the ratio to determine if a vector or a map is more
-  //space efficient
+  // we do a two phase because we can minimize memory usage
+  // we should make this a class like DensePointsUsed since
+  // we can use the ratio to determine if a vector or a map is more
+  // space efficient
   std::vector<vtkIdType> uniquePoints;
-  const vtkIdType size( 1 + max-min );
-  uniquePoints.resize(size,-1);
+  const vtkIdType size(1 + max - min);
+  uniquePoints.resize(size, -1);
 
-  vtkIdType idx=0;
-  pos=0;
-  for(vtkIdType i=min;i<=max;++i,++idx)
+  vtkIdType idx = 0;
+  pos = 0;
+  for (vtkIdType i = min; i <= max; ++i, ++idx)
   {
-    if(pointUsage[i])
+    if (pointUsage[i])
     {
-      uniquePoints[idx]=pos++;
+      uniquePoints[idx] = pos++;
     }
   }
 
-  //now fixup the cellIds
-  for(cIt=this->Cells->data.begin();cIt!=this->Cells->data.end();)
+  // now fixup the cellIds
+  for (cIt = this->Cells->data.begin(); cIt != this->Cells->data.end();)
   {
     const vtkIdType npts(*cIt);
     ++cIt;
-    for(vtkIdType i=0;i<npts;++i,++cIt)
+    for (vtkIdType i = 0; i < npts; ++i, ++cIt)
     {
-      const vtkIdType oId((*cIt)-min-1);
+      const vtkIdType oId((*cIt) - min - 1);
       *cIt = uniquePoints[oId];
     }
   }
 
-  //determine the type of global point id storage is best
-  vtkIdType ratio = (this->NumberOfPoints * sizeof(vtkIdType) ) / (max-min);
-  if(ratio>0)
+  // determine the type of global point id storage is best
+  vtkIdType ratio = (this->NumberOfPoints * sizeof(vtkIdType)) / (max - min);
+  if (ratio > 0)
   {
-    //the size of the bit array is less than the size of each number in memory
-    //by it self
-    this->GlobalPointsUsed = new vtkLSDynaPart::DensePointsUsed(&pointUsage,min,max);
+    // the size of the bit array is less than the size of each number in memory
+    // by it self
+    this->GlobalPointsUsed = new vtkLSDynaPart::DensePointsUsed(&pointUsage, min, max);
   }
   else
   {
-    this->GlobalPointsUsed = new vtkLSDynaPart::SparsePointsUsed(&pointUsage,min,max);
+    this->GlobalPointsUsed = new vtkLSDynaPart::SparsePointsUsed(&pointUsage, min, max);
   }
 }

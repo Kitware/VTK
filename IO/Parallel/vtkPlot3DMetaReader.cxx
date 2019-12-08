@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkPlot3DMetaReader.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiBlockPLOT3DReader.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/SystemTools.hxx>
 
 #include <map>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "vtk_jsoncpp.h"
 
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+#define CALL_MEMBER_FN(object, ptrToMember) ((object).*(ptrToMember))
 
 vtkStandardNewMacro(vtkPlot3DMetaReader);
 
@@ -49,21 +49,20 @@ struct vtkPlot3DMetaReaderInternals
   std::map<std::string, Plot3DFunction> FunctionMap;
   std::vector<Plot3DTimeStep> TimeSteps;
 
-  std::string ResolveFileName(const std::string& metaFileName,
-                              std::string fileName)
+  std::string ResolveFileName(const std::string& metaFileName, std::string fileName)
   {
-      if (vtksys::SystemTools::FileIsFullPath(fileName.c_str()))
-      {
-        return fileName;
-      }
-      else
-      {
-        std::string path = vtksys::SystemTools::GetFilenamePath(metaFileName);
-        std::vector<std::string> components;
-        components.push_back(path + "/");
-        components.push_back(fileName);
-        return vtksys::SystemTools::JoinPath(components);
-      }
+    if (vtksys::SystemTools::FileIsFullPath(fileName.c_str()))
+    {
+      return fileName;
+    }
+    else
+    {
+      std::string path = vtksys::SystemTools::GetFilenamePath(metaFileName);
+      std::vector<std::string> components;
+      components.push_back(path + "/");
+      components.push_back(fileName);
+      return vtksys::SystemTools::JoinPath(components);
+    }
   }
 };
 
@@ -80,32 +79,19 @@ vtkPlot3DMetaReader::vtkPlot3DMetaReader()
 
   this->Internal = new vtkPlot3DMetaReaderInternals;
 
-  this->Internal->FunctionMap["auto-detect-format"] =
-    &vtkPlot3DMetaReader::SetAutoDetectFormat;
-  this->Internal->FunctionMap["byte-order"] =
-    &vtkPlot3DMetaReader::SetByteOrder;
-  this->Internal->FunctionMap["precision"] =
-    &vtkPlot3DMetaReader::SetPrecision;
-  this->Internal->FunctionMap["multi-grid"] =
-    &vtkPlot3DMetaReader::SetMultiGrid;
-  this->Internal->FunctionMap["format"] =
-    &vtkPlot3DMetaReader::SetFormat;
-  this->Internal->FunctionMap["blanking"] =
-    &vtkPlot3DMetaReader::SetBlanking;
-  this->Internal->FunctionMap["language"] =
-    &vtkPlot3DMetaReader::SetLanguage;
-  this->Internal->FunctionMap["2D"] =
-    &vtkPlot3DMetaReader::Set2D;
-  this->Internal->FunctionMap["R"] =
-    &vtkPlot3DMetaReader::SetR;
-  this->Internal->FunctionMap["gamma"] =
-    &vtkPlot3DMetaReader::SetGamma;
-  this->Internal->FunctionMap["filenames"] =
-    &vtkPlot3DMetaReader::SetFileNames;
-  this->Internal->FunctionMap["functions"] =
-    &vtkPlot3DMetaReader::AddFunctions;
-  this->Internal->FunctionMap["function-names"] =
-    &vtkPlot3DMetaReader::SetFunctionNames;
+  this->Internal->FunctionMap["auto-detect-format"] = &vtkPlot3DMetaReader::SetAutoDetectFormat;
+  this->Internal->FunctionMap["byte-order"] = &vtkPlot3DMetaReader::SetByteOrder;
+  this->Internal->FunctionMap["precision"] = &vtkPlot3DMetaReader::SetPrecision;
+  this->Internal->FunctionMap["multi-grid"] = &vtkPlot3DMetaReader::SetMultiGrid;
+  this->Internal->FunctionMap["format"] = &vtkPlot3DMetaReader::SetFormat;
+  this->Internal->FunctionMap["blanking"] = &vtkPlot3DMetaReader::SetBlanking;
+  this->Internal->FunctionMap["language"] = &vtkPlot3DMetaReader::SetLanguage;
+  this->Internal->FunctionMap["2D"] = &vtkPlot3DMetaReader::Set2D;
+  this->Internal->FunctionMap["R"] = &vtkPlot3DMetaReader::SetR;
+  this->Internal->FunctionMap["gamma"] = &vtkPlot3DMetaReader::SetGamma;
+  this->Internal->FunctionMap["filenames"] = &vtkPlot3DMetaReader::SetFileNames;
+  this->Internal->FunctionMap["functions"] = &vtkPlot3DMetaReader::AddFunctions;
+  this->Internal->FunctionMap["function-names"] = &vtkPlot3DMetaReader::SetFunctionNames;
 }
 
 //-----------------------------------------------------------------------------
@@ -146,9 +132,9 @@ void vtkPlot3DMetaReader::SetByteOrder(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized byte order: " <<
-                  value.c_str()<< ". Valid options are \"little\" and \"big\"."
-                  " Setting to little endian");
+    vtkErrorMacro("Unrecognized byte order: " << value.c_str()
+                                              << ". Valid options are \"little\" and \"big\"."
+                                                 " Setting to little endian");
     this->Reader->SetByteOrderToLittleEndian();
   }
 }
@@ -167,9 +153,9 @@ void vtkPlot3DMetaReader::SetLanguage(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized language: " <<
-                  value.c_str()<< ". Valid options are \"fortran\" and \"C\"."
-                  " Setting to little fortran");
+    vtkErrorMacro("Unrecognized language: " << value.c_str()
+                                            << ". Valid options are \"fortran\" and \"C\"."
+                                               " Setting to little fortran");
     this->Reader->HasByteCountOn();
   }
 }
@@ -188,9 +174,9 @@ void vtkPlot3DMetaReader::SetPrecision(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized precision: " <<
-                  value << ". Valid options are 32 and 64 (bits)."
-                  " Setting to 32 bits");
+    vtkErrorMacro("Unrecognized precision: " << value
+                                             << ". Valid options are 32 and 64 (bits)."
+                                                " Setting to 32 bits");
     this->Reader->DoublePrecisionOff();
   }
 }
@@ -223,9 +209,9 @@ void vtkPlot3DMetaReader::SetFormat(Json::Value* val)
   }
   else
   {
-    vtkErrorMacro("Unrecognized file type: " <<
-                  value.c_str()<< ". Valid options are \"binary\" and \"ascii\"."
-                  " Setting to binary");
+    vtkErrorMacro("Unrecognized file type: " << value.c_str()
+                                             << ". Valid options are \"binary\" and \"ascii\"."
+                                                " Setting to binary");
     this->Reader->BinaryFileOn();
   }
 }
@@ -276,7 +262,7 @@ void vtkPlot3DMetaReader::SetGamma(Json::Value* val)
 void vtkPlot3DMetaReader::AddFunctions(Json::Value* val)
 {
   const Json::Value& functions = *val;
-  for ( size_t index = 0; index < functions.size(); ++index )
+  for (size_t index = 0; index < functions.size(); ++index)
   {
     this->Reader->AddFunction(functions[(int)index].asInt());
   }
@@ -286,7 +272,7 @@ void vtkPlot3DMetaReader::AddFunctions(Json::Value* val)
 void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
 {
   const Json::Value& filenames = *val;
-  for ( size_t index = 0; index < filenames.size(); ++index )
+  for (size_t index = 0; index < filenames.size(); ++index)
   {
     const Json::Value& astep = filenames[(int)index];
     bool doAdd = true;
@@ -309,22 +295,19 @@ void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
     else
     {
       std::string xyzfile = astep["xyz"].asString();
-      aTime.XYZFile = this->Internal->ResolveFileName(this->FileName,
-                                                      xyzfile);
+      aTime.XYZFile = this->Internal->ResolveFileName(this->FileName, xyzfile);
     }
 
     if (astep.isMember("q"))
     {
       std::string qfile = astep["q"].asString();
-      aTime.QFile = this->Internal->ResolveFileName(this->FileName,
-                                                    qfile);
+      aTime.QFile = this->Internal->ResolveFileName(this->FileName, qfile);
     }
 
     if (astep.isMember("function"))
     {
       std::string functionfile = astep["function"].asString();
-      aTime.FunctionFile = this->Internal->ResolveFileName(this->FileName,
-                                                           functionfile);
+      aTime.FunctionFile = this->Internal->ResolveFileName(this->FileName, functionfile);
     }
 
     if (doAdd)
@@ -338,17 +321,15 @@ void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
 void vtkPlot3DMetaReader::SetFunctionNames(Json::Value* val)
 {
   const Json::Value& functionNames = *val;
-  for ( size_t index = 0; index < functionNames.size(); ++index )
+  for (size_t index = 0; index < functionNames.size(); ++index)
   {
     this->Reader->AddFunctionName(functionNames[(int)index].asString());
   }
 }
 
 //----------------------------------------------------------------------------
-int vtkPlot3DMetaReader::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
+int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
@@ -376,16 +357,13 @@ int vtkPlot3DMetaReader::RequestInformation(
   if (!parsingSuccessful)
   {
     // report to the user the failure and their locations in the document.
-    vtkErrorMacro("Failed to parse configuration\n"
-                  << formattedErrorMessages);
+    vtkErrorMacro("Failed to parse configuration\n" << formattedErrorMessages);
     return 0;
   }
 
   Json::Value::Members members = root.getMemberNames();
   Json::Value::Members::iterator memberIterator;
-  for (memberIterator = members.begin();
-       memberIterator != members.end();
-       ++memberIterator)
+  for (memberIterator = members.begin(); memberIterator != members.end(); ++memberIterator)
   {
     std::map<std::string, Plot3DFunction>::iterator iter =
       this->Internal->FunctionMap.find(*memberIterator);
@@ -397,17 +375,14 @@ int vtkPlot3DMetaReader::RequestInformation(
     }
     else
     {
-      vtkErrorMacro("Syntax error in file. Option \""
-                    << memberIterator->c_str()
-                    << "\" is not valid.");
+      vtkErrorMacro(
+        "Syntax error in file. Option \"" << memberIterator->c_str() << "\" is not valid.");
     }
   }
 
   std::vector<Plot3DTimeStep>::iterator iter;
   std::vector<double> timeValues;
-  for (iter  = this->Internal->TimeSteps.begin();
-       iter != this->Internal->TimeSteps.end();
-       ++iter)
+  for (iter = this->Internal->TimeSteps.begin(); iter != this->Internal->TimeSteps.end(); ++iter)
   {
     timeValues.push_back(iter->Time);
   }
@@ -415,16 +390,12 @@ int vtkPlot3DMetaReader::RequestInformation(
   size_t numSteps = timeValues.size();
   if (numSteps > 0)
   {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 &timeValues[0],
-                 (int)numSteps);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeValues[0], (int)numSteps);
 
     double timeRange[2];
     timeRange[0] = timeValues[0];
     timeRange[1] = timeValues[numSteps - 1];
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                 timeRange,
-                 2);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
 
   return 1;
@@ -432,27 +403,22 @@ int vtkPlot3DMetaReader::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkPlot3DMetaReader::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(
-    outputVector->GetInformationObject(0));
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::GetData(outputVector->GetInformationObject(0));
 
   double timeValue = 0;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     // Get the requested time step. We only support requests of a single time
     // step in this reader right now
-    timeValue =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    timeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }
 
-  int tsLength =
-    outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  double *steps =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  int tsLength = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* steps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
   if (tsLength < 1)
   {
@@ -461,11 +427,10 @@ int vtkPlot3DMetaReader::RequestData(
     return 0;
   }
 
-
   // find the first time value larger than requested time value
   // this logic could be improved
   int cnt = 0;
-  while (cnt < tsLength-1 && steps[cnt] < timeValue)
+  while (cnt < tsLength - 1 && steps[cnt] < timeValue)
   {
     cnt++;
   }
@@ -479,8 +444,7 @@ int vtkPlot3DMetaReader::RequestData(
 
   if (tsLength > updateTime)
   {
-    this->Reader->SetXYZFileName(
-      this->Internal->TimeSteps[updateTime].XYZFile.c_str());
+    this->Reader->SetXYZFileName(this->Internal->TimeSteps[updateTime].XYZFile.c_str());
     const char* qname = this->Internal->TimeSteps[updateTime].QFile.c_str();
     if (strlen(qname) > 0)
     {
@@ -490,8 +454,7 @@ int vtkPlot3DMetaReader::RequestData(
     {
       this->Reader->SetQFileName(nullptr);
     }
-    const char* fname =
-      this->Internal->TimeSteps[updateTime].FunctionFile.c_str();
+    const char* fname = this->Internal->TimeSteps[updateTime].FunctionFile.c_str();
     if (strlen(fname) > 0)
     {
       this->Reader->SetFunctionFileName(fname);
@@ -500,17 +463,13 @@ int vtkPlot3DMetaReader::RequestData(
     {
       this->Reader->SetFunctionFileName(nullptr);
     }
-    this->Reader->UpdatePiece(
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+    this->Reader->UpdatePiece(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
-      );
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     vtkDataObject* ioutput = this->Reader->GetOutput();
     output->ShallowCopy(ioutput);
-    output->GetInformation()->Set(
-      vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(),
-      ioutput->GetInformation()->Get(
-        vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS()));
+    output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(),
+      ioutput->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS()));
   }
   else
   {

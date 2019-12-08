@@ -31,18 +31,18 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void RenderGraph(vtkAlgorithm* alg, vtkRenderer* ren, double r, double g, double b, double z, float size)
+void RenderGraph(
+  vtkAlgorithm* alg, vtkRenderer* ren, double r, double g, double b, double z, float size)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(alg->GetOutputPort());
@@ -51,7 +51,7 @@ void RenderGraph(vtkAlgorithm* alg, vtkRenderer* ren, double r, double g, double
   VTK_CREATE(vtkActor, edgeActor);
   edgeActor->SetMapper(edgeMapper);
   edgeActor->GetProperty()->SetColor(r, g, b);
-  edgeActor->GetProperty()->SetLineWidth(size/2);
+  edgeActor->GetProperty()->SetLineWidth(size / 2);
   edgeActor->SetPosition(0, 0, z);
   VTK_CREATE(vtkGlyphSource2D, vertex);
   vertex->SetGlyphTypeToVertex();

@@ -19,7 +19,7 @@
  * This filter takes the output of a vtkHierarchicalBinningFilter and allows
  * the pipeline to stream it. Pieces are determined from an offset integral
  * array associated with the field data of the input.
-*/
+ */
 
 #ifndef vtkExtractPointCloudPiece_h
 #define vtkExtractPointCloudPiece_h
@@ -37,7 +37,7 @@ public:
   /**
    * Standard methods for instantiation, printing, and type information.
    */
-  static vtkExtractPointCloudPiece *New();
+  static vtkExtractPointCloudPiece* New();
   vtkTypeMacro(vtkExtractPointCloudPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -48,9 +48,9 @@ public:
    * points in a given piece will be reordered in an attempt to reduce spatial
    * coherency.
    */
-  vtkSetMacro(ModuloOrdering,bool);
-  vtkGetMacro(ModuloOrdering,bool);
-  vtkBooleanMacro(ModuloOrdering,bool);
+  vtkSetMacro(ModuloOrdering, bool);
+  vtkGetMacro(ModuloOrdering, bool);
+  vtkBooleanMacro(ModuloOrdering, bool);
   //@}
 
 protected:
@@ -58,8 +58,8 @@ protected:
   ~vtkExtractPointCloudPiece() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   bool ModuloOrdering;
 
 private:

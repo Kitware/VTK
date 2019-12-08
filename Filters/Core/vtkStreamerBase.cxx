@@ -19,7 +19,6 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
 //=============================================================================
 vtkStreamerBase::vtkStreamerBase()
 {
@@ -31,29 +30,28 @@ vtkStreamerBase::vtkStreamerBase()
 vtkStreamerBase::~vtkStreamerBase() = default;
 
 //-----------------------------------------------------------------------------
-void vtkStreamerBase::PrintSelf(ostream &os, vtkIndent indent)
+void vtkStreamerBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamerBase::ProcessRequest(vtkInformation* request,
-                                    vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector)
+vtkTypeBool vtkStreamerBase::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -62,9 +60,8 @@ int vtkStreamerBase::ProcessRequest(vtkInformation* request,
 }
 
 //-----------------------------------------------------------------------------
-int vtkStreamerBase::RequestData(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector)
+int vtkStreamerBase::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (!this->ExecutePass(inputVector, outputVector))
   {
@@ -74,7 +71,7 @@ int vtkStreamerBase::RequestData(vtkInformation *request,
 
   this->CurrentIndex++;
 
-  if (  this->CurrentIndex < this->NumberOfPasses )
+  if (this->CurrentIndex < this->NumberOfPasses)
   {
     // There is still more to do.
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);

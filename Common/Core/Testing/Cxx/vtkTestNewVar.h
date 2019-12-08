@@ -16,22 +16,22 @@
  * @class   Test
  *
  * Tests instantiations of the vtkNew class template.
-*/
+ */
 
 #ifndef vtkTestNewVar_h
 #define vtkTestNewVar_h
 
-#include "vtkObject.h"
 #include "vtkNew.h"
+#include "vtkObject.h"
 
 class vtkPoints2D;
 
 class vtkTestNewVar : public vtkObject
 {
 public:
-  static vtkTestNewVar * New();
+  static vtkTestNewVar* New();
 
-  vtkTypeMacro(vtkTestNewVar, vtkObject)
+  vtkTypeMacro(vtkTestNewVar, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -44,7 +44,7 @@ public:
    * be assigned to a vtkSmartPointer without including the vtkPoints2D header
    * and defeating part of the point of the test.
    */
-  vtkObject * GetPoints();
+  vtkObject* GetPoints();
 
   /**
    * This is just for testing - return the points as a vtkObject so that it can
@@ -52,7 +52,7 @@ public:
    * and defeating part of the point of the test.
    * Using implicit conversion to raw pointer.
    */
-  vtkObject * GetPoints2();
+  vtkObject* GetPoints2();
 
 protected:
   vtkTestNewVar();

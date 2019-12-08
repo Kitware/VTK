@@ -106,10 +106,8 @@ void vtkImageExtractComponents::SetComponents(int c1)
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that only one component will remain.
-int vtkImageExtractComponents::RequestInformation (
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector * outputVector)
+int vtkImageExtractComponents::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkDataObject::SetPointDataActiveScalarInfo(
     outputVector->GetInformationObject(0), -1, this->NumberOfComponents);
@@ -118,10 +116,8 @@ int vtkImageExtractComponents::RequestInformation (
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
-                                      vtkImageData *inData, T *inPtr,
-                                      vtkImageData *outData, T *outPtr,
-                                      int outExt[6], int id)
+void vtkImageExtractComponentsExecute(vtkImageExtractComponents* self, vtkImageData* inData,
+  T* inPtr, vtkImageData* outData, T* outPtr, int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -136,7 +132,7 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
 
   // Get increments to march through data
@@ -156,9 +152,9 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -207,25 +203,21 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method is passed input and output datas, and executes the
 // ExtractComponents function on each line.
-void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
-                                                vtkImageData *outData,
-                                                int outExt[6], int id)
+void vtkImageExtractComponents::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
   int max, idx;
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void* inPtr = inData->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData->GetScalarPointerForExtent(outExt);
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input ScalarType, "
-                  << inData->GetScalarType()
-                  << ", must match out ScalarType "
-                  << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
@@ -235,8 +227,7 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
   {
     if (this->Components[idx] >= max || this->Components[idx] < 0)
     {
-      vtkErrorMacro("Execute: Component " << this->Components[idx]
-                    << " is not in input.");
+      vtkErrorMacro("Execute: Component " << this->Components[idx] << " is not in input.");
       return;
     }
   }
@@ -244,11 +235,8 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
   // choose which templated function to call.
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageExtractComponentsExecute(this, inData,
-                                       static_cast<VTK_TT *>(inPtr), outData,
-                                       static_cast<VTK_TT *>(outPtr),
-                                       outExt, id));
+    vtkTemplateMacro(vtkImageExtractComponentsExecute(this, inData, static_cast<VTK_TT*>(inPtr),
+      outData, static_cast<VTK_TT*>(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -257,13 +245,9 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
 
 void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
-  os << indent << "Components: ( "
-     << this->Components[0] << ", "
-     << this->Components[1] << ", "
+  os << indent << "Components: ( " << this->Components[0] << ", " << this->Components[1] << ", "
      << this->Components[2] << " )\n";
-
 }
-

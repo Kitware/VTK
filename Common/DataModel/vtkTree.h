@@ -41,7 +41,7 @@
  *
  * @sa
  * vtkDirectedGraph vtkMutableDirectedGraph vtkGraph
-*/
+ */
 
 #ifndef vtkTree_h
 #define vtkTree_h
@@ -54,14 +54,14 @@ class vtkIdTypeArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkTree : public vtkDirectedAcyclicGraph
 {
 public:
-  static vtkTree *New();
+  static vtkTree* New();
   vtkTypeMacro(vtkTree, vtkDirectedAcyclicGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_TREE;}
+  int GetDataObjectType() override { return VTK_TREE; }
 
   //@{
   /**
@@ -73,8 +73,7 @@ public:
   /**
    * Get the number of children of a vertex.
    */
-  vtkIdType GetNumberOfChildren(vtkIdType v)
-    { return this->GetOutDegree(v); }
+  vtkIdType GetNumberOfChildren(vtkIdType v) { return this->GetOutDegree(v); }
 
   /**
    * Get the i-th child of a parent vertex.
@@ -86,8 +85,7 @@ public:
    * This is a convenience method that functions exactly like
    * GetAdjacentVertices.
    */
-  void GetChildren(vtkIdType v, vtkAdjacentVertexIterator *it)
-    { this->GetAdjacentVertices(v, it); }
+  void GetChildren(vtkIdType v, vtkAdjacentVertexIterator* it) { this->GetAdjacentVertices(v, it); }
 
   /**
    * Get the parent of a vertex.
@@ -115,8 +113,8 @@ public:
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkTree *GetData(vtkInformation *info);
-  static vtkTree *GetData(vtkInformationVector *v, int i=0);
+  static vtkTree* GetData(vtkInformation* info);
+  static vtkTree* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -125,7 +123,7 @@ public:
    * just in a different order.
    * This does not change the topology of the tree.
    */
-  virtual void ReorderChildren(vtkIdType parent, vtkIdTypeArray *children);
+  virtual void ReorderChildren(vtkIdType parent, vtkIdTypeArray* children);
 
 protected:
   vtkTree();
@@ -135,7 +133,7 @@ protected:
    * Check the storage, and accept it if it is a valid
    * tree.
    */
-  bool IsStructureValid(vtkGraph *g) override;
+  bool IsStructureValid(vtkGraph* g) override;
 
   /**
    * The root of the tree.

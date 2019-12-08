@@ -34,8 +34,7 @@
 class ViewUpdater : public vtkCommand
 {
 public:
-  static ViewUpdater* New()
-  { return new ViewUpdater; }
+  static ViewUpdater* New() { return new ViewUpdater; }
 
   void AddView(vtkView* view)
   {
@@ -50,6 +49,7 @@ public:
       this->Views[i]->Update();
     }
   }
+
 private:
   ViewUpdater() = default;
   ~ViewUpdater() override = default;
@@ -87,8 +87,7 @@ int main(int, char*[])
     return EXIT_FAILURE;
   }
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  vtkDataRepresentation* rep =
-    view->SetRepresentationFromInput(tree);
+  vtkDataRepresentation* rep = view->SetRepresentationFromInput(tree);
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   view->SetVertexColorArrayName("VertexDegree");
@@ -97,8 +96,7 @@ int main(int, char*[])
   view->SetVertexLabelVisibility(true);
 
   vtkGraphLayoutView* view2 = vtkGraphLayoutView::New();
-  vtkDataRepresentation* rep2 =
-    view2->SetRepresentationFromInput(tree);
+  vtkDataRepresentation* rep2 = view2->SetRepresentationFromInput(tree);
   view2->SetVertexLabelArrayName("Label");
   view2->SetVertexLabelVisibility(true);
 
@@ -127,4 +125,3 @@ int main(int, char*[])
 
   return EXIT_SUCCESS;
 }
-

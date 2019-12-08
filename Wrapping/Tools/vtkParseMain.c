@@ -19,9 +19,9 @@ This file provides a unified front-end for the wrapper generators.
 
 */
 
+#include "vtkParseMain.h"
 #include "vtkParse.h"
 #include "vtkParseData.h"
-#include "vtkParseMain.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,9 +31,9 @@ This file provides a unified front-end for the wrapper generators.
 OptionInfo options;
 
 /* Get the base filename */
-static const char *parse_exename(const char *cmd)
+static const char* parse_exename(const char* cmd)
 {
-  const char *exename;
+  const char* exename;
 
   /* remove directory part of exe name */
   for (exename = cmd + strlen(cmd); exename > cmd; --exename)
@@ -49,7 +49,7 @@ static const char *parse_exename(const char *cmd)
 }
 
 /* Print the help */
-static void parse_print_help(FILE *fp, const char *cmd, int multi)
+static void parse_print_help(FILE* fp, const char* cmd, int multi)
 {
   fprintf(fp,
     "Usage: %s [options] infile... \n"
@@ -68,19 +68,19 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
   if (!multi)
   {
     fprintf(fp,
-    "  -dM               dump all macro definitions to output\n"
-    "  --hints <file>    the hints file to use\n"
-    "  --types <file>    the type hierarchy file to use\n");
+      "  -dM               dump all macro definitions to output\n"
+      "  --hints <file>    the hints file to use\n"
+      "  --types <file>    the type hierarchy file to use\n");
   }
 }
 
 /* append an arg to the arglist */
-static void parse_append_arg(int *argn, char ***args, char *arg)
+static void parse_append_arg(int* argn, char*** args, char* arg)
 {
   /* if argn is a power of two, allocate more space */
   if (*argn > 0 && (*argn & (*argn - 1)) == 0)
   {
-    *args = (char **)realloc(*args, 2*(*argn)*sizeof(char *));
+    *args = (char**)realloc(*args, 2 * (*argn) * sizeof(char*));
   }
   /* append argument to list */
   (*args)[*argn] = arg;
@@ -88,17 +88,16 @@ static void parse_append_arg(int *argn, char ***args, char *arg)
 }
 
 /* read options from a file, return zero on error */
-static int read_option_file(
-  StringCache *strings, const char *filename, int *argn, char ***args)
+static int read_option_file(StringCache* strings, const char* filename, int* argn, char*** args)
 {
   static int option_file_stack_max = 10;
   static int option_file_stack_size = 0;
-  static const char *option_file_stack[10];
-  FILE *fp;
-  char *line;
-  const char *ccp;
-  char *argstring;
-  char *arg;
+  static const char* option_file_stack[10];
+  FILE* fp;
+  char* line;
+  const char* ccp;
+  char* argstring;
+  char* arg;
   size_t maxlen = 15;
   size_t i, n;
   int j;
@@ -111,7 +110,7 @@ static int read_option_file(
     return 0;
   }
 
-  line = (char *)malloc(maxlen);
+  line = (char*)malloc(maxlen);
 
   /* read the file line by line */
   while (fgets(line, (int)maxlen, fp))
@@ -119,18 +118,21 @@ static int read_option_file(
     n = strlen(line);
 
     /* if buffer not long enough, increase it */
-    while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
+    while (n == maxlen - 1 && line[n - 1] != '\n' && !feof(fp))
     {
-      char *oldline = line;
+      char* oldline = line;
       maxlen *= 2;
-      line = (char *)realloc(line, maxlen);
+      line = (char*)realloc(line, maxlen);
       if (!line)
       {
         free(oldline);
         fclose(fp);
         return 0;
       }
-      if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
+      if (!fgets(&line[n], (int)(maxlen - n), fp))
+      {
+        break;
+      }
       n += strlen(&line[n]);
     }
 
@@ -166,7 +168,10 @@ static int read_option_file(
         }
         else if (!in_string && isspace(*ccp))
         {
-          do { ccp++; } while (isspace(*ccp));
+          do
+          {
+            ccp++;
+          } while (isspace(*ccp));
           break;
         }
         if (*ccp == '\0')
@@ -183,8 +188,7 @@ static int read_option_file(
         /* recursively expand '@file' option */
         if (option_file_stack_size == option_file_stack_max)
         {
-          fprintf(stderr, "%s: @file recursion is too deep.\n",
-                  (*args)[0]);
+          fprintf(stderr, "%s: @file recursion is too deep.\n", (*args)[0]);
           exit(1);
         }
         /* avoid reading the same file recursively */
@@ -222,13 +226,12 @@ static int read_option_file(
 }
 
 /* expand any "@file" args that occur in the command-line args */
-static void parse_expand_args(
-  StringCache *strings, int argc, char *argv[], int *argn, char ***args)
+static void parse_expand_args(StringCache* strings, int argc, char* argv[], int* argn, char*** args)
 {
   int i;
 
   *argn = 0;
-  *args = (char **)malloc(sizeof(char *));
+  *args = (char**)malloc(sizeof(char*));
 
   for (i = 0; i < argc; i++)
   {
@@ -255,11 +258,11 @@ static void parse_expand_args(
  * input files.  Returns zero for "--version" or "--help", or returns -1
  * if an error occurred.  Otherwise, it returns the number of args
  * that were successfully parsed. */
-static int parse_check_options(int argc, char *argv[], int multi)
+static int parse_check_options(int argc, char* argv[], int multi)
 {
   int i;
   size_t j;
-  char *cp;
+  char* cp;
   char c;
 
   options.NumberOfFiles = 0;
@@ -281,7 +284,7 @@ static int parse_check_options(int argc, char *argv[], int multi)
     }
     else if (strcmp(argv[i], "--version") == 0)
     {
-      const char *ver = VTK_PARSE_VERSION;
+      const char* ver = VTK_PARSE_VERSION;
       fprintf(stdout, "%s %s\n", parse_exename(argv[0]), ver);
       return 0;
     }
@@ -289,12 +292,11 @@ static int parse_check_options(int argc, char *argv[], int multi)
     {
       if (options.NumberOfFiles == 0)
       {
-        options.Files = (char **)malloc(sizeof(char *));
+        options.Files = (char**)malloc(sizeof(char*));
       }
       else if ((options.NumberOfFiles & (options.NumberOfFiles - 1)) == 0)
       {
-        options.Files = (char **)realloc(
-          options.Files, 2*options.NumberOfFiles*sizeof(char *));
+        options.Files = (char**)realloc(options.Files, 2 * options.NumberOfFiles * sizeof(char*));
       }
       options.Files[options.NumberOfFiles++] = argv[i];
     }
@@ -341,8 +343,14 @@ static int parse_check_options(int argc, char *argv[], int multi)
       else if (c == 'D')
       {
         j = 0;
-        while (cp[j] != '\0' && cp[j] != '=') { j++; }
-        if (cp[j] == '=') { j++; }
+        while (cp[j] != '\0' && cp[j] != '=')
+        {
+          j++;
+        }
+        if (cp[j] == '=')
+        {
+          j++;
+        }
         vtkParse_DefineMacro(cp, &cp[j]);
       }
       else if (c == 'U')
@@ -359,12 +367,12 @@ static int parse_check_options(int argc, char *argv[], int multi)
       }
       if (options.NumberOfHintFileNames == 0)
       {
-        options.HintFileNames = (char **)malloc(sizeof(char *));
+        options.HintFileNames = (char**)malloc(sizeof(char*));
       }
       else if ((options.NumberOfHintFileNames & (options.NumberOfHintFileNames - 1)) == 0)
       {
-        options.HintFileNames = (char **)realloc(
-          options.HintFileNames, 2 * options.NumberOfHintFileNames*sizeof(char *));
+        options.HintFileNames =
+          (char**)realloc(options.HintFileNames, 2 * options.NumberOfHintFileNames * sizeof(char*));
       }
       options.HintFileNames[options.NumberOfHintFileNames++] = argv[i];
     }
@@ -377,12 +385,12 @@ static int parse_check_options(int argc, char *argv[], int multi)
       }
       if (options.NumberOfHierarchyFileNames == 0)
       {
-        options.HierarchyFileNames = (char **)malloc(sizeof(char *));
+        options.HierarchyFileNames = (char**)malloc(sizeof(char*));
       }
       else if ((options.NumberOfHierarchyFileNames & (options.NumberOfHierarchyFileNames - 1)) == 0)
       {
-        options.HierarchyFileNames = (char **)realloc(
-          options.HierarchyFileNames, 2*options.NumberOfHierarchyFileNames*sizeof(char *));
+        options.HierarchyFileNames = (char**)realloc(
+          options.HierarchyFileNames, 2 * options.NumberOfHierarchyFileNames * sizeof(char*));
       }
       options.HierarchyFileNames[options.NumberOfHierarchyFileNames++] = argv[i];
     }
@@ -392,24 +400,24 @@ static int parse_check_options(int argc, char *argv[], int multi)
 }
 
 /* Return a pointer to the static OptionInfo struct */
-OptionInfo *vtkParse_GetCommandLineOptions(void)
+OptionInfo* vtkParse_GetCommandLineOptions(void)
 {
   return &options;
 }
 
 /* Command-line argument handler for wrapper tools */
-FileInfo *vtkParse_Main(int argc, char *argv[])
+FileInfo* vtkParse_Main(int argc, char* argv[])
 {
   int argi;
-  FILE *ifile;
-  FILE *hfile = 0;
+  FILE* ifile;
+  FILE* hfile = 0;
   int nhfiles;
   int ihfiles;
-  const char *hfilename;
-  FileInfo *data;
+  const char* hfilename;
+  FileInfo* data;
   StringCache strings;
   int argn;
-  char **args;
+  char** args;
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
@@ -503,10 +511,9 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     int ifunc;
     for (ifunc = 0; ifunc < nfunc; ifunc++)
     {
-      FunctionInfo *func = data->MainClass->Functions[ifunc];
-      if (func && func->Access == VTK_ACCESS_PUBLIC &&
-          func->Name && strcmp(func->Name, "New") == 0 &&
-          func->NumberOfParameters == 0)
+      FunctionInfo* func = data->MainClass->Functions[ifunc];
+      if (func && func->Access == VTK_ACCESS_PUBLIC && func->Name &&
+        strcmp(func->Name, "New") == 0 && func->NumberOfParameters == 0)
       {
         break;
       }
@@ -518,12 +525,12 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
 }
 
 /* Command-line argument handler for wrapper tools */
-StringCache *vtkParse_MainMulti(int argc, char *argv[])
+StringCache* vtkParse_MainMulti(int argc, char* argv[])
 {
   int argi;
   int argn;
-  char **args;
-  StringCache *strings = (StringCache *)malloc(sizeof(StringCache));
+  char** args;
+  StringCache* strings = (StringCache*)malloc(sizeof(StringCache));
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));

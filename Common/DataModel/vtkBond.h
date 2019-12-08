@@ -16,21 +16,21 @@
  * @class   vtkBond
  * @brief   convenience proxy for vtkMolecule
  *
-*/
+ */
 
 #ifndef vtkBond_h
 #define vtkBond_h
 
+#include "vtkAtom.h"                  // For vtkAtom
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkObject.h" // For macros, etc
-#include "vtkAtom.h" // For vtkAtom
+#include "vtkObject.h"                // For macros, etc
 
 class vtkMolecule;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBond
 {
 public:
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
    * Return the Id used to identify this bond in the parent molecule.
@@ -40,7 +40,7 @@ public:
   /**
    * Return the parent molecule of this bond.
    */
-  vtkMolecule * GetMolecule();
+  vtkMolecule* GetMolecule();
 
   //@{
   /**
@@ -77,10 +77,9 @@ public:
 protected:
   friend class vtkMolecule;
 
-  vtkBond(vtkMolecule *parent, vtkIdType id,
-          vtkIdType beginAtomId, vtkIdType endAtomId);
+  vtkBond(vtkMolecule* parent, vtkIdType id, vtkIdType beginAtomId, vtkIdType endAtomId);
 
-  vtkMolecule *Molecule;
+  vtkMolecule* Molecule;
   vtkIdType Id;
   vtkIdType BeginAtomId;
   vtkIdType EndAtomId;
@@ -91,7 +90,7 @@ inline vtkIdType vtkBond::GetId() const
   return this->Id;
 }
 
-inline vtkMolecule * vtkBond::GetMolecule()
+inline vtkMolecule* vtkBond::GetMolecule()
 {
   return this->Molecule;
 }

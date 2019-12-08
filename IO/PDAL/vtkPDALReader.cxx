@@ -16,44 +16,43 @@
 #include "vtkPDALReader.h"
 
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkFloatArray.h>
-#include <vtkTypeInt8Array.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkTypeInt16Array.h>
 #include <vtkTypeInt32Array.h>
 #include <vtkTypeInt64Array.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkPoints.h>
-#include <vtkPointData.h>
-#include <vtkPolyData.h>
-#include <vtkTypeUInt8Array.h>
+#include <vtkTypeInt8Array.h>
 #include <vtkTypeUInt16Array.h>
 #include <vtkTypeUInt32Array.h>
 #include <vtkTypeUInt64Array.h>
+#include <vtkTypeUInt8Array.h>
 #include <vtkVertexGlyphFilter.h>
 
 #if defined(__GNUC__)
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wshadow"
-#  pragma GCC diagnostic ignored "-Wunused-parameter"
-#  if __GNUC__ > 6
-#    pragma GCC diagnostic ignored "-Wnoexcept-type"
-#  endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#if __GNUC__ > 6
+#pragma GCC diagnostic ignored "-Wnoexcept-type"
+#endif
 #endif
 #include <pdal/Reader.hpp>
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
+#include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
-#include <pdal/Options.hpp>
 
-vtkStandardNewMacro(vtkPDALReader)
-
+vtkStandardNewMacro(vtkPDALReader);
 
 //----------------------------------------------------------------------------
 vtkPDALReader::vtkPDALReader()
@@ -67,16 +66,15 @@ vtkPDALReader::vtkPDALReader()
 //----------------------------------------------------------------------------
 vtkPDALReader::~vtkPDALReader()
 {
-  if ( this->FileName )
+  if (this->FileName)
   {
-    delete [] this->FileName;
+    delete[] this->FileName;
   }
 }
 
 //----------------------------------------------------------------------------
 int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
-                                   vtkInformationVector** vtkNotUsed(request),
-                                   vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(request), vtkInformationVector* outputVector)
 {
   try
   {
@@ -84,8 +82,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
     // Get the output
-    vtkPolyData* output = vtkPolyData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     pdal::StageFactory factory;
     std::string driverName = factory.inferReaderDriver(this->FileName);
@@ -99,7 +96,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     pdal::Options opts;
     opts.add(opt_filename);
     pdal::Stage* reader = factory.createStage(driverName);
-    if (! reader)
+    if (!reader)
     {
       vtkErrorMacro("Cannot open file " << this->FileName);
       return 0;
@@ -128,8 +125,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
-                                        vtkPolyData* pointsPolyData)
+void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
@@ -158,17 +154,17 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
     pdal::Dimension::Id dimensionId = dims[i];
     switch (dimensionId)
     {
-    case pdal::Dimension::Id::Red:
-      hasRed = true;
-      break;
-    case pdal::Dimension::Id::Green:
-      hasGreen = true;
-      break;
-    case pdal::Dimension::Id::Blue:
-      hasBlue = true;
-      break;
-    default:
-      continue;
+      case pdal::Dimension::Id::Red:
+        hasRed = true;
+        break;
+      case pdal::Dimension::Id::Green:
+        hasGreen = true;
+        break;
+      case pdal::Dimension::Id::Blue:
+        hasBlue = true;
+        break;
+      default:
+        continue;
     }
   }
   if (hasRed && hasGreen && hasBlue)
@@ -185,21 +181,20 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
   for (size_t i = 0; i < dims.size(); ++i)
   {
     pdal::Dimension::Id dimensionId = dims[i];
-    if (dimensionId == pdal::Dimension::Id::X ||
-        dimensionId == pdal::Dimension::Id::Y ||
-        dimensionId == pdal::Dimension::Id::Z)
+    if (dimensionId == pdal::Dimension::Id::X || dimensionId == pdal::Dimension::Id::Y ||
+      dimensionId == pdal::Dimension::Id::Z)
     {
       continue;
     }
-    if (hasColor && (dimensionId == pdal::Dimension::Id::Red ||
-                     dimensionId == pdal::Dimension::Id::Green ||
-                     dimensionId == pdal::Dimension::Id::Blue))
+    if (hasColor &&
+      (dimensionId == pdal::Dimension::Id::Red || dimensionId == pdal::Dimension::Id::Green ||
+        dimensionId == pdal::Dimension::Id::Blue))
     {
       continue;
     }
-    switch(pointView->dimType(dimensionId))
+    switch (pointView->dimType(dimensionId))
     {
-    case pdal::Dimension::Type::Double:
+      case pdal::Dimension::Type::Double:
       {
         vtkNew<vtkDoubleArray> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -208,7 +203,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         doubleArray[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Float:
+      case pdal::Dimension::Type::Float:
       {
         vtkNew<vtkFloatArray> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -217,7 +212,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         floatArray[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Unsigned8:
+      case pdal::Dimension::Type::Unsigned8:
       {
         vtkNew<vtkTypeUInt8Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -226,7 +221,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         uInt8Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Unsigned16:
+      case pdal::Dimension::Type::Unsigned16:
       {
         vtkNew<vtkTypeUInt16Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -235,7 +230,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         uInt16Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Unsigned32:
+      case pdal::Dimension::Type::Unsigned32:
       {
         vtkNew<vtkTypeUInt32Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -244,7 +239,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         uInt32Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Unsigned64:
+      case pdal::Dimension::Type::Unsigned64:
       {
         vtkNew<vtkTypeUInt64Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -253,7 +248,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         uInt64Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Signed8:
+      case pdal::Dimension::Type::Signed8:
       {
         vtkNew<vtkTypeInt8Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -262,7 +257,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         int8Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Signed16:
+      case pdal::Dimension::Type::Signed16:
       {
         vtkNew<vtkTypeInt16Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -271,7 +266,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         int16Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Signed32:
+      case pdal::Dimension::Type::Signed32:
       {
         vtkNew<vtkTypeInt32Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -280,7 +275,7 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
         int32Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Signed64:
+      case pdal::Dimension::Type::Signed64:
       {
         vtkNew<vtkTypeInt64Array> a;
         a->SetName(pointView->dimName(dimensionId).c_str());
@@ -295,11 +290,9 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
   }
   for (pdal::PointId pointId = 0; pointId < pointView->size(); ++pointId)
   {
-    double point[3] = {
-      pointView->getFieldAs<double>(pdal::Dimension::Id::X, pointId),
+    double point[3] = { pointView->getFieldAs<double>(pdal::Dimension::Id::X, pointId),
       pointView->getFieldAs<double>(pdal::Dimension::Id::Y, pointId),
-      pointView->getFieldAs<double>(pdal::Dimension::Id::Z, pointId)
-    };
+      pointView->getFieldAs<double>(pdal::Dimension::Id::Z, pointId) };
     points->SetPoint(pointId, point);
     if (hasColor)
     {
@@ -313,99 +306,98 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
     for (size_t i = 0; i < dims.size(); ++i)
     {
       pdal::Dimension::Id dimensionId = dims[i];
-      if (dimensionId == pdal::Dimension::Id::X ||
-          dimensionId == pdal::Dimension::Id::Y ||
-          dimensionId == pdal::Dimension::Id::Z)
+      if (dimensionId == pdal::Dimension::Id::X || dimensionId == pdal::Dimension::Id::Y ||
+        dimensionId == pdal::Dimension::Id::Z)
       {
         continue;
       }
-      if (hasColor && (dimensionId == pdal::Dimension::Id::Red ||
-                       dimensionId == pdal::Dimension::Id::Green ||
-                       dimensionId == pdal::Dimension::Id::Blue))
+      if (hasColor &&
+        (dimensionId == pdal::Dimension::Id::Red || dimensionId == pdal::Dimension::Id::Green ||
+          dimensionId == pdal::Dimension::Id::Blue))
       {
         continue;
       }
-      switch(pointView->dimType(dimensionId))
+      switch (pointView->dimType(dimensionId))
       {
-      case pdal::Dimension::Type::Double:
+        case pdal::Dimension::Type::Double:
         {
           vtkDoubleArray* a = doubleArray[i];
           double value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Float:
+        case pdal::Dimension::Type::Float:
         {
           vtkFloatArray* a = floatArray[i];
           float value = pointView->getFieldAs<float>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Unsigned8:
+        case pdal::Dimension::Type::Unsigned8:
         {
           vtkTypeUInt8Array* a = uInt8Array[i];
           uint8_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Unsigned16:
+        case pdal::Dimension::Type::Unsigned16:
         {
           vtkTypeUInt16Array* a = uInt16Array[i];
           uint16_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Unsigned32:
+        case pdal::Dimension::Type::Unsigned32:
         {
           vtkTypeUInt32Array* a = uInt32Array[i];
           uint32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Unsigned64:
+        case pdal::Dimension::Type::Unsigned64:
         {
           vtkTypeUInt64Array* a = uInt64Array[i];
           uint64_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Signed8:
+        case pdal::Dimension::Type::Signed8:
         {
           vtkTypeInt8Array* a = int8Array[i];
           int8_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Signed16:
+        case pdal::Dimension::Type::Signed16:
         {
           vtkTypeInt16Array* a = int16Array[i];
           int16_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Signed32:
+        case pdal::Dimension::Type::Signed32:
         {
           vtkTypeInt32Array* a = int32Array[i];
           int32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Signed64:
+        case pdal::Dimension::Type::Signed64:
         {
           vtkTypeInt64Array* a = int64Array[i];
           int64_t value = pointView->getFieldAs<double>(dimensionId, pointId);
           a->SetValue(pointId, value);
           break;
         }
-      default:
-        throw std::runtime_error("Invalid pdal::Dimension::Type");
+        default:
+          throw std::runtime_error("Invalid pdal::Dimension::Type");
       }
     }
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkPDALReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPDALReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
   os << "vtkPDALReader" << std::endl;

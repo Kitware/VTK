@@ -29,12 +29,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkVertexListIterator.h"
 
-#include "vtkGraph.h"
 #include "vtkBoostGraphAdapter.h"
+#include "vtkGraph.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/version.hpp>
-#include <vector>
 #include <utility>
+#include <vector>
 
 using namespace boost;
 
@@ -51,20 +51,18 @@ vtkBoostBiconnectedComponents::~vtkBoostBiconnectedComponents()
   this->SetOutputArrayName(0);
 }
 
-int vtkBoostBiconnectedComponents::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBoostBiconnectedComponents::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkUndirectedGraph *input = vtkUndirectedGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUndirectedGraph *output = vtkUndirectedGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUndirectedGraph* input =
+    vtkUndirectedGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUndirectedGraph* output =
+    vtkUndirectedGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Send the data to output.
   output->ShallowCopy(input);
@@ -90,20 +88,19 @@ int vtkBoostBiconnectedComponents::RequestData(
   // Create vector of articulation points and set it up for insertion
   // by the algorithm.
   std::vector<vtkIdType> artPoints;
-  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType> > >
-    res(0, std::back_inserter(artPoints));
+  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType> > > res(
+    0, std::back_inserter(artPoints));
 
   // Call BGL biconnected_components.
   // It appears that the signature for this
   // algorithm has changed in 1.32, 1.33, and 1.34 ;p
-#if BOOST_VERSION < 103300      // Boost 1.32.x
+#if BOOST_VERSION < 103300 // Boost 1.32.x
   // TODO I have no idea what the 1.32 signature is suppose to be
   // res = biconnected_components(
   //  output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
-#elif BOOST_VERSION < 103400    // Boost 1.33.x
-  res = biconnected_components(
-    output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
-#else                           // Anything after Boost 1.34.x
+#elif BOOST_VERSION < 103400 // Boost 1.33.x
+  res = biconnected_components(output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
+#else                        // Anything after Boost 1.34.x
   res = biconnected_components(
     output, helper, std::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
 #endif
@@ -164,7 +161,6 @@ void vtkBoostBiconnectedComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
+  os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
+     << endl;
 }
-

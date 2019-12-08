@@ -50,25 +50,25 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkInformationVector.h"
-#include "vtkInformation.h"
-#include "vtkPointSet.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkStringArray.h"
+#include "vtkCommand.h"
 #include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkErrorCode.h"
-#include "vtkCommand.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
+#include "vtkStringArray.h"
 
 #include <cctype>
 #include <cmath>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 //--------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkMNITagPointWriter::vtkMNITagPointWriter()
 //-------------------------------------------------------------------------
 vtkMNITagPointWriter::~vtkMNITagPointWriter()
 {
-  vtkObject *objects[6];
+  vtkObject* objects[6];
   objects[0] = this->Points[0];
   objects[1] = this->Points[1];
   objects[2] = this->LabelText;
@@ -117,7 +117,7 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
     }
   }
 
-  delete [] this->Comments;
+  delete[] this->Comments;
 
   delete[] this->FileName;
 }
@@ -125,22 +125,19 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
 //-------------------------------------------------------------------------
 void vtkMNITagPointWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Points: " << this->Points[0] << " "
-     << this->Points[1] << "\n";
+  os << indent << "Points: " << this->Points[0] << " " << this->Points[1] << "\n";
   os << indent << "LabelText: " << this->LabelText << "\n";
   os << indent << "Weights: " << this->Weights << "\n";
   os << indent << "StructureIds: " << this->StructureIds << "\n";
   os << indent << "PatientIds: " << this->PatientIds << "\n";
 
-  os << indent << "Comments: "
-     << (this->Comments ? this->Comments : "none") << "\n";
+  os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
 //----------------------------------------------------------------------------
-int vtkMNITagPointWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+int vtkMNITagPointWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
@@ -152,7 +149,7 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
 
-  vtkObject *objects[6];
+  vtkObject* objects[6];
   objects[0] = this->Points[0];
   objects[1] = this->Points[1];
   objects[2] = this->LabelText;
@@ -176,7 +173,7 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITagPointWriter::SetPoints(int port, vtkPoints *points)
+void vtkMNITagPointWriter::SetPoints(int port, vtkPoints* points)
 {
   if (port < 0 || port > 1)
   {
@@ -199,7 +196,7 @@ void vtkMNITagPointWriter::SetPoints(int port, vtkPoints *points)
 }
 
 //-------------------------------------------------------------------------
-vtkPoints *vtkMNITagPointWriter::GetPoints(int port)
+vtkPoints* vtkMNITagPointWriter::GetPoints(int port)
 {
   if (port < 0 || port > 1)
   {
@@ -209,23 +206,19 @@ vtkPoints *vtkMNITagPointWriter::GetPoints(int port)
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
+void vtkMNITagPointWriter::WriteData(vtkPointSet* inputs[2])
 {
-  static const char *arrayNames[3] = {
-    "Weights",
-    "StructureIds",
-    "PatientIds"
-  };
+  static const char* arrayNames[3] = { "Weights", "StructureIds", "PatientIds" };
 
-  vtkPoints *points[2];
+  vtkPoints* points[2];
 
-  vtkStringArray *labels = nullptr;
-  vtkDataArray *darray[3];
+  vtkStringArray* labels = nullptr;
+  vtkDataArray* darray[3];
   darray[0] = nullptr;
   darray[1] = nullptr;
   darray[2] = nullptr;
 
-  vtkDataArray *ivarArrays[3];
+  vtkDataArray* ivarArrays[3];
   ivarArrays[0] = this->Weights;
   ivarArrays[1] = this->StructureIds;
   ivarArrays[2] = this->PatientIds;
@@ -237,8 +230,8 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
     {
       points[ii] = inputs[ii]->GetPoints();
 
-      vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(
-        inputs[ii]->GetPointData()->GetAbstractArray("LabelText"));
+      vtkStringArray* stringArray =
+        vtkArrayDownCast<vtkStringArray>(inputs[ii]->GetPointData()->GetAbstractArray("LabelText"));
       if (stringArray)
       {
         labels = stringArray;
@@ -246,8 +239,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
       for (int j = 0; j < 3; j++)
       {
-        vtkDataArray *dataArray =
-          inputs[ii]->GetPointData()->GetArray(arrayNames[j]);
+        vtkDataArray* dataArray = inputs[ii]->GetPointData()->GetArray(arrayNames[j]);
         if (dataArray)
         {
           darray[j] = dataArray;
@@ -288,8 +280,8 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
     numVolumes = 2;
     if (points[1]->GetNumberOfPoints() != n)
     {
-      vtkErrorMacro("Input point counts do not match: " << n << " versus "
-                    << points[1]->GetNumberOfPoints());
+      vtkErrorMacro(
+        "Input point counts do not match: " << n << " versus " << points[1]->GetNumberOfPoints());
       return;
     }
   }
@@ -297,13 +289,13 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   // labels is null if there are no labels
   if (labels && labels->GetNumberOfValues() != n)
   {
-    vtkErrorMacro("LabelText count does not match point count: "
-                  << labels->GetNumberOfValues() << " versus " << n);
+    vtkErrorMacro("LabelText count does not match point count: " << labels->GetNumberOfValues()
+                                                                 << " versus " << n);
     return;
   }
 
   // dataArrays is null if there are no data arrays
-  vtkDataArray **dataArrays = nullptr;
+  vtkDataArray** dataArrays = nullptr;
   for (int jj = 0; jj < 3; jj++)
   {
     if (darray[jj])
@@ -311,22 +303,21 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
       dataArrays = darray;
       if (darray[jj]->GetNumberOfTuples() != n)
       {
-        vtkErrorMacro("" << arrayNames[jj]
-                      << " count does not match point count: "
-                      << darray[jj]->GetNumberOfTuples() << " versus " << n);
+        vtkErrorMacro("" << arrayNames[jj] << " count does not match point count: "
+                         << darray[jj]->GetNumberOfTuples() << " versus " << n);
         return;
       }
     }
   }
 
   // If we got this far, the data seems to be okay
-  ostream *outfilep = this->OpenFile();
+  ostream* outfilep = this->OpenFile();
   if (!outfilep)
   {
     return;
   }
 
-  ostream &outfile = *outfilep;
+  ostream& outfile = *outfilep;
 
   // Write the header
   outfile << "MNI Tag Point File\n";
@@ -335,7 +326,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   // Write user comments
   if (this->Comments)
   {
-    char *cp = this->Comments;
+    char* cp = this->Comments;
     while (*cp)
     {
       if (*cp != '%')
@@ -421,10 +412,8 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
         {
           outfile.put('\\');
           char c = '\0';
-          static char ctrltable[] = {
-            '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r',
-            '\t', 't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0'
-            };
+          static char ctrltable[] = { '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r', '\t',
+            't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0' };
           for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
           {
             if (*si == ctrltable[ci])
@@ -448,7 +437,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
       outfile << "\"";
     }
 
-    if (i < n-1)
+    if (i < n - 1)
     {
       outfile << "\n";
     }
@@ -463,8 +452,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   // Delete the file if an error occurred
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
-    vtkErrorMacro("Ran out of disk space; deleting file: "
-                  << this->FileName);
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     unlink(this->FileName);
   }
 }
@@ -480,16 +468,15 @@ int vtkMNITagPointWriter::Write()
 
 //-------------------------------------------------------------------------
 int vtkMNITagPointWriter::RequestData(
-  vtkInformation *, vtkInformationVector **inputVector,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  vtkInformation *inInfo[2];
+  vtkInformation* inInfo[2];
   inInfo[0] = inputVector[0]->GetInformationObject(0);
   inInfo[1] = inputVector[1]->GetInformationObject(0);
 
-  vtkPointSet *input[2];
+  vtkPointSet* input[2];
   input[0] = nullptr;
   input[1] = nullptr;
 
@@ -498,8 +485,7 @@ int vtkMNITagPointWriter::RequestData(
   {
     if (inInfo[idx])
     {
-      input[idx] = vtkPointSet::SafeDownCast(
-        inInfo[idx]->Get(vtkDataObject::DATA_OBJECT()));
+      input[idx] = vtkPointSet::SafeDownCast(inInfo[idx]->Get(vtkDataObject::DATA_OBJECT()));
       if (input[idx])
       {
         vtkMTimeType updateTime = input[idx]->GetUpdateTime();
@@ -527,24 +513,24 @@ int vtkMNITagPointWriter::RequestData(
 }
 
 //-------------------------------------------------------------------------
-ostream *vtkMNITagPointWriter::OpenFile()
+ostream* vtkMNITagPointWriter::OpenFile()
 {
-  ostream *fptr;
+  ostream* fptr;
 
-  if (!this->FileName )
+  if (!this->FileName)
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return nullptr;
   }
 
-  vtkDebugMacro(<<"Opening file for writing...");
+  vtkDebugMacro(<< "Opening file for writing...");
 
   fptr = new ofstream(this->FileName, ios::out);
 
   if (fptr->fail())
   {
-    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    vtkErrorMacro(<< "Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
     return nullptr;
@@ -554,9 +540,9 @@ ostream *vtkMNITagPointWriter::OpenFile()
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITagPointWriter::CloseFile(ostream *fp)
+void vtkMNITagPointWriter::CloseFile(ostream* fp)
 {
-  vtkDebugMacro(<<"Closing file\n");
+  vtkDebugMacro(<< "Closing file\n");
 
   delete fp;
 }

@@ -39,29 +39,25 @@ bool vtkUTF8TextCodec::CanHandle(const char* testStr)
   }
 }
 
-
 namespace
 {
-  // iterator to use in testing validity - throws all input away.
-  class testIterator : public vtkTextCodec::OutputIterator
-  {
-  public:
-    testIterator& operator++(int) override {return *this;}
-    testIterator& operator*() override {return *this;}
-    testIterator& operator=(const vtkUnicodeString::value_type) override
-      {return *this;}
+// iterator to use in testing validity - throws all input away.
+class testIterator : public vtkTextCodec::OutputIterator
+{
+public:
+  testIterator& operator++(int) override { return *this; }
+  testIterator& operator*() override { return *this; }
+  testIterator& operator=(const vtkUnicodeString::value_type) override { return *this; }
 
-    testIterator() = default;
-    ~testIterator() override = default;
+  testIterator() = default;
+  ~testIterator() override = default;
 
-  private:
-    testIterator(const testIterator&) = delete;
-    testIterator& operator=(const testIterator&) = delete;
-  };
-
+private:
+  testIterator(const testIterator&) = delete;
+  testIterator& operator=(const testIterator&) = delete;
+};
 
 } // end anonymous namespace
-
 
 bool vtkUTF8TextCodec::IsValid(istream& InputStream)
 {
@@ -74,7 +70,7 @@ bool vtkUTF8TextCodec::IsValid(istream& InputStream)
     testIterator junk;
     this->ToUnicode(InputStream, junk);
   }
-  catch(...)
+  catch (...)
   {
     returnBool = false;
   }
@@ -86,9 +82,7 @@ bool vtkUTF8TextCodec::IsValid(istream& InputStream)
   return returnBool;
 }
 
-
-void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
-                                 vtkTextCodec::OutputIterator& Output)
+void vtkUTF8TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& Output)
 {
   try
   {
@@ -110,7 +104,6 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
     }
   }
 }
-
 
 vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
 {
@@ -143,14 +136,12 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
   return code_point;
 }
 
-
-vtkUTF8TextCodec::vtkUTF8TextCodec() : vtkTextCodec()
+vtkUTF8TextCodec::vtkUTF8TextCodec()
+  : vtkTextCodec()
 {
 }
 
-
 vtkUTF8TextCodec::~vtkUTF8TextCodec() = default;
-
 
 void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)
 {

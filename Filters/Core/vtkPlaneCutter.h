@@ -64,8 +64,8 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkSmartPointer.h" // For SmartPointer
-#include <vector> // For vector
+#include "vtkSmartPointer.h"      // For SmartPointer
+#include <vector>                 // For vector
 
 class vtkCellArray;
 class vtkCellData;
@@ -166,7 +166,8 @@ public:
   /**
    * See vtkAlgorithm for details.
    */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkPlaneCutter();
@@ -180,16 +181,12 @@ protected:
   bool BuildHierarchy;
 
   // Helpers
-  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  std::vector<vtkSmartPointer<vtkSphereTree> > SphereTrees;
 
   // Pipeline-related methods
-  int RequestDataObject(vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 

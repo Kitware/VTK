@@ -26,8 +26,8 @@
 #ifndef vtkExtractTemporalFieldData_h
 #define vtkExtractTemporalFieldData_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 #if !defined(VTK_LEGACY_REMOVE)
 class vtkDataSet;
@@ -37,8 +37,8 @@ class vtkDataSetAttributes;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTemporalFieldData : public vtkDataObjectAlgorithm
 {
 public:
-  static vtkExtractTemporalFieldData *New();
-  vtkTypeMacro(vtkExtractTemporalFieldData,vtkDataObjectAlgorithm);
+  static vtkExtractTemporalFieldData* New();
+  vtkTypeMacro(vtkExtractTemporalFieldData, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -61,15 +61,11 @@ protected:
   vtkExtractTemporalFieldData();
   ~vtkExtractTemporalFieldData() override;
 
-  int RequestDataObject(vtkInformation*,
-                        vtkInformationVector**,
-                        vtkInformationVector*) override;
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
@@ -77,9 +73,10 @@ protected:
    * to the output point data.
    * Returns true if the input had an "appropriate" field data.
    */
-  bool CopyDataToOutput(vtkDataSet *input, vtkTable *output);
+  bool CopyDataToOutput(vtkDataSet* input, vtkTable* output);
 
   bool HandleCompositeDataBlocksIndividually;
+
 private:
   vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) = delete;
   void operator=(const vtkExtractTemporalFieldData&) = delete;

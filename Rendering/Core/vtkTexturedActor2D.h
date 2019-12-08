@@ -22,13 +22,13 @@
  *
  * @sa
  * vtkActor2D vtkProp vtkMapper2D vtkProperty2D
-*/
+ */
 
 #ifndef vtkTexturedActor2D_h
 #define vtkTexturedActor2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkTexture;

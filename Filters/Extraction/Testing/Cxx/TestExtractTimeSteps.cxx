@@ -31,12 +31,12 @@ enum
 
 const double e = 1e-5;
 
-int TestExtractTimeSteps(int argc, char *argv[])
+int TestExtractTimeSteps(int argc, char* argv[])
 {
-  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
   vtkNew<vtkExodusIIReader> reader;
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkExtractTimeSteps> extracter;
   extracter->SetInputConnection(reader->GetOutputPort());
@@ -60,11 +60,11 @@ int TestExtractTimeSteps(int argc, char *argv[])
   extracter->SetTimeStepIndices(numSteps, tsteps);
   extracter->Update();
 
-  double expected[10] = { 0.0000, 0.0005, 0.0010, 0.0015, 0.0020, 0.0025,
-                          0.0030, 0.0035, 0.0040, 0.0043 };
-  double *result = nullptr;
+  double expected[10] = { 0.0000, 0.0005, 0.0010, 0.0015, 0.0020, 0.0025, 0.0030, 0.0035, 0.0040,
+    0.0043 };
+  double* result = nullptr;
 
-  vtkInformation *info = extracter->GetOutputInformation(0);
+  vtkInformation* info = extracter->GetOutputInformation(0);
   if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
     if (info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) != 10)
@@ -98,7 +98,7 @@ int TestExtractTimeSteps(int argc, char *argv[])
   extracter->Update();
   // This should pull out 4, 7, 10, 13, 16, 19, 22, 25
 
-  double expected2[8] = {0.0004, 0.0007, 0.0010, 0.0013, 0.0016, 0.0019, 0.0022, 0.0025};
+  double expected2[8] = { 0.0004, 0.0007, 0.0010, 0.0013, 0.0016, 0.0019, 0.0022, 0.0025 };
 
   info = extracter->GetOutputInformation(0);
   if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
@@ -135,7 +135,8 @@ int TestExtractTimeSteps(int argc, char *argv[])
   double t = info->Get(vtkDataObject::DATA_TIME_STEP());
   if (std::fabs(0.0019 - t) > e)
   {
-    std::cout << "vtkExtractTimeSteps returned wrong time step when intermediate time given" << std::endl;
+    std::cout << "vtkExtractTimeSteps returned wrong time step when intermediate time given"
+              << std::endl;
     std::cout << "When asked for timestep " << 0.0020 << " it resulted in time: " << t << std::endl;
     return TEST_FAILED_RETVAL;
   }

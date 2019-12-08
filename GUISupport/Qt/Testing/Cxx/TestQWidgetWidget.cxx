@@ -22,8 +22,8 @@
 #include "vtkPlaneSource.h"
 #include "vtkQWidgetRepresentation.h"
 #include "vtkQWidgetWidget.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -38,7 +38,7 @@ int TestQWidgetWidget(int argc, char* argv[])
   detail::set_default_format(type);
 
   QApplication app(argc, argv);
-  QPushButton hello( "Hello world!", 0 );
+  QPushButton hello("Hello world!", 0);
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
@@ -55,8 +55,8 @@ int TestQWidgetWidget(int argc, char* argv[])
 
   vtkNew<vtkQWidgetWidget> widget;
   widget->CreateDefaultRepresentation();
-  widget->GetQWidgetRepresentation()->GetPlaneSource()->SetPoint2(-0.5,0.5,-0.5);
-  widget->SetWidget( &hello );
+  widget->GetQWidgetRepresentation()->GetPlaneSource()->SetPoint2(-0.5, 0.5, -0.5);
+  widget->SetWidget(&hello);
   widget->SetCurrentRenderer(renderer);
   widget->SetInteractor(window0->GetInteractor());
 

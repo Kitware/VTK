@@ -18,30 +18,29 @@
 /*
 ** This test only builds if MPI is in use
 */
-#include "vtkObjectFactory.h"
-#include <mpi.h>
 #include "vtkMPICommunicator.h"
+#include "vtkObjectFactory.h"
+#include <vtk_mpi.h>
 
-
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkMPIController.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRectilinearGrid.h"
-#include "vtkRectilinearGridReader.h"
-#include "vtkDataObject.h"
-#include "vtkTransmitRectilinearGridPiece.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCompositeRenderManager.h"
 #include "vtkContourFilter.h"
+#include "vtkDataObject.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkElevationFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkProcess.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridReader.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCompositeRenderManager.h"
-#include "vtkCamera.h"
-#include "vtkProcess.h"
+#include "vtkRenderer.h"
+#include "vtkTransmitRectilinearGridPiece.h"
 
 namespace
 {
@@ -49,57 +48,54 @@ namespace
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
   virtual void Execute();
 
-  void SetArgs(int anArgc,
-               char *anArgv[]);
+  void SetArgs(int anArgc, char* anArgv[]);
 
 protected:
   MyProcess();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
 {
-  this->Argc=0;
-  this->Argv=nullptr;
+  this->Argc = 0;
+  this->Argv = nullptr;
 }
 
-void MyProcess::SetArgs(int anArgc,
-                        char *anArgv[])
+void MyProcess::SetArgs(int anArgc, char* anArgv[])
 {
-  this->Argc=anArgc;
-  this->Argv=anArgv;
+  this->Argc = anArgc;
+  this->Argv = anArgv;
 }
 
 void MyProcess::Execute()
 {
-  this->ReturnValue=1;
-  int numProcs=this->Controller->GetNumberOfProcesses();
-  int me=this->Controller->GetLocalProcessId();
+  this->ReturnValue = 1;
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int me = this->Controller->GetLocalProcessId();
 
   int i, go;
 
-  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
+  vtkCompositeRenderManager* prm = vtkCompositeRenderManager::New();
 
   // READER
 
-  vtkRectilinearGridReader *rgr = nullptr;
-  vtkRectilinearGrid *rg = nullptr;
+  vtkRectilinearGridReader* rgr = nullptr;
+  vtkRectilinearGrid* rg = nullptr;
 
   if (me == 0)
   {
     rgr = vtkRectilinearGridReader::New();
 
     char* fname =
-      vtkTestUtilities::ExpandDataFileName(
-        this->Argc, this->Argv, "Data/RectGrid2.vtk");
+      vtkTestUtilities::ExpandDataFileName(this->Argc, this->Argv, "Data/RectGrid2.vtk");
 
     rgr->SetFileName(fname);
 
@@ -108,13 +104,14 @@ void MyProcess::Execute()
 
     rgr->Update();
 
-    delete [] fname;
+    delete[] fname;
 
     go = 1;
 
     if ((rg == nullptr) || (rg->GetNumberOfCells() == 0))
     {
-      if (rg) cout << "Failure: input file has no cells" << endl;
+      if (rg)
+        cout << "Failure: input file has no cells" << endl;
       go = 0;
     }
   }
@@ -123,8 +120,7 @@ void MyProcess::Execute()
     rg = vtkRectilinearGrid::New();
   }
 
-  vtkMPICommunicator *comm =
-    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+  vtkMPICommunicator* comm = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
 
   comm->Broadcast(&go, 1, 0);
 
@@ -140,38 +136,38 @@ void MyProcess::Execute()
   }
 
   // FILTER WE ARE TRYING TO TEST
-  vtkTransmitRectilinearGridPiece *pass = vtkTransmitRectilinearGridPiece::New();
+  vtkTransmitRectilinearGridPiece* pass = vtkTransmitRectilinearGridPiece::New();
   pass->SetController(this->Controller);
   pass->SetInputData(rg);
 
   // FILTERING
-  vtkContourFilter *cf = vtkContourFilter::New();
+  vtkContourFilter* cf = vtkContourFilter::New();
   cf->SetInputConnection(pass->GetOutputPort());
   cf->SetNumberOfContours(1);
-  cf->SetValue(0,0.1);
+  cf->SetValue(0, 0.1);
   // I don't think this is needed
   //(cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
-  vtkElevationFilter *elev = vtkElevationFilter::New();
+  vtkElevationFilter* elev = vtkElevationFilter::New();
   elev->SetInputConnection(cf->GetOutputPort());
   elev->SetScalarRange(me, me + .001);
 
   // COMPOSITE RENDER
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(elev->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
-  vtkActor *actor = vtkActor::New();
+  vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
-  vtkRenderer *renderer = prm->MakeRenderer();
+  vtkRenderer* renderer = prm->MakeRenderer();
   renderer->AddActor(actor);
-  vtkRenderWindow *renWin = prm->MakeRenderWindow();
+  vtkRenderWindow* renWin = prm->MakeRenderWindow();
   renWin->AddRenderer(renderer);
-  renderer->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
-  renWin->SetPosition(0, 360*me);
+  renderer->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
+  renWin->SetPosition(0, 360 * me);
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
-  prm->InitializeOffScreen();   // Mesa GL only
+  prm->InitializeOffScreen(); // Mesa GL only
 
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
@@ -183,12 +179,12 @@ void MyProcess::Execute()
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  const int MY_RETURN_VALUE_MESSAGE=0x11;
+  const int MY_RETURN_VALUE_MESSAGE = 0x11;
 
   if (me == 0)
   {
-    vtkCamera *camera = renderer->GetActiveCamera();
-    //camera->UpdateViewport(renderer);
+    vtkCamera* camera = renderer->GetActiveCamera();
+    // camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
 
     prm->ResetAllCameras();
@@ -198,9 +194,9 @@ void MyProcess::Execute()
 
     this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
-    for (i=1; i < numProcs; i++)
+    for (i = 1; i < numProcs; i++)
     {
-      this->Controller->Send(&this->ReturnValue, 1, i,MY_RETURN_VALUE_MESSAGE);
+      this->Controller->Send(&this->ReturnValue, 1, i, MY_RETURN_VALUE_MESSAGE);
     }
 
     prm->StopServices();
@@ -208,7 +204,7 @@ void MyProcess::Execute()
   else
   {
     prm->StartServices();
-    this->Controller->Receive(&this->ReturnValue, 1, 0,MY_RETURN_VALUE_MESSAGE);
+    this->Controller->Receive(&this->ReturnValue, 1, 0, MY_RETURN_VALUE_MESSAGE);
   }
 
   // CLEAN UP
@@ -229,7 +225,7 @@ void MyProcess::Execute()
 
 }
 
-int TransmitRectilinearGrid(int argc, char *argv[])
+int TransmitRectilinearGrid(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -240,7 +236,7 @@ int TransmitRectilinearGrid(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = 1;
@@ -267,15 +263,15 @@ int TransmitRectilinearGrid(int argc, char *argv[])
       cout << "DistributedData test requires MPI" << endl;
     }
     contr->Delete();
-    return retVal;   // is this the right error val?   TODO
+    return retVal; // is this the right error val?   TODO
   }
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  retVal = p->GetReturnValue();
   p->Delete();
   contr->Finalize();
   contr->Delete();

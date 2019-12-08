@@ -50,10 +50,8 @@ int main()
   // Assign each tuple. There are 5 specialized versions of SetTuple:
   // SetTuple1 SetTuple2 SetTuple3 SetTuple4 SetTuple9
   // These take 1, 2, 3, 4 and 9 components respectively.
-  std::array<std::array<double, 3>, 4> pts = {{{{0.0, 0.0, 0.0}},
-                                               {{0.0, 1.0, 0.0}},
-                                               {{1.0, 0.0, 0.0}},
-                                               {{1.0, 1.0, 0.0}}}};
+  std::array<std::array<double, 3>, 4> pts = { { { { 0.0, 0.0, 0.0 } }, { { 0.0, 1.0, 0.0 } },
+    { { 1.0, 0.0, 0.0 } }, { { 1.0, 1.0, 0.0 } } } };
   for (auto i = 0ul; i < pts.size(); ++i)
   {
     pcoords->SetTuple(i, pts[i].data());
@@ -119,7 +117,6 @@ int main()
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
   renWin->SetSize(600, 600);
-
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);

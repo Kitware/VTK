@@ -29,13 +29,13 @@
  *
  * @sa
  * vtkSelection vtkExtractSelection vtkThreshold
-*/
+ */
 
 #ifndef vtkExtractSelectedThresholds_h
 #define vtkExtractSelectedThresholds_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkDataArray;
 class vtkSelection;
@@ -51,7 +51,7 @@ public:
   /**
    * Constructor
    */
-  static vtkExtractSelectedThresholds *New();
+  static vtkExtractSelectedThresholds* New();
 
   /**
    * Function for determining whether a value in a data array passes
@@ -59,8 +59,7 @@ public:
    * passes at least one of the threshold tests.
    * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
-  static int EvaluateValue(vtkDataArray *scalars,
-    vtkIdType id, vtkDataArray *lims)
+  static int EvaluateValue(vtkDataArray* scalars, vtkIdType id, vtkDataArray* lims)
   {
     return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0, id, lims);
   }
@@ -70,9 +69,8 @@ public:
    * can be picked using array_component_no (use -1 for magnitude).
    * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
-  static int EvaluateValue(vtkDataArray *array,
-    int array_component_no,
-    vtkIdType id, vtkDataArray *lims);
+  static int EvaluateValue(
+    vtkDataArray* array, int array_component_no, vtkIdType id, vtkDataArray* lims);
 
   /**
    * Function for determining whether a value in a data array passes
@@ -82,11 +80,11 @@ public:
    * the value was above, below or inside the interval.
    * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
-  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id,
-    vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount)
+  static int EvaluateValue(vtkDataArray* scalars, vtkIdType id, vtkDataArray* lims, int* AboveCount,
+    int* BelowCount, int* InsideCount)
   {
-    return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0,
-      id, lims, AboveCount, BelowCount, InsideCount);
+    return vtkExtractSelectedThresholds::EvaluateValue(
+      scalars, 0, id, lims, AboveCount, BelowCount, InsideCount);
   }
 
   /**
@@ -94,27 +92,22 @@ public:
    * can be picked using array_component_no (use -1 for magnitude).
    * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
-  static int EvaluateValue(vtkDataArray *scalars,
-    int array_component_no,
-    vtkIdType id,
-    vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount);
+  static int EvaluateValue(vtkDataArray* scalars, int array_component_no, vtkIdType id,
+    vtkDataArray* lims, int* AboveCount, int* BelowCount, int* InsideCount);
 
 protected:
   vtkExtractSelectedThresholds();
   ~vtkExtractSelectedThresholds() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
-                   vtkDataSet *output,
-                   int usePointScalars);
-  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
-                    vtkDataSet *output);
+  int ExtractCells(
+    vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output, int usePointScalars);
+  int ExtractPoints(vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output);
 
   int ExtractRows(vtkSelectionNode* sel, vtkTable* input, vtkTable* output);
+
 private:
   vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&) = delete;
   void operator=(const vtkExtractSelectedThresholds&) = delete;

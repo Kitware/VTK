@@ -14,18 +14,18 @@
 =========================================================================*/
 
 #include "vtkChartMatrix.h"
-#include "vtkRenderWindow.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestChartMatrix( int, char * [] )
+int TestChartMatrix(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -35,7 +35,7 @@ int TestChartMatrix( int, char * [] )
   matrix->SetSize(vtkVector2i(2, 2));
   matrix->SetGutter(vtkVector2f(30.0, 30.0));
 
-  vtkChart *chart = matrix->GetChart(vtkVector2i(0, 0));
+  vtkChart* chart = matrix->GetChart(vtkVector2i(0, 0));
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -56,7 +56,7 @@ int TestChartMatrix( int, char * [] )
   table->AddColumn(tangent);
   // Test charting with a few more points...
   int numPoints = 42;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -68,7 +68,7 @@ int TestChartMatrix( int, char * [] )
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
+  vtkPlot* line = chart->AddPlot(vtkChart::POINTS);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
 
@@ -86,7 +86,7 @@ int TestChartMatrix( int, char * [] )
   line = chart->AddPlot(vtkChart::BAR);
   line->SetInputData(table, 0, 4);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

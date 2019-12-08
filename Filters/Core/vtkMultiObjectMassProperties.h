@@ -84,7 +84,7 @@
  *
  * @sa
  * vtkMassProperties
-*/
+ */
 
 #ifndef vtkMultiObjectMassProperties_h
 #define vtkMultiObjectMassProperties_h
@@ -103,8 +103,8 @@ public:
   /**
    * Standard methods for construction, type and printing.
    */
-  static vtkMultiObjectMassProperties *New();
-  vtkTypeMacro(vtkMultiObjectMassProperties,vtkPolyDataAlgorithm);
+  static vtkMultiObjectMassProperties* New();
+  vtkTypeMacro(vtkMultiObjectMassProperties, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -115,9 +115,9 @@ public:
    * skipping will only occur if a vtkIdTypeArray named "ObjectIds" is also
    * provided on input to the filter.
    */
-  vtkSetMacro(SkipValidityCheck,vtkTypeBool);
-  vtkGetMacro(SkipValidityCheck,vtkTypeBool);
-  vtkBooleanMacro(SkipValidityCheck,vtkTypeBool);
+  vtkSetMacro(SkipValidityCheck, vtkTypeBool);
+  vtkGetMacro(SkipValidityCheck, vtkTypeBool);
+  vtkBooleanMacro(SkipValidityCheck, vtkTypeBool);
   //@}
 
   /**
@@ -126,59 +126,54 @@ public:
    * these identified objects are valid. Invalid objects may have incorrect
    * volume and area values.
    */
-  vtkIdType GetNumberOfObjects()
-    {return this->NumberOfObjects;}
+  vtkIdType GetNumberOfObjects() { return this->NumberOfObjects; }
 
   /**
    * Return whether all objects are valid or not. This is valid only after the
    * filter executes.
    */
-  vtkTypeBool GetAllValid()
-    {return this->AllValid;}
+  vtkTypeBool GetAllValid() { return this->AllValid; }
 
   /**
    * Return the summed volume of all objects. This is valid only after the
    * filter executes.
    */
-  double GetTotalVolume()
-    {return this->TotalVolume;}
+  double GetTotalVolume() { return this->TotalVolume; }
 
   /**
    * Return the summed area of all objects. This is valid only after the
    * filter executes.
    */
-  double GetTotalArea()
-    {return this->TotalArea;}
+  double GetTotalArea() { return this->TotalArea; }
 
 protected:
   vtkMultiObjectMassProperties();
   ~vtkMultiObjectMassProperties() override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   // Data members supporting API
   vtkTypeBool SkipValidityCheck;
   vtkTypeBool AllValid;
-  double  TotalVolume;
-  double  TotalArea;
+  double TotalVolume;
+  double TotalArea;
 
   // Internal data members supporting algorithm execution
-  vtkIdType NumberOfObjects; //number of objects identified
-  vtkIdTypeArray *ObjectIds; //for each input polygon, the object id that the polygon is in
+  vtkIdType NumberOfObjects; // number of objects identified
+  vtkIdTypeArray* ObjectIds; // for each input polygon, the object id that the polygon is in
 
-  vtkUnsignedCharArray *ObjectValidity; //is it a valid object?
-  vtkDoubleArray *ObjectVolumes; //what is the object volume (if valid)?
-  vtkDoubleArray *ObjectAreas; //what is the total object area?
+  vtkUnsignedCharArray* ObjectValidity; // is it a valid object?
+  vtkDoubleArray* ObjectVolumes;        // what is the object volume (if valid)?
+  vtkDoubleArray* ObjectAreas;          // what is the total object area?
 
-  vtkIdList *CellNeighbors; //avoid repetitive new/delete
-  vtkIdList *Wave; //processing wave
-  vtkIdList *Wave2;
+  vtkIdList* CellNeighbors; // avoid repetitive new/delete
+  vtkIdList* Wave;          // processing wave
+  vtkIdList* Wave2;
 
   // Connected traversal to identify objects
-  void TraverseAndMark (vtkPolyData *output, vtkIdType *objectIds,
-                        vtkDataArray *valid, unsigned char *orient);
+  void TraverseAndMark(
+    vtkPolyData* output, vtkIdType* objectIds, vtkDataArray* valid, unsigned char* orient);
 
 private:
   vtkMultiObjectMassProperties(const vtkMultiObjectMassProperties&) = delete;

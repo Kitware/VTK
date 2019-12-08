@@ -28,89 +28,83 @@ vtkStandardNewMacro(vtkHyperTreeGridOrientedGeometryCursor);
 vtkHyperTreeGridOrientedGeometryCursor* vtkHyperTreeGridOrientedGeometryCursor::Clone()
 {
   vtkHyperTreeGridOrientedGeometryCursor* clone = this->NewInstance();
-  assert( "post: clone_exists" &&
-          clone != 0 );
+  assert("post: clone_exists" && clone != nullptr);
   // Copy
   clone->Grid = this->Grid;
   clone->Tree = this->Tree;
   clone->Scales = this->Scales;
   clone->Level = this->Level;
-  clone->Entry.Copy( &(this->Entry) );
+  clone->Entry.Copy(&(this->Entry));
   // Return clone
   return clone;
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::Initialize(
-  vtkHyperTreeGrid* grid,
-  vtkIdType treeIndex,
-  bool create
-)
+  vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
   this->Grid = grid;
   this->Level = 0;
-  this->Tree = this->Entry.Initialize( grid, treeIndex, create );
-  if ( this->Tree )
+  this->Tree = this->Entry.Initialize(grid, treeIndex, create);
+  if (this->Tree)
   {
-    this->Scales = this->Tree->GetScales( );
-    assert ( this->Scales );
-  } else {
+    this->Scales = this->Tree->GetScales();
+    assert(this->Scales);
+  }
+  else
+  {
     this->Scales = nullptr;
   }
   this->Level = 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridOrientedGeometryCursor::Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree,
+  unsigned int level, vtkHyperTreeGridGeometryEntry& entry)
+{
+  this->Grid = grid;
+  this->Tree = tree;
+  if (this->Tree)
+  {
+    this->Scales = this->Tree->GetScales();
+    assert(this->Scales);
+  }
+  else
+  {
+    this->Scales = nullptr;
+  }
+  this->Level = level;
+  this->Entry.Copy(&entry);
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::Initialize(
-  vtkHyperTreeGrid* grid,
-  vtkHyperTree* tree,
-  unsigned int level,
-  vtkHyperTreeGridGeometryEntry& entry
-)
+  vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index, double* origin)
 {
   this->Grid = grid;
   this->Tree = tree;
-  if ( this->Tree )
+  if (this->Tree)
   {
-    this->Scales = this->Tree->GetScales( );
-    assert ( this->Scales );
-  } else {
+    this->Scales = this->Tree->GetScales();
+    assert(this->Scales);
+  }
+  else
+  {
     this->Scales = nullptr;
   }
   this->Level = level;
-  this->Entry.Copy( &entry );
+  this->Entry.Initialize(index, origin);
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::Initialize(
-  vtkHyperTreeGrid* grid,
-  vtkHyperTree* tree,
-  unsigned int level,
-  vtkIdType index,
-  double* origin
-)
-{
-  this->Grid = grid;
-  this->Tree = tree;
-  if ( this->Tree )
-  {
-    this->Scales = this->Tree->GetScales( );
-    assert ( this->Scales );
-  } else {
-    this->Scales = nullptr;
-  }
-  this->Level = level;
-  this->Entry.Initialize( index, origin );
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::Initialize( vtkHyperTreeGridOrientedGeometryCursor* cursor )
+  vtkHyperTreeGridOrientedGeometryCursor* cursor)
 {
   this->Grid = cursor->Grid;
   this->Tree = cursor->Tree;
   this->Scales = cursor->Scales;
   this->Level = cursor->Level;
-  this->Entry.Copy( &(cursor->Entry) );
+  this->Entry.Copy(&(cursor->Entry));
 }
 
 //-----------------------------------------------------------------------------
@@ -122,7 +116,7 @@ vtkIdType vtkHyperTreeGridOrientedGeometryCursor::GetVertexId()
 //-----------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridOrientedGeometryCursor::GetGlobalNodeIndex()
 {
-  return this->Entry.GetGlobalNodeIndex( this->Tree );
+  return this->Entry.GetGlobalNodeIndex(this->Tree);
 }
 
 //-----------------------------------------------------------------------------
@@ -138,63 +132,63 @@ unsigned char vtkHyperTreeGridOrientedGeometryCursor::GetNumberOfChildren()
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::SetGlobalIndexStart( vtkIdType index )
+void vtkHyperTreeGridOrientedGeometryCursor::SetGlobalIndexStart(vtkIdType index)
 {
-  this->Entry.SetGlobalIndexStart( this->Tree, index );
+  this->Entry.SetGlobalIndexStart(this->Tree, index);
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::SetGlobalIndexFromLocal( vtkIdType index )
+void vtkHyperTreeGridOrientedGeometryCursor::SetGlobalIndexFromLocal(vtkIdType index)
 {
-  this->Entry.SetGlobalIndexFromLocal( this->Tree, index );
+  this->Entry.SetGlobalIndexFromLocal(this->Tree, index);
 }
 
 //-----------------------------------------------------------------------------
-double* vtkHyperTreeGridOrientedGeometryCursor::GetOrigin( )
+double* vtkHyperTreeGridOrientedGeometryCursor::GetOrigin()
 {
   return this->Entry.GetOrigin();
 }
 
 //-----------------------------------------------------------------------------
-double* vtkHyperTreeGridOrientedGeometryCursor::GetSize( )
+double* vtkHyperTreeGridOrientedGeometryCursor::GetSize()
 {
-  return (double*)(this->Scales->GetScale( this->GetLevel() ));
+  return (double*)(this->Scales->GetScale(this->GetLevel()));
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::GetBounds( double bounds[6] )
+void vtkHyperTreeGridOrientedGeometryCursor::GetBounds(double bounds[6])
 {
-  this->Entry.GetBounds( this->GetSize(), bounds );
+  this->Entry.GetBounds(this->GetSize(), bounds);
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::GetPoint( double point[3] )
+void vtkHyperTreeGridOrientedGeometryCursor::GetPoint(double point[3])
 {
-  this->Entry.GetPoint( this->GetSize(), point );
+  this->Entry.GetPoint(this->GetSize(), point);
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::SetMask( bool state)
+void vtkHyperTreeGridOrientedGeometryCursor::SetMask(bool state)
 {
-  this->Entry.SetMask( this->Grid, this->Tree, state );
+  this->Entry.SetMask(this->Grid, this->Tree, state);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridOrientedGeometryCursor::IsMasked()
 {
-  return this->Entry.IsMasked( this->Grid, this->Tree );
+  return this->Entry.IsMasked(this->Grid, this->Tree);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridOrientedGeometryCursor::IsLeaf()
 {
-  return this->Entry.IsLeaf( this->Grid, this->Tree, this->Level );
+  return this->Entry.IsLeaf(this->Grid, this->Tree, this->Level);
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::SubdivideLeaf()
 {
-  this->Entry.SubdivideLeaf( this->Grid, this->Tree, this->Level );
+  this->Entry.SubdivideLeaf(this->Grid, this->Tree, this->Level);
 }
 
 //-----------------------------------------------------------------------------
@@ -210,28 +204,24 @@ unsigned int vtkHyperTreeGridOrientedGeometryCursor::GetLevel()
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::ToChild( unsigned char ichild )
+void vtkHyperTreeGridOrientedGeometryCursor::ToChild(unsigned char ichild)
 {
   this->Entry.ToChild(
-    this->Grid,
-    this->Tree,
-    this->Level,
-    this->Scales->GetScale( this->Level + 1 ),
-    ichild );
-  this->Level ++;
+    this->Grid, this->Tree, this->Level, this->Scales->GetScale(this->Level + 1), ichild);
+  this->Level++;
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::PrintSelf( ostream& os, vtkIndent indent )
+void vtkHyperTreeGridOrientedGeometryCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "--vtkHyperTreeGridOrientedGeometryCursor--" << endl;
   os << indent << "Level: " << this->GetLevel() << endl;
-  this->Tree->PrintSelf( os, indent );
-  this->Entry.PrintSelf( os, indent );
+  this->Tree->PrintSelf(os, indent);
+  this->Entry.PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridOrientedGeometryCursor::Dump( ostream& os )
+void vtkHyperTreeGridOrientedGeometryCursor::Dump(ostream& os)
 {
   os << "--vtkHyperTreeGridOrientedGeometryCursor--" << endl;
   os << "Grid: " << this->Grid << endl;
@@ -239,7 +229,7 @@ void vtkHyperTreeGridOrientedGeometryCursor::Dump( ostream& os )
   os << "Scales: " << this->Scales << endl;
   os << "Level: " << this->Level << endl;
   os << "Entry: " << endl;
-  this->Entry.Dump( os );
+  this->Entry.Dump(os);
 }
 
 //-----------------------------------------------------------------------------
@@ -252,8 +242,6 @@ vtkHyperTreeGridOrientedGeometryCursor::vtkHyperTreeGridOrientedGeometryCursor()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridOrientedGeometryCursor::~vtkHyperTreeGridOrientedGeometryCursor()
-{
-}
+vtkHyperTreeGridOrientedGeometryCursor::~vtkHyperTreeGridOrientedGeometryCursor() {}
 
 //-----------------------------------------------------------------------------

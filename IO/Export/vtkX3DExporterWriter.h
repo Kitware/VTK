@@ -19,7 +19,7 @@
  * vtkX3DExporterWriter is the definition for
  * classes that implement a encoding for the
  * X3D exporter
-*/
+ */
 
 #ifndef vtkX3DExporterWriter_h
 #define vtkX3DExporterWriter_h
@@ -53,9 +53,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,vtkTypeBool);
-  vtkGetMacro(WriteToOutputString,vtkTypeBool);
-  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   //@}
 
   //@{
@@ -66,9 +66,9 @@ public:
    */
   vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
-  unsigned char *GetBinaryOutputString()
+  unsigned char* GetBinaryOutputString()
   {
-      return reinterpret_cast<unsigned char *>(this->OutputString);
+    return reinterpret_cast<unsigned char*>(this->OutputString);
   }
   //@}
 
@@ -77,7 +77,7 @@ public:
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
-  char *RegisterAndGetOutputString();
+  char* RegisterAndGetOutputString();
 
   // Closes the file if open
   virtual void CloseFile() = 0;
@@ -191,7 +191,7 @@ protected:
   vtkX3DExporterWriter();
   ~vtkX3DExporterWriter() override;
 
-  char *OutputString;
+  char* OutputString;
   vtkIdType OutputStringLength;
   vtkTypeBool WriteToOutputString;
 
@@ -200,4 +200,3 @@ private:
   void operator=(const vtkX3DExporterWriter&) = delete;
 };
 #endif
-

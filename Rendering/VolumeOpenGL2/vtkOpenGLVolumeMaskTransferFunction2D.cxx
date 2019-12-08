@@ -33,11 +33,8 @@ vtkOpenGLVolumeMaskTransferFunction2D::vtkOpenGLVolumeMaskTransferFunction2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
-  vtkObject* func,
-  int vtkNotUsed(blendMode),
-  double vtkNotUsed(sampleDistance),
-  double vtkNotUsed(unitDistance),
+void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(vtkObject* func,
+  int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance),
   int filterValue)
 {
   if (!func)
@@ -50,25 +47,34 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
     return;
   }
 
-  std::set<int> labels = prop->GetLabelMapLabels();
   std::fill(this->Table, this->Table + this->TextureWidth * 4, 0.0f);
   for (auto i = 1; i < this->TextureHeight; ++i)
   {
     float* tmpColor = new float[this->TextureWidth * 3];
     std::fill(tmpColor, tmpColor + this->TextureWidth * 3, 1.0f);
     vtkColorTransferFunction* color = prop->GetLabelColor(i);
+    if (!color)
+    {
+      // If no color function is provided for this label, just use the default
+      // color transfer function (i.e. label 0)
+      color = prop->GetRGBTransferFunction();
+    }
     if (color)
     {
-      color->GetTable(
-        this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpColor);
+      color->GetTable(this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpColor);
     }
     float* tmpOpacity = new float[this->TextureWidth];
     std::fill(tmpOpacity, tmpOpacity + this->TextureWidth, 1.0f);
     vtkPiecewiseFunction* opacity = prop->GetLabelScalarOpacity(i);
+    if (!opacity)
+    {
+      // If no opacity function is provided for this label, just use the default
+      // scalar opacity function (i.e. label 0)
+      opacity = prop->GetScalarOpacity();
+    }
     if (opacity)
     {
-      opacity->GetTable(
-        this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpOpacity);
+      opacity->GetTable(this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpOpacity);
     }
     float* tmpTable = new float[this->TextureWidth * 4];
     float* tmpColorPtr = tmpColor;
@@ -93,19 +99,13 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetMagnificationFilter(filterValue);
   this->TextureObject->SetMinificationFilter(filterValue);
-  this->TextureObject->Create2DFromRaw(this->TextureWidth,
-                                       this->TextureHeight,
-                                       this->NumberOfColorComponents,
-                                       VTK_FLOAT,
-                                       this->Table);
+  this->TextureObject->Create2DFromRaw(
+    this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, this->Table);
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
-  vtkObject* func,
-  int& width,
-  int& height,
-  vtkOpenGLRenderWindow* vtkNotUsed(renWin))
+  vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* vtkNotUsed(renWin))
 {
   vtkVolumeProperty* prop = vtkVolumeProperty::SafeDownCast(func);
   if (!prop)
@@ -121,8 +121,7 @@ void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskTransferFunction2D::PrintSelf(ostream& os,
-                                                      vtkIndent indent)
+void vtkOpenGLVolumeMaskTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

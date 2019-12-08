@@ -30,7 +30,7 @@
  * Rendering. In 2000 Volume Visualization Symposium, pages 91--99.
  * October 2000.
  * http://www.cse.ogi.edu/~csilva/papers/volvis2000.pdf
-*/
+ */
 
 #ifndef vtkUnstructuredGridVolumeZSweepMapper_h
 #define vtkUnstructuredGridVolumeZSweepMapper_h
@@ -55,27 +55,28 @@ class vtkRenderWindow;
 // Internal classes
 namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 {
-  class vtkScreenEdge;
-  class vtkSpan;
-  class vtkPixelListFrame;
-  class vtkUseSet;
-  class vtkVertices;
-  class vtkSimpleScreenEdge;
-  class vtkDoubleScreenEdge;
-  class vtkVertexEntry;
-  class vtkPixelListEntryMemory;
+class vtkScreenEdge;
+class vtkSpan;
+class vtkPixelListFrame;
+class vtkUseSet;
+class vtkVertices;
+class vtkSimpleScreenEdge;
+class vtkDoubleScreenEdge;
+class vtkVertexEntry;
+class vtkPixelListEntryMemory;
 };
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper
+  : public vtkUnstructuredGridVolumeMapper
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper, vtkUnstructuredGridVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set MaxPixelListSize to 32.
    */
-  static vtkUnstructuredGridVolumeZSweepMapper *New();
+  static vtkUnstructuredGridVolumeZSweepMapper* New();
 
   //@{
   /**
@@ -83,8 +84,8 @@ public:
    * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
    * set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
    */
-  vtkSetClampMacro( ImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( ImageSampleDistance, float );
+  vtkSetClampMacro(ImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(ImageSampleDistance, float);
   //@}
 
   //@{
@@ -92,8 +93,8 @@ public:
    * This is the minimum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
-  vtkSetClampMacro( MinimumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MinimumImageSampleDistance, float );
+  vtkSetClampMacro(MinimumImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(MinimumImageSampleDistance, float);
   //@}
 
   //@{
@@ -101,8 +102,8 @@ public:
    * This is the maximum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
-  vtkSetClampMacro( MaximumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MaximumImageSampleDistance, float );
+  vtkSetClampMacro(MaximumImageSampleDistance, float, 0.1f, 100.0f);
+  vtkGetMacro(MaximumImageSampleDistance, float);
   //@}
 
   //@{
@@ -112,9 +113,9 @@ public:
    * prop (controlled by the desired update rate and any culling in
    * use).
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
-  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkSetClampMacro(AutoAdjustSampleDistances, vtkTypeBool, 0, 1);
+  vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
+  vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
   //@}
 
   //@{
@@ -122,9 +123,9 @@ public:
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
    */
-  vtkSetClampMacro( IntermixIntersectingGeometry, vtkTypeBool, 0, 1 );
-  vtkGetMacro( IntermixIntersectingGeometry, vtkTypeBool );
-  vtkBooleanMacro( IntermixIntersectingGeometry, vtkTypeBool );
+  vtkSetClampMacro(IntermixIntersectingGeometry, vtkTypeBool, 0, 1);
+  vtkGetMacro(IntermixIntersectingGeometry, vtkTypeBool);
+  vtkBooleanMacro(IntermixIntersectingGeometry, vtkTypeBool);
   //@}
 
   /**
@@ -147,7 +148,7 @@ public:
    * Set/Get the helper class for integrating rays.  If set to NULL, a
    * default integrator will be assigned.
    */
-  virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
+  virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator* ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
   //@}
 
@@ -156,12 +157,11 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren,
-              vtkVolume *vol) override;
+  void Render(vtkRenderer* ren, vtkVolume* vol) override;
 
-  vtkGetVectorMacro( ImageInUseSize, int, 2 );
-  vtkGetVectorMacro( ImageOrigin, int, 2 );
-  vtkGetVectorMacro( ImageViewportSize, int , 2 );
+  vtkGetVectorMacro(ImageInUseSize, int, 2);
+  vtkGetVectorMacro(ImageOrigin, int, 2);
+  vtkGetVectorMacro(ImageViewportSize, int, 2);
 
 protected:
   vtkUnstructuredGridVolumeZSweepMapper();
@@ -176,16 +176,14 @@ protected:
    * Reorder vertices `v' in increasing order in `w'. Return if the orientation
    * has changed.
    */
-  int ReorderTriangle(vtkIdType v[3],
-                      vtkIdType w[3]);
+  int ReorderTriangle(vtkIdType v[3], vtkIdType w[3]);
 
   /**
    * Project and sort the vertices by z-coordinates in view space in the
    * "event list" (an heap).
    * \pre empty_list: this->EventList->GetNumberOfItems()==0
    */
-  void ProjectAndSortVertices(vtkRenderer *ren,
-                              vtkVolume *vol);
+  void ProjectAndSortVertices(vtkRenderer* ren, vtkVolume* vol);
 
   /**
    * Create an empty "pixel list" for each pixel of the screen.
@@ -196,7 +194,7 @@ protected:
    * MainLoop of the Zsweep algorithm.
    * \post empty_list: this->EventList->GetNumberOfItems()==0
    */
-  void MainLoop(vtkRenderWindow *renWin);
+  void MainLoop(vtkRenderWindow* renWin);
 
   /**
    * Do delayed compositing from back to front, stopping at zTarget for each
@@ -220,11 +218,9 @@ protected:
    * \pre ve1_exists: ve1!=0
    * \pre ve2_exists: ve2!=0
    */
-  void RasterizeTriangle(
-            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve0,
-            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve1,
-            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve2,
-            bool exitFace);
+  void RasterizeTriangle(vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve0,
+    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve1,
+    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* ve2, bool exitFace);
 
   /**
    * Perform scan conversion of an horizontal span from left ro right at line
@@ -232,10 +228,8 @@ protected:
    * \pre left_exists: left!=0
    * \pre right_exists: right!=0
    */
-  void RasterizeSpan(int y,
-           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *left,
-           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *right,
-           bool exitFace);
+  void RasterizeSpan(int y, vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge* left,
+    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge* right, bool exitFace);
 
   /**
    * Scan conversion of a straight line defined by endpoints v0 and v1.
@@ -243,26 +237,19 @@ protected:
    * \pre v1_exists: v1!=0
    * \pre y_ordered v0->GetScreenY()<=v1->GetScreenY()
    */
-  void RasterizeLine(
-             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
-             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1,
-             bool exitFace);
+  void RasterizeLine(vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* v0,
+    vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry* v1, bool exitFace);
 
-  void StoreRenderTime(vtkRenderer *ren,
-                       vtkVolume *vol,
-                       float t);
+  void StoreRenderTime(vtkRenderer* ren, vtkVolume* vol, float t);
 
-  float RetrieveRenderTime(vtkRenderer *ren,
-                           vtkVolume *vol);
+  float RetrieveRenderTime(vtkRenderer* ren, vtkVolume* vol);
 
   /**
    * Return the value of the z-buffer at screen coordinates (x,y).
    */
-  double GetZBufferValue(int x,
-                         int y);
+  double GetZBufferValue(int x, int y);
 
-  double GetMinimumBoundsDepth(vtkRenderer *ren,
-                               vtkVolume *vol);
+  double GetMinimumBoundsDepth(vtkRenderer* ren, vtkVolume* vol);
 
   /**
    * Allocate an array of usesets of size `size' only if the current one is not
@@ -288,7 +275,7 @@ protected:
   float MaximumImageSampleDistance;
   vtkTypeBool AutoAdjustSampleDistances;
 
-  vtkRayCastImageDisplayHelper *ImageDisplayHelper;
+  vtkRayCastImageDisplayHelper* ImageDisplayHelper;
 
   // This is how big the image would be if it covered the entire viewport
   int ImageViewportSize[2];
@@ -310,24 +297,24 @@ protected:
   int ImageOrigin[2];
 
   // This is the allocated image
-  unsigned char *Image;
+  unsigned char* Image;
 
   // This is the accumulating double RGBA image
-  float *RealRGBAImage;
+  float* RealRGBAImage;
 
-  float *RenderTimeTable;
-  vtkVolume **RenderVolumeTable;
-  vtkRenderer **RenderRendererTable;
+  float* RenderTimeTable;
+  vtkVolume** RenderVolumeTable;
+  vtkRenderer** RenderRendererTable;
   int RenderTableSize;
   int RenderTableEntries;
 
   vtkTypeBool IntermixIntersectingGeometry;
 
-  float *ZBuffer;
+  float* ZBuffer;
   int ZBufferSize[2];
   int ZBufferOrigin[2];
 
-  vtkDataArray *Scalars;
+  vtkDataArray* Scalars;
   int CellScalars;
 
   // if use CellScalars, we need to keep track of the
@@ -336,43 +323,42 @@ protected:
   double FaceScalars[2];
   int FaceSide;
 
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSpan *Span;
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListFrame *PixelListFrame;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSpan* Span;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListFrame* PixelListFrame;
 
   // Used by BuildUseSets().
-  vtkGenericCell *Cell;
+  vtkGenericCell* Cell;
 
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkUseSet *UseSet;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkUseSet* UseSet;
 
-  vtkPriorityQueue *EventList;
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertices *Vertices;
+  vtkPriorityQueue* EventList;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertices* Vertices;
 
-  vtkTransform *PerspectiveTransform;
-  vtkMatrix4x4 *PerspectiveMatrix;
+  vtkTransform* PerspectiveTransform;
+  vtkMatrix4x4* PerspectiveMatrix;
 
   // Used by the main loop
   int MaxPixelListSizeReached;
   int XBounds[2];
   int YBounds[2];
 
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSimpleScreenEdge *SimpleEdge;
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkDoubleScreenEdge *DoubleEdge;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSimpleScreenEdge* SimpleEdge;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkDoubleScreenEdge* DoubleEdge;
 
-  vtkUnstructuredGridVolumeRayIntegrator *RayIntegrator;
-  vtkUnstructuredGridVolumeRayIntegrator *RealRayIntegrator;
+  vtkUnstructuredGridVolumeRayIntegrator* RayIntegrator;
+  vtkUnstructuredGridVolumeRayIntegrator* RealRayIntegrator;
 
   vtkTimeStamp SavedTriangleListMTime;
 
   // Used during compositing
-  vtkDoubleArray *IntersectionLengths;
-  vtkDoubleArray *NearIntersections;
-  vtkDoubleArray *FarIntersections;
+  vtkDoubleArray* IntersectionLengths;
+  vtkDoubleArray* NearIntersections;
+  vtkDoubleArray* FarIntersections;
 
   // Benchmark
   vtkIdType MaxRecordedPixelListSize;
 
-
-  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory *MemoryManager;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory* MemoryManager;
 
 private:
   vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&) = delete;

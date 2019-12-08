@@ -17,9 +17,9 @@
 
 #include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
@@ -29,7 +29,7 @@
 #include <string>
 
 //----------------------------------------------------------------------------
-int TestGL2PSFontDPIScaling(int argc, char *argv[])
+int TestGL2PSFontDPIScaling(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -231,8 +231,8 @@ int TestGL2PSFontDPIScaling(int argc, char *argv[])
   exp->TextAsPathOn();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSFontDPIScaling");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSFontDPIScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

@@ -45,14 +45,14 @@
  *
  * @sa
  * vtkRenderPass, vtkTranslucentPass, vtkFramebufferPass
-*/
+ */
 
 #ifndef vtkDepthPeelingPass_h
 #define vtkDepthPeelingPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
-#include <vector>  // STL Header
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <vector>                      // STL Header
 
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
@@ -60,26 +60,25 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLState;
 class vtkOpenGLQuadHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass
-    : public vtkOpenGLRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass : public vtkOpenGLRenderPass
 {
 public:
-  static vtkDepthPeelingPass *New();
-  vtkTypeMacro(vtkDepthPeelingPass,vtkOpenGLRenderPass);
+  static vtkDepthPeelingPass* New();
+  vtkTypeMacro(vtkDepthPeelingPass, vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
   //@{
   /**
@@ -88,8 +87,8 @@ public:
    * It is usually set to a vtkTranslucentPass.
    * Initial value is a NULL pointer.
    */
-  vtkGetObjectMacro(TranslucentPass,vtkRenderPass);
-  virtual void SetTranslucentPass(vtkRenderPass *translucentPass);
+  vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
+  virtual void SetTranslucentPass(vtkRenderPass* translucentPass);
   //@}
 
   //@{
@@ -102,8 +101,8 @@ public:
    * Initial value is 0.0, meaning rendering have to be exact. Greater values
    * may speed-up the rendering with small impact on the quality.
    */
-  vtkSetClampMacro(OcclusionRatio,double,0.0,0.5);
-  vtkGetMacro(OcclusionRatio,double);
+  vtkSetClampMacro(OcclusionRatio, double, 0.0, 0.5);
+  vtkGetMacro(OcclusionRatio, double);
   //@}
 
   //@{
@@ -112,25 +111,21 @@ public:
    * Initial value is 4. A special value of 0 means no maximum limit.
    * It has to be a positive value.
    */
-  vtkSetMacro(MaximumNumberOfPeels,int);
-  vtkGetMacro(MaximumNumberOfPeels,int);
+  vtkSetMacro(MaximumNumberOfPeels, int);
+  vtkGetMacro(MaximumNumberOfPeels, int);
   //@}
 
   // vtkOpenGLRenderPass virtuals:
-  bool PostReplaceShaderValues(std::string &vertexShader,
-                                   std::string &geometryShader,
-                                   std::string &fragmentShader,
-                                   vtkAbstractMapper *mapper,
-                                   vtkProp *prop) override;
-  bool SetShaderParameters(vtkShaderProgram *program,
-                           vtkAbstractMapper *mapper, vtkProp *prop,
-                           vtkOpenGLVertexArrayObject* VAO = nullptr) override;
+  bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop) override;
+  bool SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper* mapper, vtkProp* prop,
+    vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
   // Set Opaque Z texture, this must be set from the outer FO
-  void SetOpaqueZTexture(vtkTextureObject *);
+  void SetOpaqueZTexture(vtkTextureObject*);
 
   // Set Opaque RGBA texture, this must be set from the outer FO
-  void SetOpaqueRGBATexture(vtkTextureObject *);
+  void SetOpaqueRGBATexture(vtkTextureObject*);
 
   /**
    *  Set the format to use for the depth texture
@@ -138,7 +133,7 @@ public:
    */
   vtkSetMacro(DepthFormat, int);
 
- protected:
+protected:
   /**
    * Default constructor. TranslucentPass is set to NULL.
    */
@@ -149,7 +144,7 @@ public:
    */
   ~vtkDepthPeelingPass() override;
 
-  vtkRenderPass *TranslucentPass;
+  vtkRenderPass* TranslucentPass;
   vtkTimeStamp CheckTime;
 
   //@{
@@ -180,33 +175,33 @@ public:
    */
   int MaximumNumberOfPeels;
 
-  vtkOpenGLFramebufferObject *Framebuffer;
+  vtkOpenGLFramebufferObject* Framebuffer;
 
-  vtkOpenGLQuadHelper *FinalBlend;
-  vtkOpenGLQuadHelper *IntermediateBlend;
+  vtkOpenGLQuadHelper* FinalBlend;
+  vtkOpenGLQuadHelper* IntermediateBlend;
 
   // obtained from the outer FO, we read from them
-  vtkTextureObject *OpaqueZTexture;
-  vtkTextureObject *OpaqueRGBATexture;
+  vtkTextureObject* OpaqueZTexture;
+  vtkTextureObject* OpaqueRGBATexture;
   bool OwnOpaqueZTexture;
   bool OwnOpaqueRGBATexture;
 
   // each peel merges two color buffers into one result
-  vtkTextureObject *TranslucentRGBATexture[3];
+  vtkTextureObject* TranslucentRGBATexture[3];
   int ColorDrawCount;
   int PeelCount;
 
   // each peel compares a prior Z and writes to next
-  vtkTextureObject *TranslucentZTexture[2];
+  vtkTextureObject* TranslucentZTexture[2];
   int DepthFormat;
 
-  void BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin, bool);
-  void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
+  void BlendIntermediatePeels(vtkOpenGLRenderWindow* renWin, bool);
+  void BlendFinalPeel(vtkOpenGLRenderWindow* renWin);
 
   // useful to store
-  vtkOpenGLState *State;
+  vtkOpenGLState* State;
 
- private:
+private:
   vtkDepthPeelingPass(const vtkDepthPeelingPass&) = delete;
   void operator=(const vtkDepthPeelingPass&) = delete;
 };

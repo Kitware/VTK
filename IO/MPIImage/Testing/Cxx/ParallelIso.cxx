@@ -27,31 +27,32 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSet.h"
 #include "vtkElevationFilter.h"
-#include "vtkMath.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMPIController.h"
+#include "vtkMath.h"
 #include "vtkPNrrdReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkWindowToImageFilter.h"
-#include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
+#include "vtkTestUtilities.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkDebugLeaks.h"
 
-namespace {
+namespace
+{
 
-static const float ISO_START=4250.0;
-static const float ISO_STEP=-1250.0;
-static const int ISO_NUM=3;
+static const float ISO_START = 4250.0;
+static const float ISO_STEP = -1250.0;
+static const int ISO_NUM = 3;
 // Just pick a tag which is available
-static const int ISO_VALUE_RMI_TAG=300;
-static const int ISO_OUTPUT_TAG=301;
+static const int ISO_VALUE_RMI_TAG = 300;
+static const int ISO_OUTPUT_TAG = 301;
 
 struct ParallelIsoArgs_tmp
 {
@@ -68,8 +69,8 @@ struct ParallelIsoRMIArgs_tmp
 };
 
 // call back to set the iso surface value.
-void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
-                    int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
+void SetIsoValueRMI(
+  void* localArg, void* vtkNotUsed(remoteArg), int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
 {
   ParallelIsoRMIArgs_tmp* args = (ParallelIsoRMIArgs_tmp*)localArg;
 
@@ -79,7 +80,7 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
   int myid = contrl->GetLocalProcessId();
   int numProcs = contrl->GetNumberOfProcesses();
 
-  vtkContourFilter *iso = args->ContourFilter;
+  vtkContourFilter* iso = args->ContourFilter;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
   args->Elevation->UpdatePiece(myid, numProcs, 0);
@@ -87,13 +88,12 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
   contrl->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
 }
 
-
 // This will be called by all processes
-void MyMain( vtkMultiProcessController *controller, void *arg )
+void MyMain(vtkMultiProcessController* controller, void* arg)
 {
-  vtkPNrrdReader *reader;
-  vtkContourFilter *iso;
-  vtkElevationFilter *elev;
+  vtkPNrrdReader* reader;
+  vtkContourFilter* iso;
+  vtkElevationFilter* elev;
   int myid, numProcs;
   float val;
   ParallelIsoArgs_tmp* args = reinterpret_cast<ParallelIsoArgs_tmp*>(arg);
@@ -105,8 +105,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
-  char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
-                                                    "Data/headsq/quarter.nhdr");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, "Data/headsq/quarter.nhdr");
   reader = vtkPNrrdReader::New();
   reader->SetFileName(fname);
   // reader->SetDataByteOrderToLittleEndian();
@@ -125,8 +125,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   // Compute a different color for each process.
   elev = vtkElevationFilter::New();
   elev->SetInputConnection(iso->GetOutputPort());
-  val = (myid+1) / static_cast<float>(numProcs);
-  elev->SetScalarRange(val, val+0.001);
+  val = (myid + 1) / static_cast<float>(numProcs);
+  elev->SetScalarRange(val, val + 0.001);
 
   // Make sure all processes update at the same time.
   elev->UpdatePiece(myid, numProcs, 0);
@@ -142,23 +142,23 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     // Last, set up a RMI call back to change the iso surface value.
     // This is done so that the root process can let this process
     // know that it wants the contour value to change.
-    controller->AddRMI(SetIsoValueRMI, (void *)&args2, ISO_VALUE_RMI_TAG);
+    controller->AddRMI(SetIsoValueRMI, (void*)&args2, ISO_VALUE_RMI_TAG);
     controller->ProcessRMIs();
   }
   else
   {
     // Create the rendering part of the pipeline
-    vtkAppendPolyData *app = vtkAppendPolyData::New();
-    vtkRenderer *ren = vtkRenderer::New();
-    vtkRenderWindow *renWindow = vtkRenderWindow::New();
-    vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-    vtkActor *actor = vtkActor::New();
-    vtkCamera *cam = vtkCamera::New();
+    vtkAppendPolyData* app = vtkAppendPolyData::New();
+    vtkRenderer* ren = vtkRenderer::New();
+    vtkRenderWindow* renWindow = vtkRenderWindow::New();
+    vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+    vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+    vtkActor* actor = vtkActor::New();
+    vtkCamera* cam = vtkCamera::New();
     renWindow->AddRenderer(ren);
     iren->SetRenderWindow(renWindow);
     ren->SetBackground(0.9, 0.9, 0.9);
-    renWindow->SetSize( 400, 400);
+    renWindow->SetSize(400, 400);
     mapper->SetInputConnection(app->GetOutputPort());
     actor->SetMapper(mapper);
     ren->AddActor(actor);
@@ -208,10 +208,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     outputCopy->RemoveGhostCells();
     renWindow->Render();
 
-    *(args->retVal) =
-      vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
+    *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
 
-    if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+    if (*(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }
@@ -232,10 +231,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   elev->Delete();
 }
 
-
 } // end anon namespace
 
-int ParallelIso( int argc, char* argv[] )
+int ParallelIso(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

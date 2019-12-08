@@ -15,7 +15,7 @@
 // This test exercises xdmf3 reading and writing in parallel.
 //
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
@@ -32,19 +32,17 @@
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
   vtkTypeMacro(MyProcess, vtkProcess);
 
   virtual void Execute() override;
 
-  void SetArgs(int argc, char *argv[],
-               const std::string& ifname,
-               const std::string& ofname)
+  void SetArgs(int argc, char* argv[], const std::string& ifname, const std::string& ofname)
   {
-      this->Argc = argc;
-      this->Argv = argv;
-      this->InFileName = ifname;
-      this->OutFileName = ofname;
+    this->Argc = argc;
+    this->Argv = argv;
+    this->InFileName = ifname;
+    this->OutFileName = ofname;
   }
 
   void CreatePipeline()
@@ -67,14 +65,18 @@ public:
   }
 
 protected:
-  MyProcess() { this->Argc = 0; this->Argv = nullptr;}
+  MyProcess()
+  {
+    this->Argc = 0;
+    this->Argv = nullptr;
+  }
 
   int Argc;
-  char **Argv;
+  char** Argv;
   std::string InFileName;
   std::string OutFileName;
-  vtkXdmf3Reader *Reader;
-  vtkXdmf3Writer *Writer;
+  vtkXdmf3Reader* Reader;
+  vtkXdmf3Writer* Writer;
 };
 
 vtkStandardNewMacro(MyProcess);
@@ -94,8 +96,7 @@ void MyProcess::Execute()
   this->ReturnValue = 1;
 }
 
-
-int TestXdmf3Parallel(int argc, char **argv)
+int TestXdmf3Parallel(int argc, char** argv)
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -106,7 +107,7 @@ int TestXdmf3Parallel(int argc, char **argv)
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = 1; // 1 == failed
@@ -122,8 +123,8 @@ int TestXdmf3Parallel(int argc, char **argv)
 
   vtkMultiProcessController::SetGlobalController(contr);
 
-  vtkTesting *testHelper = vtkTesting::New();
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  vtkTesting* testHelper = vtkTesting::New();
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   std::string datadir = testHelper->GetDataRoot();
   std::string ifile = datadir + "/Data/XDMF/Iron/Iron_Protein.ImageData.xmf";
   std::string tempdir = testHelper->GetTempDirectory();
@@ -132,15 +133,15 @@ int TestXdmf3Parallel(int argc, char **argv)
   std::string ofile = tempdir + "/Iron_Protein.ImageData.xmf";
   testHelper->Delete();
 
-  //allow caller to use something else
-  for (int i = 0; i<argc; i++)
+  // allow caller to use something else
+  for (int i = 0; i < argc; i++)
   {
     if (!strncmp(argv[i], "--file=", 11))
     {
-      ifile=argv[i]+11;
+      ifile = argv[i] + 11;
     }
   }
-  MyProcess *p = MyProcess::New();
+  MyProcess* p = MyProcess::New();
   p->SetArgs(argc, argv, ifile.c_str(), ofile.c_str());
 
   contr->SetSingleProcessObject(p);
@@ -155,7 +156,7 @@ int TestXdmf3Parallel(int argc, char **argv)
 
   if (retVal)
   {
-    //test passed, remove the files we wrote
+    // test passed, remove the files we wrote
     vtksys::SystemTools::RemoveADirectory(tempdir.c_str());
   }
   return !retVal;

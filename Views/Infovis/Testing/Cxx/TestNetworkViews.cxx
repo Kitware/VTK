@@ -20,9 +20,9 @@
 
 #include "vtkNetworkHierarchy.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSQLDatabaseTableSource.h"
 #include "vtkTableToGraph.h"
 #include "vtkTextProperty.h"
@@ -31,44 +31,43 @@
 #include "vtkViewTheme.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using std::string;
 
 int TestNetworkViews(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   string dataRoot = testHelper->GetDataRoot();
-  string file = dataRoot+"/Data/Infovis/SQLite/ports_protocols.db";
+  string file = dataRoot + "/Data/Infovis/SQLite/ports_protocols.db";
 
-  //Pull the table (that represents relationships/edges) from the database
-  VTK_CREATE( vtkSQLDatabaseTableSource, databaseToEdgeTable );
+  // Pull the table (that represents relationships/edges) from the database
+  VTK_CREATE(vtkSQLDatabaseTableSource, databaseToEdgeTable);
   databaseToEdgeTable->SetURL("sqlite://" + file);
   databaseToEdgeTable->SetQuery("select src, dst, dport, protocol, port_protocol from tcp");
 
-  //Pull the table (that represents entities/vertices) from the database
-  VTK_CREATE( vtkSQLDatabaseTableSource, databaseToVertexTable );
+  // Pull the table (that represents entities/vertices) from the database
+  VTK_CREATE(vtkSQLDatabaseTableSource, databaseToVertexTable);
   databaseToVertexTable->SetURL("sqlite://" + file);
   databaseToVertexTable->SetQuery("select ip, hostname from dnsnames");
 
-  //Make a graph
-  VTK_CREATE( vtkTableToGraph, graph );
-  graph->AddInputConnection(0,databaseToEdgeTable->GetOutputPort());
-  graph->AddInputConnection(1,databaseToVertexTable->GetOutputPort());
+  // Make a graph
+  VTK_CREATE(vtkTableToGraph, graph);
+  graph->AddInputConnection(0, databaseToEdgeTable->GetOutputPort());
+  graph->AddInputConnection(1, databaseToVertexTable->GetOutputPort());
   graph->AddLinkVertex("src", "ip", false);
   graph->AddLinkVertex("dst", "ip", false);
   graph->AddLinkEdge("src", "dst");
 
-    //Make a tree out of ip addresses
-  VTK_CREATE( vtkNetworkHierarchy, ip_tree );
+  // Make a tree out of ip addresses
+  VTK_CREATE(vtkNetworkHierarchy, ip_tree);
   ip_tree->AddInputConnection(graph->GetOutputPort());
 
-  VTK_CREATE( vtkTreeRingView, dummy );
+  VTK_CREATE(vtkTreeRingView, dummy);
 
-  //Create a view on city/region/country
-  VTK_CREATE( vtkTreeRingView, view1 );
+  // Create a view on city/region/country
+  VTK_CREATE(vtkTreeRingView, view1);
   view1->DisplayHoverTextOff();
   view1->SetTreeFromInputConnection(ip_tree->GetOutputPort());
   view1->SetGraphFromInputConnection(graph->GetOutputPort());

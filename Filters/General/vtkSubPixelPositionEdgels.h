@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkImageData vtkImageGradient vtkLinkEdgels
-*/
+ */
 
 #ifndef vtkSubPixelPositionEdgels_h
 #define vtkSubPixelPositionEdgels_h
@@ -46,16 +46,16 @@ class vtkDataArray;
 class VTKFILTERSGENERAL_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkSubPixelPositionEdgels *New();
-  vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
+  static vtkSubPixelPositionEdgels* New();
+  vtkTypeMacro(vtkSubPixelPositionEdgels, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the gradient data for doing the position adjustments.
    */
-  void SetGradMapsData(vtkStructuredPoints *gm);
-  vtkStructuredPoints *GetGradMaps();
+  void SetGradMapsData(vtkStructuredPoints* gm);
+  vtkStructuredPoints* GetGradMaps();
   //@}
 
   //@{
@@ -75,18 +75,17 @@ protected:
   ~vtkSubPixelPositionEdgels() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void Move(int xdim, int ydim, int zdim, int x, int y,
-            float *img, vtkDataArray *inVecs,
-            double *result, int z, double *aspect, double *resultNormal);
-  void Move(int xdim, int ydim, int zdim, int x, int y,
-            double *img, vtkDataArray *inVecs,
-            double *result, int z, double *aspect, double *resultNormal);
+  void Move(int xdim, int ydim, int zdim, int x, int y, float* img, vtkDataArray* inVecs,
+    double* result, int z, double* aspect, double* resultNormal);
+  void Move(int xdim, int ydim, int zdim, int x, int y, double* img, vtkDataArray* inVecs,
+    double* result, int z, double* aspect, double* resultNormal);
   // extension for target instead of maximum
   vtkTypeBool TargetFlag;
   double TargetValue;
+
 private:
   vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) = delete;
   void operator=(const vtkSubPixelPositionEdgels&) = delete;

@@ -14,14 +14,14 @@
   =========================================================================*/
 
 #include "vtkSMPMergePoints.h"
-#include "vtkPoints.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSMPMergePoints)
+vtkStandardNewMacro(vtkSMPMergePoints);
 
 //------------------------------------------------------------------------------
 vtkSMPMergePoints::vtkSMPMergePoints() = default;
@@ -30,7 +30,7 @@ vtkSMPMergePoints::vtkSMPMergePoints() = default;
 vtkSMPMergePoints::~vtkSMPMergePoints() = default;
 
 //------------------------------------------------------------------------------
-void vtkSMPMergePoints::PrintSelf(ostream &os, vtkIndent indent)
+void vtkSMPMergePoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -42,99 +42,95 @@ void vtkSMPMergePoints::InitializeMerge()
 }
 
 //------------------------------------------------------------------------------
-void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator,
-                              vtkIdType idx,
-                              vtkPointData* outPd,
-                              vtkPointData* ptData,
-                              vtkIdList* idList )
+void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator, vtkIdType idx, vtkPointData* outPd,
+  vtkPointData* ptData, vtkIdList* idList)
 {
-  if ( !locator->HashTable[idx] )
+  if (!locator->HashTable[idx])
   {
     return;
   }
 
   vtkIdList *bucket, *oldIdToMerge;
-  float *floatOldDataArray = nullptr;
+  float* floatOldDataArray = nullptr;
 
-  if ( !(bucket = this->HashTable[idx]) )
+  if (!(bucket = this->HashTable[idx]))
   {
     this->HashTable[idx] = bucket = vtkIdList::New();
-    bucket->Allocate( this->NumberOfPointsPerBucket/2,
-                      this->NumberOfPointsPerBucket/3 );
+    bucket->Allocate(this->NumberOfPointsPerBucket / 2, this->NumberOfPointsPerBucket / 3);
     oldIdToMerge = locator->HashTable[idx];
-    oldIdToMerge->Register( this );
-    if ( this->Points->GetData()->GetDataType() == VTK_FLOAT )
+    oldIdToMerge->Register(this);
+    if (this->Points->GetData()->GetDataType() == VTK_FLOAT)
     {
-      floatOldDataArray = static_cast<vtkFloatArray*>( locator->Points->GetData() )->GetPointer(0);
+      floatOldDataArray = static_cast<vtkFloatArray*>(locator->Points->GetData())->GetPointer(0);
     }
   }
   else
   {
     oldIdToMerge = vtkIdList::New();
 
-    vtkIdType nbOfIds = bucket->GetNumberOfIds ();
+    vtkIdType nbOfIds = bucket->GetNumberOfIds();
     vtkIdType nbOfOldIds = locator->HashTable[idx]->GetNumberOfIds();
-    oldIdToMerge->Allocate( nbOfOldIds );
+    oldIdToMerge->Allocate(nbOfOldIds);
 
-    vtkDataArray *dataArray = this->Points->GetData();
-    vtkDataArray *oldDataArray = locator->Points->GetData();
-    vtkIdType *idArray = bucket->GetPointer(0);
-    vtkIdType *idOldArray = locator->HashTable[idx]->GetPointer(0);
+    vtkDataArray* dataArray = this->Points->GetData();
+    vtkDataArray* oldDataArray = locator->Points->GetData();
+    vtkIdType* idArray = bucket->GetPointer(0);
+    vtkIdType* idOldArray = locator->HashTable[idx]->GetPointer(0);
 
     bool found;
 
     if (dataArray->GetDataType() == VTK_FLOAT)
     {
-      float *floatDataArray = static_cast<vtkFloatArray*>(dataArray)->GetPointer(0);
+      float* floatDataArray = static_cast<vtkFloatArray*>(dataArray)->GetPointer(0);
       floatOldDataArray = static_cast<vtkFloatArray*>(oldDataArray)->GetPointer(0);
 
-      for ( vtkIdType oldIdIdx = 0; oldIdIdx < nbOfOldIds; ++oldIdIdx )
+      for (vtkIdType oldIdIdx = 0; oldIdIdx < nbOfOldIds; ++oldIdIdx)
       {
         found = false;
         vtkIdType oldId = idOldArray[oldIdIdx];
-        float *x = floatOldDataArray + 3*oldId;
-        float *pt;
-        for ( vtkIdType i=0; i < nbOfIds; ++i )
+        float* x = floatOldDataArray + 3 * oldId;
+        float* pt;
+        for (vtkIdType i = 0; i < nbOfIds; ++i)
         {
           vtkIdType existingId = idArray[i];
-          pt = floatDataArray + 3*existingId;
-          if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
+          pt = floatDataArray + 3 * existingId;
+          if (x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2])
           {
             // point is already in the list, return 0 and set the id parameter
             found = true;
-            idList->SetId( oldId, existingId );
+            idList->SetId(oldId, existingId);
             break;
           }
         }
-        if ( !found )
+        if (!found)
         {
-          oldIdToMerge->InsertNextId( oldId );
+          oldIdToMerge->InsertNextId(oldId);
         }
       }
     }
     else
     {
-      for ( vtkIdType oldIdIdx = 0; oldIdIdx < nbOfOldIds; ++oldIdIdx )
+      for (vtkIdType oldIdIdx = 0; oldIdIdx < nbOfOldIds; ++oldIdIdx)
       {
         found = false;
         vtkIdType oldId = idOldArray[oldIdIdx];
-        double *x = oldDataArray->GetTuple( oldId );
-        double *pt;
-        for ( vtkIdType i=0; i < nbOfIds; ++i )
+        double* x = oldDataArray->GetTuple(oldId);
+        double* pt;
+        for (vtkIdType i = 0; i < nbOfIds; ++i)
         {
           vtkIdType existingId = idArray[i];
-          pt = dataArray->GetTuple( existingId );
-          if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
+          pt = dataArray->GetTuple(existingId);
+          if (x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2])
           {
             // point is already in the list, return 0 and set the id parameter
             found = true;
-            idList->SetId( oldId, existingId );
+            idList->SetId(oldId, existingId);
             break;
           }
         }
-        if ( !found )
+        if (!found)
         {
-          oldIdToMerge->InsertNextId( oldId );
+          oldIdToMerge->InsertNextId(oldId);
         }
       }
     }
@@ -144,24 +140,24 @@ void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator,
   vtkIdType numberOfInsertions = oldIdToMerge->GetNumberOfIds();
   vtkIdType firstId = this->AtomicInsertionId;
   this->AtomicInsertionId += numberOfInsertions;
-  bucket->Resize( bucket->GetNumberOfIds() + numberOfInsertions );
-  for ( vtkIdType i = 0; i < numberOfInsertions; ++i )
+  bucket->Resize(bucket->GetNumberOfIds() + numberOfInsertions);
+  for (vtkIdType i = 0; i < numberOfInsertions; ++i)
   {
-    vtkIdType newId = firstId + i, oldId = oldIdToMerge->GetId( i );
-    idList->SetId( oldId, newId );
-    bucket->InsertNextId( newId );
-    if ( floatOldDataArray )
+    vtkIdType newId = firstId + i, oldId = oldIdToMerge->GetId(i);
+    idList->SetId(oldId, newId);
+    bucket->InsertNextId(newId);
+    if (floatOldDataArray)
     {
-      const float *pt = floatOldDataArray + 3*oldId;
-      this->Points->SetPoint( newId, pt );
+      const float* pt = floatOldDataArray + 3 * oldId;
+      this->Points->SetPoint(newId, pt);
     }
     else
     {
-      this->Points->SetPoint( newId, locator->Points->GetPoint( oldId ) );
+      this->Points->SetPoint(newId, locator->Points->GetPoint(oldId));
     }
-    outPd->SetTuple( newId, oldId, ptData );
+    outPd->SetTuple(newId, oldId, ptData);
   }
-  oldIdToMerge->UnRegister( this );
+  oldIdToMerge->UnRegister(this);
 }
 
 //------------------------------------------------------------------------------

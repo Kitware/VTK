@@ -23,20 +23,21 @@
  * @sa
  * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
  * vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkInteractorStyleMultiTouchCamera_h
 #define vtkInteractorStyleMultiTouchCamera_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
-#include "vtkRenderWindowInteractor.h" // for max pointers
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkRenderWindowInteractor.h" // for max pointers
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static vtkInteractorStyleMultiTouchCamera *New();
-  vtkTypeMacro(vtkInteractorStyleMultiTouchCamera,vtkInteractorStyleTrackballCamera);
+  static vtkInteractorStyleMultiTouchCamera* New();
+  vtkTypeMacro(vtkInteractorStyleMultiTouchCamera, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

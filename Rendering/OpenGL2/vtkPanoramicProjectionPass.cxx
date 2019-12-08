@@ -22,9 +22,9 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkPanoramicProjectionPass);
 // ----------------------------------------------------------------------------
 void vtkPanoramicProjectionPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CubeResolution: " << this->CubeResolution << "\n";
   os << indent << "ProjectionType: ";
@@ -148,11 +148,16 @@ void vtkPanoramicProjectionPass::InitOpenGLResources(vtkOpenGLRenderWindow* renW
   if (this->FrameBufferObject == nullptr)
   {
     this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
+  }
+
+  if (!this->FrameBufferObject->GetFBOIndex())
+  {
     this->FrameBufferObject->SetContext(renWin);
-    this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+    renWin->GetState()->PushFramebufferBindings();
+    this->FrameBufferObject->Bind();
     this->FrameBufferObject->Resize(this->CubeResolution, this->CubeResolution);
     this->FrameBufferObject->AddDepthAttachment();
-    this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+    renWin->GetState()->PopFramebufferBindings();
   }
 }
 
@@ -169,8 +174,7 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
   {
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::FSQ::Decl",
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "uniform samplerCube source;\n"
       "uniform float angle;\n"
       "uniform vec2 scale;\n"
@@ -214,9 +218,7 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ss.str());
 
     this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
-      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(),
-      FSSource.c_str(),
-      "");
+      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
 
     this->QuadHelper->ShaderChangeValue = this->MTime;
   }
@@ -270,7 +272,6 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   newCamera->SetPosition(oldCamera->GetPosition());
   newCamera->SetFocalPoint(oldCamera->GetFocalPoint());
   newCamera->SetViewUp(oldCamera->GetViewUp());
-  newCamera->OrthogonalizeViewUp();
 
   if (r->GetRenderWindow()->GetStereoRender())
   {
@@ -317,6 +318,9 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
       break;
   }
 
+  newCamera->SetViewAngle(90.0);
+  newCamera->OrthogonalizeViewUp();
+
   double range[2];
   oldCamera->GetClippingRange(range);
   newCamera->SetClippingRange(range);
@@ -331,7 +335,7 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
 
   s2.SetFrameBuffer(this->FrameBufferObject);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
   this->FrameBufferObject->AddColorAttachment(0, this->CubeMapTexture, 0, faceIndex);
   this->FrameBufferObject->ActivateBuffer(0);
@@ -346,7 +350,7 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   r->SetUserLightTransform(nullptr);
 
   this->FrameBufferObject->RemoveColorAttachment(0);
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   r->SetActiveCamera(oldCamera);
 }

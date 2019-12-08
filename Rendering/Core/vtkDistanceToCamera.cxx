@@ -26,8 +26,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
@@ -38,9 +38,7 @@ vtkDistanceToCamera::vtkDistanceToCamera()
   this->Renderer = nullptr;
   this->ScreenSize = 5.0;
   this->Scaling = false;
-  this->SetInputArrayToProcess(0, 0, 0,
-                               vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               "scale");
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scale");
   this->LastRendererSize[0] = 0;
   this->LastRendererSize[1] = 0;
   this->LastCameraPosition[0] = 0.0;
@@ -59,7 +57,7 @@ vtkDistanceToCamera::vtkDistanceToCamera()
 
 vtkDistanceToCamera::~vtkDistanceToCamera()
 {
-  delete [] this->DistanceArrayName;
+  delete[] this->DistanceArrayName;
 }
 
 void vtkDistanceToCamera::SetRenderer(vtkRenderer* ren)
@@ -77,8 +75,7 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
   if (this->Renderer)
   {
     int* sz = this->Renderer->GetSize();
-    if ( this->LastRendererSize[0] != sz[0]
-      || this->LastRendererSize[1] != sz[1] )
+    if (this->LastRendererSize[0] != sz[0] || this->LastRendererSize[1] != sz[1])
     {
       this->LastRendererSize[0] = sz[0];
       this->LastRendererSize[1] = sz[1];
@@ -88,9 +85,8 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
     if (cam)
     {
       double* pos = cam->GetPosition();
-      if ( this->LastCameraPosition[0] != pos[0]
-        || this->LastCameraPosition[1] != pos[1]
-        || this->LastCameraPosition[2] != pos[2] )
+      if (this->LastCameraPosition[0] != pos[0] || this->LastCameraPosition[1] != pos[1] ||
+        this->LastCameraPosition[2] != pos[2])
       {
         this->LastCameraPosition[0] = pos[0];
         this->LastCameraPosition[1] = pos[1];
@@ -98,9 +94,8 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
         this->Modified();
       }
       double* fp = cam->GetFocalPoint();
-      if ( this->LastCameraFocalPoint[0] != fp[0]
-        || this->LastCameraFocalPoint[1] != fp[1]
-        || this->LastCameraFocalPoint[2] != fp[2] )
+      if (this->LastCameraFocalPoint[0] != fp[0] || this->LastCameraFocalPoint[1] != fp[1] ||
+        this->LastCameraFocalPoint[2] != fp[2])
       {
         this->LastCameraFocalPoint[0] = fp[0];
         this->LastCameraFocalPoint[1] = fp[1];
@@ -108,9 +103,8 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
         this->Modified();
       }
       double* up = cam->GetViewUp();
-      if ( this->LastCameraViewUp[0] != up[0]
-        || this->LastCameraViewUp[1] != up[1]
-        || this->LastCameraViewUp[2] != up[2] )
+      if (this->LastCameraViewUp[0] != up[0] || this->LastCameraViewUp[1] != up[1] ||
+        this->LastCameraViewUp[2] != up[2])
       {
         this->LastCameraViewUp[0] = up[0];
         this->LastCameraViewUp[1] = up[1];
@@ -118,7 +112,7 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
         this->Modified();
       }
       double scale = cam->GetParallelScale();
-      if( this->LastCameraParallelScale != scale)
+      if (this->LastCameraParallelScale != scale)
       {
         this->LastCameraParallelScale = scale;
         this->Modified();
@@ -128,20 +122,16 @@ vtkMTimeType vtkDistanceToCamera::GetMTime()
   return this->Superclass::GetMTime();
 }
 
-int vtkDistanceToCamera::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDistanceToCamera::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
   {
@@ -156,7 +146,7 @@ int vtkDistanceToCamera::RequestData(
 
   if (!this->DistanceArrayName || strlen(this->DistanceArrayName) == 0)
   {
-    vtkErrorMacro("The name of the distance array must be specified" );
+    vtkErrorMacro("The name of the distance array must be specified");
     return 0;
   }
 
@@ -172,7 +162,7 @@ int vtkDistanceToCamera::RequestData(
       vtkErrorMacro("Scaling array not found.");
       return 0;
     }
-    if ( scaleArr->GetNumberOfComponents() > 1 )
+    if (scaleArr->GetNumberOfComponents() > 1)
     {
       vtkErrorMacro("Scaling array has more than one component.");
       return 0;
@@ -181,8 +171,7 @@ int vtkDistanceToCamera::RequestData(
 
   output->ShallowCopy(input);
   vtkIdType numPoints = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkDoubleArray> distArr =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> distArr = vtkSmartPointer<vtkDoubleArray>::New();
   distArr->SetName(this->DistanceArrayName);
   distArr->SetNumberOfTuples(numPoints);
   output->GetPointData()->AddArray(distArr);
@@ -191,16 +180,15 @@ int vtkDistanceToCamera::RequestData(
     double size = 1;
     if (this->Renderer->GetSize()[1] > 0)
     {
-      size = 2.0*(camera->GetParallelScale() /
-        this->Renderer->GetSize()[1]) * this->ScreenSize;
+      size = 2.0 * (camera->GetParallelScale() / this->Renderer->GetSize()[1]) * this->ScreenSize;
     }
-    if ( scaleArr)
+    if (scaleArr)
     {
       double tuple[1];
       for (vtkIdType i = 0; i < numPoints; ++i)
       {
-        scaleArr->GetTuple(i, tuple );
-        distArr->SetValue(i, size*tuple[0]);
+        scaleArr->GetTuple(i, tuple);
+        distArr->SetValue(i, size * tuple[0]);
       }
     }
     else
@@ -216,29 +204,27 @@ int vtkDistanceToCamera::RequestData(
     double factor = 1;
     if (this->Renderer->GetSize()[1] > 0)
     {
-      factor = 2.0*this->ScreenSize
-        * tan(vtkMath::RadiansFromDegrees(camera->GetViewAngle()/2.0))
-        / this->Renderer->GetSize()[1];
+      factor = 2.0 * this->ScreenSize *
+        tan(vtkMath::RadiansFromDegrees(camera->GetViewAngle() / 2.0)) /
+        this->Renderer->GetSize()[1];
     }
-    if ( scaleArr )
+    if (scaleArr)
     {
       double tuple[1];
       for (vtkIdType i = 0; i < numPoints; ++i)
       {
-        double dist = sqrt(
-          vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
-        double size = factor*dist;
-        scaleArr->GetTuple(i,tuple);
-        distArr->SetValue(i, size*tuple[0] );
+        double dist = sqrt(vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
+        double size = factor * dist;
+        scaleArr->GetTuple(i, tuple);
+        distArr->SetValue(i, size * tuple[0]);
       }
     }
     else
     {
       for (vtkIdType i = 0; i < numPoints; ++i)
       {
-        double dist = sqrt(
-          vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
-        double size = factor*dist;
+        double dist = sqrt(vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
+        double size = factor * dist;
         distArr->SetValue(i, size);
       }
     }
@@ -249,7 +235,7 @@ int vtkDistanceToCamera::RequestData(
 
 void vtkDistanceToCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: ";
   if (this->Renderer)
   {

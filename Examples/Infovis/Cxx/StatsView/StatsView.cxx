@@ -7,20 +7,19 @@
  * statement of authorship are reproduced on all copies.
  */
 
-
-#include "ui_StatsView.h"
 #include "StatsView.h"
+#include "ui_StatsView.h"
 
 // SQL includes
-#include "vtkSQLiteDatabase.h"
-#include "vtkSQLQuery.h"
-#include "vtkSQLDatabaseSchema.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
+#include "vtkSQLiteDatabase.h"
 
 // Stats includes
+#include "vtkCorrelativeStatistics.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkOrderStatistics.h"
-#include "vtkCorrelativeStatistics.h"
 
 // QT includes
 #include <vtkDataObjectToTable.h>
@@ -38,8 +37,7 @@
 #include <QFileDialog>
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
 StatsView::StatsView()
@@ -69,9 +67,7 @@ StatsView::StatsView()
   connect(this->ui->actionOpenSQLiteDB, SIGNAL(triggered()), this, SLOT(slotOpenSQLiteDB()));
 };
 
-StatsView::~StatsView()
-{
-}
+StatsView::~StatsView() {}
 
 // Action to be taken upon graph file open
 void StatsView::slotOpenSQLiteDB()
@@ -80,11 +76,8 @@ void StatsView::slotOpenSQLiteDB()
   QDir dir;
 
   // Open the text data file
-  QString fileName = QFileDialog::getOpenFileName(
-    this,
-    "Select the SQLite database file",
-    QDir::homePath(),
-    "SQLite Files (*.db);;All Files (*.*)");
+  QString fileName = QFileDialog::getOpenFileName(this, "Select the SQLite database file",
+    QDir::homePath(), "SQLite Files (*.db);;All Files (*.*)");
 
   if (fileName.isNull())
   {
@@ -94,9 +87,10 @@ void StatsView::slotOpenSQLiteDB()
 
   // Create SQLite reader
   QString fullName = "sqlite://" + fileName;
-  vtkSQLiteDatabase* db = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( fullName.toLatin1() ) );
+  vtkSQLiteDatabase* db =
+    vtkSQLiteDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(fullName.toLatin1()));
   bool status = db->Open("");
-  if ( ! status )
+  if (!status)
   {
     cerr << "Couldn't open database.\n";
     return;
@@ -104,60 +98,60 @@ void StatsView::slotOpenSQLiteDB()
 
   // Query database
   vtkSQLQuery* query = db->GetQueryInstance();
-  query->SetQuery( "SELECT * from main_tbl" );
-  this->RowQueryToTable->SetQuery( query );
+  query->SetQuery("SELECT * from main_tbl");
+  this->RowQueryToTable->SetQuery(query);
 
   // Calculate descriptive statistics
-  VTK_CREATE(vtkDescriptiveStatistics,descriptive);
-  descriptive->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
-  descriptive->AddColumn( "Temp1" );
-  descriptive->AddColumn( "Temp2" );
+  VTK_CREATE(vtkDescriptiveStatistics, descriptive);
+  descriptive->SetInputConnection(0, this->RowQueryToTable->GetOutputPort());
+  descriptive->AddColumn("Temp1");
+  descriptive->AddColumn("Temp2");
   descriptive->Update();
 
   // Calculate order statistics -- quartiles
-  VTK_CREATE(vtkOrderStatistics,order1);
-  order1->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
-  order1->AddColumn( "Temp1" );
-  order1->AddColumn( "Temp2" );
-  order1->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
+  VTK_CREATE(vtkOrderStatistics, order1);
+  order1->SetInputConnection(0, this->RowQueryToTable->GetOutputPort());
+  order1->AddColumn("Temp1");
+  order1->AddColumn("Temp2");
+  order1->SetQuantileDefinition(vtkOrderStatistics::InverseCDFAveragedSteps);
   order1->Update();
 
   // Calculate order statistics -- deciles
-  VTK_CREATE(vtkOrderStatistics,order2);
-  order2->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
-  order2->AddColumn( "Temp1" );
-  order2->AddColumn( "Temp2" );
-  order2->SetNumberOfIntervals( 10 );
+  VTK_CREATE(vtkOrderStatistics, order2);
+  order2->SetInputConnection(0, this->RowQueryToTable->GetOutputPort());
+  order2->AddColumn("Temp1");
+  order2->AddColumn("Temp2");
+  order2->SetNumberOfIntervals(10);
   order2->Update();
 
   // Calculate correlative statistics
-  VTK_CREATE(vtkCorrelativeStatistics,correlative);
-  correlative->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
-  correlative->AddColumnPair( "Temp1", "Temp2" );
-  correlative->SetAssessOption( true );
+  VTK_CREATE(vtkCorrelativeStatistics, correlative);
+  correlative->SetInputConnection(0, this->RowQueryToTable->GetOutputPort());
+  correlative->AddColumnPair("Temp1", "Temp2");
+  correlative->SetAssessOption(true);
   correlative->Update();
 
   // Assign tables to table views
 
   // FIXME: we should not have to make a shallow copy of the output
-  VTK_CREATE(vtkTable,descriptiveC);
-  descriptiveC->ShallowCopy( descriptive->GetOutput( 1 ) );
-  this->TableView1->SetRepresentationFromInput( descriptiveC );
+  VTK_CREATE(vtkTable, descriptiveC);
+  descriptiveC->ShallowCopy(descriptive->GetOutput(1));
+  this->TableView1->SetRepresentationFromInput(descriptiveC);
 
   // FIXME: we should not have to make a shallow copy of the output
-  VTK_CREATE(vtkTable,order1C);
-  order1C->ShallowCopy( order1->GetOutput( 1 ) );
-  this->TableView2->SetRepresentationFromInput( order1C );
+  VTK_CREATE(vtkTable, order1C);
+  order1C->ShallowCopy(order1->GetOutput(1));
+  this->TableView2->SetRepresentationFromInput(order1C);
 
   // FIXME: we should not have to make a shallow copy of the output
-  VTK_CREATE(vtkTable,order2C);
-  order2C->ShallowCopy( order2->GetOutput( 1 ) );
-  this->TableView3->SetRepresentationFromInput( order2C );
+  VTK_CREATE(vtkTable, order2C);
+  order2C->ShallowCopy(order2->GetOutput(1));
+  this->TableView3->SetRepresentationFromInput(order2C);
 
   // FIXME: we should not have to make a shallow copy of the output
-  VTK_CREATE(vtkTable,correlativeC);
-  correlativeC->ShallowCopy( correlative->GetOutput( 0 ) );
-  this->TableView4->SetRepresentationFromInput( correlativeC );
+  VTK_CREATE(vtkTable, correlativeC);
+  correlativeC->ShallowCopy(correlative->GetOutput(0));
+  this->TableView4->SetRepresentationFromInput(correlativeC);
 
   // All views need to be updated
   this->TableView1->Update();

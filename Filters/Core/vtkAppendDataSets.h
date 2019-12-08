@@ -44,7 +44,7 @@ class vtkDataSetCollection;
 class VTKFILTERSCORE_EXPORT vtkAppendDataSets : public vtkPointSetAlgorithm
 {
 public:
-  static vtkAppendDataSets *New();
+  static vtkAppendDataSets* New();
   vtkTypeMacro(vtkAppendDataSets, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -109,9 +109,8 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkAppendDataSets();
@@ -120,10 +119,9 @@ protected:
   // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  virtual int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // If true we will attempt to merge points. Must also not have
   // ghost cells defined.
@@ -148,8 +146,7 @@ private:
 
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.
-  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
-
+  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector** inputVector);
 };
 
 #endif

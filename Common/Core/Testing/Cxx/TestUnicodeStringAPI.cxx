@@ -21,38 +21,40 @@
 
 #include <vtkUnicodeString.h>
 
-#include <iterator>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  }
 
 // Sample strings - nothing risque, I hope ...
 static const std::string sample_utf8_ascii = "abcde123";
-static const std::string sample_utf8_greek = "\xce\xb1\xce\xb2\xce\xb3"; // Greek lower-case alpha, beta, gamma.
-static const std::string sample_utf8_thai = "\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"; // Thai ko kai, kho khai, kho khuat.
-static const std::string sample_utf8_linear_b = "\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"; // Linear-B syllables a, e, i, o, u.
-static const std::string sample_utf8_mixed = "a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80"; // a, alpha, ko kai, syllable-a.
-static const vtkTypeUInt16 sample_utf16[] =
-{
-  0x0041,       // 'a'
-  0x0020,       // ' '
-  0xD800,       // high-half zone part
-  0xDC00,       // low-half zone part
-  0xD800,       // etc.
-  0xDC01,
-  0x0000
-};
-
+static const std::string sample_utf8_greek =
+  "\xce\xb1\xce\xb2\xce\xb3"; // Greek lower-case alpha, beta, gamma.
+static const std::string sample_utf8_thai =
+  "\xe0\xb8\x81\xe0\xb8\x82\xe0\xb8\x83"; // Thai ko kai, kho khai, kho khuat.
+static const std::string sample_utf8_linear_b =
+  "\xf0\x90\x80\x80\xf0\x90\x80\x81\xf0\x90\x80\x82\xf0\x90\x80\x83\xf0\x90\x80\x84"; // Linear-B
+                                                                                      // syllables
+                                                                                      // a, e, i, o,
+                                                                                      // u.
+static const std::string sample_utf8_mixed =
+  "a\xce\xb1\xe0\xb8\x81\xf0\x90\x80\x80";            // a, alpha, ko kai, syllable-a.
+static const vtkTypeUInt16 sample_utf16[] = { 0x0041, // 'a'
+  0x0020,                                             // ' '
+  0xD800,                                             // high-half zone part
+  0xDC00,                                             // low-half zone part
+  0xD800,                                             // etc.
+  0xDC01, 0x0000 };
 
 int TestUnicodeStringAPI(int, char*[])
 {
@@ -116,10 +118,9 @@ int TestUnicodeStringAPI(int, char*[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

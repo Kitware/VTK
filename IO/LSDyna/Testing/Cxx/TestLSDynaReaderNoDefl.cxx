@@ -17,34 +17,35 @@
 // Tests the vtkLSDynaReader when nodal deflections are part of the
 // simulation state but have not been saved (i.e., the IU flag is 0).
 
-#include "vtkLSDynaReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkLSDynaReader.h"
 
 #include "vtkActor.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkNew.h"
 
-int TestLSDynaReaderNoDefl( int argc, char *argv[] )
+int TestLSDynaReaderNoDefl(int argc, char* argv[])
 {
   // Read file name.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/LSDyna/bug_14713/bug_14713.d3plot");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/LSDyna/bug_14713/bug_14713.d3plot");
 
   // Create the reader.
   vtkNew<vtkLSDynaReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkCompositeDataGeometryFilter> geom1;
   geom1->SetInputConnection(0, reader->GetOutputPort(0));
@@ -67,15 +68,15 @@ int TestLSDynaReaderNoDefl( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

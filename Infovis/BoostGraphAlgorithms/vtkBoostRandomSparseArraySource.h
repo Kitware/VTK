@@ -25,16 +25,17 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkBoostRandomSparseArraySource_h
 #define vtkBoostRandomSparseArraySource_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkArrayExtents.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource : public vtkArrayDataAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource
+  : public vtkArrayDataAlgorithm
 {
 public:
   static vtkBoostRandomSparseArraySource* New();
@@ -97,10 +98,7 @@ protected:
   vtkBoostRandomSparseArraySource();
   ~vtkBoostRandomSparseArraySource();
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&) = delete;
@@ -114,7 +112,6 @@ private:
   vtkTypeUInt32 ElementValueSeed;
   double MinValue;
   double MaxValue;
-
 };
 
 #endif

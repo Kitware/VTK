@@ -13,41 +13,42 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkCellType.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
+#include "vtkPentagonalPrism.h"
 
+#include "vtkCellArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include <sstream>
-#include <vector>
-#include <string>
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism();
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();
 
-template<typename T> int TestCell(const VTKCellType cellType, vtkSmartPointer<T> cell);
+template <typename T>
+int TestCell(const VTKCellType cellType, vtkSmartPointer<T> cell);
 
 //----------------------------------------------------------------------------
 int TestPentagonalPrism(int, char*[])
 {
-  std::map<std::string,int> results;
+  std::map<std::string, int> results;
 
-  results["PentagonalPrism"] = TestCell<vtkPentagonalPrism>(VTK_PENTAGONAL_PRISM, MakePentagonalPrism());
-  results["HexagonalPrism"] = TestCell<vtkHexagonalPrism>(VTK_HEXAGONAL_PRISM, MakeHexagonalPrism());
+  results["PentagonalPrism"] =
+    TestCell<vtkPentagonalPrism>(VTK_PENTAGONAL_PRISM, MakePentagonalPrism());
+  results["HexagonalPrism"] =
+    TestCell<vtkHexagonalPrism>(VTK_HEXAGONAL_PRISM, MakeHexagonalPrism());
 
   int status = 0;
   std::cout << "----- Unit Test Summary -----" << std::endl;
-  std::map <std::string, int>::iterator it;
+  std::map<std::string, int>::iterator it;
   for (it = results.begin(); it != results.end(); ++it)
   {
-    std:: cout << std::setw(25)
-               << it->first << " "  << (it->second ? " FAILED" : " OK")
-               << std::endl;
+    std::cout << std::setw(25) << it->first << " " << (it->second ? " FAILED" : " OK") << std::endl;
     if (it->second != 0)
     {
       ++status;
@@ -62,19 +63,18 @@ int TestPentagonalPrism(int, char*[])
 
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism()
 {
-  vtkSmartPointer<vtkPentagonalPrism> aPentagonalPrism =
-    vtkSmartPointer<vtkPentagonalPrism>::New();
+  vtkSmartPointer<vtkPentagonalPrism> aPentagonalPrism = vtkSmartPointer<vtkPentagonalPrism>::New();
 
-  aPentagonalPrism->GetPointIds()->SetId(0,0);
-  aPentagonalPrism->GetPointIds()->SetId(1,1);
-  aPentagonalPrism->GetPointIds()->SetId(2,2);
-  aPentagonalPrism->GetPointIds()->SetId(3,3);
-  aPentagonalPrism->GetPointIds()->SetId(4,4);
-  aPentagonalPrism->GetPointIds()->SetId(5,5);
-  aPentagonalPrism->GetPointIds()->SetId(6,6);
-  aPentagonalPrism->GetPointIds()->SetId(7,7);
-  aPentagonalPrism->GetPointIds()->SetId(8,8);
-  aPentagonalPrism->GetPointIds()->SetId(9,9);
+  aPentagonalPrism->GetPointIds()->SetId(0, 0);
+  aPentagonalPrism->GetPointIds()->SetId(1, 1);
+  aPentagonalPrism->GetPointIds()->SetId(2, 2);
+  aPentagonalPrism->GetPointIds()->SetId(3, 3);
+  aPentagonalPrism->GetPointIds()->SetId(4, 4);
+  aPentagonalPrism->GetPointIds()->SetId(5, 5);
+  aPentagonalPrism->GetPointIds()->SetId(6, 6);
+  aPentagonalPrism->GetPointIds()->SetId(7, 7);
+  aPentagonalPrism->GetPointIds()->SetId(8, 8);
+  aPentagonalPrism->GetPointIds()->SetId(9, 9);
 
   aPentagonalPrism->GetPoints()->SetPoint(0, 11, 10, 10);
   aPentagonalPrism->GetPoints()->SetPoint(1, 13, 10, 10);
@@ -92,20 +92,19 @@ vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism()
 
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
 {
-  vtkSmartPointer<vtkHexagonalPrism> aHexagonalPrism =
-    vtkSmartPointer<vtkHexagonalPrism>::New();
-  aHexagonalPrism->GetPointIds()->SetId(0,0);
-  aHexagonalPrism->GetPointIds()->SetId(1,1);
-  aHexagonalPrism->GetPointIds()->SetId(2,2);
-  aHexagonalPrism->GetPointIds()->SetId(3,3);
-  aHexagonalPrism->GetPointIds()->SetId(4,4);
-  aHexagonalPrism->GetPointIds()->SetId(5,5);
-  aHexagonalPrism->GetPointIds()->SetId(6,6);
-  aHexagonalPrism->GetPointIds()->SetId(7,7);
-  aHexagonalPrism->GetPointIds()->SetId(8,8);
-  aHexagonalPrism->GetPointIds()->SetId(9,9);
-  aHexagonalPrism->GetPointIds()->SetId(10,10);
-  aHexagonalPrism->GetPointIds()->SetId(11,11);
+  vtkSmartPointer<vtkHexagonalPrism> aHexagonalPrism = vtkSmartPointer<vtkHexagonalPrism>::New();
+  aHexagonalPrism->GetPointIds()->SetId(0, 0);
+  aHexagonalPrism->GetPointIds()->SetId(1, 1);
+  aHexagonalPrism->GetPointIds()->SetId(2, 2);
+  aHexagonalPrism->GetPointIds()->SetId(3, 3);
+  aHexagonalPrism->GetPointIds()->SetId(4, 4);
+  aHexagonalPrism->GetPointIds()->SetId(5, 5);
+  aHexagonalPrism->GetPointIds()->SetId(6, 6);
+  aHexagonalPrism->GetPointIds()->SetId(7, 7);
+  aHexagonalPrism->GetPointIds()->SetId(8, 8);
+  aHexagonalPrism->GetPointIds()->SetId(9, 9);
+  aHexagonalPrism->GetPointIds()->SetId(10, 10);
+  aHexagonalPrism->GetPointIds()->SetId(11, 11);
 
   aHexagonalPrism->GetPoints()->SetPoint(0, 11, 10, 10);
   aHexagonalPrism->GetPoints()->SetPoint(1, 13, 10, 10);
@@ -123,8 +122,8 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
   return aHexagonalPrism;
 }
 
-template<typename T> int TestCell(const VTKCellType cellType,
-                                  vtkSmartPointer<T> aCell)
+template <typename T>
+int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
 {
   int status = 0;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;
@@ -137,9 +136,8 @@ template<typename T> int TestCell(const VTKCellType cellType,
   std::cout << "  Testing GetCellType...";
   if (cellType != aCell->GetCellType())
   {
-    std::cout << "Expected " << cellType
-              << " but got " << aCell->GetCellType()
-              << " FAILED" << std::endl;
+    std::cout << "Expected " << cellType << " but got " << aCell->GetCellType() << " FAILED"
+              << std::endl;
     ++status;
   }
   else
@@ -195,7 +193,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   std::cout << "...PASSED" << std::endl;
 
   std::cout << "  Testing GetParametricCoords...";
-  double *parametricCoords = aCell->GetParametricCoords();
+  double* parametricCoords = aCell->GetParametricCoords();
   if (aCell->IsPrimaryCell() && parametricCoords == nullptr)
   {
     ++status;
@@ -203,7 +201,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   }
   else
   {
-    double *pweights = new double[aCell->GetNumberOfPoints()];
+    double* pweights = new double[aCell->GetNumberOfPoints()];
     // The pcoords should correspond to the cell points
     for (int p = 0; p < aCell->GetNumberOfPoints(); ++p)
     {
@@ -212,33 +210,26 @@ template<typename T> int TestCell(const VTKCellType cellType,
       int subId = 0;
       double x[3];
       aCell->EvaluateLocation(subId, parametricCoords + 3 * p, x, pweights);
-      if (!vtkMathUtilities::FuzzyCompare(
-            x[0], vertex[0], 1.e-3) ||
-          !vtkMathUtilities::FuzzyCompare(
-            x[1], vertex[1], 1.e-3) ||
-          !vtkMathUtilities::FuzzyCompare(
-            x[2], vertex[2], 1.e-3))
+      if (!vtkMathUtilities::FuzzyCompare(x[0], vertex[0], 1.e-3) ||
+        !vtkMathUtilities::FuzzyCompare(x[1], vertex[1], 1.e-3) ||
+        !vtkMathUtilities::FuzzyCompare(x[2], vertex[2], 1.e-3))
       {
         std::cout << "EvaluateLocation failed...";
-        std::cout << "pcoords[" << p << "]: "
-                  << parametricCoords[3 * p] << " "
-                  << parametricCoords[3 * p  + 1] << " "
-                  << parametricCoords[3 * p + 2] << std::endl;
-        std::cout << "x[" << p << "]: "
-                  << x[0] << " " << x[1] << " " << x[2] << std::endl;
+        std::cout << "pcoords[" << p << "]: " << parametricCoords[3 * p] << " "
+                  << parametricCoords[3 * p + 1] << " " << parametricCoords[3 * p + 2] << std::endl;
+        std::cout << "x[" << p << "]: " << x[0] << " " << x[1] << " " << x[2] << std::endl;
         std::cout << "...FAILED" << std::endl;
         ++status;
       }
     }
-    delete [] pweights;
+    delete[] pweights;
     std::cout << "...PASSED" << std::endl;
   }
 
   std::cout << "  Testing GetBounds...";
   double bounds[6];
   aCell->GetBounds(bounds);
-  std::cout << bounds[0] << "," << bounds[1] << " "
-            << bounds[2] << "," << bounds[3] << " "
+  std::cout << bounds[0] << "," << bounds[1] << " " << bounds[2] << "," << bounds[3] << " "
             << bounds[4] << "," << bounds[5];
   std::cout << "...PASSED" << std::endl;
 
@@ -247,31 +238,25 @@ template<typename T> int TestCell(const VTKCellType cellType,
   pcenter[0] = pcenter[1] = pcenter[2] = -12345.0;
   aCell->GetParametricCenter(pcenter);
   std::cout << pcenter[0] << ", " << pcenter[1] << ", " << pcenter[2];
-  double *cweights = new double[aCell->GetNumberOfPoints()];
+  double* cweights = new double[aCell->GetNumberOfPoints()];
   int pSubId = 0;
   aCell->EvaluateLocation(pSubId, pcenter, center, cweights);
-  if (center[0] < bounds[0] || center[0] > bounds[1] ||
-      center[1] < bounds[2] || center[1] > bounds[3] ||
-      center[2] < bounds[4] || center[2] > bounds[5])
+  if (center[0] < bounds[0] || center[0] > bounds[1] || center[1] < bounds[2] ||
+    center[1] > bounds[3] || center[2] < bounds[4] || center[2] > bounds[5])
   {
     std::cout << "The computed center is not within the bounds of the cell" << std::endl;
-    std::cout << "bounds: "
-              << bounds[0] << "," << bounds[1] << " "
-              << bounds[2] << "," << bounds[3] << " "
-              << bounds[4] << "," << bounds[5]
-              << std::endl;
-    std::cout << "parametric center "
-              << pcenter[0] << ", " << pcenter[1] << ", " << pcenter[2] << " "
-              << "center: "
-              << center[0] << ", " << center[1] << ", " << center[2]
-              << std::endl;
+    std::cout << "bounds: " << bounds[0] << "," << bounds[1] << " " << bounds[2] << "," << bounds[3]
+              << " " << bounds[4] << "," << bounds[5] << std::endl;
+    std::cout << "parametric center " << pcenter[0] << ", " << pcenter[1] << ", " << pcenter[2]
+              << " "
+              << "center: " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
     std::cout << "...FAILED" << std::endl;
   }
   else
   {
     std::cout << "...PASSED" << std::endl;
   }
-  delete []cweights;
+  delete[] cweights;
 
   std::cout << "  Testing GetParametricDistance...";
   double pd = aCell->GetParametricDistance(pcenter);
@@ -286,8 +271,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   }
 
   std::cout << "  Testing CellBoundaries...";
-  vtkSmartPointer<vtkIdList> cellIds =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
   int cellStatus = aCell->CellBoundary(0, pcenter, cellIds);
   if (aCell->GetCellDimension() > 0 && cellStatus != 1)
   {
@@ -305,29 +289,26 @@ template<typename T> int TestCell(const VTKCellType cellType,
 
   std::cout << "  Testing Derivatives...";
   // Create scalars and set first scalar to 1.0
-  double *scalars = new double[aCell->GetNumberOfPoints()];
+  double* scalars = new double[aCell->GetNumberOfPoints()];
   *scalars = 1.0;
   for (int s = 1; s < aCell->GetNumberOfPoints(); ++s)
   {
     *(scalars + s) = 0.0;
   }
-  double *derivs = new double[3];
+  double* derivs = new double[3];
   *derivs = -12345.;
   aCell->Derivatives(0, pcenter, scalars, 1, derivs);
-  std::cout << " "
-            << derivs[0] << " "
-            << derivs[1] << " "
-            << derivs[2] << " ";
-  delete [] derivs;
-  delete [] scalars;
+  std::cout << " " << derivs[0] << " " << derivs[1] << " " << derivs[2] << " ";
+  delete[] derivs;
+  delete[] scalars;
   std::cout << "...PASSED" << std::endl;
 
   std::cout << "  Testing EvaluateLocation vertex matches pcoord...";
   int status5 = 0;
-  double *locations = aCell->GetParametricCoords();
+  double* locations = aCell->GetParametricCoords();
   if (locations)
   {
-    double *lweights = new double[aCell->GetNumberOfPoints()];
+    double* lweights = new double[aCell->GetNumberOfPoints()];
     for (int l = 0; l < aCell->GetNumberOfPoints(); ++l)
     {
       double point[3];
@@ -337,21 +318,19 @@ template<typename T> int TestCell(const VTKCellType cellType,
       aCell->EvaluateLocation(subId, locations + 3 * l, point, lweights);
       for (int v = 0; v < 3; ++v)
       {
-        if (!vtkMathUtilities::FuzzyCompare(
-              point[v], vertex[v],
-              1.e-3))
+        if (!vtkMathUtilities::FuzzyCompare(point[v], vertex[v], 1.e-3))
         {
-          std::cout << " " << point[0] << ", " << point[1] << ", " << point[2] << " != "
-                    << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << " " ;
-          std::cout << "eps ratio is: " << (point[v] - vertex[v])
-            / std::numeric_limits<double>::epsilon() << std::endl;
+          std::cout << " " << point[0] << ", " << point[1] << ", " << point[2]
+                    << " != " << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << " ";
+          std::cout << "eps ratio is: "
+                    << (point[v] - vertex[v]) / std::numeric_limits<double>::epsilon() << std::endl;
 
           ++status5;
           break;
         }
       }
     }
-    delete []lweights;
+    delete[] lweights;
   }
   if (status5)
   {
@@ -360,15 +339,15 @@ template<typename T> int TestCell(const VTKCellType cellType,
   }
   else
   {
-    std::cout << "...PASSED"<< std::endl;
+    std::cout << "...PASSED" << std::endl;
   }
 
   std::cout << "  Testing EvaluatePosition pcoord matches vertex...";
   // Each vertex should corrrespond to a pcoord.
   int subId = 0;
   int status6 = 0;
-  double *weights = new double[aCell->GetNumberOfPoints()];
-  double *vlocations = aCell->GetParametricCoords();
+  double* weights = new double[aCell->GetNumberOfPoints()];
+  double* vlocations = aCell->GetParametricCoords();
   for (int i = 0; i < aCell->GetNumberOfPoints(); ++i)
   {
     int status61 = 0;
@@ -377,12 +356,10 @@ template<typename T> int TestCell(const VTKCellType cellType,
     double pcoords[3];
     double dist2;
     aCell->GetPoints()->GetPoint(i, point);
-    aCell->EvaluatePosition( point, closestPoint, subId, pcoords, dist2, weights);
+    aCell->EvaluatePosition(point, closestPoint, subId, pcoords, dist2, weights);
     for (int v = 0; v < 3; ++v)
     {
-      if (!vtkMathUtilities::FuzzyCompare(
-            *(vlocations + 3 * i + v) ,pcoords[v],
-            1.e-3))
+      if (!vtkMathUtilities::FuzzyCompare(*(vlocations + 3 * i + v), pcoords[v], 1.e-3))
       {
         ++status61;
       }
@@ -390,13 +367,9 @@ template<typename T> int TestCell(const VTKCellType cellType,
     if (status61)
     {
       std::cout << std::endl
-                << *(vlocations + 3 * i + 0) << ", "
-                << *(vlocations + 3 * i + 1) << ", "
-                << *(vlocations + 3 * i + 2)
-                << " != "
-                << pcoords[0] << ", "
-                << pcoords[1] << ", "
-                << pcoords[2] << " " ;
+                << *(vlocations + 3 * i + 0) << ", " << *(vlocations + 3 * i + 1) << ", "
+                << *(vlocations + 3 * i + 2) << " != " << pcoords[0] << ", " << pcoords[1] << ", "
+                << pcoords[2] << " ";
       ++status6;
     }
   }
@@ -413,14 +386,14 @@ template<typename T> int TestCell(const VTKCellType cellType,
   std::cout << "  Testing EvaluatePosition in/out test...";
 
   int status2 = 0;
-  std::vector<double *> testPoints;
+  std::vector<double*> testPoints;
   std::vector<int> inOuts;
   std::vector<std::string> typePoint;
 
   // First test cell points
   for (int i = 0; i < aCell->GetNumberOfPoints(); ++i)
   {
-    double *point = new double[3];
+    double* point = new double[3];
     aCell->GetPoints()->GetPoint(i, point);
     testPoints.push_back(point);
     inOuts.push_back(1);
@@ -429,7 +402,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   // Then test center of cell
   if (aCell->GetNumberOfPoints() > 0)
   {
-    double *tCenter = new double[3];
+    double* tCenter = new double[3];
     aCell->EvaluateLocation(subId, pcenter, tCenter, weights);
     testPoints.push_back(tCenter);
     inOuts.push_back(1);
@@ -437,8 +410,9 @@ template<typename T> int TestCell(const VTKCellType cellType,
     // Test a point above the cell
     if (aCell->GetCellDimension() == 2)
     {
-      double *above = new double[3];
-      above[0] = tCenter[0]; above[1] = tCenter[1];
+      double* above = new double[3];
+      above[0] = tCenter[0];
+      above[1] = tCenter[1];
       above[2] = tCenter[2] + aCell->GetLength2();
       testPoints.push_back(above);
       inOuts.push_back(0);
@@ -449,8 +423,8 @@ template<typename T> int TestCell(const VTKCellType cellType,
   // Test points at the center of each edge
   for (int e = 0; e < aCell->GetNumberOfEdges(); ++e)
   {
-    double *eCenter = new double[3];
-    vtkCell *c = aCell->GetEdge(e);
+    double* eCenter = new double[3];
+    vtkCell* c = aCell->GetEdge(e);
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, eCenter, weights);
     testPoints.push_back(eCenter);
@@ -461,8 +435,8 @@ template<typename T> int TestCell(const VTKCellType cellType,
   // Test points at the center of each face
   for (int f = 0; f < aCell->GetNumberOfFaces(); ++f)
   {
-    double *fCenter = new double[3];
-    vtkCell *c = aCell->GetFace(f);
+    double* fCenter = new double[3];
+    vtkCell* c = aCell->GetFace(f);
     c->GetParametricCenter(pcenter);
     c->EvaluateLocation(subId, pcenter, fCenter, weights);
     testPoints.push_back(fCenter);
@@ -473,7 +447,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   // Test a point outside the cell
   if (aCell->GetNumberOfPoints() > 0)
   {
-    double *outside = new double[3];
+    double* outside = new double[3];
     outside[0] = outside[1] = outside[2] = -12345.0;
     testPoints.push_back(outside);
     inOuts.push_back(0);
@@ -482,27 +456,30 @@ template<typename T> int TestCell(const VTKCellType cellType,
   for (size_t p = 0; p < testPoints.size(); ++p)
   {
     double closestPoint[3], pcoords[3], dist2;
-    int inOut = aCell->EvaluatePosition( testPoints[p], closestPoint, subId, pcoords, dist2, weights);
+    int inOut =
+      aCell->EvaluatePosition(testPoints[p], closestPoint, subId, pcoords, dist2, weights);
     if ((inOut == 0 || inOut == -1) && inOuts[p] == 0)
     {
-      delete []testPoints[p];
+      delete[] testPoints[p];
       continue;
     }
     else if (inOut == 1 && dist2 == 0.0 && inOuts[p] == 1)
     {
-      delete []testPoints[p];
+      delete[] testPoints[p];
       continue;
     }
     else if (inOut == 1 && dist2 != 0.0 && inOuts[p] == 0)
     {
-      delete []testPoints[p];
+      delete[] testPoints[p];
       continue;
     }
     // inOut failed
     std::cout << typePoint[p] << " failed inOut: " << inOut << " "
-              << "point: " <<testPoints[p][0] << ", " << testPoints[p][1] << ", " << testPoints[p][2] << "-> "
+              << "point: " << testPoints[p][0] << ", " << testPoints[p][1] << ", "
+              << testPoints[p][2] << "-> "
               << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << ": "
-              << "closestPoint: " << closestPoint[0] << ", " << closestPoint[1] << ", " << closestPoint[2] << " "
+              << "closestPoint: " << closestPoint[0] << ", " << closestPoint[1] << ", "
+              << closestPoint[2] << " "
               << "dist2: " << dist2;
     std::cout << " weights: ";
     for (int w = 0; w < aCell->GetNumberOfPoints(); ++w)
@@ -510,7 +487,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
       std::cout << weights[w] << " ";
     }
     std::cout << std::endl;
-    delete []testPoints[p];
+    delete[] testPoints[p];
     status2 += 1;
   }
   if (status2)
@@ -523,8 +500,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
     std::cout << "PASSED" << std::endl;
   }
 
-  if (aCell->GetNumberOfPoints() > 0 &&
-      aCell->GetCellDimension() > 1)
+  if (aCell->GetNumberOfPoints() > 0 && aCell->GetCellDimension() > 1)
   {
     std::cout << "  Testing IntersectWithLine...";
     double tol = 1.e-5;
@@ -540,13 +516,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
     startPoint[2] = startPoint[2] - aCell->GetLength2();
     int status3 = 0;
     int result =
-      aCell->IntersectWithLine(
-        startPoint, endPoint,
-        tol,
-        t,
-        intersection,
-        pintersection,
-        subId);
+      aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
     if (result == 0)
     {
       ++status3;
@@ -557,13 +527,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
     }
     startPoint[2] = endPoint[2] + aCell->GetLength2();
     result =
-      aCell->IntersectWithLine(
-        startPoint, endPoint,
-        tol,
-        t,
-        intersection,
-        pintersection,
-        subId);
+      aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
     if (result == 1)
     {
       ++status3;
@@ -583,11 +547,9 @@ template<typename T> int TestCell(const VTKCellType cellType,
   // Triangulate
   std::cout << "  Testing Triangulate...";
   int index = 0;
-  vtkSmartPointer<vtkIdList> ptIds =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->SetNumberOfIds(100);
-  vtkSmartPointer<vtkPoints> triPoints =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> triPoints = vtkSmartPointer<vtkPoints>::New();
   aCell->Triangulate(index, ptIds, triPoints);
   int pts = ptIds->GetNumberOfIds();
   if (aCell->GetCellDimension() == 0)
@@ -616,6 +578,6 @@ template<typename T> int TestCell(const VTKCellType cellType,
   {
     std::cout << aCell->GetClassName() << " PASSED" << std::endl;
   }
-  delete []weights;
+  delete[] weights;
   return status;
 }

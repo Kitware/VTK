@@ -56,8 +56,7 @@ public:
   /**
    * Get the maximum supported texture width for the target OpenGL environment.
    */
-  int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin,
-                                      int idealWidth);
+  int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin, int idealWidth);
 
   /**
    * Release graphics resources
@@ -67,13 +66,18 @@ public:
   /**
    * Update the internal texture object using the transfer function provided.
    */
-  virtual void Update(vtkObject* func,
-                      double scalarRange[2],
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin);
+  virtual void Update(vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance,
+    double unitDistance, int filterValue, vtkOpenGLRenderWindow* renWin);
+
+  /**
+   * Get access to the texture height used by this object
+   */
+  vtkGetMacro(TextureHeight, int);
+
+  /**
+   * Get access to the texture width used by this object
+   */
+  vtkGetMacro(TextureWidth, int);
 
 protected:
   vtkOpenGLVolumeLookupTable() = default;
@@ -91,27 +95,20 @@ protected:
   /**
    * Test whether the internal function needs to be updated.
    */
-  virtual bool NeedsUpdate(vtkObject* func,
-                           double scalarRange[2],
-                           int blendMode,
-                           double sampleDistance);
+  virtual bool NeedsUpdate(
+    vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance);
 
   /**
    * Internal method to actually update the texture object
    */
-  virtual void InternalUpdate(vtkObject* func,
-                              int blendMode,
-                              double sampleDistance,
-                              double unitDistance,
-                              int filterValue);
+  virtual void InternalUpdate(
+    vtkObject* func, int blendMode, double sampleDistance, double unitDistance, int filterValue);
 
   /**
    * Compute ideal width and height for the texture based on function provided
    */
-  virtual void ComputeIdealTextureSize(vtkObject* func,
-                                       int& width,
-                                       int& height,
-                                       vtkOpenGLRenderWindow* renWin);
+  virtual void ComputeIdealTextureSize(
+    vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin);
 
   /**
    * Allocate internal data table

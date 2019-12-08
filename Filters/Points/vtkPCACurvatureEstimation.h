@@ -46,7 +46,7 @@
  *
  * @sa
  * vtkPCANormalEstimation
-*/
+ */
 
 #ifndef vtkPCACurvatureEstimation_h
 #define vtkPCACurvatureEstimation_h
@@ -56,7 +56,6 @@
 
 class vtkAbstractPointLocator;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkPCACurvatureEstimation : public vtkPolyDataAlgorithm
 {
 public:
@@ -65,8 +64,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkPCACurvatureEstimation *New();
-  vtkTypeMacro(vtkPCACurvatureEstimation,vtkPolyDataAlgorithm);
+  static vtkPCACurvatureEstimation* New();
+  vtkTypeMacro(vtkPCACurvatureEstimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -77,8 +76,8 @@ public:
    * default 25 points are used. Smaller numbers may speed performance at the
    * cost of accuracy.
    */
-  vtkSetClampMacro(SampleSize,int,1,VTK_INT_MAX);
-  vtkGetMacro(SampleSize,int);
+  vtkSetClampMacro(SampleSize, int, 1, VTK_INT_MAX);
+  vtkGetMacro(SampleSize, int);
   //@}
 
   //@{
@@ -87,8 +86,8 @@ public:
    * used. The locator performs efficient searches to locate points
    * around a sample point.
    */
-  void SetLocator(vtkAbstractPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
+  void SetLocator(vtkAbstractPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
   //@}
 
 protected:
@@ -97,16 +96,14 @@ protected:
 
   // IVars
   int SampleSize;
-  vtkAbstractPointLocator *Locator;
+  vtkAbstractPointLocator* Locator;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPCACurvatureEstimation(const vtkPCACurvatureEstimation&) = delete;
   void operator=(const vtkPCACurvatureEstimation&) = delete;
-
 };
 
 #endif

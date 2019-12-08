@@ -29,13 +29,14 @@
 vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid() :
-  Points(nullptr),
-  Cells(nullptr),
-  Dimension(0),
-  Orientation(0),
-  Axes(nullptr)
-{}
+vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
+  : Points(nullptr)
+  , Cells(nullptr)
+  , Dimension(0)
+  , Orientation(0)
+  , Axes(nullptr)
+{
+}
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()

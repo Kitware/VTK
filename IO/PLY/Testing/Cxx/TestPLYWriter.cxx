@@ -20,18 +20,18 @@
 
 #include "vtkFloatArray.h"
 #include "vtkPLYReader.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 
 #include <cmath>
 #include <limits>
 
-int TestPLYWriter(int argc, char *argv[])
+int TestPLYWriter(int argc, char* argv[])
 {
   // Test temporary directory
-  char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-     "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
     std::cout << "Could not determine temporary directory.\n";
@@ -43,7 +43,8 @@ int TestPLYWriter(int argc, char *argv[])
   std::string outputfile = testDirectory + std::string("/") + std::string("tmp.ply");
 
   // Read file name.
-  const char* inputfile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/squareTextured.ply");
+  const char* inputfile =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/squareTextured.ply");
 
   // Test if the reader thinks it can open the input file.
   if (0 == vtkPLYReader::CanReadFile(inputfile))
@@ -56,7 +57,7 @@ int TestPLYWriter(int argc, char *argv[])
   vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
   reader->SetFileName(inputfile);
   reader->Update();
-  delete [] inputfile;
+  delete[] inputfile;
 
   // Data to compare.
   vtkSmartPointer<vtkPolyData> data = vtkSmartPointer<vtkPolyData>::New();
@@ -80,7 +81,7 @@ int TestPLYWriter(int argc, char *argv[])
   reader->SetFileName(outputfile.c_str());
   reader->Update();
 
-  vtkPolyData *newData = reader->GetOutput();
+  vtkPolyData* newData = reader->GetOutput();
 
   const vtkIdType nbrPoints = newData->GetNumberOfPoints();
   if (nbrPoints != data->GetNumberOfPoints())
@@ -89,30 +90,30 @@ int TestPLYWriter(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  vtkDataArray *tCoords = newData->GetPointData()->GetTCoords();
+  vtkDataArray* tCoords = newData->GetPointData()->GetTCoords();
   if (!tCoords || !data->GetPointData()->GetTCoords())
   {
     std::cout << "Texture coordinates are not present." << std::endl;
     return EXIT_FAILURE;
   }
 
-  const vtkIdType nbrCoords = tCoords->GetNumberOfTuples()*tCoords->GetNumberOfComponents();
+  const vtkIdType nbrCoords = tCoords->GetNumberOfTuples() * tCoords->GetNumberOfComponents();
   if (nbrCoords != (2 * nbrPoints))
   {
     std::cout << "Number of texture coordinates is not coherent." << std::endl;
     return EXIT_FAILURE;
   }
 
-  vtkFloatArray * inputArray = vtkArrayDownCast<vtkFloatArray>(data->GetPointData()->GetTCoords());
-  vtkFloatArray * outputArray = vtkArrayDownCast<vtkFloatArray>(tCoords);
+  vtkFloatArray* inputArray = vtkArrayDownCast<vtkFloatArray>(data->GetPointData()->GetTCoords());
+  vtkFloatArray* outputArray = vtkArrayDownCast<vtkFloatArray>(tCoords);
   if (!inputArray || !outputArray)
   {
     std::cout << "Texture coordinates are not of float type." << std::endl;
     return EXIT_FAILURE;
   }
 
-  float *input = inputArray->GetPointer(0);
-  float *output = outputArray->GetPointer(0);
+  float* input = inputArray->GetPointer(0);
+  float* output = outputArray->GetPointer(0);
   for (vtkIdType id = 0; id < nbrCoords; ++id)
   {
     if (std::abs(*input++ - *output++) > std::numeric_limits<float>::epsilon())

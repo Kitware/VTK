@@ -38,15 +38,15 @@
  *
  * Note that this class is abstract -- link to the vtkRenderingFreetype module
  * to get the default implementation.
-*/
+ */
 
 #ifndef vtkTextRenderer_h
 #define vtkTextRenderer_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTuple.h"  // For metrics struct
-#include "vtkVector.h" // For metrics struct
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkTuple.h"               // For metrics struct
+#include "vtkVector.h"              // For metrics struct
 
 class vtkImageData;
 class vtkPath;
@@ -54,7 +54,8 @@ class vtkStdString;
 class vtkUnicodeString;
 class vtkTextProperty;
 
-namespace vtksys {
+namespace vtksys
+{
 class RegularExpression;
 }
 
@@ -69,7 +70,7 @@ private:
   vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs) = delete;
 };
 
-class VTKRENDERINGCORE_EXPORT vtkTextRenderer: public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkTextRenderer : public vtkObject
 {
 public:
   struct Metrics
@@ -78,9 +79,13 @@ public:
      * Construct a Metrics object with all members initialized to 0.
      */
     Metrics()
-      : BoundingBox(0),
-        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0),
-        Ascent(0), Descent(0)
+      : BoundingBox(0)
+      , TopLeft(0)
+      , TopRight(0)
+      , BottomLeft(0)
+      , BottomRight(0)
+      , Ascent(0)
+      , Descent(0)
     {
     }
 
@@ -113,8 +118,8 @@ public:
     /**@}*/
   };
 
-  vtkTypeMacro(vtkTextRenderer, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkTextRenderer, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is a singleton pattern New. There will be only ONE reference
@@ -125,7 +130,7 @@ public:
    * anyway to get the singleton. This method may return NULL if the object
    * factory cannot find an override.
    */
-  static vtkTextRenderer *New();
+  static vtkTextRenderer* New();
 
   /**
    * Return the singleton instance with no reference counting. May return NULL
@@ -152,16 +157,16 @@ public:
   /**
    * The backend to use when none is specified. Default: Detect
    */
-  vtkSetMacro(DefaultBackend, int)
-  vtkGetMacro(DefaultBackend, int)
+  vtkSetMacro(DefaultBackend, int);
+  vtkGetMacro(DefaultBackend, int);
   //@}
 
   //@{
   /**
    * Determine the appropriate back end needed to render the given string.
    */
-  virtual int DetectBackend(const vtkStdString &str);
-  virtual int DetectBackend(const vtkUnicodeString &str);
+  virtual int DetectBackend(const vtkStdString& str);
+  virtual int DetectBackend(const vtkUnicodeString& str);
   //@}
 
   /**
@@ -178,18 +183,17 @@ public:
    * justification text property variables.
    * Return true on success, false otherwise.
    */
-  bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString &str,
-                      int bbox[4], int dpi, int backend = Default)
+  bool GetBoundingBox(
+    vtkTextProperty* tprop, const vtkStdString& str, int bbox[4], int dpi, int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
-  bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                      int bbox[4], int dpi, int backend = Default)
+  bool GetBoundingBox(vtkTextProperty* tprop, const vtkUnicodeString& str, int bbox[4], int dpi,
+    int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
   //@}
-
 
   //@{
   /**
@@ -197,13 +201,13 @@ public:
    * string.
    * Return true on success, false otherwise.
    */
-  bool GetMetrics(vtkTextProperty *tprop, const vtkStdString &str,
-                  Metrics &metrics, int dpi, int backend = Default)
+  bool GetMetrics(vtkTextProperty* tprop, const vtkStdString& str, Metrics& metrics, int dpi,
+    int backend = Default)
   {
     return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
-  bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                  Metrics &metrics, int dpi, int backend = Default)
+  bool GetMetrics(vtkTextProperty* tprop, const vtkUnicodeString& str, Metrics& metrics, int dpi,
+    int backend = Default)
   {
     return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
@@ -224,15 +228,13 @@ public:
    * described by the text property's vertical and horizontal justification
    * options.
    */
-  bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkImageData *data, int textDims[2], int dpi,
-                    int backend = Default)
+  bool RenderString(vtkTextProperty* tprop, const vtkStdString& str, vtkImageData* data,
+    int textDims[2], int dpi, int backend = Default)
   {
     return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
   }
-  bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                    vtkImageData *data, int textDims[2], int dpi,
-                    int backend = Default)
+  bool RenderString(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkImageData* data,
+    int textDims[2], int dpi, int backend = Default)
   {
     return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
   }
@@ -245,19 +247,17 @@ public:
    * computed font size will be set in @a tprop as well. If an error occurs,
    * this function will return -1.
    */
-  int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight, int dpi,
-                             int backend = Default)
+  int GetConstrainedFontSize(const vtkStdString& str, vtkTextProperty* tprop, int targetWidth,
+    int targetHeight, int dpi, int backend = Default)
   {
-    return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
-                                                targetHeight, dpi, backend);
+    return this->GetConstrainedFontSizeInternal(
+      str, tprop, targetWidth, targetHeight, dpi, backend);
   }
-  int GetConstrainedFontSize(const vtkUnicodeString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight, int dpi,
-                             int backend = Default)
+  int GetConstrainedFontSize(const vtkUnicodeString& str, vtkTextProperty* tprop, int targetWidth,
+    int targetHeight, int dpi, int backend = Default)
   {
-    return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
-                                                targetHeight, dpi, backend);
+    return this->GetConstrainedFontSizeInternal(
+      str, tprop, targetWidth, targetHeight, dpi, backend);
   }
   //@}
 
@@ -269,13 +269,13 @@ public:
    * property's horizontal and vertical justification options.
    * Return true on success, false otherwise.
    */
-  bool StringToPath(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkPath *path, int dpi, int backend = Default)
+  bool StringToPath(
+    vtkTextProperty* tprop, const vtkStdString& str, vtkPath* path, int dpi, int backend = Default)
   {
     return this->StringToPathInternal(tprop, str, path, dpi, backend);
   }
-  bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                    vtkPath *path, int dpi, int backend = Default)
+  bool StringToPath(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path, int dpi,
+    int backend = Default)
   {
     return this->StringToPathInternal(tprop, str, path, dpi, backend);
   }
@@ -287,10 +287,7 @@ public:
    * appropriately by vtkOpenGLRenderWindow::OpenGLInitContext when GL is
    * inited.
    */
-  void SetScaleToPowerOfTwo(bool scale)
-  {
-    this->SetScaleToPowerOfTwoInternal(scale);
-  }
+  void SetScaleToPowerOfTwo(bool scale) { this->SetScaleToPowerOfTwoInternal(scale); }
 
   friend class vtkTextRendererCleanup;
 
@@ -302,40 +299,26 @@ protected:
   /**
    * Virtual methods for concrete implementations of the public methods.
    */
-  virtual bool GetBoundingBoxInternal(vtkTextProperty *tprop,
-                                      const vtkStdString &str,
-                                      int bbox[4], int dpi, int backend) = 0;
-  virtual bool GetBoundingBoxInternal(vtkTextProperty *tprop,
-                                      const vtkUnicodeString &str,
-                                      int bbox[4], int dpi, int backend) = 0;
-  virtual bool GetMetricsInternal(vtkTextProperty *tprop,
-                                  const vtkStdString &str,
-                                  Metrics &metrics, int dpi, int backend) = 0;
-  virtual bool GetMetricsInternal(vtkTextProperty *tprop,
-                                  const vtkUnicodeString &str,
-                                  Metrics &metrics, int dpi, int backend) = 0;
-  virtual bool RenderStringInternal(vtkTextProperty *tprop,
-                                    const vtkStdString &str,
-                                    vtkImageData *data, int textDims[2],
-                                    int dpi, int backend) = 0;
-  virtual bool RenderStringInternal(vtkTextProperty *tprop,
-                                    const vtkUnicodeString &str,
-                                    vtkImageData *data, int textDims[2],
-                                    int dpi, int backend) = 0;
-  virtual int GetConstrainedFontSizeInternal(const vtkStdString &str,
-                                             vtkTextProperty *tprop,
-                                             int targetWidth, int targetHeight,
-                                             int dpi, int backend) = 0;
-  virtual int GetConstrainedFontSizeInternal(const vtkUnicodeString &str,
-                                             vtkTextProperty *tprop,
-                                             int targetWidth, int targetHeight,
-                                             int dpi, int backend) = 0;
-  virtual bool StringToPathInternal(vtkTextProperty *tprop,
-                                    const vtkStdString &str, vtkPath *path,
-                                    int dpi, int backend) = 0;
-  virtual bool StringToPathInternal(vtkTextProperty *tprop,
-                                    const vtkUnicodeString &str, vtkPath *path,
-                                    int dpi, int backend) = 0;
+  virtual bool GetBoundingBoxInternal(
+    vtkTextProperty* tprop, const vtkStdString& str, int bbox[4], int dpi, int backend) = 0;
+  virtual bool GetBoundingBoxInternal(
+    vtkTextProperty* tprop, const vtkUnicodeString& str, int bbox[4], int dpi, int backend) = 0;
+  virtual bool GetMetricsInternal(
+    vtkTextProperty* tprop, const vtkStdString& str, Metrics& metrics, int dpi, int backend) = 0;
+  virtual bool GetMetricsInternal(vtkTextProperty* tprop, const vtkUnicodeString& str,
+    Metrics& metrics, int dpi, int backend) = 0;
+  virtual bool RenderStringInternal(vtkTextProperty* tprop, const vtkStdString& str,
+    vtkImageData* data, int textDims[2], int dpi, int backend) = 0;
+  virtual bool RenderStringInternal(vtkTextProperty* tprop, const vtkUnicodeString& str,
+    vtkImageData* data, int textDims[2], int dpi, int backend) = 0;
+  virtual int GetConstrainedFontSizeInternal(const vtkStdString& str, vtkTextProperty* tprop,
+    int targetWidth, int targetHeight, int dpi, int backend) = 0;
+  virtual int GetConstrainedFontSizeInternal(const vtkUnicodeString& str, vtkTextProperty* tprop,
+    int targetWidth, int targetHeight, int dpi, int backend) = 0;
+  virtual bool StringToPathInternal(
+    vtkTextProperty* tprop, const vtkStdString& str, vtkPath* path, int dpi, int backend) = 0;
+  virtual bool StringToPathInternal(
+    vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path, int dpi, int backend) = 0;
   virtual void SetScaleToPowerOfTwoInternal(bool scale) = 0;
   //@}
 
@@ -343,25 +326,25 @@ protected:
    * Set the singleton instance. Call Delete() on the supplied
    * instance after setting it to fix the reference count.
    */
-  static void SetInstance(vtkTextRenderer *instance);
+  static void SetInstance(vtkTextRenderer* instance);
 
   //@{
   /**
    * The singleton instance and the singleton cleanup instance.
    */
-  static vtkTextRenderer *Instance;
+  static vtkTextRenderer* Instance;
   static vtkTextRendererCleanup Cleanup;
   //@}
 
-  vtksys::RegularExpression *MathTextRegExp;
-  vtksys::RegularExpression *MathTextRegExp2;
+  vtksys::RegularExpression* MathTextRegExp;
+  vtksys::RegularExpression* MathTextRegExp2;
 
   //@{
   /**
    * Replace all instances of "\$" with "$".
    */
-  virtual void CleanUpFreeTypeEscapes(vtkStdString &str);
-  virtual void CleanUpFreeTypeEscapes(vtkUnicodeString &str);
+  virtual void CleanUpFreeTypeEscapes(vtkStdString& str);
+  virtual void CleanUpFreeTypeEscapes(vtkUnicodeString& str);
   //@}
 
   /**
@@ -370,8 +353,8 @@ protected:
   int DefaultBackend;
 
 private:
-  vtkTextRenderer(const vtkTextRenderer &) = delete;
-  void operator=(const vtkTextRenderer &) = delete;
+  vtkTextRenderer(const vtkTextRenderer&) = delete;
+  void operator=(const vtkTextRenderer&) = delete;
 };
 
-#endif //vtkTextRenderer_h
+#endif // vtkTextRenderer_h

@@ -53,7 +53,7 @@ vtkImageContinuousDilate3D::~vtkImageContinuousDilate3D()
 //----------------------------------------------------------------------------
 void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -85,23 +85,18 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
   if (modified)
   {
     this->Modified();
-    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1,
-                                  0, this->KernelSize[1]-1,
-                                  0, this->KernelSize[2]-1);
-    this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0]-1)*0.5,
-                             static_cast<float>(this->KernelSize[1]-1)*0.5,
-                             static_cast<float>(this->KernelSize[2]-1)*0.5);
-    this->Ellipse->SetRadius(static_cast<float>(this->KernelSize[0])*0.5,
-                             static_cast<float>(this->KernelSize[1])*0.5,
-                             static_cast<float>(this->KernelSize[2])*0.5);
+    this->Ellipse->SetWholeExtent(
+      0, this->KernelSize[0] - 1, 0, this->KernelSize[1] - 1, 0, this->KernelSize[2] - 1);
+    this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0] - 1) * 0.5,
+      static_cast<float>(this->KernelSize[1] - 1) * 0.5,
+      static_cast<float>(this->KernelSize[2] - 1) * 0.5);
+    this->Ellipse->SetRadius(static_cast<float>(this->KernelSize[0]) * 0.5,
+      static_cast<float>(this->KernelSize[1]) * 0.5, static_cast<float>(this->KernelSize[2]) * 0.5);
 
     // make sure scalars have been allocated (needed if multithreaded is used)
-    vtkInformation *ellipseOutInfo =
-      this->Ellipse->GetExecutive()->GetOutputInformation(0);
-    ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                        0, this->KernelSize[0]-1,
-                        0, this->KernelSize[1]-1,
-                        0, this->KernelSize[2]-1);
+    vtkInformation* ellipseOutInfo = this->Ellipse->GetExecutive()->GetOutputInformation(0);
+    ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 0,
+      this->KernelSize[0] - 1, 0, this->KernelSize[1] - 1, 0, this->KernelSize[2] - 1);
     this->Ellipse->Update();
   }
 }
@@ -112,13 +107,9 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
 // If the filter needs to be faster, the function could be duplicated
 // for strictly center (no boundary ) processing.
 template <class T>
-void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
-                                       vtkImageData *mask,
-                                       vtkImageData *inData, T *inPtr,
-                                       vtkImageData *outData,
-                                       int *outExt, T *outPtr, int id,
-                                       vtkDataArray *inArray,
-                                       vtkInformation *inInfo)
+void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D* self, vtkImageData* mask,
+  vtkImageData* inData, T* inPtr, vtkImageData* outData, int* outExt, T* outPtr, int id,
+  vtkDataArray* inArray, vtkInformation* inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -144,7 +135,7 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
   T pixelMax;
   unsigned long count = 0;
   unsigned long target;
-  int *inExt;
+  int* inExt;
 
   inExt = inData->GetExtent();
 
@@ -158,32 +149,34 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
   inImageMin2 = inImageExt[4];
   inImageMax2 = inImageExt[5];
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  outMin0 = outExt[0];   outMax0 = outExt[1];
-  outMin1 = outExt[2];   outMax1 = outExt[3];
-  outMin2 = outExt[4];   outMax2 = outExt[5];
+  outMin0 = outExt[0];
+  outMax0 = outExt[1];
+  outMin1 = outExt[2];
+  outMax1 = outExt[3];
+  outMin2 = outExt[4];
+  outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
 
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();
   kernelMiddle = self->GetKernelMiddle();
-  hoodMin0 = - kernelMiddle[0];
-  hoodMin1 = - kernelMiddle[1];
-  hoodMin2 = - kernelMiddle[2];
+  hoodMin0 = -kernelMiddle[0];
+  hoodMin1 = -kernelMiddle[1];
+  hoodMin2 = -kernelMiddle[2];
   hoodMax0 = hoodMin0 + kernelSize[0] - 1;
   hoodMax1 = hoodMin1 + kernelSize[1] - 1;
   hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
+  maskPtr = static_cast<unsigned char*>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
 
   // in and out should be marching through corresponding pixels.
-  inPtr = static_cast<T *>(inArray->GetVoidPointer((outMin0-inExt[0])*inInc0 +
-                                                   (outMin1-inExt[2])*inInc1 +
-                                                   (outMin2-inExt[4])*inInc2));
+  inPtr = static_cast<T*>(inArray->GetVoidPointer(
+    (outMin0 - inExt[0]) * inInc0 + (outMin1 - inExt[2]) * inInc1 + (outMin2 - inExt[4]) * inInc2));
 
-  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
-                                      (outMax1-outMin1+1)/50.0);
+  target =
+    static_cast<unsigned long>(numComps * (outMax2 - outMin2 + 1) * (outMax1 - outMin1 + 1) / 50.0);
   target++;
 
   // loop through components
@@ -196,14 +189,13 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
     {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1;
-           !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
+      for (outIdx1 = outMin1; !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
       {
         if (!id)
         {
-          if (!(count%target))
+          if (!(count % target))
           {
-            self->UpdateProgress(count/(50.0*target));
+            self->UpdateProgress(count / (50.0 * target));
           }
           count++;
         }
@@ -216,8 +208,8 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
           // loop through neighborhood pixels
           // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0
-            - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
+          hoodPtr2 =
+            inPtr0 - kernelMiddle[0] * inInc0 - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
           maskPtr2 = maskPtr;
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
           {
@@ -230,12 +222,9 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
               for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
               {
                 // A quick but rather expensive way to handle boundaries
-                if ( outIdx0 + hoodIdx0 >= inImageMin0 &&
-                     outIdx0 + hoodIdx0 <= inImageMax0 &&
-                     outIdx1 + hoodIdx1 >= inImageMin1 &&
-                     outIdx1 + hoodIdx1 <= inImageMax1 &&
-                     outIdx2 + hoodIdx2 >= inImageMin2 &&
-                     outIdx2 + hoodIdx2 <= inImageMax2)
+                if (outIdx0 + hoodIdx0 >= inImageMin0 && outIdx0 + hoodIdx0 <= inImageMax0 &&
+                  outIdx1 + hoodIdx1 >= inImageMin1 && outIdx1 + hoodIdx1 <= inImageMax1 &&
+                  outIdx2 + hoodIdx2 >= inImageMin2 && outIdx2 + hoodIdx2 <= inImageMax2)
                 {
                   if (*maskPtr0)
                   {
@@ -275,32 +264,26 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.
-void vtkImageContinuousDilate3D::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageContinuousDilate3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   // return if nothing to do
-  if (outExt[1] < outExt[0] ||
-      outExt[3] < outExt[2] ||
-      outExt[5] < outExt[4])
+  if (outExt[1] < outExt[0] || outExt[3] < outExt[2] || outExt[5] < outExt[4])
   {
     return;
   }
 
   int inExt[6], wholeExt[6];
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
-  this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
-  void *inPtr;
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  vtkImageData *mask;
+  this->InternalRequestUpdateExtent(inExt, outExt, wholeExt);
+  void* inPtr;
+  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  vtkImageData* mask;
 
-  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
+  vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
   // Reset later.
   inPtr = inArray->GetVoidPointer(0);
 
@@ -316,20 +299,16 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
   if (outData[0]->GetScalarType() != inArray->GetDataType())
   {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
-      << " must match input array data type");
+                  << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
+                  << " must match input array data type");
     return;
   }
 
   switch (inArray->GetDataType())
   {
     vtkTemplateMacro(
-      vtkImageContinuousDilate3DExecute(this,
-                                        mask, inData[0][0],
-                                        static_cast<VTK_TT *>(inPtr),
-                                        outData[0], outExt,
-                                        static_cast<VTK_TT *>(outPtr), id,
-                                        inArray, inInfo) );
+      vtkImageContinuousDilate3DExecute(this, mask, inData[0][0], static_cast<VTK_TT*>(inPtr),
+        outData[0], outExt, static_cast<VTK_TT*>(outPtr), id, inArray, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -338,9 +317,7 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
 
 //----------------------------------------------------------------------------
 int vtkImageContinuousDilate3D::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Ellipse->Update();
   return this->Superclass::RequestData(request, inputVector, outputVector);

@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkImplicitFunctionToImageStencil.h"
 
+#include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkImplicitFunction.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -25,8 +25,7 @@
 #include <cmath>
 
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
-vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil, Input,
-                     vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil, Input, vtkImplicitFunction);
 
 //----------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
@@ -44,10 +43,9 @@ vtkImplicitFunctionToImageStencil::~vtkImplicitFunctionToImageStencil()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
-                                                  vtkIndent indent)
+void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";
@@ -58,10 +56,10 @@ vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if ( this->Input != nullptr )
+  if (this->Input != nullptr)
   {
     vtkMTimeType nTime = this->Input->GetMTime();
-    mTime = ( nTime > mTime ? nTime : mTime );
+    mTime = (nTime > mTime ? nTime : mTime);
   }
 
   return mTime;
@@ -71,18 +69,16 @@ vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
 int vtkImplicitFunctionToImageStencil::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestData(request, inputVector, outputVector);
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImplicitFunction *function = this->Input;
-  double *spacing = data->GetSpacing();
-  double *origin = data->GetOrigin();
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageStencilData* data =
+    vtkImageStencilData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImplicitFunction* function = this->Input;
+  double* spacing = data->GetSpacing();
+  double* origin = data->GetOrigin();
   double threshold = this->Threshold;
 
   // if the input is not set then punt
@@ -98,31 +94,31 @@ int vtkImplicitFunctionToImageStencil::RequestData(
   unsigned long count = 0;
   int extent[6];
   data->GetExtent(extent);
-  unsigned long target = static_cast<unsigned long>(
-    (extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
+  unsigned long target =
+    static_cast<unsigned long>((extent[5] - extent[4] + 1) * (extent[3] - extent[2] + 1) / 50.0);
   target++;
 
   // loop through all voxels
   for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
   {
-    point[2] = idZ*spacing[2] + origin[2];
+    point[2] = idZ * spacing[2] + origin[2];
 
     for (int idY = extent[2]; idY <= extent[3]; idY++)
     {
-      point[1] = idY*spacing[1] + origin[1];
+      point[1] = idY * spacing[1] + origin[1];
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
       int r2 = extent[1];
 
-      if (count%target == 0)
+      if (count % target == 0)
       {
-        this->UpdateProgress(count/(50.0*target));
+        this->UpdateProgress(count / (50.0 * target));
       }
       count++;
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
       {
-        point[0] = idX*spacing[0] + origin[0];
+        point[0] = idX * spacing[0] + origin[0];
         int newstate = 1;
         if (function->FunctionValue(point) < threshold)
         {
@@ -144,7 +140,7 @@ int vtkImplicitFunctionToImageStencil::RequestData(
         data->InsertNextExtent(r1, extent[1], idY, idZ);
       }
     } // for idY
-  } // for idZ
+  }   // for idZ
 
   return 1;
 }

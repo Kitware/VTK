@@ -20,8 +20,8 @@
 
 #include "vtkAdjacentVertexIterator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGraph.h"
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkAdjacentVertexIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkAdjacentVertexIterator);
@@ -44,7 +44,7 @@ vtkAdjacentVertexIterator::~vtkAdjacentVertexIterator()
 }
 
 //----------------------------------------------------------------------------
-void vtkAdjacentVertexIterator::Initialize(vtkGraph *graph, vtkIdType v)
+void vtkAdjacentVertexIterator::Initialize(vtkGraph* graph, vtkIdType v)
 {
   this->SetGraph(graph);
   this->Vertex = v;
@@ -56,7 +56,7 @@ void vtkAdjacentVertexIterator::Initialize(vtkGraph *graph, vtkIdType v)
 //----------------------------------------------------------------------------
 void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
   {

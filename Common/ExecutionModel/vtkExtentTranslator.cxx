@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkExtentTranslator.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerRequestKey.h"
 #include "vtkLargeInteger.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkExtentTranslator);
 
@@ -26,14 +26,14 @@ vtkInformationKeyMacro(vtkExtentTranslator, DATA_SPLIT_MODE, Integer);
 class vtkInformationSplitModeRequestKey : public vtkInformationIntegerRequestKey
 {
 public:
-  vtkInformationSplitModeRequestKey(const char* name, const char* location) :
-    vtkInformationIntegerRequestKey(name, location)
+  vtkInformationSplitModeRequestKey(const char* name, const char* location)
+    : vtkInformationIntegerRequestKey(name, location)
   {
     this->DataKey = vtkExtentTranslator::DATA_SPLIT_MODE();
   }
 };
-vtkInformationKeySubclassMacro(vtkExtentTranslator, UPDATE_SPLIT_MODE,
-                               SplitModeRequest, IntegerRequest);
+vtkInformationKeySubclassMacro(
+  vtkExtentTranslator, UPDATE_SPLIT_MODE, SplitModeRequest, IntegerRequest);
 
 //----------------------------------------------------------------------------
 vtkExtentTranslator::vtkExtentTranslator()
@@ -49,7 +49,7 @@ vtkExtentTranslator::vtkExtentTranslator()
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
 
   // Set a default split mode to be slabs
-  this->SplitMode   = vtkExtentTranslator::BLOCK_MODE;
+  this->SplitMode = vtkExtentTranslator::BLOCK_MODE;
 
   this->SplitLen = 0;
   this->SplitPath = nullptr;
@@ -62,7 +62,7 @@ vtkExtentTranslator::~vtkExtentTranslator()
 }
 
 //----------------------------------------------------------------------------
-void vtkExtentTranslator::SetSplitPath(int len, int *sp)
+void vtkExtentTranslator::SetSplitPath(int len, int* sp)
 {
   delete[] this->SplitPath;
   this->SplitPath = nullptr;
@@ -70,36 +70,28 @@ void vtkExtentTranslator::SetSplitPath(int len, int *sp)
   if (len && sp)
   {
     this->SplitPath = new int[len];
-    memcpy(this->SplitPath, sp, len*sizeof(int));
+    memcpy(this->SplitPath, sp, len * sizeof(int));
   }
 }
 
 //----------------------------------------------------------------------------
 int vtkExtentTranslator::PieceToExtent()
 {
-  return
-    this->PieceToExtentThreadSafe(this->Piece, this->NumberOfPieces,
-                                  this->GhostLevel, this->WholeExtent,
-                                  this->Extent, this->SplitMode, 0);
+  return this->PieceToExtentThreadSafe(this->Piece, this->NumberOfPieces, this->GhostLevel,
+    this->WholeExtent, this->Extent, this->SplitMode, 0);
 }
 
 //----------------------------------------------------------------------------
 int vtkExtentTranslator::PieceToExtentByPoints()
 {
-  return
-    this->PieceToExtentThreadSafe(this->Piece, this->NumberOfPieces,
-                                  this->GhostLevel, this->WholeExtent,
-                                  this->Extent, this->SplitMode, 1);
+  return this->PieceToExtentThreadSafe(this->Piece, this->NumberOfPieces, this->GhostLevel,
+    this->WholeExtent, this->Extent, this->SplitMode, 1);
 }
 
-int vtkExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
-                                                 int ghostLevel,
-                                                 int *wholeExtent,
-                                                 int *resultExtent,
-                                                 int splitMode,
-                                                 int byPoints)
+int vtkExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, int ghostLevel,
+  int* wholeExtent, int* resultExtent, int splitMode, int byPoints)
 {
-  memcpy(resultExtent, wholeExtent, sizeof(int)*6);
+  memcpy(resultExtent, wholeExtent, sizeof(int) * 6);
   int ret;
   if (byPoints)
   {
@@ -155,10 +147,8 @@ int vtkExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
-                                     int splitMode)
+int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int* ext, int splitMode)
 {
   int numPiecesInFirstHalf;
   unsigned long size[3];
@@ -176,14 +166,14 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
   while (numPieces > 1)
   {
     // Get the dimensions for each axis.
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
+    size[0] = ext[1] - ext[0];
+    size[1] = ext[3] - ext[2];
+    size[2] = ext[5] - ext[4];
     // choose what axis to split on based on the SplitMode
     // if the user has requested x, y, or z slabs then try to
     // honor that request. If that axis is already split as
     // far as it can go, then drop to block mode.
-    if (this->SplitPath && cnt<this->SplitLen)
+    if (this->SplitPath && cnt < this->SplitLen)
     {
       splitMode = this->SplitPath[cnt];
       cnt++;
@@ -196,15 +186,15 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
     else
     {
       // choose the biggest axis
-      if (size[2] >= size[1] && size[2] >= size[0] && size[2]/2 >= 1)
+      if (size[2] >= size[1] && size[2] >= size[0] && size[2] / 2 >= 1)
       {
         splitAxis = 2;
       }
-      else if (size[1] >= size[0] && size[1]/2 >= 1)
+      else if (size[1] >= size[0] && size[1] / 2 >= 1)
       {
         splitAxis = 1;
       }
-      else if (size[0]/2 >= 1)
+      else if (size[0] / 2 >= 1)
       {
         splitAxis = 0;
       }
@@ -234,12 +224,12 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
       // split the chosen axis into two pieces.
       numPiecesInFirstHalf = (numPieces / 2);
       mid = size[splitAxis];
-      mid = (mid *  numPiecesInFirstHalf) / numPieces + ext[splitAxis*2];
+      mid = (mid * numPiecesInFirstHalf) / numPieces + ext[splitAxis * 2];
       if (piece < numPiecesInFirstHalf)
       {
         // piece is in the first half
         // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid.CastToInt();
+        ext[splitAxis * 2 + 1] = mid.CastToInt();
         // piece must adjust.
         numPieces = numPiecesInFirstHalf;
       }
@@ -247,7 +237,7 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
       {
         // piece is in the second half.
         // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid.CastToInt();
+        ext[splitAxis * 2] = mid.CastToInt();
         // piece must adjust
         numPieces = numPieces - numPiecesInFirstHalf;
         piece -= numPiecesInFirstHalf;
@@ -258,11 +248,8 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
   return 1;
 }
 
-
-
 //----------------------------------------------------------------------------
-int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
-                                             int *ext, int splitMode)
+int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces, int* ext, int splitMode)
 {
   int numPiecesInFirstHalf;
   int size[3], splitAxis;
@@ -273,9 +260,9 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
   while (numPieces > 1)
   {
     // Get the dimensions for each axis.
-    size[0] = ext[1]-ext[0] + 1;
-    size[1] = ext[3]-ext[2] + 1;
-    size[2] = ext[5]-ext[4] + 1;
+    size[0] = ext[1] - ext[0] + 1;
+    size[1] = ext[3] - ext[2] + 1;
+    size[2] = ext[5] - ext[4] + 1;
     // choose what axis to split on based on the SplitMode
     // if the user has requested x, y, or z slabs then try to
     // honor that request. If that axis is already split as
@@ -287,15 +274,15 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
     // otherwise use block mode
     else
     {
-      if (size[2] >= size[1] && size[2] >= size[0] && size[2]/2 >= 1)
+      if (size[2] >= size[1] && size[2] >= size[0] && size[2] / 2 >= 1)
       {
         splitAxis = 2;
       }
-      else if (size[1] >= size[0] && size[1]/2 >= 1)
+      else if (size[1] >= size[0] && size[1] / 2 >= 1)
       {
         splitAxis = 1;
       }
-      else if (size[0]/2 >= 1)
+      else if (size[0] / 2 >= 1)
       {
         splitAxis = 0;
       }
@@ -325,12 +312,12 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
       // split the chosen axis into two pieces.
       numPiecesInFirstHalf = (numPieces / 2);
       mid = size[splitAxis];
-      mid = (mid *  numPiecesInFirstHalf) / numPieces + ext[splitAxis*2];
+      mid = (mid * numPiecesInFirstHalf) / numPieces + ext[splitAxis * 2];
       if (piece < numPiecesInFirstHalf)
       {
         // piece is in the first half
         // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid.CastToInt() - 1;
+        ext[splitAxis * 2 + 1] = mid.CastToInt() - 1;
         // piece must adjust.
         numPieces = numPiecesInFirstHalf;
       }
@@ -338,7 +325,7 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
       {
         // piece is in the second half.
         // set the extent to be the second half.
-        ext[splitAxis*2] = mid.CastToInt();
+        ext[splitAxis * 2] = mid.CastToInt();
         // piece must adjust
         numPieces = numPieces - numPiecesInFirstHalf;
         piece -= numPiecesInFirstHalf;
@@ -352,21 +339,19 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
 //----------------------------------------------------------------------------
 void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Piece: " << this->Piece << endl;
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
 
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
 
-  os << indent << "Extent: " << this->Extent[0] << ", "
-     << this->Extent[1] << ", " << this->Extent[2] << ", "
-     << this->Extent[3] << ", " << this->Extent[4] << ", "
+  os << indent << "Extent: " << this->Extent[0] << ", " << this->Extent[1] << ", "
+     << this->Extent[2] << ", " << this->Extent[3] << ", " << this->Extent[4] << ", "
      << this->Extent[5] << endl;
 
-  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", " << this->WholeExtent[1] << ", "
+     << this->WholeExtent[2] << ", " << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
      << this->WholeExtent[5] << endl;
 
   os << indent << "SplitMode: ";

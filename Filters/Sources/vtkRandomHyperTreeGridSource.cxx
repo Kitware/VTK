@@ -18,8 +18,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -28,10 +28,10 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro(vtkRandomHyperTreeGridSource)
+vtkStandardNewMacro(vtkRandomHyperTreeGridSource);
 
 //------------------------------------------------------------------------------
-void vtkRandomHyperTreeGridSource::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkRandomHyperTreeGridSource::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
@@ -58,14 +58,11 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
 }
 
 //------------------------------------------------------------------------------
-vtkRandomHyperTreeGridSource::~vtkRandomHyperTreeGridSource()
-{
-}
+vtkRandomHyperTreeGridSource::~vtkRandomHyperTreeGridSource() {}
 
 //------------------------------------------------------------------------------
 int vtkRandomHyperTreeGridSource::RequestInformation(
-    vtkInformation *req, vtkInformationVector **inInfo,
-    vtkInformationVector *outInfo)
+  vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
   using SDDP = vtkStreamingDemandDrivenPipeline;
 
@@ -75,12 +72,15 @@ int vtkRandomHyperTreeGridSource::RequestInformation(
   }
 
   int wholeExtent[6] = {
-    0, static_cast<int>(this->Dimensions[0] - 1),
-    0, static_cast<int>(this->Dimensions[1] - 1),
-    0, static_cast<int>(this->Dimensions[2] - 1),
+    0,
+    static_cast<int>(this->Dimensions[0] - 1),
+    0,
+    static_cast<int>(this->Dimensions[1] - 1),
+    0,
+    static_cast<int>(this->Dimensions[2] - 1),
   };
 
-  vtkInformation *info = outInfo->GetInformationObject(0);
+  vtkInformation* info = outInfo->GetInformationObject(0);
   info->Set(SDDP::WHOLE_EXTENT(), wholeExtent, 6);
   info->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 1);
 
@@ -88,20 +88,18 @@ int vtkRandomHyperTreeGridSource::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
-                                              vtkInformationVector **,
-                                              vtkInformationVector *outInfos)
+int vtkRandomHyperTreeGridSource::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
   using SDDP = vtkStreamingDemandDrivenPipeline;
 
-  vtkInformation *outInfo = outInfos->GetInformationObject(0);
+  vtkInformation* outInfo = outInfos->GetInformationObject(0);
 
-  int *updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
+  int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
 
   // Create dataset:
-  auto fillArray = [](vtkDoubleArray *array, vtkIdType numPoints,
-                      double minBound, double maxBound)
-  {
+  auto fillArray = [](
+                     vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound) {
     array->SetNumberOfComponents(1);
     array->SetNumberOfTuples(numPoints);
     double step = (maxBound - minBound) / static_cast<double>(numPoints - 1);
@@ -111,29 +109,26 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
     }
   };
 
-  vtkHyperTreeGrid *htg = vtkHyperTreeGrid::GetData(outInfo);
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::GetData(outInfo);
   htg->Initialize();
   htg->SetDimensions(this->Dimensions);
   htg->SetBranchFactor(2);
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->Dimensions[0],
-              this->OutputBounds[0], this->OutputBounds[1]);
+    fillArray(coords, this->Dimensions[0], this->OutputBounds[0], this->OutputBounds[1]);
     htg->SetXCoordinates(coords);
   }
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->Dimensions[1],
-              this->OutputBounds[2], this->OutputBounds[3]);
+    fillArray(coords, this->Dimensions[1], this->OutputBounds[2], this->OutputBounds[3]);
     htg->SetYCoordinates(coords);
   }
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->Dimensions[2],
-              this->OutputBounds[4], this->OutputBounds[5]);
+    fillArray(coords, this->Dimensions[2], this->OutputBounds[4], this->OutputBounds[5]);
     htg->SetZCoordinates(coords);
   }
 
@@ -150,16 +145,14 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
       for (int k = updateExtent[4]; k < updateExtent[5]; ++k)
       {
         vtkIdType treeId;
-        htg->GetIndexFromLevelZeroCoordinates(treeId,
-                                              static_cast<unsigned int>(i),
-                                              static_cast<unsigned int>(j),
-                                              static_cast<unsigned int>(k));
+        htg->GetIndexFromLevelZeroCoordinates(treeId, static_cast<unsigned int>(i),
+          static_cast<unsigned int>(j), static_cast<unsigned int>(k));
 
         // Initialize RNG per tree to make it easier to parallelize
         this->RNG->Initialize(this->Seed + treeId);
 
         // Build this tree:
-        vtkHyperTreeGridNonOrientedCursor *cursor = htg->NewNonOrientedCursor(treeId, true);
+        vtkHyperTreeGridNonOrientedCursor* cursor = htg->NewNonOrientedCursor(treeId, true);
         cursor->GetTree()->SetGlobalIndexStart(treeOffset);
         this->SubdivideLeaves(cursor, treeId);
         treeOffset += cursor->GetTree()->GetNumberOfVertices();
@@ -175,19 +168,18 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
 }
 
 //------------------------------------------------------------------------------
-int vtkRandomHyperTreeGridSource::FillOutputPortInformation(
-    int, vtkInformation *info)
+int vtkRandomHyperTreeGridSource::FillOutputPortInformation(int, vtkInformation* info)
 {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
-    return 1;
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
+  return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkRandomHyperTreeGridSource::SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor *cursor,
-                                                   vtkIdType treeId)
+void vtkRandomHyperTreeGridSource::SubdivideLeaves(
+  vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId)
 {
   vtkIdType vertexId = cursor->GetVertexId();
-  vtkHyperTree *tree = cursor->GetTree();
+  vtkHyperTree* tree = cursor->GetTree();
   vtkIdType idx = tree->GetGlobalIndexFromLocal(vertexId);
   vtkIdType level = cursor->GetLevel();
 

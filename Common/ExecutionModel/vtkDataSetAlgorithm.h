@@ -29,13 +29,13 @@
  * RequestDataObject RequestData and RequestInformation. The default
  * implementation of RequestDataObject will create an output data of the
  * same type as the input.
-*/
+ */
 
 #ifndef vtkDataSetAlgorithm_h
 #define vtkDataSetAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkImageData;
@@ -48,8 +48,8 @@ class vtkRectilinearGrid;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkDataSetAlgorithm *New();
-  vtkTypeMacro(vtkDataSetAlgorithm,vtkAlgorithm);
+  static vtkDataSetAlgorithm* New();
+  vtkTypeMacro(vtkDataSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -69,32 +69,32 @@ public:
   /**
    * Get the output as vtkPolyData.
    */
-  vtkPolyData *GetPolyDataOutput();
+  vtkPolyData* GetPolyDataOutput();
 
   /**
    * Get the output as vtkStructuredPoints.
    */
-  vtkStructuredPoints *GetStructuredPointsOutput();
+  vtkStructuredPoints* GetStructuredPointsOutput();
 
   /**
    * Get the output as vtkStructuredPoints.
    */
-  vtkImageData *GetImageDataOutput();
+  vtkImageData* GetImageDataOutput();
 
   /**
    * Get the output as vtkStructuredGrid.
    */
-  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkStructuredGrid* GetStructuredGridOutput();
 
   /**
    * Get the output as vtkUnstructuredGrid.
    */
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
 
   /**
    * Get the output as vtkRectilinearGrid.
    */
-  vtkRectilinearGrid *GetRectilinearGridOutput();
+  vtkRectilinearGrid* GetRectilinearGridOutput();
 
   //@{
   /**
@@ -114,7 +114,7 @@ public:
    * establish a pipeline connection. Use AddInputConnection() to
    * setup a pipeline connection.
    */
-  void AddInputData(vtkDataObject *);
+  void AddInputData(vtkDataObject*);
   void AddInputData(vtkDataSet*);
   void AddInputData(int, vtkDataSet*);
   void AddInputData(int, vtkDataObject*);
@@ -123,9 +123,8 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkDataSetAlgorithm();
@@ -138,9 +137,10 @@ protected:
    * lengthy computations. This happens in the first pass of the pipeline
    * execution.
    */
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) {return 1;};
+  virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
 
   //@{
   /**
@@ -149,14 +149,11 @@ protected:
    * output that the downstream filter asks for. This happens during the
    * second pass in the pipeline execution process.
    */
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*)
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
-      return 1;
-  };
+    return 1;
+  }
   //@}
-
 
   /**
    * This is called within ProcessRequest to when a request asks the
@@ -167,9 +164,8 @@ protected:
    * data type of an algorithm. This happens in the third pass of the
    * pipeline execution.
    */
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   /**
    * This is called within ProcessRequest when a request asks the algorithm
@@ -177,16 +173,16 @@ protected:
    * algorithm is designed to do. This happens during the fourth pass in the
    * pipeline execution process.
    */
-  virtual int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) {return 1;};
-
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+  {
+    return 1;
+  }
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkDataObject *GetInput(int port);
+  vtkDataObject* GetInput(int port);
 
 private:
   vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) = delete;
@@ -194,5 +190,3 @@ private:
 };
 
 #endif
-
-

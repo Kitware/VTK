@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkBMPReader vtkPNMReader vtkTIFFReader
-*/
+ */
 
 #ifndef vtkDICOMImageReader_h
 #define vtkDICOMImageReader_h
@@ -46,13 +46,13 @@ class DICOMAppHelper;
 
 class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
 {
- public:
+public:
   //@{
   /**
    * Static method for construction.
    */
-  static vtkDICOMImageReader *New();
-  vtkTypeMacro(vtkDICOMImageReader,vtkImageReader2);
+  static vtkDICOMImageReader* New();
+  vtkTypeMacro(vtkDICOMImageReader, vtkImageReader2);
   //@}
 
   /**
@@ -67,8 +67,8 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
    */
   void SetFileName(const char* fn) override
   {
-    delete [] this->DirectoryName;
-    delete [] this->FileName;
+    delete[] this->DirectoryName;
+    delete[] this->FileName;
     this->DirectoryName = nullptr;
     this->FileName = nullptr;
     this->vtkImageReader2::SetFileName(fn);
@@ -186,18 +186,12 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   //
   // What file extensions are supported?
   //
-  const char* GetFileExtensions() override
-  {
-    return ".dcm";
-  }
+  const char* GetFileExtensions() override { return ".dcm"; }
 
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() override
-  {
-    return "DICOM";
-  }
+  const char* GetDescriptiveName() override { return "DICOM"; }
 
 protected:
   //
@@ -206,7 +200,7 @@ protected:
   void SetupOutputInformation(int num_slices);
 
   void ExecuteInformation() override;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
+  void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;
 
   //
   // Constructor
@@ -242,10 +236,10 @@ protected:
   // DICOMFileNames accessor methods for subclasses:
   int GetNumberOfDICOMFileNames();
   const char* GetDICOMFileName(int index);
+
 private:
   vtkDICOMImageReader(const vtkDICOMImageReader&) = delete;
   void operator=(const vtkDICOMImageReader&) = delete;
-
 };
 
 #endif

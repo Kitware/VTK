@@ -16,14 +16,14 @@
 #include "vtkContextDevice3D.h"
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkContextDevice3D)
+vtkAbstractObjectFactoryNewMacro(vtkContextDevice3D);
 
 vtkContextDevice3D::vtkContextDevice3D() = default;
 
 vtkContextDevice3D::~vtkContextDevice3D() = default;
 
 //-----------------------------------------------------------------------------
-void vtkContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkContextDevice3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -18,19 +18,19 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkKCoreDecomposition.h"
+#include "vtkDirectedGraph.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
+#include "vtkInEdgeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkInEdgeIterator.h"
 #include "vtkOutEdgeIterator.h"
-#include "vtkUndirectedGraph.h"
-#include "vtkDirectedGraph.h"
+#include "vtkPointData.h"
 #include "vtkType.h"
+#include "vtkUndirectedGraph.h"
 
 #include <unordered_map>
 
@@ -45,8 +45,7 @@ namespace
 class Neighbors
 {
 public:
-  Neighbors(bool _UseInDegreeNeighbors,
-            bool _UseOutDegreeNeighbors)
+  Neighbors(bool _UseInDegreeNeighbors, bool _UseOutDegreeNeighbors)
   {
     this->iti = vtkInEdgeIterator::New();
     this->ito = vtkOutEdgeIterator::New();
@@ -60,10 +59,9 @@ public:
     this->ito->Delete();
   }
 
-  void Initialize(vtkGraph* g,
-                  int v)
+  void Initialize(vtkGraph* g, int v)
   {
-    if(vtkUndirectedGraph::SafeDownCast(g))
+    if (vtkUndirectedGraph::SafeDownCast(g))
     {
       this->Undirected = true;
     }
@@ -74,7 +72,7 @@ public:
 
     this->iti->Initialize(g, vtkIdType(v - 1));
 
-    if(!this->Undirected)
+    if (!this->Undirected)
     {
       this->ito->Initialize(g, vtkIdType(v - 1));
     }
@@ -82,51 +80,47 @@ public:
 
   bool HasNext()
   {
-    if(this->Undirected)
+    if (this->Undirected)
     {
-      return(this->iti->HasNext());
+      return (this->iti->HasNext());
     }
 
-    if(this->UseInDegreeNeighbors &&
-      !this->UseOutDegreeNeighbors)
+    if (this->UseInDegreeNeighbors && !this->UseOutDegreeNeighbors)
     {
-      return(this->iti->HasNext());
+      return (this->iti->HasNext());
     }
 
-    if(!this->UseInDegreeNeighbors &&
-        this->UseOutDegreeNeighbors)
+    if (!this->UseInDegreeNeighbors && this->UseOutDegreeNeighbors)
     {
-      return(this->ito->HasNext());
+      return (this->ito->HasNext());
     }
 
-    return(this->iti->HasNext() || this->ito->HasNext());
+    return (this->iti->HasNext() || this->ito->HasNext());
   }
 
   int Next()
   {
-    if(this->Undirected)
+    if (this->Undirected)
     {
-      return(int(this->iti->Next().Source) + 1);
+      return (int(this->iti->Next().Source) + 1);
     }
 
-    if(this->UseInDegreeNeighbors &&
-      !this->UseOutDegreeNeighbors)
+    if (this->UseInDegreeNeighbors && !this->UseOutDegreeNeighbors)
     {
-      return(int(this->iti->Next().Source) + 1);
+      return (int(this->iti->Next().Source) + 1);
     }
 
-    if(!this->UseInDegreeNeighbors &&
-       this->UseOutDegreeNeighbors)
+    if (!this->UseInDegreeNeighbors && this->UseOutDegreeNeighbors)
     {
-      return(int(this->ito->Next().Target) + 1);
+      return (int(this->ito->Next().Target) + 1);
     }
 
-    if(this->iti->HasNext())
+    if (this->iti->HasNext())
     {
-      return(int(this->iti->Next().Source) + 1);
+      return (int(this->iti->Next().Source) + 1);
     }
 
-    return(int(this->ito->Next().Target) + 1);
+    return (int(this->ito->Next().Target) + 1);
   }
 
 private:
@@ -138,7 +132,8 @@ private:
 };
 
 // Array that is indexed starting from 1.
-class tableVert {
+class tableVert
+{
 public:
   tableVert(int n)
   {
@@ -154,23 +149,23 @@ public:
 
   ~tableVert()
   {
-    if(this->_array)
+    if (this->_array)
     {
       this->_array->Delete();
       this->_array = nullptr;
     }
   }
 
-  int& operator[]( int idx )
+  int& operator[](int idx)
   {
-    if(idx < 1 || idx > this->_array->GetNumberOfTuples())
+    if (idx < 1 || idx > this->_array->GetNumberOfTuples())
     {
       cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
-      return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
+      return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
     }
 
-    return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
+    return (static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
   }
 
 private:
@@ -178,16 +173,14 @@ private:
 };
 
 // Array that is indexed starting from 0.
-class tableDeg {
+class tableDeg
+{
 public:
-  tableDeg()
-  {
-    this->_array = nullptr;
-  }
+  tableDeg() { this->_array = nullptr; }
 
   ~tableDeg()
   {
-    if(this->_array)
+    if (this->_array)
     {
       this->_array->Delete();
       this->_array = nullptr;
@@ -196,16 +189,16 @@ public:
 
   int getArraySize()
   {
-    if(this->_array)
+    if (this->_array)
     {
-      return(this->_array->GetNumberOfTuples());
+      return (this->_array->GetNumberOfTuples());
     }
-    return(0);
+    return (0);
   }
 
   void setNewArray(int n)
   {
-    if(this->_array)
+    if (this->_array)
     {
       this->_array->Delete();
     }
@@ -213,16 +206,16 @@ public:
     this->_array->SetNumberOfTuples(n);
   }
 
-  int& operator[]( int idx )
+  int& operator[](int idx)
   {
-    if(idx < 0 || idx >= this->_array->GetNumberOfTuples())
+    if (idx < 0 || idx >= this->_array->GetNumberOfTuples())
     {
       cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
-      return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
+      return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
     }
 
-    return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
+    return (static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
   }
 
 private:
@@ -247,8 +240,7 @@ vtkKCoreDecomposition::~vtkKCoreDecomposition()
 // that looks exactly like the code listing given in the
 // reference paper, "An O(m) Algorithm for Cores Decomposition
 // of Networks."
-void vtkKCoreDecomposition::Cores(vtkGraph* g,
-                                  vtkIntArray* KCoreNumbers)
+void vtkKCoreDecomposition::Cores(vtkGraph* g, vtkIntArray* KCoreNumbers)
 {
   int n, md, start, num;
   int w, pu, pw;
@@ -259,11 +251,10 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g,
   tableVert vert(g->GetNumberOfVertices());
   tableDeg bin;
 
-  if(vtkDirectedGraph::SafeDownCast(g) &&
-     this->UseInDegreeNeighbors &&
-     this->UseOutDegreeNeighbors)
+  if (vtkDirectedGraph::SafeDownCast(g) && this->UseInDegreeNeighbors &&
+    this->UseOutDegreeNeighbors)
   {
-    bin.setNewArray(2*g->GetNumberOfVertices() - 1);
+    bin.setNewArray(2 * g->GetNumberOfVertices() - 1);
   }
   else
   {
@@ -272,77 +263,77 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g,
 
   n = g->GetNumberOfVertices();
   md = 0;
-  Neighbors neighborVertices(this->UseInDegreeNeighbors,
-                             this->UseOutDegreeNeighbors);
+  Neighbors neighborVertices(this->UseInDegreeNeighbors, this->UseOutDegreeNeighbors);
 
-  for(v = 1; v <= n; v++)
+  for (v = 1; v <= n; v++)
   {
     d = 0;
     neighborVertices.Initialize(g, v);
-    while(neighborVertices.HasNext())
+    while (neighborVertices.HasNext())
     {
       d++;
       neighborVertices.Next();
     }
     deg[v] = d;
-    if(d > md)
+    if (d > md)
     {
       md = d;
     }
   }
 
-  if(md > bin.getArraySize())
+  if (md > bin.getArraySize())
   {
-    vtkErrorMacro("Maximum vertex degree exceeds bin array size: " << md << ". Unable to compute K core.");
+    vtkErrorMacro(
+      "Maximum vertex degree exceeds bin array size: " << md << ". Unable to compute K core.");
     return;
   }
 
-  for(d = 0; d <= md; d++)
+  for (d = 0; d <= md; d++)
   {
     bin[d] = 0;
   }
 
-  for(v = 1; v <= n; v++)
+  for (v = 1; v <= n; v++)
   {
     bin[deg[v]] += 1;
   }
 
   start = 1;
-  for(d = 0; d <= md; d++)
+  for (d = 0; d <= md; d++)
   {
     num = bin[d];
     bin[d] = start;
     start = start + num;
   }
 
-  for(v = 1; v <= n; v++)
+  for (v = 1; v <= n; v++)
   {
     pos[v] = bin[deg[v]];
     vert[pos[v]] = v;
     bin[deg[v]] += 1;
   }
 
-  for(d = md; d >= 1; d--)
+  for (d = md; d >= 1; d--)
   {
     bin[d] = bin[d - 1];
   }
 
   bin[0] = 1;
 
-  for(i = 1; i <= n; i++)
+  for (i = 1; i <= n; i++)
   {
     v = vert[i];
     neighborVertices.Initialize(g, v);
-    while(neighborVertices.HasNext())
+    while (neighborVertices.HasNext())
     {
       u = neighborVertices.Next();
-      if(deg[u] > deg[v])
+      if (deg[u] > deg[v])
       {
         du = deg[u];
         pu = pos[u];
         pw = bin[du];
         w = vert[pw];
-        if(u != w)
+        if (u != w)
         {
           pos[u] = pw;
           pos[w] = pu;
@@ -356,25 +347,22 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g,
   }
 }
 
-int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
-                                       vtkInformationVector **inputVector,
-                                       vtkInformationVector *outputVector)
+int vtkKCoreDecomposition::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkGraph *output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Do a shallow copy of the input to the output
   output->ShallowCopy(input);
 
-  if(this->CheckInputGraph)
+  if (this->CheckInputGraph)
   {
     // Check input graph for parallel edges.  The input graph must not contain
     // parallel edges for the K core algorithm to work.  We loop over the edges
@@ -386,31 +374,35 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
     input->GetEdges(it);
     bool foundParallelEdges = false;
     bool foundLoops = false;
-    while(it->HasNext())
+    while (it->HasNext())
     {
       vtkEdgeType e = it->Next();
       // Cantor pairing function
-      unsigned long int id = (unsigned long int) (0.5*(e.Source + e.Target)*(e.Source + e.Target + 1.0) + e.Target);
-      if(hmap.find(id) == hmap.end())
+      unsigned long int id =
+        (unsigned long int)(0.5 * (e.Source + e.Target) * (e.Source + e.Target + 1.0) + e.Target);
+      if (hmap.find(id) == hmap.end())
       {
         hmap[id] = true;
       }
       else
       {
-        vtkErrorMacro("Found parallel edge between at vertex ID: " << e.Source << " and vertex ID: " << e.Target);
+        vtkErrorMacro("Found parallel edge between at vertex ID: " << e.Source << " and vertex ID: "
+                                                                   << e.Target);
         foundParallelEdges = true;
       }
 
-      if(vtkUndirectedGraph::SafeDownCast(input))
+      if (vtkUndirectedGraph::SafeDownCast(input))
       {
-        id = (unsigned long int) (0.5*(e.Target + e.Source)*(e.Target + e.Source + 1.0) + e.Source);
-        if(hmap.find(id) == hmap.end())
+        id =
+          (unsigned long int)(0.5 * (e.Target + e.Source) * (e.Target + e.Source + 1.0) + e.Source);
+        if (hmap.find(id) == hmap.end())
         {
           hmap[id] = true;
         }
         else
         {
-          vtkErrorMacro("Found parallel edge between at vertex ID: " << e.Source << " and vertex ID: " << e.Target);
+          vtkErrorMacro("Found parallel edge between at vertex ID: "
+            << e.Source << " and vertex ID: " << e.Target);
           foundParallelEdges = true;
         }
       }
@@ -418,7 +410,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
       // Check input graph for loops, i.e. edges that start and end
       // on the same vertex.  The K core is not defined for these graphs.
       // Just loop over the edges and check for equal target and source.
-      if(e.Source == e.Target)
+      if (e.Source == e.Target)
       {
         foundLoops = true;
         vtkErrorMacro("Found loop at vertex ID: " << e.Source);
@@ -428,14 +420,14 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
     it->Delete();
     hmap.clear();
 
-    if(foundLoops || foundParallelEdges)
+    if (foundLoops || foundParallelEdges)
     {
-      if(foundLoops)
+      if (foundLoops)
       {
         vtkErrorMacro("Found loops in input graph.  Unable to compute K core.");
       }
 
-      if(foundParallelEdges)
+      if (foundParallelEdges)
       {
         vtkErrorMacro("Found parallel edges in input graph.  Unable to compute K core.");
       }
@@ -458,8 +450,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Call the K core algorithm implementation to find the k core
   // decomposition for the input graph.
-  this->Cores(input,
-              KCoreNumbers);
+  this->Cores(input, KCoreNumbers);
 
   // Add attribute array to the output
   output->GetVertexData()->AddArray(KCoreNumbers);
@@ -470,14 +461,11 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
 
 void vtkKCoreDecomposition::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
-  os << indent << "UseInDegreeNeighbors: "
-     << (this->UseInDegreeNeighbors ? "on" : "off") << endl;
-  os << indent << "UseOutDegreeNeighbors: "
-     << (this->UseOutDegreeNeighbors ? "on" : "off") << endl;
-  os << indent << "CheckInputGraph: "
-     << (this->CheckInputGraph ? "on" : "off") << endl;
+  os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
+     << endl;
+  os << indent << "UseInDegreeNeighbors: " << (this->UseInDegreeNeighbors ? "on" : "off") << endl;
+  os << indent << "UseOutDegreeNeighbors: " << (this->UseOutDegreeNeighbors ? "on" : "off") << endl;
+  os << indent << "CheckInputGraph: " << (this->CheckInputGraph ? "on" : "off") << endl;
 }

@@ -20,14 +20,14 @@
  *
  * Provides a convenient data structure to represent key events in the
  * vtkContextScene. Passed to vtkAbstractContextItem objects.
-*/
+ */
 
 #ifndef vtkContextKeyEvent_h
 #define vtkContextKeyEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkWeakPointer.h" // For vtkWeakPointer
-#include "vtkVector.h" // For vtkVector2i
+#include "vtkVector.h"                   // For vtkVector2i
+#include "vtkWeakPointer.h"              // For vtkWeakPointer
 
 class vtkRenderWindowInteractor;
 
@@ -39,7 +39,7 @@ public:
   /**
    * Set the interactor for the key event.
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor);
+  void SetInteractor(vtkRenderWindowInteractor* interactor);
 
   /**
    * Get the interactor for the key event. This can be null, and is provided

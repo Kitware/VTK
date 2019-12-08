@@ -23,20 +23,19 @@
  *
  * @sa
  * vtkOpenGLGlyph3D
-*/
+ */
 
 #ifndef vtkOpenGLGlyph3DMapper_h
 #define vtkOpenGLGlyph3DMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkGlyph3DMapper.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"                    // For vtkNew
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLGlyph3DHelper;
 class vtkBitArray;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper
-    : public vtkGlyph3DMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper : public vtkGlyph3DMapper
 {
 public:
   static vtkOpenGLGlyph3DMapper* New();
@@ -47,14 +46,14 @@ public:
    * Method initiates the mapping process. Generally sent by the actor
    * as each frame is rendered.
    */
-  void Render(vtkRenderer *ren, vtkActor *a) override;
+  void Render(vtkRenderer* ren, vtkActor* a) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
   //@{
   /**
@@ -76,7 +75,8 @@ public:
    *
    * @sa vtkDecimatePro::SetTargetReduction
    */
-  virtual void SetLODDistanceAndTargetReduction(vtkIdType index, float distance, float targetReduction) override;
+  virtual void SetLODDistanceAndTargetReduction(
+    vtkIdType index, float distance, float targetReduction) override;
   //@}
 
 protected:
@@ -96,19 +96,18 @@ protected:
 
   void SetupColorMapper();
 
-  vtkMapper *ColorMapper;
+  vtkMapper* ColorMapper;
 
   class vtkOpenGLGlyph3DMapperEntry;
   class vtkOpenGLGlyph3DMapperSubArray;
   class vtkOpenGLGlyph3DMapperArray;
-  vtkOpenGLGlyph3DMapperArray *GlyphValues; // array of value for datasets
+  vtkOpenGLGlyph3DMapperArray* GlyphValues; // array of value for datasets
 
   /**
    * Build data structures associated with
    */
-  virtual void RebuildStructures(vtkOpenGLGlyph3DMapperSubArray *entry,
-    vtkIdType numPts, vtkActor* actor, vtkDataSet* dataset,
-    vtkBitArray *maskArray);
+  virtual void RebuildStructures(vtkOpenGLGlyph3DMapperSubArray* entry, vtkIdType numPts,
+    vtkActor* actor, vtkDataSet* dataset, vtkBitArray* maskArray);
 
   vtkMTimeType BlockMTime; // Last time BlockAttributes was modified.
 

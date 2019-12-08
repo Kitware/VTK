@@ -19,23 +19,23 @@
 // + ensuring that the kernel derivative takes on the correct sign
 //   and value on either side of the central point.
 
-#include "vtkSmartPointer.h"
 #include "vtkSPHCubicKernel.h"
 #include "vtkSPHQuarticKernel.h"
 #include "vtkSPHQuinticKernel.h"
+#include "vtkSmartPointer.h"
 #include "vtkWendlandQuinticKernel.h"
 
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 
-#include <string>
 #include <cmath>
 #include <sstream>
+#include <string>
 
 //-----------------------------------------------------------------------------
 // Helper function
 template <class T>
-int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
+int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string& description)
 {
   int status = EXIT_SUCCESS;
   double res = 100;
@@ -49,25 +49,25 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
   // Test 2D
   kernel->SetDimension(2);
   kernel->SetSpatialStep(smoothingLen);
-  kernel->Initialize(nullptr,nullptr,nullptr);
+  kernel->Initialize(nullptr, nullptr, nullptr);
   normFactor = kernel->GetNormFactor();
   cutoff = kernel->GetCutoffFactor();
-  inc = 2.0*cutoff / static_cast<double>(res);
+  inc = 2.0 * cutoff / static_cast<double>(res);
   area = inc * inc;
 
   integral = 0.0;
-  for (j=0; j < res; ++j)
+  for (j = 0; j < res; ++j)
   {
-    y = -cutoff + j*inc;
-    for (i=0; i < res; ++i)
+    y = -cutoff + j * inc;
+    for (i = 0; i < res; ++i)
     {
-      x = -cutoff + i*inc;
-      r = sqrt( x*x + y*y );
+      x = -cutoff + i * inc;
+      r = sqrt(x * x + y * y);
       integral += area * normFactor * kernel->ComputeFunctionWeight(r);
     }
   }
   std::cout << "SPH " << description << " Kernel Integral (2D): " << integral << std::endl;
-  if ( integral < 0.99 || integral > 1.01 )
+  if (integral < 0.99 || integral > 1.01)
   {
     status = EXIT_FAILURE;
   }
@@ -75,29 +75,29 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
   // Test 3D
   kernel->SetDimension(3);
   kernel->SetSpatialStep(smoothingLen);
-  kernel->Initialize(nullptr,nullptr,nullptr);
+  kernel->Initialize(nullptr, nullptr, nullptr);
   normFactor = kernel->GetNormFactor();
   cutoff = kernel->GetCutoffFactor();
-  inc = 2.0*cutoff / static_cast<double>(res);
+  inc = 2.0 * cutoff / static_cast<double>(res);
   volume = inc * inc * inc;
 
   integral = 0.0;
-  for (k=0; k < res; ++k)
+  for (k = 0; k < res; ++k)
   {
-    z = -cutoff + k*inc;
-    for (j=0; j < res; ++j)
+    z = -cutoff + k * inc;
+    for (j = 0; j < res; ++j)
     {
-      y = -cutoff + j*inc;
-      for (i=0; i < res; ++i)
+      y = -cutoff + j * inc;
+      for (i = 0; i < res; ++i)
       {
-        x = -cutoff + i*inc;
-        r = sqrt( x*x + y*y + z*z );
+        x = -cutoff + i * inc;
+        r = sqrt(x * x + y * y + z * z);
         integral += volume * normFactor * kernel->ComputeFunctionWeight(r);
       }
     }
   }
   std::cout << "SPH " << description << " Kernel Integral (3D): " << integral << std::endl;
-  if ( integral < 0.99 || integral > 1.01 )
+  if (integral < 0.99 || integral > 1.01)
   {
     status = EXIT_FAILURE;
   }
@@ -115,18 +115,15 @@ int TestSPHKernels(int, char*[])
   // integral). Note the integration occurs over a 2D or 3D domain
 
   // Cubic SPH Kernel
-  vtkSmartPointer<vtkSPHCubicKernel> cubic =
-    vtkSmartPointer<vtkSPHCubicKernel>::New();
+  vtkSmartPointer<vtkSPHCubicKernel> cubic = vtkSmartPointer<vtkSPHCubicKernel>::New();
   status += TestSPHKernel<vtkSPHCubicKernel>(cubic, "Cubic");
 
   // Quartic Kernel
-  vtkSmartPointer<vtkSPHQuarticKernel> quartic =
-    vtkSmartPointer<vtkSPHQuarticKernel>::New();
+  vtkSmartPointer<vtkSPHQuarticKernel> quartic = vtkSmartPointer<vtkSPHQuarticKernel>::New();
   status += TestSPHKernel<vtkSPHQuarticKernel>(quartic, "Quartic");
 
   // Quintic Kernel
-  vtkSmartPointer<vtkSPHQuinticKernel> quintic =
-    vtkSmartPointer<vtkSPHQuinticKernel>::New();
+  vtkSmartPointer<vtkSPHQuinticKernel> quintic = vtkSmartPointer<vtkSPHQuinticKernel>::New();
   status += TestSPHKernel<vtkSPHQuinticKernel>(quintic, "Quintic");
 
   // Wendland C2 (quintic) Kernel

@@ -24,7 +24,7 @@
  * vtkDataSetWriter vtkPolyDataWriter vtkStructuredGridWriter
  * vtkStructuredPointsWriter vtkUnstructuredGridWriter
  * vtkFieldDataWriter vtkRectilinearGridWriter
-*/
+ */
 
 #ifndef vtkDataWriter_h
 #define vtkDataWriter_h
@@ -47,14 +47,14 @@ class vtkTable;
 class VTKIOLEGACY_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkDataWriter,vtkWriter);
+  vtkTypeMacro(vtkDataWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Created object with default header, ASCII format, and default names for
    * scalars, vectors, tensors, normals, and texture coordinates.
    */
-  static vtkDataWriter *New();
+  static vtkDataWriter* New();
 
   //@{
   /**
@@ -68,9 +68,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,vtkTypeBool);
-  vtkGetMacro(WriteToOutputString,vtkTypeBool);
-  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   //@}
 
   //@{
@@ -81,9 +81,9 @@ public:
    */
   vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
-  unsigned char *GetBinaryOutputString()
+  unsigned char* GetBinaryOutputString()
   {
-      return reinterpret_cast<unsigned char *>(this->OutputString);
+    return reinterpret_cast<unsigned char*>(this->OutputString);
   }
   //@}
 
@@ -98,7 +98,7 @@ public:
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
-  char *RegisterAndGetOutputString();
+  char* RegisterAndGetOutputString();
 
   //@{
   /**
@@ -113,19 +113,19 @@ public:
    * If true, vtkInformation objects attached to arrays and array component
    * nameswill be written to the output. Default is true.
    */
-  vtkSetMacro(WriteArrayMetaData, bool)
-  vtkGetMacro(WriteArrayMetaData, bool)
-  vtkBooleanMacro(WriteArrayMetaData, bool)
+  vtkSetMacro(WriteArrayMetaData, bool);
+  vtkGetMacro(WriteArrayMetaData, bool);
+  vtkBooleanMacro(WriteArrayMetaData, bool);
   //@}
 
   //@{
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
-  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
-  vtkGetMacro(FileType,int);
-  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
-  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+  vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
+  vtkGetMacro(FileType, int);
+  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
+  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
   //@}
 
   //@{
@@ -221,121 +221,120 @@ public:
   /**
    * Open a vtk data file. Returns nullptr if error.
    */
-  virtual ostream *OpenVTKFile();
+  virtual ostream* OpenVTKFile();
 
   /**
    * Write the header of a vtk data file. Returns 0 if error.
    */
-  int WriteHeader(ostream *fp);
+  int WriteHeader(ostream* fp);
 
   /**
    * Write out the points of the data set.
    */
-  int WritePoints(ostream *fp, vtkPoints *p);
+  int WritePoints(ostream* fp, vtkPoints* p);
 
   /**
    * Write out coordinates for rectilinear grids.
    */
-  int WriteCoordinates(ostream *fp, vtkDataArray *coords, int axes);
+  int WriteCoordinates(ostream* fp, vtkDataArray* coords, int axes);
 
   /**
    * Write out the cells of the data set.
    */
-  int WriteCells(ostream *fp, vtkCellArray *cells, const char *label);
+  int WriteCells(ostream* fp, vtkCellArray* cells, const char* label);
 
   /**
    * Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
    * Returns 0 if error.
    */
-  int WriteCellData(ostream *fp, vtkDataSet *ds);
+  int WriteCellData(ostream* fp, vtkDataSet* ds);
 
   /**
    * Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
    * Returns 0 if error.
    */
-  int WritePointData(ostream *fp, vtkDataSet *ds);
+  int WritePointData(ostream* fp, vtkDataSet* ds);
 
   /**
    * Write the edge data (e.g., scalars, vectors, ...) of a vtk graph.
    * Returns 0 if error.
    */
-  int WriteEdgeData(ostream *fp, vtkGraph *g);
+  int WriteEdgeData(ostream* fp, vtkGraph* g);
 
   /**
    * Write the vertex data (e.g., scalars, vectors, ...) of a vtk graph.
    * Returns 0 if error.
    */
-  int WriteVertexData(ostream *fp, vtkGraph *g);
+  int WriteVertexData(ostream* fp, vtkGraph* g);
 
   /**
    * Write the row data (e.g., scalars, vectors, ...) of a vtk table.
    * Returns 0 if error.
    */
-  int WriteRowData(ostream *fp, vtkTable *g);
+  int WriteRowData(ostream* fp, vtkTable* g);
 
   /**
    * Write out the field data.
    */
-  int WriteFieldData(ostream *fp, vtkFieldData *f);
+  int WriteFieldData(ostream* fp, vtkFieldData* f);
 
   /**
    * Write out the data associated with the dataset (i.e. field data owned by
    * the dataset itself - distinct from that owned by the cells or points).
    */
-  int WriteDataSetData(ostream *fp, vtkDataSet *ds);
+  int WriteDataSetData(ostream* fp, vtkDataSet* ds);
 
   /**
    * Close a vtk file.
    */
-  void CloseVTKFile(ostream *fp);
-
+  void CloseVTKFile(ostream* fp);
 
 protected:
   vtkDataWriter();
   ~vtkDataWriter() override;
 
   vtkTypeBool WriteToOutputString;
-  char *OutputString;
+  char* OutputString;
   vtkIdType OutputStringLength;
 
-  void WriteData() override; //dummy method to allow this class to be instantiated and delegated to
+  void WriteData() override; // dummy method to allow this class to be instantiated and delegated to
 
-  char *FileName;
-  char *Header;
+  char* FileName;
+  char* Header;
   int FileType;
 
   bool WriteArrayMetaData;
 
-  char *ScalarsName;
-  char *VectorsName;
-  char *TensorsName;
-  char *TCoordsName;
-  char *NormalsName;
-  char *LookupTableName;
-  char *FieldDataName;
+  char* ScalarsName;
+  char* VectorsName;
+  char* TensorsName;
+  char* TCoordsName;
+  char* NormalsName;
+  char* LookupTableName;
+  char* FieldDataName;
   char* GlobalIdsName;
   char* PedigreeIdsName;
   char* EdgeFlagsName;
 
   std::locale CurrentLocale;
 
-  int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format,
-                 vtkIdType num, vtkIdType numComp);
-  int WriteScalarData(ostream *fp, vtkDataArray *s, vtkIdType num);
-  int WriteVectorData(ostream *fp, vtkDataArray *v, vtkIdType num);
-  int WriteNormalData(ostream *fp, vtkDataArray *n, vtkIdType num);
-  int WriteTCoordData(ostream *fp, vtkDataArray *tc, vtkIdType num);
-  int WriteTensorData(ostream *fp, vtkDataArray *t, vtkIdType num);
-  int WriteGlobalIdData(ostream *fp, vtkDataArray *g, vtkIdType num);
-  int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, vtkIdType num);
-  int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, vtkIdType num);
+  int WriteArray(ostream* fp, int dataType, vtkAbstractArray* data, const char* format,
+    vtkIdType num, vtkIdType numComp);
+  int WriteScalarData(ostream* fp, vtkDataArray* s, vtkIdType num);
+  int WriteVectorData(ostream* fp, vtkDataArray* v, vtkIdType num);
+  int WriteNormalData(ostream* fp, vtkDataArray* n, vtkIdType num);
+  int WriteTCoordData(ostream* fp, vtkDataArray* tc, vtkIdType num);
+  int WriteTensorData(ostream* fp, vtkDataArray* t, vtkIdType num);
+  int WriteGlobalIdData(ostream* fp, vtkDataArray* g, vtkIdType num);
+  int WritePedigreeIdData(ostream* fp, vtkAbstractArray* p, vtkIdType num);
+  int WriteEdgeFlagsData(ostream* fp, vtkDataArray* edgeFlags, vtkIdType num);
 
-  bool CanWriteInformationKey(vtkInformation *info, vtkInformationKey *key);
+  bool CanWriteInformationKey(vtkInformation* info, vtkInformationKey* key);
 
   /**
    * Format is detailed \ref IOLegacyInformationFormat "here".
    */
-  int WriteInformation(ostream *fp, vtkInformation *info);
+  int WriteInformation(ostream* fp, vtkInformation* info);
 
 private:
   vtkDataWriter(const vtkDataWriter&) = delete;

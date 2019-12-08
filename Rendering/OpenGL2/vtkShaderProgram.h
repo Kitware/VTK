@@ -16,16 +16,16 @@
  * @brief   a glsl shader program
  *
  * This class contains the vertex, fragment, geometry shaders that combine to make a shader program
-*/
+ */
 
 #ifndef vtkShaderProgram_h
 #define vtkShaderProgram_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
-#include <string> // For member variables.
 #include <map>    // For member variables.
+#include <string> // For member variables.
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;
@@ -44,7 +44,7 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
 {
 public:
-  static vtkShaderProgram *New();
+  static vtkShaderProgram* New();
   vtkTypeMacro(vtkShaderProgram, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -77,7 +77,7 @@ public:
    * Get/Set a TransformFeedbackCapture object on this shader program.
    */
   vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
-  void SetTransformFeedback(vtkTransformFeedback *tfc);
+  void SetTransformFeedback(vtkTransformFeedback* tfc);
   //@}
 
   //@{
@@ -93,11 +93,11 @@ public:
    * Set/Get the md5 hash of this program
    */
   std::string GetMD5Hash() const { return this->MD5Hash; }
-  void SetMD5Hash(const std::string &hash) { this->MD5Hash = hash; }
-
+  void SetMD5Hash(const std::string& hash) { this->MD5Hash = hash; }
 
   /** Options for attribute normalization. */
-  enum NormalizeOption {
+  enum NormalizeOption
+  {
     /// The values range across the limits of the numeric type.
     /// This option instructs the rendering engine to normalize them to
     /// the range [0.0, 1.0] for unsigned types, and [-1.0, 1.0] for signed
@@ -111,7 +111,6 @@ public:
     NoNormalize
   };
 
-
   /**
    * Check if the program is currently bound, or not.
    * @return True if the program is bound, false otherwise.
@@ -121,7 +120,7 @@ public:
   /**
    * release any graphics resources this class is using.
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
   /** Get the handle of the shader program. */
   int GetHandle() const { return Handle; }
@@ -133,13 +132,13 @@ public:
    * Enable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool EnableAttributeArray(const char *name);
+  bool EnableAttributeArray(const char* name);
 
   /**
    * Disable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool DisableAttributeArray(const char *name);
+  bool DisableAttributeArray(const char* name);
 
   /**
    * Use the named attribute array with the bound BufferObject.
@@ -156,9 +155,8 @@ public:
    * See NormalizeOption for more information.
    * @return false if the attribute array does not exist.
    */
-  bool UseAttributeArray(const char *name, int offset, size_t stride,
-                         int elementType, int elementTupleSize,
-                         NormalizeOption normalize);
+  bool UseAttributeArray(const char* name, int offset, size_t stride, int elementType,
+    int elementTupleSize, NormalizeOption normalize);
 
   /**
    * Upload the supplied array of tightly packed values to the named attribute.
@@ -178,38 +176,38 @@ public:
    * The std::vector classes is an example of such a container.
    */
   template <class T>
-  bool SetAttributeArray(const char *name, const T &array,
-                         int tupleSize, NormalizeOption normalize);
+  bool SetAttributeArray(
+    const char* name, const T& array, int tupleSize, NormalizeOption normalize);
 
   /** Set the @p name uniform value to int @p v. */
-  bool SetUniformi(const char *name, int v);
-  bool SetUniformf(const char *name, float v);
-  bool SetUniform2i(const char *name, const int v[2]);
-  bool SetUniform2f(const char *name, const float v[2]);
-  bool SetUniform3f(const char *name, const float v[3]);
-  bool SetUniform3f(const char *name, const double v[3]);
-  bool SetUniform4f(const char *name, const float v[4]);
-  bool SetUniform3uc(const char *name, const unsigned char v[3]); // maybe remove
-  bool SetUniform4uc(const char *name, const unsigned char v[4]); // maybe remove
-  bool SetUniformMatrix(const char *name, vtkMatrix3x3 *v);
-  bool SetUniformMatrix(const char *name, vtkMatrix4x4 *v);
-  bool SetUniformMatrix3x3(const char *name, float *v);
-  bool SetUniformMatrix4x4(const char *name, float *v);
+  bool SetUniformi(const char* name, int v);
+  bool SetUniformf(const char* name, float v);
+  bool SetUniform2i(const char* name, const int v[2]);
+  bool SetUniform2f(const char* name, const float v[2]);
+  bool SetUniform3f(const char* name, const float v[3]);
+  bool SetUniform3f(const char* name, const double v[3]);
+  bool SetUniform4f(const char* name, const float v[4]);
+  bool SetUniform3uc(const char* name, const unsigned char v[3]); // maybe remove
+  bool SetUniform4uc(const char* name, const unsigned char v[4]); // maybe remove
+  bool SetUniformMatrix(const char* name, vtkMatrix3x3* v);
+  bool SetUniformMatrix(const char* name, vtkMatrix4x4* v);
+  bool SetUniformMatrix3x3(const char* name, float* v);
+  bool SetUniformMatrix4x4(const char* name, float* v);
 
   /** Set the @p name uniform array to @p f with @p count elements */
-  bool SetUniform1iv(const char *name, const int count, const int *f);
-  bool SetUniform1fv(const char *name, const int count, const float *f);
-  bool SetUniform2fv(const char *name, const int count, const float *f);
-  bool SetUniform2fv(const char *name, const int count, const float (*f)[2]);
-  bool SetUniform3fv(const char *name, const int count, const float *f);
-  bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
-  bool SetUniform4fv(const char *name, const int count, const float *f);
-  bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
-  bool SetUniformMatrix4x4v(const char *name, const int count, float *v);
+  bool SetUniform1iv(const char* name, const int count, const int* f);
+  bool SetUniform1fv(const char* name, const int count, const float* f);
+  bool SetUniform2fv(const char* name, const int count, const float* f);
+  bool SetUniform2fv(const char* name, const int count, const float (*f)[2]);
+  bool SetUniform3fv(const char* name, const int count, const float* f);
+  bool SetUniform3fv(const char* name, const int count, const float (*f)[3]);
+  bool SetUniform4fv(const char* name, const int count, const float* f);
+  bool SetUniform4fv(const char* name, const int count, const float (*f)[4]);
+  bool SetUniformMatrix4x4v(const char* name, const int count, float* v);
 
   // How many outputs does this program produce
   // only valid for OpenGL 3.2 or later
-  vtkSetMacro(NumberOfOutputs,unsigned int);
+  vtkSetMacro(NumberOfOutputs, unsigned int);
 
   /**
    * perform in place string substitutions, indicate if a substitution was done
@@ -223,10 +221,7 @@ public:
    * \return    A boolean indicating whether the replacement was successful
    */
   static bool Substitute(
-    std::string &source,
-    const std::string &search,
-    const std::string &replace,
-    bool all = true);
+    std::string& source, const std::string& search, const std::string& replace, bool all = true);
 
   /**
    * Perform in-place string substitutions on the shader source string and
@@ -240,23 +235,20 @@ public:
    * \return    A boolean indicating whether the replacement was successful
    */
   static bool Substitute(
-    vtkShader* shader,
-    const std::string &search,
-    const std::string &replace,
-    bool all = true);
+    vtkShader* shader, const std::string& search, const std::string& replace, bool all = true);
 
   /**
    * methods to inquire as to what uniforms/attributes are used by
    * this shader.  This can save some compute time if the uniforms
    * or attributes are expensive to compute
    */
-  bool IsUniformUsed(const char *);
+  bool IsUniformUsed(const char*);
 
   /**
    * Return true if the compiled and linked shader has an attribute matching @a
    * name.
    */
-  bool IsAttributeUsed(const char *name);
+  bool IsAttributeUsed(const char* name);
 
   // maps of std::string are super slow when calling find
   // with a string literal or const char * as find
@@ -266,10 +258,7 @@ public:
   // huge CPU hog.
   struct cmp_str
   {
-     bool operator()(const char *a, const char *b) const
-     {
-        return strcmp(a, b) < 0;
-     }
+    bool operator()(const char* a, const char* b) const { return strcmp(a, b) < 0; }
   };
 
   //@{
@@ -300,7 +289,8 @@ public:
    * uniforms was last updated. This can be used to reduce
    * redundant SetUniformCalls
    */
-  enum UniformGroups {
+  enum UniformGroups
+  {
     CameraGroup,
     LightingGroup,
     UserGroup, // always will be last
@@ -311,8 +301,8 @@ public:
 
   // returns the location for a uniform or attribute in
   // this program. Is cached for performance.
-  int FindUniform(const char *name);
-  int FindAttributeArray(const char *name);
+  int FindUniform(const char* name);
+  int FindAttributeArray(const char* name);
 
 protected:
   vtkShaderProgram();
@@ -324,22 +314,22 @@ protected:
    * you need to use the shader cache to compile/link/bind your shader
    * do not try to do it yourself as it will screw up the cache
    ***************************************************************/
-   friend class vtkOpenGLShaderCache;
+  friend class vtkOpenGLShaderCache;
 
-    /**
+  /**
    * Attach the supplied shader to this program.
    * @note A maximum of one Vertex shader and one Fragment shader can be
    * attached to a shader program.
    * @return true on success.
    */
-  bool AttachShader(const vtkShader *shader);
+  bool AttachShader(const vtkShader* shader);
 
   /** Detach the supplied shader from this program.
    * @note A maximum of one Vertex shader and one Fragment shader can be
    * attached to a shader program.
    * @return true on success.
    */
-  bool DetachShader(const vtkShader *shader);
+  bool DetachShader(const vtkShader* shader);
 
   /**
    * Compile this shader program and attached shaders
@@ -364,17 +354,16 @@ protected:
 
   /************* end **************************************/
 
-  vtkShader *VertexShader;
-  vtkShader *FragmentShader;
-  vtkShader *GeometryShader;
-  vtkTransformFeedback *TransformFeedback;
+  vtkShader* VertexShader;
+  vtkShader* FragmentShader;
+  vtkShader* GeometryShader;
+  vtkTransformFeedback* TransformFeedback;
 
   // hash of the shader program
   std::string MD5Hash;
 
-  bool SetAttributeArrayInternal(const char *name, void *buffer,
-                                 int type, int tupleSize,
-                                 NormalizeOption normalize);
+  bool SetAttributeArrayInternal(
+    const char* name, void* buffer, int type, int tupleSize, NormalizeOption normalize);
   int Handle;
   int VertexShaderHandle;
   int FragmentShaderHandle;
@@ -395,8 +384,8 @@ protected:
   // since we are using const char * arrays we have to
   // free our memory :-)
   void ClearMaps();
-  std::map<const char *, int, cmp_str> AttributeLocs;
-  std::map<const char *, int, cmp_str> UniformLocs;
+  std::map<const char*, int, cmp_str> AttributeLocs;
+  std::map<const char*, int, cmp_str> UniformLocs;
 
   std::map<int, vtkMTimeType> UniformGroupMTimes;
 
@@ -408,6 +397,5 @@ private:
 
   char* FileNamePrefixForDebugging;
 };
-
 
 #endif

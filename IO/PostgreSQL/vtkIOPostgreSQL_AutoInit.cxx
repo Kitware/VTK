@@ -20,14 +20,13 @@
 #include <string>
 
 // Registration of PostgreSQL dynamically with the vtkSQLDatabase factory method.
-vtkSQLDatabase * PostgreSQLCreateFunction(const char* URL)
+vtkSQLDatabase* PostgreSQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkPostgreSQLDatabase *db = 0;
+  vtkPostgreSQLDatabase* db = 0;
 
-  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
-      protocol == "psql")
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "psql")
   {
     db = vtkPostgreSQLDatabase::New();
     db->ParseURL(URL);

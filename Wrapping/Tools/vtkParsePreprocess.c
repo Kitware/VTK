@@ -20,10 +20,10 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkParsePreprocess.h"
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <errno.h>
 #include <sys/stat.h>
 
 /**
@@ -40,25 +40,24 @@
 #define PREPROC_HASH_TABLE_SIZE 1024u
 
 /** Hashes for preprocessor keywords */
-#define HASH_IFDEF      0x0fa4b283u
-#define HASH_IFNDEF     0x04407ab1u
-#define HASH_IF         0x00597834u
-#define HASH_ELIF       0x7c964b25u
-#define HASH_ELSE       0x7c964c6eu
-#define HASH_ENDIF      0x0f60b40bu
-#define HASH_DEFINED    0x088998d4u
-#define HASH_DEFINE     0xf8804a70u
-#define HASH_UNDEF      0x10823b97u
-#define HASH_INCLUDE    0x9e36af89u
-#define HASH_ERROR      0x0f6321efu
-#define HASH_LINE       0x7c9a15adu
-#define HASH_PRAGMA     0x1566a9fdu
+#define HASH_IFDEF 0x0fa4b283u
+#define HASH_IFNDEF 0x04407ab1u
+#define HASH_IF 0x00597834u
+#define HASH_ELIF 0x7c964b25u
+#define HASH_ELSE 0x7c964c6eu
+#define HASH_ENDIF 0x0f60b40bu
+#define HASH_DEFINED 0x088998d4u
+#define HASH_DEFINE 0xf8804a70u
+#define HASH_UNDEF 0x10823b97u
+#define HASH_INCLUDE 0x9e36af89u
+#define HASH_ERROR 0x0f6321efu
+#define HASH_LINE 0x7c9a15adu
+#define HASH_PRAGMA 0x1566a9fdu
 
 /** Extend dynamic arrays in a progression of powers of two.
  * Whenever "n" reaches a power of two, then the array size is
  * doubled so that "n" can be safely incremented. */
-static void *preproc_array_check(
-  void *arraymem, size_t size, int n)
+static void* preproc_array_check(void* arraymem, size_t size, int n)
 {
   /* if empty, alloc for the first time */
   if (n == 0)
@@ -66,9 +65,9 @@ static void *preproc_array_check(
     return malloc(size);
   }
   /* if count is power of two, reallocate with double size */
-  else if ((n & (n-1)) == 0)
+  else if ((n & (n - 1)) == 0)
   {
-    return realloc(arraymem, (n << 1)*size);
+    return realloc(arraymem, (n << 1) * size);
   }
 
   /* no reallocation, just return the original array */
@@ -76,7 +75,7 @@ static void *preproc_array_check(
 }
 
 /** Convert string to int. */
-static preproc_int_t string_to_preproc_int(const char *cp, int base)
+static preproc_int_t string_to_preproc_int(const char* cp, int base)
 {
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
   return _strtoi64(cp, NULL, base);
@@ -86,7 +85,7 @@ static preproc_int_t string_to_preproc_int(const char *cp, int base)
 }
 
 /** Convert string to unsigned int. */
-static preproc_uint_t string_to_preproc_uint(const char *cp, int base)
+static preproc_uint_t string_to_preproc_uint(const char* cp, int base)
 {
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
   return _strtoui64(cp, NULL, base);
@@ -96,7 +95,7 @@ static preproc_uint_t string_to_preproc_uint(const char *cp, int base)
 }
 
 /** Tokenize and compare two strings */
-static int preproc_identical(const char *text1, const char *text2)
+static int preproc_identical(const char* text1, const char* text2)
 {
   int result = 1;
 
@@ -114,17 +113,14 @@ static int preproc_identical(const char *text1, const char *text2)
 
       do
       {
-        if (t1.tok != t2.tok ||
-            t1.hash != t2.hash ||
-            t1.len != t2.len ||
-            strncmp(t1.text, t2.text, t1.len) != 0)
+        if (t1.tok != t2.tok || t1.hash != t2.hash || t1.len != t2.len ||
+          strncmp(t1.text, t2.text, t1.len) != 0)
         {
           break;
         }
         vtkParse_NextToken(&t1);
         vtkParse_NextToken(&t2);
-      }
-      while (t1.tok && t2.tok);
+      } while (t1.tok && t2.tok);
 
       result = (t1.tok == 0 && t2.tok == 0);
     }
@@ -134,10 +130,9 @@ static int preproc_identical(const char *text1, const char *text2)
 }
 
 /** Create a new preprocessor macro. */
-static MacroInfo *preproc_new_macro(
-  PreprocessInfo *info, const char *name, const char *definition)
+static MacroInfo* preproc_new_macro(PreprocessInfo* info, const char* name, const char* definition)
 {
-  MacroInfo *macro = (MacroInfo *)malloc(sizeof(MacroInfo));
+  MacroInfo* macro = (MacroInfo*)malloc(sizeof(MacroInfo));
   vtkParsePreprocess_InitMacro(macro);
   macro->Ordinal = ++info->MacroCounter;
 
@@ -150,15 +145,14 @@ static MacroInfo *preproc_new_macro(
   if (definition)
   {
     size_t n;
-    const char *cp = definition;
+    const char* cp = definition;
     StringTokenizer tokens;
     vtkParse_InitTokenizer(&tokens, cp, WS_PREPROC);
 
     do
     {
       cp = tokens.text + tokens.len;
-    }
-    while (vtkParse_NextToken(&tokens));
+    } while (vtkParse_NextToken(&tokens));
 
     n = cp - definition;
     macro->Definition = vtkParse_CacheString(info->Strings, definition, n);
@@ -170,55 +164,50 @@ static MacroInfo *preproc_new_macro(
 }
 
 /** Free a preprocessor macro struct. */
-static void preproc_free_macro(MacroInfo *info)
+static void preproc_free_macro(MacroInfo* info)
 {
   free(info);
 }
 
 /** Find a preprocessor macro, return 0 if not found. */
-static MacroInfo *preproc_find_macro(
-  PreprocessInfo *info, StringTokenizer *token)
+static MacroInfo* preproc_find_macro(PreprocessInfo* info, StringTokenizer* token)
 {
   unsigned int m = PREPROC_HASH_TABLE_SIZE - 1;
   unsigned int i = (token->hash & m);
-  const char *name = token->text;
+  const char* name = token->text;
   size_t l = token->len;
-  MacroInfo ***htable = info->MacroHashTable;
-  MacroInfo **hptr;
-  const char *mname;
+  MacroInfo*** htable = info->MacroHashTable;
+  MacroInfo** hptr;
+  const char* mname;
 
   if (htable && ((hptr = htable[i]) != NULL) && *hptr)
   {
     do
     {
       mname = (*hptr)->Name;
-      if (mname[0] == name[0] &&
-          strncmp(mname, name, l) == 0 &&
-          mname[l] == '\0')
+      if (mname[0] == name[0] && strncmp(mname, name, l) == 0 && mname[l] == '\0')
       {
         return *hptr;
       }
       hptr++;
-    }
-    while (*hptr);
+    } while (*hptr);
   }
 
   return NULL;
 }
 
 /** Return the address of the macro within the hash table.
-  * If "insert" is nonzero, add a new location if macro not found. */
-static MacroInfo **preproc_macro_location(
-  PreprocessInfo *info, StringTokenizer *token, int insert)
+ * If "insert" is nonzero, add a new location if macro not found. */
+static MacroInfo** preproc_macro_location(PreprocessInfo* info, StringTokenizer* token, int insert)
 {
-  MacroInfo ***htable = info->MacroHashTable;
+  MacroInfo*** htable = info->MacroHashTable;
   unsigned int m = PREPROC_HASH_TABLE_SIZE - 1;
   unsigned int i = (token->hash & m);
-  const char *name = token->text;
+  const char* name = token->text;
   size_t l = token->len;
   size_t n;
-  MacroInfo **hptr;
-  const char *mname;
+  MacroInfo** hptr;
+  const char* mname;
 
   if (htable == NULL)
   {
@@ -228,9 +217,12 @@ static MacroInfo **preproc_macro_location(
     }
 
     m = PREPROC_HASH_TABLE_SIZE;
-    htable = (MacroInfo ***)malloc(m*sizeof(MacroInfo **));
+    htable = (MacroInfo***)malloc(m * sizeof(MacroInfo**));
     info->MacroHashTable = htable;
-    do { *htable++ = NULL; } while (--m);
+    do
+    {
+      *htable++ = NULL;
+    } while (--m);
     htable = info->MacroHashTable;
   }
 
@@ -243,7 +235,7 @@ static MacroInfo **preproc_macro_location(
       return NULL;
     }
 
-    hptr = (MacroInfo **)malloc(2*sizeof(MacroInfo *));
+    hptr = (MacroInfo**)malloc(2 * sizeof(MacroInfo*));
     hptr[0] = NULL;
     hptr[1] = NULL;
     htable[i] = hptr;
@@ -255,16 +247,13 @@ static MacroInfo **preproc_macro_location(
     do
     {
       mname = (*hptr)->Name;
-      if (mname[0] == name[0] &&
-          strncmp(mname, name, l) == 0 &&
-          mname[l] == '\0')
+      if (mname[0] == name[0] && strncmp(mname, name, l) == 0 && mname[l] == '\0')
       {
         break;
       }
       n++;
       hptr++;
-    }
-    while (*hptr);
+    } while (*hptr);
 
     if (*hptr == NULL)
     {
@@ -274,11 +263,11 @@ static MacroInfo **preproc_macro_location(
       }
 
       /* if n+1 is a power of two, double allocated space */
-      if (n > 0 && (n & (n+1)) == 0)
+      if (n > 0 && (n & (n + 1)) == 0)
       {
-        MacroInfo **oldhptr = hptr;
+        MacroInfo** oldhptr = hptr;
         hptr = htable[i];
-        hptr = (MacroInfo **)realloc(hptr, (2*(n+1))*sizeof(MacroInfo *));
+        hptr = (MacroInfo**)realloc(hptr, (2 * (n + 1)) * sizeof(MacroInfo*));
         if (!hptr)
         {
           free(oldhptr);
@@ -297,10 +286,9 @@ static MacroInfo **preproc_macro_location(
 }
 
 /** Remove a preprocessor macro.  Returns 0 if macro not found. */
-static int preproc_remove_macro(
-  PreprocessInfo *info, StringTokenizer *token)
+static int preproc_remove_macro(PreprocessInfo* info, StringTokenizer* token)
 {
-  MacroInfo **hptr;
+  MacroInfo** hptr;
 
   hptr = preproc_macro_location(info, token, 0);
 
@@ -312,8 +300,7 @@ static int preproc_remove_macro(
     {
       hptr[0] = hptr[1];
       hptr++;
-    }
-    while (*hptr);
+    } while (*hptr);
 
     return 1;
   }
@@ -322,12 +309,12 @@ static int preproc_remove_macro(
 }
 
 /** A simple way to add a preprocessor macro definition. */
-static MacroInfo *preproc_add_macro_definition(
-  PreprocessInfo *info, const char *name, const char *definition)
+static MacroInfo* preproc_add_macro_definition(
+  PreprocessInfo* info, const char* name, const char* definition)
 {
   StringTokenizer token;
-  MacroInfo *macro;
-  MacroInfo **macro_p;
+  MacroInfo* macro;
+  MacroInfo** macro_p;
 
   vtkParse_InitTokenizer(&token, name, WS_PREPROC);
 
@@ -345,7 +332,7 @@ static MacroInfo *preproc_add_macro_definition(
 }
 
 /** Skip over parentheses, return nonzero if not closed. */
-static int preproc_skip_parentheses(StringTokenizer *tokens)
+static int preproc_skip_parentheses(StringTokenizer* tokens)
 {
   int depth = 0;
 
@@ -379,8 +366,7 @@ static int preproc_skip_parentheses(StringTokenizer *tokens)
 }
 
 /** Evaluate a char literal to an integer value. */
-static int preproc_evaluate_char(
-  const char *cp, preproc_int_t *val, int *is_unsigned)
+static int preproc_evaluate_char(const char* cp, preproc_int_t* val, int* is_unsigned)
 {
   size_t i = 0;
   preproc_int_t code = 0;
@@ -406,38 +392,103 @@ static int preproc_evaluate_char(
     else if (*cp != '\'' && *cp != '\n' && *cp != '\0')
     {
       cp++;
-      if (*cp == 'a') { *val = '\a'; cp++; }
-      else if (*cp == 'b') { *val = '\b'; cp++; }
-      else if (*cp == 'f') { *val = '\f'; cp++; }
-      else if (*cp == 'n') { *val = '\n'; cp++; }
-      else if (*cp == 'r') { *val = '\r'; cp++; }
-      else if (*cp == 't') { *val = '\t'; cp++; }
-      else if (*cp == 'v') { *val = '\v'; cp++; }
-      else if (*cp == '\'') { *val = '\''; cp++; }
-      else if (*cp == '\"') { *val = '\"'; cp++; }
-      else if (*cp == '\\') { *val = '\\'; cp++; }
-      else if (*cp == '\?') { *val = '\?'; cp++; }
+      if (*cp == 'a')
+      {
+        *val = '\a';
+        cp++;
+      }
+      else if (*cp == 'b')
+      {
+        *val = '\b';
+        cp++;
+      }
+      else if (*cp == 'f')
+      {
+        *val = '\f';
+        cp++;
+      }
+      else if (*cp == 'n')
+      {
+        *val = '\n';
+        cp++;
+      }
+      else if (*cp == 'r')
+      {
+        *val = '\r';
+        cp++;
+      }
+      else if (*cp == 't')
+      {
+        *val = '\t';
+        cp++;
+      }
+      else if (*cp == 'v')
+      {
+        *val = '\v';
+        cp++;
+      }
+      else if (*cp == '\'')
+      {
+        *val = '\'';
+        cp++;
+      }
+      else if (*cp == '\"')
+      {
+        *val = '\"';
+        cp++;
+      }
+      else if (*cp == '\\')
+      {
+        *val = '\\';
+        cp++;
+      }
+      else if (*cp == '\?')
+      {
+        *val = '\?';
+        cp++;
+      }
       else if (*cp >= '0' && *cp <= '7')
       {
         code = string_to_preproc_int(cp, 8);
-        do { cp++; i++; } while (i < 4 && *cp >= '0' && *cp <= '7');
+        do
+        {
+          cp++;
+          i++;
+        } while (i < 4 && *cp >= '0' && *cp <= '7');
       }
       else if (*cp == 'x')
       {
-        code = string_to_preproc_int(cp+1, 16);
-        do { cp++; } while (vtkParse_CharType(*cp, CPRE_HEX));
+        code = string_to_preproc_int(cp + 1, 16);
+        do
+        {
+          cp++;
+        } while (vtkParse_CharType(*cp, CPRE_HEX));
       }
       else if (*cp == 'u')
       {
-        code = string_to_preproc_int(cp+1, 16);
-        do { cp++; i++; } while (i < 5 && vtkParse_CharType(*cp, CPRE_HEX));
-        if (i != 5) { cp -= i; }
+        code = string_to_preproc_int(cp + 1, 16);
+        do
+        {
+          cp++;
+          i++;
+        } while (i < 5 && vtkParse_CharType(*cp, CPRE_HEX));
+        if (i != 5)
+        {
+          cp -= i;
+        }
       }
       else if (*cp == 'U')
       {
-        code = string_to_preproc_int(cp+1, 16);
-        do { cp++; i++; } while (i < 9 && vtkParse_CharType(*cp, CPRE_HEX));
-        if (i != 9) { cp -= i; }
+        code = string_to_preproc_int(cp + 1, 16);
+        do
+        {
+          cp++;
+          i++;
+        } while (i < 9 && vtkParse_CharType(*cp, CPRE_HEX));
+        if (i != 9)
+        {
+          cp -= i;
+        }
       }
     }
     if (*cp != '\'')
@@ -469,11 +520,10 @@ static int preproc_evaluate_char(
 }
 
 /* Evaluate an integer, ignoring any suffixes except 'u'. */
-static int preproc_evaluate_integer(
-  const char *cp, preproc_int_t *val, int *is_unsigned)
+static int preproc_evaluate_integer(const char* cp, preproc_int_t* val, int* is_unsigned)
 {
   char temp[72];
-  const char *ep;
+  const char* ep;
   size_t apos = 0;
   size_t i = 0;
   int base = 0;
@@ -543,15 +593,14 @@ static int preproc_evaluate_integer(
   }
 
   if (*ep == '.' ||
-      ((ep[0] == 'e' || ep[0] == 'E') &&
-       (vtkParse_CharType(ep[1], CPRE_SIGN) ||
-        vtkParse_CharType(ep[1], CPRE_DIGIT))))
+    ((ep[0] == 'e' || ep[0] == 'E') &&
+      (vtkParse_CharType(ep[1], CPRE_SIGN) || vtkParse_CharType(ep[1], CPRE_DIGIT))))
   {
     *val = 0;
     return VTK_PARSE_PREPROC_DOUBLE;
   }
 
-  if (apos > 0 && ep-cp-apos < sizeof(temp))
+  if (apos > 0 && ep - cp - apos < sizeof(temp))
   {
     while (cp != ep)
     {
@@ -567,10 +616,23 @@ static int preproc_evaluate_integer(
 
   for (;;)
   {
-    if (ep[0] == 'i' && ep[1] == '6' && ep[2] == '4') { ep += 3; }
-    else if (*ep == 'u') { *is_unsigned = 1; ep++; }
-    else if (*ep == 'l' || *ep == 'L') { ep++; }
-    else { break; }
+    if (ep[0] == 'i' && ep[1] == '6' && ep[2] == '4')
+    {
+      ep += 3;
+    }
+    else if (*ep == 'u')
+    {
+      *is_unsigned = 1;
+      ep++;
+    }
+    else if (*ep == 'l' || *ep == 'L')
+    {
+      ep++;
+    }
+    else
+    {
+      break;
+    }
   }
 
   if (*is_unsigned)
@@ -587,13 +649,11 @@ static int preproc_evaluate_integer(
 
 /* forward declaration */
 static int preproc_evaluate_expression(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned);
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned);
 
 /** Evaluate a single item in an expression. */
 static int preproc_evaluate_single(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int result = VTK_PARSE_OK;
 
@@ -601,7 +661,7 @@ static int preproc_evaluate_single(
   {
     /* handle the "defined" keyword */
     if (tokens->hash == HASH_DEFINED && tokens->len == 7 &&
-        strncmp("defined", tokens->text, tokens->len) == 0)
+      strncmp("defined", tokens->text, tokens->len) == 0)
     {
       int paren = 0;
       vtkParse_NextToken(tokens);
@@ -643,10 +703,10 @@ static int preproc_evaluate_single(
     else
     {
       /* look up and evaluate the macro */
-      MacroInfo *macro = preproc_find_macro(info, tokens);
-      const char *args = NULL;
-      const char *expansion = NULL;
-      const char *cp;
+      MacroInfo* macro = preproc_find_macro(info, tokens);
+      const char* args = NULL;
+      const char* expansion = NULL;
+      const char* cp;
       vtkParse_NextToken(tokens);
       *val = 0;
       *is_unsigned = 0;
@@ -659,8 +719,7 @@ static int preproc_evaluate_single(
       {
         /* expand function macros using the arguments */
         args = tokens->text;
-        if (tokens->tok != '(' ||
-            preproc_skip_parentheses(tokens) != VTK_PARSE_OK)
+        if (tokens->tok != '(' || preproc_skip_parentheses(tokens) != VTK_PARSE_OK)
         {
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
@@ -681,11 +740,9 @@ static int preproc_evaluate_single(
       if (*cp != '\0')
       {
         macro->IsExcluded = 1;
-        result = vtkParsePreprocess_EvaluateExpression(
-          info, expansion, val, is_unsigned);
+        result = vtkParsePreprocess_EvaluateExpression(info, expansion, val, is_unsigned);
         macro->IsExcluded = 0;
-        vtkParsePreprocess_FreeMacroExpansion(
-          info, macro, expansion);
+        vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
         return result;
       }
       vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
@@ -714,8 +771,7 @@ static int preproc_evaluate_single(
   else if (tokens->tok == TOK_NUMBER)
   {
     result = preproc_evaluate_integer(tokens->text, val, is_unsigned);
-    if (tokens->text[tokens->len-1] == 'f' ||
-        tokens->text[tokens->len-1] == 'F')
+    if (tokens->text[tokens->len - 1] == 'f' || tokens->text[tokens->len - 1] == 'F')
     {
       result = VTK_PARSE_PREPROC_FLOAT;
     }
@@ -743,15 +799,14 @@ static int preproc_evaluate_single(
   *val = 0;
   *is_unsigned = 0;
 #if PREPROC_DEBUG
-  fprintf(stderr, "syntax error %d \"%*.*s\"\n", __LINE__,
-          (int)tokens->len, (int)tokens->len, tokens->text);
+  fprintf(stderr, "syntax error %d \"%*.*s\"\n", __LINE__, (int)tokens->len, (int)tokens->len,
+    tokens->text);
 #endif
   return VTK_PARSE_SYNTAX_ERROR;
 }
 
 static int preproc_evaluate_unary(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op = tokens->tok;
   int result = VTK_PARSE_OK;
@@ -766,9 +821,19 @@ static int preproc_evaluate_unary(
   result = preproc_evaluate_unary(info, tokens, val, is_unsigned);
   if ((result & VTK_PARSE_FATAL_ERROR) == 0)
   {
-    if (op == '~') { *val = ~(*val); }
-    else if (op == '!') { *val = !(*val); *is_unsigned = 0; }
-    else if (op == '-') { *val = -(*val); }
+    if (op == '~')
+    {
+      *val = ~(*val);
+    }
+    else if (op == '!')
+    {
+      *val = !(*val);
+      *is_unsigned = 0;
+    }
+    else if (op == '-')
+    {
+      *val = -(*val);
+    }
     return result;
   }
 
@@ -776,8 +841,7 @@ static int preproc_evaluate_unary(
 }
 
 static int preproc_evaluate_multiply(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op;
   preproc_int_t rval;
@@ -803,15 +867,13 @@ static int preproc_evaluate_multiply(
     {
       if (op == '*')
       {
-        *val = (preproc_int_t)((preproc_uint_t)*val *
-                                (preproc_uint_t)rval);
+        *val = (preproc_int_t)((preproc_uint_t)*val * (preproc_uint_t)rval);
       }
       else if (op == '/')
       {
         if (rval != 0)
         {
-          *val = (preproc_int_t)((preproc_uint_t)*val /
-                                 (preproc_uint_t)rval);
+          *val = (preproc_int_t)((preproc_uint_t)*val / (preproc_uint_t)rval);
         }
         else
         {
@@ -822,8 +884,7 @@ static int preproc_evaluate_multiply(
       {
         if (rval != 0)
         {
-          *val = (preproc_int_t)((preproc_uint_t)*val %
-                                  (preproc_uint_t)rval);
+          *val = (preproc_int_t)((preproc_uint_t)*val % (preproc_uint_t)rval);
         }
         else
         {
@@ -874,8 +935,7 @@ static int preproc_evaluate_multiply(
 }
 
 static int preproc_evaluate_add(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op;
   preproc_int_t rval;
@@ -911,8 +971,7 @@ static int preproc_evaluate_add(
 }
 
 static int preproc_evaluate_bitshift(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op;
   preproc_int_t rval;
@@ -961,8 +1020,7 @@ static int preproc_evaluate_bitshift(
 }
 
 static int preproc_evaluate_compare(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op;
   preproc_int_t rval;
@@ -1029,8 +1087,7 @@ static int preproc_evaluate_compare(
 }
 
 static int preproc_evaluate_equal(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   int op;
   preproc_int_t rval;
@@ -1065,8 +1122,7 @@ static int preproc_evaluate_equal(
 }
 
 static int preproc_evaluate_and(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval;
   int rtype;
@@ -1092,8 +1148,7 @@ static int preproc_evaluate_and(
 }
 
 static int preproc_evaluate_xor(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval;
   int rtype;
@@ -1119,8 +1174,7 @@ static int preproc_evaluate_xor(
 }
 
 static int preproc_evaluate_or(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval;
   int rtype;
@@ -1146,8 +1200,7 @@ static int preproc_evaluate_or(
 }
 
 static int preproc_evaluate_logic_and(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval;
   int rtype;
@@ -1166,9 +1219,8 @@ static int preproc_evaluate_logic_and(
     if (*val == 0)
     {
       /* short circuit */
-      while (tokens->tok != 0 && tokens->tok != ')' &&
-             tokens->tok != ':' && tokens->tok != '?' &&
-             tokens->tok != ',' && tokens->tok != TOK_OR)
+      while (tokens->tok != 0 && tokens->tok != ')' && tokens->tok != ':' && tokens->tok != '?' &&
+        tokens->tok != ',' && tokens->tok != TOK_OR)
       {
         if (tokens->tok == '(')
         {
@@ -1201,8 +1253,7 @@ static int preproc_evaluate_logic_and(
 }
 
 static int preproc_evaluate_logic_or(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval;
   int rtype;
@@ -1221,9 +1272,8 @@ static int preproc_evaluate_logic_or(
     if (*val != 0)
     {
       /* short circuit */
-      while (tokens->tok != 0 && tokens->tok != ')' &&
-             tokens->tok != ':' && tokens->tok != '?' &&
-             tokens->tok != ',')
+      while (tokens->tok != 0 && tokens->tok != ')' && tokens->tok != ':' && tokens->tok != '?' &&
+        tokens->tok != ',')
       {
         if (tokens->tok == '(')
         {
@@ -1257,8 +1307,7 @@ static int preproc_evaluate_logic_or(
 
 /** Evaluate an arimetic *expression.  */
 int preproc_evaluate_expression(
-  PreprocessInfo *info, StringTokenizer *tokens,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, StringTokenizer* tokens, preproc_int_t* val, int* is_unsigned)
 {
   preproc_int_t rval, sval;
   int rtype, stype;
@@ -1314,8 +1363,7 @@ int preproc_evaluate_expression(
 /** Evaluate a conditional *expression.
  * Returns VTK_PARSE_OK if the expression is true,
  * or VTK_PARSE_SKIP of the expression is false. */
-int preproc_evaluate_conditional(
-  PreprocessInfo *info, StringTokenizer *tokens)
+int preproc_evaluate_conditional(PreprocessInfo* info, StringTokenizer* tokens)
 {
   preproc_int_t rval;
   int rtype;
@@ -1343,16 +1391,13 @@ int preproc_evaluate_conditional(
  * A return value of VTK_PARSE_SKIP means that
  * the following code block should be skipped.
  */
-static int preproc_evaluate_if(
-  PreprocessInfo *info, StringTokenizer *tokens)
+static int preproc_evaluate_if(PreprocessInfo* info, StringTokenizer* tokens)
 {
-  MacroInfo *macro;
+  MacroInfo* macro;
   int v1, v2;
   int result = VTK_PARSE_OK;
 
-  if (tokens->hash == HASH_IF ||
-      tokens->hash == HASH_IFDEF ||
-      tokens->hash == HASH_IFNDEF)
+  if (tokens->hash == HASH_IF || tokens->hash == HASH_IFDEF || tokens->hash == HASH_IFNDEF)
   {
     if (info->ConditionalDepth == 0)
     {
@@ -1375,7 +1420,7 @@ static int preproc_evaluate_if(
         macro = preproc_find_macro(info, tokens);
         v2 = (macro && !macro->IsExcluded);
         vtkParse_NextToken(tokens);
-        result = ( (v1 ^ v2) ? VTK_PARSE_SKIP : VTK_PARSE_OK);
+        result = ((v1 ^ v2) ? VTK_PARSE_SKIP : VTK_PARSE_OK);
       }
 
       if (result != VTK_PARSE_SKIP)
@@ -1397,16 +1442,14 @@ static int preproc_evaluate_if(
       info->ConditionalDepth++;
     }
   }
-  else if (tokens->hash == HASH_ELIF ||
-           tokens->hash == HASH_ELSE)
+  else if (tokens->hash == HASH_ELIF || tokens->hash == HASH_ELSE)
   {
     if (info->ConditionalDepth == 0)
     {
       /* preceding clause was not skipped, so must skip this one */
       info->ConditionalDepth = 1;
     }
-    else if (info->ConditionalDepth == 1 &&
-             info->ConditionalDone == 0)
+    else if (info->ConditionalDepth == 1 && info->ConditionalDone == 0)
     {
       if (tokens->hash == HASH_ELIF)
       {
@@ -1447,19 +1490,18 @@ static int preproc_evaluate_if(
 /**
  * Handle the #define and #undef directives.
  */
-static int preproc_evaluate_define(
-  PreprocessInfo *info, StringTokenizer *tokens)
+static int preproc_evaluate_define(PreprocessInfo* info, StringTokenizer* tokens)
 {
-  MacroInfo **macro_p;
-  MacroInfo *macro;
+  MacroInfo** macro_p;
+  MacroInfo* macro;
   int is_function;
   int is_variadic;
-  const char *name;
+  const char* name;
   size_t namelen;
-  const char *definition = 0;
+  const char* definition = 0;
   int n = 0;
-  const char **params = NULL;
-  const char *param;
+  const char** params = NULL;
+  const char* param;
   size_t l;
 
   if (tokens->hash == HASH_DEFINE)
@@ -1488,7 +1530,7 @@ static int preproc_evaluate_define(
       {
         if (tokens->tok != TOK_ID && tokens->tok != TOK_ELLIPSIS)
         {
-          free((char **)params);
+          free((char**)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1506,8 +1548,7 @@ static int preproc_evaluate_define(
         }
 
         /* add to the arg list */
-        params = (const char **)preproc_array_check(
-          (char **)params, sizeof(char *), n);
+        params = (const char**)preproc_array_check((char**)params, sizeof(char*), n);
         params[n++] = vtkParse_CacheString(info->Strings, param, l);
 
         vtkParse_NextToken(tokens);
@@ -1525,7 +1566,7 @@ static int preproc_evaluate_define(
         }
         else if (tokens->tok != ')')
         {
-          free((char **)params);
+          free((char**)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1543,7 +1584,7 @@ static int preproc_evaluate_define(
     macro = *macro_p;
     if (macro)
     {
-      free((char **)params);
+      free((char**)params);
       if (preproc_identical(macro->Definition, definition))
       {
         return VTK_PARSE_OK;
@@ -1583,7 +1624,7 @@ static int preproc_evaluate_define(
 /**
  * Add an include file to the list.  Return 0 if it is already there.
  */
-static int preproc_add_include_file(PreprocessInfo *info, const char *name)
+static int preproc_add_include_file(PreprocessInfo* info, const char* name)
 {
   int i, n;
 
@@ -1596,8 +1637,8 @@ static int preproc_add_include_file(PreprocessInfo *info, const char *name)
     }
   }
 
-  info->IncludeFiles = (const char **)preproc_array_check(
-    (char **)info->IncludeFiles, sizeof(char *), info->NumberOfIncludeFiles);
+  info->IncludeFiles = (const char**)preproc_array_check(
+    (char**)info->IncludeFiles, sizeof(char*), info->NumberOfIncludeFiles);
   info->IncludeFiles[info->NumberOfIncludeFiles++] =
     vtkParse_CacheString(info->Strings, name, strlen(name));
 
@@ -1608,26 +1649,27 @@ static int preproc_add_include_file(PreprocessInfo *info, const char *name)
  * Find an include file.  If "cache_only" is set, then do a check to
  * see if the file was previously found without going to the filesystem.
  */
-const char *preproc_find_include_file(
-  PreprocessInfo *info, const char *filename, preproc_search_t order,
-  int cache_only)
+const char* preproc_find_include_file(
+  PreprocessInfo* info, const char* filename, preproc_search_t order, int cache_only)
 {
   int i, n, ii, nn;
   size_t j, m;
   struct stat fs;
-  const char *directory;
-  char *output;
+  const char* directory;
+  char* output;
   size_t outputsize = 16;
   int count;
   int extra = 0;
 
   /* allow filename to be terminated by quote or bracket */
   m = 0;
-  while (filename[m] != '\"' && filename[m] != '>' &&
-         filename[m] != '\n' && filename[m] != '\0') { m++; }
+  while (filename[m] != '\"' && filename[m] != '>' && filename[m] != '\n' && filename[m] != '\0')
+  {
+    m++;
+  }
 
   /* search file system for the file */
-  output = (char *)malloc(outputsize);
+  output = (char*)malloc(outputsize);
 
   if (order == VTK_PARSE_SOURCE_INCLUDE)
   {
@@ -1645,15 +1687,18 @@ const char *preproc_find_include_file(
 
   /* check for absolute path of form DRIVE: or /path/to/file */
   j = 0;
-  while (vtkParse_CharType(filename[j], CPRE_XID)) { j++; }
+  while (vtkParse_CharType(filename[j], CPRE_XID))
+  {
+    j++;
+  }
 
   if (filename[j] == ':' || filename[0] == '/' || filename[0] == '\\')
   {
-    if (m+1 > outputsize)
+    if (m + 1 > outputsize)
     {
-      char *oldoutput = output;
-      outputsize += m+1;
-      output = (char *)realloc(output, outputsize);
+      char* oldoutput = output;
+      outputsize += m + 1;
+      output = (char*)realloc(output, outputsize);
       if (!output)
       {
         free(oldoutput);
@@ -1679,9 +1724,8 @@ const char *preproc_find_include_file(
       return NULL;
     }
 
-    info->IncludeFiles = (const char **)preproc_array_check(
-      (char **)info->IncludeFiles, sizeof(char *),
-      info->NumberOfIncludeFiles);
+    info->IncludeFiles = (const char**)preproc_array_check(
+      (char**)info->IncludeFiles, sizeof(char*), info->NumberOfIncludeFiles);
     info->IncludeFiles[info->NumberOfIncludeFiles++] = output;
 
     return output;
@@ -1694,27 +1738,30 @@ const char *preproc_find_include_file(
   }
 
   /* Check twice. First check the cache, then stat the files. */
-  for (count = 0; count < (2-cache_only); count++)
+  for (count = 0; count < (2 - cache_only); count++)
   {
     n = info->NumberOfIncludeDirectories;
-    for (i = 0; i < (n+extra); i++)
+    for (i = 0; i < (n + extra); i++)
     {
       /* search the directory of the file being processed */
       if (i < extra)
       {
-        if (info->FileName && i+1 == extra)
+        if (info->FileName && i + 1 == extra)
         {
           j = strlen(info->FileName);
           while (j > 0)
           {
-            if (info->FileName[j-1] == '/') { break; }
+            if (info->FileName[j - 1] == '/')
+            {
+              break;
+            }
             j--;
           }
-          if (m+j+1 > outputsize)
+          if (m + j + 1 > outputsize)
           {
-            char *oldoutput = output;
-            outputsize += m+j+1;
-            output = (char *)realloc(output, outputsize);
+            char* oldoutput = output;
+            outputsize += m + j + 1;
+            output = (char*)realloc(output, outputsize);
             if (!output)
             {
               free(oldoutput);
@@ -1726,15 +1773,15 @@ const char *preproc_find_include_file(
             strncpy(output, info->FileName, j);
           }
           strncpy(&output[j], filename, m);
-          output[j+m] = '\0';
+          output[j + m] = '\0';
         }
         else
         {
-          if (m+1 > outputsize)
+          if (m + 1 > outputsize)
           {
-            char *oldoutput = output;
-            outputsize += m+1;
-            output = (char *)realloc(output, outputsize);
+            char* oldoutput = output;
+            outputsize += m + 1;
+            output = (char*)realloc(output, outputsize);
             if (!output)
             {
               free(oldoutput);
@@ -1748,13 +1795,13 @@ const char *preproc_find_include_file(
       /* check all the search paths */
       else
       {
-        directory = info->IncludeDirectories[i-extra];
+        directory = info->IncludeDirectories[i - extra];
         j = strlen(directory);
         if (j + m + 2 > outputsize)
         {
-          char *oldoutput = output;
-          outputsize += j+m+2;
-          output = (char *)realloc(output, outputsize);
+          char* oldoutput = output;
+          outputsize += j + m + 2;
+          output = (char*)realloc(output, outputsize);
           if (!output)
           {
             free(oldoutput);
@@ -1763,9 +1810,12 @@ const char *preproc_find_include_file(
         }
         /* memmove as we intentionally are not copying /0 */
         memmove(output, directory, j);
-        if (directory[j-1] != '/') { output[j++] = '/'; }
+        if (directory[j - 1] != '/')
+        {
+          output[j++] = '/';
+        }
         strncpy(&output[j], filename, m);
-        output[j+m] = '\0';
+        output[j + m] = '\0';
       }
 
       if (count == 0)
@@ -1781,16 +1831,14 @@ const char *preproc_find_include_file(
         }
       }
 #if defined(_WIN32) && !defined(__CYGWIN__)
-      else if (stat(output, &fs) == 0 &&
-               (fs.st_mode & _S_IFMT) != _S_IFDIR)
+      else if (stat(output, &fs) == 0 && (fs.st_mode & _S_IFMT) != _S_IFDIR)
 #else
-      else if (stat(output, &fs) == 0 &&
-               !S_ISDIR(fs.st_mode))
+      else if (stat(output, &fs) == 0 && !S_ISDIR(fs.st_mode))
 #endif
       {
         nn = info->NumberOfIncludeFiles;
-        info->IncludeFiles = (const char **)preproc_array_check(
-          (char **)info->IncludeFiles, sizeof(char *), nn);
+        info->IncludeFiles =
+          (const char**)preproc_array_check((char**)info->IncludeFiles, sizeof(char*), nn);
         info->IncludeFiles[info->NumberOfIncludeFiles++] =
           vtkParse_CacheString(info->Strings, output, strlen(output));
         free(output);
@@ -1808,24 +1856,23 @@ const char *preproc_find_include_file(
  * function for vtkParsePreprocess_IncludeFile() to allow raw strings to
  * be used in preprocessor directives.
  */
-void preproc_escape_string(
-  char **linep, size_t *linelenp, size_t *jp, size_t d, size_t dl)
+void preproc_escape_string(char** linep, size_t* linelenp, size_t* jp, size_t d, size_t dl)
 {
-  char *line = *linep;
-  char *r = 0;
+  char* line = *linep;
+  char* r = 0;
   size_t linelen = *linelenp;
-  size_t l = *jp - d - 2*dl - 2;
+  size_t l = *jp - d - 2 * dl - 2;
   size_t i;
   size_t j = d;
 
   if (l != 0)
   {
-    r = (char *)malloc(l);
-    memcpy(r, &line[j+dl+1], l);
+    r = (char*)malloc(l);
+    memcpy(r, &line[j + dl + 1], l);
   }
 
   /* remove the "R" prefix */
-  if (j >= 2 && line[j-1] == '\"' && line[j-2] == 'R')
+  if (j >= 2 && line[j - 1] == '\"' && line[j - 2] == 'R')
   {
     line[j - 2] = '\"';
     j--;
@@ -1834,11 +1881,11 @@ void preproc_escape_string(
   for (i = 0; i < l; i++)
   {
     /* expand line buffer as necessary */
-    while (j+4 > linelen)
+    while (j + 4 > linelen)
     {
-      char *oldline = line;
+      char* oldline = line;
       linelen *= 2;
-      line = (char *)realloc(line, linelen);
+      line = (char*)realloc(line, linelen);
       if (!line)
       {
         free(r);
@@ -1854,23 +1901,54 @@ void preproc_escape_string(
     {
       line[j++] = r[i];
     }
-    else switch (r[i])
-    {
-      case '\a': line[j++] = '\\'; line[j++] = 'a'; break;
-      case '\b': line[j++] = '\\'; line[j++] = 'b'; break;
-      case '\f': line[j++] = '\\'; line[j++] = 'f'; break;
-      case '\n': line[j++] = '\\'; line[j++] = 'n'; break;
-      case '\r': line[j++] = '\\'; line[j++] = 'r'; break;
-      case '\t': line[j++] = '\\'; line[j++] = 't'; break;
-      case '\v': line[j++] = '\\'; line[j++] = 'v'; break;
-      case '\\': line[j++] = '\\'; line[j++] = '\\'; break;
-      case '\'': line[j++] = '\\'; line[j++] = '\''; break;
-      case '\"': line[j++] = '\\'; line[j++] = '\"'; break;
-      default:
-        sprintf(&line[j], "\\%3.3o", r[i]);
-        j += 4;
-        break;
-    }
+    else
+      switch (r[i])
+      {
+        case '\a':
+          line[j++] = '\\';
+          line[j++] = 'a';
+          break;
+        case '\b':
+          line[j++] = '\\';
+          line[j++] = 'b';
+          break;
+        case '\f':
+          line[j++] = '\\';
+          line[j++] = 'f';
+          break;
+        case '\n':
+          line[j++] = '\\';
+          line[j++] = 'n';
+          break;
+        case '\r':
+          line[j++] = '\\';
+          line[j++] = 'r';
+          break;
+        case '\t':
+          line[j++] = '\\';
+          line[j++] = 't';
+          break;
+        case '\v':
+          line[j++] = '\\';
+          line[j++] = 'v';
+          break;
+        case '\\':
+          line[j++] = '\\';
+          line[j++] = '\\';
+          break;
+        case '\'':
+          line[j++] = '\\';
+          line[j++] = '\'';
+          break;
+        case '\"':
+          line[j++] = '\\';
+          line[j++] = '\"';
+          break;
+        default:
+          sprintf(&line[j], "\\%3.3o", r[i]);
+          j += 4;
+          break;
+      }
   }
 
   free(r);
@@ -1884,31 +1962,33 @@ void preproc_escape_string(
  * will have their IsExternal flag set.
  */
 int vtkParsePreprocess_IncludeFile(
-  PreprocessInfo *info, const char *filename, preproc_search_t order)
+  PreprocessInfo* info, const char* filename, preproc_search_t order)
 {
-  const char *switchchars = "\n\r\"\'\?\\/*()";
+  const char* switchchars = "\n\r\"\'\?\\/*()";
   char switchchar[256];
-  char *tbuf;
+  char* tbuf;
   size_t tbuflen = FILE_BUFFER_SIZE;
-  char *line;
+  char* line;
   size_t linelen = 80;
   size_t i, j, n, r;
   size_t d = 0;
   size_t dn = 0;
   int state = 0;
   int result = VTK_PARSE_OK;
-  FILE *fp = NULL;
-  const char *save_filename;
+  FILE* fp = NULL;
+  const char* save_filename;
   int save_external;
 
   /* check to see if the file has already been included */
-  const char *path = preproc_find_include_file(info, filename, order, 1);
+  const char* path = preproc_find_include_file(info, filename, order, 1);
   if (path != 0)
   {
 #if PREPROC_DEBUG
     int k = 0;
-    while (filename[k] != '>' && filename[k] != '\"' &&
-           filename[k] != '\n' && filename[k] != '\0') { k++; }
+    while (filename[k] != '>' && filename[k] != '\"' && filename[k] != '\n' && filename[k] != '\0')
+    {
+      k++;
+    }
     if (filename[k] == '>')
       fprintf(stderr, "already loaded file <%*.*s>\n", k, k, filename);
     else
@@ -1923,8 +2003,10 @@ int vtkParsePreprocess_IncludeFile(
   {
 #if PREPROC_DEBUG
     int k = 0;
-    while (filename[k] != '>' && filename[k] != '\"' &&
-           filename[k] != '\n' && filename[k] != '\0') { k++; }
+    while (filename[k] != '>' && filename[k] != '\"' && filename[k] != '\n' && filename[k] != '\0')
+    {
+      k++;
+    }
     if (filename[k] == '>')
       fprintf(stderr, "couldn't find file <%*.*s>\n", k, k, filename);
     else
@@ -1959,8 +2041,8 @@ int vtkParsePreprocess_IncludeFile(
     switchchar[(unsigned char)(switchchars[i])] = 1;
   }
 
-  tbuf = (char *)malloc(tbuflen+4);
-  line = (char *)malloc(linelen);
+  tbuf = (char*)malloc(tbuflen + 4);
+  line = (char*)malloc(linelen);
 
   /* the buffer must hold a whole line for it to be processed */
   j = 0;
@@ -1978,12 +2060,12 @@ int vtkParsePreprocess_IncludeFile(
         r = n + 2 - i;
         if (r == 2)
         {
-          tbuf[0] = tbuf[tbuflen-2];
-          tbuf[1] = tbuf[tbuflen-1];
+          tbuf[0] = tbuf[tbuflen - 2];
+          tbuf[1] = tbuf[tbuflen - 1];
         }
         else if (r == 1)
         {
-          tbuf[0] = tbuf[tbuflen-1];
+          tbuf[0] = tbuf[tbuflen - 1];
         }
       }
 
@@ -2000,7 +2082,7 @@ int vtkParsePreprocess_IncludeFile(
         /* fill the remainder of the buffer */
         errno = 0;
         tbuflen = r + FILE_BUFFER_SIZE;
-        while ((n = fread(&tbuf[r], 1, tbuflen-r, fp)) == 0 && ferror(fp))
+        while ((n = fread(&tbuf[r], 1, tbuflen - r, fp)) == 0 && ferror(fp))
         {
           if (errno != EINTR)
           {
@@ -2036,11 +2118,11 @@ int vtkParsePreprocess_IncludeFile(
     while (i < n)
     {
       /* expand line buffer as necessary */
-      while (j+4 > linelen)
+      while (j + 4 > linelen)
       {
-        char *oldline = line;
+        char* oldline = line;
         linelen *= 2;
-        line = (char *)realloc(line, linelen);
+        line = (char*)realloc(line, linelen);
         if (!line)
         {
           free(oldline);
@@ -2068,8 +2150,8 @@ int vtkParsePreprocess_IncludeFile(
         /* look for end of raw string */
         if (tbuf[i] == '\"')
         {
-          if ((j - d) > 2*dn+1 && line[j-dn-1] == ')' &&
-              strncmp(&line[d], &line[j-dn], dn) == 0)
+          if ((j - d) > 2 * dn + 1 && line[j - dn - 1] == ')' &&
+            strncmp(&line[d], &line[j - dn], dn) == 0)
           {
             preproc_escape_string(&line, &linelen, &j, d, dn);
             state = 0;
@@ -2078,39 +2160,58 @@ int vtkParsePreprocess_IncludeFile(
         line[j++] = tbuf[i++];
       }
 #ifdef PREPROC_TRIGRAPHS
-      else if (tbuf[i] == '?' && tbuf[i+1] == '?')
+      else if (tbuf[i] == '?' && tbuf[i + 1] == '?')
       {
         i += 2;
         switch (tbuf[i])
         {
-          case '=': tbuf[i] = '#'; break;
-          case '/': tbuf[i] = '\\'; break;
-          case '\'': tbuf[i] = '^'; break;
-          case '(': tbuf[i] = '['; break;
-          case ')': tbuf[i] = ']'; break;
-          case '!': tbuf[i] = '|'; break;
-          case '<': tbuf[i] = '{'; break;
-          case '>': tbuf[i] = '}'; break;
-          case '-': tbuf[i] = '~'; break;
-          default: line[j++] = tbuf[--i];
+          case '=':
+            tbuf[i] = '#';
+            break;
+          case '/':
+            tbuf[i] = '\\';
+            break;
+          case '\'':
+            tbuf[i] = '^';
+            break;
+          case '(':
+            tbuf[i] = '[';
+            break;
+          case ')':
+            tbuf[i] = ']';
+            break;
+          case '!':
+            tbuf[i] = '|';
+            break;
+          case '<':
+            tbuf[i] = '{';
+            break;
+          case '>':
+            tbuf[i] = '}';
+            break;
+          case '-':
+            tbuf[i] = '~';
+            break;
+          default:
+            line[j++] = tbuf[--i];
         }
       }
 #endif
-      else if (tbuf[i] == '\\' && tbuf[i+1] == '\n')
+      else if (tbuf[i] == '\\' && tbuf[i + 1] == '\n')
       {
         i += 2;
       }
-      else if (tbuf[i] == '\\' && tbuf[i+1] == '\r' && tbuf[i+2] == '\n')
+      else if (tbuf[i] == '\\' && tbuf[i + 1] == '\r' && tbuf[i + 2] == '\n')
       {
         i += 3;
       }
-      else if (tbuf[i] == '\r' && tbuf[i+1] == '\n')
+      else if (tbuf[i] == '\r' && tbuf[i + 1] == '\n')
       {
         i++;
       }
       else if (state == '*')
       {
-        if (tbuf[i] == '*' && tbuf[i+1] == '/')
+        if (tbuf[i] == '*' && tbuf[i + 1] == '/')
         {
           line[j++] = tbuf[i++];
           line[j++] = tbuf[i++];
@@ -2132,7 +2233,7 @@ int vtkParsePreprocess_IncludeFile(
           line[j++] = tbuf[i++];
           state = 0;
         }
-        else if (tbuf[i] == '\\' && tbuf[i+1] != '\0')
+        else if (tbuf[i] == '\\' && tbuf[i + 1] != '\0')
         {
           line[j++] = tbuf[i++];
           line[j++] = tbuf[i++];
@@ -2144,9 +2245,9 @@ int vtkParsePreprocess_IncludeFile(
       }
       else if (tbuf[i] == '/')
       {
-        if (tbuf[i+1] == '*' || tbuf[i+1] == '/')
+        if (tbuf[i + 1] == '*' || tbuf[i + 1] == '/')
         {
-          state = tbuf[i+1];
+          state = tbuf[i + 1];
           line[j++] = tbuf[i++];
         }
         line[j++] = tbuf[i++];
@@ -2155,17 +2256,12 @@ int vtkParsePreprocess_IncludeFile(
       {
         state = tbuf[i];
         /* check for raw string prefixes */
-        if (state == '\"' && j > 0 && line[j-1] == 'R' &&
-            ((j > 2 &&
-              (line[j-3] == 'u' || line[j-2] == '8') &&
-              (j == 3 ||
-               !vtkParse_CharType(line[j-4], CPRE_XID|CPRE_QUOTE))) ||
-             (j > 1 &&
-              (line[j-2] == 'u' || line[j-2] == 'U' || line[j-2] == 'L') &&
-              (j == 2 ||
-               !vtkParse_CharType(line[j-3], CPRE_XID|CPRE_QUOTE))) ||
-             (j == 1 ||
-              !vtkParse_CharType(line[j-2], CPRE_XID|CPRE_QUOTE))))
+        if (state == '\"' && j > 0 && line[j - 1] == 'R' &&
+          ((j > 2 && (line[j - 3] == 'u' || line[j - 2] == '8') &&
+             (j == 3 || !vtkParse_CharType(line[j - 4], CPRE_XID | CPRE_QUOTE))) ||
+            (j > 1 && (line[j - 2] == 'u' || line[j - 2] == 'U' || line[j - 2] == 'L') &&
+              (j == 2 || !vtkParse_CharType(line[j - 3], CPRE_XID | CPRE_QUOTE))) ||
+            (j == 1 || !vtkParse_CharType(line[j - 2], CPRE_XID | CPRE_QUOTE))))
         {
           state = '(';
           d = j + 1;
@@ -2185,7 +2281,7 @@ int vtkParsePreprocess_IncludeFile(
 
     if (i < n || n == 0)
     {
-      const char *cp = line;
+      const char* cp = line;
       line[j] = '\0';
       j = 0;
       cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
@@ -2194,8 +2290,7 @@ int vtkParsePreprocess_IncludeFile(
         vtkParsePreprocess_HandleDirective(info, line);
       }
     }
-  }
-  while (n > 0);
+  } while (n > 0);
 
   free(tbuf);
   free(line);
@@ -2211,11 +2306,10 @@ int vtkParsePreprocess_IncludeFile(
  * Handle the #include directive.  The header file will
  * only go through the preprocessor.
  */
-static int preproc_evaluate_include(
-  PreprocessInfo *info, StringTokenizer *tokens)
+static int preproc_evaluate_include(PreprocessInfo* info, StringTokenizer* tokens)
 {
-  const char *cp;
-  const char *filename;
+  const char* cp;
+  const char* filename;
 
   if (tokens->hash == HASH_INCLUDE)
   {
@@ -2225,7 +2319,7 @@ static int preproc_evaluate_include(
 
     if (tokens->tok == TOK_ID)
     {
-      MacroInfo *macro = preproc_find_macro(info, tokens);
+      MacroInfo* macro = preproc_find_macro(info, tokens);
       if (macro && !macro->IsExcluded && macro->Definition)
       {
         cp = macro->Definition;
@@ -2233,8 +2327,8 @@ static int preproc_evaluate_include(
       else
       {
 #if PREPROC_DEBUG
-        fprintf(stderr, "couldn't find macro %*.*s.\n",
-                (int)tokens->len, (int)tokens->len, tokens->text);
+        fprintf(
+          stderr, "couldn't find macro %*.*s.\n", (int)tokens->len, (int)tokens->len, tokens->text);
 #endif
         return VTK_PARSE_MACRO_UNDEFINED;
       }
@@ -2244,26 +2338,27 @@ static int preproc_evaluate_include(
     {
       filename = cp + 1;
       cp += vtkParse_SkipQuotes(cp);
-      if (cp <= filename + 1 || *(cp-1) != '\"')
+      if (cp <= filename + 1 || *(cp - 1) != '\"')
       {
         return VTK_PARSE_SYNTAX_ERROR;
       }
 
-      return vtkParsePreprocess_IncludeFile(info, filename,
-                                            VTK_PARSE_SOURCE_INCLUDE);
+      return vtkParsePreprocess_IncludeFile(info, filename, VTK_PARSE_SOURCE_INCLUDE);
     }
     else if (*cp == '<')
     {
       cp++;
       filename = cp;
-      while (*cp != '>' && *cp != '\n' && *cp != '\0') { cp++; }
+      while (*cp != '>' && *cp != '\n' && *cp != '\0')
+      {
+        cp++;
+      }
       if (*cp != '>')
       {
         return VTK_PARSE_SYNTAX_ERROR;
       }
 
-      return vtkParsePreprocess_IncludeFile(info, filename,
-                                            VTK_PARSE_SYSTEM_INCLUDE);
+      return vtkParsePreprocess_IncludeFile(info, filename, VTK_PARSE_SYSTEM_INCLUDE);
     }
   }
 
@@ -2274,8 +2369,7 @@ static int preproc_evaluate_include(
  * Handle any recognized directive.
  * Unrecognized directives are ignored.
  */
-int vtkParsePreprocess_HandleDirective(
-  PreprocessInfo *info, const char *directive)
+int vtkParsePreprocess_HandleDirective(PreprocessInfo* info, const char* directive)
 {
   int result = VTK_PARSE_OK;
   StringTokenizer tokens;
@@ -2292,20 +2386,22 @@ int vtkParsePreprocess_HandleDirective(
   if (tokens.tok == TOK_ID)
   {
     if ((tokens.hash == HASH_IFDEF && tokens.len == 5 &&
-         strncmp("ifdef", tokens.text, tokens.len) == 0) ||
-        (tokens.hash == HASH_IFNDEF && tokens.len == 6 &&
-         strncmp("ifndef", tokens.text, tokens.len) == 0) ||
-        (tokens.hash == HASH_IF && tokens.len == 2 &&
-         strncmp("if", tokens.text, tokens.len) == 0) ||
-        (tokens.hash == HASH_ELIF && tokens.len == 4 &&
-         strncmp("elif", tokens.text, tokens.len) == 0) ||
-        (tokens.hash == HASH_ELSE && tokens.len == 4 &&
-         strncmp("else", tokens.text, tokens.len) == 0) ||
-        (tokens.hash == HASH_ENDIF && tokens.len == 5 &&
-         strncmp("endif", tokens.text, tokens.len) == 0))
+          strncmp("ifdef", tokens.text, tokens.len) == 0) ||
+      (tokens.hash == HASH_IFNDEF && tokens.len == 6 &&
+        strncmp("ifndef", tokens.text, tokens.len) == 0) ||
+      (tokens.hash == HASH_IF && tokens.len == 2 && strncmp("if", tokens.text, tokens.len) == 0) ||
+      (tokens.hash == HASH_ELIF && tokens.len == 4 &&
+        strncmp("elif", tokens.text, tokens.len) == 0) ||
+      (tokens.hash == HASH_ELSE && tokens.len == 4 &&
+        strncmp("else", tokens.text, tokens.len) == 0) ||
+      (tokens.hash == HASH_ENDIF && tokens.len == 5 &&
+        strncmp("endif", tokens.text, tokens.len) == 0))
     {
       result = preproc_evaluate_if(info, &tokens);
-      while (tokens.tok) { vtkParse_NextToken(&tokens); }
+      while (tokens.tok)
+      {
+        vtkParse_NextToken(&tokens);
+      }
 #if PREPROC_DEBUG
       {
         size_t n = tokens.text - directive;
@@ -2329,14 +2425,14 @@ int vtkParsePreprocess_HandleDirective(
     else if (info->ConditionalDepth == 0)
     {
       if ((tokens.hash == HASH_DEFINE && tokens.len == 6 &&
-           strncmp("define", tokens.text, tokens.len) == 0) ||
-          (tokens.hash == HASH_UNDEF && tokens.len == 5 &&
-           strncmp("undef", tokens.text, tokens.len) == 0))
+            strncmp("define", tokens.text, tokens.len) == 0) ||
+        (tokens.hash == HASH_UNDEF && tokens.len == 5 &&
+          strncmp("undef", tokens.text, tokens.len) == 0))
       {
         result = preproc_evaluate_define(info, &tokens);
       }
       else if (tokens.hash == HASH_INCLUDE && tokens.len == 7 &&
-               strncmp("include", tokens.text, tokens.len) == 0)
+        strncmp("include", tokens.text, tokens.len) == 0)
       {
         result = preproc_evaluate_include(info, &tokens);
       }
@@ -2356,8 +2452,7 @@ int vtkParsePreprocess_HandleDirective(
  * If no errors occurred, the result will be VTK_PARSE_OK.
  */
 int vtkParsePreprocess_EvaluateExpression(
-  PreprocessInfo *info, const char *text,
-  preproc_int_t *val, int *is_unsigned)
+  PreprocessInfo* info, const char* text, preproc_int_t* val, int* is_unsigned)
 {
   StringTokenizer tokens;
   vtkParse_InitTokenizer(&tokens, text, WS_PREPROC);
@@ -2368,14 +2463,13 @@ int vtkParsePreprocess_EvaluateExpression(
 /** Add a macro for defining a macro */
 #define PREPROC_MACRO_TO_STRING2(x) #x
 #define PREPROC_MACRO_TO_STRING(x) PREPROC_MACRO_TO_STRING2(x)
-#define PREPROC_ADD_MACRO(info, x) \
-preproc_add_macro_definition(info, #x, PREPROC_MACRO_TO_STRING2(x))
+#define PREPROC_ADD_MACRO(info, x)                                                                 \
+  preproc_add_macro_definition(info, #x, PREPROC_MACRO_TO_STRING2(x))
 
 /**
  * Add all standard preprocessory macros.  Specify the platform.
  */
-void vtkParsePreprocess_AddStandardMacros(
-  PreprocessInfo *info, preproc_platform_t platform)
+void vtkParsePreprocess_AddStandardMacros(PreprocessInfo* info, preproc_platform_t platform)
 {
   int save_external = info->IsExternal;
   info->IsExternal = 1;
@@ -3792,12 +3886,11 @@ void vtkParsePreprocess_AddStandardMacros(
 /**
  * Add a preprocessor macro, including a definition.
  */
-int vtkParsePreprocess_AddMacro(
-  PreprocessInfo *info, const char *name, const char *definition)
+int vtkParsePreprocess_AddMacro(PreprocessInfo* info, const char* name, const char* definition)
 {
   StringTokenizer token;
-  MacroInfo **macro_p;
-  MacroInfo *macro;
+  MacroInfo** macro_p;
+  MacroInfo* macro;
 
   vtkParse_InitTokenizer(&token, name, WS_PREPROC);
   macro_p = preproc_macro_location(info, &token, 1);
@@ -3824,11 +3917,10 @@ int vtkParsePreprocess_AddMacro(
 /**
  * Return a preprocessor macro struct, or NULL if not found.
  */
-MacroInfo *vtkParsePreprocess_GetMacro(
-  PreprocessInfo *info, const char *name)
+MacroInfo* vtkParsePreprocess_GetMacro(PreprocessInfo* info, const char* name)
 {
   StringTokenizer token;
-  MacroInfo *macro;
+  MacroInfo* macro;
 
   vtkParse_InitTokenizer(&token, name, WS_PREPROC);
   macro = preproc_find_macro(info, &token);
@@ -3844,8 +3936,7 @@ MacroInfo *vtkParsePreprocess_GetMacro(
 /**
  * Remove a preprocessor macro.
  */
-int vtkParsePreprocess_RemoveMacro(
-  PreprocessInfo *info, const char *name)
+int vtkParsePreprocess_RemoveMacro(PreprocessInfo* info, const char* name)
 {
   StringTokenizer token;
 
@@ -3863,10 +3954,9 @@ int vtkParsePreprocess_RemoveMacro(
  * Go through macros in order of definition.
  * Pass NULL to start.  Will return NULL when done.
  */
-MacroInfo *vtkParsePreprocess_NextMacro(
-  PreprocessInfo *info, MacroInfo *macro)
+MacroInfo* vtkParsePreprocess_NextMacro(PreprocessInfo* info, MacroInfo* macro)
 {
-  MacroInfo **mptr;
+  MacroInfo** mptr;
   int i, n;
   int ordinal = 0;
   int maxord = 0;
@@ -3900,8 +3990,7 @@ MacroInfo *vtkParsePreprocess_NextMacro(
         }
       }
     }
-  }
-  while (ordinal <= maxord);
+  } while (ordinal <= maxord);
 
   return NULL;
 }
@@ -3909,19 +3998,19 @@ MacroInfo *vtkParsePreprocess_NextMacro(
 /**
  * Expand a macro, argstring is ignored if not a function macro
  */
-const char *vtkParsePreprocess_ExpandMacro(
-  PreprocessInfo *info, MacroInfo *macro, const char *argstring)
+const char* vtkParsePreprocess_ExpandMacro(
+  PreprocessInfo* info, MacroInfo* macro, const char* argstring)
 {
-  const char *cp = argstring;
+  const char* cp = argstring;
   int n = 0;
   int j = 0;
-  const char *stack_values[8];
-  const char **values = NULL;
-  const char *pp = NULL;
-  const char *dp = NULL;
-  const char *wp = NULL;
+  const char* stack_values[8];
+  const char** values = NULL;
+  const char* pp = NULL;
+  const char* dp = NULL;
+  const char* wp = NULL;
   char stack_rp[128];
-  char *rp = NULL;
+  char* rp = NULL;
   size_t rs = 0;
   size_t i = 0;
   size_t l = 0;
@@ -3982,17 +4071,16 @@ const char *vtkParsePreprocess_ExpandMacro(
           cp++;
         }
       }
-      if (n >= 8 && (n & (n-1)) == 0)
+      if (n >= 8 && (n & (n - 1)) == 0)
       {
         if (values != stack_values)
         {
-          values = (const char **)realloc(
-            (char **)values, 2*n*sizeof(const char **));
+          values = (const char**)realloc((char**)values, 2 * n * sizeof(const char**));
         }
         else
         {
-          values = (const char **)malloc(2*n*sizeof(const char **));
-          memcpy((char **)values, stack_values, 8*sizeof(const char **));
+          values = (const char**)malloc(2 * n * sizeof(const char**));
+          memcpy((char**)values, stack_values, 8 * sizeof(const char**));
         }
       }
 
@@ -4004,16 +4092,15 @@ const char *vtkParsePreprocess_ExpandMacro(
 #if PREPROC_DEBUG
     for (j = 0; j < n; j++)
     {
-      size_t m = values[j+1] - values[j] - 1;
-      fprintf(stderr, "arg %i: %*.*s\n",
-              (int)j, (int)m, (int)m, values[j]);
+      size_t m = values[j + 1] - values[j] - 1;
+      fprintf(stderr, "arg %i: %*.*s\n", (int)j, (int)m, (int)m, values[j]);
     }
 #endif
 
     /* one arg that is only whitespace can also be no args*/
     if (macro->NumberOfParameters == 0 && n == 1)
     {
-      const char *tp = values[0];
+      const char* tp = values[0];
       tp += vtkParse_SkipWhitespace(tp, WS_PREPROC);
       if (tp + 1 >= values[1])
       {
@@ -4022,19 +4109,22 @@ const char *vtkParsePreprocess_ExpandMacro(
     }
 
     /* allow the variadic arg to be empty */
-    if (macro->IsVariadic && n == macro->NumberOfParameters-1)
+    if (macro->IsVariadic && n == macro->NumberOfParameters - 1)
     {
       empty_variadic = 1;
     }
 
     /* check for correct number of arguments */
     if (n < (macro->NumberOfParameters - empty_variadic) ||
-        (n > macro->NumberOfParameters && !macro->IsVariadic))
+      (n > macro->NumberOfParameters && !macro->IsVariadic))
     {
-      if (values != stack_values) { free((char **)values); }
+      if (values != stack_values)
+      {
+        free((char**)values);
+      }
 #if PREPROC_DEBUG
-      fprintf(stderr, "wrong number of macro args to %s, %lu != %lu\n",
-              macro->Name, n, macro->NumberOfParameters);
+      fprintf(stderr, "wrong number of macro args to %s, %lu != %lu\n", macro->Name, n,
+        macro->NumberOfParameters);
 #endif
       return NULL;
     }
@@ -4109,11 +4199,11 @@ const char *vtkParsePreprocess_ExpandMacro(
         rs += rs + i + l + 1;
         if (rp != stack_rp)
         {
-          rp = (char *)realloc(rp, rs);
+          rp = (char*)realloc(rp, rs);
         }
         else
         {
-          rp = (char *)malloc(rs);
+          rp = (char*)malloc(rs);
           memcpy(rp, stack_rp, i);
         }
       }
@@ -4131,10 +4221,9 @@ const char *vtkParsePreprocess_ExpandMacro(
       for (j = 0; j < macro->NumberOfParameters; j++)
       {
         /* check whether the name matches a parameter */
-        if (strncmp(pp, macro->Parameters[j], l) == 0 &&
-            macro->Parameters[j][l] == '\0')
+        if (strncmp(pp, macro->Parameters[j], l) == 0 && macro->Parameters[j][l] == '\0')
         {
-          if (macro->IsVariadic && j == macro->NumberOfParameters-1)
+          if (macro->IsVariadic && j == macro->NumberOfParameters - 1)
           {
             /* if variadic arg, use all remaining args */
             pp = values[j] - empty_variadic;
@@ -4144,7 +4233,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           {
             /* else just get one arg */
             pp = values[j];
-            l = values[j+1] - pp - 1;
+            l = values[j + 1] - pp - 1;
           }
           /* remove leading whitespace from argument */
           c = *pp;
@@ -4163,7 +4252,7 @@ const char *vtkParsePreprocess_ExpandMacro(
               {
                 break;
               }
-              c = pp[l-1];
+              c = pp[l - 1];
             }
           }
           /* check if followed by "##" */
@@ -4194,11 +4283,11 @@ const char *vtkParsePreprocess_ExpandMacro(
         rs += rs + i + l + 1;
         if (rp != stack_rp)
         {
-          rp = (char *)realloc(rp, rs);
+          rp = (char*)realloc(rp, rs);
         }
         else
         {
-          rp = (char *)malloc(rs);
+          rp = (char*)malloc(rs);
           memcpy(rp, stack_rp, i);
         }
       }
@@ -4217,7 +4306,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         }
         rp[i++] = '\"';
       }
-      else if (empty_variadic && j == macro->NumberOfParameters-1)
+      else if (empty_variadic && j == macro->NumberOfParameters - 1)
       {
         /* remove trailing comma before empty variadic (non-standard) */
         k = i;
@@ -4226,8 +4315,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           do
           {
             c = rp[--k];
-          }
-          while (k > 0 && vtkParse_CharType(c, CPRE_WHITE));
+          } while (k > 0 && vtkParse_CharType(c, CPRE_WHITE));
           if (rp[k] == ',')
           {
             i = k;
@@ -4243,7 +4331,7 @@ const char *vtkParsePreprocess_ExpandMacro(
       else
       {
         /* process the arguments before substituting them */
-        const char *text;
+        const char* text;
         int is_excluded = macro->IsExcluded;
         macro->IsExcluded = 1;
         strncpy(&rp[i], pp, l);
@@ -4254,12 +4342,12 @@ const char *vtkParsePreprocess_ExpandMacro(
           l = strlen(text);
           if (text != &rp[i])
           {
-            char *tp = NULL;
+            char* tp = NULL;
             if (i + l + 1 >= rs)
             {
               rs += rs + i + l + 1;
               tp = rp;
-              rp = (char *)malloc(rs);
+              rp = (char*)malloc(rs);
               memcpy(rp, tp, i);
             }
             /* memmove as we intentionally are not copying /0 */
@@ -4278,18 +4366,23 @@ const char *vtkParsePreprocess_ExpandMacro(
     }
   }
 
-  if (values != stack_values) { free((char **)values); }
-
-  if (!macro->IsFunction && macro->Definition &&
-      strcmp(rp, macro->Definition) == 0)
+  if (values != stack_values)
   {
-    if (rp != stack_rp) { free(rp); }
+    free((char**)values);
+  }
+
+  if (!macro->IsFunction && macro->Definition && strcmp(rp, macro->Definition) == 0)
+  {
+    if (rp != stack_rp)
+    {
+      free(rp);
+    }
     return macro->Definition;
   }
 
   if (rp == stack_rp)
   {
-    rp = (char *)malloc(strlen(stack_rp) + 1);
+    rp = (char*)malloc(strlen(stack_rp) + 1);
     strcpy(rp, stack_rp);
   }
 
@@ -4299,12 +4392,11 @@ const char *vtkParsePreprocess_ExpandMacro(
 /**
  * Process a string
  */
-const char *vtkParsePreprocess_ProcessString(
-  PreprocessInfo *info, const char *text)
+const char* vtkParsePreprocess_ProcessString(PreprocessInfo* info, const char* text)
 {
   char stack_rp[128];
-  char *rp;
-  char *ep;
+  char* rp;
+  char* ep;
   size_t i = 0;
   size_t rs = 128;
   int last_tok = 0;
@@ -4318,17 +4410,28 @@ const char *vtkParsePreprocess_ProcessString(
   {
     size_t l = tokens.len;
     size_t j;
-    const char *cp = tokens.text;
-    const char *dp;
+    const char* cp = tokens.text;
+    const char* dp;
 
     if (tokens.tok == TOK_STRING && last_tok == TOK_STRING)
     {
       if (i > 0)
       {
-        do { --i; } while (i > 0 && rp[i] != '\"');
+        do
+        {
+          --i;
+        } while (i > 0 && rp[i] != '\"');
       }
-      while (*cp != '\"' && l > 1) { cp++; l--; }
-      if (*cp == '\"' && l > 1) { cp++; l--; }
+      while (*cp != '\"' && l > 1)
+      {
+        cp++;
+        l--;
+      }
+      if (*cp == '\"' && l > 1)
+      {
+        cp++;
+        l--;
+      }
     }
 
     if (i + l + 2 >= rs)
@@ -4336,12 +4439,12 @@ const char *vtkParsePreprocess_ProcessString(
       rs += rs + i + l + 2;
       if (rp == stack_rp)
       {
-        rp = (char *)malloc(rs);
+        rp = (char*)malloc(rs);
         memcpy(rp, stack_rp, i);
       }
       else
       {
-        rp = (char *)realloc(rp, rs);
+        rp = (char*)realloc(rp, rs);
       }
     }
 
@@ -4352,9 +4455,18 @@ const char *vtkParsePreprocess_ProcessString(
     {
       if (*dp == '\\')
       {
-        if (dp[1] == '\n') { dp += 2; }
-        else if (dp[1] == '\r' && dp[2] == '\n') { dp += 3; }
-        else { *ep++ = *dp++; }
+        if (dp[1] == '\n')
+        {
+          dp += 2;
+        }
+        else if (dp[1] == '\r' && dp[2] == '\n')
+        {
+          dp += 3;
+        }
+        else
+        {
+          *ep++ = *dp++;
+        }
       }
       else
       {
@@ -4365,10 +4477,10 @@ const char *vtkParsePreprocess_ProcessString(
 
     if (tokens.tok == TOK_ID)
     {
-      MacroInfo *macro = preproc_find_macro(info, &tokens);
+      MacroInfo* macro = preproc_find_macro(info, &tokens);
       if (macro && !macro->IsExcluded)
       {
-        const char *args = NULL;
+        const char* args = NULL;
         int expand = 1;
 
         if (macro->IsFunction)
@@ -4392,7 +4504,10 @@ const char *vtkParsePreprocess_ProcessString(
             }
             if (tokens.tok != ')')
             {
-              if (rp != stack_rp) { free(rp); }
+              if (rp != stack_rp)
+              {
+                free(rp);
+              }
               return NULL;
             }
           }
@@ -4406,12 +4521,15 @@ const char *vtkParsePreprocess_ProcessString(
         }
         if (expand)
         {
-          const char *expansion;
-          const char *processed;
+          const char* expansion;
+          const char* processed;
           expansion = vtkParsePreprocess_ExpandMacro(info, macro, args);
           if (expansion == NULL)
           {
-            if (rp != stack_rp) { free(rp); }
+            if (rp != stack_rp)
+            {
+              free(rp);
+            }
             return NULL;
           }
           macro->IsExcluded = 1;
@@ -4420,7 +4538,10 @@ const char *vtkParsePreprocess_ProcessString(
           if (processed == NULL)
           {
             vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
-            if (rp != stack_rp) { free(rp); }
+            if (rp != stack_rp)
+            {
+              free(rp);
+            }
             return NULL;
           }
           l = strlen(processed);
@@ -4431,12 +4552,12 @@ const char *vtkParsePreprocess_ProcessString(
               rs += rs + i + l + 2;
               if (rp == stack_rp)
               {
-                rp = (char *)malloc(rs);
+                rp = (char*)malloc(rs);
                 memcpy(rp, stack_rp, i);
               }
               else
               {
-                rp = (char *)realloc(rp, rs);
+                rp = (char*)realloc(rp, rs);
               }
             }
             /* memmove as we intentionally are not copying /0 */
@@ -4466,21 +4587,27 @@ const char *vtkParsePreprocess_ProcessString(
   if (strcmp(rp, text) == 0)
   {
     /* no change, return */
-    if (rp != stack_rp) { free(rp); }
+    if (rp != stack_rp)
+    {
+      free(rp);
+    }
     return text;
   }
   else
   {
     /* string changed, recursively reprocess */
-    const char *tp = vtkParsePreprocess_ProcessString(info, rp);
+    const char* tp = vtkParsePreprocess_ProcessString(info, rp);
     if (rp != tp)
     {
-      if (rp != stack_rp) { free(rp); }
+      if (rp != stack_rp)
+      {
+        free(rp);
+      }
       return tp;
     }
     if (rp == stack_rp)
     {
-      rp = (char *)malloc(strlen(stack_rp) + 1);
+      rp = (char*)malloc(strlen(stack_rp) + 1);
       strcpy(rp, stack_rp);
     }
   }
@@ -4491,33 +4618,30 @@ const char *vtkParsePreprocess_ProcessString(
 /**
  * Free a string returned by ExpandMacro
  */
-void vtkParsePreprocess_FreeMacroExpansion(
-  PreprocessInfo *info, MacroInfo *macro, const char *text)
+void vtkParsePreprocess_FreeMacroExpansion(PreprocessInfo* info, MacroInfo* macro, const char* text)
 {
   /* only free expansion if it is different from definition */
   if (info && text != macro->Definition)
   {
-    free((char *)text);
+    free((char*)text);
   }
 }
 
 /**
  * Free a string returned by ProcessString
  */
-void vtkParsePreprocess_FreeProcessedString(
-  PreprocessInfo *info, const char *text)
+void vtkParsePreprocess_FreeProcessedString(PreprocessInfo* info, const char* text)
 {
   if (info)
   {
-    free((char *)text);
+    free((char*)text);
   }
 }
 
 /**
  * Add an include directory.
  */
-void vtkParsePreprocess_IncludeDirectory(
-  PreprocessInfo *info, const char *name)
+void vtkParsePreprocess_IncludeDirectory(PreprocessInfo* info, const char* name)
 {
   int i, n;
 
@@ -4530,9 +4654,8 @@ void vtkParsePreprocess_IncludeDirectory(
     }
   }
 
-  info->IncludeDirectories = (const char **)preproc_array_check(
-    (char **)info->IncludeDirectories, sizeof(char *),
-    info->NumberOfIncludeDirectories);
+  info->IncludeDirectories = (const char**)preproc_array_check(
+    (char**)info->IncludeDirectories, sizeof(char*), info->NumberOfIncludeDirectories);
   info->IncludeDirectories[info->NumberOfIncludeDirectories++] =
     vtkParse_CacheString(info->Strings, name, strlen(name));
 }
@@ -4540,11 +4663,10 @@ void vtkParsePreprocess_IncludeDirectory(
 /**
  * Find an include file in the path.
  */
-const char *vtkParsePreprocess_FindIncludeFile(
-  PreprocessInfo *info, const char *filename, preproc_search_t order,
-  int *already_loaded)
+const char* vtkParsePreprocess_FindIncludeFile(
+  PreprocessInfo* info, const char* filename, preproc_search_t order, int* already_loaded)
 {
-  const char *cp;
+  const char* cp;
   cp = preproc_find_include_file(info, filename, order, 1);
   if (cp)
   {
@@ -4559,7 +4681,7 @@ const char *vtkParsePreprocess_FindIncludeFile(
 /**
  * Initialize a preprocessor macro struct
  */
-void vtkParsePreprocess_InitMacro(MacroInfo *macro)
+void vtkParsePreprocess_InitMacro(MacroInfo* macro)
 {
   macro->Name = NULL;
   macro->Definition = NULL;
@@ -4576,9 +4698,9 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
 /**
  * Free a preprocessor macro struct
  */
-void vtkParsePreprocess_FreeMacro(MacroInfo *macro)
+void vtkParsePreprocess_FreeMacro(MacroInfo* macro)
 {
-  free((char **)macro->Parameters);
+  free((char**)macro->Parameters);
 
   free(macro);
 }
@@ -4586,8 +4708,7 @@ void vtkParsePreprocess_FreeMacro(MacroInfo *macro)
 /**
  * Initialize a preprocessor struct
  */
-void vtkParsePreprocess_Init(
-  PreprocessInfo *info, const char *filename)
+void vtkParsePreprocess_Init(PreprocessInfo* info, const char* filename)
 {
   info->FileName = NULL;
   info->MacroHashTable = NULL;
@@ -4603,7 +4724,7 @@ void vtkParsePreprocess_Init(
 
   if (filename)
   {
-    char *cp = (char *)malloc(strlen(filename) + 1);
+    char* cp = (char*)malloc(strlen(filename) + 1);
     strcpy(cp, filename);
     info->FileName = cp;
   }
@@ -4612,12 +4733,12 @@ void vtkParsePreprocess_Init(
 /**
  * Free a preprocessor struct and its contents
  */
-void vtkParsePreprocess_Free(PreprocessInfo *info)
+void vtkParsePreprocess_Free(PreprocessInfo* info)
 {
   int i, n;
-  MacroInfo **mptr;
+  MacroInfo** mptr;
 
-  free((char *)info->FileName);
+  free((char*)info->FileName);
 
   if (info->MacroHashTable)
   {
@@ -4637,8 +4758,8 @@ void vtkParsePreprocess_Free(PreprocessInfo *info)
     free(info->MacroHashTable);
   }
 
-  free((char **)info->IncludeDirectories);
-  free((char **)info->IncludeFiles);
+  free((char**)info->IncludeDirectories);
+  free((char**)info->IncludeFiles);
 
   free(info);
 }

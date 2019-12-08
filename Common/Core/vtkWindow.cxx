@@ -17,7 +17,6 @@
 #include "vtkCommand.h"
 #include "vtkToolkits.h"
 
-
 //-----------------------------------------------------------------------------
 // Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
@@ -30,8 +29,8 @@ vtkWindow::vtkWindow()
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
   const char windowname[] = "Visualization Toolkit";
-  this->WindowName = new char[strlen(windowname)+1];
-  strcpy( this->WindowName, windowname );
+  this->WindowName = new char[strlen(windowname) + 1];
+  strcpy(this->WindowName, windowname);
   this->Erase = 1;
   this->DoubleBuffer = 0;
   this->DPI = 72;
@@ -49,14 +48,14 @@ vtkWindow::vtkWindow()
 // Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
-  this->SetWindowName( nullptr );
+  this->SetWindowName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
-int *vtkWindow::GetSize()
+int* vtkWindow::GetSize()
 {
-  this->TileSize[0] = this->Size[0]*this->TileScale[0];
-  this->TileSize[1] = this->Size[1]*this->TileScale[1];
+  this->TileSize[0] = this->Size[0] * this->TileScale[0];
+  this->TileSize[1] = this->Size[1] * this->TileScale[1];
 
   return this->TileSize;
 }
@@ -72,14 +71,13 @@ int* vtkWindow::GetActualSize()
 //-----------------------------------------------------------------------------
 void vtkWindow::SetSize(int a[2])
 {
-  this->SetSize(a[0],a[1]);
+  this->SetSize(a[0], a[1]);
 }
 
 //-----------------------------------------------------------------------------
 void vtkWindow::SetSize(int x, int y)
 {
-  if ( this->Size[0] != x
-    || this->Size[1] != y )
+  if (this->Size[0] != x || this->Size[1] != y)
   {
     this->Size[0] = x;
     this->Size[1] = y;
@@ -89,7 +87,7 @@ void vtkWindow::SetSize(int x, int y)
 }
 
 //-----------------------------------------------------------------------------
-int *vtkWindow::GetPosition()
+int* vtkWindow::GetPosition()
 {
   return this->Position;
 }
@@ -97,14 +95,13 @@ int *vtkWindow::GetPosition()
 //-----------------------------------------------------------------------------
 void vtkWindow::SetPosition(int a[2])
 {
-  this->SetPosition(a[0],a[1]);
+  this->SetPosition(a[0], a[1]);
 }
 
 //-----------------------------------------------------------------------------
 void vtkWindow::SetPosition(int x, int y)
 {
-  if ( this->Position[0] != x
-    || this->Position[1] != y )
+  if (this->Position[0] != x || this->Position[1] != y)
   {
     this->Modified();
     this->Position[0] = x;
@@ -115,10 +112,10 @@ void vtkWindow::SetPosition(int x, int y)
 //-----------------------------------------------------------------------------
 void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
-  if ( this->WindowName )
+  if (this->WindowName)
   {
     os << indent << "Window Name: " << this->WindowName << "\n";
   }
@@ -138,10 +135,7 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseOffScreenBuffers: " << this->UseOffScreenBuffers << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
   os << indent << "DPI: " << this->DPI << "\n";
-  os << indent << "TileScale: (" << this->TileScale[0] << ", "
-     << this->TileScale[1] << ")\n";
-  os << indent << "TileViewport: (" << this->TileViewport[0] << ", "
-     << this->TileViewport[1] << ", " << this->TileViewport[2] << ", "
-     << this->TileViewport[3] << ")\n";
+  os << indent << "TileScale: (" << this->TileScale[0] << ", " << this->TileScale[1] << ")\n";
+  os << indent << "TileViewport: (" << this->TileViewport[0] << ", " << this->TileViewport[1]
+     << ", " << this->TileViewport[2] << ", " << this->TileViewport[3] << ")\n";
 }
-

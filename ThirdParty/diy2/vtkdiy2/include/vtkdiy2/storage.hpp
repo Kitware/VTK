@@ -32,8 +32,8 @@ namespace diy
           tail += count;
           fseek(file, temp_pos, SEEK_SET);
       }
-      virtual inline void load_binary(char* x, size_t count) override         { fread(x, 1, count, file); }
-      virtual inline void load_binary_back(char* x, size_t count) override    { fseek(file, static_cast<long>(tail), SEEK_END); fread(x, 1, count, file); tail += count; fseek(file, static_cast<long>(head), SEEK_SET); }
+      virtual inline void load_binary(char* x, size_t count) override         { auto n = fread(x, 1, count, file); DIY_UNUSED(n);}
+      virtual inline void load_binary_back(char* x, size_t count) override    { fseek(file, static_cast<long>(tail), SEEK_END); auto n = fread(x, 1, count, file); tail += count; fseek(file, static_cast<long>(head), SEEK_SET); DIY_UNUSED(n);}
 
       size_t              size() const                                { return head; }
 
@@ -135,7 +135,8 @@ namespace diy
         _read(fh, &bb.buffer[0], static_cast<unsigned int>(fr.size));
 #else
         int fh = open(fr.name.c_str(), O_RDONLY | O_SYNC, 0600);
-        read(fh, &bb.buffer[0], fr.size);
+        auto n = read(fh, &bb.buffer[0], fr.size);
+        DIY_UNUSED(n);
 #endif
         io::utils::close(fh);
         remove_file(fr);

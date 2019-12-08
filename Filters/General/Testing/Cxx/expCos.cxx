@@ -16,7 +16,6 @@
 // Brute force computation of Bessel functions. Might be better to create a
 // filter (or source) object. Might also consider vtkSampleFunction.
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDataSetMapper.h"
@@ -29,20 +28,19 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWarpScalar.h"
 
-int expCos( int , char *[] )
+int expCos(int, char*[])
 {
   int i, numPts;
   double x[3];
   double r, deriv;
 
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -50,13 +48,11 @@ int expCos( int , char *[] )
   iren->SetRenderWindow(renWin);
 
   // create plane to warp
-  vtkSmartPointer<vtkPlaneSource> plane =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  plane->SetResolution (300,300);
+  vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
+  plane->SetResolution(300, 300);
 
-  vtkSmartPointer<vtkTransform> transform =
-    vtkSmartPointer<vtkTransform>::New();
-  transform->Scale(10.0,10.0,1.0);
+  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  transform->Scale(10.0, 10.0, 1.0);
 
   vtkSmartPointer<vtkTransformPolyDataFilter> transF =
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -70,53 +66,47 @@ int expCos( int , char *[] )
   vtkSmartPointer<vtkPolyData> input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
 
-  vtkSmartPointer<vtkPoints> newPts =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
   newPts->SetNumberOfPoints(numPts);
 
-  vtkSmartPointer<vtkFloatArray> derivs =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> derivs = vtkSmartPointer<vtkFloatArray>::New();
   derivs->SetNumberOfTuples(numPts);
 
-  vtkSmartPointer<vtkPolyData> bessel =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> bessel = vtkSmartPointer<vtkPolyData>::New();
   bessel->CopyStructure(input);
   bessel->SetPoints(newPts);
   bessel->GetPointData()->SetScalars(derivs);
 
-  for (i=0; i<numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    input->GetPoint(i,x);
-    r = sqrt(static_cast<double>(x[0]*x[0]) + x[1]*x[1]);
-    x[2] = exp(-r) * cos (10.0*r);
-    newPts->SetPoint(i,x);
-    deriv = -exp(-r) * (cos(10.0*r) + 10.0*sin(10.0*r));
-    derivs->SetValue(i,deriv);
+    input->GetPoint(i, x);
+    r = sqrt(static_cast<double>(x[0] * x[0]) + x[1] * x[1]);
+    x[2] = exp(-r) * cos(10.0 * r);
+    newPts->SetPoint(i, x);
+    deriv = -exp(-r) * (cos(10.0 * r) + 10.0 * sin(10.0 * r));
+    derivs->SetValue(i, deriv);
   }
 
   // warp plane
-  vtkSmartPointer<vtkWarpScalar> warp =
-    vtkSmartPointer<vtkWarpScalar>::New();
+  vtkSmartPointer<vtkWarpScalar> warp = vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInputData(bessel);
   warp->XYPlaneOn();
   warp->SetScaleFactor(0.5);
 
   // mapper and actor
-  vtkSmartPointer<vtkDataSetMapper> mapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper = vtkSmartPointer<vtkDataSetMapper>::New();
   mapper->SetInputConnection(warp->GetOutputPort());
   double tmp[2];
   bessel->GetScalarRange(tmp);
-  mapper->SetScalarRange(tmp[0],tmp[1]);
+  mapper->SetScalarRange(tmp[0], tmp[1]);
 
-  vtkSmartPointer<vtkActor> carpet =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> carpet = vtkSmartPointer<vtkActor>::New();
   carpet->SetMapper(mapper);
 
   // assign our actor to the renderer
   ren->AddActor(carpet);
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
 
   // draw the resulting scene
   ren->ResetCamera();

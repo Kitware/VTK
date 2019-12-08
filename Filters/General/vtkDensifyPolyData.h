@@ -28,7 +28,7 @@
  *
  * The number of subdivisions can be controlled by the parameter
  * NumberOfSubdivisions.
-*/
+ */
 
 #ifndef vtkDensifyPolyData_h
 #define vtkDensifyPolyData_h
@@ -39,25 +39,23 @@
 class VTKFILTERSGENERAL_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDensifyPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDensifyPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkDensifyPolyData *New();
+  static vtkDensifyPolyData* New();
 
   //@{
   /**
    * Number of recursive subdivisions. Initial value is 1.
    */
-  vtkSetMacro( NumberOfSubdivisions, unsigned int );
-  vtkGetMacro( NumberOfSubdivisions, unsigned int );
+  vtkSetMacro(NumberOfSubdivisions, unsigned int);
+  vtkGetMacro(NumberOfSubdivisions, unsigned int);
   //@}
 
 protected:
   vtkDensifyPolyData();
   ~vtkDensifyPolyData() override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   unsigned int NumberOfSubdivisions;
 
@@ -69,5 +67,3 @@ private:
 };
 
 #endif
-
-

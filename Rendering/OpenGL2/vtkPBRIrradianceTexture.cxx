@@ -48,6 +48,17 @@ void vtkPBRIrradianceTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IrradianceSize: " << this->IrradianceSize << endl;
 }
 
+// ---------------------------------------------------------------------------
+// Release the graphics resources used by this texture.
+void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow* win)
+{
+  if (this->InputCubeMap)
+  {
+    this->InputCubeMap->ReleaseGraphicsResources(win);
+  }
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
 //------------------------------------------------------------------------------
 void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 {
@@ -148,7 +159,7 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->SaveCurrentBindingsAndBuffers();
+    renWin->GetState()->PushFramebufferBindings();
     fbo->Bind();
 
     if (!quadHelper.Program || !quadHelper.Program->GetCompiled())
@@ -187,7 +198,7 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
       }
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }
-    fbo->RestorePreviousBindingsAndBuffers();
+    renWin->GetState()->PopFramebufferBindings();
     this->LoadTime.Modified();
   }
 

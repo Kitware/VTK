@@ -16,14 +16,14 @@
  * @brief   PolyDataMapper using OpenGL to render.
  *
  * PolyDataMapper that uses a OpenGL to do the actual rendering.
-*/
+ */
 
 #ifndef vtkOpenGLGlyph3DHelper_h
 #define vtkOpenGLGlyph3DHelper_h
 
-#include "vtkNew.h" // For vtkNew
-#include "vtkOpenGLBufferObject.h" // For vtkOpenGLBufferObject
-#include "vtkOpenGLHelper.h" // For vtkOpenGLHelper
+#include "vtkNew.h"                   // For vtkNew
+#include "vtkOpenGLBufferObject.h"    // For vtkOpenGLBufferObject
+#include "vtkOpenGLHelper.h"          // For vtkOpenGLHelper
 #include "vtkOpenGLInstanceCulling.h" // For vtkOpenGLInstanceCulling
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DHelper : public vtkOpenGLPolyDa
 {
 public:
   static vtkOpenGLGlyph3DHelper* New();
-  vtkTypeMacro(vtkOpenGLGlyph3DHelper, vtkOpenGLPolyDataMapper)
+  vtkTypeMacro(vtkOpenGLGlyph3DHelper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -42,9 +42,9 @@ public:
    * Must set this->CurrentInput explicitly before calling.
    */
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<unsigned char> &colors, std::vector<float> &matrices,
-      std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
-      vtkMTimeType pointMTime, bool culling);
+    std::vector<unsigned char>& colors, std::vector<float>& matrices,
+    std::vector<float>& normalMatrices, std::vector<vtkIdType>& pickIds, vtkMTimeType pointMTime,
+    bool culling);
 
   void SetLODs(std::vector<std::pair<float, float> >& lods);
 
@@ -55,7 +55,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
 protected:
   vtkOpenGLGlyph3DHelper();
@@ -63,43 +63,35 @@ protected:
 
   // special opengl 32 version that uses instances
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<unsigned char> &colors, std::vector<float> &matrices,
-      std::vector<float> &normalMatrices,
-      vtkMTimeType pointMTime, bool culling);
+    std::vector<unsigned char>& colors, std::vector<float>& matrices,
+    std::vector<float>& normalMatrices, vtkMTimeType pointMTime, bool culling);
 
   /**
    * Create the basic shaders before replacement
    */
   void GetShaderTemplate(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
 
   //@{
   /**
    * Perform string replacements on the shader templates
    */
   void ReplaceShaderPicking(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderColor(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderNormal(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderClip(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderPositionVC(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) override;
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   //@}
 
   /**
    * Set the shader parameteres related to the actor/mapper
    */
-  void SetMapperShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
+  void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 
   void BuildCullingShaders(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts, bool withNormals);
 

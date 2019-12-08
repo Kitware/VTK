@@ -28,9 +28,9 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTextProperty.h"
 #include "vtkTreeLayoutStrategy.h"
@@ -92,8 +92,7 @@ int main(int argc, char* argv[])
     usage();
     return 0;
   }
-  if (colorArray &&
-      tree->GetVertexData()->GetAbstractArray(colorArray) == nullptr)
+  if (colorArray && tree->GetVertexData()->GetAbstractArray(colorArray) == nullptr)
   {
     cerr << "ERROR: The color attribute " << colorArray << " is not defined in the file." << endl;
     reader->Delete();
@@ -102,7 +101,7 @@ int main(int argc, char* argv[])
     return 0;
   }
   if (colorArray &&
-      vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray)) == nullptr)
+    vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray)) == nullptr)
   {
     cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values." << endl;
     reader->Delete();
@@ -112,11 +111,11 @@ int main(int argc, char* argv[])
   }
 
   // If coloring the vertices, get the range of the color array.
-  double colorRange[2] = {0, 1};
+  double colorRange[2] = { 0, 1 };
   if (colorArray)
   {
-    vtkDataArray* color = vtkArrayDownCast<vtkDataArray>(
-      tree->GetVertexData()->GetAbstractArray(colorArray));
+    vtkDataArray* color =
+      vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray));
     color->GetRange(colorRange);
   }
 
@@ -126,8 +125,8 @@ int main(int argc, char* argv[])
 
   // Specify that we want to use the tree layout strategy.
   vtkTreeLayoutStrategy* strategy = vtkTreeLayoutStrategy::New();
-  strategy->RadialOn();              // Radial layout (as opposed to standard top-down layout)
-  strategy->SetAngle(360.0);         // The tree fills a full circular arc.
+  strategy->RadialOn();      // Radial layout (as opposed to standard top-down layout)
+  strategy->SetAngle(360.0); // The tree fills a full circular arc.
   layout->SetLayoutStrategy(strategy);
 
   // vtkGraphToPolyData converts a graph or tree to polydata.

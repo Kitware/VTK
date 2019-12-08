@@ -15,63 +15,72 @@
 #include "vtkPointSet.h"
 
 #include "vtkCell.h"
+#include "vtkCellLocator.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStaticPointLocator.h"
 #include "vtkPointLocator.h"
 #include "vtkPointSetCellIterator.h"
+#include "vtkStaticCellLocator.h"
+#include "vtkStaticPointLocator.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <set>
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-
-vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
+vtkCxxSetObjectMacro(vtkPointSet, Points, vtkPoints);
+vtkCxxSetObjectMacro(vtkPointSet, PointLocator, vtkAbstractPointLocator);
+vtkCxxSetObjectMacro(vtkPointSet, CellLocator, vtkAbstractCellLocator);
 
 //----------------------------------------------------------------------------
-vtkPointSet::vtkPointSet ()
+vtkPointSet::vtkPointSet()
 {
   this->Editable = false;
   this->Points = nullptr;
-  this->Locator = nullptr;
+  this->PointLocator = nullptr;
+  this->CellLocator = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkPointSet::~vtkPointSet ()
+vtkPointSet::~vtkPointSet()
 {
   this->Cleanup();
 
-  if ( this->Locator )
+  if (this->PointLocator != nullptr)
   {
-    this->Locator->UnRegister(this);
-    this->Locator = nullptr;
+    cout << "DELETING LOCATOR: PointSet: " << this << " locator: " << this->PointLocator << "\n";
   }
+  this->SetPointLocator(nullptr);
+  this->SetCellLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------
 // Copy the geometric structure of an input point set object.
-void vtkPointSet::CopyStructure(vtkDataSet *ds)
+void vtkPointSet::CopyStructure(vtkDataSet* ds)
 {
-  vtkPointSet *ps=static_cast<vtkPointSet *>(ds);
+  vtkPointSet* ps = static_cast<vtkPointSet*>(ds);
 
-  if ( this->Points != ps->Points )
+  if (this->Points != ps->Points)
   {
-    if ( this->Locator )
+    if (this->PointLocator)
     {
-      this->Locator->Initialize();
+      this->PointLocator->Initialize();
     }
     this->SetPoints(ps->Points);
+
+    if (this->CellLocator)
+    {
+      this->CellLocator->Initialize();
+    }
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkPointSet::Cleanup()
 {
-  if ( this->Points )
+  if (this->Points)
   {
     this->Points->UnRegister(this);
     this->Points = nullptr;
@@ -85,23 +94,28 @@ void vtkPointSet::Initialize()
 
   this->Cleanup();
 
-  if ( this->Locator )
+  if (this->PointLocator)
   {
-    this->Locator->Initialize();
+    this->PointLocator->Initialize();
+  }
+  if (this->CellLocator)
+  {
+    this->CellLocator->Initialize();
   }
 }
+
 //----------------------------------------------------------------------------
 void vtkPointSet::ComputeBounds()
 {
-  if ( this->Points )
+  if (this->Points)
   {
     // only depends on tyhis->Points so only check this->Points mtime
     // The generic mtime check includes Field/Cell/PointData also
     // which has no impact on the bounds
-    if ( this->Points->GetMTime() >= this->ComputeTime )
+    if (this->Points->GetMTime() >= this->ComputeTime)
     {
-      const double *bounds = this->Points->GetBounds();
-      for (int i=0; i<6; i++)
+      const double* bounds = this->Points->GetBounds();
+      for (int i = 0; i < 6; i++)
       {
         this->Bounds[i] = bounds[i];
       }
@@ -115,9 +129,9 @@ vtkMTimeType vtkPointSet::GetMTime()
 {
   vtkMTimeType dsTime = vtkDataSet::GetMTime();
 
-  if ( this->Points )
+  if (this->Points)
   {
-    if ( this->Points->GetMTime() > dsTime )
+    if (this->Points->GetMTime() > dsTime)
     {
       dsTime = this->Points->GetMTime();
     }
@@ -131,241 +145,121 @@ vtkMTimeType vtkPointSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSet::BuildLocator()
+void vtkPointSet::BuildPointLocator()
 {
-  if ( ! this->Points )
+  if (!this->Points)
   {
     return;
   }
 
-  if ( !this->Locator )
+  if (!this->PointLocator)
   {
-    if ( this->Editable || ! this->Points->GetData()->HasStandardMemoryLayout() )
+    if (this->Editable || !this->Points->GetData()->HasStandardMemoryLayout())
     {
-      this->Locator = vtkPointLocator::New();
+      this->PointLocator = vtkPointLocator::New();
     }
     else
     {
-      this->Locator = vtkStaticPointLocator::New();
+      this->PointLocator = vtkStaticPointLocator::New();
     }
-    this->Locator->Register(this);
-    this->Locator->Delete();
-    this->Locator->SetDataSet(this);
+    this->PointLocator->SetDataSet(this);
   }
-  else if ( this->Points->GetMTime() > this->Locator->GetMTime() )
+  else if (this->Points->GetMTime() > this->PointLocator->GetMTime())
   {
-    this->Locator->SetDataSet(this);
+    cout << "Building supplied point locator\n";
+    this->PointLocator->SetDataSet(this);
   }
 
-  this->Locator->BuildLocator();
+  this->PointLocator->BuildLocator();
+}
+
+//----------------------------------------------------------------------------
+// Build the cell locator (if needed)
+void vtkPointSet::BuildCellLocator()
+{
+  if (!this->Points)
+  {
+    return;
+  }
+
+  if (!this->CellLocator)
+  {
+    if (this->Editable || !this->Points->GetData()->HasStandardMemoryLayout())
+    {
+      this->CellLocator = vtkCellLocator::New();
+    }
+    else
+    {
+      this->CellLocator = vtkStaticCellLocator::New();
+    }
+    this->CellLocator->Register(this);
+    this->CellLocator->Delete();
+    this->CellLocator->SetDataSet(this);
+  }
+  else if (this->Points->GetMTime() > this->CellLocator->GetMTime())
+  {
+    this->CellLocator->SetDataSet(this);
+  }
+
+  this->CellLocator->BuildLocator();
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkPointSet::FindPoint(double x[3])
 {
-  if ( !this->Points )
+  if (!this->Points)
   {
     return -1;
   }
 
-  if ( !this->Locator )
+  if (!this->PointLocator)
   {
-    this->BuildLocator();
+    this->BuildPointLocator();
   }
 
-  return this->Locator->FindClosestPoint(x);
-}
-
-//the furthest the walk can be - prevents aimless wandering
-#define VTK_MAX_WALK 12
-
-//-----------------------------------------------------------------------------
-// Used internally by FindCell to walk through neighbors from a starting cell.
-// The arguments are the same as those for FindCell.  In addition, visitedCells
-// keeps a list of cells already traversed.  If we run into such already
-// visited, the walk terminates since we assume we already walked from that cell
-// and found nothing.  The ptIds and neighbors lists are buffers used
-// internally.  They are passed in so that they do not have to be continuously
-// reallocated.
-static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
-                              vtkGenericCell *gencell, vtkIdType cellId,
-                              double tol2, int &subId, double pcoords[3],
-                              double *weights,
-                              std::set<vtkIdType> &visitedCells,
-                              vtkIdList *ptIds, vtkIdList *neighbors)
-{
-  for (int walk = 0; walk < VTK_MAX_WALK; walk++)
-  {
-    // Check to see if we already visited this cell.
-    if (visitedCells.find(cellId) != visitedCells.end()) break;
-    visitedCells.insert(cellId);
-
-    // Get information for the cell.
-    if (!cell)
-    {
-      if (gencell)
-      {
-        self->GetCell(cellId, gencell);
-        cell = gencell;
-      }
-      else
-      {
-        cell = self->GetCell(cellId);
-      }
-    }
-
-    // Check to see if the cell contains the point.
-    double closestPoint[3];
-    double dist2;
-    if (   (cell->EvaluatePosition(x, closestPoint, subId,
-                                   pcoords, dist2, weights) == 1)
-        && (dist2 <= tol2) )
-    {
-      return cellId;
-    }
-
-    // This is not the right cell.  Find the next one.
-    cell->CellBoundary(subId, pcoords, ptIds);
-    self->GetCellNeighbors(cellId, ptIds, neighbors);
-    // If there is no next one, exit.
-    if (neighbors->GetNumberOfIds() < 1) break;
-    // Set the next cell as the current one and iterate.
-    cellId = neighbors->GetId(0);
-    cell = nullptr;
-  }
-
-  // Could not find a cell.
-  return -1;
-}
-
-//-----------------------------------------------------------------------------
-static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
-                              vtkGenericCell *gencell, vtkIdList *cellIds,
-                              double tol2, int &subId, double pcoords[3],
-                              double *weights,
-                              std::set<vtkIdType> &visitedCells,
-                              vtkIdList *ptIds, vtkIdList *neighbors)
-{
-  for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
-  {
-    vtkIdType cellId = cellIds->GetId(i);
-    vtkIdType foundCell = FindCellWalk(self, x, nullptr, gencell, cellId,
-                                       tol2, subId, pcoords, weights,
-                                       visitedCells, ptIds, neighbors);
-    if (foundCell >= 0) return foundCell;
-  }
-  return -1;
+  return this->PointLocator->FindClosestPoint(x);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
-                                vtkGenericCell *gencell, vtkIdType cellId,
-                                double tol2, int& subId, double pcoords[3],
-                                double *weights)
+// This FindCell() method is based on using a locator (either point or
+// cell). In this application, point locators are typically faster to build
+// and operate on than cell locator, yet do not always produce the correct
+// result. The basic idea is that we find one or more close points to the
+// query point, and we assume that one of the cells attached to one of the
+// close points contains the query point. However this approach is not 100%
+// reliable, in which case a slower cell locator must be used. The algorithm
+// below (based on a point locator) uses progressively more complex (and
+// expensive) approaches to identify close points near the query point (and
+// connected cells). If a point locator approach proves unreliable, then a
+// cell locator strategy should be used. Use subclasses of
+// vtkFindCellStrategy to control the strategies.
+vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+  vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
-  vtkIdType foundCell;
-
-  // make sure everything is up to snuff
-  if ( !this->Points || this->Points->GetNumberOfPoints() < 1)
-  {
-    return -1;
-  }
-
-  // Check to see if the point is within the bounds of the data.  This is not
-  // a strict check, but it is fast.
-  double bounds[6];
-  this->GetBounds(bounds);
-  double tol = sqrt(tol2);
-  if (   (x[0] < bounds[0] - tol) || (x[0] > bounds[1] + tol)
-      || (x[1] < bounds[2] - tol) || (x[1] > bounds[3] + tol)
-      || (x[2] < bounds[4] - tol) || (x[2] > bounds[5] + tol) )
-  {
-    return -1;
-  }
-
-  if ( !this->Locator )
-  {
-    this->BuildLocator();
-  }
-
-  std::set<vtkIdType> visitedCells;
-  VTK_CREATE(vtkIdList, ptIds);
-  ptIds->Allocate(8, 100);
-  VTK_CREATE(vtkIdList, neighbors);
-  neighbors->Allocate(8, 100);
-
-  // If we are given a starting cell, try that.
-  if (cell && (cellId >= 0))
-  {
-    foundCell = FindCellWalk(this, x, cell, gencell, cellId,
-                             tol2, subId, pcoords, weights,
-                             visitedCells, ptIds, neighbors);
-    if (foundCell >= 0) return foundCell;
-  }
-
-  VTK_CREATE(vtkIdList, cellIds);
-  cellIds->Allocate(8,100);
-
-  // Now find the point closest to the coordinates given and search from the
-  // adjacent cells.
-  vtkIdType ptId = this->Locator->FindClosestPoint(x);
-  if (ptId < 0) return -1;
-  this->GetPointCells(ptId, cellIds);
-  foundCell = FindCellWalk(this, x, gencell, cellIds,
-                           tol2, subId, pcoords, weights,
-                           visitedCells, ptIds, neighbors);
-  if (foundCell >= 0) return foundCell;
-
-  // It is possible that the toplogy is not fully connected.  That is, two
-  // points in the point list could be coincident.  Handle that by looking
-  // at every point within the tolerance and consider all cells connected.
-  // It has been suggested that we should really do this coincident point
-  // check at every point as we walk through neighbors, which would happen
-  // in FindCellWalk.  If that were ever implemented, this step might become
-  // unnecessary.
-  double ptCoord[3];
-  this->GetPoint(ptId, ptCoord);
-  VTK_CREATE(vtkIdList, coincidentPtIds);
-  coincidentPtIds->Allocate(8, 100);
-  this->Locator->FindPointsWithinRadius(sqrt(tol2), ptCoord, coincidentPtIds);
-  coincidentPtIds->DeleteId(ptId);      // Already searched this one.
-  for (vtkIdType i = 0; i < coincidentPtIds->GetNumberOfIds(); i++)
-  {
-    this->GetPointCells(coincidentPtIds->GetId(i), cellIds);
-    foundCell = FindCellWalk(this, x, gencell, cellIds,
-                             tol2, subId, pcoords, weights,
-                             visitedCells, ptIds, neighbors);
-    if (foundCell >= 0) return foundCell;
-  }
-
-  // Could not find the cell.
-  return -1;
+  VTK_CREATE(vtkClosestPointStrategy, strategy);
+  strategy->Initialize(this);
+  return strategy->FindCell(x, cell, gencell, cellId, tol2, subId, pcoords, weights);
 }
 
 //----------------------------------------------------------------------------
-vtkCellIterator *vtkPointSet::NewCellIterator()
+vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
+  int& subId, double pcoords[3], double* weights)
 {
-  vtkPointSetCellIterator *iter = vtkPointSetCellIterator::New();
+  return this->FindCell(x, cell, nullptr, cellId, tol2, subId, pcoords, weights);
+}
+
+//----------------------------------------------------------------------------
+vtkCellIterator* vtkPointSet::NewCellIterator()
+{
+  vtkPointSetCellIterator* iter = vtkPointSetCellIterator::New();
   iter->SetPointSet(this);
   return iter;
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                                double tol2, int& subId,double pcoords[3],
-                                double *weights)
-{
-  return
-    this->FindCell( x, cell, nullptr, cellId, tol2, subId, pcoords, weights );
-}
-
-#undef VTK_MAX_WALK
-
-
-//----------------------------------------------------------------------------
 void vtkPointSet::Squeeze()
 {
-  if ( this->Points )
+  if (this->Points)
   {
     this->Points->Squeeze();
   }
@@ -376,14 +270,15 @@ void vtkPointSet::Squeeze()
 void vtkPointSet::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->Locator, "Locator");
+  vtkGarbageCollectorReport(collector, this->PointLocator, "PointLocator");
+  vtkGarbageCollectorReport(collector, this->CellLocator, "CellLocator");
 }
 
 //----------------------------------------------------------------------------
 unsigned long vtkPointSet::GetActualMemorySize()
 {
-  unsigned long size=this->vtkDataSet::GetActualMemorySize();
-  if ( this->Points )
+  unsigned long size = this->vtkDataSet::GetActualMemorySize();
+  if (this->Points)
   {
     size += this->Points->GetActualMemorySize();
   }
@@ -391,11 +286,11 @@ unsigned long vtkPointSet::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSet::ShallowCopy(vtkDataObject *dataObject)
+void vtkPointSet::ShallowCopy(vtkDataObject* dataObject)
 {
-  vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
+  vtkPointSet* pointSet = vtkPointSet::SafeDownCast(dataObject);
 
-  if ( pointSet != nullptr )
+  if (pointSet != nullptr)
   {
     this->SetEditable(pointSet->GetEditable());
     this->SetPoints(pointSet->GetPoints());
@@ -406,11 +301,11 @@ void vtkPointSet::ShallowCopy(vtkDataObject *dataObject)
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
+void vtkPointSet::DeepCopy(vtkDataObject* dataObject)
 {
-  vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
+  vtkPointSet* pointSet = vtkPointSet::SafeDownCast(dataObject);
 
-  if ( pointSet != nullptr )
+  if (pointSet != nullptr)
   {
     this->SetEditable(pointSet->GetEditable());
     vtkPoints* newPoints;
@@ -436,7 +331,7 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
 //----------------------------------------------------------------------------
 vtkPointSet* vtkPointSet::GetData(vtkInformation* info)
 {
-  return info? vtkPointSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkPointSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -448,12 +343,13 @@ vtkPointSet* vtkPointSet::GetData(vtkInformationVector* v, int i)
 //----------------------------------------------------------------------------
 void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Editable: " << (this->Editable ? "true\n" : "false\n");
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Point Coordinates: " << this->Points << "\n";
-  os << indent << "Locator: " << this->Locator << "\n";
+  os << indent << "PointLocator: " << this->PointLocator << "\n";
+  os << indent << "CellLocator: " << this->CellLocator << "\n";
 }
 
 //----------------------------------------------------------------------------

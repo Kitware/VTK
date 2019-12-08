@@ -17,19 +17,20 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 // This example reads a volume dataset and displays it via volume rendering.
 //
 
-#include <vtkSmartPointer.h>
-#include <vtkRenderer.h>
+#include <vtkCamera.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkFixedPointVolumeRayCastMapper.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkVolume16Reader.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkVolume.h>
-#include <vtkFixedPointVolumeRayCastMapper.h>
+#include <vtkVolume16Reader.h>
 #include <vtkVolumeProperty.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkCamera.h>
 
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -40,10 +41,8 @@ int main (int argc, char *argv[])
   // Create the renderer, the render window, and the interactor. The renderer
   // draws into the render window, the interactor enables mouse- and
   // keyboard-based interaction with the scene.
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -55,8 +54,7 @@ int main (int argc, char *argv[])
   // uses the FilePrefix in combination with the slice number to construct
   // filenames using the format FilePrefix.%d. (In this case the FilePrefix
   // is the root name of the file: quarter.)
-  vtkSmartPointer<vtkVolume16Reader> v16 =
-    vtkSmartPointer<vtkVolume16Reader>::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 = vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetImageRange(1, 93);
   v16->SetDataByteOrderToLittleEndian();
@@ -73,10 +71,10 @@ int main (int argc, char *argv[])
   // It is modality-specific, and often anatomy-specific as well.
   // The goal is to one color for flesh (between 500 and 1000)
   // and another color for bone (1150 and over).
-  vtkSmartPointer<vtkColorTransferFunction>volumeColor =
+  vtkSmartPointer<vtkColorTransferFunction> volumeColor =
     vtkSmartPointer<vtkColorTransferFunction>::New();
-  volumeColor->AddRGBPoint(0,    0.0, 0.0, 0.0);
-  volumeColor->AddRGBPoint(500,  1.0, 0.5, 0.3);
+  volumeColor->AddRGBPoint(0, 0.0, 0.0, 0.0);
+  volumeColor->AddRGBPoint(500, 1.0, 0.5, 0.3);
   volumeColor->AddRGBPoint(1000, 1.0, 0.5, 0.3);
   volumeColor->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
@@ -84,8 +82,8 @@ int main (int argc, char *argv[])
   // of different tissue types.
   vtkSmartPointer<vtkPiecewiseFunction> volumeScalarOpacity =
     vtkSmartPointer<vtkPiecewiseFunction>::New();
-  volumeScalarOpacity->AddPoint(0,    0.00);
-  volumeScalarOpacity->AddPoint(500,  0.15);
+  volumeScalarOpacity->AddPoint(0, 0.00);
+  volumeScalarOpacity->AddPoint(500, 0.15);
   volumeScalarOpacity->AddPoint(1000, 0.15);
   volumeScalarOpacity->AddPoint(1150, 0.85);
 
@@ -96,8 +94,8 @@ int main (int argc, char *argv[])
   // For most medical data, the unit distance is 1mm.
   vtkSmartPointer<vtkPiecewiseFunction> volumeGradientOpacity =
     vtkSmartPointer<vtkPiecewiseFunction>::New();
-  volumeGradientOpacity->AddPoint(0,   0.0);
-  volumeGradientOpacity->AddPoint(90,  0.5);
+  volumeGradientOpacity->AddPoint(0, 0.0);
+  volumeGradientOpacity->AddPoint(90, 0.5);
   volumeGradientOpacity->AddPoint(100, 1.0);
 
   // The VolumeProperty attaches the color and opacity functions to the
@@ -111,8 +109,7 @@ int main (int argc, char *argv[])
   // decreased by increasing the Ambient coefficient while decreasing
   // the Diffuse and Specular coefficient.  To increase the impact
   // of shading, decrease the Ambient and increase the Diffuse and Specular.
-  vtkSmartPointer<vtkVolumeProperty> volumeProperty =
-    vtkSmartPointer<vtkVolumeProperty>::New();
+  vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
   volumeProperty->SetColor(volumeColor);
   volumeProperty->SetScalarOpacity(volumeScalarOpacity);
   volumeProperty->SetGradientOpacity(volumeGradientOpacity);
@@ -124,8 +121,7 @@ int main (int argc, char *argv[])
 
   // The vtkVolume is a vtkProp3D (like a vtkActor) and controls the position
   // and orientation of the volume in world coordinates.
-  vtkSmartPointer<vtkVolume> volume =
-    vtkSmartPointer<vtkVolume>::New();
+  vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
 
@@ -135,14 +131,30 @@ int main (int argc, char *argv[])
   // Set up an initial view of the volume.  The focal point will be the
   // center of the volume, and the camera position will be 400mm to the
   // patient's left (which is our right).
-  vtkCamera *camera = ren->GetActiveCamera();
-  double *c = volume->GetCenter();
+  vtkCamera* camera = ren->GetActiveCamera();
+  double* c = volume->GetCenter();
   camera->SetFocalPoint(c[0], c[1], c[2]);
   camera->SetPosition(c[0] + 400, c[1], c[2]);
   camera->SetViewUp(0, 0, -1);
 
   // Increase the size of the render window
   renWin->SetSize(640, 480);
+
+  // For testing, check if "-V" is used to provide a regression test image
+  if (argc >= 4 && strcmp(argv[2], "-V") == 0)
+  {
+    renWin->Render();
+    int retVal = vtkRegressionTestImage(renWin);
+
+    if (retVal == vtkTesting::FAILED)
+    {
+      return EXIT_FAILURE;
+    }
+    else if (retVal != vtkTesting::DO_INTERACTOR)
+    {
+      return EXIT_SUCCESS;
+    }
+  }
 
   // Interact with the data.
   iren->Initialize();

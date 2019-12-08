@@ -30,7 +30,7 @@
  * This class performs all of its operations in a right handed
  * coordinate system with right handed rotations. Some other graphics
  * libraries use left handed coordinate systems and rotations.
-*/
+ */
 
 #ifndef vtkTransform2D_h
 #define vtkTransform2D_h
@@ -44,9 +44,9 @@ class vtkPoints2D;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
 {
- public:
-  static vtkTransform2D *New();
-  vtkTypeMacro(vtkTransform2D,vtkObject);
+public:
+  static vtkTransform2D* New();
+  vtkTypeMacro(vtkTransform2D, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -84,8 +84,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
   /**
    * Set the current matrix directly.
    */
-  void SetMatrix(vtkMatrix3x3 *matrix) {
-    this->SetMatrix(matrix->GetData()); }
+  void SetMatrix(vtkMatrix3x3* matrix) { this->SetMatrix(matrix->GetData()); }
   void SetMatrix(const double elements[9]);
 
   //@{
@@ -93,7 +92,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * Get the underlying 3x3 matrix.
    */
   vtkGetObjectMacro(Matrix, vtkMatrix3x3);
-  void GetMatrix(vtkMatrix3x3 *matrix);
+  void GetMatrix(vtkMatrix3x3* matrix);
   //@}
 
   //@{
@@ -103,11 +102,13 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * component of the 3x3 matrix.
    */
   void GetPosition(double pos[2]);
-  void GetPosition(float pos[2]) {
+  void GetPosition(float pos[2])
+  {
     double temp[2];
     this->GetPosition(temp);
     pos[0] = static_cast<float>(temp[0]);
-    pos[1] = static_cast<float>(temp[1]); }
+    pos[1] = static_cast<float>(temp[1]);
+  }
   //@}
 
   //@{
@@ -117,25 +118,27 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * component of the 3x3 matrix.
    */
   void GetScale(double pos[2]);
-  void GetScale(float pos[2]) {
+  void GetScale(float pos[2])
+  {
     double temp[2];
     this->GetScale(temp);
     pos[0] = static_cast<float>(temp[0]);
-    pos[1] = static_cast<float>(temp[1]); }
+    pos[1] = static_cast<float>(temp[1]);
+  }
   //@}
 
   /**
    * Return a matrix which is the inverse of the current transformation
    * matrix.
    */
-  void GetInverse(vtkMatrix3x3 *inverse);
+  void GetInverse(vtkMatrix3x3* inverse);
 
   /**
    * Return a matrix which is the transpose of the current transformation
    * matrix.  This is equivalent to the inverse if and only if the
    * transformation is a pure rotation with no translation or scale.
    */
-  void GetTranspose(vtkMatrix3x3 *transpose);
+  void GetTranspose(vtkMatrix3x3* transpose);
 
   /**
    * Override GetMTime to account for input and concatenation.
@@ -147,40 +150,40 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * results to outPts. Where n is the number of points, and the float pointers
    * are of length 2*n.
    */
-  void TransformPoints(const float *inPts, float *outPts, int n);
+  void TransformPoints(const float* inPts, float* outPts, int n);
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts. Where n is the number of points, and the float pointers
    * are of length 2*n.
    */
-  void TransformPoints(const double *inPts, double *outPts, int n);
+  void TransformPoints(const double* inPts, double* outPts, int n);
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts);
+  void TransformPoints(vtkPoints2D* inPts, vtkPoints2D* outPts);
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts. Where n is the number of points, and the float pointers
    * are of length 2*n.
    */
-  void InverseTransformPoints(const float *inPts, float *outPts, int n);
+  void InverseTransformPoints(const float* inPts, float* outPts, int n);
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts. Where n is the number of points, and the float pointers
    * are of length 2*n.
    */
-  void InverseTransformPoints(const double *inPts, double *outPts, int n);
+  void InverseTransformPoints(const double* inPts, double* outPts, int n);
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void InverseTransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts);
+  void InverseTransformPoints(vtkPoints2D* inPts, vtkPoints2D* outPts);
 
   //@{
   /**
@@ -188,23 +191,24 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * homogeneous (x,y,w) coordinates, otherwise use TransformPoint().
    * This method calls this->GetMatrix()->MultiplyPoint().
    */
-  void MultiplyPoint(const float in[3], float out[3]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
-  void MultiplyPoint(const double in[3], double out[3]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
+  void MultiplyPoint(const float in[3], float out[3]) { this->GetMatrix()->MultiplyPoint(in, out); }
+  void MultiplyPoint(const double in[3], double out[3])
+  {
+    this->GetMatrix()->MultiplyPoint(in, out);
+  }
   //@}
 
 protected:
-  vtkTransform2D ();
-  ~vtkTransform2D () override;
+  vtkTransform2D();
+  ~vtkTransform2D() override;
 
-  void InternalDeepCopy(vtkTransform2D *t);
+  void InternalDeepCopy(vtkTransform2D* t);
 
-  vtkMatrix3x3 *Matrix;
-  vtkMatrix3x3 *InverseMatrix;
+  vtkMatrix3x3* Matrix;
+  vtkMatrix3x3* InverseMatrix;
 
 private:
-  vtkTransform2D (const vtkTransform2D&) = delete;
+  vtkTransform2D(const vtkTransform2D&) = delete;
   void operator=(const vtkTransform2D&) = delete;
 };
 

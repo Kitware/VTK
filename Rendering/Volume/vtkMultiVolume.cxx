@@ -12,22 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkMultiVolume.h"
 #include "vtkBoundingBox.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkMultiVolume.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 #include "vtkVolumeProperty.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-
 
 vtkMultiVolume::vtkMultiVolume()
-: Superclass()
-, TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
+  : Superclass()
+  , TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
 {
   vtkMath::UninitializeBounds(this->Bounds);
   vtkMath::UninitializeBounds(this->DataBounds.data());
@@ -93,8 +92,7 @@ vtkVolume* vtkMultiVolume::FindVolume(int port)
 
 double* vtkMultiVolume::GetBounds()
 {
-  if (!this->VolumesChanged() &&
-    vtkMath::AreBoundsInitialized(this->Bounds))
+  if (!this->VolumesChanged() && vtkMath::AreBoundsInitialized(this->Bounds))
   {
     return this->Bounds;
   }
@@ -112,7 +110,7 @@ double* vtkMultiVolume::GetBounds()
     if (!mapper)
     {
       vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
-        " vtkGPUVolumeRayCastMapper.")
+                       " vtkGPUVolumeRayCastMapper.");
       return this->Bounds;
     }
     double* bnd = mapper->GetBoundsFromPort(port);
@@ -128,8 +126,7 @@ double* vtkMultiVolume::GetBounds()
       {
         const size_t c = i * 2;
         this->Bounds[c] = std::min(rBoundsWorld[c], this->Bounds[c]);
-        this->Bounds[c + 1] = std::max(rBoundsWorld[c + 1],
-          this->Bounds[c + 1]);
+        this->Bounds[c + 1] = std::max(rBoundsWorld[c + 1], this->Bounds[c + 1]);
       }
     }
     else
@@ -213,25 +210,23 @@ double* vtkMultiVolume::GetBounds()
   return this->Bounds;
 }
 
-std::array<double, 6> vtkMultiVolume::ComputeAABounds(double bounds[6],
-  vtkMatrix4x4* T) const
+std::array<double, 6> vtkMultiVolume::ComputeAABounds(double bounds[6], vtkMatrix4x4* T) const
 {
   using Point = vtkVector4d;
   using PointVec = std::vector<Point>;
 
   // Create all corner poiints of the bounding box
-  vtkVector3d dim(bounds[1] - bounds[0], bounds[3] - bounds[2],
-    bounds[5] - bounds[4]);
+  vtkVector3d dim(bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4]);
 
   Point minPoint(bounds[0], bounds[2], bounds[4], 1.0);
   PointVec pointsDataCoords;
   pointsDataCoords.reserve(8);
   pointsDataCoords.push_back(minPoint);
-  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], 0.,0., 0.)));
-  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], dim[1],0., 0.)));
-  pointsDataCoords.push_back(std::move(minPoint + Point(0., dim[1],0., 0.)));
+  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], 0., 0., 0.)));
+  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], dim[1], 0., 0.)));
+  pointsDataCoords.push_back(std::move(minPoint + Point(0., dim[1], 0., 0.)));
   pointsDataCoords.push_back(std::move(minPoint + Point(0., 0., dim[2], 0.)));
-  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], 0.,dim[2], 0.)));
+  pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], 0., dim[2], 0.)));
   pointsDataCoords.push_back(Point(bounds[1], bounds[3], bounds[5], 0.));
   pointsDataCoords.push_back(std::move(minPoint + Point(0., dim[1], dim[2], 0.)));
 
@@ -255,7 +250,7 @@ bool vtkMultiVolume::VolumesChanged()
   if (!mapper)
   {
     vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
-      " vtkGPUVolumeRayCastMapper.")
+                     " vtkGPUVolumeRayCastMapper.");
     return false;
   }
 
@@ -278,8 +273,7 @@ vtkMTimeType vtkMultiVolume::GetMTime()
 {
   auto mTime = this->vtkObject::GetMTime();
 
-  mTime = this->BoundsComputeTime > mTime ?
-    this->BoundsComputeTime.GetMTime() : mTime;
+  mTime = this->BoundsComputeTime > mTime ? this->BoundsComputeTime.GetMTime() : mTime;
 
   return mTime;
 }
@@ -288,15 +282,14 @@ void vtkMultiVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Num. volumes: " << this->Volumes.size() << "\n";
-  os << indent << "BoundsComputeTime: " << this->BoundsComputeTime.GetMTime()
-    << "\n";
+  os << indent << "BoundsComputeTime: " << this->BoundsComputeTime.GetMTime() << "\n";
   os << indent << "Texture-To-Data: \n";
   this->TexToBBox->PrintSelf(os, indent);
   os << indent << "Data-To-World: \n ";
   this->Matrix->PrintSelf(os, indent);
 }
 
-void vtkMultiVolume::ShallowCopy(vtkProp *prop)
+void vtkMultiVolume::ShallowCopy(vtkProp* prop)
 {
   auto multiVol = vtkMultiVolume::SafeDownCast(prop);
   if (multiVol)
@@ -338,8 +331,8 @@ int vtkMultiVolume::RenderVolumetricGeometry(vtkViewport* vp)
 void vtkMultiVolume::SetProperty(vtkVolumeProperty* vtkNotUsed(property))
 {
   vtkWarningMacro(<< "This vtkVolumeProperty will not be used during"
-    << " rendering. Volume properties should be specified through registered"
-    << " vtkVolume instances.");
+                  << " rendering. Volume properties should be specified through registered"
+                  << " vtkVolume instances.");
 }
 
 vtkVolumeProperty* vtkMultiVolume::GetProperty()

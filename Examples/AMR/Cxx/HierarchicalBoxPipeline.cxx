@@ -27,12 +27,12 @@
 #include "vtkDebugLeaks.h"
 #include "vtkExtractLevel.h"
 #include "vtkHierarchicalDataSetGeometryFilter.h"
-#include "vtkOutlineCornerFilter.h"
 #include "vtkHierarchicalPolyDataMapper.h"
+#include "vtkOutlineCornerFilter.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLHierarchicalBoxDataReader.h"
@@ -40,29 +40,25 @@
 int main(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkRenderer *ren = vtkRenderer::New();
+  vtkRenderer* ren = vtkRenderer::New();
   vtkCamera* cam = ren->GetActiveCamera();
   cam->SetPosition(-5.1828, 5.89733, 8.97969);
   cam->SetFocalPoint(14.6491, -2.08677, -8.92362);
   cam->SetViewUp(0.210794, 0.95813, -0.193784);
 
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* cfname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                         "Data/chombo3d/chombo3d.vtm");
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/chombo3d/chombo3d.vtm");
 
-  vtkXMLHierarchicalBoxDataReader* reader =
-    vtkXMLHierarchicalBoxDataReader::New();
+  vtkXMLHierarchicalBoxDataReader* reader = vtkXMLHierarchicalBoxDataReader::New();
   reader->SetFileName(cfname);
   delete[] cfname;
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom =
-    vtkHierarchicalDataSetGeometryFilter::New();
+  vtkHierarchicalDataSetGeometryFilter* geom = vtkHierarchicalDataSetGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();
@@ -111,20 +107,18 @@ int main(int argc, char* argv[])
   pipeline->Delete();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));
   contour->SetValue(0, -0.013);
-  contour->SetInputArrayToProcess(
-    0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
+  contour->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "phi");
 
   // Rendering objects
-  vtkHierarchicalPolyDataMapper* contMapper =
-    vtkHierarchicalPolyDataMapper::New();
+  vtkHierarchicalPolyDataMapper* contMapper = vtkHierarchicalPolyDataMapper::New();
   contMapper->SetInputConnection(0, contour->GetOutputPort(0));
   vtkActor* contActor = vtkActor::New();
   contActor->SetMapper(contMapper);
   contActor->GetProperty()->SetColor(1, 0, 0);
   ren->AddActor(contActor);
 
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
   ren->ResetCamera();
   iren->Start();
 

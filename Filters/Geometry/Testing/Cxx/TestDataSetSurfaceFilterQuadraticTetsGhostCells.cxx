@@ -15,8 +15,8 @@
 
 #include <cstdlib>
 
-#include "vtkNew.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
@@ -24,7 +24,8 @@
 
 int TestDataSetSurfaceFilterQuadraticTetsGhostCells(int argc, char* argv[])
 {
-  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadratic_tets_with_ghost_cells_0.vtu");
+  char* cfname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadratic_tets_with_ghost_cells_0.vtu");
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(cfname);
@@ -36,9 +37,9 @@ int TestDataSetSurfaceFilterQuadraticTetsGhostCells(int argc, char* argv[])
 
   vtkPolyData* surface = surfaceFilter->GetOutput();
   int numCells = surface->GetNumberOfCells();
-  if (numCells != 556)
+  if (numCells != 672)
   {
-    std::cerr << "Expected 548 cells, got: " << numCells << std::endl;
+    std::cerr << "Expected 672 cells, got: " << numCells << std::endl;
     return EXIT_FAILURE;
   }
 

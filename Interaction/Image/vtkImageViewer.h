@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkRenderWindow vtkRenderer vtkImageMapper vtkActor2D
-*/
+ */
 
 #ifndef vtkImageViewer_h
 #define vtkImageViewer_h
@@ -32,7 +32,7 @@
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkImageMapper.h" // For all the inline methods
+#include "vtkImageMapper.h"  // For all the inline methods
 #include "vtkRenderWindow.h" // For all the inline methods
 
 class vtkInteractorStyleImage;
@@ -40,15 +40,15 @@ class vtkInteractorStyleImage;
 class VTKINTERACTIONIMAGE_EXPORT vtkImageViewer : public vtkObject
 {
 public:
-  static vtkImageViewer *New();
+  static vtkImageViewer* New();
 
-  vtkTypeMacro(vtkImageViewer,vtkObject);
+  vtkTypeMacro(vtkImageViewer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get name of rendering window
    */
-  char *GetWindowName() {return this->RenderWindow->GetWindowName();};
+  char* GetWindowName() { return this->RenderWindow->GetWindowName(); }
 
   /**
    * Render the resulting image.
@@ -59,53 +59,55 @@ public:
   /**
    * Set/Get the input to the viewer.
    */
-  void SetInputData(vtkImageData *in) {this->ImageMapper->SetInputData(in);};
-  vtkImageData *GetInput() { return this->ImageMapper->GetInput();};
-  virtual void SetInputConnection(vtkAlgorithmOutput* input) {
-    this->ImageMapper->SetInputConnection(input);};
+  void SetInputData(vtkImageData* in) { this->ImageMapper->SetInputData(in); }
+  vtkImageData* GetInput() { return this->ImageMapper->GetInput(); }
+  virtual void SetInputConnection(vtkAlgorithmOutput* input)
+  {
+    this->ImageMapper->SetInputConnection(input);
+  }
   //@}
 
   //@{
   /**
    * What is the possible Min/ Max z slices available.
    */
-  int GetWholeZMin() {return this->ImageMapper->GetWholeZMin();};
-  int GetWholeZMax() {return this->ImageMapper->GetWholeZMax();};
+  int GetWholeZMin() { return this->ImageMapper->GetWholeZMin(); }
+  int GetWholeZMax() { return this->ImageMapper->GetWholeZMax(); }
   //@}
 
   //@{
   /**
    * Set/Get the current Z Slice to display
    */
-  int GetZSlice() {return this->ImageMapper->GetZSlice();};
-  void SetZSlice(int s) {this->ImageMapper->SetZSlice(s);};
+  int GetZSlice() { return this->ImageMapper->GetZSlice(); }
+  void SetZSlice(int s) { this->ImageMapper->SetZSlice(s); }
   //@}
 
   //@{
   /**
    * Sets window/level for mapping pixels to colors.
    */
-  double GetColorWindow() {return this->ImageMapper->GetColorWindow();};
-  double GetColorLevel() {return this->ImageMapper->GetColorLevel();};
-  void SetColorWindow(double s) {this->ImageMapper->SetColorWindow(s);};
-  void SetColorLevel(double s) {this->ImageMapper->SetColorLevel(s);};
+  double GetColorWindow() { return this->ImageMapper->GetColorWindow(); }
+  double GetColorLevel() { return this->ImageMapper->GetColorLevel(); }
+  void SetColorWindow(double s) { this->ImageMapper->SetColorWindow(s); }
+  void SetColorLevel(double s) { this->ImageMapper->SetColorLevel(s); }
   //@}
 
   //@{
   /**
    * These are here for using a tk window.
    */
-  void SetDisplayId(void *a) {this->RenderWindow->SetDisplayId(a);};
-  void SetWindowId(void *a) {this->RenderWindow->SetWindowId(a);};
-  void SetParentId(void *a) {this->RenderWindow->SetParentId(a);};
+  void SetDisplayId(void* a) { this->RenderWindow->SetDisplayId(a); }
+  void SetWindowId(void* a) { this->RenderWindow->SetWindowId(a); }
+  void SetParentId(void* a) { this->RenderWindow->SetParentId(a); }
   //@}
 
   //@{
   /**
    * Set/Get the position in screen coordinates of the rendering window.
    */
-  int *GetPosition() VTK_SIZEHINT(2) {return this->RenderWindow->GetPosition();};
-  void SetPosition(int a,int b) {this->RenderWindow->SetPosition(a,b);};
+  int* GetPosition() VTK_SIZEHINT(2) { return this->RenderWindow->GetPosition(); }
+  void SetPosition(int a, int b) { this->RenderWindow->SetPosition(a, b); }
   virtual void SetPosition(int a[2]);
   //@}
 
@@ -113,8 +115,8 @@ public:
   /**
    * Set/Get the size of the window in screen coordinates in pixels.
    */
-  int *GetSize() VTK_SIZEHINT(2) {return this->RenderWindow->GetSize();};
-  void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);};
+  int* GetSize() VTK_SIZEHINT(2) { return this->RenderWindow->GetSize(); }
+  void SetSize(int a, int b) { this->RenderWindow->SetSize(a, b); }
   virtual void SetSize(int a[2]);
   //@}
 
@@ -122,17 +124,17 @@ public:
   /**
    * Get the internal objects
    */
-  vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   void SetRenderWindow(vtkRenderWindow* renWin);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  vtkGetObjectMacro(ImageMapper,vtkImageMapper);
-  vtkGetObjectMacro(Actor2D,vtkActor2D);
+  vtkGetObjectMacro(ImageMapper, vtkImageMapper);
+  vtkGetObjectMacro(Actor2D, vtkActor2D);
   //@}
 
   /**
    * Create and attach an interactor for this window
    */
-  void SetupInteractor(vtkRenderWindowInteractor *);
+  void SetupInteractor(vtkRenderWindowInteractor*);
 
   //@{
   /**
@@ -150,13 +152,13 @@ protected:
   vtkImageViewer();
   ~vtkImageViewer() override;
 
-  vtkRenderWindow *RenderWindow;
-  vtkRenderer *Renderer;
-  vtkImageMapper *ImageMapper;
-  vtkActor2D     *Actor2D;
+  vtkRenderWindow* RenderWindow;
+  vtkRenderer* Renderer;
+  vtkImageMapper* ImageMapper;
+  vtkActor2D* Actor2D;
   int FirstRender;
-  vtkRenderWindowInteractor *Interactor;
-  vtkInteractorStyleImage *InteractorStyle;
+  vtkRenderWindowInteractor* Interactor;
+  vtkInteractorStyleImage* InteractorStyle;
 
   friend class vtkImageViewerCallback;
   vtkAlgorithm* GetInputAlgorithm();

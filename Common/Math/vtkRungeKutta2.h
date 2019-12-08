@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkInitialValueProblemSolver vtkRungeKutta4 vtkRungeKutta45 vtkFunctionSet
-*/
+ */
 
 #ifndef vtkRungeKutta2_h
 #define vtkRungeKutta2_h
@@ -35,12 +35,12 @@
 class VTKCOMMONMATH_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
 {
 public:
-  vtkTypeMacro(vtkRungeKutta2,vtkInitialValueProblemSolver);
+  vtkTypeMacro(vtkRungeKutta2, vtkInitialValueProblemSolver);
 
   /**
    * Construct a vtkRungeKutta2 with no initial FunctionSet.
    */
-  static vtkRungeKutta2 *New();
+  static vtkRungeKutta2* New();
 
   using Superclass::ComputeNextStep;
   //@{
@@ -57,43 +57,39 @@ public:
    * NotInitialized = 2,
    * UnexpectedValue = 3
    */
-  int ComputeNextStep(double* xprev, double* xnext,
-                      double t, double& delT,
-                      double maxError, double& error, void* userData) override
+  int ComputeNextStep(double* xprev, double* xnext, double t, double& delT, double maxError,
+    double& error, void* userData) override
   {
-      double minStep = delT;
-      double maxStep = delT;
-      double delTActual;
-      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error, userData);
+    double minStep = delT;
+    double maxStep = delT;
+    double delTActual;
+    return this->ComputeNextStep(
+      xprev, nullptr, xnext, t, delT, delTActual, minStep, maxStep, maxError, error, userData);
   }
-  int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
-                      double t, double& delT,
-                      double maxError, double& error, void* userData) override
+  int ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t, double& delT,
+    double maxError, double& error, void* userData) override
   {
-      double minStep = delT;
-      double maxStep = delT;
-      double delTActual;
-      return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error, userData);
+    double minStep = delT;
+    double maxStep = delT;
+    double delTActual;
+    return this->ComputeNextStep(
+      xprev, dxprev, xnext, t, delT, delTActual, minStep, maxStep, maxError, error, userData);
   }
-  int ComputeNextStep(double* xprev, double* xnext,
-                      double t, double& delT, double& delTActual,
-                      double minStep, double maxStep,
-                      double maxError, double& error, void* userData) override
+  int ComputeNextStep(double* xprev, double* xnext, double t, double& delT, double& delTActual,
+    double minStep, double maxStep, double maxError, double& error, void* userData) override
   {
-      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error, userData);
+    return this->ComputeNextStep(
+      xprev, nullptr, xnext, t, delT, delTActual, minStep, maxStep, maxError, error, userData);
   }
-  int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
-                      double t, double& delT, double& delTActual,
-                      double minStep, double maxStep,
-                      double maxError, double& error, void* userData) override;
+  int ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t, double& delT,
+    double& delTActual, double minStep, double maxStep, double maxError, double& error,
+    void* userData) override;
   //@}
 
 protected:
   vtkRungeKutta2();
   ~vtkRungeKutta2() override;
+
 private:
   vtkRungeKutta2(const vtkRungeKutta2&) = delete;
   void operator=(const vtkRungeKutta2&) = delete;

@@ -20,8 +20,8 @@
 #include "vtkReaderExecutive.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vector>
 #include <numeric>
+#include <vector>
 
 struct vtkParallelReaderInternal
 {
@@ -57,7 +57,7 @@ void vtkParallelReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkParallelReader::AddFileName(const char* fname)
 {
-  if(fname == nullptr || strlen(fname) == 0)
+  if (fname == nullptr || strlen(fname) == 0)
   {
     return;
   }
@@ -87,8 +87,7 @@ const char* vtkParallelReader::GetFileName(int i) const
 //----------------------------------------------------------------------------
 const char* vtkParallelReader::GetCurrentFileName() const
 {
-  if (this->CurrentFileIndex < 0 ||
-      this->CurrentFileIndex >= (int)this->Internal->FileNames.size())
+  if (this->CurrentFileIndex < 0 || this->CurrentFileIndex >= (int)this->Internal->FileNames.size())
   {
     return nullptr;
   }
@@ -100,7 +99,7 @@ int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
 {
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
 
-  if(this->Internal->FileNames.empty())
+  if (this->Internal->FileNames.empty())
   {
     // No file names specified. No meta-data. There is still
     // no need to return with an error.
@@ -112,7 +111,7 @@ int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
 
   bool hasTime = true;
   auto iter = times.begin();
-  for(const auto& fname: this->Internal->FileNames)
+  for (const auto& fname : this->Internal->FileNames)
   {
     auto time = this->GetTimeValue(fname);
     if (vtkMath::IsNan(time))
@@ -132,29 +131,25 @@ int vtkParallelReader::ReadMetaData(vtkInformation* metadata)
   timeRange[0] = times[0];
   timeRange[1] = times[nTimes - 1];
 
-  metadata->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], (int)nTimes);
-  metadata->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+  metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], (int)nTimes);
+  metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkParallelReader::ReadMesh(
-    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
+  int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
   int nTimes = static_cast<int>(this->Internal->FileNames.size());
   if (timestep >= nTimes)
   {
-    vtkErrorMacro("Cannot read time step " << timestep << ". Only " <<
-      nTimes << " time steps are available.");
+    vtkErrorMacro(
+      "Cannot read time step " << timestep << ". Only " << nTimes << " time steps are available.");
     return 0;
   }
 
-
-  if (this->ReadMesh(
-    this->Internal->FileNames[timestep], piece, npieces, nghosts, output))
+  if (this->ReadMesh(this->Internal->FileNames[timestep], piece, npieces, nghosts, output))
   {
     this->CurrentFileIndex = timestep;
     return 1;
@@ -164,34 +159,32 @@ int vtkParallelReader::ReadMesh(
 
 //----------------------------------------------------------------------------
 int vtkParallelReader::ReadPoints(
-    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
+  int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
   int nTimes = static_cast<int>(this->Internal->FileNames.size());
   if (timestep >= nTimes)
   {
-    vtkErrorMacro("Cannot read time step " << timestep << ". Only " <<
-      nTimes << " time steps are available.");
+    vtkErrorMacro(
+      "Cannot read time step " << timestep << ". Only " << nTimes << " time steps are available.");
     return 0;
   }
 
-  return this->ReadPoints(
-    this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
+  return this->ReadPoints(this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
 }
 
 //----------------------------------------------------------------------------
 int vtkParallelReader::ReadArrays(
-    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
+  int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
   int nTimes = static_cast<int>(this->Internal->FileNames.size());
   if (timestep >= nTimes)
   {
-    vtkErrorMacro("Cannot read time step " << timestep << ". Only " <<
-      nTimes << " time steps are available.");
+    vtkErrorMacro(
+      "Cannot read time step " << timestep << ". Only " << nTimes << " time steps are available.");
     return 0;
   }
 
-  return this->ReadArrays(
-    this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
+  return this->ReadArrays(this->Internal->FileNames[timestep], piece, npieces, nghosts, output);
 }
 
 //----------------------------------------------------------------------------

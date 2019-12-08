@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
 #include "vtkBiQuadraticQuad.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMathUtilities.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkProbeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
-#include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestBiQuadraticQuad(int, char*[])
@@ -51,7 +51,7 @@ int TestBiQuadraticQuad(int, char*[])
   uArray->SetNumberOfComponents(1);
   uArray->SetNumberOfTuples(9);
   // set u(x, y) = x
-  for (int i=0; i<9; i++)
+  for (int i = 0; i < 9; i++)
   {
     uArray->SetValue(i, points->GetPoint(i)[0]);
   }
@@ -87,8 +87,8 @@ int TestBiQuadraticQuad(int, char*[])
   }
   if (!vtkMathUtilities::FuzzyCompare(interpolated, probeX, 1.0e-6))
   {
-    cout << "Interpolated value of " << interpolated << " with probe value "
-         << probeX << " difference of " << (interpolated - probeX) <<  endl;
+    cout << "Interpolated value of " << interpolated << " with probe value " << probeX
+         << " difference of " << (interpolated - probeX) << endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

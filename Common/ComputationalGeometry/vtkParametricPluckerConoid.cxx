@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkParametricPluckerConoid.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricPluckerConoid);
 //----------------------------------------------------------------------------//
-vtkParametricPluckerConoid::vtkParametricPluckerConoid() :
-  N(2)
+vtkParametricPluckerConoid::vtkParametricPluckerConoid()
+  : N(2)
 {
   // Preset triangulation parameters
   this->MinimumU = 0.;
   this->MaximumU = 3.;
   this->MinimumV = 0.;
-  this->MaximumV = 2.*vtkMath::Pi();
+  this->MaximumV = 2. * vtkMath::Pi();
 
   this->JoinU = 0;
   this->JoinV = 0;
@@ -39,8 +39,7 @@ vtkParametricPluckerConoid::vtkParametricPluckerConoid() :
 vtkParametricPluckerConoid::~vtkParametricPluckerConoid() = default;
 
 //----------------------------------------------------------------------------//
-void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3],
-    double Duvw[9])
+void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
@@ -48,8 +47,8 @@ void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3],
 
   // We're only going to need the u and v partial derivatives.
   // The w partial derivatives are not needed.
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   // Location of the point, this parametrization was take from:
   // https://en.wikipedia.org/wiki/Pl%c3%bccker%27s_conoid
@@ -63,21 +62,19 @@ void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3],
   Du[2] = 0.;
 
   // The derivative with respect to v:
-  Dv[0] =  u * cos(v);
+  Dv[0] = u * cos(v);
   Dv[1] = -u * sin(v);
   Dv[2] = this->N * cos(this->N * v);
 }
 
 //----------------------------------------------------------------------------//
-double vtkParametricPluckerConoid::EvaluateScalar(double *, double *,
-    double *)
+double vtkParametricPluckerConoid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------//
-void vtkParametricPluckerConoid::PrintSelf(ostream& os,
-    vtkIndent indent)
+void vtkParametricPluckerConoid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -27,10 +27,10 @@
 #include "vtkPen.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
@@ -43,14 +43,14 @@
 class ContextGL2PSTest : public vtkContextItem
 {
 public:
-  static ContextGL2PSTest *New();
-  vtkTypeMacro(ContextGL2PSTest, vtkContextItem)
+  static ContextGL2PSTest* New();
+  vtkTypeMacro(ContextGL2PSTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 };
 
 //----------------------------------------------------------------------------
-int TestGL2PSContext( int, char *[] )
+int TestGL2PSContext(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -61,7 +61,7 @@ int TestGL2PSContext( int, char *[] )
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
+    ->SetStringRendererToFreeType();
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
@@ -76,8 +76,7 @@ int TestGL2PSContext( int, char *[] )
   exp->SetPointSizeFactor(1.0);
   exp->SetTextAsPath(true);
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSContext");
+  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSContext");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
@@ -92,9 +91,9 @@ int TestGL2PSContext( int, char *[] )
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextGL2PSTest)
+vtkStandardNewMacro(ContextGL2PSTest);
 // This function aims to test the primitives provided by the 2D API.
-bool ContextGL2PSTest::Paint(vtkContext2D *painter)
+bool ContextGL2PSTest::Paint(vtkContext2D* painter)
 {
   // Test the string drawing functionality of the context
   painter->GetTextProp()->SetVerticalJustificationToCentered();
@@ -109,22 +108,18 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetColor(255,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                0);
+    painter->GetPen()->SetColor(255, static_cast<unsigned char>(float(i) * 25.0), 0);
     painter->GetPen()->SetWidth(1.0 + float(i));
-    painter->DrawLine(10, 50 + float(i)*10, 60, 50 + float(i)*10);
+    painter->DrawLine(10, 50 + float(i) * 10, 60, 50 + float(i) * 10);
   }
 
   // Draw some individual lines of different thicknesses.
   painter->GetPen()->SetWidth(10);
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
-    painter->GetPen()->SetColor(255,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                0);
-    painter->DrawLine(10, 250 + float(i)*10, 60, 250 + float(i)*10);
+    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE + 1));
+    painter->GetPen()->SetColor(255, static_cast<unsigned char>(float(i) * 25.0), 0);
+    painter->DrawLine(10, 250 + float(i) * 10, 60, 250 + float(i) * 10);
   }
   painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
 
@@ -133,8 +128,7 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   points->SetNumberOfPoints(30);
   for (int i = 0; i < 30; ++i)
   {
-    double point[2] = { float(i) * 25.0 + 10.0,
-                        sin(float(i) / 5.0) * 100.0 + 200.0 };
+    double point[2] = { float(i) * 25.0 + 10.0, sin(float(i) / 5.0) * 100.0 + 200.0 };
     points->SetPoint(i, point);
   }
   painter->GetPen()->SetColor(0, 255, 0);
@@ -150,19 +144,17 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   painter->DrawPoint(790, 590);
 
   // Test the markers
-  float markerPoints[10*2];
-  unsigned char markerColors[10*4];
+  float markerPoints[10 * 2];
+  unsigned char markerColors[10 * 4];
   for (int i = 0; i < 10; ++i)
   {
-    markerPoints[2 * i]     = 500.0 + i * 30.0;
+    markerPoints[2 * i] = 500.0 + i * 30.0;
     markerPoints[2 * i + 1] = 20 * sin(markerPoints[2 * i]) + 375.0;
 
-    markerColors[4 * i]     = static_cast<unsigned char>(255 * i / 10.0);
-    markerColors[4 * i + 1] =
-        static_cast<unsigned char>(255 * (1.0 - i / 10.0));
+    markerColors[4 * i] = static_cast<unsigned char>(255 * i / 10.0);
+    markerColors[4 * i + 1] = static_cast<unsigned char>(255 * (1.0 - i / 10.0));
     markerColors[4 * i + 2] = static_cast<unsigned char>(255 * (0.3));
-    markerColors[4 * i + 3] =
-        static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
+    markerColors[4 * i + 3] = static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
   }
 
   for (int style = VTK_MARKER_NONE + 1; style < VTK_MARKER_UNKNOWN; ++style)
@@ -181,17 +173,15 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
     // existing colored points, but PS doesn't support transparency, so they
     // just come out yellow.
     painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
-    painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
+    painter->DrawMarkers(style, true, markerPoints + 3 * 2, 4);
   }
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetColor(0,
-                                static_cast<unsigned char>(float(i)*25.0),
-                                255, 255);
+    painter->GetPen()->SetColor(0, static_cast<unsigned char>(float(i) * 25.0), 255, 255);
     painter->GetPen()->SetWidth(1.0 + float(i));
-    painter->DrawPoint(75, 50 + float(i)*10);
+    painter->DrawPoint(75, 50 + float(i) * 10);
   }
 
   painter->GetPen()->SetColor(0, 0, 255);
@@ -208,8 +198,7 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(159, 0, 255);
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(100, 55, 0, 200);
-  painter->DrawQuad(350, 50, 375, 150,
-                    525, 199, 666, 45);
+  painter->DrawQuad(350, 50, 375, 150, 525, 199, 666, 45);
 
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;
@@ -253,15 +242,14 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   imageSrc->SetWholeExtent(0, 49, 0, 49, 0, 0);
   imageSrc->SetMaximum(1.0);
   imageSrc->Update();
-  vtkImageData *image = imageSrc->GetOutput();
+  vtkImageData* image = imageSrc->GetOutput();
 
   // convert to RGB bytes:
-  vtkFloatArray *vals = static_cast<vtkFloatArray*>(
-        image->GetPointData()->GetScalars());
+  vtkFloatArray* vals = static_cast<vtkFloatArray*>(image->GetPointData()->GetScalars());
   float imgRange[2];
   vals->GetValueRange(imgRange);
   float invRange = 1.f / (imgRange[1] - imgRange[0]);
-  vtkUnsignedCharArray *scalars = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
   scalars->SetNumberOfComponents(3);
   scalars->SetNumberOfTuples(vals->GetNumberOfTuples());
   for (vtkIdType i = 0; i < vals->GetNumberOfTuples(); ++i)
@@ -270,7 +258,7 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
     val = (val - imgRange[0]) * invRange; // normalize to (0, 1)
     scalars->SetComponent(i, 0, val * 255);
     scalars->SetComponent(i, 1, (1.f - val) * 255);
-    scalars->SetComponent(i, 2, (val*val) * 255);
+    scalars->SetComponent(i, 2, (val * val) * 255);
   }
   image->GetPointData()->SetScalars(scalars);
   scalars->Delete();

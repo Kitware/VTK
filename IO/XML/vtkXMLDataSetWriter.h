@@ -24,7 +24,7 @@
  * vtkXMLImageDataWriter vtkXMLStructuredGridWriter
  * vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
  * vtkXMLUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLDataSetWriter_h
 #define vtkXMLDataSetWriter_h
@@ -37,7 +37,7 @@ class vtkCallbackCommand;
 class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLDataObjectWriter
 {
 public:
-  vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLDataObjectWriter);
+  vtkTypeMacro(vtkXMLDataSetWriter, vtkXMLDataObjectWriter);
   static vtkXMLDataSetWriter* New();
 
 protected:

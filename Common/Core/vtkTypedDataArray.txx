@@ -34,9 +34,9 @@ vtkTypedDataArray<Scalar>::~vtkTypedDataArray()
 template <typename Scalar>
 bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
 {
-  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
-                "implementations. Either add an appropriate implementation, or "
-                "use Allocate instead.");
+  vtkErrorMacro(<< "This method is not preferred for vtkTypedDataArray "
+                   "implementations. Either add an appropriate implementation, or "
+                   "use Allocate instead.");
   return false;
 }
 
@@ -44,56 +44,44 @@ bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
 template <typename Scalar>
 bool vtkTypedDataArray<Scalar>::ReallocateTuples(vtkIdType)
 {
-  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
-                "implementations. Either add an appropriate implementation, or "
-                "use Resize instead.");
+  vtkErrorMacro(<< "This method is not preferred for vtkTypedDataArray "
+                   "implementations. Either add an appropriate implementation, or "
+                   "use Resize instead.");
   return false;
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-int vtkTypedDataArray<Scalar>::GetDataType()
+template <typename Scalar>
+inline int vtkTypedDataArray<Scalar>::GetDataType()
 {
   return vtkTypeTraits<Scalar>::VTK_TYPE_ID;
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-int vtkTypedDataArray<Scalar>::GetDataTypeSize()
+template <typename Scalar>
+inline int vtkTypedDataArray<Scalar>::GetDataTypeSize()
 {
   return static_cast<int>(sizeof(Scalar));
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
-{
-  if (this->Allocate(number))
-  {
-    this->MaxId = number - 1;
-  }
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-template <typename Scalar> inline
-typename vtkTypedDataArray<Scalar>::ValueType
-vtkTypedDataArray<Scalar>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
+template <typename Scalar>
+inline typename vtkTypedDataArray<Scalar>::ValueType vtkTypedDataArray<Scalar>::GetTypedComponent(
+  vtkIdType tupleIdx, int comp) const
 {
   return this->GetValue(tupleIdx * this->NumberOfComponents + comp);
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline
-void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp,
-                                                  ValueType v)
+template <typename Scalar>
+inline void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType v)
 {
   this->SetValue(tupleIdx * this->NumberOfComponents + comp, v);
 }
 
 //------------------------------------------------------------------------------
-template <typename Scalar> inline vtkTypedDataArray<Scalar> *
-vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
+template <typename Scalar>
+inline vtkTypedDataArray<Scalar>* vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray* source)
 {
   if (source)
   {
@@ -101,8 +89,7 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
     {
       case vtkAbstractArray::TypedDataArray:
       case vtkAbstractArray::MappedDataArray:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<Scalar>::VTK_TYPE_ID))
         {
           return static_cast<vtkTypedDataArray<Scalar>*>(source);
         }
@@ -112,4 +99,4 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
   return nullptr;
 }
 
-#endif //vtkTypedDataArray_txx
+#endif // vtkTypedDataArray_txx

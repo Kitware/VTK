@@ -20,13 +20,13 @@
  * This class uses Qt to render labels and compute sizes. The labels are
  * rendered to a QImage, then EndFrame() converts that image to a vtkImageData
  * and textures the image onto a quad spanning the render area.
-*/
+ */
 
 #ifndef vtkQtLabelRenderStrategy_h
 #define vtkQtLabelRenderStrategy_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class vtkLabelSizeCalculator;
 class vtkLabeledDataMapper;
@@ -39,7 +39,7 @@ class vtkTextureMapToPlane;
 
 class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
 {
- public:
+public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
@@ -47,11 +47,11 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.
    */
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
-                                  double bds[4]) override
-    { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
-                                  double bds[4]) override;
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override
+  {
+    this->Superclass::ComputeLabelBounds(tprop, label, bds);
+  }
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) override;
 
   //@{
   /**
@@ -59,14 +59,15 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
    * Must be performed between StartFrame() and EndFrame() calls.
    */
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override
-    { this->Superclass::RenderLabel(x, tprop, label); }
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
-                           int maxWidth) override
-    { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
-  void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label) override;
-  void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label, int maxWidth) override;
+  {
+    this->Superclass::RenderLabel(x, tprop, label);
+  }
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth) override
+  {
+    this->Superclass::RenderLabel(x, tprop, label, maxWidth);
+  }
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) override;
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth) override;
   //@}
 
   /**
@@ -84,7 +85,7 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
 protected:
   vtkQtLabelRenderStrategy();

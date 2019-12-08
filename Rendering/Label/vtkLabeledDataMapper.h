@@ -43,13 +43,13 @@
  * @sa
  * vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints
  * vtkIdFilter vtkCellCenters
-*/
+ */
 
 #ifndef vtkLabeledDataMapper_h
 #define vtkLabeledDataMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 #include <cassert> // For assert macro
 
@@ -59,12 +59,12 @@ class vtkTextMapper;
 class vtkTextProperty;
 class vtkTransform;
 
-#define VTK_LABEL_IDS        0
-#define VTK_LABEL_SCALARS    1
-#define VTK_LABEL_VECTORS    2
-#define VTK_LABEL_NORMALS    3
-#define VTK_LABEL_TCOORDS    4
-#define VTK_LABEL_TENSORS    5
+#define VTK_LABEL_IDS 0
+#define VTK_LABEL_SCALARS 1
+#define VTK_LABEL_VECTORS 2
+#define VTK_LABEL_NORMALS 3
+#define VTK_LABEL_TCOORDS 4
+#define VTK_LABEL_TENSORS 5
 #define VTK_LABEL_FIELD_DATA 6
 
 class VTKRENDERINGLABEL_EXPORT vtkLabeledDataMapper : public vtkMapper2D
@@ -74,9 +74,9 @@ public:
    * Instantiate object with %%-#6.3g label format. By default, point ids
    * are labeled.
    */
-  static vtkLabeledDataMapper *New();
+  static vtkLabeledDataMapper* New();
 
-  vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
+  vtkTypeMacro(vtkLabeledDataMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -104,16 +104,16 @@ public:
    * (LabeledComponent=(-1)). However, if this ivar is nonnegative,
    * then only the one component specified is labeled.
    */
-  vtkSetMacro(LabeledComponent,int);
-  vtkGetMacro(LabeledComponent,int);
+  vtkSetMacro(LabeledComponent, int);
+  vtkGetMacro(LabeledComponent, int);
   //@}
 
   //@{
   /**
    * Set/Get the separator between components.
    */
-  vtkSetMacro(ComponentSeparator,char);
-  vtkGetMacro(ComponentSeparator,char);
+  vtkSetMacro(ComponentSeparator, char);
+  vtkGetMacro(ComponentSeparator, char);
   //@}
 
   //@{
@@ -123,7 +123,7 @@ public:
    * FieldDataName when set.
    */
   void SetFieldDataArray(int arrayIndex);
-  vtkGetMacro(FieldDataArray,int);
+  vtkGetMacro(FieldDataArray, int);
   //@}
 
   //@{
@@ -132,7 +132,7 @@ public:
    * variable is only applicable if field data is labeled.  This will
    * override FieldDataArray when set.
    */
-  void SetFieldDataName(const char *arrayName);
+  void SetFieldDataName(const char* arrayName);
   vtkGetStringMacro(FieldDataName);
   //@}
 
@@ -145,7 +145,7 @@ public:
    * Use GetInputDataObject() to get the input data object for composite
    * datasets.
    */
-  vtkDataSet *GetInput();
+  vtkDataSet* GetInput();
 
   //@{
   /**
@@ -156,14 +156,13 @@ public:
    */
   vtkSetMacro(LabelMode, int);
   vtkGetMacro(LabelMode, int);
-  void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
-  void SetLabelModeToLabelScalars() {this->SetLabelMode(VTK_LABEL_SCALARS);};
-  void SetLabelModeToLabelVectors() {this->SetLabelMode(VTK_LABEL_VECTORS);};
-  void SetLabelModeToLabelNormals() {this->SetLabelMode(VTK_LABEL_NORMALS);};
-  void SetLabelModeToLabelTCoords() {this->SetLabelMode(VTK_LABEL_TCOORDS);};
-  void SetLabelModeToLabelTensors() {this->SetLabelMode(VTK_LABEL_TENSORS);};
-  void SetLabelModeToLabelFieldData()
-            {this->SetLabelMode(VTK_LABEL_FIELD_DATA);};
+  void SetLabelModeToLabelIds() { this->SetLabelMode(VTK_LABEL_IDS); }
+  void SetLabelModeToLabelScalars() { this->SetLabelMode(VTK_LABEL_SCALARS); }
+  void SetLabelModeToLabelVectors() { this->SetLabelMode(VTK_LABEL_VECTORS); }
+  void SetLabelModeToLabelNormals() { this->SetLabelMode(VTK_LABEL_NORMALS); }
+  void SetLabelModeToLabelTCoords() { this->SetLabelMode(VTK_LABEL_TCOORDS); }
+  void SetLabelModeToLabelTensors() { this->SetLabelMode(VTK_LABEL_TENSORS); }
+  void SetLabelModeToLabelFieldData() { this->SetLabelMode(VTK_LABEL_FIELD_DATA); }
   //@}
 
   //@{
@@ -173,11 +172,9 @@ public:
    * properties for different label types. The type is determined by an
    * optional type input array.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p)
-    { this->SetLabelTextProperty(p, 0); }
-  virtual vtkTextProperty* GetLabelTextProperty()
-    { return this->GetLabelTextProperty(0); }
-  virtual void SetLabelTextProperty(vtkTextProperty *p, int type);
+  virtual void SetLabelTextProperty(vtkTextProperty* p) { this->SetLabelTextProperty(p, 0); }
+  virtual vtkTextProperty* GetLabelTextProperty() { return this->GetLabelTextProperty(0); }
+  virtual void SetLabelTextProperty(vtkTextProperty* p, int type);
   virtual vtkTextProperty* GetLabelTextProperty(int type);
   //@}
 
@@ -192,7 +189,7 @@ public:
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -205,8 +202,9 @@ public:
   /// Coordinate systems that output dataset may use.
   enum Coordinates
   {
-    WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
-    DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
+    WORLD = 0,  //!< Output 3-D world-space coordinates for each label anchor.
+    DISPLAY = 1 //!< Output 2-D display coordinates for each label anchor (3 components but only 2
+                //!< are significant).
   };
 
   //@{
@@ -214,10 +212,10 @@ public:
    * Set/get the coordinate system used for output labels.
    * The output datasets may have point coordinates reported in the world space or display space.
    */
-  vtkGetMacro(CoordinateSystem,int);
-  vtkSetClampMacro(CoordinateSystem,int,WORLD,DISPLAY);
-  void CoordinateSystemWorld() { this->SetCoordinateSystem( vtkLabeledDataMapper::WORLD ); }
-  void CoordinateSystemDisplay() { this->SetCoordinateSystem( vtkLabeledDataMapper::DISPLAY ); }
+  vtkGetMacro(CoordinateSystem, int);
+  vtkSetClampMacro(CoordinateSystem, int, WORLD, DISPLAY);
+  void CoordinateSystemWorld() { this->SetCoordinateSystem(vtkLabeledDataMapper::WORLD); }
+  void CoordinateSystemDisplay() { this->SetCoordinateSystem(vtkLabeledDataMapper::DISPLAY); }
   //@}
 
   /**
@@ -229,7 +227,7 @@ public:
   /**
    * Return the number of labels rendered by the mapper.
    */
-  vtkGetMacro(NumberOfLabels, int)
+  vtkGetMacro(NumberOfLabels, int);
   //@}
 
   //@{
@@ -248,30 +246,30 @@ public:
   /**
    * Return the text for the requested label.
    */
-  const char *GetLabelText(int label);
+  const char* GetLabelText(int label);
 
 protected:
   vtkLabeledDataMapper();
   ~vtkLabeledDataMapper() override;
 
-  vtkDataSet *Input;
+  vtkDataSet* Input;
 
-  char  *LabelFormat;
-  int   LabelMode;
-  int   LabeledComponent;
-  int   FieldDataArray;
-  char  *FieldDataName;
+  char* LabelFormat;
+  int LabelMode;
+  int LabeledComponent;
+  int FieldDataArray;
+  char* FieldDataName;
   int CoordinateSystem;
 
-  char  ComponentSeparator;
+  char ComponentSeparator;
 
   vtkTimeStamp BuildTime;
 
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
-  vtkTextMapper **TextMappers;
+  vtkTextMapper** TextMappers;
   double* LabelPositions;
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
@@ -288,4 +286,3 @@ private:
 };
 
 #endif
-

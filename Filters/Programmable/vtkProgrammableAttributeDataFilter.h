@@ -72,37 +72,37 @@
  * cases. However, if you change the definition of the filter function,
  * you'll want to send a manual Modified() method to the filter to force it
  * to reexecute.
-*/
+ */
 
 #ifndef vtkProgrammableAttributeDataFilter_h
 #define vtkProgrammableAttributeDataFilter_h
 
-#include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersProgrammableModule.h" // For export macro
 
 class vtkDataSetCollection;
 
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkProgrammableAttributeDataFilter *New();
-  vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetAlgorithm);
+  static vtkProgrammableAttributeDataFilter* New();
+  vtkTypeMacro(vtkProgrammableAttributeDataFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a dataset to the list of data to process.
    */
-  void AddInput(vtkDataSet *in);
+  void AddInput(vtkDataSet* in);
 
   /**
    * Remove a dataset from the list of data to process.
    */
-  void RemoveInput(vtkDataSet *in);
+  void RemoveInput(vtkDataSet* in);
 
   /**
    * Return the list of inputs.
    */
-  vtkDataSetCollection *GetInputList() {return this->InputList;};
+  vtkDataSetCollection* GetInputList() { return this->InputList; }
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -113,35 +113,37 @@ public:
    * header files themselves because it prevents the internal VTK wrapper
    * generators from wrapping these methods.
    */
-  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+  typedef void (*ProgrammableMethodCallbackType)(void* arg);
 
   /**
    * Specify the function to use to operate on the point attribute data. Note
    * that the function takes a single (void *) argument.
    */
-  void SetExecuteMethod(void (*f)(void *), void *arg);
+  void SetExecuteMethod(void (*f)(void*), void* arg);
 
   /**
    * Set the arg delete method. This is used to free user memory.
    */
-  void SetExecuteMethodArgDelete(void (*f)(void *));
+  void SetExecuteMethodArgDelete(void (*f)(void*));
 
 protected:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  vtkDataSetCollection *InputList; //list of datasets to process
-  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkDataSetCollection* InputList;              // list of datasets to process
+  ProgrammableMethodCallbackType ExecuteMethod; // function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
-  void *ExecuteMethodArg;
+  void* ExecuteMethodArg;
 
   void ReportReferences(vtkGarbageCollector*) override;
 
 private:
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+  void AddInput(vtkDataObject*)
+  {
+    vtkErrorMacro(<< "AddInput() must be called with a vtkDataSet not a vtkDataObject.");
+  }
 
 private:
   vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) = delete;
@@ -149,5 +151,3 @@ private:
 };
 
 #endif
-
-

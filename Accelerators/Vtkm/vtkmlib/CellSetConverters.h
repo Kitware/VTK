@@ -20,32 +20,30 @@
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
 
-#include <vtkm/cont/DynamicCellSet.h>
 #include <vtkType.h>
+#include <vtkm/cont/DynamicCellSet.h>
 
 class vtkCellArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
 
-namespace tovtkm {
+namespace tovtkm
+{
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
-                                             vtkIdType numberOfPoints);
+vtkm::cont::DynamicCellSet ConvertSingleType(
+  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
 
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
-                                   vtkCellArray* cells,
-                                   vtkIdTypeArray* locations,
-                                   vtkIdType numberOfPoints);
+vtkm::cont::DynamicCellSet Convert(
+  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
 }
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
 VTKACCELERATORSVTKM_EXPORT
-bool Convert(const vtkm::cont::DynamicCellSet& toConvert,
-             vtkCellArray* cells,
-             vtkUnsignedCharArray* types = nullptr,
-             vtkIdTypeArray* locations = nullptr);
+bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
+  vtkUnsignedCharArray* types = nullptr);
 }
 
 #endif // vtkmlib_CellSetConverters_h

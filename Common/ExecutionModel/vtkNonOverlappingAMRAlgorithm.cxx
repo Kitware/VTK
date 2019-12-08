@@ -13,10 +13,10 @@
 
  =========================================================================*/
 #include "vtkNonOverlappingAMRAlgorithm.h"
-#include "vtkObjectFactory.h"
-#include "vtkNonOverlappingAMR.h"
-#include "vtkInformation.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkInformation.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkNonOverlappingAMRAlgorithm);
 
@@ -39,30 +39,29 @@ void vtkNonOverlappingAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkNonOverlappingAMR* vtkNonOverlappingAMRAlgorithm::GetOutput()
 {
-  return( this->GetOutput(0) );
+  return (this->GetOutput(0));
 }
 
 //------------------------------------------------------------------------------
 vtkNonOverlappingAMR* vtkNonOverlappingAMRAlgorithm::GetOutput(int port)
 {
-  vtkDataObject *output =
-      vtkCompositeDataPipeline::SafeDownCast(
-          this->GetExecutive())->GetCompositeOutputData(port);
-  return( vtkNonOverlappingAMR::SafeDownCast(output) );
+  vtkDataObject* output =
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->GetCompositeOutputData(port);
+  return (vtkNonOverlappingAMR::SafeDownCast(output));
 }
 
 //------------------------------------------------------------------------------
 int vtkNonOverlappingAMRAlgorithm::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info )
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkNonOverlappingAMR");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkNonOverlappingAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
 int vtkNonOverlappingAMRAlgorithm::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkNonOverlappingAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkNonOverlappingAMR");
   return 1;
 }

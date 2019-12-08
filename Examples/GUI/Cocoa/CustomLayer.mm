@@ -1,10 +1,10 @@
 #import "CustomLayer.h"
 
-#import "vtkRenderer.h"
+#import "vtkCocoaRenderWindow.h"
+#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkRenderWindow.h"
 #import "vtkRenderWindowInteractor.h"
-#import "vtkCocoaRenderWindowInteractor.h"
-#import "vtkCocoaRenderWindow.h"
+#import "vtkRenderer.h"
 
 @implementation CustomLayer
 
@@ -13,7 +13,7 @@
 - (void)drawInCGLContext:(CGLContextObj)inCGLContext
              pixelFormat:(CGLPixelFormatObj)inPixelFormat
             forLayerTime:(CFTimeInterval)inTimeInterval
-             displayTime:(nullable const CVTimeStamp *)inTimeStamp
+             displayTime:(nullable const CVTimeStamp*)inTimeStamp
 {
   assert(inCGLContext);
   assert(inPixelFormat);
@@ -23,15 +23,15 @@
   assert(customView);
 
   // Tell VTK to render.
-  assert([customView renderWindowInteractor]->GetInitialized());
+  assert([customView renderWindowInteractor] -> GetInitialized());
   vtkRenderWindow* renderWindow = [customView renderWindow];
   if (renderWindow && renderWindow->GetMapped())
   {
     renderWindow->Render();
   }
 
-  // Generally, subclasses should call the superclass implementation of the method to flush the context after rendering.
-  // But VTK itself flushes, so it's probably not necessary to call super.
+  // Generally, subclasses should call the superclass implementation of the method to flush the
+  // context after rendering. But VTK itself flushes, so it's probably not necessary to call super.
 #if 0
   [super drawInCGLContext:inCGLContext
               pixelFormat:inPixelFormat
@@ -41,7 +41,8 @@
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// CAOpenGLLayer triggers this function when a context is needed by the receiver. Here we return the VTK context.
+// CAOpenGLLayer triggers this function when a context is needed by the receiver. Here we return the
+// VTK context.
 - (CGLContextObj)copyCGLContextForPixelFormat:(CGLPixelFormatObj)inPixelFormat
 {
   assert(inPixelFormat);
@@ -56,7 +57,7 @@
   assert(renderWindow);
 
   // Get the OpenGL context from VTK.
-  assert([customView renderWindowInteractor]->GetInitialized());
+  assert([customView renderWindowInteractor] -> GetInitialized());
   NSOpenGLContext* openGLContext = (__bridge NSOpenGLContext*)(renderWindow->GetContextId());
   assert(openGLContext);
 

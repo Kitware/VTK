@@ -16,10 +16,10 @@
   This test was written by Menno Deij - van Rijswijk (MARIN).
 ----------------------------------------------------------------------------*/
 
-#include "vtkDataArray.h"
-#include "vtkDebugLeaks.h"
 #include "vtkCell.h" // for cell types
 #include "vtkCellIterator.h"
+#include "vtkDataArray.h"
+#include "vtkDebugLeaks.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -31,12 +31,12 @@
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-#include <string>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
 #include <string>
 
-namespace { // this namespace contains the supporting mapped grid definition used in the test
+namespace
+{ // this namespace contains the supporting mapped grid definition used in the test
 
 template <class I>
 class MappedCellIterator : public vtkCellIterator
@@ -47,7 +47,7 @@ public:
 
   static MappedCellIterator<I>* New();
 
-  void SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType> *grid);
+  void SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType>* grid);
 
   void PrintSelf(std::ostream& os, vtkIndent id) override;
 
@@ -74,11 +74,8 @@ private:
   vtkSmartPointer<vtkPoints> GridPoints;
 };
 
-
-
 template <class I>
-MappedCellIterator<I>*
-MappedCellIterator<I>::New()
+MappedCellIterator<I>* MappedCellIterator<I>::New()
 {
   VTK_STANDARD_NEW_BODY(ThisType);
 }
@@ -92,8 +89,8 @@ MappedCellIterator<I>::MappedCellIterator()
 {
 }
 
-template <class I> void MappedCellIterator<I>
-::PrintSelf(ostream& os, vtkIndent indent)
+template <class I>
+void MappedCellIterator<I>::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Mapped Internal Block" << endl;
 }
@@ -101,8 +98,8 @@ template <class I> void MappedCellIterator<I>
 template <class I>
 MappedCellIterator<I>::~MappedCellIterator() = default;
 
-template <class I> void
-MappedCellIterator<I>::SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType> *grid)
+template <class I>
+void MappedCellIterator<I>::SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType>* grid)
 {
   this->Impl = grid->GetImplementation();
   this->CellId = 0;
@@ -110,43 +107,43 @@ MappedCellIterator<I>::SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, Th
   this->NumberOfCells = grid->GetNumberOfCells();
 }
 
-template <class I> bool
-MappedCellIterator<I>::IsDoneWithTraversal()
+template <class I>
+bool MappedCellIterator<I>::IsDoneWithTraversal()
 {
-  if (!this->Impl) return true;
+  if (!this->Impl)
+    return true;
   return CellId >= this->NumberOfCells;
 }
 
-template <class I> vtkIdType
-MappedCellIterator<I>::GetCellId()
+template <class I>
+vtkIdType MappedCellIterator<I>::GetCellId()
 {
   return this->CellId;
 }
 
-template <class I> void
-MappedCellIterator<I>::FetchCellType()
+template <class I>
+void MappedCellIterator<I>::FetchCellType()
 {
   this->CellType = Impl->GetCellType(this->CellId);
 }
 
-template <class I> void
-MappedCellIterator<I>::FetchPointIds()
+template <class I>
+void MappedCellIterator<I>::FetchPointIds()
 {
   this->Impl->GetCellPoints(this->CellId, this->PointIds);
 }
 
-template <class I> void
-MappedCellIterator<I>::FetchPoints()
+template <class I>
+void MappedCellIterator<I>::FetchPoints()
 {
   this->GridPoints->GetPoints(this->GetPointIds(), this->Points);
 }
 
-template <class I> void
-MappedCellIterator<I>::FetchFaces()
+template <class I>
+void MappedCellIterator<I>::FetchFaces()
 {
   this->Impl->GetFaceStream(this->CellId, this->Faces);
 }
-
 
 class MappedGrid;
 class MappedGridImpl : public vtkObject
@@ -154,25 +151,30 @@ class MappedGridImpl : public vtkObject
 public:
   static MappedGridImpl* New();
 
-  void Initialize(vtkUnstructuredGrid* ug) { ug->Register(this); _grid = ug; }
+  void Initialize(vtkUnstructuredGrid* ug)
+  {
+    ug->Register(this);
+    _grid = ug;
+  }
 
   void PrintSelf(std::ostream& os, vtkIndent id) override;
 
-  //API for vtkMappedUnstructuredGrid implementation
+  // API for vtkMappedUnstructuredGrid implementation
   virtual int GetCellType(vtkIdType cellId);
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
-  virtual void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds);
-  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  virtual void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds);
+  virtual void GetFaceStream(vtkIdType cellId, vtkIdList* ptIds);
+  virtual void GetPointCells(vtkIdType ptId, vtkIdList* cellIds);
   virtual int GetMaxCellSize();
-  virtual void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array);
+  virtual void GetIdsOfCellsOfType(int type, vtkIdTypeArray* array);
   virtual int IsHomogeneous();
 
   // This container is read only -- these methods do nothing but print a warning.
   void Allocate(vtkIdType numCells, int extSize = 1000);
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) VTK_SIZEHINT(ptIds, npts);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
-                           vtkIdType nfaces, const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+  vtkIdType InsertNextCell(int type, vtkIdList* ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
+    VTK_SIZEHINT(ptIds, npts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces,
+    const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
   void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   vtkIdType GetNumberOfCells();
@@ -189,100 +191,87 @@ private:
   MappedGrid* Owner;
 };
 
-vtkStandardNewMacro(MappedGridImpl)
+vtkStandardNewMacro(MappedGridImpl);
 
-void
-MappedGridImpl::PrintSelf(ostream& os, vtkIndent indent)
+void MappedGridImpl::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Mapped Grid Implementation" << endl;
 }
 
-int
-MappedGridImpl::GetCellType(vtkIdType cellId)
+int MappedGridImpl::GetCellType(vtkIdType cellId)
 {
   return _grid->GetCellType(cellId);
 }
 
-int
-MappedGridImpl::GetMaxCellSize()
+int MappedGridImpl::GetMaxCellSize()
 {
   return _grid->GetMaxCellSize();
 }
 
-void
-MappedGridImpl::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
+void MappedGridImpl::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
   _grid->GetCellPoints(cellId, ptIds);
 }
 
-void
-MappedGridImpl::GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
+void MappedGridImpl::GetFaceStream(vtkIdType cellId, vtkIdList* ptIds)
 {
   _grid->GetFaceStream(cellId, ptIds);
 }
 
-
-void
-MappedGridImpl::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
+void MappedGridImpl::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   _grid->GetPointCells(ptId, cellIds);
 }
 
-int
-MappedGridImpl::IsHomogeneous()
+int MappedGridImpl::IsHomogeneous()
 {
   return _grid->IsHomogeneous();
 }
 
-vtkIdType
-MappedGridImpl::GetNumberOfCells()
+vtkIdType MappedGridImpl::GetNumberOfCells()
 {
   return _grid->GetNumberOfCells();
 }
 
-void
-MappedGridImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
+void MappedGridImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 {
   _grid->GetIdsOfCellsOfType(type, array);
 }
 
-void
-MappedGridImpl::Allocate(vtkIdType vtkNotUsed(numCells), int vtkNotUsed(extSize))
+void MappedGridImpl::Allocate(vtkIdType vtkNotUsed(numCells), int vtkNotUsed(extSize))
 {
-  vtkWarningMacro(<<"Read only block\n");
+  vtkWarningMacro(<< "Read only block\n");
 }
 
-
-vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds))
+vtkIdType MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds))
 {
-  vtkWarningMacro(<<"Read only block\n");
+  vtkWarningMacro(<< "Read only block\n");
   return -1;
 }
 
-vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[])
+vtkIdType MappedGridImpl::InsertNextCell(
+  int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[])
 {
-  vtkWarningMacro(<<"Read only block\n");
+  vtkWarningMacro(<< "Read only block\n");
   return -1;
 }
 
-vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[],
-    vtkIdType vtkNotUsed(nfaces), const vtkIdType vtkNotUsed(faces)[])
+vtkIdType MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts),
+  const vtkIdType vtkNotUsed(ptIds)[], vtkIdType vtkNotUsed(nfaces),
+  const vtkIdType vtkNotUsed(faces)[])
 {
-  vtkWarningMacro(<<"Read only block\n");
+  vtkWarningMacro(<< "Read only block\n");
   return -1;
 }
 
-void
-MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), const vtkIdType vtkNotUsed(pts)[])
+void MappedGridImpl::ReplaceCell(
+  vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), const vtkIdType vtkNotUsed(pts)[])
 {
-  vtkWarningMacro(<<"Read only block\n");
+  vtkWarningMacro(<< "Read only block\n");
 }
 
-
-class MappedGrid : public vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> >
+class MappedGrid
+  : public vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> >
 {
 public:
   typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> > _myBase;
@@ -293,7 +282,10 @@ public:
 
   vtkPoints* GetPoints() override { return this->GetImplementation()->GetPoints(); }
 
-  vtkIdType GetNumberOfPoints() override { return this->GetImplementation()->GetPoints()->GetNumberOfPoints(); }
+  vtkIdType GetNumberOfPoints() override
+  {
+    return this->GetImplementation()->GetPoints()->GetNumberOfPoints();
+  }
 
 protected:
   MappedGrid()
@@ -310,10 +302,9 @@ private:
   void operator=(const MappedGrid&) = delete;
 };
 
-vtkStandardNewMacro(MappedGrid)
+vtkStandardNewMacro(MappedGrid);
 
 } // end anonymous namespace
-
 
 using namespace std;
 
@@ -393,7 +384,8 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
   faces->InsertNextId(8);
 
   // insert the polyhedron cell
-  original->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  original->InsertNextCell(
+    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
 
   vtkNew<vtkGenericCell> aCell;
   original->GetCell(1, aCell.GetPointer());
@@ -405,9 +397,9 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
     cerr << " expected 5 faces, got " << cellFaces[0] << endl;
     return EXIT_FAILURE;
   }
-  for(int i = 0; i < faces->GetNumberOfIds(); ++i)
+  for (int i = 0; i < faces->GetNumberOfIds(); ++i)
   {
-    if (faces->GetId(i) != cellFaces[i+1])
+    if (faces->GetId(i) != cellFaces[i + 1])
     {
       cerr << "faces array not identical at position " << i << endl;
       return EXIT_FAILURE;
@@ -455,7 +447,8 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
   faces->InsertNextId(9);
 
   // insert the cell. We now have two pyramids with a cube in between
-  original->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  original->InsertNextCell(
+    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
 
   // create a mapped grid which basically takes the original grid
   // and uses it to map to.
@@ -478,9 +471,9 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
   vtkCellIterator* cIt = copy->NewCellIterator();
 
   vtkNew<vtkGenericCell> orig, copied;
-  for(cIt->InitTraversal(), oIt->InitTraversal();
-      !cIt->IsDoneWithTraversal() && !oIt->IsDoneWithTraversal();
-      cIt->GoToNextCell(), oIt->GoToNextCell())
+  for (cIt->InitTraversal(), oIt->InitTraversal();
+       !cIt->IsDoneWithTraversal() && !oIt->IsDoneWithTraversal();
+       cIt->GoToNextCell(), oIt->GoToNextCell())
   {
     oIt->GetCell(orig.GetPointer());
     cIt->GetCell(copied.GetPointer());
@@ -493,21 +486,21 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 
     if (cIt->GetCellType() == VTK_POLYHEDRON)
     {
-      vtkIdList *oFaces = oIt->GetFaces();
-      vtkIdList *cFaces = cIt->GetFaces();
+      vtkIdList* oFaces = oIt->GetFaces();
+      vtkIdList* cFaces = cIt->GetFaces();
 
       if (cFaces->GetNumberOfIds() != oFaces->GetNumberOfIds())
       {
         cerr << "Face id list length does not match" << endl;
         cerr << "Original: ";
-        for(vtkIdType i = 0; i < oFaces->GetNumberOfIds(); ++i)
+        for (vtkIdType i = 0; i < oFaces->GetNumberOfIds(); ++i)
         {
           cerr << oFaces->GetId(i) << " ";
         }
         cerr << endl;
 
         cerr << "Copied:   ";
-        for(vtkIdType i = 0; i < cFaces->GetNumberOfIds(); ++i)
+        for (vtkIdType i = 0; i < cFaces->GetNumberOfIds(); ++i)
           cerr << cFaces->GetId(i) << " ";
         cerr << endl;
 

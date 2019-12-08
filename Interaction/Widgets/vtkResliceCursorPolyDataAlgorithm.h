@@ -27,7 +27,7 @@
  * need not be orthogonal to each other.
  * @sa
  * vtkResliceCursorActor vtkResliceCursor vtkResliceCursorWidget
-*/
+ */
 
 #ifndef vtkResliceCursorPolyDataAlgorithm_h
 #define vtkResliceCursorPolyDataAlgorithm_h
@@ -45,37 +45,39 @@ class vtkLinearExtrusionFilter;
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPolyDataAlgorithm : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkResliceCursorPolyDataAlgorithm,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkResliceCursorPolyDataAlgorithm, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkResliceCursorPolyDataAlgorithm *New();
+  static vtkResliceCursorPolyDataAlgorithm* New();
 
   //@{
   /**
    * Which of the 3 axes defines the reslice plane normal ?
    */
-  vtkSetMacro(ReslicePlaneNormal,int);
-  vtkGetMacro(ReslicePlaneNormal,int);
+  vtkSetMacro(ReslicePlaneNormal, int);
+  vtkGetMacro(ReslicePlaneNormal, int);
   //@}
 
-  enum {XAxis=0,YAxis,ZAxis};
+  enum
+  {
+    XAxis = 0,
+    YAxis,
+    ZAxis
+  };
 
   /**
    * Set the planes that correspond to the reslice axes.
    */
-  void SetReslicePlaneNormalToXAxis()
-    { this->SetReslicePlaneNormal(XAxis); }
-  void SetReslicePlaneNormalToYAxis()
-    { this->SetReslicePlaneNormal(YAxis); }
-  void SetReslicePlaneNormalToZAxis()
-    { this->SetReslicePlaneNormal(ZAxis); }
+  void SetReslicePlaneNormalToXAxis() { this->SetReslicePlaneNormal(XAxis); }
+  void SetReslicePlaneNormalToYAxis() { this->SetReslicePlaneNormal(YAxis); }
+  void SetReslicePlaneNormalToZAxis() { this->SetReslicePlaneNormal(ZAxis); }
 
   //@{
   /**
    * Set the Reslice cursor from which to generate the polydata representation
    */
-  virtual void SetResliceCursor( vtkResliceCursor * );
-  vtkGetObjectMacro( ResliceCursor, vtkResliceCursor );
+  virtual void SetResliceCursor(vtkResliceCursor*);
+  vtkGetObjectMacro(ResliceCursor, vtkResliceCursor);
   //@}
 
   //@{
@@ -83,8 +85,8 @@ public:
    * Set/Get the slice bounds, ie the slice of this view on which to display
    * the reslice cursor.
    */
-  vtkSetVector6Macro( SliceBounds, double );
-  vtkGetVector6Macro( SliceBounds, double );
+  vtkSetVector6Macro(SliceBounds, double);
+  vtkGetVector6Macro(SliceBounds, double);
   //@}
 
   //@{
@@ -93,10 +95,10 @@ public:
    * the mode, one renders either the centerline axes or both the
    * centerline axes and the slab
    */
-  virtual vtkPolyData * GetCenterlineAxis1();
-  virtual vtkPolyData * GetCenterlineAxis2();
-  virtual vtkPolyData * GetThickSlabAxis1();
-  virtual vtkPolyData * GetThickSlabAxis2();
+  virtual vtkPolyData* GetCenterlineAxis1();
+  virtual vtkPolyData* GetCenterlineAxis2();
+  virtual vtkPolyData* GetThickSlabAxis1();
+  virtual vtkPolyData* GetThickSlabAxis2();
   //@}
 
   //@{
@@ -113,7 +115,7 @@ public:
    * Convenience method that, given one plane, returns the other plane
    * that this class represents.
    */
-  int GetOtherPlaneForAxis( int p );
+  int GetOtherPlaneForAxis(int p);
 
   /**
    * Get the MTime. Check the MTime of the internal ResliceCursor as well, if
@@ -125,33 +127,30 @@ protected:
   vtkResliceCursorPolyDataAlgorithm();
   ~vtkResliceCursorPolyDataAlgorithm() override;
 
-  int RequestData(vtkInformation*,
-                  vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void GetSlabPolyData( int axis, int planeAxis, vtkPolyData *pd );
+  void GetSlabPolyData(int axis, int planeAxis, vtkPolyData* pd);
 
-  virtual void CutAndClip( vtkPolyData *in, vtkPolyData *out);
+  virtual void CutAndClip(vtkPolyData* in, vtkPolyData* out);
 
   // Build the reslice slab axis
   void BuildResliceSlabAxisTopology();
 
-  int                ReslicePlaneNormal;
-  vtkResliceCursor * ResliceCursor;
-  vtkCutter        * Cutter;
-  vtkPlane         * SlicePlane;
-  vtkBox           * Box;
-  vtkClipPolyData  * ClipWithBox;
-  double             SliceBounds[6];
-  bool               Extrude;
-  vtkLinearExtrusionFilter *ExtrusionFilter1;
-  vtkLinearExtrusionFilter *ExtrusionFilter2;
-  vtkPolyData              *ThickAxes[2];
+  int ReslicePlaneNormal;
+  vtkResliceCursor* ResliceCursor;
+  vtkCutter* Cutter;
+  vtkPlane* SlicePlane;
+  vtkBox* Box;
+  vtkClipPolyData* ClipWithBox;
+  double SliceBounds[6];
+  bool Extrude;
+  vtkLinearExtrusionFilter* ExtrusionFilter1;
+  vtkLinearExtrusionFilter* ExtrusionFilter2;
+  vtkPolyData* ThickAxes[2];
 
 private:
   vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&) = delete;
   void operator=(const vtkResliceCursorPolyDataAlgorithm&) = delete;
-
 };
 
 #endif

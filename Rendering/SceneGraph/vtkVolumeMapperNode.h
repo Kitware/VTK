@@ -19,13 +19,13 @@
  * State storage and graph traversal for vtkVolumeMapper/PolyDataMapper and Property
  * Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
  * is a compelling reason to separate them we can.
-*/
+ */
 
 #ifndef vtkVolumeMapperNode_h
 #define vtkVolumeMapperNode_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkMapperNode.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 #include <vector> //for results
 
@@ -33,8 +33,7 @@ class vtkActor;
 class vtkVolumeMapper;
 class vtkPolyData;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkVolumeMapperNode :
-  public vtkMapperNode
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkVolumeMapperNode : public vtkMapperNode
 {
 public:
   static vtkVolumeMapperNode* New();
@@ -45,7 +44,7 @@ protected:
   vtkVolumeMapperNode();
   ~vtkVolumeMapperNode();
 
- private:
+private:
   vtkVolumeMapperNode(const vtkVolumeMapperNode&) = delete;
   void operator=(const vtkVolumeMapperNode&) = delete;
 };

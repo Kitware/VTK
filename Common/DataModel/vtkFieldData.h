@@ -38,7 +38,7 @@
  *
  * @sa
  * vtkAbstractArray vtkDataSetAttributes vtkPointData vtkCellData
-*/
+ */
 
 #ifndef vtkFieldData_h
 #define vtkFieldData_h
@@ -53,9 +53,9 @@ class vtkIdList;
 class VTKCOMMONDATAMODEL_EXPORT vtkFieldData : public vtkObject
 {
 public:
-  static vtkFieldData *New();
+  static vtkFieldData* New();
 
-  vtkTypeMacro(vtkFieldData,vtkObject);
+  vtkTypeMacro(vtkFieldData, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -68,7 +68,7 @@ public:
    * Allocate data for each array.
    * Note that ext is no longer used.
    */
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000);
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**
    * Copy data array structure from a given field.  The same arrays
@@ -94,23 +94,20 @@ public:
    * fd->AllocateArray(n); nArrays = GetNumberOfArrays()
    * nArrays is not necessarily equal to n.
    */
-  int GetNumberOfArrays()
-  {
-      return this->NumberOfActiveArrays;
-  }
+  int GetNumberOfArrays() { return this->NumberOfActiveArrays; }
 
   /**
    * Add an array to the array list. If an array with the same name
    * already exists - then the added array will replace it.
    * Return the index of the added array.
    */
-  int AddArray(vtkAbstractArray *array);
+  int AddArray(vtkAbstractArray* array);
 
   //@{
   /**
    * Remove an array (with the given name or index) from the list of arrays.
    */
-  virtual void RemoveArray(const char *name);
+  virtual void RemoveArray(const char* name);
   virtual void RemoveArray(int index);
   //@}
 
@@ -122,7 +119,7 @@ public:
    * index is not a vtkDataArray. To access vtkStringArray,
    * vtkUnicodeStringArray, or vtkVariantArray, use GetAbstractArray(int i).
    */
-  vtkDataArray *GetArray(int i);
+  vtkDataArray* GetArray(int i);
 
   /**
    * Not recommended for use. Use
@@ -134,7 +131,7 @@ public:
    * vtkVariantArray, use GetAbstractArray(const char* arrayName, int &index).
    * Also returns the index of the array if found, -1 otherwise.
    */
-  vtkDataArray *GetArray(const char *arrayName, int &index);
+  vtkDataArray* GetArray(const char* arrayName, int& index);
 
   //@{
   /**
@@ -146,10 +143,10 @@ public:
    * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
    * vtkVariantArray, use GetAbstractArray(const char *arrayName).
    */
-  vtkDataArray *GetArray(const char *arrayName)
+  vtkDataArray* GetArray(const char* arrayName)
   {
-      int i;
-      return this->GetArray(arrayName, i);
+    int i;
+    return this->GetArray(arrayName, i);
   }
   //@}
 
@@ -166,7 +163,7 @@ public:
    * to access any array type. Also returns index of array if found, -1
    * otherwise.
    */
-  vtkAbstractArray* GetAbstractArray(const char* arrayName, int &index);
+  vtkAbstractArray* GetAbstractArray(const char* arrayName, int& index);
 
   //@{
   /**
@@ -185,12 +182,12 @@ public:
   /**
    * Return 1 if an array with the given name could be found. 0 otherwise.
    */
-  int HasArray(const char *name)
+  int HasArray(const char* name)
   {
-      int i;
-      vtkAbstractArray *array = this->GetAbstractArray(name, i);
-      // assert( i == -1);
-      return array ? 1 : 0;
+    int i;
+    vtkAbstractArray* array = this->GetAbstractArray(name, i);
+    // assert( i == -1);
+    return array ? 1 : 0;
   }
   //@}
 
@@ -234,7 +231,7 @@ public:
    * 2. If CopyAllOn is set, copy the array.
    * If CopyAllOff is set, do not copy the array
    */
-  virtual void CopyAllOn(int unused=0);
+  virtual void CopyAllOn(int unused = 0);
 
   /**
    * Turn off copying of all data.
@@ -245,17 +242,17 @@ public:
    * 2. If CopyAllOn is set, copy the array.
    * If CopyAllOff is set, do not copy the array
    */
-  virtual void CopyAllOff(int unused=0);
+  virtual void CopyAllOff(int unused = 0);
 
   /**
    * Copy a field by creating new data arrays (i.e., duplicate storage).
    */
-  virtual void DeepCopy(vtkFieldData *da);
+  virtual void DeepCopy(vtkFieldData* da);
 
   /**
    * Copy a field by reference counting the data arrays.
    */
-  virtual void ShallowCopy(vtkFieldData *da);
+  virtual void ShallowCopy(vtkFieldData* da);
 
   /**
    * Squeezes each data array in the field (Squeeze() reclaims unused memory.)
@@ -290,7 +287,7 @@ public:
    * is stored with the other fields and will cause the method to
    * behave in an unexpected way.
    */
-  void GetField(vtkIdList *ptId, vtkFieldData *f);
+  void GetField(vtkIdList* ptId, vtkFieldData* f);
 
   /**
    * Return the array containing the ith component of the field. The
@@ -355,18 +352,17 @@ public:
   vtkIdType InsertNextTuple(const vtkIdType j, vtkFieldData* source);
 
 protected:
-
   vtkFieldData();
   ~vtkFieldData() override;
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
-  vtkAbstractArray **Data;
+  vtkAbstractArray** Data;
 
   /**
    * Set an array to define the field.
    */
-  void SetArray(int i, vtkAbstractArray *array);
+  void SetArray(int i, vtkAbstractArray* array);
 
   /**
    * Release all data but do not delete object.
@@ -379,8 +375,8 @@ protected:
     int IsCopied;
   };
 
-  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
-  int NumberOfFieldFlags; //the number of fields not to be copied
+  CopyFieldFlag* CopyFieldFlags; // the names of fields not to be copied
+  int NumberOfFieldFlags;        // the number of fields not to be copied
   void CopyFieldOnOff(const char* name, int onOff);
   void ClearFieldFlags();
   int FindFlag(const char* field);
@@ -389,13 +385,11 @@ protected:
   int DoCopyAllOn;
   int DoCopyAllOff;
 
-
 private:
   vtkFieldData(const vtkFieldData&) = delete;
   void operator=(const vtkFieldData&) = delete;
 
 public:
-
   class VTKCOMMONDATAMODEL_EXPORT BasicIterator
   {
   public:
@@ -404,33 +398,23 @@ public:
     BasicIterator(const int* list, unsigned int listSize);
     BasicIterator& operator=(const BasicIterator& source);
     virtual ~BasicIterator();
-    void PrintSelf(ostream &os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent);
 
-    int GetListSize() const
-    {
-        return this->ListSize;
-    }
-    int GetCurrentIndex()
-    {
-        return this->List[this->Position];
-    }
+    int GetListSize() const { return this->ListSize; }
+    int GetCurrentIndex() { return this->List[this->Position]; }
     int BeginIndex()
     {
-        this->Position = -1;
-        return this->NextIndex();
+      this->Position = -1;
+      return this->NextIndex();
     }
-    int End() const
-    {
-        return (this->Position >= this->ListSize);
-    }
+    int End() const { return (this->Position >= this->ListSize); }
     int NextIndex()
     {
-        this->Position++;
-        return (this->End() ? -1 : this->List[this->Position]);
+      this->Position++;
+      return (this->End() ? -1 : this->List[this->Position]);
     }
 
   protected:
-
     int* List;
     int ListSize;
     int Position;
@@ -439,32 +423,30 @@ public:
   class VTKCOMMONDATAMODEL_EXPORT Iterator : public BasicIterator
   {
   public:
-
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
     ~Iterator() override;
-    Iterator(vtkFieldData* dsa, const int* list=nullptr,
-             unsigned int listSize=0);
+    Iterator(vtkFieldData* dsa, const int* list = nullptr, unsigned int listSize = 0);
 
     vtkDataArray* Begin()
     {
-        this->Position = -1;
-        return this->Next();
+      this->Position = -1;
+      return this->Next();
     }
 
     vtkDataArray* Next()
     {
-        this->Position++;
-        if (this->End())
-        {
-          return nullptr;
-        }
+      this->Position++;
+      if (this->End())
+      {
+        return nullptr;
+      }
 
-        // vtkFieldData::GetArray() can return null, which implies that
-        // a the array at the given index in not a vtkDataArray subclass.
-        // This iterator skips such arrays.
-        vtkDataArray* cur =  Fields->GetArray(this->List[this->Position]);
-        return (cur? cur : this->Next());
+      // vtkFieldData::GetArray() can return null, which implies that
+      // a the array at the given index in not a vtkDataArray subclass.
+      // This iterator skips such arrays.
+      vtkDataArray* cur = Fields->GetArray(this->List[this->Position]);
+      return (cur ? cur : this->Next());
     }
 
     void DetachFieldData();
@@ -473,8 +455,6 @@ public:
     vtkFieldData* Fields;
     int Detached;
   };
-
 };
-
 
 #endif

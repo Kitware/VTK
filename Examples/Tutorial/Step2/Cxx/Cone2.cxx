@@ -25,26 +25,25 @@
 //
 
 // first include the required header files for the vtk classes we are using
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
-#include "vtkCommand.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
 
 // Callback for the interaction
 class vtkMyCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New()
-    { return new vtkMyCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkMyCallback* New() { return new vtkMyCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-      vtkRenderer *renderer = reinterpret_cast<vtkRenderer*>(caller);
-      cout << renderer->GetActiveCamera()->GetPosition()[0] << " "
-           << renderer->GetActiveCamera()->GetPosition()[1] << " "
-           << renderer->GetActiveCamera()->GetPosition()[2] << "\n";
+    vtkRenderer* renderer = reinterpret_cast<vtkRenderer*>(caller);
+    cout << renderer->GetActiveCamera()->GetPosition()[0] << " "
+         << renderer->GetActiveCamera()->GetPosition()[1] << " "
+         << renderer->GetActiveCamera()->GetPosition()[2] << "\n";
   }
 };
 
@@ -53,29 +52,29 @@ int main()
   //
   // The pipeline creation is documented in Step1
   //
-  vtkConeSource *cone = vtkConeSource::New();
-  cone->SetHeight( 3.0 );
-  cone->SetRadius( 1.0 );
-  cone->SetResolution( 10 );
+  vtkConeSource* cone = vtkConeSource::New();
+  cone->SetHeight(3.0);
+  cone->SetRadius(1.0);
+  cone->SetResolution(10);
 
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
-  coneMapper->SetInputConnection( cone->GetOutputPort() );
-  vtkActor *coneActor = vtkActor::New();
-  coneActor->SetMapper( coneMapper );
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
+  coneMapper->SetInputConnection(cone->GetOutputPort());
+  vtkActor* coneActor = vtkActor::New();
+  coneActor->SetMapper(coneMapper);
 
-  vtkRenderer *ren1= vtkRenderer::New();
-  ren1->AddActor( coneActor );
-  ren1->SetBackground( 0.1, 0.2, 0.4 );
+  vtkRenderer* ren1 = vtkRenderer::New();
+  ren1->AddActor(coneActor);
+  ren1->SetBackground(0.1, 0.2, 0.4);
   ren1->ResetCamera();
 
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AddRenderer( ren1 );
-  renWin->SetSize( 300, 300 );
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(ren1);
+  renWin->SetSize(300, 300);
 
   // Here is where we setup the observer, we do a new and ren1 will
   // eventually free the observer
-  vtkMyCallback *mo1 = vtkMyCallback::New();
-  ren1->AddObserver(vtkCommand::StartEvent,mo1);
+  vtkMyCallback* mo1 = vtkMyCallback::New();
+  ren1->AddObserver(vtkCommand::StartEvent, mo1);
   mo1->Delete();
 
   //
@@ -87,7 +86,7 @@ int main()
     // render the image
     renWin->Render();
     // rotate the active camera by one degree
-    ren1->GetActiveCamera()->Azimuth( 1 );
+    ren1->GetActiveCamera()->Azimuth(1);
   }
 
   //
@@ -101,5 +100,3 @@ int main()
 
   return 0;
 }
-
-

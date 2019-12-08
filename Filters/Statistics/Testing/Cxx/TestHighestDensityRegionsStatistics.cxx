@@ -14,55 +14,53 @@
 =========================================================================*/
 
 #include "vtkDoubleArray.h"
+#include "vtkHighestDensityRegionsStatistics.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
-#include "vtkHighestDensityRegionsStatistics.h"
 
 #include <sstream>
 
 //----------------------------------------------------------------------------
-int TestHighestDensityRegionsStatistics(int , char * [])
+int TestHighestDensityRegionsStatistics(int, char*[])
 {
   vtkNew<vtkTable> table;
 
   vtkNew<vtkDoubleArray> arrFirstVariable;
-  const char *namev1 = "Math";
+  const char* namev1 = "Math";
   arrFirstVariable->SetName(namev1);
   table->AddColumn(arrFirstVariable);
 
   vtkNew<vtkDoubleArray> arrSecondVariable;
-  const char *namev2 = "French";
+  const char* namev2 = "French";
   arrSecondVariable->SetName(namev2);
   table->AddColumn(arrSecondVariable);
 
   vtkNew<vtkDoubleArray> arrThirdVariable;
-  const char *namev3 = "MG";
+  const char* namev3 = "MG";
   arrThirdVariable->SetName(namev3);
   table->AddColumn(arrThirdVariable);
 
   int numPoints = 20;
   table->SetNumberOfRows(numPoints);
 
-  double MathValue[] =
-    {
-    18, 20, 20, 16,
-    12, 14, 16, 14,
-    14, 13, 16, 18,
-    6, 10, 16, 14,
-    4, 16, 16, 14
-    };
+  double MathValue[] = {
+    18, 20, 20, 16, //
+    12, 14, 16, 14, //
+    14, 13, 16, 18, //
+    6, 10, 16, 14,  //
+    4, 16, 16, 14   //
+  };
 
-  double FrenchValue[] =
-    {
-    14, 12, 14, 16,
-    12, 14, 16, 4,
-    4, 10, 6, 20,
-    14, 16, 14, 14,
-    12, 2, 14, 8
-    };
+  double FrenchValue[] = {
+    14, 12, 14, 16, //
+    12, 14, 16, 4,  //
+    4, 10, 6, 20,   //
+    14, 16, 14, 14, //
+    12, 2, 14, 8    //
+  };
 
   for (int i = 0; i < numPoints; ++i)
   {
@@ -77,7 +75,7 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   // Set HDR statistics algorithm and its input data port
   vtkNew<vtkHighestDensityRegionsStatistics> hdrs;
 
-   // First verify that absence of input does not cause trouble
+  // First verify that absence of input does not cause trouble
   cout << "## Verifying that absence of input does not cause trouble... ";
   hdrs->Update();
   cout << "done.\n";
@@ -99,15 +97,15 @@ int TestHighestDensityRegionsStatistics(int , char * [])
 
   cout << "\n## Result:\n";
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      hdrs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+    hdrs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   vtkTable* outputMetaLearn = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
   outputMetaLearn->Dump();
 
   std::stringstream ss;
   ss << "HDR (" << namev1 << "," << namev2 << ")";
-  vtkDoubleArray* HDRArray = vtkArrayDownCast<vtkDoubleArray>(
-    outputMetaLearn->GetColumnByName(ss.str().c_str()));
+  vtkDoubleArray* HDRArray =
+    vtkArrayDownCast<vtkDoubleArray>(outputMetaLearn->GetColumnByName(ss.str().c_str()));
   if (!HDRArray)
   {
     cout << "Fail! The HDR column is missing from the result table!" << endl;

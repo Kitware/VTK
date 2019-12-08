@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkPointPlacer
-*/
+ */
 
 #ifndef vtkCellCentersPointPlacer_h
 #define vtkCellCentersPointPlacer_h
@@ -52,24 +52,24 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkCellCentersPointPlacer *New();
+  static vtkCellCentersPointPlacer* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkCellCentersPointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkCellCentersPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Descuription:
   // Add an actor (that represents a terrain in a rendererd scene) to the
   // list. Only props in this list are considered by the PointPlacer
-  virtual void AddProp( vtkProp * );
-  virtual void RemoveViewProp(vtkProp *prop);
+  virtual void AddProp(vtkProp*);
+  virtual void RemoveViewProp(vtkProp* prop);
   virtual void RemoveAllProps();
-  int          HasProp( vtkProp * );
-  int          GetNumberOfProps();
+  int HasProp(vtkProp*);
+  int GetNumberOfProps();
 
   /**
    * Given a renderer and a display position in pixel coordinates,
@@ -79,10 +79,8 @@ public:
    * For the Terrain point placer this computes world points that
    * lie at the specified height above the terrain.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double worldPos[3],
-                                    double worldOrient[9] ) override;
+  int ComputeWorldPosition(
+    vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a renderer, a display position, and a reference world
@@ -90,35 +88,31 @@ public:
    * of this point. This method is typically used by the
    * representation to move the point.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double refWorldPos[3],
-                                    double worldPos[3],
-                                    double worldOrient[9] ) override;
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
+    double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a world position check the validity of this
    * position according to the constraints of the placer
    */
-  int ValidateWorldPosition( double worldPos[3] ) override;
+  int ValidateWorldPosition(double worldPos[3]) override;
 
   /**
    * Given a display position, check the validity of this position.
    */
-  int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] ) override;
+  int ValidateDisplayPosition(vtkRenderer*, double displayPos[2]) override;
 
   /**
    * Given a world position and a world orientation,
    * validate it according to the constraints of the placer.
    */
-  int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] ) override;
+  int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
   //@{
   /**
    * Get the Prop picker.
    */
-  vtkGetObjectMacro( CellPicker, vtkCellPicker );
+  vtkGetObjectMacro(CellPicker, vtkCellPicker);
   //@}
 
   //@{
@@ -128,8 +122,8 @@ public:
    * the average of all points in the cell. When the mode is None,
    * the input point is passed through unmodified. Default is CellPointsMean.
    */
-  vtkSetMacro( Mode, int );
-  vtkGetMacro( Mode, int );
+  vtkSetMacro(Mode, int);
+  vtkGetMacro(Mode, int);
   //@}
 
   enum
@@ -145,9 +139,9 @@ protected:
 
   // The props that represents the terrain data (one or more) in a rendered
   // scene
-  vtkPropCollection  *PickProps;
-  vtkCellPicker      *CellPicker;
-  int                 Mode;
+  vtkPropCollection* PickProps;
+  vtkCellPicker* CellPicker;
+  int Mode;
 
 private:
   vtkCellCentersPointPlacer(const vtkCellCentersPointPlacer&) = delete;

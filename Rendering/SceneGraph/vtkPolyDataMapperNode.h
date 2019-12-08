@@ -19,13 +19,13 @@
  * State storage and graph traversal for vtkPolyDataMapper/PolyDataMapper and Property
  * Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
  * is a compelling reason to separate them we can.
-*/
+ */
 
 #ifndef vtkPolyDataMapperNode_h
 #define vtkPolyDataMapperNode_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkMapperNode.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 #include <vector> //for results
 
@@ -33,15 +33,15 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkPolyData;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkPolyDataMapperNode :
-  public vtkMapperNode
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkPolyDataMapperNode : public vtkMapperNode
 {
 public:
   static vtkPolyDataMapperNode* New();
   vtkTypeMacro(vtkPolyDataMapperNode, vtkMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  typedef struct {
+  typedef struct
+  {
     std::vector<unsigned int> vertex_index;
     std::vector<unsigned int> vertex_reverse;
     std::vector<unsigned int> line_index;
@@ -56,14 +56,12 @@ protected:
   vtkPolyDataMapperNode();
   ~vtkPolyDataMapperNode();
 
-  //Utilities for children
+  // Utilities for children
   /**
    * Makes a cleaned up version of the polydata's geometry in which NaN are removed
    * (substituted with neighbor) and the PolyDataMapper's transformation matrix is applied.
    */
-  static void TransformPoints(vtkActor *act,
-                              vtkPolyData *poly,
-                              std::vector<double> &vertices);
+  static void TransformPoints(vtkActor* act, vtkPolyData* poly, std::vector<double>& vertices);
 
   /**
    * Homogenizes the entire polydata using internal CreateXIndexBuffer functions.
@@ -71,11 +69,9 @@ protected:
    * the output arrays. The output "index" arrays contain indices into the Points. The
    * output "reverse" array contains indices into the original CellArray.
    */
-  static void MakeConnectivity(vtkPolyData *poly,
-                               int representation,
-                               vtkPDConnectivity &conn);
+  static void MakeConnectivity(vtkPolyData* poly, int representation, vtkPDConnectivity& conn);
 
- private:
+private:
   vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) = delete;
   void operator=(const vtkPolyDataMapperNode&) = delete;
 };

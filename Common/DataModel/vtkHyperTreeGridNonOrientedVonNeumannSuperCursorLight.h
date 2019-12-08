@@ -33,7 +33,7 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight_h
 #define vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight_h
@@ -42,25 +42,26 @@
 
 class vtkHyperTreeGrid;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight : public vtkHyperTreeGridNonOrientedSuperCursorLight
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight
+  : public vtkHyperTreeGridNonOrientedSuperCursorLight
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight, vtkHyperTreeGridNonOrientedSuperCursorLight);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight,
+    vtkHyperTreeGridNonOrientedSuperCursorLight);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* New();
 
   /**
    * Initialize cursor at root of given tree index in grid.
    * JB Le create ne s'applique que sur le HT central.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false ) override;
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 
 protected:
-
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight() {};
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight() {}
 
   /**
    * Destructor
@@ -68,7 +69,8 @@ protected:
   ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight() override;
 
 private:
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight&) = delete;
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight(
+    const vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight&) = delete;
 };
 

@@ -23,13 +23,13 @@
  * @par Thanks:
  * Support for generic vertex attributes in VTK was contributed in
  * collaboration with Stephane Ploix at EDF.
-*/
+ */
 
 #ifndef vtkGenericVertexAttributeMapping_h
 #define vtkGenericVertexAttributeMapping_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkGenericVertexAttributeMapping : public vtkObject
 {
@@ -43,8 +43,8 @@ public:
    * and map it to a generic vertex attribute.
    * Note that indices change when a mapping is added/removed.
    */
-  void AddMapping(const char* attributeName, const char* arrayName,
-    int fieldAssociation, int component);
+  void AddMapping(
+    const char* attributeName, const char* arrayName, int fieldAssociation, int component);
 
   /**
    * Select a data array and use it as multitexture texture
@@ -52,9 +52,7 @@ public:
    * Note the texture unit parameter should correspond to the texture
    * unit set on the texture.
    */
-  void AddMapping(
-    int unit, const char* arrayName, int fieldAssociation,
-    int component);
+  void AddMapping(int unit, const char* arrayName, int fieldAssociation, int component);
 
   /**
    * Remove a vertex attribute mapping.
@@ -106,9 +104,6 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-
 };
 
 #endif
-
-

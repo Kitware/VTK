@@ -25,9 +25,9 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -81,5 +81,5 @@ void vtkAssignCoordinatesLayoutStrategy::Layout()
 
 void vtkAssignCoordinatesLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

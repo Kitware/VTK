@@ -26,29 +26,29 @@
 #include "vtkOpenGLState.h"
 #include "vtkProp.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderState.h"
+#include "vtkRenderer.h"
 
 #include <string>
 
 namespace
 {
-void annotate(const std::string &str)
+void annotate(const std::string& str)
 {
   vtkOpenGLRenderUtilities::MarkDebugEvent(str);
 }
 }
 
-vtkStandardNewMacro(vtkHiddenLineRemovalPass)
+vtkStandardNewMacro(vtkHiddenLineRemovalPass);
 
 //------------------------------------------------------------------------------
-void vtkHiddenLineRemovalPass::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkHiddenLineRemovalPass::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
+void vtkHiddenLineRemovalPass::Render(const vtkRenderState* s)
 {
   this->NumberOfRenderedProps = 0;
 
@@ -58,11 +58,11 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   for (int i = 0; i < s->GetPropArrayCount(); ++i)
   {
     bool isWireframe = false;
-    vtkProp *prop = s->GetPropArray()[i];
-    vtkActor *actor = vtkActor::SafeDownCast(prop);
+    vtkProp* prop = s->GetPropArray()[i];
+    vtkActor* actor = vtkActor::SafeDownCast(prop);
     if (actor)
     {
-      vtkProperty *property = actor->GetProperty();
+      vtkProperty* property = actor->GetProperty();
       if (property->GetRepresentation() == VTK_WIREFRAME)
       {
         isWireframe = true;
@@ -78,8 +78,8 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
     }
   }
 
-  vtkViewport *vp = s->GetRenderer();
-  vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(vp)->GetState();
+  vtkViewport* vp = s->GetRenderer();
+  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderer*>(vp)->GetState();
 
   // Render the non-wireframe geometry as normal:
   annotate("Rendering non-wireframe props.");
@@ -90,8 +90,7 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   // offset to keep the drawn lines sharp:
   int ctMode = vtkMapper::GetResolveCoincidentTopology();
   double ctFactor, ctUnits;
-  vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(ctFactor,
-                                                                 ctUnits);
+  vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(ctFactor, ctUnits);
   vtkMapper::SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
   vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(2.0, 2.0);
 
@@ -111,20 +110,18 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
 
   // Restore the previous coincident topology parameters:
   vtkMapper::SetResolveCoincidentTopology(ctMode);
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(ctFactor,
-                                                                 ctUnits);
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(ctFactor, ctUnits);
 }
 
 //------------------------------------------------------------------------------
-bool vtkHiddenLineRemovalPass::WireframePropsExist(vtkProp **propArray,
-                                                   int nProps)
+bool vtkHiddenLineRemovalPass::WireframePropsExist(vtkProp** propArray, int nProps)
 {
   for (int i = 0; i < nProps; ++i)
   {
-    vtkActor *actor = vtkActor::SafeDownCast(propArray[i]);
+    vtkActor* actor = vtkActor::SafeDownCast(propArray[i]);
     if (actor)
     {
-      vtkProperty *property = actor->GetProperty();
+      vtkProperty* property = actor->GetProperty();
       if (property->GetRepresentation() == VTK_WIREFRAME)
       {
         return true;
@@ -142,13 +139,11 @@ vtkHiddenLineRemovalPass::vtkHiddenLineRemovalPass() = default;
 vtkHiddenLineRemovalPass::~vtkHiddenLineRemovalPass() = default;
 
 //------------------------------------------------------------------------------
-void vtkHiddenLineRemovalPass::SetRepresentation(std::vector<vtkProp *> &props,
-                                                 int repr)
+void vtkHiddenLineRemovalPass::SetRepresentation(std::vector<vtkProp*>& props, int repr)
 {
-  for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end();
-       it != itEnd; ++it)
+  for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end(); it != itEnd; ++it)
   {
-    vtkActor *actor = vtkActor::SafeDownCast(*it);
+    vtkActor* actor = vtkActor::SafeDownCast(*it);
     if (actor)
     {
       actor->GetProperty()->SetRepresentation(repr);
@@ -157,12 +152,10 @@ void vtkHiddenLineRemovalPass::SetRepresentation(std::vector<vtkProp *> &props,
 }
 
 //------------------------------------------------------------------------------
-int vtkHiddenLineRemovalPass::RenderProps(std::vector<vtkProp *> &props,
-                                          vtkViewport *vp)
+int vtkHiddenLineRemovalPass::RenderProps(std::vector<vtkProp*>& props, vtkViewport* vp)
 {
   int propsRendered = 0;
-  for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end();
-       it != itEnd; ++it)
+  for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end(); it != itEnd; ++it)
   {
     propsRendered += (*it)->RenderOpaqueGeometry(vp);
   }

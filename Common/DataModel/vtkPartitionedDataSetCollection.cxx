@@ -22,22 +22,15 @@
 
 vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection()
-{
-}
+vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection() {}
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection()
-{
-}
+vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection() {}
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
-  vtkInformation* info)
+vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(vtkInformation* info)
 {
-  return
-    info? vtkPartitionedDataSetCollection::SafeDownCast(
-      info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkPartitionedDataSetCollection::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -48,12 +41,10 @@ vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
 }
 
 //----------------------------------------------------------------------------
-void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(
-  unsigned int numDataSets)
+void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(unsigned int numDataSets)
 {
   this->Superclass::SetNumberOfChildren(numDataSets);
 }
-
 
 //----------------------------------------------------------------------------
 unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets()
@@ -62,8 +53,7 @@ unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets()
 }
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(
-  unsigned int idx)
+vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(unsigned int idx)
 {
   return vtkPartitionedDataSet::SafeDownCast(this->Superclass::GetChild(idx));
 }
@@ -76,8 +66,7 @@ void vtkPartitionedDataSetCollection::SetPartitionedDataSet(
 }
 
 //----------------------------------------------------------------------------
-void vtkPartitionedDataSetCollection::RemovePartitionedDataSet(
-  unsigned int idx)
+void vtkPartitionedDataSetCollection::RemovePartitionedDataSet(unsigned int idx)
 {
   this->Superclass::RemoveChild(idx);
 }

@@ -24,16 +24,15 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestDynamic2DLabelMapper(int argc, char* argv[])
 {
@@ -42,14 +41,14 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   VTK_CREATE(vtkPolyData, poly);
   VTK_CREATE(vtkPoints, pts);
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(cells->EstimateSize(numPoints ,1));
+  cells->AllocateEstimate(numPoints, 1);
   pts->SetNumberOfPoints(numPoints);
   double x[3];
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     double v = 20.0 * static_cast<double>(i) / numPoints;
-    x[0] = v*cos(v);
-    x[1] = v*sin(v);
+    x[0] = v * cos(v);
+    x[1] = v * sin(v);
     x[2] = 0;
     pts->SetPoint(i, x);
 

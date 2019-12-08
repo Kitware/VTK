@@ -27,35 +27,29 @@
  * mask is initially negative, the output distances will be negative.
  * Distances maps can have inside (negative regions)
  * and outsides (positive regions).
-*/
+ */
 
 #ifndef vtkImageCityBlockDistance_h
 #define vtkImageCityBlockDistance_h
 
-
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageCityBlockDistance *New();
-  vtkTypeMacro(vtkImageCityBlockDistance,vtkImageDecomposeFilter);
+  static vtkImageCityBlockDistance* New();
+  vtkTypeMacro(vtkImageCityBlockDistance, vtkImageDecomposeFilter);
 
 protected:
   vtkImageCityBlockDistance();
   ~vtkImageCityBlockDistance() override {}
 
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
-  int IterativeRequestData(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector*) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void AllocateOutputScalars(vtkImageData *outData,
-                             int* updateExtent,
-                             int* wholeExtent,
-                             vtkInformation* outInfo);
+  void AllocateOutputScalars(
+    vtkImageData* outData, int* updateExtent, int* wholeExtent, vtkInformation* outInfo);
 
 private:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) = delete;
@@ -63,7 +57,5 @@ private:
 };
 
 #endif
-
-
 
 // VTK-HeaderTest-Exclude: vtkImageCityBlockDistance.h

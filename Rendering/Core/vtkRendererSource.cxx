@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkRendererSource);
 
-vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
+vtkCxxSetObjectMacro(vtkRendererSource, Input, vtkRenderer);
 
 //----------------------------------------------------------------------------
 vtkRendererSource::vtkRendererSource()
@@ -56,34 +56,32 @@ vtkRendererSource::~vtkRendererSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkRendererSource::RequestData(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector* outputVector)
+void vtkRendererSource::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkIdType numOutPts;
-  float x1,y1,x2,y2;
+  float x1, y1, x2, y2;
   int dims[3];
 
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkImageData *output =
-    vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* output = vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
   int uExtent[6];
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
   output->SetExtent(uExtent);
 
-  vtkDebugMacro(<<"Extracting image");
+  vtkDebugMacro(<< "Extracting image");
 
   // Make sure there is proper input
   if (this->Input == nullptr)
   {
-    vtkErrorMacro(<<"Please specify a renderer as input!");
+    vtkErrorMacro(<< "Please specify a renderer as input!");
     return;
   }
 
-  vtkRenderWindow *renWin = this->Input->GetRenderWindow();
+  vtkRenderWindow* renWin = this->Input->GetRenderWindow();
   if (renWin == nullptr)
   {
-    vtkErrorMacro(<<"Renderer needs to be associated with renderin window!");
+    vtkErrorMacro(<< "Renderer needs to be associated with renderin window!");
     return;
   }
 
@@ -95,10 +93,10 @@ void vtkRendererSource::RequestData(vtkInformation*,
     renWin->Render();
   }
 
-  x1 = this->Input->GetViewport()[0]*(renWin->GetSize()[0] - 1);
-  y1 = this->Input->GetViewport()[1]*(renWin->GetSize()[1] - 1);
-  x2 = this->Input->GetViewport()[2]*(renWin->GetSize()[0] - 1);
-  y2 = this->Input->GetViewport()[3]*(renWin->GetSize()[1] - 1);
+  x1 = this->Input->GetViewport()[0] * (renWin->GetSize()[0] - 1);
+  y1 = this->Input->GetViewport()[1] * (renWin->GetSize()[1] - 1);
+  x2 = this->Input->GetViewport()[2] * (renWin->GetSize()[0] - 1);
+  y2 = this->Input->GetViewport()[3] * (renWin->GetSize()[1] - 1);
 
   if (this->WholeWindow)
   {
@@ -110,36 +108,35 @@ void vtkRendererSource::RequestData(vtkInformation*,
 
   // Get origin, aspect ratio and dimensions from the input
   dims[0] = static_cast<int>(x2 - x1 + 1);
-  dims[1] = static_cast<int>(y2 -y1 + 1);
+  dims[1] = static_cast<int>(y2 - y1 + 1);
   dims[2] = 1;
   output->SetDimensions(dims);
   numOutPts = dims[0] * dims[1];
 
   // If simply requesting depth values (no colors), do the following
   // and then return.
-  if ( this->DepthValuesOnly )
+  if (this->DepthValuesOnly)
   {
     float *zBuf, *ptr;
     output->AllocateScalars(info);
-    vtkFloatArray *outScalars =
+    vtkFloatArray* outScalars =
       vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetScalars());
     outScalars->SetName("ZValues");
     ptr = outScalars->WritePointer(0, numOutPts);
 
     zBuf = renWin->GetZbufferData(
-      static_cast<int>(x1),static_cast<int>(y1),static_cast<int>(x2),
-      static_cast<int>(y2));
+      static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
 
-    memcpy(ptr, zBuf, numOutPts*sizeof(float));
+    memcpy(ptr, zBuf, numOutPts * sizeof(float));
 
-    delete [] zBuf;
+    delete[] zBuf;
     return;
   }
 
   // Okay requesting color scalars plus possibly depth values.
   unsigned char *pixels, *ptr;
   output->AllocateScalars(info);
-  vtkUnsignedCharArray *outScalars =
+  vtkUnsignedCharArray* outScalars =
     vtkArrayDownCast<vtkUnsignedCharArray>(output->GetPointData()->GetScalars());
 
   if (this->DepthValuesInScalars)
@@ -152,10 +149,8 @@ void vtkRendererSource::RequestData(vtkInformation*,
   }
 
   // Allocate data.  Scalar type is FloatScalars.
-  pixels = renWin->GetPixelData(static_cast<int>(x1),
-                                static_cast<int>(y1),
-                                static_cast<int>(x2),
-                                static_cast<int>(y2), 1);
+  pixels = renWin->GetPixelData(
+    static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2), 1);
 
   // allocate scalars
   int nb_comp = output->GetNumberOfScalarComponents();
@@ -170,9 +165,8 @@ void vtkRendererSource::RequestData(vtkInformation*,
   // Lets get the ZBuffer also, if requested.
   if (this->DepthValues || this->DepthValuesInScalars)
   {
-    float *zBuf = renWin->GetZbufferData(
-      static_cast<int>(x1),static_cast<int>(y1),static_cast<int>(x2),
-      static_cast<int>(y2));
+    float* zBuf = renWin->GetZbufferData(
+      static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
 
     // If RGBZ is requested, intermix RGB with shift/scaled Z
     if (this->DepthValuesInScalars)
@@ -181,14 +175,20 @@ void vtkRendererSource::RequestData(vtkInformation*,
       float min = *zBuf, max = *zBuf;
       while (zptr < zptr_end)
       {
-        if (min < *zptr) { min = *zptr; }
-        if (max > *zptr) { max = *zptr; }
+        if (min < *zptr)
+        {
+          min = *zptr;
+        }
+        if (max > *zptr)
+        {
+          max = *zptr;
+        }
         zptr++;
       }
       float scale = 255.0 / (max - min);
 
       zptr = zBuf;
-      unsigned char *ppixels = pixels;
+      unsigned char* ppixels = pixels;
       while (zptr < zptr_end)
       {
         *ptr++ = *ppixels++;
@@ -201,33 +201,33 @@ void vtkRendererSource::RequestData(vtkInformation*,
     // If Z is requested as independent array, create it
     if (this->DepthValues)
     {
-      vtkFloatArray *zArray = vtkFloatArray::New();
+      vtkFloatArray* zArray = vtkFloatArray::New();
       zArray->Allocate(numOutPts);
       zArray->SetNumberOfTuples(numOutPts);
-      float *zPtr = zArray->WritePointer(0, numOutPts);
-      memcpy(zPtr,zBuf,numOutPts*sizeof(float));
+      float* zPtr = zArray->WritePointer(0, numOutPts);
+      memcpy(zPtr, zBuf, numOutPts * sizeof(float));
       zArray->SetName("ZBuffer");
       output->GetPointData()->AddArray(zArray);
       zArray->Delete();
     }
 
-    delete [] zBuf;
+    delete[] zBuf;
   }
 
-  delete [] pixels;
+  delete[] pixels;
 }
 
 //----------------------------------------------------------------------------
 void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "RenderFlag: " << (this->RenderFlag ? "On\n" : "Off\n");
 
-  if ( this->Input )
+  if (this->Input)
   {
     os << indent << "Input:\n";
-    this->Input->PrintSelf(os,indent.GetNextIndent());
+    this->Input->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -240,11 +240,10 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Depth Values Only: " << (this->DepthValuesOnly ? "On\n" : "Off\n");
 }
 
-
 //----------------------------------------------------------------------------
 vtkMTimeType vtkRendererSource::GetMTime()
 {
-  vtkRenderer *ren = this->GetInput();
+  vtkRenderer* ren = this->GetInput();
   vtkMTimeType t1 = this->MTime.GetMTime();
   vtkMTimeType t2;
 
@@ -260,13 +259,13 @@ vtkMTimeType vtkRendererSource::GetMTime()
   {
     t1 = t2;
   }
-  vtkActorCollection *actors = ren->GetActors();
+  vtkActorCollection* actors = ren->GetActors();
   vtkCollectionSimpleIterator ait;
   actors->InitTraversal(ait);
-  vtkActor *actor;
-  vtkMapper *mapper;
-  vtkDataSet *data;
-  while ( (actor = actors->GetNextActor(ait)) )
+  vtkActor* actor;
+  vtkMapper* mapper;
+  vtkDataSet* data;
+  while ((actor = actors->GetNextActor(ait)))
   {
     t2 = actor->GetMTime();
     if (t2 > t1)
@@ -291,8 +290,7 @@ vtkMTimeType vtkRendererSource::GetMTime()
           t1 = t2;
         }
       }
-      t2 = vtkDemandDrivenPipeline::SafeDownCast(
-        mapper->GetInputExecutive())->GetPipelineMTime();
+      t2 = vtkDemandDrivenPipeline::SafeDownCast(mapper->GetInputExecutive())->GetPipelineMTime();
       if (t2 > t1)
       {
         t1 = t2;
@@ -303,67 +301,61 @@ vtkMTimeType vtkRendererSource::GetMTime()
   return t1;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkRendererSource::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector *outputVector)
+void vtkRendererSource::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-    vtkRenderer *ren = this->GetInput();
-    if (ren == nullptr || ren->GetRenderWindow() == nullptr)
-    {
-      vtkErrorMacro("The input renderer has not been set yet!!!");
-      return;
-    }
+  vtkRenderer* ren = this->GetInput();
+  if (ren == nullptr || ren->GetRenderWindow() == nullptr)
+  {
+    vtkErrorMacro("The input renderer has not been set yet!!!");
+    return;
+  }
 
-    // calc the pixel range for the renderer
-    float x1,y1,x2,y2;
-    x1 = ren->GetViewport()[0] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
-    y1 = ren->GetViewport()[1] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
-    x2 = ren->GetViewport()[2] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
-    y2 = ren->GetViewport()[3] *((ren->GetRenderWindow())->GetSize()[1] - 1);
-    if (this->WholeWindow)
-    {
-      x1 = 0;
-      y1 = 0;
-      x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
-      y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
-    }
-    int extent[6] = {0, static_cast<int>(x2-x1),
-                     0, static_cast<int>(y2-y1),
-                     0, 0};
+  // calc the pixel range for the renderer
+  float x1, y1, x2, y2;
+  x1 = ren->GetViewport()[0] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
+  y1 = ren->GetViewport()[1] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
+  x2 = ren->GetViewport()[2] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
+  y2 = ren->GetViewport()[3] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
+  if (this->WholeWindow)
+  {
+    x1 = 0;
+    y1 = 0;
+    x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
+    y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
+  }
+  int extent[6] = { 0, static_cast<int>(x2 - x1), 0, static_cast<int>(y2 - y1), 0, 0 };
 
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
-  if ( this->DepthValuesOnly )
+  if (this->DepthValuesOnly)
   {
     vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   }
   else
   {
-    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR,
-                                                3 + (this->DepthValuesInScalars ? 1:0));
+    vtkDataObject::SetPointDataActiveScalarInfo(
+      outInfo, VTK_UNSIGNED_CHAR, 3 + (this->DepthValuesInScalars ? 1 : 0));
   }
 }
 
 //----------------------------------------------------------------------------
-int vtkRendererSource::ProcessRequest(vtkInformation* request,
-                                      vtkInformationVector** inputVector,
-                                      vtkInformationVector* outputVector)
+vtkTypeBool vtkRendererSource::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     this->RequestData(request, inputVector, outputVector);
     return 1;
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     this->RequestInformation(request, inputVector, outputVector);
     return 1;
@@ -379,8 +371,7 @@ vtkImageData* vtkRendererSource::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkRendererSource::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkRendererSource::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");

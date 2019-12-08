@@ -20,7 +20,7 @@
  * window using the left mouse button.  When the mouse button is released,
  * the current camera zooms by an amount determined from the shorter side of
  * the drawn rectangle.
-*/
+ */
 
 #ifndef vtkInteractorStyleRubberBandZoom_h
 #define vtkInteractorStyleRubberBandZoom_h
@@ -34,7 +34,7 @@ class vtkUnsignedCharArray;
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleRubberBandZoom *New();
+  static vtkInteractorStyleRubberBandZoom* New();
   vtkTypeMacro(vtkInteractorStyleRubberBandZoom, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -100,7 +100,8 @@ protected:
   bool LockAspectToViewport;
   bool CenterAtStartPosition;
   bool UseDollyForPerspectiveProjection;
-  vtkUnsignedCharArray *PixelArray;
+  vtkUnsignedCharArray* PixelArray;
+
 private:
   vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) = delete;
   void operator=(const vtkInteractorStyleRubberBandZoom&) = delete;

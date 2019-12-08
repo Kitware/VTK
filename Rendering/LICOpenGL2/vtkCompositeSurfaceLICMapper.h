@@ -21,14 +21,14 @@
  * same properties (normals, tcoord, scalars, etc) It will only draw
  * polys and it does not support edge flags. The advantage to using
  * this class is that it generally should be faster
-*/
+ */
 
 #ifndef vtkCompositeSurfaceLICMapper_h
 #define vtkCompositeSurfaceLICMapper_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkCompositePolyDataMapper2.h"
-#include "vtkNew.h" // for ivars
+#include "vtkNew.h"                       // for ivars
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
 class vtkSurfaceLICInterface;
 
@@ -44,14 +44,13 @@ public:
   /**
    * Get the vtkSurfaceLICInterface used by this mapper
    */
-  vtkSurfaceLICInterface *GetLICInterface() {
-    return this->LICInterface.Get(); }
+  vtkSurfaceLICInterface* GetLICInterface() { return this->LICInterface.Get(); }
   //@}
 
   /**
    * Lots of LIC setup code
    */
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
 protected:
   vtkCompositeSurfaceLICMapper();
@@ -59,14 +58,13 @@ protected:
 
   vtkNew<vtkSurfaceLICInterface> LICInterface;
 
-  vtkCompositeMapperHelper2 *CreateHelper() override;
+  vtkCompositeMapperHelper2* CreateHelper() override;
 
   // copy values to the helpers
-  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper) override;
+  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2* helper) override;
 
 private:
-  vtkCompositeSurfaceLICMapper(
-    const vtkCompositeSurfaceLICMapper&) = delete;
+  vtkCompositeSurfaceLICMapper(const vtkCompositeSurfaceLICMapper&) = delete;
   void operator=(const vtkCompositeSurfaceLICMapper&) = delete;
 };
 

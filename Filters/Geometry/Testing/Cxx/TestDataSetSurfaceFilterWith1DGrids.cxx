@@ -27,23 +27,19 @@
 
 vtkSmartPointer<vtkDataSet> CreateRectilinearGrid()
 {
-  vtkSmartPointer<vtkRectilinearGrid> grid =
-    vtkSmartPointer<vtkRectilinearGrid>::New();
+  vtkSmartPointer<vtkRectilinearGrid> grid = vtkSmartPointer<vtkRectilinearGrid>::New();
   grid->SetDimensions(10, 1, 1);
 
-  vtkSmartPointer<vtkDoubleArray> xArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> xArray = vtkSmartPointer<vtkDoubleArray>::New();
   for (int x = 0; x < 10; x++)
   {
     xArray->InsertNextValue(x);
   }
 
-  vtkSmartPointer<vtkDoubleArray> yArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> yArray = vtkSmartPointer<vtkDoubleArray>::New();
   yArray->InsertNextValue(0.0);
 
-  vtkSmartPointer<vtkDoubleArray> zArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> zArray = vtkSmartPointer<vtkDoubleArray>::New();
   zArray->InsertNextValue(0.0);
 
   grid->SetXCoordinates(xArray);
@@ -55,13 +51,11 @@ vtkSmartPointer<vtkDataSet> CreateRectilinearGrid()
 
 vtkSmartPointer<vtkDataSet> CreateStructuredGrid()
 {
-  vtkSmartPointer<vtkStructuredGrid> grid =
-    vtkSmartPointer<vtkStructuredGrid>::New();
+  vtkSmartPointer<vtkStructuredGrid> grid = vtkSmartPointer<vtkStructuredGrid>::New();
 
-  vtkSmartPointer<vtkPoints> points =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  for(int x = 0; x < 10; x++)
+  for (int x = 0; x < 10; x++)
   {
     points->InsertNextPoint(x, 0., 0.);
   }

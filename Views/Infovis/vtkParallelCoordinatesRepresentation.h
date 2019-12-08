@@ -45,13 +45,13 @@
  *
  * @par Thanks:
  *  Developed by David Feng at Sandia National Laboratories
-*/
+ */
 
 #ifndef vtkParallelCoordinatesRepresentation_h
 #define vtkParallelCoordinatesRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;
@@ -126,14 +126,14 @@ public:
   /**
    * Get the number of axes in the plot
    */
-  vtkGetMacro(NumberOfAxes,int);
+  vtkGetMacro(NumberOfAxes, int);
   //@}
 
   //@{
   /**
    * Get the number of samples in the plot
    */
-  vtkGetMacro(NumberOfSamples,int);
+  vtkGetMacro(NumberOfSamples, int);
   //@}
 
   //@{
@@ -141,7 +141,7 @@ public:
    * Set/Get the number of labels to display on each axis
    */
   void SetNumberOfAxisLabels(int num);
-  vtkGetMacro(NumberOfAxisLabels,int);
+  vtkGetMacro(NumberOfAxisLabels, int);
   //@}
 
   //@{
@@ -160,49 +160,49 @@ public:
   /**
    * Whether or not to display using curves
    */
-  vtkSetMacro(UseCurves,vtkTypeBool);
-  vtkGetMacro(UseCurves,vtkTypeBool);
-  vtkBooleanMacro(UseCurves,vtkTypeBool);
+  vtkSetMacro(UseCurves, vtkTypeBool);
+  vtkGetMacro(UseCurves, vtkTypeBool);
+  vtkBooleanMacro(UseCurves, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Resolution of the curves displayed, enabled by setting UseCurves
    */
-  vtkSetMacro(CurveResolution,int);
-  vtkGetMacro(CurveResolution,int);
+  vtkSetMacro(CurveResolution, int);
+  vtkGetMacro(CurveResolution, int);
   //@}
 
   //@{
   /**
    * Access plot properties
    */
-  vtkGetMacro(LineOpacity,double)
-  vtkGetMacro(FontSize,double);
-  vtkGetVector3Macro(LineColor,double);
-  vtkGetVector3Macro(AxisColor,double);
-  vtkGetVector3Macro(AxisLabelColor,double);
-  vtkSetMacro(LineOpacity,double);
-  vtkSetMacro(FontSize,double);
-  vtkSetVector3Macro(LineColor,double);
-  vtkSetVector3Macro(AxisColor,double);
-  vtkSetVector3Macro(AxisLabelColor,double);
+  vtkGetMacro(LineOpacity, double);
+  vtkGetMacro(FontSize, double);
+  vtkGetVector3Macro(LineColor, double);
+  vtkGetVector3Macro(AxisColor, double);
+  vtkGetVector3Macro(AxisLabelColor, double);
+  vtkSetMacro(LineOpacity, double);
+  vtkSetMacro(FontSize, double);
+  vtkSetVector3Macro(LineColor, double);
+  vtkSetVector3Macro(AxisColor, double);
+  vtkSetVector3Macro(AxisLabelColor, double);
   //@}
 
   //@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
-  vtkSetMacro(AngleBrushThreshold,double);
-  vtkGetMacro(AngleBrushThreshold,double);
+  vtkSetMacro(AngleBrushThreshold, double);
+  vtkGetMacro(AngleBrushThreshold, double);
   //@}
 
   //@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
-  vtkSetMacro(FunctionBrushThreshold,double);
-  vtkGetMacro(FunctionBrushThreshold,double);
+  vtkSetMacro(FunctionBrushThreshold, double);
+  vtkGetMacro(FunctionBrushThreshold, double);
   //@}
 
   //@{
@@ -224,14 +224,15 @@ public:
    * RangeSelect is currently stubbed out.
    */
   virtual void LassoSelect(int brushClass, int brushOperator, vtkPoints* brushPoints);
-  virtual void AngleSelect(int brushClass, int brushOperator, double *p1, double *p2);
-  virtual void FunctionSelect(int brushClass, int brushOperator, double *p1, double *p2, double *q1, double *q2);
-  virtual void RangeSelect(int brushClass, int brushOperator, double *p1, double *p2);
+  virtual void AngleSelect(int brushClass, int brushOperator, double* p1, double* p2);
+  virtual void FunctionSelect(
+    int brushClass, int brushOperator, double* p1, double* p2, double* q1, double* q2);
+  virtual void RangeSelect(int brushClass, int brushOperator, double* p1, double* p2);
   //@}
 
   enum InputPorts
   {
-    INPUT_DATA=0,
+    INPUT_DATA = 0,
     INPUT_TITLES,
     NUM_INPUT_PORTS
   };
@@ -242,10 +243,7 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //@{
   /**
@@ -265,15 +263,9 @@ protected:
   /**
    * Allocate the cells/points/scalars for a vtkPolyData
    */
-  virtual int AllocatePolyData(vtkPolyData* polyData,
-                               int numLines,
-                               int numPointsPerLine,
-                               int numStrips,
-                               int numPointsPerStrip,
-                               int numQuads,
-                               int numPoints,
-                               int numCellScalars,
-                               int numPointScalars);
+  virtual int AllocatePolyData(vtkPolyData* polyData, int numLines, int numPointsPerLine,
+    int numStrips, int numPointsPerStrip, int numQuads, int numPoints, int numCellScalars,
+    int numPointScalars);
 
   /**
    * Put the axis actors in their correct positions.
@@ -294,7 +286,8 @@ protected:
    * Takes the selection list (assumed to be a vtkIdTypeArray) from a vtkSelectionNode
    * and plots lines/curves into polyData for just those row/sample ids.
    */
-  virtual int PlaceSelection(vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
+  virtual int PlaceSelection(
+    vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
 
   /**
    * Compute the number of axes and their individual ranges
@@ -326,7 +319,8 @@ protected:
   virtual void SelectRows(vtkIdType brushClass, vtkIdType brushOperator, vtkIdTypeArray* rowIds);
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
   virtual void BuildInverseSelection();
-  virtual vtkPolyDataMapper2D* InitializePlotMapper(vtkPolyData* input, vtkActor2D* actor, bool forceStandard=false);
+  virtual vtkPolyDataMapper2D* InitializePlotMapper(
+    vtkPolyData* input, vtkActor2D* actor, bool forceStandard = false);
   //@}
 
   /**
@@ -349,9 +343,9 @@ protected:
   vtkPolyDataMapper2D* GetSelectionMapper(int idx);
   int GetNumberOfSelections();
 
-  vtkSmartPointer<vtkPolyData>         PlotData;
+  vtkSmartPointer<vtkPolyData> PlotData;
   vtkSmartPointer<vtkPolyDataMapper2D> PlotMapper;
-  vtkSmartPointer<vtkActor2D>          PlotActor;
+  vtkSmartPointer<vtkActor2D> PlotActor;
   vtkSmartPointer<vtkTextMapper> PlotTitleMapper;
   vtkSmartPointer<vtkActor2D> PlotTitleActor;
   vtkSmartPointer<vtkTextMapper> FunctionTextMapper;
@@ -404,4 +398,3 @@ private:
 };
 
 #endif
-

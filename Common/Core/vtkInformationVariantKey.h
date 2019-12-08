@@ -18,7 +18,7 @@
  *
  * vtkInformationVariantKey is used to represent keys for variant values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationVariantKey_h
 #define vtkInformationVariantKey_h
@@ -33,7 +33,7 @@ class vtkVariant;
 class VTKCOMMONCORE_EXPORT vtkInformationVariantKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationVariantKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationVariantKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationVariantKey(const char* name, const char* location);

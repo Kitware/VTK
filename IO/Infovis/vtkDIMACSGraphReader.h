@@ -51,21 +51,20 @@
  * @sa
  * vtkDIMACSGraphWriter
  *
-*/
+ */
 
 #ifndef vtkDIMACSGraphReader_h
 #define vtkDIMACSGraphReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
-#include "vtkStdString.h" // For string API
+#include "vtkIOInfovisModule.h" // For export macro
+#include "vtkStdString.h"       // For string API
 
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 {
 
 public:
-
-  static vtkDIMACSGraphReader *New();
+  static vtkDIMACSGraphReader* New();
   vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -94,37 +93,31 @@ public:
   //@}
 
 protected:
-
   vtkDIMACSGraphReader();
   ~vtkDIMACSGraphReader() override;
 
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int buildGenericGraph(vtkGraph     * output,
-                        vtkStdString & defaultVertexAttrArrayName,
-                        vtkStdString & defaultEdgeAttrArrayName);
+  int buildGenericGraph(vtkGraph* output, vtkStdString& defaultVertexAttrArrayName,
+    vtkStdString& defaultEdgeAttrArrayName);
 
-  int buildColoringGraph(vtkGraph * output);
-  int buildMaxflowGraph(vtkGraph * output);
+  int buildColoringGraph(vtkGraph* output);
+  int buildMaxflowGraph(vtkGraph* output);
 
   /**
    * Creates directed or undirected output based on Directed flag.
    */
-  int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int ReadGraphMetaData();
 
 private:
-
-  bool   fileOk;
-  bool   Directed;
-  char * FileName;
-  char * VertexAttributeArrayName;
-  char * EdgeAttributeArrayName;
+  bool fileOk;
+  bool Directed;
+  char* FileName;
+  char* VertexAttributeArrayName;
+  char* EdgeAttributeArrayName;
 
   int numVerts;
   int numEdges;

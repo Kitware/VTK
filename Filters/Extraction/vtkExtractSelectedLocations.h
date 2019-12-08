@@ -24,13 +24,13 @@
  * to trace back results.
  * @sa
  * vtkSelection vtkExtractSelection
-*/
+ */
 
 #ifndef vtkExtractSelectedLocations_h
 #define vtkExtractSelectedLocations_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;
@@ -38,7 +38,7 @@ class vtkSelectionNode;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
 {
 public:
-  static vtkExtractSelectedLocations *New();
+  static vtkExtractSelectedLocations* New();
   vtkTypeMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -47,14 +47,10 @@ protected:
   ~vtkExtractSelectedLocations() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
-                   vtkDataSet *output);
-  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
-                    vtkDataSet *output);
+  int ExtractCells(vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output);
+  int ExtractPoints(vtkSelectionNode* sel, vtkDataSet* input, vtkDataSet* output);
 
 private:
   vtkExtractSelectedLocations(const vtkExtractSelectedLocations&) = delete;

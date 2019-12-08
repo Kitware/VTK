@@ -33,7 +33,7 @@
  * After setting up the iterator, the normal mode of operation is to
  * set up a <code>while(iter->HasNext())</code> loop, with the statement
  * <code>vtkIdType vertex = iter->Next()</code> inside the loop.
-*/
+ */
 
 #ifndef vtkTreeDFSIterator_h
 #define vtkTreeDFSIterator_h
@@ -90,10 +90,8 @@ protected:
   };
 
 private:
-  vtkTreeDFSIterator(const vtkTreeDFSIterator &) = delete;
-  void operator=(const vtkTreeDFSIterator &) = delete;
+  vtkTreeDFSIterator(const vtkTreeDFSIterator&) = delete;
+  void operator=(const vtkTreeDFSIterator&) = delete;
 };
 
-
 #endif
-

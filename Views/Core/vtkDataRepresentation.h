@@ -45,13 +45,13 @@
  * from the selection link when the view is updated.  The application is
  * responsible for linking representations as appropriate by setting the
  * same vtkAnnotationLink on each linked representation.
-*/
+ */
 
 #ifndef vtkDataRepresentation_h
 #define vtkDataRepresentation_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkAnnotationLayers;
@@ -66,7 +66,7 @@ class vtkViewTheme;
 class VTKVIEWSCORE_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkDataRepresentation *New();
+  static vtkDataRepresentation* New();
   vtkTypeMacro(vtkDataRepresentation, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -75,22 +75,23 @@ public:
    * without specifying the port or index.
    */
   vtkAlgorithmOutput* GetInputConnection(int port = 0, int index = 0)
-    { return this->Superclass::GetInputConnection(port, index); }
+  {
+    return this->Superclass::GetInputConnection(port, index);
+  }
 
   /**
    * The annotation link for this representation.
    * To link annotations, set the same vtkAnnotationLink object in
    * multiple representations.
    */
-  vtkAnnotationLink* GetAnnotationLink()
-    { return this->AnnotationLinkInternal; }
+  vtkAnnotationLink* GetAnnotationLink() { return this->AnnotationLinkInternal; }
   void SetAnnotationLink(vtkAnnotationLink* link);
 
   /**
    * Apply a theme to this representation.
    * Subclasses should override this method.
    */
-  virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
+  virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) {}
 
   /**
    * The view calls this method when a selection occurs.
@@ -102,8 +103,7 @@ public:
    * The optional third argument specifies whether the selection should be
    * added to the previous selection on this representation.
    */
-  void Select(vtkView* view, vtkSelection* selection)
-    { this->Select(view, selection, false); }
+  void Select(vtkView* view, vtkSelection* selection) { this->Select(view, selection, false); }
   void Select(vtkView* view, vtkSelection* selection, bool extend);
 
   /**
@@ -118,7 +118,9 @@ public:
    * added to the previous selection on this representation.
    */
   void Annotate(vtkView* view, vtkAnnotationLayers* annotations)
-    { this->Annotate(view, annotations, false); }
+  {
+    this->Annotate(view, annotations, false);
+  }
   void Annotate(vtkView* view, vtkAnnotationLayers* annotations, bool extend);
 
   //@{
@@ -138,8 +140,7 @@ public:
    * The optional second argument specifies whether the selection should be
    * added to the previous selection on this representation.
    */
-  void UpdateSelection(vtkSelection* selection)
-    { this->UpdateSelection(selection, false); }
+  void UpdateSelection(vtkSelection* selection) { this->UpdateSelection(selection, false); }
   void UpdateSelection(vtkSelection* selection, bool extend);
 
   /**
@@ -150,7 +151,9 @@ public:
    * added to the previous selection on this representation.
    */
   void UpdateAnnotations(vtkAnnotationLayers* annotations)
-    { this->UpdateAnnotations(annotations, false); }
+  {
+    this->UpdateAnnotations(annotations, false);
+  }
   void UpdateAnnotations(vtkAnnotationLayers* annotations, bool extend);
 
   /**
@@ -159,9 +162,13 @@ public:
    * This should be used when connecting the internal pipelines.
    */
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()
-    { return this->GetInternalAnnotationOutputPort(0); }
+  {
+    return this->GetInternalAnnotationOutputPort(0);
+  }
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port)
-    { return this->GetInternalAnnotationOutputPort(port, 0); }
+  {
+    return this->GetInternalAnnotationOutputPort(port, 0);
+  }
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn);
 
   /**
@@ -170,9 +177,13 @@ public:
    * This should be used when connecting the internal pipelines.
    */
   virtual vtkAlgorithmOutput* GetInternalSelectionOutputPort()
-    { return this->GetInternalSelectionOutputPort(0); }
+  {
+    return this->GetInternalSelectionOutputPort(0);
+  }
   virtual vtkAlgorithmOutput* GetInternalSelectionOutputPort(int port)
-    { return this->GetInternalSelectionOutputPort(port, 0); }
+  {
+    return this->GetInternalSelectionOutputPort(port, 0);
+  }
   virtual vtkAlgorithmOutput* GetInternalSelectionOutputPort(int port, int conn);
 
   /**
@@ -180,10 +191,11 @@ public:
    * and connection index. This may be connected to the representation's
    * internal pipeline.
    */
-  virtual vtkAlgorithmOutput* GetInternalOutputPort()
-    { return this->GetInternalOutputPort(0); }
+  virtual vtkAlgorithmOutput* GetInternalOutputPort() { return this->GetInternalOutputPort(0); }
   virtual vtkAlgorithmOutput* GetInternalOutputPort(int port)
-    { return this->GetInternalOutputPort(port, 0); }
+  {
+    return this->GetInternalOutputPort(port, 0);
+  }
   virtual vtkAlgorithmOutput* GetInternalOutputPort(int port, int conn);
 
   //@{
@@ -239,16 +251,15 @@ protected:
    * GetInternalSelectionOutputPort should be used to obtain a selection or
    * annotation port whose selections are localized for a particular input data object.
    */
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override
-    { return 1; }
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override
+  {
+    return 1;
+  }
 
   /**
    * Clear the input shallow copy caches if the algorithm is in "release data" mode.
    */
-  virtual void ProcessEvents(vtkObject *caller, unsigned long eventId, void *callData);
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
 
   //@{
   /**
@@ -311,7 +322,6 @@ private:
 
   class Internals;
   Internals* Implementation;
-
 };
 
 #endif

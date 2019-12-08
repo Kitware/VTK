@@ -25,7 +25,7 @@
  * This algorithm requires that the vtkTreeMapLayout filter has already applied to the
  * data in order to create the quadruple array (min x, max x, min y, max y) of
  * bounds for each vertex of the tree.
-*/
+ */
 
 #ifndef vtkTreeMapToPolyData_h
 #define vtkTreeMapToPolyData_h
@@ -36,8 +36,8 @@
 class VTKINFOVISLAYOUT_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkTreeMapToPolyData *New();
-  vtkTypeMacro(vtkTreeMapToPolyData,vtkPolyDataAlgorithm);
+  static vtkTreeMapToPolyData* New();
+  vtkTypeMacro(vtkTreeMapToPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -46,7 +46,9 @@ public:
    * This array may be added to the tree using vtkTreeMapLayout.
    */
   virtual void SetRectanglesArrayName(const char* name)
-    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
   /**
    * The field containing the level of each tree node.
@@ -56,7 +58,9 @@ public:
    * may not be as efficient.
    */
   virtual void SetLevelArrayName(const char* name)
-    { this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  {
+    this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
   //@{
   /**
@@ -83,7 +87,8 @@ protected:
   double LevelDeltaZ;
   bool AddNormals;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkTreeMapToPolyData(const vtkTreeMapToPolyData&) = delete;
   void operator=(const vtkTreeMapToPolyData&) = delete;

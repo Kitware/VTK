@@ -27,18 +27,18 @@
  * .SECTION Thanks
  * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
  * layout capabilities.
-*/
+ */
 
 #ifndef vtkRandomLayoutStrategy_h
 #define vtkRandomLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkRandomLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkRandomLayoutStrategy *New();
+  static vtkRandomLayoutStrategy* New();
 
   vtkTypeMacro(vtkRandomLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -59,8 +59,8 @@ public:
    * The GraphBounds only affects the results if AutomaticBoundsComputation
    * is off.
    */
-  vtkSetVector6Macro(GraphBounds,double);
-  vtkGetVectorMacro(GraphBounds,double,6);
+  vtkSetVector6Macro(GraphBounds, double);
+  vtkGetVectorMacro(GraphBounds, double, 6);
   //@}
 
   //@{
@@ -88,7 +88,7 @@ public:
   /**
    * Set the graph to layout.
    */
-  void SetGraph(vtkGraph *graph) override;
+  void SetGraph(vtkGraph* graph) override;
 
   /**
    * Perform the random layout.
@@ -101,13 +101,11 @@ protected:
 
   int RandomSeed;
   double GraphBounds[6];
-  vtkTypeBool   AutomaticBoundsComputation;
-  vtkTypeBool   ThreeDimensionalLayout;  //Boolean for a third dimension.
+  vtkTypeBool AutomaticBoundsComputation;
+  vtkTypeBool ThreeDimensionalLayout; // Boolean for a third dimension.
 private:
-
   vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&) = delete;
   void operator=(const vtkRandomLayoutStrategy&) = delete;
 };
 
 #endif
-

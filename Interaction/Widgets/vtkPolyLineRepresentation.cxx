@@ -38,21 +38,21 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
 
   // Default bounds to get started
   double x0 = -0.5;
-  double x1 =  0.5;
+  double x1 = 0.5;
   double y0 = -0.5;
-  double y1 =  0.5;
+  double y1 = 0.5;
   double z0 = -0.5;
-  double z1 =  0.5;
+  double z1 = 0.5;
 
   vtkPoints* points = vtkPoints::New(VTK_DOUBLE);
   points->SetNumberOfPoints(this->NumberOfHandles);
 
-  for ( int i = 0; i < this->NumberOfHandles; ++i )
+  for (int i = 0; i < this->NumberOfHandles; ++i)
   {
     double u = i / (this->NumberOfHandles - 1.0);
-    double x = (1.0 - u)*x0 + u*x1;
-    double y = (1.0 - u)*y0 + u*y1;
-    double z = (1.0 - u)*z0 + u*z1;
+    double x = (1.0 - u) * x0 + u * x1;
+    double y = (1.0 - u) * y0 + u * y1;
+    double z = (1.0 - u) * z0 + u * z1;
     points->SetPoint(i, x, y, z);
     this->HandleGeometry[i]->SetCenter(x, y, z);
   }
@@ -63,11 +63,10 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
   this->PolyLineSource->Update();
 
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
-  lineMapper->SetInputConnection(
-    this->PolyLineSource->GetOutputPort()) ;
+  lineMapper->SetInputConnection(this->PolyLineSource->GetOutputPort());
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
-  this->LineActor->SetMapper( lineMapper );
+  this->LineActor->SetMapper(lineMapper);
   lineMapper->Delete();
 }
 
@@ -80,8 +79,7 @@ vtkPolyLineRepresentation::~vtkPolyLineRepresentation()
 //----------------------------------------------------------------------------
 vtkDoubleArray* vtkPolyLineRepresentation::GetHandlePositions()
 {
-  return vtkArrayDownCast<vtkDoubleArray>(
-    this->PolyLineSource->GetPoints()->GetData());
+  return vtkArrayDownCast<vtkDoubleArray>(this->PolyLineSource->GetPoints()->GetData());
 }
 
 //----------------------------------------------------------------------------
@@ -91,13 +89,13 @@ void vtkPolyLineRepresentation::BuildRepresentation()
   // TODO: Avoid unnecessary rebuilds.
   // Handles have changed position, re-compute the points
   vtkPoints* points = this->PolyLineSource->GetPoints();
-  if ( points->GetNumberOfPoints() != this->NumberOfHandles )
+  if (points->GetNumberOfPoints() != this->NumberOfHandles)
   {
-    points->SetNumberOfPoints( this->NumberOfHandles );
+    points->SetNumberOfPoints(this->NumberOfHandles);
   }
 
   vtkBoundingBox bbox;
-  for ( int i = 0; i < this->NumberOfHandles; ++i )
+  for (int i = 0; i < this->NumberOfHandles; ++i)
   {
     double pt[3];
     this->HandleGeometry[i]->GetCenter(pt);
@@ -120,21 +118,21 @@ void vtkPolyLineRepresentation::BuildRepresentation()
 
   double bounds[6];
   bbox.GetBounds(bounds);
-  this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
-                             (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
-                             (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+    (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+    (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
   this->SizeHandles();
 }
 //----------------------------------------------------------------------------
 void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 {
-  if ( this->NumberOfHandles == npts )
+  if (this->NumberOfHandles == npts)
   {
     return;
   }
   if (npts < 1)
   {
-    vtkGenericWarningMacro(<<"vtkPolyLineRepresentation: minimum of 1 points required.");
+    vtkGenericWarningMacro(<< "vtkPolyLineRepresentation: minimum of 1 points required.");
     return;
   }
 
@@ -152,16 +150,16 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
     this->PolyLineSource->Resize(npts);
     for (vtkIdType i = prevNumPoints; i < npts; ++i)
     {
-      double pt[3] = {0.0, 0.0, 0.0};
+      double pt[3] = { 0.0, 0.0, 0.0 };
       this->PolyLineSource->GetPoints()->SetPoint(i, pt);
     }
   }
 
   // Create the handles
-  this->Handle         = new vtkActor* [this->NumberOfHandles];
+  this->Handle = new vtkActor*[this->NumberOfHandles];
   this->HandleGeometry = new HandleSource*[this->NumberOfHandles];
 
-  for ( int i = 0; i < this->NumberOfHandles; ++i )
+  for (int i = 0; i < this->NumberOfHandles; ++i)
   {
     this->HandleGeometry[i] = HandleSource::New();
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
@@ -182,11 +180,9 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
     this->HandleGeometry[this->NumberOfHandles - 1]->SetUseSphere(false);
   }
 
-  if (this->CurrentHandleIndex >= 0 &&
-    this->CurrentHandleIndex < this->NumberOfHandles)
+  if (this->CurrentHandleIndex >= 0 && this->CurrentHandleIndex < this->NumberOfHandles)
   {
-    this->CurrentHandleIndex =
-      this->HighlightHandle(this->Handle[this->CurrentHandleIndex]);
+    this->CurrentHandleIndex = this->HighlightHandle(this->Handle[this->CurrentHandleIndex]);
   }
   else
   {
@@ -197,11 +193,10 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLineRepresentation::GetPolyData(vtkPolyData *pd)
+void vtkPolyLineRepresentation::GetPolyData(vtkPolyData* pd)
 {
-  pd->ShallowCopy( this->PolyLineSource->GetOutput() );
+  pd->ShallowCopy(this->PolyLineSource->GetOutput());
 }
-
 
 //----------------------------------------------------------------------------
 double vtkPolyLineRepresentation::GetSummedLength()
@@ -209,27 +204,30 @@ double vtkPolyLineRepresentation::GetSummedLength()
   vtkPoints* points = this->PolyLineSource->GetOutput()->GetPoints();
   int npts = points->GetNumberOfPoints();
 
-  if ( npts < 2 ) { return 0.0; }
+  if (npts < 2)
+  {
+    return 0.0;
+  }
 
   double a[3];
   double b[3];
   double sum = 0.0;
   int i = 0;
   points->GetPoint(i, a);
-  int imax = (npts % 2 == 0) ? npts-2 : npts-1;
+  int imax = (npts % 2 == 0) ? npts - 2 : npts - 1;
 
-  while ( i < imax )
+  while (i < imax)
   {
-    points->GetPoint(i+1, b);
+    points->GetPoint(i + 1, b);
     sum += sqrt(vtkMath::Distance2BetweenPoints(a, b));
     i = i + 2;
     points->GetPoint(i, a);
     sum = sum + sqrt(vtkMath::Distance2BetweenPoints(a, b));
   }
 
-  if ( npts % 2 == 0 )
+  if (npts % 2 == 0)
   {
-    points->GetPoint(i+1, b);
+    points->GetPoint(i + 1, b);
     sum += sqrt(vtkMath::Distance2BetweenPoints(a, b));
   }
 
@@ -247,7 +245,7 @@ int vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
   vtkIdType id = this->LinePicker->GetCellId();
 
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
-  newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
+  newpoints->SetNumberOfPoints(this->NumberOfHandles + 1);
 
   int insert_index = -1;
   if (id == -1)
@@ -290,18 +288,24 @@ int vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 //----------------------------------------------------------------------------
 void vtkPolyLineRepresentation::InitializeHandles(vtkPoints* points)
 {
-  if ( !points ){ return; }
+  if (!points)
+  {
+    return;
+  }
 
   int npts = points->GetNumberOfPoints();
-  if ( npts < 2 ){ return; }
+  if (npts < 2)
+  {
+    return;
+  }
 
   double p0[3];
   double p1[3];
 
-  points->GetPoint(0,p0);
-  points->GetPoint(npts-1,p1);
+  points->GetPoint(0, p0);
+  points->GetPoint(npts - 1, p1);
 
-  if ( vtkMath::Distance2BetweenPoints(p0,p1) == 0.0 )
+  if (vtkMath::Distance2BetweenPoints(p0, p1) == 0.0)
   {
     --npts;
     this->Closed = 1;
@@ -309,20 +313,19 @@ void vtkPolyLineRepresentation::InitializeHandles(vtkPoints* points)
   }
 
   this->SetNumberOfHandles(npts);
-  for ( int i = 0; i < npts; ++i )
+  for (int i = 0; i < npts; ++i)
   {
-    this->SetHandlePosition(i,points->GetPoint(i));
+    this->SetHandlePosition(i, points->GetPoint(i));
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  if ( this->PolyLineSource )
+  this->Superclass::PrintSelf(os, indent);
+  if (this->PolyLineSource)
   {
-    os << indent << "PolyLineSource: "
-       << this->PolyLineSource << "\n";
+    os << indent << "PolyLineSource: " << this->PolyLineSource << "\n";
   }
   else
   {

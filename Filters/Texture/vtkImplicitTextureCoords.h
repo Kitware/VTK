@@ -44,34 +44,34 @@
  *
  * @sa
  * vtkImplicitFunction vtkTexture vtkBooleanTexture vtkTransformTexture
-*/
+ */
 
 #ifndef vtkImplicitTextureCoords_h
 #define vtkImplicitTextureCoords_h
 
-#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersTextureModule.h" // For export macro
 
 class vtkImplicitFunction;
 
 class VTKFILTERSTEXTURE_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkImplicitTextureCoords,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkImplicitTextureCoords, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with texture dimension=2 and no r-s-t implicit functions
    * defined and FlipTexture turned off.
    */
-  static vtkImplicitTextureCoords *New();
+  static vtkImplicitTextureCoords* New();
 
   //@{
   /**
    * Specify an implicit function to compute the r texture coordinate.
    */
   virtual void SetRFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(RFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(RFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -79,7 +79,7 @@ public:
    * Specify an implicit function to compute the s texture coordinate.
    */
   virtual void SetSFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(SFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(SFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -87,7 +87,7 @@ public:
    * Specify an implicit function to compute the t texture coordinate.
    */
   virtual void SetTFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(TFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(TFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -95,26 +95,25 @@ public:
    * If enabled, this will flip the sense of inside and outside the implicit
    * function (i.e., a rotation around the r-s-t=0.5 axis).
    */
-  vtkSetMacro(FlipTexture,vtkTypeBool);
-  vtkGetMacro(FlipTexture,vtkTypeBool);
-  vtkBooleanMacro(FlipTexture,vtkTypeBool);
+  vtkSetMacro(FlipTexture, vtkTypeBool);
+  vtkGetMacro(FlipTexture, vtkTypeBool);
+  vtkBooleanMacro(FlipTexture, vtkTypeBool);
   //@}
 
 protected:
   vtkImplicitTextureCoords();
   ~vtkImplicitTextureCoords() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkImplicitFunction *RFunction;
-  vtkImplicitFunction *SFunction;
-  vtkImplicitFunction *TFunction;
+  vtkImplicitFunction* RFunction;
+  vtkImplicitFunction* SFunction;
+  vtkImplicitFunction* TFunction;
   vtkTypeBool FlipTexture;
+
 private:
   vtkImplicitTextureCoords(const vtkImplicitTextureCoords&) = delete;
   void operator=(const vtkImplicitTextureCoords&) = delete;
 };
 
 #endif
-
-

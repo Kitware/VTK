@@ -24,13 +24,13 @@
 
 #include "vtkUnstructuredGridPreIntegration.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridPartialPreIntegration.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <algorithm>
 #include <cmath>
@@ -39,8 +39,8 @@
 
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
-vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
-                     vtkUnstructuredGridVolumeRayIntegrator);
+vtkCxxSetObjectMacro(
+  vtkUnstructuredGridPreIntegration, Integrator, vtkUnstructuredGridVolumeRayIntegrator);
 
 //-----------------------------------------------------------------------------
 
@@ -77,19 +77,18 @@ vtkUnstructuredGridPreIntegration::~vtkUnstructuredGridPreIntegration()
   delete[] this->IntegrationTableScalarScale;
 }
 
-void vtkUnstructuredGridPreIntegration::PrintSelf(ostream &os, vtkIndent indent)
+void vtkUnstructuredGridPreIntegration::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Integrator: " << this->Integrator << endl;
 
-  os << indent << "IntegrationTableScalarResolution: "
-     << this->IntegrationTableScalarResolution << endl;
-  os << indent << "IntegrationTableLengthResolution: "
-     << this->IntegrationTableLengthResolution << endl;
+  os << indent << "IntegrationTableScalarResolution: " << this->IntegrationTableScalarResolution
+     << endl;
+  os << indent << "IntegrationTableLengthResolution: " << this->IntegrationTableLengthResolution
+     << endl;
 
-  os << indent << "IncrementalPreIntegration: "
-     << this->IncrementalPreIntegration << endl;
+  os << indent << "IncrementalPreIntegration: " << this->IncrementalPreIntegration << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -109,14 +108,14 @@ double vtkUnstructuredGridPreIntegration::GetIntegrationTableLengthScale()
   return this->IntegrationTableLengthScale;
 }
 
-float *vtkUnstructuredGridPreIntegration::GetPreIntegrationTable(int component)
+float* vtkUnstructuredGridPreIntegration::GetPreIntegrationTable(int component)
 {
   return this->IntegrationTable[component];
 }
 
 //-----------------------------------------------------------------------------
 
-void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *scalars)
+void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray* scalars)
 {
   // Delete old tables.
   if (this->IntegrationTable)
@@ -133,10 +132,9 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
   this->NumComponents = scalars->GetNumberOfComponents();
 
   // Establish temporary inputs to integrator.
-  vtkVolume         *tmpVolume = vtkVolume::New();
-  vtkVolumeProperty *tmpProperty = vtkVolumeProperty::New();
-  vtkDataArray      *tmpScalars
-    = vtkDataArray::CreateDataArray(scalars->GetDataType());
+  vtkVolume* tmpVolume = vtkVolume::New();
+  vtkVolumeProperty* tmpProperty = vtkVolumeProperty::New();
+  vtkDataArray* tmpScalars = vtkDataArray::CreateDataArray(scalars->GetDataType());
 
   tmpVolume->SetMapper(this->Volume->GetMapper());
   tmpVolume->SetProperty(tmpProperty);
@@ -147,11 +145,9 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
   tmpScalars->SetNumberOfComponents(1);
   tmpScalars->SetNumberOfTuples(2);
 
-  vtkDoubleArray *tmpIntersectionLengths = vtkDoubleArray::New();
-  vtkDataArray   *tmpNearIntersections
-    = vtkDataArray::CreateDataArray(scalars->GetDataType());
-  vtkDataArray   *tmpFarIntersections
-    = vtkDataArray::CreateDataArray(scalars->GetDataType());
+  vtkDoubleArray* tmpIntersectionLengths = vtkDoubleArray::New();
+  vtkDataArray* tmpNearIntersections = vtkDataArray::CreateDataArray(scalars->GetDataType());
+  vtkDataArray* tmpFarIntersections = vtkDataArray::CreateDataArray(scalars->GetDataType());
 
   tmpIntersectionLengths->SetNumberOfComponents(1);
   tmpIntersectionLengths->SetNumberOfTuples(1);
@@ -167,11 +163,11 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
   // epsilon + 0.5) will scale to this->IntegrationTableLengthResolution-1.
   // Similar scaling is performed for the other dimensions of the
   // pre-integration table.
-  this->IntegrationTableLengthScale
-    = (this->IntegrationTableLengthResolution-1)/this->MaxLength;
+  this->IntegrationTableLengthScale =
+    (this->IntegrationTableLengthResolution - 1) / this->MaxLength;
 
   // We only do computations at one length.
-  float d_length = (float)(1.0/this->IntegrationTableLengthScale);
+  float d_length = (float)(1.0 / this->IntegrationTableLengthScale);
 
   for (int component = 0; component < this->NumComponents; component++)
   {
@@ -180,10 +176,8 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     // Allocate table.
     try
     {
-      this->IntegrationTable[component]
-        = new float[4*this->IntegrationTableScalarResolution
-                   *this->IntegrationTableScalarResolution
-                   *this->IntegrationTableLengthResolution];
+      this->IntegrationTable[component] = new float[4 * this->IntegrationTableScalarResolution *
+        this->IntegrationTableScalarResolution * this->IntegrationTableLengthResolution];
     }
     catch (...)
     {
@@ -193,8 +187,8 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     if (this->IntegrationTable[component] == nullptr)
     {
       // Could not allocate memory for table.
-      if (   (this->IntegrationTableScalarResolution > 32)
-          || (this->IntegrationTableLengthResolution > 64) )
+      if ((this->IntegrationTableScalarResolution > 32) ||
+        (this->IntegrationTableLengthResolution > 64))
       {
         vtkWarningMacro("Could not allocate integration table.\n"
                         "Reducing the table size and trying again.");
@@ -217,7 +211,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     }
 
     // Determine scale and shift.
-    double *range = scalars->GetRange(component);
+    double* range = scalars->GetRange(component);
     if (range[0] == range[1])
     {
       // Unusual case where the scalars are all the same.
@@ -225,18 +219,17 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     }
     else
     {
-      this->IntegrationTableScalarScale[component]
-        = (this->IntegrationTableScalarResolution-1)/(range[1]-range[0]);
+      this->IntegrationTableScalarScale[component] =
+        (this->IntegrationTableScalarResolution - 1) / (range[1] - range[0]);
     }
-    this->IntegrationTableScalarShift[component]
-      = -range[0]*this->IntegrationTableScalarScale[component];
+    this->IntegrationTableScalarShift[component] =
+      -range[0] * this->IntegrationTableScalarScale[component];
 
     // Set values for d=0 (they are all zero).
-    float *c = this->IntegrationTable[component];
+    float* c = this->IntegrationTable[component];
     for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
     {
-      for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
-           sf_idx++)
+      for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution; sf_idx++)
       {
         c[0] = c[1] = c[2] = c[3] = 0.0f;
         c += 4;
@@ -253,8 +246,8 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
       tmpProperty->SetColor(this->Property->GetGrayTransferFunction(component));
     }
     tmpProperty->SetScalarOpacity(this->Property->GetScalarOpacity(component));
-    tmpProperty->SetScalarOpacityUnitDistance
-      (this->Property->GetScalarOpacityUnitDistance(component));
+    tmpProperty->SetScalarOpacityUnitDistance(
+      this->Property->GetScalarOpacityUnitDistance(component));
     tmpProperty->SetShade(this->Property->GetShade(component));
     tmpProperty->SetAmbient(this->Property->GetAmbient(component));
     tmpProperty->SetDiffuse(this->Property->GetDiffuse(component));
@@ -268,19 +261,17 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     tmpIntersectionLengths->SetTuple1(0, d_length);
     for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
     {
-      double sb = (sb_idx - this->IntegrationTableScalarShift[component])
-                  / (this->IntegrationTableScalarScale[component]);
+      double sb = (sb_idx - this->IntegrationTableScalarShift[component]) /
+        (this->IntegrationTableScalarScale[component]);
       tmpFarIntersections->SetTuple1(0, sb);
-      for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
-           sf_idx++)
+      for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution; sf_idx++)
       {
-        double sf = (sf_idx - this->IntegrationTableScalarShift[component])
-                    / (this->IntegrationTableScalarScale[component]);
+        double sf = (sf_idx - this->IntegrationTableScalarShift[component]) /
+          (this->IntegrationTableScalarScale[component]);
         tmpNearIntersections->SetTuple1(0, sf);
         c[0] = c[1] = c[2] = c[3] = 0;
-        this->Integrator->Integrate(tmpIntersectionLengths,
-                                    tmpNearIntersections, tmpFarIntersections,
-                                    c);
+        this->Integrator->Integrate(
+          tmpIntersectionLengths, tmpNearIntersections, tmpFarIntersections, c);
         c += 4;
       }
     }
@@ -290,11 +281,9 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     {
       for (d_idx = 2; d_idx < this->IntegrationTableLengthResolution; d_idx++)
       {
-        for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution;
-             sb_idx++)
+        for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
         {
-          for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
-               sf_idx++)
+          for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution; sf_idx++)
           {
             // We are going to perform incremental pre-integration.  To do
             // this, we compute the integration of a ray from sf to sb of
@@ -304,17 +293,15 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
             // be from sm to sb of length d - delta d.  See Weiler, et
             // al. "Hardware-Based Ray Casting for Tetrahedral Meshes" for
             // more details.
-            int sm_idx = ((d_idx-1)*sf_idx + sb_idx + d_idx/2)/d_idx;
+            int sm_idx = ((d_idx - 1) * sf_idx + sb_idx + d_idx / 2) / d_idx;
 
-            float *colorf = this->GetIndexedTableEntry(sf_idx, sm_idx, 1,
-                                                       component);
-            float *colorb = this->GetIndexedTableEntry(sm_idx, sb_idx, d_idx-1,
-                                                       component);
+            float* colorf = this->GetIndexedTableEntry(sf_idx, sm_idx, 1, component);
+            float* colorb = this->GetIndexedTableEntry(sm_idx, sb_idx, d_idx - 1, component);
 
-            c[0] = colorf[0] + colorb[0]*(1.0f - colorf[3]);
-            c[1] = colorf[1] + colorb[1]*(1.0f - colorf[3]);
-            c[2] = colorf[2] + colorb[2]*(1.0f - colorf[3]);
-            c[3] = colorf[3] + colorb[3]*(1.0f - colorf[3]);
+            c[0] = colorf[0] + colorb[0] * (1.0f - colorf[3]);
+            c[1] = colorf[1] + colorb[1] * (1.0f - colorf[3]);
+            c[2] = colorf[2] + colorb[2] * (1.0f - colorf[3]);
+            c[3] = colorf[3] + colorb[3] * (1.0f - colorf[3]);
             c += 4;
           }
         }
@@ -324,28 +311,22 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     {
       for (d_idx = 2; d_idx < this->IntegrationTableLengthResolution; d_idx++)
       {
-        for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution;
-             sb_idx++)
+        for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
         {
-          for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
-               sf_idx++)
+          for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution; sf_idx++)
           {
             // Compute the integration table the old-fashioned slow way.
-            float length = d_idx*d_length;
-            float sb = (float)
-              (  (sb_idx - this->IntegrationTableScalarShift[component])
-               / (this->IntegrationTableScalarScale[component]) );
-            float sf = (float)
-              (  (sf_idx - this->IntegrationTableScalarShift[component])
-               / (this->IntegrationTableScalarScale[component]) );
+            float length = d_idx * d_length;
+            float sb = (float)((sb_idx - this->IntegrationTableScalarShift[component]) /
+              (this->IntegrationTableScalarScale[component]));
+            float sf = (float)((sf_idx - this->IntegrationTableScalarShift[component]) /
+              (this->IntegrationTableScalarScale[component]));
             tmpIntersectionLengths->SetTuple1(0, length);
             tmpFarIntersections->SetTuple1(0, sb);
             tmpNearIntersections->SetTuple1(0, sf);
             c[0] = c[1] = c[2] = c[3] = 0.0f;
-            this->Integrator->Integrate(tmpIntersectionLengths,
-                                        tmpNearIntersections,
-                                        tmpFarIntersections,
-                                        c);
+            this->Integrator->Integrate(
+              tmpIntersectionLengths, tmpNearIntersections, tmpFarIntersections, c);
             c += 4;
           }
         }
@@ -365,14 +346,12 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
 
 //-----------------------------------------------------------------------------
 
-void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
-                                                   vtkDataArray *scalars)
+void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume* volume, vtkDataArray* scalars)
 {
-  vtkVolumeProperty *property = volume->GetProperty();
+  vtkVolumeProperty* property = volume->GetProperty();
 
-  if (   (property == this->Property)
-      && (this->IntegrationTableBuilt > property->GetMTime())
-      && (this->IntegrationTableBuilt > this->MTime) )
+  if ((property == this->Property) && (this->IntegrationTableBuilt > property->GetMTime()) &&
+    (this->IntegrationTableBuilt > this->MTime))
   {
     // Nothing changed from the last time Initialize was run.
     return;
@@ -389,17 +368,16 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
   }
 
   // Determine the maximum possible length of a ray segment.
-  vtkDataSet *input = volume->GetMapper()->GetDataSetInput();
+  vtkDataSet* input = volume->GetMapper()->GetDataSetInput();
   vtkIdType numcells = input->GetNumberOfCells();
   this->MaxLength = 0;
   for (vtkIdType i = 0; i < numcells; i++)
   {
     double cellbounds[6];
     input->GetCellBounds(i, cellbounds);
-#define SQR(x)  ((x)*(x))
-    double diagonal_length = sqrt(  SQR(cellbounds[1]-cellbounds[0])
-                                  + SQR(cellbounds[3]-cellbounds[2])
-                                  + SQR(cellbounds[5]-cellbounds[4]) );
+#define SQR(x) ((x) * (x))
+    double diagonal_length = sqrt(SQR(cellbounds[1] - cellbounds[0]) +
+      SQR(cellbounds[3] - cellbounds[2]) + SQR(cellbounds[5] - cellbounds[4]));
 #undef SQR
     if (diagonal_length > this->MaxLength)
     {
@@ -412,41 +390,35 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
 
 //-----------------------------------------------------------------------------
 
-void vtkUnstructuredGridPreIntegration::Integrate(
-                                            vtkDoubleArray *intersectionLengths,
-                                            vtkDataArray *nearIntersections,
-                                            vtkDataArray *farIntersections,
-                                            float color[4])
+void vtkUnstructuredGridPreIntegration::Integrate(vtkDoubleArray* intersectionLengths,
+  vtkDataArray* nearIntersections, vtkDataArray* farIntersections, float color[4])
 {
   vtkIdType numIntersections = intersectionLengths->GetNumberOfTuples();
 
   for (vtkIdType i = 0; i < numIntersections; i++)
   {
-    float *c = this->GetTableEntry(nearIntersections->GetComponent(i, 0),
-                                   farIntersections->GetComponent(i, 0),
-                                   intersectionLengths->GetComponent(i, 0), 0);
-    float newcolor[4] = {c[0], c[1], c[2], c[3]};
+    float* c = this->GetTableEntry(nearIntersections->GetComponent(i, 0),
+      farIntersections->GetComponent(i, 0), intersectionLengths->GetComponent(i, 0), 0);
+    float newcolor[4] = { c[0], c[1], c[2], c[3] };
     for (int component = 1; component < this->NumComponents; component++)
     {
       c = this->GetTableEntry(nearIntersections->GetComponent(i, component),
-                              farIntersections->GetComponent(i, component),
-                              intersectionLengths->GetComponent(i, 0),
-                              component);
+        farIntersections->GetComponent(i, component), intersectionLengths->GetComponent(i, 0),
+        component);
       // The blending I'm using is a combination of porter and duff xors
       // and ins.
-      float coef1 = 1.0f - 0.5f*c[3];
-      float coef2 = 1.0f - 0.5f*newcolor[3];
-      newcolor[0] = newcolor[0]*coef1 + c[0]*coef2;
-      newcolor[1] = newcolor[1]*coef1 + c[1]*coef2;
-      newcolor[2] = newcolor[2]*coef1 + c[2]*coef2;
-      newcolor[3] = newcolor[3]*coef1 + c[3]*coef2;
+      float coef1 = 1.0f - 0.5f * c[3];
+      float coef2 = 1.0f - 0.5f * newcolor[3];
+      newcolor[0] = newcolor[0] * coef1 + c[0] * coef2;
+      newcolor[1] = newcolor[1] * coef1 + c[1] * coef2;
+      newcolor[2] = newcolor[2] * coef1 + c[2] * coef2;
+      newcolor[3] = newcolor[3] * coef1 + c[3] * coef2;
     }
 
     float coef = 1.0f - color[3];
-    color[0] += newcolor[0]*coef;
-    color[1] += newcolor[1]*coef;
-    color[2] += newcolor[2]*coef;
-    color[3] += newcolor[3]*coef;
+    color[0] += newcolor[0] * coef;
+    color[1] += newcolor[1] * coef;
+    color[2] += newcolor[2] * coef;
+    color[3] += newcolor[3] * coef;
   }
 }
-

@@ -24,7 +24,7 @@
  * @sa
  * vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
  * vtkStructuredGridGeometryFilter
-*/
+ */
 
 #ifndef vtkExtractRectilinearGrid_h
 #define vtkExtractRectilinearGrid_h
@@ -38,8 +38,8 @@ class vtkExtractStructuredGridHelper;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridAlgorithm
 {
 public:
-  static vtkExtractRectilinearGrid *New();
-  vtkTypeMacro(vtkExtractRectilinearGrid,vtkRectilinearGridAlgorithm);
+  static vtkExtractRectilinearGrid* New();
+  vtkTypeMacro(vtkExtractRectilinearGrid, vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -48,8 +48,8 @@ public:
    * dataset can be of any topological dimension (i.e., point, line, plane,
    * or 3D grid).
    */
-  vtkSetVector6Macro(VOI,int);
-  vtkGetVectorMacro(VOI,int,6);
+  vtkSetVector6Macro(VOI, int);
+  vtkGetVectorMacro(VOI, int, 6);
   //@}
 
   //@{
@@ -73,18 +73,18 @@ public:
    * though the sample rate is not an even multiple of the grid
    * dimensions. (By default IncludeBoundary is off.)
    */
-  vtkSetMacro(IncludeBoundary,vtkTypeBool);
-  vtkGetMacro(IncludeBoundary,vtkTypeBool);
-  vtkBooleanMacro(IncludeBoundary,vtkTypeBool);
+  vtkSetMacro(IncludeBoundary, vtkTypeBool);
+  vtkGetMacro(IncludeBoundary, vtkTypeBool);
+  vtkBooleanMacro(IncludeBoundary, vtkTypeBool);
   //@}
 
 protected:
   vtkExtractRectilinearGrid();
   ~vtkExtractRectilinearGrid() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Implementation for RequestData using a specified VOI. This is because the
@@ -92,19 +92,17 @@ protected:
    * partitioning to play nice. The VOI is calculated from the output
    * data object's extents in this implementation.
    */
-  bool RequestDataImpl(vtkInformationVector **inputVector,
-                       vtkInformationVector *outputVector);
+  bool RequestDataImpl(vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
   int VOI[6];
   int SampleRate[3];
   vtkTypeBool IncludeBoundary;
 
   vtkExtractStructuredGridHelper* Internal;
+
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&) = delete;
   void operator=(const vtkExtractRectilinearGrid&) = delete;
 };
 
 #endif
-
-

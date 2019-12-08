@@ -72,7 +72,7 @@ extern int fileno(FILE*);
 #endif
 
 #endif /*STDC*/
-#endif /*!WIN32*/
+#endif /*!_WIN32*/
 
 #ifdef _WIN32
 #ifndef strlcat

@@ -63,14 +63,13 @@
  * @sa
  * vtkRendererSource vtkWindowToImageFilter vtkCamera vtkPolyData
  * vtkCoordinate
-*/
+ */
 
 #ifndef vtkDepthImageToPointCloud_h
 #define vtkDepthImageToPointCloud_h
 
-#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-
+#include "vtkRenderingImageModule.h" // For export macro
 
 class vtkCamera;
 
@@ -81,7 +80,7 @@ public:
   /**
    * Standard instantiation, type and print methods.
    */
-  static vtkDepthImageToPointCloud *New();
+  static vtkDepthImageToPointCloud* New();
   vtkTypeMacro(vtkDepthImageToPointCloud, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -112,9 +111,9 @@ public:
    * plane. These typically are points that are part of the clipped foreground. By
    * default this is disabled.
    */
-  vtkSetMacro(CullNearPoints,bool);
-  vtkGetMacro(CullNearPoints,bool);
-  vtkBooleanMacro(CullNearPoints,bool);
+  vtkSetMacro(CullNearPoints, bool);
+  vtkGetMacro(CullNearPoints, bool);
+  vtkBooleanMacro(CullNearPoints, bool);
   //@}
 
   //@{
@@ -123,9 +122,9 @@ public:
    * plane. These typically are points that are part of the background. By
    * default this is enabled.
    */
-  vtkSetMacro(CullFarPoints,bool);
-  vtkGetMacro(CullFarPoints,bool);
-  vtkBooleanMacro(CullFarPoints,bool);
+  vtkSetMacro(CullFarPoints, bool);
+  vtkGetMacro(CullFarPoints, bool);
+  vtkBooleanMacro(CullFarPoints, bool);
   //@}
 
   //@{
@@ -134,9 +133,9 @@ public:
    * point cloud (assuming that the scalar values are available on
    * input). By default this is enabled.
    */
-  vtkSetMacro(ProduceColorScalars,bool);
-  vtkGetMacro(ProduceColorScalars,bool);
-  vtkBooleanMacro(ProduceColorScalars,bool);
+  vtkSetMacro(ProduceColorScalars, bool);
+  vtkGetMacro(ProduceColorScalars, bool);
+  vtkBooleanMacro(ProduceColorScalars, bool);
   //@}
 
   //@{
@@ -146,9 +145,9 @@ public:
    * defined in order to execute properly. For example some mappers will
    * only render points if the vertex cells are defined.
    */
-  vtkSetMacro(ProduceVertexCellArray,bool);
-  vtkGetMacro(ProduceVertexCellArray,bool);
-  vtkBooleanMacro(ProduceVertexCellArray,bool);
+  vtkSetMacro(ProduceVertexCellArray, bool);
+  vtkGetMacro(ProduceVertexCellArray, bool);
+  vtkBooleanMacro(ProduceVertexCellArray, bool);
   //@}
 
   //@{
@@ -165,32 +164,27 @@ protected:
   vtkDepthImageToPointCloud();
   ~vtkDepthImageToPointCloud() override;
 
-  vtkCamera *Camera;
+  vtkCamera* Camera;
   bool CullNearPoints;
   bool CullFarPoints;
   bool ProduceColorScalars;
   bool ProduceVertexCellArray;
   int OutputPointsPrecision;
 
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation *request,
-                                  vtkInformationVector **inInfo,
-                                  vtkInformationVector *outInfo) override;
+  int RequestUpdateExtent(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&) = delete;
   void operator=(const vtkDepthImageToPointCloud&) = delete;
-
 };
 
 #endif

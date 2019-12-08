@@ -27,22 +27,20 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTemporalFractal.h"
 #include "vtkTemporalStatistics.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //-----------------------------------------------------------------------------
-static void ShowResult(vtkRenderer *renderer, vtkAlgorithmOutput *input,
-                       const char *arrayName);
+static void ShowResult(vtkRenderer* renderer, vtkAlgorithmOutput* input, const char* arrayName);
 
 //-------------------------------------------------------------------------
-int TemporalStatistics(int argc, char *argv[])
+int TemporalStatistics(int argc, char* argv[])
 {
   // We have to use a composite pipeline to handle these composite data
   // structures.
@@ -53,7 +51,7 @@ int TemporalStatistics(int argc, char *argv[])
   VTK_CREATE(vtkTemporalFractal, source);
   source->SetMaximumLevel(3);
   source->DiscreteTimeStepsOn();
-  //source->GenerateRectilinearGridsOn();
+  // source->GenerateRectilinearGridsOn();
   source->AdaptiveSubdivisionOff();
 
   VTK_CREATE(vtkTemporalStatistics, statistics);
@@ -68,34 +66,30 @@ int TemporalStatistics(int argc, char *argv[])
 
   VTK_CREATE(vtkRenderer, avgRenderer);
   avgRenderer->SetViewport(0.0, 0.5, 0.5, 1.0);
-  ShowResult(avgRenderer, geometry->GetOutputPort(),
-             "Fractal Volume Fraction_average");
+  ShowResult(avgRenderer, geometry->GetOutputPort(), "Fractal Volume Fraction_average");
   renWin->AddRenderer(avgRenderer);
 
   VTK_CREATE(vtkRenderer, minRenderer);
   minRenderer->SetViewport(0.5, 0.5, 1.0, 1.0);
-  ShowResult(minRenderer, geometry->GetOutputPort(),
-             "Fractal Volume Fraction_minimum");
+  ShowResult(minRenderer, geometry->GetOutputPort(), "Fractal Volume Fraction_minimum");
   renWin->AddRenderer(minRenderer);
 
   VTK_CREATE(vtkRenderer, maxRenderer);
   maxRenderer->SetViewport(0.0, 0.0, 0.5, 0.5);
-  ShowResult(maxRenderer, geometry->GetOutputPort(),
-             "Fractal Volume Fraction_maximum");
+  ShowResult(maxRenderer, geometry->GetOutputPort(), "Fractal Volume Fraction_maximum");
   renWin->AddRenderer(maxRenderer);
 
   VTK_CREATE(vtkRenderer, stddevRenderer);
   stddevRenderer->SetViewport(0.5, 0.0, 1.0, 0.5);
-  ShowResult(stddevRenderer, geometry->GetOutputPort(),
-             "Fractal Volume Fraction_stddev");
+  ShowResult(stddevRenderer, geometry->GetOutputPort(), "Fractal Volume Fraction_stddev");
   renWin->AddRenderer(stddevRenderer);
 
   renWin->SetSize(450, 400);
-  iren->SetRenderWindow( renWin );
+  iren->SetRenderWindow(renWin);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
@@ -105,8 +99,7 @@ int TemporalStatistics(int argc, char *argv[])
 }
 
 //-----------------------------------------------------------------------------
-static void ShowResult(vtkRenderer *renderer, vtkAlgorithmOutput *input,
-                       const char *arrayName)
+static void ShowResult(vtkRenderer* renderer, vtkAlgorithmOutput* input, const char* arrayName)
 {
   // Set up rendering classes
   VTK_CREATE(vtkPolyDataMapper, mapper);
@@ -117,7 +110,7 @@ static void ShowResult(vtkRenderer *renderer, vtkAlgorithmOutput *input,
   VTK_CREATE(vtkActor, actor);
   actor->SetMapper(mapper);
 
-  renderer->AddActor( actor );
+  renderer->AddActor(actor);
   renderer->SetBackground(0.5, 0.5, 0.5);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(1.5);

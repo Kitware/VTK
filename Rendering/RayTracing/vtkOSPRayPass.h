@@ -32,13 +32,13 @@
  *    from source.
  *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS="-osp:mpi"
  *      ./paraview : -hosts n1, n2 ./ospray_mpi_worker -osp:mpi'
-*/
+ */
 
 #ifndef vtkOSPRayPass_h
 #define vtkOSPRayPass_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include <string> // for std::string
 
@@ -54,27 +54,27 @@ class vtkVolumetricPass;
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPass : public vtkRenderPass
 {
 public:
-  static vtkOSPRayPass *New();
-  vtkTypeMacro(vtkOSPRayPass,vtkRenderPass);
+  static vtkOSPRayPass* New();
+  vtkTypeMacro(vtkOSPRayPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state s.
    */
-  virtual void Render(const vtkRenderState *s) override;
+  virtual void Render(const vtkRenderState* s) override;
 
   //@{
   /**
    * Tells the pass what it will render.
    */
-  void SetSceneGraph(vtkOSPRayRendererNode *);
+  void SetSceneGraph(vtkOSPRayRendererNode*);
   vtkGetObjectMacro(SceneGraph, vtkOSPRayRendererNode);
   //@}
 
   /**
    * Called by the internals of this class
    */
-  virtual void RenderInternal(const vtkRenderState *s);
+  virtual void RenderInternal(const vtkRenderState* s);
 
   //@{
   /**
@@ -89,9 +89,9 @@ public:
    * A run time query to see if a particular backend is available.
    * Eg. "OSPRay raycaster", "OSPRay pathtracer" or "OptiX pathtracer".
    */
-  static bool IsBackendAvailable(const char *name);
+  static bool IsBackendAvailable(const char* name);
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -102,19 +102,19 @@ public:
    */
   virtual ~vtkOSPRayPass();
 
-  vtkOSPRayRendererNode *SceneGraph;
-  vtkCameraPass *CameraPass;
-  vtkLightsPass *LightsPass;
-  vtkOverlayPass *OverlayPass;
-  vtkVolumetricPass *VolumetricPass;
-  vtkSequencePass *SequencePass;
-  vtkRenderPassCollection *RenderPassCollection;
+  vtkOSPRayRendererNode* SceneGraph;
+  vtkCameraPass* CameraPass;
+  vtkLightsPass* LightsPass;
+  vtkOverlayPass* OverlayPass;
+  vtkVolumetricPass* VolumetricPass;
+  vtkSequencePass* SequencePass;
+  vtkRenderPassCollection* RenderPassCollection;
 
- private:
+private:
   vtkOSPRayPass(const vtkOSPRayPass&) = delete;
   void operator=(const vtkOSPRayPass&) = delete;
 
-  vtkOSPRayPassInternals *Internal;
+  vtkOSPRayPassInternals* Internal;
   std::string PreviousType;
   static int RTDeviceRefCount;
 };

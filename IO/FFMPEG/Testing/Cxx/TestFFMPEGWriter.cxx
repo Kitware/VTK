@@ -17,13 +17,12 @@
 // Creates a scene and uses FFMPEGWriter to generate a movie file. Test passes
 // if the file exists and has non zero length.
 
-
+#include "vtkFFMPEGWriter.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
-#include "vtkFFMPEGWriter.h"
 #include "vtksys/SystemTools.hxx"
 
 int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -33,11 +32,11 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int exists = 0;
   unsigned long length = 0;
   vtkImageMandelbrotSource* Fractal0 = vtkImageMandelbrotSource::New();
-  Fractal0->SetWholeExtent( 0, 247, 0, 247, 0, 0 );
-  Fractal0->SetProjectionAxes( 0, 1, 2 );
-  Fractal0->SetOriginCX( -1.75, -1.25, 0, 0 );
-  Fractal0->SetSizeCX( 2.5, 2.5, 2, 1.5 );
-  Fractal0->SetMaximumNumberOfIterations( 100);
+  Fractal0->SetWholeExtent(0, 247, 0, 247, 0, 0);
+  Fractal0->SetProjectionAxes(0, 1, 2);
+  Fractal0->SetOriginCX(-1.75, -1.25, 0, 0);
+  Fractal0->SetSizeCX(2.5, 2.5, 2, 1.5);
+  Fractal0->SetMaximumNumberOfIterations(100);
 
   vtkImageCast* cast = vtkImageCast::New();
   cast->SetInputConnection(Fractal0->GetOutputPort());
@@ -54,21 +53,21 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   colorize->SetLookupTable(table);
   colorize->SetInputConnection(cast->GetOutputPort());
 
-  vtkFFMPEGWriter *w = vtkFFMPEGWriter::New();
+  vtkFFMPEGWriter* w = vtkFFMPEGWriter::New();
   w->SetInputConnection(colorize->GetOutputPort());
   w->SetFileName("TestFFMPEGWriter.avi");
   cout << "Writing file TestFFMPEGWriter.avi..." << endl;
-  w->SetBitRate(1024*1024*30);
-  w->SetBitRateTolerance(1024*1024*3);
+  w->SetBitRate(1024 * 1024 * 30);
+  w->SetBitRateTolerance(1024 * 1024 * 3);
   w->Start();
-  for ( cc = 2; cc < 99; cc ++ )
+  for (cc = 2; cc < 99; cc++)
   {
     cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
     table->SetNumberOfColors(cc);
     table->ForceBuild();
-    table->SetTableValue(cc-1, 0, 0, 0);
+    table->SetTableValue(cc - 1, 0, 0, 0);
     w->Write();
   }
   w->End();
@@ -76,7 +75,7 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "Done writing file TestFFMPEGWriter.avi..." << endl;
   w->Delete();
 
-  exists = (int) vtksys::SystemTools::FileExists("TestFFMPEGWriter.avi");
+  exists = (int)vtksys::SystemTools::FileExists("TestFFMPEGWriter.avi");
   length = vtksys::SystemTools::FileLength("TestFFMPEGWriter.avi");
   cout << "TestFFMPEGWriter.avi file exists: " << exists << endl;
   cout << "TestFFMPEGWriter.avi file length: " << length << endl;
@@ -89,7 +88,7 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     vtksys::SystemTools::RemoveFile("TestFFMPEGWriter.avi");
   }
-  if (0==length)
+  if (0 == length)
   {
     err = 2;
     cerr << "ERROR: 2 - Test failing because TestFFMPEGWriter.avi file has zero length..." << endl;

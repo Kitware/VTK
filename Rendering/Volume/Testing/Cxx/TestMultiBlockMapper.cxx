@@ -22,35 +22,34 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiBlockVolumeMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkMultiBlockVolumeMapper.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStructuredPointsReader.h"
-#include "vtkTesting.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
 
-
-int TestMultiBlockMapper(int argc, char *argv[])
+int TestMultiBlockMapper(int argc, char* argv[])
 {
-  //cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   vtkNew<vtkXMLMultiBlockDataReader> reader;
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/headmr3blocks/headmr3blocks.vtm");
+  const char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headmr3blocks/headmr3blocks.vtm");
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkMultiBlockVolumeMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());

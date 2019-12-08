@@ -13,23 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestScientificPlot(int, char * [])
+int TestScientificPlot(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
+  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderWindow()->SetSize(400, 400);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart);
@@ -50,7 +49,7 @@ int TestScientificPlot(int, char * [])
   table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 3.0 / (numPoints-1);
+  float inc = 3.0 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -58,11 +57,11 @@ int TestScientificPlot(int, char * [])
     table->SetValue(i, 0, v);
     table->SetValue(i, 1, cos(v));
     table->SetValue(i, 2, sin(v) + 0.0);
-    table->SetValue(i, 3, v*v*v);
+    table->SetValue(i, 3, v * v * v);
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line = chart->AddPlot(vtkChart::LINE);
@@ -86,7 +85,7 @@ int TestScientificPlot(int, char * [])
   chart->GetAxis(vtkAxis::BOTTOM)->SetBehavior(vtkAxis::FIXED);
   chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("");
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

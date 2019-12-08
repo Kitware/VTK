@@ -13,44 +13,43 @@
 
 =========================================================================*/
 #include "vtkEllipsoidTensorProbeRepresentation.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkDoubleArray.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkAssemblyPath.h"
+#include "vtkCellArray.h"
+#include "vtkCellPicker.h"
+#include "vtkCommand.h"
+#include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkRenderWindow.h"
-#include "vtkTensorGlyph.h"
-#include "vtkCommand.h"
-#include "vtkCellArray.h"
-#include "vtkMath.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyPath.h"
+#include "vtkTensorGlyph.h"
 
 vtkStandardNewMacro(vtkEllipsoidTensorProbeRepresentation);
 
 //----------------------------------------------------------------------
-vtkEllipsoidTensorProbeRepresentation
-::vtkEllipsoidTensorProbeRepresentation()
+vtkEllipsoidTensorProbeRepresentation ::vtkEllipsoidTensorProbeRepresentation()
 {
-  vtkSphereSource *sphere = vtkSphereSource::New();
-  sphere->SetThetaResolution( 24 );
-  sphere->SetPhiResolution( 24 );
+  vtkSphereSource* sphere = vtkSphereSource::New();
+  sphere->SetThetaResolution(24);
+  sphere->SetPhiResolution(24);
 
-  vtkPoints * points = vtkPoints::New();
+  vtkPoints* points = vtkPoints::New();
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(1);
-  points->SetPoint( 0, 0.0, 0.0, 0.0 );
+  points->SetPoint(0, 0.0, 0.0, 0.0);
 
   this->TensorSource = vtkPolyData::New();
   this->TensorSource->SetPoints(points);
-  vtkDoubleArray * tensor = vtkDoubleArray::New();
+  vtkDoubleArray* tensor = vtkDoubleArray::New();
   tensor->SetNumberOfComponents(9);
   tensor->Allocate(9);
   double t[9];
@@ -77,24 +76,21 @@ vtkEllipsoidTensorProbeRepresentation
 
   this->PolyDataNormals = vtkPolyDataNormals::New();
   this->PolyDataNormals->AutoOrientNormalsOn();
-  this->PolyDataNormals->SetInputConnection(
-    this->TensorGlypher->GetOutputPort());
+  this->PolyDataNormals->SetInputConnection(this->TensorGlypher->GetOutputPort());
 
   this->EllipsoidMapper = vtkPolyDataMapper::New();
-  this->EllipsoidMapper->SetInputConnection(
-    this->PolyDataNormals->GetOutputPort());
+  this->EllipsoidMapper->SetInputConnection(this->PolyDataNormals->GetOutputPort());
   this->EllipsoidActor = vtkActor::New();
   this->EllipsoidActor->SetMapper(this->EllipsoidMapper);
 
   this->CellPicker = vtkCellPicker::New();
   this->CellPicker->PickFromListOn();
   this->CellPicker->AddPickList(this->EllipsoidActor);
-  this->CellPicker->SetTolerance(0.01); //need some fluff
+  this->CellPicker->SetTolerance(0.01); // need some fluff
 }
 
 //----------------------------------------------------------------------
-vtkEllipsoidTensorProbeRepresentation
-::~vtkEllipsoidTensorProbeRepresentation()
+vtkEllipsoidTensorProbeRepresentation ::~vtkEllipsoidTensorProbeRepresentation()
 {
   this->TensorSource->Delete();
   this->EllipsoidMapper->Delete();
@@ -105,23 +101,22 @@ vtkEllipsoidTensorProbeRepresentation
 }
 
 //----------------------------------------------------------------------
-void vtkEllipsoidTensorProbeRepresentation
-::EvaluateTensor( double t[9] )
+void vtkEllipsoidTensorProbeRepresentation ::EvaluateTensor(double t[9])
 {
   double p1[3], p2[3];
-  this->Trajectory->GetPoints()->GetPoint( this->ProbeCellId, p1 );
-  this->Trajectory->GetPoints()->GetPoint( this->ProbeCellId+1, p2 );
+  this->Trajectory->GetPoints()->GetPoint(this->ProbeCellId, p1);
+  this->Trajectory->GetPoints()->GetPoint(this->ProbeCellId + 1, p2);
   double d = vtkMath::Distance2BetweenPoints(p1, p2);
   double r = 1.0, t1[9], t2[9];
   if (d > 1e-12)
   {
-    r = sqrt(vtkMath::Distance2BetweenPoints( this->ProbePosition, p2 ) / d);
+    r = sqrt(vtkMath::Distance2BetweenPoints(this->ProbePosition, p2) / d);
   }
 
-  if (vtkDataArray *tensors = this->Trajectory->GetPointData()->GetTensors())
+  if (vtkDataArray* tensors = this->Trajectory->GetPointData()->GetTensors())
   {
-    tensors->GetTuple( this->ProbeCellId, t1 );
-    tensors->GetTuple( this->ProbeCellId+1, t2 );
+    tensors->GetTuple(this->ProbeCellId, t1);
+    tensors->GetTuple(this->ProbeCellId + 1, t2);
     if (tensors->GetNumberOfComponents() == 6)
     {
       vtkMath::TensorFromSymmetricTensor(t1);
@@ -137,7 +132,7 @@ void vtkEllipsoidTensorProbeRepresentation
   //    t[i] = t2[i];
   //    }
   //  }
-  //else
+  // else
   //  {
   //  for (int i =0; i < 9; i++)
   //    {
@@ -146,9 +141,9 @@ void vtkEllipsoidTensorProbeRepresentation
   //  }
 
   // Linear interp
-  for (int i =0; i < 9; i++)
+  for (int i = 0; i < 9; i++)
   {
-    t[i] = r * t1[i] + (1-r)*t2[i];
+    t[i] = r * t1[i] + (1 - r) * t2[i];
   }
 }
 
@@ -164,8 +159,7 @@ void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
 }
 
 //----------------------------------------------------------------------
-int vtkEllipsoidTensorProbeRepresentation
-::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkEllipsoidTensorProbeRepresentation ::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   int count = this->Superclass::RenderOpaqueGeometry(viewport);
   count += this->EllipsoidActor->RenderOpaqueGeometry(viewport);
@@ -173,12 +167,11 @@ int vtkEllipsoidTensorProbeRepresentation
 }
 
 //----------------------------------------------------------------------
-int vtkEllipsoidTensorProbeRepresentation::SelectProbe( int pos[2] )
+int vtkEllipsoidTensorProbeRepresentation::SelectProbe(int pos[2])
 {
-  this->VisibilityOn(); //actor must be on to be picked
+  this->VisibilityOn(); // actor must be on to be picked
 
-  vtkAssemblyPath* path = this->GetAssemblyPath(pos[0], pos[1], 0.,
-                                                this->CellPicker);
+  vtkAssemblyPath* path = this->GetAssemblyPath(pos[0], pos[1], 0., this->CellPicker);
 
   return path ? 1 : 0;
 }
@@ -188,34 +181,33 @@ void vtkEllipsoidTensorProbeRepresentation::BuildRepresentation()
 {
   this->Superclass::BuildRepresentation();
 
-  vtkPoints * pts = this->TensorSource->GetPoints();
-  pts->SetPoint( 0, this->ProbePosition );
+  vtkPoints* pts = this->TensorSource->GetPoints();
+  pts->SetPoint(0, this->ProbePosition);
 
   double t[9];
-  this->EvaluateTensor( t );
-  this->TensorSource->GetPointData()->GetTensors()->SetTuple( 0, t );
+  this->EvaluateTensor(t);
+  this->TensorSource->GetPointData()->GetTensors()->SetTuple(0, t);
   this->TensorSource->Modified();
 }
 
 //----------------------------------------------------------------------
-void vtkEllipsoidTensorProbeRepresentation::GetActors(vtkPropCollection *pc)
+void vtkEllipsoidTensorProbeRepresentation::GetActors(vtkPropCollection* pc)
 {
   this->EllipsoidActor->GetActors(pc);
 }
 
 //----------------------------------------------------------------------
-void vtkEllipsoidTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow *win)
+void vtkEllipsoidTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->EllipsoidActor->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------
-void vtkEllipsoidTensorProbeRepresentation
-::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEllipsoidTensorProbeRepresentation ::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "EllipsoidActor: " << this->EllipsoidActor << endl;
   os << indent << "EllipsoidMapper: " << this->EllipsoidMapper << endl;
@@ -224,4 +216,3 @@ void vtkEllipsoidTensorProbeRepresentation
   os << indent << "CellPicker: " << this->CellPicker << endl;
   os << indent << "PolyDataNormals: " << this->PolyDataNormals << endl;
 }
-

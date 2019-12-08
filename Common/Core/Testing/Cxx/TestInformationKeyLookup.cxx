@@ -18,28 +18,27 @@
 #include "vtkAbstractArray.h"
 #include "vtkDataArray.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVariantVectorKey.h"
-#include "vtkInformationInformationVectorKey.h"
 
 // Lookup a key and test that it matches what it should.
-namespace {
-bool VerifyKey(const std::string &name,
-               const std::string &location,
-               vtkInformationKey *key)
+namespace
+{
+bool VerifyKey(const std::string& name, const std::string& location, vtkInformationKey* key)
 {
   return vtkInformationKeyLookup::Find(name, location) == key;
 }
 } // end anon namespace
 
-#define VERIFY_KEY(name, location) \
-  if (!VerifyKey(#name, #location, location::name())) \
-  { \
-    std::cerr << "Error finding key: " << #location << "::" << #name << "\n"; \
-    return EXIT_FAILURE; \
+#define VERIFY_KEY(name, location)                                                                 \
+  if (!VerifyKey(#name, #location, location::name()))                                              \
+  {                                                                                                \
+    std::cerr << "Error finding key: " << #location << "::" << #name << "\n";                      \
+    return EXIT_FAILURE;                                                                           \
   }
 
-int TestInformationKeyLookup(int, char *[])
+int TestInformationKeyLookup(int, char*[])
 {
   // Test some keys in vtkAbstractArray and vtkDataArray (those are currently
   // the only ones available to this test, since the lookup only knows about

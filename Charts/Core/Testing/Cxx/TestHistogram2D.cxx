@@ -16,8 +16,8 @@
 #include "vtkChartHistogram2D.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContextMouseEvent.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
@@ -30,7 +30,7 @@
 #include "vtkVector.h"
 
 //----------------------------------------------------------------------------
-int TestHistogram2D(int, char * [])
+int TestHistogram2D(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   int size = 400;
@@ -79,7 +79,7 @@ int TestHistogram2D(int, char * [])
   int y = chart->GetPoint1()[1] + 10;
   mousePosition.Set(x, y);
   mouseEvent.SetScreenPos(mousePosition);
-  mouseEvent.SetPos(vtkVector2f(0.0,0.0));
+  mouseEvent.SetPos(vtkVector2f(0.0, 0.0));
   chart->MouseButtonPressEvent(mouseEvent);
   chart->MouseButtonReleaseEvent(mouseEvent);
 
@@ -88,30 +88,27 @@ int TestHistogram2D(int, char * [])
   chart->RemovePlot(id);
 
   vtkNew<vtkImageData> data;
-  data->SetExtent(0, size-1, 0, size-1, 0, 0);
+  data->SetExtent(0, size - 1, 0, size - 1, 0, 0);
   data->AllocateScalars(VTK_DOUBLE, 1);
 
   data->SetOrigin(100.0, 0.0, 0.0);
   data->SetSpacing(2.0, 1.0, 1.0);
 
-  double *dPtr = static_cast<double *>(data->GetScalarPointer(0, 0, 0));
+  double* dPtr = static_cast<double*>(data->GetScalarPointer(0, 0, 0));
   for (int i = 0; i < size; ++i)
   {
     for (int j = 0; j < size; ++j)
     {
-      dPtr[i * size + j] = sin(vtkMath::RadiansFromDegrees(double(2*i))) *
-          cos(vtkMath::RadiansFromDegrees(double(j)));
+      dPtr[i * size + j] = sin(vtkMath::RadiansFromDegrees(double(2 * i))) *
+        cos(vtkMath::RadiansFromDegrees(double(j)));
     }
   }
   chart->SetInputData(data);
 
   vtkNew<vtkColorTransferFunction> transferFunction;
-  transferFunction->AddHSVSegment(0.0, 0.0, 1.0, 1.0,
-                                  0.3333, 0.3333, 1.0, 1.0);
-  transferFunction->AddHSVSegment(0.3333, 0.3333, 1.0, 1.0,
-                                  0.6666, 0.6666, 1.0, 1.0);
-  transferFunction->AddHSVSegment(0.6666, 0.6666, 1.0, 1.0,
-                                  1.0, 0.2, 1.0, 0.3);
+  transferFunction->AddHSVSegment(0.0, 0.0, 1.0, 1.0, 0.3333, 0.3333, 1.0, 1.0);
+  transferFunction->AddHSVSegment(0.3333, 0.3333, 1.0, 1.0, 0.6666, 0.6666, 1.0, 1.0);
+  transferFunction->AddHSVSegment(0.6666, 0.6666, 1.0, 1.0, 1.0, 0.2, 1.0, 0.3);
   transferFunction->Build();
   chart->SetTransferFunction(transferFunction);
 

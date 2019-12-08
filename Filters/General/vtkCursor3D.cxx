@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkCursor3D);
 // all parts of cursor visible, and wrapping off.
 vtkCursor3D::vtkCursor3D()
 {
-  vtkPoints *pts;
+  vtkPoints* pts;
 
   this->Focus = vtkPolyData::New();
   pts = vtkPoints::New();
@@ -41,7 +41,6 @@ vtkCursor3D::vtkCursor3D()
   vert->InsertCellPoint(0);
   this->Focus->SetVerts(vert);
   vert->Delete();
-
 
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
@@ -70,49 +69,44 @@ vtkCursor3D::~vtkCursor3D()
   this->Focus->Delete();
 }
 
-int vtkCursor3D::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkCursor3D::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
-  int numPts=0, numLines=0;
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
+  int numPts = 0, numLines = 0;
+  vtkPoints* newPts;
+  vtkCellArray* newLines;
   double x[3];
   vtkIdType ptIds[2];
 
   // Check bounding box and origin
   //
-  if ( this->Wrap )
+  if (this->Wrap)
   {
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      this->FocalPoint[i] = this->ModelBounds[2*i] +
-             fmod(static_cast<double>(
-                    this->FocalPoint[i]-this->ModelBounds[2*i]),
-                  static_cast<double>(
-                    this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
+      this->FocalPoint[i] = this->ModelBounds[2 * i] +
+        fmod(static_cast<double>(this->FocalPoint[i] - this->ModelBounds[2 * i]),
+          static_cast<double>(this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]));
     }
   }
   else
   {
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      if ( this->FocalPoint[i] < this->ModelBounds[2*i] )
+      if (this->FocalPoint[i] < this->ModelBounds[2 * i])
       {
-        this->FocalPoint[i] = this->ModelBounds[2*i];
+        this->FocalPoint[i] = this->ModelBounds[2 * i];
       }
-      if ( this->FocalPoint[i] > this->ModelBounds[2*i+1] )
+      if (this->FocalPoint[i] > this->ModelBounds[2 * i + 1])
       {
-        this->FocalPoint[i] = this->ModelBounds[2*i+1];
+        this->FocalPoint[i] = this->ModelBounds[2 * i + 1];
       }
     }
   }
@@ -149,13 +143,13 @@ int vtkCursor3D::RequestData(
     numLines += 4;
   }
 
-  if ( numPts )
+  if (numPts)
   {
     newPts = vtkPoints::New();
     newPts->SetDataTypeToDouble();
     newPts->Allocate(numPts);
     newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numLines,2));
+    newLines->AllocateEstimate(numLines, 2);
   }
   else
   {
@@ -164,7 +158,7 @@ int vtkCursor3D::RequestData(
 
   // Create axes
   //
-  if ( this->Axes )
+  if (this->Axes)
   {
     x[0] = this->ModelBounds[0];
     x[1] = this->FocalPoint[1];
@@ -175,7 +169,7 @@ int vtkCursor3D::RequestData(
     x[1] = this->FocalPoint[1];
     x[2] = this->FocalPoint[2];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->FocalPoint[0];
     x[1] = this->ModelBounds[2];
@@ -186,7 +180,7 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[3];
     x[2] = this->FocalPoint[2];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->FocalPoint[0];
     x[1] = this->FocalPoint[1];
@@ -197,12 +191,12 @@ int vtkCursor3D::RequestData(
     x[1] = this->FocalPoint[1];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
   }
 
   // Create outline
   //
-  if ( this->Outline )
+  if (this->Outline)
   {
     // First triad
     x[0] = this->ModelBounds[0];
@@ -214,19 +208,19 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     // Second triad
     x[0] = this->ModelBounds[1];
@@ -238,19 +232,19 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[1];
     x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[1];
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     // Fill in remaining lines
     x[0] = this->ModelBounds[1];
@@ -262,13 +256,13 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[1];
     x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[3];
@@ -279,14 +273,13 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
-
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[2];
@@ -297,20 +290,20 @@ int vtkCursor3D::RequestData(
     x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
 
     x[0] = this->ModelBounds[0];
     x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
-    newLines->InsertNextCell(2,ptIds);
+    newLines->InsertNextCell(2, ptIds);
   }
 
   // Create x-shadows
   //
-  if ( this->XShadows )
+  if (this->XShadows)
   {
-    for (i=0; i<2; i++)
+    for (i = 0; i < 2; i++)
     {
       x[0] = this->ModelBounds[i];
       x[1] = this->ModelBounds[2];
@@ -321,7 +314,7 @@ int vtkCursor3D::RequestData(
       x[1] = this->ModelBounds[3];
       x[2] = this->FocalPoint[2];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
 
       x[0] = this->ModelBounds[i];
       x[1] = this->FocalPoint[1];
@@ -332,73 +325,73 @@ int vtkCursor3D::RequestData(
       x[1] = this->FocalPoint[1];
       x[2] = this->ModelBounds[5];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
     }
   }
 
   //  Create y-shadows
   //
-  if ( this->YShadows )
+  if (this->YShadows)
   {
-    for (i=0; i<2; i++)
+    for (i = 0; i < 2; i++)
     {
       x[0] = this->ModelBounds[0];
-      x[1] = this->ModelBounds[i+2];
+      x[1] = this->ModelBounds[i + 2];
       x[2] = this->FocalPoint[2];
       ptIds[0] = newPts->InsertNextPoint(x);
 
       x[0] = this->ModelBounds[1];
-      x[1] = this->ModelBounds[i+2];
+      x[1] = this->ModelBounds[i + 2];
       x[2] = this->FocalPoint[2];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
 
       x[0] = this->FocalPoint[0];
-      x[1] = this->ModelBounds[i+2];
+      x[1] = this->ModelBounds[i + 2];
       x[2] = this->ModelBounds[4];
       ptIds[0] = newPts->InsertNextPoint(x);
 
       x[0] = this->FocalPoint[0];
-      x[1] = this->ModelBounds[i+2];
+      x[1] = this->ModelBounds[i + 2];
       x[2] = this->ModelBounds[5];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
     }
   }
 
   //  Create z-shadows
   //
-  if ( this->ZShadows )
+  if (this->ZShadows)
   {
-    for (i=0; i<2; i++)
+    for (i = 0; i < 2; i++)
     {
       x[0] = this->ModelBounds[0];
       x[1] = this->FocalPoint[1];
-      x[2] = this->ModelBounds[i+4];
+      x[2] = this->ModelBounds[i + 4];
       ptIds[0] = newPts->InsertNextPoint(x);
 
       x[0] = this->ModelBounds[1];
       x[1] = this->FocalPoint[1];
-      x[2] = this->ModelBounds[i+4];
+      x[2] = this->ModelBounds[i + 4];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
 
       x[0] = this->FocalPoint[0];
       x[1] = this->ModelBounds[2];
-      x[2] = this->ModelBounds[i+4];
+      x[2] = this->ModelBounds[i + 4];
       ptIds[0] = newPts->InsertNextPoint(x);
 
       x[0] = this->FocalPoint[0];
       x[1] = this->ModelBounds[3];
-      x[2] = this->ModelBounds[i+4];
+      x[2] = this->ModelBounds[i + 4];
       ptIds[1] = newPts->InsertNextPoint(x);
-      newLines->InsertNextCell(2,ptIds);
+      newLines->InsertNextCell(2, ptIds);
     }
   }
 
   // Update ourselves and release memory
   //
-  this->Focus->GetPoints()->SetPoint(0,this->FocalPoint);
+  this->Focus->GetPoints()->SetPoint(0, this->FocalPoint);
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -410,25 +403,27 @@ int vtkCursor3D::RequestData(
 }
 
 // Set the boundary of the 3D cursor.
-void vtkCursor3D::SetModelBounds(double xmin, double xmax,
-                                 double ymin, double ymax,
-                                 double zmin, double zmax)
+void vtkCursor3D::SetModelBounds(
+  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
-  if ( xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
-       ymin != this->ModelBounds[2] || ymax != this->ModelBounds[3] ||
-       zmin != this->ModelBounds[4] || zmax != this->ModelBounds[5] )
+  if (xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
+    ymin != this->ModelBounds[2] || ymax != this->ModelBounds[3] || zmin != this->ModelBounds[4] ||
+    zmax != this->ModelBounds[5])
   {
     this->Modified();
 
-    this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax;
-    this->ModelBounds[2] = ymin; this->ModelBounds[3] = ymax;
-    this->ModelBounds[4] = zmin; this->ModelBounds[5] = zmax;
+    this->ModelBounds[0] = xmin;
+    this->ModelBounds[1] = xmax;
+    this->ModelBounds[2] = ymin;
+    this->ModelBounds[3] = ymax;
+    this->ModelBounds[4] = zmin;
+    this->ModelBounds[5] = zmax;
 
-    for (int i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
-      if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
+      if (this->ModelBounds[2 * i] > this->ModelBounds[2 * i + 1])
       {
-        this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+        this->ModelBounds[2 * i] = this->ModelBounds[2 * i + 1];
       }
     }
   }
@@ -436,8 +431,7 @@ void vtkCursor3D::SetModelBounds(double xmin, double xmax,
 
 void vtkCursor3D::SetFocalPoint(double x[3])
 {
-  if ( x[0] == this->FocalPoint[0] && x[1] == this->FocalPoint[1] &&
-       x[2] == this->FocalPoint[2] )
+  if (x[0] == this->FocalPoint[0] && x[1] == this->FocalPoint[1] && x[2] == this->FocalPoint[2])
   {
     return;
   }
@@ -445,33 +439,31 @@ void vtkCursor3D::SetFocalPoint(double x[3])
   this->Modified();
 
   double v[3];
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     v[i] = x[i] - this->FocalPoint[i];
     this->FocalPoint[i] = x[i];
 
-    if ( this->TranslationMode )
+    if (this->TranslationMode)
     {
-      this->ModelBounds[2*i] += v[i];
-      this->ModelBounds[2*i+1] += v[i];
+      this->ModelBounds[2 * i] += v[i];
+      this->ModelBounds[2 * i + 1] += v[i];
     }
-    else if ( this->Wrap ) //wrap
+    else if (this->Wrap) // wrap
     {
-      this->FocalPoint[i] = this->ModelBounds[2*i] +
-             fmod(static_cast<double>(
-                    this->FocalPoint[i]-this->ModelBounds[2*i]),
-                  static_cast<double>(
-                    this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
+      this->FocalPoint[i] = this->ModelBounds[2 * i] +
+        fmod(static_cast<double>(this->FocalPoint[i] - this->ModelBounds[2 * i]),
+          static_cast<double>(this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]));
     }
-    else //clamp
+    else // clamp
     {
-      if ( x[i] < this->ModelBounds[2*i] )
+      if (x[i] < this->ModelBounds[2 * i])
       {
-        this->FocalPoint[i] = this->ModelBounds[2*i];
+        this->FocalPoint[i] = this->ModelBounds[2 * i];
       }
-      if ( x[i] > this->ModelBounds[2*i+1] )
+      if (x[i] > this->ModelBounds[2 * i + 1])
       {
-        this->FocalPoint[i] = this->ModelBounds[2*i+1];
+        this->FocalPoint[i] = this->ModelBounds[2 * i + 1];
       }
     }
   }
@@ -479,8 +471,7 @@ void vtkCursor3D::SetFocalPoint(double x[3])
 
 void vtkCursor3D::SetModelBounds(const double bounds[6])
 {
-  this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
-                       bounds[5]);
+  this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
 // Turn every part of the 3D cursor on.
@@ -505,16 +496,15 @@ void vtkCursor3D::AllOff()
 
 void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ModelBounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 
-  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", "
-               << this->FocalPoint[1] << ", "
-               << this->FocalPoint[2] << ")\n";
+  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " << this->FocalPoint[1] << ", "
+     << this->FocalPoint[2] << ")\n";
 
   os << indent << "Outline: " << (this->Outline ? "On\n" : "Off\n");
   os << indent << "Axes: " << (this->Axes ? "On\n" : "Off\n");
@@ -522,6 +512,5 @@ void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YShadows: " << (this->YShadows ? "On\n" : "Off\n");
   os << indent << "ZShadows: " << (this->ZShadows ? "On\n" : "Off\n");
   os << indent << "Wrap: " << (this->Wrap ? "On\n" : "Off\n");
-  os << indent << "Translation Mode: "
-     << (this->TranslationMode ? "On\n" : "Off\n");
+  os << indent << "Translation Mode: " << (this->TranslationMode ? "On\n" : "Off\n");
 }

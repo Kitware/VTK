@@ -54,12 +54,12 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkStringArray.h"
 
 #include <cctype>
@@ -86,21 +86,18 @@ vtkMNITagPointReader::vtkMNITagPointReader()
 //-------------------------------------------------------------------------
 vtkMNITagPointReader::~vtkMNITagPointReader()
 {
-  delete [] this->FileName;
-  delete [] this->Comments;
+  delete[] this->FileName;
+  delete[] this->Comments;
 }
 
 //-------------------------------------------------------------------------
 void vtkMNITagPointReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "none") << "\n";
-  os << indent << "NumberOfVolumes: "
-     << this->NumberOfVolumes << "\n";
-  os << indent << "Comments: "
-     << (this->Comments ? this->Comments : "none") << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << "\n";
+  os << indent << "NumberOfVolumes: " << this->NumberOfVolumes << "\n";
+  os << indent << "Comments: " << (this->Comments ? this->Comments : "none") << "\n";
 }
 
 //-------------------------------------------------------------------------
@@ -139,7 +136,7 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
 // Internal function to read in a line up to 256 characters and then
 // skip to the next line in the file.
 int vtkMNITagPointReader::ReadLine(
-  istream &infile, std::string &linetext, std::string::iterator &pos)
+  istream& infile, std::string& linetext, std::string::iterator& pos)
 {
   this->LineNumber++;
 
@@ -160,7 +157,7 @@ int vtkMNITagPointReader::ReadLine(
 //-------------------------------------------------------------------------
 // Skip all blank lines or comment lines and return the first useful line
 int vtkMNITagPointReader::ReadLineAfterComments(
-  istream &infile, std::string &linetext, std::string::iterator &pos)
+  istream& infile, std::string& linetext, std::string::iterator& pos)
 {
   // Skip over any comment lines or blank lines.
   // Comment lines start with '%'
@@ -185,15 +182,14 @@ int vtkMNITagPointReader::ReadLineAfterComments(
     }
     else if (linetext.length() != 0 && pos != linetext.end())
     {
-      delete [] this->Comments;
+      delete[] this->Comments;
       this->Comments = new char[comments.length() + 1];
       strncpy(this->Comments, comments.c_str(), comments.length());
       this->Comments[comments.length()] = '\0';
 
       return 1;
     }
-  }
-  while (infile.good());
+  } while (infile.good());
 
   return 0;
 }
@@ -201,8 +197,7 @@ int vtkMNITagPointReader::ReadLineAfterComments(
 //-------------------------------------------------------------------------
 // Skip all whitespace, reading additional lines if necessary if nl != 0
 int vtkMNITagPointReader::SkipWhitespace(
-  istream &infile, std::string &linetext, std::string::iterator &pos,
-  int nl)
+  istream& infile, std::string& linetext, std::string::iterator& pos, int nl)
 {
   while (infile.good())
   {
@@ -232,8 +227,7 @@ int vtkMNITagPointReader::SkipWhitespace(
 // Read the left hand side of a statement, including the equals sign
 // and any whitespace following the equals.
 int vtkMNITagPointReader::ParseLeftHandSide(
-  istream &infile, std::string &linetext, std::string::iterator &pos,
-  std::string &identifier)
+  istream& infile, std::string& linetext, std::string::iterator& pos, std::string& identifier)
 {
   identifier.clear();
 
@@ -269,8 +263,7 @@ int vtkMNITagPointReader::ParseLeftHandSide(
 // whitespace occurring before the semicolon. The string may not be
 // split across multiple lines.
 int vtkMNITagPointReader::ParseStringValue(
-  istream &infile, std::string &linetext, std::string::iterator &pos,
-  std::string &data)
+  istream& infile, std::string& linetext, std::string::iterator& pos, std::string& data)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
 
@@ -289,15 +282,12 @@ int vtkMNITagPointReader::ParseStringValue(
         if (pos != linetext.end())
         {
           c = '\0';
-          static char ctrltable[] = {
-            '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r',
-            '\t', 't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0'
-            };
+          static char ctrltable[] = { '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r', '\t',
+            't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0' };
 
           if (*pos >= 0 && *pos <= 9)
           {
-            for (int j = 0; j < 3 && pos != linetext.end() &&
-                 *pos >= 0 && *pos <= 9; ++j, ++pos)
+            for (int j = 0; j < 3 && pos != linetext.end() && *pos >= 0 && *pos <= 9; ++j, ++pos)
             {
               c = ((c << 3) | (*pos - '0'));
             }
@@ -305,8 +295,7 @@ int vtkMNITagPointReader::ParseStringValue(
           else if (*pos == 'x')
           {
             ++pos;
-            for (int j = 0; j < 2 && pos != linetext.end() &&
-                 isalnum(*pos); ++j, ++pos)
+            for (int j = 0; j < 2 && pos != linetext.end() && isalnum(*pos); ++j, ++pos)
             {
               char x = tolower(*pos);
               if (x >= '0' && x <= '9')
@@ -323,7 +312,7 @@ int vtkMNITagPointReader::ParseStringValue(
           {
             for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
             {
-              if (*pos == ctrltable[ci+1])
+              if (*pos == ctrltable[ci + 1])
               {
                 c = ctrltable[ci];
                 break;
@@ -344,8 +333,7 @@ int vtkMNITagPointReader::ParseStringValue(
 
   if (pos == linetext.end())
   {
-    vtkErrorMacro("Syntax error " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
@@ -358,21 +346,19 @@ int vtkMNITagPointReader::ParseStringValue(
 //-------------------------------------------------------------------------
 // Read an int value
 int vtkMNITagPointReader::ParseIntValues(
-  istream &infile, std::string &linetext, std::string::iterator &pos,
-  int *values, int n)
+  istream& infile, std::string& linetext, std::string::iterator& pos, int* values, int n)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
 
   int i = 0;
   while (pos != linetext.end() && *pos != ';' && i < n)
   {
-    const char *cp = linetext.c_str() + (pos - linetext.begin());
-    char *ep = nullptr;
+    const char* cp = linetext.c_str() + (pos - linetext.begin());
+    char* ep = nullptr;
     long val = strtol(cp, &ep, 10);
     if (ep == cp)
     {
-      vtkErrorMacro("Syntax error " << this->FileName
-                    << ":" << this->LineNumber);
+      vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
     pos += (ep - cp);
@@ -382,33 +368,29 @@ int vtkMNITagPointReader::ParseIntValues(
 
   if (i != n)
   {
-    vtkErrorMacro("Not enough values: " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Not enough values: " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
   return 1;
 }
 
-
 //-------------------------------------------------------------------------
 // Read floating-point values into a point triplet.
 int vtkMNITagPointReader::ParseFloatValues(
-  istream &infile, std::string &linetext, std::string::iterator &pos,
-  double *values, int n)
+  istream& infile, std::string& linetext, std::string::iterator& pos, double* values, int n)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
 
   int i = 0;
   while (pos != linetext.end() && *pos != ';' && i < n)
   {
-    const char *cp = linetext.c_str() + (pos - linetext.begin());
-    char *ep = nullptr;
+    const char* cp = linetext.c_str() + (pos - linetext.begin());
+    char* ep = nullptr;
     double val = strtod(cp, &ep);
     if (ep == cp)
     {
-      vtkErrorMacro("Syntax error " << this->FileName
-                    << ":" << this->LineNumber);
+      vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
     pos += (ep - cp);
@@ -418,8 +400,7 @@ int vtkMNITagPointReader::ParseFloatValues(
 
   if (i != n)
   {
-    vtkErrorMacro("Not enough values: " << this->FileName
-                  << ":" << this->LineNumber);
+    vtkErrorMacro("Not enough values: " << this->FileName << ":" << this->LineNumber);
     return 0;
   }
 
@@ -427,8 +408,7 @@ int vtkMNITagPointReader::ParseFloatValues(
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITagPointReader::ReadFile(
-  vtkPolyData *output1, vtkPolyData *output2)
+int vtkMNITagPointReader::ReadFile(vtkPolyData* output1, vtkPolyData* output2)
 {
   // Check that the file name has been set.
   if (!this->FileName)
@@ -472,14 +452,13 @@ int vtkMNITagPointReader::ReadFile(
   int numVolumes = 1;
   std::string identifier;
   if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
-      strcmp(identifier.c_str(), "Volumes") != 0 ||
-      !this->ParseIntValues(infile, linetext, pos, &numVolumes, 1) ||
-      (numVolumes != 1 && numVolumes != 2) ||
-      !this->SkipWhitespace(infile, linetext, pos, 0) ||
-      *pos != ';')
+    strcmp(identifier.c_str(), "Volumes") != 0 ||
+    !this->ParseIntValues(infile, linetext, pos, &numVolumes, 1) ||
+    (numVolumes != 1 && numVolumes != 2) || !this->SkipWhitespace(infile, linetext, pos, 0) ||
+    *pos != ';')
   {
-    vtkErrorMacro("ReadFile: Line must be Volumes = 1; or Volumes = 2; "
-                  << this->FileName << ":" << this->LineNumber);
+    vtkErrorMacro("ReadFile: Line must be Volumes = 1; or Volumes = 2; " << this->FileName << ":"
+                                                                         << this->LineNumber);
     infile.close();
     return 0;
   }
@@ -491,7 +470,7 @@ int vtkMNITagPointReader::ReadFile(
 
   // Rad the tag points
   if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
-      strcmp(identifier.c_str(), "Points") != 0)
+    strcmp(identifier.c_str(), "Points") != 0)
   {
     vtkErrorMacro("ReadFile: Cannot find Points in file; " << this->FileName);
     infile.close();
@@ -499,14 +478,14 @@ int vtkMNITagPointReader::ReadFile(
     return 0;
   }
 
-  vtkPoints *points[2];
+  vtkPoints* points[2];
   points[0] = vtkPoints::New();
   points[1] = vtkPoints::New();
-  vtkCellArray *verts = vtkCellArray::New();
-  vtkStringArray *labels = vtkStringArray::New();
-  vtkDoubleArray *weights = vtkDoubleArray::New();
-  vtkIntArray *structureIds = vtkIntArray::New();
-  vtkIntArray *patientIds = vtkIntArray::New();
+  vtkCellArray* verts = vtkCellArray::New();
+  vtkStringArray* labels = vtkStringArray::New();
+  vtkDoubleArray* weights = vtkDoubleArray::New();
+  vtkIntArray* structureIds = vtkIntArray::New();
+  vtkIntArray* patientIds = vtkIntArray::New();
 
   int errorOccurred = 0;
   this->SkipWhitespace(infile, linetext, pos, 1);
@@ -536,8 +515,8 @@ int vtkMNITagPointReader::ReadFile(
       int structureId;
       int patientId;
       if (!this->ParseFloatValues(infile, linetext, pos, &weight, 1) ||
-          !this->ParseIntValues(infile, linetext, pos, &structureId, 1) ||
-          !this->ParseIntValues(infile, linetext, pos, &patientId, 1))
+        !this->ParseIntValues(infile, linetext, pos, &structureId, 1) ||
+        !this->ParseIntValues(infile, linetext, pos, &patientId, 1))
       {
         errorOccurred = 1;
         break;
@@ -577,7 +556,7 @@ int vtkMNITagPointReader::ReadFile(
     output1->SetPoints(points[0]);
     output2->SetPoints(points[1]);
 
-    vtkPolyData *output[2];
+    vtkPolyData* output[2];
     output[0] = output1;
     output[1] = output2;
 
@@ -630,7 +609,7 @@ int vtkMNITagPointReader::GetNumberOfVolumes()
 }
 
 //-------------------------------------------------------------------------
-vtkPoints *vtkMNITagPointReader::GetPoints(int port)
+vtkPoints* vtkMNITagPointReader::GetPoints(int port)
 {
   this->Update();
 
@@ -639,8 +618,7 @@ vtkPoints *vtkMNITagPointReader::GetPoints(int port)
     return nullptr;
   }
 
-  vtkPolyData *output = static_cast<vtkPolyData *>(
-    this->GetOutputDataObject(port));
+  vtkPolyData* output = static_cast<vtkPolyData*>(this->GetOutputDataObject(port));
 
   if (output)
   {
@@ -651,75 +629,67 @@ vtkPoints *vtkMNITagPointReader::GetPoints(int port)
 }
 
 //-------------------------------------------------------------------------
-vtkStringArray *vtkMNITagPointReader::GetLabelText()
+vtkStringArray* vtkMNITagPointReader::GetLabelText()
 {
   this->Update();
 
-  vtkPolyData *output = static_cast<vtkPolyData *>(
-    this->GetOutputDataObject(0));
+  vtkPolyData* output = static_cast<vtkPolyData*>(this->GetOutputDataObject(0));
 
   if (output)
   {
-    return vtkArrayDownCast<vtkStringArray>(
-      output->GetPointData()->GetAbstractArray("LabelText"));
+    return vtkArrayDownCast<vtkStringArray>(output->GetPointData()->GetAbstractArray("LabelText"));
   }
 
   return nullptr;
 }
 
 //-------------------------------------------------------------------------
-vtkDoubleArray *vtkMNITagPointReader::GetWeights()
+vtkDoubleArray* vtkMNITagPointReader::GetWeights()
 {
   this->Update();
 
-  vtkPolyData *output = static_cast<vtkPolyData *>(
-    this->GetOutputDataObject(0));
+  vtkPolyData* output = static_cast<vtkPolyData*>(this->GetOutputDataObject(0));
 
   if (output)
   {
-    return vtkArrayDownCast<vtkDoubleArray>(
-      output->GetPointData()->GetArray("Weights"));
+    return vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetArray("Weights"));
   }
 
   return nullptr;
 }
 
 //-------------------------------------------------------------------------
-vtkIntArray *vtkMNITagPointReader::GetStructureIds()
+vtkIntArray* vtkMNITagPointReader::GetStructureIds()
 {
   this->Update();
 
-  vtkPolyData *output = static_cast<vtkPolyData *>(
-    this->GetOutputDataObject(0));
+  vtkPolyData* output = static_cast<vtkPolyData*>(this->GetOutputDataObject(0));
 
   if (output)
   {
-    return vtkArrayDownCast<vtkIntArray>(
-      output->GetPointData()->GetArray("StructureIds"));
+    return vtkArrayDownCast<vtkIntArray>(output->GetPointData()->GetArray("StructureIds"));
   }
 
   return nullptr;
 }
 
 //-------------------------------------------------------------------------
-vtkIntArray *vtkMNITagPointReader::GetPatientIds()
+vtkIntArray* vtkMNITagPointReader::GetPatientIds()
 {
   this->Update();
 
-  vtkPolyData *output = static_cast<vtkPolyData *>(
-    this->GetOutputDataObject(0));
+  vtkPolyData* output = static_cast<vtkPolyData*>(this->GetOutputDataObject(0));
 
   if (output)
   {
-    return vtkArrayDownCast<vtkIntArray>(
-      output->GetPointData()->GetArray("PatientIds"));
+    return vtkArrayDownCast<vtkIntArray>(output->GetPointData()->GetArray("PatientIds"));
   }
 
   return nullptr;
 }
 
 //-------------------------------------------------------------------------
-const char *vtkMNITagPointReader::GetComments()
+const char* vtkMNITagPointReader::GetComments()
 {
   this->Update();
 
@@ -727,26 +697,20 @@ const char *vtkMNITagPointReader::GetComments()
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITagPointReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkMNITagPointReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo1 = outputVector->GetInformationObject(0);
-  vtkInformation *outInfo2 = outputVector->GetInformationObject(1);
+  vtkInformation* outInfo1 = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo2 = outputVector->GetInformationObject(1);
 
   // get the output
-  vtkPolyData *output1 = vtkPolyData::SafeDownCast(
-    outInfo1->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output2 = vtkPolyData::SafeDownCast(
-    outInfo2->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output1 = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output2 = vtkPolyData::SafeDownCast(outInfo2->Get(vtkDataObject::DATA_OBJECT()));
 
   // all of the data in the first piece.
-  if (outInfo1->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
-      > 0 ||
-      outInfo2->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
-      > 0)
+  if (outInfo1->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0 ||
+    outInfo2->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
   {
     return 0;
   }

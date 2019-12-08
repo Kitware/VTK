@@ -18,22 +18,22 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkToolkits.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkToolkits.h"
+
+#include <vector>
 
 vtkStandardNewMacro(vtkOpenSlideReader);
 
 void vtkOpenSlideReader::ExecuteInformation()
 {
-  //std::cout << this->GetFileName() << std::endl;
+  // std::cout << this->GetFileName() << std::endl;
 
   this->openslide_handle = openslide_open(this->GetFileName());
 
-  if(this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
+  if (this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
   {
-    vtkErrorWithObjectMacro(this,
-                            "File could not be opened by openslide"
-                           );
+    vtkErrorWithObjectMacro(this, "File could not be opened by openslide");
     return;
   }
 
@@ -44,9 +44,9 @@ void vtkOpenSlideReader::ExecuteInformation()
   this->vtkImageReader2::ExecuteInformation();
 
   this->DataExtent[0] = 0;
-  this->DataExtent[1] = w-1;
+  this->DataExtent[1] = w - 1;
   this->DataExtent[2] = 0;
-  this->DataExtent[3] = h-1;
+  this->DataExtent[3] = h - 1;
   this->DataExtent[4] = 0;
   this->DataExtent[5] = 0;
 
@@ -54,30 +54,24 @@ void vtkOpenSlideReader::ExecuteInformation()
   this->SetDataScalarTypeToUnsignedChar();
 }
 
-
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
-                                               vtkInformation *outInfo)
+void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
   int inExtent[6];
 
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-      outInfo,
-      inExtent);
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(outInfo, inExtent);
 
-  vtkImageData *data = this->AllocateOutputData(output, outInfo);
+  vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
-  if(this->openslide_handle == nullptr)
+  if (this->openslide_handle == nullptr)
   {
-    vtkErrorWithObjectMacro(this,
-                            "File could not be read by openslide"
-                           );
+    vtkErrorWithObjectMacro(this, "File could not be read by openslide");
     return;
   }
 
-  //std::cout << "OpenSlideReader Extents: " << data->GetExtent() << std::endl;
+  // std::cout << "OpenSlideReader Extents: " << data->GetExtent() << std::endl;
 
   this->ComputeDataIncrements();
 
@@ -88,48 +82,39 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
   // openslide needs to convert
 
   int w = inExtent[1] - inExtent[0] + 1;
-  int h = inExtent[3]- inExtent[2] + 1;
-  unsigned char * buffer = new unsigned char[w * h * 4];
+  int h = inExtent[3] - inExtent[2] + 1;
+  std::vector<unsigned char> buffer(w * h * 4);
 
-  openslide_read_region(this->openslide_handle, (unsigned int *) buffer,
-    inExtent[0],
-    this->DataExtent[3]-inExtent[3],
-    0,  // level
-    w,
-    h
-    );
+  openslide_read_region(this->openslide_handle, reinterpret_cast<unsigned int*>(buffer.data()),
+    inExtent[0], this->DataExtent[3] - inExtent[3],
+    0, // level
+    w, h);
 
-  if(openslide_get_error(this->openslide_handle) != nullptr)
+  if (openslide_get_error(this->openslide_handle) != nullptr)
   {
     // Buffer is deleted by the openslide in case the error occurs
     // delete[] buffer;
-    vtkErrorWithObjectMacro(this,
-                            "File could not be read by openslide"
-                           );
+    vtkErrorWithObjectMacro(this, "File could not be read by openslide");
     return;
   }
 
   unsigned char* outputPtr = (unsigned char*)(data->GetScalarPointer());
-  unsigned char* bufPtr = (unsigned char*) buffer;
 
   // Order = RGBA
-  for (long y=0; y < h; y++)
+  for (long y = 0; y < h; y++)
   {
-    for(long x=0; x < w; x++)
+    for (long x = 0; x < w; x++)
     {
-      unsigned char* rgba = &bufPtr[((h-1-y)*w + x) * 4];
-      unsigned char* rgb =  &outputPtr[(y*w + x) * 3];
+      unsigned char* rgba = buffer.data() + ((h - 1 - y) * w + x) * 4;
+      unsigned char* rgb = &outputPtr[(y * w + x) * 3];
       // Convert from BGRA to RGB
       rgb[2] = rgba[0];
       rgb[1] = rgba[1];
       rgb[0] = rgba[2];
     }
   }
-
-  delete[] buffer;
   // openslide_close(this->openslide_handle);
 }
-
 
 //----------------------------------------------------------------------------
 int vtkOpenSlideReader::CanReadFile(const char* fname)
@@ -140,7 +125,7 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
 
   this->openslide_handle = openslide_open(fname);
 
-  if(this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
+  if (this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
   {
     // Unable to open
     return 0;
@@ -148,7 +133,7 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
   else
   {
     // Pretty sure
-    if(this->openslide_handle != nullptr)
+    if (this->openslide_handle != nullptr)
     {
       openslide_close(this->openslide_handle);
       this->openslide_handle = nullptr;
@@ -160,7 +145,7 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
 vtkOpenSlideReader::~vtkOpenSlideReader()
 {
   // Release openslide_handle if being used
-  if(this->openslide_handle != nullptr)
+  if (this->openslide_handle != nullptr)
   {
     openslide_close(this->openslide_handle);
   }
@@ -169,5 +154,5 @@ vtkOpenSlideReader::~vtkOpenSlideReader()
 //----------------------------------------------------------------------------
 void vtkOpenSlideReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

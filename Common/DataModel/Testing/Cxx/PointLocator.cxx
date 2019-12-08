@@ -20,83 +20,85 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
 
-int PointLocator( int argc, char *argv[] )
+int PointLocator(int argc, char* argv[])
 {
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  vtkRenderer* renderer = vtkRenderer::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(renderer);
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
 
-  vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(8); sphere->SetPhiResolution(8);
-    sphere->SetRadius(1.0);
-    sphere->Update();
-  vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-    sphereMapper->SetInputConnection(sphere->GetOutputPort());
-  vtkActor *sphereActor = vtkActor::New();
-    sphereActor->SetMapper(sphereMapper);
+  vtkSphereSource* sphere = vtkSphereSource::New();
+  sphere->SetThetaResolution(8);
+  sphere->SetPhiResolution(8);
+  sphere->SetRadius(1.0);
+  sphere->Update();
+  vtkPolyDataMapper* sphereMapper = vtkPolyDataMapper::New();
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
+  vtkActor* sphereActor = vtkActor::New();
+  sphereActor->SetMapper(sphereMapper);
 
-  vtkSphereSource *spot = vtkSphereSource::New();
-    spot->SetPhiResolution(6);
-    spot->SetThetaResolution(6);
-    spot->SetRadius(0.1);
+  vtkSphereSource* spot = vtkSphereSource::New();
+  spot->SetPhiResolution(6);
+  spot->SetThetaResolution(6);
+  spot->SetRadius(0.1);
 
-  vtkPolyDataMapper *spotMapper = vtkPolyDataMapper::New();
-    spotMapper->SetInputConnection(spot->GetOutputPort());
+  vtkPolyDataMapper* spotMapper = vtkPolyDataMapper::New();
+  spotMapper->SetInputConnection(spot->GetOutputPort());
 
   // Build a locator
-  vtkPointLocator *pointLocator = vtkPointLocator::New();
+  vtkPointLocator* pointLocator = vtkPointLocator::New();
   pointLocator->SetDataSet(sphere->GetOutput());
   pointLocator->BuildLocator();
 
   //
-  double p1[] = {2.0, 1.0, 3.0};
+  double p1[] = { 2.0, 1.0, 3.0 };
 
   // Find closest point
   vtkIdType ptId;
   double dist;
-  p1[0] = 0.1; p1[1] = -0.2; p1[2] = 0.2;
+  p1[0] = 0.1;
+  p1[1] = -0.2;
+  p1[2] = 0.2;
   ptId = pointLocator->FindClosestPoint(p1);
-  vtkActor *closestPointActor = vtkActor::New();
-    closestPointActor->SetMapper(spotMapper);
-    // TODO cleanupo
-    closestPointActor->SetPosition(
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
-    closestPointActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
+  vtkActor* closestPointActor = vtkActor::New();
+  closestPointActor->SetMapper(spotMapper);
+  // TODO cleanupo
+  closestPointActor->SetPosition(sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
+    sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
+    sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
+  closestPointActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
 
   // Find closest point within radius
   float radius = 5.0;
-  p1[0] = .2; p1[1] = 1.0; p1[2] = 1.0;
+  p1[0] = .2;
+  p1[1] = 1.0;
+  p1[2] = 1.0;
   ptId = pointLocator->FindClosestPointWithinRadius(radius, p1, dist);
-  vtkActor *closestPointActor2 = vtkActor::New();
-    closestPointActor2->SetMapper(spotMapper);
-    // TODO cleanup
-    closestPointActor2->SetPosition(
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
-      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
-    closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
+  vtkActor* closestPointActor2 = vtkActor::New();
+  closestPointActor2->SetMapper(spotMapper);
+  // TODO cleanup
+  closestPointActor2->SetPosition(sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
+    sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
+    sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
+  closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
 
   renderer->AddActor(sphereActor);
   renderer->AddActor(closestPointActor);
   renderer->AddActor(closestPointActor2);
-  renderer->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

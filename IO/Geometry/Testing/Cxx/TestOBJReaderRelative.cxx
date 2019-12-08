@@ -16,8 +16,8 @@
 // .SECTION Description
 //
 
-#include "vtkOBJReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
@@ -32,7 +32,9 @@ int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int
   {
     if (firstArray->GetComponent(idx, compIdx) != secondArray->GetComponent(idx, compIdx))
     {
-      cerr << "Error: different values for " "[" << (idx) << "]_"<< compIdx << endl;
+      cerr << "Error: different values for "
+              "["
+           << (idx) << "]_" << compIdx << endl;
       return 1;
     }
   }
@@ -40,53 +42,51 @@ int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int
 }
 
 //-----------------------------------------------------------------------------
-int TestOBJReaderRelative( int argc, char *argv[] )
+int TestOBJReaderRelative(int argc, char* argv[])
 {
   int retVal = 0;
 
   // Create the reader.
   char* fname_rel = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/relative_indices.obj");
-  vtkSmartPointer<vtkOBJReader> reader_rel =
-    vtkSmartPointer<vtkOBJReader>::New();
+  vtkSmartPointer<vtkOBJReader> reader_rel = vtkSmartPointer<vtkOBJReader>::New();
   reader_rel->SetFileName(fname_rel);
   reader_rel->Update();
-  delete [] fname_rel;
+  delete[] fname_rel;
 
   // Create the reader.
   char* fname_abs = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/absolute_indices.obj");
-  vtkSmartPointer<vtkOBJReader> reader_abs =
-    vtkSmartPointer<vtkOBJReader>::New();
+  vtkSmartPointer<vtkOBJReader> reader_abs = vtkSmartPointer<vtkOBJReader>::New();
   reader_abs->SetFileName(fname_abs);
   reader_abs->Update();
-  delete [] fname_abs;
+  delete[] fname_abs;
 
-  vtkPolyData *data_rel = reader_rel->GetOutput();
-  vtkPolyData *data_abs = reader_abs->GetOutput();
+  vtkPolyData* data_rel = reader_rel->GetOutput();
+  vtkPolyData* data_abs = reader_abs->GetOutput();
 
-#define CHECK(obj, method)                                            \
-  if (obj##_rel->method != obj##_abs->method)                         \
-  {                                                                 \
-    cerr << "Error: different values for " #obj "->" #method << endl; \
-    retVal = 1;                                                       \
+#define CHECK(obj, method)                                                                         \
+  if (obj##_rel->method != obj##_abs->method)                                                      \
+  {                                                                                                \
+    cerr << "Error: different values for " #obj "->" #method << endl;                              \
+    retVal = 1;                                                                                    \
   }
-#define CHECK_ARRAY(obj, idx)                                              \
-  if (obj##_rel[idx] != obj##_abs[idx])                                    \
-  {                                                                      \
-    cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl; \
-    retVal = 1;                                                            \
+#define CHECK_ARRAY(obj, idx)                                                                      \
+  if (obj##_rel[idx] != obj##_abs[idx])                                                            \
+  {                                                                                                \
+    cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl;                       \
+    retVal = 1;                                                                                    \
   }
-#define CHECK_SCALAR(obj)                                \
-  if (obj##_rel != obj##_abs)                            \
-  {                                                    \
-    cerr << "Error: different values for " #obj << endl; \
-    retVal = 1;                                          \
+#define CHECK_SCALAR(obj)                                                                          \
+  if (obj##_rel != obj##_abs)                                                                      \
+  {                                                                                                \
+    cerr << "Error: different values for " #obj << endl;                                           \
+    retVal = 1;                                                                                    \
   }
 
-#define CHECK_ARRAY_EXISTS(array)          \
-  if (!(array))                            \
-  {                                        \
-  cerr << "Array does not exist." << endl; \
-  retVal = 1;                              \
+#define CHECK_ARRAY_EXISTS(array)                                                                  \
+  if (!(array))                                                                                    \
+  {                                                                                                \
+    cerr << "Array does not exist." << endl;                                                       \
+    retVal = 1;                                                                                    \
   }
 
   CHECK(data, GetNumberOfVerts())
@@ -94,15 +94,15 @@ int TestOBJReaderRelative( int argc, char *argv[] )
   CHECK(data, GetNumberOfCells())
   CHECK(data, GetNumberOfStrips())
 
-  vtkCellArray *polys_rel = data_rel->GetPolys();
-  vtkCellArray *polys_abs = data_abs->GetPolys();
+  vtkCellArray* polys_rel = data_rel->GetPolys();
+  vtkCellArray* polys_abs = data_abs->GetPolys();
 
   CHECK(polys, GetNumberOfCells());
 
   vtkIdType npts_rel;
   vtkIdType npts_abs;
-  vtkIdType *pts_rel;
-  vtkIdType *pts_abs;
+  const vtkIdType* pts_rel;
+  const vtkIdType* pts_abs;
 
   polys_rel->InitTraversal();
   polys_abs->InitTraversal();
@@ -129,8 +129,7 @@ int TestOBJReaderRelative( int argc, char *argv[] )
   CHECK_SCALAR(tcoordsNbComp)
   CHECK_SCALAR(normalsNbComp)
 
-  while (polys_rel->GetNextCell(npts_rel, pts_rel) &&
-         polys_abs->GetNextCell(npts_abs, pts_abs))
+  while (polys_rel->GetNextCell(npts_rel, pts_rel) && polys_abs->GetNextCell(npts_abs, pts_abs))
   {
     CHECK_SCALAR(npts)
 
@@ -141,8 +140,8 @@ int TestOBJReaderRelative( int argc, char *argv[] )
       // For each points, check if the point data associated with the points
       // from the OBJ using relative coordinates matches the ones from the
       // OBJ using absolute coordinates
-      retVal = CheckArrayPointData(tcoords_rel, tcoords_abs, i)
-      || CheckArrayPointData(normals_rel, normals_abs, i);
+      retVal = CheckArrayPointData(tcoords_rel, tcoords_abs, i) ||
+        CheckArrayPointData(normals_rel, normals_abs, i);
     }
   }
 

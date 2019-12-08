@@ -20,21 +20,21 @@
  * polygonal data files in vtk format. See text for format details.
  * @warning
  * Binary files written on one system may not be readable on other systems.
-*/
+ */
 
 #ifndef vtkPolyDataWriter_h
 #define vtkPolyDataWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkPolyData;
 
 class VTKIOLEGACY_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {
 public:
-  static vtkPolyDataWriter *New();
-  vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
+  static vtkPolyDataWriter* New();
+  vtkTypeMacro(vtkPolyDataWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -51,7 +51,7 @@ protected:
 
   void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPolyDataWriter(const vtkPolyDataWriter&) = delete;

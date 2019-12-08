@@ -21,24 +21,22 @@
  * or per point gradient of cell scalar field.
  *
  * @par Thanks:
- * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
- * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
- * BP12, F-91297 Arpajon, France. <br>
- * Implementation by Thierry Carrard (CEA)
-*/
+ * This file is part of the generalized Youngs material interface reconstruction algorithm
+ * contributed by CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br> BP12,
+ * F-91297 Arpajon, France. <br> Implementation by Thierry Carrard (CEA)
+ */
 
 #ifndef vtkDataSetGradient_h
 #define vtkDataSetGradient_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
 {
- public:
+public:
   static vtkDataSetGradient* New();
-  vtkTypeMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkDataSetGradient, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -49,18 +47,17 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
   vtkGetStringMacro(ResultArrayName);
   //@}
 
- protected:
-  vtkDataSetGradient ();
+protected:
+  vtkDataSetGradient();
   ~vtkDataSetGradient() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* ResultArrayName;
 
- private:
+private:
   vtkDataSetGradient(const vtkDataSetGradient&) = delete;
   void operator=(const vtkDataSetGradient&) = delete;
 };
 
 #endif /* VTK_DATA_SET_GRADIENT_H */
-

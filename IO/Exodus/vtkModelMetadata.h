@@ -68,7 +68,7 @@
  *
  * @sa
  *   vtkDistributedDataFilter vtkExtractCells
-*/
+ */
 
 #ifndef vtkModelMetadata_h
 #define vtkModelMetadata_h
@@ -76,7 +76,7 @@
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
-#include "vtkStringArray.h" // for vtkStringArray
+#include "vtkStringArray.h"  // for vtkStringArray
 class vtkDataSet;
 class vtkCharArray;
 class vtkIdTypeArray;
@@ -90,8 +90,8 @@ class VTKIOEXODUS_EXPORT vtkModelMetadata : public vtkObject
 {
 public:
   vtkTypeMacro(vtkModelMetadata, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkModelMetadata *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkModelMetadata* New();
 
   /**
    * The global fields are those which pertain to the whole
@@ -122,25 +122,24 @@ public:
    * The title of the dataset.
    */
   vtkSetStringMacro(Title);
-  const char *GetTitle() const {return this->Title;}
+  const char* GetTitle() const { return this->Title; }
   //@}
 
   /**
    * Set the information lines.
    */
-  void SetInformationLines(int numLines, char **lines);
+  void SetInformationLines(int numLines, char** lines);
 
   /**
    * Get a pointer to all the information lines.  The number
    * of lines is returned;
    */
-  int GetInformationLines(char ***lines) const;
+  int GetInformationLines(char*** lines) const;
 
   /**
    * Get the number of information lines.
    */
-  int GetNumberOfInformationLines() const {
-    return this->NumberOfInformationLines;}
+  int GetNumberOfInformationLines() const { return this->NumberOfInformationLines; }
 
   //@{
   /**
@@ -150,7 +149,7 @@ public:
    * an Exodus file.
    */
   vtkSetMacro(TimeStepIndex, int);
-  int GetTimeStepIndex() const {return this->TimeStepIndex;}
+  int GetTimeStepIndex() const { return this->TimeStepIndex; }
   //@}
 
   /**
@@ -158,25 +157,25 @@ public:
    * and the value at each time step.  We use your time
    * step value array and delete it when we're done.
    */
-  void SetTimeSteps(int numberOfTimeSteps, float *timeStepValues);
-  int GetNumberOfTimeSteps() const {return this->NumberOfTimeSteps;}
+  void SetTimeSteps(int numberOfTimeSteps, float* timeStepValues);
+  int GetNumberOfTimeSteps() const { return this->NumberOfTimeSteps; }
 
   /**
    * Get the time step values
    */
-  float *GetTimeStepValues() const {return this->TimeStepValues;}
+  float* GetTimeStepValues() const { return this->TimeStepValues; }
 
   /**
    * The name of the one, two or three coordinate dimensions.
    */
-  void SetCoordinateNames(int dimension, char **);
-  char **GetCoordinateNames() const {return this->CoordinateNames;}
+  void SetCoordinateNames(int dimension, char**);
+  char** GetCoordinateNames() const { return this->CoordinateNames; }
 
   /**
    * Get the dimension of the model.  This is also the number
    * of coordinate names.
    */
-  int GetDimension() const {return this->Dimension;}
+  int GetDimension() const { return this->Dimension; }
 
   //@{
   /**
@@ -184,66 +183,69 @@ public:
    * any of the block arrays.
    */
   vtkSetMacro(NumberOfBlocks, int);
-  int GetNumberOfBlocks() const {return this->NumberOfBlocks;}
+  int GetNumberOfBlocks() const { return this->NumberOfBlocks; }
   //@}
 
   /**
    * An arbitrary integer ID for each block.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetBlockIds(int *);
-  int *GetBlockIds() const {return this->BlockIds;}
+  void SetBlockIds(int*);
+  int* GetBlockIds() const { return this->BlockIds; }
 
   /**
    * Element type for each block - a name that means
    * something to person who created the file.
    * We use your pointers, and free the memory when the object is freed.
    */
-  void SetBlockElementType(char **);
-  char **GetBlockElementType() const {return this->BlockElementType;}
+  void SetBlockElementType(char**);
+  char** GetBlockElementType() const { return this->BlockElementType; }
 
   /**
    * Set or get a pointer to a list of the number of elements in
    * each block.
    * We use your pointers, and free the memory when the object is freed.
    */
-  int SetBlockNumberOfElements(int *nelts);
-  int *GetBlockNumberOfElements()const{return this->BlockNumberOfElements;}
+  int SetBlockNumberOfElements(int* nelts);
+  int* GetBlockNumberOfElements() const { return this->BlockNumberOfElements; }
 
   /**
    * Set or get a pointer to a list of the number of nodes in the
    * elements of each block.
    * We use your pointers, and free the memory when the object is freed.
    */
-  void SetBlockNodesPerElement(int *);
-  int *GetBlockNodesPerElement()const{return this->BlockNodesPerElement;}
+  void SetBlockNodesPerElement(int*);
+  int* GetBlockNodesPerElement() const { return this->BlockNodesPerElement; }
 
   /**
    * Set or get a pointer to a list global element IDs for the
    * elements in each block.
    * We use your pointers, and free the memory when the object is freed.
    */
-  void SetBlockElementIdList(int *);
-  int *GetBlockElementIdList() const {return this->BlockElementIdList;}
+  void SetBlockElementIdList(int*);
+  int* GetBlockElementIdList() const { return this->BlockElementIdList; }
 
   /**
    * Get the length of the list of elements in every block.
    */
-  int GetSumElementsPerBlock() const {return this->SumElementsPerBlock;}
+  int GetSumElementsPerBlock() const { return this->SumElementsPerBlock; }
 
   /**
    * Get a list of the index into the BlockElementIdList of the
    * start of each block's elements.
    */
-  int *GetBlockElementIdListIndex()const {return this->BlockElementIdListIndex;}
+  int* GetBlockElementIdListIndex() const { return this->BlockElementIdListIndex; }
 
   /**
    * Set or get a pointer to a list of the number of attributes
    * stored for the elements in each block.
    * We use your pointers, and free the memory when the object is freed.
    */
-  int SetBlockNumberOfAttributesPerElement(int *natts);
-  int *GetBlockNumberOfAttributesPerElement()const {return this->BlockNumberOfAttributesPerElement;}
+  int SetBlockNumberOfAttributesPerElement(int* natts);
+  int* GetBlockNumberOfAttributesPerElement() const
+  {
+    return this->BlockNumberOfAttributesPerElement;
+  }
 
   /**
    * Set or get a pointer to a list of the attributes for all
@@ -251,20 +253,19 @@ public:
    * within the block, by attribute.  Omit blocks that don't
    * have element attributes.
    */
-  void SetBlockAttributes(float *);
-  float *GetBlockAttributes()const {return this->BlockAttributes;}
+  void SetBlockAttributes(float*);
+  float* GetBlockAttributes() const { return this->BlockAttributes; }
 
   /**
    * Get the length of the list of floating point block attributes.
    */
-  int GetSizeBlockAttributeArray() const {
-    return this->SizeBlockAttributeArray;}
+  int GetSizeBlockAttributeArray() const { return this->SizeBlockAttributeArray; }
 
   /**
    * Get a list of the index into the BlockAttributes of the
    * start of each block's element attribute list.
    */
-  int *GetBlockAttributesIndex() const {return this->BlockAttributesIndex;}
+  int* GetBlockAttributesIndex() const { return this->BlockAttributesIndex; }
 
   //@{
   /**
@@ -272,10 +273,10 @@ public:
    * setting the various node set arrays.
    */
   vtkSetMacro(NumberOfNodeSets, int);
-  int GetNumberOfNodeSets() const {return this->NumberOfNodeSets;}
+  int GetNumberOfNodeSets() const { return this->NumberOfNodeSets; }
   //@}
 
-  void SetNodeSetNames (vtkStringArray *names) { this->NodeSetNames = names; }
+  void SetNodeSetNames(vtkStringArray* names) { this->NodeSetNames = names; }
   vtkStringArray* GetNodeSetNames() const { return this->NodeSetNames; }
 
   /**
@@ -283,15 +284,15 @@ public:
    * Length of list is the number of node sets.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetNodeSetIds(int *);
-  int *GetNodeSetIds() const {return this->NodeSetIds;}
+  void SetNodeSetIds(int*);
+  int* GetNodeSetIds() const { return this->NodeSetIds; }
 
   /**
    * Set or get a pointer to a list of the number of nodes in each node set.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetNodeSetSize(int *);
-  int *GetNodeSetSize() const {return this->NodeSetSize;}
+  void SetNodeSetSize(int*);
+  int* GetNodeSetSize() const { return this->NodeSetSize; }
 
   /**
    * Set or get a pointer to a concatenated list of the
@@ -299,8 +300,8 @@ public:
    * node set 0, then all IDs in node set 1, and so on.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetNodeSetNodeIdList(int *);
-  int *GetNodeSetNodeIdList() const {return this->NodeSetNodeIdList;}
+  void SetNodeSetNodeIdList(int*);
+  int* GetNodeSetNodeIdList() const { return this->NodeSetNodeIdList; }
 
   /**
    * Set or get a list of the number of distribution factors stored
@@ -309,45 +310,44 @@ public:
    * Length of list is number of node sets.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetNodeSetNumberOfDistributionFactors(int *);
-  int *GetNodeSetNumberOfDistributionFactors() const
-    {return this->NodeSetNumberOfDistributionFactors;}
+  void SetNodeSetNumberOfDistributionFactors(int*);
+  int* GetNodeSetNumberOfDistributionFactors() const
+  {
+    return this->NodeSetNumberOfDistributionFactors;
+  }
 
   /**
    * Set or get a list of the distribution factors for the node sets.
    * The list is organized by node set, and within node set by node.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetNodeSetDistributionFactors(float *);
-  float *GetNodeSetDistributionFactors() const {
-    return this->NodeSetDistributionFactors;}
+  void SetNodeSetDistributionFactors(float*);
+  float* GetNodeSetDistributionFactors() const { return this->NodeSetDistributionFactors; }
 
   //@{
   /**
    * Get the total number of nodes in all node sets
    */
   vtkSetMacro(SumNodesPerNodeSet, int);
-  int GetSumNodesPerNodeSet() const {return this->SumNodesPerNodeSet;}
+  int GetSumNodesPerNodeSet() const { return this->SumNodesPerNodeSet; }
   //@}
 
   /**
    * Get the total number of distribution factors stored for all node sets
    */
-  int GetSumDistFactPerNodeSet() const {return this->SumDistFactPerNodeSet;}
+  int GetSumDistFactPerNodeSet() const { return this->SumDistFactPerNodeSet; }
 
   /**
    * Get a list of the index of the starting entry for each node set
    * in the list of node set node IDs.
    */
-  int *GetNodeSetNodeIdListIndex() const {
-    return this->NodeSetNodeIdListIndex;}
+  int* GetNodeSetNodeIdListIndex() const { return this->NodeSetNodeIdListIndex; }
 
   /**
    * Get a list of the index of the starting entry for each node set
    * in the list of node set distribution factors.
    */
-  int *GetNodeSetDistributionFactorIndex() const {
-    return this->NodeSetDistributionFactorIndex;}
+  int* GetNodeSetDistributionFactorIndex() const { return this->NodeSetDistributionFactorIndex; }
 
   //@{
   /**
@@ -355,25 +355,25 @@ public:
    * setting any of the other side set arrays.
    */
   vtkSetMacro(NumberOfSideSets, int);
-  int GetNumberOfSideSets() const {return this->NumberOfSideSets;}
+  int GetNumberOfSideSets() const { return this->NumberOfSideSets; }
   //@}
 
-  void SetSideSetNames (vtkStringArray *names) { this->SideSetNames = names; }
+  void SetSideSetNames(vtkStringArray* names) { this->SideSetNames = names; }
   vtkStringArray* GetSideSetNames() const { return this->SideSetNames; }
 
   /**
    * Set or get a pointer to a list giving the ID of each side set.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetSideSetIds(int *);
-  int *GetSideSetIds() const {return this->SideSetIds;}
+  void SetSideSetIds(int*);
+  int* GetSideSetIds() const { return this->SideSetIds; }
 
   /**
    * Set or get a pointer to a list of the number of sides in each side set.
    * We use your pointer, and free the memory when the object is freed.
    */
-  int SetSideSetSize(int *sizes);
-  int *GetSideSetSize() const {return this->SideSetSize;}
+  int SetSideSetSize(int* sizes);
+  int* GetSideSetSize() const { return this->SideSetSize; }
 
   /**
    * Set or get a pointer to a list of the number of distribution
@@ -381,9 +381,11 @@ public:
    * no distribution factors, or 1 per node in the side set.
    * We use your pointer, and free the memory when the object is freed.
    */
-  int SetSideSetNumberOfDistributionFactors(int *df);
-  int *GetSideSetNumberOfDistributionFactors() const {
-    return this->SideSetNumberOfDistributionFactors;}
+  int SetSideSetNumberOfDistributionFactors(int* df);
+  int* GetSideSetNumberOfDistributionFactors() const
+  {
+    return this->SideSetNumberOfDistributionFactors;
+  }
 
   /**
    * Set or get a pointer to a list of the elements containing each
@@ -391,8 +393,8 @@ public:
    * within side set by element.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetSideSetElementList(int *);
-  int *GetSideSetElementList() const {return this->SideSetElementList;}
+  void SetSideSetElementList(int*);
+  int* GetSideSetElementList() const { return this->SideSetElementList; }
 
   /**
    * Set or get a pointer to the element side for each side in the side set.
@@ -401,8 +403,8 @@ public:
    * side set by side, and correspond to the SideSetElementList.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetSideSetSideList(int *);
-  int *GetSideSetSideList() const {return this->SideSetSideList;}
+  void SetSideSetSideList(int*);
+  int* GetSideSetSideList() const { return this->SideSetSideList; }
 
   /**
    * Set or get a pointer to a list of the number of nodes in each
@@ -410,8 +412,8 @@ public:
    * within side set by side.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetSideSetNumDFPerSide(int *numNodes);
-  int *GetSideSetNumDFPerSide() const {return this->SideSetNumDFPerSide;}
+  void SetSideSetNumDFPerSide(int* numNodes);
+  int* GetSideSetNumDFPerSide() const { return this->SideSetNumDFPerSide; }
 
   /**
    * Set or get a pointer to a list of all the distribution factors.
@@ -424,114 +426,108 @@ public:
    * by side set, by node.
    * We use your pointer, and free the memory when the object is freed.
    */
-  void SetSideSetDistributionFactors(float *);
-  float *GetSideSetDistributionFactors() const {
-    return this->SideSetDistributionFactors;}
+  void SetSideSetDistributionFactors(float*);
+  float* GetSideSetDistributionFactors() const { return this->SideSetDistributionFactors; }
 
   //@{
   /**
    * Get the total number of sides in all side sets
    */
   vtkSetMacro(SumSidesPerSideSet, int);
-  int GetSumSidesPerSideSet() const {return this->SumSidesPerSideSet;}
+  int GetSumSidesPerSideSet() const { return this->SumSidesPerSideSet; }
   //@}
 
   /**
    * Get the total number of distribution factors stored for all side sets
    */
-  int GetSumDistFactPerSideSet() const {return this->SumDistFactPerSideSet;}
+  int GetSumDistFactPerSideSet() const { return this->SumDistFactPerSideSet; }
 
   /**
    * Get a list of the index of the starting entry for each side set
    * in the list of side set side IDs.
    */
-  int *GetSideSetListIndex() const {return this->SideSetListIndex;}
+  int* GetSideSetListIndex() const { return this->SideSetListIndex; }
 
   /**
    * Get a list of the index of the starting entry for each side set
    * in the list of side set distribution factors.
    */
-  int *GetSideSetDistributionFactorIndex() const {
-    return this->SideSetDistributionFactorIndex;}
+  int* GetSideSetDistributionFactorIndex() const { return this->SideSetDistributionFactorIndex; }
 
   /**
    * The number of block properties (global variables)
    */
-  int GetNumberOfBlockProperties() const {
-    return this->NumberOfBlockProperties;}
+  int GetNumberOfBlockProperties() const { return this->NumberOfBlockProperties; }
 
   /**
    * Set or get the names of the block properties.
    */
-  void SetBlockPropertyNames(int numProp, char **names);
-  char **GetBlockPropertyNames() const {return this->BlockPropertyNames;}
+  void SetBlockPropertyNames(int numProp, char** names);
+  char** GetBlockPropertyNames() const { return this->BlockPropertyNames; }
 
   /**
    * Set or get value for each variable for each block.  List
    * the integer values in order by variable and within variable
    * by block.
    */
-  void SetBlockPropertyValue(int *);
-  int *GetBlockPropertyValue() const {return this->BlockPropertyValue;}
+  void SetBlockPropertyValue(int*);
+  int* GetBlockPropertyValue() const { return this->BlockPropertyValue; }
 
   /**
    * The number of node set properties (global variables)
    */
-  int GetNumberOfNodeSetProperties() const {
-    return this->NumberOfNodeSetProperties;}
+  int GetNumberOfNodeSetProperties() const { return this->NumberOfNodeSetProperties; }
 
   /**
    * Set or get the names of the node setproperties.
    */
-  void SetNodeSetPropertyNames(int numProp, char **names);
-  char **GetNodeSetPropertyNames() const {return this->NodeSetPropertyNames;}
+  void SetNodeSetPropertyNames(int numProp, char** names);
+  char** GetNodeSetPropertyNames() const { return this->NodeSetPropertyNames; }
 
   /**
    * Set or get value for each variable for each node set.  List
    * the integer values in order by variable and within variable
    * by node set.
    */
-  void SetNodeSetPropertyValue(int *);
-  int *GetNodeSetPropertyValue() const {return this->NodeSetPropertyValue;}
+  void SetNodeSetPropertyValue(int*);
+  int* GetNodeSetPropertyValue() const { return this->NodeSetPropertyValue; }
 
   /**
    * The number of side set properties (global variables)
    */
-  int GetNumberOfSideSetProperties() const {
-    return this->NumberOfSideSetProperties;}
+  int GetNumberOfSideSetProperties() const { return this->NumberOfSideSetProperties; }
 
   /**
    * Set or get the names of the side set properties.
    */
-  void SetSideSetPropertyNames(int numProp, char **names);
-  char **GetSideSetPropertyNames() const {return this->SideSetPropertyNames;}
+  void SetSideSetPropertyNames(int numProp, char** names);
+  char** GetSideSetPropertyNames() const { return this->SideSetPropertyNames; }
 
   /**
    * Set or get value for each variable for each side set.  List
    * the integer values in order by variable and within variable
    * by side set.
    */
-  void SetSideSetPropertyValue(int *);
-  int *GetSideSetPropertyValue() const {return this->SideSetPropertyValue;}
+  void SetSideSetPropertyValue(int*);
+  int* GetSideSetPropertyValue() const { return this->SideSetPropertyValue; }
 
   /**
    * Get the number of global variables per time step
    */
-  int GetNumberOfGlobalVariables() const {
-    return this->NumberOfGlobalVariables;}
+  int GetNumberOfGlobalVariables() const { return this->NumberOfGlobalVariables; }
 
   /**
    * Set or get the names of the global variables
    */
-  void SetGlobalVariableNames(int numVarNames, char **n);
-  char **GetGlobalVariableNames() const {return this->GlobalVariableNames;}
+  void SetGlobalVariableNames(int numVarNames, char** n);
+  char** GetGlobalVariableNames() const { return this->GlobalVariableNames; }
 
   /**
    * Set or get the values of the global variables at the current
    * time step.
    */
-  void SetGlobalVariableValue(float *f);
-  float *GetGlobalVariableValue() const {return this->GlobalVariableValue;}
+  void SetGlobalVariableValue(float* f);
+  float* GetGlobalVariableValue() const { return this->GlobalVariableValue; }
 
   /**
    * The ModelMetadata maintains a list of the element variables that
@@ -545,9 +541,8 @@ public:
    * the variable in the list of original names that represents it's
    * first component.
    */
-  void SetElementVariableInfo(int numOrigNames, char **origNames,
-                              int numNames, char **names, int *numComp,
-                              int *map);
+  void SetElementVariableInfo(
+    int numOrigNames, char** origNames, int numNames, char** names, int* numComp, int* map);
 
   /**
    * The ModelMetadata maintains a list of the node variables that
@@ -561,9 +556,8 @@ public:
    * the variable in the list of original names that represents it's
    * first component.
    */
-  void SetNodeVariableInfo(int numOrigNames, char **origNames,
-                           int numNames, char **names,  int *numComp,
-                           int *map);
+  void SetNodeVariableInfo(
+    int numOrigNames, char** origNames, int numNames, char** names, int* numComp, int* map);
 
   /**
    * A truth table indicating which element variables are
@@ -571,9 +565,8 @@ public:
    * element variables that were in the file.
    * The table is by block ID and within block ID by variable.
    */
-  void SetElementVariableTruthTable(int *);
-  int *GetElementVariableTruthTable() const {
-    return this->ElementVariableTruthTable;}
+  void SetElementVariableTruthTable(int*);
+  int* GetElementVariableTruthTable() const { return this->ElementVariableTruthTable; }
 
   //@{
   /**
@@ -583,8 +576,10 @@ public:
    */
   vtkSetMacro(AllVariablesDefinedInAllBlocks, vtkTypeBool);
   vtkBooleanMacro(AllVariablesDefinedInAllBlocks, vtkTypeBool);
-  vtkTypeBool GetAllVariablesDefinedInAllBlocks() const {
-    return this->AllVariablesDefinedInAllBlocks;}
+  vtkTypeBool GetAllVariablesDefinedInAllBlocks() const
+  {
+    return this->AllVariablesDefinedInAllBlocks;
+  }
   //@}
 
   /**
@@ -605,31 +600,25 @@ public:
    * components would immediately follow the name of the first
    * component.
    */
-  int GetOriginalNumberOfElementVariables() const {
-    return this->OriginalNumberOfElementVariables;}
-  char **GetOriginalElementVariableNames() const {
-    return this->OriginalElementVariableNames;}
-  int GetNumberOfElementVariables() const {
-    return this->NumberOfElementVariables;}
-  char **GetElementVariableNames() const {
-    return this->ElementVariableNames;}
-  int *GetElementVariableNumberOfComponents() const {
-    return this->ElementVariableNumberOfComponents;}
-  int *GetMapToOriginalElementVariableNames() const {
-    return this->MapToOriginalElementVariableNames;}
+  int GetOriginalNumberOfElementVariables() const { return this->OriginalNumberOfElementVariables; }
+  char** GetOriginalElementVariableNames() const { return this->OriginalElementVariableNames; }
+  int GetNumberOfElementVariables() const { return this->NumberOfElementVariables; }
+  char** GetElementVariableNames() const { return this->ElementVariableNames; }
+  int* GetElementVariableNumberOfComponents() const
+  {
+    return this->ElementVariableNumberOfComponents;
+  }
+  int* GetMapToOriginalElementVariableNames() const
+  {
+    return this->MapToOriginalElementVariableNames;
+  }
 
-  int GetOriginalNumberOfNodeVariables() const {
-    return this->OriginalNumberOfNodeVariables;}
-  char **GetOriginalNodeVariableNames() const {
-    return this->OriginalNodeVariableNames;}
-  int GetNumberOfNodeVariables() const {
-    return this->NumberOfNodeVariables;}
-  char **GetNodeVariableNames() const {
-    return this->NodeVariableNames;}
-  int *GetNodeVariableNumberOfComponents() const {
-    return this->NodeVariableNumberOfComponents;}
-  int *GetMapToOriginalNodeVariableNames() const {
-    return this->MapToOriginalNodeVariableNames;}
+  int GetOriginalNumberOfNodeVariables() const { return this->OriginalNumberOfNodeVariables; }
+  char** GetOriginalNodeVariableNames() const { return this->OriginalNodeVariableNames; }
+  int GetNumberOfNodeVariables() const { return this->NumberOfNodeVariables; }
+  char** GetNodeVariableNames() const { return this->NodeVariableNames; }
+  int* GetNodeVariableNumberOfComponents() const { return this->NodeVariableNumberOfComponents; }
+  int* GetMapToOriginalNodeVariableNames() const { return this->MapToOriginalNodeVariableNames; }
 
   //@{
   /**
@@ -677,71 +666,69 @@ private:
   int BuildBlockAttributesIndex();
   int BuildSideSetDistributionFactorIndex();
 
-  static char *StrDupWithNew(const char *s);
+  static char* StrDupWithNew(const char* s);
 
-  static int FindNameOnList(char *name, char **list, int listLen);
+  static int FindNameOnList(char* name, char** list, int listLen);
 
-  void ShowFloats(const char *what, int num, float *f);
-  void ShowLines(const char *what, int num, char **l);
-  void ShowIntArray(const char *what, int numx, int numy, int *id);
-  void ShowInts(const char *what, int num, int *id);
-  void ShowListsOfInts(const char *what, int *list,
-                       int nlists, int *idx, int len, int verbose);
-  void ShowListsOfFloats(const char *what, float *list,
-                         int nlists, int *idx, int len, int verbose);
+  void ShowFloats(const char* what, int num, float* f);
+  void ShowLines(const char* what, int num, char** l);
+  void ShowIntArray(const char* what, int numx, int numy, int* id);
+  void ShowInts(const char* what, int num, int* id);
+  void ShowListsOfInts(const char* what, int* list, int nlists, int* idx, int len, int verbose);
+  void ShowListsOfFloats(const char* what, float* list, int nlists, int* idx, int len, int verbose);
 
-  void SetOriginalElementVariableNames(int nvars, char **names);
-  void SetElementVariableNames(int nvars, char **names);
-  void SetElementVariableNumberOfComponents(int *comp);
-  void SetMapToOriginalElementVariableNames(int *map);
+  void SetOriginalElementVariableNames(int nvars, char** names);
+  void SetElementVariableNames(int nvars, char** names);
+  void SetElementVariableNumberOfComponents(int* comp);
+  void SetMapToOriginalElementVariableNames(int* map);
 
-  void SetOriginalNodeVariableNames(int nvars, char **names);
-  void SetNodeVariableNames(int nvars, char **names);
-  void SetNodeVariableNumberOfComponents(int *comp);
-  void SetMapToOriginalNodeVariableNames(int *map);
+  void SetOriginalNodeVariableNames(int nvars, char** names);
+  void SetNodeVariableNames(int nvars, char** names);
+  void SetNodeVariableNumberOfComponents(int* comp);
+  void SetMapToOriginalNodeVariableNames(int* map);
 
-  int CalculateMaximumLengths(int &maxString, int &maxLine);
+  int CalculateMaximumLengths(int& maxString, int& maxLine);
 
   // Fields in Exodus II file and their size (defined in exodusII.h)
   //   (G - global fields, relevant to entire file or file set)
   //   (L - local fields, they differ depending on which cells and nodes are
   //        in a file of a partitioned set, or are read in from file)
 
-  char *Title;                 // (G)
+  char* Title; // (G)
 
   int NumberOfInformationLines; // (G)
-  char **InformationLine;       // (G)
+  char** InformationLine;       // (G)
 
-  int Dimension;            // (G)
-  char **CoordinateNames;   // (at most 3 of these) (G)
+  int Dimension;          // (G)
+  char** CoordinateNames; // (at most 3 of these) (G)
 
   // Time steps
 
   int TimeStepIndex;     // starting at 0 (Exodus file starts at 1)
   int NumberOfTimeSteps; // (G)
-  float *TimeStepValues; // (G)
+  float* TimeStepValues; // (G)
 
   // Block information - arrays that are input with Set*
 
-  int NumberOfBlocks;       // (G)
+  int NumberOfBlocks; // (G)
 
-  int *BlockIds;               // NumberOfBlocks (G) (start at 1)
-  char **BlockElementType;     // NumberOfBlocks (G)
-  int *BlockNumberOfElements;  // NumberOfBlocks (L)
-  int *BlockNodesPerElement;   // NumberOfBlocks (G)
-  int *BlockNumberOfAttributesPerElement;// NumberOfBlocks (G)
-  int *BlockElementIdList;     // SumElementsPerBlock     (L)
-  float *BlockAttributes;      // SizeBlockAttributeArray (L)
+  int* BlockIds;                          // NumberOfBlocks (G) (start at 1)
+  char** BlockElementType;                // NumberOfBlocks (G)
+  int* BlockNumberOfElements;             // NumberOfBlocks (L)
+  int* BlockNodesPerElement;              // NumberOfBlocks (G)
+  int* BlockNumberOfAttributesPerElement; // NumberOfBlocks (G)
+  int* BlockElementIdList;                // SumElementsPerBlock     (L)
+  float* BlockAttributes;                 // SizeBlockAttributeArray (L)
 
   // Block information - values that we calculate
 
   int SumElementsPerBlock;
   int SizeBlockAttributeArray;
 
-  int *BlockElementIdListIndex;          // NumberOfBlocks
-  int *BlockAttributesIndex;             // NumberOfBlocks
+  int* BlockElementIdListIndex; // NumberOfBlocks
+  int* BlockAttributesIndex;    // NumberOfBlocks
 
-  vtkModelMetadataSTLCloak *BlockIdIndex;    // computed map
+  vtkModelMetadataSTLCloak* BlockIdIndex; // computed map
 
   // Node Sets - arrays that are input to the class with Set*
 
@@ -749,19 +736,19 @@ private:
 
   vtkSmartPointer<vtkStringArray> NodeSetNames;
 
-  int *NodeSetIds;             // NumberOfNodeSets (G)
-  int *NodeSetSize;            // NumberOfNodeSets (L)
-  int *NodeSetNumberOfDistributionFactors;  // NNS (L) (NSNDF[i] is 0 or NSS[i])
-  int *NodeSetNodeIdList;   // SumNodesPerNodeSet (L)
-  float *NodeSetDistributionFactors; // SumDistFactPerNodeSet (L)
+  int* NodeSetIds;                         // NumberOfNodeSets (G)
+  int* NodeSetSize;                        // NumberOfNodeSets (L)
+  int* NodeSetNumberOfDistributionFactors; // NNS (L) (NSNDF[i] is 0 or NSS[i])
+  int* NodeSetNodeIdList;                  // SumNodesPerNodeSet (L)
+  float* NodeSetDistributionFactors;       // SumDistFactPerNodeSet (L)
 
   // Node Sets - values or arrays that the class computes
 
   int SumNodesPerNodeSet;
   int SumDistFactPerNodeSet;
 
-  int *NodeSetNodeIdListIndex;           // NumberOfNodeSets
-  int *NodeSetDistributionFactorIndex;   // NumberOfNodeSets
+  int* NodeSetNodeIdListIndex;         // NumberOfNodeSets
+  int* NodeSetDistributionFactorIndex; // NumberOfNodeSets
 
   // Side Sets - input to class with Set*
 
@@ -769,35 +756,35 @@ private:
 
   vtkSmartPointer<vtkStringArray> SideSetNames;
 
-  int *SideSetIds;                          // NumberOfSideSets (G)
-  int *SideSetSize;                         // NumberOfSideSets (L)
-  int *SideSetNumberOfDistributionFactors;  // NSS (L) (SSNDF[i] = 0 or NumNodesInSide)
-  int *SideSetElementList;               // SumSidesPerSideSet (L)
-  int *SideSetSideList;                  // SumSidesPerSideSet (L)
-  int *SideSetNumDFPerSide;              // SumSidesPerSideSet (L)
-  float *SideSetDistributionFactors;     // SumDistFactPerSideSet (L)
+  int* SideSetIds;                         // NumberOfSideSets (G)
+  int* SideSetSize;                        // NumberOfSideSets (L)
+  int* SideSetNumberOfDistributionFactors; // NSS (L) (SSNDF[i] = 0 or NumNodesInSide)
+  int* SideSetElementList;                 // SumSidesPerSideSet (L)
+  int* SideSetSideList;                    // SumSidesPerSideSet (L)
+  int* SideSetNumDFPerSide;                // SumSidesPerSideSet (L)
+  float* SideSetDistributionFactors;       // SumDistFactPerSideSet (L)
 
   // Side Sets - calculated by class
 
   int SumSidesPerSideSet;
   int SumDistFactPerSideSet;
 
-  int *SideSetListIndex;                 // NumberOfSideSets
-  int *SideSetDistributionFactorIndex;   // NumberOfSideSets
+  int* SideSetListIndex;               // NumberOfSideSets
+  int* SideSetDistributionFactorIndex; // NumberOfSideSets
 
   // Other properties, provided as input with Set*
 
   int NumberOfBlockProperties; // (G)
-  char **BlockPropertyNames;   // one per property (G)
-  int *BlockPropertyValue;     // NumBlocks * NumBlockProperties (G)
+  char** BlockPropertyNames;   // one per property (G)
+  int* BlockPropertyValue;     // NumBlocks * NumBlockProperties (G)
 
   int NumberOfNodeSetProperties; // (G)
-  char **NodeSetPropertyNames;   // one per property (G)
-  int *NodeSetPropertyValue;     // NumNodeSets * NumNodeSetProperties (G)
+  char** NodeSetPropertyNames;   // one per property (G)
+  int* NodeSetPropertyValue;     // NumNodeSets * NumNodeSetProperties (G)
 
   int NumberOfSideSetProperties; // (G)
-  char **SideSetPropertyNames;   // one per property (G)
-  int *SideSetPropertyValue;     // NumSideSets * NumSideSetProperties (G)
+  char** SideSetPropertyNames;   // one per property (G)
+  int* SideSetPropertyValue;     // NumSideSets * NumSideSetProperties (G)
 
   // Global variables, 1 value per time step per variable.  We store
   // these as floats, even if they are doubles in the file.  The values
@@ -807,9 +794,9 @@ private:
   // time step, they are therefore considered "local".  (Since they need
   // to be updated every time another read is done from the file.)
 
-  int NumberOfGlobalVariables;   // (G)
-  char **GlobalVariableNames;    // (G) NumberOfGlobalVariables
-  float *GlobalVariableValue;   // (G) NumberOfGlobalVariables
+  int NumberOfGlobalVariables; // (G)
+  char** GlobalVariableNames;  // (G) NumberOfGlobalVariables
+  float* GlobalVariableValue;  // (G) NumberOfGlobalVariables
 
   // The element and node arrays in the file were all scalar arrays.
   // Those with similar names were combined into vectors in VTK.  Here
@@ -817,23 +804,23 @@ private:
   // the variables in the VTK ugrid, and a mapping from the VTK names
   // to the Exodus names.
 
-  int OriginalNumberOfElementVariables;    // (G)
-  char **OriginalElementVariableNames;     // (G) OriginalNumberOfElementVariables
-  int NumberOfElementVariables;            // (G)
-  int MaxNumberOfElementVariables;         // (G)
-  char **ElementVariableNames;             // (G) MaxNumberOfElementVariables
-  int *ElementVariableNumberOfComponents;  // (G) MaxNumberOfElementVariables
-  int *MapToOriginalElementVariableNames;  // (G) MaxNumberOfElementVariables
+  int OriginalNumberOfElementVariables;   // (G)
+  char** OriginalElementVariableNames;    // (G) OriginalNumberOfElementVariables
+  int NumberOfElementVariables;           // (G)
+  int MaxNumberOfElementVariables;        // (G)
+  char** ElementVariableNames;            // (G) MaxNumberOfElementVariables
+  int* ElementVariableNumberOfComponents; // (G) MaxNumberOfElementVariables
+  int* MapToOriginalElementVariableNames; // (G) MaxNumberOfElementVariables
 
-  int OriginalNumberOfNodeVariables;       // (G)
-  char **OriginalNodeVariableNames;        // (G) OriginalNumberOfNodeVariables
-  int NumberOfNodeVariables;               // (G)
-  int MaxNumberOfNodeVariables;            // (G)
-  char **NodeVariableNames;                // (G) NumberOfNodeVariables
-  int *NodeVariableNumberOfComponents;     // (G) NumberOfNodeVariables
-  int *MapToOriginalNodeVariableNames;     // (G) NumberOfNodeVariables
+  int OriginalNumberOfNodeVariables;   // (G)
+  char** OriginalNodeVariableNames;    // (G) OriginalNumberOfNodeVariables
+  int NumberOfNodeVariables;           // (G)
+  int MaxNumberOfNodeVariables;        // (G)
+  char** NodeVariableNames;            // (G) NumberOfNodeVariables
+  int* NodeVariableNumberOfComponents; // (G) NumberOfNodeVariables
+  int* MapToOriginalNodeVariableNames; // (G) NumberOfNodeVariables
 
-  int *ElementVariableTruthTable;  // (G) NumBlocks*OrigNumberOfElementVariables
+  int* ElementVariableTruthTable; // (G) NumBlocks*OrigNumberOfElementVariables
   vtkTypeBool AllVariablesDefinedInAllBlocks;
 
 private:

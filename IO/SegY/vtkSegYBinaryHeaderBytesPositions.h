@@ -62,6 +62,5 @@ private:
   }
 };
 
-
 #endif // vtkSegYBinaryHeaderBytesPositions_h
 // VTK-HeaderTest-Exclude: vtkSegYBinaryHeaderBytesPositions.h

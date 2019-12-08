@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-
 #ifndef vtkHyperTreeGridTools_h
 #define vtkHyperTreeGridTools_h
 
-
-namespace vtk {
-namespace hypertreegrid {
-
-template < class T >
-bool HasTree( const T & e )
+namespace vtk
 {
-  return e.GetTree() != 0;
+namespace hypertreegrid
+{
+
+template <class T>
+bool HasTree(const T& e)
+{
+  return e.GetTree() != nullptr;
 }
 
-}// namespace hypertreegrid
-}// namespace vtk
+} // namespace hypertreegrid
+} // namespace vtk
 
 #endif // vtHyperTreeGridTools_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridTools.h

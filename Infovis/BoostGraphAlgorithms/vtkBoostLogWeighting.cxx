@@ -19,11 +19,11 @@
 
 =========================================================================*/
 
+#include "vtkBoostLogWeighting.h"
 #include "vtkArrayCoordinates.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkBoostLogWeighting.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypedArray.h"
@@ -31,7 +31,7 @@
 #include <boost/math/special_functions/log1p.hpp>
 #include <boost/version.hpp>
 #if BOOST_VERSION < 103400
-  #error "vtkBoostLogWeighting requires Boost 1.34.0 or later"
+#error "vtkBoostLogWeighting requires Boost 1.34.0 or later"
 #endif
 
 #include <cmath>
@@ -42,54 +42,51 @@
 
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
-vtkBoostLogWeighting::vtkBoostLogWeighting() :
-  Base(BASE_E),
-  EmitProgress(true)
+vtkBoostLogWeighting::vtkBoostLogWeighting()
+  : Base(BASE_E)
+  , EmitProgress(true)
 {
 }
 
-vtkBoostLogWeighting::~vtkBoostLogWeighting()
-{
-}
+vtkBoostLogWeighting::~vtkBoostLogWeighting() {}
 
 void vtkBoostLogWeighting::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Base: " << this->Base << endl;
-  os << indent << "EmitProgress: "
-     << (this->EmitProgress ? "on" : "off") << endl;
+  os << indent << "EmitProgress: " << (this->EmitProgress ? "on" : "off") << endl;
 }
 
 int vtkBoostLogWeighting::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   try
   {
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
-    if(!input_data)
+    if (!input_data)
       throw std::runtime_error("Missing input vtkArrayData on port 0.");
-    if(input_data->GetNumberOfArrays() != 1)
+    if (input_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("Input vtkArrayData must contain exactly one array.");
-    vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
-    if(!input_array)
+    vtkTypedArray<double>* const input_array =
+      vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
+    if (!input_array)
       throw std::runtime_error("Unsupported input array type.");
 
-    vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
+    vtkTypedArray<double>* const output_array =
+      vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
     output->ClearArrays();
     output->AddArray(output_array);
     output_array->Delete();
 
     const vtkIdType value_count = input_array->GetNonNullSize();
-    switch(this->Base)
+    switch (this->Base)
     {
       case BASE_E:
       {
-        if(this->EmitProgress)
+        if (this->EmitProgress)
         {
-          for(vtkIdType i = 0; i != value_count; ++i)
+          for (vtkIdType i = 0; i != value_count; ++i)
           {
             output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
 
@@ -99,7 +96,7 @@ int vtkBoostLogWeighting::RequestData(
         }
         else
         {
-          for(vtkIdType i = 0; i != value_count; ++i)
+          for (vtkIdType i = 0; i != value_count; ++i)
           {
             output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
           }
@@ -109,9 +106,9 @@ int vtkBoostLogWeighting::RequestData(
       case BASE_2:
       {
         const double ln2 = log(2.0);
-        if(this->EmitProgress)
+        if (this->EmitProgress)
         {
-          for(vtkIdType i = 0; i != value_count; ++i)
+          for (vtkIdType i = 0; i != value_count; ++i)
           {
             output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
 
@@ -121,7 +118,7 @@ int vtkBoostLogWeighting::RequestData(
         }
         else
         {
-          for(vtkIdType i = 0; i != value_count; ++i)
+          for (vtkIdType i = 0; i != value_count; ++i)
           {
             output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
           }
@@ -132,12 +129,12 @@ int vtkBoostLogWeighting::RequestData(
         throw std::runtime_error("Unknown Base type.");
     }
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
   }
-  catch(...)
+  catch (...)
   {
     vtkErrorMacro(<< "unknown exception");
     return 0;
@@ -145,4 +142,3 @@ int vtkBoostLogWeighting::RequestData(
 
   return 1;
 }
-

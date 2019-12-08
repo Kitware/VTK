@@ -31,7 +31,7 @@
  * a very good reason to use vtkMutexLock. If higher-performance equivalents
  * for non-Windows platforms (Irix, SunOS, etc) are discovered, they
  * should replace the implementations in this class
-*/
+ */
 
 #ifndef vtkSimpleCriticalSection_h
 #define vtkSimpleCriticalSection_h
@@ -45,7 +45,7 @@ typedef pthread_mutex_t vtkCritSecType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-# include "vtkWindows.h" // Needed for win32 implementation of mutex
+#include "vtkWindows.h" // Needed for win32 implementation of mutex
 typedef CRITICAL_SECTION vtkCritSecType;
 #endif
 
@@ -60,15 +60,12 @@ class VTKCOMMONCORE_EXPORT vtkSimpleCriticalSection
 {
 public:
   // Default cstor
-  vtkSimpleCriticalSection()
-  {
-    this->Init();
-  }
+  vtkSimpleCriticalSection() { this->Init(); }
   // Construct object locked if isLocked is different from 0
   vtkSimpleCriticalSection(int isLocked)
   {
     this->Init();
-    if(isLocked)
+    if (isLocked)
     {
       this->Lock();
     }
@@ -89,7 +86,7 @@ public:
   void Unlock();
 
 protected:
-  vtkCritSecType   CritSec;
+  vtkCritSecType CritSec;
 
 private:
   vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other) = delete;

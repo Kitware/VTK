@@ -15,19 +15,18 @@
 
 #include "vtkGPUInfoList.h"
 
-#include <cassert>
 #include "vtkGPUInfo.h"
 #include "vtkGraphicsFactory.h"
+#include <cassert>
 
-#include <vector>
 #include "vtkGPUInfoListArray.h"
-
+#include <vector>
 
 // ----------------------------------------------------------------------------
-vtkGPUInfoList *vtkGPUInfoList::New()
+vtkGPUInfoList* vtkGPUInfoList::New()
 {
-  vtkObject *ret=vtkGraphicsFactory::CreateInstance("vtkGPUInfoList");
-  return static_cast<vtkGPUInfoList *>(ret);
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkGPUInfoList");
+  return static_cast<vtkGPUInfoList*>(ret);
 }
 
 // ----------------------------------------------------------------------------
@@ -44,7 +43,7 @@ bool vtkGPUInfoList::IsProbed()
 // \pre probed: IsProbed()
 int vtkGPUInfoList::GetNumberOfGPUs()
 {
-  if ( !this->IsProbed() )
+  if (!this->IsProbed())
   {
     vtkErrorMacro("You must first call the Probe method");
     return 0;
@@ -59,13 +58,13 @@ int vtkGPUInfoList::GetNumberOfGPUs()
 // \pre probed: IsProbed()
 // \pre valid_index: i>=0 && i<GetNumberOfGPUs()
 // \post result_exists: result!=0
-vtkGPUInfo *vtkGPUInfoList::GetGPUInfo(int i)
+vtkGPUInfo* vtkGPUInfoList::GetGPUInfo(int i)
 {
   assert("pre: probed" && this->IsProbed());
-  assert("pre: valid_index" && i>=0 && i<this->GetNumberOfGPUs());
+  assert("pre: valid_index" && i >= 0 && i < this->GetNumberOfGPUs());
 
-  vtkGPUInfo *result=this->Array->v[static_cast<size_t>(i)];
-  assert("post: result_exists" && result!=nullptr);
+  vtkGPUInfo* result = this->Array->v[static_cast<size_t>(i)];
+  assert("post: result_exists" && result != nullptr);
   return result;
 }
 
@@ -74,18 +73,18 @@ vtkGPUInfo *vtkGPUInfoList::GetGPUInfo(int i)
 // Default constructor. Set Probed to false. Set Array to nullptr.
 vtkGPUInfoList::vtkGPUInfoList()
 {
-  this->Probed=false;
-  this->Array=nullptr;
+  this->Probed = false;
+  this->Array = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkGPUInfoList::~vtkGPUInfoList()
 {
-  if(this->Array!=nullptr)
+  if (this->Array != nullptr)
   {
-    size_t c=this->Array->v.size();
-    size_t i=0;
-    while(i<c)
+    size_t c = this->Array->v.size();
+    size_t i = 0;
+    while (i < c)
     {
       this->Array->v[i]->Delete();
       ++i;
@@ -97,18 +96,18 @@ vtkGPUInfoList::~vtkGPUInfoList()
 // ----------------------------------------------------------------------------
 void vtkGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "IsProbed: " << this->Probed << endl;
-  if(this->Probed)
+  if (this->Probed)
   {
-    int c=this->GetNumberOfGPUs();
+    int c = this->GetNumberOfGPUs();
     os << indent << "Number of GPUs: " << c << endl;
-    int i=0;
-    while(i<c)
+    int i = 0;
+    while (i < c)
     {
       os << indent << " GPU " << i;
-      this->GetGPUInfo(i)->PrintSelf(os,indent);
+      this->GetGPUInfo(i)->PrintSelf(os, indent);
       ++i;
     }
   }

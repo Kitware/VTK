@@ -17,21 +17,21 @@
  * @brief   extract levels between min and max
  *
  * Legacy class. Use vtkExtractLevel instead.
-*/
+ */
 
 #ifndef vtkHierarchicalDataExtractLevel_h
 #define vtkHierarchicalDataExtractLevel_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractLevel.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractLevel : public vtkExtractLevel
 {
 public:
-  vtkTypeMacro(vtkHierarchicalDataExtractLevel,vtkExtractLevel);
+  vtkTypeMacro(vtkHierarchicalDataExtractLevel, vtkExtractLevel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkHierarchicalDataExtractLevel *New();
+  static vtkHierarchicalDataExtractLevel* New();
 
 protected:
   vtkHierarchicalDataExtractLevel();
@@ -43,5 +43,3 @@ private:
 };
 
 #endif
-
-

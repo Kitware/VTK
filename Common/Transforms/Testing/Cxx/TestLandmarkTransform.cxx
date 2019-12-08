@@ -16,15 +16,14 @@
 #include "vtkLandmarkTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkTransform.h"
-#include "vtkNew.h"
 
 #include <iostream>
 #include <sstream>
 
-static int TestSpecificLandmarkTransform(
-  int mode, int dimensionality, int npoints, double sigma,
+static int TestSpecificLandmarkTransform(int mode, int dimensionality, int npoints, double sigma,
   double scale1, double scale2, double scale3)
 {
   int rval = 0; // will be set to 1 if failure
@@ -108,7 +107,7 @@ static int TestSpecificLandmarkTransform(
   // create the two point sets
   vtkNew<vtkPoints> points1;
   vtkNew<vtkPoints> points2;
-  double psigma = sigma/sqrt(3.0);
+  double psigma = sigma / sqrt(3.0);
   for (int i = 0; i < npoints; i++)
   {
     double p[3] = { lcoords[i][0], lcoords[i][1], lcoords[i][2] };
@@ -117,9 +116,9 @@ static int TestSpecificLandmarkTransform(
     points1->InsertNextPoint(p);
     // transform the point and add noise
     transform->TransformPoint(p, p);
-    p[0] += psigma*lnoise[i][0];
-    p[1] += psigma*lnoise[i][1];
-    p[2] += psigma*lnoise[i][2];
+    p[0] += psigma * lnoise[i][0];
+    p[1] += psigma * lnoise[i][1];
+    p[2] += psigma * lnoise[i][2];
     points2->InsertNextPoint(p);
   }
 
@@ -132,14 +131,14 @@ static int TestSpecificLandmarkTransform(
 
   // check the determinant
   double det = ltrans->GetMatrix()->Determinant();
-  if (det*det < 1e-12)
+  if (det * det < 1e-12)
   {
     rval = 1;
     errstream << "Singular matrix, determinant = " << det << ". ";
   }
   else if (mode == VTK_LANDMARK_AFFINE)
   {
-    if (det*scale1*scale2*scale3 < 0.0)
+    if (det * scale1 * scale2 * scale3 < 0.0)
     {
       rval = 1;
       errstream << "Determinant has wrong sign: " << det << ". ";
@@ -165,7 +164,7 @@ static int TestSpecificLandmarkTransform(
         v[j] = 1.0;
         ltrans->TransformVector(v, v);
         double s = vtkMath::Norm(v);
-        if ((s - scale)*(s - scale) > 1.1*sigma)
+        if ((s - scale) * (s - scale) > 1.1 * sigma)
         {
           rval = 1;
           errstream << "Scale should be " << scale << ": " << s << ". ";
@@ -181,7 +180,7 @@ static int TestSpecificLandmarkTransform(
       rval = 1;
       errstream << "Determinant has wrong sign: " << det << ". ";
     }
-    else if ((det - 1.0)*(det - 1.0) > 1e-12)
+    else if ((det - 1.0) * (det - 1.0) > 1e-12)
     {
       rval = 1;
       errstream << "Determinant should be 1.0: " << det << ". ";
@@ -205,8 +204,8 @@ static int TestSpecificLandmarkTransform(
   }
 
   // we expect average error to be close to sigma
-  double r = (npoints > 0 ? sqrt(dsum/npoints) : 0.0);
-  if (r > 1.1*sigma)
+  double r = (npoints > 0 ? sqrt(dsum / npoints) : 0.0);
+  if (r > 1.1 * sigma)
   {
     rval = 1;
     errstream << "Average error is too high: "
@@ -215,7 +214,7 @@ static int TestSpecificLandmarkTransform(
 
   // we expect the max error to be around 2 sigma
   double e = sqrt(dmax);
-  if (e > 2.5*sigma)
+  if (e > 2.5 * sigma)
   {
     rval = 1;
     errstream << "Maximum error is too high: "
@@ -231,8 +230,7 @@ static int TestSpecificLandmarkTransform(
   ltrans2->Update();
 
   vtkNew<vtkMatrix4x4> testInverse;
-  vtkMatrix4x4::Multiply4x4(ltrans->GetMatrix(), ltrans2->GetMatrix(),
-                            testInverse);
+  vtkMatrix4x4::Multiply4x4(ltrans->GetMatrix(), ltrans2->GetMatrix(), testInverse);
   double tol = 1e-6;
   double maxerr = 0.0;
   for (int i = 0; i < 4; i++)
@@ -255,13 +253,9 @@ static int TestSpecificLandmarkTransform(
   if (rval != 0)
   {
     std::cerr << "Error for " << ltrans->GetModeAsString()
-              << " with dimensionality=" << dimensionality
-              << ", npoints=" << npoints
-              << ", sigma=" << sigma
-              << ", scale1=" << scale1
-              << ", scale2=" << scale2
-              << ", scale3=" << scale3
-              << ": " << errstream.str() << std::endl;
+              << " with dimensionality=" << dimensionality << ", npoints=" << npoints
+              << ", sigma=" << sigma << ", scale1=" << scale1 << ", scale2=" << scale2
+              << ", scale3=" << scale3 << ": " << errstream.str() << std::endl;
   }
 
   return rval;
@@ -276,7 +270,7 @@ static int TestSpecificLandmarkTransform(
 // Also, the registration should give sensible results even if there are
 // only 1, 2, 3 or even no input points.
 
-int TestLandmarkTransform(int,char *[])
+int TestLandmarkTransform(int, char*[])
 {
   int rval = 0;
 
@@ -293,8 +287,7 @@ int TestLandmarkTransform(int,char *[])
 
   // All sets of test conditions that are commented out are conditions
   // under which vtkLandmarkTransform currently fails.
-  const Conditions benchmarks[] =
-  {
+  const Conditions benchmarks[] = {
     // rigid body with different dimensionalities
     { VTK_LANDMARK_RIGIDBODY, 0, 20, 1e-6, 1.0, 1.0, 1.0 },
     { VTK_LANDMARK_RIGIDBODY, 0, 20, 1e-1, 1.0, 1.0, 1.0 },
@@ -353,12 +346,11 @@ int TestLandmarkTransform(int,char *[])
     { VTK_LANDMARK_AFFINE, 3, 4, 1e-1, 1.1, 4.2, 2.8 },
   };
 
-  for (size_t i = 0; i < sizeof(benchmarks)/sizeof(Conditions); i++)
+  for (size_t i = 0; i < sizeof(benchmarks) / sizeof(Conditions); i++)
   {
-    const Conditions *c = &benchmarks[i];
+    const Conditions* c = &benchmarks[i];
     rval |= TestSpecificLandmarkTransform(
-      c->mode, c->dimensionality, c->npoints, c->sigma,
-      c->scale1, c->scale2, c->scale3);
+      c->mode, c->dimensionality, c->npoints, c->sigma, c->scale1, c->scale2, c->scale3);
   }
 
   return rval;

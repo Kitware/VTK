@@ -31,30 +31,29 @@
  * @sa
  * vtkImageSlabReslice vtkResliceCursorLineRepresentation
  * vtkResliceCursor
-*/
+ */
 
 #ifndef vtkResliceCursorWidget_h
 #define vtkResliceCursorWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkResliceCursorRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorWidget : public vtkAbstractWidget
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkResliceCursorWidget *New();
+  static vtkResliceCursorWidget* New();
 
   //@{
   /**
    * Standard VTK class macros.
    */
-  vtkTypeMacro(vtkResliceCursorWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkResliceCursorWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -63,15 +62,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkResliceCursorRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(
-        reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkResliceCursorRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkResliceCursorRepresentation.
    */
-  vtkResliceCursorRepresentation *GetResliceCursorRepresentation()
-    {return reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);}
+  vtkResliceCursorRepresentation* GetResliceCursorRepresentation()
+  {
+    return reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -89,9 +91,9 @@ public:
   /**
    * Also perform window level ?
    */
-  vtkSetMacro( ManageWindowLevel, vtkTypeBool );
-  vtkGetMacro( ManageWindowLevel, vtkTypeBool );
-  vtkBooleanMacro( ManageWindowLevel, vtkTypeBool );
+  vtkSetMacro(ManageWindowLevel, vtkTypeBool);
+  vtkGetMacro(ManageWindowLevel, vtkTypeBool);
+  vtkBooleanMacro(ManageWindowLevel, vtkTypeBool);
   //@}
 
   /**
@@ -136,7 +138,7 @@ protected:
   int WidgetState;
   enum _WidgetState
   {
-    Start=0,
+    Start = 0,
     Active
   };
 

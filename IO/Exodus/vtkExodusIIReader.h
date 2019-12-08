@@ -32,7 +32,7 @@
  * arrays to load with the methods "SetPointResultArrayStatus" and
  * "SetElementResultArrayStatus".  The reader DOES NOT respond to piece requests
  *
-*/
+ */
 
 #ifndef vtkExodusIIReader_h
 #define vtkExodusIIReader_h
@@ -54,8 +54,8 @@ class vtkUnstructuredGrid;
 class VTKIOEXODUS_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkExodusIIReader *New();
-  vtkTypeMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
+  static vtkExodusIIReader* New();
+  vtkTypeMacro(vtkExodusIIReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -63,7 +63,7 @@ public:
    */
   virtual int CanReadFile(const char* fname);
 
-  //virtual void Modified();
+  // virtual void Modified();
 
   /**
    * Return the object's MTime. This is overridden to include the timestamp of its internal class.
@@ -81,7 +81,7 @@ public:
   /**
    * Specify file name of the Exodus file.
    */
-  virtual void SetFileName( const char* fname );
+  virtual void SetFileName(const char* fname);
   vtkGetStringMacro(FileName);
   //@}
 
@@ -89,7 +89,7 @@ public:
   /**
    * Specify file name of the xml file.
    */
-  virtual void SetXMLFileName( const char* fname );
+  virtual void SetXMLFileName(const char* fname);
   vtkGetStringMacro(XMLFileName);
   //@}
 
@@ -105,10 +105,7 @@ public:
    * Convenience method to set the mode-shape which is same as
    * this->SetTimeStep(val-1);
    */
-  void SetModeShape(int val)
-  {
-    this->SetTimeStep(val-1);
-  }
+  void SetModeShape(int val) { this->SetTimeStep(val - 1); }
 
   //@{
   /**
@@ -126,7 +123,7 @@ public:
    * Note this method returns the potential timesteps range irrespective of
    * whether this->HasModeShapes is set to false.
    */
-  vtkGetVector2Macro(TimeStepRange,int);
+  vtkGetVector2Macro(TimeStepRange, int);
   //@}
 
   //@{
@@ -141,33 +138,33 @@ public:
    * representing faces from an Exodus face block. The same holds
    * for cells representing entries of node, edge, face, side, and element sets.
    */
-  virtual void SetGenerateObjectIdCellArray( vtkTypeBool g );
+  virtual void SetGenerateObjectIdCellArray(vtkTypeBool g);
   vtkTypeBool GetGenerateObjectIdCellArray();
   vtkBooleanMacro(GenerateObjectIdCellArray, vtkTypeBool);
-  static const char *GetObjectIdArrayName() { return "ObjectId"; }
+  static const char* GetObjectIdArrayName() { return "ObjectId"; }
   //@}
 
-  virtual void SetGenerateGlobalElementIdArray( vtkTypeBool g );
+  virtual void SetGenerateGlobalElementIdArray(vtkTypeBool g);
   vtkTypeBool GetGenerateGlobalElementIdArray();
   vtkBooleanMacro(GenerateGlobalElementIdArray, vtkTypeBool);
 
-  virtual void SetGenerateGlobalNodeIdArray( vtkTypeBool g );
+  virtual void SetGenerateGlobalNodeIdArray(vtkTypeBool g);
   vtkTypeBool GetGenerateGlobalNodeIdArray();
   vtkBooleanMacro(GenerateGlobalNodeIdArray, vtkTypeBool);
 
-  virtual void SetGenerateImplicitElementIdArray( vtkTypeBool g );
+  virtual void SetGenerateImplicitElementIdArray(vtkTypeBool g);
   vtkTypeBool GetGenerateImplicitElementIdArray();
   vtkBooleanMacro(GenerateImplicitElementIdArray, vtkTypeBool);
 
-  virtual void SetGenerateImplicitNodeIdArray( vtkTypeBool g );
+  virtual void SetGenerateImplicitNodeIdArray(vtkTypeBool g);
   vtkTypeBool GetGenerateImplicitNodeIdArray();
   vtkBooleanMacro(GenerateImplicitNodeIdArray, vtkTypeBool);
 
-  virtual void SetGenerateFileIdArray( vtkTypeBool f );
+  virtual void SetGenerateFileIdArray(vtkTypeBool f);
   vtkTypeBool GetGenerateFileIdArray();
   vtkBooleanMacro(GenerateFileIdArray, vtkTypeBool);
 
-  virtual void SetFileId( int f );
+  virtual void SetFileId(int f);
   int GetFileId();
 
   //@{
@@ -177,15 +174,17 @@ public:
    * The name of the array is returned by GetGlobalElementIdArrayName()
    * ***NOTE*** No more "unique" global ID. Instead we have an arbitrary number of maps.
    */
-  enum {
-    SEARCH_TYPE_ELEMENT=0,
+  enum
+  {
+    SEARCH_TYPE_ELEMENT = 0,
     SEARCH_TYPE_NODE,
     SEARCH_TYPE_ELEMENT_THEN_NODE,
     SEARCH_TYPE_NODE_THEN_ELEMENT,
-    ID_NOT_FOUND=-234121312
+    ID_NOT_FOUND = -234121312
   };
   // NOTE: GetNumberOfObjectTypes must be updated whenever you add an entry to enum ObjectType {...}
-  enum ObjectType {
+  enum ObjectType
+  {
     // match Exodus macros from exodusII.h and exodusII_ext.h
     EDGE_BLOCK = 6,
     FACE_BLOCK = 8,
@@ -209,57 +208,58 @@ public:
     // extended values (not in Exodus headers) for use in cache keys:
     QA_RECORDS = 103,          //!< Exodus II Quality Assurance (QA) string metadata
     INFO_RECORDS = 104,        //!< Exodus II Information Records string metadata
-    GLOBAL_TEMPORAL = 102,  //!< global data across timesteps
+    GLOBAL_TEMPORAL = 102,     //!< global data across timesteps
     NODAL_TEMPORAL = 101,      //!< nodal data across timesteps
-    ELEM_BLOCK_TEMPORAL = 100,  //!< element data across timesteps
+    ELEM_BLOCK_TEMPORAL = 100, //!< element data across timesteps
     GLOBAL_CONN = 99,          //!< connectivity assembled from all blocks+sets to be loaded
     ELEM_BLOCK_ELEM_CONN = 98, //!< raw element block connectivity for elements (not edges/faces)
-    ELEM_BLOCK_FACE_CONN = 97, //!< raw element block connectivity for faces (references face blocks)
-    ELEM_BLOCK_EDGE_CONN = 96, //!< raw element block connectivity for edges (references edge blocks)
-    FACE_BLOCK_CONN = 95,      //!< raw face block connectivity (references nodes)
-    EDGE_BLOCK_CONN = 94,      //!< raw edge block connectivity (references nodes)
-    ELEM_SET_CONN = 93,        //!< element set connectivity
-    SIDE_SET_CONN = 92,        //!< side set connectivity
-    FACE_SET_CONN = 91,        //!< face set connectivity
-    EDGE_SET_CONN = 90,        //!< edge set connectivity
-    NODE_SET_CONN = 89,        //!< node set connectivity
-    NODAL_COORDS = 88,         //!< raw nodal coordinates (not the "squeezed" version)
-    OBJECT_ID = 87,            //!< object id (old BlockId) array
+    ELEM_BLOCK_FACE_CONN =
+      97, //!< raw element block connectivity for faces (references face blocks)
+    ELEM_BLOCK_EDGE_CONN =
+      96,                 //!< raw element block connectivity for edges (references edge blocks)
+    FACE_BLOCK_CONN = 95, //!< raw face block connectivity (references nodes)
+    EDGE_BLOCK_CONN = 94, //!< raw edge block connectivity (references nodes)
+    ELEM_SET_CONN = 93,   //!< element set connectivity
+    SIDE_SET_CONN = 92,   //!< side set connectivity
+    FACE_SET_CONN = 91,   //!< face set connectivity
+    EDGE_SET_CONN = 90,   //!< edge set connectivity
+    NODE_SET_CONN = 89,   //!< node set connectivity
+    NODAL_COORDS = 88,    //!< raw nodal coordinates (not the "squeezed" version)
+    OBJECT_ID = 87,       //!< object id (old BlockId) array
     IMPLICIT_ELEMENT_ID = 108, //!< the implicit global index of each element given by exodus
     IMPLICIT_NODE_ID = 107,    //!< the implicit global index of each node given by exodus
-    GLOBAL_ELEMENT_ID = 86,    //!< element id array extracted for a particular block (yes, this is a bad name)
-    GLOBAL_NODE_ID = 85,       //!< nodal id array extracted for a particular block (yes, this is a bad name)
-    ELEMENT_ID = 84,           //!< element id map (old-style elem_num_map or first new-style elem map) array
-    NODE_ID = 83,              //!< nodal id map (old-style node_num_map or first new-style node map) array
-    NODAL_SQUEEZEMAP = 82,     //!< the integer map use to "squeeze" coordinates and nodal arrays/maps
-    ELEM_BLOCK_ATTRIB = 81,    //!< an element block attribute array (time-constant scalar per element)
-    FACE_BLOCK_ATTRIB = 80,    //!< a face block attribute array (time-constant scalar per element)
-    EDGE_BLOCK_ATTRIB = 79,    //!< an edge block attribute array (time-constant scalar per element)
-    FACE_ID = 105,             //!< face id map (old-style face_num_map or first new-style face map) array
-    EDGE_ID = 106,             //!< edge id map (old-style edge_num_map or first new-style edge map) array
-    ENTITY_COUNTS = 109        //!< polyhedra per-entity count ex_get_block returns the sum for polyhedra
+    GLOBAL_ELEMENT_ID =
+      86, //!< element id array extracted for a particular block (yes, this is a bad name)
+    GLOBAL_NODE_ID =
+      85,            //!< nodal id array extracted for a particular block (yes, this is a bad name)
+    ELEMENT_ID = 84, //!< element id map (old-style elem_num_map or first new-style elem map) array
+    NODE_ID = 83,    //!< nodal id map (old-style node_num_map or first new-style node map) array
+    NODAL_SQUEEZEMAP = 82,  //!< the integer map use to "squeeze" coordinates and nodal arrays/maps
+    ELEM_BLOCK_ATTRIB = 81, //!< an element block attribute array (time-constant scalar per element)
+    FACE_BLOCK_ATTRIB = 80, //!< a face block attribute array (time-constant scalar per element)
+    EDGE_BLOCK_ATTRIB = 79, //!< an edge block attribute array (time-constant scalar per element)
+    FACE_ID = 105,      //!< face id map (old-style face_num_map or first new-style face map) array
+    EDGE_ID = 106,      //!< edge id map (old-style edge_num_map or first new-style edge map) array
+    ENTITY_COUNTS = 109 //!< polyhedra per-entity count ex_get_block returns the sum for polyhedra
   };
   //@}
 
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
   static const char* GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
-  static int GetGlobalElementID( vtkDataSet *data, int localID );
-  static int GetGlobalElementID ( vtkDataSet *data, int localID,
-      int searchType );
+  static int GetGlobalElementID(vtkDataSet* data, int localID);
+  static int GetGlobalElementID(vtkDataSet* data, int localID, int searchType);
   static const char* GetImplicitElementIdArrayName() { return "ImplicitElementId"; }
 
   static const char* GetGlobalFaceIdArrayName() { return "GlobalFaceId"; }
   static const char* GetPedigreeFaceIdArrayName() { return "PedigreeFaceId"; }
-  static int GetGlobalFaceID( vtkDataSet *data, int localID );
-  static int GetGlobalFaceID ( vtkDataSet *data, int localID,
-      int searchType );
+  static int GetGlobalFaceID(vtkDataSet* data, int localID);
+  static int GetGlobalFaceID(vtkDataSet* data, int localID, int searchType);
   static const char* GetImplicitFaceIdArrayName() { return "ImplicitFaceId"; }
 
   static const char* GetGlobalEdgeIdArrayName() { return "GlobalEdgeId"; }
   static const char* GetPedigreeEdgeIdArrayName() { return "PedigreeEdgeId"; }
-  static int GetGlobalEdgeID( vtkDataSet *data, int localID );
-  static int GetGlobalEdgeID ( vtkDataSet *data, int localID,
-      int searchType );
+  static int GetGlobalEdgeID(vtkDataSet* data, int localID);
+  static int GetGlobalEdgeID(vtkDataSet* data, int localID, int searchType);
   static const char* GetImplicitEdgeIdArrayName() { return "ImplicitEdgeId"; }
 
   //@{
@@ -271,9 +271,8 @@ public:
    */
   static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
   static const char* GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }
-  static int GetGlobalNodeID( vtkDataSet *data, int localID );
-  static int GetGlobalNodeID( vtkDataSet *data, int localID,
-      int searchType );
+  static int GetGlobalNodeID(vtkDataSet* data, int localID);
+  static int GetGlobalNodeID(vtkDataSet* data, int localID, int searchType);
   static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
   //@}
 
@@ -296,10 +295,10 @@ public:
    * are turned 'off', the user can explicitly add them by
    * applying a warp filter.
    */
-  virtual void SetApplyDisplacements( vtkTypeBool d );
+  virtual void SetApplyDisplacements(vtkTypeBool d);
   vtkTypeBool GetApplyDisplacements();
   vtkBooleanMacro(ApplyDisplacements, vtkTypeBool);
-  virtual void SetDisplacementMagnitude( float s );
+  virtual void SetDisplacementMagnitude(float s);
   float GetDisplacementMagnitude();
   //@}
 
@@ -309,9 +308,9 @@ public:
    * By default, HasModeShapes is false unless two time values in the Exodus file are identical,
    * in which case it is true.
    */
-  virtual void SetHasModeShapes( vtkTypeBool ms );
+  virtual void SetHasModeShapes(vtkTypeBool ms);
   vtkTypeBool GetHasModeShapes();
-  vtkBooleanMacro(HasModeShapes,vtkTypeBool);
+  vtkBooleanMacro(HasModeShapes, vtkTypeBool);
   //@}
 
   //@{
@@ -322,7 +321,7 @@ public:
    * \f$ \mathrm{DisplacementMagnitude} cos( 2\pi \mathrm{ModeShapeTime} ) \f$ before it is
    * added to the vertex coordinates.
    */
-  virtual void SetModeShapeTime( double phase );
+  virtual void SetModeShapeTime(double phase);
   double GetModeShapeTime();
   //@}
 
@@ -338,7 +337,6 @@ public:
   vtkTypeBool GetAnimateModeShapes();
   vtkBooleanMacro(AnimateModeShapes, vtkTypeBool);
   //@}
-
 
   //@{
   /**
@@ -366,21 +364,23 @@ public:
   int GetNumberOfFacesInFile();
   int GetNumberOfElementsInFile();
 
-  int GetObjectTypeFromName( const char* name );
-  const char* GetObjectTypeName( int );
+  int GetObjectTypeFromName(const char* name);
+  const char* GetObjectTypeName(int);
 
   int GetNumberOfNodes();
-  int GetNumberOfObjects( int objectType );
-  int GetNumberOfEntriesInObject( int objectType, int objectIndex );
-  int GetObjectId( int objectType, int objectIndex );
-  const char* GetObjectName( int objectType, int objectIndex );
-  int GetObjectIndex( int objectType, const char* objectName );
-  int GetObjectIndex( int objectType, int id );
-  int GetObjectStatus( int objectType, int objectIndex );
-  int GetObjectStatus( int objectType, const char* objectName )
-    { return this->GetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ) ); }
-  void SetObjectStatus( int objectType, int objectIndex, int status );
-  void SetObjectStatus( int objectType, const char* objectName, int status );
+  int GetNumberOfObjects(int objectType);
+  int GetNumberOfEntriesInObject(int objectType, int objectIndex);
+  int GetObjectId(int objectType, int objectIndex);
+  const char* GetObjectName(int objectType, int objectIndex);
+  int GetObjectIndex(int objectType, const char* objectName);
+  int GetObjectIndex(int objectType, int id);
+  int GetObjectStatus(int objectType, int objectIndex);
+  int GetObjectStatus(int objectType, const char* objectName)
+  {
+    return this->GetObjectStatus(objectType, this->GetObjectIndex(objectType, objectName));
+  }
+  void SetObjectStatus(int objectType, int objectIndex, int status);
+  void SetObjectStatus(int objectType, const char* objectName, int status);
 
   //@{
   /**
@@ -389,15 +389,17 @@ public:
    * by first caling UpdateInformation, and using GetPointArrayName ...
    * (Developer Note) This meta data is all accessed through vtkExodusMetadata
    */
-  int GetNumberOfObjectArrays( int objectType );
-  const char* GetObjectArrayName( int objectType, int arrayIndex );
-  int GetObjectArrayIndex( int objectType, const char* arrayName );
-  int GetNumberOfObjectArrayComponents( int objectType, int arrayIndex );
-  int GetObjectArrayStatus( int objectType, int arrayIndex );
-  int GetObjectArrayStatus( int objectType, const char* arrayName )
-    { return this->GetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ) ); }
-  void SetObjectArrayStatus( int objectType, int arrayIndex, int status );
-  void SetObjectArrayStatus( int objectType, const char* arrayName, int status );
+  int GetNumberOfObjectArrays(int objectType);
+  const char* GetObjectArrayName(int objectType, int arrayIndex);
+  int GetObjectArrayIndex(int objectType, const char* arrayName);
+  int GetNumberOfObjectArrayComponents(int objectType, int arrayIndex);
+  int GetObjectArrayStatus(int objectType, int arrayIndex);
+  int GetObjectArrayStatus(int objectType, const char* arrayName)
+  {
+    return this->GetObjectArrayStatus(objectType, this->GetObjectArrayIndex(objectType, arrayName));
+  }
+  void SetObjectArrayStatus(int objectType, int arrayIndex, int status);
+  void SetObjectArrayStatus(int objectType, const char* arrayName, int status);
   //@}
 
   //@{
@@ -407,17 +409,21 @@ public:
    * by first caling UpdateInformation, and using GetObjectAttributeName ...
    * (Developer Note) This meta data is all accessed through vtkExodusMetadata
    */
-  int GetNumberOfObjectAttributes( int objectType, int objectIndex );
-  const char* GetObjectAttributeName( int objectType, int objectIndex, int attribIndex );
-  int GetObjectAttributeIndex( int objectType, int objectIndex, const char* attribName );
-  int GetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex );
-  int GetObjectAttributeStatus( int objectType, int objectIndex, const char* attribName )
-    { return this->GetObjectAttributeStatus( objectType, objectIndex,
-      this->GetObjectAttributeIndex( objectType, objectIndex, attribName ) ); }
-  void SetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex, int status );
-  void SetObjectAttributeStatus( int objectType, int objectIndex, const char* attribName, int status )
-    { this->SetObjectAttributeStatus( objectType, objectIndex,
-      this->GetObjectAttributeIndex( objectType, objectIndex, attribName ), status ); }
+  int GetNumberOfObjectAttributes(int objectType, int objectIndex);
+  const char* GetObjectAttributeName(int objectType, int objectIndex, int attribIndex);
+  int GetObjectAttributeIndex(int objectType, int objectIndex, const char* attribName);
+  int GetObjectAttributeStatus(int objectType, int objectIndex, int attribIndex);
+  int GetObjectAttributeStatus(int objectType, int objectIndex, const char* attribName)
+  {
+    return this->GetObjectAttributeStatus(
+      objectType, objectIndex, this->GetObjectAttributeIndex(objectType, objectIndex, attribName));
+  }
+  void SetObjectAttributeStatus(int objectType, int objectIndex, int attribIndex, int status);
+  void SetObjectAttributeStatus(int objectType, int objectIndex, const char* attribName, int status)
+  {
+    this->SetObjectAttributeStatus(objectType, objectIndex,
+      this->GetObjectAttributeIndex(objectType, objectIndex, attribName), status);
+  }
   //@}
 
   virtual vtkIdType GetTotalNumberOfNodes();
@@ -433,14 +439,13 @@ public:
    */
   int GetNumberOfPartArrays();
   const char* GetPartArrayName(int arrayIdx);
-  int GetPartArrayID( const char *name );
+  int GetPartArrayID(const char* name);
   const char* GetPartBlockInfo(int arrayIdx);
   void SetPartArrayStatus(int index, int flag);
   void SetPartArrayStatus(const char*, int flag);
   int GetPartArrayStatus(int index);
   int GetPartArrayStatus(const char*);
   //@}
-
 
   //@{
   /**
@@ -451,7 +456,7 @@ public:
    */
   int GetNumberOfMaterialArrays();
   const char* GetMaterialArrayName(int arrayIdx);
-  int GetMaterialArrayID( const char *name );
+  int GetMaterialArrayID(const char* name);
   void SetMaterialArrayStatus(int index, int flag);
   void SetMaterialArrayStatus(const char*, int flag);
   int GetMaterialArrayStatus(int index);
@@ -467,7 +472,7 @@ public:
    */
   int GetNumberOfAssemblyArrays();
   const char* GetAssemblyArrayName(int arrayIdx);
-  int GetAssemblyArrayID( const char *name );
+  int GetAssemblyArrayID(const char* name);
   void SetAssemblyArrayStatus(int index, int flag);
   void SetAssemblyArrayStatus(const char*, int flag);
   int GetAssemblyArrayStatus(int index);
@@ -492,230 +497,263 @@ public:
   int GetHierarchyArrayStatus(const char*);
   //@}
 
-  vtkGetMacro(DisplayType,int);
+  vtkGetMacro(DisplayType, int);
   virtual void SetDisplayType(int type);
 
   /**
    * return boolean indicating whether the type,name is a valid variable
    */
-  int IsValidVariable( const char *type, const char *name );
+  int IsValidVariable(const char* type, const char* name);
 
   /**
    * Return the id of the type,name variable
    */
-  int GetVariableID ( const char *type, const char *name );
+  int GetVariableID(const char* type, const char* name);
 
-  void SetAllArrayStatus( int otype, int status );
+  void SetAllArrayStatus(int otype, int status);
   // Helper functions
-  //static int StringsEqual(const char* s1, char* s2);
-  //static void StringUppercase(const char* str, char* upperstr);
-  //static char *StrDupWithNew(const char *s);
+  // static int StringsEqual(const char* s1, char* s2);
+  // static void StringUppercase(const char* str, char* upperstr);
+  // static char *StrDupWithNew(const char *s);
 
   // time series query functions
-  int GetTimeSeriesData( int ID, const char *vName, const char *vType,
-                         vtkFloatArray *result );
+  int GetTimeSeriesData(int ID, const char* vName, const char* vType, vtkFloatArray* result);
 
-
-
-  int GetNumberOfEdgeBlockArrays()
-    { return this->GetNumberOfObjects(EDGE_BLOCK); }
-  const char* GetEdgeBlockArrayName(int index)
-    { return this->GetObjectName(EDGE_BLOCK, index); }
-  int GetEdgeBlockArrayStatus(const char* name)
-    { return this->GetObjectStatus(EDGE_BLOCK, name); }
+  int GetNumberOfEdgeBlockArrays() { return this->GetNumberOfObjects(EDGE_BLOCK); }
+  const char* GetEdgeBlockArrayName(int index) { return this->GetObjectName(EDGE_BLOCK, index); }
+  int GetEdgeBlockArrayStatus(const char* name) { return this->GetObjectStatus(EDGE_BLOCK, name); }
   void SetEdgeBlockArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(EDGE_BLOCK, name, flag); }
+  {
+    this->SetObjectStatus(EDGE_BLOCK, name, flag);
+  }
 
-  int GetNumberOfFaceBlockArrays()
-    { return this->GetNumberOfObjects(FACE_BLOCK); }
-  const char* GetFaceBlockArrayName(int index)
-    { return this->GetObjectName(FACE_BLOCK, index); }
-  int GetFaceBlockArrayStatus(const char* name)
-    { return this->GetObjectStatus(FACE_BLOCK, name); }
+  int GetNumberOfFaceBlockArrays() { return this->GetNumberOfObjects(FACE_BLOCK); }
+  const char* GetFaceBlockArrayName(int index) { return this->GetObjectName(FACE_BLOCK, index); }
+  int GetFaceBlockArrayStatus(const char* name) { return this->GetObjectStatus(FACE_BLOCK, name); }
   void SetFaceBlockArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(FACE_BLOCK, name, flag); }
+  {
+    this->SetObjectStatus(FACE_BLOCK, name, flag);
+  }
 
-  int GetNumberOfElementBlockArrays()
-    { return this->GetNumberOfObjects(ELEM_BLOCK); }
-  const char* GetElementBlockArrayName(int index)
-    { return this->GetObjectName(ELEM_BLOCK, index); }
+  int GetNumberOfElementBlockArrays() { return this->GetNumberOfObjects(ELEM_BLOCK); }
+  const char* GetElementBlockArrayName(int index) { return this->GetObjectName(ELEM_BLOCK, index); }
   int GetElementBlockArrayStatus(const char* name)
-    { return this->GetObjectStatus(ELEM_BLOCK, name); }
+  {
+    return this->GetObjectStatus(ELEM_BLOCK, name);
+  }
   void SetElementBlockArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(ELEM_BLOCK, name, flag); }
+  {
+    this->SetObjectStatus(ELEM_BLOCK, name, flag);
+  }
 
-  int GetNumberOfGlobalResultArrays()
-    { return this->GetNumberOfObjectArrays(GLOBAL); }
+  int GetNumberOfGlobalResultArrays() { return this->GetNumberOfObjectArrays(GLOBAL); }
   const char* GetGlobalResultArrayName(int index)
-    { return this->GetObjectArrayName(GLOBAL, index); }
+  {
+    return this->GetObjectArrayName(GLOBAL, index);
+  }
   int GetGlobalResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(GLOBAL, name); }
+  {
+    return this->GetObjectArrayStatus(GLOBAL, name);
+  }
   void SetGlobalResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(GLOBAL, name, flag); }
+  {
+    this->SetObjectArrayStatus(GLOBAL, name, flag);
+  }
 
-  int GetNumberOfPointResultArrays()
-    { return this->GetNumberOfObjectArrays(NODAL); }
-  const char* GetPointResultArrayName(int index)
-    { return this->GetObjectArrayName(NODAL, index); }
+  int GetNumberOfPointResultArrays() { return this->GetNumberOfObjectArrays(NODAL); }
+  const char* GetPointResultArrayName(int index) { return this->GetObjectArrayName(NODAL, index); }
   int GetPointResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(NODAL, name); }
+  {
+    return this->GetObjectArrayStatus(NODAL, name);
+  }
   void SetPointResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(NODAL, name, flag); }
+  {
+    this->SetObjectArrayStatus(NODAL, name, flag);
+  }
 
-  int GetNumberOfEdgeResultArrays()
-    { return this->GetNumberOfObjectArrays(EDGE_BLOCK); }
+  int GetNumberOfEdgeResultArrays() { return this->GetNumberOfObjectArrays(EDGE_BLOCK); }
   const char* GetEdgeResultArrayName(int index)
-    { return this->GetObjectArrayName(EDGE_BLOCK, index); }
+  {
+    return this->GetObjectArrayName(EDGE_BLOCK, index);
+  }
   int GetEdgeResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(EDGE_BLOCK, name); }
+  {
+    return this->GetObjectArrayStatus(EDGE_BLOCK, name);
+  }
   void SetEdgeResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(EDGE_BLOCK, name, flag); }
+  {
+    this->SetObjectArrayStatus(EDGE_BLOCK, name, flag);
+  }
 
-  int GetNumberOfFaceResultArrays()
-    { return this->GetNumberOfObjectArrays(FACE_BLOCK); }
+  int GetNumberOfFaceResultArrays() { return this->GetNumberOfObjectArrays(FACE_BLOCK); }
   const char* GetFaceResultArrayName(int index)
-    { return this->GetObjectArrayName(FACE_BLOCK, index); }
+  {
+    return this->GetObjectArrayName(FACE_BLOCK, index);
+  }
   int GetFaceResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(FACE_BLOCK, name); }
+  {
+    return this->GetObjectArrayStatus(FACE_BLOCK, name);
+  }
   void SetFaceResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(FACE_BLOCK, name, flag); }
+  {
+    this->SetObjectArrayStatus(FACE_BLOCK, name, flag);
+  }
 
-  int GetNumberOfElementResultArrays()
-    { return this->GetNumberOfObjectArrays(ELEM_BLOCK); }
+  int GetNumberOfElementResultArrays() { return this->GetNumberOfObjectArrays(ELEM_BLOCK); }
   const char* GetElementResultArrayName(int index)
-    { return this->GetObjectArrayName(ELEM_BLOCK, index); }
+  {
+    return this->GetObjectArrayName(ELEM_BLOCK, index);
+  }
   int GetElementResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(ELEM_BLOCK, name); }
+  {
+    return this->GetObjectArrayStatus(ELEM_BLOCK, name);
+  }
   void SetElementResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(ELEM_BLOCK, name, flag); }
+  {
+    this->SetObjectArrayStatus(ELEM_BLOCK, name, flag);
+  }
 
-
-  int GetNumberOfNodeMapArrays()
-    { return this->GetNumberOfObjects(NODE_MAP); }
-  const char* GetNodeMapArrayName(int index)
-    { return this->GetObjectName(NODE_MAP, index); }
-  int GetNodeMapArrayStatus(const char* name)
-    { return this->GetObjectStatus(NODE_MAP, name); }
+  int GetNumberOfNodeMapArrays() { return this->GetNumberOfObjects(NODE_MAP); }
+  const char* GetNodeMapArrayName(int index) { return this->GetObjectName(NODE_MAP, index); }
+  int GetNodeMapArrayStatus(const char* name) { return this->GetObjectStatus(NODE_MAP, name); }
   void SetNodeMapArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(NODE_MAP, name, flag); }
+  {
+    this->SetObjectStatus(NODE_MAP, name, flag);
+  }
 
-  int GetNumberOfEdgeMapArrays()
-    { return this->GetNumberOfObjects(EDGE_MAP); }
-  const char* GetEdgeMapArrayName(int index)
-    { return this->GetObjectName(EDGE_MAP, index); }
-  int GetEdgeMapArrayStatus(const char* name)
-    { return this->GetObjectStatus(EDGE_MAP, name); }
+  int GetNumberOfEdgeMapArrays() { return this->GetNumberOfObjects(EDGE_MAP); }
+  const char* GetEdgeMapArrayName(int index) { return this->GetObjectName(EDGE_MAP, index); }
+  int GetEdgeMapArrayStatus(const char* name) { return this->GetObjectStatus(EDGE_MAP, name); }
   void SetEdgeMapArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(EDGE_MAP, name, flag); }
+  {
+    this->SetObjectStatus(EDGE_MAP, name, flag);
+  }
 
-  int GetNumberOfFaceMapArrays()
-    { return this->GetNumberOfObjects(FACE_MAP); }
-  const char* GetFaceMapArrayName(int index)
-    { return this->GetObjectName(FACE_MAP, index); }
-  int GetFaceMapArrayStatus(const char* name)
-    { return this->GetObjectStatus(FACE_MAP, name); }
+  int GetNumberOfFaceMapArrays() { return this->GetNumberOfObjects(FACE_MAP); }
+  const char* GetFaceMapArrayName(int index) { return this->GetObjectName(FACE_MAP, index); }
+  int GetFaceMapArrayStatus(const char* name) { return this->GetObjectStatus(FACE_MAP, name); }
   void SetFaceMapArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(FACE_MAP, name, flag); }
+  {
+    this->SetObjectStatus(FACE_MAP, name, flag);
+  }
 
-  int GetNumberOfElementMapArrays()
-    { return this->GetNumberOfObjects(ELEM_MAP); }
-  const char* GetElementMapArrayName(int index)
-    { return this->GetObjectName(ELEM_MAP, index); }
-  int GetElementMapArrayStatus(const char* name)
-    { return this->GetObjectStatus(ELEM_MAP, name); }
+  int GetNumberOfElementMapArrays() { return this->GetNumberOfObjects(ELEM_MAP); }
+  const char* GetElementMapArrayName(int index) { return this->GetObjectName(ELEM_MAP, index); }
+  int GetElementMapArrayStatus(const char* name) { return this->GetObjectStatus(ELEM_MAP, name); }
   void SetElementMapArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(ELEM_MAP, name, flag); }
+  {
+    this->SetObjectStatus(ELEM_MAP, name, flag);
+  }
 
-  int GetNumberOfNodeSetArrays()
-    { return this->GetNumberOfObjects(NODE_SET); }
-  const char* GetNodeSetArrayName(int index)
-    { return this->GetObjectName(NODE_SET, index); }
-  int GetNodeSetArrayStatus(const char* name)
-    { return this->GetObjectStatus(NODE_SET, name); }
+  int GetNumberOfNodeSetArrays() { return this->GetNumberOfObjects(NODE_SET); }
+  const char* GetNodeSetArrayName(int index) { return this->GetObjectName(NODE_SET, index); }
+  int GetNodeSetArrayStatus(const char* name) { return this->GetObjectStatus(NODE_SET, name); }
   void SetNodeSetArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(NODE_SET, name, flag); }
+  {
+    this->SetObjectStatus(NODE_SET, name, flag);
+  }
 
-  int GetNumberOfSideSetArrays()
-    { return this->GetNumberOfObjects(SIDE_SET); }
-  const char* GetSideSetArrayName(int index)
-    { return this->GetObjectName(SIDE_SET, index); }
-  int GetSideSetArrayStatus(const char* name)
-    { return this->GetObjectStatus(SIDE_SET, name); }
+  int GetNumberOfSideSetArrays() { return this->GetNumberOfObjects(SIDE_SET); }
+  const char* GetSideSetArrayName(int index) { return this->GetObjectName(SIDE_SET, index); }
+  int GetSideSetArrayStatus(const char* name) { return this->GetObjectStatus(SIDE_SET, name); }
   void SetSideSetArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(SIDE_SET, name, flag); }
+  {
+    this->SetObjectStatus(SIDE_SET, name, flag);
+  }
 
-  int GetNumberOfEdgeSetArrays()
-    { return this->GetNumberOfObjects(EDGE_SET); }
-  const char* GetEdgeSetArrayName(int index)
-    { return this->GetObjectName(EDGE_SET, index); }
-  int GetEdgeSetArrayStatus(const char* name)
-    { return this->GetObjectStatus(EDGE_SET, name); }
+  int GetNumberOfEdgeSetArrays() { return this->GetNumberOfObjects(EDGE_SET); }
+  const char* GetEdgeSetArrayName(int index) { return this->GetObjectName(EDGE_SET, index); }
+  int GetEdgeSetArrayStatus(const char* name) { return this->GetObjectStatus(EDGE_SET, name); }
   void SetEdgeSetArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(EDGE_SET, name, flag); }
+  {
+    this->SetObjectStatus(EDGE_SET, name, flag);
+  }
 
-  int GetNumberOfFaceSetArrays()
-    { return this->GetNumberOfObjects(FACE_SET); }
-  const char* GetFaceSetArrayName(int index)
-    { return this->GetObjectName(FACE_SET, index); }
-  int GetFaceSetArrayStatus(const char* name)
-    { return this->GetObjectStatus(FACE_SET, name); }
+  int GetNumberOfFaceSetArrays() { return this->GetNumberOfObjects(FACE_SET); }
+  const char* GetFaceSetArrayName(int index) { return this->GetObjectName(FACE_SET, index); }
+  int GetFaceSetArrayStatus(const char* name) { return this->GetObjectStatus(FACE_SET, name); }
   void SetFaceSetArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(FACE_SET, name, flag); }
+  {
+    this->SetObjectStatus(FACE_SET, name, flag);
+  }
 
-  int GetNumberOfElementSetArrays()
-    { return this->GetNumberOfObjects(ELEM_SET); }
-  const char* GetElementSetArrayName(int index)
-    { return this->GetObjectName(ELEM_SET, index); }
-  int GetElementSetArrayStatus(const char* name)
-    { return this->GetObjectStatus(ELEM_SET, name); }
+  int GetNumberOfElementSetArrays() { return this->GetNumberOfObjects(ELEM_SET); }
+  const char* GetElementSetArrayName(int index) { return this->GetObjectName(ELEM_SET, index); }
+  int GetElementSetArrayStatus(const char* name) { return this->GetObjectStatus(ELEM_SET, name); }
   void SetElementSetArrayStatus(const char* name, int flag)
-    { this->SetObjectStatus(ELEM_SET, name, flag); }
+  {
+    this->SetObjectStatus(ELEM_SET, name, flag);
+  }
 
-
-  int GetNumberOfNodeSetResultArrays()
-    { return this->GetNumberOfObjectArrays(NODE_SET); }
+  int GetNumberOfNodeSetResultArrays() { return this->GetNumberOfObjectArrays(NODE_SET); }
   const char* GetNodeSetResultArrayName(int index)
-    { return this->GetObjectArrayName(NODE_SET, index); }
+  {
+    return this->GetObjectArrayName(NODE_SET, index);
+  }
   int GetNodeSetResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(NODE_SET, name); }
+  {
+    return this->GetObjectArrayStatus(NODE_SET, name);
+  }
   void SetNodeSetResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(NODE_SET, name, flag); }
+  {
+    this->SetObjectArrayStatus(NODE_SET, name, flag);
+  }
 
-  int GetNumberOfSideSetResultArrays()
-    { return this->GetNumberOfObjectArrays(SIDE_SET); }
+  int GetNumberOfSideSetResultArrays() { return this->GetNumberOfObjectArrays(SIDE_SET); }
   const char* GetSideSetResultArrayName(int index)
-    { return this->GetObjectArrayName(SIDE_SET, index); }
+  {
+    return this->GetObjectArrayName(SIDE_SET, index);
+  }
   int GetSideSetResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(SIDE_SET, name); }
+  {
+    return this->GetObjectArrayStatus(SIDE_SET, name);
+  }
   void SetSideSetResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(SIDE_SET, name, flag); }
+  {
+    this->SetObjectArrayStatus(SIDE_SET, name, flag);
+  }
 
-  int GetNumberOfEdgeSetResultArrays()
-    { return this->GetNumberOfObjectArrays(EDGE_SET); }
+  int GetNumberOfEdgeSetResultArrays() { return this->GetNumberOfObjectArrays(EDGE_SET); }
   const char* GetEdgeSetResultArrayName(int index)
-    { return this->GetObjectArrayName(EDGE_SET, index); }
+  {
+    return this->GetObjectArrayName(EDGE_SET, index);
+  }
   int GetEdgeSetResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(EDGE_SET, name); }
+  {
+    return this->GetObjectArrayStatus(EDGE_SET, name);
+  }
   void SetEdgeSetResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(EDGE_SET, name, flag); }
+  {
+    this->SetObjectArrayStatus(EDGE_SET, name, flag);
+  }
 
-  int GetNumberOfFaceSetResultArrays()
-    { return this->GetNumberOfObjectArrays(FACE_SET); }
+  int GetNumberOfFaceSetResultArrays() { return this->GetNumberOfObjectArrays(FACE_SET); }
   const char* GetFaceSetResultArrayName(int index)
-    { return this->GetObjectArrayName(FACE_SET, index); }
+  {
+    return this->GetObjectArrayName(FACE_SET, index);
+  }
   int GetFaceSetResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(FACE_SET, name); }
+  {
+    return this->GetObjectArrayStatus(FACE_SET, name);
+  }
   void SetFaceSetResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(FACE_SET, name, flag); }
+  {
+    this->SetObjectArrayStatus(FACE_SET, name, flag);
+  }
 
-  int GetNumberOfElementSetResultArrays()
-    { return this->GetNumberOfObjectArrays(ELEM_SET); }
+  int GetNumberOfElementSetResultArrays() { return this->GetNumberOfObjectArrays(ELEM_SET); }
   const char* GetElementSetResultArrayName(int index)
-    { return this->GetObjectArrayName(ELEM_SET, index); }
+  {
+    return this->GetObjectArrayName(ELEM_SET, index);
+  }
   int GetElementSetResultArrayStatus(const char* name)
-    { return this->GetObjectArrayStatus(ELEM_SET, name); }
+  {
+    return this->GetObjectArrayStatus(ELEM_SET, name);
+  }
   void SetElementSetResultArrayStatus(const char* name, int flag)
-    { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
+  {
+    this->SetObjectArrayStatus(ELEM_SET, name, flag);
+  }
 
   /**
    * Reset the user-specified parameters and flush internal arrays
@@ -822,11 +860,11 @@ protected:
   ~vtkExodusIIReader() override;
 
   // helper for finding IDs
-  static int GetIDHelper ( const char *arrayName, vtkDataSet *data, int localID, int searchType );
-  static int GetGlobalID( const char *arrayName, vtkDataSet *data, int localID, int searchType );
+  static int GetIDHelper(const char* arrayName, vtkDataSet* data, int localID, int searchType);
+  static int GetGlobalID(const char* arrayName, vtkDataSet* data, int localID, int searchType);
 
-  virtual void SetMetadata( vtkExodusIIReaderPrivate* );
-  vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
+  virtual void SetMetadata(vtkExodusIIReaderPrivate*);
+  vtkGetObjectMacro(Metadata, vtkExodusIIReaderPrivate);
 
   /**
    * Returns true if the file given by XMLFileName exists.
@@ -841,12 +879,13 @@ protected:
   /**
    * Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
    */
-  void AdvertiseTimeSteps( vtkInformation* outputInfo );
+  void AdvertiseTimeSteps(vtkInformation* outputInfo);
 
-  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Parameters for controlling what is read in.
   char* FileName;
@@ -858,9 +897,9 @@ protected:
 
   // Information specific for exodus files.
 
-  //1=display Block names
-  //2=display Part names
-  //3=display Material names
+  // 1=display Block names
+  // 2=display Part names
+  // 3=display Material names
   int DisplayType;
 
   // Metadata containing a description of the currently open file.
@@ -869,6 +908,7 @@ protected:
   int SILUpdateStamp;
 
   friend class vtkPExodusIIReader;
+
 private:
   vtkExodusIIReader(const vtkExodusIIReader&) = delete;
   void operator=(const vtkExodusIIReader&) = delete;

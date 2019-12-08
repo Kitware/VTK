@@ -54,18 +54,14 @@ public:
    * This dataset must be released by the calling code,
    * using GDALClose().
    */
-  GDALDataset* CreateGDALDataset(int xDim,
-                                 int yDim,
-                                 int vtkDataType,
-                                 int numberOfBands);
+  GDALDataset* CreateGDALDataset(int xDim, int yDim, int vtkDataType, int numberOfBands);
 
   /**
    * Create GDALDataset to match vtkImageData.
    * This dataset must be released by the calling code,
    * using GDALClose().
    */
-  GDALDataset* CreateGDALDataset(
-    vtkImageData* data, const char* mapProjection, int flipAxis[3]);
+  GDALDataset* CreateGDALDataset(vtkImageData* data, const char* mapProjection, int flipAxis[3]);
 
   /**
    * Copies color interpretation and color tables
@@ -88,10 +84,8 @@ public:
   /**
    * Set geo-transform on GDAL dataset.
    */
-  void SetGDALGeoTransform(GDALDataset* dataset,
-                           double origin[2],
-                           double spacing[2],
-                           int flipAxis[2]);
+  void SetGDALGeoTransform(
+    GDALDataset* dataset, double origin[2], double spacing[2], int flipAxis[2]);
 
   /**
    * Copies NoDataValue info from 1st to 2nd dataset
@@ -108,10 +102,7 @@ public:
    * Note that the bandId starts at 1, not zero.
    * Returns boolean indicating success.
    */
-  bool FindDataRange(GDALDataset* dataset,
-                     int bandId,
-                     double* minValue,
-                     double* maxValue);
+  bool FindDataRange(GDALDataset* dataset, int bandId, double* minValue, double* maxValue);
 
 protected:
   vtkGDALRasterConverter();

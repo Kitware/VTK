@@ -19,11 +19,10 @@
  * vtkMutexLock allows the locking of variables which are accessed
  * through different threads.  This header file also defines
  * vtkSimpleMutexLock which is not a subclass of vtkObject.
-*/
+ */
 
 #ifndef vtkMutexLock_h
 #define vtkMutexLock_h
-
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -51,23 +50,23 @@ public:
   vtkSimpleMutexLock();
   virtual ~vtkSimpleMutexLock();
 
-  static vtkSimpleMutexLock *New();
+  static vtkSimpleMutexLock* New();
 
-  void Delete() {delete this;}
+  void Delete() { delete this; }
 
   /**
    * Lock the vtkMutexLock
    */
-  void Lock( void );
+  void Lock(void);
 
   /**
    * Unlock the vtkMutexLock
    */
-  void Unlock( void );
+  void Unlock(void);
 
 protected:
   friend class vtkSimpleConditionVariable;
-  vtkMutexType   MutexLock;
+  vtkMutexType MutexLock;
 
 private:
   vtkSimpleMutexLock(const vtkSimpleMutexLock& other) = delete;
@@ -77,39 +76,38 @@ private:
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
 {
 public:
-  static vtkMutexLock *New();
+  static vtkMutexLock* New();
 
-  vtkTypeMacro(vtkMutexLock,vtkObject);
+  vtkTypeMacro(vtkMutexLock, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Lock the vtkMutexLock
    */
-  void Lock( void );
+  void Lock(void);
 
   /**
    * Unlock the vtkMutexLock
    */
-  void Unlock( void );
+  void Unlock(void);
 
 protected:
-
   friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
 
-  vtkSimpleMutexLock   SimpleMutexLock;
+  vtkSimpleMutexLock SimpleMutexLock;
   vtkMutexLock() {}
+
 private:
   vtkMutexLock(const vtkMutexLock&) = delete;
   void operator=(const vtkMutexLock&) = delete;
 };
 
-
-inline void vtkMutexLock::Lock( void )
+inline void vtkMutexLock::Lock(void)
 {
   this->SimpleMutexLock.Lock();
 }
 
-inline void vtkMutexLock::Unlock( void )
+inline void vtkMutexLock::Unlock(void)
 {
   this->SimpleMutexLock.Unlock();
 }

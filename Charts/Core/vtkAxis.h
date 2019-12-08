@@ -46,17 +46,17 @@
  * managing the axis a chance to save the old values, it saves
  * old Limit values in NonLogUnscaled{Min,Max}Limit so that behavior is
  * consistent when LogScale is changed from false to true and back again.
-*/
+ */
 
 #ifndef vtkAxis_h
 #define vtkAxis_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkVector.h"       // For position variables
 #include "vtkRect.h"         // For bounding rect
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkVector.h"       // For position variables
 
 class vtkContext2D;
 class vtkPen;
@@ -69,13 +69,14 @@ class VTKCHARTSCORE_EXPORT vtkAxis : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkAxis, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enumeration of the axis locations in a conventional XY chart. Other
    * layouts are possible.
    */
-  enum Location {
+  enum Location
+  {
     LEFT = 0,
     BOTTOM,
     RIGHT,
@@ -83,7 +84,8 @@ public:
     PARALLEL
   };
 
-  enum {
+  enum
+  {
     TICK_SIMPLE = 0,
     TICK_WILKINSON_EXTENDED
   };
@@ -91,7 +93,7 @@ public:
   /**
    * Creates a 2D Chart object.
    */
-  static vtkAxis *New();
+  static vtkAxis* New();
 
   //@{
   /**
@@ -244,8 +246,8 @@ public:
    * the data being plotted, regardless of whether LogScale is true or false.
    * Calling GetRange() when LogScale is true will return the log10({min, max}).
    */
-  virtual void GetRange(double *range);
-  virtual void GetUnscaledRange(double *range);
+  virtual void GetRange(double* range);
+  virtual void GetUnscaledRange(double* range);
   //@}
 
   /**
@@ -314,7 +316,7 @@ public:
   /**
    * Get/set the title text of the axis.
    */
-  virtual void SetTitle(const vtkStdString &title);
+  virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
   //@}
 
@@ -350,7 +352,7 @@ public:
    */
   vtkGetMacro(LogScale, bool);
   virtual void SetLogScale(bool logScale);
-  vtkBooleanMacro(LogScale,bool);
+  vtkBooleanMacro(LogScale, bool);
   //@}
 
   //@{
@@ -421,7 +423,8 @@ public:
   /**
    * Enumeration of the axis notations available.
    */
-  enum {
+  enum
+  {
     STANDARD_NOTATION = 0,
     SCIENTIFIC_NOTATION,
     FIXED_NOTATION,
@@ -433,7 +436,7 @@ public:
    * Get/Set the printf-style format string used when TickLabelAlgorithm is
    * TICK_SIMPLE and Notation is PRINTF_NOTATION. The default is "%g".
    */
-  virtual void SetLabelFormat(const std::string &fmt);
+  virtual void SetLabelFormat(const std::string& fmt);
   vtkGetMacro(LabelFormat, std::string);
   //@}
 
@@ -460,7 +463,8 @@ public:
   /**
    * Enumeration of the axis behaviors.
    */
-  enum {
+  enum
+  {
     AUTO = 0, // Automatically scale the axis to view all data that is visible.
     FIXED,    // Use a fixed axis range and make no attempt to rescale.
     CUSTOM    // Deprecated, use the tick label settings instead.
@@ -496,8 +500,8 @@ public:
    * vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
    * the optimal range, spacing and font parameters.
    */
-  vtkSetMacro(TickLabelAlgorithm, int)
-  vtkGetMacro(TickLabelAlgorithm, int)
+  vtkSetMacro(TickLabelAlgorithm, int);
+  vtkGetMacro(TickLabelAlgorithm, int);
   //@}
 
   //@{
@@ -505,10 +509,10 @@ public:
    * Get/set the scaling factor used for the axis, this defaults to 1.0 (no
    * scaling), and is used to coordinate scaling with the plots, charts, etc.
    */
-  vtkSetMacro(ScalingFactor, double)
-  vtkGetMacro(ScalingFactor, double)
-  vtkSetMacro(Shift, double)
-  vtkGetMacro(Shift, double)
+  vtkSetMacro(ScalingFactor, double);
+  vtkGetMacro(ScalingFactor, double);
+  vtkSetMacro(Shift, double);
+  vtkGetMacro(Shift, double);
   //@}
 
   /**
@@ -520,7 +524,7 @@ public:
   /**
    * Paint event for the axis, called whenever the axis needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Use this function to autoscale the axes after setting the minimum and
@@ -560,8 +564,7 @@ public:
    * according to the axis settings. If positions and labels are supplied they
    * must be of the same length. Returns true on success, false on failure.
    */
-  virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
-                                      vtkStringArray* labels = nullptr);
+  virtual bool SetCustomTickPositions(vtkDoubleArray* positions, vtkStringArray* labels = nullptr);
 
   /**
    * Request the space the axes require to be drawn. This is returned as a
@@ -582,8 +585,7 @@ public:
    * Static function to calculate "nice" minimum, maximum, and tick spacing
    * values.
    */
-  static double NiceMinMax(double &min, double &max, float pixelRange,
-                           float tickPixelSpacing);
+  static double NiceMinMax(double& min, double& max, float pixelRange, float tickPixelSpacing);
 
   /**
    * Generate a single label using the current settings when TickLabelAlgorithm
@@ -620,13 +622,13 @@ protected:
   /**
    * Generate label using a printf-style format string.
    */
-  virtual vtkStdString GenerateSprintfLabel(double value, const std::string & format);
+  virtual vtkStdString GenerateSprintfLabel(double value, const std::string& format);
 
   /**
    * Calculate the next "nicest" numbers above and below the current minimum.
    * \return the "nice" spacing of the numbers.
    */
-  double CalculateNiceMinMax(double &min, double &max);
+  double CalculateNiceMinMax(double& min, double& max);
 
   /**
    * Return a tick mark for a logarithmic axis.
@@ -637,10 +639,7 @@ protected:
    * ... 0.1 0.2 0.5 1 2 5 10 20 50 100 ...
    * Parameter order is set to the detected order of magnitude of the number.
    */
-  double LogScaleTickMark(double number,
-                          bool roundUp,
-                          bool &niceValue,
-                          int &order);
+  double LogScaleTickMark(double number, bool roundUp, bool& niceValue, int& order);
 
   /**
    * Generate logarithmically-spaced tick marks with linear-style labels.
@@ -665,49 +664,47 @@ protected:
    * If min/max is not in between 1.0 and 9.0 defaults will be used.
    * If min and max do not differ 1 defaults will be used.
    */
-  void GenerateLogScaleTickMarks(int order,
-                                 double min = 1.0,
-                                 double max = 9.0,
-                                 bool detailLabels = true);
+  void GenerateLogScaleTickMarks(
+    int order, double min = 1.0, double max = 9.0, bool detailLabels = true);
 
-  int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
-  float *Point1;       // The position of point 1 (usually the origin)
-  float *Point2;       // The position of point 2 (usually the terminus)
+  int Position;  // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
+  float* Point1; // The position of point 1 (usually the origin)
+  float* Point2; // The position of point 2 (usually the terminus)
   vtkVector2f Position1, Position2;
-  double TickInterval; // Interval between tick marks in plot space
-  int NumberOfTicks;   // The number of tick marks to draw
-  float TickLength;    // The length of the tick marks
+  double TickInterval;              // Interval between tick marks in plot space
+  int NumberOfTicks;                // The number of tick marks to draw
+  float TickLength;                 // The length of the tick marks
   vtkTextProperty* LabelProperties; // Text properties for the labels.
-  double Minimum;      // Minimum value of the axis
-  double Maximum;      // Maximum values of the axis
-  double MinimumLimit; // Lowest possible value for Minimum
-  double MaximumLimit; // Highest possible value for Maximum
-  double UnscaledMinimum;      // UnscaledMinimum value of the axis
-  double UnscaledMaximum;      // UnscaledMaximum values of the axis
-  double UnscaledMinimumLimit; // Lowest possible value for UnscaledMinimum
-  double UnscaledMaximumLimit; // Highest possible value for UnscaledMaximum
-  double NonLogUnscaledMinLimit; // Saved UnscaledMinimumLimit (when !LogActive)
-  double NonLogUnscaledMaxLimit; // Saved UnscaledMinimumLimit (when !LogActive)
-  int Margins[2];      // Horizontal/vertical margins for the axis
-  vtkStdString Title;  // The text label drawn on the axis
+  double Minimum;                   // Minimum value of the axis
+  double Maximum;                   // Maximum values of the axis
+  double MinimumLimit;              // Lowest possible value for Minimum
+  double MaximumLimit;              // Highest possible value for Maximum
+  double UnscaledMinimum;           // UnscaledMinimum value of the axis
+  double UnscaledMaximum;           // UnscaledMaximum values of the axis
+  double UnscaledMinimumLimit;      // Lowest possible value for UnscaledMinimum
+  double UnscaledMaximumLimit;      // Highest possible value for UnscaledMaximum
+  double NonLogUnscaledMinLimit;    // Saved UnscaledMinimumLimit (when !LogActive)
+  double NonLogUnscaledMaxLimit;    // Saved UnscaledMinimumLimit (when !LogActive)
+  int Margins[2];                   // Horizontal/vertical margins for the axis
+  vtkStdString Title;               // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
-  bool LogScale;       // *Should* the axis use a log scale?
-  bool LogScaleActive; // *Is* the axis using a log scale?
-  bool GridVisible;    // Whether the grid for the axis should be drawn
-  bool LabelsVisible;  // Should the axis labels be visible
-  bool RangeLabelsVisible; // Should range labels be visible?
-  float LabelOffset;   // Offset of label from the tick mark
-  bool TicksVisible;   // Should the tick marks be visible.
-  bool AxisVisible;    // Should the axis line be visible.
-  bool TitleVisible;   // Should the title be visible.
-  int Precision;       // Numerical precision to use, defaults to 2.
-  int Notation;        // The notation to use (standard, scientific, mixed)
-  std::string LabelFormat; // The printf-style format string used for labels.
-  std::string RangeLabelFormat; // The printf-style format string used for range labels.
-  int Behavior;        // The behaviour of the axis (auto, fixed, custom).
-  float MaxLabel[2];   // The widest/tallest axis label.
-  bool TitleAppended;  // Track if the title is updated when the label formats
-                       // are changed in the Extended Axis Labeling algorithm
+  bool LogScale;                    // *Should* the axis use a log scale?
+  bool LogScaleActive;              // *Is* the axis using a log scale?
+  bool GridVisible;                 // Whether the grid for the axis should be drawn
+  bool LabelsVisible;               // Should the axis labels be visible
+  bool RangeLabelsVisible;          // Should range labels be visible?
+  float LabelOffset;                // Offset of label from the tick mark
+  bool TicksVisible;                // Should the tick marks be visible.
+  bool AxisVisible;                 // Should the axis line be visible.
+  bool TitleVisible;                // Should the title be visible.
+  int Precision;                    // Numerical precision to use, defaults to 2.
+  int Notation;                     // The notation to use (standard, scientific, mixed)
+  std::string LabelFormat;          // The printf-style format string used for labels.
+  std::string RangeLabelFormat;     // The printf-style format string used for range labels.
+  int Behavior;                     // The behaviour of the axis (auto, fixed, custom).
+  float MaxLabel[2];                // The widest/tallest axis label.
+  bool TitleAppended;               // Track if the title is updated when the label formats
+                                    // are changed in the Extended Axis Labeling algorithm
 
   //@{
   /**
@@ -776,14 +773,13 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkAxis(const vtkAxis &) = delete;
-  void operator=(const vtkAxis &) = delete;
+  vtkAxis(const vtkAxis&) = delete;
+  void operator=(const vtkAxis&) = delete;
 
   /**
    * Return true if the value is in range, false otherwise.
    */
   bool InRange(double value);
-
 };
 
-#endif //vtkAxis_h
+#endif // vtkAxis_h

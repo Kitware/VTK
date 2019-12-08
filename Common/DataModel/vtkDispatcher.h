@@ -68,23 +68,23 @@
  *
  * @sa
  * vtkDispatcher
-*/
+ */
 
 #ifndef vtkDispatcher_h
 #define vtkDispatcher_h
 
+#include "vtkConfigure.h"
+
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
-#include <map> //Required for the storage of template params to runtime params
+#include <map>                     //Required for the storage of template params to runtime params
 
 ////////////////////////////////////////////////////////////////////////////////
 // class template FunctorDispatcher
 ////////////////////////////////////////////////////////////////////////////////
-template
-  <
-    class BaseLhs,
-    typename ReturnType = void,
-    template <class, class> class CastingPolicy = vtkDispatcherCommon::vtkCaster
-  >
+template <class BaseLhs, typename ReturnType = void,
+  template <class, class> class CastingPolicy = vtkDispatcherCommon::vtkCaster>
 class vtkDispatcher
 {
 public:
@@ -101,14 +101,21 @@ public:
    * \endcode
    */
   template <class SomeLhs, class Functor>
-  void Add(Functor fun) { this->AddInternal<SomeLhs>(fun, 1); }
+  void Add(Functor fun)
+  {
+    VTK_LEGACY_BODY(vtkDispatcher, "VTK 9.0");
+    this->AddInternal<SomeLhs>(fun, 1);
+  }
 
   /**
    * Remove a functor that is bound to the given parameter type. Will
    * return true if we did remove a functor.
    */
   template <class SomeLhs>
-  bool Remove() { return DoRemove(typeid(SomeLhs)); }
+  bool Remove()
+  {
+    return DoRemove(typeid(SomeLhs));
+  }
 
   /**
    * Given a pointer to an object that derives from the BaseLhs
@@ -132,12 +139,13 @@ public:
 
 protected:
   typedef vtkDispatcherCommon::TypeInfo TypeInfo;
-  typedef vtkDispatcherPrivate::Functor<ReturnType,BaseLhs> MappedType;
+  typedef vtkDispatcherPrivate::Functor<ReturnType, BaseLhs> MappedType;
 
   void DoAddFunctor(TypeInfo lhs, MappedType fun);
   bool DoRemove(TypeInfo lhs);
-  typedef std::map<TypeInfo, MappedType > MapType;
+  typedef std::map<TypeInfo, MappedType> MapType;
   MapType FunctorMap;
+
 private:
   template <class SomeLhs, class Functor>
   void AddInternal(Functor const& fun, long);
@@ -145,75 +153,62 @@ private:
   void AddInternal(Functor* fun, int);
 };
 
-//We are making all these method non-inline to reduce compile time overhead
+// We are making all these method non-inline to reduce compile time overhead
 //----------------------------------------------------------------------------
-template<class BaseLhs,typename ReturnType,
-         template <class, class> class CastingPolicy>
+template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
-void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(const Functor& fun, long)
+void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(const Functor& fun, long)
 {
-  typedef vtkDispatcherPrivate::FunctorDispatcherHelper<
-      BaseLhs,
-      SomeLhs,
-      ReturnType,
-      CastingPolicy<SomeLhs, BaseLhs>,
-      Functor> Adapter;
+  typedef vtkDispatcherPrivate::FunctorDispatcherHelper<BaseLhs, SomeLhs, ReturnType,
+    CastingPolicy<SomeLhs, BaseLhs>, Functor>
+    Adapter;
   Adapter ada(fun);
   MappedType mt(ada);
-  DoAddFunctor(typeid(SomeLhs),mt);
+  DoAddFunctor(typeid(SomeLhs), mt);
 }
 
-
 //----------------------------------------------------------------------------
-template<class BaseLhs,typename ReturnType,
-         template <class, class> class CastingPolicy>
+template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
-void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(Functor* fun, int)
+void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::AddInternal(Functor* fun, int)
 {
-  typedef vtkDispatcherPrivate::FunctorRefDispatcherHelper<
-      BaseLhs,
-      SomeLhs,
-      ReturnType,
-      CastingPolicy<SomeLhs, BaseLhs>,
-      Functor> Adapter;
+  typedef vtkDispatcherPrivate::FunctorRefDispatcherHelper<BaseLhs, SomeLhs, ReturnType,
+    CastingPolicy<SomeLhs, BaseLhs>, Functor>
+    Adapter;
   Adapter ada(*fun);
   MappedType mt(ada);
-  DoAddFunctor(typeid(SomeLhs),mt);
+  DoAddFunctor(typeid(SomeLhs), mt);
 }
 
 //----------------------------------------------------------------------------
-template<class BaseLhs,typename ReturnType,
-         template <class, class> class CastingPolicy>
-void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
-::DoAddFunctor(TypeInfo lhs, MappedType fun)
+template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+void vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoAddFunctor(TypeInfo lhs, MappedType fun)
 {
   FunctorMap[TypeInfo(lhs)] = fun;
 }
 
 //----------------------------------------------------------------------------
-template <class BaseLhs, typename ReturnType,
-          template <class, class> class CastingPolicy>
-bool vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
-::DoRemove(TypeInfo lhs)
+template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+bool vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::DoRemove(TypeInfo lhs)
 {
   return FunctorMap.erase(TypeInfo(lhs)) == 1;
 }
 
 //----------------------------------------------------------------------------
-template <class BaseLhs,typename ReturnType,
-          template <class, class> class CastingPolicy>
-ReturnType vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
-::Go(BaseLhs* lhs)
+template <class BaseLhs, typename ReturnType, template <class, class> class CastingPolicy>
+ReturnType vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::Go(BaseLhs* lhs)
 {
   typename MapType::key_type k(typeid(*lhs));
   typename MapType::iterator i = FunctorMap.find(k);
   if (i == FunctorMap.end())
   {
-    //we return a default type, currently i don't want exceptions thrown
+    // we return a default type, currently i don't want exceptions thrown
     return ReturnType();
   }
   return (i->second)(*lhs);
 }
+
+#endif // legacy
 
 #endif // vtkDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDispatcher.h

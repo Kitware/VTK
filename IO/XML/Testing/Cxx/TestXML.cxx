@@ -16,10 +16,9 @@
 // .SECTION Description
 //
 
-#include "vtkXMLParser.h"
-#include "vtkOutputWindow.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkOutputWindow.h"
+#include "vtkXMLParser.h"
 
 class vtkMyXML : public vtkXMLParser
 {
@@ -39,26 +38,26 @@ private:
 
 vtkStandardNewMacro(vtkMyXML);
 
-int TestXML(int argc, char *argv[])
+int TestXML(int argc, char* argv[])
 {
   int res = 0;
   vtkOutputWindow::GetInstance()->PromptUserOn();
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <xml file>" << endl;
     return 1;
   }
 
-  vtkMyXML *parser = vtkMyXML::New();
+  vtkMyXML* parser = vtkMyXML::New();
   parser->SetFileName(argv[1]);
-  if ( ! parser->Parse() )
+  if (!parser->Parse())
   {
     cout << "Cannot parse the file: " << argv[1] << endl;
     res = 1;
   }
   parser->SetFileName(nullptr);
 
-  if( !parser->Parse("<xml>This is an XML file</xml>") )
+  if (!parser->Parse("<xml>This is an XML file</xml>"))
   {
     cout << "Cannot parse message" << endl;
     res = 1;

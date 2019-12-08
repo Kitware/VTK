@@ -28,13 +28,13 @@
  * NOTICE: This class will be deprecated in favor of a more robust
  * solution based on style sheets.  Do not become overly-dependent on the
  * functionality of themes.
-*/
+ */
 
 #ifndef vtkViewTheme_h
 #define vtkViewTheme_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkScalarsToColors;
 class vtkTextProperty;
@@ -246,13 +246,19 @@ public:
    * This is deprecated. Use GetPointTextProperty()->SetColor() instead.
    */
   virtual void SetVertexLabelColor(double r, double g, double b);
-  virtual void SetVertexLabelColor(double c[3])
-    { this->SetVertexLabelColor(c[0], c[1], c[2]); }
-  virtual double *GetVertexLabelColor();
-  virtual void GetVertexLabelColor(double &r, double &g, double &b)
-    { double* c = this->GetVertexLabelColor(); if (c) { r = c[0]; g = c[1]; b = c[2]; } }
-  virtual void GetVertexLabelColor(double c[3])
-    { this->GetVertexLabelColor(c[0], c[1], c[2]); }
+  virtual void SetVertexLabelColor(double c[3]) { this->SetVertexLabelColor(c[0], c[1], c[2]); }
+  virtual double* GetVertexLabelColor();
+  virtual void GetVertexLabelColor(double& r, double& g, double& b)
+  {
+    double* c = this->GetVertexLabelColor();
+    if (c)
+    {
+      r = c[0];
+      g = c[1];
+      b = c[2];
+    }
+  }
+  virtual void GetVertexLabelColor(double c[3]) { this->GetVertexLabelColor(c[0], c[1], c[2]); }
   //@}
 
   //@{
@@ -261,13 +267,19 @@ public:
    * This is deprecated. Use GetCellTextProperty()->SetColor() instead.
    */
   virtual void SetEdgeLabelColor(double r, double g, double b);
-  virtual void SetEdgeLabelColor(double c[3])
-    { this->SetEdgeLabelColor(c[0], c[1], c[2]); }
-  virtual double *GetEdgeLabelColor();
-  virtual void GetEdgeLabelColor(double &r, double &g, double &b)
-    { double* c = this->GetEdgeLabelColor(); if (c) { r = c[0]; g = c[1]; b = c[2]; } }
-  virtual void GetEdgeLabelColor(double c[3])
-    { this->GetEdgeLabelColor(c[0], c[1], c[2]); }
+  virtual void SetEdgeLabelColor(double c[3]) { this->SetEdgeLabelColor(c[0], c[1], c[2]); }
+  virtual double* GetEdgeLabelColor();
+  virtual void GetEdgeLabelColor(double& r, double& g, double& b)
+  {
+    double* c = this->GetEdgeLabelColor();
+    if (c)
+    {
+      r = c[0];
+      g = c[1];
+      b = c[2];
+    }
+  }
+  virtual void GetEdgeLabelColor(double c[3]) { this->GetEdgeLabelColor(c[0], c[1], c[2]); }
   //@}
 
   //@{
@@ -328,4 +340,3 @@ private:
 };
 
 #endif
-

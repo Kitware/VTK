@@ -24,13 +24,13 @@
  *
  * @sa
  * vtkActor2D vtkTextActor vtkTextActor3D vtkTextProperty vtkTextRenderer
-*/
+ */
 
 #ifndef vtkTextMapper_h
 #define vtkTextMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkNew.h" // For vtkNew
 
@@ -47,13 +47,13 @@ class vtkViewport;
 class VTKRENDERINGCORE_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-  vtkTypeMacro(vtkTextMapper,vtkMapper2D);
+  vtkTypeMacro(vtkTextMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new text mapper.
    */
-  static vtkTextMapper *New();
+  static vtkTextMapper* New();
 
   //@{
   /**
@@ -61,30 +61,30 @@ public:
    * mapper (in pixels).
    */
   virtual void GetSize(vtkViewport*, int size[2]);
-  virtual int GetWidth(vtkViewport*v);
-  virtual int GetHeight(vtkViewport*v);
+  virtual int GetWidth(vtkViewport* v);
+  virtual int GetHeight(vtkViewport* v);
   //@}
 
   //@{
   /**
    * The input text string to the mapper.
    */
-  vtkSetStringMacro(Input)
-  vtkGetStringMacro(Input)
+  vtkSetStringMacro(Input);
+  vtkGetStringMacro(Input);
   //@}
 
   //@{
   /**
    * Set/Get the text property.
    */
-  virtual void SetTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  virtual void SetTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   //@}
 
   /**
    * Shallow copy of an actor.
    */
-  void ShallowCopy(vtkAbstractMapper *m) override;
+  void ShallowCopy(vtkAbstractMapper* m) override;
 
   //@{
   /**
@@ -94,7 +94,8 @@ public:
    * is also available for convenience to other classes (e.g., widgets).
    */
   virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
-  static int SetConstrainedFontSize(vtkTextMapper*, vtkViewport*, int targetWidth, int targetHeight);
+  static int SetConstrainedFontSize(
+    vtkTextMapper*, vtkViewport*, int targetWidth, int targetHeight);
   //@}
 
   /**
@@ -104,27 +105,22 @@ public:
    * font size is the smallest size that was required to fit the largest
    * mapper in this constraint.
    */
-  static int SetMultipleConstrainedFontSize(vtkViewport*,
-                                            int targetWidth, int targetHeight,
-                                            vtkTextMapper** mappers,
-                                            int nbOfMappers,
-                                            int* maxResultingSize);
+  static int SetMultipleConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight,
+    vtkTextMapper** mappers, int nbOfMappers, int* maxResultingSize);
 
   //@{
   /**
    * Use these methods when setting font size relative to the renderer's size. These
    * methods are static so that external classes (e.g., widgets) can easily use them.
    */
-  static int SetRelativeFontSize(vtkTextMapper*, vtkViewport*, int *winSize,
-                                 int *stringSize, float sizeFactor=0.0);
-  static int SetMultipleRelativeFontSize(vtkViewport *viewport,
-                                         vtkTextMapper **textMappers,
-                                         int nbOfMappers, int *winSize,
-                                         int *stringSize, float sizeFactor);
+  static int SetRelativeFontSize(
+    vtkTextMapper*, vtkViewport*, int* winSize, int* stringSize, float sizeFactor = 0.0);
+  static int SetMultipleRelativeFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
+    int nbOfMappers, int* winSize, int* stringSize, float sizeFactor);
   //@}
 
-  void RenderOverlay(vtkViewport *, vtkActor2D *) override;
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void RenderOverlay(vtkViewport*, vtkActor2D*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
   vtkMTimeType GetMTime() override;
 
 protected:
@@ -132,13 +128,13 @@ protected:
   ~vtkTextMapper() override;
 
   char* Input;
-  vtkTextProperty *TextProperty;
+  vtkTextProperty* TextProperty;
 
 private:
   vtkTextMapper(const vtkTextMapper&) = delete;
   void operator=(const vtkTextMapper&) = delete;
 
-  void UpdateQuad(vtkActor2D *actor, int dpi);
+  void UpdateQuad(vtkActor2D* actor, int dpi);
   void UpdateImage(int dpi);
 
   int TextDims[2];

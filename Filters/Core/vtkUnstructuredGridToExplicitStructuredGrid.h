@@ -17,16 +17,16 @@
  * @brief   Filter which converts an unstructured grid data into an explicit structured grid.
  *          The input grid must have a structured coordinates int cell array.
  *          Moreover, its cell must be listed in the i-j-k order (k varying more ofter)
-*/
+ */
 
 #ifndef vtkUnstructuredGridToExplicitStructuredGrid_h
 #define vtkUnstructuredGridToExplicitStructuredGrid_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkExplicitStructuredGridAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
-class VTKFILTERSCORE_EXPORT vtkUnstructuredGridToExplicitStructuredGrid :
-  public vtkExplicitStructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT vtkUnstructuredGridToExplicitStructuredGrid
+  : public vtkExplicitStructuredGridAlgorithm
 {
 public:
   static vtkUnstructuredGridToExplicitStructuredGrid* New();
@@ -46,10 +46,8 @@ protected:
   ~vtkUnstructuredGridToExplicitStructuredGrid() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestInformation(vtkInformation *,
-    vtkInformationVector**, vtkInformationVector*) override;
-  int RequestData(vtkInformation*,
-    vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int WholeExtent[6];
 

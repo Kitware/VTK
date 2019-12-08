@@ -26,21 +26,20 @@
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostBetweennessClustering_h
 #define vtkBoostBetweennessClustering_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBetweennessClustering :
-  public vtkGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBetweennessClustering : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostBetweennessClustering* New();
   vtkTypeMacro(vtkBoostBetweennessClustering, vtkGraphAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkBoostBetweennessClustering();
   virtual ~vtkBoostBetweennessClustering();
@@ -84,21 +83,17 @@ public:
   //@}
 
 protected:
-
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   virtual int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-
 private:
-
-  double  Threshold;
-  bool    UseEdgeWeightArray;
-  bool    InvertEdgeWeightArray;
-  char*   EdgeWeightArrayName;
-  char*   EdgeCentralityArrayName;
+  double Threshold;
+  bool UseEdgeWeightArray;
+  bool InvertEdgeWeightArray;
+  char* EdgeWeightArrayName;
+  char* EdgeCentralityArrayName;
 
   vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&) = delete;
   void operator=(const vtkBoostBetweennessClustering&) = delete;

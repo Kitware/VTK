@@ -14,17 +14,17 @@
  *
  * @sa
  * vtkBoundingBox
-*/
+ */
 
 #ifndef vtkIntersectionCounter_h
 #define vtkIntersectionCounter_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include <vector> // for implementation
 #include <algorithm> // for sorting
+#include <vector>    // for implementation
 
-//class VTKCOMMONDATAMODEL_EXPORT vtkIntersectionCounter
+// class VTKCOMMONDATAMODEL_EXPORT vtkIntersectionCounter
 
 class vtkIntersectionCounter
 {
@@ -34,29 +34,31 @@ public:
    * This tolerance must be converted to parametric space. Here tol is the
    * tolerance in world coordinates; length is the ray length.
    */
-  vtkIntersectionCounter() : Tolerance(0.0001) {}
+  vtkIntersectionCounter()
+    : Tolerance(0.0001)
+  {
+  }
   vtkIntersectionCounter(double tol, double length)
   {
-    this->Tolerance = ( length > 0.0 ? (tol/length) : 0.0 );
+    this->Tolerance = (length > 0.0 ? (tol / length) : 0.0);
   }
   //@}
 
   /**
    * Set/Get the intersection tolerance.
    */
-  void SetTolerance(double tol)
-  { this->Tolerance = (tol < 0.0 ? 0.0001 : tol);}
-  double GetTolerance() {return this->Tolerance;}
+  void SetTolerance(double tol) { this->Tolerance = (tol < 0.0 ? 0.0001 : tol); }
+  double GetTolerance() { return this->Tolerance; }
 
   /**
    * Add an intersection given by parametric coordinate t.
    */
-  void AddIntersection(double t) {IntsArray.push_back(t);}
+  void AddIntersection(double t) { IntsArray.push_back(t); }
 
   /**
    * Reset the intersection process.
    */
-  void Reset() {IntsArray.clear();}
+  void Reset() { IntsArray.clear(); }
 
   /**
    * Returns number of intersections (even number of intersections, outside
@@ -68,13 +70,13 @@ public:
     int size = static_cast<int>(IntsArray.size());
 
     // Fast check for trivial cases
-    if ( size <= 1 )
+    if (size <= 1)
     {
-      return size; //0 or 1
+      return size; // 0 or 1
     }
 
     // Need to work harder: sort and then count the intersections
-    std::sort(IntsArray.begin(),IntsArray.end());
+    std::sort(IntsArray.begin(), IntsArray.end());
 
     // If here, there is at least one intersection, and two inserted
     // intersection points
@@ -83,9 +85,9 @@ public:
     std::vector<double>::iterator i1 = i0 + 1;
 
     // Now march through sorted array counting "separated" intersections
-    while ( i1 != IntsArray.end() )
+    while (i1 != IntsArray.end())
     {
-      if ( (*i1 - *i0) > this->Tolerance )
+      if ((*i1 - *i0) > this->Tolerance)
       {
         numInts++;
         i0 = i1;

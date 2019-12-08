@@ -18,12 +18,10 @@
 
 #include "ArrayConverters.h"
 #include "CellSetConverters.h"
-#include "PolyDataConverter.h"
 #include "ImageDataConverter.h"
-#include "Storage.h"
+#include "PolyDataConverter.h"
 #include "UnstructuredGridConverter.h"
 
-#include "vtkmCellSetSingleType.h"
 #include "vtkmDataArray.h"
 
 // datasets we support
@@ -42,52 +40,46 @@
 #include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/Field.h>
 
-namespace tovtkm {
+namespace tovtkm
+{
 
-namespace {
+namespace
+{
 
 template <typename T>
-vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
+vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
 {
   typedef vtkm::Vec<T, 3> Vec3;
 
-  vtkAOSDataArrayTemplate<T> *typedIn =
-      vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData());
+  vtkAOSDataArrayTemplate<T>* typedIn = vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn)
   {
-    typedef tovtkm::vtkAOSArrayContainerTag TagType;
-    typedef vtkm::cont::internal::Storage<Vec3, TagType> StorageType;
-    StorageType storage(typedIn);
-    vtkm::cont::ArrayHandle<Vec3, TagType> p(storage);
+    auto p = DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, 3>::Wrap(typedIn);
     return vtkm::cont::CoordinateSystem("coords", p);
   }
 
-  vtkSOADataArrayTemplate<T> *typedIn2 =
-      vtkSOADataArrayTemplate<T>::FastDownCast(points->GetData());
+  vtkSOADataArrayTemplate<T>* typedIn2 =
+    vtkSOADataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn2)
   {
-    typedef tovtkm::vtkSOAArrayContainerTag TagType;
-    typedef vtkm::cont::internal::Storage<Vec3, TagType> StorageType;
-    StorageType storage(typedIn2);
-    vtkm::cont::ArrayHandle<Vec3, TagType> p(storage);
+    auto p = DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 3>::Wrap(typedIn2);
     return vtkm::cont::CoordinateSystem("coords", p);
   }
 
-  vtkmDataArray<T> *typedIn3 =
-      vtkmDataArray<T>::SafeDownCast(points->GetData());
+  vtkmDataArray<T>* typedIn3 = vtkmDataArray<T>::SafeDownCast(points->GetData());
   if (typedIn3)
   {
     return vtkm::cont::CoordinateSystem("coords", typedIn3->GetVtkmVariantArrayHandle());
   }
 
   typedef vtkm::Vec<T, 3> Vec3;
-  Vec3 *xyz = nullptr;
+  Vec3* xyz = nullptr;
   return vtkm::cont::make_CoordinateSystem("coords", xyz, 0);
 }
 }
 //------------------------------------------------------------------------------
 // convert a vtkPoints array into a coordinate system
-vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
+vtkm::cont::CoordinateSystem Convert(vtkPoints* points)
 {
   if (points)
   {
@@ -103,16 +95,17 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
 
   // unsupported/null point set
   typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
-  Vec3 *xyz = nullptr;
+  Vec3* xyz = nullptr;
   return vtkm::cont::make_CoordinateSystem("coords", xyz, 0);
 }
 
 //------------------------------------------------------------------------------
 // convert an structured grid type
-vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
+vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields)
 {
   const int dimensionality = input->GetDataDimension();
-  int dims[3]; input->GetDimensions(dims);
+  int dims[3];
+  input->GetDimensions(dims);
 
   vtkm::cont::DataSet dataset;
 
@@ -121,23 +114,23 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
   dataset.AddCoordinateSystem(coords);
 
   // second step is to create structured cellset that represe
-  if(dimensionality == 1)
+  if (dimensionality == 1)
   {
-    vtkm::cont::CellSetStructured<1> cells("cells");
+    vtkm::cont::CellSetStructured<1> cells;
     cells.SetPointDimensions(dims[0]);
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
-  else if(dimensionality == 2)
+  else if (dimensionality == 2)
   {
-    vtkm::cont::CellSetStructured<2> cells("cells");
-    cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1]));
-    dataset.AddCellSet(cells);
+    vtkm::cont::CellSetStructured<2> cells;
+    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1]));
+    dataset.SetCellSet(cells);
   }
   else
-  { //going to presume 3d for everything else
-    vtkm::cont::CellSetStructured<3> cells("cells");
-    cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1],dims[2]));
-    dataset.AddCellSet(cells);
+  { // going to presume 3d for everything else
+    vtkm::cont::CellSetStructured<3> cells;
+    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1], dims[2]));
+    dataset.SetCellSet(cells);
   }
 
   ProcessFields(input, dataset, fields);
@@ -147,25 +140,25 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
 
 //------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
-vtkm::cont::DataSet Convert(vtkDataSet *input, FieldsFlag fields)
+vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
 {
   switch (input->GetDataObjectType())
   {
-  case VTK_UNSTRUCTURED_GRID:
-    return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
-  case VTK_STRUCTURED_GRID:
-    return Convert(vtkStructuredGrid::SafeDownCast(input), fields);
-  case VTK_UNIFORM_GRID:
-  case VTK_IMAGE_DATA:
-    return Convert(vtkImageData::SafeDownCast(input), fields);
-  case VTK_POLY_DATA:
-    return Convert(vtkPolyData::SafeDownCast(input), fields);
+    case VTK_UNSTRUCTURED_GRID:
+      return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
+    case VTK_STRUCTURED_GRID:
+      return Convert(vtkStructuredGrid::SafeDownCast(input), fields);
+    case VTK_UNIFORM_GRID:
+    case VTK_IMAGE_DATA:
+      return Convert(vtkImageData::SafeDownCast(input), fields);
+    case VTK_POLY_DATA:
+      return Convert(vtkPolyData::SafeDownCast(input), fields);
 
-  case VTK_UNSTRUCTURED_GRID_BASE:
-  case VTK_RECTILINEAR_GRID:
-  case VTK_STRUCTURED_POINTS:
-  default:
-    return vtkm::cont::DataSet();
+    case VTK_UNSTRUCTURED_GRID_BASE:
+    case VTK_RECTILINEAR_GRID:
+    case VTK_STRUCTURED_POINTS:
+    default:
+      return vtkm::cont::DataSet();
   }
 }
 

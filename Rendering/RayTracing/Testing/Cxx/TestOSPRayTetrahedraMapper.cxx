@@ -18,39 +18,38 @@
 // vtk unstructured grid
 
 #include "vtkColorTransferFunction.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkImageCast.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
+#include "vtkOSPRayPass.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStructuredPointsReader.h"
 #include "vtkTesting.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGridVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkOSPRayPass.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkThreshold.h"
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkUnstructuredGridVolumeRayCastMapper.h"
 #include <vtkTestUtilities.h>
 
-namespace {
+namespace
+{
 
-static const char * TestOSPRayTetrahedraMapperLog =
-"# StreamVersion 1\n"
-"EnterEvent 299 0 0 0 0 0 0\n"
-"MouseMoveEvent 299 0 0 0 0 0 0\n"
-"MouseMoveEvent 298 2 0 0 0 0 0\n"
-"MouseMoveEvent 297 4 0 0 0 0 0\n"
-"MouseMoveEvent 297 6 0 0 0 0 0\n"
-"MouseMoveEvent 296 8 0 0 0 0 0\n"
-"LeaveEvent 399 -8 0 0 0 0 0\n"
-;
+static const char* TestOSPRayTetrahedraMapperLog = "# StreamVersion 1\n"
+                                                   "EnterEvent 299 0 0 0 0 0 0\n"
+                                                   "MouseMoveEvent 299 0 0 0 0 0 0\n"
+                                                   "MouseMoveEvent 298 2 0 0 0 0 0\n"
+                                                   "MouseMoveEvent 297 4 0 0 0 0 0\n"
+                                                   "MouseMoveEvent 297 6 0 0 0 0 0\n"
+                                                   "MouseMoveEvent 296 8 0 0 0 0 0\n"
+                                                   "LeaveEvent 399 -8 0 0 0 0 0\n";
 
 } // end anon namespace
 
-int TestOSPRayTetrahedraMapper(int argc, char *argv[])
+int TestOSPRayTetrahedraMapper(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -65,8 +64,7 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
   // Create the reader for the data
   // This is the data the will be volume rendered
   vtkNew<vtkStructuredPointsReader> reader;
-  const char* file1 = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/ironProt.vtk");
+  const char* file1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   reader->SetFileName(file1);
   reader->Update();
 
@@ -95,11 +93,11 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
 
   // Create transfer mapping scalar value to color
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
-  colorTransferFunction->AddRGBPoint(80.0,0.0,0.0,0.0);
-  colorTransferFunction->AddRGBPoint(120.0,0.0,0.0,1.0);
-  colorTransferFunction->AddRGBPoint(160.0,1.0,0.0,0.0);
-  colorTransferFunction->AddRGBPoint(200.0,0.0,1.0,0.0);
-  colorTransferFunction->AddRGBPoint(255.0,0.0,1.0,1.0);
+  colorTransferFunction->AddRGBPoint(80.0, 0.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(120.0, 0.0, 0.0, 1.0);
+  colorTransferFunction->AddRGBPoint(160.0, 1.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(200.0, 0.0, 1.0, 0.0);
+  colorTransferFunction->AddRGBPoint(255.0, 0.0, 1.0, 1.0);
 
   // The property describes how the data will look
   vtkNew<vtkVolumeProperty> volumeProperty;
@@ -144,8 +142,7 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
 
   volumeMapper->DebugOn();
   int retVal;
-  retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
-                                              iren.GetPointer(),
-                                              TestOSPRayTetrahedraMapperLog));
+  retVal = !(
+    vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(), TestOSPRayTetrahedraMapperLog));
   return !retVal;
 }

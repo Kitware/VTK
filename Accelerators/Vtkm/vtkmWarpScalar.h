@@ -35,18 +35,18 @@
  * Note that the filter passes both its point data and cell data to
  * its output, except for normals, since these are distorted by the
  * warping.
-*/
+ */
 
 #ifndef vtkmWarpScalar_h
 #define vtkmWarpScalar_h
 
-#include "vtkWarpScalar.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkWarpScalar.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmWarpScalar : public vtkWarpScalar
 {
 public:
-  vtkTypeMacro(vtkmWarpScalar, vtkWarpScalar)
+  vtkTypeMacro(vtkmWarpScalar, vtkWarpScalar);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmWarpScalar* New();
@@ -55,8 +55,7 @@ protected:
   vtkmWarpScalar();
   ~vtkmWarpScalar();
 
-  int RequestData(vtkInformation* , vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmWarpScalar(const vtkmWarpScalar&) = delete;

@@ -61,8 +61,8 @@
 #ifndef vtkStaticEdgeLocatorTemplate_h
 #define vtkStaticEdgeLocatorTemplate_h
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 /**
  * Definition of an edge tuple. Note that the TId template type may be
@@ -70,7 +70,7 @@
  * sort) by using smaller types (32-int versus 64-bit vtkIdType). It is
  * required that V0 < V1; the tuple constructor enforces this.
  */
-template<typename TId, typename TED>
+template <typename TId, typename TED>
 struct EdgeTuple
 {
   TId V0;
@@ -82,10 +82,12 @@ struct EdgeTuple
 
   // Construct an edge and ensure that the edge tuple (vo,v1) is
   // specified such that (v0<v1).
-  EdgeTuple(TId v0, TId v1, TED data) :
-  V0(v0), V1(v1), T(data)
+  EdgeTuple(TId v0, TId v1, TED data)
+    : V0(v0)
+    , V1(v1)
+    , T(data)
   {
-    if ( this->V0 > this->V1 )
+    if (this->V0 > this->V1)
     {
       TId tmp = this->V0;
       this->V0 = this->V1;
@@ -94,29 +96,33 @@ struct EdgeTuple
   }
 
   bool operator==(const EdgeTuple& et) const
-  { return ( (this->V0 == et.V0 && this->V1 == et.V1) ? true : false ); }
+  {
+    return ((this->V0 == et.V0 && this->V1 == et.V1) ? true : false);
+  }
 
   bool IsEdge(TId v0, TId v1) const
   {
-    if ( v0 < v1 ) //ordered properly
+    if (v0 < v1) // ordered properly
     {
-      return ( (this->V0 == v0 && this->V1 == v1) ? true : false );
+      return ((this->V0 == v0 && this->V1 == v1) ? true : false);
     }
-    else //swap comparison required
+    else // swap comparison required
     {
-      return ( (this->V0 == v1 && this->V1 == v0) ? true : false );
+      return ((this->V0 == v1 && this->V1 == v0) ? true : false);
     }
   }
   // Sort on v0 first, then v1.
   bool operator<(const EdgeTuple& tup) const
   {
-    if ( this->V0 < tup.V0 ) return true;
-    if ( tup.V0 < this->V0 ) return false;
-    if ( this->V1 < tup.V1 ) return true;
+    if (this->V0 < tup.V0)
+      return true;
+    if (tup.V0 < this->V0)
+      return false;
+    if (this->V1 < tup.V1)
+      return true;
     return false;
   }
 };
-
 
 /**
  * Definition of an edge tuple using for creating an edge merge table. Note
@@ -124,12 +130,12 @@ struct EdgeTuple
  * and provide increased speeds (e.g., sort) by using smaller types (32-int
  * versus 64-bit vtkIdType). It is required that V0 < V1.
  */
-template<typename TId, typename TED>
+template <typename TId, typename TED>
 struct MergeTuple
 {
   TId V0;
   TId V1;
-  TId EId; //originating edge id
+  TId EId; // originating edge id
   TED T;
 
   // Default constructor - nothing needs to be done
@@ -137,10 +143,13 @@ struct MergeTuple
 
   // Construct an edge and ensure that the edge tuple (vo,v1) is
   // specified such that (v0<v1).
-  MergeTuple(TId v0, TId v1, TId eid, TED data) :
-  V0(v0), V1(v1), EId(eid), T(data)
+  MergeTuple(TId v0, TId v1, TId eid, TED data)
+    : V0(v0)
+    , V1(v1)
+    , EId(eid)
+    , T(data)
   {
-    if ( this->V0 > this->V1 )
+    if (this->V0 > this->V1)
     {
       TId tmp = this->V0;
       this->V0 = this->V1;
@@ -149,21 +158,27 @@ struct MergeTuple
   }
 
   bool operator==(const MergeTuple& et) const
-  { return ( (this->V0 == et.V0 && this->V1 == et.V1) ? true : false ); }
+  {
+    return ((this->V0 == et.V0 && this->V1 == et.V1) ? true : false);
+  }
 
   bool operator!=(const MergeTuple& et) const
-  { return ( (this->V0 != et.V0 || this->V1 != et.V1) ? true : false ); }
+  {
+    return ((this->V0 != et.V0 || this->V1 != et.V1) ? true : false);
+  }
 
   // Sort on v0 first, then v1.
   bool operator<(const MergeTuple& tup) const
   {
-    if ( this->V0 < tup.V0 ) return true;
-    if ( tup.V0 < this->V0 ) return false;
-    if ( this->V1 < tup.V1 ) return true;
+    if (this->V0 < tup.V0)
+      return true;
+    if (tup.V0 < this->V0)
+      return false;
+    if (this->V1 < tup.V1)
+      return true;
     return false;
   }
 };
-
 
 /**
  * Templated on types of ids defining an edge, and any data associated with
@@ -177,31 +192,36 @@ public:
   /**
    * Some convenient typedefs.
    */
-  typedef EdgeTuple<IDType,EdgeData> EdgeTupleType;
-  typedef MergeTuple<IDType,EdgeData> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeData> EdgeTupleType;
+  typedef MergeTuple<IDType, EdgeData> MergeTupleType;
   //@)
 
   /**
    * Construct an empty edge locator.
    */
-  vtkStaticEdgeLocatorTemplate() : NumEdges(0), NumEdgesPerBin(5),
-    EdgeArray(nullptr), EdgeOffsets(nullptr), MinV0(0), MaxV0(0), V0Range(0), NDivs(0),
-    MergeArray(nullptr) {}
+  vtkStaticEdgeLocatorTemplate()
+    : NumEdges(0)
+    , NumEdgesPerBin(5)
+    , EdgeArray(nullptr)
+    , EdgeOffsets(nullptr)
+    , MinV0(0)
+    , MaxV0(0)
+    , V0Range(0)
+    , NDivs(0)
+    , MergeArray(nullptr)
+  {
+  }
 
   /**
    * Delete internal offset array. The edgeArray is provided from outside the
    * class and so not deleted.
    */
-  ~vtkStaticEdgeLocatorTemplate()
-  {
-    delete [] this->EdgeOffsets;
-  }
+  ~vtkStaticEdgeLocatorTemplate() { delete[] this->EdgeOffsets; }
 
   /**
    * Return the number of edges in the edge array.
    */
-  IDType GetNumberOfEdges()
-  { return this->NumEdges; }
+  IDType GetNumberOfEdges() { return this->NumEdges; }
 
   /**
    * This method sorts (in place) an array of MergeTupleType (of length
@@ -214,8 +234,8 @@ public:
    * the sorted MergeTuples can be used to renumber edges from initial ids
    * (possibly one of several duplicates) to unique edge ids.
    */
-   const IDType *MergeEdges(vtkIdType numEdges, MergeTupleType *edgeArray,
-                            vtkIdType &numUniqueEdges);
+  const IDType* MergeEdges(
+    vtkIdType numEdges, MergeTupleType* edgeArray, vtkIdType& numUniqueEdges);
 
   /**
    * This method constructs the edge locator to be used when searching for
@@ -225,7 +245,7 @@ public:
    * vtkSMPTools::Sort(). The provided array is modified in place. The
    * method returns the number of unique edges.
    */
-  vtkIdType BuildLocator(vtkIdType numEdges, EdgeTupleType *edgeArray);
+  vtkIdType BuildLocator(vtkIdType numEdges, EdgeTupleType* edgeArray);
 
   /**
    * Return the id of the edge indicated. If the edge has not been inserted
@@ -237,7 +257,7 @@ public:
   {
     // Ensure that data is consistent with what is expected.
     IDType V0, V1;
-    if ( v0 < v1 )
+    if (v0 < v1)
     {
       V0 = v0;
       V1 = v1;
@@ -247,7 +267,7 @@ public:
       V0 = v1;
       V1 = v0;
     }
-    if ( V0 < this->MinV0 || V0 > this->MaxV0 )
+    if (V0 < this->MinV0 || V0 > this->MaxV0)
     {
       return -1;
     }
@@ -257,26 +277,26 @@ public:
     IDType curId = this->EdgeOffsets[curBin];
     IDType curV0 = this->EdgeArray[curId].V0;
     IDType num = this->GetNumberOfEdgesInBin(curBin);
-    for ( IDType i=0; i < num; ++i )
+    for (IDType i = 0; i < num; ++i)
     {
-      while ( curV0 < V0 )
+      while (curV0 < V0)
       {
         curId++;
         curV0 = this->EdgeArray[curId].V0;
       }
-      if ( curV0 > V0 )
+      if (curV0 > V0)
       {
         return -1;
       }
-      else //matched v0, now find v1
+      else // matched v0, now find v1
       {
         IDType curV1 = this->EdgeArray[curId].V1;
-        while ( curV1 < V1 )
+        while (curV1 < V1)
         {
           curId++;
           curV1 = this->EdgeArray[curId].V1;
         }
-        if ( curV1 > V1 )
+        if (curV1 > V1)
         {
           return -1;
         }
@@ -285,7 +305,7 @@ public:
           return curId;
         }
       }
-    } //loop over maximum possible candidates
+    } // loop over maximum possible candidates
 
     // Nothing found
     return -1;
@@ -295,38 +315,34 @@ public:
    * Return the ith edge in the edge array. Either obtain a non-negative
    * value i from IsInsertedEdge(); or use 0<=i<NumberOfEdges().
    */
-  const EdgeTupleType& GetEdge(IDType i) const
-  {
-    return (*this->EdgeArray)[i];
-  }
+  const EdgeTupleType& GetEdge(IDType i) const { return (*this->EdgeArray)[i]; }
 
 protected:
-  vtkIdType       NumEdges;
+  vtkIdType NumEdges;
 
   // Support BuildLocator usage pattern
-  vtkIdType       NumEdgesPerBin;
-  EdgeTupleType  *EdgeArray;
-  IDType         *EdgeOffsets;
-  IDType          MinV0;
-  IDType          MaxV0;
-  IDType          V0Range;
-  int             NDivs;
+  vtkIdType NumEdgesPerBin;
+  EdgeTupleType* EdgeArray;
+  IDType* EdgeOffsets;
+  IDType MinV0;
+  IDType MaxV0;
+  IDType V0Range;
+  int NDivs;
 
-  IDType HashBin(IDType v) const
-  { return ( (v - this->MinV0) / this->NumEdgesPerBin ); }
+  IDType HashBin(IDType v) const { return ((v - this->MinV0) / this->NumEdgesPerBin); }
 
   IDType GetNumberOfEdgesInBin(IDType bin) const
-  { return (this->EdgeOffsets[bin+1] - this->EdgeOffsets[bin]); }
-
+  {
+    return (this->EdgeOffsets[bin + 1] - this->EdgeOffsets[bin]);
+  }
 
   // Support MergeEdges usage pattern
-  MergeTupleType *MergeArray;
+  MergeTupleType* MergeArray;
   std::vector<IDType> MergeOffsets;
 
 private:
   vtkStaticEdgeLocatorTemplate(const vtkStaticEdgeLocatorTemplate&) = delete;
   void operator=(const vtkStaticEdgeLocatorTemplate&) = delete;
-
 };
 
 #include "vtkStaticEdgeLocatorTemplate.txx"

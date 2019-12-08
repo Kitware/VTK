@@ -37,7 +37,7 @@ class TestGhostPoints(Testing.vtkTest):
         ghosts.SetValue(2, duplicate)
         ghosts.SetValue(3, 0)
 
-        self.doLinear(ghosts, 3)
+        self.doLinear(ghosts, 4)
 
     def testLinearHidden(self):
         hidden = vtk.vtkDataSetAttributes.HIDDENPOINT
@@ -59,8 +59,8 @@ class TestGhostPoints(Testing.vtkTest):
         pts.InsertPoint(2, (0.5, 1, 0))
         pts.InsertPoint(3, (0.5, 0.5, 1))
         pts.InsertPoint(4, (0.5, 0, 0))
-        pts.InsertPoint(5, (1.25, 0.5, 0))
-        pts.InsertPoint(6, (0.25, 0.5, 0))
+        pts.InsertPoint(5, (0.25, 0.5, 0))
+        pts.InsertPoint(6, (0.75, 0.5, 0))
         pts.InsertPoint(7, (0.25, 0.25, 0.5))
         pts.InsertPoint(8, (0.75, 0.25, 0.5))
         pts.InsertPoint(9, (0.5, 0.75, 0.5))
@@ -102,7 +102,7 @@ class TestGhostPoints(Testing.vtkTest):
         ghosts.SetValue(8, 0)
         ghosts.SetValue(9, 0)
 
-        self.doNonLinear(ghosts, 48)
+        self.doNonLinear(ghosts, 64)
 
     def testNonLinearHidden(self):
         hidden = vtk.vtkDataSetAttributes.HIDDENPOINT

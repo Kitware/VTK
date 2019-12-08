@@ -13,24 +13,24 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
+#include "vtkAxis.h"
 #include "vtkChartXY.h"
-#include "vtkPlotPoints.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPen.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotLine.h"
-#include "vtkLookupTable.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
+#include "vtkPlotPoints.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkAxis.h"
-#include "vtkMath.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestChartDoubleColors(int, char *[])
+int TestChartDoubleColors(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;

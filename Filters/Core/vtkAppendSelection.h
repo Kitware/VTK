@@ -24,7 +24,7 @@
  * vtkAppendSelection is a filter that appends one of more selections into
  * a single selection.  All selections must have the same content type unless
  * AppendByUnion is false.
-*/
+ */
 
 #ifndef vtkAppendSelection_h
 #define vtkAppendSelection_h
@@ -37,9 +37,9 @@ class vtkSelection;
 class VTKFILTERSCORE_EXPORT vtkAppendSelection : public vtkSelectionAlgorithm
 {
 public:
-  static vtkAppendSelection *New();
+  static vtkAppendSelection* New();
 
-  vtkTypeMacro(vtkAppendSelection,vtkSelectionAlgorithm);
+  vtkTypeMacro(vtkAppendSelection, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -49,29 +49,29 @@ public:
    * SetNumberOfInputs/SetInputByNumber should not be mixed with calls
    * to AddInput/RemoveInput. By default, UserManagedInputs is false.
    */
-  vtkSetMacro(UserManagedInputs,vtkTypeBool);
-  vtkGetMacro(UserManagedInputs,vtkTypeBool);
-  vtkBooleanMacro(UserManagedInputs,vtkTypeBool);
+  vtkSetMacro(UserManagedInputs, vtkTypeBool);
+  vtkGetMacro(UserManagedInputs, vtkTypeBool);
+  vtkBooleanMacro(UserManagedInputs, vtkTypeBool);
   //@}
 
   /**
    * Add a dataset to the list of data to append. Should not be
    * used when UserManagedInputs is true, use SetInputByNumber instead.
    */
-  void AddInputData(vtkSelection *);
+  void AddInputData(vtkSelection*);
 
   /**
    * Remove a dataset from the list of data to append. Should not be
    * used when UserManagedInputs is true, use SetInputByNumber (nullptr) instead.
    */
-  void RemoveInputData(vtkSelection *);
+  void RemoveInputData(vtkSelection*);
 
   //@{
   /**
    * Get any input of this filter.
    */
-  vtkSelection *GetInput(int idx);
-  vtkSelection *GetInput() { return this->GetInput( 0 ); };
+  vtkSelection* GetInput(int idx);
+  vtkSelection* GetInput() { return this->GetInput(0); }
   //@}
 
   /**
@@ -81,7 +81,7 @@ public:
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
-  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
+  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput* input);
 
   //@{
   /**
@@ -102,22 +102,22 @@ protected:
   ~vtkAppendSelection() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
- private:
+private:
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInputData(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
+  void AddInputData(vtkDataObject*)
+  {
+    vtkErrorMacro(<< "AddInput() must be called with a vtkSelection not a vtkDataObject.");
+  }
 
   vtkTypeBool UserManagedInputs;
   vtkTypeBool AppendByUnion;
+
 private:
   vtkAppendSelection(const vtkAppendSelection&) = delete;
   void operator=(const vtkAppendSelection&) = delete;
 };
 
 #endif
-
-

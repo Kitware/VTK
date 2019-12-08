@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPUnstructuredGridReader
-*/
+ */
 
 #ifndef vtkXMLUnstructuredGridReader_h
 #define vtkXMLUnstructuredGridReader_h
@@ -38,16 +38,16 @@ class vtkIdTypeArray;
 class VTKIOXML_EXPORT vtkXMLUnstructuredGridReader : public vtkXMLUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLUnstructuredGridReader,vtkXMLUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLUnstructuredGridReader, vtkXMLUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLUnstructuredGridReader *New();
+  static vtkXMLUnstructuredGridReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int idx);
+  vtkUnstructuredGrid* GetOutput();
+  vtkUnstructuredGrid* GetOutput(int idx);
   //@}
 
 protected:
@@ -66,8 +66,7 @@ protected:
   int ReadPieceData() override;
 
   // Read a data array whose tuples correspond to cells.
-  int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray) override;
+  int ReadArrayForCells(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.

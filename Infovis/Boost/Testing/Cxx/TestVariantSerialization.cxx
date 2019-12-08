@@ -17,10 +17,10 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-#include "vtkVariantBoostSerialization.h"
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+#include "vtkVariantBoostSerialization.h"
 
 #include <sstream>
 #include <string.h>
@@ -33,8 +33,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int errors = 0;
 
   // Build a vtkVariantArray with a variety of values in it.
-  vtkSmartPointer<vtkVariantArray> sourceArray
-    =  vtkSmartPointer<vtkVariantArray>::New();
+  vtkSmartPointer<vtkVariantArray> sourceArray = vtkSmartPointer<vtkVariantArray>::New();
   sourceArray->SetName("Values");
   sourceArray->SetNumberOfTuples(7);
   sourceArray->SetValue(0, vtkVariant('V'));
@@ -45,10 +44,8 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sourceArray->SetValue(5, 42l);
 
   // This is the first two words from the Iliad in Greek -- approximately 'Mnviv aeide'
-  const vtkTypeUInt16 greek_text_utf16[] = { 0x039C, 0x03B7, 0x03BD, 0x03B9, 0x03BD,
-                                             ' ',
-                                             0x03B1, 0x03B5, 0x03B9, 0x03B4, 0x03B5,
-                                             0 };
+  const vtkTypeUInt16 greek_text_utf16[] = { 0x039C, 0x03B7, 0x03BD, 0x03B9, 0x03BD, ' ', 0x03B1,
+    0x03B5, 0x03B9, 0x03B4, 0x03B5, 0 };
 
   sourceArray->SetValue(6, vtkUnicodeString::from_utf16(greek_text_utf16));
 
@@ -58,8 +55,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   out << static_cast<const vtkVariantArray&>(*sourceArray);
 
   // De-serialize the array
-  vtkSmartPointer<vtkVariantArray> sinkArray
-    =  vtkSmartPointer<vtkVariantArray>::New();
+  vtkSmartPointer<vtkVariantArray> sinkArray = vtkSmartPointer<vtkVariantArray>::New();
   std::istringstream in_stream(out_stream.str());
   boost::archive::text_iarchive in(in_stream);
   in >> *sinkArray;
@@ -67,16 +63,15 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Check that the arrays are the same
   if (strcmp(sourceArray->GetName(), sinkArray->GetName()))
   {
-    cerr << "Sink array has name \"" << sinkArray->GetName()
-         << "\", should be \"" << sourceArray->GetName() << "\".\n";
+    cerr << "Sink array has name \"" << sinkArray->GetName() << "\", should be \""
+         << sourceArray->GetName() << "\".\n";
     ++errors;
   }
 
   if (sourceArray->GetNumberOfTuples() != sinkArray->GetNumberOfTuples())
   {
-    cerr << "Sink array has " << sinkArray->GetNumberOfTuples()
-         << " of elements, should be " << sourceArray->GetNumberOfTuples()
-         << ".\n";
+    cerr << "Sink array has " << sinkArray->GetNumberOfTuples() << " of elements, should be "
+         << sourceArray->GetNumberOfTuples() << ".\n";
     ++errors;
     return errors;
   }
@@ -85,35 +80,32 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (sourceArray->GetValue(i).GetType() != sinkArray->GetValue(i).GetType())
     {
-      cerr << "Sink array value at index " << i << " has type "
-           << sinkArray->GetValue(i).GetType() << ", should be"
-           << sourceArray->GetValue(i).GetType() << ".\n";
+      cerr << "Sink array value at index " << i << " has type " << sinkArray->GetValue(i).GetType()
+           << ", should be" << sourceArray->GetValue(i).GetType() << ".\n";
       ++errors;
       return errors;
     }
   }
 
-#define VTK_VARIANT_ARRAY_DATA_CHECK(Index,Function,Kind)               \
-  if (sourceArray->GetValue(Index).Function()                           \
-        != sinkArray->GetValue(Index).Function())                       \
-  {                                                                   \
-    cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function() \
-         << "\" vs. \"" << sinkArray->GetValue(Index).Function() << "\".\n"; \
-    ++errors;                                                           \
+#define VTK_VARIANT_ARRAY_DATA_CHECK(Index, Function, Kind)                                        \
+  if (sourceArray->GetValue(Index).Function() != sinkArray->GetValue(Index).Function())            \
+  {                                                                                                \
+    cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function() << "\" vs. \""      \
+         << sinkArray->GetValue(Index).Function() << "\".\n";                                      \
+    ++errors;                                                                                      \
   }
 
-  VTK_VARIANT_ARRAY_DATA_CHECK(0,ToChar,"Character");
-  VTK_VARIANT_ARRAY_DATA_CHECK(1,ToFloat,"Float");
-  VTK_VARIANT_ARRAY_DATA_CHECK(2,ToDouble,"Double");
-  if (strcmp(sourceArray->GetValue(3).ToString(),
-             sinkArray->GetValue(3).ToString()))
+  VTK_VARIANT_ARRAY_DATA_CHECK(0, ToChar, "Character");
+  VTK_VARIANT_ARRAY_DATA_CHECK(1, ToFloat, "Float");
+  VTK_VARIANT_ARRAY_DATA_CHECK(2, ToDouble, "Double");
+  if (strcmp(sourceArray->GetValue(3).ToString(), sinkArray->GetValue(3).ToString()))
   {
-    cerr << "String mismatch: \"" << sourceArray->GetValue(3).ToString()
-         << "\" vs. \"" << sinkArray->GetValue(3).ToString() << "\".\n";
+    cerr << "String mismatch: \"" << sourceArray->GetValue(3).ToString() << "\" vs. \""
+         << sinkArray->GetValue(3).ToString() << "\".\n";
     ++errors;
   }
-  VTK_VARIANT_ARRAY_DATA_CHECK(4,ToInt,"Int");
-  VTK_VARIANT_ARRAY_DATA_CHECK(5,ToLong,"Long");
+  VTK_VARIANT_ARRAY_DATA_CHECK(4, ToInt, "Int");
+  VTK_VARIANT_ARRAY_DATA_CHECK(5, ToLong, "Long");
 #undef VTK_VARIANT_ARRAY_DATA_CHECK
 
   return errors;

@@ -37,11 +37,8 @@ protected:
   /**
    * Update the internal texture object using the color transfer function
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
 private:
   vtkOpenGLVolumeRGBTable(const vtkOpenGLVolumeRGBTable&) = delete;

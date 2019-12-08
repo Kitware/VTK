@@ -105,11 +105,8 @@ protected:
   void ReadTrees(vtkXMLDataElement* elem);
 
   // Used by ReadTopology to recursively build the tree
-  void SubdivideFromDescriptor(vtkHyperTreeGridNonOrientedCursor* treeCursor,
-    unsigned int level,
-    int numChildren,
-    vtkBitArray* desc,
-    vtkIdTypeArray* posByLevel);
+  void SubdivideFromDescriptor(vtkHyperTreeGridNonOrientedCursor* treeCursor, unsigned int level,
+    int numChildren, vtkBitArray* desc, vtkIdTypeArray* posByLevel);
 
   // Number of vertices in HyperTreeGrid being read
   vtkIdType NumberOfPoints;

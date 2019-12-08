@@ -19,8 +19,8 @@
 #include "vtkCommand.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayMaterialHelpers.h"
+#include "vtkObjectFactory.h"
 #include "vtkPNGReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
@@ -37,69 +37,33 @@
 
 namespace
 {
-  const std::map<std::string, std::map<std::string, std::string> > Aliases = {
-    {
-      "OBJMaterial", {
-        { "colorMap", "map_Kd" },
-        { "map_kd", "map_Kd" },
-        { "map_ks", "map_Ks" },
-        { "map_ns", "map_Ns" },
-        { "map_bump", "map_Bump" },
-        { "normalMap", "map_Bump" },
-        { "BumpMap", "map_Bump" },
-        { "color", "Kd" },
-        { "kd", "Kd" },
-        { "alpha", "d" },
-        { "ks", "Ks" },
-        { "ns", "Ns" },
-        { "tf", "Tf" }
-      }
-    },
-    {
-      "ThinGlass", {
-        { "color", "attenuationColor" },
-        { "transmission", "attenuationColor" }
-      }
-    },
-    {
-      "MetallicPaint", {
-        { "color", "baseColor" }
-      }
-    },
-    {
-      "Glass", {
-        { "etaInside", "eta" },
-        { "etaOutside", "eta" },
-        { "attenuationColorOutside", "attenuationColor" }
-      }
-    },
-    {
-      "Principled", {}
-    },
-    {
-      "CarPaint", {}
-    },
-    {
-      "Metal", {}
-    },
-    {
-      "Alloy", {}
-    }
-  };
+const std::map<std::string, std::map<std::string, std::string> > Aliases = {
+  { "OBJMaterial",
+    { { "colorMap", "map_Kd" }, { "map_kd", "map_Kd" }, { "map_ks", "map_Ks" },
+      { "map_ns", "map_Ns" }, { "map_bump", "map_Bump" }, { "normalMap", "map_Bump" },
+      { "BumpMap", "map_Bump" }, { "color", "Kd" }, { "kd", "Kd" }, { "alpha", "d" },
+      { "ks", "Ks" }, { "ns", "Ns" }, { "tf", "Tf" } } },
+  { "ThinGlass", { { "color", "attenuationColor" }, { "transmission", "attenuationColor" } } },
+  { "MetallicPaint", { { "color", "baseColor" } } },
+  { "Glass",
+    { { "etaInside", "eta" }, { "etaOutside", "eta" },
+      { "attenuationColorOutside", "attenuationColor" } } },
+  { "Principled", {} }, { "CarPaint", {} }, { "Metal", {} }, { "Alloy", {} }
+};
 
-  std::string FindRealName(const std::string& materialType, const std::string& alias)
+std::string FindRealName(const std::string& materialType, const std::string& alias)
+{
+  auto matAliasesIt = ::Aliases.find(materialType);
+  if (matAliasesIt != ::Aliases.end())
   {
-    auto matAliasesIt = ::Aliases.find(materialType);
-    if (matAliasesIt != ::Aliases.end())
+    auto realNameIt = matAliasesIt->second.find(alias);
+    if (realNameIt != matAliasesIt->second.end())
     {
-      auto realNameIt = matAliasesIt->second.find(alias);
-      if (realNameIt != matAliasesIt->second.end())
-      {
-        return realNameIt->second;
-      }
+      return realNameIt->second;
     }
-    return alias;
   }
+  return alias;
+}
 }
 
 typedef std::map<std::string, std::vector<double> > NamedVariables;
@@ -159,8 +123,8 @@ void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const st
   }
   else
   {
-    vtkGenericWarningMacro("Unknown material type \"" << implname
-      << "\" for material named \"" << nickname << "\"");
+    vtkGenericWarningMacro(
+      "Unknown material type \"" << implname << "\" for material named \"" << nickname << "\"");
   }
 }
 
@@ -188,8 +152,8 @@ void vtkOSPRayMaterialLibrary::AddTexture(
   }
   else
   {
-    vtkGenericWarningMacro("Unknown parameter \"" << texname
-      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+    vtkGenericWarningMacro("Unknown parameter \"" << texname << "\" for type \""
+                                                  << this->Internal->ImplNames[nickname] << "\"");
   }
 }
 
@@ -225,8 +189,8 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(
   }
   else
   {
-    vtkGenericWarningMacro("Unknown parameter \"" << varname
-      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+    vtkGenericWarningMacro("Unknown parameter \"" << varname << "\" for type \""
+                                                  << this->Internal->ImplNames[nickname] << "\"");
   }
 }
 
@@ -768,15 +732,14 @@ std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::str
 
 //-----------------------------------------------------------------------------
 const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
-  vtkOSPRayMaterialLibrary::GetParametersDictionary()
+vtkOSPRayMaterialLibrary::GetParametersDictionary()
 {
   // This is the material dictionary from OSPRay 1.8
   // If attribute name changes with new OSPRay version, keep old name aliases support in functions
   // vtkOSPRayMaterialLibrary::AddShaderVariable and vtkOSPRayMaterialLibrary::AddTexture
-  static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic =
-  {
-    {
-      "OBJMaterial", {
+  static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic = {
+    { "OBJMaterial",
+      {
         { "Ka", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "Kd", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "Ks", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -784,14 +747,33 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "d", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "Tf", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "map_Bump", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Bump.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_Bump.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_Bump.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_Bump.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_Kd", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Kd.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_Kd.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_Kd.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_Kd.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_Ks", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Ks.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_Ks.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_Ks.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_Ks.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_Ns", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Ns.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_Ns.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_Ns.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_Ns.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_d", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "Principled", {
+        { "map_d.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_d.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_d.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_d.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "Principled",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "metallic", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
@@ -821,37 +803,148 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "sheenRoughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "opacity", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "baseColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "baseColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "baseColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "baseColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "baseColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "edgeColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "edgeColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "edgeColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "edgeColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "edgeColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "metallicMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "metallicMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "metallicMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "metallicMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "metallicMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "diffuseMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "diffuseMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "diffuseMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "diffuseMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "diffuseMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "specularMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "specularMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "specularMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "specularMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "specularMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "iorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "iorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "iorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "iorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "iorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "transmissionMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "transmissionMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "transmissionMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "transmissionMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "transmissionColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "transmissionColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "transmissionColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "transmissionColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "transmissionDepthMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionDepthMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "transmissionDepthMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "transmissionDepthMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "transmissionDepthMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "roughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "roughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "roughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "roughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "roughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "anisotropyMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "anisotropyMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "anisotropyMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "anisotropyMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "anisotropyMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "rotationMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "rotationMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "rotationMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "rotationMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "rotationMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "normalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "normalMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "normalMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "normalMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "normalMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "baseNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "baseNormalMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "baseNormalMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "baseNormalMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "baseNormalMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "thinMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "thinMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "thinMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "thinMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "thinMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "thicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "thicknessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "thicknessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "thicknessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "thicknessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "backlightMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "backlightMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "backlightMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "backlightMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "backlightMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatIorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatIorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatIorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatIorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatIorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatThicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatThicknessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatThicknessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatThicknessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatThicknessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatRoughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatRoughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatRoughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatRoughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatNormalMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatNormalMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatNormalMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatNormalMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "sheenMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "sheenMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheenMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "sheenMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "sheenColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "sheenColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheenColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "sheenColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "sheenTintMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenTintMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "sheenTintMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheenTintMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "sheenTintMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "sheenRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenRoughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "sheenRoughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheenRoughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "sheenRoughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "opacityMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "CarPaint", {
+        { "opacityMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "opacityMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "opacityMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "opacityMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "CarPaint",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "normal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
@@ -869,68 +962,150 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "flipflopColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "flipflopFalloff", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "baseColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "baseColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "baseColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "baseColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "baseColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "roughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "roughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "roughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "roughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "roughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "normalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "normalMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "normalMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "normalMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "normalMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flakeDensityMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeDensityMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flakeDensityMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeDensityMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flakeDensityMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flakeScaleMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeScaleMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flakeScaleMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeScaleMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flakeScaleMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flakeSpreadMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeSpreadMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flakeSpreadMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeSpreadMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flakeSpreadMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flakeJitterMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeJitterMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flakeJitterMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeJitterMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flakeJitterMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flakeRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeRoughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flakeRoughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeRoughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flakeRoughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatIorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatIorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatIorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatIorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatIorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatThicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatThicknessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatThicknessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatThicknessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatThicknessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatRoughnessMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatRoughnessMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatRoughnessMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatRoughnessMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "coatNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatNormalMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "coatNormalMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatNormalMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "coatNormalMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flipflopColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flipflopColorMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flipflopColorMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flipflopColorMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flipflopColorMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flipflopFalloffMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "Metal", {
+        { "flipflopFalloffMap.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "flipflopFalloffMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flipflopFalloffMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "flipflopFalloffMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "Metal",
+      {
         { "ior", vtkOSPRayMaterialLibrary::ParameterType::FLOAT_DATA },
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
         { "k", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "map_roughness", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "Alloy", {
+        { "map_roughness.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_roughness.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "Alloy",
+      {
         { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "map_color", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_color.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_color.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_color.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_color.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_edgeColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_edgeColor.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_edgeColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_edgeColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_edgeColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_roughness", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "Glass", {
+        { "map_roughness.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_roughness.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "Glass",
+      {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-      }
-    },
-    {
-      "ThinGlass", {
+      } },
+    { "ThinGlass",
+      {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "thickness", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
-    {
-      "MetallicPaint", {
+        { "map_attenuationColor.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_attenuationColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_attenuationColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_attenuationColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
+    { "MetallicPaint",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "flakeAmount", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "flakeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "flakeSpread", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_baseColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
-      }
-    },
+        { "map_baseColor.transform", vtkOSPRayMaterialLibrary::ParameterType::VEC4 },
+        { "map_baseColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_baseColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+        { "map_baseColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
+      } },
   };
   return dic;
 }

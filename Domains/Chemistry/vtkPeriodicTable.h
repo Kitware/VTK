@@ -21,14 +21,14 @@
  *
  * @sa
  * vtkBlueObeliskData vtkBlueObeliskDataParser
-*/
+ */
 
 #ifndef vtkPeriodicTable_h
 #define vtkPeriodicTable_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // Needed for the static data member
 #include "vtkObject.h"
-#include "vtkNew.h" // Needed for the static data member
 
 class vtkBlueObeliskData;
 class vtkColor3f;
@@ -40,7 +40,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkPeriodicTable : public vtkObject
 public:
   vtkTypeMacro(vtkPeriodicTable, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkPeriodicTable * New();
+  static vtkPeriodicTable* New();
 
   //@{
   /**
@@ -59,20 +59,20 @@ public:
    * Given an atomic number, returns the symbol associated with the
    * element
    */
-  const char * GetSymbol(unsigned short atomicNum);
+  const char* GetSymbol(unsigned short atomicNum);
 
   /**
    * Given an atomic number, returns the name of the element
    */
-  const char * GetElementName(unsigned short atomicNum);
+  const char* GetElementName(unsigned short atomicNum);
 
   //@{
   /**
    * Given a case-insensitive string that contains the symbol or name
    * of an element, return the corresponding atomic number.
    */
-  unsigned short GetAtomicNumber(const vtkStdString &str);
-  unsigned short GetAtomicNumber(const char *str);
+  unsigned short GetAtomicNumber(const vtkStdString& str);
+  unsigned short GetAtomicNumber(const char* str);
   //@}
 
   /**
@@ -96,7 +96,7 @@ public:
    * Fill the given vtkLookupTable to map atomic numbers to the
    * familiar RGB tuples provided by the Blue Obelisk Data Repository
    */
-  void GetDefaultLUT(vtkLookupTable *);
+  void GetDefaultLUT(vtkLookupTable*);
 
   /**
    * Given an atomic number, return the familiar RGB tuple provided by

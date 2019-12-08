@@ -21,34 +21,32 @@
  *
  * @sa
  *  vtkAMRBaseParticlesReader
-*/
+ */
 
 #ifndef vtkAMREnzoParticlesReader_h
 #define vtkAMREnzoParticlesReader_h
 
-#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
-
+#include "vtkIOAMRModule.h" // For export macro
 
 class vtkPolyData;
 class vtkDataArray;
 class vtkIntArray;
 class vtkEnzoReaderInternal;
 
-class VTKIOAMR_EXPORT vtkAMREnzoParticlesReader :
-  public vtkAMRBaseParticlesReader
+class VTKIOAMR_EXPORT vtkAMREnzoParticlesReader : public vtkAMRBaseParticlesReader
 {
 public:
   static vtkAMREnzoParticlesReader* New();
-  vtkTypeMacro( vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Returns the requested particle type.
    */
-  vtkSetMacro( ParticleType, int );
-  vtkGetMacro( ParticleType, int );
+  vtkSetMacro(ParticleType, int);
+  vtkGetMacro(ParticleType, int);
   //@}
 
   /**
@@ -64,7 +62,7 @@ protected:
    * Read the particles from the given particles file for the block
    * corresponding to the given block index.
    */
-  vtkPolyData* GetParticles( const char* file, const int blockIdx );
+  vtkPolyData* GetParticles(const char* file, const int blockIdx);
 
   /**
    * See vtkAMRBaseParticlesReader::ReadMetaData()
@@ -80,25 +78,25 @@ protected:
    * Filter's by particle type, iff particle_type is included in
    * the given file.
    */
-  bool CheckParticleType( const int pIdx, vtkIntArray *ptypes );
+  bool CheckParticleType(const int pIdx, vtkIntArray* ptypes);
 
   /**
    * Returns the ParticlesType Array
    */
-  vtkDataArray *GetParticlesTypeArray( const int blockIdx );
+  vtkDataArray* GetParticlesTypeArray(const int blockIdx);
 
   /**
    * Reads the particles.
    */
-  vtkPolyData* ReadParticles( const int blkidx ) override;
+  vtkPolyData* ReadParticles(const int blkidx) override;
 
   int ParticleType;
 
-  vtkEnzoReaderInternal *Internal;
+  vtkEnzoReaderInternal* Internal;
 
 private:
-  vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ) = delete;
-  void operator=( const vtkAMREnzoParticlesReader& ) = delete;
+  vtkAMREnzoParticlesReader(const vtkAMREnzoParticlesReader&) = delete;
+  void operator=(const vtkAMREnzoParticlesReader&) = delete;
 };
 
 #endif /* vtkAMREnzoParticlesReader_h */

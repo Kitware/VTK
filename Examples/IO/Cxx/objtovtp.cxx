@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkNew.h"
 #include "vtkOBJImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSingleVTPExporter.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 
-int main( int argc, char * argv [] )
+int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if (argc < 2)
   {
-    std::cerr<<"expected objtovtk File1.obj [File2.obj.mtl]"<<std::endl;
+    std::cerr << "expected objtovtk File1.obj [File2.obj.mtl]" << std::endl;
     return -1;
   }
 
@@ -34,7 +34,7 @@ int main( int argc, char * argv [] )
 
   std::string filenameMTL;
 
-  if(argc >= 3)
+  if (argc >= 3)
   {
     filenameMTL = argv[2];
   }
@@ -55,8 +55,8 @@ int main( int argc, char * argv [] )
   importer->SetRenderWindow(renWin);
   importer->Update();
 
-  renWin->SetSize(800,600);
-  ren->SetBackground(0.4,0.5,0.6);
+  renWin->SetSize(800, 600);
+  ren->SetBackground(0.4, 0.5, 0.6);
   ren->ResetCamera();
   renWin->Render();
 

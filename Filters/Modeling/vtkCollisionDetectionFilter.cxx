@@ -44,33 +44,32 @@
 
 #include "vtkCollisionDetectionFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkOBBTree.h"
-#include "vtkMatrix4x4.h"
-#include "vtkIdList.h"
-#include "vtkPolyData.h"
-#include "vtkPolygon.h"
-#include "vtkCommand.h"
-#include "vtkPoints.h"
-#include "vtkLookupTable.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkCellData.h"
 #include "vtkBox.h"
-#include "vtkTriangle.h"
-#include "vtkLine.h"
-#include "vtkPlane.h"
-#include "vtkMath.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkLine.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkMatrixToLinearTransform.h"
-#include "vtkTransform.h"
+#include "vtkOBBTree.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
-#include "vtkCellArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTransform.h"
+#include "vtkTriangle.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
@@ -79,8 +78,8 @@ vtkCollisionDetectionFilter::vtkCollisionDetectionFilter()
 {
   // Ask the superclass to set the number of connections.
   this->SetNumberOfInputPorts(2);
-  this->SetNumberOfInputConnections(0,1);
-  this->SetNumberOfInputConnections(1,1);
+  this->SetNumberOfInputConnections(0, 1);
+  this->SetNumberOfInputConnections(1, 1);
   this->SetNumberOfOutputPorts(3);
   this->Transform[0] = nullptr;
   this->Transform[1] = nullptr;
@@ -133,57 +132,51 @@ vtkCollisionDetectionFilter::~vtkCollisionDetectionFilter()
 
 // Description:
 // Set and Get the input data...
-void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData *input)
+void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData* input)
 {
   if (2 <= idx || idx < 0)
   {
     vtkErrorMacro(<< "Index " << idx
-      << " is out of range in SetInputData. Only two inputs allowed!");
+                  << " is out of range in SetInputData. Only two inputs allowed!");
     return;
   }
 
   // Ask the superclass to connect the input.
-  vtkSmartPointer<vtkTrivialProducer> inputProducer =
-    vtkSmartPointer<vtkTrivialProducer>::New();
+  vtkSmartPointer<vtkTrivialProducer> inputProducer = vtkSmartPointer<vtkTrivialProducer>::New();
   inputProducer->SetOutput(input);
-  this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : 0);
+  this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : nullptr);
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkCollisionDetectionFilter::GetInputData(int idx)
+vtkPolyData* vtkCollisionDetectionFilter::GetInputData(int idx)
 {
   if (2 <= idx || idx < 0)
   {
-    vtkErrorMacro(<< "Index " << idx
-      << " is out of range in GetInput. Only two inputs allowed!");
+    vtkErrorMacro(<< "Index " << idx << " is out of range in GetInput. Only two inputs allowed!");
     return nullptr;
   }
 
-  return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(idx, 0));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(idx, 0));
 }
 
-vtkIdTypeArray *vtkCollisionDetectionFilter::GetContactCells(int i)
+vtkIdTypeArray* vtkCollisionDetectionFilter::GetContactCells(int i)
 {
   if (2 <= i || i < 0)
   {
-    vtkErrorMacro(<< "Index " << i
+    vtkErrorMacro(
+      << "Index " << i
       << " is out of range in GetContactCells. There are only two contact cells arrays!");
     return nullptr;
   }
-  return vtkIdTypeArray::SafeDownCast(
-    this->GetOutput(i)->GetFieldData()->GetArray("ContactCells"));
-
+  return vtkIdTypeArray::SafeDownCast(this->GetOutput(i)->GetFieldData()->GetArray("ContactCells"));
 }
 
-void vtkCollisionDetectionFilter::SetTransform(
-  int i,
-  vtkLinearTransform *transform)
+void vtkCollisionDetectionFilter::SetTransform(int i, vtkLinearTransform* transform)
 {
   if (i > 1 || i < 0)
   {
     vtkErrorMacro(<< "Index " << i
-    << " is out of range in SetTransform. Only two transforms allowed!");
+                  << " is out of range in SetTransform. Only two transforms allowed!");
     return;
   }
 
@@ -192,7 +185,7 @@ void vtkCollisionDetectionFilter::SetTransform(
     return;
   }
 
-  if(this->Transform[i])
+  if (this->Transform[i])
   {
     this->Transform[i]->Delete();
     this->Transform[i] = nullptr;
@@ -204,7 +197,7 @@ void vtkCollisionDetectionFilter::SetTransform(
     this->Matrix[i] = nullptr;
   }
 
-  if(transform)
+  if (transform)
   {
     this->Transform[i] = transform;
     this->Transform[i]->Register(this);
@@ -214,12 +207,11 @@ void vtkCollisionDetectionFilter::SetTransform(
   this->Modified();
 }
 
-void vtkCollisionDetectionFilter::SetMatrix(int i, vtkMatrix4x4 *matrix)
+void vtkCollisionDetectionFilter::SetMatrix(int i, vtkMatrix4x4* matrix)
 {
   if (i > 1 || i < 0)
   {
-    vtkErrorMacro(<< "Index " << i
-      << " is out of range in SetMatrix. Only two matrices allowed!");
+    vtkErrorMacro(<< "Index " << i << " is out of range in SetMatrix. Only two matrices allowed!");
     return;
   }
 
@@ -234,20 +226,19 @@ void vtkCollisionDetectionFilter::SetMatrix(int i, vtkMatrix4x4 *matrix)
     this->Transform[i] = nullptr;
   }
 
-  if(this->Matrix[i])
+  if (this->Matrix[i])
   {
     this->Matrix[i]->Delete();
     this->Matrix[i] = nullptr;
   }
   vtkDebugMacro(<< "Setting matrix: " << i << " to point to " << matrix << endl);
 
-  if(matrix)
+  if (matrix)
   {
     this->Matrix[i] = matrix;
   }
   matrix->Register(this);
-  vtkMatrixToLinearTransform *transform =
-    vtkMatrixToLinearTransform::New();
+  vtkMatrixToLinearTransform* transform = vtkMatrixToLinearTransform::New();
   // Consistent Register and UnRegisters.
   transform->Register(this);
   transform->Delete();
@@ -266,22 +257,24 @@ vtkMatrix4x4* vtkCollisionDetectionFilter::GetMatrix(int i)
   return this->Matrix[i];
 }
 
-static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 *Xform, void *clientdata)
+static int ComputeCollisions(
+  vtkOBBNode* nodeA, vtkOBBNode* nodeB, vtkMatrix4x4* Xform, void* clientdata)
 {
-  // This is hard-coded for triangles but could be easily changed to allow for allow n-sided polygons
+  // This is hard-coded for triangles but could be easily changed to allow for allow n-sided
+  // polygons
   int numIdsA, numIdsB;
   vtkIdList *IdsA, *IdsB, *pointIdsA, *pointIdsB;
-  vtkCellArray *cells;
+  vtkCellArray* cells;
   vtkIdType cellPtIds[2];
   vtkIdTypeArray *contactcells1, *contactcells2;
-  vtkPoints *contactpoints;
-  IdsA  = nodeA->Cells;
+  vtkPoints* contactpoints;
+  IdsA = nodeA->Cells;
   IdsB = nodeB->Cells;
   numIdsA = IdsA->GetNumberOfIds();
   numIdsB = IdsB->GetNumberOfIds();
 
   // clientdata is a pointer to this object... need to cast it as such
-  vtkCollisionDetectionFilter* self = reinterpret_cast<vtkCollisionDetectionFilter *>( clientdata );
+  vtkCollisionDetectionFilter* self = reinterpret_cast<vtkCollisionDetectionFilter*>(clientdata);
 
   // Turn off debugging here if its on... otherwise there's squawks every update/box test
   int DebugWasOn = 0;
@@ -291,8 +284,8 @@ static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 
     self->DebugOff();
     DebugWasOn = 1;
   }
-  vtkPolyData *inputA = vtkPolyData::SafeDownCast(self->GetInput(0));
-  vtkPolyData *inputB = vtkPolyData::SafeDownCast(self->GetInput(1));
+  vtkPolyData* inputA = vtkPolyData::SafeDownCast(self->GetInput(0));
+  vtkPolyData* inputB = vtkPolyData::SafeDownCast(self->GetInput(1));
   contactcells1 = self->GetContactCells(0);
   contactcells2 = self->GetContactCells(1);
   contactpoints = self->GetOutput(2)->GetPoints();
@@ -316,7 +309,7 @@ static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 
   double x1[4], x2[4], xnew[4];
   double ptsA[9], ptsB[9];
   double boundsA[6], boundsB[6];
-  vtkIdType i,j,k,m,n,p,v;
+  vtkIdType i, j, k, m, n, p, v;
   double *point, in[4], out[4];
 
   // Loop thru the cells/points in IdsA
@@ -329,11 +322,11 @@ static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 
     // Initialize ptsA
     // It might speed things up if ptsA and ptsB only had to be an
     // array of pointers to the cell vertices, rather than allocating here.
-    for (j=0; j<3; j++)
+    for (j = 0; j < 3; j++)
     {
-      for (k=0; k<3; k++)
+      for (k = 0; k < 3; k++)
       {
-        ptsA[j*3+k] = inputA->GetPoints()->GetPoint(pointIdsA->GetId(j))[k];
+        ptsA[j * 3 + k] = inputA->GetPoints()->GetPoint(pointIdsA->GetId(j))[k];
       }
     }
 
@@ -345,53 +338,62 @@ static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 
       inputB->GetCellBounds(cellIdB, boundsB);
 
       // Initialize ptsB
-      for (n=0; n<3; n++)
+      for (n = 0; n < 3; n++)
       {
         point = inputB->GetPoints()->GetPoint(pointIdsB->GetId(n));
         // transform the vertex
-        in[0] = point[0]; in[1] = point[1]; in[2] = point[2]; in[3] = 1.0;
-        Xform->MultiplyPoint( in, out );
-        out[0] = out[0]/out[3];
-        out[1] = out[1]/out[3];
-        out[2] = out[2]/out[3];
-        for (p=0; p<3; p++)
+        in[0] = point[0];
+        in[1] = point[1];
+        in[2] = point[2];
+        in[3] = 1.0;
+        Xform->MultiplyPoint(in, out);
+        out[0] = out[0] / out[3];
+        out[1] = out[1] / out[3];
+        out[2] = out[2] / out[3];
+        for (p = 0; p < 3; p++)
         {
-          ptsB[n*3+p] = out[p];
+          ptsB[n * 3 + p] = out[p];
         }
       }
-      //Calculate the bounds for the xformed cell
+      // Calculate the bounds for the xformed cell
       boundsB[0] = boundsB[2] = boundsB[4] = VTK_DOUBLE_MAX;
       boundsB[1] = boundsB[3] = boundsB[5] = VTK_DOUBLE_MIN;
-      for (v=0; v < 9; v=v+3)
+      for (v = 0; v < 9; v = v + 3)
       {
-        if (ptsB[v] < boundsB[0]) boundsB[0] = ptsB[v];
-        if (ptsB[v] > boundsB[1]) boundsB[1] = ptsB[v];
-        if (ptsB[v+1] < boundsB[2]) boundsB[2] = ptsB[v+1];
-        if (ptsB[v+1] > boundsB[3]) boundsB[3] = ptsB[v+1];
-        if (ptsB[v+2] < boundsB[4]) boundsB[4] = ptsB[v+2];
-        if (ptsB[v+2] > boundsB[5]) boundsB[5] = ptsB[v+2];
+        if (ptsB[v] < boundsB[0])
+          boundsB[0] = ptsB[v];
+        if (ptsB[v] > boundsB[1])
+          boundsB[1] = ptsB[v];
+        if (ptsB[v + 1] < boundsB[2])
+          boundsB[2] = ptsB[v + 1];
+        if (ptsB[v + 1] > boundsB[3])
+          boundsB[3] = ptsB[v + 1];
+        if (ptsB[v + 2] < boundsB[4])
+          boundsB[4] = ptsB[v + 2];
+        if (ptsB[v + 2] > boundsB[5])
+          boundsB[5] = ptsB[v + 2];
       }
       // Test for intersection
-      if (self->IntersectPolygonWithPolygon(3, ptsA, boundsA, 3, ptsB, boundsB,
-        Tolerance, x1, x2, self->GetCollisionMode()))
+      if (self->IntersectPolygonWithPolygon(
+            3, ptsA, boundsA, 3, ptsB, boundsB, Tolerance, x1, x2, self->GetCollisionMode()))
       {
         contactcells1->InsertNextValue(cellIdA);
         contactcells2->InsertNextValue(cellIdB);
-        //transform x back to "world space"
+        // transform x back to "world space"
         // could speed this up by testing for identity matrix
         // and skipping the next transform.
         x1[3] = x2[3] = 1.0;
-        self->GetMatrix(0)->MultiplyPoint(x1,xnew);
-        xnew[0] = xnew[0]/xnew[3];
-        xnew[1] = xnew[1]/xnew[3];
-        xnew[2] = xnew[2]/xnew[3];
+        self->GetMatrix(0)->MultiplyPoint(x1, xnew);
+        xnew[0] = xnew[0] / xnew[3];
+        xnew[1] = xnew[1] / xnew[3];
+        xnew[2] = xnew[2] / xnew[3];
         cellPtIds[0] = contactpoints->InsertNextPoint(xnew);
         if (self->GetCollisionMode() == vtkCollisionDetectionFilter::VTK_ALL_CONTACTS)
         {
-          self->GetMatrix(0)->MultiplyPoint(x2,xnew);
-          xnew[0] = xnew[0]/xnew[3];
-          xnew[1] = xnew[1]/xnew[3];
-          xnew[2] = xnew[2]/xnew[3];
+          self->GetMatrix(0)->MultiplyPoint(x2, xnew);
+          xnew[0] = xnew[0] / xnew[3];
+          xnew[1] = xnew[1] / xnew[3];
+          xnew[2] = xnew[2] / xnew[3];
           cellPtIds[1] = contactpoints->InsertNextPoint(xnew);
           // insert a new line
           cells->InsertNextCell(2, cellPtIds);
@@ -402,47 +404,43 @@ static int ComputeCollisions(vtkOBBNode *nodeA, vtkOBBNode *nodeB, vtkMatrix4x4 
           cells->InsertNextCell(1, cellPtIds);
         }
 
-
         if (FirstContact)
         {
           // return the negative of the number of box tests to find first contact
           // this will call a halt to the proceedings
-          if (DebugWasOn) self->DebugOn();
+          if (DebugWasOn)
+            self->DebugOn();
           return (-1 - self->GetNumberOfBoxTests());
         }
       }
-
     }
   }
-  if (DebugWasOn) self->DebugOn();
+  if (DebugWasOn)
+    self->DebugOn();
   return 1;
 }
 
 // Description:
 // Perform a collision detection
-int vtkCollisionDetectionFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkDebugMacro(<< "Beginning execution...");
 
   // inputs and outputs
-  vtkPolyData *input[2];
-  vtkPolyData *output[3];
+  vtkPolyData* input[2];
+  vtkPolyData* output[3];
 
   // copy inputs to outputs
   vtkInformation *inInfo, *outInfo;
-  for (int i=0; i<2; i++)
+  for (int i = 0; i < 2; i++)
   {
     inInfo = inputVector[i]->GetInformationObject(0);
-    input[i] = vtkPolyData::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    input[i] = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     outInfo = outputVector->GetInformationObject(i);
-    output[i] = vtkPolyData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    output[i] = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     output[i]->CopyStructure(input[i]);
     output[i]->GetPointData()->PassData(input[i]->GetPointData());
@@ -452,39 +450,36 @@ int vtkCollisionDetectionFilter::RequestData(
 
   // set up the contacts polydata output on port index 2
   outInfo = outputVector->GetInformationObject(2);
-  output[2] = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPoints *contactsPoints = vtkPoints::New();
+  output[2] = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPoints* contactsPoints = vtkPoints::New();
   output[2]->SetPoints(contactsPoints);
   contactsPoints->Delete();
 
   if (this->CollisionMode == vtkCollisionDetectionFilter::VTK_ALL_CONTACTS)
-  {//then create a lines cell array
-    vtkCellArray *lines = vtkCellArray::New();
+  { // then create a lines cell array
+    vtkCellArray* lines = vtkCellArray::New();
     output[2]->SetLines(lines);
     lines->Delete();
   }
   else
-  {//else create a verts cell array
-    vtkCellArray *verts = vtkCellArray::New();
+  { // else create a verts cell array
+    vtkCellArray* verts = vtkCellArray::New();
     output[2]->SetVerts(verts);
     verts->Delete();
   }
 
-  //Allocate arrays for the contact cells lists
-  vtkSmartPointer<vtkIdTypeArray> contactcells0 =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  // Allocate arrays for the contact cells lists
+  vtkSmartPointer<vtkIdTypeArray> contactcells0 = vtkSmartPointer<vtkIdTypeArray>::New();
   contactcells0->SetName("ContactCells");
   output[0]->GetFieldData()->AddArray(contactcells0);
 
-  vtkSmartPointer<vtkIdTypeArray> contactcells1 =
-    vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> contactcells1 = vtkSmartPointer<vtkIdTypeArray>::New();
   contactcells1->SetName("ContactCells");
   output[1]->GetFieldData()->AddArray(contactcells1);
 
   // The transformations...
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  vtkMatrix4x4 *tmpMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  vtkMatrix4x4* tmpMatrix = vtkMatrix4x4::New();
 
   if (this->Transform[0] != nullptr || this->Transform[1] != nullptr)
   {
@@ -492,11 +487,11 @@ int vtkCollisionDetectionFilter::RequestData(
     // the sequence of multiplication is significant
     vtkMatrix4x4::Multiply4x4(tmpMatrix, this->Transform[1]->GetMatrix(), matrix);
   }
-   else
-   {
-     vtkWarningMacro(<< "Set two transforms or two matrices");
-     return 1;
-   }
+  else
+  {
+    vtkWarningMacro(<< "Set two transforms or two matrices");
+    return 1;
+  }
   this->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
   // rebuild the obb trees... they do their own mtime checking with input data
@@ -515,8 +510,7 @@ int vtkCollisionDetectionFilter::RequestData(
   Tree1->SetTolerance(this->BoxTolerance);
 
   // Do the collision detection...
-  int boxTests =
-    Tree0->IntersectWithOBBTree(Tree1,  matrix, ComputeCollisions, this);
+  int boxTests = Tree0->IntersectWithOBBTree(Tree1, matrix, ComputeCollisions, this);
 
   matrix->Delete();
   tmpMatrix->Delete();
@@ -528,14 +522,14 @@ int vtkCollisionDetectionFilter::RequestData(
   if (GenerateScalars)
   {
 
-    for (int idx =0; idx < 2; idx++)
+    for (int idx = 0; idx < 2; idx++)
     {
-      vtkUnsignedCharArray *scalars = vtkUnsignedCharArray::New();
+      vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
       output[idx]->GetCellData()->SetScalars(scalars);
       vtkIdType numCells = input[idx]->GetNumberOfCells();
       scalars->SetNumberOfComponents(4);
       scalars->SetNumberOfTuples(numCells);
-      vtkIdTypeArray *contactcells = this->GetContactCells(idx);
+      vtkIdTypeArray* contactcells = this->GetContactCells(idx);
       vtkIdType numContacts = this->GetNumberOfContacts();
 
       // Fill the array with blanks...
@@ -544,44 +538,44 @@ int vtkCollisionDetectionFilter::RequestData(
       float alpha;
       if (numContacts > 0)
       {
-        alpha = this->Opacity*255.0;
+        alpha = this->Opacity * 255.0;
       }
       else
       {
         alpha = 255.0;
       }
-      float blank[4] = {255.0,255.0,255.0,alpha};
+      float blank[4] = { 255.0, 255.0, 255.0, alpha };
 
       for (vtkIdType i = 0; i < numCells; i++)
       {
         scalars->SetTuple(i, blank);
       }
       // Now color the intersecting cells
-      vtkLookupTable *lut = vtkLookupTable::New();
-      if (numContacts>0)
+      vtkLookupTable* lut = vtkLookupTable::New();
+      if (numContacts > 0)
       {
         if (this->CollisionMode == VTK_ALL_CONTACTS)
         {
-          lut->SetTableRange(0, numContacts-1);
+          lut->SetTableRange(0, numContacts - 1);
           lut->SetNumberOfTableValues(numContacts);
         }
         else // VTK_FIRST_CONTACT
         {
           lut->SetTableRange(0, 1);
-          lut->SetNumberOfTableValues(numContacts+1);
+          lut->SetNumberOfTableValues(numContacts + 1);
         }
         lut->Build();
       }
-      double *RGBA;
+      double* RGBA;
       float RGB[4];
 
       for (vtkIdType id, i = 0; i < numContacts; i++)
       {
         id = contactcells->GetValue(i);
         RGBA = lut->GetTableValue(i);
-        RGB[0] = 255.0*RGBA[0];
-        RGB[1] = 255.0*RGBA[1];
-        RGB[2] = 255.0*RGBA[2];
+        RGB[0] = 255.0 * RGBA[0];
+        RGB[1] = 255.0 * RGBA[1];
+        RGB[2] = 255.0 * RGBA[2];
         RGB[3] = 255.0;
         scalars->SetTuple(id, RGB);
       }
@@ -593,7 +587,6 @@ int vtkCollisionDetectionFilter::RequestData(
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   return 1;
-
 }
 
 // Method intersects two polygons. You must supply the number of points and
@@ -602,17 +595,15 @@ int vtkCollisionDetectionFilter::RequestData(
 // error. The method returns 1 if there is an intersection, and 0 if
 // not. A single point of intersection x[3] is also returned if there
 // is an intersection.
-int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
-  int npts, double *pts, double bounds[6],
-  int npts2, double *pts2,
-  double bounds2[6], double tol2,
-  double x1[3], double x2[3], int collisionMode)
+int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(int npts, double* pts,
+  double bounds[6], int npts2, double* pts2, double bounds2[6], double tol2, double x1[3],
+  double x2[3], int collisionMode)
 {
   double n[3], n2[3], coords[3];
   int i, j;
   double *p1, *p2, *q1, ray[3], ray2[3];
-  double t,u,v;
-  double *x[2];
+  double t, u, v;
+  double* x[2];
   int Num = 0;
   x[0] = x1;
   x[1] = x2;
@@ -622,32 +613,28 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
   vtkPolygon::ComputeNormal(npts2, pts2, n2);
   vtkPolygon::ComputeNormal(npts, pts, n);
 
-  int parallel_edges=0;
-  for (i=0; i<npts; i++)
+  int parallel_edges = 0;
+  for (i = 0; i < npts; i++)
   {
-    p1 = pts + 3*i;
-    p2 = pts + 3*((i+1)%npts);
+    p1 = pts + 3 * i;
+    p2 = pts + 3 * ((i + 1) % npts);
 
-    for (j=0; j<3; j++)
+    for (j = 0; j < 3; j++)
     {
       ray[j] = p2[j] - p1[j];
     }
-    if ( ! vtkBox::IntersectBox(bounds2, p1, ray, coords, t) )
+    if (!vtkBox::IntersectBox(bounds2, p1, ray, coords, t))
     {
       continue;
     }
 
-    if ( (vtkPlane::IntersectWithLine(p1,p2,n2,pts2,t,x[Num])) == 1 )
+    if ((vtkPlane::IntersectWithLine(p1, p2, n2, pts2, t, x[Num])) == 1)
     {
-      if ( (npts2==3
-            && vtkTriangle::PointInTriangle(x[Num],pts2,pts2+3,pts2+6,tol2))
-           || (npts2>3
-               && vtkPolygon::PointInPolygon(x[Num],npts2,pts2,bounds2,n2)
-               == 1))
+      if ((npts2 == 3 && vtkTriangle::PointInTriangle(x[Num], pts2, pts2 + 3, pts2 + 6, tol2)) ||
+        (npts2 > 3 && vtkPolygon::PointInPolygon(x[Num], npts2, pts2, bounds2, n2) == 1))
       {
         Num++;
-        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
-          Num == 2)
+        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS || Num == 2)
         {
           return 1;
         }
@@ -655,38 +642,38 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
     }
     else
     {
-       // cout << "Test for overlapping" << endl;
-       // test to see if cells are coplanar and overlapping...
-       parallel_edges++;
-       if (parallel_edges >1) // cells are parallel then...
-       {
-        //cout << "cells are parallel" << endl;
+      // cout << "Test for overlapping" << endl;
+      // test to see if cells are coplanar and overlapping...
+      parallel_edges++;
+      if (parallel_edges > 1) // cells are parallel then...
+      {
+        // cout << "cells are parallel" << endl;
         // test to see if they are coplanar
         q1 = pts2;
-        for (j=0; j<3; j++)
+        for (j = 0; j < 3; j++)
         {
           ray2[j] = p1[j] - q1[j];
         }
-        if (vtkMath::Dot(n,ray2) == 0.0) // cells are coplanar
+        if (vtkMath::Dot(n, ray2) == 0.0) // cells are coplanar
         {
-          //cout << "cells are coplanar" << endl;
+          // cout << "cells are coplanar" << endl;
           // test to see if coplanar cells overlap
           // ie, if one of the tris has a vertex in the other
-          for (int ii=0; ii < npts; ii++)
+          for (int ii = 0; ii < npts; ii++)
           {
-            for (int jj=0; jj < npts2; jj++)
+            for (int jj = 0; jj < npts2; jj++)
             {
-              if (vtkLine::Intersection(pts+3*ii,pts+3*((ii+1)%npts),
-              pts2+3*jj,pts2+3*((jj+1)%npts2),u,v) == 2)
+              if (vtkLine::Intersection(pts + 3 * ii, pts + 3 * ((ii + 1) % npts), pts2 + 3 * jj,
+                    pts2 + 3 * ((jj + 1) % npts2), u, v) == 2)
               {
-                //cout << "Found an overlapping one!!!" << endl;
-                for (int k=0;k<3;k++)
+                // cout << "Found an overlapping one!!!" << endl;
+                for (int k = 0; k < 3; k++)
                 {
-                  x[Num][k] = pts[k+3*ii] + u*(pts[k+(3*((ii+1)%npts))]-pts[k+3*ii]);
+                  x[Num][k] =
+                    pts[k + 3 * ii] + u * (pts[k + (3 * ((ii + 1) % npts))] - pts[k + 3 * ii]);
                 }
                 Num++;
-                if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
-                  Num == 2)
+                if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS || Num == 2)
                 {
                   return 1;
                 }
@@ -695,37 +682,35 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
           }
 
         } // end if cells are coplanar
-       } // end if cells are parallel
-    } // end else
+      }   // end if cells are parallel
+    }     // end else
   }
 
   //  Intersect each edge of second polygon against first
   //
 
-  for (i=0; i<npts2; i++)
+  for (i = 0; i < npts2; i++)
   {
-    p1 = pts2 + 3*i;
-    p2 = pts2 + 3*((i+1)%npts2);
+    p1 = pts2 + 3 * i;
+    p2 = pts2 + 3 * ((i + 1) % npts2);
 
-    for (j=0; j<3; j++)
+    for (j = 0; j < 3; j++)
     {
       ray[j] = p2[j] - p1[j];
     }
 
-    if ( ! vtkBox::IntersectBox(bounds, p1, ray, coords, t) )
+    if (!vtkBox::IntersectBox(bounds, p1, ray, coords, t))
     {
       continue;
     }
 
-    if ( (vtkPlane::IntersectWithLine(p1,p2,n,pts,t,x[Num])) == 1 )
+    if ((vtkPlane::IntersectWithLine(p1, p2, n, pts, t, x[Num])) == 1)
     {
-      if ( (npts==3 && vtkTriangle::PointInTriangle(x[Num],pts,pts+3,pts+6,tol2))
-        || (npts>3 && vtkPolygon::PointInPolygon(x[Num],npts,pts,bounds,n)
-               == 1))
+      if ((npts == 3 && vtkTriangle::PointInTriangle(x[Num], pts, pts + 3, pts + 6, tol2)) ||
+        (npts > 3 && vtkPolygon::PointInPolygon(x[Num], npts, pts, bounds, n) == 1))
       {
         Num++;
-        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
-          Num == 2)
+        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS || Num == 2)
         {
           return 1;
         }
@@ -733,48 +718,46 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
     }
   }
 
-  //if we get through to here then there's no collision.
+  // if we get through to here then there's no collision.
   return 0;
 }
-
 
 // Description:
 // Make sure filter executes if transform are changed
 vtkMTimeType vtkCollisionDetectionFilter::GetMTime()
 {
-  vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType mTime = this->MTime.GetMTime();
   vtkMTimeType transMTime, matrixMTime;
 
-  if ( this->Transform[0] )
+  if (this->Transform[0])
   {
     transMTime = this->Transform[0]->GetMTime();
-    mTime = ( transMTime > mTime ? transMTime : mTime );
+    mTime = (transMTime > mTime ? transMTime : mTime);
   }
 
-  if ( this->Transform[1] )
+  if (this->Transform[1])
   {
     transMTime = this->Transform[1]->GetMTime();
-    mTime = ( transMTime > mTime ? transMTime : mTime );
+    mTime = (transMTime > mTime ? transMTime : mTime);
   }
 
-  if ( this->Matrix[0] )
+  if (this->Matrix[0])
   {
     matrixMTime = this->Matrix[0]->GetMTime();
-    mTime = ( matrixMTime > mTime ? matrixMTime : mTime );
+    mTime = (matrixMTime > mTime ? matrixMTime : mTime);
   }
 
-  if ( this->Matrix[1] )
+  if (this->Matrix[1])
   {
     matrixMTime = this->Matrix[1]->GetMTime();
-    mTime = ( matrixMTime > mTime ? matrixMTime : mTime );
+    mTime = (matrixMTime > mTime ? matrixMTime : mTime);
   }
   return mTime;
 }
 
-
 void vtkCollisionDetectionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Box Tolerance: " << this->GetBoxTolerance() << "\n";
   os << indent << "Cell Tolerance: " << this->GetCellTolerance() << "\n";

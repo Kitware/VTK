@@ -37,13 +37,14 @@ vtkInformationKeyMacro(vtkEnsembleSource, DATA_MEMBER, Integer);
 class vtkInformationEnsembleMemberRequestKey : public vtkInformationIntegerRequestKey
 {
 public:
-  vtkInformationEnsembleMemberRequestKey(const char* name, const char* location) :
-    vtkInformationIntegerRequestKey(name, location)
+  vtkInformationEnsembleMemberRequestKey(const char* name, const char* location)
+    : vtkInformationIntegerRequestKey(name, location)
   {
     this->DataKey = vtkEnsembleSource::DATA_MEMBER();
   }
 };
-vtkInformationKeySubclassMacro(vtkEnsembleSource, UPDATE_MEMBER, EnsembleMemberRequest, IntegerRequest);
+vtkInformationKeySubclassMacro(
+  vtkEnsembleSource, UPDATE_MEMBER, EnsembleMemberRequest, IntegerRequest);
 
 struct vtkEnsembleSourceInternal
 {
@@ -73,9 +74,8 @@ vtkEnsembleSource::~vtkEnsembleSource()
   }
 }
 
-int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
-                                      vtkInformationVector **inputVector,
-                                      vtkInformationVector *outputVector)
+vtkTypeBool vtkEnsembleSource::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkAlgorithm* currentReader = this->GetCurrentReader(outInfo);
@@ -89,8 +89,7 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
       currentReader->UpdateDataObject();
       vtkDataObject* rOutput = currentReader->GetOutputDataObject(0);
       vtkDataObject* output = rOutput->NewInstance();
-      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(),
-        output);
+      outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       return 1;
     }
@@ -98,8 +97,7 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
     {
       if (this->MetaData)
       {
-        outputVector->GetInformationObject(0)->Set(META_DATA(),
-          this->MetaData);
+        outputVector->GetInformationObject(0)->Set(META_DATA(), this->MetaData);
       }
       // Call RequestInformation on all readers as they may initialize
       // data structures there. Note that this has to be done here
@@ -107,9 +105,8 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
       // which does not cause REQUEST_INFORMATION to happen again.
       std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator iter =
         this->Internal->Algorithms.begin();
-      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end =
-        this->Internal->Algorithms.end();
-      for(; iter != end; ++iter)
+      std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end = this->Internal->Algorithms.end();
+      for (; iter != end; ++iter)
       {
         int retVal = (*iter)->ProcessRequest(request, inputVector, outputVector);
         if (!retVal)
@@ -166,7 +163,7 @@ int vtkEnsembleSource::FillOutputPortInformation(int, vtkInformation* info)
 
 void vtkEnsembleSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Current member: " << this->CurrentMember << endl;
   os << indent << "MetaData: " << endl;

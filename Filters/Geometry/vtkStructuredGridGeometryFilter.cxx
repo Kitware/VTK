@@ -37,28 +37,25 @@ vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
   this->Extent[5] = VTK_INT_MAX;
 }
 
-int vtkStructuredGridGeometryFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkStructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid* input =
+    vtkStructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6], *inExt;
   vtkIdType ptIds[4], idx, startIdx, startCellIdx, cellId;
-  vtkPoints *newPts=nullptr;
-  vtkCellArray *newVerts=nullptr;
-  vtkCellArray *newLines=nullptr;
-  vtkCellArray *newPolys=nullptr;
+  vtkPoints* newPts = nullptr;
+  vtkCellArray* newVerts = nullptr;
+  vtkCellArray* newLines = nullptr;
+  vtkCellArray* newPolys = nullptr;
   vtkIdType totPoints, pos, cellPos;
   int offset[3], cellOffset[3], numPolys;
   double x[3];
@@ -67,9 +64,9 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
   vtkDebugMacro(<< "Extracting structured points geometry");
 
-  if ( input->GetPoints() == nullptr)
+  if (input->GetPoints() == nullptr)
   {
-    vtkDebugMacro(<<"No data to extract");
+    vtkDebugMacro(<< "No data to extract");
     return 1;
   }
 
@@ -86,27 +83,27 @@ int vtkStructuredGridGeometryFilter::RequestData(
   // of the data.
   //
   dimension = 3;
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    extent[2*i] = this->Extent[2*i];
-    if (extent[2*i] < inExt[2*i])
+    extent[2 * i] = this->Extent[2 * i];
+    if (extent[2 * i] < inExt[2 * i])
     {
-      extent[2*i] = inExt[2*i];
+      extent[2 * i] = inExt[2 * i];
     }
-    extent[2*i+1] = this->Extent[2*i+1];
-    if (extent[2*i+1] > inExt[2*i+1])
+    extent[2 * i + 1] = this->Extent[2 * i + 1];
+    if (extent[2 * i + 1] > inExt[2 * i + 1])
     {
-      extent[2*i+1] = inExt[2*i+1];
+      extent[2 * i + 1] = inExt[2 * i + 1];
     }
 
     // Handle empty extent.
-    if (extent[2*i] > extent[2*i+1])
+    if (extent[2 * i] > extent[2 * i + 1])
     {
       return 1;
     }
 
     // Compute dimensions.
-    if ( (extent[2*i+1] - extent[2*i]) == 0 )
+    if ((extent[2 * i + 1] - extent[2 * i]) == 0)
     {
       dimension--;
     }
@@ -126,8 +123,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
   //
   // Compute starting index of the point and cell. First the starting
   // point index.
-  startIdx = (extent[0]) + (extent[2])*dims[0]
-              + (extent[4])*dims[0]*dims[1];
+  startIdx = (extent[0]) + (extent[2]) * dims[0] + (extent[4]) * dims[0] * dims[1];
 
   // The cell index is a bit more complicated at the boundaries
   if (dims[0] == 1)
@@ -136,26 +132,25 @@ int vtkStructuredGridGeometryFilter::RequestData(
   }
   else
   {
-    startCellIdx =  (extent[0] < dims[0] - 1) ? extent[0]
-                                              : extent[0]-1;
+    startCellIdx = (extent[0] < dims[0] - 1) ? extent[0] : extent[0] - 1;
   }
   if (dims[1] == 1)
   {
-    startCellIdx += extent[2]*(dims[0]-1);
+    startCellIdx += extent[2] * (dims[0] - 1);
   }
   else
   {
-    startCellIdx += (extent[2] < dims[1] - 1) ? extent[2]*(dims[0]-1)
-                                              : (extent[2]-1)*(dims[0]-1);
+    startCellIdx +=
+      (extent[2] < dims[1] - 1) ? extent[2] * (dims[0] - 1) : (extent[2] - 1) * (dims[0] - 1);
   }
   if (dims[2] == 1)
   {
-    startCellIdx += extent[4]*(dims[0]-1)*(dims[1]-1);
+    startCellIdx += extent[4] * (dims[0] - 1) * (dims[1] - 1);
   }
   else
   {
-    startCellIdx += (extent[4] < dims[2] - 1) ? extent[4]*(dims[0]-1)*(dims[1]-1)
-                                              : (extent[4]-1)*(dims[0]-1)*(dims[1]-1);
+    startCellIdx += (extent[4] < dims[2] - 1) ? extent[4] * (dims[0] - 1) * (dims[1] - 1)
+                                              : (extent[4] - 1) * (dims[0] - 1) * (dims[1] - 1);
   }
   switch (dimension)
   {
@@ -164,28 +159,28 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
     case 0: // --------------------- build point -----------------------
 
-      if ( input->IsPointVisible(startIdx) )
+      if (input->IsPointVisible(startIdx))
       {
         newPts = vtkPoints::New();
         newPts->Allocate(1);
         newVerts = vtkCellArray::New();
-        newVerts->Allocate(newVerts->EstimateSize(1,1));
-        outPD->CopyAllocate(pd,1);
-        outCD->CopyAllocate(cd,1);
+        newVerts->AllocateEstimate(1, 1);
+        outPD->CopyAllocate(pd, 1);
+        outCD->CopyAllocate(cd, 1);
 
         ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
-        outPD->CopyData(pd,startIdx,ptIds[0]);
+        outPD->CopyData(pd, startIdx, ptIds[0]);
 
-        cellId = newVerts->InsertNextCell(1,ptIds);
-        outCD->CopyData(cd,startIdx,cellId);
+        cellId = newVerts->InsertNextCell(1, ptIds);
+        outCD->CopyData(cd, startIdx, cellId);
       }
       break;
 
     case 1: // --------------------- build line -----------------------
 
-      for (dir[0]=dir[1]=dir[2]=totPoints=0, i=0; i<3; i++)
+      for (dir[0] = dir[1] = dir[2] = totPoints = 0, i = 0; i < 3; i++)
       {
-        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 )
+        if ((diff[i] = extent[2 * i + 1] - extent[2 * i]) > 0)
         {
           dir[0] = i;
           totPoints = diff[i] + 1;
@@ -195,13 +190,13 @@ int vtkStructuredGridGeometryFilter::RequestData(
       newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newLines = vtkCellArray::New();
-      newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
-      outPD->CopyAllocate(pd,totPoints);
-      outCD->CopyAllocate(cd,totPoints - 1);
+      newLines->AllocateEstimate(totPoints - 1, 2);
+      outPD->CopyAllocate(pd, totPoints);
+      outCD->CopyAllocate(cd, totPoints - 1);
 
       //  Load data
       //
-      if ( dir[0] == 0 )
+      if (dir[0] == 0)
       {
         offset[0] = 1;
         cellOffset[0] = 1;
@@ -213,28 +208,28 @@ int vtkStructuredGridGeometryFilter::RequestData(
       }
       else
       {
-        offset[0] = dims[0]*dims[1];
+        offset[0] = dims[0] * dims[1];
         cellOffset[0] = (dims[0] - 1) * (dims[1] - 1);
       }
 
-      for (i=0; i<totPoints; i++)
+      for (i = 0; i < totPoints; i++)
       {
-        idx = startIdx + i*offset[0];
+        idx = startIdx + i * offset[0];
         input->GetPoint(idx, x);
         ptIds[0] = newPts->InsertNextPoint(x);
-        outPD->CopyData(pd,idx,ptIds[0]);
+        outPD->CopyData(pd, idx, ptIds[0]);
       }
 
-      for (i=0; i<(totPoints-1); i++)
+      for (i = 0; i < (totPoints - 1); i++)
       {
-        if ( input->IsPointVisible(startIdx + i*offset[0]) &&
-             input->IsPointVisible(startIdx + (i+1)*offset[0]) )
+        if (input->IsPointVisible(startIdx + i * offset[0]) &&
+          input->IsPointVisible(startIdx + (i + 1) * offset[0]))
         {
-          idx = startCellIdx + i*cellOffset[0];
+          idx = startCellIdx + i * cellOffset[0];
           ptIds[0] = i;
           ptIds[1] = i + 1;
-          cellId = newLines->InsertNextCell(2,ptIds);
-          outCD->CopyData(cd,idx,cellId);
+          cellId = newLines->InsertNextCell(2, ptIds);
+          outCD->CopyData(cd, idx, cellId);
         }
       }
       break;
@@ -243,9 +238,9 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
       //  Create the data objects
       //
-      for (dir[0]=dir[1]=dir[2]=idx=0,i=0; i<3; i++)
+      for (dir[0] = dir[1] = dir[2] = idx = 0, i = 0; i < 3; i++)
       {
-        if ( (diff[i] = extent[2*i+1] - extent[2*i]) != 0 )
+        if ((diff[i] = extent[2 * i + 1] - extent[2 * i]) != 0)
         {
           dir[idx++] = i;
         }
@@ -255,67 +250,67 @@ int vtkStructuredGridGeometryFilter::RequestData(
         }
       }
 
-      totPoints = (diff[dir[0]]+1) * (diff[dir[1]]+1);
-      numPolys = diff[dir[0]]  * diff[dir[1]];
+      totPoints = (diff[dir[0]] + 1) * (diff[dir[1]] + 1);
+      numPolys = diff[dir[0]] * diff[dir[1]];
 
       newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newPolys = vtkCellArray::New();
-      newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
-      outPD->CopyAllocate(pd,totPoints);
-      outCD->CopyAllocate(cd,numPolys);
+      newPolys->AllocateEstimate(numPolys, 4);
+      outPD->CopyAllocate(pd, totPoints);
+      outCD->CopyAllocate(cd, numPolys);
 
       //  Create polygons
       //
-      for (i=0; i<2; i++)
+      for (i = 0; i < 2; i++)
       {
-        if ( dir[i] == 0 )
+        if (dir[i] == 0)
         {
           offset[i] = 1;
           cellOffset[i] = 1;
         }
-        else if ( dir[i] == 1 )
+        else if (dir[i] == 1)
         {
           offset[i] = dims[0];
           cellOffset[i] = (dims[0] - 1);
         }
-        else if ( dir[i] == 2 )
+        else if (dir[i] == 2)
         {
-          offset[i] = dims[0]*dims[1];
+          offset[i] = dims[0] * dims[1];
           cellOffset[i] = (dims[0] - 1) * (dims[1] - 1);
         }
       }
 
       // Create points whether visible or not.  Makes coding easier
       // but generates extra data.
-      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++)
+      for (pos = startIdx, j = 0; j < (diff[dir[1]] + 1); j++)
       {
-        for (i=0; i < (diff[dir[0]]+1); i++)
+        for (i = 0; i < (diff[dir[0]] + 1); i++)
         {
-          idx = pos + i*offset[0];
+          idx = pos + i * offset[0];
           input->GetPoint(idx, x);
           ptIds[0] = newPts->InsertNextPoint(x);
-          outPD->CopyData(pd,idx,ptIds[0]);
+          outPD->CopyData(pd, idx, ptIds[0]);
         }
         pos += offset[1];
       }
 
-      for (pos=startIdx, cellPos=startCellIdx, j=0; j < diff[dir[1]]; j++)
+      for (pos = startIdx, cellPos = startCellIdx, j = 0; j < diff[dir[1]]; j++)
       {
-        for (i=0; i < diff[dir[0]]; i++)
+        for (i = 0; i < diff[dir[0]]; i++)
         {
-          if (input->IsPointVisible(pos+i*offset[0])
-          && input->IsPointVisible(pos+(i+1)*offset[0])
-          && input->IsPointVisible(pos+i*offset[0]+offset[1])
-          && input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) )
+          if (input->IsPointVisible(pos + i * offset[0]) &&
+            input->IsPointVisible(pos + (i + 1) * offset[0]) &&
+            input->IsPointVisible(pos + i * offset[0] + offset[1]) &&
+            input->IsPointVisible(pos + (i + 1) * offset[0] + offset[1]))
           {
-            idx = cellPos + i*cellOffset[0];
-            ptIds[0] = i + j*(diff[dir[0]]+1);
+            idx = cellPos + i * cellOffset[0];
+            ptIds[0] = i + j * (diff[dir[0]] + 1);
             ptIds[1] = ptIds[0] + 1;
             ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
             ptIds[3] = ptIds[2] - 1;
-            cellId = newPolys->InsertNextCell(4,ptIds);
-            outCD->CopyData(cd,idx,cellId);
+            cellId = newPolys->InsertNextCell(4, ptIds);
+            outCD->CopyData(cd, idx, cellId);
           }
         }
         cellPos += cellOffset[1];
@@ -327,46 +322,46 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
       // Create data objects
       //
-      for (i=0; i<3; i++)
+      for (i = 0; i < 3; i++)
       {
-        diff[i] = extent[2*i+1] - extent[2*i];
+        diff[i] = extent[2 * i + 1] - extent[2 * i];
       }
 
-      totPoints = (diff[0]+1) * (diff[1]+1) * (diff[2]+1);
+      totPoints = (diff[0] + 1) * (diff[1] + 1) * (diff[2] + 1);
 
       newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newVerts = vtkCellArray::New();
-      newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
-      outPD->CopyAllocate(pd,totPoints);
-      outCD->CopyAllocate(cd,totPoints);
+      newVerts->AllocateEstimate(totPoints, 1);
+      outPD->CopyAllocate(pd, totPoints);
+      outCD->CopyAllocate(cd, totPoints);
 
       // Create vertices
       //
       offset[0] = dims[0];
-      offset[1] = dims[0]*dims[1];
+      offset[1] = dims[0] * dims[1];
 
-      for (k=0; k < (diff[2]+1); k++)
+      for (k = 0; k < (diff[2] + 1); k++)
       {
-        for (j=0; j < (diff[1]+1); j++)
+        for (j = 0; j < (diff[1] + 1); j++)
         {
-          pos = startIdx + j*offset[0] + k*offset[1];
+          pos = startIdx + j * offset[0] + k * offset[1];
 
           // avoid accessing cells past the end of the grid
           vtkIdType cellK = (k == dims[2] - 1) ? k - 1 : k;
           vtkIdType cellJ = (j == dims[1] - 1) ? j - 1 : j;
-          cellPos = startCellIdx + (cellK*(dims[1] - 1) + cellJ)*(dims[0] - 1);
+          cellPos = startCellIdx + (cellK * (dims[1] - 1) + cellJ) * (dims[0] - 1);
 
-          for (i=0; i < (diff[0]+1); i++)
+          for (i = 0; i < (diff[0] + 1); i++)
           {
-            if ( input->IsPointVisible(pos+i) )
+            if (input->IsPointVisible(pos + i))
             {
               vtkIdType cellI = (i == dims[0] - 1) ? i - 1 : i;
-              input->GetPoint(pos+i, x);
+              input->GetPoint(pos + i, x);
               ptIds[0] = newPts->InsertNextPoint(x);
-              outPD->CopyData(pd,pos+i,ptIds[0]);
-              cellId = newVerts->InsertNextCell(1,ptIds);
-              outCD->CopyData(cd,cellPos + cellI, cellId);
+              outPD->CopyData(pd, pos + i, ptIds[0]);
+              cellId = newVerts->InsertNextCell(1, ptIds);
+              outCD->CopyData(cd, cellPos + cellI, cellId);
             }
           }
         }
@@ -405,8 +400,8 @@ int vtkStructuredGridGeometryFilter::RequestData(
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
-void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin,
-                                                int jMax, int kMin, int kMax)
+void vtkStructuredGridGeometryFilter::SetExtent(
+  int iMin, int iMax, int jMin, int jMax, int kMin, int kMax)
 {
   int extent[6];
 
@@ -425,54 +420,51 @@ void vtkStructuredGridGeometryFilter::SetExtent(int extent[6])
 {
   int i;
 
-  if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
-       extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
-       extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
+  if (extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
+    extent[2] != this->Extent[2] || extent[3] != this->Extent[3] || extent[4] != this->Extent[4] ||
+    extent[5] != this->Extent[5])
   {
     this->Modified();
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      if ( extent[2*i] < 0 )
+      if (extent[2 * i] < 0)
       {
-        extent[2*i] = 0;
+        extent[2 * i] = 0;
       }
-      if ( extent[2*i+1] < extent[2*i] )
+      if (extent[2 * i + 1] < extent[2 * i])
       {
-        extent[2*i+1] = extent[2*i];
+        extent[2 * i + 1] = extent[2 * i];
       }
-      this->Extent[2*i] = extent[2*i];
-      this->Extent[2*i+1] = extent[2*i+1];
+      this->Extent[2 * i] = extent[2 * i];
+      this->Extent[2 * i + 1] = extent[2 * i + 1];
     }
   }
 }
 
-int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkStructuredGridGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  int *wholeExt =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Copy whole extent only if present
   int ext[6];
-  memcpy( ext, this->Extent, 6 * sizeof( int ) );
+  memcpy(ext, this->Extent, 6 * sizeof(int));
 
   if (wholeExt)
   {
     // Clamp to whole extent
-    for (int i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
-      if (ext[2*i] < wholeExt[2*i])
+      if (ext[2 * i] < wholeExt[2 * i])
       {
-        ext[2*i] = wholeExt[2*i];
+        ext[2 * i] = wholeExt[2 * i];
       }
-      if (ext[2*i+1] > wholeExt[2*i+1])
+      if (ext[2 * i + 1] > wholeExt[2 * i + 1])
       {
-        ext[2*i+1] = wholeExt[2*i+1];
+        ext[2 * i + 1] = wholeExt[2 * i + 1];
       }
     }
   }
@@ -482,8 +474,7 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
   return 1;
 }
 
-int vtkStructuredGridGeometryFilter::FillInputPortInformation(
-  int, vtkInformation *info)
+int vtkStructuredGridGeometryFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
@@ -491,13 +482,10 @@ int vtkStructuredGridGeometryFilter::FillInputPortInformation(
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Extent: \n";
-  os << indent << "  Imin,Imax: ("
-     << this->Extent[0] << ", " << this->Extent[1] << ")\n";
-  os << indent << "  Jmin,Jmax: ("
-     << this->Extent[2] << ", " << this->Extent[3] << ")\n";
-  os << indent << "  Kmin,Kmax: ("
-     << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+  os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }

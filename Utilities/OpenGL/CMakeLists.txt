@@ -51,10 +51,10 @@ else ()
 
   if (VTK_USE_OPENGL_DELAYED_LOAD)
     vtk_module_link(VTK::opengl
-      PRIVATE
+      INTERFACE
         delayimp.lib)
     vtk_module_link_options(VTK::opengl
-      PUBLIC
+      INTERFACE
         "/DELAYLOAD:opengl32.dll")
   endif ()
 endif ()

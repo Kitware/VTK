@@ -18,13 +18,13 @@
 #include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 
-#include "vtkViewport.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyle.h"
 #include "vtkContextActor.h"
 #include "vtkContextInteractorStyle.h"
+#include "vtkInteractorStyle.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkViewport.h"
 
 #include "vtkObjectFactory.h"
 
@@ -40,7 +40,7 @@ vtkContextView::vtkContextView()
   vtkNew<vtkContextDevice2D> pd;
   this->Context->Begin(pd);
 
-  vtkContextActor *actor = vtkContextActor::New();
+  vtkContextActor* actor = vtkContextActor::New();
   this->Renderer->AddActor(actor);
   actor->Delete();
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
@@ -74,7 +74,7 @@ vtkContextScene* vtkContextView::GetScene()
 //----------------------------------------------------------------------------
 void vtkContextView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Context: " << this->Context << "\n";
   if (this->Context)

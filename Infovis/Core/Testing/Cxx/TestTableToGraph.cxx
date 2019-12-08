@@ -37,9 +37,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -61,21 +61,18 @@
 #include <QApplication>
 #endif
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-
-void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
-  int test, int cols, const char* labelArray, bool circular)
+void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg, int test, int cols,
+  const char* labelArray, bool circular)
 {
   double distance = circular ? 2.5 : 100.0;
-  double xoffset = (test % cols)*distance;
-  double yoffset = -(test / cols)*distance;
+  double xoffset = (test % cols) * distance;
+  double yoffset = -(test / cols) * distance;
 
   VTK_CREATE(vtkStringToCategory, cat);
   cat->SetInputConnection(alg->GetOutputPort());
-  cat->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES,
-                              "domain");
+  cat->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "domain");
 
   cat->Update();
   vtkUndirectedGraph* output = vtkUndirectedGraph::SafeDownCast(cat->GetOutput());
@@ -108,7 +105,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   vertexMapper->SetInputConnection(vertexGlyph->GetOutputPort());
   vertexMapper->SetScalarModeToUsePointFieldData();
   vertexMapper->SelectColorArray("category");
-  double rng[2] = {0, 0};
+  double rng[2] = { 0, 0 };
   graph->GetVertexData()->GetArray("category")->GetRange(rng);
   cerr << rng[0] << "," << rng[1] << endl;
   vertexMapper->SetScalarRange(rng[0], rng[1]);
@@ -167,8 +164,8 @@ int TestTableToGraph(int argc, char* argv[])
   }
 
   // Read edge table from a file.
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/Infovis/authors-tabletographtest.csv");
+  char* file =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/authors-tabletographtest.csv");
 
   VTK_CREATE(vtkDelimitedTextReader, reader);
   reader->SetFileName(file);
@@ -322,15 +319,15 @@ int TestTableToGraph(int argc, char* argv[])
   win->AddRenderer(ren);
   ren->SetBackground(1, 1, 1);
 
-//  VTK_CREATE(vtkGraphLayoutView, view);
-//  view->SetupRenderWindow(win);
-//  view->SetRepresentationFromInputConnection(tableToGraph->GetOutputPort());
-//  view->SetVertexLabelArrayName("label");
-//  view->VertexLabelVisibilityOn();
-//  view->SetLayoutStrategyToCircular();
-//  view->Update();
-//  view->GetRenderer()->ResetCamera();
-//  view->Update();
+  //  VTK_CREATE(vtkGraphLayoutView, view);
+  //  view->SetupRenderWindow(win);
+  //  view->SetRepresentationFromInputConnection(tableToGraph->GetOutputPort());
+  //  view->SetVertexLabelArrayName("label");
+  //  view->VertexLabelVisibilityOn();
+  //  view->SetLayoutStrategyToCircular();
+  //  view->Update();
+  //  view->GetRenderer()->ResetCamera();
+  //  view->Update();
 
 #if SHOW_QT_DATA_TABLES
   VTK_CREATE(vtkQtTableView, mergeView);
@@ -368,5 +365,3 @@ int TestTableToGraph(int argc, char* argv[])
 
   return !retVal;
 }
-
-

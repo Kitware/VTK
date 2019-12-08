@@ -72,16 +72,15 @@
  * @sa
  * vtkRectilinearWipeProp vtkImageRectilinearWipe vtkImageActor
  * vtkCheckerboardWidget
-*/
+ */
 
 #ifndef vtkRectilinearWipeWidget_h
 #define vtkRectilinearWipeWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkRectilinearWipeRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkRectilinearWipeWidget : public vtkAbstractWidget
 {
@@ -89,13 +88,13 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkRectilinearWipeWidget *New();
+  static vtkRectilinearWipeWidget* New();
 
   //@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkRectilinearWipeWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkRectilinearWipeWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -104,14 +103,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkRectilinearWipeRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkRectilinearWipeRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkRectilinearWipeRepresentation.
    */
-  vtkRectilinearWipeRepresentation *GetRectilinearWipeRepresentation()
-    {return reinterpret_cast<vtkRectilinearWipeRepresentation*>(this->WidgetRep);}
+  vtkRectilinearWipeRepresentation* GetRectilinearWipeRepresentation()
+  {
+    return reinterpret_cast<vtkRectilinearWipeRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -134,7 +137,7 @@ protected:
   int WidgetState;
   enum _WidgetState
   {
-    Start=0,
+    Start = 0,
     Selected
   };
 

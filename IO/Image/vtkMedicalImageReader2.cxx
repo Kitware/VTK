@@ -37,7 +37,7 @@ vtkMedicalImageReader2::~vtkMedicalImageReader2()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetPatientName(const char *arg)
+void vtkMedicalImageReader2::SetPatientName(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -56,7 +56,7 @@ const char* vtkMedicalImageReader2::GetPatientName()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetPatientID(const char *arg)
+void vtkMedicalImageReader2::SetPatientID(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -75,7 +75,7 @@ const char* vtkMedicalImageReader2::GetPatientID()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetDate(const char *arg)
+void vtkMedicalImageReader2::SetDate(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -94,7 +94,7 @@ const char* vtkMedicalImageReader2::GetDate()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetSeries(const char *arg)
+void vtkMedicalImageReader2::SetSeries(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -113,7 +113,7 @@ const char* vtkMedicalImageReader2::GetSeries()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetStudy(const char *arg)
+void vtkMedicalImageReader2::SetStudy(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -132,7 +132,7 @@ const char* vtkMedicalImageReader2::GetStudy()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetImageNumber(const char *arg)
+void vtkMedicalImageReader2::SetImageNumber(const char* arg)
 {
   if (this->MedicalImageProperties)
   {
@@ -151,7 +151,7 @@ const char* vtkMedicalImageReader2::GetImageNumber()
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageReader2::SetModality(const char *arg)
+void vtkMedicalImageReader2::SetModality(const char* arg)
 {
   if (this->MedicalImageProperties)
   {

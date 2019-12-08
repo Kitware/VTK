@@ -12,10 +12,10 @@
 
 @interface VTKGestureHandler : NSObject<UIGestureRecognizerDelegate>
 
-- (id)initWithVtkView:(VTKView *)vtkView;
+- (id)initWithVtkView:(VTKView*)vtkView;
 
-- (void)onPinch:(UIPinchGestureRecognizer *)sender;
-- (void)onRoll:(UIRotationGestureRecognizer *)sender;
-- (void)onPan:(UIPanGestureRecognizer *)sender;
+- (void)onPinch:(UIPinchGestureRecognizer*)sender;
+- (void)onRoll:(UIRotationGestureRecognizer*)sender;
+- (void)onPan:(UIPanGestureRecognizer*)sender;
 
 @end

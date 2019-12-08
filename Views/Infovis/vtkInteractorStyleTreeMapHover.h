@@ -29,13 +29,13 @@
  * This interactor style allows only 2D panning and zooming, and additionally
  * provides a balloon containing the name of the vertex hovered over,
  * and allows the user to highlight a vertex by clicking on it.
-*/
+ */
 
 #ifndef vtkInteractorStyleTreeMapHover_h
 #define vtkInteractorStyleTreeMapHover_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleImage.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkBalloonRepresentation;
 class vtkPoints;
@@ -49,7 +49,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteract
 {
 public:
   static vtkInteractorStyleTreeMapHover* New();
-  vtkTypeMacro(vtkInteractorStyleTreeMapHover,vtkInteractorStyleImage);
+  vtkTypeMacro(vtkInteractorStyleTreeMapHover, vtkInteractorStyleImage);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -95,7 +95,7 @@ public:
   void HighLightCurrentSelectedItem();
   //@}
 
-  void SetInteractor(vtkRenderWindowInteractor *rwi) override;
+  void SetInteractor(vtkRenderWindowInteractor* rwi) override;
 
   /**
    * Set the color used to highlight the hovered vertex.
@@ -133,17 +133,17 @@ private:
 
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);
-  void GetBoundingBoxForTreeMapItem(vtkIdType id, float *binfo);
+  void GetBoundingBoxForTreeMapItem(vtkIdType id, float* binfo);
 
   vtkWorldPointPicker* Picker;
   vtkBalloonRepresentation* Balloon;
-  vtkActor *HighlightActor;
-  vtkActor *SelectionActor;
-  vtkPoints *HighlightPoints;
-  vtkPoints *SelectionPoints;
+  vtkActor* HighlightActor;
+  vtkActor* SelectionActor;
+  vtkPoints* HighlightPoints;
+  vtkPoints* SelectionPoints;
   vtkTreeMapLayout* Layout;
   vtkTreeMapToPolyData* TreeMapToPolyData;
-  char *LabelField;
+  char* LabelField;
   vtkIdType CurrentSelectedId;
 };
 

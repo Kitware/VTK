@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkUniformGridAMR
-*/
+ */
 
 #ifndef vtkNonOverlappingAMR_h
 #define vtkNonOverlappingAMR_h
@@ -31,29 +31,33 @@
 
 class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
 {
- public:
+public:
   static vtkNonOverlappingAMR* New();
-  vtkTypeMacro(vtkNonOverlappingAMR,vtkUniformGridAMR);
+  vtkTypeMacro(vtkNonOverlappingAMR, vtkUniformGridAMR);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns object type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() override {return VTK_NON_OVERLAPPING_AMR; }
+  int GetDataObjectType() override { return VTK_NON_OVERLAPPING_AMR; }
 
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkNonOverlappingAMR* GetData(vtkInformation* info)
-  { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info)); }
-  static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i=0)
-  { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(v, i)); }
+  {
+    return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info));
+  }
+  static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i = 0)
+  {
+    return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(v, i));
+  }
 
- protected:
+protected:
   vtkNonOverlappingAMR();
   ~vtkNonOverlappingAMR() override;
 
- private:
+private:
   vtkNonOverlappingAMR(const vtkNonOverlappingAMR&) = delete;
   void operator=(const vtkNonOverlappingAMR&) = delete;
 };

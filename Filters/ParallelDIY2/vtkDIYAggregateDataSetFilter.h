@@ -17,17 +17,17 @@
  * @brief   Aggregates data sets to a reduced number of processes.
  *
  * This class allows vtkDataSets to be aggregated over a smaller set of processes.
-*/
+ */
 
 #ifndef vtkDIYAggregateDataSetFilter_h
 #define vtkDIYAggregateDataSetFilter_h
 
-#include "vtkFiltersParallelDIY2Module.h" // For export macro
 #include "vtkAggregateDataSetFilter.h"
+#include "vtkFiltersParallelDIY2Module.h" // For export macro
 
-#include <map>     // For passing computed data between methods
-#include <string>  // For passing computed data between methods
-#include <vector>  // For passing computed data between methods
+#include <map>    // For passing computed data between methods
+#include <string> // For passing computed data between methods
+#include <vector> // For passing computed data between methods
 
 class vtkDataObject;
 class vtkIdList;
@@ -35,6 +35,7 @@ class vtkIdList;
 class VTKFILTERSPARALLELDIY2_EXPORT vtkDIYAggregateDataSetFilter : public vtkAggregateDataSetFilter
 {
   vtkTypeMacro(vtkDIYAggregateDataSetFilter, vtkAggregateDataSetFilter);
+
 public:
   static vtkDIYAggregateDataSetFilter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -45,9 +46,7 @@ protected:
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int RequestInformation(vtkInformation*,
-                         vtkInformationVector**,
-                         vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Given a source process id and number of processes, return a target process id for the aggregate
@@ -65,8 +64,7 @@ protected:
    * overlap then the overlapping extent is returned in overlappingExtent
    * if it is non-null.
    */
-  bool DoExtentsOverlap(int extent1[6], int extent2[6], int dimensions[3],
-                        int* overlappingExtent);
+  bool DoExtentsOverlap(int extent1[6], int extent2[6], int dimensions[3], int* overlappingExtent);
 
   /**
    * Get the extent of the topologically regular dataset.
@@ -83,15 +81,13 @@ protected:
    * so saving for later use.
    */
   int MoveDataWithDIY(int inputExtent[6], int wholeExtent[6], int outputExtent[6],
-                      std::map<int, std::string>& serializedDataSets,
-                      std::vector<std::string>& receivedDataSets);
+    std::map<int, std::string>& serializedDataSets, std::vector<std::string>& receivedDataSets);
 
   /**
    * Move data directly with vtkMPIController.
    */
   int MoveData(int inputExtent[6], int wholeExtent[6], int outputExtent[6],
-               std::map<int, std::string>& serializedDataSets,
-               std::vector<std::string>& receivedDataSets);
+    std::map<int, std::string>& serializedDataSets, std::vector<std::string>& receivedDataSets);
 
   /**
    * Determine which processes I receive data and put those process ranks (in order)
@@ -105,7 +101,8 @@ protected:
    * based on the extents overlap.
    */
   void ExtractRectilinearGridCoordinates(int* sourceExtent, int* targetExtent,
-                                         vtkDataArray* sourceCoordinates, vtkDataArray* targetCoordinates);
+    vtkDataArray* sourceCoordinates, vtkDataArray* targetCoordinates);
+
 private:
   vtkDIYAggregateDataSetFilter(const vtkDIYAggregateDataSetFilter&) = delete;
   void operator=(const vtkDIYAggregateDataSetFilter&) = delete;

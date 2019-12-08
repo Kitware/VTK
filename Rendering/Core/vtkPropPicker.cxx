@@ -45,10 +45,10 @@ void vtkPropPicker::Initialize()
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick(double selectionX, double selectionY,
-                        double vtkNotUsed(z), vtkRenderer *renderer)
+int vtkPropPicker::Pick(
+  double selectionX, double selectionY, double vtkNotUsed(z), vtkRenderer* renderer)
 {
-  if ( this->PickFromList )
+  if (this->PickFromList)
   {
     return this->PickProp(selectionX, selectionY, renderer, this->PickList);
   }
@@ -58,10 +58,9 @@ int vtkPropPicker::Pick(double selectionX, double selectionY,
   }
 }
 
-
 // Pick from the given collection
-int vtkPropPicker::PickProp(double selectionX, double selectionY,
-                            vtkRenderer *renderer, vtkPropCollection* pickfrom)
+int vtkPropPicker::PickProp(
+  double selectionX, double selectionY, vtkRenderer* renderer, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp(selectionX, selectionY, renderer);
@@ -69,12 +68,9 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
   return ret;
 }
 
-
-
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp(double selectionX, double selectionY,
-                            vtkRenderer *renderer)
+int vtkPropPicker::PickProp(double selectionX, double selectionY, vtkRenderer* renderer)
 {
   //  Initialize picking process
   this->Initialize();
@@ -84,26 +80,25 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
   this->SelectionPoint[2] = 0;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
+  this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
   // Have the renderer do the hardware pick
-  this->SetPath(
-    renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps));
+  this->SetPath(renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps));
 
   // If there was a pick then find the world x,y,z for the pick, and invoke
   // its pick method.
-  if ( this->Path )
+  if (this->Path)
   {
     this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
     this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
+    this->InvokeEvent(vtkCommand::PickEvent, nullptr);
   }
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
-  if ( this->Path )
+  if (this->Path)
   {
     return 1;
   }
@@ -114,9 +109,9 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick3DPoint(double pos[3], vtkRenderer *renderer)
+int vtkPropPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
 {
-  if ( this->PickFromList )
+  if (this->PickFromList)
   {
     return this->PickProp3DPoint(pos, renderer, this->PickList);
   }
@@ -128,8 +123,7 @@ int vtkPropPicker::Pick3DPoint(double pos[3], vtkRenderer *renderer)
 
 // Pick from the given collection
 int vtkPropPicker::PickProp3DPoint(
-  double pos[3],
-  vtkRenderer *renderer, vtkPropCollection* pickfrom)
+  double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp3DPoint(pos, renderer);
@@ -137,11 +131,9 @@ int vtkPropPicker::PickProp3DPoint(
   return ret;
 }
 
-
-
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
+int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer* renderer)
 {
   //  Initialize picking process
   this->Initialize();
@@ -158,22 +150,21 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   // contain the pick points and whole center is closest to the
   // selection point
   // TODO need to handle AssemblyPaths
-  vtkPropCollection *props = renderer->GetViewProps();
+  vtkPropCollection* props = renderer->GetViewProps();
 
-  vtkAssemblyPath *result = nullptr;
+  vtkAssemblyPath* result = nullptr;
   vtkCollectionSimpleIterator pit;
   props->InitTraversal(pit);
-  vtkProp *prop = nullptr;
-  while ( (prop = props->GetNextProp(pit)) )
+  vtkProp* prop = nullptr;
+  while ((prop = props->GetNextProp(pit)))
   {
-    if (prop->GetPickable())
+    if (prop->GetPickable() && prop->GetVisibility() && prop->GetUseBounds())
     {
-      const double *bnds = prop->GetBounds();
+      const double* bnds = prop->GetBounds();
       if (bnds)
       {
-        if (pos[0] >= bnds[0] && pos[0] <= bnds[1] &&
-            pos[1] >= bnds[2] && pos[1] <= bnds[3] &&
-            pos[2] >= bnds[4] && pos[2] <= bnds[5])
+        if (pos[0] >= bnds[0] && pos[0] <= bnds[1] && pos[1] >= bnds[2] && pos[1] <= bnds[3] &&
+          pos[2] >= bnds[4] && pos[2] <= bnds[5])
         {
           prop->InitPathTraversal();
           result = prop->GetNextPath();
@@ -185,14 +176,14 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   if (result)
   {
     result->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
+    this->InvokeEvent(vtkCommand::PickEvent, nullptr);
   }
   this->SetPath(result);
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
+  this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
-  if ( result )
+  if (result)
   {
     return 1;
   }
@@ -203,25 +194,22 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer *renderer)
+int vtkPropPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
 {
-  //Compute event orientation
+  // Compute event orientation
   if (this->PickFromList)
   {
-    return this->PickProp3DRay(pos, wori, renderer,
-      this->PickList);
+    return this->PickProp3DRay(pos, wori, renderer, this->PickList);
   }
   else
   {
-    return this->PickProp3DRay(pos, wori, renderer,
-      renderer->GetViewProps());
+    return this->PickProp3DRay(pos, wori, renderer, renderer->GetViewProps());
   }
 }
 
 // Pick from the given collection
 int vtkPropPicker::PickProp3DRay(
-  double selectionPt[3], double wori[4],
-  vtkRenderer *renderer, vtkPropCollection* propCollection)
+  double selectionPt[3], double wori[4], vtkRenderer* renderer, vtkPropCollection* propCollection)
 {
   //  Initialize picking process
   this->Initialize();
@@ -230,14 +218,14 @@ int vtkPropPicker::PickProp3DRay(
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
-  //Event position - Ray start position
+  // Event position - Ray start position
   double p0[4];
   p0[0] = selectionPt[0];
   p0[1] = selectionPt[1];
   p0[2] = selectionPt[2];
   p0[3] = 1.0;
 
-  //Compute ray direction
+  // Compute ray direction
   vtkSmartPointer<vtkTransform> trans = vtkSmartPointer<vtkTransform>::New();
   trans->RotateWXYZ(wori[0], wori[1], wori[2], wori[3]);
   double* rayDirection = trans->TransformDoubleVector(0.0, 0.0, -1.0);
@@ -247,55 +235,54 @@ int vtkPropPicker::PickProp3DRay(
   {
     return 0;
   }
-  //Ray length
+  // Ray length
   double rayLength = cam->GetClippingRange()[1];
 
-  //Ray end point
+  // Ray end point
   double p1[4];
   p1[0] = p0[0] + rayLength * rayDirection[0];
   p1[1] = p0[1] + rayLength * rayDirection[1];
   p1[2] = p0[2] + rayLength * rayDirection[2];
   p1[3] = 1.0;
 
-  //Construct the ray
+  // Construct the ray
   double ray[3];
   ray[0] = p1[0] - p0[0];
   ray[1] = p1[1] - p0[1];
   ray[2] = p1[2] - p0[2];
 
-  vtkAssemblyPath *result = nullptr;
-  vtkAssemblyPath *insideResult = nullptr;
+  vtkAssemblyPath* result = nullptr;
+  vtkAssemblyPath* insideResult = nullptr;
   vtkCollectionSimpleIterator pit;
-  vtkProp *prop = nullptr;
-  vtkAssemblyPath *path;
-  vtkProp *propCandidate;
+  vtkProp* prop = nullptr;
+  vtkAssemblyPath* path;
+  vtkProp* propCandidate;
   double t_min = VTK_DOUBLE_MAX;
-  double hitPos[3] = {0.0, 0.0, 0.0};
+  double hitPos[3] = { 0.0, 0.0, 0.0 };
 
-  //For all props, return the closest prop intersected by the ray.
-  //If we pick inside a prop, it will be returned only if no other vtkProps are
-  //intersected by the ray. WARNING: Intersection checking uses bounds. This is
-  //confusing when the prop isn't fully filling its bounds. Improve this by :
+  // For all props, return the closest prop intersected by the ray.
+  // If we pick inside a prop, it will be returned only if no other vtkProps are
+  // intersected by the ray. WARNING: Intersection checking uses bounds. This is
+  // confusing when the prop isn't fully filling its bounds. Improve this by :
   //-returning the prop which bounds center is the closest to the ray, or
   //-computing intersection with the geometry itself (see vtkCellPicker).
-  for (propCollection->InitTraversal(pit);
-    (prop = propCollection->GetNextProp(pit));)
+  for (propCollection->InitTraversal(pit); (prop = propCollection->GetNextProp(pit));)
   {
     for (prop->InitPathTraversal(); (path = prop->GetNextPath());)
     {
       propCandidate = path->GetFirstNode()->GetViewProp();
-      if (propCandidate->GetPickable() && propCandidate->GetVisibility()
-        && propCandidate->GetUseBounds())
+      if (propCandidate->GetPickable() && propCandidate->GetVisibility() &&
+        propCandidate->GetUseBounds())
       {
-        double *bnds = propCandidate->GetBounds();
+        double* bnds = propCandidate->GetBounds();
         if (bnds)
         {
           double t;
           double xyz[3];
-          //Check for box intersection
+          // Check for box intersection
           if (vtkBox::IntersectBox(bnds, const_cast<double*>(p0), ray, xyz, t))
           {
-            //Inside a prop, save its path in case nothing else is picked
+            // Inside a prop, save its path in case nothing else is picked
             if (!(t > 0))
             {
               insideResult = path;
@@ -304,7 +291,7 @@ int vtkPropPicker::PickProp3DRay(
               hitPos[1] = selectionPt[1];
               hitPos[2] = selectionPt[2];
             }
-            //Something was picked by the ray, save its path and update t_min
+            // Something was picked by the ray, save its path and update t_min
             if (t > 0 && t < t_min)
             {
               result = path;
@@ -331,7 +318,7 @@ int vtkPropPicker::PickProp3DRay(
     result->GetFirstNode()->GetViewProp()->Pick();
     this->InvokeEvent(vtkCommand::PickEvent, nullptr);
 
-    //Update the picked position
+    // Update the picked position
     this->PickPosition[0] = hitPos[0];
     this->PickPosition[1] = hitPos[1];
     this->PickPosition[2] = hitPos[2];
@@ -363,5 +350,4 @@ void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "PickFrom List: (none)" << endl;
   }
-
 }

@@ -72,13 +72,13 @@
  *
  * @par Thanks:
  * Thanks to Goodwin Lawlor and Prabhu Ramachandran for this class.
-*/
+ */
 
 #ifndef vtkGL2PSExporter_h
 #define vtkGL2PSExporter_h
 
-#include "vtkIOExportGL2PSModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportGL2PSModule.h" // For export macro
 
 #include "vtkNew.h" // For vtkNew
 
@@ -87,8 +87,8 @@ class vtkPropCollection;
 class VTKIOEXPORTGL2PS_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
-  static vtkGL2PSExporter *New();
-  vtkTypeMacro(vtkGL2PSExporter, vtkExporter)
+  static vtkGL2PSExporter* New();
+  vtkTypeMacro(vtkGL2PSExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -125,11 +125,11 @@ public:
 
   enum OutputFormat
   {
-      PS_FILE,
-      EPS_FILE,
-      PDF_FILE,
-      TEX_FILE,
-      SVG_FILE
+    PS_FILE,
+    EPS_FILE,
+    PDF_FILE,
+    TEX_FILE,
+    SVG_FILE
   };
 
   //@{
@@ -156,24 +156,19 @@ public:
    */
   vtkSetClampMacro(FileFormat, int, PS_FILE, SVG_FILE);
   vtkGetMacro(FileFormat, int);
-  void SetFileFormatToPS()
-    {this->SetFileFormat(PS_FILE);};
-  void SetFileFormatToEPS()
-    {this->SetFileFormat(EPS_FILE);};
-  void SetFileFormatToPDF()
-    {this->SetFileFormat(PDF_FILE);};
-  void SetFileFormatToTeX()
-    {this->SetFileFormat(TEX_FILE);};
-  void SetFileFormatToSVG()
-    {this->SetFileFormat(SVG_FILE);};
-  const char *GetFileFormatAsString();
+  void SetFileFormatToPS() { this->SetFileFormat(PS_FILE); }
+  void SetFileFormatToEPS() { this->SetFileFormat(EPS_FILE); }
+  void SetFileFormatToPDF() { this->SetFileFormat(PDF_FILE); }
+  void SetFileFormatToTeX() { this->SetFileFormat(TEX_FILE); }
+  void SetFileFormatToSVG() { this->SetFileFormat(SVG_FILE); }
+  const char* GetFileFormatAsString();
   //@}
 
   enum SortScheme
   {
-      NO_SORT=0,
-      SIMPLE_SORT=1,
-      BSP_SORT=2
+    NO_SORT = 0,
+    SIMPLE_SORT = 1,
+    BSP_SORT = 2
   };
 
   //@{
@@ -183,14 +178,11 @@ public:
    * intensive.  Simple is the default but BSP is perhaps the best.
    */
   vtkSetClampMacro(Sort, int, NO_SORT, BSP_SORT);
-  vtkGetMacro(Sort,int);
-  void SetSortToOff()
-    {this->SetSort(NO_SORT);};
-  void SetSortToSimple()
-    {this->SetSort(SIMPLE_SORT);};
-  void SetSortToBSP()
-    {this->SetSort(BSP_SORT);};
-  const char *GetSortAsString();
+  vtkGetMacro(Sort, int);
+  void SetSortToOff() { this->SetSort(NO_SORT); }
+  void SetSortToSimple() { this->SetSort(SIMPLE_SORT); }
+  void SetSortToBSP() { this->SetSort(BSP_SORT); }
+  const char* GetSortAsString();
   //@}
 
   //@{
@@ -353,12 +345,12 @@ protected:
   int GetGL2PSOptions();
   int GetGL2PSSort();
   int GetGL2PSFormat();
-  const char *GetFileExtension();
+  const char* GetFileExtension();
 
-  vtkPropCollection *RasterExclusions;
+  vtkPropCollection* RasterExclusions;
 
-  char *FilePrefix;
-  char *Title;
+  char* FilePrefix;
+  char* Title;
   int FileFormat;
   int BufferSize;
   int Sort;
@@ -381,13 +373,13 @@ private:
   void operator=(const vtkGL2PSExporter&) = delete;
 };
 
-inline const char *vtkGL2PSExporter::GetSortAsString(void)
+inline const char* vtkGL2PSExporter::GetSortAsString(void)
 {
-  if ( this->Sort == NO_SORT )
+  if (this->Sort == NO_SORT)
   {
     return "Off";
   }
-  else if ( this->Sort == SIMPLE_SORT )
+  else if (this->Sort == SIMPLE_SORT)
   {
     return "Simple";
   }
@@ -397,21 +389,21 @@ inline const char *vtkGL2PSExporter::GetSortAsString(void)
   }
 }
 
-inline const char *vtkGL2PSExporter::GetFileFormatAsString(void)
+inline const char* vtkGL2PSExporter::GetFileFormatAsString(void)
 {
-  if ( this->FileFormat == PS_FILE )
+  if (this->FileFormat == PS_FILE)
   {
     return "PS";
   }
-  else if ( this->FileFormat == EPS_FILE )
+  else if (this->FileFormat == EPS_FILE)
   {
     return "EPS";
   }
-  else if ( this->FileFormat == PDF_FILE )
+  else if (this->FileFormat == PDF_FILE)
   {
     return "PDF";
   }
-  else if ( this->FileFormat == TEX_FILE )
+  else if (this->FileFormat == TEX_FILE)
   {
     return "TeX";
   }

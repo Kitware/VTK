@@ -18,10 +18,10 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkGraph.h"
 #include "vtkBoostGraphAdapter.h"
-#include "vtkIntArray.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
@@ -39,14 +39,13 @@
 #endif
 
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/visitors.hpp>
 #include <boost/graph/depth_first_search.hpp>
-#include <boost/graph/strong_components.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/strong_components.hpp>
 #include <boost/graph/transitive_closure.hpp>
+#include <boost/graph/visitors.hpp>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using namespace boost;
 
@@ -187,12 +186,12 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     add_vertex(g);
   }
   timer->StopTimer();
-  cerr << "vertex insertion: " << timer->GetElapsedTime() / numVertices  << " sec." << endl;
+  cerr << "vertex insertion: " << timer->GetElapsedTime() / numVertices << " sec." << endl;
 
   if (static_cast<int>(num_vertices(g)) != numVertices)
   {
-    cerr << "ERROR: Number of vertices (" << num_vertices(g)
-         << ") not as expected (" << numVertices << ")." << endl;
+    cerr << "ERROR: Number of vertices (" << num_vertices(g) << ") not as expected (" << numVertices
+         << ")." << endl;
     errors++;
   }
 
@@ -209,12 +208,12 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     add_edge(graphVerts[u], graphVerts[v], g);
   }
   timer->StopTimer();
-  cerr << "edge insertion: " << timer->GetElapsedTime() / numEdges  << " sec." << endl;
+  cerr << "edge insertion: " << timer->GetElapsedTime() / numEdges << " sec." << endl;
 
   if (static_cast<int>(num_edges(g)) != numEdges)
   {
-    cerr << "ERROR: Number of edges (" << num_edges(g)
-         << ") not as expected (" << numEdges << ")." << endl;
+    cerr << "ERROR: Number of edges (" << num_edges(g) << ") not as expected (" << numEdges << ")."
+         << endl;
     errors++;
   }
 
@@ -254,13 +253,17 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkIdType numEdges = 2000;
 
   cerr << "Testing boost list graph..." << endl;
-  typedef adjacency_list<listS, listS, directedS, property<vertex_index_t, unsigned int>, property<edge_index_t, unsigned int>, no_property, listS> ListGraph;
+  typedef adjacency_list<listS, listS, directedS, property<vertex_index_t, unsigned int>,
+    property<edge_index_t, unsigned int>, no_property, listS>
+    ListGraph;
   ListGraph listGraph;
   TestGraph(listGraph, numVertices, numEdges, repeat, errors);
   cerr << "...done." << endl << endl;
 
   cerr << "Testing boost vector graph..." << endl;
-  typedef adjacency_list<vecS, vecS, directedS, property<vertex_index_t, unsigned int>, property<edge_index_t, unsigned int>, no_property, vecS> VectorGraph;
+  typedef adjacency_list<vecS, vecS, directedS, property<vertex_index_t, unsigned int>,
+    property<edge_index_t, unsigned int>, no_property, vecS>
+    VectorGraph;
   VectorGraph vectorGraph;
   TestGraph(vectorGraph, numVertices, numEdges, repeat, errors);
   cerr << "...done." << endl << endl;
@@ -278,7 +281,7 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cerr << "...done." << endl << endl;
 
   cerr << "Testing tree adapter..." << endl;
-  vtkMutableDirectedGraph *builder = vtkMutableDirectedGraph::New();
+  vtkMutableDirectedGraph* builder = vtkMutableDirectedGraph::New();
   builder->AddVertex();
   for (vtkIdType i = 1; i < numVertices; i++)
   {

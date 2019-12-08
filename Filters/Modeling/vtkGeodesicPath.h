@@ -18,7 +18,7 @@
  *
  * Serves as a base class for algorithms that trace a geodesic path on a
  * polygonal dataset.
-*/
+ */
 
 #ifndef vtkGeodesicPath_h
 #define vtkGeodesicPath_h
@@ -31,12 +31,11 @@ class vtkPolyData;
 class VTKFILTERSMODELING_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
 {
 public:
-
   //@{
   /**
    * Standard methods for printing and determining type information.
    */
-  vtkTypeMacro(vtkGeodesicPath,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGeodesicPath, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -44,7 +43,7 @@ protected:
   vtkGeodesicPath();
   ~vtkGeodesicPath() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkGeodesicPath(const vtkGeodesicPath&) = delete;
@@ -52,4 +51,3 @@ private:
 };
 
 #endif
-

@@ -15,9 +15,10 @@
 //=============================================================================
 #include "ArrayConverters.hxx"
 
-#include "Storage.h"
 #include "vtkmDataArray.h"
 #include "vtkmFilterPolicy.h"
+
+#include "vtkmlib/PortalTraits.h"
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/CoordinateSystem.hxx>
@@ -30,10 +31,10 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-namespace tovtkm {
+namespace tovtkm
+{
 
-void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
-                   tovtkm::FieldsFlag fields)
+void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields)
 {
   if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
   {
@@ -46,8 +47,7 @@ void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
         continue;
       }
 
-      vtkm::cont::Field pfield =
-          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      vtkm::cont::Field pfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
       dataset.AddField(pfield);
     }
   }
@@ -63,8 +63,7 @@ void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
         continue;
       }
 
-      vtkm::cont::Field cfield =
-          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      vtkm::cont::Field cfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
       dataset.AddField(cfield);
     }
   }
@@ -78,13 +77,11 @@ vtkm::cont::Field Convert(vtkmDataArray<T>* input, int association)
   // on if they are a cell or point field.
   if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::POINTS,
-                             input->GetVtkmVariantArrayHandle());
+    return vtkm::cont::make_FieldPoint(input->GetName(), input->GetVtkmVariantArrayHandle());
   }
   else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
-    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::CELL_SET, "cells",
-                             input->GetVtkmVariantArrayHandle());
+    return vtkm::cont::make_FieldCell(input->GetName(), input->GetVtkmVariantArrayHandle());
   }
 
   return vtkm::cont::Field();
@@ -108,19 +105,24 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   switch (input->GetDataType())
   {
     vtkTemplateMacro(
-        vtkAOSDataArrayTemplate<VTK_TT>* typedIn1 =
-            vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(input);
-        if (typedIn1) { field = Convert(typedIn1, association); }
-        else {
-          vtkSOADataArrayTemplate<VTK_TT>* typedIn2 =
-              vtkSOADataArrayTemplate<VTK_TT>::FastDownCast(input);
-          if (typedIn2) { field = Convert(typedIn2, association); }
-          else {
-            vtkmDataArray<VTK_TT>* typedIn3 =
-                vtkmDataArray<VTK_TT>::SafeDownCast(input);
-            if (typedIn3) { field = Convert(typedIn3, association); }
+      vtkAOSDataArrayTemplate<VTK_TT>* typedIn1 =
+        vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(input);
+      if (typedIn1) { field = Convert(typedIn1, association); } else {
+        vtkSOADataArrayTemplate<VTK_TT>* typedIn2 =
+          vtkSOADataArrayTemplate<VTK_TT>::FastDownCast(input);
+        if (typedIn2)
+        {
+          field = Convert(typedIn2, association);
+        }
+        else
+        {
+          vtkmDataArray<VTK_TT>* typedIn3 = vtkmDataArray<VTK_TT>::SafeDownCast(input);
+          if (typedIn3)
+          {
+            field = Convert(typedIn3, association);
           }
-        });
+        }
+      });
     // end vtkTemplateMacro
   }
   return field;
@@ -128,16 +130,21 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
 
 } // namespace tovtkm
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
-namespace {
+namespace
+{
 
 struct ArrayConverter
 {
 public:
   mutable vtkDataArray* Data;
 
-  ArrayConverter() : Data(nullptr) {}
+  ArrayConverter()
+    : Data(nullptr)
+  {
+  }
 
   // CastAndCall always passes a const array handle. Just shallow copy to a
   // local array handle by taking by value.
@@ -151,20 +158,10 @@ public:
   template <typename T>
   void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagVirtual> handle) const
   {
-    using AOSHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag>;
-    using SOAHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag>;
     using BasicHandle = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
-    if (vtkm::cont::IsType<AOSHandle>(handle))
+    if (vtkm::cont::IsType<BasicHandle>(handle))
     {
-      this->operator()( vtkm::cont::Cast<AOSHandle>(handle) );
-    }
-    else if(vtkm::cont::IsType<SOAHandle>(handle))
-    {
-      this->operator()( vtkm::cont::Cast<SOAHandle>(handle) );
-    }
-    else if(vtkm::cont::IsType<BasicHandle>(handle))
-    {
-      this->operator()( vtkm::cont::Cast<BasicHandle>(handle) );
+      this->operator()(vtkm::cont::Cast<BasicHandle>(handle));
     }
     else
     {
@@ -172,13 +169,31 @@ public:
     }
   }
 
+  template <typename T, int N>
+  void operator()(
+    vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagVirtual> handle) const
+  {
+    using SOAHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagSOA>;
+    using BasicHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagBasic>;
+    if (vtkm::cont::IsType<SOAHandle>(handle))
+    {
+      this->operator()(vtkm::cont::Cast<SOAHandle>(handle));
+    }
+    else if (vtkm::cont::IsType<BasicHandle>(handle))
+    {
+      this->operator()(vtkm::cont::Cast<BasicHandle>(handle));
+    }
+    else
+    {
+      this->Data = make_vtkmDataArray(handle);
+    }
+  }
 
   template <typename T>
-  void operator()(
-    vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle) const
+  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle) const
   {
     // we can steal this array!
-    using Traits = tovtkm::vtkPortalTraits<T>; //Handles Vec<Vec<T,N,N> properly
+    using Traits = tovtkm::vtkPortalTraits<T>; // Handles Vec<Vec<T,N,N> properly
     using ValueType = typename Traits::ComponentType;
     using VTKArrayType = vtkAOSDataArrayTemplate<ValueType>;
 
@@ -188,34 +203,39 @@ public:
     handle.SyncControlArray();
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
 
-    //stealing the array clears the delete function, so we need to get the function first.
-    //VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
-    //the proper free function to VTK
+    // VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
+    // the proper free function to VTK
     auto stolenState = handle.GetStorage().StealArray();
     auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
-    array->SetVoidArray(
-      stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+    array->SetVoidArray(stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
     array->SetArrayFreeFunction(stolenState.second);
 
     this->Data = array;
   }
 
   template <typename T>
-  void operator()(
-    vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag> handle) const
+  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagSOA> handle) const
   {
-    // we can grab the already allocated vtk memory
-    this->Data = handle.GetStorage().VTKArray();
-    this->Data->Register(nullptr);
-  }
+    // we can steal this array!
+    using Traits = tovtkm::vtkPortalTraits<T>; // Handles Vec<Vec<T,N,N> properly
+    using ValueType = typename Traits::ComponentType;
+    using VTKArrayType = vtkSOADataArrayTemplate<ValueType>;
 
-  template <typename T>
-  void operator()(
-    vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag> handle) const
-  {
-    // we can grab the already allocated vtk memory
-    this->Data = handle.GetStorage().VTKArray();
-    this->Data->Register(nullptr);
+    VTKArrayType* array = VTKArrayType::New();
+    array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
+
+    handle.SyncControlArray();
+    auto storage = handle.GetStorage();
+    const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
+    for (vtkm::IdComponent i = 0; i < Traits::NUM_COMPONENTS; ++i)
+    {
+      // steal each component array.
+      auto stolenState = storage.GetArray(i).GetStorage().StealArray();
+      auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
+      array->SetArray(
+        i, stolenMemory, size, true, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+      array->SetArrayFreeFunction(i, stolenState.second);
+    }
   }
 };
 } // anonymous namespace
@@ -236,8 +256,7 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
 
   try
   {
-    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(input, policy),
-                            aConverter);
+    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicyFieldNotActive(input, policy), aConverter);
     data = aConverter.Data;
     if (data)
     {
@@ -262,10 +281,11 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
     points->SetData(pdata);
     pdata->FastDelete();
   }
-  catch (vtkm::cont::Error &e)
+  catch (vtkm::cont::Error& e)
   {
     vtkGenericWarningMacro("Converting vtkm::cont::CoordinateSystem to "
-                           "vtkPoints failed: " << e.what());
+                           "vtkPoints failed: "
+      << e.what());
   }
   return points;
 }
@@ -285,12 +305,12 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
       pd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if (vfield &&  f.GetAssociation() == vtkm::cont::Field::Association::CELL_SET)
+    else if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::CELL_SET)
     {
       cd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if(vfield)
+    else if (vfield)
     {
       vfield->Delete();
     }

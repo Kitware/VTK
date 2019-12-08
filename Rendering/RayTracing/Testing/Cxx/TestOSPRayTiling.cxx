@@ -24,17 +24,17 @@
 #include "vtkImageMapper3D.h"
 #include "vtkJPEGReader.h"
 #include "vtkLight.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
+#include "vtkPNGWriter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkPNGWriter.h"
-#include "vtkPLYReader.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkWindowToImageFilter.h"
@@ -43,7 +43,8 @@
 
 int TestOSPRayTiling(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -55,10 +56,9 @@ int TestOSPRayTiling(int argc, char* argv[])
   l->SetIntensity(0.1);
   renderer->AddLight(l);
 
-  //todo: as soon as we get materials, make the bunny reflective
-  //to really show off
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  // todo: as soon as we get materials, make the bunny reflective
+  // to really show off
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkSmartPointer<vtkPLYReader> polysource = vtkSmartPointer<vtkPLYReader>::New();
   polysource->SetFileName(fileName);
 
@@ -85,13 +85,11 @@ int TestOSPRayTiling(int argc, char* argv[])
     }
   }
 
-
   vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
   vtkSmartPointer<vtkJPEGReader> imgReader = vtkSmartPointer<vtkJPEGReader>::New();
   vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/wintersun.jpg");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wintersun.jpg");
   imgReader->SetFileName(fname);
   delete[] fname;
   imgReader->Update();
@@ -100,7 +98,7 @@ int TestOSPRayTiling(int argc, char* argv[])
   renderer->SetBackgroundTexture(textr);
 
   double up[3] = { 0.0, 1.0, 0.0 };
-  double east[3] = { -1.0, 0.0, 0.0  };
+  double east[3] = { -1.0, 0.0, 0.0 };
   vtkOSPRayRendererNode::SetNorthPole(up, renderer);
   vtkOSPRayRendererNode::SetEastPole(east, renderer);
 
@@ -111,10 +109,10 @@ int TestOSPRayTiling(int argc, char* argv[])
   w2i->SetScale(4, 4);
   w2i->Update();
 
-  //vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
-  //writer->SetFileName("screenshot.png");
-  //writer->SetInputConnection(w2i->GetOutputPort());
-  //writer->Write();
+  // vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
+  // writer->SetFileName("screenshot.png");
+  // writer->SetInputConnection(w2i->GetOutputPort());
+  // writer->Write();
 
   // Show stitched image in separate window
   vtkNew<vtkImageActor> imageActor;
@@ -128,8 +126,7 @@ int TestOSPRayTiling(int argc, char* argv[])
   renderWindow->AddRenderer(ren2);
   renderWindow->Render();
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

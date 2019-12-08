@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkCamera.h"
 #include "vtkNew.h"
 #include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTexture.h"
 
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkLookupTable.h"
 
@@ -40,64 +40,64 @@
 
 namespace
 {
-  template <typename dtype>
-  void copyRealData(
-    BYTE *dest, dtype **inp,
-    int numChannels, int numSamples,
-    bool packed)
+template <typename dtype>
+void copyRealData(BYTE* dest, dtype** inp, int numChannels, int numSamples, bool packed)
+{
+  float* fdest = reinterpret_cast<float*>(dest);
+  if (packed)
   {
-    float *fdest = reinterpret_cast<float *>(dest);
-    if (packed)
+    dtype* iptr = inp[0];
+    for (int i = 0; i < numChannels * numSamples; ++i)
     {
-      dtype *iptr = inp[0];
-      for (int i = 0; i < numChannels*numSamples; ++i)
-      {
-        fdest[i] = iptr[i];
-      }
+      fdest[i] = iptr[i];
     }
-    else
+  }
+  else
+  {
+    for (int c = 0; c < numChannels; ++c)
     {
-      for (int c = 0; c< numChannels; ++c)
+      float* cdest = fdest + c;
+      dtype* iptr = inp[c];
+      for (int i = 0; i < numSamples; ++i)
       {
-        float *cdest = fdest + c;
-        dtype *iptr = inp[c];
-        for (int i = 0; i < numSamples; ++i)
-        {
-          *cdest = iptr[i];
-          cdest += numChannels;
-        }
+        *cdest = iptr[i];
+        cdest += numChannels;
       }
     }
   }
 }
+}
 
 struct StreamingVoiceContext : public IXAudio2VoiceCallback
 {
-    HANDLE hBufferEndEvent;
-    StreamingVoiceContext(): hBufferEndEvent( CreateEvent( NULL, FALSE, FALSE, NULL ) ){}
-    ~StreamingVoiceContext(){ CloseHandle( hBufferEndEvent ); }
-    void OnBufferEnd( void* ){ SetEvent( hBufferEndEvent ); }
+  HANDLE hBufferEndEvent;
+  StreamingVoiceContext()
+    : hBufferEndEvent(CreateEvent(NULL, FALSE, FALSE, NULL))
+  {
+  }
+  ~StreamingVoiceContext() { CloseHandle(hBufferEndEvent); }
+  void OnBufferEnd(void*) { SetEvent(hBufferEndEvent); }
 
-    //Unused methods are stubs
-    void OnVoiceProcessingPassEnd() { }
-    void OnVoiceProcessingPassStart(UINT32) {    }
-    void OnBufferStart(void *) {    }
-    void OnLoopEnd(void *) {    }
-    void OnVoiceError(void *, HRESULT ) { }
-    void OnStreamEnd() { }
+  // Unused methods are stubs
+  void OnVoiceProcessingPassEnd() {}
+  void OnVoiceProcessingPassStart(UINT32) {}
+  void OnBufferStart(void*) {}
+  void OnLoopEnd(void*) {}
+  void OnVoiceError(void*, HRESULT) {}
+  void OnStreamEnd() {}
 };
 
-void setupAudioPlayback(vtkFFMPEGVideoSource *video)
+void setupAudioPlayback(vtkFFMPEGVideoSource* video)
 {
   IXAudio2* pXAudio2 = nullptr;
   HRESULT hr;
-  if ( FAILED(hr = XAudio2Create( &pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR ) ) )
+  if (FAILED(hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
   {
     return;
   }
 
   IXAudio2MasteringVoice* pMasterVoice = nullptr;
-  if ( FAILED(hr = pXAudio2->CreateMasteringVoice( &pMasterVoice ) ) )
+  if (FAILED(hr = pXAudio2->CreateMasteringVoice(&pMasterVoice)))
   {
     return;
   }
@@ -107,8 +107,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource *video)
   // debugc.BreakMask = XAUDIO2_LOG_ERRORS;
   // pXAudio2->SetDebugConfiguration(&debugc, nullptr);
 
-  auto cbfunc = [pXAudio2](vtkFFMPEGVideoSourceAudioCallbackData &acbd)
-  {
+  auto cbfunc = [pXAudio2](vtkFFMPEGVideoSourceAudioCallbackData& acbd) {
     HRESULT hr;
     static IXAudio2SourceVoice* pSourceVoice = nullptr;
     static int currentBufferIndex = 0;
@@ -128,7 +127,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource *video)
     if (!pSourceVoice)
     {
       // always setup for 16 bit PCM
-      WAVEFORMATEXTENSIBLE wfx = {0};
+      WAVEFORMATEXTENSIBLE wfx = { 0 };
       if (acbd.DataType == VTK_FLOAT || acbd.DataType == VTK_DOUBLE)
       {
         wfx.Format.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
@@ -139,73 +138,70 @@ void setupAudioPlayback(vtkFFMPEGVideoSource *video)
       }
       wfx.Format.nChannels = acbd.NumberOfChannels;
       wfx.Format.nSamplesPerSec = acbd.SampleRate;
-      wfx.Format.wBitsPerSample = 8*destBytesPerSample;
-      wfx.Format.nBlockAlign = acbd.NumberOfChannels*destBytesPerSample;
-      wfx.Format.nAvgBytesPerSec = acbd.SampleRate*wfx.Format.nBlockAlign;
+      wfx.Format.wBitsPerSample = 8 * destBytesPerSample;
+      wfx.Format.nBlockAlign = acbd.NumberOfChannels * destBytesPerSample;
+      wfx.Format.nAvgBytesPerSec = acbd.SampleRate * wfx.Format.nBlockAlign;
       wfx.Samples.wValidBitsPerSample = wfx.Format.wBitsPerSample;
       wfx.Samples.wSamplesPerBlock = acbd.NumberOfSamples;
-      if( FAILED(hr = pXAudio2->CreateSourceVoice( &pSourceVoice, (WAVEFORMATEX*)&wfx,
-         0, XAUDIO2_DEFAULT_FREQ_RATIO, &aContext, NULL, NULL ) ) )
+      if (FAILED(hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0,
+                   XAUDIO2_DEFAULT_FREQ_RATIO, &aContext, NULL, NULL)))
       {
         return;
       }
-      if (STREAMING_BUFFER_SIZE < wfx.Format.nBlockAlign*acbd.NumberOfSamples)
+      if (STREAMING_BUFFER_SIZE < wfx.Format.nBlockAlign * acbd.NumberOfSamples)
       {
         cerr << "buffer too small for audio data\n";
       }
 
-      maxBufferSize = wfx.Format.nBlockAlign*acbd.NumberOfSamples;
-      maxBufferCount = STREAMING_BUFFER_SIZE/maxBufferSize;
+      maxBufferSize = wfx.Format.nBlockAlign * acbd.NumberOfSamples;
+      maxBufferCount = STREAMING_BUFFER_SIZE / maxBufferSize;
 
-      hr = pSourceVoice->Start( 0, 0 );
+      hr = pSourceVoice->Start(0, 0);
     }
 
-    if (maxBufferSize < destBytesPerSample*acbd.NumberOfSamples*acbd.NumberOfChannels)
+    if (maxBufferSize < destBytesPerSample * acbd.NumberOfSamples * acbd.NumberOfChannels)
     {
       cerr << "buffer too small for new audio data\n";
     }
 
     XAUDIO2_VOICE_STATE state;
-    while( pSourceVoice->GetState( &state ), static_cast<int>(state.BuffersQueued) >= maxBufferCount - 1)
+    while (
+      pSourceVoice->GetState(&state), static_cast<int>(state.BuffersQueued) >= maxBufferCount - 1)
     {
       cerr << "audio blocked waiting\n";
-      WaitForSingleObject( aContext.hBufferEndEvent, INFINITE );
+      WaitForSingleObject(aContext.hBufferEndEvent, INFINITE);
     }
 
     // copy the incoming data to a buffer
-    BYTE *dptr = audioBuffer + maxBufferSize*currentBufferIndex;
+    BYTE* dptr = audioBuffer + maxBufferSize * currentBufferIndex;
     // no copy needed
     if (acbd.DataType == VTK_SHORT && acbd.Packed)
     {
-      dptr = reinterpret_cast<BYTE *>(acbd.Data[0]);
+      dptr = reinterpret_cast<BYTE*>(acbd.Data[0]);
     }
     if (acbd.DataType == VTK_FLOAT && acbd.Packed)
     {
-      dptr = reinterpret_cast<BYTE *>(acbd.Data[0]);
+      dptr = reinterpret_cast<BYTE*>(acbd.Data[0]);
     }
     if (acbd.DataType == VTK_FLOAT && !acbd.Packed)
     {
-      copyRealData(dptr, reinterpret_cast<float **>(acbd.Data),
-        acbd.NumberOfChannels,
-        acbd.NumberOfSamples,
-        acbd.Packed);
+      copyRealData(dptr, reinterpret_cast<float**>(acbd.Data), acbd.NumberOfChannels,
+        acbd.NumberOfSamples, acbd.Packed);
     }
     if (acbd.DataType == VTK_DOUBLE)
     {
-      copyRealData(dptr, reinterpret_cast<double **>(acbd.Data),
-        acbd.NumberOfChannels,
-        acbd.NumberOfSamples,
-        acbd.Packed);
+      copyRealData(dptr, reinterpret_cast<double**>(acbd.Data), acbd.NumberOfChannels,
+        acbd.NumberOfSamples, acbd.Packed);
     }
 
-    XAUDIO2_BUFFER buf = {0};
-    buf.AudioBytes = acbd.NumberOfSamples*destBytesPerSample*acbd.NumberOfChannels;
-    buf.pAudioData = reinterpret_cast<BYTE *>(dptr);
-    if( acbd.Caller->GetEndOfFile() )
+    XAUDIO2_BUFFER buf = { 0 };
+    buf.AudioBytes = acbd.NumberOfSamples * destBytesPerSample * acbd.NumberOfChannels;
+    buf.pAudioData = reinterpret_cast<BYTE*>(dptr);
+    if (acbd.Caller->GetEndOfFile())
     {
       buf.Flags = XAUDIO2_END_OF_STREAM;
     }
-    pSourceVoice->SubmitSourceBuffer( &buf );
+    pSourceVoice->SubmitSourceBuffer(&buf);
     currentBufferIndex++;
     if (currentBufferIndex == maxBufferCount)
     {
@@ -218,13 +214,12 @@ void setupAudioPlayback(vtkFFMPEGVideoSource *video)
     // {
     //   WaitForSingleObjectEx( aContext.hBufferEndEvent, INFINITE, TRUE );
     // }
-
   };
 
   video->SetAudioCallback(cbfunc, nullptr);
 }
 #else
-void setupAudioPlayback(vtkFFMPEGVideoSource *) {};
+void setupAudioPlayback(vtkFFMPEGVideoSource*) {}
 #endif
 
 int TestFFMPEGVideoSourceWithAudio(int argc, char* argv[])
@@ -237,15 +232,14 @@ int TestFFMPEGVideoSourceWithAudio(int argc, char* argv[])
   renderWindow->SetSize(800, 450);
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tracktor.webm");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tracktor.webm");
 
   vtkNew<vtkFFMPEGVideoSource> video;
   video->SetFileName(fileName);
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(video->GetOutputPort());
@@ -258,7 +252,7 @@ int TestFFMPEGVideoSourceWithAudio(int argc, char* argv[])
   video->Initialize();
   int fsize[3];
   video->GetFrameSize(fsize);
-  plane->SetOrigin(0,0,0);
+  plane->SetOrigin(0, 0, 0);
   plane->SetPoint1(fsize[0], 0, 0);
   plane->SetPoint2(0, fsize[1], 0);
   renderWindow->Render();
@@ -272,8 +266,8 @@ int TestFFMPEGVideoSourceWithAudio(int argc, char* argv[])
     renderWindow->Render();
   }
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

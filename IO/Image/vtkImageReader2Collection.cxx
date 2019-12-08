@@ -14,29 +14,28 @@
 =========================================================================*/
 #include "vtkImageReader2Collection.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageReader2.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageReader2Collection);
 
-void vtkImageReader2Collection::AddItem(vtkImageReader2 *f)
+void vtkImageReader2Collection::AddItem(vtkImageReader2* f)
 {
   this->vtkCollection::AddItem(f);
 }
 
-vtkImageReader2 *vtkImageReader2Collection::GetNextItem()
+vtkImageReader2* vtkImageReader2Collection::GetNextItem()
 {
   return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
 }
 
-vtkImageReader2 *vtkImageReader2Collection::GetNextImageReader2(
-  vtkCollectionSimpleIterator &cookie)
+vtkImageReader2* vtkImageReader2Collection::GetNextImageReader2(vtkCollectionSimpleIterator& cookie)
 {
-  return static_cast<vtkImageReader2 *>(this->GetNextItemAsObject(cookie));
+  return static_cast<vtkImageReader2*>(this->GetNextItemAsObject(cookie));
 }
 
 //----------------------------------------------------------------------------
 void vtkImageReader2Collection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

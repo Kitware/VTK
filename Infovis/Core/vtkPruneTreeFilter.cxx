@@ -36,7 +36,6 @@
 
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
-
 vtkPruneTreeFilter::vtkPruneTreeFilter()
 {
   this->ParentVertex = 0;
@@ -52,17 +51,15 @@ void vtkPruneTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkPruneTreeFilter::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkTree* inputTree = vtkTree::GetData(inputVector[0]);
   vtkTree* outputTree = vtkTree::GetData(outputVector);
 
   if (this->ParentVertex < 0 || this->ParentVertex >= inputTree->GetNumberOfVertices())
   {
-    vtkErrorMacro("Parent vertex must be part of the tree " << this->ParentVertex
-      << " >= " << inputTree->GetNumberOfVertices());
+    vtkErrorMacro("Parent vertex must be part of the tree "
+      << this->ParentVertex << " >= " << inputTree->GetNumberOfVertices());
     return 0;
   }
 
@@ -71,14 +68,13 @@ int vtkPruneTreeFilter::RequestData(
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Child iterator.
-  vtkSmartPointer<vtkOutEdgeIterator> it =
-    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  vtkSmartPointer<vtkOutEdgeIterator> it = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
   // Get the input and builder vertex and edge data.
-  vtkDataSetAttributes *inputVertexData = inputTree->GetVertexData();
-  vtkDataSetAttributes *inputEdgeData = inputTree->GetEdgeData();
-  vtkDataSetAttributes *builderVertexData = builder->GetVertexData();
-  vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
+  vtkDataSetAttributes* inputVertexData = inputTree->GetVertexData();
+  vtkDataSetAttributes* inputEdgeData = inputTree->GetEdgeData();
+  vtkDataSetAttributes* builderVertexData = builder->GetVertexData();
+  vtkDataSetAttributes* builderEdgeData = builder->GetEdgeData();
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
 
@@ -86,7 +82,7 @@ int vtkPruneTreeFilter::RequestData(
   builder->GetFieldData()->DeepCopy(inputTree->GetFieldData());
 
   // Build a copy of the tree, skipping the parent vertex to remove.
-  std::vector< std::pair<vtkIdType, vtkIdType> > vertStack;
+  std::vector<std::pair<vtkIdType, vtkIdType> > vertStack;
   if (inputTree->GetRoot() != this->ParentVertex)
   {
     vertStack.push_back(std::make_pair(inputTree->GetRoot(), builder->AddVertex()));
@@ -132,7 +128,7 @@ int vtkPruneTreeFilter::RequestData(
   // Copy the structure into the output.
   if (!outputTree->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid tree structure.");
+    vtkErrorMacro(<< "Invalid tree structure.");
     return 0;
   }
 

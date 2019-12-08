@@ -15,7 +15,6 @@
 #include "vtkWarpTransform.h"
 #include "vtkMath.h"
 
-
 //----------------------------------------------------------------------------
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -40,75 +39,66 @@ vtkWarpTransform::~vtkWarpTransform() = default;
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
-template<class T>
-void vtkWarpTransformPoint(vtkWarpTransform *self, int inverse,
-                           const T input[3], T output[3])
+template <class T>
+void vtkWarpTransformPoint(vtkWarpTransform* self, int inverse, const T input[3], T output[3])
 {
   if (inverse)
   {
-    self->TemplateTransformInverse(input,output);
+    self->TemplateTransformInverse(input, output);
   }
   else
   {
-    self->TemplateTransformPoint(input,output);
+    self->TemplateTransformPoint(input, output);
   }
 }
 
-void vtkWarpTransform::InternalTransformPoint(const float input[3],
-                                              float output[3])
+void vtkWarpTransform::InternalTransformPoint(const float input[3], float output[3])
 {
-  vtkWarpTransformPoint(this,this->InverseFlag,input,output);
+  vtkWarpTransformPoint(this, this->InverseFlag, input, output);
 }
 
-void vtkWarpTransform::InternalTransformPoint(const double input[3],
-                                              double output[3])
+void vtkWarpTransform::InternalTransformPoint(const double input[3], double output[3])
 {
-  vtkWarpTransformPoint(this,this->InverseFlag,input,output);
+  vtkWarpTransformPoint(this, this->InverseFlag, input, output);
 }
 
 //------------------------------------------------------------------------
 // Check the InverseFlag, and set the output point and derivative as
 // appropriate.
-template<class T>
-void vtkWarpTransformDerivative(vtkWarpTransform *self,
-                                       int inverse,
-                                       const T input[3], T output[3],
-                                       T derivative[3][3])
+template <class T>
+void vtkWarpTransformDerivative(
+  vtkWarpTransform* self, int inverse, const T input[3], T output[3], T derivative[3][3])
 {
   if (inverse)
   {
-    self->TemplateTransformInverse(input,output,derivative);
-    vtkMath::Invert3x3(derivative,derivative);
+    self->TemplateTransformInverse(input, output, derivative);
+    vtkMath::Invert3x3(derivative, derivative);
   }
   else
   {
-    self->TemplateTransformPoint(input,output,derivative);
+    self->TemplateTransformPoint(input, output, derivative);
   }
 }
 
-void vtkWarpTransform::InternalTransformDerivative(const float input[3],
-                                                   float output[3],
-                                                   float derivative[3][3])
+void vtkWarpTransform::InternalTransformDerivative(
+  const float input[3], float output[3], float derivative[3][3])
 {
-  vtkWarpTransformDerivative(this,this->InverseFlag,input,output,derivative);
+  vtkWarpTransformDerivative(this, this->InverseFlag, input, output, derivative);
 }
 
-void vtkWarpTransform::InternalTransformDerivative(const double input[3],
-                                                   double output[3],
-                                                   double derivative[3][3])
+void vtkWarpTransform::InternalTransformDerivative(
+  const double input[3], double output[3], double derivative[3][3])
 {
-  vtkWarpTransformDerivative(this,this->InverseFlag,input,output,derivative);
+  vtkWarpTransformDerivative(this, this->InverseFlag, input, output, derivative);
 }
 
 //----------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
 // This is actually quite robust as long as the Jacobian matrix is never
 // singular.
-template<class T>
-void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
-                                  const T point[3],
-                                  T output[3],
-                                  T derivative[3][3])
+template <class T>
+void vtkWarpInverseTransformPoint(
+  vtkWarpTransform* self, const T point[3], T output[3], T derivative[3][3])
 {
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
@@ -124,11 +114,11 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   T a;
 
   // first guess at inverse point: invert the displacement
-  self->TemplateTransformPoint(point,inverse);
+  self->TemplateTransformPoint(point, inverse);
 
-  inverse[0] -= 2*(inverse[0]-point[0]);
-  inverse[1] -= 2*(inverse[1]-point[1]);
-  inverse[2] -= 2*(inverse[2]-point[2]);
+  inverse[0] -= 2 * (inverse[0] - point[0]);
+  inverse[1] -= 2 * (inverse[1] - point[1]);
+  inverse[2] -= 2 * (inverse[2] - point[2]);
 
   lastInverse[0] = inverse[0];
   lastInverse[1] = inverse[1];
@@ -141,7 +131,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   for (i = 0; i < n; i++)
   {
     // put the inverse point back through the transform
-    self->TemplateTransformPoint(inverse,deltaP,derivative);
+    self->TemplateTransformPoint(inverse, deltaP, derivative);
 
     // how far off are we?
     deltaP[0] -= point[0];
@@ -149,9 +139,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     deltaP[2] -= point[2];
 
     // get the current function value
-    double functionValue = (deltaP[0]*deltaP[0] +
-                     deltaP[1]*deltaP[1] +
-                     deltaP[2]*deltaP[2]);
+    double functionValue = (deltaP[0] * deltaP[0] + deltaP[1] * deltaP[1] + deltaP[2] * deltaP[2]);
 
     // if the function value is decreasing, do next Newton step
     // (the check on f is to ensure that we don't do too many
@@ -159,16 +147,13 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     if (i == 0 || functionValue < lastFunctionValue || f < 0.05)
     {
       // here is the critical step in Newton's method
-      vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
+      vtkMath::LinearSolve3x3(derivative, deltaP, deltaI);
 
       // get the error value in the output coord space
-      errorSquared = (deltaI[0]*deltaI[0] +
-                      deltaI[1]*deltaI[1] +
-                      deltaI[2]*deltaI[2]);
+      errorSquared = (deltaI[0] * deltaI[0] + deltaI[1] * deltaI[1] + deltaI[2] * deltaI[2]);
 
       // break if less than tolerance in both coordinate systems
-      if (errorSquared < toleranceSquared &&
-          functionValue < toleranceSquared)
+      if (errorSquared < toleranceSquared && functionValue < toleranceSquared)
       {
         break;
       }
@@ -182,9 +167,10 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       lastFunctionValue = functionValue;
 
       // derivative of functionValue at last inverse point
-      functionDerivative = (deltaP[0]*derivative[0][0]*deltaI[0] +
-                            deltaP[1]*derivative[1][1]*deltaI[1] +
-                            deltaP[2]*derivative[2][2]*deltaI[2])*2;
+      functionDerivative =
+        (deltaP[0] * derivative[0][0] * deltaI[0] + deltaP[1] * derivative[1][1] * deltaI[1] +
+          deltaP[2] * derivative[2][2] * deltaI[2]) *
+        2;
 
       // calculate new inverse point
       inverse[0] -= deltaI[0];
@@ -202,20 +188,18 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     //  is a simplification of the algorithm provided there)
 
     // quadratic approximation to find best fractional distance
-    a = -functionDerivative/(2*(functionValue -
-                                lastFunctionValue -
-                                functionDerivative));
+    a = -functionDerivative / (2 * (functionValue - lastFunctionValue - functionDerivative));
 
     // clamp to range [0.1,0.5]
     f *= (a < 0.1 ? 0.1 : (a > 0.5 ? 0.5 : a));
 
     // re-calculate inverse using fractional distance
-    inverse[0] = lastInverse[0] - f*deltaI[0];
-    inverse[1] = lastInverse[1] - f*deltaI[1];
-    inverse[2] = lastInverse[2] - f*deltaI[2];
+    inverse[0] = lastInverse[0] - f * deltaI[0];
+    inverse[1] = lastInverse[1] - f * deltaI[1];
+    inverse[2] = lastInverse[2] - f * deltaI[2];
   }
 
-  vtkDebugWithObjectMacro(self, "Inverse Iterations: " << (i+1));
+  vtkDebugWithObjectMacro(self, "Inverse Iterations: " << (i + 1));
 
   if (i >= n)
   {
@@ -226,10 +210,9 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 
     // print warning: Newton's method didn't converge
     vtkErrorWithObjectMacro(self,
-         "InverseTransformPoint: no convergence (" <<
-         point[0] << ", " << point[1] << ", " << point[2] <<
-         ") error = " << sqrt(errorSquared) << " after " <<
-         i << " iterations.");
+      "InverseTransformPoint: no convergence (" << point[0] << ", " << point[1] << ", " << point[2]
+                                                << ") error = " << sqrt(errorSquared) << " after "
+                                                << i << " iterations.");
   }
 
   output[0] = inverse[0];
@@ -237,31 +220,27 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   output[2] = inverse[2];
 }
 
-void vtkWarpTransform::InverseTransformPoint(const float point[3],
-                                             float output[3])
+void vtkWarpTransform::InverseTransformPoint(const float point[3], float output[3])
 {
   float derivative[3][3];
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
-void vtkWarpTransform::InverseTransformPoint(const double point[3],
-                                             double output[3])
+void vtkWarpTransform::InverseTransformPoint(const double point[3], double output[3])
 {
   double derivative[3][3];
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
 //----------------------------------------------------------------------------
-void vtkWarpTransform::InverseTransformDerivative(const float point[3],
-                                                  float output[3],
-                                                  float derivative[3][3])
+void vtkWarpTransform::InverseTransformDerivative(
+  const float point[3], float output[3], float derivative[3][3])
 {
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
-void vtkWarpTransform::InverseTransformDerivative(const double point[3],
-                                                  double output[3],
-                                                  double derivative[3][3])
+void vtkWarpTransform::InverseTransformDerivative(
+  const double point[3], double output[3], double derivative[3][3])
 {
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }

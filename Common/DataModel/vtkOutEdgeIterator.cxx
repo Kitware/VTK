@@ -20,9 +20,9 @@
 
 #include "vtkOutEdgeIterator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkOutEdgeIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkOutEdgeIterator);
@@ -50,7 +50,7 @@ vtkOutEdgeIterator::~vtkOutEdgeIterator()
 }
 
 //----------------------------------------------------------------------------
-void vtkOutEdgeIterator::Initialize(vtkGraph *graph, vtkIdType v)
+void vtkOutEdgeIterator::Initialize(vtkGraph* graph, vtkIdType v)
 {
   this->SetGraph(graph);
   this->Vertex = v;
@@ -60,7 +60,7 @@ void vtkOutEdgeIterator::Initialize(vtkGraph *graph, vtkIdType v)
 }
 
 //----------------------------------------------------------------------------
-vtkGraphEdge *vtkOutEdgeIterator::NextGraphEdge()
+vtkGraphEdge* vtkOutEdgeIterator::NextGraphEdge()
 {
   vtkOutEdgeType e = this->Next();
   if (!this->GraphEdge)
@@ -76,7 +76,7 @@ vtkGraphEdge *vtkOutEdgeIterator::NextGraphEdge()
 //----------------------------------------------------------------------------
 void vtkOutEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
   {

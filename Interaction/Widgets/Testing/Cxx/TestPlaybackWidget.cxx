@@ -18,39 +18,37 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkPlaybackWidget.h"
-#include "vtkPlaybackRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkPlaybackRepresentation.h"
+#include "vtkPlaybackWidget.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {
 public:
-  static vtkSubclassPlaybackRepresentation *New();
-  void Play() override {std::cout << "play\n";}
-  void Stop() override {std::cout << "stop\n";}
-  void ForwardOneFrame() override {std::cout << "forward one frame\n";}
-  void BackwardOneFrame() override {std::cout << "backward one frame\n";}
-  void JumpToBeginning() override {std::cout << "jump to beginning\n";}
-  void JumpToEnd() override {std::cout << "jump to end\n";}
+  static vtkSubclassPlaybackRepresentation* New();
+  void Play() override { std::cout << "play\n"; }
+  void Stop() override { std::cout << "stop\n"; }
+  void ForwardOneFrame() override { std::cout << "forward one frame\n"; }
+  void BackwardOneFrame() override { std::cout << "backward one frame\n"; }
+  void JumpToBeginning() override { std::cout << "jump to beginning\n"; }
+  void JumpToEnd() override { std::cout << "jump to end\n"; }
 };
 
 vtkStandardNewMacro(vtkSubclassPlaybackRepresentation);
 
-int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPlaybackWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -59,21 +57,17 @@ int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   // Create a test pipeline
   //
-  vtkSmartPointer<vtkSphereSource> ss =
-    vtkSmartPointer<vtkSphereSource>::New();
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(ss->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
   vtkSmartPointer<vtkSubclassPlaybackRepresentation> rep =
     vtkSmartPointer<vtkSubclassPlaybackRepresentation>::New();
 
-  vtkSmartPointer<vtkPlaybackWidget> widget =
-    vtkSmartPointer<vtkPlaybackWidget>::New();
+  vtkSmartPointer<vtkPlaybackWidget> widget = vtkSmartPointer<vtkPlaybackWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
@@ -88,16 +82,16 @@ int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
+  //  recorder->Record();
+  //  recorder->ReadFromInputStringOn();
+  //  recorder->SetInputString(eventLog);
 
   // render the image
   //
   iren->Initialize();
   renWin->Render();
   widget->On();
-//  recorder->Play();
+  //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
@@ -106,5 +100,4 @@ int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->Start();
 
   return EXIT_SUCCESS;
-
 }

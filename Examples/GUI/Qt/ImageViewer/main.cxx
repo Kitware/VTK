@@ -23,14 +23,14 @@
  !!! license.
 =========================================================================*/
 
-#include <QtWidgets/QApplication>
 #include <QtGui/QSurfaceFormat>
+#include <QtWidgets/QApplication>
 
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageViewer.h"
+#include "vtkPNGReader.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkPNGReader.h"
 #include "vtkTestUtilities.h"
 
 #include "QVTKOpenGLWidget.h"
@@ -41,14 +41,14 @@ int main(int argc, char** argv)
   QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
   QApplication app(argc, argv);
   QVTKOpenGLWidget widget;
-  widget.resize(256,256);
+  widget.resize(256, 256);
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
   widget.setRenderWindow(renWin);
 
   vtkNew<vtkPNGReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkImageViewer> image_view;
   // use our render window with image_view

@@ -24,9 +24,9 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTrivialProducer.h"
@@ -37,19 +37,16 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
 
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  vtkPolyData *sphere =
-      vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
+  vtkPolyData* sphere = vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
 
-  vtkSmartPointer<vtkPolyData> sphere1 =
-      vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
+  vtkSmartPointer<vtkPolyData> sphere1 = vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
   sphere1->DeepCopy(sphere);
 
   sphereSource->SetCenter(1., 0., 0.);
   sphereSource->Update();
   sphere = vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
 
-  vtkSmartPointer<vtkPolyData> sphere2 =
-      vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
+  vtkSmartPointer<vtkPolyData> sphere2 = vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
   sphere2->DeepCopy(sphere);
 
   vtkNew<vtkFloatArray> scalars;
@@ -83,9 +80,8 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
   mapper->SetScalarVisibility(1);
   mapper->SetScalarRange(scalars->GetRange());
   mapper->SetColorMissingArraysWithNanColor(true);
-  mapper->SetInputArrayToProcess(0, 0, 0,
-                                 vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                 vtkDataSetAttributes::SCALARS);
+  mapper->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
@@ -98,10 +94,10 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
   iren->SetRenderWindow(renWin);
   renWin->AddRenderer(renderer);
 
-  renWin->SetSize(500,500);
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renWin->SetSize(500, 500);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
 
   renWin->Render();

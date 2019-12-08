@@ -2,6 +2,7 @@
 #define DIY_MPI_DATATYPES_HPP
 
 #include <vector>
+#include <array>
 
 namespace diy
 {
@@ -21,7 +22,9 @@ namespace detail
 #define DIY_MPI_DATATYPE_MAP(cpp_type, mpi_type) \
   template<>  inline MPI_Datatype  get_mpi_datatype<cpp_type>() { return mpi_type; }  \
   template<>  struct is_mpi_datatype<cpp_type>                  { typedef true_type type; };    \
-  template<>  struct is_mpi_datatype< std::vector<cpp_type> >   { typedef true_type type; };
+  template<>  struct is_mpi_datatype< std::vector<cpp_type> >   { typedef true_type type; };    \
+  template<size_t D>  \
+              struct is_mpi_datatype< std::array<cpp_type,D> >  { typedef true_type type; };
 
   DIY_MPI_DATATYPE_MAP(char,                  MPI_BYTE);
   DIY_MPI_DATATYPE_MAP(unsigned char,         MPI_BYTE);
@@ -35,7 +38,7 @@ namespace detail
   DIY_MPI_DATATYPE_MAP(float,                 MPI_FLOAT);
   DIY_MPI_DATATYPE_MAP(double,                MPI_DOUBLE);
 
-  /* mpi_datatype: helper routines, specialized for std::vector<...> */
+  /* mpi_datatype: helper routines, specialized for std::vector<...>, std::array<...> */
   template<class T>
   struct mpi_datatype
   {
@@ -54,6 +57,17 @@ namespace detail
     static const void*          address(const VecU& x)  { return x.data(); }
     static void*                address(VecU& x)        { return x.data(); }
     static int                  count(const VecU& x)    { return x.empty() ? 0 : (static_cast<int>(x.size()) * mpi_datatype<U>::count(x[0])); }
+  };
+
+  template<class U, size_t D>
+  struct mpi_datatype< std::array<U,D> >
+  {
+    typedef     std::array<U,D> ArrayU;
+
+    static MPI_Datatype         datatype()                  { return mpi_datatype<U>::datatype(); }
+    static const void*          address(const ArrayU& x)    { return x.data(); }
+    static void*                address(ArrayU& x)          { return x.data(); }
+    static int                  count(const ArrayU& x)      { return x.empty() ? 0 : (static_cast<int>(x.size()) * mpi_datatype<U>::count(x[0])); }
   };
 } // detail
 

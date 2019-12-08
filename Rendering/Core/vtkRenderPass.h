@@ -40,13 +40,13 @@
  * current vtkRenderState is the one it has in argument.
  * @sa
  * vtkRenderState vtkRenderer
-*/
+ */
 
 #ifndef vtkRenderPass_h
 #define vtkRenderPass_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkFrameBufferObjectBase;
 class vtkRenderState;
@@ -55,8 +55,8 @@ class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
 {
- public:
-  vtkTypeMacro(vtkRenderPass,vtkObject);
+public:
+  vtkTypeMacro(vtkRenderPass, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -64,13 +64,13 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * It modifies NumberOfRenderedProps.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s)=0;
+  virtual void Render(const vtkRenderState* s) = 0;
 
   //@{
   /**
    * Number of props rendered at the last Render call.
    */
-  vtkGetMacro(NumberOfRenderedProps,int);
+  vtkGetMacro(NumberOfRenderedProps, int);
   //@}
 
   /**
@@ -78,9 +78,9 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * resources. Default implementation is empty.
    * \pre w_exists: w!=0
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
+  virtual void ReleaseGraphicsResources(vtkWindow* w);
 
- protected:
+protected:
   /**
    * Default constructor. Do nothing.
    */
@@ -96,31 +96,31 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * a protected method of Renderer to subclasses of vtkRenderPass.
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateCamera(vtkRenderer *renderer);
+  void UpdateCamera(vtkRenderer* renderer);
 
   /**
    * Call ClearLights() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void ClearLights(vtkRenderer *renderer);
+  void ClearLights(vtkRenderer* renderer);
 
   /**
    * Call UpdateLightGeometry() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateLightGeometry(vtkRenderer *renderer);
+  void UpdateLightGeometry(vtkRenderer* renderer);
 
   /**
    * Call UpdateLights() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateLights(vtkRenderer *renderer);
+  void UpdateLights(vtkRenderer* renderer);
 
   /**
    * Call UpdateGeometry() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateGeometry(vtkRenderer *renderer, vtkFrameBufferObjectBase* fbo = nullptr);
+  void UpdateGeometry(vtkRenderer* renderer, vtkFrameBufferObjectBase* fbo = nullptr);
 
   /**
    * Modify protected member LastRenderingUsedDepthPeeling on Renderer.
@@ -128,12 +128,11 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * \pre renderer_exists: renderer!=0
    * Note - OpenGL1 specific, remove when completely switched to OpenGL2
    */
-  void SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
-                                        bool value);
+  void SetLastRenderingUsedDepthPeeling(vtkRenderer* renderer, bool value);
 
   int NumberOfRenderedProps;
 
- private:
+private:
   vtkRenderPass(const vtkRenderPass&) = delete;
   void operator=(const vtkRenderPass&) = delete;
 };

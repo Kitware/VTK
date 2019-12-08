@@ -20,7 +20,7 @@
  * writers.  It provides functionality needed for writing parallel
  * formats, such as the selection of which writer writes the summary
  * file and what range of pieces are assigned to each serial writer.
-*/
+ */
 
 #ifndef vtkXMLPDataWriter_h
 #define vtkXMLPDataWriter_h

@@ -28,19 +28,20 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
 
   try
   {
-    vtkSmartPointer<vtkSparseArray<double> > source = vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double> > source =
+      vtkSmartPointer<vtkSparseArray<double> >::New();
     source->Resize(vtkArrayExtents(3, 2));
     source->AddValue(vtkArrayCoordinates(0, 1), 1);
     source->AddValue(vtkArrayCoordinates(1, 0), 2);
@@ -74,10 +75,9 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

@@ -22,19 +22,19 @@
 
 #include "vtkActor2D.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAreaLayoutStrategy.h"
 #include "vtkCamera.h"
 #include "vtkDirectedGraph.h"
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderedTreeAreaRepresentation.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderedTreeAreaRepresentation.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTree.h"
-#include "vtkAreaLayoutStrategy.h"
 
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
@@ -63,15 +63,14 @@ vtkRenderedTreeAreaRepresentation* vtkTreeAreaView::GetTreeAreaRepresentation()
   if (!treeAreaRep)
   {
     vtkSmartPointer<vtkTree> g = vtkSmartPointer<vtkTree>::New();
-    treeAreaRep = vtkRenderedTreeAreaRepresentation::SafeDownCast(
-      this->AddRepresentationFromInput(g));
+    treeAreaRep =
+      vtkRenderedTreeAreaRepresentation::SafeDownCast(this->AddRepresentationFromInput(g));
   }
   return treeAreaRep;
 }
 
 //----------------------------------------------------------------------------
-vtkDataRepresentation* vtkTreeAreaView::CreateDefaultRepresentation(
-  vtkAlgorithmOutput* port)
+vtkDataRepresentation* vtkTreeAreaView::CreateDefaultRepresentation(vtkAlgorithmOutput* port)
 {
   vtkRenderedTreeAreaRepresentation* rep = vtkRenderedTreeAreaRepresentation::New();
   rep->SetInputConnection(port);
@@ -364,6 +363,5 @@ bool vtkTreeAreaView::GetEdgeScalarBarVisibility()
 //----------------------------------------------------------------------------
 void vtkTreeAreaView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-

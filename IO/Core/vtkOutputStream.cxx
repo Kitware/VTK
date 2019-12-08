@@ -33,13 +33,13 @@ vtkOutputStream::~vtkOutputStream()
 void vtkOutputStream::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Stream: " << (this->Stream? "set" : "none") << "\n";
+  os << indent << "Stream: " << (this->Stream ? "set" : "none") << "\n";
 }
 
 //----------------------------------------------------------------------------
 int vtkOutputStream::StartWriting()
 {
-  if(!this->Stream)
+  if (!this->Stream)
   {
     vtkErrorMacro("StartWriting() called with no Stream set.");
     return 0;
@@ -62,5 +62,5 @@ int vtkOutputStream::Write(void const* data, size_t length)
 //----------------------------------------------------------------------------
 int vtkOutputStream::WriteStream(const char* data, size_t length)
 {
-  return (this->Stream->write(data, length)? 1:0);
+  return (this->Stream->write(data, length) ? 1 : 0);
 }

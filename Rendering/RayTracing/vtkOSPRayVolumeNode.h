@@ -17,7 +17,7 @@
  * @brief   links vtkVolume and vtkMapper to OSPRay
  *
  * Translates vtkVolume/Mapper state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayVolumeNode_h
 #define vtkOSPRayVolumeNode_h
@@ -34,8 +34,7 @@ class vtkInformationStringKey;
 class vtkPiecewiseFunction;
 class vtkPolyData;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeNode :
-  public vtkVolumeNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeNode : public vtkVolumeNode
 {
 public:
   static vtkOSPRayVolumeNode* New();

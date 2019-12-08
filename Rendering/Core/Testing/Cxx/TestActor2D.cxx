@@ -9,13 +9,12 @@
 #include <vtkPolyDataMapper2D.h>
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
-
+#include <vtkTestUtilities.h>
 
 int TestActor2D(int argc, char* argv[])
 {
@@ -75,9 +74,9 @@ int TestActor2D(int argc, char* argv[])
   renWin->Render();
   renderer->ResetCamera();
   renderer->SetBackground(1.0, 0.0, 0.0);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

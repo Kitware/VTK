@@ -18,13 +18,13 @@
 #include <cassert>
 
 // #include "vtkCamera.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLState.h"
 // #include "vtkShaderProgram.h"
 // #include "vtkOpenGLShaderCache.h"
 // #include "vtkOpenGLRenderWindow.h"
@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkFramebufferPass);
 // ----------------------------------------------------------------------------
 vtkFramebufferPass::vtkFramebufferPass()
 {
-  this->FrameBufferObject=nullptr;
+  this->FrameBufferObject = nullptr;
   this->ColorTexture = vtkTextureObject::New();
   this->DepthTexture = vtkTextureObject::New();
   this->DepthFormat = vtkTextureObject::Float32;
@@ -47,65 +47,65 @@ vtkFramebufferPass::vtkFramebufferPass()
 // ----------------------------------------------------------------------------
 vtkFramebufferPass::~vtkFramebufferPass()
 {
-  if(this->FrameBufferObject!=nullptr)
+  if (this->FrameBufferObject != nullptr)
   {
-    vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
+    vtkErrorMacro(<< "FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
   }
-   if(this->ColorTexture!=nullptr)
-   {
+  if (this->ColorTexture != nullptr)
+  {
     this->ColorTexture->Delete();
     this->ColorTexture = nullptr;
-   }
-   if(this->DepthTexture !=nullptr)
-   {
+  }
+  if (this->DepthTexture != nullptr)
+  {
     this->DepthTexture->Delete();
     this->DepthTexture = nullptr;
-   }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkFramebufferPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // ----------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
-void vtkFramebufferPass::Render(const vtkRenderState *s)
+void vtkFramebufferPass::Render(const vtkRenderState* s)
 {
-  assert("pre: s_exists" && s!=nullptr);
+  assert("pre: s_exists" && s != nullptr);
 
   vtkOpenGLClearErrorMacro();
 
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
 
-  vtkRenderer *r=s->GetRenderer();
-  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
-  vtkOpenGLState *ostate = renWin->GetState();
+  vtkRenderer* r = s->GetRenderer();
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(r->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
 
-  if(this->DelegatePass == nullptr)
+  if (this->DelegatePass == nullptr)
   {
-    vtkWarningMacro(<<" no delegate.");
+    vtkWarningMacro(<< " no delegate.");
     return;
   }
 
   // 1. Create a new render state with an FO.
-  if(s->GetFrameBuffer()==nullptr)
+  if (s->GetFrameBuffer() == nullptr)
   {
     // get the viewport dimensions
-    r->GetTiledSizeAndOrigin(&this->ViewportWidth,&this->ViewportHeight,
-                             &this->ViewportX,&this->ViewportY);
+    r->GetTiledSizeAndOrigin(
+      &this->ViewportWidth, &this->ViewportHeight, &this->ViewportX, &this->ViewportY);
   }
   else
   {
     int size[2];
     s->GetWindowSize(size);
-    this->ViewportWidth=size[0];
-    this->ViewportHeight=size[1];
-    this->ViewportX=0;
-    this->ViewportY=0;
+    this->ViewportWidth = size[0];
+    this->ViewportHeight = size[1];
+    this->ViewportX = 0;
+    this->ViewportY = 0;
   }
 
   this->ColorTexture->SetContext(renWin);
@@ -122,8 +122,7 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
       this->ColorTexture->SetDataType(GL_FLOAT);
     }
     this->ColorTexture->Create2D(
-      this->ViewportWidth, this->ViewportHeight, 4,
-      VTK_UNSIGNED_CHAR, false);
+      this->ViewportWidth, this->ViewportHeight, 4, VTK_UNSIGNED_CHAR, false);
   }
   this->ColorTexture->Resize(this->ViewportWidth, this->ViewportHeight);
 
@@ -131,48 +130,35 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   this->DepthTexture->SetContext(renWin);
   if (!this->DepthTexture->GetHandle())
   {
-    this->DepthTexture->AllocateDepth(
-      this->ViewportWidth, this->ViewportHeight, this->DepthFormat);
+    this->DepthTexture->AllocateDepth(this->ViewportWidth, this->ViewportHeight, this->DepthFormat);
   }
   this->DepthTexture->Resize(this->ViewportWidth, this->ViewportHeight);
 
-  if(this->FrameBufferObject==nullptr)
+  if (this->FrameBufferObject == nullptr)
   {
-    this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
+    this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
-  this->RenderDelegate(s,
-    this->ViewportWidth, this->ViewportHeight,
-    this->ViewportWidth, this->ViewportHeight,
-    this->FrameBufferObject,
-    this->ColorTexture, this->DepthTexture);
+  ostate->PushFramebufferBindings();
+  this->RenderDelegate(s, this->ViewportWidth, this->ViewportHeight, this->ViewportWidth,
+    this->ViewportHeight, this->FrameBufferObject, this->ColorTexture, this->DepthTexture);
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
-
+  ostate->PopFramebufferBindings();
 
   // now copy the result to the outer FO
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
-  this->FrameBufferObject->Bind(
-    this->FrameBufferObject->GetReadMode());
+  ostate->PushReadFramebufferBinding();
+  this->FrameBufferObject->Bind(this->FrameBufferObject->GetReadMode());
 
-  ostate->vtkglViewport(this->ViewportX, this->ViewportY,
-    this->ViewportWidth, this->ViewportHeight);
-  ostate->vtkglScissor(this->ViewportX, this->ViewportY,
-    this->ViewportWidth, this->ViewportHeight);
+  ostate->vtkglViewport(
+    this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+  ostate->vtkglScissor(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
 
-  glBlitFramebuffer(
-    0, 0, this->ViewportWidth, this->ViewportHeight,
-    this->ViewportX, this->ViewportY,
-    this->ViewportX + this->ViewportWidth,
-    this->ViewportY + this->ViewportHeight,
-    GL_COLOR_BUFFER_BIT,
-    GL_LINEAR);
+  glBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
+    this->ViewportY, this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight,
+    GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
+  ostate->PopReadFramebufferBinding();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -182,23 +168,23 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
 // Release graphics resources and ask components to release their own
 // resources.
 // \pre w_exists: w!=0
-void vtkFramebufferPass::ReleaseGraphicsResources(vtkWindow *w)
+void vtkFramebufferPass::ReleaseGraphicsResources(vtkWindow* w)
 {
-  assert("pre: w_exists" && w!=nullptr);
+  assert("pre: w_exists" && w != nullptr);
 
   this->Superclass::ReleaseGraphicsResources(w);
 
-  if(this->FrameBufferObject!=nullptr)
+  if (this->FrameBufferObject != nullptr)
   {
     this->FrameBufferObject->Delete();
-    this->FrameBufferObject=nullptr;
+    this->FrameBufferObject = nullptr;
   }
-   if(this->ColorTexture!=nullptr)
-   {
+  if (this->ColorTexture != nullptr)
+  {
     this->ColorTexture->ReleaseGraphicsResources(w);
-   }
-   if(this->DepthTexture!=nullptr)
-   {
+  }
+  if (this->DepthTexture != nullptr)
+  {
     this->DepthTexture->ReleaseGraphicsResources(w);
-   }
+  }
 }

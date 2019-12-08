@@ -24,7 +24,8 @@
  * - FillOutputPortInformation()
  *
  * Python signature of these methods is as follows:
- * - ProcessRequest(self, vtkself, request, inInfo, outInfo) : vtkself is the vtk object, inInfo is a tuple of information objects
+ * - ProcessRequest(self, vtkself, request, inInfo, outInfo) : vtkself is the vtk object, inInfo is
+ * a tuple of information objects
  * - FillInputPortInformation(self, vtkself, port, info)
  * - FillOutputPortInformation(self, vtkself, port, info)
  * - Initialize(self, vtkself)
@@ -35,7 +36,7 @@
  *
  * @sa
  * vtkProgrammableFilter
-*/
+ */
 
 #ifndef vtkPythonAlgorithm_h
 #define vtkPythonAlgorithm_h
@@ -43,15 +44,15 @@
 
 #include "vtkPython.h" // Must be first
 
-#include "vtkFiltersPythonModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersPythonModule.h" // For export macro
 
 class vtkSmartPyObject;
 
 class VTKFILTERSPYTHON_EXPORT vtkPythonAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkPythonAlgorithm *New();
+  static vtkPythonAlgorithm* New();
   vtkTypeMacro(vtkPythonAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -80,9 +81,8 @@ protected:
   vtkPythonAlgorithm();
   ~vtkPythonAlgorithm() override;
 
-  int ProcessRequest(vtkInformation* request,
-                     vtkInformationVector** inInfo,
-                     vtkInformationVector* outInfo) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 

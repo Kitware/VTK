@@ -27,8 +27,8 @@
 
 #include <algorithm>
 #include <numeric>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 namespace
 {
@@ -39,72 +39,85 @@ std::size_t NumErrors = 0;
 #define TO_STRING2(x) #x
 #define LOCATION() "line " TO_STRING(__LINE__) ""
 
-#define CHECK_TYPEDEF(t1, t2) \
-  static_assert(std::is_same<typename std::decay<t1>::type, \
-                             typename std::decay<t2>::type>{}, \
-                "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
-                LOCATION())
+#define CHECK_TYPEDEF(t1, t2)                                                                      \
+  static_assert(std::is_same<typename std::decay<t1>::type, typename std::decay<t2>::type>{},      \
+    "Type mismatch: '" #t1 "' not same as '" #t2 "' in " LOCATION())
 
-#define CHECK_IS_BASE_TYPE_OF(t1, t2) \
-  static_assert(std::is_base_of<typename std::decay<t1>::type, \
-                                typename std::decay<t2>::type>{}, \
-                "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
-                LOCATION())
+#define CHECK_IS_BASE_TYPE_OF(t1, t2)                                                              \
+  static_assert(std::is_base_of<typename std::decay<t1>::type, typename std::decay<t2>::type>{},   \
+    "Type mismatch: '" #t1 "' not same as '" #t2 "' in " LOCATION())
 
 // Various properties required by random access iterators:
-#define CHECK_ITER_TYPE(type) \
-  static_assert(std::is_default_constructible<Iter>::value, \
-                "Iterator types must be default constructable at " LOCATION()); \
-  static_assert(std::is_copy_constructible<Iter>::value, \
-                "Iterator types must be copy constructible at " LOCATION()); \
-  static_assert(std::is_copy_assignable<Iter>::value, \
-                "Iterator types must be copy assignable at " LOCATION()); \
-  static_assert(std::is_destructible<Iter>::value, \
-                "Iterator types must be destructable at " LOCATION());
+#define CHECK_ITER_TYPE(type)                                                                      \
+  static_assert(std::is_default_constructible<Iter>::value,                                        \
+    "Iterator types must be default constructable at " LOCATION());                                \
+  static_assert(std::is_copy_constructible<Iter>::value,                                           \
+    "Iterator types must be copy constructible at " LOCATION());                                   \
+  static_assert(std::is_copy_assignable<Iter>::value,                                              \
+    "Iterator types must be copy assignable at " LOCATION());                                      \
+  static_assert(                                                                                   \
+    std::is_destructible<Iter>::value, "Iterator types must be destructable at " LOCATION())
 
-#define LOG_ERROR(message) \
-  ++NumErrors; \
+#define LOG_ERROR(message)                                                                         \
+  ++NumErrors;                                                                                     \
   std::cerr << NumErrors << ": " << message << "\n"
 
-#define CHECK_TRUE(expr) \
-  do { if (!(expr)) \
-  { \
-    LOG_ERROR("Expression not true: '" #expr << "' at " LOCATION()); \
-  } } while (false)
+#define CHECK_TRUE(expr)                                                                           \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(expr))                                                                                   \
+    {                                                                                              \
+      LOG_ERROR("Expression not true: '" #expr << "' at " LOCATION());                             \
+    }                                                                                              \
+  } while (false)
 
-#define CHECK_FALSE(expr) \
-  do { if ((expr)) \
-  { \
-    LOG_ERROR("Expression expected to be false but is true: '" #expr \
-              << "' at " LOCATION()); \
-  } } while (false)
+#define CHECK_FALSE(expr)                                                                          \
+  do                                                                                               \
+  {                                                                                                \
+    if ((expr))                                                                                    \
+    {                                                                                              \
+      LOG_ERROR("Expression expected to be false but is true: '" #expr << "' at " LOCATION());     \
+    }                                                                                              \
+  } while (false)
 
-#define CHECK_EQUAL(v1, v2) \
-  do { if (!(v1 == v2)) \
-  { \
-    LOG_ERROR("Expressions not equal: '" #v1 "' (" << v1 << ") and '" #v2 "' ("\
-              << v2 << ") in " LOCATION()); \
-  } } while (false)
+#define CHECK_EQUAL(v1, v2)                                                                        \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(v1 == v2))                                                                               \
+    {                                                                                              \
+      LOG_ERROR("Expressions not equal: '" #v1 "' (" << v1 << ") and '" #v2 "' (" << v2            \
+                                                     << ") in " LOCATION());                       \
+    }                                                                                              \
+  } while (false)
 
-#define CHECK_NOT_EQUAL(v1, v2) \
-  do { if (!(v1 != v2)) \
-  { \
-    LOG_ERROR("Expressions not equal: '" #v1 "' (" << v1 << ") and '" #v2 "' ("\
-              << v2 << ") in " LOCATION()); \
-  } } while (false)
+#define CHECK_NOT_EQUAL(v1, v2)                                                                    \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(v1 != v2))                                                                               \
+    {                                                                                              \
+      LOG_ERROR("Expressions not equal: '" #v1 "' (" << v1 << ") and '" #v2 "' (" << v2            \
+                                                     << ") in " LOCATION());                       \
+    }                                                                                              \
+  } while (false)
 
-#define CHECK_EQUAL_NODUMP(v1, v2) \
-  do { if (!(v1 == v2)) \
-  { \
-    LOG_ERROR("Expressions not equal: '" #v1 "' and '" #v2 "' in " LOCATION());\
-  } } while (false)
+#define CHECK_EQUAL_NODUMP(v1, v2)                                                                 \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(v1 == v2))                                                                               \
+    {                                                                                              \
+      LOG_ERROR("Expressions not equal: '" #v1 "' and '" #v2 "' in " LOCATION());                  \
+    }                                                                                              \
+  } while (false)
 
-#define CHECK_NOT_EQUAL_NODUMP(v1, v2) \
-  do { if (!(v1 != v2)) \
-  { \
-    LOG_ERROR("Expressions should be unequal but aren't: '" #v1 "' and '" \
-              #v2 "' in " LOCATION());\
-  } } while (false)
+#define CHECK_NOT_EQUAL_NODUMP(v1, v2)                                                             \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(v1 != v2))                                                                               \
+    {                                                                                              \
+      LOG_ERROR(                                                                                   \
+        "Expressions should be unequal but aren't: '" #v1 "' and '" #v2 "' in " LOCATION());       \
+    }                                                                                              \
+  } while (false)
 
 //==============================================================================
 //==============================================================================
@@ -116,8 +129,8 @@ void FillTupleRangeIota(Range range)
 {
   using ComponentType = typename Range::ComponentType;
 
-  ComponentType value{1};
-  for (auto& tuple : range)
+  ComponentType value{ 1 };
+  for (typename Range::reference tuple : range)
   {
     std::iota(tuple.begin(), tuple.end(), value);
     value += static_cast<ComponentType>(tuple.size());
@@ -138,9 +151,9 @@ void TestIota(Range range)
 
   auto value = startValue;
 
-  for (auto& tuple : range)
+  for (typename Range::const_reference tuple : range)
   {
-    for (auto& comp : tuple)
+    for (ComponentType comp : tuple)
     {
       CHECK_EQUAL(value, comp);
       ++value;
@@ -181,19 +194,16 @@ struct UnitTestTupleRangeAPI
 
     FillTupleRangeIota(vtk::DataArrayTupleRange<NumComps>(array));
 
-
     auto pStart = NumTuples / 4;
     auto pEnd = NumTuples / 4 * 3;
 
     { // Full, dynamic-size, real typed range
       auto range = vtk::DataArrayTupleRange(array);
-      DispatchRangeTests<ArrayType, vtk::detail::DynamicTupleSize>
-          (range, array, 0, NumTuples);
+      DispatchRangeTests<ArrayType, vtk::detail::DynamicTupleSize>(range, array, 0, NumTuples);
     }
     { // Full, dynamic-size, generic-typed range
       auto range = vtk::DataArrayTupleRange(da);
-      DispatchRangeTests<vtkDataArray, vtk::detail::DynamicTupleSize>
-          (range, array, 0, NumTuples);
+      DispatchRangeTests<vtkDataArray, vtk::detail::DynamicTupleSize>(range, array, 0, NumTuples);
     }
     { // Full, fixed-size, real typed range
       auto range = vtk::DataArrayTupleRange<NumComps>(array);
@@ -205,13 +215,11 @@ struct UnitTestTupleRangeAPI
     }
     { // Partial, dynamic-size, real typed range
       auto range = vtk::DataArrayTupleRange(array, pStart, pEnd);
-      DispatchRangeTests<ArrayType, vtk::detail::DynamicTupleSize>
-          (range, array, pStart, pEnd);
+      DispatchRangeTests<ArrayType, vtk::detail::DynamicTupleSize>(range, array, pStart, pEnd);
     }
     { // Partial, dynamic-size, generic-typed range
       auto range = vtk::DataArrayTupleRange(da, pStart, pEnd);
-      DispatchRangeTests<vtkDataArray, vtk::detail::DynamicTupleSize>
-          (range, array, pStart, pEnd);
+      DispatchRangeTests<vtkDataArray, vtk::detail::DynamicTupleSize>(range, array, pStart, pEnd);
     }
     { // Partial, fixed-size, real typed range
       auto range = vtk::DataArrayTupleRange<NumComps>(array, pStart, pEnd);
@@ -226,9 +234,9 @@ struct UnitTestTupleRangeAPI
   template <typename Range>
   void TestEmptyRange(Range range)
   {
-    for (auto& tuple : range)
+    for (typename Range::const_reference tuple : range)
     {
-      for (auto& comp : tuple)
+      for (typename Range::ComponentType comp : tuple)
       {
         (void)comp;
         CHECK_TRUE(false && "This should not execute.");
@@ -236,31 +244,25 @@ struct UnitTestTupleRangeAPI
     }
   }
 
-  template <typename RangeArrayType,
-            vtk::ComponentIdType RangeTupleSize,
-            typename Range>
-  void DispatchRangeTests(Range range,
-                          RangeArrayType *array,
-                          vtk::TupleIdType start,
-                          vtk::TupleIdType end)
+  template <typename RangeArrayType, vtk::ComponentIdType RangeTupleSize, typename Range>
+  void DispatchRangeTests(
+    Range range, RangeArrayType* array, vtk::TupleIdType start, vtk::TupleIdType end)
   {
     {
       TestRange<RangeArrayType, RangeTupleSize>(range, array, start, end);
+      TestSubRange(range);
+      TestDefaultInit(range);
     }
 
     {
       const Range& crange = range;
       TestRange<RangeArrayType, RangeTupleSize>(crange, array, start, end);
+      TestSubRange(crange);
     }
   }
 
-  template <typename RangeArrayType,
-            vtk::ComponentIdType RangeTupleSize,
-            typename Range>
-  void TestRange(Range& range,
-                 RangeArrayType *array,
-                 vtk::TupleIdType start,
-                 vtk::TupleIdType end)
+  template <typename RangeArrayType, vtk::ComponentIdType RangeTupleSize, typename Range>
+  void TestRange(Range& range, RangeArrayType* array, vtk::TupleIdType start, vtk::TupleIdType end)
   {
     TestTypes<RangeArrayType, RangeTupleSize>(range);
 
@@ -271,46 +273,111 @@ struct UnitTestTupleRangeAPI
     CHECK_EQUAL(range.size(), end - start);
     CHECK_EQUAL(range.end() - range.begin(), range.size());
     CHECK_EQUAL(range.cend() - range.cbegin(), range.size());
+    CHECK_EQUAL_NODUMP(*range.begin(), range[0]);
+    CHECK_EQUAL_NODUMP(*(range.begin() + 1), range[1]);
 
     TestIota(range);
   }
 
-  template <typename RangeArrayType,
-            vtk::ComponentIdType RangeTupleSize,
-            typename Range>
-  void TestTypes(Range &range)
+  template <typename RangeArrayType, vtk::ComponentIdType RangeTupleSize, typename Range>
+  void TestTypes(Range& range)
   {
     using ConstRange = typename std::add_const<Range>::type;
     using MutableRange = typename std::remove_const<Range>::type;
-    (void)range; // MSVC thinks this is unused when it appears in decltype.
+    (void)range; // decltype doesn't actually use the value.
+
+    CHECK_TYPEDEF(
+      typename Range::TupleIteratorType, decltype(std::declval<MutableRange>().begin()));
+    CHECK_TYPEDEF(
+      typename Range::ConstTupleIteratorType, decltype(std::declval<MutableRange>().cbegin()));
+    CHECK_TYPEDEF(
+      typename Range::ConstTupleIteratorType, decltype(std::declval<ConstRange>().begin()));
+    CHECK_TYPEDEF(
+      typename Range::ConstTupleIteratorType, decltype(std::declval<ConstRange>().cbegin()));
+    CHECK_TYPEDEF(
+      typename Range::TupleReferenceType, decltype(*std::declval<MutableRange>().begin()));
+    CHECK_TYPEDEF(typename Range::TupleReferenceType, decltype(std::declval<MutableRange>()[0]));
+    CHECK_TYPEDEF(
+      typename Range::ConstTupleReferenceType, decltype(*std::declval<MutableRange>().cbegin()));
+    CHECK_TYPEDEF(typename Range::ConstTupleReferenceType, decltype(std::declval<ConstRange>()[0]));
+    CHECK_TYPEDEF(typename Range::ComponentIteratorType,
+      decltype(std::declval<MutableRange>().begin()->begin()));
+    CHECK_TYPEDEF(typename Range::ConstComponentIteratorType,
+      decltype(std::declval<MutableRange>().cbegin()->begin()));
+    CHECK_TYPEDEF(typename Range::ConstComponentIteratorType,
+      decltype(std::declval<MutableRange>().begin()->cbegin()));
+    CHECK_TYPEDEF(typename Range::ComponentReferenceType,
+      decltype(*std::declval<MutableRange>().begin()->begin()));
+    CHECK_TYPEDEF(
+      typename Range::ComponentReferenceType, decltype(std::declval<MutableRange>()[0][0]));
+    CHECK_TYPEDEF(typename Range::ConstComponentReferenceType,
+      decltype(*std::declval<MutableRange>().cbegin()->begin()));
+    CHECK_TYPEDEF(typename Range::ConstComponentReferenceType,
+      decltype(*std::declval<MutableRange>().begin()->cbegin()));
+    CHECK_TYPEDEF(
+      typename Range::ConstComponentReferenceType, decltype(std::declval<ConstRange>()[0][0]));
 
     CHECK_IS_BASE_TYPE_OF(typename Range::ArrayType, RangeArrayType);
-    CHECK_TYPEDEF(typename Range::ComponentType,
-                  vtk::GetAPIType<RangeArrayType>);
+    CHECK_TYPEDEF(typename Range::ComponentType, vtk::GetAPIType<RangeArrayType>);
     CHECK_TYPEDEF(typename Range::size_type, vtk::TupleIdType);
     CHECK_TYPEDEF(typename Range::size_type, decltype(range.size()));
-    CHECK_TYPEDEF(typename Range::reference,
-                  decltype(*std::declval<typename Range::iterator>()));
-    CHECK_TYPEDEF(typename Range::const_reference,
-                  decltype(*std::declval<typename Range::const_iterator>()));
-    CHECK_TYPEDEF(typename Range::iterator,
-                  decltype(std::declval<MutableRange>().begin()));
-    CHECK_TYPEDEF(typename Range::iterator,
-                  decltype(std::declval<MutableRange>().end()));
-    CHECK_TYPEDEF(typename Range::const_iterator,
-                  decltype(std::declval<ConstRange>().begin()));
-    CHECK_TYPEDEF(typename Range::const_iterator,
-                  decltype(std::declval<ConstRange>().end()));
-    CHECK_TYPEDEF(typename Range::const_iterator,
-                  decltype(range.cbegin()));
-    CHECK_TYPEDEF(typename Range::const_iterator,
-                  decltype(range.cend()));
+    CHECK_TYPEDEF(typename Range::reference, decltype(*std::declval<typename Range::iterator>()));
+    CHECK_TYPEDEF(
+      typename Range::const_reference, decltype(*std::declval<typename Range::const_iterator>()));
+    CHECK_TYPEDEF(typename Range::reference, decltype(std::declval<MutableRange>()[0]));
+    CHECK_TYPEDEF(typename Range::const_reference, decltype(std::declval<ConstRange>()[0]));
+    CHECK_TYPEDEF(typename Range::iterator, decltype(std::declval<MutableRange>().begin()));
+    CHECK_TYPEDEF(typename Range::iterator, decltype(std::declval<MutableRange>().end()));
+    CHECK_TYPEDEF(typename Range::const_iterator, decltype(std::declval<ConstRange>().begin()));
+    CHECK_TYPEDEF(typename Range::const_iterator, decltype(std::declval<ConstRange>().end()));
+    CHECK_TYPEDEF(typename Range::const_iterator, decltype(range.cbegin()));
+    CHECK_TYPEDEF(typename Range::const_iterator, decltype(range.cend()));
     CHECK_TYPEDEF(typename Range::ArrayType, decltype(*range.GetArray()));
     CHECK_TYPEDEF(vtk::TupleIdType, decltype(range.GetBeginTupleId()));
     CHECK_TYPEDEF(vtk::TupleIdType, decltype(range.GetEndTupleId()));
 
-    static_assert(Range::TupleSizeTag == RangeTupleSize,
-                  "Range::TupleSizeTag incorrect.");
+    static_assert(Range::TupleSizeTag == RangeTupleSize, "Range::TupleSizeTag incorrect.");
+  }
+
+  template <typename Range>
+  void TestSubRange(Range& range)
+  {
+    auto range1 = range.GetSubRange(3, 9);
+    CHECK_EQUAL(range1.GetBeginTupleId(), range.GetBeginTupleId() + 3);
+    CHECK_EQUAL(range1.GetEndTupleId(), range.GetBeginTupleId() + 9);
+    {
+      auto subRange = range1.GetSubRange();
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetEndTupleId());
+    }
+    {
+      auto subRange = range1.GetSubRange(2, 4);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId() + 2);
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId() + 4);
+    }
+    {
+      auto subRange = range1.GetSubRange(1);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId() + 1);
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetEndTupleId());
+    }
+    {
+      auto subRange = range1.GetSubRange(0, 5);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId() + 5);
+    }
+    {
+      auto subRange = range1.GetSubRange(0, 0);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId());
+    }
+  }
+
+  template <typename Range>
+  void TestDefaultInit(Range& range)
+  {
+    auto range1 = Range{};
+    range1 = range;
+    (void)range;
   }
 };
 
@@ -369,6 +436,8 @@ struct UnitTestTupleIteratorAPI
   template <typename Range>
   void TestTupleIterator(Range& range)
   {
+    TestConstCopy(range);
+    TestConstAssign(range);
     TestIterSwap(range);
   }
 
@@ -386,26 +455,52 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestTypes(Range &range)
+  void TestTypes(Range& range)
   {
     using Iter = decltype(range.begin());
-    (void)range; // MSVC thinks this is unused when it appears in decltype.
+    (void)range; // decltype doesn't actually use values
 
-    CHECK_TYPEDEF(typename Iter::iterator_category,
-                  std::random_access_iterator_tag);
-    CHECK_TYPEDEF(typename Iter::reference,
-                  decltype(*std::declval<Iter>()));
-    CHECK_TYPEDEF(typename Iter::pointer,
-                  decltype(std::declval<Iter>().operator->()));
-    CHECK_TYPEDEF(typename Iter::difference_type,
-                  decltype(std::declval<Iter>() - std::declval<Iter>()));
+    CHECK_TYPEDEF(typename Iter::iterator_category, std::random_access_iterator_tag);
+    CHECK_TYPEDEF(typename Iter::reference, decltype(*std::declval<Iter>()));
+    CHECK_TYPEDEF(typename Iter::reference, decltype(std::declval<Iter>()[0]));
+    CHECK_TYPEDEF(typename Iter::pointer, decltype(std::declval<Iter>().operator->()));
+    CHECK_TYPEDEF(
+      typename Iter::difference_type, decltype(std::declval<Iter>() - std::declval<Iter>()));
 
     // Check requirements of random-access iterators:
     CHECK_ITER_TYPE(Iter);
   }
 
   template <typename Range>
-  void TestCopy(Range &range)
+  void TestConstCopy(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable iterators to
+    // const ones:
+    typename Range::iterator iter{ range.begin() };
+    typename Range::const_iterator citer{ iter };
+    CHECK_EQUAL_NODUMP(iter, citer);
+  }
+
+  template <typename Range>
+  void TestConstAssign(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable objects to
+    // const ones:
+    typename Range::iterator iter{ range.begin() };
+    typename Range::const_iterator citer{ range.cend() };
+
+    citer = iter;
+    CHECK_EQUAL_NODUMP(iter, citer);
+  }
+
+  template <typename Range>
+  void TestCopy(Range& range)
   {
     auto iter = this->GetTestingIter(range);
 
@@ -417,7 +512,7 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestAssign(Range &range)
+  void TestAssign(Range& range)
   {
     auto iter = this->GetTestingIter(range);
 
@@ -436,7 +531,7 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestTraversal(Range &range)
+  void TestTraversal(Range& range)
   {
     { // operator++ (prefix)
       auto iter1 = this->GetTestingIter(range);
@@ -544,23 +639,32 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestIndexing(Range &range)
+  void TestIndexing(Range& range)
   {
-    (void)range;
-    // operator[] disabled. See vtk::DataArrayTupleRange documentation.
-#if 0
-    auto iter1 = this->GetTestingIter(range);
-    auto iter2 = iter1 + 1;
-    auto iter1a = iter2 - 1;
+    auto beginIter = range.begin(); // Always points to the first tuple
+    auto lagIter = beginIter;       // Points to the i-1 tuple
 
-    CHECK_EQUAL_NODUMP(iter1, iter1a);
-    CHECK_EQUAL_NODUMP(*iter1, *iter1a);
-    CHECK_EQUAL_NODUMP(*iter2, iter1[1]);
-#endif
+    using IndexT = typename Range::size_type;
+
+    IndexT i = 0;
+    for (auto tupleRef : range)
+    {
+      if (i == 0)
+      {
+        CHECK_EQUAL_NODUMP(tupleRef, lagIter[0]);
+      }
+      else
+      {
+        CHECK_EQUAL_NODUMP(tupleRef, lagIter[1]);
+        ++lagIter;
+      }
+      CHECK_EQUAL_NODUMP(tupleRef, beginIter[i]);
+      ++i;
+    }
   }
 
   template <typename Range>
-  void TestDeref(Range &range)
+  void TestDeref(Range& range)
   {
     { // operator*
       auto iter = this->GetTestingIter(range);
@@ -585,7 +689,7 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestComparison(Range &range)
+  void TestComparison(Range& range)
   {
     { // operator ==
       auto iter1 = this->GetTestingIter(range);
@@ -645,7 +749,7 @@ struct UnitTestTupleIteratorAPI
   }
 
   template <typename Range>
-  void TestSwap(Range &range)
+  void TestSwap(Range& range)
   {
     auto iter1 = this->GetTestingIter(range);
     auto iter2 = iter1 + 1;
@@ -666,11 +770,10 @@ struct UnitTestTupleIteratorAPI
     CHECK_NOT_EQUAL_NODUMP(iterB, iter2);
     CHECK_EQUAL_NODUMP(iterA, iter2);
     CHECK_EQUAL_NODUMP(iterB, iter1);
-
   }
 
   template <typename Range>
-  void TestIterSwap(Range &range)
+  void TestIterSwap(Range& range)
   {
     using ComponentType = typename Range::ComponentType;
 
@@ -679,8 +782,8 @@ struct UnitTestTupleIteratorAPI
 
     CHECK_FALSE(std::equal(iter1->begin(), iter1->end(), iter2->begin()));
 
-    std::vector<ComponentType> tuple1{iter1->begin(), iter1->end()};
-    std::vector<ComponentType> tuple2{iter2->begin(), iter2->end()};
+    std::vector<ComponentType> tuple1{ iter1->begin(), iter1->end() };
+    std::vector<ComponentType> tuple2{ iter2->begin(), iter2->end() };
 
     CHECK_TRUE(std::equal(iter1->begin(), iter1->end(), tuple1.begin()));
     CHECK_TRUE(std::equal(iter2->begin(), iter2->end(), tuple2.begin()));
@@ -700,8 +803,7 @@ struct UnitTestTupleIteratorAPI
   // Guaranteed to be valid and surrounded by at least 2 other valid iterators
   // in each direction.
   template <typename Range>
-  static auto GetTestingIter(Range& range)
-  -> decltype(range.begin())
+  static auto GetTestingIter(Range& range) -> decltype(range.begin())
   {
     return range.begin() + (range.size() / 2);
   }
@@ -751,17 +853,21 @@ struct UnitTestTupleReferenceAPI
     {
       TestTupleReference(range);
       TestConstTupleReference(range);
+      TestMutableTypes(range); // This test is ONLY for non-const types.
     }
 
     {
       const Range& crange = range;
       TestConstTupleReference(crange);
+      TestConstTypes(crange); // This test is ONLY for const types.
     }
   }
 
   template <typename Range>
   void TestTupleReference(Range& range)
   {
+    TestConstCopy(range);
+    TestConstAssign(range);
     TestAssign(range);
     TestIndexing(range);
     TestSwap(range);
@@ -782,36 +888,80 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestTypes(Range &range)
+  void TestTypes(Range& range)
   {
     using RangeArrayType = typename Range::ArrayType;
     using Ref = typename std::decay<decltype(*this->GetTestingIterator(range))>::type;
-    (void)range; // MSVC thinks this is unused when it appears in decltype.
+    (void)range; // decltype doesn't actually use values
 
     CHECK_TYPEDEF(vtk::GetAPIType<RangeArrayType>, typename Ref::value_type);
     CHECK_TYPEDEF(typename Ref::size_type, vtk::ComponentIdType);
-    CHECK_TYPEDEF(typename Ref::iterator,
-                  decltype(std::declval<Ref>().begin()));
-    CHECK_TYPEDEF(typename Ref::iterator,
-                  decltype(std::declval<Ref>().end()));
-    CHECK_TYPEDEF(typename Ref::const_iterator,
-                  decltype(std::declval<Ref>().cbegin()));
-    CHECK_TYPEDEF(typename Ref::const_iterator,
-                  decltype(std::declval<Ref>().cend()));
-    CHECK_TYPEDEF(typename Ref::size_type,
-                  decltype(std::declval<Ref>().size()));
+    CHECK_TYPEDEF(typename Ref::iterator, decltype(std::declval<Ref>().begin()));
+    CHECK_TYPEDEF(typename Ref::iterator, decltype(std::declval<Ref>().end()));
+    CHECK_TYPEDEF(typename Ref::const_iterator, decltype(std::declval<Ref>().cbegin()));
+    CHECK_TYPEDEF(typename Ref::const_iterator, decltype(std::declval<Ref>().cend()));
+    CHECK_TYPEDEF(typename Ref::size_type, decltype(std::declval<Ref>().size()));
   }
 
   template <typename Range>
-  void TestAssign(Range &range)
+  void TestMutableTypes(Range& range)
   {
-    auto iter1 = this->GetTestingIterator(range, 0);
-    auto iter2 = this->GetTestingIterator(range, 1);
-    auto iter3 = this->GetTestingIterator(range, 2);
+    using Ref = typename std::decay<decltype(*this->GetTestingIterator(range))>::type;
+    using MutableRef = typename std::remove_const<Ref>::type;
+    using ConstRef = typename std::add_const<Ref>::type;
+    (void)range; // decltype doesn't actually use values
 
-    auto& tuple1 = *iter1;
-    auto& tuple2 = *iter2;
-    const auto& tuple3 = *iter3;
+    CHECK_TYPEDEF(typename Ref::reference, decltype(std::declval<MutableRef>()[0]));
+    CHECK_TYPEDEF(typename Ref::const_reference, decltype(std::declval<ConstRef>()[0]));
+  }
+
+  template <typename Range>
+  void TestConstTypes(Range& range)
+  {
+    using Ref = typename std::decay<decltype(*this->GetTestingIterator(range))>::type;
+    (void)range; // decltype doesn't actually use values
+
+    CHECK_TYPEDEF(typename Ref::const_reference, decltype(std::declval<Ref>()[0]));
+  }
+
+  template <typename Range>
+  void TestConstCopy(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable iterators to
+    // const ones:
+    typename Range::reference ref{ range[0] };
+    typename Range::const_reference cref{ ref };
+    CHECK_EQUAL_NODUMP(ref, cref);
+  }
+
+  template <typename Range>
+  void TestConstAssign(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable iterators to
+    // const ones:
+    typename Range::reference ref{ range[0] };
+    typename Range::const_reference cref{ range[1] };
+
+    auto data = this->StoreTuple(ref);
+
+    ref = cref;
+    CHECK_EQUAL_NODUMP(ref, cref);
+
+    this->RestoreTuple(ref, data);
+  }
+
+  template <typename Range>
+  void TestAssign(Range& range)
+  {
+    typename Range::reference tuple1 = range[0];
+    typename Range::reference tuple2 = range[1];
+    const typename Range::const_reference tuple3 = range[2];
 
     auto data1 = this->StoreTuple(tuple1);
     auto data2 = this->StoreTuple(tuple2);
@@ -844,13 +994,10 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestSwap(Range &range)
+  void TestSwap(Range& range)
   {
-    auto iter1 = this->GetTestingIterator(range, 0);
-    auto iter2 = this->GetTestingIterator(range, 1);
-
-    auto& tuple1 = *iter1;
-    auto& tuple2 = *iter2;
+    typename Range::reference tuple1 = range[0];
+    typename Range::reference tuple2 = range[1];
 
     auto data1 = this->StoreTuple(tuple1);
     auto data2 = this->StoreTuple(tuple2);
@@ -902,21 +1049,19 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestFill(Range &range)
+  void TestFill(Range& range)
   {
     using ComponentType = typename Range::ComponentType;
 
     auto iter = this->GetTestingIterator(range);
-    auto& tuple = *iter;
+    typename Range::reference tuple = *iter;
     auto data = this->StoreTuple(tuple);
 
     ComponentType fillValue = static_cast<ComponentType>(0);
-    auto isFilled = [&](ComponentType val) -> bool
-    {
-      return val == fillValue;
-    };
+    auto isFilled = [&](ComponentType val) -> bool { return val == fillValue; };
 
-    do {
+    do
+    {
       tuple.fill(fillValue);
       CHECK_TRUE(std::all_of(tuple.begin(), tuple.end(), isFilled));
       ++fillValue;
@@ -926,14 +1071,14 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestComparison(Range &range)
+  void TestComparison(Range& range)
   {
     auto iter1a = this->GetTestingIterator(range, 0);
     auto iter1b = this->GetTestingIterator(range, 0);
     auto iter2 = this->GetTestingIterator(range, 1);
-    auto& tuple1a = *iter1a;
-    auto& tuple1b = *iter1b;
-    auto& tuple2 = *iter2;
+    auto tuple1a = *iter1a;
+    auto tuple1b = *iter1b;
+    auto tuple2 = *iter2;
 
     CHECK_EQUAL_NODUMP(tuple1a, tuple1b);
     CHECK_EQUAL_NODUMP(tuple1b, tuple1a);
@@ -944,103 +1089,143 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestIndexing(Range &range)
+  void TestIndexing(Range& range)
   {
-    (void)range;
-    // operator[] disabled. See vtk::DataArrayTupleRange documentation.
-#if 0
-    auto tuple1 = this->GetTestingReference(range, 0);
-    const auto tuple2 = this->GetTestingReference(range, 1);
+    // NOTE Since these are proxy iterators, they don't play nicely with
+    // auto/auto&. Similar to vector<bool>, the actual value types may not
+    // exist in memory -- when the ArrayType is vtkDataArray, the doubles
+    // returns are usually cast from the underlying ValueTypes on the fly.
+    //
+    // This means we must explicitly use the value_type, reference or
+    // const_reference typedefs on containers, or
+    // std::iterator_traits<IterT>::value_type /
+    // std::iterator_traits<IterT>::reference on iterators when calling
+    // operator[].
 
-    auto data1 = this->StoreTuple(tuple1);
+    using ConstRange = typename std::add_const<Range>::type;
 
-    using TIndex = typename decltype(tuple1)::size_type;
+    auto iter = this->GetTestingIterator(range, 0);
+    auto citer = this->GetTestingIterator(const_cast<ConstRange&>(range), 1);
 
-    CHECK_NOT_EQUAL(tuple1.size(), 0);
-    CHECK_EQUAL(tuple1.size(), tuple2.size());
+    auto tuple = *iter;
+    auto ctuple = *citer;
+
+    auto data1 = this->StoreTuple(tuple);
+
+    using TupleT = decltype(tuple);
+    using CTupleT = decltype(ctuple);
+    using TIndex = typename TupleT::size_type;
+
+    CHECK_NOT_EQUAL(tuple.size(), 0);
+    CHECK_EQUAL(tuple.size(), ctuple.size());
 
     { // Read non-const:
       TIndex i = 0;
-      for (auto& val : tuple1)
+      for (typename TupleT::reference ref : tuple)
       {
-        CHECK_EQUAL(tuple1[i++], val);
+        CHECK_EQUAL(tuple[i++], ref);
       }
-      CHECK_EQUAL(i, tuple1.size());
+      CHECK_EQUAL(i, tuple.size());
+
+      i = 0;
+      for (typename TupleT::const_reference cref : tuple)
+      {
+        CHECK_EQUAL(tuple[i++], cref);
+      }
+      CHECK_EQUAL(i, tuple.size());
+
+      i = 0;
+      for (typename TupleT::value_type val : tuple)
+      {
+        CHECK_EQUAL(tuple[i++], val);
+      }
+      CHECK_EQUAL(i, tuple.size());
     }
 
     { // Read const:
       TIndex i = 0;
-      for (auto& val : tuple2)
+      for (typename CTupleT::const_reference cref : ctuple)
       {
-        CHECK_EQUAL(tuple2[i++], val);
+        CHECK_EQUAL(ctuple[i++], cref);
       }
-      CHECK_EQUAL(i, tuple2.size());
+      CHECK_EQUAL(i, ctuple.size());
+
+      i = 0;
+      for (typename CTupleT::value_type val : ctuple)
+      {
+        CHECK_EQUAL(ctuple[i++], val);
+      }
+      CHECK_EQUAL(i, ctuple.size());
     }
 
     { // Write:
       TIndex i = 0;
-      for (auto val : tuple2)
+      for (typename TupleT::const_reference cref : ctuple)
       {
-        tuple1[i++] = val;
+        tuple[i++] = cref;
       }
-      CHECK_EQUAL(i, tuple2.size());
-      CHECK_EQUAL_NODUMP(tuple1, tuple2);
-      this->RestoreTuple(tuple1, data1);
+      CHECK_EQUAL(i, ctuple.size());
+      CHECK_EQUAL_NODUMP(tuple, ctuple);
+      this->RestoreTuple(tuple, data1);
     }
 
-    this->RestoreTuple(tuple1, data1);
-#endif
+    this->RestoreTuple(tuple, data1);
   }
 
   template <typename Range>
-  void TestIndexingConst(Range &range)
+  void TestIndexingConst(Range& range)
   {
-    (void)range;
-    // operator[] disabled. See vtk::DataArrayTupleRange documentation.
-#if 0
-    auto tuple1 = this->GetTestingReference(range, 0);
-    const auto tuple2 = this->GetTestingReference(range, 1);
+    // NOTE Since these are proxy iterators, they don't play nicely with
+    // auto/auto&. Similar to vector<bool>, the actual value types may not
+    // exist in memory -- when the ArrayType is vtkDataArray, the doubles
+    // returns are usually cast from the underlying ValueTypes on the fly.
+    //
+    // This means we must explicitly use the value_type, reference or
+    // const_reference typedefs on containers, or
+    // std::iterator_traits<IterT>::value_type /
+    // std::iterator_traits<IterT>::reference on iterators when calling
+    // operator[].
 
-    using TIndex = typename decltype(tuple1)::size_type;
+    auto iter = this->GetTestingIterator(range, 0);
+    auto tuple = *iter;
 
-    CHECK_NOT_EQUAL(tuple1.size(), 0);
-    CHECK_EQUAL(tuple1.size(), tuple2.size());
+    using TupleT = decltype(tuple);
+    using TIndex = typename TupleT::size_type;
 
-    { // Read non-const:
+    CHECK_NOT_EQUAL(tuple.size(), 0);
+
+    { // Read:
       TIndex i = 0;
-      for (auto val : tuple1)
+      for (typename TupleT::const_reference cref : tuple)
       {
-        CHECK_EQUAL(tuple1[i++], val);
+        CHECK_EQUAL(tuple[i++], cref);
       }
-      CHECK_EQUAL(i, tuple1.size());
-    }
+      CHECK_EQUAL(i, tuple.size());
 
-    { // Read const:
-      TIndex i = 0;
-      for (auto val : tuple2)
+      i = 0;
+      for (typename TupleT::value_type val : tuple)
       {
-        CHECK_EQUAL(tuple2[i++], val);
+        CHECK_EQUAL(tuple[i++], val);
       }
-      CHECK_EQUAL(i, tuple2.size());
+      CHECK_EQUAL(i, tuple.size());
     }
-#endif
   }
 
   template <typename Range>
-  void TestSize(Range &range)
+  void TestSize(Range& range)
   {
     CHECK_EQUAL(range.size(), range.end() - range.begin());
   }
 
   template <typename Range>
-  void TestIters(Range &range)
+  void TestIters(Range& range)
   {
     using ComponentType = typename Range::ComponentType;
 
     auto iter1 = this->GetTestingIterator(range, 0);
     auto iter2 = this->GetTestingIterator(range, 1);
-    auto& tuple1 = *iter1;
-    const auto& tuple2 = *iter2;
+    typename Range::reference tuple1 = *iter1;
+    const typename Range::const_reference tuple2 = *iter2;
 
     auto data1 = this->StoreTuple(tuple1);
 
@@ -1133,14 +1318,14 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestItersConst(Range &range)
+  void TestItersConst(Range& range)
   {
     using ComponentType = typename Range::ComponentType;
 
     auto iter1 = this->GetTestingIterator(range, 0);
     auto iter2 = this->GetTestingIterator(range, 1);
-    auto& tuple1 = *iter1;
-    const auto& tuple2 = *iter2;
+    typename Range::const_reference tuple1 = *iter1;
+    const typename Range::const_reference tuple2 = *iter2;
 
     const ComponentType startValue1 = *tuple1.begin();
     const ComponentType startValue2 = *tuple2.begin();
@@ -1207,15 +1392,15 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestArrayAccess(Range &range)
+  void TestArrayAccess(Range& range)
   {
     auto iter1 = this->GetTestingIterator(range, 0);
     auto iter2 = this->GetTestingIterator(range, 1);
     auto iter3 = this->GetTestingIterator(range, 2);
 
-    auto& tuple1Ref = *iter1;
-    auto& tuple2Ref = *iter2;
-    const auto& tuple3Ref = *iter3;
+    typename Range::reference tuple1Ref = *iter1;
+    typename Range::reference tuple2Ref = *iter2;
+    const typename Range::const_reference tuple3Ref = *iter3;
 
     auto d1 = this->StoreTuple(tuple1Ref);
     auto d2 = this->StoreTuple(tuple2Ref);
@@ -1272,15 +1457,15 @@ struct UnitTestTupleReferenceAPI
   }
 
   template <typename Range>
-  void TestArrayAccessConst(Range &range)
+  void TestArrayAccessConst(Range& range)
   {
     auto iter1 = this->GetTestingIterator(range, 0);
     auto iter2 = this->GetTestingIterator(range, 1);
     auto iter3 = this->GetTestingIterator(range, 2);
 
-    auto& tuple1Ref = *iter1;
-    auto& tuple2Ref = *iter2;
-    const auto& tuple3Ref = *iter3;
+    typename Range::const_reference tuple1Ref = *iter1;
+    typename Range::const_reference tuple2Ref = *iter2;
+    const typename Range::const_reference tuple3Ref = *iter3;
 
     auto d1 = this->StoreTuple(tuple1Ref);
     auto d2 = this->StoreTuple(tuple2Ref);
@@ -1323,43 +1508,38 @@ struct UnitTestTupleReferenceAPI
   // Returns a valid reference. tupleOffset allows different tuples to be
   // obtained. The valid range for offset is (-2, 2).
   template <typename Range>
-  static auto GetTestingIterator(Range& range,
-                                 vtk::TupleIdType tupleOffset = 0)
-  -> decltype(range.begin())
+  static auto GetTestingIterator(Range& range, vtk::TupleIdType tupleOffset = 0)
+    -> decltype(range.begin())
   {
     return range.begin() + (range.size() / 2) + tupleOffset;
   }
 
   template <typename RefType>
-  static auto StoreTuple(const RefType& ref)
-  -> std::vector<typename RefType::value_type>
+  static auto StoreTuple(const RefType& ref) -> std::vector<typename RefType::value_type>
   {
-    return std::vector<typename RefType::value_type>{ref.begin(), ref.end()};
+    return std::vector<typename RefType::value_type>{ ref.begin(), ref.end() };
   }
 
   template <typename RefType>
-  static void RestoreTuple(RefType& ref,
-                           const std::vector<typename RefType::value_type> &data)
+  static void RestoreTuple(RefType& ref, const std::vector<typename RefType::value_type>& data)
   {
     std::copy(data.begin(), data.end(), ref.begin());
   }
 
   template <typename RefType>
-  static bool CompareTuple(const RefType& ref,
-                           const std::vector<typename RefType::value_type> &data)
+  static bool CompareTuple(
+    const RefType& ref, const std::vector<typename RefType::value_type>& data)
   {
     return static_cast<std::size_t>(ref.size()) == data.size() &&
-        std::equal(data.begin(), data.end(), ref.begin());
+      std::equal(data.begin(), data.end(), ref.begin());
   }
 
   template <typename IterType>
-  static bool CompareTuple(
-      IterType begin, IterType end,
-      const std::vector<
-      typename std::iterator_traits<IterType>::value_type> &data)
+  static bool CompareTuple(IterType begin, IterType end,
+    const std::vector<typename std::iterator_traits<IterType>::value_type>& data)
   {
     return static_cast<std::size_t>(std::distance(begin, end)) == data.size() &&
-        std::equal(data.begin(), data.end(), begin);
+      std::equal(data.begin(), data.end(), begin);
   }
 };
 
@@ -1400,14 +1580,12 @@ struct UnitTestComponentIteratorAPI
   void DispatchRangeTests(Range range)
   {
     {
-      TestTypes(range);
       TestComponentIterator(range);
       TestConstComponentIterator(range);
     }
 
     {
       const Range& crange = range;
-      TestTypes(crange);
       TestConstComponentIterator(crange);
     }
   }
@@ -1424,6 +1602,8 @@ struct UnitTestComponentIteratorAPI
   template <typename Range>
   void TestComponentIterator(Range& range)
   {
+    TestConstCopy(range);
+    TestConstAssign(range);
     TestDeref(range);
     TestIndexing(range);
     TestIterSwap(range);
@@ -1432,6 +1612,7 @@ struct UnitTestComponentIteratorAPI
   template <typename Range>
   void TestConstComponentIterator(Range& range)
   {
+    TestTypes(range);
     TestCopy(range);
     TestAssign(range);
     TestTraversal(range);
@@ -1442,13 +1623,57 @@ struct UnitTestComponentIteratorAPI
   }
 
   template <typename Range>
+  void TestConstCopy(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    const Range crange = range;
+
+    auto tuple = this->GetTestingIterRange(range);
+    auto ctuple = this->GetTestingIterRange(crange);
+
+    using IterT = decltype(tuple->begin());
+    using CIterT = decltype(ctuple->begin());
+
+    // We should be able to implicitly cast and compare mutable objects to
+    // const ones:
+    IterT iter{ tuple->begin() };
+    CIterT citer{ iter };
+    CHECK_EQUAL_NODUMP(iter, citer);
+  }
+
+  template <typename Range>
+  void TestConstAssign(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    const Range crange = range;
+
+    auto tuple = this->GetTestingIterRange(range);
+    auto ctuple = this->GetTestingIterRange(crange);
+
+    using IterT = decltype(tuple->begin());
+    using CIterT = decltype(ctuple->begin());
+
+    // We should be able to implicitly cast and compare mutable objects to
+    // const ones:
+    IterT iter{ tuple->begin() };
+    CIterT citer{ ctuple->cend() };
+
+    citer = iter;
+    CHECK_EQUAL_NODUMP(iter, citer);
+  }
+
+  template <typename Range>
   void TestCopy(Range& range)
   {
     auto tuple = this->GetTestingIterRange(range);
     auto iter = tuple->begin();
 
     using IterType = decltype(iter);
-    IterType iter2{iter};
+    IterType iter2{ iter };
 
     CHECK_EQUAL_NODUMP(iter, iter2);
   }
@@ -1666,48 +1891,46 @@ struct UnitTestComponentIteratorAPI
   {
     using ComponentType = typename Range::ComponentType;
 
-    auto tuple = this->GetTestingIterRange(range);
+    auto tupleIter = this->GetTestingIterRange(range);
+    auto tuple = *tupleIter;
 
-    ComponentType initialValue = *tuple->begin();
+    ComponentType initialValue = *tuple.begin();
 
-    for (auto it = tuple->begin(); it < tuple->end(); ++it)
+    for (auto it = tuple.begin(); it < tuple.end(); ++it)
     {
       *it = 10;
     }
 
-    for (auto& comp : *tuple)
+    using TupleType = decltype(tuple);
+
+    for (typename TupleType::reference comp : tuple)
     {
       CHECK_EQUAL(comp, 10);
     }
 
-    // Assigning to auto by value is currently disabled. See note on deleted
-    // ComponentReference copy constructor.
-    // auto should deduce to a raw value type, this assignment should have
-    // no effect:
-    for (auto comp : *tuple)
+    for (typename TupleType::value_type comp : tuple)
     {
       comp = 16;
       (void)comp; // silence set-but-not-used
     }
 
-    for (auto it = tuple->begin(); it < tuple->end(); ++it)
+    for (auto it = tuple.begin(); it < tuple.end(); ++it)
     {
       CHECK_EQUAL(*it, 10); // Still 10
     }
 
-    // auto should deduce to a reference type, this assignment should be saved:
-    for (auto& comp : *tuple)
+    for (typename TupleType::reference comp : tuple)
     {
       comp = 16;
     }
 
-    for (auto it = tuple->begin(); it < tuple->end(); ++it)
+    for (auto it = tuple.begin(); it < tuple.end(); ++it)
     {
       CHECK_EQUAL(*it, 16);
     }
 
     // Restore:
-    for (auto it = tuple->begin(); it < tuple->end(); ++it)
+    for (auto it = tuple.begin(); it < tuple.end(); ++it)
     {
       *it = initialValue++;
     }
@@ -1716,53 +1939,67 @@ struct UnitTestComponentIteratorAPI
   template <typename Range>
   void TestIndexingConst(Range& range)
   {
-    (void)range;
-    // operator[] disabled. See vtk::DataArrayTupleRange documentation.
-#if 0
     using ComponentType = typename Range::ComponentType;
 
-    auto tuple = this->GetTestingIterRange(range);
+    auto tupleIter = this->GetTestingIterRange(range);
+    auto tuple = *tupleIter;
 
-    using IndexType = typename decltype(*tuple)::size_type;
+    using TupleType = decltype(tuple);
+    using IndexType = typename TupleType::size_type;
 
-    auto iter = tuple->begin();
-    ComponentType value = *iter;
-    for (IndexType i = 0; i < tuple->size(); ++i)
+    auto compIter = tuple.begin();
+    ComponentType comp = *compIter;
+    for (IndexType i = 0; i < tuple.size(); ++i)
     {
-      CHECK_EQUAL(value++, iter[i]);
+      typename TupleType::value_type val = compIter[i];
+      typename TupleType::const_reference cref = compIter[i];
+      CHECK_EQUAL(comp, val);
+      CHECK_EQUAL(comp, cref);
+      ++comp;
     }
-#endif
   }
 
   template <typename Range>
   void TestIndexing(Range& range)
   {
-    (void)range;
-#if 0
     using ComponentType = typename Range::ComponentType;
 
-    auto tuple = this->GetTestingIterRange(range);
+    auto tupleIter = this->GetTestingIterRange(range);
+    auto tuple = *tupleIter;
 
-    using IndexType = typename decltype(*tuple)::size_type;
-    ComponentType initialValue = *tuple->begin();
+    using TupleType = decltype(tuple);
+    using IndexType = typename TupleType::size_type;
 
-    auto iter = tuple->begin();
-    for (IndexType i = 0; i < tuple->size(); ++i)
+    auto compIter = tuple.begin();
+    ComponentType compSave = *compIter;
+    ComponentType comp = *compIter;
+    for (IndexType i = 0; i < tuple.size(); ++i)
     {
-      iter[i] = 19;
+      typename TupleType::value_type val = compIter[i];
+      typename TupleType::reference ref = compIter[i];
+      typename TupleType::const_reference cref = compIter[i];
+      CHECK_EQUAL(comp, val);
+      CHECK_EQUAL(comp, ref);
+      CHECK_EQUAL(comp, cref);
+      ++comp;
+
+      // Set the ref to 10 to check that assignment works:
+      ref = 10;
     }
 
-    for (auto& comp : *tuple)
+    // Check that the assignment worked:
+    for (IndexType i = 0; i < tuple.size(); ++i)
     {
-      CHECK_EQUAL(comp, 19);
-    }
+      typename TupleType::value_type val = compIter[i];
+      typename TupleType::reference ref = compIter[i];
+      typename TupleType::const_reference cref = compIter[i];
+      CHECK_EQUAL(10, val);
+      CHECK_EQUAL(10, ref);
+      CHECK_EQUAL(10, cref);
 
-    // Restore:
-    for (IndexType i = 0; i < tuple->size(); ++i)
-    {
-      iter[i] = initialValue++;
+      // Restore the component:
+      ref = compSave++;
     }
-#endif
   }
 
   template <typename Range>
@@ -1836,14 +2073,12 @@ struct UnitTestComponentIteratorAPI
     CHECK_EQUAL(val2, *iter2);
   }
 
-
   // Returns an iterator range for a single tuple's components. tupleOffset
   // allows different tuples to be obtained. The valid range for offset is
   // (-2, 2).
   template <typename Range>
-  static auto GetTestingIterRange(Range& range,
-                                  vtk::TupleIdType tupleOffset = 0)
-  -> decltype(range.begin())
+  static auto GetTestingIterRange(Range& range, vtk::TupleIdType tupleOffset = 0)
+    -> decltype(range.begin())
   {
     return (range.begin() + (range.size() / 2)) + tupleOffset;
   }
@@ -1852,11 +2087,492 @@ struct UnitTestComponentIteratorAPI
   // be obtained. The returned iterator +/- 1 position is guaranteed valid.
   template <typename Range>
   static auto GetTestingIter(Range& range, vtk::TupleIdType tupleOffset = 0)
-  -> decltype(range.begin()->begin())
+    -> decltype(range.begin()->begin())
   {
     return (*(range.begin() + (range.size() / 2) + tupleOffset)).begin() + 1;
   }
+};
 
+template <typename ArrayType>
+struct UnitTestComponentReferenceAPI
+{
+  static constexpr vtk::ComponentIdType NumComps = 9;
+  static constexpr vtk::TupleIdType NumTuples = 5;
+
+  void operator()()
+  {
+    vtkNew<ArrayType> array;
+    array->SetNumberOfComponents(NumComps);
+    array->SetNumberOfTuples(NumTuples);
+    FillTupleRangeIota(vtk::DataArrayTupleRange<NumComps>(array));
+
+    auto da = static_cast<vtkDataArray*>(array);
+
+    { // Full, dynamic-size, real typed range
+      auto range = vtk::DataArrayTupleRange(array);
+      DispatchRangeTests(range);
+    }
+    { // Full, dynamic-size, generic-typed range
+      auto range = vtk::DataArrayTupleRange(da);
+      DispatchRangeTests(range);
+    }
+    { // Full, fixed-size, real typed range
+      auto range = vtk::DataArrayTupleRange<NumComps>(array);
+      DispatchRangeTests(range);
+    }
+    { // Full, fixed-size, generic-typed range
+      auto range = vtk::DataArrayTupleRange<NumComps>(da);
+      DispatchRangeTests(range);
+    }
+  }
+
+  template <typename Range>
+  void DispatchRangeTests(Range range)
+  {
+    {
+      TestComponentReference(range);
+      TestConstComponentReference(range);
+    }
+
+    {
+      const Range& crange = range;
+      TestConstComponentReference(crange);
+    }
+  }
+
+  template <typename Range>
+  void TestComponentReference(Range& range)
+  {
+    TestCopy(range);
+    TestAssign(range);
+    TestSwap(range);
+    TestMath(range);
+  }
+
+  template <typename Range>
+  void TestConstComponentReference(Range& range)
+  {
+    TestComparison(range);
+    TestConstMath(range);
+  }
+
+  template <typename Range>
+  void TestCopy(Range& range)
+  {
+    using APIType = typename Range::ComponentType;
+    using RefType = typename Range::ComponentReferenceType;
+
+    RefType ref1 = this->GetTestCompRef(range, 0);
+    const APIType val = ref1;
+
+    RefType ref1Copy{ ref1 };
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(val, ref1Copy);
+
+    ref1Copy = val - 1;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val - 1);
+    CHECK_EQUAL_NODUMP(ref1, val - 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+  }
+
+  template <typename Range>
+  void TestAssign(Range& range)
+  {
+    using APIType = typename Range::ComponentType;
+    using RefType = typename Range::ComponentReferenceType;
+
+    RefType ref1 = this->GetTestCompRef(range, 0);
+    const APIType val = ref1;
+
+    RefType ref1Copy{ ref1 };
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(val, ref1Copy);
+
+    ref1Copy = val - 1;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val - 1);
+    CHECK_EQUAL_NODUMP(ref1, val - 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+
+    auto ref2 = this->GetTestCompRef(range, 1);
+    CHECK_EQUAL_NODUMP(ref2, val + 1);
+    CHECK_NOT_EQUAL_NODUMP(ref1, ref2);
+    CHECK_NOT_EQUAL_NODUMP(ref1Copy, ref2);
+    CHECK_NOT_EQUAL_NODUMP(val, ref2);
+
+    ref1 = ref2;
+    CHECK_EQUAL_NODUMP(ref1, ref2);
+    CHECK_EQUAL_NODUMP(ref1Copy, ref2);
+    CHECK_EQUAL_NODUMP(ref1, val + 1);
+    CHECK_EQUAL_NODUMP(ref1Copy, val + 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+    CHECK_EQUAL_NODUMP(ref2, val + 1);
+  }
+
+  template <typename Range>
+  void TestSwap(Range& range)
+  {
+    using APIType = typename Range::ComponentType;
+
+    auto ref1 = this->GetTestCompRef(range, 0);
+    const APIType val1 = ref1;
+
+    APIType val2 = val1 + 1;
+
+    using std::swap;
+    swap(ref1, val2);
+
+    CHECK_EQUAL_NODUMP(ref1, val1 + 1);
+    CHECK_EQUAL_NODUMP(val1, val2);
+
+    swap(val2, ref1);
+
+    CHECK_EQUAL_NODUMP(ref1, val1);
+    CHECK_EQUAL_NODUMP(val2, val1 + 1);
+
+    auto ref2 = this->GetTestCompRef(range, 1);
+    CHECK_EQUAL_NODUMP(ref2, val2);
+
+    swap(ref1, ref2);
+
+    CHECK_EQUAL_NODUMP(ref1, val2);
+    CHECK_EQUAL_NODUMP(ref2, val1);
+
+    swap(ref2, ref1);
+
+    CHECK_EQUAL_NODUMP(ref1, val1);
+    CHECK_EQUAL_NODUMP(ref2, val2);
+  }
+
+  template <typename Range>
+  void TestMath(Range& range)
+  {
+    // Testing mutable math only. Const math is tested in TestConstMath
+    using APIType = typename Range::ComponentType;
+    using RefType = typename Range::ComponentReferenceType;
+
+    RefType ref1 = this->GetTestCompRef(range, 0);
+    RefType ref2 = this->GetTestCompRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType two = static_cast<APIType>(2);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // +=
+    {
+      auto v = (ref1 += one);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = one;
+      auto v = (tmp += ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (ref1 += ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 + val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 + val2);
+      ref1 = val1;
+    }
+
+    // -=
+    {
+      auto v = (ref1 -= one);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = bignum;
+      auto v = (tmp -= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, bignum - val1);
+      CHECK_EQUAL_NODUMP(v, bignum - val1);
+    }
+    {
+      auto v = (ref1 -= ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 - val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 - val2);
+      ref1 = val1;
+    }
+
+    // *=
+    {
+      auto v = (ref1 *= two);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 * two);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = two;
+      auto v = (tmp *= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, val1 * two);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (ref1 *= ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 * val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 * val2);
+      ref1 = val1;
+    }
+
+    // /=
+    {
+      auto v = (ref1 /= two);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 / two);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = bignum;
+      auto v = (tmp /= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, bignum / val1);
+      CHECK_EQUAL_NODUMP(v, bignum / val1);
+    }
+    {
+      auto v = (ref1 /= ref2);
+      // Use a tolerance test to account for rounding errors.
+      CHECK_TRUE(std::fabs(ref1 - APIType{ val1 / val2 }) < 1e-5);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_TRUE(std::fabs(v - APIType{ val1 / val2 }) < 1e-5);
+      ref1 = val1;
+    }
+
+    // ++ (pre)
+    {
+      auto v = ++ref1;
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+      ref1 = val1;
+    }
+
+    // ++ (post)
+    {
+      auto v = ref1++;
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1);
+      ref1 = val1;
+    }
+
+    // -- (pre)
+    {
+      auto v = --ref1;
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      CHECK_EQUAL_NODUMP(v, val1 - one);
+      ref1 = val1;
+    }
+
+    // -- (post)
+    {
+      auto v = ref1--;
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      CHECK_EQUAL_NODUMP(v, val1);
+      ref1 = val1;
+    }
+  }
+
+  template <typename Range>
+  void TestComparison(Range& range)
+  {
+    using APIType = typename Range::ComponentType;
+
+    auto ref1 = this->GetTestCompRef(range, 0);
+    auto refTmp = this->GetTestCompRef(range, 0); // same as ref1
+    auto ref2 = this->GetTestCompRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // ==
+    CHECK_TRUE(ref1 == val1);
+    CHECK_TRUE(ref1 == refTmp);
+    CHECK_FALSE(ref1 == val2);
+    CHECK_FALSE(ref2 == refTmp);
+
+    // !=
+    CHECK_FALSE(ref1 != val1);
+    CHECK_FALSE(ref1 != refTmp);
+    CHECK_TRUE(ref1 != val2);
+    CHECK_TRUE(ref2 != refTmp);
+
+    // <
+    CHECK_TRUE(ref1 < bignum);
+    CHECK_TRUE(one < ref1);
+    CHECK_TRUE(ref1 < ref2);
+    CHECK_TRUE(refTmp < ref2);
+    CHECK_FALSE(bignum < ref1);
+    CHECK_FALSE(ref1 < one);
+    CHECK_FALSE(ref2 < ref1);
+    CHECK_FALSE(ref2 < refTmp);
+    CHECK_FALSE(ref1 < refTmp);
+    CHECK_FALSE(ref1 < val1);
+    CHECK_FALSE(val1 < ref1);
+
+    // >
+    CHECK_FALSE(ref1 > bignum);
+    CHECK_FALSE(one > ref1);
+    CHECK_FALSE(ref1 > ref2);
+    CHECK_FALSE(refTmp > ref2);
+    CHECK_TRUE(bignum > ref1);
+    CHECK_TRUE(ref1 > one);
+    CHECK_TRUE(ref2 > ref1);
+    CHECK_TRUE(ref2 > refTmp);
+    CHECK_FALSE(ref1 > refTmp);
+    CHECK_FALSE(ref1 > val1);
+    CHECK_FALSE(val1 > ref1);
+
+    // <=
+    CHECK_TRUE(ref1 <= bignum);
+    CHECK_TRUE(one <= ref1);
+    CHECK_TRUE(ref1 <= ref2);
+    CHECK_TRUE(refTmp <= ref2);
+    CHECK_FALSE(bignum <= ref1);
+    CHECK_FALSE(ref1 <= one);
+    CHECK_FALSE(ref2 <= ref1);
+    CHECK_FALSE(ref2 <= refTmp);
+    CHECK_TRUE(ref1 <= refTmp);
+    CHECK_TRUE(ref1 <= val1);
+    CHECK_TRUE(val1 <= ref1);
+
+    // >=
+    CHECK_FALSE(ref1 >= bignum);
+    CHECK_FALSE(one >= ref1);
+    CHECK_FALSE(ref1 >= ref2);
+    CHECK_FALSE(refTmp >= ref2);
+    CHECK_TRUE(bignum >= ref1);
+    CHECK_TRUE(ref1 >= one);
+    CHECK_TRUE(ref2 >= ref1);
+    CHECK_TRUE(ref2 >= refTmp);
+    CHECK_TRUE(ref1 >= refTmp);
+    CHECK_TRUE(ref1 >= val1);
+    CHECK_TRUE(val1 >= ref1);
+  }
+
+  template <typename Range>
+  void TestConstMath(Range& range)
+  {
+    // Testing const math only. Mutable math is tested in TestMath
+    using APIType = typename Range::ComponentType;
+    using CRefType = typename Range::ConstComponentReferenceType;
+
+    const CRefType ref1 = this->GetTestCompRef(range, 0);
+    const CRefType ref2 = this->GetTestCompRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType two = static_cast<APIType>(2);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // +
+    {
+      auto v = (ref1 + one);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (one + ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (ref1 + ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 + val2);
+    }
+
+    // -
+    {
+      auto v = (ref1 - one);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 - one);
+    }
+    {
+      auto v = (bignum - ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, bignum - val1);
+    }
+    {
+      auto v = (ref1 - ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 - val2);
+    }
+
+    // *
+    {
+      auto v = (ref1 * two);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (two * ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (ref1 * ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 * val2);
+    }
+
+    // /
+    {
+      auto v = (ref1 / two);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 / two);
+    }
+    {
+      auto v = (bignum / ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, bignum / val1);
+    }
+    {
+      auto v = (ref1 / ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 / val2);
+    }
+  }
+
+  // Return a component reference. Valid offsets range from (-4, 4), and
+  // values increase with offset.
+  template <typename Range>
+  auto GetTestCompRef(Range& range, vtk::ComponentIdType offset)
+    -> decltype(std::declval<Range>()[0][0])
+  {
+    assert(offset >= -4 && offset <= 4);
+
+    return range[3][4 + offset];
+  }
 };
 
 struct UnitTestEdgeCases
@@ -1869,53 +2585,41 @@ struct UnitTestEdgeCases
     TestSpecializations();
 
     std::cerr << "SOA<float> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkSOADataArrayTemplate<float>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> SOA<float>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkSOADataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<float> >();
 
     std::cerr << "SOA<double> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkSOADataArrayTemplate<double>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> SOA<double>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkSOADataArrayTemplate<double>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<double> >();
 
     std::cerr << "SOA<int> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkSOADataArrayTemplate<int>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> SOA<int>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkSOADataArrayTemplate<int>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<int> >();
 
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
     std::cerr << "ScaleSOA<float> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<float>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> ScaleSOA<float>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkScaledSOADataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<float> >();
 
     std::cerr << "ScaleSOA<double> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<double>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> ScaleSOA<double>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkScaledSOADataArrayTemplate<double>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<double> >();
 
     std::cerr << "ScaleSOA<int> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<int>,
-                        vtkAOSDataArrayTemplate<float>>();
+    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float> >();
 
     std::cerr << "AOS<float> <--> ScaleSOA<int>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>,
-                        vtkScaledSOADataArrayTemplate<int>>();
+    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<int> >();
 #endif
   }
 
@@ -1925,7 +2629,7 @@ struct UnitTestEdgeCases
 #ifndef VTK_DEBUG_RANGE_ITERATORS
     // These should use the objects in vtkDataArrayTupleRange_AOS.h, which
     // end up using ValueType* pointers for component iterators.
-    TestAOSSpecialization<vtkAOSDataArrayTemplate<float>>();
+    TestAOSSpecialization<vtkAOSDataArrayTemplate<float> >();
     TestAOSSpecialization<vtkFloatArray>();
 #endif
   }
@@ -1935,18 +2639,16 @@ struct UnitTestEdgeCases
   static void TestAOSSpecialization()
   {
     using ValueType = vtk::GetAPIType<ArrayType>;
-    using RangeType = decltype(vtk::DataArrayTupleRange(
-                                   std::declval<ArrayType*>()));
+    using RangeType = decltype(vtk::DataArrayTupleRange(std::declval<ArrayType*>()));
     using CompIterType = decltype(std::declval<RangeType>().begin()->begin());
 
-    static_assert(std::is_same<ValueType*,
-                               typename std::decay<CompIterType>::type>::value,
-                  "AOS specialization not used!");
+    static_assert(std::is_same<ValueType*, typename std::decay<CompIterType>::type>::value,
+      "AOS specialization not used!");
   }
 #endif
 
   template <typename ArrayType>
-  static void PrepArray(ArrayType *array)
+  static void PrepArray(ArrayType* array)
   {
     array->SetNumberOfComponents(NumComps);
     array->SetNumberOfTuples(NumTuples);
@@ -1961,10 +2663,10 @@ struct UnitTestEdgeCases
     this->PrepArray(static_cast<ArrayT1*>(storage1));
     this->PrepArray(static_cast<ArrayT2*>(storage2));
 
-    ArrayT1 *a1 = storage1;
-    ArrayT2 *a2 = storage2;
-    vtkDataArray *da1 = a1;
-    vtkDataArray *da2 = a2;
+    ArrayT1* a1 = storage1;
+    ArrayT2* a2 = storage2;
+    vtkDataArray* da1 = a1;
+    vtkDataArray* da2 = a2;
 
     // Generate ranges:
     // - derived and vtkDataArray pointers
@@ -2074,45 +2776,37 @@ struct UnitTestEdgeCases
   using IsMutable = std::integral_constant<bool, !IsConst<Range>::value>;
 
   template <typename R1, typename R2>
-  using SameComponentType =
-  std::integral_constant<bool, std::is_same<typename R1::ComponentType,
-                                            typename R2::ComponentType>::value>;
+  using SameComponentType = std::integral_constant<bool,
+    std::is_same<typename R1::ComponentType, typename R2::ComponentType>::value>;
 
   template <typename Range1, typename Range2>
-  using IsSwappable =
-  std::integral_constant<bool, (SameComponentType<Range1, Range2>::value &&
-                                IsMutable<Range1>::value &&
-                                IsMutable<Range2>::value)>;
+  using IsSwappable = std::integral_constant<bool,
+    (SameComponentType<Range1, Range2>::value && IsMutable<Range1>::value &&
+      IsMutable<Range2>::value)>;
 
   template <typename Range1, typename Range2>
-  using IsNotSwappable =
-  std::integral_constant<bool, !IsSwappable<Range1, Range2>::value>;
+  using IsNotSwappable = std::integral_constant<bool, !IsSwappable<Range1, Range2>::value>;
 
   template <typename Range, typename T = void>
-  using EnableIfRangeIsConst =
-  typename std::enable_if<IsConst<Range>::value, T>::type;
+  using EnableIfRangeIsConst = typename std::enable_if<IsConst<Range>::value, T>::type;
 
   template <typename Range, typename T = void>
-  using EnableIfRangeIsMutable =
-  typename std::enable_if<IsMutable<Range>::value, T>::type;
+  using EnableIfRangeIsMutable = typename std::enable_if<IsMutable<Range>::value, T>::type;
 
   template <typename Range1, typename Range2, typename T = void>
   using EnableIfSameComponentType =
-  typename std::enable_if<SameComponentType<Range1, Range2>::value, T>::type;
+    typename std::enable_if<SameComponentType<Range1, Range2>::value, T>::type;
 
   template <typename Range1, typename Range2, typename T = void>
-  using EnableIfSwappable =
-  typename std::enable_if<IsSwappable<Range1, Range2>::value, T>::type;
+  using EnableIfSwappable = typename std::enable_if<IsSwappable<Range1, Range2>::value, T>::type;
 
   template <typename Range1, typename Range2, typename T = void>
   using EnableIfNotSwappable =
-  typename std::enable_if<IsNotSwappable<Range1, Range2>::value, T>::type;
+    typename std::enable_if<IsNotSwappable<Range1, Range2>::value, T>::type;
 
   // range1 is const:
-  template <typename Range1,
-            typename Range2>
-  void LaunchTests(Range1& r1, Range2& r2,
-                   EnableIfRangeIsConst<Range1, void*> = nullptr)
+  template <typename Range1, typename Range2>
+  void LaunchTests(Range1& r1, Range2& r2, EnableIfRangeIsConst<Range1, void*> = nullptr)
   {
     this->TestTupleEquality(r1, r2);
     this->TestTupleInequality(r1, r2);
@@ -2120,10 +2814,8 @@ struct UnitTestEdgeCases
   }
 
   // range1 is not const:
-  template <typename Range1,
-            typename Range2>
-  void LaunchTests(Range1& r1, Range2& r2,
-                   EnableIfRangeIsMutable<Range1, void*> = nullptr)
+  template <typename Range1, typename Range2>
+  void LaunchTests(Range1& r1, Range2& r2, EnableIfRangeIsMutable<Range1, void*> = nullptr)
   {
     this->TestTupleAssignment(r1, r2);
     this->TestTupleEquality(r1, r2);
@@ -2135,14 +2827,12 @@ struct UnitTestEdgeCases
   }
 
   template <typename Range1, typename Range2>
-  void TestTupleAssignment(Range1 &r1, Range2 &r2)
+  void TestTupleAssignment(Range1& r1, Range2& r2)
   {
     static_assert(IsMutable<Range1>{}, "r1 must be mutable.");
 
-    auto iter1 = r1.begin() + 3;
-    auto iter2 = r2.begin() + 4;
-    auto& ref1 = *iter1;
-    auto& ref2 = *iter2;
+    typename Range1::reference ref1 = r1[3];
+    typename Range2::const_reference ref2 = r2[4];
     auto data1 = this->StoreTuple(ref1);
     auto data2 = this->StoreTuple(ref2);
 
@@ -2160,7 +2850,7 @@ struct UnitTestEdgeCases
   }
 
   template <typename Range1, typename Range2>
-  void TestTupleEquality(Range1 &r1, Range2 &r2)
+  void TestTupleEquality(Range1& r1, Range2& r2)
   {
     auto i1 = r1.begin();
     auto i2 = r2.begin();
@@ -2174,7 +2864,7 @@ struct UnitTestEdgeCases
   }
 
   template <typename Range1, typename Range2>
-  void TestTupleInequality(Range1 &r1, Range2 &r2)
+  void TestTupleInequality(Range1& r1, Range2& r2)
   {
     auto i1 = r1.begin();
     auto i2 = r2.begin();
@@ -2187,28 +2877,25 @@ struct UnitTestEdgeCases
     }
   }
 
-  template <typename Range1,
-            typename Range2>
-  EnableIfNotSwappable<Range1, Range2, void>
-  TestTupleSwap(Range1&, Range2&)
+  template <typename Range1, typename Range2>
+  EnableIfNotSwappable<Range1, Range2, void> TestTupleSwap(Range1&, Range2&)
   {
     // no-op, ranges aren't swappable.
   }
 
-  template <typename Range1,
-            typename Range2>
-  EnableIfSwappable<Range1, Range2, void>
-  TestTupleSwap(Range1 &r1, Range2 &r2)
+  template <typename Range1, typename Range2>
+  EnableIfSwappable<Range1, Range2, void> TestTupleSwap(Range1& r1, Range2& r2)
   {
-    static_assert(SameComponentType<Range1, Range2>::value,
-                  "Mismatched ComponentTypes.");
+    static_assert(SameComponentType<Range1, Range2>::value, "Mismatched ComponentTypes.");
     static_assert(IsMutable<Range1>::value, "r1 must be mutable.");
     static_assert(IsMutable<Range2>::value, "r2 must be mutable.");
 
-    auto iter1 = r1.begin() + 3;
-    auto iter2 = r2.begin() + 4;
-    auto& ref1 = *iter1;
-    auto& ref2 = *iter2;
+    typename Range1::iterator iter1 = r1.begin() + 3;
+    typename Range2::iterator iter2 = r2.begin() + 4;
+
+    typename Range1::reference ref1 = *iter1;
+    typename Range2::reference ref2 = *iter2;
+
     auto data1 = this->StoreTuple(ref1);
     auto data2 = this->StoreTuple(ref2);
 
@@ -2248,22 +2935,24 @@ struct UnitTestEdgeCases
   }
 
   template <typename Range1, typename Range2>
-  void TestCompAssign(Range1 &r1, Range2 &r2)
+  void TestCompAssign(Range1& r1, Range2& r2)
   {
     static_assert(IsMutable<Range1>{}, "r1 must be mutable.");
 
-    auto titer1 = r1.begin() + 3;
-    auto titer2 = r2.begin() + 4;
-    auto& tref1 = *titer1;
-    auto& tref2 = *titer2;
+    typename Range1::reference tref1 = r1[3];
+    typename Range2::const_reference tref2 = r2[4];
 
     auto data1 = this->StoreTuple(tref1);
     auto data2 = this->StoreTuple(tref2);
 
     CHECK_FALSE(this->CompareTuple(tref1, data2));
 
+    // Use iterator_traits to find a proper reference type:
+    using IterT = decltype(tref1.begin());
+    using RefT = typename std::iterator_traits<IterT>::reference;
+
     auto iter2 = tref2.begin();
-    for (auto& comp : tref1)
+    for (RefT comp : tref1)
     {
       comp = *iter2++;
     }
@@ -2275,12 +2964,10 @@ struct UnitTestEdgeCases
   }
 
   template <typename Range1, typename Range2>
-  void TestCompCompare(Range1 &r1, Range2 &r2)
+  void TestCompCompare(Range1& r1, Range2& r2)
   {
-    auto titer1 = r1.begin() + 3;
-    auto titer2 = r2.begin() + 3;
-    auto& tref1 = *titer1;
-    auto& tref2 = *titer2;
+    typename Range1::const_reference tref1 = r1[3];
+    typename Range2::const_reference tref2 = r2[3];
 
     auto iter1 = tref1.begin();
     auto iter2 = tref2.begin();
@@ -2311,28 +2998,21 @@ struct UnitTestEdgeCases
     CHECK_TRUE(*iter1 >= *iter2);
   }
 
-  template <typename Range1,
-            typename Range2>
-  EnableIfNotSwappable<Range1, Range2, void>
-  TestCompSwap(Range1 &, Range2 &)
+  template <typename Range1, typename Range2>
+  EnableIfNotSwappable<Range1, Range2, void> TestCompSwap(Range1&, Range2&)
   {
     // no-op, ranges aren't swappable.
   }
 
-  template <typename Range1,
-            typename Range2>
-  EnableIfSwappable<Range1, Range2, void>
-  TestCompSwap(Range1 &r1, Range2 &r2)
+  template <typename Range1, typename Range2>
+  EnableIfSwappable<Range1, Range2, void> TestCompSwap(Range1& r1, Range2& r2)
   {
-    static_assert(SameComponentType<Range1, Range2>::value,
-                  "Mismatched ComponentTypes.");
+    static_assert(SameComponentType<Range1, Range2>::value, "Mismatched ComponentTypes.");
     static_assert(IsMutable<Range1>::value, "r1 must be mutable.");
     static_assert(IsMutable<Range2>::value, "r2 must be mutable.");
 
-    auto titer1 = r1.begin() + 3;
-    auto titer2 = r2.begin() + 4;
-    auto& tref1 = *titer1;
-    auto& tref2 = *titer2;
+    typename Range1::reference tref1 = r1[3];
+    typename Range2::reference tref2 = r2[4];
 
     auto data1 = this->StoreTuple(tref1);
     auto data2 = this->StoreTuple(tref2);
@@ -2341,7 +3021,7 @@ struct UnitTestEdgeCases
 
     {
       auto iter2 = tref2.begin();
-      for (auto& comp : tref1)
+      for (typename decltype(tref1)::reference comp : tref1)
       {
         using std::swap;
         swap(comp, *iter2++);
@@ -2374,26 +3054,22 @@ struct UnitTestEdgeCases
   }
 
   template <typename RefType>
-  static auto StoreTuple(const RefType& ref)
-  -> std::vector<typename RefType::value_type>
+  static auto StoreTuple(const RefType& ref) -> std::vector<typename RefType::value_type>
   {
-    return std::vector<typename RefType::value_type>{ref.begin(), ref.end()};
+    return std::vector<typename RefType::value_type>{ ref.begin(), ref.end() };
   }
 
   template <typename RefType>
-  static void RestoreTuple(
-      RefType& ref,
-      const std::vector<typename RefType::value_type> &data)
+  static void RestoreTuple(RefType& ref, const std::vector<typename RefType::value_type>& data)
   {
     std::copy(data.begin(), data.end(), ref.begin());
   }
 
   template <typename RefType, typename DataType>
-  static bool CompareTuple(const RefType& ref,
-                           const std::vector<DataType> &data)
+  static bool CompareTuple(const RefType& ref, const std::vector<DataType>& data)
   {
     return static_cast<std::size_t>(ref.size()) == data.size() &&
-        std::equal(data.begin(), data.end(), ref.begin());
+      std::equal(data.begin(), data.end(), ref.begin());
   }
 };
 
@@ -2408,6 +3084,8 @@ void RunTestsForArray()
   UnitTestTupleReferenceAPI<ArrayType>{}();
   std::cerr << "ComponentIteratorAPI:\n";
   UnitTestComponentIteratorAPI<ArrayType>{}();
+  std::cerr << "ComponentReferenceAPI:\n";
+  UnitTestComponentReferenceAPI<ArrayType>{}();
 }
 
 } // end anon namespace
@@ -2415,12 +3093,12 @@ void RunTestsForArray()
 int TestDataArrayTupleRange(int, char*[])
 {
   std::cerr << "AOS:\n";
-  RunTestsForArray<vtkAOSDataArrayTemplate<float>>();
+  RunTestsForArray<vtkAOSDataArrayTemplate<float> >();
   std::cerr << "SOA:\n";
-  RunTestsForArray<vtkSOADataArrayTemplate<float>>();
+  RunTestsForArray<vtkSOADataArrayTemplate<float> >();
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
   std::cerr << "ScaleSOA:\n";
-  RunTestsForArray<vtkScaledSOADataArrayTemplate<float>>();
+  RunTestsForArray<vtkScaledSOADataArrayTemplate<float> >();
 #endif
   std::cerr << "vtkFloatArray:\n";
   RunTestsForArray<vtkFloatArray>();

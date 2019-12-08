@@ -24,8 +24,8 @@
 #include "vtkPolyData.h"
 #include "vtkProbeFilter.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkSphereSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 
 //----------------------------------------------------------------------------
 int TestProbeFilterOutputAttributes(int, char*[])
@@ -35,12 +35,11 @@ int TestProbeFilterOutputAttributes(int, char*[])
 
   static const int dim = 48;
   double center[3];
-  center[0] = center[1] = center[2] = static_cast<double>(dim)/2.0;
+  center[0] = center[1] = center[2] = static_cast<double>(dim) / 2.0;
   int extent[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
   vtkNew<vtkRTAnalyticSource> imageSource;
-  imageSource->SetWholeExtent(extent[0], extent[1], extent[2], extent[3],
-                              extent[4], extent[5]);
+  imageSource->SetWholeExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
   imageSource->SetCenter(center);
 
   vtkNew<vtkProbeFilter> probe;

@@ -19,14 +19,13 @@
 #include "vtkGeometryFilter.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 
-
-int TestVTKMCleanGrid(int argc, char *argv[])
+int TestVTKMCleanGrid(int argc, char* argv[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);

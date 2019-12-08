@@ -29,20 +29,20 @@
  * E.g. (FieldA[i], FieldB[i], FieldC[i], Frequency[i]) is a bin in the histogram.
  * The first three numbers are binIDs for FieldA, FieldB and FieldC. Frequency[i] stores
  * the frequency for this bin (FieldA[i], FieldB[i], FieldC[i]).
-*/
+ */
 
 #ifndef vtkmNDHistogram_h
 #define vtkmNDHistogram_h
 
+#include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkArrayDataAlgorithm.h"
 #include <utility>
 #include <vector>
-#include "vtkArrayDataAlgorithm.h"
-#include "vtkAcceleratorsVTKmModule.h" // required for correct export
 
 class VTKACCELERATORSVTKM_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmNDHistogram, vtkArrayDataAlgorithm)
+  vtkTypeMacro(vtkmNDHistogram, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void AddFieldAndBin(const std::string& fieldName, const vtkIdType& numberOfBins);
@@ -64,16 +64,16 @@ protected:
   vtkmNDHistogram();
   ~vtkmNDHistogram();
 
-  int RequestData(vtkInformation* , vtkInformationVector** ,
-                          vtkInformationVector* )override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
 private:
   vtkmNDHistogram(const vtkmNDHistogram&) = delete;
   void operator=(const vtkmNDHistogram&) = delete;
   std::vector<std::string> FieldNames;
   std::vector<vtkIdType> NumberOfBins;
   std::vector<double> BinDeltas;
-  std::vector<std::pair<double, double>> DataRanges;
+  std::vector<std::pair<double, double> > DataRanges;
 };
 
 #endif // vtkmNDHistogram_h

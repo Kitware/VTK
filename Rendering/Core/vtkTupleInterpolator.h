@@ -39,17 +39,16 @@
  * causes the list of tuples to be reset, so any data inserted up to that
  * point is lost. Bisection methods are used to speed up the search for the
  * interpolation interval.
-*/
+ */
 
 #ifndef vtkTupleInterpolator_h
 #define vtkTupleInterpolator_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkSpline;
 class vtkPiecewiseFunction;
-
 
 class VTKRENDERINGCORE_EXPORT vtkTupleInterpolator : public vtkObject
 {
@@ -68,7 +67,7 @@ public:
    * this value discards any previously inserted data.
    */
   void SetNumberOfComponents(int numComp);
-  vtkGetMacro(NumberOfComponents,int);
+  vtkGetMacro(NumberOfComponents, int);
   //@}
 
   /**
@@ -118,8 +117,10 @@ public:
   /**
    * Enums to control the type of interpolation to use.
    */
-  enum {INTERPOLATION_TYPE_LINEAR=0,
-        INTERPOLATION_TYPE_SPLINE
+  enum
+  {
+    INTERPOLATION_TYPE_LINEAR = 0,
+    INTERPOLATION_TYPE_SPLINE
   };
 
   //@{
@@ -134,11 +135,9 @@ public:
    * to be discarded.
    */
   void SetInterpolationType(int type);
-  vtkGetMacro(InterpolationType,int);
-  void SetInterpolationTypeToLinear()
-    {this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR);}
-  void SetInterpolationTypeToSpline()
-    {this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE);}
+  vtkGetMacro(InterpolationType, int);
+  void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
+  void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
   //@}
 
   //@{
@@ -151,7 +150,7 @@ public:
    * interpolate.
    */
   void SetInterpolatingSpline(vtkSpline*);
-  vtkGetObjectMacro(InterpolatingSpline,vtkSpline);
+  vtkGetObjectMacro(InterpolatingSpline, vtkSpline);
   //@}
 
 protected:
@@ -165,18 +164,16 @@ protected:
   int InterpolationType;
 
   // This is the default 1D spline to use
-  vtkSpline *InterpolatingSpline;
+  vtkSpline* InterpolatingSpline;
 
   // Internal variables for interpolation functions
   void InitializeInterpolation();
-  vtkPiecewiseFunction    **Linear;
-  vtkSpline               **Spline;
-
+  vtkPiecewiseFunction** Linear;
+  vtkSpline** Spline;
 
 private:
   vtkTupleInterpolator(const vtkTupleInterpolator&) = delete;
   void operator=(const vtkTupleInterpolator&) = delete;
-
 };
 
 #endif

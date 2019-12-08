@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkSmoothErrorMetric.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include <cassert>
 
 vtkStandardNewMacro(vtkSmoothErrorMetric);
@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkSmoothErrorMetric);
 vtkSmoothErrorMetric::vtkSmoothErrorMetric()
 {
   this->AngleTolerance = 90.1; // in degrees
-  this->CosTolerance = cos( vtkMath::RadiansFromDegrees( this->AngleTolerance ) );
+  this->CosTolerance = cos(vtkMath::RadiansFromDegrees(this->AngleTolerance));
 }
 
 //-----------------------------------------------------------------------------
@@ -43,46 +43,43 @@ double vtkSmoothErrorMetric::GetAngleTolerance()
 //-----------------------------------------------------------------------------
 void vtkSmoothErrorMetric::SetAngleTolerance(double value)
 {
-//  assert("pre: positive_value" && value>90 && value<180);
-  if(this->AngleTolerance!=value)
+  //  assert("pre: positive_value" && value>90 && value<180);
+  if (this->AngleTolerance != value)
   {
     // Clamp the value
-    if(value<=90)
+    if (value <= 90)
     {
-      vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 90.1" );
-      this->AngleTolerance=90.1;
+      vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 90.1");
+      this->AngleTolerance = 90.1;
     }
     else
     {
-      if(value>=180)
+      if (value >= 180)
       {
-        vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 179.9" );
-        this->AngleTolerance=179.9;
+        vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 179.9");
+        this->AngleTolerance = 179.9;
       }
       else
       {
-        this->AngleTolerance=value;
+        this->AngleTolerance = value;
       }
     }
-    this->CosTolerance = cos( vtkMath::RadiansFromDegrees( this->AngleTolerance ) );
+    this->CosTolerance = cos(vtkMath::RadiansFromDegrees(this->AngleTolerance));
     this->Modified();
   }
 }
 
 //-----------------------------------------------------------------------------
-int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
-                                                  double *midPoint,
-                                                  double *rightPoint,
-                                                  double vtkNotUsed(alpha)
-  )
+int vtkSmoothErrorMetric::RequiresEdgeSubdivision(
+  double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
-  assert( "pre: leftPoint_exists" && leftPoint != nullptr );
-  assert( "pre: midPoint_exists" && midPoint != nullptr );
-  assert( "pre: rightPoint_exists" && rightPoint != nullptr );
-//  assert( "pre: clamped_alpha" && alpha>0 && alpha < 1. ); // or else true
-  if( this->GenericCell->IsGeometryLinear() )
+  assert("pre: leftPoint_exists" && leftPoint != nullptr);
+  assert("pre: midPoint_exists" && midPoint != nullptr);
+  assert("pre: rightPoint_exists" && rightPoint != nullptr);
+  //  assert( "pre: clamped_alpha" && alpha>0 && alpha < 1. ); // or else true
+  if (this->GenericCell->IsGeometryLinear())
   {
-    //don't need to do anything:
+    // don't need to do anything:
     return 0;
   }
 
@@ -96,21 +93,20 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   b[1] = rightPoint[1] - midPoint[1];
   b[2] = rightPoint[2] - midPoint[2];
 
-
-  double dota = vtkMath::Dot( a, a );
-  double dotb = vtkMath::Dot( b, b );
+  double dota = vtkMath::Dot(a, a);
+  double dotb = vtkMath::Dot(b, b);
   double cosa;
 
-  if( dota == 0 || dotb == 0 )
+  if (dota == 0 || dotb == 0)
   {
     cosa = -1.;
   }
   else
   {
-    cosa = vtkMath::Dot( a, b ) / sqrt( dota * dotb );
+    cosa = vtkMath::Dot(a, b) / sqrt(dota * dotb);
   }
 
-  int result = ( cosa > this->CosTolerance );
+  int result = (cosa > this->CosTolerance);
 
   return result;
 }
@@ -122,19 +118,16 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
 // or relative error metric.
 // See RequiresEdgeSubdivision() for a description of the arguments.
 // \post positive_result: result>=0
-double vtkSmoothErrorMetric::GetError(double *leftPoint,
-                                      double *midPoint,
-                                      double *rightPoint,
-                                      double vtkNotUsed(alpha)
-  )
+double vtkSmoothErrorMetric::GetError(
+  double* leftPoint, double* midPoint, double* rightPoint, double vtkNotUsed(alpha))
 {
-  assert( "pre: leftPoint_exists" && leftPoint != nullptr );
-  assert( "pre: midPoint_exists" && midPoint != nullptr );
-  assert( "pre: rightPoint_exists" && rightPoint != nullptr );
-//  assert( "pre: clamped_alpha" && alpha > 0. && alpha < 1. );
-  if( this->GenericCell->IsGeometryLinear() )
+  assert("pre: leftPoint_exists" && leftPoint != nullptr);
+  assert("pre: midPoint_exists" && midPoint != nullptr);
+  assert("pre: rightPoint_exists" && rightPoint != nullptr);
+  //  assert( "pre: clamped_alpha" && alpha > 0. && alpha < 1. );
+  if (this->GenericCell->IsGeometryLinear())
   {
-    //don't need to do anything:
+    // don't need to do anything:
     return 0.;
   }
 
@@ -148,38 +141,37 @@ double vtkSmoothErrorMetric::GetError(double *leftPoint,
   b[1] = rightPoint[1] - midPoint[1];
   b[2] = rightPoint[2] - midPoint[2];
 
-
-  double dota = vtkMath::Dot(a,a);
-  double dotb = vtkMath::Dot(b,b);
+  double dota = vtkMath::Dot(a, a);
+  double dotb = vtkMath::Dot(b, b);
   double cosa;
 
-  if( dota == 0. || dotb==0. )
+  if (dota == 0. || dotb == 0.)
   {
     cosa = -1.;
   }
   else
   {
-    cosa = vtkMath::Dot( a, b ) / sqrt( dota * dotb );
+    cosa = vtkMath::Dot(a, b) / sqrt(dota * dotb);
   }
 
-  if( cosa > 1.)
+  if (cosa > 1.)
   {
     cosa = 1.;
   }
-  else if( cosa < -1. )
+  else if (cosa < -1.)
   {
     cosa = -1.;
   }
-  double result = 180. - vtkMath::RadiansFromDegrees( acos( cosa ) );
-  assert( "post: positive_result" && result >= 0. );
+  double result = 180. - vtkMath::RadiansFromDegrees(acos(cosa));
+  assert("post: positive_result" && result >= 0.);
   return result;
 }
 
 //-----------------------------------------------------------------------------
 void vtkSmoothErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "AngleTolerance: "  << this->AngleTolerance << endl;
-  os << indent << "CosTolerance: "  << this->CosTolerance << endl;
+  os << indent << "AngleTolerance: " << this->AngleTolerance << endl;
+  os << indent << "CosTolerance: " << this->CosTolerance << endl;
 }

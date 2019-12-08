@@ -32,7 +32,7 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
  * layout capabilities.
-*/
+ */
 
 #ifndef vtkGraphLayoutStrategy_h
 #define vtkGraphLayoutStrategy_h
@@ -45,13 +45,13 @@ class vtkGraph;
 class VTKINFOVISLAYOUT_EXPORT vtkGraphLayoutStrategy : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkGraphLayoutStrategy,vtkObject);
+  vtkTypeMacro(vtkGraphLayoutStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Setting the graph for the layout strategy
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
   /**
    * This method allows the layout strategy to
@@ -67,14 +67,14 @@ public:
    * graph. If you have an iterative layout please implement
    * the IsLayoutComplete() method.
    */
-  virtual void Layout()=0;
+  virtual void Layout() = 0;
 
   /**
    * If your concrete class is iterative than
    * you should overload IsLayoutComplete()
    * otherwise it simply returns 1 by default;
    */
-  virtual int IsLayoutComplete() {return 1;}
+  virtual int IsLayoutComplete() { return 1; }
 
   //@{
   /**
@@ -96,14 +96,13 @@ protected:
   vtkGraphLayoutStrategy();
   ~vtkGraphLayoutStrategy() override;
 
-  vtkGraph *Graph;
-  char     *EdgeWeightField;
-  bool     WeightEdges;
-private:
+  vtkGraph* Graph;
+  char* EdgeWeightField;
+  bool WeightEdges;
 
+private:
   vtkGraphLayoutStrategy(const vtkGraphLayoutStrategy&) = delete;
   void operator=(const vtkGraphLayoutStrategy&) = delete;
 };
 
 #endif
-

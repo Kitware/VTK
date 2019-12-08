@@ -21,13 +21,12 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphere.h"
-
 
 int TestVTKMClipWithImplicitFunction(int argc, char* argv[])
 {

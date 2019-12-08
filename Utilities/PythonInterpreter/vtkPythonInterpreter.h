@@ -52,7 +52,7 @@
  * after Finalize especially when concerning with imported modules. Refer to
  * Python docs for details. In short, modules like numpy don't continue to work
  * after a re-initialize. Hence use it with caution.
-*/
+ */
 
 #ifndef vtkPythonInterpreter_h
 #define vtkPythonInterpreter_h
@@ -128,7 +128,25 @@ public:
    * that if Python is initialized again (by calls to Initialize()), then these
    * paths will be re-added.
    */
-  static void PrependPythonPath(const char*);
+  static void PrependPythonPath(const char* path);
+
+  //@{
+  /**
+   * Prepend custom paths to `sys.path` after attempt to find the `landmark` using the
+   * `anchor` prefix provided. If found, the path to the landmark gets added the python path
+   * using `PrependPythonPath`. Applications can use this to add paths to custom modules
+   * in the module search path. This is also needed for static builds to assist the
+   * interpreter in locating the path to `vtk` package.
+   *
+   * When `add_landmark` is true, then instead of adding the path to the
+   * landmark to the module search path, the successfully located landmark itself is
+   * added to the module search path. This is helpful when using zip-modules,
+   * for example, since in that case, the zip file itself should be added to the
+   * module search path and not its location.
+   */
+  static void PrependPythonPath(
+    const char* anchor, const char* landmark, bool add_landmark = false);
+  //@}
 
   //@{
   /**
@@ -214,6 +232,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonGlobalInterpreters
 public:
   vtkPythonGlobalInterpreters();
   ~vtkPythonGlobalInterpreters();
+
 private:
   vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&) = delete;
   vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&) = delete;

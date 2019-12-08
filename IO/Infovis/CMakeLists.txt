@@ -12,6 +12,7 @@ set(classes
   vtkPhyloXMLTreeReader
   vtkPhyloXMLTreeWriter
   vtkRISReader
+  vtkTemporalDelimitedTextReader
   vtkTulipReader
   vtkXGMLReader
   vtkXMLTreeReader)

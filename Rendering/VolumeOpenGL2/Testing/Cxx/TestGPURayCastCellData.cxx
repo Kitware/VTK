@@ -25,27 +25,26 @@
 #include <vtkImageData.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOpenGLRenderer.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRTAnalyticSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
+#include <vtkTestUtilities.h>
 #include <vtkTesting.h>
 #include <vtkTestingObjectFactory.h>
-#include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-
-int TestGPURayCastCellData(int argc, char *argv[])
+int TestGPURayCastCellData(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
@@ -56,7 +55,7 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren);
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+  vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -77,8 +76,7 @@ int TestGPURayCastCellData(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   delete[] volumeFile;
 
@@ -167,8 +165,8 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

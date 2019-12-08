@@ -27,17 +27,16 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangleFilter.h"
-
 
 namespace
 {
 
-void MakeInputDataSet(vtkPolyData *ds)
+void MakeInputDataSet(vtkPolyData* ds)
 {
   vtkNew<vtkCylinderSource> cylinder;
   cylinder->SetRadius(1.0);
@@ -84,7 +83,6 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   cylinderProperty->SetColor(0.3, 0.3, 0.3);
   cylinderActor->SetProperty(cylinderProperty);
 
-
   vtkNew<vtkArrowSource> arrow;
 
   // point normals
@@ -107,7 +105,6 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   pnRenderer->ResetCamera();
   pnRenderer->GetActiveCamera()->SetPosition(0.0, 4.5, 7.5);
   pnRenderer->ResetCameraClippingRange();
-
 
   // cell normals
   vtkNew<vtkCellCenters> cells;
@@ -132,7 +129,6 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   cnRenderer->ResetCamera();
   cnRenderer->GetActiveCamera()->SetPosition(0.0, 8.0, 0.1);
   cnRenderer->ResetCameraClippingRange();
-
 
   // render
   vtkNew<vtkRenderWindow> renWin;

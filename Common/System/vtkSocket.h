@@ -18,7 +18,7 @@
  *
  * This abstract class encapsulates a BSD socket. It provides an API for
  * basic socket operations.
-*/
+ */
 
 #ifndef vtkSocket_h
 #define vtkSocket_h
@@ -37,7 +37,7 @@ public:
   /**
    * Check is the socket is alive.
    */
-  int GetConnected() { return (this->SocketDescriptor >=0); }
+  int GetConnected() { return (this->SocketDescriptor >= 0); }
 
   /**
    * Close the socket.
@@ -59,7 +59,7 @@ public:
    * 0 on error, else number of bytes read is returned. On error,
    * vtkCommand::ErrorEvent is raised.
    */
-  int Receive(void* data, int length, int readFully=1);
+  int Receive(void* data, int length, int readFully = 1);
 
   /**
    * Provides access to the internal socket descriptor. This is valid only when
@@ -72,8 +72,8 @@ public:
    * 1 on success. Selected socket's index is returned through
    * selected_index
    */
-  static int SelectSockets(const int* sockets_to_select, int size,
-    unsigned long msec, int* selected_index);
+  static int SelectSockets(
+    const int* sockets_to_select, int size, unsigned long msec, int* selected_index);
 
 protected:
   vtkSocket();
@@ -134,6 +134,4 @@ private:
   void operator=(const vtkSocket&) = delete;
 };
 
-
 #endif
-

@@ -26,6 +26,7 @@
 #include "vtkPeriodicTable.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPSimpleBondPerceiver);
 
@@ -78,8 +79,7 @@ bool vtkPSimpleBondPerceiver::CreateGhosts(vtkMolecule* molecule)
   vtkDistributedPointCloudFilter::GetPointsInsideBounds(
     controller, inputPoly.Get(), outputPoly.Get(), outterBounds);
 
-  molecule->Initialize(
-    outputPoly->GetPoints(), outputPoly->GetPointData());
+  molecule->Initialize(outputPoly->GetPoints(), outputPoly->GetPointData());
 
   molecule->AllocateAtomGhostArray();
   vtkUnsignedCharArray* atomGhostArray = molecule->GetAtomGhostArray();

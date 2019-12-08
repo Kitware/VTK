@@ -21,9 +21,9 @@
 #include "vtkTable.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 vtkStandardNewMacro(vtkTableWriter);
@@ -31,14 +31,13 @@ vtkStandardNewMacro(vtkTableWriter);
 void vtkTableWriter::WriteData()
 {
   ostream* fp = nullptr;
-  vtkDebugMacro(<<"Writing vtk table data...");
+  vtkDebugMacro(<< "Writing vtk table data...");
 
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
     if (fp)
     {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
+      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
@@ -55,7 +54,7 @@ void vtkTableWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-int vtkTableWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkTableWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
@@ -73,5 +72,5 @@ vtkTable* vtkTableWriter::GetInput(int port)
 
 void vtkTableWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

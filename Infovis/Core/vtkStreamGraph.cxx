@@ -27,8 +27,8 @@
 #include "vtkInformationVector.h"
 #include "vtkMergeGraphs.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableGraphHelper.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
@@ -63,18 +63,14 @@ vtkStreamGraph::~vtkStreamGraph()
 
 //---------------------------------------------------------------------------
 int vtkStreamGraph::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* input_info = inputVector[0]->GetInformationObject(0);
-  vtkGraph* input = vtkGraph::SafeDownCast(
-    input_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(input_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy structure into output graph.
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-  vtkGraph* output = vtkGraph::SafeDownCast(
-    outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   double progress = 0.1;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
@@ -89,7 +85,8 @@ int vtkStreamGraph::RequestData(
     }
     else
     {
-      vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+      vtkSmartPointer<vtkMutableUndirectedGraph> g =
+        vtkSmartPointer<vtkMutableUndirectedGraph>::New();
       this->CurrentGraph->SetGraph(g);
     }
     this->CurrentGraph->GetGraph()->DeepCopy(input);

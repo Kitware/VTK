@@ -82,7 +82,7 @@
  *
  * @sa
  * vtkSampleFunction vtkContourFilter
-*/
+ */
 
 #ifndef vtkImplicitModeller_h
 #define vtkImplicitModeller_h
@@ -90,8 +90,8 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-#define VTK_VOXEL_MODE   0
-#define VTK_CELL_MODE    1
+#define VTK_VOXEL_MODE 0
+#define VTK_CELL_MODE 1
 
 class vtkDataArray;
 class vtkExtractGeometry;
@@ -100,7 +100,7 @@ class vtkMultiThreader;
 class VTKFILTERSHYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkImplicitModeller,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImplicitModeller, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -108,19 +108,19 @@ public:
    * automatically computed from the input. Capping is turned on with CapValue
    * equal to a large positive number.
    */
-  static vtkImplicitModeller *New();
+  static vtkImplicitModeller* New();
 
   /**
    * Compute ModelBounds from input geometry. If input is not specified, the
    * input of the filter will be used.
    */
-  double ComputeModelBounds(vtkDataSet *input = nullptr);
+  double ComputeModelBounds(vtkDataSet* input = nullptr);
 
   //@{
   /**
    * Set/Get the i-j-k dimensions on which to sample distance function.
    */
-  vtkGetVectorMacro(SampleDimensions,int,3);
+  vtkGetVectorMacro(SampleDimensions, int, 3);
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
   //@}
@@ -132,8 +132,8 @@ public:
    * the diagonal of the input data bounding box.
    * Smaller values make large increases in performance.
    */
-  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
-  vtkGetMacro(MaximumDistance,double);
+  vtkSetClampMacro(MaximumDistance, double, 0.0, 1.0);
+  vtkGetMacro(MaximumDistance, double);
   //@}
 
   //@{
@@ -141,8 +141,8 @@ public:
    * Set / get the region in space in which to perform the sampling. If
    * not specified, it will be computed automatically.
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
   //@}
 
   //@{
@@ -152,9 +152,9 @@ public:
    * by the fraction given by AdjustDistance. This means that the model
    * bounds is expanded in each of the x-y-z directions.
    */
-  vtkSetMacro(AdjustBounds,vtkTypeBool);
-  vtkGetMacro(AdjustBounds,vtkTypeBool);
-  vtkBooleanMacro(AdjustBounds,vtkTypeBool);
+  vtkSetMacro(AdjustBounds, vtkTypeBool);
+  vtkGetMacro(AdjustBounds, vtkTypeBool);
+  vtkBooleanMacro(AdjustBounds, vtkTypeBool);
   //@}
 
   //@{
@@ -163,8 +163,8 @@ public:
    * is set). The value is a fraction of the maximum length of the sides
    * of the box specified by the model bounds.
    */
-  vtkSetClampMacro(AdjustDistance,double,-1.0,1.0);
-  vtkGetMacro(AdjustDistance,double);
+  vtkSetClampMacro(AdjustDistance, double, -1.0, 1.0);
+  vtkGetMacro(AdjustDistance, double);
   //@}
 
   //@{
@@ -172,9 +172,9 @@ public:
    * The outer boundary of the structured point set can be assigned a
    * particular value. This can be used to close or "cap" all surfaces.
    */
-  vtkSetMacro(Capping,vtkTypeBool);
-  vtkGetMacro(Capping,vtkTypeBool);
-  vtkBooleanMacro(Capping,vtkTypeBool);
+  vtkSetMacro(Capping, vtkTypeBool);
+  vtkGetMacro(Capping, vtkTypeBool);
+  vtkBooleanMacro(Capping, vtkTypeBool);
   //@}
 
   //@{
@@ -183,7 +183,7 @@ public:
    * initial distance value at each point in the dataset.
    */
   void SetCapValue(double value);
-  vtkGetMacro(CapValue,double);
+  vtkGetMacro(CapValue, double);
   //@}
 
   //@{
@@ -199,7 +199,7 @@ public:
    */
   vtkSetMacro(ScaleToMaximumDistance, vtkTypeBool);
   vtkGetMacro(ScaleToMaximumDistance, vtkTypeBool);
-  vtkBooleanMacro(ScaleToMaximumDistance,vtkTypeBool);
+  vtkBooleanMacro(ScaleToMaximumDistance, vtkTypeBool);
   //@}
 
   //@{
@@ -212,9 +212,9 @@ public:
    */
   vtkSetClampMacro(ProcessMode, int, 0, 1);
   vtkGetMacro(ProcessMode, int);
-  void SetProcessModeToPerVoxel() {this->SetProcessMode(VTK_VOXEL_MODE);}
-  void SetProcessModeToPerCell()  {this->SetProcessMode(VTK_CELL_MODE);}
-  const char *GetProcessModeAsString(void);
+  void SetProcessModeToPerVoxel() { this->SetProcessMode(VTK_VOXEL_MODE); }
+  void SetProcessModeToPerCell() { this->SetProcessMode(VTK_CELL_MODE); }
+  const char* GetProcessModeAsString(void);
   //@}
 
   //@{
@@ -222,16 +222,16 @@ public:
    * Specify the level of the locator to use when using the per voxel
    * process mode.
    */
-  vtkSetMacro(LocatorMaxLevel,int);
-  vtkGetMacro(LocatorMaxLevel,int);
+  vtkSetMacro(LocatorMaxLevel, int);
+  vtkGetMacro(LocatorMaxLevel, int);
   //@}
 
   //@{
   /**
    * Set / Get the number of threads used during Per-Voxel processing mode
    */
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
+  vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
+  vtkGetMacro(NumberOfThreads, int);
   //@}
 
   //@{
@@ -239,22 +239,17 @@ public:
    * Set the desired output scalar type.
    */
   void SetOutputScalarType(int type);
-  vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
-  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);};
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);};
-  void SetOutputScalarTypeToUnsignedInt()
-    {this->SetOutputScalarType(VTK_UNSIGNED_INT);};
-  void SetOutputScalarTypeToLong(){this->SetOutputScalarType(VTK_LONG);};
-  void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
-  void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
-  void SetOutputScalarTypeToChar()
-    {this->SetOutputScalarType(VTK_CHAR);};
+  vtkGetMacro(OutputScalarType, int);
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  void SetOutputScalarTypeToInt() { this->SetOutputScalarType(VTK_INT); }
+  void SetOutputScalarTypeToUnsignedInt() { this->SetOutputScalarType(VTK_UNSIGNED_INT); }
+  void SetOutputScalarTypeToLong() { this->SetOutputScalarType(VTK_LONG); }
+  void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
+  void SetOutputScalarTypeToShort() { this->SetOutputScalarType(VTK_SHORT); }
+  void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
+  void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
+  void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
   //@}
 
   /**
@@ -272,7 +267,7 @@ public:
    * bounds; otherwise the input model bounds is used. When you've
    * finished appending, use the EndAppend() method.
    */
-  void Append(vtkDataSet *input);
+  void Append(vtkDataSet* input);
 
   /**
    * Method completes the append process.
@@ -280,9 +275,8 @@ public:
   void EndAppend();
 
   // See the vtkAlgorithm for a description of what these do
-  int ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkImplicitModeller();
@@ -290,17 +284,14 @@ protected:
 
   double GetScalarTypeMax(int type);
 
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestData (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void StartAppend(int internal);
-  void Cap(vtkDataArray *s);
+  void Cap(vtkDataArray* s);
 
-  vtkMultiThreader *Threader;
-  int              NumberOfThreads;
+  vtkMultiThreader* Threader;
+  int NumberOfThreads;
 
   int SampleDimensions[3];
   double MaximumDistance;
@@ -329,5 +320,3 @@ private:
 };
 
 #endif
-
-

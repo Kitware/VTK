@@ -24,8 +24,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -64,14 +64,13 @@ vtkFastSplatter::~vtkFastSplatter()
   this->Buckets->Delete();
 }
 
-void vtkFastSplatter::PrintSelf(ostream &os, vtkIndent indent)
+void vtkFastSplatter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ModelBounds: "
-     << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ", "
-     << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ", "
-     << this->ModelBounds[4] << ", " << this->ModelBounds[5] << endl;
+  os << indent << "ModelBounds: " << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ", "
+     << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ", " << this->ModelBounds[4] << ", "
+     << this->ModelBounds[5] << endl;
   os << indent << "OutputDimensions: " << this->OutputDimensions[0] << ", "
      << this->OutputDimensions[1] << ", " << this->OutputDimensions[2] << endl;
   os << indent << "LimitMode: " << this->LimitMode << endl;
@@ -82,10 +81,9 @@ void vtkFastSplatter::PrintSelf(ostream &os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 
-int vtkFastSplatter::FillInputPortInformation(int port,
-                                              vtkInformation* info)
+int vtkFastSplatter::FillInputPortInformation(int port, vtkInformation* info)
 {
-  switch(port)
+  switch (port)
   {
     case 0:
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -103,10 +101,8 @@ int vtkFastSplatter::FillInputPortInformation(int port,
 
 // For those familiar with the old pipeline, this is equivalent to the
 // ExecuteInformation method.
-int vtkFastSplatter::RequestInformation(
-                                 vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector)
+int vtkFastSplatter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -115,12 +111,9 @@ int vtkFastSplatter::RequestInformation(
   this->Origin[0] = 0;
   this->Origin[1] = 0;
   this->Origin[2] = 0;
-  if (   (   (this->ModelBounds[0] < this->ModelBounds[1])
-          || (this->OutputDimensions[0] == 1) )
-      && (   (this->ModelBounds[2] < this->ModelBounds[3])
-          || (this->OutputDimensions[1] == 1) )
-      && (   (this->ModelBounds[4] < this->ModelBounds[5])
-          || (this->OutputDimensions[2] == 1) ) )
+  if (((this->ModelBounds[0] < this->ModelBounds[1]) || (this->OutputDimensions[0] == 1)) &&
+    ((this->ModelBounds[2] < this->ModelBounds[3]) || (this->OutputDimensions[1] == 1)) &&
+    ((this->ModelBounds[4] < this->ModelBounds[5]) || (this->OutputDimensions[2] == 1)))
   {
     this->Origin[0] = this->ModelBounds[0];
     this->Origin[1] = this->ModelBounds[2];
@@ -130,32 +123,28 @@ int vtkFastSplatter::RequestInformation(
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
 
   int i;
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     if (this->OutputDimensions[i] > 1)
     {
-      this->Spacing[i] = (  (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                          / (this->OutputDimensions[i] - 1) );
+      this->Spacing[i] = ((this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]) /
+        (this->OutputDimensions[i] - 1));
     }
     else
     {
       this->Spacing[i] = 1.0;
     }
-    if ( this->Spacing[i] <= 0.0 )
+    if (this->Spacing[i] <= 0.0)
     {
       this->Spacing[i] = 1.0;
     }
   }
-  outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
+  outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               0, this->OutputDimensions[0] - 1,
-               0, this->OutputDimensions[1] - 1,
-               0, this->OutputDimensions[2] - 1);
-  vtkInformation *splatInfo = inputVector[1]->GetInformationObject(0);
-  vtkImageData::SetScalarType(
-    vtkImageData::GetScalarType(splatInfo),
-    outInfo);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 0, this->OutputDimensions[0] - 1,
+    0, this->OutputDimensions[1] - 1, 0, this->OutputDimensions[2] - 1);
+  vtkInformation* splatInfo = inputVector[1]->GetInformationObject(0);
+  vtkImageData::SetScalarType(vtkImageData::GetScalarType(splatInfo), outInfo);
   // if (splatInfo->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
   //   {
   //   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
@@ -167,8 +156,7 @@ int vtkFastSplatter::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -176,85 +164,65 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* splatInfo = inputVector[1]->GetInformationObject(0);
 
   splatInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                 splatInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-                 6);
+    splatInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
 
   int numPieces = 1;
   int piece = 0;
   int ghostLevel = 0;
   // Use the output piece request to break up the input.
   // If not specified, use defaults.
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
   {
-    numPieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   }
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   }
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
   {
-    ghostLevel = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   }
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              numPieces);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              piece);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              ghostLevel);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
 
   vtkDataObject* data = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  if(data->GetExtentType() == VTK_3D_EXTENT)
+  if (data->GetExtentType() == VTK_3D_EXTENT)
   {
-    int* inWholeExtent =
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inWholeExtent,
-                6);
+    int* inWholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inWholeExtent, 6);
   }
-
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
 
-template<class T>
-void vtkFastSplatterBucketPoints(const T *points, vtkIdType numPoints,
-                                 unsigned int *buckets,
-                                 const int dimensions[3],
-                                 const double origin[3],
-                                 const double spacing[3])
+template <class T>
+void vtkFastSplatterBucketPoints(const T* points, vtkIdType numPoints, unsigned int* buckets,
+  const int dimensions[3], const double origin[3], const double spacing[3])
 {
   // Clear out the buckets.
-  std::fill_n(buckets, dimensions[0]*dimensions[1]*dimensions[2], 0);
+  std::fill_n(buckets, dimensions[0] * dimensions[1] * dimensions[2], 0);
 
   // Iterate over all the points.
   for (vtkIdType i = 0; i < numPoints; i++)
   {
-    const T *p = points + 3*i;
+    const T* p = points + 3 * i;
 
     // Find the bucket.
     vtkIdType loc[3];
-    loc[0] = static_cast<vtkIdType>(((p[0]-origin[0])/spacing[0]) + 0.5);
-    loc[1] = static_cast<vtkIdType>(((p[1]-origin[1])/spacing[1]) + 0.5);
-    loc[2] = static_cast<vtkIdType>(((p[2]-origin[2])/spacing[2]) + 0.5);
-    if (   (loc[0] < 0) || (loc[0] >= dimensions[0])
-        || (loc[1] < 0) || (loc[1] >= dimensions[1])
-        || (loc[2] < 0) || (loc[2] >= dimensions[2]) )
+    loc[0] = static_cast<vtkIdType>(((p[0] - origin[0]) / spacing[0]) + 0.5);
+    loc[1] = static_cast<vtkIdType>(((p[1] - origin[1]) / spacing[1]) + 0.5);
+    loc[2] = static_cast<vtkIdType>(((p[2] - origin[2]) / spacing[2]) + 0.5);
+    if ((loc[0] < 0) || (loc[0] >= dimensions[0]) || (loc[1] < 0) || (loc[1] >= dimensions[1]) ||
+      (loc[2] < 0) || (loc[2] >= dimensions[2]))
     {
       // Point outside of splatting region.
       continue;
     }
-    vtkIdType bucketId = (  loc[2]*dimensions[0]*dimensions[1]
-                          + loc[1]*dimensions[0]
-                          + loc[0] );
+    vtkIdType bucketId = (loc[2] * dimensions[0] * dimensions[1] + loc[1] * dimensions[0] + loc[0]);
 
     // Increment the bucket.
     buckets[bucketId]++;
@@ -263,33 +231,32 @@ void vtkFastSplatterBucketPoints(const T *points, vtkIdType numPoints,
 
 //-----------------------------------------------------------------------------
 
-template<class T>
-void vtkFastSplatterConvolve(T *splat, const int splatDims[3],
-                             unsigned int *buckets, T *output,
-                             int *numPointsSplatted,
-                             const int imageDims[3])
+template <class T>
+void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buckets, T* output,
+  int* numPointsSplatted, const int imageDims[3])
 {
   int numPoints = 0;
 
   // First, clear out the output image.
-  std::fill_n(output, imageDims[0]*imageDims[1]*imageDims[2],
-                 static_cast<T>(0));
+  std::fill_n(output, imageDims[0] * imageDims[1] * imageDims[2], static_cast<T>(0));
 
   int splatCenter[3];
-  splatCenter[0] = splatDims[0]/2;
-  splatCenter[1] = splatDims[1]/2;
-  splatCenter[2] = splatDims[2]/2;
+  splatCenter[0] = splatDims[0] / 2;
+  splatCenter[1] = splatDims[1] / 2;
+  splatCenter[2] = splatDims[2] / 2;
 
   // Iterate over all entries in buckets and splat anything that is nonzero.
-  unsigned int *b = buckets;
+  unsigned int* b = buckets;
   for (int k = 0; k < imageDims[2]; k++)
   {
     // Figure out how splat projects on image in this slab, taking into
     // account overlap.
     int splatProjMinZ = k - splatCenter[2];
     int splatProjMaxZ = splatProjMinZ + splatDims[2];
-    if (splatProjMinZ < 0) splatProjMinZ = 0;
-    if (splatProjMaxZ > imageDims[2]) splatProjMaxZ = imageDims[2];
+    if (splatProjMinZ < 0)
+      splatProjMinZ = 0;
+    if (splatProjMaxZ > imageDims[2])
+      splatProjMaxZ = imageDims[2];
 
     for (int j = 0; j < imageDims[1]; j++)
     {
@@ -297,8 +264,10 @@ void vtkFastSplatterConvolve(T *splat, const int splatDims[3],
       // account overlap.
       int splatProjMinY = j - splatCenter[1];
       int splatProjMaxY = splatProjMinY + splatDims[1];
-      if (splatProjMinY < 0) splatProjMinY = 0;
-      if (splatProjMaxY > imageDims[1]) splatProjMaxY = imageDims[1];
+      if (splatProjMinY < 0)
+        splatProjMinY = 0;
+      if (splatProjMaxY > imageDims[1])
+        splatProjMaxY = imageDims[1];
 
       for (int i = 0; i < imageDims[0]; i++)
       {
@@ -317,20 +286,22 @@ void vtkFastSplatterConvolve(T *splat, const int splatDims[3],
         // account overlap.
         int splatProjMinX = i - splatCenter[0];
         int splatProjMaxX = splatProjMinX + splatDims[0];
-        if (splatProjMinX < 0) splatProjMinX = 0;
-        if (splatProjMaxX > imageDims[0]) splatProjMaxX = imageDims[0];
+        if (splatProjMinX < 0)
+          splatProjMinX = 0;
+        if (splatProjMaxX > imageDims[0])
+          splatProjMaxX = imageDims[0];
 
         // Do the splat.
         for (int imageZ = splatProjMinZ; imageZ < splatProjMaxZ; imageZ++)
         {
-          int imageZOffset = imageZ*imageDims[0]*imageDims[1];
+          int imageZOffset = imageZ * imageDims[0] * imageDims[1];
           int splatZ = imageZ - k + splatCenter[2];
-          int splatZOffset = splatZ*splatDims[0]*splatDims[1];
+          int splatZOffset = splatZ * splatDims[0] * splatDims[1];
           for (int imageY = splatProjMinY; imageY < splatProjMaxY; imageY++)
           {
-            int imageYOffset = imageZOffset + imageY*imageDims[0];
+            int imageYOffset = imageZOffset + imageY * imageDims[0];
             int splatY = imageY - j + splatCenter[1];
-            int splatYOffset = splatZOffset + splatY*splatDims[0];
+            int splatYOffset = splatZOffset + splatY * splatDims[0];
             for (int imageX = splatProjMinX; imageX < splatProjMaxX; imageX++)
             {
               int imageOffset = imageYOffset + imageX;
@@ -346,47 +317,41 @@ void vtkFastSplatterConvolve(T *splat, const int splatDims[3],
   *numPointsSplatted = numPoints;
 }
 
-
 //-----------------------------------------------------------------------------
 
 // For those of you familiar with the old pipeline, this is equivalent to the
 // Execute method.
-int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector)
+int vtkFastSplatter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->NumberOfPointsSplatted = 0;
 
   // Get the input and output objects.
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkPoints* points = nullptr;
-  if(vtkPointSet* const input =
-    vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+  if (vtkPointSet* const input =
+        vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
   {
     points = input->GetPoints();
   }
-  else if(vtkGraph* const graph =
-    vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+  else if (vtkGraph* const graph =
+             vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
   {
     points = graph->GetPoints();
   }
 
-  vtkInformation *splatInfo = inputVector[1]->GetInformationObject(0);
-  vtkImageData *splatImage
-    = vtkImageData::SafeDownCast(splatInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* splatInfo = inputVector[1]->GetInformationObject(0);
+  vtkImageData* splatImage =
+    vtkImageData::SafeDownCast(splatInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *output
-    = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Figure out the real bounds to use.
-  const double *bounds;
-  if (   (   (this->ModelBounds[0] < this->ModelBounds[1])
-          || (this->OutputDimensions[0] == 1) )
-      && (   (this->ModelBounds[2] < this->ModelBounds[3])
-          || (this->OutputDimensions[1] == 1) )
-      && (   (this->ModelBounds[4] < this->ModelBounds[5])
-          || (this->OutputDimensions[2] == 1) ) )
+  const double* bounds;
+  if (((this->ModelBounds[0] < this->ModelBounds[1]) || (this->OutputDimensions[0] == 1)) &&
+    ((this->ModelBounds[2] < this->ModelBounds[3]) || (this->OutputDimensions[1] == 1)) &&
+    ((this->ModelBounds[4] < this->ModelBounds[5]) || (this->OutputDimensions[2] == 1)))
   {
     bounds = this->ModelBounds;
   }
@@ -396,19 +361,18 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // Compute origin and spacing from bounds
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    this->Origin[i] = bounds[2*i];
+    this->Origin[i] = bounds[2 * i];
     if (this->OutputDimensions[i] > 1)
     {
-      this->Spacing[i] = (  (bounds[2*i+1] - bounds[2*i])
-                          / (this->OutputDimensions[i] - 1) );
+      this->Spacing[i] = ((bounds[2 * i + 1] - bounds[2 * i]) / (this->OutputDimensions[i] - 1));
     }
     else
     {
-      this->Spacing[i] = 2.0 * (bounds[2*i+1] - bounds[2*i]);
+      this->Spacing[i] = 2.0 * (bounds[2 * i + 1] - bounds[2 * i]);
     }
-    if ( this->Spacing[i] <= 0.0 )
+    if (this->Spacing[i] <= 0.0)
     {
       this->Spacing[i] = 1.0;
     }
@@ -420,47 +384,37 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   output->SetOrigin(this->Origin);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
   output->SetSpacing(this->Spacing);
-  output->SetExtent(0, this->OutputDimensions[0] - 1,
-                    0, this->OutputDimensions[1] - 1,
-                    0, this->OutputDimensions[2] - 1);
-  output->AllocateScalars(splatImage->GetScalarType(),
-                          splatImage->GetNumberOfScalarComponents());
+  output->SetExtent(0, this->OutputDimensions[0] - 1, 0, this->OutputDimensions[1] - 1, 0,
+    this->OutputDimensions[2] - 1);
+  output->AllocateScalars(splatImage->GetScalarType(), splatImage->GetNumberOfScalarComponents());
 
   // Set up intermediate buckets image.
   this->Buckets->SetDimensions(this->OutputDimensions);
   this->Buckets->SetOrigin(this->Origin);
   this->Buckets->SetSpacing(this->Spacing);
-  this->Buckets->SetExtent(0, this->OutputDimensions[0] - 1,
-                           0, this->OutputDimensions[1] - 1,
-                           0, this->OutputDimensions[2] - 1);
+  this->Buckets->SetExtent(0, this->OutputDimensions[0] - 1, 0, this->OutputDimensions[1] - 1, 0,
+    this->OutputDimensions[2] - 1);
   this->Buckets->AllocateScalars(VTK_UNSIGNED_INT, 1);
 
   // Get array for buckets.
-  unsigned int *buckets =
-    static_cast<unsigned int *>(this->Buckets->GetScalarPointer());
+  unsigned int* buckets = static_cast<unsigned int*>(this->Buckets->GetScalarPointer());
 
   // Count how many points in the input lie in each pixel of the output image.
-  void *p = points->GetVoidPointer(0);
+  void* p = points->GetVoidPointer(0);
   switch (points->GetDataType())
   {
-    vtkTemplateMacro(vtkFastSplatterBucketPoints(static_cast<VTK_TT *>(p),
-                                                 points->GetNumberOfPoints(),
-                                                 buckets,
-                                                 this->OutputDimensions,
-                                                 this->Origin, this->Spacing));
+    vtkTemplateMacro(vtkFastSplatterBucketPoints(static_cast<VTK_TT*>(p),
+      points->GetNumberOfPoints(), buckets, this->OutputDimensions, this->Origin, this->Spacing));
   }
 
   // Now convolve the splat image with the bucket image.
-  void *splat = splatImage->GetScalarPointer();
-  void *o = output->GetScalarPointer();
+  void* splat = splatImage->GetScalarPointer();
+  void* o = output->GetScalarPointer();
   switch (output->GetScalarType())
   {
-    vtkTemplateMacro(vtkFastSplatterConvolve(static_cast<VTK_TT *>(splat),
-                                             splatImage->GetDimensions(),
-                                             buckets,
-                                             static_cast<VTK_TT *>(o),
-                                             &(this->NumberOfPointsSplatted),
-                                             this->OutputDimensions));
+    vtkTemplateMacro(
+      vtkFastSplatterConvolve(static_cast<VTK_TT*>(splat), splatImage->GetDimensions(), buckets,
+        static_cast<VTK_TT*>(o), &(this->NumberOfPointsSplatted), this->OutputDimensions));
   }
 
   // Do any appropriate limiting.
@@ -471,39 +425,28 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
     case ClampLimit:
       switch (output->GetScalarType())
       {
-        vtkTemplateMacro(vtkFastSplatterClamp(
-                           static_cast<VTK_TT *>(o),
-                           output->GetNumberOfPoints()*
-                           output->GetNumberOfScalarComponents(),
-                           static_cast<VTK_TT>(this->MinValue),
-                           static_cast<VTK_TT>(this->MaxValue)));
+        vtkTemplateMacro(vtkFastSplatterClamp(static_cast<VTK_TT*>(o),
+          output->GetNumberOfPoints() * output->GetNumberOfScalarComponents(),
+          static_cast<VTK_TT>(this->MinValue), static_cast<VTK_TT>(this->MaxValue)));
       }
       break;
     case FreezeScaleLimit:
       switch (output->GetScalarType())
       {
-        vtkTemplateMacro(vtkFastSplatterFrozenScale(
-                           static_cast<VTK_TT *>(o),
-                           output->GetNumberOfScalarComponents(),
-                           output->GetNumberOfPoints(),
-                           static_cast<VTK_TT>(this->MinValue),
-                           static_cast<VTK_TT>(this->MaxValue),
-                           this->LastDataMinValue,
-                           this->LastDataMaxValue));
+        vtkTemplateMacro(
+          vtkFastSplatterFrozenScale(static_cast<VTK_TT*>(o), output->GetNumberOfScalarComponents(),
+            output->GetNumberOfPoints(), static_cast<VTK_TT>(this->MinValue),
+            static_cast<VTK_TT>(this->MaxValue), this->LastDataMinValue, this->LastDataMaxValue));
       }
       break;
 
     case ScaleLimit:
       switch (output->GetScalarType())
       {
-        vtkTemplateMacro(vtkFastSplatterScale(
-                           static_cast<VTK_TT *>(o),
-                           output->GetNumberOfScalarComponents(),
-                           output->GetNumberOfPoints(),
-                           static_cast<VTK_TT>(this->MinValue),
-                           static_cast<VTK_TT>(this->MaxValue),
-                           & this->LastDataMinValue,
-                           & this->LastDataMaxValue));
+        vtkTemplateMacro(
+          vtkFastSplatterScale(static_cast<VTK_TT*>(o), output->GetNumberOfScalarComponents(),
+            output->GetNumberOfPoints(), static_cast<VTK_TT>(this->MinValue),
+            static_cast<VTK_TT>(this->MaxValue), &this->LastDataMinValue, &this->LastDataMaxValue));
       }
       break;
   }

@@ -22,23 +22,22 @@
  *
  * @sa
  * vtkContourLineInterpolator
-*/
+ */
 
 #ifndef vtkBezierContourLineInterpolator_h
 #define vtkBezierContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBezierContourLineInterpolator
-                          : public vtkContourLineInterpolator
+  : public vtkContourLineInterpolator
 {
 public:
-
   /**
    * Instantiate this class.
    */
-  static vtkBezierContourLineInterpolator *New();
+  static vtkBezierContourLineInterpolator* New();
 
   //@{
   /**
@@ -48,9 +47,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
-  int InterpolateLine( vtkRenderer *ren,
-                               vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) override;
+  int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
   //@{
   /**
@@ -85,8 +82,7 @@ public:
    * The node span is returned in a vtkIntArray. The node span returned by
    * this interpolator will be a 2-tuple with a span of 4.
    */
-  void GetSpan(int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep) override;
+  void GetSpan(int nodeIndex, vtkIntArray* nodeIndices, vtkContourRepresentation* rep) override;
 
 protected:
   vtkBezierContourLineInterpolator();
@@ -94,13 +90,13 @@ protected:
 
   void ComputeMidpoint(double p1[3], double p2[3], double mid[3])
   {
-      mid[0] = (p1[0] + p2[0])/2;
-      mid[1] = (p1[1] + p2[1])/2;
-      mid[2] = (p1[2] + p2[2])/2;
+    mid[0] = (p1[0] + p2[0]) / 2;
+    mid[1] = (p1[1] + p2[1]) / 2;
+    mid[2] = (p1[2] + p2[2]) / 2;
   }
 
   double MaximumCurveError;
-  int    MaximumCurveLineSegments;
+  int MaximumCurveLineSegments;
 
 private:
   vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) = delete;

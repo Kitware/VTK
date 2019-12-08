@@ -94,14 +94,11 @@ protected:
   static vtkInformationIntegerKey* DONT_PRUNE();
 
   /// Implementation of the algorithm.
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /// Extract subtree
-  void CopySubTree(vtkDataObjectTreeIterator* loc,
-    vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
+  void CopySubTree(
+    vtkDataObjectTreeIterator* loc, vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
   bool Prune(vtkMultiBlockDataSet* mblock);
   bool Prune(vtkMultiPieceDataSet* mblock);
   bool Prune(vtkDataObject* mblock);
@@ -114,9 +111,8 @@ private:
   void operator=(const vtkExtractBlock&) = delete;
 
   class vtkSet;
-  vtkSet *Indices;
-  vtkSet *ActiveIndices;
-
+  vtkSet* Indices;
+  vtkSet* ActiveIndices;
 };
 
 #endif

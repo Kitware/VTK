@@ -28,13 +28,13 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, Kitware SAS 2012
-*/
+ */
 
 #ifndef vtkXYPlotRepresentation_h
 #define vtkXYPlotRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkXYPlotActor;
 
@@ -42,15 +42,15 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotRepresentation : public vtkBorderRep
 {
 public:
   vtkTypeMacro(vtkXYPlotRepresentation, vtkBorderRepresentation);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
-  static vtkXYPlotRepresentation *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkXYPlotRepresentation* New();
 
   //@{
   /**
    * The prop that is placed in the renderer.
    */
   vtkGetObjectMacro(XYPlotActor, vtkXYPlotActor);
-  virtual void SetXYPlotActor(vtkXYPlotActor *);
+  virtual void SetXYPlotActor(vtkXYPlotActor*);
   //@}
 
   //@{
@@ -60,7 +60,10 @@ public:
   void BuildRepresentation() override;
   void WidgetInteraction(double eventPos[2]) override;
   void GetSize(double size[2]) override
-    {size[0]=2.0; size[1]=2.0;}
+  {
+    size[0] = 2.0;
+    size[1] = 2.0;
+  }
   //@}
 
   //@{
@@ -70,8 +73,8 @@ public:
    */
   virtual int GetVisibility();
   virtual void SetVisibility(int);
-  virtual void GetActors2D(vtkPropCollection *collection);
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  virtual void GetActors2D(vtkPropCollection* collection);
+  virtual void ReleaseGraphicsResources(vtkWindow* window);
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
@@ -109,13 +112,13 @@ public:
    */
   void SetXAxisColor(double r, double g, double b);
   void SetYAxisColor(double r, double g, double b);
-  void SetXTitle( const char* ytitle );
+  void SetXTitle(const char* ytitle);
   char* GetXTitle();
   void SetXRange(double min, double max);
-  void SetYTitle( const char* ytitle );
+  void SetYTitle(const char* ytitle);
   char* GetYTitle();
   void SetYRange(double min, double max);
-  void SetYTitlePosition (int pos);
+  void SetYTitlePosition(int pos);
   int GetYTitlePosition() const;
   void SetXValues(int x);
   //@}
@@ -156,7 +159,7 @@ public:
    */
   void SetBorder(int x);
   void RemoveAllActiveCurves();
-  void AddUserCurvesPoint( double c, double x, double y);
+  void AddUserCurvesPoint(double c, double x, double y);
   void SetLegend(int x);
   void SetLegendBorder(int b);
   void SetLegendBox(int b);
@@ -174,10 +177,11 @@ protected:
   vtkXYPlotRepresentation();
   ~vtkXYPlotRepresentation();
 
-  vtkXYPlotActor *XYPlotActor;
+  vtkXYPlotActor* XYPlotActor;
+
 private:
-  vtkXYPlotRepresentation(const vtkXYPlotRepresentation &) = delete;
-  void operator=(const vtkXYPlotRepresentation &) = delete;
+  vtkXYPlotRepresentation(const vtkXYPlotRepresentation&) = delete;
+  void operator=(const vtkXYPlotRepresentation&) = delete;
 };
 
-#endif //vtkXYPlotRepresentation_h
+#endif // vtkXYPlotRepresentation_h

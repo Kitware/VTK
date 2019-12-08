@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkActor2D.h"
 
-#include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
-#include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
+#include "vtkPropCollection.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkActor2D);
 
-vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
-vtkCxxSetObjectMacro(vtkActor2D,Mapper, vtkMapper2D);
+vtkCxxSetObjectMacro(vtkActor2D, Property, vtkProperty2D);
+vtkCxxSetObjectMacro(vtkActor2D, Mapper, vtkMapper2D);
 
 //----------------------------------------------------------------------------
 // Creates an actor2D with the following defaults:
@@ -72,7 +72,7 @@ vtkActor2D::~vtkActor2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
+void vtkActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   // pass this information onto the mapper
   if (this->Mapper)
@@ -89,15 +89,15 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 
   // Is the viewport's RenderWindow capturing GL2PS-special prop, and does this
   // actor represent text or mathtext?
-  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+  if (vtkRenderer* renderer = vtkRenderer::SafeDownCast(viewport))
   {
-    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
+    if (vtkRenderWindow* renderWindow = renderer->GetRenderWindow())
     {
       if (renderWindow->GetCapturingGL2PSSpecialProps())
       {
         if (this->IsA("vtkTextActor") || this->IsA("vtkTexturedActor2D") ||
-            (this->Mapper && (this->Mapper->IsA("vtkTextMapper") ||
-                              this->Mapper->IsA("vtkLabeledDataMapper"))))
+          (this->Mapper &&
+            (this->Mapper->IsA("vtkTextMapper") || this->Mapper->IsA("vtkLabeledDataMapper"))))
         {
           renderer->CaptureGL2PSSpecialProp(this);
         }
@@ -181,14 +181,14 @@ int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 vtkTypeBool vtkActor2D::HasTranslucentPolygonalGeometry()
 {
   int result;
-  if(this->Mapper)
+  if (this->Mapper)
   {
-    result=this->Mapper->HasTranslucentPolygonalGeometry();
+    result = this->Mapper->HasTranslucentPolygonalGeometry();
   }
   else
   {
     vtkErrorMacro(<< "vtkActor2D::HasTranslucentPolygonalGeometry - No mapper set");
-    result=0;
+    result = 0;
   }
   return result;
 }
@@ -199,15 +199,15 @@ vtkMTimeType vtkActor2D::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  time  = this->PositionCoordinate->GetMTime();
-  mTime = ( time > mTime ? time : mTime );
-  time  = this->Position2Coordinate->GetMTime();
-  mTime = ( time > mTime ? time : mTime );
+  time = this->PositionCoordinate->GetMTime();
+  mTime = (time > mTime ? time : mTime);
+  time = this->Position2Coordinate->GetMTime();
+  mTime = (time > mTime ? time : mTime);
 
-  if ( this->Property != nullptr )
+  if (this->Property != nullptr)
   {
     time = this->Property->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
@@ -218,28 +218,27 @@ vtkMTimeType vtkActor2D::GetMTime()
 void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
 {
   this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
-  this->PositionCoordinate->SetValue(static_cast<float>(XPos),
-                                     static_cast<float>(YPos),0.0);
+  this->PositionCoordinate->SetValue(static_cast<float>(XPos), static_cast<float>(YPos), 0.0);
 }
 
 //----------------------------------------------------------------------------
 void vtkActor2D::SetWidth(double w)
 {
-  double *pos;
+  double* pos;
 
   pos = this->Position2Coordinate->GetValue();
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(w,pos[1]);
+  this->Position2Coordinate->SetValue(w, pos[1]);
 }
 
 //----------------------------------------------------------------------------
 void vtkActor2D::SetHeight(double w)
 {
-  double *pos;
+  double* pos;
 
   pos = this->Position2Coordinate->GetValue();
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(pos[0],w);
+  this->Position2Coordinate->SetValue(pos[0], w);
 }
 
 //----------------------------------------------------------------------------
@@ -257,7 +256,7 @@ double vtkActor2D::GetHeight()
 //----------------------------------------------------------------------------
 // Returns an Prop2D's property2D.  Creates a property if one
 // doesn't already exist.
-vtkProperty2D *vtkActor2D::GetProperty()
+vtkProperty2D* vtkActor2D::GetProperty()
 {
   if (this->Property == nullptr)
   {
@@ -270,16 +269,16 @@ vtkProperty2D *vtkActor2D::GetProperty()
 }
 
 //----------------------------------------------------------------------------
-void vtkActor2D::GetActors2D(vtkPropCollection *ac)
+void vtkActor2D::GetActors2D(vtkPropCollection* ac)
 {
   ac->AddItem(this);
 }
 
 //----------------------------------------------------------------------------
-void vtkActor2D::ShallowCopy(vtkProp *prop)
+void vtkActor2D::ShallowCopy(vtkProp* prop)
 {
-  vtkActor2D *a = vtkActor2D::SafeDownCast(prop);
-  if ( a != nullptr )
+  vtkActor2D* a = vtkActor2D::SafeDownCast(prop);
+  if (a != nullptr)
   {
     this->SetMapper(a->GetMapper());
     this->SetLayerNumber(a->GetLayerNumber());
@@ -295,7 +294,7 @@ void vtkActor2D::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Layer Number: " << this->LayerNumber << "\n";
   os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
@@ -315,4 +314,3 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
     this->Mapper->PrintSelf(os, indent.GetNextIndent());
   }
 }
-

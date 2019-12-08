@@ -22,22 +22,22 @@
  * convert a thin plate spline transform into a grid transform.
  * @sa
  * vtkGridTransform vtkThinPlateSplineTransform vtkAbstractTransform
-*/
+ */
 
 #ifndef vtkTransformToGrid_h
 #define vtkTransformToGrid_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkImageData.h"           // makes things a bit easier
 
 class vtkAbstractTransform;
 
 class VTKFILTERSHYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
 {
 public:
-  static vtkTransformToGrid *New();
-  vtkTypeMacro(vtkTransformToGrid,vtkAlgorithm);
+  static vtkTransformToGrid* New();
+  vtkTypeMacro(vtkTransformToGrid, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -45,48 +45,45 @@ public:
    * Set/Get the transform which will be converted into a grid.
    */
   virtual void SetInput(vtkAbstractTransform*);
-  vtkGetObjectMacro(Input,vtkAbstractTransform);
+  vtkGetObjectMacro(Input, vtkAbstractTransform);
   //@}
 
   //@{
   /**
    * Get/Set the extent of the grid.
    */
-  vtkSetVector6Macro(GridExtent,int);
-  vtkGetVector6Macro(GridExtent,int);
+  vtkSetVector6Macro(GridExtent, int);
+  vtkGetVector6Macro(GridExtent, int);
   //@}
 
   //@{
   /**
    * Get/Set the origin of the grid.
    */
-  vtkSetVector3Macro(GridOrigin,double);
-  vtkGetVector3Macro(GridOrigin,double);
+  vtkSetVector3Macro(GridOrigin, double);
+  vtkGetVector3Macro(GridOrigin, double);
   //@}
 
   //@{
   /**
    * Get/Set the spacing between samples in the grid.
    */
-  vtkSetVector3Macro(GridSpacing,double);
-  vtkGetVector3Macro(GridSpacing,double);
+  vtkSetVector3Macro(GridSpacing, double);
+  vtkGetVector3Macro(GridSpacing, double);
   //@}
 
   //@{
   /**
    * Get/Set the scalar type of the grid.  The default is float.
    */
-  vtkSetMacro(GridScalarType,int);
-  vtkGetMacro(GridScalarType,int);
-  void SetGridScalarTypeToDouble(){this->SetGridScalarType(VTK_DOUBLE);};
-  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_FLOAT);};
-  void SetGridScalarTypeToShort(){this->SetGridScalarType(VTK_SHORT);};
-  void SetGridScalarTypeToUnsignedShort()
-    {this->SetGridScalarType(VTK_UNSIGNED_SHORT);};
-  void SetGridScalarTypeToUnsignedChar()
-    {this->SetGridScalarType(VTK_UNSIGNED_CHAR);};
-  void SetGridScalarTypeToChar()
-    {this->SetGridScalarType(VTK_CHAR);};
+  vtkSetMacro(GridScalarType, int);
+  vtkGetMacro(GridScalarType, int);
+  void SetGridScalarTypeToDouble() { this->SetGridScalarType(VTK_DOUBLE); }
+  void SetGridScalarTypeToFloat() { this->SetGridScalarType(VTK_FLOAT); }
+  void SetGridScalarTypeToShort() { this->SetGridScalarType(VTK_SHORT); }
+  void SetGridScalarTypeToUnsignedShort() { this->SetGridScalarType(VTK_UNSIGNED_SHORT); }
+  void SetGridScalarTypeToUnsignedChar() { this->SetGridScalarType(VTK_UNSIGNED_CHAR); }
+  void SetGridScalarTypeToChar() { this->SetGridScalarType(VTK_CHAR); }
   //@}
 
   //@{
@@ -95,10 +92,16 @@ public:
    * real values:  dx = scale*di + shift.  If the grid is of double type,
    * then scale = 1 and shift = 0.
    */
-  double GetDisplacementScale() {
-    this->UpdateShiftScale(); return this->DisplacementScale; };
-  double GetDisplacementShift() {
-    this->UpdateShiftScale(); return this->DisplacementShift; };
+  double GetDisplacementScale()
+  {
+    this->UpdateShiftScale();
+    return this->DisplacementScale;
+  }
+  double GetDisplacementShift()
+  {
+    this->UpdateShiftScale();
+    return this->DisplacementShift;
+  }
   //@}
 
   /**
@@ -109,19 +112,16 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid() override;
 
-  void RequestInformation (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  void RequestData(vtkInformation *,
-                   vtkInformationVector **, vtkInformationVector *);
+  void RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   /**
    * Internal method to calculate the shift and scale values which
@@ -131,7 +131,7 @@ protected:
 
   vtkMTimeType GetMTime() override;
 
-  vtkAbstractTransform *Input;
+  vtkAbstractTransform* Input;
 
   int GridScalarType;
   int GridExtent[6];

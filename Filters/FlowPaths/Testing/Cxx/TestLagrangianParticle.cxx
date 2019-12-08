@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkLagrangianParticle.h"
 
-#include "vtkStaticCellLocator.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStaticCellLocator.h"
 
 #include <iostream>
 
@@ -29,15 +29,15 @@ int TestLagrangianParticle(int, char*[])
 
   vtkNew<vtkDoubleArray> vel;
   vel->SetNumberOfComponents(3);
-  double velTmp[3] = {17, 17, 17};
+  double velTmp[3] = { 17, 17, 17 };
   vel->InsertNextTuple(velTmp);
 
   vtkNew<vtkPointData> pd;
   pd->AddArray(vel);
   vtkIdType particleCounter = 0;
 
-  vtkLagrangianParticle* part = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd, 8, 3);
+  vtkLagrangianParticle* part =
+    new vtkLagrangianParticle(nvar, seedId, particleCounter, seedId, 0, pd, 8, 3);
   particleCounter++;
   if (nvar != part->GetNumberOfVariables())
   {
@@ -140,8 +140,8 @@ int TestLagrangianParticle(int, char*[])
   {
     if (x[i] != i || x2[i] != i || x3[i] != i)
     {
-      std::cerr << "Incorrect equation variables: " << x[i] << " " << x2[i]
-        << " "  << x3[i] << " " << i << std::endl;
+      std::cerr << "Incorrect equation variables: " << x[i] << " " << x2[i] << " " << x3[i] << " "
+                << i << std::endl;
       delete part;
       delete part2;
       delete part3;
@@ -174,9 +174,8 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (part->GetNumberOfSteps() != 1 ||
-      part2->GetNumberOfSteps() != 1 ||
-      part3->GetNumberOfSteps() != 1)
+  if (part->GetNumberOfSteps() != 1 || part2->GetNumberOfSteps() != 1 ||
+    part3->GetNumberOfSteps() != 1)
   {
     std::cerr << "Incorrect Number of step" << std::endl;
     delete part;
@@ -185,20 +184,17 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (part->GetSeedId() != seedId ||
-      part2->GetSeedId() != seedId ||
-      part3->GetSeedId() != seedId)
+  if (part->GetSeedId() != seedId || part2->GetSeedId() != seedId || part3->GetSeedId() != seedId)
   {
-    std::cerr << "Incorrect SeedId : " << part->GetSeedId() << " "
-      << part2->GetSeedId() << " " << part3->GetSeedId() << std::endl;
+    std::cerr << "Incorrect SeedId : " << part->GetSeedId() << " " << part2->GetSeedId() << " "
+              << part3->GetSeedId() << std::endl;
     delete part;
     delete part2;
     delete part3;
     return EXIT_FAILURE;
   }
 
-  if (part->GetSeedArrayTupleIndex() != seedId ||
-    part2->GetSeedArrayTupleIndex() != seedId + 1 ||
+  if (part->GetSeedArrayTupleIndex() != seedId || part2->GetSeedArrayTupleIndex() != seedId + 1 ||
     part3->GetSeedArrayTupleIndex() != seedId + 1)
   {
     std::cerr << "Incorrect SeedArrayTupleIndex" << std::endl;
@@ -216,11 +212,10 @@ int TestLagrangianParticle(int, char*[])
     delete part3;
     return EXIT_FAILURE;
   }
-  if (part2->GetId() != 1 ||
-      part3->GetId() != 1)
+  if (part2->GetId() != 1 || part3->GetId() != 1)
   {
-    std::cerr << "Incorrect Id in part2 or part3: " << part2->GetId() << " "
-      << part3->GetId() << std::endl;
+    std::cerr << "Incorrect Id in part2 or part3: " << part2->GetId() << " " << part3->GetId()
+              << std::endl;
     delete part;
     delete part2;
     delete part3;
@@ -245,19 +240,16 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (part2->GetParentId() != 0 ||
-      part3->GetParentId() != 0)
+  if (part2->GetParentId() != 0 || part3->GetParentId() != 0)
   {
-    std::cerr << "Incorrect Parent Id in part2 or part3" << part2->GetParentId()
-      << " " << part3->GetParentId() << std::endl;
+    std::cerr << "Incorrect Parent Id in part2 or part3" << part2->GetParentId() << " "
+              << part3->GetParentId() << std::endl;
     delete part;
     delete part2;
     delete part3;
     return EXIT_FAILURE;
   }
-  if (part->GetSeedData() != pd ||
-    part2->GetSeedData() != pd ||
-    part3->GetSeedData() != pd)
+  if (part->GetSeedData() != pd || part2->GetSeedData() != pd || part3->GetSeedData() != pd)
   {
     std::cerr << "Incorrect Seed data " << std::endl;
     delete part;
@@ -265,8 +257,8 @@ int TestLagrangianParticle(int, char*[])
   }
   if (pd->GetArray(0)->GetTuple(1)[0] != 17)
   {
-    std::cerr << "Incorrect Value in Particle data :"
-      << pd->GetArray(0)->GetTuple(1)[0] << " != 17" << std::endl;
+    std::cerr << "Incorrect Value in Particle data :" << pd->GetArray(0)->GetTuple(1)[0] << " != 17"
+              << std::endl;
     delete part;
     delete part2;
     delete part3;
@@ -277,7 +269,8 @@ int TestLagrangianParticle(int, char*[])
   vtkNew<vtkPolyData> poly;
   int cellId = 17;
   part->SetLastCell(locator, poly, cellId);
-  if (part->GetLastLocator() != locator || part->GetLastDataSet() != poly || part->GetLastCellId() != cellId)
+  if (part->GetLastLocator() != locator || part->GetLastDataSet() != poly ||
+    part->GetLastCellId() != cellId)
   {
     std::cerr << "Incorrect LastCellId or LastDataSet or LastLocator" << std::endl;
     delete part;
@@ -287,8 +280,7 @@ int TestLagrangianParticle(int, char*[])
   }
 
   part->SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_SURF_TERMINATED);
-  if (part->GetTermination() !=
-    vtkLagrangianParticle::PARTICLE_TERMINATION_SURF_TERMINATED)
+  if (part->GetTermination() != vtkLagrangianParticle::PARTICLE_TERMINATION_SURF_TERMINATED)
   {
     std::cerr << "Incorrect Termination" << std::endl;
     delete part;
@@ -298,8 +290,7 @@ int TestLagrangianParticle(int, char*[])
   }
 
   part->SetInteraction(vtkLagrangianParticle::SURFACE_INTERACTION_TERMINATED);
-  if (part->GetInteraction() !=
-    vtkLagrangianParticle::SURFACE_INTERACTION_TERMINATED)
+  if (part->GetInteraction() != vtkLagrangianParticle::SURFACE_INTERACTION_TERMINATED)
   {
     std::cerr << "Incorrect Interaction" << std::endl;
     delete part;
@@ -308,21 +299,18 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (part->GetIntegrationTime() != 2.13 ||
-    part2->GetIntegrationTime() != 2.13 ||
+  if (part->GetIntegrationTime() != 2.13 || part2->GetIntegrationTime() != 2.13 ||
     part3->GetIntegrationTime() != 2.13)
   {
-    std::cerr << "Incorrect Step Time or Integration Time: "
-      << part->GetIntegrationTime() << " " <<  part2->GetIntegrationTime()
-      << " " << part3->GetIntegrationTime() << std::endl;
+    std::cerr << "Incorrect Step Time or Integration Time: " << part->GetIntegrationTime() << " "
+              << part2->GetIntegrationTime() << " " << part3->GetIntegrationTime() << std::endl;
     delete part;
     delete part2;
     delete part3;
     return EXIT_FAILURE;
   }
 
-  if (part->GetPrevIntegrationTime() != 0 ||
-    part2->GetPrevIntegrationTime() != 0 ||
+  if (part->GetPrevIntegrationTime() != 0 || part2->GetPrevIntegrationTime() != 0 ||
     part3->GetPrevIntegrationTime() != 0)
   {
     std::cerr << "Incorrect Prev Integration Time" << std::endl;
@@ -379,24 +367,24 @@ int TestLagrangianParticle(int, char*[])
   delete part3;
 
   particleCounter = 0;
-  vtkLagrangianParticle* part4 = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd, 8, 17);
+  vtkLagrangianParticle* part4 =
+    new vtkLagrangianParticle(nvar, seedId, particleCounter, seedId, 0, pd, 8, 17);
   particleCounter++;
-  vtkLagrangianParticle* part5 = vtkLagrangianParticle::NewInstance(nvar, seedId,
-    particleCounter, seedId, 0.17, pd, 8, 7, 17, 0.13);
+  vtkLagrangianParticle* part5 = vtkLagrangianParticle::NewInstance(
+    nvar, seedId, particleCounter, seedId, 0.17, pd, 8, 7, 17, 0.13);
   particleCounter++;
   if (part4->GetId() != 0)
   {
-    std::cerr << "Incorrect Id in part4 : " << part4->GetId()
-      << ". Particle Id problems." << std::endl;
+    std::cerr << "Incorrect Id in part4 : " << part4->GetId() << ". Particle Id problems."
+              << std::endl;
     delete part4;
     delete part5;
     return EXIT_FAILURE;
   }
   if (part5->GetId() != 1)
   {
-    std::cerr << "Incorrect Id in part5 : " << part5->GetId()
-      << ". Particle Id problems." << std::endl;
+    std::cerr << "Incorrect Id in part5 : " << part5->GetId() << ". Particle Id problems."
+              << std::endl;
     delete part4;
     delete part5;
     return EXIT_FAILURE;

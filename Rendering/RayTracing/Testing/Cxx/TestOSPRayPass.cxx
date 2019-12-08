@@ -20,54 +20,55 @@
 //              In interactive mode it responds to the keys listed
 //              vtkOSPRayTestInteractor.h
 
-//TODO: dragon.ply crashes, and removing normals is black (ADS 0..255 instead of 0..1)
+// TODO: dragon.ply crashes, and removing normals is black (ADS 0..255 instead of 0..1)
 
 #include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkPLYReader.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 #include "vtkOSPRayTestInteractor.h"
 
 int TestOSPRayPass(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkSmartPointer<vtkPLYReader> polysource = vtkSmartPointer<vtkPLYReader>::New();
   polysource->SetFileName(fileName);
 
-  //TODO: ospray acts strangely without these such that Diff and Spec are not 0..255 instead of 0..1
+  // TODO: ospray acts strangely without these such that Diff and Spec are not 0..255 instead of
+  // 0..1
   vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
   normals->SetInputConnection(polysource->GetOutputPort());
-  //normals->ComputePointNormalsOn();
-  //normals->ComputeCellNormalsOff();
+  // normals->ComputePointNormalsOn();
+  // normals->ComputeCellNormalsOff();
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(normals->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renderer->SetBackground(0.1,0.1,1.0);
-  renWin->SetSize(400,400);
+  renderer->SetBackground(0.1, 0.1, 1.0);
+  renWin->SetSize(400, 400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
 
   for (int i = 0; i < argc; ++i)
   {
@@ -78,9 +79,9 @@ int TestOSPRayPass(int argc, char* argv[])
     }
   }
 
-  for (int i = 1; i<10; i++)
+  for (int i = 1; i < 10; i++)
   {
-    if (i%2)
+    if (i % 2)
     {
       cerr << "Render via OSPRAY" << endl;
       renderer->SetPass(ospray);
@@ -93,8 +94,7 @@ int TestOSPRayPass(int argc, char* argv[])
     renWin->Render();
   }
 
-  vtkSmartPointer<vtkOSPRayTestInteractor> style =
-    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  vtkSmartPointer<vtkOSPRayTestInteractor> style = vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

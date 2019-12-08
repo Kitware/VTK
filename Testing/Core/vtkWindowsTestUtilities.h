@@ -19,13 +19,12 @@
 #define VTK_WINDOWS_TEST_UTILITIES
 
 #if defined(VTK_COMPILER_MSVC) && defined(WIN32)
-#include <windows.h>
 #include <sstream>
+#include <windows.h>
 
-inline
-LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS * ExceptionInfo)
+inline LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS* ExceptionInfo)
 {
-  switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
+  switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
   {
     case EXCEPTION_ACCESS_VIOLATION:
       vtkLog(ERROR, << "Error: EXCEPTION_ACCESS_VIOLATION\n");
@@ -92,8 +91,7 @@ LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS * Excepti
       break;
   }
 
-  std::string stack =
-    vtksys::SystemInformation::GetProgramStack(0, 0);
+  std::string stack = vtksys::SystemInformation::GetProgramStack(0, 0);
 
   vtkLog(ERROR, << stack);
 
@@ -105,8 +103,7 @@ inline void vtkWindowsTestUtilitiesSetupForTesting(void)
   SetUnhandledExceptionFilter(vtkWindowsTestUlititiesExceptionHandler);
 }
 #else
-inline
-void vtkWindowsTestUtilitiesSetupForTesting(void)
+inline void vtkWindowsTestUtilitiesSetupForTesting(void)
 {
   return;
 }

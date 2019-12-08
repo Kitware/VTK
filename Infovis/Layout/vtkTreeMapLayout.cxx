@@ -54,10 +54,8 @@ vtkTreeMapLayout::~vtkTreeMapLayout()
 
 vtkCxxSetObjectMacro(vtkTreeMapLayout, LayoutStrategy, vtkTreeMapLayoutStrategy);
 
-int vtkTreeMapLayout::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTreeMapLayout::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (this->LayoutStrategy == nullptr)
   {
@@ -70,29 +68,27 @@ int vtkTreeMapLayout::RequestData(
     return 0;
   }
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Storing the inputTree and outputTree handles
-  vtkTree *inputTree = vtkTree::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *outputTree = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* inputTree = vtkTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* outputTree = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy the input into the output
   outputTree->ShallowCopy(inputTree);
 
   // Add the 4-tuple array that will store the min,max xy coords
-  vtkFloatArray *coordsArray = vtkFloatArray::New();
+  vtkFloatArray* coordsArray = vtkFloatArray::New();
   coordsArray->SetName(this->RectanglesFieldName);
   coordsArray->SetNumberOfComponents(4);
   coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
-  vtkDataSetAttributes *data = outputTree->GetVertexData();
+  vtkDataSetAttributes* data = outputTree->GetVertexData();
   data->AddArray(coordsArray);
   coordsArray->Delete();
 
   // Add the 4-tuple array that will store the min,max xy coords
-  vtkDataArray *sizeArray = this->GetInputArrayToProcess(0, inputTree);
+  vtkDataArray* sizeArray = this->GetInputArrayToProcess(0, inputTree);
   if (!sizeArray)
   {
     vtkErrorMacro("Size array not found.");
@@ -108,7 +104,8 @@ int vtkTreeMapLayout::RequestData(
 void vtkTreeMapLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RectanglesFieldName: " << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
+  os << indent << "RectanglesFieldName: "
+     << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
   os << indent << "LayoutStrategy: " << (this->LayoutStrategy ? "" : "(none)") << endl;
   if (this->LayoutStrategy)
   {
@@ -116,7 +113,7 @@ void vtkTreeMapLayout::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
+vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float* binfo)
 {
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
@@ -126,9 +123,8 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     return -1;
   }
 
-  //Get the four tuple array for the points
-  vtkDataArray *array = otree->GetVertexData()->
-    GetArray(this->RectanglesFieldName);
+  // Get the four tuple array for the points
+  vtkDataArray* array = otree->GetVertexData()->GetArray(this->RectanglesFieldName);
   if (!array)
   {
     // vtkErrorMacro(<< "Output Tree does not have box information.");
@@ -139,11 +135,11 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
   float blimits[4];
 
   vtkIdType vertex = otree->GetRoot();
-  vtkFloatArray *boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
+  vtkFloatArray* boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
   // Now try to find the vertex that contains the point
   boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
-  if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
-      (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
+  if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) || (pnt[1] < blimits[2]) ||
+    (pnt[1] > blimits[3]))
   {
     // Point is not in the tree at all
     return -1;
@@ -160,14 +156,14 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     binfo[3] = blimits[3];
   }
 
-  vtkAdjacentVertexIterator *it = vtkAdjacentVertexIterator::New();
+  vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
   otree->GetAdjacentVertices(vertex, it);
   while (it->HasNext())
   {
     child = it->Next();
     boxInfo->GetTypedTuple(child, blimits); // Get the extents of the child
-    if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
-            (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
+    if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) || (pnt[1] < blimits[2]) ||
+      (pnt[1] > blimits[3]))
     {
       continue;
     }
@@ -181,7 +177,7 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
   return vertex;
 }
 
-void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)
+void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float* binfo)
 {
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
@@ -191,16 +187,15 @@ void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)
     return;
   }
 
-  //Get the four tuple array for the points
-  vtkDataArray *array = otree->GetVertexData()->
-    GetArray(this->RectanglesFieldName);
+  // Get the four tuple array for the points
+  vtkDataArray* array = otree->GetVertexData()->GetArray(this->RectanglesFieldName);
   if (!array)
   {
     // vtkErrorMacro(<< "Output Tree does not have box information.");
     return;
   }
 
-  vtkFloatArray *boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
+  vtkFloatArray* boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
   boxInfo->GetTypedTuple(id, binfo);
 }
 
@@ -216,5 +211,3 @@ vtkMTimeType vtkTreeMapLayout::GetMTime()
   }
   return mTime;
 }
-
-

@@ -26,13 +26,13 @@
  *
  * @sa
  * vtkConvexPointSet vtkHexahedron vtkTetra vtkVoxel vtkWedge
-*/
+ */
 
 #ifndef vtkPyramid_h
 #define vtkPyramid_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkLine;
 class vtkQuad;
@@ -43,45 +43,41 @@ class vtkIncrementalPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkPyramid : public vtkCell3D
 {
 public:
-  static vtkPyramid *New();
-  vtkTypeMacro(vtkPyramid,vtkCell3D);
+  static vtkPyramid* New();
+  vtkTypeMacro(vtkPyramid, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) override;
-  void GetFacePoints(int faceId, int* &pts) override;
+  void GetEdgePoints(int edgeId, int*& pts) override;
+  void GetFacePoints(int faceId, int*& pts) override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_PYRAMID;}
-  int GetCellDimension() override {return 3;}
-  int GetNumberOfEdges() override {return 8;}
-  int GetNumberOfFaces() override {return 5;}
-  vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int faceId) override;
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
-  void Contour(double value, vtkDataArray *cellScalars,
-               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-                       int& subId, double pcoords[3],
-                       double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
-                        double *weights) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                   int dim, double *derivs) override;
-  double *GetParametricCoords() override;
+  int GetCellType() override { return VTK_PYRAMID; }
+  int GetCellDimension() override { return 3; }
+  int GetNumberOfEdges() override { return 8; }
+  int GetNumberOfFaces() override { return 5; }
+  vtkCell* GetEdge(int edgeId) override;
+  vtkCell* GetFace(int faceId) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
+    double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  double* GetParametricCoords() override;
   //@}
 
   /**
@@ -113,32 +109,32 @@ public:
    */
   void InterpolateFunctions(const double pcoords[3], double weights[5]) override
   {
-    vtkPyramid::InterpolationFunctions(pcoords,weights);
+    vtkPyramid::InterpolationFunctions(pcoords, weights);
   }
   void InterpolateDerivs(const double pcoords[3], double derivs[15]) override
   {
-    vtkPyramid::InterpolationDerivs(pcoords,derivs);
+    vtkPyramid::InterpolationDerivs(pcoords, derivs);
   }
   //@}
 
-  int JacobianInverse(const double pcoords[3], double **inverse, double derivs[15]);
+  int JacobianInverse(const double pcoords[3], double** inverse, double derivs[15]);
 
   //@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
-  static int *GetFaceArray(int faceId) VTK_SIZEHINT(4);
+  static int* GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
+  static int* GetFaceArray(int faceId) VTK_SIZEHINT(4);
   //@}
 
 protected:
   vtkPyramid();
   ~vtkPyramid() override;
 
-  vtkLine *Line;
-  vtkTriangle *Triangle;
-  vtkQuad *Quad;
+  vtkLine* Line;
+  vtkTriangle* Triangle;
+  vtkQuad* Quad;
 
 private:
   vtkPyramid(const vtkPyramid&) = delete;

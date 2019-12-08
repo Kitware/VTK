@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkDataArrayCollectionIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayCollection.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
@@ -28,19 +28,18 @@ vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator() = default;
 //----------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::SetCollection(vtkCollection* c)
 {
-  if(c)
+  if (c)
   {
     this->Superclass::SetCollection(vtkDataArrayCollection::SafeDownCast(c));
-    if(!this->Collection)
+    if (!this->Collection)
     {
-      vtkErrorMacro("vtkDataArrayCollectionIterator cannot traverse a "
-                    << c->GetClassName());
+      vtkErrorMacro("vtkDataArrayCollectionIterator cannot traverse a " << c->GetClassName());
     }
   }
   else

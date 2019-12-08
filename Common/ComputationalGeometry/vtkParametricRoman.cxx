@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkParametricRoman.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricRoman);
 
 //----------------------------------------------------------------------------
-vtkParametricRoman::vtkParametricRoman():
-  Radius(1)
+vtkParametricRoman::vtkParametricRoman()
+  : Radius(1)
 {
   this->MinimumU = 0;
   this->MaximumU = vtkMath::Pi();
@@ -39,13 +39,12 @@ vtkParametricRoman::vtkParametricRoman():
 vtkParametricRoman::~vtkParametricRoman() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3],
-                                  double Duvw[9])
+void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double c2u = cos(2.0 * u);
@@ -63,9 +62,9 @@ void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = a2 * su * s2v / 2.0;
   Pt[2] = a2 * cu * s2v / 2.0;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = a2 * cv2 * c2u;
-  Du[1] =  a2 * cu * s2v / 2.0;
+  Du[1] = a2 * cu * s2v / 2.0;
   Du[2] = -a2 * su * s2v / 2.0;
   Dv[0] = -a2 * cv * s2u * sv;
   Dv[1] = a2 * su * c2v;
@@ -73,9 +72,8 @@ void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricRoman::EvaluateScalar(double* vtkNotUsed(uv[3]),
-    double* vtkNotUsed(Pt[3]),
-    double* vtkNotUsed(Duv[9]))
+double vtkParametricRoman::EvaluateScalar(
+  double* vtkNotUsed(uv[3]), double* vtkNotUsed(Pt[3]), double* vtkNotUsed(Duv[9]))
 {
   return 0;
 }
@@ -86,5 +84,4 @@ void vtkParametricRoman::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
-
 }

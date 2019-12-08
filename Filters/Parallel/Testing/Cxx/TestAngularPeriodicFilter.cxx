@@ -14,25 +14,24 @@
 #include "vtkActor.h"
 #include "vtkAngularPeriodicFilter.h"
 #include "vtkCamera.h"
-#include "vtkGeometryFilter.h"
 #include "vtkCompositePolyDataMapper.h"
+#include "vtkGeometryFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPointSource.h"
 #include "vtkPointData.h"
+#include "vtkPointSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamTracer.h"
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
-
 
 int TestAngularPeriodicFilter(int argc, char* argv[])
 {
@@ -123,7 +122,8 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(multiBlockActor);
   renderer->AddActor(actor);
-  renderer->GetActiveCamera()->SetPosition(3.97282457351685, -0.0373859405517578, -59.3025624847687);
+  renderer->GetActiveCamera()->SetPosition(
+    3.97282457351685, -0.0373859405517578, -59.3025624847687);
   renderer->ResetCamera();
   renderer->SetBackground(1., 1., 1.);
 

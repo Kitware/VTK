@@ -71,9 +71,7 @@ vtkMTimeType vtkRowQueryToTable::GetMTime()
   return mTime;
 }
 
-int vtkRowQueryToTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** vtkNotUsed(inputVector),
+int vtkRowQueryToTable::RequestData(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   if (this->Query == nullptr)
@@ -150,10 +148,10 @@ int vtkRowQueryToTable::RequestData(
 
     // Update progress every 100 rows
     numRows++;
-    if ((numRows%100)==0)
+    if ((numRows % 100) == 0)
     {
       // 1% for every 100 rows, and then 'spin around'
-      progressGuess = ((numRows/100)%100)*.01;
+      progressGuess = ((numRows / 100) % 100) * .01;
       this->UpdateProgress(progressGuess);
     }
   }
@@ -161,5 +159,3 @@ int vtkRowQueryToTable::RequestData(
 
   return 1;
 }
-
-

@@ -27,7 +27,10 @@
 #define MAX_COLLECTABLE_NUMBER_OF_GRIDS 1000
 
 template <class T>
-T vtkMAX(T a, T b) { return (a>b? a : b); }
+T vtkMAX(T a, T b)
+{
+  return (a > b ? a : b);
+}
 
 using namespace xdmf2;
 
@@ -44,7 +47,7 @@ vtkXdmfDocument::vtkXdmfDocument()
 vtkXdmfDocument::~vtkXdmfDocument()
 {
   delete this->ActiveDomain;
-  delete [] this->LastReadContents;
+  delete[] this->LastReadContents;
 }
 
 //----------------------------------------------------------------------------
@@ -64,7 +67,7 @@ bool vtkXdmfDocument::Parse(const char* xmffilename)
   delete this->ActiveDomain;
   this->ActiveDomain = 0;
 
-  delete [] this->LastReadContents;
+  delete[] this->LastReadContents;
   this->LastReadContents = 0;
   this->LastReadContentsLength = 0;
   this->LastReadFilename = std::string();
@@ -75,9 +78,8 @@ bool vtkXdmfDocument::Parse(const char* xmffilename)
     return false;
   }
 
-  //Tell the parser what the working directory is.
-  std::string directory =
-    vtksys::SystemTools::GetFilenamePath(xmffilename) + "/";
+  // Tell the parser what the working directory is.
+  std::string directory = vtksys::SystemTools::GetFilenamePath(xmffilename) + "/";
   if (directory == "/")
   {
     directory = vtksys::SystemTools::GetCurrentWorkingDirectory() + "/";
@@ -111,11 +113,11 @@ bool vtkXdmfDocument::ParseString(const char* xmfdata, size_t length)
   this->LastReadContentsLength = 0;
   this->LastReadFilename = std::string();
 
-  this->LastReadContents = new char[length+1];
+  this->LastReadContents = new char[length + 1];
   this->LastReadContentsLength = length;
 
   memcpy(this->LastReadContents, xmfdata, length);
-  this->LastReadContents[length]=0;
+  this->LastReadContents[length] = 0;
 
   this->XMLDOM.SetInputFileName(0);
   if (!this->XMLDOM.Parse(this->LastReadContents))
@@ -155,7 +157,7 @@ void vtkXdmfDocument::UpdateDomains()
 //----------------------------------------------------------------------------
 bool vtkXdmfDocument::SetActiveDomain(const char* domainname)
 {
-  for (int cc=0; cc < static_cast<int>(this->Domains.size()); cc++)
+  for (int cc = 0; cc < static_cast<int>(this->Domains.size()); cc++)
   {
     if (this->Domains[cc] == domainname)
     {
@@ -177,7 +179,7 @@ bool vtkXdmfDocument::SetActiveDomain(int index)
   delete this->ActiveDomain;
   this->ActiveDomain = 0;
 
-  vtkXdmfDomain *domain = new vtkXdmfDomain(&this->XMLDOM, index);
+  vtkXdmfDomain* domain = new vtkXdmfDomain(&this->XMLDOM, index);
   if (!domain->IsValid())
   {
     delete domain;
@@ -216,10 +218,10 @@ vtkXdmfDomain::vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index)
 
   // Allocate XdmfGrid instances for each of the grids in this domain.
   this->NumberOfGrids = this->XMLDOM->FindNumberOfElements("Grid", this->XMLDomain);
-  this->XMFGrids = new XdmfGrid[this->NumberOfGrids+1];
+  this->XMFGrids = new XdmfGrid[this->NumberOfGrids + 1];
 
   XdmfXmlNode xmlGrid = this->XMLDOM->FindElement("Grid", 0, this->XMLDomain);
-  XdmfInt64 cc=0;
+  XdmfInt64 cc = 0;
   while (xmlGrid)
   {
     this->XMFGrids[cc].SetDOM(this->XMLDOM);
@@ -244,7 +246,7 @@ vtkXdmfDomain::vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index)
 vtkXdmfDomain::~vtkXdmfDomain()
 {
   // free the XdmfGrid allocated.
-  delete [] this->XMFGrids;
+  delete[] this->XMFGrids;
   this->XMFGrids = nullptr;
   this->SIL->Delete();
   this->SIL = 0;
@@ -293,21 +295,20 @@ int vtkXdmfDomain::GetVTKDataType(XdmfGrid* xmfGrid)
     return this->GetVTKDataType(xmfGrid->GetChild(0));
   }
 
-  if ( (gridType & XDMF_GRID_COLLECTION) || (gridType & XDMF_GRID_TREE) )
+  if ((gridType & XDMF_GRID_COLLECTION) || (gridType & XDMF_GRID_TREE))
   {
     return VTK_MULTIBLOCK_DATA_SET;
   }
-  if (xmfGrid->GetTopology()->GetClass() == XDMF_UNSTRUCTURED )
+  if (xmfGrid->GetTopology()->GetClass() == XDMF_UNSTRUCTURED)
   {
     return VTK_UNSTRUCTURED_GRID;
   }
   XdmfInt32 topologyType = xmfGrid->GetTopology()->GetTopologyType();
-  if (topologyType == XDMF_2DSMESH || topologyType == XDMF_3DSMESH )
+  if (topologyType == XDMF_2DSMESH || topologyType == XDMF_3DSMESH)
   {
     return VTK_STRUCTURED_GRID;
   }
-  else if (topologyType == XDMF_2DCORECTMESH ||
-    topologyType == XDMF_3DCORECTMESH)
+  else if (topologyType == XDMF_2DCORECTMESH || topologyType == XDMF_3DCORECTMESH)
   {
 #ifdef USE_IMAGE_DATA
     return VTK_IMAGE_DATA;
@@ -361,7 +362,7 @@ XdmfGrid* vtkXdmfDomain::GetGrid(XdmfGrid* xmfGrid, double time)
   if ((gridType & XDMF_GRID_COLLECTION) &&
     xmfGrid->GetCollectionType() == XDMF_GRID_COLLECTION_TEMPORAL)
   {
-    for (XdmfInt32 cc=0; cc < xmfGrid->GetNumberOfChildren(); cc++)
+    for (XdmfInt32 cc = 0; cc < xmfGrid->GetNumberOfChildren(); cc++)
     {
       XdmfGrid* child = xmfGrid->GetChild(cc);
       if (child && child->GetTime()->IsValid(time, time))
@@ -372,7 +373,7 @@ XdmfGrid* vtkXdmfDomain::GetGrid(XdmfGrid* xmfGrid, double time)
 
     // It's possible that user has not specified a <Time /> element at all. In
     // that case, try to locate the first grid with no time value set.
-    for (XdmfInt32 cc=0; cc < xmfGrid->GetNumberOfChildren(); cc++)
+    for (XdmfInt32 cc = 0; cc < xmfGrid->GetNumberOfChildren(); cc++)
     {
       XdmfGrid* child = xmfGrid->GetChild(cc);
       if (child && child->GetTime()->GetTimeType() == XDMF_TIME_UNSET)
@@ -393,11 +394,11 @@ bool vtkXdmfDomain::IsStructured(XdmfGrid* xmfGrid)
 {
   switch (this->GetVTKDataType(xmfGrid))
   {
-  case VTK_IMAGE_DATA:
-  case VTK_UNIFORM_GRID:
-  case VTK_RECTILINEAR_GRID:
-  case VTK_STRUCTURED_GRID:
-    return true;
+    case VTK_IMAGE_DATA:
+    case VTK_UNIFORM_GRID:
+    case VTK_RECTILINEAR_GRID:
+    case VTK_STRUCTURED_GRID:
+      return true;
   }
 
   return false;
@@ -417,9 +418,9 @@ bool vtkXdmfDomain::GetWholeExtent(XdmfGrid* xmfGrid, int extents[6])
   XdmfDataDesc* xmfDataDesc = xmfGrid->GetTopology()->GetShapeDesc();
   XdmfInt32 num_of_dims = xmfDataDesc->GetShape(dimensions);
   // clear out un-filled dimensions.
-  for (int cc=num_of_dims; cc < 3; cc++) // only need to until the 3rd dimension
-                                         // since we don't care about any higher
-                                         // dimensions yet.
+  for (int cc = num_of_dims; cc < 3; cc++) // only need to until the 3rd dimension
+                                           // since we don't care about any higher
+                                           // dimensions yet.
   {
     dimensions[cc] = 1;
   }
@@ -432,8 +433,7 @@ bool vtkXdmfDomain::GetWholeExtent(XdmfGrid* xmfGrid, int extents[6])
 }
 
 //----------------------------------------------------------------------------
-bool vtkXdmfDomain::GetOriginAndSpacing(XdmfGrid* xmfGrid,
-  double origin[3], double spacing[3])
+bool vtkXdmfDomain::GetOriginAndSpacing(XdmfGrid* xmfGrid, double origin[3], double spacing[3])
 {
   if (xmfGrid->GetTopology()->GetTopologyType() != XDMF_2DCORECTMESH &&
     xmfGrid->GetTopology()->GetTopologyType() != XDMF_3DCORECTMESH)
@@ -441,13 +441,13 @@ bool vtkXdmfDomain::GetOriginAndSpacing(XdmfGrid* xmfGrid,
     return false;
   }
 
-  XdmfGeometry *xmfGeometry = xmfGrid->GetGeometry();
-  if (xmfGeometry->GetGeometryType() == XDMF_GEOMETRY_ORIGIN_DXDYDZ )
+  XdmfGeometry* xmfGeometry = xmfGrid->GetGeometry();
+  if (xmfGeometry->GetGeometryType() == XDMF_GEOMETRY_ORIGIN_DXDYDZ)
   {
     // Update geometry so that origin and spacing are read
     xmfGeometry->Update(); // read heavy-data for the geometry.
-    XdmfFloat64 *xmfOrigin = xmfGeometry->GetOrigin();
-    XdmfFloat64 *xmfSpacing = xmfGeometry->GetDxDyDz();
+    XdmfFloat64* xmfOrigin = xmfGeometry->GetOrigin();
+    XdmfFloat64* xmfSpacing = xmfGeometry->GetDxDyDz();
     origin[0] = xmfOrigin[2];
     origin[1] = xmfOrigin[1];
     origin[2] = xmfOrigin[0];
@@ -461,8 +461,8 @@ bool vtkXdmfDomain::GetOriginAndSpacing(XdmfGrid* xmfGrid,
   {
     // Update geometry so that origin and spacing are read
     xmfGeometry->Update(); // read heavy-data for the geometry.
-    XdmfFloat64 *xmfOrigin = xmfGeometry->GetOrigin();
-    XdmfFloat64 *xmfSpacing = xmfGeometry->GetDxDyDz();
+    XdmfFloat64* xmfOrigin = xmfGeometry->GetOrigin();
+    XdmfFloat64* xmfSpacing = xmfGeometry->GetDxDyDz();
     origin[0] = 0.0;
     origin[1] = xmfOrigin[1];
     origin[2] = xmfOrigin[0];
@@ -487,39 +487,39 @@ int vtkXdmfDomain::GetDataDimensionality(XdmfGrid* xmfGrid)
 
   switch (xmfGrid->GetTopology()->GetTopologyType())
   {
-  case XDMF_NOTOPOLOGY  :
-  case XDMF_POLYVERTEX  :
-  case XDMF_POLYLINE    :
-  case XDMF_POLYGON     :
-  case XDMF_TRI         :
-  case XDMF_QUAD        :
-  case XDMF_TET         :
-  case XDMF_PYRAMID     :
-  case XDMF_WEDGE       :
-  case XDMF_HEX         :
-  case XDMF_EDGE_3      :
-  case XDMF_TRI_6       :
-  case XDMF_QUAD_8      :
-  case XDMF_QUAD_9      :
-  case XDMF_TET_10      :
-  case XDMF_PYRAMID_13  :
-  case XDMF_WEDGE_15    :
-  case XDMF_WEDGE_18    :
-  case XDMF_HEX_20      :
-  case XDMF_HEX_24      :
-  case XDMF_HEX_27      :
-  case XDMF_MIXED       :
-    return 1; // unstructured data-sets have no inherent dimensionality.
+    case XDMF_NOTOPOLOGY:
+    case XDMF_POLYVERTEX:
+    case XDMF_POLYLINE:
+    case XDMF_POLYGON:
+    case XDMF_TRI:
+    case XDMF_QUAD:
+    case XDMF_TET:
+    case XDMF_PYRAMID:
+    case XDMF_WEDGE:
+    case XDMF_HEX:
+    case XDMF_EDGE_3:
+    case XDMF_TRI_6:
+    case XDMF_QUAD_8:
+    case XDMF_QUAD_9:
+    case XDMF_TET_10:
+    case XDMF_PYRAMID_13:
+    case XDMF_WEDGE_15:
+    case XDMF_WEDGE_18:
+    case XDMF_HEX_20:
+    case XDMF_HEX_24:
+    case XDMF_HEX_27:
+    case XDMF_MIXED:
+      return 1; // unstructured data-sets have no inherent dimensionality.
 
-  case XDMF_2DSMESH     :
-  case XDMF_2DRECTMESH  :
-  case XDMF_2DCORECTMESH:
-    return 2;
+    case XDMF_2DSMESH:
+    case XDMF_2DRECTMESH:
+    case XDMF_2DCORECTMESH:
+      return 2;
 
-  case XDMF_3DSMESH     :
-  case XDMF_3DRECTMESH  :
-  case XDMF_3DCORECTMESH:
-    return 3;
+    case XDMF_3DSMESH:
+    case XDMF_3DRECTMESH:
+    case XDMF_3DCORECTMESH:
+      return 3;
   }
 
   return -1;
@@ -534,11 +534,10 @@ void vtkXdmfDomain::CollectMetaData()
   vtkIdType blocksRoot = this->SILBuilder->AddVertex("Blocks");
   vtkIdType hierarchyRoot = this->SILBuilder->AddVertex("Hierarchy");
   this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(), blocksRoot);
-  this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(),
-    hierarchyRoot);
+  this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(), hierarchyRoot);
   this->SILBlocksRoot = blocksRoot;
 
-  for (XdmfInt64 cc=0; cc < this->NumberOfGrids; cc++)
+  for (XdmfInt64 cc = 0; cc < this->NumberOfGrids; cc++)
   {
     this->CollectMetaData(&this->XMFGrids[cc], hierarchyRoot);
   }
@@ -553,18 +552,17 @@ void vtkXdmfDomain::CollectMetaData()
     blocksRoot = this->SILBuilder->AddVertex("Blocks");
     hierarchyRoot = this->SILBuilder->AddVertex("Hierarchy");
     this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(), blocksRoot);
-    this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(),
-      hierarchyRoot);
+    this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(), hierarchyRoot);
     this->SILBlocksRoot = blocksRoot;
 
     // add only the top-level grids.
-    for (XdmfInt64 cc=0; cc < this->NumberOfGrids; cc++)
+    for (XdmfInt64 cc = 0; cc < this->NumberOfGrids; cc++)
     {
-      XdmfGrid * xmfGrid = &this->XMFGrids[cc];
+      XdmfGrid* xmfGrid = &this->XMFGrids[cc];
 
       std::string originalGridName = xmfGrid->GetName();
       std::string gridName = xmfGrid->GetName();
-      unsigned int count=1;
+      unsigned int count = 1;
       while (this->Grids->HasArray(gridName.c_str()))
       {
         std::ostringstream str;
@@ -611,12 +609,10 @@ void vtkXdmfDomain::CollectMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
-  vtkIdType silParent)
+void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 {
   vtkIdType silVertex = -1;
-  if (silParent != -1 &&
-    this->GridsOverflowCounter < MAX_COLLECTABLE_NUMBER_OF_GRIDS)
+  if (silParent != -1 && this->GridsOverflowCounter < MAX_COLLECTABLE_NUMBER_OF_GRIDS)
   {
     // stop building SIL as soon as we have too many blocks--not worth it.
     this->GridsOverflowCounter++;
@@ -627,7 +623,7 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
   }
 
   XdmfInt32 numChildren = xmfGrid->GetNumberOfChildren();
-  for (XdmfInt32 cc=0; cc < numChildren; cc++)
+  for (XdmfInt32 cc = 0; cc < numChildren; cc++)
   {
     XdmfGrid* xmfChild = xmfGrid->GetChild(cc);
     this->CollectMetaData(xmfChild, silVertex);
@@ -640,7 +636,7 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
   // children, so we don't need to process that. We need to handle only the
   // case when a non-leaf,non-temporal collection has a time value of it's
   // own.
-  if ((xmfGrid->GetGridType() & XDMF_GRID_COLLECTION)==0 ||
+  if ((xmfGrid->GetGridType() & XDMF_GRID_COLLECTION) == 0 ||
     xmfGrid->GetCollectionType() != XDMF_GRID_COLLECTION_TEMPORAL)
   {
     // assert(grid is not a temporal collection).
@@ -661,12 +657,11 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
 void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 {
   vtkIdType silVertex = -1;
-  if (silParent != -1 &&
-    this->GridsOverflowCounter < MAX_COLLECTABLE_NUMBER_OF_GRIDS)
+  if (silParent != -1 && this->GridsOverflowCounter < MAX_COLLECTABLE_NUMBER_OF_GRIDS)
   {
     std::string originalGridName = xmfGrid->GetName();
     std::string gridName = xmfGrid->GetName();
-    unsigned int count=1;
+    unsigned int count = 1;
     while (this->Grids->HasArray(gridName.c_str()))
     {
       std::ostringstream str;
@@ -689,16 +684,16 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 
   // Collect attribute arrays information.
   XdmfInt32 numAttributes = xmfGrid->GetNumberOfAttributes();
-  for (XdmfInt32 kk=0; kk < numAttributes; kk++)
+  for (XdmfInt32 kk = 0; kk < numAttributes; kk++)
   {
-    XdmfAttribute *xmfAttribute = xmfGrid->GetAttribute(kk);
-    const char *name = xmfAttribute->GetName();
+    XdmfAttribute* xmfAttribute = xmfGrid->GetAttribute(kk);
+    const char* name = xmfAttribute->GetName();
     if (!name)
     {
       continue;
     }
     XdmfInt32 attributeCenter = xmfAttribute->GetAttributeCenter();
-    if (attributeCenter== XDMF_ATTRIBUTE_CENTER_NODE)
+    if (attributeCenter == XDMF_ATTRIBUTE_CENTER_NODE)
     {
       this->PointArrays->AddArray(name);
     }
@@ -706,7 +701,7 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
     {
       this->CellArrays->AddArray(name);
     }
-    else if (attributeCenter== XDMF_ATTRIBUTE_CENTER_GRID && silVertex != -1)
+    else if (attributeCenter == XDMF_ATTRIBUTE_CENTER_GRID && silVertex != -1)
     {
       this->UpdateGridAttributeInSIL(xmfAttribute, silVertex);
     }
@@ -714,10 +709,10 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 
   // Collect sets information
   XdmfInt32 numSets = xmfGrid->GetNumberOfSets();
-  for (XdmfInt32 kk=0; kk < numSets; kk++)
+  for (XdmfInt32 kk = 0; kk < numSets; kk++)
   {
-    XdmfSet *xmfSet = xmfGrid->GetSets(kk);
-    const char *name = xmfSet->GetName();
+    XdmfSet* xmfSet = xmfGrid->GetSets(kk);
+    const char* name = xmfSet->GetName();
 
     // if the set is a ghost-cell/node set, then it's not treated as a set for
     // which a new vtkDataSet is created (nor can the user enable-disable it
@@ -749,27 +744,24 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 }
 
 //----------------------------------------------------------------------------
-bool vtkXdmfDomain::UpdateGridAttributeInSIL(
-    XdmfAttribute* xmfAttribute, vtkIdType silVertex)
+bool vtkXdmfDomain::UpdateGridAttributeInSIL(XdmfAttribute* xmfAttribute, vtkIdType silVertex)
 {
   // Check if the grid centered attribute is an single component integeral
   // value, (or a string, in future). If that's the case, then these become
   // part of the SIL.
   XdmfDataItem xmfDataItem;
   xmfDataItem.SetDOM(xmfAttribute->GetDOM());
-  xmfDataItem.SetElement(xmfAttribute->GetDOM()->FindDataElement(0,
-      xmfAttribute->GetElement()));
+  xmfDataItem.SetElement(xmfAttribute->GetDOM()->FindDataElement(0, xmfAttribute->GetElement()));
   xmfDataItem.UpdateInformation();
   xmfDataItem.Update();
 
   vtkXdmfDataArray* xmfConvertor = vtkXdmfDataArray::New();
   vtkSmartPointer<vtkDataArray> dataArray;
-  dataArray.TakeReference(xmfConvertor->FromXdmfArray(
-      xmfDataItem.GetArray()->GetTagName(), 1, 1, 1, 0));
+  dataArray.TakeReference(
+    xmfConvertor->FromXdmfArray(xmfDataItem.GetArray()->GetTagName(), 1, 1, 1, 0));
   xmfConvertor->Delete();
 
-  if (dataArray->GetNumberOfTuples() != 1 ||
-    dataArray->GetNumberOfComponents() != 1)
+  if (dataArray->GetNumberOfTuples() != 1 || dataArray->GetNumberOfComponents() != 1)
   {
     // only single valued arrays are of concern.
     return false;
@@ -777,28 +769,26 @@ bool vtkXdmfDomain::UpdateGridAttributeInSIL(
 
   switch (dataArray->GetDataType())
   {
-  case VTK_CHAR :
-  case VTK_UNSIGNED_CHAR :
-  case VTK_SHORT :
-  case VTK_UNSIGNED_SHORT :
-  case VTK_INT :
-  case VTK_UNSIGNED_INT :
-  case VTK_LONG :
-  case VTK_UNSIGNED_LONG :
-    break;
+    case VTK_CHAR:
+    case VTK_UNSIGNED_CHAR:
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+    case VTK_INT:
+    case VTK_UNSIGNED_INT:
+    case VTK_LONG:
+    case VTK_UNSIGNED_LONG:
+      break;
 
-  default:
-    return false; // skip non-integeral types.
+    default:
+      return false; // skip non-integeral types.
   }
 
   const char* name = xmfAttribute->GetName();
   vtkIdType arrayRoot;
-  if (this->GridCenteredAttrbuteRoots.find(name) ==
-    this->GridCenteredAttrbuteRoots.end())
+  if (this->GridCenteredAttrbuteRoots.find(name) == this->GridCenteredAttrbuteRoots.end())
   {
     arrayRoot = this->SILBuilder->AddVertex(name);
-    this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(),
-      arrayRoot);
+    this->SILBuilder->AddChildEdge(this->SILBuilder->GetRootVertex(), arrayRoot);
     this->GridCenteredAttrbuteRoots[name] = arrayRoot;
   }
   else

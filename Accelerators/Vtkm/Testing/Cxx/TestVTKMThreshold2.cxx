@@ -15,21 +15,20 @@
 
 #include "vtkActor.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkmThreshold.h"
 #include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
+#include "vtkmThreshold.h"
 
-
-int TestVTKMThreshold2(int argc, char *argv[])
+int TestVTKMThreshold2(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
@@ -51,12 +50,11 @@ int TestVTKMThreshold2(int argc, char *argv[])
 
   vtkNew<vtkmThreshold> threshold;
   threshold->SetInputConnection(elevation->GetOutputPort());
-  threshold->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
 
-  double L=100;
-  double U=200;
-  threshold->ThresholdBetween(L,U);
+  double L = 100;
+  double U = 200;
+  threshold->ThresholdBetween(L, U);
   threshold->SetAllScalars(0);
   threshold->Update();
 
@@ -81,10 +79,10 @@ int TestVTKMThreshold2(int argc, char *argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-  iren->Start();
-  retVal = vtkRegressionTester::PASSED;
+    iren->Start();
+    retVal = vtkRegressionTester::PASSED;
   }
   return (!retVal);
 }

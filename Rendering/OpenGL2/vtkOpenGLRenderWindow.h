@@ -20,7 +20,7 @@
  * vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
  * library. Application programmers should normally use vtkRenderWindow
  * instead of the OpenGL specific version.
-*/
+ */
 
 #ifndef vtkOpenGLRenderWindow_h
 #define vtkOpenGLRenderWindow_h
@@ -60,87 +60,84 @@ public:
   void Start(void) override;
 
   /**
+   * A termination method performed at the end of the rendering process
+   * to do things like swapping buffers (if necessary) or similar actions.
+   */
+  void Frame() override;
+
+  /**
    * What rendering backend has the user requested
    */
-  const char *GetRenderingBackend() override;
+  const char* GetRenderingBackend() override;
 
   //@{
   /**
    * Set/Get the maximum number of multisamples
    */
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
-  static int  GetGlobalMaximumNumberOfMultiSamples();
+  static int GetGlobalMaximumNumberOfMultiSamples();
   //@}
 
   //@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...
    */
-  unsigned char *GetPixelData(int x,int y,int x2,int y2,int front,int right)
-                             override;
-  int GetPixelData(int x,int y,int x2,int y2, int front,
-                   vtkUnsignedCharArray *data, int right) override;
-  int SetPixelData(int x,int y,int x2,int y2,unsigned char *data,
-                   int front, int right) override;
-  int SetPixelData(int x,int y,int x2,int y2,
-                   vtkUnsignedCharArray *data, int front, int right)
-                   override;
+  unsigned char* GetPixelData(int x, int y, int x2, int y2, int front, int right) override;
+  int GetPixelData(
+    int x, int y, int x2, int y2, int front, vtkUnsignedCharArray* data, int right) override;
+  int SetPixelData(
+    int x, int y, int x2, int y2, unsigned char* data, int front, int right) override;
+  int SetPixelData(
+    int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front, int right) override;
   //@}
 
   //@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBARGBA...
    */
-  float *GetRGBAPixelData(int x,int y,int x2,int y2,int front,int right=0)
-                         override;
-  int GetRGBAPixelData(int x,int y,int x2,int y2, int front,
-                       vtkFloatArray* data, int right=0) override;
-  int SetRGBAPixelData(int x,int y,int x2,int y2, float *data,
-                       int front, int blend=0, int right=0) override;
-  int SetRGBAPixelData(int x,int y,int x2,int y2, vtkFloatArray *data,
-                       int front, int blend=0, int right=0) override;
-  void ReleaseRGBAPixelData(float *data) override;
-  unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
-                                      int front, int right=0) override;
-  int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
-                           vtkUnsignedCharArray *data, int right=0)
-                          override;
-  int SetRGBACharPixelData(int x, int y, int x2, int y2,
-                           unsigned char *data, int front,
-                           int blend=0, int right=0) override;
-  int SetRGBACharPixelData(int x,int y,int x2,int y2,
-                           vtkUnsignedCharArray *data, int front,
-                           int blend=0,int right=0) override;
+  float* GetRGBAPixelData(int x, int y, int x2, int y2, int front, int right = 0) override;
+  int GetRGBAPixelData(
+    int x, int y, int x2, int y2, int front, vtkFloatArray* data, int right = 0) override;
+  int SetRGBAPixelData(
+    int x, int y, int x2, int y2, float* data, int front, int blend = 0, int right = 0) override;
+  int SetRGBAPixelData(int x, int y, int x2, int y2, vtkFloatArray* data, int front, int blend = 0,
+    int right = 0) override;
+  void ReleaseRGBAPixelData(float* data) override;
+  unsigned char* GetRGBACharPixelData(
+    int x, int y, int x2, int y2, int front, int right = 0) override;
+  int GetRGBACharPixelData(
+    int x, int y, int x2, int y2, int front, vtkUnsignedCharArray* data, int right = 0) override;
+  int SetRGBACharPixelData(int x, int y, int x2, int y2, unsigned char* data, int front,
+    int blend = 0, int right = 0) override;
+  int SetRGBACharPixelData(int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front,
+    int blend = 0, int right = 0) override;
   //@}
 
   //@{
   /**
    * Set/Get the zbuffer data from an image
    */
-  float *GetZbufferData( int x1, int y1, int x2, int y2 ) override;
-  int GetZbufferData( int x1, int y1, int x2, int y2, float* z ) override;
-  int GetZbufferData( int x1, int y1, int x2, int y2,
-                              vtkFloatArray* z ) override;
-  int SetZbufferData( int x1, int y1, int x2, int y2, float *buffer ) override;
-  int SetZbufferData( int x1, int y1, int x2, int y2,
-                              vtkFloatArray *buffer ) override;
+  float* GetZbufferData(int x1, int y1, int x2, int y2) override;
+  int GetZbufferData(int x1, int y1, int x2, int y2, float* z) override;
+  int GetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* z) override;
+  int SetZbufferData(int x1, int y1, int x2, int y2, float* buffer) override;
+  int SetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
   //@}
-
 
   /**
    * Activate a texture unit for this texture
    */
-  void ActivateTexture(vtkTextureObject *);
+  void ActivateTexture(vtkTextureObject*);
 
   /**
    * Deactivate a previously activated texture
    */
-  void DeactivateTexture(vtkTextureObject *);
+  void DeactivateTexture(vtkTextureObject*);
 
   /**
    * Get the texture unit for a given texture object
    */
-  int GetTextureUnitForTexture(vtkTextureObject *);
+  int GetTextureUnitForTexture(vtkTextureObject*);
 
   /**
    * Get the size of the depth buffer.
@@ -156,7 +153,7 @@ public:
    * Get the size of the color buffer.
    * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
    */
-  int GetColorBufferSizes(int *rgba) override;
+  int GetColorBufferSizes(int* rgba) override;
 
   /**
    * Get the internal format of current attached texture or render buffer.
@@ -170,7 +167,7 @@ public:
    * Set the size of the window in screen coordinates in pixels.
    */
   void SetSize(int a[2]) override;
-  void SetSize(int,int) override;
+  void SetSize(int, int) override;
   //@}
 
   /**
@@ -189,7 +186,7 @@ public:
    * ala 3.2, 3.3, 4.0, etc... returns 0,0 if opengl has not been initialized
    * yet
    */
-  void GetOpenGLVersion(int &major, int &minor);
+  void GetOpenGLVersion(int& major, int& minor);
 
   /**
    * Return the OpenGL name of the back left buffer.
@@ -229,19 +226,13 @@ public:
 
   /**
    * Return the OpenGL name of the back left buffer.
-   * It is GL_BACK if GL is bound to the window-system-provided
-   * framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
-   * application-created framebuffer object (GPU-based offscreen rendering)
-   * It is used by vtkOpenGLCamera.
+   * Identical to GetBackLeftBuffer.
    */
   unsigned int GetBackBuffer();
 
   /**
    * Return the OpenGL name of the front left buffer.
-   * It is GL_FRONT if GL is bound to the window-system-provided
-   * framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
-   * application-created framebuffer object (GPU-based offscreen rendering)
-   * It is used by vtkOpenGLCamera.
+   * Identical to GetFrontLeftBuffer.
    */
   unsigned int GetFrontBuffer();
 
@@ -250,19 +241,15 @@ public:
    */
   virtual vtkMTimeType GetContextCreationTime();
 
-  //@{
   /**
    * Returns an Shader Cache object
    */
-  vtkGetObjectMacro(ShaderCache,vtkOpenGLShaderCache);
-  //@}
+  vtkOpenGLShaderCache* GetShaderCache();
 
-  //@{
   /**
-   * Returns an Shader Cache object
+   * Returns the VBO Cache
    */
-  vtkGetObjectMacro(VBOCache,vtkOpenGLVertexBufferObjectCache);
-  //@}
+  vtkOpenGLVertexBufferObjectCache* GetVBOCache();
 
   //@{
   /**
@@ -275,7 +262,7 @@ public:
    * Returns its texture unit manager object. A new one will be created if one
    * hasn't already been set up.
    */
-  vtkTextureUnitManager *GetTextureUnitManager();
+  vtkTextureUnitManager* GetTextureUnitManager();
 
   /**
    * Block the thread until the actual rendering is finished().
@@ -286,30 +273,27 @@ public:
   /**
    * Replacement for the old glDrawPixels function
    */
-  virtual void DrawPixels(int x1, int y1, int x2, int y2,
-              int numComponents, int dataType, void *data);
+  virtual void DrawPixels(
+    int x1, int y1, int x2, int y2, int numComponents, int dataType, void* data);
 
   /**
    * Replacement for the old glDrawPixels function, but it allows
    * for scaling the data and using only part of the texture
    */
-  virtual void DrawPixels(
-    int dstXmin, int dstYmin, int dstXmax, int dstYmax,
-    int srcXmin, int srcYmin, int srcXmax, int srcYmax,
-    int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
+  virtual void DrawPixels(int dstXmin, int dstYmin, int dstXmax, int dstYmax, int srcXmin,
+    int srcYmin, int srcXmax, int srcYmax, int srcWidth, int srcHeight, int numComponents,
+    int dataType, void* data);
 
   /**
    * Replacement for the old glDrawPixels function.  This simple version draws all
    * the data to the entire current viewport scaling as needed.
    */
-  virtual void DrawPixels(
-    int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
+  virtual void DrawPixels(int srcWidth, int srcHeight, int numComponents, int dataType, void* data);
 
   /**
    * Return the largest line width supported by the hardware
    */
-  virtual float GetMaximumHardwareLineWidth() {
-    return this->MaximumHardwareLineWidth; };
+  virtual float GetMaximumHardwareLineWidth() { return this->MaximumHardwareLineWidth; }
 
   /**
    * Returns true if driver has an
@@ -317,10 +301,7 @@ public:
    * because point sprites don't work correctly (gl_PointCoord is undefined) unless
    * glEnable(GL_POINT_SPRITE)
    */
-  virtual bool IsPointSpriteBugPresent()
-  {
-    return 0;
-  }
+  virtual bool IsPointSpriteBugPresent() { return 0; }
 
   /**
    * Get a mapping of vtk data types to native texture formats for this window
@@ -328,18 +309,14 @@ public:
    * build these structures themselves
    */
   int GetDefaultTextureInternalFormat(
-    int vtktype, int numComponents,
-    bool needInteger, bool needFloat, bool needSRGB);
+    int vtktype, int numComponents, bool needInteger, bool needFloat, bool needSRGB);
 
   /**
    * Return a message profiding additional details about the
    * results of calling SupportsOpenGL()  This can be used
    * to retrieve more specifics about what failed
    */
-  std::string GetOpenGLSupportMessage()
-  {
-    return this->OpenGLSupportMessage;
-  }
+  std::string GetOpenGLSupportMessage() { return this->OpenGLSupportMessage; }
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
@@ -349,7 +326,7 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities() override;
+  const char* ReportCapabilities() override;
 
   /**
    * Initialize the rendering window.  This will setup all system-specific
@@ -357,22 +334,22 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void) {};
+  virtual void Initialize(void) {}
 
-  std::set<vtkGenericOpenGLResourceFreeCallback *> Resources;
+  std::set<vtkGenericOpenGLResourceFreeCallback*> Resources;
 
-  void RegisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback *cb) {
-    std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
-     = this->Resources.find(cb);
+  void RegisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback* cb)
+  {
+    std::set<vtkGenericOpenGLResourceFreeCallback*>::iterator it = this->Resources.find(cb);
     if (it == this->Resources.end())
     {
       this->Resources.insert(cb);
     }
   }
 
-  void UnregisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback *cb) {
-    std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
-     = this->Resources.find(cb);
+  void UnregisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback* cb)
+  {
+    std::set<vtkGenericOpenGLResourceFreeCallback*>::iterator it = this->Resources.find(cb);
     if (it != this->Resources.end())
     {
       this->Resources.erase(it);
@@ -415,17 +392,16 @@ public:
    * in which case swap immediately. Returns true if the call
    * succeeded.
    */
-  virtual bool SetSwapControl(int ) { return false; }
+  virtual bool SetSwapControl(int) { return false; }
 
   // Get the state object used to keep track of
   // OpenGL state
-  virtual vtkOpenGLState *GetState() {
-    return this->State; }
+  virtual vtkOpenGLState* GetState() { return this->State; }
 
   // Get a VBO that can be shared by many
   // It consists of normalized display
   // coordinates for a quad and tcoords
-  vtkOpenGLBufferObject *GetTQuad2DVBO();
+  vtkOpenGLBufferObject* GetTQuad2DVBO();
 
   // Activate and return thje texture unit for a generic 2d 64x64
   // float greyscale noise texture ranging from 0 to 1. The texture is
@@ -434,10 +410,14 @@ public:
   int GetNoiseTextureUnit();
 
   /**
-   * Update the system, if needed, due to stereo rendering. For some stereo
-   * methods, subclasses might need to switch some hardware settings here.
+   * Update the system, if needed, at end of render process
    */
-  void StereoUpdate() override;
+  void End() override;
+
+  /**
+   * Handle opengl specific code and calls superclass
+   */
+  void Render() override;
 
   /**
    * Intermediate method performs operations required between the rendering
@@ -445,20 +425,18 @@ public:
    */
   void StereoMidpoint() override;
 
-  /**
-   * Handle opengl specific code and calls superclass
-   */
-  void Render() override;
+  // does VTKs framebuffer require resolving for reading pixels
+  bool GetBufferNeedsResolving();
 
-  // does the current read buffer require resolving for reading pixels
-  bool GetCurrentBufferNeedsResolving();
+  /**
+   * Free up any graphics resources associated with this window
+   * a value of NULL means the context may already be destroyed
+   */
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
-
-  vtkOpenGLShaderCache *ShaderCache;
-  vtkOpenGLVertexBufferObjectCache *VBOCache;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method
@@ -466,10 +444,8 @@ protected:
   int OpenGLSupportResult;
   std::string OpenGLSupportMessage;
 
-  int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
-  void InitializeTextureInternalFormats();
-
-  virtual int ReadPixels(const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0);
+  virtual int ReadPixels(
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right = 0);
 
   /**
    * Create the offScreen framebuffer
@@ -480,8 +456,7 @@ protected:
    * \post valid_result: (result==0 || result==1)
    */
   int CreateOffScreenFramebuffer(int width, int height);
-  vtkOpenGLFramebufferObject *OffScreenFramebuffer;
-  bool OffScreenFramebufferBound;
+  vtkOpenGLFramebufferObject* OffScreenFramebuffer;
 
   /**
    * Create a not-off-screen window.
@@ -492,12 +467,6 @@ protected:
    * Destroy a not-off-screen window.
    */
   virtual void DestroyWindow() = 0;
-
-  /**
-   * Free up any graphics resources associated with this window
-   * a value of NULL means the context may already be destroyed
-   */
-  virtual void ReleaseGraphicsResources(vtkRenderWindow *);
 
   /**
    * Query and save OpenGL state
@@ -515,8 +484,6 @@ protected:
   unsigned int BackRightBuffer;
   unsigned int FrontLeftBuffer;
   unsigned int FrontRightBuffer;
-  unsigned int FrontBuffer;
-  unsigned int BackBuffer;
   unsigned int DefaultFrameBufferId;
 
   /**
@@ -526,20 +493,25 @@ protected:
 
   vtkTimeStamp ContextCreationTime;
 
-  vtkTextureObject *DrawPixelsTextureObject;
+  vtkTextureObject* DrawPixelsTextureObject;
 
-  bool Initialized; // ensure glewinit has been called
+  bool Initialized;   // ensure glewinit has been called
   bool GlewInitValid; // Did glewInit initialize with a valid state?
 
   float MaximumHardwareLineWidth;
 
-  char *Capabilities;
+  char* Capabilities;
 
   // used for fast quad rendering
-  vtkOpenGLBufferObject *TQuad2DVBO;
+  vtkOpenGLBufferObject* TQuad2DVBO;
 
   // noise texture
-  vtkTextureObject *NoiseTextureObject;
+  vtkTextureObject* NoiseTextureObject;
+
+  double FirstRenderTime;
+
+  // keep track of in case we need to recreate the framebuffer
+  int LastMultiSamples;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
@@ -547,7 +519,7 @@ private:
 
   // Keeping `State` private so the only way to access it is through
   // `this->GetState()`.
-  vtkOpenGLState *State;
+  vtkOpenGLState* State;
 };
 
 #endif

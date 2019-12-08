@@ -34,14 +34,12 @@ vtkImageLogic::vtkImageLogic()
   this->OutputTrueValue = 255;
 }
 
-
-
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
-void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
-                           vtkImageData *outData, int outExt[6], int id, T *)
+void vtkImageLogicExecute1(
+  vtkImageLogic* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -60,7 +58,7 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
       case VTK_NOT:
         while (outSI != outSIEnd)
         {
-          if ( ! *inSI)
+          if (!*inSI)
           {
             *outSI = trueValue;
           }
@@ -93,14 +91,12 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
-                           vtkImageData *in2Data, vtkImageData *outData,
-                           int outExt[6], int id, T *)
+void vtkImageLogicExecute2(vtkImageLogic* self, vtkImageData* in1Data, vtkImageData* in2Data,
+  vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
@@ -153,7 +149,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
       case VTK_XOR:
         while (outSI != outSIEnd)
         {
-          if (( ! *inSI1 && *inSI2) || (*inSI1 && ! *inSI2))
+          if ((!*inSI1 && *inSI2) || (*inSI1 && !*inSI2))
           {
             *outSI = trueValue;
           }
@@ -169,7 +165,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
       case VTK_NAND:
         while (outSI != outSIEnd)
         {
-          if ( ! (*inSI1 && *inSI2))
+          if (!(*inSI1 && *inSI2))
           {
             *outSI = trueValue;
           }
@@ -185,7 +181,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
       case VTK_NOR:
         while (outSI != outSIEnd)
         {
-          if ( ! (*inSI1 || *inSI2))
+          if (!(*inSI1 || *inSI2))
           {
             *outSI = trueValue;
           }
@@ -205,20 +201,14 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
   }
 }
 
-
-
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogic::ThreadedRequestData (
-  vtkInformation * vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageLogic::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   if (inData[0][0] == nullptr)
   {
@@ -229,10 +219,8 @@ void vtkImageLogic::ThreadedRequestData (
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input ScalarType, "
-                  << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType "
-                  << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
   }
 
@@ -240,10 +228,8 @@ void vtkImageLogic::ThreadedRequestData (
   {
     switch (inData[0][0]->GetScalarType())
     {
-      vtkTemplateMacro(
-        vtkImageLogicExecute1(this, inData[0][0],
-                              outData[0], outExt, id,
-                              static_cast<VTK_TT *>(nullptr)));
+      vtkTemplateMacro(vtkImageLogicExecute1(
+        this, inData[0][0], outData[0], outExt, id, static_cast<VTK_TT*>(nullptr)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -260,16 +246,13 @@ void vtkImageLogic::ThreadedRequestData (
     // this filter expects that inputs that have the same type:
     if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
     {
-      vtkErrorMacro(<< "Execute: input1 ScalarType, "
-                    << inData[0][0]->GetScalarType()
-                    << ", must match input2 ScalarType "
-                    << inData[1][0]->GetScalarType());
+      vtkErrorMacro(<< "Execute: input1 ScalarType, " << inData[0][0]->GetScalarType()
+                    << ", must match input2 ScalarType " << inData[1][0]->GetScalarType());
       return;
     }
 
     // this filter expects that inputs that have the same number of components
-    if (inData[0][0]->GetNumberOfScalarComponents() !=
-        inData[1][0]->GetNumberOfScalarComponents())
+    if (inData[0][0]->GetNumberOfScalarComponents() != inData[1][0]->GetNumberOfScalarComponents())
     {
       vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                     << inData[0][0]->GetNumberOfScalarComponents()
@@ -280,10 +263,8 @@ void vtkImageLogic::ThreadedRequestData (
 
     switch (inData[0][0]->GetScalarType())
     {
-      vtkTemplateMacro(
-        vtkImageLogicExecute2( this, inData[0][0],
-                               inData[1][0], outData[0], outExt, id,
-                               static_cast<VTK_TT *>(nullptr)));
+      vtkTemplateMacro(vtkImageLogicExecute2(
+        this, inData[0][0], inData[1][0], outData[0], outExt, id, static_cast<VTK_TT*>(nullptr)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -305,9 +286,8 @@ int vtkImageLogic::FillInputPortInformation(int port, vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "OutputTrueValue: " << this->OutputTrueValue << "\n";
 }
-

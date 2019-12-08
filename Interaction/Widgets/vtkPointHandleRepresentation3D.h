@@ -22,14 +22,14 @@
  *
  * @sa
  * vtkHandleRepresentation vtkHandleWidget vtkCursor3D
-*/
+ */
 
 #ifndef vtkPointHandleRepresentation3D_h
 #define vtkPointHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkHandleRepresentation.h"
 #include "vtkCursor3D.h" // Needed for delegation to cursor3D
+#include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkCursor3D;
 class vtkProperty;
@@ -43,13 +43,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkPointHandleRepresentation3D *New();
+  static vtkPointHandleRepresentation3D* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkPointHandleRepresentation3D,vtkHandleRepresentation);
+  vtkTypeMacro(vtkPointHandleRepresentation3D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -70,50 +70,34 @@ public:
   /**
    * Turn on/off the wireframe bounding box.
    */
-  void SetOutline(int o)
-    {this->Cursor3D->SetOutline(o);}
-  int GetOutline()
-    {return this->Cursor3D->GetOutline();}
-  void OutlineOn()
-    {this->Cursor3D->OutlineOn();}
-  void OutlineOff()
-    {this->Cursor3D->OutlineOff();}
+  void SetOutline(int o) { this->Cursor3D->SetOutline(o); }
+  int GetOutline() { return this->Cursor3D->GetOutline(); }
+  void OutlineOn() { this->Cursor3D->OutlineOn(); }
+  void OutlineOff() { this->Cursor3D->OutlineOff(); }
 
   /**
    * Turn on/off the wireframe x-shadows.
    */
-  void SetXShadows(int o)
-    {this->Cursor3D->SetXShadows(o);}
-  int GetXShadows()
-    {return this->Cursor3D->GetXShadows();}
-  void XShadowsOn()
-    {this->Cursor3D->XShadowsOn();}
-  void XShadowsOff()
-    {this->Cursor3D->XShadowsOff();}
+  void SetXShadows(int o) { this->Cursor3D->SetXShadows(o); }
+  int GetXShadows() { return this->Cursor3D->GetXShadows(); }
+  void XShadowsOn() { this->Cursor3D->XShadowsOn(); }
+  void XShadowsOff() { this->Cursor3D->XShadowsOff(); }
 
   /**
    * Turn on/off the wireframe y-shadows.
    */
-  void SetYShadows(int o)
-    {this->Cursor3D->SetYShadows(o);}
-  int GetYShadows()
-    {return this->Cursor3D->GetYShadows();}
-  void YShadowsOn()
-    {this->Cursor3D->YShadowsOn();}
-  void YShadowsOff()
-    {this->Cursor3D->YShadowsOff();}
+  void SetYShadows(int o) { this->Cursor3D->SetYShadows(o); }
+  int GetYShadows() { return this->Cursor3D->GetYShadows(); }
+  void YShadowsOn() { this->Cursor3D->YShadowsOn(); }
+  void YShadowsOff() { this->Cursor3D->YShadowsOff(); }
 
   /**
    * Turn on/off the wireframe z-shadows.
    */
-  void SetZShadows(int o)
-    {this->Cursor3D->SetZShadows(o);}
-  int GetZShadows()
-    {return this->Cursor3D->GetZShadows();}
-  void ZShadowsOn()
-    {this->Cursor3D->ZShadowsOn();}
-  void ZShadowsOff()
-    {this->Cursor3D->ZShadowsOff();}
+  void SetZShadows(int o) { this->Cursor3D->SetZShadows(o); }
+  int GetZShadows() { return this->Cursor3D->GetZShadows(); }
+  void ZShadowsOn() { this->Cursor3D->ZShadowsOn(); }
+  void ZShadowsOff() { this->Cursor3D->ZShadowsOff(); }
 
   //@{
   /**
@@ -128,8 +112,8 @@ public:
    * set with the SetBounds() method.)
    */
   void SetTranslationMode(vtkTypeBool mode);
-  vtkGetMacro(TranslationMode,vtkTypeBool);
-  vtkBooleanMacro(TranslationMode,vtkTypeBool);
+  vtkGetMacro(TranslationMode, vtkTypeBool);
+  vtkBooleanMacro(TranslationMode, vtkTypeBool);
   //@}
 
   /**
@@ -137,17 +121,17 @@ public:
    */
   void AllOn()
   {
-      this->OutlineOn();
-      this->XShadowsOn();
-      this->YShadowsOn();
-      this->ZShadowsOn();
+    this->OutlineOn();
+    this->XShadowsOn();
+    this->YShadowsOn();
+    this->ZShadowsOn();
   }
   void AllOff()
   {
-      this->OutlineOff();
-      this->XShadowsOff();
-      this->YShadowsOff();
-      this->ZShadowsOff();
+    this->OutlineOff();
+    this->XShadowsOff();
+    this->YShadowsOff();
+    this->ZShadowsOff();
   }
   //@}
 
@@ -157,8 +141,8 @@ public:
    */
   void SetProperty(vtkProperty*);
   void SetSelectedProperty(vtkProperty*);
-  vtkGetObjectMacro(Property,vtkProperty);
-  vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  vtkGetObjectMacro(Property, vtkProperty);
+  vtkGetObjectMacro(SelectedProperty, vtkProperty);
   //@}
 
   //@{
@@ -168,8 +152,8 @@ public:
    * size is specified as a fraction of the length of the diagonal of the
    * point widget's bounding box.
    */
-  vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
-  vtkGetMacro(HotSpotSize,double);
+  vtkSetClampMacro(HotSpotSize, double, 0.0, 1.0);
+  vtkGetMacro(HotSpotSize, double);
   //@}
 
   /**
@@ -181,36 +165,30 @@ public:
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void PlaceWidget(double bounds[6]) override;
-  void StartComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  void ComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  int ComputeComplexInteractionState(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) override;
+  void StartComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  void ComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata, int modify = 0) override;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  void ShallowCopy(vtkProp *prop) override;
-  void DeepCopy(vtkProp *prop) override;
-  void GetActors(vtkPropCollection *) override;
-  void ReleaseGraphicsResources(vtkWindow *) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  void ShallowCopy(vtkProp* prop) override;
+  void DeepCopy(vtkProp* prop) override;
+  void GetActors(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
@@ -228,14 +206,14 @@ public:
    * inherent restrictions on handle placement might conflict with a request
    * for smooth motion of the handles.
    */
-  vtkSetMacro( SmoothMotion, vtkTypeBool );
-  vtkGetMacro( SmoothMotion, vtkTypeBool );
-  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
+  vtkSetMacro(SmoothMotion, vtkTypeBool);
+  vtkGetMacro(SmoothMotion, vtkTypeBool);
+  vtkBooleanMacro(SmoothMotion, vtkTypeBool);
   //@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
   /**
@@ -251,17 +229,17 @@ protected:
   ~vtkPointHandleRepresentation3D() override;
 
   // the cursor3D
-  vtkActor          *Actor;
-  vtkPolyDataMapper *Mapper;
-  vtkCursor3D       *Cursor3D;
+  vtkActor* Actor;
+  vtkPolyDataMapper* Mapper;
+  vtkCursor3D* Cursor3D;
 
   // Do the picking
-  vtkCellPicker *CursorPicker;
+  vtkCellPicker* CursorPicker;
   double LastPickPosition[3];
   double LastEventPosition[3];
 
   // Methods to manipulate the cursor
-  int  ConstraintAxis;
+  int ConstraintAxis;
   virtual void Translate(const double* p1, const double* p2) override;
   void Scale(const double* p1, const double* p2, const double eventPos[2]);
   void MoveFocus(const double* p1, const double* p2);
@@ -283,15 +261,15 @@ protected:
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *Property;
-  vtkProperty *SelectedProperty;
-  void         CreateDefaultProperties();
+  vtkProperty* Property;
+  vtkProperty* SelectedProperty;
+  void CreateDefaultProperties();
 
   // The size of the hot spot.
   double HotSpotSize;
-  int    DetermineConstraintAxis(int constraint, double *x, double *startPoint);
-  int    WaitingForMotion;
-  int    WaitCount;
+  int DetermineConstraintAxis(int constraint, double* x, double* startPoint);
+  int WaitingForMotion;
+  int WaitCount;
 
   // Current handle sized (may reflect scaling)
   double CurrentHandleSize;

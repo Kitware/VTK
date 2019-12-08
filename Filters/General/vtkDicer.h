@@ -39,13 +39,13 @@
  *
  * @sa
  * vtkOBBDicer vtkConnectedDicer vtkSpatialDicer
-*/
+ */
 
 #ifndef vtkDicer_h
 #define vtkDicer_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 #define VTK_DICE_MODE_NUMBER_OF_POINTS 0
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1
@@ -54,7 +54,7 @@
 class VTKFILTERSGENERAL_EXPORT vtkDicer : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDicer,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkDicer, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -65,9 +65,9 @@ public:
    * generated the data are integer numbers indicating which piece a
    * particular point belongs to.
    */
-  vtkSetMacro(FieldData,vtkTypeBool);
-  vtkGetMacro(FieldData,vtkTypeBool);
-  vtkBooleanMacro(FieldData,vtkTypeBool);
+  vtkSetMacro(FieldData, vtkTypeBool);
+  vtkGetMacro(FieldData, vtkTypeBool);
+  vtkBooleanMacro(FieldData, vtkTypeBool);
   //@}
 
   //@{
@@ -75,14 +75,11 @@ public:
    * Specify the method to determine how many pieces the data should be
    * broken into. By default, the number of points per piece is used.
    */
-  vtkSetClampMacro(DiceMode,int,VTK_DICE_MODE_NUMBER_OF_POINTS,VTK_DICE_MODE_MEMORY_LIMIT);
-  vtkGetMacro(DiceMode,int);
-  void SetDiceModeToNumberOfPointsPerPiece()
-    {this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS);};
-  void SetDiceModeToSpecifiedNumberOfPieces()
-    {this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER);};
-  void SetDiceModeToMemoryLimitPerPiece()
-    {this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT);};
+  vtkSetClampMacro(DiceMode, int, VTK_DICE_MODE_NUMBER_OF_POINTS, VTK_DICE_MODE_MEMORY_LIMIT);
+  vtkGetMacro(DiceMode, int);
+  void SetDiceModeToNumberOfPointsPerPiece() { this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS); }
+  void SetDiceModeToSpecifiedNumberOfPieces() { this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER); }
+  void SetDiceModeToMemoryLimitPerPiece() { this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT); }
   //@}
 
   //@{
@@ -91,7 +88,7 @@ public:
    * determine the actual number of pieces the data was separated
    * into.
    */
-  vtkGetMacro(NumberOfActualPieces,int);
+  vtkGetMacro(NumberOfActualPieces, int);
   //@}
 
   //@{
@@ -100,8 +97,8 @@ public:
    * (This ivar has effect only when the DiceMode is set to
    * SetDiceModeToNumberOfPoints().)
    */
-  vtkSetClampMacro(NumberOfPointsPerPiece,int,1000,VTK_INT_MAX);
-  vtkGetMacro(NumberOfPointsPerPiece,int);
+  vtkSetClampMacro(NumberOfPointsPerPiece, int, 1000, VTK_INT_MAX);
+  vtkGetMacro(NumberOfPointsPerPiece, int);
   //@}
 
   //@{
@@ -113,8 +110,8 @@ public:
    * data, more or less number of pieces than the target value may be
    * created.
    */
-  vtkSetClampMacro(NumberOfPieces,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfPieces,int);
+  vtkSetClampMacro(NumberOfPieces, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfPieces, int);
   //@}
 
   //@{
@@ -124,22 +121,22 @@ public:
    * SetDiceModeToMemoryLimit()). The memory limit should be set in
    * kibibytes (1024 bytes).
    */
-  vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_INT_MAX);
-  vtkGetMacro(MemoryLimit,unsigned long);
+  vtkSetClampMacro(MemoryLimit, unsigned long, 100, VTK_INT_MAX);
+  vtkGetMacro(MemoryLimit, unsigned long);
   //@}
 
 protected:
   vtkDicer();
   ~vtkDicer() override {}
 
-  virtual void UpdatePieceMeasures(vtkDataSet *input);
+  virtual void UpdatePieceMeasures(vtkDataSet* input);
 
-  int           NumberOfPointsPerPiece;
-  int           NumberOfPieces;
+  int NumberOfPointsPerPiece;
+  int NumberOfPieces;
   unsigned long MemoryLimit;
-  int           NumberOfActualPieces;
-  vtkTypeBool           FieldData;
-  int           DiceMode;
+  int NumberOfActualPieces;
+  vtkTypeBool FieldData;
+  int DiceMode;
 
 private:
   vtkDicer(const vtkDicer&) = delete;
@@ -147,5 +144,3 @@ private:
 };
 
 #endif
-
-

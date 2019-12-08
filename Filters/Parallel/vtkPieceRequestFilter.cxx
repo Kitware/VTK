@@ -56,51 +56,47 @@ void vtkPieceRequestFilter::SetInputData(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-int vtkPieceRequestFilter::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkPieceRequestFilter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
 
   // set update extent
- if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
- {
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
- }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
   {
     // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
+      vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
       {
@@ -116,8 +112,7 @@ int vtkPieceRequestFilter::RequestDataObject(
 
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::RequestData(vtkInformation* vtkNotUsed(request),
-                                       vtkInformationVector** inputVector,
-                                       vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0]);
   vtkDataObject* output = vtkDataObject::GetData(outputVector);
@@ -127,8 +122,7 @@ int vtkPieceRequestFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-                                               vtkInformationVector** inputVector,
-                                               vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), this->NumberOfPieces);
@@ -137,8 +131,7 @@ int vtkPieceRequestFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
 }
 
 //----------------------------------------------------------------------------
-int vtkPieceRequestFilter::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPieceRequestFilter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
@@ -146,8 +139,7 @@ int vtkPieceRequestFilter::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkPieceRequestFilter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPieceRequestFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
@@ -156,7 +148,7 @@ int vtkPieceRequestFilter::FillInputPortInformation(
 //----------------------------------------------------------------------------
 void vtkPieceRequestFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
   os << indent << "Piece: " << this->Piece << endl;
 }

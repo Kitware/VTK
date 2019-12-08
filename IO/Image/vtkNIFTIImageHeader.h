@@ -31,7 +31,7 @@
  * Analysis Centre (CIPAC).
  * @sa
  * vtkNIFTIImageReader, vtkNIFTIImageWriter
-*/
+ */
 
 #ifndef vtkNIFTIImageHeader_h
 #define vtkNIFTIImageHeader_h
@@ -46,11 +46,11 @@ struct nifti_2_header;
 class VTKIOIMAGE_EXPORT vtkNIFTIImageHeader : public vtkObject
 {
 public:
-
   /**
    * NIFTI intent codes.
    */
-  enum IntentCodeEnum {
+  enum IntentCodeEnum
+  {
     IntentNone = 0,
     IntentCorrel = 2,
     IntentTTest = 3,
@@ -96,7 +96,8 @@ public:
   /**
    * NIFTI transform codes.
    */
-  enum XFormCodeEnum {
+  enum XFormCodeEnum
+  {
     XFormUnkown = 0,
     XFormScannerAnat = 1,
     XFormAlignedAnat = 2,
@@ -107,7 +108,8 @@ public:
   /**
    * NIFTI slice codes.
    */
-  enum SliceCodeEnum {
+  enum SliceCodeEnum
+  {
     SliceUnknown = 0,
     SliceSeqInc = 1,
     SliceSeqDec = 2,
@@ -120,7 +122,8 @@ public:
   /**
    * NIFTI unit codes.
    */
-  enum UnitsXYZTEnum {
+  enum UnitsXYZTEnum
+  {
     UnitsUnknown = 0,
     UnitsMeter = 1,
     UnitsMM = 2,
@@ -141,7 +144,8 @@ public:
    * unsigned char image.  Complex values are represented as two-component
    * images.  The NIFTI types Float128 and Complex256 are not supported.
    */
-  enum DataTypeEnum {
+  enum DataTypeEnum
+  {
     TypeUInt8 = 2,
     TypeInt16 = 4,
     TypeInt32 = 8,
@@ -163,7 +167,8 @@ public:
   /**
    * NIFTI header sizes.
    */
-  enum HeaderSizeEnum {
+  enum HeaderSizeEnum
+  {
     NIFTI1HeaderSize = 348,
     NIFTI2HeaderSize = 540
   };
@@ -172,7 +177,7 @@ public:
   /**
    * Static method for construction.
    */
-  static vtkNIFTIImageHeader *New();
+  static vtkNIFTIImageHeader* New();
   vtkTypeMacro(vtkNIFTIImageHeader, vtkObject);
   //@}
 
@@ -184,7 +189,7 @@ public:
   /**
    * Get the magic number for the NIFTI file as a null-terminated string.
    */
-  const char *GetMagic() { return this->Magic; }
+  const char* GetMagic() { return this->Magic; }
 
   /**
    * Get the offset to the pixel data within the file.
@@ -205,16 +210,14 @@ public:
    * Get the nth dimension of the data, where GetDim(0) returns the
    * number of dimensions that are defined for the file.
    */
-  vtkTypeInt64 GetDim(int i) {
-    return (i < 0 || i > 7 ? 0 : this->Dim[i]); }
+  vtkTypeInt64 GetDim(int i) { return (i < 0 || i > 7 ? 0 : this->Dim[i]); }
 
   /**
    * Get the sample spacing in the nth dimension. If GetPixDim(0) is
    * negative, then the quaternion for the qform describes the correct
    * orientation only after the slice ordering has been reversed.
    */
-  double GetPixDim(int i) {
-    return (i < 0 || i > 7 ? 0.0 : this->PixDim[i]); }
+  double GetPixDim(int i) { return (i < 0 || i > 7 ? 0.0 : this->PixDim[i]); }
 
   //@{
   /**
@@ -228,8 +231,8 @@ public:
   /**
    * Get the intent name.  This should match the intent code.
    */
-  void SetIntentName(const char *name);
-  const char *GetIntentName() { return this->IntentName; }
+  void SetIntentName(const char* name);
+  const char* GetIntentName() { return this->IntentName; }
 
   //@{
   /**
@@ -319,8 +322,8 @@ public:
    * all NIFTI software, the NIFTI standard itself does not specify what
    * encodings are permitted.
    */
-  void SetDescrip(const char *descrip);
-  const char *GetDescrip() { return this->Descrip; }
+  void SetDescrip(const char* descrip);
+  const char* GetDescrip() { return this->Descrip; }
 
   /**
    * Get an auxiliary file, e.g. a color table, that is associated
@@ -328,8 +331,8 @@ public:
    * 24 characters, and it will be assumed to be in the same directory
    * as the NIFTI file.
    */
-  void SetAuxFile(const char *auxfile);
-  const char *GetAuxFile() { return this->AuxFile; }
+  void SetAuxFile(const char* auxfile);
+  const char* GetAuxFile() { return this->AuxFile; }
 
   //@{
   /**
@@ -383,17 +386,17 @@ public:
   /**
    * Make a copy of the header.
    */
-  void DeepCopy(vtkNIFTIImageHeader *o);
+  void DeepCopy(vtkNIFTIImageHeader* o);
 
   //@{
   /**
    * Set the values from an existing nifti struct, or store
    * the values in an existing nifti struct.
    */
-  void SetHeader(const nifti_1_header *hdr);
-  void GetHeader(nifti_1_header *hdr);
-  void SetHeader(const nifti_2_header *hdr);
-  void GetHeader(nifti_2_header *hdr);
+  void SetHeader(const nifti_1_header* hdr);
+  void GetHeader(nifti_1_header* hdr);
+  void SetHeader(const nifti_2_header* hdr);
+  void GetHeader(nifti_2_header* hdr);
   //@}
 
 protected:
@@ -436,7 +439,7 @@ protected:
   double SRowY[4];
   double SRowZ[4];
 
-  void SetStringValue(char *x, const char *y, size_t n);
+  void SetStringValue(char* x, const char* y, size_t n);
 
 private:
   vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) = delete;

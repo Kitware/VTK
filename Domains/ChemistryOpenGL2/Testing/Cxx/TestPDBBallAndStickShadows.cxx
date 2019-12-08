@@ -12,37 +12,36 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMolecule.h"
 #include "vtkLight.h"
+#include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkPDBReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-#include "vtkTimerLog.h"
 #include "vtkCamera.h"
+#include "vtkTimerLog.h"
 
-int TestPDBBallAndStickShadows(int argc, char *argv[])
+int TestPDBBallAndStickShadows(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
 
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
@@ -74,7 +73,7 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   // add a plane
   vtkNew<vtkPlaneSource> plane;
-  const double *bounds = molmapper->GetBounds();
+  const double* bounds = molmapper->GetBounds();
   plane->SetOrigin(bounds[0], bounds[2], bounds[4]);
   plane->SetPoint1(bounds[1], bounds[2], bounds[4]);
   plane->SetPoint2(bounds[0], bounds[2], bounds[5]);
@@ -85,16 +84,16 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   ren->AddActor(planeActor);
 
   vtkNew<vtkLight> light1;
-  light1->SetFocalPoint(0,0,0);
-  light1->SetPosition(0,1,0.2);
-  light1->SetColor(0.95,0.97,1.0);
+  light1->SetFocalPoint(0, 0, 0);
+  light1->SetPosition(0, 1, 0.2);
+  light1->SetColor(0.95, 0.97, 1.0);
   light1->SetIntensity(0.8);
   ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
-  light2->SetFocalPoint(0,0,0);
-  light2->SetPosition(1.0,1.0,1.0);
-  light2->SetColor(1.0,0.8,0.7);
+  light2->SetFocalPoint(0, 0, 0);
+  light2->SetPosition(1.0, 1.0, 1.0);
+  light2->SetColor(1.0, 0.8, 0.7);
   light2->SetIntensity(0.3);
   ren->AddLight(light2);
 
@@ -107,23 +106,23 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
-/*
-  int numRenders = 500;
-  timer->StartTimer();
-  for (int i = 0; i < numRenders; ++i)
-    {
-    ren->GetActiveCamera()->Azimuth(85.0/numRenders);
-    ren->GetActiveCamera()->Elevation(85.0/numRenders);
-    win->Render();
-    }
-  timer->StopTimer();
-  double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
-*/
+  /*
+    int numRenders = 500;
+    timer->StartTimer();
+    for (int i = 0; i < numRenders; ++i)
+      {
+      ren->GetActiveCamera()->Azimuth(85.0/numRenders);
+      ren->GetActiveCamera()->Elevation(85.0/numRenders);
+      win->Render();
+      }
+    timer->StopTimer();
+    double elapsed = timer->GetElapsedTime();
+    cerr << "interactive render time: " << elapsed / numRenders << endl;
+  */
 
-  ren->GetActiveCamera()->SetPosition(0,0,1);
-  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
-  ren->GetActiveCamera()->SetViewUp(0,1,0);
+  ren->GetActiveCamera()->SetPosition(0, 0, 1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
 

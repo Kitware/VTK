@@ -2,16 +2,16 @@
 #include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
 #include <vtkDiagonalMatrixSource.h>
-#include <vtkRenderWindow.h>
 #include <vtkGraphLayoutView.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
 #include <vtkViewTheme.h>
 
-int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
   source->SetExtents(10);
@@ -24,7 +24,8 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkPrintMatrixFormat(cout, vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
   cout << "\n";
 
-  vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable> edges = vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable>::New();
+  vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable> edges =
+    vtkSmartPointer<vtkAdjacencyMatrixToEdgeTable>::New();
   edges->SetInputConnection(source->GetOutputPort());
 
   vtkSmartPointer<vtkTableToGraph> graph = vtkSmartPointer<vtkTableToGraph>::New();
@@ -37,10 +38,10 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   theme.TakeReference(vtkViewTheme::CreateMellowTheme());
   theme->SetLineWidth(5);
   theme->SetCellOpacity(0.9);
-  theme->SetCellAlphaRange(0.5,0.5);
+  theme->SetCellAlphaRange(0.5, 0.5);
   theme->SetPointSize(10);
-  theme->SetSelectedCellColor(1,0,1);
-  theme->SetSelectedPointColor(1,0,1);
+  theme->SetSelectedCellColor(1, 0, 1);
+  theme->SetSelectedPointColor(1, 0, 1);
 
   vtkSmartPointer<vtkGraphLayoutView> view = vtkSmartPointer<vtkGraphLayoutView>::New();
   view->AddRepresentationFromInputConnection(graph->GetOutputPort());
@@ -57,4 +58,3 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   return 0;
 }
-

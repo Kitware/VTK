@@ -1,26 +1,26 @@
+#include <vtkAppendPolyData.h>
+#include <vtkCleanPolyData.h>
+#include <vtkClipPolyData.h>
+#include <vtkContourFilter.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
-#include <vtkAppendPolyData.h>
-#include <vtkClipPolyData.h>
-#include <vtkCleanPolyData.h>
-#include <vtkContourFilter.h>
 
-#include <vtkFloatArray.h>
+#include <vtkActor.h>
 #include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkScalarsToColors.h>
+#include <vtkFloatArray.h>
 #include <vtkLookupTable.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
+#include <vtkScalarsToColors.h>
 
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include <vector>
 
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 3)
   {
@@ -29,10 +29,9 @@ int main (int argc, char *argv[])
   }
 
   // Read the file
-  vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
+  vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
   reader->Update(); // Update so that we can get the scalar range
 
   double scalarRange[2];
@@ -46,7 +45,8 @@ int main (int argc, char *argv[])
   int numberOfContours = atoi(argv[2]);
   if (numberOfContours > 1000)
   {
-    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000" << std::endl;
+    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000"
+              << std::endl;
     return EXIT_FAILURE;
   }
   if (numberOfContours <= 0)
@@ -55,9 +55,7 @@ int main (int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  double delta =
-    (scalarRange[1] - scalarRange[0]) /
-    static_cast<double> (numberOfContours - 1);
+  double delta = (scalarRange[1] - scalarRange[0]) / static_cast<double>(numberOfContours - 1);
 
   // Keep the clippers alive
   std::vector<vtkSmartPointer<vtkClipPolyData> > clippersLo;
@@ -65,8 +63,8 @@ int main (int argc, char *argv[])
 
   for (int i = 0; i < numberOfContours; i++)
   {
-    double valueLo = scalarRange[0] + static_cast<double> (i) * delta;
-    double valueHi = scalarRange[0] + static_cast<double> (i + 1) * delta;
+    double valueLo = scalarRange[0] + static_cast<double>(i) * delta;
+    double valueHi = scalarRange[0] + static_cast<double>(i + 1) * delta;
     clippersLo.push_back(vtkSmartPointer<vtkClipPolyData>::New());
     clippersLo[i]->SetValue(valueLo);
     if (i == 0)
@@ -91,8 +89,7 @@ int main (int argc, char *argv[])
       continue;
     }
 
-    vtkSmartPointer<vtkFloatArray> cd =
-      vtkSmartPointer<vtkFloatArray>::New();
+    vtkSmartPointer<vtkFloatArray> cd = vtkSmartPointer<vtkFloatArray>::New();
     cd->SetNumberOfComponents(1);
     cd->SetNumberOfTuples(clippersHi[i]->GetOutput()->GetNumberOfCells());
     cd->FillComponent(0, valueLo);
@@ -101,28 +98,23 @@ int main (int argc, char *argv[])
     appendFilledContours->AddInputConnection(clippersHi[i]->GetOutputPort());
   }
 
-  vtkSmartPointer<vtkCleanPolyData> filledContours =
-    vtkSmartPointer<vtkCleanPolyData>::New();
+  vtkSmartPointer<vtkCleanPolyData> filledContours = vtkSmartPointer<vtkCleanPolyData>::New();
   filledContours->SetInputConnection(appendFilledContours->GetOutputPort());
 
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
   lut->SetNumberOfTableValues(numberOfContours + 1);
   lut->Build();
-  vtkSmartPointer<vtkPolyDataMapper> contourMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> contourMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   contourMapper->SetInputConnection(filledContours->GetOutputPort());
   contourMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourMapper->SetScalarModeToUseCellData();
   contourMapper->SetLookupTable(lut);
 
-  vtkSmartPointer<vtkActor> contourActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
   contourActor->GetProperty()->SetInterpolationToFlat();
 
-  vtkSmartPointer<vtkContourFilter> contours =
-    vtkSmartPointer<vtkContourFilter>::New();
+  vtkSmartPointer<vtkContourFilter> contours = vtkSmartPointer<vtkContourFilter>::New();
   contours->SetInputConnection(filledContours->GetOutputPort());
   contours->GenerateValues(numberOfContours, scalarRange[0], scalarRange[1]);
 
@@ -132,18 +124,15 @@ int main (int argc, char *argv[])
   contourLineMapperer->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourLineMapperer->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkActor> contourLineActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> contourLineActor = vtkSmartPointer<vtkActor>::New();
   contourLineActor->SetMapper(contourLineMapperer);
   contourLineActor->GetProperty()->SetLineWidth(2);
 
   // The usual renderer, render window and interactor
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor>
-    iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
   ren1->SetBackground(.1, .2, .3);
   renWin->AddRenderer(ren1);

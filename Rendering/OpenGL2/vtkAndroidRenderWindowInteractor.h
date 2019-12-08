@@ -25,13 +25,13 @@
  * messages into the event bindings by setting InstallMessageProc to false.
  * This provides a minimal "Mapped" mode of interaction
  *
-*/
+ */
 
 #ifndef vtkAndroidRenderWindowInteractor_h
 #define vtkAndroidRenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 struct AInputEvent;
 
@@ -41,9 +41,9 @@ public:
   /**
    * Construct object so that light follows camera motion.
    */
-  static vtkAndroidRenderWindowInteractor *New();
+  static vtkAndroidRenderWindowInteractor* New();
 
-  vtkTypeMacro(vtkAndroidRenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkAndroidRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
@@ -79,8 +79,8 @@ public:
    * provided as a means to control how an interactor is exited given
    * the various language bindings (Win32, etc.).
    */
-  static void SetClassExitMethod(void (*f)(void *), void *arg);
-  static void SetClassExitMethodArgDelete(void (*f)(void *));
+  static void SetClassExitMethod(void (*f)(void*), void* arg);
+  static void SetClassExitMethodArgDelete(void (*f)(void*));
   //@}
 
   /**
@@ -89,8 +89,7 @@ public:
    */
   virtual void ExitCallback();
 
-  virtual void SetAndroidApplication(struct android_app *app)
-    { this->AndroidApplication = app; };
+  virtual void SetAndroidApplication(struct android_app* app) { this->AndroidApplication = app; }
 
   /**
    * Handle key up/down events
@@ -100,29 +99,28 @@ public:
   /**
    * Handle motion events
    */
-  void HandleMotionEvent(int actionType, int actionId, int numPtrs,
-    int *xPtr, int *yPtr, int *idPtr, int metaState);
+  void HandleMotionEvent(
+    int actionType, int actionId, int numPtrs, int* xPtr, int* yPtr, int* idPtr, int metaState);
 
   /**
    * used for converting keyCodes on Android
    */
-  const char *GetKeySym(int keyCode);
+  const char* GetKeySym(int keyCode);
 
   void HandleCommand(int32_t cmd);
   int32_t HandleInput(AInputEvent* event);
-
 
 protected:
   vtkAndroidRenderWindowInteractor();
   ~vtkAndroidRenderWindowInteractor();
 
-  int     MouseInWindow;
-  int     StartedMessageLoop;
+  int MouseInWindow;
+  int StartedMessageLoop;
 
-  struct android_app *AndroidApplication;
-  const char **KeyCodeToKeySymTable;
+  struct android_app* AndroidApplication;
+  const char** KeyCodeToKeySymTable;
 
-  bool Done;  // is the event loop done running
+  bool Done; // is the event loop done running
 
   //@{
   /**
@@ -130,9 +128,9 @@ protected:
    * (used to set different exit methods for various language bindings,
    * i.e. java, Win32)
    */
-  static void (*ClassExitMethod)(void *);
-  static void (*ClassExitMethodArgDelete)(void *);
-  static void *ClassExitMethodArg;
+  static void (*ClassExitMethod)(void*);
+  static void (*ClassExitMethodArgDelete)(void*);
+  static void* ClassExitMethodArg;
   //@}
 
   //@{

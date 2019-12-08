@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricConicSpiral.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
@@ -45,13 +45,12 @@ vtkParametricConicSpiral::vtkParametricConicSpiral()
 vtkParametricConicSpiral::~vtkParametricConicSpiral() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],
-                                        double Duvw[9])
+void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double inv2pi = 1.0 / (2.0 * vtkMath::Pi());
 
@@ -67,18 +66,17 @@ void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],
 
   // The derivatives are:
   Du[0] = -this->A * (1 - v * inv2pi) * cnv * su;
-  Dv[0] = -this->A * inv2pi * cnv * (1 + cu) - this->A *
-          (1 - v * inv2pi) * snv * this->N * (1 + cu) - this->C * snv * N;
+  Dv[0] = -this->A * inv2pi * cnv * (1 + cu) -
+    this->A * (1 - v * inv2pi) * snv * this->N * (1 + cu) - this->C * snv * N;
   Du[1] = -this->A * (1 - v * inv2pi) * snv * su;
-  Dv[1] = -this->A * inv2pi * snv * (1 + cu) + this->A *
-          (1 - v * inv2pi) * cnv * this->N * (1 + cu) + C * cnv * this->N;
+  Dv[1] = -this->A * inv2pi * snv * (1 + cu) +
+    this->A * (1 - v * inv2pi) * cnv * this->N * (1 + cu) + C * cnv * this->N;
   Du[2] = this->A * (1 - v * inv2pi) * cu;
   Dv[2] = this->B * inv2pi - this->A * inv2pi * su;
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricConicSpiral::EvaluateScalar(double *, double *,
-    double *)
+double vtkParametricConicSpiral::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }

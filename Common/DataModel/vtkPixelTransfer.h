@@ -23,159 +23,90 @@
  *
  * @sa
  * vtkPixelExtent vtkPPixelTransfer
-*/
+ */
 
 #ifndef vtkPixelTransfer_h
 #define vtkPixelTransfer_h
 
 #include "vtkCommonDataModelModule.h" // for export
-#include "vtkSetGet.h" // for macros
-#include "vtkPixelExtent.h" // for pixel extent
-#include <cstring> // for memcpy
+#include "vtkPixelExtent.h"           // for pixel extent
+#include "vtkSetGet.h"                // for macros
+#include <cstring>                    // for memcpy
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer
 {
 public:
-  vtkPixelTransfer(){}
+  vtkPixelTransfer() {}
 
   /**
    * for memory to memory transfers. Convenience api for working
    * with vtk type enum rather than c-data types and simple extents.
    */
-  static
-  int Blit(
-         const vtkPixelExtent &ext,
-         int nComps,
-         int srcType,
-         void *srcData,
-         int destType,
-         void *destData);
+  static int Blit(const vtkPixelExtent& ext, int nComps, int srcType, void* srcData, int destType,
+    void* destData);
 
   /**
    * for memory to memory transfers. Convenience api for working
    * with vtk type enum rather than c-data types.
    */
-  static
-  int Blit(
-         const vtkPixelExtent &srcWhole,
-         const vtkPixelExtent &srcSubset,
-         const vtkPixelExtent &destWhole,
-         const vtkPixelExtent &destSubset,
-         int nSrcComps,
-         int srcType,
-         void *srcData,
-         int nDestComps,
-         int destType,
-         void *destData);
+  static int Blit(const vtkPixelExtent& srcWhole, const vtkPixelExtent& srcSubset,
+    const vtkPixelExtent& destWhole, const vtkPixelExtent& destSubset, int nSrcComps, int srcType,
+    void* srcData, int nDestComps, int destType, void* destData);
 
   /**
    * for local memory to memory transfers
    */
-  template<typename SOURCE_TYPE, typename DEST_TYPE>
-  static
-  int Blit(
-         const vtkPixelExtent &srcWhole,
-         const vtkPixelExtent &srcSubset,
-         const vtkPixelExtent &destWhole,
-         const vtkPixelExtent &destSubset,
-         int nSrcComps,
-         SOURCE_TYPE *srcData,
-         int nDestComps,
-         DEST_TYPE *destData);
+  template <typename SOURCE_TYPE, typename DEST_TYPE>
+  static int Blit(const vtkPixelExtent& srcWhole, const vtkPixelExtent& srcSubset,
+    const vtkPixelExtent& destWhole, const vtkPixelExtent& destSubset, int nSrcComps,
+    SOURCE_TYPE* srcData, int nDestComps, DEST_TYPE* destData);
 
 private:
   // distpatch helper for vtk data type enum
-  template<typename SOURCE_TYPE>
-  static
-  int Blit(
-         const vtkPixelExtent &srcWhole,
-         const vtkPixelExtent &srcSubset,
-         const vtkPixelExtent &destWhole,
-         const vtkPixelExtent &destSubset,
-         int nSrcComps,
-         SOURCE_TYPE *srcData,
-         int nDestComps,
-         int destType,
-         void *destData);
+  template <typename SOURCE_TYPE>
+  static int Blit(const vtkPixelExtent& srcWhole, const vtkPixelExtent& srcSubset,
+    const vtkPixelExtent& destWhole, const vtkPixelExtent& destSubset, int nSrcComps,
+    SOURCE_TYPE* srcData, int nDestComps, int destType, void* destData);
 };
 
 //-----------------------------------------------------------------------------
-inline
-int vtkPixelTransfer::Blit(
-         const vtkPixelExtent &ext,
-         int nComps,
-         int srcType,
-         void *srcData,
-         int destType,
-         void *destData)
+inline int vtkPixelTransfer::Blit(
+  const vtkPixelExtent& ext, int nComps, int srcType, void* srcData, int destType, void* destData)
 {
   return vtkPixelTransfer::Blit(
-        ext,
-        ext,
-        ext,
-        ext,
-        nComps,
-        srcType,
-        srcData,
-        nComps,
-        destType,
-        destData);
+    ext, ext, ext, ext, nComps, srcType, srcData, nComps, destType, destData);
 }
 
-
 //-----------------------------------------------------------------------------
-template<typename SOURCE_TYPE>
-int vtkPixelTransfer::Blit(
-       const vtkPixelExtent &srcWholeExt,
-       const vtkPixelExtent &srcExt,
-       const vtkPixelExtent &destWholeExt,
-       const vtkPixelExtent &destExt,
-       int nSrcComps,
-       SOURCE_TYPE *srcData,
-       int nDestComps,
-       int destType,
-       void *destData)
+template <typename SOURCE_TYPE>
+int vtkPixelTransfer::Blit(const vtkPixelExtent& srcWholeExt, const vtkPixelExtent& srcExt,
+  const vtkPixelExtent& destWholeExt, const vtkPixelExtent& destExt, int nSrcComps,
+  SOURCE_TYPE* srcData, int nDestComps, int destType, void* destData)
 {
   // second layer of dispatch
-  switch(destType)
+  switch (destType)
   {
-    vtkTemplateMacro(
-        return vtkPixelTransfer::Blit(
-            srcWholeExt,
-            srcExt,
-            destWholeExt,
-            destExt,
-            nSrcComps,
-            srcData,
-            nDestComps,
-            (VTK_TT*)destData););
+    vtkTemplateMacro(return vtkPixelTransfer::Blit(srcWholeExt, srcExt, destWholeExt, destExt,
+      nSrcComps, srcData, nDestComps, (VTK_TT*)destData););
   }
   return 0;
 }
 
 //-----------------------------------------------------------------------------
-template<typename SOURCE_TYPE, typename DEST_TYPE>
-int vtkPixelTransfer::Blit(
-       const vtkPixelExtent &srcWholeExt,
-       const vtkPixelExtent &srcSubset,
-       const vtkPixelExtent &destWholeExt,
-       const vtkPixelExtent &destSubset,
-       int nSrcComps,
-       SOURCE_TYPE *srcData,
-       int nDestComps,
-       DEST_TYPE *destData)
+template <typename SOURCE_TYPE, typename DEST_TYPE>
+int vtkPixelTransfer::Blit(const vtkPixelExtent& srcWholeExt, const vtkPixelExtent& srcSubset,
+  const vtkPixelExtent& destWholeExt, const vtkPixelExtent& destSubset, int nSrcComps,
+  SOURCE_TYPE* srcData, int nDestComps, DEST_TYPE* destData)
 {
-  if ( (srcData == nullptr) || (destData == nullptr) )
+  if ((srcData == nullptr) || (destData == nullptr))
   {
     return -1;
   }
-  if ( (srcWholeExt == srcSubset)
-    && (destWholeExt == destSubset)
-    && (nSrcComps == nDestComps) )
+  if ((srcWholeExt == srcSubset) && (destWholeExt == destSubset) && (nSrcComps == nDestComps))
   {
     // buffers are contiguous
-    size_t n = srcWholeExt.Size()*nSrcComps;
-    for (size_t i=0; i<n; ++i)
+    size_t n = srcWholeExt.Size() * nSrcComps;
+    for (size_t i = 0; i < n; ++i)
     {
       destData[i] = static_cast<DEST_TYPE>(srcData[i]);
     }
@@ -207,23 +138,23 @@ int vtkPixelTransfer::Blit(
     // invalid mem
     int nCopyComps = nSrcComps < nDestComps ? nSrcComps : nDestComps;
 
-    for (int j=0; j<nxny[1]; ++j)
+    for (int j = 0; j < nxny[1]; ++j)
     {
-      int sjj = swnx*(srcExt[2]+j)+srcExt[0];
-      int djj = dwnx*(destExt[2]+j)+destExt[0];
-      for (int i=0; i<nxny[0]; ++i)
+      int sjj = swnx * (srcExt[2] + j) + srcExt[0];
+      int djj = dwnx * (destExt[2] + j) + destExt[0];
+      for (int i = 0; i < nxny[0]; ++i)
       {
-        int sidx = nSrcComps*(sjj+i);
-        int didx = nDestComps*(djj+i);
+        int sidx = nSrcComps * (sjj + i);
+        int didx = nDestComps * (djj + i);
         // copy values from source
-        for (int p=0; p<nCopyComps; ++p)
+        for (int p = 0; p < nCopyComps; ++p)
         {
-          destData[didx+p] = static_cast<DEST_TYPE>(srcData[sidx+p]);
+          destData[didx + p] = static_cast<DEST_TYPE>(srcData[sidx + p]);
         }
         // ensure all dest comps are initialized
-        for (int p=nCopyComps; p<nDestComps; ++p)
+        for (int p = nCopyComps; p < nDestComps; ++p)
         {
-          destData[didx+p] = static_cast<DEST_TYPE>(0);
+          destData[didx + p] = static_cast<DEST_TYPE>(0);
         }
       }
     }

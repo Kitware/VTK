@@ -31,18 +31,21 @@
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLWidget(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), nullptr, parent, f)
-{}
+{
+}
 
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(QOpenGLContext* shareContext, QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLWidget(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), shareContext, parent, f)
-{}
+{
+}
 
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(
   vtkGenericOpenGLRenderWindow* w, QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLWidget(w, QOpenGLContext::currentContext(), parent, f)
-{}
+{
+}
 
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(
@@ -61,10 +64,7 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(
 
   // Forward signals triggered by the internal QVTKOpenGLWindow
   QObject::connect(this->VTKOpenGLWindow.data(), &QVTKOpenGLWindow::windowEvent,
-      [this](QEvent* evt)
-      {
-        QApplication::sendEvent(this, evt);
-      });
+    [this](QEvent* evt) { QApplication::sendEvent(this, evt); });
 
   // enable mouse tracking to process mouse events
   this->setMouseTracking(true);
@@ -105,7 +105,7 @@ void QVTKOpenGLWidget::resizeEvent(QResizeEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::paintEvent(QPaintEvent *evt)
+void QVTKOpenGLWidget::paintEvent(QPaintEvent* evt)
 {
   vtkLogScopeF(TRACE, "paintEvent");
   this->Superclass::paintEvent(evt);

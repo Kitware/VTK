@@ -32,10 +32,9 @@ void vtkAbstractElectronicData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractElectronicData::DeepCopy(vtkDataObject *obj)
+void vtkAbstractElectronicData::DeepCopy(vtkDataObject* obj)
 {
-  vtkAbstractElectronicData *aed =
-      vtkAbstractElectronicData::SafeDownCast(obj);
+  vtkAbstractElectronicData* aed = vtkAbstractElectronicData::SafeDownCast(obj);
   if (!aed)
   {
     vtkErrorMacro("Can only deep copy from vtkAbstractElectronicData "

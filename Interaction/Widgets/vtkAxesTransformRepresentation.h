@@ -24,7 +24,7 @@
  * occluded.
  * @sa
  * vtkDistanceWidget vtkDistanceRepresentation vtkDistanceRepresentation2D
-*/
+ */
 
 #ifndef vtkAxesTransformRepresentation_h
 #define vtkAxesTransformRepresentation_h
@@ -46,20 +46,19 @@ class vtkDoubleArray;
 class vtkTransformPolyDataFilter;
 class vtkProperty;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkAxesTransformRepresentation : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate class.
    */
-  static vtkAxesTransformRepresentation *New();
+  static vtkAxesTransformRepresentation* New();
 
   //@{
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAxesTransformRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkAxesTransformRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -69,8 +68,8 @@ public:
    * vtkAxesTransformWidget. (Note: properties can be set by grabbing these
    * representations and setting the properties appropriately.)
    */
-  vtkGetObjectMacro(OriginRepresentation,vtkHandleRepresentation);
-  vtkGetObjectMacro(SelectionRepresentation,vtkHandleRepresentation);
+  vtkGetObjectMacro(OriginRepresentation, vtkHandleRepresentation);
+  vtkGetObjectMacro(SelectionRepresentation, vtkHandleRepresentation);
   //@}
 
   //@{
@@ -97,8 +96,8 @@ public:
    * which the cursor is considered near enough to the end points of
    * the widget to be active.
    */
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
+  vtkSetClampMacro(Tolerance, int, 1, 100);
+  vtkGetMacro(Tolerance, int);
   //@}
 
   //@{
@@ -114,7 +113,17 @@ public:
   /**
    * Enum used to communicate interaction state.
    */
-  enum {Outside=0,OnOrigin,OnX,OnY,OnZ,OnXEnd,OnYEnd,OnZEnd};
+  enum
+  {
+    Outside = 0,
+    OnOrigin,
+    OnX,
+    OnY,
+    OnZ,
+    OnXEnd,
+    OnYEnd,
+    OnZEnd
+  };
 
   //@{
   /**
@@ -126,7 +135,7 @@ public:
    * widget feature), then based on events, the widget may modify this
    * further.
    */
-  vtkSetClampMacro(InteractionState,int,Outside,OnZEnd);
+  vtkSetClampMacro(InteractionState, int, Outside, OnZEnd);
   //@}
 
   //@{
@@ -134,19 +143,19 @@ public:
    * Method to satisfy superclasses' API.
    */
   void BuildRepresentation() override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
+  double* GetBounds() override;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   //@}
 
   //@{
@@ -162,52 +171,52 @@ public:
     scale[2] = z;
     this->SetLabelScale(scale);
   }
-  virtual void SetLabelScale( double scale[3] );
-  virtual double * GetLabelScale();
+  virtual void SetLabelScale(double scale[3]);
+  virtual double* GetLabelScale();
   //@}
 
   /**
    * Get the distance annotation property
    */
-  virtual vtkProperty *GetLabelProperty();
+  virtual vtkProperty* GetLabelProperty();
 
 protected:
   vtkAxesTransformRepresentation();
   ~vtkAxesTransformRepresentation() override;
 
   // The handle and the rep used to close the handles
-  vtkHandleRepresentation *OriginRepresentation;
-  vtkHandleRepresentation *SelectionRepresentation;
+  vtkHandleRepresentation* OriginRepresentation;
+  vtkHandleRepresentation* SelectionRepresentation;
 
   // Selection tolerance for the handles
   int Tolerance;
 
   // Format for printing the distance
-  char *LabelFormat;
+  char* LabelFormat;
 
   // The line
-  vtkPoints         *LinePoints;
-  vtkPolyData       *LinePolyData;
-  vtkPolyDataMapper *LineMapper;
-  vtkActor          *LineActor;
+  vtkPoints* LinePoints;
+  vtkPolyData* LinePolyData;
+  vtkPolyDataMapper* LineMapper;
+  vtkActor* LineActor;
 
   // The distance label
-  vtkVectorText     *LabelText;
-  vtkPolyDataMapper *LabelMapper;
-  vtkFollower       *LabelActor;
+  vtkVectorText* LabelText;
+  vtkPolyDataMapper* LabelMapper;
+  vtkFollower* LabelActor;
 
   // The 3D disk tick marks
-  vtkPoints         *GlyphPoints;
-  vtkDoubleArray    *GlyphVectors;
-  vtkPolyData       *GlyphPolyData;
-  vtkCylinderSource *GlyphCylinder;
-  vtkTransformPolyDataFilter *GlyphXForm;
-  vtkGlyph3D        *Glyph3D;
-  vtkPolyDataMapper *GlyphMapper;
-  vtkActor          *GlyphActor;
+  vtkPoints* GlyphPoints;
+  vtkDoubleArray* GlyphVectors;
+  vtkPolyData* GlyphPolyData;
+  vtkCylinderSource* GlyphCylinder;
+  vtkTransformPolyDataFilter* GlyphXForm;
+  vtkGlyph3D* Glyph3D;
+  vtkPolyDataMapper* GlyphMapper;
+  vtkActor* GlyphActor;
 
   // Support GetBounds() method
-  vtkBox *BoundingBox;
+  vtkBox* BoundingBox;
 
   double LastEventPosition[3];
 

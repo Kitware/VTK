@@ -59,16 +59,15 @@
  *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
  * </pre>
  *
-*/
+ */
 
 #ifndef vtkHandleWidget_h
 #define vtkHandleWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkHandleRepresentation;
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkHandleWidget : public vtkAbstractWidget
 {
@@ -76,13 +75,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkHandleWidget *New();
+  static vtkHandleWidget* New();
 
   //@{
   /**
    * Standard VTK class macros.
    */
-  vtkTypeMacro(vtkHandleWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkHandleWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -91,14 +90,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkHandleRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkHandleRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkHandleRepresentation.
    */
-  vtkHandleRepresentation *GetHandleRepresentation()
-    {return reinterpret_cast<vtkHandleRepresentation*>(this->WidgetRep);}
+  vtkHandleRepresentation* GetHandleRepresentation()
+  {
+    return reinterpret_cast<vtkHandleRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set. By default
@@ -112,9 +115,9 @@ public:
    * widget responds to the shift modifier to constrain the handle along the
    * axis closest aligned with the motion vector.
    */
-  vtkSetMacro( EnableAxisConstraint, vtkTypeBool );
-  vtkGetMacro( EnableAxisConstraint, vtkTypeBool );
-  vtkBooleanMacro( EnableAxisConstraint, vtkTypeBool );
+  vtkSetMacro(EnableAxisConstraint, vtkTypeBool);
+  vtkGetMacro(EnableAxisConstraint, vtkTypeBool);
+  vtkBooleanMacro(EnableAxisConstraint, vtkTypeBool);
   //@}
 
   //@{
@@ -131,16 +134,16 @@ public:
    * Allow resizing of handles ? By default the right mouse button scales
    * the handle size.
    */
-  vtkSetMacro( AllowHandleResize, vtkTypeBool );
-  vtkGetMacro( AllowHandleResize, vtkTypeBool );
-  vtkBooleanMacro( AllowHandleResize, vtkTypeBool );
+  vtkSetMacro(AllowHandleResize, vtkTypeBool);
+  vtkGetMacro(AllowHandleResize, vtkTypeBool);
+  vtkBooleanMacro(AllowHandleResize, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Get the widget state.
    */
-  vtkGetMacro( WidgetState, int );
+  vtkGetMacro(WidgetState, int);
   //@}
 
   //@{
@@ -149,13 +152,18 @@ public:
    * By default, this is false i.e. the representation is not visible when the
    * widget is disabled.
    */
-  vtkSetMacro( ShowInactive, vtkTypeBool );
-  vtkGetMacro( ShowInactive, vtkTypeBool );
-  vtkBooleanMacro( ShowInactive, vtkTypeBool );
+  vtkSetMacro(ShowInactive, vtkTypeBool);
+  vtkGetMacro(ShowInactive, vtkTypeBool);
+  vtkBooleanMacro(ShowInactive, vtkTypeBool);
   //@}
 
   // Manage the state of the widget
-  enum _WidgetState {Start=0,Active,Inactive};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active,
+    Inactive
+  };
 
   /**
    * Enable/disable widget.
@@ -176,7 +184,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void SelectAction3D(vtkAbstractWidget*);
   static void MoveAction3D(vtkAbstractWidget*);
-  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
   // helper methods for cursor management
   void SetCursor(int state) override;
@@ -191,7 +199,7 @@ protected:
   // Keep representation visible when disabled
   vtkTypeBool ShowInactive;
 
-  vtkCallbackCommand *KeyEventCallbackCommand;
+  vtkCallbackCommand* KeyEventCallbackCommand;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&) = delete;

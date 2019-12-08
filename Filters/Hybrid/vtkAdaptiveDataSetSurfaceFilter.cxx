@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMergePoints.h"
@@ -77,9 +78,7 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 }
 
 //-----------------------------------------------------------------------------
-vtkAdaptiveDataSetSurfaceFilter::~vtkAdaptiveDataSetSurfaceFilter()
-{
-}
+vtkAdaptiveDataSetSurfaceFilter::~vtkAdaptiveDataSetSurfaceFilter() {}
 
 //----------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -362,7 +361,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   }
 
   // Retrieve material mask
-  this->Mask = input->HasMask() ? input->GetMask() : 0;
+  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
   //
   vtkUnsignedCharArray* ghost = nullptr; // DDM input->GetPointGhostArray();
@@ -426,7 +425,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   std::cerr << "                                #Cells             "
             << this->Cells->GetNumberOfCells() << std::endl;
   std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityEntries() << std::endl;
+            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
   std::cerr << "                          Cells #NbRejectByBB      " << this->NbRejectByBB
             << std::endl;
   std::cerr << "                                #NbRejectByCircle  " << this->NbRejectByCircle
@@ -437,12 +436,12 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   std::cerr << "                                #Cells             "
             << this->Cells->GetNumberOfCells() << std::endl;
   std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityEntries() << std::endl;
+            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
 
   this->Points->Delete();
-  this->Points = NULL;
+  this->Points = nullptr;
   this->Cells->Delete();
-  this->Cells = NULL;
+  this->Cells = nullptr;
 
   if (this->Locator)
   {

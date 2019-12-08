@@ -12,14 +12,14 @@
 
 =========================================================================*/
 
-#include "vtkPeriodicTable.h"
-#include "vtkNew.h"
 #include "vtkColor.h"
-#include "vtkStdString.h"
 #include "vtkLookupTable.h"
 #include "vtkMathUtilities.h"
+#include "vtkNew.h"
+#include "vtkPeriodicTable.h"
+#include "vtkStdString.h"
 
-int TestPeriodicTable(int , char * [])
+int TestPeriodicTable(int, char*[])
 {
   int errors = 0;
   vtkNew<vtkPeriodicTable> pTab;
@@ -28,30 +28,26 @@ int TestPeriodicTable(int , char * [])
   if (pTab->GetAtomicNumber("25") != 25)
   {
     cout << "vtkPeriodicTable::GetAtomicNumber cannot parse numeric "
-         << "strings properly. Given \"25\", should get 25, got %hu."
-         << pTab->GetAtomicNumber("25") << endl;
+         << "strings properly. Given \"25\", should get 25, got %hu." << pTab->GetAtomicNumber("25")
+         << endl;
     ++errors;
   }
-  if (pTab->GetAtomicNumber("300") != 0 ||
-      pTab->GetAtomicNumber("-300") != 0)
+  if (pTab->GetAtomicNumber("300") != 0 || pTab->GetAtomicNumber("-300") != 0)
   {
     cout << "vtkPeriodicTable does not return 0 for invalid numeric strings. "
-         << "Given \"300\" and \"-300\", returned "
-         << pTab->GetAtomicNumber("300") << " and "
-         << pTab->GetAtomicNumber("-300")<< " respectively." << endl;
+         << "Given \"300\" and \"-300\", returned " << pTab->GetAtomicNumber("300") << " and "
+         << pTab->GetAtomicNumber("-300") << " respectively." << endl;
     ++errors;
   }
 
   // Check that invalid strings return zero
-  const char *nullString = "";
-  if (pTab->GetAtomicNumber("I'm not an element.") != 0 ||
-      pTab->GetAtomicNumber(nullptr) != 0 ||
-      pTab->GetAtomicNumber(nullString) != 0)
+  const char* nullString = "";
+  if (pTab->GetAtomicNumber("I'm not an element.") != 0 || pTab->GetAtomicNumber(nullptr) != 0 ||
+    pTab->GetAtomicNumber(nullString) != 0)
   {
     cout << "vtkPeriodicTable did not return 0 for an invalid string: "
-         << pTab->GetAtomicNumber("I'm not an element.") << ", "
-         << pTab->GetAtomicNumber(nullptr) << ", "
-         << pTab->GetAtomicNumber(nullString) << endl;
+         << pTab->GetAtomicNumber("I'm not an element.") << ", " << pTab->GetAtomicNumber(nullptr)
+         << ", " << pTab->GetAtomicNumber(nullString) << endl;
     ++errors;
   }
 
@@ -64,21 +60,17 @@ int TestPeriodicTable(int , char * [])
 
     if (pTab->GetAtomicNumber(name) != i)
     {
-      cout << "Element name failed roundtrip: Name: \""
-           << name << "\" atomic number: "
-           << i << "vtkPeriodicTable::GetAtomicNumber(\""
-           << name << "\") returns: "
-           << pTab->GetAtomicNumber(name) << endl;
+      cout << "Element name failed roundtrip: Name: \"" << name << "\" atomic number: " << i
+           << "vtkPeriodicTable::GetAtomicNumber(\"" << name
+           << "\") returns: " << pTab->GetAtomicNumber(name) << endl;
       ++errors;
     }
 
     if (pTab->GetAtomicNumber(symbol) != i)
     {
-      cout << "Element symbol failed roundtrip: Symbol: \""
-           << symbol << "\" atomic number: "
-           << i << " vtkPeriodicTable::GetAtomicNumber(\""
-           << symbol << "\") returns: "
-           << pTab->GetAtomicNumber(symbol) << endl;
+      cout << "Element symbol failed roundtrip: Symbol: \"" << symbol << "\" atomic number: " << i
+           << " vtkPeriodicTable::GetAtomicNumber(\"" << symbol
+           << "\") returns: " << pTab->GetAtomicNumber(symbol) << endl;
       ++errors;
     }
   }
@@ -94,8 +86,7 @@ int TestPeriodicTable(int , char * [])
   if (pTab->GetAtomicNumber("Deuterium") != pTab->GetAtomicNumber("Hydrogen"))
   {
     cout << "Failed to identify \"Deuterium\" as a hydrogen isotope. "
-         << "Atomic number for \"Deuterium\": "
-         << pTab->GetAtomicNumber("Deuterium") << endl;
+         << "Atomic number for \"Deuterium\": " << pTab->GetAtomicNumber("Deuterium") << endl;
     ++errors;
   }
   //  - Tritium
@@ -108,8 +99,7 @@ int TestPeriodicTable(int , char * [])
   if (pTab->GetAtomicNumber("Tritium") != pTab->GetAtomicNumber("Hydrogen"))
   {
     cout << "Failed to identify \"Tritium\" as a hydrogen isotope. "
-         << "Atomic number for \"Tritium\": "
-         << pTab->GetAtomicNumber("Tritium") << endl;
+         << "Atomic number for \"Tritium\": " << pTab->GetAtomicNumber("Tritium") << endl;
     ++errors;
   }
   //  - Aluminum, Aluminium
@@ -124,30 +114,28 @@ int TestPeriodicTable(int , char * [])
   std::string symbolString("He");
   if (pTab->GetAtomicNumber(symbolString) != 2)
   {
-    cout << "Failed to obtain the correct atomic number for " << symbolString
-         << ": " << pTab->GetAtomicNumber(symbolString) << endl;
+    cout << "Failed to obtain the correct atomic number for " << symbolString << ": "
+         << pTab->GetAtomicNumber(symbolString) << endl;
     ++errors;
   }
 
   // Check color API.
   vtkColor3f color = pTab->GetDefaultRGBTuple(6);
   vtkColor3f expectedColor(0.5, 0.5, 0.5);
-  if (color[0] != expectedColor[0] || color[1] != expectedColor[1] ||
-      color[2] != expectedColor[2])
+  if (color[0] != expectedColor[0] || color[1] != expectedColor[1] || color[2] != expectedColor[2])
   {
     ++errors;
-    cout << "Expected color for carbon was incorrect: " << color[0]
-         << ", " << color[1] << ", " << color[2] << endl;
+    cout << "Expected color for carbon was incorrect: " << color[0] << ", " << color[1] << ", "
+         << color[2] << endl;
   }
 
   float rgb[3];
   float expectedRgb[3] = { 1, 0.05f, 0.05f };
   pTab->GetDefaultRGBTuple(8, rgb);
-  if (rgb[0] != expectedRgb[0] || rgb[1] != expectedRgb[1] ||
-      rgb[2] != expectedRgb[2])
+  if (rgb[0] != expectedRgb[0] || rgb[1] != expectedRgb[1] || rgb[2] != expectedRgb[2])
   {
-    cout << "Expected color for oxygen was incorrect: " << rgb[0]
-         << ", " << rgb[1] << ", " << rgb[2] << endl;
+    cout << "Expected color for oxygen was incorrect: " << rgb[0] << ", " << rgb[1] << ", "
+         << rgb[2] << endl;
     ++errors;
   }
 

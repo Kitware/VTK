@@ -17,19 +17,19 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
+#include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkNew.h"
-#include "vtkPLYReader.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkActor.h"
+#include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkCamera.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
 #include "vtkPointFillPass.h"
 #include "vtkRenderStepsPass.h"
@@ -48,64 +48,62 @@ int TestPointFillPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
 
   // create three dragons
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
-  actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
-  actor->GetProperty()->SetSpecular(0.0);
-  actor->GetProperty()->SetDiffuse(0.5);
-  actor->GetProperty()->SetAmbient(0.3);
-  actor->SetPosition(-0.1,0.0,-0.1);
-  actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
+    actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
+    actor->GetProperty()->SetSpecular(0.0);
+    actor->GetProperty()->SetDiffuse(0.5);
+    actor->GetProperty()->SetAmbient(0.3);
+    actor->SetPosition(-0.1, 0.0, -0.1);
+    actor->GetProperty()->SetRepresentationToPoints();
+    renderer->AddActor(actor);
   }
 
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
-  actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
-  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-  actor->GetProperty()->SetSpecular(0.2);
-  actor->GetProperty()->SetDiffuse(0.9);
-  actor->GetProperty()->SetAmbient(0.1);
-  actor->GetProperty()->SetSpecularPower(10.0);
-  actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
+    actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
+    actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+    actor->GetProperty()->SetSpecular(0.2);
+    actor->GetProperty()->SetDiffuse(0.9);
+    actor->GetProperty()->SetAmbient(0.1);
+    actor->GetProperty()->SetSpecularPower(10.0);
+    actor->GetProperty()->SetRepresentationToPoints();
+    renderer->AddActor(actor);
   }
 
   {
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
-  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-  actor->GetProperty()->SetSpecular(0.7);
-  actor->GetProperty()->SetDiffuse(0.4);
-  actor->GetProperty()->SetSpecularPower(60.0);
-  actor->SetPosition(0.1,0.0,0.1);
-  actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
+    actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+    actor->GetProperty()->SetSpecular(0.7);
+    actor->GetProperty()->SetDiffuse(0.4);
+    actor->GetProperty()->SetSpecularPower(60.0);
+    actor->SetPosition(0.1, 0.0, 0.1);
+    actor->GetProperty()->SetRepresentationToPoints();
+    renderer->AddActor(actor);
   }
 
-  renderer->SetBackground(0.8,0.8,0.9);
-  renderer->SetBackground2(1.0,1.0,1.0);
+  renderer->SetBackground(0.8, 0.8, 0.9);
+  renderer->SetBackground2(1.0, 1.0, 1.0);
   renderer->GradientBackgroundOn();
-  //renderer->SetNearClippingPlaneTolerance(0.1);
+  // renderer->SetNearClippingPlaneTolerance(0.1);
 
-  vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
@@ -118,12 +116,12 @@ int TestPointFillPass(int argc, char* argv[])
   camPass->SetDelegatePass(pfp);
   glrenderer->SetPass(camPass);
 
-  renWin->SetSize(500,500);
+  renWin->SetSize(500, 500);
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->SetFocalDisk(renderer->GetActiveCamera()->GetDistance()*0.2);
+  renderer->GetActiveCamera()->SetFocalDisk(renderer->GetActiveCamera()->GetDistance() * 0.2);
   renWin->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
@@ -133,28 +131,28 @@ int TestPointFillPass(int argc, char* argv[])
   int numRenders = 4;
   for (int i = 0; i < numRenders; ++i)
   {
-    renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
-    renderer->GetActiveCamera()->Elevation(88.0/numRenders);
+    renderer->GetActiveCamera()->Azimuth(80.0 / numRenders);
+    renderer->GetActiveCamera()->Elevation(88.0 / numRenders);
     renWin->Render();
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
   unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
-  cerr << "number of triangles: " <<  numTris << endl;
-  cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
+  cerr << "number of triangles: " << numTris << endl;
+  cerr << "triangles per second: " << numTris * (numRenders / elapsed) << endl;
 
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Azimuth(30.0);
   renderer->GetActiveCamera()->Zoom(1.8);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

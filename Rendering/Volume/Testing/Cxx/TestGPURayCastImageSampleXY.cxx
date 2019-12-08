@@ -29,18 +29,17 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
 #include "vtkVolume16Reader.h"
-
+#include "vtkVolumeProperty.h"
 
 int TestGPURayCastImageSampleXY(int argc, char* argv[])
 {
-  //cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Load data
   vtkNew<vtkVolume16Reader> reader;
@@ -61,20 +60,20 @@ int TestGPURayCastImageSampleXY(int argc, char* argv[])
 
   // Setup mappers, properties and actors
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0,    0.0, 0.0, 0.0);
-  ctf->AddRGBPoint(500,  0.1, 1.0, 0.3);
+  ctf->AddRGBPoint(0, 0.0, 0.0, 0.0);
+  ctf->AddRGBPoint(500, 0.1, 1.0, 0.3);
   ctf->AddRGBPoint(1000, 0.1, 1.0, 0.3);
   ctf->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
   vtkNew<vtkPiecewiseFunction> pf;
-  pf->AddPoint(0,    0.00);
-  pf->AddPoint(500,  0.15);
+  pf->AddPoint(0, 0.00);
+  pf->AddPoint(500, 0.15);
   pf->AddPoint(1000, 0.15);
   pf->AddPoint(1150, 0.85);
 
   vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(0,   0.0);
-  gf->AddPoint(90,  0.5);
+  gf->AddPoint(0, 0.0);
+  gf->AddPoint(90, 0.5);
   gf->AddPoint(100, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
@@ -169,10 +168,9 @@ int TestGPURayCastImageSampleXY(int argc, char* argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

@@ -39,28 +39,26 @@ vtkExtractGrid::vtkExtractGrid()
 
 vtkExtractGrid::~vtkExtractGrid()
 {
-  if( this->Internal != nullptr )
+  if (this->Internal != nullptr)
   {
     this->Internal->Delete();
   }
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractGrid::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractGrid::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int wholeExtent[6], outWholeExt[6];
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
 
   this->Internal->Initialize(
-      this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
+    this->VOI, wholeExtent, this->SampleRate, (this->IncludeBoundary == 1));
 
   if (!this->Internal->IsValid())
   {
@@ -70,15 +68,12 @@ int vtkExtractGrid::RequestInformation(
 
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               outWholeExt, 6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt, 6);
   return 1;
 }
 
-int vtkExtractGrid::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractGrid::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (!this->Internal->IsValid())
   {
@@ -88,11 +83,11 @@ int vtkExtractGrid::RequestUpdateExtent(
   int i;
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   bool emptyExtent = false;
   int uExt[6];
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
     if (this->Internal->GetSize(i) < 1)
     {
@@ -112,22 +107,22 @@ int vtkExtractGrid::RequestUpdateExtent(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
     int oWExt[6]; // For parallel parititon this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
-    for (i=0; i<3; i++)
+    for (i = 0; i < 3; i++)
     {
-      int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
+      int idx = oUExt[2 * i] - oWExt[2 * i]; // Extent value to index
       if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         idx = 0;
       }
-      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
-      int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
+      uExt[2 * i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
+      int jdx = oUExt[2 * i + 1] - oWExt[2 * i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         jdx = 0;
       }
-      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
+      uExt[2 * i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
     }
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -138,16 +133,14 @@ int vtkExtractGrid::RequestUpdateExtent(
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractGrid::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExtractGrid::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Reset internal helper to the actual extents of the piece we're working on:
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkStructuredGrid *inGrid = vtkStructuredGrid::GetData(inInfo);
-  this->Internal->Initialize(this->VOI, inGrid->GetExtent(), this->SampleRate,
-                             (this->IncludeBoundary != 0));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkStructuredGrid* inGrid = vtkStructuredGrid::GetData(inInfo);
+  this->Internal->Initialize(
+    this->VOI, inGrid->GetExtent(), this->SampleRate, (this->IncludeBoundary != 0));
 
   if (!this->Internal->IsValid())
   {
@@ -155,79 +148,72 @@ int vtkExtractGrid::RequestData(
   }
 
   // Set the output extent -- this is how RequestDataImpl knows what to copy.
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkStructuredGrid* output =
+    vtkStructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->SetExtent(this->Internal->GetOutputWholeExtent());
 
   return this->RequestDataImpl(inputVector, outputVector) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
-bool vtkExtractGrid::RequestDataImpl(vtkInformationVector **inputVector,
-                                     vtkInformationVector *outputVector)
+bool vtkExtractGrid::RequestDataImpl(
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if( (this->SampleRate[0] < 1) ||
-      (this->SampleRate[1] < 1) ||
-      (this->SampleRate[2] < 1) )
+  if ((this->SampleRate[0] < 1) || (this->SampleRate[1] < 1) || (this->SampleRate[2] < 1))
   {
     vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
     return false;
   }
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid* input =
+    vtkStructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid* output =
+    vtkStructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
   {
     return true;
   }
 
-  vtkPointData *pd=input->GetPointData();
-  vtkCellData *cd=input->GetCellData();
-  vtkPointData *outPD=output->GetPointData();
-  vtkCellData *outCD=output->GetCellData();
+  vtkPointData* pd = input->GetPointData();
+  vtkCellData* cd = input->GetCellData();
+  vtkPointData* outPD = output->GetPointData();
+  vtkCellData* outCD = output->GetCellData();
 
-  vtkPoints *inPts = input->GetPoints();
-  int *inExt = input->GetExtent();
+  vtkPoints* inPts = input->GetPoints();
+  int* inExt = input->GetExtent();
 
-  vtkPoints *newPts = inPts->NewInstance();
-  int *outExt = output->GetExtent();
+  vtkPoints* newPts = inPts->NewInstance();
+  int* outExt = output->GetExtent();
 
   vtkDebugMacro(<< "Extracting Grid");
 
-  this->Internal->CopyPointsAndPointData(inExt,outExt,pd,inPts,outPD,newPts);
+  this->Internal->CopyPointsAndPointData(inExt, outExt, pd, inPts, outPD, newPts);
   output->SetPoints(newPts);
   newPts->Delete();
 
-  this->Internal->CopyCellData(inExt,outExt,cd,outCD);
+  this->Internal->CopyCellData(inExt, outExt, cd, outCD);
 
   return true;
 }
 
 void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", "
-     << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", "
-     << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", "
-     << this->VOI[5] << ")\n";
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " << this->VOI[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " << this->VOI[5] << ")\n";
 
-  os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "
-               << this->SampleRate[1] << ", "
-               << this->SampleRate[2] << ")\n";
+  os << indent << "Sample Rate: (" << this->SampleRate[0] << ", " << this->SampleRate[1] << ", "
+     << this->SampleRate[2] << ")\n";
 
-  os << indent << "Include Boundary: "
-     << (this->IncludeBoundary ? "On\n" : "Off\n");
+  os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }

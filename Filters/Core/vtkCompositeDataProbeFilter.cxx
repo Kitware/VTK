@@ -38,8 +38,7 @@ vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter() = default;
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataProbeFilter::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkCompositeDataProbeFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
   if (port == 1)
@@ -60,25 +59,20 @@ vtkExecutive* vtkCompositeDataProbeFilter::CreateDefaultExecutive()
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataSet *sourceDS = vtkDataSet::SafeDownCast(
-    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkCompositeDataSet* sourceComposite = vtkCompositeDataSet::SafeDownCast(
-    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkCompositeDataSet* sourceComposite =
+    vtkCompositeDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!input)
   {
@@ -88,7 +82,7 @@ int vtkCompositeDataProbeFilter::RequestData(
   if (!sourceDS && !sourceComposite)
   {
     vtkErrorMacro("vtkDataSet or vtkCompositeDataSet is expected as the input "
-      "on port 1");
+                  "on port 1");
     return 0;
   }
 
@@ -109,7 +103,7 @@ int vtkCompositeDataProbeFilter::RequestData(
     iter.TakeReference(sourceComposite->NewIterator());
     // We do reverse traversal, so that for hierarchical datasets, we traverse the
     // higher resolution blocks first.
-    int idx=0;
+    int idx = 0;
     for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
@@ -134,8 +128,7 @@ int vtkCompositeDataProbeFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData *outPD,
-                                                         vtkIdType numPts)
+void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData* outPD, vtkIdType numPts)
 {
   if (!this->PassPartialArrays)
   {
@@ -143,7 +136,7 @@ void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData *outPD,
   }
   else
   {
-    for (int cc=0; cc < outPD->GetNumberOfArrays(); cc++)
+    for (int cc = 0; cc < outPD->GetNumberOfArrays(); cc++)
     {
       vtkDataArray* da = outPD->GetArray(cc);
       if (da)
@@ -172,8 +165,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   iter.TakeReference(source->NewIterator());
 
   int numDatasets = 0;
-  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem())
+  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (!sourceDS)
@@ -193,8 +185,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 
   bool initializedPD = false;
   bool initializedCD = false;
-  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem())
+  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (sourceDS->GetNumberOfPoints() == 0)
@@ -247,4 +238,3 @@ void vtkCompositeDataProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << "PassPartialArrays: " << this->PassPartialArrays << endl;
 }
-

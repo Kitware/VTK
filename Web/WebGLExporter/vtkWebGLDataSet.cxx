@@ -92,7 +92,7 @@ void vtkWebGLDataSet::SetPoints(float* p, int size)
   this->hasChanged = true;
 }
 
-void vtkWebGLDataSet::SetTCoords(float *t)
+void vtkWebGLDataSet::SetTCoords(float* t)
 {
   delete[] this->tcoords;
   this->tcoords = t;
@@ -122,29 +122,38 @@ void vtkWebGLDataSet::GenerateBinaryData()
   {
     return;
   }
-  int size=0, pos=0, total=0;
+  int size = 0, pos = 0, total = 0;
   delete[] this->binary;
   this->binarySize = 0;
 
-  if(this->webGLType == wLINES)
+  if (this->webGLType == wLINES)
   {
     pos = sizeof(pos);
-    size = this->NumberOfPoints*sizeof(this->points[0]);
+    size = this->NumberOfPoints * sizeof(this->points[0]);
 
-    //Calculate the size used by each data
-    total = sizeof(pos) + 1 + sizeof(this->NumberOfPoints) + size*3                     //Size, Type, NumberOfPoints, Points
-        + sizeof(this->colors[0])*this->NumberOfPoints*4 + sizeof(this->NumberOfIndexes) //Color, NumberOfIndex
-        + this->NumberOfIndexes*sizeof(this->indexes[0]) + sizeof(this->Matrix[0])*16;   //Index, Matrix
+    // Calculate the size used by each data
+    total = sizeof(pos) + 1 + sizeof(this->NumberOfPoints) +
+      size * 3 // Size, Type, NumberOfPoints, Points
+      + sizeof(this->colors[0]) * this->NumberOfPoints * 4 +
+      sizeof(this->NumberOfIndexes) // Color, NumberOfIndex
+      + this->NumberOfIndexes * sizeof(this->indexes[0]) +
+      sizeof(this->Matrix[0]) * 16; // Index, Matrix
     this->binary = new unsigned char[total];
-    memset(this->binary,0,total);
+    memset(this->binary, 0, total);
 
     this->binary[pos++] = 'L';
-    memcpy(&this->binary[pos], &this->NumberOfPoints, sizeof(this->NumberOfPoints)); pos+=sizeof(this->NumberOfPoints); //Points
-    memcpy(&this->binary[pos], this->points, size*3); pos+=size*3;
-    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0])*this->NumberOfPoints*4); pos+=sizeof(this->colors[0])*this->NumberOfPoints*4;
-    memcpy(&this->binary[pos], &this->NumberOfIndexes, sizeof(this->NumberOfIndexes)); pos+=sizeof(this->NumberOfIndexes);
-    memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes*sizeof(this->indexes[0])); pos+=this->NumberOfIndexes*sizeof(this->indexes[0]);
-    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0])*16); pos+=sizeof(this->Matrix[0])*16;              //Matrix
+    memcpy(&this->binary[pos], &this->NumberOfPoints, sizeof(this->NumberOfPoints));
+    pos += sizeof(this->NumberOfPoints); // Points
+    memcpy(&this->binary[pos], this->points, size * 3);
+    pos += size * 3;
+    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0]) * this->NumberOfPoints * 4);
+    pos += sizeof(this->colors[0]) * this->NumberOfPoints * 4;
+    memcpy(&this->binary[pos], &this->NumberOfIndexes, sizeof(this->NumberOfIndexes));
+    pos += sizeof(this->NumberOfIndexes);
+    memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes * sizeof(this->indexes[0]));
+    pos += this->NumberOfIndexes * sizeof(this->indexes[0]);
+    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0]) * 16);
+    pos += sizeof(this->Matrix[0]) * 16; // Matrix
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
@@ -152,28 +161,39 @@ void vtkWebGLDataSet::GenerateBinaryData()
   else if (this->webGLType == wTRIANGLES)
   {
     pos = sizeof(pos);
-    size = sizeof(this->vertices[0])*this->NumberOfVertices;
+    size = sizeof(this->vertices[0]) * this->NumberOfVertices;
 
-    //Calculate the size used by each data
-    total = sizeof(pos) + 1 + sizeof(this->NumberOfVertices) + size*(3+3)                   //Size, Type, VertCount, Vert, Normal
-        + sizeof(this->colors[0])*this->NumberOfVertices*4 + sizeof(this->NumberOfIndexes)  //Color, IndicCount
-        + this->NumberOfIndexes*sizeof(this->indexes[0]) + sizeof(this->Matrix[0])*16;      //Index, Matrix
-    if (this->tcoords) total += size*2;                                                     //TCoord
+    // Calculate the size used by each data
+    total = sizeof(pos) + 1 + sizeof(this->NumberOfVertices) +
+      size * (3 + 3) // Size, Type, VertCount, Vert, Normal
+      + sizeof(this->colors[0]) * this->NumberOfVertices * 4 +
+      sizeof(this->NumberOfIndexes) // Color, IndicCount
+      + this->NumberOfIndexes * sizeof(this->indexes[0]) +
+      sizeof(this->Matrix[0]) * 16; // Index, Matrix
+    if (this->tcoords)
+      total += size * 2; // TCoord
     this->binary = new unsigned char[total];
-    memset(this->binary,0,total);
+    memset(this->binary, 0, total);
 
     this->binary[pos++] = 'M';
-    memcpy(&this->binary[pos], &this->NumberOfVertices, sizeof(this->NumberOfVertices)); pos+=sizeof(this->NumberOfVertices); //VertCount
-    memcpy(&this->binary[pos], this->vertices, size*3); pos+=size*3;                                                          //Vertices
-    memcpy(&this->binary[pos], this->normals, size*3); pos+=size*3;                                                           //Normals
-    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0])*this->NumberOfVertices*4); pos+=sizeof(this->colors[0])*this->NumberOfVertices*4;//Colors
-    memcpy(&this->binary[pos], &this->NumberOfIndexes, sizeof(this->NumberOfIndexes)); pos+=sizeof(this->NumberOfIndexes);    //IndCount
-    memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes*sizeof(this->indexes[0])); pos+=this->NumberOfIndexes*sizeof(this->indexes[0]);
-    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0])*16); pos+=sizeof(this->Matrix[0])*16;                    //Matrix
-    if (this->tcoords)                                                                                                        //TCoord
+    memcpy(&this->binary[pos], &this->NumberOfVertices, sizeof(this->NumberOfVertices));
+    pos += sizeof(this->NumberOfVertices); // VertCount
+    memcpy(&this->binary[pos], this->vertices, size * 3);
+    pos += size * 3; // Vertices
+    memcpy(&this->binary[pos], this->normals, size * 3);
+    pos += size * 3; // Normals
+    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0]) * this->NumberOfVertices * 4);
+    pos += sizeof(this->colors[0]) * this->NumberOfVertices * 4; // Colors
+    memcpy(&this->binary[pos], &this->NumberOfIndexes, sizeof(this->NumberOfIndexes));
+    pos += sizeof(this->NumberOfIndexes); // IndCount
+    memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes * sizeof(this->indexes[0]));
+    pos += this->NumberOfIndexes * sizeof(this->indexes[0]);
+    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0]) * 16);
+    pos += sizeof(this->Matrix[0]) * 16; // Matrix
+    if (this->tcoords)                   // TCoord
     {
-      memcpy(&this->binary[pos], this->tcoords, size*2);
-      pos+=size*2;
+      memcpy(&this->binary[pos], this->tcoords, size * 2);
+      pos += size * 2;
     }
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
@@ -182,19 +202,25 @@ void vtkWebGLDataSet::GenerateBinaryData()
   else if (this->webGLType == wPOINTS)
   {
     pos = sizeof(pos);
-    size = this->NumberOfPoints*sizeof(this->points[0]);
+    size = this->NumberOfPoints * sizeof(this->points[0]);
 
-    //Calculate the size used by each data
-    total = sizeof(pos) + 1 + sizeof(this->NumberOfPoints) + size*3                    //Size, Type, NumberOfPoints, Points
-        + sizeof(this->colors[0])*this->NumberOfPoints*4 + sizeof(this->Matrix[0])*16; //Color, Matrix
+    // Calculate the size used by each data
+    total = sizeof(pos) + 1 + sizeof(this->NumberOfPoints) +
+      size * 3 // Size, Type, NumberOfPoints, Points
+      + sizeof(this->colors[0]) * this->NumberOfPoints * 4 +
+      sizeof(this->Matrix[0]) * 16; // Color, Matrix
     this->binary = new unsigned char[total];
-    memset(this->binary,0,total);
+    memset(this->binary, 0, total);
 
     this->binary[pos++] = 'P';
-    memcpy(&this->binary[pos], &this->NumberOfPoints, sizeof(this->NumberOfPoints)); pos+=sizeof(this->NumberOfPoints); //Points
-    memcpy(&this->binary[pos], this->points, size*3); pos+=size*3;
-    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0])*this->NumberOfPoints*4); pos+=sizeof(this->colors[0])*this->NumberOfPoints*4;
-    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0])*16); pos+=sizeof(this->Matrix[0])*16;              //Matrix
+    memcpy(&this->binary[pos], &this->NumberOfPoints, sizeof(this->NumberOfPoints));
+    pos += sizeof(this->NumberOfPoints); // Points
+    memcpy(&this->binary[pos], this->points, size * 3);
+    pos += size * 3;
+    memcpy(&this->binary[pos], this->colors, sizeof(this->colors[0]) * this->NumberOfPoints * 4);
+    pos += sizeof(this->colors[0]) * this->NumberOfPoints * 4;
+    memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0]) * 16);
+    pos += sizeof(this->Matrix[0]) * 16; // Matrix
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;

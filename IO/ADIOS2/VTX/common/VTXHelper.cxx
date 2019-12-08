@@ -31,6 +31,8 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMultiProcessController.h"
 
+#include <vtksys/SystemTools.hxx>
+
 namespace vtx
 {
 namespace helper
@@ -271,11 +273,6 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept
   return csv;
 }
 
-// allowed types
-template std::vector<std::size_t> StringToVector<std::size_t>(const std::string&);
-template std::vector<int> StringToVector<int>(const std::string&);
-template std::vector<double> StringToVector<double>(const std::string&);
-
 std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
   return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
@@ -326,6 +323,28 @@ size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noex
 vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
 {
   return vtkSmartPointer<vtkIdTypeArray>::New();
+}
+
+std::string GetFileName(const std::string& fileName) noexcept
+{
+  const std::string output =
+    EndsWith(fileName, ".bp.dir") ? fileName.substr(0, fileName.size() - 4) : fileName;
+  return output;
+}
+
+std::string GetEngineType(const std::string& fileName) noexcept
+{
+  const std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
+  return engineType;
+}
+
+bool EndsWith(const std::string& input, const std::string& ends) noexcept
+{
+  if (input.length() >= ends.length())
+  {
+    return (!input.compare(input.length() - ends.length(), ends.length(), ends));
+  }
+  return false;
 }
 
 } // end helper namespace

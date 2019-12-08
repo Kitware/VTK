@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkIdList.h"
-#include "vtkSMPTools.h" //for parallel sort
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h" //for parallel sort
 
 vtkStandardNewMacro(vtkIdList);
 
@@ -29,13 +29,13 @@ vtkIdList::vtkIdList()
 //----------------------------------------------------------------------------
 vtkIdList::~vtkIdList()
 {
-  delete [] this->Ids;
+  delete[] this->Ids;
 }
 
 //----------------------------------------------------------------------------
 void vtkIdList::Initialize()
 {
-  delete [] this->Ids;
+  delete[] this->Ids;
   this->Ids = nullptr;
   this->NumberOfIds = 0;
   this->Size = 0;
@@ -44,11 +44,11 @@ void vtkIdList::Initialize()
 //----------------------------------------------------------------------------
 int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
 {
-  if ( sz > this->Size)
+  if (sz > this->Size)
   {
     this->Initialize();
-    this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Ids = new vtkIdType[this->Size]) == nullptr )
+    this->Size = (sz > 0 ? sz : 1);
+    if ((this->Ids = new vtkIdType[this->Size]) == nullptr)
     {
       return 0;
     }
@@ -60,16 +60,16 @@ int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
 //----------------------------------------------------------------------------
 void vtkIdList::SetNumberOfIds(const vtkIdType number)
 {
-  this->Allocate(number,0);
+  this->Allocate(number, 0);
   this->NumberOfIds = number;
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkIdList::InsertUniqueId(const vtkIdType vtkid)
 {
-  for (vtkIdType i=0; i < this->NumberOfIds; i++)
+  for (vtkIdType i = 0; i < this->NumberOfIds; i++)
   {
-    if ( vtkid == this->Ids[i] )
+    if (vtkid == this->Ids[i])
     {
       return i;
     }
@@ -79,14 +79,14 @@ vtkIdType vtkIdList::InsertUniqueId(const vtkIdType vtkid)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType *vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
+vtkIdType* vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
 {
-  vtkIdType newSize=i+number;
-  if ( newSize > this->Size )
+  vtkIdType newSize = i + number;
+  if (newSize > this->Size)
   {
     this->Resize(newSize);
   }
-  if ( newSize > this->NumberOfIds )
+  if (newSize > this->NumberOfIds)
   {
     this->NumberOfIds = newSize;
   }
@@ -94,9 +94,9 @@ vtkIdType *vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
 }
 
 //----------------------------------------------------------------------------
-void vtkIdList::SetArray(vtkIdType *array, vtkIdType size)
+void vtkIdList::SetArray(vtkIdType* array, vtkIdType size)
 {
-  delete [] this->Ids;
+  delete[] this->Ids;
   this->Ids = array;
   this->NumberOfIds = size;
   this->Size = size;
@@ -105,30 +105,30 @@ void vtkIdList::SetArray(vtkIdType *array, vtkIdType size)
 //----------------------------------------------------------------------------
 void vtkIdList::DeleteId(vtkIdType vtkid)
 {
-  vtkIdType i=0;
+  vtkIdType i = 0;
 
   // while loop is necessary to delete all occurrences of vtkid
-  while ( i < this->NumberOfIds )
+  while (i < this->NumberOfIds)
   {
-    for ( ; i < this->NumberOfIds; i++)
+    for (; i < this->NumberOfIds; i++)
     {
-      if ( this->Ids[i] == vtkid )
+      if (this->Ids[i] == vtkid)
       {
         break;
       }
     }
 
     // if found; replace current id with last
-    if ( i < this->NumberOfIds )
+    if (i < this->NumberOfIds)
     {
-      this->SetId(i,this->Ids[this->NumberOfIds-1]);
+      this->SetId(i, this->Ids[this->NumberOfIds - 1]);
       this->NumberOfIds--;
     }
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkIdList::DeepCopy(vtkIdList *ids)
+void vtkIdList::DeepCopy(vtkIdList* ids)
 {
   this->SetNumberOfIds(ids->NumberOfIds);
   if (ids->NumberOfIds > 0)
@@ -139,12 +139,12 @@ void vtkIdList::DeepCopy(vtkIdList *ids)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType *vtkIdList::Resize(const vtkIdType sz)
+vtkIdType* vtkIdList::Resize(const vtkIdType sz)
 {
-  vtkIdType *newIds;
+  vtkIdType* newIds;
   vtkIdType newSize;
 
-  if ( sz > this->Size )
+  if (sz > this->Size)
   {
     newSize = this->Size + sz;
   }
@@ -163,7 +163,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
     return nullptr;
   }
 
-  if ( (newIds = new vtkIdType[newSize]) == nullptr )
+  if ((newIds = new vtkIdType[newSize]) == nullptr)
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return nullptr;
@@ -177,8 +177,8 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
   if (this->Ids)
   {
     memcpy(newIds, this->Ids,
-           static_cast<size_t>(sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
-    delete [] this->Ids;
+      static_cast<size_t>(sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
+    delete[] this->Ids;
   }
 
   this->Size = newSize;
@@ -197,41 +197,41 @@ void vtkIdList::IntersectWith(vtkIdList* otherIds)
   vtkIdType thisNumIds = this->GetNumberOfIds();
 
   if (thisNumIds <= VTK_TMP_ARRAY_SIZE)
-  {//Use fast method if we can fit in temporary storage
-    vtkIdType  thisIds[VTK_TMP_ARRAY_SIZE];
+  { // Use fast method if we can fit in temporary storage
+    vtkIdType thisIds[VTK_TMP_ARRAY_SIZE];
     vtkIdType i, vtkid;
 
-    for (i=0; i < thisNumIds; i++)
+    for (i = 0; i < thisNumIds; i++)
     {
       thisIds[i] = this->GetId(i);
     }
-    for (this->Reset(), i=0; i < thisNumIds; i++)
+    for (this->Reset(), i = 0; i < thisNumIds; i++)
     {
       vtkid = thisIds[i];
-      if ( otherIds->IsId(vtkid) != (-1) )
+      if (otherIds->IsId(vtkid) != (-1))
       {
         this->InsertNextId(vtkid);
       }
     }
   }
   else
-  {//use slower method for extreme cases
-    vtkIdType *thisIds = new vtkIdType [thisNumIds];
-    vtkIdType  i, vtkid;
+  { // use slower method for extreme cases
+    vtkIdType* thisIds = new vtkIdType[thisNumIds];
+    vtkIdType i, vtkid;
 
-    for (i=0; i < thisNumIds; i++)
+    for (i = 0; i < thisNumIds; i++)
     {
       *(thisIds + i) = this->GetId(i);
     }
-    for (this->Reset(), i=0; i < thisNumIds; i++)
+    for (this->Reset(), i = 0; i < thisNumIds; i++)
     {
       vtkid = *(thisIds + i);
-      if ( otherIds->IsId(vtkid) != (-1) )
+      if (otherIds->IsId(vtkid) != (-1))
       {
         this->InsertNextId(vtkid);
       }
     }
-    delete [] thisIds;
+    delete[] thisIds;
   }
 }
 #undef VTK_TMP_ARRAY_SIZE
@@ -239,17 +239,17 @@ void vtkIdList::IntersectWith(vtkIdList* otherIds)
 //----------------------------------------------------------------------------
 void vtkIdList::Sort()
 {
-  if ( this->Ids == nullptr || this->NumberOfIds < 2 )
+  if (this->Ids == nullptr || this->NumberOfIds < 2)
   {
     return;
   }
-  vtkSMPTools::Sort(this->Ids, this->Ids+this->NumberOfIds);
+  vtkSMPTools::Sort(this->Ids, this->Ids + this->NumberOfIds);
 }
 
 //----------------------------------------------------------------------------
 void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Number of Ids: " << this->NumberOfIds << "\n";
 }

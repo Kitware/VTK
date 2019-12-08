@@ -17,25 +17,21 @@
 #include "vtkFloatArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkImageRenderManager);
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::vtkImageRenderManager()
-{
-}
+vtkImageRenderManager::vtkImageRenderManager() {}
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::~vtkImageRenderManager()
-{
-}
+vtkImageRenderManager::~vtkImageRenderManager() {}
 
 //----------------------------------------------------------------------------
-void vtkImageRenderManager::PrintSelf(ostream &os, vtkIndent indent)
+void vtkImageRenderManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

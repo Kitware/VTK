@@ -23,9 +23,9 @@
 #include "vtkLightCollection.h"
 #include "vtkLightNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererNode.h"
-#include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
 
 //============================================================================
@@ -39,9 +39,7 @@ vtkRendererNode::vtkRendererNode()
 }
 
 //----------------------------------------------------------------------------
-vtkRendererNode::~vtkRendererNode()
-{
-}
+vtkRendererNode::~vtkRendererNode() {}
 
 //----------------------------------------------------------------------------
 void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -50,29 +48,11 @@ void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkRendererNode::Synchronize(bool prepass)
-{
-  if (prepass)
-  {
-    vtkRenderer *mine = vtkRenderer::SafeDownCast
-      (this->GetRenderable());
-    if (!mine)
-    {
-      return;
-    }
-    int *tmp = mine->GetSize();
-    this->Size[0] = tmp[0];
-    this->Size[1] = tmp[1];
-  }
-}
-
-//----------------------------------------------------------------------------
 void vtkRendererNode::Build(bool prepass)
 {
   if (prepass)
   {
-    vtkRenderer *mine = vtkRenderer::SafeDownCast
-      (this->GetRenderable());
+    vtkRenderer* mine = vtkRenderer::SafeDownCast(this->GetRenderable());
     if (!mine)
     {
       return;

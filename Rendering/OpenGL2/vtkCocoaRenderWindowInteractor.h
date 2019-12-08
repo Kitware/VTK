@@ -28,14 +28,14 @@
  * IMPORTANT: This header must be in C++ only because it is included by .cxx
  * files.  That means no Objective C may be used. That's why some instance
  * variables are void* instead of what they really should be.
-*/
+ */
 
 #ifndef vtkCocoaRenderWindowInteractor_h
 #define vtkCocoaRenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkTDxConfigure.h"           // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
 class vtkTDxMacDevice;
 #endif
@@ -46,9 +46,9 @@ public:
   /**
    * Construct object so that light follows camera motion.
    */
-  static vtkCocoaRenderWindowInteractor *New();
+  static vtkCocoaRenderWindowInteractor* New();
 
-  vtkTypeMacro(vtkCocoaRenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkCocoaRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -77,6 +77,13 @@ public:
    */
   void TerminateApp() override;
 
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
+
   //@{
   /**
    * Methods to set the default exit method for the class. This method is
@@ -84,8 +91,8 @@ public:
    * provided as a means to control how an interactor is exited given
    * the various language bindings (Cocoa, etc.).
    */
-  static void SetClassExitMethod(void (*f)(void *), void *arg);
-  static void SetClassExitMethodArgDelete(void (*f)(void *));
+  static void SetClassExitMethod(void (*f)(void*), void* arg);
+  static void SetClassExitMethodArgDelete(void (*f)(void*));
   //@}
 
   /**
@@ -94,8 +101,8 @@ public:
    */
   void ExitCallback() override;
 
-//  int GetButtonDown();
-//  void SetButtonDown(int button);
+  //  int GetButtonDown();
+  //  void SetButtonDown(int button);
 
 protected:
   vtkCocoaRenderWindowInteractor();
@@ -105,8 +112,8 @@ protected:
    * Accessors for the Cocoa member variables. These should be used at all time, even
    * by this class.
    */
-  void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
-  void *GetTimerDictionary();
+  void SetTimerDictionary(void* dictionary); // Really an NSMutableDictionary*
+  void* GetTimerDictionary();
 
   //@{
   /**
@@ -114,9 +121,9 @@ protected:
    * (used to set different exit methods for various language bindings,
    * i.e. java, Cocoa)
    */
-  static void (*ClassExitMethod)(void *);
-  static void (*ClassExitMethodArgDelete)(void *);
-  static void *ClassExitMethodArg;
+  static void (*ClassExitMethod)(void*);
+  static void (*ClassExitMethodArgDelete)(void*);
+  static void* ClassExitMethodArg;
   //@}
 
   //@{
@@ -140,12 +147,12 @@ protected:
    * Accessors for the cocoa manager (Really an NSMutableDictionary*).
    * It manages all Cocoa objects in this C++ class.
    */
-  void SetCocoaManager(void *manager);
-  void *GetCocoaManager();
+  void SetCocoaManager(void* manager);
+  void* GetCocoaManager();
   //@}
 
 #ifdef VTK_USE_TDX
-  vtkTDxMacDevice *Device;
+  vtkTDxMacDevice* Device;
 #endif
 
 private:
@@ -158,8 +165,7 @@ private:
   // 2) because of garbage collection
   // Instead, use the CocoaManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
-  void    *CocoaManager;        // Really an NSMutableDictionary*
-
+  void* CocoaManager; // Really an NSMutableDictionary*
 };
 
 #endif

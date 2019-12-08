@@ -19,16 +19,16 @@
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestRenderString(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestRenderString(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  const char * str = "$\\hat{H}\\psi = \\left(-\\frac{\\hbar}{2m}\\nabla^2"
-      " + V(r)\\right) \\psi = \\psi\\cdot E $";
+  const char* str = "$\\hat{H}\\psi = \\left(-\\frac{\\hbar}{2m}\\nabla^2"
+                    " + V(r)\\right) \\psi = \\psi\\cdot E $";
 
   vtkNew<vtkImageData> image;
   vtkNew<vtkMathTextUtilities> utils;
@@ -38,8 +38,7 @@ int TestRenderString(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   tprop->SetFontSize(50);
 
   vtkNew<vtkImageViewer2> viewer;
-  utils->RenderString(str, image, tprop,
-                      viewer->GetRenderWindow()->GetDPI());
+  utils->RenderString(str, image, tprop, viewer->GetRenderWindow()->GetDPI());
 
   viewer->SetInputData(image);
 

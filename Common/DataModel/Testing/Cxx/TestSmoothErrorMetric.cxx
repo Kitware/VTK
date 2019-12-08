@@ -23,32 +23,32 @@
 
 //#define WRITE_GENERIC_RESULT
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
+#include "vtkBridgeDataSet.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGenericCellTessellator.h"
+#include "vtkGenericGeometryFilter.h"
+#include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkLookupTable.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSimpleCellTessellator.h"
+#include "vtkSmartPointer.h"
+#include "vtkSmoothErrorMetric.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkBridgeDataSet.h"
-#include "vtkGenericGeometryFilter.h"
-#include "vtkGenericCellTessellator.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include <cassert>
-#include "vtkLookupTable.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
-#include "vtkSmoothErrorMetric.h"
-#include "vtkSimpleCellTessellator.h"
-#include "vtkPolyDataNormals.h"
 
 #ifdef WRITE_GENERIC_RESULT
-# include "vtkXMLPolyDataWriter.h"
+#include "vtkXMLPolyDataWriter.h"
 #endif // #ifdef WRITE_GENERIC_RESULT
 
 // Remark about the lookup tables that seem different between the
@@ -62,68 +62,61 @@
 int TestSmoothErrorMetric(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer< vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer< vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer< vtkRenderWindowInteractor>::New();
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Load the mesh geometry and data from a file
   vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    vtkSmartPointer< vtkXMLUnstructuredGridReader>::New();
-  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
 
-  reader->SetFileName( cfname );
+  reader->SetFileName(cfname);
   delete[] cfname;
 
   // Force reading
   reader->Update();
 
   // Initialize the bridge
-  vtkSmartPointer<vtkBridgeDataSet> ds=
-    vtkSmartPointer<vtkBridgeDataSet>::New();
-  ds->SetDataSet( reader->GetOutput() );
+  vtkSmartPointer<vtkBridgeDataSet> ds = vtkSmartPointer<vtkBridgeDataSet>::New();
+  ds->SetDataSet(reader->GetOutput());
 
   // Set the smooth error metric thresholds:
   // 1. for the geometric error metric
-  vtkSmartPointer<vtkSmoothErrorMetric> smoothError=
-    vtkSmartPointer<vtkSmoothErrorMetric>::New();
+  vtkSmartPointer<vtkSmoothErrorMetric> smoothError = vtkSmartPointer<vtkSmoothErrorMetric>::New();
   smoothError->SetAngleTolerance(179);
   ds->GetTessellator()->GetErrorMetrics()->AddItem(smoothError);
 
   // 2. for the attribute error metric
-//  vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
-//  attributesError->SetAttributeTolerance(0.01);
+  //  vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
+  //  attributesError->SetAttributeTolerance(0.01);
 
-//  ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
-//  attributesError->Delete();
+  //  ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
+  //  attributesError->Delete();
 
-  cout<<"input unstructured grid: "<<ds<<endl;
+  cout << "input unstructured grid: " << ds << endl;
 
-  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(100);
+  static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetMaxSubdivisionLevel(100);
 
   vtkIndent indent;
-  ds->PrintSelf(cout,indent);
+  ds->PrintSelf(cout, indent);
 
   // Create the filter
-  vtkSmartPointer<vtkGenericGeometryFilter> geom =
-    vtkSmartPointer< vtkGenericGeometryFilter>::New();
+  vtkSmartPointer<vtkGenericGeometryFilter> geom = vtkSmartPointer<vtkGenericGeometryFilter>::New();
   geom->SetInputData(ds);
 
-  geom->Update(); //So that we can call GetRange() on the scalars
+  geom->Update(); // So that we can call GetRange() on the scalars
 
-  assert(geom->GetOutput()!=nullptr);
+  assert(geom->GetOutput() != nullptr);
 
   // This creates a blue to red lut.
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer< vtkLookupTable>::New();
-  lut->SetHueRange (0.667, 0.0);
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
+  lut->SetHueRange(0.667, 0.0);
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer< vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
   mapper->ScalarVisibilityOff();
 
@@ -142,27 +135,24 @@ int TestSmoothErrorMetric(int argc, char* argv[])
   mapper->SetInputConnection(normalGenerator->GetOutputPort() );
   normalGenerator->Delete( );
 #else
-  mapper->SetInputConnection( geom->GetOutputPort() );
+  mapper->SetInputConnection(geom->GetOutputPort());
 #endif
 
-  if(geom->GetOutput()->GetPointData()!=nullptr)
+  if (geom->GetOutput()->GetPointData() != nullptr)
   {
-    if(geom->GetOutput()->GetPointData()->GetScalars()!=nullptr)
+    if (geom->GetOutput()->GetPointData()->GetScalars() != nullptr)
     {
-      mapper->SetScalarRange( geom->GetOutput()->GetPointData()->
-                              GetScalars()->GetRange());
+      mapper->SetScalarRange(geom->GetOutput()->GetPointData()->GetScalars()->GetRange());
     }
   }
 
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer< vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
-  vtkSmartPointer<vtkXMLPolyDataWriter> writer=
-    vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+  vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
   writer->SetInputConnection(geom->GetOutputPort());
   writer->SetFileName("geometry.vtp");
   writer->SetDataModeToAscii();
@@ -171,11 +161,11 @@ int TestSmoothErrorMetric(int argc, char* argv[])
 #endif // #ifdef WRITE_GENERIC_RESULT
 
   // Standard testing code.
-  renderer->SetBackground(0.5,0.5,0.5);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.5, 0.5, 0.5);
+  renWin->SetSize(300, 300);
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

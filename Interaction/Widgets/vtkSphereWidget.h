@@ -48,14 +48,14 @@
  *
  * @sa
  * vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
-*/
+ */
 
 #ifndef vtkSphereWidget_h
 #define vtkSphereWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
-#include "vtkSphereSource.h" // Needed for faster access to the sphere source
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkSphereSource.h"             // Needed for faster access to the sphere source
 
 class vtkActor;
 class vtkPolyDataMapper;
@@ -76,9 +76,9 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkSphereWidget *New();
+  static vtkSphereWidget* New();
 
-  vtkTypeMacro(vtkSphereWidget,vtk3DWidget);
+  vtkTypeMacro(vtkSphereWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -87,11 +87,12 @@ public:
    */
   void SetEnabled(int) override;
   void PlaceWidget(double bounds[6]) override;
-  void PlaceWidget() override
-    {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
+  void PlaceWidget() override { this->Superclass::PlaceWidget(); }
+  void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override
+  {
+    this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
+  }
   //@}
 
   //@{
@@ -100,33 +101,26 @@ public:
    * useful depending on the application. The default is
    * VTK_SPHERE_WIREFRAME.
    */
-  vtkSetClampMacro(Representation,int,VTK_SPHERE_OFF,VTK_SPHERE_SURFACE);
-  vtkGetMacro(Representation,int);
-  void SetRepresentationToOff()
-    { this->SetRepresentation(VTK_SPHERE_OFF);}
-  void SetRepresentationToWireframe()
-    { this->SetRepresentation(VTK_SPHERE_WIREFRAME);}
-  void SetRepresentationToSurface()
-    { this->SetRepresentation(VTK_SPHERE_SURFACE);}
+  vtkSetClampMacro(Representation, int, VTK_SPHERE_OFF, VTK_SPHERE_SURFACE);
+  vtkGetMacro(Representation, int);
+  void SetRepresentationToOff() { this->SetRepresentation(VTK_SPHERE_OFF); }
+  void SetRepresentationToWireframe() { this->SetRepresentation(VTK_SPHERE_WIREFRAME); }
+  void SetRepresentationToSurface() { this->SetRepresentation(VTK_SPHERE_SURFACE); }
   //@}
 
   /**
    * Set/Get the resolution of the sphere in the Theta direction.
    * The default is 16.
    */
-  void SetThetaResolution(int r)
-    { this->SphereSource->SetThetaResolution(r); }
-  int GetThetaResolution()
-    { return this->SphereSource->GetThetaResolution(); }
+  void SetThetaResolution(int r) { this->SphereSource->SetThetaResolution(r); }
+  int GetThetaResolution() { return this->SphereSource->GetThetaResolution(); }
 
   /**
    * Set/Get the resolution of the sphere in the Phi direction.
    * The default is 8.
    */
-  void SetPhiResolution(int r)
-    { this->SphereSource->SetPhiResolution(r); }
-  int GetPhiResolution()
-    { return this->SphereSource->GetPhiResolution(); }
+  void SetPhiResolution(int r) { this->SphereSource->SetPhiResolution(r); }
+  int GetPhiResolution() { return this->SphereSource->GetPhiResolution(); }
 
   //@{
   /**
@@ -134,32 +128,23 @@ public:
    */
   void SetRadius(double r)
   {
-    if ( r <= 0 )
+    if (r <= 0)
     {
       r = .00001;
     }
     this->SphereSource->SetRadius(r);
   }
-  double GetRadius()
-    { return this->SphereSource->GetRadius(); }
+  double GetRadius() { return this->SphereSource->GetRadius(); }
   //@}
 
   //@{
   /**
    * Set/Get the center of the sphere.
    */
-  void SetCenter(double x, double y, double z)
-  {
-    this->SphereSource->SetCenter(x,y,z);
-  }
-  void SetCenter(double x[3])
-  {
-    this->SetCenter(x[0], x[1], x[2]);
-  }
-  double* GetCenter() VTK_SIZEHINT(3)
-    {return this->SphereSource->GetCenter();}
-  void GetCenter(double xyz[3])
-    {this->SphereSource->GetCenter(xyz);}
+  void SetCenter(double x, double y, double z) { this->SphereSource->SetCenter(x, y, z); }
+  void SetCenter(double x[3]) { this->SetCenter(x[0], x[1], x[2]); }
+  double* GetCenter() VTK_SIZEHINT(3) { return this->SphereSource->GetCenter(); }
+  void GetCenter(double xyz[3]) { this->SphereSource->GetCenter(xyz); }
   //@}
 
   //@{
@@ -167,12 +152,12 @@ public:
    * Enable translation and scaling of the widget. By default, the widget
    * can be translated and rotated.
    */
-  vtkSetMacro(Translation,vtkTypeBool);
-  vtkGetMacro(Translation,vtkTypeBool);
-  vtkBooleanMacro(Translation,vtkTypeBool);
-  vtkSetMacro(Scale,vtkTypeBool);
-  vtkGetMacro(Scale,vtkTypeBool);
-  vtkBooleanMacro(Scale,vtkTypeBool);
+  vtkSetMacro(Translation, vtkTypeBool);
+  vtkGetMacro(Translation, vtkTypeBool);
+  vtkBooleanMacro(Translation, vtkTypeBool);
+  vtkSetMacro(Scale, vtkTypeBool);
+  vtkGetMacro(Scale, vtkTypeBool);
+  vtkBooleanMacro(Scale, vtkTypeBool);
   //@}
 
   //@{
@@ -182,9 +167,9 @@ public:
    * of the handle can be retrieved, this is useful for positioning cameras
    * and lights. By default, the handle is turned off.
    */
-  vtkSetMacro(HandleVisibility,vtkTypeBool);
-  vtkGetMacro(HandleVisibility,vtkTypeBool);
-  vtkBooleanMacro(HandleVisibility,vtkTypeBool);
+  vtkSetMacro(HandleVisibility, vtkTypeBool);
+  vtkGetMacro(HandleVisibility, vtkTypeBool);
+  vtkBooleanMacro(HandleVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -193,15 +178,15 @@ public:
    * the sphere. The direction of the handle is from the sphere center to
    * the handle position.
    */
-  vtkSetVector3Macro(HandleDirection,double);
-  vtkGetVector3Macro(HandleDirection,double);
+  vtkSetVector3Macro(HandleDirection, double);
+  vtkGetVector3Macro(HandleDirection, double);
   //@}
 
   //@{
   /**
    * Get the position of the handle.
    */
-  vtkGetVector3Macro(HandlePosition,double);
+  vtkGetVector3Macro(HandlePosition, double);
   //@}
 
   /**
@@ -211,7 +196,7 @@ public:
    * InteractionEvent or EndInteraction events are invoked. The user provides
    * the vtkPolyData and the points and polysphere are added to it.
    */
-  void GetPolyData(vtkPolyData *pd);
+  void GetPolyData(vtkPolyData* pd);
 
   /**
    * Get the spherical implicit function defined by this widget.  Note that
@@ -219,15 +204,15 @@ public:
    * used by a variety of filters to perform clipping, cutting, and selection
    * of data.
    */
-  void GetSphere(vtkSphere *sphere);
+  void GetSphere(vtkSphere* sphere);
 
   //@{
   /**
    * Get the sphere properties. The properties of the sphere when selected
    * and unselected can be manipulated.
    */
-  vtkGetObjectMacro(SphereProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedSphereProperty,vtkProperty);
+  vtkGetObjectMacro(SphereProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedSphereProperty, vtkProperty);
   //@}
 
   //@{
@@ -236,8 +221,8 @@ public:
    * handle). The properties of the handle when selected and unselected
    * can be manipulated.
    */
-  vtkGetObjectMacro(HandleProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
+  vtkGetObjectMacro(HandleProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
   //@}
 
 protected:
@@ -248,18 +233,16 @@ protected:
   int State;
   enum WidgetState
   {
-    Start=0,
+    Start = 0,
     Moving,
     Scaling,
     Positioning,
     Outside
   };
 
-  //handles the events
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  // handles the events
+  static void ProcessEvents(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // ProcessEvents() dispatches to these methods.
   void OnLeftButtonDown();
@@ -269,9 +252,9 @@ protected:
   void OnMouseMove();
 
   // the sphere
-  vtkActor          *SphereActor;
-  vtkPolyDataMapper *SphereMapper;
-  vtkSphereSource     *SphereSource;
+  vtkActor* SphereActor;
+  vtkPolyDataMapper* SphereMapper;
+  vtkSphereSource* SphereSource;
   void HighlightSphere(int highlight);
   void SelectRepresentation();
 
@@ -279,7 +262,7 @@ protected:
   int Representation;
 
   // Do the picking
-  vtkCellPicker *Picker;
+  vtkCellPicker* Picker;
 
   // Register internal Pickers within PickingManager
   void RegisterPickers() override;
@@ -287,23 +270,23 @@ protected:
   // Methods to manipulate the sphere widget
   vtkTypeBool Translation;
   vtkTypeBool Scale;
-  void Translate(double *p1, double *p2);
-  void ScaleSphere(double *p1, double *p2, int X, int Y);
-  void MoveHandle(double *p1, double *p2, int X, int Y);
-  void PlaceHandle(double *center, double radius);
+  void Translate(double* p1, double* p2);
+  void ScaleSphere(double* p1, double* p2, int X, int Y);
+  void MoveHandle(double* p1, double* p2, int X, int Y);
+  void PlaceHandle(double* center, double radius);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *SphereProperty;
-  vtkProperty *SelectedSphereProperty;
-  vtkProperty *HandleProperty;
-  vtkProperty *SelectedHandleProperty;
+  vtkProperty* SphereProperty;
+  vtkProperty* SelectedSphereProperty;
+  vtkProperty* HandleProperty;
+  vtkProperty* SelectedHandleProperty;
   void CreateDefaultProperties();
 
   // Managing the handle
-  vtkActor          *HandleActor;
-  vtkPolyDataMapper *HandleMapper;
-  vtkSphereSource   *HandleSource;
+  vtkActor* HandleActor;
+  vtkPolyDataMapper* HandleMapper;
+  vtkSphereSource* HandleSource;
   void HighlightHandle(int);
   vtkTypeBool HandleVisibility;
   double HandleDirection[3];

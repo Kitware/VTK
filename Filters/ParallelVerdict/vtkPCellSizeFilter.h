@@ -33,13 +33,13 @@
  * and put the value into vtkFieldData arrays named with the corresponding cell
  * data array name. For composite datasets the total sum over all blocks will
  * also be added to the top-level block's field data for the summation.
-*/
+ */
 
 #ifndef vtkPCellSizeFilter_h
 #define vtkPCellSizeFilter_h
 
-#include "vtkFiltersParallelVerdictModule.h" // For export macro
 #include "vtkCellSizeFilter.h"
+#include "vtkFiltersParallelVerdictModule.h" // For export macro
 
 class VTKFILTERSPARALLELVERDICT_EXPORT vtkPCellSizeFilter : public vtkCellSizeFilter
 {

@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 
 #include <string>
 
-int TestGL2PSExporterMultipleRenderers( int, char *[] )
+int TestGL2PSExporterMultipleRenderers(int, char*[])
 {
   vtkNew<vtkTextActor> text1;
   text1->SetPosition(25, 25);
@@ -72,8 +72,8 @@ int TestGL2PSExporterMultipleRenderers( int, char *[] )
   exp->SetSortToSimple();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSExporterMultipleRenderers");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterMultipleRenderers");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

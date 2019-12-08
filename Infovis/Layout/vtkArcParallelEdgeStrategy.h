@@ -23,13 +23,13 @@
  *
  * Parallel edges are drawn as arcs, and self-loops are drawn as ovals.
  * When only one edge connects two vertices it is drawn as a straight line.
-*/
+ */
 
 #ifndef vtkArcParallelEdgeStrategy_h
 #define vtkArcParallelEdgeStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkGraph;
 
@@ -37,7 +37,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutS
 {
 public:
   static vtkArcParallelEdgeStrategy* New();
-  vtkTypeMacro(vtkArcParallelEdgeStrategy,vtkEdgeLayoutStrategy);
+  vtkTypeMacro(vtkArcParallelEdgeStrategy, vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -66,4 +66,3 @@ private:
 };
 
 #endif
-

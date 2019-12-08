@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkGenericRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 
@@ -38,18 +38,17 @@ void vtkGenericRenderWindowInteractor::TimerEvent()
   int timerId = this->GetCurrentTimerId();
   this->InvokeEvent(vtkCommand::TimerEvent, &timerId);
 
-  if (!this->IsOneShotTimer(timerId) &&
-    this->GetTimerEventResetsTimer())
+  if (!this->IsOneShotTimer(timerId) && this->GetTimerEventResetsTimer())
   {
     this->ResetTimer(timerId);
   }
 }
 
 //------------------------------------------------------------------
-int vtkGenericRenderWindowInteractor::InternalCreateTimer(int timerId, int timerType,
-                                                          unsigned long duration)
+int vtkGenericRenderWindowInteractor::InternalCreateTimer(
+  int timerId, int timerType, unsigned long duration)
 {
-  if(this->HasObserver(vtkCommand::CreateTimerEvent))
+  if (this->HasObserver(vtkCommand::CreateTimerEvent))
   {
     this->SetTimerEventId(timerId);
     this->SetTimerEventType(timerType);
@@ -64,7 +63,7 @@ int vtkGenericRenderWindowInteractor::InternalCreateTimer(int timerId, int timer
 //------------------------------------------------------------------
 int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  if(this->HasObserver(vtkCommand::DestroyTimerEvent))
+  if (this->HasObserver(vtkCommand::DestroyTimerEvent))
   {
     this->SetTimerEventPlatformId(platformTimerId);
     this->InvokeEvent(vtkCommand::DestroyTimerEvent, &platformTimerId);
@@ -76,7 +75,7 @@ int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 //------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "TimerEventResetsTimer: " << this->TimerEventResetsTimer << "\n";
 }

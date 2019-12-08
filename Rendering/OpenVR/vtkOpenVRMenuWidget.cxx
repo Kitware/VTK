@@ -16,17 +16,17 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRMenuWidget.h"
 #include "vtkOpenVRMenuRepresentation.h"
 
-#include "vtkEventData.h"
-#include "vtkNew.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkCamera.h"
+#include "vtkEventData.h"
+#include "vtkInteractorStyle3D.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPropPicker.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkInteractorStyle3D.h"
-#include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
 
 #include <map>
 
@@ -34,12 +34,11 @@ vtkStandardNewMacro(vtkOpenVRMenuWidget);
 
 class vtkOpenVRMenuWidget::InternalElement
 {
-  public:
-    vtkCommand *Command;
-    std::string Name;
-    std::string Text;
-  InternalElement() {
-  }
+public:
+  vtkCommand* Command;
+  std::string Name;
+  std::string Text;
+  InternalElement() {}
 };
 
 //----------------------------------------------------------------------
@@ -57,8 +56,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetDevice(vtkEventDataDevice::RightController);
     ed->SetInput(vtkEventDataDeviceInput::ApplicationMenu);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed, vtkWidgetEvent::Select,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select,
       this, vtkOpenVRMenuWidget::StartMenuAction);
   }
 
@@ -67,17 +65,15 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetDevice(vtkEventDataDevice::RightController);
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed, vtkWidgetEvent::Select3D,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select3D,
       this, vtkOpenVRMenuWidget::SelectMenuAction);
   }
 
   {
     vtkNew<vtkEventDataMove3D> ed;
     ed->SetDevice(vtkEventDataDevice::RightController);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-      ed, vtkWidgetEvent::Move3D,
-      this, vtkOpenVRMenuWidget::MoveAction);
+    this->CallbackMapper->SetCallbackMethod(
+      vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkOpenVRMenuWidget::MoveAction);
   }
 }
 
@@ -87,26 +83,21 @@ vtkOpenVRMenuWidget::~vtkOpenVRMenuWidget()
   this->EventCommand->Delete();
 }
 
-void vtkOpenVRMenuWidget::PushFrontMenuItem(
-  const char *name,
-  const char *text,
-  vtkCommand *cmd)
+void vtkOpenVRMenuWidget::PushFrontMenuItem(const char* name, const char* text, vtkCommand* cmd)
 {
-  vtkOpenVRMenuWidget::InternalElement *el =
-    new vtkOpenVRMenuWidget::InternalElement();
+  vtkOpenVRMenuWidget::InternalElement* el = new vtkOpenVRMenuWidget::InternalElement();
   el->Text = text;
   el->Command = cmd;
   el->Name = name;
   this->Menus.push_front(el);
 
-  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->PushFrontMenuItem(
-        name, text, this->EventCommand);
+  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)
+    ->PushFrontMenuItem(name, text, this->EventCommand);
 
   this->Modified();
 }
 
-void vtkOpenVRMenuWidget::RenameMenuItem(
-  const char *name, const char *text)
+void vtkOpenVRMenuWidget::RenameMenuItem(const char* name, const char* text)
 {
   for (auto itr : this->Menus)
   {
@@ -115,12 +106,10 @@ void vtkOpenVRMenuWidget::RenameMenuItem(
       itr->Text = text;
     }
   }
-  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
-    RenameMenuItem(name, text);
+  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RenameMenuItem(name, text);
 }
 
-void vtkOpenVRMenuWidget::RemoveMenuItem(
-  const char *name)
+void vtkOpenVRMenuWidget::RemoveMenuItem(const char* name)
 {
   for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
   {
@@ -131,8 +120,7 @@ void vtkOpenVRMenuWidget::RemoveMenuItem(
       break;
     }
   }
-  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
-    RemoveMenuItem(name);
+  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RemoveMenuItem(name);
 }
 
 void vtkOpenVRMenuWidget::RemoveAllMenuItems()
@@ -143,62 +131,55 @@ void vtkOpenVRMenuWidget::RemoveAllMenuItems()
     delete *itr;
     this->Menus.erase(itr);
   }
-  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
-    RemoveAllMenuItems();
+  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RemoveAllMenuItems();
 }
 
-
-void vtkOpenVRMenuWidget::EventCallback(
-  vtkObject *,
-  unsigned long,
-  void *clientdata,
-  void *calldata)
+void vtkOpenVRMenuWidget::EventCallback(vtkObject*, unsigned long, void* clientdata, void* calldata)
 {
-  vtkOpenVRMenuWidget *self = static_cast<vtkOpenVRMenuWidget *>(clientdata);
-  std::string name = static_cast<const char *>(calldata);
+  vtkOpenVRMenuWidget* self = static_cast<vtkOpenVRMenuWidget*>(clientdata);
+  std::string name = static_cast<const char*>(calldata);
 
-  for (auto &menu : self->Menus)
+  for (auto& menu : self->Menus)
   {
     if (menu->Name == name)
     {
-      menu->Command->Execute(self, vtkWidgetEvent::Select3D,
-        static_cast<void *>(const_cast<char *>(menu->Name.c_str())));
+      menu->Command->Execute(
+        self, vtkWidgetEvent::Select3D, static_cast<void*>(const_cast<char*>(menu->Name.c_str())));
     }
   }
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::ShowSubMenu(vtkOpenVRMenuWidget *w)
+void vtkOpenVRMenuWidget::ShowSubMenu(vtkOpenVRMenuWidget* w)
 {
   w->SetInteractor(this->Interactor);
-  w->Show(static_cast<vtkEventData *>(this->CallData));
+  w->Show(static_cast<vtkEventData*>(this->CallData));
 }
 
-void vtkOpenVRMenuWidget::Show(vtkEventData *ed)
+void vtkOpenVRMenuWidget::Show(vtkEventData* ed)
 {
   this->On();
   if (this->WidgetState == vtkOpenVRMenuWidget::Start)
   {
-    if ( ! this->Parent )
+    if (!this->Parent)
     {
       this->GrabFocus(this->EventCallbackCommand);
     }
     this->CallData = ed;
-    this->WidgetRep->StartComplexInteraction(
-      this->Interactor, this, vtkWidgetEvent::Select, ed);
+    this->WidgetRep->StartComplexInteraction(this->Interactor, this, vtkWidgetEvent::Select, ed);
 
     this->WidgetState = vtkOpenVRMenuWidget::Active;
   }
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget *w)
+void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget *self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
 
   if (self->WidgetState == vtkOpenVRMenuWidget::Active)
   {
-    if ( ! self->Parent )
+    if (!self->Parent)
     {
       self->ReleaseFocus();
     }
@@ -212,16 +193,16 @@ void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget *w)
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget *w)
+void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget *self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
 
   if (self->WidgetState != vtkOpenVRMenuWidget::Active)
   {
     return;
   }
 
-  if ( ! self->Parent )
+  if (!self->Parent)
   {
     self->ReleaseFocus();
   }
@@ -234,9 +215,9 @@ void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget *w)
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget *w)
+void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget *self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
 
   if (self->WidgetState != vtkOpenVRMenuWidget::Active)
   {
@@ -248,11 +229,9 @@ void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
-void vtkOpenVRMenuWidget::
-SetRepresentation(vtkOpenVRMenuRepresentation* rep)
+void vtkOpenVRMenuWidget::SetRepresentation(vtkOpenVRMenuRepresentation* rep)
 {
-  this->Superclass::SetWidgetRepresentation(
-    reinterpret_cast<vtkWidgetRepresentation*>(rep));
+  this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
 //----------------------------------------------------------------------

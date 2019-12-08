@@ -20,7 +20,7 @@
  * and the location of the maximum variable value.
  *  These computed values are available so that they can be used to set the camera
  * for the best view of the plane.
-*/
+ */
 
 #ifndef vtkCutMaterial_h
 #define vtkCutMaterial_h
@@ -34,8 +34,8 @@ class VTKFILTERSPARALLEL_EXPORT vtkCutMaterial : public vtkPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkCutMaterial,vtkPolyDataAlgorithm);
-  static vtkCutMaterial *New();
+  vtkTypeMacro(vtkCutMaterial, vtkPolyDataAlgorithm);
+  static vtkCutMaterial* New();
 
   //@{
   /**
@@ -84,20 +84,21 @@ protected:
   vtkCutMaterial();
   ~vtkCutMaterial() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  void ComputeMaximumPoint(vtkDataSet *input);
+  int RequestData(vtkInformation*, vtkInformationVector**,
+    vtkInformationVector*) override; // generate output data
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  void ComputeMaximumPoint(vtkDataSet* input);
   void ComputeNormal();
 
-  char *MaterialArrayName;
+  char* MaterialArrayName;
   int Material;
-  char *ArrayName;
+  char* ArrayName;
   double UpVector[3];
   double MaximumPoint[3];
   double CenterPoint[3];
   double Normal[3];
 
-  vtkPlane *PlaneFunction;
+  vtkPlane* PlaneFunction;
 
 private:
   vtkCutMaterial(const vtkCutMaterial&) = delete;

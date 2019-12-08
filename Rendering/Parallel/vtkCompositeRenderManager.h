@@ -21,13 +21,13 @@
  * uses compositing to do parallel rendering.  This class has
  * replaced vtkCompositeManager.
  *
-*/
+ */
 
 #ifndef vtkCompositeRenderManager_h
 #define vtkCompositeRenderManager_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkCompositer;
 class vtkFloatArray;
@@ -36,14 +36,14 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallel
 {
 public:
   vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
-  static vtkCompositeRenderManager *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkCompositeRenderManager* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the composite algorithm.
    */
-  void SetCompositer(vtkCompositer *c);
+  void SetCompositer(vtkCompositer* c);
   vtkGetObjectMacro(Compositer, vtkCompositer);
   //@}
 
@@ -51,20 +51,20 @@ protected:
   vtkCompositeRenderManager();
   ~vtkCompositeRenderManager() override;
 
-  vtkCompositer *Compositer;
+  vtkCompositer* Compositer;
 
   void PreRenderProcessing() override;
   void PostRenderProcessing() override;
 
-  vtkFloatArray *DepthData;
-  vtkUnsignedCharArray *TmpPixelData;
-  vtkFloatArray *TmpDepthData;
+  vtkFloatArray* DepthData;
+  vtkUnsignedCharArray* TmpPixelData;
+  vtkFloatArray* TmpDepthData;
 
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &) = delete;
-  void operator=(const vtkCompositeRenderManager &) = delete;
+  vtkCompositeRenderManager(const vtkCompositeRenderManager&) = delete;
+  void operator=(const vtkCompositeRenderManager&) = delete;
 };
 
-#endif //vtkCompositeRenderManager_h
+#endif // vtkCompositeRenderManager_h

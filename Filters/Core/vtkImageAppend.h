@@ -24,7 +24,7 @@
  * The output has the same origin and spacing as the first input.
  * The origin and spacing of all other inputs are ignored.  All inputs
  * must have the same scalar type.
-*/
+ */
 
 #ifndef vtkImageAppend_h
 #define vtkImageAppend_h
@@ -35,8 +35,8 @@
 class VTKFILTERSCORE_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageAppend *New();
-  vtkTypeMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
+  static vtkImageAppend* New();
+  vtkTypeMacro(vtkImageAppend, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -53,8 +53,8 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
-  void SetInputData(int num, vtkDataObject *input);
-  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); };
+  void SetInputData(int num, vtkDataObject* input);
+  void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
   //@}
 
   //@{
@@ -63,8 +63,8 @@ public:
    * old-style pipeline connections.  When writing new code you should
    * use vtkAlgorithm::GetInputConnection(0, num).
    */
-  vtkDataObject *GetInput(int num);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject* GetInput(int num);
+  vtkDataObject* GetInput() { return this->GetInput(0); }
   //@}
 
   /**
@@ -72,7 +72,7 @@ public:
    * support of old-style pipeline connections.  When writing new code
    * you should use vtkAlgorithm::GetNumberOfInputConnections(0).
    */
-  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
 
   //@{
   /**
@@ -106,42 +106,30 @@ protected:
   vtkTypeBool PreserveExtents;
   int AppendAxis;
   // Array holds the AppendAxisExtent shift for each input.
-  int *Shifts;
+  int* Shifts;
 
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData (vtkInformation* request,
-                            vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector,
-                            vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) override;
-
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
 
   // see vtkAlgorithm for docs.
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  void InitOutput(int outExt[6], vtkImageData *outData);
+  void InitOutput(int outExt[6], vtkImageData* outData);
 
-  void InternalComputeInputUpdateExtent(
-    int *inExt, int *outExt, int *inWextent, int whichInput);
+  void InternalComputeInputUpdateExtent(int* inExt, int* outExt, int* inWextent, int whichInput);
 
   // overridden to allocate all of the output arrays, not just active scalars
-  void AllocateOutputData(vtkImageData *out,
-                          vtkInformation* outInfo,
-                          int *uExtent) override;
-  vtkImageData *AllocateOutputData(vtkDataObject *out,
-                                   vtkInformation* outInfo) override;
+  void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
+  vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
 
   // overridden to prevent shallow copies across, since we have to do it elementwise
-  void CopyAttributeData(vtkImageData *in, vtkImageData *out,
-                         vtkInformationVector** inputVector) override;
-
+  void CopyAttributeData(
+    vtkImageData* in, vtkImageData* out, vtkInformationVector** inputVector) override;
 
 private:
   vtkImageAppend(const vtkImageAppend&) = delete;
@@ -149,7 +137,3 @@ private:
 };
 
 #endif
-
-
-
-

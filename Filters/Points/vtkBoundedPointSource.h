@@ -24,7 +24,7 @@
  * vtkPolyVertex cell as well as random scalar values within a specified
  * range. The class is typically used for debugging and testing, as well as
  * seeding streamlines.
-*/
+ */
 
 #ifndef vtkBoundedPointSource_h
 #define vtkBoundedPointSource_h
@@ -39,8 +39,8 @@ public:
   /**
    * Standard methods for instantiation, type information and printing.
    */
-  static vtkBoundedPointSource *New();
-  vtkTypeMacro(vtkBoundedPointSource,vtkPolyDataAlgorithm);
+  static vtkBoundedPointSource* New();
+  vtkTypeMacro(vtkBoundedPointSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -48,8 +48,8 @@ public:
   /**
    * Set the number of points to generate.
    */
-  vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_ID_MAX);
-  vtkGetMacro(NumberOfPoints,vtkIdType);
+  vtkSetClampMacro(NumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
+  vtkGetMacro(NumberOfPoints, vtkIdType);
   //@}
 
   //@{
@@ -57,8 +57,8 @@ public:
    * Set the bounding box for the point distribution. By default the bounds is
    * (-1,1,-1,1,-1,1).
    */
-  vtkSetVector6Macro(Bounds,double);
-  vtkGetVectorMacro(Bounds,double,6);
+  vtkSetVector6Macro(Bounds, double);
+  vtkGetVectorMacro(Bounds, double, 6);
   //@}
 
   //@{
@@ -67,8 +67,8 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
   //@{
@@ -97,15 +97,15 @@ public:
    * Set the range in which the random scalars should be produced. By default the
    * scalar range is (0,1).
    */
-  vtkSetVector2Macro(ScalarRange,double);
-  vtkGetVectorMacro(ScalarRange,double,2);
+  vtkSetVector2Macro(ScalarRange, double);
+  vtkGetVectorMacro(ScalarRange, double, 2);
   //@}
 
 protected:
   vtkBoundedPointSource();
   ~vtkBoundedPointSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkIdType NumberOfPoints;
   double Bounds[6];

@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkPointPicker.h"
 
-#include "vtkBox.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkImageData.h"
-#include "vtkMath.h"
-#include "vtkProp3D.h"
-#include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkImageMapper3D.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
+#include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
+#include "vtkMapper.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkProp3D.h"
 
-inline vtkCellArray* GET_CELLS( int cell_type, vtkPolyData* poly_input )
+inline vtkCellArray* GET_CELLS(int cell_type, vtkPolyData* poly_input)
 {
-  switch( cell_type )
+  switch (cell_type)
   {
     case 0:
       return poly_input->GetVerts();
@@ -53,19 +53,18 @@ vtkPointPicker::vtkPointPicker()
 }
 
 double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3], double tol,
-                                        vtkAssemblyPath *path, vtkProp3D *p,
-                                        vtkAbstractMapper3D *m)
+  vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m)
 {
   vtkIdType minPtId = -1;
   double tMin = VTK_DOUBLE_MAX;
   double minXYZ[3];
-  vtkDataSet *input;
-  vtkMapper *mapper;
-  vtkAbstractVolumeMapper *volumeMapper = nullptr;
-  vtkImageMapper3D *imageMapper = nullptr;
+  vtkDataSet* input;
+  vtkMapper* mapper;
+  vtkAbstractVolumeMapper* volumeMapper = nullptr;
+  vtkImageMapper3D* imageMapper = nullptr;
 
   double ray[3], rayFactor;
-  if ( !vtkPicker::CalculateRay(p1, p2, ray, rayFactor) )
+  if (!vtkPicker::CalculateRay(p1, p2, ray, rayFactor))
   {
     vtkDebugMacro("Zero length ray");
     return 2.0;
@@ -73,15 +72,15 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
 
   // Get the underlying dataset.
   //
-  if ( (mapper=vtkMapper::SafeDownCast(m)) != nullptr )
+  if ((mapper = vtkMapper::SafeDownCast(m)) != nullptr)
   {
     input = mapper->GetInput();
   }
-  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != nullptr )
+  else if ((volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) != nullptr)
   {
     input = volumeMapper->GetDataSetInput();
   }
-  else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != nullptr )
+  else if ((imageMapper = vtkImageMapper3D::SafeDownCast(m)) != nullptr)
   {
     input = imageMapper->GetInput();
   }
@@ -92,11 +91,11 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
 
   //   For image, find the single intersection point
   //
-  if ( imageMapper != nullptr )
+  if (imageMapper != nullptr)
   {
-    if ( input->GetNumberOfPoints() == 0 )
+    if (input->GetNumberOfPoints() == 0)
     {
-      vtkDebugMacro( "No points in input" );
+      vtkDebugMacro("No points in input");
       return 2.0;
     }
 
@@ -105,16 +104,16 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
     imageMapper->GetSlicePlaneInDataCoords(p->GetMatrix(), normal);
     double w1 = vtkMath::Dot(p1, normal) + normal[3];
     double w2 = vtkMath::Dot(p2, normal) + normal[3];
-    if (w1*w2 >= 0)
+    if (w1 * w2 >= 0)
     {
       w1 = 0.0;
       w2 = 1.0;
     }
     double w = (w2 - w1);
     double x[3];
-    x[0] = (p1[0]*w2 - p2[0]*w1)/w;
-    x[1] = (p1[1]*w2 - p2[1]*w1)/w;
-    x[2] = (p1[2]*w2 - p2[2]*w1)/w;
+    x[0] = (p1[0] * w2 - p2[0] * w1) / w;
+    x[1] = (p1[1] * w2 - p2[1] * w1) / w;
+    x[2] = (p1[2] * w2 - p2[2] * w1) / w;
 
     // Get the one point that will be checked
     minPtId = input->FindPoint(x);
@@ -126,7 +125,7 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
 
       //  Now compare this against other actors.
       //
-      if ( tMin < this->GlobalTMin )
+      if (tMin < this->GlobalTMin)
       {
         this->MarkPicked(path, p, m, tMin, minXYZ);
         this->PointId = minPtId;
@@ -134,17 +133,16 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
       }
     }
   }
-  else if ( input )
+  else if (input)
   {
     //  Project each point onto ray.  Keep track of the one within the
     //  tolerance and closest to the eye (and within the clipping range).
     //
-    minPtId = this->IntersectDataSetWithLine(p1, ray, rayFactor, tol, input,
-                                             tMin, minXYZ);
+    minPtId = this->IntersectDataSetWithLine(p1, ray, rayFactor, tol, input, tMin, minXYZ);
 
     //  Now compare this against other actors.
     //
-    if ( minPtId > -1 && tMin < this->GlobalTMin )
+    if (minPtId > -1 && tMin < this->GlobalTMin)
     {
       this->MarkPicked(path, p, m, tMin, minXYZ);
       this->PointId = minPtId;
@@ -157,42 +155,39 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
     // Iterate over all leaf datasets and find the closest point in any of
     // the leaf data sets
     vtkCompositeDataSet* composite =
-        vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0,0));
-    if ( composite )
+      vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0, 0));
+    if (composite)
     {
       vtkIdType flatIndex = -1;
       vtkSmartPointer<vtkCompositeDataIterator> iter;
-      iter.TakeReference( composite->NewIterator() );
-      for (iter->InitTraversal();
-           !iter->IsDoneWithTraversal();
-           iter->GoToNextItem())
+      iter.TakeReference(composite->NewIterator());
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-        vtkDataSet* ds =
-            vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-        if ( !ds )
+        vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if (!ds)
         {
-          vtkDebugMacro(<< "Skipping "
-                        << iter->GetCurrentDataObject()->GetClassName()
-                        << " block at index "
-                        << iter->GetCurrentFlatIndex());
+          vtkDebugMacro(<< "Skipping " << iter->GetCurrentDataObject()->GetClassName()
+                        << " block at index " << iter->GetCurrentFlatIndex());
           continue;
         }
 
         // First check if the bounding box of the data set is hit.
         double bounds[6];
         ds->GetBounds(bounds);
-        bounds[0] -= tol; bounds[1] += tol;
-        bounds[2] -= tol; bounds[3] += tol;
-        bounds[4] -= tol; bounds[5] += tol;
+        bounds[0] -= tol;
+        bounds[1] += tol;
+        bounds[2] -= tol;
+        bounds[3] += tol;
+        bounds[4] -= tol;
+        bounds[5] += tol;
         double tDummy;
         double xyzDummy[3];
 
         // only intersect dataset if bounding box is hit
-        if ( vtkBox::IntersectBox(bounds,p1,ray,xyzDummy,tDummy))
+        if (vtkBox::IntersectBox(bounds, p1, ray, xyzDummy, tDummy))
         {
-          vtkIdType ptId = this->IntersectDataSetWithLine(p1, ray, rayFactor,
-                                                          tol, ds,
-                                                          tMin, minXYZ);
+          vtkIdType ptId =
+            this->IntersectDataSetWithLine(p1, ray, rayFactor, tol, ds, tMin, minXYZ);
           if (ptId > -1)
           {
             input = ds;
@@ -201,54 +196,48 @@ double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3],
           }
         }
       }
-      if ( minPtId > -1 && tMin < this->GlobalTMin )
+      if (minPtId > -1 && tMin < this->GlobalTMin)
       {
         this->MarkPickedData(path, tMin, minXYZ, mapper, input, flatIndex);
         this->PointId = minPtId;
-        vtkDebugMacro("Picked point id= " << minPtId<<" in block "<<flatIndex );
+        vtkDebugMacro("Picked point id= " << minPtId << " in block " << flatIndex);
       }
     }
   }
   return tMin;
 }
 
-vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3],
-                                                   double ray[3],
-                                                   double rayFactor,
-                                                   double tol,
-                                                   vtkDataSet* dataSet,
-                                                   double& tMin,
-                                                   double minXYZ[3] )
+vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3], double ray[3],
+  double rayFactor, double tol, vtkDataSet* dataSet, double& tMin, double minXYZ[3])
 {
-  if ( dataSet->GetNumberOfPoints() == 0 )
+  if (dataSet->GetNumberOfPoints() == 0)
   {
-    vtkDebugMacro( "No points in input" );
+    vtkDebugMacro("No points in input");
     return 2.0;
   }
   vtkIdType minPtId = -1;
-  vtkPolyData* poly_input = vtkPolyData::SafeDownCast( dataSet );
-  if ( this->UseCells && ( poly_input != nullptr ) )
+  vtkPolyData* poly_input = vtkPolyData::SafeDownCast(dataSet);
+  if (this->UseCells && (poly_input != nullptr))
   {
-    double minPtDist=VTK_DOUBLE_MAX;
+    double minPtDist = VTK_DOUBLE_MAX;
 
-    for ( int iCellType = 0; iCellType<4; iCellType++ )
+    for (int iCellType = 0; iCellType < 4; iCellType++)
     {
-      vtkCellArray* cells = GET_CELLS( iCellType, poly_input );
+      vtkCellArray* cells = GET_CELLS(iCellType, poly_input);
       if (cells != nullptr)
       {
         cells->InitTraversal();
-        vtkIdType  n_cell_pts = 0;
-        vtkIdType *pt_ids = nullptr;
-        while( cells->GetNextCell( n_cell_pts, pt_ids ) )
+        vtkIdType n_cell_pts = 0;
+        const vtkIdType* pt_ids = nullptr;
+        while (cells->GetNextCell(n_cell_pts, pt_ids))
         {
-          for ( vtkIdType ptIndex=0; ptIndex<n_cell_pts; ptIndex++)
+          for (vtkIdType ptIndex = 0; ptIndex < n_cell_pts; ptIndex++)
           {
             vtkIdType ptId = pt_ids[ptIndex];
             double x[3];
-            dataSet->GetPoint(ptId,x);
+            dataSet->GetPoint(ptId, x);
 
-            if ( this->UpdateClosestPoint(x, p1, ray, rayFactor, tol,
-                                          tMin, minPtDist) )
+            if (this->UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
             {
               minPtId = ptId;
               minXYZ[0] = x[0];
@@ -263,14 +252,13 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3],
   else
   {
     vtkIdType numPts = dataSet->GetNumberOfPoints();
-    double minPtDist=VTK_DOUBLE_MAX;
+    double minPtDist = VTK_DOUBLE_MAX;
 
-    for (vtkIdType ptId = 0; ptId<numPts; ptId++)
+    for (vtkIdType ptId = 0; ptId < numPts; ptId++)
     {
       double x[3];
-      dataSet->GetPoint(ptId,x);
-      if ( this->UpdateClosestPoint(x, p1, ray, rayFactor,
-                                    tol, tMin, minPtDist) )
+      dataSet->GetPoint(ptId, x);
+      if (this->UpdateClosestPoint(x, p1, ray, rayFactor, tol, tMin, minPtDist))
       {
         minPtId = ptId;
         minXYZ[0] = x[0];
@@ -282,38 +270,35 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3],
   return minPtId;
 }
 
-bool vtkPointPicker::UpdateClosestPoint(double x[3], const double p1[3],
-                                        double ray[3], double rayFactor,
-                                        double tol,
-                                        double& tMin, double& distMin )
+bool vtkPointPicker::UpdateClosestPoint(double x[3], const double p1[3], double ray[3],
+  double rayFactor, double tol, double& tMin, double& distMin)
 {
-  double t = (ray[0]*(x[0]-p1[0]) +
-              ray[1]*(x[1]-p1[1]) +
-              ray[2]*(x[2]-p1[2])) / rayFactor;
+  double t =
+    (ray[0] * (x[0] - p1[0]) + ray[1] * (x[1] - p1[1]) + ray[2] * (x[2] - p1[2])) / rayFactor;
 
   // If we find a point closer than we currently have, see whether it
   // lies within the pick tolerance and clipping planes. We keep track
   // of the point closest to the line (use a fudge factor for points
   // nearly the same distance away.)
 
-  if ( t < 0. || t > 1. || t > tMin + this->Tolerance )
+  if (t < 0. || t > 1. || t > tMin + this->Tolerance)
   {
     return false;
   }
 
   double maxDist = 0.0;
   double projXYZ[3];
-  for( int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    projXYZ[i] = p1[i] + t*ray[i];
-    double dist = fabs(x[i]-projXYZ[i]);
-    if ( dist > maxDist )
+    projXYZ[i] = p1[i] + t * ray[i];
+    double dist = fabs(x[i] - projXYZ[i]);
+    if (dist > maxDist)
     {
       maxDist = dist;
     }
   }
 
-  if ( maxDist <= tol && maxDist < distMin )
+  if (maxDist <= tol && maxDist < distMin)
   {
     distMin = maxDist;
     tMin = t;
@@ -330,7 +315,7 @@ void vtkPointPicker::Initialize()
 
 void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Point Id: " << this->PointId << "\n";
 }

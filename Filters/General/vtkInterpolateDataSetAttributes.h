@@ -28,34 +28,34 @@
  * interpolated data set attributes common to all input data sets. (For
  * example, if one input has scalars and vectors, and another has just
  * scalars, then only scalars will be interpolated and output.)
-*/
+ */
 
 #ifndef vtkInterpolateDataSetAttributes_h
 #define vtkInterpolateDataSetAttributes_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkDataSetCollection;
 
 class VTKFILTERSGENERAL_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetAlgorithm
 {
 public:
-  static vtkInterpolateDataSetAttributes *New();
-  vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetAlgorithm);
+  static vtkInterpolateDataSetAttributes* New();
+  vtkTypeMacro(vtkInterpolateDataSetAttributes, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the list of inputs to this filter.
    */
-  vtkDataSetCollection *GetInputList();
+  vtkDataSetCollection* GetInputList();
 
   //@{
   /**
    * Specify interpolation parameter t.
    */
-  vtkSetClampMacro(T,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(T,double);
+  vtkSetClampMacro(T, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(T, double);
   //@}
 
 protected:
@@ -64,11 +64,11 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkDataSetCollection *InputList; // list of data sets to interpolate
-  double T; // interpolation parameter
+  vtkDataSetCollection* InputList; // list of data sets to interpolate
+  double T;                        // interpolation parameter
 
 private:
   vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) = delete;
@@ -76,5 +76,3 @@ private:
 };
 
 #endif
-
-

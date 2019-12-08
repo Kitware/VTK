@@ -18,19 +18,19 @@
  *
  * vtkGenericDataObjectWriter is a concrete class that writes data objects
  * to disk. The input to this object is any subclass of vtkDataObject.
-*/
+ */
 
 #ifndef vtkGenericDataObjectWriter_h
 #define vtkGenericDataObjectWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class VTKIOLEGACY_EXPORT vtkGenericDataObjectWriter : public vtkDataWriter
 {
 public:
-  static vtkGenericDataObjectWriter *New();
-  vtkTypeMacro(vtkGenericDataObjectWriter,vtkDataWriter);
+  static vtkGenericDataObjectWriter* New();
+  vtkTypeMacro(vtkGenericDataObjectWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -38,7 +38,7 @@ protected:
   ~vtkGenericDataObjectWriter() override;
 
   void WriteData() override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkGenericDataObjectWriter(const vtkGenericDataObjectWriter&) = delete;

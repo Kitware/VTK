@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
-#include "vtkImageData.h"
-#include "vtkImageAccumulate.h"
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageAccumulate.h"
+#include "vtkImageData.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 
-int ImageAccumulateLarge(int argc, char *argv[])
+int ImageAccumulateLarge(int argc, char* argv[])
 {
   vtkIdType dim;
   if (argc < 2)
@@ -32,40 +32,38 @@ int ImageAccumulateLarge(int argc, char *argv[])
   dim = atoi(argv[1]);
 
   // Allocate an image
-  vtkSmartPointer<vtkImageData> image =
-    vtkSmartPointer<vtkImageData>::New();
-  image->SetDimensions(dim,dim,dim);
-  image->AllocateScalars(VTK_UNSIGNED_CHAR,1);
+  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
+  image->SetDimensions(dim, dim, dim);
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   // Initialize the image with zeroes and ones
   vtkIdType oneBinExpected = 10;
   vtkIdType zeroBinExpected = dim * dim * dim - oneBinExpected;
 
-  memset(static_cast<void *>(
-           image->GetScalarPointer(oneBinExpected, 0, 0)), 0, zeroBinExpected);
-  memset(static_cast<void *>(
-           image->GetScalarPointer(0, 0, 0)), 1, oneBinExpected);
+  memset(static_cast<void*>(image->GetScalarPointer(oneBinExpected, 0, 0)), 0, zeroBinExpected);
+  memset(static_cast<void*>(image->GetScalarPointer(0, 0, 0)), 1, oneBinExpected);
 
-  vtkSmartPointer<vtkImageAccumulate> filter =
-    vtkSmartPointer<vtkImageAccumulate>::New();
+  vtkSmartPointer<vtkImageAccumulate> filter = vtkSmartPointer<vtkImageAccumulate>::New();
   filter->SetInputData(image);
   filter->SetComponentExtent(0, 1, 0, 0, 0, 0);
   filter->SetComponentOrigin(0, 0, 0);
   filter->SetComponentSpacing(1, 1, 1);
   filter->Update();
-  vtkIdType zeroBinResult =
-    static_cast<vtkIdType>(*(static_cast<vtkIdType *> (filter->GetOutput()->GetScalarPointer(0,0,0))));
-  vtkIdType oneBinResult =
-    static_cast<vtkIdType>(*(static_cast<vtkIdType *> (filter->GetOutput()->GetScalarPointer(1,0,0))));
+  vtkIdType zeroBinResult = static_cast<vtkIdType>(
+    *(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(0, 0, 0))));
+  vtkIdType oneBinResult = static_cast<vtkIdType>(
+    *(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(1, 0, 0))));
   int status = EXIT_SUCCESS;
   if (zeroBinResult != zeroBinExpected)
   {
-    std::cout << "Expected the 0 bin count to be " << zeroBinExpected << " but got " << zeroBinResult << std::endl;
+    std::cout << "Expected the 0 bin count to be " << zeroBinExpected << " but got "
+              << zeroBinResult << std::endl;
     status = EXIT_FAILURE;
   }
   if (oneBinResult != oneBinExpected)
   {
-    std::cout << "Expected the 1 bin count to be " << oneBinExpected << " but got " << oneBinResult << std::endl;
+    std::cout << "Expected the 1 bin count to be " << oneBinExpected << " but got " << oneBinResult
+              << std::endl;
     status = EXIT_FAILURE;
   }
 

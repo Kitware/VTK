@@ -13,61 +13,65 @@
 
 =========================================================================*/
 #include "vtkTemporalPathLineFilter.h"
-#include "vtkPolyData.h"
-#include "vtkPointSet.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMergePoints.h"
-#include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 //
-#include <vector>
+#include <cmath>
 #include <list>
 #include <map>
-#include <string>
 #include <stdexcept>
-#include <cmath>
+#include <string>
+#include <vector>
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
-typedef struct { double x[3]; }   Position;
-typedef std::vector<Position>  CoordList;
+typedef struct
+{
+  double x[3];
+} Position;
+typedef std::vector<Position> CoordList;
 typedef std::vector<vtkIdType> IdList;
 typedef std::vector<vtkSmartPointer<vtkAbstractArray> > FieldList;
 
 class ParticleTrail : public vtkObject
 {
 public:
-  static ParticleTrail *New();
+  static ParticleTrail* New();
   vtkTypeMacro(ParticleTrail, vtkObject);
   //
-  unsigned int  firstpoint;
-  unsigned int  lastpoint;
-  unsigned int  length;
-  long int      GlobalId;
-  vtkIdType     TrailId;
-  vtkIdType     FrontPointId;
-  bool          alive;
-  bool          updated;
-  CoordList     Coords;
-  FieldList     Fields;
+  unsigned int firstpoint;
+  unsigned int lastpoint;
+  unsigned int length;
+  long int GlobalId;
+  vtkIdType TrailId;
+  vtkIdType FrontPointId;
+  bool alive;
+  bool updated;
+  CoordList Coords;
+  FieldList Fields;
   //
-  ParticleTrail() {
-    this->TrailId      = 0;
+  ParticleTrail()
+  {
+    this->TrailId = 0;
     this->FrontPointId = 0;
-    this->GlobalId     = ParticleTrail::UniqueId++;
+    this->GlobalId = ParticleTrail::UniqueId++;
   }
 
   static long int UniqueId;
 };
 vtkStandardNewMacro(ParticleTrail);
 
-long int ParticleTrail::UniqueId=0;
+long int ParticleTrail::UniqueId = 0;
 
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
 typedef std::pair<vtkIdType, TrailPointer> TrailMapType;
@@ -75,18 +79,18 @@ typedef std::pair<vtkIdType, TrailPointer> TrailMapType;
 class vtkTemporalPathLineFilterInternals : public vtkObject
 {
 public:
-  static vtkTemporalPathLineFilterInternals *New();
+  static vtkTemporalPathLineFilterInternals* New();
   vtkTypeMacro(vtkTemporalPathLineFilterInternals, vtkObject);
   //
   typedef std::map<vtkIdType, TrailPointer>::iterator TrailIterator;
   std::map<vtkIdType, TrailPointer> Trails;
   //
-  std::string                  LastIdArrayName;
-  std::map<int, double>        TimeStepSequence;
+  std::string LastIdArrayName;
+  std::map<int, double> TimeStepSequence;
   //
   // This specifies the order of the arrays in the trails fields.  These are
   // valid in between calls to RequestData.
-  std::vector<vtkStdString>    TrailFieldNames;
+  std::vector<vtkStdString> TrailFieldNames;
   // Input arrays corresponding to the entries in TrailFieldNames.  nullptr arrays
   // indicate missing arrays.  This field is only valid during a call to
   // RequestData.
@@ -98,43 +102,43 @@ typedef std::map<int, double>::iterator TimeStepIterator;
 //----------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
-  this->NumberOfTimeSteps    = 0;
-  this->MaskPoints           = 200;
-  this->MaxTrackLength       = 10;
-  this->LastTrackLength      = 10;
-  this->FirstTime            = 1;
-  this->IdChannelArray       = nullptr;
-  this->LatestTime           = 01E10;
-  this->MaxStepDistance[0]   = 0.0001;
-  this->MaxStepDistance[1]   = 0.0001;
-  this->MaxStepDistance[2]   = 0.0001;
-  this->MaxStepDistance[0]   = 1;
-  this->MaxStepDistance[1]   = 1;
-  this->MaxStepDistance[2]   = 1;
-  this->KeepDeadTrails       = 0;
-  this->Vertices             = vtkSmartPointer<vtkCellArray>::New();
-  this->PolyLines            = vtkSmartPointer<vtkCellArray>::New();
-  this->LineCoordinates      = vtkSmartPointer<vtkPoints>::New();
-  this->VertexCoordinates    = vtkSmartPointer<vtkPoints>::New();
-  this->TrailId              = vtkSmartPointer<vtkFloatArray>::New();
-  this->Internals            = vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
+  this->NumberOfTimeSteps = 0;
+  this->MaskPoints = 200;
+  this->MaxTrackLength = 10;
+  this->LastTrackLength = 10;
+  this->FirstTime = 1;
+  this->IdChannelArray = nullptr;
+  this->LatestTime = 01E10;
+  this->MaxStepDistance[0] = 0.0001;
+  this->MaxStepDistance[1] = 0.0001;
+  this->MaxStepDistance[2] = 0.0001;
+  this->MaxStepDistance[0] = 1;
+  this->MaxStepDistance[1] = 1;
+  this->MaxStepDistance[2] = 1;
+  this->KeepDeadTrails = 0;
+  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
+  this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
+  this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->TrailId = vtkSmartPointer<vtkFloatArray>::New();
+  this->Internals = vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2); // Lines and points
 }
 //----------------------------------------------------------------------------
 vtkTemporalPathLineFilter::~vtkTemporalPathLineFilter()
 {
-  delete [] this->IdChannelArray;
+  delete[] this->IdChannelArray;
   this->IdChannelArray = nullptr;
 }
 //----------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if (port==0)
+  if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   }
-  else if (port==1)
+  else if (port == 1)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
@@ -142,15 +146,14 @@ int vtkTemporalPathLineFilter::FillInputPortInformation(int port, vtkInformation
   return 1;
 }
 //----------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::FillOutputPortInformation(
-  int port, vtkInformation* info)
+int vtkTemporalPathLineFilter::FillOutputPortInformation(int port, vtkInformation* info)
 {
   // Lines on 0, First point as Vertex Cell on 1
-  if (port==0)
+  if (port == 0)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   }
-  else if (port==1)
+  else if (port == 1)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   }
@@ -162,17 +165,15 @@ void vtkTemporalPathLineFilter::SetSelectionConnection(vtkAlgorithmOutput* algOu
   this->SetInputConnection(1, algOutput);
 }
 //----------------------------------------------------------------------------
-void vtkTemporalPathLineFilter::SetSelectionData(vtkDataSet *input)
+void vtkTemporalPathLineFilter::SetSelectionData(vtkDataSet* input)
 {
   this->SetInputData(1, input);
 }
- //----------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+//----------------------------------------------------------------------------
+int vtkTemporalPathLineFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
     this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -184,30 +185,31 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
 {
   TrailPointer trail;
   vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.find(i);
-  if (t==this->Internals->Trails.end())
+  if (t == this->Internals->Trails.end())
   {
     trail = vtkSmartPointer<ParticleTrail>::New();
     std::pair<vtkTemporalPathLineFilterInternals::TrailIterator, bool> result =
-      this->Internals->Trails.insert(TrailMapType(i,trail));
+      this->Internals->Trails.insert(TrailMapType(i, trail));
     if (!result.second)
     {
       throw std::runtime_error("Unexpected map error");
     }
     // new trail created, reserve memory now for efficiency
     trail = result.first->second;
-    trail->Coords.assign(this->MaxTrackLength,Position());
-    trail->lastpoint  = 0;
+    trail->Coords.assign(this->MaxTrackLength, Position());
+    trail->lastpoint = 0;
     trail->firstpoint = 0;
-    trail->length     = 0;
-    trail->alive      = 1;
-    trail->updated    = 0;
-    trail->TrailId    = i;
+    trail->length = 0;
+    trail->alive = 1;
+    trail->updated = 0;
+    trail->TrailId = i;
 
     trail->Fields.assign(this->Internals->InputFieldArrays.size(), nullptr);
     for (size_t j = 0; j < this->Internals->InputFieldArrays.size(); j++)
     {
-      vtkAbstractArray *inputArray = this->Internals->InputFieldArrays[j];
-      if (!inputArray) continue;
+      vtkAbstractArray* inputArray = this->Internals->InputFieldArrays[j];
+      if (!inputArray)
+        continue;
       trail->Fields[j].TakeReference(inputArray->NewInstance());
       trail->Fields[j]->SetName(inputArray->GetName());
       trail->Fields[j]->SetNumberOfComponents(inputArray->GetNumberOfComponents());
@@ -221,14 +223,13 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
   return trail;
 }
 //---------------------------------------------------------------------------
-void vtkTemporalPathLineFilter::IncrementTrail(
-  TrailPointer trail, vtkDataSet *input, vtkIdType id)
+void vtkTemporalPathLineFilter::IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType id)
 {
   //
   // After a clip operation, some points might not exist anymore
   // if the Id is out of bounds, kill the trail
   //
-  if (id>=input->GetNumberOfPoints())
+  if (id >= input->GetNumberOfPoints())
   {
     trail->alive = 0;
     trail->updated = 1;
@@ -236,19 +237,19 @@ void vtkTemporalPathLineFilter::IncrementTrail(
   }
   // if for some reason, two particles have the same ID, only update once
   // and use the point that is closest to the last point on the trail
-  if (trail->updated && trail->length>0)
+  if (trail->updated && trail->length > 0)
   {
-    unsigned int lastindex = (trail->lastpoint-2)%this->MaxTrackLength;
-    unsigned int thisindex = (trail->lastpoint-1)%this->MaxTrackLength;
-    double *coord0  = trail->Coords[lastindex].x;
-    double *coord1a = trail->Coords[thisindex].x;
-    double *coord1b = input->GetPoint(id);
-    if (vtkMath::Distance2BetweenPoints(coord0, coord1b)<
-        vtkMath::Distance2BetweenPoints(coord0, coord1a))
+    unsigned int lastindex = (trail->lastpoint - 2) % this->MaxTrackLength;
+    unsigned int thisindex = (trail->lastpoint - 1) % this->MaxTrackLength;
+    double* coord0 = trail->Coords[lastindex].x;
+    double* coord1a = trail->Coords[thisindex].x;
+    double* coord1b = input->GetPoint(id);
+    if (vtkMath::Distance2BetweenPoints(coord0, coord1b) <
+      vtkMath::Distance2BetweenPoints(coord0, coord1a))
     {
       // new point is closer to previous than the one already present.
       // replace with this one.
-      input->GetPoint(id,coord1a);
+      input->GetPoint(id, coord1a);
       for (size_t fieldId = 0; fieldId < trail->Fields.size(); fieldId++)
       {
         trail->Fields[fieldId]->InsertTuple(
@@ -261,8 +262,8 @@ void vtkTemporalPathLineFilter::IncrementTrail(
   //
   // Copy coord and scalar into trail
   //
-  double *coord = trail->Coords[trail->lastpoint].x;
-  input->GetPoint(id,coord);
+  double* coord = trail->Coords[trail->lastpoint].x;
+  input->GetPoint(id, coord);
   for (size_t fieldId = 0; fieldId < trail->Fields.size(); fieldId++)
   {
     trail->Fields[fieldId]->InsertTuple(
@@ -271,19 +272,18 @@ void vtkTemporalPathLineFilter::IncrementTrail(
   // make sure the increment is within our allowed range
   // and disallow zero distances
   double dist = 1.0;
-  if (trail->length>0)
+  if (trail->length > 0)
   {
-    unsigned int lastindex = (this->MaxTrackLength + trail->lastpoint-1)%this->MaxTrackLength;
-    double *lastcoord = trail->Coords[lastindex].x;
+    unsigned int lastindex = (this->MaxTrackLength + trail->lastpoint - 1) % this->MaxTrackLength;
+    double* lastcoord = trail->Coords[lastindex].x;
     //
-    double distx = fabs(lastcoord[0]-coord[0]);
-    double disty = fabs(lastcoord[1]-coord[1]);
-    double distz = fabs(lastcoord[2]-coord[2]);
-    dist = sqrt(distx*distx + disty*disty + distz*distz);
+    double distx = fabs(lastcoord[0] - coord[0]);
+    double disty = fabs(lastcoord[1] - coord[1]);
+    double distz = fabs(lastcoord[2] - coord[2]);
+    dist = sqrt(distx * distx + disty * disty + distz * distz);
     //
-    if (distx>this->MaxStepDistance[0] ||
-        disty>this->MaxStepDistance[1] ||
-        distz>this->MaxStepDistance[2])
+    if (distx > this->MaxStepDistance[0] || disty > this->MaxStepDistance[1] ||
+      distz > this->MaxStepDistance[2])
     {
       trail->alive = 0;
       trail->updated = 1;
@@ -293,15 +293,15 @@ void vtkTemporalPathLineFilter::IncrementTrail(
   //
   // Extend the trail and wrap accordingly around maxlength
   //
-  if (dist>1E-9)
+  if (dist > 1E-9)
   {
     trail->lastpoint++;
     trail->length++;
-    if (trail->length>=this->MaxTrackLength)
+    if (trail->length >= this->MaxTrackLength)
     {
-      trail->lastpoint  = trail->lastpoint%this->MaxTrackLength;
+      trail->lastpoint = trail->lastpoint % this->MaxTrackLength;
       trail->firstpoint = trail->lastpoint;
-      trail->length     = this->MaxTrackLength;
+      trail->length = this->MaxTrackLength;
     }
     trail->updated = 1;
   }
@@ -309,33 +309,32 @@ void vtkTemporalPathLineFilter::IncrementTrail(
   trail->alive = 1;
 }
 //---------------------------------------------------------------------------
-int vtkTemporalPathLineFilter::RequestData(
-  vtkInformation *vtkNotUsed(information),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(information),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo   = inputVector[0]->GetInformationObject(0);
-  vtkInformation *selInfo  = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo0 = outputVector->GetInformationObject(0);
-  vtkInformation *outInfo1 = outputVector->GetInformationObject(1);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
   //
-  vtkDataSet      *input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet  *selection = selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
-  vtkPolyData   *output0 = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData   *output1 = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointData  *inputPointData = input->GetPointData();
-  vtkPointData  *pointPointData = output1->GetPointData();
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* selection =
+    selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
+  vtkPolyData* output0 = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output1 = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointData* inputPointData = input->GetPointData();
+  vtkPointData* pointPointData = output1->GetPointData();
   //
-  vtkInformation *doInfo = input->GetInformation();
+  vtkInformation* doInfo = input->GetInformation();
   double timeStep(0);
   if (doInfo->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-    timeStep =  doInfo->Get(vtkDataObject::DATA_TIME_STEP());
+    timeStep = doInfo->Get(vtkDataObject::DATA_TIME_STEP());
   }
   else
   {
-    vtkErrorMacro(<<"The input dataset did not have a valid DATA_TIME_STEPS information key");
+    vtkErrorMacro(<< "The input dataset did not have a valid DATA_TIME_STEPS information key");
     return 0;
   }
   double CurrentTimeStep = timeStep;
@@ -349,7 +348,7 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   // Ids
   //
-  vtkDataArray *Ids = nullptr;
+  vtkDataArray* Ids = nullptr;
   if (this->IdChannelArray)
   {
     Ids = input->GetPointData()->GetArray(this->IdChannelArray);
@@ -390,8 +389,10 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   // Check time and Track length
   //
-  if (CurrentTimeStep<this->LatestTime) this->FirstTime = 1;
-  if (this->LastTrackLength!=this->MaxTrackLength) this->FirstTime = 1;
+  if (CurrentTimeStep < this->LatestTime)
+    this->FirstTime = 1;
+  if (this->LastTrackLength != this->MaxTrackLength)
+    this->FirstTime = 1;
 
   //
   // Reset everything if we are starting afresh
@@ -401,16 +402,15 @@ int vtkTemporalPathLineFilter::RequestData(
     this->Flush();
     this->FirstTime = 0;
   }
-  this->LatestTime      = CurrentTimeStep;
+  this->LatestTime = CurrentTimeStep;
   this->LastTrackLength = this->MaxTrackLength;
 
   // Set up output fields.
-  vtkPointData *inPD = input->GetPointData();
-  vtkPointData *outPD = output0->GetPointData();
-  outPD->CopyAllocate(input->GetPointData(),
-    input->GetNumberOfPoints()*this->MaxTrackLength/this->MaskPoints);
-  if (   this->Internals->TrailFieldNames.empty()
-      && this->Internals->Trails.empty() )
+  vtkPointData* inPD = input->GetPointData();
+  vtkPointData* outPD = output0->GetPointData();
+  outPD->CopyAllocate(
+    input->GetPointData(), input->GetNumberOfPoints() * this->MaxTrackLength / this->MaskPoints);
+  if (this->Internals->TrailFieldNames.empty() && this->Internals->Trails.empty())
   {
     this->Internals->TrailFieldNames.resize(outPD->GetNumberOfArrays());
     for (int i = 0; i < outPD->GetNumberOfArrays(); i++)
@@ -420,15 +420,13 @@ int vtkTemporalPathLineFilter::RequestData(
   }
 
   std::vector<vtkAbstractArray*> outputFieldArrays;
-  this->Internals->InputFieldArrays.resize(
-                                       this->Internals->TrailFieldNames.size());
+  this->Internals->InputFieldArrays.resize(this->Internals->TrailFieldNames.size());
   outputFieldArrays.resize(this->Internals->TrailFieldNames.size());
   for (size_t i = 0; i < this->Internals->TrailFieldNames.size(); i++)
   {
-    this->Internals->InputFieldArrays[i]
-      = inPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
-    outputFieldArrays[i]
-      = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
+    this->Internals->InputFieldArrays[i] =
+      inPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
+    outputFieldArrays[i] = outPD->GetAbstractArray(this->Internals->TrailFieldNames[i]);
   }
 
   //
@@ -436,9 +434,8 @@ int vtkTemporalPathLineFilter::RequestData(
   // 'dead' ones can be removed at the end
   // Increment Trail marks the trail as alive
   //
-  for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-    this->Internals->Trails.begin();
-    t!=this->Internals->Trails.end(); ++t)
+  for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
+       t != this->Internals->Trails.end(); ++t)
   {
     t->second->alive = 0;
     t->second->updated = 0;
@@ -452,7 +449,7 @@ int vtkTemporalPathLineFilter::RequestData(
   {
     this->UsingSelection = 1;
     this->SelectionIds.clear();
-    vtkDataArray *selectionIds;
+    vtkDataArray* selectionIds;
     if (this->IdChannelArray)
     {
       selectionIds = selection->GetPointData()->GetArray(this->IdChannelArray);
@@ -463,8 +460,8 @@ int vtkTemporalPathLineFilter::RequestData(
     }
     if (selectionIds)
     {
-      vtkIdType N  = selectionIds->GetNumberOfTuples();
-      for (vtkIdType i=0; i<N; i++)
+      vtkIdType N = selectionIds->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < N; i++)
       {
         vtkIdType ID = static_cast<vtkIdType>(selectionIds->GetTuple1(i));
         this->SelectionIds.insert(ID);
@@ -479,13 +476,13 @@ int vtkTemporalPathLineFilter::RequestData(
   if (this->UsingSelection)
   {
     vtkIdType N = input->GetNumberOfPoints();
-    for (vtkIdType i=0; i<N; i++)
+    for (vtkIdType i = 0; i < N; i++)
     {
       vtkIdType ID = static_cast<vtkIdType>(Ids->GetTuple1(i));
-      if (this->SelectionIds.find(ID)!=this->SelectionIds.end())
+      if (this->SelectionIds.find(ID) != this->SelectionIds.end())
       {
-        TrailPointer trail = this->GetTrail(ID);    // ID is map key and particle ID
-        IncrementTrail(trail, input, i); // i is current point index
+        TrailPointer trail = this->GetTrail(ID); // ID is map key and particle ID
+        IncrementTrail(trail, input, i);         // i is current point index
       }
     }
   }
@@ -496,7 +493,7 @@ int vtkTemporalPathLineFilter::RequestData(
     // point to build up trails.
     //
     vtkIdType N = input->GetNumberOfPoints();
-    for (vtkIdType i=0; i<N; i+=this->MaskPoints)
+    for (vtkIdType i = 0; i < N; i += this->MaskPoints)
     {
       TrailPointer trail = this->GetTrail(i);
       IncrementTrail(trail, input, i);
@@ -505,13 +502,13 @@ int vtkTemporalPathLineFilter::RequestData(
   else
   {
     vtkIdType N = input->GetNumberOfPoints();
-    for (vtkIdType i=0; i<N; i++)
+    for (vtkIdType i = 0; i < N; i++)
     {
       vtkIdType ID = static_cast<vtkIdType>(Ids->GetTuple1(i));
-      if (ID%this->MaskPoints==0)
+      if (ID % this->MaskPoints == 0)
       {
-        TrailPointer trail = this->GetTrail(ID);    // ID is map key and particle ID
-        IncrementTrail(trail, input, i); // i is current point index
+        TrailPointer trail = this->GetTrail(ID); // ID is map key and particle ID
+        IncrementTrail(trail, input, i);         // i is current point index
       }
     }
   }
@@ -522,13 +519,13 @@ int vtkTemporalPathLineFilter::RequestData(
   {
     std::vector<vtkIdType> deadIds;
     deadIds.reserve(this->Internals->Trails.size());
-    for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-      this->Internals->Trails.begin();
-      t!=this->Internals->Trails.end(); ++t)
+    for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
+         t != this->Internals->Trails.end(); ++t)
     {
-      if (!t->second->alive) deadIds.push_back(t->first);
+      if (!t->second->alive)
+        deadIds.push_back(t->first);
     }
-    for (std::vector<vtkIdType>::iterator it=deadIds.begin(); it!=deadIds.end(); ++it)
+    for (std::vector<vtkIdType>::iterator it = deadIds.begin(); it != deadIds.end(); ++it)
     {
       this->Internals->Trails.erase(*it);
     }
@@ -537,59 +534,52 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   // Create the polydata outputs
   //
-  this->LineCoordinates     = vtkSmartPointer<vtkPoints>::New();
-  this->VertexCoordinates   = vtkSmartPointer<vtkPoints>::New();
-  this->Vertices            = vtkSmartPointer<vtkCellArray>::New();
-  this->PolyLines           = vtkSmartPointer<vtkCellArray>::New();
-  this->TrailId             = vtkSmartPointer<vtkFloatArray>::New();
+  this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
+  this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
+  this->TrailId = vtkSmartPointer<vtkFloatArray>::New();
   //
   size_t size = this->Internals->Trails.size();
-  this->LineCoordinates->Allocate(
-    static_cast<vtkIdType>(size*this->MaxTrackLength));
-  this->Vertices->Allocate(
-    static_cast<vtkIdType>(size));
-  this->VertexCoordinates->Allocate(
-    static_cast<vtkIdType>(size));
-  this->PolyLines->Allocate(
-    static_cast<vtkIdType>(2*size*this->MaxTrackLength));
-  this->TrailId->Allocate(
-    static_cast<vtkIdType>(size*this->MaxTrackLength));
+  this->LineCoordinates->Allocate(static_cast<vtkIdType>(size * this->MaxTrackLength));
+  this->Vertices->AllocateEstimate(static_cast<vtkIdType>(size), 1);
+  this->VertexCoordinates->Allocate(static_cast<vtkIdType>(size));
+  this->PolyLines->AllocateEstimate(static_cast<vtkIdType>(2 * size * this->MaxTrackLength), 1);
+  this->TrailId->Allocate(static_cast<vtkIdType>(size * this->MaxTrackLength));
   this->TrailId->SetName("TrailId");
   //
   std::vector<vtkIdType> TempIds(this->MaxTrackLength);
-  vtkIdType VertexId=0;
+  vtkIdType VertexId = 0;
   //
-  for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-    this->Internals->Trails.begin();
-    t!=this->Internals->Trails.end(); ++t)
+  for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
+       t != this->Internals->Trails.end(); ++t)
   {
     TrailPointer tp = t->second;
-    if (tp->length>0)
+    if (tp->length > 0)
     {
-      for (unsigned int p=0; p<tp->length; p++)
+      for (unsigned int p = 0; p < tp->length; p++)
       {
         // build list of Ids that make line
-        unsigned int index = (tp->firstpoint+p)%this->MaxTrackLength;
-        double *coord = tp->Coords[index].x;
+        unsigned int index = (tp->firstpoint + p) % this->MaxTrackLength;
+        double* coord = tp->Coords[index].x;
         TempIds[p] = this->LineCoordinates->InsertNextPoint(coord);
         for (size_t fieldId = 0; fieldId < outputFieldArrays.size(); fieldId++)
         {
-          outputFieldArrays[fieldId]->InsertNextTuple(index,
-                                                      tp->Fields[fieldId]);
+          outputFieldArrays[fieldId]->InsertNextTuple(index, tp->Fields[fieldId]);
         }
         this->TrailId->InsertNextTuple1(static_cast<double>(tp->TrailId));
 
         // export the front end of the line as a vertex on Output1
-        if (p==(tp->length-1))
+        if (p == (tp->length - 1))
         {
           VertexId = this->VertexCoordinates->InsertNextPoint(coord);
           // copy all point scalars from input to new point data
           pointPointData->CopyData(inputPointData, tp->FrontPointId, VertexId);
         }
       }
-      if (tp->length>1)
+      if (tp->length > 1)
       {
-        this->PolyLines->InsertNextCell(tp->length,&TempIds[0]);
+        this->PolyLines->InsertNextCell(tp->length, &TempIds[0]);
       }
       this->Vertices->InsertNextCell(1, &VertexId);
     }
@@ -623,18 +613,13 @@ void vtkTemporalPathLineFilter::Flush()
 //---------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "MaskPoints: "
-    << this->MaskPoints << "\n";
-  os << indent << "MaxTrackLength: "
-    << this->MaxTrackLength << "\n";
-  os << indent << "IdChannelArray: "
-    << (this->IdChannelArray ? this->IdChannelArray : "None") << "\n";
-  os << indent << "MaxStepDistance: {"
-     << this->MaxStepDistance[0] << ","
-     << this->MaxStepDistance[1] << ","
-     << this->MaxStepDistance[2] << "}\n";
-  os << indent << "KeepDeadTrails: "
-    << this->KeepDeadTrails << "\n";
+  os << indent << "MaskPoints: " << this->MaskPoints << "\n";
+  os << indent << "MaxTrackLength: " << this->MaxTrackLength << "\n";
+  os << indent << "IdChannelArray: " << (this->IdChannelArray ? this->IdChannelArray : "None")
+     << "\n";
+  os << indent << "MaxStepDistance: {" << this->MaxStepDistance[0] << ","
+     << this->MaxStepDistance[1] << "," << this->MaxStepDistance[2] << "}\n";
+  os << indent << "KeepDeadTrails: " << this->KeepDeadTrails << "\n";
 }

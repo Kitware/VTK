@@ -18,4 +18,4 @@ class vtkMultiProcessController;
 // Runs the given multi process controller through the ropes.  Returns
 // value is 0 on success (so that it may be passed back from the main
 // application.
-int ExerciseMultiProcessController(vtkMultiProcessController *controller);
+int ExerciseMultiProcessController(vtkMultiProcessController* controller);

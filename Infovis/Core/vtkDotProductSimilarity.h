@@ -53,7 +53,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkDotProductSimilarity_h
 #define vtkDotProductSimilarity_h
@@ -153,10 +153,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkDotProductSimilarity(const vtkDotProductSimilarity&) = delete;
@@ -175,4 +172,3 @@ private:
 };
 
 #endif
-

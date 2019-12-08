@@ -32,9 +32,9 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkResampleToImage.h"
 #include "vtkSmartPointer.h"
 #include "vtkSmartVolumeMapper.h"
@@ -52,10 +52,10 @@ int TestOSPRayCache(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   auto renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
-  renderer->SetBackground(0.0,0.0,0.0);
-  renWin->SetSize(400,400);
+  renderer->SetBackground(0.0, 0.0, 0.0);
+  renWin->SetSize(400, 400);
 
-  auto ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  auto ospray = vtkSmartPointer<vtkOSPRayPass>::New();
 
   for (int i = 0; i < argc; ++i)
   {
@@ -78,8 +78,8 @@ int TestOSPRayCache(int argc, char* argv[])
 
   // a slice to test geometry caching
   auto plane = vtkSmartPointer<vtkPlane>::New();
-  plane->SetOrigin(0,0,0.25);
-  plane->SetNormal(0,0,1);
+  plane->SetOrigin(0, 0, 0.25);
+  plane->SetNormal(0, 0, 1);
   auto cutter = vtkSmartPointer<vtkCutter>::New();
   cutter->SetCutFunction(plane);
   cutter->SetInputConnection(fractal->GetOutputPort());
@@ -94,14 +94,14 @@ int TestOSPRayCache(int argc, char* argv[])
   // draw the slice
   auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(tcache1->GetOutputPort());
-  auto actor= vtkSmartPointer<vtkActor>::New();
+  auto actor = vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
   // a resample to test volume caching
   auto resample = vtkSmartPointer<vtkResampleToImage>::New();
   resample->SetInputConnection(fractal->GetOutputPort());
-  resample->SetSamplingDimensions(50,50,50);
+  resample->SetSamplingDimensions(50, 50, 50);
 
   // exercise VTK's filter caching too
   auto tcache2 = vtkSmartPointer<vtkTemporalDataSetCache>::New();
@@ -115,12 +115,12 @@ int TestOSPRayCache(int argc, char* argv[])
   volmap->SelectScalarArray("Fractal Volume Fraction");
   auto volprop = vtkSmartPointer<vtkVolumeProperty>::New();
   auto compositeOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-  compositeOpacity->AddPoint(0.0,0.0);
-  compositeOpacity->AddPoint(3.0,1.0);
+  compositeOpacity->AddPoint(0.0, 0.0);
+  compositeOpacity->AddPoint(3.0, 1.0);
   volprop->SetScalarOpacity(compositeOpacity);
   auto color = vtkSmartPointer<vtkColorTransferFunction>::New();
-  color->AddRGBPoint(0.0  ,0.0,0.0,0.0);
-  color->AddRGBPoint(6.0, 1.0,1.0,1.0);
+  color->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
+  color->AddRGBPoint(6.0, 1.0, 1.0, 1.0);
   volprop->SetColor(color);
   auto vol = vtkSmartPointer<vtkVolume>::New();
   vol->SetMapper(volmap);
@@ -129,15 +129,15 @@ int TestOSPRayCache(int argc, char* argv[])
 
   // make the camera sensible
   auto cam = renderer->GetActiveCamera();
-  cam->SetPosition(-.37,0,8);
-  cam->SetFocalPoint(-.37,0,0);
-  cam->SetViewUp(1,0,0);
+  cam->SetPosition(-.37, 0, 8);
+  cam->SetFocalPoint(-.37, 0, 0);
+  cam->SetViewUp(1, 0, 0);
   cam->Azimuth(-35);
 
   // now set up the animation over time
   auto info1 = tcache1->GetOutputInformation(0);
   tcache1->UpdateInformation();
-  double *tsteps = info1->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* tsteps = info1->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int ntsteps = info1->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   auto info2 = tcache2->GetOutputInformation(0);
   tcache2->UpdateInformation();
@@ -145,10 +145,10 @@ int TestOSPRayCache(int argc, char* argv[])
   // the thing we are trying to test, ospray interface's caching
   vtkOSPRayRendererNode::SetTimeCacheSize(11, renderer);
 
-  //first pass, expected to be comparatively slow
+  // first pass, expected to be comparatively slow
   auto timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
-  for (int i = 0; i < ntsteps; i+=5)
+  for (int i = 0; i < ntsteps; i += 5)
   {
     double updateTime = tsteps[i];
     cout << "t=" << updateTime << endl;
@@ -162,11 +162,11 @@ int TestOSPRayCache(int argc, char* argv[])
   double etime0 = timer->GetElapsedTime();
   cout << "Elapsed time first renders " << etime0 << endl;
 
-  //subsequent passes, expected to be faster
+  // subsequent passes, expected to be faster
   timer->StartTimer();
   for (int j = 0; j < 5; ++j)
   {
-    for (int i = 0; i < ntsteps; i+=5)
+    for (int i = 0; i < ntsteps; i += 5)
     {
       double updateTime = tsteps[i];
       cout << "t=" << updateTime << endl;
@@ -181,7 +181,7 @@ int TestOSPRayCache(int argc, char* argv[])
   double etime1 = timer->GetElapsedTime();
   cout << "Elapsed time for 5 cached render loops " << etime1 << endl;
 
-  if (etime1 > etime0*3)
+  if (etime1 > etime0 * 3)
   {
     cerr << "Test failed, 5 rerenders are expected to be faster." << endl;
     cerr << "first render " << etime0 << " vs " << etime1 << " for 5x rerender" << endl;

@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkVRMLImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkVRMLImporter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-int TestVRMLNormals( int argc, char * argv [] )
+int TestVRMLNormals(int argc, char* argv[])
 {
   // Now create the RenderWindow, Renderer and Interactor
   vtkRenderer* ren1 = vtkRenderer::New();
@@ -38,7 +38,7 @@ int TestVRMLNormals( int argc, char * argv [] )
   importer->SetFileName(fname);
   importer->Read();
 
-  delete [] fname;
+  delete[] fname;
 
   renWin->SetSize(400, 400);
 
@@ -46,8 +46,8 @@ int TestVRMLNormals( int argc, char * argv [] )
   iren->Initialize();
 
   // This starts the event loop and as a side effect causes an initial render.
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

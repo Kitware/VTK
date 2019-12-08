@@ -26,13 +26,13 @@
  * The representation uses a vtkGeometryFilter to convert the dataset to
  * polygonal data (e.g. volumetric data is converted to its external surface).
  * The representation may then be added to vtkRenderView.
-*/
+ */
 
 #ifndef vtkRenderedSurfaceRepresentation_h
 #define vtkRenderedSurfaceRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkAlgorithmOutput;
@@ -49,7 +49,7 @@ class vtkView;
 class VTKVIEWSINFOVIS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepresentation
 {
 public:
-  static vtkRenderedSurfaceRepresentation *New();
+  static vtkRenderedSurfaceRepresentation* New();
   vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -57,8 +57,7 @@ public:
    * Sets the color array name
    */
   virtual void SetCellColorArrayName(const char* arrayName);
-  virtual const char* GetCellColorArrayName()
-    { return this->GetCellColorArrayNameInternal(); }
+  virtual const char* GetCellColorArrayName() { return this->GetCellColorArrayNameInternal(); }
 
   /**
    * Apply a theme to this representation.
@@ -72,9 +71,7 @@ protected:
   /**
    * Sets the input pipeline connection to this representation.
    */
-  int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -105,11 +102,11 @@ protected:
   /**
    * Internal pipeline objects.
    */
-  vtkTransformFilter*   TransformFilter;
-  vtkApplyColors*       ApplyColors;
-  vtkGeometryFilter*    GeometryFilter;
-  vtkPolyDataMapper*    Mapper;
-  vtkActor*             Actor;
+  vtkTransformFilter* TransformFilter;
+  vtkApplyColors* ApplyColors;
+  vtkGeometryFilter* GeometryFilter;
+  vtkPolyDataMapper* Mapper;
+  vtkActor* Actor;
   //@}
 
   vtkGetStringMacro(CellColorArrayNameInternal);

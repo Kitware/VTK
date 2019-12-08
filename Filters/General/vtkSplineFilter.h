@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkRibbonFilter vtkTubeFilter
-*/
+ */
 
 #ifndef vtkSplineFilter_h
 #define vtkSplineFilter_h
@@ -41,12 +41,12 @@
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SUBDIVIDE_SPECIFIED 0
-#define VTK_SUBDIVIDE_LENGTH    1
+#define VTK_SUBDIVIDE_LENGTH 1
 
-#define VTK_TCOORDS_OFF                    0
+#define VTK_TCOORDS_OFF 0
 #define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
-#define VTK_TCOORDS_FROM_LENGTH            2
-#define VTK_TCOORDS_FROM_SCALARS           3
+#define VTK_TCOORDS_FROM_LENGTH 2
+#define VTK_TCOORDS_FROM_SCALARS 3
 
 class vtkCellArray;
 class vtkCellData;
@@ -58,35 +58,33 @@ class vtkSpline;
 class VTKFILTERSGENERAL_EXPORT vtkSplineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSplineFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSplineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct the class with no limit on the number of subdivisions
    * and using an instance of vtkCardinalSpline to perform interpolation.
    */
-  static vtkSplineFilter *New();
+  static vtkSplineFilter* New();
 
   //@{
   /**
    * Set the maximum number of subdivisions that are created for each
    * polyline.
    */
-  vtkSetClampMacro(MaximumNumberOfSubdivisions,int,1,VTK_INT_MAX);
-  vtkGetMacro(MaximumNumberOfSubdivisions,int);
+  vtkSetClampMacro(MaximumNumberOfSubdivisions, int, 1, VTK_INT_MAX);
+  vtkGetMacro(MaximumNumberOfSubdivisions, int);
   //@}
 
   //@{
   /**
    * Specify how the number of subdivisions is determined.
    */
-  vtkSetClampMacro(Subdivide,int,VTK_SUBDIVIDE_SPECIFIED,VTK_SUBDIVIDE_LENGTH);
-  vtkGetMacro(Subdivide,int);
-  void SetSubdivideToSpecified()
-    {this->SetSubdivide(VTK_SUBDIVIDE_SPECIFIED);}
-  void SetSubdivideToLength()
-    {this->SetSubdivide(VTK_SUBDIVIDE_LENGTH);}
-  const char *GetSubdivideAsString();
+  vtkSetClampMacro(Subdivide, int, VTK_SUBDIVIDE_SPECIFIED, VTK_SUBDIVIDE_LENGTH);
+  vtkGetMacro(Subdivide, int);
+  void SetSubdivideToSpecified() { this->SetSubdivide(VTK_SUBDIVIDE_SPECIFIED); }
+  void SetSubdivideToLength() { this->SetSubdivide(VTK_SUBDIVIDE_LENGTH); }
+  const char* GetSubdivideAsString();
   //@}
 
   //@{
@@ -95,8 +93,8 @@ public:
    * polyline. This method only has effect if Subdivisions is set
    * to SetSubdivisionsToSpecify().
    */
-  vtkSetClampMacro(NumberOfSubdivisions,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfSubdivisions,int);
+  vtkSetClampMacro(NumberOfSubdivisions, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfSubdivisions, int);
   //@}
 
   //@{
@@ -105,8 +103,8 @@ public:
    * polyline based on an absolute length. The length of the spline
    * is divided by this length to determine the number of subdivisions.
    */
-  vtkSetClampMacro(Length,double,0.0000001,VTK_DOUBLE_MAX);
-  vtkGetMacro(Length,double);
+  vtkSetClampMacro(Length, double, 0.0000001, VTK_DOUBLE_MAX);
+  vtkGetMacro(Length, double);
   //@}
 
   //@{
@@ -114,7 +112,7 @@ public:
    * Specify an instance of vtkSpline to use to perform the interpolation.
    */
   virtual void SetSpline(vtkSpline*);
-  vtkGetObjectMacro(Spline,vtkSpline);
+  vtkGetObjectMacro(Spline, vtkSpline);
   //@}
 
   //@{
@@ -125,18 +123,16 @@ public:
    * based on the length (divided by the texture length); and by using
    * the input scalar values.
    */
-  vtkSetClampMacro(GenerateTCoords,int,VTK_TCOORDS_OFF,
-                   VTK_TCOORDS_FROM_SCALARS);
-  vtkGetMacro(GenerateTCoords,int);
-  void SetGenerateTCoordsToOff()
-    {this->SetGenerateTCoords(VTK_TCOORDS_OFF);}
+  vtkSetClampMacro(GenerateTCoords, int, VTK_TCOORDS_OFF, VTK_TCOORDS_FROM_SCALARS);
+  vtkGetMacro(GenerateTCoords, int);
+  void SetGenerateTCoordsToOff() { this->SetGenerateTCoords(VTK_TCOORDS_OFF); }
   void SetGenerateTCoordsToNormalizedLength()
-    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_NORMALIZED_LENGTH);}
-  void SetGenerateTCoordsToUseLength()
-    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH);}
-  void SetGenerateTCoordsToUseScalars()
-    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS);}
-  const char *GetGenerateTCoordsAsString();
+  {
+    this->SetGenerateTCoords(VTK_TCOORDS_FROM_NORMALIZED_LENGTH);
+  }
+  void SetGenerateTCoordsToUseLength() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH); }
+  void SetGenerateTCoordsToUseScalars() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS); }
+  const char* GetGenerateTCoordsAsString();
   //@}
 
   //@{
@@ -146,8 +142,8 @@ public:
    * calculated from scalars or length) is mapped to the [0,1)
    * texture space.
    */
-  vtkSetClampMacro(TextureLength,double,0.000001,VTK_INT_MAX);
-  vtkGetMacro(TextureLength,double);
+  vtkSetClampMacro(TextureLength, double, 0.000001, VTK_INT_MAX);
+  vtkGetMacro(TextureLength, double);
   //@}
 
 protected:
@@ -155,30 +151,29 @@ protected:
   ~vtkSplineFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int       MaximumNumberOfSubdivisions;
-  int       Subdivide;
-  int       NumberOfSubdivisions;
-  double     Length;
-  vtkSpline *Spline;
-  vtkSpline *XSpline;
-  vtkSpline *YSpline;
-  vtkSpline *ZSpline;
-  int       GenerateTCoords;
-  double     TextureLength; //this length is mapped to [0,1) texture space
+  int MaximumNumberOfSubdivisions;
+  int Subdivide;
+  int NumberOfSubdivisions;
+  double Length;
+  vtkSpline* Spline;
+  vtkSpline* XSpline;
+  vtkSpline* YSpline;
+  vtkSpline* ZSpline;
+  int GenerateTCoords;
+  double TextureLength; // this length is mapped to [0,1) texture space
 
-  //helper methods
-  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
-                     vtkPoints *inPts, vtkPoints *newPts, vtkPointData *pd,
-                     vtkPointData *outPD, int genTCoords,
-                     vtkFloatArray *newTCoords);
+  // helper methods
+  int GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdType* pts, vtkPoints* inPts,
+    vtkPoints* newPts, vtkPointData* pd, vtkPointData* outPD, int genTCoords,
+    vtkFloatArray* newTCoords);
 
-  void GenerateLine(vtkIdType offset, vtkIdType numGenPts, vtkIdType inCellId,
-                    vtkCellData *cd, vtkCellData *outCD, vtkCellArray *newLines);
+  void GenerateLine(vtkIdType offset, vtkIdType numGenPts, vtkIdType inCellId, vtkCellData* cd,
+    vtkCellData* outCD, vtkCellArray* newLines);
 
-  //helper members
-  vtkFloatArray *TCoordMap;
+  // helper members
+  vtkFloatArray* TCoordMap;
 
 private:
   vtkSplineFilter(const vtkSplineFilter&) = delete;

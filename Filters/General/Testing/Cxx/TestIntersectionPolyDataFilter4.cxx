@@ -21,7 +21,7 @@
 // This test exercises the conditions that previously led to an out-of-bounds
 // memory access when computing the intersection between two surfaces, at least
 // one of which was not entirely enclosed (the sphere ending at Theta=305 below).
-int TestIntersectionPolyDataFilter4(int, char *[])
+int TestIntersectionPolyDataFilter4(int, char*[])
 {
   vtkNew<vtkSphereSource> sphere1;
   sphere1->SetStartTheta(0.0);

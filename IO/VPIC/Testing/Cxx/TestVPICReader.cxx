@@ -16,26 +16,26 @@
 // .SECTION Description
 // Tests the vtkVPICReader.
 
-#include "vtkVPICReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkVPICReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkNew.h"
 
-int TestVPICReader( int argc, char *argv[] )
+int TestVPICReader(int argc, char* argv[])
 {
   // Read file name.
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/VPIC/global.vpc");
@@ -45,7 +45,7 @@ int TestVPICReader( int argc, char *argv[] )
   reader->SetFileName(fname);
   reader->EnableAllPointArrays();
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkDataSetSurfaceFilter> geom1;
   geom1->SetInputConnection(0, reader->GetOutputPort(0));
@@ -71,8 +71,8 @@ int TestVPICReader( int argc, char *argv[] )
 
   ren->AddActor(actor);
 
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
@@ -80,9 +80,9 @@ int TestVPICReader( int argc, char *argv[] )
   ren->GetActiveCamera()->Azimuth(45);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

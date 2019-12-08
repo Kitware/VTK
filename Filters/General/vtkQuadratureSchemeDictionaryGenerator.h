@@ -25,13 +25,13 @@
  *
  * @sa
  * vtkQuadraturePointInterpolator, vtkQuadraturePointsGenerator, vtkQuadratureSchemeDefinition
-*/
+ */
 
 #ifndef vtkQuadratureSchemeDictionaryGenerator_h
 #define vtkQuadratureSchemeDictionaryGenerator_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkPolyData;
 class vtkUnstructuredGrid;
@@ -41,20 +41,21 @@ class vtkInformationVector;
 class VTKFILTERSGENERAL_EXPORT vtkQuadratureSchemeDictionaryGenerator : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkQuadratureSchemeDictionaryGenerator *New();
+  static vtkQuadratureSchemeDictionaryGenerator* New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
   vtkQuadratureSchemeDictionaryGenerator();
   ~vtkQuadratureSchemeDictionaryGenerator() override;
 
 private:
-  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
-  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
+  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
+  void operator=(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
 
   //@{
   /**
@@ -62,8 +63,8 @@ private:
    * input data set. The same definition will be used
    * for all point data arrays.
    */
-  int Generate(vtkUnstructuredGrid *usgOut);
-};
+  int Generate(vtkUnstructuredGrid* usgOut);
   //@}
+};
 
 #endif

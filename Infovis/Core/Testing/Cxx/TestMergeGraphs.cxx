@@ -19,15 +19,15 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkDelimitedTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkMergeGraphs.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
+#include <vtkTestUtilities.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
-#include <vtkTestUtilities.h>
-#include <vtkIOStream.h>
 
 #include <string>
 
@@ -40,7 +40,7 @@ void BuildTable(vtkTable* table, T values[][Cols], int rows)
     arr->SetName(vtkVariant(values[0][c]).ToString());
     for (int r = 0; r < rows; ++r)
     {
-      arr->InsertNextValue(values[r+1][c]);
+      arr->InsertNextValue(values[r + 1][c]);
     }
     table->AddColumn(arr);
   }
@@ -52,7 +52,8 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
   for (vtkIdType col = 0; col < expected->GetNumberOfColumns(); ++col)
   {
     vtkStringArray* exp_arr = vtkArrayDownCast<vtkStringArray>(expected->GetColumn(col));
-    vtkStringArray* out_arr = vtkArrayDownCast<vtkStringArray>(output->GetColumnByName(exp_arr->GetName()));
+    vtkStringArray* out_arr =
+      vtkArrayDownCast<vtkStringArray>(output->GetColumnByName(exp_arr->GetName()));
     if (!out_arr)
     {
       cerr << "Output array " << exp_arr->GetName() << " does not exist" << endl;
@@ -61,7 +62,8 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
     }
     if (out_arr->GetNumberOfTuples() != exp_arr->GetNumberOfTuples())
     {
-      cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetNumberOfTuples() << " tuples when " << exp_arr->GetNumberOfTuples() << " were expected." << endl;
+      cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetNumberOfTuples()
+           << " tuples when " << exp_arr->GetNumberOfTuples() << " were expected." << endl;
       ok = false;
       continue;
     }
@@ -69,7 +71,9 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
     {
       if (exp_arr->GetValue(row) != out_arr->GetValue(row))
       {
-        cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetValue(row) << " at position " << row << " when " << exp_arr->GetValue(row) << " was expected." << endl;
+        cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetValue(row)
+             << " at position " << row << " when " << exp_arr->GetValue(row) << " was expected."
+             << endl;
         ok = false;
       }
     }
@@ -77,51 +81,24 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
   return ok;
 }
 
-const std::string vert_data1[][3] = {
-  { "id", "arr1", "arr2" },
-  { "v1", "a"   , "d" },
-  { "v2", "b"   , "e" },
-  { "v3", "c"   , "f" }
-};
+const std::string vert_data1[][3] = { { "id", "arr1", "arr2" }, { "v1", "a", "d" },
+  { "v2", "b", "e" }, { "v3", "c", "f" } };
 
-const std::string vert_data2[][3] = {
-  { "id", "arr2", "arr3" },
-  { "v2", "g"   , "j" },
-  { "v3", "h"   , "k" },
-  { "v4", "i"   , "l" }
-};
+const std::string vert_data2[][3] = { { "id", "arr2", "arr3" }, { "v2", "g", "j" },
+  { "v3", "h", "k" }, { "v4", "i", "l" } };
 
-const std::string edge_data1[][4] = {
-  { "id", "src", "tgt", "extra" },
-  { "e1", "v1" , "v2" , "m" },
-  { "e2", "v2" , "v3" , "n" },
-  { "e3", "v3" , "v1" , "o" }
-};
+const std::string edge_data1[][4] = { { "id", "src", "tgt", "extra" }, { "e1", "v1", "v2", "m" },
+  { "e2", "v2", "v3", "n" }, { "e3", "v3", "v1", "o" } };
 
-const std::string edge_data2[][3] = {
-  { "id", "src", "tgt" },
-  { "e4", "v2" , "v3" },
-  { "e5", "v3" , "v4" },
-  { "e6", "v4" , "v2" }
-};
+const std::string edge_data2[][3] = { { "id", "src", "tgt" }, { "e4", "v2", "v3" },
+  { "e5", "v3", "v4" }, { "e6", "v4", "v2" } };
 
-const std::string expected_vert_data[][3] = {
-  { "id", "arr1", "arr2" },
-  { "v1", "a", "d" },
-  { "v2", "b", "e" },
-  { "v3", "c", "f" },
-  { "v4", "" , "i" }
-};
+const std::string expected_vert_data[][3] = { { "id", "arr1", "arr2" }, { "v1", "a", "d" },
+  { "v2", "b", "e" }, { "v3", "c", "f" }, { "v4", "", "i" } };
 
-const std::string expected_edge_data[][4] = {
-  { "id", "src", "tgt", "extra" },
-  { "e1", "v1" , "v2" , "m" },
-  { "e2", "v2" , "v3" , "n" },
-  { "e3", "v3" , "v1" , "o" },
-  { "e4", "v2" , "v3" , "" },
-  { "e6", "v4" , "v2" , "" },
-  { "e5", "v3" , "v4" , "" }
-};
+const std::string expected_edge_data[][4] = { { "id", "src", "tgt", "extra" },
+  { "e1", "v1", "v2", "m" }, { "e2", "v2", "v3", "n" }, { "e3", "v3", "v1", "o" },
+  { "e4", "v2", "v3", "" }, { "e6", "v4", "v2", "" }, { "e5", "v3", "v4", "" } };
 
 int TestMergeGraphs(int, char*[])
 {

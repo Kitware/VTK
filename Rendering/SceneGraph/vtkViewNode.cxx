@@ -20,20 +20,14 @@
 #include "vtkViewNodeFactory.h"
 
 //----------------------------------------------------------------------------
-const char *vtkViewNode::operation_type_strings[] =
-{
-  "noop",
-  "build",
-  "synchronize",
-  "render",
-  nullptr
-};
+const char* vtkViewNode::operation_type_strings[] = { "noop", "build", "synchronize", "render",
+  nullptr };
 
 //----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkViewNode,Children,vtkViewNodeCollection);
+vtkCxxSetObjectMacro(vtkViewNode, Children, vtkViewNodeCollection);
 
 //----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkViewNode,MyFactory,vtkViewNodeFactory);
+vtkCxxSetObjectMacro(vtkViewNode, MyFactory, vtkViewNodeFactory);
 
 //----------------------------------------------------------------------------
 vtkViewNode::vtkViewNode()
@@ -69,17 +63,16 @@ vtkViewNode::~vtkViewNode()
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNode::SetParent(vtkViewNode *p)
+void vtkViewNode::SetParent(vtkViewNode* p)
 {
   this->Parent = p;
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNode::GetParent()
+vtkViewNode* vtkViewNode::GetParent()
 {
   return this->Parent;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkViewNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -96,20 +89,20 @@ void vtkViewNode::PrepareNodes()
 //----------------------------------------------------------------------------
 void vtkViewNode::RemoveUnusedNodes()
 {
-  //remove viewnodes if their renderables are no longer present
-  vtkViewNodeCollection *nodes = this->GetChildren();
-  vtkCollectionIterator *nit = nodes->NewIterator();
+  // remove viewnodes if their renderables are no longer present
+  vtkViewNodeCollection* nodes = this->GetChildren();
+  vtkCollectionIterator* nit = nodes->NewIterator();
   nit->InitTraversal();
   while (!nit->IsDoneWithTraversal())
   {
-    vtkViewNode *node = vtkViewNode::SafeDownCast(nit->GetCurrentObject());
+    vtkViewNode* node = vtkViewNode::SafeDownCast(nit->GetCurrentObject());
     if (node)
     {
-      vtkObject *obj = node->GetRenderable();
+      vtkObject* obj = node->GetRenderable();
       if (!this->PreparedNodes->IsItemPresent(obj))
       {
         nodes->RemoveItem(node);
-        nit->InitTraversal(); //don't stumble over deleted node
+        nit->InitTraversal(); // don't stumble over deleted node
       }
     }
     nit->GoToNextItem();
@@ -120,21 +113,21 @@ void vtkViewNode::RemoveUnusedNodes()
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNode::AddMissingNodes(vtkCollection *col)
+void vtkViewNode::AddMissingNodes(vtkCollection* col)
 {
-  //add viewnodes for renderables that are not yet present
-  vtkViewNodeCollection *nodes = this->GetChildren();
-  vtkCollectionIterator *rit = col->NewIterator();
+  // add viewnodes for renderables that are not yet present
+  vtkViewNodeCollection* nodes = this->GetChildren();
+  vtkCollectionIterator* rit = col->NewIterator();
   rit->InitTraversal();
   while (!rit->IsDoneWithTraversal())
   {
-    vtkObject *obj = rit->GetCurrentObject();
+    vtkObject* obj = rit->GetCurrentObject();
     if (obj)
     {
       this->PreparedNodes->AddItem(obj);
       if (!nodes->IsRenderablePresent(obj))
       {
-        vtkViewNode *node = this->CreateViewNode(obj);
+        vtkViewNode* node = this->CreateViewNode(obj);
         if (node)
         {
           nodes->AddItem(node);
@@ -149,19 +142,19 @@ void vtkViewNode::AddMissingNodes(vtkCollection *col)
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNode::AddMissingNode(vtkObject *obj)
+void vtkViewNode::AddMissingNode(vtkObject* obj)
 {
   if (!obj)
   {
     return;
   }
 
-  //add viewnodes for renderables that are not yet present
-  vtkViewNodeCollection *nodes = this->GetChildren();
+  // add viewnodes for renderables that are not yet present
+  vtkViewNodeCollection* nodes = this->GetChildren();
   this->PreparedNodes->AddItem(obj);
   if (!nodes->IsRenderablePresent(obj))
   {
-    vtkViewNode *node = this->CreateViewNode(obj);
+    vtkViewNode* node = this->CreateViewNode(obj);
     if (node)
     {
       nodes->AddItem(node);
@@ -182,13 +175,13 @@ void vtkViewNode::TraverseAllPasses()
 //----------------------------------------------------------------------------
 void vtkViewNode::Traverse(int operation)
 {
-  this->Apply(operation,true);
+  this->Apply(operation, true);
 
-  vtkCollectionIterator *it = this->Children->NewIterator();
+  vtkCollectionIterator* it = this->Children->NewIterator();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())
   {
-    vtkViewNode *child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
+    vtkViewNode* child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
     child->Traverse(operation);
     it->GoToNextItem();
   }
@@ -198,9 +191,9 @@ void vtkViewNode::Traverse(int operation)
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNode::CreateViewNode(vtkObject *obj)
+vtkViewNode* vtkViewNode::CreateViewNode(vtkObject* obj)
 {
-  vtkViewNode *ret = nullptr;
+  vtkViewNode* ret = nullptr;
   if (!this->MyFactory)
   {
     vtkWarningMacro("Can not create view nodes without my own factory");
@@ -217,7 +210,7 @@ vtkViewNode *vtkViewNode::CreateViewNode(vtkObject *obj)
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNode::GetFirstAncestorOfType(const char *type)
+vtkViewNode* vtkViewNode::GetFirstAncestorOfType(const char* type)
 {
   if (!this->Parent)
   {
@@ -231,7 +224,7 @@ vtkViewNode *vtkViewNode::GetFirstAncestorOfType(const char *type)
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNode::SetRenderable(vtkObject *obj)
+void vtkViewNode::SetRenderable(vtkObject* obj)
 {
   this->Renderable = obj;
 }
@@ -239,7 +232,7 @@ void vtkViewNode::SetRenderable(vtkObject *obj)
 //----------------------------------------------------------------------------
 void vtkViewNode::Apply(int operation, bool prepass)
 {
-  //cerr << this->GetClassName() << "(" << this << ") Apply("
+  // cerr << this->GetClassName() << "(" << this << ") Apply("
   //     << vtkViewNode::operation_type_strings[operation] << ")" << endl;
   switch (operation)
   {
@@ -263,19 +256,19 @@ void vtkViewNode::Apply(int operation, bool prepass)
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode* vtkViewNode::GetViewNodeFor(vtkObject *obj)
+vtkViewNode* vtkViewNode::GetViewNodeFor(vtkObject* obj)
 {
   if (this->Renderable == obj)
   {
     return this;
   }
 
-  vtkViewNode *owner = nullptr;
-  vtkCollectionIterator *it = this->Children->NewIterator();
+  vtkViewNode* owner = nullptr;
+  vtkCollectionIterator* it = this->Children->NewIterator();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())
   {
-    vtkViewNode *child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
+    vtkViewNode* child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
     owner = child->GetViewNodeFor(obj);
     if (owner)
     {
@@ -285,4 +278,28 @@ vtkViewNode* vtkViewNode::GetViewNodeFor(vtkObject *obj)
   }
   it->Delete();
   return owner;
+}
+
+//----------------------------------------------------------------------------
+vtkViewNode* vtkViewNode::GetFirstChildOfType(const char* type)
+{
+  if (this->IsA(type))
+  {
+    return this;
+  }
+
+  vtkCollectionIterator* it = this->Children->NewIterator();
+  it->InitTraversal();
+  while (!it->IsDoneWithTraversal())
+  {
+    vtkViewNode* child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
+    if (child->IsA(type))
+    {
+      it->Delete();
+      return child;
+    }
+    it->GoToNextItem();
+  }
+  it->Delete();
+  return nullptr;
 }

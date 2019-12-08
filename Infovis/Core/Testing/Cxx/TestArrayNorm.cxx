@@ -20,8 +20,8 @@
 =========================================================================*/
 
 #include <vtkArrayData.h>
-#include <vtkArrayPrint.h>
 #include <vtkArrayNorm.h>
+#include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
 #include <vtkDiagonalMatrixSource.h>
 #include <vtkSmartPointer.h>
@@ -30,24 +30,25 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
 static bool close_enough(const double lhs, const double rhs)
 {
   return fabs(lhs - rhs) < 1.0e-12;
 }
 
-int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
 
   try
   {
-    vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
+    vtkSmartPointer<vtkDiagonalMatrixSource> source =
+      vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::SPARSE);
     source->SetDiagonal(1.0);
@@ -56,7 +57,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->Update();
 
     cout << "diagonal source:\n";
-    vtkPrintMatrixFormat(cout, vtkSparseArray<double>::SafeDownCast(
+    vtkPrintMatrixFormat(cout,
+      vtkSparseArray<double>::SafeDownCast(
         source->GetOutput()->GetArray(static_cast<vtkIdType>(0))));
 
     vtkSmartPointer<vtkArrayNorm> vector_norm = vtkSmartPointer<vtkArrayNorm>::New();
@@ -120,10 +122,9 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(window_l1_norm->GetValueN(2), 0.5));
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

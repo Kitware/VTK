@@ -1,0 +1,113 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkDIYKdTreeUtilities.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * @class vtkDIYKdTreeUtilities
+ * @brief collection of utility functions for DIY-based KdTree algorithm
+ *
+ * vtkDIYKdTreeUtilities is intended for use by vtkRedistributeDataSetFilter. It
+ * encapsulates invocation of DIY algorithms for various steps in the
+ * vtkRedistributeDataSetFilter.
+ */
+
+#ifndef vtkDIYKdTreeUtilities_h
+#define vtkDIYKdTreeUtilities_h
+
+#include "vtkBoundingBox.h"               // for vtkBoundingBox
+#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkObject.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
+#include <vector>            // for std::vector
+
+class vtkDataObject;
+class vtkDataSet;
+class vtkIntArray;
+class vtkMultiProcessController;
+class vtkPartitionedDataSet;
+class vtkPoints;
+class vtkUnstructuredGrid;
+
+class VTKFILTERSPARALLELDIY2_EXPORT vtkDIYKdTreeUtilities : public vtkObject
+{
+public:
+  vtkTypeMacro(vtkDIYKdTreeUtilities, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Given a dataset (or a composite dataset), this method will generate box
+   * cuts in the domain to approximately load balance the points (or
+   * cell-centers) into `number_of_partitions` requested. If `controller` is non-null,
+   * the operation will be performed taking points on the multiple ranks into consideration.
+   *
+   * Returns a vector a bounding boxes that can be used to partition the points
+   * into load balanced chunks. The size of the vector is greater than or equal
+   * to the `number_of_partitions`.
+   */
+  static std::vector<vtkBoundingBox> GenerateCuts(vtkDataObject* dobj, int number_of_partitions,
+    bool use_cell_centers, vtkMultiProcessController* controller = nullptr);
+
+  /**
+   * Given a collection of points, this method will generate box cuts in the
+   * domain to approximately load balance the points into `number_of_partitions`
+   * requested. If `controller` is non-null, the operation will be performed
+   * taking points on the multiple ranks into consideration.
+   *
+   * `local_bounds` provides the local domain bounds. If not specified, domain
+   * bounds will be computed using the points provided.
+   *
+   * Returns a vector a bounding boxes that can be used to partition the points
+   * into load balanced chunks. The size of the vector is greater than or equal
+   * to the `number_of_partitions`.
+   */
+  static std::vector<vtkBoundingBox> GenerateCuts(
+    const std::vector<vtkSmartPointer<vtkPoints> >& points, int number_of_partitions,
+    vtkMultiProcessController* controller = nullptr, const double* local_bounds = nullptr);
+
+  /**
+   * Exchange parts in the partitioned dataset among ranks in the parallel group
+   * defined by the `controller`. The parts are assigned to ranks in a
+   * contiguous fashion.
+   *
+   * This method assumes that the input vtkPartitionedDataSet will have exactly
+   * same number of partitions on all ranks. This is assumed since the
+   * partitions' index is what dictates which rank it is assigned to.
+   *
+   * The returned vtkPartitionedDataSet will also have exactly as many
+   * partitions as the input vtkPartitionedDataSet, however only the partitions
+   * assigned to this current rank may be non-null.
+   */
+  static vtkSmartPointer<vtkPartitionedDataSet> Exchange(
+    vtkPartitionedDataSet* parts, vtkMultiProcessController* controller);
+
+  /**
+   * Generates and adds global cell ids to datasets in `parts`. One this to note
+   * that this method does not assign valid global ids to ghost cells. This may
+   * not be adequate for general use, however for vtkRedistributeDataSetFilter
+   * this is okay since the ghost cells in the input are anyways discarded when
+   * the dataset is being split based on the cuts provided. This simplifies the
+   * implementation and reduces communication.
+   */
+  static bool GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
+    vtkMultiProcessController* controller, vtkIdType* mb_offset = nullptr);
+
+protected:
+  vtkDIYKdTreeUtilities();
+  ~vtkDIYKdTreeUtilities() override;
+
+private:
+  vtkDIYKdTreeUtilities(const vtkDIYKdTreeUtilities&) = delete;
+  void operator=(const vtkDIYKdTreeUtilities&) = delete;
+};
+
+#endif

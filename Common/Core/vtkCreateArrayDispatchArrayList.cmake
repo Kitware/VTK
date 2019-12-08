@@ -62,7 +62,7 @@
 # namespace vtkArrayDispatch {
 #
 # typedef vtkTypeList::Unique<
-#   vtkTypeList_Create_21(
+#   vtkTypeList::Create<
 #     MyCustomArray1<float>,
 #     MyCustomArray1<double>,
 #     MyCustomArray2<int>,
@@ -84,7 +84,7 @@
 #     ExtraArray1,
 #     ExtraArray2<float>,
 #     ExtraArray2<char>
-#   )
+#   >
 # >::Result Arrays;
 #
 # } // end namespace vtkArrayDispatch
@@ -188,14 +188,12 @@ foreach(header ${vtkAD_headers})
   list(APPEND temp "#include \"${header}\"\n")
 endforeach()
 
-list(LENGTH vtkAD_arrays vtkAD_numArrays)
-
 list(APPEND temp
   "\n"
   "namespace vtkArrayDispatch {\n"
   "\n"
   "typedef vtkTypeList::Unique<\n"
-  "  vtkTypeList_Create_${vtkAD_numArrays}(\n"
+  "  vtkTypeList::Create<\n"
 )
 
 foreach(array ${vtkAD_arrays})
@@ -207,7 +205,7 @@ CollapseString("${temp}" temp)
 string(REGEX REPLACE ",\n$" "\n" temp "${temp}")
 
 list(APPEND temp
-  "  )\n"
+  "  >\n"
   ">::Result Arrays\;\n"
   "\n"
   "} // end namespace vtkArrayDispatch\n"

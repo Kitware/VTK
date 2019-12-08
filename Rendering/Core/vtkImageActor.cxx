@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkImageActor.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
-#include "vtkMath.h"
-#include "vtkMatrix4x4.h"
-#include "vtkRenderer.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSliceMapper.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageActor);
@@ -44,7 +44,7 @@ vtkImageActor::vtkImageActor()
   this->Property->SetAmbient(1.0);
   this->Property->SetDiffuse(0.0);
 
-  vtkImageSliceMapper *mapper = vtkImageSliceMapper::New();
+  vtkImageSliceMapper* mapper = vtkImageSliceMapper::New();
   this->Mapper = mapper;
   mapper->BorderOff();
   mapper->SliceAtFocalPointOff();
@@ -74,7 +74,7 @@ vtkImageActor::~vtkImageActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageActor::SetInputData(vtkImageData *input)
+void vtkImageActor::SetInputData(vtkImageData* input)
 {
   if (this->Mapper && input != this->Mapper->GetInput())
   {
@@ -84,7 +84,7 @@ void vtkImageActor::SetInputData(vtkImageData *input)
 }
 
 //----------------------------------------------------------------------------
-vtkAlgorithm *vtkImageActor::GetInputAlgorithm()
+vtkAlgorithm* vtkImageActor::GetInputAlgorithm()
 {
   if (!this->Mapper)
   {
@@ -95,7 +95,7 @@ vtkAlgorithm *vtkImageActor::GetInputAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageActor::GetInput()
+vtkImageData* vtkImageActor::GetInput()
 {
   if (!this->Mapper)
   {
@@ -132,8 +132,7 @@ void vtkImageActor::SetInterpolate(vtkTypeBool i)
 //----------------------------------------------------------------------------
 vtkTypeBool vtkImageActor::GetInterpolate()
 {
-  if (this->Property &&
-      this->Property->GetInterpolationType() != VTK_NEAREST_INTERPOLATION)
+  if (this->Property && this->Property->GetInterpolationType() != VTK_NEAREST_INTERPOLATION)
   {
     return 1;
   }
@@ -170,7 +169,7 @@ int vtkImageActor::GetSliceNumber()
     return 0;
   }
 
-  return static_cast<vtkImageSliceMapper *>(this->Mapper)->GetSliceNumber();
+  return static_cast<vtkImageSliceMapper*>(this->Mapper)->GetSliceNumber();
 }
 
 //----------------------------------------------------------------------------
@@ -181,8 +180,7 @@ int vtkImageActor::GetSliceNumberMax()
     return 0;
   }
 
-  return static_cast<vtkImageSliceMapper *>(this->Mapper)
-    ->GetSliceNumberMaxValue();
+  return static_cast<vtkImageSliceMapper*>(this->Mapper)->GetSliceNumberMaxValue();
 }
 
 //----------------------------------------------------------------------------
@@ -193,8 +191,7 @@ int vtkImageActor::GetSliceNumberMin()
     return 0;
   }
 
-  return static_cast<vtkImageSliceMapper *>(this->Mapper)
-    ->GetSliceNumberMinValue();
+  return static_cast<vtkImageSliceMapper*>(this->Mapper)->GetSliceNumberMinValue();
 }
 
 //----------------------------------------------------------------------------
@@ -217,31 +214,26 @@ void vtkImageActor::SetDisplayExtent(const int extent[6])
     {
       if (this->DisplayExtent[0] <= this->DisplayExtent[1])
       {
-        static_cast<vtkImageSliceMapper *>(this->Mapper)->CroppingOn();
-        static_cast<vtkImageSliceMapper *>(this->Mapper)->
-          SetCroppingRegion(this->DisplayExtent);
-        static_cast<vtkImageSliceMapper *>(this->Mapper)->
-          SetOrientation(this->GetOrientationFromExtent(this->DisplayExtent));
+        static_cast<vtkImageSliceMapper*>(this->Mapper)->CroppingOn();
+        static_cast<vtkImageSliceMapper*>(this->Mapper)->SetCroppingRegion(this->DisplayExtent);
+        static_cast<vtkImageSliceMapper*>(this->Mapper)
+          ->SetOrientation(this->GetOrientationFromExtent(this->DisplayExtent));
       }
       else
       {
-        static_cast<vtkImageSliceMapper *>(this->Mapper)->CroppingOff();
-        static_cast<vtkImageSliceMapper *>(this->Mapper)->
-          SetOrientationToZ();
+        static_cast<vtkImageSliceMapper*>(this->Mapper)->CroppingOff();
+        static_cast<vtkImageSliceMapper*>(this->Mapper)->SetOrientationToZ();
       }
     }
     this->Modified();
   }
 }
 //----------------------------------------------------------------------------
-void vtkImageActor::SetDisplayExtent(int minX, int maxX,
-                                     int minY, int maxY,
-                                     int minZ, int maxZ)
+void vtkImageActor::SetDisplayExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
-  const int extent[6] = {minX, maxX, minY, maxY, minZ, maxZ};
+  const int extent[6] = { minX, maxX, minY, maxY, minZ, maxZ };
   this->SetDisplayExtent(extent);
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageActor::GetDisplayExtent(int extent[6])
@@ -254,7 +246,7 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-double *vtkImageActor::GetDisplayBounds()
+double* vtkImageActor::GetDisplayBounds()
 {
   vtkAlgorithm* inputAlg = nullptr;
 
@@ -270,15 +262,14 @@ double *vtkImageActor::GetDisplayBounds()
 
   inputAlg->UpdateInformation();
   int extent[6];
-  vtkInformation* inputInfo =
-    this->Mapper->GetInputInformation();
+  vtkInformation* inputInfo = this->Mapper->GetInputInformation();
   inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
-  double spacing[3] = {1, 1, 1};
+  double spacing[3] = { 1, 1, 1 };
   if (inputInfo->Has(vtkDataObject::SPACING()))
   {
     inputInfo->Get(vtkDataObject::SPACING(), spacing);
   }
-  double origin[3] = {0, 0, 0};
+  double origin[3] = { 0, 0, 0 };
   if (inputInfo->Has(vtkDataObject::ORIGIN()))
   {
     inputInfo->Get(vtkDataObject::ORIGIN(), origin);
@@ -299,33 +290,33 @@ double *vtkImageActor::GetDisplayBounds()
 
   if (spacing[0] >= 0)
   {
-    this->DisplayBounds[0] = extent[0]*spacing[0] + origin[0];
-    this->DisplayBounds[1] = extent[1]*spacing[0] + origin[0];
+    this->DisplayBounds[0] = extent[0] * spacing[0] + origin[0];
+    this->DisplayBounds[1] = extent[1] * spacing[0] + origin[0];
   }
   else
   {
-    this->DisplayBounds[0] = extent[1]*spacing[0] + origin[0];
-    this->DisplayBounds[1] = extent[0]*spacing[0] + origin[0];
+    this->DisplayBounds[0] = extent[1] * spacing[0] + origin[0];
+    this->DisplayBounds[1] = extent[0] * spacing[0] + origin[0];
   }
   if (spacing[1] >= 0)
   {
-    this->DisplayBounds[2] = extent[2]*spacing[1] + origin[1];
-    this->DisplayBounds[3] = extent[3]*spacing[1] + origin[1];
+    this->DisplayBounds[2] = extent[2] * spacing[1] + origin[1];
+    this->DisplayBounds[3] = extent[3] * spacing[1] + origin[1];
   }
   else
   {
-    this->DisplayBounds[2] = extent[3]*spacing[1] + origin[1];
-    this->DisplayBounds[3] = extent[2]*spacing[1] + origin[1];
+    this->DisplayBounds[2] = extent[3] * spacing[1] + origin[1];
+    this->DisplayBounds[3] = extent[2] * spacing[1] + origin[1];
   }
   if (spacing[2] >= 0)
   {
-    this->DisplayBounds[4] = extent[4]*spacing[2] + origin[2];
-    this->DisplayBounds[5] = extent[5]*spacing[2] + origin[2];
+    this->DisplayBounds[4] = extent[4] * spacing[2] + origin[2];
+    this->DisplayBounds[5] = extent[5] * spacing[2] + origin[2];
   }
   else
   {
-    this->DisplayBounds[4] = extent[5]*spacing[2] + origin[2];
-    this->DisplayBounds[5] = extent[4]*spacing[2] + origin[2];
+    this->DisplayBounds[4] = extent[5] * spacing[2] + origin[2];
+    this->DisplayBounds[5] = extent[4] * spacing[2] + origin[2];
   }
 
   return this->DisplayBounds;
@@ -344,9 +335,9 @@ void vtkImageActor::GetDisplayBounds(double bounds[6])
 
 //----------------------------------------------------------------------------
 // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-double *vtkImageActor::GetBounds()
+double* vtkImageActor::GetBounds()
 {
-  int i,n;
+  int i, n;
   double *bounds, bbox[24], *fptr;
 
   bounds = this->GetDisplayBounds();
@@ -357,14 +348,30 @@ double *vtkImageActor::GetBounds()
   }
 
   // fill out vertices of a bounding box
-  bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
-  bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
-  bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
-  bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
-  bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
-  bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
-  bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
-  bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
+  bbox[0] = bounds[1];
+  bbox[1] = bounds[3];
+  bbox[2] = bounds[5];
+  bbox[3] = bounds[1];
+  bbox[4] = bounds[2];
+  bbox[5] = bounds[5];
+  bbox[6] = bounds[0];
+  bbox[7] = bounds[2];
+  bbox[8] = bounds[5];
+  bbox[9] = bounds[0];
+  bbox[10] = bounds[3];
+  bbox[11] = bounds[5];
+  bbox[12] = bounds[1];
+  bbox[13] = bounds[3];
+  bbox[14] = bounds[4];
+  bbox[15] = bounds[1];
+  bbox[16] = bounds[2];
+  bbox[17] = bounds[4];
+  bbox[18] = bounds[0];
+  bbox[19] = bounds[2];
+  bbox[20] = bounds[4];
+  bbox[21] = bounds[0];
+  bbox[22] = bounds[3];
+  bbox[23] = bounds[4];
 
   // make sure matrix (transform) is up-to-date
   this->ComputeMatrix();
@@ -373,7 +380,7 @@ double *vtkImageActor::GetBounds()
   fptr = bbox;
   for (n = 0; n < 8; n++)
   {
-    double homogeneousPt[4] = {fptr[0], fptr[1], fptr[2], 1.0};
+    double homogeneousPt[4] = { fptr[0], fptr[1], fptr[2], 1.0 };
     this->Matrix->MultiplyPoint(homogeneousPt, homogeneousPt);
     fptr[0] = homogeneousPt[0] / homogeneousPt[3];
     fptr[1] = homogeneousPt[1] / homogeneousPt[3];
@@ -388,13 +395,13 @@ double *vtkImageActor::GetBounds()
   {
     for (n = 0; n < 3; n++)
     {
-      if (bbox[i*3+n] < this->Bounds[n*2])
+      if (bbox[i * 3 + n] < this->Bounds[n * 2])
       {
-        this->Bounds[n*2] = bbox[i*3+n];
+        this->Bounds[n * 2] = bbox[i * 3 + n];
       }
-      if (bbox[i*3+n] > this->Bounds[n*2+1])
+      if (bbox[i * 3 + n] > this->Bounds[n * 2 + 1])
       {
-        this->Bounds[n*2+1] = bbox[i*3+n];
+        this->Bounds[n * 2 + 1] = bbox[i * 3 + n];
       }
     }
   }
@@ -428,8 +435,7 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ForceOpaque: "
-     << (this->ForceOpaque ? "On\n" : "Off\n");
+  os << indent << "ForceOpaque: " << (this->ForceOpaque ? "On\n" : "Off\n");
 
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
@@ -446,26 +452,26 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkImageActor::GetWholeZMin()
 {
-  if ( ! this->GetInputAlgorithm())
+  if (!this->GetInputAlgorithm())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  int *extent = this->Mapper->GetInputInformation()->Get(
-    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* extent =
+    this->Mapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
 
 //----------------------------------------------------------------------------
 int vtkImageActor::GetWholeZMax()
 {
-  if ( ! this->GetInputAlgorithm())
+  if (!this->GetInputAlgorithm())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  int *extent = this->Mapper->GetInputInformation()->Get(
-    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* extent =
+    this->Mapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }
 
@@ -502,7 +508,7 @@ vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
     return 0;
   }
 
-  vtkAlgorithm *inputAlg = this->Mapper->GetInputAlgorithm();
+  vtkAlgorithm* inputAlg = this->Mapper->GetInputAlgorithm();
   if (!inputAlg)
   {
     return 0;
@@ -511,9 +517,8 @@ vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
   // This MTime check is the same as done in vtkTexture
   if (this->GetMTime() < this->TranslucentComputationTime)
   {
-    vtkImageData *input = this->GetInput();
-    if (input == nullptr ||
-        input->GetMTime() <= this->TranslucentComputationTime)
+    vtkImageData* input = this->GetInput();
+    if (input == nullptr || input->GetMTime() <= this->TranslucentComputationTime)
     {
       return this->TranslucentCachedResult;
     }
@@ -522,15 +527,12 @@ vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
   int scalarType = VTK_VOID;
   int numComp = 1;
 
-  vtkInformation *inputInfo = this->Mapper->GetInputInformation();
+  vtkInformation* inputInfo = this->Mapper->GetInputInformation();
   inputAlg->UpdateInformation();
 
   // Get the information for the image scalars
-  vtkInformation *scalarInfo =
-    vtkDataObject::GetActiveFieldInformation(
-       inputInfo,
-       vtkDataObject::FIELD_ASSOCIATION_POINTS,
-       vtkDataSetAttributes::SCALARS);
+  vtkInformation* scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    inputInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 
   if (scalarInfo)
   {
@@ -544,8 +546,7 @@ vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
     }
   }
 
-  this->TranslucentCachedResult = (scalarType == VTK_UNSIGNED_CHAR &&
-                                   numComp % 2 == 0);
+  this->TranslucentCachedResult = (scalarType == VTK_UNSIGNED_CHAR && numComp % 2 == 0);
   this->TranslucentComputationTime.Modified();
 
   return this->TranslucentCachedResult;

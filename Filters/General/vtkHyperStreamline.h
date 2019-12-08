@@ -43,7 +43,7 @@
  *
  * @sa
  * vtkTensorGlyph
-*/
+ */
 
 #ifndef vtkHyperStreamline_h
 #define vtkHyperStreamline_h
@@ -59,13 +59,12 @@
 #define VTK_INTEGRATE_MEDIUM_EIGENVECTOR 1
 #define VTK_INTEGRATE_MINOR_EIGENVECTOR 2
 
-
 class vtkHyperArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkHyperStreamline : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkHyperStreamline,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHyperStreamline, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -74,7 +73,7 @@ public:
    * eigenvalue 0.0; number of sides 6; radius 0.5; and logarithmic scaling
    * off.
    */
-  static vtkHyperStreamline *New();
+  static vtkHyperStreamline* New();
 
   /**
    * Specify the start of the hyperstreamline in the cell coordinate system.
@@ -86,8 +85,7 @@ public:
    * Specify the start of the hyperstreamline in the cell coordinate system.
    * That is, cellId and subId (if composite cell), and parametric coordinates.
    */
-  void SetStartLocation(vtkIdType cellId, int subId, double r, double s,
-                        double t);
+  void SetStartLocation(vtkIdType cellId, int subId, double r, double s, double t);
 
   /**
    * Get the starting location of the hyperstreamline in the cell coordinate
@@ -112,15 +110,15 @@ public:
   /**
    * Get the start position of the hyperstreamline in global x-y-z coordinates.
    */
-  double *GetStartPosition() VTK_SIZEHINT(3);
+  double* GetStartPosition() VTK_SIZEHINT(3);
 
   //@{
   /**
    * Set / get the maximum length of the hyperstreamline expressed as absolute
    * distance (i.e., arc length) value.
    */
-  vtkSetClampMacro(MaximumPropagationDistance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(MaximumPropagationDistance,double);
+  vtkSetClampMacro(MaximumPropagationDistance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumPropagationDistance, double);
   //@}
 
   //@{
@@ -134,16 +132,21 @@ public:
    * eigenvector is the eigenvector whose corresponding eigenvalue is
    * between the major and minor eigenvalues.
    */
-  vtkSetClampMacro(IntegrationEigenvector,int,
-                   VTK_INTEGRATE_MAJOR_EIGENVECTOR,
-                   VTK_INTEGRATE_MINOR_EIGENVECTOR);
-  vtkGetMacro(IntegrationEigenvector,int);
+  vtkSetClampMacro(
+    IntegrationEigenvector, int, VTK_INTEGRATE_MAJOR_EIGENVECTOR, VTK_INTEGRATE_MINOR_EIGENVECTOR);
+  vtkGetMacro(IntegrationEigenvector, int);
   void SetIntegrationEigenvectorToMajor()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MAJOR_EIGENVECTOR);};
+  {
+    this->SetIntegrationEigenvector(VTK_INTEGRATE_MAJOR_EIGENVECTOR);
+  }
   void SetIntegrationEigenvectorToMedium()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MEDIUM_EIGENVECTOR);};
+  {
+    this->SetIntegrationEigenvector(VTK_INTEGRATE_MEDIUM_EIGENVECTOR);
+  }
   void SetIntegrationEigenvectorToMinor()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MINOR_EIGENVECTOR);};
+  {
+    this->SetIntegrationEigenvector(VTK_INTEGRATE_MINOR_EIGENVECTOR);
+  }
   //@}
 
   /**
@@ -151,8 +154,7 @@ public:
    * to integrate.  The major eigenvector is the eigenvector whose
    * corresponding eigenvalue is closest to positive infinity.
    */
-  void IntegrateMajorEigenvector()
-    {this->SetIntegrationEigenvectorToMajor();};
+  void IntegrateMajorEigenvector() { this->SetIntegrationEigenvectorToMajor(); }
 
   /**
    * Use the medium eigenvector field as the vector field through which
@@ -160,24 +162,22 @@ public:
    * corresponding eigenvalue is between the major and minor
    * eigenvalues.
    */
-  void IntegrateMediumEigenvector()
-    {this->SetIntegrationEigenvectorToMedium();};
+  void IntegrateMediumEigenvector() { this->SetIntegrationEigenvectorToMedium(); }
 
   /**
    * Use the minor eigenvector field as the vector field through which
    * to integrate. The minor eigenvector is the eigenvector whose
    * corresponding eigenvalue is closest to negative infinity.
    */
-  void IntegrateMinorEigenvector()
-    {this->SetIntegrationEigenvectorToMinor();};
+  void IntegrateMinorEigenvector() { this->SetIntegrationEigenvectorToMinor(); }
 
   //@{
   /**
    * Set / get a nominal integration step size (expressed as a fraction of
    * the size of each cell).
    */
-  vtkSetClampMacro(IntegrationStepLength,double,0.001,0.5);
-  vtkGetMacro(IntegrationStepLength,double);
+  vtkSetClampMacro(IntegrationStepLength, double, 0.001, 0.5);
+  vtkGetMacro(IntegrationStepLength, double);
   //@}
 
   //@{
@@ -186,23 +186,25 @@ public:
    * hyperstreamline. The length is specified as a fraction of the
    * diagonal length of the input bounding box.
    */
-  vtkSetClampMacro(StepLength,double,0.000001,1.0);
-  vtkGetMacro(StepLength,double);
+  vtkSetClampMacro(StepLength, double, 0.000001, 1.0);
+  vtkGetMacro(StepLength, double);
   //@}
 
   //@{
   /**
    * Specify the direction in which to integrate the hyperstreamline.
    */
-  vtkSetClampMacro(IntegrationDirection,int,
-                  VTK_INTEGRATE_FORWARD,VTK_INTEGRATE_BOTH_DIRECTIONS);
-  vtkGetMacro(IntegrationDirection,int);
-  void SetIntegrationDirectionToForward()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD);};
+  vtkSetClampMacro(IntegrationDirection, int, VTK_INTEGRATE_FORWARD, VTK_INTEGRATE_BOTH_DIRECTIONS);
+  vtkGetMacro(IntegrationDirection, int);
+  void SetIntegrationDirectionToForward() { this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD); }
   void SetIntegrationDirectionToBackward()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);};
+  {
+    this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);
+  }
   void SetIntegrationDirectionToIntegrateBothDirections()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);};
+  {
+    this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);
+  }
   //@}
 
   //@{
@@ -210,8 +212,8 @@ public:
    * Set/get terminal eigenvalue.  If major eigenvalue falls below this
    * value, hyperstreamline terminates propagation.
    */
-  vtkSetClampMacro(TerminalEigenvalue,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(TerminalEigenvalue,double);
+  vtkSetClampMacro(TerminalEigenvalue, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(TerminalEigenvalue, double);
   //@}
 
   //@{
@@ -219,8 +221,8 @@ public:
    * Set / get the number of sides for the hyperstreamlines. At a minimum,
    * number of sides is 3.
    */
-  vtkSetClampMacro(NumberOfSides,int,3,VTK_INT_MAX);
-  vtkGetMacro(NumberOfSides,int);
+  vtkSetClampMacro(NumberOfSides, int, 3, VTK_INT_MAX);
+  vtkGetMacro(NumberOfSides, int);
   //@}
 
   //@{
@@ -230,8 +232,8 @@ public:
    * eigenvalues.  Note that tube section is actually elliptical and may
    * become a point or line in cross section in some cases.
    */
-  vtkSetClampMacro(Radius,double,0.0001,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 0.0001, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
@@ -239,9 +241,9 @@ public:
    * Turn on/off logarithmic scaling. If scaling is on, the log base 10
    * of the computed eigenvalues are used to scale the cross section radii.
    */
-  vtkSetMacro(LogScaling,vtkTypeBool);
-  vtkGetMacro(LogScaling,vtkTypeBool);
-  vtkBooleanMacro(LogScaling,vtkTypeBool);
+  vtkSetMacro(LogScaling, vtkTypeBool);
+  vtkGetMacro(LogScaling, vtkTypeBool);
+  vtkBooleanMacro(LogScaling, vtkTypeBool);
   //@}
 
 protected:
@@ -249,10 +251,10 @@ protected:
   ~vtkHyperStreamline() override;
 
   // Integrate data
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int BuildTube(vtkDataSet *input, vtkPolyData *output);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int BuildTube(vtkDataSet* input, vtkPolyData* output);
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Flag indicates where streamlines start from (either position or location)
   int StartFrom;
@@ -265,8 +267,8 @@ protected:
   // starting from global x-y-z position
   double StartPosition[3];
 
-  //array of hyperstreamlines
-  vtkHyperArray *Streamers;
+  // array of hyperstreamlines
+  vtkHyperArray* Streamers;
   int NumberOfStreamers;
 
   // length of hyperstreamline in absolute distance
@@ -295,6 +297,7 @@ protected:
 
   // which eigenvector to use as integration vector field
   int IntegrationEigenvector;
+
 private:
   vtkHyperStreamline(const vtkHyperStreamline&) = delete;
   void operator=(const vtkHyperStreamline&) = delete;

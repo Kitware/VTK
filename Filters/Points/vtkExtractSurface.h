@@ -96,14 +96,14 @@
  *
  * @sa
  * vtkSignedDistance vtkFlyingEdges3D
-*/
+ */
 
 #ifndef vtkExtractSurface_h
 #define vtkExtractSurface_h
 
+#include "vtkContourValues.h"       // Passes calls through
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 
@@ -115,8 +115,8 @@ public:
    * Standard methods for instantiating the class, providing type information,
    * and printing.
    */
-  static vtkExtractSurface *New();
-  vtkTypeMacro(vtkExtractSurface,vtkPolyDataAlgorithm);
+  static vtkExtractSurface* New();
+  vtkTypeMacro(vtkExtractSurface, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -127,8 +127,8 @@ public:
    * Radius) are considered empty voxels; those voxel data values d < -Radius
    * are considered unseen voxels.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
@@ -136,9 +136,9 @@ public:
    * Enable hole filling. This generates separating surfaces between the
    * empty and unseen portions of the volume.
    */
-  vtkSetMacro(HoleFilling,bool);
-  vtkGetMacro(HoleFilling,bool);
-  vtkBooleanMacro(HoleFilling,bool);
+  vtkSetMacro(HoleFilling, bool);
+  vtkGetMacro(HoleFilling, bool);
+  vtkBooleanMacro(HoleFilling, bool);
   //@}
 
   //@{
@@ -148,9 +148,9 @@ public:
    * by filters that modify topology or geometry, it may be wise to turn
    * Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,vtkTypeBool);
-  vtkGetMacro(ComputeNormals,vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
   //@{
@@ -162,9 +162,9 @@ public:
    * modify topology or geometry, it may be wise to turn Normals and
    * Gradients off.
    */
-  vtkSetMacro(ComputeGradients,vtkTypeBool);
-  vtkGetMacro(ComputeGradients,vtkTypeBool);
-  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
+  vtkSetMacro(ComputeGradients, vtkTypeBool);
+  vtkGetMacro(ComputeGradients, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients, vtkTypeBool);
   //@}
 
 protected:
@@ -176,11 +176,9 @@ protected:
   vtkTypeBool ComputeNormals;
   vtkTypeBool ComputeGradients;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkExtractSurface(const vtkExtractSurface&) = delete;

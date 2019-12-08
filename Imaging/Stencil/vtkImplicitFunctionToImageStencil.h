@@ -21,21 +21,20 @@
  * that apply a stencil to an image.
  * @sa
  * vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
-*/
+ */
 
 #ifndef vtkImplicitFunctionToImageStencil_h
 #define vtkImplicitFunctionToImageStencil_h
 
-
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class vtkImplicitFunction;
 
 class VTKIMAGINGSTENCIL_EXPORT vtkImplicitFunctionToImageStencil : public vtkImageStencilSource
 {
 public:
-  static vtkImplicitFunctionToImageStencil *New();
+  static vtkImplicitFunctionToImageStencil* New();
   vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -64,10 +63,9 @@ protected:
   vtkImplicitFunctionToImageStencil();
   ~vtkImplicitFunctionToImageStencil() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkImplicitFunction *Input;
+  vtkImplicitFunction* Input;
   double Threshold;
 
 private:
@@ -76,4 +74,3 @@ private:
 };
 
 #endif
-

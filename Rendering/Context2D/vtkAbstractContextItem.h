@@ -22,13 +22,13 @@
  * This class is the common base for all context scene items. You should
  * generally derive from vtkContextItem, rather than this class, as it provides
  * most of the commonly used API.
-*/
+ */
 
 #ifndef vtkAbstractContextItem_h
 #define vtkAbstractContextItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkContext2D;
 class vtkContextMouseEvent;
@@ -41,7 +41,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextItem : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -53,13 +53,13 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D* painter);
 
   /**
    * Paint the children of the item, should be called whenever the children
    * need to be rendered.
    */
-  virtual bool PaintChildren(vtkContext2D *painter);
+  virtual bool PaintChildren(vtkContext2D* painter);
 
   /**
    * Release graphics resources hold by the item. The default implementation
@@ -122,8 +122,7 @@ public:
    * \return The new index of the item
    * \sa Raise(), Lower(), StackUnder()
    */
-  virtual vtkIdType StackAbove(vtkIdType index,
-                               vtkIdType under);
+  virtual vtkIdType StackAbove(vtkIdType index, vtkIdType under);
 
   /**
    * Lowers the \a child to the bottom of the item's stack.
@@ -138,106 +137,99 @@ public:
    * \return The new index of the item
    * \sa Lower(), Raise(), StackAbove()
    */
-  virtual vtkIdType StackUnder(vtkIdType child,
-                               vtkIdType above);
+  virtual vtkIdType StackUnder(vtkIdType child, vtkIdType above);
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  virtual bool Hit(const vtkContextMouseEvent& mouse);
 
   /**
    * Return the item under the mouse.
    * If no item is under the mouse, the method returns a null pointer.
    */
-  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
+  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse enter event.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse move event.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse leave event.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse button down event
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse button release event.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse button double click event.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
+  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse);
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    * Return true if the item holds the event, false if the event can be
    * propagated to other items.
    */
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+  virtual bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta);
 
   /**
    * Key press event.
    */
-  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+  virtual bool KeyPressEvent(const vtkContextKeyEvent& key);
 
   /**
    * Key release event.
    */
-  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent& key);
 
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.
    */
-  virtual void SetScene(vtkContextScene *scene);
+  virtual void SetScene(vtkContextScene* scene);
 
   /**
    * Get the vtkContextScene for the item, always set for an item in a scene.
    */
-  vtkContextScene* GetScene()
-  {
-    return this->Scene;
-  }
+  vtkContextScene* GetScene() { return this->Scene; }
 
   /**
    * Set the parent item. The parent will be set for all items except top
    * level items in a scene.
    */
-  virtual void SetParent(vtkAbstractContextItem *parent);
+  virtual void SetParent(vtkAbstractContextItem* parent);
 
   /**
    * Get the parent item. The parent will be set for all items except top
    * level items in a tree.
    */
-  vtkAbstractContextItem* GetParent()
-  {
-    return this->Parent;
-  }
+  vtkAbstractContextItem* GetParent() { return this->Parent; }
 
   /**
    * Maps the point to the parent coordinate system.
@@ -320,9 +312,8 @@ protected:
   bool Interactive;
 
 private:
-  vtkAbstractContextItem(const vtkAbstractContextItem &) = delete;
-  void operator=(const vtkAbstractContextItem &) = delete;
-
+  vtkAbstractContextItem(const vtkAbstractContextItem&) = delete;
+  void operator=(const vtkAbstractContextItem&) = delete;
 };
 
-#endif //vtkContextItem_h
+#endif // vtkContextItem_h

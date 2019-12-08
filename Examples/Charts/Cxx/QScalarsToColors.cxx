@@ -26,8 +26,8 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlot.h"
 #include "vtkQtTableView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
 #include <QApplication>
@@ -36,9 +36,8 @@
 #include <QSurfaceFormat>
 #include <QWidget>
 
-
 //----------------------------------------------------------------------------
-int main( int argc, char * argv [] )
+int main(int argc, char* argv[])
 {
   // needed to ensure appropriate OpenGL context is created for VTK rendering.
   QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
@@ -53,7 +52,8 @@ int main( int argc, char * argv [] )
   qvtkWidget.setRenderWindow(renderWindow);
 
   // Set up my 2D world...
-  vtkNew<vtkContextView> view;; // This contains a chart object
+  vtkNew<vtkContextView> view;
+  ; // This contains a chart object
   view->SetRenderWindow(qvtkWidget.renderWindow());
   view->SetInteractor(qvtkWidget.interactor());
 
@@ -62,15 +62,15 @@ int main( int argc, char * argv [] )
   view->GetScene()->AddItem(chart);
 
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
-  colorTransferFunction->AddHSVSegment(0.,0.,1.,1.,0.3333,0.3333,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.3333,0.3333,1.,1.,0.6666,0.6666,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.6666,0.6666,1.,1.,1.,0.,1.,1.);
+  colorTransferFunction->AddHSVSegment(0., 0., 1., 1., 0.3333, 0.3333, 1., 1.);
+  colorTransferFunction->AddHSVSegment(0.3333, 0.3333, 1., 1., 0.6666, 0.6666, 1., 1.);
+  colorTransferFunction->AddHSVSegment(0.6666, 0.6666, 1., 1., 1., 0., 1., 1.);
   colorTransferFunction->Build();
 
   vtkNew<vtkPiecewiseFunction> opacityFunction;
-  opacityFunction->AddPoint(0.,0.);
-  opacityFunction->AddPoint(0.5,0.5);
-  opacityFunction->AddPoint(1.,1.);
+  opacityFunction->AddPoint(0., 0.);
+  opacityFunction->AddPoint(0.5, 0.5);
+  opacityFunction->AddPoint(1., 1.);
 
   vtkNew<vtkCompositeTransferFunctionItem> item3;
   item3->SetColorTransferFunction(colorTransferFunction);

@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkImageViewer
-*/
+ */
 
 #ifndef vtkTkImageViewerWidget_h
 #define vtkTkImageViewerWidget_h
@@ -40,12 +40,12 @@
 
 struct vtkTkImageViewerWidget
 {
-  Tk_Window  TkWin;             /* Tk window structure */
-  Tcl_Interp *Interp;           /* Tcl interpreter */
+  Tk_Window TkWin;    /* Tk window structure */
+  Tcl_Interp* Interp; /* Tcl interpreter */
   int Width;
   int Height;
-  vtkImageViewer *ImageViewer;
-  char *IV;
+  vtkImageViewer* ImageViewer;
+  char* IV;
 #ifdef _WIN32
   WNDPROC OldProc;
 #endif

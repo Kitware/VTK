@@ -18,21 +18,21 @@
  *
  * Sends the piece and number of pieces to upstream filters; passes the input
  * to the output unmodified.
-*/
+ */
 
 #ifndef vtkPieceRequestFilter_h
 #define vtkPieceRequestFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkDataObject;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
 {
 public:
-  static vtkPieceRequestFilter *New();
-  vtkTypeMacro(vtkPieceRequestFilter,vtkAlgorithm);
+  static vtkPieceRequestFilter* New();
+  vtkTypeMacro(vtkPieceRequestFilter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -70,25 +70,19 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkPieceRequestFilter();
   ~vtkPieceRequestFilter() override {}
 
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  virtual int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
@@ -102,5 +96,3 @@ private:
 };
 
 #endif
-
-

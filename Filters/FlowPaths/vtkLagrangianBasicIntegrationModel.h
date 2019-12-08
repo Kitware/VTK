@@ -59,8 +59,8 @@
 #include "vtkNew.h"         // For arrays
 #include "vtkWeakPointer.h" // For weak pointer
 
-#include <map> // for array indexes
-#include <mutex>  // for mutexes
+#include <map>   // for array indexes
+#include <mutex> // for mutexes
 #include <queue> // for new particles
 
 class vtkAbstractArray;
@@ -74,6 +74,7 @@ class vtkDataSetsType;
 class vtkDoubleArray;
 class vtkFieldData;
 class vtkGenericCell;
+class vtkInitialValueProblemSolver;
 class vtkIntArray;
 class vtkLagrangianParticle;
 class vtkLagrangianParticleTracker;
@@ -339,9 +340,10 @@ public:
    * implementation.
    * This method is thread-safe, its reimplementation should still be thread-safe.
    */
-  virtual bool ManualIntegration(double* xcur, double* xnext, double t, double& delT,
-    double& delTActual, double minStep, double maxStep, double maxError, double cellLength,
-    double& error, int& integrationResult);
+  virtual bool ManualIntegration(vtkInitialValueProblemSolver* integrator, double* xcur,
+    double* xnext, double t, double& delT, double& delTActual, double minStep, double maxStep,
+    double maxError, double cellLength, double& error, int& integrationResult,
+    vtkLagrangianParticle* particle);
 
   /**
    * Method called by parallel algorithm
@@ -423,7 +425,8 @@ public:
    * stepEnum enables to select which data to insert, Prev, Current or Next.
    * Reimplement as needed in acccordance with InitializeParticleData.
    */
-  virtual void InsertParticleData(vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
+  virtual void InsertParticleData(
+    vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
 
   /**
    * Method used by the LPT to insert data from the partice into
@@ -431,6 +434,14 @@ public:
    * Reimplement as needed.
    */
   virtual void InsertSeedData(vtkLagrangianParticle* particle, vtkFieldData* data);
+
+  /**
+   * Method to be reimplemented if needed in inherited classes.
+   * Allows a inherited class to take action just before a particle is deleted
+   * This can be practical when working with vtkLagrangianParticle::TemporaryUserData.
+   * This can be called with not fully initialized particle.
+   */
+  virtual void ParticleAboutToBeDeleted(vtkLagrangianParticle* vtkNotUsed(particle)) {}
 
 protected:
   vtkLagrangianBasicIntegrationModel();

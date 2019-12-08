@@ -20,6 +20,7 @@
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkExpandMarkedElements.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -37,9 +38,7 @@ vtkSelector::vtkSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkSelector::~vtkSelector()
-{
-}
+vtkSelector::~vtkSelector() {}
 
 //----------------------------------------------------------------------------
 void vtkSelector::Initialize(vtkSelectionNode* node)
@@ -108,6 +107,33 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
   else
   {
     this->ProcessBlock(input, output, false);
+  }
+
+  // Expand layers, if requested.
+  auto selectionProperties = this->Node->GetProperties();
+  if (selectionProperties->Has(vtkSelectionNode::CONNECTED_LAYERS()))
+  {
+    int association =
+      vtkSelectionNode::ConvertSelectionFieldToAttributeType(this->Node->GetFieldType());
+    // If selecting cells containing points, we need to map the selected points
+    // to selected cells.
+    if (association == vtkDataObject::POINT &&
+      selectionProperties->Has(vtkSelectionNode::CONTAINING_CELLS()) &&
+      selectionProperties->Get(vtkSelectionNode::CONTAINING_CELLS()) == 1)
+    {
+      association = vtkDataObject::CELL;
+    }
+
+    const int layers = selectionProperties->Get(vtkSelectionNode::CONNECTED_LAYERS());
+    if (layers >= 1 && (association == vtkDataObject::POINT || association == vtkDataObject::CELL))
+    {
+      vtkNew<vtkExpandMarkedElements> expander;
+      expander->SetInputArrayToProcess(0, 0, 0, association, this->InsidednessArrayName.c_str());
+      expander->SetNumberOfLayers(layers);
+      expander->SetInputDataObject(output);
+      expander->Update();
+      output->ShallowCopy(expander->GetOutputDataObject(0));
+    }
   }
 }
 

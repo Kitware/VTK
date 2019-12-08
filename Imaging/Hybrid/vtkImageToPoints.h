@@ -23,7 +23,7 @@
  * @par Thanks:
  * Thanks to David Gobbi, Calgary Image Processing and Analysis Centre,
  * University of Calgary, for providing this class.
-*/
+ */
 
 #ifndef vtkImageToPoints_h
 #define vtkImageToPoints_h
@@ -33,21 +33,20 @@
 
 class vtkImageStencilData;
 
-class VTKIMAGINGHYBRID_EXPORT vtkImageToPoints :
-  public vtkPolyDataAlgorithm
+class VTKIMAGINGHYBRID_EXPORT vtkImageToPoints : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkImageToPoints *New();
-  vtkTypeMacro(vtkImageToPoints,vtkPolyDataAlgorithm);
+  static vtkImageToPoints* New();
+  vtkTypeMacro(vtkImageToPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Only extract the points that lie within the stencil.
    */
-  void SetStencilConnection(vtkAlgorithmOutput *port);
-  vtkAlgorithmOutput *GetStencilConnection();
-  void SetStencilData(vtkImageStencilData *stencil);
+  void SetStencilConnection(vtkAlgorithmOutput* port);
+  vtkAlgorithmOutput* GetStencilConnection();
+  void SetStencilData(vtkImageStencilData* stencil);
   //@}
 
   //@{
@@ -64,20 +63,17 @@ protected:
   vtkImageToPoints();
   ~vtkImageToPoints() override;
 
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inInfo,
-                                 vtkInformationVector *outInfo) override;
+  int RequestInformation(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int RequestUpdateExtent(vtkInformation *request,
-                                 vtkInformationVector **inInfo,
-                                 vtkInformationVector *outInfo) override;
+  int RequestUpdateExtent(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inInfo,
-                          vtkInformationVector *outInfo) override;
+  int RequestData(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   int OutputPointsPrecision;
 

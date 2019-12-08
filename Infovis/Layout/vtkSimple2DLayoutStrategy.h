@@ -30,20 +30,20 @@
  * @par Thanks:
  * Thanks to Brian Wylie from Sandia National Laboratories for creating this
  * class.
-*/
+ */
 
 #ifndef vtkSimple2DLayoutStrategy_h
 #define vtkSimple2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkFloatArray;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkSimple2DLayoutStrategy *New();
+  static vtkSimple2DLayoutStrategy* New();
 
   vtkTypeMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -147,18 +147,17 @@ public:
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() override {return this->LayoutComplete;}
+  int IsLayoutComplete() override { return this->LayoutComplete; }
 
 protected:
   vtkSimple2DLayoutStrategy();
   ~vtkSimple2DLayoutStrategy() override;
 
-  int    MaxNumberOfIterations;  //Maximum number of iterations.
-  float  InitialTemperature;
-  float  CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  int MaxNumberOfIterations; // Maximum number of iterations.
+  float InitialTemperature;
+  float CoolDownRate; // Cool-down rate.  Note:  Higher # = Slower rate.
 
 private:
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct
@@ -169,9 +168,9 @@ private:
   } vtkLayoutEdge;
 
   // These are for storage of repulsion and attraction
-  vtkFloatArray *RepulsionArray;
-  vtkFloatArray *AttractionArray;
-  vtkLayoutEdge *EdgeArray;
+  vtkFloatArray* RepulsionArray;
+  vtkFloatArray* AttractionArray;
+  vtkLayoutEdge* EdgeArray;
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -186,4 +185,3 @@ private:
 };
 
 #endif
-

@@ -24,7 +24,7 @@
  * vtkXMLImageDataWriter vtkXMLStructuredGridWriter
  * vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
  * vtkXMLUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLDataObjectWriter_h
 #define vtkXMLDataObjectWriter_h
@@ -37,7 +37,7 @@ class vtkCallbackCommand;
 class VTKIOXML_EXPORT vtkXMLDataObjectWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLDataObjectWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLDataObjectWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataObjectWriter* New();
 
@@ -69,8 +69,7 @@ protected:
   const char* GetDefaultFileExtension() override;
 
   // Callback registered with the InternalProgressObserver.
-  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
+  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 

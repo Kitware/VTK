@@ -34,33 +34,34 @@
  *
  * @sa
  * vtkEncodedGradientEstimator
-*/
+ */
 
 #ifndef vtkFiniteDifferenceGradientEstimator_h
 #define vtkFiniteDifferenceGradientEstimator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkEncodedGradientEstimator.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
-class VTKRENDERINGVOLUME_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradientEstimator
+class VTKRENDERINGVOLUME_EXPORT vtkFiniteDifferenceGradientEstimator
+  : public vtkEncodedGradientEstimator
 {
 public:
-  vtkTypeMacro(vtkFiniteDifferenceGradientEstimator,vtkEncodedGradientEstimator);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkFiniteDifferenceGradientEstimator, vtkEncodedGradientEstimator);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkFiniteDifferenceGradientEstimator with
    * a SampleSpacingInVoxels of 1.
    */
-  static vtkFiniteDifferenceGradientEstimator *New();
+  static vtkFiniteDifferenceGradientEstimator* New();
 
   //@{
   /**
    * Set/Get the spacing between samples for the finite differences
    * method used to compute the normal. This spacing is in voxel units.
    */
-  vtkSetMacro( SampleSpacingInVoxels, int );
-  vtkGetMacro( SampleSpacingInVoxels, int );
+  vtkSetMacro(SampleSpacingInVoxels, int);
+  vtkGetMacro(SampleSpacingInVoxels, int);
   //@}
 
   // The sample spacing between samples taken for the normal estimation
@@ -73,12 +74,11 @@ protected:
   /**
    * Recompute the encoded normals and gradient magnitudes.
    */
-  void UpdateNormals( void ) override;
+  void UpdateNormals(void) override;
 
 private:
   vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) = delete;
   void operator=(const vtkFiniteDifferenceGradientEstimator&) = delete;
 };
-
 
 #endif

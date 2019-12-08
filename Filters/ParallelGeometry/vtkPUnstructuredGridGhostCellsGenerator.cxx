@@ -158,7 +158,7 @@ static const int UGGCG_DATA_EXCHANGE_TAG = 9001;
 
 //----------------------------------------------------------------------------
 
-vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator)
+vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator);
 vtkSetObjectImplementationMacro(
   vtkPUnstructuredGridGhostCellsGenerator, Controller, vtkMultiProcessController);
 
@@ -214,8 +214,9 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
 
   int reqGhostLevel =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  int maxGhostLevel = this->BuildIfRequired ? reqGhostLevel : std::max(reqGhostLevel,
-                                                                this->MinimumNumberOfGhostLevels);
+  int maxGhostLevel = this->BuildIfRequired
+    ? reqGhostLevel
+    : std::max(reqGhostLevel, this->MinimumNumberOfGhostLevels);
 
   if (maxGhostLevel == 0 || this->Controller->GetNumberOfProcesses() == 1)
   {
@@ -356,7 +357,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
   this->GetFirstGhostLayer(maxGhostLevel, this->Internals->CurrentGrid);
   vtkTimerLog::MarkEndEvent("GetFirstGhostCellLayer");
 
-
   // add additional ghost layers one at a time
   vtkTimerLog::MarkStartEvent("Get Extra Ghost Cell Layers");
   for (int i = 1; i < maxGhostLevel; i++)
@@ -375,7 +375,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
   output->ShallowCopy(this->Internals->CurrentGrid);
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), maxGhostLevel);
 
-  this->Controller->Barrier();
   vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
 
   delete this->Internals;
@@ -431,7 +430,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::GetFirstGhostLayer(
 void vtkPUnstructuredGridGhostCellsGenerator::ExchangeBoundsAndDetermineNeighbors(
   std::vector<double>& allBounds)
 {
-  //vtkVLogF(vtkLogger::VERBOSITY_INFO, "Exchange Bounds to Determine Neighbors");
+  // vtkVLogF(vtkLogger::VERBOSITY_INFO, "Exchange Bounds to Determine Neighbors");
 
   // increase bounds by a certain percentage to deal with precision stuff
   double epsilon = 0.01;
@@ -793,9 +792,10 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
     kdtree->BuildLocatorFromPoints(points);
     double bounds[6];
     kdtree->GetBounds(bounds);
-    double tolerance = 1.e-6 * sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
-                                 (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
-                                 (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
+    double tolerance = 1.e-6 *
+      sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+        (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+        (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
     for (std::map<int, std::vector<double> >::iterator iter =
            this->Internals->ProcessIdToSurfacePoints.begin();
@@ -870,11 +870,11 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
     extractCells->Update();
     vtkUnstructuredGrid* extractGrid = extractCells->GetOutput();
 
-    //There might be case where the originalcellids needs to be removed
-    //but there are definitely cases where it shouldn't.
-    //So if you run into that case, think twice before you uncomment this
-    //next line and look carefully at paraview issue #18470
-    //extractGrid->GetCellData()->RemoveArray("vtkOriginalCellIds");
+    // There might be case where the originalcellids needs to be removed
+    // but there are definitely cases where it shouldn't.
+    // So if you run into that case, think twice before you uncomment this
+    // next line and look carefully at paraview issue #18470
+    // extractGrid->GetCellData()->RemoveArray("vtkOriginalCellIds");
 
     // Send the extracted grid to the neighbor rank asynchronously
     if (vtkCommunicator::MarshalDataObject(extractGrid, c.SendBuffer))

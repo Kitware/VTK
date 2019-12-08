@@ -19,15 +19,15 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataConnectivityFilter.h>
-#include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 
 namespace
 {
-void InitializePolyData(vtkPolyData *polyData, int dataType)
+void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -35,15 +35,15 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   verts->InsertNextCell(4);
   vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
 
-  if(dataType == VTK_DOUBLE)
+  if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       double point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
@@ -54,12 +54,12 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       float point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
@@ -78,12 +78,11 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
 int FilterPolyDataConnectivity(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPolyData> inputPolyData
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
   InitializePolyData(inputPolyData, dataType);
 
-  vtkSmartPointer<vtkPolyDataConnectivityFilter> polyDataConnectivityFilter
-    = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
+  vtkSmartPointer<vtkPolyDataConnectivityFilter> polyDataConnectivityFilter =
+    vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
   polyDataConnectivityFilter->SetOutputPointsPrecision(outputPointsPrecision);
   polyDataConnectivityFilter->ScalarConnectivityOn();
   polyDataConnectivityFilter->SetScalarRange(0.25, 0.75);
@@ -132,7 +131,7 @@ bool MarkVisitedPoints()
     if (visitedPts->GetId(id) < numPtsSphere1)
     {
       std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
-        << "in VTK_EXTRACT_CLOSEST_POINT_REGION mode." << std::endl;
+                << "in VTK_EXTRACT_CLOSEST_POINT_REGION mode." << std::endl;
       return false;
     }
   }
@@ -156,8 +155,8 @@ bool MarkVisitedPoints()
     if (visitedPt < numPtsSphere1)
     {
       std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
-        << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
-        succeeded = false;
+                << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
+      succeeded = false;
     }
   }
 
@@ -177,7 +176,7 @@ bool MarkVisitedPoints()
     if (visitedPt < numPtsSphere1)
     {
       std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
-        << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
+                << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
       succeeded = false;
     }
   }
@@ -188,46 +187,46 @@ bool MarkVisitedPoints()
 }
 }
 
-int TestPolyDataConnectivityFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPolyDataConnectivityFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int dataType = FilterPolyDataConnectivity(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterPolyDataConnectivity(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterPolyDataConnectivity(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterPolyDataConnectivity(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterPolyDataConnectivity(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterPolyDataConnectivity(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

@@ -33,15 +33,15 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer);
+int TestPicker(vtkRenderWindow* renWin, vtkRenderer* renderer);
 
-vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y);
+vtkIdType GetCellIdFromPickerPosition(vtkRenderer* ren, int x, int y);
 
 int TestQuadraticPolygonFilters(int argc, char* argv[])
 {
@@ -58,7 +58,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   double ray = 1.0;
   double thetaStep = 4.0 * vtkMath::Pi() / npts;
   double theta;
-  for (int i = 0; i < npts/2; i++)
+  for (int i = 0; i < npts / 2; i++)
   {
     if (i < npts / 4)
     {
@@ -66,7 +66,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
     }
     else
     {
-      theta = thetaStep * (i-npts/4) * 2 + thetaStep;
+      theta = thetaStep * (i - npts / 4) * 2 + thetaStep;
     }
 
     double x = ray * cos(theta);
@@ -78,20 +78,20 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
     connectivityQuadPoly2[i] = npts / 2 + i;
     if (i < npts / 4)
     {
-      connectivityQuads[4*i+0] = i;
-      connectivityQuads[4*i+1] = (i + 1) % (npts / 4);
-      connectivityQuads[4*i+2] = ((i + 1) % (npts / 4)) + npts / 2;
-      connectivityQuads[4*i+3] = i + npts / 2;
+      connectivityQuads[4 * i + 0] = i;
+      connectivityQuads[4 * i + 1] = (i + 1) % (npts / 4);
+      connectivityQuads[4 * i + 2] = ((i + 1) % (npts / 4)) + npts / 2;
+      connectivityQuads[4 * i + 3] = i + npts / 2;
     }
   }
 
   vtkNew<vtkUnstructuredGrid> ugrid;
   ugrid->SetPoints(points);
-  ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly1);
-  ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly2);
-  for (int i = 0; i < npts/4; i++)
+  ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts / 2, connectivityQuadPoly1);
+  ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts / 2, connectivityQuadPoly2);
+  for (int i = 0; i < npts / 4; i++)
   {
-    ugrid->InsertNextCell(VTK_QUAD,4,connectivityQuads + i * 4);
+    ugrid->InsertNextCell(VTK_QUAD, 4, connectivityQuads + i * 4);
   }
 
   delete[] connectivityQuadPoly1;
@@ -129,17 +129,17 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   ugrid->GetPointData()->SetScalars(scalars);
 
   // clip filter
-  //vtkNew<vtkPlane> plane;
-  //plane->SetOrigin(0, 0, 0);
-  //plane->SetNormal(1, 0, 0);
+  // vtkNew<vtkPlane> plane;
+  // plane->SetOrigin(0, 0, 0);
+  // plane->SetNormal(1, 0, 0);
   vtkNew<vtkClipDataSet> clip;
-  //clip->SetClipFunction(plane);
-  //clip->GenerateClipScalarsOn();
+  // clip->SetClipFunction(plane);
+  // clip->GenerateClipScalarsOn();
   clip->SetValue(1.5);
   clip->SetInputData(ugrid);
   clip->Update();
   vtkNew<vtkDataSetMapper> clipMapper;
-  clipMapper->SetInputConnection( clip->GetOutputPort());
+  clipMapper->SetInputConnection(clip->GetOutputPort());
   clipMapper->SetScalarRange(1.0, 2.0);
   clipMapper->InterpolateScalarsBeforeMappingOn();
   vtkNew<vtkActor> clipActor;
@@ -149,7 +149,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   // contour filter
   vtkNew<vtkContourFilter> contourFilter;
   contourFilter->SetInputData(ugrid);
-  contourFilter->SetValue(0,1.5);
+  contourFilter->SetValue(0, 1.5);
   contourFilter->Update();
   vtkNew<vtkPolyDataNormals> contourNormals;
   contourNormals->SetInputConnection(contourFilter->GetOutputPort());
@@ -158,8 +158,8 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   contourMapper->ScalarVisibilityOff();
   vtkNew<vtkActor> contourActor;
   contourActor->SetMapper(contourMapper);
-  contourActor->GetProperty()->SetColor(0,0,0);
-  contourActor->SetPosition(0.0,0.01,0.01);
+  contourActor->GetProperty()->SetColor(0, 0, 0);
+  contourActor->SetPosition(0.0, 0.01, 0.01);
 
   // outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
@@ -168,8 +168,8 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper(outlineMapper);
-  outlineActor->GetProperty()->SetColor(0,0,0);
-  outlineActor->SetPosition(0.0,0.01,0.01);
+  outlineActor->GetProperty()->SetColor(0, 0, 0);
+  outlineActor->SetPosition(0.0, 0.01, 0.01);
 
   // geometry filter
   vtkNew<vtkGeometryFilter> geometryFilter;
@@ -204,7 +204,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   }
 
   int retVal = vtkRegressionTestImage(renWin);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
@@ -213,12 +213,12 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   return (retVal == vtkRegressionTester::PASSED) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
+int TestPicker(vtkRenderWindow* renWin, vtkRenderer* renderer)
 {
   // Sets the camera
   double cPos[3] = { 5.65647, 0.857996, 6.71491 };
   double cUp[3] = { 0.0212226, 0.999769, 0.00352794 };
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(cPos);
   camera->SetViewUp(cUp);
   renderer->ResetCameraClippingRange();
@@ -228,23 +228,33 @@ int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
 
   // Sets the reference values
   int nbTests = 17;
-  int values[] = { 218, 244, 1,  290, 244, 1,
-                   201, 168, 1,  319, 166, 1,
-                   223, 63,  1,  303, 46,  1,
-                   330, 238, 2,  420, 173, 2,
-                   376, 165, 2,  372, 128, 4,
-                   411, 149, 4,  348, 266, 0,
-                   416, 203, 0,  391, 269, 0,
-                   412, 119, 0,  391, 61,  0,
-                   340, 72,  0 };
+  int values[] = {
+    218, 244, 1, //
+    290, 244, 1, //
+    201, 168, 1, //
+    319, 166, 1, //
+    223, 63, 1,  //
+    303, 46, 1,  //
+    330, 238, 2, //
+    420, 173, 2, //
+    376, 165, 2, //
+    372, 128, 4, //
+    411, 149, 4, //
+    348, 266, 0, //
+    416, 203, 0, //
+    391, 269, 0, //
+    412, 119, 0, //
+    391, 61, 0,  //
+    340, 72, 0   //
+  };
 
   for (int i = 0; i < nbTests * 3; i += 3)
   {
-    if ( GetCellIdFromPickerPosition(renderer, values[i], values[i+1]) !=  values[i+2] )
+    if (GetCellIdFromPickerPosition(renderer, values[i], values[i + 1]) != values[i + 2])
     {
       cerr << "ERROR:  selected cell type is "
-           << GetCellIdFromPickerPosition(renderer, values[i], values[i+1])
-           << ", should be " << values[i+2] << endl;
+           << GetCellIdFromPickerPosition(renderer, values[i], values[i + 1]) << ", should be "
+           << values[i + 2] << endl;
       return EXIT_FAILURE;
     }
   }
@@ -252,7 +262,7 @@ int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
   return EXIT_SUCCESS;
 }
 
-vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y)
+vtkIdType GetCellIdFromPickerPosition(vtkRenderer* ren, int x, int y)
 {
   vtkNew<vtkCellPicker> picker;
   picker->SetTolerance(0.0005);
@@ -263,9 +273,9 @@ vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y)
   vtkIdType cellId = -1;
   if (picker->GetDataSet())
   {
-      vtkIdTypeArray * ids = vtkArrayDownCast<vtkIdTypeArray>(
-        picker->GetDataSet()->GetCellData()->GetArray("CellID"));
-      cellId = ids->GetValue(picker->GetCellId());
+    vtkIdTypeArray* ids =
+      vtkArrayDownCast<vtkIdTypeArray>(picker->GetDataSet()->GetCellData()->GetArray("CellID"));
+    cellId = ids->GetValue(picker->GetCellId());
   }
 
   return cellId;

@@ -27,7 +27,7 @@
  *
  * The output is a vtkMultiBlockDataSet. See vtkExtractDataArraysOverTime for
  * details on how the output is structured.
-*/
+ */
 
 #ifndef vtkExtractSelectedArraysOverTime_h
 #define vtkExtractSelectedArraysOverTime_h

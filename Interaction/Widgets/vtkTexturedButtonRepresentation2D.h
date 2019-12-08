@@ -39,36 +39,36 @@
  * @sa
  * vtkButtonWidget vtkButtonRepresentation vtkTexturedButtonRepresentation
  * vtkProp3DButtonRepresentation
-*/
+ */
 
 #ifndef vtkTexturedButtonRepresentation2D_h
 #define vtkTexturedButtonRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty2D;
 class vtkImageData;
-class vtkTextureArray; //PIMPLd
+class vtkTextureArray; // PIMPLd
 class vtkProperty2D;
 class vtkAlgorithmOutput;
 class vtkBalloonRepresentation;
 class vtkCoordinate;
 
-
-class VTKINTERACTIONWIDGETS_EXPORT vtkTexturedButtonRepresentation2D : public vtkButtonRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkTexturedButtonRepresentation2D
+  : public vtkButtonRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkTexturedButtonRepresentation2D *New();
+  static vtkTexturedButtonRepresentation2D* New();
 
   //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkTexturedButtonRepresentation2D,vtkButtonRepresentation);
+  vtkTypeMacro(vtkTexturedButtonRepresentation2D, vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -77,24 +77,24 @@ public:
    * Specify the property to use when the button is to appear "normal"
    * i.e., the mouse pointer is not hovering or selecting the button.
    */
-  virtual void SetProperty(vtkProperty2D *p);
-  vtkGetObjectMacro(Property,vtkProperty2D);
+  virtual void SetProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(Property, vtkProperty2D);
   //@}
 
   //@{
   /**
    * Specify the property to use when the hovering over the button.
    */
-  virtual void SetHoveringProperty(vtkProperty2D *p);
-  vtkGetObjectMacro(HoveringProperty,vtkProperty2D);
+  virtual void SetHoveringProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(HoveringProperty, vtkProperty2D);
   //@}
 
   //@{
   /**
    * Specify the property to use when selecting the button.
    */
-  virtual void SetSelectingProperty(vtkProperty2D *p);
-  vtkGetObjectMacro(SelectingProperty,vtkProperty2D);
+  virtual void SetSelectingProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(SelectingProperty, vtkProperty2D);
   //@}
 
   //@{
@@ -102,21 +102,21 @@ public:
    * Add the ith texture corresponding to the ith button state.
    * The parameter i should be 0<=i<NumberOfStates.
    */
-  void SetButtonTexture(int i, vtkImageData *image);
-  vtkImageData *GetButtonTexture(int i);
+  void SetButtonTexture(int i, vtkImageData* image);
+  vtkImageData* GetButtonTexture(int i);
   //@}
 
   /**
    * Grab the underlying vtkBalloonRepresentation used to position and display
    * the button texture.
    */
-  vtkBalloonRepresentation *GetBalloon() {return this->Balloon;}
+  vtkBalloonRepresentation* GetBalloon() { return this->Balloon; }
 
   //@{
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void BuildRepresentation() override;
   void Highlight(int state) override;
   //@}
@@ -146,9 +146,9 @@ public:
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
-  void ShallowCopy(vtkProp *prop) override;
-  double *GetBounds() override;
-  void GetActors(vtkPropCollection *pc) override;
+  void ShallowCopy(vtkProp* prop) override;
+  double* GetBounds() override;
+  void GetActors(vtkPropCollection* pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
@@ -159,20 +159,20 @@ protected:
   ~vtkTexturedButtonRepresentation2D() override;
 
   // Representing the button
-  vtkBalloonRepresentation *Balloon;
+  vtkBalloonRepresentation* Balloon;
 
   // Properties of the button
-  vtkProperty2D *Property;
-  vtkProperty2D *HoveringProperty;
-  vtkProperty2D *SelectingProperty;
+  vtkProperty2D* Property;
+  vtkProperty2D* HoveringProperty;
+  vtkProperty2D* SelectingProperty;
   void CreateDefaultProperties();
 
   // Keep track of the images (textures) associated with the N
   // states of the button.
-  vtkTextureArray *TextureArray;
+  vtkTextureArray* TextureArray;
 
   // Tracking world position
-  vtkCoordinate *Anchor;
+  vtkCoordinate* Anchor;
 
 private:
   vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&) = delete;

@@ -25,14 +25,14 @@
  *
  * @sa
  * vtkAssemblyNode vtkAssembly vtkActor vtkMatrix4x4 vtkProp vtkAbstractPicker
-*/
+ */
 
 #ifndef vtkAssemblyPath_h
 #define vtkAssemblyPath_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkCollection.h"
 #include "vtkAssemblyNode.h" // used for inlines
+#include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkMatrix4x4;
 class vtkTransform;
@@ -47,7 +47,7 @@ public:
   /**
    * Instantiate empty path with identify matrix.
    */
-  static vtkAssemblyPath *New();
+  static vtkAssemblyPath* New();
 
   /**
    * Convenience method adds a prop and matrix together,
@@ -55,7 +55,7 @@ public:
    * pointer m may be NULL. Note: that matrix is the one,
    * if any, associated with the prop.
    */
-  void AddNode(vtkProp *p, vtkMatrix4x4 *m);
+  void AddNode(vtkProp* p, vtkMatrix4x4* m);
 
   /**
    * Get the next assembly node in the list. The node returned
@@ -65,20 +65,20 @@ public:
    * one that was added with AddNode() because of the
    * concatenation of matrices in the assembly hierarchy).
    */
-  vtkAssemblyNode *GetNextNode();
+  vtkAssemblyNode* GetNextNode();
 
   /**
    * Get the first assembly node in the list. See the comments for
    * GetNextNode() regarding the contents of the returned node. (Note: This
    * node corresponds to the vtkProp associated with the vtkRenderer.
    */
-  vtkAssemblyNode *GetFirstNode();
+  vtkAssemblyNode* GetFirstNode();
 
   /**
    * Get the last assembly node in the list. See the comments
    * for GetNextNode() regarding the contents of the returned node.
    */
-  vtkAssemblyNode *GetLastNode();
+  vtkAssemblyNode* GetLastNode();
 
   /**
    * Delete the last assembly node in the list. This is like
@@ -90,7 +90,7 @@ public:
    * Perform a shallow copy (reference counted) on the
    * incoming path.
    */
-  void ShallowCopy(vtkAssemblyPath *path);
+  void ShallowCopy(vtkAssemblyPath* path);
 
   /**
    * Override the standard GetMTime() to check for the modified times
@@ -102,21 +102,22 @@ public:
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie)
-    { return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie)); }
+  vtkAssemblyNode* GetNextNode(vtkCollectionSimpleIterator& cookie)
+  {
+    return static_cast<vtkAssemblyNode*>(this->GetNextItemAsObject(cookie));
+  }
 
 protected:
   vtkAssemblyPath();
   ~vtkAssemblyPath() override;
 
-  void AddNode(vtkAssemblyNode *n); //Internal method adds assembly node
-  vtkTransform *Transform; //Used to perform matrix concatenation
-  vtkProp *TransformedProp; //A transformed prop used to do the rendering
+  void AddNode(vtkAssemblyNode* n); // Internal method adds assembly node
+  vtkTransform* Transform;          // Used to perform matrix concatenation
+  vtkProp* TransformedProp;         // A transformed prop used to do the rendering
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-    { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkAssemblyPath(const vtkAssemblyPath&) = delete;

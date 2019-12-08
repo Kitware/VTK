@@ -57,49 +57,42 @@ void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataStreamer::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPolyDataStreamer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  int outPiece = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int outNumPieces = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int outPiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int outNumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              outPiece * this->NumberOfPasses + this->CurrentIndex);
+    outPiece * this->NumberOfPasses + this->CurrentIndex);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              outNumPieces * this->NumberOfPasses);
+    outNumPieces * this->NumberOfPasses);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkPolyDataStreamer::ExecutePass(
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPolyData *copy  = vtkPolyData::New();
+  vtkPolyData* copy = vtkPolyData::New();
   copy->ShallowCopy(input);
   this->Append->AddInputData(copy);
 
   if (this->ColorByPiece)
   {
-    int inPiece = inInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    vtkFloatArray *pieceColors = vtkFloatArray::New();
+    int inPiece = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkFloatArray* pieceColors = vtkFloatArray::New();
     pieceColors->SetName("Piece Colors");
     vtkIdType numCells = input->GetNumberOfCells();
     pieceColors->SetNumberOfTuples(numCells);
@@ -119,13 +112,11 @@ int vtkPolyDataStreamer::ExecutePass(
 
 //----------------------------------------------------------------------------
 int vtkPolyDataStreamer::PostExecute(
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->Append->Update();
   output->ShallowCopy(this->Append->GetOutput());
@@ -138,15 +129,14 @@ int vtkPolyDataStreamer::PostExecute(
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfPasses << endl;
   os << indent << "ColorByPiece: " << this->ColorByPiece << endl;
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataStreamer::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPolyDataStreamer::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
@@ -154,8 +144,7 @@ int vtkPolyDataStreamer::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataStreamer::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPolyDataStreamer::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

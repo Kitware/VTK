@@ -18,18 +18,18 @@
  *
  * vtkZLibDataCompressor provides a concrete vtkDataCompressor class
  * using zlib for compressing and uncompressing data.
-*/
+ */
 
 #ifndef vtkZLibDataCompressor_h
 #define vtkZLibDataCompressor_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"
+#include "vtkIOCoreModule.h" // For export macro
 
 class VTKIOCORE_EXPORT vtkZLibDataCompressor : public vtkDataCompressor
 {
 public:
-  vtkTypeMacro(vtkZLibDataCompressor,vtkDataCompressor);
+  vtkTypeMacro(vtkZLibDataCompressor, vtkDataCompressor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkZLibDataCompressor* New();
 
@@ -59,15 +59,12 @@ protected:
   int CompressionLevel;
 
   // Compression method required by vtkDataCompressor.
-  size_t CompressBuffer(unsigned char const* uncompressedData,
-                        size_t uncompressedSize,
-                        unsigned char* compressedData,
-                        size_t compressionSpace) override;
+  size_t CompressBuffer(unsigned char const* uncompressedData, size_t uncompressedSize,
+    unsigned char* compressedData, size_t compressionSpace) override;
   // Decompression method required by vtkDataCompressor.
-  size_t UncompressBuffer(unsigned char const* compressedData,
-                          size_t compressedSize,
-                          unsigned char* uncompressedData,
-                          size_t uncompressedSize) override;
+  size_t UncompressBuffer(unsigned char const* compressedData, size_t compressedSize,
+    unsigned char* uncompressedData, size_t uncompressedSize) override;
+
 private:
   vtkZLibDataCompressor(const vtkZLibDataCompressor&) = delete;
   void operator=(const vtkZLibDataCompressor&) = delete;

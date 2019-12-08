@@ -41,14 +41,14 @@
  * restriction and no extra computational cost.
  * @sa
  * vtkActor vtkRenderer vtkOpenGLTexture
-*/
+ */
 
 #ifndef vtkTexture_h
 #define vtkTexture_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_*
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_*
 
 class vtkImageData;
 class vtkScalarsToColors;
@@ -59,8 +59,8 @@ class vtkDataArray;
 class vtkTransform;
 
 #define VTK_TEXTURE_QUALITY_DEFAULT 0
-#define VTK_TEXTURE_QUALITY_16BIT   16
-#define VTK_TEXTURE_QUALITY_32BIT   32
+#define VTK_TEXTURE_QUALITY_16BIT 16
+#define VTK_TEXTURE_QUALITY_32BIT 32
 
 class VTKRENDERINGCORE_EXPORT vtkTexture : public vtkImageAlgorithm
 {
@@ -138,17 +138,25 @@ public:
 
   //@{
   /**
+   * Set/Get the maximum anisotropic filtering to use. 1.0 means use no
+   * anisotropic filtering. The default value is 4.0 and a high value would
+   * be 16. This setting is only applied when mipmaps are used. This might
+   * not be supported on all machines.
+   */
+  vtkSetMacro(MaximumAnisotropicFiltering, float);
+  vtkGetMacro(MaximumAnisotropicFiltering, float);
+  //@}
+
+  //@{
+  /**
    * Force texture quality to 16-bit or 32-bit.
    * This might not be supported on all machines.
    */
   vtkSetMacro(Quality, int);
   vtkGetMacro(Quality, int);
-  void SetQualityToDefault()
-    { this->SetQuality(VTK_TEXTURE_QUALITY_DEFAULT); }
-  void SetQualityTo16Bit()
-    { this->SetQuality(VTK_TEXTURE_QUALITY_16BIT); }
-  void SetQualityTo32Bit()
-    { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
+  void SetQualityToDefault() { this->SetQuality(VTK_TEXTURE_QUALITY_DEFAULT); }
+  void SetQualityTo16Bit() { this->SetQuality(VTK_TEXTURE_QUALITY_16BIT); }
+  void SetQualityTo32Bit() { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
   //@}
 
   //@{
@@ -164,12 +172,9 @@ public:
    */
   vtkSetMacro(ColorMode, int);
   vtkGetMacro(ColorMode, int);
-  void SetColorModeToDefault()
-    { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
-  void SetColorModeToMapScalars()
-    { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
-  void SetColorModeToDirectScalars()
-  { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
+  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToMapScalars() { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
+  void SetColorModeToDirectScalars() { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
   //@}
 
   /**
@@ -182,7 +187,7 @@ public:
   /**
    * Specify the lookup table to convert scalars if necessary
    */
-  void SetLookupTable(vtkScalarsToColors *);
+  void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
   //@}
 
@@ -203,7 +208,7 @@ public:
    * Set a transform on the texture which allows one to scale,
    * rotate and translate the texture.
    */
-  void SetTransform(vtkTransform *transform);
+  void SetTransform(vtkTransform* transform);
   vtkGetObjectMacro(Transform, vtkTransform);
   //@}
 
@@ -297,11 +302,10 @@ protected:
 
   // A texture is a sink, so there is no need to do anything.
   // This definition avoids a warning when doing Update() on a vtkTexture object.
-  void ExecuteData(vtkDataObject *) override
-  {
-  }
+  void ExecuteData(vtkDataObject*) override {}
 
   bool Mipmap;
+  float MaximumAnisotropicFiltering;
   vtkTypeBool Repeat;
   vtkTypeBool EdgeClamp;
   vtkTypeBool Interpolate;
@@ -309,7 +313,7 @@ protected:
   int ColorMode;
   vtkScalarsToColors* LookupTable;
   vtkUnsignedCharArray* MappedScalars;
-  vtkTransform * Transform;
+  vtkTransform* Transform;
 
   int BlendingMode;
   vtkTypeBool RestrictPowerOf2ImageSmaller;

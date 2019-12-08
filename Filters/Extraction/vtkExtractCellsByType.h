@@ -47,8 +47,8 @@
 #ifndef vtkExtractCellsByType_h
 #define vtkExtractCellsByType_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 struct vtkCellTypeSet;
 class vtkIdTypeArray;
@@ -60,9 +60,9 @@ public:
   /**
    * Standard methods for construction, type info, and printing.
    */
-  static vtkExtractCellsByType *New();
+  static vtkExtractCellsByType* New();
   vtkTypeMacro(vtkExtractCellsByType, vtkDataSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -79,14 +79,14 @@ public:
   //@}
 
 protected:
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void ExtractUnstructuredData(vtkDataSet *input, vtkDataSet *output);
-  void ExtractPolyDataCells(vtkDataSet *input, vtkDataSet *output,
-                            vtkIdType *ptMap, vtkIdType &numNewPts);
-  void ExtractUnstructuredGridCells(vtkDataSet *input, vtkDataSet *output,
-                                    vtkIdType *ptMap, vtkIdType &numNewPts);
+  void ExtractUnstructuredData(vtkDataSet* input, vtkDataSet* output);
+  void ExtractPolyDataCells(
+    vtkDataSet* input, vtkDataSet* output, vtkIdType* ptMap, vtkIdType& numNewPts);
+  void ExtractUnstructuredGridCells(
+    vtkDataSet* input, vtkDataSet* output, vtkIdType* ptMap, vtkIdType& numNewPts);
 
   vtkExtractCellsByType();
   ~vtkExtractCellsByType() override;
@@ -95,7 +95,7 @@ private:
   vtkExtractCellsByType(const vtkExtractCellsByType&) = delete;
   void operator=(const vtkExtractCellsByType&) = delete;
 
-  vtkCellTypeSet *CellTypes;
+  vtkCellTypeSet* CellTypes;
 };
 
 #endif

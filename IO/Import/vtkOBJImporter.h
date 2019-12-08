@@ -18,15 +18,15 @@
  *                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)
  * @sa
  *  vtkImporter
-*/
+ */
 
 #ifndef vtkOBJImporter_h
 #define vtkOBJImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
-#include <string> // for string
-#include "vtkSmartPointer.h" // for ivars
 #include "vtkImporter.h"
+#include "vtkSmartPointer.h" // for ivars
+#include <string>            // for string
 
 class vtkRenderWindow;
 class vtkRenderer;
@@ -59,9 +59,9 @@ class vtkOBJPolyDataProcessor;
 class VTKIOIMPORT_EXPORT vtkOBJImporter : public vtkImporter
 {
 public:
-  static vtkOBJImporter *New();
+  static vtkOBJImporter* New();
 
-  vtkTypeMacro(vtkOBJImporter,vtkImporter);
+  vtkTypeMacro(vtkOBJImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -85,18 +85,16 @@ protected:
   vtkOBJImporter();
   ~vtkOBJImporter() override;
 
-  int  ImportBegin() override /*override*/;
-  void ImportEnd () override /*override*/;
+  int ImportBegin() override /*override*/;
+  void ImportEnd() override /*override*/;
   void ReadData() override /* override */;
 
-  vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
+  vtkSmartPointer<vtkOBJPolyDataProcessor> Impl;
 
 private:
   vtkOBJImporter(const vtkOBJImporter&) = delete;
   void operator=(const vtkOBJImporter&) = delete;
 };
-
-
 
 #endif
 // VTK-HeaderTest-Exclude: vtkOBJImporter.h

@@ -17,12 +17,15 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSmartPointer.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPMergePoints.h"
+#include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
+
+#include <algorithm>
 
 namespace
 {
@@ -32,8 +35,9 @@ struct vtkMergePointsData
   vtkPolyData* Output;
   vtkSMPMergePoints* Locator;
 
-  vtkMergePointsData(vtkPolyData* output, vtkSMPMergePoints* locator) :
-    Output(output), Locator(locator)
+  vtkMergePointsData(vtkPolyData* output, vtkSMPMergePoints* locator)
+    : Output(output)
+    , Locator(locator)
   {
   }
 };
@@ -72,9 +76,8 @@ public:
   }
 };
 
-void MergePoints(std::vector<vtkMergePointsData>& data,
-                 std::vector<vtkIdList*>& idMaps,
-                 vtkPolyData* outPolyData)
+void MergePoints(
+  std::vector<vtkMergePointsData>& data, std::vector<vtkIdList*>& idMaps, vtkPolyData* outPolyData)
 {
   // This merges points in parallel/
 
@@ -85,7 +88,7 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
 
   // Prepare output points
   vtkIdType numPts = 0;
-  while(itr != end)
+  while (itr != end)
   {
     numPts += (*itr).Output->GetNumberOfPoints();
     ++itr;
@@ -134,7 +137,7 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
     mergePoints.IdMaps = &idMaps[0];
     // Prepare output point data
     int numArrays = mergePoints.OutputPointData->GetNumberOfArrays();
-    for (int i=0; i<numArrays; i++)
+    for (int i = 0; i < numArrays; i++)
     {
       mergePoints.OutputPointData->GetArray(i)->Resize(numPts);
     }
@@ -148,13 +151,14 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
     mergePoints.End = end;
     // Actual work
     vtkSMPTools::For(0, static_cast<vtkIdType>(nonEmptyBuckets.size()), mergePoints);
-    //mergePoints.operator()(0, nonEmptyBuckets.size());
+    // mergePoints.operator()(0, nonEmptyBuckets.size());
 
     // Fixup output sizes.
     mergePoints.Merger->FixSizeOfPointArray();
-    for (int i=0; i<numArrays; i++)
+    for (int i = 0; i < numArrays; i++)
     {
-      mergePoints.OutputPointData->GetArray(i)->SetNumberOfTuples(mergePoints.Merger->GetMaxId()+1);
+      mergePoints.OutputPointData->GetArray(i)->SetNumberOfTuples(
+        mergePoints.Merger->GetMaxId() + 1);
     }
   }
   outPolyData->SetPoints(mergePoints.Merger->GetPoints());
@@ -164,53 +168,94 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
 class vtkParallelMergeCells
 {
 public:
-  vtkIdList* Offsets;
+  vtkIdList* CellOffsets;
+  vtkIdList* ConnOffsets;
   vtkCellArray* InCellArray;
-  vtkIdTypeArray* OutCellArray;
-  vtkIdType OutputOffset;
+  vtkCellArray* OutCellArray;
+  vtkIdType OutputCellOffset;
+  vtkIdType OutputConnOffset;
   vtkIdList* IdMap;
+
+  struct MapCellsImpl
+  {
+    // Call this signature:
+    template <typename InCellStateT>
+    void operator()(InCellStateT& inState, vtkCellArray* outCells, vtkIdType inCellOffset,
+      vtkIdType inCellOffsetEnd, vtkIdType inConnOffset, vtkIdType inConnOffsetEnd,
+      vtkIdType outCellOffset, vtkIdType outConnOffset, vtkIdList* map)
+    {
+      outCells->Visit(*this, inState, inCellOffset, inCellOffsetEnd, inConnOffset, inConnOffsetEnd,
+        outCellOffset, outConnOffset, map);
+    }
+
+    // Internal signature:
+    template <typename InCellStateT, typename OutCellStateT>
+    void operator()(OutCellStateT& outState, InCellStateT& inState, vtkIdType inCellOffset,
+      vtkIdType inCellOffsetEnd, vtkIdType inConnOffset, vtkIdType inConnOffsetEnd,
+      vtkIdType outCellOffset, vtkIdType outConnOffset, vtkIdList* map)
+    {
+      using InIndexType = typename InCellStateT::ValueType;
+      using OutIndexType = typename OutCellStateT::ValueType;
+
+      const auto inCell =
+        vtk::DataArrayValueRange<1>(inState.GetOffsets(), inCellOffset, inCellOffsetEnd + 1);
+      const auto inConn =
+        vtk::DataArrayValueRange<1>(inState.GetConnectivity(), inConnOffset, inConnOffsetEnd);
+      auto outCell =
+        vtk::DataArrayValueRange<1>(outState.GetOffsets(), outCellOffset + inCellOffset);
+      auto outConn =
+        vtk::DataArrayValueRange<1>(outState.GetConnectivity(), outConnOffset + inConnOffset);
+
+      // Copy the offsets, adding outConnOffset to adjust for existing
+      // connectivity entries:
+      std::transform(
+        inCell.cbegin(), inCell.cend(), outCell.begin(), [&](InIndexType i) -> OutIndexType {
+          return static_cast<OutIndexType>(i + outConnOffset);
+        });
+
+      // Copy the connectivities, passing them through the map:
+      std::transform(
+        inConn.cbegin(), inConn.cend(), outConn.begin(), [&](InIndexType i) -> OutIndexType {
+          return static_cast<OutIndexType>(map->GetId(static_cast<vtkIdType>(i)));
+        });
+    }
+  };
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    vtkIdType noffsets = this->Offsets->GetNumberOfIds();
-    vtkIdList* offsets = this->Offsets;
-    vtkIdTypeArray* outCellArray = this->OutCellArray;
+    vtkIdType noffsets = this->CellOffsets->GetNumberOfIds();
+    vtkIdList* cellOffsets = this->CellOffsets;
+    vtkIdList* connOffsets = this->ConnOffsets;
+    vtkCellArray* outCellArray = this->OutCellArray;
     vtkCellArray* inCellArray = this->InCellArray;
-    vtkIdType outputOffset = this->OutputOffset;
+    vtkIdType outputCellOffset = this->OutputCellOffset;
+    vtkIdType outputConnOffset = this->OutputConnOffset;
     vtkIdList* map = this->IdMap;
 
-    vtkNew<vtkIdList> cellIds;
-    for (vtkIdType i=begin; i<end; i++)
+    for (vtkIdType i = begin; i < end; i++)
     {
       // Note that there may be multiple cells starting at
       // this offset. So we find the next offset and insert
       // all cells between here and there.
-      vtkIdType nextOffset;
-      if (i == noffsets - 1) // This needs to be the end of the array always, not the loop counter's end
+      vtkIdType nextCellOffset;
+      vtkIdType nextConnOffset;
+      if (i ==
+        noffsets - 1) // This needs to be the end of the array always, not the loop counter's end
       {
-        nextOffset = this->InCellArray->GetNumberOfConnectivityEntries();
+        nextCellOffset = this->InCellArray->GetNumberOfCells();
+        nextConnOffset = this->InCellArray->GetNumberOfConnectivityIds();
       }
       else
       {
-        nextOffset = offsets->GetId(i+1);
+        nextCellOffset = cellOffsets->GetId(i + 1);
+        nextConnOffset = connOffsets->GetId(i + 1);
       }
       // Process all cells between the given offset and the next.
-      vtkIdType cellOffset = offsets->GetId(i);
-      while (cellOffset < nextOffset)
-      {
-        inCellArray->GetCell(cellOffset, cellIds);
-        vtkIdType nids = cellIds->GetNumberOfIds();
-        // Insert the cells - first number of points and ids
-        outCellArray->SetValue(outputOffset + cellOffset, nids);
-        cellOffset++;
-        for (int j=0; j<nids; j++)
-        {
-          // Now insert each id. First map it through the map generated by the merging
-          // of the points
-          outCellArray->SetValue(outputOffset + cellOffset, map->GetId(cellIds->GetId(j)));
-          cellOffset++;
-        }
-      }
+      vtkIdType cellOffset = cellOffsets->GetId(i);
+      vtkIdType connOffset = connOffsets->GetId(i);
+
+      inCellArray->Visit(MapCellsImpl{}, outCellArray, cellOffset, nextCellOffset, connOffset,
+        nextConnOffset, outputCellOffset, outputConnOffset, map);
     }
   }
 };
@@ -228,7 +273,7 @@ public:
     vtkDataSetAttributes* outputCellData = this->OutputCellData;
     vtkIdType offset = this->Offset;
 
-    for (vtkIdType i=begin; i<end; i++)
+    for (vtkIdType i = begin; i < end; i++)
     {
       outputCellData->SetTuple(offset + i, i, inputCellData);
     }
@@ -239,19 +284,49 @@ struct vtkMergeCellsData
 {
   vtkPolyData* Output;
   vtkIdList* CellOffsets;
+  vtkIdList* ConnOffsets;
   vtkCellArray* OutCellArray;
 
-  vtkMergeCellsData(vtkPolyData* output, vtkIdList* celloffsets, vtkCellArray* cellarray) :
-    Output(output), CellOffsets(celloffsets), OutCellArray(cellarray)
+  vtkMergeCellsData(
+    vtkPolyData* output, vtkIdList* cellOffsets, vtkIdList* connOffsets, vtkCellArray* cellArray)
+    : Output(output)
+    , CellOffsets(cellOffsets)
+    , ConnOffsets(connOffsets)
+    , OutCellArray(cellArray)
   {
   }
 };
 
-void MergeCells(std::vector<vtkMergeCellsData>& data,
-                const std::vector<vtkIdList*>& idMaps,
-                vtkIdType numCells,
-                vtkIdType cellDataOffset,
-                vtkCellArray* outCells)
+struct CopyCellArraysToFront
+{
+  // call this signature:
+  template <typename OutCellArraysT>
+  void operator()(OutCellArraysT& out, vtkCellArray* in)
+  {
+    in->Visit(*this, out);
+  }
+
+  // Internal signature:
+  template <typename InCellArraysT, typename OutCellArraysT>
+  void operator()(InCellArraysT& in, OutCellArraysT& out)
+  {
+    using InIndexType = typename InCellArraysT::ValueType;
+    using OutIndexType = typename OutCellArraysT::ValueType;
+
+    const auto inCell = vtk::DataArrayValueRange<1>(in.GetOffsets());
+    const auto inConn = vtk::DataArrayValueRange<1>(in.GetConnectivity());
+    auto outCell = vtk::DataArrayValueRange<1>(out.GetOffsets());
+    auto outConn = vtk::DataArrayValueRange<1>(out.GetConnectivity());
+
+    auto cast = [](InIndexType i) -> OutIndexType { return static_cast<OutIndexType>(i); };
+
+    std::transform(inCell.cbegin(), inCell.cend(), outCell.begin(), cast);
+    std::transform(inConn.cbegin(), inConn.cend(), outConn.begin(), cast);
+  }
+};
+
+void MergeCells(std::vector<vtkMergeCellsData>& data, const std::vector<vtkIdList*>& idMaps,
+  vtkIdType cellDataOffset, vtkCellArray* outCells)
 {
   std::vector<vtkMergeCellsData>::iterator begin = data.begin();
   std::vector<vtkMergeCellsData>::iterator itr;
@@ -261,41 +336,39 @@ void MergeCells(std::vector<vtkMergeCellsData>& data,
 
   std::vector<vtkIdList*>::const_iterator mapIter = idMaps.begin();
 
-  vtkIdTypeArray* outCellsArray = outCells->GetData();
-
-  vtkIdType outCellsOffset = 0;
-
-  // Prepare output
   vtkCellArray* firstCells = (*begin).OutCellArray;
-  vtkIdTypeArray* firstCellsArray = firstCells->GetData();
-  outCellsOffset += firstCells->GetNumberOfConnectivityEntries();
-  memcpy(outCellsArray->GetVoidPointer(0),
-         firstCellsArray->GetVoidPointer(0),
-         outCellsOffset*sizeof(vtkIdType));
+
+  vtkIdType outCellOffset = 0;
+  vtkIdType outConnOffset = 0;
+  outCellOffset += firstCells->GetNumberOfCells();
+  outConnOffset += firstCells->GetNumberOfConnectivityIds();
+
+  // Prepare output. Since there's no mapping here, do a simple copy in
+  // serial:
+  outCells->Visit(CopyCellArraysToFront{}, firstCells);
 
   vtkParallelMergeCells mergeCells;
-  mergeCells.OutCellArray = outCellsArray;
+  mergeCells.OutCellArray = outCells;
 
   // The first locator is what we will use to accumulate all others
   // So all iteration starts from second dataset.
-  vtkNew<vtkIdList> cellIds;
   for (itr = second; itr != end; ++itr, ++mapIter)
   {
-    mergeCells.Offsets = (*itr).CellOffsets;
+    mergeCells.CellOffsets = (*itr).CellOffsets;
+    mergeCells.ConnOffsets = (*itr).ConnOffsets;
     mergeCells.InCellArray = (*itr).OutCellArray;
-    mergeCells.OutputOffset = outCellsOffset;
+    mergeCells.OutputCellOffset = outCellOffset;
+    mergeCells.OutputConnOffset = outConnOffset;
     mergeCells.IdMap = *mapIter;
 
     // First, we merge the cell arrays. This also adjust point ids.
-    vtkSMPTools::For(0,  mergeCells.Offsets->GetNumberOfIds(), mergeCells);
+    vtkSMPTools::For(0, mergeCells.CellOffsets->GetNumberOfIds(), mergeCells);
 
-    outCellsOffset += (*itr).OutCellArray->GetNumberOfConnectivityEntries();
+    outCellOffset += (*itr).OutCellArray->GetNumberOfCells();
+    outConnOffset += (*itr).OutCellArray->GetNumberOfConnectivityIds();
   }
 
-  outCellsArray->SetNumberOfTuples(outCellsOffset);
-  outCells->SetNumberOfCells(numCells);
-
-  outCellsOffset = cellDataOffset + (*begin).OutCellArray->GetNumberOfCells();
+  vtkIdType outCellsOffset = cellDataOffset + (*begin).OutCellArray->GetNumberOfCells();
 
   // Now copy cell data in parallel
   vtkParallelCellDataCopier cellCopier;
@@ -309,8 +382,8 @@ void MergeCells(std::vector<vtkMergeCellsData>& data,
       cellCopier.Offset = outCellsOffset;
       vtkCellArray* cells = (*itr).OutCellArray;
 
-      vtkSMPTools::For(0,  cells->GetNumberOfCells(), cellCopier);
-      //cellCopier.operator()(0, polys->GetNumberOfCells());
+      vtkSMPTools::For(0, cells->GetNumberOfCells(), cellCopier);
+      // cellCopier.operator()(0, polys->GetNumberOfCells());
 
       outCellsOffset += (*itr).Output->GetPolys()->GetNumberOfCells();
     }
@@ -327,7 +400,7 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   std::vector<InputData>::iterator end = inputs.end();
 
   std::vector<vtkMergePointsData> mpData;
-  while(itr != end)
+  while (itr != end)
   {
     mpData.push_back(vtkMergePointsData((*itr).Input, (*itr).Locator));
     ++itr;
@@ -346,11 +419,11 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   vtkIdType numLines = 0;
   vtkIdType numPolys = 0;
   std::vector<vtkMergeCellsData> mcData;
-  while(itr != end)
+  while (itr != end)
   {
-    vertSize += (*itr).Input->GetVerts()->GetNumberOfConnectivityEntries();
-    lineSize += (*itr).Input->GetLines()->GetNumberOfConnectivityEntries();
-    polySize += (*itr).Input->GetPolys()->GetNumberOfConnectivityEntries();
+    vertSize += (*itr).Input->GetVerts()->GetNumberOfConnectivityIds();
+    lineSize += (*itr).Input->GetLines()->GetNumberOfConnectivityIds();
+    polySize += (*itr).Input->GetPolys()->GetNumberOfConnectivityIds();
     numVerts += (*itr).Input->GetVerts()->GetNumberOfCells();
     numLines += (*itr).Input->GetLines()->GetNumberOfCells();
     numPolys += (*itr).Input->GetPolys()->GetNumberOfCells();
@@ -361,7 +434,7 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
 
   vtkCellData* outCellData = (*begin).Input->GetCellData();
   int numCellArrays = outCellData->GetNumberOfArrays();
-  for (int i=0; i<numCellArrays; i++)
+  for (int i = 0; i < numCellArrays; i++)
   {
     outCellData->GetArray(i)->Resize(numOutCells);
     outCellData->GetArray(i)->SetNumberOfTuples(numOutCells);
@@ -373,15 +446,16 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   if (vertSize > 0)
   {
     vtkNew<vtkCellArray> outVerts;
-    outVerts->Allocate(vertSize);
+    outVerts->ResizeExact(numVerts, vertSize);
 
     itr = begin;
-    while(itr != end)
+    while (itr != end)
     {
-    mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).VertOffsets, (*itr).Input->GetVerts()));
-    ++itr;
+      mcData.push_back(vtkMergeCellsData(
+        (*itr).Input, (*itr).VertCellOffsets, (*itr).VertConnOffsets, (*itr).Input->GetVerts()));
+      ++itr;
     }
-    MergeCells(mcData, idMaps, numVerts, 0, outVerts);
+    MergeCells(mcData, idMaps, 0, outVerts);
 
     outPolyData->SetVerts(outVerts);
 
@@ -391,15 +465,16 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   if (lineSize > 0)
   {
     vtkNew<vtkCellArray> outLines;
-    outLines->Allocate(lineSize);
+    outLines->ResizeExact(numLines, lineSize);
 
     itr = begin;
-    while(itr != end)
+    while (itr != end)
     {
-    mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).LineOffsets, (*itr).Input->GetLines()));
-    ++itr;
+      mcData.push_back(vtkMergeCellsData(
+        (*itr).Input, (*itr).LineCellOffsets, (*itr).LineConnOffsets, (*itr).Input->GetLines()));
+      ++itr;
     }
-    MergeCells(mcData, idMaps, numLines, vertSize, outLines);
+    MergeCells(mcData, idMaps, vertSize, outLines);
 
     outPolyData->SetLines(outLines);
 
@@ -409,15 +484,16 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   if (polySize > 0)
   {
     vtkNew<vtkCellArray> outPolys;
-    outPolys->Allocate(polySize);
+    outPolys->ResizeExact(numPolys, polySize);
 
     itr = begin;
-    while(itr != end)
+    while (itr != end)
     {
-      mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).PolyOffsets, (*itr).Input->GetPolys()));
+      mcData.push_back(vtkMergeCellsData(
+        (*itr).Input, (*itr).PolyCellOffsets, (*itr).PolyConnOffsets, (*itr).Input->GetPolys()));
       ++itr;
     }
-    MergeCells(mcData, idMaps, numPolys, vertSize + lineSize, outPolys);
+    MergeCells(mcData, idMaps, vertSize + lineSize, outPolys);
 
     outPolyData->SetPolys(outPolys);
   }
@@ -432,5 +508,4 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   }
 
   return outPolyData;
-
 }

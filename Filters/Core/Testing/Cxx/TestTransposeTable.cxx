@@ -23,7 +23,7 @@
 
 #include <sstream>
 
-int TestTransposeTable(int, char *[])
+int TestTransposeTable(int, char*[])
 {
   vtkNew<vtkTable> table;
 

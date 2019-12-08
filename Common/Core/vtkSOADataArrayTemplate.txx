@@ -24,23 +24,21 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-vtkSOADataArrayTemplate<ValueType>*
-vtkSOADataArrayTemplate<ValueType>::New()
+template <class ValueType>
+vtkSOADataArrayTemplate<ValueType>* vtkSOADataArrayTemplate<ValueType>::New()
 {
   VTK_STANDARD_NEW_BODY(vtkSOADataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
-  : AoSCopy(nullptr),
-    NumberOfComponentsReciprocal(1.0)
+  : AoSCopy(nullptr)
 {
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkSOADataArrayTemplate<ValueType>::~vtkSOADataArrayTemplate()
 {
   for (size_t cc = 0; cc < this->Data.size(); ++cc)
@@ -56,7 +54,7 @@ vtkSOADataArrayTemplate<ValueType>::~vtkSOADataArrayTemplate()
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 void vtkSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 {
   this->GenericDataArrayType::SetNumberOfComponents(val);
@@ -71,23 +69,22 @@ void vtkSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
   {
     this->Data.push_back(vtkBuffer<ValueType>::New());
   }
-  this->NumberOfComponentsReciprocal = 1.0 / this->NumberOfComponents;
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 vtkArrayIterator* vtkSOADataArrayTemplate<ValueType>::NewIterator()
 {
-  vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
+  vtkArrayIterator* iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
 {
-  SelfType *o = SelfType::FastDownCast(other);
+  SelfType* o = SelfType::FastDownCast(other);
   if (o)
   {
     this->Size = o->Size;
@@ -98,8 +95,8 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
     assert(this->Data.size() == o->Data.size());
     for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
-      vtkBuffer<ValueType> *thisBuffer = this->Data[cc];
-      vtkBuffer<ValueType> *otherBuffer = o->Data[cc];
+      vtkBuffer<ValueType>* thisBuffer = this->Data[cc];
+      vtkBuffer<ValueType>* otherBuffer = o->Data[cc];
       if (thisBuffer != otherBuffer)
       {
         thisBuffer->Delete();
@@ -116,15 +113,14 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
-    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-    vtkAbstractArray *source)
+  vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
   // way we don't waste time redoing the other checks in the superclass, and
   // can avoid doing a dispatch for the most common usage of this method.
-  SelfType *other = vtkArrayDownCast<SelfType>(source);
+  SelfType* other = vtkArrayDownCast<SelfType>(source);
   if (!other)
   {
     // Let the superclass handle dispatch/fallback.
@@ -141,8 +137,7 @@ void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
   if (other->GetNumberOfComponents() != numComps)
   {
     vtkErrorMacro("Number of components do not match: Source: "
-                  << other->GetNumberOfComponents() << " Dest: "
-                  << this->GetNumberOfComponents());
+      << other->GetNumberOfComponents() << " Dest: " << this->GetNumberOfComponents());
     return;
   }
 
@@ -152,8 +147,8 @@ void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
   if (maxSrcTupleId >= other->GetNumberOfTuples())
   {
     vtkErrorMacro("Source array too small, requested tuple at index "
-                  << maxSrcTupleId << ", but there are only "
-                  << other->GetNumberOfTuples() << " tuples in the array.");
+      << maxSrcTupleId << ", but there are only " << other->GetNumberOfTuples()
+      << " tuples in the array.");
     return;
   }
 
@@ -171,44 +166,43 @@ void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
 
   for (int c = 0; c < numComps; ++c)
   {
-    ValueType *srcBegin = other->GetComponentArrayPointer(c) + srcStart;
-    ValueType *srcEnd = srcBegin + n;
-    ValueType *dstBegin = this->GetComponentArrayPointer(c) + dstStart;
+    ValueType* srcBegin = other->GetComponentArrayPointer(c) + srcStart;
+    ValueType* srcEnd = srcBegin + n;
+    ValueType* dstBegin = this->GetComponentArrayPointer(c) + dstStart;
     std::copy(srcBegin, srcEnd, dstBegin);
   }
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::FillTypedComponent(int compIdx,
-                                                            ValueType value)
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::FillTypedComponent(int compIdx, ValueType value)
 {
-  ValueType *buffer = this->Data[compIdx]->GetBuffer();
+  ValueType* buffer = this->Data[compIdx]->GetBuffer();
   std::fill(buffer, buffer + this->GetNumberOfTuples(), value);
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
-                                                  vtkIdType size,
-                                                  bool updateMaxId,
-                                                  bool save, int deleteMethod)
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetArray(
+  int comp, ValueType* array, vtkIdType size, bool updateMaxId, bool save, int deleteMethod)
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
   {
-    vtkErrorMacro("Invalid component number '" << comp << "' specified. "
-      "Use `SetNumberOfComponents` first to set the number of components.");
+    vtkErrorMacro("Invalid component number '"
+      << comp
+      << "' specified. "
+         "Use `SetNumberOfComponents` first to set the number of components.");
     return;
   }
 
   this->Data[comp]->SetBuffer(array, size);
 
-  if(deleteMethod == VTK_DATA_ARRAY_DELETE)
+  if (deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Data[comp]->SetFreeFunction(save != 0, ::operator delete[] );
+    this->Data[comp]->SetFreeFunction(save != 0, ::operator delete[]);
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
     this->Data[comp]->SetFreeFunction(save != 0, _aligned_free);
@@ -216,8 +210,7 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
     this->Data[comp]->SetFreeFunction(save != 0, free);
 #endif
   }
-  else if(deleteMethod == VTK_DATA_ARRAY_USER_DEFINED ||
-          deleteMethod == VTK_DATA_ARRAY_FREE)
+  else if (deleteMethod == VTK_DATA_ARRAY_USER_DEFINED || deleteMethod == VTK_DATA_ARRAY_FREE)
   {
     this->Data[comp]->SetFreeFunction(save != 0, free);
   }
@@ -231,25 +224,27 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void *))
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void*))
 {
-  const int numComps =  this->GetNumberOfComponents();
-  for(int i=0; i < numComps; ++i)
+  const int numComps = this->GetNumberOfComponents();
+  for (int i = 0; i < numComps; ++i)
   {
     this->SetArrayFreeFunction(i, callback);
   }
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(int comp, void (*callback)(void *))
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(int comp, void (*callback)(void*))
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
   {
-    vtkErrorMacro("Invalid component number '" << comp << "' specified. "
-      "Use `SetNumberOfComponents` first to set the number of components.");
+    vtkErrorMacro("Invalid component number '"
+      << comp
+      << "' specified. "
+         "Use `SetNumberOfComponents` first to set the number of components.");
     return;
   }
   this->Data[comp]->SetFreeFunction(false, callback);
@@ -271,7 +266,7 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
@@ -285,7 +280,7 @@ bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
+template <class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
@@ -299,20 +294,20 @@ bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
+template <class ValueType>
+void* vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
 {
   // Allow warnings to be silenced:
-  const char *silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+  const char* silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
   if (!silence)
   {
-    vtkWarningMacro(<<"GetVoidPointer called. This is very expensive for "
-                      "non-array-of-structs subclasses, as the scalar array "
-                      "must be generated for each call. Using the "
-                      "vtkGenericDataArray API with vtkArrayDispatch are "
-                      "preferred. Define the environment variable "
-                      "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
-                      "this warning.");
+    vtkWarningMacro(<< "GetVoidPointer called. This is very expensive for "
+                       "non-array-of-structs subclasses, as the scalar array "
+                       "must be generated for each call. Using the "
+                       "vtkGenericDataArray API with vtkArrayDispatch are "
+                       "preferred. Define the environment variable "
+                       "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
+                       "this warning.");
   }
 
   size_t numValues = this->GetNumberOfValues();
@@ -324,7 +319,7 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
 
   if (!this->AoSCopy->Allocate(static_cast<vtkIdType>(numValues)))
   {
-    vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
+    vtkErrorMacro(<< "Error allocating a buffer of " << numValues << " '"
                   << this->GetDataTypeAsString() << "' elements.");
     return nullptr;
   }
@@ -335,8 +330,8 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
 }
 
 //-----------------------------------------------------------------------------
-template<class ValueType>
-void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void* voidPtr)
 {
   vtkIdType numTuples = this->GetNumberOfTuples();
   if (this->NumberOfComponents * numTuples == 0)
@@ -351,7 +346,7 @@ void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
     return;
   }
 
-  ValueType *ptr = static_cast<ValueType*>(voidPtr);
+  ValueType* ptr = static_cast<ValueType*>(voidPtr);
   for (vtkIdType t = 0; t < numTuples; ++t)
   {
     for (int c = 0; c < this->NumberOfComponents; ++c)

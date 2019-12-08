@@ -14,18 +14,17 @@
 =========================================================================*/
 #include "vtkProbePolyhedron.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMeanValueCoordinatesInterpolator.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkMeanValueCoordinatesInterpolator.h"
-
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkProbePolyhedron);
 
@@ -48,41 +47,35 @@ void vtkProbePolyhedron::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 }
 
 //----------------------------------------------------------------------------
-void vtkProbePolyhedron::SetSourceData(vtkPolyData *input)
+void vtkProbePolyhedron::SetSourceData(vtkPolyData* input)
 {
   this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkProbePolyhedron::GetSource()
+vtkPolyData* vtkProbePolyhedron::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
     return nullptr;
   }
 
-  return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, 0));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
 //----------------------------------------------------------------------------
-int vtkProbePolyhedron::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbePolyhedron::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *source = vtkPolyData::SafeDownCast(
-    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* source = vtkPolyData::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!source)
   {
@@ -91,9 +84,9 @@ int vtkProbePolyhedron::RequestData(
 
   // Make sure that the mesh consists of triangles. Bail out if not.
   vtkIdType numPolys = source->GetNumberOfPolys();
-  vtkCellArray *srcPolys = source->GetPolys();
+  vtkCellArray* srcPolys = source->GetPolys();
 
-  if ( !numPolys || !srcPolys )
+  if (!numPolys || !srcPolys)
   {
     vtkErrorMacro("Probe polyhedron filter requires a non-empty mesh");
     return 0;
@@ -105,48 +98,47 @@ int vtkProbePolyhedron::RequestData(
   vtkIdType numSrcPts = source->GetNumberOfPoints();
   vtkIdType numInputCells = input->GetNumberOfCells();
   output->CopyStructure(input);
-  vtkPointData *outPD = output->GetPointData();
-  vtkCellData *outCD = output->GetCellData();
-  vtkPointData *srcPD = source->GetPointData();
-  outPD->InterpolateAllocate(srcPD,numInputPts,1);
-  outCD->InterpolateAllocate(srcPD,numInputCells,1);
+  vtkPointData* outPD = output->GetPointData();
+  vtkCellData* outCD = output->GetCellData();
+  vtkPointData* srcPD = source->GetPointData();
+  outPD->InterpolateAllocate(srcPD, numInputPts, 1);
+  outCD->InterpolateAllocate(srcPD, numInputCells, 1);
 
   // Okay probe the polyhedral mesh. Have to loop over all points and compute
   // each points interpolation weights. These weights are used to perform the
   // interpolation.
-  vtkPoints *srcPts = source->GetPoints();
-  vtkDoubleArray *weights = vtkDoubleArray::New();
+  vtkPoints* srcPts = source->GetPoints();
+  vtkDoubleArray* weights = vtkDoubleArray::New();
   weights->SetNumberOfComponents(1);
   weights->SetNumberOfTuples(numSrcPts);
-  double *wPtr = weights->GetPointer(0);
+  double* wPtr = weights->GetPointer(0);
 
   // InterpolatePoint requires knowing which points to interpolate from.
   vtkIdType ptId, cellId;
-  vtkIdList *srcIds = vtkIdList::New();
+  vtkIdList* srcIds = vtkIdList::New();
   srcIds->SetNumberOfIds(numSrcPts);
-  for (ptId=0; ptId < numSrcPts; ++ptId)
+  for (ptId = 0; ptId < numSrcPts; ++ptId)
   {
-    srcIds->SetId(ptId,ptId);
+    srcIds->SetId(ptId, ptId);
   }
 
   // Interpolate the point data (if requested)
   double x[3];
-  int abort=0;
-  vtkIdType idx=0, progressInterval=(numInputCells+numInputPts)/10 + 1;
-  if ( this->ProbePointData )
+  int abort = 0;
+  vtkIdType idx = 0, progressInterval = (numInputCells + numInputPts) / 10 + 1;
+  if (this->ProbePointData)
   {
-    for (ptId=0; ptId < numInputPts && !abort; ++ptId, ++idx)
+    for (ptId = 0; ptId < numInputPts && !abort; ++ptId, ++idx)
     {
-      if ( ! (idx % progressInterval) )
+      if (!(idx % progressInterval))
       {
-        vtkDebugMacro(<<"Processing #" << idx);
-        this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
+        vtkDebugMacro(<< "Processing #" << idx);
+        this->UpdateProgress(static_cast<double>(idx) / (numInputCells + numInputPts));
         abort = this->GetAbortExecute();
       }
 
       input->GetPoint(ptId, x);
-      vtkMeanValueCoordinatesInterpolator::
-        ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
+      vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(x, srcPts, srcPolys, wPtr);
 
       outPD->InterpolatePoint(srcPD, ptId, srcIds, wPtr);
     }
@@ -154,19 +146,19 @@ int vtkProbePolyhedron::RequestData(
 
   // Interpolate the cell data (if requested)
   // Compute point value at the cell's parametric center.
-  if ( this->ProbeCellData )
+  if (this->ProbeCellData)
   {
-    vtkCell *cell;
+    vtkCell* cell;
     int subId;
     double pcoords[3];
     x[0] = x[1] = x[2] = 0.0;
 
-    for (cellId=0; cellId < numInputCells && !abort; ++cellId,++idx)
+    for (cellId = 0; cellId < numInputCells && !abort; ++cellId, ++idx)
     {
-      if ( ! (idx % progressInterval) )
+      if (!(idx % progressInterval))
       {
-        vtkDebugMacro(<<"Processing #" << idx);
-        this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
+        vtkDebugMacro(<< "Processing #" << idx);
+        this->UpdateProgress(static_cast<double>(idx) / (numInputCells + numInputPts));
         abort = this->GetAbortExecute();
       }
 
@@ -176,8 +168,7 @@ int vtkProbePolyhedron::RequestData(
         subId = cell->GetParametricCenter(pcoords);
         cell->EvaluateLocation(subId, pcoords, x, wPtr);
       }
-      vtkMeanValueCoordinatesInterpolator::
-        ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
+      vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(x, srcPts, srcPolys, wPtr);
 
       outCD->InterpolatePoint(srcPD, cellId, srcIds, wPtr);
     }
@@ -191,37 +182,30 @@ int vtkProbePolyhedron::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkProbePolyhedron::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbePolyhedron::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->CopyEntry(sourceInfo,
-                     vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  outInfo->CopyEntry(sourceInfo,
-                     vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+  outInfo->CopyEntry(sourceInfo, vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->CopyEntry(sourceInfo, vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-               6);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkProbePolyhedron::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbePolyhedron::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int usePiece = 0;
 
@@ -230,8 +214,8 @@ int vtkProbePolyhedron::RequestUpdateExtent(
   // of a structured data set will affect the extent.
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (output &&
-      (!strcmp(output->GetClassName(), "vtkUnstructuredGrid") ||
-       !strcmp(output->GetClassName(), "vtkPolyData")))
+    (!strcmp(output->GetClassName(), "vtkUnstructuredGrid") ||
+      !strcmp(output->GetClassName(), "vtkPolyData")))
   {
     usePiece = 1;
   }
@@ -240,20 +224,16 @@ int vtkProbePolyhedron::RequestUpdateExtent(
 
   if (usePiece)
   {
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   }
   else
   {
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
   }
 
@@ -263,15 +243,12 @@ int vtkProbePolyhedron::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 void vtkProbePolyhedron::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  vtkDataObject *source = this->GetSource();
+  vtkDataObject* source = this->GetSource();
   os << indent << "Source: " << source << "\n";
 
-  os << indent << "Probe Point Data: "
-     << (this->ProbePointData ? "true" : "false") << "\n";
+  os << indent << "Probe Point Data: " << (this->ProbePointData ? "true" : "false") << "\n";
 
-  os << indent << "Probe Cell Data: "
-     << (this->ProbeCellData ? "true" : "false") << "\n";
-
+  os << indent << "Probe Cell Data: " << (this->ProbeCellData ? "true" : "false") << "\n";
 }

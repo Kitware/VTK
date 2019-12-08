@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlot( int, char * [] )
+int TestLinePlot(int, char*[])
 {
   int status = EXIT_SUCCESS;
   // Set up a 2D scene, add an XY chart to it
@@ -53,7 +53,7 @@ int TestLinePlot( int, char * [] )
   table->AddColumn(arr1);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -65,7 +65,7 @@ int TestLinePlot( int, char * [] )
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
@@ -88,8 +88,7 @@ int TestLinePlot( int, char * [] )
   line->GetUnscaledInputBounds(bds);
   if (bds[0] * bds[1] > 0. || bds[2] * bds[3] > 0.)
   {
-    cerr
-      << "ERROR: Data on both X and Y axes expected to cross origin.\n";
+    cerr << "ERROR: Data on both X and Y axes expected to cross origin.\n";
     status = EXIT_FAILURE;
   }
 
@@ -101,8 +100,7 @@ int TestLinePlot( int, char * [] )
   line->GetUnscaledInputBounds(bds);
   if (bds[0] * bds[1] > 0. || bds[2] * bds[3] <= 0.)
   {
-    cerr
-      << "ERROR: Data on X axis expected to cross origin.\n";
+    cerr << "ERROR: Data on X axis expected to cross origin.\n";
     status = EXIT_FAILURE;
   }
 

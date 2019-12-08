@@ -25,13 +25,13 @@
  *
  * @sa
  * vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
-*/
+ */
 
 #ifndef vtkPropPicker_h
 #define vtkPropPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkWorldPointPicker;
@@ -39,7 +39,7 @@ class vtkWorldPointPicker;
 class VTKRENDERINGCORE_EXPORT vtkPropPicker : public vtkAbstractPropPicker
 {
 public:
-  static vtkPropPicker *New();
+  static vtkPropPicker* New();
 
   vtkTypeMacro(vtkPropPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -50,30 +50,30 @@ public:
    * to get the instance of vtkProp that was picked.  Props are picked from
    * the renderers list of pickable Props.
    */
-  int PickProp(double selectionX, double selectionY, vtkRenderer *renderer);
+  int PickProp(double selectionX, double selectionY, vtkRenderer* renderer);
 
   /**
    * Perform a pick from the user-provided list of vtkProps and not from the
    * list of vtkProps that the render maintains.
    */
-  int PickProp(double selectionX, double selectionY, vtkRenderer *renderer,
-               vtkPropCollection* pickfrom);
+  int PickProp(
+    double selectionX, double selectionY, vtkRenderer* renderer, vtkPropCollection* pickfrom);
 
   /**
    * override superclasses' Pick() method.
    */
-  int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer) override;
-  int Pick(double selectionPt[3], vtkRenderer *renderer)
-    { return this->Pick( selectionPt[0],
-                         selectionPt[1], selectionPt[2], renderer); }
+  int Pick(double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer) override;
+  int Pick(double selectionPt[3], vtkRenderer* renderer)
+  {
+    return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], renderer);
+  }
 
   /**
    * Perform pick operation with selection point provided. The
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
+  int Pick3DPoint(double selectionPt[3], vtkRenderer* ren) override;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -81,27 +81,26 @@ public:
    * to get the instance of vtkProp that was picked.  Props are picked from
    * the renderers list of pickable Props.
    */
-  int PickProp3DPoint(double pos[3], vtkRenderer *renderer);
+  int PickProp3DPoint(double pos[3], vtkRenderer* renderer);
 
   /**
    * Perform a pick from the user-provided list of vtkProps and not from the
    * list of vtkProps that the render maintains.
    */
-  int PickProp3DPoint(double pos[3], vtkRenderer *renderer,
-               vtkPropCollection* pickfrom);
+  int PickProp3DPoint(double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom);
 
   /**
    * Perform a pick from the user-provided list of vtkProps.
    */
   virtual int PickProp3DRay(double selectionPt[3], double eventWorldOrientation[4],
-    vtkRenderer *renderer, vtkPropCollection* pickfrom);
+    vtkRenderer* renderer, vtkPropCollection* pickfrom);
 
   /**
    * Perform pick operation with selection point provided. The
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) override;
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer* ren) override;
 
 protected:
   vtkPropPicker();
@@ -112,7 +111,8 @@ protected:
   vtkPropCollection* PickFromProps;
 
   // Used to get x-y-z pick position
-  vtkWorldPointPicker *WorldPointPicker;
+  vtkWorldPointPicker* WorldPointPicker;
+
 private:
   vtkPropPicker(const vtkPropPicker&) = delete;
   void operator=(const vtkPropPicker&) = delete;

@@ -27,13 +27,13 @@
  * an edge.  You may additionally specify whether to begin with a random
  * tree (which enforces graph connectivity).
  *
-*/
+ */
 
 #ifndef vtkRandomGraphSource_h
 #define vtkRandomGraphSource_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkGraph;
 class vtkPVXMLElement;
@@ -42,7 +42,7 @@ class VTKINFOVISCORE_EXPORT vtkRandomGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkRandomGraphSource* New();
-  vtkTypeMacro(vtkRandomGraphSource,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkRandomGraphSource, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -192,17 +192,13 @@ protected:
   char* VertexPedigreeIdArrayName;
   char* EdgePedigreeIdArrayName;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Creates directed or undirected output based on Directed flag.
    */
-  int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkRandomGraphSource(const vtkRandomGraphSource&) = delete;
@@ -210,4 +206,3 @@ private:
 };
 
 #endif
-

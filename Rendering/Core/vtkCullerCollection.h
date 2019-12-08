@@ -22,50 +22,44 @@
  *
  * @sa
  * vtkCuller vtkCollection
-*/
+ */
 
 #ifndef vtkCullerCollection_h
 #define vtkCullerCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkCuller.h" // for inline functions
+#include "vtkCuller.h"              // for inline functions
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 {
- public:
-  static vtkCullerCollection *New();
-  vtkTypeMacro(vtkCullerCollection,vtkCollection);
+public:
+  static vtkCullerCollection* New();
+  vtkTypeMacro(vtkCullerCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an Culler to the bottom of the list.
    */
-  void AddItem(vtkCuller *a)
-  {
-      this->vtkCollection::AddItem(a);
-  }
+  void AddItem(vtkCuller* a) { this->vtkCollection::AddItem(a); }
 
   /**
    * Get the next Culler in the list.
    */
-  vtkCuller *GetNextItem()
-  {
-      return static_cast<vtkCuller *>(this->GetNextItemAsObject());
-  }
+  vtkCuller* GetNextItem() { return static_cast<vtkCuller*>(this->GetNextItemAsObject()); }
 
   /**
    * Get the last Culler in the list.
    */
-  vtkCuller *GetLastItem();
+  vtkCuller* GetLastItem();
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie)
+  vtkCuller* GetNextCuller(vtkCollectionSimpleIterator& cookie)
   {
-      return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
+    return static_cast<vtkCuller*>(this->GetNextItemAsObject(cookie));
   }
 
 protected:
@@ -74,32 +68,23 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-  {
-      this->vtkCollection::AddItem(o);
-  }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkCullerCollection(const vtkCullerCollection&) = delete;
   void operator=(const vtkCullerCollection&) = delete;
 };
 
-
-inline vtkCuller *vtkCullerCollection::GetLastItem()
+inline vtkCuller* vtkCullerCollection::GetLastItem()
 {
-  if ( this->Bottom == nullptr )
+  if (this->Bottom == nullptr)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkCuller *>(this->Bottom->Item);
+    return static_cast<vtkCuller*>(this->Bottom->Item);
   }
 }
 
 #endif
-
-
-
-
-

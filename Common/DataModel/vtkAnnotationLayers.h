@@ -28,7 +28,7 @@
  * may contain any number of vtkAnnotation objects. The ordering of the
  * layers introduces a prioritization of annotations. Annotations in
  * higher layers may obscure annotations in lower layers.
-*/
+ */
 
 #ifndef vtkAnnotationLayers_h
 #define vtkAnnotationLayers_h
@@ -105,7 +105,7 @@ public:
    * Retrieve a vtkAnnotationLayers stored inside an information object.
    */
   static vtkAnnotationLayers* GetData(vtkInformation* info);
-  static vtkAnnotationLayers* GetData(vtkInformationVector* v, int i=0);
+  static vtkAnnotationLayers* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -124,7 +124,6 @@ protected:
 private:
   vtkAnnotationLayers(const vtkAnnotationLayers&) = delete;
   void operator=(const vtkAnnotationLayers&) = delete;
-
 };
 
 #endif

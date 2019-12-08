@@ -16,13 +16,13 @@
 #include "vtkChart.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
-#include "vtkTransform2D.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkTransform2D.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
-#include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
 
 //-----------------------------------------------------------------------------
 vtkChart::MouseActions::MouseActions()
@@ -73,9 +73,9 @@ vtkChart::vtkChart()
 //-----------------------------------------------------------------------------
 vtkChart::~vtkChart()
 {
-  for(int i=0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    if(this->GetAxis(i))
+    if (this->GetAxis(i))
     {
       this->GetAxis(i)->RemoveObservers(vtkChart::UpdateRange);
     }
@@ -88,7 +88,7 @@ vtkChart::~vtkChart()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot * vtkChart::AddPlot(int)
+vtkPlot* vtkChart::AddPlot(int)
 {
   return nullptr;
 }
@@ -123,9 +123,7 @@ bool vtkChart::RemovePlotInstance(vtkPlot* plot)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::ClearPlots()
-{
-}
+void vtkChart::ClearPlots() {}
 
 //-----------------------------------------------------------------------------
 vtkPlot* vtkChart::GetPlot(vtkIdType)
@@ -146,9 +144,7 @@ vtkAxis* vtkChart::GetAxis(int)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::SetAxis(int, vtkAxis*)
-{
-}
+void vtkChart::SetAxis(int, vtkAxis*) {}
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkChart::GetNumberOfAxes()
@@ -157,9 +153,7 @@ vtkIdType vtkChart::GetNumberOfAxes()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::RecalculateBounds()
-{
-}
+void vtkChart::RecalculateBounds() {}
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetSelectionMethod(int method)
@@ -194,13 +188,13 @@ bool vtkChart::GetShowLegend()
   return this->ShowLegend;
 }
 
-vtkChartLegend * vtkChart::GetLegend()
+vtkChartLegend* vtkChart::GetLegend()
 {
   return nullptr;
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::SetTitle(const vtkStdString &title)
+void vtkChart::SetTitle(const vtkStdString& title)
 {
   if (this->Title != title)
   {
@@ -216,8 +210,7 @@ vtkStdString vtkChart::GetTitle()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
-                                      vtkTransform2D *transform)
+bool vtkChart::CalculatePlotTransform(vtkAxis* x, vtkAxis* y, vtkTransform2D* transform)
 {
   if (!x || !y || !transform)
   {
@@ -226,8 +219,7 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   }
 
   vtkVector2d origin(x->GetMinimum(), y->GetMinimum());
-  vtkVector2d scale(x->GetMaximum() - x->GetMinimum(),
-                    y->GetMaximum() - y->GetMinimum());
+  vtkVector2d scale(x->GetMaximum() - x->GetMinimum(), y->GetMaximum() - y->GetMinimum());
   vtkVector2d shift(0.0, 0.0);
   vtkVector2d factor(1.0, 1.0);
 
@@ -274,8 +266,8 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   y->SetShift(shift[1]);
 
   // Get the scale for the plot area from the x and y axes
-  float *min = x->GetPoint1();
-  float *max = x->GetPoint2();
+  float* min = x->GetPoint1();
+  float* max = x->GetPoint2();
   if (fabs(max[0] - min[0]) == 0.0)
   {
     return false;
@@ -295,14 +287,13 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   transform->Translate(this->Point1[0], this->Point1[1]);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale);
-  transform->Translate(-(x->GetMinimum() + shift[0]) * factor[0],
-                       -(y->GetMinimum() + shift[1]) * factor[1]);
+  transform->Translate(
+    -(x->GetMinimum() + shift[0]) * factor[0], -(y->GetMinimum() + shift[1]) * factor[1]);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
-                                              vtkTransform2D *transform)
+bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis* x, vtkAxis* y, vtkTransform2D* transform)
 {
   if (!x || !y || !transform)
   {
@@ -310,12 +301,11 @@ bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
     return false;
   }
 
-  vtkVector2d scale(x->GetMaximum() - x->GetMinimum(),
-                    y->GetMaximum() - y->GetMinimum());
+  vtkVector2d scale(x->GetMaximum() - x->GetMinimum(), y->GetMaximum() - y->GetMinimum());
 
   // Get the scale for the plot area from the x and y axes
-  float *min = x->GetPoint1();
-  float *max = x->GetPoint2();
+  float* min = x->GetPoint1();
+  float* max = x->GetPoint2();
   if (fabs(max[0] - min[0]) == 0.0)
   {
     return false;
@@ -349,10 +339,8 @@ void vtkChart::SetBottomBorder(int border)
 //-----------------------------------------------------------------------------
 void vtkChart::SetTopBorder(int border)
 {
- this->Point2[1] = border >=0 ?
-                   this->Geometry[1] - border :
-                   this->Geometry[1];
- this->Point2[1] += static_cast<int>(this->Size.GetY());
+  this->Point2[1] = border >= 0 ? this->Geometry[1] - border : this->Geometry[1];
+  this->Point2[1] += static_cast<int>(this->Size.GetY());
 }
 
 //-----------------------------------------------------------------------------
@@ -365,9 +353,7 @@ void vtkChart::SetLeftBorder(int border)
 //-----------------------------------------------------------------------------
 void vtkChart::SetRightBorder(int border)
 {
-  this->Point2[0] = border >=0 ?
-                    this->Geometry[0] - border :
-                    this->Geometry[0];
+  this->Point2[0] = border >= 0 ? this->Geometry[0] - border : this->Geometry[0];
   this->Point2[0] += static_cast<int>(this->Size.GetX());
 }
 
@@ -380,7 +366,7 @@ void vtkChart::SetBorders(int left, int bottom, int right, int top)
   this->SetBottomBorder(bottom);
 }
 
-void vtkChart::SetSize(const vtkRectf &rect)
+void vtkChart::SetSize(const vtkRectf& rect)
 {
   this->Size = rect;
   this->Geometry[0] = static_cast<int>(rect.GetWidth());
@@ -396,7 +382,7 @@ void vtkChart::SetActionToButton(int action, int button)
 {
   if (action < -1 || action >= MouseActions::MaxAction)
   {
-    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    vtkErrorMacro("Error, invalid action value supplied: " << action);
     return;
   }
   this->Actions[action] = button;
@@ -418,7 +404,7 @@ void vtkChart::SetClickActionToButton(int action, int button)
 {
   if (action != vtkChart::SELECT && action != vtkChart::NOTIFY)
   {
-    vtkErrorMacro("Error, invalid click action value supplied: " << action)
+    vtkErrorMacro("Error, invalid click action value supplied: " << action);
     return;
   }
 
@@ -447,9 +433,9 @@ int vtkChart::GetClickActionToButton(int action)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::SetBackgroundBrush(vtkBrush *brush)
+void vtkChart::SetBackgroundBrush(vtkBrush* brush)
 {
-  if(brush == nullptr)
+  if (brush == nullptr)
   {
     // set to transparent white if brush is null
     this->BackgroundBrush->SetColorF(1, 1, 1, 0);
@@ -469,14 +455,12 @@ vtkBrush* vtkChart::GetBackgroundBrush()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::PrintSelf(ostream &os, vtkIndent indent)
+void vtkChart::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   // Print out the chart's geometry if it has been set
-  os << indent << "Point1: " << this->Point1[0] << "\t" << this->Point1[1]
-     << endl;
-  os << indent << "Point2: " << this->Point2[0] << "\t" << this->Point2[1]
-     << endl;
+  os << indent << "Point1: " << this->Point1[0] << "\t" << this->Point1[1] << endl;
+  os << indent << "Point2: " << this->Point2[0] << "\t" << this->Point2[1] << endl;
   os << indent << "Width: " << this->Geometry[0] << endl
      << indent << "Height: " << this->Geometry[1] << endl;
   os << indent << "SelectionMode: " << this->SelectionMode << endl;
@@ -491,9 +475,9 @@ void vtkChart::AttachAxisRangeListener(vtkAxis* axis)
 void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
 {
   double fullAxisRange[8];
-  for(int i=0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    this->GetAxis(i)->GetRange(&fullAxisRange[i*2]);
+    this->GetAxis(i)->GetRange(&fullAxisRange[i * 2]);
   }
   this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
 }
@@ -501,8 +485,7 @@ void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
 //-----------------------------------------------------------------------------
 void vtkChart::SetSelectionMode(int selMode)
 {
-  if (this->SelectionMode == selMode ||
-    selMode < vtkContextScene::SELECTION_NONE ||
+  if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_NONE ||
     selMode > vtkContextScene::SELECTION_TOGGLE)
   {
     return;

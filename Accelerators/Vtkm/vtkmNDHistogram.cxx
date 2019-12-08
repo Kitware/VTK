@@ -20,43 +20,46 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkmFilterPolicy.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
+#include "vtkmFilterPolicy.h"
 
-#include "vtkmlib/Storage.h"
-#include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ArrayConverters.h"
+#include "vtkmlib/DataSetConverters.h"
 
 #include <vtkm/filter/NDHistogram.h>
 
-vtkStandardNewMacro(vtkmNDHistogram)
+vtkStandardNewMacro(vtkmNDHistogram);
 
 //------------------------------------------------------------------------------
 void vtkmNDHistogram::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FieldNames: " << "\n";
+  os << indent << "FieldNames: "
+     << "\n";
   for (const auto& fieldName : FieldNames)
   {
     os << indent << fieldName << " ";
   }
   os << indent << "\n";
-  os << indent << "NumberOfBins: " << "\n";
+  os << indent << "NumberOfBins: "
+     << "\n";
   for (const auto& nob : NumberOfBins)
   {
     os << indent << nob << " ";
   }
   os << indent << "\n";
-  os << indent << "BinDeltas: " << "\n";
+  os << indent << "BinDeltas: "
+     << "\n";
   for (const auto& bd : BinDeltas)
   {
     os << indent << bd << " ";
   }
   os << indent << "\n";
-  os << indent << "DataRanges: " << "\n";
+  os << indent << "DataRanges: "
+     << "\n";
   for (const auto& dr : DataRanges)
   {
     os << indent << dr.first << " " << dr.second << " ";
@@ -65,14 +68,10 @@ void vtkmNDHistogram::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkmNDHistogram::vtkmNDHistogram()
-{
-}
+vtkmNDHistogram::vtkmNDHistogram() {}
 
 //------------------------------------------------------------------------------
-vtkmNDHistogram::~vtkmNDHistogram()
-{
-}
+vtkmNDHistogram::~vtkmNDHistogram() {}
 
 //------------------------------------------------------------------------------
 void vtkmNDHistogram::AddFieldAndBin(const std::string& fieldName, const vtkIdType& numberOfBins)
@@ -80,7 +79,7 @@ void vtkmNDHistogram::AddFieldAndBin(const std::string& fieldName, const vtkIdTy
   this->FieldNames.push_back(fieldName);
   this->NumberOfBins.push_back(numberOfBins);
   this->SetInputArrayToProcess(static_cast<int>(this->FieldNames.size()), 0, 0,
-                            vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName.c_str());
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -107,20 +106,17 @@ int vtkmNDHistogram::FillInputPortInformation(int port, vtkInformation* info)
 //------------------------------------------------------------------------------
 int vtkmNDHistogram::GetFieldIndexFromFieldName(const std::string& fieldName)
 {
-  auto iter =
-      std::find(this->FieldNames.begin(), this->FieldNames.end(), fieldName);
-  return (iter == std::end(this->FieldNames)) ? -1 :
-                                     static_cast<int>(iter - this->FieldNames.begin());
+  auto iter = std::find(this->FieldNames.begin(), this->FieldNames.end(), fieldName);
+  return (iter == std::end(this->FieldNames)) ? -1
+                                              : static_cast<int>(iter - this->FieldNames.begin());
 }
 
 //------------------------------------------------------------------------------
 int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkArrayData* output = vtkArrayData::GetData(outputVector, 0);
   output->ClearArrays();
@@ -146,44 +142,42 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     // Fetch the field array out of the vtkm filter result
     size_t index = 0;
     std::vector<vtkDataArray*> fArrays;
-    for (auto& fn: this->FieldNames)
+    for (auto& fn : this->FieldNames)
     {
-      vtkDataArray* fnArray = fromvtkm::Convert(out.GetField(
-                                                         fn));
+      vtkDataArray* fnArray = fromvtkm::Convert(out.GetField(fn));
       fnArray->SetName(fn.c_str());
       fArrays.push_back(fnArray);
       this->BinDeltas.push_back(filter.GetBinDelta(index));
-      this->DataRanges.push_back(std::make_pair(filter.GetDataRange(index).Min,
-                                                filter.GetDataRange(index).Max));
+      this->DataRanges.push_back(
+        std::make_pair(filter.GetDataRange(index).Min, filter.GetDataRange(index).Max));
       index++;
     }
     vtkDataArray* frequencyArray = fromvtkm::Convert(out.GetField("Frequency"));
     frequencyArray->SetName("Frequency");
 
     // Create the sparse array
-    vtkSparseArray<double>* sparseArray =
-        vtkSparseArray<double>::New();
-    vtkArrayExtents sae; //sparse array extent
+    vtkSparseArray<double>* sparseArray = vtkSparseArray<double>::New();
+    vtkArrayExtents sae; // sparse array extent
     size_t ndims(fArrays.size());
     sae.SetDimensions(static_cast<vtkArrayExtents::DimensionT>(ndims));
-    for (size_t i=0; i < ndims; i++)
+    for (size_t i = 0; i < ndims; i++)
     {
-      sae[static_cast<vtkArrayExtents::DimensionT>(i)] = vtkArrayRange(0, fArrays[i]->GetNumberOfValues());
+      sae[static_cast<vtkArrayExtents::DimensionT>(i)] =
+        vtkArrayRange(0, fArrays[i]->GetNumberOfValues());
     }
     sparseArray->Resize(sae);
 
     // Set the dimension label
-    for (size_t i=0; i < ndims; i++)
+    for (size_t i = 0; i < ndims; i++)
     {
-      sparseArray->SetDimensionLabel(static_cast<vtkIdType>(i),
-                                     fArrays[i]->GetName());
+      sparseArray->SetDimensionLabel(static_cast<vtkIdType>(i), fArrays[i]->GetName());
     }
     // Fill in the sparse array
-    for (vtkIdType i=0; i < frequencyArray->GetNumberOfValues(); i++)
+    for (vtkIdType i = 0; i < frequencyArray->GetNumberOfValues(); i++)
     {
       vtkArrayCoordinates coords;
       coords.SetDimensions(static_cast<vtkArrayCoordinates::DimensionT>(ndims));
-      for (size_t j=0; j < ndims; j++)
+      for (size_t j = 0; j < ndims; j++)
       {
         coords[static_cast<vtkArrayCoordinates::DimensionT>(j)] = fArrays[j]->GetComponent(i, 0);
       }
@@ -199,9 +193,9 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     frequencyArray->FastDelete();
     sparseArray->FastDelete();
   }
-  catch(const vtkm::cont::Error& e)
+  catch (const vtkm::cont::Error& e)
   {
-    vtkErrorMacro(<<"VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
     return 0;
   }
   return 1;

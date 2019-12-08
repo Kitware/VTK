@@ -24,21 +24,21 @@
  * This implementation is based on vtkFFMPEGWriter and uses some code derived
  * from the encoder example distributed with libtheora.
  *
-*/
+ */
 
 #ifndef vtkOggTheoraWriter_h
 #define vtkOggTheoraWriter_h
 
-#include "vtkIOOggTheoraModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOOggTheoraModule.h" // For export macro
 
 class vtkOggTheoraWriterInternal;
 
 class VTKIOOGGTHEORA_EXPORT vtkOggTheoraWriter : public vtkGenericMovieWriter
 {
 public:
-  static vtkOggTheoraWriter *New();
-  vtkTypeMacro(vtkOggTheoraWriter,vtkGenericMovieWriter);
+  static vtkOggTheoraWriter* New();
+  vtkTypeMacro(vtkOggTheoraWriter, vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -65,7 +65,7 @@ public:
   /**
    * Set/Get the frame rate, in frame/s.
    */
-  vtkSetClampMacro(Rate, int , 1, 5000);
+  vtkSetClampMacro(Rate, int, 1, 5000);
   vtkGetMacro(Rate, int);
   //@}
 
@@ -82,7 +82,7 @@ protected:
   vtkOggTheoraWriter();
   ~vtkOggTheoraWriter() override;
 
-  vtkOggTheoraWriterInternal *Internals;
+  vtkOggTheoraWriterInternal* Internals;
 
   int Initialized;
   int Quality;

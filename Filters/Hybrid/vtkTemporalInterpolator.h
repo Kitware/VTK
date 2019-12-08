@@ -50,7 +50,7 @@
  * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
  * "Time Dependent Processing in a Parallel Pipeline Architecture",
  * IEEE Visualization 2007.
-*/
+ */
 
 #ifndef vtkTemporalInterpolator_h
 #define vtkTemporalInterpolator_h
@@ -62,7 +62,7 @@ class vtkDataSet;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepAlgorithm
 {
 public:
-  static vtkTemporalInterpolator *New();
+  static vtkTemporalInterpolator* New();
   vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -107,59 +107,43 @@ protected:
   vtkTemporalInterpolator();
   ~vtkTemporalInterpolator() override;
 
-
   double DiscreteTimeStepInterval;
-  int    ResampleFactor;
+  int ResampleFactor;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestDataObject(vtkInformation *,
-                                vtkInformationVector **,
-                                vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *) override;
-
-  int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * General interpolation routine for any type on input data. This is
    * called recursively when hierarchical/multiblock data is encountered
    */
-  vtkDataObject *InterpolateDataObject(vtkDataObject *in1,
-                                       vtkDataObject *in2,
-                                       double ratio);
+  vtkDataObject* InterpolateDataObject(vtkDataObject* in1, vtkDataObject* in2, double ratio);
 
   /**
    * Root level interpolation for a concrete dataset object.
    * Point/Cell data and points are interpolated.
    * Needs improving if connectivity is to be handled
    */
-  virtual vtkDataSet *InterpolateDataSet(vtkDataSet *in1,
-                                         vtkDataSet *in2,
-                                         double ratio);
+  virtual vtkDataSet* InterpolateDataSet(vtkDataSet* in1, vtkDataSet* in2, double ratio);
 
   /**
    * Interpolate a single vtkDataArray. Called from the Interpolation routine
    * on the points and pointdata/celldata
    */
-  virtual vtkDataArray *InterpolateDataArray(double ratio,
-                                             vtkDataArray **arrays,
-                                             vtkIdType N);
+  virtual vtkDataArray* InterpolateDataArray(double ratio, vtkDataArray** arrays, vtkIdType N);
 
   /**
    * Called just before interpolation of each dataset to ensure
    * each data array has the same number of tuples/components etc
    */
-  virtual bool VerifyArrays(vtkDataArray **arrays, int N);
+  virtual bool VerifyArrays(vtkDataArray** arrays, int N);
 
   // internally used : Ratio is {0,1} between two time steps
   // DeltaT is time between current 2 steps.
@@ -174,9 +158,4 @@ private:
   void operator=(const vtkTemporalInterpolator&) = delete;
 };
 
-
-
 #endif
-
-
-

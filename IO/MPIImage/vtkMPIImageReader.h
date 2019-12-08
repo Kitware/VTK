@@ -43,7 +43,7 @@
  * @sa
  * vtkMultiProcessController, vtkImageReader, vtkImageReader2
  *
-*/
+ */
 
 #ifndef vtkMPIImageReader_h
 #define vtkMPIImageReader_h
@@ -58,8 +58,8 @@ class VTKIOMPIIMAGE_EXPORT vtkMPIImageReader : public vtkImageReader
 {
 public:
   vtkTypeMacro(vtkMPIImageReader, vtkImageReader);
-  static vtkMPIImageReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkMPIImageReader* New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,14 +67,14 @@ public:
    * default, set to the global controller.
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  virtual void SetController(vtkMultiProcessController *);
+  virtual void SetController(vtkMultiProcessController*);
   //@}
 
 protected:
   vtkMPIImageReader();
   ~vtkMPIImageReader();
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
   /**
    * Returns the size, in bytes of the scalar data type (GetDataScalarType).
@@ -92,7 +92,7 @@ protected:
    * Get the header size of the given open file.  This should be used in liu of
    * the GetHeaderSize methods of the superclass.
    */
-  virtual unsigned long GetHeaderSize(vtkMPIOpaqueFileHandle &file);
+  virtual unsigned long GetHeaderSize(vtkMPIOpaqueFileHandle& file);
 
   /**
    * Set up a "view" on the open file that will allow you to read the 2D or 3D
@@ -100,7 +100,7 @@ protected:
    * will look as if it contains only the data the local process needs to read
    * in.
    */
-  virtual void SetupFileView(vtkMPIOpaqueFileHandle &file, const int extent[6]);
+  virtual void SetupFileView(vtkMPIOpaqueFileHandle& file, const int extent[6]);
 
   /**
    * Given a slice of the data, open the appropriate file, read the data into
@@ -108,29 +108,28 @@ protected:
    * use "slice" 0.  Make sure the GroupedController is properly created before
    * calling this using the PartitionController method.
    */
-  virtual void ReadSlice(int slice, const int extent[6], void *buffer);
+  virtual void ReadSlice(int slice, const int extent[6], void* buffer);
 
   /**
    * Transform the data from the order read from a file to the order to place
    * in the output data (as defined by the transform).
    */
-  virtual void TransformData(vtkImageData *data);
+  virtual void TransformData(vtkImageData* data);
 
   //@{
   /**
    * A group of processes that are reading the same file (as determined by
    * PartitionController.
    */
-  void SetGroupedController(vtkMultiProcessController *);
-  vtkMultiProcessController *GroupedController;
+  void SetGroupedController(vtkMultiProcessController*);
+  vtkMultiProcessController* GroupedController;
   //@}
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *data,
-                                          vtkInformation *outInfo) override;
+  virtual void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
 
 private:
-  vtkMPIImageReader(const vtkMPIImageReader &) = delete;
-  void operator=(const vtkMPIImageReader &) = delete;
+  vtkMPIImageReader(const vtkMPIImageReader&) = delete;
+  void operator=(const vtkMPIImageReader&) = delete;
 };
 
-#endif //vtkMPIImageReader_h
+#endif // vtkMPIImageReader_h

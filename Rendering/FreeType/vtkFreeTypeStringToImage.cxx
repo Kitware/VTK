@@ -15,11 +15,11 @@
 
 #include "vtkFreeTypeStringToImage.h"
 
-#include "vtkStdString.h"
-#include "vtkUnicodeString.h"
-#include "vtkTextProperty.h"
-#include "vtkVector.h"
 #include "vtkImageData.h"
+#include "vtkStdString.h"
+#include "vtkTextProperty.h"
+#include "vtkUnicodeString.h"
+#include "vtkVector.h"
 
 #include "vtkFreeTypeTools.h"
 
@@ -28,11 +28,8 @@
 class vtkFreeTypeStringToImage::Internals
 {
 public:
-  Internals()
-  {
-    this->FreeType = vtkFreeTypeTools::GetInstance();
-  }
-  vtkFreeTypeTools *FreeType;
+  Internals() { this->FreeType = vtkFreeTypeTools::GetInstance(); }
+  vtkFreeTypeTools* FreeType;
 };
 
 //-----------------------------------------------------------------------------
@@ -51,9 +48,8 @@ vtkFreeTypeStringToImage::~vtkFreeTypeStringToImage()
 }
 
 //-----------------------------------------------------------------------------
-vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
-                                                const vtkUnicodeString& string,
-                                                int dpi)
+vtkVector2i vtkFreeTypeStringToImage::GetBounds(
+  vtkTextProperty* property, const vtkUnicodeString& string, int dpi)
 {
   int tmp[4] = { 0, 0, 0, 0 };
   vtkVector2i recti(tmp);
@@ -64,16 +60,14 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
 
   this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 
-  recti.Set(tmp[1] - tmp[0],
-            tmp[3] - tmp[2]);
+  recti.Set(tmp[1] - tmp[0], tmp[3] - tmp[2]);
 
   return recti;
 }
 
 //-----------------------------------------------------------------------------
-vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
-                                                const vtkStdString& string,
-                                                int dpi)
+vtkVector2i vtkFreeTypeStringToImage::GetBounds(
+  vtkTextProperty* property, const vtkStdString& string, int dpi)
 {
   vtkVector2i recti(0, 0);
   int tmp[4];
@@ -84,30 +78,23 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
 
   this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 
-  recti.Set(tmp[1] - tmp[0],
-            tmp[3] - tmp[2]);
+  recti.Set(tmp[1] - tmp[0], tmp[3] - tmp[2]);
 
   return recti;
 }
 
 //-----------------------------------------------------------------------------
-int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
-                                           const vtkUnicodeString& string,
-                                           int dpi, vtkImageData *data,
-                                           int textDims[2])
+int vtkFreeTypeStringToImage::RenderString(vtkTextProperty* property,
+  const vtkUnicodeString& string, int dpi, vtkImageData* data, int textDims[2])
 {
-  return this->Implementation->FreeType->RenderString(property,
-                                                      string, dpi,
-                                                      data, textDims);
+  return this->Implementation->FreeType->RenderString(property, string, dpi, data, textDims);
 }
 
 //-----------------------------------------------------------------------------
-int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
-                                           const vtkStdString& string, int dpi,
-                                           vtkImageData *data, int textDims[2])
+int vtkFreeTypeStringToImage::RenderString(vtkTextProperty* property, const vtkStdString& string,
+  int dpi, vtkImageData* data, int textDims[2])
 {
-  return this->Implementation->FreeType->RenderString(property, string, dpi,
-                                                      data, textDims);
+  return this->Implementation->FreeType->RenderString(property, string, dpi, data, textDims);
 }
 
 //-----------------------------------------------------------------------------
@@ -118,12 +105,10 @@ void vtkFreeTypeStringToImage::SetScaleToPowerOfTwo(bool scale)
 }
 
 //-----------------------------------------------------------------------------
-void vtkFreeTypeStringToImage::DeepCopy(vtkFreeTypeStringToImage *)
-{
-}
+void vtkFreeTypeStringToImage::DeepCopy(vtkFreeTypeStringToImage*) {}
 
 //-----------------------------------------------------------------------------
-void vtkFreeTypeStringToImage::PrintSelf(ostream &os, vtkIndent indent)
+void vtkFreeTypeStringToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

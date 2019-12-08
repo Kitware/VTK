@@ -33,13 +33,13 @@
  *
  * @sa
  * vtkBorderWidget vtkTextWidget
-*/
+ */
 
 #ifndef vtkCaptionWidget_h
 #define vtkCaptionWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkCaptionRepresentation;
 class vtkCaptionActor2D;
@@ -47,20 +47,19 @@ class vtkHandleWidget;
 class vtkPointHandleRepresentation3D;
 class vtkCaptionAnchorCallback;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionWidget : public vtkBorderWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkCaptionWidget *New();
+  static vtkCaptionWidget* New();
 
   //@{
   /**
    * Standard VTK class methods.
    */
-  vtkTypeMacro(vtkCaptionWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkCaptionWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -75,8 +74,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkCaptionRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkCaptionRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   //@{
   /**
@@ -84,8 +85,8 @@ public:
    * method to SetRepresentation(). It internally create a vtkCaptionRepresentation
    * and then invokes vtkCaptionRepresentation::SetCaptionActor2D().
    */
-  void SetCaptionActor2D(vtkCaptionActor2D *capActor);
-  vtkCaptionActor2D *GetCaptionActor2D();
+  void SetCaptionActor2D(vtkCaptionActor2D* capActor);
+  vtkCaptionActor2D* GetCaptionActor2D();
   //@}
 
   /**
@@ -98,10 +99,10 @@ protected:
   ~vtkCaptionWidget() override;
 
   // Handles callbacks from the anchor point
-  vtkCaptionAnchorCallback *AnchorCallback;
+  vtkCaptionAnchorCallback* AnchorCallback;
 
   // Widget for the anchor point
-  vtkHandleWidget *HandleWidget;
+  vtkHandleWidget* HandleWidget;
 
   // Special callbacks for the anchor interaction
   void StartAnchorInteraction();

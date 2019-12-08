@@ -43,33 +43,33 @@
  *
  * @sa
  * vtkVectorNorm
-*/
+ */
 
 #ifndef vtkCellDerivatives_h
 #define vtkCellDerivatives_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
-#define VTK_VECTOR_MODE_PASS_VECTORS      0
-#define VTK_VECTOR_MODE_COMPUTE_GRADIENT  1
+#define VTK_VECTOR_MODE_PASS_VECTORS 0
+#define VTK_VECTOR_MODE_COMPUTE_GRADIENT 1
 #define VTK_VECTOR_MODE_COMPUTE_VORTICITY 2
 
-#define VTK_TENSOR_MODE_PASS_TENSORS                  0
-#define VTK_TENSOR_MODE_COMPUTE_GRADIENT              1
-#define VTK_TENSOR_MODE_COMPUTE_STRAIN                2
+#define VTK_TENSOR_MODE_PASS_TENSORS 0
+#define VTK_TENSOR_MODE_COMPUTE_GRADIENT 1
+#define VTK_TENSOR_MODE_COMPUTE_STRAIN 2
 #define VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN 3
 
 class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCellDerivatives,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkCellDerivatives, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct to compute the gradient of the scalars and vectors.
    */
-  static vtkCellDerivatives *New();
+  static vtkCellDerivatives* New();
 
   //@{
   /**
@@ -79,15 +79,12 @@ public:
    * vector gradient tensor. By default (VectorModeToComputeGradient),
    * the filter will take the gradient of the input scalar data.
    */
-  vtkSetMacro(VectorMode,int);
-  vtkGetMacro(VectorMode,int);
-  void SetVectorModeToPassVectors()
-    {this->SetVectorMode(VTK_VECTOR_MODE_PASS_VECTORS);};
-  void SetVectorModeToComputeGradient()
-    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT);};
-  void SetVectorModeToComputeVorticity()
-    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY);};
-  const char *GetVectorModeAsString();
+  vtkSetMacro(VectorMode, int);
+  vtkGetMacro(VectorMode, int);
+  void SetVectorModeToPassVectors() { this->SetVectorMode(VTK_VECTOR_MODE_PASS_VECTORS); }
+  void SetVectorModeToComputeGradient() { this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT); }
+  void SetVectorModeToComputeVorticity() { this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY); }
+  const char* GetVectorModeAsString();
   //@}
 
   //@{
@@ -99,26 +96,26 @@ public:
    * (TensorModeToComputeGradient), the filter will take the gradient
    * of the vector data to construct a tensor.
    */
-  vtkSetMacro(TensorMode,int);
-  vtkGetMacro(TensorMode,int);
-  void SetTensorModeToPassTensors()
-    {this->SetTensorMode(VTK_TENSOR_MODE_PASS_TENSORS);};
-  void SetTensorModeToComputeGradient()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT);};
-  void SetTensorModeToComputeStrain()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN);};
+  vtkSetMacro(TensorMode, int);
+  vtkGetMacro(TensorMode, int);
+  void SetTensorModeToPassTensors() { this->SetTensorMode(VTK_TENSOR_MODE_PASS_TENSORS); }
+  void SetTensorModeToComputeGradient() { this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT); }
+  void SetTensorModeToComputeStrain() { this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN); }
   void SetTensorModeToComputeGreenLagrangeStrain()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);};
-  const char *GetTensorModeAsString();
+  {
+    this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);
+  }
+  const char* GetTensorModeAsString();
   //@}
 
 protected:
   vtkCellDerivatives();
   ~vtkCellDerivatives() override {}
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int VectorMode;
   int TensorMode;
+
 private:
   vtkCellDerivatives(const vtkCellDerivatives&) = delete;
   void operator=(const vtkCellDerivatives&) = delete;

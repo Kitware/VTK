@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtk_glew.h"
 #include "vtkOpenGLRenderUtilities.h"
+#include "vtk_glew.h"
 
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
@@ -31,32 +31,25 @@ vtkOpenGLRenderUtilities::~vtkOpenGLRenderUtilities() = default;
 
 void vtkOpenGLRenderUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // ---------------------------------------------------------------------------
 // a program must be bound
 // a VAO must be bound
 void vtkOpenGLRenderUtilities::RenderQuad(
-  float *verts,
-  float *tcoords,
-  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
+  float* verts, float* tcoords, vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao)
 {
-  GLuint iboData[] = {0, 1, 2, 0, 2, 3};
-  vtkOpenGLRenderUtilities::RenderTriangles(verts, 4,
-    iboData, 6,
-    tcoords,
-    program, vao);
+  GLuint iboData[] = { 0, 1, 2, 0, 2, 3 };
+  vtkOpenGLRenderUtilities::RenderTriangles(verts, 4, iboData, 6, tcoords, program, vao);
 }
 
 // ---------------------------------------------------------------------------
 // a program must be bound
 // a VAO must be bound
-void vtkOpenGLRenderUtilities::RenderTriangles(
-  float *verts, unsigned int numVerts,
-  GLuint *iboData, unsigned int numIndices,
-  float *tcoords,
-  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
+void vtkOpenGLRenderUtilities::RenderTriangles(float* verts, unsigned int numVerts, GLuint* iboData,
+  unsigned int numIndices, float* tcoords, vtkShaderProgram* program,
+  vtkOpenGLVertexArrayObject* vao)
 {
   if (!program || !vao || !verts)
   {
@@ -70,10 +63,9 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   }
 
   vtkNew<vtkOpenGLBufferObject> vbo;
-  vbo->Upload(verts, numVerts*3, vtkOpenGLBufferObject::ArrayBuffer);
+  vbo->Upload(verts, numVerts * 3, vtkOpenGLBufferObject::ArrayBuffer);
   vao->Bind();
-  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0,
-      sizeof(float)*3, VTK_FLOAT, 3, false))
+  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0, sizeof(float) * 3, VTK_FLOAT, 3, false))
   {
     vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
   }
@@ -81,9 +73,9 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   vtkNew<vtkOpenGLBufferObject> tvbo;
   if (tcoords)
   {
-    tvbo->Upload(tcoords, numVerts*2, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0,
-        sizeof(float)*2, VTK_FLOAT, 2, false))
+    tvbo->Upload(tcoords, numVerts * 2, vtkOpenGLBufferObject::ArrayBuffer);
+    if (!vao->AddAttributeArray(
+          program, tvbo, "tcoordMC", 0, sizeof(float) * 2, VTK_FLOAT, 2, false))
     {
       vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
     }
@@ -142,17 +134,14 @@ std::string vtkOpenGLRenderUtilities::GetFullScreenQuadGeometryShader()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
-                                                 vtkOpenGLVertexArrayObject *vao,
-                                                 vtkShaderProgram *prog)
+bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(
+  vtkOpenGLBufferObject* vertBuf, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog)
 {
   bool res;
 
   // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
-  float verts[16] = {  1.f, 1.f, 1.f, 1.f,
-                      -1.f, 1.f, 0.f, 1.f,
-                       1.f,-1.f, 1.f, 0.f,
-                      -1.f,-1.f, 0.f, 0.f };
+  float verts[16] = { 1.f, 1.f, 1.f, 1.f, -1.f, 1.f, 0.f, 1.f, 1.f, -1.f, 1.f, 0.f, -1.f, -1.f, 0.f,
+    0.f };
 
   vertBuf->SetType(vtkOpenGLBufferObject::ArrayBuffer);
   res = vertBuf->Upload(verts, 16, vtkOpenGLBufferObject::ArrayBuffer);
@@ -164,8 +153,8 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
 
   vao->Bind();
 
-  res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
-                               VTK_FLOAT, 2, false);
+  res =
+    vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float), VTK_FLOAT, 2, false);
   if (!res)
   {
     vao->Release();
@@ -173,8 +162,8 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
     return false;
   }
 
-  res = vao->AddAttributeArray(prog, vertBuf, "texCoordIn", 2 * sizeof(float),
-                               4 * sizeof(float), VTK_FLOAT, 2, false);
+  res = vao->AddAttributeArray(
+    prog, vertBuf, "texCoordIn", 2 * sizeof(float), 4 * sizeof(float), VTK_FLOAT, 2, false);
   if (!res)
   {
     vao->Release();
@@ -187,17 +176,15 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
 }
 
 bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(
-  vtkOpenGLRenderWindow *renWin,
-  vtkOpenGLVertexArrayObject *vao,
-  vtkShaderProgram *prog)
+  vtkOpenGLRenderWindow* renWin, vtkOpenGLVertexArrayObject* vao, vtkShaderProgram* prog)
 {
   bool res;
 
   vao->Bind();
 
-  vtkOpenGLBufferObject *vertBuf = renWin->GetTQuad2DVBO();
-  res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
-                               VTK_FLOAT, 2, false);
+  vtkOpenGLBufferObject* vertBuf = renWin->GetTQuad2DVBO();
+  res =
+    vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float), VTK_FLOAT, 2, false);
   if (!res)
   {
     vao->Release();
@@ -205,8 +192,8 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(
     return false;
   }
 
-  res = vao->AddAttributeArray(prog, vertBuf, "texCoordIn", 2 * sizeof(float),
-                               4 * sizeof(float), VTK_FLOAT, 2, false);
+  res = vao->AddAttributeArray(
+    prog, vertBuf, "texCoordIn", 2 * sizeof(float), 4 * sizeof(float), VTK_FLOAT, 2, false);
   if (!res)
   {
     vao->Release();
@@ -225,15 +212,14 @@ void vtkOpenGLRenderUtilities::DrawFullScreenQuad()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLRenderUtilities::MarkDebugEvent(const std::string &event)
+void vtkOpenGLRenderUtilities::MarkDebugEvent(const std::string& event)
 {
 #ifndef VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
   (void)event;
-#else // VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
-  vtkOpenGLStaticCheckErrorMacro("Error before glDebugMessageInsert.")
-  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
-                       0, GL_DEBUG_SEVERITY_NOTIFICATION,
-                       static_cast<GLsizei>(event.size()), event.c_str());
+#else  // VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
+  vtkOpenGLStaticCheckErrorMacro("Error before glDebugMessageInsert.");
+  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER, 0,
+    GL_DEBUG_SEVERITY_NOTIFICATION, static_cast<GLsizei>(event.size()), event.c_str());
   vtkOpenGLClearErrorMacro();
 #endif // VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
 }

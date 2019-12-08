@@ -18,13 +18,13 @@
  *
  *  A concrete instance of vtkAMRBaseParticlesReader that implements
  *  functionality for reading flash particle datasets.
-*/
+ */
 
 #ifndef vtkAMRFlashParticlesReader_h
 #define vtkAMRFlashParticlesReader_h
 
-#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
+#include "vtkIOAMRModule.h" // For export macro
 
 class vtkIndent;
 class vtkPolyData;
@@ -32,13 +32,12 @@ class vtkPointData;
 class vtkIdList;
 class vtkFlashReaderInternal;
 
-class VTKIOAMR_EXPORT vtkAMRFlashParticlesReader :
-  public vtkAMRBaseParticlesReader
+class VTKIOAMR_EXPORT vtkAMRFlashParticlesReader : public vtkAMRBaseParticlesReader
 {
 public:
   static vtkAMRFlashParticlesReader* New();
-  vtkTypeMacro( vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
@@ -62,18 +61,18 @@ protected:
   /**
    * See vtkAMRBaseParticlesReader::ReadParticles
    */
-  vtkPolyData* ReadParticles( const int blkidx ) override;
+  vtkPolyData* ReadParticles(const int blkidx) override;
 
   /**
    * Reads the particlles of the given block from the given file.
    */
-  vtkPolyData* GetParticles( const char* file, const int blkidx );
+  vtkPolyData* GetParticles(const char* file, const int blkidx);
 
-  vtkFlashReaderInternal *Internal;
+  vtkFlashReaderInternal* Internal;
 
 private:
-  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ) = delete;
-  void operator=(const vtkAMRFlashParticlesReader& ) = delete;
+  vtkAMRFlashParticlesReader(const vtkAMRFlashParticlesReader&) = delete;
+  void operator=(const vtkAMRFlashParticlesReader&) = delete;
 };
 
 #endif /* vtkAMRFlashParticlesReader_h */

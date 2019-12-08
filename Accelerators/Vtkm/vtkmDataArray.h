@@ -24,14 +24,14 @@
 #define vtkmDataArray_h
 
 #include "vtkAcceleratorsVTKmModule.h" // For export macro
-#include "vtkmConfig.h" // For template export
 #include "vtkGenericDataArray.h"
+#include "vtkmConfig.h" // For template export
 
-#include <vtkm/BaseComponent.h> // For vtkm::BaseComponent
-#include <vtkm/cont/ArrayHandle.h> // For vtkm::cont::ArrayHandle
+#include <vtkm/ListTag.h>                 // For vtkm::ListTagBase
+#include <vtkm/VecFromPortal.h>           // For vtkm::VecFromPortal
+#include <vtkm/VecTraits.h>               // For vtkm::VecTraits
+#include <vtkm/cont/ArrayHandle.h>        // For vtkm::cont::ArrayHandle
 #include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
-#include <vtkm/ListTag.h> // For vtkm::ListTagBase
-#include <vtkm/VecFromPortal.h> // For vtkm::VecFromPortal
 
 #include <memory> // For unique_ptr
 
@@ -56,12 +56,8 @@ public:
 
   using typename Superclass::ValueType;
 
-  using VtkmTypesList =
-    vtkm::ListTagBase<T,
-                      vtkm::Vec<T, 2>,
-                      vtkm::Vec<T, 3>,
-                      vtkm::Vec<T, 4>,
-                      vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::PortalControl>>;
+  using VtkmTypesList = vtkm::ListTagBase<T, vtkm::Vec<T, 2>, vtkm::Vec<T, 3>, vtkm::Vec<T, 4>,
+    vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::PortalControl> >;
 
   static vtkmDataArray* New();
 
@@ -93,15 +89,15 @@ private:
   // To access AllocateTuples and ReallocateTuples
   friend Superclass;
 
-  std::unique_ptr<internal::ArrayHandleWrapperBase<T>> VtkmArray;
+  std::unique_ptr<internal::ArrayHandleWrapperBase<T> > VtkmArray;
 };
 
 //=============================================================================
 template <typename T, typename S>
-inline vtkmDataArray<typename vtkm::BaseComponent<T>::Type>*
-make_vtkmDataArray(const vtkm::cont::ArrayHandle<T, S>& ah)
+inline vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>* make_vtkmDataArray(
+  const vtkm::cont::ArrayHandle<T, S>& ah)
 {
-  auto ret = vtkmDataArray<typename vtkm::BaseComponent<T>::Type>::New();
+  auto ret = vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>::New();
   ret->SetVtkmArrayHandle(ah);
   return ret;
 }

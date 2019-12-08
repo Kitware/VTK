@@ -17,15 +17,15 @@
  * @brief   links vtkActor and vtkMapper to OSPRay
  *
  * Translates vtkActor/Mapper state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayActorNode_h
 #define vtkOSPRayActorNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkActorNode.h"
-#include "vtkTimeStamp.h" //for mapper changed time
-#include "vtkWeakPointer.h" //also for mapper changed time
+#include "vtkRenderingRayTracingModule.h" // For export macro
+#include "vtkTimeStamp.h"                 //for mapper changed time
+#include "vtkWeakPointer.h"               //also for mapper changed time
 
 class vtkActor;
 class vtkCompositeDataDisplayAttributes;
@@ -40,9 +40,7 @@ class vtkPolyData;
 class vtkProperty;
 class vtkTimeStamp;
 
-
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayActorNode :
-  public vtkActorNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayActorNode : public vtkActorNode
 {
 public:
   static vtkOSPRayActorNode* New();
@@ -64,8 +62,8 @@ public:
   /**
    * Convenience method to set enabled scaling on my renderable.
    */
-  static void SetEnableScaling(int value, vtkActor *);
-  static int GetEnableScaling(vtkActor *);
+  static void SetEnableScaling(int value, vtkActor*);
+  static int GetEnableScaling(vtkActor*);
   //@}
 
   /**
@@ -80,7 +78,7 @@ public:
   /**
    * Convenience method to set a scale array on my renderable.
    */
-  static void SetScaleArrayName(const char *scaleArrayName, vtkActor *);
+  static void SetScaleArrayName(const char* scaleArrayName, vtkActor*);
 
   /**
    * A piecewise function for values from the scale array that alters the resulting
@@ -91,7 +89,7 @@ public:
   /**
    * Convenience method to set a scale function on my renderable.
    */
-  static void SetScaleFunction(vtkPiecewiseFunction *scaleFunction, vtkActor *);
+  static void SetScaleFunction(vtkPiecewiseFunction* scaleFunction, vtkActor*);
 
   /**
    * Indicates that the actor acts as a light emitting object.
@@ -102,8 +100,8 @@ public:
   /**
    * Convenience method to set luminosity on my renderable.
    */
-  static void SetLuminosity(double value, vtkProperty *);
-  static double GetLuminosity(vtkProperty *);
+  static void SetLuminosity(double value, vtkProperty*);
+  static double GetLuminosity(vtkProperty*);
   //@}
 
 protected:

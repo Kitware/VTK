@@ -26,15 +26,15 @@
  *
  * @sa
  *  vtkPixelBufferObject vtkTextureObject vtkOpenGLExtensionManager
-*/
+ */
 
 #ifndef vtkDataTransferHelper_h
 #define vtkDataTransferHelper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-#include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // needed for vtkSmartPointer.
+#include "vtkWeakPointer.h"            // needed for vtkWeakPointer.
 
 class vtkDataArray;
 class vtkPixelBufferObject;
@@ -104,7 +104,7 @@ public:
    * extent<=max extent.
    * \pre extent_exists: extent!=0
    */
-  bool GetExtentIsValid(int *extent);
+  bool GetExtentIsValid(int* extent);
 
   /**
    * Tells if CPUExtent is valid. True if min extent<=max extent.
@@ -135,8 +135,8 @@ public:
    * 2: force 0D and 1D to be in a 2D texture
    * 3: force 0D, 1D and 2D texture to be in a 3D texture.
    */
-  vtkSetMacro(MinTextureDimension,int);
-  vtkGetMacro(MinTextureDimension,int);
+  vtkSetMacro(MinTextureDimension, int);
+  vtkGetMacro(MinTextureDimension, int);
   //@}
 
   //@{
@@ -168,15 +168,19 @@ public:
    * \pre array_exists: array!=0
    * \pre array_not_empty: array->GetNumberOfTuples()>0
    * \pre valid_cpu_extent: this->GetCPUExtentIsValid()
-   * \pre valid_cpu_extent_size: (CPUExtent[1]-CPUExtent[0]+1)*(CPUExtent[3]-CPUExtent[2]+1)*(CPUExtent[5]-CPUExtent[4]+1)==array->GetNumberOfTuples()
+   * \pre valid_cpu_extent_size:
+   * (CPUExtent[1]-CPUExtent[0]+1)*(CPUExtent[3]-CPUExtent[2]+1)*(CPUExtent[5]-CPUExtent[4]+1)==array->GetNumberOfTuples()
    * \pre valid_gpu_extent: this->GetGPUExtentIsValid()
-   * \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] && CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] && GPUExtent[5]<=CPUExtent[5]
-   * \pre gpu_texture_size: !this->GetTextureExtentIsValid() || (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
+   * \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] &&
+   * CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] &&
+   * GPUExtent[5]<=CPUExtent[5] \pre gpu_texture_size: !this->GetTextureExtentIsValid() ||
+   * (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
    * \pre texture_can_exist_or_not: texture==0 || texture!=0
-   * \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4) || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 && componentList!=0)
+   * \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4)
+   * || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 &&
+   * componentList!=0)
    */
-  bool Upload(int components=0,
-              int *componentList=nullptr);
+  bool Upload(int components = 0, int* componentList = nullptr);
 
   /**
    * old comment:
@@ -194,10 +198,13 @@ public:
    * \pre texture_exists: texture!=0
    * \pre array_not_empty: array==0 || array->GetNumberOfTuples()>0
    * \pre valid_cpu_extent: this->GetCPUExtentIsValid()
-   * \pre valid_cpu_extent_size: array==0 || (CPUExtent[1]-CPUExtent[0]+1)*(CPUExtent[3]-CPUExtent[2]+1)*(CPUExtent[5]-CPUExtent[4]+1)==array->GetNumberOfTuples()
+   * \pre valid_cpu_extent_size: array==0 ||
+   * (CPUExtent[1]-CPUExtent[0]+1)*(CPUExtent[3]-CPUExtent[2]+1)*(CPUExtent[5]-CPUExtent[4]+1)==array->GetNumberOfTuples()
    * \pre valid_gpu_extent: this->GetGPUExtentIsValid()
-   * \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] && CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] && GPUExtent[5]<=CPUExtent[5]
-   * \pre gpu_texture_size: !this->GetTextureExtentIsValid() || (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
+   * \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] &&
+   * CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] &&
+   * GPUExtent[5]<=CPUExtent[5] \pre gpu_texture_size: !this->GetTextureExtentIsValid() ||
+   * (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
    * \pre valid_components: array==0 || array->GetNumberOfComponents()<=4
    * \pre components_match: array==0 || (texture->GetComponents()==array->GetNumberOfComponents())
    */
@@ -241,10 +248,10 @@ protected:
 
   // We try to reuse the PBO if possible.
   vtkSmartPointer<vtkPixelBufferObject> PBO;
+
 private:
   vtkDataTransferHelper(const vtkDataTransferHelper&) = delete;
   void operator=(const vtkDataTransferHelper&) = delete;
-
 };
 
 #endif

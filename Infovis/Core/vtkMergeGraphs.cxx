@@ -27,8 +27,8 @@
 #include "vtkInformationVector.h"
 #include "vtkMergeTables.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableGraphHelper.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
@@ -54,13 +54,13 @@ vtkMergeGraphs::~vtkMergeGraphs()
 }
 
 //---------------------------------------------------------------------------
-int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
+int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(port == 0)
+  if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   }
-  else if(port == 1)
+  else if (port == 1)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
@@ -71,27 +71,31 @@ int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
 
 //---------------------------------------------------------------------------
 // Fills array_map with matching arrays from data1 to data2
-static void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1, vtkDataSetAttributes* data2)
+static void vtkMergeGraphsCreateArrayMapping(
+  std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map, vtkDataSetAttributes* data1,
+  vtkDataSetAttributes* data2)
 {
   vtkIdType narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
   {
     vtkAbstractArray* a1 = data1->GetAbstractArray(arr1);
     vtkAbstractArray* a2 = data2->GetAbstractArray(a1->GetName());
-    if (a2 && a1->GetDataType() == a2->GetDataType() && a1->GetNumberOfComponents() == a2->GetNumberOfComponents())
+    if (a2 && a1->GetDataType() == a2->GetDataType() &&
+      a1->GetNumberOfComponents() == a2->GetNumberOfComponents())
     {
       array_map[a1] = a2;
     }
   }
   // Force pedigree id array to match
   if (data1->GetPedigreeIds() && data2->GetPedigreeIds())
-  array_map[data1->GetPedigreeIds()] = data2->GetPedigreeIds();
+    array_map[data1->GetPedigreeIds()] = data2->GetPedigreeIds();
 }
 
 //---------------------------------------------------------------------------
 // Uses array_map to append a row to data1 corresponding to
 // row index2 of mapped arrays (which came from data2)
-static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
+static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2,
+  std::map<vtkAbstractArray*, vtkAbstractArray*>& array_map)
 {
   int narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
@@ -104,7 +108,7 @@ static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, 
     }
     else
     {
-      vtkIdType num_values = a1->GetNumberOfTuples()*a1->GetNumberOfComponents();
+      vtkIdType num_values = a1->GetNumberOfTuples() * a1->GetNumberOfComponents();
       for (vtkIdType i = 0; i < a1->GetNumberOfComponents(); ++i)
       {
         a1->InsertVariantValue(num_values + i, vtkVariant());
@@ -115,29 +119,24 @@ static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, 
 
 //---------------------------------------------------------------------------
 int vtkMergeGraphs::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* graph1_info = inputVector[0]->GetInformationObject(0);
-  vtkGraph* graph1 = vtkGraph::SafeDownCast(
-    graph1_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* graph1 = vtkGraph::SafeDownCast(graph1_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy structure into output graph.
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-  vtkGraph* output = vtkGraph::SafeDownCast(
-    outputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* graph2_info = inputVector[1]->GetInformationObject(0);
-  if(!graph2_info)
+  if (!graph2_info)
   {
     // If no second graph provided, we're done
     output->CheckedShallowCopy(graph1);
     return 1;
   }
 
-  vtkGraph* graph2 = vtkGraph::SafeDownCast(
-    graph2_info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* graph2 = vtkGraph::SafeDownCast(graph2_info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Make a copy of the graph
   vtkSmartPointer<vtkMutableGraphHelper> builder = vtkSmartPointer<vtkMutableGraphHelper>::New();
@@ -148,7 +147,8 @@ int vtkMergeGraphs::RequestData(
   }
   else
   {
-    vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+    vtkSmartPointer<vtkMutableUndirectedGraph> g =
+      vtkSmartPointer<vtkMutableUndirectedGraph>::New();
     builder->SetGraph(g);
   }
   builder->GetGraph()->DeepCopy(graph1);
@@ -257,8 +257,7 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
     double cutoff = range[1] - this->EdgeWindow;
     if (range[0] < cutoff)
     {
-      vtkSmartPointer<vtkIdTypeArray> edgesToRemove =
-        vtkSmartPointer<vtkIdTypeArray>::New();
+      vtkSmartPointer<vtkIdTypeArray> edgesToRemove = vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < numEdges; ++i)
       {
         if (windowArr->GetTuple1(i) < cutoff)

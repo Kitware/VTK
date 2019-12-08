@@ -19,76 +19,65 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-#include "vtkTesting.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkRenderer.h"
+#include "vtkContourTriangulator.h"
+#include "vtkCutter.h"
+#include "vtkDataSetMapper.h"
+#include "vtkOutlineSource.h"
+#include "vtkPlane.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkContourTriangulator.h"
-#include "vtkDataSetMapper.h"
-#include "vtkCamera.h"
-#include "vtkProperty.h"
-#include "vtkPlane.h"
-#include "vtkCutter.h"
-#include "vtkOutlineSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTesting.h"
 
 int TestContourTriangulatorCutter(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkTesting> testHelper =
-    vtkSmartPointer<vtkTesting>::New();
+  vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
 
   std::string tempDir = testHelper->GetTempDirectory();
-  std::string tempBaseline=tempDir+"/TestContourTriangulatorCutter.png";
+  std::string tempBaseline = tempDir + "/TestContourTriangulatorCutter.png";
 
-  double bounds[6] = {-210.0, +210.0, -210.0, +210.0, -100.0, +150.0};
-  vtkSmartPointer<vtkOutlineSource> outline =
-    vtkSmartPointer<vtkOutlineSource>::New();
+  double bounds[6] = { -210.0, +210.0, -210.0, +210.0, -100.0, +150.0 };
+  vtkSmartPointer<vtkOutlineSource> outline = vtkSmartPointer<vtkOutlineSource>::New();
   outline->SetBounds(bounds);
   outline->GenerateFacesOn();
 
-  vtkSmartPointer<vtkPlane> plane =
-    vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
   plane->SetNormal(0.0, 0.0, -1.0);
   plane->SetOrigin(0.0, 0.0, 0.0);
 
-  vtkSmartPointer<vtkCutter> cutter =
-    vtkSmartPointer<vtkCutter>::New();
+  vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
   cutter->SetInputConnection(outline->GetOutputPort());
   cutter->SetCutFunction(plane);
 
-  vtkSmartPointer<vtkDataSetMapper> cutMapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> cutMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   cutMapper->SetInputConnection(cutter->GetOutputPort());
   cutMapper->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkActor> cutActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> cutActor = vtkSmartPointer<vtkActor>::New();
   cutActor->SetMapper(cutMapper);
-  cutActor->GetProperty()->SetColor(0,0,0);
+  cutActor->GetProperty()->SetColor(0, 0, 0);
 
-  vtkSmartPointer<vtkContourTriangulator> poly =
-    vtkSmartPointer<vtkContourTriangulator>::New();
+  vtkSmartPointer<vtkContourTriangulator> poly = vtkSmartPointer<vtkContourTriangulator>::New();
   poly->TriangulationErrorDisplayOn();
   poly->SetInputConnection(cutter->GetOutputPort());
 
-  vtkSmartPointer<vtkDataSetMapper> polyMapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> polyMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   polyMapper->SetInputConnection(poly->GetOutputPort());
   polyMapper->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkActor> polyActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> polyActor = vtkSmartPointer<vtkActor>::New();
   polyActor->SetMapper(polyMapper);
   polyActor->GetProperty()->SetColor(1.0, 1.0, 1.0);
 
   // Standard rendering classes
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -99,10 +88,10 @@ int TestContourTriangulatorCutter(int argc, char* argv[])
   renderer->AddActor(cutActor);
 
   // Standard testing code.
-  renderer->SetBackground(0.5,0.5,0.5);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.5, 0.5, 0.5);
+  renWin->SetSize(300, 300);
 
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   renderer->ResetCamera();
   camera->Azimuth(180);
 

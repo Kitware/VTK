@@ -23,13 +23,13 @@
  * an error message will be produced.
  * @sa
  * vtkPolyDataMapper
-*/
+ */
 
 #ifndef vtkCompositePolyDataMapper_h
 #define vtkCompositePolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPolyDataMapper;
 class vtkInformation;
@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper : public vtkMapper
 {
 
 public:
-  static vtkCompositePolyDataMapper *New();
+  static vtkCompositePolyDataMapper* New();
   vtkTypeMacro(vtkCompositePolyDataMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -49,20 +49,20 @@ public:
    * Standard method for rendering a mapper. This method will be
    * called by the actor.
    */
-  void Render(vtkRenderer *ren, vtkActor *a) override;
+  void Render(vtkRenderer* ren, vtkActor* a) override;
 
   //@{
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) override { this->Superclass::GetBounds( bounds ); };
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) override { this->Superclass::GetBounds(bounds); }
   //@}
 
   /**
    * Release the underlying resources associated with this mapper
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -99,7 +99,7 @@ protected:
   /**
    * BuildPolyDataMapper uses this for each mapper. It is broken out so we can change types.
    */
-  virtual vtkPolyDataMapper *MakeAMapper();
+  virtual vtkPolyDataMapper* MakeAMapper();
 
   /**
    * Need to loop over the hierarchy to compute bounds
@@ -116,7 +116,7 @@ protected:
    * rendering. We save then so that they can keep their
    * display lists.
    */
-  vtkCompositePolyDataMapperInternals *Internal;
+  vtkCompositePolyDataMapperInternals* Internal;
 
   /**
    * Time stamp for when we need to update the

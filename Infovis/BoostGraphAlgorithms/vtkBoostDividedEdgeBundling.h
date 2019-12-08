@@ -37,27 +37,28 @@
  * This algorithm was developed in the paper:
  *   David Selassie, Brandon Heller, Jeffrey Heer. Divided Edge Bundling for Directional
  *   Network Data. Proceedings of IEEE InfoVis 2011.
-*/
+ */
 
 #ifndef vtkBoostDividedEdgeBundling_h
 #define vtkBoostDividedEdgeBundling_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling : public vtkDirectedGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling
+  : public vtkDirectedGraphAlgorithm
 {
 public:
-  static vtkBoostDividedEdgeBundling *New();
+  static vtkBoostDividedEdgeBundling* New();
 
-  vtkTypeMacro(vtkBoostDividedEdgeBundling,vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkBoostDividedEdgeBundling, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBoostDividedEdgeBundling();
   ~vtkBoostDividedEdgeBundling() {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&) = delete;

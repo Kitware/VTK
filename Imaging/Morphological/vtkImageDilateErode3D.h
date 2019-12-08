@@ -21,14 +21,13 @@
  * boundary of the two values.  The filter is restricted to the
  * X, Y, and Z axes for now.  It can degenerate to a 2 or 1 dimensional
  * filter by setting the kernel size to 1 for a specific axis.
-*/
+ */
 
 #ifndef vtkImageDilateErode3D_h
 #define vtkImageDilateErode3D_h
 
-
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkImageEllipsoidSource;
 
@@ -40,8 +39,8 @@ public:
    * Construct an instance of vtkImageDilateErode3D filter.
    * By default zero values are dilated.
    */
-  static vtkImageDilateErode3D *New();
-  vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialAlgorithm);
+  static vtkImageDilateErode3D* New();
+  vtkTypeMacro(vtkImageDilateErode3D, vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -50,7 +49,6 @@ public:
    * default middle of the neighborhood and computes the elliptical foot print.
    */
   void SetKernelSize(int size0, int size1, int size2);
-
 
   //@{
   /**
@@ -66,18 +64,15 @@ protected:
   vtkImageDilateErode3D();
   ~vtkImageDilateErode3D() override;
 
-  vtkImageEllipsoidSource *Ellipse;
+  vtkImageEllipsoidSource* Ellipse;
   double DilateValue;
   double ErodeValue;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&) = delete;

@@ -15,27 +15,23 @@
 #include "vtk3DWidget.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
-#include "vtkDataSet.h"
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTrivialProducer.h"
 
-
-vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
+vtkCxxSetObjectMacro(vtk3DWidget, Prop3D, vtkProp3D);
 
 class vtk3DWidgetConnection : public vtkAlgorithm
 {
 public:
-  static vtk3DWidgetConnection *New();
-  vtkTypeMacro(vtk3DWidgetConnection,vtkAlgorithm);
+  static vtk3DWidgetConnection* New();
+  vtkTypeMacro(vtk3DWidgetConnection, vtkAlgorithm);
 
-  vtk3DWidgetConnection()
-  {
-      this->SetNumberOfInputPorts(1);
-  }
+  vtk3DWidgetConnection() { this->SetNumberOfInputPorts(1); }
 };
 
 vtkStandardNewMacro(vtk3DWidgetConnection);
@@ -60,7 +56,7 @@ vtk3DWidget::~vtk3DWidget()
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = nullptr;
 
-  if ( this->Prop3D )
+  if (this->Prop3D)
   {
     this->Prop3D->Delete();
     this->Prop3D = nullptr;
@@ -82,18 +78,18 @@ void vtk3DWidget::PlaceWidget()
 {
   double bounds[6];
 
-  if ( this->Prop3D )
+  if (this->Prop3D)
   {
     this->Prop3D->GetBounds(bounds);
   }
-  else if ( this->GetInput() )
+  else if (this->GetInput())
   {
     this->ConnectionHolder->GetInputAlgorithm()->Update();
     this->GetInput()->GetBounds(bounds);
   }
   else
   {
-    vtkErrorMacro(<<"No input or prop defined for widget placement");
+    vtkErrorMacro(<< "No input or prop defined for widget placement");
     bounds[0] = -1.0;
     bounds[1] = 1.0;
     bounds[2] = -1.0;
@@ -106,9 +102,8 @@ void vtk3DWidget::PlaceWidget()
 }
 
 //----------------------------------------------------------------------------
-void vtk3DWidget::PlaceWidget(double xmin, double xmax,
-                              double ymin, double ymax,
-                              double zmin, double zmax)
+void vtk3DWidget::PlaceWidget(
+  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
   double bounds[6];
 
@@ -120,34 +115,32 @@ void vtk3DWidget::PlaceWidget(double xmin, double xmax,
   bounds[5] = zmax;
 
   this->PlaceWidget(bounds);
-  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,nullptr);
+  this->InvokeEvent(vtkCommand::PlaceWidgetEvent, nullptr);
   this->Placed = 1;
 }
 
 //----------------------------------------------------------------------------
-void vtk3DWidget::AdjustBounds(double bounds[6],
-                               double newBounds[6], double center[3])
+void vtk3DWidget::AdjustBounds(double bounds[6], double newBounds[6], double center[3])
 {
-  center[0] = (bounds[0] + bounds[1])/2.0;
-  center[1] = (bounds[2] + bounds[3])/2.0;
-  center[2] = (bounds[4] + bounds[5])/2.0;
+  center[0] = (bounds[0] + bounds[1]) / 2.0;
+  center[1] = (bounds[2] + bounds[3]) / 2.0;
+  center[2] = (bounds[4] + bounds[5]) / 2.0;
 
-  newBounds[0] = center[0] + this->PlaceFactor*(bounds[0]-center[0]);
-  newBounds[1] = center[0] + this->PlaceFactor*(bounds[1]-center[0]);
-  newBounds[2] = center[1] + this->PlaceFactor*(bounds[2]-center[1]);
-  newBounds[3] = center[1] + this->PlaceFactor*(bounds[3]-center[1]);
-  newBounds[4] = center[2] + this->PlaceFactor*(bounds[4]-center[2]);
-  newBounds[5] = center[2] + this->PlaceFactor*(bounds[5]-center[2]);
+  newBounds[0] = center[0] + this->PlaceFactor * (bounds[0] - center[0]);
+  newBounds[1] = center[0] + this->PlaceFactor * (bounds[1] - center[0]);
+  newBounds[2] = center[1] + this->PlaceFactor * (bounds[2] - center[1]);
+  newBounds[3] = center[1] + this->PlaceFactor * (bounds[3] - center[1]);
+  newBounds[4] = center[2] + this->PlaceFactor * (bounds[4] - center[2]);
+  newBounds[5] = center[2] + this->PlaceFactor * (bounds[5] - center[2]);
 }
 
 //----------------------------------------------------------------------------
 double vtk3DWidget::SizeHandles(double factor)
 {
   int i;
-  vtkRenderer *renderer;
+  vtkRenderer* renderer;
 
-  if ( !this->ValidPick || !(renderer=this->CurrentRenderer) ||
-       !renderer->GetActiveCamera() )
+  if (!this->ValidPick || !(renderer = this->CurrentRenderer) || !renderer->GetActiveCamera())
   {
     return (this->HandleSize * factor * this->InitialLength);
   }
@@ -155,44 +148,41 @@ double vtk3DWidget::SizeHandles(double factor)
   {
     double radius, z;
     double windowLowerLeft[4], windowUpperRight[4];
-    double *viewport = renderer->GetViewport();
-    int *winSize = renderer->GetRenderWindow()->GetSize();
+    double* viewport = renderer->GetViewport();
+    int* winSize = renderer->GetRenderWindow()->GetSize();
     double focalPoint[4];
 
-    this->ComputeWorldToDisplay(this->LastPickPosition[0],
-                                this->LastPickPosition[1],
-                                this->LastPickPosition[2], focalPoint);
+    this->ComputeWorldToDisplay(
+      this->LastPickPosition[0], this->LastPickPosition[1], this->LastPickPosition[2], focalPoint);
     z = focalPoint[2];
 
     double x = winSize[0] * viewport[0];
     double y = winSize[1] * viewport[1];
-    this->ComputeDisplayToWorld(x,y,z,windowLowerLeft);
+    this->ComputeDisplayToWorld(x, y, z, windowLowerLeft);
 
     x = winSize[0] * viewport[2];
     y = winSize[1] * viewport[3];
-    this->ComputeDisplayToWorld(x,y,z,windowUpperRight);
+    this->ComputeDisplayToWorld(x, y, z, windowUpperRight);
 
-    for (radius=0.0, i=0; i<3; i++)
+    for (radius = 0.0, i = 0; i < 3; i++)
     {
-      radius += (windowUpperRight[i] - windowLowerLeft[i]) *
-        (windowUpperRight[i] - windowLowerLeft[i]);
+      radius +=
+        (windowUpperRight[i] - windowLowerLeft[i]) * (windowUpperRight[i] - windowLowerLeft[i]);
     }
 
     return (sqrt(radius) * factor * this->HandleSize);
   }
 }
 
-
 //----------------------------------------------------------------------------
 void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Prop3D: " << this->Prop3D << "\n";
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Handle Size: " << this->HandleSize << "\n";
   os << indent << "Place Factor: " << this->PlaceFactor << "\n";
-
 }
 
 //----------------------------------------------------------------------------
@@ -213,7 +203,5 @@ void vtk3DWidget::SetInputData(vtkDataSet* ds)
 //----------------------------------------------------------------------------
 vtkDataSet* vtk3DWidget::GetInput()
 {
-  return vtkDataSet::SafeDownCast(
-    this->ConnectionHolder->GetInputDataObject(0, 0));
+  return vtkDataSet::SafeDownCast(this->ConnectionHolder->GetInputDataObject(0, 0));
 }
-

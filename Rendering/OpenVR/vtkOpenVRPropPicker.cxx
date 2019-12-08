@@ -16,31 +16,28 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
-#include "vtkCommand.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
-#include "vtkCamera.h"
 #include "vtkBox.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor3D.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkOpenVRPropPicker);
 
-vtkOpenVRPropPicker::vtkOpenVRPropPicker()
-{
-}
+vtkOpenVRPropPicker::vtkOpenVRPropPicker() {}
 
-vtkOpenVRPropPicker::~vtkOpenVRPropPicker()
-{
-}
+vtkOpenVRPropPicker::~vtkOpenVRPropPicker() {}
 
 // set up for a pick
 void vtkOpenVRPropPicker::Initialize()
 {
 #ifndef VTK_LEGACY_SILENT
-  vtkErrorMacro("This class is deprecated: Please use vtkPropPicker directly instead of this class");
+  vtkErrorMacro(
+    "This class is deprecated: Please use vtkPropPicker directly instead of this class");
 #endif
   this->vtkAbstractPropPicker::Initialize();
 }

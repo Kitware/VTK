@@ -23,16 +23,20 @@
  *
  * This file is a helper for the vtkXdmf3Reader and not intended to be
  * part of VTK public API
-*/
+ */
 
 #ifndef vtkXdmf3LightDataHandler_h
 #define vtkXdmf3LightDataHandler_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
-#include <set>
+#include "vtkType.h"
+
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfItem.hpp)
-#include "vtkType.h"
+// clang-format on
+
+#include <set>
 
 class vtkXdmf3SILBuilder;
 class vtkXdmf3ArraySelection;
@@ -46,15 +50,9 @@ public:
   /**
    * factory constructor
    */
-  static shared_ptr<vtkXdmf3LightDataHandler> New(
-      vtkXdmf3SILBuilder *sb,
-      vtkXdmf3ArraySelection* f,
-      vtkXdmf3ArraySelection* ce,
-      vtkXdmf3ArraySelection* pn,
-      vtkXdmf3ArraySelection* gc,
-      vtkXdmf3ArraySelection* sc,
-      unsigned int processor,
-      unsigned int nprocessors);
+  static shared_ptr<vtkXdmf3LightDataHandler> New(vtkXdmf3SILBuilder* sb, vtkXdmf3ArraySelection* f,
+    vtkXdmf3ArraySelection* ce, vtkXdmf3ArraySelection* pn, vtkXdmf3ArraySelection* gc,
+    vtkXdmf3ArraySelection* sc, unsigned int processor, unsigned int nprocessors);
 
   /**
    * destructor
@@ -67,8 +65,7 @@ public:
    * name of arrays to select from
    * name and hierarchical relationship of blocks to select from
    */
-  void InspectXDMF(shared_ptr<XdmfItem> item, vtkIdType parentVertex,
-                   unsigned int depth=0);
+  void InspectXDMF(shared_ptr<XdmfItem> item, vtkIdType parentVertex, unsigned int depth = 0);
 
   /**
    * called to make sure overflown SIL doesn't give nonsensical results
@@ -105,8 +102,7 @@ private:
   /**
    * Used in SIL creation.
    */
-  void AddNamedBlock(vtkIdType parentVertex,
-                     std::string originalName, std::string uniqueName);
+  void AddNamedBlock(vtkIdType parentVertex, std::string originalName, std::string uniqueName);
 
   /**
    * Used in SIL creation.
@@ -119,8 +115,8 @@ private:
    * if timespecs are only implied we add them to make things simpler later on
    */
   void InspectTime(shared_ptr<XdmfItem> item);
-  void GetSetTime(shared_ptr<XdmfGrid> child, unsigned int &cnt);
-  void GetSetTime(shared_ptr<XdmfGraph> child, unsigned int &cnt);
+  void GetSetTime(shared_ptr<XdmfGrid> child, unsigned int& cnt);
+  void GetSetTime(shared_ptr<XdmfGraph> child, unsigned int& cnt);
   //@}
 
   /**
@@ -128,17 +124,17 @@ private:
    */
   bool ShouldRead(unsigned int piece, unsigned int npieces);
 
-  vtkXdmf3SILBuilder *SILBuilder;
-  vtkXdmf3ArraySelection *FieldArrays;
-  vtkXdmf3ArraySelection *CellArrays; //ie EdgeArrays for Graphs
-  vtkXdmf3ArraySelection *PointArrays; //ie NodeArrays for Graphs
-  vtkXdmf3ArraySelection *GridsCache;
-  vtkXdmf3ArraySelection *SetsCache;
+  vtkXdmf3SILBuilder* SILBuilder;
+  vtkXdmf3ArraySelection* FieldArrays;
+  vtkXdmf3ArraySelection* CellArrays;  // ie EdgeArrays for Graphs
+  vtkXdmf3ArraySelection* PointArrays; // ie NodeArrays for Graphs
+  vtkXdmf3ArraySelection* GridsCache;
+  vtkXdmf3ArraySelection* SetsCache;
   unsigned int MaxDepth;
   unsigned int Rank;
   unsigned int NumProcs;
-  std::set<double> times; //relying on implicit sort from set<double>
+  std::set<double> times; // relying on implicit sort from set<double>
 };
 
-#endif //vtkXdmf3LightDataHandler_h
+#endif // vtkXdmf3LightDataHandler_h
 // VTK-HeaderTest-Exclude: vtkXdmf3LightDataHandler.h

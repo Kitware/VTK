@@ -32,7 +32,6 @@
 #include "vtkImageMapper3D.h"
 #include "vtkRenderingImageModule.h" // For export macro
 
-
 class vtkImageSliceMapper;
 class vtkRenderer;
 class vtkRenderWindow;
@@ -44,11 +43,12 @@ class vtkImageResliceToColors;
 class vtkMatrix4x4;
 class vtkAbstractImageInterpolator;
 
-class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D {
+class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
+{
 public:
-  static vtkImageResliceMapper *New();
+  static vtkImageResliceMapper* New();
   vtkTypeMacro(vtkImageResliceMapper, vtkImageMapper3D);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the slice that will be used to cut through the image.
@@ -56,7 +56,7 @@ public:
    * data coordinates.  Use SliceFacesCamera and SliceAtFocalPoint
    * if you want the slice to automatically follow the camera.
    */
-  virtual void SetSlicePlane(vtkPlane *plane);
+  virtual void SetSlicePlane(vtkPlane* plane);
 
   //@{
   /**
@@ -90,11 +90,11 @@ public:
    */
   vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabType, int);
-  void SetSlabTypeToMin() { this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
-  void SetSlabTypeToMax() { this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
-  void SetSlabTypeToMean() { this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
-  void SetSlabTypeToSum() { this->SetSlabType(VTK_IMAGE_SLAB_SUM); };
-  virtual const char *GetSlabTypeAsString();
+  void SetSlabTypeToMin() { this->SetSlabType(VTK_IMAGE_SLAB_MIN); }
+  void SetSlabTypeToMax() { this->SetSlabType(VTK_IMAGE_SLAB_MAX); }
+  void SetSlabTypeToMean() { this->SetSlabType(VTK_IMAGE_SLAB_MEAN); }
+  void SetSlabTypeToSum() { this->SetSlabType(VTK_IMAGE_SLAB_SUM); }
+  virtual const char* GetSlabTypeAsString();
   //@}
 
   //@{
@@ -157,21 +157,21 @@ public:
    * Set a custom interpolator.  This will only be used if the
    * ResampleToScreenPixels option is on.
    */
-  virtual void SetInterpolator(vtkAbstractImageInterpolator *sampler);
-  virtual vtkAbstractImageInterpolator *GetInterpolator();
+  virtual void SetInterpolator(vtkAbstractImageInterpolator* sampler);
+  virtual vtkAbstractImageInterpolator* GetInterpolator();
   //@}
 
   /**
    * This should only be called by the renderer.
    */
-  void Render(vtkRenderer *renderer, vtkImageSlice *prop) override;
+  void Render(vtkRenderer* renderer, vtkImageSlice* prop) override;
 
   /**
    * Release any graphics resources that are being consumed by
    * this mapper.  The parameter window is used to determine
    * which graphic resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Get the mtime for the mapper.
@@ -183,17 +183,15 @@ public:
    * The bounding box (array of six doubles) of the data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
-  void GetBounds(double bounds[6]) override {
-    this->vtkAbstractMapper3D::GetBounds(bounds);
-  };
+  double* GetBounds() override;
+  void GetBounds(double bounds[6]) override { this->vtkAbstractMapper3D::GetBounds(bounds); }
   //@}
 
   /**
    * Handle requests from the pipeline executive.
    */
-  int ProcessRequest(vtkInformation *request, vtkInformationVector **inInfo,
-                     vtkInformationVector *outInfo) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   // return the bounds in index space
   void GetIndexBounds(double extent[6]) override;
@@ -205,45 +203,44 @@ protected:
   /**
    * Do a checkerboard pattern to the alpha of an RGBA image
    */
-  void CheckerboardImage(vtkImageData *input, vtkCamera *camera,
-                         vtkImageProperty *property);
+  void CheckerboardImage(vtkImageData* input, vtkCamera* camera, vtkImageProperty* property);
 
   /**
    * Update the slice-to-world matrix from the camera.
    */
-  void UpdateSliceToWorldMatrix(vtkCamera *camera);
+  void UpdateSliceToWorldMatrix(vtkCamera* camera);
 
   /**
    * Check if the vtkProp3D matrix has changed, and if so, set
    * the WorldToDataMatrix to its inverse.
    */
-  void UpdateWorldToDataMatrix(vtkImageSlice *prop);
+  void UpdateWorldToDataMatrix(vtkImageSlice* prop);
 
   /**
    * Update the reslice matrix, which is the slice-to-data matrix.
    */
-  void UpdateResliceMatrix(vtkRenderer *ren, vtkImageSlice *prop);
+  void UpdateResliceMatrix(vtkRenderer* ren, vtkImageSlice* prop);
 
   /**
    * Set all of the reslicing parameters.  This requires that
    * the SliceToWorld and WorldToData matrices are up-to-date.
    */
-  void UpdateResliceInformation(vtkRenderer *ren);
+  void UpdateResliceInformation(vtkRenderer* ren);
 
   /**
    * Set the interpolation.
    */
-  void UpdateResliceInterpolation(vtkImageProperty *property);
+  void UpdateResliceInterpolation(vtkImageProperty* property);
 
   /**
    * Update anything related to the image coloring.
    */
-  void UpdateColorInformation(vtkImageProperty *property);
+  void UpdateColorInformation(vtkImageProperty* property);
 
   /**
    * Make a polygon by cutting the data bounds with a plane.
    */
-  void UpdatePolygonCoords(vtkRenderer *ren);
+  void UpdatePolygonCoords(vtkRenderer* ren);
 
   //@{
   /**
@@ -251,37 +248,36 @@ protected:
    */
   void Update(int port) override;
   void Update() override;
-  int Update(int port, vtkInformationVector *requests) override;
-  int Update(vtkInformation *requests) override;
+  vtkTypeBool Update(int port, vtkInformationVector* requests) override;
+  vtkTypeBool Update(vtkInformation* requests) override;
   //@}
 
   /**
    * Garbage collection for reference loops.
    */
-  void ReportReferences(vtkGarbageCollector *) override;
+  void ReportReferences(vtkGarbageCollector*) override;
 
-  vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
+  vtkImageSliceMapper* SliceMapper; // Does the OpenGL rendering
 
-  vtkTypeBool JumpToNearestSlice;     // Adjust SliceAtFocalPoint
-  vtkTypeBool AutoAdjustImageQuality; // LOD-style behavior
-  vtkTypeBool
-      SeparateWindowLevelOperation;      // Do window/level as a separate step
-  double SlabThickness;                  // Current slab thickness
-  int SlabType;                          // Current slab mode
-  int SlabSampleFactor;                  // Sampling factor for slab mode
-  int ImageSampleFactor;                 // Sampling factor for image pixels
-  vtkTypeBool ResampleToScreenPixels;    // Use software interpolation only
-  int InternalResampleToScreenPixels;    // Use software interpolation only
-  int ResliceNeedUpdate;                 // Execute reslice on next render
-  vtkImageResliceToColors *ImageReslice; // For software interpolation
-  vtkMatrix4x4 *ResliceMatrix;           // Cached reslice matrix
-  vtkMatrix4x4 *WorldToDataMatrix;       // World to Data transform matrix
-  vtkMatrix4x4 *SliceToWorldMatrix;      // Slice to World transform matrix
+  vtkTypeBool JumpToNearestSlice;           // Adjust SliceAtFocalPoint
+  vtkTypeBool AutoAdjustImageQuality;       // LOD-style behavior
+  vtkTypeBool SeparateWindowLevelOperation; // Do window/level as a separate step
+  double SlabThickness;                     // Current slab thickness
+  int SlabType;                             // Current slab mode
+  int SlabSampleFactor;                     // Sampling factor for slab mode
+  int ImageSampleFactor;                    // Sampling factor for image pixels
+  vtkTypeBool ResampleToScreenPixels;       // Use software interpolation only
+  int InternalResampleToScreenPixels;       // Use software interpolation only
+  int ResliceNeedUpdate;                    // Execute reslice on next render
+  vtkImageResliceToColors* ImageReslice;    // For software interpolation
+  vtkMatrix4x4* ResliceMatrix;              // Cached reslice matrix
+  vtkMatrix4x4* WorldToDataMatrix;          // World to Data transform matrix
+  vtkMatrix4x4* SliceToWorldMatrix;         // Slice to World transform matrix
   vtkTimeStamp UpdateTime;
 
 private:
-  vtkImageResliceMapper(const vtkImageResliceMapper &) = delete;
-  void operator=(const vtkImageResliceMapper &) = delete;
+  vtkImageResliceMapper(const vtkImageResliceMapper&) = delete;
+  void operator=(const vtkImageResliceMapper&) = delete;
 };
 
 #endif

@@ -14,7 +14,8 @@
 =========================================================================*/
 /**
  * @class   vtkWidgetSet
- * @brief   Synchronize a collection on vtkWidgets drawn on different renderwindows using the Callback - Dispatch Action mechanism.
+ * @brief   Synchronize a collection on vtkWidgets drawn on different renderwindows using the
+ * Callback - Dispatch Action mechanism.
  *
  *
  * The class synchronizes a set of vtkAbstractWidget(s). Widgets typically
@@ -89,7 +90,7 @@
  * Actions are always dispatched first to the activeWidget, the one calling
  * the set, and then to the other widgets in the set.
  *
-*/
+ */
 
 #ifndef vtkWidgetSet_h
 #define vtkWidgetSet_h
@@ -103,9 +104,10 @@ class vtkAbstractWidget;
 // Pointer to a member function that takes a vtkAbstractWidget (the active
 // child) and another vtkAbstractWidget (the widget to dispatch an action)
 // to. All "Action" functions in a widget must conform to this signature.
-template< class TWidget > struct ActionFunction
+template <class TWidget>
+struct ActionFunction
 {
-  typedef void (TWidget::*TActionFunctionPointer)(TWidget *dispatcher);
+  typedef void (TWidget::*TActionFunctionPointer)(TWidget* dispatcher);
 };
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetSet : public vtkObject
@@ -114,13 +116,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkWidgetSet *New();
+  static vtkWidgetSet* New();
 
   //@{
   /**
    * Standard methods for a VTK class.
    */
-  vtkTypeMacro(vtkWidgetSet,vtkObject);
+  vtkTypeMacro(vtkWidgetSet, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -135,12 +137,12 @@ public:
   /**
    * Add a widget to the set.
    */
-  void AddWidget(vtkAbstractWidget *);
+  void AddWidget(vtkAbstractWidget*);
 
   /**
    * Remove a widget from the set
    */
-  void RemoveWidget(vtkAbstractWidget *);
+  void RemoveWidget(vtkAbstractWidget*);
 
   /**
    * Get number of widgets in the set.
@@ -150,43 +152,42 @@ public:
   /**
    * Get the Nth widget in the set.
    */
-  vtkAbstractWidget *GetNthWidget( unsigned int );
+  vtkAbstractWidget* GetNthWidget(unsigned int);
 
   // TODO: Move this to the protected section. The class vtkAbstractWidget
   //       should be a friend of this class.
-  typedef std::vector< vtkAbstractWidget * >   WidgetContainerType;
-  typedef WidgetContainerType::iterator           WidgetIteratorType;
-  typedef WidgetContainerType::const_iterator     WidgetConstIteratorType;
-  WidgetContainerType                             Widget;
+  typedef std::vector<vtkAbstractWidget*> WidgetContainerType;
+  typedef WidgetContainerType::iterator WidgetIteratorType;
+  typedef WidgetContainerType::const_iterator WidgetConstIteratorType;
+  WidgetContainerType Widget;
 
   //@{
   /**
    * Dispatch an "Action" to every widget in this set. This is meant to be
    * invoked from a "Callback" in a widget.
    */
-  template < class TWidget >
-  void DispatchAction(TWidget *caller,
-                      typename ActionFunction< TWidget >::TActionFunctionPointer action)
+  template <class TWidget>
+  void DispatchAction(
+    TWidget* caller, typename ActionFunction<TWidget>::TActionFunctionPointer action)
   {
     // Dispatch action to the caller first.
-    for (WidgetIteratorType it  = this->Widget.begin();
-                            it != this->Widget.end()  ; ++it)
+    for (WidgetIteratorType it = this->Widget.begin(); it != this->Widget.end(); ++it)
     {
-      TWidget *w = static_cast<TWidget *>(*it);
+      TWidget* w = static_cast<TWidget*>(*it);
       if (caller == w)
       {
         ((*w).*(action))(caller);
         break;
       }
     }
-  //@}
+    //@}
 
     // Dispatch action to all other widgets
-    for (WidgetIteratorType it  = this->Widget.begin();
-                            it != this->Widget.end()  ; ++it)
+    for (WidgetIteratorType it = this->Widget.begin(); it != this->Widget.end(); ++it)
     {
-      TWidget *w = static_cast<TWidget *>(*it);
-      if (caller != w) ((*w).*(action))(caller);
+      TWidget* w = static_cast<TWidget*>(*it);
+      if (caller != w)
+        ((*w).*(action))(caller);
     }
   }
 
@@ -200,4 +201,3 @@ private:
 };
 
 #endif
-

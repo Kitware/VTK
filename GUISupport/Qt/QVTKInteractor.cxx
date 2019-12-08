@@ -28,44 +28,42 @@
 
 #ifdef _MSC_VER
 // Disable warnings that Qt headers give.
-#pragma warning(disable:4127)
-#pragma warning(disable:4512)
+#pragma warning(disable : 4127)
+#pragma warning(disable : 4512)
 #endif
 
 #include "QVTKInteractor.h"
 #include "QVTKInteractorInternal.h"
 
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-# include "vtkTDxWinDevice.h"
+#include "vtkTDxWinDevice.h"
 #endif
 
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-# include "vtkTDxMacDevice.h"
+#include "vtkTDxMacDevice.h"
 #endif
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-# include "vtkTDxUnixDevice.h"
+#include "vtkTDxUnixDevice.h"
 #endif
 
 #include <QEvent>
+#include <QResizeEvent>
 #include <QSignalMapper>
 #include <QTimer>
-#include <QResizeEvent>
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 
 QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)
   : Parent(p)
 {
   this->SignalMapper = new QSignalMapper(this);
-  QObject::connect(this->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
+  QObject::connect(this->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)));
 }
 
-QVTKInteractorInternal::~QVTKInteractorInternal()
-{
-}
+QVTKInteractorInternal::~QVTKInteractorInternal() {}
 
 void QVTKInteractorInternal::TimerEvent(int id)
 {
@@ -83,24 +81,24 @@ QVTKInteractor::QVTKInteractor()
   this->Internal = new QVTKInteractorInternal(this);
 
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  this->Device=vtkTDxWinDevice::New();
+  this->Device = vtkTDxWinDevice::New();
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-  this->Device=vtkTDxMacDevice::New();
+  this->Device = vtkTDxMacDevice::New();
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  this->Device=0;
+  this->Device = 0;
 #endif
 }
 
 void QVTKInteractor::Initialize()
 {
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  if(this->UseTDx)
+  if (this->UseTDx)
   {
     // this is QWidget::winId();
-    HWND hWnd=static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
-    if(!this->Device->GetInitialized())
+    HWND hWnd = static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
+    if (!this->Device->GetInitialized())
     {
       this->Device->SetInteractor(this);
       this->Device->SetWindowHandle(hWnd);
@@ -109,9 +107,9 @@ void QVTKInteractor::Initialize()
   }
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-  if(this->UseTDx)
+  if (this->UseTDx)
   {
-    if(!this->Device->GetInitialized())
+    if (!this->Device->GetInitialized())
     {
       this->Device->SetInteractor(this);
       // Do not initialize the device here.
@@ -124,27 +122,26 @@ void QVTKInteractor::Initialize()
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 // ----------------------------------------------------------------------------
-vtkTDxUnixDevice *QVTKInteractor::GetDevice()
+vtkTDxUnixDevice* QVTKInteractor::GetDevice()
 {
   return this->Device;
 }
 
 // ----------------------------------------------------------------------------
-void QVTKInteractor::SetDevice(vtkTDxDevice *device)
+void QVTKInteractor::SetDevice(vtkTDxDevice* device)
 {
-  if(this->Device!=device)
+  if (this->Device != device)
   {
-    this->Device=static_cast<vtkTDxUnixDevice *>(device);
+    this->Device = static_cast<vtkTDxUnixDevice*>(device);
   }
 }
 #endif
-
 
 /*! start method for interactor
  */
 void QVTKInteractor::Start()
 {
-  vtkErrorMacro(<<"QVTKInteractor cannot control the event loop.");
+  vtkErrorMacro(<< "QVTKInteractor cannot control the event loop.");
 }
 
 /*! terminate the application
@@ -152,26 +149,26 @@ void QVTKInteractor::Start()
 void QVTKInteractor::TerminateApp()
 {
   // we are in a GUI so let's terminate the GUI the normal way
-  //qApp->exit();
+  // qApp->exit();
 }
 
 // ----------------------------------------------------------------------------
 void QVTKInteractor::StartListening()
 {
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  if(this->Device->GetInitialized() && !this->Device->GetIsListening())
+  if (this->Device->GetInitialized() && !this->Device->GetIsListening())
   {
     this->Device->StartListening();
   }
 #endif
-#if defined(VTK_USE_TDX) &&  defined(Q_OS_MAC)
-  if(this->UseTDx && !this->Device->GetInitialized())
+#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+  if (this->UseTDx && !this->Device->GetInitialized())
   {
     this->Device->Initialize();
   }
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  if(this->UseTDx && this->Device!=0)
+  if (this->UseTDx && this->Device != 0)
   {
     this->Device->SetInteractor(this);
   }
@@ -182,19 +179,19 @@ void QVTKInteractor::StartListening()
 void QVTKInteractor::StopListening()
 {
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  if(this->Device->GetInitialized() && this->Device->GetIsListening())
+  if (this->Device->GetInitialized() && this->Device->GetIsListening())
   {
     this->Device->StopListening();
   }
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-  if(this->UseTDx && this->Device->GetInitialized())
+  if (this->UseTDx && this->Device->GetInitialized())
   {
     this->Device->Close();
   }
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  if(this->UseTDx && this->Device!=0)
+  if (this->UseTDx && this->Device != 0)
   {
     // this assumes that a outfocus event is emitted prior
     // a infocus event on another widget.
@@ -203,20 +200,19 @@ void QVTKInteractor::StopListening()
 #endif
 }
 
-
 /*! handle timer event
  */
 void QVTKInteractor::TimerEvent(int timerId)
 {
-  if ( !this->GetEnabled() )
+  if (!this->GetEnabled())
   {
     return;
   }
   this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
 
-  if(this->IsOneShotTimer(timerId))
+  if (this->IsOneShotTimer(timerId))
   {
-    this->DestroyTimer(timerId);  // 'cause our Qt timers are always repeating
+    this->DestroyTimer(timerId); // 'cause our Qt timers are always repeating
   }
 }
 
@@ -232,20 +228,22 @@ QVTKInteractor::~QVTKInteractor()
   this->Device->Delete();
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  this->Device=0;
+  this->Device = 0;
 #endif
 }
 
 /*! create Qt timer with an interval of 10 msec.
  */
-int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), unsigned long duration)
+int QVTKInteractor::InternalCreateTimer(
+  int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
   QTimer* timer = new QTimer(this->Internal);
   timer->start(duration);
   this->Internal->SignalMapper->setMapping(timer, timerId);
   QObject::connect(timer, SIGNAL(timeout()), this->Internal->SignalMapper, SLOT(map()));
   int platformTimerId = timer->timerId();
-  this->Internal->Timers.insert(QVTKInteractorInternal::TimerMap::value_type(platformTimerId, timer));
+  this->Internal->Timers.insert(
+    QVTKInteractorInternal::TimerMap::value_type(platformTimerId, timer));
   return platformTimerId;
 }
 
@@ -254,7 +252,7 @@ int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), 
 int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
 {
   QVTKInteractorInternal::TimerMap::iterator iter = this->Internal->Timers.find(platformTimerId);
-  if(iter != this->Internal->Timers.end())
+  if (iter != this->Internal->Timers.end())
   {
     iter->second->stop();
     iter->second->deleteLater();

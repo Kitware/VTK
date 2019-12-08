@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkImageCursor3D);
 //----------------------------------------------------------------------------
 void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   int idx;
 
@@ -49,11 +49,8 @@ vtkImageCursor3D::vtkImageCursor3D()
   this->CursorValue = 255;
 }
 
-
-
 template <class T>
-void vtkImageCursor3DExecute(vtkImageCursor3D *self,
-                             vtkImageData *outData, T *ptr)
+void vtkImageCursor3DExecute(vtkImageCursor3D* self, vtkImageData* outData, T* ptr)
 {
   int min0, max0, min1, max1, min2, max2;
   int c0, c1, c2;
@@ -74,12 +71,11 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     {
       if (idx >= min0 && idx <= max0)
       {
-        ptr = static_cast<T *>(outData->GetScalarPointer(idx, c1, c2));
+        ptr = static_cast<T*>(outData->GetScalarPointer(idx, c1, c2));
         *ptr = static_cast<T>(value);
       }
     }
   }
-
 
   if (c0 >= min0 && c0 <= max0 && c2 >= min2 && c2 <= max2)
   {
@@ -87,12 +83,11 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     {
       if (idx >= min1 && idx <= max1)
       {
-        ptr = static_cast<T *>(outData->GetScalarPointer(c0, idx, c2));
+        ptr = static_cast<T*>(outData->GetScalarPointer(c0, idx, c2));
         *ptr = static_cast<T>(value);
       }
     }
   }
-
 
   if (c0 >= min0 && c0 <= max0 && c1 >= min1 && c1 <= max1)
   {
@@ -100,7 +95,7 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     {
       if (idx >= min2 && idx <= max2)
       {
-        ptr = static_cast<T *>(outData->GetScalarPointer(c0, c1, idx));
+        ptr = static_cast<T*>(outData->GetScalarPointer(c0, c1, idx));
         *ptr = static_cast<T>(value);
       }
     }
@@ -110,24 +105,20 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
 //----------------------------------------------------------------------------
 // Split up into finished and border datas.  Fill the border datas.
 int vtkImageCursor3D::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  void *ptr = nullptr;
+  void* ptr = nullptr;
 
   // let superclass allocate data
   this->Superclass::RequestData(request, inputVector, outputVector);
 
   // get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *outData =
-    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   switch (outData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageCursor3DExecute(this,outData, static_cast<VTK_TT *>(ptr)));
+    vtkTemplateMacro(vtkImageCursor3DExecute(this, outData, static_cast<VTK_TT*>(ptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
@@ -135,7 +126,3 @@ int vtkImageCursor3D::RequestData(
 
   return 1;
 }
-
-
-
-

@@ -54,7 +54,7 @@
  * This class was modified by Jacques-Bernard Lekien 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGrid_h
 #define vtkHyperTreeGrid_h
@@ -62,8 +62,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+#include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
-#include "vtkNew.h" // vtkSmartPointer
 // #include "vtkPointData.h" // vtkPointData
 
 #include <cassert> // std::assert
@@ -376,14 +376,14 @@ public:
 
   /**
    * JB
-    */
+   */
   void InitializeOrientedCursor(
     vtkHyperTreeGridOrientedCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridOrientedCursor* NewOrientedCursor(vtkIdType index, bool create = false);
 
   /**
    * JB
-    */
+   */
   void InitializeOrientedGeometryCursor(
     vtkHyperTreeGridOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridOrientedGeometryCursor* NewOrientedGeometryCursor(
@@ -391,14 +391,14 @@ public:
 
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedCursor(
     vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedCursor* NewNonOrientedCursor(vtkIdType index, bool create = false);
 
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedGeometryCursor(
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedGeometryCursor* NewNonOrientedGeometryCursor(
@@ -423,7 +423,7 @@ protected:
 public:
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedVonNeumannSuperCursor(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* NewNonOrientedVonNeumannSuperCursor(
@@ -431,7 +431,7 @@ public:
 
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedVonNeumannSuperCursorLight(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, vtkIdType index,
     bool create = false);
@@ -440,7 +440,7 @@ public:
 
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedMooreSuperCursor(
     vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedMooreSuperCursor* NewNonOrientedMooreSuperCursor(
@@ -448,7 +448,7 @@ public:
 
   /**
    * JB
-    */
+   */
   void InitializeNonOrientedMooreSuperCursorLight(
     vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor, vtkIdType index, bool create = false);
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight* NewNonOrientedMooreSuperCursorLight(
@@ -634,8 +634,8 @@ public:
     //@}
 
     /**
-      * Only valid for leaves.
-      */
+     * Only valid for leaves.
+     */
     vtkIdType GetLeafIndex() { return this->Index; }
 
     /**
@@ -691,7 +691,7 @@ public:
     vtkHyperTree* GetNextTree();
 
   protected:
-    std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>>::iterator Iterator;
+    std::map<vtkIdType, vtkSmartPointer<vtkHyperTree> >::iterator Iterator;
     vtkHyperTreeGrid* Grid;
   };
 
@@ -795,7 +795,7 @@ protected:
   char* InterfaceNormalsName;
   char* InterfaceInterceptsName;
 
-  std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>> HyperTrees;
+  std::map<vtkIdType, vtkSmartPointer<vtkHyperTree> > HyperTrees;
 
   vtkNew<vtkPointData> PointData; // Scalars, vectors, etc. associated w/ each point
 

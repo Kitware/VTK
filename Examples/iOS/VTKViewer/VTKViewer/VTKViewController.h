@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface VTKViewController : UIViewController<UIGestureRecognizerDelegate,
-                                                UIDocumentPickerDelegate>
+@interface VTKViewController
+  : UIViewController<UIGestureRecognizerDelegate, UIDocumentPickerDelegate>
 
-- (void)loadFiles:(nonnull NSArray<NSURL *>*)urls;
+- (void)loadFiles:(nonnull NSArray<NSURL*>*)urls;
 
 @end

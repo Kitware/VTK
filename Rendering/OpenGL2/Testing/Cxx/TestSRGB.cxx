@@ -21,16 +21,15 @@
 #include "vtkPlaneSource.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 
 #include "vtkLight.h"
 
 //----------------------------------------------------------------------------
-int TestSRGB(int argc, char *argv[])
+int TestSRGB(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(800, 400);
@@ -38,12 +37,11 @@ int TestSRGB(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.Get());
 
-  const char * fileName =
-     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/skybox/posz.jpg");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/skybox/posz.jpg");
   vtkNew<vtkJPEGReader> imgReader;
   imgReader->SetFileName(fileName);
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkPlaneSource> plane;
 
@@ -60,8 +58,8 @@ int TestSRGB(int argc, char *argv[])
       light->SetPosition(-1.73, -1.0, 2.0);
       light->PositionalOn();
       light->SetConeAngle(90);
-      light->SetAttenuationValues(0,1.0,0);
-      light->SetColor(4,0,0);
+      light->SetAttenuationValues(0, 1.0, 0);
+      light->SetColor(4, 0, 0);
       light->SetExponent(0);
       renderer->AddLight(light.Get());
     }
@@ -71,8 +69,8 @@ int TestSRGB(int argc, char *argv[])
       light->SetPosition(1.73, -1.0, 2.0);
       light->PositionalOn();
       light->SetConeAngle(90);
-      light->SetAttenuationValues(0,0,1.0);
-      light->SetColor(0,6,0);
+      light->SetAttenuationValues(0, 0, 1.0);
+      light->SetColor(0, 6, 0);
       light->SetExponent(0);
       renderer->AddLight(light.Get());
     }
@@ -82,8 +80,8 @@ int TestSRGB(int argc, char *argv[])
       light->SetPosition(0.0, 2.0, 2.0);
       light->PositionalOn();
       light->SetConeAngle(50);
-      light->SetColor(0,0,4);
-      light->SetAttenuationValues(1.0,0.0,0.0);
+      light->SetColor(0, 0, 4);
+      light->SetAttenuationValues(1.0, 0.0, 0.0);
       light->SetExponent(0);
       renderer->AddLight(light.Get());
     }
@@ -116,11 +114,11 @@ int TestSRGB(int argc, char *argv[])
     renderer->ResetCameraClippingRange();
   }
 
-
   renderWindow->Render();
-  cout << "Render window sRGB status: " << static_cast<vtkOpenGLRenderWindow *>(renderWindow.Get())->GetUsingSRGBColorSpace() << "\n";
+  cout << "Render window sRGB status: "
+       << static_cast<vtkOpenGLRenderWindow*>(renderWindow.Get())->GetUsingSRGBColorSpace() << "\n";
   int retVal = vtkRegressionTestImage(renderWindow.Get());
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -16,6 +16,6 @@
 - (void)cleanUpVTKSupport;
 
 // Accessors for the vtkRenderer.
-@property(readwrite, nonatomic, nullable, getter=getRenderer) vtkRenderer* renderer;
+@property (readwrite, nonatomic, nullable, getter=getRenderer) vtkRenderer* renderer;
 
 @end

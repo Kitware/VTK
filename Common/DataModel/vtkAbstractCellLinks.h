@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkCellLinks vtkStaticCellLinks vtkStaticCellLinksTemplate
-*/
+ */
 
 #ifndef vtkAbstractCellLinks_h
 #define vtkAbstractCellLinks_h
@@ -38,7 +38,6 @@ class vtkDataSet;
 class vtkCellArray;
 class vtkIdList;
 
-
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLinks : public vtkObject
 {
 public:
@@ -46,14 +45,14 @@ public:
   /**
    * Standard type and print methods.
    */
-  vtkTypeMacro(vtkAbstractCellLinks,vtkObject);
+  vtkTypeMacro(vtkAbstractCellLinks, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Build the link list array. All subclasses must implement this method.
    */
-  virtual void BuildLinks(vtkDataSet *data) = 0;
+  virtual void BuildLinks(vtkDataSet* data) = 0;
 
   /**
    * Release memory and revert to empty state.
@@ -84,18 +83,18 @@ public:
    * Standard DeepCopy method.  Since this object contains no reference
    * to other objects, there is no ShallowCopy.
    */
-  virtual void DeepCopy(vtkAbstractCellLinks *src) = 0;
+  virtual void DeepCopy(vtkAbstractCellLinks* src) = 0;
 
   // Enums for cell links type. Note that the specialized type is
   // set when users do not use ComputeType() and roll their own type.
   enum CellLinksTypes
   {
-    LINKS_NOT_DEFINED=0,
-    CELL_LINKS=1,
-    STATIC_CELL_LINKS_USHORT=2,
-    STATIC_CELL_LINKS_UINT=3,
-    STATIC_CELL_LINKS_IDTYPE=4,
-    STATIC_CELL_LINKS_SPECIALIZED=5
+    LINKS_NOT_DEFINED = 0,
+    CELL_LINKS = 1,
+    STATIC_CELL_LINKS_USHORT = 2,
+    STATIC_CELL_LINKS_UINT = 3,
+    STATIC_CELL_LINKS_IDTYPE = 4,
+    STATIC_CELL_LINKS_SPECIALIZED = 5
   };
 
   /**
@@ -109,12 +108,12 @@ public:
    * a vtkStaticCellLinksTemplate; when instantiating a vtkCellLinks the class
    * is hardwired for vtkIdType.
    */
-  static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca);
+  static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray* ca);
 
   /**
    * Return the type of locator (see enum above).
    */
-  int GetType() {return this->Type;}
+  int GetType() { return this->Type; }
 
   /**
    * These methods are not virtual due to performance concerns. However,
@@ -138,18 +137,17 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing,bool)
-  vtkGetMacro(SequentialProcessing,bool);
-  vtkBooleanMacro(SequentialProcessing,bool);
+  vtkSetMacro(SequentialProcessing, bool);
+  vtkGetMacro(SequentialProcessing, bool);
+  vtkBooleanMacro(SequentialProcessing, bool);
   //@}
-
 
 protected:
   vtkAbstractCellLinks();
   ~vtkAbstractCellLinks() override;
 
   bool SequentialProcessing; // control whether to thread or not
-  int Type; //derived classes set this instance variable when constructed
+  int Type;                  // derived classes set this instance variable when constructed
 
 private:
   vtkAbstractCellLinks(const vtkAbstractCellLinks&) = delete;

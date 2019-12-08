@@ -577,8 +577,8 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
       this->RowDataTimeStep.at(name) = this->CurrentTimeStep;
       return 1;
     }
-    int isLastTimeInArray =
-      vtkXMLReader::IsTimeStepInArray(this->RowDataTimeStep.at(name), this->TimeSteps, numTimeSteps);
+    int isLastTimeInArray = vtkXMLReader::IsTimeStepInArray(
+      this->RowDataTimeStep.at(name), this->TimeSteps, numTimeSteps);
     // If no time is specified or if time is specified and match then read
     if (isCurrentTimeInArray && !isLastTimeInArray)
     {

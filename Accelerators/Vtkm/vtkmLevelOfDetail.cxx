@@ -27,10 +27,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/VertexClustering.h>
@@ -38,8 +35,7 @@
 // the following
 #include <vtkm/cont/ArrayRangeCompute.hxx>
 
-
-vtkStandardNewMacro(vtkmLevelOfDetail)
+vtkStandardNewMacro(vtkmLevelOfDetail);
 
 //------------------------------------------------------------------------------
 vtkmLevelOfDetail::vtkmLevelOfDetail()
@@ -50,9 +46,7 @@ vtkmLevelOfDetail::vtkmLevelOfDetail()
 }
 
 //------------------------------------------------------------------------------
-vtkmLevelOfDetail::~vtkmLevelOfDetail()
-{
-}
+vtkmLevelOfDetail::~vtkmLevelOfDetail() {}
 
 //------------------------------------------------------------------------------
 void vtkmLevelOfDetail::SetNumberOfXDivisions(int num)
@@ -118,16 +112,13 @@ void vtkmLevelOfDetail::GetNumberOfDivisions(int div[3])
 
 //------------------------------------------------------------------------------
 int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPolyData* output =
-      vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!input || input->GetNumberOfPoints() == 0)
   {
@@ -139,16 +130,15 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-    if(in.GetNumberOfCellSets() == 0 || in.GetNumberOfCoordinateSystems() == 0)
+    if (in.GetNumberOfCells() == 0 || in.GetNumberOfPoints() == 0)
     {
       return 0;
     }
 
     vtkmInputFilterPolicy policy;
     vtkm::filter::VertexClustering filter;
-    filter.SetNumberOfDivisions(vtkm::make_Vec(this->NumberOfDivisions[0],
-                                              this->NumberOfDivisions[1],
-                                              this->NumberOfDivisions[2]));
+    filter.SetNumberOfDivisions(vtkm::make_Vec(
+      this->NumberOfDivisions[0], this->NumberOfDivisions[1], this->NumberOfDivisions[2]));
 
     auto result = filter.Execute(in, policy);
 
@@ -173,10 +163,7 @@ void vtkmLevelOfDetail::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number of X Divisions: " << this->NumberOfDivisions[0]
-     << "\n";
-  os << indent << "Number of Y Divisions: " << this->NumberOfDivisions[1]
-     << "\n";
-  os << indent << "Number of Z Divisions: " << this->NumberOfDivisions[2]
-     << "\n";
+  os << indent << "Number of X Divisions: " << this->NumberOfDivisions[0] << "\n";
+  os << indent << "Number of Y Divisions: " << this->NumberOfDivisions[1] << "\n";
+  os << indent << "Number of Z Divisions: " << this->NumberOfDivisions[2] << "\n";
 }

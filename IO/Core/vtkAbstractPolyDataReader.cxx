@@ -30,7 +30,6 @@ vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
 
 void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "NONE") << endl;
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "NONE") << endl;
 }

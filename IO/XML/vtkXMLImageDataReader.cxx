@@ -16,12 +16,12 @@
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationVector.h"
+#include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
@@ -48,7 +48,6 @@ vtkImageData* vtkXMLImageDataReader::GetOutput(int idx)
 {
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(idx));
 }
-
 
 //----------------------------------------------------------------------------
 const char* vtkXMLImageDataReader::GetDataSetName()
@@ -106,7 +105,7 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 //----------------------------------------------------------------------------
 // Note that any changes (add or removing information) made to this method
 // should be replicated in CopyOutputInformation
-void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
+void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation* outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
 
@@ -115,13 +114,11 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
   outInfo->Set(vtkDataObject::DIRECTION(), this->Direction, 9);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation* outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation(port);
+  vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
   if (localInfo->Has(vtkDataObject::ORIGIN()))
   {
     outInfo->CopyEntry(localInfo, vtkDataObject::ORIGIN());
@@ -135,7 +132,6 @@ void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int p
     outInfo->CopyEntry(localInfo, vtkDataObject::DIRECTION());
   }
 }
-
 
 //----------------------------------------------------------------------------
 int vtkXMLImageDataReader::FillOutputPortInformation(int, vtkInformation* info)

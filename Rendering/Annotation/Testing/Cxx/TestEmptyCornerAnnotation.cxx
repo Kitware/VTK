@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkTextProperty.h"
 #include "vtkActor.h"
 #include "vtkCornerAnnotation.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
 
-int TestEmptyCornerAnnotation( int argc, char * argv [] )
+int TestEmptyCornerAnnotation(int argc, char* argv[])
 {
   // Visualize
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
 
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
@@ -37,21 +37,21 @@ int TestEmptyCornerAnnotation( int argc, char * argv [] )
   // Annotate the image with window/level and mouse over pixel information
   vtkSmartPointer<vtkCornerAnnotation> cornerAnnotation =
     vtkSmartPointer<vtkCornerAnnotation>::New();
-  cornerAnnotation->SetLinearFontScaleFactor( 2 );
-  cornerAnnotation->SetNonlinearFontScaleFactor( 1 );
-  cornerAnnotation->SetMaximumFontSize( 20 );
-  cornerAnnotation->SetText( 0, "normal text" );
-  cornerAnnotation->SetText( 1, "1234567890" );
-  cornerAnnotation->SetText( 2, "~`!@#$%^&*()_-+=" );
-  cornerAnnotation->SetText( 3, "text to remove" );
-  cornerAnnotation->GetTextProperty()->SetColor( 1,0,0);
+  cornerAnnotation->SetLinearFontScaleFactor(2);
+  cornerAnnotation->SetNonlinearFontScaleFactor(1);
+  cornerAnnotation->SetMaximumFontSize(20);
+  cornerAnnotation->SetText(0, "normal text");
+  cornerAnnotation->SetText(1, "1234567890");
+  cornerAnnotation->SetText(2, "~`!@#$%^&*()_-+=");
+  cornerAnnotation->SetText(3, "text to remove");
+  cornerAnnotation->GetTextProperty()->SetColor(1, 0, 0);
 
   renderer->AddViewProp(cornerAnnotation);
 
   renderWindow->Render();
 
   // This should empty the annotation #3 and not display a black or white box
-  cornerAnnotation->SetText( 3, "" );
+  cornerAnnotation->SetText(3, "");
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);

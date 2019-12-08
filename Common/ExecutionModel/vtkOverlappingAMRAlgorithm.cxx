@@ -13,10 +13,10 @@
 
  =========================================================================*/
 #include "vtkOverlappingAMRAlgorithm.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkInformation.h"
-#include "vtkCompositeDataPipeline.h"
 
 vtkStandardNewMacro(vtkOverlappingAMRAlgorithm);
 
@@ -33,7 +33,7 @@ vtkOverlappingAMRAlgorithm::~vtkOverlappingAMRAlgorithm() = default;
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
@@ -45,24 +45,22 @@ vtkOverlappingAMR* vtkOverlappingAMRAlgorithm::GetOutput()
 //------------------------------------------------------------------------------
 vtkOverlappingAMR* vtkOverlappingAMRAlgorithm::GetOutput(int port)
 {
-  vtkDataObject *output =
-      vtkCompositeDataPipeline::SafeDownCast(
-          this->GetExecutive())->GetCompositeOutputData(port);
-  return( vtkOverlappingAMR::SafeDownCast(output));
+  vtkDataObject* output =
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->GetCompositeOutputData(port);
+  return (vtkOverlappingAMR::SafeDownCast(output));
 }
 
 //------------------------------------------------------------------------------
 int vtkOverlappingAMRAlgorithm::FillOutputPortInformation(
-    int vtkNotUsed(port),vtkInformation* info)
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkOverlappingAMR");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkOverlappingAMRAlgorithm::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info )
+int vtkOverlappingAMRAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR");
   return 1;
 }

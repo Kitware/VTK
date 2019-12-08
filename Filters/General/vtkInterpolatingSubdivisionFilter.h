@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkLinearSubdivisionFilter vtkButterflySubdivisionFilter
-*/
+ */
 
 #ifndef vtkInterpolatingSubdivisionFilter_h
 #define vtkInterpolatingSubdivisionFilter_h
@@ -51,18 +51,19 @@ protected:
   vtkInterpolatingSubdivisionFilter();
   ~vtkInterpolatingSubdivisionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
-  void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
-  int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,
-                vtkIdType p2, vtkIntArray *edgeData, vtkIdList *cellIds);
-  vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
-                                 vtkIdList *stencil, double *weights);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int GenerateSubdivisionPoints(
+    vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts, vtkPointData* outputPD) = 0;
+  void GenerateSubdivisionCells(
+    vtkPolyData* inputDS, vtkIntArray* edgeData, vtkCellArray* outputPolys, vtkCellData* outputCD);
+  int FindEdge(vtkPolyData* mesh, vtkIdType cellId, vtkIdType p1, vtkIdType p2,
+    vtkIntArray* edgeData, vtkIdList* cellIds);
+  vtkIdType InterpolatePosition(
+    vtkPoints* inputPts, vtkPoints* outputPts, vtkIdList* stencil, double* weights);
+
 private:
   vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&) = delete;
   void operator=(const vtkInterpolatingSubdivisionFilter&) = delete;
 };
 
 #endif
-
-

@@ -17,8 +17,8 @@ Test NIFTI-2 support in VTK.
 */
 
 #include "vtkNew.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"
@@ -36,10 +36,9 @@ Test NIFTI-2 support in VTK.
 
 #include <string>
 
-static const char *dispfile = "Data/avg152T1_RL_nifti2.nii.gz";
+static const char* dispfile = "Data/avg152T1_RL_nifti2.nii.gz";
 
-static void TestDisplay(
-  vtkRenderWindow *renwin, const char *infile, const char *tempDir)
+static void TestDisplay(vtkRenderWindow* renwin, const char* infile, const char* tempDir)
 {
   std::string outpath = tempDir;
   outpath += "/";
@@ -67,8 +66,7 @@ static void TestDisplay(
   reader->SetFileName(outpath.c_str());
   reader->Update();
 
-  vtkNIFTIImageHeader *header =
-    reader->GetNIFTIHeader();
+  vtkNIFTIImageHeader* header = reader->GetNIFTIHeader();
   std::string magic = header->GetMagic();
   if (magic != "n+2")
   {
@@ -85,11 +83,11 @@ static void TestDisplay(
   double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
   {
-    center1[2] += 0.5*spacing[2];
+    center1[2] += 0.5 * spacing[2];
   }
   if (size[0] % 2 == 1)
   {
-    center2[0] += 0.5*spacing[0];
+    center2[0] += 0.5 * spacing[0];
   }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
@@ -107,33 +105,33 @@ static void TestDisplay(
 
   vtkNew<vtkImageSlice> slice1;
   slice1->SetMapper(map1);
-  slice1->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
-  slice1->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
+  slice1->GetProperty()->SetColorWindow(vrange[1] - vrange[0]);
+  slice1->GetProperty()->SetColorLevel(0.5 * (vrange[0] + vrange[1]));
 
   vtkNew<vtkImageSlice> slice2;
   slice2->SetMapper(map2);
-  slice2->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
-  slice2->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
+  slice2->GetProperty()->SetColorWindow(vrange[1] - vrange[0]);
+  slice2->GetProperty()->SetColorLevel(0.5 * (vrange[0] + vrange[1]));
 
-  double ratio = size[0]*1.0/(size[0]+size[2]);
+  double ratio = size[0] * 1.0 / (size[0] + size[2]);
 
   vtkNew<vtkRenderer> ren1;
-  ren1->SetViewport(0,0,ratio,1.0);
+  ren1->SetViewport(0, 0, ratio, 1.0);
 
   vtkNew<vtkRenderer> ren2;
-  ren2->SetViewport(ratio,0.0,1.0,1.0);
+  ren2->SetViewport(ratio, 0.0, 1.0, 1.0);
   ren1->AddViewProp(slice1);
   ren2->AddViewProp(slice2);
 
-  vtkCamera *cam1 = ren1->GetActiveCamera();
+  vtkCamera* cam1 = ren1->GetActiveCamera();
   cam1->ParallelProjectionOn();
-  cam1->SetParallelScale(0.5*spacing[1]*size[1]);
+  cam1->SetParallelScale(0.5 * spacing[1] * size[1]);
   cam1->SetFocalPoint(center1[0], center1[1], center1[2]);
   cam1->SetPosition(center1[0], center1[1], center1[2] - 100.0);
 
-  vtkCamera *cam2 = ren2->GetActiveCamera();
+  vtkCamera* cam2 = ren2->GetActiveCamera();
   cam2->ParallelProjectionOn();
-  cam2->SetParallelScale(0.5*spacing[1]*size[1]);
+  cam2->SetParallelScale(0.5 * spacing[1] * size[1]);
   cam2->SetFocalPoint(center2[0], center2[1], center2[2]);
   cam2->SetPosition(center2[0] + 100.0, center2[1], center2[2]);
 
@@ -142,28 +140,27 @@ static void TestDisplay(
   renwin->AddRenderer(ren2);
 };
 
-int TestNIFTI2(int argc, char *argv[])
+int TestNIFTI2(int argc, char* argv[])
 {
   // perform the display test
-  char *infile =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
+  char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
     cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
   }
   std::string inpath = infile;
-  delete [] infile;
+  delete[] infile;
 
-  char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
     cerr << "Could not determine temporary directory.\n";
     return 1;
   }
   std::string tmppath = tempDir;
-  delete [] tempDir;
+  delete[] tempDir;
 
   vtkNew<vtkRenderWindow> renwin;
   vtkNew<vtkRenderWindowInteractor> iren;

@@ -32,7 +32,7 @@
 #define vtkOpenGLRenderTimer_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkType.h" // For vtkTypeUint64, etc
+#include "vtkType.h"                   // For vtkTypeUint64, etc
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderTimer
 {

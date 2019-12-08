@@ -63,8 +63,8 @@ public:
   /**
    * Standard methods for instantiation, type information, and printing.
    */
-  static vtkExtractEnclosedPoints *New();
-  vtkTypeMacro(vtkExtractEnclosedPoints,vtkPointCloudFilter);
+  static vtkExtractEnclosedPoints* New();
+  vtkTypeMacro(vtkExtractEnclosedPoints, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -74,7 +74,7 @@ public:
    * provided: one directly for vtkPolyData, and one for the output of a
    * filter.
    */
-  void SetSurfaceData(vtkPolyData *pd);
+  void SetSurfaceData(vtkPolyData* pd);
   void SetSurfaceConnection(vtkAlgorithmOutput* algOutput);
   //@}
 
@@ -82,8 +82,8 @@ public:
   /**
    * Return a pointer to the enclosing surface.
    */
-  vtkPolyData *GetSurface();
-  vtkPolyData *GetSurface(vtkInformationVector *sourceInfo);
+  vtkPolyData* GetSurface();
+  vtkPolyData* GetSurface(vtkInformationVector* sourceInfo);
   //@}
 
   //@{
@@ -91,9 +91,9 @@ public:
    * Specify whether to check the surface for closure. If on, then the
    * algorithm first checks to see if the surface is closed and manifold.
    */
-  vtkSetMacro(CheckSurface,vtkTypeBool);
-  vtkBooleanMacro(CheckSurface,vtkTypeBool);
-  vtkGetMacro(CheckSurface,vtkTypeBool);
+  vtkSetMacro(CheckSurface, vtkTypeBool);
+  vtkBooleanMacro(CheckSurface, vtkTypeBool);
+  vtkGetMacro(CheckSurface, vtkTypeBool);
   //@}
 
   //@{
@@ -101,8 +101,8 @@ public:
    * Specify the tolerance on the intersection. The tolerance is expressed as
    * a fraction of the diagonal of the bounding box of the enclosing surface.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Tolerance,double);
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Tolerance, double);
   //@}
 
 protected:
@@ -110,16 +110,16 @@ protected:
   ~vtkExtractEnclosedPoints() override;
 
   vtkTypeBool CheckSurface;
-  double      Tolerance;
+  double Tolerance;
 
   // Internal structures for managing the intersection testing
-  vtkPolyData *Surface;
+  vtkPolyData* Surface;
 
   // Satisfy vtkPointCloudFilter superclass API
-  int FilterPoints(vtkPointSet *input) override;
+  int FilterPoints(vtkPointSet* input) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkExtractEnclosedPoints(const vtkExtractEnclosedPoints&) = delete;

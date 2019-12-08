@@ -27,21 +27,20 @@
 #include "vtkDataSetMapper.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkMaskPoints.h"
-#include "vtkmLevelOfDetail.h"
 #include "vtkNew.h"
 #include "vtkPLYReader.h"
+#include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPNGWriter.h"
 #include "vtkProperty.h"
 #include "vtkQuadricClustering.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
@@ -50,6 +49,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkmLevelOfDetail.h"
 
 #ifdef FORCE_VTKM_DEVICE
 
@@ -95,11 +95,14 @@ struct VTKmFilterGenerator
 
   int GridSize;
 
-  VTKmFilterGenerator(int gridSize) : GridSize(gridSize) {}
-
-  FilterType *operator()() const
+  VTKmFilterGenerator(int gridSize)
+    : GridSize(gridSize)
   {
-    FilterType *filter = FilterType::New();
+  }
+
+  FilterType* operator()() const
+  {
+    FilterType* filter = FilterType::New();
     filter->SetNumberOfDivisions(this->GridSize, this->GridSize, this->GridSize);
     return filter;
   }
@@ -121,9 +124,9 @@ struct VTKFilterGenerator
   {
   }
 
-  FilterType *operator()() const
+  FilterType* operator()() const
   {
-    FilterType *filter = FilterType::New();
+    FilterType* filter = FilterType::New();
     filter->SetNumberOfDivisions(this->GridSize, this->GridSize, this->GridSize);
 
     // Mimic PV's GeometeryRepresentation decimator settings:
@@ -137,7 +140,7 @@ struct VTKFilterGenerator
 };
 
 template <typename FilterGenerator>
-double BenchmarkFilter(FilterGenerator &filterGen, vtkPolyData *input)
+double BenchmarkFilter(FilterGenerator& filterGen, vtkPolyData* input)
 {
   using FilterType = typename FilterGenerator::FilterType;
 
@@ -146,7 +149,7 @@ double BenchmarkFilter(FilterGenerator &filterGen, vtkPolyData *input)
 
   for (int i = 0; i < NUM_SAMPLES; ++i)
   {
-    FilterType *filter = filterGen();
+    FilterType* filter = filterGen();
     filter->SetInputData(input);
 
     timer->StartTimer();
@@ -161,9 +164,8 @@ double BenchmarkFilter(FilterGenerator &filterGen, vtkPolyData *input)
   return result / static_cast<double>(NUM_SAMPLES);
 }
 
-void RenderResults(int gridSize, vtkPolyData *input,
-                   double vtkmTime, vtkPolyData *vtkmData,
-                   double vtkTime, vtkPolyData *vtkData)
+void RenderResults(int gridSize, vtkPolyData* input, double vtkmTime, vtkPolyData* vtkmData,
+  double vtkTime, vtkPolyData* vtkData)
 {
   double modelColor[3] = { 1., 1., 1. };
   double bgColor[3] = { .75, .75, .75 };
@@ -268,9 +270,7 @@ void RenderResults(int gridSize, vtkPolyData *input,
   w2i->SetInput(renWin);
 
   std::ostringstream tmp;
-  tmp << "LOD_"
-      << std::setw(4) << std::setfill('0') << std::right << gridSize
-      << ".png";
+  tmp << "LOD_" << std::setw(4) << std::setfill('0') << std::right << gridSize << ".png";
 
   vtkNew<vtkPNGWriter> png;
   png->SetInputConnection(w2i->GetOutputPort());
@@ -309,8 +309,7 @@ void RunBenchmark(int gridSize)
 
 #ifdef FORCE_VTKM_DEVICE
 
-  vtkm::cont::RuntimeDeviceTracker tracker =
-      vtkm::cont::GetRuntimeDeviceTracker();
+  vtkm::cont::RuntimeDeviceTracker tracker = vtkm::cont::GetRuntimeDeviceTracker();
 
   // Run VTKm
   vtkSmartPointer<vtkPolyData> vtkmResultSerial;
@@ -368,56 +367,48 @@ void RunBenchmark(int gridSize)
     vtkResult = generator.Result;
   }
 
-  std::cerr << "Results for a "
-            << gridSize << "x" << gridSize << "x" << gridSize << " grid.\n"
-            << "Input dataset has " << input->GetNumberOfPoints() << " points "
-               "and " << input->GetNumberOfCells() << " cells.\n";
+  std::cerr << "Results for a " << gridSize << "x" << gridSize << "x" << gridSize << " grid.\n"
+            << "Input dataset has " << input->GetNumberOfPoints()
+            << " points "
+               "and "
+            << input->GetNumberOfCells() << " cells.\n";
 
 #ifdef FORCE_VTKM_DEVICE
 
-  std::cerr << "vtkmLevelOfDetail (serial, average clustered points): "
-            << vtkmTimeSerial << " seconds, "
-            << vtkmResultSerial->GetNumberOfPoints() << " points, "
+  std::cerr << "vtkmLevelOfDetail (serial, average clustered points): " << vtkmTimeSerial
+            << " seconds, " << vtkmResultSerial->GetNumberOfPoints() << " points, "
             << vtkmResultSerial->GetNumberOfCells() << " cells.\n";
 
 #ifdef VTKM_ENABLE_TBB
   if (tbbDeviceValid)
   {
-    std::cerr << "vtkmLevelOfDetail (tbb, average clustered points): "
-              << vtkmTimeTBB << " seconds, "
-              << vtkmResultTBB->GetNumberOfPoints() << " points, "
+    std::cerr << "vtkmLevelOfDetail (tbb, average clustered points): " << vtkmTimeTBB
+              << " seconds, " << vtkmResultTBB->GetNumberOfPoints() << " points, "
               << vtkmResultTBB->GetNumberOfCells() << " cells.\n";
   }
 #endif // VTKM_ENABLE_TBB
 
 #else // !FORCE_VTKM_DEVICE
 
-  std::cerr << "vtkmLevelOfDetail (average clustered points): "
-            << vtkmTime << " seconds, "
-            << vtkmResult->GetNumberOfPoints() << " points, "
-            << vtkmResult->GetNumberOfCells() << " cells.\n";
+  std::cerr << "vtkmLevelOfDetail (average clustered points): " << vtkmTime << " seconds, "
+            << vtkmResult->GetNumberOfPoints() << " points, " << vtkmResult->GetNumberOfCells()
+            << " cells.\n";
 
 #endif // !FORCE_VTKM_DEVICE
 
-  std::cerr << "vtkQuadricClustering (average clustered points): "
-            << vtkTimeAvePts << " seconds, "
+  std::cerr << "vtkQuadricClustering (average clustered points): " << vtkTimeAvePts << " seconds, "
             << vtkResultAvePts->GetNumberOfPoints() << " points, "
             << vtkResultAvePts->GetNumberOfCells() << " cells.\n"
-            << "vtkQuadricClustering (reuse input points): "
-            << vtkTime << " seconds, "
-            << vtkResult->GetNumberOfPoints() << " points, "
-            << vtkResult->GetNumberOfCells() << " cells.\n";
+            << "vtkQuadricClustering (reuse input points): " << vtkTime << " seconds, "
+            << vtkResult->GetNumberOfPoints() << " points, " << vtkResult->GetNumberOfCells()
+            << " cells.\n";
 
 #ifdef FORCE_VTKM_DEVICE
 #ifdef VTKM_ENABLE_TBB
-  RenderResults(gridSize, input,
-                vtkmTimeTBB, vtkmResultTBB,
-                vtkTime, vtkResult);
+  RenderResults(gridSize, input, vtkmTimeTBB, vtkmResultTBB, vtkTime, vtkResult);
 #endif // VTKM_ENABLE_TBB
-#else // !FORCE_VTKM_DEVICE
-  RenderResults(gridSize, input,
-                vtkmTime, vtkmResult,
-                vtkTime, vtkResult);
+#else  // !FORCE_VTKM_DEVICE
+  RenderResults(gridSize, input, vtkmTime, vtkmResult, vtkTime, vtkResult);
 #endif // !FORCE_VTKM_DEVICE
 }
 
@@ -432,7 +423,7 @@ void RunBenchmarks()
 
 } // end anon namespace
 
-int TestVTKMLevelOfDetail(int argc, char *argv[])
+int TestVTKMLevelOfDetail(int argc, char* argv[])
 {
   bool doBenchmarks = false;
 
@@ -461,8 +452,7 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   //---------------------------------------------------
   // Load file and make only triangles
   //---------------------------------------------------
-  char* fname =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
   vtkNew<vtkXMLPolyDataReader> reader;
   reader->SetFileName(fname);
   delete[] fname;
@@ -477,25 +467,25 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   // levels of subdivision to make sure it is working properly
   //---------------------------------------------------
 
-  std::vector< vtkNew<vtkmLevelOfDetail> > levelOfDetails(4);
-  std::vector< vtkNew<vtkDataSetSurfaceFilter> > surfaces(4);
-  std::vector< vtkNew<vtkPolyDataMapper> > mappers(4);
-  std::vector< vtkNew<vtkActor> > actors(4);
+  std::vector<vtkNew<vtkmLevelOfDetail> > levelOfDetails(4);
+  std::vector<vtkNew<vtkDataSetSurfaceFilter> > surfaces(4);
+  std::vector<vtkNew<vtkPolyDataMapper> > mappers(4);
+  std::vector<vtkNew<vtkActor> > actors(4);
 
-  for (int i=0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i)
   {
     levelOfDetails[i]->SetInputConnection(clean->GetOutputPort());
-    //subdivision levels of 16, 32, 48, 64
-    levelOfDetails[i]->SetNumberOfXDivisions( ((i+1) * 16) );
-    levelOfDetails[i]->SetNumberOfYDivisions( ((i+1) * 16) );
-    levelOfDetails[i]->SetNumberOfZDivisions( ((i+1) * 16));
+    // subdivision levels of 16, 32, 48, 64
+    levelOfDetails[i]->SetNumberOfXDivisions(((i + 1) * 16));
+    levelOfDetails[i]->SetNumberOfYDivisions(((i + 1) * 16));
+    levelOfDetails[i]->SetNumberOfZDivisions(((i + 1) * 16));
 
     surfaces[i]->SetInputConnection(levelOfDetails[i]->GetOutputPort());
 
     mappers[i]->SetInputConnection(surfaces[i]->GetOutputPort());
 
     actors[i]->SetMapper(mappers[i]);
-    actors[i]->SetPosition((i % 2) * 10,  -(i / 2) * 10, 0);
+    actors[i]->SetPosition((i % 2) * 10, -(i / 2) * 10, 0);
 
     ren->AddActor(actors[i]);
   }
@@ -508,7 +498,7 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;

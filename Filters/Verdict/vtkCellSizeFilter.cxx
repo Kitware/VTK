@@ -16,8 +16,8 @@
 
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -38,10 +38,16 @@
 vtkStandardNewMacro(vtkCellSizeFilter);
 
 //-----------------------------------------------------------------------------
-vtkCellSizeFilter::vtkCellSizeFilter() :
-  ComputeVertexCount(true), ComputeLength(true), ComputeArea(true), ComputeVolume(true),
-  ComputeSum(false), VertexCountArrayName(nullptr), LengthArrayName(nullptr),
-  AreaArrayName(nullptr), VolumeArrayName(nullptr)
+vtkCellSizeFilter::vtkCellSizeFilter()
+  : ComputeVertexCount(true)
+  , ComputeLength(true)
+  , ComputeArea(true)
+  , ComputeVolume(true)
+  , ComputeSum(false)
+  , VertexCountArrayName(nullptr)
+  , LengthArrayName(nullptr)
+  , AreaArrayName(nullptr)
+  , VolumeArrayName(nullptr)
 {
   this->SetVertexCountArrayName("VertexCount");
   this->SetLengthArrayName("Length");
@@ -65,7 +71,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
   vtkIdType numCells = input->GetNumberOfCells();
   vtkSmartPointer<vtkPoints> cellPoints = vtkSmartPointer<vtkPoints>::New();
   int cellType;
-  vtkDoubleArray* arrays[4] = {nullptr, nullptr, nullptr, nullptr};
+  vtkDoubleArray* arrays[4] = { nullptr, nullptr, nullptr, nullptr };
   if (this->ComputeVertexCount)
   {
     vtkNew<vtkDoubleArray> array;
@@ -119,218 +125,218 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
     value = -1;
     switch (cellType)
     {
-    case VTK_EMPTY_CELL:
-      value = 0;
-      break;
-    case VTK_VERTEX:
-      if ( this->ComputeVertexCount )
-      {
-        value = 1;
-        cellDimension = 0;
-      }
-      else
-      {
+      case VTK_EMPTY_CELL:
         value = 0;
-      }
-      break;
-    case VTK_POLY_VERTEX:
-      if ( this->ComputeVertexCount )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = static_cast<double>(cellPtIds->GetNumberOfIds());
-        cellDimension = 0;
-      }
-      else
-      {
-        value = 0;
-      }
-      break;
-    case VTK_POLY_LINE:
-    case VTK_LINE:
-    {
-      if ( this->ComputeLength )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = this->IntegratePolyLine(input, cellPtIds);
-        cellDimension = 1;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_TRIANGLE:
-    {
-      if ( this->ComputeArea )
-      {
-        input->GetCell(cellId, cell);
-        value = vtkMeshQuality::TriangleArea(cell);
-        cellDimension = 2;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_TRIANGLE_STRIP:
-    {
-      if ( this->ComputeArea )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = this->IntegrateTriangleStrip(inputPS, cellPtIds);
-        cellDimension = 2;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_POLYGON:
-    {
-      if ( this->ComputeArea )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = this->IntegratePolygon(inputPS, cellPtIds);
-        cellDimension = 2;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_PIXEL:
-    {
-      if ( this->ComputeArea )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = this->IntegratePixel(input, cellPtIds);
-        cellDimension = 2;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_QUAD:
-    {
-      if ( this->ComputeArea )
-      {
-        input->GetCell(cellId, cell);
-        value = vtkMeshQuality::QuadArea(cell);
-        cellDimension = 2;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_VOXEL:
-    {
-      if ( this->ComputeVolume )
-      {
-        input->GetCellPoints(cellId, cellPtIds);
-        value = this->IntegrateVoxel(input, cellPtIds);
-        cellDimension = 3;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    case VTK_TETRA:
-    {
-      if ( this->ComputeVolume )
-      {
-        input->GetCell(cellId, cell);
-        value = vtkMeshQuality::TetVolume(cell);
-        cellDimension = 3;
-      }
-      else
-      {
-        value = 0;
-      }
-    }
-    break;
-
-    default:
-    {
-      // We need to explicitly get the cell
-      input->GetCell(cellId, cell);
-      cellDimension = cell->GetCellDimension();
-      switch (cellDimension)
-      {
-      case 0:
-        if ( this->ComputeVertexCount )
+        break;
+      case VTK_VERTEX:
+        if (this->ComputeVertexCount)
+        {
+          value = 1;
+          cellDimension = 0;
+        }
+        else
+        {
+          value = 0;
+        }
+        break;
+      case VTK_POLY_VERTEX:
+        if (this->ComputeVertexCount)
         {
           input->GetCellPoints(cellId, cellPtIds);
           value = static_cast<double>(cellPtIds->GetNumberOfIds());
+          cellDimension = 0;
         }
         else
         {
           value = 0;
-          cellDimension = -1;
         }
         break;
-      case 1:
-        if ( this->ComputeLength )
+      case VTK_POLY_LINE:
+      case VTK_LINE:
+      {
+        if (this->ComputeLength)
         {
-          cell->Triangulate(1, cellPtIds, cellPoints);
-          value = this->IntegrateGeneral1DCell(input, cellPtIds);
+          input->GetCellPoints(cellId, cellPtIds);
+          value = this->IntegratePolyLine(input, cellPtIds);
+          cellDimension = 1;
         }
         else
         {
           value = 0;
-          cellDimension = -1;
         }
-        break;
-      case 2:
-        if ( this->ComputeArea )
-        {
-          cell->Triangulate(1, cellPtIds, cellPoints);
-          value = this->IntegrateGeneral2DCell(inputPS, cellPtIds);
-        }
-        else
-        {
-          value = 0;
-          cellDimension = -1;
-        }
-        break;
-      case 3:
-        if ( this->ComputeVolume )
-        {
-          cell->Triangulate(1, cellPtIds, cellPoints);
-          value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
-        }
-        else
-        {
-          value = 0;
-          cellDimension = -1;
-        }
-        break;
-      default:
-        vtkWarningMacro("Unsupported Cell Dimension = " << cellDimension);
-        cellDimension = -1;
       }
-    }
+      break;
+
+      case VTK_TRIANGLE:
+      {
+        if (this->ComputeArea)
+        {
+          input->GetCell(cellId, cell);
+          value = vtkMeshQuality::TriangleArea(cell);
+          cellDimension = 2;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_TRIANGLE_STRIP:
+      {
+        if (this->ComputeArea)
+        {
+          input->GetCellPoints(cellId, cellPtIds);
+          value = this->IntegrateTriangleStrip(inputPS, cellPtIds);
+          cellDimension = 2;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_POLYGON:
+      {
+        if (this->ComputeArea)
+        {
+          input->GetCellPoints(cellId, cellPtIds);
+          value = this->IntegratePolygon(inputPS, cellPtIds);
+          cellDimension = 2;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_PIXEL:
+      {
+        if (this->ComputeArea)
+        {
+          input->GetCellPoints(cellId, cellPtIds);
+          value = this->IntegratePixel(input, cellPtIds);
+          cellDimension = 2;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_QUAD:
+      {
+        if (this->ComputeArea)
+        {
+          input->GetCell(cellId, cell);
+          value = vtkMeshQuality::QuadArea(cell);
+          cellDimension = 2;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_VOXEL:
+      {
+        if (this->ComputeVolume)
+        {
+          input->GetCellPoints(cellId, cellPtIds);
+          value = this->IntegrateVoxel(input, cellPtIds);
+          cellDimension = 3;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      case VTK_TETRA:
+      {
+        if (this->ComputeVolume)
+        {
+          input->GetCell(cellId, cell);
+          value = vtkMeshQuality::TetVolume(cell);
+          cellDimension = 3;
+        }
+        else
+        {
+          value = 0;
+        }
+      }
+      break;
+
+      default:
+      {
+        // We need to explicitly get the cell
+        input->GetCell(cellId, cell);
+        cellDimension = cell->GetCellDimension();
+        switch (cellDimension)
+        {
+          case 0:
+            if (this->ComputeVertexCount)
+            {
+              input->GetCellPoints(cellId, cellPtIds);
+              value = static_cast<double>(cellPtIds->GetNumberOfIds());
+            }
+            else
+            {
+              value = 0;
+              cellDimension = -1;
+            }
+            break;
+          case 1:
+            if (this->ComputeLength)
+            {
+              cell->Triangulate(1, cellPtIds, cellPoints);
+              value = this->IntegrateGeneral1DCell(input, cellPtIds);
+            }
+            else
+            {
+              value = 0;
+              cellDimension = -1;
+            }
+            break;
+          case 2:
+            if (this->ComputeArea)
+            {
+              cell->Triangulate(1, cellPtIds, cellPoints);
+              value = this->IntegrateGeneral2DCell(inputPS, cellPtIds);
+            }
+            else
+            {
+              value = 0;
+              cellDimension = -1;
+            }
+            break;
+          case 3:
+            if (this->ComputeVolume)
+            {
+              cell->Triangulate(1, cellPtIds, cellPoints);
+              value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
+            }
+            else
+            {
+              value = 0;
+              cellDimension = -1;
+            }
+            break;
+          default:
+            vtkWarningMacro("Unsupported Cell Dimension = " << cellDimension);
+            cellDimension = -1;
+        }
+      }
     } // end switch (cellType)
     if (cellDimension != -1)
     { // a valid cell that we want to compute the size of
       arrays[cellDimension]->SetValue(cellId, value);
-      if ( sum && (!ghostArray || !ghostArray->GetValue(cellId) ) )
+      if (sum && (!ghostArray || !ghostArray->GetValue(cellId)))
       {
         sum[cellDimension] += value;
       }
@@ -346,10 +352,11 @@ int vtkCellSizeFilter::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   bool retVal = true;
-  if (vtkDataSet* inputDataSet = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+  if (vtkDataSet* inputDataSet =
+        vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
   {
     vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-    double sum[4] = {0, 0, 0, 0};
+    double sum[4] = { 0, 0, 0, 0 };
     retVal = this->ComputeDataSet(inputDataSet, output, sum);
     if (this->ComputeSum)
     {
@@ -358,17 +365,17 @@ int vtkCellSizeFilter::RequestData(
     }
   }
   else if (vtkCompositeDataSet* input =
-           vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+             vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
   {
     vtkCompositeDataSet* output =
       vtkCompositeDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
     output->CopyStructure(input);
     vtkCompositeDataIterator* iter = input->NewIterator();
     iter->SkipEmptyNodesOff();
-    double sumComposite[4] = {0, 0, 0, 0};
+    double sumComposite[4] = { 0, 0, 0, 0 };
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-      double sum[4] = {0, 0, 0, 0};
+      double sum[4] = { 0, 0, 0, 0 };
       if (vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
       {
         vtkDataSet* outputDS = inputDS->NewInstance();
@@ -382,7 +389,7 @@ int vtkCellSizeFilter::RequestData(
       }
       if (this->ComputeSum)
       {
-        for (int i=0;i<4;i++)
+        for (int i = 0; i < 4; i++)
         {
           sumComposite[i] += sum[i];
         }
@@ -397,16 +404,15 @@ int vtkCellSizeFilter::RequestData(
   else
   {
     retVal = false;
-    vtkWarningMacro("Cannot handle input of type " <<
-                    inInfo->Get(vtkDataObject::DATA_OBJECT())->GetClassName());
+    vtkWarningMacro(
+      "Cannot handle input of type " << inInfo->Get(vtkDataObject::DATA_OBJECT())->GetClassName());
   }
 
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkCellSizeFilter::ComputeDataSet(
-  vtkDataSet* input, vtkDataSet* output, double sum[4])
+bool vtkCellSizeFilter::ComputeDataSet(vtkDataSet* input, vtkDataSet* output, double sum[4])
 {
   output->ShallowCopy(input);
 
@@ -428,8 +434,7 @@ bool vtkCellSizeFilter::ComputeDataSet(
 }
 
 //-----------------------------------------------------------------------------
-void vtkCellSizeFilter::IntegrateImageData(
-  vtkImageData* input, vtkImageData* output, double sum[4])
+void vtkCellSizeFilter::IntegrateImageData(vtkImageData* input, vtkImageData* output, double sum[4])
 {
   int extent[6];
   input->GetExtent(extent);
@@ -437,9 +442,9 @@ void vtkCellSizeFilter::IntegrateImageData(
   input->GetSpacing(spacing);
   double val = 1;
   int dimension = 0;
-  for (int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
-    if (extent[2*i+1] > extent[2*i])
+    if (extent[2 * i + 1] > extent[2 * i])
     {
       val *= spacing[i];
       dimension++;
@@ -509,7 +514,7 @@ void vtkCellSizeFilter::IntegrateImageData(
   {
     if (vtkUnsignedCharArray* ghosts = input->GetCellGhostArray())
     {
-      for (vtkIdType i=0;i<output->GetNumberOfCells();i++)
+      for (vtkIdType i = 0; i < output->GetNumberOfCells(); i++)
       {
         if (!ghosts->GetValue(i))
         {
@@ -519,7 +524,7 @@ void vtkCellSizeFilter::IntegrateImageData(
     }
     else
     {
-      sum[dimension] = input->GetNumberOfCells()*val;
+      sum[dimension] = input->GetNumberOfCells() * val;
     }
   }
 }
@@ -546,8 +551,7 @@ double vtkCellSizeFilter::IntegratePolyLine(vtkDataSet* input, vtkIdList* ptIds)
 }
 
 //-----------------------------------------------------------------------------
-double vtkCellSizeFilter::IntegrateGeneral1DCell(
-  vtkDataSet* input, vtkIdList* ptIds)
+double vtkCellSizeFilter::IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* ptIds)
 {
   // Determine the number of lines
   vtkIdType nPnts = ptIds->GetNumberOfIds();
@@ -577,8 +581,7 @@ double vtkCellSizeFilter::IntegrateGeneral1DCell(
 }
 
 //-----------------------------------------------------------------------------
-double vtkCellSizeFilter::IntegrateTriangleStrip(
-  vtkPointSet* input, vtkIdList* ptIds)
+double vtkCellSizeFilter::IntegrateTriangleStrip(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType trianglePtIds[3];
   vtkIdType numTris = ptIds->GetNumberOfIds() - 2;
@@ -600,7 +603,7 @@ double vtkCellSizeFilter::IntegrateTriangleStrip(
 double vtkCellSizeFilter::IntegratePolygon(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType numTris = ptIds->GetNumberOfIds() - 2;
-  vtkIdType trianglePtIds[3] = {ptIds->GetId(0), 0, 0};
+  vtkIdType trianglePtIds[3] = { ptIds->GetId(0), 0, 0 };
   double sum = 0;
   for (vtkIdType triIdx = 0; triIdx < numTris; ++triIdx)
   {
@@ -637,8 +640,7 @@ double vtkCellSizeFilter::IntegratePixel(vtkDataSet* input, vtkIdList* cellPtIds
 }
 
 //-----------------------------------------------------------------------------
-double vtkCellSizeFilter::IntegrateGeneral2DCell(
-  vtkPointSet* input, vtkIdList* ptIds)
+double vtkCellSizeFilter::IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType nPnts = ptIds->GetNumberOfIds();
   // There should be a number of points that is a multiple of 3
@@ -666,8 +668,7 @@ double vtkCellSizeFilter::IntegrateGeneral2DCell(
 
 //-----------------------------------------------------------------------------
 // For axis aligned hexahedral cells
-double vtkCellSizeFilter::IntegrateVoxel(
-  vtkDataSet* input, vtkIdList* cellPtIds)
+double vtkCellSizeFilter::IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds)
 {
   vtkIdType pt1Id, pt2Id, pt3Id, pt4Id, pt5Id;
   double pts[5][3];
@@ -690,8 +691,7 @@ double vtkCellSizeFilter::IntegrateVoxel(
 }
 
 //-----------------------------------------------------------------------------
-double vtkCellSizeFilter::IntegrateGeneral3DCell(
-  vtkPointSet* input, vtkIdList* ptIds)
+double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* ptIds)
 {
   vtkIdType nPnts = ptIds->GetNumberOfIds();
   // There should be a number of points that is a multiple of 4

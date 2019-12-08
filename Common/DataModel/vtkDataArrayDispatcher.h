@@ -17,6 +17,8 @@
  * @class   vtkDataArrayDispatcher
  * @brief   Dispatch to functor vtkDataArrayType
  *
+ * @warning The vtkArrayDispatch utilities should be used instead.
+ *
  * vtkDataArrayDispatcher is a class that allows calling a functor based
  * on the data type of the vtkDataArray subclass. This is a wrapper
  * around the vtkTemplateMacro (VTK_TT) to allow easier implementation and
@@ -46,21 +48,25 @@
  *
  *
  * @sa
- * vtkDispatcher vtkDoubleDispatcher
-*/
+ * vtkArrayDispatch
+ */
 
 #ifndef vtkDataArrayDispatcher_h
 #define vtkDataArrayDispatcher_h
 
-#include "vtkType.h" //Required for vtkIdType
+#include "vtkConfigure.h"
+
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkDataArray.h" //required for constructor of the vtkDataArrayFunctor
-#include <map> //Required for the storage of template params to runtime params
+#include "vtkType.h"      //Required for vtkIdType
+#include <map>            //Required for the storage of template params to runtime params
 
 ////////////////////////////////////////////////////////////////////////////////
 // Object that is passed to all functor that are used with this class
 // This allows the user the ability to find info about the size
 ////////////////////////////////////////////////////////////////////////////////
-template<typename T>
+template <typename T>
 struct vtkDataArrayDispatcherPointer
 {
   typedef T ValueType;
@@ -69,25 +75,21 @@ struct vtkDataArrayDispatcherPointer
   vtkIdType NumberOfComponents;
   ValueType* RawPointer;
 
-  explicit vtkDataArrayDispatcherPointer(vtkDataArray* array):
-    NumberOfTuples(array->GetNumberOfTuples()),
-    NumberOfComponents(array->GetNumberOfComponents()),
-    RawPointer(static_cast<ValueType*>(array->GetVoidPointer(0)))
-    {}
+  explicit vtkDataArrayDispatcherPointer(vtkDataArray* array)
+    : NumberOfTuples(array->GetNumberOfTuples())
+    , NumberOfComponents(array->GetNumberOfComponents())
+    , RawPointer(static_cast<ValueType*>(array->GetVoidPointer(0)))
+  {
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // class template FunctorDispatcher
 ////////////////////////////////////////////////////////////////////////////////
-template
-  <
-    class DefaultFunctorType,
-    typename ReturnType = void
-  >
+template <class DefaultFunctorType, typename ReturnType = void>
 class vtkDataArrayDispatcher
 {
 public:
-
   /**
    * Specify the functor that is to be used when dispatching. This allows
    * you to specify a statefull functor.
@@ -97,7 +99,7 @@ public:
    * struct storeLengthFunctor
    * {
    * int length;
-   * storeLengthFunctor():length(0){}
+   * storeLengthFunctor() : length(0) {}
 
    * template<typename T>
    * void operator()(vtkDataArrayDispatcherPointer<T> array)
@@ -132,46 +134,48 @@ protected:
   bool OwnsFunctor;
 };
 
-//We are making all these method non-inline to reduce compile time overhead
+// We are making all these method non-inline to reduce compile time overhead
 
 //----------------------------------------------------------------------------
-template<class DefaultFunctorType,typename ReturnType>
-vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::vtkDataArrayDispatcher(DefaultFunctorType& fun):
-  DefaultFunctor(&fun),
-  OwnsFunctor(false)
+template <class DefaultFunctorType, typename ReturnType>
+vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::vtkDataArrayDispatcher(
+  DefaultFunctorType& fun)
+  : DefaultFunctor(&fun)
+  , OwnsFunctor(false)
 {
+  VTK_LEGACY_BODY(vtkDataArrayDispatcher, "VTK 9.0");
 }
 
 //----------------------------------------------------------------------------
-template<class DefaultFunctorType,typename ReturnType>
-vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::vtkDataArrayDispatcher():
-  DefaultFunctor(new DefaultFunctorType()),
-  OwnsFunctor(true)
+template <class DefaultFunctorType, typename ReturnType>
+vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::vtkDataArrayDispatcher()
+  : DefaultFunctor(new DefaultFunctorType())
+  , OwnsFunctor(true)
 {
+  VTK_LEGACY_BODY(vtkDataArrayDispatcher, "VTK 9.0");
 }
 
 //----------------------------------------------------------------------------
-template<class DefaultFunctorType,typename ReturnType>
-vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::~vtkDataArrayDispatcher()
+template <class DefaultFunctorType, typename ReturnType>
+vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::~vtkDataArrayDispatcher()
 {
-  if(OwnsFunctor)
+  if (OwnsFunctor)
   {
     delete this->DefaultFunctor;
   }
 }
 
 //----------------------------------------------------------------------------
-template <class DefaultFunctorType,typename ReturnType>
-ReturnType vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>
-::Go(vtkDataArray* lhs)
+template <class DefaultFunctorType, typename ReturnType>
+ReturnType vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::Go(vtkDataArray* lhs)
 {
-  switch(lhs->GetDataType())
+  switch (lhs->GetDataType())
   {
-      vtkTemplateMacro(return (*this->DefaultFunctor) (
-                      vtkDataArrayDispatcherPointer<VTK_TT>(lhs) ));
+    vtkTemplateMacro(return (*this->DefaultFunctor)(vtkDataArrayDispatcherPointer<VTK_TT>(lhs)));
   }
   return ReturnType();
 }
 
+#endif // legacy
 #endif // vtkDataArrayDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDataArrayDispatcher.h

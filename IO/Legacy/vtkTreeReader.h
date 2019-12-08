@@ -26,43 +26,43 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkTree vtkDataReader vtkTreeWriter
-*/
+ */
 
 #ifndef vtkTreeReader_h
 #define vtkTreeReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkTree;
 
 class VTKIOLEGACY_EXPORT vtkTreeReader : public vtkDataReader
 {
 public:
-  static vtkTreeReader *New();
-  vtkTypeMacro(vtkTreeReader,vtkDataReader);
+  static vtkTreeReader* New();
+  vtkTypeMacro(vtkTreeReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this reader.
    */
-  vtkTree *GetOutput();
-  vtkTree *GetOutput(int idx);
-  void SetOutput(vtkTree *output);
+  vtkTree* GetOutput();
+  vtkTree* GetOutput(int idx);
+  void SetOutput(vtkTree* output);
   //@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkTreeReader();
   ~vtkTreeReader() override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkTreeReader(const vtkTreeReader&) = delete;
   void operator=(const vtkTreeReader&) = delete;

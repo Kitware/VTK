@@ -25,21 +25,21 @@
 #include "vtkIdList.h"
 #include "vtkLight.h"
 #include "vtkObjectFactory.h"
+#include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataToReebGraphFilter.h"
 #include "vtkProperty.h"
-#include "vtkPNGWriter.h"
 #include "vtkReebGraph.h"
-#include "vtkReebGraphSurfaceSkeletonFilter.h"
 #include "vtkReebGraphSimplificationFilter.h"
 #include "vtkReebGraphSimplificationMetric.h"
+#include "vtkReebGraphSurfaceSkeletonFilter.h"
 #include "vtkReebGraphToJoinSplitTreeFilter.h"
 #include "vtkReebGraphVolumeSkeletonFilter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 #include "vtkTriangle.h"
@@ -53,187 +53,186 @@
 
 // loading code generated automatically.
 // put whatever mesh you like here.
-int LoadVolumeMesh(vtkUnstructuredGrid *vMesh)
+int LoadVolumeMesh(vtkUnstructuredGrid* vMesh)
 {
   vMesh->Allocate();
 
-  vtkPoints *points = vtkPoints::New();
-  points->InsertNextPoint( 0, 0, 0);
-  points->InsertNextPoint( 0.632981, 0.774167, 0);
-  points->InsertNextPoint( 1.26596, 1.54833, 0);
-  points->InsertNextPoint( 1.89894, 2.3225, 0);
-  points->InsertNextPoint( -0.774167, 0.632981, 0);
-  points->InsertNextPoint( -0.141186, 1.40715, 0);
-  points->InsertNextPoint( 0.491796, 2.18132, 0);
-  points->InsertNextPoint( 1.12478, 2.95548, 0);
-  points->InsertNextPoint( -1.54833, 1.26596, 0);
-  points->InsertNextPoint( -0.915353, 2.04013, 0);
-  points->InsertNextPoint( -0.282372, 2.8143, 0);
-  points->InsertNextPoint( 0.35061, 3.58846, 0);
-  points->InsertNextPoint( -2.3225, 1.89894, 0);
-  points->InsertNextPoint( -1.68952, 2.67311, 0);
-  points->InsertNextPoint( -1.05654, 3.44728, 0);
-  points->InsertNextPoint( -0.423557, 4.22145, 0);
-  points->InsertNextPoint( -3.09667, 2.53193, 0);
-  points->InsertNextPoint( -2.46369, 3.30609, 0);
-  points->InsertNextPoint( -1.83071, 4.08026, 0);
-  points->InsertNextPoint( -1.19772, 4.85443, 0);
-  points->InsertNextPoint( -3.87084, 3.16491, 0);
-  points->InsertNextPoint( -3.23785, 3.93907, 0);
-  points->InsertNextPoint( -2.60487, 4.71324, 0);
-  points->InsertNextPoint( -1.97189, 5.48741, 0);
-  points->InsertNextPoint( -4.645, 3.79789, 0);
-  points->InsertNextPoint( -4.01202, 4.57205, 0);
-  points->InsertNextPoint( -3.37904, 5.34622, 0);
-  points->InsertNextPoint( -2.74606, 6.12039, 0);
-  points->InsertNextPoint( -5.41917, 4.43087, 0);
-  points->InsertNextPoint( -4.78619, 5.20504, 0);
-  points->InsertNextPoint( -4.15321, 5.9792, 0);
-  points->InsertNextPoint( -3.52023, 6.75337, 0);
-  points->InsertNextPoint( 0, 0, 1);
-  points->InsertNextPoint( 0.632981, 0.774167, 1);
-  points->InsertNextPoint( 1.26596, 1.54833, 1);
-  points->InsertNextPoint( 1.89894, 2.3225, 1);
-  points->InsertNextPoint( -0.774167, 0.632981, 1);
-  points->InsertNextPoint( -0.141186, 1.40715, 1);
-  points->InsertNextPoint( 0.491796, 2.18132, 1);
-  points->InsertNextPoint( 1.12478, 2.95548, 1);
-  points->InsertNextPoint( -1.54833, 1.26596, 1);
-  points->InsertNextPoint( -0.915353, 2.04013, 1);
-  points->InsertNextPoint( -0.282372, 2.8143, 1);
-  points->InsertNextPoint( 0.35061, 3.58846, 1);
-  points->InsertNextPoint( -2.3225, 1.89894, 1);
-  points->InsertNextPoint( -1.68952, 2.67311, 1);
-  points->InsertNextPoint( -1.05654, 3.44728, 1);
-  points->InsertNextPoint( -0.423557, 4.22145, 1);
-  points->InsertNextPoint( -3.09667, 2.53193, 1);
-  points->InsertNextPoint( -2.46369, 3.30609, 1);
-  points->InsertNextPoint( -1.83071, 4.08026, 1);
-  points->InsertNextPoint( -1.19772, 4.85443, 1);
-  points->InsertNextPoint( -3.87084, 3.16491, 1);
-  points->InsertNextPoint( -3.23785, 3.93907, 1);
-  points->InsertNextPoint( -2.60487, 4.71324, 1);
-  points->InsertNextPoint( -1.97189, 5.48741, 1);
-  points->InsertNextPoint( -4.645, 3.79789, 1);
-  points->InsertNextPoint( -4.01202, 4.57205, 1);
-  points->InsertNextPoint( -3.37904, 5.34622, 1);
-  points->InsertNextPoint( -2.74606, 6.12039, 1);
-  points->InsertNextPoint( -5.41917, 4.43087, 1);
-  points->InsertNextPoint( -4.78619, 5.20504, 1);
-  points->InsertNextPoint( -4.15321, 5.9792, 1);
-  points->InsertNextPoint( -3.52023, 6.75337, 1);
-  points->InsertNextPoint( -0.0352964, 0.351787, 0.25);
-  points->InsertNextPoint( -0.264135, 0.86182, 0.25);
-  points->InsertNextPoint( -0.228838, 0.510032, 0.5);
-  points->InsertNextPoint( 0.0876524, 0.897116, 0.5);
-  points->InsertNextPoint( -0.105889, 1.05536, 0.75);
-  points->InsertNextPoint( 0.122949, 0.545329, 0.75);
-  points->InsertNextPoint( 0.597685, 1.12595, 0.25);
-  points->InsertNextPoint( 0.368847, 1.63599, 0.25);
-  points->InsertNextPoint( 0.404143, 1.2842, 0.5);
-  points->InsertNextPoint( 0.720634, 1.67128, 0.5);
-  points->InsertNextPoint( 0.527092, 1.82953, 0.75);
-  points->InsertNextPoint( 0.75593, 1.3195, 0.75);
-  points->InsertNextPoint( 1.23067, 1.90012, 0.25);
-  points->InsertNextPoint( 1.00183, 2.41015, 0.25);
-  points->InsertNextPoint( 1.03712, 2.05837, 0.5);
-  points->InsertNextPoint( 1.35362, 2.44545, 0.5);
-  points->InsertNextPoint( 1.16007, 2.6037, 0.75);
-  points->InsertNextPoint( 1.38891, 2.09366, 0.75);
-  points->InsertNextPoint( -0.809464, 0.984768, 0.25);
-  points->InsertNextPoint( -1.0383, 1.4948, 0.25);
-  points->InsertNextPoint( -1.00301, 1.14301, 0.5);
-  points->InsertNextPoint( -0.686515, 1.5301, 0.5);
-  points->InsertNextPoint( -0.880056, 1.68834, 0.75);
-  points->InsertNextPoint( -0.651218, 1.17831, 0.75);
-  points->InsertNextPoint( 0.456499, 2.5331, 0.25);
-  points->InsertNextPoint( 0.227661, 3.04313, 0.25);
-  points->InsertNextPoint( 0.262957, 2.69135, 0.5);
-  points->InsertNextPoint( 0.579448, 3.07843, 0.5);
-  points->InsertNextPoint( 0.385906, 3.23668, 0.75);
-  points->InsertNextPoint( 0.614744, 2.72664, 0.75);
-  points->InsertNextPoint( -1.58363, 1.61775, 0.25);
-  points->InsertNextPoint( -1.81247, 2.12778, 0.25);
-  points->InsertNextPoint( -1.77717, 1.776, 0.5);
-  points->InsertNextPoint( -1.46068, 2.16308, 0.5);
-  points->InsertNextPoint( -1.65422, 2.32132, 0.75);
-  points->InsertNextPoint( -1.42539, 1.81129, 0.75);
-  points->InsertNextPoint( -0.950649, 2.39192, 0.25);
-  points->InsertNextPoint( -1.17949, 2.90195, 0.25);
-  points->InsertNextPoint( -1.14419, 2.55016, 0.5);
-  points->InsertNextPoint( -0.8277, 2.93725, 0.5);
-  points->InsertNextPoint( -1.02124, 3.09549, 0.75);
-  points->InsertNextPoint( -0.792404, 2.58546, 0.75);
-  points->InsertNextPoint( -0.317668, 3.16608, 0.25);
-  points->InsertNextPoint( -0.546506, 3.67612, 0.25);
-  points->InsertNextPoint( -0.51121, 3.32433, 0.5);
-  points->InsertNextPoint( -0.194719, 3.71141, 0.5);
-  points->InsertNextPoint( -0.388261, 3.86966, 0.75);
-  points->InsertNextPoint( -0.159423, 3.35963, 0.75);
-  points->InsertNextPoint( -2.3578, 2.25073, 0.25);
-  points->InsertNextPoint( -2.58664, 2.76076, 0.25);
-  points->InsertNextPoint( -2.55134, 2.40898, 0.5);
-  points->InsertNextPoint( -2.23485, 2.79606, 0.5);
-  points->InsertNextPoint( -2.42839, 2.95431, 0.75);
-  points->InsertNextPoint( -2.19955, 2.44427, 0.75);
-  points->InsertNextPoint( -1.09184, 3.79907, 0.25);
-  points->InsertNextPoint( -1.32067, 4.3091, 0.25);
-  points->InsertNextPoint( -1.28538, 3.95731, 0.5);
-  points->InsertNextPoint( -0.968886, 4.34439, 0.5);
-  points->InsertNextPoint( -1.16243, 4.50264, 0.75);
-  points->InsertNextPoint( -0.93359, 3.99261, 0.75);
-  points->InsertNextPoint( -3.13196, 2.88371, 0.25);
-  points->InsertNextPoint( -3.3608, 3.39374, 0.25);
-  points->InsertNextPoint( -3.32551, 3.04196, 0.5);
-  points->InsertNextPoint( -3.00902, 3.42904, 0.5);
-  points->InsertNextPoint( -3.20256, 3.58729, 0.75);
-  points->InsertNextPoint( -2.97372, 3.07725, 0.75);
-  points->InsertNextPoint( -2.49898, 3.65788, 0.25);
-  points->InsertNextPoint( -2.72782, 4.16791, 0.25);
-  points->InsertNextPoint( -2.69253, 3.81612, 0.5);
-  points->InsertNextPoint( -2.37603, 4.20321, 0.5);
-  points->InsertNextPoint( -2.56958, 4.36145, 0.75);
-  points->InsertNextPoint( -2.34074, 3.85142, 0.75);
-  points->InsertNextPoint( -1.866, 4.43205, 0.25);
-  points->InsertNextPoint( -2.09484, 4.94208, 0.25);
-  points->InsertNextPoint( -2.05954, 4.59029, 0.5);
-  points->InsertNextPoint( -1.74305, 4.97738, 0.5);
-  points->InsertNextPoint( -1.9366, 5.13562, 0.75);
-  points->InsertNextPoint( -1.70776, 4.62559, 0.75);
-  points->InsertNextPoint( -3.90613, 3.51669, 0.25);
-  points->InsertNextPoint( -4.13497, 4.02673, 0.25);
-  points->InsertNextPoint( -4.09967, 3.67494, 0.5);
-  points->InsertNextPoint( -3.78318, 4.06202, 0.5);
-  points->InsertNextPoint( -3.97672, 4.22027, 0.75);
-  points->InsertNextPoint( -3.74789, 3.71024, 0.75);
-  points->InsertNextPoint( -2.64017, 5.06503, 0.25);
-  points->InsertNextPoint( -2.86901, 5.57506, 0.25);
-  points->InsertNextPoint( -2.83371, 5.22327, 0.5);
-  points->InsertNextPoint( -2.51722, 5.61036, 0.5);
-  points->InsertNextPoint( -2.71076, 5.7686, 0.75);
-  points->InsertNextPoint( -2.48192, 5.25857, 0.75);
-  points->InsertNextPoint( -4.6803, 4.14967, 0.25);
-  points->InsertNextPoint( -4.90914, 4.65971, 0.25);
-  points->InsertNextPoint( -4.87384, 4.30792, 0.5);
-  points->InsertNextPoint( -4.55735, 4.695, 0.5);
-  points->InsertNextPoint( -4.75089, 4.85325, 0.75);
-  points->InsertNextPoint( -4.52205, 4.34322, 0.75);
-  points->InsertNextPoint( -4.04732, 4.92384, 0.25);
-  points->InsertNextPoint( -4.27616, 5.43387, 0.25);
-  points->InsertNextPoint( -4.24086, 5.08209, 0.5);
-  points->InsertNextPoint( -3.92437, 5.46917, 0.5);
-  points->InsertNextPoint( -4.11791, 5.62742, 0.75);
-  points->InsertNextPoint( -3.88907, 5.11738, 0.75);
-  points->InsertNextPoint( -3.41434, 5.69801, 0.25);
-  points->InsertNextPoint( -3.64317, 6.20804, 0.25);
-  points->InsertNextPoint( -3.60788, 5.85625, 0.5);
-  points->InsertNextPoint( -3.29139, 6.24334, 0.5);
-  points->InsertNextPoint( -3.48493, 6.40158, 0.75);
-  points->InsertNextPoint( -3.25609, 5.89155, 0.75);
+  vtkPoints* points = vtkPoints::New();
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(0.632981, 0.774167, 0);
+  points->InsertNextPoint(1.26596, 1.54833, 0);
+  points->InsertNextPoint(1.89894, 2.3225, 0);
+  points->InsertNextPoint(-0.774167, 0.632981, 0);
+  points->InsertNextPoint(-0.141186, 1.40715, 0);
+  points->InsertNextPoint(0.491796, 2.18132, 0);
+  points->InsertNextPoint(1.12478, 2.95548, 0);
+  points->InsertNextPoint(-1.54833, 1.26596, 0);
+  points->InsertNextPoint(-0.915353, 2.04013, 0);
+  points->InsertNextPoint(-0.282372, 2.8143, 0);
+  points->InsertNextPoint(0.35061, 3.58846, 0);
+  points->InsertNextPoint(-2.3225, 1.89894, 0);
+  points->InsertNextPoint(-1.68952, 2.67311, 0);
+  points->InsertNextPoint(-1.05654, 3.44728, 0);
+  points->InsertNextPoint(-0.423557, 4.22145, 0);
+  points->InsertNextPoint(-3.09667, 2.53193, 0);
+  points->InsertNextPoint(-2.46369, 3.30609, 0);
+  points->InsertNextPoint(-1.83071, 4.08026, 0);
+  points->InsertNextPoint(-1.19772, 4.85443, 0);
+  points->InsertNextPoint(-3.87084, 3.16491, 0);
+  points->InsertNextPoint(-3.23785, 3.93907, 0);
+  points->InsertNextPoint(-2.60487, 4.71324, 0);
+  points->InsertNextPoint(-1.97189, 5.48741, 0);
+  points->InsertNextPoint(-4.645, 3.79789, 0);
+  points->InsertNextPoint(-4.01202, 4.57205, 0);
+  points->InsertNextPoint(-3.37904, 5.34622, 0);
+  points->InsertNextPoint(-2.74606, 6.12039, 0);
+  points->InsertNextPoint(-5.41917, 4.43087, 0);
+  points->InsertNextPoint(-4.78619, 5.20504, 0);
+  points->InsertNextPoint(-4.15321, 5.9792, 0);
+  points->InsertNextPoint(-3.52023, 6.75337, 0);
+  points->InsertNextPoint(0, 0, 1);
+  points->InsertNextPoint(0.632981, 0.774167, 1);
+  points->InsertNextPoint(1.26596, 1.54833, 1);
+  points->InsertNextPoint(1.89894, 2.3225, 1);
+  points->InsertNextPoint(-0.774167, 0.632981, 1);
+  points->InsertNextPoint(-0.141186, 1.40715, 1);
+  points->InsertNextPoint(0.491796, 2.18132, 1);
+  points->InsertNextPoint(1.12478, 2.95548, 1);
+  points->InsertNextPoint(-1.54833, 1.26596, 1);
+  points->InsertNextPoint(-0.915353, 2.04013, 1);
+  points->InsertNextPoint(-0.282372, 2.8143, 1);
+  points->InsertNextPoint(0.35061, 3.58846, 1);
+  points->InsertNextPoint(-2.3225, 1.89894, 1);
+  points->InsertNextPoint(-1.68952, 2.67311, 1);
+  points->InsertNextPoint(-1.05654, 3.44728, 1);
+  points->InsertNextPoint(-0.423557, 4.22145, 1);
+  points->InsertNextPoint(-3.09667, 2.53193, 1);
+  points->InsertNextPoint(-2.46369, 3.30609, 1);
+  points->InsertNextPoint(-1.83071, 4.08026, 1);
+  points->InsertNextPoint(-1.19772, 4.85443, 1);
+  points->InsertNextPoint(-3.87084, 3.16491, 1);
+  points->InsertNextPoint(-3.23785, 3.93907, 1);
+  points->InsertNextPoint(-2.60487, 4.71324, 1);
+  points->InsertNextPoint(-1.97189, 5.48741, 1);
+  points->InsertNextPoint(-4.645, 3.79789, 1);
+  points->InsertNextPoint(-4.01202, 4.57205, 1);
+  points->InsertNextPoint(-3.37904, 5.34622, 1);
+  points->InsertNextPoint(-2.74606, 6.12039, 1);
+  points->InsertNextPoint(-5.41917, 4.43087, 1);
+  points->InsertNextPoint(-4.78619, 5.20504, 1);
+  points->InsertNextPoint(-4.15321, 5.9792, 1);
+  points->InsertNextPoint(-3.52023, 6.75337, 1);
+  points->InsertNextPoint(-0.0352964, 0.351787, 0.25);
+  points->InsertNextPoint(-0.264135, 0.86182, 0.25);
+  points->InsertNextPoint(-0.228838, 0.510032, 0.5);
+  points->InsertNextPoint(0.0876524, 0.897116, 0.5);
+  points->InsertNextPoint(-0.105889, 1.05536, 0.75);
+  points->InsertNextPoint(0.122949, 0.545329, 0.75);
+  points->InsertNextPoint(0.597685, 1.12595, 0.25);
+  points->InsertNextPoint(0.368847, 1.63599, 0.25);
+  points->InsertNextPoint(0.404143, 1.2842, 0.5);
+  points->InsertNextPoint(0.720634, 1.67128, 0.5);
+  points->InsertNextPoint(0.527092, 1.82953, 0.75);
+  points->InsertNextPoint(0.75593, 1.3195, 0.75);
+  points->InsertNextPoint(1.23067, 1.90012, 0.25);
+  points->InsertNextPoint(1.00183, 2.41015, 0.25);
+  points->InsertNextPoint(1.03712, 2.05837, 0.5);
+  points->InsertNextPoint(1.35362, 2.44545, 0.5);
+  points->InsertNextPoint(1.16007, 2.6037, 0.75);
+  points->InsertNextPoint(1.38891, 2.09366, 0.75);
+  points->InsertNextPoint(-0.809464, 0.984768, 0.25);
+  points->InsertNextPoint(-1.0383, 1.4948, 0.25);
+  points->InsertNextPoint(-1.00301, 1.14301, 0.5);
+  points->InsertNextPoint(-0.686515, 1.5301, 0.5);
+  points->InsertNextPoint(-0.880056, 1.68834, 0.75);
+  points->InsertNextPoint(-0.651218, 1.17831, 0.75);
+  points->InsertNextPoint(0.456499, 2.5331, 0.25);
+  points->InsertNextPoint(0.227661, 3.04313, 0.25);
+  points->InsertNextPoint(0.262957, 2.69135, 0.5);
+  points->InsertNextPoint(0.579448, 3.07843, 0.5);
+  points->InsertNextPoint(0.385906, 3.23668, 0.75);
+  points->InsertNextPoint(0.614744, 2.72664, 0.75);
+  points->InsertNextPoint(-1.58363, 1.61775, 0.25);
+  points->InsertNextPoint(-1.81247, 2.12778, 0.25);
+  points->InsertNextPoint(-1.77717, 1.776, 0.5);
+  points->InsertNextPoint(-1.46068, 2.16308, 0.5);
+  points->InsertNextPoint(-1.65422, 2.32132, 0.75);
+  points->InsertNextPoint(-1.42539, 1.81129, 0.75);
+  points->InsertNextPoint(-0.950649, 2.39192, 0.25);
+  points->InsertNextPoint(-1.17949, 2.90195, 0.25);
+  points->InsertNextPoint(-1.14419, 2.55016, 0.5);
+  points->InsertNextPoint(-0.8277, 2.93725, 0.5);
+  points->InsertNextPoint(-1.02124, 3.09549, 0.75);
+  points->InsertNextPoint(-0.792404, 2.58546, 0.75);
+  points->InsertNextPoint(-0.317668, 3.16608, 0.25);
+  points->InsertNextPoint(-0.546506, 3.67612, 0.25);
+  points->InsertNextPoint(-0.51121, 3.32433, 0.5);
+  points->InsertNextPoint(-0.194719, 3.71141, 0.5);
+  points->InsertNextPoint(-0.388261, 3.86966, 0.75);
+  points->InsertNextPoint(-0.159423, 3.35963, 0.75);
+  points->InsertNextPoint(-2.3578, 2.25073, 0.25);
+  points->InsertNextPoint(-2.58664, 2.76076, 0.25);
+  points->InsertNextPoint(-2.55134, 2.40898, 0.5);
+  points->InsertNextPoint(-2.23485, 2.79606, 0.5);
+  points->InsertNextPoint(-2.42839, 2.95431, 0.75);
+  points->InsertNextPoint(-2.19955, 2.44427, 0.75);
+  points->InsertNextPoint(-1.09184, 3.79907, 0.25);
+  points->InsertNextPoint(-1.32067, 4.3091, 0.25);
+  points->InsertNextPoint(-1.28538, 3.95731, 0.5);
+  points->InsertNextPoint(-0.968886, 4.34439, 0.5);
+  points->InsertNextPoint(-1.16243, 4.50264, 0.75);
+  points->InsertNextPoint(-0.93359, 3.99261, 0.75);
+  points->InsertNextPoint(-3.13196, 2.88371, 0.25);
+  points->InsertNextPoint(-3.3608, 3.39374, 0.25);
+  points->InsertNextPoint(-3.32551, 3.04196, 0.5);
+  points->InsertNextPoint(-3.00902, 3.42904, 0.5);
+  points->InsertNextPoint(-3.20256, 3.58729, 0.75);
+  points->InsertNextPoint(-2.97372, 3.07725, 0.75);
+  points->InsertNextPoint(-2.49898, 3.65788, 0.25);
+  points->InsertNextPoint(-2.72782, 4.16791, 0.25);
+  points->InsertNextPoint(-2.69253, 3.81612, 0.5);
+  points->InsertNextPoint(-2.37603, 4.20321, 0.5);
+  points->InsertNextPoint(-2.56958, 4.36145, 0.75);
+  points->InsertNextPoint(-2.34074, 3.85142, 0.75);
+  points->InsertNextPoint(-1.866, 4.43205, 0.25);
+  points->InsertNextPoint(-2.09484, 4.94208, 0.25);
+  points->InsertNextPoint(-2.05954, 4.59029, 0.5);
+  points->InsertNextPoint(-1.74305, 4.97738, 0.5);
+  points->InsertNextPoint(-1.9366, 5.13562, 0.75);
+  points->InsertNextPoint(-1.70776, 4.62559, 0.75);
+  points->InsertNextPoint(-3.90613, 3.51669, 0.25);
+  points->InsertNextPoint(-4.13497, 4.02673, 0.25);
+  points->InsertNextPoint(-4.09967, 3.67494, 0.5);
+  points->InsertNextPoint(-3.78318, 4.06202, 0.5);
+  points->InsertNextPoint(-3.97672, 4.22027, 0.75);
+  points->InsertNextPoint(-3.74789, 3.71024, 0.75);
+  points->InsertNextPoint(-2.64017, 5.06503, 0.25);
+  points->InsertNextPoint(-2.86901, 5.57506, 0.25);
+  points->InsertNextPoint(-2.83371, 5.22327, 0.5);
+  points->InsertNextPoint(-2.51722, 5.61036, 0.5);
+  points->InsertNextPoint(-2.71076, 5.7686, 0.75);
+  points->InsertNextPoint(-2.48192, 5.25857, 0.75);
+  points->InsertNextPoint(-4.6803, 4.14967, 0.25);
+  points->InsertNextPoint(-4.90914, 4.65971, 0.25);
+  points->InsertNextPoint(-4.87384, 4.30792, 0.5);
+  points->InsertNextPoint(-4.55735, 4.695, 0.5);
+  points->InsertNextPoint(-4.75089, 4.85325, 0.75);
+  points->InsertNextPoint(-4.52205, 4.34322, 0.75);
+  points->InsertNextPoint(-4.04732, 4.92384, 0.25);
+  points->InsertNextPoint(-4.27616, 5.43387, 0.25);
+  points->InsertNextPoint(-4.24086, 5.08209, 0.5);
+  points->InsertNextPoint(-3.92437, 5.46917, 0.5);
+  points->InsertNextPoint(-4.11791, 5.62742, 0.75);
+  points->InsertNextPoint(-3.88907, 5.11738, 0.75);
+  points->InsertNextPoint(-3.41434, 5.69801, 0.25);
+  points->InsertNextPoint(-3.64317, 6.20804, 0.25);
+  points->InsertNextPoint(-3.60788, 5.85625, 0.5);
+  points->InsertNextPoint(-3.29139, 6.24334, 0.5);
+  points->InsertNextPoint(-3.48493, 6.40158, 0.75);
+  points->InsertNextPoint(-3.25609, 5.89155, 0.75);
   vMesh->SetPoints(points);
   points->Delete();
-  vtkIdType  *vertexIds =
-    (vtkIdType *) malloc(sizeof(vtkIdType)*4);
+  vtkIdType* vertexIds = (vtkIdType*)malloc(sizeof(vtkIdType) * 4);
 
   vertexIds[0] = 0;
   vertexIds[1] = 1;
@@ -2400,218 +2399,216 @@ int LoadVolumeMesh(vtkUnstructuredGrid *vMesh)
   return 1;
 }
 
-
 // loading code generated automatically.
 // put whatever mesh you like here.
-int LoadSurfaceMesh(vtkPolyData *sMesh)
+int LoadSurfaceMesh(vtkPolyData* sMesh)
 {
-  sMesh->Allocate();
+  sMesh->AllocateExact(1024, 1024);
 
-  vtkPoints *points = vtkPoints::New();
-  points->InsertNextPoint( -0.774167, 0.632981, 0);
-  points->InsertNextPoint( -0.141186, 1.40715, 0);
-  points->InsertNextPoint( 0.632981, 0.774167, 0);
-  points->InsertNextPoint( 0, 0, 0);
-  points->InsertNextPoint( -0.774167, 0.632981, 1);
-  points->InsertNextPoint( -0.141186, 1.40715, 1);
-  points->InsertNextPoint( 0.632981, 0.774167, 1);
-  points->InsertNextPoint( 0, 0, 1);
-  points->InsertNextPoint( 0.491796, 2.18132, 0);
-  points->InsertNextPoint( 1.26596, 1.54833, 0);
-  points->InsertNextPoint( 0.491796, 2.18132, 1);
-  points->InsertNextPoint( 1.26596, 1.54833, 1);
-  points->InsertNextPoint( 1.12478, 2.95548, 0);
-  points->InsertNextPoint( 1.89894, 2.3225, 0);
-  points->InsertNextPoint( 1.12478, 2.95548, 1);
-  points->InsertNextPoint( 1.89894, 2.3225, 1);
-  points->InsertNextPoint( -1.54833, 1.26596, 0);
-  points->InsertNextPoint( -0.915353, 2.04013, 0);
-  points->InsertNextPoint( -1.54833, 1.26596, 1);
-  points->InsertNextPoint( -0.915353, 2.04013, 1);
-  points->InsertNextPoint( -0.282372, 2.8143, 0);
-  points->InsertNextPoint( 0.35061, 3.58846, 0);
-  points->InsertNextPoint( -0.282372, 2.8143, 1);
-  points->InsertNextPoint( 0.35061, 3.58846, 1);
-  points->InsertNextPoint( -2.3225, 1.89894, 0);
-  points->InsertNextPoint( -1.68952, 2.67311, 0);
-  points->InsertNextPoint( -2.3225, 1.89894, 1);
-  points->InsertNextPoint( -1.68952, 2.67311, 1);
-  points->InsertNextPoint( -1.05654, 3.44728, 0);
-  points->InsertNextPoint( -1.05654, 3.44728, 1);
-  points->InsertNextPoint( -0.423557, 4.22145, 0);
-  points->InsertNextPoint( -0.423557, 4.22145, 1);
-  points->InsertNextPoint( -3.09667, 2.53193, 0);
-  points->InsertNextPoint( -2.46369, 3.30609, 0);
-  points->InsertNextPoint( -3.09667, 2.53193, 1);
-  points->InsertNextPoint( -2.46369, 3.30609, 1);
-  points->InsertNextPoint( -1.83071, 4.08026, 0);
-  points->InsertNextPoint( -1.19772, 4.85443, 0);
-  points->InsertNextPoint( -1.83071, 4.08026, 1);
-  points->InsertNextPoint( -1.19772, 4.85443, 1);
-  points->InsertNextPoint( -3.87084, 3.16491, 0);
-  points->InsertNextPoint( -3.23785, 3.93907, 0);
-  points->InsertNextPoint( -3.87084, 3.16491, 1);
-  points->InsertNextPoint( -3.23785, 3.93907, 1);
-  points->InsertNextPoint( -2.60487, 4.71324, 0);
-  points->InsertNextPoint( -2.60487, 4.71324, 1);
-  points->InsertNextPoint( -1.97189, 5.48741, 0);
-  points->InsertNextPoint( -1.97189, 5.48741, 1);
-  points->InsertNextPoint( -4.645, 3.79789, 0);
-  points->InsertNextPoint( -4.01202, 4.57205, 0);
-  points->InsertNextPoint( -4.645, 3.79789, 1);
-  points->InsertNextPoint( -4.01202, 4.57205, 1);
-  points->InsertNextPoint( -3.37904, 5.34622, 0);
-  points->InsertNextPoint( -2.74606, 6.12039, 0);
-  points->InsertNextPoint( -3.37904, 5.34622, 1);
-  points->InsertNextPoint( -2.74606, 6.12039, 1);
-  points->InsertNextPoint( -5.41917, 4.43087, 0);
-  points->InsertNextPoint( -4.78619, 5.20504, 0);
-  points->InsertNextPoint( -5.41917, 4.43087, 1);
-  points->InsertNextPoint( -4.78619, 5.20504, 1);
-  points->InsertNextPoint( -4.15321, 5.9792, 0);
-  points->InsertNextPoint( -4.15321, 5.9792, 1);
-  points->InsertNextPoint( -3.52023, 6.75337, 0);
-  points->InsertNextPoint( -3.52023, 6.75337, 1);
-  points->InsertNextPoint( -0.0941238, 0.938099, 0);
-  points->InsertNextPoint( -0.0470619, 0.469049, 0);
-  points->InsertNextPoint( -0.0941238, 0.938099, 1);
-  points->InsertNextPoint( -0.0470619, 0.469049, 1);
-  points->InsertNextPoint( -0.516111, 0.421988, 0.333333);
-  points->InsertNextPoint( -0.258056, 0.210994, 0.666667);
-  points->InsertNextPoint( 0.210994, 0.258056, 0.333333);
-  points->InsertNextPoint( 0.421988, 0.516111, 0.666667);
-  points->InsertNextPoint( 0.538857, 1.71227, 0);
-  points->InsertNextPoint( 0.585919, 1.24322, 0);
-  points->InsertNextPoint( 0.538857, 1.71227, 1);
-  points->InsertNextPoint( 0.585919, 1.24322, 1);
-  points->InsertNextPoint( 0.069808, 1.6652, 0.666667);
-  points->InsertNextPoint( 0.280802, 1.92326, 0.333333);
-  points->InsertNextPoint( 0.843975, 1.03222, 0.333333);
-  points->InsertNextPoint( 1.05497, 1.29028, 0.666667);
-  points->InsertNextPoint( 1.17184, 2.48643, 0);
-  points->InsertNextPoint( 1.2189, 2.01738, 0);
-  points->InsertNextPoint( 1.17184, 2.48643, 1);
-  points->InsertNextPoint( 1.2189, 2.01738, 1);
-  points->InsertNextPoint( 1.47696, 1.80639, 0.333333);
-  points->InsertNextPoint( 1.68795, 2.06445, 0.666667);
-  points->InsertNextPoint( 1.38283, 2.74449, 0.666667);
-  points->InsertNextPoint( 1.64089, 2.5335, 0.333333);
-  points->InsertNextPoint( -0.868291, 1.57108, 0);
-  points->InsertNextPoint( -0.821229, 1.10203, 0);
-  points->InsertNextPoint( -0.868291, 1.57108, 1);
-  points->InsertNextPoint( -0.821229, 1.10203, 1);
-  points->InsertNextPoint( -1.29028, 1.05497, 0.333333);
-  points->InsertNextPoint( -1.03222, 0.843975, 0.666667);
-  points->InsertNextPoint( -0.657297, 1.82914, 0.666667);
-  points->InsertNextPoint( -0.399241, 1.61814, 0.333333);
-  points->InsertNextPoint( 0.397672, 3.11941, 0);
-  points->InsertNextPoint( 0.444734, 2.65036, 0);
-  points->InsertNextPoint( 0.397672, 3.11941, 1);
-  points->InsertNextPoint( 0.444734, 2.65036, 1);
-  points->InsertNextPoint( -0.0243159, 2.6033, 0.333333);
-  points->InsertNextPoint( 0.23374, 2.39231, 0.666667);
-  points->InsertNextPoint( 0.608665, 3.37747, 0.666667);
-  points->InsertNextPoint( 0.866721, 3.16648, 0.333333);
-  points->InsertNextPoint( -1.64246, 2.20406, 0);
-  points->InsertNextPoint( -1.5954, 1.73501, 0);
-  points->InsertNextPoint( -1.64246, 2.20406, 1);
-  points->InsertNextPoint( -1.5954, 1.73501, 1);
-  points->InsertNextPoint( -2.06445, 1.68795, 0.333333);
-  points->InsertNextPoint( -1.80639, 1.47696, 0.666667);
-  points->InsertNextPoint( -1.00948, 2.97823, 0);
-  points->InsertNextPoint( -0.962415, 2.50918, 0);
-  points->InsertNextPoint( -1.00948, 2.97823, 1);
-  points->InsertNextPoint( -0.962415, 2.50918, 1);
-  points->InsertNextPoint( -1.47853, 2.93117, 0.666667);
-  points->InsertNextPoint( -1.26753, 3.18922, 0.333333);
-  points->InsertNextPoint( -0.704359, 2.29819, 0.333333);
-  points->InsertNextPoint( -0.493365, 2.55624, 0.666667);
-  points->InsertNextPoint( -0.376495, 3.7524, 0);
-  points->InsertNextPoint( -0.329433, 3.28335, 0);
-  points->InsertNextPoint( -0.376495, 3.7524, 1);
-  points->InsertNextPoint( -0.329433, 3.28335, 1);
-  points->InsertNextPoint( -0.165502, 4.01045, 0.666667);
-  points->InsertNextPoint( 0.0925541, 3.79946, 0.333333);
-  points->InsertNextPoint( -2.41663, 2.83704, 0);
-  points->InsertNextPoint( -2.36956, 2.36799, 0);
-  points->InsertNextPoint( -2.41663, 2.83704, 1);
-  points->InsertNextPoint( -2.36956, 2.36799, 1);
-  points->InsertNextPoint( -2.83861, 2.32093, 0.333333);
-  points->InsertNextPoint( -2.58056, 2.10994, 0.666667);
-  points->InsertNextPoint( -2.20563, 3.0951, 0.666667);
-  points->InsertNextPoint( -1.94758, 2.8841, 0.333333);
-  points->InsertNextPoint( -1.15066, 4.38538, 0);
-  points->InsertNextPoint( -1.1036, 3.91633, 0);
-  points->InsertNextPoint( -1.15066, 4.38538, 1);
-  points->InsertNextPoint( -1.1036, 3.91633, 1);
-  points->InsertNextPoint( -1.57265, 3.86927, 0.333333);
-  points->InsertNextPoint( -1.31459, 3.65827, 0.666667);
-  points->InsertNextPoint( -0.939669, 4.64343, 0.666667);
-  points->InsertNextPoint( -0.681613, 4.43244, 0.333333);
-  points->InsertNextPoint( -3.19079, 3.47002, 0);
-  points->InsertNextPoint( -3.14373, 3.00097, 0);
-  points->InsertNextPoint( -3.19079, 3.47002, 1);
-  points->InsertNextPoint( -3.14373, 3.00097, 1);
-  points->InsertNextPoint( -3.61278, 2.95391, 0.333333);
-  points->InsertNextPoint( -3.35472, 2.74292, 0.666667);
-  points->InsertNextPoint( -2.55781, 4.24419, 0);
-  points->InsertNextPoint( -2.51075, 3.77514, 0);
-  points->InsertNextPoint( -2.55781, 4.24419, 1);
-  points->InsertNextPoint( -2.51075, 3.77514, 1);
-  points->InsertNextPoint( -3.02686, 4.19713, 0.666667);
-  points->InsertNextPoint( -2.81587, 4.45518, 0.333333);
-  points->InsertNextPoint( -2.25269, 3.56415, 0.333333);
-  points->InsertNextPoint( -2.0417, 3.8222, 0.666667);
-  points->InsertNextPoint( -1.92483, 5.01836, 0);
-  points->InsertNextPoint( -1.87777, 4.54931, 0);
-  points->InsertNextPoint( -1.92483, 5.01836, 1);
-  points->InsertNextPoint( -1.87777, 4.54931, 1);
-  points->InsertNextPoint( -1.71384, 5.27641, 0.666667);
-  points->InsertNextPoint( -1.45578, 5.06542, 0.333333);
-  points->InsertNextPoint( -3.96496, 4.10301, 0);
-  points->InsertNextPoint( -3.9179, 3.63396, 0);
-  points->InsertNextPoint( -3.96496, 4.10301, 1);
-  points->InsertNextPoint( -3.9179, 3.63396, 1);
-  points->InsertNextPoint( -4.38695, 3.58689, 0.333333);
-  points->InsertNextPoint( -4.12889, 3.3759, 0.666667);
-  points->InsertNextPoint( -3.75397, 4.36106, 0.666667);
-  points->InsertNextPoint( -3.49591, 4.15007, 0.333333);
-  points->InsertNextPoint( -2.699, 5.65134, 0);
-  points->InsertNextPoint( -2.65193, 5.18229, 0);
-  points->InsertNextPoint( -2.699, 5.65134, 1);
-  points->InsertNextPoint( -2.65193, 5.18229, 1);
-  points->InsertNextPoint( -3.12098, 5.13523, 0.333333);
-  points->InsertNextPoint( -2.86293, 4.92423, 0.666667);
-  points->InsertNextPoint( -2.488, 5.9094, 0.666667);
-  points->InsertNextPoint( -2.22995, 5.6984, 0.333333);
-  points->InsertNextPoint( -4.73913, 4.73599, 0);
-  points->InsertNextPoint( -4.69206, 4.26694, 0);
-  points->InsertNextPoint( -4.73913, 4.73599, 1);
-  points->InsertNextPoint( -4.69206, 4.26694, 1);
-  points->InsertNextPoint( -5.20818, 4.68892, 0.666667);
-  points->InsertNextPoint( -4.99718, 4.94698, 0.333333);
-  points->InsertNextPoint( -5.16111, 4.21988, 0.333333);
-  points->InsertNextPoint( -4.90306, 4.00888, 0.666667);
-  points->InsertNextPoint( -4.10615, 5.51015, 0);
-  points->InsertNextPoint( -4.05908, 5.0411, 0);
-  points->InsertNextPoint( -4.10615, 5.51015, 1);
-  points->InsertNextPoint( -4.05908, 5.0411, 1);
-  points->InsertNextPoint( -4.57519, 5.46309, 0.666667);
-  points->InsertNextPoint( -4.3642, 5.72115, 0.333333);
-  points->InsertNextPoint( -3.80103, 4.83011, 0.333333);
-  points->InsertNextPoint( -3.59003, 5.08817, 0.666667);
-  points->InsertNextPoint( -3.47316, 6.28432, 0);
-  points->InsertNextPoint( -3.4261, 5.81527, 0);
-  points->InsertNextPoint( -3.47316, 6.28432, 1);
-  points->InsertNextPoint( -3.4261, 5.81527, 1);
-  points->InsertNextPoint( -3.94221, 6.23726, 0.666667);
-  points->InsertNextPoint( -3.73122, 6.49531, 0.333333);
-  points->InsertNextPoint( -3.26217, 6.54238, 0.666667);
-  points->InsertNextPoint( -3.00411, 6.33138, 0.333333);
+  vtkPoints* points = vtkPoints::New();
+  points->InsertNextPoint(-0.774167, 0.632981, 0);
+  points->InsertNextPoint(-0.141186, 1.40715, 0);
+  points->InsertNextPoint(0.632981, 0.774167, 0);
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(-0.774167, 0.632981, 1);
+  points->InsertNextPoint(-0.141186, 1.40715, 1);
+  points->InsertNextPoint(0.632981, 0.774167, 1);
+  points->InsertNextPoint(0, 0, 1);
+  points->InsertNextPoint(0.491796, 2.18132, 0);
+  points->InsertNextPoint(1.26596, 1.54833, 0);
+  points->InsertNextPoint(0.491796, 2.18132, 1);
+  points->InsertNextPoint(1.26596, 1.54833, 1);
+  points->InsertNextPoint(1.12478, 2.95548, 0);
+  points->InsertNextPoint(1.89894, 2.3225, 0);
+  points->InsertNextPoint(1.12478, 2.95548, 1);
+  points->InsertNextPoint(1.89894, 2.3225, 1);
+  points->InsertNextPoint(-1.54833, 1.26596, 0);
+  points->InsertNextPoint(-0.915353, 2.04013, 0);
+  points->InsertNextPoint(-1.54833, 1.26596, 1);
+  points->InsertNextPoint(-0.915353, 2.04013, 1);
+  points->InsertNextPoint(-0.282372, 2.8143, 0);
+  points->InsertNextPoint(0.35061, 3.58846, 0);
+  points->InsertNextPoint(-0.282372, 2.8143, 1);
+  points->InsertNextPoint(0.35061, 3.58846, 1);
+  points->InsertNextPoint(-2.3225, 1.89894, 0);
+  points->InsertNextPoint(-1.68952, 2.67311, 0);
+  points->InsertNextPoint(-2.3225, 1.89894, 1);
+  points->InsertNextPoint(-1.68952, 2.67311, 1);
+  points->InsertNextPoint(-1.05654, 3.44728, 0);
+  points->InsertNextPoint(-1.05654, 3.44728, 1);
+  points->InsertNextPoint(-0.423557, 4.22145, 0);
+  points->InsertNextPoint(-0.423557, 4.22145, 1);
+  points->InsertNextPoint(-3.09667, 2.53193, 0);
+  points->InsertNextPoint(-2.46369, 3.30609, 0);
+  points->InsertNextPoint(-3.09667, 2.53193, 1);
+  points->InsertNextPoint(-2.46369, 3.30609, 1);
+  points->InsertNextPoint(-1.83071, 4.08026, 0);
+  points->InsertNextPoint(-1.19772, 4.85443, 0);
+  points->InsertNextPoint(-1.83071, 4.08026, 1);
+  points->InsertNextPoint(-1.19772, 4.85443, 1);
+  points->InsertNextPoint(-3.87084, 3.16491, 0);
+  points->InsertNextPoint(-3.23785, 3.93907, 0);
+  points->InsertNextPoint(-3.87084, 3.16491, 1);
+  points->InsertNextPoint(-3.23785, 3.93907, 1);
+  points->InsertNextPoint(-2.60487, 4.71324, 0);
+  points->InsertNextPoint(-2.60487, 4.71324, 1);
+  points->InsertNextPoint(-1.97189, 5.48741, 0);
+  points->InsertNextPoint(-1.97189, 5.48741, 1);
+  points->InsertNextPoint(-4.645, 3.79789, 0);
+  points->InsertNextPoint(-4.01202, 4.57205, 0);
+  points->InsertNextPoint(-4.645, 3.79789, 1);
+  points->InsertNextPoint(-4.01202, 4.57205, 1);
+  points->InsertNextPoint(-3.37904, 5.34622, 0);
+  points->InsertNextPoint(-2.74606, 6.12039, 0);
+  points->InsertNextPoint(-3.37904, 5.34622, 1);
+  points->InsertNextPoint(-2.74606, 6.12039, 1);
+  points->InsertNextPoint(-5.41917, 4.43087, 0);
+  points->InsertNextPoint(-4.78619, 5.20504, 0);
+  points->InsertNextPoint(-5.41917, 4.43087, 1);
+  points->InsertNextPoint(-4.78619, 5.20504, 1);
+  points->InsertNextPoint(-4.15321, 5.9792, 0);
+  points->InsertNextPoint(-4.15321, 5.9792, 1);
+  points->InsertNextPoint(-3.52023, 6.75337, 0);
+  points->InsertNextPoint(-3.52023, 6.75337, 1);
+  points->InsertNextPoint(-0.0941238, 0.938099, 0);
+  points->InsertNextPoint(-0.0470619, 0.469049, 0);
+  points->InsertNextPoint(-0.0941238, 0.938099, 1);
+  points->InsertNextPoint(-0.0470619, 0.469049, 1);
+  points->InsertNextPoint(-0.516111, 0.421988, 0.333333);
+  points->InsertNextPoint(-0.258056, 0.210994, 0.666667);
+  points->InsertNextPoint(0.210994, 0.258056, 0.333333);
+  points->InsertNextPoint(0.421988, 0.516111, 0.666667);
+  points->InsertNextPoint(0.538857, 1.71227, 0);
+  points->InsertNextPoint(0.585919, 1.24322, 0);
+  points->InsertNextPoint(0.538857, 1.71227, 1);
+  points->InsertNextPoint(0.585919, 1.24322, 1);
+  points->InsertNextPoint(0.069808, 1.6652, 0.666667);
+  points->InsertNextPoint(0.280802, 1.92326, 0.333333);
+  points->InsertNextPoint(0.843975, 1.03222, 0.333333);
+  points->InsertNextPoint(1.05497, 1.29028, 0.666667);
+  points->InsertNextPoint(1.17184, 2.48643, 0);
+  points->InsertNextPoint(1.2189, 2.01738, 0);
+  points->InsertNextPoint(1.17184, 2.48643, 1);
+  points->InsertNextPoint(1.2189, 2.01738, 1);
+  points->InsertNextPoint(1.47696, 1.80639, 0.333333);
+  points->InsertNextPoint(1.68795, 2.06445, 0.666667);
+  points->InsertNextPoint(1.38283, 2.74449, 0.666667);
+  points->InsertNextPoint(1.64089, 2.5335, 0.333333);
+  points->InsertNextPoint(-0.868291, 1.57108, 0);
+  points->InsertNextPoint(-0.821229, 1.10203, 0);
+  points->InsertNextPoint(-0.868291, 1.57108, 1);
+  points->InsertNextPoint(-0.821229, 1.10203, 1);
+  points->InsertNextPoint(-1.29028, 1.05497, 0.333333);
+  points->InsertNextPoint(-1.03222, 0.843975, 0.666667);
+  points->InsertNextPoint(-0.657297, 1.82914, 0.666667);
+  points->InsertNextPoint(-0.399241, 1.61814, 0.333333);
+  points->InsertNextPoint(0.397672, 3.11941, 0);
+  points->InsertNextPoint(0.444734, 2.65036, 0);
+  points->InsertNextPoint(0.397672, 3.11941, 1);
+  points->InsertNextPoint(0.444734, 2.65036, 1);
+  points->InsertNextPoint(-0.0243159, 2.6033, 0.333333);
+  points->InsertNextPoint(0.23374, 2.39231, 0.666667);
+  points->InsertNextPoint(0.608665, 3.37747, 0.666667);
+  points->InsertNextPoint(0.866721, 3.16648, 0.333333);
+  points->InsertNextPoint(-1.64246, 2.20406, 0);
+  points->InsertNextPoint(-1.5954, 1.73501, 0);
+  points->InsertNextPoint(-1.64246, 2.20406, 1);
+  points->InsertNextPoint(-1.5954, 1.73501, 1);
+  points->InsertNextPoint(-2.06445, 1.68795, 0.333333);
+  points->InsertNextPoint(-1.80639, 1.47696, 0.666667);
+  points->InsertNextPoint(-1.00948, 2.97823, 0);
+  points->InsertNextPoint(-0.962415, 2.50918, 0);
+  points->InsertNextPoint(-1.00948, 2.97823, 1);
+  points->InsertNextPoint(-0.962415, 2.50918, 1);
+  points->InsertNextPoint(-1.47853, 2.93117, 0.666667);
+  points->InsertNextPoint(-1.26753, 3.18922, 0.333333);
+  points->InsertNextPoint(-0.704359, 2.29819, 0.333333);
+  points->InsertNextPoint(-0.493365, 2.55624, 0.666667);
+  points->InsertNextPoint(-0.376495, 3.7524, 0);
+  points->InsertNextPoint(-0.329433, 3.28335, 0);
+  points->InsertNextPoint(-0.376495, 3.7524, 1);
+  points->InsertNextPoint(-0.329433, 3.28335, 1);
+  points->InsertNextPoint(-0.165502, 4.01045, 0.666667);
+  points->InsertNextPoint(0.0925541, 3.79946, 0.333333);
+  points->InsertNextPoint(-2.41663, 2.83704, 0);
+  points->InsertNextPoint(-2.36956, 2.36799, 0);
+  points->InsertNextPoint(-2.41663, 2.83704, 1);
+  points->InsertNextPoint(-2.36956, 2.36799, 1);
+  points->InsertNextPoint(-2.83861, 2.32093, 0.333333);
+  points->InsertNextPoint(-2.58056, 2.10994, 0.666667);
+  points->InsertNextPoint(-2.20563, 3.0951, 0.666667);
+  points->InsertNextPoint(-1.94758, 2.8841, 0.333333);
+  points->InsertNextPoint(-1.15066, 4.38538, 0);
+  points->InsertNextPoint(-1.1036, 3.91633, 0);
+  points->InsertNextPoint(-1.15066, 4.38538, 1);
+  points->InsertNextPoint(-1.1036, 3.91633, 1);
+  points->InsertNextPoint(-1.57265, 3.86927, 0.333333);
+  points->InsertNextPoint(-1.31459, 3.65827, 0.666667);
+  points->InsertNextPoint(-0.939669, 4.64343, 0.666667);
+  points->InsertNextPoint(-0.681613, 4.43244, 0.333333);
+  points->InsertNextPoint(-3.19079, 3.47002, 0);
+  points->InsertNextPoint(-3.14373, 3.00097, 0);
+  points->InsertNextPoint(-3.19079, 3.47002, 1);
+  points->InsertNextPoint(-3.14373, 3.00097, 1);
+  points->InsertNextPoint(-3.61278, 2.95391, 0.333333);
+  points->InsertNextPoint(-3.35472, 2.74292, 0.666667);
+  points->InsertNextPoint(-2.55781, 4.24419, 0);
+  points->InsertNextPoint(-2.51075, 3.77514, 0);
+  points->InsertNextPoint(-2.55781, 4.24419, 1);
+  points->InsertNextPoint(-2.51075, 3.77514, 1);
+  points->InsertNextPoint(-3.02686, 4.19713, 0.666667);
+  points->InsertNextPoint(-2.81587, 4.45518, 0.333333);
+  points->InsertNextPoint(-2.25269, 3.56415, 0.333333);
+  points->InsertNextPoint(-2.0417, 3.8222, 0.666667);
+  points->InsertNextPoint(-1.92483, 5.01836, 0);
+  points->InsertNextPoint(-1.87777, 4.54931, 0);
+  points->InsertNextPoint(-1.92483, 5.01836, 1);
+  points->InsertNextPoint(-1.87777, 4.54931, 1);
+  points->InsertNextPoint(-1.71384, 5.27641, 0.666667);
+  points->InsertNextPoint(-1.45578, 5.06542, 0.333333);
+  points->InsertNextPoint(-3.96496, 4.10301, 0);
+  points->InsertNextPoint(-3.9179, 3.63396, 0);
+  points->InsertNextPoint(-3.96496, 4.10301, 1);
+  points->InsertNextPoint(-3.9179, 3.63396, 1);
+  points->InsertNextPoint(-4.38695, 3.58689, 0.333333);
+  points->InsertNextPoint(-4.12889, 3.3759, 0.666667);
+  points->InsertNextPoint(-3.75397, 4.36106, 0.666667);
+  points->InsertNextPoint(-3.49591, 4.15007, 0.333333);
+  points->InsertNextPoint(-2.699, 5.65134, 0);
+  points->InsertNextPoint(-2.65193, 5.18229, 0);
+  points->InsertNextPoint(-2.699, 5.65134, 1);
+  points->InsertNextPoint(-2.65193, 5.18229, 1);
+  points->InsertNextPoint(-3.12098, 5.13523, 0.333333);
+  points->InsertNextPoint(-2.86293, 4.92423, 0.666667);
+  points->InsertNextPoint(-2.488, 5.9094, 0.666667);
+  points->InsertNextPoint(-2.22995, 5.6984, 0.333333);
+  points->InsertNextPoint(-4.73913, 4.73599, 0);
+  points->InsertNextPoint(-4.69206, 4.26694, 0);
+  points->InsertNextPoint(-4.73913, 4.73599, 1);
+  points->InsertNextPoint(-4.69206, 4.26694, 1);
+  points->InsertNextPoint(-5.20818, 4.68892, 0.666667);
+  points->InsertNextPoint(-4.99718, 4.94698, 0.333333);
+  points->InsertNextPoint(-5.16111, 4.21988, 0.333333);
+  points->InsertNextPoint(-4.90306, 4.00888, 0.666667);
+  points->InsertNextPoint(-4.10615, 5.51015, 0);
+  points->InsertNextPoint(-4.05908, 5.0411, 0);
+  points->InsertNextPoint(-4.10615, 5.51015, 1);
+  points->InsertNextPoint(-4.05908, 5.0411, 1);
+  points->InsertNextPoint(-4.57519, 5.46309, 0.666667);
+  points->InsertNextPoint(-4.3642, 5.72115, 0.333333);
+  points->InsertNextPoint(-3.80103, 4.83011, 0.333333);
+  points->InsertNextPoint(-3.59003, 5.08817, 0.666667);
+  points->InsertNextPoint(-3.47316, 6.28432, 0);
+  points->InsertNextPoint(-3.4261, 5.81527, 0);
+  points->InsertNextPoint(-3.47316, 6.28432, 1);
+  points->InsertNextPoint(-3.4261, 5.81527, 1);
+  points->InsertNextPoint(-3.94221, 6.23726, 0.666667);
+  points->InsertNextPoint(-3.73122, 6.49531, 0.333333);
+  points->InsertNextPoint(-3.26217, 6.54238, 0.666667);
+  points->InsertNextPoint(-3.00411, 6.33138, 0.333333);
   sMesh->SetPoints(points);
   points->Delete();
-  vtkIdType  *vertexIds =
-    (vtkIdType *) malloc(sizeof(vtkIdType)*3);
+  vtkIdType* vertexIds = (vtkIdType*)malloc(sizeof(vtkIdType) * 3);
 
   vertexIds[0] = 0;
   vertexIds[1] = 1;
@@ -4250,21 +4247,19 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
   return 1;
 }
 
-
-class AreaSimplificationMetric : public vtkReebGraphSimplificationMetric{
-  public:
-    vtkTypeMacro(AreaSimplificationMetric, vtkReebGraphSimplificationMetric);
-    static AreaSimplificationMetric* New();
-    double ComputeMetric(vtkDataSet *mesh, vtkDataArray *scalarField,
-      vtkIdType startCriticalPoint, vtkAbstractArray *vertexList,
-      vtkIdType endCriticalPoint) override;
+class AreaSimplificationMetric : public vtkReebGraphSimplificationMetric
+{
+public:
+  vtkTypeMacro(AreaSimplificationMetric, vtkReebGraphSimplificationMetric);
+  static AreaSimplificationMetric* New();
+  double ComputeMetric(vtkDataSet* mesh, vtkDataArray* scalarField, vtkIdType startCriticalPoint,
+    vtkAbstractArray* vertexList, vtkIdType endCriticalPoint) override;
 };
 
 vtkStandardNewMacro(AreaSimplificationMetric);
 
-double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
-  vtkDataArray *scalarField, vtkIdType startCriticalPoint,
-  vtkAbstractArray* vertexList, vtkIdType endCriticalPoint)
+double AreaSimplificationMetric::ComputeMetric(vtkDataSet* mesh, vtkDataArray* scalarField,
+  vtkIdType startCriticalPoint, vtkAbstractArray* vertexList, vtkIdType endCriticalPoint)
 {
   // In this example, the metric algorithm just evaluates the area of the
   // surface region corresponding to the arc of the Reeb graph passed as an
@@ -4273,39 +4268,33 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
   // threshold specified to the simplificatin filter) will be
   // simplified in priority in the surface simplification algorithm.
 
-  double  fieldLowerBound = scalarField->GetComponent(startCriticalPoint,0),
-          fieldUpperBound = scalarField->GetComponent(endCriticalPoint,0);
+  double fieldLowerBound = scalarField->GetComponent(startCriticalPoint, 0),
+         fieldUpperBound = scalarField->GetComponent(endCriticalPoint, 0);
 
-  double  cumulativeArea = 0;
+  double cumulativeArea = 0;
 
   std::map<vtkIdType, bool> visitedTriangles;
 
-  for(int i = 0; i < vertexList->GetNumberOfTuples(); i++)
+  for (int i = 0; i < vertexList->GetNumberOfTuples(); i++)
   {
     int vId = vertexList->GetVariantValue(i).ToInt();
-    vtkIdList *starTriangleList = vtkIdList::New();
+    vtkIdList* starTriangleList = vtkIdList::New();
 
     mesh->GetPointCells(vId, starTriangleList);
 
-    for(int j = 0; j < starTriangleList->GetNumberOfIds(); j++)
+    for (int j = 0; j < starTriangleList->GetNumberOfIds(); j++)
     {
       vtkIdType tId = starTriangleList->GetId(j);
-      vtkTriangle *t = vtkTriangle::SafeDownCast(mesh->GetCell(tId));
+      vtkTriangle* t = vtkTriangle::SafeDownCast(mesh->GetCell(tId));
       std::map<vtkIdType, bool>::iterator tIt = visitedTriangles.find(tId);
-      if(tIt == visitedTriangles.end())
+      if (tIt == visitedTriangles.end())
       {
-        if((scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
-          <= fieldUpperBound)
-          &&(scalarField->GetComponent(t->GetPointIds()->GetId(1), 0)
-          <= fieldUpperBound)
-          &&(scalarField->GetComponent(t->GetPointIds()->GetId(2), 0)
-          <= fieldUpperBound)
-          &&(scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
-          >= fieldLowerBound)
-          &&(scalarField->GetComponent(t->GetPointIds()->GetId(1), 0)
-          >= fieldLowerBound)
-          &&(scalarField->GetComponent(t->GetPointIds()->GetId(2), 0)
-          >= fieldLowerBound))
+        if ((scalarField->GetComponent(t->GetPointIds()->GetId(0), 0) <= fieldUpperBound) &&
+          (scalarField->GetComponent(t->GetPointIds()->GetId(1), 0) <= fieldUpperBound) &&
+          (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) <= fieldUpperBound) &&
+          (scalarField->GetComponent(t->GetPointIds()->GetId(0), 0) >= fieldLowerBound) &&
+          (scalarField->GetComponent(t->GetPointIds()->GetId(1), 0) >= fieldLowerBound) &&
+          (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) >= fieldLowerBound))
         {
           // the triangle fully maps inside the arc function interval
           cumulativeArea += t->ComputeArea();
@@ -4317,114 +4306,113 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
     starTriangleList->Delete();
   }
 
-  return cumulativeArea/(this->UpperBound - this->LowerBound);
+  return cumulativeArea / (this->UpperBound - this->LowerBound);
 }
 
-int DisplayReebGraph(vtkReebGraph *g)
+int DisplayReebGraph(vtkReebGraph* g)
 {
-  vtkDataArray *vertexInfo = vtkArrayDownCast<vtkDataArray>(
-    g->GetVertexData()->GetAbstractArray("Vertex Ids"));
-  if(!vertexInfo) return 1;
+  vtkDataArray* vertexInfo =
+    vtkArrayDownCast<vtkDataArray>(g->GetVertexData()->GetAbstractArray("Vertex Ids"));
+  if (!vertexInfo)
+    return 1;
 
-  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
-    g->GetEdgeData()->GetAbstractArray("Vertex Ids"));
-  if(!edgeInfo) return 2;
+  vtkVariantArray* edgeInfo =
+    vtkArrayDownCast<vtkVariantArray>(g->GetEdgeData()->GetAbstractArray("Vertex Ids"));
+  if (!edgeInfo)
+    return 2;
 
   cout << "   Reeb graph nodes:" << endl;
-  for(int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
-    cout << "      Node #" << i << ") VertexMeshId: "
-      << ((int) *(vertexInfo->GetTuple(i))) << endl;
+  for (int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
+    cout << "      Node #" << i << ") VertexMeshId: " << ((int)*(vertexInfo->GetTuple(i))) << endl;
 
   cout << "   Reeb graph arcs:" << endl;
-  vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
+  vtkEdgeListIterator* eIt = vtkEdgeListIterator::New();
   g->GetEdges(eIt);
-  do{
+  do
+  {
     vtkEdgeType e = eIt->Next();
-    vtkAbstractArray *deg2NodeList = edgeInfo->GetPointer(e.Id)->ToArray();
-    cout << "     Arc #" << e.Id << ": "
-      << *(vertexInfo->GetTuple(e.Source)) << " -> "
-      << *(vertexInfo->GetTuple(e.Target)) << " ("
-      << deg2NodeList->GetNumberOfTuples() << " degree-2 nodes)" << endl;
-  }while(eIt->HasNext());
+    vtkAbstractArray* deg2NodeList = edgeInfo->GetPointer(e.Id)->ToArray();
+    cout << "     Arc #" << e.Id << ": " << *(vertexInfo->GetTuple(e.Source)) << " -> "
+         << *(vertexInfo->GetTuple(e.Target)) << " (" << deg2NodeList->GetNumberOfTuples()
+         << " degree-2 nodes)" << endl;
+  } while (eIt->HasNext());
   eIt->Delete();
 
   return 0;
 }
 
-int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
+int DisplaySurfaceSkeleton(vtkPolyData* surfaceMesh, vtkTable* skeleton)
 {
 
   // Rendering setting
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
 
-  vtkRenderWindow *renderWindow = vtkRenderWindow::New();
+  vtkRenderWindow* renderWindow = vtkRenderWindow::New();
   renderWindow->AddRenderer(renderer);
   renderWindow->SetSize(400, 400);
 
-  vtkRenderWindowInteractor *windowInteractor =
-    vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* windowInteractor = vtkRenderWindowInteractor::New();
   windowInteractor->SetRenderWindow(renderWindow);
 
-  vtkPolyDataMapper *surfaceMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* surfaceMapper = vtkPolyDataMapper::New();
   surfaceMapper->SetInputData(surfaceMesh);
 
-  vtkActor *surfaceActor = vtkActor::New();
+  vtkActor* surfaceActor = vtkActor::New();
   surfaceActor->SetMapper(surfaceMapper);
   surfaceActor->GetProperty()->SetOpacity(0.3);
 
   renderer->AddActor(surfaceActor);
 
   // Actual display of the skeleton
-  vtkSphereSource *nodeSphere = vtkSphereSource::New();
+  vtkSphereSource* nodeSphere = vtkSphereSource::New();
   nodeSphere->SetThetaResolution(50);
   nodeSphere->SetPhiResolution(20);
   nodeSphere->SetRadius(0.03);
 
-  vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(nodeSphere->GetOutputPort());
 
   // 2 nodes per arc of the skeleton
-  vtkActor **nodeActors = (vtkActor **) malloc(sizeof(vtkActor *)*
-    2*skeleton->GetNumberOfColumns());
+  vtkActor** nodeActors =
+    (vtkActor**)malloc(sizeof(vtkActor*) * 2 * skeleton->GetNumberOfColumns());
 
-  int     sampleId = 0;
-  double  *point = (double *) malloc(sizeof(double)*3);
+  int sampleId = 0;
+  double* point = (double*)malloc(sizeof(double) * 3);
 
-  vtkPolyData *embeddedSkeleton = vtkPolyData::New();
-  embeddedSkeleton->Allocate();
+  vtkPolyData* embeddedSkeleton = vtkPolyData::New();
+  embeddedSkeleton->AllocateExact(1024, 1024);
 
-  vtkPoints   *skeletonSamples = vtkPoints::New();
-  skeletonSamples->SetNumberOfPoints(
-    skeleton->GetNumberOfColumns()*skeleton->GetNumberOfRows());
+  vtkPoints* skeletonSamples = vtkPoints::New();
+  skeletonSamples->SetNumberOfPoints(skeleton->GetNumberOfColumns() * skeleton->GetNumberOfRows());
 
-  for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
+  for (int i = 0; i < skeleton->GetNumberOfColumns(); i++)
   {
-    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
+    vtkDoubleArray* arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);
-    nodeActors[2*i] = vtkActor::New();
-    nodeActors[2*i]->SetMapper(sphereMapper);
-    nodeActors[2*i]->GetProperty()->SetColor(0, 0, 1);
-    nodeActors[2*i]->SetPosition(point);
-    renderer->AddActor(nodeActors[2*i]);
+    nodeActors[2 * i] = vtkActor::New();
+    nodeActors[2 * i]->SetMapper(sphereMapper);
+    nodeActors[2 * i]->GetProperty()->SetColor(0, 0, 1);
+    nodeActors[2 * i]->SetPosition(point);
+    renderer->AddActor(nodeActors[2 * i]);
 
     arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
-    nodeActors[2*i + 1] = vtkActor::New();
-    nodeActors[2*i + 1]->SetMapper(sphereMapper);
-    nodeActors[2*i + 1]->GetProperty()->SetColor(0, 0, 1);
-    nodeActors[2*i + 1]->SetPosition(point);
-    renderer->AddActor(nodeActors[2*i + 1]);
+    nodeActors[2 * i + 1] = vtkActor::New();
+    nodeActors[2 * i + 1]->SetMapper(sphereMapper);
+    nodeActors[2 * i + 1]->GetProperty()->SetColor(0, 0, 1);
+    nodeActors[2 * i + 1]->SetPosition(point);
+    renderer->AddActor(nodeActors[2 * i + 1]);
 
     // now add the samples to the skeleton polyData
     int initialSampleId = sampleId;
-    for(int j = 0; j < arc->GetNumberOfTuples(); j++)
+    for (int j = 0; j < arc->GetNumberOfTuples(); j++)
     {
       arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
     }
-    for(int j = 1; j < arc->GetNumberOfTuples(); j++)
+    for (int j = 1; j < arc->GetNumberOfTuples(); j++)
     {
       vtkIdType samplePair[2];
       samplePair[0] = j - 1 + initialSampleId;
@@ -4436,9 +4424,9 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   free(point);
   skeletonSamples->Delete();
 
-  vtkPolyDataMapper *lineMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputData(embeddedSkeleton);
-  vtkActor          *skeletonActor = vtkActor::New();
+  vtkActor* skeletonActor = vtkActor::New();
 
   skeletonActor->SetMapper(lineMapper);
   skeletonActor->GetProperty()->SetColor(0, 1, 0);
@@ -4447,14 +4435,14 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   windowInteractor->Initialize();
 
   // Interactive mode
-  //windowInteractor->Start();
+  // windowInteractor->Start();
 
   // Testing mode
   windowInteractor->Render();
-  vtkWindowToImageFilter *windowToImage = vtkWindowToImageFilter::New();
+  vtkWindowToImageFilter* windowToImage = vtkWindowToImageFilter::New();
   windowToImage->SetInput(renderWindow);
 
-  vtkPNGWriter *pngWriter = vtkPNGWriter::New();
+  vtkPNGWriter* pngWriter = vtkPNGWriter::New();
   pngWriter->SetInputConnection(windowToImage->GetOutputPort());
   pngWriter->SetFileName("TestReebGraph2D.png");
   pngWriter->Write();
@@ -4465,7 +4453,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
 
   skeletonActor->Delete();
   lineMapper->Delete();
-  for(int i = 0; i < 2*skeleton->GetNumberOfColumns(); i++)
+  for (int i = 0; i < 2 * skeleton->GetNumberOfColumns(); i++)
     nodeActors[i]->Delete();
   embeddedSkeleton->Delete();
   free(nodeActors);
@@ -4480,74 +4468,72 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   return 0;
 }
 
-int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable *skeleton)
+int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable* skeleton)
 {
   // no rendering of the mesh this time, just the skeleton.
   // one could just display the bounding surface of the volume (if the volume is
   // embeddable in IR^3).
 
   // Rendering setting
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
 
-  vtkRenderWindow *renderWindow = vtkRenderWindow::New();
+  vtkRenderWindow* renderWindow = vtkRenderWindow::New();
   renderWindow->AddRenderer(renderer);
   renderWindow->SetSize(400, 400);
 
-  vtkRenderWindowInteractor *windowInteractor =
-    vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* windowInteractor = vtkRenderWindowInteractor::New();
   windowInteractor->SetRenderWindow(renderWindow);
 
   // Actual display of the skeleton
-  vtkSphereSource *nodeSphere = vtkSphereSource::New();
+  vtkSphereSource* nodeSphere = vtkSphereSource::New();
   nodeSphere->SetThetaResolution(50);
   nodeSphere->SetPhiResolution(20);
   nodeSphere->SetRadius(0.03);
 
-  vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(nodeSphere->GetOutputPort());
 
   // 2 nodes per arc of the skeleton
-  vtkActor **nodeActors = (vtkActor **) malloc(sizeof(vtkActor *)*
-    2*skeleton->GetNumberOfColumns());
+  vtkActor** nodeActors =
+    (vtkActor**)malloc(sizeof(vtkActor*) * 2 * skeleton->GetNumberOfColumns());
 
-  int     sampleId = 0;
-  double  *point = (double *) malloc(sizeof(double)*3);
+  int sampleId = 0;
+  double* point = (double*)malloc(sizeof(double) * 3);
 
-  vtkPolyData *embeddedSkeleton = vtkPolyData::New();
-  embeddedSkeleton->Allocate();
+  vtkPolyData* embeddedSkeleton = vtkPolyData::New();
+  embeddedSkeleton->AllocateExact(1024, 1024);
 
-  vtkPoints   *skeletonSamples = vtkPoints::New();
-  skeletonSamples->SetNumberOfPoints(
-    skeleton->GetNumberOfColumns()*skeleton->GetNumberOfRows());
+  vtkPoints* skeletonSamples = vtkPoints::New();
+  skeletonSamples->SetNumberOfPoints(skeleton->GetNumberOfColumns() * skeleton->GetNumberOfRows());
 
-  for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
+  for (int i = 0; i < skeleton->GetNumberOfColumns(); i++)
   {
-    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
+    vtkDoubleArray* arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);
-    nodeActors[2*i] = vtkActor::New();
-    nodeActors[2*i]->SetMapper(sphereMapper);
-    nodeActors[2*i]->GetProperty()->SetColor(0, 0, 1);
-    nodeActors[2*i]->SetPosition(point);
-    renderer->AddActor(nodeActors[2*i]);
+    nodeActors[2 * i] = vtkActor::New();
+    nodeActors[2 * i]->SetMapper(sphereMapper);
+    nodeActors[2 * i]->GetProperty()->SetColor(0, 0, 1);
+    nodeActors[2 * i]->SetPosition(point);
+    renderer->AddActor(nodeActors[2 * i]);
 
     arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
-    nodeActors[2*i + 1] = vtkActor::New();
-    nodeActors[2*i + 1]->SetMapper(sphereMapper);
-    nodeActors[2*i + 1]->GetProperty()->SetColor(0, 0, 1);
-    nodeActors[2*i + 1]->SetPosition(point);
-    renderer->AddActor(nodeActors[2*i + 1]);
+    nodeActors[2 * i + 1] = vtkActor::New();
+    nodeActors[2 * i + 1]->SetMapper(sphereMapper);
+    nodeActors[2 * i + 1]->GetProperty()->SetColor(0, 0, 1);
+    nodeActors[2 * i + 1]->SetPosition(point);
+    renderer->AddActor(nodeActors[2 * i + 1]);
 
     // now add the samples to the skeleton polyData
     int initialSampleId = sampleId;
-    for(int j = 0; j < arc->GetNumberOfTuples(); j++)
+    for (int j = 0; j < arc->GetNumberOfTuples(); j++)
     {
       arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
     }
-    for(int j = 1; j < arc->GetNumberOfTuples(); j++)
+    for (int j = 1; j < arc->GetNumberOfTuples(); j++)
     {
       vtkIdType samplePair[2];
       samplePair[0] = j - 1 + initialSampleId;
@@ -4559,9 +4545,9 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
   free(point);
   skeletonSamples->Delete();
 
-  vtkPolyDataMapper *lineMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputData(embeddedSkeleton);
-  vtkActor          *skeletonActor = vtkActor::New();
+  vtkActor* skeletonActor = vtkActor::New();
 
   skeletonActor->SetMapper(lineMapper);
   skeletonActor->GetProperty()->SetColor(0, 1, 0);
@@ -4570,14 +4556,14 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
   windowInteractor->Initialize();
 
   // Interactive mode
-  //windowInteractor->Start();
+  // windowInteractor->Start();
 
   // Testing mode
   windowInteractor->Render();
-  vtkWindowToImageFilter *windowToImage = vtkWindowToImageFilter::New();
+  vtkWindowToImageFilter* windowToImage = vtkWindowToImageFilter::New();
   windowToImage->SetInput(renderWindow);
 
-  vtkPNGWriter *pngWriter = vtkPNGWriter::New();
+  vtkPNGWriter* pngWriter = vtkPNGWriter::New();
   pngWriter->SetInputConnection(windowToImage->GetOutputPort());
   pngWriter->SetFileName("TestReebGraph3D.png");
   pngWriter->Write();
@@ -4588,7 +4574,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
 
   skeletonActor->Delete();
   lineMapper->Delete();
-  for(int i = 0; i < 2*skeleton->GetNumberOfColumns(); i++)
+  for (int i = 0; i < 2 * skeleton->GetNumberOfColumns(); i++)
     nodeActors[i]->Delete();
   embeddedSkeleton->Delete();
   free(nodeActors);
@@ -4601,27 +4587,27 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
   return 0;
 }
 
-int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
+int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int errorCode;
 
-  cout << endl
-    << "Reeb Graph Tests ========================== Surface Mesh Tests" << endl;
+  cout << endl << "Reeb Graph Tests ========================== Surface Mesh Tests" << endl;
 
   // Loading the mesh
-  vtkPolyData *surfaceMesh = vtkPolyData::New();
+  vtkPolyData* surfaceMesh = vtkPolyData::New();
   LoadSurfaceMesh(surfaceMesh);
 
   // Attaching a height scalar field to it
-  vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
+  vtkDoubleArray* surfaceScalarField = vtkDoubleArray::New();
   surfaceScalarField->SetNumberOfTuples(surfaceMesh->GetNumberOfPoints());
-  for(vtkIdType vId = 0; vId < surfaceMesh->GetNumberOfPoints(); vId++)
+  for (vtkIdType vId = 0; vId < surfaceMesh->GetNumberOfPoints(); vId++)
   {
-    double *p = (double *) malloc(sizeof(double)*3);
+    double* p = (double*)malloc(sizeof(double) * 3);
     surfaceMesh->GetPoint(vId, p);
     double scalarValue = p[1];
     // add a bit of noise for the split tree test
-    if(vId == 2) scalarValue -= 10*scalarValue;
+    if (vId == 2)
+      scalarValue -= 10 * scalarValue;
 
     surfaceScalarField->SetTuple1(vId, scalarValue);
     free(p);
@@ -4629,14 +4615,13 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
 
   cout << "   Test 2D.1 Reeb graph computation... " << endl;
-  vtkPolyDataToReebGraphFilter *surfaceReebGraphFilter =
-    vtkPolyDataToReebGraphFilter::New();
+  vtkPolyDataToReebGraphFilter* surfaceReebGraphFilter = vtkPolyDataToReebGraphFilter::New();
   surfaceReebGraphFilter->SetInputData(surfaceMesh);
   surfaceReebGraphFilter->Update();
-  vtkReebGraph *surfaceReebGraph = surfaceReebGraphFilter->GetOutput();
+  vtkReebGraph* surfaceReebGraph = surfaceReebGraphFilter->GetOutput();
   cout << "      Test 2D.1 ";
 
-  if(surfaceReebGraph->GetNumberOfEdges() == 12)
+  if (surfaceReebGraph->GetNumberOfEdges() == 12)
     cout << "OK!" << endl;
   else
   {
@@ -4645,16 +4630,15 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   }
 
   cout << "   Test 2D.2 Customized Reeb graph simplification... " << endl;
-  vtkReebGraphSimplificationFilter *surfaceSimplification =
-    vtkReebGraphSimplificationFilter::New();
+  vtkReebGraphSimplificationFilter* surfaceSimplification = vtkReebGraphSimplificationFilter::New();
 
-  AreaSimplificationMetric *metric = AreaSimplificationMetric::New();
+  AreaSimplificationMetric* metric = AreaSimplificationMetric::New();
   metric->SetLowerBound(0);
   // determining the maximum area
   double globalArea = 0;
-  for(int i = 0; i < surfaceMesh->GetNumberOfCells(); i++)
+  for (int i = 0; i < surfaceMesh->GetNumberOfCells(); i++)
   {
-    vtkTriangle *t = vtkTriangle::SafeDownCast(surfaceMesh->GetCell(i));
+    vtkTriangle* t = vtkTriangle::SafeDownCast(surfaceMesh->GetCell(i));
     globalArea += t->ComputeArea();
   }
   metric->SetUpperBound(globalArea);
@@ -4663,11 +4647,11 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   surfaceSimplification->SetInputData(surfaceReebGraph);
   surfaceSimplification->SetSimplificationThreshold(0.01);
   surfaceSimplification->Update();
-  vtkReebGraph *simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
+  vtkReebGraph* simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
   metric->Delete();
 
   cout << "      Test 2D.2 ";
-  if(simplifiedSurfaceReebGraph->GetNumberOfEdges() == 12)
+  if (simplifiedSurfaceReebGraph->GetNumberOfEdges() == 12)
     cout << "OK!" << endl;
   else
   {
@@ -4678,7 +4662,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 2D.3 Reeb graph traversal..." << endl;
   errorCode = DisplayReebGraph(simplifiedSurfaceReebGraph);
   cout << "      Test 2D.3 ";
-  if(!errorCode)
+  if (!errorCode)
     cout << "OK!" << endl;
   else
   {
@@ -4687,16 +4671,16 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   }
 
   cout << "   Test 2D.4 Reeb graph based surface skeleton... " << endl;
-  vtkReebGraphSurfaceSkeletonFilter *surfaceSkeletonFilter =
+  vtkReebGraphSurfaceSkeletonFilter* surfaceSkeletonFilter =
     vtkReebGraphSurfaceSkeletonFilter::New();
   surfaceSkeletonFilter->SetInputData(0, surfaceMesh);
   surfaceSkeletonFilter->SetInputConnection(1, surfaceSimplification->GetOutputPort());
   surfaceSkeletonFilter->SetNumberOfSamples(5);
   surfaceSkeletonFilter->Update();
-  vtkTable *surfaceSkeleton = surfaceSkeletonFilter->GetOutput();
+  vtkTable* surfaceSkeleton = surfaceSkeletonFilter->GetOutput();
   errorCode = DisplaySurfaceSkeleton(surfaceMesh, surfaceSkeleton);
   cout << "      Test 2D.4 ";
-  if(surfaceSkeleton->GetNumberOfColumns() == 12)
+  if (surfaceSkeleton->GetNumberOfColumns() == 12)
     cout << "OK!" << endl;
   else
   {
@@ -4705,15 +4689,14 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   }
 
   cout << "   Test 2D.5 Area contour spectrum..." << endl;
-  vtkAreaContourSpectrumFilter *areaSpectrumFilter =
-    vtkAreaContourSpectrumFilter::New();
+  vtkAreaContourSpectrumFilter* areaSpectrumFilter = vtkAreaContourSpectrumFilter::New();
   areaSpectrumFilter->SetInputData(0, surfaceMesh);
   areaSpectrumFilter->SetInputConnection(1, surfaceSimplification->GetOutputPort());
   areaSpectrumFilter->SetArcId(0);
   areaSpectrumFilter->Update();
-  vtkTable *areaSpectrum = areaSpectrumFilter->GetOutput();
+  vtkTable* areaSpectrum = areaSpectrumFilter->GetOutput();
   cout << "      Test 2D.5 ";
-  if(areaSpectrum->GetNumberOfRows() == 100)
+  if (areaSpectrum->GetNumberOfRows() == 100)
     cout << "OK!" << endl;
   else
   {
@@ -4721,27 +4704,26 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
     return EXIT_FAILURE;
   }
 
-
   cout << "   Test 2D.6 Reeb graph to split tree filter..." << endl;
   cout << "      Not currently tested..." << endl;
-//   vtkReebGraphToJoinSplitTreeFilter *splitTreeFilter =
-//     vtkReebGraphToJoinSplitTreeFilter::New();
-//   splitTreeFilter->SetInput(0, surfaceMesh);
-//   splitTreeFilter->SetInput(1, simplifiedSurfaceReebGraph);
-//   splitTreeFilter->SetIsSplitTree(true);
-//   splitTreeFilter->Update();
-//   vtkReebGraph *splitTree = splitTreeFilter->GetOutput();
-//   DisplayReebGraph(splitTree);
-//   cout << "      Test 2D.6 ";
-//   if(splitTree->GetNumberOfEdges() == 3)
-//     cout << "OK!" << endl;
-//   else
-//     {
-//     cout << "Failed!" << endl;
-//     return EXIT_FAILURE;
-//     }
+  //   vtkReebGraphToJoinSplitTreeFilter *splitTreeFilter =
+  //     vtkReebGraphToJoinSplitTreeFilter::New();
+  //   splitTreeFilter->SetInput(0, surfaceMesh);
+  //   splitTreeFilter->SetInput(1, simplifiedSurfaceReebGraph);
+  //   splitTreeFilter->SetIsSplitTree(true);
+  //   splitTreeFilter->Update();
+  //   vtkReebGraph *splitTree = splitTreeFilter->GetOutput();
+  //   DisplayReebGraph(splitTree);
+  //   cout << "      Test 2D.6 ";
+  //   if(splitTree->GetNumberOfEdges() == 3)
+  //     cout << "OK!" << endl;
+  //   else
+  //     {
+  //     cout << "Failed!" << endl;
+  //     return EXIT_FAILURE;
+  //     }
 
-//   splitTreeFilter->Delete();
+  //   splitTreeFilter->Delete();
   areaSpectrumFilter->Delete();
   surfaceSkeletonFilter->Delete();
   surfaceSimplification->Delete();
@@ -4749,19 +4731,21 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   surfaceScalarField->Delete();
   surfaceMesh->Delete();
 
-  cout << endl << endl << endl
-    << "Reeb Graph Tests ========================== Volume Mesh Tests" << endl;
+  cout << endl
+       << endl
+       << endl
+       << "Reeb Graph Tests ========================== Volume Mesh Tests" << endl;
 
   // Loading the mesh
-  vtkUnstructuredGrid *volumeMesh = vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid* volumeMesh = vtkUnstructuredGrid::New();
   LoadVolumeMesh(volumeMesh);
 
   // Attaching a height scalar field to it
-  vtkDoubleArray *volumeScalarField = vtkDoubleArray::New();
+  vtkDoubleArray* volumeScalarField = vtkDoubleArray::New();
   volumeScalarField->SetNumberOfTuples(volumeMesh->GetNumberOfPoints());
-  for(vtkIdType vId = 0; vId < volumeMesh->GetNumberOfPoints(); vId++)
+  for (vtkIdType vId = 0; vId < volumeMesh->GetNumberOfPoints(); vId++)
   {
-    double *p = (double *) malloc(sizeof(double)*3);
+    double* p = (double*)malloc(sizeof(double) * 3);
     volumeMesh->GetPoint(vId, p);
     volumeScalarField->SetTuple1(vId, p[1]);
     free(p);
@@ -4769,13 +4753,13 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   volumeMesh->GetPointData()->SetScalars(volumeScalarField);
 
   cout << "   Test 3D.1 Reeb graph computation... " << endl;
-  vtkUnstructuredGridToReebGraphFilter *volumeReebGraphFilter =
+  vtkUnstructuredGridToReebGraphFilter* volumeReebGraphFilter =
     vtkUnstructuredGridToReebGraphFilter::New();
   volumeReebGraphFilter->SetInputData(volumeMesh);
   volumeReebGraphFilter->Update();
-  vtkReebGraph *volumeReebGraph = volumeReebGraphFilter->GetOutput();
+  vtkReebGraph* volumeReebGraph = volumeReebGraphFilter->GetOutput();
   cout << "      Test 3D.1 ";
-  if(volumeReebGraph->GetNumberOfEdges() == 10)
+  if (volumeReebGraph->GetNumberOfEdges() == 10)
     cout << "OK!" << endl;
   else
   {
@@ -4786,14 +4770,13 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 3D.2 Customized Reeb graph simplification... " << endl;
   // in this example, we don't define any custom simplification metric and use
   // the default one (persistence).
-  vtkReebGraphSimplificationFilter *volumeSimplification =
-    vtkReebGraphSimplificationFilter::New();
+  vtkReebGraphSimplificationFilter* volumeSimplification = vtkReebGraphSimplificationFilter::New();
   volumeSimplification->SetInputData(volumeReebGraph);
   volumeSimplification->SetSimplificationThreshold(0.05);
   volumeSimplification->Update();
-  vtkReebGraph *simplifiedVolumeReebGraph = volumeSimplification->GetOutput();
+  vtkReebGraph* simplifiedVolumeReebGraph = volumeSimplification->GetOutput();
   cout << "      Test 3D.2 ";
-  if(simplifiedVolumeReebGraph->GetNumberOfEdges() == 10)
+  if (simplifiedVolumeReebGraph->GetNumberOfEdges() == 10)
     cout << "OK!" << endl;
   else
   {
@@ -4804,7 +4787,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 3D.3 Reeb graph traversal..." << endl;
   errorCode = DisplayReebGraph(simplifiedVolumeReebGraph);
   cout << "      Test 3D.3 ";
-  if(!errorCode)
+  if (!errorCode)
     cout << "OK!" << endl;
   else
   {
@@ -4813,15 +4796,14 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   }
 
   cout << "   Test 3D.4 Reeb graph based volume skeleton... " << endl;
-  vtkReebGraphVolumeSkeletonFilter *volumeSkeletonFilter =
-    vtkReebGraphVolumeSkeletonFilter::New();
+  vtkReebGraphVolumeSkeletonFilter* volumeSkeletonFilter = vtkReebGraphVolumeSkeletonFilter::New();
   volumeSkeletonFilter->SetInputData(0, volumeMesh);
   volumeSkeletonFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSkeletonFilter->Update();
-  vtkTable *volumeSkeleton = volumeSkeletonFilter->GetOutput();
+  vtkTable* volumeSkeleton = volumeSkeletonFilter->GetOutput();
   errorCode = DisplayVolumeSkeleton(volumeMesh, volumeSkeleton);
   cout << "      Test 3D.4 ";
-  if(volumeSkeleton->GetNumberOfColumns() == 10)
+  if (volumeSkeleton->GetNumberOfColumns() == 10)
     cout << "OK!" << endl;
   else
   {
@@ -4829,17 +4811,15 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
     return EXIT_FAILURE;
   }
 
-
   cout << "   Test 3D.5 Volume contour spectrum..." << endl;
-  vtkVolumeContourSpectrumFilter *volumeSpectrumFilter =
-    vtkVolumeContourSpectrumFilter::New();
+  vtkVolumeContourSpectrumFilter* volumeSpectrumFilter = vtkVolumeContourSpectrumFilter::New();
   volumeSpectrumFilter->SetInputData(0, volumeMesh);
   volumeSpectrumFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSpectrumFilter->SetArcId(0);
   volumeSpectrumFilter->Update();
-  vtkTable *volumeSpectrum = volumeSpectrumFilter->GetOutput();
+  vtkTable* volumeSpectrum = volumeSpectrumFilter->GetOutput();
   cout << "      Test 3D.5 ";
-  if(volumeSpectrum->GetNumberOfRows() == 100)
+  if (volumeSpectrum->GetNumberOfRows() == 100)
     cout << "OK!" << endl;
   else
   {
@@ -4849,24 +4829,24 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 
   cout << "   Test 3D.6 Reeb graph to join tree filter..." << endl;
   cout << "      Not currently tested..." << endl;
-//   vtkReebGraphToJoinSplitTreeFilter *joinTreeFilter =
-//     vtkReebGraphToJoinSplitTreeFilter::New();
-//   joinTreeFilter->SetInput(0, volumeMesh);
-//   joinTreeFilter->SetInput(1, simplifiedVolumeReebGraph);
-//   joinTreeFilter->SetIsSplitTree(true);
-//   joinTreeFilter->Update();
-//   vtkReebGraph *joinTree = joinTreeFilter->GetOutput();
-//   DisplayReebGraph(joinTree);
-//   cout << "      Test 3D.6 ";
-//   if(joinTree->GetNumberOfEdges() == 1)
-//     cout << "OK!" << endl;
-//   else
-//     {
-//     cout << "Failed!" << endl;
-//     return EXIT_FAILURE;
-//     }
+  //   vtkReebGraphToJoinSplitTreeFilter *joinTreeFilter =
+  //     vtkReebGraphToJoinSplitTreeFilter::New();
+  //   joinTreeFilter->SetInput(0, volumeMesh);
+  //   joinTreeFilter->SetInput(1, simplifiedVolumeReebGraph);
+  //   joinTreeFilter->SetIsSplitTree(true);
+  //   joinTreeFilter->Update();
+  //   vtkReebGraph *joinTree = joinTreeFilter->GetOutput();
+  //   DisplayReebGraph(joinTree);
+  //   cout << "      Test 3D.6 ";
+  //   if(joinTree->GetNumberOfEdges() == 1)
+  //     cout << "OK!" << endl;
+  //   else
+  //     {
+  //     cout << "Failed!" << endl;
+  //     return EXIT_FAILURE;
+  //     }
 
-//   joinTreeFilter->Delete();
+  //   joinTreeFilter->Delete();
 
   volumeSpectrumFilter->Delete();
   volumeSkeletonFilter->Delete();

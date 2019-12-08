@@ -16,9 +16,9 @@
 #include "vtkEvenlySpacedStreamlines2D.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamTracer.h"
 #include "vtkTestUtilities.h"
@@ -26,8 +26,7 @@
 
 int TestEvenlySpacedStreamlines2D(int argc, char* argv[])
 {
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/clt.vtm");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/clt.vtm");
   auto reader = vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
   reader->SetFileName(fname);
   delete[] fname;
@@ -35,8 +34,7 @@ int TestEvenlySpacedStreamlines2D(int argc, char* argv[])
 
   auto stream = vtkSmartPointer<vtkEvenlySpacedStreamlines2D>::New();
   stream->SetInputConnection(reader->GetOutputPort());
-  stream->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "result");
+  stream->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "result");
   stream->SetInitialIntegrationStep(0.2);
   stream->SetClosedLoopMaximumDistance(0.2);
   stream->SetMaximumNumberOfSteps(2000);

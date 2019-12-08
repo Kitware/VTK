@@ -33,12 +33,12 @@
  *
  * @sa
  * vtkPLYReader
-*/
+ */
 
 #ifndef vtkPLYWriter_h
 #define vtkPLYWriter_h
 
-#include "vtkIOPLYModule.h" // For export macro
+#include "vtkIOPLYModule.h"  // For export macro
 #include "vtkSmartPointer.h" // For protected ivars
 #include "vtkWriter.h"
 
@@ -51,7 +51,7 @@ class vtkStringArray;
 class vtkUnsignedCharArray;
 
 #define VTK_LITTLE_ENDIAN 0
-#define VTK_BIG_ENDIAN    1
+#define VTK_BIG_ENDIAN 1
 
 #define VTK_COLOR_MODE_DEFAULT 0
 #define VTK_COLOR_MODE_UNIFORM_CELL_COLOR 1
@@ -65,8 +65,8 @@ class vtkUnsignedCharArray;
 class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
 {
 public:
-  static vtkPLYWriter *New();
-  vtkTypeMacro(vtkPLYWriter,vtkWriter);
+  static vtkPLYWriter* New();
+  vtkTypeMacro(vtkPLYWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -74,12 +74,10 @@ public:
    * If the file type is binary, then the user can specify which
    * byte order to use (little versus big endian).
    */
-  vtkSetClampMacro(DataByteOrder,int,VTK_LITTLE_ENDIAN,VTK_BIG_ENDIAN);
-  vtkGetMacro(DataByteOrder,int);
-  void SetDataByteOrderToBigEndian()
-    {this->SetDataByteOrder(VTK_BIG_ENDIAN);}
-  void SetDataByteOrderToLittleEndian()
-    {this->SetDataByteOrder(VTK_LITTLE_ENDIAN);}
+  vtkSetClampMacro(DataByteOrder, int, VTK_LITTLE_ENDIAN, VTK_BIG_ENDIAN);
+  vtkGetMacro(DataByteOrder, int);
+  void SetDataByteOrderToBigEndian() { this->SetDataByteOrder(VTK_BIG_ENDIAN); }
+  void SetDataByteOrderToLittleEndian() { this->SetDataByteOrder(VTK_LITTLE_ENDIAN); }
   //@}
 
   //@{
@@ -94,12 +92,8 @@ public:
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
-  const std::string& GetOutputString() const
-  {
-    return this->OutputString;
-  }
+  const std::string& GetOutputString() const { return this->OutputString; }
   //@}
-
 
   //@{
   /**
@@ -119,18 +113,19 @@ public:
    * cells have the arrays with the same name, then both colors will be
    * written.)
    */
-  vtkSetMacro(ColorMode,int);
-  vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault()
-    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);}
-  void SetColorModeToUniformCellColor()
-    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_CELL_COLOR);}
-  void SetColorModeToUniformPointColor()
-    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_POINT_COLOR);}
-  void SetColorModeToUniformColor() //both cells and points are colored
-    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_COLOR);}
-  void SetColorModeToOff() //No color information is written
-    {this->SetColorMode(VTK_COLOR_MODE_OFF);}
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
+  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToUniformCellColor() { this->SetColorMode(VTK_COLOR_MODE_UNIFORM_CELL_COLOR); }
+  void SetColorModeToUniformPointColor() { this->SetColorMode(VTK_COLOR_MODE_UNIFORM_POINT_COLOR); }
+  void SetColorModeToUniformColor() // both cells and points are colored
+  {
+    this->SetColorMode(VTK_COLOR_MODE_UNIFORM_COLOR);
+  }
+  void SetColorModeToOff() // No color information is written
+  {
+    this->SetColorMode(VTK_COLOR_MODE_OFF);
+  }
   //@}
 
   //@{
@@ -209,8 +204,8 @@ public:
    */
   vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
   vtkGetMacro(FileType, int);
-  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); };
-  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); };
+  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
+  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
   //@}
 
   //@{
@@ -218,18 +213,19 @@ public:
    * Choose the name used for the texture coordinates.
    * (u, v) or (texture_u, texture_v)
    */
-  vtkSetClampMacro(
-    TextureCoordinatesName, int, VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
+  vtkSetClampMacro(TextureCoordinatesName, int, VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
   vtkGetMacro(TextureCoordinatesName, int);
   void SetTextureCoordinatesNameToUV() { this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_UV); }
   void SetTextureCoordinatesNameToTextureUV()
-  {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
+  {
+    this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);
+  }
   //@}
 
   /**
    * Add a comment in the header part.
    */
-  void AddComment(const std::string &comment);
+  void AddComment(const std::string& comment);
 
 protected:
   vtkPLYWriter();
@@ -237,13 +233,13 @@ protected:
 
   void WriteData() override;
   vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
-  const float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
+  const float* GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes* dsa);
 
   int DataByteOrder;
-  char *ArrayName;
+  char* ArrayName;
   int Component;
   int ColorMode;
-  vtkScalarsToColors *LookupTable;
+  vtkScalarsToColors* LookupTable;
   unsigned char Color[3];
 
   bool EnableAlpha;
@@ -263,8 +259,7 @@ protected:
   // The output string.
   std::string OutputString;
 
-
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPLYWriter(const vtkPLYWriter&) = delete;

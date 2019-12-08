@@ -33,19 +33,19 @@
  * @sa
  * vtkThreshold vtkThresholdPoints vtkTextureMapToPlane vtkTextureMapToSphere
  * vtkTextureMapToCylinder
-*/
+ */
 
 #ifndef vtkThresholdTextureCoords_h
 #define vtkThresholdTextureCoords_h
 
-#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersTextureModule.h" // For export macro
 
 class VTKFILTERSTEXTURE_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgorithm
 {
 public:
-  static vtkThresholdTextureCoords *New();
-  vtkTypeMacro(vtkThresholdTextureCoords,vtkDataSetAlgorithm);
+  static vtkThresholdTextureCoords* New();
+  vtkTypeMacro(vtkThresholdTextureCoords, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,24 +67,24 @@ public:
   /**
    * Return the upper and lower thresholds.
    */
-  vtkGetMacro(UpperThreshold,double);
-  vtkGetMacro(LowerThreshold,double);
+  vtkGetMacro(UpperThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
   //@}
 
   //@{
   /**
    * Set the desired dimension of the texture map.
    */
-  vtkSetClampMacro(TextureDimension,int,1,3);
-  vtkGetMacro(TextureDimension,int);
+  vtkSetClampMacro(TextureDimension, int, 1, 3);
+  vtkGetMacro(TextureDimension, int);
   //@}
 
   //@{
   /**
    * Set the texture coordinate value for point satisfying threshold criterion.
    */
-  vtkSetVector3Macro(InTextureCoord,double);
-  vtkGetVectorMacro(InTextureCoord,double,3);
+  vtkSetVector3Macro(InTextureCoord, double);
+  vtkGetVectorMacro(InTextureCoord, double, 3);
   //@}
 
   //@{
@@ -92,8 +92,8 @@ public:
    * Set the texture coordinate value for point NOT satisfying threshold
    * criterion.
    */
-  vtkSetVector3Macro(OutTextureCoord,double);
-  vtkGetVectorMacro(OutTextureCoord,double,3);
+  vtkSetVector3Macro(OutTextureCoord, double);
+  vtkGetVectorMacro(OutTextureCoord, double, 3);
   //@}
 
 protected:
@@ -101,7 +101,7 @@ protected:
   ~vtkThresholdTextureCoords() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double LowerThreshold;
   double UpperThreshold;
@@ -113,10 +113,13 @@ protected:
 
   int (vtkThresholdTextureCoords::*ThresholdFunction)(double s);
 
-  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ?
-                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+  int Lower(double s) { return (s <= this->LowerThreshold ? 1 : 0); }
+  int Upper(double s) { return (s >= this->UpperThreshold ? 1 : 0); }
+  int Between(double s)
+  {
+    return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
+  }
+
 private:
   vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) = delete;
   void operator=(const vtkThresholdTextureCoords&) = delete;

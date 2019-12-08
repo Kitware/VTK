@@ -22,8 +22,8 @@
 #include <algorithm>
 
 vtkStandardNewMacro(vtkWebGLObject);
-#include <vector>
 #include <map>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 vtkWebGLObject::vtkWebGLObject()
@@ -60,7 +60,8 @@ void vtkWebGLObject::SetType(WebGLObjectTypes t)
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetTransformationMatrix(vtkMatrix4x4* m)
 {
-  for (int i=0; i<16; i++) this->Matrix[i] = m->GetElement(i/4, i%4);
+  for (int i = 0; i < 16; i++)
+    this->Matrix[i] = m->GetElement(i / 4, i % 4);
 }
 
 //-----------------------------------------------------------------------------
@@ -182,15 +183,27 @@ void vtkWebGLObject::GetBinaryData(int part, vtkUnsignedCharArray* buffer)
 
   if (binarySize)
   {
-    std::copy(binaryData, binaryData+binarySize, buffer->GetPointer(0));
+    std::copy(binaryData, binaryData + binarySize, buffer->GetPointer(0));
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkWebGLObject::GenerateBinaryData(){this->hasChanged = false;}
+void vtkWebGLObject::GenerateBinaryData()
+{
+  this->hasChanged = false;
+}
 //-----------------------------------------------------------------------------
-unsigned char* vtkWebGLObject::GetBinaryData(int vtkNotUsed(part)){return nullptr;}
+unsigned char* vtkWebGLObject::GetBinaryData(int vtkNotUsed(part))
+{
+  return nullptr;
+}
 //-----------------------------------------------------------------------------
-int vtkWebGLObject::GetBinarySize(int vtkNotUsed(part)){return 0;}
+int vtkWebGLObject::GetBinarySize(int vtkNotUsed(part))
+{
+  return 0;
+}
 //-----------------------------------------------------------------------------
-int vtkWebGLObject::GetNumberOfParts(){return 0;}
+int vtkWebGLObject::GetNumberOfParts()
+{
+  return 0;
+}

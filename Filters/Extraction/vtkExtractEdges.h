@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkFeatureEdges
-*/
+ */
 
 #ifndef vtkExtractEdges_h
 #define vtkExtractEdges_h
@@ -34,8 +34,8 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkExtractEdges *New();
-  vtkTypeMacro(vtkExtractEdges,vtkPolyDataAlgorithm);
+  static vtkExtractEdges* New();
+  vtkTypeMacro(vtkExtractEdges, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -43,8 +43,8 @@ public:
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -62,16 +62,15 @@ protected:
   ~vtkExtractEdges() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
+
 private:
   vtkExtractEdges(const vtkExtractEdges&) = delete;
   void operator=(const vtkExtractEdges&) = delete;
 };
 
 #endif
-
-

@@ -20,6 +20,7 @@
 #include "vtkGenericDataObjectReader.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkIntArray.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -28,7 +29,6 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariant.h"
-#include "vtkMultiPieceDataSet.h"
 
 void InitializeData(vtkPolyData* Data)
 {
@@ -41,9 +41,9 @@ void InitializeData(vtkPolyData* Data)
 
 bool CompareData(vtkPolyData* Output, vtkPolyData* Input)
 {
-  if(Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
+  if (Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
     return false;
-  if(Input->GetNumberOfPolys() != Output->GetNumberOfPolys())
+  if (Input->GetNumberOfPolys() != Output->GetNumberOfPolys())
     return false;
 
   return true;
@@ -56,7 +56,7 @@ void InitializeData(vtkRectilinearGrid* Data)
 
 bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
 {
-  if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
+  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
 
   return true;
@@ -69,7 +69,7 @@ void InitializeData(vtkStructuredGrid* Data)
 
 bool CompareData(vtkStructuredGrid* Output, vtkStructuredGrid* Input)
 {
-  if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
+  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
 
   return true;
@@ -101,16 +101,16 @@ void InitializeData(vtkTable* Data)
 
 bool CompareData(vtkTable* Output, vtkTable* Input)
 {
-  if(Input->GetNumberOfColumns() != Output->GetNumberOfColumns())
+  if (Input->GetNumberOfColumns() != Output->GetNumberOfColumns())
     return false;
-  if(Input->GetNumberOfRows() != Output->GetNumberOfRows())
+  if (Input->GetNumberOfRows() != Output->GetNumberOfRows())
     return false;
 
-  for(int column = 0; column != Input->GetNumberOfColumns(); ++column)
+  for (int column = 0; column != Input->GetNumberOfColumns(); ++column)
   {
-    for(int row = 0; row != Input->GetNumberOfRows(); ++row)
+    for (int row = 0; row != Input->GetNumberOfRows(); ++row)
     {
-      if(Input->GetValue(row, column).ToDouble() != Output->GetValue(row, column).ToDouble())
+      if (Input->GetValue(row, column).ToDouble() != Output->GetValue(row, column).ToDouble())
       {
         return false;
       }
@@ -135,15 +135,15 @@ void InitializeData(vtkUnstructuredGrid* Data)
 
 bool CompareData(vtkUnstructuredGrid* Output, vtkUnstructuredGrid* Input)
 {
-  if(Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
+  if (Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
     return false;
-  if(Input->GetNumberOfCells() != Output->GetNumberOfCells())
+  if (Input->GetNumberOfCells() != Output->GetNumberOfCells())
     return false;
 
   return true;
 }
 
-template<typename DataT>
+template <typename DataT>
 bool TestDataObjectSerialization()
 {
   DataT* const output_data = DataT::New();
@@ -161,9 +161,9 @@ bool TestDataObjectSerialization()
   reader->SetFileName(filename);
   reader->Update();
 
-  vtkDataObject *obj = reader->GetOutput();
+  vtkDataObject* obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
-  if(!input_data)
+  if (!input_data)
   {
     reader->Delete();
     output_data->Delete();
@@ -182,27 +182,27 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 {
   int result = 0;
 
-  if(!TestDataObjectSerialization<vtkPolyData>())
+  if (!TestDataObjectSerialization<vtkPolyData>())
   {
     cerr << "Error: failure serializing vtkPolyData" << endl;
     result = 1;
   }
-  if(!TestDataObjectSerialization<vtkRectilinearGrid>())
+  if (!TestDataObjectSerialization<vtkRectilinearGrid>())
   {
     cerr << "Error: failure serializing vtkRectilinearGrid" << endl;
     result = 1;
   }
-  if(!TestDataObjectSerialization<vtkStructuredGrid>())
+  if (!TestDataObjectSerialization<vtkStructuredGrid>())
   {
     cerr << "Error: failure serializing vtkStructuredGrid" << endl;
     result = 1;
   }
-  if(!TestDataObjectSerialization<vtkTable>())
+  if (!TestDataObjectSerialization<vtkTable>())
   {
     cerr << "Error: failure serializing vtkTable" << endl;
     result = 1;
   }
-  if(!TestDataObjectSerialization<vtkUnstructuredGrid>())
+  if (!TestDataObjectSerialization<vtkUnstructuredGrid>())
   {
     cerr << "Error: failure serializaing vtkUnstructuredGrid" << endl;
     result = 1;

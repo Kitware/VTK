@@ -13,41 +13,36 @@
 
 =========================================================================*/
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDoubleArray.h"
+#include "vtkLight.h"
+#include "vtkLightCollection.h"
+#include "vtkMath.h"
+#include "vtkPlane.h"
+#include "vtkPlaneSource.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolygon.h"
+#include "vtkProbeFilter.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
-#include "vtkPlane.h"
-#include "vtkPlaneSource.h"
-#include "vtkProbeFilter.h"
-#include "vtkLightCollection.h"
-#include "vtkLight.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
-#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnstructuredGrid.h"
 
 // Test MVC interpolation of polygon cell
-int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
+int TestMeanValueCoordinatesInterpolation2(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderer> renderer1 =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer1 = vtkSmartPointer<vtkRenderer>::New();
   renderer->SetViewport(0, 0, 0.5, 1);
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
   renWin->AddRenderer(renderer1);
@@ -64,8 +59,8 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   double pentagon[5][3];
   for (int i = 0; i < 5; i++)
   {
-    pentagon[i][0] = sin(vtkMath::RadiansFromDegrees(72.0*i));
-    pentagon[i][1] = cos(vtkMath::RadiansFromDegrees(72.0*i));
+    pentagon[i][0] = sin(vtkMath::RadiansFromDegrees(72.0 * i));
+    pentagon[i][1] = cos(vtkMath::RadiansFromDegrees(72.0 * i));
     pentagon[i][2] = 0.0;
   }
 
@@ -83,41 +78,35 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
     pentagonPoints->InsertNextPoint(pentagon[i]);
   }
 
-  vtkSmartPointer<vtkDoubleArray> pointDataArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> pointDataArray = vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray->Initialize();
   for (int i = 0; i < 5; i++)
   {
-    pointDataArray->InsertNextValue((pentagon[i][0]+1.0)/2.0);
+    pointDataArray->InsertNextValue((pentagon[i][0] + 1.0) / 2.0);
   }
 
-  vtkSmartPointer<vtkPolyData> polydata =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
   polydata->SetPoints(pentagonPoints);
   polydata->SetPolys(pentagonCell);
   polydata->GetPointData()->SetScalars(pointDataArray);
 
-  vtkPolygon *polygon = static_cast<vtkPolygon*>(polydata->GetCell(0));
+  vtkPolygon* polygon = static_cast<vtkPolygon*>(polydata->GetCell(0));
   polygon->SetUseMVCInterpolation(1);
 
-
-  //Okay now sample on a plane and see how it interpolates
-  vtkSmartPointer<vtkPlaneSource> pSource =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  pSource->SetOrigin(-1.0,-1.0,0);
-  pSource->SetPoint1(1.0,-1.0,0);
-  pSource->SetPoint2(-1.0, 1.0,0);
+  // Okay now sample on a plane and see how it interpolates
+  vtkSmartPointer<vtkPlaneSource> pSource = vtkSmartPointer<vtkPlaneSource>::New();
+  pSource->SetOrigin(-1.0, -1.0, 0);
+  pSource->SetPoint1(1.0, -1.0, 0);
+  pSource->SetPoint2(-1.0, 1.0, 0);
   pSource->SetXResolution(100);
   pSource->SetYResolution(100);
 
   // mvc interpolation
-  vtkSmartPointer<vtkProbeFilter> interp =
-    vtkSmartPointer<vtkProbeFilter>::New();
+  vtkSmartPointer<vtkProbeFilter> interp = vtkSmartPointer<vtkProbeFilter>::New();
   interp->SetInputConnection(pSource->GetOutputPort());
   interp->SetSourceData(polydata);
 
-  vtkSmartPointer<vtkPolyDataMapper> interpMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> interpMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   interpMapper->SetInputConnection(interp->GetOutputPort());
 
   vtkSmartPointer<vtkActor> interpActor = vtkSmartPointer<vtkActor>::New();
@@ -144,40 +133,35 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
     pentagonCell1->InsertCellPoint(i);
   }
 
-  vtkSmartPointer<vtkDoubleArray> pointDataArray1 =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> pointDataArray1 = vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray1->Initialize();
   for (int i = 0; i < 5; i++)
   {
-    pointDataArray1->InsertNextValue((pentagon[i][0]+1.0)/2.0);
+    pointDataArray1->InsertNextValue((pentagon[i][0] + 1.0) / 2.0);
   }
 
-  vtkSmartPointer<vtkPolyData> polydata1 =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polydata1 = vtkSmartPointer<vtkPolyData>::New();
   polydata1->SetPoints(pentagonPoints1);
   polydata1->SetPolys(pentagonCell1);
   polydata1->GetPointData()->SetScalars(pointDataArray1);
 
-  vtkPolygon *polygon1 = static_cast<vtkPolygon*>(polydata1->GetCell(0));
+  vtkPolygon* polygon1 = static_cast<vtkPolygon*>(polydata1->GetCell(0));
   polygon1->SetUseMVCInterpolation(1);
 
-  //Okay now sample on a plane and see how it interpolates
-  vtkSmartPointer<vtkPlaneSource> pSource1 =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  pSource1->SetOrigin(-1.0,-1.0,0);
-  pSource1->SetPoint1(1.0,-1.0,0);
-  pSource1->SetPoint2(-1.0, 1.0,0);
+  // Okay now sample on a plane and see how it interpolates
+  vtkSmartPointer<vtkPlaneSource> pSource1 = vtkSmartPointer<vtkPlaneSource>::New();
+  pSource1->SetOrigin(-1.0, -1.0, 0);
+  pSource1->SetPoint1(1.0, -1.0, 0);
+  pSource1->SetPoint2(-1.0, 1.0, 0);
   pSource1->SetXResolution(100);
   pSource1->SetYResolution(100);
 
   // interpolation 1: use the more general but slower MVC algorithm.
-  vtkSmartPointer<vtkProbeFilter> interp1 =
-    vtkSmartPointer<vtkProbeFilter>::New();
+  vtkSmartPointer<vtkProbeFilter> interp1 = vtkSmartPointer<vtkProbeFilter>::New();
   interp1->SetInputConnection(pSource1->GetOutputPort());
   interp1->SetSourceData(polydata1);
 
-  vtkSmartPointer<vtkPolyDataMapper> interpMapper1 =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> interpMapper1 = vtkSmartPointer<vtkPolyDataMapper>::New();
   interpMapper1->SetInputConnection(interp1->GetOutputPort());
 
   vtkSmartPointer<vtkActor> interpActor1 = vtkSmartPointer<vtkActor>::New();
@@ -186,32 +170,30 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   //
   // add actors to renderer
   //
-  vtkSmartPointer<vtkProperty> lightProperty =
-    vtkSmartPointer<vtkProperty>::New();
+  vtkSmartPointer<vtkProperty> lightProperty = vtkSmartPointer<vtkProperty>::New();
   lightProperty->LightingOff();
   interpActor->SetProperty(lightProperty);
   interpActor1->SetProperty(lightProperty);
 
   renderer->AddActor(interpActor);
   renderer->ResetCamera();
-  renderer->SetBackground(1,1,1);
+  renderer->SetBackground(1, 1, 1);
 
   renderer1->AddActor(interpActor1);
   renderer1->ResetCamera();
-  renderer1->SetBackground(1,1,1);
+  renderer1->SetBackground(1, 1, 1);
 
-  renWin->SetSize(600,300);
+  renWin->SetSize(600, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
 
   return !retVal;
 }
-

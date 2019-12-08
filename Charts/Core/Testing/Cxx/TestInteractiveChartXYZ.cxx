@@ -15,20 +15,20 @@
 
 #include "vtkChartXYZ.h"
 #include "vtkContextMouseEvent.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkPlotPoints3D.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestInteractiveChartXYZ(int , char * [])
+int TestInteractiveChartXYZ(int, char*[])
 {
   // Now the chart
   vtkNew<vtkChartXYZ> chart;
@@ -54,7 +54,7 @@ int TestInteractiveChartXYZ(int , char * [])
   table->AddColumn(arrColor);
   // Test charting with a few more points...
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {

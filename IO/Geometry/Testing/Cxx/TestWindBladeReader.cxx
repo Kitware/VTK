@@ -27,21 +27,21 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 
 void AddColor(vtkDataSet* grid)
 {
   vtkFloatArray* color = vtkFloatArray::New();
   color->SetNumberOfTuples(grid->GetNumberOfPoints());
-  for(vtkIdType i=0;i<grid->GetNumberOfPoints();i++)
+  for (vtkIdType i = 0; i < grid->GetNumberOfPoints(); i++)
   {
     color->SetValue(i, 1.);
   }
@@ -51,15 +51,16 @@ void AddColor(vtkDataSet* grid)
   color->Delete();
 }
 
-int TestWindBladeReader( int argc, char *argv[] )
+int TestWindBladeReader(int argc, char* argv[])
 {
   // Read file name.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WindBladeReader/test1_topo.wind");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WindBladeReader/test1_topo.wind");
 
   // Create the reader.
   vtkSmartPointer<vtkWindBladeReader> reader = vtkSmartPointer<vtkWindBladeReader>::New();
   reader->SetFilename(fname);
-  delete [] fname;
+  delete[] fname;
 
   // Convert to PolyData.
   vtkGeometryFilter* fieldGeometryFilter = vtkGeometryFilter::New();
@@ -71,8 +72,7 @@ int TestWindBladeReader( int argc, char *argv[] )
 
   fieldGeometryFilter->UpdateInformation();
   vtkExecutive* executive = fieldGeometryFilter->GetExecutive();
-  vtkInformationVector* inputVector =
-    executive->GetInputInformation(0);
+  vtkInformationVector* inputVector = executive->GetInputInformation(0);
   double timeReq = 10;
   inputVector->GetInformationObject(0)->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
@@ -91,21 +91,18 @@ int TestWindBladeReader( int argc, char *argv[] )
 
   // Create a mapper.
   vtkPolyDataMapper* fieldMapper = vtkPolyDataMapper::New();
-  fieldMapper->SetInputConnection(
-        fieldGeometryFilter->GetOutputPort());
+  fieldMapper->SetInputConnection(fieldGeometryFilter->GetOutputPort());
   fieldMapper->ScalarVisibilityOn();
   fieldMapper->SetColorModeToMapScalars();
   fieldMapper->SetScalarRange(.964, 1.0065);
-  fieldMapper->SetScalarModeToUsePointFieldData ();
+  fieldMapper->SetScalarModeToUsePointFieldData();
   fieldMapper->SelectColorArray("Density");
 
   vtkPolyDataMapper* bladeMapper = vtkPolyDataMapper::New();
-  bladeMapper->SetInputConnection(
-        bladeGeometryFilter->GetOutputPort());
+  bladeMapper->SetInputConnection(bladeGeometryFilter->GetOutputPort());
   bladeMapper->ScalarVisibilityOn();
   vtkPolyDataMapper* groundMapper = vtkPolyDataMapper::New();
-  groundMapper->SetInputConnection(
-         groundGeometryFilter->GetOutputPort());
+  groundMapper->SetInputConnection(groundGeometryFilter->GetOutputPort());
   groundMapper->ScalarVisibilityOn();
 
   // Create the actor.
@@ -116,7 +113,7 @@ int TestWindBladeReader( int argc, char *argv[] )
   double position[3];
   bladeActor->GetPosition(position);
   bladeActor->RotateZ(90);
-  bladeActor->SetPosition(position[0]+100, position[1]+100, position[2]-150);
+  bladeActor->SetPosition(position[0] + 100, position[1] + 100, position[2] - 150);
   vtkActor* groundActor = vtkActor::New();
   groundActor->SetMapper(groundMapper);
 
@@ -124,7 +121,7 @@ int TestWindBladeReader( int argc, char *argv[] )
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   vtkCamera* camera = ren->GetActiveCamera();
@@ -133,21 +130,21 @@ int TestWindBladeReader( int argc, char *argv[] )
   bounds[2] -= 150;
   ren->ResetCamera(bounds);
   camera->Elevation(-90);
-  camera->SetViewUp(0,0,1);
+  camera->SetViewUp(0, 0, 1);
   camera->Zoom(1.2);
 
   ren->AddActor(fieldActor);
   ren->AddActor(bladeActor);
   ren->AddActor(groundActor);
-  ren->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  ren->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -18,16 +18,16 @@
  * @brief   Factory class for drawing 3D XYZ charts.
  *
  *
-*/
+ */
 
 #ifndef vtkChartXYZ_h
 #define vtkChartXYZ_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkColor.h"            // For vtkColor4ub
 #include "vtkContextItem.h"
-#include "vtkColor.h"        // For vtkColor4ub
-#include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkNew.h"          // For ivars
+#include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
 #include <vector>            // For ivars
 
@@ -46,9 +46,9 @@ class VTKCHARTSCORE_EXPORT vtkChartXYZ : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartXYZ, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkChartXYZ * New();
+  static vtkChartXYZ* New();
 
   /**
    * Set the geometry in pixel coordinates (origin and width/height).
@@ -56,7 +56,7 @@ public:
    * For this reason, if you call SetAroundX(), you should call SetGeometry()
    * afterwards.
    */
-  void SetGeometry(const vtkRectf &bounds);
+  void SetGeometry(const vtkRectf& bounds);
 
   /**
    * Set the rotation angle for the chart (AutoRotate mode only).
@@ -71,19 +71,17 @@ public:
   /**
    * Set the vtkAnnotationLink for the chart.
    */
-  virtual void SetAnnotationLink(vtkAnnotationLink *link);
+  virtual void SetAnnotationLink(vtkAnnotationLink* link);
 
   /**
    * Get the x (0), y (1) or z (2) axis.
    */
-  vtkAxis * GetAxis(int axis);
-
+  vtkAxis* GetAxis(int axis);
 
   /**
    * Set the x (0), y (1) or z (2) axis.
    */
   virtual void SetAxis(int axisIndex, vtkAxis* axis);
-
 
   //@{
   /**
@@ -119,7 +117,7 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Adds a plot to the chart.
@@ -147,29 +145,29 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse press event. Keep track of zoom anchor position.
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event. Perform pan or zoom as specified by the mouse bindings.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event.  Zooms in or out.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
   /**
    * Key press event.  This allows the user to snap the chart to one of three
    * different 2D views.  "x" changes the view so we're looking down the X axis.
    * Similar behavior occurs for "y" or "z".
    */
-  bool KeyPressEvent(const vtkContextKeyEvent &key) override;
+  bool KeyPressEvent(const vtkContextKeyEvent& key) override;
 
 protected:
   vtkChartXYZ();
@@ -188,28 +186,27 @@ protected:
    * that the axes have the correct start and end positions, and that they are
    * perpendicular.
    */
-  bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
-                              vtkTransform *transform);
+  bool CalculatePlotTransform(vtkAxis* x, vtkAxis* y, vtkAxis* z, vtkTransform* transform);
 
   /**
    * Rotate the chart in response to a mouse movement.
    */
-  bool Rotate(const vtkContextMouseEvent &mouse);
+  bool Rotate(const vtkContextMouseEvent& mouse);
 
   /**
    * Pan the data within the chart in response to a mouse movement.
    */
-  bool Pan(const vtkContextMouseEvent &mouse);
+  bool Pan(const vtkContextMouseEvent& mouse);
 
   /**
    * Zoom in or out on the data in response to a mouse movement.
    */
-  bool Zoom(const vtkContextMouseEvent &mouse);
+  bool Zoom(const vtkContextMouseEvent& mouse);
 
   /**
    * Spin the chart in response to a mouse movement.
    */
-  bool Spin(const vtkContextMouseEvent &mouse);
+  bool Spin(const vtkContextMouseEvent& mouse);
 
   /**
    * Adjust the rotation of the chart so that we are looking down the X axis.
@@ -291,7 +288,7 @@ protected:
   /**
    * Draw the cube axes of this chart.
    */
-  void DrawAxes(vtkContext3D *context);
+  void DrawAxes(vtkContext3D* context);
 
   /**
    * For each of the XYZ dimensions, find the axis line that is furthest
@@ -302,31 +299,31 @@ protected:
   /**
    * Draw tick marks and tick mark labels along the axes.
    */
-  void DrawTickMarks(vtkContext2D *painter);
+  void DrawTickMarks(vtkContext2D* painter);
 
   /**
    * Label the axes.
    */
-  void DrawAxesLabels(vtkContext2D *painter);
+  void DrawAxesLabels(vtkContext2D* painter);
 
   /**
    * Compute how some text should be offset from an axis.  The parameter
    * bounds contains the bounding box of the text to be rendered.  The
    * result is stored in the parameter offset.
    */
-  void GetOffsetForAxisLabel(int axis, float *bounds, float *offset);
+  void GetOffsetForAxisLabel(int axis, float* bounds, float* offset);
 
   /**
    * Calculate the next "nicest" numbers above and below the current minimum.
    * \return the "nice" spacing of the numbers.
    * This function was mostly copied from vtkAxis.
    */
-  double CalculateNiceMinMax(double &min, double &max, int axis);
+  double CalculateNiceMinMax(double& min, double& max, int axis);
 
   /**
    * Get the equation for the ith face of our bounding cube.
    */
-  void GetClippingPlaneEquation(int i, double *planeEquation);
+  void GetClippingPlaneEquation(int i, double* planeEquation);
 
   /**
    * The size and position of this chart.
@@ -336,7 +333,7 @@ protected:
   /**
    * The 3 axes of this chart.
    */
-  std::vector< vtkSmartPointer<vtkAxis> > Axes;
+  std::vector<vtkSmartPointer<vtkAxis> > Axes;
 
   /**
    * This boolean indicates whether or not we're using this chart to rotate
@@ -438,7 +435,7 @@ protected:
   /**
    * The plots that are drawn within this chart.
    */
-  std::vector<vtkPlot3D *> Plots;
+  std::vector<vtkPlot3D*> Plots;
 
   /**
    * The label for the X Axis.
@@ -502,8 +499,8 @@ protected:
   double DataBounds[4];
 
 private:
-  vtkChartXYZ(const vtkChartXYZ &) = delete;
-  void operator=(const vtkChartXYZ &) = delete;
+  vtkChartXYZ(const vtkChartXYZ&) = delete;
+  void operator=(const vtkChartXYZ&) = delete;
 };
 
 #endif

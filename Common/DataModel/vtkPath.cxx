@@ -18,15 +18,15 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkIntArray.h"
 
 #include <cassert>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPath)
+vtkStandardNewMacro(vtkPath);
 
 //----------------------------------------------------------------------------
 vtkPath::vtkPath()
@@ -50,19 +50,19 @@ void vtkPath::Allocate(vtkIdType size, int extSize)
 }
 
 //----------------------------------------------------------------------------
-void vtkPath::GetCell(vtkIdType, vtkGenericCell *cell)
+void vtkPath::GetCell(vtkIdType, vtkGenericCell* cell)
 {
   cell->SetCellTypeToEmptyCell();
 }
 
 //----------------------------------------------------------------------------
-void vtkPath::GetCellPoints(vtkIdType, vtkIdList *ptIds)
+void vtkPath::GetCellPoints(vtkIdType, vtkIdList* ptIds)
 {
   ptIds->Reset();
 }
 
 //----------------------------------------------------------------------------
-void vtkPath::GetPointCells(vtkIdType, vtkIdList *cellIds)
+void vtkPath::GetPointCells(vtkIdType, vtkIdList* cellIds)
 {
   cellIds->Reset();
 }
@@ -89,7 +89,7 @@ vtkPath* vtkPath::GetData(vtkInformationVector* v, int i)
 //----------------------------------------------------------------------------
 void vtkPath::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -97,8 +97,7 @@ void vtkPath::InsertNextPoint(float pts[], int code)
 {
   this->Points->InsertNextPoint(pts);
 
-  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
-        this->PointData->GetScalars());
+  vtkIntArray* codes = vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
 }
@@ -114,20 +113,19 @@ void vtkPath::InsertNextPoint(double x, double y, double z, int code)
 {
   this->Points->InsertNextPoint(x, y, z);
 
-  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
-        this->PointData->GetScalars());
+  vtkIntArray* codes = vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
 }
 
 //----------------------------------------------------------------------------
-void vtkPath::SetCodes(vtkIntArray *codes)
+void vtkPath::SetCodes(vtkIntArray* codes)
 {
   this->PointData->SetScalars(codes);
 }
 
 //----------------------------------------------------------------------------
-vtkIntArray *vtkPath::GetCodes()
+vtkIntArray* vtkPath::GetCodes()
 {
   return vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
 }

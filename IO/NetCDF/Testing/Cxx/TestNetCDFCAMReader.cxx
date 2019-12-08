@@ -24,27 +24,27 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestNetCDFCAMReader( int argc, char *argv[] )
+int TestNetCDFCAMReader(int argc, char* argv[])
 {
   // Read file names.
-  char* pointsFileName = vtkTestUtilities::ExpandDataFileName(
-    argc, argv,"Data/NetCDF/CAMReaderPoints.nc");
-  char* connectivityFileName = vtkTestUtilities::ExpandDataFileName(
-    argc, argv,"Data/NetCDF/CAMReaderConnectivity.nc");
+  char* pointsFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NetCDF/CAMReaderPoints.nc");
+  char* connectivityFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NetCDF/CAMReaderConnectivity.nc");
 
   // Create the reader.
   vtkNew<vtkNetCDFCAMReader> reader;
   reader->SetFileName(pointsFileName);
   reader->SetConnectivityFileName(connectivityFileName);
-  delete []pointsFileName;
+  delete[] pointsFileName;
   pointsFileName = nullptr;
-  delete []connectivityFileName;
+  delete[] connectivityFileName;
   connectivityFileName = nullptr;
   reader->Update();
 
@@ -58,7 +58,7 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
   mapper->ScalarVisibilityOn();
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarRange(205, 250);
-  mapper->SetScalarModeToUsePointFieldData ();
+  mapper->SetScalarModeToUsePointFieldData();
   mapper->SelectColorArray("T");
 
   // Create the actor.
@@ -77,15 +77,15 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
   camera->Zoom(8);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

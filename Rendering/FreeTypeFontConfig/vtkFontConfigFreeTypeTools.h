@@ -29,20 +29,19 @@
  * correctly applied.
  * Be aware that FontConfig lookup is disabled by default. To enable, call
  * vtkFreeTypeTools::GetInstance()->ForceCompiledFontsOff();
-*/
+ */
 
 #ifndef vtkFontConfigFreeTypeTools_h
 #define vtkFontConfigFreeTypeTools_h
 
-#include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 #include "vtkFreeTypeTools.h"
+#include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 
-class VTKRENDERINGFREETYPEFONTCONFIG_EXPORT vtkFontConfigFreeTypeTools:
-    public vtkFreeTypeTools
+class VTKRENDERINGFREETYPEFONTCONFIG_EXPORT vtkFontConfigFreeTypeTools : public vtkFreeTypeTools
 {
 public:
   vtkTypeMacro(vtkFontConfigFreeTypeTools, vtkFreeTypeTools);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new object of this type, but it is not preferred to use this
@@ -50,15 +49,14 @@ public:
    * the object factory create a new instance. In this way the singleton
    * pattern of vtkFreeTypeTools is preserved.
    */
-  static vtkFontConfigFreeTypeTools *New();
+  static vtkFontConfigFreeTypeTools* New();
 
   /**
    * Modified version of vtkFreeTypeTools::LookupFace that locates FontConfig
    * faces. Falls back to the Superclass method for compiled fonts if the
    * FontConfig lookup fails.
    */
-  static bool LookupFaceFontConfig(vtkTextProperty *tprop, FT_Library lib,
-                                   FT_Face *face);
+  static bool LookupFaceFontConfig(vtkTextProperty* tprop, FT_Library lib, FT_Face* face);
 
 protected:
   vtkFontConfigFreeTypeTools();
@@ -70,8 +68,8 @@ protected:
   FT_Error CreateFTCManager() override;
 
 private:
-  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &) = delete;
-  void operator=(const vtkFontConfigFreeTypeTools &) = delete;
+  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools&) = delete;
+  void operator=(const vtkFontConfigFreeTypeTools&) = delete;
 };
 
-#endif //vtkFontConfigFreeTypeTools_h
+#endif // vtkFontConfigFreeTypeTools_h

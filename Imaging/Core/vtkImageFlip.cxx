@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageFlip.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSetAttributes.h"
 
 vtkStandardNewMacro(vtkImageFlip);
 
@@ -40,17 +40,15 @@ vtkImageFlip::vtkImageFlip()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageFlip::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageFlip::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   double spacing[3];
   double origin[3];
   int wholeExt[6];
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
   inInfo->Get(vtkDataObject::SPACING(), spacing);
@@ -83,8 +81,8 @@ int vtkImageFlip::RequestInformation(
     // input data
     if (this->ResliceAxes)
     {
-      this->ResliceAxes->Element[iflip][3] = 2*origin[iflip] +
-        spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
+      this->ResliceAxes->Element[iflip][3] =
+        2 * origin[iflip] + spacing[iflip] * (wholeExt[2 * iflip] + wholeExt[2 * iflip + 1]);
     }
   }
   else
@@ -92,31 +90,31 @@ int vtkImageFlip::RequestInformation(
     // set the output Origin such that when the image flips about its origin
     // (meaning the real origin, not what vtkImageData calls "Origin") the
     // transformed output bounds exactly overlay the input bounds.
-    origin[iflip] = - origin[iflip]
-      - spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
+    origin[iflip] =
+      -origin[iflip] - spacing[iflip] * (wholeExt[2 * iflip] + wholeExt[2 * iflip + 1]);
   }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  vtkInformation* inScalarInfo = vtkDataObject::GetActiveFieldInformation(
+    inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
   {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
   }
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
-    inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
-    inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
+    inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()),
+    inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
   os << indent << "FlipAboutOrigin: " << (this->FlipAboutOrigin ? "On\n" : "Off\n");

@@ -82,14 +82,12 @@ namespace vtk
  * ```
  */
 template <typename IterablePtr, typename... Options>
-auto Range(IterablePtr iterable, Options&&... opts)
--> typename detail::IterableTraits<
-       typename detail::StripPointers<IterablePtr>::type
-   >::RangeType
+auto Range(IterablePtr iterable, Options&&... opts) ->
+  typename detail::IterableTraits<typename detail::StripPointers<IterablePtr>::type>::RangeType
 {
   using Iterable = typename detail::StripPointers<IterablePtr>::type;
   using RangeType = typename detail::IterableTraits<Iterable>::RangeType;
-  return RangeType{iterable, std::forward<Options>(opts)...};
+  return RangeType{ iterable, std::forward<Options>(opts)... };
 }
 
 } // end namespace vtk

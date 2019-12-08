@@ -60,7 +60,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * @par Thanks:
  * Thanks to David Gobbi for writing this class and Atamai Inc. for
  * contributing it to VTK.
-*/
+ */
 
 #ifndef vtkMNIObjectWriter_h
 #define vtkMNIObjectWriter_h
@@ -79,30 +79,28 @@ class vtkPoints;
 class VTKIOMINC_EXPORT vtkMNIObjectWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkMNIObjectWriter,vtkWriter);
+  vtkTypeMacro(vtkMNIObjectWriter, vtkWriter);
 
-  static vtkMNIObjectWriter *New();
+  static vtkMNIObjectWriter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".obj"; }
+  virtual const char* GetFileExtensions() { return ".obj"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI object"; }
+  virtual const char* GetDescriptiveName() { return "MNI object"; }
 
   //@{
   /**
    * Set the property associated with the object.  Optional.
    * This is useful for exporting an actor.
    */
-  virtual void SetProperty(vtkProperty *property);
-  virtual vtkProperty *GetProperty() { return this->Property; };
+  virtual void SetProperty(vtkProperty* property);
+  virtual vtkProperty* GetProperty() { return this->Property; }
   //@}
 
   //@{
@@ -111,8 +109,8 @@ public:
    * This is useful for exporting an actor with the same colors
    * that are used to display the actor within VTK.
    */
-  virtual void SetMapper(vtkMapper *mapper);
-  virtual vtkMapper *GetMapper() { return this->Mapper; };
+  virtual void SetMapper(vtkMapper* mapper);
+  virtual vtkMapper* GetMapper() { return this->Mapper; }
   //@}
 
   //@{
@@ -120,8 +118,8 @@ public:
    * Set the lookup table associated with the object.  This will be
    * used to convert scalar values to colors, if a mapper is not set.
    */
-  virtual void SetLookupTable(vtkLookupTable *table);
-  virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; };
+  virtual void SetLookupTable(vtkLookupTable* table);
+  virtual vtkLookupTable* GetLookupTable() { return this->LookupTable; }
   //@}
 
   //@{
@@ -144,36 +142,36 @@ public:
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
-  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
-  vtkGetMacro(FileType,int);
-  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
-  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+  vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
+  vtkGetMacro(FileType, int);
+  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
+  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
   //@}
 
 protected:
   vtkMNIObjectWriter();
   ~vtkMNIObjectWriter() override;
 
-  vtkProperty *Property;
-  vtkMapper *Mapper;
-  vtkLookupTable *LookupTable;
+  vtkProperty* Property;
+  vtkMapper* Mapper;
+  vtkLookupTable* LookupTable;
 
-  ostream *OutputStream;
+  ostream* OutputStream;
 
   int WriteObjectType(int objType);
-  int WriteValues(vtkDataArray *array);
+  int WriteValues(vtkDataArray* array);
   int WriteIdValue(vtkIdType value);
   int WriteNewline();
 
-  int WriteProperty(vtkProperty *property);
-  int WriteLineThickness(vtkProperty *property);
-  int WritePoints(vtkPolyData *polyData);
-  int WriteNormals(vtkPolyData *polyData);
-  int WriteColors(vtkProperty *property, vtkMapper *mapper, vtkPolyData *data);
-  int WriteCells(vtkPolyData *data, int cellType);
+  int WriteProperty(vtkProperty* property);
+  int WriteLineThickness(vtkProperty* property);
+  int WritePoints(vtkPolyData* polyData);
+  int WriteNormals(vtkPolyData* polyData);
+  int WriteColors(vtkProperty* property, vtkMapper* mapper, vtkPolyData* data);
+  int WriteCells(vtkPolyData* data, int cellType);
 
-  int WritePolygonObject(vtkPolyData *output);
-  int WriteLineObject(vtkPolyData *output);
+  int WritePolygonObject(vtkPolyData* output);
+  int WriteLineObject(vtkPolyData* output);
 
   void WriteData() override;
 
@@ -181,15 +179,14 @@ protected:
 
   int FileType;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  ostream *OpenFile();
-  void CloseFile(ostream *fp);
+  ostream* OpenFile();
+  void CloseFile(ostream* fp);
 
 private:
   vtkMNIObjectWriter(const vtkMNIObjectWriter&) = delete;
   void operator=(const vtkMNIObjectWriter&) = delete;
-
 };
 
 #endif

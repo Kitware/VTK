@@ -15,9 +15,9 @@
 #include "vtkImageQuantizeRGBToIndex.h"
 
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
@@ -34,53 +34,58 @@ class vtkColorQuantizeNode
 {
 public:
   vtkColorQuantizeNode()
-    { this->Axis = -1; this->SplitPoint = -1; this->Index = -1;
-      this->Child1 = nullptr; this->Child2 = nullptr;
-      this->StdDev[0] = this->StdDev[1] = this->StdDev[2] = 0.0;
-      this->Histogram[0] = this->Histogram[1] = this->Histogram[2] = nullptr;
-      this->Image = nullptr;
-      this->Bounds[0] = 0; this->Bounds[1] = 256;
-      this->Bounds[2] = 0; this->Bounds[3] = 256;
-      this->Bounds[4] = 0; this->Bounds[5] = 256; };
-
-  ~vtkColorQuantizeNode()
-    { delete []this->Histogram[0];
-      delete []this->Histogram[1];
-      delete []this->Histogram[2];
-      delete this->Child1;
-      delete this->Child2; };
-
-  void SetImageExtent( int v[6] )
-    { memcpy( this->ImageExtent, v, 6*sizeof(int) ); };
-
-  void SetImageIncrement( vtkIdType v[3] )
-    { memcpy( this->ImageIncrement, v, 3*sizeof(vtkIdType) ); };
-
-  void SetImageType(double type)
   {
-      this->ImageType = static_cast<int>(type);
+    this->Axis = -1;
+    this->SplitPoint = -1;
+    this->Index = -1;
+    this->Child1 = nullptr;
+    this->Child2 = nullptr;
+    this->StdDev[0] = this->StdDev[1] = this->StdDev[2] = 0.0;
+    this->Histogram[0] = this->Histogram[1] = this->Histogram[2] = nullptr;
+    this->Image = nullptr;
+    this->Bounds[0] = 0;
+    this->Bounds[1] = 256;
+    this->Bounds[2] = 0;
+    this->Bounds[3] = 256;
+    this->Bounds[4] = 0;
+    this->Bounds[5] = 256;
   }
 
-  void SetImage( void *image ) { this->Image = image; };
+  ~vtkColorQuantizeNode()
+  {
+    delete[] this->Histogram[0];
+    delete[] this->Histogram[1];
+    delete[] this->Histogram[2];
+    delete this->Child1;
+    delete this->Child2;
+  }
 
-  void SetAxis( int v ) { this->Axis = v; };
-  int  GetAxis() { return this->Axis; }
+  void SetImageExtent(int v[6]) { memcpy(this->ImageExtent, v, 6 * sizeof(int)); }
 
-  void SetSplitPoint( int v ) { this->SplitPoint = v; };
-  int  GetSplitPoint() { return this->SplitPoint; }
+  void SetImageIncrement(vtkIdType v[3]) { memcpy(this->ImageIncrement, v, 3 * sizeof(vtkIdType)); }
 
-  int *GetBounds(          ) { return this->Bounds; };
-  void SetBounds( int v[6] ) { memcpy( this->Bounds, v, 6*sizeof(int) ); };
+  void SetImageType(double type) { this->ImageType = static_cast<int>(type); }
 
-  void SetIndex( int v ) { this->Index = v; };
-  int  GetIndex() { return this->Index; }
+  void SetImage(void* image) { this->Image = image; }
 
-  double GetStdDev( int axis ) { return this->StdDev[axis]; };
-  void  ComputeStdDev();
+  void SetAxis(int v) { this->Axis = v; }
+  int GetAxis() { return this->Axis; }
 
-  int GetCount() { return this->Count; };
+  void SetSplitPoint(int v) { this->SplitPoint = v; }
+  int GetSplitPoint() { return this->SplitPoint; }
 
-  double GetMean( int axis ) { return this->Mean[axis]; };
+  int* GetBounds() { return this->Bounds; }
+  void SetBounds(int v[6]) { memcpy(this->Bounds, v, 6 * sizeof(int)); }
+
+  void SetIndex(int v) { this->Index = v; }
+  int GetIndex() { return this->Index; }
+
+  double GetStdDev(int axis) { return this->StdDev[axis]; }
+  void ComputeStdDev();
+
+  int GetCount() { return this->Count; }
+
+  double GetMean(int axis) { return this->Mean[axis]; }
   void GetMean(double c[3])
   {
     c[0] = this->Mean[0];
@@ -88,31 +93,30 @@ public:
     c[2] = this->Mean[2];
   }
 
-  void Divide( int axis, int nextIndex );
+  void Divide(int axis, int nextIndex);
 
-  void SetChild1( vtkColorQuantizeNode *n ) { this->Child1 = n; };
-  vtkColorQuantizeNode *GetChild1() { return this->Child1; }
+  void SetChild1(vtkColorQuantizeNode* n) { this->Child1 = n; }
+  vtkColorQuantizeNode* GetChild1() { return this->Child1; }
 
-  void SetChild2( vtkColorQuantizeNode *n ) { this->Child2 = n; };
-  vtkColorQuantizeNode *GetChild2() { return this->Child2; }
+  void SetChild2(vtkColorQuantizeNode* n) { this->Child2 = n; }
+  vtkColorQuantizeNode* GetChild2() { return this->Child2; }
 
-  int GetIndex( int c[3] )
+  int GetIndex(int c[3])
   {
-    if ( this->Index>=0 )
+    if (this->Index >= 0)
     {
       return this->Index;
     }
-    if ( c[this->Axis]>this->SplitPoint )
+    if (c[this->Axis] > this->SplitPoint)
     {
       return this->Child2->GetIndex(c);
     }
     return this->Child1->GetIndex(c);
   }
 
-
   void GetAverageColor(int c[3])
   {
-    if(this->AverageCount)
+    if (this->AverageCount)
     {
       c[0] = static_cast<int>(this->AverageColor[0] / this->AverageCount);
       c[1] = static_cast<int>(this->AverageColor[1] / this->AverageCount);
@@ -124,7 +128,8 @@ public:
   {
     if (this->Child1)
     {
-      this->Child1->StartColorAveraging(); this->Child2->StartColorAveraging();
+      this->Child1->StartColorAveraging();
+      this->Child2->StartColorAveraging();
     }
     else
     {
@@ -135,46 +140,49 @@ public:
     }
   }
 
-  void AddColor( int c[3] )
-    { this->AverageCount++; this->AverageColor[0] += c[0];
-      this->AverageColor[1] += c[1]; this->AverageColor[2] += c[2]; };
+  void AddColor(int c[3])
+  {
+    this->AverageCount++;
+    this->AverageColor[0] += c[0];
+    this->AverageColor[1] += c[1];
+    this->AverageColor[2] += c[2];
+  }
 
 protected:
-  int                  Axis;
-  int                  SplitPoint;
-  int                  Bounds[6];
-  int                  Index;
-  double                StdDev[3];
-  double                Median[3];
-  double                Mean[3];
-  int                  Count;
-  int                  AverageCount;
-  double                AverageColor[3];
-  vtkIdType            ImageIncrement[3];
-  int                  ImageExtent[6];
-  int                  ImageType;
-  void                 *Image;
-  int                  *Histogram[3];
+  int Axis;
+  int SplitPoint;
+  int Bounds[6];
+  int Index;
+  double StdDev[3];
+  double Median[3];
+  double Mean[3];
+  int Count;
+  int AverageCount;
+  double AverageColor[3];
+  vtkIdType ImageIncrement[3];
+  int ImageExtent[6];
+  int ImageType;
+  void* Image;
+  int* Histogram[3];
   vtkColorQuantizeNode *Child1, *Child2;
 };
 
 template <class T>
-void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
-                                          vtkIdType inIncrement[3], int type,
-                                          int bounds[6], int *histogram[3] )
+void vtkImageQuantizeRGBToIndexHistogram(
+  T* inPtr, int extent[6], vtkIdType inIncrement[3], int type, int bounds[6], int* histogram[3])
 {
-  T      *rgbPtr, v[3];
-  int    x, y, z, c;
-  int    value[3];
-  int    max[3];
+  T *rgbPtr, v[3];
+  int x, y, z, c;
+  int value[3];
+  int max[3];
 
   max[0] = bounds[1] - bounds[0] + 1;
   max[1] = bounds[3] - bounds[2] + 1;
   max[2] = bounds[5] - bounds[4] + 1;
 
-  for ( c = 0; c < 3; c++ )
+  for (c = 0; c < 3; c++)
   {
-    for ( x = 0; x < max[c]; x++ )
+    for (x = 0; x < max[c]; x++)
     {
       histogram[c][x] = 0;
     }
@@ -188,28 +196,26 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
     {
       for (x = extent[0]; x <= extent[1]; x++)
       {
-        if ( type == VTK_UNSIGNED_CHAR )
+        if (type == VTK_UNSIGNED_CHAR)
         {
           v[0] = *(rgbPtr++) - bounds[0];
           v[1] = *(rgbPtr++) - bounds[2];
           v[2] = *(rgbPtr++) - bounds[4];
-          if ( static_cast<int>(v[0]) < max[0] &&
-               static_cast<int>(v[1]) < max[1] &&
-               static_cast<int>(v[2]) < max[2] )
+          if (static_cast<int>(v[0]) < max[0] && static_cast<int>(v[1]) < max[1] &&
+            static_cast<int>(v[2]) < max[2])
           {
             histogram[0][static_cast<unsigned char>(v[0])]++;
             histogram[1][static_cast<unsigned char>(v[1])]++;
             histogram[2][static_cast<unsigned char>(v[2])]++;
           }
         }
-        else if ( type == VTK_UNSIGNED_SHORT )
+        else if (type == VTK_UNSIGNED_SHORT)
         {
-          v[0] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[0];
-          v[1] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[2];
-          v[2] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[4];
-          if (static_cast<int>(v[0]) < max[0] &&
-              static_cast<int>(v[1]) < max[1] &&
-              static_cast<int>(v[2]) < max[2] )
+          v[0] = ((static_cast<unsigned short>(*(rgbPtr++))) >> 8) - bounds[0];
+          v[1] = ((static_cast<unsigned short>(*(rgbPtr++))) >> 8) - bounds[2];
+          v[2] = ((static_cast<unsigned short>(*(rgbPtr++))) >> 8) - bounds[4];
+          if (static_cast<int>(v[0]) < max[0] && static_cast<int>(v[1]) < max[1] &&
+            static_cast<int>(v[2]) < max[2])
           {
             histogram[0][static_cast<unsigned short>(v[0])]++;
             histogram[1][static_cast<unsigned short>(v[1])]++;
@@ -218,12 +224,11 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
         }
         else
         {
-          value[0] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[0];
-          value[1] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[2];
-          value[2] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[4];
-          if ( static_cast<int>(value[0]) < max[0] &&
-               static_cast<int>(value[1]) < max[1] &&
-               static_cast<int>(value[2]) < max[2] )
+          value[0] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[0];
+          value[1] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[2];
+          value[2] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[4];
+          if (static_cast<int>(value[0]) < max[0] && static_cast<int>(value[1]) < max[1] &&
+            static_cast<int>(value[2]) < max[2])
           {
             histogram[0][value[0]]++;
             histogram[1][value[1]]++;
@@ -240,29 +245,28 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
 
 // This templated function executes the filter for supported types of data.
 template <class T>
-void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
-  vtkImageData *inData,
-  vtkImageData *outData)
+void vtkImageQuantizeRGBToIndexExecute(
+  vtkImageQuantizeRGBToIndex* self, vtkImageData* inData, vtkImageData* outData)
 {
-  int                  extent[6];
-  vtkIdType            inIncrement[3], outIncrement[3];
-  T                    *rgbPtr;
-  unsigned short       *indexPtr;
-  int                  x, y, z, c;
-  int                  type;
+  int extent[6];
+  vtkIdType inIncrement[3], outIncrement[3];
+  T* rgbPtr;
+  unsigned short* indexPtr;
+  int x, y, z, c;
+  int type;
   vtkColorQuantizeNode *root, *tmp;
-  vtkColorQuantizeNode *leafNodes[65536];
-  int                  numLeafNodes;
-  int                  maxdevAxis = 0, maxdevLeafNode = 0;
-  double                maxdev, dev;
-  int                  leaf, axis;
-  int                  cannotDivideFurther;
-  vtkLookupTable       *lut;
-  double                color[4];
-  int                  rgb[3];
-  vtkTimerLog          *timer;
-  vtkIdType            totalCount;
-  double                weight;
+  vtkColorQuantizeNode* leafNodes[65536];
+  int numLeafNodes;
+  int maxdevAxis = 0, maxdevLeafNode = 0;
+  double maxdev, dev;
+  int leaf, axis;
+  int cannotDivideFurther;
+  vtkLookupTable* lut;
+  double color[4];
+  int rgb[3];
+  vtkTimerLog* timer;
+  vtkIdType totalCount;
+  double weight;
 
   timer = vtkTimerLog::New();
   timer->StartTimer();
@@ -270,22 +274,20 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   // need extent to get increments.
   // in and out extents are the same
-  inData->GetExtent( extent );
+  inData->GetExtent(extent);
 
-  inData->GetContinuousIncrements(extent, inIncrement[0],
-                                  inIncrement[1], inIncrement[2]);
-  outData->GetContinuousIncrements(extent, outIncrement[0],
-                                  outIncrement[1], outIncrement[2]);
+  inData->GetContinuousIncrements(extent, inIncrement[0], inIncrement[1], inIncrement[2]);
+  outData->GetContinuousIncrements(extent, outIncrement[0], outIncrement[1], outIncrement[2]);
 
   timer->StopTimer();
 
-  self->SetInitializeExecuteTime( timer->GetElapsedTime() );
+  self->SetInitializeExecuteTime(timer->GetElapsedTime());
   timer->StartTimer();
 
   vtkImageData* image_sample = inData;
-  auto sampler = vtkSmartPointer<vtkExtractVOI>::New(); // outside of scope to keep samples image alive
-  if (self->GetSamplingRate()[0] > 1 ||
-    self->GetSamplingRate()[1] > 1 ||
+  auto sampler =
+    vtkSmartPointer<vtkExtractVOI>::New(); // outside of scope to keep samples image alive
+  if (self->GetSamplingRate()[0] > 1 || self->GetSamplingRate()[1] > 1 ||
     self->GetSamplingRate()[2] > 1)
   {
     // The idea behind this sampling is to build the octree
@@ -302,7 +304,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   auto inPtr = static_cast<T*>(inData->GetScalarPointer());
   auto outPtr = static_cast<unsigned short*>(outData->GetScalarPointer());
 
-  int       extentSampled[6];
+  int extentSampled[6];
   vtkIdType incSampled[3];
   image_sample->GetExtent(extentSampled);
   image_sample->GetContinuousIncrements(extentSampled, incSampled[0], incSampled[1], incSampled[2]);
@@ -310,10 +312,10 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   // Build the tree
   // Create the root node - it is our only leaf node
   root = new vtkColorQuantizeNode;
-  root->SetIndex( 0 );
+  root->SetIndex(0);
   root->SetImageExtent(extentSampled);
   root->SetImageIncrement(incSampled);
-  root->SetImageType( type );
+  root->SetImageType(type);
   root->SetImage(inPtrSampled);
   root->ComputeStdDev();
   leafNodes[0] = root;
@@ -327,43 +329,42 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   // Loop until we've added enough leaf nodes or we can't add any more
   // Here we are using sampled image (VOI).
-  while ( numLeafNodes < self->GetNumberOfColors() && !cannotDivideFurther )
+  while (numLeafNodes < self->GetNumberOfColors() && !cannotDivideFurther)
   {
     // Find leaf node / axis with maximum deviation
     maxdev = 0.0;
-    for ( leaf = 0; leaf < numLeafNodes; leaf++ )
+    for (leaf = 0; leaf < numLeafNodes; leaf++)
     {
-      for ( axis = 0; axis < 3; axis++ )
+      for (axis = 0; axis < 3; axis++)
       {
-        dev = leafNodes[leaf]->GetStdDev( axis );
-        weight = static_cast<double>(leafNodes[leaf]->GetCount())
-          /static_cast<double>(totalCount);
+        dev = leafNodes[leaf]->GetStdDev(axis);
+        weight = static_cast<double>(leafNodes[leaf]->GetCount()) / static_cast<double>(totalCount);
         dev *= weight;
-        if ( dev > maxdev )
+        if (dev > maxdev)
         {
-          maxdevAxis     = axis;
+          maxdevAxis = axis;
           maxdevLeafNode = leaf;
-          maxdev         = dev;
+          maxdev = dev;
         }
       }
     }
-    if ( maxdev == 0.0 )
+    if (maxdev == 0.0)
     {
       cannotDivideFurther = 1;
     }
     else
     {
-      leafNodes[maxdevLeafNode]->Divide( maxdevAxis, numLeafNodes );
-      leafNodes[numLeafNodes]   = leafNodes[maxdevLeafNode]->GetChild1();
+      leafNodes[maxdevLeafNode]->Divide(maxdevAxis, numLeafNodes);
+      leafNodes[numLeafNodes] = leafNodes[maxdevLeafNode]->GetChild1();
       leafNodes[maxdevLeafNode] = leafNodes[maxdevLeafNode]->GetChild2();
       numLeafNodes++;
     }
 
-    self->UpdateProgress(0.6667*numLeafNodes/self->GetNumberOfColors());
+    self->UpdateProgress(0.6667 * numLeafNodes / self->GetNumberOfColors());
   }
 
   timer->StopTimer();
-  self->SetBuildTreeExecuteTime( timer->GetElapsedTime() );
+  self->SetBuildTreeExecuteTime(timer->GetElapsedTime());
   timer->StartTimer();
 
   root->StartColorAveraging();
@@ -376,18 +377,18 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   // by luminance (mapping the indices accordingly).
   if (self->GetSortIndexByLuminance())
   {
-    std::vector< std::pair<double, int> > luminance_index_map;
+    std::vector<std::pair<double, int> > luminance_index_map;
     double RGB[3];
     for (leaf = 0; leaf < numLeafNodes; leaf++)
     {
       leafNodes[leaf]->GetMean(RGB);
-      double luminance = 0.30*RGB[0] + 0.59*RGB[1] + 0.11*RGB[2];
+      double luminance = 0.30 * RGB[0] + 0.59 * RGB[1] + 0.11 * RGB[2];
       int index = leafNodes[leaf]->GetIndex();
       luminance_index_map.emplace_back(luminance, index);
     }
     std::sort(luminance_index_map.begin(), luminance_index_map.end());
     std::vector<int> index_map(luminance_index_map.size());
-    for (size_t i=0; i<luminance_index_map.size(); ++i)
+    for (size_t i = 0; i < luminance_index_map.size(); ++i)
     {
       index_map.at(luminance_index_map[i].second) = static_cast<int>(i);
     }
@@ -400,7 +401,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   // Fill in the indices in the output image
   indexPtr = outPtr;
-  rgbPtr   = inPtr;
+  rgbPtr = inPtr;
   for (z = extent[4]; z <= extent[5]; z++)
   {
     for (y = extent[2]; !self->AbortExecute && y <= extent[3]; y++)
@@ -409,13 +410,13 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
       {
         for (c = 0; c < 3; c++)
         {
-          if ( type == VTK_UNSIGNED_CHAR )
+          if (type == VTK_UNSIGNED_CHAR)
           {
-            rgb[c]  = static_cast<int>(*rgbPtr);
+            rgb[c] = static_cast<int>(*rgbPtr);
           }
-          else if ( type == VTK_UNSIGNED_SHORT )
+          else if (type == VTK_UNSIGNED_SHORT)
           {
-            rgb[c] = (static_cast<unsigned short>(*rgbPtr))>>8;
+            rgb[c] = (static_cast<unsigned short>(*rgbPtr)) >> 8;
           }
           else
           {
@@ -424,14 +425,14 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
           rgbPtr++;
         }
         tmp = root;
-        while( true )
+        while (true)
         {
-          if ( tmp->GetIndex() != -1 )
+          if (tmp->GetIndex() != -1)
           {
             *indexPtr = tmp->GetIndex();
             break;
           }
-          if ( rgb[tmp->GetAxis()] > tmp->GetSplitPoint() )
+          if (rgb[tmp->GetAxis()] > tmp->GetSplitPoint())
           {
             tmp = tmp->GetChild2();
           }
@@ -440,16 +441,16 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
             tmp = tmp->GetChild1();
           }
         }
-        tmp->AddColor( rgb );
+        tmp->AddColor(rgb);
         indexPtr++;
 
-        rgbPtr   += inIncrement[0];
+        rgbPtr += inIncrement[0];
         indexPtr += outIncrement[0];
       }
-      rgbPtr   += inIncrement[1];
+      rgbPtr += inIncrement[1];
       indexPtr += outIncrement[1];
     }
-    rgbPtr   += inIncrement[2];
+    rgbPtr += inIncrement[2];
     indexPtr += outIncrement[2];
   }
 
@@ -457,22 +458,21 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   // Fill in the lookup table
   lut = self->GetLookupTable();
-  lut->SetNumberOfTableValues( numLeafNodes );
-  lut->SetNumberOfColors( numLeafNodes );
-  lut->SetTableRange( 0, numLeafNodes-1 );
+  lut->SetNumberOfTableValues(numLeafNodes);
+  lut->SetNumberOfColors(numLeafNodes);
+  lut->SetTableRange(0, numLeafNodes - 1);
   color[3] = 1.0;
-  for ( leaf = 0; leaf < numLeafNodes; leaf++ )
+  for (leaf = 0; leaf < numLeafNodes; leaf++)
   {
-    leafNodes[leaf]->GetAverageColor( rgb );
+    leafNodes[leaf]->GetAverageColor(rgb);
     color[0] = rgb[0] / 255.0;
     color[1] = rgb[1] / 255.0;
     color[2] = rgb[2] / 255.0;
-    lut->SetTableValue( leafNodes[leaf]->GetIndex(), color );
+    lut->SetTableValue(leafNodes[leaf]->GetIndex(), color);
   }
 
-
   timer->StopTimer();
-  self->SetLookupIndexExecuteTime( timer->GetElapsedTime() );
+  self->SetLookupIndexExecuteTime(timer->GetElapsedTime());
   timer->Delete();
 
   delete root;
@@ -480,10 +480,10 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
 void vtkColorQuantizeNode::ComputeStdDev()
 {
-  int   i, j;
+  int i, j;
   double mean;
-  int   count=0;
-  int   medianCount;
+  int count = 0;
+  int medianCount;
 
   // Create space for histogram
   this->Histogram[0] = new int[this->Bounds[1] - this->Bounds[0] + 1];
@@ -493,26 +493,22 @@ void vtkColorQuantizeNode::ComputeStdDev()
   // Create histogram
   switch (this->ImageType)
   {
-    vtkTemplateMacro(
-      vtkImageQuantizeRGBToIndexHistogram(
-        static_cast<VTK_TT *>(this->Image), this->ImageExtent,
-        this->ImageIncrement, this->ImageType,
-        this->Bounds, this->Histogram ));
+    vtkTemplateMacro(vtkImageQuantizeRGBToIndexHistogram(static_cast<VTK_TT*>(this->Image),
+      this->ImageExtent, this->ImageIncrement, this->ImageType, this->Bounds, this->Histogram));
   }
 
-
   // Compute for r, g, and b
-  for ( i = 0; i < 3; i++ )
+  for (i = 0; i < 3; i++)
   {
     // Compute the mean
-    mean  = 0;
+    mean = 0;
     count = 0;
-    for ( j = 0; j <= (this->Bounds[i*2 + 1] - this->Bounds[i*2]); j++ )
+    for (j = 0; j <= (this->Bounds[i * 2 + 1] - this->Bounds[i * 2]); j++)
     {
       count += this->Histogram[i][j];
-      mean  += this->Histogram[i][j] * (j + this->Bounds[i*2]);
+      mean += this->Histogram[i][j] * (j + this->Bounds[i * 2]);
     }
-    if (count>0)
+    if (count > 0)
     {
       mean /= static_cast<double>(count);
     }
@@ -526,12 +522,11 @@ void vtkColorQuantizeNode::ComputeStdDev()
     // are below this distance limit, don't compute a
     // standard deviation since we don't want to subdivide this
     // node along this axis. Set the deviation to 0.0 and continue.
-    if ( this->Bounds[i*2 + 1] == this->Bounds[i*2] )
+    if (this->Bounds[i * 2 + 1] == this->Bounds[i * 2])
     {
       this->StdDev[i] = 0.0;
       continue;
     }
-
 
     // Where is the median?
     medianCount = count / 2;
@@ -542,15 +537,15 @@ void vtkColorQuantizeNode::ComputeStdDev()
     // Compute the standard deviation and the location of the median
     this->StdDev[i] = 0;
     count = 0;
-    for ( j = 0; j <= (this->Bounds[i*2 + 1] - this->Bounds[i*2]); j++ )
+    for (j = 0; j <= (this->Bounds[i * 2 + 1] - this->Bounds[i * 2]); j++)
     {
       count += this->Histogram[i][j];
       this->StdDev[i] += static_cast<double>(this->Histogram[i][j]) *
-        (static_cast<double>(j)+this->Bounds[i*2]-mean) *
-        (static_cast<double>(j)+this->Bounds[i*2]-mean);
-      if ( this->Median[i] == -1 && count > medianCount )
+        (static_cast<double>(j) + this->Bounds[i * 2] - mean) *
+        (static_cast<double>(j) + this->Bounds[i * 2] - mean);
+      if (this->Median[i] == -1 && count > medianCount)
       {
-        this->Median[i] = j + this->Bounds[i*2];
+        this->Median[i] = j + this->Bounds[i * 2];
       }
     }
 
@@ -559,13 +554,13 @@ void vtkColorQuantizeNode::ComputeStdDev()
     // and just over half the entries are in the second bucket. We
     // still want to divide - the division needs to be at the first
     // bucket.
-    if ( this->Median[i] == this->Bounds[i*2 + 1] )
+    if (this->Median[i] == this->Bounds[i * 2 + 1])
     {
       this->Median[i]--;
     }
 
     // Do the final division and square root to get the standard deviation
-    if (count>0)
+    if (count > 0)
     {
       this->StdDev[i] /= static_cast<double>(count);
     }
@@ -574,53 +569,53 @@ void vtkColorQuantizeNode::ComputeStdDev()
       this->StdDev[i] = 0;
     }
 
-    this->StdDev[i] = sqrt( this->StdDev[i] );
+    this->StdDev[i] = sqrt(this->StdDev[i]);
   }
 
   // Should all be the same - just take the last one
   this->Count = count;
 }
 
-void vtkColorQuantizeNode::Divide( int axis, int nextIndex )
+void vtkColorQuantizeNode::Divide(int axis, int nextIndex)
 {
   int newBounds[6];
 
   this->Child1 = new vtkColorQuantizeNode;
   this->Child2 = new vtkColorQuantizeNode;
 
-  memcpy( newBounds, this->Bounds, 6*sizeof(int) );
+  memcpy(newBounds, this->Bounds, 6 * sizeof(int));
 
-  newBounds[axis*2 + 1] = static_cast<int>(this->Median[axis]);
-  this->Child1->SetBounds( newBounds );
+  newBounds[axis * 2 + 1] = static_cast<int>(this->Median[axis]);
+  this->Child1->SetBounds(newBounds);
 
-  newBounds[axis*2] = static_cast<int>(this->Median[axis] + 1);
-  newBounds[axis*2 + 1] = static_cast<int>(this->Bounds[axis*2 + 1]);
-  this->Child2->SetBounds( newBounds );
+  newBounds[axis * 2] = static_cast<int>(this->Median[axis] + 1);
+  newBounds[axis * 2 + 1] = static_cast<int>(this->Bounds[axis * 2 + 1]);
+  this->Child2->SetBounds(newBounds);
 
   this->SplitPoint = static_cast<int>(this->Median[axis]);
   this->Axis = axis;
 
-  this->Child1->SetIndex( this->Index );
-  this->Child2->SetIndex( nextIndex );
+  this->Child1->SetIndex(this->Index);
+  this->Child2->SetIndex(nextIndex);
   this->Index = -1;
 
-  delete [] this->Histogram[0];
-  delete [] this->Histogram[1];
-  delete [] this->Histogram[2];
+  delete[] this->Histogram[0];
+  delete[] this->Histogram[1];
+  delete[] this->Histogram[2];
 
   this->Histogram[0] = nullptr;
   this->Histogram[1] = nullptr;
   this->Histogram[2] = nullptr;
 
-  this->Child1->SetImageExtent( this->ImageExtent );
-  this->Child1->SetImageIncrement( this->ImageIncrement );
-  this->Child1->SetImageType( this->ImageType );
-  this->Child1->SetImage( this->Image );
+  this->Child1->SetImageExtent(this->ImageExtent);
+  this->Child1->SetImageIncrement(this->ImageIncrement);
+  this->Child1->SetImageType(this->ImageType);
+  this->Child1->SetImage(this->Image);
 
-  this->Child2->SetImageExtent( this->ImageExtent );
-  this->Child2->SetImageIncrement( this->ImageIncrement );
-  this->Child2->SetImageType( this->ImageType );
-  this->Child2->SetImage( this->Image );
+  this->Child2->SetImageExtent(this->ImageExtent);
+  this->Child2->SetImageIncrement(this->ImageIncrement);
+  this->Child2->SetImageType(this->ImageType);
+  this->Child2->SetImage(this->Image);
 
   this->Child1->ComputeStdDev();
   this->Child2->ComputeStdDev();
@@ -645,7 +640,7 @@ vtkImageQuantizeRGBToIndex::vtkImageQuantizeRGBToIndex()
 // Destructor deletes used resources
 vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 {
-  if ( this->LookupTable )
+  if (this->LookupTable)
   {
     this->LookupTable->Delete();
   }
@@ -655,28 +650,21 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-int vtkImageQuantizeRGBToIndex::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageQuantizeRGBToIndex::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  outData->SetExtent(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars(outInfo);
 
   int inExt[6];
   inData->GetExtent(inExt);
-  if (inExt[1] < inExt[0] ||
-      inExt[3] < inExt[2] ||
-      inExt[5] < inExt[4])
+  if (inExt[1] < inExt[0] || inExt[3] < inExt[2] || inExt[5] < inExt[4])
   {
     return 1;
   }
@@ -698,12 +686,9 @@ int vtkImageQuantizeRGBToIndex::RequestData(
 
   this->InputType = inData->GetScalarType();
 
-  switch ( this->InputType )
+  switch (this->InputType)
   {
-    vtkTemplateMacro(
-      vtkImageQuantizeRGBToIndexExecute<VTK_TT>(this,
-        inData,
-        outData));
+    vtkTemplateMacro(vtkImageQuantizeRGBToIndexExecute<VTK_TT>(this, inData, outData));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
       return 1;
@@ -713,10 +698,8 @@ int vtkImageQuantizeRGBToIndex::RequestData(
 }
 
 // Change the output type and number of components
-int vtkImageQuantizeRGBToIndex::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkImageQuantizeRGBToIndex::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -726,13 +709,11 @@ int vtkImageQuantizeRGBToIndex::RequestInformation (
 }
 
 // Get ALL of the input.
-int vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkImageQuantizeRGBToIndex::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int inExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
@@ -743,17 +724,14 @@ int vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
 
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   // Input Type is internal so we don't print it
-  //os << indent << "InputType: " << this->InputType << endl;
+  // os << indent << "InputType: " << this->InputType << endl;
 
   os << indent << "Number Of Colors: " << this->NumberOfColors << endl;
   os << indent << "Lookup Table: " << endl << *this->LookupTable;
-  os << indent << "Execute Time (in initialize stage): " <<
-    this->InitializeExecuteTime << endl;
-  os << indent << "Execute Time (in build tree stage): " <<
-    this->BuildTreeExecuteTime << endl;
-  os << indent << "Execute Time (in lookup index stage): " <<
-    this->LookupIndexExecuteTime << endl;
+  os << indent << "Execute Time (in initialize stage): " << this->InitializeExecuteTime << endl;
+  os << indent << "Execute Time (in build tree stage): " << this->BuildTreeExecuteTime << endl;
+  os << indent << "Execute Time (in lookup index stage): " << this->LookupIndexExecuteTime << endl;
 }

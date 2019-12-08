@@ -18,7 +18,7 @@
  *
  * vtkInformationIntegerKey is used to represent keys for integer values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationIntegerKey_h
 #define vtkInformationIntegerKey_h
@@ -31,7 +31,7 @@
 class VTKCOMMONCORE_EXPORT vtkInformationIntegerKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationIntegerKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationIntegerKey(const char* name, const char* location);

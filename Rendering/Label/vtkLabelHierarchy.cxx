@@ -22,31 +22,31 @@
 
 #include "vtkCamera.h"
 #include "vtkCellType.h"
+#include "vtkCoincidentPoints.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkExtractSelectedFrustum.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLabelHierarchyIterator.h"
 #include "vtkLabelHierarchyPrivate.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkCoincidentPoints.h"
 #include "vtkPlanes.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPythagoreanQuadruples.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
-#include <octree/octree>
 #include <deque>
+#include <map>
+#include <octree/octree>
 #include <set>
 #include <vector>
-#include <map>
 
 #include <cstdlib>
 
@@ -83,21 +83,22 @@ vtkLabelHierarchy* vtkLabelHierarchy::Implementation::Current;
 class vtkLabelHierarchyFrustumIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchyFrustumIterator,vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchyFrustumIterator, vtkLabelHierarchyIterator);
   static vtkLabelHierarchyFrustumIterator* New();
-  void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24] );
-  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Prepare(vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24]);
+  void Begin(vtkIdTypeArray* lastPlaced) override;
   virtual void BeginOctreeTraversal();
   void Next() override;
   bool IsAtEnd() override;
   vtkIdType GetLabelId() override;
-  void GetNodeGeometry( double center[3], double& sz ) override;
+  void GetNodeGeometry(double center[3], double& sz) override;
+
 protected:
   vtkLabelHierarchyFrustumIterator();
   ~vtkLabelHierarchyFrustumIterator() override;
 
   bool IsCursorInFrustum();
-  virtual void SetCamera( vtkCamera* camera );
+  virtual void SetCamera(vtkCamera* camera);
 
   vtkCoordinate* Projector;
   double* Frustum;
@@ -138,15 +139,15 @@ vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
 vtkLabelHierarchyFrustumIterator::~vtkLabelHierarchyFrustumIterator()
 {
   this->Projector->Delete();
-  if ( this->Camera )
+  if (this->Camera)
     this->Camera->Delete();
 }
 
 void vtkLabelHierarchyFrustumIterator::Prepare(
-  vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24] )
+  vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24])
 {
-  this->SetHierarchy( hier );
-  this->SetCamera( cam );
+  this->SetHierarchy(hier);
+  this->SetCamera(cam);
   this->Frustum = frustumPlanes;
   this->Level = -1;
   this->SignFlip = 8;
@@ -155,13 +156,13 @@ void vtkLabelHierarchyFrustumIterator::Prepare(
   this->Work = 0;
 }
 
-void vtkLabelHierarchyFrustumIterator::Begin( vtkIdTypeArray* lastPlaced )
+void vtkLabelHierarchyFrustumIterator::Begin(vtkIdTypeArray* lastPlaced)
 {
   // First, we'll iterate over labels we placed last frame.
   this->PreviousLabels = lastPlaced;
   this->PreviousLabelIter = 0;
   this->AtEnd = -1;
-  if ( ! this->PreviousLabels->GetNumberOfTuples() )
+  if (!this->PreviousLabels->GetNumberOfTuples())
   {
     // No previously placed labels? Look in octree:
     this->BeginOctreeTraversal();
@@ -173,13 +174,15 @@ void vtkLabelHierarchyFrustumIterator::BeginOctreeTraversal()
   // Inject new labels from the hierarchy, starting with
   // the highest priority labels nearest the camera
   this->AtEnd = 0;
-  this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor3(
-    this->Hierarchy->Impl->Hierarchy3 );
-  this->LabelIterator = this->Cursor->value().end(); // Force the label iterator test in Next() to fail.
-  this->Level = -1; // when we increment the level we'll be at the beginning
-  this->SignFlip = 8; // force the sign flip to get bypassed
-  this->Permutation = 6; // force the permutation to get bypassed
-  this->QuadrupleId = vtkMaxPythagoreanQuadrupleId; // when we increment the index into the quadruples, we'll be at the beginning
+  this->Cursor =
+    vtkLabelHierarchy::Implementation::HierarchyCursor3(this->Hierarchy->Impl->Hierarchy3);
+  this->LabelIterator =
+    this->Cursor->value().end(); // Force the label iterator test in Next() to fail.
+  this->Level = -1;              // when we increment the level we'll be at the beginning
+  this->SignFlip = 8;            // force the sign flip to get bypassed
+  this->Permutation = 6;         // force the permutation to get bypassed
+  this->QuadrupleId = vtkMaxPythagoreanQuadrupleId; // when we increment the index into the
+                                                    // quadruples, we'll be at the beginning
   this->Work = 0;
   this->NodeCount = 0;
   this->HitCount = 0;
@@ -189,174 +192,190 @@ void vtkLabelHierarchyFrustumIterator::BeginOctreeTraversal()
 
 void vtkLabelHierarchyFrustumIterator::Next()
 {
-  if ( this->AtEnd < 0 )
+  if (this->AtEnd < 0)
   {
-    vtkDebugMacro( "In strange next. Have previous labels" );
-    ++ this->PreviousLabelIter;
-    if ( this->PreviousLabelIter < this->PreviousLabels->GetNumberOfTuples() )
+    vtkDebugMacro("In strange next. Have previous labels");
+    ++this->PreviousLabelIter;
+    if (this->PreviousLabelIter < this->PreviousLabels->GetNumberOfTuples())
     {
       return;
     }
     this->BeginOctreeTraversal(); // sets this->AtEnd = 0;
   }
-  else if ( this->AtEnd == 0 )
+  else if (this->AtEnd == 0)
   {
     // Invalid LabelIterator occurs only when called from BeginOctreeTraversal():
-    if ( this->LabelIterator != this->Cursor->value().end() )
+    if (this->LabelIterator != this->Cursor->value().end())
     {
-      ++ this->LabelIterator;
-      if ( this->LabelIterator != this->Cursor->value().end() )
+      ++this->LabelIterator;
+      if (this->LabelIterator != this->Cursor->value().end())
       { // Still have anchors left at this node...
         return;
       }
     }
-    vtkDebugMacro( "In next. Level: " << this->Level << " SgnFlp: " << this->SignFlip << " Perm: " << this->Permutation << " QuadId: " << this->QuadrupleId );
+    vtkDebugMacro("In next. Level: " << this->Level << " SgnFlp: " << this->SignFlip << " Perm: "
+                                     << this->Permutation << " QuadId: " << this->QuadrupleId);
     // Either starting traversal or out of anchors at current node.
     // Find next valid node at this level or skip to next.
     bool gotNode = false;
     int lvlMax = 1 << this->Level;
     double sz = this->Hierarchy->Impl->Hierarchy3->root()->value().GetSize() / 2.;
     double eye[3];
-    //double vaMax = atan( vtkMath::Pi()/2. - 0.2 * vtkMath::RadiansFromDegrees(t his->Camera->GetViewAngle() ) );
-    double vaMin = atan( vtkMath::Pi()/2. - 2.0 * vtkMath::RadiansFromDegrees( this->Camera->GetViewAngle() ) );
-    this->Camera->GetPosition( eye );
-    while ( ! gotNode )
+    // double vaMax = atan( vtkMath::Pi()/2. - 0.2 * vtkMath::RadiansFromDegrees(t
+    // his->Camera->GetViewAngle() ) );
+    double vaMin =
+      atan(vtkMath::Pi() / 2. - 2.0 * vtkMath::RadiansFromDegrees(this->Camera->GetViewAngle()));
+    this->Camera->GetPosition(eye);
+    while (!gotNode)
     {
-      ++ this->Work;
+      ++this->Work;
       // 1. Is there a sign flip of the current quadruple we can do?
-      if ( this->SignFlip < 8 )
+      if (this->SignFlip < 8)
       {
         bool flippable;
         do
         {
           flippable = true;
-          ++ this->SignFlip;
+          ++this->SignFlip;
           int flipCoord;
-          for ( int i = 0; i < 3; ++ i )
+          for (int i = 0; i < 3; ++i)
           {
             flipCoord = this->SignFlip & (1 << i);
-            if ( ( this->IjkP[i] == 0 ) && flipCoord )
+            if ((this->IjkP[i] == 0) && flipCoord)
             {
               flippable = false;
               break; // this->SignFlip won't work... try the next one.
             }
             else
             {
-              this->IjkS[i] = flipCoord ? - this->IjkP[i] : this->IjkP[i];
+              this->IjkS[i] = flipCoord ? -this->IjkP[i] : this->IjkP[i];
             }
           }
-        }
-        while ( ! flippable && this->SignFlip < 8 );
-        gotNode = ( flippable && this->SignFlip < 8 ); // skip down and see if the node exists
+        } while (!flippable && this->SignFlip < 8);
+        gotNode = (flippable && this->SignFlip < 8); // skip down and see if the node exists
       }
       // 2. Is there a permutation of the current quadruple we can do?
-      if ( ! gotNode && this->Permutation < 6 )
+      if (!gotNode && this->Permutation < 6)
       {
         bool goodPerm = false;
-        while ( ! goodPerm && ( ++ this->Permutation < 6 ) )
+        while (!goodPerm && (++this->Permutation < 6))
         {
-          switch ( this->Permutation )
+          switch (this->Permutation)
           {
-          case 0: // ijk
-            this->IjkP[0] = this->Ijk[0]; this->IjkP[1] = this->Ijk[1]; this->IjkP[2] = this->Ijk[2];
-            goodPerm = true; // no perm is always a good perm. (This means you Mr. Brady!)
-            break;
-          case 1: // ikj (swap j,k) but not if j == k
-            if ( this->Ijk[1] == this->Ijk[2] )
-            {
-              goodPerm = false;
-            }
-            else
-            {
-              this->IjkP[0] = this->Ijk[0]; this->IjkP[1] = this->Ijk[2]; this->IjkP[2] = this->Ijk[1];
-              goodPerm = true;
-            }
-            break;
-          case 2: // jki (rotate ijk to the left once but not if right neighbors are repeats)
-            if ( this->Ijk[0] == this->Ijk[1] && this->Ijk[1] == this->Ijk[2] )
-            {
-              goodPerm = false;
-            }
-            else
-            {
-              this->IjkP[0] = this->Ijk[1]; this->IjkP[1] = this->Ijk[2]; this->IjkP[2] = this->Ijk[0];
-              goodPerm = true;
-            }
-            break;
-          case 3: // jik (swap i,j) but not if i == j
-            if ( this->Ijk[0] == this->Ijk[1] )
-            {
-              goodPerm = false;
-            }
-            else
-            {
-              this->IjkP[0] = this->Ijk[1]; this->IjkP[1] = this->Ijk[0]; this->IjkP[2] = this->Ijk[2];
-              goodPerm = true;
-            }
-            break;
-          case 4: // kij (rotate ijk to the right once but not if left neighbors are repeats)
-            if ( this->Ijk[0] == this->Ijk[1] && this->Ijk[1] == this->Ijk[2] )
-            {
-              goodPerm = false;
-            }
-            else
-            {
-              this->IjkP[0] = this->Ijk[2]; this->IjkP[1] = this->Ijk[0]; this->IjkP[2] = this->Ijk[1];
-              goodPerm = true;
-            }
-            break;
-          case 5: // kji (swap i,k) but not if i == k
-            if ( this->Ijk[0] == this->Ijk[2] )
-            {
-              goodPerm = false;
-            }
-            else
-            {
-              this->IjkP[0] = this->Ijk[2]; this->IjkP[1] = this->Ijk[1]; this->IjkP[2] = this->Ijk[0];
-              goodPerm = true;
-            }
-            break;
+            case 0: // ijk
+              this->IjkP[0] = this->Ijk[0];
+              this->IjkP[1] = this->Ijk[1];
+              this->IjkP[2] = this->Ijk[2];
+              goodPerm = true; // no perm is always a good perm. (This means you Mr. Brady!)
+              break;
+            case 1: // ikj (swap j,k) but not if j == k
+              if (this->Ijk[1] == this->Ijk[2])
+              {
+                goodPerm = false;
+              }
+              else
+              {
+                this->IjkP[0] = this->Ijk[0];
+                this->IjkP[1] = this->Ijk[2];
+                this->IjkP[2] = this->Ijk[1];
+                goodPerm = true;
+              }
+              break;
+            case 2: // jki (rotate ijk to the left once but not if right neighbors are repeats)
+              if (this->Ijk[0] == this->Ijk[1] && this->Ijk[1] == this->Ijk[2])
+              {
+                goodPerm = false;
+              }
+              else
+              {
+                this->IjkP[0] = this->Ijk[1];
+                this->IjkP[1] = this->Ijk[2];
+                this->IjkP[2] = this->Ijk[0];
+                goodPerm = true;
+              }
+              break;
+            case 3: // jik (swap i,j) but not if i == j
+              if (this->Ijk[0] == this->Ijk[1])
+              {
+                goodPerm = false;
+              }
+              else
+              {
+                this->IjkP[0] = this->Ijk[1];
+                this->IjkP[1] = this->Ijk[0];
+                this->IjkP[2] = this->Ijk[2];
+                goodPerm = true;
+              }
+              break;
+            case 4: // kij (rotate ijk to the right once but not if left neighbors are repeats)
+              if (this->Ijk[0] == this->Ijk[1] && this->Ijk[1] == this->Ijk[2])
+              {
+                goodPerm = false;
+              }
+              else
+              {
+                this->IjkP[0] = this->Ijk[2];
+                this->IjkP[1] = this->Ijk[0];
+                this->IjkP[2] = this->Ijk[1];
+                goodPerm = true;
+              }
+              break;
+            case 5: // kji (swap i,k) but not if i == k
+              if (this->Ijk[0] == this->Ijk[2])
+              {
+                goodPerm = false;
+              }
+              else
+              {
+                this->IjkP[0] = this->Ijk[2];
+                this->IjkP[1] = this->Ijk[1];
+                this->IjkP[2] = this->Ijk[0];
+                goodPerm = true;
+              }
+              break;
           }
         }
-        if ( goodPerm )
+        if (goodPerm)
         {
           this->SignFlip = -1;
           continue; // jump above and set this->IjkS
         }
       }
       // 3. Are there more pseudo-Pythagorean quadruples to try?
-      if ( ! gotNode && ( this->QuadrupleId < 0 || vtkPythagoreanQuadruples[this->QuadrupleId * 4] >= 0 ) )
+      if (!gotNode &&
+        (this->QuadrupleId < 0 || vtkPythagoreanQuadruples[this->QuadrupleId * 4] >= 0))
       {
-        int R2 = vtkPythagoreanQuadruples[(++ this->QuadrupleId) * 4];
+        int R2 = vtkPythagoreanQuadruples[(++this->QuadrupleId) * 4];
         double R = VTK_DOUBLE_MAX;
-        if ( R2 >= 0 )
+        if (R2 >= 0)
         {
           // Check that r/R is in [tan(theta_h/5),tan(min(2*theta_h,pi/2))[
           // First: Will these nodes be too close to the camera?
           bool tooClose = true; // a large octree node too close to the camera should be ignored.
-          while ( tooClose )
+          while (tooClose)
           {
-              R = sqrt(static_cast<double>(R2));
-            if ( R >= sz / lvlMax * vaMin * 0 )
+            R = sqrt(static_cast<double>(R2));
+            if (R >= sz / lvlMax * vaMin * 0)
             {
               tooClose = false;
             }
             else
             {
-              R2 = vtkPythagoreanQuadruples[(++ this->QuadrupleId) * 4];
-              if ( R2 < 0 )
+              R2 = vtkPythagoreanQuadruples[(++this->QuadrupleId) * 4];
+              if (R2 < 0)
               {
-                vtkDebugMacro( "Panic: too far from camera for cached tuples!" );
+                vtkDebugMacro("Panic: too far from camera for cached tuples!");
                 tooClose = false; // exit the loop...
               }
             }
           }
           // Second: See if we're too far from the camera
-          //if ( R2 >= 0 && ( R < sz / lvlMax * vaMax * 2 ) ) // uncomment this for speed and coherence at the cost of completeness
-          if ( R2 >= 0 ) // uncomment this for completeness at the cost of speed and some popping
+          // if ( R2 >= 0 && ( R < sz / lvlMax * vaMax * 2 ) ) // uncomment this for speed and
+          // coherence at the cost of completeness
+          if (R2 >= 0) // uncomment this for completeness at the cost of speed and some popping
           {
             // If we're in the habitable zone, set this->Ijk and reset SignFlip and Permutation...
-            for ( int i = 0; i < 3; ++ i )
+            for (int i = 0; i < 3; ++i)
               this->Ijk[i] = vtkPythagoreanQuadruples[this->QuadrupleId * 4 + i + 1];
             this->SignFlip = 8;
             this->Permutation = -1;
@@ -364,22 +383,23 @@ void vtkLabelHierarchyFrustumIterator::Next()
           }
           else
           {
-          // Force the radius to be -1 and continue on to step 4.
-          this->QuadrupleId = vtkMaxPythagoreanQuadrupleId;
+            // Force the radius to be -1 and continue on to step 4.
+            this->QuadrupleId = vtkMaxPythagoreanQuadrupleId;
           }
         }
       }
       // 4. Can we descend a level in the hierarchy?
-      if ( ! gotNode )
+      if (!gotNode)
       {
-        if ( ++ this->Level < static_cast<int>( this->Hierarchy->Impl->ActualDepth ) )
+        if (++this->Level < static_cast<int>(this->Hierarchy->Impl->ActualDepth))
         {
           // Figure out the new "center"
           lvlMax = 1 << this->Level;
-          this->Hierarchy->GetDiscreteNodeCoordinatesFromWorldPoint( this->Ijk0, eye, this->Level );
-          if ( this->Level == 1 )
+          this->Hierarchy->GetDiscreteNodeCoordinatesFromWorldPoint(this->Ijk0, eye, this->Level);
+          if (this->Level == 1)
           {
-            vtkDebugMacro( "i: " << this->Ijk0[0] << " j: " << this->Ijk0[1] << " k: " << this->Ijk0[2] << " l: " << this->Level );
+            vtkDebugMacro("i: " << this->Ijk0[0] << " j: " << this->Ijk0[1]
+                                << " k: " << this->Ijk0[2] << " l: " << this->Level);
           }
           this->QuadrupleId = -1;
           this->SignFlip = 8;
@@ -387,61 +407,67 @@ void vtkLabelHierarchyFrustumIterator::Next()
           continue; // find the first quadruple in the "habitable zone"
         }
       }
-      if ( gotNode )
+      if (gotNode)
       {
         int R2 = 0;
-        for ( int i = 0; i < 3; ++ i )
+        for (int i = 0; i < 3; ++i)
         {
           this->IjkG[i] = this->Ijk0[i] + this->IjkS[i];
           R2 += this->IjkS[i] * this->IjkS[i];
-          if ( this->IjkG[i] < 0 || this->IjkG[i] >= lvlMax )
+          if (this->IjkG[i] < 0 || this->IjkG[i] >= lvlMax)
           { // out of bounds
             gotNode = false;
           }
         }
-        if ( this->Debug )
+        if (this->Debug)
         {
-          if (! this->Level )
+          if (!this->Level)
           {
-            if ( ! this->IjkG[0] && ! this->IjkG[1] && ! this->IjkG[2] )
+            if (!this->IjkG[0] && !this->IjkG[1] && !this->IjkG[2])
             {
-              vtkDebugMacro( "Camera:  i: " << this->Ijk0[0] << " j: " << this->Ijk0[1] << " k: " << this->Ijk0[2] );
-              vtkDebugMacro( "SgnPrm:  i: " << this->IjkS[0] << " j: " << this->IjkS[1] << " k: " << this->IjkS[2] );
+              vtkDebugMacro("Camera:  i: " << this->Ijk0[0] << " j: " << this->Ijk0[1]
+                                           << " k: " << this->Ijk0[2]);
+              vtkDebugMacro("SgnPrm:  i: " << this->IjkS[0] << " j: " << this->IjkS[1]
+                                           << " k: " << this->IjkS[2]);
             }
           }
         }
-        if ( gotNode )
+        if (gotNode)
         {
           this->NodeCount++;
           // OK, we have nodal coordinates... see if the node exists in the hierarchy
           // First, translate nodal coordinates into a "path" down the tree
-          if ( this->Level )
+          if (this->Level)
           {
-            this->Path.resize( this->Level );
-            this->Hierarchy->GetPathForNodalCoordinates( &this->Path[0], this->IjkG, this->Level );
+            this->Path.resize(this->Level);
+            this->Hierarchy->GetPathForNodalCoordinates(&this->Path[0], this->IjkG, this->Level);
           }
           else
           {
             this->Path.clear();
           }
           // Now see if we can visit it
-          if ( this->Cursor.visit( this->Path ) )
+          if (this->Cursor.visit(this->Path))
           {
             if (this->Debug)
             {
-              vtkDebugMacro( "l: " << this->Level << " i: " << this->IjkG[0] << " j: " << this->IjkG[1] << " k: " << this->IjkG[2] << " (");
-              for ( std::vector<int>::iterator cit = this->Cursor._M_indices.begin(); cit != this->Cursor._M_indices.end(); ++ cit )
+              vtkDebugMacro("l: " << this->Level << " i: " << this->IjkG[0]
+                                  << " j: " << this->IjkG[1] << " k: " << this->IjkG[2] << " (");
+              for (std::vector<int>::iterator cit = this->Cursor._M_indices.begin();
+                   cit != this->Cursor._M_indices.end(); ++cit)
               {
-                vtkDebugMacro( " " << *cit );
+                vtkDebugMacro(" " << *cit);
               }
-              vtkDebugMacro( ", " << this->Cursor->value().GetLocalAnchorCount() << ")" );
+              vtkDebugMacro(", " << this->Cursor->value().GetLocalAnchorCount() << ")");
             }
             this->BoxNode();
-            if ( this->Cursor->value().GetLocalAnchorCount() )
+            if (this->Cursor->value().GetLocalAnchorCount())
             {
               this->HitCount++;
               this->LabelIterator = this->Cursor->value().begin();
-              vtkDebugMacro( "        *Level: " << this->Level << " SgnFlp: " << this->SignFlip << " Perm: " << this->Permutation << " QuadId: " << this->QuadrupleId );
+              vtkDebugMacro("        *Level: " << this->Level << " SgnFlp: " << this->SignFlip
+                                               << " Perm: " << this->Permutation
+                                               << " QuadId: " << this->QuadrupleId);
               return;
             }
           }
@@ -451,9 +477,9 @@ void vtkLabelHierarchyFrustumIterator::Next()
       else
       {
         // At end of iteration
-        vtkDebugMacro( "I did all I could!" );
-        vtkDebugMacro( "Nodes attempted: " << this->NodeCount );
-        vtkDebugMacro( "Hits: " << this->HitCount );
+        vtkDebugMacro("I did all I could!");
+        vtkDebugMacro("Nodes attempted: " << this->NodeCount);
+        vtkDebugMacro("Hits: " << this->HitCount);
         this->AtEnd = 1;
         return;
       }
@@ -468,17 +494,17 @@ bool vtkLabelHierarchyFrustumIterator::IsAtEnd()
 
 vtkIdType vtkLabelHierarchyFrustumIterator::GetLabelId()
 {
-  if ( this->AtEnd < 0 )
+  if (this->AtEnd < 0)
   {
-    return this->PreviousLabels->GetValue( this->PreviousLabelIter );
+    return this->PreviousLabels->GetValue(this->PreviousLabelIter);
   }
   return *this->LabelIterator;
 }
 
-void vtkLabelHierarchyFrustumIterator::GetNodeGeometry( double center[3], double& sz )
+void vtkLabelHierarchyFrustumIterator::GetNodeGeometry(double center[3], double& sz)
 {
   const double* x = this->Cursor->value().GetCenter();
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
     center[i] = x[i];
   }
@@ -499,16 +525,16 @@ bool vtkLabelHierarchyFrustumIterator::IsCursorInFrustum()
 class vtkLabelHierarchyFullSortIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchyFullSortIterator,vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchyFullSortIterator, vtkLabelHierarchyIterator);
   static vtkLabelHierarchyFullSortIterator* New();
 
-  void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
-      double frustumPlanes[24], bool positionsAsNormals );
-  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Prepare(
+    vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals);
+  void Begin(vtkIdTypeArray* lastPlaced) override;
   void Next() override;
   bool IsAtEnd() override;
   vtkIdType GetLabelId() override;
-  void GetNodeGeometry( double center[3], double& sz ) override;
+  void GetNodeGeometry(double center[3], double& sz) override;
 
   // Give internal class access to this protected type.
   typedef vtkLabelHierarchy::Implementation::HierarchyType3::octree_node_pointer NodePointer;
@@ -524,8 +550,7 @@ public:
   class vtkHierarchyNodeSorter
   {
   public:
-    bool operator()(const vtkHierarchyNode & a,
-                    const vtkHierarchyNode & b) const
+    bool operator()(const vtkHierarchyNode& a, const vtkHierarchyNode& b) const
     {
       if (a.Level != b.Level)
       {
@@ -554,18 +579,18 @@ protected:
 
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
-void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
-  double frustumPlanes[24], bool positionsAsNormals )
+void vtkLabelHierarchyFullSortIterator::Prepare(
+  vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals)
 {
-  this->SetHierarchy( hier );
-  this->SetCamera( cam );
+  this->SetHierarchy(hier);
+  this->SetCamera(cam);
   vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
-  frustum->SetFrustumPlanes( frustumPlanes );
-  this->FrustumExtractor->SetFrustum( frustum );
+  frustum->SetFrustumPlanes(frustumPlanes);
+  this->FrustumExtractor->SetFrustum(frustum);
   this->PositionsAsNormals = positionsAsNormals;
 }
 
-void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPlaced) )
+void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPlaced))
 {
   double cameraPos[3];
   this->Camera->GetPosition(cameraPos);
@@ -575,7 +600,8 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
   vtkHierarchyNode root;
   root.Level = 0;
   root.Node = this->Hierarchy->Impl->Hierarchy3->root();
-  root.DistanceToCamera = vtkMath::Distance2BetweenPoints(cameraPos, root.Node->value().GetCenter());
+  root.DistanceToCamera =
+    vtkMath::Distance2BetweenPoints(cameraPos, root.Node->value().GetCenter());
   root.TotallyInside = false;
   s.push_back(root);
   int numNodes = 0;
@@ -590,51 +616,52 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
 
     this->NodeSet.insert(node);
     numLabels += node.Node->value().GetLocalAnchorCount();
-    if ( numLabels > static_cast<size_t>(maxLabels) )
+    if (numLabels > static_cast<size_t>(maxLabels))
     {
       break;
     }
     int level = node.Level;
     ++numNodes;
-    if ( node.Node->num_children() > 0 )
+    if (node.Node->num_children() > 0)
     {
       ++level;
-      if ( level > maxLevel )
+      if (level > maxLevel)
       {
         maxLevel = level;
       }
-      for ( int c = 0; c < 8; ++c )
+      for (int c = 0; c < 8; ++c)
       {
         vtkHierarchyNode child;
-        child.Node = &( *node.Node )[c];
+        child.Node = &(*node.Node)[c];
         child.Level = level;
-        child.DistanceToCamera = vtkMath::Distance2BetweenPoints(cameraPos, child.Node->value().GetCenter());
+        child.DistanceToCamera =
+          vtkMath::Distance2BetweenPoints(cameraPos, child.Node->value().GetCenter());
 
-        if ( !node.TotallyInside )
+        if (!node.TotallyInside)
         {
           // First check if the box is on the other side of the world.
           // This is for the 3D world view only.
-          if ( this->PositionsAsNormals && vtkMath::Dot( cameraPos, child.Node->value().GetCenter() ) < 0.0 )
+          if (this->PositionsAsNormals &&
+            vtkMath::Dot(cameraPos, child.Node->value().GetCenter()) < 0.0)
           {
             continue;
           }
           // Determine if box is offscreen. If so, skip node and children.
           double nodeSize = node.Node->value().GetSize() / 2.0;
-          double bbox[6] = {
-            child.Node->value().GetCenter()[0] - nodeSize,
+          double bbox[6] = { child.Node->value().GetCenter()[0] - nodeSize,
             child.Node->value().GetCenter()[0] + nodeSize,
             child.Node->value().GetCenter()[1] - nodeSize,
             child.Node->value().GetCenter()[1] + nodeSize,
             child.Node->value().GetCenter()[2] - nodeSize,
-            child.Node->value().GetCenter()[2] + nodeSize};
+            child.Node->value().GetCenter()[2] + nodeSize };
           int ret = this->FrustumExtractor->OverallBoundsTest(bbox);
           child.TotallyInside = false;
-          if ( ret == 0 )
+          if (ret == 0)
           {
             // Totally outside, no need to visit this node.
             continue;
           }
-          else if ( ret == 2 )
+          else if (ret == 2)
           {
             // Totally inside, no need to check children.
             child.TotallyInside = true;
@@ -654,9 +681,9 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
       totalLeafDepth += level;
     }
   }
-  vtkDebugMacro( "max level is " << maxLevel );
-  vtkDebugMacro( "num nodes " << numNodes );
-  vtkDebugMacro( "avg leaf depth " << static_cast<double>(totalLeafDepth) / numLeaf );
+  vtkDebugMacro("max level is " << maxLevel);
+  vtkDebugMacro("num nodes " << numNodes);
+  vtkDebugMacro("avg leaf depth " << static_cast<double>(totalLeafDepth) / numLeaf);
 
   this->NodesTraversed = 0;
   this->NodeIterator = this->NodeSet.begin();
@@ -667,40 +694,40 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
 
 void vtkLabelHierarchyFullSortIterator::Next()
 {
-  if ( !this->AtStart && this->LabelIterator != this->NodeIterator->Node->value().end() )
+  if (!this->AtStart && this->LabelIterator != this->NodeIterator->Node->value().end())
   {
-    ++ this->LabelIterator;
-    if ( this->LabelIterator != this->NodeIterator->Node->value().end() )
+    ++this->LabelIterator;
+    if (this->LabelIterator != this->NodeIterator->Node->value().end())
     {
-      vtkDebugMacro( "Still have anchors at the node" );
+      vtkDebugMacro("Still have anchors at the node");
       return;
     }
   }
 
   // Move to next octree node
-  if ( !this->AtStart )
+  if (!this->AtStart)
   {
-    ++ this->NodeIterator;
+    ++this->NodeIterator;
   }
   else
   {
     this->AtStart = false;
   }
-  while ( this->NodeIterator != this->NodeSet.end() )
+  while (this->NodeIterator != this->NodeSet.end())
   {
     this->BoxNode();
-    if ( this->NodeIterator->Node->value().GetLocalAnchorCount() > 0 )
+    if (this->NodeIterator->Node->value().GetLocalAnchorCount() > 0)
     {
       this->LabelIterator = this->NodeIterator->Node->value().begin();
-      ++ this->NodesTraversed;
-      vtkDebugMacro( "At the beginning of a new node" );
+      ++this->NodesTraversed;
+      vtkDebugMacro("At the beginning of a new node");
       return;
     }
-    ++ this->NodeIterator;
+    ++this->NodeIterator;
   }
 
   // Done
-  vtkDebugMacro( << this->NodesTraversed << " nodes traversed." );
+  vtkDebugMacro(<< this->NodesTraversed << " nodes traversed.");
   this->AtEnd = true;
 }
 
@@ -719,10 +746,10 @@ vtkIdType vtkLabelHierarchyFullSortIterator::GetLabelId()
     return 0;
 }
 
-void vtkLabelHierarchyFullSortIterator::GetNodeGeometry( double center[3], double& sz )
+void vtkLabelHierarchyFullSortIterator::GetNodeGeometry(double center[3], double& sz)
 {
   const double* x = this->NodeIterator->Node->value().GetCenter();
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
     center[i] = x[i];
   }
@@ -737,11 +764,11 @@ vtkLabelHierarchyFullSortIterator::vtkLabelHierarchyFullSortIterator()
 
 vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 {
-  if ( this->Camera )
+  if (this->Camera)
   {
     this->Camera->Delete();
   }
-  if ( this->FrustumExtractor )
+  if (this->FrustumExtractor)
   {
     this->FrustumExtractor->Delete();
   }
@@ -769,31 +796,32 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 class vtkLabelHierarchyQuadtreeIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchyQuadtreeIterator,vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchyQuadtreeIterator, vtkLabelHierarchyIterator);
   static vtkLabelHierarchyQuadtreeIterator* New();
 
   typedef vtkLabelHierarchy::Implementation::HierarchyType2::octree_node_pointer NodePointer;
 
-  void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Prepare(vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren,
+    float bucketSize[2]);
+  void Begin(vtkIdTypeArray* lastPlaced) override;
   void Next() override;
   bool IsAtEnd() override;
   vtkIdType GetLabelId() override;
-  void GetNodeGeometry( double center[3], double& sz ) override;
-  bool IsNodeInFrustum( NodePointer node );
-  vtkGetObjectMacro(Camera,vtkCamera);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  void GetNodeGeometry(double center[3], double& sz) override;
+  bool IsNodeInFrustum(NodePointer node);
+  vtkGetObjectMacro(Camera, vtkCamera);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
   enum Constants
   {
-    MAXIMUM_NODES_QUEUED = 128  // See notes at QueueChildren() before changing.
+    MAXIMUM_NODES_QUEUED = 128 // See notes at QueueChildren() before changing.
   };
 
 protected:
   vtkLabelHierarchyQuadtreeIterator();
   ~vtkLabelHierarchyQuadtreeIterator() override;
 
-  virtual void SetCamera( vtkCamera* camera );
-  virtual void SetRenderer( vtkRenderer* renderer );
+  virtual void SetCamera(vtkCamera* camera);
+  virtual void SetRenderer(vtkRenderer* renderer);
   void QueueChildren();
 
   vtkCamera* Camera;
@@ -802,7 +830,7 @@ protected:
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   NodePointer Node;
   std::deque<NodePointer> Queue; // Queue of nodes to be traversed.
-  float BucketSize[2]; // size of label placer buckets in pixels
+  float BucketSize[2];           // size of label placer buckets in pixels
   double SizeLimit; // square of smallest allowable distance-normalized octree node size.
 
   bool AtEnd;
@@ -810,8 +838,8 @@ protected:
 };
 
 vtkStandardNewMacro(vtkLabelHierarchyQuadtreeIterator);
-vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Camera,vtkCamera);
-vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
+vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator, Camera, vtkCamera);
+vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator, Renderer, vtkRenderer);
 
 vtkLabelHierarchyQuadtreeIterator::vtkLabelHierarchyQuadtreeIterator()
 {
@@ -826,34 +854,30 @@ vtkLabelHierarchyQuadtreeIterator::vtkLabelHierarchyQuadtreeIterator()
 vtkLabelHierarchyQuadtreeIterator::~vtkLabelHierarchyQuadtreeIterator()
 {
   this->FrustumExtractor->Delete();
-  if ( this->Camera )
+  if (this->Camera)
   {
     this->Camera->Delete();
   }
-  if ( this->Renderer )
+  if (this->Renderer)
   {
     this->Renderer->Delete();
   }
 }
 
-void vtkLabelHierarchyQuadtreeIterator::Prepare(
-  vtkLabelHierarchy* hier,
-  vtkCamera* cam,
-  double frustumPlanes[24],
-  vtkRenderer* ren,
-  float bucketSize[2] )
+void vtkLabelHierarchyQuadtreeIterator::Prepare(vtkLabelHierarchy* hier, vtkCamera* cam,
+  double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2])
 {
   this->NodesQueued = 0;
-  this->SetHierarchy( hier );
-  this->SetCamera( cam );
+  this->SetHierarchy(hier);
+  this->SetCamera(cam);
   vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
-  frustum->SetFrustumPlanes( frustumPlanes );
-  this->FrustumExtractor->SetFrustum( frustum );
-  for ( int i = 0; i < 2; ++ i )
+  frustum->SetFrustumPlanes(frustumPlanes);
+  this->FrustumExtractor->SetFrustum(frustum);
+  for (int i = 0; i < 2; ++i)
   {
     this->BucketSize[i] = bucketSize[i];
   }
-  this->SetRenderer( ren );
+  this->SetRenderer(ren);
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
@@ -882,19 +906,19 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
 #endif
 }
 
-void vtkLabelHierarchyQuadtreeIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPlaced) )
+void vtkLabelHierarchyQuadtreeIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPlaced))
 {
-  if ( this->Hierarchy->GetImplementation()->Hierarchy2 )
+  if (this->Hierarchy->GetImplementation()->Hierarchy2)
   {
     this->Node = this->Hierarchy->GetImplementation()->Hierarchy2->root();
-    if ( this->IsNodeInFrustum( this->Node ) )
+    if (this->IsNodeInFrustum(this->Node))
     {
       this->QueueChildren();
       this->BoxNode();
-      ++ this->NodesQueued;
+      ++this->NodesQueued;
       this->AtEnd = false;
       this->LabelIterator = this->Node->value().begin();
-      if ( this->LabelIterator == this->Node->value().end() )
+      if (this->LabelIterator == this->Node->value().end())
       {
         this->Next();
       }
@@ -913,21 +937,20 @@ void vtkLabelHierarchyQuadtreeIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
 struct vtkQuadtreeNodeDistCompare
 {
   double Eye[3];
-  void SetEye( const double* eye )
+  void SetEye(const double* eye)
   {
-    for ( int i = 0; i < 3; ++ i )
+    for (int i = 0; i < 3; ++i)
     {
       this->Eye[i] = eye[i];
     }
   }
-  bool operator () (
-    const vtkLabelHierarchyQuadtreeIterator::NodePointer& a,
-    const vtkLabelHierarchyQuadtreeIterator::NodePointer& b ) const
+  bool operator()(const vtkLabelHierarchyQuadtreeIterator::NodePointer& a,
+    const vtkLabelHierarchyQuadtreeIterator::NodePointer& b) const
   {
     const double* xa = a->value().GetCenter();
     const double* xb = b->value().GetCenter();
     double da = 0., db = 0.;
-    for ( int i = 0; i < 3; ++ i )
+    for (int i = 0; i < 3; ++i)
     {
       double va, vb;
       va = Eye[i] - xa[i];
@@ -935,26 +958,27 @@ struct vtkQuadtreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return ( da < db ? true : ( da == db ? ( a < b ? true : false ) : false ) );
+    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
   }
 };
 
-typedef std::set<vtkLabelHierarchyQuadtreeIterator::NodePointer,vtkQuadtreeNodeDistCompare> vtkQuadtreeOrderedChildren;
+typedef std::set<vtkLabelHierarchyQuadtreeIterator::NodePointer, vtkQuadtreeNodeDistCompare>
+  vtkQuadtreeOrderedChildren;
 
 void vtkLabelHierarchyQuadtreeIterator::Next()
 {
-  //const int maxNumChildren = ( 1 << 2 );
-  ++ this->LabelIterator;
-  if ( this->LabelIterator == this->Node->value().end() )
+  // const int maxNumChildren = ( 1 << 2 );
+  ++this->LabelIterator;
+  if (this->LabelIterator == this->Node->value().end())
   {
     this->BoxNode();
-    while ( !this->Queue.empty() )
+    while (!this->Queue.empty())
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();
       this->QueueChildren();
       this->LabelIterator = this->Node->value().begin();
-      if ( this->LabelIterator != this->Node->value().end() )
+      if (this->LabelIterator != this->Node->value().end())
       {
         // We have some labels, stop looking for more nodes
         return;
@@ -986,26 +1010,23 @@ vtkIdType vtkLabelHierarchyQuadtreeIterator::GetLabelId()
     return 0;
 }
 
-void vtkLabelHierarchyQuadtreeIterator::GetNodeGeometry( double center[3], double& sz )
+void vtkLabelHierarchyQuadtreeIterator::GetNodeGeometry(double center[3], double& sz)
 {
   const double* x = this->Node->value().GetCenter();
-  for ( int i = 0; i < 2; ++ i )
+  for (int i = 0; i < 2; ++i)
     center[i] = x[i];
   center[2] = this->Hierarchy->GetImplementation()->Z2;
   sz = this->Node->value().GetSize() / 2.;
 }
 
-bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
+bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum(NodePointer node)
 {
   double nodeSize = node->value().GetSize() / 2.;
   const double* x = node->value().GetCenter();
-  double bbox[6] = {
-    x[0] - nodeSize, x[0] + nodeSize,
-    x[1] - nodeSize, x[1] + nodeSize,
-    x[2], x[2]
-  };
+  double bbox[6] = { x[0] - nodeSize, x[0] + nodeSize, x[1] - nodeSize, x[1] + nodeSize, x[2],
+    x[2] };
 
-  if ( ! this->FrustumExtractor->OverallBoundsTest(bbox) )
+  if (!this->FrustumExtractor->OverallBoundsTest(bbox))
   {
     return false;
   }
@@ -1013,12 +1034,12 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
   // Is the node too small? If so, pretend it's not in the frustum.
   const double* eye = this->Camera->GetPosition();
   double d = 0;
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
-    double dx = ( eye[i] - x[i] );
+    double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if ( nodeSize * nodeSize < d * this->SizeLimit )
+  if (nodeSize * nodeSize < d * this->SizeLimit)
   {
     return false;
   }
@@ -1027,25 +1048,25 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum( NodePointer node )
 }
 
 /**\brief Queue octree children for traversal after the current level has been traversed.
-  *
-  * In order to perform a breadth-first traversal, we must either save state
-  * or traverse the octree many times. Since traversal can be hard on the
-  * CPU cache, we will save state. That state is a list of octree nodes that
-  * are the visible (i.e., in the view frustum) children of nodes in the
-  * current level. If the entire octree is in the frustum and all the children
-  * of nodes at level M exist, this means the list of children will be
-  * (2**D)**(M+1) long.
-  * For a quadtree, D = 2.
-  *
-  * Instead of limiting the Queue size, we limit the total number of nodes queued.
-  * Since nodes are popped off the front of the queue as they are pushed onto the
-  * back, this is a stricter limit. It is also more closely related to the actual
-  * amount of time spent processing labels.
-  */
+ *
+ * In order to perform a breadth-first traversal, we must either save state
+ * or traverse the octree many times. Since traversal can be hard on the
+ * CPU cache, we will save state. That state is a list of octree nodes that
+ * are the visible (i.e., in the view frustum) children of nodes in the
+ * current level. If the entire octree is in the frustum and all the children
+ * of nodes at level M exist, this means the list of children will be
+ * (2**D)**(M+1) long.
+ * For a quadtree, D = 2.
+ *
+ * Instead of limiting the Queue size, we limit the total number of nodes queued.
+ * Since nodes are popped off the front of the queue as they are pushed onto the
+ * back, this is a stricter limit. It is also more closely related to the actual
+ * amount of time spent processing labels.
+ */
 void vtkLabelHierarchyQuadtreeIterator::QueueChildren()
 {
   int nc = this->Node->num_children();
-  if ( nc <= 0 || this->NodesQueued >= MAXIMUM_NODES_QUEUED )
+  if (nc <= 0 || this->NodesQueued >= MAXIMUM_NODES_QUEUED)
   {
     return;
   }
@@ -1053,22 +1074,23 @@ void vtkLabelHierarchyQuadtreeIterator::QueueChildren()
   // Sort children of this node by distance to eye ...
   int i;
   vtkQuadtreeNodeDistCompare dcomp;
-  dcomp.SetEye( this->Camera->GetPosition() );
-  vtkQuadtreeOrderedChildren children( dcomp );
-  for ( i = 0; i < nc; ++ i )
+  dcomp.SetEye(this->Camera->GetPosition());
+  vtkQuadtreeOrderedChildren children(dcomp);
+  for (i = 0; i < nc; ++i)
   {
     NodePointer child = &((*this->Node)[i]);
-    if ( this->IsNodeInFrustum( child ) )
+    if (this->IsNodeInFrustum(child))
     { // only add visible children
-      children.insert( child );
+      children.insert(child);
     }
   }
   // ... and add those in the frustum to the back of the queue.
   vtkQuadtreeOrderedChildren::iterator cit;
-  for ( cit = children.begin(); cit != children.end() && this->NodesQueued < MAXIMUM_NODES_QUEUED; ++ cit )
+  for (cit = children.begin(); cit != children.end() && this->NodesQueued < MAXIMUM_NODES_QUEUED;
+       ++cit)
   {
-    this->Queue.push_back( *cit );
-    ++ this->NodesQueued;
+    this->Queue.push_back(*cit);
+    ++this->NodesQueued;
   }
 }
 
@@ -1094,31 +1116,32 @@ void vtkLabelHierarchyQuadtreeIterator::QueueChildren()
 class vtkLabelHierarchyOctreeQueueIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchyOctreeQueueIterator,vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchyOctreeQueueIterator, vtkLabelHierarchyIterator);
   static vtkLabelHierarchyOctreeQueueIterator* New();
 
   typedef vtkLabelHierarchy::Implementation::HierarchyType3::octree_node_pointer NodePointer;
 
-  void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Prepare(vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren,
+    float bucketSize[2]);
+  void Begin(vtkIdTypeArray* lastPlaced) override;
   void Next() override;
   bool IsAtEnd() override;
   vtkIdType GetLabelId() override;
-  void GetNodeGeometry( double center[3], double& sz ) override;
-  bool IsNodeInFrustum( NodePointer node );
-  vtkGetObjectMacro(Camera,vtkCamera);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  void GetNodeGeometry(double center[3], double& sz) override;
+  bool IsNodeInFrustum(NodePointer node);
+  vtkGetObjectMacro(Camera, vtkCamera);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
   enum Constants
   {
-    MAXIMUM_NODES_QUEUED = 128  // See notes at QueueChildren() before changing.
+    MAXIMUM_NODES_QUEUED = 128 // See notes at QueueChildren() before changing.
   };
 
 protected:
   vtkLabelHierarchyOctreeQueueIterator();
   ~vtkLabelHierarchyOctreeQueueIterator() override;
 
-  virtual void SetCamera( vtkCamera* camera );
-  virtual void SetRenderer( vtkRenderer* renderer );
+  virtual void SetCamera(vtkCamera* camera);
+  virtual void SetRenderer(vtkRenderer* renderer);
   void QueueChildren();
 
   vtkCamera* Camera;
@@ -1127,18 +1150,18 @@ protected:
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   NodePointer Node;
   std::deque<NodePointer> Queue; // Queue of nodes to be traversed.
-  float BucketSize[2]; // size of label placer buckets in pixels
-  double SizeLimit; // square of smallest allowable distance-normalized octree node size.
+  float BucketSize[2];           // size of label placer buckets in pixels
+  double SizeLimit;           // square of smallest allowable distance-normalized octree node size.
   vtkIdTypeArray* LastPlaced; // Labels placed in the previous frame
-  vtkIdType LastPlacedIndex; // Index into LastPlaced for the current frame
+  vtkIdType LastPlacedIndex;  // Index into LastPlaced for the current frame
 
   bool AtEnd;
   int NodesQueued;
 };
 
 vtkStandardNewMacro(vtkLabelHierarchyOctreeQueueIterator);
-vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Camera,vtkCamera);
-vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
+vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator, Camera, vtkCamera);
+vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator, Renderer, vtkRenderer);
 
 vtkLabelHierarchyOctreeQueueIterator::vtkLabelHierarchyOctreeQueueIterator()
 {
@@ -1153,34 +1176,30 @@ vtkLabelHierarchyOctreeQueueIterator::vtkLabelHierarchyOctreeQueueIterator()
 vtkLabelHierarchyOctreeQueueIterator::~vtkLabelHierarchyOctreeQueueIterator()
 {
   this->FrustumExtractor->Delete();
-  if ( this->Camera )
+  if (this->Camera)
   {
     this->Camera->Delete();
   }
-  if ( this->Renderer )
+  if (this->Renderer)
   {
     this->Renderer->Delete();
   }
 }
 
-void vtkLabelHierarchyOctreeQueueIterator::Prepare(
-  vtkLabelHierarchy* hier,
-  vtkCamera* cam,
-  double frustumPlanes[24],
-  vtkRenderer* ren,
-  float bucketSize[2] )
+void vtkLabelHierarchyOctreeQueueIterator::Prepare(vtkLabelHierarchy* hier, vtkCamera* cam,
+  double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2])
 {
   this->NodesQueued = 0;
-  this->SetHierarchy( hier );
-  this->SetCamera( cam );
+  this->SetHierarchy(hier);
+  this->SetCamera(cam);
   vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
-  frustum->SetFrustumPlanes( frustumPlanes );
-  this->FrustumExtractor->SetFrustum( frustum );
-  for ( int i = 0; i < 2; ++ i )
+  frustum->SetFrustumPlanes(frustumPlanes);
+  this->FrustumExtractor->SetFrustum(frustum);
+  for (int i = 0; i < 2; ++i)
   {
     this->BucketSize[i] = bucketSize[i];
   }
-  this->SetRenderer( ren );
+  this->SetRenderer(ren);
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
@@ -1209,37 +1228,40 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(
 #endif
 }
 
-void vtkLabelHierarchyOctreeQueueIterator::Begin( vtkIdTypeArray* lastPlaced )
+void vtkLabelHierarchyOctreeQueueIterator::Begin(vtkIdTypeArray* lastPlaced)
 {
   this->LastPlaced = lastPlaced;
-  this->LastPlacedIndex = ( lastPlaced && lastPlaced->GetNumberOfTuples() > 0 )? 0 : -1; // don't try to traverse what's not there
+  this->LastPlacedIndex = (lastPlaced && lastPlaced->GetNumberOfTuples() > 0)
+    ? 0
+    : -1; // don't try to traverse what's not there
 
   // Skip over invalid label indices
-  if ( this->LastPlacedIndex >= 0 )
+  if (this->LastPlacedIndex >= 0)
   {
-    vtkIdType numLabels = this->Hierarchy->GetPointData()->GetAbstractArray( "Type" )->GetNumberOfTuples();
-    while ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
-            this->LastPlaced->GetValue( this->LastPlacedIndex ) >= numLabels )
+    vtkIdType numLabels =
+      this->Hierarchy->GetPointData()->GetAbstractArray("Type")->GetNumberOfTuples();
+    while (this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
+      this->LastPlaced->GetValue(this->LastPlacedIndex) >= numLabels)
     {
-      ++ this->LastPlacedIndex;
+      ++this->LastPlacedIndex;
     }
-    if ( this->LastPlacedIndex >= this->LastPlaced->GetNumberOfTuples() )
+    if (this->LastPlacedIndex >= this->LastPlaced->GetNumberOfTuples())
     {
       this->LastPlacedIndex = -1;
     }
   }
 
-  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
+  if (this->Hierarchy->GetImplementation()->Hierarchy3)
   {
     this->Node = this->Hierarchy->GetImplementation()->Hierarchy3->root();
-    if ( this->IsNodeInFrustum( this->Node ) )
+    if (this->IsNodeInFrustum(this->Node))
     {
       this->QueueChildren();
       this->BoxNode();
-      ++ this->NodesQueued;
+      ++this->NodesQueued;
       this->AtEnd = false;
       this->LabelIterator = this->Node->value().begin();
-      if ( this->LabelIterator == this->Node->value().end() )
+      if (this->LabelIterator == this->Node->value().end())
       {
         this->Next();
       }
@@ -1258,21 +1280,20 @@ void vtkLabelHierarchyOctreeQueueIterator::Begin( vtkIdTypeArray* lastPlaced )
 struct vtkOctreeNodeDistCompare
 {
   double Eye[3];
-  void SetEye( const double* eye )
+  void SetEye(const double* eye)
   {
-    for ( int i = 0; i < 3; ++ i )
+    for (int i = 0; i < 3; ++i)
     {
       this->Eye[i] = eye[i];
     }
   }
-  bool operator () (
-    const vtkLabelHierarchyOctreeQueueIterator::NodePointer& a,
-    const vtkLabelHierarchyOctreeQueueIterator::NodePointer& b ) const
+  bool operator()(const vtkLabelHierarchyOctreeQueueIterator::NodePointer& a,
+    const vtkLabelHierarchyOctreeQueueIterator::NodePointer& b) const
   {
     const double* xa = a->value().GetCenter();
     const double* xb = b->value().GetCenter();
     double da = 0., db = 0.;
-    for ( int i = 0; i < 3; ++ i )
+    for (int i = 0; i < 3; ++i)
     {
       double va, vb;
       va = Eye[i] - xa[i];
@@ -1280,55 +1301,57 @@ struct vtkOctreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return ( da < db ? true : ( da == db ? ( a < b ? true : false ) : false ) );
+    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
   }
 };
 
-typedef std::set<vtkLabelHierarchyOctreeQueueIterator::NodePointer,vtkOctreeNodeDistCompare> vtkOctreeOrderedChildren;
+typedef std::set<vtkLabelHierarchyOctreeQueueIterator::NodePointer, vtkOctreeNodeDistCompare>
+  vtkOctreeOrderedChildren;
 
 void vtkLabelHierarchyOctreeQueueIterator::Next()
 {
-  if ( this->LastPlacedIndex >= 0 )
+  if (this->LastPlacedIndex >= 0)
   {
-    ++ this->LastPlacedIndex;
+    ++this->LastPlacedIndex;
 
     // Skip over invalid label indices
-    vtkIdType numLabels = this->Hierarchy->GetPointData()->GetAbstractArray( "Type" )->GetNumberOfTuples();
-    while ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
-            this->LastPlaced->GetValue( this->LastPlacedIndex ) >= numLabels )
+    vtkIdType numLabels =
+      this->Hierarchy->GetPointData()->GetAbstractArray("Type")->GetNumberOfTuples();
+    while (this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() &&
+      this->LastPlaced->GetValue(this->LastPlacedIndex) >= numLabels)
     {
-      ++ this->LastPlacedIndex;
+      ++this->LastPlacedIndex;
     }
 
-    if ( this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples() )
+    if (this->LastPlacedIndex < this->LastPlaced->GetNumberOfTuples())
     {
       return; // Done
     }
     else
     {
       this->LastPlacedIndex = -1;
-      if ( this->AtEnd )
+      if (this->AtEnd)
       {
         return;
       }
     }
   }
 
-  //const int maxNumChildren = ( 1 << 2 );
-  if ( this->LabelIterator != this->Node->value().end() )
+  // const int maxNumChildren = ( 1 << 2 );
+  if (this->LabelIterator != this->Node->value().end())
   {
-    ++ this->LabelIterator;
+    ++this->LabelIterator;
   }
-  if ( this->LabelIterator == this->Node->value().end() )
+  if (this->LabelIterator == this->Node->value().end())
   {
     this->BoxNode();
-    while ( !this->Queue.empty() )
+    while (!this->Queue.empty())
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();
       this->QueueChildren();
       this->LabelIterator = this->Node->value().begin();
-      if ( this->LabelIterator != this->Node->value().end() )
+      if (this->LabelIterator != this->Node->value().end())
       {
         // We have some labels, stop looking for more nodes
         return;
@@ -1353,9 +1376,9 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsAtEnd()
 vtkIdType vtkLabelHierarchyOctreeQueueIterator::GetLabelId()
 {
   vtkIdType myId;
-  if ( this->LastPlacedIndex >= 0 )
+  if (this->LastPlacedIndex >= 0)
   {
-    myId = this->LastPlaced->GetValue( this->LastPlacedIndex );
+    myId = this->LastPlaced->GetValue(this->LastPlacedIndex);
   }
   else
   {
@@ -1369,25 +1392,22 @@ vtkIdType vtkLabelHierarchyOctreeQueueIterator::GetLabelId()
   return myId;
 }
 
-void vtkLabelHierarchyOctreeQueueIterator::GetNodeGeometry( double center[3], double& sz )
+void vtkLabelHierarchyOctreeQueueIterator::GetNodeGeometry(double center[3], double& sz)
 {
   const double* x = this->Node->value().GetCenter();
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
     center[i] = x[i];
   sz = this->Node->value().GetSize() / 2.;
 }
 
-bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
+bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum(NodePointer node)
 {
   double nodeSize = node->value().GetSize() / 2.;
   const double* x = node->value().GetCenter();
-  double bbox[6] = {
-    x[0] - nodeSize, x[0] + nodeSize,
-    x[1] - nodeSize, x[1] + nodeSize,
-    x[2] - nodeSize, x[2] + nodeSize
-  };
+  double bbox[6] = { x[0] - nodeSize, x[0] + nodeSize, x[1] - nodeSize, x[1] + nodeSize,
+    x[2] - nodeSize, x[2] + nodeSize };
 
-  if ( ! this->FrustumExtractor->OverallBoundsTest(bbox) )
+  if (!this->FrustumExtractor->OverallBoundsTest(bbox))
   {
     return false;
   }
@@ -1395,12 +1415,12 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
   // Is the node too small? If so, pretend it's not in the frustum.
   const double* eye = this->Camera->GetPosition();
   double d = 0;
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
-    double dx = ( eye[i] - x[i] );
+    double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if ( nodeSize * nodeSize < d * this->SizeLimit )
+  if (nodeSize * nodeSize < d * this->SizeLimit)
   {
     return false;
   }
@@ -1409,25 +1429,25 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum( NodePointer node )
 }
 
 /**\brief Queue octree children for traversal after the current level has been traversed.
-  *
-  * In order to perform a breadth-first traversal, we must either save state
-  * or traverse the octree many times. Since traversal can be hard on the
-  * CPU cache, we will save state. That state is a list of octree nodes that
-  * are the visible (i.e., in the view frustum) children of nodes in the
-  * current level. If the entire octree is in the frustum and all the children
-  * of nodes at level M exist, this means the list of children will be
-  * (2**D)**(M+1) long.
-  * For an octree, D = 3.
-  *
-  * Instead of limiting the Queue size, we limit the total number of nodes queued.
-  * Since nodes are popped off the front of the queue as they are pushed onto the
-  * back, this is a stricter limit. It is also more closely related to the actual
-  * amount of time spent processing labels.
-  */
+ *
+ * In order to perform a breadth-first traversal, we must either save state
+ * or traverse the octree many times. Since traversal can be hard on the
+ * CPU cache, we will save state. That state is a list of octree nodes that
+ * are the visible (i.e., in the view frustum) children of nodes in the
+ * current level. If the entire octree is in the frustum and all the children
+ * of nodes at level M exist, this means the list of children will be
+ * (2**D)**(M+1) long.
+ * For an octree, D = 3.
+ *
+ * Instead of limiting the Queue size, we limit the total number of nodes queued.
+ * Since nodes are popped off the front of the queue as they are pushed onto the
+ * back, this is a stricter limit. It is also more closely related to the actual
+ * amount of time spent processing labels.
+ */
 void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
 {
   int nc = this->Node->num_children();
-  if ( nc <= 0 || this->NodesQueued >= MAXIMUM_NODES_QUEUED )
+  if (nc <= 0 || this->NodesQueued >= MAXIMUM_NODES_QUEUED)
   {
     return;
   }
@@ -1435,20 +1455,21 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
   // Sort children of this node by distance to eye ...
   int i;
   vtkOctreeNodeDistCompare dcomp;
-  dcomp.SetEye( this->Camera->GetPosition() );
-  //cout << "Eye " << dcomp.Eye[0] << ", " << dcomp.Eye[1] << ", " << dcomp.Eye[2] << "\n";
-  vtkOctreeOrderedChildren children( dcomp );
-  for ( i = 0; i < nc; ++ i )
+  dcomp.SetEye(this->Camera->GetPosition());
+  // cout << "Eye " << dcomp.Eye[0] << ", " << dcomp.Eye[1] << ", " << dcomp.Eye[2] << "\n";
+  vtkOctreeOrderedChildren children(dcomp);
+  for (i = 0; i < nc; ++i)
   {
     NodePointer child = &((*this->Node)[i]);
-    if ( this->IsNodeInFrustum( child ) )
+    if (this->IsNodeInFrustum(child))
     { // only add visible children
-      children.insert( child );
+      children.insert(child);
     }
   }
   // ... and add those in the frustum to the back of the queue.
   vtkOctreeOrderedChildren::iterator cit;
-  for ( cit = children.begin(); cit != children.end() && this->NodesQueued < MAXIMUM_NODES_QUEUED; ++ cit )
+  for (cit = children.begin(); cit != children.end() && this->NodesQueued < MAXIMUM_NODES_QUEUED;
+       ++cit)
   {
 #if 0
     const double* xa = (*cit)->value().GetCenter();
@@ -1461,8 +1482,8 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
     }
     cout << "  " << this->NodesQueued << ": " << dst << " to " << xa[0] << ", " << xa[1] << ", " << xa[2] << "\n";
 #endif // 0
-    this->Queue.push_back( *cit );
-    ++ this->NodesQueued;
+    this->Queue.push_back(*cit);
+    ++this->NodesQueued;
   }
 }
 
@@ -1475,26 +1496,27 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
 class vtkLabelHierarchy3DepthFirstIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeMacro(vtkLabelHierarchy3DepthFirstIterator,vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchy3DepthFirstIterator, vtkLabelHierarchyIterator);
   static vtkLabelHierarchy3DepthFirstIterator* New();
 
-  void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Prepare(vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren,
+    float bucketSize[2]);
+  void Begin(vtkIdTypeArray* lastPlaced) override;
   void Next() override;
   bool IsAtEnd() override;
   vtkIdType GetLabelId() override;
-  void GetNodeGeometry( double center[3], double& sz ) override;
+  void GetNodeGeometry(double center[3], double& sz) override;
   bool IsNodeInFrustum();
-  void ReorderChildrenForView( int order[8] );
-  vtkGetObjectMacro(Camera,vtkCamera);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
+  void ReorderChildrenForView(int order[8]);
+  vtkGetObjectMacro(Camera, vtkCamera);
+  vtkGetObjectMacro(Renderer, vtkRenderer);
 
 protected:
   vtkLabelHierarchy3DepthFirstIterator();
   ~vtkLabelHierarchy3DepthFirstIterator() override;
 
-  virtual void SetCamera( vtkCamera* camera );
-  virtual void SetRenderer( vtkRenderer* renderer );
+  virtual void SetCamera(vtkCamera* camera);
+  virtual void SetRenderer(vtkRenderer* renderer);
 
   vtkCamera* Camera;
   vtkRenderer* Renderer;
@@ -1502,9 +1524,10 @@ protected:
   vtkLabelHierarchy::Implementation::LabelSet::iterator LabelIterator;
   vtkLabelHierarchy::Implementation::HierarchyCursor3 Cursor;
   std::vector<int> Path;
-  std::vector<std::vector<int> > Order; // visibility sorted order of children at each level of the tree.
+  std::vector<std::vector<int> >
+    Order;             // visibility sorted order of children at each level of the tree.
   float BucketSize[2]; // size of label placer buckets in pixels
-  double SizeLimit; // square of smallest allowable distance-normalized octree node size.
+  double SizeLimit;    // square of smallest allowable distance-normalized octree node size.
 
   bool AtEnd;
   int NodesTraversed;
@@ -1512,8 +1535,8 @@ protected:
 };
 
 vtkStandardNewMacro(vtkLabelHierarchy3DepthFirstIterator);
-vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Camera,vtkCamera);
-vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator,Renderer,vtkRenderer);
+vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator, Camera, vtkCamera);
+vtkCxxSetObjectMacro(vtkLabelHierarchy3DepthFirstIterator, Renderer, vtkRenderer);
 
 vtkLabelHierarchy3DepthFirstIterator::vtkLabelHierarchy3DepthFirstIterator()
 {
@@ -1528,33 +1551,29 @@ vtkLabelHierarchy3DepthFirstIterator::vtkLabelHierarchy3DepthFirstIterator()
 vtkLabelHierarchy3DepthFirstIterator::~vtkLabelHierarchy3DepthFirstIterator()
 {
   this->FrustumExtractor->Delete();
-  if ( this->Camera )
+  if (this->Camera)
   {
     this->Camera->Delete();
   }
-  if ( this->Renderer )
+  if (this->Renderer)
   {
     this->Renderer->Delete();
   }
 }
 
-void vtkLabelHierarchy3DepthFirstIterator::Prepare(
-  vtkLabelHierarchy* hier,
-  vtkCamera* cam,
-  double frustumPlanes[24],
-  vtkRenderer* ren,
-  float bucketSize[2] )
+void vtkLabelHierarchy3DepthFirstIterator::Prepare(vtkLabelHierarchy* hier, vtkCamera* cam,
+  double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2])
 {
-  this->SetHierarchy( hier );
-  this->SetCamera( cam );
+  this->SetHierarchy(hier);
+  this->SetCamera(cam);
   vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
-  frustum->SetFrustumPlanes( frustumPlanes );
-  this->FrustumExtractor->SetFrustum( frustum );
-  for ( int i = 0; i < 2; ++ i )
+  frustum->SetFrustumPlanes(frustumPlanes);
+  this->FrustumExtractor->SetFrustum(frustum);
+  for (int i = 0; i < 2; ++i)
   {
     this->BucketSize[i] = bucketSize[i];
   }
-  this->SetRenderer( ren );
+  this->SetRenderer(ren);
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
@@ -1583,20 +1602,21 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(
 #endif
 }
 
-void vtkLabelHierarchy3DepthFirstIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPlaced) )
+void vtkLabelHierarchy3DepthFirstIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPlaced))
 {
   this->Path.clear();
   this->Order.clear();
   this->DidRoot = false;
-  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
+  if (this->Hierarchy->GetImplementation()->Hierarchy3)
   {
-    this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor3( this->Hierarchy->GetImplementation()->Hierarchy3 );
-    if ( this->IsNodeInFrustum() )
+    this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor3(
+      this->Hierarchy->GetImplementation()->Hierarchy3);
+    if (this->IsNodeInFrustum())
     {
       this->BoxNode();
       this->AtEnd = false;
       this->LabelIterator = this->Cursor->value().begin();
-      if ( this->LabelIterator == this->Cursor->value().end() )
+      if (this->LabelIterator == this->Cursor->value().end())
       {
         this->Next();
       }
@@ -1614,30 +1634,30 @@ void vtkLabelHierarchy3DepthFirstIterator::Begin( vtkIdTypeArray* vtkNotUsed(las
 
 void vtkLabelHierarchy3DepthFirstIterator::Next()
 {
-  //const int maxNumChildren = ( 1 << 2 );
-  ++ this->LabelIterator;
-  if ( this->LabelIterator == this->Cursor->value().end() )
+  // const int maxNumChildren = ( 1 << 2 );
+  ++this->LabelIterator;
+  if (this->LabelIterator == this->Cursor->value().end())
   {
     this->BoxNode();
-    while ( ! this->Path.empty() || ! this->DidRoot )
+    while (!this->Path.empty() || !this->DidRoot)
     {
       this->DidRoot = true;
       // I. Try children of this node.
-      if ( this->Cursor->num_children() )
+      if (this->Cursor->num_children())
       {
         std::vector<int> emptyVec;
-        this->Order.push_back( emptyVec );
-        for ( int i = 0; i < this->Cursor->num_children(); ++ i )
+        this->Order.push_back(emptyVec);
+        for (int i = 0; i < this->Cursor->num_children(); ++i)
         {
-          this->Order.back().push_back( i );
+          this->Order.back().push_back(i);
         }
-        this->ReorderChildrenForView( &(this->Order.back()[0]) );
-        this->Cursor.down( this->Order.back()[0] );
-        this->Path.push_back( 0 );
-        if ( this->IsNodeInFrustum() )
+        this->ReorderChildrenForView(&(this->Order.back()[0]));
+        this->Cursor.down(this->Order.back()[0]);
+        this->Path.push_back(0);
+        if (this->IsNodeInFrustum())
         {
           this->LabelIterator = this->Cursor->value().begin();
-          if ( this->LabelIterator != this->Cursor->value().end() )
+          if (this->LabelIterator != this->Cursor->value().end())
           { // We found a non-empty node.
             /* *
             cout << "Path:";
@@ -1651,17 +1671,17 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
         }
       }
       // If the root node has no children, the path might be empty here... check it.
-      if ( this->Path.empty() )
+      if (this->Path.empty())
       {
         this->AtEnd = true;
         return;
       }
       // II. Try siblings of this node.
-      while ( this->Path.back() < static_cast<int>( this->Order.back().size() ) )
+      while (this->Path.back() < static_cast<int>(this->Order.back().size()))
       {
-        if ( ++ this->Path.back() < static_cast<int>( this->Order.back().size() ) )
+        if (++this->Path.back() < static_cast<int>(this->Order.back().size()))
         {
-          this->Cursor.over( this->Order.back()[this->Path.back()] );
+          this->Cursor.over(this->Order.back()[this->Path.back()]);
         }
         else
         {
@@ -1669,17 +1689,17 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
           this->Path.pop_back();
           this->Order.pop_back();
           this->Cursor.up();
-          if ( this->Path.empty() )
+          if (this->Path.empty())
           {
             this->AtEnd = true;
             return;
           }
           continue;
         }
-        if ( this->IsNodeInFrustum() )
+        if (this->IsNodeInFrustum())
         {
           this->LabelIterator = this->Cursor->value().begin();
-          if ( this->LabelIterator != this->Cursor->value().end() )
+          if (this->LabelIterator != this->Cursor->value().end())
           { // We found a non-empty node.
             /* *
             cout << "Path:";
@@ -1719,10 +1739,10 @@ vtkIdType vtkLabelHierarchy3DepthFirstIterator::GetLabelId()
     return 0;
 }
 
-void vtkLabelHierarchy3DepthFirstIterator::GetNodeGeometry( double center[3], double& sz )
+void vtkLabelHierarchy3DepthFirstIterator::GetNodeGeometry(double center[3], double& sz)
 {
   const double* x = this->Cursor->value().GetCenter();
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
     center[i] = x[i];
   sz = this->Cursor->value().GetSize() / 2.;
 }
@@ -1731,13 +1751,10 @@ bool vtkLabelHierarchy3DepthFirstIterator::IsNodeInFrustum()
 {
   double nodeSize = this->Cursor->value().GetSize() / 2.;
   const double* x = this->Cursor->value().GetCenter();
-  double bbox[6] = {
-    x[0] - nodeSize, x[0] + nodeSize,
-    x[1] - nodeSize, x[1] + nodeSize,
-    x[2] - nodeSize, x[2] + nodeSize
-  };
+  double bbox[6] = { x[0] - nodeSize, x[0] + nodeSize, x[1] - nodeSize, x[1] + nodeSize,
+    x[2] - nodeSize, x[2] + nodeSize };
 
-  if ( ! this->FrustumExtractor->OverallBoundsTest(bbox) )
+  if (!this->FrustumExtractor->OverallBoundsTest(bbox))
   {
     return false;
   }
@@ -1745,12 +1762,12 @@ bool vtkLabelHierarchy3DepthFirstIterator::IsNodeInFrustum()
   // Is the node too small? If so, pretend it's not in the frustum.
   const double* eye = this->Camera->GetPosition();
   double d = 0;
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
-    double dx = ( eye[i] - x[i] );
+    double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if ( nodeSize * nodeSize < d * this->SizeLimit )
+  if (nodeSize * nodeSize < d * this->SizeLimit)
   {
     return false;
   }
@@ -1764,21 +1781,20 @@ struct vtkDistNodeStruct
   double Distance;
 };
 
-extern "C" {
-static int vtkCompareDist( const void* va, const void* vb )
+extern "C"
 {
-  const vtkDistNodeStruct* da = static_cast<const vtkDistNodeStruct*>( va );
-  const vtkDistNodeStruct* db = static_cast<const vtkDistNodeStruct*>( vb );
-  return
-    ( da->Distance < db->Distance ? -1 :
-      ( da->Distance > db->Distance ? 1 : 0 ) );
-}
+  static int vtkCompareDist(const void* va, const void* vb)
+  {
+    const vtkDistNodeStruct* da = static_cast<const vtkDistNodeStruct*>(va);
+    const vtkDistNodeStruct* db = static_cast<const vtkDistNodeStruct*>(vb);
+    return (da->Distance < db->Distance ? -1 : (da->Distance > db->Distance ? 1 : 0));
+  }
 }
 
-void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
+void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView(int* order)
 {
   vtkIdType nc = this->Cursor->num_children();
-  if ( nc <= 0 )
+  if (nc <= 0)
   {
     return;
   }
@@ -1786,38 +1802,38 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView( int* order )
   struct vtkDistNodeStruct* nodeDistances = new struct vtkDistNodeStruct[nc];
   const double* eye = this->Camera->GetPosition();
   const double* x;
-  for ( vtkIdType i = 0; i < nc; ++ i )
+  for (vtkIdType i = 0; i < nc; ++i)
   {
-    this->Cursor.down( i );
+    this->Cursor.down(i);
     x = this->Cursor->value().GetCenter();
     nodeDistances[i].NodeNum = i;
     nodeDistances[i].Distance = 0;
-    for ( int j = 0; j < 3; ++ j )
+    for (int j = 0; j < 3; ++j)
     {
       double dx = eye[j] - x[j];
       nodeDistances[i].Distance += dx * dx;
     }
     this->Cursor.up();
   }
-  qsort( nodeDistances, nc, sizeof(vtkDistNodeStruct), vtkCompareDist );
-  for ( vtkIdType i = 0; i < nc; ++ i )
+  qsort(nodeDistances, nc, sizeof(vtkDistNodeStruct), vtkCompareDist);
+  for (vtkIdType i = 0; i < nc; ++i)
   {
     order[i] = nodeDistances[i].NodeNum;
   }
-  delete [] nodeDistances;
+  delete[] nodeDistances;
 }
 
 //----------------------------------------------------------------------------
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,Labels,vtkAbstractArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,IconIndices,vtkIntArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,Orientations,vtkDataArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,Sizes,vtkDataArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,BoundedSizes,vtkDataArray);
-vtkCxxSetObjectMacro(vtkLabelHierarchy,TextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, Priorities, vtkDataArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, Labels, vtkAbstractArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, IconIndices, vtkIntArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, Orientations, vtkDataArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, Sizes, vtkDataArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, BoundedSizes, vtkDataArray);
+vtkCxxSetObjectMacro(vtkLabelHierarchy, TextProperty, vtkTextProperty);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
   this->Impl = new Implementation();
@@ -1839,31 +1855,31 @@ vtkLabelHierarchy::vtkLabelHierarchy()
 vtkLabelHierarchy::~vtkLabelHierarchy()
 {
   delete this->Impl;
-  if ( this->Priorities )
+  if (this->Priorities)
   {
     this->Priorities->Delete();
   }
-  if ( this->Labels )
+  if (this->Labels)
   {
     this->Labels->Delete();
   }
-  if ( this->IconIndices )
+  if (this->IconIndices)
   {
     this->IconIndices->Delete();
   }
-  if ( this->Orientations )
+  if (this->Orientations)
   {
     this->Orientations->Delete();
   }
-  if ( this->Sizes )
+  if (this->Sizes)
   {
     this->Sizes->Delete();
   }
-  if ( this->BoundedSizes )
+  if (this->BoundedSizes)
   {
     this->BoundedSizes->Delete();
   }
-  if ( this->TextProperty )
+  if (this->TextProperty)
   {
     this->TextProperty->Delete();
   }
@@ -1872,9 +1888,9 @@ vtkLabelHierarchy::~vtkLabelHierarchy()
   this->CoincidentPoints->Delete();
 }
 
-void vtkLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
+void vtkLabelHierarchy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "MaximumDepth: " << this->MaximumDepth << "\n";
   os << indent << "TargetLabelCount: " << this->TargetLabelCount << "\n";
   os << indent << "Implementation: " << this->Impl << "\n";
@@ -1892,21 +1908,20 @@ void vtkLabelHierarchy::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "TextProperty: " << this->TextProperty << "\n";
 }
 
-void vtkLabelHierarchy::SetPoints( vtkPoints* src )
+void vtkLabelHierarchy::SetPoints(vtkPoints* src)
 {
-  if ( src == this->Points )
+  if (src == this->Points)
   {
     return;
   }
 
-  this->Superclass::SetPoints( src );
+  this->Superclass::SetPoints(src);
 
-  if ( src )
+  if (src)
   {
-    //this->ComputeHierarchy( this->CoincidentPts, this->CoincidenceMap );
+    // this->ComputeHierarchy( this->CoincidentPts, this->CoincidenceMap );
   }
 }
-
 
 #if 0
 template< class T >
@@ -1973,22 +1988,22 @@ void vtkLabelHierarchy::ComputeHierarchy()
   double center[3];
   double maxDim = -1.;
   double delta = 0.; // MSVC brain damage requires this initialization.
-  this->Points->GetBounds( bounds );
-  for ( int i = 0; i < 3; ++ i )
+  this->Points->GetBounds(bounds);
+  for (int i = 0; i < 3; ++i)
   {
-    center[i] = ( bounds[2 * i] + bounds[2 * i + 1] ) / 2.;
-    delta = fabs( bounds[2 * i + 1] - bounds[2 * i] );
-    if ( delta > maxDim )
+    center[i] = (bounds[2 * i] + bounds[2 * i + 1]) / 2.;
+    delta = fabs(bounds[2 * i + 1] - bounds[2 * i]);
+    if (delta > maxDim)
       maxDim = delta;
   }
-  //Implementation::PriorityComparator comparator( this );
-  //Implementation::LabelSet allAnchors( comparator );
-  Implementation::LabelSet allAnchors( this );
-  if ( delta == 0. ) // no change in z values
+  // Implementation::PriorityComparator comparator( this );
+  // Implementation::LabelSet allAnchors( comparator );
+  Implementation::LabelSet allAnchors(this);
+  if (delta == 0.) // no change in z values
   {
     this->Impl->Hierarchy2 =
-      new Implementation::HierarchyType2( center, maxDim, allAnchors /* currently empty */ );
-    this->Impl->Hierarchy2->root()->value().SetGeometry( center, maxDim );
+      new Implementation::HierarchyType2(center, maxDim, allAnchors /* currently empty */);
+    this->Impl->Hierarchy2->root()->value().SetGeometry(center, maxDim);
     this->Impl->Hierarchy3 = nullptr;
     this->Impl->Z2 = center[2]; // remember z coordinate for later
   }
@@ -1996,33 +2011,33 @@ void vtkLabelHierarchy::ComputeHierarchy()
   {
     this->Impl->Hierarchy2 = nullptr;
     this->Impl->Hierarchy3 =
-      new Implementation::HierarchyType3( center, maxDim, allAnchors /* currently empty */ );
-    this->Impl->Hierarchy3->root()->value().SetGeometry( center, maxDim );
+      new Implementation::HierarchyType3(center, maxDim, allAnchors /* currently empty */);
+    this->Impl->Hierarchy3->root()->value().SetGeometry(center, maxDim);
   }
 
-  this->Impl->PrepareSortedAnchors( allAnchors );
-  //this->Impl->FillHierarchyRoot( allAnchors );
+  this->Impl->PrepareSortedAnchors(allAnchors);
+  // this->Impl->FillHierarchyRoot( allAnchors );
 
   double scale = 1.;
-  if ( this->Impl->Hierarchy3 )
+  if (this->Impl->Hierarchy3)
   {
-    for ( Implementation::LabelSet::iterator it = allAnchors.begin(); it != allAnchors.end(); ++ it )
+    for (Implementation::LabelSet::iterator it = allAnchors.begin(); it != allAnchors.end(); ++it)
     {
-      this->Impl->DropAnchor3( *it ); // Ha!!!
+      this->Impl->DropAnchor3(*it); // Ha!!!
     }
-    //vtkLabelHierarchyBuildCoincidenceMap( this->Impl, this, this->Impl->Hierarchy3 );
-    vtkLabelHierarchy::Implementation::HierarchyCursor3 curs( this->Impl->Hierarchy3 );
-    scale = curs->value().GetSize()/(1 << this->MaximumDepth);
+    // vtkLabelHierarchyBuildCoincidenceMap( this->Impl, this, this->Impl->Hierarchy3 );
+    vtkLabelHierarchy::Implementation::HierarchyCursor3 curs(this->Impl->Hierarchy3);
+    scale = curs->value().GetSize() / (1 << this->MaximumDepth);
   }
-  else if ( this->Impl->Hierarchy2 )
+  else if (this->Impl->Hierarchy2)
   {
-    for ( Implementation::LabelSet::iterator it = allAnchors.begin(); it != allAnchors.end(); ++ it )
+    for (Implementation::LabelSet::iterator it = allAnchors.begin(); it != allAnchors.end(); ++it)
     {
-      this->Impl->DropAnchor2( *it ); // Ha!!!
+      this->Impl->DropAnchor2(*it); // Ha!!!
     }
-    //vtkLabelHierarchyBuildCoincidenceMap( this->Impl, this, this->Impl->Hierarchy2 );
-    vtkLabelHierarchy::Implementation::HierarchyCursor2 curs( this->Impl->Hierarchy2 );
-    scale = curs->value().GetSize()/(1 << this->MaximumDepth);
+    // vtkLabelHierarchyBuildCoincidenceMap( this->Impl, this, this->Impl->Hierarchy2 );
+    vtkLabelHierarchy::Implementation::HierarchyCursor2 curs(this->Impl->Hierarchy2);
+    scale = curs->value().GetSize() / (1 << this->MaximumDepth);
   }
 
   double point[3];
@@ -2034,23 +2049,21 @@ void vtkLabelHierarchy::ComputeHierarchy()
   this->CoincidentPoints->InitTraversal();
   vtkIdList* coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
   vtkIdType Id = 0;
-  while ( coincidentPoints != nullptr )
+  while (coincidentPoints != nullptr)
   {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
-    vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
-    for(int i = 0; i < numCoincidentPoints; ++i)
+    vtkCoincidentPoints::SpiralPoints(numCoincidentPoints + 1, offsets);
+    for (int i = 0; i < numCoincidentPoints; ++i)
     {
-      Id = coincidentPoints->GetId( i );
-      this->Points->GetPoint( Id, point );
+      Id = coincidentPoints->GetId(i);
+      this->Points->GetPoint(Id, point);
       // save center points for drawing spokes.
       /*this->Implementation->CoincidenceMap[i] =
         this->CenterPts->InsertNextPoint(point);*/
-      offsets->GetPoint( i + 1, spiralPoint );
-      this->Points->SetPoint( Id,
-        point[0] + spiralPoint[0] * scale,
-        point[1] + spiralPoint[1] * scale,
-        point[2] );
+      offsets->GetPoint(i + 1, spiralPoint);
+      this->Points->SetPoint(
+        Id, point[0] + spiralPoint[0] * scale, point[1] + spiralPoint[1] * scale, point[2]);
     }
 
     coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
@@ -2102,52 +2115,48 @@ void vtkLabelHierarchy::Implementation::ComputeActualDepth()
 }
 #endif // 0
 
-vtkLabelHierarchyIterator* vtkLabelHierarchy::NewIterator(
-  int type,
-  vtkRenderer* ren,
-  vtkCamera* cam,
-  double frustumPlanes[24],
-  bool positionsAsNormals,
-  float bucketSize[2] )
+vtkLabelHierarchyIterator* vtkLabelHierarchy::NewIterator(int type, vtkRenderer* ren,
+  vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals, float bucketSize[2])
 {
   vtkLabelHierarchyIterator* iter = nullptr;
-  if ( this->Impl->Hierarchy3 )
+  if (this->Impl->Hierarchy3)
   {
-    if ( type == FULL_SORT )
+    if (type == FULL_SORT)
     {
       vtkLabelHierarchyFullSortIterator* fs = vtkLabelHierarchyFullSortIterator::New();
-      fs->Prepare( this, cam, frustumPlanes, positionsAsNormals );
+      fs->Prepare(this, cam, frustumPlanes, positionsAsNormals);
       iter = fs;
     }
-    else if ( type == QUEUE )
+    else if (type == QUEUE)
     {
       vtkLabelHierarchyOctreeQueueIterator* f = vtkLabelHierarchyOctreeQueueIterator::New();
-      f->Prepare( this, cam, frustumPlanes, ren, bucketSize );
+      f->Prepare(this, cam, frustumPlanes, ren, bucketSize);
       iter = f;
     }
-    else if ( type == DEPTH_FIRST )
+    else if (type == DEPTH_FIRST)
     {
       vtkLabelHierarchy3DepthFirstIterator* f = vtkLabelHierarchy3DepthFirstIterator::New();
-      f->Prepare( this, cam, frustumPlanes, ren, bucketSize );
+      f->Prepare(this, cam, frustumPlanes, ren, bucketSize);
       iter = f;
     }
     else
     {
       vtkLabelHierarchyFrustumIterator* f = vtkLabelHierarchyFrustumIterator::New();
-      f->Prepare( this, cam, frustumPlanes );
+      f->Prepare(this, cam, frustumPlanes);
       iter = f;
     }
   }
   else
   {
     vtkLabelHierarchyQuadtreeIterator* q = vtkLabelHierarchyQuadtreeIterator::New();
-    q->Prepare( this, cam, frustumPlanes, ren, bucketSize );
+    q->Prepare(this, cam, frustumPlanes, ren, bucketSize);
     iter = q;
   }
   return iter;
 }
 
-void vtkLabelHierarchy::GetDiscreteNodeCoordinatesFromWorldPoint( int ijk[3], double pt[3], int level )
+void vtkLabelHierarchy::GetDiscreteNodeCoordinatesFromWorldPoint(
+  int ijk[3], double pt[3], int level)
 {
   Implementation::HierarchyType3::octree_node_pointer root = this->Impl->Hierarchy3->root();
   double delta;
@@ -2156,34 +2165,34 @@ void vtkLabelHierarchy::GetDiscreteNodeCoordinatesFromWorldPoint( int ijk[3], do
   rootCenter = root->value().GetCenter();
   sz = root->value().GetSize() / 2.;
   int m = 1 << level; // max value for any ijk entry
-  for ( int i = 0; i < 3; ++ i )
+  for (int i = 0; i < 3; ++i)
   {
     // The first expression won't work for level 0 because m/2 rounds to 0.
-    if ( level )
-      delta = ( pt[i] - rootCenter[i] ) * m / 2. / sz + ( m / 2 - 0.5 );
+    if (level)
+      delta = (pt[i] - rootCenter[i]) * m / 2. / sz + (m / 2 - 0.5);
     else
-      delta = ( pt[i] - rootCenter[i] ) * m / 2. / sz;
+      delta = (pt[i] - rootCenter[i]) * m / 2. / sz;
     ijk[i] = static_cast<int>(delta);
   }
 }
 
-bool vtkLabelHierarchy::GetPathForNodalCoordinates( int* path, int ijk[3], int level )
+bool vtkLabelHierarchy::GetPathForNodalCoordinates(int* path, int ijk[3], int level)
 {
   int i;
   int m = 1 << level;
   // Don't take any wooden nickels (ijk out of bounds)
-  for ( i = 0; i < 3; ++ i )
-    if ( ijk[i] < 0 || ijk[i] >= m )
+  for (i = 0; i < 3; ++i)
+    if (ijk[i] < 0 || ijk[i] >= m)
       return false;
 
   m >>= 1; // each level's midpoint is at half the total node count along each edge
   // For each level, we examine w
-  for ( i = 0; i < level; ++ i, m >>= 1 )
+  for (i = 0; i < level; ++i, m >>= 1)
   {
     path[i] = 0;
-    for ( int j = 0; j < 3; ++ j )
+    for (int j = 0; j < 3; ++j)
     {
-      if ( ijk[j] >= m )
+      if (ijk[j] >= m)
       {
         path[i] += (1 << j);
         ijk[j] -= m;
@@ -2198,34 +2207,29 @@ vtkIdType vtkLabelHierarchy::GetNumberOfCells()
   return 0;
 }
 
-vtkCell* vtkLabelHierarchy::GetCell( vtkIdType )
+vtkCell* vtkLabelHierarchy::GetCell(vtkIdType)
 {
   return nullptr;
 }
 
-void vtkLabelHierarchy::GetCell( vtkIdType, vtkGenericCell* )
-{
-}
+void vtkLabelHierarchy::GetCell(vtkIdType, vtkGenericCell*) {}
 
-int vtkLabelHierarchy::GetCellType( vtkIdType )
+int vtkLabelHierarchy::GetCellType(vtkIdType)
 {
   return VTK_VERTEX;
 }
 
-void vtkLabelHierarchy::GetCellPoints( vtkIdType, vtkIdList* )
-{
-}
+void vtkLabelHierarchy::GetCellPoints(vtkIdType, vtkIdList*) {}
 
-void vtkLabelHierarchy::GetPointCells( vtkIdType, vtkIdList* )
-{
-}
+void vtkLabelHierarchy::GetPointCells(vtkIdType, vtkIdList*) {}
 
-vtkIdType vtkLabelHierarchy::FindCell( double*, vtkCell*, vtkIdType, double, int&, double*, double* )
+vtkIdType vtkLabelHierarchy::FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*)
 {
   return -1;
 }
 
-vtkIdType vtkLabelHierarchy::FindCell( double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double* )
+vtkIdType vtkLabelHierarchy::FindCell(
+  double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*)
 {
   return -1;
 }
@@ -2235,44 +2239,44 @@ int vtkLabelHierarchy::GetMaxCellSize()
   return 1;
 }
 
-void vtkLabelHierarchy::Implementation::BinAnchorsToLevel( int level )
+void vtkLabelHierarchy::Implementation::BinAnchorsToLevel(int level)
 {
-  //PriorityComparator comparator( this->Husk );
-  //LabelSet emptyNode( comparator );
-  //HierarchyCursor3 cursor;
-  //HierarchyCursor3 root = HierarchyCursor3( this->Hierarchy3 );
+  // PriorityComparator comparator( this->Husk );
+  // LabelSet emptyNode( comparator );
+  // HierarchyCursor3 cursor;
+  // HierarchyCursor3 root = HierarchyCursor3( this->Hierarchy3 );
   // See comment near declaration of Current for more info:
   vtkLabelHierarchy::Implementation::Current = this->Husk;
 
-  LabelSet emptyNode( this->Husk );
+  LabelSet emptyNode(this->Husk);
   HierarchyCursor3 cursor;
-  HierarchyCursor3 root = HierarchyCursor3( this->Hierarchy3 );
+  HierarchyCursor3 root = HierarchyCursor3(this->Hierarchy3);
   const double* ctr = root->value().GetCenter();
   double sz = root->value().GetSize();
   double x[3];
   vtkIdType i;
   vtkIdType npts = this->Husk->GetPoints()->GetNumberOfPoints();
-  int m[3]; // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
+  int m[3];  // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
-  for ( i = 0; i < npts; ++ i )
+  for (i = 0; i < npts; ++i)
   {
     // Retrieve the point coordinates and node center
-    this->Husk->GetPoints()->GetPoint( i, x );
-    for ( j = 0; j < 3; ++ j )
+    this->Husk->GetPoints()->GetPoint(i, x);
+    for (j = 0; j < 3; ++j)
     {
-      x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
+      x[j] = (x[j] - ctr[j]) / sz + 0.5;
     }
 
     // Start descending the tree, creating children as necessary.
     cursor = root;
     double thresh = 1.;
-    for ( int curlev = 0; curlev < level; ++ curlev )
+    for (int curlev = 0; curlev < level; ++curlev)
     {
       thresh *= 0.5;
-      for ( j = 0; j < 3; ++ j )
+      for (j = 0; j < 3; ++j)
       {
-        if ( x[j] < thresh )
+        if (x[j] < thresh)
         {
           m[j] = 0;
         }
@@ -2282,29 +2286,29 @@ void vtkLabelHierarchy::Implementation::BinAnchorsToLevel( int level )
           x[j] -= thresh;
         }
       }
-      child = m[0] + 2 * ( m[1] + 2 * m[2] );
-      if ( cursor->is_leaf_node() )
+      child = m[0] + 2 * (m[1] + 2 * m[2]);
+      if (cursor->is_leaf_node())
       {
-        cursor->add_children( emptyNode );
-        cursor->value().SetChildGeometry( &(*cursor) );
+        cursor->add_children(emptyNode);
+        cursor->value().SetChildGeometry(&(*cursor));
       }
-      cursor.down( child );
+      cursor.down(child);
     }
-    cursor->value().insert( i );
+    cursor->value().insert(i);
   }
 }
 
-static size_t compute_number_to_promote( int t, size_t L, int d, size_t max )
+static size_t compute_number_to_promote(int t, size_t L, int d, size_t max)
 {
-  int tdl = 1 << ( d * L ); // 2^(dL)
-  int tdm = ( 1 << d ) - 1; // 2^d - 1
-  double n = static_cast<double>(t)*(tdl-1.)/tdl/static_cast<double>(tdm);
-  size_t nr = static_cast<size_t>(floor( n )); // truncate...
+  int tdl = 1 << (d * L); // 2^(dL)
+  int tdm = (1 << d) - 1; // 2^d - 1
+  double n = static_cast<double>(t) * (tdl - 1.) / tdl / static_cast<double>(tdm);
+  size_t nr = static_cast<size_t>(floor(n)); // truncate...
   double rem = n - nr;
-  if ( rem > 0. )
+  if (rem > 0.)
   {
-    if ( vtkMath::Random() <= rem )
-      ++ nr; // ... and round up some percentage of the time proportional to the remainder.
+    if (vtkMath::Random() <= rem)
+      ++nr; // ... and round up some percentage of the time proportional to the remainder.
   }
   return nr > max ? max : nr;
 }
@@ -2312,146 +2316,152 @@ static size_t compute_number_to_promote( int t, size_t L, int d, size_t max )
 void vtkLabelHierarchy::Implementation::PromoteAnchors()
 {
   HierarchyCursor3 cursor;
-  HierarchyCursor3 root = HierarchyCursor3( this->Hierarchy3 );
+  HierarchyCursor3 root = HierarchyCursor3(this->Hierarchy3);
   HierarchyIterator3 it;
-  //vtkIdType cnt;
+  // vtkIdType cnt;
   std::vector<vtkIdType> promotionList;
-  // Step 1. Iterate over all leaf nodes. We'll ascend to the root from each leaf, promoting anchors as we go.
-  //         Outer loop is O(N) since the number of leaf nodes is proportional to the number of anchors.
-  for ( it = this->Hierarchy3->begin( true ); it != this->Hierarchy3->end( true ); ++it )
+  // Step 1. Iterate over all leaf nodes. We'll ascend to the root from each leaf, promoting anchors
+  // as we go.
+  //         Outer loop is O(N) since the number of leaf nodes is proportional to the number of
+  //         anchors.
+  for (it = this->Hierarchy3->begin(true); it != this->Hierarchy3->end(true); ++it)
   {
-    vtkDebugWithObjectMacro( this->Husk, "o " << it.level() << "(" << it->value().GetLocalAnchorCount() << ")" );
+    vtkDebugWithObjectMacro(
+      this->Husk, "o " << it.level() << "(" << it->value().GetLocalAnchorCount() << ")");
     cursor = it;
-    size_t promotionCount = compute_number_to_promote(
-      this->Husk->GetTargetLabelCount(),
-      static_cast<size_t>( cursor.level() ),
-      3, cursor->value().GetLocalAnchorCount() );
+    size_t promotionCount = compute_number_to_promote(this->Husk->GetTargetLabelCount(),
+      static_cast<size_t>(cursor.level()), 3, cursor->value().GetLocalAnchorCount());
     LabelSet::iterator cit = cursor->value().begin();
     LabelSet::iterator eit;
-    // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all* nodes above.
+    // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all*
+    // nodes above.
     //          This is o(TargetLabelCount/(2^d - 1)), which is O(1)
-    for ( size_t i = 0; i < promotionCount; ++i )
+    for (size_t i = 0; i < promotionCount; ++i)
     {
       if (cit == cursor->value().end())
       {
-        vtkErrorWithObjectMacro( this->Husk, "error: dereferencing iterator at end()" );
+        vtkErrorWithObjectMacro(this->Husk, "error: dereferencing iterator at end()");
       }
-      promotionList.push_back( *cit );
-      vtkDebugWithObjectMacro( this->Husk, "Promoting " << *cit << " ( " << cursor->value().key_comp().Hierarchy->GetPriorities()->GetTuple1( *cit ) << ")" );
+      promotionList.push_back(*cit);
+      vtkDebugWithObjectMacro(this->Husk,
+        "Promoting " << *cit << " ( "
+                     << cursor->value().key_comp().Hierarchy->GetPriorities()->GetTuple1(*cit)
+                     << ")");
       eit = cit;
       ++cit;
-      cursor->value().erase( eit );
+      cursor->value().erase(eit);
     }
-    // FIXME: If we erase all the entries at this level, check to see if all siblings are empty as well.
-    //        If so, delete children of parent node. This is complicated by fact that we must have a valid cursor to climb.
+    // FIXME: If we erase all the entries at this level, check to see if all siblings are empty as
+    // well.
+    //        If so, delete children of parent node. This is complicated by fact that we must have a
+    //        valid cursor to climb.
     std::vector<vtkIdType>::size_type start = 0;
     std::vector<vtkIdType>::size_type psize = promotionList.size();
     // Step 1b. While we have anchors left to distribute, climb the tree
     //          This loop is O(log(N)) since the tree is log(N) deep.
-    while ( cursor.level() && ( start < psize ) )
+    while (cursor.level() && (start < psize))
     {
       cursor.up();
       // How many of our available anchors do we leave at this tree level?
-      if ( cursor.level() )
+      if (cursor.level())
       {
         promotionCount = compute_number_to_promote(
-          this->Husk->GetTargetLabelCount(),
-          static_cast<size_t>( cursor.level() ),
-          3, psize - start );
+          this->Husk->GetTargetLabelCount(), static_cast<size_t>(cursor.level()), 3, psize - start);
       }
       else
       {
         promotionCount = psize - start;
       }
-      vtkDebugWithObjectMacro( this->Husk, " " << cursor.level() << "(" << promotionCount << ")" );
+      vtkDebugWithObjectMacro(this->Husk, " " << cursor.level() << "(" << promotionCount << ")");
       // Insert them. This is O(1) since the list is O(1) in length at maximum
-      cursor->value().insert( promotionList.begin() + start, promotionList.begin() + start + promotionCount );
+      cursor->value().insert(
+        promotionList.begin() + start, promotionList.begin() + start + promotionCount);
       start += promotionCount;
     }
     promotionList.clear();
-    vtkDebugWithObjectMacro( this->Husk, "\n" );
+    vtkDebugWithObjectMacro(this->Husk, "\n");
   }
   // Total complexity is O(N*log(N))
 }
 
-void vtkLabelHierarchy::Implementation::DemoteAnchors( int level )
+void vtkLabelHierarchy::Implementation::DemoteAnchors(int level)
 {
   (void)level;
 }
 
-void vtkLabelHierarchy::Implementation::RecursiveNodeDivide( HierarchyCursor3& cursor )
+void vtkLabelHierarchy::Implementation::RecursiveNodeDivide(HierarchyCursor3& cursor)
 {
   (void)cursor;
 }
 
-void vtkLabelHierarchy::Implementation::RecursiveNodeDivide( HierarchyCursor2& cursor )
+void vtkLabelHierarchy::Implementation::RecursiveNodeDivide(HierarchyCursor2& cursor)
 {
   (void)cursor;
 }
 
-void vtkLabelHierarchy::Implementation::PrepareSortedAnchors( LabelSet& anchors )
+void vtkLabelHierarchy::Implementation::PrepareSortedAnchors(LabelSet& anchors)
 {
   anchors.clear();
   vtkIdType npts = this->Husk->GetPoints()->GetNumberOfPoints();
-  for ( vtkIdType i = 0; i < npts; ++ i )
+  for (vtkIdType i = 0; i < npts; ++i)
   {
-    anchors.insert( i );
+    anchors.insert(i);
   }
 }
 
-void vtkLabelHierarchy::Implementation::FillHierarchyRoot( LabelSet& anchors )
+void vtkLabelHierarchy::Implementation::FillHierarchyRoot(LabelSet& anchors)
 {
   LabelSet::iterator endRootAnchors;
-  if ( static_cast<int>( anchors.size() ) < this->Husk->GetTargetLabelCount() )
+  if (static_cast<int>(anchors.size()) < this->Husk->GetTargetLabelCount())
   {
     endRootAnchors = anchors.end();
   }
   else
   {
     endRootAnchors = anchors.begin();
-    for ( int i = 0; i < this->Husk->GetTargetLabelCount(); ++ i )
+    for (int i = 0; i < this->Husk->GetTargetLabelCount(); ++i)
     {
-      ++ endRootAnchors;
+      ++endRootAnchors;
     }
   }
-  this->Hierarchy3->root()->value().insert( anchors.begin(), endRootAnchors );
-  anchors.erase( anchors.begin(), endRootAnchors );
+  this->Hierarchy3->root()->value().insert(anchors.begin(), endRootAnchors);
+  anchors.erase(anchors.begin(), endRootAnchors);
 }
 
-void vtkLabelHierarchy::Implementation::DropAnchor2( vtkIdType anchor )
+void vtkLabelHierarchy::Implementation::DropAnchor2(vtkIdType anchor)
 {
-  //HierarchyCursor3 curs( this->Hierarchy3 );
-  //PriorityComparator comparator( this->Husk );
-  //LabelSet emptyNode( comparator );
+  // HierarchyCursor3 curs( this->Hierarchy3 );
+  // PriorityComparator comparator( this->Husk );
+  // LabelSet emptyNode( comparator );
   // See comment near declaration of Current for more info:
   vtkLabelHierarchy::Implementation::Current = this->Husk;
 
-  LabelSet emptyNode( this->Husk );
-  HierarchyCursor2 curs( this->Hierarchy2 );
+  LabelSet emptyNode(this->Husk);
+  HierarchyCursor2 curs(this->Hierarchy2);
   const double* ctr = curs->value().GetCenter();
   double x[3];
   double sz = curs->value().GetSize();
-  int m[3]; // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
+  int m[3];  // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
   // Retrieve the point coordinates
-  this->Husk->GetPoints()->GetPoint( anchor, x );
+  this->Husk->GetPoints()->GetPoint(anchor, x);
 
-  //Coord coord( x );
-  this->Husk->GetCoincidentPoints()->AddPoint( anchor, x );
+  // Coord coord( x );
+  this->Husk->GetCoincidentPoints()->AddPoint(anchor, x);
 
   // Convert into "octree" coordinates (x[i] in [0,1[ for easy descent).
-  for ( j = 0; j < 2; ++ j )
+  for (j = 0; j < 2; ++j)
   {
-    x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
+    x[j] = (x[j] - ctr[j]) / sz + 0.5;
   }
   double thresh = 1.;
-  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->GetTargetLabelCount() )
+  while (static_cast<int>(curs->value().GetLocalAnchorCount()) >= this->Husk->GetTargetLabelCount())
   { // descend the tree or make children as required.
     thresh *= 0.5;
-    for ( j = 0; j < 2; ++ j )
+    for (j = 0; j < 2; ++j)
     {
-      if ( x[j] < thresh )
+      if (x[j] < thresh)
       {
         m[j] = 0;
       }
@@ -2462,56 +2472,56 @@ void vtkLabelHierarchy::Implementation::DropAnchor2( vtkIdType anchor )
       }
     }
     child = m[0] + 2 * m[1];
-    if ( curs->is_leaf_node() )
+    if (curs->is_leaf_node())
     {
-      curs->value().AddChildren( &(*curs), emptyNode );
+      curs->value().AddChildren(&(*curs), emptyNode);
     }
     curs->value().Increment(); // Increment the count of labels in this portion of the tree.
-    curs.down( child );
+    curs.down(child);
   }
-  curs->value().Insert( anchor );
-  if ( curs.level() > this->ActualDepth )
+  curs->value().Insert(anchor);
+  if (curs.level() > this->ActualDepth)
   {
     this->ActualDepth = curs.level();
   }
 
-  this->SmudgeAnchor2( curs, anchor, x );
+  this->SmudgeAnchor2(curs, anchor, x);
 }
 
-void vtkLabelHierarchy::Implementation::DropAnchor3( vtkIdType anchor )
+void vtkLabelHierarchy::Implementation::DropAnchor3(vtkIdType anchor)
 {
-  //HierarchyCursor3 curs( this->Hierarchy3 );
-  //PriorityComparator comparator( this->Husk );
-  //LabelSet emptyNode( comparator );
+  // HierarchyCursor3 curs( this->Hierarchy3 );
+  // PriorityComparator comparator( this->Husk );
+  // LabelSet emptyNode( comparator );
   // See comment near declaration of Current for more info:
   vtkLabelHierarchy::Implementation::Current = this->Husk;
 
-  LabelSet emptyNode( this->Husk );
-  HierarchyCursor3 curs( this->Hierarchy3 );
+  LabelSet emptyNode(this->Husk);
+  HierarchyCursor3 curs(this->Hierarchy3);
   const double* ctr = curs->value().GetCenter();
   double x[3];
   double sz = curs->value().GetSize();
-  int m[3]; // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
+  int m[3];  // "branch selector" for each axis (mX is 0 if rX < 0.5 or 1 otherwise)
   int child; // Always set to m0 + 2 * ( m1 + 2 * m2 ), offset into array of node children
   int j;
   // Retrieve the point coordinates
-  this->Husk->GetPoints()->GetPoint( anchor, x );
+  this->Husk->GetPoints()->GetPoint(anchor, x);
 
-  //Coord coord(x);
-  this->Husk->GetCoincidentPoints()->AddPoint( anchor, x );
+  // Coord coord(x);
+  this->Husk->GetCoincidentPoints()->AddPoint(anchor, x);
 
   // Convert into "octree" coordinates (x[i] in [0,1[ for easy descent).
-  for ( j = 0; j < 3; ++ j )
+  for (j = 0; j < 3; ++j)
   {
-    x[j] = ( x[j] - ctr[j] ) / sz + 0.5;
+    x[j] = (x[j] - ctr[j]) / sz + 0.5;
   }
   double thresh = 1.;
-  while ( static_cast<int>( curs->value().GetLocalAnchorCount() ) >= this->Husk->GetTargetLabelCount() )
+  while (static_cast<int>(curs->value().GetLocalAnchorCount()) >= this->Husk->GetTargetLabelCount())
   { // descend the tree or make children as required.
     thresh *= 0.5;
-    for ( j = 0; j < 3; ++ j )
+    for (j = 0; j < 3; ++j)
     {
-      if ( x[j] < thresh )
+      if (x[j] < thresh)
       {
         m[j] = 0;
       }
@@ -2521,45 +2531,48 @@ void vtkLabelHierarchy::Implementation::DropAnchor3( vtkIdType anchor )
         x[j] -= thresh;
       }
     }
-    child = m[0] + 2 * ( m[1] + 2 * m[2] );
-    if ( curs->is_leaf_node() )
+    child = m[0] + 2 * (m[1] + 2 * m[2]);
+    if (curs->is_leaf_node())
     {
-      curs->value().AddChildren( &(*curs), emptyNode );
+      curs->value().AddChildren(&(*curs), emptyNode);
     }
     curs->value().Increment();
-    curs.down( child );
+    curs.down(child);
   }
-  curs->value().Insert( anchor );
-  if ( curs.level() > this->ActualDepth )
+  curs->value().Insert(anchor);
+  if (curs.level() > this->ActualDepth)
   {
     this->ActualDepth = curs.level();
   }
 
-  this->SmudgeAnchor3( curs, anchor, x );
+  this->SmudgeAnchor3(curs, anchor, x);
 }
 
 // If an anchor is near any octree boundaries, copy it to neighbors at the same level.
 // This will create neighbors if necessary.
-void vtkLabelHierarchy::Implementation::SmudgeAnchor2( HierarchyCursor2& cursor, vtkIdType anchor, double* x )
+void vtkLabelHierarchy::Implementation::SmudgeAnchor2(
+  HierarchyCursor2& cursor, vtkIdType anchor, double* x)
 {
   (void)cursor;
   (void)anchor;
   (void)x;
 }
 
-void vtkLabelHierarchy::Implementation::SmudgeAnchor3( HierarchyCursor3& cursor, vtkIdType anchor, double* x )
+void vtkLabelHierarchy::Implementation::SmudgeAnchor3(
+  HierarchyCursor3& cursor, vtkIdType anchor, double* x)
 {
   (void)cursor;
   (void)anchor;
   (void)x;
 }
 
-void vtkLabelHierarchy::GetAnchorFrustumPlanes(double frustumPlanes[24], vtkRenderer* ren, vtkCoordinate* anchorTransform)
+void vtkLabelHierarchy::GetAnchorFrustumPlanes(
+  double frustumPlanes[24], vtkRenderer* ren, vtkCoordinate* anchorTransform)
 {
   // We set infinitely large frustum (disable clipping) for all coordinate systems other than world
   // and normalized coordinate systems.
-  // To improve performance, accurate view frustum could be computed for all other coordinate systems, too
-  // (such as DISPLAY, VIEWPORT, VIEW, POSE - see vtkCoordinate).
+  // To improve performance, accurate view frustum could be computed for all other coordinate
+  // systems, too (such as DISPLAY, VIEWPORT, VIEW, POSE - see vtkCoordinate).
   int coordinateSystem = anchorTransform->GetCoordinateSystem();
 
   if (coordinateSystem == VTK_WORLD)
@@ -2575,8 +2588,7 @@ void vtkLabelHierarchy::GetAnchorFrustumPlanes(double frustumPlanes[24], vtkRend
   double minPosition = VTK_DOUBLE_MAX;
   double maxPosition = VTK_DOUBLE_MAX;
 
-  if (coordinateSystem == VTK_NORMALIZED_DISPLAY
-    || coordinateSystem == VTK_NORMALIZED_VIEWPORT)
+  if (coordinateSystem == VTK_NORMALIZED_DISPLAY || coordinateSystem == VTK_NORMALIZED_VIEWPORT)
   {
     minPosition = 0.0;
     maxPosition = 1.0;

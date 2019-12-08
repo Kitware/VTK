@@ -12,25 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOBJReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
-#include "vtkPointData.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
 //------------------------------------------------------------------------------
-int TestOBJReaderMultiTexture(int argc, char *argv[])
+int TestOBJReaderMultiTexture(int argc, char* argv[])
 {
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/obj_multitexture.obj");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_multitexture.obj");
 
   vtkNew<vtkOBJReader> reader;
   reader->SetFileName(fname);
   reader->Update();
 
-  vtkPolyData *data = reader->GetOutput();
+  vtkPolyData* data = reader->GetOutput();
 
   delete[] fname;
 
@@ -84,8 +83,8 @@ int TestOBJReaderMultiTexture(int argc, char *argv[])
     // Testing values outside [4, 7]
     if (i < 4 || i > 7)
     {
-      if ((currentTCoord0[0] == -1 && currentTCoord0[1] == -1)
-        || !(currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
+      if ((currentTCoord0[0] == -1 && currentTCoord0[1] == -1) ||
+        !(currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
       {
         std::cerr << "Unexpected texture values" << std::endl;
         return EXIT_FAILURE;
@@ -94,8 +93,8 @@ int TestOBJReaderMultiTexture(int argc, char *argv[])
     // Testing values inside [4, 7]
     else
     {
-      if (!(currentTCoord0[0] == -1 && currentTCoord0[1] == -1)
-        || (currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
+      if (!(currentTCoord0[0] == -1 && currentTCoord0[1] == -1) ||
+        (currentTCoord1[0] == -1 && currentTCoord1[1] == -1))
       {
         std::cerr << "Unexpected texture values" << std::endl;
         return EXIT_FAILURE;

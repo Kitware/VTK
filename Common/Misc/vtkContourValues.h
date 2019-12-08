@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkContourFilter
-*/
+ */
 
 #ifndef vtkContourValues_h
 #define vtkContourValues_h
@@ -38,9 +38,9 @@ public:
   /**
    * Construct object with a single contour value at 0.0.
    */
-  static vtkContourValues *New();
+  static vtkContourValues* New();
 
-  vtkTypeMacro(vtkContourValues,vtkObject);
+  vtkTypeMacro(vtkContourValues, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,13 +58,13 @@ public:
    * Return a pointer to a list of contour values. The contents of the
    * list will be garbage if the number of contours <= 0.
    */
-  double *GetValues();
+  double* GetValues();
 
   /**
    * Fill a supplied list with contour values. Make sure you've
    * allocated memory of size GetNumberOfContours().
    */
-  void GetValues(double *contourValues);
+  void GetValues(double* contourValues);
 
   /**
    * Set the number of contours to place into the list. You only really
@@ -95,12 +95,11 @@ public:
    */
   void DeepCopy(vtkContourValues* other);
 
-
 protected:
   vtkContourValues();
   ~vtkContourValues() override;
 
-  vtkDoubleArray *Contours;
+  vtkDoubleArray* Contours;
 
 private:
   vtkContourValues(const vtkContourValues&) = delete;

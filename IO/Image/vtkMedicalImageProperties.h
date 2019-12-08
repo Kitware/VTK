@@ -22,7 +22,7 @@
  * any user-defined property.
  * @sa
  * vtkMedicalImageReader2
-*/
+ */
 
 #ifndef vtkMedicalImageProperties_h
 #define vtkMedicalImageProperties_h
@@ -35,8 +35,8 @@ class vtkMedicalImagePropertiesInternals;
 class VTKIOIMAGE_EXPORT vtkMedicalImageProperties : public vtkObject
 {
 public:
-  static vtkMedicalImageProperties *New();
-  vtkTypeMacro(vtkMedicalImageProperties,vtkObject);
+  static vtkMedicalImageProperties* New();
+  vtkTypeMacro(vtkMedicalImageProperties, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -79,7 +79,7 @@ public:
    * Return 0 on error, 1 on success
    * One can test fields if they are different from -1 upon success
    */
-  static int GetAgeAsFields(const char *age, int &year, int &month, int &week, int &day);
+  static int GetAgeAsFields(const char* age, int& year, int& month, int& week, int& day);
 
   // For Tcl:
   // From C++ use GetPatientAge + GetAgeAsField
@@ -184,14 +184,15 @@ public:
    * different fields namely: year month day
    * Return 0 on error, 1 on success
    */
-  static int GetDateAsFields(const char *date, int &year, int &month, int &day);
+  static int GetDateAsFields(const char* date, int& year, int& month, int& day);
 
   /**
    * Take as input a string in VR:TM format (HHMMSS) and extract the
    * different fields namely: hour, minute and second
    * Return 0 on error, 1 on success
    */
-  static int GetTimeAsFields(const char *time, int &hour, int &minute, int &second /* , long &milliseconds */);
+  static int GetTimeAsFields(
+    const char* time, int& hour, int& minute, int& second /* , long &milliseconds */);
 
   /**
    * Take as input a string in ISO 8601 date (YYYY/MM/DD) and construct a
@@ -199,7 +200,7 @@ public:
    * different fields)
    * Return 0 on error, 1 on success
    */
-  static int GetDateAsLocale(const char *date, char *locale);
+  static int GetDateAsLocale(const char* date, char* locale);
 
   //@{
   /**
@@ -405,19 +406,19 @@ public:
   /**
    * Get the direction cosine (default to 1,0,0,0,1,0)
    */
-  vtkSetVector6Macro(DirectionCosine,double);
-  vtkGetVector6Macro(DirectionCosine,double);
+  vtkSetVector6Macro(DirectionCosine, double);
+  vtkGetVector6Macro(DirectionCosine, double);
   //@}
 
   // Interface to allow insertion of user define values, for instance in DICOM
   // one would want to
   // store the Protocol Name (0018,1030), in this case one would do:
   // AddUserDefinedValue( "Protocol Name", "T1W/SE/1024" );
-  virtual void AddUserDefinedValue(const char *name, const char *value);
-  virtual const char *GetUserDefinedValue(const char *name);
+  virtual void AddUserDefinedValue(const char* name, const char* value);
+  virtual const char* GetUserDefinedValue(const char* name);
   virtual unsigned int GetNumberOfUserDefinedValues();
-  virtual const char *GetUserDefinedNameByIndex(unsigned int idx);
-  virtual const char *GetUserDefinedValueByIndex(unsigned int idx);
+  virtual const char* GetUserDefinedNameByIndex(unsigned int idx);
+  virtual const char* GetUserDefinedValueByIndex(unsigned int idx);
   virtual void RemoveAllUserDefinedValues();
 
   //@{
@@ -440,9 +441,9 @@ public:
   virtual int GetNumberOfWindowLevelPresets();
   virtual int HasWindowLevelPreset(double w, double l);
   virtual int GetWindowLevelPresetIndex(double w, double l);
-  virtual int GetNthWindowLevelPreset(int idx, double *w, double *l);
+  virtual int GetNthWindowLevelPreset(int idx, double* w, double* l);
   virtual double* GetNthWindowLevelPreset(int idx) VTK_SIZEHINT(2);
-  virtual void SetNthWindowLevelPresetComment(int idx, const char *comment);
+  virtual void SetNthWindowLevelPresetComment(int idx, const char* comment);
   virtual const char* GetNthWindowLevelPresetComment(int idx);
   //@}
 
@@ -453,17 +454,18 @@ public:
    * a slice index in a vtkImageData volume we can backtrack and find out
    * which 2d slice it was coming from
    */
-  const char *GetInstanceUIDFromSliceID(int volumeidx, int sliceid);
-  void SetInstanceUIDFromSliceID(int volumeidx, int sliceid, const char *uid);
+  const char* GetInstanceUIDFromSliceID(int volumeidx, int sliceid);
+  void SetInstanceUIDFromSliceID(int volumeidx, int sliceid, const char* uid);
   //@}
 
   /**
    * Provides the inverse mapping. Returns -1 if a slice for this uid is
    * not found.
    */
-  int GetSliceIDFromInstanceUID(int &volumeidx, const char *uid);
+  int GetSliceIDFromInstanceUID(int& volumeidx, const char* uid);
 
-  typedef enum {
+  typedef enum
+  {
     AXIAL = 0,
     CORONAL,
     SAGITTAL
@@ -471,54 +473,54 @@ public:
 
   int GetOrientationType(int volumeidx);
   void SetOrientationType(int volumeidx, int orientation);
-  static const char *GetStringFromOrientationType(unsigned int type);
+  static const char* GetStringFromOrientationType(unsigned int type);
 
   /**
    * Copy the contents of p to this instance.
    */
-  virtual void DeepCopy(vtkMedicalImageProperties *p);
+  virtual void DeepCopy(vtkMedicalImageProperties* p);
 
 protected:
   vtkMedicalImageProperties();
   ~vtkMedicalImageProperties() override;
 
-  char *StudyDate;
-  char *AcquisitionDate;
-  char *StudyTime;
-  char *AcquisitionTime;
-  char *ConvolutionKernel;
-  char *EchoTime;
-  char *EchoTrainLength;
-  char *Exposure;
-  char *ExposureTime;
-  char *GantryTilt;
-  char *ImageDate;
-  char *ImageNumber;
-  char *ImageTime;
-  char *InstitutionName;
-  char *KVP;
-  char *ManufacturerModelName;
-  char *Manufacturer;
-  char *Modality;
-  char *PatientAge;
-  char *PatientBirthDate;
-  char *PatientID;
-  char *PatientName;
-  char *PatientSex;
-  char *RepetitionTime;
-  char *SeriesDescription;
-  char *SeriesNumber;
-  char *SliceThickness;
-  char *StationName;
-  char *StudyDescription;
-  char *StudyID;
-  char *XRayTubeCurrent;
+  char* StudyDate;
+  char* AcquisitionDate;
+  char* StudyTime;
+  char* AcquisitionTime;
+  char* ConvolutionKernel;
+  char* EchoTime;
+  char* EchoTrainLength;
+  char* Exposure;
+  char* ExposureTime;
+  char* GantryTilt;
+  char* ImageDate;
+  char* ImageNumber;
+  char* ImageTime;
+  char* InstitutionName;
+  char* KVP;
+  char* ManufacturerModelName;
+  char* Manufacturer;
+  char* Modality;
+  char* PatientAge;
+  char* PatientBirthDate;
+  char* PatientID;
+  char* PatientName;
+  char* PatientSex;
+  char* RepetitionTime;
+  char* SeriesDescription;
+  char* SeriesNumber;
+  char* SliceThickness;
+  char* StationName;
+  char* StudyDescription;
+  char* StudyID;
+  char* XRayTubeCurrent;
   double DirectionCosine[6];
 
   /**
    * PIMPL Encapsulation for STL containers
    */
-  vtkMedicalImagePropertiesInternals *Internals;
+  vtkMedicalImagePropertiesInternals* Internals;
 
 private:
   vtkMedicalImageProperties(const vtkMedicalImageProperties&) = delete;

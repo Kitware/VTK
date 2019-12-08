@@ -28,7 +28,7 @@
  * assumed to lie at z=constant. In other words, this filter assumes that the data lies
  * in a plane orthogonal to the z axis.
  *
-*/
+ */
 
 #ifndef vtkCookieCutter_h
 #define vtkCookieCutter_h
@@ -43,8 +43,8 @@ public:
   /**
    * Standard methods to instantiate, print and provide type information.
    */
-  static vtkCookieCutter *New();
-  vtkTypeMacro(vtkCookieCutter,vtkPolyDataAlgorithm);
+  static vtkCookieCutter* New();
+  vtkTypeMacro(vtkCookieCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -64,8 +64,8 @@ public:
    * self intersect. The loops are defined from the polygons defined in
    * this second input.
    */
-  void SetLoopsData(vtkDataObject *loops);
-  vtkDataObject *GetLoops();
+  void SetLoopsData(vtkDataObject* loops);
+  vtkDataObject* GetLoops();
   //@}
 
   //@{
@@ -73,7 +73,7 @@ public:
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
@@ -87,18 +87,15 @@ protected:
   vtkCookieCutter();
   ~vtkCookieCutter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
 
 private:
   vtkCookieCutter(const vtkCookieCutter&) = delete;
   void operator=(const vtkCookieCutter&) = delete;
 };
-
 
 #endif

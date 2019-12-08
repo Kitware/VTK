@@ -22,7 +22,7 @@
  *
  * @par Thanks:
  * Dr. Jean M. Favre who developed and contributed this class.
-*/
+ */
 
 #ifndef vtkGaussianCubeReader_h
 #define vtkGaussianCubeReader_h
@@ -36,25 +36,26 @@ class vtkTransform;
 class VTKIOGEOMETRY_EXPORT vtkGaussianCubeReader : public vtkMoleculeReaderBase
 {
 public:
-  static vtkGaussianCubeReader *New();
-  vtkTypeMacro(vtkGaussianCubeReader,vtkMoleculeReaderBase);
+  static vtkGaussianCubeReader* New();
+  vtkTypeMacro(vtkGaussianCubeReader, vtkMoleculeReaderBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetObjectMacro(Transform,vtkTransform);
-  vtkImageData *GetGridOutput();
+  vtkGetObjectMacro(Transform, vtkTransform);
+  vtkImageData* GetGridOutput();
 
 protected:
   vtkGaussianCubeReader();
   ~vtkGaussianCubeReader() override;
 
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ReadSpecificMolecule(FILE* fp) override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
+
 private:
   vtkGaussianCubeReader(const vtkGaussianCubeReader&) = delete;
   void operator=(const vtkGaussianCubeReader&) = delete;

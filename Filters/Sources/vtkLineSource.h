@@ -23,7 +23,7 @@
  * @par Thanks:
  * This class was extended by Philippe Pebay, Kitware SAS 2011, to support
  * broken lines as well as simple lines.
-*/
+ */
 
 #ifndef vtkLineSource_h
 #define vtkLineSource_h
@@ -36,16 +36,16 @@ class vtkPoints;
 class VTKFILTERSSOURCES_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkLineSource *New();
-  vtkTypeMacro(vtkLineSource,vtkPolyDataAlgorithm);
+  static vtkLineSource* New();
+  vtkTypeMacro(vtkLineSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set position of first end point.
    */
-  vtkSetVector3Macro(Point1,double);
-  vtkGetVectorMacro(Point1,double,3);
+  vtkSetVector3Macro(Point1, double);
+  vtkGetVectorMacro(Point1, double, 3);
   void SetPoint1(float[3]);
   //@}
 
@@ -53,8 +53,8 @@ public:
   /**
    * Set position of other end point.
    */
-  vtkSetVector3Macro(Point2,double);
-  vtkGetVectorMacro(Point2,double,3);
+  vtkSetVector3Macro(Point2, double);
+  vtkGetVectorMacro(Point2, double, 3);
   void SetPoint2(float[3]);
   //@}
 
@@ -63,15 +63,15 @@ public:
    * Set/Get the list of points defining a broken line
    */
   virtual void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points,vtkPoints);
+  vtkGetObjectMacro(Points, vtkPoints);
   //@}
 
   //@{
   /**
    * Divide line into Resolution number of pieces.
    */
-  vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
-  vtkGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
+  vtkGetMacro(Resolution, int);
   //@}
 
   //@{
@@ -80,16 +80,16 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
-  vtkLineSource(int res=1);
+  vtkLineSource(int res = 1);
   ~vtkLineSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Point1[3];
   double Point2[3];
   int Resolution;

@@ -14,10 +14,10 @@
  =========================================================================*/
 #include "vtkDataSetGhostGenerator.h"
 #include "vtkDataObject.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIndent.h"
+#include "vtkMultiBlockDataSet.h"
 
 #include <cassert>
 
@@ -32,63 +32,58 @@ vtkDataSetGhostGenerator::vtkDataSetGhostGenerator()
 vtkDataSetGhostGenerator::~vtkDataSetGhostGenerator() = default;
 
 //------------------------------------------------------------------------------
-void vtkDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent )
+void vtkDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
 
 //------------------------------------------------------------------------------
-int vtkDataSetGhostGenerator::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+int vtkDataSetGhostGenerator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  assert( "pre: information object is nullptr!" && (info != nullptr) );
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkMultiBlockDataSet");
+  assert("pre: information object is nullptr!" && (info != nullptr));
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkDataSetGhostGenerator::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+int vtkDataSetGhostGenerator::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  assert( "pre: information object is nullptr!" && (info != nullptr) );
+  assert("pre: information object is nullptr!" && (info != nullptr));
 
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkDataSetGhostGenerator::RequestData(
-    vtkInformation* vtkNotUsed(rqst), vtkInformationVector **inputVector,
-    vtkInformationVector* outputVector )
+int vtkDataSetGhostGenerator::RequestData(vtkInformation* vtkNotUsed(rqst),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
- // STEP 0: Get input object
- vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
- assert( "pre: Null input object!" && (input != nullptr)  );
- vtkMultiBlockDataSet *inputMultiBlock=
-     vtkMultiBlockDataSet::SafeDownCast(
-         input->Get(vtkDataObject::DATA_OBJECT() ) );
- assert( "pre: Input multi-block object is nullptr" && (inputMultiBlock != nullptr) );
+  // STEP 0: Get input object
+  vtkInformation* input = inputVector[0]->GetInformationObject(0);
+  assert("pre: Null input object!" && (input != nullptr));
+  vtkMultiBlockDataSet* inputMultiBlock =
+    vtkMultiBlockDataSet::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
+  assert("pre: Input multi-block object is nullptr" && (inputMultiBlock != nullptr));
 
- // STEP 1: Get output object
- vtkInformation *output = outputVector->GetInformationObject( 0 );
- assert( "pre: Null output object!" && (output != nullptr) );
- vtkMultiBlockDataSet *outputMultiBlock =
-     vtkMultiBlockDataSet::SafeDownCast(
-         output->Get(vtkDataObject::DATA_OBJECT() ) );
- assert( "pre: Outpu multi-block object is nullptr" && (outputMultiBlock != nullptr));
+  // STEP 1: Get output object
+  vtkInformation* output = outputVector->GetInformationObject(0);
+  assert("pre: Null output object!" && (output != nullptr));
+  vtkMultiBlockDataSet* outputMultiBlock =
+    vtkMultiBlockDataSet::SafeDownCast(output->Get(vtkDataObject::DATA_OBJECT()));
+  assert("pre: Outpu multi-block object is nullptr" && (outputMultiBlock != nullptr));
 
- // STEP 2: Generate ghost layers
- if( this->NumberOfGhostLayers == 0 )
- {
-   // Shallow copy the input object
-   outputMultiBlock->ShallowCopy( inputMultiBlock );
- }
- else
- {
-   // Create requested ghost layers
-   this->GenerateGhostLayers( inputMultiBlock, outputMultiBlock );
- }
- return 1;
+  // STEP 2: Generate ghost layers
+  if (this->NumberOfGhostLayers == 0)
+  {
+    // Shallow copy the input object
+    outputMultiBlock->ShallowCopy(inputMultiBlock);
+  }
+  else
+  {
+    // Create requested ghost layers
+    this->GenerateGhostLayers(inputMultiBlock, outputMultiBlock);
+  }
+  return 1;
 }

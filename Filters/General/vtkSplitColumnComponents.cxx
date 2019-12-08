@@ -46,29 +46,27 @@ vtkSplitColumnComponents::~vtkSplitColumnComponents() = default;
 //---------------------------------------------------------------------------
 // Templated function in an anonymous namespace to copy the data from the
 // specified component in one column to a single component column
-namespace {
+namespace
+{
 
-template<typename T>
-void CopyArrayData(T* source, T* destination, int components, int c,
-                   unsigned int length)
+template <typename T>
+void CopyArrayData(T* source, T* destination, int components, int c, unsigned int length)
 {
   for (unsigned int i = 0; i < length; ++i)
   {
-    destination[i] = source[i*components + c];
+    destination[i] = source[i * components + c];
   }
 }
 
-template<typename T>
-void CalculateMagnitude(T* source, T* destination, int components,
-                        unsigned int length)
+template <typename T>
+void CalculateMagnitude(T* source, T* destination, int components, unsigned int length)
 {
   for (unsigned int i = 0; i < length; ++i)
   {
     double tmp = 0.0;
     for (int j = 0; j < components; ++j)
     {
-      tmp += static_cast<double>(source[i*components + j]
-                                 * source[i*components + j]);
+      tmp += static_cast<double>(source[i * components + j] * source[i * components + j]);
     }
     destination[i] = static_cast<T>(sqrt(tmp));
   }
@@ -78,19 +76,15 @@ void CalculateMagnitude(T* source, T* destination, int components,
 
 //---------------------------------------------------------------------------
 int vtkSplitColumnComponents::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get input tables
   vtkInformation* table1Info = inputVector[0]->GetInformationObject(0);
-  vtkTable* table = vtkTable::SafeDownCast(
-    table1Info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* table = vtkTable::SafeDownCast(table1Info->Get(vtkDataObject::DATA_OBJECT()));
 
   // Get output table
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkTable* output = vtkTable::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Add columns from table, split multiple component columns as necessary
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
@@ -123,12 +117,10 @@ int vtkSplitColumnComponents::RequestData(
           newCol->SetComponentName(0, col->GetComponentName(j));
         }
         // Now copy the components into their new columns
-        switch(col->GetDataType())
+        switch (col->GetDataType())
         {
-          vtkExtraExtendedTemplateMacro(
-              CopyArrayData(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
-                            static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
-                            components, j, colSize));
+          vtkExtraExtendedTemplateMacro(CopyArrayData(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
+            static_cast<VTK_TT*>(newCol->GetVoidPointer(0)), components, j, colSize));
         }
         if (auto info = newCol->GetInformation())
         {
@@ -146,12 +138,10 @@ int vtkSplitColumnComponents::RequestData(
         newCol->SetName(component_label.c_str());
         newCol->SetNumberOfTuples(colSize);
         // Now calculate the magnitude column
-        switch(col->GetDataType())
+        switch (col->GetDataType())
         {
-          vtkTemplateMacro(
-              CalculateMagnitude(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
-                                 static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
-                                 components, colSize));
+          vtkTemplateMacro(CalculateMagnitude(static_cast<VTK_TT*>(col->GetVoidPointer(0)),
+            static_cast<VTK_TT*>(newCol->GetVoidPointer(0)), components, colSize));
         }
         if (auto info = newCol->GetInformation())
         {
@@ -168,44 +158,44 @@ int vtkSplitColumnComponents::RequestData(
 
 namespace
 {
-  //----------------------------------------------------------------------------
-  std::string vtkDefaultComponentName(int componentNumber, int componentCount)
+//----------------------------------------------------------------------------
+std::string vtkDefaultComponentName(int componentNumber, int componentCount)
+{
+  if (componentCount <= 1)
   {
-    if (componentCount <= 1)
-    {
-      return "";
-    }
-    else if (componentNumber == -1)
-    {
-      return "Magnitude";
-    }
-    else if (componentCount <= 3 && componentNumber < 3)
-    {
-      const char* titles[] = {"X", "Y", "Z"};
-      return titles[componentNumber];
-    }
-    else if (componentCount == 6)
-    {
-      const char* titles[] = {"XX", "YY", "ZZ", "XY", "YZ", "XZ"};
-      // Assume this is a symmetric matrix.
-      return titles[componentNumber];
-    }
-    else
-    {
-      std::ostringstream buffer;
-      buffer << componentNumber;
-      return buffer.str();
-    }
+    return "";
   }
-  std::string vtkGetComponentName(vtkAbstractArray* array, int component_no)
+  else if (componentNumber == -1)
   {
-    const char* name = array->GetComponentName(component_no);
-    if (name)
-    {
-      return name;
-    }
-    return vtkDefaultComponentName(component_no, array->GetNumberOfComponents());
+    return "Magnitude";
   }
+  else if (componentCount <= 3 && componentNumber < 3)
+  {
+    const char* titles[] = { "X", "Y", "Z" };
+    return titles[componentNumber];
+  }
+  else if (componentCount == 6)
+  {
+    const char* titles[] = { "XX", "YY", "ZZ", "XY", "YZ", "XZ" };
+    // Assume this is a symmetric matrix.
+    return titles[componentNumber];
+  }
+  else
+  {
+    std::ostringstream buffer;
+    buffer << componentNumber;
+    return buffer.str();
+  }
+}
+std::string vtkGetComponentName(vtkAbstractArray* array, int component_no)
+{
+  const char* name = array->GetComponentName(component_no);
+  if (name)
+  {
+    return name;
+  }
+  return vtkDefaultComponentName(component_no, array->GetNumberOfComponents());
+}
 };
 
 //---------------------------------------------------------------------------
@@ -214,40 +204,38 @@ std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array,
   std::ostringstream stream;
   switch (this->NamingMode)
   {
-  case NUMBERS_WITH_PARENS:
-    stream << array->GetName() << " (";
-    if (component_no == -1)
-    {
-      stream << "Magnitude)";
-    }
-    else
-    {
-      stream << component_no << ")";
-    }
-    break;
+    case NUMBERS_WITH_PARENS:
+      stream << array->GetName() << " (";
+      if (component_no == -1)
+      {
+        stream << "Magnitude)";
+      }
+      else
+      {
+        stream << component_no << ")";
+      }
+      break;
 
-  case NUMBERS_WITH_UNDERSCORES:
-    stream << array->GetName() << "_";
-    if (component_no == -1)
-    {
-      stream << "Magnitude";
-    }
-    else
-    {
-      stream << component_no;
-    }
-    break;
+    case NUMBERS_WITH_UNDERSCORES:
+      stream << array->GetName() << "_";
+      if (component_no == -1)
+      {
+        stream << "Magnitude";
+      }
+      else
+      {
+        stream << component_no;
+      }
+      break;
 
-  case NAMES_WITH_PARENS:
-    stream << array->GetName() << " ("
-      << vtkGetComponentName(array, component_no).c_str() << ")";
-    break;
+    case NAMES_WITH_PARENS:
+      stream << array->GetName() << " (" << vtkGetComponentName(array, component_no).c_str() << ")";
+      break;
 
-  case NAMES_WITH_UNDERSCORES:
-  default:
-    stream << array->GetName() << "_"
-      << vtkGetComponentName(array, component_no).c_str();
-    break;
+    case NAMES_WITH_UNDERSCORES:
+    default:
+      stream << array->GetName() << "_" << vtkGetComponentName(array, component_no).c_str();
+      break;
   }
   return stream.str();
 }
@@ -258,21 +246,21 @@ void vtkSplitColumnComponents::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "CalculateMagnitudes: " << this->CalculateMagnitudes << endl;
   os << indent << "NamingMode: ";
-  switch(this->NamingMode)
+  switch (this->NamingMode)
   {
-  case NAMES_WITH_UNDERSCORES:
-    os << "NAMES_WITH_UNDERSCORES" << endl;
-    break;
-  case NAMES_WITH_PARENS:
-    os << "NAMES_WITH_PARENS" << endl;
-    break;
-  case NUMBERS_WITH_UNDERSCORES:
-    os << "NUMBERS_WITH_UNDERSCORES" << endl;
-    break;
-  case NUMBERS_WITH_PARENS:
-    os << "NUMBERS_WITH_PARENS" << endl;
-    break;
-  default:
-    os << "INVALID" << endl;
+    case NAMES_WITH_UNDERSCORES:
+      os << "NAMES_WITH_UNDERSCORES" << endl;
+      break;
+    case NAMES_WITH_PARENS:
+      os << "NAMES_WITH_PARENS" << endl;
+      break;
+    case NUMBERS_WITH_UNDERSCORES:
+      os << "NUMBERS_WITH_UNDERSCORES" << endl;
+      break;
+    case NUMBERS_WITH_PARENS:
+      os << "NUMBERS_WITH_PARENS" << endl;
+      break;
+    default:
+      os << "INVALID" << endl;
   }
 }

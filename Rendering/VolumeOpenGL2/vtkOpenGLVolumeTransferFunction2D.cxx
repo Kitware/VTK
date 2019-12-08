@@ -32,12 +32,8 @@ vtkOpenGLVolumeTransferFunction2D::vtkOpenGLVolumeTransferFunction2D()
 }
 
 //--------------------------------------------------------------------------
-void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(
-  vtkObject* func,
-  int vtkNotUsed(blendMode),
-  double vtkNotUsed(sampleDistance),
-  double vtkNotUsed(unitDistance),
-  int filterValue)
+void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(vtkObject* func, int vtkNotUsed(blendMode),
+  double vtkNotUsed(sampleDistance), double vtkNotUsed(unitDistance), int filterValue)
 {
   vtkImageData* transfer2D = vtkImageData::SafeDownCast(func);
   if (!transfer2D)
@@ -51,40 +47,29 @@ void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(
   {
     this->ResizeFilter->SetInputData(transfer2D);
     this->ResizeFilter->SetResizeMethodToOutputDimensions();
-    this->ResizeFilter->SetOutputDimensions(
-      this->TextureWidth, this->TextureHeight, 1);
+    this->ResizeFilter->SetOutputDimensions(this->TextureWidth, this->TextureHeight, 1);
     this->ResizeFilter->Update();
-    data = this->ResizeFilter->GetOutput()
-             ->GetPointData()
-             ->GetScalars()
-             ->GetVoidPointer(0);
+    data = this->ResizeFilter->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0);
   }
 
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetMagnificationFilter(filterValue);
   this->TextureObject->SetMinificationFilter(filterValue);
-  this->TextureObject->Create2DFromRaw(this->TextureWidth,
-                                       this->TextureHeight,
-                                       this->NumberOfColorComponents,
-                                       VTK_FLOAT,
-                                       data);
+  this->TextureObject->Create2DFromRaw(
+    this->TextureWidth, this->TextureHeight, this->NumberOfColorComponents, VTK_FLOAT, data);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLVolumeTransferFunction2D::NeedsUpdate(
-  vtkObject* func,
-  double[2] vtkNotUsed(scalarRange),
-  int vtkNotUsed(blendMode),
-  double vtkNotUsed(sampleDistance))
+bool vtkOpenGLVolumeTransferFunction2D::NeedsUpdate(vtkObject* func,
+  double[2] vtkNotUsed(scalarRange), int vtkNotUsed(blendMode), double vtkNotUsed(sampleDistance))
 {
   if (!func)
   {
     return false;
   }
-  if (func->GetMTime() > this->BuildTime ||
-      this->TextureObject->GetMTime() > this->BuildTime ||
-      !this->TextureObject->GetHandle())
+  if (func->GetMTime() > this->BuildTime || this->TextureObject->GetMTime() > this->BuildTime ||
+    !this->TextureObject->GetHandle())
   {
     return true;
   }
@@ -92,9 +77,7 @@ bool vtkOpenGLVolumeTransferFunction2D::NeedsUpdate(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLVolumeTransferFunction2D::AllocateTable()
-{
-}
+void vtkOpenGLVolumeTransferFunction2D::AllocateTable() {}
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLVolumeTransferFunction2D::PrintSelf(ostream& os, vtkIndent indent)

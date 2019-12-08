@@ -39,6 +39,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkXMLPolyDataWriter.h"
 
 vtkStandardNewMacro(vtkSingleVTPExporter);
@@ -50,29 +51,30 @@ vtkSingleVTPExporter::vtkSingleVTPExporter()
 
 vtkSingleVTPExporter::~vtkSingleVTPExporter()
 {
-  delete [] this->FilePrefix;
+  delete[] this->FilePrefix;
 }
 
-void vtkSingleVTPExporter::SetFileName(const char *fn)
+void vtkSingleVTPExporter::SetFileName(const char* fn)
 {
   std::string prefix = fn;
   if (prefix.size() > 4 && prefix.substr(prefix.size() - 4, 4) == ".vtp")
   {
-    prefix = prefix.substr(0,prefix.size() - 4);
+    prefix = prefix.substr(0, prefix.size() - 4);
     this->SetFilePrefix(prefix.c_str());
   }
 }
 
-namespace {
-vtkPolyData *findPolyData(vtkDataObject* input)
+namespace
+{
+vtkPolyData* findPolyData(vtkDataObject* input)
 {
   // do we have polydata?
-  vtkPolyData *pd = vtkPolyData::SafeDownCast(input);
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
   if (pd)
   {
     return pd;
   }
-  vtkCompositeDataSet *cd = vtkCompositeDataSet::SafeDownCast(input);
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(input);
   if (cd)
   {
     vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -91,13 +93,12 @@ vtkPolyData *findPolyData(vtkDataObject* input)
 
 }
 
-
 void vtkSingleVTPExporter::WriteData()
 {
-  vtkRenderer *ren;
+  vtkRenderer* ren;
 
   // make sure the user specified a filename
-  if ( this->FilePrefix == nullptr)
+  if (this->FilePrefix == nullptr)
   {
     vtkErrorMacro(<< "Please specify file prefix to use");
     return;
@@ -106,9 +107,9 @@ void vtkSingleVTPExporter::WriteData()
   std::vector<actorData> actors;
   bool haveTextures = false;
 
-  vtkRendererCollection *rc = this->RenderWindow->GetRenderers();
+  vtkRendererCollection* rc = this->RenderWindow->GetRenderers();
   vtkCollectionSimpleIterator rit;
-  for (rc->InitTraversal(rit); (ren = rc->GetNextRenderer(rit)); )
+  for (rc->InitTraversal(rit); (ren = rc->GetNextRenderer(rit));)
   {
     if (this->ActiveRenderer && ren != this->ActiveRenderer)
     {
@@ -119,11 +120,11 @@ void vtkSingleVTPExporter::WriteData()
     {
       continue;
     }
-    vtkPropCollection *pc;
-    vtkProp *aProp;
+    vtkPropCollection* pc;
+    vtkProp* aProp;
     pc = ren->GetViewProps();
     vtkCollectionSimpleIterator pit;
-    for (pc->InitTraversal(pit); (aProp = pc->GetNextProp(pit)); )
+    for (pc->InitTraversal(pit); (aProp = pc->GetNextProp(pit));)
     {
       if (!aProp->GetVisibility())
       {
@@ -131,19 +132,20 @@ void vtkSingleVTPExporter::WriteData()
       }
       vtkNew<vtkActorCollection> ac;
       aProp->GetActors(ac);
-      vtkActor *anActor;
+      vtkActor* anActor;
       vtkCollectionSimpleIterator ait;
-      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
+      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
       {
-        vtkAssemblyPath *apath;
-        vtkActor *aPart;
-        for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
+        vtkAssemblyPath* apath;
+        vtkActor* aPart;
+        for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath());)
         {
-          aPart = static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
-          if (aPart->GetVisibility() && aPart->GetMapper() && aPart->GetMapper()->GetInputAlgorithm())
+          aPart = static_cast<vtkActor*>(apath->GetLastNode()->GetViewProp());
+          if (aPart->GetVisibility() && aPart->GetMapper() &&
+            aPart->GetMapper()->GetInputAlgorithm())
           {
             aPart->GetMapper()->GetInputAlgorithm()->Update();
-            vtkPolyData *pd = findPolyData(aPart->GetMapper()->GetInputDataObject(0,0));
+            vtkPolyData* pd = findPolyData(aPart->GetMapper()->GetInputDataObject(0, 0));
             if (pd)
             {
               actorData ad;
@@ -174,19 +176,17 @@ void vtkSingleVTPExporter::WriteData()
 
 // process an input triangle and generate one or more output triangles
 // based on texture coordinates.
-void vtkSingleVTPExporter::ProcessTriangle(
-  vtkIdType *pts,
-  vtkPolyData *opd)
+void vtkSingleVTPExporter::ProcessTriangle(const vtkIdType* pts, vtkPolyData* opd)
 {
-  vtkCellArray *newPolys = opd->GetPolys();
-  vtkPoints *opts = opd->GetPoints();
-  vtkPointData *optd = opd->GetPointData();
-  vtkDataArray *otc = opd->GetPointData()->GetTCoords();
+  vtkCellArray* newPolys = opd->GetPolys();
+  vtkPoints* opts = opd->GetPoints();
+  vtkPointData* optd = opd->GetPointData();
+  vtkDataArray* otc = opd->GetPointData()->GetTCoords();
 
   double tcoord[3][3];
-  otc->GetTuple(pts[0],tcoord[0]);
-  otc->GetTuple(pts[1],tcoord[1]);
-  otc->GetTuple(pts[2],tcoord[2]);
+  otc->GetTuple(pts[0], tcoord[0]);
+  otc->GetTuple(pts[1], tcoord[1]);
+  otc->GetTuple(pts[2], tcoord[2]);
   double min[2];
   min[0] = tcoord[0][0];
   min[1] = tcoord[0][1];
@@ -201,8 +201,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
     {
       min[1] = tcoord[i][1];
     }
-    if (tcoord[i][0] < 0.0 || tcoord[i][0] > 1.5 ||
-        tcoord[i][1] < 0.0 || tcoord[i][1] > 1.5)
+    if (tcoord[i][0] < 0.0 || tcoord[i][0] > 1.5 || tcoord[i][1] < 0.0 || tcoord[i][1] > 1.5)
     {
       outside = true;
     }
@@ -214,7 +213,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
   // point data as none is needed.
   if (!outside)
   {
-    newPolys->InsertNextCell(3,pts);
+    newPolys->InsertNextCell(3, pts);
     return;
   }
 
@@ -225,11 +224,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
   opts->GetPoint(pts[2], oplocs[2]);
 
   // adjust the tcoord range to start between 0-1
-  int adjust[2] =
-  {
-    static_cast<int>(-floor(min[0])),
-    static_cast<int>(-floor(min[1]))
-  };
+  int adjust[2] = { static_cast<int>(-floor(min[0])), static_cast<int>(-floor(min[1])) };
   for (int i = 0; i < 3; i++)
   {
     tcoord[i][0] += adjust[0];
@@ -240,8 +235,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
   outside = false;
   for (int i = 0; i < 3; ++i)
   {
-    if (tcoord[i][0] < 0.0 || tcoord[i][0] > 1.5 ||
-        tcoord[i][1] < 0.0 || tcoord[i][1] > 1.5)
+    if (tcoord[i][0] < 0.0 || tcoord[i][0] > 1.5 || tcoord[i][1] < 0.0 || tcoord[i][1] > 1.5)
     {
       outside = true;
     }
@@ -259,7 +253,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
       optd->CopyData(optd, pts[i], cptids[i]);
       otc->SetTuple(cptids[i], tcoord[i]);
     }
-    newPolys->InsertNextCell(3,cptids);
+    newPolys->InsertNextCell(3, cptids);
     return;
   }
 
@@ -269,11 +263,9 @@ void vtkSingleVTPExporter::ProcessTriangle(
   vtkIdType nptids[3];
   for (int i = 0; i < 3; i++)
   {
-    nptids[i] = opts->InsertNextPoint(
-      (oplocs[i][0] + oplocs[(i+1)%3][0])*0.5,
-      (oplocs[i][1] + oplocs[(i+1)%3][1])*0.5,
-      (oplocs[i][2] + oplocs[(i+1)%3][2])*0.5);
-    optd->InterpolateEdge(optd, nptids[i], pts[i], pts[(i+1)%3], 0.5);
+    nptids[i] = opts->InsertNextPoint((oplocs[i][0] + oplocs[(i + 1) % 3][0]) * 0.5,
+      (oplocs[i][1] + oplocs[(i + 1) % 3][1]) * 0.5, (oplocs[i][2] + oplocs[(i + 1) % 3][2]) * 0.5);
+    optd->InterpolateEdge(optd, nptids[i], pts[i], pts[(i + 1) % 3], 0.5);
   }
   vtkIdType newtri[3];
   newtri[0] = pts[0];
@@ -294,33 +286,33 @@ void vtkSingleVTPExporter::ProcessTriangle(
 // for an input polydata with texture coordinates handle any
 // triangles with repeating textures. Basically calls
 // process triangle for each input triangle.
-vtkPolyData *vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData *ipd)
+vtkPolyData* vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData* ipd)
 {
   // do we have tcoords and are they out of range, if not just return
-  vtkPolyData *opd = vtkPolyData::New();
+  vtkPolyData* opd = vtkPolyData::New();
   vtkNew<vtkPoints> opts;
   opts->SetDataTypeToDouble();
   opts->DeepCopy(ipd->GetPoints());
   opd->SetPoints(opts);
-  vtkPointData *iptd = ipd->GetPointData();
-  vtkPointData *optd = opd->GetPointData();
+  vtkPointData* iptd = ipd->GetPointData();
+  vtkPointData* optd = opd->GetPointData();
   optd->CopyAllOn();
   optd->InterpolateAllocate(iptd, ipd->GetPoints()->GetNumberOfPoints());
   optd->CopyData(iptd, 0, ipd->GetPoints()->GetNumberOfPoints(), 0);
 
-  vtkCellArray *newPolys=nullptr;
-  if (ipd->GetPolys()->GetNumberOfCells() > 0 )
+  vtkCellArray* newPolys = nullptr;
+  if (ipd->GetPolys()->GetNumberOfCells() > 0)
   {
-    vtkCellArray *cells = ipd->GetPolys();
-    vtkIdType *pts = nullptr;
+    vtkCellArray* cells = ipd->GetPolys();
+    const vtkIdType* pts = nullptr;
     vtkIdType npts;
     newPolys = vtkCellArray::New();
-    newPolys->EstimateSize(cells->GetNumberOfCells(),3);
+    newPolys->AllocateEstimate(cells->GetNumberOfCells(), 3);
     opd->SetPolys(newPolys);
-    vtkIdList *ptIds = vtkIdList::New();
+    vtkIdList* ptIds = vtkIdList::New();
     ptIds->Allocate(VTK_CELL_SIZE);
 
-    for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+    for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
     {
       // does this triangle go outside of 0 to 1.5 in tcoords?
       this->ProcessTriangle(pts, opd);
@@ -332,8 +324,7 @@ vtkPolyData *vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData *ipd)
   return opd;
 }
 
-void vtkSingleVTPExporter::WriteVTP(
-  std::vector<actorData> &actors)
+void vtkSingleVTPExporter::WriteVTP(std::vector<actorData>& actors)
 {
   // we have to build a big polydata that will have
   //   points
@@ -367,10 +358,9 @@ void vtkSingleVTPExporter::WriteVTP(
   bool haveNormals = true;
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
-    vtkPolyData *mypd =
-      findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0,0));
-    vtkDataArray *norms = mypd->GetPointData()->GetNormals();
+    actorData* ad = &(actors[i]);
+    vtkPolyData* mypd = findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0, 0));
+    vtkDataArray* norms = mypd->GetPointData()->GetNormals();
     if (!norms)
     {
       haveNormals = false;
@@ -388,20 +378,15 @@ void vtkSingleVTPExporter::WriteVTP(
   float maxColor = 1.0;
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
-    vtkProperty *prop = ad->Actor->GetProperty();
-    double *dcolor = prop->GetDiffuseColor();
+    actorData* ad = &(actors[i]);
+    vtkProperty* prop = ad->Actor->GetProperty();
+    double* dcolor = prop->GetDiffuseColor();
     double diffuse = prop->GetDiffuse();
-    double *acolor = prop->GetAmbientColor();
+    double* acolor = prop->GetAmbientColor();
     double ambient = prop->GetAmbient();
-    float col[3] = {
-      static_cast<float>(
-        dcolor[0]*diffuse + acolor[0]*ambient),
-      static_cast<float>(
-        dcolor[1]*diffuse + acolor[1]*ambient),
-      static_cast<float>(
-        dcolor[2]*diffuse + acolor[2]*ambient)
-    };
+    float col[3] = { static_cast<float>(dcolor[0] * diffuse + acolor[0] * ambient),
+      static_cast<float>(dcolor[1] * diffuse + acolor[1] * ambient),
+      static_cast<float>(dcolor[2] * diffuse + acolor[2] * ambient) };
     if (col[0] > maxColor)
     {
       maxColor = col[0];
@@ -415,25 +400,23 @@ void vtkSingleVTPExporter::WriteVTP(
       maxColor = col[2];
     }
   }
-  maxColor = 255.0/maxColor;
+  maxColor = 255.0 / maxColor;
 
   int pointOffset = 0;
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
-    vtkPolyData *mypd =
-      findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0,0));
+    actorData* ad = &(actors[i]);
+    vtkPolyData* mypd = findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0, 0));
     triFilter->SetInputData(mypd);
     triFilter->Update();
-    vtkPolyData *ipd = triFilter->GetOutput();
-    vtkPoints *ipts = ipd->GetPoints();
+    vtkPolyData* ipd = triFilter->GetOutput();
+    vtkPoints* ipts = ipd->GetPoints();
     if (!ipts)
     {
       continue;
     }
     if (ad->Texture &&
-        (ad->URange[0] < 0.0 || ad->URange[1] > 1.0 ||
-         ad->VRange[0] < 0.0 || ad->VRange[1] > 1.0))
+      (ad->URange[0] < 0.0 || ad->URange[1] > 1.0 || ad->VRange[0] < 0.0 || ad->VRange[1] > 1.0))
     {
       if (ipts->GetNumberOfPoints() != ipd->GetPointData()->GetTCoords()->GetNumberOfTuples())
       {
@@ -446,7 +429,7 @@ void vtkSingleVTPExporter::WriteVTP(
     {
       ipd->Register(this);
     }
-    vtkPointData *iptd = ipd->GetPointData();
+    vtkPointData* iptd = ipd->GetPointData();
 
     // copy the points over
     vtkIdType inpts = ipts->GetNumberOfPoints();
@@ -456,65 +439,56 @@ void vtkSingleVTPExporter::WriteVTP(
     }
 
     // copy the tcoords over, create if missing
-    vtkDataArray *itc = iptd->GetTCoords();
+    vtkDataArray* itc = iptd->GetTCoords();
     if (!itc || !ad->Texture)
     {
       for (int j = 0; j < inpts; ++j)
       {
-        otcoords->InsertNextTuple2(0.0,0.0);
+        otcoords->InsertNextTuple2(0.0, 0.0);
       }
     }
     else
     {
       int dims[3];
       ad->Texture->GetInput()->GetDimensions(dims);
-      double offset[2] = {
-        static_cast<double>(ad->ImagePosition[0]) / this->TextureSize[0],
-        static_cast<double>(ad->ImagePosition[1]) / this->TextureSize[1]
-      };
-      double scale[2] = {
-        static_cast<double>(dims[0]) / this->TextureSize[0],
-        static_cast<double>(dims[1]) / this->TextureSize[1]
-      };
+      double offset[2] = { static_cast<double>(ad->ImagePosition[0]) / this->TextureSize[0],
+        static_cast<double>(ad->ImagePosition[1]) / this->TextureSize[1] };
+      double scale[2] = { static_cast<double>(dims[0]) / this->TextureSize[0],
+        static_cast<double>(dims[1]) / this->TextureSize[1] };
       for (int j = 0; j < inpts; ++j)
       {
-        double *tmp = itc->GetTuple(j);
-        otcoords->InsertNextTuple2(
-          tmp[0]*scale[0] + offset[0],
-          tmp[1]*scale[1] + offset[1]);
+        double* tmp = itc->GetTuple(j);
+        otcoords->InsertNextTuple2(tmp[0] * scale[0] + offset[0], tmp[1] * scale[1] + offset[1]);
       }
     }
 
     // copy the normals over if we have them
     if (haveNormals)
     {
-      vtkFloatArray *otnormals = static_cast<vtkFloatArray *>(
-        opd->GetPointData()->GetNormals());
-      vtkDataArray *inorm = iptd->GetNormals();
+      vtkFloatArray* otnormals = static_cast<vtkFloatArray*>(opd->GetPointData()->GetNormals());
+      vtkDataArray* inorm = iptd->GetNormals();
       for (int j = 0; j < inpts; ++j)
       {
-        double *tmp = inorm->GetTuple(j);
+        double* tmp = inorm->GetTuple(j);
         otnormals->InsertNextTuple3(tmp[0], tmp[1], tmp[2]);
       }
     }
 
     // copy the scalars over, create if missing
-    vtkDataArray *is = iptd->GetScalars();
-    vtkProperty *prop = ad->Actor->GetProperty();
-    double *dcolor = prop->GetDiffuseColor();
+    vtkDataArray* is = iptd->GetScalars();
+    vtkProperty* prop = ad->Actor->GetProperty();
+    double* dcolor = prop->GetDiffuseColor();
     double diffuse = prop->GetDiffuse();
-    double *acolor = prop->GetAmbientColor();
+    double* acolor = prop->GetAmbientColor();
     double ambient = prop->GetAmbient();
     double opacity = prop->GetOpacity();
-    float col[4] = {
+    float col[4] = { static_cast<float>(
+                       vtkMath::Min(maxColor * (dcolor[0] * diffuse + acolor[0] * ambient), 255.0)),
       static_cast<float>(
-        vtkMath::Min(maxColor*(dcolor[0]*diffuse + acolor[0]*ambient),255.0)),
+        vtkMath::Min(maxColor * (dcolor[1] * diffuse + acolor[1] * ambient), 255.0)),
       static_cast<float>(
-        vtkMath::Min(maxColor*(dcolor[1]*diffuse + acolor[1]*ambient),255.0)),
-      static_cast<float>(
-        vtkMath::Min(maxColor*(dcolor[2]*diffuse + acolor[2]*ambient),255.0)),
-      static_cast<float>(opacity*255.0)
-    };
+        vtkMath::Min(maxColor * (dcolor[2] * diffuse + acolor[2] * ambient), 255.0)),
+      static_cast<float>(opacity * 255.0) };
     if (!is)
     {
       for (int j = 0; j < inpts; ++j)
@@ -529,45 +503,31 @@ void vtkSingleVTPExporter::WriteVTP(
         case 1:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = is->GetTuple(j);
-            oscalars->InsertNextTuple4(
-              col[0]*tmp[0],
-              col[1]*tmp[0],
-              col[2]*tmp[0],
-              col[3]);
+            double* tmp = is->GetTuple(j);
+            oscalars->InsertNextTuple4(col[0] * tmp[0], col[1] * tmp[0], col[2] * tmp[0], col[3]);
           }
           break;
         case 2:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = is->GetTuple(j);
+            double* tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
-              col[0]*tmp[0],
-              col[1]*tmp[0],
-              col[2]*tmp[0],
-              col[3]*tmp[1]);
+              col[0] * tmp[0], col[1] * tmp[0], col[2] * tmp[0], col[3] * tmp[1]);
           }
           break;
         case 3:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = is->GetTuple(j);
-            oscalars->InsertNextTuple4(
-              col[0]*tmp[0],
-              col[1]*tmp[1],
-              col[2]*tmp[2],
-              col[3]);
+            double* tmp = is->GetTuple(j);
+            oscalars->InsertNextTuple4(col[0] * tmp[0], col[1] * tmp[1], col[2] * tmp[2], col[3]);
           }
           break;
         case 4:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = is->GetTuple(j);
+            double* tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
-              col[0]*tmp[0],
-              col[1]*tmp[1],
-              col[2]*tmp[2],
-              col[3]*tmp[3]);
+              col[0] * tmp[0], col[1] * tmp[1], col[2] * tmp[2], col[3] * tmp[3]);
           }
           break;
       }
@@ -575,12 +535,12 @@ void vtkSingleVTPExporter::WriteVTP(
 
     // copy the cells over
     vtkIdType npts;
-    vtkIdType *cpts;
-    vtkCellArray *ica;
+    const vtkIdType* cpts;
+    vtkCellArray* ica;
 
     ica = ipd->GetVerts();
     ica->InitTraversal();
-    while(ica->GetNextCell(npts, cpts))
+    while (ica->GetNextCell(npts, cpts))
     {
       overts->InsertNextCell(npts);
       for (int cp = 0; cp < npts; ++cp)
@@ -590,7 +550,7 @@ void vtkSingleVTPExporter::WriteVTP(
     }
     ica = ipd->GetLines();
     ica->InitTraversal();
-    while(ica->GetNextCell(npts, cpts))
+    while (ica->GetNextCell(npts, cpts))
     {
       olines->InsertNextCell(npts);
       for (int cp = 0; cp < npts; ++cp)
@@ -600,7 +560,7 @@ void vtkSingleVTPExporter::WriteVTP(
     }
     ica = ipd->GetPolys();
     ica->InitTraversal();
-    while(ica->GetNextCell(npts, cpts))
+    while (ica->GetNextCell(npts, cpts))
     {
       opolys->InsertNextCell(npts);
       for (int cp = 0; cp < npts; ++cp)
@@ -610,7 +570,7 @@ void vtkSingleVTPExporter::WriteVTP(
     }
     ica = ipd->GetStrips();
     ica->InitTraversal();
-    while(ica->GetNextCell(npts, cpts))
+    while (ica->GetNextCell(npts, cpts))
     {
       ostrips->InsertNextCell(npts);
       for (int cp = 0; cp < npts; ++cp)
@@ -633,26 +593,23 @@ void vtkSingleVTPExporter::WriteVTP(
   writer->Write();
 }
 
-void vtkSingleVTPExporter::WriteTexture(
-  std::vector<actorData> &actors)
+void vtkSingleVTPExporter::WriteTexture(std::vector<actorData>& actors)
 {
   // used to keep track of textures that are used by multiple actors
-  std::map<vtkTexture *, actorData> knownTextures;
+  std::map<vtkTexture*, actorData> knownTextures;
 
   // look for repeating textures
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
-    vtkPolyData *mypd =
-      findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0,0));
-    vtkDataArray *tcoords = mypd->GetPointData()->GetTCoords();
+    actorData* ad = &(actors[i]);
+    vtkPolyData* mypd = findPolyData(ad->Actor->GetMapper()->GetInputDataObject(0, 0));
+    vtkDataArray* tcoords = mypd->GetPointData()->GetTCoords();
     ad->HaveRepeatingTexture = false;
     if (tcoords)
     {
       tcoords->GetRange(ad->URange, 0);
       tcoords->GetRange(ad->VRange, 1);
-      if (ad->URange[0] < 0.0 || ad->URange[1] > 1.0 ||
-          ad->VRange[0] < 0.0 || ad->VRange[1] > 1.0)
+      if (ad->URange[0] < 0.0 || ad->URange[1] > 1.0 || ad->VRange[0] < 0.0 || ad->VRange[1] > 1.0)
       {
         ad->HaveRepeatingTexture = true;
       }
@@ -663,12 +620,12 @@ void vtkSingleVTPExporter::WriteTexture(
   // actors that use that texture
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
+    actorData* ad = &(actors[i]);
     if (ad->HaveRepeatingTexture)
     {
       for (size_t j = 0; j < actors.size(); ++j)
       {
-        actorData *ad2 = &(actors[j]);
+        actorData* ad2 = &(actors[j]);
         if (ad2->Texture == ad->Texture)
         {
           ad2->HaveRepeatingTexture = true;
@@ -696,7 +653,7 @@ void vtkSingleVTPExporter::WriteTexture(
           dims[0] *= 1.5;
           dims[1] *= 1.5;
         }
-        totalPixels += (dims[0]*dims[1]);
+        totalPixels += (dims[0] * dims[1]);
         if (dims[0] > maxXDim)
         {
           maxXDim = dims[0];
@@ -722,7 +679,7 @@ void vtkSingleVTPExporter::WriteTexture(
   int imageMaxX = 0;
   for (size_t i = 0; i < actors.size(); ++i)
   {
-    actorData *ad = &(actors[i]);
+    actorData* ad = &(actors[i]);
     if (ad->Texture)
     {
       // have we already see this texture?
@@ -776,11 +733,10 @@ void vtkSingleVTPExporter::WriteTexture(
   oimage->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   // initialize to white
-  unsigned char *opos = static_cast<unsigned char *>(
-    oimage->GetScalarPointer(0, 0, 0));
+  unsigned char* opos = static_cast<unsigned char*>(oimage->GetScalarPointer(0, 0, 0));
   for (int ypos = 0; ypos < this->TextureSize[1]; ++ypos)
   {
-    for (int xpos = 0; xpos < this->TextureSize[0]*4; ++xpos)
+    for (int xpos = 0; xpos < this->TextureSize[0] * 4; ++xpos)
     {
       *opos = 255;
       opos++;
@@ -798,7 +754,7 @@ void vtkSingleVTPExporter::WriteTexture(
       auto kti = knownTextures.find(ad.Texture);
       if (kti == knownTextures.end())
       {
-        vtkImageData *iimage = ad.Texture->GetInput();
+        vtkImageData* iimage = ad.Texture->GetInput();
         int dims[3];
         iimage->GetDimensions(dims);
         int rdims[3];
@@ -814,11 +770,10 @@ void vtkSingleVTPExporter::WriteTexture(
         // where to put the data
         int xpos = ad.ImagePosition[0];
         int ypos = ad.ImagePosition[1];
-        int outExt[6] = {xpos, xpos + rdims[0] - 1, ypos, ypos+rdims[1] - 1, 0, 0};
-        opos = static_cast<unsigned char *>(
-          oimage->GetScalarPointer(xpos, ypos, 0));
-        unsigned char *ipos = static_cast<unsigned char *>(
-          iimage->GetScalarPointer(iextent[0], iextent[2], iextent[4]));
+        int outExt[6] = { xpos, xpos + rdims[0] - 1, ypos, ypos + rdims[1] - 1, 0, 0 };
+        opos = static_cast<unsigned char*>(oimage->GetScalarPointer(xpos, ypos, 0));
+        unsigned char* ipos =
+          static_cast<unsigned char*>(iimage->GetScalarPointer(iextent[0], iextent[2], iextent[4]));
 
         vtkIdType outIncX, outIncY, outIncZ;
         int iNumComp = iimage->GetNumberOfScalarComponents();
@@ -833,84 +788,84 @@ void vtkSingleVTPExporter::WriteTexture(
           // of the texture
           if (y == dims[1])
           {
-            ipos = static_cast<unsigned char *>(
+            ipos = static_cast<unsigned char*>(
               iimage->GetScalarPointer(iextent[0], iextent[2], iextent[4]));
           }
           switch (iNumComp)
           {
             case 1:
-            for (int x = 0; x < rdims[0]; ++x)
-            {
-              if (x == dims[0])
+              for (int x = 0; x < rdims[0]; ++x)
               {
-                ipos -= dims[0];
+                if (x == dims[0])
+                {
+                  ipos -= dims[0];
+                }
+                *opos = *ipos;
+                opos++;
+                *opos = *ipos;
+                opos++;
+                *opos = *ipos;
+                opos++;
+                *opos = 255;
+                opos++;
+                ipos++;
               }
-              *opos = *ipos;
-              opos++;
-              *opos = *ipos;
-              opos++;
-              *opos = *ipos;
-              opos++;
-              *opos = 255;
-              opos++;
-              ipos++;
-            }
-            break;
+              break;
             case 2:
-            for (int x = 0; x < rdims[0]; ++x)
-            {
-              if (x == dims[0])
+              for (int x = 0; x < rdims[0]; ++x)
               {
-                ipos -= dims[0]*2;
+                if (x == dims[0])
+                {
+                  ipos -= dims[0] * 2;
+                }
+                *opos = *ipos;
+                opos++;
+                *opos = *ipos;
+                opos++;
+                *opos = *ipos;
+                opos++;
+                ipos++;
+                *opos = *ipos;
+                opos++;
+                ipos++;
               }
-              *opos = *ipos;
-              opos++;
-              *opos = *ipos;
-              opos++;
-              *opos = *ipos;
-              opos++;
-              ipos++;
-              *opos = *ipos;
-              opos++;
-              ipos++;
-            }
-            break;
+              break;
             case 3:
-            for (int x = 0; x < rdims[0]; ++x)
-            {
-              if (x == dims[0])
+              for (int x = 0; x < rdims[0]; ++x)
               {
-                ipos -= dims[0]*3;
+                if (x == dims[0])
+                {
+                  ipos -= dims[0] * 3;
+                }
+                *opos = *ipos;
+                opos++;
+                ipos++;
+                *opos = *ipos;
+                opos++;
+                ipos++;
+                *opos = *ipos;
+                opos++;
+                ipos++;
+                *opos = 255;
+                opos++;
               }
-              *opos = *ipos;
-              opos++;
-              ipos++;
-              *opos = *ipos;
-              opos++;
-              ipos++;
-              *opos = *ipos;
-              opos++;
-              ipos++;
-              *opos = 255;
-              opos++;
-            }
-            break;
+              break;
             case 4:
-            for (int x = 0; x < rdims[0]; ++x)
-            {
-              if (x == dims[0])
+              for (int x = 0; x < rdims[0]; ++x)
               {
-                ipos -= dims[0]*4;
+                if (x == dims[0])
+                {
+                  ipos -= dims[0] * 4;
+                }
+                memcpy(opos, ipos, 4);
+                opos += 4;
+                ipos += 4;
               }
-              memcpy(opos, ipos, 4);
-              opos += 4;
-              ipos += 4;
-            }
-            break;
+              break;
           }
           if (rdims[0] > dims[0])
           {
-            ipos += (dims[0]*2 - rdims[0])*iNumComp;
+            ipos += (dims[0] * 2 - rdims[0]) * iNumComp;
           }
           opos += outIncY;
         }
@@ -929,7 +884,7 @@ void vtkSingleVTPExporter::WriteTexture(
 
 void vtkSingleVTPExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->FilePrefix)
   {

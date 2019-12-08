@@ -1,36 +1,36 @@
 #include "vtkKMeansStatistics.h"
-#include "vtkStringArray.h"
 #include "vtkKMeansAssessFunctor.h"
 #include "vtkKMeansDistanceFunctor.h"
+#include "vtkStringArray.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 
 #include <map>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
-vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
+vtkCxxSetObjectMacro(vtkKMeansStatistics, DistanceFunctor, vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
 vtkKMeansStatistics::vtkKMeansStatistics()
 {
-  this->AssessNames->SetNumberOfValues( 2 );
-  this->AssessNames->SetValue( 0, "Distance" );
-  this->AssessNames->SetValue( 1, "ClosestId" );
+  this->AssessNames->SetNumberOfValues(2);
+  this->AssessNames->SetValue(0, "Distance");
+  this->AssessNames->SetValue(1, "ClosestId");
   this->DefaultNumberOfClusters = 3;
   this->Tolerance = 0.01;
   this->KValuesArrayName = nullptr;
-  this->SetKValuesArrayName( "K" );
+  this->SetKValuesArrayName("K");
   this->MaxNumIterations = 50;
   this->DistanceFunctor = vtkKMeansDistanceFunctor::New();
 }
@@ -38,49 +38,41 @@ vtkKMeansStatistics::vtkKMeansStatistics()
 // ----------------------------------------------------------------------
 vtkKMeansStatistics::~vtkKMeansStatistics()
 {
-  this->SetKValuesArrayName( nullptr );
-  this->SetDistanceFunctor( nullptr );
+  this->SetKValuesArrayName(nullptr);
+  this->SetDistanceFunctor(nullptr);
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::PrintSelf( ostream& os, vtkIndent indent )
+void vtkKMeansStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
-  os << indent << "DefaultNumberofClusters: "
-               << this->DefaultNumberOfClusters << endl;
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "DefaultNumberofClusters: " << this->DefaultNumberOfClusters << endl;
   os << indent << "KValuesArrayName: \""
-               << ( this->KValuesArrayName ? this->KValuesArrayName : "nullptr" )
-               << "\"\n";
+     << (this->KValuesArrayName ? this->KValuesArrayName : "nullptr") << "\"\n";
   os << indent << "MaxNumIterations: " << this->MaxNumIterations << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
   os << indent << "DistanceFunctor: " << this->DistanceFunctor << endl;
 }
 
-
 // ----------------------------------------------------------------------
-int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
-                                                         vtkTable* inData,
-                                                         vtkTable*  dataElements,
-                                                         vtkIdTypeArray*  numberOfClusters,
-                                                         vtkTable*  curClusterElements,
-                                                         vtkTable*  newClusterElements,
-                                                         vtkIdTypeArray*  startRunID,
-                                                         vtkIdTypeArray*  endRunID)
+int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters, vtkTable* inData,
+  vtkTable* dataElements, vtkIdTypeArray* numberOfClusters, vtkTable* curClusterElements,
+  vtkTable* newClusterElements, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID)
 {
   std::set<std::set<vtkStdString> >::const_iterator reqIt;
-  if( this->Internals->Requests.size() > 1 )
+  if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
     num++;
-    if( num < 10 )
+    if (num < 10)
     {
-      vtkWarningMacro( "Only the first request will be processed -- the rest will be ignored." );
+      vtkWarningMacro("Only the first request will be processed -- the rest will be ignored.");
     }
   }
 
-  if( this->Internals->Requests.empty() )
+  if (this->Internals->Requests.empty())
   {
-    vtkErrorMacro( "No requests were made." );
+    vtkErrorMacro("No requests were made.");
     return 0;
   }
   reqIt = this->Internals->Requests.begin();
@@ -91,168 +83,161 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   int initialClusterCentersProvided = 0;
 
   // process parameter input table
-  if ( inParameters && inParameters->GetNumberOfRows() > 0 &&
-       inParameters->GetNumberOfColumns() > 1 )
+  if (inParameters && inParameters->GetNumberOfRows() > 0 && inParameters->GetNumberOfColumns() > 1)
   {
-    vtkIdTypeArray* counts = vtkArrayDownCast<vtkIdTypeArray>( inParameters->GetColumn( 0 ) );
-    if( !counts )
+    vtkIdTypeArray* counts = vtkArrayDownCast<vtkIdTypeArray>(inParameters->GetColumn(0));
+    if (!counts)
     {
-      vtkWarningMacro( "The first column of the input parameter table should be of vtkIdType." << endl <<
-        "The input table provided will be ignored and a single run will be performed using the first " << this->DefaultNumberOfClusters << " observations as the initial cluster centers." );
+      vtkWarningMacro("The first column of the input parameter table should be of vtkIdType."
+        << endl
+        << "The input table provided will be ignored and a single run will be performed using the "
+           "first "
+        << this->DefaultNumberOfClusters << " observations as the initial cluster centers.");
     }
     else
     {
       initialClusterCentersProvided = 1;
       numToAllocate = inParameters->GetNumberOfRows();
-      numberOfClusters->SetNumberOfValues( numToAllocate );
-      numberOfClusters->SetName( inParameters->GetColumn( 0 )->GetName() );
+      numberOfClusters->SetNumberOfValues(numToAllocate);
+      numberOfClusters->SetName(inParameters->GetColumn(0)->GetName());
 
-      for ( vtkIdType i = 0; i < numToAllocate; ++ i )
+      for (vtkIdType i = 0; i < numToAllocate; ++i)
       {
-        numberOfClusters->SetValue( i, counts->GetValue( i ) );
+        numberOfClusters->SetValue(i, counts->GetValue(i));
       }
       vtkIdType curRow = 0;
-      while ( curRow < inParameters->GetNumberOfRows() )
+      while (curRow < inParameters->GetNumberOfRows())
       {
         numRuns++;
-        startRunID->InsertNextValue( curRow );
-        curRow += inParameters->GetValue( curRow, 0 ).ToInt();
-        endRunID->InsertNextValue( curRow );
+        startRunID->InsertNextValue(curRow);
+        curRow += inParameters->GetValue(curRow, 0).ToInt();
+        endRunID->InsertNextValue(curRow);
       }
       vtkTable* condensedTable = vtkTable::New();
       std::set<vtkStdString>::const_iterator colItr;
-      for ( colItr = reqIt->begin(); colItr != reqIt->end(); ++ colItr )
+      for (colItr = reqIt->begin(); colItr != reqIt->end(); ++colItr)
       {
-        vtkAbstractArray* pArr = inParameters->GetColumnByName( colItr->c_str() );
-        vtkAbstractArray* dArr = inData->GetColumnByName( colItr->c_str() );
-        if( pArr && dArr )
+        vtkAbstractArray* pArr = inParameters->GetColumnByName(colItr->c_str());
+        vtkAbstractArray* dArr = inData->GetColumnByName(colItr->c_str());
+        if (pArr && dArr)
         {
-          condensedTable->AddColumn( pArr );
-          dataElements->AddColumn( dArr );
+          condensedTable->AddColumn(pArr);
+          dataElements->AddColumn(dArr);
         }
         else
         {
-          vtkWarningMacro( "Skipping requested column \"" << colItr->c_str() << "\"." );
+          vtkWarningMacro("Skipping requested column \"" << colItr->c_str() << "\".");
         }
       }
-      newClusterElements->DeepCopy( condensedTable );
-      curClusterElements->DeepCopy( condensedTable );
+      newClusterElements->DeepCopy(condensedTable);
+      curClusterElements->DeepCopy(condensedTable);
       condensedTable->Delete();
     }
   }
-  if( ! initialClusterCentersProvided )
+  if (!initialClusterCentersProvided)
   {
     // otherwise create an initial set of cluster coords
     numRuns = 1;
-    numToAllocate = this->DefaultNumberOfClusters < inData->GetNumberOfRows() ?
-                    this->DefaultNumberOfClusters : inData->GetNumberOfRows();
-    startRunID->InsertNextValue( 0 );
-    endRunID->InsertNextValue( numToAllocate );
-    numberOfClusters->SetName( this->KValuesArrayName );
+    numToAllocate = this->DefaultNumberOfClusters < inData->GetNumberOfRows()
+      ? this->DefaultNumberOfClusters
+      : inData->GetNumberOfRows();
+    startRunID->InsertNextValue(0);
+    endRunID->InsertNextValue(numToAllocate);
+    numberOfClusters->SetName(this->KValuesArrayName);
 
-    for ( vtkIdType j = 0; j < inData->GetNumberOfColumns(); j++ )
+    for (vtkIdType j = 0; j < inData->GetNumberOfColumns(); j++)
     {
-      if(reqIt->find( inData->GetColumnName( j ) ) != reqIt->end() )
+      if (reqIt->find(inData->GetColumnName(j)) != reqIt->end())
       {
         vtkAbstractArray* curCoords = this->DistanceFunctor->CreateCoordinateArray();
         vtkAbstractArray* newCoords = this->DistanceFunctor->CreateCoordinateArray();
-        curCoords->SetName( inData->GetColumnName( j ) );
-        newCoords->SetName( inData->GetColumnName( j ) );
-        curClusterElements->AddColumn( curCoords );
-        newClusterElements->AddColumn( newCoords );
+        curCoords->SetName(inData->GetColumnName(j));
+        newCoords->SetName(inData->GetColumnName(j));
+        curClusterElements->AddColumn(curCoords);
+        newClusterElements->AddColumn(newCoords);
         curCoords->Delete();
         newCoords->Delete();
-        dataElements->AddColumn( inData->GetColumnByName( inData->GetColumnName( j ) ) );
+        dataElements->AddColumn(inData->GetColumnByName(inData->GetColumnName(j)));
       }
     }
-    CreateInitialClusterCenters(numToAllocate, numberOfClusters, inData, curClusterElements, newClusterElements);
+    CreateInitialClusterCenters(
+      numToAllocate, numberOfClusters, inData, curClusterElements, newClusterElements);
   }
 
-    if(curClusterElements->GetNumberOfColumns() == 0 )
-    {
-      return 0;
-    }
-    return numRuns;
+  if (curClusterElements->GetNumberOfColumns() == 0)
+  {
+    return 0;
+  }
+  return numRuns;
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::CreateInitialClusterCenters( vtkIdType numToAllocate,
-                                                       vtkIdTypeArray* numberOfClusters,
-                                                       vtkTable* inData,
-                                                       vtkTable* curClusterElements,
-                                                       vtkTable* newClusterElements )
+void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
+  vtkIdTypeArray* numberOfClusters, vtkTable* inData, vtkTable* curClusterElements,
+  vtkTable* newClusterElements)
 {
   std::set<std::set<vtkStdString> >::const_iterator reqIt;
-  if( this->Internals->Requests.size() > 1 )
+  if (this->Internals->Requests.size() > 1)
   {
     static int num = 0;
-    ++ num;
-    if( num < 10 )
+    ++num;
+    if (num < 10)
     {
-      vtkWarningMacro( "Only the first request will be processed -- the rest will be ignored." );
+      vtkWarningMacro("Only the first request will be processed -- the rest will be ignored.");
     }
   }
 
-  if( this->Internals->Requests.empty() )
+  if (this->Internals->Requests.empty())
   {
-    vtkErrorMacro( "No requests were made." );
+    vtkErrorMacro("No requests were made.");
     return;
   }
   reqIt = this->Internals->Requests.begin();
 
-  for ( vtkIdType i = 0; i < numToAllocate; ++ i )
+  for (vtkIdType i = 0; i < numToAllocate; ++i)
   {
-    numberOfClusters->InsertNextValue( numToAllocate );
-    vtkVariantArray *curRow = vtkVariantArray::New();
-    vtkVariantArray *newRow = vtkVariantArray::New();
-    for ( int j = 0; j < inData->GetNumberOfColumns(); j++ )
+    numberOfClusters->InsertNextValue(numToAllocate);
+    vtkVariantArray* curRow = vtkVariantArray::New();
+    vtkVariantArray* newRow = vtkVariantArray::New();
+    for (int j = 0; j < inData->GetNumberOfColumns(); j++)
     {
-      if ( reqIt->find( inData->GetColumnName( j ) ) != reqIt->end()  )
+      if (reqIt->find(inData->GetColumnName(j)) != reqIt->end())
       {
-        curRow->InsertNextValue( inData->GetValue( i, j ) );
-        newRow->InsertNextValue( inData->GetValue( i, j ) );
+        curRow->InsertNextValue(inData->GetValue(i, j));
+        newRow->InsertNextValue(inData->GetValue(i, j));
       }
     }
-    curClusterElements->InsertNextRow( curRow );
-    newClusterElements->InsertNextRow( newRow );
+    curClusterElements->InsertNextRow(curRow);
+    newClusterElements->InsertNextRow(newRow);
     curRow->Delete();
     newRow->Delete();
   }
 }
 
 // ----------------------------------------------------------------------
-vtkIdType vtkKMeansStatistics::GetTotalNumberOfObservations( vtkIdType numObservations )
+vtkIdType vtkKMeansStatistics::GetTotalNumberOfObservations(vtkIdType numObservations)
 {
   return numObservations;
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
-                                                vtkTable* curClusterElements,
-                                                vtkIdTypeArray* vtkNotUsed( numMembershipChanges ),
-                                                vtkIdTypeArray* numDataElementsInCluster,
-                                                vtkDoubleArray* vtkNotUsed( error ),
-                                                vtkIdTypeArray* startRunID,
-                                                vtkIdTypeArray* endRunID,
-                                                vtkIntArray* computeRun )
+void vtkKMeansStatistics::UpdateClusterCenters(vtkTable* newClusterElements,
+  vtkTable* curClusterElements, vtkIdTypeArray* vtkNotUsed(numMembershipChanges),
+  vtkIdTypeArray* numDataElementsInCluster, vtkDoubleArray* vtkNotUsed(error),
+  vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID, vtkIntArray* computeRun)
 {
-  for(vtkIdType runID = 0; runID < startRunID->GetNumberOfTuples(); runID++)
+  for (vtkIdType runID = 0; runID < startRunID->GetNumberOfTuples(); runID++)
   {
-    if( computeRun->GetValue(runID) )
+    if (computeRun->GetValue(runID))
     {
-      for(vtkIdType i = startRunID->GetValue(runID); i < endRunID->GetValue(runID); ++ i)
+      for (vtkIdType i = startRunID->GetValue(runID); i < endRunID->GetValue(runID); ++i)
       {
-        if( numDataElementsInCluster->GetValue( i ) == 0 )
+        if (numDataElementsInCluster->GetValue(i) == 0)
         {
-          vtkWarningMacro("cluster center " << i-startRunID->GetValue(runID)
-                                            << " in run " << runID
-                                            << " is degenerate. Attempting to perturb");
-          this->DistanceFunctor->PerturbElement(newClusterElements,
-                                                curClusterElements,
-                                                i,
-                                                startRunID->GetValue(runID),
-                                                endRunID->GetValue(runID),
-                                                0.8 ) ;
+          vtkWarningMacro("cluster center " << i - startRunID->GetValue(runID) << " in run "
+                                            << runID << " is degenerate. Attempting to perturb");
+          this->DistanceFunctor->PerturbElement(newClusterElements, curClusterElements, i,
+            startRunID->GetValue(runID), endRunID->GetValue(runID), 0.8);
         }
       }
     }
@@ -261,35 +246,35 @@ void vtkKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
 
 // ----------------------------------------------------------------------
 bool vtkKMeansStatistics::SetParameter(
-  const char* parameter, int vtkNotUsed(index), vtkVariant value )
+  const char* parameter, int vtkNotUsed(index), vtkVariant value)
 {
-  if ( ! parameter )
+  if (!parameter)
     return false;
 
   vtkStdString pname = parameter;
-  if ( pname == "DefaultNumberOfClusters" || pname == "k" || pname == "K" )
+  if (pname == "DefaultNumberOfClusters" || pname == "k" || pname == "K")
   {
     bool valid;
-    int k = value.ToInt( &valid );
-    if ( valid && k > 0 )
+    int k = value.ToInt(&valid);
+    if (valid && k > 0)
     {
-      this->SetDefaultNumberOfClusters( k );
+      this->SetDefaultNumberOfClusters(k);
       return true;
     }
   }
-  else if ( pname == "Tolerance" )
+  else if (pname == "Tolerance")
   {
     double tol = value.ToDouble();
-    this->SetTolerance( tol );
+    this->SetTolerance(tol);
     return true;
   }
-  else if ( pname == "MaxNumIterations" )
+  else if (pname == "MaxNumIterations")
   {
     bool valid;
-    int maxit = value.ToInt( &valid );
-    if ( valid && maxit >= 0 )
+    int maxit = value.ToInt(&valid);
+    if (valid && maxit >= 0)
     {
-      this->SetMaxNumIterations( maxit );
+      this->SetMaxNumIterations(maxit);
       return true;
     }
   }
@@ -298,23 +283,22 @@ bool vtkKMeansStatistics::SetParameter(
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::Learn( vtkTable* inData,
-                                 vtkTable* inParameters,
-                                 vtkMultiBlockDataSet* outMeta )
+void vtkKMeansStatistics::Learn(
+  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
 {
-  if ( ! outMeta )
+  if (!outMeta)
   {
     return;
   }
 
-  if ( ! inData )
+  if (!inData)
   {
     return;
   }
 
-  if ( ! this->DistanceFunctor )
+  if (!this->DistanceFunctor)
   {
-    vtkErrorMacro( "Distance functor is nullptr" );
+    vtkErrorMacro("Distance functor is nullptr");
     return;
   }
 
@@ -325,15 +309,9 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
   vtkIdTypeArray* startRunID = vtkIdTypeArray::New();
   vtkIdTypeArray* endRunID = vtkIdTypeArray::New();
   vtkTable* dataElements = vtkTable::New();
-  int numRuns = InitializeDataAndClusterCenters(inParameters,
-                                                inData,
-                                                dataElements,
-                                                numberOfClusters,
-                                                curClusterElements,
-                                                newClusterElements,
-                                                startRunID,
-                                                endRunID);
-  if( numRuns == 0 )
+  int numRuns = InitializeDataAndClusterCenters(inParameters, inData, dataElements,
+    numberOfClusters, curClusterElements, newClusterElements, startRunID, endRunID);
+  if (numRuns == 0)
   {
     numberOfClusters->Delete();
     curClusterElements->Delete();
@@ -345,7 +323,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
   }
 
   vtkIdType numObservations = inData->GetNumberOfRows();
-  vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations( numObservations );
+  vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations(numObservations);
   vtkIdType numToAllocate = curClusterElements->GetNumberOfRows();
   vtkIdTypeArray* numIterations = vtkIdTypeArray::New();
   vtkIdTypeArray* numDataElementsInCluster = vtkIdTypeArray::New();
@@ -355,49 +333,48 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
   vtkIntArray* computeRun = vtkIntArray::New();
   vtkIdTypeArray* clusterRunIDs = vtkIdTypeArray::New();
 
-  numDataElementsInCluster->SetNumberOfValues( numToAllocate );
-  numDataElementsInCluster->SetName( "Cardinality" );
-  clusterRunIDs->SetNumberOfValues( numToAllocate );
-  clusterRunIDs->SetName( "Run ID" );
-  error->SetNumberOfValues( numToAllocate );
-  error->SetName( "Error" );
-  numIterations->SetNumberOfValues( numToAllocate );
-  numIterations->SetName( "Iterations" );
-  numMembershipChanges->SetNumberOfValues( numRuns );
-  computeRun->SetNumberOfValues( numRuns );
-  clusterMemberID->SetNumberOfValues( numObservations*numRuns );
-  clusterMemberID->SetName( "cluster member id" );
+  numDataElementsInCluster->SetNumberOfValues(numToAllocate);
+  numDataElementsInCluster->SetName("Cardinality");
+  clusterRunIDs->SetNumberOfValues(numToAllocate);
+  clusterRunIDs->SetName("Run ID");
+  error->SetNumberOfValues(numToAllocate);
+  error->SetName("Error");
+  numIterations->SetNumberOfValues(numToAllocate);
+  numIterations->SetName("Iterations");
+  numMembershipChanges->SetNumberOfValues(numRuns);
+  computeRun->SetNumberOfValues(numRuns);
+  clusterMemberID->SetNumberOfValues(numObservations * numRuns);
+  clusterMemberID->SetName("cluster member id");
 
-  for ( int i = 0; i < numRuns; ++ i )
+  for (int i = 0; i < numRuns; ++i)
   {
-    for ( vtkIdType j = startRunID->GetValue(i); j < endRunID->GetValue(i); j++ )
+    for (vtkIdType j = startRunID->GetValue(i); j < endRunID->GetValue(i); j++)
     {
-      clusterRunIDs->SetValue( j, i );
+      clusterRunIDs->SetValue(j, i);
     }
   }
 
-  numIterations->FillComponent( 0, 0 );
-  computeRun->FillComponent( 0, 1 );
+  numIterations->FillComponent(0, 0);
+  computeRun->FillComponent(0, 1);
   int allConverged, numIter = 0;
-  clusterMemberID->FillComponent( 0, -1 );
-
+  clusterMemberID->FillComponent(0, -1);
 
   // Iterate until new cluster centers have converged OR we have reached a max number of iterations
   do
   {
     // Initialize coordinates, cluster sizes and errors
-    numMembershipChanges->FillComponent( 0, 0 );
-    for( int runID = 0; runID < numRuns; runID ++ )
+    numMembershipChanges->FillComponent(0, 0);
+    for (int runID = 0; runID < numRuns; runID++)
     {
-      if( computeRun->GetValue( runID ) )
+      if (computeRun->GetValue(runID))
       {
-        for( vtkIdType j = startRunID->GetValue(runID); j < endRunID->GetValue(runID); j++ )
+        for (vtkIdType j = startRunID->GetValue(runID); j < endRunID->GetValue(runID); j++)
         {
-          curClusterElements->SetRow( j, newClusterElements->GetRow( j ) );
-          newClusterElements->SetRow( j,
-                   this->DistanceFunctor->GetEmptyTuple( newClusterElements->GetNumberOfColumns() ) );
-          numDataElementsInCluster->SetValue( j, 0 );
-          error->SetValue( j, 0.0 );
+          curClusterElements->SetRow(j, newClusterElements->GetRow(j));
+          newClusterElements->SetRow(
+            j, this->DistanceFunctor->GetEmptyTuple(newClusterElements->GetNumberOfColumns()));
+          numDataElementsInCluster->SetValue(j, 0);
+          error->SetValue(j, 0.0);
         }
       }
     }
@@ -406,32 +383,30 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     // then assign the observation to the nearest cluster.
     vtkIdType localMemberID, offsetLocalMemberID;
     double minDistance, curDistance;
-    for ( vtkIdType observation = 0; observation < dataElements->GetNumberOfRows(); observation++ )
+    for (vtkIdType observation = 0; observation < dataElements->GetNumberOfRows(); observation++)
     {
-      for( int runID = 0; runID < numRuns; runID++)
+      for (int runID = 0; runID < numRuns; runID++)
       {
-        if(computeRun->GetValue( runID ))
+        if (computeRun->GetValue(runID))
         {
-          vtkIdType runStartIdx = startRunID->GetValue( runID );
-          vtkIdType runEndIdx = endRunID->GetValue( runID );
-          if ( runStartIdx >= runEndIdx )
+          vtkIdType runStartIdx = startRunID->GetValue(runID);
+          vtkIdType runEndIdx = endRunID->GetValue(runID);
+          if (runStartIdx >= runEndIdx)
           {
             continue;
           }
           vtkIdType j = runStartIdx;
           localMemberID = 0;
           offsetLocalMemberID = runStartIdx;
-          (*this->DistanceFunctor)( minDistance,
-            curClusterElements->GetRow( j ),
-            dataElements->GetRow( observation ) );
+          (*this->DistanceFunctor)(
+            minDistance, curClusterElements->GetRow(j), dataElements->GetRow(observation));
           curDistance = minDistance;
-          ++ j;
-          for( /* no init */; j < runEndIdx; j ++ )
+          ++j;
+          for (/* no init */; j < runEndIdx; j++)
           {
-            (*this->DistanceFunctor)( curDistance,
-              curClusterElements->GetRow( j ),
-              dataElements->GetRow( observation ) );
-            if( curDistance < minDistance )
+            (*this->DistanceFunctor)(
+              curDistance, curClusterElements->GetRow(j), dataElements->GetRow(observation));
+            if (curDistance < minDistance)
             {
               minDistance = curDistance;
               localMemberID = j - runStartIdx;
@@ -439,44 +414,44 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
             }
           }
           // We've located the nearest cluster center. Has it changed since the last iteration?
-          if ( clusterMemberID->GetValue( observation*numRuns+runID) != localMemberID )
+          if (clusterMemberID->GetValue(observation * numRuns + runID) != localMemberID)
           {
-            numMembershipChanges->SetValue( runID, numMembershipChanges->GetValue( runID ) + 1 );
-            clusterMemberID->SetValue( observation*numRuns+runID, localMemberID );
+            numMembershipChanges->SetValue(runID, numMembershipChanges->GetValue(runID) + 1);
+            clusterMemberID->SetValue(observation * numRuns + runID, localMemberID);
           }
           // Give the distance functor a chance to modify any derived quantities used to
           // change the cluster centers between iterations, now that we know which cluster
           // center the observation is assigned to.
-          vtkIdType newCardinality = numDataElementsInCluster->GetValue( offsetLocalMemberID ) + 1;
-          numDataElementsInCluster->SetValue( offsetLocalMemberID, newCardinality );
-          this->DistanceFunctor->PairwiseUpdate( newClusterElements, offsetLocalMemberID,
-            dataElements->GetRow( observation ), 1, newCardinality );
+          vtkIdType newCardinality = numDataElementsInCluster->GetValue(offsetLocalMemberID) + 1;
+          numDataElementsInCluster->SetValue(offsetLocalMemberID, newCardinality);
+          this->DistanceFunctor->PairwiseUpdate(newClusterElements, offsetLocalMemberID,
+            dataElements->GetRow(observation), 1, newCardinality);
           // Update the error for this cluster center to account for this observation.
-          error->SetValue( offsetLocalMemberID, error->GetValue( offsetLocalMemberID ) + minDistance );
+          error->SetValue(offsetLocalMemberID, error->GetValue(offsetLocalMemberID) + minDistance);
         }
       }
     }
     // update cluster centers
-    this->UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
-                                numDataElementsInCluster, error, startRunID, endRunID, computeRun );
+    this->UpdateClusterCenters(newClusterElements, curClusterElements, numMembershipChanges,
+      numDataElementsInCluster, error, startRunID, endRunID, computeRun);
 
     // check for convergence
-    numIter++ ;
+    numIter++;
     allConverged = 0;
 
-    for( int j = 0; j < numRuns; j++ )
+    for (int j = 0; j < numRuns; j++)
     {
-      if( computeRun->GetValue( j ) )
+      if (computeRun->GetValue(j))
       {
-        double percentChanged = static_cast<double>( numMembershipChanges->GetValue( j ) )/
-                                static_cast<double>( totalNumberOfObservations ) ;
-        if( percentChanged < this->Tolerance || numIter == this->MaxNumIterations)
+        double percentChanged = static_cast<double>(numMembershipChanges->GetValue(j)) /
+          static_cast<double>(totalNumberOfObservations);
+        if (percentChanged < this->Tolerance || numIter == this->MaxNumIterations)
         {
           allConverged++;
-          computeRun->SetValue( j, 0 );
-          for(int k = startRunID->GetValue( j ); k < endRunID->GetValue( j ); k++)
+          computeRun->SetValue(j, 0);
+          for (int k = startRunID->GetValue(j); k < endRunID->GetValue(j); k++)
           {
-            numIterations->SetValue( k, numIter );
+            numIterations->SetValue(k, numIter);
           }
         }
       }
@@ -485,8 +460,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
         allConverged++;
       }
     }
-  }
-  while ( allConverged < numRuns && numIter  < this->MaxNumIterations );
+  } while (allConverged < numRuns && numIter < this->MaxNumIterations);
 
   // add columns to output table
   vtkTable* outputTable = vtkTable::New();
@@ -495,15 +469,15 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
   outputTable->AddColumn(numIterations);
   outputTable->AddColumn(error);
   outputTable->AddColumn(numDataElementsInCluster);
-  for( vtkIdType i = 0; i < newClusterElements->GetNumberOfColumns(); ++ i )
+  for (vtkIdType i = 0; i < newClusterElements->GetNumberOfColumns(); ++i)
   {
-      outputTable->AddColumn( newClusterElements->GetColumn( i ) );
+    outputTable->AddColumn(newClusterElements->GetColumn(i));
   }
 
-  outMeta->SetNumberOfBlocks( 1 );
-  outMeta->SetBlock( 0, outputTable );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(),
-                                                           "Updated Cluster Centers" );
+  outMeta->SetNumberOfBlocks(1);
+  outMeta->SetBlock(0, outputTable);
+  outMeta->GetMetaData(static_cast<unsigned>(0))
+    ->Set(vtkCompositeDataSet::NAME(), "Updated Cluster Centers");
 
   clusterRunIDs->Delete();
   numberOfClusters->Delete();
@@ -522,7 +496,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
+void vtkKMeansStatistics::Derive(vtkMultiBlockDataSet* outMeta)
 {
   vtkTable* outTable;
   vtkIdTypeArray* clusterRunIDs;
@@ -530,14 +504,11 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtkIdTypeArray* numberOfClusters;
   vtkDoubleArray* error;
 
-  if (
-    ! outMeta ||
-    ! ( outTable = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
-    ! ( clusterRunIDs = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 0 ) ) ) ||
-    ! ( numberOfClusters = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 1 ) ) ) ||
-    ! ( numIterations = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 2 ) ) ) ||
-    ! ( error = vtkArrayDownCast<vtkDoubleArray>( outTable->GetColumn( 3 ) ) )
-    )
+  if (!outMeta || !(outTable = vtkTable::SafeDownCast(outMeta->GetBlock(0))) ||
+    !(clusterRunIDs = vtkArrayDownCast<vtkIdTypeArray>(outTable->GetColumn(0))) ||
+    !(numberOfClusters = vtkArrayDownCast<vtkIdTypeArray>(outTable->GetColumn(1))) ||
+    !(numIterations = vtkArrayDownCast<vtkIdTypeArray>(outTable->GetColumn(2))) ||
+    !(error = vtkArrayDownCast<vtkDoubleArray>(outTable->GetColumn(3))))
   {
     return;
   }
@@ -545,7 +516,7 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   // Create an output table
   // outMeta and which is presumed to exist upon entry to Derive).
 
-  outMeta->SetNumberOfBlocks( 2 );
+  outMeta->SetNumberOfBlocks(2);
 
   vtkIdTypeArray* totalClusterRunIDs = vtkIdTypeArray::New();
   vtkIdTypeArray* totalNumberOfClusters = vtkIdTypeArray::New();
@@ -554,64 +525,66 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtkIdTypeArray* localRank = vtkIdTypeArray::New();
   vtkDoubleArray* totalError = vtkDoubleArray::New();
 
-  totalClusterRunIDs->SetName( clusterRunIDs->GetName() );
-  totalNumberOfClusters->SetName( numberOfClusters->GetName() );
-  totalNumIterations->SetName( numIterations->GetName() );
-  totalError->SetName( "Total Error" );
-  globalRank->SetName( "Global Rank" );
-  localRank->SetName( "Local Rank" );
+  totalClusterRunIDs->SetName(clusterRunIDs->GetName());
+  totalNumberOfClusters->SetName(numberOfClusters->GetName());
+  totalNumIterations->SetName(numIterations->GetName());
+  totalError->SetName("Total Error");
+  globalRank->SetName("Global Rank");
+  localRank->SetName("Local Rank");
 
   std::multimap<double, vtkIdType> globalErrorMap;
   std::map<vtkIdType, std::multimap<double, vtkIdType> > localErrorMap;
 
   vtkIdType curRow = 0;
-  while ( curRow < outTable->GetNumberOfRows() )
+  while (curRow < outTable->GetNumberOfRows())
   {
-    totalClusterRunIDs->InsertNextValue( clusterRunIDs->GetValue( curRow ) );
-    totalNumIterations->InsertNextValue( numIterations->GetValue( curRow ) );
-    totalNumberOfClusters->InsertNextValue( numberOfClusters->GetValue( curRow ) );
+    totalClusterRunIDs->InsertNextValue(clusterRunIDs->GetValue(curRow));
+    totalNumIterations->InsertNextValue(numIterations->GetValue(curRow));
+    totalNumberOfClusters->InsertNextValue(numberOfClusters->GetValue(curRow));
     double totalErr = 0.0;
-    for(vtkIdType i=curRow; i < curRow+numberOfClusters->GetValue( curRow ); ++ i )
+    for (vtkIdType i = curRow; i < curRow + numberOfClusters->GetValue(curRow); ++i)
     {
-      totalErr+= error->GetValue( i );
+      totalErr += error->GetValue(i);
     }
-    totalError->InsertNextValue( totalErr );
-    globalErrorMap.insert(std::multimap<double, vtkIdType>::value_type( totalErr,
-                                                                               clusterRunIDs->GetValue( curRow ) ) );
-    localErrorMap[numberOfClusters->GetValue( curRow )].insert(
-      std::multimap<double, vtkIdType>::value_type( totalErr,
-                                                    clusterRunIDs->GetValue( curRow ) ) );
-    curRow += numberOfClusters->GetValue( curRow );
+    totalError->InsertNextValue(totalErr);
+    globalErrorMap.insert(
+      std::multimap<double, vtkIdType>::value_type(totalErr, clusterRunIDs->GetValue(curRow)));
+    localErrorMap[numberOfClusters->GetValue(curRow)].insert(
+      std::multimap<double, vtkIdType>::value_type(totalErr, clusterRunIDs->GetValue(curRow)));
+    curRow += numberOfClusters->GetValue(curRow);
   }
 
-  globalRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
-  localRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
-  int rankID=1;
+  globalRank->SetNumberOfValues(totalClusterRunIDs->GetNumberOfTuples());
+  localRank->SetNumberOfValues(totalClusterRunIDs->GetNumberOfTuples());
+  int rankID = 1;
 
-  for( std::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); ++itr )
+  for (std::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin();
+       itr != globalErrorMap.end(); ++itr)
   {
-    globalRank->SetValue( itr->second, rankID++ ) ;
+    globalRank->SetValue(itr->second, rankID++);
   }
-  for( std::map<vtkIdType, std::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin(); itr != localErrorMap.end(); ++itr )
+  for (std::map<vtkIdType, std::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin();
+       itr != localErrorMap.end(); ++itr)
   {
-    rankID=1;
-    for( std::multimap<double, vtkIdType>::iterator rItr = itr->second.begin(); rItr != itr->second.end(); ++rItr )
+    rankID = 1;
+    for (std::multimap<double, vtkIdType>::iterator rItr = itr->second.begin();
+         rItr != itr->second.end(); ++rItr)
     {
-      localRank->SetValue( rItr->second, rankID++ ) ;
+      localRank->SetValue(rItr->second, rankID++);
     }
   }
 
   vtkTable* ranked = vtkTable::New();
-  outMeta->SetBlock( 1, ranked );
-  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(),
-                                                           "Ranked Cluster Centers" );
+  outMeta->SetBlock(1, ranked);
+  outMeta->GetMetaData(static_cast<unsigned>(1))
+    ->Set(vtkCompositeDataSet::NAME(), "Ranked Cluster Centers");
   ranked->Delete(); // outMeta now owns ranked
-  ranked->AddColumn( totalClusterRunIDs );
-  ranked->AddColumn( totalNumberOfClusters );
-  ranked->AddColumn( totalNumIterations );
-  ranked->AddColumn( totalError );
-  ranked->AddColumn( localRank );
-  ranked->AddColumn( globalRank );
+  ranked->AddColumn(totalClusterRunIDs);
+  ranked->AddColumn(totalNumberOfClusters);
+  ranked->AddColumn(totalNumIterations);
+  ranked->AddColumn(totalError);
+  ranked->AddColumn(localRank);
+  ranked->AddColumn(globalRank);
 
   totalError->Delete();
   localRank->Delete();
@@ -622,16 +595,14 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::Assess( vtkTable* inData,
-                                  vtkMultiBlockDataSet* inMeta,
-                                  vtkTable* outData )
+void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
 {
-  if ( ! inData )
+  if (!inData)
   {
     return;
   }
 
-  if ( ! inMeta )
+  if (!inMeta)
   {
     return;
   }
@@ -642,96 +613,90 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
   // "A", "B", and "C" are the column names specified in the per-request metadata tables.
   AssessFunctor* dfunc = nullptr;
   // only one request allowed in when learning, so there will only be one
-  vtkTable* reqModel = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! reqModel )
+  vtkTable* reqModel = vtkTable::SafeDownCast(inMeta->GetBlock(0));
+  if (!reqModel)
   {
-    // silently skip invalid entries. Note we leave assessValues column in output data even when it's empty.
+    // silently skip invalid entries. Note we leave assessValues column in output data even when
+    // it's empty.
     return;
   }
 
-  this->SelectAssessFunctor( inData,
-                             reqModel,
-                             nullptr,
-                             dfunc );
-  if ( ! dfunc )
+  this->SelectAssessFunctor(inData, reqModel, nullptr, dfunc);
+  if (!dfunc)
   {
-    vtkWarningMacro( "Assessment could not be accommodated. Skipping." );
+    vtkWarningMacro("Assessment could not be accommodated. Skipping.");
     return;
   }
 
-  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>( dfunc );
+  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>(dfunc);
 
   vtkIdType nv = this->AssessNames->GetNumberOfValues();
   int numRuns = kmfunc->GetNumberOfRuns();
-  vtkStdString* names = new vtkStdString[nv*numRuns];
+  std::vector<vtkStdString> names(nv * numRuns);
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( int i = 0; i < numRuns; ++ i )
+  for (int i = 0; i < numRuns; ++i)
   {
-    for ( vtkIdType v = 0; v < nv; ++ v )
+    for (vtkIdType v = 0; v < nv; ++v)
     {
       std::ostringstream assessColName;
-      assessColName << this->AssessNames->GetValue( v )
-                    << "("
-                    <<  i
-                    << ")";
+      assessColName << this->AssessNames->GetValue(v) << "(" << i << ")";
 
-       vtkAbstractArray* assessValues;
-       if ( v )
-       { // The "closest id" column for each request will always be integer-valued
-         assessValues = vtkIntArray::New();
-       }
-       else
-       { // We'll assume for now that the "distance" column for each request will be a real number.
-         assessValues = vtkDoubleArray::New();
-       }
-       names[i*nv+v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
-       assessValues->SetName( names[i * nv + v] );
-       assessValues->SetNumberOfTuples( nRow );
-       outData->AddColumn( assessValues );
-       assessValues->Delete();
+      vtkAbstractArray* assessValues;
+      if (v)
+      { // The "closest id" column for each request will always be integer-valued
+        assessValues = vtkIntArray::New();
+      }
+      else
+      { // We'll assume for now that the "distance" column for each request will be a real number.
+        assessValues = vtkDoubleArray::New();
+      }
+      names[i * nv + v] =
+        assessColName.str()
+          .c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+      assessValues->SetName(names[i * nv + v]);
+      assessValues->SetNumberOfTuples(nRow);
+      outData->AddColumn(assessValues);
+      assessValues->Delete();
     }
   }
 
   // Assess each entry of the column
   vtkDoubleArray* assessResult = vtkDoubleArray::New();
-  for ( vtkIdType r = 0; r < nRow; ++ r )
+  for (vtkIdType r = 0; r < nRow; ++r)
   {
-    (*dfunc)( assessResult, r );
-    for ( vtkIdType j = 0; j < nv * numRuns; ++ j )
+    (*dfunc)(assessResult, r);
+    for (vtkIdType j = 0; j < nv * numRuns; ++j)
     {
-      outData->SetValueByName( r, names[j], assessResult->GetValue( j ) );
+      outData->SetValueByName(r, names[j], assessResult->GetValue(j));
     }
   }
   assessResult->Delete();
 
   delete dfunc;
-  delete [] names;
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
-                                               vtkDataObject* inMetaDO,
-                                               vtkStringArray* vtkNotUsed(rowNames),
-                                               AssessFunctor*& dfunc )
+void vtkKMeansStatistics::SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMetaDO,
+  vtkStringArray* vtkNotUsed(rowNames), AssessFunctor*& dfunc)
 {
   (void)inData;
 
   dfunc = nullptr;
-  vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
-  if ( ! reqModel )
+  vtkTable* reqModel = vtkTable::SafeDownCast(inMetaDO);
+  if (!reqModel)
   {
     return;
   }
 
-  if ( ! this->DistanceFunctor )
+  if (!this->DistanceFunctor)
   {
-    vtkErrorMacro( "Distance functor is nullptr" );
+    vtkErrorMacro("Distance functor is nullptr");
     return;
   }
 
   vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
 
-  if ( ! kmfunc->Initialize( inData, reqModel, this->DistanceFunctor ) )
+  if (!kmfunc->Initialize(inData, reqModel, this->DistanceFunctor))
   {
     delete kmfunc;
     return;
@@ -753,9 +718,8 @@ vtkKMeansAssessFunctor::~vtkKMeansAssessFunctor()
 }
 
 // ----------------------------------------------------------------------
-bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
-                                         vtkTable* inModel,
-                                         vtkKMeansDistanceFunctor* dfunc )
+bool vtkKMeansAssessFunctor::Initialize(
+  vtkTable* inData, vtkTable* inModel, vtkKMeansDistanceFunctor* dfunc)
 {
   vtkIdType numObservations = inData->GetNumberOfRows();
   vtkTable* dataElements = vtkTable::New();
@@ -768,33 +732,33 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
   this->NumRuns = 0;
 
   // cluster coordinates start in column 5 of the inModel table
-  for ( vtkIdType i = 5; i < inModel->GetNumberOfColumns(); ++ i )
+  for (vtkIdType i = 5; i < inModel->GetNumberOfColumns(); ++i)
   {
-    curClusterElements->AddColumn( inModel->GetColumn( i ) );
-    dataElements->AddColumn( inData->GetColumnByName( inModel->GetColumnName( i ) ) );
+    curClusterElements->AddColumn(inModel->GetColumn(i));
+    dataElements->AddColumn(inData->GetColumnByName(inModel->GetColumnName(i)));
   }
 
   vtkIdType curRow = 0;
-  while ( curRow < inModel->GetNumberOfRows() )
+  while (curRow < inModel->GetNumberOfRows())
   {
     this->NumRuns++;
-    startRunID->InsertNextValue( curRow );
+    startRunID->InsertNextValue(curRow);
     // number of clusters "K" is stored in column 1 of the inModel table
-    curRow += inModel->GetValue( curRow, 1 ).ToInt();
-    endRunID->InsertNextValue( curRow );
+    curRow += inModel->GetValue(curRow, 1).ToInt();
+    endRunID->InsertNextValue(curRow);
   }
 
-  this->Distances->SetNumberOfValues( numObservations * this->NumRuns );
-  this->ClusterMemberIDs->SetNumberOfValues( numObservations * this->NumRuns );
+  this->Distances->SetNumberOfValues(numObservations * this->NumRuns);
+  this->ClusterMemberIDs->SetNumberOfValues(numObservations * this->NumRuns);
 
   // find minimum distance between each data object and cluster center
-  for ( vtkIdType observation = 0; observation < numObservations; ++ observation )
+  for (vtkIdType observation = 0; observation < numObservations; ++observation)
   {
-    for( int runID = 0; runID < this->NumRuns; ++ runID )
+    for (int runID = 0; runID < this->NumRuns; ++runID)
     {
-      vtkIdType runStartIdx = startRunID->GetValue( runID );
-      vtkIdType runEndIdx = endRunID->GetValue( runID );
-      if ( runStartIdx >= runEndIdx )
+      vtkIdType runStartIdx = startRunID->GetValue(runID);
+      vtkIdType runEndIdx = endRunID->GetValue(runID);
+      if (runStartIdx >= runEndIdx)
       {
         continue;
       }
@@ -802,19 +766,19 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
       vtkIdType j = runStartIdx;
       double minDistance = 0.0;
       double curDistance = 0.0;
-      (*dfunc)( minDistance, curClusterElements->GetRow( j ), dataElements->GetRow( observation ) );
+      (*dfunc)(minDistance, curClusterElements->GetRow(j), dataElements->GetRow(observation));
       vtkIdType localMemberID = 0;
-      for( /* no init */; j < runEndIdx; ++ j )
+      for (/* no init */; j < runEndIdx; ++j)
       {
-        (*dfunc)( curDistance, curClusterElements->GetRow( j ), dataElements->GetRow( observation ) );
-        if ( curDistance < minDistance )
+        (*dfunc)(curDistance, curClusterElements->GetRow(j), dataElements->GetRow(observation));
+        if (curDistance < minDistance)
         {
           minDistance = curDistance;
           localMemberID = j - runStartIdx;
         }
       }
-      this->ClusterMemberIDs->SetValue( observation * this->NumRuns + runID, localMemberID );
-      this->Distances->SetValue( observation * this->NumRuns + runID, minDistance );
+      this->ClusterMemberIDs->SetValue(observation * this->NumRuns + runID, localMemberID);
+      this->Distances->SetValue(observation * this->NumRuns + runID, minDistance);
     }
   }
 
@@ -826,14 +790,14 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
+void vtkKMeansAssessFunctor::operator()(vtkDoubleArray* result, vtkIdType row)
 {
 
-  result->SetNumberOfValues( 2 * this->NumRuns );
+  result->SetNumberOfValues(2 * this->NumRuns);
   vtkIdType resIndex = 0;
-  for( int runID = 0; runID < this->NumRuns; runID++)
+  for (int runID = 0; runID < this->NumRuns; runID++)
   {
-    result->SetValue( resIndex ++, this->Distances->GetValue( row * this->NumRuns + runID ) );
-    result->SetValue( resIndex ++, this->ClusterMemberIDs->GetValue( row * this->NumRuns + runID ) );
+    result->SetValue(resIndex++, this->Distances->GetValue(row * this->NumRuns + runID));
+    result->SetValue(resIndex++, this->ClusterMemberIDs->GetValue(row * this->NumRuns + runID));
   }
 }

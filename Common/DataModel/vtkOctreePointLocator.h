@@ -32,13 +32,13 @@
  *
  * @sa
  * vtkLocator vtkPointLocator vtkOctreePointLocatorNode
-*/
+ */
 
 #ifndef vtkOctreePointLocator_h
 #define vtkOctreePointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkCellArray;
 class vtkIdTypeArray;
@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkOctreePointLocator, vtkAbstractPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkOctreePointLocator *New();
+  static vtkOctreePointLocator* New();
 
   //@{
   /**
@@ -86,8 +86,8 @@ public:
    * Get the spatial bounds of the entire octree space. Sets
    * bounds array to xmin, xmax, ymin, ymax, zmin, zmax.
    */
-  double *GetBounds() override;
-  void GetBounds(double *bounds) override;
+  double* GetBounds() override;
+  void GetBounds(double* bounds) override;
   //@}
 
   //@{
@@ -125,7 +125,7 @@ public:
    * Set the square of the distance between the two points.
    */
   vtkIdType FindClosestPoint(const double x[3]) override;
-  vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
+  vtkIdType FindClosestPoint(double x, double y, double z, double& dist2);
   //@}
 
   /**
@@ -133,8 +133,7 @@ public:
    * closest to the point in that radius.
    * dist2 returns the squared distance to the point.
    */
-  vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) override;
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
 
   //@{
   /**
@@ -142,17 +141,15 @@ public:
    * closest to the given point.  Return the ID of the point,
    * and set the square of the distance of between the points.
    */
-  vtkIdType FindClosestPointInRegion(int regionId, double *x, double &dist2);
-  vtkIdType FindClosestPointInRegion(int regionId, double x, double y,
-                                     double z, double &dist2);
+  vtkIdType FindClosestPointInRegion(int regionId, double* x, double& dist2);
+  vtkIdType FindClosestPointInRegion(int regionId, double x, double y, double z, double& dist2);
   //@}
 
   /**
    * Find all points within a specified radius of position x.
    * The result is not sorted in any specific manner.
    */
-  void FindPointsWithinRadius(
-    double radius, const double x[3], vtkIdList *result) override;
+  void FindPointsWithinRadius(double radius, const double x[3], vtkIdList* result) override;
 
   /**
    * Find the closest N points to a position. This returns the closest
@@ -162,13 +159,12 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  void FindClosestNPoints(int N, const double x[3],
-                          vtkIdList *result) override;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
    * Get a list of the original IDs of all points in a leaf node.
    */
-  vtkIdTypeArray *GetPointsInRegion(int leafNodeId);
+  vtkIdTypeArray* GetPointsInRegion(int leafNodeId);
 
   /**
    * Delete the octree data structure.
@@ -179,7 +175,7 @@ public:
    * Create a polydata representation of the boundaries of
    * the octree regions.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
 
   /**
    * Fill ids with points found in area.  The area is a 6-tuple containing
@@ -190,14 +186,13 @@ public:
   void FindPointsInArea(double* area, vtkIdTypeArray* ids, bool clearArray = true);
 
 protected:
-
   vtkOctreePointLocator();
   ~vtkOctreePointLocator() override;
 
-  vtkOctreePointLocatorNode *Top;
-  vtkOctreePointLocatorNode **LeafNodeList;      // indexed by region/node ID
+  vtkOctreePointLocatorNode* Top;
+  vtkOctreePointLocatorNode** LeafNodeList; // indexed by region/node ID
 
-  void BuildLeafNodeList(vtkOctreePointLocatorNode* node, int & index);
+  void BuildLeafNodeList(vtkOctreePointLocatorNode* node, int& index);
 
   //@{
   /**
@@ -208,7 +203,7 @@ protected:
   int FindRegion(vtkOctreePointLocatorNode* node, double x, double y, double z);
   //@}
 
-  static void SetDataBoundsToSpatialBounds(vtkOctreePointLocatorNode *node);
+  static void SetDataBoundsToSpatialBounds(vtkOctreePointLocatorNode* node);
 
   static void DeleteAllDescendants(vtkOctreePointLocatorNode* octant);
 
@@ -217,8 +212,8 @@ protected:
    * is the square of the radius and is used in order to avoid the
    * expensive square root calculation.
    */
-  void FindPointsWithinRadius(vtkOctreePointLocatorNode* node, double radiusSquared,
-                              const double x[3], vtkIdList* ids);
+  void FindPointsWithinRadius(
+    vtkOctreePointLocatorNode* node, double radiusSquared, const double x[3], vtkIdList* ids);
 
   // Recursive helper for public FindPointsWithinRadius
   void AddAllPointsInRegion(vtkOctreePointLocatorNode* node, vtkIdList* ids);
@@ -229,18 +224,17 @@ protected:
   // Recursive helper for public FindPointsInArea
   void AddAllPointsInRegion(vtkOctreePointLocatorNode* node, vtkIdTypeArray* ids);
 
-  void DivideRegion(vtkOctreePointLocatorNode *node, int* ordering, int level);
+  void DivideRegion(vtkOctreePointLocatorNode* node, int* ordering, int level);
 
   int DivideTest(int size, int level);
 
-  void AddPolys(vtkOctreePointLocatorNode *node, vtkPoints *pts, vtkCellArray *polys);
+  void AddPolys(vtkOctreePointLocatorNode* node, vtkPoints* pts, vtkCellArray* polys);
 
   /**
    * Given a leaf node id and point, return the local id and the squared distance
    * between the closest point and the given point.
    */
-  int _FindClosestPointInRegion(int leafNodeId, double x, double y,
-                                double z, double &dist2);
+  int _FindClosestPointInRegion(int leafNodeId, double x, double y, double z, double& dist2);
 
   /**
    * Given a location and a radiues, find the closest point within
@@ -249,8 +243,8 @@ protected:
    * octants have -1 as their Id).  The Id is returned along with
    * the distance squared for success and -1 is returned for failure.
    */
-  int FindClosestPointInSphere(double x, double y, double z, double radius,
-                               int skipRegion, double &dist2);
+  int FindClosestPointInSphere(
+    double x, double y, double z, double radius, int skipRegion, double& dist2);
 
   //@{
   /**
@@ -260,10 +254,10 @@ protected:
   int NumberOfLeafNodes;
   //@}
 
-  double FudgeFactor;   // a very small distance, relative to the dataset's size
+  double FudgeFactor; // a very small distance, relative to the dataset's size
   int NumberOfLocatorPoints;
-  float *LocatorPoints;
-  int *LocatorIds;
+  float* LocatorPoints;
+  int* LocatorIds;
 
   float MaxWidth;
 

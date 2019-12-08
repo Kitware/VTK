@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
@@ -23,58 +24,56 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 // Create an 8x7 grid of render windows in a renderer and render a volume
 // using various techniques for testing purposes
-int TestFinalColorWindowLevel( int argc, char *argv[] )
+int TestFinalColorWindowLevel(int argc, char* argv[])
 {
 
   // Create the renderers, render window, and interactor
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  vtkRenderer *ren = vtkRenderer::New();
+  vtkRenderer* ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
 
   // Read the data from a vtk file
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
-  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+  vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   // Create a transfer function mapping scalar value to opacity
-  vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
+  vtkPiecewiseFunction* oTFun = vtkPiecewiseFunction::New();
   oTFun->AddSegment(10, 0.0, 255, 0.3);
 
   // Create a transfer function mapping scalar value to color (color)
-  vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
-  cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 );
-  cTFun->AddRGBPoint(  64, 1.0, 1.0, 0.0 );
-  cTFun->AddRGBPoint( 128, 0.0, 1.0, 0.0 );
-  cTFun->AddRGBPoint( 192, 0.0, 1.0, 1.0 );
-  cTFun->AddRGBPoint( 255, 0.0, 0.0, 1.0 );
+  vtkColorTransferFunction* cTFun = vtkColorTransferFunction::New();
+  cTFun->AddRGBPoint(0, 1.0, 0.0, 0.0);
+  cTFun->AddRGBPoint(64, 1.0, 1.0, 0.0);
+  cTFun->AddRGBPoint(128, 0.0, 1.0, 0.0);
+  cTFun->AddRGBPoint(192, 0.0, 1.0, 1.0);
+  cTFun->AddRGBPoint(255, 0.0, 0.0, 1.0);
 
-
-  vtkVolumeProperty *property = vtkVolumeProperty::New();
+  vtkVolumeProperty* property = vtkVolumeProperty::New();
   property->SetShade(0);
   property->SetAmbient(0.3);
   property->SetDiffuse(1.0);
   property->SetSpecular(0.2);
   property->SetSpecularPower(50.0);
   property->SetScalarOpacity(oTFun);
-  property->SetColor( cTFun );
+  property->SetColor(cTFun);
   property->SetInterpolationTypeToLinear();
 
-  vtkFixedPointVolumeRayCastMapper *mapper = vtkFixedPointVolumeRayCastMapper::New();
+  vtkFixedPointVolumeRayCastMapper* mapper = vtkFixedPointVolumeRayCastMapper::New();
   mapper->SetInputConnection(reader->GetOutputPort());
 
-  vtkVolume *volume = vtkVolume::New();
+  vtkVolume* volume = vtkVolume::New();
   volume->SetProperty(property);
   volume->SetMapper(mapper);
   ren->AddViewProp(volume);
@@ -87,13 +86,13 @@ int TestFinalColorWindowLevel( int argc, char *argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
+  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
 
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);
   iren->SetStillUpdateRate(0.001);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
@@ -112,6 +111,3 @@ int TestFinalColorWindowLevel( int argc, char *argv[] )
 
   return !retVal;
 }
-
-
-

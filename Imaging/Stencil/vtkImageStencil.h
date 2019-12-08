@@ -18,7 +18,7 @@
  *
  * vtkImageStencil will combine two images together using a stencil.
  * The stencil should be provided in the form of a vtkImageStencilData,
-*/
+ */
 
 #ifndef vtkImageStencil_h
 #define vtkImageStencil_h
@@ -31,7 +31,7 @@ class vtkImageStencilData;
 class VTKIMAGINGSTENCIL_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageStencil *New();
+  static vtkImageStencil* New();
   vtkTypeMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -41,8 +41,8 @@ public:
    * from a vtkImplicitFunction or a vtkPolyData. This
    * function does not setup a pipeline connection.
    */
-  virtual void SetStencilData(vtkImageStencilData *stencil);
-  vtkImageStencilData *GetStencil();
+  virtual void SetStencilData(vtkImageStencilData* stencil);
+  vtkImageStencilData* GetStencil();
   //@}
 
   /**
@@ -68,18 +68,16 @@ public:
    * stencil.  If not set, the output voxels will be filled with
    * BackgroundValue instead.
    */
-  virtual void SetBackgroundInputData(vtkImageData *input);
-  vtkImageData *GetBackgroundInput();
+  virtual void SetBackgroundInputData(vtkImageData* input);
+  vtkImageData* GetBackgroundInput();
   //@}
 
   //@{
   /**
    * Set the default output value to use when the second input is not set.
    */
-  void SetBackgroundValue(double val) {
-    this->SetBackgroundColor(val,val,val,val); };
-  double GetBackgroundValue() {
-    return this->BackgroundColor[0]; };
+  void SetBackgroundValue(double val) { this->SetBackgroundColor(val, val, val, val); }
+  double GetBackgroundValue() { return this->BackgroundColor[0]; }
   //@}
 
   //@{
@@ -95,11 +93,9 @@ protected:
   vtkImageStencil();
   ~vtkImageStencil() override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
 
   vtkTypeBool ReverseStencil;
   double BackgroundColor[4];

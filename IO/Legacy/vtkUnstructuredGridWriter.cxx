@@ -28,28 +28,26 @@
 #include <vector>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 void vtkUnstructuredGridWriter::WriteData()
 {
-  ostream *fp;
-  vtkUnstructuredGrid *input= vtkUnstructuredGrid::SafeDownCast(
-    this->GetInput());
+  ostream* fp;
+  vtkUnstructuredGrid* input = vtkUnstructuredGrid::SafeDownCast(this->GetInput());
   int *types, ncells, cellId;
 
-  vtkDebugMacro(<<"Writing vtk unstructured grid data...");
+  vtkDebugMacro(<< "Writing vtk unstructured grid data...");
 
-  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
     if (fp)
     {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
+      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
@@ -92,7 +90,7 @@ void vtkUnstructuredGridWriter::WriteData()
   else
   {
     // Fall back to superclass:
-    if (!this->WriteCells(fp, input->GetCells(),"CELLS"))
+    if (!this->WriteCells(fp, input->GetCells(), "CELLS"))
     {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
@@ -104,19 +102,19 @@ void vtkUnstructuredGridWriter::WriteData()
   //
   // Cell types are a little more work
   //
-  if ( input->GetCells() )
+  if (input->GetCells())
   {
     ncells = input->GetCells()->GetNumberOfCells();
     types = new int[ncells];
-    for (cellId=0; cellId < ncells; cellId++)
+    for (cellId = 0; cellId < ncells; cellId++)
     {
       types[cellId] = input->GetCellType(cellId);
     }
 
     *fp << "CELL_TYPES " << ncells << "\n";
-    if ( this->FileType == VTK_ASCII )
+    if (this->FileType == VTK_ASCII)
     {
-      for (cellId=0; cellId<ncells; cellId++)
+      for (cellId = 0; cellId < ncells; cellId++)
       {
         *fp << types[cellId] << "\n";
       }
@@ -124,10 +122,10 @@ void vtkUnstructuredGridWriter::WriteData()
     else
     {
       // swap the bytes if necessary
-      vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
+      vtkByteSwap::SwapWrite4BERange(types, ncells, fp);
     }
     *fp << "\n";
-    delete [] types;
+    delete[] types;
   }
 
   if (!this->WriteCellData(fp, input))
@@ -149,7 +147,7 @@ void vtkUnstructuredGridWriter::WriteData()
 }
 
 int vtkUnstructuredGridWriter::WriteCellsAndFaces(
-    ostream *fp, vtkUnstructuredGrid *grid, const char *label)
+  ostream* fp, vtkUnstructuredGrid* grid, const char* label)
 {
   if (!grid->GetCells())
   {
@@ -159,58 +157,33 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
   // Create a copy of the cell data with the face streams expanded.
   // Do this before writing anything so that we know the size.
   // Use ints to represent vtkIdTypes, since that's what the superclass does.
-  std::vector<int> cells;
-  cells.reserve(grid->GetNumberOfCells() * grid->GetMaxCellSize());
+  vtkNew<vtkCellArray> expandedCells;
+  expandedCells->AllocateEstimate(grid->GetNumberOfCells(), grid->GetMaxCellSize());
 
   vtkSmartPointer<vtkCellIterator> it =
-      vtkSmartPointer<vtkCellIterator>::Take(grid->NewCellIterator());
+    vtkSmartPointer<vtkCellIterator>::Take(grid->NewCellIterator());
 
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
     if (it->GetCellType() != VTK_POLYHEDRON)
     {
-      vtkIdType cellSize = it->GetNumberOfPoints();
-      cells.push_back(static_cast<int>(cellSize));
-      std::copy(it->GetPointIds()->GetPointer(0),
-                it->GetPointIds()->GetPointer(cellSize),
-                std::back_inserter(cells));
+      expandedCells->InsertNextCell(it->GetPointIds());
     }
     else
     {
-      vtkIdType cellSize = it->GetFaces()->GetNumberOfIds();
-      cells.push_back(static_cast<int>(cellSize));
-      std::copy(it->GetFaces()->GetPointer(0),
-                it->GetFaces()->GetPointer(cellSize),
-                std::back_inserter(cells));
+      expandedCells->InsertNextCell(it->GetFaces());
     }
   }
 
-  if (cells.empty())
+  if (expandedCells->GetNumberOfCells() == 0)
   { // Nothing to do.
     return 1;
   }
 
-  *fp << label << " " << grid->GetNumberOfCells() << " "
-      << cells.size() << "\n";
-
-  if ( this->FileType == VTK_ASCII )
-  { // Write each cell out to a separate line, must traverse:
-    std::vector<int>::const_iterator cellStart = cells.begin();
-    std::vector<int>::const_iterator cellEnd;
-    vtkIdType nCells = grid->GetNumberOfCells();
-    while (nCells-- > 0)
-    {
-      cellEnd = cellStart + (*cellStart + 1);
-      while (cellStart != cellEnd)
-        *fp << static_cast<int>(*cellStart++) << " ";
-      *fp << "\n";
-    }
-  }
-  else
+  if (!this->WriteCells(fp, expandedCells, label))
   {
-    // Just dump the cell data
-    vtkByteSwap::SwapWrite4BERange(&cells[0], cells.size(), fp);
-    *fp << "\n";
+    vtkErrorMacro("Error while writing expanded face stream.");
+    return 0;
   }
 
   fp->flush();
@@ -223,8 +196,7 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
   return 1;
 }
 
-int vtkUnstructuredGridWriter::FillInputPortInformation(int,
-                                                        vtkInformation *info)
+int vtkUnstructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
@@ -242,5 +214,5 @@ vtkUnstructuredGrid* vtkUnstructuredGridWriter::GetInput(int port)
 
 void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

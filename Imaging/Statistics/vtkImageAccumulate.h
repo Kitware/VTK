@@ -32,21 +32,21 @@
  * option with vtkImageMask may result in results being slightly off since 0
  * could be a valid value from your input.
  *
-*/
+ */
 
 #ifndef vtkImageAccumulate_h
 #define vtkImageAccumulate_h
 
-#include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingStatisticsModule.h" // For export macro
 
 class vtkImageStencilData;
 
 class VTKIMAGINGSTATISTICS_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
 {
 public:
-  static vtkImageAccumulate *New();
-  vtkTypeMacro(vtkImageAccumulate,vtkImageAlgorithm);
+  static vtkImageAccumulate* New();
+  vtkTypeMacro(vtkImageAccumulate, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -87,12 +87,10 @@ public:
    * Initial value is (0,255,0,0,0,0)
    */
   void SetComponentExtent(int extent[6]);
-  void SetComponentExtent(int minX, int maxX, int minY, int maxY,
-        int minZ, int maxZ);
+  void SetComponentExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetComponentExtent(int extent[6]);
-  int *GetComponentExtent() VTK_SIZEHINT(6) {return this->ComponentExtent;}
+  int* GetComponentExtent() VTK_SIZEHINT(6) { return this->ComponentExtent; }
   //@}
-
 
   //@{
   /**
@@ -101,8 +99,8 @@ public:
    * It set and get the stencil on input port 1.
    * Initial value is nullptr.
    */
-  void SetStencilData(vtkImageStencilData *stencil);
-  vtkImageStencilData *GetStencil();
+  void SetStencilData(vtkImageStencilData* stencil);
+  vtkImageStencilData* GetStencil();
   //@}
 
   //@{
@@ -144,17 +142,12 @@ protected:
   double ComponentOrigin[3];
   int ComponentExtent[6];
 
-  int RequestUpdateExtent(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*) override;
-  int RequestInformation (vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  vtkTypeBool    IgnoreZero;
+  vtkTypeBool IgnoreZero;
   double Min[3];
   double Max[3];
   double Mean[3];
@@ -171,6 +164,3 @@ private:
 };
 
 #endif
-
-
-

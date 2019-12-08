@@ -16,29 +16,29 @@
  * @class   vtkOpenQubeElectronicData
  * @brief   Provides access to and storage of
  * electronic data calculated by OpenQube.
-*/
+ */
 
 #ifndef vtkOpenQubeElectronicData_h
 #define vtkOpenQubeElectronicData_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
-#include "vtkNew.h" // for vtkNew
+#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // for vtkNew
 
-namespace OpenQube {
-  class BasisSet;
-  class Cube;
+namespace OpenQube
+{
+class BasisSet;
+class Cube;
 }
 
 class vtkImageData;
 class vtkDataSetCollection;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkOpenQubeElectronicData
-    : public vtkAbstractElectronicData
+class VTKDOMAINSCHEMISTRY_EXPORT vtkOpenQubeElectronicData : public vtkAbstractElectronicData
 {
 public:
-  static vtkOpenQubeElectronicData *New();
-  vtkTypeMacro(vtkOpenQubeElectronicData,vtkAbstractElectronicData);
+  static vtkOpenQubeElectronicData* New();
+  vtkTypeMacro(vtkOpenQubeElectronicData, vtkAbstractElectronicData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
@@ -55,13 +55,13 @@ public:
    * Returns the vtkImageData for the requested molecular orbital. The data
    * will be calculated when first requested, and cached for later requests.
    */
-  vtkImageData * GetMO(vtkIdType orbitalNumber);
+  vtkImageData* GetMO(vtkIdType orbitalNumber);
 
   /**
    * Returns vtkImageData for the molecule's electron density. The data
    * will be calculated when first requested, and cached for later requests.
    */
-  vtkImageData * GetElectronDensity();
+  vtkImageData* GetElectronDensity();
 
   //@{
   /**
@@ -98,7 +98,7 @@ public:
   /**
    * Deep copies the data object into this.
    */
-  virtual void DeepCopy(vtkDataObject *obj);
+  virtual void DeepCopy(vtkDataObject* obj);
 
 protected:
   vtkOpenQubeElectronicData();
@@ -109,15 +109,14 @@ protected:
    * Calculates and returns the requested vtkImageData. The data is added to
    * the cache, but the cache is not searched in this function.
    */
-  vtkImageData * CalculateMO(vtkIdType orbitalNumber);
-  vtkImageData * CalculateElectronDensity();
+  vtkImageData* CalculateMO(vtkIdType orbitalNumber);
+  vtkImageData* CalculateElectronDensity();
   //@}
 
   /**
    * Converts an OpenQube::Cube object into vtkImageData.
    */
-  void FillImageDataFromQube(OpenQube::Cube *qube,
-                             vtkImageData *image);
+  void FillImageDataFromQube(OpenQube::Cube* qube, vtkImageData* image);
 
   /**
    * Cache of calculated image data.
@@ -127,7 +126,7 @@ protected:
   /**
    * The OpenQube::BasisSet object used to calculate the images.
    */
-  OpenQube::BasisSet *BasisSet;
+  OpenQube::BasisSet* BasisSet;
 
   /**
    * Used to determine the spacing of the image data.

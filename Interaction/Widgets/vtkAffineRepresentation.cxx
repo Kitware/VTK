@@ -13,10 +13,8 @@
 
 =========================================================================*/
 #include "vtkAffineRepresentation.h"
-#include "vtkTransform.h"
 #include "vtkObjectFactory.h"
-
-
+#include "vtkTransform.h"
 
 //----------------------------------------------------------------------
 vtkAffineRepresentation::vtkAffineRepresentation()
@@ -33,10 +31,10 @@ vtkAffineRepresentation::~vtkAffineRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkAffineRepresentation::ShallowCopy(vtkProp *prop)
+void vtkAffineRepresentation::ShallowCopy(vtkProp* prop)
 {
-  vtkAffineRepresentation *rep = vtkAffineRepresentation::SafeDownCast(prop);
-  if ( rep )
+  vtkAffineRepresentation* rep = vtkAffineRepresentation::SafeDownCast(prop);
+  if (rep)
   {
     this->SetTolerance(rep->GetTolerance());
   }
@@ -46,8 +44,8 @@ void vtkAffineRepresentation::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------
 void vtkAffineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
-  this->Superclass::PrintSelf(os,indent);
+  // Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }

@@ -26,24 +26,23 @@
  * This reader can only read files with version 1.1 or greater.
  * Older versions can be converted to the newer versions using
  * vtkXMLHierarchicalBoxDataFileConverter.
-*/
+ */
 
 #ifndef vtkXMLUniformGridAMRReader_h
 #define vtkXMLUniformGridAMRReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLCompositeDataReader.h"
+#include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkXMLCompositeDataReader.h"
 
 class vtkOverlappingAMR;
 class vtkUniformGridAMR;
 
-class VTKIOXML_EXPORT vtkXMLUniformGridAMRReader :
-  public vtkXMLCompositeDataReader
+class VTKIOXML_EXPORT vtkXMLUniformGridAMRReader : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLUniformGridAMRReader* New();
-  vtkTypeMacro(vtkXMLUniformGridAMRReader,vtkXMLCompositeDataReader);
+  vtkTypeMacro(vtkXMLUniformGridAMRReader, vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -93,24 +92,23 @@ protected:
    * Since this reader can handle all subclasses of vtkUniformGrid, we need to
    * check in the file to decide what type to create.
    */
-  int RequestDataObject(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Overridden to put vtkOverlappingAMR in the pipeline if
    * available/applicable.
    */
-  int RequestInformation(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   // Get the name of the data set being read.
   const char* GetDataSetName() override;
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  void ReadComposite(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex) override;
+  void ReadComposite(vtkXMLDataElement* element, vtkCompositeDataSet* composite,
+    const char* filePath, unsigned int& dataSetIndex) override;
 
   // Read the vtkDataSet (a leaf) in the composite dataset.
   vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath) override;

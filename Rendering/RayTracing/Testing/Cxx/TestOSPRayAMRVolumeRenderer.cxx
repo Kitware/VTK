@@ -23,13 +23,13 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
 
-int TestOSPRayAMRVolumeRenderer(int argc, char *argv[])
+int TestOSPRayAMRVolumeRenderer(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -41,7 +41,7 @@ int TestOSPRayAMRVolumeRenderer(int argc, char *argv[])
     }
   }
 
-  double scalarRange[2] = {4.849e-23,0.4145};
+  double scalarRange[2] = { 4.849e-23, 0.4145 };
   vtkNew<vtkAMRVolumeMapper> volumeMapper;
 
   vtkNew<vtkAMRGaussianPulseSource> amrSource;
@@ -80,8 +80,7 @@ int TestOSPRayAMRVolumeRenderer(int argc, char *argv[])
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
-  vtkColorTransferFunction* colorTransferFunction =
-    volumeProperty->GetRGBTransferFunction(0);
+  vtkColorTransferFunction* colorTransferFunction = volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.8, 0.6, 0.1);
   colorTransferFunction->AddRGBPoint(scalarRange[1], 0.1, 0.2, 0.8);
@@ -106,8 +105,8 @@ int TestOSPRayAMRVolumeRenderer(int argc, char *argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

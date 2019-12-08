@@ -169,8 +169,8 @@
 #ifndef vtkContinuousScatterplot_h
 #define vtkContinuousScatterplot_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkContinuousScatterplot : public vtkImageAlgorithm
 {
@@ -180,25 +180,25 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * Get the tolerance used when comparing floating point numbers for equality.
-  */
+   * Get the tolerance used when comparing floating point numbers for equality.
+   */
   vtkGetMacro(Epsilon, double);
 
   /**
-  * Set the tolerance used when comparing floating point numbers for equality.
-  */
+   * Set the tolerance used when comparing floating point numbers for equality.
+   */
   vtkSetMacro(Epsilon, double);
 
   /**
-  * Specify the name of the first field to be used in subdividing the dataset.
-  * Specify the resolution along x axis of the output image.
-  */
+   * Specify the name of the first field to be used in subdividing the dataset.
+   * Specify the resolution along x axis of the output image.
+   */
   void SetField1(const char* fieldName, vtkIdType ResX);
 
   /**
-  * Specify the name of the second field to be used in subdividing the dataset.
-  * Specify the resolution along y axis of the output image.
-  */
+   * Specify the name of the second field to be used in subdividing the dataset.
+   * Specify the resolution along y axis of the output image.
+   */
   void SetField2(const char* fieldName, vtkIdType ResY);
 
 protected:
@@ -209,8 +209,7 @@ protected:
 
   // Configure out port to be a vtkImageData data set.
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Set the tolerance used when comparing floating numbers for equality.
   double Epsilon;

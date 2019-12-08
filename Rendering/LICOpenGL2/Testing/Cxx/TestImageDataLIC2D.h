@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef  __TestImageDataLIC2D_h
-#define  __TestImageDataLIC2D_h
+#ifndef __TestImageDataLIC2D_h
+#define __TestImageDataLIC2D_h
 
 // Example demonstrating use of vtkImageDataLIC2D filter.
 // Typical usage:

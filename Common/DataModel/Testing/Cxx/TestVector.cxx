@@ -15,9 +15,9 @@
 
 #include "vtkSetGet.h"
 
+#include "vtkMathUtilities.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestVector(int, char*[])
@@ -34,16 +34,15 @@ int TestVector(int, char*[])
   {
     // The two should be the same size and memory layout - error out if not
     cerr << "vtkVector2i should be the same size as int[2]." << endl
-        << "sizeof(vec2i) = " << sizeof(vec2i) << endl
-        << "sizeof(int[2]) = " << sizeof(arr2i) << endl;
+         << "sizeof(vec2i) = " << sizeof(vec2i) << endl
+         << "sizeof(int[2]) = " << sizeof(arr2i) << endl;
     ++retVal;
   }
 
   vtkVector<float, 3> vector3f;
   if (vector3f.GetSize() != 3)
   {
-    cerr << "Incorrect size of vector3f, should be 3, but is "
-        << vector3f.GetSize() << endl;
+    cerr << "Incorrect size of vector3f, should be 3, but is " << vector3f.GetSize() << endl;
     ++retVal;
   }
 
@@ -52,35 +51,35 @@ int TestVector(int, char*[])
   if (vec3i.GetX() != vec3i[0] || vec3i.GetX() != 0)
   {
     cerr << "vec3i.GetX() should equal vec3i.GetData()[0] which should equal 0."
-        << "\nvec3i.GetX() = " << vec3i.GetX() << endl
-        << "vec3i[0] = " << vec3i[0] << endl;
+         << "\nvec3i.GetX() = " << vec3i.GetX() << endl
+         << "vec3i[0] = " << vec3i[0] << endl;
     ++retVal;
   }
   if (vec3i.GetY() != vec3i[1] || vec3i.GetY() != 6)
   {
     cerr << "vec3i.GetY() should equal vec3i.GetData()[1] which should equal 6."
-        << "\nvec3i.GetY() = " << vec3i.GetY() << endl
-        << "vec3i[1] = " << vec3i[1] << endl;
+         << "\nvec3i.GetY() = " << vec3i.GetY() << endl
+         << "vec3i[1] = " << vec3i[1] << endl;
     ++retVal;
   }
   if (vec3i.GetZ() != vec3i[2] || vec3i.GetZ() != 9)
   {
     cerr << "vec3i.GetZ() should equal vec3i.GetData()[2] which should equal 9."
-        << "\nvec3i.GetZ() = " << vec3i.GetZ() << endl
-        << "vec3i[2] = " << vec3i[2] << endl;
+         << "\nvec3i.GetZ() = " << vec3i.GetZ() << endl
+         << "vec3i[2] = " << vec3i[2] << endl;
     ++retVal;
   }
 
   // Assign the data to an int array and ensure the two ways of referencing are
   // the same.
-  int *intPtr = vec3i.GetData();
+  int* intPtr = vec3i.GetData();
   for (int i = 0; i < 3; ++i)
   {
     if (vec3i[i] != intPtr[i] || vec3i(i) != vec3i[i])
     {
       cerr << "Error: vec3i[i] != intPtr[i]" << endl
-          << "vec3i[i] = " << vec3i[i] << endl
-          << "intPtr[i] = " << intPtr[i] << endl;
+           << "vec3i[i] = " << vec3i[i] << endl
+           << "intPtr[i] = " << intPtr[i] << endl;
       ++retVal;
     }
   }
@@ -103,8 +102,8 @@ int TestVector(int, char*[])
   double dotted = normy.Dot(normed);
   if (!vtkMathUtilities::FuzzyCompare(dotted, 3.74166, 0.0001))
   {
-    cerr << "The dot product of " << normy << " and " << normed << " was "
-         << dotted << ", expected 3.74166." << endl;
+    cerr << "The dot product of " << normy << " and " << normed << " was " << dotted
+         << ", expected 3.74166." << endl;
     ++retVal;
   }
   if (!normed.Compare(vtkVector3d(0.267261, 0.534522, 0.801784), 0.0001))
@@ -119,31 +118,28 @@ int TestVector(int, char*[])
   }
   if (!vtkMathUtilities::FuzzyCompare(normy.Norm(), 1.0, 0.0001))
   {
-    cerr << "Normalized length should always be ~= 1.0, value is "
-         << normy.Norm() << endl;
+    cerr << "Normalized length should always be ~= 1.0, value is " << normy.Norm() << endl;
     ++retVal;
   }
   if (!vtkMathUtilities::FuzzyCompare(dotted, 3.74166, 0.0001))
   {
-    cerr << "The dot product of  "
-         << normy.Norm() << endl;
+    cerr << "The dot product of  " << normy.Norm() << endl;
     ++retVal;
   }
   if (!vtkMathUtilities::FuzzyCompare(normy.Dot(normed), 1.0, 0.0001))
   {
-    cerr << "The dot product of " << normy << " and " << normed << " was "
-         << normy.Dot(normed) << ", expected 1.0." << endl;
+    cerr << "The dot product of " << normy << " and " << normed << " was " << normy.Dot(normed)
+         << ", expected 1.0." << endl;
     ++retVal;
   }
   // Some cross product stuff now...
   if (!normy.Cross(normed).Compare(vtkVector3d(0, 0, 0), 0.0001))
   {
-    cerr << normy << " cross " << normed << " expected to be 0, got "
-         << normy.Cross(normed) << endl;
+    cerr << normy << " cross " << normed << " expected to be 0, got " << normy.Cross(normed)
+         << endl;
     ++retVal;
   }
-  if (!normy.Cross(vtkVector3d(0, 1, 0)).Compare(vtkVector3d(-0.801784, 0, 0.267261),
-                                                 0.0001))
+  if (!normy.Cross(vtkVector3d(0, 1, 0)).Compare(vtkVector3d(-0.801784, 0, 0.267261), 0.0001))
   {
     cerr << normy << " cross (0, 1, 0) expected to be (-0.801784, 0, 0.267261), got "
          << normy.Cross(normed) << endl;

@@ -27,21 +27,21 @@
  * or is a tarball along with installation instructions at
  * http://www.vtk.org/files/support/ffmpeg_source.tar.gz
  *
-*/
+ */
 
 #ifndef vtkFFMPEGWriter_h
 #define vtkFFMPEGWriter_h
 
-#include "vtkIOFFMPEGModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOFFMPEGModule.h" // For export macro
 
 class vtkFFMPEGWriterInternal;
 
 class VTKIOFFMPEG_EXPORT vtkFFMPEGWriter : public vtkGenericMovieWriter
 {
 public:
-  static vtkFFMPEGWriter *New();
-  vtkTypeMacro(vtkFFMPEGWriter,vtkGenericMovieWriter);
+  static vtkFFMPEGWriter* New();
+  vtkTypeMacro(vtkFFMPEGWriter, vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -78,7 +78,7 @@ public:
   /**
    * Set/Get the frame rate, in frame/s.
    */
-  vtkSetClampMacro(Rate, int , 1, 5000);
+  vtkSetClampMacro(Rate, int, 1, 5000);
   vtkGetMacro(Rate, int);
   //@}
 
@@ -102,7 +102,7 @@ protected:
   vtkFFMPEGWriter();
   ~vtkFFMPEGWriter();
 
-  vtkFFMPEGWriterInternal *Internals;
+  vtkFFMPEGWriterInternal* Internals;
 
   int Initialized;
   int Quality;

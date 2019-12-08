@@ -48,21 +48,21 @@ vtkPointSet* vtkPointSetAlgorithm::GetOutput(int port)
 
 //----------------------------------------------------------------------------
 // Get the output as vtkPolyData.
-vtkPolyData *vtkPointSetAlgorithm::GetPolyDataOutput()
+vtkPolyData* vtkPointSetAlgorithm::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkStructuredGrid.
-vtkStructuredGrid *vtkPointSetAlgorithm::GetStructuredGridOutput()
+vtkStructuredGrid* vtkPointSetAlgorithm::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkUnstructuredGrid.
-vtkUnstructuredGrid *vtkPointSetAlgorithm::GetUnstructuredGridOutput()
+vtkUnstructuredGrid* vtkPointSetAlgorithm::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
@@ -122,59 +122,53 @@ vtkDataObject* vtkPointSetAlgorithm::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetAlgorithm::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkPointSetAlgorithm::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->ExecuteInformation(request, inputVector, outputVector);
   }
 
   // set update extent
- if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
- {
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
     return this->ComputeInputUpdateExtent(request, inputVector, outputVector);
- }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 int vtkPointSetAlgorithm::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
   {
     return 0;
   }
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
   {
     // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkPointSet *output = vtkPointSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
+      vtkPointSet* output = vtkPointSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
       if (!output || !output->IsA(input->GetClassName()))
       {
@@ -189,8 +183,7 @@ int vtkPointSetAlgorithm::RequestDataObject(
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetAlgorithm::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPointSetAlgorithm::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPointSet");
@@ -198,8 +191,7 @@ int vtkPointSetAlgorithm::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetAlgorithm::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkPointSetAlgorithm::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
@@ -208,5 +200,5 @@ int vtkPointSetAlgorithm::FillInputPortInformation(
 //----------------------------------------------------------------------------
 void vtkPointSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

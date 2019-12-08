@@ -14,6 +14,7 @@
 =========================================================================*/
 #include <vtkAppendFilter.h>
 #include <vtkCellArray.h>
+#include <vtkCellArrayIterator.h>
 #include <vtkCompositeDataIterator.h>
 #include <vtkCompositePolyDataMapper2.h>
 #include <vtkCubeSource.h>
@@ -95,15 +96,18 @@ protected:
     pd2->SetPoints(aug->GetPoints());
     pd2->GetPointData()->ShallowCopy(aug->GetPointData());
 
-    // Update connectivity of second mesh by shifting point ids
-    vtkCellArray* polys = pd2->GetPolys();
-    polys->InitTraversal();
-    vtkIdType npts, *pts;
-    while (polys->GetNextCell(npts, pts))
-    {
-      for (vtkIdType i = 0; i < npts; i++)
+    { // Update connectivity of second mesh by shifting point ids
+      vtkCellArray* polys = pd2->GetPolys();
+      auto cellIter = vtk::TakeSmartPointer(polys->NewIterator());
+      vtkNew<vtkIdList> cell;
+      for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
       {
-        pts[i] += cube1npts;
+        cellIter->GetCurrentCell(cell);
+        for (vtkIdType i = 0; i < cell->GetNumberOfIds(); i++)
+        {
+          cell->SetId(i, cell->GetId(i) + cube1npts);
+        }
+        cellIter->ReplaceCurrentCell(cell);
       }
     }
 

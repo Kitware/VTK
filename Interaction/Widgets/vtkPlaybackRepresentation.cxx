@@ -13,22 +13,21 @@
 
 =========================================================================*/
 #include "vtkPlaybackRepresentation.h"
-#include "vtkCameraInterpolator.h"
+#include "vtkActor2D.h"
 #include "vtkCallbackCommand.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkCamera.h"
-#include "vtkPoints.h"
+#include "vtkCameraInterpolator.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkActor2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-
 
 vtkStandardNewMacro(vtkPlaybackRepresentation);
 
@@ -37,7 +36,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   // Set up the geometry
   double size[2];
   this->GetSize(size);
-  this->Position2Coordinate->SetValue(0.04*size[0], 0.04*size[1]);
+  this->Position2Coordinate->SetValue(0.04 * size[0], 0.04 * size[1]);
   this->ProportionalResize = 1;
   this->Moving = 1;
   this->SetShowBorder(vtkBorderRepresentation::BORDER_ON);
@@ -90,28 +89,28 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   this->Points->SetPoint(41, 11.7, 0.2, 0.0);
   this->Points->SetPoint(42, 11.7, 1.8, 0.0);
 
-  vtkCellArray *lines = vtkCellArray::New();
-  lines->InsertNextCell(2); //left jump
+  vtkCellArray* lines = vtkCellArray::New();
+  lines->InsertNextCell(2); // left jump
   lines->InsertCellPoint(0);
   lines->InsertCellPoint(1);
-  lines->InsertNextCell(5); //left frame
+  lines->InsertNextCell(5); // left frame
   lines->InsertCellPoint(8);
   lines->InsertCellPoint(9);
   lines->InsertCellPoint(10);
   lines->InsertCellPoint(11);
   lines->InsertCellPoint(8);
-  lines->InsertNextCell(5); //right frame
+  lines->InsertNextCell(5); // right frame
   lines->InsertCellPoint(31);
   lines->InsertCellPoint(32);
   lines->InsertCellPoint(33);
   lines->InsertCellPoint(34);
   lines->InsertCellPoint(31);
-  lines->InsertNextCell(2); //right jump
+  lines->InsertNextCell(2); // right jump
   lines->InsertCellPoint(41);
   lines->InsertCellPoint(42);
 
-  vtkCellArray *polys = vtkCellArray::New();
-  polys->InsertNextCell(3); //left jump
+  vtkCellArray* polys = vtkCellArray::New();
+  polys->InsertNextCell(3); // left jump
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
   polys->InsertCellPoint(4);
@@ -119,7 +118,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(5);
   polys->InsertCellPoint(6);
   polys->InsertCellPoint(7);
-  polys->InsertNextCell(3); //left frame
+  polys->InsertNextCell(3); // left frame
   polys->InsertCellPoint(12);
   polys->InsertCellPoint(13);
   polys->InsertCellPoint(14);
@@ -127,16 +126,16 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(15);
   polys->InsertCellPoint(16);
   polys->InsertCellPoint(17);
-  polys->InsertNextCell(4); //stop
+  polys->InsertNextCell(4); // stop
   polys->InsertCellPoint(18);
   polys->InsertCellPoint(19);
   polys->InsertCellPoint(20);
   polys->InsertCellPoint(21);
-  polys->InsertNextCell(3); //play
+  polys->InsertNextCell(3); // play
   polys->InsertCellPoint(22);
   polys->InsertCellPoint(23);
   polys->InsertCellPoint(24);
-  polys->InsertNextCell(3); //right frame
+  polys->InsertNextCell(3); // right frame
   polys->InsertCellPoint(25);
   polys->InsertCellPoint(26);
   polys->InsertCellPoint(27);
@@ -144,7 +143,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(28);
   polys->InsertCellPoint(29);
   polys->InsertCellPoint(30);
-  polys->InsertNextCell(3); //right jump
+  polys->InsertNextCell(3); // right jump
   polys->InsertCellPoint(35);
   polys->InsertCellPoint(36);
   polys->InsertCellPoint(37);
@@ -165,8 +164,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   this->TransformFilter->SetInputData(this->PolyData);
 
   this->Mapper = vtkPolyDataMapper2D::New();
-  this->Mapper->SetInputConnection(
-    this->TransformFilter->GetOutputPort());
+  this->Mapper->SetInputConnection(this->TransformFilter->GetOutputPort());
   this->Property = vtkProperty2D::New();
   this->Actor = vtkActor2D::New();
   this->Actor->SetMapper(this->Mapper);
@@ -192,21 +190,21 @@ void vtkPlaybackRepresentation::BuildRepresentation()
 }
 
 //-------------------------------------------------------------------------
-void vtkPlaybackRepresentation::GetActors2D(vtkPropCollection *pc)
+void vtkPlaybackRepresentation::GetActors2D(vtkPropCollection* pc)
 {
   pc->AddItem(this->Actor);
   this->Superclass::GetActors2D(pc);
 }
 
 //-------------------------------------------------------------------------
-void vtkPlaybackRepresentation::ReleaseGraphicsResources(vtkWindow *w)
+void vtkPlaybackRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Actor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
 //-------------------------------------------------------------------------
-int vtkPlaybackRepresentation::RenderOverlay(vtkViewport *w)
+int vtkPlaybackRepresentation::RenderOverlay(vtkViewport* w)
 {
   int count = this->Superclass::RenderOverlay(w);
   count += this->Actor->RenderOverlay(w);
@@ -214,7 +212,7 @@ int vtkPlaybackRepresentation::RenderOverlay(vtkViewport *w)
 }
 
 //-------------------------------------------------------------------------
-int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport *w)
+int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
   count += this->Actor->RenderOpaqueGeometry(w);
@@ -222,8 +220,7 @@ int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(
-  vtkViewport *w)
+int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* w)
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
   count += this->Actor->RenderTranslucentPolygonalGeometry(w);
@@ -243,16 +240,15 @@ vtkTypeBool vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
 //-------------------------------------------------------------------------
 void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Property )
+  if (this->Property)
   {
     os << indent << "Property:\n";
-    this->Property->PrintSelf(os,indent.GetNextIndent());
+    this->Property->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Property: (none)\n";
   }
-
 }

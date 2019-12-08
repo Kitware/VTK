@@ -20,7 +20,7 @@
  * used for testing and evaluating the Generic framework.
  * @sa
  * vtkGenericPointIterator, vtkBridgeDataSet
-*/
+ */
 
 #ifndef vtkBridgePointIterator_h
 #define vtkBridgePointIterator_h
@@ -34,12 +34,11 @@ class vtkBridgePointIteratorOnDataSet;
 class vtkBridgePointIteratorOne;
 class vtkBridgePointIteratorOnCell;
 
-
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIterator : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIterator *New();
-  vtkTypeMacro(vtkBridgePointIterator,vtkGenericPointIterator);
+  static vtkBridgePointIterator* New();
+  vtkTypeMacro(vtkBridgePointIterator, vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -63,7 +62,7 @@ public:
    * \pre not_off: !IsAtEnd()
    * \post result_exists: result!=0
    */
-  double *GetPosition() override;
+  double* GetPosition() override;
 
   /**
    * Point at iterator position.
@@ -83,7 +82,7 @@ public:
    * Iterate over points of `ds'.
    * \pre ds_exists: ds!=0
    */
-  void InitWithDataSet(vtkBridgeDataSet *ds);
+  void InitWithDataSet(vtkBridgeDataSet* ds);
 
   /**
    * Used internally by vtkBridgeDataSet.
@@ -91,14 +90,13 @@ public:
    * \pre ds_can_be_null: ds!=0 || ds==0
    * \pre valid_id: vtkImplies(ds!=0,(id>=0)&&(id<=ds->GetNumberOfCells()))
    */
-  void InitWithOnePoint(vtkBridgeDataSet *ds,
-                        vtkIdType id);
+  void InitWithOnePoint(vtkBridgeDataSet* ds, vtkIdType id);
 
   /**
    * The iterator will iterate over the point of a cell
    * \pre cell_exists: cell!=0
    */
-  void InitWithCell(vtkBridgeCell *cell);
+  void InitWithCell(vtkBridgeCell* cell);
 
 protected:
   /**
@@ -111,10 +109,10 @@ protected:
    */
   ~vtkBridgePointIterator() override;
 
-  vtkGenericPointIterator *CurrentIterator;
-  vtkBridgePointIteratorOnDataSet *IteratorOnDataSet;
-  vtkBridgePointIteratorOne *IteratorOne;
-  vtkBridgePointIteratorOnCell *IteratorOnCell;
+  vtkGenericPointIterator* CurrentIterator;
+  vtkBridgePointIteratorOnDataSet* IteratorOnDataSet;
+  vtkBridgePointIteratorOne* IteratorOne;
+  vtkBridgePointIteratorOnCell* IteratorOnCell;
 
 private:
   vtkBridgePointIterator(const vtkBridgePointIterator&) = delete;

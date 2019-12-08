@@ -27,6 +27,7 @@
 #include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLSkybox.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPBRIrradianceTexture.h"
@@ -38,7 +39,6 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -118,6 +118,7 @@ int TestPBRMapping(int argc, char* argv[])
   delete[] colname;
 
   vtkNew<vtkTexture> albedo;
+  albedo->UseSRGBColorSpaceOn();
   albedo->InterpolateOn();
   albedo->SetInputConnection(albedoReader->GetOutputPort());
 

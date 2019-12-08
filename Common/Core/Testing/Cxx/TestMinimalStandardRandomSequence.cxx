@@ -25,34 +25,32 @@
 // 31, 10 (Oct. 1988) pp. 1192-1201.
 // Code is at page 1195, "Integer version 2"
 
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkDebugLeaks.h"
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 
-int TestMinimalStandardRandomSequence(int,char *[])
+int TestMinimalStandardRandomSequence(int, char*[])
 {
-  vtkMinimalStandardRandomSequence *seq
-    =vtkMinimalStandardRandomSequence::New();
+  vtkMinimalStandardRandomSequence* seq = vtkMinimalStandardRandomSequence::New();
 
   seq->SetSeedOnly(1);
 
   // Check seed has been set
-  bool status=seq->GetSeed()==1;
+  bool status = seq->GetSeed() == 1;
 
-  if(status)
+  if (status)
   {
-    int i=0;
-    while(i<10000)
+    int i = 0;
+    while (i < 10000)
     {
-//      cout << "i=" << i << " seed=" << seq->GetSeed()<< endl;
+      //      cout << "i=" << i << " seed=" << seq->GetSeed()<< endl;
       seq->Next();
       ++i;
     }
-    status=seq->GetSeed()==1043618065;
-    if(!status)
+    status = seq->GetSeed() == 1043618065;
+    if (!status)
     {
-      cout << "FAILED: seed is not 1043618065, it is " << seq->GetSeed()
-           << endl;
+      cout << "FAILED: seed is not 1043618065, it is " << seq->GetSeed() << endl;
     }
   }
   else
@@ -61,46 +59,44 @@ int TestMinimalStandardRandomSequence(int,char *[])
   }
 
   vtkMath::RandomSeed(1);
-  int i=0;
-  while(i<9997)
+  int i = 0;
+  while (i < 9997)
   {
     // cout << "i=" << i << " seed=" << vtkMath::GetSeed() << endl;
     vtkMath::Random();
     ++i;
   }
-  status=vtkMath::GetSeed()==1043618065;
-  if(!status)
+  status = vtkMath::GetSeed() == 1043618065;
+  if (!status)
   {
-    cout << "FAILED: static seed is not 1043618065, it is " << vtkMath::GetSeed()
-         << endl;
+    cout << "FAILED: static seed is not 1043618065, it is " << vtkMath::GetSeed() << endl;
   }
 
   seq->SetSeed(1);
-  i=0;
-  while(i<9997)
+  i = 0;
+  while (i < 9997)
   {
     // cout << "i=" << i << " seed=" << vtkMath::GetSeed() << endl;
     seq->Next();
     ++i;
   }
-  status=seq->GetSeed()==1043618065;
-  if(!status)
+  status = seq->GetSeed() == 1043618065;
+  if (!status)
   {
-    cout << "FAILED: seed auto is not 1043618065, it is " << seq->GetSeed()
-         << endl;
+    cout << "FAILED: seed auto is not 1043618065, it is " << seq->GetSeed() << endl;
   }
   seq->Delete();
   int result;
 
-  if(status)
+  if (status)
   {
     // passed.
-    result=0;
+    result = 0;
   }
   else
   {
     // failed.
-    result=1;
+    result = 1;
   }
   return result;
 }

@@ -24,17 +24,17 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProperty.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
-void FillShaderProperty( vtkActor * actor )
+void FillShaderProperty(vtkActor* actor)
 {
   // Modify the shader to color based on model normal
   // To do this we have to modify the vertex shader
@@ -45,47 +45,36 @@ void FillShaderProperty( vtkActor * actor )
   // Then we modify the fragment shader to set the diffuse color
   // based on that normal. First lets modify the vertex
   // shader
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  sp->AddVertexShaderReplacement(
-    "//VTK::Normal::Dec", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Dec\n" // we still want the default
-    "  out vec3 myNormalMCVSOutput;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddVertexShaderReplacement(
-    "//VTK::Normal::Impl", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Impl\n" // we still want the default
-    "  myNormalMCVSOutput = normalMC;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddVertexShaderReplacement(
-    "//VTK::Color::Impl", // dummy replacement for testing clear method
-    true,
-    "VTK::Color::Impl\n",
-    false
-    );
-  sp->ClearVertexShaderReplacement(
-    "//VTK::Color::Impl",
-    true
-    );
+  vtkShaderProperty* sp = actor->GetShaderProperty();
+  sp->AddVertexShaderReplacement("//VTK::Normal::Dec", // replace the normal block
+    true,                                              // before the standard replacements
+    "//VTK::Normal::Dec\n"                             // we still want the default
+    "  out vec3 myNormalMCVSOutput;\n",                // but we add this
+    false                                              // only do it once
+  );
+  sp->AddVertexShaderReplacement("//VTK::Normal::Impl", // replace the normal block
+    true,                                               // before the standard replacements
+    "//VTK::Normal::Impl\n"                             // we still want the default
+    "  myNormalMCVSOutput = normalMC;\n",               // but we add this
+    false                                               // only do it once
+  );
+  sp->AddVertexShaderReplacement("//VTK::Color::Impl", // dummy replacement for testing clear method
+    true, "VTK::Color::Impl\n", false);
+  sp->ClearVertexShaderReplacement("//VTK::Color::Impl", true);
 
   // now modify the fragment shader
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Normal::Dec", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Dec\n" // we still want the default
-    "  in vec3 myNormalMCVSOutput;\n", //but we add this
-    false // only do it once
-    );
-  sp->AddFragmentShaderReplacement(
-    "//VTK::Normal::Impl", // replace the normal block
-    true, // before the standard replacements
-    "//VTK::Normal::Impl\n" // we still want the default calc
-    "  diffuseColor = abs(myNormalMCVSOutput);\n", //but we add this
-    false // only do it once
-    );
+  sp->AddFragmentShaderReplacement("//VTK::Normal::Dec", // replace the normal block
+    true,                                                // before the standard replacements
+    "//VTK::Normal::Dec\n"                               // we still want the default
+    "  in vec3 myNormalMCVSOutput;\n",                   // but we add this
+    false                                                // only do it once
+  );
+  sp->AddFragmentShaderReplacement("//VTK::Normal::Impl", // replace the normal block
+    true,                                                 // before the standard replacements
+    "//VTK::Normal::Impl\n"                               // we still want the default calc
+    "  diffuseColor = abs(myNormalMCVSOutput);\n",        // but we add this
+    false                                                 // only do it once
+  );
 }
 
 int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
@@ -95,7 +84,7 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   // Generate two copies of a vtkPolyData containing the same sphere
   vtkNew<vtkSphereSource> sphereSource;
   sphereSource->Update();
-  vtkPolyData *sphere = vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
+  vtkPolyData* sphere = vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
 
   vtkSmartPointer<vtkPolyData> sphere1 = vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
   sphere1->DeepCopy(sphere);
@@ -131,12 +120,13 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   lut->Build();
 
   vtkNew<vtkCompositePolyDataMapper2> mapper;
-  mapper->SetInputDataObject( mbds );
+  mapper->SetInputDataObject(mbds);
   mapper->SetLookupTable(lut);
   mapper->SetScalarVisibility(1);
   mapper->SetScalarRange(scalars->GetRange());
   mapper->SetColorMissingArraysWithNanColor(true);
-  mapper->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,vtkDataSetAttributes::SCALARS);
+  mapper->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
@@ -149,7 +139,7 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-  FillShaderProperty( actor.GetPointer() );
+  FillShaderProperty(actor.GetPointer());
   renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -158,16 +148,16 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   renWin->AddRenderer(renderer);
 
-  renWin->SetSize(500,500);
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renWin->SetSize(500, 500);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin,15);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renWin, 15);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

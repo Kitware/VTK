@@ -23,7 +23,7 @@
  * Only the whole extent is modified.
  * 2: If ClipDataOn is set, then you will get no more that the clipped
  * extent.
-*/
+ */
 
 #ifndef vtkRectilinearGridClip_h
 #define vtkRectilinearGridClip_h
@@ -37,19 +37,18 @@
 class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
 {
 public:
-  static vtkRectilinearGridClip *New();
-  vtkTypeMacro(vtkRectilinearGridClip,vtkRectilinearGridAlgorithm);
+  static vtkRectilinearGridClip* New();
+  vtkTypeMacro(vtkRectilinearGridClip, vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * The whole extent of the output has to be set explicitly.
    */
-  void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=nullptr);
-  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
-                            int minZ, int maxZ);
+  void SetOutputWholeExtent(int extent[6], vtkInformation* outInfo = nullptr);
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
-  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  int* GetOutputWholeExtent() { return this->OutputWholeExtent; }
   //@}
 
   void ResetOutputWholeExtent();
@@ -76,24 +75,15 @@ protected:
 
   vtkTypeBool ClipData;
 
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void CopyData(vtkRectilinearGrid *inData, vtkRectilinearGrid *outData, int *ext);
+  void CopyData(vtkRectilinearGrid* inData, vtkRectilinearGrid* outData, int* ext);
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkRectilinearGridClip(const vtkRectilinearGridClip&) = delete;
   void operator=(const vtkRectilinearGridClip&) = delete;
 };
 
-
-
 #endif
-
-
-

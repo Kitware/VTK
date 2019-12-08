@@ -20,13 +20,13 @@
  * to graphics primitives. vtkPolyDataMapper serves as a superclass for
  * device-specific poly data mappers, that actually do the mapping to the
  * rendering/graphics hardware/software.
-*/
+ */
 
 #ifndef vtkPolyDataMapper_h
 #define vtkPolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 //#include "vtkTexture.h" // used to include texture unit enum.
 
 class vtkPolyData;
@@ -36,26 +36,26 @@ class vtkRenderWindow;
 class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
 {
 public:
-  static vtkPolyDataMapper *New();
+  static vtkPolyDataMapper* New();
   vtkTypeMacro(vtkPolyDataMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) = 0;
+  virtual void RenderPiece(vtkRenderer* ren, vtkActor* act) = 0;
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
    */
-  void Render(vtkRenderer *ren, vtkActor *act) override;
+  void Render(vtkRenderer* ren, vtkActor* act) override;
 
   //@{
   /**
    * Specify the input data to map.
    */
-  void SetInputData(vtkPolyData *in);
-  vtkPolyData *GetInput();
+  void SetInputData(vtkPolyData* in);
+  vtkPolyData* GetInput();
   //@}
 
   //@{
@@ -64,8 +64,8 @@ public:
    */
   void Update(int port) override;
   void Update() override;
-  int Update(int port, vtkInformationVector* requests) override;
-  int Update(vtkInformation* requests) override;
+  vtkTypeBool Update(int port, vtkInformationVector* requests) override;
+  vtkTypeBool Update(vtkInformation* requests) override;
   //@}
 
   //@{
@@ -88,18 +88,34 @@ public:
   vtkGetMacro(GhostLevel, int);
   //@}
 
+  //@{
+  /**
+   * Accessors / Mutators for handling seams on wrapping surfaces. Letters U and V stand for
+   * texture coordinates (u,v).
+   *
+   * @note Implementation taken from the work of Marco Tarini:
+   * Cylindrical and Toroidal Parameterizations Without Vertex Seams
+   * Journal of Graphics Tools, 2012, number 3, volume 16, pages 144-150.
+   */
+  vtkSetMacro(SeamlessU, bool);
+  vtkGetMacro(SeamlessU, bool);
+  vtkBooleanMacro(SeamlessU, bool);
+  vtkSetMacro(SeamlessV, bool);
+  vtkGetMacro(SeamlessV, bool);
+  vtkBooleanMacro(SeamlessV, bool);
+  //@}
+
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) override
-    { this->Superclass::GetBounds(bounds); }
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetBounds(double bounds[6]) override { this->Superclass::GetBounds(bounds); }
 
   /**
    * Make a shallow copy of this mapper.
    */
-  void ShallowCopy(vtkAbstractMapper *m) override;
+  void ShallowCopy(vtkAbstractMapper* m) override;
 
   /**
    * Select a data array from the point/cell data
@@ -113,16 +129,14 @@ public:
    * the attribute. If -1, then all components are passed.
    * Currently only point data is supported.
    */
-  virtual void MapDataArrayToVertexAttribute(
-    const char* vertexAttributeName,
+  virtual void MapDataArrayToVertexAttribute(const char* vertexAttributeName,
     const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   // Specify a data array to use as the texture coordinate
   // for a named texture. See vtkProperty.h for how to
   // name textures.
   virtual void MapDataArrayToMultiTextureAttribute(
-    const char *textureName,
-    const char* dataArrayName, int fieldAssociation, int componentno = -1);
+    const char* textureName, const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
   /**
    * Remove a vertex attribute mapping.
@@ -137,9 +151,8 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkPolyDataMapper();
@@ -156,6 +169,7 @@ protected:
   int NumberOfPieces;
   int NumberOfSubPieces;
   int GhostLevel;
+  bool SeamlessU, SeamlessV;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 

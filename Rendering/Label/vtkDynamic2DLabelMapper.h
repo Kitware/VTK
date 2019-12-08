@@ -48,13 +48,13 @@
  * This algorithm was developed in the paper
  * Ken Been and Chee Yap. Dynamic Map Labeling. IEEE Transactions on
  * Visualization and Computer Graphics, Vol. 12, No. 5, 2006. pp. 773-780.
-*/
+ */
 
 #ifndef vtkDynamic2DLabelMapper_h
 #define vtkDynamic2DLabelMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {
@@ -64,7 +64,7 @@ public:
    * Instantiate object with %%-#6.3g label format. By default, point ids
    * are labeled.
    */
-  static vtkDynamic2DLabelMapper *New();
+  static vtkDynamic2DLabelMapper* New();
   vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -110,7 +110,7 @@ public:
    * Draw non-overlapping labels to the screen.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
   //@}
 
 protected:
@@ -120,7 +120,7 @@ protected:
   /**
    * Calculate the current zoom scale of the viewport.
    */
-  double GetCurrentScale(vtkViewport *viewport);
+  double GetCurrentScale(vtkViewport* viewport);
 
   float* LabelWidth;
   float* LabelHeight;
@@ -137,4 +137,3 @@ private:
 };
 
 #endif
-

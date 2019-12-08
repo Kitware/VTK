@@ -15,8 +15,7 @@
 #include "vtkPlane.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
@@ -45,8 +44,8 @@ double vtkPlane::DistanceToPlane(double x[3])
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlane::ProjectPoint(const double x[3], const double origin[3],
-                            const double normal[3], double xproj[3])
+void vtkPlane::ProjectPoint(
+  const double x[3], const double origin[3], const double normal[3], double xproj[3])
 {
   double t, xo[3];
 
@@ -54,7 +53,7 @@ void vtkPlane::ProjectPoint(const double x[3], const double origin[3],
   xo[1] = x[1] - origin[1];
   xo[2] = x[2] - origin[2];
 
-  t = vtkMath::Dot(normal,xo);
+  t = vtkMath::Dot(normal, xo);
 
   xproj[0] = x[0] - t * normal[0];
   xproj[1] = x[1] - t * normal[1];
@@ -69,8 +68,7 @@ void vtkPlane::ProjectPoint(const double x[3], double xproj[3])
 
 //-----------------------------------------------------------------------------
 void vtkPlane::ProjectVector(
-  const double v[3], const double vtkNotUsed(origin)[3], const double normal[3],
-  double vproj[3])
+  const double v[3], const double vtkNotUsed(origin)[3], const double normal[3], double vproj[3])
 {
   double t = vtkMath::Dot(v, normal);
   double n2 = vtkMath::Dot(normal, normal);
@@ -89,17 +87,16 @@ void vtkPlane::ProjectVector(const double v[3], double vproj[3])
   this->ProjectVector(v, this->GetOrigin(), this->GetNormal(), vproj);
 }
 
-
 //-----------------------------------------------------------------------------
 void vtkPlane::Push(double distance)
 {
   int i;
 
-  if ( distance == 0.0 )
+  if (distance == 0.0)
   {
     return;
   }
-  for (i=0; i < 3; i++ )
+  for (i = 0; i < 3; i++)
   {
     this->Origin[i] += distance * this->Normal[i];
   }
@@ -110,8 +107,8 @@ void vtkPlane::Push(double distance)
 // Project a point x onto plane defined by origin and normal. The
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
-void vtkPlane::GeneralizedProjectPoint(const double x[3], const double origin[3],
-                                       const double normal[3], double xproj[3])
+void vtkPlane::GeneralizedProjectPoint(
+  const double x[3], const double origin[3], const double normal[3], double xproj[3])
 {
   double t, xo[3], n2;
 
@@ -119,14 +116,14 @@ void vtkPlane::GeneralizedProjectPoint(const double x[3], const double origin[3]
   xo[1] = x[1] - origin[1];
   xo[2] = x[2] - origin[2];
 
-  t = vtkMath::Dot(normal,xo);
+  t = vtkMath::Dot(normal, xo);
   n2 = vtkMath::Dot(normal, normal);
 
   if (n2 != 0)
   {
-    xproj[0] = x[0] - t * normal[0]/n2;
-    xproj[1] = x[1] - t * normal[1]/n2;
-    xproj[2] = x[2] - t * normal[2]/n2;
+    xproj[0] = x[0] - t * normal[0] / n2;
+    xproj[1] = x[1] - t * normal[1] / n2;
+    xproj[2] = x[2] - t * normal[2] / n2;
   }
   else
   {
@@ -146,16 +143,15 @@ void vtkPlane::GeneralizedProjectPoint(const double x[3], double xproj[3])
 // Evaluate plane equation for point x[3].
 double vtkPlane::EvaluateFunction(double x[3])
 {
-  return ( this->Normal[0]*(x[0]-this->Origin[0]) +
-           this->Normal[1]*(x[1]-this->Origin[1]) +
-           this->Normal[2]*(x[2]-this->Origin[2]) );
+  return (this->Normal[0] * (x[0] - this->Origin[0]) + this->Normal[1] * (x[1] - this->Origin[1]) +
+    this->Normal[2] * (x[2] - this->Origin[2]));
 }
 
 //-----------------------------------------------------------------------------
 // Evaluate function gradient at point x[3].
 void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 {
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     n[i] = this->Normal[i];
   }
@@ -170,8 +166,8 @@ void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 // intersection are returned in x. A zero is returned if the plane and line
 // do not intersect between (0<=t<=1). If the plane and line are parallel,
 // zero is returned and t is set to VTK_LARGE_DOUBLE.
-int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double n[3],
-                               double p0[3], double& t, double x[3])
+int vtkPlane::IntersectWithLine(
+  const double p1[3], const double p2[3], double n[3], double p0[3], double& t, double x[3])
 {
   double num, den, p21[3];
   double fabsden, fabstolerance;
@@ -184,8 +180,8 @@ int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double n
 
   // Compute denominator.  If ~0, line and plane are parallel.
   //
-  num = vtkMath::Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
-  den = n[0]*p21[0] + n[1]*p21[1] + n[2]*p21[2];
+  num = vtkMath::Dot(n, p0) - (n[0] * p1[0] + n[1] * p1[1] + n[2] * p1[2]);
+  den = n[0] * p21[0] + n[1] * p21[1] + n[2] * p21[2];
   //
   // If denominator with respect to numerator is "zero", then the line and
   // plane are considered parallel.
@@ -202,13 +198,13 @@ int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double n
   }
   if (num < 0.0)
   {
-    fabstolerance = -num*VTK_PLANE_TOL;
+    fabstolerance = -num * VTK_PLANE_TOL;
   }
   else
   {
-    fabstolerance = num*VTK_PLANE_TOL;
+    fabstolerance = num * VTK_PLANE_TOL;
   }
-  if ( fabsden <= fabstolerance )
+  if (fabsden <= fabstolerance)
   {
     t = VTK_DOUBLE_MAX;
     return 0;
@@ -217,11 +213,11 @@ int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double n
   // valid intersection
   t = num / den;
 
-  x[0] = p1[0] + t*p21[0];
-  x[1] = p1[1] + t*p21[1];
-  x[2] = p1[2] + t*p21[2];
+  x[0] = p1[0] + t * p21[0];
+  x[1] = p1[1] + t * p21[1];
+  x[2] = p1[2] + t * p21[2];
 
-  if ( t >= 0.0 && t <= 1.0 )
+  if (t >= 0.0 && t <= 1.0)
   {
     return 1;
   }
@@ -232,31 +228,37 @@ int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double n
 }
 
 // Accelerate plane cutting operation
-namespace {
-template <typename InputArrayType, typename OutputArrayType> struct CutWorker
+namespace
 {
-  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType InputValueType;
-  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType OutputValueType;
+template <typename InputArrayType, typename OutputArrayType>
+struct CutWorker
+{
+  using InputValueType = vtk::GetAPIType<InputArrayType>;
+  using OutputValueType = vtk::GetAPIType<OutputArrayType>;
+
+  InputArrayType* Input;
+  OutputArrayType* Output;
   OutputValueType Normal[3];
   OutputValueType Origin[3];
-  vtkDataArrayAccessor<InputArrayType> src;
-  vtkDataArrayAccessor<OutputArrayType> dest;
 
-  CutWorker(InputArrayType* in, OutputArrayType* out) : src(in), dest(out) {}
+  CutWorker(InputArrayType* in, OutputArrayType* out)
+    : Input(in)
+    , Output(out)
+  {
+  }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    for (vtkIdType tIdx = begin; tIdx < end; ++tIdx)
-    {
-      OutputValueType x[3];
-      x[0] = static_cast<OutputValueType>(src.Get(tIdx, 0));
-      x[1] = static_cast<OutputValueType>(src.Get(tIdx, 1));
-      x[2] = static_cast<OutputValueType>(src.Get(tIdx, 2));
-      OutputValueType out =
-          Normal[0] * (x[0] - Origin[0]) +
-          Normal[1] * (x[1] - Origin[1]) +
-          Normal[2] * (x[2] - Origin[2]);
-      dest.Set(tIdx, 0, out);
-    }
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(this->Input, begin, end);
+    auto dstValues = vtk::DataArrayValueRange<1>(this->Output, begin, end);
+
+    using DstTupleCRefType = typename decltype(srcTuples)::ConstTupleReferenceType;
+
+    std::transform(srcTuples.cbegin(), srcTuples.cend(), dstValues.begin(),
+      [&](DstTupleCRefType tuple) -> OutputValueType {
+        return this->Normal[0] * (static_cast<OutputValueType>(tuple[0]) - this->Origin[0]) +
+          this->Normal[1] * (static_cast<OutputValueType>(tuple[1]) - this->Origin[1]) +
+          this->Normal[2] * (static_cast<OutputValueType>(tuple[2]) - this->Origin[2]);
+      });
   }
 };
 
@@ -287,8 +289,8 @@ struct CutFunctionWorker
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
   CutFunctionWorker worker(this->Normal, this->Origin);
-  typedef vtkTypeList_Create_2(float, double) InputTypes;
-  typedef vtkTypeList_Create_2(float, double) OutputTypes;
+  typedef vtkTypeList::Create<float, double> InputTypes;
+  typedef vtkTypeList::Create<float, double> OutputTypes;
   typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))
   {
@@ -303,10 +305,8 @@ int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3], double& 
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlane::
-IntersectWithFinitePlane(double n[3], double o[3],
-                         double pOrigin[3], double px[3], double py[3],
-                         double x0[3], double x1[3])
+int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[3], double px[3],
+  double py[3], double x0[3], double x1[3])
 {
   // Since we are dealing with convex shapes, if there is an intersection a
   // single line is produced as output. So all this is necessary is to
@@ -323,7 +323,7 @@ IntersectWithFinitePlane(double n[3], double o[3],
   xr1[0] = px[0];
   xr1[1] = px[1];
   xr1[2] = px[2];
-  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  if (vtkPlane::IntersectWithLine(xr0, xr1, n, o, t, x))
   {
     numInts++;
     x = x1;
@@ -333,12 +333,12 @@ IntersectWithFinitePlane(double n[3], double o[3],
   xr1[0] = py[0];
   xr1[1] = py[1];
   xr1[2] = py[2];
-  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  if (vtkPlane::IntersectWithLine(xr0, xr1, n, o, t, x))
   {
     numInts++;
     x = x1;
   }
-  if (numInts == 2 )
+  if (numInts == 2)
   {
     return 1;
   }
@@ -347,12 +347,12 @@ IntersectWithFinitePlane(double n[3], double o[3],
   xr0[0] = pOrigin[0] + px[0] + py[0];
   xr0[1] = pOrigin[1] + px[1] + py[1];
   xr0[2] = pOrigin[2] + px[2] + py[2];
-  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  if (vtkPlane::IntersectWithLine(xr0, xr1, n, o, t, x))
   {
     numInts++;
     x = x1;
   }
-  if (numInts == 2 )
+  if (numInts == 2)
   {
     return 1;
   }
@@ -361,11 +361,11 @@ IntersectWithFinitePlane(double n[3], double o[3],
   xr1[0] = px[0];
   xr1[1] = px[1];
   xr1[2] = px[2];
-  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  if (vtkPlane::IntersectWithLine(xr0, xr1, n, o, t, x))
   {
     numInts++;
   }
-  if (numInts == 2 )
+  if (numInts == 2)
   {
     return 1;
   }
@@ -375,22 +375,21 @@ IntersectWithFinitePlane(double n[3], double o[3],
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlane::
-IntersectWithFinitePlane(double pOrigin[3], double px[3], double py[3],
-                         double x0[3], double x1[3])
+int vtkPlane::IntersectWithFinitePlane(
+  double pOrigin[3], double px[3], double py[3], double x0[3], double x1[3])
 {
-  return this->IntersectWithFinitePlane(this->GetNormal(), this->GetOrigin(),
-                                        pOrigin, px, py, x0, x1);
+  return this->IntersectWithFinitePlane(
+    this->GetNormal(), this->GetOrigin(), pOrigin, px, py, x0, x1);
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Normal: (" << this->Normal[0] << ", "
-    << this->Normal[1] << ", " << this->Normal[2] << ")\n";
+  os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
+     << this->Normal[2] << ")\n";
 
-  os << indent << "Origin: (" << this->Origin[0] << ", "
-    << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+  os << indent << "Origin: (" << this->Origin[0] << ", " << this->Origin[1] << ", "
+     << this->Origin[2] << ")\n";
 }

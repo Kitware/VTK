@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkXMLMultiBlockDataReader.h"
 
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -58,16 +58,14 @@ const char* vtkXMLMultiBlockDataReader::GetDataSetName()
 // This version does not support multiblock of multiblocks, so our work is
 // simple.
 void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
-  vtkCompositeDataSet* composite, const char* filePath,
-  unsigned int &dataSetIndex)
+  vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
   unsigned int numElems = element->GetNumberOfNestedElements();
-  for (unsigned int cc=0; cc < numElems; ++cc)
+  for (unsigned int cc = 0; cc < numElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
-    if (!childXML || !childXML->GetName() ||
-      strcmp(childXML->GetName(), "DataSet") != 0)
+    if (!childXML || !childXML->GetName() || strcmp(childXML->GetName(), "DataSet") != 0)
     {
       continue;
     }
@@ -81,8 +79,7 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
       {
         dataset.TakeReference(this->ReadDataset(childXML, filePath));
       }
-      vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(
-        mblock->GetBlock(group));
+      vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(mblock->GetBlock(group));
       if (!block)
       {
         block = vtkMultiBlockDataSet::New();
@@ -97,8 +94,7 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
 
 //----------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
-  vtkCompositeDataSet* composite, const char* filePath,
-  unsigned int &dataSetIndex)
+  vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(composite);
@@ -116,7 +112,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
   }
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
-  for (unsigned int cc=0; cc < maxElems; ++cc)
+  for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())
@@ -164,8 +160,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       dataSetIndex++;
     }
     // Child is a multiblock dataset itself. Create it.
-    else if (mblock != nullptr
-             && strcmp(tagName, "Block") == 0)
+    else if (mblock != nullptr && strcmp(tagName, "Block") == 0)
     {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
@@ -175,8 +170,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       childDS->Delete();
     }
     // Child is a multipiece dataset. Create it.
-    else if (mblock!=nullptr
-             && strcmp(tagName, "Piece") == 0)
+    else if (mblock != nullptr && strcmp(tagName, "Piece") == 0)
     {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
@@ -195,37 +189,34 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
 
 namespace
 {
-  vtkInformation* CreateMetaDataIfNecessary(vtkMultiBlockDataSet* mblock,
-                                            vtkMultiPieceDataSet* mpiece,
-                                            int index)
+vtkInformation* CreateMetaDataIfNecessary(
+  vtkMultiBlockDataSet* mblock, vtkMultiPieceDataSet* mpiece, int index)
+{
+  vtkInformation* piece_metadata = nullptr;
+  if (mblock)
   {
-    vtkInformation* piece_metadata = nullptr;
-    if (mblock)
-    {
-      mblock->SetBlock(index, nullptr);
-      piece_metadata = mblock->GetMetaData(index);
-    }
-    else if (mpiece)
-    {
-      mpiece->SetPiece(index, nullptr);
-      piece_metadata = mpiece->GetMetaData(index);
-    }
-    return piece_metadata;
+    mblock->SetBlock(index, nullptr);
+    piece_metadata = mblock->GetMetaData(index);
   }
+  else if (mpiece)
+  {
+    mpiece->SetPiece(index, nullptr);
+    piece_metadata = mpiece->GetMetaData(index);
+  }
+  return piece_metadata;
+}
 
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
-                                             vtkXMLDataElement* element,
-                                             const std::string &filePath,
-                                             unsigned int &dataSetIndex)
+  vtkXMLDataElement* element, const std::string& filePath, unsigned int& dataSetIndex)
 {
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(metadata);
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(metadata);
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
-  for (unsigned int cc=0; cc < maxElems; ++cc)
+  for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())
@@ -257,9 +248,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       {
         if (piece_metadata)
         {
-          piece_metadata->Set(
-            vtkDataObject::BOUNDING_BOX(),
-            bounding_box, 6);
+          piece_metadata->Set(vtkDataObject::BOUNDING_BOX(), bounding_box, 6);
         }
       }
       int extent[6];
@@ -267,9 +256,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       {
         if (piece_metadata)
         {
-          piece_metadata->Set(
-            vtkDataObject::PIECE_EXTENT(),
-            extent, 6);
+          piece_metadata->Set(vtkDataObject::PIECE_EXTENT(), extent, 6);
         }
       }
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -279,8 +266,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       dataSetIndex++;
     }
     // Child is a multiblock dataset itself. Create it.
-    else if (mblock != nullptr
-             && strcmp(tagName, "Block") == 0)
+    else if (mblock != nullptr && strcmp(tagName, "Block") == 0)
     {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();
       this->FillMetaData(childDS, childXML, filePath, dataSetIndex);
@@ -296,8 +282,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       childDS->Delete();
     }
     // Child is a multipiece dataset. Create it.
-    else if (mblock!=nullptr
-             && strcmp(tagName, "Piece") == 0)
+    else if (mblock != nullptr && strcmp(tagName, "Piece") == 0)
     {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
       this->FillMetaData(childDS, childXML, filePath, dataSetIndex);
@@ -307,9 +292,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       if (childXML->GetVectorAttribute("whole_extent", 6, whole_extent) == 6)
       {
         vtkInformation* piece_metadata = mblock->GetMetaData(index);
-        piece_metadata->Set(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-          whole_extent, 6);
+        piece_metadata->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), whole_extent, 6);
       }
     }
     else
@@ -323,9 +306,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
 
 //----------------------------------------------------------------------------
 int vtkXMLMultiBlockDataReader::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestInformation(request, inputVector, outputVector);
 
@@ -336,15 +317,13 @@ int vtkXMLMultiBlockDataReader::RequestInformation(
 
   const std::string filePath = this->GetFilePath();
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkSmartPointer<vtkMultiBlockDataSet> metadata =
-    vtkSmartPointer<vtkMultiBlockDataSet>::New();
+  vtkSmartPointer<vtkMultiBlockDataSet> metadata = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   unsigned int dataSetIndex = 0;
   if (!this->FillMetaData(metadata, this->GetPrimaryElement(), filePath, dataSetIndex))
   {
     return 0;
   }
-  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
-            metadata);
+  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(), metadata);
 
   return 1;
 }

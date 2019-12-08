@@ -1,23 +1,23 @@
+#include <vtkBandedPolyDataContourFilter.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
-#include <vtkBandedPolyDataContourFilter.h>
 
-#include <vtkFloatArray.h>
+#include <vtkActor.h>
 #include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkScalarsToColors.h>
+#include <vtkFloatArray.h>
 #include <vtkLookupTable.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
+#include <vtkScalarsToColors.h>
 
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include <vector>
 
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 3)
   {
@@ -26,10 +26,9 @@ int main (int argc, char *argv[])
   }
 
   // Read the file
-  vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
+  vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
   reader->Update(); // Update so that we can get the scalar range
 
   double scalarRange[2];
@@ -40,7 +39,8 @@ int main (int argc, char *argv[])
   int numberOfContours = atoi(argv[2]);
   if (numberOfContours > 1000)
   {
-    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000" << std::endl;
+    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000"
+              << std::endl;
     return EXIT_FAILURE;
   }
   if (numberOfContours <= 0)
@@ -54,45 +54,37 @@ int main (int argc, char *argv[])
   bandedContours->SetInputConnection(reader->GetOutputPort());
   bandedContours->SetScalarModeToValue();
   bandedContours->GenerateContourEdgesOn();
-  bandedContours->GenerateValues(
-    numberOfContours, scalarRange[0], scalarRange[1]);
+  bandedContours->GenerateValues(numberOfContours, scalarRange[0], scalarRange[1]);
 
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
   lut->SetNumberOfTableValues(numberOfContours + 1);
   lut->Build();
 
-  vtkSmartPointer<vtkPolyDataMapper> contourMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> contourMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   contourMapper->SetInputConnection(bandedContours->GetOutputPort());
   contourMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourMapper->SetScalarModeToUseCellData();
   contourMapper->SetLookupTable(lut);
 
-  vtkSmartPointer<vtkActor> contourActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
   contourActor->GetProperty()->SetInterpolationToFlat();
 
-  vtkSmartPointer<vtkPolyDataMapper> contourLineMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> contourLineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
   contourLineMapper->SetInputData(bandedContours->GetContourEdgesOutput());
   contourLineMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourLineMapper->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkActor> contourLineActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> contourLineActor = vtkSmartPointer<vtkActor>::New();
   contourLineActor->SetMapper(contourLineMapper);
   contourLineActor->GetProperty()->SetLineWidth(2);
 
   // The usual renderer, render window and interactor
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor>
-    iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
   ren1->SetBackground(.1, .2, .3);
   renWin->AddRenderer(ren1);

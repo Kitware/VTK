@@ -37,27 +37,27 @@
  *
  * @sa
  * vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkQuantizePolyDataPoints_h
 #define vtkQuantizePolyDataPoints_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCleanPolyData.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
-  static vtkQuantizePolyDataPoints *New();
-  vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
+  static vtkQuantizePolyDataPoints* New();
+  vtkTypeMacro(vtkQuantizePolyDataPoints, vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Specify quantization grain size. Default is 0.25
    */
-  vtkSetClampMacro(QFactor,double,1E-5,VTK_FLOAT_MAX);
-  vtkGetMacro(QFactor,double);
+  vtkSetClampMacro(QFactor, double, 1E-5, VTK_FLOAT_MAX);
+  vtkGetMacro(QFactor, double);
   //@}
 
   /**
@@ -75,11 +75,10 @@ protected:
   ~vtkQuantizePolyDataPoints() override {}
 
   double QFactor;
+
 private:
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&) = delete;
   void operator=(const vtkQuantizePolyDataPoints&) = delete;
 };
 
 #endif
-
-

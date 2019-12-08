@@ -15,9 +15,9 @@
 
 // Test vtkProp3DButtonRepresentation
 
-#include "vtkObjectFactory.h"
 #include "vtkButtonWidget.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkProp3DButtonRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -29,8 +29,7 @@ bool TestUnMapped();
 // ----------------------------------------------------------------------------
 int TestProp3DButtonRepresentation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkObjectFactory::SetAllEnableFlags(
-    false, "vtkRenderWindowInteractor", "vtkTestingInteractor");
+  vtkObjectFactory::SetAllEnableFlags(false, "vtkRenderWindowInteractor", "vtkTestingInteractor");
   bool res = true;
   res = TestUnMapped() && res;
   return res ? EXIT_SUCCESS : EXIT_FAILURE;

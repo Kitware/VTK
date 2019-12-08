@@ -67,20 +67,13 @@ protected:
   double GetInputTimeValue(double outputTimeValue);
   double GetOutputTimeValue(double inputTimeValue);
 
-  int RequestInformation(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestUpdateExtent(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkSynchronizeTimeFilter(const vtkSynchronizeTimeFilter&) = delete;

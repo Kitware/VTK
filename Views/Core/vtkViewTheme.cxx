@@ -64,10 +64,8 @@ vtkViewTheme::vtkViewTheme()
   this->SelectedCellColor[1] = 0;
   this->SelectedCellOpacity = 1;
 
-  this->BackgroundColor[0] = this->BackgroundColor[1] =
-    this->BackgroundColor[2] = 0.0;
-  this->BackgroundColor2[0] = this->BackgroundColor2[1] =
-    this->BackgroundColor2[2] = 0.3;
+  this->BackgroundColor[0] = this->BackgroundColor[1] = this->BackgroundColor[2] = 0.0;
+  this->BackgroundColor2[0] = this->BackgroundColor2[1] = this->BackgroundColor2[2] = 0.3;
 
   this->ScalePointLookupTable = true;
   this->ScaleCellLookupTable = true;
@@ -466,7 +464,7 @@ void vtkViewTheme::SetVertexLabelColor(double r, double g, double b)
   }
 }
 
-double *vtkViewTheme::GetVertexLabelColor()
+double* vtkViewTheme::GetVertexLabelColor()
 {
   return this->PointTextProperty ? this->PointTextProperty->GetColor() : nullptr;
 }
@@ -479,7 +477,7 @@ void vtkViewTheme::SetEdgeLabelColor(double r, double g, double b)
   }
 }
 
-double *vtkViewTheme::GetEdgeLabelColor()
+double* vtkViewTheme::GetEdgeLabelColor()
 {
   return this->CellTextProperty ? this->CellTextProperty->GetColor() : nullptr;
 }
@@ -508,7 +506,7 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
   theme->SetCellValueRange(0.75, .75);
   theme->SetCellSaturationRange(1, 1);
 
-  theme->SetOutlineColor(0,0,0);
+  theme->SetOutlineColor(0, 0, 0);
 
   theme->SetSelectedPointColor(.9, .4, .9);
   theme->SetSelectedCellColor(.8, .3, .8);
@@ -523,8 +521,8 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   theme->SetPointSize(7);
   theme->SetLineWidth(3);
 
-  theme->SetBackgroundColor(.2,.2,.4);
-  theme->SetBackgroundColor2(.1,.1,.2);
+  theme->SetBackgroundColor(.2, .2, .4);
+  theme->SetBackgroundColor2(.1, .1, .2);
   theme->GetPointTextProperty()->SetColor(1, 1, 1);
   theme->GetCellTextProperty()->SetColor(.7, .7, .7);
 
@@ -590,13 +588,13 @@ bool vtkViewTheme::LookupMatchesPointTheme(vtkScalarsToColors* s2c)
     return false;
   }
   if (lut->GetHueRange()[0] == this->GetPointHueRange()[0] &&
-      lut->GetHueRange()[1] == this->GetPointHueRange()[1] &&
-      lut->GetSaturationRange()[0] == this->GetPointSaturationRange()[0] &&
-      lut->GetSaturationRange()[1] == this->GetPointSaturationRange()[1] &&
-      lut->GetValueRange()[0] == this->GetPointValueRange()[0] &&
-      lut->GetValueRange()[1] == this->GetPointValueRange()[1] &&
-      lut->GetAlphaRange()[0] == this->GetPointAlphaRange()[0] &&
-      lut->GetAlphaRange()[1] == this->GetPointAlphaRange()[1])
+    lut->GetHueRange()[1] == this->GetPointHueRange()[1] &&
+    lut->GetSaturationRange()[0] == this->GetPointSaturationRange()[0] &&
+    lut->GetSaturationRange()[1] == this->GetPointSaturationRange()[1] &&
+    lut->GetValueRange()[0] == this->GetPointValueRange()[0] &&
+    lut->GetValueRange()[1] == this->GetPointValueRange()[1] &&
+    lut->GetAlphaRange()[0] == this->GetPointAlphaRange()[0] &&
+    lut->GetAlphaRange()[1] == this->GetPointAlphaRange()[1])
   {
     return true;
   }
@@ -615,13 +613,13 @@ bool vtkViewTheme::LookupMatchesCellTheme(vtkScalarsToColors* s2c)
     return false;
   }
   if (lut->GetHueRange()[0] == this->GetCellHueRange()[0] &&
-      lut->GetHueRange()[1] == this->GetCellHueRange()[1] &&
-      lut->GetSaturationRange()[0] == this->GetCellSaturationRange()[0] &&
-      lut->GetSaturationRange()[1] == this->GetCellSaturationRange()[1] &&
-      lut->GetValueRange()[0] == this->GetCellValueRange()[0] &&
-      lut->GetValueRange()[1] == this->GetCellValueRange()[1] &&
-      lut->GetAlphaRange()[0] == this->GetCellAlphaRange()[0] &&
-      lut->GetAlphaRange()[1] == this->GetCellAlphaRange()[1])
+    lut->GetHueRange()[1] == this->GetCellHueRange()[1] &&
+    lut->GetSaturationRange()[0] == this->GetCellSaturationRange()[0] &&
+    lut->GetSaturationRange()[1] == this->GetCellSaturationRange()[1] &&
+    lut->GetValueRange()[0] == this->GetCellValueRange()[0] &&
+    lut->GetValueRange()[1] == this->GetCellValueRange()[1] &&
+    lut->GetAlphaRange()[0] == this->GetCellAlphaRange()[0] &&
+    lut->GetAlphaRange()[1] == this->GetCellAlphaRange()[1])
   {
     return true;
   }
@@ -631,42 +629,26 @@ bool vtkViewTheme::LookupMatchesCellTheme(vtkScalarsToColors* s2c)
 void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "PointSize: "
-     << this->PointSize << endl;
-  os << indent << "LineWidth: "
-     << this->LineWidth << endl;
-  os << indent << "PointColor: "
-     << this->PointColor[0] << ","
-     << this->PointColor[1] << ","
+  os << indent << "PointSize: " << this->PointSize << endl;
+  os << indent << "LineWidth: " << this->LineWidth << endl;
+  os << indent << "PointColor: " << this->PointColor[0] << "," << this->PointColor[1] << ","
      << this->PointColor[2] << endl;
   os << indent << "PointOpacity: " << this->PointOpacity << endl;
-  os << indent << "CellColor: "
-     << this->CellColor[0] << ","
-     << this->CellColor[1] << ","
+  os << indent << "CellColor: " << this->CellColor[0] << "," << this->CellColor[1] << ","
      << this->CellColor[2] << endl;
   os << indent << "CellOpacity: " << this->CellOpacity << endl;
-  os << indent << "OutlineColor: "
-     << this->OutlineColor[0] << ","
-     << this->OutlineColor[1] << ","
+  os << indent << "OutlineColor: " << this->OutlineColor[0] << "," << this->OutlineColor[1] << ","
      << this->OutlineColor[2] << endl;
-  os << indent << "SelectedPointColor: "
-     << this->SelectedPointColor[0] << ","
-     << this->SelectedPointColor[1] << ","
-     << this->SelectedPointColor[2] << endl;
+  os << indent << "SelectedPointColor: " << this->SelectedPointColor[0] << ","
+     << this->SelectedPointColor[1] << "," << this->SelectedPointColor[2] << endl;
   os << indent << "SelectedPointOpacity: " << this->SelectedPointOpacity << endl;
-  os << indent << "SelectedCellColor: "
-     << this->SelectedCellColor[0] << ","
-     << this->SelectedCellColor[1] << ","
-     << this->SelectedCellColor[2] << endl;
+  os << indent << "SelectedCellColor: " << this->SelectedCellColor[0] << ","
+     << this->SelectedCellColor[1] << "," << this->SelectedCellColor[2] << endl;
   os << indent << "SelectedCellOpacity: " << this->SelectedCellOpacity << endl;
-  os << indent << "BackgroundColor: "
-     << this->BackgroundColor[0] << ","
-     << this->BackgroundColor[1] << ","
-     << this->BackgroundColor[2] << endl;
-  os << indent << "BackgroundColor2: "
-     << this->BackgroundColor2[0] << ","
-     << this->BackgroundColor2[1] << ","
-     << this->BackgroundColor2[2] << endl;
+  os << indent << "BackgroundColor: " << this->BackgroundColor[0] << "," << this->BackgroundColor[1]
+     << "," << this->BackgroundColor[2] << endl;
+  os << indent << "BackgroundColor2: " << this->BackgroundColor2[0] << ","
+     << this->BackgroundColor2[1] << "," << this->BackgroundColor2[2] << endl;
   os << indent << "PointLookupTable: " << (this->PointLookupTable ? "" : "(none)") << endl;
   if (this->PointLookupTable)
   {
@@ -681,21 +663,18 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
   if (this->PointTextProperty)
   {
     this->PointTextProperty->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "VertexLabelColor: "
-       << this->PointTextProperty->GetColor()[0] << ","
-       << this->PointTextProperty->GetColor()[1] << ","
-       << this->PointTextProperty->GetColor()[2] << endl;
+    os << indent << "VertexLabelColor: " << this->PointTextProperty->GetColor()[0] << ","
+       << this->PointTextProperty->GetColor()[1] << "," << this->PointTextProperty->GetColor()[2]
+       << endl;
   }
   os << indent << "CellTextProperty: " << (this->CellTextProperty ? "" : "(none)") << endl;
   if (this->CellTextProperty)
   {
     this->CellTextProperty->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "EdgeLabelColor: "
-       << this->CellTextProperty->GetColor()[0] << ","
-       << this->CellTextProperty->GetColor()[1] << ","
-       << this->CellTextProperty->GetColor()[2] << endl;
+    os << indent << "EdgeLabelColor: " << this->CellTextProperty->GetColor()[0] << ","
+       << this->CellTextProperty->GetColor()[1] << "," << this->CellTextProperty->GetColor()[2]
+       << endl;
   }
   os << indent << "ScalePointLookupTable: " << this->ScalePointLookupTable << endl;
   os << indent << "ScaleCellLookupTable: " << this->ScaleCellLookupTable << endl;
 }
-

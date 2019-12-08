@@ -23,65 +23,64 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkObjectFactory.h"
-#include <mpi.h>
+#include "vtkCompositeRenderManager.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
-#include "vtkCompositeRenderManager.h"
+#include "vtkObjectFactory.h"
+#include <vtk_mpi.h>
 
-#include "vtkTestUtilities.h"
-#include "vtkTestErrorObserver.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
+#include "vtkActor.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkActor.h"
+#include "vtkRenderWindowInteractor.h"
 
-#include "vtkImageSinusoidSource.h"
+#include "vtkCamera.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkImageSinusoidSource.h"
 #include "vtkLookupTable.h"
-#include "vtkCamera.h"
+#include "vtkPolyDataMapper.h"
 
+#include "vtkActorCollection.h"
 #include "vtkCameraPass.h"
-#include "vtkLightsPass.h"
-#include "vtkSequencePass.h"
-#include "vtkOpaquePass.h"
-#include "vtkDepthPeelingPass.h"
-#include "vtkTranslucentPass.h"
-#include "vtkVolumetricPass.h"
-#include "vtkOverlayPass.h"
-#include "vtkRenderPassCollection.h"
 #include "vtkCompositeZPass.h"
 #include "vtkConeSource.h"
-#include "vtkPlaneSource.h"
 #include "vtkCubeSource.h"
-#include "vtkSphereSource.h"
+#include "vtkDepthPeelingPass.h"
+#include "vtkFrustumSource.h"
 #include "vtkInformation.h"
-#include "vtkProperty.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-#include <cassert>
+#include "vtkLightsPass.h"
 #include "vtkMath.h"
-#include "vtkFrustumSource.h"
+#include "vtkOpaquePass.h"
+#include "vtkOverlayPass.h"
+#include "vtkPlaneSource.h"
 #include "vtkPlanes.h"
-#include "vtkActorCollection.h"
-#include "vtkPolyDataNormals.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkProperty.h"
+#include "vtkRenderPassCollection.h"
+#include "vtkSequencePass.h"
+#include "vtkSphereSource.h"
+#include "vtkTranslucentPass.h"
+#include "vtkVolumetricPass.h"
+#include <cassert>
 
 #include "vtkLightActor.h"
 #include "vtkProcess.h"
 
+#include "vtkImageAppendComponents.h"
 #include "vtkImageImport.h"
 #include "vtkImageShiftScale.h"
-#include "vtkImageAppendComponents.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 namespace
 {
@@ -89,79 +88,78 @@ namespace
 // Defined in TestLightActor.cxx
 // For each spotlight, add a light frustum wireframe representation and a cone
 // wireframe representation, colored with the light color.
-void AddLightActors(vtkRenderer *r);
+void AddLightActors(vtkRenderer* r);
 
 class MyProcess : public vtkProcess
 {
 public:
-  static MyProcess *New();
+  static MyProcess* New();
 
   virtual void Execute();
 
-  void SetArgs(int anArgc,
-               char *anArgv[])
+  void SetArgs(int anArgc, char* anArgv[])
   {
-      this->Argc=anArgc;
-      this->Argv=anArgv;
+    this->Argc = anArgc;
+    this->Argv = anArgv;
   }
 
 protected:
   MyProcess();
 
   int Argc;
-  char **Argv;
+  char** Argv;
 };
 
 vtkStandardNewMacro(MyProcess);
 
 MyProcess::MyProcess()
 {
-  this->Argc=0;
-  this->Argv=nullptr;
+  this->Argc = 0;
+  this->Argv = nullptr;
 }
 
 void MyProcess::Execute()
 {
   // multiprocesss logic
-  int numProcs=this->Controller->GetNumberOfProcesses();
-  int me=this->Controller->GetLocalProcessId();
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  int me = this->Controller->GetLocalProcessId();
 
-  vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
+  vtkCompositeRenderManager* prm = vtkCompositeRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=nullptr;
+  vtkRenderWindowInteractor* iren = nullptr;
 
-  if(me==0)
+  if (me == 0)
   {
-    iren=vtkRenderWindowInteractor::New();
+    iren = vtkRenderWindowInteractor::New();
   }
 
-  vtkRenderWindow *renWin = prm->MakeRenderWindow();
+  vtkRenderWindow* renWin = prm->MakeRenderWindow();
   renWin->SetMultiSamples(0);
 
   renWin->SetAlphaBitPlanes(1);
 
-  if(me==0)
+  if (me == 0)
   {
     iren->SetRenderWindow(renWin);
   }
 
-  vtkRenderer *renderer = prm->MakeRenderer();
+  vtkRenderer* renderer = prm->MakeRenderer();
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
-  vtkCameraPass *cameraP=vtkCameraPass::New();
+  vtkCameraPass* cameraP = vtkCameraPass::New();
 
-  vtkOpaquePass *opaque=vtkOpaquePass::New();
+  vtkOpaquePass* opaque = vtkOpaquePass::New();
 
-  vtkLightsPass *lights=vtkLightsPass::New();
+  vtkLightsPass* lights = vtkLightsPass::New();
 
   VTK_CREATE(vtkTest::ErrorObserver, errorObserver);
-  vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
+  vtkCompositeZPass* compositeZPass = vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
   compositeZPass->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
-  vtkSequencePass *seq=vtkSequencePass::New();
-  vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  vtkSequencePass* seq = vtkSequencePass::New();
+  vtkRenderPassCollection* passes = vtkRenderPassCollection::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
   passes->AddItem(compositeZPass);
@@ -170,79 +168,79 @@ void MyProcess::Execute()
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
 
-  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   glrenderer->SetPass(cameraP);
 
-  vtkPlaneSource *rectangleSource=vtkPlaneSource::New();
-  rectangleSource->SetOrigin(-5.0,0.0,5.0);
-  rectangleSource->SetPoint1(5.0,0.0,5.0);
-  rectangleSource->SetPoint2(-5.0,0.0,-5.0);
-  rectangleSource->SetResolution(100,100);
+  vtkPlaneSource* rectangleSource = vtkPlaneSource::New();
+  rectangleSource->SetOrigin(-5.0, 0.0, 5.0);
+  rectangleSource->SetPoint1(5.0, 0.0, 5.0);
+  rectangleSource->SetPoint2(-5.0, 0.0, -5.0);
+  rectangleSource->SetResolution(100, 100);
 
-  vtkPolyDataMapper *rectangleMapper=vtkPolyDataMapper::New();
+  vtkPolyDataMapper* rectangleMapper = vtkPolyDataMapper::New();
   rectangleMapper->SetInputConnection(rectangleSource->GetOutputPort());
   rectangleSource->Delete();
   rectangleMapper->SetScalarVisibility(0);
 
-  vtkActor *rectangleActor=vtkActor::New();
+  vtkActor* rectangleActor = vtkActor::New();
   rectangleActor->SetMapper(rectangleMapper);
   rectangleMapper->Delete();
   rectangleActor->SetVisibility(1);
-  rectangleActor->GetProperty()->SetColor(1.0,1.0,1.0);
+  rectangleActor->GetProperty()->SetColor(1.0, 1.0, 1.0);
 
-  vtkCubeSource *boxSource=vtkCubeSource::New();
+  vtkCubeSource* boxSource = vtkCubeSource::New();
   boxSource->SetXLength(2.0);
-  vtkPolyDataNormals *boxNormals=vtkPolyDataNormals::New();
+  vtkPolyDataNormals* boxNormals = vtkPolyDataNormals::New();
   boxNormals->SetInputConnection(boxSource->GetOutputPort());
   boxNormals->SetComputePointNormals(0);
   boxNormals->SetComputeCellNormals(1);
   boxNormals->Update();
   boxNormals->GetOutput()->GetPointData()->SetNormals(nullptr);
 
-  vtkPolyDataMapper *boxMapper=vtkPolyDataMapper::New();
+  vtkPolyDataMapper* boxMapper = vtkPolyDataMapper::New();
   boxMapper->SetInputConnection(boxNormals->GetOutputPort());
   boxNormals->Delete();
   boxSource->Delete();
   boxMapper->SetScalarVisibility(0);
 
-  vtkActor *boxActor=vtkActor::New();
+  vtkActor* boxActor = vtkActor::New();
 
   boxActor->SetMapper(boxMapper);
   boxMapper->Delete();
   boxActor->SetVisibility(1);
-  boxActor->SetPosition(-2.0,2.0,0.0);
-  boxActor->GetProperty()->SetColor(1.0,0.0,0.0);
+  boxActor->SetPosition(-2.0, 2.0, 0.0);
+  boxActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
-  vtkConeSource *coneSource=vtkConeSource::New();
+  vtkConeSource* coneSource = vtkConeSource::New();
   coneSource->SetResolution(24);
-  coneSource->SetDirection(1.0,1.0,1.0);
-  vtkPolyDataMapper *coneMapper=vtkPolyDataMapper::New();
+  coneSource->SetDirection(1.0, 1.0, 1.0);
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
   coneSource->Delete();
   coneMapper->SetScalarVisibility(0);
 
-  vtkActor *coneActor=vtkActor::New();
+  vtkActor* coneActor = vtkActor::New();
   coneActor->SetMapper(coneMapper);
   coneMapper->Delete();
   coneActor->SetVisibility(1);
-  coneActor->SetPosition(0.0,1.0,1.0);
-  coneActor->GetProperty()->SetColor(0.0,0.0,1.0);
-//  coneActor->GetProperty()->SetLighting(false);
+  coneActor->SetPosition(0.0, 1.0, 1.0);
+  coneActor->GetProperty()->SetColor(0.0, 0.0, 1.0);
+  //  coneActor->GetProperty()->SetLighting(false);
 
-  vtkSphereSource *sphereSource=vtkSphereSource::New();
+  vtkSphereSource* sphereSource = vtkSphereSource::New();
   sphereSource->SetThetaResolution(32);
   sphereSource->SetPhiResolution(32);
-  vtkPolyDataMapper *sphereMapper=vtkPolyDataMapper::New();
+  vtkPolyDataMapper* sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
   sphereSource->Delete();
   sphereMapper->SetScalarVisibility(0);
 
-  vtkActor *sphereActor=vtkActor::New();
+  vtkActor* sphereActor = vtkActor::New();
   sphereActor->SetMapper(sphereMapper);
   sphereMapper->Delete();
   sphereActor->SetVisibility(1);
-  sphereActor->SetPosition(2.0,2.0,-1.0);
-  sphereActor->GetProperty()->SetColor(1.0,1.0,0.0);
+  sphereActor->SetPosition(2.0, 2.0, -1.0);
+  sphereActor->GetProperty()->SetColor(1.0, 1.0, 0.0);
 
   renderer->AddViewProp(rectangleActor);
   rectangleActor->Delete();
@@ -253,42 +251,40 @@ void MyProcess::Execute()
   renderer->AddViewProp(sphereActor);
   sphereActor->Delete();
 
-
   // Spotlights.
 
   // lighting the box.
-  vtkLight *l1=vtkLight::New();
-  l1->SetPosition(-4.0,4.0,-1.0);
+  vtkLight* l1 = vtkLight::New();
+  l1->SetPosition(-4.0, 4.0, -1.0);
   l1->SetFocalPoint(boxActor->GetPosition());
-  l1->SetColor(1.0,1.0,1.0);
+  l1->SetColor(1.0, 1.0, 1.0);
   l1->SetPositional(1);
   renderer->AddLight(l1);
   l1->SetSwitch(1);
   l1->Delete();
 
   // lighting the sphere
-  vtkLight *l2=vtkLight::New();
-  l2->SetPosition(4.0,5.0,1.0);
+  vtkLight* l2 = vtkLight::New();
+  l2->SetPosition(4.0, 5.0, 1.0);
   l2->SetFocalPoint(sphereActor->GetPosition());
-  l2->SetColor(1.0,0.0,1.0);
-//  l2->SetColor(1.0,1.0,1.0);
+  l2->SetColor(1.0, 0.0, 1.0);
+  //  l2->SetColor(1.0,1.0,1.0);
   l2->SetPositional(1);
   renderer->AddLight(l2);
   l2->SetSwitch(1);
   l2->Delete();
 
-
   AddLightActors(renderer);
 
-  renderer->SetBackground(0.66,0.66,0.66);
-  renderer->SetBackground2(157.0/255.0*0.66,186/255.0*0.66,192.0/255.0*0.66);
+  renderer->SetBackground(0.66, 0.66, 0.66);
+  renderer->SetBackground2(157.0 / 255.0 * 0.66, 186 / 255.0 * 0.66, 192.0 / 255.0 * 0.66);
   renderer->SetGradientBackground(true);
-  renWin->SetSize(400,400); // 400,400
-  renWin->SetPosition(0, 460*me); // translate the window
+  renWin->SetSize(400, 400);        // 400,400
+  renWin->SetPosition(0, 460 * me); // translate the window
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
 
-  if(me==0)
+  if (me == 0)
   {
     rectangleActor->SetVisibility(false);
     boxActor->SetVisibility(false);
@@ -300,9 +296,9 @@ void MyProcess::Execute()
   }
 
   int retVal;
-  const int MY_RETURN_VALUE_MESSAGE=0x518113;
+  const int MY_RETURN_VALUE_MESSAGE = 0x518113;
 
-  if(me>0)
+  if (me > 0)
   {
     // satellite nodes
     prm->StartServices(); // start listening other processes (blocking call).
@@ -313,12 +309,12 @@ void MyProcess::Execute()
   {
     // root node
     renWin->Render();
-    vtkCamera *camera=renderer->GetActiveCamera();
+    vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(40.0);
     camera->Elevation(10.0);
     renderer->ResetCamera();
     // testing code
-    double thresh=10;
+    double thresh = 10;
     int i;
     VTK_CREATE(vtkTesting, testing);
     for (i = 0; i < this->Argc; ++i)
@@ -328,14 +324,14 @@ void MyProcess::Execute()
 
     if (testing->IsInteractiveModeSpecified())
     {
-      retVal=vtkTesting::DO_INTERACTOR;
+      retVal = vtkTesting::DO_INTERACTOR;
     }
     else
     {
       testing->FrontBufferOff();
-      for (i=0; i<this->Argc; i++)
+      for (i = 0; i < this->Argc; i++)
       {
-        if ( strcmp("-FrontBuffer", this->Argv[i]) == 0 )
+        if (strcmp("-FrontBuffer", this->Argv[i]) == 0)
         {
           testing->FrontBufferOn();
         }
@@ -344,38 +340,36 @@ void MyProcess::Execute()
       if (testing->IsValidImageSpecified())
       {
         renWin->Render();
-        if(compositeZPass->IsSupported(
-             static_cast<vtkOpenGLRenderWindow *>(renWin)))
+        if (compositeZPass->IsSupported(static_cast<vtkOpenGLRenderWindow*>(renWin)))
         {
-          int *dims;
-          dims=renWin->GetSize();
-          float *zBuffer=new float[dims[0]*dims[1]];
-          renWin->GetZbufferData(0,0,dims[0]-1,dims[1]-1,zBuffer);
+          int* dims;
+          dims = renWin->GetSize();
+          float* zBuffer = new float[dims[0] * dims[1]];
+          renWin->GetZbufferData(0, 0, dims[0] - 1, dims[1] - 1, zBuffer);
 
-          vtkImageImport *importer=vtkImageImport::New();
-          size_t byteSize=static_cast<size_t>(dims[0]*dims[1]);
-          byteSize=byteSize*sizeof(float);
-          importer->CopyImportVoidPointer(zBuffer,static_cast<int>(byteSize));
+          vtkImageImport* importer = vtkImageImport::New();
+          size_t byteSize = static_cast<size_t>(dims[0] * dims[1]);
+          byteSize = byteSize * sizeof(float);
+          importer->CopyImportVoidPointer(zBuffer, static_cast<int>(byteSize));
           importer->SetDataScalarTypeToFloat();
           importer->SetNumberOfScalarComponents(1);
-          importer->SetWholeExtent(0,dims[0]-1,0,dims[1]-1,0,0);
+          importer->SetWholeExtent(0, dims[0] - 1, 0, dims[1] - 1, 0, 0);
           importer->SetDataExtentToWholeExtent();
 
-          vtkImageShiftScale *converter=vtkImageShiftScale::New();
+          vtkImageShiftScale* converter = vtkImageShiftScale::New();
           converter->SetInputConnection(importer->GetOutputPort());
           converter->SetOutputScalarTypeToUnsignedChar();
           converter->SetShift(0.0);
           converter->SetScale(255.0);
 
           // vtkImageDifference requires 3 components.
-          vtkImageAppendComponents *luminanceToRGB=
-            vtkImageAppendComponents::New();
-          luminanceToRGB->SetInputConnection(0,converter->GetOutputPort());
-          luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
-          luminanceToRGB->AddInputConnection(0,converter->GetOutputPort());
+          vtkImageAppendComponents* luminanceToRGB = vtkImageAppendComponents::New();
+          luminanceToRGB->SetInputConnection(0, converter->GetOutputPort());
+          luminanceToRGB->AddInputConnection(0, converter->GetOutputPort());
+          luminanceToRGB->AddInputConnection(0, converter->GetOutputPort());
           luminanceToRGB->Update();
 
-          retVal=testing->RegressionTest(luminanceToRGB,thresh);
+          retVal = testing->RegressionTest(luminanceToRGB, thresh);
 
           luminanceToRGB->Delete();
           converter->Delete();
@@ -384,24 +378,24 @@ void MyProcess::Execute()
         }
         else
         {
-          retVal=vtkTesting::PASSED; // not supported.
+          retVal = vtkTesting::PASSED; // not supported.
         }
       }
       else
       {
-        retVal=vtkTesting::NOT_RUN;
+        retVal = vtkTesting::NOT_RUN;
       }
     }
 
-    if(retVal==vtkRegressionTester::DO_INTERACTOR)
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }
     prm->StopServices(); // tells satellites to stop listening.
 
     // send the return value to the satellites
-    i=1;
-    while(i<numProcs)
+    i = 1;
+    while (i < numProcs)
     {
       this->Controller->Send(&retVal, 1, i, MY_RETURN_VALUE_MESSAGE);
       ++i;
@@ -416,38 +410,38 @@ void MyProcess::Execute()
   cameraP->Delete();
   lights->Delete();
   prm->Delete();
-  this->ReturnValue=retVal;
+  this->ReturnValue = retVal;
 }
 
 // DUPLICATE for VTK/Rendering/Testing/Cxx/TestLightActor.cxx
 
 // For each spotlight, add a light frustum wireframe representation and a cone
 // wireframe representation, colored with the light color.
-void AddLightActors(vtkRenderer *r)
+void AddLightActors(vtkRenderer* r)
 {
-  assert("pre: r_exists" && r!=nullptr);
+  assert("pre: r_exists" && r != nullptr);
 
-  vtkLightCollection *lights=r->GetLights();
+  vtkLightCollection* lights = r->GetLights();
 
   lights->InitTraversal();
-  vtkLight *l=lights->GetNextItem();
-  while(l!=nullptr)
+  vtkLight* l = lights->GetNextItem();
+  while (l != nullptr)
   {
-    double angle=l->GetConeAngle();
+    double angle = l->GetConeAngle();
     if (l->LightTypeIsSceneLight() && l->GetPositional() && angle < 90.0) // spotlight
     {
-      vtkLightActor *la=vtkLightActor::New();
+      vtkLightActor* la = vtkLightActor::New();
       la->SetLight(l);
       r->AddViewProp(la);
       la->Delete();
     }
-    l=lights->GetNextItem();
+    l = lights->GetNextItem();
   }
 }
 
 }
 
-int TestSimplePCompositeZPass(int argc, char *argv[])
+int TestSimplePCompositeZPass(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -458,17 +452,17 @@ int TestSimplePCompositeZPass(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
-  int retVal = 1; //1==failed
+  int retVal = 1; // 1==failed
 
   vtkMultiProcessController::SetGlobalController(contr);
 
   int numProcs = contr->GetNumberOfProcesses();
   int me = contr->GetLocalProcessId();
 
-  if(numProcs!=2)
+  if (numProcs != 2)
   {
     if (me == 0)
     {
@@ -488,13 +482,13 @@ int TestSimplePCompositeZPass(int argc, char *argv[])
     return retVal;
   }
 
-  MyProcess *p=MyProcess::New();
-  p->SetArgs(argc,argv);
+  MyProcess* p = MyProcess::New();
+  p->SetArgs(argc, argv);
 
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal=p->GetReturnValue();
+  retVal = p->GetReturnValue();
   p->Delete();
   contr->Finalize();
   contr->Delete();

@@ -28,14 +28,14 @@
  * The glyphs will automatically be scaled to be the same size in screen
  * coordinates. To do this the filter requires a pointer to the renderer
  * into which the glyphs will be rendered.
-*/
+ */
 
 #ifndef vtkGraphToGlyphs_h
 #define vtkGraphToGlyphs_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // for SP ivars
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // for SP ivars
 
 class vtkDistanceToCamera;
 class vtkGraphToPoints;
@@ -47,7 +47,7 @@ class vtkSphereSource;
 class VTKRENDERINGCORE_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkGraphToGlyphs *New();
+  static vtkGraphToGlyphs* New();
   vtkTypeMacro(vtkGraphToGlyphs, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -123,7 +123,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.

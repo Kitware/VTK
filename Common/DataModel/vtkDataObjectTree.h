@@ -28,7 +28,7 @@
  *
  * @sa
  * vtkDataObjectTreeIterator
-*/
+ */
 
 #ifndef vtkDataObjectTree_h
 #define vtkDataObjectTree_h
@@ -52,7 +52,7 @@ public:
   /**
    * Return a new iterator (the iterator has to be deleted by user).
    */
-  virtual vtkDataObjectTreeIterator* NewTreeIterator();
+  VTK_NEWINSTANCE virtual vtkDataObjectTreeIterator* NewTreeIterator();
 
   /**
    * Return a new iterator (the iterator has to be deleted by user).
@@ -76,8 +76,7 @@ public:
    * be any composite datasite with similar structure (achieved by using
    * CopyStructure).
    */
-  void SetDataSet(vtkCompositeDataIterator* iter,
-                  vtkDataObject* dataObj) override;
+  void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj) override;
 
   /**
    * Sets the data at the location provided by a vtkDataObjectTreeIterator
@@ -125,8 +124,8 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
   /**
@@ -148,7 +147,7 @@ public:
    * Retrieve an instance of this class from an information object.
    */
   static vtkDataObjectTree* GetData(vtkInformation* info);
-  static vtkDataObjectTree* GetData(vtkInformationVector* v, int i=0);
+  static vtkDataObjectTree* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -207,7 +206,6 @@ protected:
 private:
   vtkDataObjectTree(const vtkDataObjectTree&) = delete;
   void operator=(const vtkDataObjectTree&) = delete;
-
 };
 
 #endif

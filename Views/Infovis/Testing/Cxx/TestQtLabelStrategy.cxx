@@ -17,6 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
+#include "vtkActor2D.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
@@ -24,25 +26,23 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkLabelPlacementMapper.h"
+#include "vtkPointData.h"
+#include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkQtLabelRenderStrategy.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkUnicodeString.h"
 #include "vtkUnicodeStringArray.h"
 #include "vtkXMLTreeReader.h"
-#include "vtkPointSetToLabelHierarchy.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkLabelPlacementMapper.h"
-#include "vtkActor2D.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPointData.h"
-#include "vtkTextProperty.h"
-#include "vtkQtLabelRenderStrategy.h"
 
 #include <sstream>
 #include <time.h>
@@ -53,16 +53,14 @@
 using std::string;
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestQtLabelStrategy(int argc, char* argv[])
 {
   int n = 1000;
 
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc, const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   QString fontFileName = testHelper->GetDataRoot();
   fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");
 
@@ -78,14 +76,14 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkStringArray, label);
   label->SetName("label");
 
-  srand( time(nullptr) );
+  srand(time(nullptr));
 
-  for( int i = 0; i < n; i++ )
+  for (int i = 0; i < n; i++)
   {
-    pts->InsertNextPoint((double)(rand()%100), (double)(rand()%100), (double)(rand()%100));
+    pts->InsertNextPoint((double)(rand() % 100), (double)(rand() % 100), (double)(rand() % 100));
     verts->InsertNextCell(1);
     verts->InsertCellPoint(i);
-    orient->InsertNextValue((double)(rand()%100)*3.60);
+    orient->InsertNextValue((double)(rand() % 100) * 3.60);
     vtkStdString s;
     std::stringstream out;
     out << i;
@@ -103,9 +101,9 @@ int TestQtLabelStrategy(int argc, char* argv[])
   hier->SetOrientationArrayName("orientation");
   hier->SetLabelArrayName("label");
   hier->GetTextProperty()->SetColor(0.0, 0.0, 0.0);
-//  hier->GetTextProperty()->SetFontFamilyAsString("Talvez assim");
+  //  hier->GetTextProperty()->SetFontFamilyAsString("Talvez assim");
   hier->GetTextProperty()->SetFontFamilyAsString("Ridiculous");
-//  hier->GetTextProperty()->SetFontFamilyAsString("Sketchy");
+  //  hier->GetTextProperty()->SetFontFamilyAsString("Sketchy");
   hier->GetTextProperty()->SetFontSize(72);
 
   VTK_CREATE(vtkLabelPlacementMapper, lmapper);
@@ -132,13 +130,13 @@ int TestQtLabelStrategy(int argc, char* argv[])
   ren->ResetCamera();
 
   VTK_CREATE(vtkRenderWindow, win);
-  win->SetSize(600,600);
+  win->SetSize(600, 600);
   win->AddRenderer(ren);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
 
-  int retVal = vtkRegressionTestImageThreshold(win,200);
+  int retVal = vtkRegressionTestImageThreshold(win, 200);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Initialize();

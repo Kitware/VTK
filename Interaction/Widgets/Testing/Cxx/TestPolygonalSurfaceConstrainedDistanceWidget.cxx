@@ -23,32 +23,32 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkDEMReader.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
-#include "vtkImageDataGeometryFilter.h"
-#include "vtkWarpScalar.h"
-#include "vtkPolyDataNormals.h"
-#include "vtkLODActor.h"
 #include "vtkAxisActor2D.h"
-#include "vtkProperty2D.h"
-#include "vtkImageData.h"
-#include "vtkLookupTable.h"
-#include "vtkPoints.h"
+#include "vtkCamera.h"
 #include "vtkCellArray.h"
-#include "vtkPolyDataCollection.h"
-#include "vtkTriangleFilter.h"
+#include "vtkDEMReader.h"
+#include "vtkImageData.h"
+#include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkLODActor.h"
+#include "vtkLookupTable.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataCollection.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkProperty.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTriangleFilter.h"
+#include "vtkWarpScalar.h"
 
-#include "vtkDistanceWidget.h"
 #include "vtkDistanceRepresentation2D.h"
+#include "vtkDistanceWidget.h"
 #include "vtkHandleWidget.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolygonalSurfacePointPlacer.h"
@@ -161,42 +161,34 @@ const char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "RenderEvent 208 119 0 0 0 0 0 i\n"
   "KeyPressEvent 208 119 0 0 113 1 q i\n"
   "CharEvent 208 119 0 0 113 1 q i\n"
-  "ExitEvent 208 119 0 0 113 1 q i\n"
-  ;
+  "ExitEvent 208 119 0 0 113 1 q i\n";
 
-int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
+int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    std::cerr
-      << "Demonstrates interaction of a handle, so that it is constrained \n"
-      << "to lie on a polygonal surface.\n\n"
-      << "Usage args: [-DistanceOffset height_offset]."
-      << std::endl;
+    std::cerr << "Demonstrates interaction of a handle, so that it is constrained \n"
+              << "to lie on a polygonal surface.\n\n"
+              << "Usage args: [-DistanceOffset height_offset]." << std::endl;
     return EXIT_FAILURE;
   }
 
   // Read height field.
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SainteHelens.dem");
 
   // Convert it to a vtkPolyData
 
-
   // Read height field.
   //
-  vtkSmartPointer<vtkDEMReader> demReader =
-    vtkSmartPointer<vtkDEMReader>::New();
+  vtkSmartPointer<vtkDEMReader> demReader = vtkSmartPointer<vtkDEMReader>::New();
   demReader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
-  vtkSmartPointer<vtkImageResample>  resample =
-    vtkSmartPointer<vtkImageResample>::New();
-  resample->SetInputConnection(
-    demReader->GetOutputPort());
+  vtkSmartPointer<vtkImageResample> resample = vtkSmartPointer<vtkImageResample>::New();
+  resample->SetInputConnection(demReader->GetOutputPort());
   resample->SetDimensionality(2);
-  resample->SetAxisMagnificationFactor(0,1.0);
-  resample->SetAxisMagnificationFactor(1,1.0);
+  resample->SetAxisMagnificationFactor(0, 1.0);
+  resample->SetAxisMagnificationFactor(1, 1.0);
 
   // Extract geometry
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
@@ -204,13 +196,11 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   surface->SetInputConnection(resample->GetOutputPort());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
-  vtkSmartPointer<vtkTriangleFilter> triangleFilter =
-    vtkSmartPointer<vtkTriangleFilter>::New();
-  triangleFilter->SetInputConnection( surface->GetOutputPort() );
+  vtkSmartPointer<vtkTriangleFilter> triangleFilter = vtkSmartPointer<vtkTriangleFilter>::New();
+  triangleFilter->SetInputConnection(surface->GetOutputPort());
   triangleFilter->Update();
 
-  vtkSmartPointer<vtkWarpScalar> warp =
-    vtkSmartPointer<vtkWarpScalar>::New();
+  vtkSmartPointer<vtkWarpScalar> warp = vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInputConnection(triangleFilter->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
@@ -222,22 +212,20 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   double lo = demReader->GetOutput()->GetScalarRange()[0];
   double hi = demReader->GetOutput()->GetScalarRange()[1];
 
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
   lut->SetHueRange(0.6, 0);
   lut->SetSaturationRange(1.0, 0);
   lut->SetValueRange(0.5, 1.0);
 
-  vtkSmartPointer<vtkPolyDataNormals> normals =
-    vtkSmartPointer<vtkPolyDataNormals>::New();
+  vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
 
-  bool   distanceOffsetSpecified = false;
+  bool distanceOffsetSpecified = false;
   double distanceOffset = 0.0;
-  for (int i = 0; i < argc-1; i++)
+  for (int i = 0; i < argc - 1; i++)
   {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
     {
-      distanceOffset = atof(argv[i+1]);
+      distanceOffset = atof(argv[i + 1]);
       distanceOffsetSpecified = true;
     }
   }
@@ -253,30 +241,25 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
     normals->Update();
   }
 
-  vtkPolyData *pd = (distanceOffsetSpecified) ? normals->GetOutput()
-    : warp->GetPolyDataOutput();
+  vtkPolyData* pd = (distanceOffsetSpecified) ? normals->GetOutput() : warp->GetPolyDataOutput();
 
   // Now pd is the "Polydata" on which we want our distance widget to be
   // constrained.
 
   // First create the mapper for pd.
 
-  vtkSmartPointer<vtkPolyDataMapper> demMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> demMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   demMapper->SetInputData(pd);
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 
-  vtkSmartPointer<vtkActor> demActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> demActor = vtkSmartPointer<vtkActor>::New();
   demActor->SetMapper(demMapper);
 
   // Create the RenderWindow, Renderer and the DEM actor.
 
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -294,20 +277,19 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
 
   // Here comes the surface constrained distance widget stuff.....
 
-  vtkSmartPointer<vtkDistanceWidget> widget =
-    vtkSmartPointer<vtkDistanceWidget>::New();
+  vtkSmartPointer<vtkDistanceWidget> widget = vtkSmartPointer<vtkDistanceWidget>::New();
   widget->CreateDefaultRepresentation();
-  vtkSmartPointer< vtkDistanceRepresentation2D > rep =
-    vtkSmartPointer< vtkDistanceRepresentation2D >::New();
-  rep->GetAxis()->GetProperty()->SetColor( 0.0, 0.0, 1.0 );
+  vtkSmartPointer<vtkDistanceRepresentation2D> rep =
+    vtkSmartPointer<vtkDistanceRepresentation2D>::New();
+  rep->GetAxis()->GetProperty()->SetColor(0.0, 0.0, 1.0);
 
   // Create a 3D handle representation template for this distance
   // widget
-  vtkSmartPointer< vtkPointHandleRepresentation3D > handleRep3D =
-    vtkSmartPointer< vtkPointHandleRepresentation3D >::New();
+  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep3D =
+    vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   handleRep3D->GetProperty()->SetLineWidth(4.0);
-  rep->SetHandleRepresentation( handleRep3D );
-  handleRep3D->GetProperty()->SetColor( 0.0, 0.0, 0.5 );
+  rep->SetHandleRepresentation(handleRep3D);
+  handleRep3D->GetProperty()->SetColor(0.0, 0.0, 0.5);
   widget->SetRepresentation(rep);
 
   widget->SetInteractor(iren);
@@ -315,17 +297,17 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   // Create a polygonal surface point placer to constrain the distance
   // to the surface of the object
 
-  vtkSmartPointer<vtkPolygonalSurfacePointPlacer>  pointPlacer =
+  vtkSmartPointer<vtkPolygonalSurfacePointPlacer> pointPlacer =
     vtkSmartPointer<vtkPolygonalSurfacePointPlacer>::New();
   pointPlacer->AddProp(demActor);
-  pointPlacer->GetPolys()->AddItem( pd );
+  pointPlacer->GetPolys()->AddItem(pd);
 
   // We can optionally constain the handles to a certain height (measured as
   // the offset along the surface normal) from the surface.
 
   if (distanceOffsetSpecified)
   {
-    pointPlacer->SetDistanceOffset( distanceOffset );
+    pointPlacer->SetDistanceOffset(distanceOffset);
   }
 
   // set the placer on the distance' handle representations.
@@ -340,5 +322,5 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   renWin->Render();
 
   return vtkTesting::InteractorEventLoop(
-      argc, argv, iren, TestPolygonalSurfaceConstrainedDistanceWidgetLog );
+    argc, argv, iren, TestPolygonalSurfaceConstrainedDistanceWidgetLog);
 }

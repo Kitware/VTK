@@ -20,6 +20,7 @@
 
 #include "vtkNetworkHierarchy.h"
 
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -30,22 +31,19 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkGraph.h"
 #include "vtkTree.h"
 #include "vtkVariant.h"
 
+#include <algorithm>
 #include <map>
+#include <sstream>
 #include <utility>
 #include <vector>
-#include <sstream>
-#include <algorithm>
 
 vtkStandardNewMacro(vtkNetworkHierarchy);
 
 // This is just a macro wrapping for smart pointers
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkNetworkHierarchy::vtkNetworkHierarchy()
 {
@@ -64,39 +62,35 @@ void vtkNetworkHierarchy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IPArrayName: " << (this->IPArrayName ? "" : "(null)") << endl;
 }
 
-int vtkNetworkHierarchy::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkNetworkHierarchy::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTree");
   return 1;
 }
 
-int vtkNetworkHierarchy::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkNetworkHierarchy::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
 }
 
-
-void vtkNetworkHierarchy::GetSubnets(unsigned int packedIP, int *subnets)
+void vtkNetworkHierarchy::GetSubnets(unsigned int packedIP, int* subnets)
 {
- unsigned int num = packedIP;
- subnets[3] = num % 256;
- num = num >> 8;
- subnets[2] = num % 256;
- num = num >> 8;
- subnets[1] = num % 256;
- num = num >> 8;
- subnets[0] = num;
+  unsigned int num = packedIP;
+  subnets[3] = num % 256;
+  num = num >> 8;
+  subnets[2] = num % 256;
+  num = num >> 8;
+  subnets[1] = num % 256;
+  num = num >> 8;
+  subnets[0] = num;
 }
 
 unsigned int vtkNetworkHierarchy::ITON(const vtkStdString& ip)
 {
   unsigned int subnets[4];
-  sscanf(ip.c_str(),"%u.%u.%u.%u",
-      &(subnets[0]),&(subnets[1]),&(subnets[2]),&(subnets[3]));
+  sscanf(ip.c_str(), "%u.%u.%u.%u", &(subnets[0]), &(subnets[1]), &(subnets[2]), &(subnets[3]));
   int num = subnets[0];
   num = num << 8;
   num += subnets[1];
@@ -108,23 +102,18 @@ unsigned int vtkNetworkHierarchy::ITON(const vtkStdString& ip)
 }
 
 int vtkNetworkHierarchy::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Storing the inputTable and outputTree handles
-  vtkGraph *inputGraph = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *outputTree = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* inputGraph = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* outputTree = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Get the field to filter on
-  vtkAbstractArray* arr =
-    inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
+  vtkAbstractArray* arr = inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
   vtkStringArray* ipArray = vtkArrayDownCast<vtkStringArray>(arr);
   if (ipArray == nullptr)
   {
@@ -132,37 +121,36 @@ int vtkNetworkHierarchy::RequestData(
     return 0;
   }
 
-
   // Build subnet map
   typedef std::vector<std::pair<unsigned int, vtkIdType> > subnet_map_type;
   subnet_map_type SubnetMap;
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
   {
     unsigned int packedID = this->ITON(ipArray->GetValue(i));
-    SubnetMap.push_back(std::make_pair(packedID,i));
+    SubnetMap.push_back(std::make_pair(packedID, i));
   }
   std::sort(SubnetMap.begin(), SubnetMap.end());
 
   // Create builder for the tree
-  VTK_CREATE(vtkMutableDirectedGraph,builder);
+  VTK_CREATE(vtkMutableDirectedGraph, builder);
 
   // Make a bunch of blank vertices
-  for(int i=0; i<inputGraph->GetNumberOfVertices(); ++i)
+  for (int i = 0; i < inputGraph->GetNumberOfVertices(); ++i)
   {
     builder->AddVertex();
   }
 
   // Get the input graph and copy the vertex data
-  vtkDataSetAttributes *inputVertexData = inputGraph->GetVertexData();
-  vtkDataSetAttributes *builderVertexData = builder->GetVertexData();
+  vtkDataSetAttributes* inputVertexData = inputGraph->GetVertexData();
+  vtkDataSetAttributes* builderVertexData = builder->GetVertexData();
   builderVertexData->DeepCopy(inputVertexData);
 
   // Get pedigree ids.
   vtkAbstractArray* pedIDArr = builderVertexData->GetPedigreeIds();
 
   // Get domain. If there isn't one, make one.
-  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
-    builderVertexData->GetAbstractArray("domain"));
+  vtkStringArray* domainArr =
+    vtkArrayDownCast<vtkStringArray>(builderVertexData->GetAbstractArray("domain"));
   if (pedIDArr && !domainArr)
   {
     domainArr = vtkStringArray::New();
@@ -179,8 +167,7 @@ int vtkNetworkHierarchy::RequestData(
 
   // Make the builder's field data a table
   // so we can call InsertNextBlankRow.
-  vtkSmartPointer<vtkTable> treeTable =
-    vtkSmartPointer<vtkTable>::New();
+  vtkSmartPointer<vtkTable> treeTable = vtkSmartPointer<vtkTable>::New();
   treeTable->SetRowData(builder->GetVertexData());
 
   // Get the pedigree ID and domain columns
@@ -220,7 +207,7 @@ int vtkNetworkHierarchy::RequestData(
   {
     unsigned int packedID = (*I).first;
     leafIndex = (*I).second;
-    this->GetSubnets(packedID,subnets);
+    this->GetSubnets(packedID, subnets);
 
     // Is this a new subnet 0
     if (subnets[0] != currentSubnet0)
@@ -309,11 +296,10 @@ int vtkNetworkHierarchy::RequestData(
     builder->AddEdge(currentParent2, leafIndex);
   }
 
-
   // Move the structure to the output
   if (!outputTree->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid tree structure!");
+    vtkErrorMacro(<< "Invalid tree structure!");
     return 0;
   }
 

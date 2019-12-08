@@ -14,9 +14,8 @@
 =========================================================================*/
 
 #include "vtkPythonCommand.h"
-#include "vtkPythonUtil.h"
 #include "vtkObject.h"
-
+#include "vtkPythonUtil.h"
 
 vtkPythonCommand::vtkPythonCommand()
 {
@@ -36,40 +35,40 @@ vtkPythonCommand::~vtkPythonCommand()
   this->obj = nullptr;
 }
 
-void vtkPythonCommand::SetObject(PyObject *o)
+void vtkPythonCommand::SetObject(PyObject* o)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   Py_INCREF(o);
   this->obj = o;
 }
 
-void vtkPythonCommand::SetThreadState(PyThreadState *ts)
+void vtkPythonCommand::SetThreadState(PyThreadState* ts)
 {
   this->ThreadState = ts;
 }
 
 namespace
 {
-  PyObject* BuildCallDataArgList(PyObject * caller, const char *eventname, PyObject* callDataAsPyObject)
-  {
-  PyObject *arglist;
+PyObject* BuildCallDataArgList(
+  PyObject* caller, const char* eventname, PyObject* callDataAsPyObject)
+{
+  PyObject* arglist;
   if (callDataAsPyObject)
   {
-      arglist = Py_BuildValue("(NsN)", caller, eventname, callDataAsPyObject);
+    arglist = Py_BuildValue("(NsN)", caller, eventname, callDataAsPyObject);
   }
   else
   {
-      PyErr_Clear();
-      /* we couldn't create a the expected python object, so we pass in None */
-      Py_INCREF(Py_None);
-      arglist = Py_BuildValue("(NsN)", caller, eventname, Py_None);
+    PyErr_Clear();
+    /* we couldn't create a the expected python object, so we pass in None */
+    Py_INCREF(Py_None);
+    arglist = Py_BuildValue("(NsN)", caller, eventname, Py_None);
   }
   return arglist;
-  }
+}
 }
 
-void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
-                               void *callData)
+void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* callData)
 {
   if (!this->obj)
   {
@@ -102,10 +101,8 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   }
 #endif
 
-
-  PyObject * obj2 = nullptr;
-  if (eventtype != vtkCommand::DeleteEvent &&
-      ptr && ptr->GetReferenceCount() > 0)
+  PyObject* obj2 = nullptr;
+  if (eventtype != vtkCommand::DeleteEvent && ptr && ptr->GetReferenceCount() > 0)
   {
     obj2 = vtkPythonUtil::GetObjectFromPointer(ptr);
   }
@@ -115,7 +112,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     obj2 = Py_None;
   }
 
-   const char *eventname = this->GetStringFromEventId(eventtype);
+  const char* eventname = this->GetStringFromEventId(eventtype);
 
   // extension by Charl P. Botha so that callData is available from Python:
   // * callData used to be ignored completely: this is not entirely desirable,
@@ -133,10 +130,9 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   // support for additional types has then been added by Jean-Christophe Fillion-Robin
   //
   char callDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
-  PyObject *callDataTypeObj = PyObject_GetAttrString(this->obj,
-                                                     callDataTypeLiteral);
+  PyObject* callDataTypeObj = PyObject_GetAttrString(this->obj, callDataTypeLiteral);
 
-  PyObject *arglist = nullptr;
+  PyObject* arglist = nullptr;
   if (callData && callDataTypeObj)
   {
     if (PyInt_Check(callDataTypeObj))
@@ -154,7 +150,8 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
         else if (callDataTypeLong == VTK_OBJECT)
         {
           // this means the user wants the callData cast as a vtkObject
-          PyObject* callDataAsVTKObject = vtkPythonUtil::GetObjectFromPointer(reinterpret_cast<vtkObject*>(callData));
+          PyObject* callDataAsVTKObject =
+            vtkPythonUtil::GetObjectFromPointer(reinterpret_cast<vtkObject*>(callData));
           arglist = BuildCallDataArgList(obj2, eventname, callDataAsVTKObject);
         }
         else if (callDataTypeLong == VTK_INT)
@@ -192,15 +189,14 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     else if (PyString_Check(callDataTypeObj))
     {
 #ifdef VTK_PY3K
-      PyObject *bytes = PyUnicode_AsEncodedString(
-        callDataTypeObj, 0, nullptr);
-      const char *callDataTypeString = nullptr;
+      PyObject* bytes = PyUnicode_AsEncodedString(callDataTypeObj, 0, nullptr);
+      const char* callDataTypeString = nullptr;
       if (bytes)
       {
         callDataTypeString = PyBytes_AsString(bytes);
       }
 #else
-      const char *callDataTypeString = PyString_AsString(callDataTypeObj);
+      const char* callDataTypeString = PyString_AsString(callDataTypeObj);
 #endif
       if (callDataTypeString)
       {
@@ -238,7 +234,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     arglist = Py_BuildValue("(Ns)", obj2, eventname);
   }
 
-  PyObject *result = PyEval_CallObject(this->obj, arglist);
+  PyObject* result = PyEval_CallObject(this->obj, arglist);
   Py_DECREF(arglist);
 
   if (result)

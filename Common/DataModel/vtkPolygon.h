@@ -20,13 +20,13 @@
  * n-sided polygon. The polygons cannot have any internal holes, and cannot
  * self-intersect. Define the polygon with n-points ordered in the counter-
  * clockwise direction; do not repeat the last point.
-*/
+ */
 
 #ifndef vtkPolygon_h
 #define vtkPolygon_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkIdTypeArray;
@@ -39,42 +39,36 @@ class vtkIncrementalPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolygon : public vtkCell
 {
 public:
-  static vtkPolygon *New();
-  vtkTypeMacro(vtkPolygon,vtkCell);
+  static vtkPolygon* New();
+  vtkTypeMacro(vtkPolygon, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_POLYGON;};
-  int GetCellDimension() override {return 2;};
-  int GetNumberOfEdges() override {return this->GetNumberOfPoints();};
-  int GetNumberOfFaces() override {return 0;};
-  vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int) override {return nullptr;};
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
-  void Contour(double value, vtkDataArray *cellScalars,
-               vtkIncrementalPointLocator *locator,vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
-  void Clip(double value, vtkDataArray *cellScalars,
-            vtkIncrementalPointLocator *locator, vtkCellArray *tris,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-                       int& subId, double pcoords[3],
-                       double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
-                        double *weights) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                   int dim, double *derivs) override;
-  int IsPrimaryCell() override {return 0;}
+  int GetCellType() override { return VTK_POLYGON; }
+  int GetCellDimension() override { return 2; }
+  int GetNumberOfEdges() override { return this->GetNumberOfPoints(); }
+  int GetNumberOfFaces() override { return 0; }
+  vtkCell* GetEdge(int edgeId) override;
+  vtkCell* GetFace(int) override { return nullptr; }
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* tris, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
+    double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  int IsPrimaryCell() override { return 0; }
   //@}
 
   /**
@@ -94,24 +88,23 @@ public:
    * The function assumes the input point lies on the polygon plane without
    * checking that.
    */
-  void InterpolateFunctions(const double x[3], double *sf) override;
+  void InterpolateFunctions(const double x[3], double* sf) override;
 
   //@{
   /**
    * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
    * assumed to be {0, 1, ..., numPts-1}.
    */
-  static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
-                            double n[3]);
-  static void ComputeNormal(vtkPoints *p, double n[3]);
-  static void ComputeNormal(vtkIdTypeArray *ids, vtkPoints *pts, double n[3]);
+  static void ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double n[3]);
+  static void ComputeNormal(vtkPoints* p, double n[3]);
+  static void ComputeNormal(vtkIdTypeArray* ids, vtkPoints* pts, double n[3]);
   //@}
 
   /**
    * Compute the polygon normal from an array of points. This version assumes
    * that the polygon is convex, and looks for the first valid normal.
    */
-  static void ComputeNormal(int numPts, double *pts, double n[3]);
+  static void ComputeNormal(int numPts, double* pts, double n[3]);
 
   /**
    * Determine whether or not a polygon is convex. This is a convenience
@@ -126,9 +119,9 @@ public:
    * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
    * is assumed to be {0, 1, ..., numPts-1}.
    */
-  static bool IsConvex(vtkPoints *p, int numPts, vtkIdType *pts);
-  static bool IsConvex(vtkIdTypeArray *ids, vtkPoints *p);
-  static bool IsConvex(vtkPoints *p);
+  static bool IsConvex(vtkPoints* p, int numPts, vtkIdType* pts);
+  static bool IsConvex(vtkIdTypeArray* ids, vtkPoints* p);
+  static bool IsConvex(vtkPoints* p);
   //@}
 
   //@{
@@ -136,10 +129,8 @@ public:
    * Compute the centroid of a set of points. Returns false if the computation
    * is invalid (this occurs when numPts=0 or when ids is empty).
    */
-  static bool ComputeCentroid(vtkPoints *p, int numPts, vtkIdType *pts,
-                              double centroid[3]);
-  static bool ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts,
-                              double centroid[3]);
+  static bool ComputeCentroid(vtkPoints* p, int numPts, vtkIdType* pts, double centroid[3]);
+  static bool ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* pts, double centroid[3]);
   //@}
 
   /**
@@ -150,8 +141,7 @@ public:
    * If you already have a vtkPolygon instantiated, a convenience function,
    * ComputeArea() is provided.
    */
-  static double ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
-                            double normal[3]);
+  static double ComputeArea(vtkPoints* p, vtkIdType numPts, const vtkIdType* pts, double normal[3]);
 
   /**
    * Create a local s-t coordinate system for a polygon. The point p0 is
@@ -160,8 +150,8 @@ public:
    * are vectors of dimension [3].) The values l20 and l20 are the lengths of
    * the vectors p10 and p20, and n is the polygon normal.
    */
-  int ParameterizePolygon(double p0[3], double p10[3], double &l10,
-                          double p20[3], double &l20, double n[3]);
+  int ParameterizePolygon(
+    double p0[3], double p10[3], double& l10, double p20[3], double& l20, double n[3]);
 
   /**
    * Determine whether point is inside polygon. Function uses ray-casting
@@ -169,8 +159,7 @@ public:
    * (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
    * Can also return -1 to indicate degenerate polygon.
    */
-  static int PointInPolygon(double x[3], int numPts, double *pts,
-                            double bounds[6], double n[3]);
+  static int PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double n[3]);
 
   /**
    * Triangulate this polygon. The user must provide the vtkIdList outTris.
@@ -178,13 +167,13 @@ public:
    * the triangulation. The ids are ordered into groups of three: each
    * three-group defines one triangle.
    */
-  int Triangulate(vtkIdList *outTris);
+  int Triangulate(vtkIdList* outTris);
 
   /**
    * Same as Triangulate(vtkIdList *outTris)
    * but with a first pass to split the polygon into non-degenerate polygons.
    */
-  int NonDegenerateTriangulate(vtkIdList *outTris);
+  int NonDegenerateTriangulate(vtkIdList* outTris);
 
   /**
    * Triangulate polygon and enforce that the ratio of the smallest triangle
@@ -193,15 +182,15 @@ public:
    * the ids of the points defining the triangulation. The ids are ordered into
    * groups of three: each three-group defines one triangle.
    */
-  int BoundedTriangulate(vtkIdList *outTris, double tol);
+  int BoundedTriangulate(vtkIdList* outTris, double tol);
 
   /**
    * Compute the distance of a point to a polygon. The closest point on
    * the polygon is also returned. The bounds should be provided to
    * accelerate the computation.
    */
-  static double DistanceToPolygon(double x[3], int numPts, double *pts,
-                                  double bounds[6], double closest[3]);
+  static double DistanceToPolygon(
+    double x[3], int numPts, double* pts, double bounds[6], double closest[3]);
 
   /**
    * Method intersects two polygons. You must supply the number of points and
@@ -211,10 +200,8 @@ public:
    * not. A single point of intersection x[3] is also returned if there
    * is an intersection.
    */
-  static int IntersectPolygonWithPolygon(int npts, double *pts, double bounds[6],
-                                         int npts2, double *pts2,
-                                         double bounds2[3], double tol,
-                                         double x[3]);
+  static int IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6], int npts2,
+    double* pts2, double bounds2[3], double tol, double x[3]);
 
   /**
    * Intersect two convex 2D polygons to produce a line segment as output.
@@ -227,8 +214,8 @@ public:
    * "0" is returned (i.e., no intersection) even if the triangles lie on one
    * another.
    */
-  static int IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
-                                    double tol, double p0[3], double p1[3]);
+  static int IntersectConvex2DCells(
+    vtkCell* cell1, vtkCell* cell2, double tol, double p0[3], double p1[3]);
 
   //@{
   /**
@@ -246,21 +233,21 @@ protected:
   ~vtkPolygon() override;
 
   // Compute the interpolation functions using Mean Value Coordinate.
-  void InterpolateFunctionsUsingMVC(const double x[3], double *weights);
+  void InterpolateFunctionsUsingMVC(const double x[3], double* weights);
 
   // variables used by instances of this class
-  double   Tolerance; // Intersection tolerance
-  int      SuccessfulTriangulation; // Stops recursive tri. if necessary
-  double   Normal[3]; //polygon normal
-  vtkIdList *Tris;
-  vtkTriangle *Triangle;
-  vtkQuad *Quad;
-  vtkDoubleArray *TriScalars;
-  vtkLine *Line;
+  double Tolerance;            // Intersection tolerance
+  int SuccessfulTriangulation; // Stops recursive tri. if necessary
+  double Normal[3];            // polygon normal
+  vtkIdList* Tris;
+  vtkTriangle* Triangle;
+  vtkQuad* Quad;
+  vtkDoubleArray* TriScalars;
+  vtkLine* Line;
 
   // Parameter indicating whether to use Mean Value Coordinate algorithm
   // for interpolation. The parameter is false by default.
-  bool     UseMVCInterpolation;
+  bool UseMVCInterpolation;
 
   // Helper methods for triangulation------------------------------
   /**

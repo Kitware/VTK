@@ -27,26 +27,26 @@
  *
  * @sa
  * vtkActor vtkCamera vtkAxisFollower vtkProp3DFollower
-*/
+ */
 
 #ifndef vtkFollower_h
 #define vtkFollower_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 
 class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
 {
- public:
-  vtkTypeMacro(vtkFollower,vtkActor);
+public:
+  vtkTypeMacro(vtkFollower, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a follower with no camera set
    */
-  static vtkFollower *New();
+  static vtkFollower* New();
 
   //@{
   /**
@@ -63,9 +63,9 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  virtual void Render(vtkRenderer *ren);
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  virtual void Render(vtkRenderer* ren);
   //@}
 
   /**
@@ -87,24 +87,24 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkFollower();
   ~vtkFollower() override;
 
-  vtkCamera *Camera;
-  vtkActor  *Device;
+  vtkCamera* Camera;
+  vtkActor* Device;
 
-  //Internal matrices to avoid New/Delete for performance reasons
-  vtkMatrix4x4 *InternalMatrix;
+  // Internal matrices to avoid New/Delete for performance reasons
+  vtkMatrix4x4* InternalMatrix;
 
 private:
   vtkFollower(const vtkFollower&) = delete;
   void operator=(const vtkFollower&) = delete;
 
   // hide the two parameter Render() method from the user and the compiler.
-  void Render(vtkRenderer *, vtkMapper *) override {}
+  void Render(vtkRenderer*, vtkMapper*) override {}
 };
 
 #endif

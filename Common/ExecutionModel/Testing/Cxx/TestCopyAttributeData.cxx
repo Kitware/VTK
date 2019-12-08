@@ -17,19 +17,19 @@
 // not usually handled by the Execute methods of the imaging filters
 // (Execute methods typically process only the PointData Scalars).
 
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkImageAlgorithm.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkVariant.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
 
 #include <cmath>
 #include <cstring>
@@ -38,16 +38,14 @@
 class vtkDummyImageFilter : public vtkImageAlgorithm
 {
 public:
-  static vtkDummyImageFilter *New();
-  vtkTypeMacro(vtkDummyImageFilter,vtkImageAlgorithm);
+  static vtkDummyImageFilter* New();
+  vtkTypeMacro(vtkDummyImageFilter, vtkImageAlgorithm);
 
 protected:
   vtkDummyImageFilter() = default;
   ~vtkDummyImageFilter() override = default;
 
-  int RequestData(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
 private:
@@ -58,17 +56,13 @@ private:
 vtkStandardNewMacro(vtkDummyImageFilter);
 
 int vtkDummyImageFilter::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int extent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
@@ -82,21 +76,19 @@ int vtkDummyImageFilter::RequestData(
   return 1;
 }
 
-int TestCopyAttributeData(int,char *[])
+int TestCopyAttributeData(int, char*[])
 {
   int extent[6] = { 0, 6, 0, 4, 0, 2 };
   int outExt[6] = { 0, 4, 2, 2, 0, 2 };
 
-  vtkSmartPointer<vtkImageData> image =
-    vtkSmartPointer<vtkImageData>::New();
+  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
   image->SetExtent(extent);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   vtkIdType numPoints = image->GetNumberOfPoints();
   vtkIdType numCells = image->GetNumberOfCells();
 
-  vtkSmartPointer<vtkFloatArray> pointVectors =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> pointVectors = vtkSmartPointer<vtkFloatArray>::New();
   pointVectors->SetName("ImageVectors");
   pointVectors->SetNumberOfComponents(3);
   pointVectors->SetNumberOfTuples(numPoints);
@@ -104,19 +96,17 @@ int TestCopyAttributeData(int,char *[])
   for (vtkIdType i = 0; i < numPoints; i++)
   {
     double v[3];
-    v[0] = sin(i*0.5);
-    v[1] = cos(i*0.5);
-    v[2] = sin(i*0.1);
+    v[0] = sin(i * 0.5);
+    v[1] = cos(i * 0.5);
+    v[2] = sin(i * 0.1);
     pointVectors->SetTuple(i, v);
   }
 
-  vtkSmartPointer<vtkIntArray> cellScalars =
-    vtkSmartPointer<vtkIntArray>::New();
+  vtkSmartPointer<vtkIntArray> cellScalars = vtkSmartPointer<vtkIntArray>::New();
   cellScalars->SetName("CellScalars");
   cellScalars->SetNumberOfValues(numCells);
 
-  vtkSmartPointer<vtkStringArray> cellStrings =
-    vtkSmartPointer<vtkStringArray>::New();
+  vtkSmartPointer<vtkStringArray> cellStrings = vtkSmartPointer<vtkStringArray>::New();
   cellStrings->SetName("CellStrings");
   cellStrings->SetNumberOfValues(numCells);
 
@@ -131,8 +121,7 @@ int TestCopyAttributeData(int,char *[])
   image->GetCellData()->SetScalars(cellScalars);
   image->GetCellData()->AddArray(cellStrings);
 
-  vtkSmartPointer<vtkDummyImageFilter> filter =
-    vtkSmartPointer<vtkDummyImageFilter>::New();
+  vtkSmartPointer<vtkDummyImageFilter> filter = vtkSmartPointer<vtkDummyImageFilter>::New();
 
   filter->SetInputData(image);
 
@@ -140,12 +129,12 @@ int TestCopyAttributeData(int,char *[])
   {
     filter->UpdateExtent(outExt);
 
-    vtkImageData *output = filter->GetOutput();
+    vtkImageData* output = filter->GetOutput();
 
-    vtkDataArray *outPointVectors = output->GetPointData()->GetVectors();
-    vtkDataArray *outCellScalars = output->GetCellData()->GetScalars();
-    vtkStringArray *outCellStrings = vtkArrayDownCast<vtkStringArray>(
-      output->GetCellData()->GetAbstractArray("CellStrings"));
+    vtkDataArray* outPointVectors = output->GetPointData()->GetVectors();
+    vtkDataArray* outCellScalars = output->GetCellData()->GetScalars();
+    vtkStringArray* outCellStrings =
+      vtkArrayDownCast<vtkStringArray>(output->GetCellData()->GetAbstractArray("CellStrings"));
 
     for (int zId = outExt[4]; zId <= outExt[5]; zId++)
     {
@@ -153,11 +142,11 @@ int TestCopyAttributeData(int,char *[])
       {
         for (int xId = outExt[0]; xId <= outExt[1]; xId++)
         {
-          vtkIdType inIdx = (zId - extent[4])*(extent[3] - extent[2] + 1);
-          inIdx = (inIdx + yId - extent[2])*(extent[1] - extent[0] + 1);
+          vtkIdType inIdx = (zId - extent[4]) * (extent[3] - extent[2] + 1);
+          inIdx = (inIdx + yId - extent[2]) * (extent[1] - extent[0] + 1);
           inIdx = inIdx + xId - extent[0];
-          vtkIdType outIdx = (zId - outExt[4])*(outExt[3] - outExt[2] + 1);
-          outIdx = (outIdx + yId - outExt[2])*(outExt[1] - outExt[0] + 1);
+          vtkIdType outIdx = (zId - outExt[4]) * (outExt[3] - outExt[2] + 1);
+          outIdx = (outIdx + yId - outExt[2]) * (outExt[1] - outExt[0] + 1);
           outIdx = outIdx + xId - outExt[0];
           double v1[3], v2[3];
           pointVectors->GetTuple(inIdx, v1);
@@ -178,11 +167,11 @@ int TestCopyAttributeData(int,char *[])
       {
         for (int xId = outExt[0]; xId < outExt[1]; xId++)
         {
-          vtkIdType inIdx = (zId - extent[4])*(extent[3] - extent[2]);
-          inIdx = (inIdx + yId - extent[2])*(extent[1] - extent[0]);
+          vtkIdType inIdx = (zId - extent[4]) * (extent[3] - extent[2]);
+          inIdx = (inIdx + yId - extent[2]) * (extent[1] - extent[0]);
           inIdx = inIdx + xId - extent[0];
-          vtkIdType outIdx = (zId - outExt[4])*(outExt[3] - outExt[2] + ye);
-          outIdx = (outIdx + yId - outExt[2])*(outExt[1] - outExt[0]);
+          vtkIdType outIdx = (zId - outExt[4]) * (outExt[3] - outExt[2] + ye);
+          outIdx = (outIdx + yId - outExt[2]) * (outExt[1] - outExt[0]);
           outIdx = outIdx + xId - outExt[0];
           double s1, s2;
           cellScalars->GetTuple(inIdx, &s1);

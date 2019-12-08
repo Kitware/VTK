@@ -19,14 +19,14 @@
  * Writes debug/warning/error output to a log file instead of the console.
  * To use this class, instantiate it and then call SetInstance(this).
  *
-*/
+ */
 
 #ifndef vtkStringOutputWindow_h
 #define vtkStringOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
-#include <sstream>  // for ivar
+#include <sstream> // for ivar
 
 class VTKCOMMONCORE_EXPORT vtkStringOutputWindow : public vtkOutputWindow
 {
@@ -46,7 +46,7 @@ public:
   /**
    * Get the current output as a string
    */
-  std::string GetOutput() { return this->OStream.str(); };
+  std::string GetOutput() { return this->OStream.str(); }
 
 protected:
   vtkStringOutputWindow();
@@ -59,6 +59,5 @@ private:
   vtkStringOutputWindow(const vtkStringOutputWindow&) = delete;
   void operator=(const vtkStringOutputWindow&) = delete;
 };
-
 
 #endif

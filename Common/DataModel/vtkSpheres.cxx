@@ -16,13 +16,13 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkSphere.h"
 #include "vtkPoints.h"
+#include "vtkSphere.h"
 
 #include <cmath>
 
 vtkStandardNewMacro(vtkSpheres);
-vtkCxxSetObjectMacro(vtkSpheres,Centers,vtkPoints);
+vtkCxxSetObjectMacro(vtkSpheres, Centers, vtkPoints);
 
 //----------------------------------------------------------------------------
 vtkSpheres::vtkSpheres()
@@ -35,11 +35,11 @@ vtkSpheres::vtkSpheres()
 //----------------------------------------------------------------------------
 vtkSpheres::~vtkSpheres()
 {
-  if ( this->Centers )
+  if (this->Centers)
   {
     this->Centers->UnRegister(this);
   }
-  if ( this->Radii )
+  if (this->Radii)
   {
     this->Radii->UnRegister(this);
   }
@@ -49,8 +49,7 @@ vtkSpheres::~vtkSpheres()
 //----------------------------------------------------------------------------
 void vtkSpheres::SetRadii(vtkDataArray* radii)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting Radii to " << radii );
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Radii to " << radii);
 
   if (radii && radii->GetNumberOfComponents() != 1)
   {
@@ -60,9 +59,15 @@ void vtkSpheres::SetRadii(vtkDataArray* radii)
 
   if (this->Radii != radii)
   {
-    if (this->Radii != nullptr) { this->Radii->UnRegister(this); }
+    if (this->Radii != nullptr)
+    {
+      this->Radii->UnRegister(this);
+    }
     this->Radii = radii;
-    if (this->Radii != nullptr) { this->Radii->Register(this); }
+    if (this->Radii != nullptr)
+    {
+      this->Radii->Register(this);
+    }
     this->Modified();
   }
 }
@@ -75,24 +80,24 @@ double vtkSpheres::EvaluateFunction(double x[3])
   double val, minVal;
   double radius[1], center[3];
 
-  if ( !this->Centers || ! this->Radii )
+  if (!this->Centers || !this->Radii)
   {
-    vtkErrorMacro(<<"Please define points and/or radii!");
+    vtkErrorMacro(<< "Please define points and/or radii!");
     return VTK_DOUBLE_MAX;
   }
 
-  if ( (numSpheres=this->Centers->GetNumberOfPoints()) != this->Radii->GetNumberOfTuples() )
+  if ((numSpheres = this->Centers->GetNumberOfPoints()) != this->Radii->GetNumberOfTuples())
   {
-    vtkErrorMacro(<<"Number of radii/points inconsistent!");
+    vtkErrorMacro(<< "Number of radii/points inconsistent!");
     return VTK_DOUBLE_MAX;
   }
 
-  for (minVal=VTK_DOUBLE_MAX, i=0; i < numSpheres; i++)
+  for (minVal = VTK_DOUBLE_MAX, i = 0; i < numSpheres; i++)
   {
-    this->Radii->GetTuple(i,radius);
-    this->Centers->GetPoint(i,center);
-    val = this->Sphere->Evaluate(center, radius[0],  x);
-    if (val < minVal )
+    this->Radii->GetTuple(i, radius);
+    this->Centers->GetPoint(i, center);
+    val = this->Sphere->Evaluate(center, radius[0], x);
+    if (val < minVal)
     {
       minVal = val;
     }
@@ -110,25 +115,24 @@ void vtkSpheres::EvaluateGradient(double x[3], double n[3])
   double rTemp[1];
   double cTemp[3];
 
-  if ( !this->Centers || ! this->Radii )
+  if (!this->Centers || !this->Radii)
   {
-    vtkErrorMacro(<<"Please define centers and radii!");
+    vtkErrorMacro(<< "Please define centers and radii!");
     return;
   }
 
-  if ( (numSpheres=this->Centers->GetNumberOfPoints()) !=
-       this->Radii->GetNumberOfTuples() )
+  if ((numSpheres = this->Centers->GetNumberOfPoints()) != this->Radii->GetNumberOfTuples())
   {
-    vtkErrorMacro(<<"Number of radii/centersinconsistent!");
+    vtkErrorMacro(<< "Number of radii/centersinconsistent!");
     return;
   }
 
-  for (minVal=VTK_DOUBLE_MAX, i=0; i < numSpheres; i++)
+  for (minVal = VTK_DOUBLE_MAX, i = 0; i < numSpheres; i++)
   {
     this->Radii->GetTuple(i, rTemp);
     this->Centers->GetPoint(i, cTemp);
     val = this->Sphere->Evaluate(cTemp, rTemp[0], x);
-    if ( val < minVal )
+    if (val < minVal)
     {
       minVal = val;
       n[0] = x[0] - cTemp[0];
@@ -141,11 +145,11 @@ void vtkSpheres::EvaluateGradient(double x[3], double n[3])
 //----------------------------------------------------------------------------
 int vtkSpheres::GetNumberOfSpheres()
 {
-  if ( this->Centers && this->Radii )
+  if (this->Centers && this->Radii)
   {
     int npts = this->Centers->GetNumberOfPoints();
     int nradii = this->Radii->GetNumberOfTuples();
-    return ( npts <= nradii ? npts : nradii );
+    return (npts <= nradii ? npts : nradii);
   }
   else
   {
@@ -154,15 +158,15 @@ int vtkSpheres::GetNumberOfSpheres()
 }
 
 //----------------------------------------------------------------------------
-vtkSphere *vtkSpheres::GetSphere(int i)
+vtkSphere* vtkSpheres::GetSphere(int i)
 {
   double radius[1];
   double center[3];
 
-  if ( i >= 0 && i < this->GetNumberOfSpheres() )
+  if (i >= 0 && i < this->GetNumberOfSpheres())
   {
-    this->Radii->GetTuple(i,radius);
-    this->Centers->GetPoint(i,center);
+    this->Radii->GetTuple(i, radius);
+    this->Centers->GetPoint(i, center);
     this->Sphere->SetRadius(radius[0]);
     this->Sphere->SetCenter(center);
     return this->Sphere;
@@ -174,14 +178,14 @@ vtkSphere *vtkSpheres::GetSphere(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkSpheres::GetSphere(int i, vtkSphere *sphere)
+void vtkSpheres::GetSphere(int i, vtkSphere* sphere)
 {
-  if ( i >= 0 && i < this->GetNumberOfSpheres() )
+  if (i >= 0 && i < this->GetNumberOfSpheres())
   {
     double radius[1];
     double center[3];
-    this->Radii->GetTuple(i,radius);
-    this->Centers->GetPoint(i,center);
+    this->Radii->GetTuple(i, radius);
+    this->Centers->GetPoint(i, center);
     sphere->SetRadius(radius[0]);
     sphere->SetCenter(center);
   }
@@ -190,10 +194,10 @@ void vtkSpheres::GetSphere(int i, vtkSphere *sphere)
 //----------------------------------------------------------------------------
 void vtkSpheres::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   int numSpheres;
-  if ( this->Centers && (numSpheres=this->Centers->GetNumberOfPoints()) > 0 )
+  if (this->Centers && (numSpheres = this->Centers->GetNumberOfPoints()) > 0)
   {
     os << indent << "Number of Spheres: " << numSpheres << "\n";
   }
@@ -202,7 +206,7 @@ void vtkSpheres::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No Spheres Defined.\n";
   }
 
-  if ( this->Radii )
+  if (this->Radii)
   {
     os << indent << "Radii: " << this->Radii << "\n";
   }

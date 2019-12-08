@@ -21,11 +21,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindow.h"
 
-template<class T>
+template <class T>
 vtkStandardNewMacro(vtkOpenGLVolumeLookupTables<T>);
 
 //-----------------------------------------------------------------------------
-template<class T>
+template <class T>
 vtkOpenGLVolumeLookupTables<T>::~vtkOpenGLVolumeLookupTables()
 {
   for (auto it = this->Tables.begin(); it != this->Tables.end(); ++it)
@@ -35,7 +35,7 @@ vtkOpenGLVolumeLookupTables<T>::~vtkOpenGLVolumeLookupTables()
 }
 
 //----------------------------------------------------------------------------
-template<class T>
+template <class T>
 void vtkOpenGLVolumeLookupTables<T>::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -47,7 +47,7 @@ void vtkOpenGLVolumeLookupTables<T>::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-template<class T>
+template <class T>
 void vtkOpenGLVolumeLookupTables<T>::Create(std::size_t numberOfTables)
 {
   this->Tables.reserve(static_cast<std::size_t>(numberOfTables));
@@ -60,7 +60,7 @@ void vtkOpenGLVolumeLookupTables<T>::Create(std::size_t numberOfTables)
 }
 
 //----------------------------------------------------------------------------
-template<class T>
+template <class T>
 T* vtkOpenGLVolumeLookupTables<T>::GetTable(std::size_t i) const
 {
   if (i >= this->Tables.size())
@@ -71,14 +71,14 @@ T* vtkOpenGLVolumeLookupTables<T>::GetTable(std::size_t i) const
 }
 
 //----------------------------------------------------------------------------
-template<class T>
+template <class T>
 std::size_t vtkOpenGLVolumeLookupTables<T>::GetNumberOfTables() const
 {
   return this->Tables.size();
 }
 
 //----------------------------------------------------------------------------
-template<class T>
+template <class T>
 void vtkOpenGLVolumeLookupTables<T>::ReleaseGraphicsResources(vtkWindow* win)
 {
   for (auto it = this->Tables.begin(); it != this->Tables.end(); ++it)

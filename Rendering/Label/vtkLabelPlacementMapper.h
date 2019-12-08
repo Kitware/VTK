@@ -30,13 +30,13 @@
  * frame will decide which labels and/or icons to place in order of priority,
  * and will render only those labels/icons. A label render strategy is used to
  * render the labels, and can use e.g. FreeType or Qt for rendering.
-*/
+ */
 
 #ifndef vtkLabelPlacementMapper_h
 #define vtkLabelPlacementMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkCoordinate;
 class vtkLabelRenderStrategy;
@@ -45,14 +45,14 @@ class vtkSelectVisiblePoints;
 class VTKRENDERINGLABEL_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
 {
 public:
-  static vtkLabelPlacementMapper *New();
+  static vtkLabelPlacementMapper* New();
   vtkTypeMacro(vtkLabelPlacementMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Draw non-overlapping labels to the screen.
    */
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
 
   //@{
   /**
@@ -67,8 +67,8 @@ public:
    * The maximum fraction of the screen that the labels may cover.
    * Label placement stops when this fraction is reached.
    */
-  vtkSetClampMacro(MaximumLabelFraction,double,0.,1.);
-  vtkGetMacro(MaximumLabelFraction,double);
+  vtkSetClampMacro(MaximumLabelFraction, double, 0., 1.);
+  vtkGetMacro(MaximumLabelFraction, double);
   //@}
 
   //@{
@@ -76,17 +76,17 @@ public:
    * The type of iterator used when traversing the labels.
    * May be vtkLabelHierarchy::FRUSTUM or vtkLabelHierarchy::FULL_SORT
    */
-  vtkSetMacro(IteratorType,int);
-  vtkGetMacro(IteratorType,int);
+  vtkSetMacro(IteratorType, int);
+  vtkGetMacro(IteratorType, int);
   //@}
 
   //@{
   /**
    * Set whether, or not, to use unicode strings.
    */
-  vtkSetMacro(UseUnicodeStrings,bool);
-  vtkGetMacro(UseUnicodeStrings,bool);
-  vtkBooleanMacro(UseUnicodeStrings,bool);
+  vtkSetMacro(UseUnicodeStrings, bool);
+  vtkGetMacro(UseUnicodeStrings, bool);
+  vtkBooleanMacro(UseUnicodeStrings, bool);
   //@}
 
   //@{
@@ -95,9 +95,9 @@ public:
    * pointing away from the camera. Valid only when points are on a sphere
    * centered at the origin (such as a 3D geographic view). Off by default.
    */
-  vtkGetMacro(PositionsAsNormals,bool);
-  vtkSetMacro(PositionsAsNormals,bool);
-  vtkBooleanMacro(PositionsAsNormals,bool);
+  vtkGetMacro(PositionsAsNormals, bool);
+  vtkSetMacro(PositionsAsNormals, bool);
+  vtkBooleanMacro(PositionsAsNormals, bool);
   //@}
 
   //@{
@@ -105,9 +105,9 @@ public:
    * Enable drawing spokes (lines) to anchor point coordinates that were perturbed
    * for being coincident with other anchor point coordinates.
    */
-  vtkGetMacro(GeneratePerturbedLabelSpokes,bool);
-  vtkSetMacro(GeneratePerturbedLabelSpokes,bool);
-  vtkBooleanMacro(GeneratePerturbedLabelSpokes,bool);
+  vtkGetMacro(GeneratePerturbedLabelSpokes, bool);
+  vtkSetMacro(GeneratePerturbedLabelSpokes, bool);
+  vtkBooleanMacro(GeneratePerturbedLabelSpokes, bool);
   //@}
 
   //@{
@@ -115,9 +115,9 @@ public:
    * Use the depth buffer to test each label to see if it should not be displayed if
    * it would be occluded by other objects in the scene. Off by default.
    */
-  vtkGetMacro(UseDepthBuffer,bool);
-  vtkSetMacro(UseDepthBuffer,bool);
-  vtkBooleanMacro(UseDepthBuffer,bool);
+  vtkGetMacro(UseDepthBuffer, bool);
+  vtkSetMacro(UseDepthBuffer, bool);
+  vtkBooleanMacro(UseDepthBuffer, bool);
   //@}
 
   //@{
@@ -139,7 +139,8 @@ public:
   vtkBooleanMacro(OutputTraversedBounds, bool);
   //@}
 
-  enum LabelShape {
+  enum LabelShape
+  {
     NONE,
     RECT,
     ROUNDED_RECT,
@@ -151,17 +152,15 @@ public:
    * The shape of the label background, should be one of the
    * values in the LabelShape enumeration.
    */
-  vtkSetClampMacro(Shape, int, 0, NUMBER_OF_LABEL_SHAPES-1);
+  vtkSetClampMacro(Shape, int, 0, NUMBER_OF_LABEL_SHAPES - 1);
   vtkGetMacro(Shape, int);
-  virtual void SetShapeToNone()
-    { this->SetShape(NONE); }
-  virtual void SetShapeToRect()
-    { this->SetShape(RECT); }
-  virtual void SetShapeToRoundedRect()
-    { this->SetShape(ROUNDED_RECT); }
+  virtual void SetShapeToNone() { this->SetShape(NONE); }
+  virtual void SetShapeToRect() { this->SetShape(RECT); }
+  virtual void SetShapeToRoundedRect() { this->SetShape(ROUNDED_RECT); }
   //@}
 
-  enum LabelStyle {
+  enum LabelStyle
+  {
     FILLED,
     OUTLINE,
     NUMBER_OF_LABEL_STYLES
@@ -172,12 +171,10 @@ public:
    * The style of the label background shape, should be one of the
    * values in the LabelStyle enumeration.
    */
-  vtkSetClampMacro(Style, int, 0, NUMBER_OF_LABEL_STYLES-1);
+  vtkSetClampMacro(Style, int, 0, NUMBER_OF_LABEL_STYLES - 1);
   vtkGetMacro(Style, int);
-  virtual void SetStyleToFilled()
-    { this->SetStyle(FILLED); }
-  virtual void SetStyleToOutline()
-    { this->SetStyle(OUTLINE); }
+  virtual void SetStyleToFilled() { this->SetStyle(FILLED); }
+  virtual void SetStyleToOutline() { this->SetStyle(OUTLINE); }
   //@}
 
   //@{
@@ -209,7 +206,7 @@ public:
   /**
    * Get the transform for the anchor points.
    */
-  vtkGetObjectMacro(AnchorTransform,vtkCoordinate);
+  vtkGetObjectMacro(AnchorTransform, vtkCoordinate);
   //@}
 
   /**
@@ -217,15 +214,15 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
   vtkLabelPlacementMapper();
   ~vtkLabelPlacementMapper() override;
 
-  virtual void SetAnchorTransform( vtkCoordinate* );
+  virtual void SetAnchorTransform(vtkCoordinate*);
 
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   class Internal;
   Internal* Buckets;
@@ -260,4 +257,3 @@ private:
 };
 
 #endif
-
