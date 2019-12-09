@@ -189,6 +189,15 @@ types::DataSet XMLInitDataSet(
       {
         dataArray.HasTuples = true;
         dataArray.Persist = true;
+
+        const pugi::xml_attribute xmlOrder = XMLAttribute("Ordering", dataArrayNode, true,
+          "when parsing vertices \"Order\" attribute in ADIOS2 VTK XML schema", false);
+        const std::string order(xmlOrder.value());
+        // XXXX, YYYY, ZZZZ struct of arrays
+        if (order == "SOA")
+        {
+          dataArray.IsSOA = true;
+        }
       }
       else if (specialName == "types")
       {
