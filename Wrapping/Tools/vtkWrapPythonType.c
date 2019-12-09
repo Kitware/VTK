@@ -122,7 +122,7 @@ static void vtkWrapPython_NewDeleteProtocol(
   {
     fprintf(fp,
       "static PyObject *\n"
-      "Py%s_New(PyTypeObject *, PyObject *, PyObject *)\n"
+      "Py%s_New(PyTypeObject * /*unused*/, PyObject * /*unused*/, PyObject * /*unused*/)\n"
       "{\n"
       "  PyErr_SetString(PyExc_TypeError,\n"
       "                  \"this class cannot be instantiated\");\n"
