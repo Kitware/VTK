@@ -528,7 +528,7 @@ int main(int argc, char* argv[])
     "  PyObject *%s)\n"
     "{\n"
     "%s",
-    name, (wrapped_anything ? "dict" : ""), (wrapped_anything ? "  PyObject *o;\n" : ""));
+    name, (wrapped_anything ? "dict" : " /*dict*/"), (wrapped_anything ? "  PyObject *o;\n" : ""));
 
   /* Add all of the namespaces */
   for (j = 0; j < contents->NumberOfNamespaces; j++)

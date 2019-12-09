@@ -17,7 +17,7 @@ static void CreateInitFile(const char* libName, FILE* fout)
     "#pragma warning ( disable : 4706 )\n"
     "#endif // Windows Warnings\n\n");
 
-  fprintf(fout, "extern \"C\" { PyObject *real_init%s(const char *); }\n\n", libName);
+  fprintf(fout, "extern \"C\" { PyObject *real_init%s(const char * /*unused*/); }\n\n", libName);
 
   fprintf(fout, "#ifdef VTK_PY3K\n");
 
@@ -61,7 +61,7 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
 
   for (i = 0; i < numFiles; i++)
   {
-    fprintf(fout, "extern \"C\" { PyObject *PyVTKAddFile_%s(PyObject *); }\n", files[i]);
+    fprintf(fout, "extern \"C\" { PyObject *PyVTKAddFile_%s(PyObject *dict); }\n", files[i]);
   }
 
   fprintf(fout, "\nstatic PyMethodDef Py%s_Methods[] = {\n", libName);
@@ -81,9 +81,10 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
   fprintf(fout, "};\n");
   fprintf(fout, "#endif\n\n");
 
-  fprintf(fout, "extern  \"C\" {%sPyObject *real_init%s(const char *); }\n\n", dllexp, libName);
+  fprintf(fout, "extern  \"C\" {%sPyObject *real_init%s(const char * /*unused*/); }\n\n", dllexp,
+    libName);
 
-  fprintf(fout, "PyObject *real_init%s(const char *)\n{\n", libName);
+  fprintf(fout, "PyObject *real_init%s(const char * /*unused*/)\n{\n", libName);
 
   /* module init function */
   fprintf(fout, "#ifdef VTK_PY3K\n");
