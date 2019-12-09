@@ -369,11 +369,6 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursor::PrintSelf(ostream& os, vtkInde
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedMooreSuperCursor::~vtkHyperTreeGridNonOrientedMooreSuperCursor()
-{
-#ifndef NDEBUG
-  std::cerr << "vtkHyperTreeGridNonOrientedMooreSuperCursor:" << std::endl;
-#endif
-}
+vtkHyperTreeGridNonOrientedMooreSuperCursor::~vtkHyperTreeGridNonOrientedMooreSuperCursor() {}
 
 //-----------------------------------------------------------------------------

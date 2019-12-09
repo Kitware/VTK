@@ -482,13 +482,7 @@ vtkHyperTreeGridNonOrientedSuperCursor::vtkHyperTreeGridNonOrientedSuperCursor()
 
 //-----------------------------------------------------------------------------
 
-vtkHyperTreeGridNonOrientedSuperCursor::~vtkHyperTreeGridNonOrientedSuperCursor()
-{
-#ifndef NDEBUG
-  std::cerr << "  Reference Entries Size: " << this->ReferenceEntries.size() << std::endl;
-  std::cerr << "  Real Entries Size     : " << this->Entries.size() << std::endl;
-#endif
-}
+vtkHyperTreeGridNonOrientedSuperCursor::~vtkHyperTreeGridNonOrientedSuperCursor() {}
 
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkHyperTreeGridOrientedGeometryCursor>

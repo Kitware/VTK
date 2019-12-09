@@ -268,7 +268,6 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   }
 
   this->OutMask = vtkBitArray::New();
-  output->Initialize();
 
   // Retrieve input dimension
   unsigned int dimension = input->GetDimension();
@@ -289,12 +288,8 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   }
 
   // Set identical grid parameters
-  output->SetTransposedRootIndexing(input->GetTransposedRootIndexing());
-  output->SetBranchFactor(input->GetBranchFactor());
-  output->SetHasInterface(input->GetHasInterface());
-  output->SetInterfaceNormalsName(input->GetInterfaceNormalsName());
-  output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
-  output->SetDimensions(input->GetDimensions());
+  output->Initialize();
+  output->CopyEmptyStructure(input);
 
   // Initialize output point data
   this->InData = input->GetPointData();

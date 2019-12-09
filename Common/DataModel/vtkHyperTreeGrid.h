@@ -76,15 +76,6 @@ class vtkCellLinks;
 class vtkCollection;
 class vtkDataArray;
 class vtkHyperTree;
-class vtkDoubleArray;
-class vtkDataSetAttributes;
-class vtkIdTypeArray;
-class vtkLine;
-class vtkPixel;
-class vtkPoints;
-class vtkPointData;
-class vtkVoxel;
-
 class vtkHyperTreeGridOrientedCursor;
 class vtkHyperTreeGridOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedCursor;
@@ -93,6 +84,14 @@ class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursorLight;
+class vtkDoubleArray;
+class vtkDataSetAttributes;
+class vtkIdTypeArray;
+class vtkLine;
+class vtkPixel;
+class vtkPoints;
+class vtkPointData;
+class vtkUnsignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataObject
 {
@@ -127,6 +126,11 @@ public:
    * vtkHyperTreeGrid object.
    */
   virtual void CopyStructure(vtkDataObject*);
+
+  /**
+   * Copy the internal structure with no data associated.
+   */
+  virtual void CopyEmptyStructure(vtkDataObject*);
 
   // --------------------------------------------------------------------------
   // RectilinearGrid common API
@@ -614,6 +618,28 @@ public:
    */
   void InitializeLocalIndexNode();
 
+  /**
+   * Returns 1 if there are any ghost cells
+   * 0 otherwise.
+   */
+  bool HasAnyGhostCells() const;
+
+  /**
+   * Accessor on ghost cells
+   */
+  vtkUnsignedCharArray* GetGhostCells();
+
+  /**
+   * Gets the array that defines the ghost type of each point.
+   * We cache the pointer to the array to save a lookup involving string comparisons
+   */
+  vtkUnsignedCharArray* GetTreeGhostArray();
+
+  /**
+   * Allocate ghost array for points.
+   */
+  vtkUnsignedCharArray* AllocateTreeGhostArray();
+
   //@{
   /**
    * A simplified hyper tree cursor, to be used by the hyper tree.
@@ -735,11 +761,13 @@ public:
    */
   void GetCenter(double center[3]);
 
+  //@{
   /**
-   * Return a pointer to this dataset's point data.
+   * Return a pointer to this dataset's point/tree data.
    * THIS METHOD IS THREAD SAFE
    */
   vtkPointData* GetPointData();
+  //@}
 
 protected:
   /**
@@ -750,7 +778,7 @@ protected:
   /**
    * Destructor
    */
-  ~vtkHyperTreeGrid() override;
+  virtual ~vtkHyperTreeGrid() override;
 
   /**
    * JB ModeSqueeze
@@ -763,6 +791,15 @@ protected:
   bool FreezeState;
   unsigned int BranchFactor; // 2 or 3
   unsigned int Dimension;    // 1, 2, or 3
+
+  //@{
+  /**
+   * These arrays pointers are caches used to avoid a string comparison (when
+   * getting ghost arrays using GetArray(name))
+   */
+  vtkUnsignedCharArray* TreeGhostArray;
+  bool TreeGhostArrayCached;
+  //@}
 private:
   unsigned int Orientation; // 0, 1, or 2
   unsigned int Axis[2];

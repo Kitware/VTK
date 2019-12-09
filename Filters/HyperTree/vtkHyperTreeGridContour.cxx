@@ -21,6 +21,9 @@
 #include "vtkContourValues.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
@@ -31,11 +34,8 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVoxel.h"
-
-#include "vtkHyperTreeGridNonOrientedCursor.h"
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 
 static const unsigned int MooreCursors1D[2] = { 0, 2 };
 static const unsigned int MooreCursors2D[8] = { 0, 1, 2, 3, 5, 6, 7, 8 };
@@ -284,6 +284,9 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   // Retrieve material mask
   this->InMask = input->HasMask() ? input->GetMask() : nullptr;
 
+  // Retrive ghost cells
+  this->InGhostArray = input->GetGhostCells();
+
   // Estimate output size as a multiple of 1024
   vtkIdType numCells = input->GetNumberOfVertices();
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
@@ -410,6 +413,11 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
   // Retrieve global index of input cursor
   vtkIdType id = cursor->GetGlobalNodeIndex();
 
+  if (this->InGhostArray && this->InGhostArray->GetTuple1(id))
+  {
+    return false;
+  }
+
   // Retrieve number of contours
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
 
@@ -458,8 +466,8 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
 
       cursor->ToParent();
     } // child
-  }   // if ( ! cursor->IsLeaf() )
-  else
+  }
+  else if (!this->InGhostArray || !this->InGhostArray->GetTuple1(id))
   {
     // Cursor is at leaf, retrieve its active scalar value
     double val = this->InScalars->GetTuple1(id);
@@ -489,11 +497,14 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridContour::RecursivelyProcessTree(
   vtkHyperTreeGridNonOrientedMooreSuperCursor* supercursor)
-
 {
   // Retrieve global index of input cursor
   vtkIdType id = supercursor->GetGlobalNodeIndex();
 
+  if (this->InGhostArray && this->InGhostArray->GetTuple1(id))
+  {
+    return;
+  }
   // Retrieve dimensionality
   unsigned int dim = supercursor->GetDimension();
 
@@ -521,7 +532,8 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
 
           // Decide whether neighbor was selected or must be retained because of a sign change
           selected = this->SelectedCells->GetTuple1(idN) == 1 ||
-            ((this->CellSigns[c]->GetTuple1(idN) != 0.0) != sign);
+            ((this->CellSigns[c]->GetTuple1(idN) != 0.0) != sign) ||
+            (this->InGhostArray && this->InGhostArray->GetTuple1(idN));
         }
         else
         {
@@ -541,10 +553,10 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
         // Recurse
         this->RecursivelyProcessTree(supercursor);
         supercursor->ToParent();
-      } // child
-    }   // if( selected )
-  }     // if ( ! supercursor->IsLeaf() )
-  else if (!this->InMask || !this->InMask->GetTuple1(id))
+      }
+    }
+  }
+  else if ((!this->InMask || !this->InMask->GetTuple1(id)))
   {
     // Cell is not masked, iterate over its corners
     unsigned int numLeavesCorners = 1 << dim;
@@ -581,6 +593,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
 
         // Iterate over cell corners
         double x[3];
+        supercursor->GetPoint(x);
         for (unsigned int _cornerIdx = 0; _cornerIdx < numLeavesCorners; ++_cornerIdx)
         {
           // Get cursor corresponding to this corner
@@ -597,7 +610,6 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
           // Assign scalar value attached to this contour item
           this->CellScalars->SetTuple(_cornerIdx, this->InScalars->GetTuple(idN));
         } // cornerIdx
-
         // Compute cell isocontour for each isovalue
         for (int c = 0; c < numContours; ++c)
         {
