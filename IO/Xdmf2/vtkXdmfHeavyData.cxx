@@ -1133,6 +1133,14 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
   int attrCenter = xmfAttribute->GetAttributeCenter();
   int numComponents = 1;
 
+  XdmfDataItem xmfDataItem;
+  xmfDataItem.SetDOM(xmfAttribute->GetDOM());
+  xmfDataItem.SetElement(xmfAttribute->GetDOM()->FindDataElement(0, xmfAttribute->GetElement()));
+  xmfDataItem.UpdateInformation();
+
+  XdmfInt64 data_dims[XDMF_MAX_DIMENSION];
+  int data_rank = xmfDataItem.GetDataDesc()->GetShape(data_dims);
+
   switch (attrType)
   {
     case XDMF_ATTRIBUTE_TYPE_TENSOR:
@@ -1149,13 +1157,11 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
       break;
   }
 
-  XdmfDataItem xmfDataItem;
-  xmfDataItem.SetDOM(xmfAttribute->GetDOM());
-  xmfDataItem.SetElement(xmfAttribute->GetDOM()->FindDataElement(0, xmfAttribute->GetElement()));
-  xmfDataItem.UpdateInformation();
-
-  XdmfInt64 data_dims[XDMF_MAX_DIMENSION];
-  int data_rank = xmfDataItem.GetDataDesc()->GetShape(data_dims);
+  // Handle 2D vectors
+  if (attrType == XDMF_ATTRIBUTE_TYPE_VECTOR && data_dims[data_rank - 1] == 2)
+  {
+    numComponents = 2;
+  }
 
   if (update_extents && attrCenter != XDMF_ATTRIBUTE_CENTER_GRID)
   {
@@ -1228,6 +1234,28 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
     dataArray->Delete();
     return tensor;
   }
+
+  if (attrType == XDMF_ATTRIBUTE_TYPE_VECTOR && numComponents == 2)
+  {
+    // convert 2D vectors to 3-tuple vectors with 0.0 in the z component
+    vtkDataArray* vector3D = dataArray->NewInstance();
+    vtkIdType numVectors = dataArray->GetNumberOfTuples();
+    vector3D->SetNumberOfComponents(3);
+    vector3D->SetNumberOfTuples(numVectors);
+
+    // Add 0.0 to third component of vector
+    auto inputRange = vtk::DataArrayTupleRange<2>(dataArray);
+    auto outputRange = vtk::DataArrayTupleRange<3>(vector3D);
+    for (auto i = 0; i < inputRange.size(); ++i)
+    {
+      outputRange[i][0] = inputRange[i][0];
+      outputRange[i][1] = inputRange[i][1];
+      outputRange[i][2] = 0.0;
+    }
+    dataArray->Delete();
+    return vector3D;
+  }
+
   return dataArray;
 }
 
