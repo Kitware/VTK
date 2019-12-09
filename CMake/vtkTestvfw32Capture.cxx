@@ -1,5 +1,6 @@
-#include "vfw.h"
 #include "windows.h"
+
+#include "vfw.h"
 
 // Can vtkWin32VideoSource.cxx be compiled?
 // Test by using some of the structs in a class and
