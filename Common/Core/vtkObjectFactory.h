@@ -318,7 +318,7 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
   {                                                                                                \
     return static_cast<thisClass*>(ret);                                                           \
   }                                                                                                \
-  thisClass* result = new thisClass;                                                               \
+  auto result = new thisClass;                                                                     \
   result->InitializeObjectBase();                                                                  \
   return result
 
@@ -339,7 +339,7 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 #define VTK_STANDARD_NEW_BODY(thisClass) VTK_OBJECT_FACTORY_NEW_BODY(thisClass)
 #else
 #define VTK_STANDARD_NEW_BODY(thisClass)                                                           \
-  thisClass* result = new thisClass;                                                               \
+  auto result = new thisClass;                                                                     \
   result->InitializeObjectBase();                                                                  \
   return result
 #endif
