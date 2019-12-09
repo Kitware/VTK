@@ -16,7 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtk_glew.h"
 
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
-#include "vtkOpenGLRenderWindow.h"
+#import "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 
 #import "vtkCocoaGLView.h"
@@ -294,12 +294,12 @@ void vtkCocoaRenderWindow::DestroyWindow()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::SetWindowName(const char* _arg)
+void vtkCocoaRenderWindow::SetWindowName(const char* arg)
 {
-  vtkWindow::SetWindowName(_arg);
+  vtkWindow::SetWindowName(arg);
   if (this->GetRootWindow())
   {
-    NSString* winTitleStr = [NSString stringWithUTF8String:_arg];
+    NSString* winTitleStr = [NSString stringWithUTF8String:arg];
 
     [(NSWindow*)this->GetRootWindow() setTitle:winTitleStr];
   }
@@ -745,12 +745,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
         contentRect = backingContentRect;
       }
 
-      theWindow =
-        [[NSWindow alloc] initWithContentRect:contentRect
-                                    styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-                                    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
-                                      backing:NSBackingStoreBuffered
-                                        defer:NO];
+      NSWindowStyleMask styleMask = (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+        NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable);
+      theWindow = [[NSWindow alloc] initWithContentRect:contentRect
+                                              styleMask:styleMask
+                                                backing:NSBackingStoreBuffered
+                                                  defer:NO];
     }
 
     if (!theWindow)
@@ -1197,7 +1197,7 @@ void vtkCocoaRenderWindow::SetFullScreen(vtkTypeBool arg)
     // if window already up get its values
     if (this->GetRootWindow())
     {
-      int* pos = this->GetPosition();
+      const int* pos = this->GetPosition();
       this->OldScreen[0] = pos[0];
       this->OldScreen[1] = pos[1];
 
@@ -1234,7 +1234,7 @@ void vtkCocoaRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 // Set the preferred window size to full screen.
 void vtkCocoaRenderWindow::PrefFullScreen()
 {
-  int* size = this->GetScreenSize();
+  const int* size = this->GetScreenSize();
   vtkWarningMacro(<< "Can only set FullScreen before showing window: " << size[0] << 'x' << size[1]
                   << ".");
 }
