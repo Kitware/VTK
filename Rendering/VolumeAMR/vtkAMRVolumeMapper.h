@@ -131,7 +131,7 @@ public:
    */
   void SetCroppingRegionPlanes(
     double arg1, double arg2, double arg3, double arg4, double arg5, double arg6) override;
-  void SetCroppingRegionPlanes(double* planes) override
+  void SetCroppingRegionPlanes(const double* planes) override
   {
     this->SetCroppingRegionPlanes(planes[0], planes[1], planes[2], planes[3], planes[4], planes[5]);
   }

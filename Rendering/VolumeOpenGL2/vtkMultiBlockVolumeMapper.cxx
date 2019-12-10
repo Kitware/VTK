@@ -431,7 +431,7 @@ void vtkMultiBlockVolumeMapper::SetCroppingRegionFlags(int mode)
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(double* planes)
+void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(const double* planes)
 {
   MapperVec::const_iterator end = this->Mappers.end();
   for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
