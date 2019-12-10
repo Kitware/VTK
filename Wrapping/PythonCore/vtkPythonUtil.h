@@ -171,7 +171,7 @@ public:
   /**
    * Add a wrapped C++ enum as a python type object.
    */
-  static void AddEnumToMap(PyTypeObject* o);
+  static void AddEnumToMap(PyTypeObject* o, const char* name);
 
   /**
    * Return an enum type object, or NULL if it doesn't exist.

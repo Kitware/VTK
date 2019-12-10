@@ -23,7 +23,7 @@
 extern "C"
 {
   VTKWRAPPINGPYTHONCORE_EXPORT
-  PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype);
+  PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   PyObject* PyVTKEnum_New(PyTypeObject* pytype, int val);

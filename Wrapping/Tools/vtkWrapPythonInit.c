@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
   }
 
   /* extra functions, types, etc. for the CommonCore module */
-  if (strcmp(libName, "vtkCommonCorePython") == 0 || strcmp(libName, "vtkCommonKitPython") == 0)
+  if (strcmp(libName, "vtkCommonCore") == 0 || strcmp(libName, "vtkCommonKit") == 0)
   {
     files[numFiles] = strdup("PyVTKExtras");
     numFiles++;

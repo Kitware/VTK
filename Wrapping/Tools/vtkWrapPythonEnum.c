@@ -145,9 +145,10 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
   }
 
   fprintf(fp,
-    "%sPyVTKEnum_Add(&Py%s%s%s_Type);\n"
+    "%sPyVTKEnum_Add(&Py%s%s%s_Type, \"%s%s%s\");\n"
     "\n",
-    indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
+    indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name, (scope ? scope : ""),
+    (scope ? "." : ""), cls->Name);
   fprintf(fp,
     "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
     "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
@@ -184,7 +185,7 @@ void vtkWrapPython_GenerateEnumType(
   fprintf(fp,
     "static PyTypeObject Py%s_Type = {\n"
     "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  \"%sPython.%s\", // tp_name\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  nullptr, // tp_dealloc\n"

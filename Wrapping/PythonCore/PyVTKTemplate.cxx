@@ -257,15 +257,17 @@ static PyObject* PyVTKTemplate_Call(PyObject*, PyObject*, PyObject*)
 }
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKTemplate_Type = { PyVarObject_HEAD_INIT(
-                                      &PyType_Type, 0) "vtkCommonCorePython.template", // tp_name
-  0,       // tp_basicsize
-  0,       // tp_itemsize
-  nullptr, // tp_dealloc
+// clang-format off
+PyTypeObject PyVTKTemplate_Type = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "vtkmodules.vtkCommonCore.template", // tp_name
+  0,                        // tp_basicsize
+  0,                        // tp_itemsize
+  nullptr,                  // tp_dealloc
 #if PY_VERSION_HEX >= 0x03080000
-  0, // tp_vectorcall_offset
+  0,                        // tp_vectorcall_offset
 #else
-  nullptr, // tp_print
+  nullptr,                  // tp_print
 #endif
   nullptr,                  // tp_getattr
   nullptr,                  // tp_setattr
@@ -307,6 +309,7 @@ PyTypeObject PyVTKTemplate_Type = { PyVarObject_HEAD_INIT(
   nullptr,                  // tp_subclasses
   nullptr,                  // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
+// clang-format on
 
 //--------------------------------------------------------------------
 // Generate mangled name from the given template args
