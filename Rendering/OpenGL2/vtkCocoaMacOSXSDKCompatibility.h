@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < 101200) && !defined(VTK_DONT_MAP_10_12_ENUMS)
 // The 10.12 SDK made a bunch of enum names more logical, map old names to new names to continue
 // supporting old SDKs.
+#define NSWindowStyleMask NSUInteger
 #define NSWindowStyleMaskBorderless NSBorderlessWindowMask
 #define NSWindowStyleMaskTitled NSTitledWindowMask
 #define NSWindowStyleMaskClosable NSClosableWindowMask
