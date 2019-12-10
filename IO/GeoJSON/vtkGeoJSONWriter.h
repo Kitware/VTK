@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkGeoJSONWriter();
-  virtual ~vtkGeoJSONWriter();
+  ~vtkGeoJSONWriter() override;
 
   // Only accepts vtkPolyData
   virtual int FillInputPortInformation(int port, vtkInformation* info) override;

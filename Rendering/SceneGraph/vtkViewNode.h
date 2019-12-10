@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkViewNode();
-  ~vtkViewNode();
+  ~vtkViewNode() override;
 
   static const char* operation_type_strings[];
 

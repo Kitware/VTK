@@ -40,7 +40,7 @@ public:
 protected:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkOpenGLImageGradient();
-  ~vtkOpenGLImageGradient();
+  ~vtkOpenGLImageGradient() override;
 
   vtkOpenGLImageAlgorithmHelper* Helper;
 

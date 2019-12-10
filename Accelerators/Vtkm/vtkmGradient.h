@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkmGradient();
-  ~vtkmGradient();
+  ~vtkmGradient() override;
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

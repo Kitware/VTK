@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkTestMagnifyRenderManager();
-  ~vtkTestMagnifyRenderManager();
+  ~vtkTestMagnifyRenderManager() override;
 
   virtual void PreRenderProcessing() override;
   virtual void PostRenderProcessing() override;

@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkActorNode();
-  ~vtkActorNode();
+  ~vtkActorNode() override;
 
 private:
   vtkActorNode(const vtkActorNode&) = delete;

@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkUnstructuredGridToReebGraphFilter();
-  ~vtkUnstructuredGridToReebGraphFilter();
+  ~vtkUnstructuredGridToReebGraphFilter() override;
 
   int FieldId;
 

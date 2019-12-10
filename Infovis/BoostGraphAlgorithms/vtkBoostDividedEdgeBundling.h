@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkBoostDividedEdgeBundling();
-  ~vtkBoostDividedEdgeBundling() {}
+  ~vtkBoostDividedEdgeBundling() override {}
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

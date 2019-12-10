@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkReebGraphSurfaceSkeletonFilter();
-  ~vtkReebGraphSurfaceSkeletonFilter();
+  ~vtkReebGraphSurfaceSkeletonFilter() override;
 
   vtkIdType FieldId;
   int NumberOfSamples, NumberOfSmoothingIterations;

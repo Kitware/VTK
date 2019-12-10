@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkGDALRasterReprojection();
-  ~vtkGDALRasterReprojection();
+  ~vtkGDALRasterReprojection() override;
 
   double MaxError;
   int ResamplingAlgorithm;

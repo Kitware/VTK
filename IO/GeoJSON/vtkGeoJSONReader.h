@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkGeoJSONReader();
-  virtual ~vtkGeoJSONReader();
+  ~vtkGeoJSONReader() override;
 
   //@{
   /**

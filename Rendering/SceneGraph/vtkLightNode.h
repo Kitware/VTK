@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkLightNode();
-  ~vtkLightNode();
+  ~vtkLightNode() override;
 
 private:
   vtkLightNode(const vtkLightNode&) = delete;

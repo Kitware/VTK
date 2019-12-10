@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkRasterReprojectionFilter();
-  ~vtkRasterReprojectionFilter();
+  ~vtkRasterReprojectionFilter() override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
