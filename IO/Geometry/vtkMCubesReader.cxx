@@ -73,7 +73,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   FILE* fp;
-  FILE* limitp;
+  FILE* limitp = nullptr;
   vtkPoints* newPts;
   vtkCellArray* newPolys;
   vtkFloatArray* newNormals = nullptr;
@@ -84,7 +84,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
     float x[3], n[3];
   } pointType;
   pointType point;
-  struct stat buf;
+  struct stat buf = {};
   int numDegenerate = 0;
   vtkIdType nodes[3];
   float direction, n[3], dummy[2];
@@ -108,7 +108,8 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Try to read limits file to get bounds. Otherwise, read data.
-  if (this->LimitsFileName != nullptr && (limitp = fopen(this->LimitsFileName, "rb")) != nullptr &&
+  if (this->LimitsFileName != nullptr &&
+    (limitp = vtksys::SystemTools::Fopen(this->LimitsFileName, "rb")) != nullptr &&
     stat(this->FileName, &buf) == 0)
   {
     bool errorOccurred = false;
