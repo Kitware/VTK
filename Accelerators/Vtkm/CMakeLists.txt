@@ -27,7 +27,6 @@ set(headers
 
 set(private_headers
   vtkmlib/ArrayConverters.hxx
-  vtkmlib/DataSetConverters.h
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h
   vtkmDataArray.hxx)

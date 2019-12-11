@@ -225,7 +225,6 @@ set(sources
   vtkTimeStamp.cxx
   vtkType.h
   vtkTypedArray.txx
-  vtkTypedDataArray.txx
   vtkUnicodeString.cxx
   vtkUnicodeStringArray.cxx
   vtkUnsignedCharArray.cxx
@@ -238,7 +237,6 @@ set(sources
   vtkVersion.cxx
   vtkVoidArray.cxx
   vtkWeakPointerBase.cxx
-  vtkWeakReference.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
   ${vtk_smp_sources}
@@ -278,9 +276,7 @@ set(headers
   vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
-  vtkMappedDataArray.h
   vtkMathUtilities.h
-  vtkMersenneTwister.h
   vtkMeta.h
   vtkNew.h
   vtkSetGet.h
@@ -290,14 +286,12 @@ set(headers
   vtkTestDataArray.h
   vtkType.h
   vtkTypeTraits.h
-  vtkTypedDataArray.h
   vtkTypedDataArrayIterator.h
   vtkVariantCast.h
   vtkVariantCreate.h
   vtkVariantExtract.h
   vtkVariantInlineOperators.h
   vtkWeakPointer.h
-  vtkWeakReference.h
   vtkWin32Header.h
   vtkWindows.h
   vtkWrappingHints.h
