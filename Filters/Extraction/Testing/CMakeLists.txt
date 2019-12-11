@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/cad_cubes.vtp
   Data/can.ex2)
 
 add_subdirectory(Cxx)
