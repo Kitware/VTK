@@ -41,6 +41,7 @@
 #include "vtk_pugixml.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <iostream>
@@ -373,13 +374,13 @@ public:
         for (vtkIdType j = 0; j < 3; ++j)
         {
           iss >> p[j];
-          if (!iss.good())
+          if (iss.fail())
           {
             if (j)
             {
               vtkWarningWithObjectMacro(
-                this->Reader, << "Number of points have to be multiple of three. "
-                              << "See point in gml:posList after " << p[0] << " point value");
+                this->Reader, << "Number of values have to be multiple of three. Extra " << j
+                              << " values. See: " << posList.child_value());
             }
             else
             {
@@ -785,14 +786,15 @@ public:
   }
 
   void ReadMultiSurfaceGroup(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
-    const char* gmlNamespace, const char* feature)
+    const char* gmlNamespace, const char* feature, float progressStart, float progressEnd)
   {
     std::ostringstream ostr;
     std::string element = std::string(gmlNamespace) + ":" + feature;
     ostr << "//" << element;
-
-    auto xFeature = doc.select_nodes(ostr.str().c_str());
-    for (auto itFeature = xFeature.begin(); itFeature != xFeature.end(); ++itFeature)
+    auto nodes = doc.select_nodes(ostr.str().c_str());
+    int size = std::distance(nodes.begin(), nodes.end());
+    int i = 0;
+    for (auto featureNode : nodes)
     {
       vtkNew<vtkMultiBlockDataSet> groupBlock;
       ostr.str("");
@@ -801,7 +803,7 @@ public:
            << "descendant::" << gmlNamespace
            << ":lod" + std::to_string(this->LOD) + "MultiSurface/gml:MultiSurface";
 
-      auto xMultiSurface = itFeature->node().select_nodes(ostr.str().c_str());
+      auto xMultiSurface = featureNode.node().select_nodes(ostr.str().c_str());
       for (auto it = xMultiSurface.begin(); it != xMultiSurface.end(); ++it)
       {
         pugi::xml_node node = it->node();
@@ -809,8 +811,7 @@ public:
       }
       if (groupBlock->GetNumberOfBlocks())
       {
-        pugi::xml_node featureNode = itFeature->node();
-        pugi::xml_node nameNode = featureNode.child("gml:name");
+        pugi::xml_node nameNode = featureNode.node().child("gml:name");
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
         this->SetField(groupBlock, "element", element.c_str());
         if (nameNode)
@@ -818,6 +819,11 @@ public:
           const char* name = nameNode.child_value();
           this->SetField(groupBlock, "name", name);
         }
+      }
+      ++i;
+      if (i % 1024 == 0)
+      {
+        this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
       }
     }
   }
@@ -966,25 +972,25 @@ int vtkCityGMLReader::RequestData(
     this->Impl->CacheParameterizedTexture(doc);
     this->Impl->CacheX3DMaterial(doc);
     this->UpdateProgress(0.3);
-    this->UpdateProgress(0.4);
     this->Impl->ReadReliefFeature(doc, output);
     this->Impl->ReadWaterBody(doc, output);
     this->Impl->CacheImplicitGeometry(doc, "veg", "SolitaryVegetationObject");
     this->Impl->ReadImplicitGeometry(doc, output, "veg", "SolitaryVegetationObject");
     this->Impl->InitializeImplicitGeometry();
-    this->UpdateProgress(0.6);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "brid", "Bridge");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tun", "Tunnel");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road");
-    this->UpdateProgress(0.8);
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "bldg", "Building");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture");
+    this->UpdateProgress(0.4);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "brid", "Bridge", 0.4, 0.425);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tun", "Tunnel", 0.425, 0.45);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Railway", 0.45, 0.475);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
+    this->UpdateProgress(0.5);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "bldg", "Building", 0.5, 0.875);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
+    this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");
     this->Impl->ReadImplicitGeometry(doc, output, "frn", "CityFurniture");
     this->Impl->InitializeImplicitGeometry();
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "gen", "GenericCityObject");
-    this->Impl->ReadMultiSurfaceGroup(doc, output, "luse", "LandUse");
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "gen", "GenericCityObject", 0.9, 0.95);
+    this->Impl->ReadMultiSurfaceGroup(doc, output, "luse", "LandUse", 0.95, 1.0);
   }
   catch (pugi::xpath_exception& e)
   {
