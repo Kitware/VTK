@@ -35,6 +35,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <vector>
 
@@ -114,7 +115,7 @@ int vtkPDataSetReader::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
-  ifstream* file;
+  vtksys::ifstream* file;
   char* block;
   char* param;
   char* value;
@@ -387,7 +388,7 @@ int vtkPDataSetReader::ReadXML(istream* file, char** retBlock, char** retParam, 
 //----------------------------------------------------------------------------
 int vtkPDataSetReader::CanReadFile(const char* filename)
 {
-  ifstream* file;
+  vtksys::ifstream* file;
   char* block;
   char* param;
   char* value;
@@ -650,9 +651,9 @@ void vtkPDataSetReader::ReadVTKFileInformation(
 }
 
 //----------------------------------------------------------------------------
-ifstream* vtkPDataSetReader::OpenFile(const char* filename)
+vtksys::ifstream* vtkPDataSetReader::OpenFile(const char* filename)
 {
-  ifstream* file;
+  vtksys::ifstream* file;
 
   if (!filename || filename[0] == '\0')
   {
@@ -660,13 +661,7 @@ ifstream* vtkPDataSetReader::OpenFile(const char* filename)
     return nullptr;
   }
 
-  // Open the new file
-#ifdef _WIN32
-  file = new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in);
-#else
-  file = new ifstream(filename, ios::in);
-#endif
-
+  file = new vtksys::ifstream(filename);
   if (!file || file->fail())
   {
     delete file;

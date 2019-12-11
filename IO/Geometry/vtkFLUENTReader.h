@@ -37,6 +37,7 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtksys/FStream.hxx"
 
 class vtkDataArraySelection;
 class vtkPoints;
@@ -212,8 +213,8 @@ protected:
   int NumberOfCells;
   int NumberOfCellArrays;
 
-  ifstream* FluentCaseFile;
-  ifstream* FluentDataFile;
+  vtksys::ifstream* FluentCaseFile;
+  vtksys::ifstream* FluentDataFile;
   stdString* CaseBuffer;
   stdString* DataBuffer;
 

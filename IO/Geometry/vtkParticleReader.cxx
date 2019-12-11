@@ -163,12 +163,11 @@ void vtkParticleReader::OpenFile()
 
   // Open the new file.
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  this->File =
-    new ifstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::in | ios::binary);
-#else
-  this->File = new ifstream(this->FileName, ios::in);
+  mode |= ios::binary;
 #endif
+  this->File = new vtksys::ifstream(this->FileName, mode);
   if (!this->File || this->File->fail())
   {
     vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);

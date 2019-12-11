@@ -25,6 +25,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkIOParallelModule.h" // For export macro
+#include "vtksys/FStream.hxx"
 
 class vtkDataSet;
 
@@ -80,7 +81,7 @@ protected:
   vtkDataSet* CheckOutput();
   void SetNumberOfPieces(int num);
 
-  ifstream* OpenFile(const char*);
+  vtksys::ifstream* OpenFile(const char*);
 
   int ReadXML(istream* file, char** block, char** param, char** value);
   int VTKFileFlag;

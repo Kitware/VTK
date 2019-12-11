@@ -34,6 +34,7 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtksys/FStream.hxx"
 
 class vtkDoubleArray;
 class VTKIOGEOMETRY_EXPORT vtkGAMBITReader : public vtkUnstructuredGridAlgorithm
@@ -91,7 +92,7 @@ protected:
   int NumberOfBoundaryConditionSets;
   int NumberOfCoordinateDirections;
   int NumberOfVelocityComponents;
-  ifstream* FileStream;
+  vtksys::ifstream* FileStream;
 
   enum GAMBITCellType
   {

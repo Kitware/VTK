@@ -26,6 +26,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtksys/FStream.hxx"
 
 #include <string> // for std::string
 
@@ -385,7 +386,7 @@ protected:
 
 private:
   // The stream used to read the input if it is in a file.
-  ifstream* FileStream;
+  vtksys::ifstream* FileStream;
   // The stream used to read the input if it is in a string.
   std::istringstream* StringStream;
   int TimeStepWasReadOnce;

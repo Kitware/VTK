@@ -36,6 +36,7 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtksys/FStream.hxx"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
@@ -132,7 +133,7 @@ protected:
   void OpenFile();
 
   char* FileName;
-  ifstream* File;
+  vtksys::ifstream* File;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

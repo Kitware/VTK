@@ -32,11 +32,9 @@
 #include <iosfwd>
 using std::filebuf;
 using std::fstream;
-using std::ifstream;
 using std::ios;
 using std::iostream;
 using std::istream;
-using std::ofstream;
 using std::ostream;
 using std::streambuf;
 

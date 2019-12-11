@@ -209,13 +209,7 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
   // Log to given file, if any.
   if (name && name[0])
   {
-#ifdef _WIN32
-    std::wstring wname = vtksys::Encoding::ToWindowsExtendedPath(name);
-    this->LogFile = new ofstream(wname, (ios::out | (append ? ios::ate : ios::trunc)));
-#else
-    this->LogFile = new ofstream(name, (ios::out | (append ? ios::ate : ios::trunc)));
-#endif
-
+    this->LogFile = new vtksys::ofstream(name, (ios::out | (append ? ios::ate : ios::trunc)));
     if (!this->LogFile)
     {
       return 0;

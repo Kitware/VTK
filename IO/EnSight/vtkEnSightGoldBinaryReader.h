@@ -42,6 +42,7 @@
 
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
+#include "vtksys/FStream.hxx"
 
 class vtkMultiBlockDataSet;
 
@@ -220,7 +221,7 @@ protected:
   int ElementIdsListed;
   int Fortran;
 
-  ifstream* GoldIFile;
+  vtksys::ifstream* GoldIFile;
   // The size of the file could be used to choose byte order.
   vtkTypeUInt64 FileSize;
 

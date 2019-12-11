@@ -195,12 +195,12 @@ void vtkImageWriter::RecursiveWrite(
         this->MaximumFileNumber = this->FileNumber;
       }
     }
-    // Open the file
+
+    std::ios_base::openmode mode = ios::out;
 #ifdef _WIN32
-    file = new vtksys::ofstream(this->InternalFileName, ios::out | ios::binary);
-#else
-    file = new ofstream(this->InternalFileName, ios::out);
+    mode |= ios::binary;
 #endif
+    file = new vtksys::ofstream(this->InternalFileName, mode);
     fileOpenedHere = 1;
     if (file->fail())
     {
@@ -216,11 +216,6 @@ void vtkImageWriter::RecursiveWrite(
     file->flush();
     if (file->fail())
     {
-      ofstream* ofile = dynamic_cast<ofstream*>(file);
-      if (ofile)
-      {
-        ofile->close();
-      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -256,11 +251,7 @@ void vtkImageWriter::RecursiveWrite(
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    ofstream* ofile = dynamic_cast<ofstream*>(file);
-    if (ofile)
-    {
-      ofile->close();
-    }
+
     delete file;
   }
 }
@@ -281,11 +272,6 @@ void vtkImageWriter::RecursiveWrite(
     file->flush();
     if (file->fail())
     {
-      ofstream* ofile = dynamic_cast<ofstream*>(file);
-      if (ofile)
-      {
-        ofile->close();
-      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
@@ -321,12 +307,12 @@ void vtkImageWriter::RecursiveWrite(
         this->MaximumFileNumber = this->FileNumber;
       }
     }
-    // Open the file
+
+    std::ios_base::openmode mode = ios::out;
 #ifdef _WIN32
-    file = new vtksys::ofstream(this->InternalFileName, ios::out | ios::binary);
-#else
-    file = new ofstream(this->InternalFileName, ios::out);
+    mode |= ios::binary;
 #endif
+    file = new vtksys::ofstream(this->InternalFileName, mode);
     if (file->fail())
     {
       vtkErrorMacro("RecursiveWrite: Could not open file " << this->InternalFileName);
@@ -340,11 +326,6 @@ void vtkImageWriter::RecursiveWrite(
     file->flush();
     if (file->fail())
     {
-      ofstream* ofile = dynamic_cast<ofstream*>(file);
-      if (ofile)
-      {
-        ofile->close();
-      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -354,11 +335,6 @@ void vtkImageWriter::RecursiveWrite(
     file->flush();
     if (file->fail())
     {
-      ofstream* ofile = dynamic_cast<ofstream*>(file);
-      if (ofile)
-      {
-        ofile->close();
-      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -370,11 +346,7 @@ void vtkImageWriter::RecursiveWrite(
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    ofstream* ofile = dynamic_cast<ofstream*>(file);
-    if (ofile)
-    {
-      ofile->close();
-    }
+
     delete file;
     return;
   }

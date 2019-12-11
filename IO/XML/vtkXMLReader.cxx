@@ -294,13 +294,11 @@ int vtkXMLReader::OpenVTKFile()
     return 0;
   }
 
+  std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
-  this->FileStream = new ifstream(wfilename, ios::binary | ios::in);
-#else
-  this->FileStream = new ifstream(this->FileName, ios::in);
+  mode |= ios::binary;
 #endif
-
+  this->FileStream = new vtksys::ifstream(this->FileName, mode);
   if (!this->FileStream || !(*this->FileStream))
   {
     vtkErrorMacro("Error opening file " << this->FileName);

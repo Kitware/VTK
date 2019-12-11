@@ -42,23 +42,7 @@ void vtkFileOutputWindow::Initialize()
       this->FileName = new char[strlen(fileName) + 1];
       strcpy(this->FileName, fileName);
     }
-    if (this->Append)
-    {
-#ifdef _WIN32
-      this->OStream =
-        new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::app);
-#else
-      this->OStream = new ofstream(this->FileName, ios::app);
-#endif
-    }
-    else
-    {
-#ifdef _WIN32
-      this->OStream = new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName));
-#else
-      this->OStream = new ofstream(this->FileName);
-#endif
-    }
+    this->OStream = new vtksys::ofstream(this->FileName, this->Append ? ios::app : ios::out);
   }
 }
 

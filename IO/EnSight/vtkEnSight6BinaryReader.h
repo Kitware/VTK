@@ -40,6 +40,7 @@
 
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
+#include "vtksys/FStream.hxx"
 
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
@@ -174,7 +175,7 @@ protected:
   // The size of the file is used to choose byte order.
   vtkTypeUInt64 FileSize;
 
-  ifstream* BinaryIFile;
+  vtksys::ifstream* BinaryIFile;
 
 private:
   vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&) = delete;

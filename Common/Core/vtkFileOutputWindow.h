@@ -26,6 +26,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
+#include "vtksys/FStream.hxx"
 
 class VTKCOMMONCORE_EXPORT vtkFileOutputWindow : public vtkOutputWindow
 {
@@ -78,7 +79,7 @@ protected:
   void Initialize();
 
   char* FileName;
-  ofstream* OStream;
+  vtksys::ofstream* OStream;
   vtkTypeBool Flush;
   vtkTypeBool Append;
 

@@ -36,6 +36,7 @@
 
 #include "vtkCommunicator.h"
 #include "vtkParallelCoreModule.h" // For export macro
+#include "vtksys/FStream.hxx"
 
 #include "vtkByteSwap.h" // Needed for vtkSwap macros
 
@@ -249,7 +250,7 @@ protected:
 
   int ReportErrors;
 
-  ofstream* LogFile;
+  vtksys::ofstream* LogFile;
   ostream* LogStream;
 
   vtkSocketCommunicator();

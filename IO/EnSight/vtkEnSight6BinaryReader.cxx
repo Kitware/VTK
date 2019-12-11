@@ -108,12 +108,11 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
     // Find out how big the file is.
     this->FileSize = static_cast<vtkTypeUInt64>(fs.st_size);
 
+    std::ios_base::openmode mode = ios::in;
 #ifdef _WIN32
-    this->BinaryIFile =
-      new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in | ios::binary);
-#else
-    this->BinaryIFile = new ifstream(filename, ios::in);
+    mode |= ios::binary;
 #endif
+    this->BinaryIFile = new vtksys::ifstream(filename, mode);
   }
   else
   {
