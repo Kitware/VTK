@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkGDALRasterConverter();
-  ~vtkGDALRasterConverter();
+  ~vtkGDALRasterConverter() override;
 
   double NoDataValue;
 

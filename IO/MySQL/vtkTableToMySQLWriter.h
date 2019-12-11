@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkTableToMySQLWriter();
-  ~vtkTableToMySQLWriter();
+  ~vtkTableToMySQLWriter() override;
   void WriteData() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;

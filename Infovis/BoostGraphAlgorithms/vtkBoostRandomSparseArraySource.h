@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkBoostRandomSparseArraySource();
-  ~vtkBoostRandomSparseArraySource();
+  ~vtkBoostRandomSparseArraySource() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

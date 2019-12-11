@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkBoostConnectedComponents();
-  ~vtkBoostConnectedComponents();
+  ~vtkBoostConnectedComponents() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

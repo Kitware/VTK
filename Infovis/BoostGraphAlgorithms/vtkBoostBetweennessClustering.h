@@ -42,7 +42,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkBoostBetweennessClustering();
-  virtual ~vtkBoostBetweennessClustering();
+  ~vtkBoostBetweennessClustering() override;
 
   //@{
   /**

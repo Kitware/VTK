@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkBoostBrandesCentrality();
-  ~vtkBoostBrandesCentrality();
+  ~vtkBoostBrandesCentrality() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

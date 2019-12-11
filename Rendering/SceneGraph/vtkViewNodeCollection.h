@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkViewNodeCollection() {}
-  ~vtkViewNodeCollection() {}
+  ~vtkViewNodeCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
