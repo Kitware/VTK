@@ -420,6 +420,16 @@ if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif()
 
+if (NOT TARGET uninstall)
+  add_custom_target(uninstall
+    COMMAND
+      "${CMAKE_COMMAND}"
+        "-DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}"
+        -P "${CMAKE_CURRENT_LIST_DIR}/CMake/vtkUninstall.cmake"
+    USES_TERMINAL
+    COMMENT "Uninstalling VTK")
+endif ()
+
 # TODO: HeaderTest exclusions for memcheck.
 
 #-----------------------------------------------------------------------------
