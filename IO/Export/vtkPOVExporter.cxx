@@ -82,6 +82,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTexture.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <sstream>
 
@@ -175,7 +176,7 @@ void vtkPOVExporter::WriteData()
   }
 
   // try opening the file
-  this->FilePtr = fopen(this->FileName, "w");
+  this->FilePtr = vtksys::SystemTools::Fopen(this->FileName, "w");
   if (this->FilePtr == nullptr)
   {
     vtkErrorMacro(<< "Cannot open " << this->FileName);

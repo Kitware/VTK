@@ -67,6 +67,7 @@
 #include "vtkSphereHandleRepresentation.h"
 #include "vtkStdString.h"
 #include "vtkTimerLog.h"
+#include "vtksys/FStream.hxx"
 
 // STL includes
 #include <fstream>
@@ -445,7 +446,7 @@ public:
     this->logTime->StartTimer();
   }
 
-  std::ofstream performanceReport;
+  vtksys::ofstream performanceReport;
   vtkTimerLog* logTime;
 
 private:

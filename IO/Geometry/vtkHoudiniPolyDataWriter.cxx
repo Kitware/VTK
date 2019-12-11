@@ -40,6 +40,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkHoudiniPolyDataWriter);
 
@@ -307,7 +308,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
   }
 
   // Open the file for streaming
-  std::ofstream file(this->FileName, std::ofstream::out);
+  vtksys::ofstream file(this->FileName, vtksys::ofstream::out);
 
   if (file.fail())
   {

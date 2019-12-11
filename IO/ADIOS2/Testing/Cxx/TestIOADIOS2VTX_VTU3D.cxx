@@ -54,6 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <adios2.h>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 namespace
@@ -301,7 +302,7 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
         ? fileName + "/vtk.xml"
         : fileName + ".dir/vtk.xml";
 
-      std::ofstream fxml(vtkFileName, ofstream::out);
+      vtksys::ofstream fxml(vtkFileName, vtksys::ofstream::out);
       fxml << unstructureGridSchema << "\n";
       fxml.close();
     }

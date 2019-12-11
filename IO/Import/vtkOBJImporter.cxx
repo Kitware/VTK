@@ -320,7 +320,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  FILE* in = fopen(this->FileName.c_str(), "r");
+  FILE* in = vtksys::SystemTools::Fopen(this->FileName, "r");
   if (in == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
@@ -350,7 +350,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   {
     mtlname = this->FileName + ".mtl";
   }
-  FILE* defMTL = fopen(mtlname.c_str(), "r");
+  FILE* defMTL = vtksys::SystemTools::Fopen(mtlname, "r");
   if (defMTL == nullptr)
   {
     if (!this->DefaultMTLFileName)

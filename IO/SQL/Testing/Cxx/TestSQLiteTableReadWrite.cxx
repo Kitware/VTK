@@ -26,6 +26,7 @@
 #include "vtkSQLiteToTableReader.h"
 #include "vtkTableToSQLiteWriter.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 void PrintFile(const char* name, std::ostream& os);
@@ -121,7 +122,7 @@ void PrintFile(const char* name, std::ostream& os)
     os << " has " << fs.st_size << " bytes";
   }
 
-  std::ifstream fin(name);
+  vtksys::ifstream fin(name);
   if (fin)
   {
     os << ":\n" << div << "\n";
@@ -138,13 +139,13 @@ void PrintFile(const char* name, std::ostream& os)
 bool CompareAsciiFiles(const char* file1, const char* file2)
 {
   // Open the two files for read
-  std::ifstream fin1(file1);
+  vtksys::ifstream fin1(file1);
   if (!fin1)
   {
     std::cerr << file2 << " cannot be opened for read.\n";
     return false;
   }
-  std::ifstream fin2(file2);
+  vtksys::ifstream fin2(file2);
   if (!fin2)
   {
     std::cerr << file2 << " cannot be opened for read.\n";

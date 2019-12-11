@@ -29,6 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
 #include <cctype>
@@ -208,7 +209,7 @@ int vtkMoleculeReaderBase::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if ((fp = fopen(this->FileName, "r")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "r")) == nullptr)
   {
     vtkErrorMacro(<< "Unable to open " << this->FileName);
     return 0;

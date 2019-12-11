@@ -108,7 +108,7 @@ void vtkOpenVROverlay::WriteCameraPoses()
 {
   std::string fname = this->GetSessionName();
   fname += "VTKOpenVRCameraPoses.vovrcp";
-  ofstream os(fname, ios::out);
+  vtksys::ofstream os(fname, ios::out);
   this->WriteCameraPoses(os);
 
   os.flush();
@@ -129,7 +129,7 @@ void vtkOpenVROverlay::ReadCameraPoses()
     return;
   }
 
-  ifstream is(fname);
+  vtksys::ifstream is(fname);
   this->ReadCameraPoses(is);
 }
 

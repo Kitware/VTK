@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkPTSReader);
 
@@ -150,7 +151,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Open the new file.
   vtkDebugMacro(<< "Opening file " << this->FileName);
-  ifstream file(this->FileName, ios::in | ios::binary);
+  vtksys::ifstream file(this->FileName, ios::in | ios::binary);
   if (!file || file.fail())
   {
     vtkErrorMacro(<< "Could not open file " << this->FileName);

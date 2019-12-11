@@ -25,12 +25,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangleStrip.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 namespace
 {
 //----------------------------------------------------------------------------
-void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
+void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
 {
   vtkIdType npts;
   const vtkIdType* indx;
@@ -58,7 +59,7 @@ void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool wi
 }
 
 //----------------------------------------------------------------------------
-void WriteLines(std::ofstream& f, vtkCellArray* lines)
+void WriteLines(std::ostream& f, vtkCellArray* lines)
 {
   vtkIdType npts;
   const vtkIdType* indx;
@@ -74,7 +75,7 @@ void WriteLines(std::ofstream& f, vtkCellArray* lines)
 }
 
 //----------------------------------------------------------------------------
-void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDataArray* tcoords)
+void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals, vtkDataArray* tcoords)
 {
   vtkNumberToString convert;
   vtkIdType nbPts = pts->GetNumberOfPoints();
@@ -111,10 +112,10 @@ void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDat
 }
 
 //----------------------------------------------------------------------------
-bool WriteTexture(std::ofstream& f, const std::string& baseName, vtkImageData* texture)
+bool WriteTexture(std::ostream& f, const std::string& baseName, vtkImageData* texture)
 {
   std::string mtlName = baseName + ".mtl";
-  std::ofstream fmtl(mtlName, std::ofstream::out);
+  vtksys::ofstream fmtl(mtlName.c_str(), vtksys::ofstream::out);
   if (fmtl.fail())
   {
     return false;
@@ -195,7 +196,7 @@ void vtkOBJWriter::WriteData()
 
   vtkIdType npts = 0;
 
-  std::ofstream f(this->FileName, std::ofstream::out);
+  vtksys::ofstream f(this->FileName, vtksys::ofstream::out);
   if (f.fail())
   {
     vtkErrorMacro("Unable to open file: " << this->FileName);

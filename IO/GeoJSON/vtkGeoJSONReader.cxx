@@ -31,6 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkTriangleFilter.h"
 #include "vtk_jsoncpp.h"
+#include "vtksys/FStream.hxx"
 
 // C++ includes
 #include <fstream>
@@ -208,7 +209,7 @@ int vtkGeoJSONReader::GeoJSONReaderInternal::CanParseFile(const char* filename, 
     return VTK_ERROR;
   }
 
-  ifstream file;
+  vtksys::ifstream file;
   file.open(filename);
 
   if (!file.is_open())

@@ -24,13 +24,14 @@
 
 #include <sstream>
 #include <vector>
+#include <vtksys/FStream.hxx>
 
 namespace
 {
 std::string ReadFile(const std::string& filename)
 {
   std::string contents;
-  std::ifstream stream(filename, std::ios::binary);
+  vtksys::ifstream stream(filename.c_str(), std::ios::binary);
   if (stream)
   {
     stream.seekg(0, std::ios::end);

@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkMCubesWriter);
 
@@ -67,7 +68,7 @@ void vtkMCubesWriter::WriteData()
 
   vtkDebugMacro("Writing MCubes tri file");
   FILE* fp;
-  if ((fp = fopen(this->FileName, "w")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
@@ -78,7 +79,7 @@ void vtkMCubesWriter::WriteData()
   if (this->LimitsFileName)
   {
     vtkDebugMacro("Writing MCubes limits file");
-    if ((fp = fopen(this->LimitsFileName, "w")) == nullptr)
+    if ((fp = vtksys::SystemTools::Fopen(this->LimitsFileName, "w")) == nullptr)
     {
       vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
       return;

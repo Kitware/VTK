@@ -36,6 +36,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
@@ -95,14 +96,14 @@ void vtkOBJExporter::WriteData()
     modelName = filePrefix;
   }
 
-  std::ofstream fpObj(objFilePath, ios::out);
+  vtksys::ofstream fpObj(objFilePath.c_str(), ios::out);
   if (!fpObj)
   {
     vtkErrorMacro(<< "unable to open " << objFilePath);
     return;
   }
   std::string mtlFilePath = std::string(this->FilePrefix) + ".mtl";
-  std::ofstream fpMtl(mtlFilePath, ios::out);
+  vtksys::ofstream fpMtl(mtlFilePath.c_str(), ios::out);
   if (!fpMtl)
   {
     fpMtl.close();
@@ -164,8 +165,8 @@ void vtkOBJExporter::WriteData()
   fpMtl.close();
 }
 
-void vtkOBJExporter::WriteAnActor(vtkActor* anActor, std::ofstream& fpObj, std::ofstream& fpMtl,
-  std::string& modelName, int& idStart)
+void vtkOBJExporter::WriteAnActor(
+  vtkActor* anActor, std::ostream& fpObj, std::ostream& fpMtl, std::string& modelName, int& idStart)
 {
   vtkDataSet* ds;
   vtkNew<vtkPolyData> pd;

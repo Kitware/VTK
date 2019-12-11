@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cstdlib>
 
@@ -29,7 +30,7 @@ namespace
 size_t fileSize(const std::string& filename)
 {
   size_t size = 0;
-  FILE* f = fopen(filename.c_str(), "r");
+  FILE* f = vtksys::SystemTools::Fopen(filename, "r");
   if (f)
   {
     fseek(f, 0, SEEK_END);

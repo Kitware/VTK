@@ -19,6 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkSimplePointsReader);
 
@@ -54,7 +55,7 @@ int vtkSimplePointsReader::RequestData(
   }
 
   // Open the input file.
-  ifstream fin(this->FileName);
+  vtksys::ifstream fin(this->FileName);
   if (!fin)
   {
     vtkErrorMacro("Error opening file " << this->FileName);

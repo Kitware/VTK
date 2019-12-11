@@ -46,6 +46,7 @@
 #include "vtkLSDynaPartCollection.h"
 #include "vtkLSDynaSummaryParser.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -150,7 +151,7 @@ static const char* vtkLSDynaCellTypes[] = { "Point", "Beam", "Shell", "Thick She
 // - not a comment
 // is encountered. Return with that text stored in \a line.
 // If an error or EOF is hit, return 0. Otherwise, return 1.
-static int vtkLSNextSignificantLine(ifstream& deck, std::string& line)
+static int vtkLSNextSignificantLine(istream& deck, std::string& line)
 {
   while (deck.good())
   {
@@ -3166,7 +3167,7 @@ int vtkLSDynaReader::ReadInputDeck()
     return 0;
   }
 
-  ifstream deck(this->InputDeck, ios::in);
+  vtksys::ifstream deck(this->InputDeck, ios::in);
   if (!deck.good())
   {
     return 0;
@@ -3188,7 +3189,7 @@ int vtkLSDynaReader::ReadInputDeck()
   return retval;
 }
 
-int vtkLSDynaReader::ReadInputDeckXML(ifstream& deck)
+int vtkLSDynaReader::ReadInputDeckXML(istream& deck)
 {
   vtkLSDynaSummaryParser* parser = vtkLSDynaSummaryParser::New();
   parser->MetaData = this->P;
@@ -3204,7 +3205,7 @@ int vtkLSDynaReader::ReadInputDeckXML(ifstream& deck)
   return 0;
 }
 
-int vtkLSDynaReader::ReadInputDeckKeywords(ifstream& deck)
+int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
 {
   int success = 1;
   std::map<std::string, int> parameters;
@@ -3372,7 +3373,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(ifstream& deck)
 
 int vtkLSDynaReader::WriteInputDeckSummary(const char* fname)
 {
-  ofstream xmlSummary(fname, ios::out | ios::trunc);
+  vtksys::ofstream xmlSummary(fname, ios::out | ios::trunc);
   if (!xmlSummary.good())
   {
     return 1;

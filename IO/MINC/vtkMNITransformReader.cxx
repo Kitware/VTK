@@ -67,6 +67,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
@@ -126,7 +127,7 @@ int vtkMNITransformReader::CanReadFile(const char* fname)
   // Try to read the first line of the file.
   int status = 0;
 
-  ifstream infile(fname);
+  vtksys::ifstream infile(fname);
 
   if (infile.good())
   {
@@ -832,7 +833,7 @@ int vtkMNITransformReader::ReadFile()
   }
 
   // Make sure that the file is readable.
-  ifstream infile(this->FileName);
+  vtksys::ifstream infile(this->FileName);
 
   if (infile.fail())
   {

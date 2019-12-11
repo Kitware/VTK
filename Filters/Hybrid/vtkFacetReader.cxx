@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedIntArray.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <sstream>
@@ -101,7 +102,7 @@ int vtkFacetReader::CanReadFile(const char* filename)
     return 0;
   }
 
-  ifstream ifs(filename, ios::in);
+  vtksys::ifstream ifs(filename, ios::in);
   if (!ifs)
   {
     // Specified filename not found
@@ -144,7 +145,7 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  ifstream ifs(this->FileName, ios::in);
+  vtksys::ifstream ifs(this->FileName, ios::in);
   if (!ifs)
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);

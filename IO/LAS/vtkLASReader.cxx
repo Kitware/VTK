@@ -25,6 +25,7 @@
 #include <vtkPolyData.h>
 #include <vtkUnsignedShortArray.h>
 #include <vtkVertexGlyphFilter.h>
+#include <vtksys/FStream.hxx>
 
 #include <liblas/liblas.hpp>
 
@@ -60,7 +61,7 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Open LAS File for reading
-  std::ifstream ifs;
+  vtksys::ifstream ifs;
   ifs.open(this->FileName, std::ios_base::binary | std::ios_base::in);
 
   if (!ifs.is_open())

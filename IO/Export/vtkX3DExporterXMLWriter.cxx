@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
+#include <vtksys/FStream.hxx>
 
 #include <cassert>
 #include <fstream>
@@ -79,7 +80,7 @@ int vtkX3DExporterXMLWriter::OpenFile(const char* file)
 {
   this->CloseFile();
   this->WriteToOutputString = 0;
-  std::fstream* fileStream = new std::fstream();
+  vtksys::ofstream* fileStream = new vtksys::ofstream();
   fileStream->open(file, ios::out);
   if (fileStream->fail())
   {

@@ -31,6 +31,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 // ----------------------------------------------------------------------------
@@ -586,7 +587,7 @@ int vtkEnzoReaderInternal::LoadAttribute(const char* attribute, int blockIdx)
 // block file name, and particle file name of each block
 void vtkEnzoReaderInternal::ReadBlockStructures()
 {
-  ifstream stream(this->HierarchyFileName.c_str());
+  vtksys::ifstream stream(this->HierarchyFileName.c_str());
   if (!stream)
   {
     vtkGenericWarningMacro(
@@ -815,7 +816,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 // obtain the general information of the dataset (number of dimensions)
 void vtkEnzoReaderInternal::ReadGeneralParameters()
 {
-  ifstream stream(this->MajorFileName.c_str());
+  vtksys::ifstream stream(this->MajorFileName.c_str());
   if (!stream)
   {
     vtkGenericWarningMacro("Invalid parameter file " << this->MajorFileName.c_str() << endl);

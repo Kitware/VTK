@@ -34,6 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
+
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -386,7 +388,7 @@ int vtkWindBladeReader::RequestData(vtkInformation* reqInfo,
     std::ostringstream fileName;
     vtkStructuredGrid* field = this->GetFieldOutput();
     this->InitFieldData(outVector, fileName, field);
-    this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+    this->Internal->FilePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
     if (this->Internal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -591,7 +593,7 @@ bool vtkWindBladeReader::ReadGlobalData()
   std::string fileName = this->Filename;
   vtksys::SystemTools::ConvertToUnixSlashes(fileName);
 
-  std::ifstream inStrStream(fileName.c_str());
+  vtksys::ifstream inStrStream(fileName.c_str());
   std::stringstream inStr;
   std::copy(std::istreambuf_iterator<char>(inStrStream), std::istreambuf_iterator<char>(),
     std::ostreambuf_iterator<char>(inStr));
@@ -720,7 +722,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/" << this->DataDirectory << "/" << this->DataBaseName
            << this->TimeStepFirst;
 
-  this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+  this->Internal->FilePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
 
   if (this->Internal->FilePtr == nullptr)
   {
@@ -944,7 +946,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
-  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+  FILE* filePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
 
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET); // Fortran byte count
   if (fread(topoData, sizeof(float), blockSize, filePtr) != static_cast<size_t>(blockSize))
@@ -1114,7 +1116,7 @@ void vtkWindBladeReader::SetupBladeData()
   fileName << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineTowerName;
   char inBuf[LINE_SIZE];
 
-  ifstream inStr(fileName.str().c_str());
+  vtksys::ifstream inStr(fileName.str().c_str());
 
   if (!inStr)
   {
@@ -1134,7 +1136,7 @@ void vtkWindBladeReader::SetupBladeData()
   fileName2 << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
             << this->TimeStepFirst;
 
-  ifstream inStr2(fileName2.str().c_str());
+  vtksys::ifstream inStr2(fileName2.str().c_str());
 
   if (!inStr2)
   {
@@ -1199,7 +1201,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   fileName << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
            << this->TimeSteps[timeStep];
 
-  std::ifstream inStr(fileName.str().c_str());
+  vtksys::ifstream inStr(fileName.str().c_str());
   std::stringstream inStrSS;
   std::copy(std::istreambuf_iterator<char>(inStr), std::istreambuf_iterator<char>(),
     std::ostreambuf_iterator<char>(inStrSS));

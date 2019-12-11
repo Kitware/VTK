@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/FStream.hxx"
 
 #include "vtkmetaio/metaEvent.h"
 #include "vtkmetaio/metaImage.h"
@@ -280,7 +281,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
   }
 
   // Now check the file content
-  ifstream inputStream;
+  vtksys::ifstream inputStream;
 
   inputStream.open(fname, ios::in | ios::binary);
 

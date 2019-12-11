@@ -45,9 +45,9 @@
 #include "vtkTypeTraits.h"
 #include "vtkUnicodeStringArray.h"
 #include "vtkViewport.h"
+#include "vtksys/FStream.hxx"
 
 #include <fstream>
-using std::ofstream;
 
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 

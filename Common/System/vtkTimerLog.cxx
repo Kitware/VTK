@@ -25,6 +25,7 @@
 #include "vtkTimerLog.h"
 
 #include "vtkMath.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <cassert>
@@ -545,7 +546,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream* os)
 void vtkTimerLog::DumpLog(const char* filename)
 {
 #ifndef _WIN32_WCE
-  ofstream os_with_warning_C4701(filename);
+  vtksys::ofstream os_with_warning_C4701(filename);
   int i;
 
   if (vtkTimerLog::WrapFlag)

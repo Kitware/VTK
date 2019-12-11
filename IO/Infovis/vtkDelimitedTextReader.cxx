@@ -34,6 +34,7 @@
 
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <iostream>
@@ -578,7 +579,7 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
     }
 
     istream* input_stream_pt = nullptr;
-    ifstream file_stream;
+    vtksys::ifstream file_stream;
     std::istringstream string_stream;
 
     if (!this->ReadFromInputString)

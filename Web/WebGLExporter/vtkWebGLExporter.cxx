@@ -62,7 +62,9 @@
 #include "glMatrix.h"
 #include "webglRenderer.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/MD5.h"
+#include "vtksys/SystemTools.hxx"
 
 //*****************************************************************************
 class vtkWebGLExporter::vtkInternal
@@ -775,7 +777,7 @@ void vtkWebGLExporter::exportStaticScene(
 
   resultHTML += "</script></html>";
 
-  ofstream file;
+  vtksys::ofstream file;
   file.open(path.c_str());
   file << resultHTML;
   file.close();

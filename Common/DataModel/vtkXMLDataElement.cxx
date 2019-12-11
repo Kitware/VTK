@@ -21,6 +21,7 @@
 using std::istringstream;
 using std::ostringstream;
 #include <string>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 using std::string;
 #include <locale> // C++ locale
@@ -442,7 +443,7 @@ void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::PrintXML(const char* fname)
 {
-  ofstream of(fname);
+  vtksys::ofstream of(fname);
   of.imbue(std::locale::classic());
   this->PrintXML(of, vtkIndent());
 }

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLFileOutputWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/Encoding.hxx"
 
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
@@ -27,13 +28,23 @@ void vtkXMLFileOutputWindow::Initialize()
       this->FileName = new char[strlen(fileName) + 1];
       strcpy(this->FileName, fileName);
     }
+
     if (this->Append)
     {
+#ifdef _WIN32
+      this->OStream =
+        new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::app);
+#else
       this->OStream = new ofstream(this->FileName, ios::app);
+#endif
     }
     else
     {
+#ifdef _WIN32
+      this->OStream = new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName));
+#else
       this->OStream = new ofstream(this->FileName);
+#endif
       this->DisplayTag("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
     }
   }

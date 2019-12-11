@@ -30,6 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkZLibDataCompressor.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <cmath>
@@ -56,7 +57,7 @@ static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std
     size_t bufSize = image->GetNumberOfPoints() * sizeof(float);
     unsigned char* cBuffer = new unsigned char[bufSize];
     size_t compressSize = zLib->Compress((unsigned char*)zBuf, bufSize, cBuffer, bufSize);
-    ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
+    vtksys::ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
     fileHandler.write((const char*)cBuffer, compressSize);
     delete[] cBuffer;
   }
@@ -115,7 +116,7 @@ static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std
     int scalarSize = scalars->GetDataTypeSize();
     const char* scalarPtr = static_cast<const char*>(scalars->GetVoidPointer(0));
     size_t numberOfScalars = image->GetNumberOfPoints();
-    ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
+    vtksys::ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
     fileHandler.write(scalarPtr, numberOfScalars * scalarSize);
   }
 }

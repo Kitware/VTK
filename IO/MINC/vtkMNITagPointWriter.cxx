@@ -61,6 +61,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkStringArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <cctype>
 #include <cmath>
@@ -526,7 +527,7 @@ ostream* vtkMNITagPointWriter::OpenFile()
 
   vtkDebugMacro(<< "Opening file for writing...");
 
-  fptr = new ofstream(this->FileName, ios::out);
+  fptr = new vtksys::ofstream(this->FileName, ios::out);
 
   if (fptr->fail())
   {

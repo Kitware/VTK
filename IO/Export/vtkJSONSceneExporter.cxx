@@ -33,6 +33,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <fstream>
@@ -333,7 +334,7 @@ void vtkJSONSceneExporter::WriteData()
   std::stringstream scenePath;
   scenePath << this->FileName << "/index.json";
 
-  ofstream file;
+  vtksys::ofstream file;
   file.open(scenePath.str().c_str(), ios::out);
   file << sceneJsonFile.str().c_str();
   file.close();

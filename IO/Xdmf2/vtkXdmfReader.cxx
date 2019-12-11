@@ -27,6 +27,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLParser.h"
+#include "vtksys/FStream.hxx"
 
 vtkCxxSetObjectMacro(vtkXdmfReader, InputArray, vtkCharArray);
 
@@ -44,7 +45,7 @@ public:
       return 0;
     }
 
-    ifstream inFile(this->FileName);
+    vtksys::ifstream inFile(this->FileName);
     if (!inFile)
     {
       return 0;

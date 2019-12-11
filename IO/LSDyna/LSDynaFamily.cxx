@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "LSDynaFamily.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cctype>
@@ -67,7 +68,7 @@ vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
   vtkLSDynaFile_t f = open(fname, O_RDONLY);
   return f;
 #else
-  vtkLSDynaFile_t f = fopen(fname, "rb");
+  vtkLSDynaFile_t f = vtksys::SystemTools::Fopen(fname, "rb");
   setvbuf(f, nullptr, _IONBF, 0); // disable buffer
   return f;
 #endif

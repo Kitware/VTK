@@ -72,7 +72,7 @@ int CalculateProcessorRank(int* procDim, int* procId)
 
 // Read a block of data bounded by [low, high] from file into buffer.
 // The entire data has dimensions dim
-int ReadFloatDataBlockFromFile(ifstream& ifs, int* dim, int* low, int* high, float* buffer)
+int ReadFloatDataBlockFromFile(istream& ifs, int* dim, int* low, int* high, float* buffer)
 {
   vtkIdType dimXY = dim[0] * dim[1];
   vtkIdType dimX = dim[0];
@@ -145,8 +145,8 @@ int ReadFloatDataBlockFromFile(ifstream& ifs, int* dim, int* low, int* high, flo
 // Given the data dimensions dataDim, the process dimensions procDim, my
 // process id myProcId, set the block bounding box myBlockBounds for my data.
 // Also open the data file as filestream ifs.
-int SetDataParameters(int* dataDim, int* procDim, int* myProcId, const char* fileName,
-  ifstream& ifs, int myBlockBounds[2][3])
+int SetDataParameters(int* dataDim, int* procDim, int* myProcId, const char* fileName, istream& ifs,
+  int myBlockBounds[2][3])
 {
   vtkIdType myDim[3];
   myDim[0] = static_cast<int>(ceil(dataDim[0] / (1. * procDim[0])));
@@ -198,7 +198,7 @@ void RealDataDescriptiveStatistics(vtkMultiProcessController* controller, void* 
   timer->StartTimer();
 
   // ************************** Read input data file ****************************
-  ifstream ifs;
+  vtksys::ifstream ifs;
   int myBlockBounds[2][3];
   if (SetDataParameters(args->dataDim, args->procDim, myProcId, args->fileName, ifs, myBlockBounds))
   {

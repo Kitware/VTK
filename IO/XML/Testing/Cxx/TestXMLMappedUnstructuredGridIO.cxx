@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <fstream>
@@ -309,8 +310,8 @@ using namespace std;
 
 bool compareFiles(const string& p1, const string& p2)
 {
-  ifstream f1(p1, ifstream::binary | ifstream::ate);
-  ifstream f2(p2, ifstream::binary | ifstream::ate);
+  vtksys::ifstream f1(p1.c_str(), ifstream::binary | ifstream::ate);
+  vtksys::ifstream f2(p2.c_str(), ifstream::binary | ifstream::ate);
 
   if (f1.fail() || f2.fail())
   {
@@ -323,8 +324,8 @@ bool compareFiles(const string& p1, const string& p2)
   }
 
   // seek back to beginning and use equal to compare contents
-  f1.seekg(0, ifstream::beg);
-  f2.seekg(0, ifstream::beg);
+  f1.seekg(0, vtksys::ifstream::beg);
+  f2.seekg(0, vtksys::ifstream::beg);
   return equal(istreambuf_iterator<char>(f1.rdbuf()), istreambuf_iterator<char>(),
     istreambuf_iterator<char>(f2.rdbuf()));
 }

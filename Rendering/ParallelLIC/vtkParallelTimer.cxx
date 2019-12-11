@@ -21,6 +21,7 @@
 
 #include "vtkMPI.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/FStream.hxx"
 
 using std::cerr;
 using std::endl;
@@ -57,9 +58,7 @@ static int gettimeofday(struct timeval* tv, void*)
 }
 #endif
 
-#include <fstream>
 using std::ios_base;
-using std::ofstream;
 
 /*
 For singleton pattern
@@ -621,7 +620,7 @@ int vtkParallelTimer::Write()
 
     ostringstream oss;
     *this->Log >> oss;
-    ofstream f(this->FileName, ios_base::out | ios_base::app);
+    vtksys::ofstream f(this->FileName, ios_base::out | ios_base::app);
     if (!f.good())
     {
       vtkErrorMacro(<< "Failed to open " << this->FileName << " for writing.");

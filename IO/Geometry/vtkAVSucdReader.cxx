@@ -35,6 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/Encoding.hxx"
 
 #include <map>
 
@@ -182,7 +183,8 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
 #ifdef _WIN32
-  this->FileStream = new ifstream(this->FileName, ios::in | ios::binary);
+  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
+  this->FileStream = new ifstream(wfilename, ios::in | ios::binary);
 #else
   this->FileStream = new ifstream(this->FileName, ios::in);
 #endif
@@ -204,7 +206,12 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     delete this->FileStream; // close file to reopen it later
     this->FileStream = nullptr;
 
+#ifdef _WIN32
+    wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
+    this->FileStream = new ifstream(wfilename, ios::in);
+#else
     this->FileStream = new ifstream(this->FileName, ios::in);
+#endif
     char c = '\0';
     while (!FileStream->eof())
     {

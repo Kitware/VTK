@@ -22,6 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkVolume16Reader);
 
@@ -278,7 +279,7 @@ void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalar
   {
     snprintf(filename, sizeof(filename), this->FilePattern, sliceNumber);
   }
-  if (!(fp = fopen(filename, "rb")))
+  if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
   {
     vtkErrorMacro(<< "Can't open file: " << filename);
     return;
@@ -341,7 +342,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* s
     {
       snprintf(filename, sizeof(filename), this->FilePattern, fileNumber);
     }
-    if (!(fp = fopen(filename, "rb")))
+    if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
     {
       vtkErrorMacro(<< "Can't find file: " << filename);
       delete[] slice;

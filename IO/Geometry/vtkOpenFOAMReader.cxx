@@ -96,6 +96,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 #include "vtkWedge.h"
+#include <vtksys/SystemTools.hxx>
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
 // for getpwnam() / getpwuid()
@@ -1585,7 +1586,7 @@ public:
           const vtkStdString fullName =
             this->ExpandPath(fileNameToken.ToString(), this->ExtractPath(this->FileName));
 
-          FILE* fh = fopen(fullName.c_str(), "rb");
+          FILE* fh = vtksys::SystemTools::Fopen(fullName, "rb");
           if (fh)
           {
             fclose(fh);
@@ -1708,7 +1709,8 @@ public:
       throw this->StackString() << "File already opened within this object";
     }
 
-    if ((this->Superclass::File = fopen(this->Superclass::FileName.c_str(), "rb")) == nullptr)
+    if ((this->Superclass::File = vtksys::SystemTools::Fopen(this->Superclass::FileName, "rb")) ==
+      nullptr)
     {
       throw this->StackString() << "Can't open";
     }

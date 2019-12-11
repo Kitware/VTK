@@ -16,6 +16,7 @@
 #include "vtkRenderTimings.h"
 //#include "vtkNew.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemInformation.hxx>
 
@@ -301,7 +302,7 @@ void vtkRenderTimings::ReportResults()
   }
 
   // then the detailed to a csv file
-  ofstream rfile;
+  vtksys::ofstream rfile;
   rfile.open(this->DetailedResultsFileName.c_str());
   for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
   {

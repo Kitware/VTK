@@ -69,6 +69,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #ifndef VTK_BINARY
@@ -139,7 +140,7 @@ int vtkMNIObjectReader::CanReadFile(const char* fname)
   // Try to read the first line of the file.
   int status = 0;
 
-  ifstream infile(fname);
+  vtksys::ifstream infile(fname);
 
   if (infile.good())
   {
@@ -728,7 +729,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData* output)
   }
 
   // Make sure that the file is readable.
-  ifstream infile(this->FileName, ios::in);
+  vtksys::ifstream infile(this->FileName, ios::in);
 
   if (infile.fail())
   {

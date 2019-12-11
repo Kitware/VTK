@@ -20,12 +20,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/FStream.hxx"
 
 #define vtkPIWCloseFile                                                                            \
   if (file && fileOpenedHere)                                                                      \
   {                                                                                                \
     this->WriteFileTrailer(file, cache);                                                           \
-    ofstream* ofile = dynamic_cast<ofstream*>(file);                                               \
+    vtksys::ofstream* ofile = dynamic_cast<vtksys::ofstream*>(file);                               \
     if (ofile)                                                                                     \
     {                                                                                              \
       ofile->close();                                                                              \
@@ -102,9 +103,9 @@ void vtkPImageWriter::RecursiveWrite(
     }
     // Open the file
 #ifdef _WIN32
-    file = new ofstream(this->InternalFileName, ios::out | ios::binary);
+    file = new vtksys::ofstream(this->InternalFileName, ios::out | ios::binary);
 #else
-    file = new ofstream(this->InternalFileName, ios::out);
+    file = new vtksys::ofstream(this->InternalFileName, ios::out);
 #endif
     fileOpenedHere = 1;
     if (file->fail())

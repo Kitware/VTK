@@ -81,6 +81,18 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestPNGReaderReadFromMemory.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
 
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestWriteToUnicodeFileBMP,TestWriteToUnicodeFile.cxx,NO_VALID
+    "image.bmp")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestWriteToUnicodeFilePNG,TestWriteToUnicodeFile.cxx,NO_VALID
+    "image.png")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestWriteToUnicodeFileJPEG,TestWriteToUnicodeFile.cxx,NO_VALID
+    "image.jpg")
+
 if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(vtkIOImageCxxTests large_data_tests
     TestMRCReader,TestMRCReader.cxx,NO_OUTPUT

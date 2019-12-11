@@ -27,7 +27,8 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtk_jsoncpp.h"
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/FStream.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <string>
@@ -235,7 +236,7 @@ bool vtkOSPRayMaterialLibrary::InternalParse(const char* filename, bool fromfile
   std::istream* doc;
   if (fromfile)
   {
-    doc = new std::ifstream(filename, std::ifstream::binary);
+    doc = new vtksys::ifstream(filename, std::ios::binary);
   }
   else
   {

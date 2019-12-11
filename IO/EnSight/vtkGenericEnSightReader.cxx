@@ -27,6 +27,8 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/FStream.hxx"
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cctype> /* isspace */
@@ -321,7 +323,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
     sfilename = this->CaseFileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     if (!quiet)
@@ -427,7 +429,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 
             // got full path to geometry file
 
-            this->IFile = fopen(sfilename.c_str(), "rb");
+            this->IFile = vtksys::SystemTools::Fopen(sfilename, "rb");
             if (this->IFile == nullptr)
             {
               if (!quiet)
@@ -541,7 +543,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 
         // got full path to geometry file
 
-        this->IFile = fopen(sfilename.c_str(), "rb");
+        this->IFile = vtksys::SystemTools::Fopen(sfilename, "rb");
         if (this->IFile == nullptr)
         {
           if (!quiet)
@@ -1106,7 +1108,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
   }
 
   // We have got a valid CASE file name
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
 
   // Below is a revamped version of the code in support of inline & non-inline
   // file name numbers, in a CASE file, of which the first one is obtained to

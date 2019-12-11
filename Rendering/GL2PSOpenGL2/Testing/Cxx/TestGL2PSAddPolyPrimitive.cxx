@@ -19,6 +19,7 @@
 #include "vtk_gl2ps.h"
 
 #include "vtkTestingInteractor.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <iostream>
 #include <string>
@@ -62,7 +63,7 @@ int TestGL2PSAddPolyPrimitive(int, char*[])
 {
   std::string filename =
     vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSAddPolyPrimitive.ps");
-  FILE* stream = fopen(filename.c_str(), "wb");
+  FILE* stream = vtksys::SystemTools::Fopen(filename, "wb");
   if (stream == nullptr)
   {
     std::cerr << "Error opening output file." << std::endl;

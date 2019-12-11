@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 #include <stdexcept>
@@ -72,13 +73,13 @@ int vtkArrayDataWriter::Write()
 
 bool vtkArrayDataWriter::Write(const vtkStdString& file_name, bool WriteBinary)
 {
-  ofstream file(file_name.c_str(), std::ios::binary);
+  vtksys::ofstream file(file_name.c_str(), std::ios::binary);
   return this->Write(file, WriteBinary);
 }
 
 bool vtkArrayDataWriter::Write(vtkArrayData* array, const vtkStdString& file_name, bool WriteBinary)
 {
-  ofstream file(file_name.c_str(), std::ios::binary);
+  vtksys::ofstream file(file_name.c_str(), std::ios::binary);
   return vtkArrayDataWriter::Write(array, file, WriteBinary);
 }
 

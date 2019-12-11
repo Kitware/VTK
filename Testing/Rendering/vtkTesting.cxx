@@ -476,7 +476,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   string bestImageFileName = this->ValidImageFileName;
 
   // check the valid image
-  FILE* rtFin = fopen(this->ValidImageFileName, "r");
+  FILE* rtFin = vtksys::SystemTools::Fopen(this->ValidImageFileName, "r");
   if (rtFin)
   {
     fclose(rtFin);
@@ -484,7 +484,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   else // there was no valid image, so write one to the temp dir
   {
     string vImage = tmpDir + "/" + validName;
-    rtFin = fopen(vImage.c_str(), "wb");
+    rtFin = vtksys::SystemTools::Fopen(vImage, "wb");
     if (rtFin)
     {
       fclose(rtFin);
@@ -669,7 +669,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   // write out the image that was generated
   string testImageFileName = tmpDir + "/" + validName;
-  FILE* testImageFile = fopen(testImageFileName.c_str(), "wb");
+  FILE* testImageFile = vtksys::SystemTools::Fopen(testImageFileName, "wb");
   if (testImageFile)
   {
     fclose(testImageFile);
@@ -737,7 +737,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       diffFilename = diffFilename.substr(0, dotPos);
     }
     diffFilename += ".diff.png";
-    FILE* rtDout = fopen(diffFilename.c_str(), "wb");
+    FILE* rtDout = vtksys::SystemTools::Fopen(diffFilename, "wb");
     if (rtDout)
     {
       fclose(rtDout);

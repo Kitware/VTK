@@ -31,6 +31,7 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMultiProcessController.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 namespace vtx
@@ -260,7 +261,7 @@ types::DataSet XMLInitDataSet(
 
 std::string FileToString(const std::string& fileName)
 {
-  std::ifstream file(fileName);
+  vtksys::ifstream file(fileName);
   std::stringstream schemaSS;
   schemaSS << file.rdbuf();
   return schemaSS.str();

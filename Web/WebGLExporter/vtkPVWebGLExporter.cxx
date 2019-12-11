@@ -28,6 +28,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------
@@ -69,7 +71,7 @@ void vtkPVWebGLExporter::WriteData()
   std::string baseFileName = this->FileName;
   baseFileName.erase(baseFileName.size() - 6, 6);
   std::string metadatFile = this->FileName;
-  FILE* fp = fopen(metadatFile.c_str(), "w");
+  FILE* fp = vtksys::SystemTools::Fopen(metadatFile, "w");
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open JSON MetaData file " << metadatFile.c_str());
@@ -92,7 +94,7 @@ void vtkPVWebGLExporter::WriteData()
         // Manage binary content
         std::stringstream filePath;
         filePath << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part;
-        std::fstream binaryFile;
+        vtksys::ofstream binaryFile;
         binaryFile.open(filePath.str().c_str(), std::ios_base::out | std::ios_base::binary);
         binaryFile.write((const char*)obj->GetBinaryData(part), obj->GetBinarySize(part));
         binaryFile.close();
@@ -101,7 +103,7 @@ void vtkPVWebGLExporter::WriteData()
         std::stringstream filePathBase64;
         filePathBase64 << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part
                        << ".base64";
-        std::fstream base64File;
+        vtksys::ofstream base64File;
         unsigned char* output = new unsigned char[obj->GetBinarySize(part) * 2];
         int size =
           base64->Encode(obj->GetBinaryData(part), obj->GetBinarySize(part), output, false);

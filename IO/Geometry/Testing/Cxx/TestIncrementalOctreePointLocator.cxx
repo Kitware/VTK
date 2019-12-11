@@ -19,6 +19,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
+#include <vtksys/SystemTools.hxx>
 
 #define _BRUTE_FORCE_VERIFICATION_
 
@@ -148,7 +149,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
   // open a file for reading or writing the ground truth data
   fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/IncOctPntLocResult.dat");
 #ifndef _BRUTE_FORCE_VERIFICATION_
-  diskFile = fopen(fileName, "rb");
+  diskFile = vtksys::SystemTools::Fopen(fileName, "rb");
   truthIds = (vtkIdType*)realloc(truthIds, sizeof(vtkIdType) * numbPnts);
 #endif
   delete[] fileName;
@@ -386,7 +387,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
 
   // load points and radius data from a disk file for point location tasks
   fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/IncOctPntLocData.dat");
-  pntsFile = fopen(fileName, "rb");
+  pntsFile = vtksys::SystemTools::Fopen(fileName, "rb");
   delete[] fileName;
   fileName = nullptr;
   n = fread(&nLocPnts, sizeof(int), 1, pntsFile);

@@ -19,7 +19,7 @@
 
 int GenerateBlueObeliskHeader(int, char*[])
 {
-  std::ifstream xml(VTK_BODR_DATA_PATH_BUILD "/elements.xml");
+  vtksys::ifstream xml(VTK_BODR_DATA_PATH_BUILD "/elements.xml");
   if (!xml)
   {
     std::cerr << "Error opening file " VTK_BODR_DATA_PATH_BUILD "/elements.xml.\n";

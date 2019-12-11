@@ -20,6 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <fstream>
@@ -37,7 +38,7 @@ int TestPNGReaderReadFromMemory(int argc, char* argv[])
   std::string filename = argv[1];
 
   // Open the file
-  std::ifstream stream(filename, std::ios::in | std::ios::binary);
+  vtksys::ifstream stream(filename.c_str(), std::ios::in | std::ios::binary);
   if (!stream.is_open())
   {
     std::cerr << "Could not open file " << filename.c_str() << std::endl;

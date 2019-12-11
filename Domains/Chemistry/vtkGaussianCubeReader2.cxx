@@ -29,6 +29,7 @@
 #include "vtkSimpleBondPerceiver.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
+#include "vtksys/FStream.hxx"
 
 #include <fstream>
 #include <iostream>
@@ -94,7 +95,7 @@ int vtkGaussianCubeReader2::RequestInformation(vtkInformation* vtkNotUsed(reques
     return 0;
   }
 
-  ifstream file_in(this->FileName);
+  vtksys::ifstream file_in(this->FileName);
 
   if (!file_in.is_open())
   {
@@ -169,7 +170,7 @@ int vtkGaussianCubeReader2::RequestData(
     return 0;
   }
 
-  ifstream file_in(this->FileName);
+  vtksys::ifstream file_in(this->FileName);
 
   if (!file_in.is_open())
   {

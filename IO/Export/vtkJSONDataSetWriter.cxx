@@ -32,6 +32,7 @@
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkTypeUInt64Array.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/MD5.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -281,7 +282,7 @@ void vtkJSONDataSetWriter::WriteData()
   std::stringstream scenePath;
   scenePath << this->FileName << "/index.json";
 
-  ofstream file;
+  vtksys::ofstream file;
   file.open(scenePath.str().c_str(), ios::out);
   file << metaJsonFile.str().c_str();
   file.close();
@@ -472,7 +473,7 @@ bool vtkJSONDataSetWriter::WriteArrayAsRAW(vtkDataArray* input, const char* file
   const char* content = (const char*)arrayToWrite->GetVoidPointer(0);
   size_t size = arrayToWrite->GetNumberOfValues() * arrayToWrite->GetDataTypeSize();
 
-  ofstream file;
+  vtksys::ofstream file;
   file.open(filePath, ios::out | ios::binary);
   file.write(content, size);
   file.close();

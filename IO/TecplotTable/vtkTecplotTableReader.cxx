@@ -30,6 +30,7 @@
 
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <iostream>
@@ -405,7 +406,7 @@ int vtkTecplotTableReader::RequestData(
     }
 
     istream* input_stream_pt = nullptr;
-    ifstream file_stream;
+    vtksys::ifstream file_stream;
 
     // If the filename hasn't been specified, we're done ...
     if (!this->FileName)

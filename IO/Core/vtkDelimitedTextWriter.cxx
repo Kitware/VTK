@@ -29,6 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 #include <vector>
@@ -83,7 +84,7 @@ bool vtkDelimitedTextWriter::OpenStream()
 
     vtkDebugMacro(<< "Opening file for writing...");
 
-    ofstream* fptr = new ofstream(this->FileName, ios::out);
+    vtksys::ofstream* fptr = new vtksys::ofstream(this->FileName, ios::out);
 
     if (fptr->fail())
     {

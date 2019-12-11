@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <sstream>
@@ -106,7 +107,7 @@ int vtkX3DExporterFIByteWriter::OpenFile(const char* file)
   this->WriteToOutputString = 0;
   this->CurrentByte = 0;
   this->CurrentBytePos = 0;
-  ofstream* fileStream = new ofstream();
+  vtksys::ofstream* fileStream = new vtksys::ofstream();
   fileStream->open(file, ios::out | ios::binary);
   if (fileStream->fail())
   {

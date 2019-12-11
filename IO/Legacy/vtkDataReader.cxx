@@ -58,6 +58,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
 
+#include "vtksys/FStream.hxx"
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
@@ -501,7 +502,7 @@ int vtkDataReader::OpenVTKFile(const char* fname)
       return 0;
     }
 
-    this->IS = new ifstream(fname, ios::in | ios::binary);
+    this->IS = new vtksys::ifstream(fname, ios::in | ios::binary);
     if (this->IS->fail())
     {
       vtkErrorMacro(<< "Unable to open file: " << fname);
@@ -614,9 +615,9 @@ int vtkDataReader::ReadHeader(const char* fname)
     delete this->IS;
     this->IS = nullptr;
 #ifdef _WIN32
-    this->IS = new ifstream(fname, ios::in | ios::binary);
+    this->IS = new vtksys::ifstream(fname, ios::in | ios::binary);
 #else
-    this->IS = new ifstream(fname, ios::in);
+    this->IS = new vtksys::ifstream(fname, ios::in);
 #endif
     if (this->IS->fail())
     {

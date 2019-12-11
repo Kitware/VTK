@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkImageWriter);
@@ -196,7 +197,7 @@ void vtkImageWriter::RecursiveWrite(
     }
     // Open the file
 #ifdef _WIN32
-    file = new ofstream(this->InternalFileName, ios::out | ios::binary);
+    file = new vtksys::ofstream(this->InternalFileName, ios::out | ios::binary);
 #else
     file = new ofstream(this->InternalFileName, ios::out);
 #endif
@@ -322,7 +323,7 @@ void vtkImageWriter::RecursiveWrite(
     }
     // Open the file
 #ifdef _WIN32
-    file = new ofstream(this->InternalFileName, ios::out | ios::binary);
+    file = new vtksys::ofstream(this->InternalFileName, ios::out | ios::binary);
 #else
     file = new ofstream(this->InternalFileName, ios::out);
 #endif

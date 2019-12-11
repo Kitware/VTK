@@ -49,6 +49,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMINCImageReader.h"
 
 #include "vtkObjectFactory.h"
+#include <vtksys/SystemTools.hxx>
 
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
@@ -167,7 +168,7 @@ void vtkMINCImageReader::SetFileName(const char* name)
 int vtkMINCImageReader::CanReadFile(const char* fname)
 {
   // First do a very rapid check of the magic number
-  FILE* fp = fopen(fname, "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
   if (!fp)
   {
     return 0;

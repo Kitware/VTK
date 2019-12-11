@@ -21,6 +21,7 @@
 #include <locale>
 #include <sstream>
 #include <string>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkInteractorEventRecorder);
@@ -131,7 +132,7 @@ void vtkInteractorEventRecorder::Record()
   {
     if (!this->OutputStream) // need to open file
     {
-      this->OutputStream = new ofstream(this->FileName, ios::out);
+      this->OutputStream = new vtksys::ofstream(this->FileName, ios::out);
       if (this->OutputStream->fail())
       {
         vtkErrorMacro(<< "Unable to open file: " << this->FileName);
@@ -184,7 +185,7 @@ void vtkInteractorEventRecorder::Play()
     {
       if (!this->InputStream) // need to open file
       {
-        this->InputStream = new ifstream(this->FileName, ios::in);
+        this->InputStream = new vtksys::ifstream(this->FileName, ios::in);
         if (this->InputStream->fail())
         {
           vtkErrorMacro(<< "Unable to open file: " << this->FileName);

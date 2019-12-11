@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 
@@ -132,7 +133,7 @@ ostream* vtkGeoJSONWriter::OpenFile()
       return nullptr;
     }
 
-    fptr = new ofstream(this->FileName, ios::out);
+    fptr = new vtksys::ofstream(this->FileName, ios::out);
   }
   else
   {
