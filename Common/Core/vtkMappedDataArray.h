@@ -29,7 +29,7 @@
  *
  * @attention
  * Subclasses that hold vtkIdType elements must also
- * reimplement `int GetDataType()` (see Caveat in vtkTypedDataArray).
+ * reimplement `int GetDataType() const` (see Caveat in vtkTypedDataArray).
  */
 
 #ifndef vtkMappedDataArray_h
@@ -119,13 +119,13 @@ public:
   void Modified() override;
 
   // vtkAbstractArray override:
-  bool HasStandardMemoryLayout() override { return false; }
+  bool HasStandardMemoryLayout() const override { return false; }
 
 protected:
   vtkMappedDataArray();
   ~vtkMappedDataArray() override;
 
-  int GetArrayType() override { return vtkAbstractArray::MappedDataArray; }
+  int GetArrayType() const override { return vtkAbstractArray::MappedDataArray; }
 
 private:
   vtkMappedDataArray(const vtkMappedDataArray&) = delete;

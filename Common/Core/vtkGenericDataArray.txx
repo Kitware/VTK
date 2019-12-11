@@ -241,21 +241,21 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::WritePointer(vtkIdType id, vtkIdType 
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType()
+int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType() const
 {
   return vtkTypeTraits<ValueType>::VTK_TYPE_ID;
 }
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize()
+int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(ValueType));
 }
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::HasStandardMemoryLayout()
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::HasStandardMemoryLayout() const
 {
   // False by default, AoS should set true.
   return false;

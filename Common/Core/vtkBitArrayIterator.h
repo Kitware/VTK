@@ -75,12 +75,12 @@ public:
   /**
    * Get the data type from the underlying array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Get the data type size from the underlying array.
    */
-  int GetDataTypeSize();
+  int GetDataTypeSize() const;
 
   /**
    * Sets the value at the index. This does not verify if the index is valid.

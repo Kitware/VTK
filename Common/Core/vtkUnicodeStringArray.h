@@ -45,9 +45,9 @@ public:
 
   vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
   void Initialize() override;
-  int GetDataType() override;
-  int GetDataTypeSize() override;
-  int GetElementComponentSize() override;
+  int GetDataType() const override;
+  int GetDataTypeSize() const override;
+  int GetElementComponentSize() const override;
   void SetNumberOfTuples(vtkIdType number) override;
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
   void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
@@ -66,8 +66,8 @@ public:
   void SetVoidArray(void* array, vtkIdType size, int save) override;
   void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override;
   void SetArrayFreeFunction(void (*callback)(void*)) override;
-  unsigned long GetActualMemorySize() override; // in bytes
-  int IsNumeric() override;
+  unsigned long GetActualMemorySize() const override; // in bytes
+  int IsNumeric() const override;
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   vtkVariant GetVariantValue(vtkIdType idx) override;
   vtkIdType LookupValue(vtkVariant value) override;

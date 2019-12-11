@@ -97,7 +97,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkType.h.
    */
-  virtual int GetDataType() = 0;
+  virtual int GetDataType() const = 0;
 
   //@{
   /**
@@ -105,7 +105,7 @@ public:
    * returned.  For string 0 is returned. Arrays with variable length
    * components return 0.
    */
-  virtual int GetDataTypeSize() = 0;
+  virtual int GetDataTypeSize() const = 0;
   static int GetDataTypeSize(int type);
   //@}
 
@@ -116,7 +116,7 @@ public:
    * sizeof(vtkStdString::value_type), which winds up being
    * sizeof(char).
    */
-  virtual int GetElementComponentSize() = 0;
+  virtual int GetElementComponentSize() const = 0;
 
   //@{
   /**
@@ -124,7 +124,7 @@ public:
    * this is set before allocation.
    */
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_INT_MAX);
-  int GetNumberOfComponents() { return this->NumberOfComponents; }
+  int GetNumberOfComponents() const { return this->NumberOfComponents; }
   //@}
 
   /**
@@ -136,12 +136,12 @@ public:
    * Get the component name for a given component.
    * Note: will return the actual string that is stored
    */
-  const char* GetComponentName(vtkIdType component);
+  const char* GetComponentName(vtkIdType component) const;
 
   /**
    * Returns if any component has had a name assigned
    */
-  bool HasAComponentName();
+  bool HasAComponentName() const;
 
   /**
    * Copies the component names from the inputed array to the current array
@@ -169,7 +169,7 @@ public:
   /**
    * Get the number of complete tuples (a component group) in the array.
    */
-  vtkIdType GetNumberOfTuples() { return (this->MaxId + 1) / this->NumberOfComponents; }
+  vtkIdType GetNumberOfTuples() const { return (this->MaxId + 1) / this->NumberOfComponents; }
 
   /**
    * Get the total number of values in the array. This is typically equivalent
@@ -237,7 +237,7 @@ public:
    * {t1c1, t1c2, t1c3, ... t1cM, t2c1, ... tNcM}
    * where t1c2 is the second component of the first tuple.
    */
-  virtual bool HasStandardMemoryLayout();
+  virtual bool HasStandardMemoryLayout() const;
 
   /**
    * Return a void pointer. For image pipeline interface and other
@@ -375,7 +375,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  virtual unsigned long GetActualMemorySize() = 0;
+  virtual unsigned long GetActualMemorySize() const = 0;
 
   //@{
   /**
@@ -388,7 +388,7 @@ public:
   /**
    * Get the name of a data type as a string.
    */
-  virtual const char* GetDataTypeAsString(void)
+  virtual const char* GetDataTypeAsString(void) const
   {
     return vtkImageScalarTypeNameMacro(this->GetDataType());
   }
@@ -409,7 +409,7 @@ public:
    * This method is here to make backward compatibility easier.  It
    * must return true if and only if an array contains numeric data.
    */
-  virtual int IsNumeric() = 0;
+  virtual int IsNumeric() const = 0;
 
   /**
    * Subclasses must override this method and provide the right kind
@@ -424,7 +424,7 @@ public:
    * GetDataTypeSize(). Non-contiguous or variable- size arrays need
    * to override this method.
    */
-  virtual vtkIdType GetDataSize()
+  virtual vtkIdType GetDataSize() const
   {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
   }
@@ -545,7 +545,7 @@ public:
    * Inquire if this array has an instance of vtkInformation
    * already associated with it.
    */
-  bool HasInformation() { return this->Information != nullptr; }
+  bool HasInformation() const { return this->Information != nullptr; }
 
   /**
    * Copy information instance. Arrays use information objects
@@ -647,7 +647,7 @@ public:
    * Method for type-checking in FastDownCast implementations. See also
    * vtkArrayDownCast.
    */
-  virtual int GetArrayType() { return AbstractArray; }
+  virtual int GetArrayType() const { return AbstractArray; }
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.

@@ -1286,7 +1286,7 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1, double val2, doubl
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkDataArray::GetActualMemorySize()
+unsigned long vtkDataArray::GetActualMemorySize() const
 {
   vtkIdType numPrims;
   double size;

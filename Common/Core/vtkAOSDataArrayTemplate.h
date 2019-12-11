@@ -263,9 +263,9 @@ public:
   }
   //@}
 
-  int GetArrayType() override { return vtkAbstractArray::AoSDataArrayTemplate; }
+  int GetArrayType() const override { return vtkAbstractArray::AoSDataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
-  bool HasStandardMemoryLayout() override { return true; }
+  bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;
 
   // Reimplemented for efficiency:
@@ -310,12 +310,12 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate);
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkAOSDataArrayTemplate.
 #define vtkCreateWrappedArrayInterface(T)                                                          \
-  int GetDataType() override;                                                                      \
+  int GetDataType() const override;                                                                \
   void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
   void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
   void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
   vtkIdType InsertNextTypedTuple(const T* tuple);                                                  \
-  T GetValue(vtkIdType id) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                       \
+  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
   void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
   bool SetNumberOfValues(vtkIdType number) override;                                               \
   void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \

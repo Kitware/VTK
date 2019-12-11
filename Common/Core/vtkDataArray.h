@@ -66,14 +66,14 @@ public:
    * All vtkDataArray subclasses contain numeric data, hence this method
    * always returns 1(true).
    */
-  int IsNumeric() override { return 1; }
+  int IsNumeric() const override { return 1; }
 
   /**
    * Return the size, in bytes, of the lowest-level element of an
    * array.  For vtkDataArray and subclasses this is the size of the
    * data type.
    */
-  int GetElementComponentSize() override { return this->GetDataTypeSize(); }
+  int GetElementComponentSize() const override { return this->GetDataTypeSize(); }
 
   // Reimplemented virtuals (doc strings are inherited from superclass):
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
@@ -318,7 +318,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -506,7 +506,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() override { return DataArray; }
+  int GetArrayType() const override { return DataArray; }
 
 protected:
   friend class vtkPoints;

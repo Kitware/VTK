@@ -159,19 +159,19 @@ void vtkVariantArray::Initialize()
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetDataType()
+int vtkVariantArray::GetDataType() const
 {
   return VTK_VARIANT;
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetDataTypeSize()
+int vtkVariantArray::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(vtkVariant));
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetElementComponentSize()
+int vtkVariantArray::GetElementComponentSize() const
 {
   return this->GetDataTypeSize();
 }
@@ -593,7 +593,7 @@ void vtkVariantArray::SetVoidArray(void* arr, vtkIdType size, int save, int dele
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkVariantArray::GetActualMemorySize()
+unsigned long vtkVariantArray::GetActualMemorySize() const
 {
   // NOTE: Currently does not take into account the "pointed to" data.
   size_t totalSize = 0;
@@ -605,7 +605,7 @@ unsigned long vtkVariantArray::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::IsNumeric()
+int vtkVariantArray::IsNumeric() const
 {
   return 0;
 }

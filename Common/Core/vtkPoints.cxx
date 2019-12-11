@@ -135,7 +135,7 @@ void vtkPoints::Modified()
   }
 }
 
-int vtkPoints::GetDataType()
+int vtkPoints::GetDataType() const
 {
   return this->Data->GetDataType();
 }

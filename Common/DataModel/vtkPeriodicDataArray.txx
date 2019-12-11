@@ -376,7 +376,7 @@ typename vtkPeriodicDataArray<Scalar>::ValueType vtkPeriodicDataArray<Scalar>::G
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-unsigned long int vtkPeriodicDataArray<Scalar>::GetActualMemorySize()
+unsigned long int vtkPeriodicDataArray<Scalar>::GetActualMemorySize() const
 {
   return static_cast<unsigned long int>(
     (this->NumberOfComponents * (sizeof(Scalar) + sizeof(double)) + sizeof(*this)) / 1024);

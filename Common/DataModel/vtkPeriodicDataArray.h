@@ -143,7 +143,7 @@ public:
   /**
    * Return the memory in kilobytes consumed by this data array.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Read only container, not supported.

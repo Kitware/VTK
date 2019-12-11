@@ -60,17 +60,17 @@ void vtkUnicodeStringArray::Initialize()
   this->DataChanged();
 }
 
-int vtkUnicodeStringArray::GetDataType()
+int vtkUnicodeStringArray::GetDataType() const
 {
   return VTK_UNICODE_STRING;
 }
 
-int vtkUnicodeStringArray::GetDataTypeSize()
+int vtkUnicodeStringArray::GetDataTypeSize() const
 {
   return 0;
 }
 
-int vtkUnicodeStringArray::GetElementComponentSize()
+int vtkUnicodeStringArray::GetElementComponentSize() const
 {
   return sizeof(vtkUnicodeString::value_type);
 }
@@ -312,7 +312,7 @@ void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void*))
   vtkErrorMacro("Not implemented.");
 }
 
-unsigned long vtkUnicodeStringArray::GetActualMemorySize()
+unsigned long vtkUnicodeStringArray::GetActualMemorySize() const
 {
   unsigned long count = 0;
   for (Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
@@ -323,7 +323,7 @@ unsigned long vtkUnicodeStringArray::GetActualMemorySize()
   return count;
 }
 
-int vtkUnicodeStringArray::IsNumeric()
+int vtkUnicodeStringArray::IsNumeric() const
 {
   return 0;
 }

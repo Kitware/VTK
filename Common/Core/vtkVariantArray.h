@@ -84,14 +84,14 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the underlying data type.  For a bit, 1 is
    * returned.  For string 0 is returned. Arrays with variable length
    * components return 0.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Return the size, in bytes, of the lowest-level element of an
@@ -100,7 +100,7 @@ public:
    * sizeof(vtkStdString::value_type), which winds up being
    * sizeof(char).
    */
-  int GetElementComponentSize() override;
+  int GetElementComponentSize() const override;
 
   /**
    * Set the number of tuples (a component group) in the array. Note that
@@ -212,12 +212,12 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Since each item can be of a different type, we say that a variant array is not numeric.
    */
-  int IsNumeric() override;
+  int IsNumeric() const override;
 
   /**
    * Subclasses must override this method and provide the right

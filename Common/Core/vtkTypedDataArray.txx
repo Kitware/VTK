@@ -52,14 +52,14 @@ bool vtkTypedDataArray<Scalar>::ReallocateTuples(vtkIdType)
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-inline int vtkTypedDataArray<Scalar>::GetDataType()
+inline int vtkTypedDataArray<Scalar>::GetDataType() const
 {
   return vtkTypeTraits<Scalar>::VTK_TYPE_ID;
 }
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-inline int vtkTypedDataArray<Scalar>::GetDataTypeSize()
+inline int vtkTypedDataArray<Scalar>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(Scalar));
 }

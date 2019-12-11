@@ -89,12 +89,12 @@ public:
   /**
    * Return the VTK data type held by this array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the element type in bytes.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Set the tuple value at the ith location in the array.
@@ -149,7 +149,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() override { return vtkAbstractArray::TypedDataArray; }
+  int GetArrayType() const override { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays

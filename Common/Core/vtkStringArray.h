@@ -57,9 +57,9 @@ public:
   /**
    * Get the data type.
    */
-  int GetDataType() override { return VTK_STRING; }
+  int GetDataType() const override { return VTK_STRING; }
 
-  int IsNumeric() override { return 0; }
+  int IsNumeric() const override { return 0; }
 
   /**
    * Release storage and reset array to initial state.
@@ -72,7 +72,7 @@ public:
    * sizeof(std::string) and not take into account the data
    * included in any particular string.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Free any unnecessary memory.
@@ -196,7 +196,7 @@ public:
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
   int GetNumberOfElementComponents() { return 0; }
-  int GetElementComponentSize() override
+  int GetElementComponentSize() const override
   {
     return static_cast<int>(sizeof(vtkStdString::value_type));
   }
@@ -287,7 +287,7 @@ public:
    * This function takes into account the size of the contents of the
    * strings as well as the string containers themselves.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Returns a vtkArrayIteratorTemplate<vtkStdString>.
@@ -299,7 +299,7 @@ public:
    * for the data can be computed by GetDataSize() * GetDataTypeSize().
    * The size computation includes the string termination character for each string.
    */
-  vtkIdType GetDataSize() override;
+  vtkIdType GetDataSize() const override;
 
   //@{
   /**

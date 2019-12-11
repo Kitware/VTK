@@ -57,8 +57,8 @@ public:
   void Initialize() override;
 
   // satisfy vtkDataArray API
-  int GetDataType() override { return VTK_BIT; }
-  int GetDataTypeSize() override { return 0; }
+  int GetDataType() const override { return VTK_BIT; }
+  int GetDataTypeSize() const override { return 0; }
 
   /**
    * Set the number of n-tuples in the array.
@@ -169,7 +169,7 @@ public:
   /**
    * Get the data at a particular index.
    */
-  int GetValue(vtkIdType id);
+  int GetValue(vtkIdType id) const;
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure

@@ -706,7 +706,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() const;
 
   // The wrappers get understandably confused by some of the template code below
 #ifndef __VTK_WRAP__

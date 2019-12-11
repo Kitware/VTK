@@ -124,7 +124,7 @@ int vtkBitArrayIterator::GetNumberOfComponents()
 }
 
 //-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetDataType()
+int vtkBitArrayIterator::GetDataType() const
 {
   if (this->Array)
   {
@@ -133,7 +133,7 @@ int vtkBitArrayIterator::GetDataType()
   return 0;
 }
 //-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetDataTypeSize()
+int vtkBitArrayIterator::GetDataTypeSize() const
 {
   if (this->Array)
   {

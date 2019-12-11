@@ -489,13 +489,13 @@ vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 }
 
 // ----------------------------------------------------------------------------
-int vtkStringArray::GetDataTypeSize()
+int vtkStringArray::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(vtkStdString));
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkStringArray::GetActualMemorySize()
+unsigned long vtkStringArray::GetActualMemorySize() const
 {
   size_t totalSize = 0;
   size_t numPrims = static_cast<size_t>(this->GetSize());
@@ -510,7 +510,7 @@ unsigned long vtkStringArray::GetActualMemorySize()
 }
 
 // ----------------------------------------------------------------------------
-vtkIdType vtkStringArray::GetDataSize()
+vtkIdType vtkStringArray::GetDataSize() const
 {
   size_t size = 0;
   size_t numStrs = static_cast<size_t>(this->GetMaxId() + 1);
