@@ -529,17 +529,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   }
 }
 
-//-----------------------------------------------------------------------------
-
-/*JB ??
-void vtkHyperTreeGrid::GetNumberOfTreesPerDimension(unsigned int* dimsOut)
-{
-  dimsOut[0] = this->CellDims[0];
-  dimsOut[1] = this->CellDims[1];
-  dimsOut[2] = this->CellDims[2];
-}
-*/
-
 // ============================================================================
 // BEGIN - RectilinearGrid common API
 // ============================================================================

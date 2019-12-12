@@ -180,17 +180,20 @@ public:
     // Build information by levels
     RecursiveGetByLevelForWriter(inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel);
     // nbVerticesbyLevel
+    vtkIdType nb = 0;
     nbVerticesbyLevel->Resize(0);
+    assert(globalIdByLevel.size() == maxLevels);
     for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
     {
+      nb += globalIdByLevel[iLevel].size();
       nbVerticesbyLevel->InsertNextValue(
         static_cast<unsigned long>(globalIdByLevel[iLevel].size()));
     }
     nbVerticesbyLevel->Squeeze();
-    //
-    vtkIdType nb = this->GetNumberOfVertices();
+    // Ids
     ids->SetNumberOfIds(nb);
-    for (std::size_t i = 0, iLevel = 0; iLevel < globalIdByLevel.size(); ++iLevel)
+    std::size_t i = 0;
+    for (std::size_t iLevel = 0; iLevel < globalIdByLevel.size(); ++iLevel)
     {
       for (auto idg : globalIdByLevel[iLevel])
       {
@@ -199,39 +202,75 @@ public:
       }
       globalIdByLevel[iLevel].clear();
     }
+    assert(i == nb);
     globalIdByLevel.clear();
-    // For more compressed
-    if (maxLevels > 2)
+
+    // isParent compressed
     {
-      std::vector<bool>& desc = descByLevel[maxLevels - 2];
-      for (std::vector<bool>::reverse_iterator it = desc.rbegin(); it != desc.rend(); --it)
+      // Find last level with cells
+      int reduceLevel = maxLevels - 1;
+      for (; descByLevel[reduceLevel].size() == 0; --reduceLevel)
+        ;
+      // By definition, all values is false
+      for (auto it = descByLevel[reduceLevel].begin(); it != descByLevel[reduceLevel].end(); ++it)
       {
-        if (*it)
+        assert(!(*it));
+      }
+      // Move before last level with cells
+      --reduceLevel;
+      // We're looking for the latest true value
+      if (reduceLevel > 0)
+      {
+        std::vector<bool>& desc = descByLevel[reduceLevel];
+        for (std::vector<bool>::reverse_iterator it = desc.rbegin(); it != desc.rend(); ++it)
         {
-          if (it != desc.rend())
+          if (*it)
           {
+            // Resize to ignore the latest false values
+            // There is by definition at least one value true
             desc.resize(std::distance(it, desc.rend()));
+            break;
           }
+        }
+      }
+
+      isParent->Resize(0);
+      for (int iLevel = 0; iLevel <= reduceLevel; ++iLevel)
+      {
+        for (auto state : descByLevel[iLevel])
+        {
+          isParent->InsertNextValue(state);
+        }
+      }
+      isParent->Squeeze();
+    }
+
+    // isMasked compressed
+    if (inIsMasked)
+    {
+      int reduceLevel = maxLevels - 1;
+      bool isFinding = false;
+      for (; reduceLevel > 0; --reduceLevel)
+      {
+        std::vector<bool>& mask = maskByLevel[reduceLevel];
+        for (std::vector<bool>::reverse_iterator it = mask.rbegin(); it != mask.rend(); ++it)
+        {
+          if (*it)
+          {
+            // Resize to ignore the latest false values
+            // There is by definition at least one value true
+            mask.resize(std::distance(it, mask.rend()));
+            isFinding = true;
+            break;
+          }
+        }
+        if (isFinding)
+        {
           break;
         }
       }
-    }
-    // isParent
-    isParent->Resize(0);
-    for (int iLevel = 0; iLevel < maxLevels - 1; ++iLevel)
-    {
-      for (auto etat : descByLevel[iLevel])
-      {
-        isParent->InsertNextValue(etat);
-      }
-    }
-    //
-    isParent->Squeeze();
-    // isMasked
-    if (inIsMasked)
-    {
       isMasked->Resize(0);
-      for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
+      for (int iLevel = 0; iLevel <= reduceLevel; ++iLevel)
       {
         for (auto etat : maskByLevel[iLevel])
         {
@@ -247,6 +286,22 @@ public:
     vtkIdType nbVerticesOfLastLevel, vtkBitArray* isParent, vtkBitArray* isMasked,
     vtkBitArray* outIsMasked) override
   {
+    if (isParent == nullptr)
+    {
+      this->CompactDatas->ParentToElderChild_stl.resize(1);
+      this->CompactDatas->ParentToElderChild_stl[0] = UINT_MAX;
+      if (isMasked)
+      {
+        vtkIdType nbIsMasked = isMasked->GetNumberOfTuples();
+        if (nbIsMasked)
+        {
+          assert(isMasked->GetNumberOfComponents() == 1);
+          outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(0), isMasked->GetValue(0));
+        }
+      }
+      return;
+    }
+
     vtkIdType nbIsParent = isParent->GetNumberOfTuples();
     assert(isParent->GetNumberOfComponents() == 1);
 
