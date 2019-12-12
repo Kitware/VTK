@@ -37,6 +37,7 @@ vtkSegYReader::vtkSegYReader()
   this->Reader = new vtkSegYReaderInternal();
   this->FileName = nullptr;
   this->Is3D = false;
+  this->Force2D = false;
   std::fill(this->DataOrigin, this->DataOrigin + 3, 0.0);
   std::fill(this->DataSpacing[0], this->DataSpacing[0] + 3, 1.0);
   std::fill(this->DataSpacing[1], this->DataSpacing[1] + 3, 1.0);
@@ -190,7 +191,7 @@ int vtkSegYReader::RequestDataObject(vtkInformation*,
     return 0;
   }
   this->Is3D = this->Reader->Is3DComputeParameters(
-    this->DataExtent, this->DataOrigin, this->DataSpacing, this->DataSpacingSign);
+    this->DataExtent, this->DataOrigin, this->DataSpacing, this->DataSpacingSign, this->Force2D);
   const char* outputTypeName =
     (this->Is3D && !this->StructuredGrid) ? "vtkImageData" : "vtkStructuredGrid";
 

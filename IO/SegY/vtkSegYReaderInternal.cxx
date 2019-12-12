@@ -40,7 +40,6 @@ double decodeMultiplier(short multiplier)
 {
   return (multiplier < 0) ? (-1.0 / multiplier) : (multiplier > 0 ? multiplier : 1.0);
 }
-
 };
 
 //-----------------------------------------------------------------------------
@@ -117,7 +116,7 @@ bool vtkSegYReaderInternal::ReadHeader()
 
 //-----------------------------------------------------------------------------
 bool vtkSegYReaderInternal::Is3DComputeParameters(
-  int* extent, double origin[3], double spacing[3][3], int* spacingSign)
+  int* extent, double origin[3], double spacing[3][3], int* spacingSign, bool force2D)
 {
   this->ReadHeader();
   std::streamoff traceStartPos = FIRST_TRACE_START_POS;
@@ -126,19 +125,39 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   int xCoord = 0, yCoord = 0;
   short coordMultiplier = 0;
 
+  size_t traceCount = 0;
+
+  // for the forced 2D case we ignore lines/crosslines and just stitch together the
+  // traces in order applying their x,y coordinates
+  if (force2D)
+  {
+    while (traceStartPos + 240 < fileSize)
+    {
+      this->TraceReader->ReadInlineCrossline(traceStartPos, this->In, this->FormatCode,
+        &inlineNumber, &crosslineNumber, &xCoord, &yCoord, &coordMultiplier);
+      traceCount++;
+    }
+    extent[0] = 0;
+    extent[1] = static_cast<int>(traceCount - 1);
+    extent[2] = 0;
+    extent[3] = 0;
+    extent[4] = 0;
+    extent[5] = this->SampleCountPerTrace - 1;
+    return false;
+  }
+
   // compute the dimensions of the dataset, to be safe we
   // look at all the traces and compute the set of inline
   // and crossline indicies
   std::set<int> crossLines;
   std::map<int, std::array<double, 3> > crossCoordinates;
   std::set<int> inLines;
-
   int basisPointCount = 0;
   double basisCoords[3][3];
   int basisIndex[3][2] = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
   double iBasis[2][3];
   double basisLength[2];
-  size_t traceCount = 0;
+
   while (traceStartPos + 240 < fileSize)
   {
     this->TraceReader->ReadInlineCrossline(traceStartPos, this->In, this->FormatCode, &inlineNumber,
