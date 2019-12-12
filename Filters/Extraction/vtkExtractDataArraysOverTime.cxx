@@ -212,12 +212,22 @@ public:
       {
         continue;
       }
-
       auto outputRD = value.Output->GetRowData();
-      // Remove vtkOriginalCellIds or vtkOriginalPointIds arrays which were
-      // added by vtkExtractSelection.
-      outputRD->RemoveArray("vtkOriginalCellIds");
-      outputRD->RemoveArray("vtkOriginalPointIds");
+
+      vtkSmartPointer<vtkDataArray> originalIdsArray = nullptr;
+      if (!this->Self->GetReportStatisticsOnly())
+      {
+        std::string originalIdsArrayName = "vtkOriginalCellIds";
+        if (this->Self->GetFieldAssociation() == vtkDataObject::POINT)
+        {
+          originalIdsArrayName = "vtkOriginalPointIds";
+        }
+        originalIdsArray = outputRD->GetArray(originalIdsArrayName.c_str());
+        // Remove vtkOriginalCellIds or vtkOriginalPointIds arrays which were added by
+        // vtkExtractSelection.
+        outputRD->RemoveArray(originalIdsArrayName.c_str());
+      }
+
       outputRD->RemoveArray(value.ValidMaskArray->GetName());
       outputRD->AddArray(value.ValidMaskArray);
       if (value.PointCoordinatesArray)
@@ -240,6 +250,10 @@ public:
       if (!this->Self->GetReportStatisticsOnly())
       {
         stream << (value.UsingGlobalIDs ? "gid=" : "id=") << key.ID;
+        if (originalIdsArray)
+        {
+          stream << " originalId=" << originalIdsArray->GetTuple1(0);
+        }
       }
       if (key.CompositeID != 0)
       {
