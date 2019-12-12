@@ -20,11 +20,19 @@ if (NOT DEFINED "vtk_undefined_symbols_allowed")
 "cmake_minimum_required(VERSION 3.3...3.12)
 project(undefined C)
 add_library(undefined SHARED uses_undefined.c)
+add_executable(undefined_exe main.c)
+target_link_libraries(undefined_exe PRIVATE undefined)
 ")
   file(WRITE "${test_project_dir}/uses_undefined.c"
 "extern int undefined(void);
 int uses_undefined(void) {
   return undefined() + 1;
+}
+")
+  file(WRITE "${test_project_dir}/main.c"
+"extern int uses_undefined(void);
+int main(void) {
+  return uses_undefined();
 }
 ")
 
