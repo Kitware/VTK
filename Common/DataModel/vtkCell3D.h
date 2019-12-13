@@ -53,15 +53,103 @@ public:
   VTK_LEGACY(virtual void GetEdgePoints(int edgeId, int*& pts) = 0;);
 
   /**
-   * Get the list of vertices that define a face.  The list is terminated
+   * Get the list of vertices that define a face. The list is terminated
    * with a negative number. Note that the vertices are 0-offset; that is,
    * they refer to the ids of the cell, not the point ids of the mesh that
    * the cell belongs to. The faceId must range between
    * 0<=faceId<this->GetNumberOfFaces().
+   *
+   * @return The number of points in face faceId
    */
-  virtual void GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) = 0;
+  virtual vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) = 0;
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
   VTK_LEGACY(virtual void GetFacePoints(int faceId, int*& pts) = 0;);
+
+  /**
+   * Get the ids of the two adjacent faces to edge of id edgeId.
+   * The output face ids are sorted from id of lowest rank to highest.
+   * Note that the faces are 0-offset; that is, they refer to the ids of the cells,
+   * not hte face ids of the mesh that the cell belongs to. The edgeId must range
+   * between 0<=edgeId<this->GetNumberOfEdges().
+   */
+  virtual void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) = 0;
+
+  /**
+   * Get the ids of the adjacent faces to face of id faceId. The order of
+   * faces is consistent. They are always ordered in counter clockwise w.r.t.
+   * normal orientation.
+   * The first id faces[0] corresponds to the face sharing point of id pts[0]
+   * where pts is obtained from this->GetFacePoints(faceId, pts), being
+   * the "most counter clockwise" oriented w.r.t. face faceId.
+   * Note that the faces are 0-offset; that is, they
+   * refer to the ids of the cell, not the face ids of the mesh that the cell belongs to.
+   * The faceId must be between 0<=faceId<this->GetNumberOfFaces();
+   *
+   * @warning If the vtkCell3D is "inside out", i.e. normals point inside the cell, the order is
+   * inverted.
+   * @return The number of adjacent faces to faceId.
+   */
+  virtual vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) = 0;
+
+  /**
+   * Get the ids of the incident edges to point of id pointId. Edges are
+   * sorted in counter clockwise order w.r.t. bisectrix pointing outside the cell
+   * at point of id pointId.
+   * The first edge corresponds to the edge containing point of id pts[0], where
+   * pts is obtained from this->GetPointToOnRingVertices(pointId, pts).
+   * Note that the edges are 0-offset; that is, they refer to the ids of the cell,
+   * not the edge ids of the mesh that the cell belongs to.
+   * The edgeId must be between 0<=edgeId<this->GetNumberOfEdges();
+   *
+   * @warning If the vtkCell3D is "inside out", i.e. normals point inside the cell, the order is
+   * inverted.
+   * @return The valence of point pointId.
+   */
+  virtual vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) = 0;
+
+  /**
+   * Get the ids of the incidnet faces point of id pointId. Faces are
+   * sorted in counter clockwise order w.r.t. bisectrix pointing outside the cell
+   * at point of id pointId.
+   * The first face corresponds to the face containing edge of id edges[0],
+   * where edges is obtained from this->GetPointToIncidentEdges(pointId, edges),
+   * such that face faces[0] is the "most counterclockwise" face incident to
+   * point pointId containing edges[0].
+   * Note that the faces are 0-offset; that is, they refer to the ids of the cell,
+   * not the face ids of the mesh that the cell belongs to.
+   * The pointId must be between 0<=pointId<this->GetNumberOfPoints().
+   *
+   * @warning If the vtkCell3D is "inside out", i.e. normals point inside the cell, the order is
+   * inverted.
+   * @return The valence of point pointId.
+   */
+  virtual vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) = 0;
+
+  /**
+   * Get the ids of a one-ring surrounding point of id pointId. Points are
+   * sorted in counter clockwise order w.r.t. bisectrix pointing outside the cell
+   * at point of id pointId.
+   * The first point corresponds to the point contained in edges[0], where
+   * edges is obtained from this->GetPointToIncidentEdges(pointId, edges).
+   * Note that the points are 0-pffset; that is, they refer to the ids of the cell,
+   * not the point ids of the mesh that the cell belongs to.
+   * The pointId must be between 0<pointId<this->GetNumberOfPoints().
+   * @return The valence of point pointId.
+   */
+  virtual vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) = 0;
+
+  /**
+   * Returns true if the normals of the vtkCell3D point inside the cell.
+   *
+   * @warning This flag is not precomputed. It is advised for the return result of
+   * this method to be stored in a local boolean by the user if needed multiple times.
+   */
+  virtual bool IsInsideOut();
+
+  /**
+   * Computes the centroid of the cell.
+   */
+  virtual bool GetCentroid(double centroid[3]) const = 0;
 
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,

@@ -81,9 +81,10 @@ public:
                     << "Also note that this signature is deprecated. "
                     << "Please use GetEdgePoints(vtkIdType, const vtkIdType*& instead");
   });
-  void GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
+  vtkIdType GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkPolyhedron::GetFacePoints Not Implemented");
+    return 0;
   }
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
   VTK_LEGACY(void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override {
@@ -91,6 +92,40 @@ public:
                     << "Also note that this signature is deprecated. "
                     << "Please use GetFacePoints(vtkIdType, const vtkIdType*& instead");
   });
+  void GetEdgeToAdjacentFaces(
+    vtkIdType vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetEdgeToAdjacentFaces Not Implemented");
+  }
+  vtkIdType GetFaceToAdjacentFaces(
+    vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(faceIds)) override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetFaceToAdjacentFaces Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToIncidentEdges(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(edgeIds)) override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetPointToIncidentEdges Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToIncidentFaces(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(faceIds)) override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetPointToIncidentFaces Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToOneRingPoints(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(pts)) override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetPointToOneRingPoints Not Implemented");
+    return 0;
+  }
+  bool GetCentroid(double vtkNotUsed(centroid)[3]) const override
+  {
+    vtkWarningMacro(<< "vtkPolyhedron::GetCentroid Not Implemented");
+    return 0;
+  }
   //@}
 
   /**

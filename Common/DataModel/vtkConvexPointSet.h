@@ -54,7 +54,7 @@ public:
   //@{
   /**
    * See vtkCell3D API for description of these methods.
-   * @warning These method are unimplemented in vtkPolyhedron
+   * @warning These method are unimplemented in vtkConvexPointSet
    */
   void GetEdgePoints(vtkIdType vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
   {
@@ -66,9 +66,10 @@ public:
                     << "Also note that this signature is deprecated. "
                     << "Please use GetEdgePoints(vtkIdType, const vtkIdType*& instead");
   });
-  void GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
+  vtkIdType GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkConvexPointSet::GetFacePoints Not Implemented");
+    return 0;
   }
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
   VTK_LEGACY(void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override {
@@ -76,6 +77,40 @@ public:
                     << "Also note that this signature is deprecated. "
                     << "Please use GetFacePoints(vtkIdType, const vtkIdType*& instead");
   });
+  void GetEdgeToAdjacentFaces(
+    vtkIdType vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetEdgeToAdjacentFaces Not Implemented");
+  }
+  vtkIdType GetFaceToAdjacentFaces(
+    vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(faceIds)) override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetFaceToAdjacentFaces Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToIncidentEdges(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(edgeIds)) override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetPointToIncidentEdges Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToIncidentFaces(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(faceIds)) override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetPointToIncidentFaces Not Implemented");
+    return 0;
+  }
+  vtkIdType GetPointToOneRingPoints(
+    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(pts)) override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetPointToOneRingPoints Not Implemented");
+    return 0;
+  }
+  bool GetCentroid(double vtkNotUsed(centroid)[3]) const override
+  {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetCentroid Not Implemented");
+    return 0;
+  }
   //@}
 
   /**

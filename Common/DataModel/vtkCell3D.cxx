@@ -17,10 +17,12 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
 #include "vtkTetra.h"
 
 vtkCell3D::vtkCell3D()
@@ -45,6 +47,31 @@ vtkCell3D::~vtkCell3D()
     this->ClipScalars->Delete();
     this->ClipScalars = nullptr;
   }
+}
+
+bool vtkCell3D::IsInsideOut()
+{
+  // Strategy:
+  // - Compute the centroid of the cell.
+  // - Accumulate a signed projected distance on the normal between the faces and the centroid.
+  // - Check the sign to see if the cell is inside out or not.
+  double centroid[3], point[3], normal[3];
+  this->GetCentroid(centroid);
+  double signedDistanceToCentroid = 0.0;
+  for (vtkIdType faceId = 0; faceId < this->GetNumberOfFaces(); ++faceId)
+  {
+    const vtkIdType* pointIds;
+    vtkIdType faceSize = this->GetFacePoints(faceId, pointIds);
+    if (faceSize)
+    {
+      this->Points->GetPoint(pointIds[0], point);
+      vtkPolygon::ComputeNormal(this->Points, faceSize, pointIds, normal);
+      signedDistanceToCentroid +=
+        vtkPolygon::ComputeArea(this->Points, faceSize, pointIds, normal) *
+        (vtkMath::Dot(normal, centroid) - vtkMath::Dot(normal, point));
+    }
+  }
+  return signedDistanceToCentroid > 0.0;
 }
 
 void vtkCell3D::Contour(double value, vtkDataArray* cellScalars,

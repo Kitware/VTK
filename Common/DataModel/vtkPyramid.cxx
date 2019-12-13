@@ -22,10 +22,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolygon.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <cassert>
 #ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
 #include <vector>
 #endif
@@ -44,22 +46,84 @@ static const double VTK_CONVERGED = 1.e-03;
 //
 namespace
 { // required so we don't violate ODR
-static constexpr vtkIdType edges[8][2] = {
-  { 0, 1 },
-  { 1, 2 },
-  { 2, 3 },
-  { 3, 0 },
-  { 0, 4 },
-  { 1, 4 },
-  { 2, 4 },
-  { 3, 4 },
+// Pyramid topology:
+//
+//   3 __ 2
+//   |\  /|
+//   |4\/ |
+//   | /\ |
+//   |/__\|
+//   0    1
+static constexpr vtkIdType edges[vtkPyramid::NumberOfEdges][2] = {
+  { 0, 1 }, // 0
+  { 1, 2 }, // 1
+  { 2, 3 }, // 2
+  { 3, 0 }, // 3
+  { 0, 4 }, // 4
+  { 1, 4 }, // 5
+  { 2, 4 }, // 6
+  { 3, 4 }, // 7
 };
-static constexpr vtkIdType faces[5][5] = {
-  { 0, 3, 2, 1, -1 },
-  { 0, 1, 4, -1, -1 },
-  { 1, 2, 4, -1, -1 },
-  { 2, 3, 4, -1, -1 },
-  { 3, 0, 4, -1, -1 },
+static constexpr vtkIdType faces[vtkPyramid::NumberOfFaces][vtkPyramid::MaximumFaceSize + 1] = {
+  { 0, 3, 2, 1, -1 },  // 0
+  { 0, 1, 4, -1, -1 }, // 1
+  { 1, 2, 4, -1, -1 }, // 2
+  { 2, 3, 4, -1, -1 }, // 3
+  { 3, 0, 4, -1, -1 }, // 4
+};
+static constexpr vtkIdType edgeToAdjacentFaces[vtkPyramid::NumberOfEdges][2] = {
+  { 0, 1 }, // 0
+  { 0, 2 }, // 1
+  { 0, 3 }, // 2
+  { 0, 4 }, // 3
+  { 1, 4 }, // 4
+  { 1, 2 }, // 5
+  { 2, 3 }, // 6
+  { 3, 4 }, // 7
+};
+static constexpr vtkIdType
+  faceToAdjacentFaces[vtkPyramid::NumberOfFaces][vtkPyramid::MaximumFaceSize] = {
+    { 4, 3, 2, 1 },  // 0
+    { 0, 2, 4, -1 }, // 1
+    { 0, 3, 1, -1 }, // 2
+    { 0, 4, 2, -1 }, // 3
+    { 0, 1, 3, -1 }, // 4
+  };
+static constexpr vtkIdType
+  pointToIncidentEdges[vtkPyramid::NumberOfPoints][vtkPyramid::MaximumValence] = {
+    { 0, 4, 3, -1 }, // 0
+    { 0, 1, 5, -1 }, // 1
+    { 1, 2, 6, -1 }, // 2
+    { 2, 3, 7, -1 }, // 3
+    { 4, 5, 6, 7 },  // 4
+  };
+static constexpr vtkIdType
+  pointToIncidentFaces[vtkPyramid::NumberOfPoints][vtkPyramid::MaximumValence] = {
+    { 1, 4, 0, -1 }, // 0
+    { 0, 2, 1, -1 }, // 1
+    { 0, 3, 2, -1 }, // 2
+    { 0, 4, 3, -1 }, // 3
+    { 1, 2, 3, 4 },  // 4
+  };
+static constexpr vtkIdType
+  pointToOneRingPoints[vtkPyramid::NumberOfPoints][vtkPyramid::MaximumValence] = {
+    { 1, 4, 3, -1 }, // 0
+    { 0, 2, 4, -1 }, // 1
+    { 1, 3, 4, -1 }, // 2
+    { 2, 0, 4, -1 }, // 3
+    { 0, 1, 2, 3 },  // 4
+  };
+static constexpr vtkIdType numberOfPointsInFace[vtkPyramid::NumberOfFaces] = {
+  4, // 0
+  3, // 1
+  3, // 2
+  3  // 3
+};
+static constexpr vtkIdType valenceAtPoint[vtkPyramid::NumberOfPoints] = {
+  4, // 0
+  3, // 1
+  3, // 2
+  3  // 3
 };
 
 typedef int EDGE_LIST;
@@ -101,6 +165,51 @@ static TRIANGLE_CASES triCases[] = {
   { { 4, 3, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    // 30
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, // 31
 };
+}
+
+//----------------------------------------------------------------------------
+bool vtkPyramid::GetCentroid(double centroid[3]) const
+{
+  return vtkPyramid::ComputeCentroid(this->Points, nullptr, centroid);
+}
+
+//----------------------------------------------------------------------------
+bool vtkPyramid::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3])
+{
+  double p[3];
+  centroid[0] = centroid[1] = centroid[2] = 0.0;
+  if (pointIds)
+  {
+    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[4], faces[4], centroid);
+    points->GetPoint(4, p);
+  }
+  else
+  {
+    vtkIdType facePointsIds[4] = { pointIds[faces[4][0]], pointIds[faces[4][1]],
+      pointIds[faces[4][2]], pointIds[faces[4][3]] };
+    vtkPolygon::ComputeCentroid(points, numberOfPointsInFace[4], facePointsIds, centroid);
+    points->GetPoint(pointIds[4], p);
+  }
+  centroid[0] += 3 * p[0];
+  centroid[1] += 3 * p[1];
+  centroid[2] += 3 * p[2];
+  centroid[0] *= 0.25;
+  centroid[1] *= 0.25;
+  centroid[2] *= 0.25;
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkPyramid::IsInsideOut()
+{
+  double n[3], a[3], b[3];
+  vtkPolygon::ComputeNormal(this->Points, numberOfPointsInFace[4], faces[4], n);
+  this->Points->GetPoint(0, a);
+  this->Points->GetPoint(4, b);
+  b[0] -= a[0];
+  b[1] -= a[1];
+  b[2] -= a[2];
+  return vtkMath::Dot(n, b) > 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -496,8 +605,44 @@ int* vtkPyramid::GetTriangleCases(int caseId)
 }
 
 //----------------------------------------------------------------------------
+const vtkIdType* vtkPyramid::GetEdgeToAdjacentFacesArray(vtkIdType edgeId)
+{
+  assert(edgeId < vtkPyramid::NumberOfEdges && "edgeId too large");
+  return edgeToAdjacentFaces[edgeId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkPyramid::GetFaceToAdjacentFacesArray(vtkIdType faceId)
+{
+  assert(faceId < vtkPyramid::NumberOfFaces && "faceId too large");
+  return faceToAdjacentFaces[faceId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkPyramid::GetPointToIncidentEdgesArray(vtkIdType pointId)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  return pointToIncidentEdges[pointId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkPyramid::GetPointToIncidentFacesArray(vtkIdType pointId)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  return pointToIncidentFaces[pointId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkPyramid::GetPointToOneRingPointsArray(vtkIdType pointId)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  return pointToOneRingPoints[pointId];
+}
+
+//----------------------------------------------------------------------------
 const vtkIdType* vtkPyramid::GetEdgeArray(vtkIdType edgeId)
 {
+  assert(edgeId < vtkPyramid::NumberOfEdges && "edgeId too large");
   return edges[edgeId];
 }
 
@@ -522,6 +667,7 @@ vtkCell* vtkPyramid::GetEdge(int edgeId)
 //----------------------------------------------------------------------------
 const vtkIdType* vtkPyramid::GetFaceArray(vtkIdType faceId)
 {
+  assert(faceId < vtkPyramid::NumberOfFaces && "faceId too large");
   return faces[faceId];
 }
 
@@ -734,7 +880,7 @@ void vtkPyramid::Derivatives(
   this->JacobianInverse(pcoords, jI, functionDerivs);
 
   // now compute derivates of values provided
-  for (k = 0; k < dim; k++) // loop over values per vertex
+  for (k = 0; k < dim; k++) // loop over values per point
   {
     sum[0] = sum[1] = sum[2] = 0.0;
     for (i = 0; i < 5; i++) // loop over interp. function derivatives
@@ -852,6 +998,45 @@ int vtkPyramid::JacobianInverse(const double pcoords[3], double** inverse, doubl
   return 1;
 }
 
+//----------------------------------------------------------------------------
+vtkIdType vtkPyramid::GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  pts = pointToOneRingPoints[pointId];
+  return valenceAtPoint[pointId];
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkPyramid::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  faceIds = pointToIncidentFaces[pointId];
+  return valenceAtPoint[pointId];
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkPyramid::GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds)
+{
+  assert(pointId < vtkPyramid::NumberOfPoints && "pointId too large");
+  edgeIds = pointToIncidentEdges[pointId];
+  return valenceAtPoint[pointId];
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkPyramid::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds)
+{
+  assert(faceId < vtkPyramid::NumberOfFaces && "faceId too large");
+  faceIds = faceToAdjacentFaces[faceId];
+  return numberOfPointsInFace[faceId];
+}
+
+//----------------------------------------------------------------------------
+void vtkPyramid::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
+{
+  assert(edgeId < vtkPyramid::NumberOfEdges && "edgeId too large");
+  pts = edgeToAdjacentFaces[edgeId];
+}
+
 #ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 void vtkPyramid::GetEdgePoints(int edgeId, int*& pts)
@@ -875,13 +1060,16 @@ void vtkPyramid::GetFacePoints(int faceId, int*& pts)
 //----------------------------------------------------------------------------
 void vtkPyramid::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
+  assert(edgeId < vtkPyramid::NumberOfEdges && "edgeId too large");
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+vtkIdType vtkPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
+  assert(faceId < vtkPyramid::NumberOfFaces && "faceId too large");
   pts = this->GetFaceArray(faceId);
+  return numberOfPointsInFace[faceId];
 }
 
 static double vtkPyramidCellPCoords[15] = {

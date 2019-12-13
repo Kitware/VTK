@@ -129,7 +129,7 @@ public:
    * Compute the centroid of a set of points. Returns false if the computation
    * is invalid (this occurs when numPts=0 or when ids is empty).
    */
-  static bool ComputeCentroid(vtkPoints* p, int numPts, vtkIdType* pts, double centroid[3]);
+  static bool ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3]);
   static bool ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* pts, double centroid[3]);
   //@}
 

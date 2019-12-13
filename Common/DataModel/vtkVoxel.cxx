@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+#include <cassert>
 #ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
 #include <vector>
 #endif
@@ -63,6 +64,44 @@ vtkVoxel::~vtkVoxel()
   {
     this->Pixel->Delete();
   }
+}
+
+//----------------------------------------------------------------------------
+bool vtkVoxel::GetCentroid(double centroid[3]) const
+{
+  return vtkVoxel::ComputeCentroid(this->Points, nullptr, centroid);
+}
+
+//----------------------------------------------------------------------------
+bool vtkVoxel::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3])
+{
+  double p[3];
+  if (pointIds)
+  {
+    points->GetPoint(pointIds[0], centroid);
+    points->GetPoint(pointIds[7], p);
+  }
+  else
+  {
+    points->GetPoint(0, centroid);
+    points->GetPoint(7, p);
+  }
+  centroid[0] += p[0];
+  centroid[1] += p[1];
+  centroid[2] += p[2];
+  centroid[0] *= 0.5;
+  centroid[1] *= 0.5;
+  centroid[2] *= 0.5;
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkVoxel::IsInsideOut()
+{
+  double pt1[3], pt2[3];
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(7, pt2);
+  return (pt2[0] - pt1[0]) * (pt2[1] - pt1[1]) * (pt2[2] - pt1[2]) < 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -285,12 +324,101 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkId
   }
 }
 
+namespace
+{
 //----------------------------------------------------------------------------
-static constexpr vtkIdType edges[12][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 }, { 4, 5 },
-  { 5, 7 }, { 6, 7 }, { 4, 6 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
+// Voxel topology
+//
+//  2_______3
+//  |\     /|
+//  |6\___/7|
+//  | |   | |
+//  | |___| |
+//  |4/   \5|
+//  |/_____\|
+//  0       1
+//
+
+static constexpr vtkIdType edges[vtkVoxel::NumberOfEdges][2] = {
+  { 0, 1 }, // 0
+  { 1, 3 }, // 1
+  { 2, 3 }, // 2
+  { 0, 2 }, // 3
+  { 4, 5 }, // 4
+  { 5, 7 }, // 5
+  { 6, 7 }, // 6
+  { 4, 6 }, // 7
+  { 0, 4 }, // 8
+  { 1, 5 }, // 9
+  { 2, 6 }, // 10
+  { 3, 7 }, // 11
+};
 // define in terms vtkPixel understands
-static constexpr vtkIdType faces[6][5] = { { 2, 0, 6, 4, -1 }, { 1, 3, 5, 7, -1 },
-  { 0, 1, 4, 5, -1 }, { 3, 2, 7, 6, -1 }, { 1, 0, 3, 2, -1 }, { 4, 5, 6, 7, -1 } };
+static constexpr vtkIdType faces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceSize + 1] = {
+  { 2, 0, 6, 4, -1 }, // 0
+  { 1, 3, 5, 7, -1 }, // 1
+  { 0, 1, 4, 5, -1 }, // 2
+  { 3, 2, 7, 6, -1 }, // 3
+  { 1, 0, 3, 2, -1 }, // 4
+  { 4, 5, 6, 7, -1 }, // 5
+};
+static constexpr vtkIdType edgeToAdjacentFaces[vtkVoxel::NumberOfEdges][2] = {
+  { 2, 4 }, // 0
+  { 1, 4 }, // 1
+  { 3, 4 }, // 2
+  { 0, 4 }, // 3
+  { 2, 5 }, // 4
+  { 1, 5 }, // 5
+  { 3, 5 }, // 6
+  { 0, 5 }, // 7
+  { 0, 2 }, // 8
+  { 1, 2 }, // 9
+  { 0, 3 }, // 10
+  { 1, 3 }, // 11
+};
+static constexpr vtkIdType
+  faceToAdjacentFaces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceSize] = {
+    { 5, 3, 4, 2 }, // 0
+    { 4, 3, 5, 2 }, // 1
+    { 4, 1, 5, 0 }, // 2
+    { 4, 0, 5, 1 }, // 3
+    { 2, 0, 3, 1 }, // 4
+    { 2, 1, 3, 0 }, // 5
+  };
+static constexpr vtkIdType
+  pointToIncidentEdges[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+    { 0, 8, 3 },  // 0
+    { 0, 1, 9 },  // 1
+    { 2, 3, 10 }, // 2
+    { 1, 2, 11 }, // 3
+    { 4, 7, 8 },  // 4
+    { 4, 9, 5 },  // 5
+    { 6, 10, 7 }, // 6
+    { 5, 11, 6 }, // 7
+  };
+static constexpr vtkIdType
+  pointToIncidentFaces[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+    { 2, 0, 4 }, // 0
+    { 4, 1, 2 }, // 1
+    { 4, 0, 3 }, // 2
+    { 4, 3, 1 }, // 3
+    { 5, 0, 2 }, // 4
+    { 2, 1, 5 }, // 5
+    { 3, 0, 5 }, // 6
+    { 1, 3, 5 }, // 7
+  };
+static constexpr vtkIdType
+  pointToOneRingPoints[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+    { 1, 4, 2 }, // 0
+    { 0, 3, 5 }, // 1
+    { 3, 0, 6 }, // 2
+    { 1, 2, 7 }, // 3
+    { 5, 6, 0 }, // 4
+    { 4, 1, 7 }, // 5
+    { 7, 2, 4 }, // 6
+    { 5, 3, 6 }, // 7
+  };
+}
 
 //----------------------------------------------------------------------------
 //
@@ -608,7 +736,7 @@ void vtkVoxel::Derivatives(
 
   // since the x-y-z axes are aligned with r-s-t axes, only need to scale
   // the derivative values by the data spacing.
-  for (k = 0; k < dim; k++) // loop over values per vertex
+  for (k = 0; k < dim; k++) // loop over values per point
   {
     for (j = 0; j < 3; j++) // loop over derivative directions
     {
@@ -619,6 +747,45 @@ void vtkVoxel::Derivatives(
       derivs[3 * k + j] = sum / spacing[j];
     }
   }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkVoxel::GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  pts = pointToOneRingPoints[pointId];
+  return vtkVoxel::MaximumValence;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkVoxel::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  faceIds = pointToIncidentFaces[pointId];
+  return vtkVoxel::MaximumValence;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkVoxel::GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  edgeIds = pointToIncidentEdges[pointId];
+  return vtkVoxel::MaximumValence;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkVoxel::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds)
+{
+  assert(faceId < vtkVoxel::NumberOfFaces && "faceId too large");
+  faceIds = faceToAdjacentFaces[faceId];
+  return vtkVoxel::MaximumFaceSize;
+}
+
+//----------------------------------------------------------------------------
+void vtkVoxel::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
+{
+  assert(edgeId < vtkVoxel::NumberOfEdges && "edgeId too large");
+  pts = edgeToAdjacentFaces[edgeId];
 }
 
 #ifndef VTK_LEGACY_REMOVE
@@ -642,15 +809,53 @@ void vtkVoxel::GetFacePoints(int faceId, int*& pts)
 #endif
 
 //----------------------------------------------------------------------------
+const vtkIdType* vtkVoxel::GetEdgeToAdjacentFacesArray(vtkIdType edgeId)
+{
+  assert(edgeId < vtkVoxel::NumberOfEdges && "edgeId too large");
+  return edgeToAdjacentFaces[edgeId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkVoxel::GetFaceToAdjacentFacesArray(vtkIdType faceId)
+{
+  assert(faceId < vtkVoxel::NumberOfFaces && "faceId too large");
+  return faceToAdjacentFaces[faceId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkVoxel::GetPointToIncidentEdgesArray(vtkIdType pointId)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  return pointToIncidentEdges[pointId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkVoxel::GetPointToIncidentFacesArray(vtkIdType pointId)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  return pointToIncidentFaces[pointId];
+}
+
+//----------------------------------------------------------------------------
+const vtkIdType* vtkVoxel::GetPointToOneRingPointsArray(vtkIdType pointId)
+{
+  assert(pointId < vtkVoxel::NumberOfPoints && "pointId too large");
+  return pointToOneRingPoints[pointId];
+}
+
+//----------------------------------------------------------------------------
 void vtkVoxel::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
+  assert(edgeId < vtkVoxel::NumberOfEdges && "edgeId too large");
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+vtkIdType vtkVoxel::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
+  assert(faceId < vtkVoxel::NumberOfFaces && "faceId too large");
   pts = this->GetFaceArray(faceId);
+  return vtkVoxel::MaximumFaceSize;
 }
 
 static double vtkVoxelCellPCoords[24] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,

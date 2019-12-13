@@ -54,10 +54,45 @@ public:
   void GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
   // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
   VTK_LEGACY(virtual void GetEdgePoints(int edgeId, int*& pts) override);
-  void GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
   VTK_LEGACY(virtual void GetFacePoints(int faceId, int*& pts) override);
+  void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts) override;
+  vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
+  bool GetCentroid(double centroid[3]) const override;
+  bool IsInsideOut() override;
   //@}
+
+  /**
+   * static constexpr handle on the number of points.
+   */
+  static constexpr vtkIdType NumberOfPoints = 6;
+
+  /**
+   * static contexpr handle on the number of faces.
+   */
+  static constexpr vtkIdType NumberOfEdges = 9;
+
+  /**
+   * static contexpr handle on the number of edges.
+   */
+  static constexpr vtkIdType NumberOfFaces = 5;
+
+  /**
+   * static contexpr handle on the maximum face size. It can also be used
+   * to know the number of faces adjacent to one face.
+   */
+  static constexpr vtkIdType MaximumFaceSize = 4;
+
+  /**
+   * static constexpr handle on the maximum valence of this cell.
+   * The valence of a vertex is the number of incident edges (or equivalently faces)
+   * to this vertex. It is also equal to the size of a one ring neighborhood of a vertex.
+   */
+  static constexpr vtkIdType MaximumValence = 3;
 
   //@{
   /**
@@ -65,8 +100,8 @@ public:
    */
   int GetCellType() override { return VTK_WEDGE; }
   int GetCellDimension() override { return 3; }
-  int GetNumberOfEdges() override { return 9; }
-  int GetNumberOfFaces() override { return 5; }
+  int GetNumberOfEdges() override { return static_cast<int>(NumberOfEdges); }
+  int GetNumberOfFaces() override { return static_cast<int>(NumberOfFaces); }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
@@ -132,8 +167,38 @@ public:
    * can be used as inputs in algorithms such as vtkPolygon::ComputeNormal.
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId) VTK_SIZEHINT(2);
-  static const vtkIdType* GetFaceArray(vtkIdType faceId) VTK_SIZEHINT(4);
+  static const vtkIdType* GetFaceArray(vtkIdType faceId) VTK_SIZEHINT(MaximumFaceSize + 1);
   //@}
+
+  /**
+   * Static method version of GetEdgeToAdjacentFaces.
+   */
+  static const vtkIdType* GetEdgeToAdjacentFacesArray(vtkIdType edgeId) VTK_SIZEHINT(2);
+
+  /**
+   * Static method version of GetFaceToAdjacentFaces.
+   */
+  static const vtkIdType* GetFaceToAdjacentFacesArray(vtkIdType faceId) VTK_SIZEHINT(4);
+
+  /**
+   * Static method version of GetPointToIncidentEdgesArray.
+   */
+  static const vtkIdType* GetPointToIncidentEdgesArray(vtkIdType pointId) VTK_SIZEHINT(3);
+
+  /**
+   * Static method version of GetPointToIncidentFacesArray.
+   */
+  static const vtkIdType* GetPointToIncidentFacesArray(vtkIdType pointId) VTK_SIZEHINT(3);
+
+  /**
+   * Static method version of GetPointToOneRingPoints.
+   */
+  static const vtkIdType* GetPointToOneRingPointsArray(vtkIdType pointId) VTK_SIZEHINT(3);
+
+  /**
+   * Static method version of GetCentroid.
+   */
+  static bool ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3]);
 
 protected:
   vtkWedge();

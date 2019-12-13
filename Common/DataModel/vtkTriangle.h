@@ -222,6 +222,12 @@ public:
     const double x1[3], const double x2[3], const double x3[3], vtkQuadric* quadric);
   //@}
 
+  /**
+   * Get the centroid of the triangle.
+   * pointIds can be nullptr if ids are {0, 1, 2}
+   */
+  static bool ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3]);
+
 protected:
   vtkTriangle();
   ~vtkTriangle() override;
