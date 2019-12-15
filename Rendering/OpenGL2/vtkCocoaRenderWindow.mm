@@ -269,8 +269,8 @@ void vtkCocoaRenderWindow::DestroyWindow()
   if (this->OwnContext && this->GetContextId())
   {
     this->MakeCurrent();
-    this->ReleaseGraphicsResources(this);
   }
+  this->ReleaseGraphicsResources(this);
   this->SetContextId(nullptr);
   this->SetPixelFormat(nullptr);
 
