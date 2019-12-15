@@ -749,6 +749,12 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
       glXMakeCurrent(this->DisplayId, None, nullptr);
     }
   }
+  else
+  {
+    // Assume the context is made current externally and release resources
+    this->ReleaseGraphicsResources(this);
+  }
+
   this->Internal->ContextId = nullptr;
 
   if (this->DisplayId && this->WindowId)
