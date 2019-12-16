@@ -19,10 +19,10 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -272,7 +272,7 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkSelection* outputSel = vtkSelection::GetData(outputVector);
-  vtkSmartPointer<vtkSelectionNode> output = vtkSmartPointer<vtkSelectionNode>::New();
+  vtkNew<vtkSelectionNode> output;
   outputSel->AddNode(output);
   vtkInformation* oProperties = output->GetProperties();
 
@@ -297,15 +297,15 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
   // First look for string ids.
   if (((this->ContentType == vtkSelectionNode::GLOBALIDS) ||
         (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
-        (this->ContentType == vtkSelectionNode::INDICES)) &&
+        (this->ContentType == vtkSelectionNode::INDICES) ||
+        (this->ContentType == vtkSelectionNode::VALUES)) &&
     !this->Internal->StringIDs.empty())
   {
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
 
-    vtkStringArray* selectionList = vtkStringArray::New();
+    vtkNew<vtkStringArray> selectionList;
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
 
     // Number of selected items common to all pieces
     vtkIdType numCommonElems = 0;
@@ -352,15 +352,15 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
   // If no string ids, use integer ids.
   if (((this->ContentType == vtkSelectionNode::GLOBALIDS) ||
         (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
-        (this->ContentType == vtkSelectionNode::INDICES)) &&
+        (this->ContentType == vtkSelectionNode::INDICES) ||
+        (this->ContentType == vtkSelectionNode::VALUES)) &&
     this->Internal->StringIDs.empty())
   {
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
 
-    vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
+    vtkNew<vtkIdTypeArray> selectionList;
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
 
     // Number of selected items common to all pieces
     vtkIdType numCommonElems = 0;
@@ -407,7 +407,7 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> selectionList;
     selectionList->SetNumberOfComponents(3);
     selectionList->SetNumberOfValues(static_cast<vtkIdType>(this->Internal->Locations.size()));
 
@@ -418,7 +418,6 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
   }
 
   if (this->ContentType == vtkSelectionNode::THRESHOLDS)
@@ -427,7 +426,7 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
     oProperties->Set(vtkSelectionNode::COMPONENT_NUMBER(), this->ArrayComponent);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> selectionList;
     selectionList->SetNumberOfComponents(2);
     selectionList->SetNumberOfValues(static_cast<vtkIdType>(this->Internal->Thresholds.size()));
 
@@ -440,7 +439,6 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
   }
 
   if (this->ContentType == vtkSelectionNode::FRUSTUM)
@@ -448,7 +446,7 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> selectionList;
     selectionList->SetNumberOfComponents(4);
     selectionList->SetNumberOfTuples(8);
     for (vtkIdType cc = 0; cc < 32; cc++)
@@ -457,14 +455,13 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
   }
 
   if (this->ContentType == vtkSelectionNode::BLOCKS)
   {
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
-    vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::New();
+    vtkNew<vtkUnsignedIntArray> selectionList;
     selectionList->SetNumberOfComponents(1);
     selectionList->SetNumberOfTuples(static_cast<vtkIdType>(this->Internal->Blocks.size()));
     vtkSelectionSourceInternals::IDSetType::iterator iter;
@@ -474,7 +471,6 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
       selectionList->SetValue(cc, *iter);
     }
     output->SetSelectionList(selectionList);
-    selectionList->Delete();
   }
 
   if (this->ContentType == vtkSelectionNode::QUERY)
