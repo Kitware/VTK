@@ -472,11 +472,12 @@ protected:
 
   double GetGamma(vtkIdType idx, vtkDataArray* gamma);
 
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+
   // plot3d FileNames
   char* XYZFileName;
   char* QFileName;
   char* FunctionFileName;
-
   vtkTypeBool BinaryFile;
   vtkTypeBool HasByteCount;
   vtkTypeBool TwoDimensionalGeometry;
@@ -506,8 +507,6 @@ protected:
 
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
-
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 
