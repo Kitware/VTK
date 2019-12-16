@@ -20,7 +20,9 @@
 int TestTemporalDelimitedTextReader(int argc, char* argv[])
 {
   const char* testFNames = "Data/vehicle_data.csv";
-  std::string filename = vtkTestUtilities::ExpandDataFileName(argc, argv, testFNames);
+  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, testFNames);
+  std::string filename = fname;
+  delete[] fname;
 
   { // TEST 1: No TimeStepColumn given, output the whole CSV
     vtkNew<vtkTemporalDelimitedTextReader> reader;

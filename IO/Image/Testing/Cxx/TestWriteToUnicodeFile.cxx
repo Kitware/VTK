@@ -40,8 +40,10 @@ int TestWriteToUnicodeFile(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  std::string tempDir =
+  const char* tdir =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  std::string tempDir = tdir;
+  delete[] tdir;
   if (tempDir.empty())
   {
     std::cout << "Could not determine temporary directory.\n";
