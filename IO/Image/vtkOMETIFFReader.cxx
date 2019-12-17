@@ -16,6 +16,7 @@
 #include "vtkTIFFReaderInternal.h"
 
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -57,6 +58,7 @@ public:
   std::map<vtkVector3i, int> IFDMap;
   std::vector<vtkSmartPointer<vtkImageData> > Cache;
   vtkSmartPointer<vtkStringArray> PhysicalSizeUnitArray;
+  std::vector<vtkSmartPointer<vtkDoubleArray> > RangeArrays;
   vtkTimeStamp CacheMTime;
 
   void UpdateCache(vtkImageData* output);
@@ -73,6 +75,11 @@ public:
       output->ShallowCopy(this->Cache[t]);
     }
     output->GetFieldData()->AddArray(this->PhysicalSizeUnitArray);
+
+    for (auto& array : this->RangeArrays)
+    {
+      output->GetFieldData()->AddArray(array);
+    }
   }
 };
 
@@ -94,6 +101,9 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
 
   vtkIdType inIncrements[3];
   source->GetIncrements(inIncrements);
+
+  std::vector<vtkVector2d> channel_ranges;
+  channel_ranges.resize(this->SizeC, vtkVector2d(VTK_DOUBLE_MAX, VTK_DOUBLE_MIN));
 
   for (int t = 0; t < this->SizeT; ++t)
   {
@@ -140,6 +150,17 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
         std::copy(srcptr, srcptr + inIncrements[2] * img->GetScalarSize(), destptr);
       }
     }
+
+    for (int c = 0; c < this->SizeC; ++c)
+    {
+      vtkVector2d range;
+      scalar_arrays[c]->GetRange(range.GetData(), -1);
+      if (range[0] <= range[1])
+      {
+        channel_ranges[c][0] = std::min(channel_ranges[c][0], range[0]);
+        channel_ranges[c][1] = std::max(channel_ranges[c][1], range[1]);
+      }
+    }
   }
 
   this->PhysicalSizeUnitArray = vtkSmartPointer<vtkStringArray>::New();
@@ -148,6 +169,21 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
   this->PhysicalSizeUnitArray->SetValue(0, this->PhysicalSizeUnit[0]);
   this->PhysicalSizeUnitArray->SetValue(1, this->PhysicalSizeUnit[1]);
   this->PhysicalSizeUnitArray->SetValue(2, this->PhysicalSizeUnit[2]);
+
+  // update temporal channel ranges.
+  this->RangeArrays.clear();
+  this->RangeArrays.resize(this->SizeC, nullptr);
+  for (int c = 0; c < this->SizeC; ++c)
+  {
+    this->RangeArrays[c] = vtkSmartPointer<vtkDoubleArray>::New();
+    std::ostringstream str;
+    str << "Channel_" << (c + 1) << "_Range";
+    this->RangeArrays[c]->SetName(str.str().c_str());
+    this->RangeArrays[c]->SetNumberOfComponents(2);
+    this->RangeArrays[c]->SetNumberOfTuples(1);
+    this->RangeArrays[c]->SetTypedTuple(0, channel_ranges[c].GetData());
+  }
+
   this->CacheMTime.Modified();
 }
 
