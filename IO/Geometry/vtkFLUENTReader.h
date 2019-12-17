@@ -154,10 +154,6 @@ protected:
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
   //@}
 
-  vtkDataArraySelection* CellDataArraySelection;
-  char* FileName;
-  int NumberOfCells;
-  int NumberOfCellArrays;
   virtual bool OpenCaseFile(const char* filename);
   virtual bool OpenDataFile(const char* filename);
   virtual int GetCaseChunk();
@@ -211,6 +207,11 @@ protected:
   //
   //  Variables
   //
+  vtkDataArraySelection* CellDataArraySelection;
+  char* FileName;
+  int NumberOfCells;
+  int NumberOfCellArrays;
+
   ifstream* FluentCaseFile;
   ifstream* FluentDataFile;
   stdString* CaseBuffer;

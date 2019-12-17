@@ -1344,20 +1344,22 @@ public:
 
 vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 {
-  this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
-
   this->XYZFileName = nullptr;
+  this->QFileName = nullptr;
   this->FunctionFileName = nullptr;
   this->BinaryFile = 1;
   this->HasByteCount = 0;
-  this->FileSize = 0;
+  this->TwoDimensionalGeometry = 0;
   this->MultiGrid = 0;
   this->ForceRead = 0;
   this->ByteOrder = FILE_BIG_ENDIAN;
   this->IBlanking = 0;
-  this->TwoDimensionalGeometry = 0;
   this->DoublePrecision = 0;
   this->AutoDetectFormat = 0;
+
+  this->ExecutedGhostLevels = 0;
+
+  this->FileSize = 0;
 
   this->R = 1.0;
   this->Gamma = 1.4;
@@ -1372,12 +1374,11 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->VectorFunctionNumber = -1;
   this->SetVectorFunctionNumber(202);
 
-  this->SetNumberOfInputPorts(0);
-
+  this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
-  this->ExecutedGhostLevels = 0;
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()

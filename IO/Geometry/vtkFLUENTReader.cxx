@@ -150,9 +150,16 @@ struct vtkFLUENTReader::intVectorVector
 //----------------------------------------------------------------------------
 vtkFLUENTReader::vtkFLUENTReader()
 {
-  this->SwapBytes = 0;
-  this->SetNumberOfInputPorts(0);
+  this->CellDataArraySelection = vtkDataArraySelection::New();
   this->FileName = nullptr;
+  this->NumberOfCells = 0;
+  this->NumberOfCellArrays = 0;
+
+  this->FluentCaseFile = nullptr;
+  this->FluentDataFile = nullptr;
+  this->CaseBuffer = new stdString;
+  this->DataBuffer = new stdString;
+
   this->Points = vtkPoints::New();
   this->Triangle = vtkTriangle::New();
   this->Tetra = vtkTetra::New();
@@ -162,25 +169,29 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->Wedge = vtkWedge::New();
   this->ConvexPointSet = vtkConvexPointSet::New();
 
-  this->CaseBuffer = new stdString;
-  this->DataBuffer = new stdString;
   this->Cells = new cellVector;
   this->Faces = new faceVector;
   this->VariableNames = new stdMap;
   this->CellZones = new intVector;
   this->ScalarDataChunks = new scalarDataVector;
   this->VectorDataChunks = new vectorDataVector;
+
   this->SubSectionZones = new intVectorVector;
   this->SubSectionIds = new intVector;
   this->SubSectionSize = new intVector;
+
   this->ScalarVariableNames = new stringVector;
   this->ScalarSubSectionIds = new intVector;
   this->VectorVariableNames = new stringVector;
   this->VectorSubSectionIds = new intVector;
 
-  this->NumberOfCells = 0;
+  this->SwapBytes = 0;
+  this->GridDimension = 0;
+  this->DataPass = 0;
+  this->NumberOfScalars = 0;
+  this->NumberOfVectors = 0;
 
-  this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->SetNumberOfInputPorts(0);
   this->SetDataByteOrderToLittleEndian();
 }
 
