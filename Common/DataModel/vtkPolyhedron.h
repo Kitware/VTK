@@ -71,11 +71,11 @@ public:
    * See vtkCell3D API for description of these methods.
    * @warning These method are unimplemented in vtkPolyhedron
    */
-  void GetEdgePoints(int vtkNotUsed(edgeId), int*& vtkNotUsed(pts)) override
+  void GetEdgePoints(int vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkPolyhedron::GetEdgePoints Not Implemented");
   }
-  void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override
+  void GetFacePoints(int vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkPolyhedron::GetFacePoints Not Implemented");
   }

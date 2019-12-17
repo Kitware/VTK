@@ -540,7 +540,7 @@ public:
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
    */
-  virtual int* GetFaceArray(int faceId) = 0;
+  virtual const vtkIdType* GetFaceArray(int faceId) = 0;
 
   /**
    * Return the number of vertices defining face `faceId'.
@@ -558,7 +558,7 @@ public:
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)==2
    */
-  virtual int* GetEdgeArray(int edgeId) = 0;
+  virtual const vtkIdType* GetEdgeArray(int edgeId) = 0;
 
 protected:
   vtkGenericAdaptorCell();

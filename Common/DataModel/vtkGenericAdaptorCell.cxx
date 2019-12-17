@@ -952,7 +952,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection* attri
     int attribute_idx;
 
     this->InternalIds->Reset();
-    int* faceVerts = this->GetFaceArray(index);
+    const vtkIdType* faceVerts = this->GetFaceArray(index);
     int numVerts = this->GetNumberOfVerticesOnFace(index);
     double* locals = this->GetParametricCoords();
     double* local;

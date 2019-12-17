@@ -54,7 +54,8 @@ void vtkCell3D::Contour(double value, vtkDataArray* cellScalars,
 {
   int numPts = this->GetNumberOfPoints();
   int numEdges = this->GetNumberOfEdges();
-  int *tets, v1, v2;
+  const vtkIdType* tets;
+  int v1, v2;
   int i, j;
   int type;
   vtkIdType id, ptId;
@@ -219,7 +220,8 @@ void vtkCell3D::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoin
   vtkCell3D* cell3D = static_cast<vtkCell3D*>(this); // has to be in this method
   int numPts = this->GetNumberOfPoints();
   int numEdges = this->GetNumberOfEdges();
-  int *verts, v1, v2;
+  const vtkIdType* verts;
+  int v1, v2;
   int i, j;
   int type;
   vtkIdType id, ptId;

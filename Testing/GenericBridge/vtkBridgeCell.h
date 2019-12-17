@@ -447,7 +447,7 @@ public:
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
    */
-  int* GetFaceArray(int faceId) override;
+  const vtkIdType* GetFaceArray(int faceId) override;
 
   /**
    * Return the number of vertices defining face `faceId'
@@ -464,7 +464,7 @@ public:
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)==2
    */
-  int* GetEdgeArray(int edgeId) override;
+  const vtkIdType* GetEdgeArray(int edgeId) override;
 
   /**
    * Used internally for the Bridge.

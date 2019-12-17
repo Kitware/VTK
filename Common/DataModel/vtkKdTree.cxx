@@ -1467,7 +1467,7 @@ float vtkKdTree::FindMaxLeftHalf(int dim, float* c1, int K)
 }
 
 //----------------------------------------------------------------------------
-// Note: The indices (L, R, X) into the point array should be vtkIdTypes rather
+// Note: The indices (L, R, X) into the point array should be vtkIdType rather
 // than ints, but this change causes the k-d tree build time to double.
 // _Select is the heart of this build, called for every sub-interval that
 // is to be reordered.  We will leave these as ints now.

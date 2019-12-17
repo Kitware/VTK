@@ -2059,8 +2059,8 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
       }
       // Get the edges Ids (local)
       //      int edgeIds[6];
-      int* originalEdge;
-      int edge[2];
+      const vtkIdType* originalEdge;
+      vtkIdType edge[2];
       j = 0;
       while (j < 6)
       {
@@ -2083,8 +2083,8 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
 
       // Get the face Ids (local)
       //      int faceIds[4];
-      int* originalFace;
-      int face[3];
+      const vtkIdType* originalFace;
+      vtkIdType face[3];
       j = 0;
       while (j < 4)
       {
@@ -2120,8 +2120,8 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
 
     //
     // Get the edges Ids (local)
-    int* originalEdge;
-    int edge[2];
+    const vtkIdType* originalEdge;
+    vtkIdType edge[2];
     j = 0;
     while (j < 6)
     {
@@ -2144,8 +2144,8 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
     }
 
     // Get the face Ids (local)
-    int* originalFace;
-    int face[3];
+    const vtkIdType* originalFace;
+    vtkIdType face[3];
     int numFaces = cell->GetNumberOfBoundaries(2);
     j = 0;
     while (j < 4)
@@ -2259,7 +2259,7 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
     // build a linear polygon, call tessellate() on it and iterate over each triangle
     // by sending it to the tessellator
 
-    int* faceVerts = cell->GetFaceArray(index);
+    const vtkIdType* faceVerts = cell->GetFaceArray(index);
     int numVerts = cell->GetNumberOfVerticesOnFace(index);
     this->Polygon->PointIds->SetNumberOfIds(numVerts);
     this->Polygon->Points->SetNumberOfPoints(numVerts);
@@ -2298,9 +2298,9 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
 
       //
       // Get the edges Ids (local)
-      int edgeIds[3];
-      int* originalEdge;
-      int edge[2];
+      vtkIdType edgeIds[3];
+      const vtkIdType* originalEdge;
+      vtkIdType edge[2];
       j = 0;
       int numEdges = cell->GetNumberOfBoundaries(1);
 
@@ -2334,7 +2334,7 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
     this->AllocatePointIds(4); // tetra
     cell->GetPointIds(this->PointIds);
 
-    int* facepts = cell->GetFaceArray(index);
+    const vtkIdType* facepts = cell->GetFaceArray(index);
     // we know we are using a tetra.
     pts[0] = facepts[0];
     pts[1] = facepts[1];
@@ -2351,9 +2351,9 @@ void vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell* cell,
 
     //
     // Get the edges Ids (local)
-    int edgeIds[3];
-    int* originalEdge;
-    int edge[2];
+    vtkIdType edgeIds[3];
+    const vtkIdType* originalEdge;
+    vtkIdType edge[2];
     j = 0;
     while (j < 3)
     {
@@ -2439,9 +2439,9 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
 
       //
       // Get the edges Ids (local)
-      int edgeIds[3];
-      int* originalEdge;
-      int edge[2];
+      vtkIdType edgeIds[3];
+      const vtkIdType* originalEdge;
+      vtkIdType edge[2];
       j = 0;
       int numEdges = cell->GetNumberOfBoundaries(1);
 
@@ -2471,7 +2471,7 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
   else
   {
     vtkIdType pts[3] = { 0, 1, 2 };
-    int edgeIds[3] = { 0, 1, 2 };
+    const vtkIdType edgeIds[3] = { 0, 1, 2 };
     this->AllocatePointIds(cell->GetNumberOfBoundaries(0));
     cell->GetPointIds(this->PointIds);
     this->TriangulateTriangle(
@@ -2481,8 +2481,8 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
 
 //-----------------------------------------------------------------------------
 void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell* cell, vtkIdType* localIds,
-  vtkIdType* ids, int* edgeIds, vtkGenericAttributeCollection* att, vtkDoubleArray* points,
-  vtkCellArray* cellArray, vtkPointData* internalPd)
+  vtkIdType* ids, const vtkIdType* edgeIds, vtkGenericAttributeCollection* att,
+  vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd)
 {
   assert("pre: cell_exixts" && cell != nullptr);
   assert("pre: localIds_exists" && localIds != nullptr);
@@ -2752,7 +2752,7 @@ void vtkSimpleCellTessellator::AllocatePointIds(int size)
 // Are the faces `originalFace' and `face' equal?
 // The result is independent from any order or orientation.
 // \pre originalFace_exists: originalFace!=0
-int vtkSimpleCellTessellator::FacesAreEqual(int* originalFace, int face[3])
+int vtkSimpleCellTessellator::FacesAreEqual(const vtkIdType* originalFace, const vtkIdType face[3])
 {
   assert("pre: originalFace_exists" && originalFace != nullptr);
 

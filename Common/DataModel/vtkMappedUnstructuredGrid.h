@@ -60,7 +60,7 @@
  * - vtkIdType InsertNextCell(int type, vtkIdList *ptIds)
  * - vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
  * - vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
- *                            vtkIdType nfaces, const vtkIdType faces[])
+ *                            vtkIdType nfaces, const int faces[])
  * - void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
  *
  * These methods should provide the same functionality as defined in

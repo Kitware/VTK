@@ -49,8 +49,8 @@ public:
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int*& pts) override;
-  void GetFacePoints(int faceId, int*& pts) override;
+  void GetEdgePoints(int edgeId, const vtkIdType*& pts) override;
+  void GetFacePoints(int faceId, const vtkIdType*& pts) override;
   //@}
 
   //@{
@@ -115,8 +115,8 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int* GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
-  static int* GetFaceArray(int faceId) VTK_SIZEHINT(4);
+  static const vtkIdType* GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
+  static const vtkIdType* GetFaceArray(int faceId) VTK_SIZEHINT(4);
   //@}
 
   /**

@@ -78,7 +78,7 @@ vtkCell* vtkLagrangeTriangle::GetEdge(int edgeId)
     // point, and then the remaining points in sequence. This loop iterates over
     // the edge in sequence starting with the first point. The following value
     // maps from this iteration loop to the edge's ordering.
-    vtkIdType edgeIndex = (i == 0 ? 0 : (i == order ? 1 : i + 1));
+    int edgeIndex = (i == 0 ? 0 : (i == order ? 1 : i + 1));
 
     this->Edge->GetPointIds()->InsertId(edgeIndex, this->PointIds->GetId(triangleIndex));
     this->Edge->GetPoints()->InsertPoint(edgeIndex, this->Points->GetPoint(triangleIndex));

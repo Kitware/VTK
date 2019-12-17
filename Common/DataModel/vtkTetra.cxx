@@ -218,7 +218,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkId
 //
 namespace
 { // required so we don't violate ODR
-static int edges[6][2] = {
+static constexpr vtkIdType edges[6][2] = {
   { 0, 1 },
   { 1, 2 },
   { 2, 0 },
@@ -226,7 +226,7 @@ static int edges[6][2] = {
   { 1, 3 },
   { 2, 3 },
 };
-static int faces[4][4] = {
+static constexpr vtkIdType faces[4][4] = {
   { 0, 1, 3, -1 },
   { 1, 2, 3, -1 },
   { 2, 0, 3, -1 },
@@ -267,7 +267,8 @@ void vtkTetra::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   TRIANGLE_CASES* triCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert, v1, v2, newCellId;
+  int i, j, index, v1, v2, newCellId;
+  const vtkIdType* vert;
   vtkIdType pts[3];
   double t, x1[3], x2[3], x[3], deltaScalar;
   vtkIdType offset = verts->GetNumberOfCells() + lines->GetNumberOfCells();
@@ -338,7 +339,7 @@ void vtkTetra::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 }
 
 //----------------------------------------------------------------------------
-int* vtkTetra::GetEdgeArray(int edgeId)
+const vtkIdType* vtkTetra::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
@@ -355,7 +356,7 @@ int* vtkTetra::GetTriangleCases(int caseId)
 //----------------------------------------------------------------------------
 vtkCell* vtkTetra::GetEdge(int edgeId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -371,7 +372,7 @@ vtkCell* vtkTetra::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkTetra::GetFaceArray(int faceId)
+const vtkIdType* vtkTetra::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
@@ -379,7 +380,7 @@ int* vtkTetra::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell* vtkTetra::GetFace(int faceId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = faces[faceId];
 
@@ -815,13 +816,13 @@ int vtkTetra::JacobianInverse(double** inverse, double derivs[12])
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::GetEdgePoints(int edgeId, int*& pts)
+void vtkTetra::GetEdgePoints(int edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::GetFacePoints(int faceId, int*& pts)
+void vtkTetra::GetFacePoints(int faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }
@@ -871,7 +872,8 @@ void vtkTetra::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoint
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   TETRA_CASES* tetraCase;
   TETRA_EDGE_LIST* edge;
-  int i, j, index, *vert, newCellId;
+  int i, j, index, newCellId;
+  const vtkIdType* vert;
   vtkIdType pts[6];
   int vertexId;
   double t, x1[3], x2[3], x[3];

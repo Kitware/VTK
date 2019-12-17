@@ -86,12 +86,13 @@ struct BaseCell
   // vertices (v0,v1) for each edge. Note that groups of three contiguous
   // edges form a triangle.
   virtual void BuildCases() = 0;
-  void BuildCases(int numCases, int** edges, int** cases, unsigned short* caseArray);
+  void BuildCases(int numCases, const vtkIdType** edges, int** cases, unsigned short* caseArray);
 };
 // Used to generate case mask
 unsigned char BaseCell::Mask[MAX_CELL_VERTS] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 // Build repackaged case table and place into cases array.
-void BaseCell::BuildCases(int numCases, int** edges, int** cases, unsigned short* caseArray)
+void BaseCell::BuildCases(
+  int numCases, const vtkIdType** edges, int** cases, unsigned short* caseArray)
 {
   int caseOffset = numCases;
   for (int caseNum = 0; caseNum < numCases; ++caseNum)
@@ -107,7 +108,7 @@ void BaseCell::BuildCases(int numCases, int** edges, int** cases, unsigned short
     caseArray[caseOffset++] = count;
 
     // Now populate the edges
-    int* edge;
+    const vtkIdType* edge;
     for (count = 0; triCases[count] != (-1); ++count)
     {
       edge = edges[triCases[count]];
@@ -141,7 +142,7 @@ unsigned short TetraCell::TetraCases[152] = { 0 };
 // efficiency (e.g., support the GetCase() method).
 void TetraCell::BuildCases()
 {
-  int** edges = new int*[this->NumEdges];
+  const vtkIdType** edges = new const vtkIdType*[this->NumEdges];
   int numCases = std::pow(2, this->NumVerts);
   int** cases = new int*[numCases];
   for (int i = 0; i < this->NumEdges; ++i)
@@ -181,7 +182,7 @@ unsigned short HexahedronCell::HexahedronCases[5432] = { 0 };
 // repackaged for efficiency (e.g., support the GetCase() method).
 void HexahedronCell::BuildCases()
 {
-  int** edges = new int*[this->NumEdges];
+  const vtkIdType** edges = new const vtkIdType*[this->NumEdges];
   int numCases = std::pow(2, this->NumVerts);
   int** cases = new int*[numCases];
   for (int i = 0; i < this->NumEdges; ++i)
@@ -221,7 +222,7 @@ unsigned short WedgeCell::WedgeCases[968] = { 0 };
 // repackaged for efficiency (e.g., support the GetCase() method).
 void WedgeCell::BuildCases()
 {
-  int** edges = new int*[this->NumEdges];
+  const vtkIdType** edges = new const vtkIdType*[this->NumEdges];
   int numCases = std::pow(2, this->NumVerts);
   int** cases = new int*[numCases];
   for (int i = 0; i < this->NumEdges; ++i)
@@ -261,7 +262,7 @@ unsigned short PyramidCell::PyramidCases[448] = { 0 };
 // repackaged for efficiency (e.g., support the GetCase() method).
 void PyramidCell::BuildCases()
 {
-  int** edges = new int*[this->NumEdges];
+  const vtkIdType** edges = new const vtkIdType*[this->NumEdges];
   int numCases = std::pow(2, this->NumVerts);
   int** cases = new int*[numCases];
   for (int i = 0; i < this->NumEdges; ++i)
@@ -305,9 +306,9 @@ void VoxelCell::BuildCases()
 {
   // Map the voxel points consistent with the hex edges and cases, Basically
   // the hex points (2,3,6,7) are ordered (3,2,7,6) on the voxel.
-  int** edges = new int*[this->NumEdges];
-  int voxEdges[12][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 }, { 4, 5 }, { 5, 7 }, { 6, 7 },
-    { 4, 6 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
+  const vtkIdType** edges = new const vtkIdType*[this->NumEdges];
+  constexpr vtkIdType voxEdges[12][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 }, { 4, 5 },
+    { 5, 7 }, { 6, 7 }, { 4, 6 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
 
   for (int i = 0; i < this->NumEdges; ++i)
   {

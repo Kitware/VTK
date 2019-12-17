@@ -401,7 +401,7 @@ public:
     vtkIdType points[NumPoints];
     for (int face = FirstFace; face < LastFace; ++face)
     {
-      int* faceIndices = CellType::GetFaceArray(face);
+      const vtkIdType* faceIndices = CellType::GetFaceArray(face);
       for (int pt = 0; pt < NumPoints; ++pt)
       {
         points[pt] = pts[faceIndices[pt]];

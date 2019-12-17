@@ -282,11 +282,11 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkId
 }
 
 //----------------------------------------------------------------------------
-static int edges[12][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 }, { 4, 5 }, { 5, 7 }, { 6, 7 },
-  { 4, 6 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
+static constexpr vtkIdType edges[12][2] = { { 0, 1 }, { 1, 3 }, { 2, 3 }, { 0, 2 }, { 4, 5 },
+  { 5, 7 }, { 6, 7 }, { 4, 6 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
 // define in terms vtkPixel understands
-static int faces[6][5] = { { 2, 0, 6, 4, -1 }, { 1, 3, 5, 7, -1 }, { 0, 1, 4, 5, -1 },
-  { 3, 2, 7, 6, -1 }, { 1, 0, 3, 2, -1 }, { 4, 5, 6, 7, -1 } };
+static constexpr vtkIdType faces[6][5] = { { 2, 0, 6, 4, -1 }, { 1, 3, 5, 7, -1 },
+  { 0, 1, 4, 5, -1 }, { 3, 2, 7, 6, -1 }, { 1, 0, 3, 2, -1 }, { 4, 5, 6, 7, -1 } };
 
 //----------------------------------------------------------------------------
 //
@@ -301,7 +301,8 @@ void vtkVoxel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   vtkMarchingCubesTriangleCases* triCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   static const int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
   int newCellId;
   vtkIdType pts[3];
@@ -356,7 +357,7 @@ void vtkVoxel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 }
 
 //----------------------------------------------------------------------------
-int* vtkVoxel::GetEdgeArray(int edgeId)
+const vtkIdType* vtkVoxel::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
@@ -378,7 +379,7 @@ vtkCell* vtkVoxel::GetEdge(int edgeId)
     this->Line = vtkLine::New();
   }
 
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -394,7 +395,7 @@ vtkCell* vtkVoxel::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkVoxel::GetFaceArray(int faceId)
+const vtkIdType* vtkVoxel::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
@@ -407,7 +408,8 @@ vtkCell* vtkVoxel::GetFace(int faceId)
     this->Pixel = vtkPixel::New();
   }
 
-  int *verts, i;
+  const vtkIdType* verts;
+  int i;
 
   verts = faces[faceId];
 
@@ -616,13 +618,13 @@ void vtkVoxel::Derivatives(
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::GetEdgePoints(int edgeId, int*& pts)
+void vtkVoxel::GetEdgePoints(int edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::GetFacePoints(int faceId, int*& pts)
+void vtkVoxel::GetFacePoints(int faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

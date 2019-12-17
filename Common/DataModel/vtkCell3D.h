@@ -48,7 +48,7 @@ public:
    * the point ids of the mesh that the cell belongs to. The edgeId must
    * range between 0<=edgeId<this->GetNumberOfEdges().
    */
-  virtual void GetEdgePoints(int edgeId, int*& pts) = 0;
+  virtual void GetEdgePoints(int edgeId, const vtkIdType*& pts) = 0;
 
   /**
    * Get the list of vertices that define a face.  The list is terminated
@@ -57,7 +57,7 @@ public:
    * the cell belongs to. The faceId must range between
    * 0<=faceId<this->GetNumberOfFaces().
    */
-  virtual void GetFacePoints(int faceId, int*& pts) = 0;
+  virtual void GetFacePoints(int faceId, const vtkIdType*& pts) = 0;
 
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,

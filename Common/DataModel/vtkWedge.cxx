@@ -34,7 +34,7 @@ static const double VTK_DIVERGED = 1.e6;
 //----------------------------------------------------------------------------
 // Marching (convex) wedge
 //
-static int edges[9][2] = {
+static constexpr vtkIdType edges[9][2] = {
   { 0, 1 },
   { 1, 2 },
   { 2, 0 },
@@ -45,7 +45,7 @@ static int edges[9][2] = {
   { 1, 4 },
   { 2, 5 },
 };
-static int faces[5][5] = {
+static constexpr vtkIdType faces[5][5] = {
   { 0, 1, 2, -1 },
   { 3, 5, 4, -1 },
   { 0, 3, 4, 1, -1 },
@@ -407,7 +407,8 @@ void vtkWedge::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   static const int CASE_MASK[6] = { 1, 2, 4, 8, 16, 32 };
   TRIANGLE_CASES* triCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert, v1, v2, newCellId;
+  int i, j, index, v1, v2, newCellId;
+  const vtkIdType* vert;
   vtkIdType pts[3];
   double t, x1[3], x2[3], x[3], deltaScalar;
   vtkIdType offset = verts->GetNumberOfCells() + lines->GetNumberOfCells();
@@ -477,7 +478,7 @@ void vtkWedge::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 }
 
 //----------------------------------------------------------------------------
-int* vtkWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkWedge::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
@@ -494,7 +495,7 @@ int* vtkWedge::GetTriangleCases(int caseId)
 //----------------------------------------------------------------------------
 vtkCell* vtkWedge::GetEdge(int edgeId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -510,7 +511,7 @@ vtkCell* vtkWedge::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkWedge::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
@@ -518,7 +519,7 @@ int* vtkWedge::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell* vtkWedge::GetFace(int faceId)
 {
-  int* verts = faces[faceId];
+  const vtkIdType* verts = faces[faceId];
 
   if (verts[3] != -1) // quad cell
   {
@@ -825,13 +826,13 @@ int vtkWedge::JacobianInverse(const double pcoords[3], double** inverse, double 
 }
 
 //----------------------------------------------------------------------------
-void vtkWedge::GetEdgePoints(int edgeId, int*& pts)
+void vtkWedge::GetEdgePoints(int edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkWedge::GetFacePoints(int faceId, int*& pts)
+void vtkWedge::GetFacePoints(int faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }
