@@ -21,6 +21,9 @@
 #include "vtkDataSet.h"
 #include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkExporter.h"
+#include "vtkImageData.h"
+#include "vtkImageResize.h"
+#include "vtkJPEGWriter.h"
 #include "vtkJSONDataSetWriter.h"
 #include "vtkMapper.h"
 #include "vtkNew.h"
@@ -33,6 +36,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
+#include "vtkTexture.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -47,6 +51,10 @@ vtkStandardNewMacro(vtkJSONSceneExporter);
 vtkJSONSceneExporter::vtkJSONSceneExporter()
 {
   this->FileName = nullptr;
+  this->WriteTextures = false;
+  this->WriteTextureLODs = false;
+  this->TextureLODsBaseSize = 100000;
+  this->TextureLODsBaseUrl = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -69,9 +77,27 @@ void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
   // Handle Dataset
   if (dataObject->IsA("vtkDataSet"))
   {
+    // TODO: for composite data sets, the textures and texture LODs
+    // would be written out multiple times here. Perhaps we should
+    // re-think this? Or, if composite data sets normally don't have
+    // textures, this is probably fine...
+    std::string texturesString;
+    if (this->WriteTextures && actor->GetTexture())
+    {
+      // Write out the textures, add it to the textures string
+      texturesString += this->WriteTexture(actor->GetTexture());
+    }
+
+    if (this->WriteTextureLODs && actor->GetTexture())
+    {
+      // Write out the texture LODs, add it to the textures string
+      texturesString += this->WriteTextureLODSeries(actor->GetTexture());
+    }
+
     std::string renderingSetup = this->ExtractRenderingSetup(actor);
+    std::string addOnMeta = renderingSetup + texturesString + "\n";
     std::string dsMeta =
-      this->WriteDataSet(vtkDataSet::SafeDownCast(dataObject), renderingSetup.c_str());
+      this->WriteDataSet(vtkDataSet::SafeDownCast(dataObject), addOnMeta.c_str());
     if (!dsMeta.empty())
     {
       os << dsMeta;
@@ -146,9 +172,18 @@ std::string vtkJSONSceneExporter::ExtractRenderingSetup(vtkActor* actor)
                   << ", " << colorToUse[2] << "],\n"
                   << INDENT << "  \"pointSize\": " << pointSize << ",\n"
                   << INDENT << "  \"opacity\": " << opacity << "\n"
-                  << INDENT << "}\n";
+                  << INDENT << "}";
 
   return renderingConfig.str();
+}
+
+// ----------------------------------------------------------------------------
+
+std::string vtkJSONSceneExporter::CurrentDataSetPath() const
+{
+  std::stringstream path;
+  path << this->FileName << "/" << this->DatasetCount + 1;
+  return vtksys::SystemTools::ConvertToOutputPath(path.str());
 }
 
 // ----------------------------------------------------------------------------
@@ -160,12 +195,12 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
     return "";
   }
 
-  std::stringstream dsPath;
-  dsPath << this->FileName << "/" << (++this->DatasetCount);
+  std::string dsPath = this->CurrentDataSetPath();
+  ++this->DatasetCount;
 
   vtkNew<vtkJSONDataSetWriter> dsWriter;
   dsWriter->SetInputData(dataset);
-  dsWriter->SetFileName(dsPath.str().c_str());
+  dsWriter->SetFileName(dsPath.c_str());
   dsWriter->Write();
 
   if (!dsWriter->IsDataSetValid())
@@ -338,6 +373,142 @@ void vtkJSONSceneExporter::WriteData()
   file.open(scenePath.str().c_str(), ios::out);
   file << sceneJsonFile.str().c_str();
   file.close();
+}
+
+namespace
+{
+
+// ----------------------------------------------------------------------------
+
+size_t getFileSize(const std::string& path)
+{
+  // TODO: This function gives me slightly different sizes than what my
+  // filesystem gives me. Find out why.
+  // For instance, I get 240MB for a 230MB file.
+  // Maybe we can say "it's close enough" for now, though...
+  vtksys::SystemTools::Stat_t stat_buf;
+  int res = vtksys::SystemTools::Stat(path, &stat_buf);
+  if (res < 0)
+  {
+    std::cerr << "Failed to get size of file " << path.c_str() << std::endl;
+    return 0;
+  }
+
+  return stat_buf.st_size;
+}
+
+} // end anon namespace
+
+// ----------------------------------------------------------------------------
+
+std::string vtkJSONSceneExporter::WriteTexture(vtkTexture* texture)
+{
+  std::string path = this->CurrentDataSetPath();
+
+  // Make sure it exists
+  if (!vtksys::SystemTools::MakeDirectory(path))
+  {
+    vtkErrorMacro(<< "Cannot create directory " << path);
+    return "";
+  }
+
+  path += "/texture.jpg";
+  path = vtksys::SystemTools::ConvertToOutputPath(path);
+
+  vtkSmartPointer<vtkImageData> image = texture->GetInput();
+
+  vtkNew<vtkJPEGWriter> writer;
+  writer->SetFileName(path.c_str());
+  writer->SetInputDataObject(image);
+  writer->Write();
+
+  const char* INDENT = "      ";
+  std::stringstream config;
+  config << ",\n" << INDENT << "\"texture\": \"" << this->DatasetCount + 1 << "/texture.jpg\"";
+  return config.str();
+}
+
+// ----------------------------------------------------------------------------
+
+std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
+{
+  std::vector<std::string> files;
+
+  std::string name = "texture";
+  std::string ext = ".jpg";
+
+  vtkSmartPointer<vtkImageData> image = texture->GetInput();
+  int dims[3];
+  image->GetDimensions(dims);
+
+  // Write these into the parent directory of our file.
+  // This next line also converts the path to unix slashes.
+  std::string path = vtksys::SystemTools::GetParentDirectory(this->FileName);
+  path += "/";
+  path = vtksys::SystemTools::ConvertToOutputPath(path);
+
+  while (true)
+  {
+    // Name is "<name>_<dataset_number>-<width>x<height><ext>"
+    // For example, "texture_1-256x256.jpg"
+    std::stringstream full_name;
+    full_name << name << "_" << std::to_string(this->DatasetCount + 1) << "-"
+              << std::to_string(dims[0]) << "x" << std::to_string(dims[1]) << ext;
+    std::string full_path = path + full_name.str();
+
+    vtkNew<vtkJPEGWriter> writer;
+    writer->SetFileName(full_path.c_str());
+    writer->SetInputDataObject(image);
+    writer->Write();
+
+    files.push_back(full_name.str());
+
+    size_t size = getFileSize(full_path);
+    if (size <= this->TextureLODsBaseSize || (dims[0] == 1 && dims[1] == 1))
+    {
+      // We are done...
+      break;
+    }
+
+    // Shrink the image and go again
+    vtkNew<vtkImageResize> shrink;
+    shrink->SetInputData(image);
+    dims[0] = dims[0] > 1 ? dims[0] / 2 : 1;
+    dims[1] = dims[1] > 1 ? dims[1] / 2 : 1;
+    shrink->SetOutputDimensions(dims[0], dims[1], 1);
+    shrink->Update();
+    image = shrink->GetOutput();
+  }
+
+  const char* url = this->TextureLODsBaseUrl;
+  std::string baseUrl = url ? url : "";
+
+  // Now, write out the config
+  const char* INDENT = "      ";
+  std::stringstream config;
+  config << ",\n"
+         << INDENT << "\"textureLODs\": {\n"
+         << INDENT << "  \"baseUrl\": \"" << baseUrl << "\",\n"
+         << INDENT << "  \"files\": [\n";
+
+  // Reverse the order of the files so the smallest comes first
+  std::reverse(files.begin(), files.end());
+  for (size_t i = 0; i < files.size(); ++i)
+  {
+    config << INDENT << "    \"" << files[i] << "\"";
+    if (i != files.size() - 1)
+    {
+      config << ",\n";
+    }
+    else
+    {
+      config << "\n";
+    }
+  }
+
+  config << INDENT << "  ]\n" << INDENT << "}";
+
+  return config.str();
 }
 
 // ----------------------------------------------------------------------------
