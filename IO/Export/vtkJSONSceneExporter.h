@@ -119,6 +119,8 @@ protected:
   char* TextureLODsBaseUrl;
   int DatasetCount;
   std::map<std::string, std::string> LookupTables;
+  std::map<vtkTexture*, std::string> TextureStrings;
+  std::map<vtkTexture*, std::string> TextureLODStrings;
 
 private:
   vtkJSONSceneExporter(const vtkJSONSceneExporter&) = delete;
