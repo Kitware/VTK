@@ -28,3 +28,14 @@ function (vtk_deprecated_setting output_default new old intended_default)
 
   set("${output_default}" "${default}" PARENT_SCOPE)
 endfunction ()
+
+# Remove an old / obsolete setting
+#
+# Use this function when a user-visible flag is being removed entirely. If the
+# old value is set, it will be cause a warning message letting the user know
+# that the setting has no effect.
+function (vtk_obsolete_setting old)
+  if (DEFINED "${old}")
+    message(WARNING "The '${old}' variable is obsolete and no longer has any effect.")
+  endif ()
+endfunction ()
