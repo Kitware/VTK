@@ -21,6 +21,7 @@
 
 #include "vtkmConfig.h" //required for general vtkm setup
 
+#include <vtkm/List.h>
 #include <vtkm/cont/ArrayHandleCast.h>
 #include <vtkm/cont/ArrayHandlePermutation.h>
 #include <vtkm/cont/CellSetExplicit.h>
@@ -34,51 +35,36 @@ namespace tovtkm
 
 //------------------------------------------------------------------------------
 // All scalar types in vtkType.h
-struct VTKScalarTypes
-  : vtkm::ListTagBase<    //
-      char,               //
-      signed char,        //
-      unsigned char,      //
-      short,              //
-      unsigned short,     //
-      int,                //
-      unsigned int,       //
-      long,               //
-      unsigned long,      //
-      long long,          //
-      unsigned long long, //
-      float,              //
-      double              //
-      >
-{
-};
+using VTKScalarTypes = vtkm::List< //
+  char,                            //
+  signed char,                     //
+  unsigned char,                   //
+  short,                           //
+  unsigned short,                  //
+  int,                             //
+  unsigned int,                    //
+  long,                            //
+  unsigned long,                   //
+  long long,                       //
+  unsigned long long,              //
+  float,                           //
+  double                           //
+  >;
 
-struct SpecialGradientOutTypes
-  : vtkm::ListTagBase<vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>,
-      vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3> >
-{
-};
+using SpecialGradientOutTypes =
+  vtkm::List<vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>, vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3> >;
 
-struct FieldTypeInVTK : vtkm::ListTagJoin<vtkm::TypeListTagVecCommon, VTKScalarTypes>
-{
-};
+using FieldTypeInVTK = vtkm::ListAppend<vtkm::TypeListVecCommon, VTKScalarTypes>;
 
-struct FieldTypeOutVTK
-  : vtkm::ListTagJoin<vtkm::ListTagJoin<vtkm::TypeListTagVecCommon, SpecialGradientOutTypes>,
-      VTKScalarTypes>
-{
-};
+using FieldTypeOutVTK =
+  vtkm::ListAppend<vtkm::TypeListVecCommon, SpecialGradientOutTypes, VTKScalarTypes>;
 
 //------------------------------------------------------------------------------
-struct CellListStructuredInVTK
-  : vtkm::ListTagBase<vtkm::cont::CellSetStructured<3>, vtkm::cont::CellSetStructured<2> >
-{
-};
-struct CellListStructuredOutVTK
-  : vtkm::ListTagBase<vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<3> >,
-      vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<2> > >
-{
-};
+using CellListStructuredInVTK =
+  vtkm::List<vtkm::cont::CellSetStructured<3>, vtkm::cont::CellSetStructured<2> >;
+using CellListStructuredOutVTK =
+  vtkm::List<vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<3> >,
+    vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<2> > >;
 
 // vtkCellArray may use either 32 or 64 bit arrays to hold connectivity/offset
 // data, so we may be using ArrayHandleCast to convert to vtkm::Ids.
@@ -107,41 +93,33 @@ using CellSetSingleType64Bit = vtkm::cont::CellSetSingleType<Int64AsIdAOSStorage
 #endif // VTKM_USE_64BIT_IDS
 
 //------------------------------------------------------------------------------
-struct CellListUnstructuredInVTK
-  : vtkm::ListTagBase<        //
-      CellSetExplicit32Bit,   //
-      CellSetExplicit64Bit,   //
-      CellSetSingleType32Bit, //
-      CellSetSingleType64Bit  //
-      >
-{
-};
-struct CellListUnstructuredOutVTK
-  : vtkm::ListTagBase<                                                 //
-      vtkm::cont::CellSetExplicit<>,                                   //
-      vtkm::cont::CellSetSingleType<>,                                 //
-      CellSetExplicit32Bit,                                            //
-      CellSetExplicit64Bit,                                            //
-      CellSetSingleType32Bit,                                          //
-      CellSetSingleType64Bit,                                          //
-      vtkm::cont::CellSetPermutation<CellSetExplicit32Bit>,            //
-      vtkm::cont::CellSetPermutation<CellSetExplicit64Bit>,            //
-      vtkm::cont::CellSetPermutation<CellSetSingleType32Bit>,          //
-      vtkm::cont::CellSetPermutation<CellSetSingleType64Bit>,          //
-      vtkm::cont::CellSetPermutation<vtkm::cont::CellSetExplicit<> >,  //
-      vtkm::cont::CellSetPermutation<vtkm::cont::CellSetSingleType<> > //
-      >
-{
-};
+using CellListUnstructuredInVTK = vtkm::List< //
+  CellSetExplicit32Bit,                       //
+  CellSetExplicit64Bit,                       //
+  CellSetSingleType32Bit,                     //
+  CellSetSingleType64Bit                      //
+  >;
+
+using CellListUnstructuredOutVTK = vtkm::List<                     //
+  vtkm::cont::CellSetExplicit<>,                                   //
+  vtkm::cont::CellSetSingleType<>,                                 //
+  CellSetExplicit32Bit,                                            //
+  CellSetExplicit64Bit,                                            //
+  CellSetSingleType32Bit,                                          //
+  CellSetSingleType64Bit,                                          //
+  vtkm::cont::CellSetPermutation<CellSetExplicit32Bit>,            //
+  vtkm::cont::CellSetPermutation<CellSetExplicit64Bit>,            //
+  vtkm::cont::CellSetPermutation<CellSetSingleType32Bit>,          //
+  vtkm::cont::CellSetPermutation<CellSetSingleType64Bit>,          //
+  vtkm::cont::CellSetPermutation<vtkm::cont::CellSetExplicit<> >,  //
+  vtkm::cont::CellSetPermutation<vtkm::cont::CellSetSingleType<> > //
+  >;
 
 //------------------------------------------------------------------------------
-struct CellListAllInVTK : vtkm::ListTagJoin<CellListStructuredInVTK, CellListUnstructuredInVTK>
-{
-};
-struct CellListAllOutVTK : vtkm::ListTagJoin<CellListStructuredOutVTK, CellListUnstructuredOutVTK>
-{
-};
-}
+using CellListAllInVTK = vtkm::ListAppend<CellListStructuredInVTK, CellListUnstructuredInVTK>;
+using CellListAllOutVTK = vtkm::ListAppend<CellListStructuredOutVTK, CellListUnstructuredOutVTK>;
+
+} // end namespace tovtkm
 
 //------------------------------------------------------------------------------
 class vtkmInputFilterPolicy : public vtkm::filter::PolicyBase<vtkmInputFilterPolicy>

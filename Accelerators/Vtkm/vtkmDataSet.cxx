@@ -31,6 +31,7 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
+#include <vtkm/List.h>
 #include <vtkm/cont/CellLocatorGeneral.h>
 #include <vtkm/cont/DataSet.h>
 #include <vtkm/cont/Invoker.h>
@@ -44,7 +45,7 @@ namespace
 {
 
 using SupportedCellSets =
-  vtkm::ListTagJoin<vtkmInputFilterPolicy::AllCellSetList, vtkmOutputFilterPolicy::AllCellSetList>;
+  vtkm::ListAppend<vtkmInputFilterPolicy::AllCellSetList, vtkmOutputFilterPolicy::AllCellSetList>;
 
 template <typename LocatorControl>
 struct VtkmLocator

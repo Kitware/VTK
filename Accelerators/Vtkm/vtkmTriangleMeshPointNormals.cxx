@@ -35,7 +35,7 @@ namespace
 struct InputFilterPolicy : public vtkmInputFilterPolicy
 {
   using UnstructuredCellSetList =
-    vtkm::ListTagBase<tovtkm::CellSetSingleType32Bit, tovtkm::CellSetSingleType64Bit>;
+    vtkm::List<tovtkm::CellSetSingleType32Bit, tovtkm::CellSetSingleType64Bit>;
 };
 
 }

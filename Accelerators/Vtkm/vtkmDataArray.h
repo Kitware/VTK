@@ -27,7 +27,7 @@
 #include "vtkGenericDataArray.h"
 #include "vtkmConfig.h" // For template export
 
-#include <vtkm/ListTag.h>                 // For vtkm::ListTagBase
+#include <vtkm/List.h>                    // For vtkm::List
 #include <vtkm/VecFromPortal.h>           // For vtkm::VecFromPortal
 #include <vtkm/VecTraits.h>               // For vtkm::VecTraits
 #include <vtkm/cont/ArrayHandle.h>        // For vtkm::cont::ArrayHandle
@@ -56,7 +56,7 @@ public:
 
   using typename Superclass::ValueType;
 
-  using VtkmTypesList = vtkm::ListTagBase<T, vtkm::Vec<T, 2>, vtkm::Vec<T, 3>, vtkm::Vec<T, 4>,
+  using VtkmTypesList = vtkm::List<T, vtkm::Vec<T, 2>, vtkm::Vec<T, 3>, vtkm::Vec<T, 4>,
     vtkm::VecFromPortal<typename vtkm::cont::ArrayHandle<T>::PortalControl> >;
 
   static vtkmDataArray* New();
