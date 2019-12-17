@@ -517,7 +517,7 @@ public:
   void EnqueueOwnershipInformation(const diy::ReduceProxy& rp) { this->Enqueue(rp); }
   void DequeueOwnershipInformation(const diy::ReduceProxy& rp)
   {
-    decltype(this->OutMessage) inmessage;
+    std::map<int, std::vector<MessageItemTT> > inmessage;
     for (int i = 0; i < rp.in_link().size(); ++i)
     {
       const int in_gid = rp.in_link().target(i).gid;
