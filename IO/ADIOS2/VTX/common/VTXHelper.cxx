@@ -261,7 +261,7 @@ types::DataSet XMLInitDataSet(
 
 std::string FileToString(const std::string& fileName)
 {
-  vtksys::ifstream file(fileName);
+  vtksys::ifstream file(fileName.c_str());
   std::stringstream schemaSS;
   schemaSS << file.rdbuf();
   return schemaSS.str();
