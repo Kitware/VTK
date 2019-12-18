@@ -222,7 +222,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
   extractor->UpdatePiece(myrank, numranks, 0);
   if (!AllRanksSucceeded(
         ValidateGID(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-          num_timesteps, "gid=100 originalId=99", myrank)))
+          num_timesteps, "gid=100", myrank)))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;
@@ -233,7 +233,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
   extractor->UpdatePiece(myrank, numranks, 0);
   if (!AllRanksSucceeded(
         ValidateID(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-          num_timesteps, "id=0 originalId=99 block=2", myrank)))
+          num_timesteps, "originalId=99 block=2", myrank)))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;
