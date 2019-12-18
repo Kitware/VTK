@@ -10,7 +10,13 @@ project(VTKMY VERSION 1.0.0)
 # Find VTK, get all required components
 #
 
-find_package(VTK REQUIRED)
+find_package(VTK
+  COMPONENTS
+    CommonCore
+    CommonExecutionModel
+  OPTIONAL_COMPONENTS
+    RenderingOpenGL2
+    Python)
 
 #
 # Check if VTK is shared or static, and default to the same.
