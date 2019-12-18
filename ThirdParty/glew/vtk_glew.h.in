@@ -25,6 +25,7 @@
 #cmakedefine01 VTK_MODULE_vtkglew_GLES3
 
 #ifdef __APPLE__
+#define GLES_SILENCE_DEPRECATION
 #include "TargetConditionals.h"
 #endif
 
