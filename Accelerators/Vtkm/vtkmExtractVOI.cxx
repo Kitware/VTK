@@ -34,7 +34,7 @@ namespace
 
 struct InputFilterPolicy : public vtkmInputFilterPolicy
 {
-  using StructuredCellSetList = vtkm::ListTagBase<vtkm::cont::CellSetStructured<1>,
+  using StructuredCellSetList = vtkm::List<vtkm::cont::CellSetStructured<1>,
     vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3> >;
 };
 

@@ -37,17 +37,14 @@ vtkStandardNewMacro(vtkmGradient);
 
 namespace
 {
-struct GradientTypes
-  : vtkm::ListTagBase<                           //
-      vtkm::Float32,                             //
-      vtkm::Float64,                             //
-      vtkm::Vec<vtkm::Float32, 3>,               //
-      vtkm::Vec<vtkm::Float64, 3>,               //
-      vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>, //
-      vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3>  //
-      >
-{
-};
+using GradientTypes = vtkm::List<            //
+  vtkm::Float32,                             //
+  vtkm::Float64,                             //
+  vtkm::Vec<vtkm::Float32, 3>,               //
+  vtkm::Vec<vtkm::Float64, 3>,               //
+  vtkm::Vec<vtkm::Vec<vtkm::Float32, 3>, 3>, //
+  vtkm::Vec<vtkm::Vec<vtkm::Float64, 3>, 3>  //
+  >;
 
 //------------------------------------------------------------------------------
 class vtkmGradientFilterPolicy : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
