@@ -245,6 +245,9 @@ protected:
    * \pre ids_size: sizeof(ids)==3
    * \pre edgeIds_exists: edgeIds!=0
    * \pre edgeIds_size: sizeof(edgeIds)==3
+   *
+   * @note Parameter edgeIds's type changed to match new vtkCell API.
+   * This API change could not be smoothly done by deprecation.
    */
   void TriangulateTriangle(vtkGenericAdaptorCell* cell, vtkIdType* localIds, vtkIdType* ids,
     const vtkIdType* edgeIds, vtkGenericAttributeCollection* att, vtkDoubleArray* points,
@@ -347,6 +350,9 @@ protected:
    * Are the faces `originalFace' and `face' equal?
    * The result is independent from any order or orientation.
    * \pre originalFace_exists: originalFace!=0
+   *
+   * @note Parameter originalFace and face types changed to match new vtkCell API.
+   * This API change could not be smoothly done by deprecation.
    */
   int FacesAreEqual(const vtkIdType* originalFace, const vtkIdType face[3]);
 

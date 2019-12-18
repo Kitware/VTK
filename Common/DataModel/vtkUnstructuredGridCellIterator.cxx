@@ -149,9 +149,9 @@ void vtkUnstructuredGridCellIterator::FetchFaces()
   if (this->FaceLocs)
   {
     const vtkIdType cellId = this->Cells->GetCurrentCellId();
-    const int faceLoc = this->FaceLocs->GetValue(cellId);
+    const vtkIdType faceLoc = this->FaceLocs->GetValue(cellId);
     const vtkIdType* faceSet = this->FaceConn->GetPointer(faceLoc);
-    int facesSize = FaceSetSize(faceSet);
+    vtkIdType facesSize = FaceSetSize(faceSet);
     this->Faces->SetNumberOfIds(facesSize);
     vtkIdType* tmpPtr = this->Faces->GetPointer(0);
     std::copy_n(faceSet, facesSize, tmpPtr);

@@ -26,6 +26,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkPyramid);
 
 namespace
@@ -492,7 +496,7 @@ int* vtkPyramid::GetTriangleCases(int caseId)
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkPyramid::GetEdgeArray(int edgeId)
+const vtkIdType* vtkPyramid::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -516,7 +520,7 @@ vtkCell* vtkPyramid::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkPyramid::GetFaceArray(int faceId)
+const vtkIdType* vtkPyramid::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -848,14 +852,34 @@ int vtkPyramid::JacobianInverse(const double pcoords[3], double** inverse, doubl
   return 1;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
-void vtkPyramid::GetEdgePoints(int edgeId, const vtkIdType*& pts)
+void vtkPyramid::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkPyramid::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkPyramid::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkPyramid::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkPyramid::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkPyramid::GetFacePoints(int faceId, const vtkIdType*& pts)
+void vtkPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

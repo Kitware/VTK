@@ -715,7 +715,7 @@ void vtkBridgeCell::GetPointIds(vtkIdType* id)
 // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
 // \post result_exists: result!=0
 // \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
-const vtkIdType* vtkBridgeCell::GetFaceArray(int faceId)
+const vtkIdType* vtkBridgeCell::GetFaceArray(vtkIdType faceId)
 {
   assert("pre: is_3d" && this->GetDimension() == 3);
   assert("pre: valid_faceId_range" && faceId >= 0 && faceId < this->GetNumberOfBoundaries(2));
@@ -839,7 +839,7 @@ static constexpr vtkIdType quadEdges[4][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0
 // \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
 // \post result_exists: result!=0
 // \post valid_size: sizeof(result)==2
-const vtkIdType* vtkBridgeCell::GetEdgeArray(int edgeId)
+const vtkIdType* vtkBridgeCell::GetEdgeArray(vtkIdType edgeId)
 {
   assert("pre: valid_dimension" && this->GetDimension() >= 2);
   assert("pre: valid_faceId_range" && edgeId >= 0 && edgeId < this->GetNumberOfBoundaries(1));

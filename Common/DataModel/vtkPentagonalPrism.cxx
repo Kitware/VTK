@@ -36,6 +36,10 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -526,7 +530,7 @@ int vtkPentagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdLi
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkPentagonalPrism::GetEdgeArray(int edgeId)
+const vtkIdType* vtkPentagonalPrism::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -549,7 +553,7 @@ vtkCell* vtkPentagonalPrism::GetEdge(int edgeId)
   return this->Line;
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkPentagonalPrism::GetFaceArray(int faceId)
+const vtkIdType* vtkPentagonalPrism::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -776,14 +780,34 @@ void vtkPentagonalPrism::JacobianInverse(
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
-void vtkPentagonalPrism::GetEdgePoints(int edgeId, const vtkIdType*& pts)
+void vtkPentagonalPrism::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPentagonalPrism::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkPentagonalPrism::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkPentagonalPrism::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPentagonalPrism::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkPentagonalPrism::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkPentagonalPrism::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkPentagonalPrism::GetFacePoints(int faceId, const vtkIdType*& pts)
+void vtkPentagonalPrism::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

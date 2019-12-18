@@ -1339,8 +1339,8 @@ void vtkGraph::AddEdgeInternal(
     return;
   }
 
-  int edgeId = this->Internals->NumberOfEdges;
-  int edgeIndex = edgeId;
+  vtkIdType edgeId = this->Internals->NumberOfEdges;
+  vtkIdType edgeIndex = edgeId;
   this->Internals->NumberOfEdges++;
   this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
   if (directed)

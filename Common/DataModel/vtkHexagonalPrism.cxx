@@ -29,6 +29,10 @@
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -472,10 +476,30 @@ int vtkHexagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdLis
   }
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkHexagonalPrism::GetEdgeArray(int edgeId)
+const vtkIdType* vtkHexagonalPrism::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
+
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
+void vtkHexagonalPrism::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkHexagonalPrism::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkHexagonalPrism::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkHexagonalPrism::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
 
 //----------------------------------------------------------------------------
 vtkCell* vtkHexagonalPrism::GetEdge(int edgeId)
@@ -495,7 +519,7 @@ vtkCell* vtkHexagonalPrism::GetEdge(int edgeId)
   return this->Line;
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkHexagonalPrism::GetFaceArray(int faceId)
+const vtkIdType* vtkHexagonalPrism::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -732,13 +756,13 @@ void vtkHexagonalPrism::JacobianInverse(
 }
 
 //----------------------------------------------------------------------------
-void vtkHexagonalPrism::GetEdgePoints(int edgeId, const vtkIdType*& pts)
+void vtkHexagonalPrism::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkHexagonalPrism::GetFacePoints(int faceId, const vtkIdType*& pts)
+void vtkHexagonalPrism::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

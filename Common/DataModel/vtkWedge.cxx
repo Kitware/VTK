@@ -26,6 +26,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkWedge);
 
 namespace
@@ -478,7 +482,7 @@ void vtkWedge::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkWedge::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -511,7 +515,7 @@ vtkCell* vtkWedge::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkWedge::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -825,14 +829,34 @@ int vtkWedge::JacobianInverse(const double pcoords[3], double** inverse, double 
   return 1;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
-void vtkWedge::GetEdgePoints(int edgeId, const vtkIdType*& pts)
+void vtkWedge::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkWedge::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkWedge::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkWedge::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkWedge::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkWedge::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkWedge::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkWedge::GetFacePoints(int faceId, const vtkIdType*& pts)
+void vtkWedge::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

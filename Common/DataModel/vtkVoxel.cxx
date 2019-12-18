@@ -26,6 +26,10 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------
@@ -357,7 +361,7 @@ void vtkVoxel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPo
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkVoxel::GetEdgeArray(int edgeId)
+const vtkIdType* vtkVoxel::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -395,7 +399,7 @@ vtkCell* vtkVoxel::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkVoxel::GetFaceArray(int faceId)
+const vtkIdType* vtkVoxel::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -617,14 +621,34 @@ void vtkVoxel::Derivatives(
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
-void vtkVoxel::GetEdgePoints(int edgeId, const vtkIdType*& pts)
+void vtkVoxel::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVoxel::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkVoxel::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkVoxel::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkVoxel::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkVoxel::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkVoxel::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::GetFacePoints(int faceId, const vtkIdType*& pts)
+void vtkVoxel::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

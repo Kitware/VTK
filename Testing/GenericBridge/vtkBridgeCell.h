@@ -446,8 +446,12 @@ public:
    * \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints, and so vtkCell ids
+   * can be used as inputs in algorithms such as vtkPolygon::ComputeNormal.
    */
-  const vtkIdType* GetFaceArray(int faceId) override;
+  const vtkIdType* GetFaceArray(vtkIdType faceId) override;
 
   /**
    * Return the number of vertices defining face `faceId'
@@ -463,8 +467,11 @@ public:
    * \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)
    * \post result_exists: result!=0
    * \post valid_size: sizeof(result)==2
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints.
    */
-  const vtkIdType* GetEdgeArray(int edgeId) override;
+  const vtkIdType* GetEdgeArray(vtkIdType edgeId) override;
 
   /**
    * Used internally for the Bridge.
