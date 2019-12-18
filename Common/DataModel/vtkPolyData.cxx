@@ -1112,6 +1112,11 @@ void vtkPolyData::Reset()
     this->Strips->Reset();
   }
 
+  if (this->GetPoints() != nullptr)
+  {
+    this->GetPoints()->Reset();
+  }
+
   // discard Links and Cells
   this->DeleteLinks();
   this->DeleteCells();
