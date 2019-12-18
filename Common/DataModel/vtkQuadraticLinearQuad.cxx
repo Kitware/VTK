@@ -69,7 +69,7 @@ static int LinearQuadEdges[4][3] = {
 };
 
 //----------------------------------------------------------------------------
-int* vtkQuadraticLinearQuad::GetEdgeArray(int edgeId)
+int* vtkQuadraticLinearQuad::GetEdgeArray(vtkIdType edgeId)
 {
   return LinearQuadEdges[edgeId];
 }

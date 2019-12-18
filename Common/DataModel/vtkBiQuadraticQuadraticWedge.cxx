@@ -98,12 +98,12 @@ static constexpr vtkIdType WedgeEdges[9][3] = {
   { 2, 5, 14 },
 };
 //----------------------------------------------------------------------------
-const vtkIdType* vtkBiQuadraticQuadraticWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkBiQuadraticQuadraticWedge::GetEdgeArray(vtkIdType edgeId)
 {
   return WedgeEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkBiQuadraticQuadraticWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkBiQuadraticQuadraticWedge::GetFaceArray(vtkIdType faceId)
 {
   return WedgeFaces[faceId];
 }

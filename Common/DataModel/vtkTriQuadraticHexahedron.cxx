@@ -95,12 +95,12 @@ static constexpr vtkIdType HexEdges[12][3] = {
 };
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticHexahedron::GetEdgeArray(int edgeId)
+const vtkIdType* vtkTriQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
 {
   return HexEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(int faceId)
+const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 {
   return HexFaces[faceId];
 }

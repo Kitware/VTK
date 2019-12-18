@@ -81,12 +81,12 @@ static constexpr vtkIdType TetraEdges[6][3] = {
 };
 
 //------------------------Tuple1----------------------------------------------------
-const vtkIdType* vtkQuadraticTetra::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticTetra::GetEdgeArray(vtkIdType edgeId)
 {
   return TetraEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticTetra::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
 {
   return TetraFaces[faceId];
 }

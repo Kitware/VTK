@@ -110,12 +110,12 @@ static constexpr vtkIdType PyramidEdges[8][3] = {
 };
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticPyramid::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticPyramid::GetEdgeArray(vtkIdType edgeId)
 {
   return PyramidEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticPyramid::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticPyramid::GetFaceArray(vtkIdType faceId)
 {
   return PyramidFaces[faceId];
 }

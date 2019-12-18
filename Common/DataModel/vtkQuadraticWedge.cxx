@@ -110,12 +110,12 @@ static double MidPoints[3][3] = {
   { 0.0, 0.5, 0.5 },
 };
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticWedge::GetEdgeArray(vtkIdType edgeId)
 {
   return WedgeEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticWedge::GetFaceArray(vtkIdType faceId)
 {
   return WedgeFaces[faceId];
 }

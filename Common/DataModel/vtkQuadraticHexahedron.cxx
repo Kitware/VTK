@@ -114,12 +114,12 @@ static double MidPoints[7][3] = {
 };
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticHexahedron::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
 {
   return HexEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticHexahedron::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 {
   return HexFaces[faceId];
 }

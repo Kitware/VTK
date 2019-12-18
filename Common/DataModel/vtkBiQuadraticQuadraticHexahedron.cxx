@@ -114,12 +114,12 @@ static constexpr vtkIdType HexEdges[12][3] = {
 static double MidPoints[3][3] = { { 0.5, 0.5, 0.0 }, { 0.5, 0.5, 1.0 }, { 0.5, 0.5, 0.5 } };
 
 //----------------------------------------------------------------------------
-const vtkIdType* vtkBiQuadraticQuadraticHexahedron::GetEdgeArray(int edgeId)
+const vtkIdType* vtkBiQuadraticQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
 {
   return HexEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-const vtkIdType* vtkBiQuadraticQuadraticHexahedron::GetFaceArray(int faceId)
+const vtkIdType* vtkBiQuadraticQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 {
   return HexFaces[faceId];
 }

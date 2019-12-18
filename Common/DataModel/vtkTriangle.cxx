@@ -370,10 +370,10 @@ static LINE_CASES lineCases[] = {
 };
 }
 
-static int edges[3][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
+static constexpr vtkIdType edges[3][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
 
 //----------------------------------------------------------------------------
-int* vtkTriangle::GetEdgeArray(int edgeId)
+const vtkIdType* vtkTriangle::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -387,7 +387,8 @@ void vtkTriangle::Contour(double value, vtkDataArray* cellScalars,
   static const int CASE_MASK[3] = { 1, 2, 4 };
   LINE_CASES* lineCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   vtkIdType pts[2];
   int e1, e2, newCellId;
   double t, x1[3], x2[3], x[3], deltaScalar;
@@ -872,7 +873,8 @@ void vtkTriangle::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   static const int CASE_MASK[3] = { 1, 2, 4 };
   TRIANGLE_CASES* triangleCase;
   TRIANGLE_EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   int e1, e2, newCellId;
   vtkIdType pts[3];
   int vertexId;
