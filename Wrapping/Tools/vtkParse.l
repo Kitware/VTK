@@ -133,7 +133,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(CHAR_LITERAL);
     }
 
-("R"|"u8R"|"uR"|"UR"|"LR")?\"[^ ()\t\v\f\n]*"(" {
+("R"|"u8R"|"uR"|"UR"|"LR")\"[^ ()\t\v\f\n]*"(" {
       yylval.str = raw_string(yytext);
       return(STRING_LITERAL);
     }
