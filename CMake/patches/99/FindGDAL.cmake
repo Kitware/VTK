@@ -80,7 +80,7 @@ set(_gdal_versions
 set(_gdal_libnames)
 foreach (_gdal_version IN LISTS _gdal_versions)
     string(REPLACE "." "" _gdal_version "${_gdal_version}")
-    list(APPEND _gdal_libnames "gdal${_gdal_version}" "GDAL${_gdal_libnames}")
+    list(APPEND _gdal_libnames "gdal${_gdal_version}" "GDAL${_gdal_version}")
 endforeach ()
 
 find_library(GDAL_LIBRARY
