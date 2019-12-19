@@ -1233,7 +1233,7 @@ void vtkLagrangeTetra::BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkI
   else if (index - 4 < 6 * (order - 1))
   {
     // we are on an edge
-    int edgeId = (index - 4) / (order - 1);
+    vtkIdType edgeId = (index - 4) / (order - 1);
     vtkIdType vertexId = (index - 4) % (order - 1);
     for (vtkIdType coord = 0; coord < 4; coord++)
     {
@@ -1246,7 +1246,7 @@ void vtkLagrangeTetra::BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkI
   else
   {
     // we are on a face
-    int faceId = (index - 4 - 6 * (order - 1)) / ((order - 2) * (order - 1) / 2);
+    vtkIdType faceId = (index - 4 - 6 * (order - 1)) / ((order - 2) * (order - 1) / 2);
     vtkIdType vertexId = (index - 4 - 6 * (order - 1)) % ((order - 2) * (order - 1) / 2);
 
     vtkIdType projectedBIndex[3];
@@ -1300,7 +1300,7 @@ vtkIdType vtkLagrangeTetra::Index(const vtkIdType* bindex, vtkIdType order)
     index++;
   }
 
-  for (int edge = 0; edge < 6; edge++)
+  for (vtkIdType edge = 0; edge < 6; edge++)
   {
     if (bindex[EdgeMinCoords[edge][0]] == min && bindex[EdgeMinCoords[edge][1]] == min)
     {
@@ -1310,7 +1310,7 @@ vtkIdType vtkLagrangeTetra::Index(const vtkIdType* bindex, vtkIdType order)
     index += max - (min + 1);
   }
 
-  for (int face = 0; face < 4; face++)
+  for (vtkIdType face = 0; face < 4; face++)
   {
     if (bindex[FaceMinCoord[face]] == min)
     {

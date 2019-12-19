@@ -539,7 +539,7 @@ void vtkPolyhedron::SetFaces(vtkIdType* faces)
 
   this->GlobalFaces->InsertNextValue(nfaces);
   vtkIdType* face = faces + 1;
-  int faceLoc = 1;
+  vtkIdType faceLoc = 1;
   vtkIdType i, fid, npts;
 
   for (fid = 0; fid < nfaces; ++fid)
@@ -1781,7 +1781,7 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap, FaceEdgesVector& faceEdgesVector
 
       const set<vtkIdType>& facesOfEdge = edgeFaceMap[at];
 
-      int face(lastFace);
+      vtkIdType face(lastFace);
       for (const vtkIdType& faceOfEdge : facesOfEdge)
       {
         if (lastFace != faceOfEdge)
