@@ -15,10 +15,8 @@ function (_vtk_package_append_variables)
     endif ()
 
     string(APPEND _vtk_package_variables
-      "if (NOT DEFINED \"${var}\")
-  set(\"${var}\" \"${${var}}\" CACHE ${type} \"Third-party helper setting from VTK\")
-elseif (NOT ${var})
-  set(\"${var}\" \"${${var}}\" CACHE ${type} \"Third-party helper setting from VTK\")
+      "if (NOT DEFINED \"${var}\" OR NOT ${var})
+  set(\"${var}\" \"${${var}}\" CACHE ${type} \"Third-party helper setting from \${CMAKE_FIND_PACKAGE_NAME}\")
 endif ()
 ")
   endforeach ()
