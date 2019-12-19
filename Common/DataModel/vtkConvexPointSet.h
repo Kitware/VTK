@@ -61,15 +61,21 @@ public:
     vtkWarningMacro(<< "vtkConvexPointSet::GetEdgePoints Not Implemented");
   }
   // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_LEGACY(void GetEdgePoints(int vtkNotUsed(edgeId), int*& vtkNotUsed(pts))
-      override { vtkWarningMacro(<< "vtkConvexPointSet::GetEdgePoints Not Implemented"); });
+  VTK_LEGACY(void GetEdgePoints(int vtkNotUsed(edgeId), int*& vtkNotUsed(pts)) override {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetEdgePoints Not Implemented. "
+                    << "Also note that this signature is deprecated. "
+                    << "Please use GetEdgePoints(vtkIdType, const vtkIdType*& instead");
+  });
   void GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
   {
     vtkWarningMacro(<< "vtkConvexPointSet::GetFacePoints Not Implemented");
   }
   // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_LEGACY(void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts))
-      override { vtkWarningMacro(<< "vtkConvexPointSet::GetFacePoints Not Implemented"); });
+  VTK_LEGACY(void GetFacePoints(int vtkNotUsed(faceId), int*& vtkNotUsed(pts)) override {
+    vtkWarningMacro(<< "vtkConvexPointSet::GetFacePoints Not Implemented. "
+                    << "Also note that this signature is deprecated. "
+                    << "Please use GetFacePoints(vtkIdType, const vtkIdType*& instead");
+  });
   //@}
 
   /**
