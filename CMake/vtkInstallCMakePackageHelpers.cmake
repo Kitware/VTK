@@ -8,7 +8,6 @@ function (_vtk_package_append_variables)
     string(APPEND _vtk_package_variables
       "if (NOT DEFINED \"${var}\")
   set(\"${var}\" \"${${var}}\")
-  list(APPEND _vtk_find_package_variables \"${var}\")
 elseif (NOT ${var})
   set(\"${var}\" \"${${var}}\")
 endif ()
