@@ -122,7 +122,7 @@ int TestExtractDataArraysOverTime(int argc, char* argv[])
   extractor->SetFieldAssociation(vtkDataObject::CELL);
   extractor->Update();
   if (!Validate1(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-        num_timesteps, "gid=100 originalId=99"))
+        num_timesteps, "gid=100"))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;
@@ -132,7 +132,7 @@ int TestExtractDataArraysOverTime(int argc, char* argv[])
   extractor->SetUseGlobalIDs(false);
   extractor->Update();
   if (!Validate1(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-        num_timesteps, "id=0 originalId=99 block=2"))
+        num_timesteps, "originalId=99 block=2"))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;
@@ -144,7 +144,7 @@ int TestExtractDataArraysOverTime(int argc, char* argv[])
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "vtkOriginalCellIds");
   extractor->Update();
   if (!Validate1(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
-        num_timesteps, "id=99 originalId=99 block=2"))
+        num_timesteps, "originalId=99 block=2"))
   {
     cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
     return EXIT_FAILURE;

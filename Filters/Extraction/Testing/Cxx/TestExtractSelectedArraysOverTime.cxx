@@ -68,8 +68,8 @@ bool Validate1(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   const char* name = mb->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=786 originalId=785") == 0,
-    "block name not matching, expected 'gid=786 originalId=785', got '" << name << "'");
+  expect(strcmp(name, "gid=786") == 0,
+    "block name not matching, expected 'gid=786', got '" << name << "'");
 
   vtkTable* b1 = vtkTable::SafeDownCast(mb->GetBlock(1));
   expect(b1 != nullptr, "expecting a vtkTable for block 0");
@@ -81,8 +81,8 @@ bool Validate1(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   name = mb->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=787 originalId=786") == 0,
-    "block name not matching, expected 'gid=787 originalId=786', got '" << name << "'");
+  expect(strcmp(name, "gid=787") == 0,
+    "block name not matching, expected 'gid=787', got '" << name << "'");
 
   vtkTable* b2 = vtkTable::SafeDownCast(mb->GetBlock(2));
   expect(b2 != nullptr, "expecting a vtkTable for block 0");
@@ -94,8 +94,8 @@ bool Validate1(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   name = mb->GetMetaData(2u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, "gid=788 originalId=787") == 0,
-    "block name not matching, expected 'gid=788 originalId=787', got '" << name << "'");
+  expect(strcmp(name, "gid=788") == 0,
+    "block name not matching, expected 'gid=788', got '" << name << "'");
   return true;
 }
 }
