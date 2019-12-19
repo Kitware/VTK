@@ -368,7 +368,7 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdL
 //
 namespace
 { // required so we don't violate ODR
-static int edges[4][2] = {
+static constexpr vtkIdType edges[4][2] = {
   { 0, 1 },
   { 1, 2 },
   { 3, 2 },
@@ -402,7 +402,7 @@ static LINE_CASES lineCases[] = {
 }
 
 //----------------------------------------------------------------------------
-int* vtkQuad::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuad::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -415,7 +415,8 @@ void vtkQuad::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   LINE_CASES* lineCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   int newCellId;
   vtkIdType pts[2];
   int e1, e2;
@@ -807,7 +808,8 @@ void vtkQuad::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
   static const int CASE_MASK[4] = { 1, 2, 4, 8 };
   QUAD_CASES* quadCase;
   QUAD_EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   int e1, e2;
   int newCellId;
   vtkIdType pts[4];

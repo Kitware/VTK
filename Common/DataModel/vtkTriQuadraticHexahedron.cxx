@@ -70,7 +70,7 @@ static int LinearHexs[8][8] = {
   { 26, 21, 18, 23, 25, 13, 6, 14 },
 };
 
-static int HexFaces[6][9] = {
+static constexpr vtkIdType HexFaces[6][9] = {
   { 0, 4, 7, 3, 16, 15, 19, 11, 20 },
   { 1, 2, 6, 5, 9, 18, 13, 17, 21 },
   { 0, 1, 5, 4, 8, 17, 12, 16, 22 },
@@ -79,7 +79,7 @@ static int HexFaces[6][9] = {
   { 4, 5, 6, 7, 12, 13, 14, 15, 25 },
 };
 
-static int HexEdges[12][3] = {
+static constexpr vtkIdType HexEdges[12][3] = {
   { 0, 1, 8 },
   { 1, 2, 9 },
   { 3, 2, 10 },
@@ -95,12 +95,12 @@ static int HexEdges[12][3] = {
 };
 
 //----------------------------------------------------------------------------
-int* vtkTriQuadraticHexahedron::GetEdgeArray(int edgeId)
+const vtkIdType* vtkTriQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
 {
   return HexEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-int* vtkTriQuadraticHexahedron::GetFaceArray(int faceId)
+const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 {
   return HexFaces[faceId];
 }

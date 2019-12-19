@@ -84,7 +84,7 @@ static int LinearWedges[8][6] = {
   { 17, 14, 16, 11, 5, 10 },
 };
 
-static int WedgeFaces[5][8] = {
+static constexpr vtkIdType WedgeFaces[5][8] = {
   { 0, 1, 2, 6, 7, 8, 0, 0 },
   { 3, 5, 4, 11, 10, 9, 0, 0 },
   { 0, 3, 4, 1, 12, 9, 13, 6 },
@@ -92,7 +92,7 @@ static int WedgeFaces[5][8] = {
   { 2, 5, 3, 0, 14, 11, 12, 8 },
 };
 
-static int WedgeEdges[9][3] = {
+static constexpr vtkIdType WedgeEdges[9][3] = {
   { 0, 1, 6 },
   { 1, 2, 7 },
   { 2, 0, 8 },
@@ -110,12 +110,12 @@ static double MidPoints[3][3] = {
   { 0.0, 0.5, 0.5 },
 };
 //----------------------------------------------------------------------------
-int* vtkQuadraticWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticWedge::GetEdgeArray(vtkIdType edgeId)
 {
   return WedgeEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-int* vtkQuadraticWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticWedge::GetFaceArray(vtkIdType faceId)
 {
   return WedgeFaces[faceId];
 }

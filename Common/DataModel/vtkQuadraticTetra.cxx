@@ -64,14 +64,14 @@ static int LinearTetras[3][8][4] = {
     { 5, 4, 8, 7 }, { 5, 8, 9, 7 } },
 };
 
-static int TetraFaces[4][6] = {
+static constexpr vtkIdType TetraFaces[4][6] = {
   { 0, 1, 3, 4, 8, 7 },
   { 1, 2, 3, 5, 9, 8 },
   { 2, 0, 3, 6, 7, 9 },
   { 0, 2, 1, 6, 5, 4 },
 };
 
-static int TetraEdges[6][3] = {
+static constexpr vtkIdType TetraEdges[6][3] = {
   { 0, 1, 4 },
   { 1, 2, 5 },
   { 2, 0, 6 },
@@ -81,12 +81,12 @@ static int TetraEdges[6][3] = {
 };
 
 //------------------------Tuple1----------------------------------------------------
-int* vtkQuadraticTetra::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticTetra::GetEdgeArray(vtkIdType edgeId)
 {
   return TetraEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-int* vtkQuadraticTetra::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
 {
   return TetraFaces[faceId];
 }

@@ -75,7 +75,7 @@ static int LinearWedges[4][6] = {
 };
 
 // We use 2 quadratic triangles and 3 quadratic-linear quads
-static int WedgeFaces[5][6] = {
+static constexpr vtkIdType WedgeFaces[5][6] = {
   { 0, 1, 2, 6, 7, 8 },   // first quad triangle
   { 3, 5, 4, 11, 10, 9 }, // second quad triangle
   { 1, 0, 3, 4, 6, 9 },   // 1. quad-linear quad
@@ -84,7 +84,7 @@ static int WedgeFaces[5][6] = {
 };
 
 // We have 6 quadratic and 3 linear edges
-static int WedgeEdges[9][3] = {
+static constexpr vtkIdType WedgeEdges[9][3] = {
   // quadratic edges
   { 0, 1, 6 },
   { 1, 2, 7 },
@@ -99,13 +99,13 @@ static int WedgeEdges[9][3] = {
 };
 
 //----------------------------------------------------------------------------
-int* vtkQuadraticLinearWedge::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticLinearWedge::GetEdgeArray(vtkIdType edgeId)
 {
   return WedgeEdges[edgeId];
 }
 
 //----------------------------------------------------------------------------
-int* vtkQuadraticLinearWedge::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticLinearWedge::GetFaceArray(vtkIdType faceId)
 {
   return WedgeFaces[faceId];
 }

@@ -129,9 +129,12 @@ public:
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints.
    */
-  static int* GetEdgeArray(int edgeId);
-  static int* GetFaceArray(int faceId);
+  static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
+  static const vtkIdType* GetFaceArray(vtkIdType faceId);
   //@}
 
   /**

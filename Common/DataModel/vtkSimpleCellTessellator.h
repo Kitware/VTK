@@ -245,9 +245,12 @@ protected:
    * \pre ids_size: sizeof(ids)==3
    * \pre edgeIds_exists: edgeIds!=0
    * \pre edgeIds_size: sizeof(edgeIds)==3
+   *
+   * @note Parameter edgeIds's type changed to match new vtkCell API.
+   * This API change could not be smoothly done by deprecation.
    */
   void TriangulateTriangle(vtkGenericAdaptorCell* cell, vtkIdType* localIds, vtkIdType* ids,
-    int* edgeIds, vtkGenericAttributeCollection* att, vtkDoubleArray* points,
+    const vtkIdType* edgeIds, vtkGenericAttributeCollection* att, vtkDoubleArray* points,
     vtkCellArray* cellArray, vtkPointData* internalPd);
 
   /**
@@ -347,8 +350,11 @@ protected:
    * Are the faces `originalFace' and `face' equal?
    * The result is independent from any order or orientation.
    * \pre originalFace_exists: originalFace!=0
+   *
+   * @note Parameter originalFace and face types changed to match new vtkCell API.
+   * This API change could not be smoothly done by deprecation.
    */
-  int FacesAreEqual(int* originalFace, int face[3]);
+  int FacesAreEqual(const vtkIdType* originalFace, const vtkIdType face[3]);
 
   /**
    * Number of points in the dataset to be tessellated.
@@ -363,12 +369,12 @@ protected:
    * For each edge (6) of the sub-tetra, there is the id of the original edge
    * or -1 if the edge is not an original edge
    */
-  int* EdgeIds;
+  const vtkIdType* EdgeIds;
   /**
    * For each face (4) of the sub-tetra, there is the id of the original face
    * or -1 if the face is not an original face
    */
-  int* FaceIds;
+  const vtkIdType* FaceIds;
 
   // The following variables are for complex cells.
 

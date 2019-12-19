@@ -26,6 +26,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkPyramid);
 
 namespace
@@ -40,7 +44,7 @@ static const double VTK_CONVERGED = 1.e-03;
 //
 namespace
 { // required so we don't violate ODR
-static int edges[8][2] = {
+static constexpr vtkIdType edges[8][2] = {
   { 0, 1 },
   { 1, 2 },
   { 2, 3 },
@@ -50,7 +54,7 @@ static int edges[8][2] = {
   { 2, 4 },
   { 3, 4 },
 };
-static int faces[5][5] = {
+static constexpr vtkIdType faces[5][5] = {
   { 0, 3, 2, 1, -1 },
   { 0, 1, 4, -1, -1 },
   { 1, 2, 4, -1, -1 },
@@ -411,7 +415,8 @@ void vtkPyramid::Contour(double value, vtkDataArray* cellScalars,
   static const int CASE_MASK[5] = { 1, 2, 4, 8, 16 };
   TRIANGLE_CASES* triCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert, v1, v2, newCellId;
+  int i, j, index, v1, v2, newCellId;
+  const vtkIdType* vert;
   vtkIdType pts[3];
   double t, x1[3], x2[3], x[3], deltaScalar;
   vtkIdType offset = verts->GetNumberOfCells() + lines->GetNumberOfCells();
@@ -491,7 +496,7 @@ int* vtkPyramid::GetTriangleCases(int caseId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkPyramid::GetEdgeArray(int edgeId)
+const vtkIdType* vtkPyramid::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -499,7 +504,7 @@ int* vtkPyramid::GetEdgeArray(int edgeId)
 //----------------------------------------------------------------------------
 vtkCell* vtkPyramid::GetEdge(int edgeId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -515,7 +520,7 @@ vtkCell* vtkPyramid::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkPyramid::GetFaceArray(int faceId)
+const vtkIdType* vtkPyramid::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -523,7 +528,7 @@ int* vtkPyramid::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell* vtkPyramid::GetFace(int faceId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = faces[faceId];
 
@@ -847,14 +852,34 @@ int vtkPyramid::JacobianInverse(const double pcoords[3], double** inverse, doubl
   return 1;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 void vtkPyramid::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkPyramid::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkPyramid::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkPyramid::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkPyramid::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkPyramid::GetFacePoints(int faceId, int*& pts)
+void vtkPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

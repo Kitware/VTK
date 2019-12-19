@@ -492,7 +492,7 @@ int vtkLagrangeTriangle::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
 #ifdef SEVEN_POINT_TRIANGLE
   if (this->Points->GetNumberOfPoints() == 7)
   {
-    static const int edgeOrder[7] = { 0, 3, 1, 4, 2, 5, 0 };
+    static const vtkIdType edgeOrder[7] = { 0, 3, 1, 4, 2, 5, 0 };
     pts->SetNumberOfPoints(18);
     ptIds->SetNumberOfIds(18);
     vtkIdType pointId = 0;

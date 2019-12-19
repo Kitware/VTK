@@ -182,7 +182,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
         int nf = cell->GetNumberOfFaces();
         for (int f = 0; f < nf; f++)
         {
-          int* faceIds = nullptr;
+          const vtkIdType* faceIds = nullptr;
           int nfp = cell->GetFace(f)->GetNumberOfPoints();
           cell3d->GetFacePoints(f, faceIds);
 #ifdef VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION

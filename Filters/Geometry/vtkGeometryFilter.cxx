@@ -603,7 +603,8 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPol
   vtkCellArray *verts, *lines, *polys, *strips;
   vtkIdList *cellIds, *faceIds;
   char* cellVis;
-  int faceId, *faceVerts, numFacePts;
+  int faceId, numFacePts;
+  const vtkIdType* faceVerts;
   double x[3];
   int pixelConvert[4];
   unsigned char* cellGhosts = nullptr;
@@ -1095,7 +1096,8 @@ void vtkGeometryFilter::StructuredGridExecute(
   vtkIdList* cellIds;
   vtkIdList* pts;
   vtkIdType ptId;
-  int *faceVerts, faceId, numFacePts;
+  const vtkIdType* faceVerts;
+  int faceId, numFacePts;
   vtkIdType* facePts;
   vtkPointData* pd = input->GetPointData();
   vtkCellData* cd = input->GetCellData();

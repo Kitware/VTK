@@ -26,6 +26,10 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkHexahedron);
 
 namespace
@@ -363,7 +367,7 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
 }
 
 //----------------------------------------------------------------------------
-static int edges[12][2] = {
+static constexpr vtkIdType edges[12][2] = {
   { 0, 1 },
   { 1, 2 },
   { 3, 2 },
@@ -377,7 +381,7 @@ static int edges[12][2] = {
   { 3, 7 },
   { 2, 6 },
 };
-static int faces[6][5] = {
+static constexpr vtkIdType faces[6][5] = {
   { 0, 4, 7, 3, -1 },
   { 1, 2, 6, 5, -1 },
   { 0, 1, 5, 4, -1 },
@@ -398,7 +402,8 @@ void vtkHexahedron::Contour(double value, vtkDataArray* cellScalars,
   static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   vtkMarchingCubesTriangleCases* triCase;
   EDGE_LIST* edge;
-  int i, j, index, *vert;
+  int i, j, index;
+  const vtkIdType* vert;
   int v1, v2, newCellId;
   vtkIdType pts[3];
   double t, x1[3], x2[3], x[3], deltaScalar;
@@ -470,7 +475,7 @@ void vtkHexahedron::Contour(double value, vtkDataArray* cellScalars,
 }
 
 //----------------------------------------------------------------------------
-int* vtkHexahedron::GetEdgeArray(int edgeId)
+const vtkIdType* vtkHexahedron::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -487,7 +492,7 @@ int* vtkHexahedron::GetTriangleCases(int caseId)
 //----------------------------------------------------------------------------
 vtkCell* vtkHexahedron::GetEdge(int edgeId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -503,7 +508,7 @@ vtkCell* vtkHexahedron::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int* vtkHexahedron::GetFaceArray(int faceId)
+const vtkIdType* vtkHexahedron::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
@@ -511,7 +516,8 @@ int* vtkHexahedron::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell* vtkHexahedron::GetFace(int faceId)
 {
-  int *verts, i;
+  const vtkIdType* verts;
+  int i;
 
   verts = faces[faceId];
 
@@ -796,14 +802,34 @@ void vtkHexahedron::JacobianInverse(const double pcoords[3], double** inverse, d
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 void vtkHexahedron::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHexahedron::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkHexahedron::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkHexahedron::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHexahedron::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkHexahedron::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkHexahedron::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkHexahedron::GetFacePoints(int faceId, int*& pts)
+void vtkHexahedron::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

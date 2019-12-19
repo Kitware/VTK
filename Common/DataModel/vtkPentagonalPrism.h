@@ -61,8 +61,12 @@ public:
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int*& pts) override;
-  void GetFacePoints(int faceId, int*& pts) override;
+  void GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
+  // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
+  VTK_LEGACY(virtual void GetEdgePoints(int edgeId, int*& pts) override);
+  void GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
+  VTK_LEGACY(virtual void GetFacePoints(int faceId, int*& pts) override);
   //@}
 
   //@{
@@ -120,9 +124,13 @@ public:
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
+   *
+   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
+   * This is so ids are unified between vtkCell and vtkPoints, and so vtkCell ids
+   * can be used as inputs in algorithms such as vtkPolygon::ComputeNormal.
    */
-  static int* GetEdgeArray(int edgeId);
-  static int* GetFaceArray(int faceId);
+  static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
+  static const vtkIdType* GetFaceArray(vtkIdType faceId);
   //@}
 
   /**

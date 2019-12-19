@@ -36,6 +36,10 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 
+#ifndef VTK_LEGACY_REMOVE // needed temporarily in deprecated methods
+#include <vector>
+#endif
+
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -402,11 +406,13 @@ void vtkPentagonalPrism::EvaluateLocation(
     }
   }
 }
-static int edges[15][2] = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4, 0 }, { 5, 6 }, { 6, 7 },
-  { 7, 8 }, { 8, 9 }, { 9, 5 }, { 0, 5 }, { 1, 6 }, { 2, 7 }, { 3, 8 }, { 4, 9 } };
+static constexpr vtkIdType edges[15][2] = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4, 0 },
+  { 5, 6 }, { 6, 7 }, { 7, 8 }, { 8, 9 }, { 9, 5 }, { 0, 5 }, { 1, 6 }, { 2, 7 }, { 3, 8 },
+  { 4, 9 } };
 
-static int faces[7][6] = { { 0, 4, 3, 2, 1, -1 }, { 5, 6, 7, 8, 9, -1 }, { 0, 1, 6, 5, -1, -1 },
-  { 1, 2, 7, 6, -1, -1 }, { 2, 3, 8, 7, -1, -1 }, { 3, 4, 9, 8, -1, -1 }, { 4, 0, 5, 9, -1, -1 } };
+static constexpr vtkIdType faces[7][6] = { { 0, 4, 3, 2, 1, -1 }, { 5, 6, 7, 8, 9, -1 },
+  { 0, 1, 6, 5, -1, -1 }, { 1, 2, 7, 6, -1, -1 }, { 2, 3, 8, 7, -1, -1 }, { 3, 4, 9, 8, -1, -1 },
+  { 4, 0, 5, 9, -1, -1 } };
 
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
@@ -462,7 +468,7 @@ int vtkPentagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdLi
   {
     dot = 0;
   }
-  int* verts;
+  const vtkIdType* verts;
 
   if (pcoords[2] < 0.5)
   {
@@ -524,7 +530,7 @@ int vtkPentagonalPrism::CellBoundary(int subId, const double pcoords[3], vtkIdLi
 }
 
 //----------------------------------------------------------------------------
-int* vtkPentagonalPrism::GetEdgeArray(int edgeId)
+const vtkIdType* vtkPentagonalPrism::GetEdgeArray(vtkIdType edgeId)
 {
   return edges[edgeId];
 }
@@ -532,7 +538,7 @@ int* vtkPentagonalPrism::GetEdgeArray(int edgeId)
 //----------------------------------------------------------------------------
 vtkCell* vtkPentagonalPrism::GetEdge(int edgeId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = edges[edgeId];
 
@@ -547,14 +553,14 @@ vtkCell* vtkPentagonalPrism::GetEdge(int edgeId)
   return this->Line;
 }
 //----------------------------------------------------------------------------
-int* vtkPentagonalPrism::GetFaceArray(int faceId)
+const vtkIdType* vtkPentagonalPrism::GetFaceArray(vtkIdType faceId)
 {
   return faces[faceId];
 }
 //----------------------------------------------------------------------------
 vtkCell* vtkPentagonalPrism::GetFace(int faceId)
 {
-  int* verts;
+  const vtkIdType* verts;
 
   verts = faces[faceId];
 
@@ -774,14 +780,34 @@ void vtkPentagonalPrism::JacobianInverse(
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 void vtkPentagonalPrism::GetEdgePoints(int edgeId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPentagonalPrism::GetEdgePoints(int, int*&), "VTK 9.0",
+    vtkPentagonalPrism::GetEdgePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
+  pts = tmp.data();
+}
+
+//----------------------------------------------------------------------------
+void vtkPentagonalPrism::GetFacePoints(int faceId, int*& pts)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPentagonalPrism::GetFacePoints(int, int*&), "VTK 9.0",
+    vtkPentagonalPrism::GetFacePoints(vtkIdType, const vtkIdType*&));
+  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
+  pts = tmp.data();
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkPentagonalPrism::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
 //----------------------------------------------------------------------------
-void vtkPentagonalPrism::GetFacePoints(int faceId, int*& pts)
+void vtkPentagonalPrism::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   pts = this->GetFaceArray(faceId);
 }

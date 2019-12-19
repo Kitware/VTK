@@ -90,7 +90,7 @@ static int LinearPyramids[10][5] = {
   { 8, 13, 12, 9, 0 },
 };
 
-static int PyramidFaces[5][8] = {
+static constexpr vtkIdType PyramidFaces[5][8] = {
   { 0, 3, 2, 1, 8, 7, 6, 5 },
   { 0, 1, 4, 5, 10, 9, 0, 0 },
   { 1, 2, 4, 6, 11, 10, 0, 0 },
@@ -98,7 +98,7 @@ static int PyramidFaces[5][8] = {
   { 3, 0, 4, 8, 9, 12, 0, 0 },
 };
 
-static int PyramidEdges[8][3] = {
+static constexpr vtkIdType PyramidEdges[8][3] = {
   { 0, 1, 5 },
   { 1, 2, 6 },
   { 2, 3, 7 },
@@ -110,12 +110,12 @@ static int PyramidEdges[8][3] = {
 };
 
 //----------------------------------------------------------------------------
-int* vtkQuadraticPyramid::GetEdgeArray(int edgeId)
+const vtkIdType* vtkQuadraticPyramid::GetEdgeArray(vtkIdType edgeId)
 {
   return PyramidEdges[edgeId];
 }
 //----------------------------------------------------------------------------
-int* vtkQuadraticPyramid::GetFaceArray(int faceId)
+const vtkIdType* vtkQuadraticPyramid::GetFaceArray(vtkIdType faceId)
 {
   return PyramidFaces[faceId];
 }
