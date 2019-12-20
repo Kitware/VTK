@@ -35,6 +35,9 @@
 vtkStandardNewMacro(vtkInteractorStyle3D);
 
 //----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkInteractorStyle3D, InteractionPicker, vtkAbstractPropPicker);
+
+//----------------------------------------------------------------------------
 vtkInteractorStyle3D::vtkInteractorStyle3D()
 {
   this->InteractionProp = nullptr;

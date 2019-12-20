@@ -44,7 +44,7 @@ public:
    * Perform a pick from the user-provided list of vtkProps.
    */
   virtual int PickProp(double selectionPt[3], double eventWorldOrientation[4],
-    vtkRenderer* renderer, vtkPropCollection* pickfrom);
+    vtkRenderer* renderer, vtkPropCollection* pickfrom, bool actorPassOnly);
 
   vtkSelection* GetSelection() { return this->Selection; }
 

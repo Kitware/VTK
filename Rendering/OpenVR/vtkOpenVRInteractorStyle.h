@@ -104,9 +104,25 @@ public:
     vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text);
   //@}
 
-  vtkSetClampMacro(HoverPick, int, 0, 1);
-  vtkGetMacro(HoverPick, int);
-  vtkBooleanMacro(HoverPick, int);
+  //@{
+  /**
+   * Indicates if picking should be updated every frame. If so, the interaction
+   * picker will try to pick a prop and rays will be updated accordingly.
+   * Default is set to off.
+   */
+  vtkSetMacro(HoverPick, bool);
+  vtkGetMacro(HoverPick, bool);
+  vtkBooleanMacro(HoverPick, bool);
+  //@}
+
+  //@{
+  /**
+   * Specify if the grab mode use the ray to grab distant objects
+   */
+  vtkSetMacro(GrabWithRay, bool);
+  vtkGetMacro(GrabWithRay, bool);
+  vtkBooleanMacro(GrabWithRay, bool);
+  //@}
 
   int GetInteractionState(vtkEventDataDevice device)
   {
@@ -158,12 +174,11 @@ protected:
   void StartAction(int VTKIS_STATE, vtkEventDataDevice3D* edata);
   void EndAction(int VTKIS_STATE, vtkEventDataDevice3D* edata);
 
-  /**
-   * Indicates if picking should be updated every frame. If so, the interaction
-   * picker will try to pick a prop and rays will be updated accordingly.
-   * Default is set to off.
-   */
-  int HoverPick;
+  // Pick using hardware selector
+  bool HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly);
+
+  bool HoverPick;
+  bool GrabWithRay;
 
   /**
    * Store required controllers information when performing action
