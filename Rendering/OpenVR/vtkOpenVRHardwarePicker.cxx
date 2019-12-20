@@ -48,7 +48,7 @@ void vtkOpenVRHardwarePicker::Initialize()
 
 // Pick from the given collection
 int vtkOpenVRHardwarePicker::PickProp(
-  double p0[3], double wxyz[4], vtkRenderer* renderer, vtkPropCollection*)
+  double p0[3], double wxyz[4], vtkRenderer* renderer, vtkPropCollection*, bool actorPassOnly)
 {
   //  Initialize picking process
   this->Initialize();
@@ -66,6 +66,7 @@ int vtkOpenVRHardwarePicker::PickProp(
   vtkNew<vtkHardwareSelector> sel;
   sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   sel->SetRenderer(renderer);
+  sel->SetActorPassOnly(actorPassOnly);
   vtkCamera* oldcam = renderer->GetActiveCamera();
   renWin->SetTrackHMD(false);
 

@@ -55,8 +55,8 @@
 #include "vtkNew.h"                 // ivars
 #include "vtkRenderingCoreModule.h" // For export macro
 
+class vtkAbstractPropPicker;
 class vtkCamera;
-class vtkPropPicker;
 class vtkProp3D;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
@@ -95,10 +95,13 @@ public:
    */
   virtual void SetScale(vtkCamera* cam, double newScale);
 
+  //@{
   /**
-   * Get the interaction picker
+   * Get/Set the interaction picker.
+   * By default, a vtkPropPicker is instancied.
    */
-  vtkPropPicker* GetInteractionPicker() { return this->InteractionPicker; };
+  vtkGetObjectMacro(InteractionPicker, vtkAbstractPropPicker);
+  void SetInteractionPicker(vtkAbstractPropPicker* prop);
 
 protected:
   vtkInteractorStyle3D();
@@ -109,7 +112,7 @@ protected:
   void Prop3DTransform(
     vtkProp3D* prop3D, double* boxCenter, int NumRotation, double** rotate, double* scale);
 
-  vtkPropPicker* InteractionPicker;
+  vtkAbstractPropPicker* InteractionPicker;
   vtkProp3D* InteractionProp;
   vtkMatrix3x3* TempMatrix3;
   vtkMatrix4x4* TempMatrix4;

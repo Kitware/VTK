@@ -48,6 +48,8 @@ public:
 
   vtkSetMacro(Length, float);
 
+  vtkSetVector3Macro(Color, float);
+
   void ReleaseGraphicsResources(vtkRenderWindow* win);
 
 protected:
@@ -57,11 +59,12 @@ protected:
   bool Show;
   bool Loaded;
 
-  vtkOpenGLHelper ModelHelper;
-  vtkOpenGLVertexBufferObject* ModelVBO;
+  vtkOpenGLHelper RayHelper;
+  vtkOpenGLVertexBufferObject* RayVBO;
   vtkNew<vtkMatrix4x4> PoseMatrix;
 
   float Length;
+  float Color[3];
 
 private:
   vtkOpenVRRay(const vtkOpenVRRay&) = delete;

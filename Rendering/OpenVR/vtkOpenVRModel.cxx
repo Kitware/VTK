@@ -241,3 +241,9 @@ void vtkOpenVRModel::SetRayLength(double length)
 {
   this->Ray->SetLength(length);
 }
+
+void vtkOpenVRModel::SetRayColor(double r, double g, double b)
+{
+  float color[] = { r, g, b };
+  this->Ray->SetColor(color);
+}

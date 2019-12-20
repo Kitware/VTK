@@ -56,6 +56,7 @@ public:
   // Set Ray parameters
   void SetShowRay(bool v);
   void SetRayLength(double length);
+  void SetRayColor(double r, double g, double b);
   vtkOpenVRRay* GetRay() { return this->Ray; }
 
   void ReleaseGraphicsResources(vtkWindow* win);
