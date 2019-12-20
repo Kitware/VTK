@@ -13,6 +13,9 @@
 
 =========================================================================*/
 #include "vtkGenericCell.h"
+#include "vtkHigherOrderHexahedron.h"
+#include "vtkHigherOrderQuadrilateral.h"
+#include "vtkHigherOrderWedge.h"
 #include "vtkMath.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
@@ -31,10 +34,12 @@ int TestGenericCell(int, char*[])
     {
       cell->Initialize();
     }
-    cell->Print(cout);
     int numPts = cell->GetNumberOfPoints();
     int numEdges = cell->GetNumberOfEdges();
     int numFaces = cell->GetNumberOfFaces();
+
+    cell->Print(cout);
+
     double center[3];
     int a = cell->GetParametricCenter(center);
     (void)a;

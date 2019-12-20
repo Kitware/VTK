@@ -32,7 +32,7 @@
 #define vtkLagrangeTetra_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNonLinearCell.h"
+#include "vtkHigherOrderTetra.h"
 
 #include <vector> // For caching
 
@@ -41,89 +41,31 @@ class vtkLagrangeCurve;
 class vtkLagrangeTriangle;
 class vtkDoubleArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkLagrangeTetra : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkLagrangeTetra : public vtkHigherOrderTetra
 {
 public:
   static vtkLagrangeTetra* New();
-  vtkTypeMacro(vtkLagrangeTetra, vtkNonLinearCell);
+  vtkTypeMacro(vtkLagrangeTetra, vtkHigherOrderTetra);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
   int GetCellType() override { return VTK_LAGRANGE_TETRAHEDRON; }
-  int GetCellDimension() override { return 3; }
-  int RequiresInitialization() override { return 1; }
-  int GetNumberOfEdges() override { return 6; }
-  int GetNumberOfFaces() override { return 4; }
+
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
-
-  void Initialize() override;
-
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
-    double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
-  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
-    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
-    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
-  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
-    vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
-  void JacobianInverse(const double pcoords[3], double** inverse, double* derivs);
-  void Derivatives(
-    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
-  double* GetParametricCoords() override;
-
-  int GetParametricCenter(double pcoords[3]) override;
-  double GetParametricDistance(const double pcoords[3]) override;
-
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
-
-  vtkIdType GetOrder() const { return this->Order; }
-  vtkIdType ComputeOrder();
-
-  void ToBarycentricIndex(vtkIdType index, vtkIdType* bindex);
-  vtkIdType ToIndex(const vtkIdType* bindex);
-
-  static void BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkIdType order);
-  static vtkIdType Index(const vtkIdType* bindex, vtkIdType order);
+  virtual vtkHigherOrderCurve* getEdgeCell() override;
+  virtual vtkHigherOrderTriangle* getFaceCell() override;
 
 protected:
   vtkLagrangeTetra();
   ~vtkLagrangeTetra() override;
 
-  vtkIdType GetNumberOfSubtetras() const { return this->NumberOfSubtetras; }
-  vtkIdType ComputeNumberOfSubtetras();
-
-  // Description:
-  // Given the index of the subtriangle, compute the barycentric indices of
-  // the subtriangle's vertices.
-  void SubtetraBarycentricPointIndices(vtkIdType cellIndex, vtkIdType (&pointBIndices)[4][4]);
-  void TetraFromOctahedron(
-    vtkIdType cellIndex, const vtkIdType (&octBIndices)[6][4], vtkIdType (&tetraBIndices)[4][4]);
-
-  vtkLagrangeCurve* Edge;
-  vtkLagrangeTriangle* Face;
-  vtkTetra* Tetra;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
-  vtkIdType Order;
-  vtkIdType NumberOfSubtetras;
-  double* ParametricCoordinates;
-
-  std::vector<vtkIdType> EdgeIds;
-  std::vector<vtkIdType> BarycentricIndexMap;
-  std::vector<vtkIdType> IndexMap;
-  std::vector<vtkIdType> SubtetraIndexMap;
+  vtkNew<vtkLagrangeCurve> EdgeCell;
+  vtkNew<vtkLagrangeTriangle> FaceCell;
 
 private:
   vtkLagrangeTetra(const vtkLagrangeTetra&) = delete;
   void operator=(const vtkLagrangeTetra&) = delete;
 };
-
-#undef MAX_POINTS
-#undef MAX_SUBTETRAHEDRA
 
 #endif

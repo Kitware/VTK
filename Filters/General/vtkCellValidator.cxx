@@ -26,6 +26,12 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
+#include "vtkBezierCurve.h"
+#include "vtkBezierHexahedron.h"
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTetra.h"
+#include "vtkBezierTriangle.h"
+#include "vtkBezierWedge.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
@@ -443,6 +449,12 @@ vtkCellValidator::State vtkCellValidator::Check(vtkCell* cell, double tolerance)
     CheckCase(VTK_LAGRANGE_TETRAHEDRON, vtkLagrangeTetra);
     CheckCase(VTK_LAGRANGE_HEXAHEDRON, vtkLagrangeHexahedron);
     CheckCase(VTK_LAGRANGE_WEDGE, vtkLagrangeWedge);
+    CheckCase(VTK_BEZIER_CURVE, vtkBezierCurve);
+    CheckCase(VTK_BEZIER_TRIANGLE, vtkBezierTriangle);
+    CheckCase(VTK_BEZIER_QUADRILATERAL, vtkBezierQuadrilateral);
+    CheckCase(VTK_BEZIER_TETRAHEDRON, vtkBezierTetra);
+    CheckCase(VTK_BEZIER_HEXAHEDRON, vtkBezierHexahedron);
+    CheckCase(VTK_BEZIER_WEDGE, vtkBezierWedge);
 #undef CheckCase
 
     default:
@@ -1603,6 +1615,181 @@ vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeHexahedron* hexahedro
 
 //----------------------------------------------------------------------------
 vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeWedge* wedge, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the wedge
+  if (wedge->GetNumberOfPoints() < 8)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(wedge, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  // Ensure that no faces intersect
+  if (!NoIntersectingFaces(wedge, tolerance))
+  {
+    state |= State::IntersectingFaces;
+  }
+
+  // Ensure the wedge's faces are oriented correctly
+  if (!FacesAreOrientedCorrectly(wedge, tolerance))
+  {
+    state |= State::FacesAreOrientedIncorrectly;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(vtkBezierCurve* curve, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the curve
+  if (curve->GetNumberOfPoints() < 2)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(curve, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(vtkBezierTriangle* triangle, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the triangle
+  if (triangle->GetNumberOfPoints() < 3)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(triangle, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  // Ensure that no faces intersect
+  if (!NoIntersectingFaces(triangle, tolerance))
+  {
+    state |= State::IntersectingFaces;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(
+  vtkBezierQuadrilateral* quadrilateral, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the quadrilateral
+  if (quadrilateral->GetNumberOfPoints() < 4)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(quadrilateral, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  // Ensure that no faces intersect
+  if (!NoIntersectingFaces(quadrilateral, tolerance))
+  {
+    state |= State::IntersectingFaces;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(vtkBezierTetra* tetrahedron, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the tetrahedron
+  if (tetrahedron->GetNumberOfPoints() < 4)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(tetrahedron, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  // Ensure that no faces intersect
+  if (!NoIntersectingFaces(tetrahedron, tolerance))
+  {
+    state |= State::IntersectingFaces;
+  }
+
+  // Ensure the tetrahedron's faces are oriented correctly
+  if (!FacesAreOrientedCorrectly(tetrahedron, tolerance))
+  {
+    state |= State::FacesAreOrientedIncorrectly;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(vtkBezierHexahedron* hexahedron, double tolerance)
+{
+  State state = State::Valid;
+
+  // Ensure there are enough underlying point ids for the hexahedron
+  if (hexahedron->GetNumberOfPoints() < 8)
+  {
+    state |= State::WrongNumberOfPoints;
+    return state;
+  }
+
+  // Ensure that no edges intersect
+  if (!NoIntersectingEdges(hexahedron, tolerance))
+  {
+    state |= State::IntersectingEdges;
+  }
+
+  // Ensure that no faces intersect
+  if (!NoIntersectingFaces(hexahedron, tolerance))
+  {
+    state |= State::IntersectingFaces;
+  }
+
+  // Ensure the hexahedron's faces are oriented correctly
+  if (!FacesAreOrientedCorrectly(hexahedron, tolerance))
+  {
+    state |= State::FacesAreOrientedIncorrectly;
+  }
+
+  return state;
+}
+
+//----------------------------------------------------------------------------
+vtkCellValidator::State vtkCellValidator::Check(vtkBezierWedge* wedge, double tolerance)
 {
   State state = State::Valid;
 

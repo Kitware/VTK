@@ -14,6 +14,12 @@
   =========================================================================*/
 #include "vtkCellTypeSource.h"
 
+#include "vtkBezierCurve.h"
+#include "vtkBezierHexahedron.h"
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTetra.h"
+#include "vtkBezierTriangle.h"
+#include "vtkBezierWedge.h"
 #include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkExtentTranslator.h"
@@ -43,16 +49,18 @@ vtkStandardNewMacro(vtkCellTypeSource);
 
 namespace
 {
-const int NumberOf1DCellTypes = 4;
+const int NumberOf1DCellTypes = 5;
 const int OneDCellTypes[NumberOf1DCellTypes] = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
-  VTK_LAGRANGE_CURVE };
-const int NumberOf2DCellTypes = 6;
+  VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE };
+const int NumberOf2DCellTypes = 8;
 const int TwoDCellTypes[NumberOf2DCellTypes] = { VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
-  VTK_QUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL };
-const int NumberOf3DCellTypes = 11;
+  VTK_QUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE,
+  VTK_BEZIER_QUADRILATERAL };
+const int NumberOf3DCellTypes = 14;
 const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE,
   VTK_PYRAMID, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE,
-  VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE };
+  VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE,
+  VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON, VTK_BEZIER_WEDGE };
 }
 
 // ----------------------------------------------------------------------------
@@ -362,6 +370,36 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
     case VTK_LAGRANGE_WEDGE:
     {
       this->GenerateLagrangeWedges(output, extent);
+      break;
+    }
+    case VTK_BEZIER_CURVE:
+    {
+      this->GenerateBezierCurves(output, extent);
+      break;
+    }
+    case VTK_BEZIER_TRIANGLE:
+    {
+      this->GenerateBezierTris(output, extent);
+      break;
+    }
+    case VTK_BEZIER_QUADRILATERAL:
+    {
+      this->GenerateBezierQuads(output, extent);
+      break;
+    }
+    case VTK_BEZIER_TETRAHEDRON:
+    {
+      this->GenerateBezierTets(output, extent);
+      break;
+    }
+    case VTK_BEZIER_HEXAHEDRON:
+    {
+      this->GenerateBezierHexes(output, extent);
+      break;
+    }
+    case VTK_BEZIER_WEDGE:
+    {
+      this->GenerateBezierWedges(output, extent);
       break;
     }
     default:
@@ -1655,6 +1693,488 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
         }
         output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &cta[0]);
         output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &ctb[0]);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int extent[6])
+{
+  vtkPoints* points = output->GetPoints();
+  vtkIdType numberOfPoints = points->GetNumberOfPoints();
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  // const int yDim = extent[3]-extent[2];
+  // const int zDim = extent[5]-extent[4];
+  // Connectivity size = (numCells = xDim * (numPtsPerCell = (order + 1) + /* conn size */ 1))
+  output->Allocate(xDim * (this->CellOrder + 2));
+  // output->Allocate(numberOfPoints-1);
+  std::vector<vtkIdType> conn;
+  conn.resize(this->CellOrder + 1);
+  for (int i = 0; i < numberOfPoints - 1; ++i)
+  {
+    vtkVector3d p0, p1, dp, pm;
+    output->GetPoint(i, p0.GetData());
+    output->GetPoint(i + 1, p1.GetData());
+    dp = p1 - p0;
+    conn[0] = i;
+    conn[this->CellOrder] = i + 1;
+    double denom = static_cast<double>(this->CellOrder);
+    for (int j = 1; j < this->CellOrder; ++j)
+    {
+      pm = p0 + (static_cast<double>(j) / denom) * dp;
+      vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+      conn[j] = innerPointId;
+    }
+    output->InsertNextCell(VTK_BEZIER_CURVE, this->CellOrder + 1, &conn[0]);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierTris(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int numCells = (xDim - 1) * (yDim - 1) * 2; // 2 tris per quad
+  const int order = this->CellOrder;
+  const int numPtsPerCell = ((order + 1) * (order + 2) / 2) +
+    ((order == 2 && this->CompleteQuadraticSimplicialElements) ? 1 : 0);
+  vtkIdType bary[3]; // barycentric indices
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  std::vector<vtkIdType> cta;
+  std::vector<vtkIdType> ctb;
+  cta.resize(numPtsPerCell);
+  ctb.resize(numPtsPerCell);
+  for (int j = 0; j < yDim; ++j)
+  {
+    for (int i = 0; i < xDim; ++i)
+    {
+      cta[0] = i + j * (xDim + 1);       // 0
+      cta[1] = i + 1 + j * (xDim + 1);   // 1
+      cta[2] = i + (j + 1) * (xDim + 1); // 3
+
+      ctb[0] = i + 1 + (j + 1) * (xDim + 1); // 2
+      ctb[1] = i + (j + 1) * (xDim + 1);     // 3
+      ctb[2] = i + 1 + j * (xDim + 1);       // 1
+
+      vtkVector3d p0, p1, p2, p3, pm;
+      output->GetPoint(cta[0], p0.GetData());
+      output->GetPoint(cta[1], p1.GetData());
+      output->GetPoint(ctb[0], p2.GetData());
+      output->GetPoint(ctb[1], p3.GetData());
+
+      for (int n = 0; n <= order; ++n)
+      {
+        for (int m = 0; m <= order; ++m)
+        {
+          if ((m == 0 || m == order) && (n == 0 || n == order))
+          { // skip corner points
+            continue;
+          }
+          double r = static_cast<double>(m) / order;
+          double s = static_cast<double>(n) / order;
+          pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
+          vtkIdType innerPointId;
+          this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+
+          if (m + n <= order)
+          {
+            bary[0] = m;
+            bary[1] = n;
+            bary[2] = order - m - n;
+            int ctaidx = vtkBezierTriangle::Index(bary, order);
+            cta[ctaidx] = innerPointId;
+          }
+          if (m + n >= order)
+          {
+            bary[0] = order - m;
+            bary[1] = order - n;
+            bary[2] = order - bary[0] - bary[1];
+            int ctbidx = vtkBezierTriangle::Index(bary, order);
+            ctb[ctbidx] = innerPointId;
+          }
+        }
+      }
+      // Add mid-face point if serendipity elements were requested:
+      if (order == 2 && this->CompleteQuadraticSimplicialElements)
+      {
+        double r, s;
+        r = 1. / 3.;
+        s = 1. / 3.;
+        pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
+        this->Locator->InsertUniquePoint(pm.GetData(), cta[numPtsPerCell - 1]);
+        r = 2. / 3.;
+        s = 2. / 3.;
+        pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
+        this->Locator->InsertUniquePoint(pm.GetData(), ctb[numPtsPerCell - 1]);
+      }
+      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, &cta[0]);
+      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, &ctb[0]);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int extent[6])
+{
+  vtkPoints* points = output->GetPoints();
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int numCells = (xDim - 1) * (yDim - 1);
+  const int numPtsPerCell = (this->CellOrder + 1) * (this->CellOrder + 1);
+  // Connectivity size = numCells * (numPtsPerCell + 1))
+  // numPtsPerCell + 1 because conn doesn't hold number of pts per cell, but output cell array does.
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
+  const int order[2] = { this->CellOrder, this->CellOrder };
+  for (int j = 0; j < yDim; ++j)
+  {
+    for (int i = 0; i < xDim; ++i)
+    {
+      conn[0] = i + j * (xDim + 1);
+      conn[1] = i + 1 + j * (xDim + 1);
+      conn[2] = i + 1 + (j + 1) * (xDim + 1);
+      conn[3] = i + (j + 1) * (xDim + 1);
+      vtkVector3d p0, p1, p2, p3, pm;
+      output->GetPoint(conn[0], p0.GetData());
+      output->GetPoint(conn[1], p1.GetData());
+      output->GetPoint(conn[2], p2.GetData());
+      output->GetPoint(conn[3], p3.GetData());
+
+      for (int n = 0; n <= order[1]; ++n)
+      {
+        for (int m = 0; m <= order[0]; ++m)
+        {
+          if ((m == 0 || m == order[0]) && (n == 0 || n == order[1]))
+          { // skip corner points
+            continue;
+          }
+          int connidx = vtkBezierQuadrilateral::PointIndexFromIJK(m, n, order);
+          double r = static_cast<double>(m) / order[0];
+          double s = static_cast<double>(n) / order[1];
+          pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
+          vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+          conn[connidx] = innerPointId;
+        }
+      }
+      output->InsertNextCell(VTK_BEZIER_QUADRILATERAL, numPtsPerCell, &conn[0]);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1);
+  const int numPtsPerCell = (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements)
+    ? 15
+    : (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
+
+  // Allocate numCells * (numPtsPerCell + 1) because connectivity array doesn't
+  // hold number of pts per cell, but output cell array does:
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  vtkIdType corners[8];
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
+  int cc = 0;
+  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
+  for (int k = 0; k < zDim; ++k)
+  {
+    for (int j = 0; j < yDim; ++j)
+    {
+      for (int i = 0; i < xDim; ++i, ++cc)
+      {
+        corners[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
+        corners[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
+        corners[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        corners[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        corners[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+
+        vtkVector3d pt[8], pm;
+        output->GetPoint(corners[0], pt[0].GetData());
+        output->GetPoint(corners[1], pt[1].GetData());
+        output->GetPoint(corners[2], pt[2].GetData());
+        output->GetPoint(corners[3], pt[3].GetData());
+        output->GetPoint(corners[4], pt[4].GetData());
+        output->GetPoint(corners[5], pt[5].GetData());
+        output->GetPoint(corners[6], pt[6].GetData());
+        output->GetPoint(corners[7], pt[7].GetData());
+
+        static const int tetsOfHex[5][4] = {
+          { 0, 1, 3, 4 },
+          { 1, 2, 3, 6 },
+          { 4, 7, 6, 3 },
+          { 4, 6, 5, 1 },
+          { 1, 4, 6, 3 },
+        };
+        for (int te = 0; te < 5; ++te)
+        {
+          vtkVector3d tpts[4];
+          vtkIdType innerPointId;
+          // Get corners
+          for (int ii = 0; ii < 4; ++ii)
+          {
+            conn[ii] = corners[tetsOfHex[te][ii]];
+            tpts[ii] = pt[tetsOfHex[te][ii]];
+          }
+          for (int kk = 0; kk <= order[2]; ++kk)
+          {
+            double tt = static_cast<double>(kk) / order[2];
+            for (int jj = 0; jj <= order[1] - kk; ++jj)
+            {
+              double ss = static_cast<double>(jj) / order[1];
+              for (int ii = 0; ii <= order[0] - jj - kk; ++ii)
+              {
+                double rr = static_cast<double>(ii) / order[0];
+                pm = rr * tpts[1] + ss * tpts[2] + tt * tpts[3] + (1. - rr - ss - tt) * tpts[0];
+                vtkIdType ijkl[4] = { ii, jj, kk, order[0] - ii - jj - kk };
+                vtkIdType connidx = vtkBezierTetra::Index(ijkl, order[0]);
+                this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+                conn[connidx] = innerPointId;
+              }
+            }
+          }
+          if (this->CompleteQuadraticSimplicialElements && order[0] == 2)
+          { // Add 5 new mid-face+mid-body points
+            static const int facePts[4][3] = {
+              { 0, 1, 2 },
+              { 0, 1, 3 },
+              { 1, 2, 3 },
+              { 0, 2, 3 },
+            };
+            for (int extra = 0; extra < 4; ++extra)
+            {
+              pm = (tpts[facePts[extra][0]] + tpts[facePts[extra][1]] + tpts[facePts[extra][2]]) *
+                (1.0 / 3.0);
+              this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+              conn[10 + extra] = innerPointId;
+            }
+            pm = (tpts[0] + tpts[1] + tpts[2] + tpts[3]) * 0.25;
+            this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+            conn[14] = innerPointId;
+          }
+          output->InsertNextCell(VTK_BEZIER_TETRAHEDRON, numPtsPerCell, &conn[0]);
+        }
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierHexes(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1);
+  const int numPtsPerCell = (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 1);
+  // Connectivity size = numCells * (numPtsPerCell + 1))
+  // numPtsPerCell + 1 because conn doesn't hold number of pts per cell, but output cell array does.
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
+  int cc = 0;
+  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
+  for (int k = 0; k < zDim; ++k)
+  {
+    for (int j = 0; j < yDim; ++j)
+    {
+      for (int i = 0; i < xDim; ++i, ++cc)
+      {
+        conn[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
+        conn[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
+        conn[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        conn[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        conn[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+
+        vtkVector3d p0, p1, p2, p3, p4, p5, p6, p7, pm;
+        output->GetPoint(conn[0], p0.GetData());
+        output->GetPoint(conn[1], p1.GetData());
+        output->GetPoint(conn[2], p2.GetData());
+        output->GetPoint(conn[3], p3.GetData());
+        output->GetPoint(conn[4], p4.GetData());
+        output->GetPoint(conn[5], p5.GetData());
+        output->GetPoint(conn[6], p6.GetData());
+        output->GetPoint(conn[7], p7.GetData());
+
+        for (int p = 0; p <= order[2]; ++p)
+        {
+          for (int n = 0; n <= order[1]; ++n)
+          {
+            for (int m = 0; m <= order[0]; ++m)
+            {
+              if ((m == 0 || m == order[0]) && (n == 0 || n == order[1]) &&
+                (p == 0 || p == order[2]))
+              { // skip corner points
+                continue;
+              }
+              int connidx = vtkBezierHexahedron::PointIndexFromIJK(m, n, p, order);
+              double r = static_cast<double>(m) / order[0];
+              double s = static_cast<double>(n) / order[1];
+              double t = static_cast<double>(p) / order[2];
+              pm = (1.0 - r) *
+                  ((p3 * (1.0 - t) + p7 * t) * s + (p0 * (1.0 - t) + p4 * t) * (1.0 - s)) +
+                r * ((p2 * (1.0 - t) + p6 * t) * s + (p1 * (1.0 - t) + p5 * t) * (1.0 - s));
+              vtkIdType innerPointId;
+              this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+              conn[connidx] = innerPointId;
+            }
+          }
+        }
+        output->InsertNextCell(VTK_BEZIER_HEXAHEDRON, numPtsPerCell, &conn[0]);
+      } // i
+    }   // j
+  }     // k
+}
+
+//----------------------------------------------------------------------------
+void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1) * 2; // 2 wedges per hex
+  const int numPtsPerCell = (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2)
+    ? 21
+    : (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2;
+
+  // There is some ambiguity about whether or not <order> should be a 3-array
+  // containing the order in each cardinal direction or a 4-array that
+  // additionally holds the number of points. Since
+  // vtkBezierWedge::PointIndexFromIJK expects the order to be a 4-array, we
+  // use this convention here.
+  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder, numPtsPerCell };
+
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  std::vector<vtkIdType> cta;
+  std::vector<vtkIdType> ctb;
+  cta.resize(numPtsPerCell);
+  ctb.resize(numPtsPerCell);
+  int cc = 0;
+  for (int k = 0; k < zDim; ++k)
+  {
+    for (int j = 0; j < yDim; ++j)
+    {
+      for (int i = 0; i < xDim; ++i, ++cc)
+      {
+        cta[0] = i + (j + k * (yDim + 1)) * (xDim + 1);       // 0
+        cta[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);   // 1
+        cta[2] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1); // 3
+
+        cta[3] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);       // 0
+        cta[4] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);   // 1
+        cta[5] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 3
+
+        ctb[0] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1); // 2
+        ctb[1] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);     // 3
+        ctb[2] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);       // 1
+
+        ctb[3] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 2
+        ctb[4] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);     // 3
+        ctb[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);       // 1
+
+        vtkVector3d pt[8], pm;
+        output->GetPoint(cta[0], pt[0].GetData());
+        output->GetPoint(cta[1], pt[1].GetData());
+        output->GetPoint(ctb[0], pt[2].GetData());
+        output->GetPoint(ctb[1], pt[3].GetData());
+        output->GetPoint(cta[3], pt[4].GetData());
+        output->GetPoint(cta[4], pt[5].GetData());
+        output->GetPoint(ctb[3], pt[6].GetData());
+        output->GetPoint(ctb[4], pt[7].GetData());
+
+        for (int p = 0; p <= order[2]; ++p)
+        {
+          for (int n = 0; n <= order[0]; ++n)
+          {
+            for (int m = 0; m <= order[0]; ++m)
+            {
+              if ((m == 0 || m == order[0]) && (n == 0 || n == order[0]) &&
+                (p == 0 || p == order[2]))
+              { // skip corner points
+                continue;
+              }
+              double r = static_cast<double>(m) / order[0];
+              double s = static_cast<double>(n) / order[0];
+              double t = static_cast<double>(p) / order[2];
+              pm = (1.0 - r) *
+                  ((pt[3] * (1.0 - t) + pt[7] * t) * s +
+                    (pt[0] * (1.0 - t) + pt[4] * t) * (1.0 - s)) +
+                r *
+                  ((pt[2] * (1.0 - t) + pt[6] * t) * s +
+                    (pt[1] * (1.0 - t) + pt[5] * t) * (1.0 - s));
+              vtkIdType innerPointId;
+              this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+
+              if (m + n <= order[0])
+              {
+                int ctaidx = vtkBezierWedge::PointIndexFromIJK(m, n, p, order);
+                cta[ctaidx] = innerPointId;
+              }
+              if (m + n >= order[0])
+              {
+                int ctbidx =
+                  vtkBezierWedge::PointIndexFromIJK(order[0] - m, order[0] - n, p, order);
+                ctb[ctbidx] = innerPointId;
+              }
+            }
+          }
+        }
+        if (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2)
+        {
+          // When present, triangle mid-face nodes should appear before
+          // the quadrilateral mid-face nodes. So, shift the 3 quad-face
+          // nodes by 2 entries in the connectivity array:
+          for (int ii = 0; ii < 3; ++ii)
+          {
+            cta[19 - ii] = cta[17 - ii];
+            ctb[19 - ii] = ctb[17 - ii];
+          }
+          // Now fill in the "holes" at ct{a,b}[15,16] with tri-face nodes:
+          static const int facePts[2][2][3] = {
+            { { 0, 1, 3 }, { 4, 5, 7 } }, // cta
+            { { 1, 2, 3 }, { 5, 6, 7 } }  // ctb
+          };
+          vtkVector3d bodyA(0., 0., 0.);
+          vtkVector3d bodyB(0., 0., 0.);
+          vtkIdType innerA, innerB;
+          for (int ii = 0; ii < 2; ++ii)
+          {
+            vtkVector3d pA =
+              (pt[facePts[0][ii][0]] + pt[facePts[0][ii][1]] + pt[facePts[0][ii][2]]) * (1. / 3.);
+            vtkVector3d pB =
+              (pt[facePts[1][ii][0]] + pt[facePts[1][ii][1]] + pt[facePts[1][ii][2]]) * (1. / 3.);
+            bodyA = bodyA + 0.5 * pA;
+            bodyB = bodyB + 0.5 * pB;
+            this->Locator->InsertUniquePoint(pA.GetData(), innerA);
+            this->Locator->InsertUniquePoint(pB.GetData(), innerB);
+            cta[15 + ii] = innerA;
+            ctb[15 + ii] = innerB;
+          }
+          // Finally, add a body-centered node to cta and ctb:
+          this->Locator->InsertUniquePoint(bodyA.GetData(), innerA);
+          this->Locator->InsertUniquePoint(bodyB.GetData(), innerB);
+          cta[20] = innerA;
+          ctb[20] = innerB;
+        }
+        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, &cta[0]);
+        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, &ctb[0]);
       }
     }
   }

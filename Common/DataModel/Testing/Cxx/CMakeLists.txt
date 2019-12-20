@@ -11,6 +11,8 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   ${legacy_srcs}
   LagrangeHexahedron.cxx
+  BezierInterpolation.cxx
+  TestBezier.cxx
   TestAngularPeriodicDataArray.cxx
   TestColor.cxx
   TestVector.cxx

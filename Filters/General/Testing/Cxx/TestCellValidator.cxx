@@ -61,6 +61,13 @@
 #include "vtkLagrangeTriangle.h"
 #include "vtkLagrangeWedge.h"
 
+#include "vtkBezierCurve.h"
+#include "vtkBezierHexahedron.h"
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTetra.h"
+#include "vtkBezierTriangle.h"
+#include "vtkBezierWedge.h"
+
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -124,6 +131,13 @@ static vtkSmartPointer<vtkLagrangeQuadrilateral> MakeLagrangeQuadrilateral();
 static vtkSmartPointer<vtkLagrangeTetra> MakeLagrangeTetra();
 static vtkSmartPointer<vtkLagrangeHexahedron> MakeLagrangeHexahedron();
 static vtkSmartPointer<vtkLagrangeWedge> MakeLagrangeWedge();
+
+static vtkSmartPointer<vtkBezierCurve> MakeBezierCurve();
+static vtkSmartPointer<vtkBezierTriangle> MakeBezierTriangle();
+static vtkSmartPointer<vtkBezierQuadrilateral> MakeBezierQuadrilateral();
+static vtkSmartPointer<vtkBezierTetra> MakeBezierTetra();
+static vtkSmartPointer<vtkBezierHexahedron> MakeBezierHexahedron();
+static vtkSmartPointer<vtkBezierWedge> MakeBezierWedge();
 //----------------------------------------------------------------------------
 
 int TestCellValidator(int, char*[])
@@ -175,6 +189,13 @@ int TestCellValidator(int, char*[])
   vtkSmartPointer<vtkLagrangeTetra> lagrangeTetra = MakeLagrangeTetra();
   vtkSmartPointer<vtkLagrangeHexahedron> lagrangeHexahedron = MakeLagrangeHexahedron();
   vtkSmartPointer<vtkLagrangeWedge> lagrangeWedge = MakeLagrangeWedge();
+
+  vtkSmartPointer<vtkBezierCurve> bezierCurve = MakeBezierCurve();
+  vtkSmartPointer<vtkBezierTriangle> bezierTriangle = MakeBezierTriangle();
+  vtkSmartPointer<vtkBezierQuadrilateral> bezierQuadrilateral = MakeBezierQuadrilateral();
+  vtkSmartPointer<vtkBezierTetra> bezierTetra = MakeBezierTetra();
+  vtkSmartPointer<vtkBezierHexahedron> bezierHexahedron = MakeBezierHexahedron();
+  vtkSmartPointer<vtkBezierWedge> bezierWedge = MakeBezierWedge();
 
   vtkCellValidator::State state;
 
@@ -229,6 +250,12 @@ int TestCellValidator(int, char*[])
   CheckCell(lagrangeTetra);
   CheckCell(lagrangeHexahedron);
   CheckCell(lagrangeWedge);
+  CheckCell(bezierCurve);
+  CheckCell(bezierTriangle);
+  CheckCell(bezierQuadrilateral);
+  CheckCell(bezierTetra);
+  CheckCell(bezierHexahedron);
+  CheckCell(bezierWedge);
 #undef CheckCell
 
   state = vtkCellValidator::Check(MakeBrokenHexahedron(), FLT_EPSILON);
@@ -982,6 +1009,7 @@ vtkSmartPointer<vtkLagrangeQuadrilateral> MakeLagrangeQuadrilateral()
 
   quadrilateral->GetPointIds()->SetNumberOfIds(nPoints);
   quadrilateral->GetPoints()->SetNumberOfPoints(nPoints);
+  quadrilateral->SetUniformOrderFromNumPoints(nPoints);
   quadrilateral->Initialize();
   double* points = quadrilateral->GetParametricCoords();
   for (vtkIdType i = 0; i < nPoints; i++)
@@ -1001,6 +1029,7 @@ vtkSmartPointer<vtkLagrangeHexahedron> MakeLagrangeHexahedron()
 
   hexahedron->GetPointIds()->SetNumberOfIds(nPoints);
   hexahedron->GetPoints()->SetNumberOfPoints(nPoints);
+  hexahedron->SetUniformOrderFromNumPoints(nPoints);
   hexahedron->Initialize();
   double* points = hexahedron->GetParametricCoords();
   for (vtkIdType i = 0; i < nPoints; i++)
@@ -1039,6 +1068,125 @@ vtkSmartPointer<vtkLagrangeWedge> MakeLagrangeWedge()
 
   wedge->GetPointIds()->SetNumberOfIds(nPoints);
   wedge->GetPoints()->SetNumberOfPoints(nPoints);
+  wedge->SetUniformOrderFromNumPoints(nPoints);
+  wedge->Initialize();
+  double* points = wedge->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    wedge->GetPointIds()->SetId(i, i);
+    wedge->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return wedge;
+}
+
+vtkSmartPointer<vtkBezierCurve> MakeBezierCurve()
+{
+  int nPoints = 5;
+
+  vtkSmartPointer<vtkBezierCurve> curve = vtkSmartPointer<vtkBezierCurve>::New();
+
+  curve->GetPointIds()->SetNumberOfIds(nPoints);
+  curve->GetPoints()->SetNumberOfPoints(nPoints);
+  curve->Initialize();
+  double* points = curve->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    curve->GetPointIds()->SetId(i, i);
+    curve->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return curve;
+}
+
+vtkSmartPointer<vtkBezierTriangle> MakeBezierTriangle()
+{
+  int nPoints = 15;
+
+  vtkSmartPointer<vtkBezierTriangle> triangle = vtkSmartPointer<vtkBezierTriangle>::New();
+
+  triangle->GetPointIds()->SetNumberOfIds(nPoints);
+  triangle->GetPoints()->SetNumberOfPoints(nPoints);
+  triangle->Initialize();
+  double* points = triangle->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    triangle->GetPointIds()->SetId(i, i);
+    triangle->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return triangle;
+}
+
+vtkSmartPointer<vtkBezierQuadrilateral> MakeBezierQuadrilateral()
+{
+  int nPoints = 25;
+
+  vtkSmartPointer<vtkBezierQuadrilateral> quadrilateral =
+    vtkSmartPointer<vtkBezierQuadrilateral>::New();
+
+  quadrilateral->GetPointIds()->SetNumberOfIds(nPoints);
+  quadrilateral->GetPoints()->SetNumberOfPoints(nPoints);
+  quadrilateral->SetUniformOrderFromNumPoints(nPoints);
+  quadrilateral->Initialize();
+  double* points = quadrilateral->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    quadrilateral->GetPointIds()->SetId(i, i);
+    quadrilateral->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return quadrilateral;
+}
+
+vtkSmartPointer<vtkBezierHexahedron> MakeBezierHexahedron()
+{
+  int nPoints = 125;
+
+  vtkSmartPointer<vtkBezierHexahedron> hexahedron = vtkSmartPointer<vtkBezierHexahedron>::New();
+
+  hexahedron->GetPointIds()->SetNumberOfIds(nPoints);
+  hexahedron->GetPoints()->SetNumberOfPoints(nPoints);
+  hexahedron->SetUniformOrderFromNumPoints(nPoints);
+  hexahedron->Initialize();
+  double* points = hexahedron->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    hexahedron->GetPointIds()->SetId(i, i);
+    hexahedron->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return hexahedron;
+}
+
+vtkSmartPointer<vtkBezierTetra> MakeBezierTetra()
+{
+  int nPoints = 10;
+
+  vtkSmartPointer<vtkBezierTetra> tetra = vtkSmartPointer<vtkBezierTetra>::New();
+
+  tetra->GetPointIds()->SetNumberOfIds(nPoints);
+  tetra->GetPoints()->SetNumberOfPoints(nPoints);
+  tetra->Initialize();
+  double* points = tetra->GetParametricCoords();
+  for (vtkIdType i = 0; i < nPoints; i++)
+  {
+    tetra->GetPointIds()->SetId(i, i);
+    tetra->GetPoints()->SetPoint(i, &points[3 * i]);
+  }
+
+  return tetra;
+}
+
+vtkSmartPointer<vtkBezierWedge> MakeBezierWedge()
+{
+  int nPoints = 75;
+
+  vtkSmartPointer<vtkBezierWedge> wedge = vtkSmartPointer<vtkBezierWedge>::New();
+
+  wedge->GetPointIds()->SetNumberOfIds(nPoints);
+  wedge->GetPoints()->SetNumberOfPoints(nPoints);
+  wedge->SetUniformOrderFromNumPoints(nPoints);
   wedge->Initialize();
   double* points = wedge->GetParametricCoords();
   for (vtkIdType i = 0; i < nPoints; i++)

@@ -102,6 +102,8 @@ public:
     PEDIGREEIDS = 6,
     EDGEFLAG = 7,
     TANGENTS = 8,
+    RATIONALWEIGHTS = 9,
+    HIGHERORDERDEGREES = 10,
     NUM_ATTRIBUTES
   };
 
@@ -215,6 +217,24 @@ public:
 
   //@{
   /**
+   * Set/Get the rational weights data.
+   */
+  int SetRationalWeights(vtkDataArray* da);
+  int SetActiveRationalWeights(const char* name);
+  vtkDataArray* GetRationalWeights();
+  //@}
+
+  //@{
+  /**
+   * Set/Get the rational degrees data.
+   */
+  int SetHigherOrderDegrees(vtkDataArray* da);
+  int SetActiveHigherOrderDegrees(const char* name);
+  vtkDataArray* GetHigherOrderDegrees();
+  //@}
+
+  //@{
+  /**
    * This will first look for an array with the correct name.
    * If one exists, it is returned. Otherwise, the name argument
    * is ignored, and the active attribute is returned.
@@ -227,6 +247,8 @@ public:
   vtkDataArray* GetTensors(const char* name);
   vtkDataArray* GetGlobalIds(const char* name);
   vtkAbstractArray* GetPedigreeIds(const char* name);
+  vtkDataArray* GetRationalWeights(const char* name);
+  vtkDataArray* GetHigherOrderDegrees(const char* name);
   //@}
 
   /**
@@ -401,6 +423,16 @@ public:
   void SetCopyPedigreeIds(vtkTypeBool i, int ctype = ALLCOPY);
   vtkTypeBool GetCopyPedigreeIds(int ctype = ALLCOPY);
   vtkBooleanMacro(CopyPedigreeIds, vtkTypeBool);
+
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
+  void SetCopyRationalWeights(vtkTypeBool i, int ctype = ALLCOPY);
+  vtkTypeBool GetCopyRationalWeights(int ctype = ALLCOPY);
+  vtkBooleanMacro(CopyRationalWeights, vtkTypeBool);
+
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
+  void SetCopyHigherOrderDegrees(vtkTypeBool i, int ctype = ALLCOPY);
+  vtkTypeBool GetCopyHigherOrderDegrees(int ctype = ALLCOPY);
+  vtkBooleanMacro(CopyHigherOrderDegrees, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void CopyAllOn(int ctype = ALLCOPY) override;
@@ -615,8 +647,8 @@ protected:
 
   static const int NumberOfAttributeComponents[NUM_ATTRIBUTES];
   static const int AttributeLimits[NUM_ATTRIBUTES];
-  static const char AttributeNames[NUM_ATTRIBUTES][12];
-  static const char LongAttributeNames[NUM_ATTRIBUTES][35];
+  static const char AttributeNames[NUM_ATTRIBUTES][19];
+  static const char LongAttributeNames[NUM_ATTRIBUTES][42];
 
 private:
   static int CheckNumberOfComponents(vtkAbstractArray* da, int attributeType);

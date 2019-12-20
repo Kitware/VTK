@@ -26,6 +26,9 @@
 #include "vtkFloatArray.h"
 #include "vtkGeneralTransform.h"
 #include "vtkGradientFilter.h"
+#include "vtkHigherOrderHexahedron.h"
+#include "vtkHigherOrderQuadrilateral.h"
+#include "vtkHigherOrderWedge.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -39,6 +42,10 @@
 #include <vector>
 
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+#define VTK_MAXIMUM_NUMBER_OF_POINTS 216
 
 namespace
 {
@@ -77,7 +84,7 @@ void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset, const 
   array->SetNumberOfComponents(numberOfComponents);
   array->SetNumberOfTuples(numberOfCells);
   std::vector<double> tupleValues(numberOfComponents);
-  double point[3], parametricCenter[3], weights[100];
+  double point[3], parametricCenter[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   for (vtkIdType i = 0; i < numberOfCells; i++)
   {
     vtkCell* cell = grid->GetCell(i);

@@ -60,6 +60,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace vtkTemporalStreamTracerNamespace;
 
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+#define VTK_MAXIMUM_NUMBER_OF_POINTS 216
+
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
@@ -1241,7 +1245,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(ParticleListIterator& it, double
     if (this->ComputeVorticity)
     {
       vtkGenericCell* cell;
-      double pcoords[3], vorticity[3], weights[256];
+      double pcoords[3], vorticity[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
       double rotation, omega;
       // have to use T0 if particle is out at T1, otherwise use T1
       if (info.LocationState == ID_OUTSIDE_T1)

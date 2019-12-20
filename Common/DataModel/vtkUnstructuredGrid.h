@@ -37,6 +37,12 @@
 
 class vtkCellArray;
 class vtkAbstractCellLinks;
+class vtkBezierCurve;
+class vtkBezierQuadrilateral;
+class vtkBezierHexahedron;
+class vtkBezierTriangle;
+class vtkBezierTetra;
+class vtkBezierWedge;
 class vtkConvexPointSet;
 class vtkEmptyCell;
 class vtkHexahedron;
@@ -483,6 +489,12 @@ protected:
   // GetCell() (and similar) methods.
   vtkVertex* Vertex;
   vtkPolyVertex* PolyVertex;
+  vtkBezierCurve* BezierCurve;
+  vtkBezierQuadrilateral* BezierQuadrilateral;
+  vtkBezierHexahedron* BezierHexahedron;
+  vtkBezierTriangle* BezierTriangle;
+  vtkBezierTetra* BezierTetra;
+  vtkBezierWedge* BezierWedge;
   vtkLagrangeCurve* LagrangeCurve;
   vtkLagrangeQuadrilateral* LagrangeQuadrilateral;
   vtkLagrangeHexahedron* LagrangeHexahedron;

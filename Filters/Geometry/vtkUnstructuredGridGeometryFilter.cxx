@@ -14,6 +14,10 @@
 =========================================================================*/
 #include "vtkUnstructuredGridGeometryFilter.h"
 
+#include "vtkBezierHexahedron.h"
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTetra.h"
+#include "vtkBezierWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticTriangle.h"
@@ -337,6 +341,8 @@ public:
   // VTK_QUADRATIC_LINEAR_QUAD
   // VTK_LAGRANGE_TRIANGLE
   // VTK_LAGRANGE_QUADRILATERAL
+  // VTK_BEZIER_TRIANGLE
+  // VTK_BEZIER_QUADRILATERAL
   vtkIdType Type;
 
   // Dataset point Ids that form the surfel.
@@ -356,6 +362,10 @@ public:
   // -1 if it belongs to more than one (it means the surfel is not on the
   // boundary of the dataset, so it will be not visible.
   vtkIdType Cell3DId;
+
+  // A 2d double, containing the degrees
+  // This is used for Bezier quad, to know which degree is involved.
+  int Degrees[2];
 
   // A surfel is also an element of a one-way linked list: in the hashtable,
   // each key entry is a one-way linked list of Surfels.
@@ -406,14 +416,17 @@ public:
       {
         points[pt] = pts[faceIndices[pt]];
       }
-      this->InsertFace(cellId, FaceType, NumPoints, points);
+      int degrees[2]{ 0, 0 };
+      this->InsertFace(cellId, FaceType, NumPoints, points, degrees);
     }
   }
 
   // Add a face defined by its cell type 'faceType', its number of points,
   // its list of points and the cellId of the 3D cell it belongs to.
   // \pre positive number of points
-  void InsertFace(vtkIdType cellId, vtkIdType faceType, int numberOfPoints, vtkIdType* points)
+
+  void InsertFace(
+    vtkIdType cellId, vtkIdType faceType, int numberOfPoints, vtkIdType* points, int degrees[2])
   {
     assert("pre: positive number of points" && numberOfPoints >= 0);
 
@@ -424,12 +437,14 @@ public:
       case VTK_QUADRATIC_TRIANGLE:
       case VTK_BIQUADRATIC_TRIANGLE:
       case VTK_LAGRANGE_TRIANGLE:
+      case VTK_BEZIER_TRIANGLE:
         numberOfCornerPoints = 3;
         break;
       case VTK_QUADRATIC_QUAD:
       case VTK_QUADRATIC_LINEAR_QUAD:
       case VTK_BIQUADRATIC_QUAD:
       case VTK_LAGRANGE_QUADRILATERAL:
+      case VTK_BEZIER_QUADRILATERAL:
         numberOfCornerPoints = 4;
         break;
       default:
@@ -560,6 +575,7 @@ public:
                 }
                 break;
               case VTK_LAGRANGE_TRIANGLE:
+              case VTK_BEZIER_TRIANGLE:
                 found &= (current->NumberOfPoints == numberOfPoints);
                 // TODO: Compare all higher order points.
                 break;
@@ -595,6 +611,7 @@ public:
                 }
                 break;
               case VTK_LAGRANGE_QUADRILATERAL:
+              case VTK_BEZIER_QUADRILATERAL:
                 found &= (current->NumberOfPoints == numberOfPoints);
                 // TODO: Compare all higher order points.
                 break;
@@ -619,6 +636,8 @@ public:
     }
     if (surfel != nullptr)
     {
+      surfel->Degrees[0] = degrees[0];
+      surfel->Degrees[1] = degrees[1];
       surfel->Next = nullptr;
       surfel->Type = faceType;
       surfel->NumberOfPoints = numberOfPoints;
@@ -993,7 +1012,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
         (cellType == VTK_BIQUADRATIC_QUAD) || (cellType == VTK_QUADRATIC_LINEAR_QUAD) ||
         (cellType == VTK_BIQUADRATIC_TRIANGLE) || (cellType == VTK_CUBIC_LINE) ||
         (cellType == VTK_QUADRATIC_POLYGON) || (cellType == VTK_LAGRANGE_CURVE) ||
-        (cellType == VTK_LAGRANGE_QUADRILATERAL) || (cellType == VTK_LAGRANGE_TRIANGLE))
+        (cellType == VTK_LAGRANGE_QUADRILATERAL) || (cellType == VTK_LAGRANGE_TRIANGLE) ||
+        (cellType == VTK_BEZIER_CURVE) || (cellType == VTK_BEZIER_QUADRILATERAL) ||
+        (cellType == VTK_BEZIER_TRIANGLE))
       {
         vtkDebugMacro(<< "not 3D cell. type=" << cellType);
         // not 3D: just copy it
@@ -1129,17 +1150,24 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             for (int face = 0, fptr = 1; face < nFaces; ++face)
             {
               int pt = static_cast<int>(faces->GetId(fptr++));
-              this->HashTable->InsertFace(cellId, VTK_POLYGON, pt, faces->GetPointer(fptr));
+              int degrees[2]{ 0, 0 };
+              this->HashTable->InsertFace(
+                cellId, VTK_POLYGON, pt, faces->GetPointer(fptr), degrees);
               fptr += pt;
             }
             break;
           }
-          case VTK_LAGRANGE_TETRAHEDRON:
           case VTK_LAGRANGE_HEXAHEDRON:
           case VTK_LAGRANGE_WEDGE:
+          case VTK_LAGRANGE_TETRAHEDRON:
+          case VTK_BEZIER_HEXAHEDRON:
+          case VTK_BEZIER_WEDGE:
+          case VTK_BEZIER_TETRAHEDRON:
           {
             vtkNew<vtkGenericCell> genericCell;
             cellIter->GetCell(genericCell);
+            input->SetCellOrderAndRationalWeights(cellId, genericCell);
+
             int nFaces = genericCell->GetNumberOfFaces();
             for (int face = 0; face < nFaces; ++face)
             {
@@ -1150,7 +1178,18 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
               {
                 points[pt] = faceCell->GetPointIds()->GetId(pt);
               }
-              this->HashTable->InsertFace(cellId, faceCell->GetCellType(), nPoints, points);
+
+              int degrees[2]{ 0, 0 };
+              if ((faceCell->GetCellType() == VTK_BEZIER_QUADRILATERAL) ||
+                (faceCell->GetCellType() == VTK_LAGRANGE_QUADRILATERAL))
+              {
+                vtkHigherOrderQuadrilateral* facecellBezier =
+                  dynamic_cast<vtkHigherOrderQuadrilateral*>(faceCell);
+                degrees[0] = facecellBezier->GetOrder(0);
+                degrees[1] = facecellBezier->GetOrder(1);
+              }
+              this->HashTable->InsertFace(
+                cellId, faceCell->GetCellType(), nPoints, points, degrees);
               delete[] points;
             }
             break;
@@ -1174,7 +1213,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
     vtkIdType cellId = surfel->Cell3DId;
     if (cellId >= 0) // on dataset boundary
     {
-      vtkIdType cellType = surfel->Type;
+      vtkIdType cellType2D = surfel->Type;
       vtkIdType npts = surfel->NumberOfPoints;
       // Dataset point Ids that form the surfel.
       vtkIdType* pts = surfel->Points;
@@ -1218,8 +1257,20 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
         }
       } // keeping original point list
 
-      vtkIdType newCellId = output->InsertNextCell(cellType, cellIds);
+      vtkIdType newCellId = output->InsertNextCell(cellType2D, cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
+
+      if (outputCD->SetActiveAttribute(
+            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      {
+        vtkDataArray* v = outputCD->GetHigherOrderDegrees();
+        double degrees[3];
+        degrees[0] = surfel->Degrees[0];
+        degrees[1] = surfel->Degrees[1];
+        degrees[2] = 0;
+        v->SetTuple(newCellId, degrees);
+      }
+
       if (this->PassThroughCellIds)
       {
         originalCellIds->InsertValue(newCellId, cellId);

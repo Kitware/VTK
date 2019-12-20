@@ -34,6 +34,10 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+#define VTK_MAXIMUM_NUMBER_OF_POINTS 216
+
 vtkStandardNewMacro(vtkTessellatorFilter);
 
 namespace
@@ -1172,10 +1176,6 @@ static vtkIdType quadVoxEdges[][2] = {
 static int vtkNotSupportedErrorPrinted = 0;
 static int vtkTessellatorHasPolys = 0;
 
-// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
-// We support up to 6th order hexahedra.
-static const int VTK_MAXIMUM_NUMBER_OF_POINTS = 216;
-
 // ========================================
 // the meat of the class: execution!
 int vtkTessellatorFilter::RequestData(
@@ -1334,6 +1334,7 @@ int vtkTessellatorFilter::RequestData(
           break;
         case VTK_WEDGE:
         case VTK_LAGRANGE_WEDGE:
+        case VTK_BEZIER_WEDGE:
           // We sample additional points to get compatible triangulations
           // with neighboring hexes, tets, etc.
           for (p = 6; p < 21; ++p)
@@ -1380,7 +1381,8 @@ int vtkTessellatorFilter::RequestData(
           }
           break;
         case VTK_LAGRANGE_CURVE:
-          // Lagrange curves may bound other elements which we
+        case VTK_BEZIER_CURVE:
+          // Lagrange/Bezier curves may bound other elements which we
           // normally only divide in 2 along an axis, so only
           // start by dividing the curve in 2 instead of adding
           // each interior point to the approximation:
@@ -1403,6 +1405,7 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(cubicLinEdges) / sizeof(cubicLinEdges[0]);
           break;
         case VTK_LAGRANGE_TRIANGLE:
+        case VTK_BEZIER_TRIANGLE:
           for (p = 3; p < 6; ++p)
           {
             dummySubId = -1;
@@ -1441,6 +1444,7 @@ int vtkTessellatorFilter::RequestData(
           }
           break;
         case VTK_LAGRANGE_QUADRILATERAL:
+        case VTK_BEZIER_QUADRILATERAL:
           // Arbitrary-order Lagrange elements may not have mid-edge nodes
           // (they may be more finely divided), so evaluate to match fixed
           // connectivity of our starting output.
@@ -1479,6 +1483,7 @@ int vtkTessellatorFilter::RequestData(
           }
           break;
         case VTK_LAGRANGE_TETRAHEDRON:
+        case VTK_BEZIER_TETRAHEDRON:
           for (p = 4; p < 10; ++p)
           {
             dummySubId = -1;
@@ -1509,6 +1514,7 @@ int vtkTessellatorFilter::RequestData(
           break;
         case VTK_HEXAHEDRON:
         case VTK_LAGRANGE_HEXAHEDRON:
+        case VTK_BEZIER_HEXAHEDRON:
           // we sample 19 extra points to guarantee a compatible tetrahedralization
           for (p = 8; p < 20; ++p)
           {
