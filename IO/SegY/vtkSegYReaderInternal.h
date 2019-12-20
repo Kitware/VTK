@@ -20,6 +20,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 
 // Forward declarations
 class vtkStructuredGrid;
@@ -48,7 +49,7 @@ public:
   void SetXYCoordBytePositions(int x, int y);
   void SetVerticalCRS(int);
 
-  std::ifstream In;
+  vtksys::ifstream In;
 
 protected:
   bool ReadHeader();
