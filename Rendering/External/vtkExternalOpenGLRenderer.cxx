@@ -38,6 +38,8 @@ vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
 {
   this->PreserveColorBuffer = 1;
   this->PreserveDepthBuffer = 1;
+  this->PreserveGLCameraMatrices = 1;
+  this->PreserveGLLights = 1;
   this->SetAutomaticLightCreation(0);
   this->ExternalLights = vtkLightCollection::New();
 }
@@ -51,6 +53,25 @@ vtkExternalOpenGLRenderer::~vtkExternalOpenGLRenderer()
 
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderer::Render(void)
+{
+  // Copy GL camera matrices
+  if (this->PreserveGLCameraMatrices)
+  {
+    this->SynchronizeGLCameraMatrices();
+  }
+
+  // Copy GL lights
+  if (this->PreserveGLLights)
+  {
+    this->SynchronizeGLLights();
+  }
+
+  // Forward the call to the Superclass
+  this->Superclass::Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderer::SynchronizeGLCameraMatrices()
 {
   GLdouble mv[16], p[16];
   glGetDoublev(GL_MODELVIEW_MATRIX, mv);
@@ -92,7 +113,11 @@ void vtkExternalOpenGLRenderer::Render(void)
   camera->SetFocalPoint(newFocalPoint);
 
   matrix->Delete();
+}
 
+//----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderer::SynchronizeGLLights()
+{
   // Lights
   // Query lights existing in the external context
   // and tweak them based on vtkExternalLight objects added by the user
@@ -309,9 +334,6 @@ void vtkExternalOpenGLRenderer::Render(void)
       light->Delete();
     }
   }
-
-  // Forward the call to the Superclass
-  this->Superclass::Render();
 }
 
 //----------------------------------------------------------------------------
