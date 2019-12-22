@@ -22,6 +22,7 @@
 #include "vtkStdString.h"
 #include "vtkTypeTraits.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include <cassert>
 
 #include <algorithm>

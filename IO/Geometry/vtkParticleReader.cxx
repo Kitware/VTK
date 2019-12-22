@@ -28,6 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <sstream>
@@ -133,12 +134,8 @@ vtkParticleReader::vtkParticleReader()
 //----------------------------------------------------------------------------
 vtkParticleReader::~vtkParticleReader()
 {
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
+  delete this->File;
+  this->File = nullptr;
 
   delete[] this->FileName;
   this->FileName = nullptr;
@@ -154,12 +151,8 @@ void vtkParticleReader::OpenFile()
   }
 
   // If the file was open close it.
-  if (this->File)
-  {
-    this->File->close();
-    delete this->File;
-    this->File = nullptr;
-  }
+  delete this->File;
+  this->File = nullptr;
 
   // Open the new file.
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
@@ -200,7 +193,7 @@ int vtkParticleReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
     }
   }
-  this->File->close();
+
   delete this->File;
   this->File = nullptr;
 

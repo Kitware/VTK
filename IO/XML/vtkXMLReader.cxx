@@ -45,6 +45,7 @@
 #include "vtkZLibDataCompressor.h"
 
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
@@ -377,8 +378,6 @@ void vtkXMLReader::CloseVTKFile()
   }
   if (this->Stream == this->FileStream)
   {
-    // We opened the file.  Close it.
-    this->FileStream->close();
     delete this->FileStream;
     this->FileStream = nullptr;
   }

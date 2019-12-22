@@ -29,7 +29,6 @@
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
-#include "vtksys/FStream.hxx"
 
 class vtkStdString;
 class vtkTable;
@@ -107,7 +106,7 @@ private:
   vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) = delete;
   void operator=(const vtkJavaScriptDataWriter&) = delete;
 
-  vtksys::ofstream* OutputFile;
+  ostream* OutputFile;
 };
 
 #endif

@@ -26,6 +26,7 @@
 #include "vtkStringArray.h"
 
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 vtkStandardNewMacro(vtkImageReader2);
@@ -552,7 +553,6 @@ void vtkImageReader2::CloseFile()
 {
   if (this->File)
   {
-    this->File->close();
     delete this->File;
     this->File = nullptr;
   }

@@ -61,6 +61,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLReaderVersion.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 #include <memory>
 
 #include <cassert>

@@ -15,6 +15,7 @@
 #include "vtkXMLFileOutputWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 

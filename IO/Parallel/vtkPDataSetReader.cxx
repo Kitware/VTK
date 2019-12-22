@@ -115,7 +115,7 @@ int vtkPDataSetReader::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
-  vtksys::ifstream* file;
+  istream* file;
   char* block;
   char* param;
   char* value;
@@ -144,8 +144,9 @@ int vtkPDataSetReader::RequestDataObject(
   {
     vtkErrorMacro("This does not look like a VTK file: " << this->FileName);
   }
-  file->close();
+
   delete file;
+  file = nullptr;
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
@@ -388,7 +389,7 @@ int vtkPDataSetReader::ReadXML(istream* file, char** retBlock, char** retParam, 
 //----------------------------------------------------------------------------
 int vtkPDataSetReader::CanReadFile(const char* filename)
 {
-  vtksys::ifstream* file;
+  istream* file;
   char* block;
   char* param;
   char* value;
@@ -428,7 +429,6 @@ int vtkPDataSetReader::CanReadFile(const char* filename)
     tmp->Delete();
   }
 
-  file->close();
   delete file;
   return flag;
 }
@@ -651,7 +651,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
 }
 
 //----------------------------------------------------------------------------
-vtksys::ifstream* vtkPDataSetReader::OpenFile(const char* filename)
+istream* vtkPDataSetReader::OpenFile(const char* filename)
 {
   vtksys::ifstream* file;
 

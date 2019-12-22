@@ -29,6 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkGAMBITReader);
 

@@ -31,6 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 #include <vector>

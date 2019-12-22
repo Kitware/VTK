@@ -38,7 +38,6 @@
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
-#include "vtksys/FStream.hxx"
 
 class vtkIntArray;
 class vtkFloatArray;
@@ -172,7 +171,7 @@ protected:
   int NumberOfFields;
   int NlistNodes;
 
-  vtksys::ifstream* FileStream;
+  istream* FileStream;
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;

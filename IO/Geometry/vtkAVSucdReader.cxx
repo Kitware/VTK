@@ -36,6 +36,7 @@
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include <map>
 

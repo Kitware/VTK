@@ -43,7 +43,6 @@
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtksys/FStream.hxx"
 
 class vtkStringArray;
 
@@ -313,7 +312,7 @@ protected:
   const void* MemoryBuffer;
   vtkIdType MemoryBufferLength;
 
-  vtksys::ifstream* File;
+  istream* File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
   vtkTypeBool SwapBytes;

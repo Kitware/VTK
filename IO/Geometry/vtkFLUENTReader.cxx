@@ -46,6 +46,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 #include "vtksys/Encoding.hxx"
+#include "vtksys/FStream.hxx"
 
 #include "fstream"
 #include <algorithm>
