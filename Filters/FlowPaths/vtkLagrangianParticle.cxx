@@ -19,6 +19,10 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 
+#include <mutex>
+
+std::mutex seedDataMutex;
+
 //---------------------------------------------------------------------------
 vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
@@ -26,7 +30,9 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   : Id(particleId)
   , ParentId(-1)
   , SeedId(seedId)
+  , SeedArrayTupleIndex(seedArrayTupleIndex)
   , NumberOfSteps(0)
+  , SeedData(seedData)
   , StepTime(0)
   , IntegrationTime(integrationTime)
   , PrevIntegrationTime(0)
@@ -61,24 +67,11 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   this->LastSurfaceCellId = -1;
   this->LastSurfaceDataSet = nullptr;
 
-  // Initialize Seed Data
-  this->SeedData->CopyAllocate(seedData, 1);
-  if (seedArrayTupleIndex >= 0)
-  {
-    // In some cases we may want to leave it uninitialized
-    this->SeedData->CopyData(seedData, seedArrayTupleIndex, 0);
-  }
-
   // Initialize tracked user data
   this->PrevTrackedUserData.resize(numberOfTrackedUserData, 0);
   this->TrackedUserData.resize(numberOfTrackedUserData, 0);
   this->NextTrackedUserData.resize(numberOfTrackedUserData, 0);
 }
-
-//---------------------------------------------------------------------------
-// Default destructor in implementation in order to be able to use
-// vtkNew in header
-vtkLagrangianParticle::~vtkLagrangianParticle() = default;
 
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
@@ -105,10 +98,23 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables,
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
 {
+  // Copy point data tuples
+  vtkPointData* seedData = this->GetSeedData();
+  vtkIdType seedArrayTupleIndex = this->GetSeedArrayTupleIndex();
+  if (seedData->GetNumberOfArrays() > 0)
+  {
+    // Mutex Locked Area
+    std::lock_guard<std::mutex> guard(seedDataMutex);
+    vtkIdType parentSeedArrayTupleIndex = seedArrayTupleIndex;
+    seedArrayTupleIndex = seedData->GetArray(0)->GetNumberOfTuples();
+    seedData->CopyAllocate(seedData, seedArrayTupleIndex + 1);
+    seedData->CopyData(seedData, parentSeedArrayTupleIndex, seedArrayTupleIndex);
+  }
+
   // Create particle and copy members
   vtkLagrangianParticle* particle = this->NewInstance(this->GetNumberOfVariables(),
-    this->GetSeedId(), particleId, 0, this->IntegrationTime + this->StepTime, this->SeedData,
-    this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
+    this->GetSeedId(), particleId, seedArrayTupleIndex, this->IntegrationTime + this->StepTime,
+    seedData, this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   particle->ParentId = this->GetId();
   particle->NumberOfSteps = this->GetNumberOfSteps() + 1;
 
@@ -126,12 +132,6 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
     particle->TrackedUserData.begin());
   std::fill(particle->NextTrackedUserData.begin(), particle->NextTrackedUserData.end(), 0);
 
-  // Copy thread-specific data as well
-  particle->ThreadedGenericCell = this->ThreadedGenericCell;
-  particle->ThreadedIdList = this->ThreadedIdList;
-  particle->ThreadedBilinearQuadIntersection = this->ThreadedBilinearQuadIntersection;
-  particle->ThreadedUserData = this->ThreadedUserData;
-
   return particle;
 }
 
@@ -139,8 +139,8 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
 vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
 {
   vtkLagrangianParticle* clone = this->NewInstance(this->GetNumberOfVariables(), this->GetSeedId(),
-    this->GetId(), 0, this->IntegrationTime, this->GetSeedData(), this->WeightsSize,
-    static_cast<int>(this->TrackedUserData.size()));
+    this->GetId(), this->GetSeedArrayTupleIndex(), this->IntegrationTime, this->GetSeedData(),
+    this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   clone->Id = this->Id;
   clone->ParentId = this->ParentId;
   clone->NumberOfSteps = this->NumberOfSteps;
@@ -158,13 +158,6 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(),
     clone->NextTrackedUserData.begin());
   clone->StepTime = this->StepTime;
-
-  // Copy thread-specific data as well
-  clone->ThreadedGenericCell = this->ThreadedGenericCell;
-  clone->ThreadedIdList = this->ThreadedIdList;
-  clone->ThreadedBilinearQuadIntersection = this->ThreadedBilinearQuadIntersection;
-  clone->ThreadedUserData = this->ThreadedUserData;
-
   return clone;
 }
 
@@ -242,6 +235,12 @@ vtkIdType vtkLagrangianParticle::GetParentId()
 vtkIdType vtkLagrangianParticle::GetSeedId()
 {
   return this->SeedId;
+}
+
+//---------------------------------------------------------------------------
+vtkIdType vtkLagrangianParticle::GetSeedArrayTupleIndex()
+{
+  return this->SeedArrayTupleIndex;
 }
 
 //---------------------------------------------------------------------------
@@ -393,6 +392,7 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ParentId: " << this->ParentId << std::endl;
   os << indent << "SeedData: " << this->SeedData << std::endl;
   os << indent << "SeedId: " << this->SeedId << std::endl;
+  os << indent << "SeedArrayTupleIndex: " << this->SeedArrayTupleIndex << std::endl;
   os << indent << "StepTime: " << this->StepTime << std::endl;
   os << indent << "IntegrationTime: " << this->IntegrationTime << std::endl;
   os << indent << "Termination: " << this->Termination << std::endl;
@@ -440,10 +440,4 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << " " << var;
   }
   os << std::endl;
-
-  os << indent << "ThreadedUserData: " << this->ThreadedUserData << std::endl;
-  os << indent << "ThreadedGenericCell: " << this->ThreadedGenericCell << std::endl;
-  os << indent << "ThreadedIdList: " << this->ThreadedIdList << std::endl;
-  os << indent << "ThreadedBilinearQuadIntersection: " << this->ThreadedBilinearQuadIntersection
-     << std::endl;
 }

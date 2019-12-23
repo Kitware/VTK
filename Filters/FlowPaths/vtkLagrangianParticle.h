@@ -30,18 +30,13 @@
 #define vtkLagrangianParticle_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkNew.h"                    // For vtkNew
 #include "vtkSystemIncludes.h"         // For PrintSelf signature and vtkType
 
 #include <vector>
 
 class vtkAbstractCellLocator;
-class vtkBilinearQuadIntersection;
 class vtkDataSet;
-class vtkGenericCell;
-class vtkIdList;
 class vtkPointData;
-struct vtkLagrangianUserData;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianParticle
 {
@@ -132,7 +127,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkLagrangianParticle();
+  virtual ~vtkLagrangianParticle() = default;
 
   //@{
   /**
@@ -280,57 +275,13 @@ public:
 
   //@{
   /**
-   * Get/Set a pointer to TemporaryUserData that is considered to be local to the thread.
+   * Get/Set a pointer to TemporaryUserData
+   * This data is not tracked and not transferred nor copied
    * This can be used to store any kind of data, structure, class instance that you may need.
-   * This is set by the vtkLagrangianParticleTracker and can be initialized/finalized in the model
+   * Be cautious if the pointer is shared as particle integration can be multithreaded.
    */
-  inline vtkLagrangianUserData* GetThreadedUserData() { return this->ThreadedUserData; }
-  inline void SetThreadedUserData(vtkLagrangianUserData* userData)
-  {
-    this->ThreadedUserData = userData;
-  }
-  //@}
-
-  //@{
-  /**
-   * Get/Set a pointer to a vtkGenericCell that is considered to be local to the thread
-   * manipulating the particle.
-   * The generic cell is normally set by the vtkLagrangianParticleTracker and used by the basic
-   * model and the tracker.
-   */
-  inline vtkGenericCell* GetThreadedGenericCell() { return this->ThreadedGenericCell; }
-  inline void SetThreadedGenericCell(vtkGenericCell* genericCell)
-  {
-    this->ThreadedGenericCell = genericCell;
-  }
-  //@}
-
-  //@{
-  /**
-   * Get/Set a pointer to a vtkIdList that is considered to be local to the thread
-   * manipulating the particle.
-   * The id list is normally set by the vtkLagrangianParticleTracker and used by the basic model
-   * and the tracker.
-   */
-  inline vtkIdList* GetThreadedIdList() { return this->ThreadedIdList; }
-  inline void SetThreadedIdList(vtkIdList* IdList) { this->ThreadedIdList = IdList; }
-  //@}
-
-  //@{
-  /**
-   * Get/Set a pointer to a vtkBilinearQuadIntersection that is
-   * considered to be local to the thread manipulating the particle.
-   * The bilinear quad intersection is normally set by the vtkLagrangianParticleTracker and used by
-   * the basic model and the tracker.
-   */
-  inline vtkBilinearQuadIntersection* GetThreadedBilinearQuadIntersection()
-  {
-    return this->ThreadedBilinearQuadIntersection;
-  }
-  inline void SetThreadedBilinearQuadIntersection(vtkBilinearQuadIntersection* bqi)
-  {
-    this->ThreadedBilinearQuadIntersection = bqi;
-  }
+  inline void* GetTemporaryUserData() { return this->TemporaryUserData; }
+  inline void SetTemporaryUserData(void* tempUserData) { this->TemporaryUserData = tempUserData; }
   //@}
 
   /**
@@ -360,6 +311,13 @@ public:
    * Allows to track a specific seed along the tracks.
    */
   virtual vtkIdType GetSeedId();
+
+  /**
+   * Get the particle data tuple in a seed array.
+   * To be used on the output of
+   * vtkLagrangianBasicIntegrationModel::GetSeedArray
+   */
+  virtual vtkIdType GetSeedArrayTupleIndex();
 
   /**
    * Get the number of variables used to initialize EquationVariables.
@@ -533,16 +491,14 @@ protected:
   std::vector<double> TrackedUserData;
   std::vector<double> NextTrackedUserData;
 
-  vtkLagrangianUserData* ThreadedUserData = nullptr;
-  vtkGenericCell* ThreadedGenericCell = nullptr;
-  vtkIdList* ThreadedIdList = nullptr;
-  vtkBilinearQuadIntersection* ThreadedBilinearQuadIntersection = nullptr;
+  void* TemporaryUserData = nullptr;
 
   vtkIdType Id;
   vtkIdType ParentId;
   vtkIdType SeedId;
+  vtkIdType SeedArrayTupleIndex;
   vtkIdType NumberOfSteps;
-  vtkNew<vtkPointData> SeedData;
+  vtkPointData* SeedData;
 
   vtkAbstractCellLocator* LastLocator;
   vtkDataSet* LastDataSet;
