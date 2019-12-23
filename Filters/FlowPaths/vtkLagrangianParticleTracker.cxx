@@ -33,6 +33,7 @@
 #include "vtkLagrangianParticle.h"
 #include "vtkLagrangianUserData.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -241,6 +242,8 @@ struct IntegratingFunctor
   }
 };
 
+#include "vtkCallbackCommand.h"
+#include "vtkLogger.h"
 //---------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   : IntegrationModel(vtkLagrangianMatidaIntegrationModel::New())
