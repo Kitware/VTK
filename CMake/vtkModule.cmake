@@ -2456,109 +2456,109 @@ function (vtk_module_build)
     endforeach ()
   endif ()
 
-  if (_vtk_build_INSTALL_EXPORT)
-    set(_vtk_build_properties_filename "${_vtk_build_PACKAGE}-vtk-module-properties.cmake")
-    set(_vtk_build_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_build_properties_filename}.install")
-    set(_vtk_build_properties_build_file "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_properties_filename}")
+  set(_vtk_build_properties_filename "${_vtk_build_PACKAGE}-vtk-module-properties.cmake")
+  set(_vtk_build_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_build_properties_filename}.install")
+  set(_vtk_build_properties_build_file "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_properties_filename}")
 
-    file(WRITE "${_vtk_build_properties_build_file}")
+  file(WRITE "${_vtk_build_properties_build_file}")
 
-    _vtk_module_write_import_prefix(
-      "${_vtk_build_properties_install_file}"
-      "${_vtk_build_CMAKE_DESTINATION}")
+  _vtk_module_write_import_prefix(
+    "${_vtk_build_properties_install_file}"
+    "${_vtk_build_CMAKE_DESTINATION}")
 
-    foreach (_vtk_build_module IN LISTS _vtk_build_MODULES)
-      get_property(_vtk_build_namespace GLOBAL
-        PROPERTY  "_vtk_module_${_vtk_build_module}_namespace")
-      if (_vtk_build_TARGET_NAMESPACE STREQUAL "<AUTO>")
-        set(_vtk_build_TARGET_NAMESPACE "${_vtk_build_namespace}")
-      endif ()
-      if (NOT _vtk_build_namespace STREQUAL _vtk_build_TARGET_NAMESPACE)
-        message(FATAL_ERROR
-          "The `TARGET_NAMESPACE` (${_vtk_build_TARGET_NAMESPACE}) is not the "
-          "same as the ${_vtk_build_module} module namespace "
-          "(${_vtk_build_namespace}).")
-      endif ()
+  foreach (_vtk_build_module IN LISTS _vtk_build_MODULES)
+    get_property(_vtk_build_namespace GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_namespace")
+    if (_vtk_build_TARGET_NAMESPACE STREQUAL "<AUTO>")
+      set(_vtk_build_TARGET_NAMESPACE "${_vtk_build_namespace}")
+    endif ()
+    if (NOT _vtk_build_namespace STREQUAL _vtk_build_TARGET_NAMESPACE)
+      message(FATAL_ERROR
+        "The `TARGET_NAMESPACE` (${_vtk_build_TARGET_NAMESPACE}) is not the "
+        "same as the ${_vtk_build_module} module namespace "
+        "(${_vtk_build_namespace}).")
+    endif ()
 
-      get_property(_vtk_build_is_third_party
-        TARGET    "${_vtk_build_module}"
-        PROPERTY  "INTERFACE_vtk_module_third_party")
-      if (_vtk_build_is_third_party)
-        _vtk_module_export_properties(
-          BUILD_FILE    "${_vtk_build_properties_build_file}"
-          INSTALL_FILE  "${_vtk_build_properties_install_file}"
-          MODULE        "${_vtk_build_module}"
-          FROM_GLOBAL_PROPERTIES
-            # Export the dependencies of a module.
-            depends
-            private_depends
-            optional_depends
-            # The library name of the module.
-            library_name
-          PROPERTIES
-            # Export whether a module is third party or not.
-            INTERFACE_vtk_module_third_party
-            INTERFACE_vtk_module_exclude_wrap)
-        continue ()
-      endif ()
-
-      set(_vtk_build_split_properties)
-      get_property(_vtk_build_exclude_wrap
-        TARGET    "${_vtk_build_module}"
-        PROPERTY  "INTERFACE_vtk_module_${_vtk_build_module}_exclude_wrap")
-      if (NOT _vtk_build_exclude_wrap)
-        list(APPEND _vtk_build_split_properties
-          headers
-          hierarchy)
-      endif ()
-
-      set(_vtk_build_properties_kit_properties)
-      if (_vtk_build_BUILD_WITH_KITS)
-        list(APPEND _vtk_build_properties_kit_properties
-          # Export the kit membership of a module.
-          kit)
-      endif ()
-
+    get_property(_vtk_build_is_third_party
+      TARGET    "${_vtk_build_module}"
+      PROPERTY  "INTERFACE_vtk_module_third_party")
+    if (_vtk_build_is_third_party)
       _vtk_module_export_properties(
         BUILD_FILE    "${_vtk_build_properties_build_file}"
         INSTALL_FILE  "${_vtk_build_properties_install_file}"
         MODULE        "${_vtk_build_module}"
         FROM_GLOBAL_PROPERTIES
-          # Export whether the module should be excluded from wrapping or not.
-          exclude_wrap
           # Export the dependencies of a module.
           depends
           private_depends
           optional_depends
-          # Export what modules are implemented by the module.
-          implements
-          # Export whether the module contains autoinit logic.
-          implementable
           # The library name of the module.
           library_name
-          ${_vtk_build_properties_kit_properties}
         PROPERTIES
-          # Export whether the module needs autoinit logic handled.
-          INTERFACE_vtk_module_needs_autoinit
-          # Forward private usage requirements with global effects.
-          INTERFACE_vtk_module_forward_link
-        SPLIT_INSTALL_PROPERTIES
-          # Set the properties which differ between build and install trees.
-          ${_vtk_build_split_properties})
-    endforeach ()
-
-    if (_vtk_build_BUILD_WITH_KITS)
-      foreach (_vtk_build_kit IN LISTS _vtk_build_KITS)
-        _vtk_module_export_properties(
-          BUILD_FILE    "${_vtk_build_properties_build_file}"
-          INSTALL_FILE  "${_vtk_build_properties_install_file}"
-          KIT           "${_vtk_build_kit}"
-          FROM_GLOBAL_PROPERTIES
-            # Export the list of modules in the kit.
-            kit_modules)
-      endforeach ()
+          # Export whether a module is third party or not.
+          INTERFACE_vtk_module_third_party
+          INTERFACE_vtk_module_exclude_wrap)
+      continue ()
     endif ()
 
+    set(_vtk_build_split_properties)
+    get_property(_vtk_build_exclude_wrap
+      TARGET    "${_vtk_build_module}"
+      PROPERTY  "INTERFACE_vtk_module_${_vtk_build_module}_exclude_wrap")
+    if (NOT _vtk_build_exclude_wrap)
+      list(APPEND _vtk_build_split_properties
+        headers
+        hierarchy)
+    endif ()
+
+    set(_vtk_build_properties_kit_properties)
+    if (_vtk_build_BUILD_WITH_KITS)
+      list(APPEND _vtk_build_properties_kit_properties
+        # Export the kit membership of a module.
+        kit)
+    endif ()
+
+    _vtk_module_export_properties(
+      BUILD_FILE    "${_vtk_build_properties_build_file}"
+      INSTALL_FILE  "${_vtk_build_properties_install_file}"
+      MODULE        "${_vtk_build_module}"
+      FROM_GLOBAL_PROPERTIES
+        # Export whether the module should be excluded from wrapping or not.
+        exclude_wrap
+        # Export the dependencies of a module.
+        depends
+        private_depends
+        optional_depends
+        # Export what modules are implemented by the module.
+        implements
+        # Export whether the module contains autoinit logic.
+        implementable
+        # The library name of the module.
+        library_name
+        ${_vtk_build_properties_kit_properties}
+      PROPERTIES
+        # Export whether the module needs autoinit logic handled.
+        INTERFACE_vtk_module_needs_autoinit
+        # Forward private usage requirements with global effects.
+        INTERFACE_vtk_module_forward_link
+      SPLIT_INSTALL_PROPERTIES
+        # Set the properties which differ between build and install trees.
+        ${_vtk_build_split_properties})
+  endforeach ()
+
+  if (_vtk_build_BUILD_WITH_KITS)
+    foreach (_vtk_build_kit IN LISTS _vtk_build_KITS)
+      _vtk_module_export_properties(
+        BUILD_FILE    "${_vtk_build_properties_build_file}"
+        INSTALL_FILE  "${_vtk_build_properties_install_file}"
+        KIT           "${_vtk_build_kit}"
+        FROM_GLOBAL_PROPERTIES
+          # Export the list of modules in the kit.
+          kit_modules)
+    endforeach ()
+  endif ()
+
+  if (_vtk_build_INSTALL_EXPORT AND _vtk_build_INSTALL_HEADERS)
     set(_vtk_build_namespace)
     if (_vtk_build_TARGET_NAMESPACE)
       set(_vtk_build_namespace
