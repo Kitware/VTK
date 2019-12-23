@@ -31,13 +31,12 @@
  *     kind of data object, support distributed input.
  *
  * It has two outputs :
- * * port 0 : ParticlePaths : a multipiece of polyData (one per thread) of polyLines showing the
- * paths of particles in the flow
+ * * port 0 : ParticlePaths : a polyData of polyLines showing the paths of
+ *     particles in the flow
  * * port 1 : ParticleInteractions : empty if no surface input, contains a
- *     a multiblock with as many children as the number of threads, each children containing a
- * multiblock with the same structure as the surfaces. The leafs of these structures contain a
- * polydata of vertexes corresponding to the interactions. with the same composite layout of surface
- * input if any, showing all interactions between particles and the surface input.
+ *     polydata of vertex
+ * with the same composite layout of surface input if any, showing all
+ *     interactions between particles and the surface input
  *
  * It has a parallel implementation which streams particle between domains.
  *
@@ -105,8 +104,6 @@ class vtkInformation;
 class vtkInitialValueProblemSolver;
 class vtkLagrangianBasicIntegrationModel;
 class vtkLagrangianParticle;
-class vtkMultiBlockDataSet;
-class vtkMultiPieceDataSet;
 class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
@@ -318,28 +315,28 @@ protected:
   vtkLagrangianParticleTracker();
   ~vtkLagrangianParticleTracker() override;
 
+  virtual bool InitializeInputs(vtkInformationVector** inputVector, vtkDataObject*& flow,
+    vtkDataObject*& seeds, vtkDataObject*& surfaces,
+    std::queue<vtkLagrangianParticle*>& particleQueue, vtkPointData* seedData);
   virtual bool InitializeFlow(vtkDataObject* flow, vtkBoundingBox* bounds);
-  virtual bool InitializeParticles(const vtkBoundingBox* bounds, vtkDataSet* seeds,
+  virtual bool InitializeParticles(const vtkBoundingBox* bounds, vtkDataObject* seeds,
     std::queue<vtkLagrangianParticle*>& particles, vtkPointData* seedData);
   virtual void GenerateParticles(const vtkBoundingBox* bounds, vtkDataSet* seeds,
     vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes, vtkPointData* seedData,
     int nVar, std::queue<vtkLagrangianParticle*>& particles);
   virtual bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces);
   virtual void InitializeSurface(vtkDataObject*& surfaces);
+  virtual bool InitializeOutputs(vtkInformationVector* outputVector, vtkPointData* seedData,
+    vtkIdType numberOfSeeds, vtkDataObject* surfaces, vtkPolyData*& particlePathsOutput,
+    vtkDataObject*& interactionOutput);
 
-  /**
-   * This method is thread safe
-   */
-  virtual bool InitializePathsOutput(
-    vtkPointData* seedData, vtkIdType numberOfSeeds, vtkPolyData*& particlePathsOutput);
+  virtual bool InitializePathsOutput(vtkInformationVector* outputVector, vtkPointData* seedData,
+    vtkIdType numberOfSeeds, vtkPolyData*& particlePathsOutput);
 
-  /**
-   * This method is thread safe
-   */
-  virtual bool InitializeInteractionOutput(
+  virtual bool InitializeInteractionOutput(vtkInformationVector* outputVector,
     vtkPointData* seedData, vtkDataObject* surfaces, vtkDataObject*& interractionOutput);
 
-  virtual bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput);
+  virtual bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interractionOutput);
 
   static void InsertPolyVertexCell(vtkPolyData* polydata);
   static void InsertVertexCells(vtkPolyData* polydata);
@@ -353,15 +350,9 @@ protected:
     std::queue<vtkLagrangianParticle*>&, vtkPolyData* particlePathsOutput,
     vtkPolyLine* particlePath, vtkDataObject* interactionOutput);
 
-  /**
-   * This method is thread safe
-   */
   void InsertPathOutputPoint(vtkLagrangianParticle* particle, vtkPolyData* particlePathsOutput,
     vtkIdList* particlePathPointId, bool prev = false);
 
-  /**
-   * This method is thread safe
-   */
   void InsertInteractionOutputPoint(vtkLagrangianParticle* particle,
     unsigned int interactedSurfaceFlatIndex, vtkDataObject* interactionOutput);
 
@@ -389,7 +380,6 @@ protected:
   std::atomic<vtkIdType> ParticleCounter;
   std::atomic<vtkIdType> IntegratedParticleCounter;
   vtkIdType IntegratedParticleCounterIncrement;
-  vtkPointData* SeedData;
 
   // internal parameters use for step computation
   double MinimumVelocityMagnitude;
@@ -402,7 +392,8 @@ protected:
   vtkDataObject* SurfacesCache;
   vtkMTimeType SurfacesTime;
 
-  std::mutex ProgressMutex;
+  std::mutex ParticlePathsOutputMutex;
+  std::mutex InteractionOutputMutex;
   friend struct IntegratingFunctor;
 
 private:

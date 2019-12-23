@@ -1252,12 +1252,6 @@ public:
    */
   static bool IsFinite(double x);
 
-  /**
-   * find roots of ax^2+bx+c=0  in the interval min,max.
-   * place the roots in u[2] and return how many roots found
-   */
-  static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
-
 protected:
   vtkMath() {}
   ~vtkMath() override {}

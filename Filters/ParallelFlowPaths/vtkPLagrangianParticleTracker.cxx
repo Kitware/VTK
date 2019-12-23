@@ -18,7 +18,6 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLagrangianBasicIntegrationModel.h"
@@ -199,7 +198,7 @@ public:
     for (int i = 0; i < particle->GetSeedData()->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = particle->GetSeedData()->GetArray(i);
-      double* tuple = array->GetTuple(0);
+      double* tuple = array->GetTuple(particle->GetSeedArrayTupleIndex());
       for (int j = 0; j < array->GetNumberOfComponents(); j++)
       {
         *this->SendStream << tuple[j];
@@ -252,8 +251,13 @@ public:
       *this->ReceiveStream >> pInsertPrevious;
       *this->ReceiveStream >> pManualShift;
 
-      // Get a particle with an incorrect seed data
-      particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId, -1, iTime,
+      // Get a new seedTupleIndex
+      vtkIdType seedTupleIndex = -1;
+      if (this->SeedData->GetNumberOfArrays() > 0)
+      {
+        seedTupleIndex = this->SeedData->GetArray(0)->GetNumberOfTuples();
+      }
+      particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId, seedTupleIndex, iTime,
         this->SeedData, this->WeightsSize, nTrackedUserData, nSteps, prevITime);
       particle->SetParentId(parentId);
       particle->SetUserFlag(userFlag);
@@ -285,7 +289,6 @@ public:
         *this->ReceiveStream >> var;
       }
 
-      // Recover the correct seed data values
       for (int i = 0; i < particle->GetSeedData()->GetNumberOfArrays(); i++)
       {
         vtkDataArray* array = particle->GetSeedData()->GetArray(i);
@@ -776,10 +779,8 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
     }
 
     // Create and set a dummy particle so FindInLocators can use caching.
-    vtkNew<vtkGenericCell> dummyCell;
     vtkLagrangianParticle dummyParticle(
       0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize(), 0);
-    dummyParticle.SetThreadedGenericCell(dummyCell);
 
     // Generate particle and distribute the ones not in domain to other nodes
     for (vtkIdType i = 0; i < seeds->GetNumberOfPoints(); i++)
@@ -802,7 +803,6 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
       else
       {
         this->StreamManager->SendParticle(particle);
-        delete particle;
       }
     }
     this->Controller->Barrier();
@@ -922,8 +922,11 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    if (this->GenerateParticlePathsOutput && particle->GetPInsertPreviousPosition())
+    if (particlePathsOutput && particle->GetPInsertPreviousPosition())
     {
+      // Mutex Locked Area
+      std::lock_guard<std::mutex> guard(this->ParticlePathsOutputMutex);
+
       // This is a particle from another rank, store a duplicated previous point
       this->InsertPathOutputPoint(particle, particlePathsOutput, particlePath->GetPointIds(), true);
       particle->SetPInsertPreviousPosition(false);
@@ -955,13 +958,6 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
   std::queue<vtkLagrangianParticle*>& particleQueue)
 {
   vtkLagrangianParticle* receivedParticle;
-
-  // Create and set a dummy particle so FindInLocators can use caching.
-  vtkNew<vtkGenericCell> dummyCell;
-  vtkLagrangianParticle dummyParticle(
-    0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize(), 0);
-  dummyParticle.SetThreadedGenericCell(dummyCell);
-
   while (this->StreamManager->ReceiveParticleIfAny(receivedParticle))
   {
     // Check for manual shift
@@ -971,7 +967,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
       receivedParticle->SetPManualShift(false);
     }
     // Receive all particles
-    if (this->IntegrationModel->FindInLocators(receivedParticle->GetPosition(), &dummyParticle))
+    if (this->IntegrationModel->FindInLocators(receivedParticle->GetPosition()))
     {
       particleQueue.push(receivedParticle);
     }
@@ -986,9 +982,9 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
 bool vtkPLagrangianParticleTracker::FinalizeOutputs(
   vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput)
 {
-  if (this->GenerateParticlePathsOutput && this->Controller &&
-    this->Controller->GetNumberOfProcesses() > 1)
+  if (particlePathsOutput && this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
+
     // Construct array with all non outofdomains ids and terminations
     vtkNew<vtkLongLongArray> idTermination;
     vtkNew<vtkLongLongArray> allIdTermination;
@@ -1011,10 +1007,10 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
     this->Controller->AllGatherV(idTermination, allIdTermination);
 
     // Modify current terminations
-    for (vtkIdType i = 0; i < allIdTermination->GetNumberOfTuples(); i++)
+    for (int i = 0; i < allIdTermination->GetNumberOfTuples(); i++)
     {
       vtkIdType id = allIdTermination->GetTuple2(i)[0];
-      for (vtkIdType j = 0; j < particlePathsOutput->GetNumberOfCells(); j++)
+      for (int j = 0; j < ids->GetNumberOfTuples(); j++)
       {
         if (ids->GetValue(j) == id)
         {

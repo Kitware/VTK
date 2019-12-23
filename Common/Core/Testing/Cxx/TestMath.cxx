@@ -549,30 +549,6 @@ int TestMath(int, char*[])
     return 1;
   }
 
-  // Test QuadraticRoot
-  double root[2];
-  int numRoot;
-
-  // x2 = 0
-  numRoot = vtkMath::QuadraticRoot(1, 0, 0, -10, 10, root);
-  if (numRoot != 1 || root[0] != 0)
-  {
-    vtkGenericWarningMacro("QuadraticRoot failed.");
-    std::cout << "numRoot should be 1, it is " << numRoot << " ." << std::endl;
-    std::cout << "root should be 0, it is " << root[0] << " ." << std::endl;
-    return 1;
-  }
-  // x2 - x - 2 = 0
-  numRoot = vtkMath::QuadraticRoot(1, -1, -2, -10, 10, root);
-  if (numRoot != 2 || root[0] != -1 || root[1] != 2)
-  {
-    vtkGenericWarningMacro("QuadraticRoot failed.");
-    std::cout << "numRoot should be 2, it is " << numRoot << " ." << std::endl;
-    std::cout << "root should be -1, it is " << root[0] << " ." << std::endl;
-    std::cout << "root should be 2, it is " << root[1] << " ." << std::endl;
-    return 1;
-  }
-
   // Test color conversion.
   int colorsPassed = 1;
 

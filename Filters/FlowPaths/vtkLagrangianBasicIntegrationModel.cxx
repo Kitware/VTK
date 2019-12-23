@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkLagrangianBasicIntegrationModel.h"
 
-#include "vtkBilinearQuadIntersection.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTypes.h"
@@ -44,7 +43,432 @@
 #include <sstream>
 #include <vector>
 
+//----------------------------------------------------------------------------
+// Internal Classes
+//----------------------------------------------------------------------------
+
+// created by Shaun David Ramsey and Kristin Potter copyright (c) 2003
+// email ramsey()cs.utah.edu with any questions
+/*=========================================================================
+  This copyright notice is available at:
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2003 Shaun David Ramsey, Kristin Potter, Charles Hansen
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sel copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+=========================================================================*/
+/**
+ * @class   vtkLagrangianBilinearQuadIntersection
+ * @brief   Class to perform non planar quad intersection
+ *
+ * Class for non planar intersection
+ * This class is based on
+ * http://shaunramsey.com/research/bp/
+ * which does not work in the general case
+ * hence the ugly transformation patch.
+ */
+
+class vtkLagrangianBilinearQuadIntersection
+{
+public:
+  vtkLagrangianBilinearQuadIntersection(const vtkVector3d& pt00, const vtkVector3d& Pt01,
+    const vtkVector3d& Pt10, const vtkVector3d& Pt11);
+  ~vtkLagrangianBilinearQuadIntersection();
+
+  /**
+   * Compute cartesian coordinates of point in the quad
+   * using parameteric coordinates
+   */
+  vtkVector3d ComputeCartesianCoordinates(double u, double v);
+
+  /**
+   * Compute the intersection between a ray r->d and the quad
+   */
+  bool RayIntersection(const vtkVector3d& r, const vtkVector3d& d, vtkVector3d& uv);
+
+  /**
+   * find roots of ax^2+bx+c=0  in the interval min,max.
+   * place the roots in u[2] and return how many roots found
+   */
+  static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
+
+  /**
+   * Compute intersection factor
+   */
+  static double ComputeIntersectionFactor(
+    const vtkVector3d& dir, const vtkVector3d& orig, const vtkVector3d& srfpos);
+
+  /**
+   * Compute best denominator
+   */
+  static double GetBestDenominator(double v, double m1, double m2, double J1, double J2, double K1,
+    double K2, double R1, double R2);
+
+private:
+  vtkVector3d* Point00;
+  vtkVector3d* Point01;
+  vtkVector3d* Point10;
+  vtkVector3d* Point11;
+  int AxesSwapping;
+};
+
+#define RAY_EPSILON 1e-12     // some small epsilon for flt pt
 #define USER_SURFACE_TYPE 100 // Minimal value for user defined surface type
+
+//----------------------------------------------------------------------------
+vtkLagrangianBilinearQuadIntersection::vtkLagrangianBilinearQuadIntersection(
+  const vtkVector3d& pt00, const vtkVector3d& pt01, const vtkVector3d& pt10,
+  const vtkVector3d& pt11)
+  : AxesSwapping(0)
+{
+  this->Point00 = new vtkVector3d(pt00.GetData());
+  this->Point01 = new vtkVector3d(pt01.GetData());
+  this->Point10 = new vtkVector3d(pt10.GetData());
+  this->Point11 = new vtkVector3d(pt11.GetData());
+}
+
+//----------------------------------------------------------------------------
+vtkLagrangianBilinearQuadIntersection::~vtkLagrangianBilinearQuadIntersection()
+{
+  delete this->Point00;
+  delete this->Point01;
+  delete this->Point10;
+  delete this->Point11;
+}
+
+//----------------------------------------------------------------------------
+vtkVector3d vtkLagrangianBilinearQuadIntersection::ComputeCartesianCoordinates(double u, double v)
+{
+  vtkVector3d respt;
+  respt.SetX(
+    ((1.0 - u) * (1.0 - v) * this->Point00->GetX() + (1.0 - u) * v * this->Point01->GetX() +
+      u * (1.0 - v) * this->Point10->GetX() + u * v * this->Point11->GetX()));
+  respt.SetY(
+    ((1.0 - u) * (1.0 - v) * this->Point00->GetY() + (1.0 - u) * v * this->Point01->GetY() +
+      u * (1.0 - v) * this->Point10->GetY() + u * v * this->Point11->GetY()));
+  respt.SetZ(
+    ((1.0 - u) * (1.0 - v) * this->Point00->GetZ() + (1.0 - u) * v * this->Point01->GetZ() +
+      u * (1.0 - v) * this->Point10->GetZ() + u * v * this->Point11->GetZ()));
+
+  int nbOfSwap = this->AxesSwapping;
+  while (nbOfSwap != 0)
+  {
+    double tmp = respt.GetZ();
+    respt.SetZ(respt.GetY());
+    respt.SetY(respt.GetX());
+    respt.SetX(tmp);
+    nbOfSwap--;
+  }
+  return respt;
+}
+
+//----------------------------------------------------------------------------
+double vtkLagrangianBilinearQuadIntersection::GetBestDenominator(
+  double v, double M1, double M2, double J1, double J2, double K1, double K2, double R1, double R2)
+{
+  double denom = (v * (M1 - M2) + J1 - J2);
+  double d2 = (v * M1 + J1);
+  if (fabs(denom) > fabs(d2)) // which denominator is bigger
+  {
+    return (v * (K2 - K1) + R2 - R1) / denom;
+  }
+  return -(v * K1 + R1) / d2;
+}
+
+//----------------------------------------------------------------------------
+double vtkLagrangianBilinearQuadIntersection::ComputeIntersectionFactor(
+  const vtkVector3d& dir, const vtkVector3d& orig, const vtkVector3d& srfpos)
+{
+  // if x is bigger than y and z
+  if (fabs(dir.GetX()) >= fabs(dir.GetY()) && fabs(dir.GetX()) >= fabs(dir.GetZ()))
+  {
+    return (srfpos.GetX() - orig.GetX()) / dir.GetX();
+  }
+  // if y is bigger than x and z
+  else if (fabs(dir.GetY()) >= fabs(dir.GetZ())) // && fabs(dir.GetY()) >= fabs(dir.GetX()))
+  {
+    return (srfpos.GetY() - orig.GetY()) / dir.GetY();
+  }
+  // otherwise x isn't bigger than both and y isn't bigger than both
+  else // if(fabs(dir.GetZ()) >= fabs(dir.GetX()) && fabs(dir.GetZ()) >= fabs(dir.GetY()))
+  {
+    return (srfpos.GetZ() - orig.GetZ()) / dir.GetZ();
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkLagrangianBilinearQuadIntersection::RayIntersection(
+  const vtkVector3d& r, const vtkVector3d& q, vtkVector3d& uv)
+{
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Equation of the ray intersection:
+  // P(u, v) = (1-u)(1-v)this->Point00->+ (1-u)vthis->Point01->+
+  //   u(1-v)this->Point10->+ uvthis->Point11
+  // Equation of the ray:
+  // R(t) = r + tq
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  vtkVector3d pos1, pos2; // vtkVector3d pos = ro + t * rd;
+  int num_sol;            // number of solutions to the quadratic
+  double vsol[2];         // the two roots from quadraticroot
+  double t2, u;           // the t values of the two roots
+
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Variables for substitition
+  // a = this->Point11->- this->Point10->- this->Point01->+ this->Point00
+  // b = this->Point10->- this->Point00
+  // c = this->Point01->- this->Point00
+  // d = this->Point00-> (d is shown below in the #ifdef ray area)
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // Retrieve the xyz of the q part of ray
+  double qx = q.GetX();
+  double qy = q.GetY();
+  double qz = q.GetZ();
+
+  double rx = r.GetX();
+  double ry = r.GetY();
+  double rz = r.GetZ();
+
+  this->AxesSwapping = 0;
+  while (qz == 0.0 && this->AxesSwapping < 3)
+  {
+    this->AxesSwapping++;
+    double tmp;
+
+    tmp = qx;
+    qx = qy;
+    qy = qz;
+    qz = tmp;
+
+    tmp = rx;
+    rx = ry;
+    ry = rz;
+    rz = tmp;
+
+    tmp = this->Point00->GetX();
+    this->Point00->SetX(this->Point00->GetY());
+    this->Point00->SetY(this->Point00->GetZ());
+    this->Point00->SetZ(tmp);
+
+    tmp = this->Point01->GetX();
+    this->Point01->SetX(this->Point01->GetY());
+    this->Point01->SetY(this->Point01->GetZ());
+    this->Point01->SetZ(tmp);
+
+    tmp = this->Point10->GetX();
+    this->Point10->SetX(this->Point10->GetY());
+    this->Point10->SetY(this->Point10->GetZ());
+    this->Point10->SetZ(tmp);
+
+    tmp = this->Point11->GetX();
+    this->Point11->SetX(this->Point11->GetY());
+    this->Point11->SetY(this->Point11->GetZ());
+    this->Point11->SetZ(tmp);
+  }
+
+  // Find a w.r.t. x, y, z
+  double ax =
+    this->Point11->GetX() - this->Point10->GetX() - this->Point01->GetX() + this->Point00->GetX();
+  double ay =
+    this->Point11->GetY() - this->Point10->GetY() - this->Point01->GetY() + this->Point00->GetY();
+  double az =
+    this->Point11->GetZ() - this->Point10->GetZ() - this->Point01->GetZ() + this->Point00->GetZ();
+
+  // Find b w.r.t. x, y, z
+  double bx = this->Point10->GetX() - this->Point00->GetX();
+  double by = this->Point10->GetY() - this->Point00->GetY();
+  double bz = this->Point10->GetZ() - this->Point00->GetZ();
+
+  // Find c w.r.t. x, y, z
+  double cx = this->Point01->GetX() - this->Point00->GetX();
+  double cy = this->Point01->GetY() - this->Point00->GetY();
+  double cz = this->Point01->GetZ() - this->Point00->GetZ();
+
+  // Find d w.r.t. x, y, z - subtracting r just after
+  double dx = this->Point00->GetX() - rx;
+  double dy = this->Point00->GetY() - ry;
+  double dz = this->Point00->GetZ() - rz;
+
+  // Find A1 and A2
+  double A1 = ax * qz - az * qx;
+  double A2 = ay * qz - az * qy;
+
+  // Find B1 and B2
+  double B1 = bx * qz - bz * qx;
+  double B2 = by * qz - bz * qy;
+
+  // Find C1 and C2
+  double C1 = cx * qz - cz * qx;
+  double C2 = cy * qz - cz * qy;
+
+  // Find D1 and D2
+  double D1 = dx * qz - dz * qx;
+  double D2 = dy * qz - dz * qy;
+
+  double A = A2 * C1 - A1 * C2;
+  double B = A2 * D1 - A1 * D2 + B2 * C1 - B1 * C2;
+  double C = B2 * D1 - B1 * D2;
+
+  uv.SetX(-2);
+  uv.SetY(-2);
+  uv.SetZ(-2);
+  num_sol = vtkLagrangianBilinearQuadIntersection::QuadraticRoot(
+    A, B, C, -RAY_EPSILON, 1 + RAY_EPSILON, vsol);
+  switch (num_sol)
+  {
+    case 0:
+      return false; // no solutions found
+    case 1:
+      uv.SetY(vsol[0]);
+      uv.SetX(vtkLagrangianBilinearQuadIntersection::GetBestDenominator(
+        uv.GetY(), A2, A1, B2, B1, C2, C1, D2, D1));
+      pos1 = this->ComputeCartesianCoordinates(uv.GetX(), uv.GetY());
+      uv.SetZ(vtkLagrangianBilinearQuadIntersection::ComputeIntersectionFactor(q, r, pos1));
+
+      if (uv.GetX() < 1 + RAY_EPSILON && uv.GetX() > -RAY_EPSILON && uv.GetZ() > 0) // vars okay?
+      {
+        return true;
+      }
+      else
+      {
+        return false; // no other soln - so ret false
+      }
+    case 2: // two solutions found
+      uv.SetY(vsol[0]);
+      uv.SetX(vtkLagrangianBilinearQuadIntersection::GetBestDenominator(
+        uv.GetY(), A2, A1, B2, B1, C2, C1, D2, D1));
+      pos1 = this->ComputeCartesianCoordinates(uv.GetX(), uv.GetY());
+      uv.SetZ(vtkLagrangianBilinearQuadIntersection::ComputeIntersectionFactor(q, r, pos1));
+
+      if (uv.GetX() < 1 + RAY_EPSILON && uv.GetX() > -RAY_EPSILON && uv.GetZ() > 0)
+      {
+        u = vtkLagrangianBilinearQuadIntersection::GetBestDenominator(
+          vsol[1], A2, A1, B2, B1, C2, C1, D2, D1);
+        if (u < 1 + RAY_EPSILON && u > RAY_EPSILON)
+        {
+          pos2 = this->ComputeCartesianCoordinates(u, vsol[1]);
+          t2 = vtkLagrangianBilinearQuadIntersection::ComputeIntersectionFactor(q, r, pos2);
+          if (t2 < 0 || uv.GetZ() < t2) // t2 is bad or t1 is better
+          {
+            return true;
+          }
+          // other wise both t2 > 0 and t2 < t1
+          uv.SetY(vsol[1]);
+          uv.SetX(u);
+          uv.SetZ(t2);
+          return true;
+        }
+        return true; // u2 is bad but u1 vars are still okay
+      }
+      else // doesn't fit in the root - try other one
+      {
+        uv.SetY(vsol[1]);
+        uv.SetX(vtkLagrangianBilinearQuadIntersection::GetBestDenominator(
+          vsol[1], A2, A1, B2, B1, C2, C1, D2, D1));
+        pos1 = this->ComputeCartesianCoordinates(uv.GetX(), uv.GetY());
+        uv.SetZ(vtkLagrangianBilinearQuadIntersection::ComputeIntersectionFactor(q, r, pos1));
+        if (uv.GetX() < 1 + RAY_EPSILON && uv.GetX() > -RAY_EPSILON && uv.GetZ() > 0)
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+      }
+    default:
+      return false;
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkLagrangianBilinearQuadIntersection::QuadraticRoot(
+  double a, double b, double c, double min, double max, double* u)
+{
+  if (a == 0.0) // then its close to 0
+  {
+    if (b != 0.0) // not close to 0
+    {
+      u[0] = -c / b;
+      if (u[0] > min && u[0] < max) // its in the interval
+      {
+        return 1; // 1 soln found
+      }
+      else // its not in the interval
+      {
+        return 0;
+      }
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  double d = b * b - 4 * a * c; // discriminant
+  if (d <= 0.0)                 // single or no root
+  {
+    if (d == 0.0) // close to 0
+    {
+      u[0] = -b / a;
+      if (u[0] > min && u[0] < max) // its in the interval
+      {
+        return 1;
+      }
+      else // its not in the interval
+      {
+        return 0;
+      }
+    }
+    else // no root d must be below 0
+    {
+      return 0;
+    }
+  }
+#ifdef WIN32
+  double q = -0.5 * (b + _copysign(sqrt(d), b));
+#else
+  double q = -0.5 * (b + copysign(sqrt(d), b));
+#endif
+  u[0] = c / q;
+  u[1] = q / a;
+
+  if ((u[0] > min && u[0] < max) && (u[1] > min && u[1] < max))
+  {
+    return 2;
+  }
+  else if (u[0] > min && u[0] < max) // then one wasn't in interval
+  {
+    return 1;
+  }
+  else if (u[1] > min && u[1] < max)
+  { // make it easier, make u[0] be the valid one always
+    double dummy;
+    dummy = u[0];
+    u[0] = u[1];
+    u[1] = dummy; // just in case somebody wants to check it
+    return 1;
+  }
+  return 0;
+}
+//----------------------------------------------------------------------------
+// End Of Internal Classes
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 typedef std::vector<vtkSmartPointer<vtkAbstractCellLocator> > LocatorsTypeBase;
@@ -69,6 +493,7 @@ typedef std::set<PassThroughItem> PassThroughSetType;
 //----------------------------------------------------------------------------
 vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel()
   : Locator(nullptr)
+  , WeightsSize(0)
   , Tolerance(1.0e-8)
   , NonPlanarQuadSupport(false)
   , UseInitialIntegrationTime(false)
@@ -217,9 +642,9 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     this->Locators->push_back(locator);
 
     int size = dataset->GetMaxCellSize();
-    if (size > static_cast<int>(this->SharedWeights.size()))
+    if (size > this->WeightsSize)
     {
-      this->SharedWeights.resize(size);
+      this->WeightsSize = size;
     }
   }
 }
@@ -236,7 +661,7 @@ void vtkLagrangianBasicIntegrationModel::ClearDataSets(bool surface)
   {
     this->DataSets->clear();
     this->Locators->clear();
-    this->SharedWeights.clear();
+    this->WeightsSize = 0;
   }
 }
 
@@ -313,9 +738,8 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     {
       vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs];
       vtkDataSet* tmpSurface = (*this->Surfaces)[iDs].second;
-      vtkGenericCell* cell = particle->GetThreadedGenericCell();
-      vtkIdList* cellList = particle->GetThreadedIdList();
-      cellList->Reset();
+      vtkNew<vtkIdList> cellList;
+      vtkNew<vtkGenericCell> cell;
       loc->FindCellsAlongLine(
         particle->GetPosition(), particle->GetNextPosition(), this->Tolerance, cellList);
       for (vtkIdType i = 0; i < cellList->GetNumberOfIds(); i++)
@@ -324,9 +748,8 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
         double tmpPoint[3];
         vtkIdType tmpCellId = cellList->GetId(i);
         tmpSurface->GetCell(tmpCellId, cell);
-        if (this->IntersectWithLine(particle, cell->GetRepresentativeCell(),
-              particle->GetPosition(), particle->GetNextPosition(), this->Tolerance, tmpFactor,
-              tmpPoint) == 0)
+        if (this->IntersectWithLine(cell->GetRepresentativeCell(), particle->GetPosition(),
+              particle->GetNextPosition(), this->Tolerance, tmpFactor, tmpPoint) == 0)
         {
           // FindCellAlongsLines sometimes get false positives
           continue;
@@ -353,7 +776,7 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
             surfaceTupleId = 0;
           }
           if (!this->GetFlowOrSurfaceData(
-                particle, surfaceIndex, tmpSurface, surfaceTupleId, nullptr, &surfaceTypeDbl))
+                surfaceIndex, tmpSurface, surfaceTupleId, nullptr, &surfaceTypeDbl))
           {
             vtkErrorMacro(
               << "Surface Type is not set in surface dataset or"
@@ -442,11 +865,12 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
             << USER_SURFACE_TYPE
             << " as they may be used in the future by the Lagrangian Particle Tracker");
         }
+        // Mutex Locked Area
+        std::lock_guard<std::mutex> guard(ParticleQueueMutex);
         recordInteraction =
           this->InteractWithSurface(surfaceType, particle, surface, cellId, particles);
         break;
     }
-    interactionParticle->SetInteraction(particle->GetInteraction());
   }
   if (!recordInteraction)
   {
@@ -549,7 +973,7 @@ bool vtkLagrangianBasicIntegrationModel::InteractWithSurface(int vtkNotUsed(surf
 }
 
 //----------------------------------------------------------------------------
-bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(vtkLagrangianParticle* particle,
+bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(
   vtkCell* cell, double p1[3], double p2[3], double tol, double& t, double x[3])
 {
   // Non planar quad support
@@ -564,31 +988,38 @@ bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(vtkLagrangianParticle
         return false;
       }
 
-      // create 4 points and fill the bqi
       vtkPoints* points = quad->GetPoints();
-      vtkBilinearQuadIntersection* bqi = particle->GetThreadedBilinearQuadIntersection();
-      points->GetPoint(0, bqi->GetP00Data());
-      points->GetPoint(3, bqi->GetP01Data());
-      points->GetPoint(1, bqi->GetP10Data());
-      points->GetPoint(2, bqi->GetP11Data());
+
+      // create 4 points
+      double p[3];
+      points->GetPoint(0, p);
+      vtkVector3d P00(p[0], p[1], p[2]);
+      points->GetPoint(3, p);
+      vtkVector3d P01(p[0], p[1], p[2]);
+      points->GetPoint(1, p);
+      vtkVector3d P10(p[0], p[1], p[2]);
+      points->GetPoint(2, p);
+      vtkVector3d P11(p[0], p[1], p[2]);
+
+      // Create the bilinear intersection helper class
+      vtkLagrangianBilinearQuadIntersection bp(P00, P01, P10, P11);
 
       // Create the ray
       vtkVector3d r(p1[0], p1[1], p1[2]);                         // origin of the ray
       vtkVector3d q(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]); // a ray direction
-
       // the original t before q is normalised
       double tOrig = q.Norm();
       q.Normalize();
 
-      vtkVector3d uv;                     // variables returned
-      if (bqi->RayIntersection(r, q, uv)) // run intersection test
+      vtkVector3d uv;                   // variables returned
+      if (bp.RayIntersection(r, q, uv)) // run intersection test
       {
         // we have an intersection
         t = uv.GetZ() / tOrig;
         if (t >= 0.0 && t <= 1.0)
         {
           // Recover intersection between p1 and p2
-          vtkVector3d intersec = bqi->ComputeCartesianCoordinates(uv.GetX(), uv.GetY());
+          vtkVector3d intersec = bp.ComputeCartesianCoordinates(uv.GetX(), uv.GetY());
           x[0] = intersec.GetX();
           x[1] = intersec.GetY();
           x[2] = intersec.GetZ();
@@ -709,8 +1140,10 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(
   double* x, vtkLagrangianParticle* particle, vtkDataSet*& dataset, vtkIdType& cellId)
 {
   vtkAbstractCellLocator* loc;
-  double* weights = this->SharedWeights.data();
-  return this->FindInLocators(x, particle, dataset, cellId, loc, weights);
+  std::vector<double> weights(this->WeightsSize);
+  double* wPtr = weights.data(); // FindInLocators expects a double*&, though it doesn't modify?
+  bool ret = this->FindInLocators(x, particle, dataset, cellId, loc, wPtr);
+  return ret;
 }
 
 //----------------------------------------------------------------------------
@@ -723,17 +1156,20 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x, vtkLagrangian
     return false;
   }
 
-  vtkGenericCell* cell = particle->GetThreadedGenericCell();
+  vtkNew<vtkGenericCell> cell;
 
-  // Try the provided particle cache
-  dataset = particle->GetLastDataSet();
-  loc = particle->GetLastLocator();
-  if (dataset)
+  if (particle)
   {
-    cellId = this->FindInLocator(dataset, loc, x, cell, weights);
-    if (cellId != -1)
+    // We have a cache
+    dataset = particle->GetLastDataSet();
+    loc = particle->GetLastLocator();
+    if (dataset)
     {
-      return true;
+      cellId = this->FindInLocator(dataset, loc, x, cell, weights);
+      if (cellId != -1)
+      {
+        return true;
+      }
     }
   }
 
@@ -918,7 +1354,7 @@ int vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceDataNumberOfComponents(
 }
 
 //----------------------------------------------------------------------------
-bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(vtkLagrangianParticle* particle,
+bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(
   int idx, vtkDataSet* dataSet, vtkIdType tupleId, double* weights, double* data)
 {
   // Check index
@@ -978,18 +1414,13 @@ bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(vtkLagrangianParti
                       << " does not contain cellId :" << tupleId << " . Please check arrays.");
         return false;
       }
+      auto tmpArray = vtkSmartPointer<vtkDataArray>::Take(array->NewInstance());
+      tmpArray->SetNumberOfComponents(array->GetNumberOfComponents());
+      tmpArray->SetNumberOfTuples(1);
+      tmpArray->InterpolateTuple(0, dataSet->GetCell(tupleId)->GetPointIds(), array, weights);
 
-      // Manual interpolation of data at particle location
-      vtkIdList* idList = particle->GetThreadedIdList();
-      dataSet->GetCellPoints(tupleId, idList);
-      for (int j = 0; j < array->GetNumberOfComponents(); j++)
-      {
-        data[j] = 0;
-        for (int i = 0; i < idList->GetNumberOfIds(); i++)
-        {
-          data[j] += weights[i] * array->GetComponent(idList->GetId(i), j);
-        }
-      }
+      // Recover data
+      tmpArray->GetTuple(0, data);
       return true;
     }
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:
@@ -1104,13 +1535,6 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayComps()
   return this->SurfaceArrayComps;
 }
 
-//---------------------------------------------------------------------------
-int vtkLagrangianBasicIntegrationModel::GetWeightsSize()
-{
-  return static_cast<int>(this->SharedWeights.size());
-}
-
-//---------------------------------------------------------------------------
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
 {
   this->SurfaceArrayEnumValues->SetNumberOfValues(0);
@@ -1130,7 +1554,6 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
   return this->SurfaceArrayEnumValues;
 }
 
-//---------------------------------------------------------------------------
 vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues()
 {
   this->SurfaceArrayDefaultValues->SetNumberOfValues(0);
@@ -1239,7 +1662,7 @@ void vtkLagrangianBasicIntegrationModel::InitializeInteractionData(vtkFieldData*
 }
 
 //---------------------------------------------------------------------------
-void vtkLagrangianBasicIntegrationModel::InsertParticleSeedData(
+void vtkLagrangianBasicIntegrationModel::InsertSeedData(
   vtkLagrangianParticle* particle, vtkFieldData* data)
 {
   // Check for max number of tuples in arrays
@@ -1258,7 +1681,7 @@ void vtkLagrangianBasicIntegrationModel::InsertParticleSeedData(
     vtkDataArray* arr = data->GetArray(name);
     if (arr->GetNumberOfTuples() < maxTuples)
     {
-      arr->InsertNextTuple(0, seedData->GetArray(i));
+      arr->InsertNextTuple(seedData->GetArray(i)->GetTuple(particle->GetSeedArrayTupleIndex()));
     }
   }
 }
