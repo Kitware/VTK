@@ -430,6 +430,11 @@ if (NOT TARGET uninstall)
     COMMENT "Uninstalling VTK")
 endif ()
 
+install(
+  FILES       "${CMAKE_CURRENT_LIST_DIR}/Copyright.txt"
+  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+  COMPONENT   "license")
+
 # TODO: HeaderTest exclusions for memcheck.
 
 #-----------------------------------------------------------------------------

@@ -162,11 +162,6 @@ install(
   DESTINATION "${vtk_cmake_destination}"
   COMPONENT   "development")
 
-install(
-  FILES       "${CMAKE_CURRENT_LIST_DIR}/../Copyright.txt"
-  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-  COMPONENT   "license")
-
 vtk_module_export_find_packages(
   CMAKE_DESTINATION "${vtk_cmake_destination}"
   FILE_NAME         "VTK-vtk-module-find-packages.cmake"
