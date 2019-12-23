@@ -33,7 +33,7 @@ void vtkSegYTraceReader::SetXYCoordBytePositions(int x, int y)
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
+void vtkSegYTraceReader::PrintTraceHeader(std::istream& in, int startPos)
 {
   int traceSequenceNumberInLine =
     vtkSegYIOUtils::Instance()->readLongInteger(startPos + traceHeaderBytesPos.TraceNumber, in);
@@ -81,7 +81,7 @@ void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
 
 //-----------------------------------------------------------------------------
 void vtkSegYTraceReader::ReadTrace(
-  std::streamoff& startPos, std::ifstream& in, int formatCode, vtkSegYTrace* trace)
+  std::streamoff& startPos, std::istream& in, int formatCode, vtkSegYTrace* trace)
 {
   trace->InlineNumber =
     vtkSegYIOUtils::Instance()->readLongInteger(startPos + traceHeaderBytesPos.InlineNumber, in);
@@ -139,7 +139,7 @@ void vtkSegYTraceReader::ReadTrace(
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYTraceReader::ReadInlineCrossline(std::streamoff& startPos, std::ifstream& in,
+void vtkSegYTraceReader::ReadInlineCrossline(std::streamoff& startPos, std::istream& in,
   int formatCode, int* inlineNumber, int* crosslineNumber, int* xCoord, int* yCoord,
   short* coordMultiplier)
 {

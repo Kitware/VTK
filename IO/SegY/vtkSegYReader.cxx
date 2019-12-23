@@ -183,7 +183,7 @@ int vtkSegYReader::RequestDataObject(vtkInformation*,
   }
   else
   {
-    this->Reader->In.open(this->FileName, std::ifstream::binary);
+    this->Reader->In.open(this->FileName, std::ios::binary);
   }
   if (!this->Reader->In)
   {

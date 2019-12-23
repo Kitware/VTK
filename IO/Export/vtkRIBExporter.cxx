@@ -40,6 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 
@@ -102,7 +103,7 @@ void vtkRIBExporter::WriteData()
   char* ribFileName = new char[ribFileNameSize];
   snprintf(ribFileName, ribFileNameSize, "%s%s", this->FilePrefix, ".rib");
 
-  this->FilePtr = fopen(ribFileName, "w");
+  this->FilePtr = vtksys::SystemTools::Fopen(ribFileName, "w");
   if (this->FilePtr == nullptr)
   {
     vtkErrorMacro(<< "Cannot open " << ribFileName);

@@ -26,6 +26,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
+#include "vtksys/SystemTools.hxx"
 
 vtkStandardNewMacro(vtk3DSImporter);
 
@@ -124,7 +125,7 @@ vtk3DSImporter::vtk3DSImporter()
 int vtk3DSImporter::ImportBegin()
 {
   vtkDebugMacro(<< "Opening import file as binary");
-  this->FileFD = fopen(this->FileName, "rb");
+  this->FileFD = vtksys::SystemTools::Fopen(this->FileName, "rb");
   if (this->FileFD == nullptr)
   {
     vtkErrorMacro(<< "Unable to open file: " << this->FileName);

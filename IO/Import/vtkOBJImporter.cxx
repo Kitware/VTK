@@ -51,7 +51,7 @@ vtkOBJImporter::~vtkOBJImporter() = default;
 
 int CanReadFile(vtkObject* that, const std::string& fname)
 {
-  FILE* fileFD = fopen(fname.c_str(), "rb");
+  FILE* fileFD = vtksys::SystemTools::Fopen(fname, "rb");
   if (fileFD == nullptr)
   {
     vtkErrorWithObjectMacro(that, << "Unable to open file: " << fname.c_str());
