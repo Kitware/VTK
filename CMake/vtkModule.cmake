@@ -3856,6 +3856,7 @@ the target will be installed following the options given to the associated
 ~~~
 vtk_module_add_executable(<name>
   [NO_INSTALL]
+  [DEVELOPMENT]
   [BASENAME <basename>]
   <source>...)
 ~~~
@@ -3864,13 +3865,17 @@ If `NO_INSTALL` is specified, the executable will not be installed. If
 `BASENAME` is given, it will be used as the name of the executable rather than
 the target name.
 
+If `DEVELOPMENT` is given, it marks the executable as a development tool and
+will not be installed if `INSTALL_HEADERS` is not set for the associated
+@ref vtk_module_build command.
+
 If the executable being built is the module, its module properties are used
 rather than `BASENAME`. In addition, the dependencies of the module will be
 linked.
 #]==]
 function (vtk_module_add_executable name)
   cmake_parse_arguments(_vtk_add_executable
-    "NO_INSTALL"
+    "NO_INSTALL;DEVELOPMENT"
     "BASENAME"
     ""
     ${ARGN})
@@ -3878,6 +3883,11 @@ function (vtk_module_add_executable name)
   if (NOT _vtk_add_executable_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
       "The ${name} executable must have at least one source file.")
+  endif ()
+
+  if (_vtk_add_executable_NO_INSTALL AND _vtk_add_executable_DEVELOPMENT)
+    message(FATAL_ERROR
+      "Both `NO_INSTALL` and `DEVELOPMENT` may not be specified.")
   endif ()
 
   set(_vtk_add_executable_target_name "${name}")
@@ -3897,6 +3907,10 @@ function (vtk_module_add_executable name)
       PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
     get_property(_vtk_add_executable_library_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
+  endif ()
+
+  if (_vtk_add_executable_DEVELOPMENT AND NOT _vtk_build_INSTALL_HEADERS)
+    set(_vtk_add_executable_NO_INSTALL ON)
   endif ()
 
   # Set up rpaths
