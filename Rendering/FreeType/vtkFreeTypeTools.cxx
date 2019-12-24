@@ -1421,6 +1421,17 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData& m
   return CalculateBoundingBox(str, metaData, vtkStdString(DEFAULT_HEIGHT_STRING));
 }
 
+namespace
+{
+
+template <typename T>
+constexpr typename T::value_type newline()
+{
+  return static_cast<typename T::value_type>('\n');
+}
+
+}
+
 //----------------------------------------------------------------------------
 template <typename T>
 bool vtkFreeTypeTools::CalculateBoundingBox(
@@ -1434,7 +1445,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
 
   // Go through the string, line by line, and build the metrics data.
   typename T::const_iterator beginLine = str.begin();
-  typename T::const_iterator endLine = std::find(beginLine, str.end(), '\n');
+  typename T::const_iterator endLine = std::find(beginLine, str.end(), newline<T>());
   while (endLine != str.end())
   {
     metaData.lineMetrics.push_back(MetaData::LineMetrics());
@@ -1443,7 +1454,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
     metaData.maxLineWidth = std::max(metaData.maxLineWidth, metaData.lineMetrics.back().width);
     beginLine = endLine;
     ++beginLine;
-    endLine = std::find(beginLine, str.end(), '\n');
+    endLine = std::find(beginLine, str.end(), newline<T>());
   }
   // Last line...
   metaData.lineMetrics.push_back(MetaData::LineMetrics());
@@ -1903,7 +1914,8 @@ bool vtkFreeTypeTools::PopulateData(const StringType& str, DataType data, MetaDa
 {
   // Go through the string, line by line
   typename StringType::const_iterator beginLine = str.begin();
-  typename StringType::const_iterator endLine = std::find(beginLine, str.end(), '\n');
+  typename StringType::const_iterator endLine =
+    std::find(beginLine, str.end(), newline<StringType>());
 
   int lineIndex = 0;
   while (endLine != str.end())
@@ -1915,7 +1927,7 @@ bool vtkFreeTypeTools::PopulateData(const StringType& str, DataType data, MetaDa
 
     beginLine = endLine;
     ++beginLine;
-    endLine = std::find(beginLine, str.end(), '\n');
+    endLine = std::find(beginLine, str.end(), newline<StringType>());
     ++lineIndex;
   }
 
