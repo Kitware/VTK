@@ -54,6 +54,11 @@ extern "C"
 #define VTKPY_DEBUG_MESSAGE_VV(x)                                                                  \
   vtkVLog(vtkLogger::ConvertToVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1), x)
 
+#if defined(_WIN32) && !defined(__CYGWIN__) && defined(VTK_BUILD_SHARED_LIBS) &&                   \
+  PY_VERSION_HEX >= 0x03080000
+#define vtkPythonInterpreter_USE_DIRECTORY_COOKIE
+#endif
+
 namespace
 {
 
@@ -299,6 +304,26 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
   return false;
 }
 
+#ifdef vtkPythonInterpreter_USE_DIRECTORY_COOKIE
+static PyObject* DLLDirectoryCookie = nullptr;
+
+static void CloseDLLDirectoryCookie()
+{
+  if (DLLDirectoryCookie)
+  {
+    PyObject* close = PyObject_GetAttrString(DLLDirectoryCookie, "close");
+    if (close)
+    {
+      PyObject* ret = PyObject_CallMethodObjArgs(DLLDirectoryCookie, close, nullptr);
+      Py_XDECREF(ret);
+    }
+
+    Py_XDECREF(DLLDirectoryCookie);
+    DLLDirectoryCookie = nullptr;
+  }
+}
+#endif
+
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::Finalize()
 {
@@ -306,6 +331,9 @@ void vtkPythonInterpreter::Finalize()
   {
     NotifyInterpreters(vtkCommand::ExitEvent);
     vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+#ifdef vtkPythonInterpreter_USE_DIRECTORY_COOKIE
+    CloseDLLDirectoryCookie();
+#endif
     // Py_Finalize will take care of releasing gil
     Py_Finalize();
   }
@@ -727,6 +755,25 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   // the issue.
   if (!vtkdir.empty())
   {
+#if PY_VERSION_HEX >= 0x03080000
+    vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+    CloseDLLDirectoryCookie();
+    PyObject* os = PyImport_ImportModule("os");
+    if (os)
+    {
+      PyObject* add_dll_directory = PyObject_GetAttrString(os, "add_dll_directory");
+      if (add_dll_directory && PyCallable_Check(add_dll_directory))
+      {
+        PyObject* newpath = PyUnicode_FromString(vtkdir.c_str());
+        DLLDirectoryCookie = PyObject_CallFunctionObjArgs(add_dll_directory, newpath, nullptr);
+        Py_XDECREF(newpath);
+      }
+
+      Py_XDECREF(add_dll_directory);
+    }
+
+    Py_XDECREF(os);
+#else
     std::string env_path;
     if (systools::GetEnv("PATH", env_path))
     {
@@ -737,6 +784,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
       env_path = vtkdir;
     }
     systools::PutEnv(std::string("PATH=") + env_path);
+#endif
   }
 #endif
 
