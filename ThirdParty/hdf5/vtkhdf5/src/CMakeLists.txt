@@ -151,7 +151,6 @@ set (H5E_SOURCES
 )
 
 set (H5E_HDRS
-    ${HDF5_SRC_DIR}/H5Epubgen.h
     ${HDF5_SRC_DIR}/H5Epublic.h
 )
 IDE_GENERATED_PROPERTIES ("H5E" "${H5E_HDRS}" "${H5E_SOURCES}" )
@@ -734,7 +733,6 @@ set (H5_PUBLIC_HEADERS
     ${H5SM_HDRS}
     ${H5T_HDRS}
     ${H5Z_HDRS}
-    ${HDF5_SRC_DIR}/vtk_hdf5_mangle.h
 )
 
 set (H5_PRIVATE_HEADERS
