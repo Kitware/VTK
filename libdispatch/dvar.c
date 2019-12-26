@@ -227,7 +227,7 @@ nc_def_var(int ncid, const char *name, nc_type xtype,
    any existing filled values will not be recognized as fill values by
    applications reading the data. Best practice is to set the fill
    value after the variable has been defined, but before any data have
-   been written to that varibale. In NetCDF-4 files, this is enforced
+   been written to that variable. In NetCDF-4 files, this is enforced
    by the HDF5 library. For netCDF-4 files, an error is returned if
    the user attempts to set the fill value after writing data to the
    variable.
@@ -311,7 +311,6 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
     return ncp->dispatch->def_var_fill(ncid,varid,no_fill,fill_value);
 }
 
-#ifdef USE_NETCDF4
 /**
    Set the compression settings for a netCDF-4/HDF5 variable.
 
@@ -498,7 +497,7 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
    netCDF classic or 64-bit offset files, or for netCDF-4 files, when
    they wwere created with ::NC_CLASSIC_MODEL flag by nc_create().
    @return ::NC_EPERM Attempt to create object in read-only file.
-   @return ::NC_EBADCHUNK Retunrs if the chunk size specified for a
+   @return ::NC_EBADCHUNK Returns if the chunk size specified for a
    variable is larger than the length of the dimensions associated with
    variable.
 
@@ -651,7 +650,6 @@ nc_def_var_filter(int ncid, int varid, unsigned int id,
     if(stat != NC_NOERR) return stat;
     return ncp->dispatch->def_var_filter(ncid,varid,id,nparams,parms);
 }
-#endif /* USE_NETCDF4 */
 
 /** @} */
 
@@ -1096,7 +1094,6 @@ nc_free_string(size_t len, char **data)
 }
 /** @} */
 
-#ifdef USE_NETCDF4
 /**
    @name Variables Chunk Caches
 
@@ -1208,5 +1205,4 @@ nc_get_var_chunk_cache(int ncid, int varid, size_t *sizep, size_t *nelemsp,
                                               nelemsp, preemptionp);
 }
 /** @} */
-#endif /* USE_NETCDF4 */
 /** @} */

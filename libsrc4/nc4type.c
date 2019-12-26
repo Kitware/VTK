@@ -15,7 +15,7 @@
 #include "nc4dispatch.h"
 
 /** @internal Names of atomic types. */
-char* nc4_atomic_name[NUM_ATOMIC_TYPES] = {"none", "byte", "char",
+const char* nc4_atomic_name[NUM_ATOMIC_TYPES] = {"none", "byte", "char",
                                            "short", "int", "float",
                                            "double", "ubyte",
                                            "ushort", "uint",

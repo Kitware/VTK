@@ -252,16 +252,6 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
     /* Get HDF5 specific info. */
     hdf5_info = (NC_HDF5_FILE_INFO_T *)h5->format_file_info;
 
-    /* Delete all the list contents for vars, dims, and atts, in each
-     * group. */
-    if ((retval = nc4_rec_grp_del(h5->root_grp)))
-        return retval;
-
-    /* Free lists of dims, groups, and types in the root group. */
-    nclistfree(h5->alldims);
-    nclistfree(h5->allgroups);
-    nclistfree(h5->alltypes);
-
 #ifdef USE_PARALLEL4
     /* Free the MPI Comm & Info objects, if we opened the file in
      * parallel. */
@@ -288,15 +278,18 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
 
     /* If inmemory is used and user wants the final memory block,
        then capture and return the final memory block else free it */
-    if(h5->mem.inmemory) {
+    if (h5->mem.inmemory)
+    {
         /* Pull out the final memory */
         (void)NC4_extract_file_image(h5);
-        if(!abort && memio != NULL) {
+        if (!abort && memio != NULL)
+        {
             *memio = h5->mem.memio; /* capture it */
             h5->mem.memio.memory = NULL; /* avoid duplicate free */
         }
         /* If needed, reclaim extraneous memory */
-        if(h5->mem.memio.memory != NULL) {
+        if (h5->mem.memio.memory != NULL)
+        {
             /* If the original block of memory is not resizeable, then
                it belongs to the caller and we should not free it. */
             if(!h5->mem.locked)
@@ -311,9 +304,9 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
     if (h5->format_file_info)
         free(h5->format_file_info);
 
-    /* Free the nc4_info struct; above code should have reclaimed
-       everything else */
-    free(h5);
+    /* Free the NC_FILE_INFO_T struct. */
+    if ((retval = nc4_nc4f_list_del(h5)))
+        return retval;
 
     return NC_NOERR;
 }

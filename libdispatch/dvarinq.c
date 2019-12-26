@@ -618,13 +618,13 @@ nc_inq_ncid().
 
 \param varid Variable ID
 
-\param idp Storage which will get the filter id.
+\param idp Storage which will get the filter id; a return value of zero means no filter
 
 \param nparamsp Storage which will get the number of parameters to the
 filter
 
-\param params Storage which will get associated parameters. Note
-the caller must allocate and free.
+\param params Storage which will get associated parameters.
+Note: the caller must allocate and free.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_ENOTNC4 Not a netCDF-4 file.

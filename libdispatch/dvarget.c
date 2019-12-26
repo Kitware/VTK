@@ -268,7 +268,7 @@ NCDEFAULT_get_vars(int ncid, int varid, const size_t * start,
    while(odom_more(&odom)) {
       int localstatus = NC_NOERR;
       /* Read a single value */
-      localstatus = NC_get_vara(ncid,varid,odom.index,nc_sizevector1,memptr,memtype);
+      localstatus = NC_get_vara(ncid,varid,odom.index,NC_coord_one,memptr,memtype);
       /* So it turns out that when get_varm is used, all errors are
          delayed and ERANGE will be overwritten by more serious errors.
       */
@@ -850,7 +850,6 @@ nc_get_vara_ulonglong(int ncid, int varid, const size_t *startp,
    return NC_get_vara(ncid,varid,startp,countp, (void *)ip,NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_get_vara_string(int ncid, int varid, const size_t *startp,
                    const size_t *countp, char* *ip)
@@ -858,7 +857,6 @@ nc_get_vara_string(int ncid, int varid, const size_t *startp,
    return NC_get_vara(ncid,varid,startp,countp, (void *)ip,NC_STRING);
 }
 
-#endif /*USE_NETCDF4*/
 /**@}*/
 
 /** \ingroup variables
@@ -988,13 +986,12 @@ nc_get_var1_ulonglong(int ncid, int varid, const size_t *indexp,
    return NC_get_var1(ncid, varid, indexp, (void *)ip, NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_get_var1_string(int ncid, int varid, const size_t *indexp, char* *ip)
 {
    return NC_get_var1(ncid, varid, indexp, (void *)ip, NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /** \} */
 
 /** \ingroup variables
@@ -1125,13 +1122,11 @@ nc_get_var_ulonglong(int ncid, int varid, unsigned long long *ip)
    return NC_get_var(ncid,varid, (void *)ip,NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_get_var_string(int ncid, int varid, char* *ip)
 {
    return NC_get_var(ncid,varid, (void *)ip,NC_STRING);
 }
-#endif /*USE_NETCDF4*/
 /** \} */
 
 /** \ingroup variables
@@ -1301,7 +1296,6 @@ nc_get_vars_ulonglong(int ncid, int varid, const size_t *startp,
 		      (void *)ip, NC_UINT64);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_get_vars_string(int ncid, int varid,
 		   const size_t *startp, const size_t *countp,
@@ -1311,7 +1305,7 @@ nc_get_vars_string(int ncid, int varid,
    return NC_get_vars(ncid, varid, startp, countp, stridep,
 		      (void *)ip, NC_STRING);
 }
-#endif /*USE_NETCDF4*/
+
 /** \} */
 
 /** \ingroup variables
@@ -1499,7 +1493,6 @@ nc_get_varm_text(int ncid, int varid, const size_t *startp,
 		      (void *)ip, NC_CHAR);
 }
 
-#ifdef USE_NETCDF4
 int
 nc_get_varm_string(int ncid, int varid, const size_t *startp,
 		   const size_t *countp, const ptrdiff_t *stridep,
@@ -1509,7 +1502,6 @@ nc_get_varm_string(int ncid, int varid, const size_t *startp,
 		      (void *)ip, NC_STRING);
 }
 /** \} */
-#endif /*USE_NETCDF4*/
 
 
 /*! \} */ /* End of named group... */

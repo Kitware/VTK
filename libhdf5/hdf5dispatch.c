@@ -15,7 +15,7 @@
 #include "H5FDhttp.h"
 #endif
 
-static NC_Dispatch NC4_dispatcher = {
+static const NC_Dispatch HDF5_dispatcher = {
 
     NC_FORMATX_NC4,
 
@@ -28,8 +28,6 @@ static NC_Dispatch NC4_dispatcher = {
     NC4_abort,
     NC4_close,
     NC4_set_fill,
-    NC_NOTNC3_inq_base_pe,
-    NC_NOTNC3_set_base_pe,
     NC4_inq_format,
     NC4_inq_format_extended,
 
@@ -65,7 +63,6 @@ static NC_Dispatch NC4_dispatcher = {
     NC4_var_par_access,
     NC4_def_var_fill,
 
-#ifdef USE_NETCDF4
     NC4_show_metadata,
     NC4_inq_unlimdims,
 
@@ -104,11 +101,10 @@ static NC_Dispatch NC4_dispatcher = {
     NC4_def_var_filter,
     NC4_HDF5_set_var_chunk_cache,
     NC4_get_var_chunk_cache,
-#endif
 
 };
 
-NC_Dispatch* HDF5_dispatch_table = NULL; /* moved here from ddispatch.c */
+const NC_Dispatch* HDF5_dispatch_table = NULL; /* moved here from ddispatch.c */
 
 /**
  * @internal Initialize the HDF5 dispatch layer.
@@ -119,14 +115,13 @@ NC_Dispatch* HDF5_dispatch_table = NULL; /* moved here from ddispatch.c */
 int
 NC_HDF5_initialize(void)
 {
-    HDF5_dispatch_table = &NC4_dispatcher;
-
+    HDF5_dispatch_table = &HDF5_dispatcher;
     if (!nc4_hdf5_initialized)
         nc4_hdf5_initialize();
 
 #ifdef ENABLE_BYTERANGE
     (void)H5FD_http_init();
-#endif  
+#endif
     return NC4_provenance_init();
 }
 

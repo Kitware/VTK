@@ -33,9 +33,6 @@ EXTERNL void ncvlog(int tag, const char* fmt, va_list ap);
 EXTERNL void nclogtext(int tag, const char* text);
 EXTERNL void nclogtextn(int tag, const char* text, size_t count);
 
-/* Provide printable names for tags */
-EXTERNL void nclogsettags(char** tagset, char* dfalt);
-
 #if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
 }
 #endif

@@ -293,7 +293,7 @@ NC4_inq_attid(int ncid, int varid, const char *name, int *attnump)
  * @param ncid File and group ID.
  * @param varid Variable ID.
  * @param attnum The index number of the attribute.
- * @param name Pointer that gets name of attrribute.
+ * @param name Pointer that gets name of attribute.
  *
  * @return ::NC_NOERR No error.
  * @return ::NC_EBADID Bad ncid.

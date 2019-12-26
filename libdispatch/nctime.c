@@ -16,6 +16,7 @@
  * the CDMS library, get the original sources from LLNL.
  */
 
+#include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -23,8 +24,10 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
-#include "config.h"
 #include "nctime.h"
+
+static const cdCompTime ZA = {1582, 10, 5, 0.0};
+static const cdCompTime ZB = {1582, 10, 15, 0.0};
 
 static int cuErrOpts;			     /* Error options */
 static int cuErrorOccurred = 0;		     /* True iff cdError was called */
@@ -75,8 +78,11 @@ cdError(char *fmt, ...)
 
 #define ISLEAP(year,timeType)	((timeType & Cd366) || (((timeType) & CdHasLeap) && (!((year) % 4) && (((timeType) & CdJulianType) || (((year) % 100) || !((year) % 400))))))
 
-static int mon_day_cnt[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
-static int days_sum[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
+static const int mon_day_cnt_normal[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+static const int mon_day_cnt_leap[12] = {31,29,31,30,31,30,31,31,30,31,30,31};
+static const int days_sum[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
+
+static const int* mon_day_cnt;
 
 /* Compute month and day from year and day-of-year.
  *
@@ -114,9 +120,9 @@ CdMonthDay(int *doy, CdTime *date)
 		year = date->year;
 
 	if (ISLEAP(year,date->timeType)) {
-		mon_day_cnt[1] = 29;
+		mon_day_cnt = mon_day_cnt_leap;
 	} else {
-		mon_day_cnt[1] = 28;
+		mon_day_cnt = mon_day_cnt_normal;
 	}
 	date->month	= 0;
 	for (i = 0; i < 12; i++) {
@@ -434,10 +440,8 @@ cdDiffJulian(cdCompTime ca, cdCompTime cb){
 /* ca - cb in mixed Julian/Gregorian calendar. */
 /* Result is in hours. */
 static double
-cdDiffMixed(cdCompTime ca, cdCompTime cb){
-
-	static cdCompTime ZA = {1582, 10, 5, 0.0};
-	static cdCompTime ZB = {1582, 10, 15, 0.0};
+cdDiffMixed(cdCompTime ca, cdCompTime cb)
+{
 	double result;
 
 	if (cdCompCompare(cb, ZB) == -1){
@@ -905,8 +909,6 @@ cdCompAdd(cdCompTime comptime, double value, cdCalenType calendar, cdCompTime *r
 static void
 cdCompAddMixed(cdCompTime ct, double value, cdCompTime *result){
 
-	static cdCompTime ZA = {1582, 10, 5, 0.0};
-	static cdCompTime ZB = {1582, 10, 15, 0.0};
 	double xj, xg;
 
 	if (cdCompCompare(ct, ZB) == -1){

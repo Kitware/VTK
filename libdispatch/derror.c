@@ -217,7 +217,7 @@ const char *nc_strerror(int ncerr1)
       case NC_ENOCOMPOUND:
 	 return "NetCDF: Can't create HDF5 compound type";
       case NC_EATTEXISTS:
-	 return "NetCDF: Attempt to create attribute that alread exists";
+	 return "NetCDF: Attempt to create attribute that already exists";
       case NC_ENOTNC4:
 	 return "NetCDF: Attempting netcdf-4 operation on netcdf-3 file";
       case NC_ESTRICTNC3:
@@ -245,7 +245,7 @@ const char *nc_strerror(int ncerr1)
       case NC_ELATEDEF:
 	 return "NetCDF: Attempt to define var properties, like deflate, after enddef.";
       case NC_EDIMSCALE:
-	 return "NetCDF: Probem with HDF5 dimscales.";
+	 return "NetCDF: Problem with HDF5 dimscales.";
       case NC_ENOGRP:
 	 return "NetCDF: No group found.";
       case NC_ESTORAGE:

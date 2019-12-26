@@ -51,8 +51,7 @@ typedef struct NCtypealignset {
     NCalignment ncvlenalign;	/* nc_vlen_t*/
 } NCtypealignset;
 
-size_t NC_class_alignment(int ncclass);
-void NC_compute_alignments(void);
-EXTERNL int NC_alignments_computed;
+EXTERNL size_t NC_class_alignment(int ncclass);
+EXTERNL void NC_compute_alignments(void);
 
 #endif /*NCOFFSETS_H*/

@@ -19,13 +19,6 @@
 #include "ncx.h"
 #include "fbits.h"
 #include "onstack.h"
-#ifdef LOCKNUMREC
-#  include <mpp/shmem.h>	/* for SGI/Cray SHMEM routines */
-#  ifdef LN_TEST
-#    include <stdio.h>
-#  endif
-#endif
-
 
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
@@ -597,40 +590,6 @@ static int
 NCvnrecs(NC3_INFO* ncp, size_t numrecs)
 {
 	int status = NC_NOERR;
-#ifdef LOCKNUMREC
-	ushmem_t myticket = 0, nowserving = 0;
-	ushmem_t numpe = (ushmem_t) _num_pes();
-
-	/* get ticket and wait */
-	myticket = shmem_short_finc((shmem_t *) ncp->lock + LOCKNUMREC_LOCK,
-		ncp->lock[LOCKNUMREC_BASEPE]);
-#ifdef LN_TEST
-		fprintf(stderr,"%d of %d : ticket = %hu\n",
-			_my_pe(), _num_pes(), myticket);
-#endif
-	do {
-		shmem_short_get((shmem_t *) &nowserving,
-			(shmem_t *) ncp->lock + LOCKNUMREC_SERVING, 1,
-			ncp->lock[LOCKNUMREC_BASEPE]);
-#ifdef LN_TEST
-		fprintf(stderr,"%d of %d : serving = %hu\n",
-			_my_pe(), _num_pes(), nowserving);
-#endif
-		/* work-around for non-unique tickets */
-		if (nowserving > myticket && nowserving < myticket + numpe ) {
-			/* get a new ticket ... you've been bypassed */
-			/* and handle the unlikely wrap-around effect */
-			myticket = shmem_short_finc(
-				(shmem_t *) ncp->lock + LOCKNUMREC_LOCK,
-				ncp->lock[LOCKNUMREC_BASEPE]);
-#ifdef LN_TEST
-				fprintf(stderr,"%d of %d : new ticket = %hu\n",
-					_my_pe(), _num_pes(), myticket);
-#endif
-		}
-	} while(nowserving != myticket);
-	/* now our turn to check & update value */
-#endif
 
 	if(numrecs > NC_get_numrecs(ncp))
 	{
@@ -713,11 +672,6 @@ NCvnrecs(NC3_INFO* ncp, size_t numrecs)
 
 	}
 common_return:
-#ifdef LOCKNUMREC
-	/* finished with our lock - increment serving number */
-	(void) shmem_short_finc((shmem_t *) ncp->lock + LOCKNUMREC_SERVING,
-		ncp->lock[LOCKNUMREC_BASEPE]);
-#endif
 	return status;
 }
 

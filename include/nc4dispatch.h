@@ -23,12 +23,12 @@ extern "C" {
     EXTERNL int
     NC4_create(const char *path, int cmode,
                size_t initialsz, int basepe, size_t *chunksizehintp,
-               void* parameters, NC_Dispatch*, NC*);
+               void* parameters, const NC_Dispatch*, int);
 
     EXTERNL int
     NC4_open(const char *path, int mode,
              int basepe, size_t *chunksizehintp,
-             void* parameters, NC_Dispatch*, NC*);
+             void* parameters, const NC_Dispatch*, int);
 
     EXTERNL int
     NC4_redef(int ncid);
@@ -48,12 +48,6 @@ extern "C" {
 
     EXTERNL int
     NC4_set_fill(int ncid, int fillmode, int *old_modep);
-
-    EXTERNL int
-    NC4_set_base_pe(int ncid, int pe);
-
-    EXTERNL int
-    NC4_inq_base_pe(int ncid, int *pe);
 
     EXTERNL int
     NC4_inq_format(int ncid, int *formatp);

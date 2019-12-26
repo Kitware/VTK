@@ -11,6 +11,7 @@
 #ifndef _NCDIMSCALE_H_
 #define _NCDIMSCALE_H_
 
+#ifdef USE_HDF5
 #include <vtk_hdf5.h>
 
 /* This is used to uniquely identify datasets, so we can keep track of
@@ -20,5 +21,6 @@ typedef struct hdf5_objid
     unsigned long fileno[2]; /* file number */
     haddr_t objno[2]; /* object number */
 } HDF5_OBJID_T;
+#endif /* USE_HDF5 */
 
 #endif

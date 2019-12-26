@@ -13,7 +13,9 @@
 #include "config.h"
 #include <nc4internal.h>
 #include "nc4dispatch.h"
+#ifdef USE_HDF5
 #include "hdf5internal.h"
+#endif
 #include <math.h>
 
 /**
@@ -227,7 +229,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
             if (var->type_info->nc_type_class == NC_STRING)
             {
                 assert(*(char **)var->fill_value);
-                /* This will allocate memeory and copy the string. */
+                /* This will allocate memory and copy the string. */
                 if (!(*(char **)fill_valuep = strdup(*(char **)var->fill_value)))
                 {
                     free(*(char **)fill_valuep);
@@ -1210,7 +1212,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
         case NC_FLOAT:
             for (dp = (double *)src, fp = dest; count < len; count++)
             {
-                if (*dp > X_FLOAT_MAX || *dp < X_FLOAT_MIN)
+                if (isgreater(*dp, X_FLOAT_MAX) || isless(*dp, X_FLOAT_MIN))
                     (*range_error)++;
                 *fp++ = *dp++;
             }

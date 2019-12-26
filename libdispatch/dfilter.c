@@ -14,6 +14,10 @@
 #include "netcdf.h"
 #include "netcdf_filter.h"
 
+#ifdef USE_HDF5
+#include "hdf5internal.h"
+#endif
+
 /*
 Common utilities related to filters.
 */
@@ -261,4 +265,63 @@ NC_filterfix8(unsigned char* mem, int decode)
 #else /* Little endian */
     /* No action is necessary */
 #endif	    
+}
+
+/**************************************************/
+/* Support direct user defined filters */
+
+EXTERNL int
+nc_filter_register(NC_FILTER_INFO* filter)
+{
+    int stat = NC_NOERR;
+    if(filter == NULL)
+	return NC_EINVAL;
+    switch (filter->format) {
+    case NC_FILTER_FORMAT_HDF5:
+#ifdef USE_HDF5
+	stat = nc4_filter_action(FILTER_REG, filter->format, filter->id, filter);
+#else
+        stat = NC_ENOTBUILT;
+#endif
+	break;
+    default:
+	stat = NC_EINVAL;
+    }
+    return stat;
+}
+
+EXTERNL int
+nc_filter_unregister(int fformat, int id)
+{
+    int stat = NC_NOERR;
+    switch (fformat) {
+    case NC_FILTER_FORMAT_HDF5:
+#ifdef USE_HDF5
+	stat = nc4_filter_action(FILTER_UNREG, fformat, id, NULL);
+#else
+        stat = NC_ENOTBUILT;
+#endif
+	break;
+    default:
+	stat = NC_EINVAL;
+    }
+    return stat;
+}
+
+EXTERNL int
+nc_filter_inq(int fformat, int id, NC_FILTER_INFO* filter_info)
+{
+    int stat = NC_NOERR;
+    switch (fformat) {
+    case NC_FILTER_FORMAT_HDF5:
+#ifdef USE_HDF5
+	stat = nc4_filter_action(FILTER_INQ, fformat, id, filter_info);
+#else
+        stat = NC_ENOTBUILT;
+#endif
+	break;
+    default:
+	stat = NC_EINVAL;
+    }
+    return stat;
 }

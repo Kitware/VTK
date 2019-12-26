@@ -83,8 +83,134 @@ nc4_check_name(const char *name, char *norm_name)
 }
 
 /**
+ * @internal Add a file to the list of libsrc4 open files. This is
+ * used by dispatch layers that wish to use the libsrc4 metadata
+ * model, but don't know about struct NC. This is the same as
+ * nc4_nc4f_list_add(), except it takes an ncid instead of an NC *,
+ * and also passes back the dispatchdata pointer.
+ *
+ * @param ncid The (already-assigned) ncid of the file (aka ext_ncid).
+ * @param path The file name of the new file.
+ * @param mode The mode flag.
+ * @param dispatchdata Void * that gets pointer to dispatch data,
+ * which is the NC_FILE_INFO_T struct allocated for this file and its
+ * metadata. Ignored if NULL. (This is passed as a void to allow
+ * external user-defined formats to use this function.)
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EBADID No NC struct with this ext_ncid.
+ * @return ::NC_ENOMEM Out of memory.
+ * @author Ed Hartnett
+ */
+int
+nc4_file_list_add(int ncid, const char *path, int mode, void **dispatchdata)
+{
+    NC *nc;
+    int ret;
+
+    /* Find NC pointer for this file. */
+    if ((ret = NC_check_id(ncid, &nc)))
+        return ret;
+
+    /* Add necessary structs to hold netcdf-4 file data. This is where
+     * the NC_FILE_INFO_T struct is allocated for the file. */
+    if ((ret = nc4_nc4f_list_add(nc, path, mode)))
+        return ret;
+
+    /* If the user wants a pointer to the NC_FILE_INFO_T, then provide
+     * it. */
+    if (dispatchdata)
+        *dispatchdata = nc->dispatchdata;
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Change the ncid of an open file. This is needed for PIO
+ * integration.
+ *
+ * @param ncid The ncid of the file (aka ext_ncid).
+ * @param new_ncid The new ncid index to use (i.e. the first two bytes
+ * of the ncid).
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EBADID No NC struct with this ext_ncid.
+ * @return ::NC_ENOMEM Out of memory.
+ * @author Ed Hartnett
+ */
+int
+nc4_file_change_ncid(int ncid, unsigned short new_ncid_index)
+{
+    NC *nc;
+    int ret;
+
+    LOG((2, "%s: ncid %d new_ncid_index %d", __func__, ncid, new_ncid_index));
+
+    /* Find NC pointer for this file. */
+    if ((ret = NC_check_id(ncid, &nc)))
+        return ret;
+
+    /* Move it in the list. It will faile if list spot is already
+     * occupied. */
+    LOG((3, "moving nc->ext_ncid %d nc->ext_ncid >> ID_SHIFT %d",
+         nc->ext_ncid, nc->ext_ncid >> ID_SHIFT));
+    if (move_in_NCList(nc, new_ncid_index))
+        return NC_EIO;
+    LOG((3, "moved to new_ncid_index %d new nc->ext_ncid %d", new_ncid_index,
+         nc->ext_ncid));
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Get info about a file on the list of libsrc4 open
+ * files. This is used by dispatch layers that wish to use the libsrc4
+ * metadata model, but don't know about struct NC.
+ *
+ * @param ncid The ncid of the file (aka ext_ncid).
+ * @param path A pointer that gets file name (< NC_MAX_NAME). Ignored
+ * if NULL.
+ * @param mode A pointer that gets the mode flag. Ignored if NULL.
+ * @param dispatchdata Void * that gets pointer to dispatch data,
+ * which is the NC_FILE_INFO_T struct allocated for this file and its
+ * metadata. Ignored if NULL. (This is passed as a void to allow
+ * external user-defined formats to use this function.)
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EBADID No NC struct with this ext_ncid.
+ * @return ::NC_ENOMEM Out of memory.
+ * @author Ed Hartnett
+ */
+int
+nc4_file_list_get(int ncid, char **path, int *mode, void **dispatchdata)
+{
+    NC *nc;
+    int ret;
+
+    /* Find NC pointer for this file. */
+    if ((ret = NC_check_id(ncid, &nc)))
+        return ret;
+
+    /* If the user wants path, give it. */
+    if (path)
+        strncpy(*path, nc->path, NC_MAX_NAME);
+
+    /* If the user wants mode, give it. */
+    if (mode)
+        *mode = nc->mode;
+
+    /* If the user wants dispatchdata, give it. */
+    if (dispatchdata)
+        *dispatchdata = nc->dispatchdata;
+
+    return NC_NOERR;
+}
+
+/**
  * @internal Given an NC pointer, add the necessary stuff for a
- * netcdf-4 file.
+ * netcdf-4 file. This allocates the NC_FILE_INFO_T struct for the
+ * file, which is used by libhdf5 and libhdf4 (and perhaps other
+ * future dispatch layers) to hold the metadata for the file.
  *
  * @param nc Pointer to file's NC struct.
  * @param path The file name of the new file.
@@ -103,7 +229,7 @@ nc4_nc4f_list_add(NC *nc, const char *path, int mode)
     assert(nc && !NC4_DATA(nc) && path);
 
     /* We need to malloc and initialize the substructure
-       NC_HDF_FILE_INFO_T. */
+       NC_FILE_INFO_T. */
     if (!(h5 = calloc(1, sizeof(NC_FILE_INFO_T))))
         return NC_ENOMEM;
     nc->dispatchdata = h5;
@@ -123,7 +249,7 @@ nc4_nc4f_list_add(NC *nc, const char *path, int mode)
 
     /* There's always at least one open group - the root
      * group. Allocate space for one group's worth of information. Set
-     * its hdf id, name, and a pointer to it's file structure. */
+     * its grp id, name, and allocate associated empty lists. */
     if ((retval = nc4_grp_list_add(h5, NULL, NC_GROUP_NAME, &h5->root_grp)))
         return retval;
 
@@ -505,7 +631,7 @@ obj_track(NC_FILE_INFO_T* file, NC_OBJ* obj)
 int
 nc4_var_list_add2(NC_GRP_INFO_T *grp, const char *name, NC_VAR_INFO_T **var)
 {
-    NC_VAR_INFO_T *new_var;
+    NC_VAR_INFO_T *new_var = NULL;
 
     /* Allocate storage for new variable. */
     if (!(new_var = calloc(1, sizeof(NC_VAR_INFO_T))))
@@ -520,8 +646,12 @@ nc4_var_list_add2(NC_GRP_INFO_T *grp, const char *name, NC_VAR_INFO_T **var)
 
     /* Now fill in the values in the var info structure. */
     new_var->hdr.id = ncindexsize(grp->vars);
-    if (!(new_var->hdr.name = strdup(name)))
-        return NC_ENOMEM;
+    if (!(new_var->hdr.name = strdup(name))) {
+      if(new_var)
+        free(new_var);
+      return NC_ENOMEM;
+    }
+
     new_var->hdr.hashkey = NC_hashmapkey(new_var->hdr.name,
                                          strlen(new_var->hdr.name));
 
@@ -619,7 +749,7 @@ int
 nc4_dim_list_add(NC_GRP_INFO_T *grp, const char *name, size_t len,
                  int assignedid, NC_DIM_INFO_T **dim)
 {
-    NC_DIM_INFO_T *new_dim;
+    NC_DIM_INFO_T *new_dim = NULL;
 
     assert(grp && name);
 
@@ -636,8 +766,12 @@ nc4_dim_list_add(NC_GRP_INFO_T *grp, const char *name, size_t len,
         new_dim->hdr.id = grp->nc4_info->next_dimid++;
 
     /* Remember the name and create a hash. */
-    if (!(new_dim->hdr.name = strdup(name)))
-        return NC_ENOMEM;
+    if (!(new_dim->hdr.name = strdup(name))) {
+      if(new_dim)
+        free(new_dim);
+
+      return NC_ENOMEM;
+    }
     new_dim->hdr.hashkey = NC_hashmapkey(new_dim->hdr.name,
                                          strlen(new_dim->hdr.name));
 
@@ -675,7 +809,7 @@ nc4_dim_list_add(NC_GRP_INFO_T *grp, const char *name, size_t len,
 int
 nc4_att_list_add(NCindex *list, const char *name, NC_ATT_INFO_T **att)
 {
-    NC_ATT_INFO_T *new_att;
+    NC_ATT_INFO_T *new_att = NULL;
 
     LOG((3, "%s: name %s ", __func__, name));
 
@@ -685,9 +819,11 @@ nc4_att_list_add(NCindex *list, const char *name, NC_ATT_INFO_T **att)
 
     /* Fill in the information we know. */
     new_att->hdr.id = ncindexsize(list);
-    if (!(new_att->hdr.name = strdup(name)))
-        return NC_ENOMEM;
-
+    if (!(new_att->hdr.name = strdup(name))) {
+      if(new_att)
+        free(new_att);
+      return NC_ENOMEM;
+    }
     /* Create a hash of the name. */
     new_att->hdr.hashkey = NC_hashmapkey(name, strlen(name));
 
@@ -1273,13 +1409,15 @@ dim_free(NC_DIM_INFO_T *dim)
  * @author Dennis Heimbigner
  */
 int
-nc4_dim_list_del(NC_GRP_INFO_T* grp, NC_DIM_INFO_T *dim)
+nc4_dim_list_del(NC_GRP_INFO_T *grp, NC_DIM_INFO_T *dim)
 {
-    if(grp && dim) {
-        int pos = ncindexfind(grp->dim,(NC_OBJ*)dim);
+    if (grp && dim)
+    {
+        int pos = ncindexfind(grp->dim, (NC_OBJ *)dim);
         if(pos >= 0)
-            ncindexidel(grp->dim,pos);
+            ncindexidel(grp->dim, pos);
     }
+
     return dim_free(dim);
 }
 
@@ -1362,6 +1500,69 @@ nc4_att_list_del(NCindex *list, NC_ATT_INFO_T *att)
     assert(att && list);
     ncindexidel(list, ((NC_OBJ *)att)->id);
     return att_free(att);
+}
+
+/**
+ * @internal Free all resources and memory associated with a
+ * NC_FILE_INFO_T. This is the same as nc4_nc4f_list_del(), except it
+ * takes ncid. This function allows external dispatch layers, like
+ * PIO, to manipulate the file list without needing to know about
+ * internal netcdf structures.
+ *
+ * @param ncid The ncid of the file to release.
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EBADID Bad ncid.
+ * @author Ed Hartnett
+ */
+int
+nc4_file_list_del(int ncid)
+{
+    NC_FILE_INFO_T *h5;
+    int retval;
+
+    /* Find our metadata for this file. */
+    if ((retval = nc4_find_grp_h5(ncid, NULL, &h5)))
+        return retval;
+    assert(h5);
+
+    /* Delete the file resources. */
+    if ((retval = nc4_nc4f_list_del(h5)))
+        return retval;
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Free all resources and memory associated with a
+ * NC_FILE_INFO_T.
+ *
+ * @param h5 Pointer to NC_FILE_INFO_T to be freed.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett
+ */
+int
+nc4_nc4f_list_del(NC_FILE_INFO_T *h5)
+{
+    int retval;
+
+    assert(h5);
+
+    /* Delete all the list contents for vars, dims, and atts, in each
+     * group. */
+    if ((retval = nc4_rec_grp_del(h5->root_grp)))
+        return retval;
+
+    /* Cleanup these (extra) lists of all dims, groups, and types. */
+    nclistfree(h5->alldims);
+    nclistfree(h5->allgroups);
+    nclistfree(h5->alltypes);
+
+    /* Free the NC_FILE_INFO_T struct. */
+    free(h5);
+
+    return NC_NOERR;
 }
 
 /**

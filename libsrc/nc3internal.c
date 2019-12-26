@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#if defined(LOCKNUMREC) /* && _CRAYMPP */
-#  include <mpp/shmem.h>
-#  include <intrinsics.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -22,6 +18,7 @@
 #include "netcdf_mem.h"
 #include "rnd.h"
 #include "ncx.h"
+#include "ncrc.h"
 
 /* These have to do with version numbers. */
 #define MAGIC_NUM_LEN 4
@@ -47,11 +44,7 @@ free_NC3INFO(NC3_INFO *nc3)
 	free_NC_dimarrayV(&nc3->dims);
 	free_NC_attrarrayV(&nc3->attrs);
 	free_NC_vararrayV(&nc3->vars);
-#if _CRAYMPP && defined(LOCKNUMREC)
-	shfree(nc3);
-#else
 	free(nc3);
-#endif /* _CRAYMPP && LOCKNUMREC */
 }
 
 static NC3_INFO *
@@ -948,21 +941,6 @@ NC_endef(NC3_INFO *ncp,
 	return ncio_sync(ncp->nciop);
 }
 
-#ifdef LOCKNUMREC
-static int
-NC_init_pe(NC *ncp, int basepe) {
-	if (basepe < 0 || basepe >= _num_pes()) {
-		return NC_EINVAL; /* invalid base pe */
-	}
-	/* initialize common values */
-	ncp->lock[LOCKNUMREC_VALUE] = 0;
-	ncp->lock[LOCKNUMREC_LOCK] = 0;
-	ncp->lock[LOCKNUMREC_SERVING] = 0;
-	ncp->lock[LOCKNUMREC_BASEPE] =  basepe;
-	return NC_NOERR;
-}
-#endif
-
 
 /*
  * Compute the expected size of the file.
@@ -1017,11 +995,7 @@ int NC3_new_nc(NC3_INFO** ncpp)
 	NC *nc;
 	NC3_INFO* nc3;
 
-#if _CRAYMPP && defined(LOCKNUMREC)
-	ncp = (NC *) shmalloc(sizeof(NC));
-#else
 	ncp = (NC *) malloc(sizeof(NC));
-#endif /* _CRAYMPP && LOCKNUMREC */
 	if(ncp == NULL)
 		return NC_ENOMEM;
 	(void) memset(ncp, 0, sizeof(NC));
@@ -1039,12 +1013,17 @@ int NC3_new_nc(NC3_INFO** ncpp)
 int
 NC3_create(const char *path, int ioflags, size_t initialsz, int basepe,
            size_t *chunksizehintp, void *parameters,
-           NC_Dispatch *dispatch, NC *nc)
+           const NC_Dispatch *dispatch, int ncid)
 {
 	int status = NC_NOERR;
 	void *xp = NULL;
 	int sizeof_off_t = 0;
+        NC *nc;
 	NC3_INFO* nc3 = NULL;
+
+        /* Find NC struct for this file. */
+        if ((status = NC_check_id(ncid, &nc)))
+            return status;
 
 	/* Create our specific NC3_INFO instance */
 	nc3 = new_NC3INFO(chunksizehintp);
@@ -1053,20 +1032,13 @@ NC3_create(const char *path, int ioflags, size_t initialsz, int basepe,
 	fSet(ioflags, NC_SHARE);
 #endif
 
-#if defined(LOCKNUMREC) /* && _CRAYMPP */
-	if (status = NC_init_pe(nc3, basepe)) {
-		return status;
-	}
-#else
 	/*
-	 * !_CRAYMPP, only pe 0 is valid
+	 * Only pe 0 is valid
 	 */
 	if(basepe != 0) {
-      if(nc3) free(nc3);
-      return NC_EINVAL;
-    }
-#endif
-
+            if(nc3) free(nc3);
+            return NC_EINVAL;
+        }
 	assert(nc3->flags == 0);
 
 	/* Now we can set min size */
@@ -1171,10 +1143,15 @@ nc_set_default_format(int format, int *old_formatp)
 
 int
 NC3_open(const char *path, int ioflags, int basepe, size_t *chunksizehintp,
-         void *parameters, NC_Dispatch *dispatch, NC *nc)
+         void *parameters, const NC_Dispatch *dispatch, int ncid)
 {
 	int status;
 	NC3_INFO* nc3 = NULL;
+        NC *nc;
+
+        /* Find NC struct for this file. */
+        if ((status = NC_check_id(ncid, &nc)))
+            return status;
 
 	/* Create our specific NC3_INFO instance */
 	nc3 = new_NC3INFO(chunksizehintp);
@@ -1183,29 +1160,23 @@ NC3_open(const char *path, int ioflags, int basepe, size_t *chunksizehintp,
 	fSet(ioflags, NC_SHARE);
 #endif
 
-#if defined(LOCKNUMREC) /* && _CRAYMPP */
-	if (status = NC_init_pe(nc3, basepe)) {
-	    goto unwind_alloc;
-	}
-#else
 	/*
-	 * !_CRAYMPP, only pe 0 is valid
+	 * Only pe 0 is valid.
 	 */
 	if(basepe != 0) {
-      if(nc3) {
-        free(nc3);
-        nc3 = NULL;
-      }
-      status = NC_EINVAL;
-      goto unwind_alloc;
-    }
-#endif
+            if(nc3) {
+                free(nc3);
+                nc3 = NULL;
+            }
+            status = NC_EINVAL;
+            goto unwind_alloc;
+        }
 
 #ifdef ENABLE_BYTERANGE
     /* If the model specified the use of byte-ranges, then signal by
        a temporary hack using one of the flags in the ioflags.
     */
-    if(nc->model->iosp == NC_IOSP_HTTP)
+    if(NC_testmode(path,"bytes"))
         ioflags |= NC_HTTP;
 #endif /*ENABLE_BYTERANGE*/
 
@@ -1567,105 +1538,6 @@ NC3_set_fill(int ncid,
 	return NC_NOERR;
 }
 
-#ifdef LOCKNUMREC
-
-/* create function versions of the NC_*_numrecs macros */
-size_t
-NC_get_numrecs(const NC *nc3) {
-	shmem_t numrec;
-	shmem_short_get(&numrec, (shmem_t *) nc3->lock + LOCKNUMREC_VALUE, 1,
-		nc3->lock[LOCKNUMREC_BASEPE]);
-	return (size_t) numrec;
-}
-
-void
-NC_set_numrecs(NC *nc3, size_t nrecs)
-{
-    shmem_t numrec = (shmem_t) nrecs;
-    /* update local value too */
-    nc3->lock[LOCKNUMREC_VALUE] = (ushmem_t) numrec;
-    shmem_short_put((shmem_t *) nc3->lock + LOCKNUMREC_VALUE, &numrec, 1,
-    nc3->lock[LOCKNUMREC_BASEPE]);
-}
-
-void NC_increase_numrecs(NC *nc3, size_t nrecs)
-{
-    /* this is only called in one place that's already protected
-     * by a lock ... so don't worry about it */
-    if (nrecs > NC_get_numrecs(nc3))
-	NC_set_numrecs(nc3, nrecs);
-}
-
-#endif /* LOCKNUMREC */
-
-/* everyone in communicator group will be executing this */
-/*ARGSUSED*/
-int
-NC3_set_base_pe(int ncid, int pe)
-{
-#if _CRAYMPP && defined(LOCKNUMREC)
-	int status;
-	NC *nc;
-	NC3_INFO* nc3;
-	shmem_t numrecs;
-
-	if ((status = NC_check_id(ncid, &nc) != NC_NOERR) {
-		return status;
-	}
-	if (pe < 0 || pe >= _num_pes()) {
-		return NC_EINVAL; /* invalid base pe */
-	}
-	nc3 = NC3_DATA(nc);
-
-	numrecs = (shmem_t) NC_get_numrecs(nc3);
-
-	nc3->lock[LOCKNUMREC_VALUE] = (ushmem_t) numrecs;
-
-	/* update serving & lock values for a "smooth" transition */
-	/* note that the "real" server will being doing this as well */
-	/* as all the rest in the group */
-	/* must have synchronization before & after this step */
-	shmem_short_get(
-		(shmem_t *) nc3->lock + LOCKNUMREC_SERVING,
-		(shmem_t *) nc3->lock + LOCKNUMREC_SERVING,
-		1, nc3->lock[LOCKNUMREC_BASEPE]);
-
-	shmem_short_get(
-		(shmem_t *) nc3->lock + LOCKNUMREC_LOCK,
-		(shmem_t *) nc3->lock + LOCKNUMREC_LOCK,
-		1, nc3->lock[LOCKNUMREC_BASEPE]);
-
-	/* complete transition */
-	nc3->lock[LOCKNUMREC_BASEPE] = (ushmem_t) pe;
-
-#endif /* _CRAYMPP && LOCKNUMREC */
-	return NC_NOERR;
-}
-
-/*ARGSUSED*/
-int
-NC3_inq_base_pe(int ncid, int *pe)
-{
-#if _CRAYMPP && defined(LOCKNUMREC)
-	int status;
-	NC *nc;
-	NC3_INFO* nc3;
-
-	if ((status = NC_check_id(ncid, &nc)) != NC_NOERR) {
-		return status;
-	}
-
-	*pe = (int) nc3->lock[LOCKNUMREC_BASEPE];
-	nc3 = NC3_DATA(nc);
-#else
-	/*
-	 * !_CRAYMPP, only pe 0 is valid
-	 */
-	if (pe) *pe = 0;
-#endif /* _CRAYMPP && LOCKNUMREC */
-	return NC_NOERR;
-}
-
 /**
  * Return the file format.
  *
@@ -1714,7 +1586,7 @@ NC3_inq_format(int ncid, int *formatp)
  * \param ncid the ID of the open file.
  * \param formatp a pointer that gets the extended format. Note that
  * this is not the same as the format provided by nc_inq_format(). The
- * extended foramt indicates the dispatch layer model. Classic, 64-bit
+ * extended format indicates the dispatch layer model. Classic, 64-bit
  * offset, and CDF5 files all have an extended format of
  * ::NC_FORMATX_NC3. Ignored if NULL.
  * \param modep a pointer that gets the open/create mode associated with
@@ -1777,7 +1649,18 @@ NC3_inq_type(int ncid, nc_type typeid, char *name, size_t *size)
    return NC_NOERR;
 }
 
-/**************************************************/
+/**
+ * This is an obsolete form of nc_delete(), supported for backwards
+ * compatibility.
+ *
+ * @param path Filename to delete.
+ * @param basepe Must be 0.
+ *
+ * @return ::NC_NOERR No error.
+ * @return ::NC_EIO Couldn't delete file.
+ * @return ::NC_EINVAL Invaliod basepe. Must be 0.
+ * @author Glenn Davis, Ed Hartnett
+ */
 int
 nc_delete_mp(const char * path, int basepe)
 {
@@ -1791,17 +1674,11 @@ nc_delete_mp(const char * path, int basepe)
 	status = NC_check_id(ncid,&nc);
         if(status) return status;
 
-#if defined(LOCKNUMREC) /* && _CRAYMPP */
-	if (status = NC_init_pe(nc3, basepe)) {
-		return status;
-	}
-#else
 	/*
-	 * !_CRAYMPP, only pe 0 is valid
+	 * Only pe 0 is valid.
 	 */
 	if(basepe != 0)
 		return NC_EINVAL;
-#endif
 
 	(void) nc_close(ncid);
 	if(unlink(path) == -1) {
