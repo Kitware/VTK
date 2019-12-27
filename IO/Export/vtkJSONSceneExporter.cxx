@@ -31,11 +31,11 @@
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
+#include "vtkQuadricClustering.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
-#include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -55,6 +55,9 @@ vtkJSONSceneExporter::vtkJSONSceneExporter()
   this->WriteTextureLODs = false;
   this->TextureLODsBaseSize = 100000;
   this->TextureLODsBaseUrl = nullptr;
+  this->WritePolyLODs = false;
+  this->PolyLODsBaseSize = 100000;
+  this->PolyLODsBaseUrl = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -194,6 +197,16 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
   std::string dsPath = this->CurrentDataSetPath();
   ++this->DatasetCount;
 
+  auto* polyData = vtkPolyData::SafeDownCast(dataset);
+  vtkSmartPointer<vtkPolyData> newDataset;
+  std::string polyLODsConfig;
+  if (this->WritePolyLODs && polyData)
+  {
+    newDataset = this->WritePolyLODSeries(polyData, polyLODsConfig);
+    // Write the smallest poly LOD to the vtkjs file
+    dataset = newDataset.Get();
+  }
+
   vtkNew<vtkJSONDataSetWriter> dsWriter;
   dsWriter->SetInputData(dataset);
   dsWriter->SetFileName(dsPath.c_str());
@@ -225,6 +238,7 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
     meta << addOnMeta;
   }
 
+  meta << polyLODsConfig;
   meta << INDENT << "}";
 
   return meta.str();
@@ -287,6 +301,7 @@ void vtkJSONSceneExporter::WriteData()
   this->DatasetCount = 0;
   this->TextureStrings.clear();
   this->TextureLODStrings.clear();
+  this->FilesToZip.clear();
 
   // make sure the user specified a FileName or FilePointer
   if (this->FileName == nullptr)
@@ -523,6 +538,183 @@ std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
 
   this->TextureLODStrings[texture] = config.str();
   return config.str();
+}
+
+// ----------------------------------------------------------------------------
+
+vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
+  vtkPolyData* dataset, std::string& polyLODsConfig)
+{
+  vtkSmartPointer<vtkPolyData> polyData = dataset;
+  std::vector<std::string> files;
+
+  // Write these into the parent directory of our file.
+  // This next line also converts the path to unix slashes.
+  vtkNew<vtkJSONDataSetWriter> dsWriter;
+  std::string path = vtksys::SystemTools::GetParentDirectory(this->FileName) + "/";
+  path = vtksys::SystemTools::ConvertToOutputPath(path);
+
+  // If the new size is not at least 5% different from the old size,
+  // stop writing out the LODs, because the difference is too small.
+  size_t previousDataSize = 0;
+  double minDiffFraction = 0.05;
+
+  const size_t& baseSize = this->PolyLODsBaseSize;
+  int count = 0;
+  while (true)
+  {
+    // Squeeze the data, or we won't get an accurate memory size
+    polyData->Squeeze();
+    auto dataSize = polyData->GetActualMemorySize();
+    bool tooSimilar = false;
+    if (previousDataSize != 0)
+    {
+      double fraction = (static_cast<double>(previousDataSize) - dataSize) / previousDataSize;
+      if (fabs(fraction) < minDiffFraction)
+      {
+        tooSimilar = true;
+      }
+    }
+    previousDataSize = dataSize;
+
+    if (static_cast<size_t>(dataSize) * 1000 <= baseSize || tooSimilar)
+    {
+      // It is either now below the base size, or the size isn't
+      // changing much anymore.
+      // The latest "polyData" will be written into the .vtkjs directory
+      break;
+    }
+
+    // Write out the source LOD
+    // They are not zipped yet, but they should be zipped by subclasses
+    std::string name =
+      "sourceLOD_" + std::to_string(this->DatasetCount) + "_" + std::to_string(++count) + ".zip";
+    std::string full_path = path + name;
+    dsWriter->SetInputData(polyData);
+    dsWriter->SetFileName(full_path.c_str());
+    dsWriter->Write();
+    files.push_back(name);
+    this->FilesToZip.push_back(full_path);
+
+    // Now reduce the size of the data
+    double bounds[6];
+    polyData->GetBounds(bounds);
+    double length = polyData->GetLength();
+    double factors[3] = { (bounds[1] - bounds[0]) / length + 0.01,
+      (bounds[3] - bounds[2]) / length + 0.01, (bounds[5] - bounds[4]) / length + 0.01 };
+    double factorsCube = factors[0] * factors[1] * factors[2];
+    // Try to make a good first guess for B
+    // TODO: this first guess can probably be improved a lot.
+    double B = pow(100 * dataSize / factorsCube, 0.3333);
+
+    vtkNew<vtkQuadricClustering> cc;
+    cc->UseInputPointsOn();
+    cc->CopyCellDataOn();
+    cc->SetInputDataObject(polyData);
+    cc->SetAutoAdjustNumberOfDivisions(false);
+
+    // We will try to get the next size to be between 1/3 and 1/5
+    // of the original. The goal is to be approximately 1/4.
+    auto targetSize = dataSize / 4;
+    auto targetMin = dataSize / 5;
+    auto targetMax = dataSize / 3;
+    int maxAttempts = 100;
+    size_t previousSize = 0;
+
+    // If we fail to get to ~1/4 the size for some reason, just use
+    // the default divisions. Sometimes, a failure is caused by
+    // one of the factors being too big.
+    bool useDefaultDivisions = false;
+
+    for (int numAttempts = 0; numAttempts < maxAttempts; ++numAttempts)
+    {
+      cc->SetNumberOfXDivisions(B * factors[0] + 1);
+      cc->SetNumberOfYDivisions(B * factors[1] + 1);
+      cc->SetNumberOfZDivisions(B * factors[2] + 1);
+
+      try
+      {
+        cc->Update();
+      }
+      catch (const std::bad_alloc&)
+      {
+        // Too many divisions, probably. Just use the defaults.
+        useDefaultDivisions = true;
+        break;
+      }
+
+      // Squeeze the data, or we won't get an accurate memory size
+      cc->GetOutput()->Squeeze();
+      auto newSize = cc->GetOutput()->GetActualMemorySize();
+
+      if (newSize == previousSize)
+      {
+        // This is not changing. Just use the default divisions.
+        useDefaultDivisions = true;
+        break;
+      }
+      previousSize = newSize;
+
+      if (newSize >= targetMin && newSize <= targetMax)
+      {
+        // We are within the tolerance!
+        break;
+      }
+      else
+      {
+        // Figure out the fraction that we are off, and change B
+        // accordingly
+        double fraction = newSize / static_cast<double>(targetSize);
+        B /= pow(fraction, 0.333);
+      }
+    }
+
+    if (useDefaultDivisions)
+    {
+      vtkNew<vtkQuadricClustering> defaultCC;
+      defaultCC->UseInputPointsOn();
+      defaultCC->CopyCellDataOn();
+      defaultCC->SetInputDataObject(polyData);
+      defaultCC->Update();
+      polyData = defaultCC->GetOutput();
+    }
+    else
+    {
+      polyData = cc->GetOutput();
+    }
+  }
+
+  // Write out the config
+  const char* url = this->PolyLODsBaseUrl;
+  std::string baseUrl = url ? url : "";
+
+  const char* INDENT = "      ";
+  std::stringstream config;
+  config << ",\n"
+         << INDENT << "\"sourceLODs\": {\n"
+         << INDENT << "  \"baseUrl\": \"" << baseUrl << "\",\n"
+         << INDENT << "  \"files\": [\n";
+
+  // Reverse the order of the files so the smallest comes first
+  std::reverse(files.begin(), files.end());
+  for (size_t i = 0; i < files.size(); ++i)
+  {
+    config << INDENT << "    \"" << files[i] << "\"";
+    if (i != files.size() - 1)
+    {
+      config << ",\n";
+    }
+    else
+    {
+      config << "\n";
+    }
+  }
+
+  config << INDENT << "  ]\n" << INDENT << "}";
+
+  polyLODsConfig = config.str();
+
+  return polyData;
 }
 
 // ----------------------------------------------------------------------------
