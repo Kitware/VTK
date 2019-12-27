@@ -27,11 +27,11 @@
 
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h"   // For vtkSmartPointer
 
-#include <map>    // For string parameter
+#include <map>    // For member variables
 #include <string> // For string parameter
-#include <vector>
+#include <vector> // For member variables
 
 class vtkActor;
 class vtkDataObject;
