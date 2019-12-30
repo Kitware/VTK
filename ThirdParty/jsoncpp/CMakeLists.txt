@@ -5,7 +5,7 @@ unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkjsoncpp/LICENSE"
-    VERSION       "1.8.4"
+    VERSION       "1.9.2"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE JsonCpp
