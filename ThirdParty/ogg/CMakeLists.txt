@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkogg/COPYING"
-    VERSION       "1.3.3"
+    VERSION       "1.3.4"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE OGG
