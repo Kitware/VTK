@@ -1,7 +1,7 @@
 vtk_module_third_party_internal(
   HEADER_ONLY
   LICENSE_FILES "vtkpegtl/LICENSE"
-  VERSION       "2.8.0")
+  VERSION       "2.8.1")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_pegtl.h.in"
