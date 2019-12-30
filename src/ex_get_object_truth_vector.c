@@ -42,7 +42,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_get_dimension, EX_FATAL, etc
+#include "exodusII_int.h" // for ex__get_dimension, EX_FATAL, etc
 
 /*!
  * reads the EXODUS specified variable truth vector from the database
@@ -66,61 +66,61 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   const char *var_name = NULL;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
   case EX_EDGE_BLOCK:
     status =
-        ex_get_dimension(exoid, DIM_NUM_EDG_VAR, "edge variables", &num_var_db, &varid, __func__);
+        ex__get_dimension(exoid, DIM_NUM_EDG_VAR, "edge variables", &num_var_db, &varid, __func__);
     statust  = nc_inq_varid(exoid, VAR_EBLK_TAB, &tabid);
     var_name = "vals_edge_var";
     ent_type = "eb";
     break;
   case EX_FACE_BLOCK:
     status =
-        ex_get_dimension(exoid, DIM_NUM_FAC_VAR, "face variables", &num_var_db, &varid, __func__);
+        ex__get_dimension(exoid, DIM_NUM_FAC_VAR, "face variables", &num_var_db, &varid, __func__);
     statust  = nc_inq_varid(exoid, VAR_FBLK_TAB, &tabid);
     var_name = "vals_face_var";
     ent_type = "fb";
     break;
   case EX_ELEM_BLOCK:
-    status   = ex_get_dimension(exoid, DIM_NUM_ELE_VAR, "element variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ELE_VAR, "element variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ELEM_TAB, &tabid);
     var_name = "vals_elem_var";
     ent_type = "eb";
     break;
   case EX_NODE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_NSET_TAB, &tabid);
     var_name = "vals_nset_var";
     ent_type = "ns";
     break;
   case EX_EDGE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ESET_VAR, "edgeset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ESET_TAB, &tabid);
     var_name = "vals_eset_var";
     ent_type = "es";
     break;
   case EX_FACE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_FSET_VAR, "faceset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_FSET_TAB, &tabid);
     var_name = "vals_fset_var";
     ent_type = "fs";
     break;
   case EX_SIDE_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_SSET_TAB, &tabid);
     var_name = "vals_sset_var";
     ent_type = "ss";
     break;
   case EX_ELEM_SET:
-    status   = ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid,
-                              __func__);
+    status   = ex__get_dimension(exoid, DIM_NUM_ELSET_VAR, "elemset variables", &num_var_db, &varid,
+                               __func__);
     statust  = nc_inq_varid(exoid, VAR_ELSET_TAB, &tabid);
     var_name = "vals_elset_var";
     ent_type = "es";
@@ -137,7 +137,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   }
 
   /* Determine index of entity_id in id array */
-  ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
+  ent_ndx = ex__id_lkup(exoid, obj_type, entity_id);
   if (ent_ndx <= 0) {
     ex_get_err(NULL, NULL, &status);
     if (status != 0) {
@@ -169,7 +169,8 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
      */
     for (i = 0; i < num_var; i++) {
       /* NOTE: names are 1-based */
-      if (nc_inq_varid(exoid, ex_catstr2(var_name, i + 1, ent_type, ent_ndx), &tabid) != NC_NOERR) {
+      if (nc_inq_varid(exoid, ex__catstr2(var_name, i + 1, ent_type, ent_ndx), &tabid) !=
+          NC_NOERR) {
         /* variable doesn't exist; put a 0 in the truth vector */
         var_vec[i] = 0;
       }

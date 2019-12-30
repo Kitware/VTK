@@ -64,6 +64,7 @@
  */
 
 /*!
+ * \ingroup ResultsData
  * \deprecated Use ex_put_partial_var()(exoid, time_step, EX_NODAL, nodal_var_index, 1, start_pos,
  num_vals, nodal_var_vals) instead.
  */

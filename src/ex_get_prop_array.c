@@ -92,20 +92,20 @@ MAX_STR_LENGTH )
                        for which the values are desired.
 \param[out]  values    Returned array of property values.
 
-| ex_entity_type | description               |
+| #ex_entity_type | description               |
 | -------------- | ------------------------- |
-|  EX_NODE_SET   |  Node Set entity type     |
-|  EX_EDGE_BLOCK |  Edge Block entity type   |
-|  EX_EDGE_SET   |  Edge Set entity type     |
-|  EX_FACE_BLOCK |  Face Block entity type   |
-|  EX_FACE_SET   |  Face Set entity type     |
-|  EX_ELEM_BLOCK |  Element Block entity type|
-|  EX_ELEM_SET   |  Element Set entity type  |
-|  EX_SIDE_SET   |  Side Set entity type     |
-|  EX_ELEM_MAP   |  Element Map entity type  |
-|  EX_NODE_MAP   |  Node Map entity type     |
-|  EX_EDGE_MAP   |  Edge Map entity type     |
-|  EX_FACE_MAP   |  Face Map entity type     |
+|  #EX_NODE_SET   |  Node Set entity type     |
+|  #EX_EDGE_BLOCK |  Edge Block entity type   |
+|  #EX_EDGE_SET   |  Edge Set entity type     |
+|  #EX_FACE_BLOCK |  Face Block entity type   |
+|  #EX_FACE_SET   |  Face Set entity type     |
+|  #EX_ELEM_BLOCK |  Element Block entity type|
+|  #EX_ELEM_SET   |  Element Set entity type  |
+|  #EX_SIDE_SET   |  Side Set entity type     |
+|  #EX_ELEM_MAP   |  Element Map entity type  |
+|  #EX_NODE_MAP   |  Node Map entity type     |
+|  #EX_EDGE_MAP   |  Edge Map entity type     |
+|  #EX_FACE_MAP   |  Face Map entity type     |
 
 For an example of code to read an array of object properties, refer to
 the description for ex_get_prop_names().
@@ -121,7 +121,7 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* open appropriate variable, depending on obj_type and prop_name */
 

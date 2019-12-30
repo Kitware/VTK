@@ -54,7 +54,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
 
 /*!
  * reads the coordinates of the nodes.
@@ -80,7 +80,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
                          void *y_coor, void *z_coor)
 {
   int status;
-  int coordid;
+  int coordid = -1;
   int coordidx, coordidy, coordidz;
 
   int    numnoddim, ndimdim;
@@ -89,7 +89,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire id's of previously defined dimensions  */
 
@@ -109,13 +109,13 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
   if (start_node_num + num_nodes > num_nod) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: start index (%" PRId64 ") + node count (%" PRId64
-             ") is larger than total number of nodes (%" ST_ZU ") in file id %d",
+             ") is larger than total number of nodes (%zu) in file id %d",
              start_node_num, num_nodes, num_nod, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (ex_get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
+  if (ex__get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -142,7 +142,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
 
       if (i == 0 && x_coor != NULL) {
         which = "X";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, x_coor);
         }
         else {
@@ -151,7 +151,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
       }
       else if (i == 1 && y_coor != NULL) {
         which = "Y";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, y_coor);
         }
         else {
@@ -160,7 +160,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
       }
       else if (i == 2 && z_coor != NULL) {
         which = "Z";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, z_coor);
         }
         else {
@@ -193,7 +193,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
       }
     }
     else {
-      coordidy = 0;
+      coordidy = -1;
     }
 
     if (num_dim > 2) {
@@ -205,7 +205,7 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
       }
     }
     else {
-      coordidz = 0;
+      coordidz = -1;
     }
 
     /* write out the coordinates  */
@@ -235,8 +235,8 @@ int ex_get_partial_coord(int exoid, int64_t start_node_num, int64_t num_nodes, v
         coordid = coordidz;
       }
 
-      if (coor != NULL && coordid != 0) {
-        if (ex_comp_ws(exoid) == 4) {
+      if (coor != NULL && coordid != -1) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, coor);
         }
         else {

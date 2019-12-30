@@ -78,7 +78,7 @@ int ex_put_coord_names(int exoid, char *coord_names[])
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate number of dimensions in file id %d",
@@ -102,7 +102,7 @@ int ex_put_coord_names(int exoid, char *coord_names[])
   }
 
   /* write out coordinate names */
-  status = ex_put_names_internal(exoid, varid, num_dim, coord_names, EX_COORDINATE, "", __func__);
+  status = ex__put_names(exoid, varid, num_dim, coord_names, EX_COORDINATE, "", __func__);
 
   EX_FUNC_LEAVE(status);
 }

@@ -71,7 +71,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   const char *vname = NULL;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
   /*  ======== BLOCKS ========= */
@@ -99,8 +99,8 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
-                   &varid, __func__);
+  ex__get_dimension(exoid, ex__dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
+                    &varid, __func__);
 
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s names in file id %d",
@@ -110,7 +110,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   }
 
   /* write EXODUS entitynames */
-  status = ex_put_names_internal(exoid, varid, num_entity, names, obj_type, "", __func__);
+  status = ex__put_names(exoid, varid, num_entity, names, obj_type, "", __func__);
 
   EX_FUNC_LEAVE(status);
 }

@@ -51,7 +51,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   const char *varidobj;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
   case EX_EDGE_BLOCK: varidobj = VAR_ID_ED_BLK; break;
@@ -73,7 +73,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   }
 
   /* Determine if there are any 'obj-type' objects */
-  if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(obj_type), &varid)) != NC_NOERR) {
+  if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(obj_type), &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %s defined in file id %d",
              ex_name_of_object(obj_type), exoid);
     ex_err_fn(exoid, __func__, errmsg, status);

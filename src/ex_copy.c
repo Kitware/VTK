@@ -34,7 +34,7 @@
  */
 
 #include "exodusII.h"     // for EX_FATAL, exerrval, ex_err, etc
-#include "exodusII_int.h" // for ex_get_counter_list, etc
+#include "exodusII_int.h" // for ex__get_counter_list, etc
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -93,7 +93,8 @@ static int    cpy_var_val(int in_id, int out_id, char *var_nm);
 static int    cpy_coord_def(int in_id, int out_id, int rec_dim_id, char *var_nm, int in_large);
 static int    cpy_coord_val(int in_id, int out_id, char *var_nm, int in_large);
 static void   update_structs(int out_exoid);
-static void update_internal_structs(int out_exoid, ex_inquiry inqcode, struct list_item **ctr_list);
+static void   update_internal_structs(int out_exoid, ex_inquiry inqcode,
+                                      struct ex__list_item **ctr_list);
 
 static int is_truth_table_variable(const char *var_name)
 {
@@ -130,27 +131,16 @@ static int is_non_mesh_variable(const char *var_name)
 }
 /*! \endcond */
 
-/*!
-  \undoc
-
- *  efficiently copies all non-transient information (attributes,
- * dimensions, and variables from an opened EXODUS file to another
- * opened EXODUS file.  Will not overwrite a dimension or variable
- * already defined in the new file.
- * \param      in_exoid     exodus file id for input file
- * \param      out_exoid    exodus file id for output file
- */
-
-int ex_copy(int in_exoid, int out_exoid)
+/*! \cond INTERNAL */
+static int ex_copy_internal(int in_exoid, int out_exoid, int mesh_only)
 {
-  int  mesh_only = 1;
   int  status;
   int  in_large;
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(in_exoid, __func__);
-  ex_check_valid_file_id(out_exoid, __func__);
+  ex__check_valid_file_id(in_exoid, __func__);
+  ex__check_valid_file_id(out_exoid, __func__);
 
   /*
    * Get exodus_large_model setting on both input and output
@@ -182,7 +172,7 @@ int ex_copy(int in_exoid, int out_exoid)
   EXCHECK(cpy_variables(in_exoid, out_exoid, in_large, mesh_only));
 
   /* take the output file out of define mode */
-  if ((status = ex_leavedef(out_exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(out_exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -197,60 +187,40 @@ int ex_copy(int in_exoid, int out_exoid)
   EX_FUNC_LEAVE(EX_NOERR);
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+
+ *  efficiently copies all non-transient information (attributes,
+ * dimensions, and variables from an opened EXODUS file to another
+ * opened EXODUS file.  Will not overwrite a dimension or variable
+ * already defined in the new file.
+ * \param      in_exoid     exodus file id for input file
+ * \param      out_exoid    exodus file id for output file
+ */
+
+int ex_copy(int in_exoid, int out_exoid)
+{
+  int mesh_only = 1;
+  return ex_copy_internal(in_exoid, out_exoid, mesh_only);
+}
+
+/*!
+  \ingroup Utilities
+  \undoc
+
+ *  efficiently copies all non-transient and transient information
+ * (attributes, dimensions, and variables from an opened EXODUS file
+ * to another opened EXODUS file.  Will not overwrite a dimension or
+ * variable already defined in the new file.
+ * \param     in_exoid     exodus file id for input file
+ * \param     out_exoid    exodus file id for output file
+ */
+
 int ex_copy_transient(int in_exoid, int out_exoid)
 {
-  int  mesh_only = 0;
-  int  status;
-  int  in_large;
-  char errmsg[MAX_ERR_LENGTH];
-
-  EX_FUNC_ENTER();
-  ex_check_valid_file_id(in_exoid, __func__);
-  ex_check_valid_file_id(out_exoid, __func__);
-
-  /*
-   * Get exodus_large_model setting on both input and output
-   * databases so know how to handle coordinates.
-   */
-  in_large = ex_large_model(in_exoid);
-
-  /*
-   * Get integer sizes for both input and output databases.
-   * Currently they should both match or there will be an error.
-   */
-  if (ex_int64_status(in_exoid) != ex_int64_status(out_exoid)) {
-    snprintf_nowarn(errmsg, MAX_ERR_LENGTH,
-                    "ERROR: integer sizes do not match for input and output databases.");
-    ex_err_fn(in_exoid, __func__, errmsg, EX_WRONGFILETYPE);
-    EX_FUNC_LEAVE(EX_FATAL);
-  }
-
-  /* put output file into define mode */
-  EXCHECK(nc_redef(out_exoid));
-
-  /* copy global attributes */
-  EXCHECK(cpy_global_att(in_exoid, out_exoid));
-
-  /* copy dimensions */
-  EXCHECK(cpy_dimension(in_exoid, out_exoid, mesh_only));
-
-  /* copy variable definitions and variable attributes */
-  EXCHECK(cpy_variables(in_exoid, out_exoid, in_large, mesh_only));
-
-  /* take the output file out of define mode */
-  if ((status = ex_leavedef(out_exoid, __func__)) != NC_NOERR) {
-    EX_FUNC_LEAVE(EX_FATAL);
-  }
-
-  /* output variable data */
-  EXCHECK(cpy_variable_data(in_exoid, out_exoid, in_large, mesh_only));
-
-  /* ensure internal data structures are updated */
-  update_structs(out_exoid);
-
-  ex_update(out_exoid);
-
-  EX_FUNC_LEAVE(EX_NOERR);
+  int mesh_only = 0;
+  return ex_copy_internal(in_exoid, out_exoid, mesh_only);
 }
 
 /*! \cond INTERNAL */
@@ -522,7 +492,7 @@ int cpy_coord_def(int in_id, int out_id, int rec_dim_id, char *var_nm, int in_la
      option is that in_large == 0 and out_large == 1.  Also will need
      the spatial dimension, so get that now.
    */
-  ex_get_dimension(in_id, DIM_NUM_DIM, "dimension", &spatial_dim, &temp, routine);
+  ex__get_dimension(in_id, DIM_NUM_DIM, "dimension", &spatial_dim, &temp, routine);
 
   /* output file will have coordx, coordy, coordz (if 3d).  See if
      they are already defined in output file. Assume either all or
@@ -547,16 +517,16 @@ int cpy_coord_def(int in_id, int out_id, int rec_dim_id, char *var_nm, int in_la
   /* Define according to the EXODUS file's IO_word_size */
   nbr_dim = 1;
   EXCHECKI(nc_def_var(out_id, VAR_COORD_X, nc_flt_code(out_id), nbr_dim, dim_out_id, &var_out_id));
-  ex_compress_variable(out_id, var_out_id, 2);
+  ex__compress_variable(out_id, var_out_id, 2);
   if (spatial_dim > 1) {
     EXCHECKI(
         nc_def_var(out_id, VAR_COORD_Y, nc_flt_code(out_id), nbr_dim, dim_out_id, &var_out_id));
-    ex_compress_variable(out_id, var_out_id, 2);
+    ex__compress_variable(out_id, var_out_id, 2);
   }
   if (spatial_dim > 2) {
     EXCHECKI(
         nc_def_var(out_id, VAR_COORD_Z, nc_flt_code(out_id), nbr_dim, dim_out_id, &var_out_id));
-    ex_compress_variable(out_id, var_out_id, 2);
+    ex__compress_variable(out_id, var_out_id, 2);
   }
 
   return var_out_id; /* OK */
@@ -627,11 +597,11 @@ int cpy_var_def(int in_id, int out_id, int rec_dim_id, char *var_nm)
 
   if ((var_type == NC_FLOAT) || (var_type == NC_DOUBLE)) {
     EXCHECKI(nc_def_var(out_id, var_nm, nc_flt_code(out_id), nbr_dim, dim_out_id, &var_out_id));
-    ex_compress_variable(out_id, var_out_id, 2);
+    ex__compress_variable(out_id, var_out_id, 2);
   }
   else {
     EXCHECKI(nc_def_var(out_id, var_nm, var_type, nbr_dim, dim_out_id, &var_out_id));
-    ex_compress_variable(out_id, var_out_id, 1);
+    ex__compress_variable(out_id, var_out_id, 1);
   }
   return var_out_id; /* OK */
 
@@ -801,8 +771,8 @@ int cpy_coord_val(int in_id, int out_id, char *var_nm, int in_large)
   /* At this point, know that in_large == 0, so will need to
      copy a vector to multiple scalars.  Also
      will need a couple dimensions, so get them now.*/
-  ex_get_dimension(in_id, DIM_NUM_DIM, "dimension", &spatial_dim, &temp, routine);
-  ex_get_dimension(in_id, DIM_NUM_NODES, "nodes", &num_nodes, &temp, routine);
+  ex__get_dimension(in_id, DIM_NUM_DIM, "dimension", &spatial_dim, &temp, routine);
+  ex__get_dimension(in_id, DIM_NUM_NODES, "nodes", &num_nodes, &temp, routine);
 
   /* output file will have coordx, coordy, coordz (if 3d). */
   /* Get the var_id for the requested variable from both files. */
@@ -848,31 +818,30 @@ int cpy_coord_val(int in_id, int out_id, char *var_nm, int in_large)
 /*! \internal */
 void update_structs(int out_exoid)
 {
-  update_internal_structs(out_exoid, EX_INQ_EDGE_BLK, ex_get_counter_list(EX_EDGE_BLOCK));
-  update_internal_structs(out_exoid, EX_INQ_FACE_BLK, ex_get_counter_list(EX_FACE_BLOCK));
-  update_internal_structs(out_exoid, EX_INQ_ELEM_BLK, ex_get_counter_list(EX_ELEM_BLOCK));
+  update_internal_structs(out_exoid, EX_INQ_EDGE_BLK, ex__get_counter_list(EX_EDGE_BLOCK));
+  update_internal_structs(out_exoid, EX_INQ_FACE_BLK, ex__get_counter_list(EX_FACE_BLOCK));
+  update_internal_structs(out_exoid, EX_INQ_ELEM_BLK, ex__get_counter_list(EX_ELEM_BLOCK));
 
-  update_internal_structs(out_exoid, EX_INQ_NODE_SETS, ex_get_counter_list(EX_NODE_SET));
-  update_internal_structs(out_exoid, EX_INQ_EDGE_SETS, ex_get_counter_list(EX_EDGE_SET));
-  update_internal_structs(out_exoid, EX_INQ_FACE_SETS, ex_get_counter_list(EX_FACE_SET));
-  update_internal_structs(out_exoid, EX_INQ_SIDE_SETS, ex_get_counter_list(EX_SIDE_SET));
-  update_internal_structs(out_exoid, EX_INQ_ELEM_SETS, ex_get_counter_list(EX_ELEM_SET));
+  update_internal_structs(out_exoid, EX_INQ_NODE_SETS, ex__get_counter_list(EX_NODE_SET));
+  update_internal_structs(out_exoid, EX_INQ_EDGE_SETS, ex__get_counter_list(EX_EDGE_SET));
+  update_internal_structs(out_exoid, EX_INQ_FACE_SETS, ex__get_counter_list(EX_FACE_SET));
+  update_internal_structs(out_exoid, EX_INQ_SIDE_SETS, ex__get_counter_list(EX_SIDE_SET));
+  update_internal_structs(out_exoid, EX_INQ_ELEM_SETS, ex__get_counter_list(EX_ELEM_SET));
 
-  update_internal_structs(out_exoid, EX_INQ_NODE_MAP, ex_get_counter_list(EX_NODE_MAP));
-  update_internal_structs(out_exoid, EX_INQ_EDGE_MAP, ex_get_counter_list(EX_EDGE_MAP));
-  update_internal_structs(out_exoid, EX_INQ_FACE_MAP, ex_get_counter_list(EX_FACE_MAP));
-  update_internal_structs(out_exoid, EX_INQ_ELEM_MAP, ex_get_counter_list(EX_ELEM_MAP));
+  update_internal_structs(out_exoid, EX_INQ_NODE_MAP, ex__get_counter_list(EX_NODE_MAP));
+  update_internal_structs(out_exoid, EX_INQ_EDGE_MAP, ex__get_counter_list(EX_EDGE_MAP));
+  update_internal_structs(out_exoid, EX_INQ_FACE_MAP, ex__get_counter_list(EX_FACE_MAP));
+  update_internal_structs(out_exoid, EX_INQ_ELEM_MAP, ex__get_counter_list(EX_ELEM_MAP));
 }
 
 /*! \internal */
-void update_internal_structs(int out_exoid, ex_inquiry inqcode, struct list_item **ctr_list)
+void update_internal_structs(int out_exoid, ex_inquiry inqcode, struct ex__list_item **ctr_list)
 {
-  int i;
-  int number = ex_inquire_int(out_exoid, inqcode);
-
+  int64_t i;
+  int64_t number = ex_inquire_int(out_exoid, inqcode);
   if (number > 0) {
     for (i = 0; i < number; i++) {
-      ex_inc_file_item(out_exoid, ctr_list);
+      ex__inc_file_item(out_exoid, ctr_list);
     }
   }
 }

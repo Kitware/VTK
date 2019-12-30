@@ -64,7 +64,7 @@ int ex_get_id_map(int exoid, ex_entity_type map_type, void_int *map)
   const char *tname;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (map_type) {
   case EX_NODE_MAP:

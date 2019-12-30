@@ -37,6 +37,7 @@
 #include "exodusII_int.h"
 
 /*!
+\ingroup Utilities
 \fn{void ex_err_fn(exoid, const char *module_name, const char *message, int err_num)}
 
 The function ex_err_fn(exoid, ) logs an error to stderr. It is intended
@@ -111,7 +112,11 @@ static int  last_err_num;
 #define EX_ERR_NUM last_err_num
 #endif
 
-void ex_reset_error_status()
+/*!
+  \ingroup Utilities
+  \undoc
+*/
+void ex__reset_error_status()
 {
 #if !defined(EXODUS_THREADSAFE)
   exerrval   = 0;
@@ -119,6 +124,10 @@ void ex_reset_error_status()
 #endif
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_err(const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -174,6 +183,10 @@ void ex_err(const char *module_name, const char *message, int err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_err_fn(int exoid, const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -193,7 +206,7 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   if (err_num == EX_PRTLASTMSG) {
     fprintf(stderr, "\n[%s] %s\n", EX_PNAME, EX_ERRMSG);
 
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
       size_t pathlen = 0;
       nc_inq_path(exoid, &pathlen, NULL);
@@ -231,8 +244,8 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   }
 
   else if (exoptval & EX_VERBOSE) { /* check see if we really want to hear this */
-    char *               path = NULL;
-    struct ex_file_item *file = ex_find_file_item(exoid);
+    char *                path = NULL;
+    struct ex__file_item *file = ex__find_file_item(exoid);
     if (file) {
       size_t pathlen = 0;
       nc_inq_path(exoid, &pathlen, NULL);
@@ -263,6 +276,10 @@ void ex_err_fn(int exoid, const char *module_name, const char *message, int err_
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_set_err(const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -276,6 +293,10 @@ void ex_set_err(const char *module_name, const char *message, int err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+*/
 void ex_get_err(const char **msg, const char **func, int *err_num)
 {
   EX_FUNC_ENTER_INT();
@@ -293,6 +314,22 @@ void ex_get_err(const char **msg, const char **func, int *err_num)
   EX_FUNC_VOID();
 }
 
+/*!
+  \ingroup Utilities
+  \undoc
+  Returns a pointer to a string which gives a text description of the error code err_num.
+  If the error code refers to a NetCDF error, then that string is returned.
+
+~~~{.c}
+    std::ostringstream errmsg;
+    \comment{Create errmsg here so that the exerrval doesn't get cleared by}
+    \comment{the ex_close call.}
+    int status;
+    ex_get_err(nullptr, nullptr, &status);
+    fmt::print(errmsg, "Exodus error ({}) {} at line {} of file '{}' in function '{}'.", status,
+               ex_strerror(status), lineno, filename, function);
+~~~
+*/
 const char *ex_strerror(int err_num)
 {
   switch (err_num) {
@@ -307,6 +344,7 @@ const char *ex_strerror(int err_num)
   case EX_NOTROOTID: return "File id is not the root id; it is a subgroup id.";
   case EX_NULLENTITY: return "Null entity found.";
   case EX_DUPLICATEID: return "Duplicate entity id found.";
+  case EX_MSG: return "Message printed; no error implied.";
   default: return nc_strerror(err_num);
   }
 }

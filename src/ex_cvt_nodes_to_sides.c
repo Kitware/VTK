@@ -55,7 +55,7 @@ static void put_side(void_int *side_list, size_t index, size_t value, size_t int
 }
 
 /*!
-
+\ingroup Utilities
 The function ex_cvt_nodes_to_sides() is used to convert a side set
 node list to a side set side list. This routine is provided for
 application programs that utilize side sets defined by nodes (as was
@@ -214,7 +214,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   int int_size;
   int ids_size;
 
-  struct elem_blk_parm *elem_blk_parms = NULL;
+  struct ex__elem_blk_parm *elem_blk_parms = NULL;
 
   int err_stat = EX_NOERR;
 
@@ -270,7 +270,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* first check if any side sets are specified */
   /* inquire how many side sets have been stored */
@@ -343,7 +343,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     for (i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
-    ex_iqsort64(side_sets_elem_list, elems, tot_num_ss_elem);
+    ex__iqsort64(side_sets_elem_list, elems, tot_num_ss_elem);
   }
   else {
     /* Sort side set element list into index array  - non-destructive */
@@ -351,7 +351,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     for (i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
-    ex_iqsort(side_sets_elem_list, elems, tot_num_ss_elem);
+    ex__iqsort(side_sets_elem_list, elems, tot_num_ss_elem);
   }
 
   /* Allocate space for the element block ids */
@@ -376,7 +376,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   }
 
   /* Allocate space for the element block params */
-  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct elem_blk_parm)))) {
+  if (!(elem_blk_parms = malloc(num_elem_blks * sizeof(struct ex__elem_blk_parm)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element block params "
              "for file id %d",
@@ -395,7 +395,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
       id = ((int *)elem_blk_ids)[i];
     }
 
-    err_stat = ex_int_get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
+    err_stat = ex__get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
     if (err_stat != EX_NOERR) {
       goto cleanup;
     }

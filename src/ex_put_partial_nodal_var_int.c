@@ -53,10 +53,13 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_WARN, ex_comp_ws, etc
+#include "exodusII_int.h" // for EX_WARN, ex__comp_ws, etc
 
 /*!
-\ingroup ResultsData
+  \internal
+  \ingroup ResultsData
+  \note This function is called internally by ex_put_partial_var() to handle
+  the reading of nodal variable values.
 
  * writes the values of a single nodal variable for a partial block at
  * one single time step to the database; assume the first time step
@@ -69,8 +72,8 @@
  * \param nodal_var_vals   array of nodal variable values
  */
 
-int ex_put_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t start_node,
-                                 int64_t num_nodes, const void *nodal_var_vals)
+int ex__put_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t start_node,
+                              int64_t num_nodes, const void *nodal_var_vals)
 
 {
   int    status;
@@ -79,7 +82,7 @@ int ex_put_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, 
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: could not find nodal variable %d in file id %d",
@@ -97,7 +100,7 @@ int ex_put_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, 
     start[1] = 0;
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_put_vara_float(exoid, varid, start, count, nodal_var_vals);
   }
   else {

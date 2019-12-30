@@ -78,7 +78,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
 #endif
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* first check if any element blocks are specified
    * OK if zero...
@@ -207,7 +207,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       num_attr = ((int *)num_attr_this_blk)[iblk];
     }
 
-    cur_num_elem_blk = ex_get_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = ex__get_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
     if (cur_num_elem_blk >= num_elem_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: exceeded number of element blocks (%d) defined in file id %d", num_elem_blk,
@@ -216,9 +216,9 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       goto error_ret;
     }
 
-    /* NOTE: ex_inc_file_item  is used to find the number of element blocks
+    /* NOTE: ex__inc_file_item  is used to find the number of element blocks
        for a specific file and returns that value incremented. */
-    cur_num_elem_blk = ex_inc_file_item(exoid, ex_get_counter_list(EX_ELEM_BLOCK));
+    cur_num_elem_blk = ex__inc_file_item(exoid, ex__get_counter_list(EX_ELEM_BLOCK));
 
     if (eb_array[iblk] == 0) { /* Is this a NULL element block? */
       continue;
@@ -263,7 +263,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
       ex_err_fn(exoid, __func__, errmsg, status);
       goto error_ret; /* exit define mode and return */
     }
-    ex_compress_variable(exoid, connid, 1);
+    ex__compress_variable(exoid, connid, 1);
 
     /* store element type as attribute of connectivity variable */
     if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(elem_type[iblk]) + 1,
@@ -340,7 +340,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, temp, 1);
+        ex__compress_variable(exoid, temp, 1);
       }
     }
 
@@ -364,13 +364,13 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, temp, 1);
+        ex__compress_variable(exoid, temp, 1);
       }
     }
   }
 
   /* leave define mode  */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     free(eb_array);
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -409,6 +409,6 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *elem_
 /* Fatal error: exit definition mode and return */
 error_ret:
   free(eb_array);
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

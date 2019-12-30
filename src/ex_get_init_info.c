@@ -53,6 +53,10 @@
 #include <exodusII.h>     // for ex_err, EX_MSG, etc
 #include <exodusII_int.h> // for EX_FATAL, DIM_NUM_PROCS, etc
 
+/*!
+ * \ingroup ModelDescription
+ * \undoc
+ */
 int ex_get_init_info(int exoid, int *num_proc, int *num_proc_in_f, char *ftype)
 {
   int    dimid, status;
@@ -62,14 +66,14 @@ int ex_get_init_info(int exoid, int *num_proc, int *num_proc_in_f, char *ftype)
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* In case file isn't parallel, set the values here... */
   *num_proc      = 1;
   *num_proc_in_f = 1;
 
   /* Get the file type */
-  if (ex_get_file_type(exoid, ftype) != EX_NOERR) {
+  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get file type for file ID %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
 

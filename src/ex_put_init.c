@@ -37,6 +37,7 @@
 #include "exodusII_int.h"
 
 /*!
+\ingroup ModelDescription
 
 The function ex_put_init() writes the initialization parameters to the
 exodus file. This function must be called once (and only once) before
@@ -51,7 +52,7 @@ include:
 
 \param exoid         exodus file ID returned from a previous call to ex_create()
 or ex_open().
-\param title         Database title. Maximum length is MAX_LINE_LENGTH.
+\param title         Database title. Maximum length is #MAX_LINE_LENGTH.
 \param num_dim       The dimensionality of the database. This is the number of
 coordinates per node.
 \param num_nodes     The number of nodal points.

@@ -34,7 +34,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_get_dimension, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__get_dimension, etc
 
 /*!
 \ingroup ResultsData
@@ -66,11 +66,11 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
 
   EX_FUNC_ENTER();
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
 #define EX_LOOK_UP_VAR(VOBJID, VVAR, VOBJTAB, DNUMOBJ, DNUMOBJVAR)                                 \
   /* Determine index of obj_id in VOBJID array */                                                  \
-  obj_id_ndx = ex_id_lkup(exoid, var_type, obj_id);                                                \
+  obj_id_ndx = ex__id_lkup(exoid, var_type, obj_id);                                               \
   if (obj_id_ndx <= 0) {                                                                           \
     ex_get_err(NULL, NULL, &status);                                                               \
                                                                                                    \
@@ -98,13 +98,13 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
       /* check for the existence of an TNAME variable truth table */                               \
       if (nc_inq_varid(exoid, VOBJTAB, &varid) == NC_NOERR) {                                      \
         /* find out number of TNAMEs and TNAME variables */                                        \
-        status = ex_get_dimension(exoid, DNUMOBJ, ex_name_of_object(var_type), &num_obj, &dimid,   \
-                                  __func__);                                                       \
+        status = ex__get_dimension(exoid, DNUMOBJ, ex_name_of_object(var_type), &num_obj, &dimid,  \
+                                   __func__);                                                      \
         if (status != NC_NOERR)                                                                    \
           EX_FUNC_LEAVE(status);                                                                   \
                                                                                                    \
-        status = ex_get_dimension(exoid, DNUMOBJVAR, ex_name_of_object(var_type), &num_obj_var,    \
-                                  &dimid, __func__);                                               \
+        status = ex__get_dimension(exoid, DNUMOBJVAR, ex_name_of_object(var_type), &num_obj_var,   \
+                                   &dimid, __func__);                                              \
         if (status != NC_NOERR)                                                                    \
           EX_FUNC_LEAVE(status);                                                                   \
                                                                                                    \
@@ -144,8 +144,8 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
         goto error_ret; /* exit define mode and return */                                          \
       }                                                                                            \
                                                                                                    \
-      ex_get_dimension(exoid, ex_dim_num_entries_in_object(var_type, obj_id_ndx),                  \
-                       ex_name_of_object(var_type), &num_entity, &numobjdim, __func__);            \
+      ex__get_dimension(exoid, ex__dim_num_entries_in_object(var_type, obj_id_ndx),                \
+                        ex_name_of_object(var_type), &num_entity, &numobjdim, __func__);           \
                                                                                                    \
       /*    variable doesn't exist so put file into define mode  */                                \
       if ((status = nc_redef(exoid)) != NC_NOERR) {                                                \
@@ -165,11 +165,11 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
         ex_err_fn(exoid, __func__, errmsg, status);                                                \
         goto error_ret;                                                                            \
       }                                                                                            \
-      ex_compress_variable(exoid, varid, 2);                                                       \
+      ex__compress_variable(exoid, varid, 2);                                                      \
                                                                                                    \
       /*    leave define mode  */                                                                  \
                                                                                                    \
-      if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {                                   \
+      if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {                                  \
         EX_FUNC_LEAVE(EX_FATAL);                                                                   \
       }                                                                                            \
     }                                                                                              \
@@ -206,8 +206,8 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
     }
     break;
   case EX_NODAL:
-    status = ex_put_partial_nodal_var_int(exoid, time_step, var_index, start_index, num_entities,
-                                          var_vals);
+    status =
+        ex__put_partial_nodal_var(exoid, time_step, var_index, start_index, num_entities, var_vals);
     EX_FUNC_LEAVE(status);
     break;
   case EX_EDGE_BLOCK:
@@ -242,7 +242,7 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
   }
   /* store element variable values */
 
-  start[0] = --time_step;
+  start[0] = time_step - 1;
   start[1] = start_index - 1;
   if (var_type == EX_GLOBAL) {
     /* global variables may be written
@@ -261,7 +261,7 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
     start[1] = 0;
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_put_vara_float(exoid, varid, start, count, var_vals);
   }
   else {
@@ -270,8 +270,8 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
 
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to store %s %" PRId64 " variable %d in file id %d",
-             ex_name_of_object(var_type), obj_id, var_index, exoid);
+             "ERROR: failed to store %s %" PRId64 " variable %d at step %d in file id %d",
+             ex_name_of_object(var_type), obj_id, var_index, time_step, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -280,6 +280,6 @@ int ex_put_partial_var(int exoid, int time_step, ex_entity_type var_type, int va
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

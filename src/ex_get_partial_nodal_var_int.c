@@ -56,17 +56,17 @@
  *****************************************************************************/
 
 #include <exodusII.h>     // for ex_err, etc
-#include <exodusII_int.h> // for EX_WARN, ex_comp_ws, etc
+#include <exodusII_int.h> // for EX_WARN, ex__comp_ws, etc
 
 /*!
+  \internal
   \ingroup ResultsData
-
- * reads the values of a single nodal variable for a single time step from
- * the database; assume the first time step and nodal variable index is 1
+  \note This function is called internally by ex_get_partial_var() to handle
+  the reading of nodal variable values.
  */
 
-int ex_get_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t start_node,
-                                 int64_t num_nodes, void *var_vals)
+int ex__get_partial_nodal_var(int exoid, int time_step, int nodal_var_index, int64_t start_node,
+                              int64_t num_nodes, void *var_vals)
 {
   int    varid;
   int    status;
@@ -74,7 +74,7 @@ int ex_get_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, 
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if (ex_large_model(exoid) == 0) {
     /* read values of the nodal variable */
@@ -113,7 +113,7 @@ int ex_get_partial_nodal_var_int(int exoid, int time_step, int nodal_var_index, 
     }
   }
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_get_vara_float(exoid, varid, start, count, var_vals);
   }
   else {

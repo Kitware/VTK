@@ -54,6 +54,10 @@
 #include <exodusII.h>
 #include <exodusII_int.h>
 
+/*!
+ * \ingroup ModelDescription
+ * \undoc
+ */
 int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
 {
   int  dimid, varid;
@@ -64,7 +68,7 @@ int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* Check the file type */
   if (!ftype) {
@@ -103,7 +107,7 @@ int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
                DIM_NUM_PROCS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -118,7 +122,7 @@ int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
       ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -131,12 +135,12 @@ int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
       ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    if (ex_leavedef(exoid, __func__) != EX_NOERR) {
+    if (ex__leavedef(exoid, __func__) != EX_NOERR) {
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -149,7 +153,7 @@ int ex_put_init_info(int exoid, int num_proc, int num_proc_in_f, char *ftype)
     }
   }
   else {
-    if (ex_leavedef(exoid, __func__) != EX_NOERR) {
+    if (ex__leavedef(exoid, __func__) != EX_NOERR) {
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
