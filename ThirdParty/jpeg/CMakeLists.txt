@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkjpeg/LICENSE.md"
-    VERSION       "2.0.2"
+    VERSION       "2.0.3"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE JPEG
