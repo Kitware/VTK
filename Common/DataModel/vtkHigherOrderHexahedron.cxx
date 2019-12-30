@@ -229,15 +229,6 @@ void vtkHigherOrderHexahedron::GetFaceWithoutRationalWeights(
       }
     }
   }
-  /*
-  std::cout << "Hex Face " << faceId << "\n";
-  for (int yy = 0; yy < npts; ++yy)
-  {
-  vtkVector3d xx;
-  result->Points->GetPoint(yy, xx.GetData());
-  std::cout << "  " << yy << "  " << result->PointIds->GetId(yy) << " " << xx << "\n";
-  }
-  */
 }
 
 void vtkHigherOrderHexahedron::Initialize() {}
@@ -368,7 +359,7 @@ int vtkHigherOrderHexahedron::EvaluatePosition(const double x[3], double closest
 void vtkHigherOrderHexahedron::EvaluateLocation(
   int& subId, const double pcoords[3], double x[3], double* weights)
 {
-  subId = 0; // TODO: Should this be -1?
+  subId = 0; // LagrangeHexahedron tests that this is set to 0
   this->InterpolateFunctions(pcoords, weights);
 
   double p[3];

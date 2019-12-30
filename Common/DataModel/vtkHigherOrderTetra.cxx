@@ -878,8 +878,13 @@ vtkIdType vtkHigherOrderTetra::ComputeOrder()
       return 8;
     case 220:
       return 9;
-    case 285:
+    case 286:
       return 10;
+
+    // this is a iterative solution strategy to find the nearest integer ( order ) given the number
+    // of points in the tetrahedron. the order is the root of following cubit equation
+    // nPointsForOrder = (order + 1) * (order + 2) * (order + 3) / 6;
+    // nPointsForOrder =  ( x3 + 6x2 + 11x + 6 ) / 6
     default:
     {
       vtkIdType order = 1;
