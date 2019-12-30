@@ -8,7 +8,7 @@ readonly name="tiff"
 readonly ownership="Tiff Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/tiff.git"
-readonly tag="for/vtk-20190719-4.0.10"
+readonly tag="for/vtk-20191230-4.1.0"
 readonly paths="
 .gitattributes
 CMakeLists.txt
