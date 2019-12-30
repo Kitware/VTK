@@ -86,13 +86,8 @@ typedef herr_t (*H5P_reg_prop_func_t)(H5P_genclass_t *pclass);
 
 /* Move encode/decode callback typedefs from H5Ppublic.h: not exposed to user */
 /* Add a parameter to encode callback */
-typedef herr_t (*H5P_prp_encode_func_t)(const void *value, void **buf, size_t *size, void *udata);
+typedef herr_t (*H5P_prp_encode_func_t)(const void *value, void **buf, size_t *size);
 typedef herr_t (*H5P_prp_decode_func_t)(const void **buf, void *value);
-
-/* User data passed to encode callback */
-typedef struct H5P_enc_cb_info_t {
-    hid_t fapl_id;      /* File access property list */
-} H5P_enc_cb_info_t;
 
 /*
  * Each library property list class has a variable of this type that contains

@@ -127,11 +127,11 @@ H5O_msg_create(const H5O_loc_t *loc, unsigned type_id, unsigned mesg_flags,
 
     /* Pin the object header */
     if(NULL == (oh = H5O_pin(loc)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
 
     /* Go append message to object header */
     if(H5O_msg_append_oh(loc->file, oh, type_id, mesg_flags, update_flags, mesg) < 0)
-	HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to append to object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to append to object header")
 
 done:
     if(oh && H5O_unpin(oh) < 0)
@@ -276,7 +276,7 @@ H5O_msg_write(const H5O_loc_t *loc, unsigned type_id, unsigned mesg_flags,
 
     /* Pin the object header */
     if(NULL == (oh = H5O_pin(loc)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
 
     /* Call the "real" modify routine */
     if(H5O__msg_write_real(loc->file, oh, type, mesg_flags, update_flags, mesg) < 0)
@@ -384,7 +384,7 @@ H5O__msg_write_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type,
 
     /* Check for modifying a constant message */
     if(!(update_flags & H5O_UPDATE_FORCE) && (idx_msg->flags & H5O_MSG_FLAG_CONSTANT))
-	HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to modify constant message")
+        HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to modify constant message")
     /* This message is shared, but it's being modified. */
     else if((idx_msg->flags & H5O_MSG_FLAG_SHARED) || (idx_msg->flags & H5O_MSG_FLAG_SHAREABLE)) {
         htri_t status;              /* Status of "try share" call */
@@ -474,15 +474,15 @@ H5O_msg_read(const H5O_loc_t *loc, unsigned type_id, void *mesg)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to protect object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to protect object header")
 
     /* Call the "real" read routine */
     if(NULL == (ret_value = H5O_msg_read_oh(loc->file, oh, type_id, mesg)))
-	HGOTO_ERROR(H5E_OHDR, H5E_READERROR, NULL, "unable to read object header message")
+        HGOTO_ERROR(H5E_OHDR, H5E_READERROR, NULL, "unable to read object header message")
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, NULL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, NULL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5O_msg_read() */
@@ -616,12 +616,12 @@ H5O__msg_reset_real(const H5O_msg_class_t *type, void *native)
     HDassert(type);
 
     if(native) {
-	if(type->reset) {
-	    if((type->reset)(native) < 0)
-		HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "reset method failed")
-	} /* end if */
+        if(type->reset) {
+            if((type->reset)(native) < 0)
+                HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "reset method failed")
+        } /* end if */
         else
-	    HDmemset(native, 0, type->native_size);
+            HDmemset(native, 0, type->native_size);
     } /* end if */
 
 done:
@@ -798,7 +798,7 @@ H5O_msg_count(const H5O_loc_t *loc, unsigned type_id)
 
     /* Load the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Count the messages of the correct type */
     msg_count = H5O_msg_count_real(oh, type);
@@ -806,7 +806,7 @@ H5O_msg_count(const H5O_loc_t *loc, unsigned type_id)
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_msg_count() */
@@ -841,7 +841,7 @@ H5O_msg_count_real(const H5O_t *oh, const H5O_msg_class_t *type)
 
     /* Loop over all messages, counting the ones of the type looked for */
     for(u = ret_value = 0; u < oh->nmesgs; u++)
-	if(oh->mesg[u].type == type)
+        if(oh->mesg[u].type == type)
             ret_value++;
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -976,11 +976,11 @@ H5O_msg_remove(const H5O_loc_t *loc, unsigned type_id, int sequence, hbool_t adj
 
     /* Pin the object header */
     if(NULL == (oh = H5O_pin(loc)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
 
     /* Call the "real" remove routine */
     if((ret_value = H5O__msg_remove_real(loc->file, oh, type, sequence, NULL, NULL, adj_link)) < 0)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove object header message")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove object header message")
 
 done:
     if(oh && H5O_unpin(oh) < 0)
@@ -1028,11 +1028,11 @@ H5O_msg_remove_op(const H5O_loc_t *loc, unsigned type_id, int sequence,
 
     /* Pin the object header */
     if(NULL == (oh = H5O_pin(loc)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPIN, FAIL, "unable to pin object header")
 
     /* Call the "real" remove routine */
     if((ret_value = H5O__msg_remove_real(loc->file, oh, type, sequence, op, op_data, adj_link)) < 0)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove object header message")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove object header message")
 
 done:
     if(oh && H5O_unpin(oh) < 0)
@@ -1316,7 +1316,7 @@ done:
          */
 	if(oh_modified & H5O_MODIFY_CONDENSE)
 	    if(H5O_condense_header(f, oh) < 0)
-		HDONE_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't pack object header")
+            HDONE_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't pack object header")
 
         /* Mark object header as changed */
         if(H5O_touch_oh(f, oh, FALSE) < 0)
@@ -1980,7 +1980,7 @@ H5O__copy_mesg(H5F_t *f, H5O_t *oh, size_t idx, const H5O_msg_class_t *type,
 
     /* Protect chunk */
     if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, idx_msg->chunkno)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
     /* Reset existing native information for the header's message */
     H5O__msg_reset_real(type, idx_msg->native);

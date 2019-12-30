@@ -43,7 +43,7 @@
 #define H5MM_SIG_SIZE           4
 #define H5MM_HEAD_GUARD_SIZE    8
 #define H5MM_TAIL_GUARD_SIZE    8
-#define H5MM_BLOCK_FROM_BUF(mem) ((H5MM_block_t *)((unsigned char *)mem - (offsetof(H5MM_block_t, b) + H5MM_HEAD_GUARD_SIZE)))
+#define H5MM_BLOCK_FROM_BUF(mem) ((H5MM_block_t *)((void *)((unsigned char *)mem - (offsetof(H5MM_block_t, b) + H5MM_HEAD_GUARD_SIZE))))
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
 
 

@@ -28,7 +28,7 @@ macro (SET_HDF_BUILD_TYPE)
     endif()
   endif()
   if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+    message (STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
     set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
     # Set the possible values of build type for cmake-gui
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
@@ -73,12 +73,12 @@ endmacro ()
 
 #-------------------------------------------------------------------------------
 macro (INSTALL_TARGET_PDB libtarget targetdestination targetcomponent)
-  if (WIN32 AND MSVC AND FALSE) # XXX(kitware): Disable PDB installation.
+  if (WIN32 AND MSVC AND NOT DISABLE_PDB_FILES)
     get_target_property (target_type ${libtarget} TYPE)
     if (${libtype} MATCHES "SHARED")
       set (targetfilename $<TARGET_PDB_FILE:${libtarget}>)
     else ()
-      get_property (target_name TARGET ${libtarget} PROPERTY OUTPUT_NAME_RELWITHDEBINFO)
+      get_property (target_name TARGET ${libtarget} PROPERTY $<IF:$<CONFIG:Debug>,OUTPUT_NAME_DEBUG,OUTPUT_NAME_RELWITHDEBINFO>)
       set (targetfilename $<TARGET_FILE_DIR:${libtarget}>/${target_name}.pdb)
     endif ()
     install (
@@ -86,9 +86,10 @@ macro (INSTALL_TARGET_PDB libtarget targetdestination targetcomponent)
           ${targetfilename}
       DESTINATION
           ${targetdestination}
-      CONFIGURATIONS RelWithDebInfo
+      CONFIGURATIONS Debug RelWithDebInfo
       COMPONENT ${targetcomponent}
-  )
+      OPTIONAL
+    )
   endif ()
 endmacro ()
 
@@ -100,30 +101,26 @@ macro (INSTALL_PROGRAM_PDB progtarget targetdestination targetcomponent)
           $<TARGET_PDB_FILE:${progtarget}>
       DESTINATION
           ${targetdestination}
-      CONFIGURATIONS RelWithDebInfo
+      CONFIGURATIONS Debug RelWithDebInfo
       COMPONENT ${targetcomponent}
-  )
+      OPTIONAL
+    )
   endif ()
 endmacro ()
 
 #-------------------------------------------------------------------------------
 macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
   if (FALSE) # XXX(kitware): VTK handles library naming.
-  if (WIN32)
-    set (LIB_DEBUG_SUFFIX "_D")
-  else ()
-    set (LIB_DEBUG_SUFFIX "_debug")
-  endif ()
   if (${libtype} MATCHES "SHARED")
     set (LIB_RELEASE_NAME "${libname}")
-    set (LIB_DEBUG_NAME "${libname}${LIB_DEBUG_SUFFIX}")
+    set (LIB_DEBUG_NAME "${libname}${CMAKE_DEBUG_POSTFIX}")
   else ()
-    if (WIN32)
+    if (WIN32 AND NOT MINGW)
       set (LIB_RELEASE_NAME "lib${libname}")
-      set (LIB_DEBUG_NAME "lib${libname}${LIB_DEBUG_SUFFIX}")
+      set (LIB_DEBUG_NAME "lib${libname}${CMAKE_DEBUG_POSTFIX}")
     else ()
       set (LIB_RELEASE_NAME "${libname}")
-      set (LIB_DEBUG_NAME "${libname}${LIB_DEBUG_SUFFIX}")
+      set (LIB_DEBUG_NAME "${libname}${CMAKE_DEBUG_POSTFIX}")
     endif ()
   endif ()
 
@@ -131,8 +128,8 @@ macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
       PROPERTIES
          OUTPUT_NAME
                ${LIB_RELEASE_NAME}
-         OUTPUT_NAME_DEBUG
-               ${LIB_DEBUG_NAME}
+#         OUTPUT_NAME_DEBUG
+#               ${LIB_DEBUG_NAME}
          OUTPUT_NAME_RELEASE
                ${LIB_RELEASE_NAME}
          OUTPUT_NAME_MINSIZEREL
@@ -140,6 +137,11 @@ macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
          OUTPUT_NAME_RELWITHDEBINFO
                ${LIB_RELEASE_NAME}
   )
+  #get_property (target_name TARGET ${libtarget} PROPERTY OUTPUT_NAME)
+  #get_property (target_name_debug TARGET ${libtarget} PROPERTY OUTPUT_NAME_DEBUG)
+  #get_property (target_name_rwdi TARGET ${libtarget} PROPERTY OUTPUT_NAME_RELWITHDEBINFO)
+  #message (STATUS "${target_name} : ${target_name_debug} : ${target_name_rwdi}")
+
   if (${libtype} MATCHES "STATIC")
     if (WIN32)
       set_target_properties (${libtarget}
@@ -192,7 +194,12 @@ macro (HDF_IMPORT_SET_LIB_OPTIONS libtarget libname libtype libversion)
         )
       endif ()
     else ()
-      if (CYGWIN)
+      if (MINGW)
+        set_target_properties (${libtarget} PROPERTIES
+            IMPORTED_IMPLIB "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${IMPORT_LIB_NAME}.lib"
+            IMPORTED_LOCATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${IMPORT_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        )
+      elseif (CYGWIN)
         set_target_properties (${libtarget} PROPERTIES
             IMPORTED_IMPLIB "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_IMPORT_LIBRARY_PREFIX}${IMPORT_LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
             IMPORTED_LOCATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_IMPORT_LIBRARY_PREFIX}${IMPORT_LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -226,10 +233,9 @@ macro (TARGET_C_PROPERTIES wintarget libtype)
       $<$<C_COMPILER_ID:MSVC>:${WIN_COMPILE_FLAGS}>
       $<$<CXX_COMPILER_ID:MSVC>:${WIN_COMPILE_FLAGS}>
   )
-  target_link_libraries(${wintarget} INTERFACE
-      $<$<C_COMPILER_ID:MSVC>:${WIN_LINK_FLAGS}>
-      $<$<CXX_COMPILER_ID:MSVC>:${WIN_LINK_FLAGS}>
-  )
+  if(MSVC)
+    set_property(TARGET ${wintarget} APPEND PROPERTY LINK_FLAGS "${WIN_LINK_FLAGS}")
+  endif()
 endmacro ()
 
 #-----------------------------------------------------------------------------
@@ -257,6 +263,10 @@ macro (HDF_README_PROPERTIES target_fortran)
       set (BINARY_PLATFORM "${BINARY_PLATFORM} Intel")
       if (${CMAKE_C_COMPILER_VERSION} MATCHES "^17.*")
         set (BINARY_PLATFORM "${BINARY_PLATFORM}, using Intel 17")
+      elseif (${CMAKE_C_COMPILER_VERSION} MATCHES "^18.*")
+        set (BINARY_PLATFORM "${BINARY_PLATFORM}, using Intel 18")
+      elseif (${CMAKE_C_COMPILER_VERSION} MATCHES "^19.*")
+        set (BINARY_PLATFORM "${BINARY_PLATFORM}, using Intel 19")
       else ()
         set (BINARY_PLATFORM "${BINARY_PLATFORM}, using Intel ${CMAKE_C_COMPILER_VERSION}")
       endif ()
@@ -273,8 +283,10 @@ macro (HDF_README_PROPERTIES target_fortran)
       elseif (${CMAKE_C_COMPILER_VERSION} MATCHES "^19.*")
         if (${CMAKE_C_COMPILER_VERSION} MATCHES "^19.0.*")
           set (BINARY_PLATFORM "${BINARY_PLATFORM}, using VISUAL STUDIO 2015")
-        else ()
+        elseif (${CMAKE_C_COMPILER_VERSION} MATCHES "^19.16.*")
           set (BINARY_PLATFORM "${BINARY_PLATFORM}, using VISUAL STUDIO 2017")
+        else () #19.23
+          set (BINARY_PLATFORM "${BINARY_PLATFORM}, using VISUAL STUDIO 2019")
         endif ()
       else ()
         set (BINARY_PLATFORM "${BINARY_PLATFORM}, using VISUAL STUDIO ${CMAKE_C_COMPILER_VERSION}")
@@ -296,7 +308,9 @@ macro (HDF_README_PROPERTIES target_fortran)
     set (BINARY_PLATFORM "${BINARY_PLATFORM} / ${CMAKE_Fortran_COMPILER_ID} Fortran")
   endif ()
 
-  if (BUILD_SHARED_LIBS)
+  if (ONLY_SHARED_LIBS)
+    set (LIB_TYPE "Shared")
+  elseif (BUILD_SHARED_LIBS)
     set (LIB_TYPE "Static and Shared")
   else ()
     set (LIB_TYPE "Static")
@@ -361,8 +375,13 @@ macro (HDF_DIR_PATHS package_prefix)
   endif ()
 
   if (FALSE) # XXX(kitware): VTK handles library naming.
+  # Always use full RPATH, i.e. don't skip the full RPATH for the build tree
   set (CMAKE_SKIP_BUILD_RPATH  FALSE)
+  # when building, don't use the install RPATH already
+  # (but later on when installing)
   set (CMAKE_INSTALL_RPATH_USE_LINK_PATH  FALSE)
+  # add the automatically determined parts of the RPATH
+  # which point to directories outside the build tree to the install RPATH
   set (CMAKE_BUILD_WITH_INSTALL_RPATH ON)
   if (APPLE)
     set (CMAKE_INSTALL_NAME_DIR "@rpath")
@@ -379,6 +398,15 @@ macro (HDF_DIR_PATHS package_prefix)
 
   if (DEFINED ADDITIONAL_CMAKE_PREFIX_PATH AND EXISTS "${ADDITIONAL_CMAKE_PREFIX_PATH}")
     set (CMAKE_PREFIX_PATH ${ADDITIONAL_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
+  endif ()
+
+  #set the default debug suffix for all library targets
+    if(NOT CMAKE_DEBUG_POSTFIX)
+      if (WIN32)
+        set (CMAKE_DEBUG_POSTFIX "_D")
+      else ()
+        set (CMAKE_DEBUG_POSTFIX "_debug")
+      endif ()
   endif ()
 
   SET_HDF_BUILD_TYPE()

@@ -128,3 +128,4 @@ H5_DLL H5TS_thread_t H5TS_create_thread(void *(*func)(void *), H5TS_attr_t * att
 #endif	/* c_plusplus || __cplusplus */
 
 #endif	/* H5TSprivate_H_ */
+

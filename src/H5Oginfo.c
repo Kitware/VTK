@@ -113,7 +113,7 @@ H5O_ginfo_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
     /* Allocate space for message */
     if(NULL == (ginfo = H5FL_CALLOC(H5O_ginfo_t)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Get the flags for the group */
     flags = *p++;
@@ -231,7 +231,7 @@ H5O_ginfo_copy(const void *_mesg, void *_dest)
     /* check args */
     HDassert(ginfo);
     if(!dest && NULL == (dest = H5FL_MALLOC(H5O_ginfo_t)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* copy */
     *dest = *ginfo;

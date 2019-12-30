@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5timer.c
- *			Aug 21 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ * Created:        H5timer.c
+ *            Aug 21 2006
+ *            Quincey Koziol <koziol@hdfgroup.org>
  *
- * Purpose:		Internal 'timer' routines & support routines.
+ * Purpose:        Internal 'timer' routines & support routines.
  *
  *-------------------------------------------------------------------------
  */
@@ -30,7 +30,7 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
+#include "H5private.h"        /* Generic Functions            */
 
 /* We need this for the struct rusage declaration */
 #if defined(H5_HAVE_GETRUSAGE) && defined(H5_HAVE_SYS_RESOURCE_H)
@@ -76,16 +76,16 @@
 /* Local Variables */
 /*******************/
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5_timer_reset
+ * Function:    H5_timer_reset
  *
- * Purpose:	Resets the timer struct to zero.  Use this to reset a timer
- *		that's being used as an accumulator for summing times.
+ * Purpose:    Resets the timer struct to zero.  Use this to reset a timer
+ *        that's being used as an accumulator for summing times.
  *
- * Return:	void
+ * Return:    void
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Thursday, April 16, 1998
  *
  *-------------------------------------------------------------------------
@@ -97,15 +97,15 @@ H5_timer_reset (H5_timer_t *timer)
     HDmemset(timer, 0, sizeof *timer);
 } /* end H5_timer_reset() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5_timer_begin
+ * Function:    H5_timer_begin
  *
- * Purpose:	Initialize a timer to time something.
+ * Purpose:    Initialize a timer to time something.
  *
- * Return:	void
+ * Return:    void
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Thursday, April 16, 1998
  *
  *-------------------------------------------------------------------------
@@ -114,10 +114,10 @@ void
 H5_timer_begin (H5_timer_t *timer)
 {
 #ifdef H5_HAVE_GETRUSAGE
-    struct rusage	rusage;
+    struct rusage    rusage;
 #endif
 #ifdef H5_HAVE_GETTIMEOFDAY
-    struct timeval	etime;
+    struct timeval    etime;
 #endif
 
     HDassert(timer);
@@ -140,18 +140,18 @@ H5_timer_begin (H5_timer_t *timer)
 #endif
 } /* end H5_timer_begin() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5_timer_end
+ * Function:    H5_timer_end
  *
- * Purpose:	This function should be called at the end of a timed region.
- *		The SUM is an optional pointer which will accumulate times.
- *		TMS is the same struct that was passed to H5_timer_start().
- *		On return, TMS will contain total times for the timed region.
+ * Purpose:    This function should be called at the end of a timed region.
+ *        The SUM is an optional pointer which will accumulate times.
+ *        TMS is the same struct that was passed to H5_timer_start().
+ *        On return, TMS will contain total times for the timed region.
  *
- * Return:	void
+ * Return:    void
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Thursday, April 16, 1998
  *
  *-------------------------------------------------------------------------
@@ -159,7 +159,7 @@ H5_timer_begin (H5_timer_t *timer)
 void
 H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
 {
-    H5_timer_t		now;
+    H5_timer_t        now;
 
     HDassert(timer);
     H5_timer_begin(&now);
@@ -175,28 +175,28 @@ H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
     }
 } /* end H5_timer_end() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5_bandwidth
+ * Function:    H5_bandwidth
  *
- * Purpose:	Prints the bandwidth (bytes per second) in a field 10
- *		characters wide widh four digits of precision like this:
+ * Purpose:    Prints the bandwidth (bytes per second) in a field 10
+ *        characters wide widh four digits of precision like this:
  *
- * 			       NaN	If <=0 seconds
- *			1234. TB/s
- * 			123.4 TB/s
- *			12.34 GB/s
- *			1.234 MB/s
- *			4.000 kB/s
- *			1.000  B/s
- *			0.000  B/s	If NBYTES==0
- *			1.2345e-10	For bandwidth less than 1
- *			6.7893e+94	For exceptionally large values
- *			6.678e+106	For really big values
+ *                    NaN    If <=0 seconds
+ *            1234. TB/s
+ *             123.4 TB/s
+ *            12.34 GB/s
+ *            1.234 MB/s
+ *            4.000 kB/s
+ *            1.000  B/s
+ *            0.000  B/s    If NBYTES==0
+ *            1.2345e-10    For bandwidth less than 1
+ *            6.7893e+94    For exceptionally large values
+ *            6.678e+106    For really big values
  *
- * Return:	void
+ * Return:    void
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, August  5, 1998
  *
  *-------------------------------------------------------------------------
@@ -204,7 +204,7 @@ H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
 void
 H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
 {
-    double	bw;
+    double    bw;
 
     if(nseconds <= (double)0.0F)
         HDstrcpy(buf, "       NaN");
@@ -213,39 +213,39 @@ H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
         if(H5_DBL_ABS_EQUAL(bw, (double)0.0F))
             HDstrcpy(buf, "0.000  B/s");
         else if(bw < (double)1.0F)
-            sprintf(buf, "%10.4e", bw);
+            HDsprintf(buf, "%10.4e", bw);
         else if(bw < (double)H5_KB) {
-            sprintf(buf, "%05.4f", bw);
+            HDsprintf(buf, "%05.4f", bw);
             HDstrcpy(buf+5, "  B/s");
         } else if(bw < (double)H5_MB) {
-            sprintf(buf, "%05.4f", bw / (double)H5_KB);
+            HDsprintf(buf, "%05.4f", bw / (double)H5_KB);
             HDstrcpy(buf+5, " kB/s");
         } else if(bw < (double)H5_GB) {
-            sprintf(buf, "%05.4f", bw / (double)H5_MB);
+            HDsprintf(buf, "%05.4f", bw / (double)H5_MB);
             HDstrcpy(buf+5, " MB/s");
         } else if(bw < (double)H5_TB) {
-            sprintf(buf, "%05.4f", bw / (double)H5_GB);
+            HDsprintf(buf, "%05.4f", bw / (double)H5_GB);
             HDstrcpy(buf+5, " GB/s");
         } else if(bw < (double)H5_PB) {
-            sprintf(buf, "%05.4f", bw / (double)H5_TB);
+            HDsprintf(buf, "%05.4f", bw / (double)H5_TB);
             HDstrcpy(buf+5, " TB/s");
         } else {
-            sprintf(buf, "%10.4e", bw);
+            HDsprintf(buf, "%10.4e", bw);
             if(HDstrlen(buf) > 10)
-                sprintf(buf, "%10.3e", bw);
+                HDsprintf(buf, "%10.3e", bw);
         }
     }
 } /* end H5_bandwidth() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5_now
+ * Function:    H5_now
  *
- * Purpose:	Retrieves the current time, as seconds after the UNIX epoch.
+ * Purpose:    Retrieves the current time, as seconds after the UNIX epoch.
  *
- * Return:	# of seconds from the epoch (can't fail)
+ * Return:    # of seconds from the epoch (can't fail)
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Tuesday, November 28, 2006
  *
  *-------------------------------------------------------------------------
@@ -253,7 +253,7 @@ H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
 time_t
 H5_now(void)
 {
-    time_t	now;                    /* Current time */
+    time_t    now;                    /* Current time */
 
 #ifdef H5_HAVE_GETTIMEOFDAY
     {

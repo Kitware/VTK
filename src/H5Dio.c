@@ -546,7 +546,8 @@ H5D__read(H5D_t *dataset, hid_t mem_type_id, const H5S_t *mem_space,
      * has been overwritten.  So just proceed in reading.
      */
     if(nelmts > 0 && dataset->shared->dcpl_cache.efl.nused == 0 &&
-            !(*dataset->shared->layout.ops->is_space_alloc)(&dataset->shared->layout.storage)) {
+            !(*dataset->shared->layout.ops->is_space_alloc)(&dataset->shared->layout.storage) &&
+            !(dataset->shared->layout.ops->is_data_cached && (*dataset->shared->layout.ops->is_data_cached)(dataset->shared))) {
         H5D_fill_value_t fill_status;   /* Whether/How the fill value is defined */
 
         /* Retrieve dataset's fill-value properties */
@@ -578,6 +579,7 @@ H5D__read(H5D_t *dataset, hid_t mem_type_id, const H5S_t *mem_space,
     /* Sanity check that space is allocated, if there are elements */
     if(nelmts > 0)
         HDassert((*dataset->shared->layout.ops->is_space_alloc)(&dataset->shared->layout.storage)
+                || (dataset->shared->layout.ops->is_data_cached && (*dataset->shared->layout.ops->is_data_cached)(dataset->shared))
                 || dataset->shared->dcpl_cache.efl.nused > 0
                 || dataset->shared->layout.type == H5D_COMPACT);
 

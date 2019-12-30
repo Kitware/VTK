@@ -26,24 +26,24 @@
 /* Module Setup */
 /****************/
 
-#include "H5Fmodule.h"          /* This source code file is part of the H5F module */
-#define H5F_TESTING		/*suppress warning about H5F testing funcs*/
-#define H5G_FRIEND		/*suppress error about including H5Gpkg  */
-#define H5G_TESTING		/*suppress warning about H5G testing funcs*/
-#define H5SM_FRIEND		/*suppress error about including H5SMpkg  */
-#define H5SM_TESTING		/*suppress warning about H5SM testing funcs*/
+#include "H5Fmodule.h"          /* This source code file is part of the H5F module  */
+#define H5F_TESTING             /* Suppress warning about H5F testing funcs         */
+#define H5G_FRIEND              /* Suppress error about including H5Gpkg.h          */
+#define H5G_TESTING             /* Suppress warning about H5G testing funcs         */
+#define H5SM_FRIEND             /* Suppress error about including H5SMpkg.h         */
+#define H5SM_TESTING            /* Suppress warning about H5SM testing funcs        */
 
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"             /* File access				*/
-#include "H5Gpkg.h"		/* Groups		  		*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5SMpkg.h"            /* Shared object header messages        */
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Fpkg.h"             /* File access                              */
+#include "H5Gpkg.h"             /* Groups                                   */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5SMpkg.h"            /* Shared object header messages            */
 
 
 /****************/
@@ -86,27 +86,25 @@
  *
  * Purpose:     Retrieve the number of shared messages of a given type in a file
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *	        Jan  3, 2007
+ * Programmer:  Quincey Koziol
+ *              Jan  3, 2007
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_get_sohm_mesg_count_test(hid_t file_id, unsigned type_id,
-    size_t *mesg_count)
+H5F_get_sohm_mesg_count_test(hid_t file_id, unsigned type_id, size_t *mesg_count)
 {
-    H5F_t	*file;                  /* File info */
-    hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
-    herr_t	ret_value = SUCCEED;    /* Return value */
+    H5F_t      *file;                       /* File info */
+    hbool_t     api_ctx_pushed = FALSE;     /* Whether API context pushed */
+    herr_t      ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
 
     /* Push API context */
     if(H5CX_push() < 0)
@@ -133,8 +131,7 @@ done:
  *              group's object header, and check that the addresses are
  *              valid.
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Neil Fortner
  *	        Mar  31, 2009
@@ -144,15 +141,15 @@ done:
 herr_t
 H5F_check_cached_stab_test(hid_t file_id)
 {
-    H5F_t	*file;                  /* File info */
-    hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
-    herr_t	ret_value = SUCCEED;    /* Return value */
+    H5F_t      *file;                       /* File info */
+    hbool_t     api_ctx_pushed = FALSE;     /* Whether API context pushed */
+    herr_t      ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
 
     /* Push API context */
     if(H5CX_push() < 0)
@@ -176,8 +173,7 @@ done:
  *
  * Purpose:     Retrieve the maximum address for a file
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *	        Jun 10, 2009
@@ -187,14 +183,14 @@ done:
 herr_t
 H5F_get_maxaddr_test(hid_t file_id, haddr_t *maxaddr)
 {
-    H5F_t	*file;                  /* File info */
-    herr_t	ret_value = SUCCEED;    /* Return value */
+    H5F_t      *file;                       /* File info */
+    herr_t      ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
 
     /* Retrieve maxaddr for file */
     *maxaddr = file->shared->maxaddr;
@@ -208,10 +204,9 @@ done:
  * Function:	H5F_get_sbe_addr_test
  *
  * Purpose:     Retrieve the address of a superblock extension's object header
- *		for a file
+ *              for a file
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *	        Jul 10, 2016
@@ -221,8 +216,8 @@ done:
 herr_t
 H5F_get_sbe_addr_test(hid_t file_id, haddr_t *sbe_addr)
 {
-    H5F_t	*file;                  /* File info */
-    herr_t	ret_value = SUCCEED;    /* Return value */
+    H5F_t      *file;                       /* File info */
+    herr_t      ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 

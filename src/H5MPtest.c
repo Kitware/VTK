@@ -134,7 +134,7 @@ H5MP_pool_is_free_size_correct(const H5MP_pool_t *mp)
         size_t page_free;               /* Size of blocks on free list */
 
         /* Iterate through the blocks in page, accumulating free space */
-        blk = (H5MP_page_blk_t *)((unsigned char *)page + H5MP_BLOCK_ALIGN(sizeof(H5MP_page_t)));
+        blk = (H5MP_page_blk_t *)((void *)((unsigned char *)page + H5MP_BLOCK_ALIGN(sizeof(H5MP_page_t))));
         page_free = 0;
         while(blk != NULL) {
             if(blk->is_free)

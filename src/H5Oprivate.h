@@ -803,6 +803,17 @@ typedef uint32_t H5O_refcount_t;        /* Contains # of links to object, if >1 
  */
 typedef unsigned H5O_unknown_t;         /* Original message type ID */
 
+/* To indicate an invalid version for a message that does not exist yet for the release */
+/* Message version is 1 byte so the value can be 0 to 255 */
+#define H5O_INVALID_VERSION     256
+
+/* The initial version of the fsinfo message: deprecated */
+/* This version is mapped to version 1 from release 1.10.1 onwards */
+#define H5O_FSINFO_VERSION_0        0
+
+/* The latest version for fsinfo message */
+#define H5O_FSINFO_VERSION_1        1
+#define H5O_FSINFO_VERSION_LATEST   H5O_FSINFO_VERSION_1
 /*
  * File space info Message.
  * Contains file space management info and
@@ -810,6 +821,7 @@ typedef unsigned H5O_unknown_t;         /* Original message type ID */
  * (Data structure in memory)
  */
 typedef struct H5O_fsinfo_t {
+    unsigned version;                       /* Version number */
     H5F_fspace_strategy_t   strategy;       /* File space strategy */
     hbool_t persist;                        /* Persisting free-space or not */
     hsize_t threshold;                      /* Free-space section threshold */

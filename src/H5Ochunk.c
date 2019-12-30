@@ -335,7 +335,7 @@ H5O__chunk_update_idx(H5F_t *f, H5O_t *oh, unsigned idx)
     H5O_chk_cache_ud_t chk_udata;       /* User data for loading chunk */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check args */
     HDassert(f);

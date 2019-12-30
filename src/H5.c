@@ -262,7 +262,7 @@ H5_term_library(void)
 
     /* Don't do anything if the library is already closed */
     if(!(H5_INIT_GLOBAL))
-	goto done;
+        goto done;
 
     /* Indicate that the library is being shut down */
     H5_TERM_GLOBAL = TRUE;
@@ -379,18 +379,18 @@ H5_term_library(void)
      * down if any of the below code involves using the instrumentation code.
      */
     if(H5_MPEinit_g) {
-	int mpi_initialized;
-	int mpi_finalized;
-	int mpe_code;
+        int mpi_initialized;
+        int mpi_finalized;
+        int mpe_code;
 
-	MPI_Initialized(&mpi_initialized);
-	MPI_Finalized(&mpi_finalized);
+        MPI_Initialized(&mpi_initialized);
+        MPI_Finalized(&mpi_finalized);
 
         if (mpi_initialized && !mpi_finalized) {
-	    mpe_code = MPE_Finish_log("h5log");
-	    HDassert(mpe_code >=0);
-	} /* end if */
-	H5_MPEinit_g = FALSE;	/* turn it off no matter what */
+            mpe_code = MPE_Finish_log("h5log");
+            HDassert(mpe_code >=0);
+        } /* end if */
+        H5_MPEinit_g = FALSE;	/* turn it off no matter what */
     } /* end if */
 #endif
 

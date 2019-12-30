@@ -11,12 +11,12 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer: 	Vailin Choi <vchoi@hdfgroup.org>
- *	       	Thursday, April 30, 2009
+/* Programmer:     Vailin Choi <vchoi@hdfgroup.org>
+ *               Thursday, April 30, 2009
  *
- * Purpose:	Fixed array indexed (chunked) I/O functions.  
- *		The chunk coordinate is mapped as an index into an array of 
- *		disk addresses for the chunks.
+ * Purpose:    Fixed array indexed (chunked) I/O functions.
+ *        The chunk coordinate is mapped as an index into an array of
+ *        disk addresses for the chunks.
  *
  */
 
@@ -30,13 +30,13 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Dpkg.h"		/* Datasets				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5FAprivate.h"	/* Fixed arrays		  		*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5MFprivate.h"	/* File space management		*/
-#include "H5VMprivate.h"         /* Vector functions			*/
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Dpkg.h"        /* Datasets                */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5FAprivate.h"    /* Fixed arrays                  */
+#include "H5FLprivate.h"    /* Free Lists                           */
+#include "H5MFprivate.h"    /* File space management        */
+#include "H5VMprivate.h"         /* Vector functions            */
 
 
 /****************/
@@ -210,16 +210,16 @@ H5FL_DEFINE_STATIC(H5D_farray_ctx_t);
 /* Declare a free list to manage the H5D_farray_ctx_ud_t struct */
 H5FL_DEFINE_STATIC(H5D_farray_ctx_ud_t);
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_crt_context
+ * Function:    H5D__farray_crt_context
  *
- * Purpose:	Create context for callbacks
+ * Purpose:    Create context for callbacks
  *
- * Return:	Success:	non-NULL
- *		Failure:	NULL
+ * Return:    Success:    non-NULL
+ *        Failure:    NULL
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -259,16 +259,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_crt_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_dst_context
+ * Function:    H5D__farray_dst_context
  *
- * Purpose:	Destroy context for callbacks
+ * Purpose:    Destroy context for callbacks
  *
- * Return:	Success:	non-NULL
- *		Failure:	NULL
+ * Return:    Success:    non-NULL
+ *        Failure:    NULL
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -289,16 +289,16 @@ H5D__farray_dst_context(void *_ctx)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_dst_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_fill
+ * Function:    H5D__farray_fill
  *
- * Purpose:	Fill "missing elements" in block of elements
+ * Purpose:    Fill "missing elements" in block of elements
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -319,16 +319,16 @@ H5D__farray_fill(void *nat_blk, size_t nelmts)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_fill() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_encode
+ * Function:    H5D__farray_encode
  *
- * Purpose:	Encode an element from "native" to "raw" form
+ * Purpose:    Encode an element from "native" to "raw" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -363,16 +363,16 @@ H5D__farray_encode(void *raw, const void *_elmt, size_t nelmts, void *_ctx)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_encode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_decode
+ * Function:    H5D__farray_decode
  *
- * Purpose:	Decode an element from "raw" to "native" form
+ * Purpose:    Decode an element from "raw" to "native" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -407,16 +407,16 @@ H5D__farray_decode(const void *_raw, void *_elmt, size_t nelmts, void *_ctx)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_decode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_debug
+ * Function:    H5D__farray_debug
  *
- * Purpose:	Display an element for debugging
+ * Purpose:    Display an element for debugging
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -434,32 +434,32 @@ H5D__farray_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
     HDassert(elmt);
 
     /* Print element */
-    sprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
+    HDsprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
     HDfprintf(stream, "%*s%-*s %a\n", indent, "", fwidth, temp_str,
         *(const haddr_t *)elmt);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_debug() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_crt_dbg_context
+ * Function:    H5D__farray_crt_dbg_context
  *
- * Purpose:	Create context for debugging callback
- *		(get the layout message in the specified object header)
+ * Purpose:    Create context for debugging callback
+ *        (get the layout message in the specified object header)
  *
- * Return:	Success:	non-NULL
- *		Failure:	NULL
+ * Return:    Success:    non-NULL
+ *        Failure:    NULL
  *
- * Programmer:	Vailin Choi
- *		5th August, 2009
+ * Programmer:    Vailin Choi
+ *        5th August, 2009
  *
  *-------------------------------------------------------------------------
  */
 static void *
 H5D__farray_crt_dbg_context(H5F_t *f, haddr_t obj_addr)
 {
-    H5D_farray_ctx_ud_t	*dbg_ctx = NULL;   /* Context for fixed array callback */
+    H5D_farray_ctx_ud_t    *dbg_ctx = NULL;   /* Context for fixed array callback */
     H5O_loc_t obj_loc;          /* Pointer to an object's location */
     hbool_t obj_opened = FALSE; /* Flag to indicate that the object header was opened */
     H5O_layout_t layout;        /* Layout message */
@@ -516,25 +516,25 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_crt_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_dst_dbg_context
+ * Function:    H5D__farray_dst_dbg_context
  *
- * Purpose:	Destroy context for debugging callback
- *		(free the layout message from the specified object header)
+ * Purpose:    Destroy context for debugging callback
+ *        (free the layout message from the specified object header)
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
- *		24th September, 2009
+ * Programmer:    Quincey Koziol
+ *        24th September, 2009
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5D__farray_dst_dbg_context(void *_dbg_ctx)
 {
-    H5D_farray_ctx_ud_t	*dbg_ctx = (H5D_farray_ctx_ud_t	*)_dbg_ctx; /* Context for fixed array callback */
+    H5D_farray_ctx_ud_t    *dbg_ctx = (H5D_farray_ctx_ud_t    *)_dbg_ctx; /* Context for fixed array callback */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -547,16 +547,16 @@ H5D__farray_dst_dbg_context(void *_dbg_ctx)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_dst_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_filt_fill
+ * Function:    H5D__farray_filt_fill
  *
- * Purpose:	Fill "missing elements" in block of elements
+ * Purpose:    Fill "missing elements" in block of elements
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -578,16 +578,16 @@ H5D__farray_filt_fill(void *nat_blk, size_t nelmts)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_filt_fill() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_filt_encode
+ * Function:    H5D__farray_filt_encode
  *
- * Purpose:	Encode an element from "native" to "raw" form
+ * Purpose:    Encode an element from "native" to "raw" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -612,7 +612,7 @@ H5D__farray_filt_encode(void *_raw, const void *_elmt, size_t nelmts, void *_ctx
         /* Encode element */
         /* (advances 'raw' pointer) */
         H5F_addr_encode_len(ctx->file_addr_len, &raw, elmt->addr);
-	UINT64ENCODE_VAR(raw, elmt->nbytes, ctx->chunk_size_len);
+    UINT64ENCODE_VAR(raw, elmt->nbytes, ctx->chunk_size_len);
         UINT32ENCODE(raw, elmt->filter_mask);
 
         /* Advance native element pointer */
@@ -625,16 +625,16 @@ H5D__farray_filt_encode(void *_raw, const void *_elmt, size_t nelmts, void *_ctx
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_filt_encode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_filt_decode
+ * Function:    H5D__farray_filt_decode
  *
- * Purpose:	Decode an element from "raw" to "native" form
+ * Purpose:    Decode an element from "raw" to "native" form
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -658,7 +658,7 @@ H5D__farray_filt_decode(const void *_raw, void *_elmt, size_t nelmts, void *_ctx
         /* Decode element */
         /* (advances 'raw' pointer) */
         H5F_addr_decode_len(ctx->file_addr_len, &raw, &elmt->addr);
-	UINT64DECODE_VAR(raw, elmt->nbytes, ctx->chunk_size_len);
+    UINT64DECODE_VAR(raw, elmt->nbytes, ctx->chunk_size_len);
         UINT32DECODE(raw, elmt->filter_mask);
 
         /* Advance native element pointer */
@@ -671,16 +671,16 @@ H5D__farray_filt_decode(const void *_raw, void *_elmt, size_t nelmts, void *_ctx
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_filt_decode() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_filt_debug
+ * Function:    H5D__farray_filt_debug
  *
- * Purpose:	Display an element for debugging
+ * Purpose:    Display an element for debugging
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -699,24 +699,24 @@ H5D__farray_filt_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
     HDassert(elmt);
 
     /* Print element */
-    sprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
+    HDsprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
     HDfprintf(stream, "%*s%-*s {%a, %u, %0x}\n", indent, "", fwidth, temp_str,
         elmt->addr, elmt->nbytes, elmt->filter_mask);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_filt_debug() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_depend
+ * Function:    H5D__farray_idx_depend
  *
- * Purpose:	Create flush dependency between fixed array and dataset's
+ * Purpose:    Create flush dependency between fixed array and dataset's
  *              object header.
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -768,7 +768,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_depend() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5D__farray_idx_init
  *
@@ -796,17 +796,17 @@ H5D__farray_idx_init(const H5D_chk_idx_info_t *idx_info, const H5S_t H5_ATTR_UNU
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_idx_init() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_open
+ * Function:    H5D__farray_idx_open
  *
- * Purpose:	Opens an existing fixed array and initializes
+ * Purpose:    Opens an existing fixed array and initializes
  *              the layout struct with information about the storage.
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:    Success:    non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -836,7 +836,7 @@ H5D__farray_idx_open(const H5D_chk_idx_info_t *idx_info)
 
     /* Open the fixed array for the chunk index */
     if(NULL == (idx_info->storage->u.farray.fa = H5FA_open(idx_info->f, idx_info->storage->idx_addr, &udata)))
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't open fixed array")
+    HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't open fixed array")
 
      /* Check for SWMR writes to the file */
     if(H5F_INTENT(idx_info->f) & H5F_ACC_SWMR_WRITE)
@@ -847,21 +847,21 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_open() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_create
+ * Function:    H5D__farray_idx_create
  *
- * Purpose:	Creates a new indexed-storage fixed array and initializes
+ * Purpose:    Creates a new indexed-storage fixed array and initializes
  *              the layout struct with information about the storage.  The
- *		struct should be immediately written to the object header.
+ *        struct should be immediately written to the object header.
  *
- *		This function must be called before passing LAYOUT to any of
- *		the other indexed storage functions!
+ *        This function must be called before passing LAYOUT to any of
+ *        the other indexed storage functions!
  *
- * Return:	Non-negative on success (with the LAYOUT argument initialized
- *		and ready to write to an object header). Negative on failure.
+ * Return:    Non-negative on success (with the LAYOUT argument initialized
+ *        and ready to write to an object header). Negative on failure.
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -869,9 +869,9 @@ done:
 static herr_t
 H5D__farray_idx_create(const H5D_chk_idx_info_t *idx_info)
 {
-    H5FA_create_t 	cparam; /* Fixed array creation parameters */
+    H5FA_create_t     cparam; /* Fixed array creation parameters */
     H5D_farray_ctx_ud_t udata;  /* User data for fixed array create call */
-    herr_t 	ret_value = SUCCEED; 	/* Return value */
+    herr_t     ret_value = SUCCEED;     /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -887,7 +887,7 @@ H5D__farray_idx_create(const H5D_chk_idx_info_t *idx_info)
 
     /* General parameters */
     if(idx_info->pline->nused > 0) {
-	unsigned chunk_size_len;        /* Size of encoded chunk size */
+    unsigned chunk_size_len;        /* Size of encoded chunk size */
 
         /* Compute the size required for encoding the size of a chunk, allowing
          *      for an extra byte, in case the filter makes the chunk larger.
@@ -910,14 +910,14 @@ H5D__farray_idx_create(const H5D_chk_idx_info_t *idx_info)
     /* Set up the user data */
     udata.f = idx_info->f;
     udata.chunk_size = idx_info->layout->size;
-    
+
     /* Create the fixed array for the chunk index */
     if(NULL == (idx_info->storage->u.farray.fa = H5FA_create(idx_info->f, &cparam, &udata)))
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create fixed array")
+    HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create fixed array")
 
     /* Get the address of the fixed array in file */
     if(H5FA_get_addr(idx_info->storage->u.farray.fa, &(idx_info->storage->idx_addr)) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array address")
+    HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array address")
 
     /* Check for SWMR writes to the file */
     if(H5F_INTENT(idx_info->f) & H5F_ACC_SWMR_WRITE)
@@ -928,15 +928,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_create() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_is_space_alloc
+ * Function:    H5D__farray_idx_is_space_alloc
  *
- * Purpose:	Query if space is allocated for index method
+ * Purpose:    Query if space is allocated for index method
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -952,24 +952,24 @@ H5D__farray_idx_is_space_alloc(const H5O_storage_chunk_t *storage)
     FUNC_LEAVE_NOAPI((hbool_t)H5F_addr_defined(storage->idx_addr))
 } /* end H5D__farray_idx_is_space_alloc() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_insert
+ * Function:    H5D__farray_idx_insert
  *
- * Purpose:	Insert chunk address into the indexing structure.
+ * Purpose:    Insert chunk address into the indexing structure.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi; 5 May 2014
- *              
+ * Programmer:    Vailin Choi; 5 May 2014
+ *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5D__farray_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata,
     const H5D_t H5_ATTR_UNUSED *dset)
 {
-    H5FA_t      *fa;  	/* Pointer to fixed array structure */
-    herr_t	ret_value = SUCCEED;		/* Return value */
+    H5FA_t      *fa;      /* Pointer to fixed array structure */
+    herr_t    ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -988,7 +988,7 @@ H5D__farray_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata
         if(H5D__farray_idx_open(idx_info) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't open fixed array")
     } else  /* Patch the top level file pointer contained in fa if needed */
-	H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
+    H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
 
     /* Set convenience pointer to fixed array structure */
     fa = idx_info->storage->u.farray.fa;
@@ -1002,13 +1002,13 @@ H5D__farray_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata
     if(idx_info->pline->nused > 0) {
         H5D_farray_filt_elmt_t elmt;            /* Fixed array element */
 
-	elmt.addr = udata->chunk_block.offset;
+    elmt.addr = udata->chunk_block.offset;
         H5_CHECKED_ASSIGN(elmt.nbytes, uint32_t, udata->chunk_block.length, hsize_t);
         elmt.filter_mask = udata->filter_mask;
 
         /* Set the info for the chunk */
         if(H5FA_set(fa, udata->chunk_idx, &elmt) < 0)
-	    HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set chunk info")
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set chunk info")
     } /* end if */
     else {
         /* Set the address for the chunk */
@@ -1020,17 +1020,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5D__farray_idx_insert() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_get_addr
+ * Function:    H5D__farray_idx_get_addr
  *
- * Purpose:	Get the file address of a chunk if file space has been
- *		assigned.  Save the retrieved information in the udata
- *		supplied.
+ * Purpose:    Get the file address of a chunk if file space has been
+ *        assigned.  Save the retrieved information in the udata
+ *        supplied.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1038,9 +1038,9 @@ done:
 static herr_t
 H5D__farray_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata)
 {
-    H5FA_t      *fa;  	/* Pointer to fixed array structure */
-    hsize_t     idx;   	/* Array index of chunk */
-    herr_t	ret_value = SUCCEED;		/* Return value */
+    H5FA_t      *fa;      /* Pointer to fixed array structure */
+    hsize_t     idx;       /* Array index of chunk */
+    herr_t    ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -1059,7 +1059,7 @@ H5D__farray_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *uda
         if(H5D__farray_idx_open(idx_info) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't open fixed array")
     } else  /* Patch the top level file pointer contained in fa if needed */
-	H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
+    H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
 
     /* Set convenience pointer to fixed array structure */
     fa = idx_info->storage->u.farray.fa;
@@ -1088,26 +1088,26 @@ H5D__farray_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *uda
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk address")
 
         /* Update the other (constant) information for the chunk */
-	udata->chunk_block.length = idx_info->layout->size;
+    udata->chunk_block.length = idx_info->layout->size;
         udata->filter_mask = 0;
     } /* end else */
 
     if(!H5F_addr_defined(udata->chunk_block.offset))
-	udata->chunk_block.length = 0;
+    udata->chunk_block.length = 0;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5D__farray_idx_get_addr() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_iterate_cb
+ * Function:    H5D__farray_idx_iterate_cb
  *
- * Purpose:	Callback routine for fixed array element iteration.
+ * Purpose:    Callback routine for fixed array element iteration.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1135,8 +1135,8 @@ H5D__farray_idx_iterate_cb(hsize_t H5_ATTR_UNUSED idx, const void *_elmt, void *
 
     /* Make "generic chunk" callback */
     if(H5F_addr_defined(udata->chunk_rec.chunk_addr))
-	if((ret_value = (udata->cb)(&udata->chunk_rec, udata->udata)) < 0)
-	    HERROR(H5E_DATASET, H5E_CALLBACK, "failure in generic chunk iterator callback");
+    if((ret_value = (udata->cb)(&udata->chunk_rec, udata->udata)) < 0)
+        HERROR(H5E_DATASET, H5E_CALLBACK, "failure in generic chunk iterator callback");
 
     /* Update coordinates of chunk in dataset */
     ndims = udata->common.layout->ndims - 1;
@@ -1159,16 +1159,16 @@ H5D__farray_idx_iterate_cb(hsize_t H5_ATTR_UNUSED idx, const void *_elmt, void *
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5D__farray_idx_iterate_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_iterate
+ * Function:    H5D__farray_idx_iterate
  *
- * Purpose:	Iterate over the chunks in an index, making a callback
+ * Purpose:    Iterate over the chunks in an index, making a callback
  *              for each one.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1199,50 +1199,50 @@ H5D__farray_idx_iterate(const H5D_chk_idx_info_t *idx_info,
         if(H5D__farray_idx_open(idx_info) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't open fixed array")
     } else  /* Patch the top level file pointer contained in fa if needed */
-	H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
+    H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f);
 
     /* Set convenience pointer to fixed array structure */
     fa = idx_info->storage->u.farray.fa;
 
     /* Get the fixed array statistics */
     if(H5FA_get_stats(fa, &fa_stat) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array statistics")
+    HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array statistics")
 
     /* Check if there are any array elements */
     if(fa_stat.nelmts > 0) {
         H5D_farray_it_ud_t udata;   /* User data for iteration callback */
 
-	/* Initialize userdata */
-	HDmemset(&udata, 0, sizeof udata);
-	udata.common.layout = idx_info->layout;
-	udata.common.storage = idx_info->storage;
+    /* Initialize userdata */
+    HDmemset(&udata, 0, sizeof udata);
+    udata.common.layout = idx_info->layout;
+    udata.common.storage = idx_info->storage;
         HDmemset(&udata.chunk_rec, 0, sizeof(udata.chunk_rec));
         udata.filtered = (idx_info->pline->nused > 0);
         if(!udata.filtered) {
             udata.chunk_rec.nbytes = idx_info->layout->size;
             udata.chunk_rec.filter_mask = 0;
         } /* end if */
-	udata.cb = chunk_cb;
-	udata.udata = chunk_udata;
-	
+    udata.cb = chunk_cb;
+    udata.udata = chunk_udata;
+
         /* Iterate over the fixed array elements */
-	if((ret_value = H5FA_iterate(fa, H5D__farray_idx_iterate_cb, &udata)) < 0)
-	    HERROR(H5E_DATASET, H5E_BADITER, "unable to iterate over fixed array chunk index");
+    if((ret_value = H5FA_iterate(fa, H5D__farray_idx_iterate_cb, &udata)) < 0)
+        HERROR(H5E_DATASET, H5E_BADITER, "unable to iterate over fixed array chunk index");
     } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_iterate() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_remove
+ * Function:    H5D__farray_idx_remove
  *
- * Purpose:	Remove chunk from index.
+ * Purpose:    Remove chunk from index.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1250,9 +1250,9 @@ done:
 static herr_t
 H5D__farray_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t *udata)
 {
-    H5FA_t      *fa;  	/* Pointer to fixed array structure */
-    hsize_t     idx;   	/* Array index of chunk */
-    herr_t	ret_value = SUCCEED;		/* Return value */
+    H5FA_t      *fa;      /* Pointer to fixed array structure */
+    hsize_t     idx;       /* Array index of chunk */
+    herr_t    ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -1271,7 +1271,7 @@ H5D__farray_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t
         if(H5D__farray_idx_open(idx_info) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't open fixed array")
     } else  /* Patch the top level file pointer contained in fa if needed */
-	if(H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f) < 0)
+    if(H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't patch fixed array file pointer")
 
     /* Set convenience pointer to fixed array structure */
@@ -1328,16 +1328,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5D__farray_idx_remove() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_delete_cb
+ * Function:    H5D__farray_idx_delete_cb
  *
- * Purpose:	Delete space for chunk in file
+ * Purpose:    Delete space for chunk in file
  *
- * Return:	Success:	Non-negative
- *		Failure:	negative
+ * Return:    Success:    Non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1365,17 +1365,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_delete_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_delete
+ * Function:    H5D__farray_idx_delete
  *
- * Purpose:	Delete index and raw data storage for entire dataset
+ * Purpose:    Delete index and raw data storage for entire dataset
  *              (i.e. all chunks)
  *
- * Return:	Success:	Non-negative
- *		Failure:	negative
+ * Return:    Success:    Non-negative
+ *        Failure:    negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1398,7 +1398,7 @@ H5D__farray_idx_delete(const H5D_chk_idx_info_t *idx_info)
     if(H5F_addr_defined(idx_info->storage->idx_addr)) {
         H5D_farray_ctx_ud_t ctx_udata;  /* User data for fixed array open call */
 
-	/* Iterate over the chunk addresses in the fixed array, deleting each chunk */
+    /* Iterate over the chunk addresses in the fixed array, deleting each chunk */
         if(H5D__farray_idx_iterate(idx_info, H5D__farray_idx_delete_cb, idx_info->f) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_BADITER, FAIL, "unable to iterate over chunk addresses")
 
@@ -1423,15 +1423,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_delete() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_copy_setup
+ * Function:    H5D__farray_idx_copy_setup
  *
- * Purpose:	Set up any necessary information for copying chunks
+ * Purpose:    Set up any necessary information for copying chunks
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1478,15 +1478,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_copy_setup() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_copy_shutdown
+ * Function:    H5D__farray_idx_copy_shutdown
  *
- * Purpose:	Shutdown any information from copying chunks
+ * Purpose:    Shutdown any information from copying chunks
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1517,7 +1517,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_copy_shutdown() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5D__farray_idx_size
  *
@@ -1526,7 +1526,7 @@ done:
  * Return:      Success:        Non-negative
  *              Failure:        negative
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1558,7 +1558,7 @@ H5D__farray_idx_size(const H5D_chk_idx_info_t *idx_info, hsize_t *index_size)
 
     /* Get the fixed array statistics */
     if(H5FA_get_stats(fa, &fa_stat) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array statistics")
+    HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't query fixed array statistics")
 
     *index_size = fa_stat.hdr_size;
     *index_size += fa_stat.dblk_size;
@@ -1573,15 +1573,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__farray_idx_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_reset
+ * Function:    H5D__farray_idx_reset
  *
- * Purpose:	Reset indexing information.
+ * Purpose:    Reset indexing information.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1596,21 +1596,21 @@ H5D__farray_idx_reset(H5O_storage_chunk_t *storage, hbool_t reset_addr)
 
     /* Reset index info */
     if(reset_addr)
-	storage->idx_addr = HADDR_UNDEF;
+    storage->idx_addr = HADDR_UNDEF;
     storage->u.farray.fa = NULL;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_idx_reset() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_dump
+ * Function:    H5D__farray_idx_dump
  *
- * Purpose:	Dump indexing information to a stream.
+ * Purpose:    Dump indexing information to a stream.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1629,15 +1629,15 @@ H5D__farray_idx_dump(const H5O_storage_chunk_t *storage, FILE *stream)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__farray_idx_dump() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5D__farray_idx_dest
+ * Function:    H5D__farray_idx_dest
  *
- * Purpose:	Release indexing information in memory.
+ * Purpose:    Release indexing information in memory.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi
+ * Programmer:    Vailin Choi
  *              Thursday, April 30, 2009
  *
  *-------------------------------------------------------------------------
@@ -1657,8 +1657,8 @@ H5D__farray_idx_dest(const H5D_chk_idx_info_t *idx_info)
     /* Check if the fixed array is open */
     if(idx_info->storage->u.farray.fa) {
 
-	/* Patch the top level file pointer contained in fa if needed */
-	if(H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f) < 0)
+    /* Patch the top level file pointer contained in fa if needed */
+    if(H5FA_patch_file(idx_info->storage->u.farray.fa, idx_info->f) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't patch fixed array file pointer")
 
         /* Close fixed array */

@@ -14,10 +14,10 @@ General Information:
 Compiling Options:
 ------------------
                      Build Mode: @CMAKE_BUILD_TYPE@
-              Debugging Symbols: @SYMBOLS@
-                        Asserts: @ASSERTS@
-                      Profiling: @PROFILING@
-             Optimization Level: @OPTIMIZATION@
+              Debugging Symbols: @HDF5_ENABLE_SYMBOLS@
+                        Asserts: @HDF5_ENABLE_ASSERTS@
+                      Profiling: @HDF5_ENABLE_PROFILING@
+             Optimization Level: @HDF5_ENABLE_OPTIMIZATION@
 
 Linking Options:
 ----------------
@@ -32,7 +32,7 @@ Linking Options:
 
 Languages:
 ----------
-                              C: yes
+                              C: YES
                      C Compiler: @CMAKE_C_COMPILER@ @CMAKE_C_COMPILER_VERSION@
                        CPPFLAGS: @CPPFLAGS@
                     H5_CPPFLAGS: @H5_CPPFLAGS@
@@ -41,7 +41,7 @@ Languages:
                       H5_CFLAGS: @H5_CFLAGS@
                       AM_CFLAGS: @AM_CFLAGS@
                Shared C Library: @H5_ENABLE_SHARED_LIB@
-               Static C Library: YES
+               Static C Library: @H5_ENABLE_STATIC_LIB@
 
                         Fortran: @HDF5_BUILD_FORTRAN@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@               Fortran Compiler: @CMAKE_Fortran_COMPILER@ @CMAKE_Fortran_COMPILER_VERSION@
@@ -49,7 +49,7 @@ Languages:
 @BUILD_FORTRAN_CONDITIONAL_TRUE@               H5 Fortran Flags: @H5_FCFLAGS@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@               AM Fortran Flags: @AM_FCFLAGS@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@         Shared Fortran Library: @H5_ENABLE_SHARED_LIB@
-@BUILD_FORTRAN_CONDITIONAL_TRUE@         Static Fortran Library: YES
+@BUILD_FORTRAN_CONDITIONAL_TRUE@         Static Fortran Library: @H5_ENABLE_STATIC_LIB@
 
                             C++: @HDF5_BUILD_CPP_LIB@
 @BUILD_CXX_CONDITIONAL_TRUE@                   C++ Compiler: @CMAKE_CXX_COMPILER@ @CMAKE_CXX_COMPILER_VERSION@
@@ -57,10 +57,10 @@ Languages:
 @BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@                   AM C++ Flags: @AM_CXXFLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@             Shared C++ Library: @H5_ENABLE_SHARED_LIB@
-@BUILD_CXX_CONDITIONAL_TRUE@             Static C++ Library: YES
+@BUILD_CXX_CONDITIONAL_TRUE@             Static C++ Library: @H5_ENABLE_STATIC_LIB@
 
                             JAVA: @HDF5_BUILD_JAVA@
-@BUILD_JAVA_CONDITIONAL_TRUE@                   JAVA Compiler: @CMAKE_Java_COMPILER@ @Java_VERSION@
+@BUILD_JAVA_CONDITIONAL_TRUE@                 JAVA Compiler: @CMAKE_Java_COMPILER@ @Java_VERSION@
 
 Features:
 ---------
@@ -68,12 +68,16 @@ Features:
 Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
               Large Parallel I/O: @LARGE_PARALLEL_IO@
               High-level library: @HDF5_BUILD_HL_LIB@
+                Build HDF5 Tests: @BUILD_TESTING@
+                Build HDF5 Tools: @HDF5_BUILD_TOOLS@
                     Threadsafety: @HDF5_ENABLE_THREADSAFE@
              Default API mapping: @DEFAULT_API_VERSION@
   With deprecated public symbols: @HDF5_ENABLE_DEPRECATED_SYMBOLS@
           I/O filters (external): @EXTERNAL_FILTERS@
                              MPE: @H5_HAVE_LIBLMPE@
                       Direct VFD: @H5_HAVE_DIRECT@
+              (Read-Only) S3 VFD: @H5_HAVE_ROS3_VFD@
+            (Read-Only) HDFS VFD: @H5_HAVE_LIBHDFS@
                          dmalloc: @H5_HAVE_LIBDMALLOC@
   Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
                      API Tracing: @HDF5_ENABLE_TRACE@

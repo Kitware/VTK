@@ -47,13 +47,13 @@
  * We're assuming that these constants are used rather early in the hdf5
  * session.
  */
-#define H5F_ACC_RDONLY	(H5CHECK H5OPEN 0x0000u)	/*absence of rdwr => rd-only */
-#define H5F_ACC_RDWR	(H5CHECK H5OPEN 0x0001u)	/*open for read and write    */
-#define H5F_ACC_TRUNC	(H5CHECK H5OPEN 0x0002u)	/*overwrite existing files   */
-#define H5F_ACC_EXCL	(H5CHECK H5OPEN 0x0004u)	/*fail if file already exists*/
+#define H5F_ACC_RDONLY    (H5CHECK H5OPEN 0x0000u)    /*absence of rdwr => rd-only */
+#define H5F_ACC_RDWR    (H5CHECK H5OPEN 0x0001u)    /*open for read and write    */
+#define H5F_ACC_TRUNC    (H5CHECK H5OPEN 0x0002u)    /*overwrite existing files   */
+#define H5F_ACC_EXCL    (H5CHECK H5OPEN 0x0004u)    /*fail if file already exists*/
 /* NOTE: 0x0008u was H5F_ACC_DEBUG, now deprecated */
-#define H5F_ACC_CREAT	(H5CHECK H5OPEN 0x0010u)	/*create non-existing files  */
-#define H5F_ACC_SWMR_WRITE	(H5CHECK 0x0020u) /*indicate that this file is
+#define H5F_ACC_CREAT    (H5CHECK H5OPEN 0x0010u)    /*create non-existing files  */
+#define H5F_ACC_SWMR_WRITE    (H5CHECK 0x0020u) /*indicate that this file is
                                                  * open for writing in a
                                                  * single-writer/multi-reader (SWMR)
                                                  * scenario.  Note that the
@@ -62,7 +62,7 @@
                                                  * with RDONLY access, and use
                                                  * the special "SWMR_READ" access
                                                  * flag. */
-#define H5F_ACC_SWMR_READ	(H5CHECK 0x0040u) /*indicate that this file is
+#define H5F_ACC_SWMR_READ    (H5CHECK 0x0040u) /*indicate that this file is
                                                  * open for reading in a
                                                  * single-writer/multi-reader (SWMR)
                                                  * scenario.  Note that the
@@ -73,15 +73,15 @@
 
 /* Value passed to H5Pset_elink_acc_flags to cause flags to be taken from the
  * parent file. */
-#define H5F_ACC_DEFAULT (H5CHECK H5OPEN 0xffffu)	/*ignore setting on lapl     */
+#define H5F_ACC_DEFAULT (H5CHECK H5OPEN 0xffffu)    /*ignore setting on lapl     */
 
 /* Flags for H5Fget_obj_count() & H5Fget_obj_ids() calls */
-#define H5F_OBJ_FILE	(0x0001u)       /* File objects */
-#define H5F_OBJ_DATASET	(0x0002u)       /* Dataset objects */
-#define H5F_OBJ_GROUP	(0x0004u)       /* Group objects */
+#define H5F_OBJ_FILE    (0x0001u)       /* File objects */
+#define H5F_OBJ_DATASET    (0x0002u)       /* Dataset objects */
+#define H5F_OBJ_GROUP    (0x0004u)       /* Group objects */
 #define H5F_OBJ_DATATYPE (0x0008u)      /* Named datatype objects */
 #define H5F_OBJ_ATTR    (0x0010u)       /* Attribute objects */
-#define H5F_OBJ_ALL 	(H5F_OBJ_FILE|H5F_OBJ_DATASET|H5F_OBJ_GROUP|H5F_OBJ_DATATYPE|H5F_OBJ_ATTR)
+#define H5F_OBJ_ALL     (H5F_OBJ_FILE|H5F_OBJ_DATASET|H5F_OBJ_GROUP|H5F_OBJ_DATATYPE|H5F_OBJ_ATTR)
 #define H5F_OBJ_LOCAL   (0x0020u)       /* Restrict search to objects opened through current file ID */
                                         /* (as opposed to objects opened through any file ID accessing this file) */
 
@@ -99,20 +99,20 @@
 
 /* The difference between a single file and a set of mounted files */
 typedef enum H5F_scope_t {
-    H5F_SCOPE_LOCAL	= 0,	/*specified file handle only		*/
-    H5F_SCOPE_GLOBAL	= 1 	/*entire virtual file			*/
+    H5F_SCOPE_LOCAL    = 0,    /*specified file handle only        */
+    H5F_SCOPE_GLOBAL    = 1     /*entire virtual file            */
 } H5F_scope_t;
 
 /* Unlimited file size for H5Pset_external() */
-#define H5F_UNLIMITED	((hsize_t)(-1L))
+#define H5F_UNLIMITED    ((hsize_t)(-1L))
 
 /* How does file close behave?
  * H5F_CLOSE_DEFAULT - Use the degree pre-defined by underlining VFL
  * H5F_CLOSE_WEAK    - file closes only after all opened objects are closed
  * H5F_CLOSE_SEMI    - if no opened objects, file is close; otherwise, file
-		       close fails
+            close fails
  * H5F_CLOSE_STRONG  - if there are opened objects, close them first, then
-		       close file
+            close file
  */
 typedef enum H5F_close_degree_t {
     H5F_CLOSE_DEFAULT   = 0,
@@ -124,19 +124,19 @@ typedef enum H5F_close_degree_t {
 /* Current "global" information about file */
 typedef struct H5F_info2_t {
     struct {
-	unsigned	version;	/* Superblock version # */
-	hsize_t		super_size;	/* Superblock size */
-	hsize_t		super_ext_size;	/* Superblock extension size */
+    unsigned    version;    /* Superblock version # */
+    hsize_t        super_size;    /* Superblock size */
+    hsize_t        super_ext_size;    /* Superblock extension size */
     } super;
     struct {
-	unsigned	version;	/* Version # of file free space management */
-	hsize_t		meta_size;	/* Free space manager metadata size */
-	hsize_t		tot_space;	/* Amount of free space in the file */
+    unsigned    version;    /* Version # of file free space management */
+    hsize_t        meta_size;    /* Free space manager metadata size */
+    hsize_t        tot_space;    /* Amount of free space in the file */
     } free;
     struct {
-	unsigned	version;	/* Version # of shared object header info */
-	hsize_t		hdr_size;       /* Shared object header message header size */
-	H5_ih_info_t	msgs_info;      /* Shared object header message index & heap size */
+    unsigned    version;    /* Version # of shared object header info */
+    hsize_t        hdr_size;       /* Shared object header message header size */
+    H5_ih_info_t    msgs_info;      /* Shared object header message index & heap size */
     } sohm;
 } H5F_info2_t;
 
@@ -199,16 +199,16 @@ typedef enum H5F_fspace_strategy_t {
 typedef enum H5F_file_space_type_t {
     H5F_FILE_SPACE_DEFAULT = 0,     /* Default (or current) free space strategy setting */
     H5F_FILE_SPACE_ALL_PERSIST = 1, /* Persistent free space managers, aggregators, virtual file driver */
-    H5F_FILE_SPACE_ALL = 2,	    /* Non-persistent free space managers, aggregators, virtual file driver */
-				    /* This is the library default */
+    H5F_FILE_SPACE_ALL = 2,        /* Non-persistent free space managers, aggregators, virtual file driver */
+                    /* This is the library default */
     H5F_FILE_SPACE_AGGR_VFD = 3,    /* Aggregators, Virtual file driver */
-    H5F_FILE_SPACE_VFD = 4,	    /* Virtual file driver */
-    H5F_FILE_SPACE_NTYPES	    /* must be last */
+    H5F_FILE_SPACE_VFD = 4,        /* Virtual file driver */
+    H5F_FILE_SPACE_NTYPES        /* must be last */
 } H5F_file_space_type_t;
 
 /* Data structure to report the collection of read retries for metadata items with checksum */
 /* Used by public routine H5Fget_metadata_read_retry_info() */
-#define H5F_NUM_METADATA_READ_RETRY_TYPES	21
+#define H5F_NUM_METADATA_READ_RETRY_TYPES    21
 typedef struct H5F_retry_info_t {
     unsigned nbins;
     uint32_t *retries[H5F_NUM_METADATA_READ_RETRY_TYPES];
@@ -217,7 +217,9 @@ typedef struct H5F_retry_info_t {
 /* Callback for H5Pset_object_flush_cb() in a file access property list */
 typedef herr_t (*H5F_flush_cb_t)(hid_t object_id, void *udata);
 
-
+/*********************/
+/* Public Prototypes */
+/*********************/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -225,9 +227,9 @@ extern "C" {
 /* Functions in H5F.c */
 H5_DLL htri_t H5Fis_hdf5(const char *filename);
 H5_DLL hid_t  H5Fcreate(const char *filename, unsigned flags,
-		  	  hid_t create_plist, hid_t access_plist);
+                hid_t create_plist, hid_t access_plist);
 H5_DLL hid_t  H5Fopen(const char *filename, unsigned flags,
-		        hid_t access_plist);
+                hid_t access_plist);
 H5_DLL hid_t  H5Freopen(hid_t file_id);
 H5_DLL herr_t H5Fflush(hid_t object_id, H5F_scope_t scope);
 H5_DLL herr_t H5Fclose(hid_t file_id);
@@ -245,9 +247,9 @@ H5_DLL herr_t H5Fget_eoa(hid_t file_id, haddr_t *eoa);
 H5_DLL herr_t H5Fincrement_filesize(hid_t file_id, hsize_t increment);
 H5_DLL ssize_t H5Fget_file_image(hid_t file_id, void * buf_ptr, size_t buf_len);
 H5_DLL herr_t H5Fget_mdc_config(hid_t file_id,
-				H5AC_cache_config_t * config_ptr);
+                H5AC_cache_config_t * config_ptr);
 H5_DLL herr_t H5Fset_mdc_config(hid_t file_id,
-				H5AC_cache_config_t * config_ptr);
+                H5AC_cache_config_t * config_ptr);
 H5_DLL herr_t H5Fget_mdc_hit_rate(hid_t file_id, double * hit_rate_ptr);
 H5_DLL herr_t H5Fget_mdc_size(hid_t file_id,
                               size_t * max_size_ptr,
@@ -288,16 +290,16 @@ H5_DLL herr_t H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag);
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /* Macros */
-#define H5F_ACC_DEBUG	(H5CHECK H5OPEN 0x0000u)	/*print debug info (deprecated)*/
+#define H5F_ACC_DEBUG    (H5CHECK H5OPEN 0x0000u)    /*print debug info (deprecated)*/
 
 /* Typedefs */
 
 /* Current "global" information about file */
 typedef struct H5F_info1_t {
-    hsize_t		super_ext_size;	/* Superblock extension size */
+    hsize_t        super_ext_size;    /* Superblock extension size */
     struct {
-	hsize_t		hdr_size;       /* Shared object header message header size */
-	H5_ih_info_t	msgs_info;      /* Shared object header message index & heap size */
+    hsize_t        hdr_size;       /* Shared object header message header size */
+    H5_ih_info_t    msgs_info;      /* Shared object header message index & heap size */
     } sohm;
 } H5F_info1_t;
 

@@ -28,7 +28,7 @@ if (APPLE)
   list (LENGTH CMAKE_OSX_ARCHITECTURES ARCH_LENGTH)
   if (ARCH_LENGTH GREATER 1)
     set (CMAKE_OSX_ARCHITECTURES "" CACHE STRING "" FORCE)
-    message(FATAL_ERROR "Building Universal Binaries on OS X is NOT supported by the HDF5 project. This is"
+    message (FATAL_ERROR "Building Universal Binaries on OS X is NOT supported by the HDF5 project. This is"
     "due to technical reasons. The best approach would be build each architecture in separate directories"
     "and use the 'lipo' tool to combine them into a single executable or library. The 'CMAKE_OSX_ARCHITECTURES'"
     "variable has been set to a blank value which will build the default architecture for this system.")
@@ -61,17 +61,17 @@ endmacro ()
 # ----------------------------------------------------------------------
 # WINDOWS Hard code Values
 # ----------------------------------------------------------------------
-
 set (WINDOWS)
-if (WIN32)
-  if (MINGW)
-    set (${HDF_PREFIX}_HAVE_MINGW 1)
-    set (WINDOWS 1) # MinGW tries to imitate Windows
-    set (CMAKE_REQUIRED_FLAGS "-DWIN32_LEAN_AND_MEAN=1 -DNOGDI=1")
-  endif ()
-  set (${HDF_PREFIX}_HAVE_WIN32_API 1)
-  set (HDF5_REQUIRED_LIBRARIES "ws2_32.lib;wsock32.lib")
-  if (NOT UNIX AND NOT MINGW)
+
+if (MINGW)
+  set (${HDF_PREFIX}_HAVE_MINGW 1)
+  set (WINDOWS 1) # MinGW tries to imitate Windows
+  set (CMAKE_REQUIRED_FLAGS "-DWIN32_LEAN_AND_MEAN=1 -DNOGDI=1")
+  set (${HDF_PREFIX}_HAVE_WINSOCK2_H 1)
+endif ()
+
+if (WIN32 AND NOT MINGW)
+  if (NOT UNIX)
     set (WINDOWS 1)
     set (CMAKE_REQUIRED_FLAGS "/DWIN32_LEAN_AND_MEAN=1 /DNOGDI=1")
     if (MSVC)
@@ -81,25 +81,23 @@ if (WIN32)
 endif ()
 
 if (WINDOWS)
-  set (${HDF_PREFIX}_HAVE_STDDEF_H 1)
-  set (${HDF_PREFIX}_HAVE_SYS_STAT_H 1)
-  set (${HDF_PREFIX}_HAVE_SYS_TYPES_H 1)
+  set (HDF5_REQUIRED_LIBRARIES "ws2_32.lib;wsock32.lib")
+  set (${HDF_PREFIX}_HAVE_WIN32_API 1)
   set (${HDF_PREFIX}_HAVE_LIBM 1)
   set (${HDF_PREFIX}_HAVE_STRDUP 1)
   set (${HDF_PREFIX}_HAVE_SYSTEM 1)
   set (${HDF_PREFIX}_HAVE_LONGJMP 1)
   if (NOT MINGW)
     set (${HDF_PREFIX}_HAVE_GETHOSTNAME 1)
+    set (${HDF_PREFIX}_HAVE_FUNCTION 1)
   endif ()
-  if (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+  if (NOT UNIX AND NOT CYGWIN)
     set (${HDF_PREFIX}_HAVE_GETCONSOLESCREENBUFFERINFO 1)
-  endif ()
-  set (${HDF_PREFIX}_HAVE_FUNCTION 1)
-  set (${HDF_PREFIX}_GETTIMEOFDAY_GIVES_TZ 1)
-  set (${HDF_PREFIX}_HAVE_TIMEZONE 1)
-  set (${HDF_PREFIX}_HAVE_GETTIMEOFDAY 1)
-  if (MINGW)
-    set (${HDF_PREFIX}_HAVE_WINSOCK2_H 1)
+    set (${HDF_PREFIX}_GETTIMEOFDAY_GIVES_TZ 1)
+    set (${HDF_PREFIX}_HAVE_TIMEZONE 1)
+    set (${HDF_PREFIX}_HAVE_GETTIMEOFDAY 1)
+    set (${HDF_PREFIX}_HAVE_LIBWS2_32 1)
+    set (${HDF_PREFIX}_HAVE_LIBWSOCK32 1)
   endif ()
 endif ()
 
@@ -195,7 +193,7 @@ macro (HDF_FUNCTION_TEST OTHER_TEST)
     endif ()
 
     #message (STATUS "Performing ${OTHER_TEST}")
-    TRY_COMPILE (${OTHER_TEST}
+    try_compile (${OTHER_TEST}
         ${CMAKE_BINARY_DIR}
         ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
         COMPILE_DEFINITIONS "${MACRO_CHECK_FUNCTION_DEFINITIONS}"
@@ -230,7 +228,7 @@ set (LINUX_LFS 0)
 
 set (HDF_EXTRA_C_FLAGS)
 set (HDF_EXTRA_FLAGS)
-if (NOT WINDOWS)
+if (MINGW OR NOT WINDOWS)
   # Might want to check explicitly for Linux and possibly Cygwin
   # instead of checking for not Solaris or Darwin.
   if (NOT ${HDF_PREFIX}_HAVE_SOLARIS AND NOT ${HDF_PREFIX}_HAVE_DARWIN)
@@ -240,12 +238,10 @@ if (NOT WINDOWS)
   # functionality so clock_gettime and CLOCK_MONOTONIC are defined
   # correctly. This was later updated to 200112L so that
   # posix_memalign() is visible for the direct VFD code on Linux
-  # systems. Even later, this was changed to 200809L to support
-  # pread/pwrite in VFDs.
-  #
+  # systems.
   # POSIX feature information can be found in the gcc manual at:
   # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200809L)
+  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200112L)
 
   # Need to add this so that O_DIRECT is visible for the direct
   # VFD on Linux systems.
@@ -258,7 +254,7 @@ if (NOT WINDOWS)
   endif ()
   if (HDF_ENABLE_LARGE_FILE AND NOT DEFINED TEST_LFS_WORKS_RUN)
     set (msg "Performing TEST_LFS_WORKS")
-    TRY_RUN (TEST_LFS_WORKS_RUN   TEST_LFS_WORKS_COMPILE
+    try_run (TEST_LFS_WORKS_RUN   TEST_LFS_WORKS_COMPILE
         ${CMAKE_BINARY_DIR}
         ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
         COMPILE_DEFINITIONS "-DTEST_LFS_WORKS"
@@ -296,7 +292,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Check for HAVE_OFF64_T functionality
 #-----------------------------------------------------------------------------
-if (NOT WINDOWS OR MINGW)
+if (MINGW OR NOT WINDOWS)
   HDF_FUNCTION_TEST (HAVE_OFF64_T)
   if (${HDF_PREFIX}_HAVE_OFF64_T)
     CHECK_FUNCTION_EXISTS (lseek64            ${HDF_PREFIX}_HAVE_LSEEK64)
@@ -375,7 +371,7 @@ if (NOT APPLE)
   if (NOT ${HDF_PREFIX}_SIZEOF_SSIZE_T)
     set (${HDF_PREFIX}_SIZEOF_SSIZE_T 0)
   endif ()
-  if (NOT WINDOWS)
+  if (MINGW OR NOT WINDOWS)
     HDF_CHECK_TYPE_SIZE (ptrdiff_t    ${HDF_PREFIX}_SIZEOF_PTRDIFF_T)
   endif ()
 endif ()
@@ -399,7 +395,7 @@ else ()
   HDF_CHECK_TYPE_SIZE (_Bool        ${HDF_PREFIX}_SIZEOF_BOOL)
 endif ()
 
-if (NOT WINDOWS)
+if (MINGW OR NOT WINDOWS)
   #-----------------------------------------------------------------------------
   # Check if the dev_t type is a scalar type
   #-----------------------------------------------------------------------------
@@ -409,7 +405,7 @@ if (NOT WINDOWS)
   # Check a bunch of time functions
   #-----------------------------------------------------------------------------
   CHECK_FUNCTION_EXISTS (gettimeofday      ${HDF_PREFIX}_HAVE_GETTIMEOFDAY)
-  foreach (test
+  foreach (time_test
       HAVE_TM_GMTOFF
       HAVE___TM_GMTOFF
 #      HAVE_TIMEZONE
@@ -419,7 +415,7 @@ if (NOT WINDOWS)
       HAVE_TM_ZONE
       HAVE_STRUCT_TM_TM_ZONE
   )
-    HDF_FUNCTION_TEST (${test})
+    HDF_FUNCTION_TEST (${time_test})
   endforeach ()
   if (NOT CYGWIN AND NOT MINGW)
       HDF_FUNCTION_TEST (HAVE_TIMEZONE)
@@ -440,7 +436,7 @@ if (NOT WINDOWS)
   CHECK_FUNCTION_EXISTS (_getvideoconfig   ${HDF_PREFIX}_HAVE__GETVIDEOCONFIG)
   CHECK_FUNCTION_EXISTS (gettextinfo       ${HDF_PREFIX}_HAVE_GETTEXTINFO)
   CHECK_FUNCTION_EXISTS (_scrsize          ${HDF_PREFIX}_HAVE__SCRSIZE)
-  if (NOT CYGWIN AND NOT MINGW)
+  if (NOT CYGWIN)
     CHECK_FUNCTION_EXISTS (GetConsoleScreenBufferInfo    ${HDF_PREFIX}_HAVE_GETCONSOLESCREENBUFFERINFO)
   endif ()
   CHECK_SYMBOL_EXISTS (TIOCGWINSZ "sys/ioctl.h" ${HDF_PREFIX}_HAVE_TIOCGWINSZ)
@@ -506,8 +502,8 @@ endif ()
 #-----------------------------------------------------------------------------
 # Check a bunch of other functions
 #-----------------------------------------------------------------------------
-if (NOT WINDOWS)
-  foreach (test
+if (MINGW OR NOT WINDOWS)
+  foreach (other_test
       HAVE_ATTRIBUTE
       HAVE_C99_FUNC
 #      STDC_HEADERS
@@ -516,7 +512,7 @@ if (NOT WINDOWS)
       SYSTEM_SCOPE_THREADS
       HAVE_SOCKLEN_T
   )
-    HDF_FUNCTION_TEST (${test})
+    HDF_FUNCTION_TEST (${other_test})
   endforeach ()
 endif ()
 
@@ -606,7 +602,7 @@ if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "
       set (${HDF_PREFIX}_PRINTF_LL_WIDTH "\"${${HDF_PREFIX}_PRINTF_LL}\"" CACHE INTERNAL "Width for printf for type `long long' or `__int64', us. `ll")
       set (PRINT_LL_FOUND 1)
     else ()
-      message ("Width test failed with result: ${${HDF_PREFIX}_PRINTF_LL_TEST_RUN}")
+      message (STATUS "Width test failed with result: ${${HDF_PREFIX}_PRINTF_LL_TEST_RUN}")
     endif ()
   else ()
     file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log

@@ -311,6 +311,9 @@ struct H5F_file_t {
     H5F_fspace_strategy_t fs_strategy; /* File space handling strategy	*/
     hsize_t     fs_threshold;	/* Free space section threshold 	*/
     hbool_t     fs_persist;     /* Free-space persist or not */
+    unsigned    fs_version;     /* Free-space version: */
+                                /* It is used to update fsinfo message in the superblock 
+                                   extension when closing down the free-space managers */
     hbool_t     use_tmp_space;  /* Whether temp. file space allocation is allowed */
     haddr_t	tmp_addr;       /* Next address to use for temp. space in the file */
     hbool_t     point_of_no_return; /* Flag to indicate that we can't go back and delete a freespace header when it's used up */

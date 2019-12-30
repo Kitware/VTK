@@ -915,6 +915,7 @@ H5A__dense_rename(H5F_t *f, const H5O_ainfo_t *ainfo, const char *old_name,
     H5HF_t *fheap = NULL;               /* Fractal heap handle */
     H5HF_t *shared_fheap = NULL;        /* Fractal heap handle for shared header messages */
     H5B2_t *bt2_name = NULL;            /* v2 B-tree handle for name index */
+    H5B2_t *bt2_corder = NULL;          /* v2 B-tree handle for creation order ndex */
     H5A_t *attr_copy = NULL;            /* Copy of attribute to rename */
     htri_t attr_sharable;               /* Flag indicating attributes are sharable */
     htri_t shared_mesg;                 /* Should this message be stored in the Shared Message table? */
@@ -994,6 +995,33 @@ H5A__dense_rename(H5F_t *f, const H5O_ainfo_t *ainfo, const char *old_name,
     if(H5A__set_version(f, attr_copy) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, FAIL, "unable to update attribute version")
 
+    /* Need to remove the attribute from the creation order index v2 B-tree */
+    if(ainfo->index_corder) {
+        htri_t corder_attr_exists;  /* Attribute exists in v2 B-tree */
+
+        /* Open the creation order index v2 B-tree */
+        HDassert(H5F_addr_defined(ainfo->corder_bt2_addr));
+        if(NULL == (bt2_corder = H5B2_open(f, ainfo->corder_bt2_addr, NULL)))
+            HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for creation index")
+
+        /* Set up the creation order to search for */
+        udata.corder = attr_copy->shared->crt_idx;
+
+        if((corder_attr_exists = H5B2_find(bt2_corder, &udata, NULL, NULL)) < 0)
+            HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "can't search for attribute in name index")
+
+        if(corder_attr_exists) {
+            H5A_bt2_ud_rm_t rm_udata;
+
+            /* Set up the creation order in user data for the v2 B-tree 'record remove' callback */
+            rm_udata.common.corder = attr_copy->shared->crt_idx;
+
+            /* Remove the record from the creation order index v2 B-tree */
+            if(H5B2_remove(bt2_corder, &rm_udata, NULL, NULL) < 0)
+                HGOTO_ERROR(H5E_ATTR, H5E_CANTREMOVE, FAIL, "unable to remove attribute from creation order index v2 B-tree")
+        }
+    }
+
     /* Insert renamed attribute back into dense storage */
     /* (Possibly making it shared) */
     if(H5A__dense_insert(f, ainfo, attr_copy) < 0)
@@ -1041,6 +1069,8 @@ done:
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close fractal heap")
     if(bt2_name && H5B2_close(bt2_name) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close v2 B-tree for name index")
+    if(bt2_corder && H5B2_close(bt2_corder) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close v2 B-tree for creation order index")
     if(attr_copy)
         H5O_msg_free(H5O_ATTR_ID, attr_copy);
 

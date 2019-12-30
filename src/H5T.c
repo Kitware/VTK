@@ -556,7 +556,7 @@ static const H5I_class_t H5I_DATATYPE_CLS[1] = {{
 static hbool_t H5T_top_package_initialize_s = FALSE;
 
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_init
  *
@@ -582,7 +582,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_init() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__init_inf
  *
@@ -695,7 +695,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__init_inf() */
 
-
+
 /*--------------------------------------------------------------------------
 NAME
    H5T__init_package -- Initialize interface-specific information
@@ -1319,7 +1319,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__init_package() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T__unlock_cb
  *
@@ -1352,7 +1352,7 @@ H5T__unlock_cb(void *_dt, hid_t H5_ATTR_UNUSED id, void *_udata)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5T__unlock_cb() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T_top_term_package
  *
@@ -1391,7 +1391,7 @@ H5T_top_term_package(void)
                         if((path->conv.u.app_func)((hid_t)FAIL, (hid_t)FAIL, &(path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL, H5CX_get_dxpl()) < 0) {
 #ifdef H5T_DEBUG
                             if (H5DEBUG(T)) {
-                                fprintf(H5DEBUG(T), "H5T: conversion function "
+                                HDfprintf(H5DEBUG(T), "H5T: conversion function "
                                         "0x%08lx failed to free private data for "
                                         "%s (ignored)\n",
                                         (unsigned long)(path->conv.u.app_func), path->name);
@@ -1404,7 +1404,7 @@ H5T_top_term_package(void)
                         if((path->conv.u.lib_func)((hid_t)FAIL, (hid_t)FAIL, &(path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL) < 0) {
 #ifdef H5T_DEBUG
                             if (H5DEBUG(T)) {
-                                fprintf(H5DEBUG(T), "H5T: conversion function "
+                                HDfprintf(H5DEBUG(T), "H5T: conversion function "
                                         "0x%08lx failed to free private data for "
                                         "%s (ignored)\n",
                                         (unsigned long)(path->conv.u.lib_func), path->name);
@@ -1553,7 +1553,7 @@ H5T_top_term_package(void)
     FUNC_LEAVE_NOAPI(n)
 } /* end H5T_top_term_package() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T_term_package
  *
@@ -1595,7 +1595,7 @@ H5T_term_package(void)
     FUNC_LEAVE_NOAPI(n)
 } /* end H5T_term_package() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5Tcreate
  *
@@ -1640,7 +1640,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tcreate() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Tcopy
  *
@@ -1728,7 +1728,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tcopy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Tclose
  *
@@ -1763,7 +1763,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tclose() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tequal
  *
@@ -1800,7 +1800,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tequal() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Tlock
  *
@@ -1847,7 +1847,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tlock() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tget_class
  *
@@ -1882,7 +1882,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_class() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_get_class
  *
@@ -1924,7 +1924,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* end H5T_get_class() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5Tdetect_class
  *
@@ -1960,7 +1960,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tdetect_class() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T_detect_class
  *
@@ -2045,7 +2045,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_detect_class() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tis_variable_str
  *
@@ -2079,7 +2079,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tis_variable_str() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_is_variable_str
  *
@@ -2100,7 +2100,7 @@ H5T_is_variable_str(const H5T_t *dt)
     FUNC_LEAVE_NOAPI(H5T_IS_VL_STRING(dt->shared))
 } /* end H5T_is_variable_str() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tget_size
  *
@@ -2137,7 +2137,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Tset_size
  *
@@ -2193,7 +2193,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tset_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tget_super
  *
@@ -2233,7 +2233,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_super() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_get_super
  *
@@ -2267,7 +2267,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__register_int
  *
@@ -2307,7 +2307,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__register_int() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__register
  *
@@ -2445,7 +2445,7 @@ H5T__register(H5T_pers_t pers, const char *name, H5T_t *src, H5T_t *dst,
                 if((old_path->conv.u.app_func)(tmp_sid, tmp_did, &(old_path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL, H5CX_get_dxpl()) < 0) {
 #ifdef H5T_DEBUG
                     if(H5DEBUG(T))
-                        fprintf (H5DEBUG(T), "H5T: conversion function 0x%08lx "
+                        HDfprintf (H5DEBUG(T), "H5T: conversion function 0x%08lx "
                             "failed to free private data for %s (ignored)\n",
                             (unsigned long)(old_path->conv.u.app_func), old_path->name);
 #endif
@@ -2455,7 +2455,7 @@ H5T__register(H5T_pers_t pers, const char *name, H5T_t *src, H5T_t *dst,
                 if((old_path->conv.u.lib_func)(tmp_sid, tmp_did, &(old_path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL) < 0) {
 #ifdef H5T_DEBUG
                     if(H5DEBUG(T))
-                        fprintf (H5DEBUG(T), "H5T: conversion function 0x%08lx "
+                        HDfprintf (H5DEBUG(T), "H5T: conversion function 0x%08lx "
                             "failed to free private data for %s (ignored)\n",
                             (unsigned long)(old_path->conv.u.lib_func), old_path->name);
 #endif
@@ -2492,7 +2492,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__register() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Tregister
  *
@@ -2548,7 +2548,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tregister() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T__unregister
  *
@@ -2627,7 +2627,7 @@ H5T__unregister(H5T_pers_t pers, const char *name, H5T_t *src, H5T_t *dst,
                 if((path->conv.u.app_func)((hid_t)FAIL, (hid_t)FAIL, &(path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL, H5CX_get_dxpl()) < 0) {
 #ifdef H5T_DEBUG
                     if(H5DEBUG(T))
-                        fprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx failed "
+                        HDfprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx failed "
                                 "to free private data for %s (ignored)\n",
                                 (unsigned long)(path->conv.u.app_func), path->name);
 #endif
@@ -2637,7 +2637,7 @@ H5T__unregister(H5T_pers_t pers, const char *name, H5T_t *src, H5T_t *dst,
                 if((path->conv.u.lib_func)((hid_t)FAIL, (hid_t)FAIL, &(path->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL) < 0) {
 #ifdef H5T_DEBUG
                     if(H5DEBUG(T))
-                        fprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx failed "
+                        HDfprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx failed "
                                 "to free private data for %s (ignored)\n",
                                 (unsigned long)(path->conv.u.lib_func), path->name);
 #endif
@@ -2652,7 +2652,7 @@ H5T__unregister(H5T_pers_t pers, const char *name, H5T_t *src, H5T_t *dst,
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5T__unregister() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tunregister
  *
@@ -2692,7 +2692,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tunregister() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tfind
  *
@@ -2742,7 +2742,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tfind() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tcompiler_conv
  *
@@ -2782,7 +2782,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tcompiler_conv() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tconvert
  *
@@ -2841,7 +2841,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tconvert() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tencode
  *
@@ -2880,7 +2880,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tencode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5Tdecode
  *
@@ -2935,7 +2935,7 @@ done:
  *-------------------------------------------------------------------------
  */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_encode
  *
@@ -2961,7 +2961,7 @@ H5T_encode(H5T_t *obj, unsigned char *buf, size_t *nalloc)
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Allocate "fake" file structure */
-    if(NULL == (f = H5F_fake_alloc((uint8_t)0, H5P_FILE_ACCESS_DEFAULT)))
+    if(NULL == (f = H5F_fake_alloc((uint8_t)0)))
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "can't allocate fake file struct")
 
     /* Find out the size of buffer needed */
@@ -2991,7 +2991,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_encode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_decode
  *
@@ -3016,7 +3016,7 @@ H5T_decode(size_t buf_size, const unsigned char *buf)
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Allocate "fake" file structure */
-    if(NULL == (f = H5F_fake_alloc((uint8_t)0, H5P_FILE_ACCESS_DEFAULT)))
+    if(NULL == (f = H5F_fake_alloc((uint8_t)0)))
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, NULL, "can't allocate fake file struct")
 
     /* Decode the type of the information */
@@ -3043,7 +3043,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_decode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T__create
  *
@@ -3172,7 +3172,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__create() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_copy
  *
@@ -3480,7 +3480,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_lock
  *
@@ -3526,7 +3526,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T__alloc
  *
@@ -3573,7 +3573,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__alloc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T__free
  *
@@ -3655,7 +3655,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__free() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_close_real
  *
@@ -3698,7 +3698,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_close_real() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5T__close_cb
  *
@@ -3727,7 +3727,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__close_cb() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_close
  *
@@ -3812,7 +3812,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__set_size
  *
@@ -4012,7 +4012,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__set_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_get_size
  *
@@ -4040,7 +4040,7 @@ H5T_get_size(const H5T_t *dt)
     FUNC_LEAVE_NOAPI(dt->shared->size)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_cmp
  *
@@ -4502,7 +4502,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_path_find
  *
@@ -4549,7 +4549,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_path_find() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__path_find_real
  *
@@ -4615,7 +4615,7 @@ H5T__path_find_real(H5T_t *src, H5T_t *dst, const char *name,
         if(H5T__conv_noop((hid_t)FAIL, (hid_t)FAIL, &(H5T_g.path[0]->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL) < 0) {
 #ifdef H5T_DEBUG
             if(H5DEBUG(T))
-                fprintf(H5DEBUG(T), "H5T: unable to initialize no-op conversion function (ignored)\n");
+                HDfprintf(H5DEBUG(T), "H5T: unable to initialize no-op conversion function (ignored)\n");
 #endif
             H5E_clear_stack(NULL); /*ignore the error*/
         } /* end if */
@@ -4793,7 +4793,7 @@ H5T__path_find_real(H5T_t *src, H5T_t *dst, const char *name,
             if((table->conv.u.app_func)((hid_t)FAIL, (hid_t)FAIL, &(table->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL, H5CX_get_dxpl()) < 0) {
 #ifdef H5T_DEBUG
                 if(H5DEBUG(T))
-                    fprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx free failed for %s (ignored)\n",
+                    HDfprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx free failed for %s (ignored)\n",
                             (unsigned long)(path->conv.u.app_func), path->name);
 #endif
                 H5E_clear_stack(NULL); /*ignore the failure*/
@@ -4803,7 +4803,7 @@ H5T__path_find_real(H5T_t *src, H5T_t *dst, const char *name,
             if((table->conv.u.lib_func)((hid_t)FAIL, (hid_t)FAIL, &(table->cdata), (size_t)0, (size_t)0, (size_t)0, NULL, NULL) < 0) {
 #ifdef H5T_DEBUG
                 if(H5DEBUG(T))
-                    fprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx free failed for %s (ignored)\n",
+                    HDfprintf(H5DEBUG(T), "H5T: conversion function 0x%08lx free failed for %s (ignored)\n",
                             (unsigned long)(path->conv.u.lib_func), path->name);
 #endif
                 H5E_clear_stack(NULL); /*ignore the failure*/
@@ -4859,7 +4859,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__path_find_real() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_path_noop
  *
@@ -4884,7 +4884,7 @@ H5T_path_noop(const H5T_path_t *p)
     FUNC_LEAVE_NOAPI(p->is_noop || (p->is_hard && 0==H5T_cmp(p->src, p->dst, FALSE)))
 } /* end H5T_path_noop() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_path_compound_subset
  *
@@ -4928,7 +4928,7 @@ H5T_path_compound_subset(const H5T_path_t *p)
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_path_compound_subset */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_path_bkg
  *
@@ -4950,7 +4950,7 @@ H5T_path_bkg(const H5T_path_t *p)
     FUNC_LEAVE_NOAPI(p->cdata.need_bkg)
 } /* end H5T_path_bkg() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T__compiler_conv
  *
@@ -4984,7 +4984,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__compiler_conv() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_convert
  *
@@ -5035,7 +5035,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_convert() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_oloc
  *
@@ -5076,7 +5076,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_oloc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_nameof
  *
@@ -5116,7 +5116,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_nameof() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_is_immutable
  *
@@ -5146,7 +5146,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_is_named
  *
@@ -5219,7 +5219,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* end H5T_convert_committed_datatype() */
 
-
+
 /*--------------------------------------------------------------------------
  * Function:    H5T_get_ref_type
  *
@@ -5248,7 +5248,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* end H5T_get_ref_type() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  H5T_is_sensible
  *
@@ -5310,7 +5310,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*--------------------------------------------------------------------------
  NAME
     H5T_set_loc
@@ -5476,7 +5476,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* end H5T_set_loc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_is_relocatable
  *
@@ -5515,7 +5515,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_is_relocatable() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:   H5T_detect_reg_ref
  *
@@ -5523,7 +5523,7 @@ done:
  *             datatype.
  *
  * Return:      TRUE (1) or FALSE (0) on success
- *		(Can't fail)
+ *        (Can't fail)
  *
  * Programmer:  Quincey Koziol
  *              Saturday, January 5, 2019
@@ -5578,7 +5578,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__detect_reg_ref() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_is_vl_storage
  *
@@ -5620,7 +5620,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_is_vl_storage() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_upgrade_version_cb
  *
@@ -5678,7 +5678,7 @@ H5T_upgrade_version_cb(H5T_t *dt, void *op_value)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5T_upgrade_version_cb() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T__upgrade_version
  *
@@ -5711,12 +5711,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__upgrade_version() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_set_version
  *
  * Purpose:     Set the encoding for a datatype to the version indicated by
- *              the file's low bound if that is higher than the datatype's 
+ *              the file's low bound if that is higher than the datatype's
  *              version.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -5743,7 +5743,7 @@ H5T_set_version(H5F_t *f, H5T_t *dt)
         if(H5T__upgrade_version(dt, vers) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't upgrade datatype encoding")
     }
-    
+
     /* Version bounds check */
     if(dt->shared->version > H5O_dtype_ver_bounds[H5F_HIGH_BOUND(f)])
         HGOTO_ERROR(H5E_DATATYPE, H5E_BADRANGE, FAIL, "Datatype version out of bounds")
@@ -5752,7 +5752,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_set_version() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_patch_file
  *
@@ -5788,7 +5788,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_patch_file() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5T_patch_vlen_file
  *

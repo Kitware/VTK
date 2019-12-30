@@ -352,9 +352,16 @@ H5O__create_ohdr(H5F_t *f, hid_t ocpl_id)
     if(NULL == oc_plist)
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, NULL, "not a property list")
 
-    /* Get any object header status flags set by properties */
-    if(H5P_get(oc_plist, H5O_CRT_OHDR_FLAGS_NAME, &oh_flags) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get object header flags")
+    if(H5P_DATASET_CREATE_DEFAULT == ocpl_id) {
+        /* If the OCPL is the default DCPL, we can get the header flags from the
+         * API context. Otherwise we have to call H5P_get */
+        if(H5CX_get_ohdr_flags(&oh_flags) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get object header flags")
+    }
+    else {
+        if(H5P_get(oc_plist, H5O_CRT_OHDR_FLAGS_NAME, &oh_flags) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get object header flags")
+    }
 
     if(H5O_set_version(f, oh, oh_flags, H5F_STORE_MSG_CRT_IDX(f)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, NULL, "can't set version of object header")

@@ -118,6 +118,7 @@ const H5D_layout_ops_t H5D_LOPS_CONTIG[1] = {{
     H5D__contig_construct,
     H5D__contig_init,
     H5D__contig_is_space_alloc,
+    H5D__contig_is_data_cached,
     H5D__contig_io_init,
     H5D__contig_read,
     H5D__contig_write,
@@ -535,6 +536,30 @@ H5D__contig_is_space_alloc(const H5O_storage_t *storage)
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__contig_is_space_alloc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5D__contig_is_data_cached
+ *
+ * Purpose:     Query if raw data is cached for dataset
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Neil Fortner
+ *              Wednessday, March 6, 2016
+ *
+ *-------------------------------------------------------------------------
+ */
+hbool_t
+H5D__contig_is_data_cached(const H5D_shared_t *shared_dset)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Sanity checks */
+    HDassert(shared_dset);
+
+    FUNC_LEAVE_NOAPI(shared_dset->cache.contig.sieve_size > 0)
+} /* end H5D__contig_is_data_cached() */
 
 
 /*-------------------------------------------------------------------------

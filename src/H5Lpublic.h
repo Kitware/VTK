@@ -41,10 +41,10 @@
 #define H5L_SAME_LOC (hid_t)0
 
 /* Current version of the H5L_class_t struct */
-#define H5L_LINK_CLASS_T_VERS 1
+#define H5L_LINK_CLASS_T_VERS       1
 
 /* Previous versions of the H5L_class_t struct */
-#define H5L_LINK_CLASS_T_VERS_0 0
+#define H5L_LINK_CLASS_T_VERS_0     0
 
 #ifdef __cplusplus
 extern "C" {
