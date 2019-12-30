@@ -1,6 +1,6 @@
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkexodusII/COPYRIGHT"
-  VERSION       "7.21f"
+  VERSION       "7.24f"
   STANDARD_INCLUDE_DIRS)
 
 #configure_file(
