@@ -66,9 +66,16 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
 
   EX_FUNC_ENTER();
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
-  sets_to_define = malloc(set_count * sizeof(int));
+  if (!(sets_to_define = malloc(set_count * sizeof(int)))) {
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: failed to allocate memory for internal sets_to_define "
+             "array in file id %d",
+             exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   /* Note that this routine can be called:
      1) just define the sets
@@ -77,7 +84,7 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
   */
   for (i = 0; i < set_count; i++) {
     /* first check if any sets are specified */
-    if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(sets[i].type), &dimid)) != NC_NOERR) {
+    if ((status = nc_inq_dimid(exoid, ex__dim_num_objects(sets[i].type), &dimid)) != NC_NOERR) {
       if (status == NC_EBADDIM) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: no %ss defined for file id %d",
                  ex_name_of_object(sets[i].type), exoid);
@@ -101,7 +108,7 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
       sets_to_define[i] = -1;
     }
     else {
-      status = ex_id_lkup(exoid, sets[i].type, sets[i].id);
+      status = ex__id_lkup(exoid, sets[i].type, sets[i].id);
       if (status != -EX_LOOKUPFAIL) { /* found the side set id, so set is already defined... */
         sets_to_define[i] = 0;
       }
@@ -127,14 +134,14 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
       }
 
       if (sets_to_define[i] > 0) {
-        /*   NOTE: ex_inc_file_item finds the current number of sets defined
+        /*   NOTE: ex__inc_file_item finds the current number of sets defined
              for a specific file and returns that value incremented. */
-        cur_num_sets      = ex_inc_file_item(exoid, ex_get_counter_list(sets[i].type));
+        cur_num_sets      = ex__inc_file_item(exoid, ex__get_counter_list(sets[i].type));
         set_id_ndx        = cur_num_sets + 1;
         sets_to_define[i] = set_id_ndx;
       }
       else {
-        cur_num_sets      = ex_get_file_item(exoid, ex_get_counter_list(sets[i].type));
+        cur_num_sets      = ex__get_file_item(exoid, ex__get_counter_list(sets[i].type));
         set_id_ndx        = cur_num_sets - set_count + i + 1;
         sets_to_define[i] = set_id_ndx;
       }
@@ -220,7 +227,7 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
         }
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, varid, 1);
+      ex__compress_variable(exoid, varid, 1);
 
       if (extraptr) {
         if ((status = nc_def_var(exoid, extraptr, int_type, 1, dims, &varid)) != NC_NOERR) {
@@ -238,7 +245,7 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
           }
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, varid, 1);
+        ex__compress_variable(exoid, varid, 1);
       }
 
       /* Create distribution factors variable if required */
@@ -255,7 +262,7 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
           }
         }
         else {
-          /* resuse dimid from entry lists */
+          /* reuse dimid from entry lists */
           if ((status = nc_def_dim(exoid, numdfptr, sets[i].num_distribution_factor, &dimid)) !=
               NC_NOERR) {
             snprintf(errmsg, MAX_ERR_LENGTH,
@@ -286,12 +293,12 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
           }
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, varid, 2);
+        ex__compress_variable(exoid, varid, 2);
       }
     }
 
     /* leave define mode  */
-    if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+    if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
       free(sets_to_define);
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -397,6 +404,6 @@ int ex_put_sets(int exoid, size_t set_count, const struct ex_set *sets)
 error_ret:
   free(sets_to_define);
 
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

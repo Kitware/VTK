@@ -74,16 +74,16 @@ in the database.
 
 | ex_entity_type|  description              |
 |---------------|---------------------------|
-| EX_GLOBAL     |  Global entity type       |
-| EX_NODAL      |  Nodal entity type        |
-| EX_NODE_SET   |  Node Set entity type     |
-| EX_EDGE_BLOCK |  Edge Block entity type   |
-| EX_EDGE_SET   |  Edge Set entity type     |
-| EX_FACE_BLOCK |  Face Block entity type   |
-| EX_FACE_SET   |  Face Set entity type     |
-| EX_ELEM_BLOCK |  Element Block entity type|
-| EX_ELEM_SET   |  Element Set entity type  |
-| EX_SIDE_SET   |  Side Set entity type     |
+| #EX_GLOBAL     |  Global entity type       |
+| #EX_NODAL      |  Nodal entity type        |
+| #EX_NODE_SET   |  Node Set entity type     |
+| #EX_EDGE_BLOCK |  Edge Block entity type   |
+| #EX_EDGE_SET   |  Edge Set entity type     |
+| #EX_FACE_BLOCK |  Face Block entity type   |
+| #EX_FACE_SET   |  Face Set entity type     |
+| #EX_ELEM_BLOCK |  Element Block entity type|
+| #EX_ELEM_SET   |  Element Set entity type  |
+| #EX_SIDE_SET   |  Side Set entity type     |
 
 As an example, the following coding will determine the number of
 global variables stored in the data file:
@@ -106,7 +106,7 @@ int ex_get_variable_param(int exoid, ex_entity_type obj_type, int *num_vars)
   int         status;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   *num_vars = 0;
 

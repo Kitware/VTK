@@ -63,7 +63,7 @@ int ex_get_map_param(int exoid, int *num_node_maps, int *num_elem_maps)
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* node maps are optional */
   if (nc_inq_dimid(exoid, DIM_NUM_NM, &dimid) != NC_NOERR) {

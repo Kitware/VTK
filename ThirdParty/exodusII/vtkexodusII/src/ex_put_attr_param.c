@@ -78,14 +78,14 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
 #endif
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* Determine index of obj_id in obj_type id array */
   if (obj_type == EX_NODAL) {
     obj_id_ndx = 0;
   }
   else {
-    obj_id_ndx = ex_id_lkup(exoid, obj_type, obj_id);
+    obj_id_ndx = ex__id_lkup(exoid, obj_type, obj_id);
     if (obj_id_ndx <= 0) {
       ex_get_err(NULL, NULL, &status);
 
@@ -201,7 +201,7 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
     ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret; /* exit define mode and return */
   }
-  ex_compress_variable(exoid, varid, 2);
+  ex__compress_variable(exoid, varid, 2);
 
   /* inquire previously defined dimensions  */
   if ((status = nc_inq_dimid(exoid, DIM_STR_NAME, &strdim)) != NC_NOERR) {
@@ -226,7 +226,7 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
 #endif
 
   /* leave define mode  */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -234,6 +234,6 @@ int ex_put_attr_param(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, i
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

@@ -79,7 +79,7 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
   int         status;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (map_type) {
   case EX_NODE_MAP:
@@ -123,7 +123,7 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
   }
 
   /* Check for duplicate map id entry */
-  status = ex_id_lkup(exoid, map_type, map_id);
+  status = ex__id_lkup(exoid, map_type, map_id);
   if (status != -EX_LOOKUPFAIL) { /* found the map id */
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: %s %" PRId64 " already defined in file id %d",
              ex_name_of_object(map_type), map_id, exoid);
@@ -142,10 +142,10 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
 
   /* Keep track of the total number of maps defined using a counter stored
      in a linked list keyed by exoid.
-     NOTE: ex_get_file_item  is used to find the number of maps
+     NOTE: ex__get_file_item  is used to find the number of maps
      for a specific file and returns that value.
   */
-  cur_num_maps = ex_get_file_item(exoid, ex_get_counter_list(map_type));
+  cur_num_maps = ex__get_file_item(exoid, ex__get_counter_list(map_type));
   if (cur_num_maps >= num_maps) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: exceeded number of %ss (%d) specified in file id %d",
              ex_name_of_object(map_type), num_maps, exoid);
@@ -153,9 +153,9 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  /*   NOTE: ex_inc_file_item  is used to find the number of maps
+  /*   NOTE: ex__inc_file_item  is used to find the number of maps
        for a specific file and returns that value incremented. */
-  cur_num_maps = ex_inc_file_item(exoid, ex_get_counter_list(map_type));
+  cur_num_maps = ex__inc_file_item(exoid, ex__get_counter_list(map_type));
 
   /* write out information to previously defined variable */
 
@@ -220,10 +220,10 @@ int ex_put_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, cons
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define map %s in file id %d", vmap, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
-    if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) { /* exit define mode */
-      varid = -1;                                              /* force early exit */
+    if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) { /* exit define mode */
+      varid = -1;                                               /* force early exit */
     }
 
     if (varid == -1) { /* we couldn't define variable and have prepared error message. */

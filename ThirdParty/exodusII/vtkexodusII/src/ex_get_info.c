@@ -34,12 +34,13 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_trim_internal, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__trim, etc
 
 /*!
+  \ingroup Utilities
 
 The function ex_get_info() reads information records from the
-database. The records are MAX_LINE_LENGTH-character
+database. The records are #MAX_LINE_LENGTH character
 strings. Memory must be allocated for the information records before
 this call is made. The number of records can be determined by invoking
 ex_inquire() or ex_inquire_int().
@@ -64,7 +65,7 @@ char *info[MAXINFO];
 \comment{read information records}
 num_info = ex_inquire_int (exoid,EX_INQ_INFO);
 for (i=0; i < num_info; i++) {
-   info[i] = (char *) calloc ((MAX_LINE_LENGTH+1), sizeof(char));
+   info[i] = (char *) calloc ((EX_MAX_LINE_LENGTH+1), sizeof(char));
 }
 error = ex_get_info (exoid, info);
 ~~~
@@ -82,7 +83,7 @@ int ex_get_info(int exoid, char **info)
   int rootid = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire previously defined dimensions and variables  */
   if ((status = nc_inq_dimid(rootid, DIM_NUM_INFO, &dimid)) != NC_NOERR) {
@@ -122,7 +123,7 @@ int ex_get_info(int exoid, char **info)
         EX_FUNC_LEAVE(EX_FATAL);
       }
       info[i][MAX_LINE_LENGTH] = '\0';
-      ex_trim_internal(info[i]);
+      ex__trim(info[i]);
     }
   }
   EX_FUNC_LEAVE(EX_NOERR);

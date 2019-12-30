@@ -93,9 +93,10 @@ static int ex_put_var_names_int(int exoid, char *tname, char *dnumvar, char *vna
 \ingroup ResultsData
 
 The function ex_put_variable_names() writes the names of the results
-variables to the database. The names are \p MAX_STR_LENGTH -characters
-in length. The function ex_put_variable_param() must be called before
-this function is invoked.
+variables to the database. The maximum length of the names returned is
+specified by the return value from ex_inquire_int()(exoid,
+EX_INQ_MAX_READ_NAME_LENGTH). The function ex_put_variable_param()
+must be called before this function is invoked.
 
 \return In case of an error, ex_put_variable_names() returns a negative
 number; a warning will return a positive number.  Possible causes of
@@ -119,16 +120,16 @@ described.
 
 | ex_entity_type|  description              |
 |---------------|---------------------------|
-| EX_GLOBAL     |  Global entity type       |
-| EX_NODAL      |  Nodal entity type        |
-| EX_NODE_SET   |  Node Set entity type     |
-| EX_EDGE_BLOCK |  Edge Block entity type   |
-| EX_EDGE_SET   |  Edge Set entity type     |
-| EX_FACE_BLOCK |  Face Block entity type   |
-| EX_FACE_SET   |  Face Set entity type     |
-| EX_ELEM_BLOCK |  Element Block entity type|
-| EX_ELEM_SET   |  Element Set entity type  |
-| EX_SIDE_SET   |  Side Set entity type     |
+| #EX_GLOBAL     |  Global entity type       |
+| #EX_NODAL      |  Nodal entity type        |
+| #EX_NODE_SET   |  Node Set entity type     |
+| #EX_EDGE_BLOCK |  Edge Block entity type   |
+| #EX_EDGE_SET   |  Edge Set entity type     |
+| #EX_FACE_BLOCK |  Face Block entity type   |
+| #EX_FACE_SET   |  Face Set entity type     |
+| #EX_ELEM_BLOCK |  Element Block entity type|
+| #EX_ELEM_SET   |  Element Set entity type  |
+| #EX_SIDE_SET   |  Side Set entity type     |
 
 The following coding will write out the names associated with the
 nodal variables:
@@ -154,7 +155,7 @@ int ex_put_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   switch (obj_type) {
   case EX_GLOBAL:
@@ -195,7 +196,7 @@ int ex_put_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
   }
 
   /* write EXODUS variable names */
-  status = ex_put_names_internal(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
+  status = ex__put_names(exoid, varid, num_vars, var_names, obj_type, "variable", __func__);
 
   EX_FUNC_LEAVE(status);
 }

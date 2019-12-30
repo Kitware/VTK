@@ -34,7 +34,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
 
 /*!
 The function ex_get_coord() reads the nodal coordinates of the
@@ -98,7 +98,7 @@ if (num_dim >= 3)
 int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
 {
   int status;
-  int coordid;
+  int coordid = -1;
   int coordidx, coordidy, coordidz;
 
   int    numnoddim, ndimdim;
@@ -106,11 +106,11 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire id's of previously defined dimensions  */
 
-  if (ex_get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
+  if (ex__get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -146,7 +146,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
 
       if (i == 0 && x_coor != NULL) {
         which = "X";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, x_coor);
         }
         else {
@@ -155,7 +155,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
       else if (i == 1 && y_coor != NULL) {
         which = "Y";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, y_coor);
         }
         else {
@@ -164,7 +164,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
       else if (i == 2 && z_coor != NULL) {
         which = "Z";
-        if (ex_comp_ws(exoid) == 4) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_vara_float(exoid, coordid, start, count, z_coor);
         }
         else {
@@ -197,7 +197,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
     }
     else {
-      coordidy = 0;
+      coordidy = -1;
     }
 
     if (num_dim > 2) {
@@ -209,7 +209,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
       }
     }
     else {
-      coordidz = 0;
+      coordidz = -1;
     }
 
     /* write out the coordinates  */
@@ -233,8 +233,8 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
         coordid = coordidz;
       }
 
-      if (coor != NULL && coordid != 0) {
-        if (ex_comp_ws(exoid) == 4) {
+      if (coor != NULL && coordid != -1) {
+        if (ex__comp_ws(exoid) == 4) {
           status = nc_get_var_float(exoid, coordid, coor);
         }
         else {

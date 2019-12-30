@@ -55,21 +55,24 @@
 static void write_dummy_names(int exoid, ex_entity_type obj_type, int num)
 {
   if (num > 0) {
-    size_t start[2], count[2];
+    size_t start[3], count[3];
     char * text = "";
     int    varid;
     size_t num_entity;
     size_t i;
 
-    ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type), &num_entity,
-                     &varid, __func__);
+    ex__get_dimension(exoid, ex__dim_num_objects(obj_type), ex_name_of_object(obj_type),
+                      &num_entity, &varid, __func__);
 
     for (i = 0; i < num_entity; i++) {
       start[0] = i;
       count[0] = 1;
 
       start[1] = 0;
-      count[1] = strlen(text) + 1;
+      count[1] = 1;
+
+      start[2] = 0;
+      count[2] = 1;
 
       nc_put_vara_text(exoid, varid, start, count, text);
     }
@@ -225,6 +228,8 @@ static void invalidate_id_status(int exoid, const char *var_stat, const char *va
 }
 
 /*!
+\ingroup ModelDescription
+
  * writes the initialization parameters to the EXODUS file
  * \param     exoid     exodus file id
  * \param     model     finite element model parameters
@@ -246,7 +251,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   EX_FUNC_ENTER();
   int rootid = exoid & EX_FILE_ID_MASK;
 
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if (rootid == exoid && nc_inq_dimid(exoid, DIM_NUM_DIM, &temp) == NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: initialization already done for file id %d", exoid);
@@ -297,10 +302,10 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
     goto error_ret;
   }
   {
-    struct ex_file_item *file = ex_find_file_item(exoid);
-    file->time_varid          = temp;
+    struct ex__file_item *file = ex__find_file_item(exoid);
+    file->time_varid           = temp;
   }
-  ex_compress_variable(exoid, temp, 2);
+  ex__compress_variable(exoid, temp, 2);
 
   if (model->num_dim > 0) {
     if ((status = nc_def_dim(exoid, DIM_NUM_DIM, model->num_dim, &numdimdim)) != NC_NOERR) {
@@ -443,7 +448,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
 
     if (model->num_dim > 1) {
@@ -454,7 +459,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
 
     if (model->num_dim > 2) {
@@ -465,7 +470,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, temp, 2);
+      ex__compress_variable(exoid, temp, 2);
     }
   }
 
@@ -525,14 +530,14 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   }
 
   /* leave define mode */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   /* Fill the id and status arrays with EX_INVALID_ID */
   {
-    int *invalid_ids = NULL;
-    int  maxset      = model->num_elem_blk;
+    int *  invalid_ids = NULL;
+    size_t maxset      = model->num_elem_blk;
     if (maxset < model->num_edge_blk) {
       maxset = model->num_edge_blk;
     }
@@ -612,6 +617,6 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

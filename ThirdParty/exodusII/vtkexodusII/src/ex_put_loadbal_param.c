@@ -56,8 +56,12 @@
 /*****************************************************************************/
 
 #include <exodusII.h>     // for ex_err, etc
-#include <exodusII_int.h> // for ex_leavedef, EX_FATAL, etc
+#include <exodusII_int.h> // for ex__leavedef, EX_FATAL, etc
 
+/*!
+ * \ingroup ModelDescription
+ * \undoc
+ */
 int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes,
                          int64_t num_ext_nodes, int64_t num_int_elems, int64_t num_bor_elems,
                          int64_t num_node_cmaps, int64_t num_elem_cmaps, int processor)
@@ -83,10 +87,10 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* Get the file type */
-  if (ex_get_file_type(exoid, ftype) != EX_NOERR) {
+  if (ex__get_file_type(exoid, ftype) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get file type from file ID %d\n", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
@@ -110,7 +114,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
     ex_err_fn(exoid, __func__, errmsg, status);
 
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -123,7 +127,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
   }
 
   /* Output the file version */
-  if ((status = ex_put_nemesis_version(exoid)) < 0) {
+  if ((status = ex__put_nemesis_version(exoid)) < 0) {
     EX_FUNC_LEAVE(status);
   }
 
@@ -134,7 +138,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_INT_N_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -147,7 +151,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_BOR_N_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -159,7 +163,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_EXT_N_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -172,7 +176,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_INT_E_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -184,7 +188,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_BOR_E_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -196,7 +200,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
              VAR_INT_N_STAT, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -206,7 +210,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
              VAR_BOR_N_STAT, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -216,7 +220,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
              VAR_EXT_N_STAT, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -229,7 +233,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_INT_ELEMS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -239,11 +243,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_ELEM_MAP_INT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
   } /* End "if (num_int_elems > 0)" */
 
@@ -253,7 +257,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
              VAR_INT_E_STAT, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -263,7 +267,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
              VAR_BOR_E_STAT, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
-    ex_leavedef(exoid, __func__);
+    ex__leavedef(exoid, __func__);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -276,7 +280,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_BOR_ELEMS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -286,11 +290,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_ELEM_MAP_BOR, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
   } /* End "if (num_bor_elems > 0)" */
 
@@ -302,7 +306,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_INT_NODES, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -313,11 +317,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_NODE_MAP_INT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
   } /* End "if (num_int_nodes > 0)" */
 
@@ -329,7 +333,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_BOR_NODES, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -340,11 +344,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_NODE_MAP_BOR, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
   } /* End "if (num_bor_nodes > 0)" */
 
@@ -356,7 +360,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_EXT_NODES, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -367,11 +371,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_NODE_MAP_EXT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
   } /* End "if (num_ext_nodes > 0)" */
 
@@ -383,7 +387,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_N_CMAPS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -394,11 +398,11 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_N_COMM_IDS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
     /* Add the status vector */
     if ((status = nc_def_var(exoid, VAR_N_COMM_STAT, NC_INT, 1, dimid, &varid)) != NC_NOERR) {
@@ -406,7 +410,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_N_COMM_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -421,7 +425,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                DIM_NUM_E_CMAPS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -432,18 +436,18 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
                VAR_E_COMM_IDS, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
-    ex_compress_variable(exoid, varid, 1);
+    ex__compress_variable(exoid, varid, 1);
 
     if ((status = nc_def_var(exoid, VAR_E_COMM_STAT, NC_INT, 1, dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define variable \"%s\" in file ID %d",
                VAR_E_COMM_STAT, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
-      ex_leavedef(exoid, __func__);
+      ex__leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -451,7 +455,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
   } /* End "if (num_elem_cmaps > 0)" */
 
   /* Leave define mode */
-  if (ex_leavedef(exoid, __func__) != EX_NOERR) {
+  if (ex__leavedef(exoid, __func__) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

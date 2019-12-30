@@ -50,7 +50,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_get_dimension, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__get_dimension, etc
 
 /*!
  * writes the specified attribute for a block
@@ -75,11 +75,11 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
   const char *vattrbname;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* Determine index of obj_id in id array */
   if (obj_type != EX_NODAL) {
-    obj_id_ndx = ex_id_lkup(exoid, obj_type, obj_id);
+    obj_id_ndx = ex__id_lkup(exoid, obj_type, obj_id);
     if (obj_id_ndx <= 0) {
       ex_get_err(NULL, NULL, &status);
       if (status != 0) {
@@ -153,12 +153,12 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
   }
 
   /* inquire id's of previously defined dimensions  */
-  if (ex_get_dimension(exoid, dnumobjent, "entries", &num_entries_this_obj, &temp, __func__) !=
+  if (ex__get_dimension(exoid, dnumobjent, "entries", &num_entries_this_obj, &temp, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (ex_get_dimension(exoid, dnumobjatt, "attributes", &num_attr, &temp, __func__) != NC_NOERR) {
+  if (ex__get_dimension(exoid, dnumobjatt, "attributes", &num_attr, &temp, __func__) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -190,7 +190,7 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
   stride[0] = 1;
   stride[1] = num_attr;
 
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_put_vars_float(exoid, attrid, start, count, stride, attrib);
   }
   else {

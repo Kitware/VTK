@@ -84,9 +84,16 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
 #endif
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
-  blocks_to_define = malloc(block_count * sizeof(int));
+  if (!(blocks_to_define = malloc(block_count * sizeof(int)))) {
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: failed to allocate memory for internal blocks_to_define "
+             "array in file id %d",
+             exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   for (i = 0; i < block_count; i++) {
     switch (blocks[i].type) {
@@ -115,8 +122,8 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
     }
 
     /* first check if any blocks of that type are specified */
-    if ((status = ex_get_dimension(exoid, dnumblk, ex_name_of_object(blocks[i].type), &num_blk,
-                                   &dimid, __func__)) != NC_NOERR) {
+    if ((status = ex__get_dimension(exoid, dnumblk, ex_name_of_object(blocks[i].type), &num_blk,
+                                    &dimid, __func__)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: No %ss defined in file id %d",
                ex_name_of_object(blocks[i].type), exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
@@ -139,7 +146,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    status = ex_id_lkup(exoid, blocks[i].type, blocks[i].id);
+    status = ex__id_lkup(exoid, blocks[i].type, blocks[i].id);
     if (-status != EX_LOOKUPFAIL) { /* found the element block id */
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: %s id %" PRId64 " already exists in file id %d",
                ex_name_of_object(blocks[i].type), blocks[i].id, exoid);
@@ -150,10 +157,10 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
 
     /* Keep track of the total number of element blocks defined using a counter
        stored in a linked list keyed by exoid.
-       NOTE: ex_get_file_item  is a function that finds the number of element
+       NOTE: ex__get_file_item  is a function that finds the number of element
        blocks for a specific file and returns that value.
     */
-    cur_num_blk = ex_get_file_item(exoid, ex_get_counter_list(blocks[i].type));
+    cur_num_blk = ex__get_file_item(exoid, ex__get_counter_list(blocks[i].type));
     if (cur_num_blk >= (int)num_blk) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: exceeded number of %ss (%d) defined in file id %d",
                ex_name_of_object(blocks[i].type), (int)num_blk, exoid);
@@ -162,9 +169,9 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    /*   NOTE: ex_inc_file_item  is a function that finds the number of element
+    /*   NOTE: ex__inc_file_item  is a function that finds the number of element
          blocks for a specific file and returns that value incremented. */
-    cur_num_blk = ex_inc_file_item(exoid, ex_get_counter_list(blocks[i].type));
+    cur_num_blk = ex__inc_file_item(exoid, ex__get_counter_list(blocks[i].type));
     start[0]    = cur_num_blk;
 
     /* write out block id to previously defined id array variable*/
@@ -333,17 +340,17 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, varid, 2);
+      ex__compress_variable(exoid, varid, 2);
 
 #if defined(PARALLEL_AWARE_EXODUS)
       /*
        * There is currently a bug in netcdf-4.5.1-devel and earlier
        * for partial parallel output of strided arrays in collective
-       * mode for netcdf-4-based output.  If the number of attribues >
+       * mode for netcdf-4-based output.  If the number of attributes >
        * 1 and in parallel mode, set the mode to independent.
        */
       if (blocks[i].num_attribute > 1) {
-        struct ex_file_item *file = ex_find_file_item(exoid);
+        struct ex__file_item *file = ex__find_file_item(exoid);
         if (file->is_parallel && file->is_hdf5) {
           nc_var_par_access(exoid, varid, NC_INDEPENDENT);
         }
@@ -481,7 +488,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
           ex_err_fn(exoid, __func__, errmsg, status);
           goto error_ret; /* exit define mode and return */
         }
-        ex_compress_variable(exoid, connid, 1);
+        ex__compress_variable(exoid, connid, 1);
       }
     }
     /* store element type as attribute of connectivity variable */
@@ -529,7 +536,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
   free(blocks_to_define);
 
   /* leave define mode  */
-  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
+  if ((status = ex__leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -568,6 +575,6 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
 error_ret:
   free(blocks_to_define);
 
-  ex_leavedef(exoid, __func__);
+  ex__leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

@@ -37,7 +37,7 @@
 #include "exodusII_int.h"
 
 /*! \cond INTERNAL */
-int ex_default_max_name_length = 32; /* For default compatibility with older clients */
+int ex__default_max_name_length = 32; /* For default compatibility with older clients */
 
 #if defined(VERBOSE)
 int exoptval = EX_VERBOSE; /* loud mode: set EX_VERBOSE */
@@ -59,11 +59,11 @@ The function ex_opts() is used to set message reporting options.
 table below.
 
 <table>
-<tr><td> EX_ABORT  </td><td> Causes fatal errors to force program
+<tr><td> #EX_ABORT  </td><td> Causes fatal errors to force program
                                 exit. (Default is false.) </td></tr>
-<tr><td> EX_DEBUG  </td><td> Causes certain messages to print
+<tr><td> #EX_DEBUG  </td><td> Causes certain messages to print
                                 for debug use. (Default is false.)</td></tr>
-<tr><td> EX_VERBOSE</td><td> Causes all error messages to print when true,
+<tr><td> #EX_VERBOSE</td><td> Causes all error messages to print when true,
                                 otherwise no error messages will print. (Default
 is false.)</td></tr>
 </table>

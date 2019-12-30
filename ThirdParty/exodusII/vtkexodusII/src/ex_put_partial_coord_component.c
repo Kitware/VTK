@@ -34,7 +34,7 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_comp_ws, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__comp_ws, etc
 
 /*!
  * writes the coordinates of some of the nodes in the model for the specified component
@@ -58,7 +58,7 @@ int ex_put_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
   char    errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire id's of previously defined dimensions  */
 
@@ -105,7 +105,7 @@ int ex_put_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
 
   if (component > num_dim) {
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: Component (%d) is larger than number of dimensions (%" ST_ZU ") in file id %d",
+             "ERROR: Component (%d) is larger than number of dimensions (%zu) in file id %d",
              component, num_dim, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
@@ -143,7 +143,7 @@ int ex_put_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
-    if (ex_comp_ws(exoid) == 4) {
+    if (ex__comp_ws(exoid) == 4) {
       status = nc_put_vara_float(exoid, coordid, start, count, coor);
     }
     else {

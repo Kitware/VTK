@@ -34,11 +34,13 @@
  */
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for EX_FATAL, ex_trim_internal, etc
+#include "exodusII_int.h" // for EX_FATAL, ex__trim, etc
 
 /*!
+\ingroup Utilities
+
 The function ex_get_qa() reads the QA records from the database. Each
-QA record contains four MAX_STR_LENGTH-byte character
+QA record contains four #MAX_STR_LENGTH byte character
 strings. The character strings are:
  -  the analysis code name
  -  the analysis code QA descriptor
@@ -90,7 +92,7 @@ int ex_get_qa(int exoid, char *qa_record[][4])
   int rootid = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire previously defined dimensions and variables  */
   if ((status = nc_inq_dimid(rootid, DIM_NUM_QA, &dimid)) != NC_NOERR) {
@@ -131,7 +133,7 @@ int ex_get_qa(int exoid, char *qa_record[][4])
           EX_FUNC_LEAVE(EX_FATAL);
         }
         qa_record[i][j][MAX_STR_LENGTH] = '\0';
-        ex_trim_internal(qa_record[i][j]);
+        ex__trim(qa_record[i][j]);
       }
     }
   }

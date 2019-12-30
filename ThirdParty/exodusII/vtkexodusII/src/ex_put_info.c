@@ -37,8 +37,10 @@
 #include "exodusII_int.h" // for EX_FATAL, DIM_NUM_INFO, etc
 
 /*!
+\ingroup Utilities
+
 The function ex_put_info() writes information records to the
-database. The records are MAX_LINE_LENGTH-character strings.
+database. The records are #MAX_LINE_LENGTH character strings.
 
 In case of an error, ex_put_info() returns a negative number;
 a warning will return a positive number. Possible causes of errors
@@ -107,7 +109,7 @@ int ex_put_info(int exoid, int num_info, char *info[])
   int rootid = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* only do this if there are records */
   if (num_info > 0) {
@@ -160,10 +162,10 @@ int ex_put_info(int exoid, int num_info, char *info[])
         ex_err_fn(exoid, __func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(rootid, varid, 3);
+      ex__compress_variable(rootid, varid, 3);
 
       /*   leave define mode  */
-      if ((status = ex_leavedef(rootid, __func__)) != NC_NOERR) {
+      if ((status = ex__leavedef(rootid, __func__)) != NC_NOERR) {
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -194,7 +196,7 @@ int ex_put_info(int exoid, int num_info, char *info[])
         }
       }
     }
-    else if (ex_is_parallel(rootid)) {
+    else if (ex__is_parallel(rootid)) {
       /* All processors need to call nc_put_vara_text in case in a global
        * collective mode */
       char dummy[] = " ";
@@ -209,6 +211,6 @@ int ex_put_info(int exoid, int num_info, char *info[])
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  ex_leavedef(rootid, __func__);
+  ex__leavedef(rootid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

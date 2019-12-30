@@ -62,7 +62,7 @@ static void ex_key_destructor(void *key_val)
     abort();                                                                                       \
   } while (0)
 
-void ex_pthread_first_thread_init(void)
+void ex__pthread_first_thread_init(void)
 {
   int err = pthread_mutexattr_init(&EX_g.attribute);
   if (err != 0) {
@@ -86,7 +86,7 @@ void ex_pthread_first_thread_init(void)
   }
 }
 
-int ex_mutex_lock(EX_mutex_t *mutex)
+int ex__mutex_lock(EX_mutex_t *mutex)
 {
   int ret_value = pthread_mutex_lock(&mutex->atomic_lock);
   if (ret_value != 0) {
@@ -95,7 +95,7 @@ int ex_mutex_lock(EX_mutex_t *mutex)
   return ret_value;
 }
 
-int ex_mutex_unlock(EX_mutex_t *mutex)
+int ex__mutex_unlock(EX_mutex_t *mutex)
 {
   int ret_value = pthread_mutex_unlock(&mutex->atomic_lock);
   if (ret_value != 0) {

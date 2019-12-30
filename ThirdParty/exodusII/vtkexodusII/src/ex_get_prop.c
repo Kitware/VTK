@@ -58,20 +58,20 @@ MAX_STR_LENGTH ) for
                       which the value is desired.
 \param[out]  value    Returned value of the property.
 
-| ex_entity_type | description               |
+| #ex_entity_type | description               |
 | -------------- | ------------------------- |
-|  EX_NODE_SET   |  Node Set entity type     |
-|  EX_EDGE_BLOCK |  Edge Block entity type   |
-|  EX_EDGE_SET   |  Edge Set entity type     |
-|  EX_FACE_BLOCK |  Face Block entity type   |
-|  EX_FACE_SET   |  Face Set entity type     |
-|  EX_ELEM_BLOCK |  Element Block entity type|
-|  EX_ELEM_SET   |  Element Set entity type  |
-|  EX_SIDE_SET   |  Side Set entity type     |
-|  EX_ELEM_MAP   |  Element Map entity type  |
-|  EX_NODE_MAP   |  Node Map entity type     |
-|  EX_EDGE_MAP   |  Edge Map entity type     |
-|  EX_FACE_MAP   |  Face Map entity type     |
+|  #EX_NODE_SET   |  Node Set entity type     |
+|  #EX_EDGE_BLOCK |  Edge Block entity type   |
+|  #EX_EDGE_SET   |  Edge Set entity type     |
+|  #EX_FACE_BLOCK |  Face Block entity type   |
+|  #EX_FACE_SET   |  Face Set entity type     |
+|  #EX_ELEM_BLOCK |  Element Block entity type|
+|  #EX_ELEM_SET   |  Element Set entity type  |
+|  #EX_SIDE_SET   |  Side Set entity type     |
+|  #EX_ELEM_MAP   |  Element Map entity type  |
+|  #EX_NODE_MAP   |  Node Map entity type     |
+|  #EX_EDGE_MAP   |  Edge Map entity type     |
+|  #EX_FACE_MAP   |  Face Map entity type     |
 
 
 For an example of code to read an object property, refer to the
@@ -92,7 +92,7 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* open appropriate variable, depending on obj_type and prop_name */
   num_props = ex_get_num_props(exoid, obj_type);
@@ -148,9 +148,9 @@ int ex_get_prop(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, const c
   }
 
   /* find index into property array using obj_id; read value from property */
-  /* array at proper index; ex_id_lkup returns an index that is 1-based,   */
+  /* array at proper index; ex__id_lkup returns an index that is 1-based,   */
   /* but netcdf expects 0-based arrays so subtract 1                       */
-  status = ex_id_lkup(exoid, obj_type, obj_id);
+  status = ex__id_lkup(exoid, obj_type, obj_id);
   if (status > 0) {
     start[0] = status - 1;
   }

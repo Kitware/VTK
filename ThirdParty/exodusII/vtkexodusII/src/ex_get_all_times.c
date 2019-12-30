@@ -37,6 +37,7 @@
 #include "exodusII_int.h" // for EX_FATAL, VAR_WHOLE_TIME, etc
 
 /*!
+\ingroup ResultsData
 
 The function ex_get_all_times() reads the time values for all time
 steps. Memory must be allocated for the time values array before this
@@ -85,7 +86,7 @@ int ex_get_all_times(int exoid, void *time_values)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   if ((status = nc_inq_varid(exoid, VAR_WHOLE_TIME, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate time variable %s in file id %d",
@@ -95,7 +96,7 @@ int ex_get_all_times(int exoid, void *time_values)
   }
 
   /*read time values */
-  if (ex_comp_ws(exoid) == 4) {
+  if (ex__comp_ws(exoid) == 4) {
     status = nc_get_var_float(exoid, varid, time_values);
   }
   else {

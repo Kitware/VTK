@@ -50,7 +50,7 @@
  *****************************************************************************/
 
 #include "exodusII.h"     // for ex_err, etc
-#include "exodusII_int.h" // for ex_get_dimension, EX_NOERR, etc
+#include "exodusII_int.h" // for ex__get_dimension, EX_NOERR, etc
 
 /*
  * reads the entity names from the database
@@ -64,62 +64,62 @@ int ex_get_names(int exoid, ex_entity_type obj_type, char **names)
   char   errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex_check_valid_file_id(exoid, __func__);
+  ex__check_valid_file_id(exoid, __func__);
 
   /* inquire previously defined dimensions and variables  */
 
   switch (obj_type) {
   /*  ======== BLOCKS ========= */
   case EX_EDGE_BLOCK:
-    ex_get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_ED_BLK, "edge block", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_ED_BLK, &varid);
     break;
   case EX_FACE_BLOCK:
-    ex_get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_FA_BLK, "face block", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_FA_BLK, &varid);
     break;
   case EX_ELEM_BLOCK:
-    ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_EL_BLK, "element block", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_EL_BLK, &varid);
     break;
 
   /*  ======== SETS ========= */
   case EX_NODE_SET:
-    ex_get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_NS, "nodeset", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_NS, &varid);
     break;
   case EX_EDGE_SET:
-    ex_get_dimension(exoid, DIM_NUM_ES, "edgeset", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_ES, "edgeset", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_ES, &varid);
     break;
   case EX_FACE_SET:
-    ex_get_dimension(exoid, DIM_NUM_FS, "faceset", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_FS, "faceset", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_FS, &varid);
     break;
   case EX_SIDE_SET:
-    ex_get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_SS, "sideset", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_SS, &varid);
     break;
   case EX_ELEM_SET:
-    ex_get_dimension(exoid, DIM_NUM_ELS, "elemset", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_ELS, "elemset", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_ELS, &varid);
     break;
 
   /*  ======== MAPS ========= */
   case EX_NODE_MAP:
-    ex_get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_NM, "node map", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_NM, &varid);
     break;
   case EX_EDGE_MAP:
-    ex_get_dimension(exoid, DIM_NUM_EDM, "edge map", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_EDM, "edge map", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_EDM, &varid);
     break;
   case EX_FACE_MAP:
-    ex_get_dimension(exoid, DIM_NUM_FAM, "face map", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_FAM, "face map", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_FAM, &varid);
     break;
   case EX_ELEM_MAP:
-    ex_get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, &temp, __func__);
+    ex__get_dimension(exoid, DIM_NUM_EM, "element map", &num_entity, &temp, __func__);
     status = nc_inq_varid(exoid, VAR_NAME_EM, &varid);
     break;
 
@@ -131,8 +131,8 @@ int ex_get_names(int exoid, ex_entity_type obj_type, char **names)
   }
 
   if (status == NC_NOERR) {
-    if ((status = ex_get_names_internal(exoid, varid, num_entity, names, obj_type,
-                                        "ex_get_names")) != EX_NOERR) {
+    if ((status = ex__get_names(exoid, varid, num_entity, names, obj_type, "ex_get_names")) !=
+        EX_NOERR) {
       EX_FUNC_LEAVE(status);
     }
   }
