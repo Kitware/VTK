@@ -27,8 +27,8 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
     return ()
   endif ()
 
-  set(_vtk_java_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}-java.$<CONFIGURATION>.args")
-  set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}-java-init.data")
+  set(_vtk_java_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java.$<CONFIGURATION>.args")
+  set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java-init.data")
 
   set(_vtk_java_genex_compile_definitions
     "$<TARGET_PROPERTY:${_vtk_java_target_name},COMPILE_DEFINITIONS>")
@@ -80,7 +80,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
     endif ()
 
     set(_vtk_java_source_output
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_basename}Java.${_vtk_java_ext}")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}Java.${_vtk_java_ext}")
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
@@ -276,9 +276,10 @@ vtk_module_wrap_java(
   * `MODULES`: (Required) The list of modules to wrap.
   * `WRAPPED_MODULES`: (Recommended) Not all modules are wrappable. This
     variable will be set to contain the list of modules which were wrapped.
-  * `JAVA_OUTPUT`: Defaults to `${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles`. Java
-    source files are written to this directory. After generation, the files may
-    be compiled as needed.
+  * `JAVA_OUTPUT`: Defaults to
+    `${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava`. Java source files are
+    written to this directory. After generation, the files may be compiled as
+    needed.
 
 For each wrapped module, a `<module>Java` target will be created. These targets
 will have a `_vtk_module_java_files` property which is the list of generated
@@ -301,7 +302,7 @@ function (vtk_module_wrap_java)
   endif ()
 
   if (NOT _vtk_java_JAVA_OUTPUT)
-    set(_vtk_java_JAVA_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles")
+    set(_vtk_java_JAVA_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtkJava")
   endif ()
 
   if (NOT _vtk_java_MODULES)

@@ -73,7 +73,7 @@ function (_vtk_module_wrap_python_sources module sources classes)
     return ()
   endif ()
 
-  set(_vtk_python_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}-python.$<CONFIGURATION>.args")
+  set(_vtk_python_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_library_name}-python.$<CONFIGURATION>.args")
 
   set(_vtk_python_genex_compile_definitions
     "$<TARGET_PROPERTY:${_vtk_python_target_name},COMPILE_DEFINITIONS>")
@@ -119,7 +119,7 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
       "${_vtk_python_basename}")
 
     set(_vtk_python_source_output
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_basename}Python.cxx")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_library_name}Python/${_vtk_python_basename}Python.cxx")
     list(APPEND _vtk_python_sources
       "${_vtk_python_source_output}")
 
@@ -291,16 +291,16 @@ function (_vtk_module_wrap_python_library name)
     return ()
   endif ()
 
-  set(_vtk_python_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}-init.data")
+  set(_vtk_python_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}-init.data")
 
   file(GENERATE
     OUTPUT  "${_vtk_python_init_data_file}"
     CONTENT "${_vtk_python_library_name}\n$<JOIN:${_vtk_python_classes},\n>\nDEPENDS\n$<JOIN:${_vtk_python_module_load_depends},\n>\n")
 
   set(_vtk_python_init_output
-    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Init.cxx")
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}Init.cxx")
   set(_vtk_python_init_impl_output
-    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}InitImpl.cxx")
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}InitImpl.cxx")
   list(APPEND _vtk_python_library_sources
     "${_vtk_python_init_output}"
     "${_vtk_python_init_impl_output}")
@@ -328,7 +328,7 @@ function (_vtk_module_wrap_python_library name)
 
   if (_vtk_python_BUILD_STATIC)
     set(_vtk_python_module_header_file
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${name}.h")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}/static_python/${name}.h")
     set(_vtk_python_module_header_content
 "#ifndef ${name}_h
 #define ${name}_h
@@ -364,7 +364,7 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
       "${_vtk_python_module_header_file}")
     target_include_directories("${name}"
       INTERFACE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python>")
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}/static_python>")
     target_link_libraries("${name}"
       PUBLIC
         VTK::Python)
@@ -605,7 +605,7 @@ function (vtk_module_wrap_python)
 
   if (_vtk_python_INSTALL_HEADERS)
     set(_vtk_python_properties_filename "${_vtk_python_PYTHON_PACKAGE}-vtk-python-module-properties.cmake")
-    set(_vtk_python_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_properties_filename}.install")
+    set(_vtk_python_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_TARGET_NAME}/${_vtk_python_properties_filename}.install")
     set(_vtk_python_properties_build_file "${CMAKE_BINARY_DIR}/${_vtk_python_CMAKE_DESTINATION}/${_vtk_python_properties_filename}")
 
     file(WRITE "${_vtk_python_properties_build_file}")
@@ -682,7 +682,7 @@ function (vtk_module_wrap_python)
     add_library("${_vtk_python_TARGET_NAME}" INTERFACE)
     target_include_directories("${_vtk_python_TARGET_NAME}"
       INTERFACE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python>")
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_TARGET_NAME}/static_python>")
     if (NOT _vtk_python_TARGET STREQUAL _vtk_python_TARGET_NAME)
       add_library("${_vtk_python_TARGET}" ALIAS
         "${_vtk_python_TARGET_NAME}")
@@ -696,7 +696,7 @@ function (vtk_module_wrap_python)
     endif ()
 
     set(_vtk_python_all_modules_include_file
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_TARGET_NAME}.h")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_TARGET_NAME}/static_python/${_vtk_python_TARGET_NAME}.h")
     set(_vtk_python_all_modules_include_content
       "#ifndef ${_vtk_python_TARGET_NAME}_h\n#define ${_vtk_python_TARGET_NAME}_h\n")
 
@@ -769,7 +769,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
       # (eventually, frozen modules etc.)
       string(REPLACE "." "_" _vtk_python_static_importer_name "_${_vtk_python_PYTHON_PACKAGE}_static")
       set(_vtk_python_static_importer_file
-        "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
+        "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_TARGET_NAME}/static_python/${_vtk_python_static_importer_name}.c")
       set(_vtk_python_static_importer_content "// generated file, do not edit!
 #include <vtkPython.h>
 #include \"${_vtk_python_TARGET_NAME}.h\"
