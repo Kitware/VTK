@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestButterflyScalars.cxx
+  TestLinearCellExtrusion.cxx
   TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx
   TestQuadRotationalExtrusion.cxx
