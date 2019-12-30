@@ -8,7 +8,7 @@ readonly name="libxml2"
 readonly ownership="libxml2 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libxml2.git"
-readonly tag="for/vtk-20190606-2.9.9"
+readonly tag="for/vtk-20191230-2.9.10"
 readonly paths="
 include/libxml/*.h
 include/libxml/xmlversion.h.in
