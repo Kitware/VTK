@@ -628,9 +628,28 @@ vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
 
     for (int numAttempts = 0; numAttempts < maxAttempts; ++numAttempts)
     {
-      cc->SetNumberOfXDivisions(B * factors[0] + 1);
-      cc->SetNumberOfYDivisions(B * factors[1] + 1);
-      cc->SetNumberOfZDivisions(B * factors[2] + 1);
+      int divs[3];
+      for (int i = 0; i < 3; ++i)
+      {
+        divs[i] = B * factors[i] + 1;
+      }
+
+      // The allocated memory is proportional to divs[0] * divs[1] * divs[2].
+      // Make sure this product is not too big, or we may run out of memory,
+      // or, worse, have an integer overflow.
+      // At the time of testing, a product of 1e8 requires more than 10 GB of
+      // memory to run. Let's set a limit here for now.
+      size_t maxProduct = 1e8;
+      if (static_cast<size_t>(divs[0]) * divs[1] * divs[2] > maxProduct)
+      {
+        // Too big. Just use the defaults.
+        useDefaultDivisions = true;
+        break;
+      }
+
+      cc->SetNumberOfXDivisions(divs[0]);
+      cc->SetNumberOfYDivisions(divs[1]);
+      cc->SetNumberOfZDivisions(divs[2]);
 
       try
       {
