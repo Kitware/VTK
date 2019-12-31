@@ -63,6 +63,7 @@ vtkSmartPointer<vtkLagrangeWedge> CreateWedge(int nPoints)
   w->GetPointIds()->SetNumberOfIds(nPoints);
   w->GetPoints()->SetNumberOfPoints(nPoints);
   w->Initialize();
+  w->SetUniformOrderFromNumPoints(nPoints);
   double* points = w->GetParametricCoords();
   for (vtkIdType i = 0; i < nPoints; i++)
   {

@@ -65,6 +65,17 @@ public:
   }
 
   /**
+   * Find the location i of the provided id.
+   */
+  vtkIdType FindIdLocation(const vtkIdType id)
+  {
+    for (int i = 0; i < this->NumberOfIds; i++)
+      if (this->Ids[i] == id)
+        return i;
+    return -1;
+  }
+
+  /**
    * Specify the number of ids for this object to hold. Does an
    * allocation as well as setting the number of ids.
    */

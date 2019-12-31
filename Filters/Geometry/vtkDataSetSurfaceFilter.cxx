@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkDataSetSurfaceFilter.h"
 
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTriangle.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -25,6 +27,8 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeTriangle.h"
 #include "vtkMergePoints.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -48,7 +52,6 @@
 #include "vtkVector.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-
 #include <algorithm>
 #include <cassert>
 #include <unordered_map>
@@ -1675,6 +1678,29 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
         this->RecordOrigCellId(this->NumberOfNewCells, cellId);
         outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
         break;
+      case VTK_BEZIER_CURVE:
+        pointIdList = cellIter->GetPointIds();
+        numCellPts = pointIdList->GetNumberOfIds();
+        pointIdArray = pointIdList->GetPointer(0);
+        pointIdArrayEnd = pointIdArray + numCellPts;
+
+        newLines->InsertNextCell(numCellPts);
+
+        outPtId = this->GetOutputPointId(*(pointIdList->GetPointer(0)), input, newPts, outputPD);
+        newLines->InsertCellPoint(outPtId);
+
+        pointIdArray += 2;
+        while (pointIdArray != pointIdArrayEnd)
+        {
+          outPtId = this->GetOutputPointId(*(pointIdArray++), input, newPts, outputPD);
+          newLines->InsertCellPoint(outPtId);
+        }
+        outPtId = this->GetOutputPointId(*(pointIdList->GetPointer(1)), input, newPts, outputPD);
+        newLines->InsertCellPoint(outPtId);
+
+        this->RecordOrigCellId(this->NumberOfNewCells, cellId);
+        outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
+        break;
 
       case VTK_HEXAHEDRON:
         pointIdList = cellIter->GetPointIds();
@@ -1765,6 +1791,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
       case VTK_QUADRATIC_POLYGON:
       case VTK_LAGRANGE_TRIANGLE:
       case VTK_LAGRANGE_QUADRILATERAL:
+      case VTK_BEZIER_TRIANGLE:
+      case VTK_BEZIER_QUADRILATERAL:
         // save 2D cells for third pass
         flag2D = 1;
         break;
@@ -1807,6 +1835,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
         }    // a linear cell type
         else // process nonlinear cells via triangulation
         {
+          input->SetCellOrderAndRationalWeights(cellId, cell);
           if (cell->GetCellDimension() == 1)
           {
             cell->Triangulate(0, pts, coords);
@@ -1854,6 +1883,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
                   {
                     case VTK_QUADRATIC_TRIANGLE:
                     case VTK_LAGRANGE_TRIANGLE:
+                    case VTK_BEZIER_TRIANGLE:
                       this->InsertTriInHash(face->PointIds->GetId(0), face->PointIds->GetId(1),
                         face->PointIds->GetId(2), cellId);
                       break;
@@ -1861,6 +1891,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
                     case VTK_BIQUADRATIC_QUAD:
                     case VTK_QUADRATIC_LINEAR_QUAD:
                     case VTK_LAGRANGE_QUADRILATERAL:
+                    case VTK_BEZIER_QUADRILATERAL:
                       this->InsertQuadInHash(face->PointIds->GetId(0), face->PointIds->GetId(1),
                         face->PointIds->GetId(2), face->PointIds->GetId(3), cellId);
                       break;
@@ -1901,6 +1932,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
       {
         case VTK_QUADRATIC_TRIANGLE:
         case VTK_LAGRANGE_TRIANGLE:
+        case VTK_BEZIER_TRIANGLE:
           cellType = VTK_TRIANGLE;
           numCellPts = 3;
           break;
@@ -1908,6 +1940,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
         case VTK_BIQUADRATIC_QUAD:
         case VTK_QUADRATIC_LINEAR_QUAD:
         case VTK_LAGRANGE_QUADRILATERAL:
+        case VTK_BEZIER_QUADRILATERAL:
           cellType = VTK_POLYGON;
           numCellPts = 4;
           break;
@@ -1969,7 +2002,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
     else if (cellType == VTK_QUADRATIC_TRIANGLE || cellType == VTK_BIQUADRATIC_TRIANGLE ||
       cellType == VTK_QUADRATIC_QUAD || cellType == VTK_BIQUADRATIC_QUAD ||
       cellType == VTK_QUADRATIC_LINEAR_QUAD || cellType == VTK_QUADRATIC_POLYGON ||
-      cellType == VTK_LAGRANGE_TRIANGLE || cellType == VTK_LAGRANGE_QUADRILATERAL)
+      cellType == VTK_LAGRANGE_TRIANGLE || cellType == VTK_LAGRANGE_QUADRILATERAL ||
+      cellType == VTK_BEZIER_TRIANGLE || cellType == VTK_BEZIER_QUADRILATERAL)
     {
       // If one of the points is hidden (meaning invalid), do not
       // extract surface cell.
@@ -1998,19 +2032,81 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, v
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
       cellIter->GetCell(cell);
+
+      // If the cell is of Bezier type, the weights might be rational and the degree nonuniform.
+      // This need to be initiated.
+
+      input->SetCellOrderAndRationalWeights(cellId, cell);
+
       cell->Triangulate(0, pts, coords);
+
       // Copy the level 1 subdivision points (which also exist in the input and
       // can therefore just be copied over.  Note that the output of Triangulate
       // records triangles in pts where each 3 points defines a triangle.  We
       // will keep this invariant and also keep the same invariant in
       // parametericCoords and outPts later.
+      // Note that coords is actually not used by default, but only the pts ids are used.
+      // This is problem for Bezier cells, because the interior points are non-interpolartory,
+      // and so, cannot be used as trangulation point.
+      // For this reason, the output from Triangulate is overload in the case of Bezier cell,
+      // to get the projection of the non-interpolate points
+
       outPts->Reset();
-      for (i = 0; i < pts->GetNumberOfIds(); i++)
+
+      switch (cellType)
       {
-        vtkIdType op;
-        op = this->GetOutputPointId(pts->GetId(i), input, newPts, outputPD);
-        outPts->InsertNextId(op);
+        case VTK_BEZIER_QUADRILATERAL:
+        {
+          int subId = -1;
+          double wcoords[3];
+          std::vector<double> weights(cell->GetNumberOfPoints());
+          vtkBezierQuadrilateral* cellBezier =
+            dynamic_cast<vtkBezierQuadrilateral*>(cell->GetRepresentativeCell());
+          for (i = 0; i < pts->GetNumberOfIds(); i++)
+          {
+            vtkIdType op;
+            op = this->GetOutputPointId(pts->GetId(i), input, newPts, outputPD);
+            cellBezier->EvaluateLocationProjectedNode(
+              subId, pts->GetId(i), wcoords, weights.data());
+            newPts->SetPoint(op, wcoords);
+            outputPD->InterpolatePoint(
+              input->GetPointData(), op, cell->GetPointIds(), weights.data());
+            outPts->InsertNextId(op);
+          }
+          break;
+        }
+        case VTK_BEZIER_TRIANGLE:
+        {
+          int subId = -1;
+          double wcoords[3];
+          std::vector<double> weights(cell->GetNumberOfPoints());
+          vtkBezierTriangle* cellBezier =
+            dynamic_cast<vtkBezierTriangle*>(cell->GetRepresentativeCell());
+          for (i = 0; i < pts->GetNumberOfIds(); i++)
+          {
+            vtkIdType op;
+            op = this->GetOutputPointId(pts->GetId(i), input, newPts, outputPD);
+            cellBezier->EvaluateLocationProjectedNode(
+              subId, pts->GetId(i), wcoords, weights.data());
+            newPts->SetPoint(op, wcoords);
+            outputPD->InterpolatePoint(
+              input->GetPointData(), op, cell->GetPointIds(), weights.data());
+            outPts->InsertNextId(op);
+          }
+          break;
+        }
+        default:
+        {
+          for (i = 0; i < pts->GetNumberOfIds(); i++)
+          {
+            vtkIdType op;
+            op = this->GetOutputPointId(pts->GetId(i), input, newPts, outputPD);
+            outPts->InsertNextId(op);
+          }
+          break;
+        }
       }
+
       // Do any further subdivision if necessary.
       double* pc = cell->GetParametricCoords();
       if (this->NonlinearSubdivisionLevel > 1 && pc)
@@ -2640,10 +2736,10 @@ vtkIdType vtkDataSetSurfaceFilter::GetInterpolatedPointId(vtkIdType edgePtA, vtk
   {
     int subId = -1;
     double wcoords[3];
-    double weights[100]; // Any reason to need more?
-    cell->EvaluateLocation(subId, pcoords, wcoords, weights);
+    std::vector<double> weights(cell->GetNumberOfPoints());
+    cell->EvaluateLocation(subId, pcoords, wcoords, weights.data());
     outPtId = outPts->InsertNextPoint(wcoords);
-    outPD->InterpolatePoint(input->GetPointData(), outPtId, cell->GetPointIds(), weights);
+    outPD->InterpolatePoint(input->GetPointData(), outPtId, cell->GetPointIds(), weights.data());
     this->RecordOrigPointId(outPtId, -1);
     this->EdgeMap->AddEdge(edgePtA, edgePtB, outPtId);
   }

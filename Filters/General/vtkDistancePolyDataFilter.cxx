@@ -24,6 +24,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+#define VTK_MAXIMUM_NUMBER_OF_POINTS 216
+
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
 
 //-----------------------------------------------------------------------------
@@ -123,7 +127,7 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
     {
       vtkCell* cell = mesh->GetCell(cellId);
       int subId;
-      double pcoords[3], x[3], weights[256];
+      double pcoords[3], x[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
 
       cell->GetParametricCenter(pcoords);
       cell->EvaluateLocation(subId, pcoords, x, weights);

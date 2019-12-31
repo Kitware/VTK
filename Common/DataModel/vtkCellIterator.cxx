@@ -87,6 +87,8 @@ int vtkCellIterator::GetCellDimension()
     case VTK_POLY_LINE:
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
+    case VTK_LAGRANGE_CURVE:
+    case VTK_BEZIER_CURVE:
       return 1;
     case VTK_TRIANGLE:
     case VTK_QUAD:
@@ -96,6 +98,10 @@ int vtkCellIterator::GetCellDimension()
     case VTK_QUADRATIC_TRIANGLE:
     case VTK_QUADRATIC_QUAD:
     case VTK_QUADRATIC_POLYGON:
+    case VTK_LAGRANGE_TRIANGLE:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    case VTK_BEZIER_TRIANGLE:
+    case VTK_BEZIER_QUADRILATERAL:
       return 2;
     case VTK_TETRA:
     case VTK_VOXEL:
@@ -108,6 +114,12 @@ int vtkCellIterator::GetCellDimension()
     case VTK_QUADRATIC_HEXAHEDRON:
     case VTK_QUADRATIC_WEDGE:
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_LAGRANGE_TETRAHEDRON:
+    case VTK_LAGRANGE_HEXAHEDRON:
+    case VTK_LAGRANGE_WEDGE:
+    case VTK_BEZIER_TETRAHEDRON:
+    case VTK_BEZIER_HEXAHEDRON:
+    case VTK_BEZIER_WEDGE:
       return 3;
     default:
       vtkNew<vtkGenericCell> cell;

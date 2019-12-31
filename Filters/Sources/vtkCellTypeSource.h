@@ -158,6 +158,13 @@ protected:
   void GenerateLagrangeHexes(vtkUnstructuredGrid*, int extent[6]);
   void GenerateLagrangeWedges(vtkUnstructuredGrid*, int extent[6]);
 
+  void GenerateBezierCurves(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateBezierTris(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateBezierQuads(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateBezierTets(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateBezierHexes(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateBezierWedges(vtkUnstructuredGrid*, int extent[6]);
+
   virtual void ComputeFields(vtkUnstructuredGrid*);
   double GetValueOfOrder(int order, double coords[3]);
 

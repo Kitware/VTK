@@ -14,6 +14,12 @@
 =========================================================================*/
 #include "vtkGenericCell.h"
 
+#include "vtkBezierCurve.h"
+#include "vtkBezierHexahedron.h"
+#include "vtkBezierQuadrilateral.h"
+#include "vtkBezierTetra.h"
+#include "vtkBezierTriangle.h"
+#include "vtkBezierWedge.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
@@ -380,6 +386,24 @@ vtkCell* vtkGenericCell::InstantiateCell(int cellType)
       break;
     case VTK_LAGRANGE_WEDGE:
       cell = vtkLagrangeWedge::New();
+      break;
+    case VTK_BEZIER_TRIANGLE:
+      cell = vtkBezierTriangle::New();
+      break;
+    case VTK_BEZIER_TETRAHEDRON:
+      cell = vtkBezierTetra::New();
+      break;
+    case VTK_BEZIER_CURVE:
+      cell = vtkBezierCurve::New();
+      break;
+    case VTK_BEZIER_QUADRILATERAL:
+      cell = vtkBezierQuadrilateral::New();
+      break;
+    case VTK_BEZIER_HEXAHEDRON:
+      cell = vtkBezierHexahedron::New();
+      break;
+    case VTK_BEZIER_WEDGE:
+      cell = vtkBezierWedge::New();
       break;
   }
   return cell;

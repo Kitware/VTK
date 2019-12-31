@@ -322,12 +322,20 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_HIGHER_ORDER_TRIANGLE:
     case VTK_HIGHER_ORDER_QUAD:
     case VTK_HIGHER_ORDER_POLYGON:
+    case VTK_LAGRANGE_CURVE:
+    case VTK_LAGRANGE_TRIANGLE:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    case VTK_BEZIER_CURVE:
+    case VTK_BEZIER_TRIANGLE:
+    case VTK_BEZIER_QUADRILATERAL:
       return 0;
 
     case VTK_TETRA:
     case VTK_QUADRATIC_TETRA:
     case VTK_PARAMETRIC_TETRA_REGION:
     case VTK_HIGHER_ORDER_TETRAHEDRON:
+    case VTK_LAGRANGE_TETRAHEDRON:
+    case VTK_BEZIER_TETRAHEDRON:
       return 4;
 
     case VTK_PYRAMID:
@@ -338,6 +346,8 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_QUADRATIC_LINEAR_WEDGE:
     case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
     case VTK_HIGHER_ORDER_WEDGE:
+    case VTK_LAGRANGE_WEDGE:
+    case VTK_BEZIER_WEDGE:
       return 5;
 
     case VTK_VOXEL:
@@ -347,6 +357,8 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_HIGHER_ORDER_HEXAHEDRON:
     case VTK_PARAMETRIC_HEX_REGION:
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    case VTK_LAGRANGE_HEXAHEDRON:
+    case VTK_BEZIER_HEXAHEDRON:
       return 6;
 
     case VTK_PENTAGONAL_PRISM:

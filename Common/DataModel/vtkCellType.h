@@ -114,6 +114,15 @@ typedef enum
   VTK_LAGRANGE_WEDGE = 73,
   VTK_LAGRANGE_PYRAMID = 74,
 
+  // Arbitrary order Bezier elements (formulated separated from generic higher order cells)
+  VTK_BEZIER_CURVE = 75,
+  VTK_BEZIER_TRIANGLE = 76,
+  VTK_BEZIER_QUADRILATERAL = 77,
+  VTK_BEZIER_TETRAHEDRON = 78,
+  VTK_BEZIER_HEXAHEDRON = 79,
+  VTK_BEZIER_WEDGE = 80,
+  VTK_BEZIER_PYRAMID = 81,
+
   VTK_NUMBER_OF_CELL_TYPES
 } VTKCellType;
 

@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro(vtkDataSetAttributes);
 //--------------------------------------------------------------------------
-const char vtkDataSetAttributes ::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][12] = {
+const char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][19] = {
   "Scalars",
   "Vectors",
   "Normals",
@@ -48,9 +48,11 @@ const char vtkDataSetAttributes ::AttributeNames[vtkDataSetAttributes::NUM_ATTRI
   "PedigreeIds",
   "EdgeFlag",
   "Tangents",
+  "RationalWeights",
+  "HigherOrderDegrees",
 };
 
-const char vtkDataSetAttributes ::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][35] = {
+const char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][42] = {
   "vtkDataSetAttributes::SCALARS",
   "vtkDataSetAttributes::VECTORS",
   "vtkDataSetAttributes::NORMALS",
@@ -60,6 +62,8 @@ const char vtkDataSetAttributes ::LongAttributeNames[vtkDataSetAttributes::NUM_A
   "vtkDataSetAttributes::PEDIGREEIDS",
   "vtkDataSetAttributes::EDGEFLAG",
   "vtkDataSetAttributes::TANGENTS",
+  "vtkDataSetAttributes::RATIONALWEIGHTS",
+  "vtkDataSetAttributes::HIGHERORDERDEGREES",
 };
 
 //--------------------------------------------------------------------------
@@ -110,6 +114,8 @@ void vtkDataSetAttributes::CopyAllOn(int ctype)
   this->SetCopyGlobalIds(1, ctype);
   this->SetCopyPedigreeIds(1, ctype);
   this->SetCopyTangents(1, ctype);
+  this->SetCopyRationalWeights(1, ctype);
+  this->SetCopyHigherOrderDegrees(1, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -125,6 +131,8 @@ void vtkDataSetAttributes::CopyAllOff(int ctype)
   this->SetCopyGlobalIds(0, ctype);
   this->SetCopyPedigreeIds(0, ctype);
   this->SetCopyTangents(0, ctype);
+  this->SetCopyRationalWeights(0, ctype);
+  this->SetCopyHigherOrderDegrees(0, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1140,6 +1148,42 @@ vtkAbstractArray* vtkDataSetAttributes::GetPedigreeIds()
 }
 
 //--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetRationalWeights(vtkDataArray* da)
+{
+  return this->SetAttribute(da, RATIONALWEIGHTS);
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetActiveRationalWeights(const char* name)
+{
+  return this->SetActiveAttribute(name, RATIONALWEIGHTS);
+}
+
+//--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetRationalWeights()
+{
+  return this->GetAttribute(RATIONALWEIGHTS);
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetHigherOrderDegrees(vtkDataArray* da)
+{
+  return this->SetAttribute(da, HIGHERORDERDEGREES);
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetActiveHigherOrderDegrees(const char* name)
+{
+  return this->SetActiveAttribute(name, HIGHERORDERDEGREES);
+}
+
+//--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetHigherOrderDegrees()
+{
+  return this->GetAttribute(HIGHERORDERDEGREES);
+}
+
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 {
   if (name == nullptr || name[0] == '\0')
@@ -1220,6 +1264,26 @@ vtkAbstractArray* vtkDataSetAttributes::GetPedigreeIds(const char* name)
 }
 
 //--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetRationalWeights(const char* name)
+{
+  if (name == nullptr || name[0] == '\0')
+  {
+    return this->GetRationalWeights();
+  }
+  return this->GetArray(name);
+}
+
+//--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetHigherOrderDegrees(const char* name)
+{
+  if (name == nullptr || name[0] == '\0')
+  {
+    return this->GetHigherOrderDegrees();
+  }
+  return this->GetArray(name);
+}
+
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ((index >= 0) && (index < this->GetNumberOfArrays()))
@@ -1259,12 +1323,12 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 //--------------------------------------------------------------------------
 const int
   vtkDataSetAttributes ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = { 0, 3,
-    3, 3, 9, 1, 1, 1, 3 };
+    3, 3, 9, 1, 1, 1, 3, 1, 3 };
 
 //--------------------------------------------------------------------------
 // Scalars set to NOLIMIT
 const int vtkDataSetAttributes ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = { NOLIMIT,
-  EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT };
+  EXACT, EXACT, MAX, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT, EXACT };
 
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa, int attributeType)
@@ -1593,6 +1657,30 @@ void vtkDataSetAttributes::SetCopyPedigreeIds(vtkTypeBool i, int ctype)
 vtkTypeBool vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 {
   return this->GetCopyAttribute(PEDIGREEIDS, ctype);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::SetCopyRationalWeights(vtkTypeBool i, int ctype)
+{
+  this->SetCopyAttribute(RATIONALWEIGHTS, i, ctype);
+}
+
+//--------------------------------------------------------------------------
+vtkTypeBool vtkDataSetAttributes::GetCopyRationalWeights(int ctype)
+{
+  return this->GetCopyAttribute(RATIONALWEIGHTS, ctype);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::SetCopyHigherOrderDegrees(vtkTypeBool i, int ctype)
+{
+  this->SetCopyAttribute(HIGHERORDERDEGREES, i, ctype);
+}
+
+//--------------------------------------------------------------------------
+vtkTypeBool vtkDataSetAttributes::GetCopyHigherOrderDegrees(int ctype)
+{
+  return this->GetCopyAttribute(HIGHERORDERDEGREES, ctype);
 }
 
 //--------------------------------------------------------------------------

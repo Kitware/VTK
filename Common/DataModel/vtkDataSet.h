@@ -117,6 +117,8 @@ public:
     return nullptr;
   }
 
+  void SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell* cell);
+
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
    * This is a thread-safe alternative to the previous GetCell()

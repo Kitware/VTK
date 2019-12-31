@@ -260,7 +260,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
         inScalars->GetTuples(cellIter->GetPointIds(), cellScalars);
 
         double range[2] = { std::numeric_limits<double>::max(),
-                            std::numeric_limits<double>::lowest() };
+          std::numeric_limits<double>::lowest() };
 
         if (numComps == 1)
         { // fast path:
@@ -300,7 +300,8 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
         if (needCell)
         {
           cellIter->GetCell(cell);
-
+          vtkIdType cellId = cellIter->GetCellId();
+          input->SetCellOrderAndRationalWeights(cellId, cell);
           for (i = 0; i < numContours; i++)
           {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
@@ -419,9 +420,8 @@ int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
     scalarTree->SetScalars(inScalars);
   }
 
-  vtkContourGridExecute(this, input, output, inScalars, numContours, values,
-                        computeScalars, useScalarTree, scalarTree,
-                        this->GenerateTriangles != 0);
+  vtkContourGridExecute(this, input, output, inScalars, numContours, values, computeScalars,
+    useScalarTree, scalarTree, this->GenerateTriangles != 0);
 
   if (this->ComputeNormals)
   {

@@ -273,6 +273,7 @@ static vtkSmartPointer<vtkLagrangeHexahedron> CreateCell(const vtkVector3i& test
 {
   // Create a hex cell:
   vtkSmartPointer<vtkLagrangeHexahedron> hex = vtkSmartPointer<vtkLagrangeHexahedron>::New();
+  hex->SetOrder(testOrder[0], testOrder[1], testOrder[2]);
   vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
   vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(pts, testOrder.GetData());
   if (testOrder[0] == 2)

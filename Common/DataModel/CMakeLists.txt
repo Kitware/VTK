@@ -115,6 +115,20 @@ set(classes
   vtkKdNode
   vtkKdTree
   vtkKdTreePointLocator
+  vtkHigherOrderCurve
+  vtkHigherOrderHexahedron
+  vtkHigherOrderInterpolation
+  vtkHigherOrderQuadrilateral
+  vtkHigherOrderTetra
+  vtkHigherOrderTriangle
+  vtkHigherOrderWedge
+  vtkBezierCurve
+  vtkBezierHexahedron
+  vtkBezierInterpolation
+  vtkBezierQuadrilateral
+  vtkBezierTetra
+  vtkBezierTriangle
+  vtkBezierWedge
   vtkLagrangeCurve
   vtkLagrangeHexahedron
   vtkLagrangeInterpolation

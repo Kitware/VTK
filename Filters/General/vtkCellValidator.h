@@ -117,6 +117,12 @@ class vtkLagrangeQuadrilateral;
 class vtkLagrangeTetra;
 class vtkLagrangeHexahedron;
 class vtkLagrangeWedge;
+class vtkBezierCurve;
+class vtkBezierTriangle;
+class vtkBezierQuadrilateral;
+class vtkBezierTetra;
+class vtkBezierHexahedron;
+class vtkBezierWedge;
 
 class VTKFILTERSGENERAL_EXPORT vtkCellValidator : public vtkDataSetAlgorithm
 {
@@ -197,6 +203,12 @@ public:
   static State Check(vtkLagrangeTetra*, double tolerance);
   static State Check(vtkLagrangeHexahedron*, double tolerance);
   static State Check(vtkLagrangeWedge*, double tolerance);
+  static State Check(vtkBezierCurve*, double tolerance);
+  static State Check(vtkBezierTriangle*, double tolerance);
+  static State Check(vtkBezierQuadrilateral*, double tolerance);
+  static State Check(vtkBezierTetra*, double tolerance);
+  static State Check(vtkBezierHexahedron*, double tolerance);
+  static State Check(vtkBezierWedge*, double tolerance);
 
   //@{
   /**

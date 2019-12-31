@@ -448,6 +448,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
   cellTypeDimensions[VTK_HIGHER_ORDER_EDGE] = 1;
   cellTypeDimensions[VTK_LAGRANGE_CURVE] = 1;
+  cellTypeDimensions[VTK_BEZIER_CURVE] = 1;
   cellTypeDimensions[VTK_TRIANGLE] = 2;
   cellTypeDimensions[VTK_TRIANGLE_STRIP] = 2;
   cellTypeDimensions[VTK_POLYGON] = 2;
@@ -466,6 +467,8 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
   cellTypeDimensions[VTK_LAGRANGE_TRIANGLE] = 2;
   cellTypeDimensions[VTK_LAGRANGE_QUADRILATERAL] = 2;
+  cellTypeDimensions[VTK_BEZIER_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_BEZIER_QUADRILATERAL] = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -877,6 +880,8 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         if (needCell)
         {
           cellIter->GetCell(cell);
+          vtkIdType cellId = cellIter->GetCellId();
+          input->SetCellOrderAndRationalWeights(cellId, cell);
           cellIds = cell->GetPointIds();
           cutScalars->GetTuples(cellIds, cellScalars);
           // Loop over all contour values.
@@ -978,6 +983,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         {
           // Fetch the full cell -- most expensive.
           cellIter->GetCell(cell);
+          input->SetCellOrderAndRationalWeights(cellId, cell);
           cutScalars->GetTuples(pointIdList, cellScalars);
           // Loop over all contour values.
           for (contourIter = contourValues; contourIter != contourValuesEnd; ++contourIter)
