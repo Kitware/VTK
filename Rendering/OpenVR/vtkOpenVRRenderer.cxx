@@ -38,6 +38,7 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
   this->ClippingRangeExpansion = 0.05;
 
   this->FloorActor = vtkActor::New();
+  this->FloorActor->PickableOff();
 
   vtkNew<vtkPolyDataMapper> pdm;
   this->FloorActor->SetMapper(pdm);
