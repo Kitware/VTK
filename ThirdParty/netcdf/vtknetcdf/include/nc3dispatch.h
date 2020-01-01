@@ -53,13 +53,13 @@ extern "C" {
     extern int
     NC3_create(const char *path, int cmode,
                size_t initialsz, int basepe, size_t *chunksizehintp,
-               void* mpidata, struct NC_Dispatch*, NC* ncp);
+               void* mpidata, const struct NC_Dispatch*, int ncid);
 
 /* WARNING: this signature differs from external nc_open API*/
     extern int
     NC3_open(const char *path, int mode,
              int basepe, size_t *chunksizehintp,
-             void* mpidata, NC_Dispatch*, NC* ncp);
+             void* mpidata, const NC_Dispatch*, int ncid);
 
     extern int
     NC3_new_nc(NC**);
@@ -82,12 +82,6 @@ extern "C" {
 
     extern int
     NC3_set_fill(int ncid, int fillmode, int *old_modep);
-
-    extern int
-    NC3_set_base_pe(int ncid, int pe);
-
-    extern int
-    NC3_inq_base_pe(int ncid, int *pe);
 
     extern int
     NC3_inq_format(int ncid, int *formatp);

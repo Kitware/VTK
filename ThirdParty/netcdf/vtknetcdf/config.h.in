@@ -101,6 +101,9 @@
 /* Define to 1 if you have the '_filelengthi64' function. */
 #cmakedefine HAVE_FILE_LENGTH_I64
 
+/* Define to 1 if you have the `fileno' function. */
+#undef HAVE_FILENO
+
 /* Define to 1 if you have the `fsync' function. */
 #cmakedefine HAVE_FSYNC
 
@@ -236,6 +239,9 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H
 
+/* Define to 1 if you have the `strcasecmp' function. */
+#undef HAVE_STRCASECMP
+
 /* Define to 1 if you have the `strdup' function. */
 #cmakedefine HAVE_STRDUP
 
@@ -303,21 +309,8 @@
 /* Define to 1 if the system has the type `ushort'. */
 #cmakedefine HAVE_USHORT
 
-/* if true, H5allocate_memory() will be used. */
-#cmakedefine HDF5_HAS_ALLOCATE_MEMORY
-
 /* if true, use collective metadata ops in parallel netCDF-4 */
 #cmakedefine HDF5_HAS_COLL_METADATA_OPS
-
-/* if true, H5free_memory() will be used to free hdf5-allocated memory in
-   nc4file. */
-#cmakedefine HDF5_HAS_H5FREE
-
-/* if true, netcdf4 file properties will be set using H5Pset_libver_bounds */
-#cmakedefine HDF5_HAS_LIBVER_BOUNDS
-
-/* if true, H5resize_memory() will be used. */
-#cmakedefine HDF5_HAS_resize_MEMORY
 
 /* if true, hdf5 has parallelism enabled */
 #cmakedefine HDF5_PARALLEL

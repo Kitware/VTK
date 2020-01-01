@@ -468,7 +468,7 @@ px_rel(ncio_px *const pxp, off_t offset, int rflags)
    RGN_MODIFIED.
 
    For POSIX system, without NC_SHARE, this becomes the rel function
-   pointed to by the ncio rel function pointer. It mearly checks for
+   pointed to by the ncio rel function pointer. It merely checks for
    file write permission, then calls px_rel to do everything.
 
    nciop - pointer to ncio struct.
@@ -1132,7 +1132,7 @@ typedef struct ncio_spx {
 /* This function releases the region specified by offset.
 
    For POSIX system, with NC_SHARE, this becomes the rel function
-   pointed to by the ncio rel function pointer. It mearly checks for
+   pointed to by the ncio rel function pointer. It merely checks for
    file write permission, then calls px_rel to do everything.
 
    nciop - pointer to ncio struct.
@@ -1462,7 +1462,7 @@ ncio_spx_init2(ncio *const nciop, const size_t *const sizehintp)
 
 
 /* First half of init for ncio_spx struct, setting the rel, get, move,
-   snyc, and free function pointers to the NC_SHARE versions of these
+   sync, and free function pointers to the NC_SHARE versions of these
    functions (i.e. the ncio_spx_* functions).
 */
 static void

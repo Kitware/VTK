@@ -479,7 +479,7 @@ nc_utf8proc_ssize_t nc_utf8proc_decompose_char(
  * string and orders the decomposed sequences correctly.
  *
  * If the @ref UTF8PROC_NULLTERM flag in `options` is set, processing
- * will be stopped, when a NULL byte is encounted, otherwise `strlen`
+ * will be stopped, when a NULL byte is encountered, otherwise `strlen`
  * bytes are processed.  The result (in the form of 32-bit unicode
  * codepoints) is written into the buffer being pointed to by
  * `buffer` (which must contain at least `bufsize` entries).  In case of

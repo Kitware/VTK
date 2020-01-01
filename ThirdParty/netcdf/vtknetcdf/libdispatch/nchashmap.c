@@ -72,8 +72,8 @@ extern unsigned int hash_fast(const char*, size_t length);
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 /* Forward */
-static unsigned int NC_nprimes;
-static unsigned int NC_primes[16386];
+static const unsigned int NC_nprimes;
+static const unsigned int NC_primes[16386];
 static unsigned int findPrimeGreaterThan(size_t val);
 
 extern void printhashmapstats(NC_hashmap* hm);
@@ -397,7 +397,7 @@ Table of the the first 2^14 primes.
 Add leading and trailing values to simplify
 search binary algorithm.
 */
-static unsigned int NC_primes[16386] = {
+static const unsigned int NC_primes[16386] = {
 0U,
 2U, 3U, 5U, 7U, 11U, 13U, 17U, 19U, 23U, 29U,
 31U, 37U, 41U, 43U, 47U, 53U, 59U, 61U, 67U, 71U,
@@ -2041,7 +2041,7 @@ static unsigned int NC_primes[16386] = {
 0xFFFFFFFF
 };
 
-static unsigned int NC_nprimes = (sizeof(NC_primes) / sizeof(unsigned int));
+static const unsigned int NC_nprimes = (sizeof(NC_primes) / sizeof(unsigned int));
 
 /**************************************************/
 /* Debug support */

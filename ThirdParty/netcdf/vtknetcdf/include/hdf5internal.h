@@ -17,10 +17,11 @@
 #include "ncdimscale.h"
 #include "nc4dispatch.h"
 #include "hdf5dispatch.h"
+#include "netcdf_filter.h"
 
 #define NC_MAX_HDF5_NAME (NC_MAX_NAME + 10)
 
-/* These have to do with creating chuncked datasets in HDF5. */
+/* These have to do with creating chunked datasets in HDF5. */
 #define NC_HDF5_UNLIMITED_DIMSIZE (0)
 #define NC_HDF5_CHUNKSIZE_FACTOR (10)
 #define NC_HDF5_MIN_CHUNK_SIZE (2)
@@ -49,6 +50,11 @@
 
 /** This is the name of the name HDF5 dimension scale attribute. */
 #define HDF5_DIMSCALE_NAME_ATT_NAME "NAME"
+
+/** Define Filter API Operations */
+#define FILTER_REG   1
+#define FILTER_UNREG 2
+#define FILTER_INQ   3
 
 /** Struct to hold HDF5-specific info for the file. */
 typedef struct NC_HDF5_FILE_INFO {
@@ -162,9 +168,13 @@ int nc4_hdf5_find_grp_h5_var(int ncid, int varid, NC_FILE_INFO_T **h5,
 /* Perform lazy read of the rest of the metadata for a var. */
 int nc4_get_var_meta(NC_VAR_INFO_T *var);
 
+
+/* Define Filter API Function */
+int nc4_filter_action(int action, int formatx, int id, NC_FILTER_INFO* info);
 /* Support functions for provenance info (defined in nc4hdf.c) */
 extern int NC4_hdf5get_libversion(unsigned*,unsigned*,unsigned*);/*libsrc4/nc4hdf.c*/
 extern int NC4_hdf5get_superblock(struct NC_FILE_INFO*, int*);/*libsrc4/nc4hdf.c*/
 extern int NC4_isnetcdf4(struct NC_FILE_INFO*); /*libsrc4/nc4hdf.c*/
+
 
 #endif /* _HDF5INTERNAL_ */

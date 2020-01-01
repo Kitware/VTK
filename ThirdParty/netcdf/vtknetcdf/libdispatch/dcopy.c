@@ -323,10 +323,8 @@ nc_copy_var(int ncid_in, int varid_in, int ncid_out)
          return retval;
    }
 
-#ifdef USE_NETCDF4
    LOG((2, "nc_copy_var: ncid_in 0x%x varid_in %d ncid_out 0x%x",
         ncid_in, varid_in, ncid_out));
-#endif
 
    /* Make sure we are not trying to write into a netcdf-3 file
     * anything that won't fit in netcdf-3. */
@@ -343,9 +341,7 @@ nc_copy_var(int ncid_in, int varid_in, int ncid_out)
    /* Later on, we will need to know the size of this type. */
    if ((retval = nc_inq_type(ncid_in, xtype, type_name, &type_size)))
       return retval;
-#ifdef USE_NETCDF4
    LOG((3, "type %s has size %d", type_name, type_size));
-#endif
 
    /* Switch back to define mode, and create the output var. */
    retval = nc_redef(ncid_out);
@@ -395,9 +391,7 @@ nc_copy_var(int ncid_in, int varid_in, int ncid_out)
    {
       if ((retval = nc_inq_dimlen(ncid_in, dimids_in[d], &dimlen[d])))
          BAIL(retval);
-#ifdef USE_NETCDF4
       LOG((4, "nc_copy_var: there are %d data", dimlen[d]));
-#endif
    }
 
    /* If this is really a scalar, then set the dimlen to 1. */

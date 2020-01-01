@@ -221,15 +221,6 @@ NC_lookupvar(NC3_INFO* ncp, int varid, NC_var **varp);
 #define IS_RECVAR(vp)                                           \
     ((vp)->shape != NULL ? (*(vp)->shape == NC_UNLIMITED) : 0 )
 
-#ifdef LOCKNUMREC
-/*
- * typedef SHMEM type
- * for whenever the SHMEM functions can handle other than shorts
- */
-typedef unsigned short int      ushmem_t;
-typedef short int                shmem_t;
-#endif
-
 struct NC3_INFO {
     /* contains the previous NC during redef. */
     NC3_INFO *old;
@@ -258,18 +249,6 @@ struct NC3_INFO {
     NC_dimarray dims;
     NC_attrarray attrs;
     NC_vararray vars;
-#ifdef LOCKNUMREC
-/* size and named indexes for the lock array protecting NC.numrecs */
-#  define LOCKNUMREC_DIM        4
-#  define LOCKNUMREC_VALUE      0
-#  define LOCKNUMREC_LOCK       1
-#  define LOCKNUMREC_SERVING    2
-#  define LOCKNUMREC_BASEPE     3
-    /* Used on Cray T3E MPP to maintain the
-     * integrity of numrecs for an unlimited dimension
-     */
-    ushmem_t lock[LOCKNUMREC_DIM];
-#endif
 };
 
 #define NC_readonly(ncp)                        \
@@ -305,7 +284,6 @@ struct NC3_INFO {
 #define NC_doNsync(ncp)                         \
     fIsSet((ncp)->flags, NC_NSYNC)
 
-#ifndef LOCKNUMREC
 #  define NC_get_numrecs(nc3i)                  \
     ((nc3i)->numrecs)
 
@@ -314,11 +292,6 @@ struct NC3_INFO {
 
 #  define NC_increase_numrecs(nc3i, nrecs)                              \
     {if((nrecs) > (nc3i)->numrecs) ((nc3i)->numrecs = (nrecs));}
-#else
-    size_t NC_get_numrecs(const NC3_INFO *nc3i);
-void   NC_set_numrecs(NC3_INFO *nc3i, size_t nrecs);
-void   NC_increase_numrecs(NC3_INFO *nc3i, size_t nrecs);
-#endif
 
 /* Begin defined in nc.c */
 

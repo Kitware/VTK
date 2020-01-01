@@ -1,52 +1,54 @@
-/** \file
-Attribute inquiry functions
-
-These functions find out about attributes.
-
-Copyright 2018 University Corporation for Atmospheric
+/* Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See \ref copyright file for more info.  */
-
+/**
+ * @file
+ * Attribute inquiry functions
+ *
+ * These functions find out about attributes.
+ */
 #include "ncdispatch.h"
 
-/** \name Learning about Attributes
-
-Functions to learn about the attributes in a file. */
-/*! \{ */ /* All these functions are part of this named group... */
+/**
+ * @name Learning about Attributes
+ *
+ * Functions to learn about the attributes in a file. */
+/** \{ */ /* All these functions are part of this named group... */
 
 /**
-\ingroup attributes
-Return information about a netCDF attribute.
-
-The function nc_inq_att returns the attribute's type and length.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
-for a global attribute.
-
-\param name Pointer to the location for the returned attribute \ref
-object_name. \ref ignored_if_null.
-
-\param xtypep Pointer to location for returned attribute \ref
-data_type. \ref ignored_if_null.
-
-\param lenp Pointer to location for returned number of values
-currently stored in the attribute. For attributes of type ::NC_CHAR,
-you should not assume that this includes a trailing zero byte; it
-doesn't if the attribute was stored without a trailing zero byte, for
-example from a FORTRAN program. Before using the value as a C string,
-make sure it is null-terminated. \ref ignored_if_null.
-
-\section nc_inq_att_example Example
-
-Here is an example using nc_inq_att() to find out the type and length of
-a variable attribute named valid_range for a netCDF variable named rh
-and a global attribute named title in an existing netCDF dataset named
-foo.nc:
-
-\code
+ * @ingroup attributes
+ * Return information about a netCDF attribute.
+ *
+ * The function nc_inq_att returns the attribute's type and length.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param varid Variable ID of the attribute's variable, or
+ * ::NC_GLOBAL for a global attribute.
+ *
+ * @param name Pointer to the location for the returned attribute \ref
+ * object_name. \ref ignored_if_null.
+ *
+ * @param xtypep Pointer to location for returned attribute \ref
+ * data_type. \ref ignored_if_null.
+ *
+ * @param lenp Pointer to location for returned number of values
+ * currently stored in the attribute. For attributes of type
+ * ::NC_CHAR, you should not assume that this includes a trailing zero
+ * byte; it doesn't if the attribute was stored without a trailing
+ * zero byte, for example from a FORTRAN program. Before using the
+ * value as a C string, make sure it is null-terminated. \ref
+ * ignored_if_null.
+ *
+ * @section nc_inq_att_example Example
+ *
+ * Here is an example using nc_inq_att() to find out the type and
+ * length of a variable attribute named valid_range for a netCDF
+ * variable named rh and a global attribute named title in an existing
+ * netCDF dataset named foo.nc:
+ *
+@code
      #include <netcdf.h>
         ...
      int  status;
@@ -66,18 +68,18 @@ foo.nc:
      if (status != NC_NOERR) handle_error(status);
      status = nc_inq_att (ncid, NC_GLOBAL, "title", &t_type, &t_len);
      if (status != NC_NOERR) handle_error(status);
-\endcode
-
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_ENOTVAR bad varid.
-\returns ::NC_EBADGRPID bad group ID.
-\returns ::NC_EBADNAME bad name.
-\returns ::NC_ENOTATT attribute not found.
-\returns ::NC_ECHAR illegal conversion to or from NC_CHAR.
-\returns ::NC_ENOMEM out of memory.
-\returns ::NC_ERANGE range error when converting data.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+@endcode
+ *
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_ENOTVAR bad varid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @return ::NC_EBADNAME bad name.
+ * @return ::NC_ENOTATT attribute not found.
+ * @return ::NC_ECHAR illegal conversion to or from NC_CHAR.
+ * @return ::NC_ENOMEM out of memory.
+ * @return ::NC_ERANGE range error when converting data.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_att(int ncid, int varid, const char *name, nc_type *xtypep,
@@ -90,33 +92,33 @@ nc_inq_att(int ncid, int varid, const char *name, nc_type *xtypep,
 }
 
 /**
-\ingroup attributes
-Find an attribute ID.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param varid Variable ID of the attribute's variable, or ::NC_GLOBAL for
-a global attribute.
-
-\param name Attribute \ref object_name.
-
-\param idp Pointer to location for returned attribute number that
-specifies which attribute this is for this variable (or which global
-attribute). If you already know the attribute name, knowing its number
-is not very useful, because accessing information about an attribute
-requires its name.
-
-\section nc_inq_attid_example Example
-
-Here is an example using nc_inq_attid() from nc_test4/tst_vars2.c. In
-this example three attributes are created in a file. Then it is
-re-opened, and their IDs are checked. They will be 0, 1, and 2, in
-the order that the attributes were written to the file.
-
-
-\code
+ * @ingroup attributes
+ * Find an attribute ID.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param varid Variable ID of the attribute's variable, or
+ * ::NC_GLOBAL for a global attribute.
+ *
+ * @param name Attribute \ref object_name.
+ *
+ * @param idp Pointer to location for returned attribute number that
+ * specifies which attribute this is for this variable (or which
+ * global attribute). If you already know the attribute name, knowing
+ * its number is not very useful, because accessing information about
+ * an attribute requires its name.
+ *
+ * @section nc_inq_attid_example Example
+ *
+ * Here is an example using nc_inq_attid() from
+ * nc_test4/tst_vars2.c. In this example three attributes are created
+ * in a file. Then it is re-opened, and their IDs are checked. They
+ * will be 0, 1, and 2, in the order that the attributes were written
+ * to the file.
+ *
+@code
      #include <netcdf.h>
      ...
      printf("**** testing fill value with three other attributes...");
@@ -146,16 +148,16 @@ the order that the attributes were written to the file.
          }
 
          if (nc_close(ncid)) ERR;
-\endcode
-
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_ENOTVAR bad varid.
-\returns ::NC_EBADGRPID bad group ID.
-\returns ::NC_EBADNAME bad name.
-\returns ::NC_ENOTATT attribute not found.
-\returns ::NC_ENOMEM out of memory.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+@endcode
+ *
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_ENOTVAR bad varid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @return ::NC_EBADNAME bad name.
+ * @return ::NC_ENOTATT attribute not found.
+ * @return ::NC_ENOMEM out of memory.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_attid(int ncid, int varid, const char *name, int *idp)
@@ -167,33 +169,32 @@ nc_inq_attid(int ncid, int varid, const char *name, int *idp)
 }
 
 /**
-\ingroup attributes
-Find the name of an attribute.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
-for a global attribute.
-
-\param attnum Attribute number. The attributes for each variable are
-numbered from 0 (the first attribute) to natts-1, where natts is the
-number of attributes for the variable, as returned from a call to
-nc_inq_varnatts().
-
-\param name Pointer to the location for the returned attribute \ref
-object_name.
-
-\section nc_inq_attname_example Example
-
-Here is an example from nc_test4/tst_atts3.c a variable of every type
-is added to a file, with names from the 'names' array. Then the file
-is re-opened, and the names of the attributes are checked in a for
-loop.
-
-
-\code
+ * @ingroup attributes
+ * Find the name of an attribute.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param varid Variable ID of the attribute's variable, or
+ * ::NC_GLOBAL for a global attribute.
+ *
+ * @param attnum Attribute number. The attributes for each variable
+ * are numbered from 0 (the first attribute) to natts-1, where natts
+ * is the number of attributes for the variable, as returned from a
+ * call to nc_inq_varnatts().
+ *
+ * @param name Pointer to the location for the returned attribute \ref
+ * object_name.
+ *
+ * @section nc_inq_attname_example Example
+ *
+ * Here is an example from nc_test4/tst_atts3.c a variable of every
+ * type is added to a file, with names from the 'names' array. Then
+ * the file is re-opened, and the names of the attributes are checked
+ * in a for loop.
+ *
+@code
      #include <netcdf.h>
      ...
 #define NUM_ATTS 8
@@ -236,18 +237,18 @@ tst_att_ordering(int cmode)
 
    if (nc_close(ncid)) ERR;
 
-\endcode
-
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_ENOTVAR bad varid.
-\returns ::NC_EBADGRPID bad group ID.
-\returns ::NC_EBADNAME bad name.
-\returns ::NC_ENOTATT attribute not found.
-\returns ::NC_ECHAR illegal conversion to or from NC_CHAR.
-\returns ::NC_ENOMEM out of memory.
-\returns ::NC_ERANGE range error when converting data.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+@endcode
+ *
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_ENOTVAR bad varid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @return ::NC_EBADNAME bad name.
+ * @return ::NC_ENOTATT attribute not found.
+ * @return ::NC_ECHAR illegal conversion to or from NC_CHAR.
+ * @return ::NC_ENOMEM out of memory.
+ * @return ::NC_ERANGE range error when converting data.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_attname(int ncid, int varid, int attnum, char *name)
@@ -259,22 +260,21 @@ nc_inq_attname(int ncid, int varid, int attnum, char *name)
 }
 
 /**
-\ingroup attributes
-Find number of global or group attributes.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param nattsp Pointer where number of global or group attributes will be
-written. \ref ignored_if_null.
-
-\section nc_inq_natts_example Example
-
-Here is an example from
-
-
-\code
+ * @ingroup attributes
+ * Find number of global or group attributes.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param nattsp Pointer where number of global or group attributes
+ * will be written. \ref ignored_if_null.
+ *
+ * @section nc_inq_natts_example Example
+ *
+ * Here is an example from nc_test4/tst_vars.c:
+ *
+@code
      #include <netcdf.h>
      ...
 int
@@ -288,13 +288,12 @@ check_4D_example(char *file_name, int expected_format)
    ...
    if (nc_inq_natts(ncid, &natts_in)) ERR;
    if (natts_in != 0) ERR;
+@endcode
 
-\endcode
-
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_EBADGRPID bad group ID.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_natts(int ncid, int *nattsp)
@@ -307,28 +306,28 @@ nc_inq_natts(int ncid, int *nattsp)
 }
 
 /**
-\ingroup attributes
-Find the type of an attribute.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
-for a global or group attribute.
-
-\param name Attribute \ref object_name.
-
-\param xtypep Pointer to location for returned attribute \ref data_type.
-
-\section nc_inq_atttype_example Example
-
-Here is an example from nc_test4/tst_h_refs.c. In this example, a file
-with an integer attribute is open. It's type is confirmed to be
-NC_INT.
-
-
-\code
+ * @ingroup attributes
+ * Find the type of an attribute.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param varid Variable ID of the attribute's variable, or
+ * ::NC_GLOBAL for a global or group attribute.
+ *
+ * @param name Attribute \ref object_name.
+ *
+ * @param xtypep Pointer to location for returned attribute \ref
+ * data_type.
+ *
+ * @section nc_inq_atttype_example Example
+ *
+ * Here is an example from nc_test4/tst_h_refs.c. In this example, a
+ * file with an integer attribute is open. It's type is confirmed to
+ * be NC_INT.
+ *
+@code
      #include <netcdf.h>
      ...
     printf("*** Checking accessing file through netCDF-4 API...");
@@ -341,18 +340,18 @@ NC_INT.
 	if (nc_inq_atttype(ncid, NC_GLOBAL, INT_ATT_NAME, &type)) ERR;
 	if (type != NC_INT) ERR;
 
-\endcode
-
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_ENOTVAR bad varid.
-\returns ::NC_EBADGRPID bad group ID.
-\returns ::NC_EBADNAME bad name.
-\returns ::NC_ENOTATT attribute not found.
-\returns ::NC_ECHAR illegal conversion to or from NC_CHAR.
-\returns ::NC_ENOMEM out of memory.
-\returns ::NC_ERANGE range error when converting data.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+@endcode
+ *
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_ENOTVAR bad varid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @return ::NC_EBADNAME bad name.
+ * @return ::NC_ENOTATT attribute not found.
+ * @return ::NC_ECHAR illegal conversion to or from NC_CHAR.
+ * @return ::NC_ENOMEM out of memory.
+ * @return ::NC_ERANGE range error when converting data.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_atttype(int ncid, int varid, const char *name, nc_type *xtypep)
@@ -364,30 +363,29 @@ nc_inq_atttype(int ncid, int varid, const char *name, nc_type *xtypep)
 }
 
 /**
-\ingroup attributes
-Find the length of an attribute.
-
-\param ncid NetCDF or group ID, from a previous call to nc_open(),
-nc_create(), nc_def_grp(), or associated inquiry functions such as
-nc_inq_ncid().
-
-\param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
-for a global or group attribute.
-
-\param name Attribute \ref object_name.
-
-\param lenp Pointer to location for returned number of values
-currently stored in the attribute. Before using the value as a C
-string, make sure it is null-terminated. \ref ignored_if_null.
-
-\section nc_inq_attlen_example Example
-
-Here is an example from nc_test4/tst_h_scalar.c which checks the
-attributes of an already-open netCDF file. In this code, the length of
-two attributes are checked, and found to be 1.
-
-
-\code
+ * @ingroup attributes
+ * Find the length of an attribute.
+ *
+ * @param ncid NetCDF or group ID, from a previous call to nc_open(),
+ * nc_create(), nc_def_grp(), or associated inquiry functions such as
+ * nc_inq_ncid().
+ *
+ * @param varid Variable ID of the attribute's variable, or
+ * ::NC_GLOBAL for a global or group attribute.
+ *
+ * @param name Attribute \ref object_name.
+ *
+ * @param lenp Pointer to location for returned number of values
+ * currently stored in the attribute. Before using the value as a C
+ * string, make sure it is null-terminated. \ref ignored_if_null.
+ *
+ * @section nc_inq_attlen_example Example
+ *
+ * Here is an example from nc_test4/tst_h_scalar.c which checks the
+ * attributes of an already-open netCDF file. In this code, the length
+ * of two attributes are checked, and found to be 1.
+ *
+@code
      #include <netcdf.h>
      ...
 int
@@ -408,18 +406,18 @@ check_attrs(int ncid, int obj)
     if (nc_inq_attlen(ncid, obj, VSTR_ATT2_NAME, &len)) ERR_GOTO;
     if (len != 1) ERR_GOTO;
 
-\endcode
+@endcode
 
-\returns ::NC_NOERR no error.
-\returns ::NC_EBADID bad ncid.
-\returns ::NC_ENOTVAR bad varid.
-\returns ::NC_EBADGRPID bad group ID.
-\returns ::NC_EBADNAME bad name.
-\returns ::NC_ENOTATT attribute not found.
-\returns ::NC_ECHAR illegal conversion to or from NC_CHAR.
-\returns ::NC_ENOMEM out of memory.
-\returns ::NC_ERANGE range error when converting data.
-\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+ * @return ::NC_NOERR no error.
+ * @return ::NC_EBADID bad ncid.
+ * @return ::NC_ENOTVAR bad varid.
+ * @return ::NC_EBADGRPID bad group ID.
+ * @return ::NC_EBADNAME bad name.
+ * @return ::NC_ENOTATT attribute not found.
+ * @return ::NC_ECHAR illegal conversion to or from NC_CHAR.
+ * @return ::NC_ENOMEM out of memory.
+ * @return ::NC_ERANGE range error when converting data.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_inq_attlen(int ncid, int varid, const char *name, size_t *lenp)

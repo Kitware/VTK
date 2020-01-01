@@ -499,7 +499,7 @@ printValue(NC4printer* out, NCID* basetype, void* value, int depth)
 
 /* Make public to allow use elsewhere */
 
-static char hexchars[16] = "0123456789abcdef";
+static const char hexchars[16] = "0123456789abcdef";
 
 static int
 getPrintValue(NCbytes* out, NCID* basetype, void* value)

@@ -423,7 +423,7 @@ ncaux_class_alignment(int ncclass)
 EXTERNL size_t
 ncaux_type_alignment(int xtype, int ncid)
 {
-    if(!NC_alignments_computed) {
+    if(!ncaux_initialized) {
 	NC_compute_alignments();
 	ncaux_initialized = 1;
     }

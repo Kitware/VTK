@@ -40,7 +40,6 @@ static int NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
 
 static int NC3_var_par_access(int,int,int);
 
-#ifdef USE_NETCDF4
 static int NC3_show_metadata(int);
 static int NC3_inq_unlimdims(int,int*,int*);
 static int NC3_inq_ncid(int,const char*,int*);
@@ -78,9 +77,8 @@ static int NC3_def_var_filter(int, int, unsigned int, size_t, const unsigned int
 
 static int NC3_set_var_chunk_cache(int,int,size_t,size_t,float);
 static int NC3_get_var_chunk_cache(int,int,size_t*,size_t*,float*);
-#endif /*USE_NETCDF4*/
 
-static NC_Dispatch NC3_dispatcher = {
+static const NC_Dispatch NC3_dispatcher = {
 
 NC_FORMATX_NC3,
 
@@ -93,8 +91,6 @@ NC3_sync,
 NC3_abort,
 NC3_close,
 NC3_set_fill,
-NC3_inq_base_pe,
-NC3_set_base_pe,
 NC3_inq_format,
 NC3_inq_format_extended,
 
@@ -130,7 +126,6 @@ NC3_inq_var_all,
 NC3_var_par_access,
 NC3_def_var_fill,
 
-#ifdef USE_NETCDF4
 NC3_show_metadata,
 NC3_inq_unlimdims,
 NC3_inq_ncid,
@@ -169,11 +164,9 @@ NC3_def_var_filter,
 NC3_set_var_chunk_cache,
 NC3_get_var_chunk_cache,
 
-#endif /*_NC4DISPATCH_H*/
-
 };
 
-NC_Dispatch* NC3_dispatch_table = NULL; /*!< NC3 Dispatch table, moved here from ddispatch.c */
+const NC_Dispatch* NC3_dispatch_table = NULL; /*!< NC3 Dispatch table, moved here from ddispatch.c */
 
 int
 NC3_initialize(void)
@@ -215,8 +208,6 @@ NC3_var_par_access(int ncid, int varid, int par_access)
 {
     return NC_NOERR; /* no-op for netcdf classic */
 }
-    
-#ifdef USE_NETCDF4
 
 static int
 NC3_inq_unlimdims(int ncid, int *ndimsp, int *unlimdimidsp)
@@ -515,6 +506,4 @@ NC3_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams, const u
 {
     return NC_ENOTNC4;
 }
-
-#endif /*USE_NETCDF4*/
     

@@ -4,7 +4,7 @@ Main header file for the C API.
 
 Copyright 2018, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
-2015, 2016, 2017, 2018
+2015, 2016, 2017, 2018, 2019
 University Corporation for Atmospheric Research/Unidata.
 
 See \ref copyright file for more info.
@@ -1762,19 +1762,17 @@ nc_show_metadata(int ncid);
 
 /* End {put,get}_var */
 
-/* #ifdef _CRAYMPP */
+/* Delete a file. */
+EXTERNL int
+nc_delete(const char *path);
+
 /*
- * Public interfaces to better support
- * CRAY multi-processor systems like T3E.
- * A tip of the hat to NERSC.
- */
-/*
- * It turns out we need to declare and define
- * these public interfaces on all platforms
- * or things get ugly working out the
- * FORTRAN interface. On !_CRAYMPP platforms,
- * these functions work as advertised, but you
- * can only use "processor element" 0.
+ * The following functions were written to accommodate the old Cray
+ * systems. Modern HPC systems do not use these functions any more,
+ * but use the nc_open_par()/nc_create_par() functions instead. These
+ * functions are retained for backward compatibibility. These
+ * functions work as advertised, but you can only use "processor
+ * element" 0.
  */
 
 EXTERNL int
@@ -1786,9 +1784,6 @@ nc__open_mp(const char *path, int mode, int basepe,
         size_t *chunksizehintp, int *ncidp);
 
 EXTERNL int
-nc_delete(const char *path);
-
-EXTERNL int
 nc_delete_mp(const char *path, int basepe);
 
 EXTERNL int
@@ -1796,8 +1791,6 @@ nc_set_base_pe(int ncid, int pe);
 
 EXTERNL int
 nc_inq_base_pe(int ncid, int *pe);
-
-/* #endif _CRAYMPP */
 
 /* This v2 function is used in the nc_test program. */
 EXTERNL int

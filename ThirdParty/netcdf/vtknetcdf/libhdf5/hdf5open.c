@@ -357,8 +357,11 @@ dimscale_visitor(hid_t did, unsigned dim, hid_t dsid,
 }
 
 /**
- * @internal For files without any netCDF-4 dimensions defined, create phony
- * dimension to match the available datasets.
+ * @internal For files without any netCDF-4 dimensions defined, create
+ * phony dimension to match the available datasets. Each new dimension
+ * of a new size gets a phony dimension. However, if a var has more
+ * than one dimension defined, and they are the same size, they each
+ * get their own phony dimension (starting in netcdf-c-4.7.3).
  *
  * @param grp Pointer to the group info.
  * @param hdf_datasetid HDF5 datsetid for the var's dataset.
@@ -409,21 +412,35 @@ create_phony_dims(NC_GRP_INFO_T *grp, hid_t hdf_datasetid, NC_VAR_INFO_T *var)
     for (d = 0; d < var->ndims; d++)
     {
         int k;
-        int match;
+        int match = 0;
 
         /* Is there already a phony dimension of the correct size? */
-        for (match=-1, k = 0; k < ncindexsize(grp->dim); k++)
+        for (k = 0; k < ncindexsize(grp->dim); k++)
         {
             dim = (NC_DIM_INFO_T *)ncindexith(grp->dim, k);
             assert(dim);
             if ((dim->len == h5dimlen[d]) &&
                 ((h5dimlenmax[d] == H5S_UNLIMITED && dim->unlimited) ||
                  (h5dimlenmax[d] != H5S_UNLIMITED && !dim->unlimited)))
-            {match = k; break;}
+            {
+                int k1;
+
+                /* We found a match! */
+                match++;
+
+                /* If this phony dimension has already in use for this
+                 * var, we should not use it again. */
+                for (k1 = 0; k1 < d; k1++)
+                    if (var->dimids[k1] == dim->hdr.id)
+                        match = 0;
+
+                if (match)
+                    break;
+            }
         }
 
         /* Didn't find a phony dim? Then create one. */
-        if (match < 0)
+        if (!match)
         {
             char phony_dim_name[NC_MAX_NAME + 1];
             sprintf(phony_dim_name, "phony_dim_%d", grp->nc4_info->next_dimid);
@@ -622,7 +639,7 @@ check_for_classic_model(NC_GRP_INFO_T *root_grp, int *is_classic)
  * @param path The file name of the new file.
  * @param mode The open mode flag.
  * @param parameters File parameters.
- * @param nc Pointer to NC file info.
+ * @param ncid The ncid that has been assigned to this file.
  *
  * @return ::NC_NOERR No error.
  * @return ::NC_ENOMEM Out of memory.
@@ -634,30 +651,36 @@ check_for_classic_model(NC_GRP_INFO_T *root_grp, int *is_classic)
  * @author Ed Hartnett, Dennis Heimbigner
  */
 static int
-nc4_open_file(const char *path, int mode, void* parameters, NC *nc)
+nc4_open_file(const char *path, int mode, void* parameters, int ncid)
 {
-    hid_t fapl_id = H5P_DEFAULT;
-    int retval;
-    unsigned flags;
     NC_FILE_INFO_T *nc4_info = NULL;
-    int is_classic;
     NC_HDF5_FILE_INFO_T *h5 = NULL;
-
+    NC *nc;
+    hid_t fapl_id = H5P_DEFAULT;
+    unsigned flags;
+    int is_classic;
 #ifdef USE_PARALLEL4
-    NC_MPI_INFO* mpiinfo = NULL;
+    NC_MPI_INFO *mpiinfo = NULL;
     int comm_duped = 0; /* Whether the MPI Communicator was duplicated */
     int info_duped = 0; /* Whether the MPI Info object was duplicated */
 #endif
+    int retval;
 
     LOG((3, "%s: path %s mode %d", __func__, path, mode));
-    assert(path && nc);
+    assert(path);
 
+    /* Find pointer to NC. */
+    if ((retval = NC_check_id(ncid, &nc)))
+        return retval;
+    assert(nc);
+
+    /* Determine the HDF5 open flag to use. */
     flags = (mode & NC_WRITE) ? H5F_ACC_RDWR : H5F_ACC_RDONLY;
 
     /* Add necessary structs to hold netcdf-4 file data. */
     if ((retval = nc4_nc4f_list_add(nc, path, mode)))
         BAIL(retval);
-    nc4_info = NC4_DATA(nc);
+    nc4_info = (NC_FILE_INFO_T *)nc->dispatchdata;
     assert(nc4_info && nc4_info->root_grp);
 
     /* Add struct to hold HDF5-specific file metadata. */
@@ -672,13 +695,13 @@ nc4_open_file(const char *path, int mode, void* parameters, NC *nc)
 
 #ifdef ENABLE_BYTERANGE
     /* See if we want the byte range protocol */
-    if(nc->model->iosp == NC_IOSP_HTTP) {
-	h5->http.iosp = 1;
-	/* Kill off any conflicting modes flags */
-	mode &= ~(NC_WRITE|NC_DISKLESS|NC_PERSIST|NC_INMEMORY);
-	parameters = NULL; /* kill off parallel */
+    if(NC_testmode(path,"bytes")) {
+        h5->http.iosp = 1;
+        /* Kill off any conflicting modes flags */
+        mode &= ~(NC_WRITE|NC_DISKLESS|NC_PERSIST|NC_INMEMORY);
+        parameters = NULL; /* kill off parallel */
     } else
-	h5->http.iosp = 0;
+        h5->http.iosp = 0;
 #endif /*ENABLE_BYTERANGE*/
 
     nc4_info->mem.inmemory = ((mode & NC_INMEMORY) == NC_INMEMORY);
@@ -687,7 +710,7 @@ nc4_open_file(const char *path, int mode, void* parameters, NC *nc)
 
     /* Does the mode specify that this file is read-only? */
     if ((mode & NC_WRITE) == 0)
-	nc4_info->no_write = NC_TRUE;
+        nc4_info->no_write = NC_TRUE;
 
     if(nc4_info->mem.inmemory && nc4_info->mem.diskless)
         BAIL(NC_EINTERNAL);
@@ -748,76 +771,76 @@ nc4_open_file(const char *path, int mode, void* parameters, NC *nc)
 
     /* Process  NC_INMEMORY */
     if(nc4_info->mem.inmemory) {
-	NC_memio* memio;
-	/* validate */
-	if(parameters == NULL)
-	    BAIL(NC_EINMEMORY);
-	memio = (NC_memio*)parameters;
-	if(memio->memory == NULL || memio->size == 0)
+        NC_memio* memio;
+        /* validate */
+        if(parameters == NULL)
             BAIL(NC_EINMEMORY);
-	/* initialize h5->mem */
-	nc4_info->mem.memio = *memio;
-	/* Is the incoming memory locked? */
-	nc4_info->mem.locked = (nc4_info->mem.memio.flags & NC_MEMIO_LOCKED) == NC_MEMIO_LOCKED;
-	/* As a safeguard, if not locked and not read-only,
-	   then we must take control of the incoming memory */
-	if(!nc4_info->mem.locked && !nc4_info->no_write) {
+        memio = (NC_memio*)parameters;
+        if(memio->memory == NULL || memio->size == 0)
+            BAIL(NC_EINMEMORY);
+        /* initialize h5->mem */
+        nc4_info->mem.memio = *memio;
+        /* Is the incoming memory locked? */
+        nc4_info->mem.locked = (nc4_info->mem.memio.flags & NC_MEMIO_LOCKED) == NC_MEMIO_LOCKED;
+        /* As a safeguard, if not locked and not read-only,
+           then we must take control of the incoming memory */
+        if(!nc4_info->mem.locked && !nc4_info->no_write) {
             memio->memory = NULL; /* take control */
             memio->size = 0;
-	}
-	retval = NC4_open_image_file(nc4_info);
-	if(retval)
+        }
+        retval = NC4_open_image_file(nc4_info);
+        if(retval)
             BAIL(NC_EHDFERR);
     }
     else
-    if(nc4_info->mem.diskless) {   /* Process  NC_DISKLESS */
-	size_t min_incr = 65536; /* Minimum buffer increment */
-	/* Configure FAPL to use the core file driver */
-	if (H5Pset_fapl_core(fapl_id, min_incr, (nc4_info->mem.persist?1:0)) < 0)
-	BAIL(NC_EHDFERR);
-	/* Open the HDF5 file. */
-	if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
-            BAIL(NC_EHDFERR);
-    }
+        if(nc4_info->mem.diskless) {   /* Process  NC_DISKLESS */
+            size_t min_incr = 65536; /* Minimum buffer increment */
+            /* Configure FAPL to use the core file driver */
+            if (H5Pset_fapl_core(fapl_id, min_incr, (nc4_info->mem.persist?1:0)) < 0)
+                BAIL(NC_EHDFERR);
+            /* Open the HDF5 file. */
+            if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+                BAIL(NC_EHDFERR);
+        }
 #ifdef ENABLE_BYTERANGE
-    else
-    if(h5->http.iosp) {   /* Arrange to use the byte-range driver */
-	/* Configure FAPL to use the byte-range file driver */
-	if (H5Pset_fapl_http(fapl_id) < 0)
-	    BAIL(NC_EHDFERR);
-	/* Open the HDF5 file. */
-	if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
-	    BAIL(NC_EHDFERR);
-    }
+        else
+            if(h5->http.iosp) {   /* Arrange to use the byte-range driver */
+                /* Configure FAPL to use the byte-range file driver */
+                if (H5Pset_fapl_http(fapl_id) < 0)
+                    BAIL(NC_EHDFERR);
+                /* Open the HDF5 file. */
+                if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+                    BAIL(NC_EHDFERR);
+            }
 #endif
-    else
-    {
-       /* Open the HDF5 file. */
-       if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
-          BAIL(NC_EHDFERR);
-    }
+            else
+            {
+                /* Open the HDF5 file. */
+                if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+                    BAIL(NC_EHDFERR);
+            }
 
     /* Now read in all the metadata. Some types and dimscale
      * information may be difficult to resolve here, if, for example, a
      * dataset of user-defined type is encountered before the
      * definition of that type. */
     if ((retval = rec_read_metadata(nc4_info->root_grp)))
-       BAIL(retval);
+        BAIL(retval);
 
     /* Check for classic model attribute. */
     if ((retval = check_for_classic_model(nc4_info->root_grp, &is_classic)))
-       BAIL(retval);
+        BAIL(retval);
     if (is_classic)
-       nc4_info->cmode |= NC_CLASSIC_MODEL;
+        nc4_info->cmode |= NC_CLASSIC_MODEL;
 
     /* Set the provenance info for this file */
     if ((retval = NC4_read_provenance(nc4_info)))
-       BAIL(retval);
+        BAIL(retval);
 
     /* Now figure out which netCDF dims are indicated by the dimscale
      * information. */
     if ((retval = rec_match_dimscales(nc4_info->root_grp)))
-       BAIL(retval);
+        BAIL(retval);
 
 #ifdef LOGGING
     /* This will print out the names, types, lens, etc of the vars and
@@ -862,10 +885,9 @@ exit:
  */
 int
 NC4_open(const char *path, int mode, int basepe, size_t *chunksizehintp,
-         void *parameters, NC_Dispatch *dispatch, NC *nc_file)
+         void *parameters, const NC_Dispatch *dispatch, int ncid)
 {
-    assert(nc_file && path && dispatch && nc_file &&
-           nc_file->model->impl == NC_FORMATX_NC4);
+    assert(path && dispatch);
 
     LOG((1, "%s: path %s mode %d params %x",
          __func__, path, mode, parameters));
@@ -887,10 +909,8 @@ NC4_open(const char *path, int mode, int basepe, size_t *chunksizehintp,
     hdf5_set_log_level();
 #endif /* LOGGING */
 
-    nc_file->int_ncid = nc_file->ext_ncid;
-
     /* Open the file. */
-    return nc4_open_file(path, mode, parameters, nc_file);
+    return nc4_open_file(path, mode, parameters, ncid);
 }
 
 /**
@@ -1531,7 +1551,7 @@ read_hdf5_att(NC_GRP_INFO_T *grp, hid_t attid, NC_ATT_INFO_T *att)
     LOG((5, "%s: att->hdr.id %d att->hdr.name %s att->nc_typeid %d att->len %d",
          __func__, att->hdr.id, att->hdr.name, (int)att->nc_typeid, att->len));
 
-    /* Get HDF5-sepecific info stuct for this attribute. */
+    /* Get HDF5-sepecific info struct for this attribute. */
     hdf5_att = (NC_HDF5_ATT_INFO_T *)att->format_att_info;
 
     /* Get type of attribute in file. */
@@ -1721,7 +1741,7 @@ hdf5free(void* memory)
 #ifndef JNA
     /* On Windows using the microsoft runtime, it is an error
        for one library to free memory allocated by a different library.*/
-#ifdef HDF5_HAS_H5FREE
+#ifdef HAVE_H5FREE_MEMORY
     if(memory != NULL) H5free_memory(memory);
 #else
 #ifndef _MSC_VER
@@ -2043,7 +2063,7 @@ att_read_callbk(hid_t loc_id, const char *att_name, const H5A_info_t *ainfo,
     att_iter_info *att_info = (att_iter_info *)att_data;
     int retval = NC_NOERR;
 
-    /* Determin what list is being added to. */
+    /* Determine what list is being added to. */
     list = att_info->var ? att_info->var->att : att_info->grp->att;
 
     /* This may be an attribute telling us that strict netcdf-3 rules
@@ -2109,7 +2129,7 @@ exit:
  * @param var Pointer to the var info. NULL for global att reads.
  *
  * @return ::NC_NOERR No error.
- * @return ::NC_EATTMETA Some error occured reading attributes.
+ * @return ::NC_EATTMETA Some error occurred reading attributes.
  * @author Ed Hartnett
  */
 int
@@ -2436,7 +2456,7 @@ read_hdf5_obj(hid_t grpid, const char *name, const H5L_info_t *info,
                                    &oinfo.statbuf)))
         {
             /* Allow NC_EBADTYPID to transparently skip over datasets
-             * which have a datatype that netCDF-4 doesn't undertand
+             * which have a datatype that netCDF-4 doesn't understand
              * (currently), but break out of iteration for other
              * errors. */
             if (retval != NC_EBADTYPID)

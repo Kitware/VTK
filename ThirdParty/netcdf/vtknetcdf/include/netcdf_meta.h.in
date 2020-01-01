@@ -57,5 +57,6 @@
 #define NC_HAS_CDF5      @NC_HAS_CDF5@  /*!< CDF5 support. */
 #define NC_HAS_ERANGE_FILL @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support */
 #define NC_RELAX_COORD_BOUND @NC_RELAX_COORD_BOUND@ /*!< RELAX_COORD_BOUND */
+#define NC_DISPATCH_VERSION @NC_DISPATCH_VERSION@ /*!< Dispatch table version */
 
 #endif
