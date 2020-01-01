@@ -850,7 +850,7 @@ H5Z_parse_factor(H5Z_token *current, H5Z_datval_ptrs* dat_val_pointers)
 
             if (!factor)
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "Unable to allocate new node")
-            sscanf(current->tok_begin, "%ld", &factor->value.int_val);
+            HDsscanf(current->tok_begin, "%ld", &factor->value.int_val);
             break;
 
         case H5Z_XFORM_FLOAT:
@@ -858,7 +858,7 @@ H5Z_parse_factor(H5Z_token *current, H5Z_datval_ptrs* dat_val_pointers)
 
             if (!factor)
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "Unable to allocate new node")
-            sscanf(current->tok_begin, "%lf", &factor->value.float_val);
+            HDsscanf(current->tok_begin, "%lf", &factor->value.float_val);
             break;
 
         case H5Z_XFORM_SYMBOL:

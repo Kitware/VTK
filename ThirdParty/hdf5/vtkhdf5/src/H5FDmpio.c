@@ -15,22 +15,22 @@
  * Programmer:  Robb Matzke <matzke@llnl.gov>
  *              Thursday, July 29, 1999
  *
- * Purpose:	This is the MPI-2 I/O driver.
+ * Purpose:    This is the MPI-2 I/O driver.
  *
  */
 
 #include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
 
 
-#include "H5private.h"		/* Generic Functions			*/
+#include "H5private.h"        /* Generic Functions            */
 #include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Dprivate.h"		/* Dataset functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fprivate.h"		/* File access				*/
-#include "H5FDprivate.h"	/* File drivers				*/
-#include "H5FDmpi.h"            /* MPI-based file drivers		*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
+#include "H5Dprivate.h"        /* Dataset functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5Fprivate.h"        /* File access                */
+#include "H5FDprivate.h"    /* File drivers                */
+#include "H5FDmpi.h"            /* MPI-based file drivers        */
+#include "H5Iprivate.h"        /* IDs                      */
+#include "H5MMprivate.h"    /* Memory management            */
 #include "H5Pprivate.h"         /* Property lists                       */
 
 #ifdef H5_HAVE_PARALLEL
@@ -58,16 +58,16 @@ static char H5FD_mpi_native_g[] = "native";
  * driver doesn't bother to keep it updated since it's an expensive operation.
  */
 typedef struct H5FD_mpio_t {
-    H5FD_t	pub;		/*public stuff, must be first		*/
-    MPI_File	f;		/*MPIO file handle			*/
-    MPI_Comm	comm;		/*communicator				*/
-    MPI_Info	info;		/*file information			*/
+    H5FD_t    pub;        /*public stuff, must be first        */
+    MPI_File    f;        /*MPIO file handle            */
+    MPI_Comm    comm;        /*communicator                */
+    MPI_Info    info;        /*file information            */
     int         mpi_rank;       /* This process's rank                  */
     int         mpi_size;       /* Total number of processes            */
-    haddr_t	eof;		/*end-of-file marker			*/
-    haddr_t	eoa;		/*end-of-address marker			*/
-    haddr_t	last_eoa;	/* Last known end-of-address marker	*/
-    haddr_t	local_eof;	/* Local end-of-file address for each process */
+    haddr_t    eof;        /*end-of-file marker            */
+    haddr_t    eoa;        /*end-of-address marker            */
+    haddr_t    last_eoa;    /* Last known end-of-address marker    */
+    haddr_t    local_eof;    /* Local end-of-file address for each process */
 } H5FD_mpio_t;
 
 /* Private Prototypes */
@@ -78,7 +78,7 @@ static void *H5FD_mpio_fapl_get(H5FD_t *_file);
 static void *H5FD_mpio_fapl_copy(const void *_old_fa);
 static herr_t H5FD_mpio_fapl_free(void *_fa);
 static H5FD_t *H5FD_mpio_open(const char *name, unsigned flags, hid_t fapl_id,
-			      haddr_t maxaddr);
+                haddr_t maxaddr);
 static herr_t H5FD_mpio_close(H5FD_t *_file);
 static herr_t H5FD_mpio_query(const H5FD_t *_f1, unsigned long *flags);
 static haddr_t H5FD_mpio_get_eoa(const H5FD_t *_file, H5FD_mem_t type);
@@ -99,35 +99,35 @@ static herr_t  H5FD_mpio_get_info(H5FD_t *_file, void** mpi_info);
 /* The MPIO file driver information */
 static const H5FD_class_mpi_t H5FD_mpio_g = {
     {   /* Start of superclass information */
-    "mpio",					/*name			*/
-    HADDR_MAX,					/*maxaddr		*/
-    H5F_CLOSE_SEMI,				/* fc_degree		*/
+    "mpio",                    /*name            */
+    HADDR_MAX,                    /*maxaddr        */
+    H5F_CLOSE_SEMI,                /* fc_degree        */
     H5FD_mpio_term,                             /*terminate             */
-    NULL,					/*sb_size		*/
-    NULL,					/*sb_encode		*/
-    NULL,					/*sb_decode		*/
-    sizeof(H5FD_mpio_fapl_t),			/*fapl_size		*/
-    H5FD_mpio_fapl_get,				/*fapl_get		*/
-    H5FD_mpio_fapl_copy,			/*fapl_copy		*/
-    H5FD_mpio_fapl_free, 			/*fapl_free		*/
-    0,		                		/*dxpl_size		*/
-    NULL,					/*dxpl_copy		*/
-    NULL,					/*dxpl_free		*/
-    H5FD_mpio_open,				/*open			*/
-    H5FD_mpio_close,				/*close			*/
-    NULL,					/*cmp			*/
-    H5FD_mpio_query,		                /*query			*/
-    NULL,					/*get_type_map		*/
-    NULL,					/*alloc			*/
-    NULL,					/*free			*/
-    H5FD_mpio_get_eoa,				/*get_eoa		*/
-    H5FD_mpio_set_eoa, 				/*set_eoa		*/
-    H5FD_mpio_get_eof,				/*get_eof		*/
+    NULL,                    /*sb_size        */
+    NULL,                    /*sb_encode        */
+    NULL,                    /*sb_decode        */
+    sizeof(H5FD_mpio_fapl_t),            /*fapl_size        */
+    H5FD_mpio_fapl_get,                /*fapl_get        */
+    H5FD_mpio_fapl_copy,            /*fapl_copy        */
+    H5FD_mpio_fapl_free,             /*fapl_free        */
+    0,                                /*dxpl_size        */
+    NULL,                    /*dxpl_copy        */
+    NULL,                    /*dxpl_free        */
+    H5FD_mpio_open,                /*open            */
+    H5FD_mpio_close,                /*close            */
+    NULL,                    /*cmp            */
+    H5FD_mpio_query,                        /*query            */
+    NULL,                    /*get_type_map        */
+    NULL,                    /*alloc            */
+    NULL,                    /*free            */
+    H5FD_mpio_get_eoa,                /*get_eoa        */
+    H5FD_mpio_set_eoa,                 /*set_eoa        */
+    H5FD_mpio_get_eof,                /*get_eof        */
     H5FD_mpio_get_handle,                       /*get_handle            */
-    H5FD_mpio_read,				/*read			*/
-    H5FD_mpio_write,				/*write			*/
-    H5FD_mpio_flush,				/*flush			*/
-    H5FD_mpio_truncate,				/*truncate		*/
+    H5FD_mpio_read,                /*read            */
+    H5FD_mpio_write,                /*write            */
+    H5FD_mpio_flush,                /*flush            */
+    H5FD_mpio_truncate,                /*truncate        */
     NULL,                                       /*lock                  */
     NULL,                                       /*unlock                */
     H5FD_FLMAP_DICHOTOMY                        /*fl_map                */
@@ -158,7 +158,7 @@ static int H5FD_mpio_Debug[256] =
           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 #endif
 
-
+
 /*--------------------------------------------------------------------------
 NAME
    H5FD__init_package -- Initialize interface-specific information
@@ -185,17 +185,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5FD__init_package() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_init
+ * Function:    H5FD_mpio_init
  *
- * Purpose:	Initialize this driver by registering the driver with the
- *		library.
+ * Purpose:    Initialize this driver by registering the driver with the
+ *        library.
  *
- * Return:	Success:	The driver ID for the mpio driver.
- *		Failure:	Negative.
+ * Return:    Success:    The driver ID for the mpio driver.
+ *        Failure:    Negative.
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Thursday, August 5, 1999
  *
  *-------------------------------------------------------------------------
@@ -207,7 +207,7 @@ H5FD_mpio_init(void)
     static int H5FD_mpio_Debug_inited = 0;
 #endif /* H5FDmpio_DEBUG */
     const char *s;              /* String for environment variables */
-    hid_t ret_value;        	/* Return value */
+    hid_t ret_value;            /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -226,12 +226,12 @@ H5FD_mpio_init(void)
         s = HDgetenv("H5FD_mpio_Debug");
         if(s) {
             /* Set debug mask */
-	    while(*s) {
-		H5FD_mpio_Debug[(int)*s]++;
-		s++;
-	    } /* end while */
+        while(*s) {
+        H5FD_mpio_Debug[(int)*s]++;
+        s++;
+        } /* end while */
         } /* end if */
-	H5FD_mpio_Debug_inited++;
+    H5FD_mpio_Debug_inited++;
     } /* end if */
 #endif /* H5FDmpio_DEBUG */
 
@@ -242,11 +242,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_init() */
 
-
+
 /*---------------------------------------------------------------------------
- * Function:	H5FD_mpio_term
+ * Function:    H5FD_mpio_term
  *
- * Purpose:	Shut down the VFD
+ * Purpose:    Shut down the VFD
  *
  * Returns:     Non-negative on success or negative on failure
  *
@@ -266,43 +266,43 @@ H5FD_mpio_term(void)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5FD_mpio_term() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_fapl_mpio
+ * Function:    H5Pset_fapl_mpio
  *
- * Purpose:	Store the user supplied MPIO communicator comm and info in
- *		the file access property list FAPL_ID which can then be used
- *		to create and/or open the file.  This function is available
- *		only in the parallel HDF5 library and is not collective.
+ * Purpose:    Store the user supplied MPIO communicator comm and info in
+ *        the file access property list FAPL_ID which can then be used
+ *        to create and/or open the file.  This function is available
+ *        only in the parallel HDF5 library and is not collective.
  *
- *		comm is the MPI communicator to be used for file open as
- *		defined in MPI_FILE_OPEN of MPI-2. This function makes a
- *		duplicate of comm. Any modification to comm after this function
- *		call returns has no effect on the access property list.
+ *        comm is the MPI communicator to be used for file open as
+ *        defined in MPI_FILE_OPEN of MPI-2. This function makes a
+ *        duplicate of comm. Any modification to comm after this function
+ *        call returns has no effect on the access property list.
  *
- *		info is the MPI Info object to be used for file open as
- *		defined in MPI_FILE_OPEN of MPI-2. This function makes a
- *		duplicate of info. Any modification to info after this
- *		function call returns has no effect on the access property
- *		list.
+ *        info is the MPI Info object to be used for file open as
+ *        defined in MPI_FILE_OPEN of MPI-2. This function makes a
+ *        duplicate of info. Any modification to info after this
+ *        function call returns has no effect on the access property
+ *        list.
  *
  *              If fapl_id has previously set comm and info values, they
  *              will be replaced and the old communicator and Info object
  *              are freed.
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
- * Programmer:	Albert Cheng
- *		Feb 3, 1998
+ * Programmer:    Albert Cheng
+ *        Feb 3, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pset_fapl_mpio(hid_t fapl_id, MPI_Comm comm, MPI_Info info)
 {
-    H5FD_mpio_fapl_t	fa;
+    H5FD_mpio_fapl_t    fa;
     H5P_genplist_t *plist;      /* Property list pointer */
     herr_t ret_value;
 
@@ -316,7 +316,7 @@ H5Pset_fapl_mpio(hid_t fapl_id, MPI_Comm comm, MPI_Info info)
     if(NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a file access list")
     if(MPI_COMM_NULL == comm)
-	HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a valid communicator")
+    HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a valid communicator")
 
     /* Initialize driver specific properties */
     fa.comm = comm;
@@ -329,28 +329,28 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_fapl_mpio() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_fapl_mpio
+ * Function:    H5Pget_fapl_mpio
  *
- * Purpose:	If the file access property list is set to the H5FD_MPIO
- *		driver then this function returns duplicates of the MPI
- *		communicator and Info object stored through the comm and
- *		info pointers.  It is the responsibility of the application
- *		to free the returned communicator and Info object.
+ * Purpose:    If the file access property list is set to the H5FD_MPIO
+ *        driver then this function returns duplicates of the MPI
+ *        communicator and Info object stored through the comm and
+ *        info pointers.  It is the responsibility of the application
+ *        to free the returned communicator and Info object.
  *
- * Return:	Success:	Non-negative with the communicator and
- *				Info object returned through the comm and
- *				info arguments if non-null. Since they are
- *				duplicates of the stored objects, future
- *				modifications to the access property list do
- *				not affect them and it is the responsibility
- *				of the application to free them.
+ * Return:    Success:    Non-negative with the communicator and
+ *                Info object returned through the comm and
+ *                info arguments if non-null. Since they are
+ *                duplicates of the stored objects, future
+ *                modifications to the access property list do
+ *                not affect them and it is the responsibility
+ *                of the application to free them.
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Thursday, February 26, 1998
+ * Programmer:    Robb Matzke
+ *        Thursday, February 26, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -359,9 +359,9 @@ H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm/*out*/, MPI_Info *info/*out*/)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
     const H5FD_mpio_fapl_t *fa;       /* MPIO fapl info */
-    MPI_Comm	comm_tmp = MPI_COMM_NULL;
+    MPI_Comm    comm_tmp = MPI_COMM_NULL;
     hbool_t     comm_copied = FALSE;    /* MPI Comm has been duplicated */
-    int		mpi_code;		/* MPI return code */
+    int        mpi_code;        /* MPI return code */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -377,19 +377,19 @@ H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm/*out*/, MPI_Info *info/*out*/)
     /* Store the duplicated communicator in a temporary variable for error */
     /* recovery in case the INFO duplication fails. */
     if(comm) {
-	if(MPI_SUCCESS != (mpi_code = MPI_Comm_dup(fa->comm, &comm_tmp)))
-	    HMPI_GOTO_ERROR(FAIL, "MPI_Comm_dup failed", mpi_code)
+    if(MPI_SUCCESS != (mpi_code = MPI_Comm_dup(fa->comm, &comm_tmp)))
+        HMPI_GOTO_ERROR(FAIL, "MPI_Comm_dup failed", mpi_code)
         comm_copied = TRUE;
     } /* end if */
 
     if(info) {
-	if(MPI_INFO_NULL != fa->info) {
-	    if(MPI_SUCCESS != (mpi_code = MPI_Info_dup(fa->info, info)))
-		HMPI_GOTO_ERROR(FAIL, "MPI_Info_dup failed", mpi_code)
-	} /* end if */
+    if(MPI_INFO_NULL != fa->info) {
+        if(MPI_SUCCESS != (mpi_code = MPI_Info_dup(fa->info, info)))
+        HMPI_GOTO_ERROR(FAIL, "MPI_Info_dup failed", mpi_code)
+    } /* end if */
         else
-	    /* do not dup it */
-	    *info = MPI_INFO_NULL;
+        /* do not dup it */
+        *info = MPI_INFO_NULL;
     } /* end if */
 
     /* Store the copied communicator, now that the Info object has been
@@ -400,33 +400,33 @@ H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm/*out*/, MPI_Info *info/*out*/)
 
 done:
     if(ret_value < 0)
-	/* need to free anything created here */
-	if(comm_copied)
-	    MPI_Comm_free(&comm_tmp);
+    /* need to free anything created here */
+    if(comm_copied)
+        MPI_Comm_free(&comm_tmp);
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_fapl_mpio() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_mpio
+ * Function:    H5Pset_dxpl_mpio
  *
- * Purpose:	Set the data transfer property list DXPL_ID to use transfer
- *		mode XFER_MODE. The property list can then be used to control
- *		the I/O transfer mode during data I/O operations. The valid
- *		transfer modes are:
+ * Purpose:    Set the data transfer property list DXPL_ID to use transfer
+ *        mode XFER_MODE. The property list can then be used to control
+ *        the I/O transfer mode during data I/O operations. The valid
+ *        transfer modes are:
  *
- * 		H5FD_MPIO_INDEPENDENT:
- *			Use independent I/O access (the default).
+ *         H5FD_MPIO_INDEPENDENT:
+ *            Use independent I/O access (the default).
  *
- * 		H5FD_MPIO_COLLECTIVE:
- *			Use collective I/O access.
+ *         H5FD_MPIO_COLLECTIVE:
+ *            Use collective I/O access.
  *
- * Return:	Success:	Non-negative
- * 		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *         Failure:    Negative
  *
- * Programmer:	Albert Cheng
- *		April 2, 1998
+ * Programmer:    Albert Cheng
+ *        April 2, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -456,21 +456,21 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_dxpl_mpio() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_dxpl_mpio
+ * Function:    H5Pget_dxpl_mpio
  *
- * Purpose:	Queries the transfer mode current set in the data transfer
- *		property list DXPL_ID. This is not collective.
+ * Purpose:    Queries the transfer mode current set in the data transfer
+ *        property list DXPL_ID. This is not collective.
  *
- * Return:	Success:	Non-negative, with the transfer mode returned
- *				through the XFER_MODE argument if it is
- *				non-null.
+ * Return:    Success:    Non-negative, with the transfer mode returned
+ *                through the XFER_MODE argument if it is
+ *                non-null.
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
- * Programmer:	Albert Cheng
- *		April 2, 1998
+ * Programmer:    Albert Cheng
+ *        April 2, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -495,23 +495,23 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_dxpl_mpio() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_mpio_collective_opt
+ * Function:    H5Pset_dxpl_mpio_collective_opt
  *
- * Purpose:	To set a flag to choose linked chunk I/O or multi-chunk I/O
- *		without involving decision-making inside HDF5
+ * Purpose:    To set a flag to choose linked chunk I/O or multi-chunk I/O
+ *        without involving decision-making inside HDF5
  *
- * Note:	The library will do linked chunk I/O or multi-chunk I/O without
- *		involving communications for decision-making process.
- *		The library won't behave as it asks for only when we find
- *		that the low-level MPI-IO package doesn't support this.
+ * Note:    The library will do linked chunk I/O or multi-chunk I/O without
+ *        involving communications for decision-making process.
+ *        The library won't behave as it asks for only when we find
+ *        that the low-level MPI-IO package doesn't support this.
  *
- * Return:	Success:	Non-negative
- * 		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *         Failure:    Negative
  *
- * Programmer:	Kent Yang
- *		? ?, ?
+ * Programmer:    Kent Yang
+ *        ? ?, ?
  *
  *-------------------------------------------------------------------------
  */
@@ -541,21 +541,21 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_mpio_chunk_opt
+ * Function:    H5Pset_dxpl_mpio_chunk_opt
  *
- * Purpose:	To set a flag to choose linked chunk I/O or multi-chunk I/O
- *		without involving decision-making inside HDF5
+ * Purpose:    To set a flag to choose linked chunk I/O or multi-chunk I/O
+ *        without involving decision-making inside HDF5
  *
- * Note:	The library will do linked chunk I/O or multi-chunk I/O without
- *		involving communications for decision-making process.
- *		The library won't behave as it asks for only when we find
- *		that the low-level MPI-IO package doesn't support this.
+ * Note:    The library will do linked chunk I/O or multi-chunk I/O without
+ *        involving communications for decision-making process.
+ *        The library won't behave as it asks for only when we find
+ *        that the low-level MPI-IO package doesn't support this.
  *
- * Return:	Success:	Non-negative
- * 		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *         Failure:    Negative
  *
- * Programmer:	Kent Yang
- *		? ?, ?
+ * Programmer:    Kent Yang
+ *        ? ?, ?
  *
  *-------------------------------------------------------------------------
  */
@@ -583,21 +583,21 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_dxpl_mpio_chunk_opt() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_mpio_chunk_opt_num
+ * Function:    H5Pset_dxpl_mpio_chunk_opt_num
  *
- * Purpose:	To set a threshold for doing linked chunk IO
+ * Purpose:    To set a threshold for doing linked chunk IO
  *
- * Note:	If the number is greater than the threshold set by the user,
- *		the library will do linked chunk I/O; otherwise, I/O will be
- *		done for every chunk.
+ * Note:    If the number is greater than the threshold set by the user,
+ *        the library will do linked chunk I/O; otherwise, I/O will be
+ *        done for every chunk.
  *
- * Return:	Success:	Non-negative
- * 		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *         Failure:    Negative
  *
- * Programmer:	Kent Yang
- *		? ?, ?
+ * Programmer:    Kent Yang
+ *        ? ?, ?
  *
  *-------------------------------------------------------------------------
  */
@@ -625,24 +625,24 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_dxpl_mpio_chunk_opt_num() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_mpio_chunk_opt_ratio
+ * Function:    H5Pset_dxpl_mpio_chunk_opt_ratio
  *
- * Purpose:	To set a threshold for doing collective I/O for each chunk
+ * Purpose:    To set a threshold for doing collective I/O for each chunk
  *
- * Note:	The library will calculate the percentage of the number of
- *		process holding selections at each chunk. If that percentage
- *		of number of process in the individual chunk is greater than
- *		the threshold set by the user, the library will do collective
- *		chunk I/O for this chunk; otherwise, independent I/O will be
- *		done for this chunk.
+ * Note:    The library will calculate the percentage of the number of
+ *        process holding selections at each chunk. If that percentage
+ *        of number of process in the individual chunk is greater than
+ *        the threshold set by the user, the library will do collective
+ *        chunk I/O for this chunk; otherwise, independent I/O will be
+ *        done for this chunk.
  *
- * Return:	Success:	Non-negative
- * 		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *         Failure:    Negative
  *
- * Programmer:	Kent Yang
- *		? ?, ?
+ * Programmer:    Kent Yang
+ *        ? ?, ?
  *
  *-------------------------------------------------------------------------
  */
@@ -670,19 +670,19 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_dxpl_mpio_chunk_opt_ratio() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_fapl_get
+ * Function:    H5FD_mpio_fapl_get
  *
- * Purpose:	Returns a file access property list which could be used to
- *		create another file the same as this one.
+ * Purpose:    Returns a file access property list which could be used to
+ *        create another file the same as this one.
  *
- * Return:	Success:	Ptr to new file access property list with all
- *				fields copied from the file pointer.
+ * Return:    Success:    Ptr to new file access property list with all
+ *                fields copied from the file pointer.
  *
- *		Failure:	NULL
+ *        Failure:    NULL
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Friday, August 13, 1999
  *
  *-------------------------------------------------------------------------
@@ -690,8 +690,8 @@ done:
 static void *
 H5FD_mpio_fapl_get(H5FD_t *_file)
 {
-    H5FD_mpio_t		*file = (H5FD_mpio_t*)_file;
-    H5FD_mpio_fapl_t	*fa = NULL;
+    H5FD_mpio_t        *file = (H5FD_mpio_t*)_file;
+    H5FD_mpio_fapl_t    *fa = NULL;
     void      *ret_value;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -704,7 +704,7 @@ H5FD_mpio_fapl_get(H5FD_t *_file)
 
     /* Duplicate communicator and Info object. */
     if(FAIL == H5FD_mpi_comm_info_dup(file->comm, file->info, &fa->comm, &fa->info))
-	HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
+    HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
 
     /* Set return value */
     ret_value = fa;
@@ -713,17 +713,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_fapl_copy
+ * Function:    H5FD_mpio_fapl_copy
  *
- * Purpose:	Copies the mpio-specific file access properties.
+ * Purpose:    Copies the mpio-specific file access properties.
  *
- * Return:	Success:	Ptr to a new property list
+ * Return:    Success:    Ptr to a new property list
  *
- *		Failure:	NULL
+ *        Failure:    NULL
  *
- * Programmer:	Albert Cheng
+ * Programmer:    Albert Cheng
  *              Jan  8, 2003
  *
  *-------------------------------------------------------------------------
@@ -731,14 +731,14 @@ done:
 static void *
 H5FD_mpio_fapl_copy(const void *_old_fa)
 {
-    void		*ret_value = NULL;
+    void        *ret_value = NULL;
     const H5FD_mpio_fapl_t *old_fa = (const H5FD_mpio_fapl_t*)_old_fa;
-    H5FD_mpio_fapl_t	*new_fa = NULL;
+    H5FD_mpio_fapl_t    *new_fa = NULL;
 
     FUNC_ENTER_NOAPI_NOINIT
 #ifdef H5FDmpio_DEBUG
 if (H5FD_mpio_Debug[(int)'t'])
-fprintf(stderr, "enter H5FD_mpio_fapl_copy\n");
+HDfprintf(stderr, "enter H5FD_mpio_fapl_copy\n");
 #endif
 
     if(NULL == (new_fa = (H5FD_mpio_fapl_t *)H5MM_malloc(sizeof(H5FD_mpio_fapl_t))))
@@ -749,34 +749,34 @@ fprintf(stderr, "enter H5FD_mpio_fapl_copy\n");
 
     /* Duplicate communicator and Info object. */
     if(FAIL == H5FD_mpi_comm_info_dup(old_fa->comm, old_fa->info, &new_fa->comm, &new_fa->info))
-	HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
+    HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
     ret_value = new_fa;
 
 done:
     if (NULL == ret_value){
-	/* cleanup */
-	if (new_fa)
-	    H5MM_xfree(new_fa);
+    /* cleanup */
+    if (new_fa)
+        H5MM_xfree(new_fa);
     }
 
 #ifdef H5FDmpio_DEBUG
 if (H5FD_mpio_Debug[(int)'t'])
-fprintf(stderr, "leaving H5FD_mpio_fapl_copy\n");
+HDfprintf(stderr, "leaving H5FD_mpio_fapl_copy\n");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_fapl_copy() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_fapl_free
+ * Function:    H5FD_mpio_fapl_free
  *
- * Purpose:	Frees the mpio-specific file access properties.
+ * Purpose:    Frees the mpio-specific file access properties.
  *
- * Return:	Success:	0
+ * Return:    Success:    0
  *
- *		Failure:	-1
+ *        Failure:    -1
  *
- * Programmer:	Albert Cheng
+ * Programmer:    Albert Cheng
  *              Jan  8, 2003
  *
  * Modifications:
@@ -786,13 +786,13 @@ fprintf(stderr, "leaving H5FD_mpio_fapl_copy\n");
 static herr_t
 H5FD_mpio_fapl_free(void *_fa)
 {
-    herr_t		ret_value = SUCCEED;
-    H5FD_mpio_fapl_t	*fa = (H5FD_mpio_fapl_t*)_fa;
+    herr_t        ret_value = SUCCEED;
+    H5FD_mpio_fapl_t    *fa = (H5FD_mpio_fapl_t*)_fa;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 #ifdef H5FDmpio_DEBUG
 if (H5FD_mpio_Debug[(int)'t'])
-fprintf(stderr, "in H5FD_mpio_fapl_free\n");
+HDfprintf(stderr, "in H5FD_mpio_fapl_free\n");
 #endif
     HDassert(fa);
 
@@ -803,23 +803,23 @@ fprintf(stderr, "in H5FD_mpio_fapl_free\n");
 
 #ifdef H5FDmpio_DEBUG
 if (H5FD_mpio_Debug[(int)'t'])
-fprintf(stderr, "leaving H5FD_mpio_fapl_free\n");
+HDfprintf(stderr, "leaving H5FD_mpio_fapl_free\n");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_fapl_free() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_set_mpio_atomicity
+ * Function:    H5FD_set_mpio_atomicity
  *
- * Purpose:	Sets the atomicity mode
+ * Purpose:    Sets the atomicity mode
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
- * Programmer:	Mohamad Chaarawi
- *		Feb 14, 2012
+ * Programmer:    Mohamad Chaarawi
+ *        Feb 14, 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -835,7 +835,7 @@ H5FD_set_mpio_atomicity(H5FD_t *_file, hbool_t flag)
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Entering H5FD_set_mpio_atomicity\n");
+        HDfprintf(stdout, "Entering H5FD_set_mpio_atomicity\n");
 #endif
 
     if (FALSE == flag)
@@ -850,23 +850,23 @@ H5FD_set_mpio_atomicity(H5FD_t *_file, hbool_t flag)
 done:
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Leaving H5FD_set_mpio_atomicity\n");
+        HDfprintf(stdout, "Leaving H5FD_set_mpio_atomicity\n");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_get_mpio_atomicity
+ * Function:    H5FD_get_mpio_atomicity
  *
- * Purpose:	Returns the atomicity mode
+ * Purpose:    Returns the atomicity mode
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
- * Programmer:	Mohamad Chaarawi
- *		Feb 14, 2012
+ * Programmer:    Mohamad Chaarawi
+ *        Feb 14, 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -882,7 +882,7 @@ H5FD_get_mpio_atomicity(H5FD_t *_file, hbool_t *flag)
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Entering H5FD_get_mpio_atomicity\n");
+        HDfprintf(stdout, "Entering H5FD_get_mpio_atomicity\n");
 #endif
 
     /* get atomicity value */
@@ -897,21 +897,21 @@ H5FD_get_mpio_atomicity(H5FD_t *_file, hbool_t *flag)
 done:
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Leaving H5FD_get_mpio_atomicity\n");
+        HDfprintf(stdout, "Leaving H5FD_get_mpio_atomicity\n");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FD_mpio_open
  *
  * Purpose:     Opens a file with name NAME.  The FLAGS are a bit field with
- *		purpose similar to the second argument of open(2) and which
- *		are defined in H5Fpublic.h. The file access property list
- *		FAPL_ID contains the properties driver properties and MAXADDR
- *		is the largest address which this file will be expected to
- *		access.  This is collective.
+ *        purpose similar to the second argument of open(2) and which
+ *        are defined in H5Fpublic.h. The file access property list
+ *        FAPL_ID contains the properties driver properties and MAXADDR
+ *        is the largest address which this file will be expected to
+ *        access.  This is collective.
  *
  * Return:      Success:        A new file pointer.
  *
@@ -924,29 +924,29 @@ done:
  */
 static H5FD_t *
 H5FD_mpio_open(const char *name, unsigned flags, hid_t fapl_id,
-	       haddr_t H5_ATTR_UNUSED maxaddr)
+        haddr_t H5_ATTR_UNUSED maxaddr)
 {
-    H5FD_mpio_t			*file=NULL;
-    MPI_File			fh;
+    H5FD_mpio_t            *file=NULL;
+    MPI_File            fh;
     unsigned                    file_opened=0;  /* Flag to indicate that the file was successfully opened */
-    int				mpi_amode;
-    int				mpi_rank;       /* MPI rank of this process */
-    int				mpi_size;       /* Total number of MPI processes */
-    int				mpi_code;	/* mpi return code */
-    MPI_Offset			size;
-    const H5FD_mpio_fapl_t	*fa = NULL;
-    H5FD_mpio_fapl_t		_fa;
+    int                mpi_amode;
+    int                mpi_rank;       /* MPI rank of this process */
+    int                mpi_size;       /* Total number of MPI processes */
+    int                mpi_code;    /* mpi return code */
+    MPI_Offset            size;
+    const H5FD_mpio_fapl_t    *fa = NULL;
+    H5FD_mpio_fapl_t        _fa;
     H5P_genplist_t *plist;      /* Property list pointer */
     MPI_Comm                    comm_dup = MPI_COMM_NULL;
     MPI_Info                    info_dup = MPI_INFO_NULL;
-    H5FD_t			*ret_value;     /* Return value */
+    H5FD_t            *ret_value;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t']) {
-    	fprintf(stdout, "Entering H5FD_mpio_open(name=\"%s\", flags=0x%x, "
-		"fapl_id=%d, maxaddr=%lu)\n", name, flags, (int)fapl_id, (unsigned long)maxaddr);
+        HDfprintf(stdout, "Entering H5FD_mpio_open(name=\"%s\", flags=0x%x, "
+        "fapl_id=%d, maxaddr=%lu)\n", name, flags, (int)fapl_id, (unsigned long)maxaddr);
     }
 #endif
 
@@ -954,18 +954,18 @@ H5FD_mpio_open(const char *name, unsigned flags, hid_t fapl_id,
     if(NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list")
     if(H5P_FILE_ACCESS_DEFAULT == fapl_id || H5FD_MPIO != H5P_peek_driver(plist)) {
-	_fa.comm = MPI_COMM_SELF; /*default*/
-	_fa.info = MPI_INFO_NULL; /*default*/
-	fa = &_fa;
+    _fa.comm = MPI_COMM_SELF; /*default*/
+    _fa.info = MPI_INFO_NULL; /*default*/
+    fa = &_fa;
     } /* end if */
     else {
         if(NULL == (fa = (const H5FD_mpio_fapl_t *)H5P_peek_driver_info(plist)))
-	    HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, NULL, "bad VFL driver info")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, NULL, "bad VFL driver info")
     } /* end else */
 
     /* Duplicate communicator and Info object for use by this file. */
     if(FAIL == H5FD_mpi_comm_info_dup(fa->comm, fa->info, &comm_dup, &info_dup))
-	HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
+    HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCOPY, NULL, "Communicator/Info duplicate failed")
 
     /* convert HDF5 flags to MPI-IO flags */
     /* some combinations are illegal; let MPI-IO figure it out */
@@ -986,7 +986,7 @@ H5FD_mpio_open(const char *name, unsigned flags, hid_t fapl_id,
             if(flag) {
                 int i;
 
-                fprintf(stdout, "H5FD_mpio debug flags = '%s'\n", debug_str);
+                HDfprintf(stdout, "H5FD_mpio debug flags = '%s'\n", debug_str);
                 for(i = 0; debug_str[i]/*end of string*/ && i < 128/*just in case*/; ++i)
                     H5FD_mpio_Debug[(int)debug_str[i]] = 1;
             }
@@ -1047,57 +1047,57 @@ done:
     if(ret_value==NULL) {
         if(file_opened)
             MPI_File_close(&fh);
-	if (MPI_COMM_NULL != comm_dup)
-	    MPI_Comm_free(&comm_dup);
-	if (MPI_INFO_NULL != info_dup)
-	    MPI_Info_free(&info_dup);
-	if (file)
-	    H5MM_xfree(file);
+    if (MPI_COMM_NULL != comm_dup)
+        MPI_Comm_free(&comm_dup);
+    if (MPI_INFO_NULL != info_dup)
+        MPI_Info_free(&info_dup);
+    if (file)
+        H5MM_xfree(file);
     } /* end if */
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-        fprintf(stdout, "Leaving H5FD_mpio_open\n" );
+        HDfprintf(stdout, "Leaving H5FD_mpio_open\n" );
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_open() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FD_mpio_close
  *
  * Purpose:     Closes a file.  This is collective.
  *
- * Return:      Success:	Non-negative
+ * Return:      Success:    Non-negative
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
  * Programmer:  Unknown
  *              January 30, 1998
  *
  * Modifications:
- * 		Robb Matzke, 1998-02-18
- *		Added the ACCESS_PARMS argument.
+ *         Robb Matzke, 1998-02-18
+ *        Added the ACCESS_PARMS argument.
  *
- * 		Robb Matzke, 1999-08-06
- *		Modified to work with the virtual file layer.
+ *         Robb Matzke, 1999-08-06
+ *        Modified to work with the virtual file layer.
  *
- * 		Albert Cheng, 2003-04-17
- *		Free the communicator stored.
+ *         Albert Cheng, 2003-04-17
+ *        Free the communicator stored.
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_mpio_close(H5FD_t *_file)
 {
-    H5FD_mpio_t	*file = (H5FD_mpio_t*)_file;
-    int		mpi_code;	        /* MPI return code */
+    H5FD_mpio_t    *file = (H5FD_mpio_t*)_file;
+    int        mpi_code;            /* MPI return code */
     herr_t      ret_value=SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Entering H5FD_mpio_close\n");
+        HDfprintf(stdout, "Entering H5FD_mpio_close\n");
 #endif
     HDassert(file);
     HDassert(H5FD_MPIO==file->pub.driver_id);
@@ -1113,33 +1113,33 @@ H5FD_mpio_close(H5FD_t *_file)
 done:
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Leaving H5FD_mpio_close\n");
+        HDfprintf(stdout, "Leaving H5FD_mpio_close\n");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_query
+ * Function:    H5FD_mpio_query
  *
- * Purpose:	Set the flags that this VFL driver is capable of supporting.
+ * Purpose:    Set the flags that this VFL driver is capable of supporting.
  *              (listed in H5FDpublic.h)
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Friday, August 25, 2000
  *
  * Modifications:
  *
- *		John Mainzer -- 9/21/05
- *		Modified code to turn off the
- *		H5FD_FEAT_ACCUMULATE_METADATA_WRITE flag.
+ *        John Mainzer -- 9/21/05
+ *        Modified code to turn off the
+ *        H5FD_FEAT_ACCUMULATE_METADATA_WRITE flag.
  *              With the movement of
- *		all cache writes to process 0, this flag has become
- *		problematic in PHDF5.
+ *        all cache writes to process 0, this flag has become
+ *        problematic in PHDF5.
  *
  *-------------------------------------------------------------------------
  */
@@ -1161,19 +1161,19 @@ H5FD_mpio_query(const H5FD_t H5_ATTR_UNUSED *_file, unsigned long *flags /* out 
     FUNC_LEAVE_NOAPI(SUCCEED)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_get_eoa
+ * Function:    H5FD_mpio_get_eoa
  *
- * Purpose:	Gets the end-of-address marker for the file. The EOA marker
- *		is the first address past the last byte allocated in the
- *		format address space.
+ * Purpose:    Gets the end-of-address marker for the file. The EOA marker
+ *        is the first address past the last byte allocated in the
+ *        format address space.
  *
- * Return:	Success:	The end-of-address marker.
+ * Return:    Success:    The end-of-address marker.
  *
- *		Failure:	HADDR_UNDEF
+ *        Failure:    HADDR_UNDEF
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Friday, August  6, 1999
  *
  * Modifications:
@@ -1186,7 +1186,7 @@ H5FD_mpio_query(const H5FD_t H5_ATTR_UNUSED *_file, unsigned long *flags /* out 
 static haddr_t
 H5FD_mpio_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
 {
-    const H5FD_mpio_t	*file = (const H5FD_mpio_t*)_file;
+    const H5FD_mpio_t    *file = (const H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1196,19 +1196,19 @@ H5FD_mpio_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
     FUNC_LEAVE_NOAPI(file->eoa)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_set_eoa
+ * Function:    H5FD_mpio_set_eoa
  *
- * Purpose:	Set the end-of-address marker for the file. This function is
- *		called shortly after an existing HDF5 file is opened in order
- *		to tell the driver where the end of the HDF5 data is located.
+ * Purpose:    Set the end-of-address marker for the file. This function is
+ *        called shortly after an existing HDF5 file is opened in order
+ *        to tell the driver where the end of the HDF5 data is located.
  *
- * Return:	Success:	0
+ * Return:    Success:    0
  *
- *		Failure:	-1
+ *        Failure:    -1
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Friday, August 6, 1999
  *
  * Modifications:
@@ -1221,7 +1221,7 @@ H5FD_mpio_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
 static herr_t
 H5FD_mpio_set_eoa(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr)
 {
-    H5FD_mpio_t	*file = (H5FD_mpio_t*)_file;
+    H5FD_mpio_t    *file = (H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1233,30 +1233,30 @@ H5FD_mpio_set_eoa(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr)
     FUNC_LEAVE_NOAPI(SUCCEED)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_get_eof
+ * Function:    H5FD_mpio_get_eof
  *
- * Purpose:	Gets the end-of-file marker for the file. The EOF marker
- *		is the real size of the file.
+ * Purpose:    Gets the end-of-file marker for the file. The EOF marker
+ *        is the real size of the file.
  *
- *		The MPIO driver doesn't bother keeping this field updated
- *		since that's a relatively expensive operation. Fortunately
- *		the library only needs the EOF just after the file is opened
- *		in order to determine whether the file is empty, truncated,
- *		or okay.  Therefore, any MPIO I/O function will set its value
- *		to HADDR_UNDEF which is the error return value of this
- *		function.
+ *        The MPIO driver doesn't bother keeping this field updated
+ *        since that's a relatively expensive operation. Fortunately
+ *        the library only needs the EOF just after the file is opened
+ *        in order to determine whether the file is empty, truncated,
+ *        or okay.  Therefore, any MPIO I/O function will set its value
+ *        to HADDR_UNDEF which is the error return value of this
+ *        function.
  *
  *              Keeping the EOF updated (during write calls) is expensive
  *              because any process may extend the physical end of the
  *              file. -QAK
  *
- * Return:	Success:	The end-of-address marker.
+ * Return:    Success:    The end-of-address marker.
  *
- *		Failure:	HADDR_UNDEF
+ *        Failure:    HADDR_UNDEF
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Friday, August  6, 1999
  *
  * Modifications:
@@ -1266,7 +1266,7 @@ H5FD_mpio_set_eoa(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr)
 static haddr_t
 H5FD_mpio_get_eof(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
 {
-    const H5FD_mpio_t	*file = (const H5FD_mpio_t*)_file;
+    const H5FD_mpio_t    *file = (const H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1276,7 +1276,7 @@ H5FD_mpio_get_eof(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
     FUNC_LEAVE_NOAPI(file->eof)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5FD_mpio_get_handle
  *
@@ -1308,7 +1308,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5FD_mpio_get_info
  *
@@ -1341,55 +1341,55 @@ done:
 
 } /* H5FD_mpio_get_info() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_read
+ * Function:    H5FD_mpio_read
  *
- * Purpose:	Reads SIZE bytes of data from FILE beginning at address ADDR
- *		into buffer BUF according to data transfer properties in
- *		DXPL_ID using potentially complex file and buffer types to
- *		effect the transfer.
+ * Purpose:    Reads SIZE bytes of data from FILE beginning at address ADDR
+ *        into buffer BUF according to data transfer properties in
+ *        DXPL_ID using potentially complex file and buffer types to
+ *        effect the transfer.
  *
- *		Reading past the end of the MPI file returns zeros instead of
- *		failing.  MPI is able to coalesce requests from different
- *		processes (collective or independent).
+ *        Reading past the end of the MPI file returns zeros instead of
+ *        failing.  MPI is able to coalesce requests from different
+ *        processes (collective or independent).
  *
- * Return:	Success:	Zero. Result is stored in caller-supplied
- *				buffer BUF.
+ * Return:    Success:    Zero. Result is stored in caller-supplied
+ *                buffer BUF.
  *
- *		Failure:	-1, Contents of buffer BUF are undefined.
+ *        Failure:    -1, Contents of buffer BUF are undefined.
  *
- * Programmer:	rky, 1998-01-30
+ * Programmer:    rky, 1998-01-30
  *
  * Modifications:
- * 		Robb Matzke, 1998-02-18
- *		Added the ACCESS_PARMS argument.
+ *         Robb Matzke, 1998-02-18
+ *        Added the ACCESS_PARMS argument.
  *
- * 		rky, 1998-04-10
- *		Call independent or collective MPI read, based on
- *		ACCESS_PARMS.
+ *         rky, 1998-04-10
+ *        Call independent or collective MPI read, based on
+ *        ACCESS_PARMS.
  *
- * 		Albert Cheng, 1998-06-01
- *		Added XFER_MODE to control independent or collective MPI
- *		read.
+ *         Albert Cheng, 1998-06-01
+ *        Added XFER_MODE to control independent or collective MPI
+ *        read.
  *
- * 		rky, 1998-08-16
- *		Use BTYPE, FTYPE, and DISP from access parms. The guts of
- *		H5FD_mpio_read and H5FD_mpio_write should be replaced by a
- *		single dual-purpose routine.
+ *         rky, 1998-08-16
+ *        Use BTYPE, FTYPE, and DISP from access parms. The guts of
+ *        H5FD_mpio_read and H5FD_mpio_write should be replaced by a
+ *        single dual-purpose routine.
  *
- * 		Robb Matzke, 1999-04-21
- *		Changed XFER_MODE to XFER_PARMS for all H5F_*_read()
- *		callbacks.
+ *         Robb Matzke, 1999-04-21
+ *        Changed XFER_MODE to XFER_PARMS for all H5F_*_read()
+ *        callbacks.
  *
- * 		Robb Matzke, 1999-07-28
- *		The ADDR argument is passed by value.
+ *         Robb Matzke, 1999-07-28
+ *        The ADDR argument is passed by value.
  *
- * 		Robb Matzke, 1999-08-06
- *		Modified to work with the virtual file layer.
+ *         Robb Matzke, 1999-08-06
+ *        Modified to work with the virtual file layer.
  *
- *		Quincey Koziol,  2002-05-14
- *		Only call MPI_Get_count if we can use MPI_BYTE for the MPI type
+ *        Quincey Koziol,  2002-05-14
+ *        Only call MPI_Get_count if we can use MPI_BYTE for the MPI type
  *              for the I/O transfer.  Someday we might include code to decode
  *              the MPI type used for more complicated transfers and call
  *              MPI_Get_count all the time.
@@ -1566,7 +1566,7 @@ H5FD_mpio_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type,
 #endif
             HMPI_GOTO_ERROR(FAIL, "MPI_Get_elements failed", mpi_code)
     } /* end if */
- 
+
     /* If the rank0-bcast feature was used, broadcast the # of bytes read to
      * other ranks, which didn't perform any I/O.
      */
@@ -1607,102 +1607,102 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_write
+ * Function:    H5FD_mpio_write
  *
- * Purpose:	Writes SIZE bytes of data to FILE beginning at address ADDR
- *		from buffer BUF according to data transfer properties in
- *		DXPL_ID using potentially complex file and buffer types to
- *		effect the transfer.
+ * Purpose:    Writes SIZE bytes of data to FILE beginning at address ADDR
+ *        from buffer BUF according to data transfer properties in
+ *        DXPL_ID using potentially complex file and buffer types to
+ *        effect the transfer.
  *
- *		MPI is able to coalesce requests from different processes
- *		(collective and independent).
+ *        MPI is able to coalesce requests from different processes
+ *        (collective and independent).
  *
- * Return:	Success:	Zero. USE_TYPES and OLD_USE_TYPES in the
- *				access params are altered.
+ * Return:    Success:    Zero. USE_TYPES and OLD_USE_TYPES in the
+ *                access params are altered.
  *
- *		Failure:	-1, USE_TYPES and OLD_USE_TYPES in the
- *				access params may be altered.
+ *        Failure:    -1, USE_TYPES and OLD_USE_TYPES in the
+ *                access params may be altered.
  *
- * Programmer:	Unknown
+ * Programmer:    Unknown
  *              January 30, 1998
  *
  * Modifications:
- *		rky, 1998-08-28
- *		If the file->allsame flag is set, we assume that all the
- *		procs in the relevant MPI communicator will write identical
- *		data at identical offsets in the file, so only proc 0 will
- *		write, and all other procs will wait for p0 to finish. This
- *		is useful for writing metadata, for example. Note that we
- *		don't _check_ that the data is identical. Also, the mechanism
- *		we use to eliminate the redundant writes is by requiring a
- *		call to H5FD_mpio_tas_allsame before the write, which is
- *		rather klugey. Would it be better to pass a parameter to
- *		low-level writes like H5F_block_write and H5F_low_write,
- *		instead?  Or...??? Also, when I created this mechanism I
- *		wanted to minimize the difference in behavior between the old
- *		way of doing things (i.e., all procs write) and the new way,
- *		so the writes are eliminated at the very lowest level, here
- *		in H5FD_mpio_write. It may be better to rethink that, and
- *		short-circuit the writes at a higher level (e.g., at the
- *		points in the code where H5FD_mpio_tas_allsame is called).
+ *        rky, 1998-08-28
+ *        If the file->allsame flag is set, we assume that all the
+ *        procs in the relevant MPI communicator will write identical
+ *        data at identical offsets in the file, so only proc 0 will
+ *        write, and all other procs will wait for p0 to finish. This
+ *        is useful for writing metadata, for example. Note that we
+ *        don't _check_ that the data is identical. Also, the mechanism
+ *        we use to eliminate the redundant writes is by requiring a
+ *        call to H5FD_mpio_tas_allsame before the write, which is
+ *        rather klugey. Would it be better to pass a parameter to
+ *        low-level writes like H5F_block_write and H5F_low_write,
+ *        instead?  Or...??? Also, when I created this mechanism I
+ *        wanted to minimize the difference in behavior between the old
+ *        way of doing things (i.e., all procs write) and the new way,
+ *        so the writes are eliminated at the very lowest level, here
+ *        in H5FD_mpio_write. It may be better to rethink that, and
+ *        short-circuit the writes at a higher level (e.g., at the
+ *        points in the code where H5FD_mpio_tas_allsame is called).
  *
  *
- * 		Robb Matzke, 1998-02-18
- *		Added the ACCESS_PARMS argument.
+ *         Robb Matzke, 1998-02-18
+ *        Added the ACCESS_PARMS argument.
  *
- * 		rky, 1998-04-10
- *		Call independent or collective MPI write, based on
- *		ACCESS_PARMS.
+ *         rky, 1998-04-10
+ *        Call independent or collective MPI write, based on
+ *        ACCESS_PARMS.
  *
- * 		rky, 1998-04-24
- *		Removed redundant write from H5FD_mpio_write.
+ *         rky, 1998-04-24
+ *        Removed redundant write from H5FD_mpio_write.
  *
- * 		Albert Cheng, 1998-06-01
- *		Added XFER_MODE to control independent or collective MPI
- *		write.
+ *         Albert Cheng, 1998-06-01
+ *        Added XFER_MODE to control independent or collective MPI
+ *        write.
  *
- * 		rky, 1998-08-16
- *		Use BTYPE, FTYPE, and DISP from access parms. The guts of
- *		H5FD_mpio_read and H5FD_mpio_write should be replaced by a
- *		single dual-purpose routine.
+ *         rky, 1998-08-16
+ *        Use BTYPE, FTYPE, and DISP from access parms. The guts of
+ *        H5FD_mpio_read and H5FD_mpio_write should be replaced by a
+ *        single dual-purpose routine.
  *
- * 		rky, 1998-08-28
- *		Added ALLSAME parameter to make all but proc 0 skip the
- *		actual write.
+ *         rky, 1998-08-28
+ *        Added ALLSAME parameter to make all but proc 0 skip the
+ *        actual write.
  *
- * 		Robb Matzke, 1999-04-21
- *		Changed XFER_MODE to XFER_PARMS for all H5FD_*_write()
- *		callbacks.
+ *         Robb Matzke, 1999-04-21
+ *        Changed XFER_MODE to XFER_PARMS for all H5FD_*_write()
+ *        callbacks.
  *
- * 		Robb Matzke, 1999-07-28
- *		The ADDR argument is passed by value.
+ *         Robb Matzke, 1999-07-28
+ *        The ADDR argument is passed by value.
  *
- * 		Robb Matzke, 1999-08-06
- *		Modified to work with the virtual file layer.
+ *         Robb Matzke, 1999-08-06
+ *        Modified to work with the virtual file layer.
  *
- *		Albert Cheng, 1999-12-19
- *		When only-p0-write-allsame-data, p0 Bcasts the
- *		ret_value to other processes.  This prevents
- *		a racing condition (that other processes try to
- *		read the file before p0 finishes writing) and also
- *		allows all processes to report the same ret_value.
+ *        Albert Cheng, 1999-12-19
+ *        When only-p0-write-allsame-data, p0 Bcasts the
+ *        ret_value to other processes.  This prevents
+ *        a racing condition (that other processes try to
+ *        read the file before p0 finishes writing) and also
+ *        allows all processes to report the same ret_value.
  *
- *		Kim Yates, Pat Weidhaas,  2000-09-26
- *		Move block of coding where only p0 writes after the
+ *        Kim Yates, Pat Weidhaas,  2000-09-26
+ *        Move block of coding where only p0 writes after the
  *              MPI_File_set_view call.
  *
- *		Quincey Koziol,  2002-05-10
- *		Instead of always writing metadata from process 0, spread the
+ *        Quincey Koziol,  2002-05-10
+ *        Instead of always writing metadata from process 0, spread the
  *              burden among all the processes by using a round-robin rotation
  *              scheme.
  *
- *		Quincey Koziol,  2002-05-10
- *		Removed allsame code, keying off the type parameter instead.
+ *        Quincey Koziol,  2002-05-10
+ *        Removed allsame code, keying off the type parameter instead.
  *
- *		Quincey Koziol,  2002-05-14
- *		Only call MPI_Get_count if we can use MPI_BYTE for the MPI type
+ *        Quincey Koziol,  2002-05-14
+ *        Only call MPI_Get_count if we can use MPI_BYTE for the MPI type
  *              for the I/O transfer.  Someday we might include code to decode
  *              the MPI type used for more complicated transfers and call
  *              MPI_Get_count all the time.
@@ -1733,13 +1733,13 @@ static herr_t
 H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
     haddr_t addr, size_t size, const void *buf)
 {
-    H5FD_mpio_t			*file = (H5FD_mpio_t*)_file;
-    MPI_Offset 		 	mpi_off;
-    MPI_Status  		mpi_stat;       /* Status from I/O operation */
-    MPI_Datatype		buf_type = MPI_BYTE;      /* MPI description of the selection in memory */
-    int			        mpi_code;	/* MPI return code */
+    H5FD_mpio_t            *file = (H5FD_mpio_t*)_file;
+    MPI_Offset              mpi_off;
+    MPI_Status          mpi_stat;       /* Status from I/O operation */
+    MPI_Datatype        buf_type = MPI_BYTE;      /* MPI description of the selection in memory */
+    int                    mpi_code;    /* MPI return code */
 #if MPI_VERSION >= 3
-    MPI_Count         		bytes_written;
+    MPI_Count                 bytes_written;
     MPI_Count                   type_size;      /* MPI datatype used for I/O's size */
     MPI_Count                   io_size;        /* Actual number of bytes requested */
 #else
@@ -1748,15 +1748,15 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
     int                         io_size;        /* Actual number of bytes requested */
 #endif
     int                         size_i;
-    hbool_t			use_view_this_time = FALSE;
+    hbool_t            use_view_this_time = FALSE;
     H5FD_mpio_xfer_t            xfer_mode;   /* I/O transfer mode */
-    herr_t              	ret_value = SUCCEED;
+    herr_t                  ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI_NOINIT
 
 #ifdef H5FDmpio_DEBUG
     if (H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "Entering H5FD_mpio_write\n" );
+        HDfprintf(stdout, "Entering H5FD_mpio_write\n" );
 #endif
     HDassert(file);
     HDassert(H5FD_MPIO==file->pub.driver_id);
@@ -1777,7 +1777,7 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
 
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'w'])
-        fprintf(stdout, "in H5FD_mpio_write  mpi_off=%ld  size_i=%d\n", (long)mpi_off, size_i);
+        HDfprintf(stdout, "in H5FD_mpio_write  mpi_off=%ld  size_i=%d\n", (long)mpi_off, size_i);
 #endif
 
     /* Get the transfer mode from the API context */
@@ -1791,7 +1791,7 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
      * could mean "use MPI_BYTE" by convention).
      */
     if(xfer_mode == H5FD_MPIO_COLLECTIVE) {
-        MPI_Datatype		file_type;
+        MPI_Datatype        file_type;
 
         /* Remember that views are used */
         use_view_this_time = TRUE;
@@ -1818,7 +1818,7 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
 
 #ifdef H5FDmpio_DEBUG
         if(H5FD_mpio_Debug[(int)'t'])
-            fprintf(stdout, "H5FD_mpio_write: using MPIO collective mode\n");
+            HDfprintf(stdout, "H5FD_mpio_write: using MPIO collective mode\n");
 #endif
 
         /* Get the collective_opt property to check whether the application wants to do IO individually. */
@@ -1828,7 +1828,7 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
         if(coll_opt_mode == H5FD_MPIO_COLLECTIVE_IO) {
 #ifdef H5FDmpio_DEBUG
             if(H5FD_mpio_Debug[(int)'t'])
-                fprintf(stdout, "H5FD_mpio_write: doing MPI collective IO\n");
+                HDfprintf(stdout, "H5FD_mpio_write: doing MPI collective IO\n");
 #endif
             if(MPI_SUCCESS != (mpi_code = MPI_File_write_at_all(file->f, mpi_off, buf, size_i, buf_type, &mpi_stat)))
                 HMPI_GOTO_ERROR(FAIL, "MPI_File_write_at_all failed", mpi_code)
@@ -1838,7 +1838,7 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
                 HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "Metadata Coll opt property should be collective at this point")
 #ifdef H5FDmpio_DEBUG
             if(H5FD_mpio_Debug[(int)'t'])
-                fprintf(stdout, "H5FD_mpio_write: doing MPI independent IO\n");
+                HDfprintf(stdout, "H5FD_mpio_write: doing MPI independent IO\n");
 #endif
             if(MPI_SUCCESS != (mpi_code = MPI_File_write_at(file->f, mpi_off, buf, size_i, buf_type, &mpi_stat)))
                 HMPI_GOTO_ERROR(FAIL, "MPI_File_write_at failed", mpi_code)
@@ -1889,21 +1889,21 @@ H5FD_mpio_write(H5FD_t *_file, H5FD_mem_t type, hid_t H5_ATTR_UNUSED dxpl_id,
 done:
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'t'])
-    	fprintf(stdout, "proc %d: Leaving H5FD_mpio_write with ret_value=%d\n",
-	    file->mpi_rank, ret_value );
+        HDfprintf(stdout, "proc %d: Leaving H5FD_mpio_write with ret_value=%d\n",
+        file->mpi_rank, ret_value );
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_write() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FD_mpio_flush
  *
  * Purpose:     Makes sure that all data is on disk.  This is collective.
  *
- * Return:      Success:	Non-negative
+ * Return:      Success:    Non-negative
  *
- * 		Failure:	Negative
+ *         Failure:    Negative
  *
  * Programmer:  Robb Matzke
  *              January 30, 1998
@@ -1913,15 +1913,15 @@ done:
 static herr_t
 H5FD_mpio_flush(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
 {
-    H5FD_mpio_t		*file = (H5FD_mpio_t*)_file;
-    int			mpi_code;	/* mpi return code */
+    H5FD_mpio_t        *file = (H5FD_mpio_t*)_file;
+    int            mpi_code;    /* mpi return code */
     herr_t              ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI_NOINIT
 
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'t'])
-    	HDfprintf(stdout, "Entering %s\n", FUNC);
+        HDfprintf(stdout, "Entering %s\n", FUNC);
 #endif
     HDassert(file);
     HDassert(H5FD_MPIO == file->pub.driver_id);
@@ -1934,41 +1934,41 @@ H5FD_mpio_flush(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
 done:
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'t'])
-    	HDfprintf(stdout, "Leaving %s\n", FUNC);
+        HDfprintf(stdout, "Leaving %s\n", FUNC);
 #endif
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_flush() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FD_mpio_truncate
  *
  * Purpose:     Make certain the file's size matches it's allocated size
  *
- *              This is a little sticky in the mpio case, as it is not 
+ *              This is a little sticky in the mpio case, as it is not
  *              easy for us to track the current EOF by extracting it from
- *              write calls. 
+ *              write calls.
  *
  *              Instead, we first check to see if the eoa has changed since
- *              the last call to this function.  If it has, we call 
- *              MPI_File_get_size() to determine the current EOF, and 
- *              only call MPI_File_set_size() if this value disagrees 
+ *              the last call to this function.  If it has, we call
+ *              MPI_File_get_size() to determine the current EOF, and
+ *              only call MPI_File_set_size() if this value disagrees
  *              with the current eoa.
  *
- * Return:      Success:	Non-negative
- * 		Failure:	Negative
+ * Return:      Success:    Non-negative
+ *         Failure:    Negative
  *
  * Programmer:  Quincey Koziol
  *              January 31, 2008
  *
  * Changes:     Heavily reworked to avoid unnecessary MPI_File_set_size()
  *              calls.  The hope is that these calls are superfluous in the
- *              typical case, allowing us to avoid truncates most of the 
+ *              typical case, allowing us to avoid truncates most of the
  *              time.
  *
- *              The basic idea is to query the file system to get the 
- *              current eof, and only truncate if the file systems 
+ *              The basic idea is to query the file system to get the
+ *              current eof, and only truncate if the file systems
  *              conception of the eof disagrees with our eoa.
  *
  *                                                 JRM -- 10/27/17
@@ -1978,14 +1978,14 @@ done:
 static herr_t
 H5FD_mpio_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t H5_ATTR_UNUSED closing)
 {
-    H5FD_mpio_t		*file = (H5FD_mpio_t*)_file;
+    H5FD_mpio_t        *file = (H5FD_mpio_t*)_file;
     herr_t              ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI_NOINIT
 
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'t'])
-    	HDfprintf(stdout, "Entering %s\n", FUNC);
+        HDfprintf(stdout, "Entering %s\n", FUNC);
 #endif
     HDassert(file);
     HDassert(H5FD_MPIO == file->pub.driver_id);
@@ -1995,13 +1995,13 @@ H5FD_mpio_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t H5_ATTR_
         MPI_Offset      size;
         MPI_Offset      needed_eof;
 
-        /* In principle, it is possible for the size returned by the 
-         * call to MPI_File_get_size() to depend on whether writes from 
+        /* In principle, it is possible for the size returned by the
+         * call to MPI_File_get_size() to depend on whether writes from
          * all proceeses have completed at the time process 0 makes the
-         * call.  
+         * call.
          *
          * In practice, most (all?) truncate calls will come after a barrier
-         * and with no interviening writes to the file (with the possible 
+         * and with no interviening writes to the file (with the possible
          * exception of sueprblock / superblock extension message updates).
          *
          * Check the "MPI file closing" flag in the API context to determine
@@ -2032,13 +2032,13 @@ H5FD_mpio_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t H5_ATTR_
             if(MPI_SUCCESS != (mpi_code = MPI_File_set_size(file->f, needed_eof)))
                 HMPI_GOTO_ERROR(FAIL, "MPI_File_set_size failed", mpi_code)
 
-            /* In general, we must wait until all processes have finished 
-             * the truncate before any process can continue, since it is 
-             * possible that a process would write at the end of the 
+            /* In general, we must wait until all processes have finished
+             * the truncate before any process can continue, since it is
+             * possible that a process would write at the end of the
              * file, and this write would be discarded by the truncate.
              *
-             * While this is an issue for a user initiated flush, it may 
-             * not be an issue at file close.  If so, we may be able to 
+             * While this is an issue for a user initiated flush, it may
+             * not be an issue at file close.  If so, we may be able to
              * optimize out the following barrier in that case.
              */
             if(MPI_SUCCESS != (mpi_code = MPI_Barrier(file->comm)))
@@ -2052,22 +2052,22 @@ H5FD_mpio_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t H5_ATTR_
 done:
 #ifdef H5FDmpio_DEBUG
     if(H5FD_mpio_Debug[(int)'t'])
-    	HDfprintf(stdout, "Leaving %s\n", FUNC);
+        HDfprintf(stdout, "Leaving %s\n", FUNC);
 #endif
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpio_truncate() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_mpi_rank
+ * Function:    H5FD_mpio_mpi_rank
  *
- * Purpose:	Returns the MPI rank for a process
+ * Purpose:    Returns the MPI rank for a process
  *
- * Return:	Success: non-negative
- *		Failure: negative
+ * Return:    Success: non-negative
+ *        Failure: negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, May 16, 2002
  *
  * Modifications:
@@ -2077,7 +2077,7 @@ done:
 static int
 H5FD_mpio_mpi_rank(const H5FD_t *_file)
 {
-    const H5FD_mpio_t	*file = (const H5FD_mpio_t*)_file;
+    const H5FD_mpio_t    *file = (const H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -2087,16 +2087,16 @@ H5FD_mpio_mpi_rank(const H5FD_t *_file)
     FUNC_LEAVE_NOAPI(file->mpi_rank)
 } /* end H5FD_mpio_mpi_rank() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_mpi_size
+ * Function:    H5FD_mpio_mpi_size
  *
- * Purpose:	Returns the number of MPI processes
+ * Purpose:    Returns the number of MPI processes
  *
- * Return:	Success: non-negative
- *		Failure: negative
+ * Return:    Success: non-negative
+ *        Failure: negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, May 16, 2002
  *
  * Modifications:
@@ -2106,7 +2106,7 @@ H5FD_mpio_mpi_rank(const H5FD_t *_file)
 static int
 H5FD_mpio_mpi_size(const H5FD_t *_file)
 {
-    const H5FD_mpio_t	*file = (const H5FD_mpio_t*)_file;
+    const H5FD_mpio_t    *file = (const H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -2116,17 +2116,17 @@ H5FD_mpio_mpi_size(const H5FD_t *_file)
     FUNC_LEAVE_NOAPI(file->mpi_size)
 } /* end H5FD_mpio_mpi_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5FD_mpio_communicator
+ * Function:    H5FD_mpio_communicator
  *
- * Purpose:	Returns the MPI communicator for the file.
+ * Purpose:    Returns the MPI communicator for the file.
  *
- * Return:	Success:	The communicator
+ * Return:    Success:    The communicator
  *
- *		Failure:	NULL
+ *        Failure:    NULL
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Monday, August  9, 1999
  *
  * Modifications:
@@ -2136,7 +2136,7 @@ H5FD_mpio_mpi_size(const H5FD_t *_file)
 static MPI_Comm
 H5FD_mpio_communicator(const H5FD_t *_file)
 {
-    const H5FD_mpio_t	*file = (const H5FD_mpio_t*)_file;
+    const H5FD_mpio_t    *file = (const H5FD_mpio_t*)_file;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 

@@ -88,6 +88,9 @@
 /* Define if the function stack tracing code is to be compiled in */
 #undef HAVE_CODESTACK
 
+/* Define to 1 if you have the <curl/curl.h> header file. */
+#undef HAVE_CURL_CURL_H
+
 /* Define if Darwin or Mac OS X */
 #undef HAVE_DARWIN
 
@@ -160,6 +163,9 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
+/* Define to 1 if you have the <hdfs.h> header file. */
+#undef HAVE_HDFS_H
+
 /* Define if the compiler understands inline */
 #undef HAVE_INLINE
 
@@ -176,11 +182,23 @@
 /* Define to 1 if you have the <io.h> header file. */
 #undef HAVE_IO_H
 
+/* Define to 1 if you have the `crypto' library (-lcrypto). */
+#undef HAVE_LIBCRYPTO
+
+/* Define to 1 if you have the `curl' library (-lcurl). */
+#undef HAVE_LIBCURL
+
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 
 /* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
 #undef HAVE_LIBDMALLOC
+
+/* Proceed to build with libhdfs */
+#undef HAVE_LIBHDFS
+
+/* Define to 1 if you have the `jvm' library (-ljvm). */
+#undef HAVE_LIBJVM
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
@@ -221,6 +239,15 @@
 /* Define if MPI_Info_c2f and MPI_Info_f2c exist */
 #undef HAVE_MPI_MULTI_LANG_Info
 
+/* Define to 1 if you have the <openssl/evp.h> header file. */
+#undef HAVE_OPENSSL_EVP_H
+
+/* Define to 1 if you have the <openssl/hmac.h> header file. */
+#undef HAVE_OPENSSL_HMAC_H
+
+/* Define to 1 if you have the <openssl/sha.h> header file. */
+#undef HAVE_OPENSSL_SHA_H
+
 /* Define if we have parallel support */
 #undef HAVE_PARALLEL
 
@@ -238,6 +265,10 @@
 
 /* Define to 1 if you have the `rand_r' function. */
 #undef HAVE_RAND_R
+
+/* Define whether the Read-Only S3 virtual file driver (VFD) should be
+   compiled */
+#undef HAVE_ROS3_VFD
 
 /* Define to 1 if you have the `setjmp' function. */
 #undef HAVE_SETJMP

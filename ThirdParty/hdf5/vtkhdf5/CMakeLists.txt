@@ -3,6 +3,13 @@ cmake_minimum_required (VERSION 3.10)
 endif ()
 project (HDF5 C)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
+# XXX(kitware): Hardcode settings.
+set(DISABLE_PDB_FILES ON)
+
 #-----------------------------------------------------------------------------
 # Instructions for use : Normal Build
 #
@@ -12,7 +19,7 @@ project (HDF5 C)
 # set CMAKE_INSTALL_PREFIX to the required install path.
 # Make install can be used to install all components for system-wide use.
 #
-if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
     MESSAGE(FATAL_ERROR "\nERROR! ${PROJECT_NAME} DOES NOT SUPPORT IN SOURCE BUILDS!\n"
       "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
       " == CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}\n"
@@ -29,6 +36,12 @@ if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
       "        $ cmake [OPTIONS] ..\n"
       )
 endif ()
+
+# CMake version 3.14 added option --ignore-eol to compare files
+#     cmake -E compare_files --ignore-eol file1 file2
+#if(CMAKE_VERSION VERSION_LESS "3.14.0" AND WIN32)
+#    MESSAGE(FATAL_ERROR "Windows builds requires a minimum of CMake 3.14")
+#endif()
 
 #-----------------------------------------------------------------------------
 # Instructions for use : Sub-Project Build
@@ -339,7 +352,7 @@ set (HDF5_PACKAGE_NAME "HDF5")
 set (HDF5_PACKAGE_VERSION "${H5_VERS_MAJOR}.${H5_VERS_MINOR}.${H5_VERS_RELEASE}")
 set (HDF5_PACKAGE_VERSION_MAJOR "${H5_VERS_MAJOR}.${H5_VERS_MINOR}")
 set (HDF5_PACKAGE_VERSION_MINOR "${H5_VERS_RELEASE}")
-if (NOT "${H5_VERS_SUBRELEASE}" STREQUAL "")
+if (H5_VERS_SUBRELEASE)
   set (HDF5_PACKAGE_VERSION_STRING "${HDF5_PACKAGE_VERSION}-${H5_VERS_SUBRELEASE}")
 else ()
   set (HDF5_PACKAGE_VERSION_STRING "${HDF5_PACKAGE_VERSION}")
@@ -442,20 +455,28 @@ set (CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 # Mac OS X Options
 #-----------------------------------------------------------------------------
 if (HDF5_BUILD_FRAMEWORKS AND NOT BUILD_SHARED_LIBS)
-  set (BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared Libraries")
+  set (BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared Libraries" FORCE)
 endif ()
 
 #-----------------------------------------------------------------------------
 # Option to Build Shared and Static libs, default is both
 #-----------------------------------------------------------------------------
 if (FALSE) # XXX(kitware): `BUILD_SHARED_LIBS` is handled by VTK.
+option (ONLY_SHARED_LIBS "Only Build Shared Libraries" OFF)
+set (H5_ENABLE_STATIC_LIB YES)
+if (ONLY_SHARED_LIBS)
+  set (H5_ENABLE_STATIC_LIB NO)
+  set (BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared Libraries")
+endif ()
 option (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+else ()
+set(ONLY_SHARED_LIBS ON)
+set (H5_ENABLE_STATIC_LIB NO)
 endif ()
 set (H5_ENABLE_SHARED_LIB NO)
 if (BUILD_SHARED_LIBS)
   set (H5_ENABLE_SHARED_LIB YES)
 endif ()
-set (H5_ENABLE_STATIC_LIB YES)
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #-----------------------------------------------------------------------------
@@ -553,7 +574,7 @@ endif ()
 # and we need to call the executable from inside the CMake configuration
 #-----------------------------------------------------------------------------
 set (EXE_EXT "")
-if (WIN32)
+if (WIN32 OR MINGW)
   set (EXE_EXT ".exe")
   if (FALSE) # XXX(kitware): this is not what we want for VTK.
   add_definitions (-D_BIND_TO_CURRENT_VCLIBS_VERSION=1)
@@ -620,6 +641,27 @@ include (${HDF_RESOURCES_DIR}/HDFCompilerFlags.cmake)
 set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${HDF_RESOURCES_EXT_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
+# Option to Enable HDFS
+#-----------------------------------------------------------------------------
+option (HDF5_ENABLE_HDFS "Enable HDFS" OFF)
+if (HDF5_ENABLE_HDFS)
+  find_package(JNI REQUIRED)
+  if (JNI_FOUND)
+    set (H5_HAVE_LIBJVM 1)
+  endif ()
+  find_package(HDFS REQUIRED)
+  if (HDFS_FOUND)
+    set (H5_HAVE_LIBHDFS 1)
+    set (H5_HAVE_HDFS_H 1)
+    if (NOT MSVC)
+      list (APPEND LINK_LIBS -pthread)
+    endif ()
+  else ()
+    message (FATAL_ERROR "Set to use libhdfs library, but could not find or use libhdfs. Please verify that the path to HADOOP_HOME is valid, and/or reconfigure without HDF5_ENABLE_HDFS")
+  endif ()
+endif ()
+
+#-----------------------------------------------------------------------------
 # Option to Enable MPI Parallel
 #-----------------------------------------------------------------------------
 if (FALSE) # XXX(kitware): Hardcode settings.
@@ -677,31 +719,28 @@ if (FALSE) # XXX(kitware): Hardcode settings.
 #-----------------------------------------------------------------------------
 # Option to use 1.6.x API
 #-----------------------------------------------------------------------------
-option (HDF5_USE_16_API_DEFAULT "Use the HDF5 1.6.x API by default" OFF)
 set (H5_USE_16_API_DEFAULT 0)
-if (HDF5_USE_16_API_DEFAULT)
+if (DEFAULT_API_VERSION MATCHES "v16")
   set (H5_USE_16_API_DEFAULT 1)
-  set (DEFAULT_API_VERSION "v16")
 endif ()
 
 #-----------------------------------------------------------------------------
 # Option to use 1.8.x API
 #-----------------------------------------------------------------------------
-option (HDF5_USE_18_API_DEFAULT "Use the HDF5 1.8.x API by default" OFF)
 set (H5_USE_18_API_DEFAULT 0)
-if (HDF5_USE_18_API_DEFAULT)
+if (DEFAULT_API_VERSION MATCHES "v18")
   set (H5_USE_18_API_DEFAULT 1)
-  set (DEFAULT_API_VERSION "v18")
 endif ()
 
 #-----------------------------------------------------------------------------
 # Option to use 1.10.x API
 #-----------------------------------------------------------------------------
-option (HDF5_USE_110_API_DEFAULT "Use the HDF5 1.10.x API by default" ON)
-set (H5_USE_110_API_DEFAULT 0)
-if (HDF5_USE_110_API_DEFAULT)
-  set (H5_USE_110_API_DEFAULT 1)
+if (NOT DEFAULT_API_VERSION)
   set (DEFAULT_API_VERSION "v110")
+endif ()
+set (H5_USE_110_API_DEFAULT 0)
+if (DEFAULT_API_VERSION MATCHES "v110")
+  set (H5_USE_110_API_DEFAULT 1)
 endif ()
 else ()
 set (H5_USE_16_API_DEFAULT 0)
@@ -737,14 +776,17 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
     endif ()
   endif ()
 endif ()
+
 #-----------------------------------------------------------------------------
 # Option to use threadsafe
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_THREADSAFE "Enable thread-safety" OFF)
 if (HDF5_ENABLE_THREADSAFE)
   # check for unsupported options
-  message (STATUS " **** thread-safety option not supported with static library **** ")
-  message (STATUS " **** thread-safety option will not be used building static library **** ")
+  if (WIN32 OR MINGW)
+    message (STATUS " **** thread-safety option not supported with static library **** ")
+    message (STATUS " **** thread-safety option will not be used building static library **** ")
+  endif ()
   if (HDF5_ENABLE_PARALLEL)
     if (NOT ALLOW_UNSUPPORTED)
       message (FATAL_ERROR " **** parallel and thread-safety options are not supported **** ")
@@ -782,9 +824,9 @@ if (HDF5_ENABLE_THREADSAFE)
     endif ()
   endif ()
   set(THREADS_PREFER_PTHREAD_FLAG ON)
-  find_package(Threads)
-  if (NOT Threads_FOUND)
-    message (STATUS " **** thread-safe package not found - threads still might work **** ")
+  find_package(Threads REQUIRED)
+  if (Threads_FOUND)
+    set (H5_HAVE_THREADSAFE 1)
   endif ()
 endif ()
 else ()
@@ -799,13 +841,17 @@ add_subdirectory (src)
 if (FALSE) # XXX(kitware): Hardcode settings.
 if (HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "GIT" OR HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "TGZ")
   if (ZLIB_FOUND AND ZLIB_USE_EXTERNAL)
-    add_dependencies (${HDF5_LIB_TARGET} ZLIB)
+    if (NOT ONLY_SHARED_LIBS)
+      add_dependencies (${HDF5_LIB_TARGET} ZLIB)
+    endif ()
     if (BUILD_SHARED_LIBS)
       add_dependencies (${HDF5_LIBSH_TARGET} ZLIB)
     endif ()
   endif ()
   if (SZIP_FOUND AND SZIP_USE_EXTERNAL)
-    add_dependencies (${HDF5_LIB_TARGET} SZIP)
+    if (NOT ONLY_SHARED_LIBS)
+      add_dependencies (${HDF5_LIB_TARGET} SZIP)
+    endif ()
     if (BUILD_SHARED_LIBS)
       add_dependencies (${HDF5_LIBSH_TARGET} SZIP)
     endif ()
@@ -820,7 +866,7 @@ if (FALSE) # XXX(kitware): Disable testing of HDF5.
 option (BUILD_TESTING "Build HDF5 Unit Testing" ON)
 if (BUILD_TESTING)
   set (DART_TESTING_TIMEOUT 1200
-      CACHE INTEGER
+      CACHE STRING
       "Timeout in seconds for each test (default 1200=20minutes)"
   )
 
@@ -918,7 +964,7 @@ if (EXISTS "${HDF5_SOURCE_DIR}/fortran" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/for
     message (STATUS "Fortran compiler ID is ${CMAKE_Fortran_COMPILER_ID}")
     # Building with PGI requires CMake 3.3 or greater  because previous versions
     # of CMake add the wrong compiler flag for the PGI Fortran compiler.
-    if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "PGI" AND "${CMAKE_VERSION}" VERSION_LESS "3.3")
+    if (CMAKE_Fortran_COMPILER_ID MATCHES "PGI" AND CMAKE_VERSION VERSION_LESS "3.3")
       message (FATAL_ERROR " **** PGI FORTRAN REQUIRES CMAKE VERSION 3.3 OR GREATER **** ")
     endif ()
 

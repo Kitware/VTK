@@ -76,10 +76,10 @@ H5HL_debug(H5F_t *f, haddr_t addr, FILE * stream, int indent, int fwidth))
             "Data bytes allocated for heap:",
             h->dblk_size);
 
-    /*
-     * Traverse the free list and check that all free blocks fall within
+    /* Traverse the free list and check that all free blocks fall within
      * the heap and that no two free blocks point to the same region of
-     * the heap.  */
+     * the heap.
+     */
     if(NULL == (marker = (uint8_t *)H5MM_calloc(h->dblk_size)))
         H5E_THROW(H5E_CANTALLOC, "memory allocation failed");
 
@@ -88,35 +88,30 @@ H5HL_debug(H5F_t *f, haddr_t addr, FILE * stream, int indent, int fwidth))
         char temp_str[32];
 
         HDsnprintf(temp_str, sizeof(temp_str), "Block #%d:", free_block);
-	HDfprintf(stream, "%*s%-*s %8Zu, %8Zu\n", indent+3, "", MAX(0,fwidth-9),
-		temp_str,
-		freelist->offset, freelist->size);
-	if((freelist->offset + freelist->size) > h->dblk_size)
-	    HDfprintf(stream, "***THAT FREE BLOCK IS OUT OF BOUNDS!\n");
-	else {
+        HDfprintf(stream, "%*s%-*s %8Zu, %8Zu\n", indent+3, "", MAX(0,fwidth-9), temp_str, freelist->offset, freelist->size);
+        if((freelist->offset + freelist->size) > h->dblk_size)
+            HDfprintf(stream, "***THAT FREE BLOCK IS OUT OF BOUNDS!\n");
+        else {
             int	overlap = 0;
             size_t i;
 
-	    for(i = 0; i < freelist->size; i++) {
-		if(marker[freelist->offset + i])
-		    overlap++;
-		marker[freelist->offset + i] = 1;
-	    } /* end for */
-	    if(overlap)
-		HDfprintf(stream, "***THAT FREE BLOCK OVERLAPPED A PREVIOUS ONE!\n");
-	    else
-		amount_free += freelist->size;
-	} /* end for */
+            for(i = 0; i < freelist->size; i++) {
+                if(marker[freelist->offset + i])
+                    overlap++;
+                marker[freelist->offset + i] = 1;
+            } /* end for */
+            if(overlap)
+                HDfprintf(stream, "***THAT FREE BLOCK OVERLAPPED A PREVIOUS ONE!\n");
+            else
+                amount_free += freelist->size;
+	    } /* end else */
     } /* end for */
 
     if(h->dblk_size)
-	HDfprintf(stream, "%*s%-*s %.2f%%\n", indent, "", fwidth,
-		"Percent of heap used:",
-		((double)100.0f * (double)(h->dblk_size - amount_free) / (double)h->dblk_size));
+        HDfprintf(stream, "%*s%-*s %.2f%%\n", indent, "", fwidth, "Percent of heap used:",
+		        ((double)100.0f * (double)(h->dblk_size - amount_free) / (double)h->dblk_size));
 
-    /*
-     * Print the data in a VMS-style octal dump.
-     */
+    /* Print the data in a VMS-style octal dump */
     H5_buffer_dump(stream, indent, h->dblk_image, marker, (size_t)0, h->dblk_size);
 
 CATCH
@@ -127,3 +122,4 @@ CATCH
         H5E_THROW(H5E_CANTFREE, "can't free marker buffer");
 
 END_FUNC(PRIV) /* end H5HL_debug() */
+

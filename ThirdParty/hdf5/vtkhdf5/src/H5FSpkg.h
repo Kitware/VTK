@@ -215,10 +215,8 @@ H5FL_EXTERN(H5FS_t);
 /******************************/
 
 /* Generic routines */
-H5_DLL herr_t H5FS__create_flush_depend(H5AC_info_t *parent_entry,
-    H5AC_info_t *child_entry);
-H5_DLL herr_t H5FS__destroy_flush_depend(H5AC_info_t *parent_entry,
-    H5AC_info_t *child_entry);
+H5_DLL herr_t H5FS__create_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry);
+H5_DLL herr_t H5FS__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry);
 
 /* Free space manager header routines */
 H5_DLL H5FS_t *H5FS__new(const H5F_t *f, uint16_t nclasses,

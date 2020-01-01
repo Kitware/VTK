@@ -21,12 +21,13 @@
 #include "H5Smodule.h"          /* This source code file is part of the H5S module */
 
 
-#include "H5private.h"		/* Generic Functions			*/
+#include "H5private.h"		/* Generic Functions		*/
+#include "H5CXprivate.h"    /* API Contexts             */
 #include "H5Eprivate.h"		/* Error handling			*/
 #include "H5FLprivate.h"	/* Free Lists				*/
 #include "H5Iprivate.h"		/* ID Functions				*/
-#include "H5Spkg.h"		/* Dataspace functions			*/
-#include "H5VMprivate.h"         /* Vector functions			*/
+#include "H5Spkg.h"		    /* Dataspace functions      */
+#include "H5VMprivate.h"    /* Vector functions			*/
 
 /* Format version bounds for dataspace hyperslab selection */
 const unsigned H5O_sds_hyper_ver_bounds[] = {
@@ -85,10 +86,9 @@ static herr_t H5S__hyper_get_seq_list(const H5S_t *space, unsigned flags,
     size_t *nseq, size_t *nbytes, hsize_t *off, size_t *len);
 static herr_t H5S__hyper_release(H5S_t *space);
 static htri_t H5S__hyper_is_valid(const H5S_t *space);
-static hssize_t H5S__hyper_serial_size(const H5S_t *space, H5F_t *f);
-static herr_t H5S__hyper_serialize(const H5S_t *space, uint8_t **p, H5F_t *f);
-static herr_t H5S__hyper_deserialize(H5S_t *space, uint32_t version, uint8_t flags,
-    const uint8_t **p);
+static hssize_t H5S__hyper_serial_size(const H5S_t *space);
+static herr_t H5S__hyper_serialize(const H5S_t *space, uint8_t **p);
+static herr_t H5S__hyper_deserialize(H5S_t **space, const uint8_t **p);
 static herr_t H5S__hyper_bounds(const H5S_t *space, hsize_t *start, hsize_t *end);
 static herr_t H5S__hyper_offset(const H5S_t *space, hsize_t *offset);
 static int H5S__hyper_unlim_dim(const H5S_t *space);
@@ -107,7 +107,7 @@ static herr_t H5S__hyper_iter_coords(const H5S_sel_iter_t *iter, hsize_t *coords
 static herr_t H5S__hyper_iter_block(const H5S_sel_iter_t *iter, hsize_t *start, hsize_t *end);
 static hsize_t H5S__hyper_iter_nelmts(const H5S_sel_iter_t *iter);
 static htri_t H5S__hyper_iter_has_next_block(const H5S_sel_iter_t *sel_iter);
-static herr_t H5S__hyper_iter_next(H5S_sel_iter_t *sel_iter, hsize_t nelem);
+static herr_t H5S__hyper_iter_next(H5S_sel_iter_t *sel_iter, size_t nelem);
 static herr_t H5S__hyper_iter_next_block(H5S_sel_iter_t *sel_iter);
 static herr_t H5S__hyper_iter_release(H5S_sel_iter_t *sel_iter);
 /* Static function for optimizing hyperslab */
@@ -688,7 +688,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5S__hyper_iter_next(H5S_sel_iter_t *iter, hsize_t nelem)
+H5S__hyper_iter_next(H5S_sel_iter_t *iter, size_t nelem)
 {
     unsigned ndims;     /* Number of dimensions of dataset */
     int fast_dim;       /* Rank of the fastest changing dimension for the dataspace */
@@ -738,14 +738,14 @@ H5S__hyper_iter_next(H5S_sel_iter_t *iter, hsize_t nelem)
             temp_dim=fast_dim;
             while(temp_dim>=0) {
                 if(temp_dim==fast_dim) {
-                    hsize_t actual_elem;    /* Actual # of elements advanced on each iteration through loop */
+                    size_t actual_elem;     /* Actual # of elements advanced on each iteration through loop */
                     hsize_t block_elem;     /* Number of elements left in a block */
 
                     /* Compute the number of elements left in block */
                     block_elem = tdiminfo[temp_dim].block - iter_offset[temp_dim];
 
                     /* Compute the number of actual elements to advance */
-                    actual_elem=MIN(nelem,block_elem);
+                    actual_elem=(size_t)MIN(nelem,block_elem);
 
                     /* Move the iterator over as many elements as possible */
                     iter_offset[temp_dim] += actual_elem;
@@ -809,7 +809,7 @@ H5S__hyper_iter_next(H5S_sel_iter_t *iter, hsize_t nelem)
 
                 /* Increment absolute position */
                 if(curr_dim==fast_dim) {
-                    hsize_t actual_elem;    /* Actual # of elements advanced on each iteration through loop */
+                    size_t actual_elem;     /* Actual # of elements advanced on each iteration through loop */
                     hsize_t span_elem;      /* Number of elements left in a span */
 
                     /* Compute the number of elements left in block */
@@ -1872,8 +1872,9 @@ H5S__hyper_span_nblocks(const H5S_hyper_span_info_t *spans)
  PURPOSE
     Get the number of hyperslab blocks in current hyperslab selection
  USAGE
-    hsize_t H5S__get_select_hyper_nblocks(space)
+    hsize_t H5S__get_select_hyper_nblocks(space, app_ref)
         H5S_t *space;             IN: Dataspace ptr of selection to query
+        hbool_t app_ref;          IN: Whether this is an appl. ref. call
  RETURNS
     The number of hyperslab blocks in selection on success, negative on failure
  DESCRIPTION
@@ -1884,7 +1885,7 @@ H5S__hyper_span_nblocks(const H5S_hyper_span_info_t *spans)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static hsize_t
-H5S__get_select_hyper_nblocks(const H5S_t *space)
+H5S__get_select_hyper_nblocks(const H5S_t *space, hbool_t app_ref)
 {
     hsize_t ret_value = 0;      /* Return value */
 
@@ -1899,7 +1900,8 @@ H5S__get_select_hyper_nblocks(const H5S_t *space)
 
         /* Check each dimension */
         for(ret_value = 1, u = 0; u < space->extent.rank; u++)
-            ret_value *= space->select.sel_info.hslab->app_diminfo[u].count;
+            ret_value *= (app_ref ? space->select.sel_info.hslab->app_diminfo[u].count :
+                                    space->select.sel_info.hslab->opt_diminfo[u].count);
     } /* end if */
     else
         ret_value = H5S__hyper_span_nblocks(space->select.sel_info.hslab->span_lst);
@@ -1942,7 +1944,7 @@ H5Sget_select_hyper_nblocks(hid_t spaceid)
     if(space->select.sel_info.hslab->unlim_dim >= 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_UNSUPPORTED, FAIL, "cannot get number of blocks for unlimited selection")
 
-    ret_value = (hssize_t)H5S__get_select_hyper_nblocks(space);
+    ret_value = (hssize_t)H5S__get_select_hyper_nblocks(space, TRUE);
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1951,87 +1953,51 @@ done:
 
 /*--------------------------------------------------------------------------
  NAME
-    H5S_hyper_set_offset_size
+    H5S_hyper_get_version_enc_size
  PURPOSE
-    Determine the offset size (4 or 8 bytes) to use for encoding hyperslab selection info
- USAGE
-    hssize_t H5S_hyper_set_offset_size(space, block_count, bounds_end, version, offset_size)
-        const H5S_t *space:             IN: The maximum size of the hyperslab selection info
-        hsize_t block_count:            IN: The number of blocks in the selection
-        hsize_t bounds_end:             IN: The selection high bounds
-        uint32_t version:               IN: The version used for encoding
-        uint8_t *offset_size:           OUT: The offset size
-
- RETURNS
-    The offset size
- DESCRIPTION
-    Determine the offset size for encoding hyperslab selection info based on the
-    the input parameter "version".  This is for release 1.10.
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
- EXAMPLES
- REVISION LOG
---------------------------------------------------------------------------*/
-static herr_t
-H5S_hyper_set_offset_size(const H5S_t *space, hsize_t block_count, hsize_t bounds_end[], uint32_t version, uint8_t *offset_size)
-{
-    herr_t ret_value = SUCCEED;
-
-    FUNC_ENTER_NOAPI_NOINIT
-
-    switch(version) {
-        case H5S_HYPER_VERSION_1:
-            *offset_size = H5S_INFO_SIZE_4;
-            break;
-
-        case H5S_HYPER_VERSION_2:
-            *offset_size = H5S_INFO_SIZE_8;
-            break;
-
-        default:
-            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper offset size")
-            break;
-    }
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5S_hyper_set_offset_size() */
-
-
-/*--------------------------------------------------------------------------
- NAME
-    H5S_hyper_set_version
- PURPOSE
-    Determine the version to use for encoding hyperslab selection info
+    Determine the version and encoded size to use for encoding hyperslab selection info
     See tables 2 & 3 in the RFC: H5Sencode/H5Sdecode Format Change
  USAGE
-    hssize_t H5S_hyper_set_version(space, block_count, bounds_end, f, version)
+    hssize_t H5S_hyper_get_version_enc_size(space, block_count, version, enc_size)
         const H5S_t *space:             IN: The dataspace
         hsize_t block_count:            IN: The number of blocks in the selection
-        hsize_t bounds_end:             IN: The selection high bounds
-        H5F_t *f:                       IN: The file pointer
         uint32_t *version:              OUT: The version to use for encoding
+        uint8_t *enc_size:              OUT: The encoded size to use 
 
  RETURNS
-    The version to use
+    The version and the size to encode hyperslab selection info
  DESCRIPTION
     Determine the version to use for encoding hyperslab selection info based
     on whether the number of blocks or the selection high bounds exceeds (2^32 - 1).
+    Then determine the encoded size based on version.
  GLOBAL VARIABLES
  COMMENTS, BUGS, ASSUMPTIONS
  EXAMPLES
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S_hyper_set_version(const H5S_t *space, hsize_t block_count, hsize_t bounds_end[], H5F_t *f, uint32_t *version)
+H5S_hyper_get_version_enc_size(const H5S_t *space, hsize_t block_count, uint32_t *version, uint8_t *enc_size)
 {
+    hsize_t bounds_start[H5S_MAX_RANK]; /* Starting coordinate of bounding box */
+    hsize_t bounds_end[H5S_MAX_RANK];   /* Opposite coordinate of bounding box */
     hbool_t count_up_version = FALSE;   /* Whether number of blocks exceed (2^32 - 1) */
     hbool_t bound_up_version = FALSE;   /* Whether high bounds exceed (2^32 - 1) */
+    H5F_libver_t    low_bound;          /* The 'low' bound of library format versions */
+    H5F_libver_t    high_bound;         /* The 'high' bound of library format versions */
     unsigned u;                         /* Local index veriable */
     uint32_t tmp_version;               /* Temporay version */
     herr_t ret_value = SUCCEED;         /* return value */
 
     FUNC_ENTER_NOAPI_NOINIT
+
+    /* Get bounding box for the selection */
+    HDmemset(bounds_end, 0, sizeof(bounds_end));
+
+    if(space->select.sel_info.hslab->unlim_dim < 0) { /* ! H5S_UNLIMITED */
+        /* Get bounding box for the selection */
+        if(H5S__hyper_bounds(space, bounds_start, bounds_end) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't get selection bounds")
+    }
 
     /* Determine whether the number of blocks or the high bounds in the selection exceed (2^32 - 1) */
     if(block_count > H5S_UINT32_MAX)
@@ -2041,6 +2007,10 @@ H5S_hyper_set_version(const H5S_t *space, hsize_t block_count, hsize_t bounds_en
             if(bounds_end[u] > H5S_UINT32_MAX)
                 bound_up_version = TRUE;
     }
+
+    /* Get the file's low_bound and high_bound */
+    if(H5CX_get_libver_bounds(&low_bound, &high_bound) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get low/high bounds from API context")
 
     /* Use version 2 for unlimited selection */
     if(space->select.sel_info.hslab->unlim_dim >= 0)
@@ -2053,7 +2023,7 @@ H5S_hyper_set_version(const H5S_t *space, hsize_t block_count, hsize_t bounds_en
         else 
             /* block_count < 4: version 1 */
             /* block_count >= 4: determined by low bound */
-            tmp_version = (block_count < 4) ? H5S_HYPER_VERSION_1 : H5O_sds_hyper_ver_bounds[H5F_LOW_BOUND(f)];
+            tmp_version = (block_count < 4) ? H5S_HYPER_VERSION_1 : H5O_sds_hyper_ver_bounds[low_bound];
 
     } else { 
         /* Fail for irregular hyperslab if exceeds 32 bits */
@@ -2065,14 +2035,29 @@ H5S_hyper_set_version(const H5S_t *space, hsize_t block_count, hsize_t bounds_en
     }
 
     /* Version bounds check */
-    if(tmp_version > H5O_sds_hyper_ver_bounds[H5F_HIGH_BOUND(f)])
+    if(tmp_version > H5O_sds_hyper_ver_bounds[high_bound])
         HGOTO_ERROR(H5E_DATASPACE, H5E_BADRANGE, FAIL, "Dataspace hyperslab selection version out of bounds")
     
     *version = tmp_version;
 
+    /* Determine the encoded size based on version */
+    switch(tmp_version) {
+        case H5S_HYPER_VERSION_1:
+            *enc_size = H5S_SELECT_INFO_ENC_SIZE_4;
+            break;
+
+        case H5S_HYPER_VERSION_2:
+            *enc_size = H5S_SELECT_INFO_ENC_SIZE_8;
+            break;
+
+        default:
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper encoded size")
+            break;
+    }
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5S_hyper_set_version() */
+} /* H5S_hyper_get_version_enc_size() */
 
 
 /*--------------------------------------------------------------------------
@@ -2082,9 +2067,8 @@ done:
     Determine the number of bytes needed to store the serialized hyperslab
         selection information.
  USAGE
-    hssize_t H5S_hyper_serial_size(space, H5F_t *f)
+    hssize_t H5S_hyper_serial_size(space)
         H5S_t *space;             IN: Dataspace pointer to query
-        H5F_t *f;                 IN: File pointer
  RETURNS
     The number of bytes required on success, negative on an error.
  DESCRIPTION
@@ -2096,44 +2080,23 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 static hssize_t
-H5S__hyper_serial_size(const H5S_t *space, H5F_t *f)
+H5S__hyper_serial_size(const H5S_t *space)
 {
     hsize_t block_count = 0;    /* block counter for regular hyperslabs */
-    hsize_t bounds_start[H5S_MAX_RANK]; /* Selection bounds */
-    hsize_t bounds_end[H5S_MAX_RANK];   /* Selection bounds */
     uint32_t version;           /* Version number */
-    uint8_t offset_size;        /* Offset size */
-    unsigned u;                 /* Local index variable */
+    uint8_t enc_size;           /* Encoded size of hyperslab selection info */
     hssize_t ret_value = -1;    /* return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(space);
 
-    /* Get bounding box for the selection */
-    HDmemset(bounds_end, 0, sizeof(bounds_end));
-    if(space->select.sel_info.hslab->unlim_dim < 0) { /* ! H5S_UNLIMITED */
-        /* Determine the number of blocks */
-        if(H5S__hyper_is_regular(space)) {
-            /* Check each dimension */
-            for(block_count = 1, u = 0; u < space->extent.rank; u++)
-                block_count *= space->select.sel_info.hslab->opt_diminfo[u].count;
-        } /* end if */
-        else
-            /* Spin through hyperslab spans, adding 8 * rank bytes for each block */
-            block_count = H5S__hyper_span_nblocks(space->select.sel_info.hslab->span_lst);
+    /* Determine the number of blocks */
+    if(space->select.sel_info.hslab->unlim_dim < 0) /* ! H5S_UNLIMITED */
+        block_count = H5S__get_select_hyper_nblocks(space, FALSE);
 
-        /* Get bounding box for the selection */
-        if(H5S__hyper_bounds(space, bounds_start, bounds_end) < 0)
-            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't get selection bounds")
-    }
-
-    /* Determine the version */
-    if(H5S_hyper_set_version(space, block_count, bounds_end, f, &version) < 0)
-        HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper version")
-
-    /* Determine the offset size */
-    if(H5S_hyper_set_offset_size(space, block_count, bounds_end, version, &offset_size) < 0)
+    /* Determine the version and the encoded size */
+    if(H5S_hyper_get_version_enc_size(space, block_count, &version, &enc_size) < 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper version")
 
     if(version == H5S_HYPER_VERSION_2) {
@@ -2141,19 +2104,19 @@ H5S__hyper_serial_size(const H5S_t *space, H5F_t *f)
         /* Size required is always:
          * <type (4 bytes)> + <version (4 bytes)> + <flags (1 byte)> +
          * <length (4 bytes)> + <rank (4 bytes)> +
-         * (4 (start/stride/count/block) * <offset_size (8 bytes)> * <rank>) =
+         * (4 (start/stride/count/block) * <enc_size (8 bytes)> * <rank>) =
          * 17 + (4 * 8 * rank) bytes
          */
-        HDassert(offset_size == 8);
+        HDassert(enc_size == 8);
         ret_value = (hssize_t)17 + ((hssize_t)4 * (hssize_t)8 * (hssize_t)space->extent.rank);
     } else {
         HDassert(version == H5S_HYPER_VERSION_1);
-        HDassert(offset_size == 4);
+        HDassert(enc_size == 4);
         /* Version 1 */
         /* Basic number of bytes required to serialize hyperslab selection:
          * <type (4 bytes)> + <version (4 bytes)> + <padding (4 bytes)> +
          * <length (4 bytes)> + <rank (4 bytes)> + <# of blocks (4 bytes)> +
-         * (2 (starting/ending offset) * <offset_size (4 bytes)> * <rank> * <# of blocks) =
+         * (2 (starting/ending offset) * <enc_size (4 bytes)> * <rank> * <# of blocks) =
          * = 24 bytes + (2 * 4 * rank * block_count)
          */
         ret_value = 24;
@@ -2258,7 +2221,6 @@ H5S__hyper_serialize_helper(const H5S_hyper_span_info_t *spans,
         uint8_t **p;            OUT: Pointer to buffer to put serialized
                                 selection.  Will be advanced to end of
                                 serialized selection.
-        H5F_t *f;               IN: File pointer
  RETURNS
     Non-negative on success/Negative on failure
  DESCRIPTION
@@ -2270,27 +2232,25 @@ H5S__hyper_serialize_helper(const H5S_hyper_span_info_t *spans,
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S__hyper_serialize(const H5S_t *space, uint8_t **p, H5F_t *f)
+H5S__hyper_serialize(const H5S_t *space, uint8_t **p)
 {
     const H5S_hyper_dim_t *diminfo;         /* Alias for dataspace's diminfo information */
-    uint8_t *pp = (*p);                     /* Local pointer for decoding */
+    uint8_t *pp;            /* Local pointer for encoding */
     hsize_t tmp_count[H5O_LAYOUT_NDIMS];    /* Temporary hyperslab counts */
     hsize_t offset[H5O_LAYOUT_NDIMS];       /* Offset of element in dataspace */
     hsize_t start[H5O_LAYOUT_NDIMS];   /* Location of start of hyperslab */
     hsize_t end[H5O_LAYOUT_NDIMS];     /* Location of end of hyperslab */
-    hsize_t temp_off; /* Offset in a given dimension */
     uint8_t *lenp;          /* pointer to length location for later storage */
     uint32_t len = 0;       /* number of bytes used */
     uint32_t version;       /* Version number */
     uint8_t flags = 0;      /* Flags for message */
-    hsize_t block_count;    /* block counter for regular hyperslabs */
+    hsize_t block_count = 0;    /* block counter for regular hyperslabs */
     unsigned fast_dim;      /* Rank of the fastest changing dimension for the dataspace */
     unsigned ndims;         /* Rank of the dataspace */
-    unsigned u;             /* Local counting variable */
+    unsigned i, u;          /* Local counting variable */
     int done;               /* Whether we are done with the iteration */
-    uint8_t offset_size;
-    hsize_t bounds_start[H5S_MAX_RANK];
-    hsize_t bounds_end[H5S_MAX_RANK];
+    hbool_t is_regular;     /* Whether selection is regular */
+    uint8_t enc_size;       /* Encoded size */
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -2305,38 +2265,23 @@ H5S__hyper_serialize(const H5S_t *space, uint8_t **p, H5F_t *f)
     ndims = space->extent.rank;
     diminfo = space->select.sel_info.hslab->opt_diminfo;
 
-    if(space->select.sel_info.hslab->unlim_dim < 0) { /* ! H5S_UNLIMITED */
-        /* Calculate the # of blocks */
-        if(H5S__hyper_is_regular(space)) {
-            /* Check each dimension */
-            for(block_count = 1, u = 0; u < ndims; u++)
-                block_count *= diminfo[u].count;
-        } /* end if */
-        else
-            /* Spin through hyperslab spans, adding 8 * rank bytes for each block */
-            block_count = H5S__hyper_span_nblocks(space->select.sel_info.hslab->span_lst);
-
-        /* Get bounding box */
-        if(H5S__hyper_bounds(space, bounds_start, bounds_end) < 0)
-            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't get selection bounds")
-    }
+    /* Calculate the # of blocks */
+    if(space->select.sel_info.hslab->unlim_dim < 0) /* ! H5S_UNLIMITED */
+        block_count = H5S__get_select_hyper_nblocks(space, FALSE);
 
     /* Determine the version to use */
-    if(H5S_hyper_set_version(space, block_count, bounds_end, f, &version) < 0)
+    if(H5S_hyper_get_version_enc_size(space, block_count, &version, &enc_size) < 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper version")
 
-    /* Determine the size of offset info */
-    if(H5S_hyper_set_offset_size(space, block_count, bounds_end, version, &offset_size) < 0)
-        HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't determine hyper version")
-
-    if(H5S__hyper_is_regular(space) && version == H5S_HYPER_VERSION_2)
+    is_regular =  H5S__hyper_is_regular(space);
+    if(is_regular && version == H5S_HYPER_VERSION_2)
         flags |= H5S_HYPER_REGULAR;
 
     /* Store the preamble information */
     UINT32ENCODE(pp, (uint32_t)H5S_GET_SELECT_TYPE(space)); /* Store the type of selection */
     UINT32ENCODE(pp, version); /* Store the version number */
 
-    if(version == 2)
+    if(version ==  H5S_HYPER_VERSION_2)
         *(pp)++ = flags;    /* Store the flags */
     else
         UINT32ENCODE(pp, (uint32_t)0); /* Store the un-used padding */
@@ -2348,105 +2293,110 @@ H5S__hyper_serialize(const H5S_t *space, uint8_t **p, H5F_t *f)
     /* Encode number of dimensions */
     UINT32ENCODE(pp, (uint32_t)ndims);
 
-    /* If flags indicates a regular hyperslab or unlimited dimension, encode opt_diminfo */
-    if(flags & H5S_HYPER_REGULAR) {
-        unsigned i;
-
-        HDassert(H5S_UNLIMITED == HSIZE_UNDEF);
-        HDassert(version == H5S_HYPER_VERSION_2);
-
-        /* Iterate over dimensions */
-        /* Encode start/stride/block/count */
-        for(i = 0; i < space->extent.rank; i++) {
-            UINT64ENCODE(pp, diminfo[i].start);
-            UINT64ENCODE(pp, diminfo[i].stride);
-            UINT64ENCODE(pp, diminfo[i].count);
-            UINT64ENCODE(pp, diminfo[i].block);
-        } /* end for */
-        len += (4 * space->extent.rank * 8);
-    } /* end if */
     /* Check for a "regular" hyperslab selection */
-    else if(H5S__hyper_is_regular(space)) {
-        HDassert(version == H5S_HYPER_VERSION_1);
+    if(is_regular) {
 
-        /* Set some convienence values */
-        fast_dim = ndims - 1;
-        /* Encode number of hyperslabs */
-        H5_CHECK_OVERFLOW(block_count, hsize_t, uint32_t);
-        UINT32ENCODE(pp, (uint32_t)block_count);
-        len += 4;
+        /* If flags indicates a regular hyperslab or unlimited dimension, encode opt_diminfo */
+        if(version ==  H5S_HYPER_VERSION_2) {
 
-        /* Now serialize the information for the regular hyperslab */
+            HDassert(H5S_UNLIMITED == HSIZE_UNDEF);
+            HDassert(enc_size == H5S_SELECT_INFO_ENC_SIZE_8);
 
-        /* Build the tables of count sizes as well as the initial offset */
-        for(u = 0; u < ndims; u++) {
-            tmp_count[u] = diminfo[u].count;
-            offset[u] = diminfo[u].start;
-        } /* end for */
+            /* Iterate over dimensions */
+            /* Encode start/stride/block/count */
+            for(i = 0; i < space->extent.rank; i++) {
+                UINT64ENCODE(pp, diminfo[i].start);
+                UINT64ENCODE(pp, diminfo[i].stride);
+                UINT64ENCODE(pp, diminfo[i].count);
+                UINT64ENCODE(pp, diminfo[i].block);
+            } /* end for */
+            len += (4 * space->extent.rank * 8);
+        } else {
+            HDassert(version == H5S_HYPER_VERSION_1);
+            HDassert(enc_size == H5S_SELECT_INFO_ENC_SIZE_4);
 
-        /* We're not done with the iteration */
-        done = FALSE;
+            /* Set some convienence values */
+            fast_dim = ndims - 1;
 
-        /* Go iterate over the hyperslabs */
-        while(done == FALSE) {
-            /* Iterate over the blocks in the fastest dimension */
-            while(tmp_count[fast_dim] > 0) {
-                /* Add 8 bytes times the rank for each hyperslab selected */
-                len += 8 * ndims;
+            /* Encode number of hyperslabs */
+            H5_CHECK_OVERFLOW(block_count, hsize_t, uint32_t);
+            UINT32ENCODE(pp, (uint32_t)block_count);
+            len += 4;
 
-                /* Encode hyperslab starting location */
-                for(u = 0; u < ndims; u++)
-                    UINT32ENCODE(pp, (uint32_t)offset[u]);
+            /* Now serialize the information for the regular hyperslab */
 
-                /* Encode hyperslab ending location */
-                for(u = 0; u < ndims; u++)
-                    UINT32ENCODE(pp, (uint32_t)(offset[u] + (diminfo[u].block - 1)));
+            /* Build the tables of count sizes as well as the initial offset */
+            for(u = 0; u < ndims; u++) {
+                tmp_count[u] = diminfo[u].count;
+                offset[u] = diminfo[u].start;
+            } /* end for */
 
-                /* Move the offset to the next sequence to start */
-                offset[fast_dim]+=diminfo[fast_dim].stride;
+            /* We're not done with the iteration */
+            done = FALSE;
 
-                /* Decrement the block count */
-                tmp_count[fast_dim]--;
-            } /* end while */
+            /* Go iterate over the hyperslabs */
+            while(done == FALSE) {
+                /* Iterate over the blocks in the fastest dimension */
+                while(tmp_count[fast_dim] > 0) {
+                    /* Add 8 bytes times the rank for each hyperslab selected */
+                    len += 8 * ndims;
 
-            /* Work on other dimensions if necessary */
-            if(fast_dim > 0) {
-                int temp_dim;           /* Temporary rank holder */
+                    /* Encode hyperslab starting location */
+                    for(u = 0; u < ndims; u++)
+                        UINT32ENCODE(pp, (uint32_t)offset[u]);
 
-                /* Reset the block counts */
-                tmp_count[fast_dim] = diminfo[fast_dim].count;
+                    /* Encode hyperslab ending location */
+                    for(u = 0; u < ndims; u++)
+                        UINT32ENCODE(pp, (uint32_t)(offset[u] + (diminfo[u].block - 1)));
 
-                /* Bubble up the decrement to the slower changing dimensions */
-                temp_dim = (int)fast_dim - 1;
-                while(temp_dim >= 0 && done == FALSE) {
+                    /* Move the offset to the next sequence to start */
+                    offset[fast_dim]+=diminfo[fast_dim].stride;
+
                     /* Decrement the block count */
-                    tmp_count[temp_dim]--;
-
-                    /* Check if we have more blocks left */
-                    if(tmp_count[temp_dim] > 0)
-                        break;
-
-                    /* Check for getting out of iterator */
-                    if(temp_dim == 0)
-                        done = TRUE;
-
-                    /* Reset the block count in this dimension */
-                    tmp_count[temp_dim] = diminfo[temp_dim].count;
-
-                    /* Wrapped a dimension, go up to next dimension */
-                    temp_dim--;
+                    tmp_count[fast_dim]--;
                 } /* end while */
-            } /* end if */
-            else
-                break;  /* Break out now, for 1-D selections */
 
-            /* Re-compute offset array */
-            for(u = 0; u < ndims; u++)
-                offset[u] = diminfo[u].start + diminfo[u].stride * (diminfo[u].count - tmp_count[u]);
-        } /* end while */
-    } /* end if */
-    else {
+                /* Work on other dimensions if necessary */
+                if(fast_dim > 0) {
+                    int temp_dim;           /* Temporary rank holder */
+
+                    /* Reset the block counts */
+                    tmp_count[fast_dim] = diminfo[fast_dim].count;
+
+                    /* Bubble up the decrement to the slower changing dimensions */
+                    temp_dim = (int)fast_dim - 1;
+                    while(temp_dim >= 0 && done == FALSE) {
+                        /* Decrement the block count */
+                        tmp_count[temp_dim]--;
+
+                        /* Check if we have more blocks left */
+                        if(tmp_count[temp_dim] > 0)
+                            break;
+
+                        /* Check for getting out of iterator */
+                        if(temp_dim == 0)
+                            done = TRUE;
+
+                        /* Reset the block count in this dimension */
+                        tmp_count[temp_dim] = diminfo[temp_dim].count;
+
+                        /* Wrapped a dimension, go up to next dimension */
+                        temp_dim--;
+                    } /* end while */
+                } /* end if */
+                else
+                    break;  /* Break out now, for 1-D selections */
+
+                /* Re-compute offset array */
+                for(u = 0; u < ndims; u++)
+                    offset[u] = diminfo[u].start + diminfo[u].stride * (diminfo[u].count - tmp_count[u]);
+            } /* end while */
+        } /* end if */
+
+    } else { /* irregular */
         HDassert(version == H5S_HYPER_VERSION_1);
+        HDassert(enc_size == H5S_SELECT_INFO_ENC_SIZE_4);
+
         /* Encode number of hyperslabs */
         H5_CHECK_OVERFLOW(block_count, hsize_t, uint32_t);
         UINT32ENCODE(pp, (uint32_t)block_count);
@@ -2479,10 +2429,8 @@ done:
     Deserialize the current selection from a user-provided buffer.
  USAGE
     herr_t H5S__hyper_deserialize(space, p)
-        H5S_t *space;           IN/OUT: Dataspace pointer to place
+        H5S_t **space;          IN/OUT: Dataspace pointer to place
                                 selection into
-        uint32_t version        IN: Selection version
-        uint8_t flags           IN: Selection flags
         uint8 **p;              OUT: Pointer to buffer holding serialized
                                 selection.  Will be advanced to end of
                                 serialized selection.
@@ -2497,27 +2445,68 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S__hyper_deserialize(H5S_t *space, uint32_t H5_ATTR_UNUSED version, uint8_t flags,
-    const uint8_t **p)
+H5S__hyper_deserialize(H5S_t **space, const uint8_t **p)
 {
-    unsigned rank;           	/* Rank of points */
-    const uint8_t *pp;          /* Local pointer for decoding */
-    hsize_t start[H5O_LAYOUT_NDIMS];	/* Hyperslab start information */
-    hsize_t block[H5O_LAYOUT_NDIMS];    /* Hyperslab block information */
-    unsigned u;             	/* Local counting variable */
-    herr_t ret_value = FAIL;  	/* Return value */
+    H5S_t *tmp_space = NULL;        /* Pointer to actual dataspace to use,
+                                       either *space or a newly allocated one */
+    hsize_t dims[H5S_MAX_RANK];     /* Dimenion sizes */
+    hsize_t start[H5S_MAX_RANK];    /* Hyperslab start information */
+    hsize_t block[H5S_MAX_RANK];    /* Hyperslab block information */
+    uint32_t version;               /* Version number */        /* Encoded size */
+    uint8_t flags = 0;              /* Flags */
+    unsigned rank;                  /* Rank of points */
+    const uint8_t *pp;              /* Local pointer for decoding */
+    unsigned u;                     /* Local counting variable */
+    herr_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Check args */
-    HDassert(space);
     HDassert(p);
     pp = (*p);
     HDassert(pp);
 
-    /* Deserialize slabs to select */
-    /* (The header and rank have already beed decoded) */
-    rank = space->extent.rank;  /* Retrieve rank from space */
+    /* As part of the efforts to push all selection-type specific coding
+       to the callbacks, the coding for the allocation of a null dataspace
+       is moved from H5S_select_deserialize() in H5Sselect.c to here.
+       This is needed for decoding virtual layout in H5O__layout_decode() */
+    /* Allocate space if not provided */
+    if(!*space) {
+        if(NULL == (tmp_space = H5S_create(H5S_SIMPLE)))
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCREATE, FAIL, "can't create dataspace")
+    } /* end if */
+    else
+        tmp_space = *space;
+
+    /* Decode version */
+    UINT32DECODE(pp, version);
+
+    if(version < H5S_HYPER_VERSION_1 || version > H5S_HYPER_VERSION_LATEST)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_BADVALUE, FAIL, "bad version number for hyperslab selection")
+
+    if(version >= (uint32_t)H5S_HYPER_VERSION_2) {
+        /* Decode flags */
+        flags = *(pp)++;
+
+        /* Skip over the remainder of the header */
+        pp += 4;
+    } else
+        /* Skip over the remainder of the header */
+        pp += 8;
+
+    /* Decode the rank of the point selection */
+    UINT32DECODE(pp,rank);
+
+    if(!*space) {
+        /* Patch the rank of the allocated dataspace */
+        (void)HDmemset(dims, 0, (size_t)rank * sizeof(dims[0]));
+        if(H5S_set_extent_simple(tmp_space, rank, dims, NULL) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, FAIL, "can't set dimensions")
+    } /* end if */
+    else
+        /* Verify the rank of the provided dataspace */
+        if(rank != tmp_space->extent.rank)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_BADRANGE, FAIL, "rank of serialized selection does not match dataspace")
 
     if(flags & H5S_HYPER_REGULAR) {
         hsize_t stride[H5O_LAYOUT_NDIMS];	/* Hyperslab stride information */
@@ -2525,7 +2514,7 @@ H5S__hyper_deserialize(H5S_t *space, uint32_t H5_ATTR_UNUSED version, uint8_t fl
 
         /* Sanity checks */
         HDassert(H5S_UNLIMITED == HSIZE_UNDEF);
-        HDassert(version >= 2);
+        HDassert(version >= H5S_HYPER_VERSION_2);
 
         /* Iterate over dimensions */
         for(u = 0; u < rank; u++) {
@@ -2537,7 +2526,7 @@ H5S__hyper_deserialize(H5S_t *space, uint32_t H5_ATTR_UNUSED version, uint8_t fl
         } /* end for */
 
         /* Select the hyperslab to the current selection */
-        if((ret_value = H5S_select_hyperslab(space, H5S_SELECT_SET, start, stride, count, block)) < 0)
+        if((ret_value = H5S_select_hyperslab(tmp_space, H5S_SELECT_SET, start, stride, count, block)) < 0)
             HGOTO_ERROR(H5E_DATASPACE, H5E_CANTSET, FAIL, "can't change selection")
     } /* end if */
     else {
@@ -2571,7 +2560,7 @@ H5S__hyper_deserialize(H5S_t *space, uint32_t H5_ATTR_UNUSED version, uint8_t fl
                 *tblock = (*tend - *tstart) + 1;
 
             /* Select or add the hyperslab to the current selection */
-            if((ret_value = H5S_select_hyperslab(space, (u == 0 ? H5S_SELECT_SET : H5S_SELECT_OR), start, stride, count, block)) < 0)
+            if((ret_value = H5S_select_hyperslab(tmp_space, (u == 0 ? H5S_SELECT_SET : H5S_SELECT_OR), start, stride, count, block)) < 0)
                 HGOTO_ERROR(H5E_DATASPACE, H5E_CANTSET, FAIL, "can't change selection")
         } /* end for */
     } /* end else */
@@ -2579,7 +2568,16 @@ H5S__hyper_deserialize(H5S_t *space, uint32_t H5_ATTR_UNUSED version, uint8_t fl
     /* Update decoding pointer */
     *p = pp;
 
+    /* Return space to the caller if allocated */
+    if(!*space)
+        *space = tmp_space;
+
 done:
+    /* Free temporary space if not passed to caller (only happens on error) */
+    if(!*space && tmp_space)
+        if(H5S_close(tmp_space) < 0)
+            HDONE_ERROR(H5E_DATASPACE, H5E_CANTFREE, FAIL, "can't close dataspace")
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5S__hyper_deserialize() */
 

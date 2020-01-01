@@ -1174,6 +1174,8 @@ H5Z_filter_scaleoffset(unsigned flags, size_t cd_nelmts, const unsigned cd_value
         /* special case: minbits equal to full precision */
         if(minbits == p.size * 8) {
             HDmemcpy(outbuf, (unsigned char*)(*buf)+buf_offset, size_out);
+            /* free the original buffer */
+            H5MM_xfree(*buf);
 
             /* convert to dataset datatype endianness order if needed */
             if(need_convert)
@@ -1272,6 +1274,9 @@ H5Z_filter_scaleoffset(unsigned flags, size_t cd_nelmts, const unsigned cd_value
         /* special case: minbits equal to full precision */
         if(minbits == p.size * 8) {
             HDmemcpy(outbuf + buf_offset, *buf, nbytes);
+            /* free the original buffer */
+            H5MM_xfree(*buf);
+
             *buf = outbuf;
             outbuf = NULL;
             *buf_size = size_out;

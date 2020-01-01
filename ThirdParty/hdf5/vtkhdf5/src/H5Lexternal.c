@@ -356,6 +356,13 @@ H5Lcreate_external(const char *file_name, const char *obj_name,
     if(!link_name || !*link_name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no link name specified")
 
+    /* Check the link creation property list */
+    if(H5P_DEFAULT == lcpl_id)
+        lcpl_id = H5P_LINK_CREATE_DEFAULT;
+
+    /* Set the LCPL for the API context */
+    H5CX_set_lcpl(lcpl_id);
+
     /* Get normalized copy of the link target */
     if(NULL == (norm_obj_name = H5G_normalize(obj_name)))
         HGOTO_ERROR(H5E_LINK, H5E_BADVALUE, FAIL, "can't normalize object name")

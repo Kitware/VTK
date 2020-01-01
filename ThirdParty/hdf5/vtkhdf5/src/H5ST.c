@@ -743,19 +743,19 @@ H5ST__dump_internal(H5ST_ptr_t p)
     FUNC_ENTER_STATIC_NOERR
 
     if(p) {
-        printf("p=%p\n", (void *)p);
-        printf("\tp->up=%p\n", (void *)p->up);
-        printf("\tp->parent=%p\n", (void *)p->parent);
-        printf("\tp->lokid=%p\n", (void *)p->lokid);
-        printf("\tp->hikid=%p\n", (void *)p->hikid);
-        printf("\tp->eqkid=%p\n", (void *)p->eqkid);
-        printf("\tp->splitchar=%c\n", p->splitchar);
+        HDprintf("p=%p\n", (void *)p);
+        HDprintf("\tp->up=%p\n", (void *)p->up);
+        HDprintf("\tp->parent=%p\n", (void *)p->parent);
+        HDprintf("\tp->lokid=%p\n", (void *)p->lokid);
+        HDprintf("\tp->hikid=%p\n", (void *)p->hikid);
+        HDprintf("\tp->eqkid=%p\n", (void *)p->eqkid);
+        HDprintf("\tp->splitchar=%c\n", p->splitchar);
 
         H5ST__dump_internal(p->lokid);
         if(p->splitchar)
             H5ST__dump_internal(p->eqkid);
         else
-            printf("%s\n", (char *)p->eqkid);
+            HDprintf("%s\n", (char *)p->eqkid);
         H5ST__dump_internal(p->hikid);
     } /* end if */
 

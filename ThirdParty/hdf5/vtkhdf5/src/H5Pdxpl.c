@@ -172,21 +172,21 @@
 static herr_t H5P__dxfr_reg_prop(H5P_genclass_t *pclass);
 
 /* Property list callbacks */
-static herr_t H5P__dxfr_bkgr_buf_type_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_bkgr_buf_type_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_bkgr_buf_type_dec(const void **pp, void *value);
-static herr_t H5P__dxfr_btree_split_ratio_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_btree_split_ratio_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_btree_split_ratio_dec(const void **pp, void *value);
-static herr_t H5P__dxfr_io_xfer_mode_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_io_xfer_mode_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_io_xfer_mode_dec(const void **pp, void *value);
-static herr_t H5P__dxfr_mpio_collective_opt_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_mpio_collective_opt_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_mpio_collective_opt_dec(const void **pp, void *value);
-static herr_t H5P__dxfr_mpio_chunk_opt_hard_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_mpio_chunk_opt_hard_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_mpio_chunk_opt_hard_dec(const void **pp, void *value);
-static herr_t H5P__dxfr_edc_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_edc_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_edc_dec(const void **pp, void *value);
 static herr_t H5P__dxfr_xform_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dxfr_xform_get(hid_t prop_id, const char* name, size_t size, void* value);
-static herr_t H5P__dxfr_xform_enc(const void *value, void **pp, size_t *size, void *udata);
+static herr_t H5P__dxfr_xform_enc(const void *value, void **pp, size_t *size);
 static herr_t H5P__dxfr_xform_dec(const void **pp, void *value);
 static herr_t H5P__dxfr_xform_del(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dxfr_xform_copy(const char* name, size_t size, void* value);
@@ -421,7 +421,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_bkgr_buf_type_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_bkgr_buf_type_enc(const void *value, void **_pp, size_t *size)
 {
     const H5T_bkg_t *bkgr_buf_type = (const H5T_bkg_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -494,7 +494,7 @@ H5P__dxfr_bkgr_buf_type_dec(const void **_pp, void *_value)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_btree_split_ratio_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_btree_split_ratio_enc(const void *value, void **_pp, size_t *size)
 {
     const double *btree_split_ratio = (const double *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -655,7 +655,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_xform_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_xform_enc(const void *value, void **_pp, size_t *size)
 {
     const H5Z_data_xform_t *data_xform_prop = *(const H5Z_data_xform_t * const *)value; /* Create local alias for values */
     const char *pexp = NULL;            /* Pointer to transform expression */
@@ -1742,7 +1742,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_io_xfer_mode_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_io_xfer_mode_enc(const void *value, void **_pp, size_t *size)
 {
     const H5FD_mpio_xfer_t *xfer_mode = (const H5FD_mpio_xfer_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -1815,7 +1815,7 @@ H5P__dxfr_io_xfer_mode_dec(const void **_pp, void *_value)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_mpio_collective_opt_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_mpio_collective_opt_enc(const void *value, void **_pp, size_t *size)
 {
     const H5FD_mpio_collective_opt_t *coll_opt = (const H5FD_mpio_collective_opt_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -1888,7 +1888,7 @@ H5P__dxfr_mpio_collective_opt_dec(const void **_pp, void *_value)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_mpio_chunk_opt_hard_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_mpio_chunk_opt_hard_enc(const void *value, void **_pp, size_t *size)
 {
     const H5FD_mpio_chunk_opt_t *chunk_opt = (const H5FD_mpio_chunk_opt_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -2072,7 +2072,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dxfr_edc_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__dxfr_edc_enc(const void *value, void **_pp, size_t *size)
 {
     const H5Z_EDC_t *check = (const H5Z_EDC_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;

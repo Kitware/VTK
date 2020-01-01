@@ -13,11 +13,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Plcpl.c
- *			May  8 2006
- *			Peter Cao <xcao@ncsa.uiuc.edu>
+ * Created:     H5Plcpl.c
  *
- * Purpose:		Link creation property list class routines
+ * Purpose:     Link creation property list class routines
  *
  *-------------------------------------------------------------------------
  */

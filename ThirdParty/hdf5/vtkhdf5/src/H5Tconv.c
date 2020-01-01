@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Module Info:	Datatype conversions for the H5T interface.
+ * Module Info:    Datatype conversions for the H5T interface.
  */
 
 /****************/
@@ -25,16 +25,16 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
+#include "H5private.h"        /* Generic Functions            */
 #include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Dprivate.h"		/* Datasets				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5HGprivate.h"	/* Global Heaps				*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Pprivate.h"		/* Property lists			*/
-#include "H5Tpkg.h"		/* Datatypes				*/
+#include "H5Dprivate.h"        /* Datasets                */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5FLprivate.h"    /* Free Lists                           */
+#include "H5HGprivate.h"    /* Global Heaps                */
+#include "H5Iprivate.h"        /* IDs                      */
+#include "H5MMprivate.h"    /* Memory management            */
+#include "H5Pprivate.h"        /* Property lists            */
+#include "H5Tpkg.h"        /* Datatypes                */
 
 
 /****************/
@@ -57,57 +57,57 @@
  * source value has a magnitude that cannot be represented by the destination
  * type.
  *
- * Suffix	Description
- * ------	-----------
- * sS:		Signed integers to signed integers where the destination is
- *		at least as wide as the source.	 This case cannot generate
- *		overflows.
+ * Suffix    Description
+ * ------    -----------
+ * sS:        Signed integers to signed integers where the destination is
+ *        at least as wide as the source.     This case cannot generate
+ *        overflows.
  *
- * sU:		Signed integers to unsigned integers where the destination is
- *		at least as wide as the source.	 This case experiences
- *		overflows when the source value is negative.
+ * sU:        Signed integers to unsigned integers where the destination is
+ *        at least as wide as the source.     This case experiences
+ *        overflows when the source value is negative.
  *
- * uS:		Unsigned integers to signed integers where the destination is
- *		at least as wide as the source.	 This case can experience
- *		overflows when the source and destination are the same size.
+ * uS:        Unsigned integers to signed integers where the destination is
+ *        at least as wide as the source.     This case can experience
+ *        overflows when the source and destination are the same size.
  *
- * uU:		Unsigned integers to unsigned integers where the destination
- *		is at least as wide as the source.  Overflows are not
- *		possible in this case.
+ * uU:        Unsigned integers to unsigned integers where the destination
+ *        is at least as wide as the source.  Overflows are not
+ *        possible in this case.
  *
- * Ss:		Signed integers to signed integers where the source is at
- *		least as large as the destination.  Overflows can occur when
- *		the destination is narrower than the source.
+ * Ss:        Signed integers to signed integers where the source is at
+ *        least as large as the destination.  Overflows can occur when
+ *        the destination is narrower than the source.
  *
- * Su:		Signed integers to unsigned integers where the source is at
- *		least as large as the destination.  Overflows occur when the
- *		source value is negative and can also occur if the
- *		destination is narrower than the source.
+ * Su:        Signed integers to unsigned integers where the source is at
+ *        least as large as the destination.  Overflows occur when the
+ *        source value is negative and can also occur if the
+ *        destination is narrower than the source.
  *
- * Us:		Unsigned integers to signed integers where the source is at
- *		least as large as the destination.  Overflows can occur for
- *		all sizes.
+ * Us:        Unsigned integers to signed integers where the source is at
+ *        least as large as the destination.  Overflows can occur for
+ *        all sizes.
  *
- * Uu:		Unsigned integers to unsigned integers where the source is at
- *		least as large as the destination. Overflows can occur if the
- *		destination is narrower than the source.
+ * Uu:        Unsigned integers to unsigned integers where the source is at
+ *        least as large as the destination. Overflows can occur if the
+ *        destination is narrower than the source.
  *
- * su:		Conversion from signed integers to unsigned integers where
- *		the source and destination are the same size. Overflow occurs
- *		when the source value is negative.
+ * su:        Conversion from signed integers to unsigned integers where
+ *        the source and destination are the same size. Overflow occurs
+ *        when the source value is negative.
  *
- * us:		Conversion from unsigned integers to signed integers where
- *		the source and destination are the same size.  Overflow
- *		occurs when the source magnitude is too large for the
- *		destination.
+ * us:        Conversion from unsigned integers to signed integers where
+ *        the source and destination are the same size.  Overflow
+ *        occurs when the source magnitude is too large for the
+ *        destination.
  *
- * fF:		Floating-point values to floating-point values where the
- *              destination is at least as wide as the source.	 This case
+ * fF:        Floating-point values to floating-point values where the
+ *              destination is at least as wide as the source.     This case
  *              cannot generate overflows.
  *
- * Ff:		Floating-point values to floating-point values the source is at
- *		least as large as the destination.  Overflows can occur when
- *		the destination is narrower than the source.
+ * Ff:        Floating-point values to floating-point values the source is at
+ *        least as large as the destination.  Overflows can occur when
+ *        the destination is narrower than the source.
  *
  * xF:          Integers to float-point(float or double) values where the destination
  *              is at least as wide as the source.  This case cannot generate
@@ -119,29 +119,29 @@
  *
  * The macros take a subset of these arguments in the order listed here:
  *
- * CDATA:	A pointer to the H5T_cdata_t structure that was passed to the
- *		conversion function.
+ * CDATA:    A pointer to the H5T_cdata_t structure that was passed to the
+ *        conversion function.
  *
- * STYPE:	The hid_t value for the source datatype.
+ * STYPE:    The hid_t value for the source datatype.
  *
- * DTYPE:	The hid_t value for the destination datatype.
+ * DTYPE:    The hid_t value for the destination datatype.
  *
- * BUF:		A pointer to the conversion buffer.
+ * BUF:        A pointer to the conversion buffer.
  *
- * NELMTS:	The number of values to be converted.
+ * NELMTS:    The number of values to be converted.
  *
- * ST:		The C name for source datatype (e.g., int)
+ * ST:        The C name for source datatype (e.g., int)
  *
- * DT:		The C name for the destination datatype (e.g., signed char)
+ * DT:        The C name for the destination datatype (e.g., signed char)
  *
- * D_MIN:	The minimum possible destination value.	 For unsigned
- *		destination types this should be zero.	For signed
- *		destination types it's a negative value with a magnitude that
- *		is usually one greater than D_MAX.  Source values which are
- *		smaller than D_MIN generate overflows.
+ * D_MIN:    The minimum possible destination value.     For unsigned
+ *        destination types this should be zero.    For signed
+ *        destination types it's a negative value with a magnitude that
+ *        is usually one greater than D_MAX.  Source values which are
+ *        smaller than D_MIN generate overflows.
  *
- * D_MAX:	The maximum possible destination value. Source values which
- *		are larger than D_MAX generate overflows.
+ * D_MAX:    The maximum possible destination value. Source values which
+ *        are larger than D_MAX generate overflows.
  *
  * The macros are implemented with a generic programming technique, similar
  * to templates in C++.  The macro which defines the "core" part of the
@@ -156,25 +156,25 @@
  *
  * The generic "core" macros are: (others are specific to particular conversion)
  *
- * Suffix	Description
- * ------	-----------
- * xX:		Generic Conversion where the destination is at least as
+ * Suffix    Description
+ * ------    -----------
+ * xX:        Generic Conversion where the destination is at least as
  *              wide as the source.  This case cannot generate overflows.
  *
- * Xx:		Generic signed conversion where the source is at least as large
+ * Xx:        Generic signed conversion where the source is at least as large
  *              as the destination.  Overflows can occur when the destination is
  *              narrower than the source.
  *
- * Ux:		Generic conversion for the `Us', `Uu' & `us' cases
- *		Overflow occurs when the source magnitude is too large for the
- *		destination.
+ * Ux:        Generic conversion for the `Us', `Uu' & `us' cases
+ *        Overflow occurs when the source magnitude is too large for the
+ *        destination.
  *
  */
-#define H5T_CONV_xX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    *(D) = (DT)(*(S));							      \
+#define H5T_CONV_xX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    *(D) = (DT)(*(S));                                  \
 }
-#define H5T_CONV_xX_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    *(D) = (DT)(*(S));							      \
+#define H5T_CONV_xX_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    *(D) = (DT)(*(S));                                  \
 }
 
 /* Added a condition branch(else if (*(S) == (DT)(D_MAX))) which seems redundant.
@@ -184,13 +184,13 @@
  * equal. In this case, do not return exception but make sure the maximum is assigned
  * to the destination.   SLU - 2005/06/29
  */
-#define H5T_CONV_Xx_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Xx_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if (*(S) > (ST)(D_MAX)) {                                                 \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_HI, \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MAX);						      \
+            *(D) = (DT)(D_MAX);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
@@ -199,69 +199,69 @@
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MIN);						      \
+            *(D) = (DT)(D_MIN);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else 								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                       \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_Xx_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Xx_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if (*(S) > (ST)(D_MAX)) {                                                 \
-        *(D) = (DT)(D_MAX);						      \
+        *(D) = (DT)(D_MAX);                              \
     } else if (*(S) < (ST)(D_MIN)) {                                          \
-        *(D) = (DT)(D_MIN);						      \
-    } else 								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(D_MIN);                              \
+    } else                                       \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_Ux_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Ux_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if (*(S) > (ST)(D_MAX)) {                                                 \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_HI,               \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MAX);						      \
+            *(D) = (DT)(D_MAX);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_Ux_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Ux_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if (*(S) > (ST)(D_MAX)) {                                                 \
-        *(D) = (DT)(D_MAX);						      \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(D_MAX);                              \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_sS(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
+#define H5T_CONV_sS(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)<=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_sU_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_sU_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if (*(S) < 0) {                                                           \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_LOW,              \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = 0;						              \
+            *(D) = 0;                                      \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_sU_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_sU_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) < 0)                                                              \
-        *(D) = 0;						              \
-    else								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = 0;                                      \
+    else                                      \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_sU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
+#define H5T_CONV_sU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)<=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_sU, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
@@ -349,23 +349,23 @@
     H5T_CONV(H5T_CONV_uS, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_uU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
+#define H5T_CONV_uU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)<=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_Ss(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
+#define H5T_CONV_Ss(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)>=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_Xx, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_Su_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Su_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) < 0) {                                                            \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_LOW,              \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = 0;						              \
+            *(D) = 0;                                      \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
@@ -374,106 +374,106 @@
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MAX);						      \
+            *(D) = (DT)(D_MAX);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_Su_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Su_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) < 0)                                                              \
-        *(D) = 0;						              \
+        *(D) = 0;                                      \
     else if (sizeof(ST)>sizeof(DT) && *(S) > (ST)(D_MAX))                     \
-        *(D) = (DT)(D_MAX);						      \
-    else								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(D_MAX);                              \
+    else                                      \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_Su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
+#define H5T_CONV_Su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)>=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_Su, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_Us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
+#define H5T_CONV_Us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)>=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_Ux, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_Uu(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
+#define H5T_CONV_Uu(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)>=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_Ux, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_su_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    /* Assumes memory format of unsigned & signed integers is same */	      \
+#define H5T_CONV_su_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    /* Assumes memory format of unsigned & signed integers is same */          \
     if(*(S) < 0) {                                                            \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_LOW,              \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = 0;						              \
+            *(D) = 0;                                      \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_su_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    /* Assumes memory format of unsigned & signed integers is same */	      \
+#define H5T_CONV_su_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    /* Assumes memory format of unsigned & signed integers is same */          \
     if(*(S) < 0)                                                              \
-        *(D) = 0;						              \
-    else								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = 0;                                      \
+    else                                      \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)==sizeof(DT));				      \
+#define H5T_CONV_su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)==sizeof(DT));                      \
     H5T_CONV(H5T_CONV_su, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_us_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    /* Assumes memory format of unsigned & signed integers is same */	      \
+#define H5T_CONV_us_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    /* Assumes memory format of unsigned & signed integers is same */          \
     if (*(S) > (ST)(D_MAX)) {                                                 \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_HI,               \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MAX);						      \
+            *(D) = (DT)(D_MAX);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_us_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    /* Assumes memory format of unsigned & signed integers is same */	      \
+#define H5T_CONV_us_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    /* Assumes memory format of unsigned & signed integers is same */          \
     if(*(S) > (ST)(D_MAX))                                                    \
-        *(D) = (DT)(D_MAX);						      \
-    else								      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(D_MAX);                              \
+    else                                      \
+        *(D) = (DT)(*(S));                              \
 }
 
-#define H5T_CONV_us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)==sizeof(DT));				      \
+#define H5T_CONV_us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)==sizeof(DT));                      \
     H5T_CONV(H5T_CONV_us, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
-#define H5T_CONV_fF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
+#define H5T_CONV_fF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)<=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
 /* Same as H5T_CONV_Xx_CORE, except that instead of using D_MAX and D_MIN
  * when an overflow occurs, use the 'float' infinity values.
  */
-#define H5T_CONV_Ff_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Ff_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) > (ST)(D_MAX)) {                                                  \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_HI,               \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (H5T_NATIVE_FLOAT_POS_INF_g);		              \
+            *(D) = (H5T_NATIVE_FLOAT_POS_INF_g);                      \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
@@ -482,24 +482,24 @@
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (H5T_NATIVE_FLOAT_NEG_INF_g);		              \
+            *(D) = (H5T_NATIVE_FLOAT_NEG_INF_g);                      \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    } else								      \
-        *(D) = (DT)(*(S));						      \
+    } else                                      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_Ff_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Ff_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) > (ST)(D_MAX))                                                    \
-        *(D) = (H5T_NATIVE_FLOAT_POS_INF_g);		                      \
+        *(D) = (H5T_NATIVE_FLOAT_POS_INF_g);                              \
     else if (*(S) < (ST)(D_MIN))                                              \
-        *(D) = (H5T_NATIVE_FLOAT_NEG_INF_g);		                      \
-    else								      \
-        *(D) = (DT)(*(S));					              \
+        *(D) = (H5T_NATIVE_FLOAT_NEG_INF_g);                              \
+    else                                      \
+        *(D) = (DT)(*(S));                                  \
 }
 
-#define H5T_CONV_Ff(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
+#define H5T_CONV_Ff(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
+    HDcompile_assert(sizeof(ST)>=sizeof(DT));                      \
     H5T_CONV(H5T_CONV_Ff, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)              \
 }
 
@@ -562,35 +562,35 @@
     LO = count;                                                               \
 }
 
-#define H5T_CONV_xF_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    if (sprec > dprec) {						      \
+#define H5T_CONV_xF_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    if (sprec > dprec) {                              \
         unsigned low_bit_pos, high_bit_pos;                                   \
                                                                               \
         /* Detect high & low bits set in source */                            \
         H5T_HI_LO_BIT_SET(ST, *(S), low_bit_pos, high_bit_pos)                \
                                                                               \
         /* Check for more bits of precision in src than available in dst */   \
-        if((high_bit_pos - low_bit_pos) >= dprec) {			      \
+        if((high_bit_pos - low_bit_pos) >= dprec) {                  \
             H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_PRECISION,          \
                     src_id, dst_id, S, D, cb_struct.user_data);               \
             if(except_ret == H5T_CONV_UNHANDLED)                              \
                 /* Let compiler convert if case is ignored by user handler*/  \
-                *(D) = (DT)(*(S));					      \
+                *(D) = (DT)(*(S));                          \
             else if(except_ret == H5T_CONV_ABORT)                             \
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-        }        							      \
+        }                                          \
         else                                                                  \
-            *(D) = (DT)(*(S));						      \
-    }        								      \
+            *(D) = (DT)(*(S));                              \
+    }                                              \
     else                                                                      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_xF_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
-    *(D) = (DT)(*(S));							      \
+#define H5T_CONV_xF_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
+    *(D) = (DT)(*(S));                                  \
 }
 
-#define H5T_CONV_xF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_xF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
     H5T_CONV(H5T_CONV_xF, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, Y)                 \
 }
 
@@ -602,13 +602,13 @@
  * (ST)(D_MAX))) is for some compilers like Sun, HP, IBM, and SGI where under
  * the same situation the "int" doesn't overflow.  SLU - 2005/9/12
  */
-#define H5T_CONV_Fx_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Fx_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) > (ST)(D_MAX) || (sprec < dprec && *(S) == (ST)(D_MAX))) {        \
         H5T_conv_ret_t except_ret = (cb_struct.func)(H5T_CONV_EXCEPT_RANGE_HI, \
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MAX);						      \
+            *(D) = (DT)(D_MAX);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
@@ -617,7 +617,7 @@
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(D_MIN);						      \
+            *(D) = (DT)(D_MIN);                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
@@ -626,24 +626,24 @@
                 src_id, dst_id, S, D, cb_struct.user_data);                   \
         if(except_ret == H5T_CONV_UNHANDLED)                                  \
             /* Let compiler convert if case is ignored by user handler*/      \
-            *(D) = (DT)(*(S));						      \
+            *(D) = (DT)(*(S));                              \
         else if(except_ret == H5T_CONV_ABORT)                                 \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception") \
         /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */ \
-    }        								      \
+    }                                              \
     else                                                                      \
-        *(D) = (DT)(*(S));						      \
+        *(D) = (DT)(*(S));                              \
 }
-#define H5T_CONV_Fx_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Fx_NOEX_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {                  \
     if(*(S) > (ST)(D_MAX))                                                    \
-        *(D) = (DT)(D_MAX);						      \
+        *(D) = (DT)(D_MAX);                              \
     else if(*(S) < (ST)(D_MIN))                                               \
-        *(D) = (DT)(D_MIN);						      \
+        *(D) = (DT)(D_MIN);                              \
     else                                                                      \
-        *(D) = (DT)(*(S));					              \
+        *(D) = (DT)(*(S));                                  \
 }
 
-#define H5T_CONV_Fx(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
+#define H5T_CONV_Fx(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {                  \
     H5T_CONV(H5T_CONV_Fx, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, Y)              \
 }
 
@@ -652,146 +652,146 @@
  * to do them all.
  */
 #ifndef H5_WANT_DCONV_EXCEPTION
-#define H5T_CONV_NO_EXCEPT_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {		      \
-    *(D) = (DT)(*(S));		        				      \
+#define H5T_CONV_NO_EXCEPT_CORE(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) {              \
+    *(D) = (DT)(*(S));                                      \
 }
 #endif /* H5_WANT_DCONV_EXCEPTION */
 
 
 /* The main part of every integer hardware conversion macro */
-#define H5T_CONV(GUTS,STYPE,DTYPE,ST,DT,D_MIN,D_MAX,PREC)  		      \
+#define H5T_CONV(GUTS,STYPE,DTYPE,ST,DT,D_MIN,D_MAX,PREC)                \
 {                                                                             \
     herr_t      ret_value=SUCCEED;      /* Return value         */            \
                                                                               \
     FUNC_ENTER_PACKAGE                                                        \
                                                                               \
 {                                                                             \
-    size_t	elmtno;			/*element number		*/    \
+    size_t    elmtno;            /*element number        */    \
     H5T_CONV_DECL_PREC(PREC)            /*declare precision variables, or not */ \
-    uint8_t     *src_buf;		/*'raw' source buffer		*/    \
-    uint8_t     *dst_buf;		/*'raw' destination buffer	*/    \
-    ST	*src, *s;			/*source buffer			*/    \
-    DT	*dst, *d;			/*destination buffer		*/    \
-    H5T_t	*st, *dt;		/*datatype descriptors		*/    \
-    ST	src_aligned;			/*source aligned type		*/    \
-    DT	dst_aligned;			/*destination aligned type	*/    \
-    hbool_t	s_mv, d_mv;		/*move data to align it?	*/    \
-    ssize_t	s_stride, d_stride;	/*src and dst strides		*/    \
+    uint8_t     *src_buf;        /*'raw' source buffer        */    \
+    uint8_t     *dst_buf;        /*'raw' destination buffer    */    \
+    ST    *src, *s;            /*source buffer            */    \
+    DT    *dst, *d;            /*destination buffer        */    \
+    H5T_t    *st, *dt;        /*datatype descriptors        */    \
+    ST    src_aligned;            /*source aligned type        */    \
+    DT    dst_aligned;            /*destination aligned type    */    \
+    hbool_t    s_mv, d_mv;        /*move data to align it?    */    \
+    ssize_t    s_stride, d_stride;    /*src and dst strides        */    \
     size_t      safe;                   /*how many elements are safe to process in each pass */ \
     H5T_conv_cb_t       cb_struct;      /*conversion callback structure */    \
                                                                               \
-    switch (cdata->command) {						      \
-    case H5T_CONV_INIT:							      \
-	/* Sanity check and initialize statistics */			      \
-	cdata->need_bkg = H5T_BKG_NO;					      \
+    switch (cdata->command) {                              \
+    case H5T_CONV_INIT:                                  \
+    /* Sanity check and initialize statistics */                  \
+    cdata->need_bkg = H5T_BKG_NO;                          \
         if (NULL==(st=(H5T_t*)H5I_object(src_id)) || NULL==(dt=(H5T_t*)H5I_object(dst_id)))   \
-            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL,		      \
-                          "unable to dereference datatype object ID")	      \
-	if (st->shared->size!=sizeof(ST) || dt->shared->size!=sizeof(DT))     \
-	    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL,		      \
-			  "disagreement about datatype size")		      \
-	CI_ALLOC_PRIV	                                                      \
-	break;								      \
-									      \
-    case H5T_CONV_FREE:							      \
-	/* Print and free statistics */					      \
-	CI_PRINT_STATS(STYPE,DTYPE);					      \
-	CI_FREE_PRIV	                                                      \
-	break;								      \
-									      \
-    case H5T_CONV_CONV:							      \
-	/* Initialize source & destination strides */			      \
-	if (buf_stride) {						      \
-            HDassert(buf_stride >= sizeof(ST));				      \
-            HDassert(buf_stride >= sizeof(DT));				      \
-	    s_stride = d_stride = (ssize_t)buf_stride;			      \
-	} else {							      \
-            s_stride = sizeof(ST);					      \
-            d_stride = sizeof(DT);					      \
-        }								      \
-									      \
-	/* Is alignment required for source or dest? */			      \
-	s_mv = H5T_NATIVE_##STYPE##_ALIGN_g>1 &&			      \
-               ((size_t)buf%H5T_NATIVE_##STYPE##_ALIGN_g ||		      \
-     /* Cray */ ((size_t)((ST*)buf)!=(size_t)buf) ||			      \
-		(size_t)s_stride%H5T_NATIVE_##STYPE##_ALIGN_g);			      \
-	d_mv = H5T_NATIVE_##DTYPE##_ALIGN_g>1 &&			      \
-               ((size_t)buf%H5T_NATIVE_##DTYPE##_ALIGN_g ||		      \
-     /* Cray */ ((size_t)((DT*)buf)!=(size_t)buf) ||			      \
-                (size_t)d_stride%H5T_NATIVE_##DTYPE##_ALIGN_g);			      \
-	CI_INC_SRC(s_mv)						      \
-	CI_INC_DST(d_mv)						      \
-	                                                                      \
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL,              \
+                          "unable to dereference datatype object ID")          \
+    if (st->shared->size!=sizeof(ST) || dt->shared->size!=sizeof(DT))     \
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL,              \
+            "disagreement about datatype size")              \
+    CI_ALLOC_PRIV                                                          \
+    break;                                      \
+                                        \
+    case H5T_CONV_FREE:                                  \
+    /* Print and free statistics */                          \
+    CI_PRINT_STATS(STYPE,DTYPE);                          \
+    CI_FREE_PRIV                                                          \
+    break;                                      \
+                                        \
+    case H5T_CONV_CONV:                                  \
+    /* Initialize source & destination strides */                  \
+    if (buf_stride) {                              \
+            HDassert(buf_stride >= sizeof(ST));                      \
+            HDassert(buf_stride >= sizeof(DT));                      \
+        s_stride = d_stride = (ssize_t)buf_stride;                  \
+    } else {                                  \
+            s_stride = sizeof(ST);                          \
+            d_stride = sizeof(DT);                          \
+        }                                      \
+                                        \
+    /* Is alignment required for source or dest? */                  \
+    s_mv = H5T_NATIVE_##STYPE##_ALIGN_g>1 &&                  \
+               ((size_t)buf%H5T_NATIVE_##STYPE##_ALIGN_g ||              \
+     /* Cray */ ((size_t)((ST*)buf)!=(size_t)buf) ||                  \
+        (size_t)s_stride%H5T_NATIVE_##STYPE##_ALIGN_g);                  \
+    d_mv = H5T_NATIVE_##DTYPE##_ALIGN_g>1 &&                  \
+               ((size_t)buf%H5T_NATIVE_##DTYPE##_ALIGN_g ||              \
+     /* Cray */ ((size_t)((DT*)buf)!=(size_t)buf) ||                  \
+                (size_t)d_stride%H5T_NATIVE_##DTYPE##_ALIGN_g);                  \
+    CI_INC_SRC(s_mv)                              \
+    CI_INC_DST(d_mv)                              \
+                                                                        \
         /* Get conversion exception callback property */                      \
         if(H5CX_get_dt_conv_cb(&cb_struct) < 0)                               \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "unable to get conversion exception callback") \
                                                                               \
-        /* Get source and destination datatypes */			      \
+        /* Get source and destination datatypes */                  \
         if(NULL == (st = (H5T_t *)H5I_object(src_id)) || NULL == (dt = (H5T_t *)H5I_object(dst_id))) \
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to dereference datatype object ID") \
-									      \
+                                        \
         H5T_CONV_SET_PREC(PREC)            /*init precision variables, or not */ \
                                                                               \
         /* The outer loop of the type conversion macro, controlling which */  \
-        /* direction the buffer is walked */				      \
-        while (nelmts>0) {						      \
-            /* Check if we need to go backwards through the buffer */	      \
-            if(d_stride>s_stride) {					      \
+        /* direction the buffer is walked */                      \
+        while (nelmts>0) {                              \
+            /* Check if we need to go backwards through the buffer */          \
+            if(d_stride>s_stride) {                          \
                 /* Compute the number of "safe" destination elements at */    \
                 /* the end of the buffer (Those which don't overlap with */   \
                 /* any source elements at the beginning of the buffer) */     \
                 safe = nelmts - (((nelmts * (size_t)s_stride) + (size_t)(d_stride - 1)) / (size_t)d_stride);      \
-									      \
+                                        \
                 /* If we're down to the last few elements, just wrap up */    \
-                /* with a "real" reverse copy */			      \
-                if(safe<2) {						      \
+                /* with a "real" reverse copy */                  \
+                if(safe<2) {                              \
                     src = (ST *)(src_buf = (uint8_t *)buf + (nelmts - 1) * (size_t)s_stride); \
                     dst = (DT *)(dst_buf = (uint8_t *)buf + (nelmts - 1) * (size_t)d_stride); \
-                    s_stride = -s_stride;				      \
-                    d_stride = -d_stride;				      \
-									      \
-                    safe=nelmts;					      \
-                } /* end if */						      \
-                else {							      \
+                    s_stride = -s_stride;                      \
+                    d_stride = -d_stride;                      \
+                                        \
+                    safe=nelmts;                          \
+                } /* end if */                              \
+                else {                                  \
                     src = (ST *)(src_buf = (uint8_t *)buf + (nelmts - safe) * (size_t)s_stride); \
                     dst = (DT *)(dst_buf = (uint8_t *)buf + (nelmts - safe) * (size_t)d_stride); \
-                } /* end else */					      \
-            } /* end if */						      \
-            else {							      \
-                /* Single forward pass over all data */			      \
-                src = (ST *)(src_buf = (uint8_t*)buf);			      \
-                dst = (DT *)(dst_buf = (uint8_t*)buf);			      \
-                safe=nelmts;						      \
-            } /* end else */						      \
+                } /* end else */                          \
+            } /* end if */                              \
+            else {                                  \
+                /* Single forward pass over all data */                  \
+                src = (ST *)(src_buf = (uint8_t*)buf);                  \
+                dst = (DT *)(dst_buf = (uint8_t*)buf);                  \
+                safe=nelmts;                              \
+            } /* end else */                              \
                                                                               \
-            /* Perform loop over elements to convert */			      \
-            if (s_mv && d_mv) {						      \
-                /* Alignment is required for both source and dest */	      \
-                s = &src_aligned;					      \
+            /* Perform loop over elements to convert */                  \
+            if (s_mv && d_mv) {                              \
+                /* Alignment is required for both source and dest */          \
+                s = &src_aligned;                          \
                 H5T_CONV_LOOP_OUTER(PRE_SALIGN,PRE_DALIGN,POST_SALIGN,POST_DALIGN,GUTS,STYPE,DTYPE,s,d,ST,DT,D_MIN,D_MAX) \
-            } else if(s_mv) {						      \
-                /* Alignment is required only for source */		      \
-                s = &src_aligned;					      \
+            } else if(s_mv) {                              \
+                /* Alignment is required only for source */              \
+                s = &src_aligned;                          \
                 H5T_CONV_LOOP_OUTER(PRE_SALIGN,PRE_DNOALIGN,POST_SALIGN,POST_DNOALIGN,GUTS,STYPE,DTYPE,s,dst,ST,DT,D_MIN,D_MAX) \
-            } else if(d_mv) {						      \
-                /* Alignment is required only for destination */	      \
+            } else if(d_mv) {                              \
+                /* Alignment is required only for destination */          \
                 H5T_CONV_LOOP_OUTER(PRE_SNOALIGN,PRE_DALIGN,POST_SNOALIGN,POST_DALIGN,GUTS,STYPE,DTYPE,src,d,ST,DT,D_MIN,D_MAX) \
-            } else {							      \
+            } else {                                  \
                 /* Alignment is not required for both source and destination */ \
                 H5T_CONV_LOOP_OUTER(PRE_SNOALIGN,PRE_DNOALIGN,POST_SNOALIGN,POST_DNOALIGN,GUTS,STYPE,DTYPE,src,dst,ST,DT,D_MIN,D_MAX) \
-            }	 	 	 	 	 	 	 	      \
-									      \
-            /* Decrement number of elements left to convert */		      \
-            nelmts-=safe;						      \
-        } /* end while */						      \
-        break;								      \
-									      \
-    default:								      \
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL,		      \
-		      "unknown conversion command");			      \
-    }									      \
+            }                                             \
+                                        \
+            /* Decrement number of elements left to convert */              \
+            nelmts-=safe;                              \
+        } /* end while */                              \
+        break;                                      \
+                                        \
+    default:                                      \
+    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL,              \
+            "unknown conversion command");                  \
+    }                                          \
 }                                                                             \
-									      \
+                                        \
 done:                                                                         \
     FUNC_LEAVE_NOAPI(ret_value)                                               \
 }
@@ -800,9 +800,9 @@ done:                                                                         \
 #define H5T_CONV_DECL_PREC(PREC) H5_GLUE(H5T_CONV_DECL_PREC_, PREC)
 
 #define H5T_CONV_DECL_PREC_Y                                                  \
-    size_t	sprec;			/*source precision		*/    \
-    size_t	dprec;			/*destination precision		*/    \
-    H5T_class_t tclass;                 /*datatype's class		*/
+    size_t    sprec;            /*source precision        */    \
+    size_t    dprec;            /*destination precision        */    \
+    H5T_class_t tclass;                 /*datatype's class        */
 
 #define H5T_CONV_DECL_PREC_N            /*no precision variables        */
 
@@ -810,60 +810,60 @@ done:                                                                         \
 #define H5T_CONV_SET_PREC(PREC) H5_GLUE(H5T_CONV_SET_PREC_, PREC)
 
 #define H5T_CONV_SET_PREC_Y                                                   \
-        /* Get source & destination precisions into a variable */	      \
-        tclass = st->shared->type;					      \
-        HDassert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);		      \
-        if(tclass == H5T_INTEGER)					      \
-            sprec = st->shared->u.atomic.prec;				      \
-        else								      \
-            sprec = 1 + st->shared->u.atomic.u.f.msize;			      \
-        tclass = dt->shared->type;					      \
-        HDassert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);		      \
-        if(tclass == H5T_INTEGER)					      \
-            dprec = dt->shared->u.atomic.prec;				      \
-        else								      \
+        /* Get source & destination precisions into a variable */          \
+        tclass = st->shared->type;                          \
+        HDassert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);              \
+        if(tclass == H5T_INTEGER)                          \
+            sprec = st->shared->u.atomic.prec;                      \
+        else                                      \
+            sprec = 1 + st->shared->u.atomic.u.f.msize;                  \
+        tclass = dt->shared->type;                          \
+        HDassert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);              \
+        if(tclass == H5T_INTEGER)                          \
+            dprec = dt->shared->u.atomic.prec;                      \
+        else                                      \
             dprec = 1 + dt->shared->u.atomic.u.f.msize;
 
 #define H5T_CONV_SET_PREC_N             /*don't init precision variables */
 
 /* Macro defining action on source data which needs to be aligned (before main action) */
-#define H5T_CONV_LOOP_PRE_SALIGN(ST) {					      \
-    HDmemcpy(&src_aligned, src, sizeof(ST));				      \
+#define H5T_CONV_LOOP_PRE_SALIGN(ST) {                          \
+    HDmemcpy(&src_aligned, src, sizeof(ST));                      \
 }
 
 /* Macro defining action on source data which doesn't need to be aligned (before main action) */
-#define H5T_CONV_LOOP_PRE_SNOALIGN(ST) {				      \
+#define H5T_CONV_LOOP_PRE_SNOALIGN(ST) {                      \
 }
 
 /* Macro defining action on destination data which needs to be aligned (before main action) */
-#define H5T_CONV_LOOP_PRE_DALIGN(DT) {					      \
-    d = &dst_aligned;							      \
+#define H5T_CONV_LOOP_PRE_DALIGN(DT) {                          \
+    d = &dst_aligned;                                  \
 }
 
 /* Macro defining action on destination data which doesn't need to be aligned (before main action) */
-#define H5T_CONV_LOOP_PRE_DNOALIGN(DT) {				      \
+#define H5T_CONV_LOOP_PRE_DNOALIGN(DT) {                      \
 }
 
 /* Macro defining action on source data which needs to be aligned (after main action) */
-#define H5T_CONV_LOOP_POST_SALIGN(ST) {					      \
+#define H5T_CONV_LOOP_POST_SALIGN(ST) {                          \
 }
 
 /* Macro defining action on source data which doesn't need to be aligned (after main action) */
-#define H5T_CONV_LOOP_POST_SNOALIGN(ST) {				      \
+#define H5T_CONV_LOOP_POST_SNOALIGN(ST) {                      \
 }
 
 /* Macro defining action on destination data which needs to be aligned (after main action) */
-#define H5T_CONV_LOOP_POST_DALIGN(DT) {					      \
-    HDmemcpy(dst, &dst_aligned, sizeof(DT));				      \
+#define H5T_CONV_LOOP_POST_DALIGN(DT) {                          \
+    HDmemcpy(dst, &dst_aligned, sizeof(DT));                      \
 }
 
 /* Macro defining action on destination data which doesn't need to be aligned (after main action) */
-#define H5T_CONV_LOOP_POST_DNOALIGN(DT) {				      \
+#define H5T_CONV_LOOP_POST_DNOALIGN(DT) {                      \
 }
 
 /* The outer wrapper for the type conversion loop, to check for an exception handling routine */
 #define H5T_CONV_LOOP_OUTER(PRE_SALIGN_GUTS,PRE_DALIGN_GUTS,POST_SALIGN_GUTS,POST_DALIGN_GUTS,GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) \
-    if(cb_struct.func) {			                              \
+    if(cb_struct.func) {                                          \
         H5T_CONV_LOOP(PRE_SALIGN_GUTS,PRE_DALIGN_GUTS,POST_SALIGN_GUTS,POST_DALIGN_GUTS,GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) \
     }                                                                         \
     else {                                                                    \
@@ -872,36 +872,36 @@ done:                                                                         \
 
 /* The inner loop of the type conversion macro, actually converting the elements */
 #define H5T_CONV_LOOP(PRE_SALIGN_GUTS,PRE_DALIGN_GUTS,POST_SALIGN_GUTS,POST_DALIGN_GUTS,GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX) \
-    for (elmtno=0; elmtno<safe; elmtno++) {				      \
-        /* Handle source pre-alignment */				      \
-        H5_GLUE(H5T_CONV_LOOP_,PRE_SALIGN_GUTS)(ST)			      \
+    for (elmtno=0; elmtno<safe; elmtno++) {                      \
+        /* Handle source pre-alignment */                      \
+        H5_GLUE(H5T_CONV_LOOP_,PRE_SALIGN_GUTS)(ST)                  \
                                                                               \
-        /* Handle destination pre-alignment */				      \
-        H5_GLUE(H5T_CONV_LOOP_,PRE_DALIGN_GUTS)(DT)			      \
+        /* Handle destination pre-alignment */                      \
+        H5_GLUE(H5T_CONV_LOOP_,PRE_DALIGN_GUTS)(DT)                  \
                                                                               \
-        /* ... user-defined stuff here -- the conversion ... */		      \
-        H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)			      \
+        /* ... user-defined stuff here -- the conversion ... */              \
+        H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)                  \
                                                                               \
-        /* Handle source post-alignment */				      \
-        H5_GLUE(H5T_CONV_LOOP_,POST_SALIGN_GUTS)(ST)			      \
+        /* Handle source post-alignment */                      \
+        H5_GLUE(H5T_CONV_LOOP_,POST_SALIGN_GUTS)(ST)                  \
                                                                               \
-        /* Handle destination post-alignment */				      \
-        H5_GLUE(H5T_CONV_LOOP_,POST_DALIGN_GUTS)(DT)			      \
+        /* Handle destination post-alignment */                      \
+        H5_GLUE(H5T_CONV_LOOP_,POST_DALIGN_GUTS)(DT)                  \
                                                                               \
-        /* Advance pointers */						      \
-        src_buf += s_stride;						      \
-        src = (ST *)src_buf;						      \
-        dst_buf += d_stride;						      \
-        dst = (DT *)dst_buf;						      \
+        /* Advance pointers */                              \
+        src_buf += s_stride;                              \
+        src = (ST *)src_buf;                              \
+        dst_buf += d_stride;                              \
+        dst = (DT *)dst_buf;                              \
     }
 
 /* Macro to call the actual "guts" of the type conversion, or call the "no exception" guts */
 #ifdef H5_WANT_DCONV_EXCEPTION
-#define H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)			      \
-        /* ... user-defined stuff here -- the conversion ... */		      \
+#define H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)                  \
+        /* ... user-defined stuff here -- the conversion ... */              \
         H5_GLUE(GUTS,_CORE)(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)
 #else /* H5_WANT_DCONV_EXCEPTION */
-#define H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)			      \
+#define H5T_CONV_LOOP_GUTS(GUTS,STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)                  \
         H5_GLUE(H5T_CONV_NO_EXCEPT,_CORE)(STYPE,DTYPE,S,D,ST,DT,D_MIN,D_MAX)
 #endif /* H5_WANT_DCONV_EXCEPTION */
 
@@ -909,27 +909,27 @@ done:                                                                         \
 #ifdef H5T_DEBUG
 
 /* Print alignment statistics */
-#   define CI_PRINT_STATS(STYPE,DTYPE) {				      \
-    if (H5DEBUG(T) && ((H5T_conv_hw_t *)cdata->priv)->s_aligned) {	      \
-	HDfprintf(H5DEBUG(T),						      \
-		  "      %Hu src elements aligned on %lu-byte boundaries\n",  \
-		  ((H5T_conv_hw_t *)cdata->priv)->s_aligned,		      \
-		  (unsigned long)H5T_NATIVE_##STYPE##_ALIGN_g);		      \
-    }									      \
-    if (H5DEBUG(T) && ((H5T_conv_hw_t *)cdata->priv)->d_aligned) {	      \
-	HDfprintf(H5DEBUG(T),						      \
-		  "      %Hu dst elements aligned on %lu-byte boundaries\n",  \
-		  ((H5T_conv_hw_t *)cdata->priv)->d_aligned,		      \
-		  (unsigned long)H5T_NATIVE_##DTYPE##_ALIGN_g);		      \
-    }									      \
+#   define CI_PRINT_STATS(STYPE,DTYPE) {                      \
+    if (H5DEBUG(T) && ((H5T_conv_hw_t *)cdata->priv)->s_aligned) {          \
+    HDfprintf(H5DEBUG(T),                              \
+        "      %Hu src elements aligned on %lu-byte boundaries\n",  \
+        ((H5T_conv_hw_t *)cdata->priv)->s_aligned,              \
+        (unsigned long)H5T_NATIVE_##STYPE##_ALIGN_g);              \
+    }                                          \
+    if (H5DEBUG(T) && ((H5T_conv_hw_t *)cdata->priv)->d_aligned) {          \
+    HDfprintf(H5DEBUG(T),                              \
+        "      %Hu dst elements aligned on %lu-byte boundaries\n",  \
+        ((H5T_conv_hw_t *)cdata->priv)->d_aligned,              \
+        (unsigned long)H5T_NATIVE_##DTYPE##_ALIGN_g);              \
+    }                                          \
 }
 
 /* Allocate private alignment structure for atomic types */
 #   define CI_ALLOC_PRIV \
-	if (NULL==(cdata->priv=H5MM_calloc(sizeof(H5T_conv_hw_t)))) {	      \
-	    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,		      \
-			  "memory allocation failed");			      \
-	}
+    if (NULL==(cdata->priv=H5MM_calloc(sizeof(H5T_conv_hw_t)))) {          \
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,              \
+            "memory allocation failed");                  \
+    }
 
 /* Free private alignment structure for atomic types */
 #   define CI_FREE_PRIV                                 \
@@ -961,25 +961,25 @@ done:                                                                         \
 
 /* Conversion data for H5T__conv_struct() */
 typedef struct H5T_conv_struct_t {
-    int	*src2dst;		/*mapping from src to dst member num */
-    hid_t	*src_memb_id;		/*source member type ID's	     */
-    hid_t	*dst_memb_id;		/*destination member type ID's	     */
-    H5T_path_t	**memb_path;		/*conversion path for each member    */
+    int    *src2dst;        /*mapping from src to dst member num */
+    hid_t    *src_memb_id;        /*source member type ID's         */
+    hid_t    *dst_memb_id;        /*destination member type ID's         */
+    H5T_path_t    **memb_path;        /*conversion path for each member    */
     H5T_subset_info_t   subset_info;    /*info related to compound subsets   */
     unsigned            src_nmembs;     /*needed by free function            */
 } H5T_conv_struct_t;
 
 /* Conversion data for H5T__conv_enum() */
 typedef struct H5T_enum_struct_t {
-    int	base;			/*lowest `in' value		     */
-    unsigned length;		/*num elements in arrays	     */
-    int	*src2dst;		/*map from src to dst index	     */
+    int    base;            /*lowest `in' value             */
+    unsigned length;        /*num elements in arrays         */
+    int    *src2dst;        /*map from src to dst index         */
 } H5T_enum_struct_t;
 
 /* Conversion data for the hardware conversion functions */
 typedef struct H5T_conv_hw_t {
-    size_t	s_aligned;		/*number source elements aligned     */
-    size_t	d_aligned;		/*number destination elements aligned*/
+    size_t    s_aligned;        /*number source elements aligned     */
+    size_t    d_aligned;        /*number destination elements aligned*/
 } H5T_conv_hw_t;
 
 /********************/
@@ -993,7 +993,7 @@ typedef struct H5T_conv_hw_t {
 
 static herr_t H5T_reverse_order(uint8_t *rev, uint8_t *s, size_t size, H5T_order_t order);
 
-
+
 /*********************/
 /* Public Variables */
 /*********************/
@@ -1019,17 +1019,17 @@ H5FL_BLK_DEFINE_STATIC(vlen_seq);
 /* Declare a free list to manage pieces of array data */
 H5FL_BLK_DEFINE_STATIC(array_seq);
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_noop
+ * Function:    H5T__conv_noop
  *
- * Purpose:	The no-op conversion.  The library knows about this
- *		conversion without it being registered.
+ * Purpose:    The no-op conversion.  The library knows about this
+ *        conversion without it being registered.
  *
- * Return: 	Non-negative on success/Negative on failure
+ * Return:     Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January 14, 1998
+ * Programmer:    Robb Matzke
+ *        Wednesday, January 14, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -1063,20 +1063,20 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_noop() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_order_opt
+ * Function:    H5T__conv_order_opt
  *
- * Purpose:	Convert one type to another when byte order is the only
- *		difference. This is the optimized version of H5T__conv_order()
+ * Purpose:    Convert one type to another when byte order is the only
+ *        difference. This is the optimized version of H5T__conv_order()
  *              for a handful of different sizes.
  *
- * Note:	This is a soft conversion function.
+ * Note:    This is a soft conversion function.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Friday, January 25, 2002
+ * Programmer:    Robb Matzke
+ *        Friday, January 25, 2002
  *
  *-------------------------------------------------------------------------
  */
@@ -1086,9 +1086,9 @@ H5T__conv_order_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                    size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
                    void H5_ATTR_UNUSED *background)
 {
-    uint8_t	*buf = (uint8_t*)_buf;
-    H5T_t	*src = NULL;
-    H5T_t	*dst = NULL;
+    uint8_t    *buf = (uint8_t*)_buf;
+    H5T_t    *src = NULL;
+    H5T_t    *dst = NULL;
     size_t      i;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -1478,30 +1478,30 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_order
+ * Function:    H5T__conv_order
  *
- * Purpose:	Convert one type to another when byte order is the only
- *		difference.
+ * Purpose:    Convert one type to another when byte order is the only
+ *        difference.
  *
- * Note:	This is a soft conversion function.
+ * Note:    This is a soft conversion function.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, January 13, 1998
+ * Programmer:    Robb Matzke
+ *        Tuesday, January 13, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5T__conv_order(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
-	       size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
+        size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
                void H5_ATTR_UNUSED *background)
 {
-    uint8_t	*buf = (uint8_t*)_buf;
-    H5T_t	*src = NULL;
-    H5T_t	*dst = NULL;
-    size_t	i;
-    size_t	j, md;
+    uint8_t    *buf = (uint8_t*)_buf;
+    H5T_t    *src = NULL;
+    H5T_t    *dst = NULL;
+    size_t    i;
+    size_t    j, md;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -1578,34 +1578,34 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_order() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_b_b
+ * Function:    H5T__conv_b_b
  *
- * Purpose:	Convert from one bitfield to any other bitfield.
+ * Purpose:    Convert from one bitfield to any other bitfield.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Thursday, May 20, 1999
+ * Programmer:    Robb Matzke
+ *        Thursday, May 20, 1999
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5T__conv_b_b(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
-	     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
+        size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
              void H5_ATTR_UNUSED *background)
 {
-    uint8_t	*buf = (uint8_t*)_buf;
-    H5T_t	*src = NULL, *dst = NULL;	/*source and dest datatypes	*/
-    ssize_t	direction;		/*direction of traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	olap;			/*num overlapping elements	*/
-    size_t	half_size;		/*1/2 of total size for swapping*/
-    uint8_t	*s, *sp, *d, *dp;	/*source and dest traversal ptrs*/
-    uint8_t	dbuf[256];		/*temp destination buffer	*/
-    size_t	msb_pad_offset;		/*offset for dest MSB padding	*/
-    size_t	i;
+    uint8_t    *buf = (uint8_t*)_buf;
+    H5T_t    *src = NULL, *dst = NULL;    /*source and dest datatypes    */
+    ssize_t    direction;        /*direction of traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    olap;            /*num overlapping elements    */
+    size_t    half_size;        /*1/2 of total size for swapping*/
+    uint8_t    *s, *sp, *d, *dp;    /*source and dest traversal ptrs*/
+    uint8_t    dbuf[256];        /*temp destination buffer    */
+    size_t    msb_pad_offset;        /*offset for dest MSB padding    */
+    size_t    i;
     uint8_t     *src_rev=NULL;          /*order-reversed source buffer  */
     H5T_conv_cb_t       cb_struct = {NULL, NULL};      /*conversion callback structure */
     H5T_conv_ret_t      except_ret;     /*return of callback function   */
@@ -1820,17 +1820,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_b_b() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T_conv_struct_free
+ * Function:    H5T_conv_struct_free
  *
- * Purpose:	Free the private data structure used by the compound
+ * Purpose:    Free the private data structure used by the compound
  *      conversion functions.
  *
- * Return:	The result of H5MM_xfree(priv) (NULL)
+ * Return:    The result of H5MM_xfree(priv) (NULL)
  *
- * Programmer:	Neil Fortner
- *		Wednesday, October 1, 2008
+ * Programmer:    Neil Fortner
+ *        Wednesday, October 1, 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1862,24 +1862,24 @@ H5T_conv_struct_free(H5T_conv_struct_t *priv)
     FUNC_LEAVE_NOAPI((H5T_conv_struct_t *)H5MM_xfree(priv))
 } /* end H5T_conv_struct_free() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T_conv_struct_init
+ * Function:    H5T_conv_struct_init
  *
- * Purpose:	Initialize the `priv' field of `cdata' with conversion
- *		information that is relatively constant.  If `priv' is
- *		already initialized then the member conversion functions
- *		are recalculated.
+ * Purpose:    Initialize the `priv' field of `cdata' with conversion
+ *        information that is relatively constant.  If `priv' is
+ *        already initialized then the member conversion functions
+ *        are recalculated.
  *
- *		Priv fields are indexed by source member number or
- *		destination member number depending on whether the field
- *		contains information about the source datatype or the
- *		destination datatype (fields that contains the same
- *		information for both source and destination are indexed by
- *		source member number).  The src2dst[] priv array maps source
- *		member numbers to destination member numbers, but if the
- *		source member doesn't have a corresponding destination member
- *		then the src2dst[i]=-1.
+ *        Priv fields are indexed by source member number or
+ *        destination member number depending on whether the field
+ *        contains information about the source datatype or the
+ *        destination datatype (fields that contains the same
+ *        information for both source and destination are indexed by
+ *        source member number).  The src2dst[] priv array maps source
+ *        member numbers to destination member numbers, but if the
+ *        source member doesn't have a corresponding destination member
+ *        then the src2dst[i]=-1.
  *
  *              Special optimization case when the source and destination
  *              members are a subset of each other, and the order is the same,
@@ -1902,20 +1902,20 @@ H5T_conv_struct_free(H5T_conv_struct_t *priv)
  *              The optimization is simply moving data to the appropriate
  *              places in the buffer.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Monday, January 26, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, January 26, 1998
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5T_conv_struct_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
 {
-    H5T_conv_struct_t	*priv = (H5T_conv_struct_t*)(cdata->priv);
-    int		        *src2dst = NULL;
+    H5T_conv_struct_t    *priv = (H5T_conv_struct_t*)(cdata->priv);
+    int                *src2dst = NULL;
     unsigned            src_nmembs, dst_nmembs;
-    unsigned		i, j;
+    unsigned        i, j;
     herr_t              ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -1962,8 +1962,8 @@ H5T_conv_struct_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
                 } /* end if */
             } /* end for */
             if(src2dst[i] >= 0) {
-                hid_t	tid;
-                H5T_t	*type;
+                hid_t    tid;
+                H5T_t    *type;
 
                 type = H5T_copy(src->shared->u.compnd.memb[i].type, H5T_COPY_ALL);
                 tid = H5I_register(H5I_DATATYPE, type, FALSE);
@@ -2053,9 +2053,9 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_conv_struct_init() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_struct_subset
+ * Function:    H5T__conv_struct_subset
  *
  * Purpose:     A quick way to return a field in a struct private in this
  *              file.  The flag SMEMBS_SUBSET indicates whether the source
@@ -2073,15 +2073,15 @@ done:
  * Return:      A pointer to the subset info struct in p.  Points directly
  *              into the structure.
  *
- * Programmer:	Raymond Lu
- *		8 June 2007
+ * Programmer:    Raymond Lu
+ *        8 June 2007
  *
  *-------------------------------------------------------------------------
  */
 H5T_subset_info_t *
 H5T__conv_struct_subset(const H5T_cdata_t *cdata)
 {
-    H5T_conv_struct_t	*priv = NULL;
+    H5T_conv_struct_t    *priv = NULL;
 
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -2093,30 +2093,30 @@ H5T__conv_struct_subset(const H5T_cdata_t *cdata)
     FUNC_LEAVE_NOAPI((H5T_subset_info_t *) &priv->subset_info)
 } /* end H5T__conv_struct_subset() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_struct
+ * Function:    H5T__conv_struct
  *
- * Purpose:	Converts between compound datatypes.  This is a soft
- *		conversion function.  The algorithm is basically:
+ * Purpose:    Converts between compound datatypes.  This is a soft
+ *        conversion function.  The algorithm is basically:
  *
- * 		For each element do
- *		  For I=1..NELMTS do
- *		    If sizeof destination type <= sizeof source type then
- *		      Convert member to destination type;
- *		    Move member as far left as possible;
+ *         For each element do
+ *          For I=1..NELMTS do
+ *            If sizeof destination type <= sizeof source type then
+ *              Convert member to destination type;
+ *            Move member as far left as possible;
  *
- *		  For I=NELMTS..1 do
- *		    If not destination type then
- *		      Convert member to destination type;
- *		    Move member to correct position in BKG
+ *          For I=NELMTS..1 do
+ *            If not destination type then
+ *              Convert member to destination type;
+ *            Move member to correct position in BKG
  *
- *		  Copy BKG to BUF
+ *          Copy BKG to BUF
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Thursday, January 22, 1998
+ * Programmer:    Robb Matzke
+ *        Thursday, January 22, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -2124,20 +2124,20 @@ herr_t
 H5T__conv_struct(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t bkg_stride, void *_buf, void *_bkg)
 {
-    uint8_t	*buf = (uint8_t *)_buf;	/*cast for pointer arithmetic	*/
-    uint8_t	*bkg = (uint8_t *)_bkg;	/*background pointer arithmetic	*/
+    uint8_t    *buf = (uint8_t *)_buf;    /*cast for pointer arithmetic    */
+    uint8_t    *bkg = (uint8_t *)_bkg;    /*background pointer arithmetic    */
     uint8_t     *xbuf = buf, *xbkg = bkg;   /*temp pointers into buf and bkg*/
-    H5T_t	*src = NULL;		/*source datatype		*/
-    H5T_t	*dst = NULL;		/*destination datatype		*/
-    int	*src2dst = NULL;	/*maps src member to dst member	*/
-    H5T_cmemb_t	*src_memb = NULL;	/*source struct member descript.*/
-    H5T_cmemb_t	*dst_memb = NULL;	/*destination struct memb desc.	*/
-    size_t	offset;			/*byte offset wrt struct	*/
-    ssize_t	src_delta;	        /*source stride	*/
-    ssize_t	bkg_delta;	        /*background stride	*/
-    size_t	elmtno;
-    unsigned	u;		        /*counters			*/
-    int	        i;			/*counters			*/
+    H5T_t    *src = NULL;        /*source datatype        */
+    H5T_t    *dst = NULL;        /*destination datatype        */
+    int    *src2dst = NULL;    /*maps src member to dst member    */
+    H5T_cmemb_t    *src_memb = NULL;    /*source struct member descript.*/
+    H5T_cmemb_t    *dst_memb = NULL;    /*destination struct memb desc.    */
+    size_t    offset;            /*byte offset wrt struct    */
+    ssize_t    src_delta;            /*source stride    */
+    ssize_t    bkg_delta;            /*background stride    */
+    size_t    elmtno;
+    unsigned    u;                /*counters            */
+    int            i;            /*counters            */
     H5T_conv_struct_t *priv = (H5T_conv_struct_t *)(cdata->priv);
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -2155,7 +2155,7 @@ H5T__conv_struct(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a datatype")
             if(H5T_COMPOUND != src->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_COMPOUND datatype")
-            if(H5T_COMPOUND != dst->shared->type) 
+            if(H5T_COMPOUND != dst->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_COMPOUND datatype")
 
             if(H5T_conv_struct_init(src, dst, cdata) < 0)
@@ -2303,29 +2303,29 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_struct() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_struct_opt
+ * Function:    H5T__conv_struct_opt
  *
- * Purpose:	Converts between compound datatypes in a manner more
- *		efficient than the general-purpose H5T__conv_struct()
- *		function.  This function isn't applicable if the destination
- *		is larger than the source type. This is a soft conversion
- *		function.  The algorithm is basically:
+ * Purpose:    Converts between compound datatypes in a manner more
+ *        efficient than the general-purpose H5T__conv_struct()
+ *        function.  This function isn't applicable if the destination
+ *        is larger than the source type. This is a soft conversion
+ *        function.  The algorithm is basically:
  *
- * 		For each member of the struct
- *		  If sizeof destination type <= sizeof source type then
- *		    Convert member to destination type for all elements
- *		    Move memb to BKG buffer for all elements
- *		  Else
- *		    Move member as far left as possible for all elements
+ *         For each member of the struct
+ *          If sizeof destination type <= sizeof source type then
+ *            Convert member to destination type for all elements
+ *            Move memb to BKG buffer for all elements
+ *          Else
+ *            Move member as far left as possible for all elements
  *
- *		For each member of the struct (in reverse order)
- *		  If not destination type then
- *		    Convert member to destination type for all elements
- *		    Move member to correct position in BKG for all elements
+ *        For each member of the struct (in reverse order)
+ *          If not destination type then
+ *            Convert member to destination type for all elements
+ *            Move member to correct position in BKG for all elements
  *
- *		Copy BKG to BUF for all elements
+ *        Copy BKG to BUF for all elements
  *
  *              Special case when the source and destination members
  *              are a subset of each other, and the order is the same, and no
@@ -2340,10 +2340,10 @@ done:
  *              The optimization is simply moving data to the appropriate
  *              places in the buffer.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Thursday, January 22, 1998
+ * Programmer:    Robb Matzke
+ *        Thursday, January 22, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -2351,22 +2351,22 @@ herr_t
 H5T__conv_struct_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     size_t nelmts, size_t buf_stride, size_t bkg_stride, void *_buf, void *_bkg)
 {
-    uint8_t	*buf = (uint8_t *)_buf;	/*cast for pointer arithmetic	*/
-    uint8_t	*bkg = (uint8_t *)_bkg;	/*background pointer arithmetic	*/
-    uint8_t	*xbuf = NULL;		/*temporary pointer into `buf'	*/
-    uint8_t	*xbkg = NULL;		/*temporary pointer into `bkg'	*/
-    H5T_t	*src = NULL;		/*source datatype		*/
-    H5T_t	*dst = NULL;		/*destination datatype		*/
-    int	*src2dst = NULL;		/*maps src member to dst member	*/
-    H5T_cmemb_t	*src_memb = NULL;	/*source struct member descript.*/
-    H5T_cmemb_t	*dst_memb = NULL;	/*destination struct memb desc.	*/
-    size_t	offset;			/*byte offset wrt struct	*/
-    size_t	elmtno;			/*element counter		*/
+    uint8_t    *buf = (uint8_t *)_buf;    /*cast for pointer arithmetic    */
+    uint8_t    *bkg = (uint8_t *)_bkg;    /*background pointer arithmetic    */
+    uint8_t    *xbuf = NULL;        /*temporary pointer into `buf'    */
+    uint8_t    *xbkg = NULL;        /*temporary pointer into `bkg'    */
+    H5T_t    *src = NULL;        /*source datatype        */
+    H5T_t    *dst = NULL;        /*destination datatype        */
+    int    *src2dst = NULL;        /*maps src member to dst member    */
+    H5T_cmemb_t    *src_memb = NULL;    /*source struct member descript.*/
+    H5T_cmemb_t    *dst_memb = NULL;    /*destination struct memb desc.    */
+    size_t    offset;            /*byte offset wrt struct    */
+    size_t    elmtno;            /*element counter        */
     size_t      copy_size;              /*size of element for copying   */
-    H5T_conv_struct_t *priv = NULL;	/*private data			*/
+    H5T_conv_struct_t *priv = NULL;    /*private data            */
     hbool_t     no_stride = FALSE;      /*flag to indicate no stride    */
-    unsigned	u;			/*counters			*/
-    int		i;			/*counters			*/
+    unsigned    u;            /*counters            */
+    int        i;            /*counters            */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -2383,7 +2383,7 @@ H5T__conv_struct_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
             if(H5T_COMPOUND != src->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_COMPOUND datatype")
-            if(H5T_COMPOUND != dst->shared->type) 
+            if(H5T_COMPOUND != dst->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_COMPOUND datatype")
 
             /* Initialize data which is relatively constant */
@@ -2575,17 +2575,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_struct_opt() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T_conv_enum_init
+ * Function:    H5T_conv_enum_init
  *
- * Purpose:	Initialize information for H5T__conv_enum().
+ * Purpose:    Initialize information for H5T__conv_enum().
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Monday, January  4, 1999
  *
  *-------------------------------------------------------------------------
@@ -2593,21 +2593,21 @@ done:
 static herr_t
 H5T_conv_enum_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
 {
-    H5T_enum_struct_t	*priv = NULL;	/*private conversion data	*/
-    int		n;		/*src value cast as native int	*/
-    int		domain[2] = {0, 0};	/*min and max source values	*/
-    int		*map = NULL;	/*map from src value to dst idx	*/
-    unsigned	length;		/*nelmts in map array		*/
-    unsigned	i, j;		/*counters			*/
+    H5T_enum_struct_t    *priv = NULL;    /*private conversion data    */
+    int        n;        /*src value cast as native int    */
+    int        domain[2] = {0, 0};    /*min and max source values    */
+    int        *map = NULL;    /*map from src value to dst idx    */
+    unsigned    length;        /*nelmts in map array        */
+    unsigned    i, j;        /*counters            */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     cdata->need_bkg = H5T_BKG_NO;
     if(NULL == (priv = (H5T_enum_struct_t *)(cdata->priv = H5MM_calloc(sizeof(*priv)))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
     if(0 == src->shared->u.enumer.nmembs)
-	HGOTO_DONE(SUCCEED);
+    HGOTO_DONE(SUCCEED);
 
     /*
      * Check that the source symbol names are a subset of the destination
@@ -2617,16 +2617,16 @@ H5T_conv_enum_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
     H5T__sort_name(src, NULL);
     H5T__sort_name(dst, NULL);
     if(NULL == (priv->src2dst = (int *)H5MM_malloc(src->shared->u.enumer.nmembs * sizeof(int))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
     for(i = 0, j = 0;
              i < src->shared->u.enumer.nmembs && j < dst->shared->u.enumer.nmembs;
              i++, j++) {
-	while(j < dst->shared->u.enumer.nmembs &&
-	       HDstrcmp(src->shared->u.enumer.name[i], dst->shared->u.enumer.name[j]))
+    while(j < dst->shared->u.enumer.nmembs &&
+        HDstrcmp(src->shared->u.enumer.name[i], dst->shared->u.enumer.name[j]))
             j++;
-	if(j >= dst->shared->u.enumer.nmembs)
-	    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "source type is not a subset of destination type")
-	priv->src2dst[i] = (int)j;
+    if(j >= dst->shared->u.enumer.nmembs)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "source type is not a subset of destination type")
+    priv->src2dst[i] = (int)j;
     } /* end for */
 
     /*
@@ -2634,75 +2634,75 @@ H5T_conv_enum_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
      * value converted. However, if all of the following constraints are met
      * then we can build a perfect hash table and use an O(1) lookup method.
      *
-     *	  A: The source datatype size matches one of our native datatype
-     *	     sizes.
+     *      A: The source datatype size matches one of our native datatype
+     *         sizes.
      *
-     *	  B: After casting the source value bit pattern to a native type
-     *	     the size of the range of values is less than 20% larger than
-     *	     the number of values.
+     *      B: After casting the source value bit pattern to a native type
+     *         the size of the range of values is less than 20% larger than
+     *         the number of values.
      *
      * If this special case is met then we use the source bit pattern cast as
      * a native integer type as an index into the `val2dst'. The values of
      * that array are the index numbers in the destination type or negative
      * if the entry is unused.
      *
-     * (This optimized algorithm doesn't work when the byte orders are different.  
+     * (This optimized algorithm doesn't work when the byte orders are different.
      * The code such as "n = *((int*)(src->shared->u.enumer.value+i*src->shared->size));"
      * can change the value significantly. i.g. if the source value is big-endian 0x0000000f,
      * executing the casting on little-endian machine will get a big number 0x0f000000.
-     * Then it can't meet the condition 
+     * Then it can't meet the condition
      * "if(src->shared->u.enumer.nmembs<2 || (double)length/src->shared->u.enumer.nmembs<1.2)"
-     * Because this is the optimized code, we won't fix it. It should still work in some 
-     * situations. SLU - 2011/5/24) 
+     * Because this is the optimized code, we won't fix it. It should still work in some
+     * situations. SLU - 2011/5/24)
      */
     if(1 == src->shared->size || sizeof(short) == src->shared->size || sizeof(int) == src->shared->size) {
-	for(i = 0; i < src->shared->u.enumer.nmembs; i++) {
-	    if(1 == src->shared->size)
-		n = *((signed char *)(src->shared->u.enumer.value + i));
-	    else if (sizeof(short) == src->shared->size)
-		n = *((short *)(src->shared->u.enumer.value + i * src->shared->size));
-	    else
-		n = *((int *)(src->shared->u.enumer.value + i * src->shared->size));
-	    if(0 == i) {
-		domain[0] = domain[1] = n;
-	    } else {
-		domain[0] = MIN(domain[0], n);
-		domain[1] = MAX(domain[1], n);
-	    }
-	} /* end for */
+    for(i = 0; i < src->shared->u.enumer.nmembs; i++) {
+        if(1 == src->shared->size)
+        n = *((signed char *)(src->shared->u.enumer.value + i));
+        else if (sizeof(short) == src->shared->size)
+        n = *((short *)(src->shared->u.enumer.value + i * src->shared->size));
+        else
+        n = *((int *)(src->shared->u.enumer.value + i * src->shared->size));
+        if(0 == i) {
+        domain[0] = domain[1] = n;
+        } else {
+        domain[0] = MIN(domain[0], n);
+        domain[1] = MAX(domain[1], n);
+        }
+    } /* end for */
 
         HDassert(domain[1] >= domain[0]);
-	length = (unsigned)(domain[1] - domain[0]) + 1;
-	if(src->shared->u.enumer.nmembs < 2 ||
+    length = (unsigned)(domain[1] - domain[0]) + 1;
+    if(src->shared->u.enumer.nmembs < 2 ||
                 (double)length / src->shared->u.enumer.nmembs < (double)(1.2f)) {
-	    priv->base = domain[0];
-	    priv->length = length;
-	    if(NULL == (map = (int *)H5MM_malloc(length * sizeof(int))))
-		HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
-	    for(i = 0; i < length; i++)
+        priv->base = domain[0];
+        priv->length = length;
+        if(NULL == (map = (int *)H5MM_malloc(length * sizeof(int))))
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+        for(i = 0; i < length; i++)
                 map[i] = -1; /*entry unused*/
-	    for(i = 0; i < src->shared->u.enumer.nmembs; i++) {
-		if(1 == src->shared->size)
-		    n = *((signed char *)(src->shared->u.enumer.value + i));
-		else if(sizeof(short) == src->shared->size)
-		    n = *((short *)(src->shared->u.enumer.value + i * src->shared->size));
-		else
-		    n = *((int *)(src->shared->u.enumer.value + i * src->shared->size));
-		n -= priv->base;
-		HDassert(n >= 0 && (unsigned)n < priv->length);
-		HDassert(map[n] < 0);
-		map[n] = priv->src2dst[i];
-	    } /* end for */
+        for(i = 0; i < src->shared->u.enumer.nmembs; i++) {
+        if(1 == src->shared->size)
+            n = *((signed char *)(src->shared->u.enumer.value + i));
+        else if(sizeof(short) == src->shared->size)
+            n = *((short *)(src->shared->u.enumer.value + i * src->shared->size));
+        else
+            n = *((int *)(src->shared->u.enumer.value + i * src->shared->size));
+        n -= priv->base;
+        HDassert(n >= 0 && (unsigned)n < priv->length);
+        HDassert(map[n] < 0);
+        map[n] = priv->src2dst[i];
+        } /* end for */
 
-	    /*
-	     * Replace original src2dst array with our new one. The original
-	     * was indexed by source member number while the new one is
-	     * indexed by source values.
-	     */
-	    H5MM_xfree(priv->src2dst);
-	    priv->src2dst = map;
-	    HGOTO_DONE(SUCCEED);
-	}
+        /*
+        * Replace original src2dst array with our new one. The original
+        * was indexed by source member number while the new one is
+        * indexed by source values.
+        */
+        H5MM_xfree(priv->src2dst);
+        priv->src2dst = map;
+        HGOTO_DONE(SUCCEED);
+    }
     }
 
     /* Sort source type by value and adjust src2dst[] appropriately */
@@ -2710,24 +2710,24 @@ H5T_conv_enum_init(H5T_t *src, H5T_t *dst, H5T_cdata_t *cdata)
 
 done:
     if (ret_value<0 && priv) {
-	H5MM_xfree(priv->src2dst);
-	H5MM_xfree(priv);
-	cdata->priv = NULL;
+    H5MM_xfree(priv->src2dst);
+    H5MM_xfree(priv);
+    cdata->priv = NULL;
     }
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_enum
+ * Function:    H5T__conv_enum
  *
- * Purpose:	Converts one type of enumerated data to another.
+ * Purpose:    Converts one type of enumerated data to another.
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Monday, January  4, 1999
  *-------------------------------------------------------------------------
  */
@@ -2736,15 +2736,15 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
     void H5_ATTR_UNUSED *bkg)
 {
-    uint8_t	*buf = (uint8_t*)_buf;	/*cast for pointer arithmetic	*/
-    H5T_t	*src = NULL, *dst = NULL;	/*src and dst datatypes	*/
-    uint8_t	*s = NULL, *d = NULL;	/*src and dst BUF pointers	*/
-    ssize_t	src_delta, dst_delta;	/*conversion strides		*/
-    int	n;			/*src value cast as native int	*/
+    uint8_t    *buf = (uint8_t*)_buf;    /*cast for pointer arithmetic    */
+    H5T_t    *src = NULL, *dst = NULL;    /*src and dst datatypes    */
+    uint8_t    *s = NULL, *d = NULL;    /*src and dst BUF pointers    */
+    ssize_t    src_delta, dst_delta;    /*conversion strides        */
+    int    n;            /*src value cast as native int    */
     H5T_enum_struct_t *priv = (H5T_enum_struct_t*)(cdata->priv);
     H5T_conv_cb_t       cb_struct;      /*conversion callback structure */
     H5T_conv_ret_t      except_ret;     /*return of callback function   */
-    size_t	i;			/*counters			*/
+    size_t    i;            /*counters            */
     herr_t      ret_value = SUCCEED;    /* Return value                 */
 
     FUNC_ENTER_PACKAGE
@@ -2761,7 +2761,7 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a datatype")
             if(H5T_ENUM != src->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_ENUM datatype")
-            if(H5T_ENUM != dst->shared->type) 
+            if(H5T_ENUM != dst->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_ENUM datatype")
 
             if(H5T_conv_enum_init(src, dst, cdata) < 0)
@@ -2771,7 +2771,7 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
         case H5T_CONV_FREE:
 #ifdef H5T_DEBUG
             if (H5DEBUG(T)) {
-                fprintf(H5DEBUG(T), "      Using %s mapping function%s\n",
+                HDfprintf(H5DEBUG(T), "      Using %s mapping function%s\n",
                         priv->length?"O(1)":"O(log N)",
                         priv->length?"":", where N is the number of enum members");
             }
@@ -2788,7 +2788,7 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
             if(H5T_ENUM != src->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_ENUM datatype")
-            if(H5T_ENUM != dst->shared->type) 
+            if(H5T_ENUM != dst->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_ENUM datatype")
 
             /* priv->src2dst map was computed for certain sort keys. Make sure those same
@@ -2828,10 +2828,10 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                     /* Use O(1) lookup */
                     /* (The casting won't work when the byte orders are different. i.g. if the source value
                      * is big-endian 0x0000000f, the direct casting "n = *((int*)s);" will make it a big
-                     * number 0x0f000000 on little-endian machine. But we won't fix it because it's an 
+                     * number 0x0f000000 on little-endian machine. But we won't fix it because it's an
                      * optimization code. Please also see the comment in the H5T_conv_enum_init() function.
                      * SLU - 2011/5/24)
-                     */ 
+                     */
                     if(1 == src->shared->size)
                         n = *((signed char*)s);
                     else if(sizeof(short) == src->shared->size)
@@ -2906,30 +2906,30 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_enum() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_enum_numeric
+ * Function:    H5T__conv_enum_numeric
  *
- * Purpose:	Converts enumerated data to a numeric type (integer or 
- *              floating-point number). This function is registered into 
- *              the conversion table twice in H5T_init_interface in H5T.c.  
+ * Purpose:    Converts enumerated data to a numeric type (integer or
+ *              floating-point number). This function is registered into
+ *              the conversion table twice in H5T_init_interface in H5T.c.
  *              Once for enum-integer conversion. Once for enum-float conversion.
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Raymond Lu
+ * Programmer:    Raymond Lu
  *              12 October 2012
  *-------------------------------------------------------------------------
  */
 herr_t
 H5T__conv_enum_numeric(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
-	      size_t H5_ATTR_UNUSED buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
+        size_t H5_ATTR_UNUSED buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *_buf,
               void H5_ATTR_UNUSED *bkg)
 {
-    H5T_t	*src, *dst;		/*src and dst datatypes	*/
-    H5T_t	*src_parent;		/*parent type for src           */
+    H5T_t    *src, *dst;        /*src and dst datatypes    */
+    H5T_t    *src_parent;        /*parent type for src           */
     hid_t       src_parent_id = -1;     /*ID for parent of the source   */
     H5T_path_t  *tpath;                 /* Conversion information       */
     herr_t      ret_value = SUCCEED;    /* Return value                 */
@@ -2962,9 +2962,9 @@ H5T__conv_enum_numeric(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t ne
             src_parent = src->shared->parent;
 
             if(NULL == (tpath = H5T_path_find(src_parent, dst))) {
-	        HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "unable to convert between src and dest datatype")
+            HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "unable to convert between src and dest datatype")
             } else if(!H5T_path_noop(tpath)) {
-                if((src_parent_id = H5I_register(H5I_DATATYPE, H5T_copy(src_parent, H5T_COPY_ALL), FALSE)) < 0) 
+                if((src_parent_id = H5I_register(H5I_DATATYPE, H5T_copy(src_parent, H5T_COPY_ALL), FALSE)) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, FAIL, "unable to register types for conversion")
 
                 /* Convert the data */
@@ -2986,28 +2986,28 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_enum_numeric() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_vlen
+ * Function:    H5T__conv_vlen
  *
- * Purpose:	Converts between VL datatypes in memory and on disk.
- *		This is a soft conversion function.  The algorithm is
- *		basically:
+ * Purpose:    Converts between VL datatypes in memory and on disk.
+ *        This is a soft conversion function.  The algorithm is
+ *        basically:
  *
- *      	For every VL struct in the main buffer:
- *		  1. Allocate space for temporary dst VL data (reuse buffer
- *		     if possible)
+ *          For every VL struct in the main buffer:
+ *          1. Allocate space for temporary dst VL data (reuse buffer
+ *             if possible)
  *                2. Copy VL data from src buffer into dst buffer
  *                3. Convert VL data into dst representation
  *                4. Allocate buffer in dst heap
- *		  5. Free heap objects storing old data
+ *          5. Free heap objects storing old data
  *                6. Write dst VL data into dst heap
  *                7. Store (heap ID or pointer) and length in main dst buffer
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Wednesday, May 26, 1999
+ * Programmer:    Quincey Koziol
+ *        Wednesday, May 26, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -3016,28 +3016,28 @@ H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t bkg_stride, void *buf, void *bkg)
 {
     H5T_vlen_alloc_info_t vl_alloc_info;/* VL allocation info */
-    H5T_path_t	*tpath = NULL;		/* Type conversion path		     */
+    H5T_path_t    *tpath = NULL;        /* Type conversion path             */
     hbool_t     noop_conv = FALSE;      /* Flag to indicate a noop conversion */
     hbool_t     write_to_file = FALSE;  /* Flag to indicate writing to file */
     htri_t      parent_is_vlen;         /* Flag to indicate parent is vlen datatyp */
-    hid_t   	tsrc_id = -1, tdst_id = -1;/*temporary type atoms	     */
-    H5T_t	*src = NULL;		/*source datatype		     */
-    H5T_t	*dst = NULL;		/*destination datatype		     */
-    H5HG_t	bg_hobjid, parent_hobjid;
-    uint8_t	*s = NULL;		/*source buffer			*/
-    uint8_t	*d = NULL;		/*destination buffer		*/
-    uint8_t	*b = NULL;		/*background buffer		*/
-    ssize_t	s_stride, d_stride;	/*src and dst strides		*/
-    ssize_t	b_stride;	        /*bkg stride			*/
+    hid_t       tsrc_id = -1, tdst_id = -1;/*temporary type atoms         */
+    H5T_t    *src = NULL;        /*source datatype             */
+    H5T_t    *dst = NULL;        /*destination datatype             */
+    H5HG_t    bg_hobjid, parent_hobjid;
+    uint8_t    *s = NULL;        /*source buffer            */
+    uint8_t    *d = NULL;        /*destination buffer        */
+    uint8_t    *b = NULL;        /*background buffer        */
+    ssize_t    s_stride, d_stride;    /*src and dst strides        */
+    ssize_t    b_stride;            /*bkg stride            */
     size_t      safe;                   /*how many elements are safe to process in each pass */
-    size_t	bg_seq_len = 0;
-    size_t	src_base_size, dst_base_size;/*source & destination base size*/
-    void	*conv_buf = NULL;     	/*temporary conversion buffer 	     */
-    size_t	conv_buf_size = 0;  	/*size of conversion buffer in bytes */
-    void	*tmp_buf = NULL;     	/*temporary background buffer 	     */
-    size_t	tmp_buf_size = 0;	/*size of temporary bkg buffer	     */
+    size_t    bg_seq_len = 0;
+    size_t    src_base_size, dst_base_size;/*source & destination base size*/
+    void    *conv_buf = NULL;         /*temporary conversion buffer          */
+    size_t    conv_buf_size = 0;      /*size of conversion buffer in bytes */
+    void    *tmp_buf = NULL;         /*temporary background buffer          */
+    size_t    tmp_buf_size = 0;    /*size of temporary bkg buffer         */
     hbool_t     nested = FALSE;         /*flag of nested VL case             */
-    size_t	elmtno;			/*element number counter	     */
+    size_t    elmtno;            /*element number counter         */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -3055,10 +3055,10 @@ H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a datatype")
             if(H5T_VLEN != src->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_VLEN datatype")
-            if(H5T_VLEN != dst->shared->type) 
+            if(H5T_VLEN != dst->shared->type)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "not a H5T_VLEN datatype")
             if(H5T_VLEN_STRING == src->shared->u.vlen.type && H5T_VLEN_STRING == dst->shared->u.vlen.type) {
-                if((H5T_CSET_ASCII == src->shared->u.vlen.cset && H5T_CSET_UTF8 == dst->shared->u.vlen.cset) 
+                if((H5T_CSET_ASCII == src->shared->u.vlen.cset && H5T_CSET_UTF8 == dst->shared->u.vlen.cset)
                     || (H5T_CSET_ASCII == dst->shared->u.vlen.cset && H5T_CSET_UTF8 == src->shared->u.vlen.cset))
                     HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "The library doesn't convert between strings of ASCII and UTF")
             }
@@ -3187,7 +3187,7 @@ H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                     } /* end if */
                     else {
                         ssize_t sseq_len;   /* (signed) The number of elements in the current sequence*/
-                        size_t 	seq_len;    /* The number of elements in the current sequence*/
+                        size_t     seq_len;    /* The number of elements in the current sequence*/
 
                         /* Get length of element sequences */
                         if((sseq_len = (*(src->shared->u.vlen.getlen))(s)) < 0)
@@ -3201,7 +3201,7 @@ H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid source pointer")
                         } /* end if */
                         else {
-                            size_t	src_size, dst_size;     /*source & destination total size in bytes*/
+                            size_t    src_size, dst_size;     /*source & destination total size in bytes*/
 
                             src_size = seq_len * src_base_size;
                             dst_size = seq_len * dst_base_size;
@@ -3209,11 +3209,11 @@ H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                             /* Check if conversion buffer is large enough, resize if
                              * necessary.  If the SEQ_LEN is 0, allocate a minimal size buffer.
                              */
-			    if(!seq_len && !conv_buf) {
+                if(!seq_len && !conv_buf) {
                                 conv_buf_size = ((1 / H5T_VLEN_MIN_CONF_BUF_SIZE) + 1) * H5T_VLEN_MIN_CONF_BUF_SIZE;
                                 if(NULL == (conv_buf = H5FL_BLK_CALLOC(vlen_seq, conv_buf_size)))
                                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for type conversion")
-			    }
+                }
                             else if(conv_buf_size < MAX(src_size, dst_size)) {
                                 /* Only allocate conversion buffer in H5T_VLEN_MIN_CONF_BUF_SIZE increments */
                                 conv_buf_size = ((MAX(src_size, dst_size) / H5T_VLEN_MIN_CONF_BUF_SIZE) + 1) * H5T_VLEN_MIN_CONF_BUF_SIZE;
@@ -3328,17 +3328,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_vlen() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_array
+ * Function:    H5T__conv_array
  *
- * Purpose:	Converts between array datatypes in memory and on disk.
- *		This is a soft conversion function.
+ * Purpose:    Converts between array datatypes in memory and on disk.
+ *        This is a soft conversion function.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Monday, November 6, 2000
+ * Programmer:    Quincey Koziol
+ *        Monday, November 6, 2000
  *
  *-------------------------------------------------------------------------
  */
@@ -3346,16 +3346,16 @@ herr_t
 H5T__conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t bkg_stride, void *_buf, void H5_ATTR_UNUSED *_bkg)
 {
-    H5T_path_t	*tpath;		        /* Type conversion path		     */
-    hid_t       tsrc_id = -1, tdst_id = -1;/*temporary type atoms	     */
-    H5T_t	*src = NULL;	        /*source datatype		     */
-    H5T_t	*dst = NULL;	        /*destination datatype		     */
-    uint8_t	*sp, *dp;	        /*source and dest traversal ptrs     */
-    ssize_t	src_delta, dst_delta;	/*source & destination stride	     */
-    int	        direction;		/*direction of traversal	     */
-    size_t	elmtno;			/*element number counter	     */
+    H5T_path_t    *tpath;                /* Type conversion path             */
+    hid_t       tsrc_id = -1, tdst_id = -1;/*temporary type atoms         */
+    H5T_t    *src = NULL;            /*source datatype             */
+    H5T_t    *dst = NULL;            /*destination datatype             */
+    uint8_t    *sp, *dp;            /*source and dest traversal ptrs     */
+    ssize_t    src_delta, dst_delta;    /*source & destination stride         */
+    int            direction;        /*direction of traversal         */
+    size_t    elmtno;            /*element number counter         */
     unsigned    u;                      /* local index variable */
-    void	*bkg_buf = NULL;     	/*temporary background buffer 	     */
+    void    *bkg_buf = NULL;         /*temporary background buffer          */
     herr_t      ret_value=SUCCEED;       /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -3433,7 +3433,7 @@ H5T__conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
             /* Check if we need a background buffer for this conversion */
             if(tpath->cdata.need_bkg) {
-                size_t	bkg_buf_size;	        /*size of background buffer in bytes */
+                size_t    bkg_buf_size;            /*size of background buffer in bytes */
 
                 /* Allocate background buffer */
                 bkg_buf_size = src->shared->u.array.nelem * MAX(src->shared->size, dst->shared->size);
@@ -3474,18 +3474,18 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_array() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_i_i
+ * Function:    H5T__conv_i_i
  *
- * Purpose:	Convert one integer type to another.  This is the catch-all
- *		function for integer conversions and is probably not
- *		particularly fast.
+ * Purpose:    Convert one integer type to another.  This is the catch-all
+ *        function for integer conversions and is probably not
+ *        particularly fast.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Wednesday, June 10, 1998
+ * Programmer:    Robb Matzke
+ *        Wednesday, June 10, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -3493,19 +3493,19 @@ herr_t
 H5T__conv_i_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *buf, void H5_ATTR_UNUSED *bkg)
 {
-    H5T_t	*src = NULL;		/*source datatype		*/
-    H5T_t	*dst = NULL;		/*destination datatype		*/
-    ssize_t	src_delta, dst_delta;	/*source & destination stride	*/
-    int		direction;		/*direction of traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	half_size;		/*half the type size		*/
-    size_t	olap;			/*num overlapping elements	*/
-    uint8_t	*s, *sp, *d, *dp;	/*source and dest traversal ptrs*/
+    H5T_t    *src = NULL;        /*source datatype        */
+    H5T_t    *dst = NULL;        /*destination datatype        */
+    ssize_t    src_delta, dst_delta;    /*source & destination stride    */
+    int        direction;        /*direction of traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    half_size;        /*half the type size        */
+    size_t    olap;            /*num overlapping elements    */
+    uint8_t    *s, *sp, *d, *dp;    /*source and dest traversal ptrs*/
     uint8_t     *src_rev=NULL;          /*order-reversed source buffer  */
-    uint8_t	dbuf[64];		/*temp destination buffer	*/
-    size_t	first;
-    ssize_t	sfirst;			/*a signed version of `first'	*/
-    size_t	i;                      /*Local index variables         */
+    uint8_t    dbuf[64];        /*temp destination buffer    */
+    size_t    first;
+    ssize_t    sfirst;            /*a signed version of `first'    */
+    size_t    i;                      /*Local index variables         */
     H5T_conv_cb_t       cb_struct={NULL, NULL};      /*conversion callback structure */
     H5T_conv_ret_t      except_ret;     /*return of callback function   */
     hbool_t             reverse;        /*if reverse the order of destination        */
@@ -3865,18 +3865,18 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_i_i() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_f_f
+ * Function:    H5T__conv_f_f
  *
- * Purpose:	Convert one floating point type to another.  This is a catch
- *		all for floating point conversions and is probably not
- *		particularly fast!
+ * Purpose:    Convert one floating point type to another.  This is a catch
+ *        all for floating point conversions and is probably not
+ *        particularly fast!
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, June 23, 1998
+ * Programmer:    Robb Matzke
+ *        Tuesday, June 23, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -3885,32 +3885,32 @@ H5T__conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *buf, void H5_ATTR_UNUSED *bkg)
 {
     /* Traversal-related variables */
-    H5T_t	*src_p;			/*source datatype		*/
-    H5T_t	*dst_p;			/*destination datatype		*/
-    H5T_atomic_t src;			/*atomic source info		*/
-    H5T_atomic_t dst;			/*atomic destination info	*/
-    ssize_t	src_delta, dst_delta;	/*source & destination stride	*/
-    int	direction;		        /*forward or backward traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	half_size;		/*half the type size		*/
+    H5T_t    *src_p;            /*source datatype        */
+    H5T_t    *dst_p;            /*destination datatype        */
+    H5T_atomic_t src;            /*atomic source info        */
+    H5T_atomic_t dst;            /*atomic destination info    */
+    ssize_t    src_delta, dst_delta;    /*source & destination stride    */
+    int    direction;                /*forward or backward traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    half_size;        /*half the type size        */
     size_t      tsize;                  /*type size for swapping bytes  */
-    size_t	olap;			/*num overlapping elements	*/
-    ssize_t	bitno = 0;		/*bit number			*/
-    uint8_t	*s, *sp, *d, *dp;	/*source and dest traversal ptrs*/
+    size_t    olap;            /*num overlapping elements    */
+    ssize_t    bitno = 0;        /*bit number            */
+    uint8_t    *s, *sp, *d, *dp;    /*source and dest traversal ptrs*/
     uint8_t     *src_rev = NULL;        /*order-reversed source buffer  */
-    uint8_t	dbuf[64];		/*temp destination buffer	*/
+    uint8_t    dbuf[64];        /*temp destination buffer    */
     uint8_t     tmp1, tmp2;             /*temp variables for swapping bytes*/
 
     /* Conversion-related variables */
-    int64_t	expo;			/*exponent			*/
-    hssize_t	expo_max;		/*maximum possible dst exponent	*/
-    size_t	msize = 0;		/*useful size of mantissa in src*/
-    size_t	mpos;			/*offset to useful mant is src	*/
+    int64_t    expo;            /*exponent            */
+    hssize_t    expo_max;        /*maximum possible dst exponent    */
+    size_t    msize = 0;        /*useful size of mantissa in src*/
+    size_t    mpos;            /*offset to useful mant is src    */
     uint64_t    sign;                   /*source sign bit value         */
-    size_t	mrsh;			/*amount to right shift mantissa*/
-    hbool_t carry = FALSE;		/*carry after rounding mantissa	*/
-    size_t	i;			/*miscellaneous counters	*/
-    size_t	implied;		/*destination implied bits	*/
+    size_t    mrsh;            /*amount to right shift mantissa*/
+    hbool_t carry = FALSE;        /*carry after rounding mantissa    */
+    size_t    i;            /*miscellaneous counters    */
+    size_t    implied;        /*destination implied bits    */
     hbool_t     denormalized = FALSE;   /*is either source or destination denormalized?*/
     H5T_conv_cb_t       cb_struct = {NULL, NULL};      /*conversion callback structure */
     H5T_conv_ret_t      except_ret;     /*return of callback function   */
@@ -4174,7 +4174,7 @@ H5T__conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
                 /*
                  * Get the exponent as an unsigned quantity from the section of
-                 * the source bit field where it's located.	 Don't worry about
+                 * the source bit field where it's located.     Don't worry about
                  * the exponent bias yet.
                  */
                 expo = (int64_t)H5T__bit_get_d(s, src.u.f.epos, src.u.f.esize);
@@ -4260,7 +4260,7 @@ H5T__conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 else if (expo>=expo_max) {
                     /*
                      * The exponent is too large to fit in the available region
-                     * or it results in the maximum possible value.	 Use positive
+                     * or it results in the maximum possible value.     Use positive
                      * or negative infinity instead unless the application
                      * specifies something else.  Before calling the overflow
                      * handler make sure the source buffer we hand it is in the
@@ -4452,16 +4452,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_f_f() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_s_s
+ * Function:    H5T__conv_s_s
  *
- * Purpose:	Convert one fixed-length string type to another.
+ * Purpose:    Convert one fixed-length string type to another.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Friday, August	7, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, August    7, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4470,15 +4470,15 @@ H5T__conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *buf,
     void H5_ATTR_UNUSED *bkg)
 {
-    H5T_t	*src=NULL;		/*source datatype		*/
-    H5T_t	*dst=NULL;		/*destination datatype		*/
-    ssize_t	src_delta, dst_delta;	/*source & destination stride	*/
-    int	        direction;		/*direction of traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	olap;			/*num overlapping elements	*/
-    size_t	nchars=0;		/*number of characters copied	*/
-    uint8_t	*s, *sp, *d, *dp;	/*src and dst traversal pointers*/
-    uint8_t	*dbuf=NULL;		/*temp buf for overlap convers.	*/
+    H5T_t    *src=NULL;        /*source datatype        */
+    H5T_t    *dst=NULL;        /*destination datatype        */
+    ssize_t    src_delta, dst_delta;    /*source & destination stride    */
+    int            direction;        /*direction of traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    olap;            /*num overlapping elements    */
+    size_t    nchars=0;        /*number of characters copied    */
+    uint8_t    *s, *sp, *d, *dp;    /*src and dst traversal pointers*/
+    uint8_t    *dbuf=NULL;        /*temp buf for overlap convers.    */
     herr_t      ret_value=SUCCEED;       /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -4495,7 +4495,7 @@ H5T__conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "bad source character set")
             if(H5T_CSET_ASCII != dst->shared->u.atomic.u.s.cset && H5T_CSET_UTF8 != dst->shared->u.atomic.u.s.cset)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "bad destination character set")
-            if((H5T_CSET_ASCII == src->shared->u.atomic.u.s.cset && H5T_CSET_UTF8 == dst->shared->u.atomic.u.s.cset) 
+            if((H5T_CSET_ASCII == src->shared->u.atomic.u.s.cset && H5T_CSET_UTF8 == dst->shared->u.atomic.u.s.cset)
                     || (H5T_CSET_ASCII == dst->shared->u.atomic.u.s.cset && H5T_CSET_UTF8 == src->shared->u.atomic.u.s.cset))
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "The library doesn't convert between strings of ASCII and UTF")
             if(src->shared->u.atomic.u.s.pad < 0 || src->shared->u.atomic.u.s.pad >= H5T_NSTR ||
@@ -4684,18 +4684,18 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_s_s() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_uchar
+ * Function:    H5T__conv_schar_uchar
  *
- * Purpose:	Converts `signed char' to `unsigned char'
+ * Purpose:    Converts `signed char' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4707,18 +4707,18 @@ H5T__conv_schar_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_su(SCHAR, UCHAR, signed char, unsigned char, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_schar
+ * Function:    H5T__conv_uchar_schar
  *
- * Purpose:	Converts `unsigned char' to `signed char'
+ * Purpose:    Converts `unsigned char' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4730,18 +4730,18 @@ H5T__conv_uchar_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_us(UCHAR, SCHAR, unsigned char, signed char, -, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_short
+ * Function:    H5T__conv_schar_short
  *
- * Purpose:	Converts `signed char' to `short'
+ * Purpose:    Converts `signed char' to `short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4753,18 +4753,18 @@ H5T__conv_schar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SCHAR, SHORT, signed char, short, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_ushort
+ * Function:    H5T__conv_schar_ushort
  *
- * Purpose:	Converts `signed char' to `unsigned short'
+ * Purpose:    Converts `signed char' to `unsigned short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4776,18 +4776,18 @@ H5T__conv_schar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SCHAR, USHORT, signed char, unsigned short, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_short
+ * Function:    H5T__conv_uchar_short
  *
- * Purpose:	Converts `unsigned char' to `short'
+ * Purpose:    Converts `unsigned char' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4799,18 +4799,18 @@ H5T__conv_uchar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UCHAR, SHORT, unsigned char, short, -, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_ushort
+ * Function:    H5T__conv_uchar_ushort
  *
- * Purpose:	Converts `unsigned char' to `unsigned short'
+ * Purpose:    Converts `unsigned char' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4822,18 +4822,18 @@ H5T__conv_uchar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UCHAR, USHORT, unsigned char, unsigned short, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_int
+ * Function:    H5T__conv_schar_int
  *
- * Purpose:	Converts `signed char' to `int'
+ * Purpose:    Converts `signed char' to `int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4845,18 +4845,18 @@ H5T__conv_schar_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SCHAR, INT, signed char, int, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_uint
+ * Function:    H5T__conv_schar_uint
  *
- * Purpose:	Converts `signed char' to `unsigned int'
+ * Purpose:    Converts `signed char' to `unsigned int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4868,18 +4868,18 @@ H5T__conv_schar_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SCHAR, UINT, signed char, unsigned, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_int
+ * Function:    H5T__conv_uchar_int
  *
- * Purpose:	Converts `unsigned char' to `int'
+ * Purpose:    Converts `unsigned char' to `int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4891,18 +4891,18 @@ H5T__conv_uchar_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UCHAR, INT, unsigned char, int, -, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_uint
+ * Function:    H5T__conv_uchar_uint
  *
- * Purpose:	Converts `unsigned char' to `unsigned int'
+ * Purpose:    Converts `unsigned char' to `unsigned int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4914,18 +4914,18 @@ H5T__conv_uchar_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UCHAR, UINT, unsigned char, unsigned, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_long
+ * Function:    H5T__conv_schar_long
  *
- * Purpose:	Converts `signed char' to `long'
+ * Purpose:    Converts `signed char' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4937,18 +4937,18 @@ H5T__conv_schar_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SCHAR, LONG, signed char, long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_ulong
+ * Function:    H5T__conv_schar_ulong
  *
- * Purpose:	Converts `signed char' to `unsigned long'
+ * Purpose:    Converts `signed char' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4960,18 +4960,18 @@ H5T__conv_schar_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SCHAR, ULONG, signed char, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_long
+ * Function:    H5T__conv_uchar_long
  *
- * Purpose:	Converts `unsigned char' to `long'
+ * Purpose:    Converts `unsigned char' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -4983,18 +4983,18 @@ H5T__conv_uchar_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UCHAR, LONG, unsigned char, long, -, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_ulong
+ * Function:    H5T__conv_uchar_ulong
  *
- * Purpose:	Converts `unsigned char' to `unsigned long'
+ * Purpose:    Converts `unsigned char' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5006,18 +5006,18 @@ H5T__conv_uchar_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UCHAR, ULONG, unsigned char, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_llong
+ * Function:    H5T__conv_schar_llong
  *
- * Purpose:	Converts `signed char' to `long long'
+ * Purpose:    Converts `signed char' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5029,18 +5029,18 @@ H5T__conv_schar_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SCHAR, LLONG, signed char, long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_ullong
+ * Function:    H5T__conv_schar_ullong
  *
- * Purpose:	Converts `signed char' to `unsigned long long'
+ * Purpose:    Converts `signed char' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5052,18 +5052,18 @@ H5T__conv_schar_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SCHAR, ULLONG, signed char, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_llong
+ * Function:    H5T__conv_uchar_llong
  *
- * Purpose:	Converts `unsigned char' to `long long'
+ * Purpose:    Converts `unsigned char' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5075,18 +5075,18 @@ H5T__conv_uchar_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UCHAR, LLONG, unsigned char, long long, -, LLONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_ullong
+ * Function:    H5T__conv_uchar_ullong
  *
- * Purpose:	Converts `unsigned char' to `unsigned long long'
+ * Purpose:    Converts `unsigned char' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5098,18 +5098,18 @@ H5T__conv_uchar_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UCHAR, ULLONG, unsigned char, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_schar
+ * Function:    H5T__conv_short_schar
  *
- * Purpose:	Converts `short' to `signed char'
+ * Purpose:    Converts `short' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5121,18 +5121,18 @@ H5T__conv_short_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(SHORT, SCHAR, short, signed char, SCHAR_MIN, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_uchar
+ * Function:    H5T__conv_short_uchar
  *
- * Purpose:	Converts `short' to `unsigned char'
+ * Purpose:    Converts `short' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5144,18 +5144,18 @@ H5T__conv_short_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(SHORT, UCHAR, short, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_schar
+ * Function:    H5T__conv_ushort_schar
  *
- * Purpose:	Converts `unsigned short' to `signed char'
+ * Purpose:    Converts `unsigned short' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5167,18 +5167,18 @@ H5T__conv_ushort_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(USHORT, SCHAR, unsigned short, signed char, -, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_uchar
+ * Function:    H5T__conv_ushort_uchar
  *
- * Purpose:	Converts `unsigned short' to `unsigned char'
+ * Purpose:    Converts `unsigned short' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5190,18 +5190,18 @@ H5T__conv_ushort_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(USHORT, UCHAR, unsigned short, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_ushort
+ * Function:    H5T__conv_short_ushort
  *
- * Purpose:	Converts `short' to `unsigned short'
+ * Purpose:    Converts `short' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5213,18 +5213,18 @@ H5T__conv_short_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_su(SHORT, USHORT, short, unsigned short, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_short
+ * Function:    H5T__conv_ushort_short
  *
- * Purpose:	Converts `unsigned short' to `short'
+ * Purpose:    Converts `unsigned short' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5236,18 +5236,18 @@ H5T__conv_ushort_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_us(USHORT, SHORT, unsigned short, short, -, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_int
+ * Function:    H5T__conv_short_int
  *
- * Purpose:	Converts `short' to `int'
+ * Purpose:    Converts `short' to `int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5259,18 +5259,18 @@ H5T__conv_short_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SHORT, INT, short, int, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_uint
+ * Function:    H5T__conv_short_uint
  *
- * Purpose:	Converts `short' to `unsigned int'
+ * Purpose:    Converts `short' to `unsigned int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5282,18 +5282,18 @@ H5T__conv_short_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SHORT, UINT, short, unsigned, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_int
+ * Function:    H5T__conv_ushort_int
  *
- * Purpose:	Converts `unsigned short' to `int'
+ * Purpose:    Converts `unsigned short' to `int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5305,18 +5305,18 @@ H5T__conv_ushort_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(USHORT, INT, unsigned short, int, -, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_uint
+ * Function:    H5T__conv_ushort_uint
  *
- * Purpose:	Converts `unsigned short' to `unsigned int'
+ * Purpose:    Converts `unsigned short' to `unsigned int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5328,18 +5328,18 @@ H5T__conv_ushort_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(USHORT, UINT, unsigned short, unsigned, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_long
+ * Function:    H5T__conv_short_long
  *
- * Purpose:	Converts `short' to `long'
+ * Purpose:    Converts `short' to `long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5351,18 +5351,18 @@ H5T__conv_short_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SHORT, LONG, short, long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_ulong
+ * Function:    H5T__conv_short_ulong
  *
- * Purpose:	Converts `short' to `unsigned long'
+ * Purpose:    Converts `short' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5374,18 +5374,18 @@ H5T__conv_short_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SHORT, ULONG, short, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_long
+ * Function:    H5T__conv_ushort_long
  *
- * Purpose:	Converts `unsigned short' to `long'
+ * Purpose:    Converts `unsigned short' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5397,18 +5397,18 @@ H5T__conv_ushort_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(USHORT, LONG, unsigned short, long, -, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_ulong
+ * Function:    H5T__conv_ushort_ulong
  *
- * Purpose:	Converts `unsigned short' to `unsigned long'
+ * Purpose:    Converts `unsigned short' to `unsigned long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5420,18 +5420,18 @@ H5T__conv_ushort_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(USHORT, ULONG, unsigned short, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_llong
+ * Function:    H5T__conv_short_llong
  *
- * Purpose:	Converts `short' to `long long'
+ * Purpose:    Converts `short' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5443,18 +5443,18 @@ H5T__conv_short_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(SHORT, LLONG, short, long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_ullong
+ * Function:    H5T__conv_short_ullong
  *
- * Purpose:	Converts `short' to `unsigned long long'
+ * Purpose:    Converts `short' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5466,18 +5466,18 @@ H5T__conv_short_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(SHORT, ULLONG, short, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_llong
+ * Function:    H5T__conv_ushort_llong
  *
- * Purpose:	Converts `unsigned short' to `long long'
+ * Purpose:    Converts `unsigned short' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5489,18 +5489,18 @@ H5T__conv_ushort_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(USHORT, LLONG, unsigned short, long long, -, LLONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_ullong
+ * Function:    H5T__conv_ushort_ullong
  *
- * Purpose:	Converts `unsigned short' to `unsigned long long'
+ * Purpose:    Converts `unsigned short' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5512,18 +5512,18 @@ H5T__conv_ushort_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(USHORT, ULLONG, unsigned short, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_schar
+ * Function:    H5T__conv_int_schar
  *
- * Purpose:	Converts `int' to `signed char'
+ * Purpose:    Converts `int' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5535,18 +5535,18 @@ H5T__conv_int_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(INT, SCHAR, int, signed char, SCHAR_MIN, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_uchar
+ * Function:    H5T__conv_int_uchar
  *
- * Purpose:	Converts `int' to `unsigned char'
+ * Purpose:    Converts `int' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5558,18 +5558,18 @@ H5T__conv_int_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(INT, UCHAR, int, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_schar
+ * Function:    H5T__conv_uint_schar
  *
- * Purpose:	Converts `unsigned int' to `signed char'
+ * Purpose:    Converts `unsigned int' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5581,18 +5581,18 @@ H5T__conv_uint_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(UINT, SCHAR, unsigned, signed char, -, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_uchar
+ * Function:    H5T__conv_uint_uchar
  *
- * Purpose:	Converts `unsigned int' to `unsigned char'
+ * Purpose:    Converts `unsigned int' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5604,18 +5604,18 @@ H5T__conv_uint_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(UINT, UCHAR, unsigned, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_short
+ * Function:    H5T__conv_int_short
  *
- * Purpose:	Converts `int' to `short'
+ * Purpose:    Converts `int' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5627,18 +5627,18 @@ H5T__conv_int_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(INT, SHORT, int, short, SHRT_MIN, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_ushort
+ * Function:    H5T__conv_int_ushort
  *
- * Purpose:	Converts `int' to `unsigned short'
+ * Purpose:    Converts `int' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5650,18 +5650,18 @@ H5T__conv_int_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(INT, USHORT, int, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_short
+ * Function:    H5T__conv_uint_short
  *
- * Purpose:	Converts `unsigned int' to `short'
+ * Purpose:    Converts `unsigned int' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5673,18 +5673,18 @@ H5T__conv_uint_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(UINT, SHORT, unsigned, short, -, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_ushort
+ * Function:    H5T__conv_uint_ushort
  *
- * Purpose:	Converts `unsigned int' to `unsigned short'
+ * Purpose:    Converts `unsigned int' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5696,18 +5696,18 @@ H5T__conv_uint_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(UINT, USHORT, unsigned, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_uint
+ * Function:    H5T__conv_int_uint
  *
- * Purpose:	Converts `int' to `unsigned int'
+ * Purpose:    Converts `int' to `unsigned int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5719,18 +5719,18 @@ H5T__conv_int_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_su(INT, UINT, int, unsigned, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_int
+ * Function:    H5T__conv_uint_int
  *
- * Purpose:	Converts `unsigned int' to `int'
+ * Purpose:    Converts `unsigned int' to `int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5742,18 +5742,18 @@ H5T__conv_uint_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_us(UINT, INT, unsigned, int, -, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_long
+ * Function:    H5T__conv_int_long
  *
- * Purpose:	Converts `int' to `long'
+ * Purpose:    Converts `int' to `long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5765,18 +5765,18 @@ H5T__conv_int_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(INT, LONG, int, long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_ulong
+ * Function:    H5T__conv_int_ulong
  *
- * Purpose:	Converts `int' to `unsigned long'
+ * Purpose:    Converts `int' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5788,18 +5788,18 @@ H5T__conv_int_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(INT, LONG, int, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_long
+ * Function:    H5T__conv_uint_long
  *
- * Purpose:	Converts `unsigned int' to `long'
+ * Purpose:    Converts `unsigned int' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5811,18 +5811,18 @@ H5T__conv_uint_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UINT, LONG, unsigned, long, -, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_ulong
+ * Function:    H5T__conv_uint_ulong
  *
- * Purpose:	Converts `unsigned int' to `unsigned long'
+ * Purpose:    Converts `unsigned int' to `unsigned long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5834,18 +5834,18 @@ H5T__conv_uint_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UINT, ULONG, unsigned, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_llong
+ * Function:    H5T__conv_int_llong
  *
- * Purpose:	Converts `int' to `long long'
+ * Purpose:    Converts `int' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5857,18 +5857,18 @@ H5T__conv_int_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(INT, LLONG, int, long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_ullong
+ * Function:    H5T__conv_int_ullong
  *
- * Purpose:	Converts `int' to `unsigned long long'
+ * Purpose:    Converts `int' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5880,18 +5880,18 @@ H5T__conv_int_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(INT, ULLONG, int, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_llong
+ * Function:    H5T__conv_uint_llong
  *
- * Purpose:	Converts `unsigned int' to `long long'
+ * Purpose:    Converts `unsigned int' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5903,18 +5903,18 @@ H5T__conv_uint_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(UINT, LLONG, unsigned, long long, -, LLONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_ullong
+ * Function:    H5T__conv_uint_ullong
  *
- * Purpose:	Converts `unsigned int' to `unsigned long long'
+ * Purpose:    Converts `unsigned int' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5926,18 +5926,18 @@ H5T__conv_uint_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(UINT, ULLONG, unsigned, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_schar
+ * Function:    H5T__conv_long_schar
  *
- * Purpose:	Converts `long' to `signed char'
+ * Purpose:    Converts `long' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5949,18 +5949,18 @@ H5T__conv_long_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LONG, SCHAR, long, signed char, SCHAR_MIN, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_uchar
+ * Function:    H5T__conv_long_uchar
  *
- * Purpose:	Converts `long' to `unsigned char'
+ * Purpose:    Converts `long' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5972,18 +5972,18 @@ H5T__conv_long_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LONG, UCHAR, long, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_schar
+ * Function:    H5T__conv_ulong_schar
  *
- * Purpose:	Converts `unsigned long' to `signed char'
+ * Purpose:    Converts `unsigned long' to `signed char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -5995,18 +5995,18 @@ H5T__conv_ulong_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULONG, SCHAR, unsigned long, signed char, -, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_uchar
+ * Function:    H5T__conv_ulong_uchar
  *
- * Purpose:	Converts `unsigned long' to `unsigned char'
+ * Purpose:    Converts `unsigned long' to `unsigned char'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6018,18 +6018,18 @@ H5T__conv_ulong_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULONG, UCHAR, unsigned long, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_short
+ * Function:    H5T__conv_long_short
  *
- * Purpose:	Converts `long' to `short'
+ * Purpose:    Converts `long' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6041,18 +6041,18 @@ H5T__conv_long_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LONG, SHORT, long, short, SHRT_MIN, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_ushort
+ * Function:    H5T__conv_long_ushort
  *
- * Purpose:	Converts `long' to `unsigned short'
+ * Purpose:    Converts `long' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6064,18 +6064,18 @@ H5T__conv_long_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LONG, USHORT, long, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_short
+ * Function:    H5T__conv_ulong_short
  *
- * Purpose:	Converts `unsigned long' to `short'
+ * Purpose:    Converts `unsigned long' to `short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6087,18 +6087,18 @@ H5T__conv_ulong_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULONG, SHORT, unsigned long, short, -, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_ushort
+ * Function:    H5T__conv_ulong_ushort
  *
- * Purpose:	Converts `unsigned long' to `unsigned short'
+ * Purpose:    Converts `unsigned long' to `unsigned short'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6110,18 +6110,18 @@ H5T__conv_ulong_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULONG, USHORT, unsigned long, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_int
+ * Function:    H5T__conv_long_int
  *
- * Purpose:	Converts `long' to `int'
+ * Purpose:    Converts `long' to `int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6133,18 +6133,18 @@ H5T__conv_long_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LONG, INT, long, int, INT_MIN, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_uint
+ * Function:    H5T__conv_long_uint
  *
- * Purpose:	Converts `long' to `unsigned int'
+ * Purpose:    Converts `long' to `unsigned int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6156,18 +6156,18 @@ H5T__conv_long_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LONG, UINT, long, unsigned, -, UINT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_int
+ * Function:    H5T__conv_ulong_int
  *
- * Purpose:	Converts `unsigned long' to `int'
+ * Purpose:    Converts `unsigned long' to `int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6179,18 +6179,18 @@ H5T__conv_ulong_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULONG, INT, unsigned long, int, -, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_uint
+ * Function:    H5T__conv_ulong_uint
  *
- * Purpose:	Converts `unsigned long' to `unsigned int'
+ * Purpose:    Converts `unsigned long' to `unsigned int'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6202,18 +6202,18 @@ H5T__conv_ulong_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULONG, UINT, unsigned long, unsigned, -, UINT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_ulong
+ * Function:    H5T__conv_long_ulong
  *
- * Purpose:	Converts `long' to `unsigned long'
+ * Purpose:    Converts `long' to `unsigned long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6225,18 +6225,18 @@ H5T__conv_long_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_su(LONG, ULONG, long, unsigned long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_long
+ * Function:    H5T__conv_ulong_long
  *
- * Purpose:	Converts `unsigned long' to `long'
+ * Purpose:    Converts `unsigned long' to `long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6248,18 +6248,18 @@ H5T__conv_ulong_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_us(ULONG, LONG, unsigned long, long, -, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_llong
+ * Function:    H5T__conv_long_llong
  *
- * Purpose:	Converts `long' to `long long'
+ * Purpose:    Converts `long' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6271,18 +6271,18 @@ H5T__conv_long_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sS(LONG, LLONG, long, long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_ullong
+ * Function:    H5T__conv_long_ullong
  *
- * Purpose:	Converts `long' to `unsigned long long'
+ * Purpose:    Converts `long' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6294,18 +6294,18 @@ H5T__conv_long_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_sU(LONG, ULLONG, long, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_llong
+ * Function:    H5T__conv_ulong_llong
  *
- * Purpose:	Converts `unsigned long' to `long long'
+ * Purpose:    Converts `unsigned long' to `long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6317,18 +6317,18 @@ H5T__conv_ulong_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uS(ULONG, LLONG, unsigned long, long long, -, LLONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_ullong
+ * Function:    H5T__conv_ulong_ullong
  *
- * Purpose:	Converts `unsigned long' to `unsigned long long'
+ * Purpose:    Converts `unsigned long' to `unsigned long long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6340,18 +6340,18 @@ H5T__conv_ulong_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_uU(ULONG, ULLONG, unsigned long, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_schar
+ * Function:    H5T__conv_llong_schar
  *
- * Purpose:	Converts `long long' to `signed char'
+ * Purpose:    Converts `long long' to `signed char'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6363,18 +6363,18 @@ H5T__conv_llong_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LLONG, SCHAR, long long, signed char, SCHAR_MIN, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_uchar
+ * Function:    H5T__conv_llong_uchar
  *
- * Purpose:	Converts `long long' to `unsigned char'
+ * Purpose:    Converts `long long' to `unsigned char'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6386,18 +6386,18 @@ H5T__conv_llong_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LLONG, UCHAR, long long, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_schar
+ * Function:    H5T__conv_ullong_schar
  *
- * Purpose:	Converts `unsigned long long' to `signed char'
+ * Purpose:    Converts `unsigned long long' to `signed char'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6409,18 +6409,18 @@ H5T__conv_ullong_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULLONG, SCHAR, unsigned long long, signed char, -, SCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_uchar
+ * Function:    H5T__conv_ullong_uchar
  *
- * Purpose:	Converts `unsigned long long' to `unsigned char'
+ * Purpose:    Converts `unsigned long long' to `unsigned char'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6432,18 +6432,18 @@ H5T__conv_ullong_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULLONG, UCHAR, unsigned long long, unsigned char, -, UCHAR_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_short
+ * Function:    H5T__conv_llong_short
  *
- * Purpose:	Converts `long long' to `short'
+ * Purpose:    Converts `long long' to `short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6455,18 +6455,18 @@ H5T__conv_llong_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LLONG, SHORT, long long, short, SHRT_MIN, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_ushort
+ * Function:    H5T__conv_llong_ushort
  *
- * Purpose:	Converts `long long' to `unsigned short'
+ * Purpose:    Converts `long long' to `unsigned short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6478,18 +6478,18 @@ H5T__conv_llong_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LLONG, USHORT, long long, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_short
+ * Function:    H5T__conv_ullong_short
  *
- * Purpose:	Converts `unsigned long long' to `short'
+ * Purpose:    Converts `unsigned long long' to `short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6501,18 +6501,18 @@ H5T__conv_ullong_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULLONG, SHORT, unsigned long long, short, -, SHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_ushort
+ * Function:    H5T__conv_ullong_ushort
  *
- * Purpose:	Converts `unsigned long long' to `unsigned short'
+ * Purpose:    Converts `unsigned long long' to `unsigned short'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6524,18 +6524,18 @@ H5T__conv_ullong_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULLONG, USHORT, unsigned long long, unsigned short, -, USHRT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_int
+ * Function:    H5T__conv_llong_int
  *
- * Purpose:	Converts `long long' to `int'
+ * Purpose:    Converts `long long' to `int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6547,18 +6547,18 @@ H5T__conv_llong_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LLONG, INT, long long, int, INT_MIN, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_uint
+ * Function:    H5T__conv_llong_uint
  *
- * Purpose:	Converts `long long' to `unsigned int'
+ * Purpose:    Converts `long long' to `unsigned int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6570,18 +6570,18 @@ H5T__conv_llong_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LLONG, UINT, long long, unsigned, -, UINT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_int
+ * Function:    H5T__conv_ullong_int
  *
- * Purpose:	Converts `unsigned long long' to `int'
+ * Purpose:    Converts `unsigned long long' to `int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6593,18 +6593,18 @@ H5T__conv_ullong_int(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULLONG, INT, unsigned long long, int, -, INT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_uint
+ * Function:    H5T__conv_ullong_uint
  *
- * Purpose:	Converts `unsigned long long' to `unsigned int'
+ * Purpose:    Converts `unsigned long long' to `unsigned int'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6616,18 +6616,18 @@ H5T__conv_ullong_uint(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULLONG, UINT, unsigned long long, unsigned, -, UINT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_long
+ * Function:    H5T__conv_llong_long
  *
- * Purpose:	Converts `long long' to `long'
+ * Purpose:    Converts `long long' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6639,18 +6639,18 @@ H5T__conv_llong_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ss(LLONG, LONG, long long, long, LONG_MIN, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_ulong
+ * Function:    H5T__conv_llong_ulong
  *
- * Purpose:	Converts `long long' to `unsigned long'
+ * Purpose:    Converts `long long' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6662,18 +6662,18 @@ H5T__conv_llong_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Su(LLONG, ULONG, long long, unsigned long, -, ULONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_long
+ * Function:    H5T__conv_ullong_long
  *
- * Purpose:	Converts `unsigned long long' to `long'
+ * Purpose:    Converts `unsigned long long' to `long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6685,18 +6685,18 @@ H5T__conv_ullong_long(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Us(ULLONG, LONG, unsigned long long, long, -, LONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_ulong
+ * Function:    H5T__conv_ullong_ulong
  *
- * Purpose:	Converts `unsigned long long' to `unsigned long'
+ * Purpose:    Converts `unsigned long long' to `unsigned long'
  *
- * Return:	Success:	Non-negative
+ * Return:    Success:    Non-negative
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Friday, November 13, 1998
+ * Programmer:    Robb Matzke
+ *        Friday, November 13, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6708,18 +6708,18 @@ H5T__conv_ullong_ulong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Uu(ULLONG, ULONG, unsigned long long, unsigned long, -, ULONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_ullong
+ * Function:    H5T__conv_llong_ullong
  *
- * Purpose:	Converts `long long' to `unsigned long long'
+ * Purpose:    Converts `long long' to `unsigned long long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6731,18 +6731,18 @@ H5T__conv_llong_ullong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_su(LLONG, ULLONG, long long, unsigned long long, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_llong
+ * Function:    H5T__conv_ullong_llong
  *
- * Purpose:	Converts `unsigned long long' to `long long'
+ * Purpose:    Converts `unsigned long long' to `long long'
  *
- * Return:	Success:	non-negative
+ * Return:    Success:    non-negative
  *
- *		Failure:	negative
+ *        Failure:    negative
  *
- * Programmer:	Robb Matzke
- *		Monday, November 16, 1998
+ * Programmer:    Robb Matzke
+ *        Monday, November 16, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6754,17 +6754,17 @@ H5T__conv_ullong_llong(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_us(ULLONG, LLONG, unsigned long long, long long, -, LLONG_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_double
+ * Function:    H5T__conv_float_double
  *
- * Purpose:	Convert native `float' to native `double' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `float' to native `double' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, June 23, 1998
+ * Programmer:    Robb Matzke
+ *        Tuesday, June 23, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6776,17 +6776,17 @@ H5T__conv_float_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_fF(FLOAT, DOUBLE, float, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_ldouble
+ * Function:    H5T__conv_float_ldouble
  *
- * Purpose:	Convert native `float' to native `long double' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `float' to native `long double' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, Feb 25, 2005
+ * Programmer:    Raymond Lu
+ *        Friday, Feb 25, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -6800,17 +6800,17 @@ H5T__conv_float_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /* H5_SIZEOF_LONG_DOUBLE != 0 */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_float
+ * Function:    H5T__conv_double_float
  *
- * Purpose:	Convert native `double' to native `float' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `double' to native `float' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, June 23, 1998
+ * Programmer:    Robb Matzke
+ *        Tuesday, June 23, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -6822,17 +6822,17 @@ H5T__conv_double_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_Ff(DOUBLE, FLOAT, double, float, -FLT_MAX, FLT_MAX);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_ldouble
+ * Function:    H5T__conv_double_ldouble
  *
- * Purpose:	Convert native `double' to native `long double' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `double' to native `long double' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, Feb 25, 2005
+ * Programmer:    Raymond Lu
+ *        Friday, Feb 25, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -6846,17 +6846,17 @@ H5T__conv_double_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /* H5_SIZEOF_LONG_DOUBLE != 0 */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_float
+ * Function:    H5T__conv_ldouble_float
  *
- * Purpose:	Convert native `long double' to native `float' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `long double' to native `float' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, Feb 25, 2005
+ * Programmer:    Raymond Lu
+ *        Friday, Feb 25, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -6870,17 +6870,17 @@ H5T__conv_ldouble_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /* H5_SIZEOF_LONG_DOUBLE != 0 */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_double
+ * Function:    H5T__conv_ldouble_double
  *
- * Purpose:	Convert native `long double' to native `double' using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native `long double' to native `double' using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, Feb 25, 2005
+ * Programmer:    Raymond Lu
+ *        Friday, Feb 25, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -6894,17 +6894,17 @@ H5T__conv_ldouble_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /* H5_SIZEOF_LONG_DOUBLE != 0 */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_float
+ * Function:    H5T__conv_schar_float
  *
- * Purpose:	Convert native signed char to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native signed char to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -6916,17 +6916,17 @@ H5T__conv_schar_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SCHAR, FLOAT, signed char, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_double
+ * Function:    H5T__conv_schar_double
  *
- * Purpose:	Convert native signed char to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native signed char to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -6938,17 +6938,17 @@ H5T__conv_schar_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SCHAR, DOUBLE, signed char, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_schar_ldouble
+ * Function:    H5T__conv_schar_ldouble
  *
- * Purpose:	Convert native signed char to native long double using
+ * Purpose:    Convert native signed char to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -6960,17 +6960,17 @@ H5T__conv_schar_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SCHAR, LDOUBLE, signed char, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_float
+ * Function:    H5T__conv_uchar_float
  *
- * Purpose:	Convert native unsigned char to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned char to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -6982,17 +6982,17 @@ H5T__conv_uchar_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UCHAR, FLOAT, unsigned char, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_double
+ * Function:    H5T__conv_uchar_double
  *
- * Purpose:	Convert native unsigned char to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned char to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7004,17 +7004,17 @@ H5T__conv_uchar_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UCHAR, DOUBLE, unsigned char, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uchar_ldouble
+ * Function:    H5T__conv_uchar_ldouble
  *
- * Purpose:	Convert native unsigned char to native long double using
+ * Purpose:    Convert native unsigned char to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7026,17 +7026,17 @@ H5T__conv_uchar_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UCHAR, LDOUBLE, unsigned char, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_float
+ * Function:    H5T__conv_short_float
  *
- * Purpose:	Convert native short to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native short to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7048,17 +7048,17 @@ H5T__conv_short_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SHORT, FLOAT, short, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_double
+ * Function:    H5T__conv_short_double
  *
- * Purpose:	Convert native short to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native short to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7070,17 +7070,17 @@ H5T__conv_short_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SHORT, DOUBLE, short, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_short_ldouble
+ * Function:    H5T__conv_short_ldouble
  *
- * Purpose:	Convert native short to native long double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native short to native long double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7092,17 +7092,17 @@ H5T__conv_short_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(SHORT, LDOUBLE, short, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_float
+ * Function:    H5T__conv_ushort_float
  *
- * Purpose:	Convert native unsigned short to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned short to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7114,17 +7114,17 @@ H5T__conv_ushort_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(USHORT, FLOAT, unsigned short, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_double
+ * Function:    H5T__conv_ushort_double
  *
- * Purpose:	Convert native unsigned short to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned short to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7136,17 +7136,17 @@ H5T__conv_ushort_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(USHORT, DOUBLE, unsigned short, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ushort_ldouble
+ * Function:    H5T__conv_ushort_ldouble
  *
- * Purpose:	Convert native unsigned short to native long double using
+ * Purpose:    Convert native unsigned short to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7158,17 +7158,17 @@ H5T__conv_ushort_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(USHORT, LDOUBLE, unsigned short, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_float
+ * Function:    H5T__conv_int_float
  *
- * Purpose:	Convert native integer to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native integer to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7180,17 +7180,17 @@ H5T__conv_int_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(INT, FLOAT, int, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_double
+ * Function:    H5T__conv_int_double
  *
- * Purpose:	Convert native integer to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native integer to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7202,17 +7202,17 @@ H5T__conv_int_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(INT, DOUBLE, int, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_int_ldouble
+ * Function:    H5T__conv_int_ldouble
  *
- * Purpose:	Convert native integer to native long double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native integer to native long double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7224,17 +7224,17 @@ H5T__conv_int_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(INT, LDOUBLE, int, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_float
+ * Function:    H5T__conv_uint_float
  *
- * Purpose:	Convert native unsigned integer to native float using
+ * Purpose:    Convert native unsigned integer to native float using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7246,17 +7246,17 @@ H5T__conv_uint_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UINT, FLOAT, unsigned int, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_double
+ * Function:    H5T__conv_uint_double
  *
- * Purpose:	Convert native unsigned integer to native double using
+ * Purpose:    Convert native unsigned integer to native double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7268,17 +7268,17 @@ H5T__conv_uint_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UINT, DOUBLE, unsigned int, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_uint_ldouble
+ * Function:    H5T__conv_uint_ldouble
  *
- * Purpose:	Convert native unsigned integer to native long double using
+ * Purpose:    Convert native unsigned integer to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7290,17 +7290,17 @@ H5T__conv_uint_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(UINT, LDOUBLE, unsigned int, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_float
+ * Function:    H5T__conv_long_float
  *
- * Purpose:	Convert native long to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native long to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7312,17 +7312,17 @@ H5T__conv_long_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(LONG, FLOAT, long, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_double
+ * Function:    H5T__conv_long_double
  *
- * Purpose:	Convert native long to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native long to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7334,17 +7334,17 @@ H5T__conv_long_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(LONG, DOUBLE, long, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_long_ldouble
+ * Function:    H5T__conv_long_ldouble
  *
- * Purpose:	Convert native long to native long double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native long to native long double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7356,17 +7356,17 @@ H5T__conv_long_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(LONG, LDOUBLE, long, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_float
+ * Function:    H5T__conv_ulong_float
  *
- * Purpose:	Convert native unsigned long to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned long to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7378,17 +7378,17 @@ H5T__conv_ulong_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(ULONG, FLOAT, unsigned long, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_double
+ * Function:    H5T__conv_ulong_double
  *
- * Purpose:	Convert native unsigned long to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native unsigned long to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7400,17 +7400,17 @@ H5T__conv_ulong_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(ULONG, DOUBLE, unsigned long, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ulong_ldouble
+ * Function:    H5T__conv_ulong_ldouble
  *
- * Purpose:	Convert native unsigned long to native long double using
+ * Purpose:    Convert native unsigned long to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7422,17 +7422,17 @@ H5T__conv_ulong_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(ULONG, LDOUBLE, unsigned long, long double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_float
+ * Function:    H5T__conv_llong_float
  *
- * Purpose:	Convert native long long to native float using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native long long to native float using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7444,17 +7444,17 @@ H5T__conv_llong_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(LLONG, FLOAT, long long, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_double
+ * Function:    H5T__conv_llong_double
  *
- * Purpose:	Convert native long long to native double using hardware.
- *		This is a fast special case.
+ * Purpose:    Convert native long long to native double using hardware.
+ *        This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7466,17 +7466,17 @@ H5T__conv_llong_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(LLONG, DOUBLE, long long, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_llong_ldouble
+ * Function:    H5T__conv_llong_ldouble
  *
- * Purpose:	Convert native long long to native long double using
+ * Purpose:    Convert native long long to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7490,17 +7490,17 @@ H5T__conv_llong_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /* H5T_CONV_INTERNAL_LLONG_LDOUBLE */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_float
+ * Function:    H5T__conv_ullong_float
  *
- * Purpose:	Convert native unsigned long long to native float using
+ * Purpose:    Convert native unsigned long long to native float using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7512,17 +7512,17 @@ H5T__conv_ullong_float (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(ULLONG, FLOAT, unsigned long long, float, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_double
+ * Function:    H5T__conv_ullong_double
  *
- * Purpose:	Convert native unsigned long long to native double using
+ * Purpose:    Convert native unsigned long long to native double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7534,17 +7534,17 @@ H5T__conv_ullong_double (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
     H5T_CONV_xF(ULLONG, DOUBLE, unsigned long long, double, -, -);
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ullong_ldouble
+ * Function:    H5T__conv_ullong_ldouble
  *
- * Purpose:	Convert native unsigned long long to native long double using
+ * Purpose:    Convert native unsigned long long to native long double using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7558,17 +7558,17 @@ H5T__conv_ullong_ldouble (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 }
 #endif /*H5T_CONV_INTERNAL_ULLONG_LDOUBLE*/
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_schar
+ * Function:    H5T__conv_float_schar
  *
- * Purpose:	Convert native float to native signed char using
+ * Purpose:    Convert native float to native signed char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7582,17 +7582,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_uchar
+ * Function:    H5T__conv_float_uchar
  *
- * Purpose:	Convert native float to native unsigned char using
+ * Purpose:    Convert native float to native unsigned char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7606,17 +7606,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_schar
+ * Function:    H5T__conv_double_schar
  *
- * Purpose:	Convert native double to native signed char using
+ * Purpose:    Convert native double to native signed char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7630,17 +7630,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_uchar
+ * Function:    H5T__conv_double_uchar
  *
- * Purpose:	Convert native double to native unsigned char using
+ * Purpose:    Convert native double to native unsigned char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7654,17 +7654,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_schar
+ * Function:    H5T__conv_ldouble_schar
  *
- * Purpose:	Convert native long double to native signed char using
+ * Purpose:    Convert native long double to native signed char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7678,17 +7678,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_uchar
+ * Function:    H5T__conv_ldouble_uchar
  *
- * Purpose:	Convert native long double to native unsigned char using
+ * Purpose:    Convert native long double to native unsigned char using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7702,17 +7702,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_short
+ * Function:    H5T__conv_float_short
  *
- * Purpose:	Convert native float to native short using
+ * Purpose:    Convert native float to native short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7726,17 +7726,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_ushort
+ * Function:    H5T__conv_float_ushort
  *
- * Purpose:	Convert native float to native unsigned short using
+ * Purpose:    Convert native float to native unsigned short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7750,17 +7750,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_short
+ * Function:    H5T__conv_double_short
  *
- * Purpose:	Convert native double to native short using
+ * Purpose:    Convert native double to native short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7774,17 +7774,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_ushort
+ * Function:    H5T__conv_double_ushort
  *
- * Purpose:	Convert native double to native unsigned short using
+ * Purpose:    Convert native double to native unsigned short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7798,17 +7798,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_short
+ * Function:    H5T__conv_ldouble_short
  *
- * Purpose:	Convert native long double to native short using
+ * Purpose:    Convert native long double to native short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7822,17 +7822,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_ushort
+ * Function:    H5T__conv_ldouble_ushort
  *
- * Purpose:	Convert native long double to native unsigned short using
+ * Purpose:    Convert native long double to native unsigned short using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7846,17 +7846,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_int
+ * Function:    H5T__conv_float_int
  *
- * Purpose:	Convert native float to native int using
+ * Purpose:    Convert native float to native int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7870,17 +7870,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_uint
+ * Function:    H5T__conv_float_uint
  *
- * Purpose:	Convert native float to native unsigned int using
+ * Purpose:    Convert native float to native unsigned int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7894,17 +7894,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_int
+ * Function:    H5T__conv_double_int
  *
- * Purpose:	Convert native double to native int using
+ * Purpose:    Convert native double to native int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7918,17 +7918,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_uint
+ * Function:    H5T__conv_double_uint
  *
- * Purpose:	Convert native double to native unsigned int using
+ * Purpose:    Convert native double to native unsigned int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -7942,17 +7942,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_int
+ * Function:    H5T__conv_ldouble_int
  *
- * Purpose:	Convert native long double to native int using
+ * Purpose:    Convert native long double to native int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7966,17 +7966,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_uint
+ * Function:    H5T__conv_ldouble_uint
  *
- * Purpose:	Convert native long double to native unsigned int using
+ * Purpose:    Convert native long double to native unsigned int using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -7990,17 +7990,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_long
+ * Function:    H5T__conv_float_long
  *
- * Purpose:	Convert native float to native long using
+ * Purpose:    Convert native float to native long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8014,17 +8014,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_ulong
+ * Function:    H5T__conv_float_ulong
  *
- * Purpose:	Convert native float to native unsigned long using
+ * Purpose:    Convert native float to native unsigned long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8038,17 +8038,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_long
+ * Function:    H5T__conv_double_long
  *
- * Purpose:	Convert native double to native long using
+ * Purpose:    Convert native double to native long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8062,17 +8062,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_ulong
+ * Function:    H5T__conv_double_ulong
  *
- * Purpose:	Convert native double to native unsigned long using
+ * Purpose:    Convert native double to native unsigned long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8086,17 +8086,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_long
+ * Function:    H5T__conv_ldouble_long
  *
- * Purpose:	Convert native long double to native long using
+ * Purpose:    Convert native long double to native long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -8110,17 +8110,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_ulong
+ * Function:    H5T__conv_ldouble_ulong
  *
- * Purpose:	Convert native long double to native unsigned long using
+ * Purpose:    Convert native long double to native unsigned long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -8134,17 +8134,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_llong
+ * Function:    H5T__conv_float_llong
  *
- * Purpose:	Convert native float to native long long using
+ * Purpose:    Convert native float to native long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8158,17 +8158,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_float_ullong
+ * Function:    H5T__conv_float_ullong
  *
- * Purpose:	Convert native float to native unsigned long long using
+ * Purpose:    Convert native float to native unsigned long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8182,17 +8182,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_llong
+ * Function:    H5T__conv_double_llong
  *
- * Purpose:	Convert native double to native long long using
+ * Purpose:    Convert native double to native long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8206,17 +8206,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_double_ullong
+ * Function:    H5T__conv_double_ullong
  *
- * Purpose:	Convert native double to native unsigned long long using
+ * Purpose:    Convert native double to native unsigned long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, November 7, 2003
+ * Programmer:    Raymond Lu
+ *        Friday, November 7, 2003
  *
  *-------------------------------------------------------------------------
  */
@@ -8230,17 +8230,17 @@ H5_GCC_DIAG_OFF(float-equal)
 H5_GCC_DIAG_ON(float-equal)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_llong
+ * Function:    H5T__conv_ldouble_llong
  *
- * Purpose:	Convert native long double to native long long using
+ * Purpose:    Convert native long double to native long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -8256,17 +8256,17 @@ H5_GCC_DIAG_ON(float-equal)
 }
 #endif /*H5T_CONV_INTERNAL_LDOUBLE_LLONG*/
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_ldouble_ullong
+ * Function:    H5T__conv_ldouble_ullong
  *
- * Purpose:	Convert native long double to native unsigned long long using
+ * Purpose:    Convert native long double to native unsigned long long using
  *              hardware.  This is a fast special case.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Tuesday, Febuary 1, 2005
+ * Programmer:    Raymond Lu
+ *        Tuesday, Febuary 1, 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -8282,18 +8282,18 @@ H5_GCC_DIAG_ON(float-equal)
 }
 #endif /*H5T_CONV_INTERNAL_LDOUBLE_ULLONG*/
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_f_i
+ * Function:    H5T__conv_f_i
  *
- * Purpose:	Convert one floating-point type to an integer.  This is
+ * Purpose:    Convert one floating-point type to an integer.  This is
  *              the catch-all function for float-integer conversions and
  *              is probably not particularly fast.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Wednesday, Jan 21, 2004
+ * Programmer:    Raymond Lu
+ *        Wednesday, Jan 21, 2004
  *
  *              Raymond Lu
  *              Wednesday, April 21, 2004
@@ -8310,28 +8310,28 @@ H5T__conv_f_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *buf, void H5_ATTR_UNUSED *bkg)
 {
     /* Traversal-related variables */
-    H5T_t	*src_p;			/*source datatype		*/
-    H5T_t	*dst_p;			/*destination datatype		*/
-    H5T_atomic_t src;			/*atomic source info		*/
-    H5T_atomic_t dst;			/*atomic destination info	*/
-    int	direction;		        /*forward or backward traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	half_size;		/*half the type size		*/
+    H5T_t    *src_p;            /*source datatype        */
+    H5T_t    *dst_p;            /*destination datatype        */
+    H5T_atomic_t src;            /*atomic source info        */
+    H5T_atomic_t dst;            /*atomic destination info    */
+    int    direction;                /*forward or backward traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    half_size;        /*half the type size        */
     size_t      tsize;                  /*type size for swapping bytes  */
-    size_t	olap;			/*num overlapping elements	*/
-    uint8_t	*s, *sp, *d, *dp;	/*source and dest traversal ptrs*/
+    size_t    olap;            /*num overlapping elements    */
+    uint8_t    *s, *sp, *d, *dp;    /*source and dest traversal ptrs*/
     uint8_t     *src_rev=NULL;          /*order-reversed source buffer  */
-    uint8_t	dbuf[64];		/*temp destination buffer	*/
+    uint8_t    dbuf[64];        /*temp destination buffer    */
     uint8_t     tmp1, tmp2;             /*temp variables for swapping bytes*/
 
     /* Conversion-related variables */
-    hssize_t	expo;			/*source exponent		*/
+    hssize_t    expo;            /*source exponent        */
     hssize_t    sign;                   /*source sign bit value         */
     uint8_t     *int_buf=NULL;          /*buffer for temporary value    */
     size_t      buf_size;               /*buffer size for temporary value */
-    size_t	i;			/*miscellaneous counters	*/
-    size_t	first;                  /*first bit(MSB) in an integer  */
-    ssize_t	sfirst;			/*a signed version of `first'	*/
+    size_t    i;            /*miscellaneous counters    */
+    size_t    first;                  /*first bit(MSB) in an integer  */
+    ssize_t    sfirst;            /*a signed version of `first'    */
     H5T_conv_cb_t       cb_struct={NULL, NULL};      /*conversion callback structure */
     hbool_t     truncated;              /*if fraction value is dropped  */
     hbool_t     reverse;                /*if reverse order of destination at the end */
@@ -8860,18 +8860,18 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_f_i() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T__conv_i_f
+ * Function:    H5T__conv_i_f
  *
- * Purpose:	Convert one integer type to a floating-point type.  This is
+ * Purpose:    Convert one integer type to a floating-point type.  This is
  *              the catch-all function for integer-float conversions and
  *              is probably not particularly fast.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
- *		Friday, Feb 6, 2004
+ * Programmer:    Raymond Lu
+ *        Friday, Feb 6, 2004
  *
  *-------------------------------------------------------------------------
  */
@@ -8880,31 +8880,31 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
     size_t buf_stride, size_t H5_ATTR_UNUSED bkg_stride, void *buf, void H5_ATTR_UNUSED *bkg)
 {
     /* Traversal-related variables */
-    H5T_t	*src_p;			/*source datatype		*/
-    H5T_t	*dst_p;			/*destination datatype		*/
-    H5T_atomic_t src;			/*atomic source info		*/
-    H5T_atomic_t dst;			/*atomic destination info	*/
-    int	direction;		/*forward or backward traversal	*/
-    size_t	elmtno;			/*element number		*/
-    size_t	half_size;		/*half the type size		*/
+    H5T_t    *src_p;            /*source datatype        */
+    H5T_t    *dst_p;            /*destination datatype        */
+    H5T_atomic_t src;            /*atomic source info        */
+    H5T_atomic_t dst;            /*atomic destination info    */
+    int    direction;        /*forward or backward traversal    */
+    size_t    elmtno;            /*element number        */
+    size_t    half_size;        /*half the type size        */
     size_t      tsize;                  /*type size for swapping bytes  */
-    size_t	olap;			/*num overlapping elements	*/
-    uint8_t	*s, *sp, *d, *dp;	/*source and dest traversal ptrs*/
+    size_t    olap;            /*num overlapping elements    */
+    uint8_t    *s, *sp, *d, *dp;    /*source and dest traversal ptrs*/
     uint8_t     *src_rev = NULL;        /*order-reversed source buffer  */
-    uint8_t	dbuf[64];		/*temp destination buffer	*/
+    uint8_t    dbuf[64];        /*temp destination buffer    */
     uint8_t     tmp1, tmp2;             /*temp variables for swapping bytes*/
 
     /* Conversion-related variables */
-    hsize_t	expo;			/*destination exponent		*/
-    hsize_t	expo_max;		/*maximal possible exponent value       */
+    hsize_t    expo;            /*destination exponent        */
+    hsize_t    expo_max;        /*maximal possible exponent value       */
     size_t      sign;                   /*source sign bit value         */
     hbool_t     is_max_neg;             /*source is maximal negative value*/
     hbool_t     do_round;               /*whether there is roundup      */
     uint8_t     *int_buf = NULL;        /*buffer for temporary value    */
     size_t      buf_size;               /*buffer size for temporary value */
-    size_t	i;			/*miscellaneous counters	*/
-    size_t	first;                  /*first bit(MSB) in an integer  */
-    ssize_t	sfirst;			/*a signed version of `first'	*/
+    size_t    i;            /*miscellaneous counters    */
+    size_t    first;                  /*first bit(MSB) in an integer  */
+    ssize_t    sfirst;            /*a signed version of `first'    */
     H5T_conv_cb_t       cb_struct = {NULL, NULL};      /*conversion callback structure */
     H5T_conv_ret_t      except_ret;     /*return of callback function   */
     hbool_t             reverse;        /*if reverse the order of destination   */
@@ -9036,12 +9036,12 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
                 /*
                  * What is the bit position(starting from 0 as first one) for the most significant
-		 * bit(MSB) of S which is set?
+        * bit(MSB) of S which is set?
                  */
                 if(H5T_SGN_2 == src.u.i.sign) {
                     sfirst = H5T__bit_find(int_buf, (size_t)0, src.prec - 1, H5T_BIT_MSB, TRUE);
                     if(sign && sfirst < 0)
-			/* The case 0x80...00, which is negative with maximal value */
+            /* The case 0x80...00, which is negative with maximal value */
                         is_max_neg = 1;
                 } else if(H5T_SGN_NONE == src.u.i.sign)
                     sfirst = H5T__bit_find(int_buf, (size_t)0, src.prec, H5T_BIT_MSB, TRUE);
@@ -9060,10 +9060,10 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                         H5T__bit_neg(int_buf, (size_t)0, buf_size * 8);
                         sfirst = H5T__bit_find(int_buf, (size_t)0, src.prec - 1, H5T_BIT_MSB, TRUE);
                     } else {
-			/* If it's maximal negative number 0x80...000, treat it as if it overflowed
-			 * (create a carry) to help conversion.  i.e. a character type number 0x80
-			 * is treated as 0x100.
-			 */
+            /* If it's maximal negative number 0x80...000, treat it as if it overflowed
+            * (create a carry) to help conversion.  i.e. a character type number 0x80
+            * is treated as 0x100.
+            */
                         sfirst = (ssize_t)(src.prec - 1);
                         is_max_neg = 0;
                     }
@@ -9072,7 +9072,7 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
                     /* Sign bit has been negated if bit vector isn't 0x80...00.  Set all bits in front of
                      * sign bit to 0 in the temporary buffer because they're all negated from the previous
-		     * step. */
+            * step. */
                     H5T__bit_set(int_buf, src.prec, (buf_size * 8) - src.prec, 0);
 
                     /* Set sign bit in destination */
@@ -9096,13 +9096,13 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                 if (H5T_NORM_IMPLIED==dst.u.f.norm) {
                     /* Imply first bit */
                     H5T__bit_set(int_buf, first, (size_t)1, 0);
-       		} else if (H5T_NORM_NONE==dst.u.f.norm) {
-		    first++;
-		}
+            } else if (H5T_NORM_NONE==dst.u.f.norm) {
+            first++;
+        }
 
                 /* Roundup for mantissa */
                 if(first > dst.u.f.msize) {
-		    /* If the bit sequence is bigger than the mantissa part, there'll be some
+            /* If the bit sequence is bigger than the mantissa part, there'll be some
                      * precision loss.  Let user's handler deal with the case if it's present
                      */
                     if(cb_struct.func) {
@@ -9117,15 +9117,15 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                     } else if(except_ret == H5T_CONV_ABORT)
                         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception")
 
-		    /* If user's exception handler does deal with it, we do it by dropping off the
-		     * extra bits at the end and do rounding.  If we have .50...0(decimal) after radix
-		     * point, we do roundup when the least significant digit before radix is odd, we do
-		     * rounddown if it's even.
-		     */
+            /* If user's exception handler does deal with it, we do it by dropping off the
+            * extra bits at the end and do rounding.  If we have .50...0(decimal) after radix
+            * point, we do roundup when the least significant digit before radix is odd, we do
+            * rounddown if it's even.
+            */
 
                     /* Check 1st dropoff bit, see if it's set. */
                     if(H5T__bit_get_d(int_buf, ((first - dst.u.f.msize) - 1), (size_t)1)) {
-                    	/* Check all bits after 1st dropoff bit, see if any of them is set. */
+                        /* Check all bits after 1st dropoff bit, see if any of them is set. */
                         if(((first - dst.u.f.msize) - 1) > 0 && H5T__bit_get_d(int_buf, (size_t)0, ((first - dst.u.f.msize) - 1)))
                             do_round = 1;
                         else {  /* The .50...0 case */
@@ -9133,7 +9133,7 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                             if(H5T__bit_get_d(int_buf, (first - dst.u.f.msize), (size_t)1))
                                do_round = 1;
                         }
-		    }
+            }
 
                     /* Right shift to drop off extra bits */
                     H5T__bit_shift(int_buf, (ssize_t)(dst.u.f.msize - first), (size_t)0, buf_size * 8);
@@ -9142,28 +9142,28 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                         H5T__bit_inc(int_buf, (size_t)0, buf_size * 8);
                         do_round = 0;
 
-			/* If integer is like 0x0ff...fff and we need to round up the
-			 * last f, we get 0x100...000.  Treat this special case here.
-			 */
-                    	if(H5T__bit_get_d(int_buf, dst.u.f.msize, (size_t)1)) {
-                	    if (H5T_NORM_IMPLIED==dst.u.f.norm) {
-			        /* The bit at this 1's position was impled already, so this
-			         * number should be 0x200...000.  We need to increment the
-			         * exponent in this case.
-			         */
-			    	expo++;
-       			    } else if (H5T_NORM_NONE==dst.u.f.norm) {
-				/* Right shift 1 bit to let the carried 1 fit in the mantissa,
-				 * and increment exponent by 1.
-				 */
+            /* If integer is like 0x0ff...fff and we need to round up the
+            * last f, we get 0x100...000.  Treat this special case here.
+            */
+                        if(H5T__bit_get_d(int_buf, dst.u.f.msize, (size_t)1)) {
+                        if (H5T_NORM_IMPLIED==dst.u.f.norm) {
+                    /* The bit at this 1's position was impled already, so this
+                    * number should be 0x200...000.  We need to increment the
+                    * exponent in this case.
+                    */
+                    expo++;
+                    } else if (H5T_NORM_NONE==dst.u.f.norm) {
+                /* Right shift 1 bit to let the carried 1 fit in the mantissa,
+                * and increment exponent by 1.
+                */
                                 H5T__bit_shift(int_buf, (ssize_t)-1, (size_t)0, buf_size * 8);
-			 	expo++;
-			    }
-			}
+                expo++;
+                }
+            }
                     }
                 } else {
                     /* The bit sequence can fit mantissa part.  Left shift to fit in from high-order of
-		     * bit position. */
+            * bit position. */
                     H5T__bit_shift(int_buf, (ssize_t)(dst.u.f.msize - first), (size_t)0, dst.u.f.msize);
                 }
 
@@ -9273,11 +9273,11 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__conv_i_f() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5T_reverse_order
+ * Function:    H5T_reverse_order
  *
- * Purpose:	Internal assisting function to reverse the order of
+ * Purpose:    Internal assisting function to reverse the order of
  *              a sequence of byte when it's big endian or VAX order.
  *              The byte sequence simulates the endian order.
  *
@@ -9285,8 +9285,8 @@ done:
  *
  *              Failure:        Null
  *
- * Programmer:	Raymond Lu
- *		April 26, 2004
+ * Programmer:    Raymond Lu
+ *        April 26, 2004
  *
  *-------------------------------------------------------------------------
  */

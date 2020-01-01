@@ -79,6 +79,15 @@ static const unsigned HDF5_superblock_ver_bounds[] = {
     HDF5_SUPERBLOCK_VERSION_LATEST  /* H5F_LIBVER_LATEST */
 };
 
+/* Format version bounds for fsinfo message */
+/* This message exists starting library release v1.10 */
+static const unsigned H5O_fsinfo_ver_bounds[] = {
+    H5O_INVALID_VERSION,            /* H5F_LIBVER_EARLIEST */
+    H5O_INVALID_VERSION,            /* H5F_LIBVER_V18 */
+    H5O_FSINFO_VERSION_1,           /* H5F_LIBVER_V110 */
+    H5O_FSINFO_VERSION_LATEST       /* H5F_LIBVER_LATEST */
+};
+
 
 /*-------------------------------------------------------------------------
  * Function:    H5F__super_ext_create
@@ -784,6 +793,14 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, hbool_t initial_read)
                     HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "unable to get free-space manager info message")
 
                 /* Update changed values */
+
+                /* Version bounds check */
+                if(H5O_fsinfo_ver_bounds[H5F_HIGH_BOUND(f)] == H5O_INVALID_VERSION ||
+                   fsinfo.version > H5O_fsinfo_ver_bounds[H5F_HIGH_BOUND(f)])
+                    HGOTO_ERROR(H5E_FILE, H5E_BADRANGE, FAIL, "File space info message's version out of bounds")
+                if(f->shared->fs_version != fsinfo.version)
+                    f->shared->fs_version = fsinfo.version;
+
                 if(f->shared->fs_strategy != fsinfo.strategy) {
                     f->shared->fs_strategy = fsinfo.strategy;
 
@@ -1376,6 +1393,11 @@ H5F__super_init(H5F_t *f)
             fsinfo.eoa_pre_fsm_fsalloc = HADDR_UNDEF;
             fsinfo.mapped = FALSE;
 
+            /* Set the version for the fsinfo message */
+            if(H5O__fsinfo_set_version(f, &fsinfo) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTSET, FAIL, "can't set version of fsinfo")
+            f->shared->fs_version = fsinfo.version;
+
             for(ptype = H5F_MEM_PAGE_SUPER; ptype < H5F_MEM_PAGE_NTYPES; H5_INC_ENUM(H5F_mem_page_t, ptype))
                 fsinfo.fs_addr[ptype - 1] = HADDR_UNDEF;
 
@@ -1800,3 +1822,44 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5F__super_ext_remove_msg() */
 
+
+/*-------------------------------------------------------------------------
+ * Function:    H5O__fsinfo_set_version
+ *
+ * Purpose:     Set the version to encode the fsinfo message with.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Vailin Choi; June 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5O__fsinfo_set_version(H5F_t *f, H5O_fsinfo_t *fsinfo)
+{
+    unsigned version;           /* Message version */
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(f);
+    HDassert(fsinfo);
+
+    version = H5O_FSINFO_VERSION_1;
+
+    /* Upgrade to the version indicated by the file's low bound if higher */
+    if(H5O_fsinfo_ver_bounds[H5F_LOW_BOUND(f)] != H5O_INVALID_VERSION)
+        version = MAX(version, H5O_fsinfo_ver_bounds[H5F_LOW_BOUND(f)]);
+
+    /* Version bounds check */
+    if(H5O_fsinfo_ver_bounds[H5F_HIGH_BOUND(f)] == H5O_INVALID_VERSION ||
+       version > H5O_fsinfo_ver_bounds[H5F_HIGH_BOUND(f)])
+        HGOTO_ERROR(H5E_FILE, H5E_BADRANGE, FAIL, "File space info message's version out of bounds")
+
+    /* Set the message version */
+    fsinfo->version = version;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5O__fsinfo_set_version() */

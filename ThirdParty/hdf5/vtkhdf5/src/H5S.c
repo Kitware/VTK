@@ -23,6 +23,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5CXprivate.h"    /* API Contexts         */
 #include "H5Fprivate.h"		/* Files				*/
 #include "H5FLprivate.h"	/* Free lists                           */
 #include "H5Iprivate.h"		/* IDs			  		*/
@@ -1595,6 +1596,7 @@ herr_t
 H5Sencode(hid_t obj_id, void *buf, size_t *nalloc)
 {
     H5S_t       *dspace;
+    hid_t       temp_fapl_id = H5P_DEFAULT;
     herr_t      ret_value=SUCCEED;
 
     FUNC_ENTER_API(FAIL)
@@ -1602,10 +1604,14 @@ H5Sencode(hid_t obj_id, void *buf, size_t *nalloc)
 
     /* Check argument and retrieve object */
     if (NULL == (dspace = (H5S_t *)H5I_object_verify(obj_id, H5I_DATASPACE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace")
 
-    if(H5S_encode(dspace, (unsigned char **)&buf, nalloc, H5P_FILE_ACCESS_DEFAULT)<0)
-	HGOTO_ERROR(H5E_DATASPACE, H5E_CANTENCODE, FAIL, "can't encode dataspace")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&temp_fapl_id, H5P_CLS_FACC, H5I_INVALID_HID, TRUE) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
+
+    if(H5S_encode(dspace, (unsigned char **)&buf, nalloc)<0)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_CANTENCODE, FAIL, "can't encode dataspace")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1629,7 +1635,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc, hid_t fapl_id)
+H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc)
 {
     H5F_t       *f = NULL;      /* Fake file structure*/
     size_t      extent_size;    /* Size of serialized dataspace extent */
@@ -1640,7 +1646,7 @@ H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc, hid_t fapl_id)
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Allocate "fake" file structure */
-    if(NULL == (f = H5F_fake_alloc((uint8_t)0, fapl_id)))
+    if(NULL == (f = H5F_fake_alloc((uint8_t)0)))
 	HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, FAIL, "can't allocate fake file struct")
 
     /* Find out the size of buffer needed for extent */
@@ -1648,7 +1654,7 @@ H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc, hid_t fapl_id)
 	HGOTO_ERROR(H5E_DATASPACE, H5E_BADSIZE, FAIL, "can't find dataspace size")
 
     /* Find out the size of buffer needed for selection */
-    if((sselect_size = H5S_SELECT_SERIAL_SIZE(obj, f)) < 0)
+    if((sselect_size = H5S_SELECT_SERIAL_SIZE(obj)) < 0)
 	HGOTO_ERROR(H5E_DATASPACE, H5E_BADSIZE, FAIL, "can't find dataspace selection size")
     H5_CHECKED_ASSIGN(select_size, size_t, sselect_size, hssize_t);
 
@@ -1678,7 +1684,7 @@ H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc, hid_t fapl_id)
 
         /* Encode the selection part of dataspace.  */
         *p = pp;
-        if(H5S_SELECT_SERIALIZE(obj, p, f) < 0)
+        if(H5S_SELECT_SERIALIZE(obj, p) < 0)
             HGOTO_ERROR(H5E_DATASPACE, H5E_CANTENCODE, FAIL, "can't encode select space")
     } /* end else */
 
@@ -1772,7 +1778,7 @@ H5S_decode(const unsigned char **p)
     sizeof_size = *pp++;
 
     /* Allocate "fake" file structure */
-    if(NULL == (f = H5F_fake_alloc(sizeof_size, H5P_FILE_ACCESS_DEFAULT)))
+    if(NULL == (f = H5F_fake_alloc(sizeof_size)))
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, NULL, "can't allocate fake file struct")
 
     /* Decode size of extent information */

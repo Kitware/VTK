@@ -90,7 +90,7 @@
 static herr_t H5P__ocrt_reg_prop(H5P_genclass_t *pclass);
 
 /* Property callbacks */
-static herr_t H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size, void *udata);
+static herr_t H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size);
 static herr_t H5P__ocrt_pipeline_dec(const void **_pp, void *value);
 static herr_t H5P__ocrt_pipeline_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__ocrt_pipeline_get(hid_t prop_id, const char *name, size_t size, void *value);
@@ -1459,7 +1459,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
+H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_pline_t *pline = (const H5O_pline_t *)value;
     uint8_t **pp = (uint8_t **)_pp;

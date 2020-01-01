@@ -24,20 +24,20 @@
 /* Module Setup */
 /****************/
 
-#define H5F_FRIEND		/*suppress error about including H5Fpkg	  */
+#define H5F_FRIEND        /*suppress error about including H5Fpkg      */
 #include "H5PBmodule.h"         /* This source code file is part of the H5PB module */
 
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* Files				*/
-#include "H5FDprivate.h"	/* File drivers				*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5PBpkg.h"            /* File access				*/
-#include "H5SLprivate.h"	/* Skip List				*/
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5Fpkg.h"        /* Files                */
+#include "H5FDprivate.h"    /* File drivers                */
+#include "H5Iprivate.h"        /* IDs                      */
+#include "H5PBpkg.h"            /* File access                */
+#include "H5SLprivate.h"    /* Skip List                */
 
 
 /****************/
@@ -150,9 +150,9 @@ H5FL_DEFINE_STATIC(H5PB_t);
 H5FL_DEFINE_STATIC(H5PB_entry_t);
 
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_reset_stats
+ * Function:    H5PB_reset_stats
  *
  * Purpose:     This function was created without documentation.
  *              What follows is my best understanding of Mohamad's intent.
@@ -161,11 +161,11 @@ H5FL_DEFINE_STATIC(H5PB_entry_t);
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5PB_reset_stats(H5PB_t *page_buf)
 {
     FUNC_ENTER_NOAPI_NOERR
@@ -187,9 +187,9 @@ H5PB_reset_stats(H5PB_t *page_buf)
     FUNC_LEAVE_NOAPI(SUCCEED)
 }  /* H5PB_reset_stats() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_get_stats
+ * Function:    H5PB_get_stats
  *
  * Purpose:     This function was created without documentation.
  *              What follows is my best understanding of Mohamad's intent.
@@ -201,13 +201,13 @@ H5PB_reset_stats(H5PB_t *page_buf)
  *              --evictions: the number of metadata and raw data evictions from the page buffer layer
  *              --bypasses: the number of metadata and raw data accesses that bypass the page buffer layer
  *
- * Return:	    Non-negative on success/Negative on failure
+ * Return:        Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5PB_get_stats(const H5PB_t *page_buf, unsigned accesses[2], unsigned hits[2],
     unsigned misses[2], unsigned evictions[2], unsigned bypasses[2])
 {
@@ -230,18 +230,18 @@ H5PB_get_stats(const H5PB_t *page_buf, unsigned accesses[2], unsigned hits[2],
     FUNC_LEAVE_NOAPI(SUCCEED)
 }  /* H5PB_get_stats */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_print_stats()
+ * Function:    H5PB_print_stats()
  *
  * Purpose:     This function was created without documentation.
  *              What follows is my best understanding of Mohamad's intent.
  *
  *              Print out statistics collected for the page buffer layer.
  *
- * Return:	    Non-negative on success/Negative on failure
+ * Return:        Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -252,7 +252,7 @@ H5PB_print_stats(const H5PB_t *page_buf)
 
     HDassert(page_buf);
 
-    printf("PAGE BUFFER STATISTICS:\n");
+    HDprintf("PAGE BUFFER STATISTICS:\n");
 
     HDprintf("******* METADATA\n");
     HDprintf("\t Total Accesses: %u\n", page_buf->accesses[0]);
@@ -275,15 +275,15 @@ H5PB_print_stats(const H5PB_t *page_buf)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5PB_print_stats */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_create
+ * Function:    H5PB_create
  *
- * Purpose:	Create and setup the PB on the file.
+ * Purpose:    Create and setup the PB on the file.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -314,7 +314,7 @@ H5PB_create(H5F_t *f, size_t size, unsigned page_buf_min_meta_perc, unsigned pag
 
     /* Allocate the new page buffering structure */
     if(NULL == (page_buf = H5FL_CALLOC(H5PB_t)))
-	HGOTO_ERROR(H5E_PAGEBUF, H5E_NOSPACE, FAIL, "memory allocation failed")
+    HGOTO_ERROR(H5E_PAGEBUF, H5E_NOSPACE, FAIL, "memory allocation failed")
 
     page_buf->max_size = size;
     H5_CHECKED_ASSIGN(page_buf->page_size, size_t, f->shared->fs_page_size, hsize_t);
@@ -322,7 +322,7 @@ H5PB_create(H5F_t *f, size_t size, unsigned page_buf_min_meta_perc, unsigned pag
     page_buf->min_raw_perc = page_buf_min_raw_perc;
 
     /* Calculate the minimum page count for metadata and raw data
-     * based on the fractions provided 
+     * based on the fractions provided
      */
     page_buf->min_meta_count = (unsigned)((size * page_buf_min_meta_perc) / (f->shared->fs_page_size * 100));
     page_buf->min_raw_count = (unsigned)((size * page_buf_min_raw_perc) / (f->shared->fs_page_size * 100));
@@ -353,15 +353,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB_create */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB__flush_cb
+ * Function:    H5PB__flush_cb
  *
- * Purpose:	Callback to flush PB skiplist entries.
+ * Purpose:    Callback to flush PB skiplist entries.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -387,15 +387,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB__flush_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_flush
+ * Function:    H5PB_flush
  *
- * Purpose:	Flush/Free all the PB entries to the file.
+ * Purpose:    Flush/Free all the PB entries to the file.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -422,15 +422,15 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB_flush */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB__dest_cb
+ * Function:    H5PB__dest_cb
  *
- * Purpose:	Callback to free PB skiplist entries.
+ * Purpose:    Callback to free PB skiplist entries.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -459,15 +459,15 @@ H5PB__dest_cb(void *item, void H5_ATTR_UNUSED *key, void *_op_data)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5PB__dest_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_dest
+ * Function:    H5PB_dest
  *
- * Purpose:	Flush and destroy the PB on the file if it exists.
+ * Purpose:    Flush and destroy the PB on the file if it exists.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -513,22 +513,22 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB_dest */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_add_new_page
+ * Function:    H5PB_add_new_page
  *
- * Purpose:	Add a new page to the new page skip list. This is called 
- *              from the MF layer when a new page is allocated to 
- *              indicate to the page buffer layer that a read of the page 
+ * Purpose:    Add a new page to the new page skip list. This is called
+ *              from the MF layer when a new page is allocated to
+ *              indicate to the page buffer layer that a read of the page
  *              from the file is not necessary since it's an empty page.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5PB_add_new_page(H5F_t *f, H5FD_mem_t type, haddr_t page_addr)
 {
     H5PB_t *page_buf = f->shared->page_buf;
@@ -571,22 +571,22 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB_add_new_page */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_update_entry
+ * Function:    H5PB_update_entry
  *
- * Purpose:	In PHDF5, entries that are written by other processes and just 
- *              marked clean by this process have to have their corresponding 
- *              pages updated if they exist in the page buffer. 
+ * Purpose:    In PHDF5, entries that are written by other processes and just
+ *              marked clean by this process have to have their corresponding
+ *              pages updated if they exist in the page buffer.
  *              This routine checks and update the pages.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5PB_update_entry(H5PB_t *page_buf, haddr_t addr, size_t size, const void *buf)
 {
     H5PB_entry_t *page_entry;   /* Pointer to the corresponding page entry */
@@ -618,12 +618,12 @@ H5PB_update_entry(H5PB_t *page_buf, haddr_t addr, size_t size, const void *buf)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5PB_update_entry */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5PB_remove_entry
  *
  * Purpose:     Remove possible metadata entry with ADDR from the PB cache.
- *              This is in response to the data corruption bug from fheap.c 
+ *              This is in response to the data corruption bug from fheap.c
  *              with page buffering + page strategy.
  *              Note: Large metadata page bypasses the PB cache.
  *              Note: Update of raw data page (large or small sized) is handled by the PB cache.
@@ -669,16 +669,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5PB_remove_entry */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_read
+ * Function:    H5PB_read
  *
- * Purpose:	Reads in the data from the page containing it if it exists 
+ * Purpose:    Reads in the data from the page containing it if it exists
  *              in the PB cache; otherwise reads in the page through the VFD.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -739,7 +739,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
                 page_buf->bypasses[0] ++;
         } /* end if */
 
-        /* If page buffering is disabled, or if this is a large metadata access, 
+        /* If page buffering is disabled, or if this is a large metadata access,
          * or if this is parallel raw data access, we are done here
          */
         if(NULL == page_buf || (size >= page_buf->page_size && H5FD_MEM_DRAW != type) ||
@@ -765,7 +765,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
         last_page_addr = ((addr + size - 1) / page_buf->page_size) * page_buf->page_size;
 
         /* How many pages does this write span */
-        num_touched_pages = (last_page_addr / page_buf->page_size + 1) - 
+        num_touched_pages = (last_page_addr / page_buf->page_size + 1) -
                 (first_page_addr / page_buf->page_size);
         if(first_page_addr == last_page_addr) {
             HDassert(1 == num_touched_pages);
@@ -818,7 +818,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
                         offset = addr - first_page_addr;
                         HDassert(page_buf->page_size > offset);
 
-                        HDmemcpy(buf, (uint8_t *)page_entry->page_buf_ptr + offset, 
+                        HDmemcpy(buf, (uint8_t *)page_entry->page_buf_ptr + offset,
                                  page_buf->page_size - (size_t)offset);
 
                         /* move to top of LRU list */
@@ -826,7 +826,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
                     } /* end if */
                     /* special handling for the last page if it is not a full page access */
                     else if(num_touched_pages > 1 && i == num_touched_pages-1 && search_addr < addr+size) {
-                        offset = (num_touched_pages-2)*page_buf->page_size + 
+                        offset = (num_touched_pages-2)*page_buf->page_size +
                             (page_buf->page_size - (addr - first_page_addr));
 
                         HDmemcpy((uint8_t *)buf + offset, page_entry->page_buf_ptr,
@@ -839,7 +839,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
                     else {
                         offset = i*page_buf->page_size;
 
-                        HDmemcpy((uint8_t *)buf+(i*page_buf->page_size) , page_entry->page_buf_ptr, 
+                        HDmemcpy((uint8_t *)buf+(i*page_buf->page_size) , page_entry->page_buf_ptr,
                              page_buf->page_size);
                     } /* end else */
                 } /* end if */
@@ -883,7 +883,7 @@ H5PB_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/
                 else
                     page_buf->hits[0]++;
             } /* end if */
-            /* if not found */ 
+            /* if not found */
             else {
                 void *new_page_buf = NULL;
                 size_t page_size = page_buf->page_size;
@@ -965,17 +965,17 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PB_read() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB_write
+ * Function:    H5PB_write
  *
  * Purpose: Write data into the Page Buffer. If the page exists in the
  *          cache, update it; otherwise read it from disk, update it, and
  *          insert into cache.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
@@ -1035,7 +1035,7 @@ H5PB_write(H5F_t *f, H5FD_mem_t type, haddr_t addr,
                 page_buf->bypasses[0]++;
         } /* end if */
 
-        /* If page buffering is disabled, or if this is a large metadata access, 
+        /* If page buffering is disabled, or if this is a large metadata access,
          * or if this is a parallel raw data access, we are done here
          */
         if(NULL == page_buf || (size >= page_buf->page_size && H5FD_MEM_DRAW != type) ||
@@ -1069,7 +1069,7 @@ H5PB_write(H5F_t *f, H5FD_mem_t type, haddr_t addr,
         last_page_addr = (addr + size - 1) / page_buf->page_size * page_buf->page_size;
 
         /* how many pages does this write span */
-        num_touched_pages = (last_page_addr/page_buf->page_size + 1) - 
+        num_touched_pages = (last_page_addr/page_buf->page_size + 1) -
             (first_page_addr / page_buf->page_size);
         if(first_page_addr == last_page_addr) {
             HDassert(1 == num_touched_pages);
@@ -1110,18 +1110,18 @@ H5PB_write(H5F_t *f, H5FD_mem_t type, haddr_t addr,
                 } /* end if */
             } /* end if */
             /* Special handling for the last page if it is not a full page update */
-            else if(num_touched_pages > 1 && i == (num_touched_pages - 1) && 
+            else if(num_touched_pages > 1 && i == (num_touched_pages - 1) &&
                     (search_addr + page_buf->page_size) != (addr + size)) {
                 HDassert(search_addr+page_buf->page_size > addr+size);
 
                 /* Lookup the page in the skip list */
                 page_entry = (H5PB_entry_t *)H5SL_search(page_buf->slist_ptr, (void *)(&search_addr));
                 if(page_entry) {
-                    offset = (num_touched_pages - 2) * page_buf->page_size + 
+                    offset = (num_touched_pages - 2) * page_buf->page_size +
                         (page_buf->page_size - (addr - first_page_addr));
 
                     /* Update page's data */
-                    HDmemcpy(page_entry->page_buf_ptr, (const uint8_t *)buf + offset, 
+                    HDmemcpy(page_entry->page_buf_ptr, (const uint8_t *)buf + offset,
                              (size_t)((addr + size) - last_page_addr));
 
                     /* Mark page dirty and push to top of LRU */
@@ -1185,7 +1185,7 @@ H5PB_write(H5F_t *f, H5FD_mem_t type, haddr_t addr,
                 else
                     page_buf->hits[0]++;
             } /* end if */
-            /* If not found */ 
+            /* If not found */
             else {
                 void *new_page_buf;
                 size_t page_size = page_buf->page_size;
@@ -1207,7 +1207,7 @@ H5PB_write(H5F_t *f, H5FD_mem_t type, haddr_t addr,
                         /* Write to VFD and return */
                         if(H5FD_write(file, type, addr, size, buf) < 0)
                             HGOTO_ERROR(H5E_PAGEBUF, H5E_WRITEERROR, FAIL, "driver write request failed")
-                        
+
                         /* Break out of loop */
                         break;
                     } /* end if */
@@ -1305,16 +1305,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PB_write() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB__insert_entry()
+ * Function:    H5PB__insert_entry()
  *
- * Purpose: ??? 
+ * Purpose: ???
  *
  *          This function was created without documentation.
  *          What follows is my best understanding of Mohamad's intent.
  *
- *	    Insert the supplied page into the page buffer, both the
+ *        Insert the supplied page into the page buffer, both the
  *          skip list and the LRU.
  *
  *          As best I can tell, this function imposes no limit on the
@@ -1324,13 +1324,13 @@ done:
  *                                               JRM -- 12/22/16
  *
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5PB__insert_entry(H5PB_t *page_buf, H5PB_entry_t *page_entry)
 {
     herr_t ret_value = SUCCEED;    /* Return value */
@@ -1355,29 +1355,29 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PB__insert_entry() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB__make_space()
+ * Function:    H5PB__make_space()
  *
- * Purpose: ??? 
+ * Purpose: ???
  *
  *          This function was created without documentation.
  *          What follows is my best understanding of Mohamad's intent.
  *
- *          If necessary and if possible, evict a page from the page 
- *          buffer to make space for the supplied page.  Depending on 
- *	    the page buffer configuration and contents, and the page 
+ *          If necessary and if possible, evict a page from the page
+ *          buffer to make space for the supplied page.  Depending on
+ *        the page buffer configuration and contents, and the page
  *          supplied this may or may not be possible.
  *
  *                                             JRM -- 12/22/16
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
-static htri_t 
+static htri_t
 H5PB__make_space(H5F_t *f, H5PB_t *page_buf, H5FD_mem_t inserted_type)
 {
     H5PB_entry_t *page_entry;   /* Pointer to page eviction candidate */
@@ -1402,7 +1402,7 @@ H5PB__make_space(H5F_t *f, H5PB_t *page_buf, H5FD_mem_t inserted_type)
 
         /* check the metadata threshold before evicting metadata items */
         while(1) {
-            if(page_entry->prev && H5F_MEM_PAGE_META == page_entry->type && 
+            if(page_entry->prev && H5F_MEM_PAGE_META == page_entry->type &&
                     page_buf->min_meta_count >= page_buf->meta_count)
                 page_entry = page_entry->prev;
             else
@@ -1419,7 +1419,7 @@ H5PB__make_space(H5F_t *f, H5PB_t *page_buf, H5FD_mem_t inserted_type)
 
         /* check the raw data threshold before evicting raw data items */
         while(1) {
-            if(page_entry->prev && (H5F_MEM_PAGE_DRAW == page_entry->type || H5F_MEM_PAGE_GHEAP == page_entry->type) && 
+            if(page_entry->prev && (H5F_MEM_PAGE_DRAW == page_entry->type || H5F_MEM_PAGE_GHEAP == page_entry->type) &&
                     page_buf->min_raw_count >= page_buf->raw_count)
                 page_entry = page_entry->prev;
             else
@@ -1460,19 +1460,19 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PB__make_space() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5PB__write_entry()
+ * Function:    H5PB__write_entry()
  *
- * Purpose: ??? 
+ * Purpose: ???
  *
  *          This function was created without documentation.
  *          What follows is my best understanding of Mohamad's intent.
  *
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */

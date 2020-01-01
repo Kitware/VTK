@@ -44,7 +44,7 @@
 
 /* First block in page */
 #define H5MP_PAGE_FIRST_BLOCK(p) \
-    (H5MP_page_blk_t *)((unsigned char *)(p) + H5MP_BLOCK_ALIGN(sizeof(H5MP_page_t)))
+    (H5MP_page_blk_t *)((void *)((unsigned char *)(p) + H5MP_BLOCK_ALIGN(sizeof(H5MP_page_t))))
 
 
 /******************/
@@ -294,7 +294,7 @@ found:
         H5MP_page_blk_t *new_free;          /* New free block created */
 
         /* Carve out new free block after block to allocate */
-        new_free = (H5MP_page_blk_t *)(((unsigned char *)alloc_free) + needed);
+        new_free = (H5MP_page_blk_t *)((void *)(((unsigned char *)alloc_free) + needed));
 
         /* Link into existing lists */
         new_free->next = alloc_free->next;
@@ -361,7 +361,7 @@ H5MP_free(H5MP_pool_t *mp, void *spc)
     HDassert(spc);
 
     /* Get block header for space to free */
-    spc_blk = (H5MP_page_blk_t *)(((unsigned char *)spc) - H5MP_BLOCK_ALIGN(sizeof(H5MP_page_blk_t)));
+    spc_blk = (H5MP_page_blk_t *)((void *)(((unsigned char *)spc) - H5MP_BLOCK_ALIGN(sizeof(H5MP_page_blk_t))));
 
     /* Mark block as free */
     HDassert(spc_blk->is_free == FALSE);

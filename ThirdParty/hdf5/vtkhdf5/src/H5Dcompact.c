@@ -80,6 +80,7 @@ const H5D_layout_ops_t H5D_LOPS_COMPACT[1] = {{
     H5D__compact_construct,
     NULL,
     H5D__compact_is_space_alloc,
+    NULL,
     H5D__compact_io_init,
     H5D__contig_read,
     H5D__contig_write,

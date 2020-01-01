@@ -26,9 +26,9 @@
 #define _H5Opublic_H
 
 /* Public headers needed by this file */
-#include "H5public.h"        /* Generic Functions            */
-#include "H5Ipublic.h"        /* IDs                      */
-#include "H5Lpublic.h"        /* Links                  */
+#include "H5public.h"		/* Generic Functions			*/
+#include "H5Ipublic.h"		/* IDs			  		*/
+#include "H5Lpublic.h"		/* Links		  		*/
 
 /*****************/
 /* Public Macros */
@@ -38,7 +38,7 @@
 #define H5O_COPY_SHALLOW_HIERARCHY_FLAG (0x0001u)   /* Copy only immediate members */
 #define H5O_COPY_EXPAND_SOFT_LINK_FLAG  (0x0002u)   /* Expand soft links into new objects */
 #define H5O_COPY_EXPAND_EXT_LINK_FLAG   (0x0004u)   /* Expand external links into new objects */
-#define H5O_COPY_EXPAND_REFERENCE_FLAG    (0x0008u)   /* Copy objects that are pointed by references */
+#define H5O_COPY_EXPAND_REFERENCE_FLAG  (0x0008u)   /* Copy objects that are pointed by references */
 #define H5O_COPY_WITHOUT_ATTR_FLAG      (0x0010u)   /* Copy object without copying attributes */
 #define H5O_COPY_PRESERVE_NULL_FLAG     (0x0020u)   /* Copy NULL messages (empty space) */
 #define H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG (0x0040u)   /* Merge committed datatypes in dest file */
@@ -155,13 +155,13 @@ typedef H5O_mcdt_search_ret_t (*H5O_mcdt_search_cb_t)(void *op_data);
 /********************/
 
 
+/*********************/
+/* Public Prototypes */
+/*********************/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*********************/
-/* Public Prototypes */
-/*********************/
 H5_DLL hid_t H5Oopen(hid_t loc_id, const char *name, hid_t lapl_id);
 H5_DLL hid_t H5Oopen_by_addr(hid_t loc_id, haddr_t addr);
 H5_DLL hid_t H5Oopen_by_idx(hid_t loc_id, const char *group_name,

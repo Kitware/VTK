@@ -32,13 +32,13 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5FOprivate.h"        /* File objects                         */
-#include "H5Gpkg.h"		/* Groups		  		*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5Lprivate.h"         /* Links                                */
-#include "H5MMprivate.h"	/* Memory management			*/
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5FOprivate.h"        /* File objects                             */
+#include "H5Gpkg.h"             /* Groups                                   */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5Lprivate.h"         /* Links                                    */
+#include "H5MMprivate.h"        /* Memory management                        */
 
 
 /****************/
@@ -805,12 +805,11 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_iterate
+ * Function:    H5G_iterate
  *
  * Purpose:     Private function for iterating over links in a group
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *	        Oct  3, 2005
@@ -823,10 +822,10 @@ H5G_iterate(hid_t loc_id, const char *group_name,
     const H5G_link_iterate_t *lnk_op, void *op_data)
 {
     H5G_loc_t	loc;            /* Location of parent for group */
-    hid_t gid = -1;             /* ID of group to iterate over */
-    H5G_t *grp = NULL;          /* Pointer to group data structure to iterate over */
-    H5G_iter_appcall_ud_t udata; /* User data for callback */
-    herr_t ret_value = FAIL;    /* Return value */
+    hid_t gid = H5I_INVALID_HID;    /* ID of group to iterate over */
+    H5G_t *grp = NULL;              /* Pointer to group data structure to iterate over */
+    H5G_iter_appcall_ud_t udata;    /* User data for callback */
+    herr_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -835,8 +834,7 @@ H5G_iterate(hid_t loc_id, const char *group_name,
     HDassert(last_lnk);
     HDassert(lnk_op && lnk_op->op_func.op_new);
 
-    /*
-     * Open the group on which to operate.  We also create a group ID which
+    /* Open the group on which to operate.  We also create a group ID which
      * we can pass to the application-defined operator.
      */
     if(H5G_loc(loc_id, &loc) < 0)
@@ -860,7 +858,7 @@ done:
     if(gid > 0) {
         if(H5I_dec_app_ref(gid) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close group")
-    } /* end if */
+    }
     else if(grp && H5G_close(grp) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release group")
 
@@ -1054,9 +1052,9 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_visit
+ * Function:    H5G_visit
  *
- * Purpose:	Recursively visit all the links in a group and all
+ * Purpose:     Recursively visit all the links in a group and all
  *              the groups that are linked to from that group.  Links within
  *              each group are visited according to the order within the
  *              specified index (unless the specified index does not exist for
@@ -1068,18 +1066,13 @@ done:
  *              callback with more than one link that points to a particular
  *              _object_.
  *
- * Return:	Success:	The return value of the first operator that
- *				returns non-zero, or zero if all members were
- *				processed with no operator returning non-zero.
+ * Return:      Success:    The return value of the first operator that
+ *                          returns non-zero, or zero if all members were
+ *                          processed with no operator returning non-zero.
  *
- *		Failure:	Negative if something goes wrong within the
- *				library, or the negative value returned by one
- *				of the operators.
- *
- *
- *
- * Programmer:	Quincey Koziol
- *		November 4 2007
+ *              Failure:    Negative if something goes wrong within the
+ *                          library, or the negative value returned by one
+ *                          of the operators.
  *
  *-------------------------------------------------------------------------
  */
@@ -1090,7 +1083,7 @@ H5G_visit(hid_t loc_id, const char *group_name, H5_index_t idx_type,
     H5G_iter_visit_ud_t udata;      /* User data for callback */
     H5O_linfo_t	linfo;		    /* Link info message */
     htri_t linfo_exists;            /* Whether the link info message exists */
-    hid_t       gid = (-1);         /* Group ID */
+    hid_t       gid = H5I_INVALID_HID;         /* Group ID */
     H5G_t      *grp = NULL;         /* Group opened */
     H5G_loc_t	loc;                /* Location of group passed in */
     H5G_loc_t	start_loc;          /* Location of starting group */
@@ -1193,7 +1186,7 @@ done:
     if(gid > 0) {
         if(H5I_dec_app_ref(gid) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close group")
-    } /* end if */
+    }
     else if(grp && H5G_close(grp) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release group")
 
@@ -1260,7 +1253,7 @@ H5G_get_create_plist(const H5G_t *grp)
 
     /* Check for the group having a link info message */
     if((linfo_exists = H5G__obj_get_linfo(&(grp->oloc), &linfo)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to read object header")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to read object header")
     if(linfo_exists) {
         /* Set the link info for the property list */
         if(H5P_set(new_plist, H5G_CRT_LINK_INFO_NAME, &linfo) < 0)

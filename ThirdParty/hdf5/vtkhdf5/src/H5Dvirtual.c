@@ -78,6 +78,7 @@
 /********************/
 
 /* Layout operation callbacks */
+static hbool_t H5D__virtual_is_data_cached(const H5D_shared_t *shared_dset);
 static herr_t H5D__virtual_read(H5D_io_info_t *io_info, const H5D_type_info_t
     *type_info, hsize_t nelmts, const H5S_t *file_space, const H5S_t *mem_space,
     H5D_chunk_map_t *fm);
@@ -121,6 +122,7 @@ const H5D_layout_ops_t H5D_LOPS_VIRTUAL[1] = {{
     NULL,
     H5D__virtual_init,
     H5D__virtual_is_space_alloc,
+    H5D__virtual_is_data_cached,
     NULL,
     H5D__virtual_read,
     H5D__virtual_write,
@@ -417,11 +419,6 @@ H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout)
     hsize_t tmp_nentries;               /* Temp. variable for # of VDS entries */
     uint32_t chksum;                    /* Checksum for heap data */
     size_t i;                           /* Local index variable */
-    H5P_genplist_t *fapl_plist;         /* The file access property list */
-    hid_t new_fapl_id;                  /* The file access property list ID */
-    H5F_libver_t low_bound = H5F_LIBVER_V110;   /* Set the low bound in fapl to latest */
-    H5F_libver_t high_bound = H5F_LIBVER_V110;  /* Set the high bound in fapl to latest */
-    H5F_t *tmp_f = NULL;                /* Pointer to faked file structure */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -434,22 +431,8 @@ H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout)
     /* Create block if # of used entries > 0 */
     if(layout->storage.u.virt.list_nused > 0) {
 
-        /* Make a copy of the default file access property list */
-        if(NULL == (fapl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_FILE_ACCESS_ID_g)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
-
-        /* Set latest format in fapl_plist for virtual layout encoding */
-        if(H5P_set(fapl_plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &low_bound) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'low' bound for library format versions")
-        if(H5P_set(fapl_plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &high_bound) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'high' bound for library format versions")
-        /* Copy and return the fapl id */
-        if((new_fapl_id = H5P_copy_plist(fapl_plist, FALSE)) < 0)
-            HGOTO_ERROR(H5E_INTERNAL, H5E_CANTINIT, FAIL, "can't copy file access property list")
-
-        /* Allocate "fake" file structure with the fapl setting */
-        if(NULL == (tmp_f = H5F_fake_alloc((uint8_t)0, new_fapl_id)))
-            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, FAIL, "can't allocate fake file struct")
+        /* Set the low/high bounds according to 'f' for the API context */
+        H5CX_set_libver_bounds(f);
 
         /* Allocate array for caching results of strlen */
         if(NULL == (str_size = (size_t *)H5MM_malloc(2 * layout->storage.u.virt.list_nused * sizeof(size_t))))
@@ -480,12 +463,12 @@ H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout)
             block_size += str_size[(2 * i) + 1];
 
             /* Source selection */
-            if((select_serial_size = H5S_SELECT_SERIAL_SIZE(layout->storage.u.virt.list[i].source_select, tmp_f)) < 0)
+            if((select_serial_size = H5S_SELECT_SERIAL_SIZE(layout->storage.u.virt.list[i].source_select)) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTENCODE, FAIL, "unable to check dataspace selection size")
             block_size += (size_t)select_serial_size;
 
             /* Virtual dataset selection */
-            if((select_serial_size = H5S_SELECT_SERIAL_SIZE(layout->storage.u.virt.list[i].source_dset.virtual_select, tmp_f)) < 0)
+            if((select_serial_size = H5S_SELECT_SERIAL_SIZE(layout->storage.u.virt.list[i].source_dset.virtual_select)) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTENCODE, FAIL, "unable to check dataspace selection size")
             block_size += (size_t)select_serial_size;
         } /* end for */
@@ -522,11 +505,11 @@ H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout)
             heap_block_p += str_size[(2 * i) + 1];
 
             /* Source selection */
-            if(H5S_SELECT_SERIALIZE(layout->storage.u.virt.list[i].source_select, &heap_block_p, tmp_f) < 0)
+            if(H5S_SELECT_SERIALIZE(layout->storage.u.virt.list[i].source_select, &heap_block_p) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to serialize source selection")
 
             /* Virtual selection */
-		  if(H5S_SELECT_SERIALIZE(layout->storage.u.virt.list[i].source_dset.virtual_select, &heap_block_p, tmp_f) < 0)
+		  if(H5S_SELECT_SERIALIZE(layout->storage.u.virt.list[i].source_dset.virtual_select, &heap_block_p) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to serialize virtual selection")
         } /* end for */
 
@@ -540,10 +523,6 @@ H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout)
     } /* end if */
 
 done:
-    /* Release fake file structure */
-    if(tmp_f && H5F_fake_free(tmp_f) < 0)
-        HDONE_ERROR(H5E_DATASPACE, H5E_CANTRELEASE, FAIL, "unable to release fake file struct")
-
     heap_block = (uint8_t *)H5MM_xfree(heap_block);
     str_size = (size_t *)H5MM_xfree(str_size);
 
@@ -2232,6 +2211,54 @@ H5D__virtual_is_space_alloc(const H5O_storage_t H5_ATTR_UNUSED *storage)
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__virtual_is_space_alloc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5D__virtual_is_data_cached
+ *
+ * Purpose:     Query if raw data is cached for dataset
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Neil Fortner
+ *              Wednessday, March 6, 2016
+ *
+ *-------------------------------------------------------------------------
+ */
+static hbool_t
+H5D__virtual_is_data_cached(const H5D_shared_t *shared_dset)
+{
+    const H5O_storage_virtual_t *storage;   /* Convenience pointer */
+    size_t i, j;                            /* Local index variables */
+    hbool_t ret_value = FALSE;              /* Return value */
+
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Sanity checks */
+    HDassert(shared_dset);
+    storage = &shared_dset->layout.storage.u.virt;
+
+    /* Iterate over mappings */
+    for(i = 0; i < storage->list_nused; i++)
+        /* Check for "printf" source dataset resolution */
+        if(storage->list[i].psfn_nsubs || storage->list[i].psdn_nsubs) {
+            /* Iterate over sub-source dsets */
+            for(j = storage->list[i].sub_dset_io_start; j < storage->list[i].sub_dset_io_end; j++)
+                /* Check for cahced data in source dset */
+                if(storage->list[i].sub_dset[j].dset
+                        && storage->list[i].sub_dset[j].dset->shared->layout.ops->is_data_cached
+                        && storage->list[i].sub_dset[j].dset->shared->layout.ops->is_data_cached(storage->list[i].sub_dset[j].dset->shared))
+                    HGOTO_DONE(TRUE);
+        } /* end if */
+        else
+            if(storage->list[i].source_dset.dset
+                    && storage->list[i].source_dset.dset->shared->layout.ops->is_data_cached
+                    && storage->list[i].source_dset.dset->shared->layout.ops->is_data_cached(storage->list[i].source_dset.dset->shared))
+                HGOTO_DONE(TRUE);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5D__virtual_is_data_cached() */
 
 
 /*-------------------------------------------------------------------------

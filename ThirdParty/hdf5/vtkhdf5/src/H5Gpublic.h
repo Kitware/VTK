@@ -37,10 +37,6 @@
 /* Public Macros */
 /*****************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*******************/
 /* Public Typedefs */
 /*******************/
@@ -62,6 +58,7 @@ typedef struct H5G_info_t {
     hbool_t     mounted;                /* Whether group has a file mounted on it */
 } H5G_info_t;
 
+
 /********************/
 /* Public Variables */
 /********************/
@@ -70,6 +67,10 @@ typedef struct H5G_info_t {
 /*********************/
 /* Public Prototypes */
 /*********************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 H5_DLL hid_t H5Gcreate2(hid_t loc_id, const char *name, hid_t lcpl_id,
     hid_t gcpl_id, hid_t gapl_id);
 H5_DLL hid_t H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id);

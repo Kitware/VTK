@@ -702,8 +702,9 @@ typedef enum H5F_mem_page_t {
 
 /* Type of prefix for opening prefixed files */
 typedef enum H5F_prefix_open_t {
-    H5F_PREFIX_VDS,             /* Virtual dataset prefix */
-    H5F_PREFIX_ELINK            /* External link prefix */
+    H5F_PREFIX_VDS   = 0,           /* Virtual dataset prefix */
+    H5F_PREFIX_ELINK = 1,           /* External link prefix   */
+    H5F_PREFIX_EFILE = 2            /* External file prefix   */
 } H5F_prefix_open_t;
 
 
@@ -827,7 +828,7 @@ H5_DLL void H5F_addr_decode_len(size_t addr_len, const uint8_t **pp, haddr_t *ad
 H5_DLL void H5F_sfile_assert_num(unsigned n);
 
 /* Routines for creating & destroying "fake" file structures */
-H5_DLL H5F_t *H5F_fake_alloc(uint8_t sizeof_size, hid_t fapl_id);
+H5_DLL H5F_t *H5F_fake_alloc(uint8_t sizeof_size);
 H5_DLL herr_t H5F_fake_free(H5F_t *f);
 
 /* Superblock related routines */

@@ -149,8 +149,8 @@ typedef struct H5S_sel_iter_op_t {
 #define H5S_SELECT_GET_SEQ_LIST(S,FLAGS,ITER,MAXSEQ,MAXBYTES,NSEQ,NBYTES,OFF,LEN)             ((*(S)->select.type->get_seq_list)(S,FLAGS,ITER,MAXSEQ,MAXBYTES,NSEQ,NBYTES,OFF,LEN))
 #define H5S_SELECT_VALID(S)             ((*(S)->select.type->is_valid)(S))
 #define H5S_SELECT_RELEASE(S)           ((*(S)->select.type->release)(S))
-#define H5S_SELECT_SERIAL_SIZE(S,F)     ((*(S)->select.type->serial_size)(S,F))
-#define H5S_SELECT_SERIALIZE(S,BUF,F)   ((*(S)->select.type->serialize)(S,BUF,F))
+#define H5S_SELECT_SERIAL_SIZE(S)       ((*(S)->select.type->serial_size)(S))
+#define H5S_SELECT_SERIALIZE(S,BUF)     ((*(S)->select.type->serialize)(S,BUF))
 #define H5S_SELECT_BOUNDS(S,START,END)  ((*(S)->select.type->bounds)(S,START,END))
 #define H5S_SELECT_OFFSET(S, OFFSET)    ((*(S)->select.type->offset)(S, OFFSET))
 #define H5S_SELECT_IS_CONTIGUOUS(S)     ((*(S)->select.type->is_contiguous)(S))
@@ -175,8 +175,8 @@ typedef struct H5S_sel_iter_op_t {
 #define H5S_SELECT_GET_SEQ_LIST(S,FLAGS,ITER,MAXSEQ,MAXBYTES,NSEQ,NBYTES,OFF,LEN)       (H5S_select_get_seq_list(S,FLAGS,ITER,MAXSEQ,MAXBYTES,NSEQ,NBYTES,OFF,LEN))
 #define H5S_SELECT_VALID(S)             (H5S_select_valid(S))
 #define H5S_SELECT_RELEASE(S)           (H5S_select_release(S))
-#define H5S_SELECT_SERIAL_SIZE(S,F)     (H5S_select_serial_size(S,F))
-#define H5S_SELECT_SERIALIZE(S,BUF,F)   (H5S_select_serialize(S,BUF,F))
+#define H5S_SELECT_SERIAL_SIZE(S)       (H5S_select_serial_size(S))
+#define H5S_SELECT_SERIALIZE(S,BUF)     (H5S_select_serialize(S,BUF))
 #define H5S_SELECT_BOUNDS(S,START,END)  (H5S_get_select_bounds(S,START,END))
 #define H5S_SELECT_OFFSET(S, OFFSET)    (H5S_get_select_offset(S, OFFSET))
 #define H5S_SELECT_IS_CONTIGUOUS(S)     (H5S_select_is_contiguous(S))
@@ -220,7 +220,7 @@ H5_DLL herr_t H5S_get_validated_dataspace(hid_t space_id, const H5S_t **space/*o
 H5_DLL H5S_t *H5S_create_simple(unsigned rank, const hsize_t dims[/*rank*/],
     const hsize_t maxdims[/*rank*/]);
 H5_DLL herr_t H5S_set_version(H5F_t *f, H5S_t *ds);
-H5_DLL herr_t H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc, hid_t fapl_id);
+H5_DLL herr_t H5S_encode(H5S_t *obj, unsigned char **p, size_t *nalloc);
 H5_DLL H5S_t *H5S_decode(const unsigned char **p);
 H5_DLL herr_t H5S_debug(H5F_t *f, const void *_mesg, FILE *stream, int indent,
     int fwidth);
@@ -255,8 +255,8 @@ H5_DLL herr_t H5S_select_release(H5S_t *ds);
 H5_DLL herr_t H5S_select_get_seq_list(const H5S_t *space, unsigned flags,
     H5S_sel_iter_t *iter, size_t maxseq, size_t maxbytes,
     size_t *nseq, size_t *nbytes, hsize_t *off, size_t *len);
-H5_DLL hssize_t H5S_select_serial_size(const H5S_t *space, H5F_t *f);
-H5_DLL herr_t H5S_select_serialize(const H5S_t *space, uint8_t **p, H5F_t *f);
+H5_DLL hssize_t H5S_select_serial_size(const H5S_t *space);
+H5_DLL herr_t H5S_select_serialize(const H5S_t *space, uint8_t **p);
 H5_DLL htri_t H5S_select_is_contiguous(const H5S_t *space);
 H5_DLL htri_t H5S_select_is_single(const H5S_t *space);
 H5_DLL htri_t H5S_select_is_regular(const H5S_t *space);
@@ -306,7 +306,7 @@ H5_DLL hsize_t H5S_hyper_get_first_inc_block(const H5S_t *space,
 H5_DLL herr_t H5S_select_iter_init(H5S_sel_iter_t *iter, const H5S_t *space, size_t elmt_size);
 H5_DLL herr_t H5S_select_iter_coords(const H5S_sel_iter_t *sel_iter, hsize_t *coords);
 H5_DLL hsize_t H5S_select_iter_nelmts(const H5S_sel_iter_t *sel_iter);
-H5_DLL herr_t H5S_select_iter_next(H5S_sel_iter_t *sel_iter, hsize_t nelem);
+H5_DLL herr_t H5S_select_iter_next(H5S_sel_iter_t *sel_iter, size_t nelem);
 H5_DLL herr_t H5S_select_iter_release(H5S_sel_iter_t *sel_iter);
 
 #ifdef H5_HAVE_PARALLEL

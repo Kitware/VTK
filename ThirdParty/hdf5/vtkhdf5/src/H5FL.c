@@ -642,7 +642,7 @@ H5FL__reg_term(void)
         tmp = H5FL_reg_gc_head.first->next;
 
 #ifdef H5FL_DEBUG
-printf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_reg_gc_head.first->list->name, (int)H5FL_reg_gc_head.first->list->allocated);
+HDprintf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_reg_gc_head.first->list->name, (int)H5FL_reg_gc_head.first->list->allocated);
 #endif /* H5FL_DEBUG */
         /* Check if the list has allocations outstanding */
         if(H5FL_reg_gc_head.first->list->allocated > 0) {
@@ -1312,7 +1312,7 @@ H5FL__blk_term(void)
         tmp = H5FL_blk_gc_head.first->next;
 
 #ifdef H5FL_DEBUG
-printf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_blk_gc_head.first->pq->name, (int)H5FL_blk_gc_head.first->pq->allocated);
+HDprintf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_blk_gc_head.first->pq->name, (int)H5FL_blk_gc_head.first->pq->allocated);
 #endif /* H5FL_DEBUG */
 
         /* Check if the list has allocations outstanding */
@@ -1780,7 +1780,7 @@ H5FL__arr_term(void)
 
         /* Check if the list has allocations outstanding */
 #ifdef H5FL_DEBUG
-printf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_arr_gc_head.first->list->name, (int)H5FL_arr_gc_head.first->list->allocated);
+HDprintf("%s: head->name = %s, head->allocated = %d\n", FUNC, H5FL_arr_gc_head.first->list->name, (int)H5FL_arr_gc_head.first->list->allocated);
 #endif /* H5FL_DEBUG */
         if(H5FL_arr_gc_head.first->list->allocated > 0) {
             /* Add free list to the list of nodes with allocations open still */
@@ -2408,7 +2408,7 @@ H5FL__fac_term_all(void)
         tmp = H5FL_fac_gc_head.first->next;
 
 #ifdef H5FL_DEBUG
-printf("%s: head->size = %d, head->allocated = %d\n", FUNC, (int)H5FL_fac_gc_head.first->list->size, (int)H5FL_fac_gc_head.first->list->allocated);
+HDprintf("%s: head->size = %d, head->allocated = %d\n", FUNC, (int)H5FL_fac_gc_head.first->list->size, (int)H5FL_fac_gc_head.first->list->allocated);
 #endif /* H5FL_DEBUG */
 
         /* The list cannot have any allocations outstanding */

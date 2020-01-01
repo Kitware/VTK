@@ -692,8 +692,7 @@ H5HF_sect_single_dblock_info(H5HF_hdr_t *hdr, const H5HF_free_section_t *sect,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF__sect_single_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect,
-    size_t amt)
+H5HF__sect_single_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect, size_t amt)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -2094,8 +2093,7 @@ H5HF__sect_row_valid(const H5FS_section_class_t *cls, const H5FS_section_info_t 
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HF__sect_row_debug(const H5FS_section_info_t *_sect,
-    FILE *stream, int indent, int fwidth)
+H5HF__sect_row_debug(const H5FS_section_info_t *_sect, FILE *stream, int indent, int fwidth)
 {
     const H5HF_free_section_t *sect = (const H5HF_free_section_t *)_sect;       /* Section to dump info */
 
@@ -2666,8 +2664,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF__sect_indirect_add(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock,
-    unsigned start_entry, unsigned nentries)
+H5HF__sect_indirect_add(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock, unsigned start_entry, unsigned nentries)
 {
     H5HF_free_section_t *sect = NULL;   /* 'Indirect' free space section to add */
     H5HF_free_section_t *first_row_sect = NULL;   /* First row section in new indirect section */
@@ -2841,8 +2838,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HF__sect_indirect_revive(H5HF_hdr_t *hdr, H5HF_free_section_t *sect,
-    H5HF_indirect_t *sect_iblock)
+H5HF__sect_indirect_revive(H5HF_hdr_t *hdr, H5HF_free_section_t *sect, H5HF_indirect_t *sect_iblock)
 {
     unsigned u;                         /* Local index variable */
     herr_t ret_value = SUCCEED;         /* Return value */

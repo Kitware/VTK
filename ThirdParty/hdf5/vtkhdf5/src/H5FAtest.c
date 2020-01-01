@@ -32,11 +32,11 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5FApkg.h"		/* Fixed Arrays				*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5VMprivate.h"         /* Vector functions			*/
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5FApkg.h"        /* Fixed Arrays                */
+#include "H5FLprivate.h"    /* Free Lists                           */
+#include "H5VMprivate.h"         /* Vector functions            */
 
 
 /****************/
@@ -112,7 +112,7 @@ const H5FA_class_t H5FA_CLS_TEST[1]={{
 H5FL_DEFINE_STATIC(H5FA__test_ctx_t);
 
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_crt_context
  *
@@ -147,7 +147,7 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5FA__test_crt_context() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_dst_context
  *
@@ -175,7 +175,7 @@ H5FA__test_dst_context(void *_ctx))
 
 END_FUNC(STATIC)  /* end H5FA__test_dst_context() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_fill
  *
@@ -203,7 +203,7 @@ H5FA__test_fill(void *nat_blk, size_t nelmts))
 
 END_FUNC(STATIC)  /* end H5FA__test_fill() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_encode
  *
@@ -247,7 +247,7 @@ H5FA__test_encode(void *raw, const void *_elmt, size_t nelmts, void H5_ATTR_UNUS
 
 END_FUNC(STATIC)  /* end H5FA__test_encode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_decode
  *
@@ -292,7 +292,7 @@ H5FA__test_decode(const void *_raw, void *_elmt, size_t nelmts, void H5_ATTR_UNU
 
 END_FUNC(STATIC)  /* end H5FA__test_decode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_debug
  *
@@ -318,13 +318,13 @@ H5FA__test_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
     HDassert(elmt);
 
     /* Print element */
-    sprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
+    HDsprintf(temp_str, "Element #%llu:", (unsigned long long)idx);
     HDfprintf(stream, "%*s%-*s %llu\n", indent, "", fwidth, temp_str,
         (unsigned long long)*(const uint64_t *)elmt);
 
 END_FUNC(STATIC)  /* end H5FA__test_debug() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_crt_dbg_context
  *
@@ -359,7 +359,7 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5FA__test_crt_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA_get_cparam_test
  *
@@ -386,7 +386,7 @@ H5FA_get_cparam_test(const H5FA_t *fa, H5FA_create_t *cparam))
 
 END_FUNC(PRIV)  /* end H5FA_get_cparam_test() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA_cmp_cparam_test
  *
