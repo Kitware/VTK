@@ -32,7 +32,7 @@ namespace tao
             static pair_t peek( const Input& in, const std::size_t /*unused*/ ) noexcept
             {
                const char32_t t = R::read( in.current() );
-               if( ( 0 <= t ) && ( t <= 0x10ffff ) && !( t >= 0xd800 && t <= 0xdfff ) ) {
+               if( ( t <= 0x10ffff ) && !( t >= 0xd800 && t <= 0xdfff ) ) {
                   return { t, 4 };
                }
                return { 0, 0 };

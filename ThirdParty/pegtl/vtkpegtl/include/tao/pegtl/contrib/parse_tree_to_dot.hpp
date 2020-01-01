@@ -18,14 +18,73 @@ namespace tao
       {
          namespace internal
          {
+            inline void escape( std::ostream& os, const char* p, const std::size_t s )
+            {
+               static const char* h = "0123456789abcdef";
+
+               const char* l = p;
+               const char* const e = p + s;
+               while( p != e ) {
+                  const unsigned char c = *p;
+                  if( c == '\\' ) {
+                     os.write( l, p - l );
+                     l = ++p;
+                     os << "\\\\";
+                  }
+                  else if( c == '"' ) {
+                     os.write( l, p - l );
+                     l = ++p;
+                     os << "\\\"";
+                  }
+                  else if( c < 32 ) {
+                     os.write( l, p - l );
+                     l = ++p;
+                     switch( c ) {
+                        case '\b':
+                           os << "\\b";
+                           break;
+                        case '\f':
+                           os << "\\f";
+                           break;
+                        case '\n':
+                           os << "\\n";
+                           break;
+                        case '\r':
+                           os << "\\r";
+                           break;
+                        case '\t':
+                           os << "\\t";
+                           break;
+                        default:
+                           os << "\\u00" << h[ ( c & 0xf0 ) >> 4 ] << h[ c & 0x0f ];
+                     }
+                  }
+                  else if( c == 127 ) {
+                     os.write( l, p - l );
+                     l = ++p;
+                     os << "\\u007f";
+                  }
+                  else {
+                     ++p;
+                  }
+               }
+               os.write( l, p - l );
+            }
+
+            inline void escape( std::ostream& os, const std::string& s )
+            {
+               escape( os, s.data(), s.size() );
+            }
+
             void print_dot_node( std::ostream& os, const parse_tree::node& n, const std::string& s )
             {
+               os << "  x" << &n << " [ label=\"";
+               escape( os, s );
                if( n.has_content() ) {
-                  os << "  x" << &n << " [ label=\"" << s << "\\n\\\"" << n.string() << "\\\"\" ]\n";
+                  os << "\\n";
+                  escape( os, n.m_begin.data, n.m_end.data - n.m_begin.data );
                }
-               else {
-                  os << "  x" << &n << " [ label=\"" << s << "\" ]\n";
-               }
+               os << "\" ]\n";
                if( !n.children.empty() ) {
                   os << "  x" << &n << " -> { ";
                   for( auto& up : n.children ) {

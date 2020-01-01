@@ -61,6 +61,7 @@ Each commit is automatically tested with multiple architectures, operating syste
 
   * Visual Studio 2015 (x86, x64)
   * Visual Studio 2017 (x86, x64)
+  * Visual Studio 2019 (x86, x64)
   * MinGW (i686), GCC 5.x
   * MinGW-w64 (i686), GCC 5.x, 6.x
   * MinGW-w64 (x86_64), GCC 6.x
@@ -79,7 +80,7 @@ Each commit is automatically tested with multiple architectures, operating syste
 
 * Ubuntu 16.04 LTS (using libstdc++)
 
-  * GCC 4.8, 4.9, 5.x, 6.x, 7.x, 8.x
+  * GCC 4.8, 4.9, 5.x, 6.x, 7.x, 8.x, 9.x
   * Clang 3.5, 3.6, 3.8, 3.9, 4.x, 5.x, 6.x, 7.x, 8.x
 
 Additionally, each commit is checked with Clang's [Static Analyzer](https://clang-analyzer.llvm.org/), GCC's and Clang's [sanitizers](https://github.com/google/sanitizers), [`clang-tidy`](http://clang.llvm.org/extra/clang-tidy/), and [`valgrind`](http://valgrind.org/).
@@ -89,11 +90,51 @@ Code coverage is automatically measured and the unit tests cover 100% of the cor
 Incompatible API changes are *only* allowed to occur between major versions.
 For details see the [changelog](doc/Changelog.md).
 
-## Contact
+## Thank You
+
+In appreciation of all contributions here are the people that have [directly contributed](https://github.com/taocpp/PEGTL/graphs/contributors) to the PEGTL and/or its development.
+
+[<img alt="andoma" src="https://avatars2.githubusercontent.com/u/216384?v=4&s=117" width="117">](https://github.com/andoma)
+[<img alt="Bjoe" src="https://avatars3.githubusercontent.com/u/727911?v=4&s=117" width="117">](https://github.com/Bjoe)
+[<img alt="bwagner" src="https://avatars3.githubusercontent.com/u/447049?v=4&s=117" width="117">](https://github.com/bwagner)
+[<img alt="cdiggins" src="https://avatars2.githubusercontent.com/u/1759994?s=460&v=4?v=4&s=117" width="117">](https://github.com/cdiggins)
+[<img alt="delpinux" src="https://avatars0.githubusercontent.com/u/35096584?v=4&s=117" width="117">](https://github.com/delpinux)
+[<img alt="dkopecek" src="https://avatars2.githubusercontent.com/u/1353140?v=4&s=117" width="117">](https://github.com/dkopecek)
+[<img alt="irrequietus" src="https://avatars0.githubusercontent.com/u/231192?v=4&s=117" width="117">](https://github.com/irrequietus)
+[<img alt="jedelbo" src="https://avatars2.githubusercontent.com/u/572755?v=4&s=117" width="117">](https://github.com/jedelbo)
+[<img alt="joelfrederico" src="https://avatars0.githubusercontent.com/u/458871?v=4&s=117" width="117">](https://github.com/joelfrederico)
+[<img alt="johelegp" src="https://avatars3.githubusercontent.com/u/21071787?v=4&s=117" width="117">](https://github.com/johelegp)
+[<img alt="jovermann" src="https://avatars3.githubusercontent.com/u/6087443?v=4&s=117" width="117">](https://github.com/jovermann)
+[<img alt="kneth" src="https://avatars0.githubusercontent.com/u/1225363?v=4&s=117" width="117">](https://github.com/kneth)
+[<img alt="kuzmas" src="https://avatars1.githubusercontent.com/u/1858553?v=4&s=117" width="117">](https://github.com/kuzmas)
+[<img alt="lambdafu" src="https://avatars1.githubusercontent.com/u/1138455?v=4&s=117" width="117">](https://github.com/lambdafu)
+[<img alt="lichray" src="https://avatars2.githubusercontent.com/u/433009?v=4&s=117" width="117">](https://github.com/lichray)
+[<img alt="michael-brade" src="https://avatars0.githubusercontent.com/u/8768950?v=4&s=117" width="117">](https://github.com/michael-brade)
+[<img alt="mkrupcale" src="https://avatars1.githubusercontent.com/u/13936020?v=4&s=117" width="117">](https://github.com/mkrupcale)
+[<img alt="NewProggie" src="https://avatars3.githubusercontent.com/u/162319?s=460&v=4?v=4&s=117" width="117">](https://github.com/NewProggie)
+[<img alt="ohanar" src="https://avatars0.githubusercontent.com/u/1442822?v=4&s=117" width="117">](https://github.com/ohanar)
+[<img alt="pauloscustodio" src="https://avatars1.githubusercontent.com/u/70773?v=4&s=117" width="117">](https://github.com/pauloscustodio)
+[<img alt="pleroux0" src="https://avatars2.githubusercontent.com/u/39619854?v=4&s=117" width="117">](https://github.com/pleroux0)
+[<img alt="quadfault" src="https://avatars3.githubusercontent.com/u/30195320?v=4&s=117" width="117">](https://github.com/quadfault)
+[<img alt="robertcampion" src="https://avatars2.githubusercontent.com/u/4220569?v=4&s=117" width="117">](https://github.com/robertcampion)
+[<img alt="samhocevar" src="https://avatars2.githubusercontent.com/u/245089?v=4&s=117" width="117">](https://github.com/samhocevar)
+[<img alt="sanssecours" src="https://avatars2.githubusercontent.com/u/691989?v=4&s=117" width="117">](https://github.com/sanssecours)
+[<img alt="sgbeal" src="https://avatars1.githubusercontent.com/u/235303?v=4&s=117" width="117">](https://github.com/sgbeal)
+[<img alt="studoot" src="https://avatars1.githubusercontent.com/u/799344?v=4&s=117" width="117">](https://github.com/studoot)
+[<img alt="SvenJo" src="https://avatars1.githubusercontent.com/u/1538181?s=460&v=4?v=4&s=117" width="117">](https://github.com/SvenJo)
+[<img alt="wickedmic" src="https://avatars1.githubusercontent.com/u/12001183?v=4&s=117" width="117">](https://github.com/wickedmic)
+[<img alt="wravery" src="https://avatars0.githubusercontent.com/u/6502881?v=4&s=117" width="117">](https://github.com/wravery)
+[<img alt="zhihaoy" src="https://avatars2.githubusercontent.com/u/43971430?v=4&s=117" width="117">](https://github.com/zhihaoy)
+
+## The Art of C++
 
 The PEGTL is part of [The Art of C++](https://taocpp.github.io/).
 
-We [are grateful](doc/Thank-You.md) for all support and contributions.
+[<img alt="ColinH" src="https://avatars0.githubusercontent.com/u/113184?v=4&s=117" width="117">](https://github.com/ColinH)
+[<img alt="d-frey" src="https://avatars2.githubusercontent.com/u/3956325?v=4&s=117" width="117">](https://github.com/d-frey)
+[<img alt="uilianries" src="https://avatars0.githubusercontent.com/u/4870173?v=4&s=117" width="117">](https://github.com/uilianries)
+
+## Contact
 
 For questions and suggestions regarding the PEGTL, success or failure stories, and any other kind of feedback, please feel free to open an issue or a PR on GitHub or contact the authors at `taocpp(at)icemx.net`.
 

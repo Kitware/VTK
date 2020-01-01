@@ -28,7 +28,7 @@ namespace tao
                    typename... States >
          static bool match( Input& in, States&&... st )
          {
-            const bool result = TAO_PEGTL_NAMESPACE::match< Rule, apply_mode::nothing, M, Action, Control >( in, st... );
+            const bool result = TAO_PEGTL_NAMESPACE::match< Rule, A, M, Action, Control >( in, st... );
             if( !result ) {
                in.discard();
             }
