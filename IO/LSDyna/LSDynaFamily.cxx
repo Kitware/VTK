@@ -34,8 +34,9 @@ namespace
 {
 // Decide which of 3 stat varieties to use: stat, stat64, __stat64
 // Usually stat uses 32 bit fields, and stat64 (with underscores in Windows) uses 64 bit fields.
-// But on OS X and FreeBSD, stat uses 64 bit fields these days.
-#if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) && !defined(__FreeBSD__)
+// But on the BSDs, stat uses 64 bit fields these days.
+#if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) &&                         \
+  !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 #ifndef _WIN32
 #define USE_STAT_64
 #else
